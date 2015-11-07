@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: org.mortbay.jetty:jetty-util:6.1.26">
+    <CLASSES>
+      <root url="jar://D:/Programs/apache-maven-3.2.5/local-repo/org/mortbay/jetty/jetty-util/6.1.26/jetty-util-6.1.26.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://D:/Programs/apache-maven-3.2.5/local-repo/org/mortbay/jetty/jetty-util/6.1.26/jetty-util-6.1.26-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://D:/Programs/apache-maven-3.2.5/local-repo/org/mortbay/jetty/jetty-util/6.1.26/jetty-util-6.1.26-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

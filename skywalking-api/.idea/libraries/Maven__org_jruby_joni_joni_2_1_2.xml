@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: org.jruby.joni:joni:2.1.2">
+    <CLASSES>
+      <root url="jar://D:/Programs/apache-maven-3.2.5/local-repo/org/jruby/joni/joni/2.1.2/joni-2.1.2.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://D:/Programs/apache-maven-3.2.5/local-repo/org/jruby/joni/joni/2.1.2/joni-2.1.2-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://D:/Programs/apache-maven-3.2.5/local-repo/org/jruby/joni/joni/2.1.2/joni-2.1.2-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: xmlenc:xmlenc:0.52">
+    <CLASSES>
+      <root url="jar://D:/Programs/apache-maven-3.2.5/local-repo/xmlenc/xmlenc/0.52/xmlenc-0.52.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://D:/Programs/apache-maven-3.2.5/local-repo/xmlenc/xmlenc/0.52/xmlenc-0.52-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://D:/Programs/apache-maven-3.2.5/local-repo/xmlenc/xmlenc/0.52/xmlenc-0.52-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

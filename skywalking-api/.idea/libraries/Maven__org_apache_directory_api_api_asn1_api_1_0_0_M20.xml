@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: org.apache.directory.api:api-asn1-api:1.0.0-M20">
+    <CLASSES>
+      <root url="jar://D:/Programs/apache-maven-3.2.5/local-repo/org/apache/directory/api/api-asn1-api/1.0.0-M20/api-asn1-api-1.0.0-M20.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://D:/Programs/apache-maven-3.2.5/local-repo/org/apache/directory/api/api-asn1-api/1.0.0-M20/api-asn1-api-1.0.0-M20-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://D:/Programs/apache-maven-3.2.5/local-repo/org/apache/directory/api/api-asn1-api/1.0.0-M20/api-asn1-api-1.0.0-M20-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

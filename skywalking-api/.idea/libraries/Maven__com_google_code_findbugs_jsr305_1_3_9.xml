@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: com.google.code.findbugs:jsr305:1.3.9">
+    <CLASSES>
+      <root url="jar://D:/Programs/apache-maven-3.2.5/local-repo/com/google/code/findbugs/jsr305/1.3.9/jsr305-1.3.9.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://D:/Programs/apache-maven-3.2.5/local-repo/com/google/code/findbugs/jsr305/1.3.9/jsr305-1.3.9-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://D:/Programs/apache-maven-3.2.5/local-repo/com/google/code/findbugs/jsr305/1.3.9/jsr305-1.3.9-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

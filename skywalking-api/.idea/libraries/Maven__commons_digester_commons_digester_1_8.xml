@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: commons-digester:commons-digester:1.8">
+    <CLASSES>
+      <root url="jar://D:/Programs/apache-maven-3.2.5/local-repo/commons-digester/commons-digester/1.8/commons-digester-1.8.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://D:/Programs/apache-maven-3.2.5/local-repo/commons-digester/commons-digester/1.8/commons-digester-1.8-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://D:/Programs/apache-maven-3.2.5/local-repo/commons-digester/commons-digester/1.8/commons-digester-1.8-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

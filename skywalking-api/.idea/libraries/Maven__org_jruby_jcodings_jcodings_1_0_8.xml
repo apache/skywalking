@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: org.jruby.jcodings:jcodings:1.0.8">
+    <CLASSES>
+      <root url="jar://D:/Programs/apache-maven-3.2.5/local-repo/org/jruby/jcodings/jcodings/1.0.8/jcodings-1.0.8.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://D:/Programs/apache-maven-3.2.5/local-repo/org/jruby/jcodings/jcodings/1.0.8/jcodings-1.0.8-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://D:/Programs/apache-maven-3.2.5/local-repo/org/jruby/jcodings/jcodings/1.0.8/jcodings-1.0.8-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
