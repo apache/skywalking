@@ -13,27 +13,6 @@ public class ConfigInitializer {
     public static Logger logger = LogManager.getLogger(ConfigInitializer.class);
 
     public static void initialize(Properties properties, Class<?> rootConfigType) throws IllegalAccessException {
-        for (Class innerConfiguration : rootConfigType.getClasses()) {
-            for (Field field : innerConfiguration.getFields()) {
-                if (9 != field.getModifiers())
-                    continue;
-                String configKey = (innerConfiguration.getSimpleName() + "." +
-                        field.getName()).toLowerCase();
-                String value = properties.getProperty(configKey);
-                if (value != null) {
-                    if (field.getType().equals(int.class))
-                        field.set(null, Integer.valueOf(value));
-                    if (field.getType().equals(String.class))
-                        field.set(null, value);
-                    if (field.getType().equals(long.class))
-                        field.set(null, Long.valueOf(value));
-                }
-                logger.debug("{}={}", configKey, value);
-            }
-        }
-    }
-
-    public static void initialize2(Properties properties, Class<?> rootConfigType) throws IllegalAccessException {
         initNextLevel(properties, rootConfigType, new ConfigDesc());
     }
 
