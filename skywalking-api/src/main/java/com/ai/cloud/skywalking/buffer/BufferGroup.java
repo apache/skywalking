@@ -18,13 +18,17 @@ public class BufferGroup {
 
     public BufferGroup(String groupName) {
         this.groupName = groupName;
-        int k = 0, l;
-        for (int i = 0; i < MAX_WORKER; i++) {
-            l = GROUP_MAX_SIZE / MAX_WORKER + k;
-            if (l + GROUP_MAX_SIZE / MAX_WORKER > GROUP_MAX_SIZE)
-                l = GROUP_MAX_SIZE;
-            new ConsumerWorker(k, l).start();
-            k = l;
+
+        int step = (int) Math.ceil(GROUP_MAX_SIZE * 1.0 / MAX_WORKER);
+        int start = 0, end = 0;
+        while (true) {
+            if (end + step >= GROUP_MAX_SIZE){
+                new ConsumerWorker(start, GROUP_MAX_SIZE).start();
+                break;
+            }
+            end += step;
+            new ConsumerWorker(start, end).start();
+            start = end;
         }
     }
 
