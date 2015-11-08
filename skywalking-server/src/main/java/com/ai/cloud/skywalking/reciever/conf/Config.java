@@ -48,6 +48,9 @@ public class Config {
 
         // 处理文件完成之后，等待时间
         public static long SWITCH_FILE_WAIT_TIME = 5000L;
+
+        // 追加EOF标志位的线程数量
+        public static final int MAX_APPEND_EOF_FLAGS_THREAD_NUMBER = 11;
     }
 
     public static class RegisterPersistence {
