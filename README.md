@@ -1,4 +1,4 @@
-# sky-walking
+# Sky Walking
 Distributed Application Tracing System
 
 # Home Page
