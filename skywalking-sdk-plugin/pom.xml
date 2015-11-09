@@ -5,7 +5,10 @@
   <groupId>com.ai.cloud</groupId>
   <artifactId>skywalking-sdk-plugin</artifactId>
   <version>1.0-SNAPSHOT</version>
-  <packaging>jar</packaging>
+  <modules>
+    <module>../skywalking-api/skywalking-sdk-plugin</module>
+  </modules>
+  <packaging>pom</packaging>
 
   <name>skywalking-sdk-plugin</name>
   <url>http://maven.apache.org</url>
