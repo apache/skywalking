@@ -26,7 +26,7 @@ public class SenderTest {
     @Parameterized.Parameters
     public static Collection<Integer[]> getParams() {
         return Arrays.asList(new Integer[][]{
-                {10, 1000, 1, 1, 1, 1},
+                {10, 100, 1, 1, 1, 1},
         });
     }
 

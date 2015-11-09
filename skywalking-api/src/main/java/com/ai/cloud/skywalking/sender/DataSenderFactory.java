@@ -16,8 +16,8 @@ public class DataSenderFactory {
     private static List<DataSender> availableSenders = new ArrayList<DataSender>();
 
     static {
-        socketAddresses.add(new InetSocketAddress("127.0.0.1", 34000));
-        socketAddresses.add(new InetSocketAddress("127.0.0.1", 35000));
+        socketAddresses.add(new InetSocketAddress("10.1.235.197", 34000));
+        socketAddresses.add(new InetSocketAddress("10.1.235.197", 35000));
         new DataSenderMaker().start();
     }
 
