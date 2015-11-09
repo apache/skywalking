@@ -13,11 +13,6 @@ import java.io.IOException;
  */
 public class PersistenceThreadTest {
 
-    @Test
-    public void testDealDataFile() throws InterruptedException {
-        new PersistenceThread().start();
-        Thread.sleep(500000L);
-    }
 
     @Test
     public void test() {
