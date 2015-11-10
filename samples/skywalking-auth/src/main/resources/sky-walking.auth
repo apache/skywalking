@@ -11,4 +11,4 @@ sender.max_buffer_data_size=1000
 #最大发送者的连接数阀比例
 sender.send_connection_threshold=1
 #发送服务端配置
-#sender.sender_servers=127.0.0.1:34000
+sender.sender_servers=127.0.0.1:34000
