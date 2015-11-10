@@ -145,7 +145,7 @@ public class TracingEnhanceProcessor implements BeanPostProcessor {
         result.append("(");
         int index = 0;
         for (Class param : method.getParameterTypes()) {
-            result.append(param.getSimpleName() + " " + param.getSimpleName().
+            result.append(param.getName() + " " + param.getSimpleName().
                     toLowerCase() + "$" + (index++) + ",");
         }
         if (method.getGenericParameterTypes().length > 0) {
@@ -156,7 +156,7 @@ public class TracingEnhanceProcessor implements BeanPostProcessor {
     }
 
     private String generateMethodHead(Method method) {
-        return "public " + method.getReturnType().getSimpleName() + " " + method.getName();
+        return "public " + method.getReturnType().getName() + " " + method.getName();
     }
 
     private CtClass createProxyClass(Object bean, ClassPool mPool) {
