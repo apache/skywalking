@@ -1,7 +1,7 @@
 package com.ai.cloud.skywalking.plugin.spring;
 
 import com.ai.cloud.skywalking.buriedpoint.LocalBuriedPointSender;
-import com.ai.cloud.skywalking.model.SendData;
+import com.ai.cloud.skywalking.model.Identification;
 import javassist.*;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -49,12 +49,12 @@ public class TracingEnhanceProcessor implements BeanPostProcessor {
                     // TODO 参数注解
                     mCtc.addMethod(CtMethod.make(result.toString(), mCtc));
                 }
-                mCtc.addConstructor(CtNewConstructor.make("public " + bean.getClass().getSimpleName() + "Proxy(" + LocalBuriedPointSender.class
+                mCtc.addConstructor(CtNewConstructor.make("public " + mCtc.getSimpleName() + "(" + LocalBuriedPointSender.class
                         .getName() + " buriedPoint, " + bean.getClass().getName() + " realBean){" +
                         "this.buriedPoint = buriedPoint;this.realBean = realBean;}", mCtc));
                 mCtc.addConstructor(CtNewConstructor.defaultConstructor(mCtc));
-                Class classes = mCtc.toClass();
-                Constructor constructor = classes.getConstructor(LocalBuriedPointSender.class, bean.getClass());
+                Class<?> classes = mCtc.toClass();
+                Constructor<?> constructor = classes.getConstructor(LocalBuriedPointSender.class, bean.getClass());
                 return constructor.newInstance(new LocalBuriedPointSender(), bean);
             } catch (CannotCompileException e) {
                 e.printStackTrace();
@@ -94,10 +94,10 @@ public class TracingEnhanceProcessor implements BeanPostProcessor {
     }
 
     private String generateBeforeSendParamter(Object bean, Method method) {
-        StringBuilder builder = new StringBuilder("(" + SendData.class.getName() + ".newBuilder().viewPoint(\""
+        StringBuilder builder = new StringBuilder("(" + Identification.class.getName() + ".newBuilder().viewPoint(\""
                 + bean.getClass().getName() + "." + method.getName());
         builder.append("(");
-        for (Class param : method.getParameterTypes()) {
+        for (Class<?> param : method.getParameterTypes()) {
             builder.append(param.getSimpleName() + ",");
         }
         if (method.getGenericParameterTypes().length > 0) {
@@ -113,7 +113,7 @@ public class TracingEnhanceProcessor implements BeanPostProcessor {
         int index;
         result.append("(");
         index = 0;
-        for (Class parameter : method.getParameterTypes()) {
+        for (Class<?> parameter : method.getParameterTypes()) {
             result.append(parameter.getSimpleName().toLowerCase() + "$" + (index++) + ",");
         }
         if (method.getParameterTypes().length > 0) {
@@ -129,7 +129,7 @@ public class TracingEnhanceProcessor implements BeanPostProcessor {
 
     private String generateException(Method method) {
         StringBuilder resultB = new StringBuilder(" throws ");
-        for (Class exceptionClasses : method.getExceptionTypes()) {
+        for (Class<?> exceptionClasses : method.getExceptionTypes()) {
             resultB.append(exceptionClasses.getName() + ",");
         }
         if (method.getExceptionTypes().length > 0) {
@@ -144,7 +144,7 @@ public class TracingEnhanceProcessor implements BeanPostProcessor {
         StringBuilder result = new StringBuilder();
         result.append("(");
         int index = 0;
-        for (Class param : method.getParameterTypes()) {
+        for (Class<?> param : method.getParameterTypes()) {
             result.append(param.getName() + " " + param.getSimpleName().
                     toLowerCase() + "$" + (index++) + ",");
         }
@@ -160,11 +160,11 @@ public class TracingEnhanceProcessor implements BeanPostProcessor {
     }
 
     private CtClass createProxyClass(Object bean, ClassPool mPool) {
-        return mPool.makeClass(bean.getClass().getSimpleName() + "Proxy$" + ThreadLocalRandom.current().nextInt(100));
+        return mPool.makeClass(bean.getClass().getSimpleName() + "$EnhanceBySWTracing$" + ThreadLocalRandom.current().nextInt(100));
     }
 
     private void inheritanceAllInterfaces(Object bean, ClassPool mPool, CtClass mCtc) throws NotFoundException {
-        for (Class classes : bean.getClass().getInterfaces()) {
+        for (Class<?> classes : bean.getClass().getInterfaces()) {
             mCtc.addInterface(mPool.get(classes.getClass().getName()));
         }
     }

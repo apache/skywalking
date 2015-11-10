@@ -3,7 +3,7 @@ package com.ai.cloud.skywalking.util;
 import com.ai.cloud.skywalking.context.Context;
 import com.ai.cloud.skywalking.context.Span;
 import com.ai.cloud.skywalking.model.ContextData;
-import com.ai.cloud.skywalking.model.SendData;
+import com.ai.cloud.skywalking.model.Identification;
 
 public final class ContextGenerator {
     /**
@@ -12,7 +12,7 @@ public final class ContextGenerator {
      * @param sendData 视点，业务数据等信息
      * @return
      */
-    public static Span generateContextFromThreadLocal(SendData sendData) {
+    public static Span generateContextFromThreadLocal(Identification sendData) {
         Span spanData = getContextFromThreadLocal();
         // 设置基本属性
         spanData.setStartDate(System.currentTimeMillis());

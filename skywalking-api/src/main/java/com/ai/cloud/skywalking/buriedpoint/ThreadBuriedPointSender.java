@@ -5,7 +5,7 @@ import com.ai.cloud.skywalking.buffer.ContextBuffer;
 import com.ai.cloud.skywalking.context.Context;
 import com.ai.cloud.skywalking.context.Span;
 import com.ai.cloud.skywalking.model.ContextData;
-import com.ai.cloud.skywalking.model.SendData;
+import com.ai.cloud.skywalking.model.Identification;
 import com.ai.cloud.skywalking.util.BuriedPointMachineUtil;
 import com.ai.cloud.skywalking.util.ExceptionHandleUtil;
 import com.ai.cloud.skywalking.util.TraceIdGenerator;
@@ -29,12 +29,12 @@ public class ThreadBuriedPointSender implements IBuriedPointSender {
         this.span = spanData;
     }
 
-    public ContextData beforeSend(SendData sendData) {
+    public ContextData beforeSend(Identification id) {
         if (this.span == null) {
             return null;
         }
         span.setStartDate(System.currentTimeMillis());
-        span.setViewPointId(sendData.getViewPoint());
+        span.setViewPointId(id.getViewPoint());
         span.setProcessNo(BuriedPointMachineUtil.getProcessNo());
         Context.getOrCreate().append(span);
         return new ContextData(span);

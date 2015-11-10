@@ -5,14 +5,14 @@ import com.ai.cloud.skywalking.buffer.ContextBuffer;
 import com.ai.cloud.skywalking.context.Context;
 import com.ai.cloud.skywalking.context.Span;
 import com.ai.cloud.skywalking.model.ContextData;
-import com.ai.cloud.skywalking.model.SendData;
+import com.ai.cloud.skywalking.model.Identification;
 import com.ai.cloud.skywalking.util.ContextGenerator;
 import com.ai.cloud.skywalking.util.ExceptionHandleUtil;
 
 public class LocalBuriedPointSender implements IBuriedPointSender {
 
-    public ContextData beforeSend(SendData sendData) {
-        Span spanData = ContextGenerator.generateContextFromThreadLocal(sendData);
+    public ContextData beforeSend(Identification id) {
+        Span spanData = ContextGenerator.generateContextFromThreadLocal(id);
         // 3.将新创建的Context存放到ThreadLocal栈中。
         Context.getOrCreate().append(spanData);
         // 4 并将当前的Context返回回去
