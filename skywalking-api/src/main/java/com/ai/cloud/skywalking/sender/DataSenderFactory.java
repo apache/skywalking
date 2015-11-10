@@ -1,5 +1,8 @@
 package com.ai.cloud.skywalking.sender;
 
+import com.ai.cloud.skywalking.conf.Config;
+import com.ai.cloud.skywalking.util.StringUtil;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -8,6 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static com.ai.cloud.skywalking.conf.Config.Sender.SEND_CONNECTION_THRESHOLD;
 
 public class DataSenderFactory {
 
@@ -16,23 +20,40 @@ public class DataSenderFactory {
     private static List<DataSender> availableSenders = new ArrayList<DataSender>();
 
     static {
-        socketAddresses.add(new InetSocketAddress("10.1.235.197", 34000));
-        socketAddresses.add(new InetSocketAddress("10.1.235.197", 35000));
+        try {
+            if (StringUtil.isEmpty(Config.Sender.SENDER_SERVERS)) {
+                throw new IllegalArgumentException("Collection service configuration error.");
+            }
+
+            for (String serverConfig : Config.Sender.SENDER_SERVERS.split(";")) {
+                String[] server = serverConfig.split(":");
+                if (server.length != 2)
+                    throw new IllegalArgumentException("Collection service configuration error.");
+                socketAddresses.add(new InetSocketAddress(server[0], Integer.valueOf(server[1])));
+            }
+        } catch (Exception e) {
+            System.err.print("Collection service configuration error.");
+            System.exit(-1);
+        }
+
         new DataSenderMaker().start();
     }
 
     public static DataSender getSender() {
-        return availableSenders.get(ThreadLocalRandom.current().nextInt(availableSenders.size()));
+        return availableSenders.get(ThreadLocalRandom.current().nextInt(0, availableSenders.size()));
     }
 
     static class DataSenderMaker extends Thread {
+
+        private int avaiableSize = (int) Math.ceil(socketAddresses.size() * 1.0 / SEND_CONNECTION_THRESHOLD);
 
         public DataSenderMaker() {
             // 初始化DataSender
             Iterator<SocketAddress> it = socketAddresses.iterator();
             List<SocketAddress> usedSocketAddress = new ArrayList<SocketAddress>();
+
             for (SocketAddress socketAddress : socketAddresses) {
-                if (availableSenders.size() >= socketAddresses.size() / 2) {
+                if (availableSenders.size() >= avaiableSize) {
                     break;
                 }
                 try {
@@ -51,7 +72,7 @@ public class DataSenderFactory {
             while (true) {
                 //当可用的Sender的数量和保存的地址的比例不在1:2,则不创建
                 for (SocketAddress socketAddress : unUsedSocketAddresses) {
-                    if (availableSenders.size() >= socketAddresses.size() / 2) {
+                    if (availableSenders.size() >= avaiableSize) {
                         break;
                     }
                     try {

@@ -21,13 +21,9 @@ public class SpanBufferTest {
     private int sizeCount = 0;
     private String fileName = "d:\\test-data.txt";
 
-    public SpanBufferTest(int threadSize, int sizeCount, int poolSize, int groupSize, int workerSize) {
+    public SpanBufferTest(int threadSize, int sizeCount) {
         this.threadSize = threadSize;
         this.sizeCount = sizeCount;
-        BufferGroup.count = new CountDownLatch(threadSize * sizeCount);
-        BufferConfig.MAX_WORKER = workerSize;
-        BufferConfig.GROUP_MAX_SIZE = groupSize;
-        BufferConfig.POOL_MAX_SIZE = poolSize;
     }
 
     public int getThreadSize() {
@@ -41,7 +37,7 @@ public class SpanBufferTest {
     @Parameterized.Parameters
     public static Collection<Integer[]> getParams() {
         return Arrays.asList(new Integer[][]{
-                {2000, 100000, 5, 30000, 3},
+                {2000, 10},
 //                {2000, 100000, 5, 27000, 3},
 //                {2000, 100000, 5, 24000, 3},
 //                {2000, 100000, 5, 20000, 2},
@@ -69,9 +65,7 @@ public class SpanBufferTest {
             new ContextBufferThread(countDownLatch, sizeCount).start();
         }
         countDownLatch.await();
-        long end = System.currentTimeMillis() - start;
         CountDownLatch countDownLatchA = new CountDownLatch(threadSize);
-        start = System.currentTimeMillis();
         sleepTime = 1000;
         for (int i = 0; i < threadSize; i++) {
             if (i % 100 == 0) {
@@ -84,33 +78,5 @@ public class SpanBufferTest {
             new ContextBufferThreadA(countDownLatchA, sizeCount).start();
         }
         countDownLatchA.await();
-        long endA = System.currentTimeMillis() - start;
-        System.out.print("执行完毕!");
-        StringBuilder builder = new StringBuilder();
-        builder.append(threadSize + "\t");
-        builder.append(sizeCount + "\t");
-        builder.append(BufferConfig.MAX_WORKER + "\t");
-        builder.append(BufferConfig.GROUP_MAX_SIZE + "\t");
-        builder.append(BufferConfig.POOL_MAX_SIZE + "\t");
-        builder.append("1 ms/1\t");
-        builder.append((sizeCount * threadSize * 1.0 * 1000) / (end) + "\t");
-        builder.append(((end - endA) * 1.0 / end) + "\t");
-        builder.append(BufferGroup.count.getCount() + "\t" + (BufferGroup.count.getCount() == 0) + "\t\n");
-        appendMethodA(fileName, builder.toString());
-        System.out.println("结果输出成功");
-        assertEquals(1, 1);
-    }
-
-
-    private void appendMethodA(String fileName, String content) {
-        try {
-            RandomAccessFile randomFile = new RandomAccessFile(fileName, "rw");
-            long fileLength = randomFile.length();
-            randomFile.seek(fileLength);
-            randomFile.writeBytes(content);
-            randomFile.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 }

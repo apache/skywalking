@@ -5,7 +5,7 @@ public class SendData {
     private String URI;
     private String businessKey;
 
-    private SendData() {
+    public SendData() {
         //Non
     }
 
@@ -21,14 +21,14 @@ public class SendData {
         return businessKey;
     }
 
-    public static BaseSendDataBuilder newBuilder() {
-        return new BaseSendDataBuilder();
+    public static SendDataBuilder newBuilder() {
+        return new SendDataBuilder();
     }
 
-    public static class BaseSendDataBuilder {
+    public static class SendDataBuilder {
         private SendData sendData;
 
-        BaseSendDataBuilder() {
+        SendDataBuilder() {
             sendData = new SendData();
         }
 
@@ -36,17 +36,17 @@ public class SendData {
             return sendData;
         }
 
-        public BaseSendDataBuilder viewPoint(String viewPoint) {
+        public SendDataBuilder viewPoint(String viewPoint) {
             sendData.viewPoint = viewPoint;
             return this;
         }
 
-        public BaseSendDataBuilder URI(String uri) {
+        public SendDataBuilder URI(String uri) {
             sendData.URI = uri;
             return this;
         }
 
-        public BaseSendDataBuilder businessKey(String businessKey) {
+        public SendDataBuilder businessKey(String businessKey) {
             sendData.businessKey = businessKey;
             return this;
         }

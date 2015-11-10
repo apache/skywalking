@@ -1,6 +1,5 @@
 package com.ai.cloud.skywalking.sender;
 
-import com.ai.cloud.skywalking.buffer.config.BufferConfig;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -14,19 +13,15 @@ public class SenderTest {
     private int countSize;
     private int threadSize;
 
-    public SenderTest(int threadSize, int countSize, int poolSize, int groupSize, int workerSize, int sendSize) {
+    public SenderTest(int threadSize, int countSize) {
         this.threadSize = threadSize;
         this.countSize = countSize;
-        BufferConfig.MAX_WORKER = workerSize;
-        BufferConfig.GROUP_MAX_SIZE = groupSize;
-        BufferConfig.POOL_MAX_SIZE = poolSize;
-        BufferConfig.SEND_MAX_SIZE = sendSize;
     }
 
     @Parameterized.Parameters
     public static Collection<Integer[]> getParams() {
         return Arrays.asList(new Integer[][]{
-                {10, 100, 1, 1, 1, 1},
+                {1, 100},
         });
     }
 

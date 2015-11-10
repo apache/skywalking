@@ -1,0 +1,14 @@
+#最大消费线程数
+consumer.max_consumer=2
+#消费者最大等待时间
+consumer.max_wait_time=5
+#每个Buffer的最大个数
+buffer.buffer_max_size=18000
+#Buffer池的最大长度
+buffer.pool_max_length=5
+#发送的最大条数
+sender.max_buffer_data_size=1000
+#最大发送者的连接数阀比例
+sender.send_connection_threshold=1
+#发送服务端配置
+#sender.sender_servers=127.0.0.1:34000

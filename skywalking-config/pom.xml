@@ -3,14 +3,11 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.ai.cloud</groupId>
-  <artifactId>skywalking-api</artifactId>
+  <artifactId>skywalking-config</artifactId>
   <version>1.0-SNAPSHOT</version>
-  <modules>
-    <module>../skywalking-config</module>
-  </modules>
-  <packaging>pom</packaging>
+  <packaging>jar</packaging>
 
-  <name>skywalking-api</name>
+  <name>skywalking-config</name>
   <url>http://maven.apache.org</url>
 
   <properties>
@@ -21,18 +18,7 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.11</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.ai.cloud</groupId>
-      <artifactId>skywalking-config</artifactId>
-      <version>1.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.poi</groupId>
-      <artifactId>poi</artifactId>
-      <version>3.13</version>
+      <version>3.8.1</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
