@@ -1,5 +1,6 @@
 package com.ai.cloud.skywalking.plugin.spring;
 
+import com.ai.cloud.skywalking.buriedpoint.LocalBuriedPointSender;
 import com.ai.cloud.skywalking.model.SendData;
 import javassist.*;
 import org.springframework.beans.BeansException;
@@ -31,7 +32,7 @@ public class TracingEnhanceProcessor implements BeanPostProcessor {
                 //
                 mCtc.setSuperclass(mPool.get(bean.getClass().getName()));
                 //添加字段
-                mCtc.addField(CtField.make("private " + BuriedPointSender.class.getName() + " buriedPoint;", mCtc));
+                mCtc.addField(CtField.make("private " + LocalBuriedPointSender.class.getName() + " buriedPoint;", mCtc));
                 mCtc.addField(CtField.make("private " + bean.getClass().getName() + " realBean;", mCtc));
                 // 校验方法
                 for (Method method : methods) {
@@ -48,13 +49,13 @@ public class TracingEnhanceProcessor implements BeanPostProcessor {
                     // TODO 参数注解
                     mCtc.addMethod(CtMethod.make(result.toString(), mCtc));
                 }
-                mCtc.addConstructor(CtNewConstructor.make("public " + bean.getClass().getSimpleName() + "Proxy(" + BuriedPointSender.class
+                mCtc.addConstructor(CtNewConstructor.make("public " + bean.getClass().getSimpleName() + "Proxy(" + LocalBuriedPointSender.class
                         .getName() + " buriedPoint, " + bean.getClass().getName() + " realBean){" +
                         "this.buriedPoint = buriedPoint;this.realBean = realBean;}", mCtc));
                 mCtc.addConstructor(CtNewConstructor.defaultConstructor(mCtc));
                 Class classes = mCtc.toClass();
-                Constructor constructor = classes.getConstructor(BuriedPointSender.class, bean.getClass());
-                return constructor.newInstance(new BuriedPointSender(), bean);
+                Constructor constructor = classes.getConstructor(LocalBuriedPointSender.class, bean.getClass());
+                return constructor.newInstance(new LocalBuriedPointSender(), bean);
             } catch (CannotCompileException e) {
                 e.printStackTrace();
             } catch (InstantiationException e) {
