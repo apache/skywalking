@@ -50,7 +50,7 @@ public class Config {
         public static long SWITCH_FILE_WAIT_TIME = 5000L;
 
         // 追加EOF标志位的线程数量
-        public static final int MAX_APPEND_EOF_FLAGS_THREAD_NUMBER = 2;
+        public static int MAX_APPEND_EOF_FLAGS_THREAD_NUMBER = 2;
     }
 
     public static class RegisterPersistence {
