@@ -6,8 +6,7 @@ public class TestBuriedPoint {
 
     public static void main(String[] args) {
         ClassPathXmlApplicationContext classPathXmlApplicationContext = new ClassPathXmlApplicationContext("classpath*:springConfig-common.xml");
-        TestBuriedPointBean testBuriedPointBean = classPathXmlApplicationContext.getBean(TestBuriedPointBean.class);
-        testBuriedPointBean.sayTest();
-        System.out.println(testBuriedPointBean.addStr(1));
+        CallChainA callChainA = classPathXmlApplicationContext.getBean(CallChainA.class);
+        callChainA.doBusiness();
     }
 }

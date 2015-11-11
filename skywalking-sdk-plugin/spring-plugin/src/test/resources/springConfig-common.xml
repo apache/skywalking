@@ -2,17 +2,20 @@
 <beans
         xmlns="http://www.springframework.org/schema/beans"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xmlns:aop="http://www.springframework.org/schema/aop"
         xsi:schemaLocation="http://www.springframework.org/schema/beans
-                    http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
-                    http://www.springframework.org/schema/aop
-                    http://www.springframework.org/schema/aop/spring-aop.xsd">
+                    http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
     <bean id="postProcess1"
           class="com.ai.cloud.skywalking.plugin.spring.TracingEnhanceProcessor">
     </bean>
 
-    <bean id="testBean" class="com.ai.cloud.skywalking.plugin.spring.common.TestBuriedPointBean"/>
-
-    <aop:aspectj-autoproxy/>
+    <bean id="callChainC" class="com.ai.cloud.skywalking.plugin.spring.common.CallChainC"/>
+    <bean id="callChainD" class="com.ai.cloud.skywalking.plugin.spring.common.CallChainD"/>
+    <bean id="callChainB" class="com.ai.cloud.skywalking.plugin.spring.common.CallChainB">
+        <property name="callChainC" ref="callChainC"/>
+    </bean>
+    <bean id="callChainA" class="com.ai.cloud.skywalking.plugin.spring.common.CallChainA">
+        <property name="callChainB" ref="callChainB"/>
+        <property name="callChainD" ref="callChainD"/>
+    </bean>
 </beans>
