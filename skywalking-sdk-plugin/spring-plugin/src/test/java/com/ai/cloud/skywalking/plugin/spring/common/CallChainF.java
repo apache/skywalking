@@ -2,11 +2,10 @@ package com.ai.cloud.skywalking.plugin.spring.common;
 
 import com.ai.cloud.skywalking.plugin.spring.Tracing;
 
-public class CallChainD {
+public class CallChainF {
 
     @Tracing
     public void doBusiness() {
-        System.out.println("three");
+        System.out.println("me too");
     }
-
 }

@@ -5,11 +5,13 @@ import com.ai.cloud.skywalking.plugin.spring.Tracing;
 public class CallChainA {
     private CallChainB callChainB;
     private CallChainD callChainD;
+    private CallChainF callChainF;
 
     @Tracing
     public void doBusiness() {
         callChainB.doBusiness();
         callChainD.doBusiness();
+        callChainF.doBusiness();
     }
 
     public CallChainB getCallChainB() {
@@ -26,5 +28,13 @@ public class CallChainA {
 
     public void setCallChainD(CallChainD callChainD) {
         this.callChainD = callChainD;
+    }
+
+    public CallChainF getCallChainF() {
+        return callChainF;
+    }
+
+    public void setCallChainF(CallChainF callChainF) {
+        this.callChainF = callChainF;
     }
 }
