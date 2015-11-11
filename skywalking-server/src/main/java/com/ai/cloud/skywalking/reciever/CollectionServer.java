@@ -28,7 +28,7 @@ public class CollectionServer {
         ServerSocketChannel serverSocketChannel = initServerSocketChannel();
         DataBufferThread dataBuffer;
         while (selector.select() > 0) {
-            Iterator iterator = selector.selectedKeys().iterator();
+            Iterator<?> iterator = selector.selectedKeys().iterator();
             while (iterator.hasNext()) {
                 SelectionKey key = (SelectionKey) iterator.next();
                 iterator.remove();
@@ -41,14 +41,19 @@ public class CollectionServer {
                         int length = ByteArrayUtil.byteArrayToInt(contextLengthBuffer.array(), 0);
                         if (length > 0) {
                             ByteBuffer contentBuffer = ByteBuffer.allocate(length);
-                            sc.read(contentBuffer);
-                            dataBuffer = DataBufferThreadContainer.getDataBufferThread();
-                            dataBuffer.doCarry(new String(contentBuffer.array()));
+                            try{
+	                            sc.read(contentBuffer);
+	                            dataBuffer = DataBufferThreadContainer.getDataBufferThread();
+	                            dataBuffer.doCarry(new String(contentBuffer.array()));
+                            }finally{
+                            	contentBuffer.flip();
+                            }
                         }
-                        contextLengthBuffer.flip();
                     } catch (IOException e) {
                         logger.error("The remote client disconnect service", e);
                         sc.close();
+                    }finally{
+                    	contextLengthBuffer.flip();
                     }
                 }
             }
