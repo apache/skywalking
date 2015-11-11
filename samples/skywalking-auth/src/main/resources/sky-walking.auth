@@ -1,3 +1,9 @@
+#是否打印数据
+buriedpoint.printf=true
+#发送的最大长度
+sender.max_sender_length=1280
+#服务端的读取步长
+sender.read_step_length=256
 #最大消费线程数
 consumer.max_consumer=2
 #消费者最大等待时间
@@ -10,9 +16,8 @@ buffer.pool_max_length=5
 sender.max_buffer_data_size=1000
 #最大发送者的连接数阀比例
 sender.send_connection_threshold=1
-#是否打印数据
-buriedpoint.printf=true
 #是否开启发送消息
-sender.off=true
+sender.off=false
 #发送服务端配置
+#sender.sender_servers=192.168.1.114:34000
 sender.sender_servers=127.0.0.1:34000
