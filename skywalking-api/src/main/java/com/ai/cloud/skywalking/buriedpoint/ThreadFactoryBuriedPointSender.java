@@ -2,6 +2,7 @@ package com.ai.cloud.skywalking.buriedpoint;
 
 import com.ai.cloud.skywalking.api.IBuriedPointSender;
 import com.ai.cloud.skywalking.buffer.ContextBuffer;
+import com.ai.cloud.skywalking.conf.Config;
 import com.ai.cloud.skywalking.context.Context;
 import com.ai.cloud.skywalking.context.Span;
 import com.ai.cloud.skywalking.model.ContextData;
@@ -27,8 +28,14 @@ public class ThreadFactoryBuriedPointSender implements IBuriedPointSender {
         }
         // 填上必要信息
         spanData.setCost(System.currentTimeMillis() - spanData.getStartDate());
+        if (Config.BuriedPoint.PRINTF) {
+            System.out.println("viewpointId:" + spanData.getViewPointId() + "\tParentLevelId:" + spanData.
+                    getParentLevel() + "\tLevelId:" + spanData.getLevelId());
+        }
         // 存放到本地发送进程中
-        ContextBuffer.save(spanData);
+        if (!Config.Sender.OFF) {
+            ContextBuffer.save(spanData);
+        }
     }
 
     public void handleException(Throwable th) {

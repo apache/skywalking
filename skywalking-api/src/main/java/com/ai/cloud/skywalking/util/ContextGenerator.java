@@ -35,7 +35,7 @@ public final class ContextGenerator {
         if (context == null || StringUtil.isEmpty(context.getTraceId())) {
             // 不存在，新创建一个Context
             spanData = new Span(TraceIdGenerator.generate());
-            spanData.setLevelId(0L);
+           // spanData.setLevelId(0L);
         } else {
             // 如果不为空，则将当前的Context存放到上下文
             spanData = new Span(context.getTraceId());
@@ -56,12 +56,10 @@ public final class ContextGenerator {
         if (parentSpan == null) {
             // 不存在，新创建一个Context
             span = new Span(TraceIdGenerator.generate());
-            span.setLevelId(0L);
         } else {
             // 根据ParentContextData的TraceId和RPCID
             span = new Span(parentSpan.getTraceId());
-            span.setParentLevel(parentSpan.getParentLevel());
-            span.setLevelId(parentSpan.getLevelId() + 1);
+            span.setParentLevel(parentSpan.getParentLevel() + "." + parentSpan.getLevelId());
         }
         return span;
     }

@@ -5,7 +5,7 @@ import com.ai.cloud.skywalking.util.StringUtil;
 public class Span {
     private String traceId;
     private String parentLevel;
-    private long levelId;
+    private int levelId;
     private String viewPointId;
     private long startDate;
     private long cost;
@@ -60,18 +60,21 @@ public class Span {
     }
 
     public String getParentLevel() {
-        return parentLevel;
+        if (!StringUtil.isEmpty(parentLevel)) {
+            return parentLevel;
+        }
+        return "";
     }
 
     public void setParentLevel(String parentLevel) {
         this.parentLevel = parentLevel;
     }
 
-    public long getLevelId() {
+    public int getLevelId() {
         return levelId;
     }
 
-    public void setLevelId(long levelId) {
+    public void setLevelId(int levelId) {
         this.levelId = levelId;
     }
 

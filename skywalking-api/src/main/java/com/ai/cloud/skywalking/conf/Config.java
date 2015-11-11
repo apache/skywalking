@@ -1,6 +1,11 @@
 package com.ai.cloud.skywalking.conf;
 
 public class Config {
+
+    public static class BuriedPoint{
+        public static boolean PRINTF = true;
+    }
+
     public static class Consumer {
         //最大消费线程数
         public static int MAX_CONSUMER = 2;
@@ -25,5 +30,8 @@ public class Config {
 
         // 发送服务端配置
         public static String SENDER_SERVERS;
+
+        // 是否开启发送
+        public static boolean OFF = false;
     }
 }

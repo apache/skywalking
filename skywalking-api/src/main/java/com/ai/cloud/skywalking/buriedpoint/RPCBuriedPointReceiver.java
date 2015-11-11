@@ -2,6 +2,7 @@ package com.ai.cloud.skywalking.buriedpoint;
 
 import com.ai.cloud.skywalking.api.IBuriedPointReceiver;
 import com.ai.cloud.skywalking.buffer.ContextBuffer;
+import com.ai.cloud.skywalking.conf.Config;
 import com.ai.cloud.skywalking.context.Context;
 import com.ai.cloud.skywalking.context.Span;
 import com.ai.cloud.skywalking.model.ContextData;
@@ -22,6 +23,10 @@ public class RPCBuriedPointReceiver implements IBuriedPointReceiver {
     public void beforeReceived(ContextData context) {
         Span spanData = ContextGenerator.generateContextFromContextData(context);
         // 存放到上下文
+        if (Config.BuriedPoint.PRINTF) {
+            System.out.println("viewpointId:" + spanData.getViewPointId() + "\tParentLevelId:" + spanData.
+                    getParentLevel() + "\tLevelId:" + spanData.getLevelId());
+        }
         Context.getOrCreate().append(spanData);
     }
 

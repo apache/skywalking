@@ -25,6 +25,8 @@ public class ConfigInitializer {
                         field.set(null, value);
                     if (field.getType().equals(long.class))
                         field.set(null, Long.valueOf(value));
+                    if (field.getType().equals(boolean.class))
+                        field.set(null, Boolean.valueOf(value));
                 }
             }
         }
