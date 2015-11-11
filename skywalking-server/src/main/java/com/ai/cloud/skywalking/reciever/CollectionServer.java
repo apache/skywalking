@@ -14,14 +14,24 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.*;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Properties;
 
 public class CollectionServer {
 
     static Logger logger = LogManager.getLogger(CollectionServer.class);
     private Selector selector;
+    static Map<Integer, ByteBuffer> byteBuffers = new LinkedHashMap<Integer, ByteBuffer>();
+
 
     public CollectionServer() {
+        byteBuffers.put(512, ByteBuffer.allocate(512));
+        byteBuffers.put(128, ByteBuffer.allocate(128));
+        byteBuffers.put(32, ByteBuffer.allocate(32));
+        byteBuffers.put(8, ByteBuffer.allocate(8));
+        byteBuffers.put(2, ByteBuffer.allocate(2));
+        byteBuffers.put(1, ByteBuffer.allocate(1));
     }
 
     public void doCollect() throws IOException {
@@ -40,24 +50,40 @@ public class CollectionServer {
                         sc.read(contextLengthBuffer);
                         int length = ByteArrayUtil.byteArrayToInt(contextLengthBuffer.array(), 0);
                         if (length > 0) {
-                            ByteBuffer contentBuffer = ByteBuffer.allocate(length);
-                            try{
-	                            sc.read(contentBuffer);
-	                            dataBuffer = DataBufferThreadContainer.getDataBufferThread();
-	                            dataBuffer.doCarry(new String(contentBuffer.array()));
-                            }finally{
-                            	contentBuffer.flip();
-                            }
+                            readDataFromSocketChannel(length, byteBuffers, sc);
                         }
                     } catch (IOException e) {
                         logger.error("The remote client disconnect service", e);
                         sc.close();
-                    }finally{
-                    	contextLengthBuffer.flip();
+                    } finally {
+                        contextLengthBuffer.flip();
                     }
                 }
             }
         }
+    }
+
+    public static void readDataFromSocketChannel(int length, Map<Integer, ByteBuffer> byteBuffers, ByteChannel byteChannel) {
+        int tmp = length;
+        StringBuilder stringBuilder = new StringBuilder();
+        for (Map.Entry<Integer, ByteBuffer> entry : byteBuffers.entrySet()) {
+            int j = tmp / entry.getKey();
+            if (j == 0) {
+                continue;
+            }
+            for (int k = 0; k < j; k++) {
+                try {
+                    byteChannel.read(entry.getValue());
+                    stringBuilder.append(new String(entry.getValue().array()));
+                } catch (IOException e) {
+                    logger.error("Read data From socket channel", e);
+                } finally {
+                    entry.getValue().clear();
+                }
+            }
+            tmp = tmp % entry.getKey();
+        }
+        DataBufferThreadContainer.getDataBufferThread().doCarry(stringBuilder.toString());
     }
 
     private void beginToRead(ServerSocketChannel serverSocketChannel, SelectionKey key) throws IOException {

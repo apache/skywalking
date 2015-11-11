@@ -19,16 +19,21 @@ class AppendEOFFlagThread extends Thread {
 
     @Override
     public void run() {
-        BufferedWriter bufferedWriter;
+        BufferedWriter bufferedWriter = null;
         for (File file : dataBufferFiles) {
             try {
                 logger.info("Add EOF flags to unprocessed data file[{}]", file.getName());
                 bufferedWriter = new BufferedWriter(new FileWriter(new File(file.getParent(), file.getName()), true));
                 bufferedWriter.write("EOF\n");
-                bufferedWriter.flush();
-                bufferedWriter.close();
             } catch (IOException e) {
                 logger.info("Add EOF flags to the unprocessed data file failed.", e);
+            } finally {
+                try {
+                    bufferedWriter.flush();
+                    bufferedWriter.close();
+                } catch (IOException e) {
+
+                }
             }
         }
     }

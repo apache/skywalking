@@ -65,7 +65,7 @@
                             <outputDirectory>${project.build.directory}/installer/bin</outputDirectory>
                             <resources>
                                 <resource>
-                                    <directory>src/main/resources</directory>
+                                    <directory>bin</directory>
                                     <filtering>false</filtering>
                                 </resource>
                             </resources>
