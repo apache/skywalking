@@ -1,13 +1,8 @@
 package com.ai.cloud.skywalking.context;
 
 import java.util.Stack;
-import java.util.concurrent.atomic.AtomicInteger;
 
-/**
- */
 public class Context {
-
-    //private static ThreadLocal<SpanStack> nodes = new ThreadLocal<SpanStack>();
     private static ThreadLocal<SpanNodeStack> nodes = new ThreadLocal<SpanNodeStack>();
     private static Context context;
 
@@ -34,49 +29,20 @@ public class Context {
         return context;
     }
 
-    static class SpanStack {
-        private Stack<Span> spans = new Stack<Span>();
-        private AtomicInteger levelId = new AtomicInteger();
-
-        public Span pop() {
-            return spans.pop();
-        }
-
-        public void push(Span span) {
-            span.setLevelId(levelId.getAndDecrement());
-            spans.push(span);
-        }
-
-        public int size() {
-            return spans.size();
-        }
-
-        public Span peek() {
-            if (spans.isEmpty()) {
-                return null;
-            }
-            return spans.peek();
-        }
-
-        public boolean isEmpty() {
-            return spans.isEmpty();
-        }
-    }
-
     static class SpanNodeStack {
         private Stack<SpanNode> spans = new Stack<SpanNode>();
 
         public Span pop() {
             Span span = spans.pop().getData();
             if (!isEmpty()) {
-                spans.peek().getLevelId().incrementAndGet();
+                spans.peek().incrementNextSubSpanLevelId();
             }
             return span;
         }
 
         public void push(Span span) {
             if (!isEmpty()) {
-                spans.push(new SpanNode(span, spans.peek().getLevelId().get()));
+                spans.push(new SpanNode(span, spans.peek().getLevelId()));
             } else {
                 spans.push(new SpanNode(span));
             }
@@ -97,11 +63,11 @@ public class Context {
 
     static class SpanNode {
         private Span data;
-        private AtomicInteger levelId = new AtomicInteger();
+        private int nextSubSpanLevelId = 0;
 
         public SpanNode(Span data) {
             this.data = data;
-            this.data.setLevelId(levelId.get());
+            this.data.setLevelId(nextSubSpanLevelId);
         }
 
         public SpanNode(Span data, int levelId) {
@@ -113,16 +79,12 @@ public class Context {
             return data;
         }
 
-        public void setData(Span data) {
-            this.data = data;
+        public int getLevelId() {
+            return nextSubSpanLevelId;
         }
 
-        public AtomicInteger getLevelId() {
-            return levelId;
-        }
-
-        public void setLevelId(AtomicInteger levelId) {
-            this.levelId = levelId;
+        public void incrementNextSubSpanLevelId() {
+            this.nextSubSpanLevelId++;
         }
     }
 
