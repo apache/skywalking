@@ -17,8 +17,7 @@ public class RPCBuriedPointSender implements IBuriedPointSender {
         // 3.将新创建的Context存放到ThreadLocal栈中。
         Context.getOrCreate().append(spanData);
         // 4 并将当前的Context返回回去
-        return new ContextData(new Span(spanData.getTraceId(), spanData.getParentLevel()/* +
-                "." + spanData.getLevelId()*/));
+        return new ContextData(new Span(spanData.getTraceId(), spanData.getParentLevel()));
     }
 
     public void afterSend() {

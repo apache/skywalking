@@ -42,7 +42,7 @@ public class Context {
 
         public void push(Span span) {
             if (!isEmpty()) {
-                spans.push(new SpanNode(span, spans.peek().getLevelId()));
+                spans.push(new SpanNode(span, spans.peek().getNextSubSpanLevelId()));
             } else {
                 spans.push(new SpanNode(span));
             }
@@ -79,7 +79,7 @@ public class Context {
             return data;
         }
 
-        public int getLevelId() {
+        public int getNextSubSpanLevelId() {
             return nextSubSpanLevelId;
         }
 
