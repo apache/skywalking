@@ -37,7 +37,7 @@ public class SpanBufferTest {
     @Parameterized.Parameters
     public static Collection<Integer[]> getParams() {
         return Arrays.asList(new Integer[][]{
-                {2000, 10},
+                {1, 10001},
 //                {2000, 100000, 5, 27000, 3},
 //                {2000, 100000, 5, 24000, 3},
 //                {2000, 100000, 5, 20000, 2},
@@ -50,33 +50,24 @@ public class SpanBufferTest {
 
     @Test
     public void testSave() throws Exception {
-        System.out.println(threadSize + "  " + sizeCount);
-        CountDownLatch countDownLatch = new CountDownLatch(threadSize);
-        long start = System.currentTimeMillis();
-        long sleepTime = 1000;
-        for (int i = 0; i < threadSize; i++) {
-            if (i % 100 == 0) {
-                sleepTime = sleepTime / 2;
-                if (sleepTime == 0){
-                    sleepTime = 5;
+        while (true) {
+            System.out.println(threadSize + "  " + sizeCount);
+            CountDownLatch countDownLatch = new CountDownLatch(threadSize);
+            long start = System.currentTimeMillis();
+            long sleepTime = 1000;
+            for (int i = 0; i < threadSize; i++) {
+                if (i % 100 == 0) {
+                    sleepTime = sleepTime / 2;
+                    if (sleepTime == 0) {
+                        sleepTime = 5;
+                    }
+                    Thread.sleep(sleepTime);
                 }
-                Thread.sleep(sleepTime);
+                new ContextBufferThread(countDownLatch, sizeCount).start();
             }
-            new ContextBufferThread(countDownLatch, sizeCount).start();
+            countDownLatch.await();
+
+            Thread.sleep(5000L);
         }
-        countDownLatch.await();
-        CountDownLatch countDownLatchA = new CountDownLatch(threadSize);
-        sleepTime = 1000;
-        for (int i = 0; i < threadSize; i++) {
-            if (i % 100 == 0) {
-                sleepTime = sleepTime / 2;
-                if (sleepTime == 0){
-                    sleepTime = 5;
-                }
-                Thread.sleep(sleepTime);
-            }
-            new ContextBufferThreadA(countDownLatchA, sizeCount).start();
-        }
-        countDownLatchA.await();
     }
 }

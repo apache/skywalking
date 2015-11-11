@@ -40,6 +40,13 @@ public class DataSenderFactory {
     }
 
     public static DataSender getSender() {
+        while(availableSenders.size() <= 0){
+            try {
+                Thread.sleep(2000L);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
         return availableSenders.get(ThreadLocalRandom.current().nextInt(0, availableSenders.size()));
     }
 
@@ -70,7 +77,6 @@ public class DataSenderFactory {
 
         public void run() {
             while (true) {
-                //当可用的Sender的数量和保存的地址的比例不在1:2,则不创建
                 for (SocketAddress socketAddress : unUsedSocketAddresses) {
                     if (availableSenders.size() >= avaiableSize) {
                         break;
