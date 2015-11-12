@@ -16,6 +16,7 @@ public class PersistenceThread extends Thread {
 
     @Override
     public void run() {
+        int length = 0;
         while (true) {
             File file1 = getDataFiles();
             if (file1 == null) {
@@ -36,16 +37,15 @@ public class PersistenceThread extends Thread {
                 char[] chars = new char[OFFSET_FILE_READ_BUFFER_SIZE];
                 StringBuffer data = new StringBuffer();
                 boolean bool = true;
+                length = 0;
                 while (bool) {
-                    if (bufferedReader.read(chars, 0, chars.length) == -1) {
+                    if ((length = bufferedReader.read(chars, 0, chars.length)) == -1) {
                         MemoryRegister.instance().doRegisterStatus(new FileRegisterEntry(file1.getName(), offset,
                                 FileRegisterEntry.FileRegisterEntryStatus.UNREGISTER));
                         break;
                     }
+                    offset += length;
                     for (int i = 0; i < chars.length; i++) {
-                        if (chars[i] != '\0'){
-                            offset++;
-                        }
                         if (chars[i] != '\n') {
                             data.append(chars[i]);
                             continue;
@@ -57,8 +57,8 @@ public class PersistenceThread extends Thread {
                             bufferedReader.close();
                             logger.info("Data in file[{}] has been successfully processed", file1.getName());
                             boolean deleteSuccess = false;
-                            while(!deleteSuccess) {
-                                deleteSuccess = FileUtils.deleteQuietly(new File(file1.getParent(),file1.getName()));
+                            while (!deleteSuccess) {
+                                deleteSuccess = FileUtils.deleteQuietly(new File(file1.getParent(), file1.getName()));
                             }
                             logger.info("Delete file[{}] {}", file1.getName(), (deleteSuccess ? "success" : "failed"));
                             MemoryRegister.instance().unRegister(file1.getName());
