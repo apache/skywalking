@@ -19,6 +19,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.ai.cloud</groupId>
+            <artifactId>skywalking-auth</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>3.8.1</version>

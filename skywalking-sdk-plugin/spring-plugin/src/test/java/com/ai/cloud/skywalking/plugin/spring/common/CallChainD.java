@@ -6,7 +6,7 @@ public class CallChainD {
 
     @Tracing
     public void doBusiness() {
-        System.out.println("three");
+        //System.out.println("three");
     }
 
 }

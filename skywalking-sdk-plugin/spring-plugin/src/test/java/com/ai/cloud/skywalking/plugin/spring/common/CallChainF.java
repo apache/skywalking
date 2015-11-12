@@ -6,6 +6,6 @@ public class CallChainF {
 
     @Tracing
     public void doBusiness() {
-        System.out.println("me too");
+        //System.out.println("me too");
     }
 }
