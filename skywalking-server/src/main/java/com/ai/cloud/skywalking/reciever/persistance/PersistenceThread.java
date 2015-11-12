@@ -35,7 +35,7 @@ public class PersistenceThread extends Thread {
                     logger.debug("Get file[{}] offset [{}]", file1.getName(), offset);
                 }
                 char[] chars = new char[OFFSET_FILE_READ_BUFFER_SIZE];
-                StringBuffer data = new StringBuffer();
+                StringBuilder data = new StringBuilder(2048);
                 boolean bool = true;
                 length = 0;
                 while (bool) {
@@ -51,7 +51,7 @@ public class PersistenceThread extends Thread {
                             continue;
                         }
                         // HBase
-                        System.out.println(data);
+                        //System.out.println(data);
 
                         if ("EOF".equals(data.toString())) {
                             bufferedReader.close();

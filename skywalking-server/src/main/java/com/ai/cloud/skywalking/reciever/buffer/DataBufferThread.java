@@ -15,7 +15,7 @@ import static com.ai.cloud.skywalking.reciever.conf.Config.Buffer.*;
 public class DataBufferThread extends Thread {
 
     private Logger logger = LogManager.getLogger(DataBufferThread.class);
-    private String[] data = new String[PER_THREAD_MAX_BUFFER_NUMBER];
+    private byte[][] data = new byte[PER_THREAD_MAX_BUFFER_NUMBER][];
     private File file;
     private FileOutputStream outputStream;
     private AtomicInteger index = new AtomicInteger();
@@ -27,7 +27,7 @@ public class DataBufferThread extends Thread {
                 file.createNewFile();
             }
 
-            if (logger.isDebugEnabled()){
+            if (logger.isDebugEnabled()) {
                 logger.debug("Create buffer data file {}.", file.getName());
             }
             outputStream = new FileOutputStream(file, true);
@@ -43,6 +43,7 @@ public class DataBufferThread extends Thread {
     @Override
     public void run() {
         boolean isWriteFailure;
+        byte[] tmpByte;
         while (true) {
             boolean bool = false;
             int count = 0;
@@ -55,7 +56,8 @@ public class DataBufferThread extends Thread {
                 isWriteFailure = true;
                 while (isWriteFailure) {
                     try {
-                        outputStream.write((data[i] + "\n").getBytes());
+                        outputStream.write(data[i]);
+                        outputStream.write("\n".getBytes());
                         isWriteFailure = false;
                     } catch (IOException e) {
                         logger.error("Write buffer data failed.", e);
@@ -117,7 +119,7 @@ public class DataBufferThread extends Thread {
 
     }
 
-    public void doCarry(String s) {
+    public void doCarry(byte[] s) {
         int i = Math.abs(index.getAndIncrement() % data.length);
         while (data[i] != null) {
             try {
@@ -128,5 +130,11 @@ public class DataBufferThread extends Thread {
         }
 
         data[i] = s;
+    }
+
+    public static void main(String[] args) {
+        byte[][] bytes = new byte[1024][];
+        bytes[0] = new byte[]{'1', '2', '3'};
+        System.out.println(bytes[0]);
     }
 }

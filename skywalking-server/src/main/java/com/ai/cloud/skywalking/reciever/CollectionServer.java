@@ -63,7 +63,8 @@ public class CollectionServer {
 
     public static void readDataFromSocketChannel(int length, Map<Integer, ByteBuffer> byteBuffers, ByteChannel byteChannel) {
         int tmp = length;
-        StringBuilder stringBuilder = new StringBuilder();
+        byte[] tmpBytes = new byte[length];
+        int tmpLength = 0;
         for (Map.Entry<Integer, ByteBuffer> entry : byteBuffers.entrySet()) {
             int j = tmp / entry.getKey();
             if (j == 0) {
@@ -72,16 +73,17 @@ public class CollectionServer {
             for (int k = 0; k < j; k++) {
                 try {
                     byteChannel.read(entry.getValue());
-                    stringBuilder.append(new String(entry.getValue().array()));
+                    System.arraycopy(entry.getValue().array(), 0, tmpBytes, tmpLength, entry.getValue().array().length);
                 } catch (IOException e) {
                     logger.error("Read data From socket channel", e);
                 } finally {
                     entry.getValue().clear();
                 }
+                tmpLength += entry.getKey();
             }
             tmp = tmp % entry.getKey();
         }
-        //DataBufferThreadContainer.getDataBufferThread().doCarry(stringBuilder.toString());
+        DataBufferThreadContainer.getDataBufferThread().doCarry(tmpBytes);
     }
 
     private void beginToRead(ServerSocketChannel serverSocketChannel, SelectionKey key) throws IOException {

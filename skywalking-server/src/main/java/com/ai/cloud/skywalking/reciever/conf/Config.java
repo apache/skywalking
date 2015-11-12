@@ -11,7 +11,7 @@ public class Config {
     // 数据缓存配置类
     public static class Buffer {
         // 最大数据缓存线程数量
-        public static int MAX_THREAD_NUMBER = 1;
+        public static int MAX_THREAD_NUMBER = 3;
 
         //每个线程最大缓存数量
         public static int PER_THREAD_MAX_BUFFER_NUMBER = 1024;
