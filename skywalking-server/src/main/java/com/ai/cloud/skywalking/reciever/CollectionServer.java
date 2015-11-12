@@ -1,6 +1,5 @@
 package com.ai.cloud.skywalking.reciever;
 
-import com.ai.cloud.skywalking.reciever.buffer.DataBufferThread;
 import com.ai.cloud.skywalking.reciever.buffer.DataBufferThreadContainer;
 import com.ai.cloud.skywalking.reciever.conf.Config;
 import com.ai.cloud.skywalking.reciever.conf.ConfigInitializer;
@@ -36,7 +35,7 @@ public class CollectionServer {
 
     public void doCollect() throws IOException {
         ServerSocketChannel serverSocketChannel = initServerSocketChannel();
-        DataBufferThread dataBuffer;
+        ByteBuffer contextLengthBuffer = ByteBuffer.allocate(4);
         while (selector.select() > 0) {
             Iterator<?> iterator = selector.selectedKeys().iterator();
             while (iterator.hasNext()) {
@@ -45,7 +44,6 @@ public class CollectionServer {
                 beginToRead(serverSocketChannel, key);
                 if (key.isReadable()) {
                     ByteChannel sc = (SocketChannel) key.channel();
-                    ByteBuffer contextLengthBuffer = ByteBuffer.allocate(4);
                     try {
                         sc.read(contextLengthBuffer);
                         int length = ByteArrayUtil.byteArrayToInt(contextLengthBuffer.array(), 0);
@@ -56,7 +54,7 @@ public class CollectionServer {
                         logger.error("The remote client disconnect service", e);
                         sc.close();
                     } finally {
-                        contextLengthBuffer.flip();
+                        contextLengthBuffer.clear();
                     }
                 }
             }
@@ -83,7 +81,7 @@ public class CollectionServer {
             }
             tmp = tmp % entry.getKey();
         }
-        DataBufferThreadContainer.getDataBufferThread().doCarry(stringBuilder.toString());
+        //DataBufferThreadContainer.getDataBufferThread().doCarry(stringBuilder.toString());
     }
 
     private void beginToRead(ServerSocketChannel serverSocketChannel, SelectionKey key) throws IOException {
