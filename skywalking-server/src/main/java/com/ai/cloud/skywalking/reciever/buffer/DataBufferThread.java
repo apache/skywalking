@@ -80,6 +80,14 @@ public class DataBufferThread extends Thread {
 
             }
 
+            if (bool){
+                try {
+                    outputStream.flush();
+                } catch (IOException e) {
+                    logger.error("Flush buffer data failed.", e);
+                }
+            }
+
             if (file.length() > DATA_FILE_MAX_LENGTH) {
                 convertFile();
             }
