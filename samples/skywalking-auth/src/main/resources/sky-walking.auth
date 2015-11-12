@@ -1,5 +1,5 @@
 #是否打印数据
-buriedpoint.printf=true
+buriedpoint.printf=false
 #发送的最大长度
 sender.max_sender_length=1280
 #服务端的读取步长
@@ -13,11 +13,11 @@ buffer.buffer_max_size=18000
 #Buffer池的最大长度
 buffer.pool_max_length=5
 #发送的最大条数
-sender.max_buffer_data_size=1000
+sender.max_buffer_data_size=10
 #最大发送者的连接数阀比例
 sender.send_connection_threshold=1
 #是否开启发送消息
-sender.off=false
+sender.is_off=false
 #发送服务端配置
-#sender.sender_servers=192.168.1.114:34000
-sender.sender_servers=127.0.0.1:34000
+sender.sender_servers=10.1.235.197:34000
+#sender.sender_servers=127.0.0.1:34000
