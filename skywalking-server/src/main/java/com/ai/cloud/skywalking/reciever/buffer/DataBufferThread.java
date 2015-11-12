@@ -43,11 +43,10 @@ public class DataBufferThread extends Thread {
     @Override
     public void run() {
         boolean isWriteFailure;
-        byte[] tmpByte;
+        int index = 0;
         while (true) {
             boolean bool = false;
             int count = 0;
-            int index = 0;
             for (int i = 0; i < data.length; i++, count++) {
                 if (data[i] == null) {
                     continue;
@@ -73,6 +72,8 @@ public class DataBufferThread extends Thread {
                         outputStream.flush();
                     } catch (IOException e) {
                         logger.error("Flush buffer data failed.", e);
+                    } finally {
+                        index = 0;
                     }
                 }
                 data[i] = null;
