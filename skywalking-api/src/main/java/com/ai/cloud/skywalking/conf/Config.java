@@ -3,7 +3,7 @@ package com.ai.cloud.skywalking.conf;
 public class Config {
 
     public static class BuriedPoint{
-        public static boolean PRINTF = true;
+        public static boolean PRINTF = false;
     }
 
     public static class Consumer {
@@ -32,6 +32,6 @@ public class Config {
         public static String SENDER_SERVERS;
 
         // 是否开启发送
-        public static boolean OFF = false;
+        public static boolean IS_OFF = false;
     }
 }

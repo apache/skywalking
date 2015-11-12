@@ -33,7 +33,7 @@ public class ThreadFactoryBuriedPointSender implements IBuriedPointSender {
                     getParentLevel() + "\tLevelId:" + spanData.getLevelId());
         }
         // 存放到本地发送进程中
-        if (!Config.Sender.OFF) {
+        if (!Config.Sender.IS_OFF) {
             ContextBuffer.save(spanData);
         }
     }
