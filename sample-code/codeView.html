@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Sky Walking Code View</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <link rel="stylesheet" type="text/css" href="../stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="../stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="../stylesheets/github-light.css" media="screen">
+  </head>
+  <body style="font-family:'Open Sans','Helvetica Neue',Helvetica,Arial,sans-serif;margin:0;padding:0;font-size:16px;line-height:1.5">
+  	<section class="page-header" style="background-image: url(../images/backgroud.png);padding: 0.5rem 1rem;text-align:center;">
+      <h2 style="color:#fff;font-family:'Open Sans','Helvetica Neue',Helvetica,Arial,sans-serif;line-height:1.5">Sky Walking Guide</h2>
+    </section>
+    
+    <section class="main-content">
+      <h3>
+      	<a id="useInSpring" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>如何追踪Spring本地方法调用？
+      </h3>
+      <p>1.在需要追踪的方法上，加上@Tracing标识</p>
+      <pre>
+public class TracingAspectBean {
+
+    @Tracing
+    public String doBusiness() {
+        System.out.println("do business");
+        return "Hello World";
+    }
+}</pre>
+			<p>2.Spring配置文件中，配置所需如下信息</p>
+			<pre>
+&lt;bean id="tracingEnhance" class="com.ai.cloud.skywalking.plugin.spring.TracingEnhanceProcessor"&gt;</pre>
+    </section>
+   
+	</body>
+
+</html>
