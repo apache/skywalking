@@ -13,6 +13,7 @@ public class Span {
     private byte statueCode = 0;
     private String exceptionStack;
     private byte spanType;
+    private boolean isReceiver = false;
 
     public Span() {
     }
@@ -120,13 +121,23 @@ public class Span {
         this.spanType = spanType;
     }
 
+    public boolean isReceiver() {
+        return isReceiver;
+    }
+
+    public void setReceiver(boolean receiver) {
+        isReceiver = receiver;
+    }
+
     @Override
     public String toString() {
         StringBuffer stringBuffer = new StringBuffer(traceId + "-" + parentLevel + "-"
                 + levelId + "-" + viewPointId + "-" + startDate + "-" + cost +
                 "-" + address +
                 "-" + statueCode +
-                "-" + processNo + "-" + spanType);
+                "-" + processNo + "-" + spanType + "-" + isReceiver);
+
+
         if (!StringUtil.isEmpty(exceptionStack)) {
             stringBuffer.append("-" + exceptionStack);
         }

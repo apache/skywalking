@@ -13,7 +13,7 @@ public class RPCBuriedPointReceiver implements IBuriedPointReceiver {
 
     public void afterReceived() {
         // 获取上下文的栈顶中的元素
-        Span spanData =  Context.removeLastSpan();
+        Span spanData = Context.removeLastSpan();
         // 填上必要信息
         spanData.setCost(System.currentTimeMillis() - spanData.getStartDate());
         // 存放到本地发送进程中
@@ -22,6 +22,7 @@ public class RPCBuriedPointReceiver implements IBuriedPointReceiver {
 
     public void beforeReceived(ContextData context) {
         Span spanData = ContextGenerator.generateContextFromContextData(context);
+        spanData.setReceiver(true);
         // 存放到上下文
         if (Config.BuriedPoint.PRINTF) {
             System.out.println("viewpointId:" + spanData.getViewPointId() + "\tParentLevelId:" + spanData.

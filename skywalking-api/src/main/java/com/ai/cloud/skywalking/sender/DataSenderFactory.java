@@ -60,7 +60,7 @@ public class DataSenderFactory {
                 System.err.println("CONNECT_PERCENT must between 1 and 100");
                 System.exit(-1);
             }
-            avaiableSize = (int) Math.ceil(socketAddresses.size() * 1.0 * ((CONNECT_PERCENT / 100) % 100));
+            avaiableSize = (int) Math.ceil(socketAddresses.size() * ((1.0 * CONNECT_PERCENT / 100) % 100));
             // 初始化DataSender
             Iterator<SocketAddress> it = socketAddresses.iterator();
             List<SocketAddress> usedSocketAddress = new ArrayList<SocketAddress>();
