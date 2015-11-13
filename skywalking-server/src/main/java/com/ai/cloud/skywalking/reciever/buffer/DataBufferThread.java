@@ -45,13 +45,12 @@ public class DataBufferThread extends Thread {
         boolean isWriteFailure;
         int index = 0;
         while (true) {
-            boolean bool = false;
-            int count = 0;
-            for (int i = 0; i < data.length; i++, count++) {
+            boolean hasData2Flush = false;
+            for (int i = 0; i < data.length; i++) {
                 if (data[i] == null) {
                     continue;
                 }
-                bool = true;
+                hasData2Flush = true;
                 isWriteFailure = true;
                 while (isWriteFailure) {
                     try {
@@ -80,7 +79,7 @@ public class DataBufferThread extends Thread {
 
             }
 
-            if (bool){
+            if (hasData2Flush){
                 try {
                     outputStream.flush();
                 } catch (IOException e) {
@@ -92,7 +91,7 @@ public class DataBufferThread extends Thread {
                 convertFile();
             }
 
-            if (!bool) {
+            if (!hasData2Flush) {
                 try {
                     Thread.sleep(MAX_WAIT_TIME);
                 } catch (InterruptedException e) {
@@ -113,9 +112,14 @@ public class DataBufferThread extends Thread {
         try {
             outputStream.write("EOF\n".getBytes());
             outputStream.flush();
-            outputStream.close();
         } catch (IOException e) {
-            logger.error("Write cache data failed.", e);
+            logger.error("Write eof to cache data file.", e);
+        } finally{
+        	try {
+        		outputStream.close();
+        	} catch (IOException e) {
+        		logger.error("close cache data failed.", e);
+        	}
         }
         logger.debug("Begin to switch the data file to {}.", fileName);
         try {
