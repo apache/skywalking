@@ -112,6 +112,9 @@ public class PersistenceThread extends Thread {
         NameFileComparator sizeComparator = new NameFileComparator();
         File[] dataFileList = sizeComparator.sort(parentDir.listFiles());
         for (File file : dataFileList) {
+        	if(file.getName().startsWith(".")){
+        		continue;
+        	}
             if (MemoryRegister.instance().isRegister(file.getName())) {
                 if (logger.isDebugEnabled())
                     logger.debug("The file [{}] is being used by another thread ", file);
