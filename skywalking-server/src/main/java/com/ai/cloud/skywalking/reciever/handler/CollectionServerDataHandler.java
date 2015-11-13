@@ -1,9 +1,9 @@
 package com.ai.cloud.skywalking.reciever.handler;
 
-import com.ai.cloud.skywalking.reciever.buffer.DataBufferThreadContainer;
-import com.ai.cloud.skywalking.reciever.util.ByteArrayUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+
+import com.ai.cloud.skywalking.reciever.buffer.DataBufferThreadContainer;
 
 public class CollectionServerDataHandler extends SimpleChannelInboundHandler<byte[]> {
     @Override

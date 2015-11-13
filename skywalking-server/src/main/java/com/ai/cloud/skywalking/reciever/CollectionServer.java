@@ -1,28 +1,31 @@
 package com.ai.cloud.skywalking.reciever;
 
-import com.ai.cloud.skywalking.reciever.buffer.DataBufferThreadContainer;
-import com.ai.cloud.skywalking.reciever.conf.Config;
-import com.ai.cloud.skywalking.reciever.conf.ConfigInitializer;
-import com.ai.cloud.skywalking.reciever.handler.CollectionServerDataHandler;
-import com.ai.cloud.skywalking.reciever.persistance.PersistenceThreadLauncher;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.*;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.ChannelPipeline;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.LengthFieldPrepender;
 import io.netty.handler.codec.bytes.ByteArrayDecoder;
 import io.netty.handler.codec.bytes.ByteArrayEncoder;
-import io.netty.handler.codec.string.StringDecoder;
-import io.netty.handler.codec.string.StringEncoder;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
-import io.netty.util.CharsetUtil;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.Properties;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.ai.cloud.skywalking.reciever.buffer.DataBufferThreadContainer;
+import com.ai.cloud.skywalking.reciever.conf.Config;
+import com.ai.cloud.skywalking.reciever.conf.ConfigInitializer;
+import com.ai.cloud.skywalking.reciever.handler.CollectionServerDataHandler;
+import com.ai.cloud.skywalking.reciever.persistance.PersistenceThreadLauncher;
 
 public class CollectionServer {
 
