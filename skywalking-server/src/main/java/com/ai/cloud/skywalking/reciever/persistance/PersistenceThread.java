@@ -16,9 +16,13 @@ public class PersistenceThread extends Thread {
 
     @Override
     public void run() {
-        int length = 0;
+        int length;
+        File file1;
+        BufferedReader bufferedReader;
+        int offset;
+        StringBuffer data;
         while (true) {
-            File file1 = getDataFiles();
+            file1 = getDataFiles();
             if (file1 == null) {
                 try {
                     Thread.sleep(SWITCH_FILE_WAIT_TIME);
@@ -29,13 +33,13 @@ public class PersistenceThread extends Thread {
             }
 
             try {
-                BufferedReader bufferedReader = new BufferedReader(new FileReader(file1));
-                int offset = moveOffSet(file1, bufferedReader);
+                bufferedReader = new BufferedReader(new FileReader(file1));
+                offset = moveOffSet(file1, bufferedReader);
                 if (logger.isDebugEnabled()) {
                     logger.debug("Get file[{}] offset [{}]", file1.getName(), offset);
                 }
                 char[] chars = new char[OFFSET_FILE_READ_BUFFER_SIZE];
-                StringBuilder data = new StringBuilder(2048);
+                data = new StringBuffer(2048);
                 boolean bool = true;
                 length = 0;
                 while (bool) {
