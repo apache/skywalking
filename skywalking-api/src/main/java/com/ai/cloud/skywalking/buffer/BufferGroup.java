@@ -1,6 +1,7 @@
 package com.ai.cloud.skywalking.buffer;
 
 
+import com.ai.cloud.skywalking.conf.Config;
 import com.ai.cloud.skywalking.context.Span;
 import com.ai.cloud.skywalking.sender.DataSenderFactory;
 
@@ -69,8 +70,14 @@ public class BufferGroup {
                     bool = true;
                     data.append(dataBuffer[i]);
                     dataBuffer[i] = null;
-                    if (index++ == MAX_BUFFER_DATA_SIZE) {
-                        DataSenderFactory.getSender().send(data.toString());
+                    if (index++ == MAX_BUFFER_DATA_SIZE || data.length() >= Config.Sender.MAX_SEND_LENGTH) {
+                        while (!DataSenderFactory.getSender().send(data.toString())) {
+                            try {
+                                Thread.sleep(50L);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
                         index = 0;
                         data = new StringBuilder();
                     }

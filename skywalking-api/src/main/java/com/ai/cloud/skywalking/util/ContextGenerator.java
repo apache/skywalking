@@ -51,7 +51,7 @@ public final class ContextGenerator {
     private static Span getContextFromThreadLocal() {
         Span span;
         // 1.获取Context，从ThreadLocal栈中获取中
-        final Span parentSpan =  Context.getOrCreate().getLastSpan();
+        final Span parentSpan =  Context.getLastSpan();
         // 2 校验Context，Context是否存在
         if (parentSpan == null) {
             // 不存在，新创建一个Context

@@ -15,14 +15,14 @@ public class LocalBuriedPointSender implements IBuriedPointSender {
     public ContextData beforeSend(Identification id) {
         Span spanData = ContextGenerator.generateContextFromThreadLocal(id);
         // 3.将新创建的Context存放到ThreadLocal栈中。
-        Context.getOrCreate().append(spanData);
+        Context.append(spanData);
         // 4 并将当前的Context返回回去
         return new ContextData(spanData);
     }
 
     public void afterSend() {
         // 弹出上下文的栈顶中的元素
-        Span spanData = Context.getOrCreate().removeLastSpan();
+        Span spanData = Context.removeLastSpan();
         if (spanData == null) {
             return;
         }

@@ -4,31 +4,29 @@ import java.util.Stack;
 
 public class Context {
     private static ThreadLocal<SpanNodeStack> nodes = new ThreadLocal<SpanNodeStack>();
-    private static Context context;
 
     private Context() {
-        nodes.set(new SpanNodeStack());
+
     }
 
-    public void append(Span span) {
+    public static void append(Span span) {
+        if (nodes.get() == null) {
+            nodes.set(new SpanNodeStack());
+        }
         nodes.get().push(span);
     }
 
-    public Span getLastSpan() {
+    public static Span getLastSpan() {
+        if (nodes.get() == null) {
+            return null;
+        }
         return nodes.get().peek();
     }
 
-    public Span removeLastSpan() {
+    public static Span removeLastSpan() {
         if (nodes.get() == null)
             return null;
         return nodes.get().pop();
-    }
-
-    public static Context getOrCreate() {
-        if (context == null) {
-            context = new Context();
-        }
-        return context;
     }
 
     static class SpanNodeStack {

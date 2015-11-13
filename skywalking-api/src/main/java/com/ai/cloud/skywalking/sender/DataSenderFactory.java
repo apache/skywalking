@@ -6,26 +6,26 @@ import com.ai.cloud.skywalking.util.StringUtil;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static com.ai.cloud.skywalking.conf.Config.Sender.SEND_CONNECTION_THRESHOLD;
+import static com.ai.cloud.skywalking.conf.Config.Sender.CONNECT_PERCENT;
 
 public class DataSenderFactory {
 
-    private static List<SocketAddress> socketAddresses = new ArrayList<SocketAddress>();
-    private static List<SocketAddress> unUsedSocketAddresses = new ArrayList<SocketAddress>();
+    private static Set<SocketAddress> socketAddresses = new HashSet<SocketAddress>();
+    private static Set<SocketAddress> unUsedSocketAddresses = new HashSet<SocketAddress>();
     private static List<DataSender> availableSenders = new ArrayList<DataSender>();
+    private static DataSenderMaker dataSenderMaker;
+    private static Object lock = new Object();
 
     static {
         try {
-            if (StringUtil.isEmpty(Config.Sender.SENDER_SERVERS)) {
+            if (StringUtil.isEmpty(Config.Sender.SERVERS_ADDR)) {
                 throw new IllegalArgumentException("Collection service configuration error.");
             }
 
-            for (String serverConfig : Config.Sender.SENDER_SERVERS.split(";")) {
+            for (String serverConfig : Config.Sender.SERVERS_ADDR.split(";")) {
                 String[] server = serverConfig.split(":");
                 if (server.length != 2)
                     throw new IllegalArgumentException("Collection service configuration error.");
@@ -36,11 +36,12 @@ public class DataSenderFactory {
             System.exit(-1);
         }
 
-        new DataSenderMaker().start();
+        dataSenderMaker = new DataSenderMaker();
+        dataSenderMaker.start();
     }
 
     public static DataSender getSender() {
-        while(availableSenders.size() <= 0){
+        while (availableSenders.size() == 0) {
             try {
                 Thread.sleep(2000L);
             } catch (InterruptedException e) {
@@ -52,9 +53,14 @@ public class DataSenderFactory {
 
     static class DataSenderMaker extends Thread {
 
-        private int avaiableSize = (int) Math.ceil(socketAddresses.size() * 1.0 / SEND_CONNECTION_THRESHOLD);
+        private int avaiableSize;
 
         public DataSenderMaker() {
+            if (CONNECT_PERCENT <= 0 || CONNECT_PERCENT > 100) {
+                System.err.println("CONNECT_PERCENT must between 1 and 100");
+                System.exit(-1);
+            }
+            avaiableSize = (int) Math.ceil(socketAddresses.size() * 1.0 * ((CONNECT_PERCENT / 100) % 100));
             // 初始化DataSender
             Iterator<SocketAddress> it = socketAddresses.iterator();
             List<SocketAddress> usedSocketAddress = new ArrayList<SocketAddress>();
@@ -71,7 +77,7 @@ public class DataSenderFactory {
                 }
 
             }
-            unUsedSocketAddresses = new ArrayList<SocketAddress>(socketAddresses);
+            unUsedSocketAddresses = new HashSet<SocketAddress>(socketAddresses);
             unUsedSocketAddresses.removeAll(usedSocketAddress);
         }
 
@@ -87,20 +93,21 @@ public class DataSenderFactory {
                         // 当前发送的地址还是不可用
                     }
                 }
-
                 try {
-                    Thread.sleep(3000L);
+                    Thread.sleep(200L);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-
             }
         }
     }
 
     public static void unRegister(DataSender sender) {
-        availableSenders.remove(sender);
-        unUsedSocketAddresses.add(sender.getServerIp());
+        synchronized (lock) {
+            availableSenders.remove(sender);
+            unUsedSocketAddresses.add(sender.getServerIp());
+        }
+
     }
 
 }

@@ -52,7 +52,6 @@ public class DataSender {
             socketChannel.write(ByteBuffer.wrap(ProtocolBuilder.builder(data)));
             return true;
         } catch (IOException e) {
-            e.printStackTrace();
             // 发送失败 认为不可连接
             DataSenderFactory.unRegister(this);
             return false;

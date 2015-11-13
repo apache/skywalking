@@ -18,7 +18,7 @@ public class ThreadBuriedPointSender implements IBuriedPointSender {
     public ThreadBuriedPointSender(int threadSeqId) {
         Span spanData;
         // 从ThreadLocal中取出上下文
-        final Span parentSpanData =  Context.getOrCreate().getLastSpan();
+        final Span parentSpanData = Context.getLastSpan();
         if (parentSpanData == null) {
             spanData = new Span(TraceIdGenerator.generate());
         } else {
@@ -37,12 +37,12 @@ public class ThreadBuriedPointSender implements IBuriedPointSender {
         span.setStartDate(System.currentTimeMillis());
         span.setViewPointId(id.getViewPoint());
         span.setProcessNo(BuriedPointMachineUtil.getProcessNo());
-        Context.getOrCreate().append(span);
+        Context.append(span);
         return new ContextData(span);
     }
 
     public void afterSend() {
-        Span span =  Context.getOrCreate().removeLastSpan();
+        Span span = Context.removeLastSpan();
         if (span == null) {
             return;
         }

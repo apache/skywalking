@@ -22,11 +22,11 @@ public final class ExceptionHandleUtil {
             expMessage.append("\n本地发送埋点关闭异常读入流异常，异常信息:");
             expMessage.append(e1.getCause().getMessage());
         }
-        return expMessage.toString();
+        return expMessage.toString().replace('\n','&');
     }
 
     public static void handleException(Throwable e) {
-        Span spanData =  Context.getOrCreate().getLastSpan();
+        Span spanData =  Context.getLastSpan();
         // 设置错误信息
         byte errorCode = 1;
         spanData.setStatueCode(errorCode);

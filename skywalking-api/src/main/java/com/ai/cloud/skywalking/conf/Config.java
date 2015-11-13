@@ -2,7 +2,7 @@ package com.ai.cloud.skywalking.conf;
 
 public class Config {
 
-    public static class BuriedPoint{
+    public static class BuriedPoint {
         public static boolean PRINTF = false;
     }
 
@@ -26,12 +26,15 @@ public class Config {
         public static int MAX_BUFFER_DATA_SIZE = 1;
 
         // 最大发送者的连接数阀比例
-        public static int SEND_CONNECTION_THRESHOLD = 2;
+        public static int CONNECT_PERCENT = 50;
 
         // 发送服务端配置
-        public static String SENDER_SERVERS;
+        public static String SERVERS_ADDR;
 
         // 是否开启发送
         public static boolean IS_OFF = false;
+
+        // 发送的最大长度
+        public static int MAX_SEND_LENGTH = 1800;
     }
 }

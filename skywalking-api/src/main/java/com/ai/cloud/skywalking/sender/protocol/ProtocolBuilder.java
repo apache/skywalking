@@ -14,13 +14,12 @@ public class ProtocolBuilder {
         return des;
     }
 
-    private static byte[] intToByteArray(final int integer) {
-        int byteNum = (40 - Integer.numberOfLeadingZeros(integer < 0 ? ~integer : integer)) / 8;
-        byte[] byteArray = new byte[4];
-
-        for (int n = 0; n < byteNum; n++)
-            byteArray[3 - n] = (byte) (integer >>> (n * 8));
-
-        return (byteArray);
+    private static byte[] intToByteArray(final int value) {
+        byte[] src = new byte[4];
+        src[0] = (byte) ((value >> 24) & 0xFF);
+        src[1] = (byte) ((value >> 16) & 0xFF);
+        src[2] = (byte) ((value >> 8) & 0xFF);
+        src[3] = (byte) (value & 0xFF);
+        return src;
     }
 }
