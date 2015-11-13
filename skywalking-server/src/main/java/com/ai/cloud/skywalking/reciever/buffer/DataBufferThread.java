@@ -140,10 +140,4 @@ public class DataBufferThread extends Thread {
 
         data[i] = s;
     }
-
-    public static void main(String[] args) {
-        byte[][] bytes = new byte[1024][];
-        bytes[0] = new byte[]{'1', '2', '3'};
-        System.out.println(bytes[0]);
-    }
 }
