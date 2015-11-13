@@ -11,6 +11,8 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.LengthFieldPrepender;
+import io.netty.handler.codec.bytes.ByteArrayDecoder;
+import io.netty.handler.codec.bytes.ByteArrayEncoder;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import io.netty.handler.logging.LogLevel;
@@ -46,8 +48,8 @@ public class CollectionServer {
                             ChannelPipeline p = ch.pipeline();
                             p.addLast("frameDecoder", new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4));
                             p.addLast("frameEncoder", new LengthFieldPrepender(4));
-                            p.addLast("decoder", new StringDecoder(CharsetUtil.UTF_8));
-                            p.addLast("encoder", new StringEncoder(CharsetUtil.UTF_8));
+                            p.addLast("decoder", new ByteArrayDecoder());
+                            p.addLast("encoder", new ByteArrayEncoder());
                             p.addLast(new CollectionServerDataHandler());
                         }
                     });
