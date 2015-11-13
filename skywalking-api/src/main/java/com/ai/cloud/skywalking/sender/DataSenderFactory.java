@@ -62,7 +62,6 @@ public class DataSenderFactory {
             }
             avaiableSize = (int) Math.ceil(socketAddresses.size() * ((1.0 * CONNECT_PERCENT / 100) % 100));
             // 初始化DataSender
-            Iterator<SocketAddress> it = socketAddresses.iterator();
             List<SocketAddress> usedSocketAddress = new ArrayList<SocketAddress>();
 
             for (SocketAddress socketAddress : socketAddresses) {

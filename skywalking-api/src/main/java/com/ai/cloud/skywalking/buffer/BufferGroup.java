@@ -47,7 +47,6 @@ public class BufferGroup {
     class ConsumerWorker extends Thread {
         private int start = 0;
         private int end = BUFFER_MAX_SIZE;
-        private StringBuilder builder = new StringBuilder();
 
         private ConsumerWorker(int start, int end) {
             this.start = start;
