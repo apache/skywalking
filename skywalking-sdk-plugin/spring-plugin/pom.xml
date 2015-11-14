@@ -18,10 +18,15 @@
     </properties>
 
     <dependencies>
+    	<dependency>
+            <groupId>org.javassist</groupId>
+            <artifactId>javassist</artifactId>
+            <version>3.20.0-GA</version>
+        </dependency>
         <dependency>
             <groupId>com.ai.cloud</groupId>
-            <artifactId>skywalking-auth</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <artifactId>skywalking-api</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -54,14 +59,10 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.javassist</groupId>
-            <artifactId>javassist</artifactId>
-            <version>3.20.0-GA</version>
-        </dependency>
-        <dependency>
             <groupId>com.ai.cloud</groupId>
-            <artifactId>skywalking-api</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <artifactId>skywalking-auth</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>
