@@ -97,12 +97,16 @@ public class DataSenderFactory {
                         break;
                     }
 
-                    try {
-                        availableSenders.add(new DataSender(tmpScoketAddress));
-                        unUsedSocketAddresses.remove(tmpScoketAddress);
-                    } catch (IOException e) {
+                    synchronized (lock) {
+                        try {
 
+                            availableSenders.add(new DataSender(tmpScoketAddress));
+                            unUsedSocketAddresses.remove(tmpScoketAddress);
+                        } catch (IOException e) {
+
+                        }
                     }
+
                 }
 
                 try {
