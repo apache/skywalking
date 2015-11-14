@@ -1,0 +1,5 @@
+#默认埋点类型对照信息
+M:本地JAVA方法
+J:JDBC
+W:web servlet调用
+D:dubbo/dubbox调用

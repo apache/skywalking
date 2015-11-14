@@ -6,6 +6,7 @@ import com.ai.cloud.skywalking.conf.Config;
 import com.ai.cloud.skywalking.context.Context;
 import com.ai.cloud.skywalking.context.Span;
 import com.ai.cloud.skywalking.model.ContextData;
+import com.ai.cloud.skywalking.model.Identification;
 import com.ai.cloud.skywalking.util.ContextGenerator;
 import com.ai.cloud.skywalking.util.ExceptionHandleUtil;
 
@@ -20,8 +21,8 @@ public class RPCBuriedPointReceiver implements IBuriedPointReceiver {
         ContextBuffer.save(spanData);
     }
 
-    public void beforeReceived(ContextData context) {
-        Span spanData = ContextGenerator.generateContextFromContextData(context);
+    public void beforeReceived(ContextData context, Identification id) {
+        Span spanData = ContextGenerator.generateSpanFromContextData(context, id);
         spanData.setReceiver(true);
         // 存放到上下文
         if (Config.BuriedPoint.PRINTF) {

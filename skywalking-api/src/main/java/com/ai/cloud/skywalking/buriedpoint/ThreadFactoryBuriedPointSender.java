@@ -13,7 +13,7 @@ import com.ai.cloud.skywalking.util.ExceptionHandleUtil;
 public class ThreadFactoryBuriedPointSender implements IBuriedPointSender {
 
     public ContextData beforeSend(Identification id) {
-        Span spanData = ContextGenerator.generateContextFromThreadLocal(id);
+        Span spanData = ContextGenerator.generateSpanFromThreadLocal(id);
         // 3.将新创建的Context存放到ThreadLocal栈中。
         Context.append(spanData);
         // 4 并将当前的Context返回回去

@@ -104,7 +104,7 @@ public class TracingEnhanceProcessor implements BeanPostProcessor {
             builder = builder.delete(builder.length() - 1, builder.length());
         }
         builder.append(")");
-        builder.append("\").build());");
+        builder.append("\").spanType('M').build());");
         return builder.toString();
     }
 

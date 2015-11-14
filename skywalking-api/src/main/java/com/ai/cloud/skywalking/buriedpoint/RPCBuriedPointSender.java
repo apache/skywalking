@@ -13,11 +13,11 @@ import com.ai.cloud.skywalking.util.ExceptionHandleUtil;
 public class RPCBuriedPointSender implements IBuriedPointSender {
 
     public ContextData beforeSend(Identification id) {
-        Span spanData = ContextGenerator.generateContextFromThreadLocal(id);
+        Span spanData = ContextGenerator.generateSpanFromThreadLocal(id);
         // 3.将新创建的Context存放到ThreadLocal栈中。
         Context.append(spanData);
         // 4 并将当前的Context返回回去
-        return new ContextData(new Span(spanData.getTraceId(), spanData.getParentLevel()));
+        return new ContextData(spanData);
     }
 
     public void afterSend() {

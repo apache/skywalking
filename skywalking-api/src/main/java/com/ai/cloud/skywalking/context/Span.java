@@ -10,21 +10,14 @@ public class Span {
     private long startDate;
     private long cost;
     private String address;
-    private byte statueCode = 0;
+    private byte statusCode = 0;
     private String exceptionStack;
-    private byte spanType;
+    private char spanType;
     private boolean isReceiver = false;
-
-    public Span() {
-    }
+    private String businessKey;
 
     public Span(String traceId) {
         this.traceId = traceId;
-    }
-
-    public Span(String traceId, String parentLevel) {
-        this.traceId = traceId;
-        this.parentLevel = parentLevel;
     }
 
     public String getProcessNo() {
@@ -97,15 +90,15 @@ public class Span {
         this.address = address;
     }
 
-    public byte getStatueCode() {
-        return statueCode;
-    }
+    public byte getStatusCode() {
+		return statusCode;
+	}
 
-    public void setStatueCode(byte statueCode) {
-        this.statueCode = statueCode;
-    }
+	public void setStatusCode(byte statusCode) {
+		this.statusCode = statusCode;
+	}
 
-    public String getExceptionStack() {
+	public String getExceptionStack() {
         return exceptionStack;
     }
 
@@ -113,11 +106,11 @@ public class Span {
         this.exceptionStack = exceptionStack;
     }
 
-    public byte getSpanType() {
+    public char getSpanType() {
         return spanType;
     }
 
-    public void setSpanType(byte spanType) {
+    public void setSpanType(char spanType) {
         this.spanType = spanType;
     }
 
@@ -129,13 +122,21 @@ public class Span {
         isReceiver = receiver;
     }
 
-    @Override
+    public String getBusinessKey() {
+		return businessKey;
+	}
+
+	public void setBusinessKey(String businessKey) {
+		this.businessKey = businessKey;
+	}
+
+	@Override
     public String toString() {
         StringBuffer stringBuffer = new StringBuffer(traceId + "-" + parentLevel + "-"
                 + levelId + "-" + viewPointId + "-" + startDate + "-" + cost +
                 "-" + address +
-                "-" + statueCode +
-                "-" + processNo + "-" + spanType + "-" + isReceiver);
+                "-" + statusCode +
+                "-" + processNo + "-" + spanType + "-" + isReceiver + "-" + businessKey);
 
 
         if (!StringUtil.isEmpty(exceptionStack)) {

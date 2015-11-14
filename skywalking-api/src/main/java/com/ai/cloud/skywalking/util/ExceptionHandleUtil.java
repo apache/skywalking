@@ -33,7 +33,7 @@ public final class ExceptionHandleUtil {
         Span spanData = Context.getLastSpan();
         // 设置错误信息
         byte errorCode = 1;
-        spanData.setStatueCode(errorCode);
+        spanData.setStatusCode(errorCode);
         spanData.setExceptionStack(extractExceptionStackMessage(e));
     }
 }

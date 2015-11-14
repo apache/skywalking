@@ -12,13 +12,9 @@ public final class ContextGenerator {
      * @param sendData 视点，业务数据等信息
      * @return
      */
-    public static Span generateContextFromThreadLocal(Identification sendData) {
-        Span spanData = getContextFromThreadLocal();
-        // 设置基本属性
-        spanData.setStartDate(System.currentTimeMillis());
-        spanData.setProcessNo(BuriedPointMachineUtil.getProcessNo());
-        spanData.setAddress(BuriedPointMachineUtil.getHostName() + "/" + BuriedPointMachineUtil.getHostIp());
-        spanData.setViewPointId(sendData.getViewPoint());
+    public static Span generateSpanFromThreadLocal(Identification id) {
+        Span spanData = getSpanFromThreadLocal();
+        initNewSpanData(spanData, id);
         return spanData;
     }
 
@@ -29,26 +25,33 @@ public final class ContextGenerator {
      * @param context
      * @return
      */
-    public static Span generateContextFromContextData(ContextData context) {
+    public static Span generateSpanFromContextData(ContextData context, Identification id) {
         Span spanData;
         // 校验传入的参数是否为空，如果为空，则新创建一个
         if (context == null || StringUtil.isEmpty(context.getTraceId())) {
             // 不存在，新创建一个Context
             spanData = new Span(TraceIdGenerator.generate());
-           // spanData.setLevelId(0L);
         } else {
             // 如果不为空，则将当前的Context存放到上下文
             spanData = new Span(context.getTraceId());
             spanData.setParentLevel(context.getParentLevel());
         }
-        // 设置基本信息
+        initNewSpanData(spanData, id);
+        
+        return spanData;
+    }
+    
+    private static void initNewSpanData(Span spanData,Identification id){
+    	spanData.setSpanType(id.getSpanType());
+        spanData.setViewPointId(id.getViewPoint());
+        spanData.setBusinessKey(id.getBusinessKey());
+    	// 设置基本信息
         spanData.setStartDate(System.currentTimeMillis());
         spanData.setProcessNo(BuriedPointMachineUtil.getProcessNo());
         spanData.setAddress(BuriedPointMachineUtil.getHostName() + "/" + BuriedPointMachineUtil.getHostIp());
-        return spanData;
     }
 
-    private static Span getContextFromThreadLocal() {
+    private static Span getSpanFromThreadLocal() {
         Span span;
         // 1.获取Context，从ThreadLocal栈中获取中
         final Span parentSpan =  Context.getLastSpan();

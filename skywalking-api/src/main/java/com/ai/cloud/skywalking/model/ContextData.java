@@ -6,34 +6,29 @@ public class ContextData {
     private String traceId;
     private String parentLevel;
     private long levelId;
+    private char spanType;
 
     public ContextData(Span span) {
         this.traceId = span.getTraceId();
         this.parentLevel = span.getParentLevel();
         this.levelId = span.getLevelId();
+        this.spanType = span.getSpanType();
     }
 
     public String getTraceId() {
         return traceId;
     }
 
-    public void setTraceId(String traceId) {
-        this.traceId = traceId;
-    }
-
     public String getParentLevel() {
         return parentLevel;
-    }
-
-    public void setParentLevel(String parentLevel) {
-        this.parentLevel = parentLevel;
     }
 
     public long getLevelId() {
         return levelId;
     }
 
-    public void setLevelId(long levelId) {
-        this.levelId = levelId;
-    }
+	public char getSpanType() {
+		return spanType;
+	}
+
 }
