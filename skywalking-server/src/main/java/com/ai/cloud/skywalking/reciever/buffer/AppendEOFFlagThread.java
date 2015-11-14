@@ -32,7 +32,7 @@ class AppendEOFFlagThread extends Thread {
                     bufferedWriter.flush();
                     bufferedWriter.close();
                 } catch (IOException e) {
-
+                    logger.error("Flush data file failed", e);
                 }
             }
         }

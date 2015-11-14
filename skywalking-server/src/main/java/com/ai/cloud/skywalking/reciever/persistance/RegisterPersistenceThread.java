@@ -40,7 +40,6 @@ public class RegisterPersistenceThread extends Thread {
             }
             Collection<FileRegisterEntry> fileRegisterEntries = MemoryRegister.instance().getEntries();
             logger.info("file Register Entries size [{}]", fileRegisterEntries.size());
-            BufferedWriter writer = null;
             try {
                 writer = new BufferedWriter(new FileWriter(file));
             } catch (IOException e) {
@@ -52,7 +51,7 @@ public class RegisterPersistenceThread extends Thread {
                 try {
                     writer.write(fileRegisterEntry.toString() + "\n");
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    logger.error("Write file register entry to offset file failure", e);
                 }
             }
             try {
@@ -60,7 +59,7 @@ public class RegisterPersistenceThread extends Thread {
                 writer.flush();
                 writer.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.error("Flush offset file failure", e);
             }
 
         }
