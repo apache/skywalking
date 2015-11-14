@@ -24,8 +24,9 @@ public class Context {
     }
 
     public static Span removeLastSpan() {
-        if (nodes.get() == null)
+        if (nodes.get() == null) {
             return null;
+        }
         return nodes.get().pop();
     }
 

@@ -8,15 +8,21 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static com.ai.cloud.skywalking.conf.Config.Sender.CONNECT_PERCENT;
+import static com.ai.cloud.skywalking.conf.Config.Sender.RETRY_GET_SENDER_WAIT_INTERVAL;
+import static com.ai.cloud.skywalking.conf.Config.SenderChecker.CHECK_POLLING_TIME;
 
 public class DataSenderFactory {
+
+    private static Logger logger = Logger.getLogger(DataSenderFactory.getSender().toString());
 
     private static Set<SocketAddress> socketAddresses = new HashSet<SocketAddress>();
     private static Set<SocketAddress> unUsedSocketAddresses = new HashSet<SocketAddress>();
     private static List<DataSender> availableSenders = new ArrayList<DataSender>();
-    private static DataSenderMaker dataSenderMaker;
+    private static DataSenderChecker dataSenderChecker;
     private static Object lock = new Object();
 
     static {
@@ -32,40 +38,40 @@ public class DataSenderFactory {
                 socketAddresses.add(new InetSocketAddress(server[0], Integer.valueOf(server[1])));
             }
         } catch (Exception e) {
-            System.err.print("Collection service configuration error.");
+            logger.log(Level.ALL, "Collection service configuration error.");
             System.exit(-1);
         }
 
-        dataSenderMaker = new DataSenderMaker();
-        dataSenderMaker.start();
+        dataSenderChecker = new DataSenderChecker();
+        dataSenderChecker.start();
     }
 
     public static DataSender getSender() {
         while (availableSenders.size() == 0) {
             try {
-                Thread.sleep(2000L);
+                Thread.sleep(RETRY_GET_SENDER_WAIT_INTERVAL);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                logger.log(Level.ALL, "Sleep failure");
             }
         }
         return availableSenders.get(ThreadLocalRandom.current().nextInt(0, availableSenders.size()));
     }
 
-    static class DataSenderMaker extends Thread {
+    static class DataSenderChecker extends Thread {
 
-        private int avaiableSize;
+        private int availableSize;
 
-        public DataSenderMaker() {
+        public DataSenderChecker() {
             if (CONNECT_PERCENT <= 0 || CONNECT_PERCENT > 100) {
-                System.err.println("CONNECT_PERCENT must between 1 and 100");
+                logger.log(Level.ALL, "CONNECT_PERCENT must between 1 and 100");
                 System.exit(-1);
             }
-            avaiableSize = (int) Math.ceil(socketAddresses.size() * ((1.0 * CONNECT_PERCENT / 100) % 100));
+            availableSize = (int) Math.ceil(socketAddresses.size() * ((1.0 * CONNECT_PERCENT / 100) % 100));
             // 初始化DataSender
             List<SocketAddress> usedSocketAddress = new ArrayList<SocketAddress>();
 
             for (SocketAddress socketAddress : socketAddresses) {
-                if (availableSenders.size() >= avaiableSize) {
+                if (availableSenders.size() >= availableSize) {
                     break;
                 }
                 try {
@@ -74,28 +80,35 @@ public class DataSenderFactory {
                 } catch (IOException e) {
                     unUsedSocketAddresses.add(socketAddress);
                 }
-
             }
             unUsedSocketAddresses = new HashSet<SocketAddress>(socketAddresses);
             unUsedSocketAddresses.removeAll(usedSocketAddress);
         }
 
         public void run() {
+            Iterator<SocketAddress> unUsedSocketAddressIterator;
+            SocketAddress tmpScoketAddress;
             while (true) {
-                for (SocketAddress socketAddress : unUsedSocketAddresses) {
-                    if (availableSenders.size() >= avaiableSize) {
+                unUsedSocketAddressIterator = unUsedSocketAddresses.iterator();
+                while (unUsedSocketAddressIterator.hasNext()) {
+
+                    tmpScoketAddress = unUsedSocketAddressIterator.next();
+                    if (availableSenders.size() >= availableSize) {
                         break;
                     }
+
                     try {
-                        availableSenders.add(new DataSender(socketAddress));
+                        availableSenders.add(new DataSender(tmpScoketAddress));
+                        unUsedSocketAddresses.remove(tmpScoketAddress);
                     } catch (IOException e) {
-                        // 当前发送的地址还是不可用
+
                     }
                 }
+
                 try {
-                    Thread.sleep(200L);
+                    Thread.sleep(CHECK_POLLING_TIME);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    logger.log(Level.ALL, "Sleep Failure");
                 }
             }
         }
@@ -106,7 +119,6 @@ public class DataSenderFactory {
             availableSenders.remove(sender);
             unUsedSocketAddresses.add(sender.getServerIp());
         }
-
     }
 
 }

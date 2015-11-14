@@ -11,7 +11,12 @@ import com.ai.cloud.skywalking.util.BuriedPointMachineUtil;
 import com.ai.cloud.skywalking.util.ExceptionHandleUtil;
 import com.ai.cloud.skywalking.util.TraceIdGenerator;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class ThreadBuriedPointSender implements IBuriedPointSender {
+
+    private static Logger logger = Logger.getLogger(ThreadBuriedPointSender.class.getName());
 
     private Span span;
 
@@ -49,7 +54,7 @@ public class ThreadBuriedPointSender implements IBuriedPointSender {
         // 填上必要信息
         span.setCost(System.currentTimeMillis() - span.getStartDate());
         if (Config.BuriedPoint.PRINTF) {
-            System.out.println("viewpointId:" + span.getViewPointId() + "\tParentLevelId:" + span.
+            logger.log(Level.INFO, "viewpointId:" + span.getViewPointId() + "\tParentLevelId:" + span.
                     getParentLevel() + "\tLevelId:" + span.getLevelId());
         }
         // 存放到本地发送进程中

@@ -9,7 +9,7 @@ public final class ContextGenerator {
     /**
      * 利用本地ThreadLocal的信息创建Context，主要用于非跨JVM的操作
      *
-     * @param sendData 视点，业务数据等信息
+     * @param id 视点，业务数据等信息
      * @return
      */
     public static Span generateSpanFromThreadLocal(Identification id) {

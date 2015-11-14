@@ -10,29 +10,35 @@ import com.ai.cloud.skywalking.model.Identification;
 import com.ai.cloud.skywalking.util.ContextGenerator;
 import com.ai.cloud.skywalking.util.ExceptionHandleUtil;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class RPCBuriedPointSender implements IBuriedPointSender {
+
+    private static Logger logger = Logger.getLogger(RPCBuriedPointReceiver.class.getName());
 
     public ContextData beforeSend(Identification id) {
         Span spanData = ContextGenerator.generateSpanFromThreadLocal(id);
-        // 3.将新创建的Context存放到ThreadLocal栈中。
+        // 将新创建的Context存放到ThreadLocal栈中。
         Context.append(spanData);
-        // 4 并将当前的Context返回回去
+        // 并将当前的Context返回回去
         return new ContextData(spanData);
     }
 
     public void afterSend() {
         // 获取上下文的栈顶中的元素
-        Span spanData =  Context.removeLastSpan();
+        Span spanData = Context.removeLastSpan();
         if (spanData == null) {
             return;
         }
-        // 填上必要信息
+
         spanData.setCost(System.currentTimeMillis() - spanData.getStartDate());
+
         if (Config.BuriedPoint.PRINTF) {
-            System.out.println("viewpointId:" + spanData.getViewPointId() + "\tParentLevelId:" + spanData.
+            logger.log(Level.ALL, "viewpointId:" + spanData.getViewPointId() + "\tParentLevelId:" + spanData.
                     getParentLevel() + "\tLevelId:" + spanData.getLevelId());
         }
-        // 存放到本地发送进程中
+
         if (!Config.Sender.IS_OFF) {
             ContextBuffer.save(spanData);
         }

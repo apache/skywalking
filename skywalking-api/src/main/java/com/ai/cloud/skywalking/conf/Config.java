@@ -3,7 +3,10 @@ package com.ai.cloud.skywalking.conf;
 public class Config {
 
     public static class BuriedPoint {
+        //是否打印埋点信息
         public static boolean PRINTF = false;
+
+        public static int MAX_EXCEPTION_STACK_LENGTH = 4000;
     }
 
     public static class Consumer {
@@ -11,6 +14,9 @@ public class Config {
         public static int MAX_CONSUMER = 2;
         //消费者最大等待时间
         public static long MAX_WAIT_TIME = 5L;
+
+        //
+        public static long CONSUMER_FAIL_RETRY_WAIT_INTERVAL = 50L;
     }
 
     public static class Buffer {
@@ -36,5 +42,17 @@ public class Config {
 
         // 发送的最大长度
         public static int MAX_SEND_LENGTH = 1800;
+
+
+        public static long RETRY_GET_SENDER_WAIT_INTERVAL = 2000L;
+
     }
+
+    public static class SenderChecker {
+
+        //检查周期时间
+        public static long CHECK_POLLING_TIME = 200L;
+    }
+
+
 }

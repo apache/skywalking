@@ -10,7 +10,12 @@ import com.ai.cloud.skywalking.model.Identification;
 import com.ai.cloud.skywalking.util.ContextGenerator;
 import com.ai.cloud.skywalking.util.ExceptionHandleUtil;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class RPCBuriedPointReceiver implements IBuriedPointReceiver {
+
+    private static Logger logger = Logger.getLogger(LocalBuriedPointSender.class.getName());
 
     public void afterReceived() {
         // 获取上下文的栈顶中的元素
@@ -23,12 +28,14 @@ public class RPCBuriedPointReceiver implements IBuriedPointReceiver {
 
     public void beforeReceived(ContextData context, Identification id) {
         Span spanData = ContextGenerator.generateSpanFromContextData(context, id);
+        //设置是否为接收端
         spanData.setReceiver(true);
-        // 存放到上下文
+
         if (Config.BuriedPoint.PRINTF) {
-            System.out.println("viewpointId:" + spanData.getViewPointId() + "\tParentLevelId:" + spanData.
+            logger.log(Level.INFO, "viewpointId:" + spanData.getViewPointId() + "\tParentLevelId:" + spanData.
                     getParentLevel() + "\tLevelId:" + spanData.getLevelId());
         }
+
         Context.append(spanData);
     }
 

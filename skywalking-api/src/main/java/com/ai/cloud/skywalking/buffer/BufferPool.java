@@ -11,7 +11,7 @@ class BufferPool {
 
     static {
         for (int i = 0; i < POOL_MAX_LENGTH; i++) {
-            bufferGroups[i] = new BufferGroup("BufferLine-" + i);
+            bufferGroups[i] = new BufferGroup("buffer_group-" + i);
         }
     }
 
