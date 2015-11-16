@@ -17,12 +17,11 @@ import static com.ai.cloud.skywalking.conf.Config.SenderChecker.CHECK_POLLING_TI
 
 public class DataSenderFactory {
 
-    private static Logger logger = Logger.getLogger(DataSenderFactory.getSender().toString());
+    //private static Logger logger = Logger.getLogger(DataSenderFactory.getSender().toString());
 
     private static Set<SocketAddress> socketAddresses = new HashSet<SocketAddress>();
     private static Set<SocketAddress> unUsedSocketAddresses = new HashSet<SocketAddress>();
     private static List<DataSender> availableSenders = new ArrayList<DataSender>();
-    private static DataSenderChecker dataSenderChecker;
     private static Object lock = new Object();
 
     static {
@@ -38,12 +37,11 @@ public class DataSenderFactory {
                 socketAddresses.add(new InetSocketAddress(server[0], Integer.valueOf(server[1])));
             }
         } catch (Exception e) {
-            logger.log(Level.ALL, "Collection service configuration error.");
+           // logger.log(Level.ALL, "Collection service configuration error.");
             System.exit(-1);
         }
 
-        dataSenderChecker = new DataSenderChecker();
-        dataSenderChecker.start();
+        new DataSenderChecker().start();
     }
 
     public static DataSender getSender() {
@@ -51,7 +49,7 @@ public class DataSenderFactory {
             try {
                 Thread.sleep(RETRY_GET_SENDER_WAIT_INTERVAL);
             } catch (InterruptedException e) {
-                logger.log(Level.ALL, "Sleep failure");
+               // logger.log(Level.ALL, "Sleep failure");
             }
         }
         return availableSenders.get(ThreadLocalRandom.current().nextInt(0, availableSenders.size()));
@@ -63,7 +61,7 @@ public class DataSenderFactory {
 
         public DataSenderChecker() {
             if (CONNECT_PERCENT <= 0 || CONNECT_PERCENT > 100) {
-                logger.log(Level.ALL, "CONNECT_PERCENT must between 1 and 100");
+               // logger.log(Level.ALL, "CONNECT_PERCENT must between 1 and 100");
                 System.exit(-1);
             }
             availableSize = (int) Math.ceil(socketAddresses.size() * ((1.0 * CONNECT_PERCENT / 100) % 100));
@@ -112,7 +110,7 @@ public class DataSenderFactory {
                 try {
                     Thread.sleep(CHECK_POLLING_TIME);
                 } catch (InterruptedException e) {
-                    logger.log(Level.ALL, "Sleep Failure");
+                    //logger.log(Level.ALL, "Sleep Failure");
                 }
             }
         }

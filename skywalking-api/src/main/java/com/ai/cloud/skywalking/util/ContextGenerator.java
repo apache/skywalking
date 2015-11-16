@@ -37,15 +37,15 @@ public final class ContextGenerator {
             spanData.setParentLevel(context.getParentLevel());
         }
         initNewSpanData(spanData, id);
-        
+
         return spanData;
     }
-    
-    private static void initNewSpanData(Span spanData,Identification id){
-    	spanData.setSpanType(id.getSpanType());
+
+    private static void initNewSpanData(Span spanData, Identification id) {
+        spanData.setSpanType(id.getSpanType());
         spanData.setViewPointId(id.getViewPoint());
         spanData.setBusinessKey(id.getBusinessKey());
-    	// 设置基本信息
+        // 设置基本信息
         spanData.setStartDate(System.currentTimeMillis());
         spanData.setProcessNo(BuriedPointMachineUtil.getProcessNo());
         spanData.setAddress(BuriedPointMachineUtil.getHostName() + "/" + BuriedPointMachineUtil.getHostIp());
@@ -54,7 +54,7 @@ public final class ContextGenerator {
     private static Span getSpanFromThreadLocal() {
         Span span;
         // 1.获取Context，从ThreadLocal栈中获取中
-        final Span parentSpan =  Context.getLastSpan();
+        final Span parentSpan = Context.getLastSpan();
         // 2 校验Context，Context是否存在
         if (parentSpan == null) {
             // 不存在，新创建一个Context
@@ -62,7 +62,12 @@ public final class ContextGenerator {
         } else {
             // 根据ParentContextData的TraceId和RPCID
             span = new Span(parentSpan.getTraceId());
-            span.setParentLevel(parentSpan.getParentLevel() + "." + parentSpan.getLevelId());
+            if (!StringUtil.isEmpty(parentSpan.getParentLevel())) {
+                span.setParentLevel(parentSpan.getParentLevel() + "." + parentSpan.getLevelId());
+            } else {
+                span.setParentLevel(String.valueOf(parentSpan.getLevelId()));
+            }
+
         }
         return span;
     }

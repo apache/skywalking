@@ -15,6 +15,7 @@ public class Span {
     private char spanType;
     private boolean isReceiver = false;
     private String businessKey;
+    private String processNo;
 
     public Span(String traceId) {
         this.traceId = traceId;
@@ -80,8 +81,6 @@ public class Span {
         this.traceId = traceId;
     }
 
-    private String processNo;
-
     public String getAddress() {
         return address;
     }
@@ -91,14 +90,14 @@ public class Span {
     }
 
     public byte getStatusCode() {
-		return statusCode;
-	}
+        return statusCode;
+    }
 
-	public void setStatusCode(byte statusCode) {
-		this.statusCode = statusCode;
-	}
+    public void setStatusCode(byte statusCode) {
+        this.statusCode = statusCode;
+    }
 
-	public String getExceptionStack() {
+    public String getExceptionStack() {
         return exceptionStack;
     }
 
@@ -123,26 +122,65 @@ public class Span {
     }
 
     public String getBusinessKey() {
-		return businessKey;
-	}
+        return businessKey;
+    }
 
-	public void setBusinessKey(String businessKey) {
-		this.businessKey = businessKey;
-	}
+    public void setBusinessKey(String businessKey) {
+        this.businessKey = businessKey;
+    }
 
-	@Override
+    @Override
     public String toString() {
-        StringBuffer stringBuffer = new StringBuffer(traceId + "-" + parentLevel + "-"
-                + levelId + "-" + viewPointId + "-" + startDate + "-" + cost +
-                "-" + address +
-                "-" + statusCode +
-                "-" + processNo + "-" + spanType + "-" + isReceiver + "-" + businessKey);
+        StringBuilder toStringValue = new StringBuilder();
+        toStringValue.append(traceId + "-");
 
-
-        if (!StringUtil.isEmpty(exceptionStack)) {
-            stringBuffer.append("-" + exceptionStack);
+        if (!StringUtil.isEmpty(parentLevel)) {
+            toStringValue.append(parentLevel + "-");
+        } else {
+            toStringValue.append(" -");
         }
 
-        return stringBuffer.toString();
+        toStringValue.append(levelId + "-");
+
+        if (!StringUtil.isEmpty(viewPointId)) {
+            toStringValue.append(viewPointId + "-");
+        } else {
+            toStringValue.append(" -");
+        }
+
+        toStringValue.append(startDate + "-");
+        toStringValue.append(cost + "-");
+
+        if (!StringUtil.isEmpty(address)) {
+            toStringValue.append(address + "-");
+        } else {
+            toStringValue.append(" -");
+        }
+
+        toStringValue.append(statusCode + "-");
+
+        if (!StringUtil.isEmpty(exceptionStack)) {
+            toStringValue.append(exceptionStack + "-");
+        } else {
+            toStringValue.append(" -");
+        }
+
+        toStringValue.append(spanType + "-");
+        toStringValue.append(isReceiver + "-");
+
+
+        if (!StringUtil.isEmpty(businessKey)) {
+            toStringValue.append(businessKey + "-");
+        } else {
+            toStringValue.append(" -");
+        }
+
+        if (!StringUtil.isEmpty(processNo)) {
+            toStringValue.append(processNo);
+        } else {
+            toStringValue.append(" -");
+        }
+
+        return toStringValue.toString();
     }
 }

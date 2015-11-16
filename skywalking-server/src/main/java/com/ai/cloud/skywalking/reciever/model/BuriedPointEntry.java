@@ -18,6 +18,10 @@ public class BuriedPointEntry {
     private String processNo;
 
 
+    private BuriedPointEntry(){
+
+    }
+
     public String getTraceId() {
         return traceId;
     }
@@ -78,7 +82,7 @@ public class BuriedPointEntry {
         result.levelId = Integer.valueOf(fieldValues[2]);
         result.viewPointId = fieldValues[3];
         result.startDate = new Date(Long.valueOf(fieldValues[4]));
-        result.cost = Long.getLong(fieldValues[5]);
+        result.cost = Long.parseLong(fieldValues[5]);
         result.address = fieldValues[6];
         result.exceptionStack = fieldValues[7];
         result.spanType = fieldValues[8].charAt(0);
@@ -86,5 +90,9 @@ public class BuriedPointEntry {
         result.businessKey = fieldValues[10];
         result.processNo = fieldValues[11];
         return result;
+    }
+
+    public static void main(String[] args){
+        BuriedPointEntry.convert("4d6d38a76c21436e998a81fe798d4ced-.0.0.0-0-com.ai.cloud.skywalking.plugin.spring.common.CallChainE.doBusiness()-1447671990694-0-astraea-PC/192.168.1.108-0- -M-false- -8080;4d6d38a76c21436e998a81fe798d4ced-.0.0-0-com.ai.cloud.skywalking.plugin.spring.common.CallChainC.doBusiness()-1447671990694-11-astraea-PC/192.168.1.108-0- -M-false- -8080");
     }
 }

@@ -5,6 +5,7 @@ import com.ai.cloud.skywalking.reciever.hbase.HBaseOperator;
 import com.ai.cloud.skywalking.reciever.model.BuriedPointEntry;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.comparator.NameFileComparator;
+import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -58,12 +59,6 @@ public class PersistenceThread extends Thread {
                             continue;
                         }
 
-                        buriedPointData = data.toString().split(";");
-                        for (String buriedPoint : buriedPointData) {
-                            BuriedPointEntry entry = BuriedPointEntry.convert(buriedPoint);
-                            HBaseOperator.insert(entry.getTraceId(), entry.getParentLevel() + "." + entry.getLevelId(), buriedPoint);
-                        }
-
                         if ("EOF".equals(data.toString())) {
                             bufferedReader.close();
                             logger.info("Data in file[{}] has been successfully processed", file1.getName());
@@ -76,6 +71,17 @@ public class PersistenceThread extends Thread {
                             bool = false;
                             break;
                         }
+
+                        buriedPointData = data.toString().split(";");
+                        for (String buriedPoint : buriedPointData) {
+                            BuriedPointEntry entry = BuriedPointEntry.convert(buriedPoint);
+                            if (StringUtils.isEmpty(entry.getParentLevel().trim())) {
+                                HBaseOperator.insert(entry.getTraceId(), String.valueOf(entry.getLevelId()), buriedPoint);
+                            } else {
+                                HBaseOperator.insert(entry.getTraceId(), entry.getParentLevel() + "." + entry.getLevelId(), buriedPoint);
+                            }
+                        }
+
                         data.delete(0, data.length());
                     }
                 }

@@ -14,7 +14,7 @@ import static com.ai.cloud.skywalking.conf.Config.Consumer.*;
 import static com.ai.cloud.skywalking.conf.Config.Sender.MAX_BUFFER_DATA_SIZE;
 
 public class BufferGroup {
-    private static Logger logger = Logger.getLogger(BufferGroup.class.getName());
+   // private static Logger logger = Logger.getLogger(BufferGroup.class.getName());
     private String groupName;
     private Span[] dataBuffer = new Span[BUFFER_MAX_SIZE];
     AtomicInteger index = new AtomicInteger(0);
@@ -72,14 +72,14 @@ public class BufferGroup {
                         continue;
                     }
                     bool = true;
-                    data.append(dataBuffer[i]);
+                    data.append(dataBuffer[i] + ";");
                     dataBuffer[i] = null;
                     if (index++ == MAX_BUFFER_DATA_SIZE || data.length() >= Config.Sender.MAX_SEND_LENGTH) {
                         while (!DataSenderFactory.getSender().send(data.toString())) {
                             try {
                                 Thread.sleep(CONSUMER_FAIL_RETRY_WAIT_INTERVAL);
                             } catch (InterruptedException e) {
-                                logger.log(Level.ALL, "Sleep Failure");
+                               // logger.log(Level.ALL, "Sleep Failure");
                             }
                         }
                         index = 0;
@@ -91,7 +91,7 @@ public class BufferGroup {
                     try {
                         Thread.sleep(MAX_WAIT_TIME);
                     } catch (InterruptedException e) {
-                        logger.log(Level.ALL, "Sleep Failure");
+                       // logger.log(Level.ALL, "Sleep Failure");
                     }
                 }
             }
