@@ -65,7 +65,17 @@ public class Config {
 
         // 偏移量写入文件等待周期
         public static long OFFSET_WRITTEN_FILE_WAIT_CYCLE = 5000L;
+    }
 
+    public static class HBaseConfig {
+        //
+        public static String TABLE_NAME = "sw-call-chain";
+        //
+        public static String FAMILY_COLUMN_NAME = "call-chain";
+
+        public static String ZK_HOSTNAME;
+
+        public static String CLIENT_PORT;
     }
 
 }
