@@ -1,6 +1,8 @@
 package com.ai.cloud.skywalking.reciever.persistance;
 
 import com.ai.cloud.skywalking.reciever.conf.Config;
+import com.ai.cloud.skywalking.reciever.hbase.HBaseOperator;
+import com.ai.cloud.skywalking.reciever.model.BuriedPointEntry;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.comparator.NameFileComparator;
 import org.apache.logging.log4j.LogManager;
@@ -21,6 +23,7 @@ public class PersistenceThread extends Thread {
         BufferedReader bufferedReader;
         int offset;
         StringBuffer data;
+        String[] buriedPointData;
         while (true) {
             file1 = getDataFiles();
             if (file1 == null) {
@@ -54,8 +57,12 @@ public class PersistenceThread extends Thread {
                             data.append(chars[i]);
                             continue;
                         }
-                        // HBase
-                        //System.out.println(data);
+
+                        buriedPointData = data.toString().split(";");
+                        for (String buriedPoint : buriedPointData) {
+                            BuriedPointEntry entry = BuriedPointEntry.convert(buriedPoint);
+                            HBaseOperator.insert(entry.getTraceId(), entry.getParentLevel() + "." + entry.getLevelId(), buriedPoint);
+                        }
 
                         if ("EOF".equals(data.toString())) {
                             bufferedReader.close();
@@ -112,9 +119,9 @@ public class PersistenceThread extends Thread {
         NameFileComparator sizeComparator = new NameFileComparator();
         File[] dataFileList = sizeComparator.sort(parentDir.listFiles());
         for (File file : dataFileList) {
-        	if(file.getName().startsWith(".")){
-        		continue;
-        	}
+            if (file.getName().startsWith(".")) {
+                continue;
+            }
             if (MemoryRegister.instance().isRegister(file.getName())) {
                 if (logger.isDebugEnabled())
                     logger.debug("The file [{}] is being used by another thread ", file);
