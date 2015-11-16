@@ -22,7 +22,6 @@ public class HBaseOperator {
     private static Connection connection;
 
     private static void initHBaseClient() throws IOException {
-        System.setProperty("hadoop.home.dir", "D:/hadoop/hadoop-2.4.1");
         if (configuration == null) {
             configuration = HBaseConfiguration.create();
             if (Config.HBaseConfig.ZK_HOSTNAME == null || "".equals(Config.HBaseConfig.ZK_HOSTNAME)) {
@@ -60,7 +59,7 @@ public class HBaseOperator {
             createTable(tableName);
             Table table = connection.getTable(TableName.valueOf(tableName));
             Put put = new Put(Bytes.toBytes(rowKey));
-            put.add(Bytes.toBytes(Config.HBaseConfig.FAMILY_COLUMN_NAME), Bytes.toBytes(qualifier), Bytes
+            put.addColumn(Bytes.toBytes(Config.HBaseConfig.FAMILY_COLUMN_NAME), Bytes.toBytes(qualifier), Bytes
                     .toBytes(value));
             table.put(put);
             if (logger.isDebugEnabled()) {

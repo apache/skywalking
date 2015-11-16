@@ -92,7 +92,4 @@ public class BuriedPointEntry {
         return result;
     }
 
-    public static void main(String[] args){
-        BuriedPointEntry.convert("4d6d38a76c21436e998a81fe798d4ced-.0.0.0-0-com.ai.cloud.skywalking.plugin.spring.common.CallChainE.doBusiness()-1447671990694-0-astraea-PC/192.168.1.108-0- -M-false- -8080;4d6d38a76c21436e998a81fe798d4ced-.0.0-0-com.ai.cloud.skywalking.plugin.spring.common.CallChainC.doBusiness()-1447671990694-11-astraea-PC/192.168.1.108-0- -M-false- -8080");
-    }
 }
