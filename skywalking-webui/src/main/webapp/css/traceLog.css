@@ -1,0 +1,21 @@
+body {
+  background:#EEEEEE
+}
+
+.progress {
+	height: 15px;
+	margin-bottom:0px;
+}
+.progress-bar {
+  font-size: 10px;
+  line-height:15px;
+  
+}
+.progress-bar-white {
+  background-image: none;
+  background-color: FFFFFF;
+}
+.highlight { 
+	background-color: #D8ECF6; 
+}
+
