@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:lang="http://www.springframework.org/schema/lang"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+				http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+				http://www.springframework.org/schema/context
+				http://www.springframework.org/schema/context/spring-context-3.0.xsd
+				http://www.springframework.org/schema/mvc 
+				http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+				http://www.springframework.org/schema/tx
+     	        http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+				http://www.springframework.org/schema/tx
+     	   		http://www.springframework.org/schema/tx/spring-tx-3.0.xsd	
+     	   		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang.xsd
+           http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring.xsd	">
+	<!-- 添加注解驱动 -->
+	<mvc:annotation-driven />
+	<!-- 默认扫描的包路径 -->
+	<context:component-scan base-package="com.ai" />
+
+	<mvc:resources mapping="/img/**" location="/img/" />
+	<mvc:resources mapping="/js/**" location="/js/" />
+	<mvc:resources mapping="/css/**" location="/css/" />
+
+	<!-- freemarker 配置 -->
+	<bean id="freemarkerConfig"
+		class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
+		<property name="templateLoaderPath" value="/ftl" />
+		<property name="freemarkerSettings">
+			<props>
+				<prop key="template_update_delay">10</prop>
+				<prop key="locale">zh_CN</prop>
+				<prop key="datetime_format">yyyy-MM-dd HH:mm:ss</prop>
+				<prop key="date_format">yyyy-MM-dd</prop>
+				<prop key="number_format">#.####</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean
+		class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver">
+		<property name="suffix" value=".ftl" />
+		<property name="order" value="1" />
+		<property name="viewClass" value="com.ai.cloud.util.view.BaseFreeMarkerView" />
+		<property name="contentType" value="text/html;charset=UTF-8" />
+		<property name="exposeRequestAttributes" value="false" />
+		<property name="exposeSessionAttributes" value="false" />
+		<property name="exposeSpringMacroHelpers" value="true" />
+
+	</bean>
+
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>classpath:jdbc.properties</value>
+			</list>
+		</property>
+	</bean>
+
+	<!-- 数据库、事务配置 -->
+	<import resource="application-jdbc.xml" />
+
+</beans>

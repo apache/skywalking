@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:context="http://www.springframework.org/schema/context"	   
+	   xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:lang="http://www.springframework.org/schema/lang"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans
+				http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+				http://www.springframework.org/schema/context
+				http://www.springframework.org/schema/context/spring-context-3.0.xsd				
+				http://www.springframework.org/schema/tx
+     	        http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+				http://www.springframework.org/schema/tx
+     	   		http://www.springframework.org/schema/tx/spring-tx-3.0.xsd	
+     	   		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang.xsd">
+  
+    <!--  配置数据源 -->
+    <bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource">
+        <property name="driverClassName" value="${jdbc.driverClassName}"/>
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+        <property name="maxTotal" value="${jdbc.maxTotal}"/>
+        <property name="maxIdle" value="${jdbc.maxIdle}"/>
+        <property name="maxWaitMillis" value="${jdbc.maxWaitMillis}"/>
+        <property name="defaultAutoCommit" value="${jdbc.defaultAutoCommit}"/>
+    </bean>
+    
+    <bean id="jdbcTemplate"  
+        class="org.springframework.jdbc.core.JdbcTemplate">  
+        <property name="dataSource" ref="dataSource" />  
+    </bean>
+	
+	 <bean id="transactionManager"  
+       class="org.springframework.jdbc.datasource.DataSourceTransactionManager">  
+        <property name="dataSource" ref="dataSource" />  
+    </bean>  
+   <!-- 注解事务类 -->  
+   <tx:annotation-driven transaction-manager="transactionManager" ></tx:annotation-driven>
+
+	 <!--AOP 事务配置-->
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="*" propagation="REQUIRED"/>
+        </tx:attributes>
+    </tx:advice>
+
+</beans>
