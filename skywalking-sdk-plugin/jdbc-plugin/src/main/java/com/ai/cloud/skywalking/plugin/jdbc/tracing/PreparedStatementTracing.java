@@ -11,7 +11,7 @@ import com.ai.cloud.skywalking.model.Identification;
  * @author wusheng
  *
  */
-public class PreaparedStatementTracing {
+public class PreparedStatementTracing {
 	private static RPCBuriedPointSender sender = new RPCBuriedPointSender();
 
 	public static <R> R execute(java.sql.PreparedStatement realStatement,
