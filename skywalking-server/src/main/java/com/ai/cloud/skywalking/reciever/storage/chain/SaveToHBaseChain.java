@@ -7,16 +7,15 @@ import com.ai.cloud.skywalking.reciever.storage.ChainException;
 import com.ai.cloud.skywalking.reciever.storage.IStorageChain;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.HBaseConfiguration;
-import org.apache.hadoop.hbase.HColumnDescriptor;
-import org.apache.hadoop.hbase.HTableDescriptor;
-import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.*;
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SaveToHBaseChain implements IStorageChain {
     private static Logger logger = LogManager.getLogger(SaveToHBaseChain.class);

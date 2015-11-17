@@ -77,18 +77,18 @@ public class BuriedPointEntry {
     public static BuriedPointEntry convert(String str) {
         BuriedPointEntry result = new BuriedPointEntry();
         String[] fieldValues = str.split("-");
-        result.traceId = fieldValues[0];
-        result.parentLevel = fieldValues[1];
+        result.traceId = fieldValues[0].trim();
+        result.parentLevel = fieldValues[1].trim();
         result.levelId = Integer.valueOf(fieldValues[2]);
-        result.viewPointId = fieldValues[3];
+        result.viewPointId = fieldValues[3].trim();
         result.startDate = new Date(Long.valueOf(fieldValues[4]));
         result.cost = Long.parseLong(fieldValues[5]);
-        result.address = fieldValues[6];
-        result.exceptionStack = fieldValues[7];
+        result.address = fieldValues[6].trim();
+        result.exceptionStack = fieldValues[7].trim();
         result.spanType = fieldValues[8].charAt(0);
         result.isReceiver = Boolean.getBoolean(fieldValues[9]);
-        result.businessKey = fieldValues[10].replace('^', '-');
-        result.processNo = fieldValues[11];
+        result.businessKey = fieldValues[10].replace('^', '-').trim();
+        result.processNo = fieldValues[11].trim();
         return result;
     }
 
