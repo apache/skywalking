@@ -4,12 +4,17 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.ai.cloud.skywalking.reciever.model.BuriedPointEntry;
+import com.ai.cloud.skywalking.reciever.storage.chain.SaveToHBaseChain;
 
 public class StorageChainController {
 	private static Logger logger = LogManager
 			.getLogger(StorageChainController.class);
 	
 	private static Chain globalChain = new Chain();
+	
+	static{
+		globalChain.addChain(new SaveToHBaseChain());
+	}
 
 	public static void doStorage(String buriedPointDatas) {
 		String[] buriedPointData = buriedPointDatas.split(";");
