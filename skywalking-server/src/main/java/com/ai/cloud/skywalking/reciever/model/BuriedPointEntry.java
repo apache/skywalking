@@ -18,7 +18,7 @@ public class BuriedPointEntry {
     private String processNo;
 
 
-    private BuriedPointEntry(){
+    private BuriedPointEntry() {
 
     }
 
@@ -87,7 +87,7 @@ public class BuriedPointEntry {
         result.exceptionStack = fieldValues[7];
         result.spanType = fieldValues[8].charAt(0);
         result.isReceiver = Boolean.getBoolean(fieldValues[9]);
-        result.businessKey = fieldValues[10];
+        result.businessKey = fieldValues[10].replace('^', '-');
         result.processNo = fieldValues[11];
         return result;
     }

@@ -78,4 +78,7 @@ public class Config {
         public static String CLIENT_PORT;
     }
 
+    public static class StorageChain {
+        public static long RETRY_STORAGE_WAIT_TIME = 50L;
+    }
 }
