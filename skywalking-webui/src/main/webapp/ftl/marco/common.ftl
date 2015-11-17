@@ -31,7 +31,7 @@ ${menuInfo}
 <#if isLogin == '1'>
 		<input id="srchKey" type="text" class="form-control" style="width: 450px" placeholder="TraceId">
 <#else>
-		<input id="srchKey" type="text" class="form-control" style="width: 850px" placeholder="TraceId">
+		<input id="srchKey" type="text" class="form-control" style="width: 750px" placeholder="TraceId">
 </#if>
 </div>
 	<button id="srchBtn" type="button" class="btn btn-default">Search</button>

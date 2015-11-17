@@ -15,4 +15,10 @@ public class Constants {
 	
 	public static final String VERSION_VAL = "0.1";
 	
+	public static final String QUORUM = "10.1.235.197,10.1.235.198,10.1.235.199";
+	
+	public static final String CLIENT_PORT = "29181";
+	
+	public static final String TABLE_NAME_CHAIN = "sw-call-chain";
+	
 }

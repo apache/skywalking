@@ -3,11 +3,11 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>jQuery treetable</title>
-    <link rel="stylesheet" href="css/jquery.treetable.css" />
-    <link rel="stylesheet" href="css/jquery.treetable.theme.default.css" />
-	<link rel="stylesheet" href="css/bootstrap.css" />
-	<link rel="stylesheet" href="css/traceLog.css" />
+    <title>traceLog</title>
+    <link rel="stylesheet" href="${base}/css/jquery.treetable.css" />
+    <link rel="stylesheet" href="${base}/css/jquery.treetable.theme.default.css" />
+	<link rel="stylesheet" href="${base}/css/bootstrap.css" />
+	<link rel="stylesheet" href="${base}/css/traceLog.css" />
 	
   </head>
   <body>

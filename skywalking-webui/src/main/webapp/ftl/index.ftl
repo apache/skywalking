@@ -8,11 +8,12 @@
 <meta name="generator" content="Bootply" />
 <meta name="viewport"
 	content="width=device-width, initial-scale=1, maximum-scale=1">
-<link href="css/bootstrap.min.css" rel="stylesheet">
-<link href="css/index.css" rel="stylesheet">
+<link href="${base}/css/bootstrap.min.css" rel="stylesheet">
+<link href="${base}/css/index.css" rel="stylesheet">
 </head>
 <body>
 	<input type="hidden" id="baseUrl" value="${base}">
+	<input type="hidden" id="traceId" value="${traceId!''}">
 	<div class="navbar navbar-inverse navbar-fixed-top">
 		<div class="container">
 			<div class="navbar-header">
