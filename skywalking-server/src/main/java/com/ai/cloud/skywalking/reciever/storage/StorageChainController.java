@@ -1,5 +1,8 @@
 package com.ai.cloud.skywalking.reciever.storage;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -10,10 +13,10 @@ public class StorageChainController {
 	private static Logger logger = LogManager
 			.getLogger(StorageChainController.class);
 	
-	private static Chain globalChain = new Chain();
+	private static List<IStorageChain> chainArray = new ArrayList<IStorageChain>();
 	
 	static{
-		globalChain.addChain(new SaveToHBaseChain());
+		chainArray.add(new SaveToHBaseChain());
 	}
 
 	public static void doStorage(String buriedPointDatas) {
@@ -27,7 +30,8 @@ public class StorageChainController {
 					continue;
 				}
 				BuriedPointEntry entry = BuriedPointEntry.convert(buriedPoint);
-				globalChain.doChain(entry, buriedPoint);
+				Chain chain = new Chain(chainArray);
+				chain.doChain(entry, buriedPoint);
 			} catch (Throwable e) {
 				logger.error("ready to save buriedPoint error, choose to ignore. data="
 						+ buriedPoint, e);
