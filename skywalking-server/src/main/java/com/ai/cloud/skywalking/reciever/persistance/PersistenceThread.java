@@ -1,17 +1,22 @@
 package com.ai.cloud.skywalking.reciever.persistance;
 
-import com.ai.cloud.skywalking.reciever.conf.Config;
-import com.ai.cloud.skywalking.reciever.hbase.HBaseOperator;
-import com.ai.cloud.skywalking.reciever.model.BuriedPointEntry;
+import static com.ai.cloud.skywalking.reciever.conf.Config.Persistence.OFFSET_FILE_READ_BUFFER_SIZE;
+import static com.ai.cloud.skywalking.reciever.conf.Config.Persistence.OFFSET_FILE_SKIP_LENGTH;
+import static com.ai.cloud.skywalking.reciever.conf.Config.Persistence.SWITCH_FILE_WAIT_TIME;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.comparator.NameFileComparator;
-import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.*;
-
-import static com.ai.cloud.skywalking.reciever.conf.Config.Persistence.*;
+import com.ai.cloud.skywalking.reciever.conf.Config;
+import com.ai.cloud.skywalking.reciever.storage.StorageChainController;
 
 public class PersistenceThread extends Thread {
 
@@ -24,7 +29,6 @@ public class PersistenceThread extends Thread {
         BufferedReader bufferedReader;
         int offset;
         StringBuffer data;
-        String[] buriedPointData;
         while (true) {
             file1 = getDataFiles();
             if (file1 == null) {
@@ -72,16 +76,8 @@ public class PersistenceThread extends Thread {
                             break;
                         }
 
-                        buriedPointData = data.toString().split(";");
-                        for (String buriedPoint : buriedPointData) {
-                            BuriedPointEntry entry = BuriedPointEntry.convert(buriedPoint);
-                            if (StringUtils.isEmpty(entry.getParentLevel().trim())) {
-                                HBaseOperator.insert(entry.getTraceId(), String.valueOf(entry.getLevelId()), buriedPoint);
-                            } else {
-                                HBaseOperator.insert(entry.getTraceId(), entry.getParentLevel() + "." + entry.getLevelId(), buriedPoint);
-                            }
-                        }
-
+                        StorageChainController.doStorage(data.toString());
+                        
                         data.delete(0, data.length());
                     }
                 }
