@@ -4,7 +4,7 @@ import com.ai.cloud.skywalking.context.Span;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-import static com.ai.cloud.skywalking.conf.Config.Buffer.POOL_MAX_LENGTH;
+import static com.ai.cloud.skywalking.conf.Config.Buffer.POOL_SIZE;
 
 public class ContextBuffer {
 
@@ -20,15 +20,15 @@ public class ContextBuffer {
 
 
     static class BufferPool {
-        private static BufferGroup[] bufferGroups = new BufferGroup[POOL_MAX_LENGTH];
+        private static BufferGroup[] bufferGroups = new BufferGroup[POOL_SIZE];
         static {
-            for (int i = 0; i < POOL_MAX_LENGTH; i++) {
+            for (int i = 0; i < POOL_SIZE; i++) {
                 bufferGroups[i] = new BufferGroup("buffer_group-" + i);
             }
         }
 
         public void save(Span span) {
-            bufferGroups[ThreadLocalRandom.current().nextInt(0, POOL_MAX_LENGTH)].save(span);
+            bufferGroups[ThreadLocalRandom.current().nextInt(0, POOL_SIZE)].save(span);
         }
 
     }
