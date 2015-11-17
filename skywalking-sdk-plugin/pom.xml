@@ -8,6 +8,7 @@
   <modules>
     <module>../skywalking-api/skywalking-sdk-plugin</module>
     <module>spring-plugin</module>
+    <module>jdbc-plugin</module>
   </modules>
   <packaging>pom</packaging>
 
