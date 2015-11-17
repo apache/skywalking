@@ -2,6 +2,10 @@ package com.ai.cloud.skywalking.conf;
 
 public class Config {
 
+    public static class SkyWalking {
+        public static String USER_ID;
+    }
+
     public static class BuriedPoint {
         //是否打印埋点信息
         public static boolean PRINTF = false;

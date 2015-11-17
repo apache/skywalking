@@ -2,10 +2,12 @@ package com.ai.cloud.skywalking.buriedpoint;
 
 import com.ai.cloud.skywalking.api.IBuriedPointSender;
 import com.ai.cloud.skywalking.buffer.ContextBuffer;
+import com.ai.cloud.skywalking.conf.AuthDesc;
 import com.ai.cloud.skywalking.conf.Config;
 import com.ai.cloud.skywalking.context.Context;
 import com.ai.cloud.skywalking.context.Span;
 import com.ai.cloud.skywalking.model.ContextData;
+import com.ai.cloud.skywalking.model.EmptyContextData;
 import com.ai.cloud.skywalking.model.Identification;
 import com.ai.cloud.skywalking.util.BuriedPointMachineUtil;
 import com.ai.cloud.skywalking.util.ExceptionHandleUtil;
@@ -21,6 +23,8 @@ public class ThreadBuriedPointSender implements IBuriedPointSender {
     private Span span;
 
     public ThreadBuriedPointSender(int threadSeqId) {
+        if (!AuthDesc.isAuth())
+            return ;
         Span spanData;
         // 从ThreadLocal中取出上下文
         final Span parentSpanData = Context.getLastSpan();
@@ -36,6 +40,9 @@ public class ThreadBuriedPointSender implements IBuriedPointSender {
     }
 
     public ContextData beforeSend(Identification id) {
+        if (!AuthDesc.isAuth())
+            return new EmptyContextData();
+
         if (this.span == null) {
             return null;
         }

@@ -2,6 +2,7 @@ package com.ai.cloud.skywalking.buriedpoint;
 
 import com.ai.cloud.skywalking.api.IBuriedPointReceiver;
 import com.ai.cloud.skywalking.buffer.ContextBuffer;
+import com.ai.cloud.skywalking.conf.AuthDesc;
 import com.ai.cloud.skywalking.conf.Config;
 import com.ai.cloud.skywalking.context.Context;
 import com.ai.cloud.skywalking.context.Span;
@@ -18,6 +19,9 @@ public class RPCBuriedPointReceiver implements IBuriedPointReceiver {
     private static Logger logger = Logger.getLogger(LocalBuriedPointSender.class.getName());
 
     public void afterReceived() {
+        if (!AuthDesc.isAuth())
+            return;
+
         // 获取上下文的栈顶中的元素
         Span spanData = Context.removeLastSpan();
         // 填上必要信息
@@ -27,6 +31,9 @@ public class RPCBuriedPointReceiver implements IBuriedPointReceiver {
     }
 
     public void beforeReceived(ContextData context, Identification id) {
+        if (!AuthDesc.isAuth())
+            return;
+
         Span spanData = ContextGenerator.generateSpanFromContextData(context, id);
         //设置是否为接收端
         spanData.setReceiver(true);

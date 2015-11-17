@@ -1,15 +1,33 @@
 package com.ai.cloud.skywalking.conf;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.LinkedList;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ConfigInitializer {
+    private static Logger logger = Logger.getLogger(ConfigInitializer.class.getName());
 
-
-    public static void initialize(Properties properties, Class<?> rootConfigType) throws IllegalAccessException {
-        initNextLevel(properties, rootConfigType, new ConfigDesc());
+    public static void initialize() {
+        InputStream inputStream = ConfigInitializer.class.getResourceAsStream("/sky-walking.auth");
+        if (inputStream == null) {
+            logger.log(Level.ALL, "No provider sky-walking certification documents, buried point won't work");
+        } else {
+            try {
+                Properties properties = new Properties();
+                properties.load(inputStream);
+                initNextLevel(properties, Config.class, new ConfigDesc());
+                AuthDesc.isAuth = true;
+            } catch (IllegalAccessException e) {
+                logger.log(Level.ALL, "Parsing certification file failed, buried won't work");
+            } catch (IOException e) {
+                logger.log(Level.ALL, "Failed to read the certification file, buried won't work");
+            }
+        }
     }
 
     private static void initNextLevel(Properties properties, Class<?> recentConfigType, ConfigDesc parentDesc) throws NumberFormatException, IllegalArgumentException, IllegalAccessException {

@@ -8,6 +8,10 @@ public class ContextData {
     private long levelId;
     private char spanType;
 
+    ContextData() {
+
+    }
+
     public ContextData(Span span) {
         this.traceId = span.getTraceId();
         this.parentLevel = span.getParentLevel();
@@ -27,8 +31,8 @@ public class ContextData {
         return levelId;
     }
 
-	public char getSpanType() {
-		return spanType;
-	}
+    public char getSpanType() {
+        return spanType;
+    }
 
 }

@@ -1,5 +1,7 @@
 package com.ai.cloud.skywalking.util;
 
+import com.ai.cloud.skywalking.conf.Config;
+
 import java.util.UUID;
 
 public final class TraceIdGenerator {
@@ -8,6 +10,6 @@ public final class TraceIdGenerator {
     }
 
     public static String generate() {
-        return UUID.randomUUID().toString().replaceAll("-", "");
+        return UUID.randomUUID().toString().replaceAll("-", "") + Config.SkyWalking.USER_ID;
     }
 }
