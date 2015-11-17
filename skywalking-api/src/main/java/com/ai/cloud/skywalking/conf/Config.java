@@ -28,7 +28,7 @@ public class Config {
         public static int BUFFER_MAX_SIZE = 18000;
 
         // Buffer池的最大长度
-        public static int POOL_MAX_LENGTH = 5;
+        public static int POOL_SIZE = 5;
     }
 
     public static class Sender {
@@ -59,4 +59,8 @@ public class Config {
     }
 
 
+    public static class BusinessKey {
+        //Business Key 最大长度
+        public static int MAX_LENGTH = 300;
+    }
 }

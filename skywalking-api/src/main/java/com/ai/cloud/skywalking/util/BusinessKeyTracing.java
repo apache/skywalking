@@ -1,11 +1,13 @@
 package com.ai.cloud.skywalking.util;
 
+import com.ai.cloud.skywalking.conf.AuthDesc;
+import com.ai.cloud.skywalking.conf.Config;
 import com.ai.cloud.skywalking.context.Context;
 import com.ai.cloud.skywalking.context.Span;
 
 public final class BusinessKeyTracing {
 
-    private static final char spiltChar='^';
+    private static final char spiltChar = '^';
 
 
     private BusinessKeyTracing() {
@@ -13,8 +15,14 @@ public final class BusinessKeyTracing {
     }
 
     public static void trace(String businessKey) {
-        //
+
+        if (!AuthDesc.isAuth())
+            return;
+
         Span spanData = Context.getLastSpan();
-        spanData.setBusinessKey(businessKey.replace('-',spiltChar));
+        if (spanData != null) {
+            return;
+        }
+        spanData.setBusinessKey(businessKey.replace('-', spiltChar).substring(0, Config.BusinessKey.MAX_LENGTH));
     }
 }
