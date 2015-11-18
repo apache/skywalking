@@ -2,11 +2,16 @@ package com.ai.cloud.skywalking.plugin.dubbo;
 
 import com.ai.cloud.skywalking.buriedpoint.RPCBuriedPointReceiver;
 import com.ai.cloud.skywalking.buriedpoint.RPCBuriedPointSender;
-import com.ai.cloud.skywalking.context.Span;
 import com.ai.cloud.skywalking.model.ContextData;
 import com.ai.cloud.skywalking.model.Identification;
 import com.alibaba.dubbo.common.extension.Activate;
-import com.alibaba.dubbo.rpc.*;
+import com.alibaba.dubbo.rpc.Filter;
+import com.alibaba.dubbo.rpc.Invocation;
+import com.alibaba.dubbo.rpc.Invoker;
+import com.alibaba.dubbo.rpc.Result;
+import com.alibaba.dubbo.rpc.RpcContext;
+import com.alibaba.dubbo.rpc.RpcException;
+import com.alibaba.dubbo.rpc.RpcInvocation;
 
 @Activate
 public class SWDubboEnhanceFilter implements Filter {
@@ -42,13 +47,7 @@ public class SWDubboEnhanceFilter implements Filter {
             String contextDataStr = rpcInvocation.getAttachment("contextData");
             ContextData contextData = null;
             if (contextDataStr != null && contextDataStr.length() > 0) {
-                // 反序列化参数
-                String[] value = contextDataStr.split("-");
-                Span span = new Span(value[0]);
-                span.setParentLevel(value[1]);
-                span.setLevelId(Integer.valueOf(value[2]));
-                span.setSpanType(value[3].charAt(0));
-                contextData = new ContextData(span);
+                contextData = new ContextData(contextDataStr);
             }
 
             rpcBuriedPointReceiver.beforeReceived(contextData, createIdentification(invoker));
