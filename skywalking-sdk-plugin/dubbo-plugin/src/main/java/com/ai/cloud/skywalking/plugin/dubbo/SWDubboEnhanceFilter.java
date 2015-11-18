@@ -5,13 +5,7 @@ import com.ai.cloud.skywalking.buriedpoint.RPCBuriedPointSender;
 import com.ai.cloud.skywalking.model.ContextData;
 import com.ai.cloud.skywalking.model.Identification;
 import com.alibaba.dubbo.common.extension.Activate;
-import com.alibaba.dubbo.rpc.Filter;
-import com.alibaba.dubbo.rpc.Invocation;
-import com.alibaba.dubbo.rpc.Invoker;
-import com.alibaba.dubbo.rpc.Result;
-import com.alibaba.dubbo.rpc.RpcContext;
-import com.alibaba.dubbo.rpc.RpcException;
-import com.alibaba.dubbo.rpc.RpcInvocation;
+import com.alibaba.dubbo.rpc.*;
 
 @Activate
 public class SWDubboEnhanceFilter implements Filter {
@@ -22,7 +16,7 @@ public class SWDubboEnhanceFilter implements Filter {
         Result result = null;
         if (isConsumer) {
             RPCBuriedPointSender sender = new RPCBuriedPointSender();
-            ContextData contextData = sender.beforeSend(createIdentification(invoker));
+            ContextData contextData = sender.beforeSend(createIdentification(invoker, invocation));
             // 追加参数
             RpcInvocation rpcInvocation = (RpcInvocation) invocation;
             rpcInvocation.setAttachment("contextData", contextData.toString());
@@ -50,7 +44,7 @@ public class SWDubboEnhanceFilter implements Filter {
                 contextData = new ContextData(contextDataStr);
             }
 
-            rpcBuriedPointReceiver.beforeReceived(contextData, createIdentification(invoker));
+            rpcBuriedPointReceiver.beforeReceived(contextData, createIdentification(invoker, invocation));
 
             try {
                 //执行结果
@@ -71,13 +65,22 @@ public class SWDubboEnhanceFilter implements Filter {
         return result;
     }
 
-    private static Identification createIdentification(Invoker<?> invoker) {
-        StringBuilder businessKey = new StringBuilder();
-        businessKey.append("IP:" + invoker.getUrl().getAddress());
-        businessKey.append("Host:" + invoker.getUrl().getHost());
-        businessKey.append("Port:" + invoker.getUrl().getPort());
-        businessKey.append("Protocol:" + invoker.getUrl().getProtocol());
-        return Identification.newBuilder().viewPoint(invoker.getUrl().getServiceInterface()).businessKey(businessKey.
-                toString()).spanType('D').build();
+    private static Identification createIdentification(Invoker<?> invoker, Invocation invocation) {
+        StringBuilder viewPoint = new StringBuilder();
+        viewPoint.append(invoker.getUrl().getProtocol() + "://");
+        viewPoint.append(invoker.getUrl().getHost());
+        viewPoint.append(":" + invoker.getUrl().getPort());
+        viewPoint.append(invoker.getUrl().getAbsolutePath());
+        viewPoint.append(invocation.getMethodName() + "(");
+        for (Class classes : invocation.getParameterTypes()) {
+            viewPoint.append(classes.getSimpleName() + ",");
+        }
+
+        if (invocation.getParameterTypes().length > 0) {
+            viewPoint.delete(viewPoint.length() - 1, viewPoint.length());
+        }
+
+        viewPoint.append(")");
+        return Identification.newBuilder().viewPoint(viewPoint.toString()).spanType('D').build();
     }
 }
