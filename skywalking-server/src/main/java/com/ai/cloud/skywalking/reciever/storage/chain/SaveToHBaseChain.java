@@ -24,7 +24,7 @@ public class SaveToHBaseChain implements IStorageChain {
 
     @Override
     public void doChain(List<BuriedPointEntry> entry, Chain chain) {
-        insertBatch(entry);
+        bulkInsertBuriedPointData(entry);
         chain.doChain(entry);
     }
 
@@ -93,7 +93,7 @@ public class SaveToHBaseChain implements IStorageChain {
     }
 
 
-    private static void insertBatch(List<BuriedPointEntry> entries) {
+    private static void bulkInsertBuriedPointData(List<BuriedPointEntry> entries) {
         List<Put> puts = new ArrayList<Put>();
         Put put;
         for (BuriedPointEntry buriedPointEntry : entries) {
@@ -108,10 +108,10 @@ public class SaveToHBaseChain implements IStorageChain {
             puts.add(put);
         }
 
-        insertBatch(Config.HBaseConfig.TABLE_NAME, puts);
+        bulkInsertBuriedPointData(Config.HBaseConfig.TABLE_NAME, puts);
     }
 
-    private static void insertBatch(String tableName, List<Put> data) {
+    private static void bulkInsertBuriedPointData(String tableName, List<Put> data) {
         Object[] resultArrays = new Object[data.size()];
         try {
             Table table = connection.getTable(TableName.valueOf(tableName));
