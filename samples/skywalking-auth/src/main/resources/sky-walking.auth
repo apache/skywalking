@@ -25,7 +25,7 @@ sender.retry_get_sender_wait_interval=2000
 sender.is_off=false
 #发送服务端配置
 sender.servers_addr=127.0.0.1:34000
-
+#埋点异常的最大长度
 buriedpoint.max_exception_stack_length=4000
 #发送检查线程检查周期
 senderchecker.check_polling_time=200
