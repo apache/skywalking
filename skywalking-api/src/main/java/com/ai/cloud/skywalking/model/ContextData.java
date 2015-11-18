@@ -35,4 +35,8 @@ public class ContextData {
         return spanType;
     }
 
+    @Override
+    public String toString() {
+        return traceId + "-" + parentLevel + "-" + levelId + "-" + spanType;
+    }
 }
