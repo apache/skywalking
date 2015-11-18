@@ -98,14 +98,23 @@ public class SaveToHBaseChain implements IStorageChain {
             return;
         List<Put> puts = new ArrayList<Put>();
         Put put;
+        String columnName;
         for (BuriedPointEntry buriedPointEntry : entries) {
             put = new Put(Bytes.toBytes(buriedPointEntry.getTraceId()));
             if (StringUtils.isEmpty(buriedPointEntry.getParentLevel().trim())) {
-                put.addColumn(Bytes.toBytes(Config.HBaseConfig.FAMILY_COLUMN_NAME), Bytes.toBytes(String.valueOf(buriedPointEntry.getLevelId())),
+                columnName = buriedPointEntry.getLevelId() + "";
+                if (buriedPointEntry.isReceiver()) {
+                    columnName = buriedPointEntry.getLevelId() + "-S";
+                }
+                put.addColumn(Bytes.toBytes(Config.HBaseConfig.FAMILY_COLUMN_NAME), Bytes.toBytes(columnName),
                         Bytes.toBytes(buriedPointEntry.getOriginData()));
             } else {
-                put.addColumn(Bytes.toBytes(Config.HBaseConfig.FAMILY_COLUMN_NAME), Bytes.toBytes(buriedPointEntry.getParentLevel()
-                        + "." + buriedPointEntry.getLevelId()), Bytes.toBytes(buriedPointEntry.getOriginData()));
+                columnName = buriedPointEntry.getParentLevel() + "." + buriedPointEntry.getLevelId();
+                if (buriedPointEntry.isReceiver()) {
+                    columnName = buriedPointEntry.getLevelId() + "-S";
+                }
+                put.addColumn(Bytes.toBytes(Config.HBaseConfig.FAMILY_COLUMN_NAME), Bytes.toBytes(columnName),
+                        Bytes.toBytes(buriedPointEntry.getOriginData()));
             }
             puts.add(put);
         }
