@@ -13,9 +13,9 @@ public class Chain {
 		this.chains = chains;
 	}
 	
-	public void doChain(BuriedPointEntry entry, String entryOriginData ){
+	public void doChain(List<BuriedPointEntry> enties){
 		if(index < chains.size()){
-			chains.get(index++).doChain(entry, entryOriginData,  this);;
+			chains.get(index++).doChain(enties,this);
 		}
 	}
 	

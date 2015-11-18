@@ -6,7 +6,6 @@ import com.ai.cloud.skywalking.context.Context;
 import com.ai.cloud.skywalking.context.Span;
 
 public final class BusinessKeyAppender {
-    private static final char spiltChar = '^';
 
     private BusinessKeyAppender() {
         // Non
@@ -14,7 +13,7 @@ public final class BusinessKeyAppender {
 
     /**
      * 在当前埋点上下文中设置业务级信息
-     * 
+     *
      * @param businessKey
      */
     public static void trace(String businessKey) {
@@ -25,6 +24,10 @@ public final class BusinessKeyAppender {
         if (spanData == null) {
             return;
         }
-        spanData.setBusinessKey(businessKey.replace('-', spiltChar).substring(0, Config.BusinessKey.MAX_LENGTH));
+        if (businessKey.length() <= Config.BusinessKey.MAX_LENGTH) {
+            spanData.setBusinessKey(businessKey);
+            return;
+        }
+        spanData.setBusinessKey(businessKey.substring(0, Config.BusinessKey.MAX_LENGTH));
     }
 }

@@ -1,8 +1,10 @@
 package com.ai.cloud.skywalking.context;
 
+import com.ai.cloud.skywalking.constants.Constants;
 import com.ai.cloud.skywalking.util.StringUtil;
 
 public class Span {
+
     private String traceId;
     private String parentLevel;
     private int levelId;
@@ -132,53 +134,53 @@ public class Span {
     @Override
     public String toString() {
         StringBuilder toStringValue = new StringBuilder();
-        toStringValue.append(traceId + "-");
+        toStringValue.append(traceId + Constants.spiltRegx);
 
         if (!StringUtil.isEmpty(parentLevel)) {
-            toStringValue.append(parentLevel + "-");
+            toStringValue.append(parentLevel + Constants.spiltRegx);
         } else {
-            toStringValue.append(" -");
+            toStringValue.append(" " + Constants.spiltRegx);
         }
 
-        toStringValue.append(levelId + "-");
+        toStringValue.append(levelId + Constants.spiltRegx);
 
         if (!StringUtil.isEmpty(viewPointId)) {
-            toStringValue.append(viewPointId + "-");
+            toStringValue.append(viewPointId + Constants.spiltRegx);
         } else {
-            toStringValue.append(" -");
+            toStringValue.append(" " + Constants.spiltRegx);
         }
 
-        toStringValue.append(startDate + "-");
-        toStringValue.append(cost + "-");
+        toStringValue.append(startDate + Constants.spiltRegx);
+        toStringValue.append(cost + Constants.spiltRegx);
 
         if (!StringUtil.isEmpty(address)) {
-            toStringValue.append(address + "-");
+            toStringValue.append(address + Constants.spiltRegx);
         } else {
-            toStringValue.append(" -");
+            toStringValue.append(" " + Constants.spiltRegx);
         }
 
-        toStringValue.append(statusCode + "-");
+        toStringValue.append(statusCode + Constants.spiltRegx);
 
         if (!StringUtil.isEmpty(exceptionStack)) {
-            toStringValue.append(exceptionStack + "-");
+            toStringValue.append(exceptionStack + Constants.spiltRegx);
         } else {
-            toStringValue.append(" -");
+            toStringValue.append(" " + Constants.spiltRegx);
         }
 
-        toStringValue.append(spanType + "-");
-        toStringValue.append(isReceiver + "-");
+        toStringValue.append(spanType + Constants.spiltRegx);
+        toStringValue.append(isReceiver + Constants.spiltRegx);
 
 
         if (!StringUtil.isEmpty(businessKey)) {
-            toStringValue.append(businessKey + "-");
+            toStringValue.append(businessKey + Constants.spiltRegx);
         } else {
-            toStringValue.append(" -");
+            toStringValue.append(" " + Constants.spiltRegx);
         }
 
         if (!StringUtil.isEmpty(processNo)) {
             toStringValue.append(processNo);
         } else {
-            toStringValue.append(" -");
+            toStringValue.append(" " + Constants.spiltRegx);
         }
 
         return toStringValue.toString();

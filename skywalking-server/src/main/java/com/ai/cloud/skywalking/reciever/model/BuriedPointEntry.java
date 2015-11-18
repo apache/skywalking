@@ -1,5 +1,7 @@
 package com.ai.cloud.skywalking.reciever.model;
 
+import com.ai.cloud.skywalking.reciever.constants.Constants;
+
 import java.util.Date;
 
 public class BuriedPointEntry {
@@ -16,9 +18,14 @@ public class BuriedPointEntry {
     private boolean isReceiver = false;
     private String businessKey;
     private String processNo;
-
+    //  元数据
+    private String originData;
 
     private BuriedPointEntry() {
+
+    }
+
+    private BuriedPointEntry(String originData) {
 
     }
 
@@ -74,9 +81,13 @@ public class BuriedPointEntry {
         return processNo;
     }
 
+    public String getOriginData() {
+        return originData;
+    }
+
     public static BuriedPointEntry convert(String str) {
         BuriedPointEntry result = new BuriedPointEntry();
-        String[] fieldValues = str.split("-");
+        String[] fieldValues = str.split(Constants.spiltRegx);
         result.traceId = fieldValues[0].trim();
         result.parentLevel = fieldValues[1].trim();
         result.levelId = Integer.valueOf(fieldValues[2]);
@@ -84,12 +95,32 @@ public class BuriedPointEntry {
         result.startDate = new Date(Long.valueOf(fieldValues[4]));
         result.cost = Long.parseLong(fieldValues[5]);
         result.address = fieldValues[6].trim();
-        result.exceptionStack = fieldValues[7].trim();
-        result.spanType = fieldValues[8].charAt(0);
-        result.isReceiver = Boolean.getBoolean(fieldValues[9]);
-        result.businessKey = fieldValues[10].replace('^', '-').trim();
-        result.processNo = fieldValues[11].trim();
+        result.statusCode = Byte.valueOf(fieldValues[7].trim());
+        result.exceptionStack = fieldValues[8].trim();
+        result.spanType = fieldValues[9].charAt(0);
+        result.isReceiver = Boolean.getBoolean(fieldValues[10]);
+        result.businessKey = fieldValues[11].trim();
+        result.processNo = fieldValues[12].trim();
+        result.originData = str;
         return result;
     }
 
+    @Override
+    public String toString() {
+        return "BuriedPointEntry{" +
+                "traceId='" + traceId + '\'' +
+                ", parentLevel='" + parentLevel + '\'' +
+                ", levelId=" + levelId +
+                ", viewPointId='" + viewPointId + '\'' +
+                ", startDate=" + startDate +
+                ", cost=" + cost +
+                ", address='" + address + '\'' +
+                ", statusCode=" + statusCode +
+                ", exceptionStack='" + exceptionStack + '\'' +
+                ", spanType=" + spanType +
+                ", isReceiver=" + isReceiver +
+                ", businessKey='" + businessKey + '\'' +
+                ", processNo='" + processNo + '\'' +
+                '}';
+    }
 }

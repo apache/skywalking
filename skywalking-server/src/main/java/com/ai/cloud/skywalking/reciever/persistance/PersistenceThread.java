@@ -1,30 +1,23 @@
 package com.ai.cloud.skywalking.reciever.persistance;
 
-import static com.ai.cloud.skywalking.reciever.conf.Config.Persistence.OFFSET_FILE_READ_BUFFER_SIZE;
-import static com.ai.cloud.skywalking.reciever.conf.Config.Persistence.OFFSET_FILE_SKIP_LENGTH;
-import static com.ai.cloud.skywalking.reciever.conf.Config.Persistence.SWITCH_FILE_WAIT_TIME;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-
+import com.ai.cloud.skywalking.reciever.conf.Config;
+import com.ai.cloud.skywalking.reciever.storage.StorageChainController;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.comparator.NameFileComparator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.ai.cloud.skywalking.reciever.conf.Config;
-import com.ai.cloud.skywalking.reciever.storage.StorageChainController;
+import java.io.*;
+
+import static com.ai.cloud.skywalking.reciever.conf.Config.Persistence.*;
 
 public class PersistenceThread extends Thread {
+
 
     private Logger logger = LogManager.getLogger(PersistenceThread.class);
 
     @Override
     public void run() {
-        int length;
         File file1;
         BufferedReader bufferedReader;
         int offset;
@@ -46,40 +39,48 @@ public class PersistenceThread extends Thread {
                 if (logger.isDebugEnabled()) {
                     logger.debug("Get file[{}] offset [{}]", file1.getName(), offset);
                 }
-                char[] chars = new char[OFFSET_FILE_READ_BUFFER_SIZE];
-                data = new StringBuffer(2048);
-                boolean bool = true;
-                length = 0;
-                while (bool) {
-                    if ((length = bufferedReader.read(chars, 0, chars.length)) == -1) {
+                StringBuilder stringBuilder = new StringBuilder(MAX_STORAGE_SIZE_PER_TIME);
+                String tmpData;
+                while (true) {
+                    tmpData = bufferedReader.readLine();
+
+                    if (tmpData == null || tmpData.length() <= 0) {
+                        if (stringBuilder != null && stringBuilder.length() > 0) {
+                            StorageChainController.doStorage(stringBuilder.toString());
+                            stringBuilder.delete(0, stringBuilder.length());
+                        }
                         MemoryRegister.instance().doRegisterStatus(new FileRegisterEntry(file1.getName(), offset,
                                 FileRegisterEntry.FileRegisterEntryStatus.UNREGISTER));
                         break;
                     }
-                    offset += length;
-                    for (int i = 0; i < chars.length; i++) {
-                        if (chars[i] != '\n') {
-                            data.append(chars[i]);
-                            continue;
+
+                    if ("EOF".equals(tmpData)) {
+
+                        if (stringBuilder != null && stringBuilder.length() > 0) {
+                            StorageChainController.doStorage(stringBuilder.toString());
                         }
 
-                        if ("EOF".equals(data.toString())) {
-                            bufferedReader.close();
-                            logger.info("Data in file[{}] has been successfully processed", file1.getName());
-                            boolean deleteSuccess = false;
-                            while (!deleteSuccess) {
-                                deleteSuccess = FileUtils.deleteQuietly(new File(file1.getParent(), file1.getName()));
-                            }
-                            logger.info("Delete file[{}] {}", file1.getName(), (deleteSuccess ? "success" : "failed"));
-                            MemoryRegister.instance().unRegister(file1.getName());
-                            bool = false;
-                            break;
+                        bufferedReader.close();
+                        logger.info("Data in file[{}] has been successfully processed", file1.getName());
+                        boolean deleteSuccess = false;
+                        while (!deleteSuccess) {
+                            deleteSuccess = FileUtils.deleteQuietly(new File(file1.getParent(), file1.getName()));
                         }
-
-                        StorageChainController.doStorage(data.toString());
-                        
-                        data.delete(0, data.length());
+                        logger.info("Delete file[{}] {}", file1.getName(), (deleteSuccess ? "success" : "failed"));
+                        MemoryRegister.instance().unRegister(file1.getName());
+                        break;
                     }
+
+                    if (stringBuilder.length() + tmpData.length() >= MAX_STORAGE_SIZE_PER_TIME) {
+                        StorageChainController.doStorage(stringBuilder.toString());
+                        stringBuilder.delete(0, stringBuilder.length());
+                        MemoryRegister.instance().doRegisterStatus(new FileRegisterEntry(file1.getName(), offset,
+                                FileRegisterEntry.FileRegisterEntryStatus.REGISTER));
+                    }
+
+                    stringBuilder.append(tmpData);
+                    // 加上回车的字符串长度
+                    offset += tmpData.length() + 1;
                 }
             } catch (FileNotFoundException e) {
                 logger.error("The data file could not be found", e);

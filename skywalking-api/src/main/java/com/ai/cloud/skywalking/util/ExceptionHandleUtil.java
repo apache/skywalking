@@ -13,7 +13,7 @@ public final class ExceptionHandleUtil {
         ByteArrayOutputStream buf = new ByteArrayOutputStream();
         StringBuilder expMessage = new StringBuilder();
         Throwable causeException = e;
-        while (causeException.getCause() != null || expMessage.length() < MAX_EXCEPTION_STACK_LENGTH) {
+        while (causeException != null && (causeException.getCause() != null || expMessage.length() < MAX_EXCEPTION_STACK_LENGTH)) {
             causeException.printStackTrace(new java.io.PrintWriter(buf, true));
             expMessage.append(buf.toString());
             causeException = causeException.getCause();
@@ -25,9 +25,9 @@ public final class ExceptionHandleUtil {
             expMessage.append(e1.getCause().getMessage());
         }
         if (expMessage.length() <= MAX_EXCEPTION_STACK_LENGTH) {
-            return expMessage.toString().replace('\n', '&');
+            return expMessage.toString().replaceAll("\n", "&");
         } else {
-            return expMessage.toString().replace('\n', '&').substring(0, MAX_EXCEPTION_STACK_LENGTH);
+            return expMessage.toString().replaceAll("\n", "&").substring(0, MAX_EXCEPTION_STACK_LENGTH);
         }
     }
 

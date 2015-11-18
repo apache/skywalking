@@ -23,14 +23,9 @@ public class SaveToHBaseChain implements IStorageChain {
     private static Connection connection;
 
     @Override
-    public void doChain(BuriedPointEntry entry, String entryOriginData, Chain chain) {
-        if (StringUtils.isEmpty(entry.getParentLevel().trim())) {
-            insert(entry.getTraceId(), String.valueOf(entry.getLevelId()), entryOriginData);
-        } else {
-            insert(entry.getTraceId(), entry.getParentLevel() + "." + entry.getLevelId(), entryOriginData);
-        }
-
-        chain.doChain(entry, entryOriginData);
+    public void doChain(List<BuriedPointEntry> entry, Chain chain) {
+        insertBatch(entry);
+        chain.doChain(entry);
     }
 
     private static void initHBaseClient() throws IOException {
@@ -81,4 +76,72 @@ public class SaveToHBaseChain implements IStorageChain {
         }
     }
 
+
+    public static boolean insert(String tableName, Put put) {
+        try {
+            Table table = connection.getTable(TableName.valueOf(tableName));
+            table.put(put);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Insert data[RowKey:{}] success.", put.getId());
+            }
+            return true;
+        } catch (IOException e) {
+            logger.error("Insert the data error.RowKey:[{}]", put.getId(), e);
+            return false;
+        }
+
+    }
+
+
+    private static void insertBatch(List<BuriedPointEntry> entries) {
+        List<Put> puts = new ArrayList<Put>();
+        Put put;
+        for (BuriedPointEntry buriedPointEntry : entries) {
+            put = new Put(Bytes.toBytes(buriedPointEntry.getTraceId()));
+            if (StringUtils.isEmpty(buriedPointEntry.getParentLevel().trim())) {
+                put.addColumn(Bytes.toBytes(Config.HBaseConfig.FAMILY_COLUMN_NAME), Bytes.toBytes(buriedPointEntry.getLevelId()),
+                        Bytes.toBytes(buriedPointEntry.getOriginData()));
+            } else {
+                put.addColumn(Bytes.toBytes(Config.HBaseConfig.FAMILY_COLUMN_NAME), Bytes.toBytes(buriedPointEntry.getParentLevel()
+                        + "." + buriedPointEntry.getLevelId()), Bytes.toBytes(buriedPointEntry.getOriginData()));
+            }
+            puts.add(put);
+        }
+
+        insertBatch(Config.HBaseConfig.TABLE_NAME, puts);
+    }
+
+    private static void insertBatch(String tableName, List<Put> data) {
+        Object[] resultArrays = new Object[data.size()];
+        try {
+            Table table = connection.getTable(TableName.valueOf(tableName));
+            table.batch(data, resultArrays);
+            int index = 0;
+            for (Object result : resultArrays) {
+                if (result == null) {
+                    while (!insert(tableName, data.get(index))) {
+                        Thread.sleep(100L);
+                    }
+                }
+                index++;
+            }
+        } catch (IOException e) {
+            throw new ChainException(e);
+        } catch (InterruptedException e) {
+            throw new ChainException(e);
+        }
+
+    }
+
+    public static List<BuriedPointEntry> selectByTraceId(String traceId) throws IOException {
+        List<BuriedPointEntry> entries = new ArrayList<BuriedPointEntry>();
+        Table table = connection.getTable(TableName.valueOf(Config.HBaseConfig.TABLE_NAME));
+        Get g = new Get(Bytes.toBytes(traceId));
+        Result r = table.get(g);
+        for (Cell cell : r.rawCells()) {
+            if (cell.getValueArray().length > 0)
+                entries.add(BuriedPointEntry.convert(Bytes.toString(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength())));
+        }
+        return entries;
+    }
 }

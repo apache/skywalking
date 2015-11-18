@@ -44,13 +44,15 @@ public class Config {
         public static int OFFSET_FILE_SKIP_LENGTH = 2048;
 
         // 每次读取文件偏移量大小
-        public static int OFFSET_FILE_READ_BUFFER_SIZE = 2048;
 
         // 处理文件完成之后，等待时间
         public static long SWITCH_FILE_WAIT_TIME = 5000L;
 
         // 追加EOF标志位的线程数量
         public static int MAX_APPEND_EOF_FLAGS_THREAD_NUMBER = 2;
+
+        // 每次存储的最大数量
+        public static final int MAX_STORAGE_SIZE_PER_TIME = 1024 * 1024;
     }
 
     public static class RegisterPersistence {

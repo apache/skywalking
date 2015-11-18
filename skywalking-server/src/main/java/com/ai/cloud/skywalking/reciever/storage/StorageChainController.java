@@ -24,24 +24,30 @@ public class StorageChainController {
         if (buriedPointData == null || buriedPointData.length == 0) {
             return;
         }
+        List<BuriedPointEntry> entries = new ArrayList<BuriedPointEntry>();
         for (String buriedPoint : buriedPointData) {
             try {
                 if (buriedPoint == null || buriedPoint.trim().length() == 0) {
                     continue;
                 }
-                BuriedPointEntry entry = BuriedPointEntry.convert(buriedPoint);
-                while(true) {
-                    try {
-                        Chain chain = new Chain(chainArray);
-                        chain.doChain(entry, buriedPoint);
-                        break;
-                    } catch (Throwable e) {
-                        Thread.sleep(Config.StorageChain.RETRY_STORAGE_WAIT_TIME);
-                    }
-                }
+                entries.add(BuriedPointEntry.convert(buriedPoint));
             } catch (Throwable e) {
                 logger.error("ready to save buriedPoint error, choose to ignore. data="
                         + buriedPoint, e);
+            }
+        }
+
+        while (true) {
+            try {
+                Chain chain = new Chain(chainArray);
+                chain.doChain(entries);
+                break;
+            } catch (Throwable e) {
+                try {
+                    Thread.sleep(Config.StorageChain.RETRY_STORAGE_WAIT_TIME);
+                } catch (InterruptedException e1) {
+                    logger.error("Sleep failure", e);
+                }
             }
         }
     }
