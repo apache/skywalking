@@ -4,7 +4,7 @@ skywalking.user_id=123
 #是否打印数据
 buriedpoint.printf=false
 #发送的最大长度
-sender.max_sender_length=1280
+sender.max_sender_length=8000
 #服务端的读取步长
 sender.read_step_length=256
 #最大消费线程数
@@ -17,8 +17,6 @@ consumer.consumer_fail_retry_wait_interval=50
 buffer.buffer_max_size=18000
 #Buffer池的最大长度
 buffer.pool_size=5
-#发送的最大条数
-sender.max_buffer_data_size=1
 #最大发送者的连接数阀比例
 sender.connect_percent=100
 #当没有Sender时,尝试获取sender的等待周期
@@ -31,3 +29,6 @@ sender.servers_addr=127.0.0.1:34000
 buriedpoint.max_exception_stack_length=4000
 #发送检查线程检查周期
 senderchecker.check_polling_time=200
+
+#业务字段的最大长度
+businesskey.max_length=300

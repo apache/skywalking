@@ -62,7 +62,6 @@ public class BufferGroup {
 
         @Override
         public void run() {
-            int index = 0;
             StringBuilder data = new StringBuilder();
             while (true) {
                 boolean bool = false;
@@ -79,7 +78,6 @@ public class BufferGroup {
                                 logger.log(Level.ALL, "Sleep Failure");
                             }
                         }
-                        index = 0;
                         data = new StringBuilder();
                     }
 
@@ -95,7 +93,6 @@ public class BufferGroup {
                             logger.log(Level.ALL, "Sleep Failure");
                         }
                     }
-                    index = 0;
                     data = new StringBuilder();
                 }
 

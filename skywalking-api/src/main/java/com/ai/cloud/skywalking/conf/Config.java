@@ -32,9 +32,6 @@ public class Config {
     }
 
     public static class Sender {
-        // 发送的最大条数
-        public static int MAX_BUFFER_DATA_SIZE = 1;
-
         // 最大发送者的连接数阀比例
         public static int CONNECT_PERCENT = 50;
 
