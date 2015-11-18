@@ -100,7 +100,7 @@ public class BuriedPointEntry {
         result.statusCode = Byte.valueOf(fieldValues[7].trim());
         result.exceptionStack = fieldValues[8].trim();
         result.spanType = fieldValues[9].charAt(0);
-        result.isReceiver = Boolean.getBoolean(fieldValues[10]);
+        result.isReceiver = Boolean.valueOf(fieldValues[10]);
         result.businessKey = fieldValues[11].trim();
         result.processNo = fieldValues[12].trim();
         result.originData = str;
