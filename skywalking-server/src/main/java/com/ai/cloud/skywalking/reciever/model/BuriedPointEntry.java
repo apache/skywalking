@@ -2,7 +2,9 @@ package com.ai.cloud.skywalking.reciever.model;
 
 import com.ai.cloud.skywalking.reciever.constants.Constants;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class BuriedPointEntry {
     private String traceId;
@@ -103,6 +105,26 @@ public class BuriedPointEntry {
         result.processNo = fieldValues[12].trim();
         result.originData = str;
         return result;
+    }
+
+    private static String[] spilt(String spilt, String value) {
+        List<String> list = new ArrayList<String>();
+        int resultSize = 0;
+        int start = 0, offset = 0;
+        for (int index = 0; index < value.length() - 1; index++, offset++) {
+            if (spilt.charAt(0) == value.charAt(index) && spilt.charAt(1) == value.charAt(index + 1)) {
+                list.add(value.substring(start, offset));
+                index++;offset++;
+                start = offset + 1;
+                resultSize++;
+            }
+        }
+        if (start < value.length()) {
+            list.add(value.substring(start, offset));
+            resultSize++;
+        }
+        String[] result = new String[resultSize];
+        return list.subList(0, resultSize).toArray(result);
     }
 
     @Override

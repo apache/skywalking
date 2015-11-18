@@ -94,12 +94,14 @@ public class SaveToHBaseChain implements IStorageChain {
 
 
     private static void bulkInsertBuriedPointData(List<BuriedPointEntry> entries) {
+        if (entries == null || entries.size() <= 0)
+            return;
         List<Put> puts = new ArrayList<Put>();
         Put put;
         for (BuriedPointEntry buriedPointEntry : entries) {
             put = new Put(Bytes.toBytes(buriedPointEntry.getTraceId()));
             if (StringUtils.isEmpty(buriedPointEntry.getParentLevel().trim())) {
-                put.addColumn(Bytes.toBytes(Config.HBaseConfig.FAMILY_COLUMN_NAME), Bytes.toBytes(buriedPointEntry.getLevelId()),
+                put.addColumn(Bytes.toBytes(Config.HBaseConfig.FAMILY_COLUMN_NAME), Bytes.toBytes(String.valueOf(buriedPointEntry.getLevelId())),
                         Bytes.toBytes(buriedPointEntry.getOriginData()));
             } else {
                 put.addColumn(Bytes.toBytes(Config.HBaseConfig.FAMILY_COLUMN_NAME), Bytes.toBytes(buriedPointEntry.getParentLevel()
