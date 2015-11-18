@@ -21,7 +21,6 @@ public class PersistenceThread extends Thread {
         File file1;
         BufferedReader bufferedReader;
         int offset;
-        StringBuffer data;
         while (true) {
             file1 = getDataFiles();
             if (file1 == null) {
