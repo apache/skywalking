@@ -3,7 +3,7 @@ package com.ai.cloud.skywalking.reciever.persistance;
 public class FileRegisterEntry {
     private String fileName;
     private int offset;
-    private FileRegisterEntryStatus statue;
+    private FileRegisterEntryStatus status;
 
     public FileRegisterEntry() {
     }
@@ -17,10 +17,10 @@ public class FileRegisterEntry {
         this.offset = offset;
     }
 
-    public FileRegisterEntry(String fileName, int offset, FileRegisterEntryStatus statue) {
+    public FileRegisterEntry(String fileName, int offset, FileRegisterEntryStatus status) {
         this.fileName = fileName;
         this.offset = offset;
-        this.statue = statue;
+        this.status = status;
     }
 
     public String getFileName() {
@@ -39,12 +39,12 @@ public class FileRegisterEntry {
         this.offset = offset;
     }
 
-    public FileRegisterEntryStatus getStatue() {
-        return statue;
+    public FileRegisterEntryStatus getStatus() {
+        return status;
     }
 
-    public void setStatue(FileRegisterEntryStatus statue) {
-        this.statue = statue;
+    public void setStatus(FileRegisterEntryStatus status) {
+        this.status = status;
     }
 
     @Override
@@ -66,7 +66,7 @@ public class FileRegisterEntry {
 
     @Override
     public String toString() {
-        return fileName + '\t' + offset + "\t" + statue;
+        return fileName + '\t' + offset + "\t" + status;
     }
 
     public enum FileRegisterEntryStatus {

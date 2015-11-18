@@ -37,7 +37,7 @@ public class MemoryRegister {
 
     public synchronized boolean isRegister(String fileName) {
         if (entries.containsKey(fileName)) {
-            if (entries.get(fileName).getStatue() == FileRegisterEntry.FileRegisterEntryStatus.REGISTER) {
+            if (entries.get(fileName).getStatus() == FileRegisterEntry.FileRegisterEntryStatus.REGISTER) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("Entry[{}] has been register", fileName);
                 }
