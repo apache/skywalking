@@ -11,6 +11,7 @@
 
     <dubbo:protocol name="dubbo" port="20880"/>
 
+    <dubbo:provider filter="swEnhanceFilter"/>
     <bean id="dubboInterA" class="com.ai.cloud.skywalking.plugin.test.dubbo.impl.DubboInterAImpl"/>
 
     <dubbo:service interface="com.ai.cloud.skywalking.plugin.test.dubbo.interfaces.IDubboInterA" ref="dubboInterA"/>
