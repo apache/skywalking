@@ -82,5 +82,7 @@ public class Config {
 
     public static class StorageChain {
         public static long RETRY_STORAGE_WAIT_TIME = 50L;
+        
+        public static String STORAGE_TYPE = "hbase";
     }
 }
