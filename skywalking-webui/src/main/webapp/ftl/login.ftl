@@ -1,4 +1,4 @@
-<#import "./marco/common.ftl" as common>
+<#import "./lib/ai.cloud/common.ftl" as common>
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -8,11 +8,11 @@
 <meta name="generator" content="Bootply" />
 <meta name="viewport"
 	content="width=device-width, initial-scale=1, maximum-scale=1">
-<link href="css/bootstrap.min.css" rel="stylesheet">
+<link href="${base}/css/bootstrap.min.css" rel="stylesheet">
 <!--[if lt IE 9]>
 			<script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
 		<![endif]-->
-<link href="css/login.css" rel="stylesheet">
+<link href="${base}/css/login.css" rel="stylesheet">
 </head>
 <body>
 	<div class="container">

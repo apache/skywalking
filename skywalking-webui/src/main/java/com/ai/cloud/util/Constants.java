@@ -3,6 +3,9 @@
  */
 package com.ai.cloud.util;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * 常量类
  * @author tz
@@ -15,10 +18,40 @@ public class Constants {
 	
 	public static final String VERSION_VAL = "0.1";
 	
+	/** hbase集群*/
 	public static final String QUORUM = "10.1.235.197,10.1.235.198,10.1.235.199";
-	
+	/** zk端口*/
 	public static final String CLIENT_PORT = "29181";
-	
+	/** hbase表名*/
 	public static final String TABLE_NAME_CHAIN = "sw-call-chain";
+	/**层级分割符*/
+	public static final char VAL_SPLIT_CHAR = '.';
+	/** RPC远端调用节点结束标识*/
+	public static final String RPC_END_FLAG = "-S";
+	
+	public static final String SPAN_TYPE_M = "M";
+	public static final String SPAN_TYPE_J = "J";
+	public static final String SPAN_TYPE_W = "W";
+	public static final String SPAN_TYPE_D = "D";
+	/** SPAN_TYPE码表*/
+	public static Map<String,String> SPAN_TYPE_MAP = new HashMap<String,String>(){{
+		put("M", "JAVA");
+		put("J", "JDBC");
+		put("W", "WEB SERVLET");
+		put("D", "DUBBO/DUBBOX");
+	}};
+	
+	public static final char STATUS_CODE_0 = '0';
+	public static final char STATUS_CODE_1 = '1';
+	public static final char STATUS_CODE_9 = '9';
+	/** STATUS_CODE码表*/
+	public static Map<String,String> STATUS_CODE_MAP = new HashMap<String,String>(){{
+		put("0", "OK");
+		put("1", "FAIL");
+		put("9", "MISSING");
+	}};
+	
+	
+	
 	
 }
