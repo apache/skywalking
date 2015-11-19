@@ -25,9 +25,9 @@ public final class ExceptionHandleUtil {
             expMessage.append(e1.getCause().getMessage());
         }
         if (expMessage.length() <= MAX_EXCEPTION_STACK_LENGTH) {
-            return expMessage.toString().replaceAll("\n", "&");
+            return expMessage.toString().replaceAll("\\n", "^");
         } else {
-            return expMessage.toString().replaceAll("\n", "&").substring(0, MAX_EXCEPTION_STACK_LENGTH);
+            return expMessage.toString().replaceAll("\\n", "^").substring(0, MAX_EXCEPTION_STACK_LENGTH);
         }
     }
 
