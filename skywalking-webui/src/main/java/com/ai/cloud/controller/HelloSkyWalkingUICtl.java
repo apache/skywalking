@@ -3,14 +3,25 @@
  */
 package com.ai.cloud.controller;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.ai.cloud.service.inter.IQueryTraceLogSer;
 import com.ai.cloud.util.Constants;
+import com.ai.cloud.vo.mvo.BuriedPointEntry;
+
+import freemarker.template.SimpleSequence;
 
 /**
  * 首面请求处理
@@ -21,7 +32,10 @@ import com.ai.cloud.util.Constants;
  */
 @Controller
 public class HelloSkyWalkingUICtl {
-	
+
+	@Autowired
+	IQueryTraceLogSer traceLogSer;
+
 	private static Logger logger = LogManager.getLogger(HelloSkyWalkingUICtl.class);
 
 	/***
@@ -75,9 +89,40 @@ public class HelloSkyWalkingUICtl {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/showTraceLog")
-	public String showTraceLog(ModelMap root) throws Exception {
-		this.showIndexPage(root, null);
+	@RequestMapping(value = "/showTraceLog/{traceId}")
+	public String showTraceLog(ModelMap root, @PathVariable("traceId") String traceId) throws Exception {
+//		traceId = "bcb759bc12db474aa54bc4bea605cb81123";
+		Map<String, BuriedPointEntry> traceLogMap = traceLogSer.queryLogByTraceId(traceId);
+
+		if (traceLogMap != null && traceLogMap.size() > 0) {
+			List<BuriedPointEntry> valueList = new ArrayList<BuriedPointEntry>();
+			valueList.addAll(traceLogMap.values());
+			final List<Long> endTime = new ArrayList<Long>();
+			endTime.add(0, 0l);
+			Collections.sort(valueList, new Comparator<BuriedPointEntry>() {
+				@Override
+				public int compare(BuriedPointEntry arg0, BuriedPointEntry arg1) {
+					/** 顺道取出日志最大的结束时间 */
+					if (endTime.get(0) < arg0.getEndDate()) {
+						endTime.set(0, arg0.getEndDate());
+					}
+					if (endTime.get(0) < arg1.getEndDate()) {
+						endTime.set(0, arg1.getEndDate());
+					}
+					return arg0.getColId().compareTo(arg1.getColId());
+				}
+			});
+			// int m = 1;
+			// for (BuriedPointEntry tmpEntry : valueList) {
+			// logger.info("sort result level:{} : {}", m++, tmpEntry);
+			// }
+			long beginTime = valueList.get(0).getStartDate();
+			root.put("valueList", valueList);
+			root.put("spanTypeMap", Constants.SPAN_TYPE_MAP);
+			root.put("statusCodeMap", Constants.STATUS_CODE_MAP);
+			root.put("beginTime", beginTime);
+			root.put("endTime", endTime.get(0));
+		}
 		return "traceLog";
 	}
 

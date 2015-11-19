@@ -1,4 +1,4 @@
-<#import "./marco/common.ftl" as common>
+<#import "./lib/ai.cloud/common.ftl" as common>
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -35,7 +35,7 @@
 		</div>
 	</div>
 
-	<div class="container">
+	<div>
 		<div class="text-center" style="height: 600px">
 			<iframe id="showTraceLog" border=2 frameborder=0 width=100%
 				height=100% marginheight=0 marginwidth=0 scrolling=yes src=""></iframe>
