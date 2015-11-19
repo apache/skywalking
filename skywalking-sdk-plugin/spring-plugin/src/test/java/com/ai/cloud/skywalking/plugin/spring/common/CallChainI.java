@@ -5,23 +5,23 @@ import com.ai.cloud.skywalking.plugin.spring.Tracing;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-public class CallChainE {
-
-    private CallChainG callChainG;
+public class CallChainI {
+    private CallChainJ callChainJ;
 
     @Tracing
     public void doBusiness() throws InterruptedException {
         Thread.sleep(ThreadLocalRandom.current().nextInt(10));
         BusinessKeyAppender.trace("key-value");
-        callChainG.doBusiness();
+        callChainJ.doBusiness();
         Thread.sleep(ThreadLocalRandom.current().nextInt(10));
+
     }
 
-    public CallChainG getCallChainG() {
-        return callChainG;
+    public CallChainJ getCallChainJ() {
+        return callChainJ;
     }
 
-    public void setCallChainG(CallChainG callChainG) {
-        this.callChainG = callChainG;
+    public void setCallChainJ(CallChainJ callChainJ) {
+        this.callChainJ = callChainJ;
     }
 }

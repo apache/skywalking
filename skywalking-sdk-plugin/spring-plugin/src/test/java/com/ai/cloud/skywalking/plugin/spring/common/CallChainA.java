@@ -2,16 +2,20 @@ package com.ai.cloud.skywalking.plugin.spring.common;
 
 import com.ai.cloud.skywalking.plugin.spring.Tracing;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 public class CallChainA {
     private CallChainB callChainB;
     private CallChainD callChainD;
     private CallChainF callChainF;
 
     @Tracing
-    public void doBusiness() {
+    public void doBusiness() throws InterruptedException {
+        Thread.sleep(ThreadLocalRandom.current().nextInt(10));
         callChainB.doBusiness();
         callChainD.doBusiness();
         callChainF.doBusiness();
+        Thread.sleep(ThreadLocalRandom.current().nextInt(10));
     }
 
     public CallChainB getCallChainB() {

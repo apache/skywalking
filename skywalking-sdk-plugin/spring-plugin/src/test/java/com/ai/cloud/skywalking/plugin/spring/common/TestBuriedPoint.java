@@ -31,15 +31,18 @@ public class TestBuriedPoint extends Thread {
 
     @Override
     public void run() {
-        while (true) {
+        for (int i = 0 ; i < 1; i++) {
             try {
                 Thread.sleep(2L);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            callChainA.doBusiness();
+            try {
+                callChainA.doBusiness();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             System.out.println(Thread.currentThread().getName() + "\t" + atomicInteger.incrementAndGet());
-
         }
     }
 
