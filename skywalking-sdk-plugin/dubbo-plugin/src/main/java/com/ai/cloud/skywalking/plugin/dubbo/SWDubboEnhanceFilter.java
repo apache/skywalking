@@ -4,6 +4,8 @@ import com.ai.cloud.skywalking.buriedpoint.RPCBuriedPointReceiver;
 import com.ai.cloud.skywalking.buriedpoint.RPCBuriedPointSender;
 import com.ai.cloud.skywalking.model.ContextData;
 import com.ai.cloud.skywalking.model.Identification;
+import com.ai.cloud.skywalking.plugin.dubbox.bugfix.below283.BugFixAcitve;
+import com.ai.cloud.skywalking.plugin.dubbox.bugfix.below283.SWBaseBean;
 import com.alibaba.dubbo.common.extension.Activate;
 import com.alibaba.dubbo.rpc.*;
 
@@ -16,10 +18,17 @@ public class SWDubboEnhanceFilter implements Filter {
         Result result = null;
         if (isConsumer) {
             RPCBuriedPointSender sender = new RPCBuriedPointSender();
+
             ContextData contextData = sender.beforeSend(createIdentification(invoker, invocation));
-            // 追加参数
-            RpcInvocation rpcInvocation = (RpcInvocation) invocation;
-            rpcInvocation.setAttachment("contextData", contextData.toString());
+            String contextDataStr = contextData.toString();
+
+            //追加参数
+            if (!BugFixAcitve.isActive) {
+                context.setAttachment("contextData", contextDataStr);
+            } else {
+                fix283SendNoAttachmentIssue(invocation, contextDataStr);
+            }
+
             try {
                 //执行结果
                 result = invoker.invoke(invocation);
@@ -37,8 +46,14 @@ public class SWDubboEnhanceFilter implements Filter {
         } else {
             // 读取参数
             RPCBuriedPointReceiver rpcBuriedPointReceiver = new RPCBuriedPointReceiver();
-            RpcInvocation rpcInvocation = (RpcInvocation) invocation;
-            String contextDataStr = rpcInvocation.getAttachment("contextData");
+            String contextDataStr;
+
+            if (!BugFixAcitve.isActive) {
+                contextDataStr = context.getAttachment("contextData");
+            } else {
+                contextDataStr = fix283RecvNoAttachmentIssue(invocation);
+            }
+
             ContextData contextData = null;
             if (contextDataStr != null && contextDataStr.length() > 0) {
                 contextData = new ContextData(contextDataStr);
@@ -82,5 +97,26 @@ public class SWDubboEnhanceFilter implements Filter {
 
         viewPoint.append(")");
         return Identification.newBuilder().viewPoint(viewPoint.toString()).spanType('D').build();
+    }
+
+
+    private static void fix283SendNoAttachmentIssue(Invocation invocation, String contextDataStr) {
+
+        for (Object parameter : invocation.getArguments()) {
+            if (parameter instanceof SWBaseBean) {
+                ((SWBaseBean) parameter).setContextData(contextDataStr);
+                return;
+            }
+        }
+    }
+
+    private static String fix283RecvNoAttachmentIssue(Invocation invocation) {
+        for (Object parameter : invocation.getArguments()) {
+            if (parameter instanceof SWBaseBean) {
+                return ((SWBaseBean) parameter).getContextData();
+            }
+        }
+
+        return null;
     }
 }

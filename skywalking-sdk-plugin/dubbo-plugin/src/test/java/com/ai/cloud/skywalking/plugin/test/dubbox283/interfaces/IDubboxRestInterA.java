@@ -1,4 +1,7 @@
-package com.ai.cloud.skywalking.plugin.test.dubbox.rest.interfaces;
+package com.ai.cloud.skywalking.plugin.test.dubbox283.interfaces;
+
+import com.ai.cloud.skywalking.plugin.test.dubbox283.impl.DubboxRestInterAImpl;
+import com.ai.cloud.skywalking.plugin.test.dubbox283.interfaces.param.DubboxRestInterAParameter;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -13,5 +16,5 @@ public interface IDubboxRestInterA {
 
     @Path("/doBusiness")
     @POST
-    String doBusiness(String paramA);
+    String doBusiness(DubboxRestInterAParameter paramA);
 }

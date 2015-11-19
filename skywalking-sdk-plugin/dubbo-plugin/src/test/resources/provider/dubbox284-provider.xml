@@ -5,10 +5,12 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
 	http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
 
-    <dubbo:application name="skywalking-consumer"/>
+    <dubbo:application name="skywalking-dubbo-rest-provider"/>
     <dubbo:registry address="zookeeper://127.0.0.1:2181"/>
-    <dubbo:consumer filter="swEnhanceFilter"/>
-    <dubbo:reference id="dubboInterA" interface="com.ai.cloud.skywalking.plugin.test.dubbo.interfaces.IDubboInterA"
-                     url="dubbo://192.168.1.108:20880"/>
+    <dubbo:protocol name="rest" port="20880" server="tomcat"/>
+    <dubbo:provider filter="swEnhanceFilter"/>
+    <bean id="dubboxRestInterA" class="com.ai.cloud.skywalking.plugin.test.dubbox284.impl.DubboxRestInterAImpl"/>
+    <dubbo:service interface="com.ai.cloud.skywalking.plugin.test.dubbox284.interfaces.IDubboxRestInterA"
+                   ref="dubboxRestInterA"/>
 
 </beans>
