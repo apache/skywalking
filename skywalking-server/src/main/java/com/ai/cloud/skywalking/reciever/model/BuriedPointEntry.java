@@ -98,7 +98,10 @@ public class BuriedPointEntry {
         result.cost = Long.parseLong(fieldValues[5]);
         result.address = fieldValues[6].trim();
         result.statusCode = Byte.valueOf(fieldValues[7].trim());
-        result.exceptionStack = fieldValues[8].trim();
+        //异常情况才会存在exceptionStack
+        if (result.statusCode == 1) {
+            result.exceptionStack = fieldValues[8].trim().replaceAll("^","\n");
+        }
         result.spanType = fieldValues[9].charAt(0);
         result.isReceiver = Boolean.valueOf(fieldValues[10]);
         result.businessKey = fieldValues[11].trim();
