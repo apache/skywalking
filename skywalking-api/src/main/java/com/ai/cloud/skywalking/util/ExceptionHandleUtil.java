@@ -1,5 +1,6 @@
 package com.ai.cloud.skywalking.util;
 
+import com.ai.cloud.skywalking.constants.Constants;
 import com.ai.cloud.skywalking.context.Context;
 import com.ai.cloud.skywalking.context.Span;
 
@@ -21,13 +22,14 @@ public final class ExceptionHandleUtil {
         try {
             buf.close();
         } catch (IOException e1) {
-            expMessage.append("\n本地发送埋点关闭异常读入流异常，异常信息:");
+            expMessage.append("\nClose exception stack input stream failed:\n");
             expMessage.append(e1.getCause().getMessage());
         }
         if (expMessage.length() <= MAX_EXCEPTION_STACK_LENGTH) {
-            return expMessage.toString().replaceAll("\\n", "^");
+            return expMessage.toString().replaceAll(Constants.NEW_LINE_CHARACTER_PATTERN, Constants.EXCEPTION_SPILT_PATTERN);
         } else {
-            return expMessage.toString().replaceAll("\\n", "^").substring(0, MAX_EXCEPTION_STACK_LENGTH);
+            return expMessage.toString().replaceAll(Constants.NEW_LINE_CHARACTER_PATTERN, Constants.EXCEPTION_SPILT_PATTERN)
+                    .substring(0, MAX_EXCEPTION_STACK_LENGTH);
         }
     }
 

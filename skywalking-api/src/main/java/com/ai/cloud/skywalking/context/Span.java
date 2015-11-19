@@ -134,53 +134,54 @@ public class Span {
     @Override
     public String toString() {
         StringBuilder toStringValue = new StringBuilder();
-        toStringValue.append(traceId + Constants.spiltRegx);
+        toStringValue.append(traceId + Constants.SPAN_FIELD_SPILT_PATTERN);
 
         if (!StringUtil.isEmpty(parentLevel)) {
-            toStringValue.append(parentLevel + Constants.spiltRegx);
+            toStringValue.append(parentLevel + Constants.SPAN_FIELD_SPILT_PATTERN);
         } else {
-            toStringValue.append(" " + Constants.spiltRegx);
+            toStringValue.append(" " + Constants.SPAN_FIELD_SPILT_PATTERN);
         }
 
-        toStringValue.append(levelId + Constants.spiltRegx);
+        toStringValue.append(levelId + Constants.SPAN_FIELD_SPILT_PATTERN);
 
         if (!StringUtil.isEmpty(viewPointId)) {
-            toStringValue.append(viewPointId + Constants.spiltRegx);
+            toStringValue.append(viewPointId + Constants.SPAN_FIELD_SPILT_PATTERN);
         } else {
-            toStringValue.append(" " + Constants.spiltRegx);
+            toStringValue.append(" " + Constants.SPAN_FIELD_SPILT_PATTERN);
         }
 
-        toStringValue.append(startDate + Constants.spiltRegx);
-        toStringValue.append(cost + Constants.spiltRegx);
+        toStringValue.append(startDate + Constants.SPAN_FIELD_SPILT_PATTERN);
+        toStringValue.append(cost + Constants.SPAN_FIELD_SPILT_PATTERN);
 
         if (!StringUtil.isEmpty(address)) {
-            toStringValue.append(address + Constants.spiltRegx);
+            toStringValue.append(address + Constants.SPAN_FIELD_SPILT_PATTERN);
         } else {
-            toStringValue.append(" " + Constants.spiltRegx);
+            toStringValue.append(" " + Constants.SPAN_FIELD_SPILT_PATTERN);
         }
 
-        toStringValue.append(statusCode + Constants.spiltRegx);
+        toStringValue.append(statusCode + Constants.SPAN_FIELD_SPILT_PATTERN);
 
         if (!StringUtil.isEmpty(exceptionStack)) {
-            toStringValue.append(exceptionStack + Constants.spiltRegx);
+            toStringValue.append(exceptionStack + Constants.SPAN_FIELD_SPILT_PATTERN);
         } else {
-            toStringValue.append(" " + Constants.spiltRegx);
+            toStringValue.append(" " + Constants.SPAN_FIELD_SPILT_PATTERN);
         }
 
-        toStringValue.append(spanType + Constants.spiltRegx);
-        toStringValue.append(isReceiver + Constants.spiltRegx);
+        toStringValue.append(spanType + Constants.SPAN_FIELD_SPILT_PATTERN);
+        toStringValue.append(isReceiver + Constants.SPAN_FIELD_SPILT_PATTERN);
 
 
         if (!StringUtil.isEmpty(businessKey)) {
-            toStringValue.append(businessKey + Constants.spiltRegx);
+            toStringValue.append(businessKey.replaceAll(Constants.NEW_LINE_CHARACTER_PATTERN,
+                    Constants.BUSINESSKEY_SPILT_PATTERN) + Constants.SPAN_FIELD_SPILT_PATTERN);
         } else {
-            toStringValue.append(" " + Constants.spiltRegx);
+            toStringValue.append(" " + Constants.SPAN_FIELD_SPILT_PATTERN);
         }
 
         if (!StringUtil.isEmpty(processNo)) {
             toStringValue.append(processNo);
         } else {
-            toStringValue.append(" " + Constants.spiltRegx);
+            toStringValue.append(" " + Constants.SPAN_FIELD_SPILT_PATTERN);
         }
 
         return toStringValue.toString();
