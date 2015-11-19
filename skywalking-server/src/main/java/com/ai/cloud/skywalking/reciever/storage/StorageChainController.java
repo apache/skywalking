@@ -1,13 +1,17 @@
 package com.ai.cloud.skywalking.reciever.storage;
 
-import com.ai.cloud.skywalking.reciever.conf.Config;
-import com.ai.cloud.skywalking.reciever.model.BuriedPointEntry;
-import com.ai.cloud.skywalking.reciever.storage.chain.SaveToHBaseChain;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import static com.ai.cloud.skywalking.reciever.conf.Config.StorageChain.STORAGE_TYPE;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.ai.cloud.skywalking.reciever.conf.Config;
+import com.ai.cloud.skywalking.reciever.model.BuriedPointEntry;
+import com.ai.cloud.skywalking.reciever.storage.chain.SaveToHBaseChain;
+import com.ai.cloud.skywalking.reciever.storage.chain.SaveToMySQLChain;
 
 public class StorageChainController {
     private static Logger logger = LogManager
@@ -16,7 +20,13 @@ public class StorageChainController {
     private static List<IStorageChain> chainArray = new ArrayList<IStorageChain>();
 
     static {
-        chainArray.add(new SaveToHBaseChain());
+    	if(STORAGE_TYPE.equalsIgnoreCase("hbase")){
+    		chainArray.add(new SaveToHBaseChain());
+    	}else if(STORAGE_TYPE.equalsIgnoreCase("mysql")){
+    		chainArray.add(new SaveToMySQLChain());
+    	}else{
+    		throw new RuntimeException("illegal storage type.");
+    	}
     }
 
     public static void doStorage(String buriedPointDatas) {
