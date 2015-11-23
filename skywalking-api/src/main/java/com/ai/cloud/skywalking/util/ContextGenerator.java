@@ -48,7 +48,7 @@ public final class ContextGenerator {
         // 设置基本信息
         spanData.setStartDate(System.currentTimeMillis());
         spanData.setProcessNo(BuriedPointMachineUtil.getProcessNo());
-        spanData.setAddress(BuriedPointMachineUtil.getHostName() + "/" + BuriedPointMachineUtil.getHostIp());
+        spanData.setAddress(BuriedPointMachineUtil.getHostDesc());
     }
 
     private static Span getSpanFromThreadLocal() {

@@ -1,6 +1,6 @@
 package com.ai.cloud.skywalking.context;
 
-import com.ai.cloud.skywalking.constants.Constants;
+import com.ai.cloud.skywalking.conf.Constants;
 import com.ai.cloud.skywalking.util.StringUtil;
 
 public class Span {

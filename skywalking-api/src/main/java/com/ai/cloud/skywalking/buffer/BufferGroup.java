@@ -3,6 +3,8 @@ package com.ai.cloud.skywalking.buffer;
 
 import com.ai.cloud.skywalking.conf.Config;
 import com.ai.cloud.skywalking.context.Span;
+import com.ai.cloud.skywalking.selfexamination.HealthCollector;
+import com.ai.cloud.skywalking.selfexamination.HeathReading;
 import com.ai.cloud.skywalking.sender.DataSenderFactory;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -23,10 +25,9 @@ public class BufferGroup {
 
         int step = (int) Math.ceil(BUFFER_MAX_SIZE * 1.0 / MAX_CONSUMER);
         int start = 0, end = 0;
-        int i = 1;
         while (true) {
             if (end + step >= BUFFER_MAX_SIZE) {
-                new ConsumerWorker(groupName + "-consumer-" + (i++), start, BUFFER_MAX_SIZE).start();
+                new ConsumerWorker(start, BUFFER_MAX_SIZE).start();
                 break;
             }
             end += step;
@@ -38,8 +39,7 @@ public class BufferGroup {
     public void save(Span span) {
         int i = Math.abs(index.getAndIncrement() % BUFFER_MAX_SIZE);
         if (dataBuffer[i] != null) {
-            // TODO  需要上报
-            System.out.println(span.getLevelId() + "在Group[" + groupName + "]的第" + i + "位冲突");
+        	HealthCollector.getCurrentHeathReading(null).updateData(HeathReading.WARNING, span.getLevelId() + "在Group[" + groupName + "]的第" + i + "位冲突");
         }
         dataBuffer[i] = span;
     }
@@ -49,16 +49,10 @@ public class BufferGroup {
         private int end = BUFFER_MAX_SIZE;
 
         private ConsumerWorker(int start, int end) {
+        	super("ConsumerWorker");
             this.start = start;
             this.end = end;
         }
-
-        private ConsumerWorker(String threadName, int start, int end) {
-            super(threadName);
-            this.start = start;
-            this.end = end;
-        }
-
 
         @Override
         public void run() {
@@ -78,6 +72,7 @@ public class BufferGroup {
                                 logger.log(Level.ALL, "Sleep Failure");
                             }
                         }
+                        HealthCollector.getCurrentHeathReading(null).updateData(HeathReading.INFO, "send buried-point data.");
                         data = new StringBuilder();
                     }
 

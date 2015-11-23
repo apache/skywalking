@@ -9,7 +9,7 @@ public class CallChainK {
     @Tracing
     public void doBusiness() throws InterruptedException {
         Thread.sleep(ThreadLocalRandom.current().nextInt(10));
-        BusinessKeyAppender.trace("key-value");
+        BusinessKeyAppender.setBusinessKey2Trace("key-value");
         Thread.sleep(ThreadLocalRandom.current().nextInt(10));
     }
 }

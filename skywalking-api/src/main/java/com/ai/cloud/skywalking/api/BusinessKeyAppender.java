@@ -16,7 +16,7 @@ public final class BusinessKeyAppender {
      *
      * @param businessKey
      */
-    public static void trace(String businessKey) {
+    public static void setBusinessKey2Trace(String businessKey) {
         if (!AuthDesc.isAuth())
             return;
 

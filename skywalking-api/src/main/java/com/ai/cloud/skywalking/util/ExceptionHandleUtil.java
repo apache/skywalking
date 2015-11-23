@@ -1,6 +1,6 @@
 package com.ai.cloud.skywalking.util;
 
-import com.ai.cloud.skywalking.constants.Constants;
+import com.ai.cloud.skywalking.conf.Constants;
 import com.ai.cloud.skywalking.context.Context;
 import com.ai.cloud.skywalking.context.Span;
 

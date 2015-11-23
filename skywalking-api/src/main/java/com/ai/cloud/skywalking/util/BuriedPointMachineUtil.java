@@ -52,6 +52,10 @@ public final class BuriedPointMachineUtil {
         }
         return hostName;
     }
+    
+    public static String getHostDesc(){
+    	return getHostName() + "/" + getHostIp();
+    }
 
     private BuriedPointMachineUtil() {
         // Non
