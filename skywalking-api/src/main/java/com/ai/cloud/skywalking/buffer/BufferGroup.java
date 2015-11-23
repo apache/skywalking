@@ -39,7 +39,7 @@ public class BufferGroup {
     public void save(Span span) {
         int i = Math.abs(index.getAndIncrement() % BUFFER_MAX_SIZE);
         if (dataBuffer[i] != null) {
-        	HealthCollector.getCurrentHeathReading(null).updateData(HeathReading.WARNING, span.getLevelId() + "在Group[" + groupName + "]的第" + i + "位冲突");
+        	HealthCollector.getCurrentHeathReading(null).updateData(HeathReading.WARNING, "Group[" + groupName + "] index[" + i + "] data collision, discard old data.");
         }
         dataBuffer[i] = span;
     }

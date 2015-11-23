@@ -3,6 +3,9 @@ package com.ai.cloud.skywalking.reciever.buffer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.ai.cloud.skywalking.reciever.selfexamination.ServerHealthCollector;
+import com.ai.cloud.skywalking.reciever.selfexamination.ServerHeathReading;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -21,6 +24,7 @@ public class DataBufferThread extends Thread {
     private AtomicInteger index = new AtomicInteger();
 
     public DataBufferThread() {
+    	super("DataBufferThread");
         try {
             file = new File(DATA_BUFFER_FILE_PARENT_DIRECTORY, getFileName());
             if (file.exists()) {
@@ -69,6 +73,7 @@ public class DataBufferThread extends Thread {
                 if (index++ > FLUSH_NUMBER_OF_CACHE) {
                     try {
                         outputStream.flush();
+                        ServerHealthCollector.getCurrentHeathReading(null).updateData(ServerHeathReading.INFO, "DataBuffer flush data to local file:" + file.getName());
                     } catch (IOException e) {
                         logger.error("Flush buffer data failed.", e);
                     } finally {
@@ -82,13 +87,14 @@ public class DataBufferThread extends Thread {
             if (hasData2Flush){
                 try {
                     outputStream.flush();
+                    ServerHealthCollector.getCurrentHeathReading(null).updateData(ServerHeathReading.INFO, "DataBuffer flush data to local file:" + file.getName());
                 } catch (IOException e) {
                     logger.error("Flush buffer data failed.", e);
                 }
             }
 
             if (file.length() > DATA_FILE_MAX_LENGTH) {
-                convertFile();
+            	switchFile();
             }
 
             if (!hasData2Flush) {
@@ -106,7 +112,7 @@ public class DataBufferThread extends Thread {
         return System.currentTimeMillis() + "-" + UUID.randomUUID().toString().replaceAll("-", "");
     }
 
-    private void convertFile() {
+    private void switchFile() {
         String fileName = getFileName();
 
         try {
@@ -120,27 +126,32 @@ public class DataBufferThread extends Thread {
         	} catch (IOException e) {
         		logger.error("close cache data failed.", e);
         	}
+        	ServerHealthCollector.getCurrentHeathReading(null).updateData(ServerHeathReading.INFO, "DataBuffer close local file:" + file.getName());
         }
         logger.debug("Begin to switch the data file to {}.", fileName);
         try {
             file = new File(DATA_BUFFER_FILE_PARENT_DIRECTORY, fileName);
             outputStream = new FileOutputStream(file, true);
+            ServerHealthCollector.getCurrentHeathReading(null).updateData(ServerHeathReading.INFO, "DataBuffer open new local file:" + file.getName());
         } catch (IOException e) {
+        	ServerHealthCollector.getCurrentHeathReading(null).updateData(ServerHeathReading.ERROR, "DataBuffer open new local file failure.");
             logger.error("Switch data file failed.", e);
         }
 
 
     }
 
-    public void doCarry(byte[] s) {
+    public void saveTemporarily(byte[] s) {
         int i = Math.abs(index.getAndIncrement() % data.length);
         while (data[i] != null) {
             try {
+            	ServerHealthCollector.getCurrentHeathReading(null).updateData(ServerHeathReading.WARNING, "DataBuffer index[" + i + "] data collision, service pausing. ");
                 Thread.sleep(DATA_CONFLICT_WAIT_TIME);
             } catch (InterruptedException e) {
                 logger.error("Failure sleep.", e);
             }
         }
+        ServerHealthCollector.getCurrentHeathReading(null).updateData(ServerHeathReading.INFO, "DataBuffer reveiving data.");
 
         data[i] = s;
     }

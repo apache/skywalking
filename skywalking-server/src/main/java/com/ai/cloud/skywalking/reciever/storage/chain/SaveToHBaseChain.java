@@ -2,9 +2,12 @@ package com.ai.cloud.skywalking.reciever.storage.chain;
 
 import com.ai.cloud.skywalking.reciever.conf.Config;
 import com.ai.cloud.skywalking.reciever.model.BuriedPointEntry;
+import com.ai.cloud.skywalking.reciever.selfexamination.ServerHealthCollector;
+import com.ai.cloud.skywalking.reciever.selfexamination.ServerHeathReading;
 import com.ai.cloud.skywalking.reciever.storage.Chain;
 import com.ai.cloud.skywalking.reciever.storage.ChainException;
 import com.ai.cloud.skywalking.reciever.storage.IStorageChain;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.*;
@@ -56,27 +59,6 @@ public class SaveToHBaseChain implements IStorageChain {
         }
     }
 
-    public static void insert(String rowKey, String qualifier, String value) {
-        insert(Config.HBaseConfig.TABLE_NAME, rowKey, qualifier, value);
-    }
-
-    public static void insert(String tableName, String rowKey, String qualifier, String value) {
-        try {
-            Table table = connection.getTable(TableName.valueOf(tableName));
-            Put put = new Put(Bytes.toBytes(rowKey));
-            put.addColumn(Bytes.toBytes(Config.HBaseConfig.FAMILY_COLUMN_NAME), Bytes.toBytes(qualifier), Bytes
-                    .toBytes(value));
-            table.put(put);
-            if (logger.isDebugEnabled()) {
-                logger.debug("Insert data[RowKey:{}] success.", rowKey);
-            }
-        } catch (IOException e) {
-            logger.error("Insert the data error.RowKey:[{}],Qualifier[{}],value[{}]", rowKey, qualifier, value, e);
-            throw new ChainException(e);
-        }
-    }
-
-
     public static boolean insert(String tableName, Put put) {
         try {
             Table table = connection.getTable(TableName.valueOf(tableName));
@@ -91,7 +73,6 @@ public class SaveToHBaseChain implements IStorageChain {
         }
 
     }
-
 
     private static void bulkInsertBuriedPointData(List<BuriedPointEntry> entries) {
         if (entries == null || entries.size() <= 0)
@@ -120,6 +101,8 @@ public class SaveToHBaseChain implements IStorageChain {
         }
 
         bulkInsertBuriedPointData(Config.HBaseConfig.TABLE_NAME, puts);
+        
+        ServerHealthCollector.getCurrentHeathReading("hbase").updateData(ServerHeathReading.INFO, "save " + entries.size() + " BuriedPointEntries." );
     }
 
     private static void bulkInsertBuriedPointData(String tableName, List<Put> data) {

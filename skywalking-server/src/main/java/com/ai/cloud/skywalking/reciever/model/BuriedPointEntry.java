@@ -1,6 +1,6 @@
 package com.ai.cloud.skywalking.reciever.model;
 
-import com.ai.cloud.skywalking.reciever.constants.Constants;
+import com.ai.cloud.skywalking.reciever.conf.Constants;
 
 import java.util.ArrayList;
 import java.util.Date;
