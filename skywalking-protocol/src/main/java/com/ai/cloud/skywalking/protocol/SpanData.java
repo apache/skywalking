@@ -96,4 +96,32 @@ public abstract class SpanData {
     public String getOriginData() {
         return originData;
     }
+
+    public long getCost() {
+        return cost;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public byte getStatusCode() {
+        return statusCode;
+    }
+
+    public String getExceptionStack() {
+        return exceptionStack;
+    }
+
+    public String getBusinessKey() {
+        return businessKey;
+    }
+
+    public String getProcessNo() {
+        return processNo;
+    }
+
+    public String getApplicationId() {
+        return applicationId;
+    }
 }
