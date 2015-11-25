@@ -5,12 +5,11 @@ import com.ai.cloud.skywalking.buffer.ContextBuffer;
 import com.ai.cloud.skywalking.conf.AuthDesc;
 import com.ai.cloud.skywalking.conf.Config;
 import com.ai.cloud.skywalking.context.Context;
-import com.ai.cloud.skywalking.context.Span;
 import com.ai.cloud.skywalking.model.ContextData;
 import com.ai.cloud.skywalking.model.EmptyContextData;
 import com.ai.cloud.skywalking.model.Identification;
+import com.ai.cloud.skywalking.protocol.Span;
 import com.ai.cloud.skywalking.util.ContextGenerator;
-import com.ai.cloud.skywalking.util.ExceptionHandleUtil;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -51,7 +50,9 @@ public class ThreadFactoryBuriedPointSender implements IBuriedPointSender {
         }
     }
 
-    public void handleException(Throwable th) {
-        ExceptionHandleUtil.handleException(th);
+    public void handleException(Throwable e) {
+        Span span = Context.getLastSpan();
+        span.handleException(e, Config.BuriedPoint.MAX_EXCEPTION_STACK_LENGTH);
+
     }
 }

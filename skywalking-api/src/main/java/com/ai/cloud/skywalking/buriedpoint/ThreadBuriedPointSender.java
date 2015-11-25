@@ -5,12 +5,11 @@ import com.ai.cloud.skywalking.buffer.ContextBuffer;
 import com.ai.cloud.skywalking.conf.AuthDesc;
 import com.ai.cloud.skywalking.conf.Config;
 import com.ai.cloud.skywalking.context.Context;
-import com.ai.cloud.skywalking.context.Span;
 import com.ai.cloud.skywalking.model.ContextData;
 import com.ai.cloud.skywalking.model.EmptyContextData;
 import com.ai.cloud.skywalking.model.Identification;
+import com.ai.cloud.skywalking.protocol.Span;
 import com.ai.cloud.skywalking.util.BuriedPointMachineUtil;
-import com.ai.cloud.skywalking.util.ExceptionHandleUtil;
 import com.ai.cloud.skywalking.util.TraceIdGenerator;
 
 import java.util.logging.Level;
@@ -24,15 +23,15 @@ public class ThreadBuriedPointSender implements IBuriedPointSender {
 
     public ThreadBuriedPointSender(int threadSeqId) {
         if (!AuthDesc.isAuth())
-            return ;
+            return;
         Span spanData;
         // 从ThreadLocal中取出上下文
         final Span parentSpanData = Context.getLastSpan();
         if (parentSpanData == null) {
-            spanData = new Span(TraceIdGenerator.generate());
+            spanData = new Span(TraceIdGenerator.generate(), Config.SkyWalking.APPLICATION_ID);
         } else {
             // 如果不为空，则将当前的Context存放到上下文
-            spanData = new Span(parentSpanData.getTraceId());
+            spanData = new Span(parentSpanData.getTraceId(), Config.SkyWalking.APPLICATION_ID);
             spanData.setParentLevel(parentSpanData.getParentLevel() + "." + parentSpanData.getLevelId());
             spanData.setLevelId(threadSeqId);
         }
@@ -70,7 +69,8 @@ public class ThreadBuriedPointSender implements IBuriedPointSender {
         }
     }
 
-    public void handleException(Throwable th) {
-        ExceptionHandleUtil.handleException(th);
+    public void handleException(Throwable e) {
+        Span span = Context.getLastSpan();
+        span.handleException(e, Config.BuriedPoint.MAX_EXCEPTION_STACK_LENGTH);
     }
 }

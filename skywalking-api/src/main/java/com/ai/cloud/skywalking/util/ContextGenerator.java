@@ -1,9 +1,10 @@
 package com.ai.cloud.skywalking.util;
 
+import com.ai.cloud.skywalking.conf.Config;
 import com.ai.cloud.skywalking.context.Context;
-import com.ai.cloud.skywalking.context.Span;
 import com.ai.cloud.skywalking.model.ContextData;
 import com.ai.cloud.skywalking.model.Identification;
+import com.ai.cloud.skywalking.protocol.Span;
 
 public final class ContextGenerator {
     /**
@@ -30,7 +31,7 @@ public final class ContextGenerator {
         // 校验传入的参数是否为空，如果为空，则新创建一个
         if (context == null || StringUtil.isEmpty(context.getTraceId())) {
             // 不存在，新创建一个Context
-            spanData = new Span(TraceIdGenerator.generate());
+            spanData = new Span(TraceIdGenerator.generate(), Config.SkyWalking.APPLICATION_ID);
         } else {
             // 如果不为空，则将当前的Context存放到上下文
             spanData = new Span(context.getTraceId());
@@ -58,10 +59,10 @@ public final class ContextGenerator {
         // 2 校验Context，Context是否存在
         if (parentSpan == null) {
             // 不存在，新创建一个Context
-            span = new Span(TraceIdGenerator.generate());
+            span = new Span(TraceIdGenerator.generate(), Config.SkyWalking.APPLICATION_ID);
         } else {
             // 根据ParentContextData的TraceId和RPCID
-            span = new Span(parentSpan.getTraceId());
+            span = new Span(parentSpan.getTraceId(), Config.SkyWalking.APPLICATION_ID);
             if (!StringUtil.isEmpty(parentSpan.getParentLevel())) {
                 span.setParentLevel(parentSpan.getParentLevel() + "." + parentSpan.getLevelId());
             } else {

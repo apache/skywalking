@@ -1,6 +1,7 @@
 package com.ai.cloud.skywalking.model;
 
-import com.ai.cloud.skywalking.context.Span;
+
+import com.ai.cloud.skywalking.protocol.Span;
 
 public class ContextData {
     private String traceId;

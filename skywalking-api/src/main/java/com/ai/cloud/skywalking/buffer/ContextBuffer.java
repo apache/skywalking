@@ -1,6 +1,6 @@
 package com.ai.cloud.skywalking.buffer;
 
-import com.ai.cloud.skywalking.context.Span;
+import com.ai.cloud.skywalking.protocol.Span;
 
 import java.util.concurrent.ThreadLocalRandom;
 

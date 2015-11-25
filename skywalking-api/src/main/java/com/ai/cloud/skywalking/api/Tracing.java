@@ -2,7 +2,7 @@ package com.ai.cloud.skywalking.api;
 
 import com.ai.cloud.skywalking.conf.AuthDesc;
 import com.ai.cloud.skywalking.context.Context;
-import com.ai.cloud.skywalking.context.Span;
+import com.ai.cloud.skywalking.protocol.Span;
 
 public class Tracing {
 	/**

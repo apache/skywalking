@@ -1,5 +1,7 @@
 package com.ai.cloud.skywalking.context;
 
+import com.ai.cloud.skywalking.protocol.Span;
+
 import java.util.Stack;
 
 public class Context {

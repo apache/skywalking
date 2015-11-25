@@ -2,7 +2,7 @@ package com.ai.cloud.skywalking.buffer;
 
 
 import com.ai.cloud.skywalking.conf.Config;
-import com.ai.cloud.skywalking.context.Span;
+import com.ai.cloud.skywalking.protocol.Span;
 import com.ai.cloud.skywalking.selfexamination.HealthCollector;
 import com.ai.cloud.skywalking.selfexamination.HeathReading;
 import com.ai.cloud.skywalking.sender.DataSenderFactory;

@@ -4,6 +4,8 @@ public class Config {
 
     public static class SkyWalking {
         public static String USER_ID;
+
+        public static String APPLICATION_ID;
     }
 
     public static class BuriedPoint {
