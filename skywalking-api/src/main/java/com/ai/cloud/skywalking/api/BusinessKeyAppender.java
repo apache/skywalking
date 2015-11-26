@@ -24,10 +24,10 @@ public final class BusinessKeyAppender {
         if (spanData == null) {
             return;
         }
-        if (businessKey.length() <= Config.BusinessKey.MAX_LENGTH) {
+        if (businessKey.length() <= Config.BuriedPoint.BUSINESSKEY_MAX_LENGTH) {
             spanData.setBusinessKey(businessKey);
             return;
         }
-        spanData.setBusinessKey(businessKey.substring(0, Config.BusinessKey.MAX_LENGTH));
+        spanData.setBusinessKey(businessKey.substring(0, Config.BuriedPoint.BUSINESSKEY_MAX_LENGTH));
     }
 }

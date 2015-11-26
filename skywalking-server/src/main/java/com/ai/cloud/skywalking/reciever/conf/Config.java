@@ -41,9 +41,7 @@ public class Config {
         public static int MAX_THREAD_NUMBER = 1;
 
         // 定位文件时,每次读取偏移量跳过大小
-        public static int OFFSET_FILE_SKIP_LENGTH = 2048;
-
-        // 每次读取文件偏移量大小
+        public static int STEP_SIZE_FOR_LOCATING_FILE_OFFSET = 2048;
 
         // 处理文件完成之后，等待时间
         public static long SWITCH_FILE_WAIT_TIME = 5000L;
