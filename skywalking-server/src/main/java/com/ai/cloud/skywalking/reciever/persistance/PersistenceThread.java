@@ -144,10 +144,10 @@ public class PersistenceThread extends Thread {
 									FileRegisterEntry.FileRegisterEntryStatus.REGISTER));
 			offset = 0;
 		} else {
-			char[] cha = new char[OFFSET_FILE_SKIP_LENGTH];
+			char[] cha = new char[STEP_SIZE_FOR_LOCATING_FILE_OFFSET];
 			int length = 0;
-			while (length + OFFSET_FILE_SKIP_LENGTH < offset) {
-				length += OFFSET_FILE_SKIP_LENGTH;
+			while (length + STEP_SIZE_FOR_LOCATING_FILE_OFFSET < offset) {
+				length += STEP_SIZE_FOR_LOCATING_FILE_OFFSET;
 				bufferedReader.read(cha);
 			}
 			bufferedReader.read(cha, 0, Math.abs(offset - length));
