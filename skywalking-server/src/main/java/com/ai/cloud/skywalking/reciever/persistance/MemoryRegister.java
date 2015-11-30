@@ -95,8 +95,12 @@ public class MemoryRegister {
                 reader = new BufferedReader(new FileReader(file));
                 String offsetData;
                 while ((offsetData = reader.readLine()) != null && !"EOF".equals(offsetData)) {
-                    String[] ss = offsetData.split("\t");
-                    entries.put(ss[0], new FileRegisterEntry(ss[0], Integer.valueOf(ss[1]), FileRegisterEntry.FileRegisterEntryStatus.UNREGISTER));
+                    try {
+                        String[] ss = offsetData.split("\t");
+                        entries.put(ss[0], new FileRegisterEntry(ss[0], Integer.valueOf(ss[1]), FileRegisterEntry.FileRegisterEntryStatus.UNREGISTER));
+                    } catch (Exception e) {
+                        continue;
+                    }
                 }
             }
         } catch (FileNotFoundException e) {
