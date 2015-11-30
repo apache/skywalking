@@ -3,6 +3,7 @@ package com.ai.cloud.skywalking.plugin.spring;
 import com.ai.cloud.skywalking.buriedpoint.LocalBuriedPointSender;
 import com.ai.cloud.skywalking.model.Identification;
 import javassist.*;
+import javassist.bytecode.*;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 
@@ -10,12 +11,17 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class TracingEnhanceProcessor implements BeanPostProcessor {
 
-    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+    private Logger logger = Logger.getLogger(TracingEnhanceProcessor.class.getName());
+
+    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
         List<Method> methods = new ArrayList<Method>();
         for (Method method : bean.getClass().getMethods()) {
             if (method.isAnnotationPresent(Tracing.class)) {
@@ -24,9 +30,12 @@ public class TracingEnhanceProcessor implements BeanPostProcessor {
         }
         if (methods.size() > 0) {
             try {
-                ClassPool mPool = new ClassPool(true);
+                ClassPool mPool = ClassPool.getDefault();
+                mPool.appendClassPath(new ClassClassPath(bean.getClass()));
                 //创建代理类
                 CtClass mCtc = createProxyClass(bean, mPool);
+                //拷贝类上注解
+                copyClassesAnnotations(bean, mPool, mCtc);
                 //代理类继承所有的被代理的接口
                 inheritanceAllInterfaces(bean, mPool, mCtc);
                 //
@@ -45,9 +54,13 @@ public class TracingEnhanceProcessor implements BeanPostProcessor {
                     result.append(generateException(method));
                     // 生成方法体
                     result.append(generateMethodBody(bean, method));
-                    // TODO 注解
-                    // TODO 参数注解
-                    mCtc.addMethod(CtMethod.make(result.toString(), mCtc));
+                    CtMethod dest = CtMethod.make(result.toString(), mCtc);
+
+                    // 拷贝方法上的注解
+                    CtMethod origin = convertMethod2CtMethod(bean, mPool, method);
+                    copyAllAnnotation(origin.getMethodInfo(), dest.getMethodInfo());
+
+                    mCtc.addMethod(dest);
                 }
                 mCtc.addConstructor(CtNewConstructor.make("public " + mCtc.getSimpleName() + "(" + LocalBuriedPointSender.class
                         .getName() + " buriedPoint, " + bean.getClass().getName() + " realBean){" +
@@ -57,21 +70,67 @@ public class TracingEnhanceProcessor implements BeanPostProcessor {
                 Constructor<?> constructor = classes.getConstructor(LocalBuriedPointSender.class, bean.getClass());
                 return constructor.newInstance(new LocalBuriedPointSender(), bean);
             } catch (CannotCompileException e) {
-                e.printStackTrace();
+                logger.log(Level.ALL, "Failed to create the instance of the class[" + beanName + "]", e);
             } catch (InstantiationException e) {
-                e.printStackTrace();
+                logger.log(Level.ALL, "Failed to create the instance of the class[" + beanName + "]", e);
             } catch (IllegalAccessException e) {
-                e.printStackTrace();
+                logger.log(Level.ALL, "Failed to create the instance of the class[" + beanName + "]", e);
             } catch (NoSuchMethodException e) {
-                e.printStackTrace();
+                logger.log(Level.ALL, "Failed to create the instance of the class[" + beanName + "]", e);
             } catch (InvocationTargetException e) {
-                e.printStackTrace();
+                logger.log(Level.ALL, "Failed to create the instance of the class[" + beanName + "]", e);
             } catch (NotFoundException e) {
-                e.printStackTrace();
+                logger.log(Level.ALL, "Failed to create the instance of the class[" + beanName + "]", e);
             }
         }
 
         return bean;
+    }
+
+    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+        return bean;
+    }
+
+    private CtMethod convertMethod2CtMethod(Object bean, ClassPool mPool, Method method) throws NotFoundException {
+        int i = 0;
+        CtClass ctClass = mPool.get(bean.getClass().getName());
+        CtClass[] parameterClass = new CtClass[method.getParameterTypes().length];
+        for (Class methodClass : method.getParameterTypes()) {
+            parameterClass[i++] = mPool.get(methodClass.getName());
+        }
+        return ctClass.getDeclaredMethod(method.getName(), parameterClass);
+    }
+
+    private void copyClassesAnnotations(Object bean, ClassPool mPool, CtClass mCtc) throws NotFoundException {
+        // 拷贝类上注解
+        CtClass originCtClass = mPool.get(bean.getClass().getName());
+        AnnotationsAttribute annotations = (AnnotationsAttribute) originCtClass.getClassFile().
+                getAttribute(AnnotationsAttribute.visibleTag);
+        AttributeInfo newAnnotations = annotations.copy(mCtc.getClassFile().getConstPool(), Collections.EMPTY_MAP);
+        mCtc.getClassFile().addAttribute(newAnnotations);
+    }
+
+    private void copyAllAnnotation(MethodInfo origin, MethodInfo dest) {
+        AnnotationsAttribute annotations = (AnnotationsAttribute) origin.getAttribute(AnnotationsAttribute.visibleTag);
+        ParameterAnnotationsAttribute pannotations = (ParameterAnnotationsAttribute) origin.getAttribute(ParameterAnnotationsAttribute.visibleTag);
+        ExceptionsAttribute exAt = (ExceptionsAttribute) origin.getAttribute(ExceptionsAttribute.tag);
+        SignatureAttribute sigAt = (SignatureAttribute) origin.getAttribute(SignatureAttribute.tag);
+        if (annotations != null) {
+            AttributeInfo newAnnotations = annotations.copy(dest.getConstPool(), Collections.EMPTY_MAP);
+            dest.addAttribute(newAnnotations);
+        }
+        if (pannotations != null) {
+            AttributeInfo newAnnotations = pannotations.copy(dest.getConstPool(), Collections.EMPTY_MAP);
+            dest.addAttribute(newAnnotations);
+        }
+        if (sigAt != null) {
+            AttributeInfo newAnnotations = sigAt.copy(dest.getConstPool(), Collections.EMPTY_MAP);
+            dest.addAttribute(newAnnotations);
+        }
+        if (exAt != null) {
+            AttributeInfo newAnnotations = exAt.copy(dest.getConstPool(), Collections.EMPTY_MAP);
+            dest.addAttribute(newAnnotations);
+        }
     }
 
     private String generateMethodBody(Object bean, Method method) {
@@ -160,16 +219,12 @@ public class TracingEnhanceProcessor implements BeanPostProcessor {
     }
 
     private CtClass createProxyClass(Object bean, ClassPool mPool) {
-        return mPool.makeClass(bean.getClass().getSimpleName() + "$EnhanceBySWTracing$" + ThreadLocalRandom.current().nextInt(100));
+        return mPool.makeClass(bean.getClass().getName() + "$EnhanceBySWTracing$" + ThreadLocalRandom.current().nextInt(100));
     }
 
     private void inheritanceAllInterfaces(Object bean, ClassPool mPool, CtClass mCtc) throws NotFoundException {
         for (Class<?> classes : bean.getClass().getInterfaces()) {
             mCtc.addInterface(mPool.get(classes.getClass().getName()));
         }
-    }
-
-    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-        return bean;
     }
 }
