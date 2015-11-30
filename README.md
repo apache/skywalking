@@ -5,4 +5,4 @@ Distributed Application Tracing System
 http://wu-sheng.github.io/sky-walking/
 
 # API Guide
-http://wu-sheng.github.io/sky-walking/api/
+http://wu-sheng.github.io/sky-walking/sample-code/codeView.html
