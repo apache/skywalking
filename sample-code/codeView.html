@@ -12,12 +12,12 @@
   </head>
   <body style="font-family:'Open Sans','Helvetica Neue',Helvetica,Arial,sans-serif;margin:0;padding:0;font-size:16px;line-height:1.5">
   	<section class="page-header" style="background-image: url(../images/backgroud.png);padding: 0.5rem 1rem;text-align:center;">
-      <h2 style="color:#fff;font-family:'Open Sans','Helvetica Neue',Helvetica,Arial,sans-serif;line-height:1.5">Sky Walking Guide</h2>
+      <h2 style="color:#fff;font-family:'Open Sans','Helvetica Neue',Helvetica,Arial,sans-serif;line-height:1.5">Sky Walking API Guide</h2>
     </section>
     
     <section class="main-content">
       <h3>
-      	<a id="useInSpring" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>如何追踪注册在Spring中类实例的本地方法调用？
+      	<a id="useInSpring" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>如何追踪注册在Spring中类实例的方法调用？
       </h3>
       <p>1.在需要追踪的方法上，加上@Tracing标识。</p>
       <pre>
@@ -33,7 +33,7 @@ public class TracingAspectBean {
 			<pre>
 &lt;bean id="tracingEnhance" class="com.ai.cloud.skywalking.plugin.spring.TracingEnhanceProcessor"&gt;</pre>
     
-    
+    	<p>3.通过Spring标注，或配置文件将TracingAspectBean注册到Spring Context上下文中</p>
       <h3>
       	<a id="useInDubbo" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>如何追踪dubbo调用？
       </h3>
@@ -79,7 +79,53 @@ new com.ai.cloud.skywalking.plugin.dubbox.bugfix.below283.BugFixAcitve();</pre>
 			
 			<p>4.客户端如果直接使用非dubbox客户端发起调用，需要在发送的参数中设置contextData。</p>
 			
-			
+			<h3>
+      	<a id="useInMySQL" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>如何追踪MySQL访问？
+      </h3>
+      <p>1.设置特定的JDBC Driver</p>
+      <pre>Driver="com.ai.cloud.skywalking.plugin.jdbc.mysql.MySQLTracingDriver"</pre>
+      <p>2.设置特定的JDBC URL</p>
+      <pre></pre>
+      
+      <h3>
+      	<a id="useInJDBC" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>如何追踪MySQL之外的其他JDBC？
+      </h3>
+      <p>1.轻松实现自定义的JDBC Driver扩展</p>
+      <pre>import java.sql.Driver;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+import com.ai.cloud.skywalking.plugin.jdbc.TracingDriver;
+
+public class XXXDBTracingDriver extends TracingDriver {
+	static {
+		try {
+			DriverManager.registerDriver(new MySQLTracingDriver());
+		} catch (SQLException e) {
+			throw new RuntimeException("register "
+					+ MySQLTracingDriver.class.getName() + " driver failure.");
+		}
+	}
+
+	/**
+	 * 继承自TracingDriver，返回真实的Driver
+	 */
+	@Override
+	protected Driver registerTracingDriver() {
+		try {
+			//示例：return new com.mysql.jdbc.Driver();
+			return new Driver();
+		} catch (SQLException e) {
+			throw new RuntimeException("create Driver failure.");
+		}
+	}
+
+}
+</pre>
+			<p>2.设置新实现的JDBC Driver</p>
+      <pre>Driver="XXXDBTracingDriver"</pre>
+      <p>3.设置特定的JDBC URL</p>
+      
       <footer class="site-footer">
         <span class="site-footer-owner"><a href="http://wu-sheng.github.io/sky-walking">Sky Walking</a> is maintained by <a href="https://github.com/wu-sheng">吴晟</a>，<a href="https://github.com/ascrutae">张鑫</a>，<a href="https://github.com/tanzhen84">谭真</a>.</span>
       </footer>
