@@ -10,19 +10,19 @@ public abstract class SpanData {
 
     protected String traceId;
     protected String parentLevel;
-    protected int levelId;
-    protected String viewPointId;
-    protected long startDate;
-    protected long cost;
-    protected String address;
+    protected int levelId = 0;
+    protected String viewPointId = "";
+    protected long startDate = System.currentTimeMillis();
+    protected long cost = 0L;
+    protected String address = "";
     protected byte statusCode = 0;
     protected String exceptionStack;
-    protected char spanType;
+    protected char spanType = 'M';
     protected boolean isReceiver = false;
-    protected String businessKey;
-    protected String processNo;
-    protected String applicationId;
-    protected String originData;
+    protected String businessKey = "";
+    protected String processNo = "";
+    protected String applicationId = "";
+    protected String originData = "";
 
 
     public String getTraceId() {

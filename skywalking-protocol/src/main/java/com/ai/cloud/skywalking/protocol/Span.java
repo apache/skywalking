@@ -18,6 +18,13 @@ public class Span extends SpanData {
         this.applicationId = applicationID;
     }
 
+    public Span(String traceId, String parentLevelId, int levelId, String applicationID) {
+        this.traceId = traceId;
+        this.applicationId = applicationID;
+        this.parentLevel = parentLevelId;
+        this.levelId = levelId;
+    }
+
     public Span(String originData) {
         String[] fieldValues = originData.split(SPILT_REGEX);
         traceId = fieldValues[0].trim();

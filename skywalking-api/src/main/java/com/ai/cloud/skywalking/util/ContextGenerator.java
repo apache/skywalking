@@ -34,9 +34,7 @@ public final class ContextGenerator {
             spanData = new Span(TraceIdGenerator.generate(), Config.SkyWalking.APPLICATION_ID);
         } else {
             // 如果不为空，则将当前的Context存放到上下文
-            spanData = new Span(context.getTraceId(), Config.SkyWalking.APPLICATION_ID);
-            spanData.setParentLevel(context.getParentLevel());
-            spanData.setLevelId(context.getLevelId());
+            spanData = new Span(context.getTraceId(), context.getParentLevel(), context.getLevelId(), Config.SkyWalking.APPLICATION_ID);
         }
         initNewSpanData(spanData, id);
 
