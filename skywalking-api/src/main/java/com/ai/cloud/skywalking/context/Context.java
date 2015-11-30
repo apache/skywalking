@@ -66,11 +66,11 @@ public class Context {
 
     static class SpanNode {
         private Span data;
+        //
         private int nextSubSpanLevelId = 0;
 
         public SpanNode(Span data) {
             this.data = data;
-            this.data.setLevelId(nextSubSpanLevelId);
         }
 
         public SpanNode(Span data, int levelId) {

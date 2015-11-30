@@ -34,10 +34,9 @@ public final class ContextGenerator {
             spanData = new Span(TraceIdGenerator.generate(), Config.SkyWalking.APPLICATION_ID);
         } else {
             // 如果不为空，则将当前的Context存放到上下文
-            // LevelId是由SpanNode类的nextSubSpanLevelId字段进行初始化的.
-            // 所以在这里不需要初始化
             spanData = new Span(context.getTraceId(), Config.SkyWalking.APPLICATION_ID);
             spanData.setParentLevel(context.getParentLevel());
+            spanData.setLevelId(context.getLevelId());
         }
         initNewSpanData(spanData, id);
 
