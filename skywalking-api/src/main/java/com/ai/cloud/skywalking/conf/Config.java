@@ -30,7 +30,7 @@ public class Config {
 
 	public static class Buffer {
 		// 每个Buffer的最大个数
-		public static int BUFFER_MAX_SIZE = 18000;
+		public static int BUFFER_MAX_SIZE = 20000;
 
 		// Buffer池的最大长度
 		public static int POOL_SIZE = 5;
@@ -47,7 +47,7 @@ public class Config {
 		public static boolean IS_OFF = false;
 
 		// 发送的最大长度
-		public static int MAX_SEND_LENGTH = 1800;
+		public static int MAX_SEND_LENGTH = 18500;
 
 		public static long RETRY_GET_SENDER_WAIT_INTERVAL = 2000L;
 

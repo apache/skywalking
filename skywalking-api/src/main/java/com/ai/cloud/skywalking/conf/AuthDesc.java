@@ -5,6 +5,7 @@ public class AuthDesc {
 
     static {
         ConfigInitializer.initialize();
+        ConfigValidator.validate();
     }
 
     public static boolean isAuth() {

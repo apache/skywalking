@@ -2,6 +2,7 @@ package com.ai.cloud.skywalking.buffer;
 
 
 import com.ai.cloud.skywalking.conf.Config;
+import com.ai.cloud.skywalking.conf.Constants;
 import com.ai.cloud.skywalking.protocol.Span;
 import com.ai.cloud.skywalking.selfexamination.HealthCollector;
 import com.ai.cloud.skywalking.selfexamination.HeathReading;
@@ -76,7 +77,7 @@ public class BufferGroup {
                         data = new StringBuilder();
                     }
 
-                    data.append(dataBuffer[i] + ";");
+                    data.append(dataBuffer[i] + Constants.DATA_SPILT);
                     dataBuffer[i] = null;
                 }
 
