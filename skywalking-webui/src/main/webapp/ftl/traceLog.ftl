@@ -14,20 +14,48 @@
   	
   	<!-- show traceLogInfo -->
     <@common.dealTraceLog />
+    
+    <!-- show traceLogInfo -->
+    <@common.importOriginLog />
 
     <!-- script references -->
 	<@common.importJavaScript />
     <script>
-		var table = $('#example-advanced').children();  
-		$("#example-advanced").treetable({ expandable: true , indent : 10, clickableNodeNames : true});
-		
-		$("#example-advanced tr").click(function() {
-			var selected = $(this).hasClass("highlight");
-			$("#example-advanced tr").removeClass("highlight");
-			if(!selected)
-            $(this).addClass("highlight");
-		});
-		
+    	$().ready(function(){
+    		var table = $('#example-advanced').children();  
+			$("#example-advanced").treetable({ expandable: true , indent : 10, clickableNodeNames : true});
+			
+			$("#example-advanced tr").click(function() {
+				var selected = $(this).hasClass("highlight");
+				$("#example-advanced tr").removeClass("highlight");
+				if(!selected)
+	            $(this).addClass("highlight");
+			});
+			
+			$("#originLog").bind("click",function(){
+				if($(this).html() == "显示原文"){
+					$("#originRow").slideDown("slow",function(){
+						$("#tableDiv").slideUp("slow");
+					});
+					$(this).html("显示调用链");
+				}else{
+					$("#tableDiv").slideDown("slow",function(){
+						$("#originRow").slideUp("slow");
+					});
+					$(this).html("显示原文");
+				}
+			});
+			
+			$("tr[name='log']").each(function(){
+				var code = $(this).attr("statusCodeStr");
+				if(code != 0 || code=='' ){
+					var node = $(this).attr("data-tt-id");
+					$(this).css("color","red");
+				} 
+			});
+			
+    		$('#example-advanced').treetable('expandAll');
+    	});
     </script>
   </body>
 </html>

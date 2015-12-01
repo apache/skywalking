@@ -14,13 +14,13 @@ import javax.servlet.http.HttpServletRequest;
 public class RequestUtil {
 	/***
 	 * 获取web应用根路径
+	 * 
 	 * @param request
 	 * @return
 	 */
 	public static String getAppWebBase(HttpServletRequest request) {
 		String path = request.getContextPath();
-		String base = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + path
-				+ "/";
+		String base = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + path;
 		return base;
 	}
 }

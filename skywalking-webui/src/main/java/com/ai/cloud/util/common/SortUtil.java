@@ -4,6 +4,7 @@
 package com.ai.cloud.util.common;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -18,7 +19,7 @@ import org.junit.Test;
 
 import com.ai.cloud.dao.impl.BuriedPointSDAO;
 import com.ai.cloud.util.Constants;
-import com.ai.cloud.vo.mvo.BuriedPointEntry;
+import com.ai.cloud.vo.mvo.TraceLogEntry;
 
 /**
  * 
@@ -37,8 +38,8 @@ public class SortUtil {
 	 * @param colId
 	 * @param tmpEntry
 	 */
-	public static void addCurNodeTreeMapKey(Map<String, BuriedPointEntry> reMap, String colId,
-			BuriedPointEntry tmpEntry) {
+	public static void addCurNodeTreeMapKey(Map<String, TraceLogEntry> reMap, String colId,
+			TraceLogEntry tmpEntry) {
 		reMap.put(colId, tmpEntry);
 		// 根据当前Id查找上级，如果不存在，插入空，再看上级，如果不存在还插入空，直到根"0"
 		while (colId.indexOf(Constants.VAL_SPLIT_CHAR) > -1) {
@@ -56,13 +57,12 @@ public class SortUtil {
 	 * @param colId
 	 * @return
 	 */
-	private static boolean addParentNodeTreeMapKey(Map<String, BuriedPointEntry> reMap, String colId) {
+	private static boolean addParentNodeTreeMapKey(Map<String, TraceLogEntry> reMap, String colId) {
 		if (reMap.containsKey(colId)) {
-			logger.info("key hash exist: {}", colId);
 			return false;
 		} else {
 			// 增加虚拟节点
-			reMap.put(colId, BuriedPointEntry.addLostBuriedPointEntry(colId));
+			reMap.put(colId, TraceLogEntry.addLostBuriedPointEntry(colId));
 			// 根据当前Id查找上级，如果不存在，插入空，再看上级，如果不存在还插入空，直到根"0"
 			while (colId.indexOf(Constants.VAL_SPLIT_CHAR) > -1) {
 				colId = colId.substring(0, colId.lastIndexOf(Constants.VAL_SPLIT_CHAR));
@@ -78,27 +78,30 @@ public class SortUtil {
 	 * 测试读取hbase 测试自动补充父级节点 测试排序
 	 * 
 	 * @throws IOException
+	 * @throws NoSuchMethodException 
+	 * @throws InvocationTargetException 
+	 * @throws IllegalAccessException 
 	 * 
 	 */
 	@Test
-	public void testSelectByTraceId() throws IOException {
+	public void testSelectByTraceId() throws IOException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
 		BuriedPointSDAO sdao = new BuriedPointSDAO();
-		Map<String, BuriedPointEntry> bpe = sdao.queryLogByTraceId(Constants.TABLE_NAME_CHAIN,
-				"6305eb1d1e1b46529a7eb57912a5766e123");
+		Map<String, TraceLogEntry> bpe = sdao.queryLogByTraceId(Constants.TABLE_NAME_CHAIN,
+				"71e28364128847b3a12626966b60fd8f123");
 
-		List<BuriedPointEntry> keyList = new ArrayList<BuriedPointEntry>();
+		List<TraceLogEntry> keyList = new ArrayList<TraceLogEntry>();
 
 		keyList.addAll(bpe.values());
 
-		Collections.sort(keyList, new Comparator<BuriedPointEntry>() {
+		Collections.sort(keyList, new Comparator<TraceLogEntry>() {
 			@Override
-			public int compare(BuriedPointEntry arg0, BuriedPointEntry arg1) {
+			public int compare(TraceLogEntry arg0, TraceLogEntry arg1) {
 				return arg0.getColId().compareTo(arg1.getColId());
 			}
 		});
 
 		int m = 1;
-		for (BuriedPointEntry tmpEntry : keyList) {
+		for (TraceLogEntry tmpEntry : keyList) {
 			logger.info("sort result level:{} : {}", m++, tmpEntry);
 		}
 
@@ -125,8 +128,8 @@ public class SortUtil {
 		}
 
 		String colId = sb.toString();
-		BuriedPointEntry tmpEntry = null;
-		Map<String, BuriedPointEntry> reMap = new HashMap<String, BuriedPointEntry>();
+		TraceLogEntry tmpEntry = null;
+		Map<String, TraceLogEntry> reMap = new HashMap<String, TraceLogEntry>();
 		long startTime = System.currentTimeMillis();
 		logger.info("start time : {}", startTime);
 

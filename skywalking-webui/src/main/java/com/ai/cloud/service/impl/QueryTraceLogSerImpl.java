@@ -4,6 +4,7 @@
 package com.ai.cloud.service.impl;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +13,7 @@ import org.springframework.stereotype.Service;
 import com.ai.cloud.dao.inter.IBuriedPointSDAO;
 import com.ai.cloud.service.inter.IQueryTraceLogSer;
 import com.ai.cloud.util.Constants;
-import com.ai.cloud.vo.mvo.BuriedPointEntry;
+import com.ai.cloud.vo.mvo.TraceLogEntry;
 
 /**
  * 
@@ -27,7 +28,7 @@ public class QueryTraceLogSerImpl implements IQueryTraceLogSer {
 	IBuriedPointSDAO buriedPointSDAO;
 
 	@Override
-	public Map<String, BuriedPointEntry> queryLogByTraceId(String traceId) throws IOException {
+	public Map<String, TraceLogEntry> queryLogByTraceId(String traceId) throws IOException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
 		return buriedPointSDAO.queryLogByTraceId(Constants.TABLE_NAME_CHAIN, traceId);
 	}
 

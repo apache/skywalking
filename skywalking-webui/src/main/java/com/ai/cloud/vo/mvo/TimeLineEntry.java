@@ -40,4 +40,9 @@ public class TimeLineEntry {
 	public void setCost(long cost) {
 		this.cost = cost;
 	}
+
+	@Override
+	public String toString() {
+		return "TimeLineEntry [startTime=" + startTime + ", cost=" + cost + "]";
+	}
 }

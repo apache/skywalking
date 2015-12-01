@@ -4,9 +4,10 @@
 package com.ai.cloud.dao.inter;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
-import com.ai.cloud.vo.mvo.BuriedPointEntry;
+import com.ai.cloud.vo.mvo.TraceLogEntry;
 
 /**
  * 
@@ -16,6 +17,6 @@ import com.ai.cloud.vo.mvo.BuriedPointEntry;
  */
 public interface IBuriedPointSDAO {
 	
-	public Map<String, BuriedPointEntry> queryLogByTraceId(String tableName, String traceId) throws IOException;
+	public Map<String, TraceLogEntry> queryLogByTraceId(String tableName, String traceId) throws IOException, IllegalAccessException, InvocationTargetException, NoSuchMethodException;
 	
 }
