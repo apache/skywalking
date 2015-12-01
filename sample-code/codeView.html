@@ -29,6 +29,7 @@ public class TracingAspectBean {
         return "Hello World";
     }
 }</pre>
+			<p><span style="color:red">注意：对于方法的追踪，仅限于实例级的public方法。其他方法由于Java运行时原因，无法追踪。</span></p>
 			<p>2.Spring配置文件中，配置所需如下信息。</p>
 			<pre>
 &lt;bean id="tracingEnhance" class="com.ai.cloud.skywalking.plugin.spring.TracingEnhanceProcessor"&gt;</pre>
@@ -85,7 +86,8 @@ new com.ai.cloud.skywalking.plugin.dubbox.bugfix.below283.BugFixAcitve();</pre>
       <p>1.设置特定的JDBC Driver</p>
       <pre>Driver="com.ai.cloud.skywalking.plugin.jdbc.mysql.MySQLTracingDriver"</pre>
       <p>2.设置特定的JDBC URL</p>
-      <pre></pre>
+      <p></p>
+      <pre>jdbc.url=tracing:jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=UTF-8</pre>
       
       <h3>
       	<a id="useInJDBC" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>如何追踪MySQL之外的其他JDBC？
@@ -125,6 +127,27 @@ public class XXXDBTracingDriver extends TracingDriver {
 			<p>2.设置新实现的JDBC Driver</p>
       <pre>Driver="XXXDBTracingDriver"</pre>
       <p>3.设置特定的JDBC URL</p>
+      <pre>jdbc.url=tracing:jdbc:xxxdb://localhost:3306/test</pre>
+      
+      <h3>
+      	<a id="useInWebFilter" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>如何追踪web服务端访问？
+      </h3>
+      <p>服务端使用Filter追踪web请求</p>
+      <pre>    &lt;filter&gt;
+        &lt;filter-namer&gt;tracingFilter&lt;/filter-namer&gt;
+        &lt;filter-classr&gt;com.ai.cloud.skywalking.plugin.web.SkyWalkingFilter&lt;/filter-class&gt;
+        &lt;init-param&gt;
+            &lt;param-name&gt;tracing-name&lt;/param-name&gt;
+            &lt;!--分布式埋点信息，默认放在request的header中，key=SkyWalking-TRACING-NAME,可根据需要修改--&gt;
+            &lt;param-value&gt;SkyWalking-TRACING-NAME&lt;/param-value&gt;
+        &lt;/init-param&gt;
+    &lt;/filterr&gt;
+    &lt;filter-mappingr&gt;
+        &lt;filter-name&gt;tracingFilter&lt;/filter-namer&gt;
+        &lt;!--追踪路径应为MVC的请求路径，不建议包括js/css/图片等资源路径--&gt;
+        &lt;url-patternr&gt;/request-uri&lt;/url-patternr&gt;
+    &lt;/filter-mappingr&gt;</pre>
+      
       
       <footer class="site-footer">
         <span class="site-footer-owner"><a href="http://wu-sheng.github.io/sky-walking">Sky Walking</a> is maintained by <a href="https://github.com/wu-sheng">吴晟</a>，<a href="https://github.com/ascrutae">张鑫</a>，<a href="https://github.com/tanzhen84">谭真</a>.</span>
