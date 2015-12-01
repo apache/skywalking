@@ -1,5 +1,6 @@
 package com.ai.cloud.skywalking.example.account.util;
 
+import com.ai.cloud.skywalking.plugin.httpclient.SWTracingHttpClient;
 import com.ai.cloud.skywalking.plugin.spring.Tracing;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -8,7 +9,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
 import java.io.BufferedReader;
@@ -24,17 +24,14 @@ public class HttpClientUtil {
     private static final Log logger = LogFactory.getLog(HttpClientUtil.class);
 
     @Tracing
-    public static String sendPostRequest(String url, Map<String, String> parametersMap, Map<String, String>
-            headerParameter) throws IOException, URISyntaxException {
-        HttpClient httpclient = new DefaultHttpClient();
+    public static String sendPostRequest(String url, Map<String, String> parametersMap) throws IOException, URISyntaxException {
+        HttpClient httpclient = new SWTracingHttpClient();
         HttpPost httpPost = new HttpPost(new URL(url).toURI());
         List formparams = new ArrayList();
         for (Map.Entry<String, String> entry : parametersMap.entrySet()) {
             formparams.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
         }
-        for (Map.Entry<String, String> entry : headerParameter.entrySet()) {
-            httpPost.setHeader(entry.getKey(), entry.getValue());
-        }
+
         httpPost.setEntity(new UrlEncodedFormEntity(formparams, "UTF-8"));
         HttpResponse response = httpclient.execute(httpPost);
         if (response.getStatusLine().getStatusCode() == 200) {

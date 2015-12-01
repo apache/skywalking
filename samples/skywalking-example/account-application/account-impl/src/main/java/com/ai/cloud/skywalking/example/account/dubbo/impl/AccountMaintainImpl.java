@@ -37,14 +37,10 @@ public class AccountMaintainImpl implements IAccountMaintain {
                 commonsHttpResult.setErrorCode("99999");
                 commonsHttpResult.setMessage("Create account failed");
             } else {
-                Map<String, String> headParameters = new HashMap<String, String>();
-                headParameters.put("SkyWalking-TRACING-NAME", new RPCBuriedPointSender().beforeSend(Identification.newBuilder().
-                        spanType('W').viewPoint(MAIL_APPLICATION_DEPLOY_ADDRESS + SEND_MAIL_URL).build()).toString());
                 Map<String, String> parameters = new HashMap<String, String>();
                 parameters.put("recipientAccount", accountInfo.getMail());
                 String mailResult = HttpClientUtil.sendPostRequest(MAIL_APPLICATION_DEPLOY_ADDRESS + SEND_MAIL_URL,
-                        parameters, headParameters);
-                new RPCBuriedPointSender().afterSend();
+                        parameters);
 
                 CommonsHttpResult commonsHttpResult1 = gson.fromJson(mailResult, CommonsHttpResult.class);
                 if ("000000".equals(commonsHttpResult1.getErrorCode())) {

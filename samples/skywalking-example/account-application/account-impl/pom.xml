@@ -155,6 +155,13 @@
             <artifactId>jdbc-plugin</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+
+        <!-- -->
+        <dependency>
+            <groupId>com.ai.cloud</groupId>
+            <artifactId>httpClient-plugin</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <build>
