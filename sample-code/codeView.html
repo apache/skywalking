@@ -148,6 +148,13 @@ public class XXXDBTracingDriver extends TracingDriver {
         &lt;url-patternr&gt;/request-uri&lt;/url-patternr&gt;
     &lt;/filter-mappingr&gt;</pre>
       
+      <h3>
+      	<a id="useInHttpClient" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>如何通过HttpClient追踪HTTP调用？
+      </h3>
+      <p>使用SWTracingHttpClient封装所需的httpClient，此httpClient所有调用都会被监控</p>
+      <pre>HttpClient httpclient = new SWTracingHttpClient(new DefaultHttpClient());</pre>
+      <p>上下文将被存储在http request head，中，默认名称和SkyWalkingFilter保持一致。如果使用dubbox的rest提供的http请求，请使用方法重载</p>
+      <pre>HttpClient httpclient = new SWTracingHttpClient(new DefaultHttpClient(), "");</pre>
       
       <footer class="site-footer">
         <span class="site-footer-owner"><a href="http://wu-sheng.github.io/sky-walking">Sky Walking</a> is maintained by <a href="https://github.com/wu-sheng">吴晟</a>，<a href="https://github.com/ascrutae">张鑫</a>，<a href="https://github.com/tanzhen84">谭真</a>.</span>
