@@ -9,7 +9,6 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.conn.ClientConnectionManager;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 
@@ -20,21 +19,19 @@ public class SWTracingHttpClient implements HttpClient {
     private static final String DEFAULT_TRACE_NAME = "SkyWalking-TRACING-NAME";
 
     private HttpClient client;
-    private String traceName;
+    private String traceHeaderName;
 
-    public SWTracingHttpClient(HttpClient client, String traceName) {
+    public SWTracingHttpClient(HttpClient client, String traceHeaderName) {
         this.client = client;
-        this.traceName = traceName;
+        if (traceHeaderName == null || traceHeaderName.length() <= 0) {
+            throw new IllegalArgumentException("Trace header name can not be null");
+        }
+        this.traceHeaderName = traceHeaderName;
     }
 
-    public SWTracingHttpClient(String traceName) {
-        super();
-        this.traceName = traceName;
-    }
-
-    public SWTracingHttpClient() {
-        client = new DefaultHttpClient();
-        this.traceName = DEFAULT_TRACE_NAME;
+    public SWTracingHttpClient(HttpClient client) {
+        this.client = client;
+        this.traceHeaderName = DEFAULT_TRACE_NAME;
     }
 
     @Override
@@ -49,7 +46,7 @@ public class SWTracingHttpClient implements HttpClient {
 
     @Override
     public HttpResponse execute(final HttpUriRequest httpUriRequest) throws IOException, ClientProtocolException {
-        return HttpClientTracing.execute(httpUriRequest.getURI().toString(), traceName, httpUriRequest, new HttpClientTracing.Executor<HttpResponse>() {
+        return HttpClientTracing.execute(httpUriRequest.getURI().toString(), traceHeaderName, httpUriRequest, new HttpClientTracing.Executor<HttpResponse>() {
             @Override
             public HttpResponse execute() throws IOException {
                 return client.execute(httpUriRequest);
@@ -59,7 +56,7 @@ public class SWTracingHttpClient implements HttpClient {
 
     @Override
     public HttpResponse execute(final HttpUriRequest httpUriRequest, final HttpContext httpContext) throws IOException, ClientProtocolException {
-        return HttpClientTracing.execute(httpUriRequest.getURI().toString(), traceName, httpUriRequest, new HttpClientTracing.Executor<HttpResponse>() {
+        return HttpClientTracing.execute(httpUriRequest.getURI().toString(), traceHeaderName, httpUriRequest, new HttpClientTracing.Executor<HttpResponse>() {
             @Override
             public HttpResponse execute() throws IOException {
                 return client.execute(httpUriRequest, httpContext);
@@ -69,7 +66,7 @@ public class SWTracingHttpClient implements HttpClient {
 
     @Override
     public HttpResponse execute(final HttpHost httpHost, final HttpRequest httpRequest) throws IOException, ClientProtocolException {
-        return HttpClientTracing.execute(httpHost.toURI(), traceName, httpRequest, new HttpClientTracing.Executor<HttpResponse>() {
+        return HttpClientTracing.execute(httpHost.toURI(), traceHeaderName, httpRequest, new HttpClientTracing.Executor<HttpResponse>() {
             @Override
             public HttpResponse execute() throws IOException {
                 return client.execute(httpHost, httpRequest);
@@ -79,7 +76,7 @@ public class SWTracingHttpClient implements HttpClient {
 
     @Override
     public HttpResponse execute(final HttpHost httpHost, final HttpRequest httpRequest, final HttpContext httpContext) throws IOException, ClientProtocolException {
-        return HttpClientTracing.execute(httpHost.toURI(), traceName, httpRequest, new HttpClientTracing.Executor<HttpResponse>() {
+        return HttpClientTracing.execute(httpHost.toURI(), traceHeaderName, httpRequest, new HttpClientTracing.Executor<HttpResponse>() {
             @Override
             public HttpResponse execute() throws IOException {
                 return client.execute(httpHost, httpRequest, httpContext);
@@ -89,7 +86,7 @@ public class SWTracingHttpClient implements HttpClient {
 
     @Override
     public <T> T execute(final HttpUriRequest httpUriRequest, final ResponseHandler<? extends T> responseHandler) throws IOException, ClientProtocolException {
-        return HttpClientTracing.execute(httpUriRequest.getURI().toString(), traceName, httpUriRequest, new HttpClientTracing.Executor<T>() {
+        return HttpClientTracing.execute(httpUriRequest.getURI().toString(), traceHeaderName, httpUriRequest, new HttpClientTracing.Executor<T>() {
             @Override
             public T execute() throws IOException {
                 return client.execute(httpUriRequest, responseHandler);
@@ -100,7 +97,7 @@ public class SWTracingHttpClient implements HttpClient {
 
     @Override
     public <T> T execute(final HttpUriRequest httpUriRequest, final ResponseHandler<? extends T> responseHandler, final HttpContext httpContext) throws IOException, ClientProtocolException {
-        return HttpClientTracing.execute(httpUriRequest.getURI().toString(), traceName, httpUriRequest, new HttpClientTracing.Executor<T>() {
+        return HttpClientTracing.execute(httpUriRequest.getURI().toString(), traceHeaderName, httpUriRequest, new HttpClientTracing.Executor<T>() {
             @Override
             public T execute() throws IOException {
                 return client.execute(httpUriRequest, responseHandler, httpContext);
@@ -111,7 +108,7 @@ public class SWTracingHttpClient implements HttpClient {
 
     @Override
     public <T> T execute(final HttpHost httpHost, final HttpRequest httpRequest, final ResponseHandler<? extends T> responseHandler) throws IOException, ClientProtocolException {
-        return HttpClientTracing.execute(httpHost.toURI(), traceName, httpRequest, new HttpClientTracing.Executor<T>() {
+        return HttpClientTracing.execute(httpHost.toURI(), traceHeaderName, httpRequest, new HttpClientTracing.Executor<T>() {
             @Override
             public T execute() throws IOException {
                 return client.execute(httpHost, httpRequest, responseHandler);
@@ -122,7 +119,7 @@ public class SWTracingHttpClient implements HttpClient {
 
     @Override
     public <T> T execute(final HttpHost httpHost, final HttpRequest httpRequest, final ResponseHandler<? extends T> responseHandler, HttpContext httpContext) throws IOException, ClientProtocolException {
-        return HttpClientTracing.execute(httpHost.toURI(), traceName, httpRequest, new HttpClientTracing.Executor<T>() {
+        return HttpClientTracing.execute(httpHost.toURI(), traceHeaderName, httpRequest, new HttpClientTracing.Executor<T>() {
             @Override
             public T execute() throws IOException {
                 return client.execute(httpHost, httpRequest, responseHandler);

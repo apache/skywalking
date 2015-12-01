@@ -9,6 +9,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
 import java.io.BufferedReader;
@@ -25,7 +26,7 @@ public class HttpClientUtil {
 
     @Tracing
     public static String sendPostRequest(String url, Map<String, String> parametersMap) throws IOException, URISyntaxException {
-        HttpClient httpclient = new SWTracingHttpClient();
+        HttpClient httpclient = new SWTracingHttpClient(new DefaultHttpClient());
         HttpPost httpPost = new HttpPost(new URL(url).toURI());
         List formparams = new ArrayList();
         for (Map.Entry<String, String> entry : parametersMap.entrySet()) {
