@@ -4,6 +4,7 @@
 package com.ai.cloud.dao.impl;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -22,8 +23,8 @@ import com.ai.cloud.dao.inter.IBuriedPointSDAO;
 import com.ai.cloud.util.Constants;
 import com.ai.cloud.util.HBaseConnectionUtil;
 import com.ai.cloud.util.common.SortUtil;
-import com.ai.cloud.vo.mvo.BuriedPointEntry;
-import com.sun.tools.internal.ws.wsdl.framework.Entity;
+import com.ai.cloud.util.common.StringUtil;
+import com.ai.cloud.vo.mvo.TraceLogEntry;
 
 /**
  * 
@@ -43,20 +44,22 @@ public class BuriedPointSDAO implements IBuriedPointSDAO {
 	 * @param traceId
 	 * @return
 	 * @throws IOException
+	 * @throws NoSuchMethodException 
+	 * @throws InvocationTargetException 
+	 * @throws IllegalAccessException 
 	 */
-	public Map<String, BuriedPointEntry> queryLogByTraceId(String tableName, String traceId) throws IOException {
+	public Map<String, TraceLogEntry> queryLogByTraceId(String tableName, String traceId) throws IOException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
 		Table table = HBaseConnectionUtil.getConnection().getTable(TableName.valueOf(tableName));
 		Get g = new Get(Bytes.toBytes(traceId));
 		Result r = table.get(g);
-		Map<String, BuriedPointEntry> traceLogMap = new HashMap<String, BuriedPointEntry>();
-		Map<String, BuriedPointEntry> rpcMap = new HashMap<String, BuriedPointEntry>();
+		Map<String, TraceLogEntry> traceLogMap = new HashMap<String, TraceLogEntry>();
+		Map<String, TraceLogEntry> rpcMap = new HashMap<String, TraceLogEntry>();
 		for (Cell cell : r.rawCells()) {
 			if (cell.getValueArray().length > 0) {
 				String colId = Bytes.toString(cell.getQualifierArray(), cell.getQualifierOffset(),
 						cell.getQualifierLength());
-				BuriedPointEntry tmpEntry = BuriedPointEntry.convert(
+				TraceLogEntry tmpEntry = TraceLogEntry.convert(
 						Bytes.toString(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength()), colId);
-				System.out.println("=========" + tmpEntry);
 				// 特殊处理RPC的服务端信息
 				if (colId.endsWith(Constants.RPC_END_FLAG)) {
 					rpcMap.put(colId.substring(0, colId.lastIndexOf(Constants.RPC_END_FLAG)), tmpEntry);
@@ -75,13 +78,26 @@ public class BuriedPointSDAO implements IBuriedPointSDAO {
 	 * @param rpcMap
 	 * @param traceLogMap
 	 */
-	private void computeRPCInfo(Map<String, BuriedPointEntry> rpcMap, Map<String, BuriedPointEntry> traceLogMap) {
+	private void computeRPCInfo(Map<String, TraceLogEntry> rpcMap, Map<String, TraceLogEntry> traceLogMap) {
 		// 合并处理
 		if (rpcMap.size() > 0) {
-			for (Entry<String, BuriedPointEntry> rpcVO : rpcMap.entrySet()) {
+			for (Entry<String, TraceLogEntry> rpcVO : rpcMap.entrySet()) {
 				String colId = rpcVO.getKey();
 				if(traceLogMap.containsKey(colId)){
-					BuriedPointEntry logVO = traceLogMap.get(colId);
+					TraceLogEntry logVO = traceLogMap.get(colId);
+					TraceLogEntry serverLog = rpcVO.getValue();
+					//如果RPC client端为空，则用server端信息
+					if(StringUtil.isBlank(logVO.getStatusCodeStr()) || Constants.STATUS_CODE_9.equals(logVO.getStatusCodeStr())){
+						serverLog.setColId(colId);
+						traceLogMap.put(colId, serverLog);
+					}else{
+						TraceLogEntry clientLog = traceLogMap.get(colId);
+						//客户端RPC显示特殊处理
+						clientLog.setApplicationIdStr(clientLog.getApplicationIdStr() + " --> " + serverLog.getApplicationIdStr());
+						clientLog.setViewPointId(serverLog.getViewPointId());
+						clientLog.setViewPointIdSub(serverLog.getViewPointIdSub());
+						clientLog.setAddress(serverLog.getAddress());
+					}
 					logVO.addTimeLine(rpcVO.getValue().getStartDate(), rpcVO.getValue().getCost());
 				}
 			}

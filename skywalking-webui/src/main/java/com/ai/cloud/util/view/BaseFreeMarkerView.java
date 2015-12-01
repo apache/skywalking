@@ -3,12 +3,14 @@ package com.ai.cloud.util.view;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerView;
 
 import com.ai.cloud.util.common.RequestUtil;
+import com.ai.cloud.util.common.StringUtil;
 
 /**
  * 自定义视图处理类
@@ -31,11 +33,26 @@ public class BaseFreeMarkerView extends FreeMarkerView {
 		String base = RequestUtil.getAppWebBase(request);
 		model.put(CONTEXT_PATH, base);
 		
-		model.put("userInfo", "{'isLogin':'0','uid':'10000','userName':'tanzhen'}");
+		HttpSession session = request.getSession();
 		
-		model.put("isLogin", "{'isLogin':'0'}");
+		String isLogin = (String) session.getAttribute("isLogin");
+		if(StringUtil.isBlank(isLogin)){
+			isLogin = "0";
+		}
+		String uid = (String) session.getAttribute("uid");
+		if(StringUtil.isBlank(uid)){
+			uid = "0";
+		}
+		String userName = (String) session.getAttribute("userName");
+		if(StringUtil.isBlank(userName)){
+			userName = "";
+		}
+		String menuList = (String) session.getAttribute("menuList");
+		if(StringUtil.isBlank(menuList)){
+			menuList = "";
+		}
 		
-		model.put("menuInfo", "{'isLogin':'0','uid':'10000','menuList':'tanzhen'}");
+		model.put("userInfo", "{'isLogin':'" + isLogin + "','uid':'" + uid + "','userName':'" + userName + "','menuList':'" + menuList + "'}");
 		
 		super.exposeHelpers(model, request);
 	}

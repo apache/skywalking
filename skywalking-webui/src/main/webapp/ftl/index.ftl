@@ -21,10 +21,10 @@
 			</div>
 			<div class="collapse navbar-collapse">
 				<!-- 菜单（不要太多） -->
-				<@common.importMenuInfo menuInfo="${menuInfo}" />
+				<@common.importMenuInfo menuInfo="${userInfo}" />
 				
 				<!-- 搜索栏 -->
-				<@common.importSearchInfo isLogin="${isLogin}" />
+				<@common.importSearchInfo isLogin="${userInfo}" />
 				
 				<!-- 登录/用户信息块 -->
 				<@common.importUserInfo userInfo="${userInfo}" />
@@ -36,7 +36,7 @@
 	</div>
 
 	<div>
-		<div class="text-center" style="height: 600px">
+		<div class="text-center" style="height: 700px">
 			<iframe id="showTraceLog" border=2 frameborder=0 width=100%
 				height=100% marginheight=0 marginwidth=0 scrolling=yes src=""></iframe>
 		</div>

@@ -9,7 +9,7 @@ $().ready(function() {
 	var traceId = $("#traceId").val();
 	
 	/** 搞个默认值测试*/
-	traceId = "933b360f94294833b6a82351d4ded676123";
+//	traceId = "6fbbe463f5b74873aecaf9eb3511846e123";
 
 	changeFrameUrl("");
 
@@ -18,7 +18,7 @@ $().ready(function() {
 		$("#srchKey").val(traceId);
 		var srchKey = $("#srchKey").val();
 		if (srchKey != "") {
-			changeFrameUrl(baseUrl + "showTraceLog/" + srchKey);
+			changeFrameUrl(baseUrl + "/showTraceLog/" + srchKey);
 		}
 	} else {
 		$("#srchKey").val("");
@@ -28,14 +28,14 @@ $().ready(function() {
 	$("#srchBtn").bind("click", function() {
 		var srchKey = $("#srchKey").val();
 		if (srchKey != "") {
-			changeFrameUrl(baseUrl + "showTraceLog/" + srchKey);
+			changeFrameUrl(baseUrl + "/showTraceLog/" + srchKey);
 		}
 	});
 
 	$("a[name='menuUrl']").each(function() {
 		$(this).bind('click', function() {
-			changeFrameUrl(baseUrl + $(this).attr("url"));
+			changeFrameUrl(baseUrl + "/" + $(this).attr("url"));
 		});
 	});
-
+	
 });

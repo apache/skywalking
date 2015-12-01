@@ -13,9 +13,19 @@ body {
 }
 .progress-bar-white {
   background-image: none;
-  background-color: FFFFFF;
+  background-color: #FFFFFF;
 }
 .highlight { 
 	background-color: #D8ECF6; 
+}
+
+.progress-bar-a {
+	background-color: #f0ad4e;
+}
+.progress-bar-b {
+	background-color: #5cb85c;
+}
+.progress-bar-c {
+	background-color: #5bc0de;
 }
 
