@@ -26,7 +26,7 @@ public class Span extends SpanData {
     }
 
     public Span(String originData) {
-        String[] fieldValues = originData.split(SPILT_REGEX);
+        String[] fieldValues = originData.split(SPAN_FIELD_SPILT_PATTERN);
         traceId = fieldValues[0].trim();
         parentLevel = fieldValues[1].trim();
         levelId = Integer.valueOf(fieldValues[2]);
@@ -42,7 +42,8 @@ public class Span extends SpanData {
         }
         spanType = fieldValues[9].charAt(0);
         isReceiver = Boolean.valueOf(fieldValues[10]);
-        businessKey = fieldValues[11].trim();
+        businessKey = fieldValues[11].trim().replaceAll(BUSINESSKEY_SPILT_PATTERN,
+                NEW_LINE_CHARACTER_PATTERN);
         processNo = fieldValues[12].trim();
         applicationId = fieldValues[13].trim();
         this.originData = originData;
