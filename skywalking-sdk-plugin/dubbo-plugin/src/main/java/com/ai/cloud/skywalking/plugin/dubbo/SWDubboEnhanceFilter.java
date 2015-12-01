@@ -86,7 +86,7 @@ public class SWDubboEnhanceFilter implements Filter {
         viewPoint.append(invoker.getUrl().getHost());
         viewPoint.append(":" + invoker.getUrl().getPort());
         viewPoint.append(invoker.getUrl().getAbsolutePath());
-        viewPoint.append(invocation.getMethodName() + "(");
+        viewPoint.append("." + invocation.getMethodName() + "(");
         for (Class classes : invocation.getParameterTypes()) {
             viewPoint.append(classes.getSimpleName() + ",");
         }
