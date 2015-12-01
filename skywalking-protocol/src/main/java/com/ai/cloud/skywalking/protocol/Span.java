@@ -37,12 +37,13 @@ public class Span extends SpanData {
         statusCode = Byte.valueOf(fieldValues[7].trim());
         //异常情况才会存在exceptionStack
         if (statusCode == 1) {
-            exceptionStack = fieldValues[8].trim().replaceAll(SpanData.EXCEPTION_SPILT_PATTERN,
-                    SpanData.NEW_LINE_CHARACTER_PATTERN);
+            exceptionStack = fieldValues[8].trim().replaceAll(SPAN_ATTR_SPILT_CHARACTER,
+                    NEW_LINE_CHARACTER_PATTERN);
         }
         spanType = fieldValues[9].charAt(0);
         isReceiver = Boolean.valueOf(fieldValues[10]);
-        businessKey = fieldValues[11].trim().replaceAll(BUSINESSKEY_SPILT_PATTERN,
+
+        businessKey = fieldValues[11].trim().replaceAll(SPAN_ATTR_SPILT_CHARACTER,
                 NEW_LINE_CHARACTER_PATTERN);
         processNo = fieldValues[12].trim();
         applicationId = fieldValues[13].trim();
@@ -81,7 +82,11 @@ public class Span extends SpanData {
         toStringValue.append(statusCode + SPAN_FIELD_SPILT_PATTERN);
 
         if (isNonBlank(exceptionStack)) {
-            toStringValue.append(exceptionStack.replaceAll(NEW_LINE_CHARACTER_PATTERN, EXCEPTION_SPILT_PATTERN)
+            //换行符在各个系统中表现不一致，
+            //windows平台的换行符为/r/n
+            //linux平台的换行符为/n
+            toStringValue.append(exceptionStack.replaceAll(CARRIAGE_RETURN_CHARACTER_PATTERN, "")
+                    .replaceAll(NEW_LINE_CHARACTER_PATTERN, SPAN_ATTR_SPILT_CHARACTER)
                     + SPAN_FIELD_SPILT_PATTERN);
         } else {
             toStringValue.append(" " + SPAN_FIELD_SPILT_PATTERN);
@@ -92,8 +97,12 @@ public class Span extends SpanData {
 
 
         if (isNonBlank(businessKey)) {
-            toStringValue.append(businessKey.replaceAll(NEW_LINE_CHARACTER_PATTERN,
-                    BUSINESSKEY_SPILT_PATTERN) + SPAN_FIELD_SPILT_PATTERN);
+            //换行符在各个系统中表现不一致，
+            //windows平台的换行符为/r/n
+            //linux平台的换行符为/n
+            toStringValue.append(businessKey.replaceAll(CARRIAGE_RETURN_CHARACTER_PATTERN, "")
+                    .replaceAll(NEW_LINE_CHARACTER_PATTERN, SPAN_ATTR_SPILT_CHARACTER)
+                    + SPAN_FIELD_SPILT_PATTERN);
         } else {
             toStringValue.append(" " + SPAN_FIELD_SPILT_PATTERN);
         }
@@ -134,4 +143,5 @@ public class Span extends SpanData {
         }
         this.exceptionStack = expMessage.toString();
     }
+
 }

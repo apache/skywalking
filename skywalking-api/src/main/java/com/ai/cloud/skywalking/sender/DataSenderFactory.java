@@ -21,8 +21,8 @@ public class DataSenderFactory {
 
     private static Logger logger = Logger.getLogger(DataSenderFactory.class.getName());
 
-    private static List<SocketAddress> socketAddresses = new ArrayList<SocketAddress>();
-    private static List<SocketAddress> unUsedSocketAddresses = new ArrayList<SocketAddress>();
+    private static Set<SocketAddress> socketAddresses = new HashSet<SocketAddress>();
+    private static Set<SocketAddress> unUsedSocketAddresses = new HashSet<SocketAddress>();
     private static List<DataSender> availableSenders = new ArrayList<DataSender>();
     private static Object lock = new Object();
 
@@ -31,17 +31,13 @@ public class DataSenderFactory {
             if (StringUtil.isEmpty(Config.Sender.SERVERS_ADDR)) {
                 throw new IllegalArgumentException("Collection service configuration error.");
             }
-            //过滤重复地址
-            Set<SocketAddress> tmpSocktAddress = new HashSet<SocketAddress>();
+
             for (String serverConfig : Config.Sender.SERVERS_ADDR.split(";")) {
                 String[] server = serverConfig.split(":");
                 if (server.length != 2)
                     throw new IllegalArgumentException("Collection service configuration error.");
-                tmpSocktAddress.add(new InetSocketAddress(server[0], Integer.valueOf(server[1])));
+                socketAddresses.add(new InetSocketAddress(server[0], Integer.valueOf(server[1])));
             }
-
-            socketAddresses.addAll(tmpSocktAddress);
-
         } catch (Exception e) {
             logger.log(Level.ALL, "Collection service configuration error.", e);
             System.exit(-1);
@@ -76,18 +72,18 @@ public class DataSenderFactory {
             // 初始化DataSender
             List<SocketAddress> usedSocketAddress = new ArrayList<SocketAddress>();
 
-            int index;
-            while (availableSenders.size() < availableSize) {
-                // 随机获取服务器地址
-                index = ThreadLocalRandom.current().nextInt(socketAddresses.size());
+            for (SocketAddress socketAddress : socketAddresses) {
+                if (availableSenders.size() >= availableSize) {
+                    break;
+                }
                 try {
-                    availableSenders.add(new DataSender(socketAddresses.get(index)));
-                    usedSocketAddress.add(socketAddresses.get(index));
+                    availableSenders.add(new DataSender(socketAddress));
+                    usedSocketAddress.add(socketAddress);
                 } catch (IOException e) {
-                    unUsedSocketAddresses.add(socketAddresses.get(index));
+                    unUsedSocketAddresses.add(socketAddress);
                 }
             }
-            unUsedSocketAddresses = new ArrayList<SocketAddress>(socketAddresses);
+            unUsedSocketAddresses = new HashSet<SocketAddress>(socketAddresses);
             unUsedSocketAddresses.removeAll(usedSocketAddress);
         }
 

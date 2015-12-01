@@ -2,10 +2,10 @@ package com.ai.cloud.skywalking.protocol;
 
 public abstract class SpanData {
 
-    protected static final String SPAN_FIELD_SPILT_PATTERN = ".\u007F";
-    protected static final String BUSINESSKEY_SPILT_PATTERN = "'\u007F";
-    protected static final String NEW_LINE_CHARACTER_PATTERN = "\r\n";
-    protected static final String EXCEPTION_SPILT_PATTERN = ";\u007F";
+    protected static final String SPAN_FIELD_SPILT_PATTERN = "@~";
+    protected static final String SPAN_ATTR_SPILT_CHARACTER = "#~";
+    protected static final String NEW_LINE_CHARACTER_PATTERN = "\n";
+    protected static final String CARRIAGE_RETURN_CHARACTER_PATTERN = "\r";
 
     protected String traceId;
     protected String parentLevel;
@@ -123,4 +123,5 @@ public abstract class SpanData {
     public String getApplicationId() {
         return applicationId;
     }
+
 }
