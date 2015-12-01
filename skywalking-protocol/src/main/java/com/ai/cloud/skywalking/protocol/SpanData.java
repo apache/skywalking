@@ -5,7 +5,7 @@ public abstract class SpanData {
     protected static final String SPAN_FIELD_SPILT_PATTERN = "^~";
     protected static final String BUSINESSKEY_SPILT_PATTERN = "~^";
     protected static final String SPILT_REGEX = "\\^\\~";
-    protected static final String NEW_LINE_CHARACTER_PATTERN = "\\n";
+    protected static final String NEW_LINE_CHARACTER_PATTERN = "[\\n\\r]";
     protected static final String EXCEPTION_SPILT_PATTERN = "^";
 
     protected String traceId;
