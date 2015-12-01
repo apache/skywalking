@@ -11,7 +11,7 @@ buriedpoint.max_exception_stack_length=4000
 buriedpoint.businesskey_max_length=300
 
 #发送的最大长度
-sender.max_sender_length=8000
+sender.max_send_length=20000
 #最大发送者的连接数阀比例
 sender.connect_percent=100
 #当没有Sender时,尝试获取sender的等待周期
