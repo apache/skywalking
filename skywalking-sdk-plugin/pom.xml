@@ -10,6 +10,7 @@
 		<module>spring-plugin</module>
 		<module>jdbc-plugin</module>
 		<module>web-plugin</module>
+		<module>httpclient-plugin</module>
 	</modules>
 	<packaging>pom</packaging>
 
