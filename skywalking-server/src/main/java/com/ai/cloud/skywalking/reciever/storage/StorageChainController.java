@@ -2,6 +2,7 @@ package com.ai.cloud.skywalking.reciever.storage;
 
 import com.ai.cloud.skywalking.protocol.Span;
 import com.ai.cloud.skywalking.reciever.conf.Config;
+import com.ai.cloud.skywalking.reciever.conf.Constants;
 import com.ai.cloud.skywalking.reciever.storage.chain.SaveToHBaseChain;
 import com.ai.cloud.skywalking.reciever.storage.chain.SaveToMySQLChain;
 import org.apache.logging.log4j.LogManager;
@@ -29,7 +30,7 @@ public class StorageChainController {
     }
 
     public static void doStorage(String buriedPointDatas) {
-        String[] buriedPointData = buriedPointDatas.split(";");
+        String[] buriedPointData = buriedPointDatas.split(Constants.DATA_SPILT);
         if (buriedPointData == null || buriedPointData.length == 0) {
             return;
         }

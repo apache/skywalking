@@ -1,16 +1,17 @@
 package com.ai.cloud.skywalking.reciever.handler;
 
+import com.ai.cloud.skywalking.reciever.buffer.DataBufferThreadContainer;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
-import com.ai.cloud.skywalking.reciever.buffer.DataBufferThreadContainer;
-
 public class CollectionServerDataHandler extends SimpleChannelInboundHandler<byte[]> {
-	
+
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, byte[] msg) throws Exception {
-    	Thread.currentThread().setName("ServerReceiver");
-    	
-        DataBufferThreadContainer.getDataBufferThread().saveTemporarily(msg);
+        Thread.currentThread().setName("ServerReceiver");
+        // 当接受到这条消息的是空，则忽略
+        if (msg != null && msg.length >= 0) {
+            DataBufferThreadContainer.getDataBufferThread().saveTemporarily(msg);
+        }
     }
 }

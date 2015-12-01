@@ -4,4 +4,6 @@ public class Constants {
     public static final String spiltRegx = "\\^\\~";
     
     public static final String HEALTH_DATA_SPILT_PATTERN = "^~";
+
+    public static final String DATA_SPILT = ",";
 }

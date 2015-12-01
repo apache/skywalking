@@ -11,7 +11,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static com.ai.cloud.skywalking.reciever.conf.Config.Buffer.MAX_THREAD_NUMBER;
 import static com.ai.cloud.skywalking.reciever.conf.Config.Persistence.MAX_APPEND_EOF_FLAGS_THREAD_NUMBER;
 
 public class DataBufferThreadContainer {
@@ -50,8 +49,9 @@ public class DataBufferThreadContainer {
                 logger.debug("start:" + start + "\tend:" + end);
             }
         }
-        logger.info("Data buffer thread size {} begin to init ", MAX_THREAD_NUMBER);
-        for (int i = 0; i < MAX_THREAD_NUMBER; i++) {
+        logger.info("Data buffer thread size {} begin to init ", Config.Server.
+                MAX_DEAL_DATA_THREAD_NUMBER);
+        for (int i = 0; i < Config.Server.MAX_DEAL_DATA_THREAD_NUMBER; i++) {
             DataBufferThread dataBufferThread = new DataBufferThread();
             dataBufferThread.start();
             buffers.add(dataBufferThread);
