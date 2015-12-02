@@ -83,4 +83,11 @@ public class Config {
 
         public static String STORAGE_TYPE = "hbase";
     }
+
+    public static class Alarm {
+
+        public static int ALARM_EXPIRE_SECONDS = 1000 * 60 * 90;
+
+        public static String REDIS_SERVER_CONFIG = "127.0.0.1:6379";
+    }
 }
