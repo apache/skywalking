@@ -90,8 +90,6 @@ public class Config {
 
         public static String REDIS_SERVER_CONFIG = "127.0.0.1:6379";
 
-        public static String BAK_REDIS_SERVER_CONFIG = "127.0.0.1:6379";
-
         public static int REDIS_MAX_IDLE = 10;
 
         public static int REDIS_MIN_IDLE = 1;
