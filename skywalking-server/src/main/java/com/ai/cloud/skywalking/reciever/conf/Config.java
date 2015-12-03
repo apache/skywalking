@@ -88,7 +88,7 @@ public class Config {
 
         public static int ALARM_EXPIRE_SECONDS = 1000 * 60 * 90;
 
-        public static String REDIS_SERVER_CONFIG = "127.0.0.1:6379";
+        public static String REDIS_SERVER = "127.0.0.1:6379";
 
         public static int REDIS_MAX_IDLE = 10;
 
