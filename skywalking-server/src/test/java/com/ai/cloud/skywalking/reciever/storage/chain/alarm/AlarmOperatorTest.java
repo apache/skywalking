@@ -18,8 +18,8 @@ public class AlarmOperatorTest {
         ConfigInitializer.initialize(properties, Config.class);
 
         String key = UUID.randomUUID().toString();
-        AlarmOperator.saveAlarmMessage(key, UUID.randomUUID().toString());
-        assertEquals(1, AlarmOperator.getAlarmMessage(key).size());
+        AlarmMessageStorage.saveAlarmMessage(key, UUID.randomUUID().toString());
+        assertEquals(1, AlarmMessageStorage.getAlarmMessage(key).size());
     }
 
 

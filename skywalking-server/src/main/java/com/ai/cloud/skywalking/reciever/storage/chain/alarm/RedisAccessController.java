@@ -1,4 +1,4 @@
-package com.ai.cloud.skywalking.reciever.storage.chain.alarm.redis;
+package com.ai.cloud.skywalking.reciever.storage.chain.alarm;
 
 import com.ai.cloud.skywalking.reciever.conf.Config;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
@@ -7,9 +7,9 @@ import org.apache.logging.log4j.Logger;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
-public class RedisInitializer {
+public class RedisAccessController {
 
-    private static Logger logger = LogManager.getLogger(RedisInitializer.class);
+    private static Logger logger = LogManager.getLogger(RedisAccessController.class);
     private static JedisPool jedisPool;
     private static Object lock = new Object();
 
@@ -29,7 +29,7 @@ public class RedisInitializer {
                 new JedisPool(genericObjectPoolConfig, config[0], Integer.valueOf(config[1]));
 
         // Test connect redis.
-        RedisInitializer.redis(new Executor<String>() {
+        RedisAccessController.redis(new Executor<String>() {
             @Override
             public String exec(Jedis jedis) {
                 return jedis.get("ok");

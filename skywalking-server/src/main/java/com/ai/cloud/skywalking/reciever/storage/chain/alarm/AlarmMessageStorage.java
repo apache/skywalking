@@ -1,16 +1,15 @@
 package com.ai.cloud.skywalking.reciever.storage.chain.alarm;
 
-import com.ai.cloud.skywalking.reciever.storage.chain.alarm.redis.RedisInitializer;
 import redis.clients.jedis.Jedis;
 
 import java.util.Collection;
 
 import static com.ai.cloud.skywalking.reciever.conf.Config.Alarm.ALARM_EXPIRE_SECONDS;
 
-public class AlarmOperator {
+public class AlarmMessageStorage {
 
     private static boolean exist(final String key, final String field) {
-        return RedisInitializer.redis(new RedisInitializer.Executor<Boolean>() {
+        return RedisAccessController.redis(new RedisAccessController.Executor<Boolean>() {
             @Override
             public Boolean exec(Jedis jedis) {
                 return jedis.hexists(key, field);
@@ -19,7 +18,7 @@ public class AlarmOperator {
     }
 
     private static boolean exist(final String key) {
-        return RedisInitializer.redis(new RedisInitializer.Executor<Boolean>() {
+        return RedisAccessController.redis(new RedisAccessController.Executor<Boolean>() {
             @Override
             public Boolean exec(Jedis jedis) {
                 return jedis.exists(key);
@@ -28,7 +27,7 @@ public class AlarmOperator {
     }
 
     private static Long set(final String key, final String field, final String value) {
-        return RedisInitializer.redis(new RedisInitializer.Executor<Long>() {
+        return RedisAccessController.redis(new RedisAccessController.Executor<Long>() {
             @Override
             public Long exec(Jedis jedis) {
                 if (exist(key, field)) {
@@ -42,7 +41,7 @@ public class AlarmOperator {
     }
 
     private static Collection<String> get(final String key) {
-        return RedisInitializer.redis(new RedisInitializer.Executor<Collection<String>>() {
+        return RedisAccessController.redis(new RedisAccessController.Executor<Collection<String>>() {
             @Override
             public Collection<String> exec(Jedis jedis) {
                 if (!exist(key)) {
