@@ -1,4 +1,4 @@
-package com.ai.cloud.skywalking.reciever.alarm;
+package com.ai.cloud.skywalking.reciever.storage.chain.alarm;
 
 import com.ai.cloud.skywalking.reciever.conf.Config;
 import com.ai.cloud.skywalking.reciever.conf.ConfigInitializer;

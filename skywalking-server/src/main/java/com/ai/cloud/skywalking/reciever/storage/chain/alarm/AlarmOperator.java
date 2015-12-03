@@ -1,6 +1,6 @@
-package com.ai.cloud.skywalking.reciever.alarm;
+package com.ai.cloud.skywalking.reciever.storage.chain.alarm;
 
-import com.ai.cloud.skywalking.reciever.alarm.redis.RedisInitializer;
+import com.ai.cloud.skywalking.reciever.storage.chain.alarm.redis.RedisInitializer;
 import redis.clients.jedis.Jedis;
 
 import java.util.Collection;
