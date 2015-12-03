@@ -72,17 +72,7 @@ public class PersistenceThread extends Thread {
                         offset += 1;
                         continue;
                     }
-//
-//					if (tmpData == null || tmpData.length() <= 0) {
-//						MemoryRegister
-//								.instance()
-//								.doRegisterStatus(
-//										new FileRegisterEntry(
-//												file1.getName(),
-//												offset,
-//												FileRegisterEntry.FileRegisterEntryStatus.UNREGISTER));
-//						break;
-//					}
+
                     ServerHealthCollector.getCurrentHeathReading(null)
                             .updateData(
                                     ServerHeathReading.INFO,

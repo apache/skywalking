@@ -22,6 +22,7 @@ public abstract class SpanData {
     protected String processNo = "";
     protected String applicationId = "";
     protected String originData = "";
+    protected String userId;
 
 
     public String getTraceId() {
@@ -124,4 +125,7 @@ public abstract class SpanData {
         return applicationId;
     }
 
+    public String getUserId() {
+        return userId;
+    }
 }

@@ -10,6 +10,6 @@ public final class TraceIdGenerator {
     }
 
     public static String generate() {
-        return UUID.randomUUID().toString().replaceAll("-", "") + Config.SkyWalking.USER_ID;
+        return UUID.randomUUID().toString().replaceAll("-", "");
     }
 }

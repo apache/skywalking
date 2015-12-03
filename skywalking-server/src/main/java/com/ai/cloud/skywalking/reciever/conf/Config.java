@@ -97,5 +97,7 @@ public class Config {
         public static int REDIS_MIN_IDLE = 1;
 
         public static int REDIS_MAX_TOTAL = 20;
+
+        public static boolean ALARM_OFF_FLAG = false;
     }
 }

@@ -1,5 +1,6 @@
 package com.ai.cloud.skywalking.reciever.storage.chain.alarm;
 
+import com.ai.cloud.skywalking.reciever.conf.Config;
 import redis.clients.jedis.Jedis;
 
 import java.util.Collection;
@@ -54,11 +55,8 @@ public class AlarmMessageStorage {
 
 
     public static void saveAlarmMessage(String key, String traceId) {
+        if (Config.Alarm.ALARM_OFF_FLAG)
+            return;
         set(key, traceId, "");
     }
-
-    public static Collection<String> getAlarmMessage(String key) {
-        return get(key);
-    }
-
 }

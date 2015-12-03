@@ -3,6 +3,7 @@ package com.ai.cloud.skywalking.reciever.storage;
 import com.ai.cloud.skywalking.protocol.Span;
 import com.ai.cloud.skywalking.reciever.conf.Config;
 import com.ai.cloud.skywalking.reciever.conf.Constants;
+import com.ai.cloud.skywalking.reciever.storage.chain.AlarmChain;
 import com.ai.cloud.skywalking.reciever.storage.chain.SaveToHBaseChain;
 import com.ai.cloud.skywalking.reciever.storage.chain.SaveToMySQLChain;
 import org.apache.logging.log4j.LogManager;
@@ -21,6 +22,7 @@ public class StorageChainController {
 
     static {
         if (STORAGE_TYPE.equalsIgnoreCase("hbase")) {
+            chainArray.add(new AlarmChain());
             chainArray.add(new SaveToHBaseChain());
         } else if (STORAGE_TYPE.equalsIgnoreCase("mysql")) {
             chainArray.add(new SaveToMySQLChain());

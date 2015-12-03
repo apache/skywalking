@@ -31,10 +31,10 @@ public final class ContextGenerator {
         // 校验传入的参数是否为空，如果为空，则新创建一个
         if (context == null || StringUtil.isEmpty(context.getTraceId())) {
             // 不存在，新创建一个Context
-            spanData = new Span(TraceIdGenerator.generate(), Config.SkyWalking.APPLICATION_ID);
+            spanData = new Span(TraceIdGenerator.generate(), Config.SkyWalking.APPLICATION_ID, Config.SkyWalking.USER_ID);
         } else {
             // 如果不为空，则将当前的Context存放到上下文
-            spanData = new Span(context.getTraceId(), context.getParentLevel(), context.getLevelId(), Config.SkyWalking.APPLICATION_ID);
+            spanData = new Span(context.getTraceId(), context.getParentLevel(), context.getLevelId(), Config.SkyWalking.APPLICATION_ID, Config.SkyWalking.USER_ID);
         }
         initNewSpanData(spanData, id);
 
@@ -58,12 +58,12 @@ public final class ContextGenerator {
         // 2 校验Context，Context是否存在
         if (parentSpan == null) {
             // 不存在，新创建一个Context
-            span = new Span(TraceIdGenerator.generate(), Config.SkyWalking.APPLICATION_ID);
+            span = new Span(TraceIdGenerator.generate(), Config.SkyWalking.APPLICATION_ID, Config.SkyWalking.USER_ID);
         } else {
             // 根据ParentContextData的TraceId和RPCID
             // LevelId是由SpanNode类的nextSubSpanLevelId字段进行初始化的.
             // 所以在这里不需要初始化
-            span = new Span(parentSpan.getTraceId(), Config.SkyWalking.APPLICATION_ID);
+            span = new Span(parentSpan.getTraceId(), Config.SkyWalking.APPLICATION_ID, Config.SkyWalking.USER_ID);
             if (!StringUtil.isEmpty(parentSpan.getParentLevel())) {
                 span.setParentLevel(parentSpan.getParentLevel() + "." + parentSpan.getLevelId());
             } else {

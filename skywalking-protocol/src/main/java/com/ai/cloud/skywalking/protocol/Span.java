@@ -13,15 +13,17 @@ public class Span extends SpanData {
     public Span() {
     }
 
-    public Span(String traceId, String applicationID) {
+    public Span(String traceId, String applicationID, String userId) {
         this.traceId = traceId;
         this.applicationId = applicationID;
+        this.userId = userId;
     }
 
-    public Span(String traceId, String parentLevelId, int levelId, String applicationID) {
+    public Span(String traceId, String parentLevelId, int levelId, String applicationID, String userId) {
         this.traceId = traceId;
         this.applicationId = applicationID;
         this.parentLevel = parentLevelId;
+        this.userId = userId;
         this.levelId = levelId;
     }
 
@@ -47,6 +49,7 @@ public class Span extends SpanData {
                 NEW_LINE_CHARACTER_PATTERN);
         processNo = fieldValues[12].trim();
         applicationId = fieldValues[13].trim();
+        userId = fieldValues[14].trim();
         this.originData = originData;
     }
 
@@ -114,7 +117,13 @@ public class Span extends SpanData {
         }
 
         if (isNonBlank(applicationId)) {
-            toStringValue.append(applicationId);
+            toStringValue.append(applicationId + SPAN_FIELD_SPILT_PATTERN);
+        } else {
+            toStringValue.append(" " + SPAN_FIELD_SPILT_PATTERN);
+        }
+
+        if (isNonBlank(userId)) {
+            toStringValue.append(userId);
         } else {
             toStringValue.append(" " + SPAN_FIELD_SPILT_PATTERN);
         }

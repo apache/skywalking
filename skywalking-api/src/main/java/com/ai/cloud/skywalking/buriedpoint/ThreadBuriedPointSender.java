@@ -28,10 +28,12 @@ public class ThreadBuriedPointSender implements IBuriedPointSender {
         // 从ThreadLocal中取出上下文
         final Span parentSpanData = Context.getLastSpan();
         if (parentSpanData == null) {
-            spanData = new Span(TraceIdGenerator.generate(), Config.SkyWalking.APPLICATION_ID);
+            spanData = new Span(TraceIdGenerator.generate(), Config.SkyWalking.APPLICATION_ID,
+                    Config.SkyWalking.USER_ID);
         } else {
             // 如果不为空，则将当前的Context存放到上下文
-            spanData = new Span(parentSpanData.getTraceId(), Config.SkyWalking.APPLICATION_ID);
+            spanData = new Span(parentSpanData.getTraceId(), Config.SkyWalking.APPLICATION_ID,
+                    Config.SkyWalking.USER_ID);
             spanData.setParentLevel(parentSpanData.getParentLevel() + "." + parentSpanData.getLevelId());
             spanData.setLevelId(threadSeqId);
         }
