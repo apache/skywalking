@@ -16,7 +16,7 @@ import java.util.logging.Logger;
 
 public class LocalBuriedPointSender implements IBuriedPointSender {
 
-    private static Logger logger = Logger.getLogger(LocalBuriedPointSender.class.getName());
+    private static Logger logger = Logger.getLogger(IBuriedPointSender.class.getName());
 
     public ContextData beforeSend(Identification id) {
         if (!AuthDesc.isAuth())
