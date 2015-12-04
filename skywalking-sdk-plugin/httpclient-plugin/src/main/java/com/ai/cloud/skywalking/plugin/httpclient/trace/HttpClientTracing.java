@@ -13,7 +13,7 @@ public class HttpClientTracing {
     public static <R> R execute(String url, String traceHearName, HttpRequest httpRequest, Executor<R> executor) throws IOException {
         try {
             httpRequest.setHeader(traceHearName,
-                    sender.beforeSend(Identification.newBuilder()
+                    "ContextData=" + sender.beforeSend(Identification.newBuilder()
                             .viewPoint(url)
                             .spanType('W')
                             .build())
