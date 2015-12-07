@@ -21,16 +21,7 @@ public class DataSender {
     private SenderStatus status = SenderStatus.FAILED;
 
     public DataSender(String ip, int port) throws IOException {
-        selector = Selector.open();
-        InetSocketAddress isa = new InetSocketAddress(ip, port);
-        //调用open的静态方法创建连接指定的主机的SocketChannel
-        socketChannel = SocketChannel.open(isa);
-        //设置该sc已非阻塞的方式工作
-        socketChannel.configureBlocking(false);
-        socketChannel.register(selector, SelectionKey.OP_CONNECT);
-        socketChannel.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
-        this.socketAddress = isa;
-        status = SenderStatus.READY;
+    	this(new InetSocketAddress(ip, port));
     }
 
     public DataSender(InetSocketAddress address) throws IOException {

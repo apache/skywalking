@@ -3,7 +3,6 @@ package com.ai.cloud.skywalking.sender;
 import static com.ai.cloud.skywalking.conf.Config.Sender.CHECKER_THREAD_WAIT_INTERVAL;
 import static com.ai.cloud.skywalking.conf.Config.Sender.CLOSE_SENDER_COUNTDOWN;
 import static com.ai.cloud.skywalking.conf.Config.Sender.CONNECT_PERCENT;
-import static com.ai.cloud.skywalking.conf.Config.Sender.RETRY_FIND_CONNECTION_SENDER;
 import static com.ai.cloud.skywalking.conf.Config.Sender.RETRY_GET_SENDER_WAIT_INTERVAL;
 import static com.ai.cloud.skywalking.conf.Config.Sender.SWITCH_SENDER_INTERVAL;
 
@@ -119,59 +118,53 @@ public class DataSenderFactoryWithBalance {
 		public void run() {
 			long sleepTime = 0;
 			while (true) {
-				// 检查是否需要新增
 				DataSender newSender;
+				// removing failed sender
 				for (int i = 0; i < usingDataSender.size(); i++) {
 					if (usingDataSender.get(i).getStatus() == DataSender.SenderStatus.FAILED) {
 						usingDataSender.get(i).close();
-						// 正在使用的Sender的数量 <= maxKeepConnectingSenderSize
-						// 剩余的服务器地址数量 = 总得服务器地址数量 - 正在使用的Sender的数量
-						// 可替换的服务器数量 = 剩余服务器地址数量
-						// 当剩余服务器地址数量 <= 0
-						// 时，可以替换的地址也不存在，替换操作就可以不执行，所以这里的while是这样的意思
-						// 当剩余服务器地址数量 > 0 时，
-						// 就可以找到可以替换的地址，替换操作也就可以执行了，这里的就会跳出while循环
-						while ((newSender = findReadySender()) == null) {
-							try {
-								Thread.sleep(RETRY_FIND_CONNECTION_SENDER);
-							} catch (InterruptedException e) {
-								logger.log(Level.ALL, "Sleep failed.");
-							}
-						}
-						usingDataSender.set(i, newSender);
 						unusedServerAddresses.add(usingDataSender.get(i)
 								.getServerIp());
-						if (usingDataSender.size() >= maxKeepConnectingSenderSize) {
-							break;
-						}
 					}
+				}
+
+				// try to fill up senders. if size is not enough.
+				while (usingDataSender.size() < maxKeepConnectingSenderSize) {
+					if ((newSender = findReadySender()) == null) {
+						// no available sender. ignore.
+						break;
+					}
+					usingDataSender.add(newSender);
 
 				}
 
-				// 检查是否需要替换
+				// try to switch.
 				if (sleepTime >= SWITCH_SENDER_INTERVAL) {
-					DataSender toBeSwitchSender;
-					DataSender tmpSender;
-					int toBeSwitchIndex = ThreadLocalRandom.current().nextInt(
-							0, usingDataSender.size() - 1);
-					toBeSwitchSender = usingDataSender.get(toBeSwitchIndex);
-					tmpSender = findReadySender();
-					if (tmpSender != null) {
-						usingDataSender.set(toBeSwitchIndex, tmpSender);
-						try {
-							Thread.sleep(CLOSE_SENDER_COUNTDOWN);
-						} catch (InterruptedException e) {
-							logger.log(Level.ALL, "Sleep Failed");
+					// if sender is enough, go to switch for balancing.
+					if (usingDataSender.size() >= maxKeepConnectingSenderSize) {
+						DataSender toBeSwitchSender;
+						DataSender tmpSender;
+						int toBeSwitchIndex = ThreadLocalRandom.current()
+								.nextInt(0, usingDataSender.size() - 1);
+						toBeSwitchSender = usingDataSender.get(toBeSwitchIndex);
+						tmpSender = findReadySender();
+						if (tmpSender != null) {
+							usingDataSender.set(toBeSwitchIndex, tmpSender);
+							try {
+								Thread.sleep(CLOSE_SENDER_COUNTDOWN);
+							} catch (InterruptedException e) {
+								logger.log(Level.ALL, "Sleep Failed");
+							}
+							toBeSwitchSender.close();
+							unusedServerAddresses.remove(tmpSender
+									.getServerIp());
+							unusedServerAddresses.add(toBeSwitchSender
+									.getServerIp());
 						}
-						toBeSwitchSender.close();
-						unusedServerAddresses.remove(tmpSender.getServerIp());
-						unusedServerAddresses.add(toBeSwitchSender
-								.getServerIp());
 					}
 					sleepTime = 0;
 				}
 
-				//
 				sleepTime += CHECKER_THREAD_WAIT_INTERVAL;
 				try {
 					Thread.sleep(CHECKER_THREAD_WAIT_INTERVAL);
@@ -181,7 +174,6 @@ public class DataSenderFactoryWithBalance {
 
 			}
 		}
-
 	}
 
 	private static DataSender findReadySender() {
