@@ -9,8 +9,12 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class DataSender {
+	private static Logger logger = Logger.getLogger(DataSender.class.getName());
+	
     private SocketChannel socketChannel;
     private Selector selector;
     private InetSocketAddress socketAddress;
@@ -63,14 +67,18 @@ public class DataSender {
         return this.socketAddress;
     }
 
-    public void closeConnect() throws IOException {
+    public void close(){
         if (socketChannel != null) {
-            socketChannel.close();
+            try {
+				socketChannel.close();
+			} catch (IOException e) {
+				logger.log(Level.ALL, "close connection Failed");
+			}
         }
     }
 
     public enum SenderStatus {
-        READY, FAILED, SWITCHING
+        READY, FAILED
     }
 
     public SenderStatus getStatus() {

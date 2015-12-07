@@ -1,20 +1,21 @@
 package com.ai.cloud.skywalking.buffer;
 
 
-import com.ai.cloud.skywalking.conf.Config;
-import com.ai.cloud.skywalking.conf.Constants;
-import com.ai.cloud.skywalking.protocol.Span;
-import com.ai.cloud.skywalking.selfexamination.HealthCollector;
-import com.ai.cloud.skywalking.selfexamination.HeathReading;
-import com.ai.cloud.skywalking.sender.DataSenderFactory;
-import com.ai.cloud.skywalking.sender.DataSenderFactoryWithBalance;
+import static com.ai.cloud.skywalking.conf.Config.Buffer.BUFFER_MAX_SIZE;
+import static com.ai.cloud.skywalking.conf.Config.Consumer.CONSUMER_FAIL_RETRY_WAIT_INTERVAL;
+import static com.ai.cloud.skywalking.conf.Config.Consumer.MAX_CONSUMER;
+import static com.ai.cloud.skywalking.conf.Config.Consumer.MAX_WAIT_TIME;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.ai.cloud.skywalking.conf.Config.Buffer.BUFFER_MAX_SIZE;
-import static com.ai.cloud.skywalking.conf.Config.Consumer.*;
+import com.ai.cloud.skywalking.conf.Config;
+import com.ai.cloud.skywalking.conf.Constants;
+import com.ai.cloud.skywalking.protocol.Span;
+import com.ai.cloud.skywalking.selfexamination.HealthCollector;
+import com.ai.cloud.skywalking.selfexamination.HeathReading;
+import com.ai.cloud.skywalking.sender.DataSenderFactoryWithBalance;
 
 public class BufferGroup {
     private static Logger logger = Logger.getLogger(BufferGroup.class.getName());
@@ -67,7 +68,7 @@ public class BufferGroup {
                     }
                     bool = true;
                     if (data.length() + dataBuffer[i].toString().length() >= Config.Sender.MAX_SEND_LENGTH) {
-                        while (!DataSenderFactory.getSender().send(data.toString())) {
+                        while (!DataSenderFactoryWithBalance.getSender().send(data.toString())) {
                             try {
                                 Thread.sleep(CONSUMER_FAIL_RETRY_WAIT_INTERVAL);
                             } catch (InterruptedException e) {
