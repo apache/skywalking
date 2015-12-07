@@ -21,7 +21,7 @@
 			</div>
 			<div class="collapse navbar-collapse">
 				<!-- 菜单（不要太多） -->
-				<@common.importMenuInfo menuInfo="${userInfo}" />
+				<#--<@common.importMenuInfo menuInfo="${userInfo}" />-->
 				
 				<!-- 搜索栏 -->
 				<@common.importSearchInfo isLogin="${userInfo}" />
@@ -41,6 +41,7 @@
 				height=100% marginheight=0 marginwidth=0 scrolling=yes src=""></iframe>
 		</div>
 	</div>
+	<input type="hidden" id="uid" value="${(userInfo?eval).uid!''}">
 	<!-- script references -->
 	<@common.importJavaScript />
 	<script src="${base}/js/webui-0.1.js"></script>

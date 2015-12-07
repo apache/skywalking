@@ -57,5 +57,21 @@ public class Constants {
 			put("9", "MISSING");
 		}
 	};
+	
+	public static final String JSON_RESULT_KEY_RESULT = "result";
+	public static final String JSON_RESULT_KEY_RESULT_OK = "OK";
+	public static final String JSON_RESULT_KEY_RESULT_FAIL = "FAIL";
+	
+	public static final String JSON_RESULT_KEY_RESULT_MSG = "msg";
+	public static final String JSON_RESULT_KEY_RESULT_DATA = "data";
+	
+	public static final String ROLE_TYPE_USER = "user";
+	public static final String ROLE_TYPE_ADMIN = "admin";
+	
+	public static final String STR_VAL_A = "A";
+	public static final String STR_VAL_P = "P";
+	
+	public static final String IS_GLOBAL_FALG_0 = "0";
+	public static final String IS_GLOBAL_FALG_1 = "1";
 
 }

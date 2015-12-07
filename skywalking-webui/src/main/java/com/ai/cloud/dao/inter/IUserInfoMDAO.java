@@ -6,4 +6,6 @@ public interface IUserInfoMDAO {
 	
 	public UserInfoMVO queryUserInfoByName(String userName);
 	
+	public UserInfoMVO addUser(final UserInfoMVO userInfo);
+	
 }

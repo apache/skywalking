@@ -3,6 +3,7 @@
 <script src="${base}/js/jquery/jquery-2.1.4.js"></script>
 <script src="${base}/js/jquery/jquery-ui-1.11.4.js"></script>
 <script src="${base}/js/jquery/jquery.treetable-3.2.0.js"></script>
+<script src="${base}/js/jquery/jquery-md5.js"></script>
 <script src="${base}/js/bootstrap.min-3.3.5.js"></script>
 </#macro>
 
@@ -29,7 +30,7 @@ ${userInfo}
 <form class="navbar-form navbar-left" role="search">
 	<div class="form-group">
 <#if json.isLogin == '1'>
-		<input id="srchKey" type="text" class="form-control" style="width: 450px" placeholder="TraceId">
+		<input id="srchKey" type="text" class="form-control" style="width: 750px" placeholder="TraceId">
 <#else>
 		<input id="srchKey" type="text" class="form-control" style="width: 750px" placeholder="TraceId">
 </#if>
@@ -48,15 +49,20 @@ ${userInfo}
 <#if json.isLogin == '1'>
 	<li class="dropdown"><a href="#" class="dropdown-toggle"
 		data-toggle="dropdown" role="button" aria-haspopup="true"
-		aria-expanded="false"> ${json.userName} <span class="caret"></span></a>
+		aria-expanded="false"> ${json.userName!} <span class="caret"></span></a>
 		<ul class="dropdown-menu">
-			<li><a name="menuUrl" href="#" url="user/setting/${json.uid}">设置</a></li>
+<#if json.menuList??>
+<#list json.menuList?eval as menu>
+			<li><a name="menuUrl" href="#" url="${menu.url!}">${menu.menuName!}</a></li>
+</#list>
 			<li role="separator" class="divider"></li>
-			<li><a name="menuUrl" href="#" url="logout">退出</a></li>
+</#if>
+			<li><a id="logout" href="#" url="logout">退出</a></li>
 		</ul>
 	</li>
 <#else>
-	<li><a name="menuUrl" href="#" url="login">登录</a></li>
+	<li><a id="login" href="#" url="login">登录</a></li>
+	<li><a id="regist" name="menuUrl" href="#" url="regist">注册</a></li>
 </#if>
 </ul>
 </#macro>
@@ -128,8 +134,8 @@ ${userInfo}
 			<#--服务端结束时间 小于等于 客户端结束时间(客户端时间段包含服务端时间段)-->
 			<#assign a=(logInfo.timeLineList[0].startTime - beginTime)! />
 			<#assign b=(logInfo.timeLineList[1].startTime - logInfo.timeLineList[0].startTime)! />
-			<#assign c=(logInfo.timeLineList[1].startTime + logInfo.timeLineList[1].cost - logInfo.timeLineList[1].startTime) />
-			<#assign d=(logInfo.timeLineList[0].startTime + logInfo.timeLineList[0].cost - logInfo.timeLineList[1].startTime - logInfo.timeLineList[1].cost) />
+			<#assign c=(logInfo.timeLineList[1].startTime + logInfo.timeLineList[1].cost - logInfo.timeLineList[1].startTime)! />
+			<#assign d=(logInfo.timeLineList[0].startTime + logInfo.timeLineList[0].cost - logInfo.timeLineList[1].startTime - logInfo.timeLineList[1].cost)! />
 			<input type="hidden" a="${a!}" b="${b!}" c="${c!}" d="${d!}" beginTime="${beginTime!}" totalTime="${totalTime!}">
 			<div class="progress-bar" style="width: ${100*(a)/totalTime}%"></div>
 			<div class="progress-bar progress-bar-b progress-bar-striped" style="color:black;min-width: ${100*(b)/totalTime}%;"></div>
@@ -138,9 +144,9 @@ ${userInfo}
 			<div class="progress-bar progress-split progress-bar-striped" style="color:black;">&nbsp;${b}/${c}/${d}ms</div>
 		<#else>
 			<#--服务端开始时间 大于 客户端开始时间(客户端时间轴与服务端时间轴有一部分重合，重合后的部分算为服务端)-->
-			<#assign a=(logInfo.timeLineList[0].startTime - beginTime) />
-			<#assign b=(logInfo.timeLineList[1].startTime - logInfo.timeLineList[0].startTime) />
-			<#assign c=(logInfo.timeLineList[1].startTime + logInfo.timeLineList[1].cost - logInfo.timeLineList[1].startTime) />
+			<#assign a=(logInfo.timeLineList[0].startTime - beginTime)! />
+			<#assign b=(logInfo.timeLineList[1].startTime - logInfo.timeLineList[0].startTime)! />
+			<#assign c=(logInfo.timeLineList[1].startTime + logInfo.timeLineList[1].cost - logInfo.timeLineList[1].startTime)! />
 			<input type="hidden" a="${a!}" b="${b!}" c="${c!}" totalTime="${totalTime!}">
 			<div class="progress-bar" style="width: ${100*(a)/totalTime}%"></div>
 			<div class="progress-bar progress-bar-b progress-bar-striped" style="color:black;min-width: ${100*(b)/totalTime}%;"></div>
@@ -149,7 +155,16 @@ ${userInfo}
 		</#if>
 	<#else>
 		<#--服务端开始时间 大于 客户端结束始时间(客户端一段时间，一段空格，一段服务端时间)-->
-		3333
+		<#assign a=(logInfo.timeLineList[0].startTime - beginTime)! />
+		<#assign b=(logInfo.timeLineList[0].cost)! />
+		<#assign c=(logInfo.timeLineList[1].startTime - logInfo.timeLineList[0].startTime)! />
+		<#assign d=(logInfo.timeLineList[1].cost)! />
+		<input type="hidden" a="${a!}" b="${b!}" c="${c!}" d="${d!}" beginTime="${beginTime!}" totalTime="${totalTime!}">
+		<div class="progress-bar" style="width: ${100*(a)/totalTime}%"></div>
+		<div class="progress-bar progress-bar-b progress-bar-striped" style="color:black;min-width: ${100*(b)/totalTime}%;"></div>
+		<div class="progress-bar progress-bar-striped" style="color:black;min-width: ${100*(c)/totalTime}%;"></div>
+		<div class="progress-bar progress-bar-b progress-bar-striped" style="color:black;min-width: ${100*(d)/totalTime}%;"></div>
+		<div class="progress-bar progress-split progress-bar-striped" style="color:black;">&nbsp;${b}/${d}ms</div>
 	</#if>
 </#if>
 						</div>

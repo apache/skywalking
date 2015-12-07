@@ -25,8 +25,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.ai.cloud.service.inter.IQueryTraceLogSer;
 import com.ai.cloud.service.inter.IUserSer;
 import com.ai.cloud.util.Constants;
+import com.ai.cloud.vo.mvo.MenuInfoMVO;
 import com.ai.cloud.vo.mvo.TraceLogEntry;
 import com.ai.cloud.vo.mvo.UserInfoMVO;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 /**
@@ -121,10 +123,10 @@ public class HelloSkyWalkingUICtl {
 					return arg0.getColId().compareTo(arg1.getColId());
 				}
 			});
-			int m = 1;
-			for (TraceLogEntry tmpEntry : valueList) {
-				logger.info("sort result level:{} : {}", m++, tmpEntry);
-			}
+//			int m = 1;
+//			for (TraceLogEntry tmpEntry : valueList) {
+//				logger.info("sort result level:{} : {}", m++, tmpEntry);
+//			}
 			long beginTime = valueList.get(0).getStartDate();
 			root.put("traceId", traceId);
 			root.put("valueList", valueList);
@@ -172,12 +174,49 @@ public class HelloSkyWalkingUICtl {
 			session.setAttribute("isLogin", "1");
 			session.setAttribute("uid", reUserInfo.getUid());
 			session.setAttribute("userName", reUserInfo.getUserName());
-			session.setAttribute("menuList", "");
+			
+			JSONArray menuArr = new JSONArray();
+			List<MenuInfoMVO> menuList = new ArrayList<MenuInfoMVO>();
+			menuList.add(new MenuInfoMVO("1", "应用配置", "applist"));
+			menuArr.addAll(menuList);
+			session.setAttribute("menuList", menuArr.toJSONString());
 		}else{
 			json.put("result", "FAIL");
 			json.put("msg", "用户名或者密码错误");
 		}
 		return json.toJSONString();
+	}
+	
+	/***
+	 * 登录页面
+	 * 
+	 * @param root
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/regist")
+	public String registPage(ModelMap root) throws Exception {
+		return "regist";
+	}
+	
+	/***
+	 * 登录页面
+	 * 
+	 * @param root
+	 * @return
+	 * @throws Exception
+	 */
+	
+	@RequestMapping(value = "/regist/{userName}/{password}", method = RequestMethod.POST, produces="application/json; charset=UTF-8")
+	@ResponseBody
+	public String registAction(HttpServletRequest request, ModelMap root, @PathVariable("userName") String userName, @PathVariable("password") String password) throws Exception {
+		UserInfoMVO userInfo = new UserInfoMVO();
+		userInfo.setUserName(userName);
+		userInfo.setPassword(password);
+		userInfo.setRoleType(Constants.ROLE_TYPE_USER);
+		userInfo.setSts(Constants.STR_VAL_A);
+		JSONObject reUserInfo = userSer.regist(userInfo);
+		return reUserInfo.toJSONString();
 	}
 
 	/***
@@ -188,8 +227,17 @@ public class HelloSkyWalkingUICtl {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/logout")
-	public String logout(ModelMap root) throws Exception {
-		return "traceLog";
+	@ResponseBody
+	public String logout(HttpServletRequest request, ModelMap root) throws Exception {
+		HttpSession session = request.getSession();
+		session.removeAttribute("isLogin");
+		session.removeAttribute("uid");
+		session.removeAttribute("userName");
+		session.removeAttribute("menuList");
+		JSONObject json = new JSONObject();
+		json.put(Constants.JSON_RESULT_KEY_RESULT, Constants.JSON_RESULT_KEY_RESULT_OK);
+		json.put(Constants.JSON_RESULT_KEY_RESULT_MSG, "退出成功");
+		return json.toJSONString();
 	}
 
 	/***
