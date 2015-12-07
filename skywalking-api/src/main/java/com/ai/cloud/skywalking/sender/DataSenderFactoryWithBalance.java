@@ -126,7 +126,6 @@ public class DataSenderFactoryWithBalance {
                                     logger.log(Level.ALL, "Sleep failed.");
                                 }
                             }
-                            // 找到可以替换的Sender
                             usingDataSender.set(i, newSender);
                             unusedServerAddresses.add(usingDataSender.get(i).getServerIp());
                             if (usingDataSender.size() >= maxKeepConnectingSenderSize) {
@@ -148,7 +147,6 @@ public class DataSenderFactoryWithBalance {
                         toBeSwitchSender = usingDataSender.get(toBeSwitchIndex);
                         if (toBeSwitchSender.getStatus() == DataSender.SenderStatus.READY) {
                             tmpSender = findReadySender();
-                            // 找到可以替换的Sender
                             if (tmpSender != null) {
                                 usingDataSender.set(toBeSwitchIndex, tmpSender);
                                 try {
