@@ -7,6 +7,7 @@ import com.ai.cloud.skywalking.protocol.Span;
 import com.ai.cloud.skywalking.selfexamination.HealthCollector;
 import com.ai.cloud.skywalking.selfexamination.HeathReading;
 import com.ai.cloud.skywalking.sender.DataSenderFactory;
+import com.ai.cloud.skywalking.sender.DataSenderFactoryWithBalance;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
@@ -82,7 +83,7 @@ public class BufferGroup {
                 }
 
                 if (data != null && data.length() > 0) {
-                    while (!DataSenderFactory.getSender().send(data.toString())) {
+                    while (!DataSenderFactoryWithBalance.getSender().send(data.toString())) {
                         try {
                             Thread.sleep(CONSUMER_FAIL_RETRY_WAIT_INTERVAL);
                         } catch (InterruptedException e) {

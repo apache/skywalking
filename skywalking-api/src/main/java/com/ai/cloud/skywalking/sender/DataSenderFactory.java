@@ -21,8 +21,8 @@ public class DataSenderFactory {
 
     private static Logger logger = Logger.getLogger(DataSenderFactory.class.getName());
 
-    private static List<SocketAddress> socketAddresses = new ArrayList<SocketAddress>();
-    private static List<SocketAddress> unUsedSocketAddresses = new ArrayList<SocketAddress>();
+    private static List<InetSocketAddress> socketAddresses = new ArrayList<InetSocketAddress>();
+    private static List<InetSocketAddress> unUsedSocketAddresses = new ArrayList<InetSocketAddress>();
     private static List<DataSender> availableSenders = new ArrayList<DataSender>();
     private static Object lock = new Object();
 
@@ -32,7 +32,7 @@ public class DataSenderFactory {
                 throw new IllegalArgumentException("Collection service configuration error.");
             }
             //过滤重复地址
-            Set<SocketAddress> tmpSocktAddress = new HashSet<SocketAddress>();
+            Set<InetSocketAddress> tmpSocktAddress = new HashSet<InetSocketAddress>();
             for (String serverConfig : Config.Sender.SERVERS_ADDR.split(";")) {
                 String[] server = serverConfig.split(":");
                 if (server.length != 2)
@@ -87,13 +87,13 @@ public class DataSenderFactory {
                     unUsedSocketAddresses.add(socketAddresses.get(index));
                 }
             }
-            unUsedSocketAddresses = new ArrayList<SocketAddress>(socketAddresses);
+            unUsedSocketAddresses = new ArrayList<InetSocketAddress>(socketAddresses);
             unUsedSocketAddresses.removeAll(usedSocketAddress);
         }
 
         public void run() {
-            Iterator<SocketAddress> unUsedSocketAddressIterator;
-            SocketAddress tmpSocketAddress;
+            Iterator<InetSocketAddress> unUsedSocketAddressIterator;
+            InetSocketAddress tmpSocketAddress;
             while (true) {
                 unUsedSocketAddressIterator = unUsedSocketAddresses.iterator();
                 while (unUsedSocketAddressIterator.hasNext()) {
