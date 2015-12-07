@@ -29,7 +29,6 @@ public class DataSenderFactoryWithBalance {
 
 	private static List<DataSender> usingDataSender = new ArrayList<DataSender>();
 	private static int maxKeepConnectingSenderSize;
-	private static boolean NEED_ADD_SENDER_FLAG = false;
 
 	private static int calculateMaxKeeperConnectingSenderSize(int allAddressSize) {
 		if (CONNECT_PERCENT <= 0 || CONNECT_PERCENT > 100) {
@@ -122,32 +121,29 @@ public class DataSenderFactoryWithBalance {
 			while (true) {
 				// 检查是否需要新增
 				// NEED_ADD_SENDER_FLAG 将会在unRegister方法修改值
-				if (NEED_ADD_SENDER_FLAG) {
-					DataSender newSender;
-					for (int i = 0; i < usingDataSender.size(); i++) {
-						if (usingDataSender.get(i).getStatus() == DataSender.SenderStatus.FAILED) {
-							usingDataSender.get(i).close();
-							// 正在使用的Sender的数量 <= maxKeepConnectingSenderSize
-							// 剩余的服务器地址数量 = 总得服务器地址数量 - 正在使用的Sender的数量
-							// 可替换的服务器数量 = 剩余服务器地址数量
-							// 当剩余服务器地址数量 <= 0
-							// 时，可以替换的地址也不存在，替换操作就可以不执行，所以这里的while是这样的意思
-							// 当剩余服务器地址数量 > 0 时，
-							// 就可以找到可以替换的地址，替换操作也就可以执行了，这里的就会跳出while循环
-							while ((newSender = findReadySender()) == null) {
-								try {
-									Thread.sleep(RETRY_FIND_CONNECTION_SENDER);
-								} catch (InterruptedException e) {
-									logger.log(Level.ALL, "Sleep failed.");
-								}
+				DataSender newSender;
+				for (int i = 0; i < usingDataSender.size(); i++) {
+					if (usingDataSender.get(i).getStatus() == DataSender.SenderStatus.FAILED) {
+						usingDataSender.get(i).close();
+						// 正在使用的Sender的数量 <= maxKeepConnectingSenderSize
+						// 剩余的服务器地址数量 = 总得服务器地址数量 - 正在使用的Sender的数量
+						// 可替换的服务器数量 = 剩余服务器地址数量
+						// 当剩余服务器地址数量 <= 0
+						// 时，可以替换的地址也不存在，替换操作就可以不执行，所以这里的while是这样的意思
+						// 当剩余服务器地址数量 > 0 时，
+						// 就可以找到可以替换的地址，替换操作也就可以执行了，这里的就会跳出while循环
+						while ((newSender = findReadySender()) == null) {
+							try {
+								Thread.sleep(RETRY_FIND_CONNECTION_SENDER);
+							} catch (InterruptedException e) {
+								logger.log(Level.ALL, "Sleep failed.");
 							}
-							usingDataSender.set(i, newSender);
-							unusedServerAddresses.add(usingDataSender.get(i)
-									.getServerIp());
-							if (usingDataSender.size() >= maxKeepConnectingSenderSize) {
-								NEED_ADD_SENDER_FLAG = false;
-								break;
-							}
+						}
+						usingDataSender.set(i, newSender);
+						unusedServerAddresses.add(usingDataSender.get(i)
+								.getServerIp());
+						if (usingDataSender.size() >= maxKeepConnectingSenderSize) {
+							break;
 						}
 					}
 
@@ -211,6 +207,5 @@ public class DataSenderFactoryWithBalance {
 			usingDataSender.get(index)
 					.setStatus(DataSender.SenderStatus.FAILED);
 		}
-		NEED_ADD_SENDER_FLAG = true;
 	}
 }
