@@ -149,9 +149,9 @@ public class TraceLogEntry extends Span {
 		result.statusCodeName = statusCodeName;
 
 		result.applicationIdStr = result.applicationId;
-		if (!StringUtil.isBlank(result.viewPointId) && result.viewPointId.length() > 40) {
-			result.viewPointIdSub = result.viewPointId.substring(0, 20) + "..."
-					+ result.viewPointId.substring(result.viewPointId.length() - 20);
+		if (!StringUtil.isBlank(result.viewPointId) && result.viewPointId.length() > 60) {
+			result.viewPointIdSub = result.viewPointId.substring(0, 30) + "..."
+					+ result.viewPointId.substring(result.viewPointId.length() - 30);
 		} else {
 			result.viewPointIdSub = result.viewPointId;
 		}

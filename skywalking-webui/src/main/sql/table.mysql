@@ -1,0 +1,138 @@
+DROP TABLE IF EXISTS `user_info` ;
+
+CREATE TABLE IF NOT EXISTS `user_info` (
+  `uid` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '',
+  `user_name` VARCHAR(100) NOT NULL COMMENT '',
+  `password` VARCHAR(32) NOT NULL COMMENT '',
+  `role_type` VARCHAR(45) NOT NULL DEFAULT 'user' COMMENT '',
+  `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '',
+  `sts` VARCHAR(2) NOT NULL COMMENT '',
+  `modify_time` DATETIME NULL DEFAULT CURRENT_TIMESTAMP COMMENT '',
+  PRIMARY KEY (`uid`)  COMMENT '',
+  UNIQUE INDEX `user_name_UNIQUE` (`user_name` ASC)  COMMENT '')
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `user_info_ext`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `user_info_ext` ;
+
+CREATE TABLE IF NOT EXISTS `user_info_ext` (
+  `eid` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '',
+  `uid` INT NOT NULL COMMENT '',
+  `email` VARCHAR(200) NULL COMMENT '',
+  `create_time` DATETIME NULL DEFAULT CURRENT_TIMESTAMP COMMENT '',
+  PRIMARY KEY (`eid`)  COMMENT '')
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `login_log`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `login_log` ;
+
+CREATE TABLE IF NOT EXISTS `login_log` (
+  `log_id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '',
+  `uid` INT NOT NULL COMMENT '',
+  `login_time` DATETIME NULL DEFAULT CURRENT_TIMESTAMP COMMENT '',
+  PRIMARY KEY (`log_id`)  COMMENT '')
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `application_info`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `application_info` ;
+
+CREATE TABLE IF NOT EXISTS `application_info` (
+  `app_id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '',
+  `uid` INT NOT NULL COMMENT '',
+  `app_code` VARCHAR(200) NOT NULL COMMENT '',
+  `create_time` DATETIME NULL COMMENT '',
+  `sts` VARCHAR(2) NULL COMMENT '',
+  PRIMARY KEY (`app_id`)  COMMENT '')
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `data_info`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `data_info` ;
+
+CREATE TABLE IF NOT EXISTS `data_info` (
+  `did` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '',
+  `tab_info` VARCHAR(45) NOT NULL COMMENT '',
+  `col_info` VARCHAR(45) NOT NULL COMMENT '',
+  `code` VARCHAR(45) NOT NULL COMMENT '',
+  `word` VARCHAR(45) NOT NULL COMMENT '',
+  `word_desc` VARCHAR(200) NULL COMMENT '',
+  `sts` VARCHAR(2) NULL COMMENT '',
+  `create_time` DATETIME NULL COMMENT '',
+  PRIMARY KEY (`did`)  COMMENT '')
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `alarm_rule`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `alarm_rule` ;
+
+CREATE TABLE IF NOT EXISTS `alarm_rule` (
+  `rule_id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '',
+  `app_id` VARCHAR(45) NULL COMMENT '',
+  `uid` VARCHAR(45) NOT NULL COMMENT '',
+  `config_args` VARCHAR(200) NULL COMMENT '',
+  `is_global` VARCHAR(2) NOT NULL COMMENT '',
+  `todo_type` VARCHAR(4) NOT NULL COMMENT '',
+  `todo_content` VARCHAR(1000) NULL COMMENT '',
+  `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '',
+  `sts` VARCHAR(2) NULL COMMENT '',
+  `modify_time` DATETIME NULL DEFAULT CURRENT_TIMESTAMP COMMENT '',
+  PRIMARY KEY (`rule_id`)  COMMENT '')
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `include_rule`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `include_rule` ;
+
+CREATE TABLE IF NOT EXISTS `include_rule` (
+  `irid` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '',
+  `rule_value` VARCHAR(200) NULL COMMENT '',
+  `create_time` DATETIME NULL COMMENT '',
+  `sts` VARCHAR(2) NULL COMMENT '',
+  `rule_id` INT UNSIGNED NOT NULL COMMENT '',
+  PRIMARY KEY (`irid`)  COMMENT '')
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `exclude_rule`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `exclude_rule` ;
+
+CREATE TABLE IF NOT EXISTS `exclude_rule` (
+  `erid` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '',
+  `rule_value` VARCHAR(200) NULL COMMENT '',
+  `create_time` DATETIME NULL COMMENT '',
+  `sts` VARCHAR(2) NULL COMMENT '',
+  `rule_id` INT UNSIGNED NOT NULL COMMENT '',
+  PRIMARY KEY (`erid`)  COMMENT '')
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `email_expression`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `email_expression` ;
+
+CREATE TABLE IF NOT EXISTS `email_expression` (
+  `tid` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '',
+  `expr_name` VARCHAR(100) NOT NULL COMMENT '',
+  `expr_val` VARCHAR(100) NOT NULL COMMENT '',
+  `create_time` DATETIME NULL COMMENT '',
+  `sts` VARCHAR(2) NULL COMMENT '',
+  PRIMARY KEY (`tid`)  COMMENT '')
+ENGINE = InnoDB;

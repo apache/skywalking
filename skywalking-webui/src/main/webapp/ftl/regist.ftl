@@ -17,21 +17,21 @@
 <body>
 	<div class="container">
 		<form class="form-signin">
-			<h2 class="form-signin-heading">登录</h2>
+			<h2 class="form-signin-heading">注册</h2>
 			<label for="inputEmail" class="sr-only">用户名/邮箱</label> 
 				<input id="a" type="text" class="form-control" placeholder="用户名"
 				autofocus> 
 			<label for="inputPassword" class="sr-only">密码</label> 
 				<input id="b" type="password" id="inputPassword"
 				class="form-control" placeholder="密码">
-			<button id="login" class="btn btn-lg btn-primary btn-block" type="submit">登录</button>
+			<button id="regist" class="btn btn-lg btn-primary btn-block" type="submit">注册</button>
 		</form>
 	</div>
 	<!-- script references -->
 	<@common.importJavaScript />
 	<script type="text/javascript">
 		$().ready(function(){
-			$("#login").bind("click",function(){
+			$("#regist").bind("click",function(){
 				if($("#a").val() == ''){
 					alert("请输入用户名");
 					return false;
@@ -40,7 +40,8 @@
 					alert("请输入密码");
 					return false;
 				}
-				var urlStr = '${base}/login/'+$("#a").val()+'/'+$.md5($("#b").val());
+				var urlStr = '${base}/regist/'+$("#a").val()+'/'+$.md5($("#b").val());
+				var refUrl = '${base}/login';
 				$.ajax({
 					type: 'POST',
 					url: urlStr,
@@ -51,13 +52,14 @@
 						console.log(data);
 						var result = data.result;
 						if(result == 'OK'){
-							parent.location.reload();
+							alert(data.msg);
+							window.parent.changeFrameUrl(refUrl);
 						}else{
 							alert(data.msg);
 						}
 					},
 					error: function(xhr, type){
-						alert("验证失败");
+						alert("注册失败");
 					}
 				});
 			})
