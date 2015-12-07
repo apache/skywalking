@@ -120,7 +120,6 @@ public class DataSenderFactoryWithBalance {
 			long sleepTime = 0;
 			while (true) {
 				// 检查是否需要新增
-				// NEED_ADD_SENDER_FLAG 将会在unRegister方法修改值
 				DataSender newSender;
 				for (int i = 0; i < usingDataSender.size(); i++) {
 					if (usingDataSender.get(i).getStatus() == DataSender.SenderStatus.FAILED) {
