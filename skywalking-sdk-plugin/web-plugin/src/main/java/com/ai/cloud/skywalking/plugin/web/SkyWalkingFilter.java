@@ -27,17 +27,20 @@ public class SkyWalkingFilter implements Filter {
         try {
             HttpServletRequest request = (HttpServletRequest) servletRequest;
             String tracingHeaderValue = request.getHeader(tracingName);
-            String contextDataStr = null;
-            int index = tracingHeaderValue.indexOf("=");
-            if (index > 0) {
-                String key = tracingHeaderValue.substring(0, index);
-                if (secondKey.equals(key)) {
-                    contextDataStr = tracingHeaderValue.substring(index + 1);
-                }
-            }
             ContextData contextData = null;
-            if (contextDataStr != null && contextDataStr.length() > 0) {
-                contextData = new ContextData(contextDataStr);
+            if (tracingHeaderValue != null) {
+                String contextDataStr = null;
+                int index = tracingHeaderValue.indexOf("=");
+                if (index > 0) {
+                    String key = tracingHeaderValue.substring(0, index);
+                    if (secondKey.equals(key)) {
+                        contextDataStr = tracingHeaderValue.substring(index + 1);
+                    }
+                }
+
+                if (contextDataStr != null && contextDataStr.length() > 0) {
+                    contextData = new ContextData(contextDataStr);
+                }
             }
             receiver = new RPCBuriedPointReceiver();
             receiver.beforeReceived(contextData, generateIdentification(request));
