@@ -1,16 +1,13 @@
 package com.ai.cloud.skywalking.alarm;
 
 import com.ai.cloud.skywalking.alarm.dao.AlarmMessageDao;
-import com.ai.cloud.skywalking.alarm.model.ApplicationInfo;
 import com.ai.cloud.skywalking.alarm.model.UserInfo;
 import com.ai.cloud.skywalking.alarm.zk.ZKUtil;
 import org.apache.curator.framework.recipes.locks.InterProcessMutex;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 
 public class AlarmMessageProcessThread extends Thread {
@@ -25,7 +22,6 @@ public class AlarmMessageProcessThread extends Thread {
         threadId = UUID.randomUUID().toString();
         registerServer(threadId);
         rank = ballot(threadId);
-        ZKUtil.watch(AlarmServerRegisterWatcher.getInstance());
         toBeProcessUsers = getToBeProcessUsers();
     }
 
@@ -33,11 +29,21 @@ public class AlarmMessageProcessThread extends Thread {
     @Override
     public void run() {
         lockAllUsers();
+        Set<String> traceIds;
+        Set<String> toBeSenderTraceId;
         while (true) {
             for (UserInfo userInfo : toBeProcessUsers) {
-                for (ApplicationInfo applicationInfo : userInfo.getApplicationInfos()) {
-                    System.out.println(threadId + applicationInfo.getAppId());
-                }
+                traceIds = new HashSet<String>();
+//                for (ApplicationInfo applicationInfo : userInfo.getApplicationInfos()) {
+//                    toBeSenderTraceId = RedisUtil.getAlarmMessage(applicationInfo);
+//                    toBeSenderTraceId.removeAll(traceIds);
+//                    if (toBeSenderTraceId == null || toBeSenderTraceId.size() <= 0){
+//                        continue;
+//                    }else{
+//
+//                    }
+//                }
+
             }
 
             if (isChanged) {
@@ -83,8 +89,8 @@ public class AlarmMessageProcessThread extends Thread {
 
     private List<UserInfo> getToBeProcessUsers() {
         List<UserInfo> userInfos = AlarmMessageDao.selectAllUserInfo();
-        List<String> allServerIds = ZKUtil.selectAllServerIds();
-        int step = (int) Math.ceil(userInfos.size() * 1.0 / allServerIds.size());
+        List<String> allThreadIds = ZKUtil.selectAllThreadIds();
+        int step = (int) Math.ceil(userInfos.size() * 1.0 / allThreadIds.size());
         int start = rank * step;
         int end = (rank + 1) * step;
         if (end > userInfos.size()) {
@@ -93,7 +99,7 @@ public class AlarmMessageProcessThread extends Thread {
 
         List<UserInfo> toBeProcessUsers = userInfos.subList(start, end);
         for (UserInfo userInfo : toBeProcessUsers) {
-            userInfo.setApplicationInfos(AlarmMessageDao.selectAllApplicationsByUserId(userInfo.getUserId()));
+            // userInfo.setApplicationInfos(AlarmMessageDao.selectAlarmRulesByUserId(userInfo.getUserId()));
         }
         return toBeProcessUsers;
     }
@@ -118,7 +124,7 @@ public class AlarmMessageProcessThread extends Thread {
     }
 
     private int ballot(String threadId) {
-        List<String> serverIds = ZKUtil.selectAllServerIds();
+        List<String> serverIds = ZKUtil.selectAllThreadIds();
         int rank = 0;
         for (String tmpServerId : serverIds) {
             if (tmpServerId.hashCode() < threadId.hashCode()) {

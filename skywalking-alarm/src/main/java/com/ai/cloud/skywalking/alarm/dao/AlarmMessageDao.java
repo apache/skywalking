@@ -1,6 +1,7 @@
 package com.ai.cloud.skywalking.alarm.dao;
 
 import com.ai.cloud.skywalking.alarm.conf.Config;
+import com.ai.cloud.skywalking.alarm.model.AlarmRule;
 import com.ai.cloud.skywalking.alarm.model.ApplicationInfo;
 import com.ai.cloud.skywalking.alarm.model.UserInfo;
 import org.apache.logging.log4j.LogManager;
@@ -63,37 +64,47 @@ public class AlarmMessageDao {
         return 0;
     }
 
-    public static List<ApplicationInfo> selectAllApplicationsByUserId(String userId) {
-        List<ApplicationInfo> result = new ArrayList<ApplicationInfo>();
+    public static List<AlarmRule> selectAlarmRulesByUserId(String userId) {
+        List<AlarmRule> rules = new ArrayList<AlarmRule>();
+        List<ApplicationInfo> selfDefineApplications = new ArrayList<ApplicationInfo>();
         try {
-            PreparedStatement ps = con.prepareStatement("SELECT alarm_rule.app_id, alarm_rule.uid,alarm_rule.is_global, alarm_rule.todo_type," +
+            PreparedStatement ps = con.prepareStatement("SELECT alarm_rule.app_id,alarm_rule.rule_id, alarm_rule.uid,alarm_rule.is_global, alarm_rule.todo_type," +
                     " alarm_rule.config_args FROM  alarm_rule WHERE uid = ? AND sts = ?");
             ps.setString(1, userId);
             ps.setString(2, "A");
             ResultSet rs = ps.executeQuery();
-            ApplicationInfo globalConfig = null;
+            AlarmRule globalRules = null;
+            AlarmRule tmpAlarmRule = null;
             ApplicationInfo tmpApplication;
             while (rs.next()) {
                 if ("1".equals(rs.getString("is_global"))) {
-                    globalConfig = new ApplicationInfo();
-                    globalConfig.setConfigArgs(rs.getString("config_args"));
+                    globalRules = new AlarmRule(rs.getString("uid"), rs.getString("rule_id"));
+                    globalRules.setConfigArgs(rs.getString("config_args"));
+                    globalRules.setTodoType(rs.getString("todo_type"));
+                    globalRules.setGlobal(true);
                     continue;
+                } else {
+                    tmpAlarmRule = new AlarmRule(rs.getString("uid"), rs.getString("rule_id"));
+                    globalRules.setConfigArgs(rs.getString("config_args"));
+                    globalRules.setTodoType(rs.getString("todo_type"));
+                    // 自定义规则的Application
+                    tmpApplication = new ApplicationInfo();
+                    tmpApplication.setAppId(rs.getString("app_id"));
+                    tmpApplication.setUId(rs.getString("uid"));
+                    selfDefineApplications.add(tmpApplication);
+
+                    tmpAlarmRule.getApplicationInfos().add(tmpApplication);
+                    rules.add(tmpAlarmRule);
                 }
-                tmpApplication = new ApplicationInfo();
-                tmpApplication.setAppId(rs.getString("app_id"));
-                tmpApplication.setUId(rs.getString("uid"));
-                tmpApplication.setConfigArgs(rs.getString("config_args"));
-                tmpApplication.setToDoType(rs.getString("todo_type"));
-                result.add(tmpApplication);
             }
 
-            if (globalConfig == null) {
+            if (globalRules == null) {
                 //
                 throw new IllegalArgumentException("Can not found the global config");
             }
 
             List<ApplicationInfo> allApplication = new ArrayList<ApplicationInfo>();
-            ps = con.prepareStatement("SELECT application_info.app_id, application_info.uid FROM application_info WHERE uid = ? AND sts = ?");
+            ps = con.prepareStatement("SELECT application_info.app_id, application_info.uid, app_code FROM application_info WHERE uid = ? AND sts = ?");
             ps.setString(1, userId);
             ps.setString(2, "A");
             rs = ps.executeQuery();
@@ -102,20 +113,16 @@ public class AlarmMessageDao {
                 applicationInfo = new ApplicationInfo();
                 applicationInfo.setAppId(rs.getString("app_id"));
                 applicationInfo.setUId(rs.getString("uid"));
+                applicationInfo.setAppCode(rs.getString("app_code"));
                 allApplication.add(applicationInfo);
             }
 
-            allApplication.removeAll(result);
-
-            for (ApplicationInfo app : allApplication) {
-                app.setConfigArgs(globalConfig.getConfigArgs());
-                app.setToDoType(globalConfig.getToDoType());
-                result.add(app);
-            }
-
+            allApplication.removeAll(selfDefineApplications);
+            globalRules.getApplicationInfos().addAll(allApplication);
+            rules.add(globalRules);
         } catch (SQLException e) {
             logger.error("Failed to query applications.", e);
         }
-        return result;
+        return rules;
     }
 }

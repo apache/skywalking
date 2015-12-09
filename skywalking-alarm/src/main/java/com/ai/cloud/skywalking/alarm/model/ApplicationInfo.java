@@ -1,13 +1,12 @@
 package com.ai.cloud.skywalking.alarm.model;
 
-import com.google.gson.Gson;
-
 public class ApplicationInfo {
     private String appId;
     private String configArgs;
     private String UId;
     private String toDoType;
-    private ConfigArgsDescriber configArgsDescriber;
+    private String appCode;
+
 
     public ApplicationInfo() {
     }
@@ -18,15 +17,6 @@ public class ApplicationInfo {
 
     public void setAppId(String appId) {
         this.appId = appId;
-    }
-
-    public void setConfigArgs(String configArgs) {
-        this.configArgs = configArgs;
-        configArgsDescriber = new Gson().fromJson(configArgs, ConfigArgsDescriber.class);
-    }
-
-    public ConfigArgsDescriber getConfigArgsDescriber() {
-        return configArgsDescriber;
     }
 
     public String getConfigArgs() {
@@ -66,5 +56,13 @@ public class ApplicationInfo {
         int result = getAppId() != null ? getAppId().hashCode() : 0;
         result = 31 * result + (getUId() != null ? getUId().hashCode() : 0);
         return result;
+    }
+
+    public void setAppCode(String appCode) {
+        this.appCode = appCode;
+    }
+
+    public String getAppCode() {
+        return appCode;
     }
 }

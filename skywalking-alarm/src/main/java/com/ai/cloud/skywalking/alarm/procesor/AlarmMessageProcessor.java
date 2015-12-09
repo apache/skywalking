@@ -50,13 +50,6 @@ public class AlarmMessageProcessor {
 
             // 没有数据需要发送
             if (sentData.size() <= 0) {
-                // 清理数据
-                for (ApplicationInfo applicationInfo : rule.getApplicationInfos()) {
-                    for (int i = 0; i < currentFireTimeM - rule.getPreviousFireTimeM(); i++) {
-                        expiredAlarmMessage(generateAlarmKey(userInfo.getUserId(),
-                                applicationInfo.getAppCode(), i));
-                    }
-                }
                 // 修改-保存上次处理时间
                 rule.setPreviousFireTimeM(currentFireTimeM);
                 savePreviousFireTime(userInfo.getUserId(), rule.getRuleId(), currentFireTimeM);

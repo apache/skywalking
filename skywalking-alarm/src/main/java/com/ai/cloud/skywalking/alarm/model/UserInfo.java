@@ -3,9 +3,10 @@ package com.ai.cloud.skywalking.alarm.model;
 import java.util.List;
 
 public class UserInfo {
+
     private String userId;
 
-    private List<ApplicationInfo> applicationInfos;
+    private List<AlarmRule> rules;
 
     public UserInfo(String userId) {
         this.userId = userId;
@@ -15,11 +16,11 @@ public class UserInfo {
         return userId;
     }
 
-    public List<ApplicationInfo> getApplicationInfos() {
-        return applicationInfos;
+    public List<AlarmRule> getRules() {
+        return rules;
     }
 
-    public void setApplicationInfos(List<ApplicationInfo> applicationInfos) {
-        this.applicationInfos = applicationInfos;
+    public void setRules(List<AlarmRule> rules) {
+        this.rules = rules;
     }
 }

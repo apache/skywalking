@@ -53,7 +53,7 @@ public class ZKUtil {
         }
     }
 
-    public static List<String> selectAllServerIds() {
+    public static List<String> selectAllThreadIds() {
         try {
             return client.getChildren().forPath(getRegisterServerPathPrefix());
         } catch (Exception e) {
