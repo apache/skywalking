@@ -51,8 +51,7 @@ public class AlarmMessageProcessor {
             // 没有数据需要发送
             if (sentData.size() <= 0) {
                 // 修改-保存上次处理时间
-                rule.setPreviousFireTimeM(currentFireTimeM);
-                savePreviousFireTime(userInfo.getUserId(), rule.getRuleId(), currentFireTimeM);
+                dealPreviousFireTime(userInfo, rule, currentFireTimeM);
             } else {
                 if ("0".equals(rule.getTodoType())) {
                     // 发送邮件
@@ -75,12 +74,16 @@ public class AlarmMessageProcessor {
                     }
                 }
                 // 修改-保存上次处理时间
-                rule.setPreviousFireTimeM(currentFireTimeM);
-                savePreviousFireTime(userInfo.getUserId(), rule.getRuleId(), currentFireTimeM);
+                dealPreviousFireTime(userInfo, rule, currentFireTimeM);
             }
         }
 
 
+    }
+
+    private static void dealPreviousFireTime(UserInfo userInfo, AlarmRule rule, long currentFireTimeM) {
+        rule.setPreviousFireTimeM(currentFireTimeM);
+        savePreviousFireTime(userInfo.getUserId(), rule.getRuleId(), currentFireTimeM);
     }
 
     private static String generateSubjects(int count, long startTime, long endTime) {
