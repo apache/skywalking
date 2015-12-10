@@ -1,5 +1,8 @@
 package com.ai.cloud.skywalking.alarm.util;
 
+import com.ai.cloud.skywalking.alarm.conf.Config;
+import com.ai.cloud.skywalking.alarm.dao.SystemConfigDao;
+import com.google.gson.Gson;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -17,10 +20,11 @@ public class MailUtil {
     private static String sendAccount;
     private static Transport ts;
 
+
     static {
         try {
-            Properties prop = new Properties();
-            prop.load(MailUtil.class.getResourceAsStream("/mail/mail.config"));
+            String senderInfo = SystemConfigDao.getMailSenderInfo(Config.MailSenderInfo.configId);
+            Properties prop = new Gson().fromJson(senderInfo, Properties.class);
             session = Session.getInstance(prop);
             ts = session.getTransport();
             ts.connect(prop.getProperty("mail.host"), prop.getProperty("mail.username"), prop.getProperty("mail.password"));

@@ -10,6 +10,10 @@ public class Config {
 
     }
 
+    public static class ProcessThread {
+        public static long THREAD_WAIT_INTERVAL = 60 * 1000L;
+    }
+
     public static class ZKPath {
 
         public static String CONNECT_STR = "127.0.0.1:2181";
@@ -22,9 +26,9 @@ public class Config {
 
         public static String NODE_PREFIX = "/skywalking";
 
-        public static String SERVER_REGISTER_LOCK_PATH = "/alarm-server/register";
+        public static String COORDINATOR_STATUS_PATH = "/alarm-server/coordinator/status";
 
-        public static String REGISTER_SERVER_PATH = "/alarm-server/servers";
+        public static String REGISTER_SERVER_PATH = "/alarm-server/register-servers";
 
         public static String USER_REGISTER_LOCK_PATH = "/alarm-server/users";
     }
@@ -54,16 +58,7 @@ public class Config {
         public static boolean ALARM_OFF_FLAG = false;
     }
 
-    public static class MailSender {
-
-        public static String HOST = "";
-
-        public static String TRANSPORT_PROTOCOL = "";
-
-        public static boolean SMTP_AUTH = true;
-
-        public static String USER_NAME = "";
-
-        public static String PASSWORD = "";
+    public static class MailSenderInfo {
+        public static String configId = "1000";
     }
 }

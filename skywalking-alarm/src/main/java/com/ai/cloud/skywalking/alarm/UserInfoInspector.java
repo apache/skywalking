@@ -29,7 +29,7 @@ public class UserInfoInspector extends Thread {
             if (currentUserSize != preUserSize) {
                 logger.info("Total user has been changed. Notice all process thread to change process date.");
                 for (AlarmMessageProcessThread thread : AlarmProcessServer.getProcessThreads()) {
-                    thread.setChanged(true);
+                    //thread.setChanged(true);
                 }
             }
         }

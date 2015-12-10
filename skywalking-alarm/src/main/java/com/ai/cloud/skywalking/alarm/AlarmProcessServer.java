@@ -1,7 +1,6 @@
 package com.ai.cloud.skywalking.alarm;
 
 import com.ai.cloud.skywalking.alarm.conf.Config;
-import com.ai.cloud.skywalking.alarm.zk.ZKUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -29,7 +28,6 @@ public class AlarmProcessServer {
         new UserInfoInspector().start();
         logger.info("Start user inspector thread success....");
         logger.info("Alarm process server successfully started.");
-        ZKUtil.watch(AlarmServerRegisterWatcher.getInstance());
         while (true) {
             try {
                 Thread.sleep(Config.Server.DAEMON_THREAD_WAIT_INTERVAL);

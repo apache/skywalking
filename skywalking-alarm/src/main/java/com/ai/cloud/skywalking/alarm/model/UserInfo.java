@@ -1,12 +1,10 @@
 package com.ai.cloud.skywalking.alarm.model;
 
-import java.util.List;
-
 public class UserInfo {
 
     private String userId;
 
-    private List<AlarmRule> rules;
+    private String userName;
 
     public UserInfo(String userId) {
         this.userId = userId;
@@ -16,11 +14,11 @@ public class UserInfo {
         return userId;
     }
 
-    public List<AlarmRule> getRules() {
-        return rules;
+    public String getUserName() {
+        return userName;
     }
 
-    public void setRules(List<AlarmRule> rules) {
-        this.rules = rules;
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 }
