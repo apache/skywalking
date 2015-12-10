@@ -32,7 +32,7 @@ public class MailUtil {
     }
 
 
-    public static void sendMail(String[] recipientAccounts, String[] ccList, String context, String title) {
+    public static void sendMail(String[] recipientAccounts, String[] ccList, String content, String title) {
         try {
             MimeMessage message = new MimeMessage(session);
             message.setFrom(new InternetAddress(sendAccount));
@@ -49,7 +49,7 @@ public class MailUtil {
             message.addRecipients(Message.RecipientType.CC, ccAccountArray);
 
             message.setSubject(title);
-            message.setContent(context, "text/html;charset=UTF-8");
+            message.setContent(content, "text/html;charset=UTF-8");
 
             ts.sendMessage(message, message.getAllRecipients());
         } catch (AddressException e) {

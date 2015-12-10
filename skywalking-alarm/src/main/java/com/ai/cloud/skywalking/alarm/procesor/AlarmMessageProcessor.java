@@ -1,153 +1,158 @@
 package com.ai.cloud.skywalking.alarm.procesor;
 
-import com.ai.cloud.skywalking.alarm.model.AlarmRule;
-import com.ai.cloud.skywalking.alarm.model.ApplicationInfo;
-import com.ai.cloud.skywalking.alarm.model.UserInfo;
-import com.ai.cloud.skywalking.alarm.model.parameter.Application;
-import com.ai.cloud.skywalking.alarm.util.MailUtil;
-import com.ai.cloud.skywalking.alarm.util.RedisUtil;
-import freemarker.template.Configuration;
-import freemarker.template.Template;
-import freemarker.template.TemplateException;
-import freemarker.template.Version;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import redis.clients.jedis.Jedis;
-
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import redis.clients.jedis.Jedis;
+
+import com.ai.cloud.skywalking.alarm.model.AlarmRule;
+import com.ai.cloud.skywalking.alarm.model.ApplicationInfo;
+import com.ai.cloud.skywalking.alarm.model.MailInfo;
+import com.ai.cloud.skywalking.alarm.model.UserInfo;
+import com.ai.cloud.skywalking.alarm.util.MailUtil;
+import com.ai.cloud.skywalking.alarm.util.RedisUtil;
+
+import freemarker.template.Configuration;
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
+import freemarker.template.Version;
 
 public class AlarmMessageProcessor {
 
-    private static Logger logger = LogManager.getLogger(AlarmMessageProcessor.class);
+	private static Logger logger = LogManager
+			.getLogger(AlarmMessageProcessor.class);
 
-    public static void process(UserInfo userInfo, AlarmRule rule) {
-        Set<String> sentData = new HashSet<String>();
-        List<Application> applications = new ArrayList<Application>();
-        Set<String> toBeSendData;
-        Application temApplication;
-        long currentFireTimeM = System.currentTimeMillis() / (10000 * 6);
-        // 获取待发送数据
-        if (checkerProcessInterval(rule, currentFireTimeM)) {
-            for (ApplicationInfo applicationInfo : rule.getApplicationInfos()) {
-                toBeSendData = new HashSet<String>();
+	public void process(UserInfo userInfo, AlarmRule rule) {
+		Set<String> warningTracingIds = new HashSet<String>();
+		Set<String> warningMessageKeys = new HashSet<String>();
+		long currentFireMinuteTime = System.currentTimeMillis() / (10000 * 6);
+		long warningTimeWindowSize = currentFireMinuteTime
+				- rule.getPreviousFireTimeM();
+		// 获取待发送数据
+		if (warningTimeWindowSize >= rule.getConfigArgsDescriber().getPeriod()) {
+			for (ApplicationInfo applicationInfo : rule.getApplicationInfos()) {
+				for (int period = 0; period < warningTimeWindowSize; period++) {
+					String alarmKey = userInfo.getUserId()
+							+ "-"
+							+ applicationInfo.getAppCode()
+							+ "-"
+							+ ((System.currentTimeMillis() / (10000 * 6)) - period);
 
-                for (int i = 0; i < currentFireTimeM - rule.getPreviousFireTimeM(); i++) {
-                    toBeSendData.addAll(getAlarmMessage(generateAlarmKey(userInfo.getUserId(),
-                            applicationInfo.getAppCode(), i)));
+					warningMessageKeys.add(alarmKey);
+					warningTracingIds.addAll(getAlarmMessages(alarmKey));
+				}
+			}
 
-                    toBeSendData.removeAll(sentData);
-                    sentData.addAll(toBeSendData);
-                }
+			// 发送告警数据
+			if (warningTracingIds.size() > 0) {
+				if ("0".equals(rule.getTodoType())) {
+					// 发送邮件
+					String subjects = generateSubject(warningTracingIds.size(),
+							rule.getPreviousFireTimeM(), currentFireMinuteTime);
+					Map parameter = new HashMap();
+					// TODO：已使用新的参数，warningTracingIds包含所有的告警tracingId，需要在模板中生成链接
+					parameter.put("warningTracingIds", warningTracingIds);
+					// TODO：请转换为USERNAME，ID无法识别
+					parameter.put("name", userInfo.getUserId());
+					String mailContext = generateContent(rule
+							.getConfigArgsDescriber().getMailInfo()
+							.getMailTemp(), parameter);
+					if (mailContext.length() > 0) {
+						MailInfo mailInfo = rule.getConfigArgsDescriber()
+								.getMailInfo();
+						MailUtil.sendMail(mailInfo.getMailTo(),
+								mailInfo.getMailCc(), mailContext, subjects);
+					}
+				}
+			}
 
-                temApplication = new Application(applicationInfo.getAppId());
-                temApplication.setTraceIds(toBeSendData);
-                applications.add(temApplication);
-            }
+			// 清理数据
+			for (String toBeRemovedKey : warningMessageKeys) {
+				expiredAlarmMessage(toBeRemovedKey);
+			}
 
-            // 没有数据需要发送
-            if (sentData.size() <= 0) {
-                // 修改-保存上次处理时间
-                dealPreviousFireTime(userInfo, rule, currentFireTimeM);
-            } else {
-                if ("0".equals(rule.getTodoType())) {
-                    // 发送邮件
-                    String subjects = generateSubjects(sentData.size(),
-                            rule.getPreviousFireTimeM(), currentFireTimeM);
-                    Map parameter = new HashMap();
-                    parameter.put("applications", applications);
-                    parameter.put("name", userInfo.getUserId());
-                    MailUtil.sendMail(rule.getConfigArgsDescriber().getMailInfo().getMailTo(),
-                            rule.getConfigArgsDescriber().getMailInfo().getMailCc(),
-                            generateContent(rule.getConfigArgsDescriber().getMailInfo()
-                                    .getMailTemp(), parameter),
-                            subjects);
-                }
-                // 清理数据
-                for (ApplicationInfo applicationInfo : rule.getApplicationInfos()) {
-                    for (int i = 0; i < currentFireTimeM - rule.getPreviousFireTimeM(); i++) {
-                        expiredAlarmMessage(generateAlarmKey(userInfo.getUserId(),
-                                applicationInfo.getAppCode(), i));
-                    }
-                }
-                // 修改-保存上次处理时间
-                dealPreviousFireTime(userInfo, rule, currentFireTimeM);
-            }
-        }
+			// 修改-保存上次处理时间
+			dealPreviousFireTime(userInfo, rule, currentFireMinuteTime);
+		}
 
+	}
 
-    }
+	private void dealPreviousFireTime(UserInfo userInfo, AlarmRule rule,
+			long currentFireMinuteTime) {
+		rule.setPreviousFireTimeM(currentFireMinuteTime);
+		savePreviousFireTime(userInfo.getUserId(), rule.getRuleId(),
+				currentFireMinuteTime);
+	}
 
-    private static void dealPreviousFireTime(UserInfo userInfo, AlarmRule rule, long currentFireTimeM) {
-        rule.setPreviousFireTimeM(currentFireTimeM);
-        savePreviousFireTime(userInfo.getUserId(), rule.getRuleId(), currentFireTimeM);
-    }
+	private String generateSubject(int count, long startTime, long endTime) {
+		String title = "[Warning] There were "
+				+ count
+				+ "  alarm information between "
+				+ new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(
+						startTime))
+				+ " to "
+				+ new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(
+						endTime));
 
-    private static String generateSubjects(int count, long startTime, long endTime) {
-        String title = "[Warning] There were " + count + "  alarm information between " +
-                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(startTime)) +
-                " to " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(endTime));
+		return title;
+	}
 
-        return title;
-    }
+	private void expiredAlarmMessage(String key) {
+		Jedis client = RedisUtil.getRedisClient();
+		client.expire(key, 0);
+		if (client != null) {
+			client.close();
+		}
+	}
 
-    private static boolean checkerProcessInterval(AlarmRule rule, long currentFireTimeM) {
-        return currentFireTimeM - rule.getPreviousFireTimeM() >= rule.getConfigArgsDescriber().getPeriod();
-    }
+	private void savePreviousFireTime(String userId, String ruleId,
+			long currentFireMinuteTime) {
+		Jedis client = RedisUtil.getRedisClient();
+		client.hset(userId, ruleId, String.valueOf(currentFireMinuteTime));
+		if (client != null) {
+			client.close();
+		}
+	}
 
-    private static void expiredAlarmMessage(String key) {
-        Jedis client = RedisUtil.getRedisClient();
-        client.expire(key, 0);
-        if (client != null) {
-            client.close();
-        }
-    }
+	private Collection<String> getAlarmMessages(String key) {
+		Jedis client = RedisUtil.getRedisClient();
+		Map<String, String> result = client.hgetAll(key);
+		if (result == null) {
+			return new ArrayList<String>();
+		}
 
+		client.close();
 
-    private static void savePreviousFireTime(String userId, String ruleId, long currentFireTimeM) {
-        Jedis client = RedisUtil.getRedisClient();
-        client.hset(userId, ruleId, String.valueOf(currentFireTimeM));
-        if (client != null) {
-            client.close();
-        }
-    }
+		return result.values();
+	}
 
+	private String generateContent(String templateStr, Map parameter) {
+		Configuration cfg = new Configuration(new Version("2.3.23"));
+		cfg.setDefaultEncoding("UTF-8");
+		Template t = null;
+		try {
+			t = new Template(null, new StringReader(templateStr), cfg);
+			StringWriter out = new StringWriter();
+			t.process(parameter, out);
+			return out.getBuffer().toString();
+		} catch (IOException e) {
+			logger.error("Template illegal.", e);
+		} catch (TemplateException e) {
+			logger.error("Failed to generate content.", e);
+		}
 
-    private static String generateAlarmKey(String userId, String appCode, int period) {
-        return userId + "-" + appCode + "-" + ((System.currentTimeMillis() / (10000 * 6))
-                - period);
-    }
-
-    private static Collection<String> getAlarmMessage(String key) {
-        Jedis client = RedisUtil.getRedisClient();
-        Map<String, String> result = client.hgetAll(key);
-        if (result == null) {
-            return new ArrayList<String>();
-        }
-
-        client.close();
-
-        return result.values();
-    }
-
-    private static String generateContent(String templateStr, Map parameter) {
-        Configuration cfg = new Configuration(new Version("2.3.23"));
-        cfg.setDefaultEncoding("UTF-8");
-        Template t = null;
-        try {
-            t = new Template(null, new StringReader(templateStr), cfg);
-            StringWriter out = new StringWriter();
-            t.process(parameter, out);
-            return out.getBuffer().toString();
-        } catch (IOException e) {
-            logger.error("Template illegal.", e);
-        } catch (TemplateException e) {
-            logger.error("Failed to generate content.", e);
-        }
-
-        return "";
-    }
+		return "";
+	}
 }
