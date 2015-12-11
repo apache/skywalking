@@ -50,7 +50,6 @@ public class AlarmMessageProcessThread extends Thread {
                     for (Map.Entry<UserInfo, List<AlarmRule>> entry : cacheRules.entrySet()) {
                         for (AlarmRule rule : entry.getValue()) {
                             processor.process(entry.getKey(), rule);
-//                            System.out.println(currentThread().getName() + " @~ " + entry.getKey().getUserId() + " @~ " + rule.getRuleId());
                         }
                     }
                 }

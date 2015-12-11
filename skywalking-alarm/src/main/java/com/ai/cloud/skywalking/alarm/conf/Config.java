@@ -12,7 +12,6 @@ public class Config {
 
     public static class ProcessThread {
         public static long THREAD_WAIT_INTERVAL = 60 * 1000L;
-        //public static long THREAD_WAIT_INTERVAL = 1 * 1000L;
     }
 
     public static class ZKPath {
@@ -42,7 +41,7 @@ public class Config {
         // 单位:(毫秒)
         public static long CHECK_REDISTRIBUTE_INTERVAL = 5 * 1000;
         // 单位:(毫秒)
-        public static long CHECK_ALL_PROCESS_THREAD_INTERVAL = 100L;
+        public static long CHECK_ALL_PROCESS_THREAD_INTERVAL = 500L;
     }
 
     public static class DB {
