@@ -55,16 +55,30 @@
 				</select>
 			</div>
 		  </div>
-		  <div class="form-group" id="emailTemplateDiv" style="display:block">
-		    <label for="emailTemplate" class="col-sm-4 control-label">邮件模板：</label>
-		    <div class="col-sm-4">
-		      <textarea class="form-control" id="emailTemplate" rows="4" placeholder="邮件模板"></textarea>
-		    </div>
+		  <div id="mailTempDiv" style="display:block">
+		  	  <div class="form-group">
+			    <label for="mailTemp" class="col-sm-4 control-label">发件人地址：</label>
+			    <div class="col-sm-4">
+			      <textarea class="form-control" id="mailTo" rows="3" placeholder="发件人地址，请英文逗号,分割"></textarea>
+			    </div>
+			  </div>
+		 	  <div class="form-group">
+			    <label for="mailTemp" class="col-sm-4 control-label">抄送人地址：</label>
+			    <div class="col-sm-4">
+			      <textarea class="form-control" id="mailCc" rows="3" placeholder="抄送人地址，请英文逗号,分割"></textarea>
+			    </div>
+			  </div>
+			  <div class="form-group">
+			    <label for="mailTemp" class="col-sm-4 control-label">邮件模板：</label>
+			    <div class="col-sm-4">
+			      <textarea class="form-control" id="mailTemp" rows="4" placeholder="邮件模板"></textarea>
+			    </div>
+			  </div>
 		  </div>
 		  <div class="form-group" id="callBackDiv" style="display:none">
-		    <label for="callBackUrl" class="col-sm-4 control-label">回调接口：</label>
+		    <label for="urlCall" class="col-sm-4 control-label">回调接口：</label>
 		    <div class="col-sm-4">
-		      <input type="text" class="form-control" id="callBackUrl" placeholder="回调接口地址">
+		      <input type="text" class="form-control" id="urlCall" placeholder="回调接口地址">
 		    </div>
 		  </div>
 		  <div class="form-group">
@@ -208,13 +222,15 @@
 						$("#appName").text("所有应用");
 						if(result == 'OK'){
 							var obj = jQuery.parseJSON(data.data);
-							var periodJson = jQuery.parseJSON(obj.configArgs);
-							$("#period").val(periodJson.period);
+							var confArg = jQuery.parseJSON(obj.configArgs);
+							$("#period").val(confArg.period);
 							$("#todoType").val(obj.todoType).change();
 							if(obj.todoType == 1){
-								$("#callBackUrl").val(obj.todoContent);
+								$("#urlCall").val(confArg.urlInfo.urlCall);
 							}else {
-								$("#emailTemplate").val(obj.todoContent);
+								$("#mailTo").val(confArg.mailInfo.mailTo);
+								$("#mailCc").val(confArg.mailInfo.mailCc);
+								$("#mailTemp").val(confArg.mailInfo.mailTemp);
 							}
 							$("#ruleId").val(obj.ruleId);
 							$("#crtRuleBtn").text("修改规则");
@@ -230,10 +246,10 @@
 			
 			$("#todoType").bind("change",function(){
 				if($(this).val() == 0){
-					$("#emailTemplateDiv").show();
+					$("#mailTempDiv").show();
 					$("#callBackDiv").hide();
 				}else if($(this).val() == 1){
-					$("#emailTemplateDiv").hide();
+					$("#mailTempDiv").hide();
 					$("#callBackDiv").show();
 				}
 			});
@@ -266,13 +282,15 @@
 							if(result == 'OK'){
 								$("#appName").text(appCode);
 								var obj = jQuery.parseJSON(data.data);
-								var periodJson = jQuery.parseJSON(obj.configArgs);
-								$("#period").val(periodJson.period);
+								var confArg = jQuery.parseJSON(obj.configArgs);
+								$("#period").val(confArg.period);
+								$("#todoType").val(obj.todoType).change();
 								if(obj.todoType == 1){
-									$("#todoType").val(obj.todoType).change();
-									$("#callBackUrl").val(obj.todoContent);
+									$("#urlCall").val(confArg.urlInfo.urlCall);
 								}else {
-									$("#emailTemplate").val(obj.todoContent);
+									$("#mailTo").val(confArg.mailInfo.mailTo);
+									$("#mailCc").val(confArg.mailInfo.mailCc);
+									$("#mailTemp").val(confArg.mailInfo.mailTemp);
 								}
 								$("#ruleId").val(obj.ruleId);
 								$("#crtRuleBtn").text("修改规则");
@@ -281,8 +299,10 @@
 								$("#appName").html(appCode+"(<b>使用默认规则</b>)");
 								$("#period").val("");
 								$("#todoType").val("0").change();
-								$("#callBackUrl").val("");
-								$("#emailTemplate").val("");
+								$("#urlCall").val("");
+								$("#mailTo").val("");
+								$("#mailCc").val("");
+								$("#mailTemp").val("");
 								$("#ruleId").val("");
 								$("#crtRuleBtn").text("创建规则");
 								$("#cannelRuleBtn").text("取消创建");
@@ -295,9 +315,9 @@
 				});
 			});
 			
+			//创建规则操作
 			$("#crtRuleBtn").bind("click",function(){
 				var ruleId = $("#ruleId").val();
-				
 				var appId = $("#appId").val();//可空
 				var period = $("#period").val();//不可空
 				if(period == null || period.length < 1){
@@ -322,21 +342,24 @@
 					alert("告警操作不能为空");
 					return false;
 				}
-				var callBackUrl = $("#callBackUrl").val();
-				var emailTemplate = $("#emailTemplate").val();
+				var urlCall = $("#urlCall").val();
+				var mailTemp = $("#mailTemp").val();
 				var todoContent = "";
-				if(todoType == 1){
-					if(callBackUrl == null || callBackUrl.length < 1){
-						alert("回调接口不能为空");
-						return false;
-					}
-					todoContent = callBackUrl;
-				}else{
-					if(emailTemplate == null || emailTemplate.length < 1){
+				if(todoType == 0){
+					if(mailTemp == null || mailTemp.length < 1){
 						alert("邮件模板不能为空");
 						return false;
 					}
-					todoContent = emailTemplate;
+					var mailTo = $("#mailTo").val();
+					var mailCc = $("#mailCc").val();
+				}else if(todoType == 1){
+					if(urlCall == null || urlCall.length < 1){
+						alert("回调接口不能为空");
+						return false;
+					}
+				}else{
+					alert("告警规则不能为空");
+					return false;
 				}
 				var ruleId = $("#ruleId").val();
 				var jsonData = "";
@@ -347,7 +370,15 @@
 						return false;
 					}
 					var urlStr = '${base}/alarmRule/modify';
-					jsonData = "{ruleId:'"+ruleId+"',appId:'"+appId+"',period:'"+period+"',isGlobal:'"+isGlobal+"',todoType:'"+todoType+"',todoContent:'"+todoContent+"'}";
+					if(todoType ==0){
+						jsonData = "{ruleId:'"+ruleId+"',appId:'"+appId+"',period:'"+period+"',isGlobal:'"+isGlobal+"',todoType:'"+todoType+"',mailTemp:'"+mailTemp+"',mailTo:'"+mailTo+"',mailCc:'"+mailCc+"'}";
+					}else if(todoType ==1){
+						jsonData = "{ruleId:'"+ruleId+"',appId:'"+appId+"',period:'"+period+"',isGlobal:'"+isGlobal+"',todoType:'"+todoType+"',urlCall:'"+urlCall+"'}";
+					}else{
+						alert("请选择正确的告警操作");
+						return false;
+					}
+					alert(jsonData);
 					$.ajax({
 						type: 'POST',
 						url: urlStr,
@@ -370,7 +401,15 @@
 				}else{
 					//调用创建规则
 					var urlStr = '${base}/alarmRule/create';
-					jsonData = "{appId:'"+appId+"',period:'"+period+"',isGlobal:'"+isGlobal+"',todoType:'"+todoType+"',todoContent:'"+todoContent+"'}";
+					if(todoType ==0){
+						jsonData = "{appId:'"+appId+"',period:'"+period+"',isGlobal:'"+isGlobal+"',todoType:'"+todoType+"',mailTemp:'"+mailTemp+"',mailTo:'"+mailTo+"',mailCc:'"+mailCc+"'}";
+					}else if(todoType ==1){
+						jsonData = "{appId:'"+appId+"',period:'"+period+"',isGlobal:'"+isGlobal+"',todoType:'"+todoType+"',urlCall:'"+urlCall+"'}";
+					}else{
+						alert("请选择正确的告警操作");
+						return false;
+					}
+					alert(jsonData);
 					$.ajax({
 						type: 'POST',
 						url: urlStr,

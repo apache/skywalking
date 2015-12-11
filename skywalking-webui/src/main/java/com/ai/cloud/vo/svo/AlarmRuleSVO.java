@@ -10,13 +10,11 @@ public class AlarmRuleSVO {
 	
 	private String uid;
 	
-	private String configArgs;
-	
 	private String isGlobal;
 	
 	private String todoType;
 	
-	private String todoContent;
+	private String configArgs;
 	
 	private Timestamp createTime;
 	
@@ -88,14 +86,6 @@ public class AlarmRuleSVO {
 		this.sts = sts;
 	}
 
-	public String getTodoContent() {
-		return todoContent;
-	}
-
-	public void setTodoContent(String todoContent) {
-		this.todoContent = todoContent;
-	}
-
 	public Timestamp getModifyTime() {
 		return modifyTime;
 	}
@@ -106,14 +96,9 @@ public class AlarmRuleSVO {
 
 	@Override
 	public String toString() {
-		return "AlarmRuleSVO [ruleId=" + ruleId + ", appId=" + appId + ", uid=" + uid + ", configArgs=" + configArgs
-				+ ", isGlobal=" + isGlobal + ", todoType=" + todoType + ", todoContent=" + todoContent + ", createTime="
-				+ createTime + ", sts=" + sts + ", modifyTime=" + modifyTime + ", getRuleId()=" + getRuleId()
-				+ ", getAppId()=" + getAppId() + ", getUid()=" + getUid() + ", getConfigArgs()=" + getConfigArgs()
-				+ ", getIsGlobal()=" + getIsGlobal() + ", getTodoType()=" + getTodoType() + ", getCreateTime()="
-				+ getCreateTime() + ", getSts()=" + getSts() + ", getTodoContent()=" + getTodoContent()
-				+ ", getModifyTime()=" + getModifyTime() + ", getClass()=" + getClass() + ", hashCode()=" + hashCode()
-				+ ", toString()=" + super.toString() + "]";
+		return "AlarmRuleSVO [ruleId=" + ruleId + ", appId=" + appId + ", uid=" + uid + ", isGlobal=" + isGlobal
+				+ ", todoType=" + todoType + ", configArgs=" + configArgs + ", createTime=" + createTime + ", sts="
+				+ sts + ", modifyTime=" + modifyTime + "]";
 	}
 
 }
