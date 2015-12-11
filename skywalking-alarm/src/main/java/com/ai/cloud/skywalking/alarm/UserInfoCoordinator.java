@@ -46,6 +46,7 @@ public class UserInfoCoordinator extends Thread {
 						}
 					}
 					
+					logger.info("becoming cluster coordinator.");
 					isCoordinator = true;
 					watcherRegisterServerPath();
 					redistributing = true;
@@ -113,7 +114,7 @@ public class UserInfoCoordinator extends Thread {
 				}
 
 			} catch (Exception e) {
-				logger.error("Failed to coordinate, retry. ", e);
+				logger.error("Failed to coordinate, release lock. ", e);
 				releaseCoordinator();
 				isCoordinator = false;
 			}
