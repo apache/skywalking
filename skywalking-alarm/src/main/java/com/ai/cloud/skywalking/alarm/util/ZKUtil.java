@@ -9,6 +9,7 @@ import org.apache.curator.framework.recipes.locks.InterProcessMutex;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.zookeeper.CreateMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,13 +51,8 @@ public class ZKUtil {
         return "";
     }
 
-    public static String getPathDataWithWatch(String path, CuratorWatcher watcher) {
-        try {
-            return new String(client.getData().usingWatcher(watcher).forPath(path));
-        } catch (Exception e) {
-            logger.error("Failed to get the value of path[{}]", path, e);
-        }
-        return "";
+    public static String getPathDataWithWatch(String path, CuratorWatcher watcher) throws Exception {
+        return new String(client.getData().usingWatcher(watcher).forPath(path));
     }
 
     public static void setPathData(String path, String value) {
@@ -74,5 +70,27 @@ public class ZKUtil {
             logger.error("Failed to get child nodes of path[{{}]", registerServerPath, e);
         }
         return new ArrayList<String>();
+    }
+
+    public static List<String> getChildrenWithWatcher(String registerServerPath, CuratorWatcher watcher) throws Exception {
+        return client.getChildren().usingWatcher(watcher).forPath(registerServerPath);
+    }
+
+    public static void createPath(String path) {
+        try {
+            client.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath(path);
+        } catch (Exception e) {
+            logger.error("Failed to create path.");
+        }
+    }
+
+    public static boolean exists(String registerServerPath) {
+        try {
+            return client.checkExists().forPath(registerServerPath) != null;
+        } catch (Exception e) {
+            logger.error("Failed check exists for path");
+        }
+
+        return false;
     }
 }

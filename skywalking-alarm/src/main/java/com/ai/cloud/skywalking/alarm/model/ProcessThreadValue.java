@@ -3,14 +3,14 @@ package com.ai.cloud.skywalking.alarm.model;
 import java.util.List;
 
 public class ProcessThreadValue {
-    private String status;
+    private int status;
     private List<String> dealUserIds;
 
-    public String getStatus() {
+    public int getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(int status) {
         this.status = status;
     }
 

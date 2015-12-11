@@ -51,8 +51,9 @@ public class AlarmMessageDao {
     public static UserInfo selectUser(String userId) {
         UserInfo userInfo = null;
         try {
-            PreparedStatement ps = DBConnectUtil.getConnection().prepareStatement("SELECT user_info.uid,user_info.user_name FROM user_info WHERE sts = ?");
+            PreparedStatement ps = DBConnectUtil.getConnection().prepareStatement("SELECT user_info.uid,user_info.user_name FROM user_info WHERE sts = ? AND uid = ?");
             ps.setString(1, "A");
+            ps.setString(2, userId);
             ResultSet rs = ps.executeQuery();
             rs.next();
             userInfo = new UserInfo(rs.getString("uid"));

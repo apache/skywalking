@@ -1,6 +1,7 @@
 package com.ai.cloud.skywalking.alarm;
 
 import com.ai.cloud.skywalking.alarm.conf.Config;
+import com.ai.cloud.skywalking.alarm.util.ZKUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -16,6 +17,11 @@ public class AlarmProcessServer {
 
     public static void main(String[] main) {
         logger.info("Begin to start alarm process server....");
+        if (!ZKUtil.exists(Config.ZKPath.REGISTER_SERVER_PATH)) {
+            ZKUtil.createPath(Config.ZKPath.REGISTER_SERVER_PATH);
+        }
+        new UserInfoCoordinator().start();
+
         logger.info("Begin to start process thread...");
         AlarmMessageProcessThread tmpThread;
         for (int i = 0; i < Config.Server.PROCESS_THREAD_SIZE; i++) {
@@ -24,9 +30,6 @@ public class AlarmProcessServer {
             processThreads.add(tmpThread);
         }
         logger.info("Successfully launched {} processing threads.", Config.Server.PROCESS_THREAD_SIZE);
-        logger.info("Begin to start user inspector thread....");
-        new UserInfoInspector().start();
-        logger.info("Start user inspector thread success....");
         logger.info("Alarm process server successfully started.");
         while (true) {
             try {

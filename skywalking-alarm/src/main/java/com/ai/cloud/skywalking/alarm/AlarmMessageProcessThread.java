@@ -4,19 +4,22 @@ import com.ai.cloud.skywalking.alarm.conf.Config;
 import com.ai.cloud.skywalking.alarm.dao.AlarmMessageDao;
 import com.ai.cloud.skywalking.alarm.model.AlarmRule;
 import com.ai.cloud.skywalking.alarm.model.ProcessThreadStatus;
+import com.ai.cloud.skywalking.alarm.model.ProcessThreadValue;
 import com.ai.cloud.skywalking.alarm.model.UserInfo;
 import com.ai.cloud.skywalking.alarm.procesor.AlarmMessageProcessor;
 import com.ai.cloud.skywalking.alarm.util.ProcessUtil;
 import com.ai.cloud.skywalking.alarm.util.ZKUtil;
+import com.google.gson.Gson;
 import org.apache.curator.framework.api.CuratorWatcher;
-import org.apache.curator.framework.recipes.locks.InterProcessMutex;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class AlarmMessageProcessThread extends Thread {
@@ -25,9 +28,10 @@ public class AlarmMessageProcessThread extends Thread {
 
     private String threadId;
     private ProcessThreadStatus status;
-    private String[] processUserIds;
-    private List<InterProcessMutex> usersLocks;
+    private List<String> processUserIds;
     private CoordinatorStatusWatcher watcher = new CoordinatorStatusWatcher();
+    private Map<UserInfo, List<AlarmRule>> cacheRules = new HashMap<UserInfo, List<AlarmRule>>();
+    private static AlarmMessageProcessor processor = new AlarmMessageProcessor();
 
     public AlarmMessageProcessThread() {
         // 初始化生成ThreadId
@@ -39,96 +43,85 @@ public class AlarmMessageProcessThread extends Thread {
         //注册服务(默认为空闲状态)
         registerProcessThread(threadId, ProcessThreadStatus.FREE);
         while (true) {
-            //检查是否为忙碌状态
-            if (status == ProcessThreadStatus.BUSY) {
-                //处理告警信息
-                for (String userId : processUserIds) {
-                    List<AlarmRule> rules = AlarmMessageDao.selectAlarmRulesByUserId(userId);
-                    UserInfo userInfo = AlarmMessageDao.selectUser(userId);
-                    for (AlarmRule rule : rules) {
-                        new AlarmMessageProcessor().process(userInfo, rule);
+            try {
+                //检查是否为忙碌状态
+                if (status == ProcessThreadStatus.BUSY) {
+                    //处理告警信息
+                    for (Map.Entry<UserInfo, List<AlarmRule>> entry : cacheRules.entrySet()) {
+                        for (AlarmRule rule : entry.getValue()) {
+                            processor.process(entry.getKey(), rule);
+//                            System.out.println(currentThread().getName() + " @~ " + entry.getKey().getUserId() + " @~ " + rule.getRuleId());
+                        }
                     }
                 }
-            }
 
-            //检查是否分配线程的状态(重新分配状态)
-            if (status == ProcessThreadStatus.REDISTRIBUTING) {
-                // 释放用户锁
-                releaseUserLock();
-                // 修改自身状态：(空闲状态)
-                status = ProcessThreadStatus.FREE;
-                ProcessUtil.changeProcessThreadStatus(threadId, ProcessThreadStatus.FREE);
-            }
+                //检查是否分配线程的状态(重新分配状态)
+                if (status == ProcessThreadStatus.REDISTRIBUTING) {
+                    // 修改自身状态：(空闲状态)
+                    status = ProcessThreadStatus.FREE;
+                    ProcessUtil.changeProcessThreadStatus(threadId, ProcessThreadStatus.FREE);
 
-            //检查分配线程的状态(分配完成状态)
-            if (status == ProcessThreadStatus.REDISTRIBUTE_SUCCESS) {
-                // 获取待处理的用户
-                processUserIds = acquireProcessedUsers();
-                // 给用户加锁
-                lockUser(processUserIds);
-                // 修改自身状态 ：(忙碌状态)
-                status = ProcessThreadStatus.BUSY;
-                ProcessUtil.changeProcessThreadStatus(threadId, ProcessThreadStatus.BUSY);
-            }
+                    //清空缓存数据
+                    clearCacheProcessUser(cacheRules);
+                }
 
-            try {
-                Thread.sleep(Config.ProcessThread.THREAD_WAIT_INTERVAL);
-            } catch (InterruptedException e) {
-                logger.error("Sleep failed.", e);
+                //检查分配线程的状态(分配完成状态)
+                if (status == ProcessThreadStatus.REDISTRIBUTE_SUCCESS) {
+                    // 获取待处理的用户
+                    processUserIds = acquireProcessedUsers();
+
+                    // 缓存数据
+                    cacheProcessUser(processUserIds);
+
+                    // 修改自身状态 ：(忙碌状态)
+                    status = ProcessThreadStatus.BUSY;
+                    ProcessUtil.changeProcessThreadStatus(threadId, ProcessThreadStatus.BUSY);
+                }
+
+                try {
+                    Thread.sleep(Config.ProcessThread.THREAD_WAIT_INTERVAL);
+                } catch (InterruptedException e) {
+                    logger.error("Sleep failed.", e);
+                }
+            } catch (Exception e) {
+                logger.error("Failed to process data.", e);
             }
         }
     }
 
-    private String[] acquireProcessedUsers() {
+    private void clearCacheProcessUser(Map<UserInfo, List<AlarmRule>> cacheRules) {
+        cacheRules.clear();
+    }
+
+    private void cacheProcessUser(List<String> processUserIds) {
+        // TODO 需要重新获取
+        UserInfo tmpUserInfo;
+        List<AlarmRule> alarmRules;
+        for (String userId : processUserIds) {
+            tmpUserInfo = AlarmMessageDao.selectUser(userId);
+            if (tmpUserInfo == null) {
+                continue;
+            }
+            alarmRules = AlarmMessageDao.selectAlarmRulesByUserId(userId);
+            cacheRules.put(tmpUserInfo, alarmRules);
+        }
+    }
+
+    private List<String> acquireProcessedUsers() {
         String path = Config.ZKPath.REGISTER_SERVER_PATH + "/" + threadId;
         String value = ZKUtil.getPathData(path);
-        String[] valueArrays = value.split("@");
-        String toBeProcessUserId;
-        if (valueArrays.length < 2) {
-            toBeProcessUserId = "";
-        } else {
-            toBeProcessUserId = valueArrays[1];
-        }
-
-        return toBeProcessUserId.split(";");
-    }
-
-    private void lockUser(String[] userIds) {
-        usersLocks = new ArrayList<InterProcessMutex>();
-        String userLockPath = Config.ZKPath.USER_REGISTER_LOCK_PATH + "/";
-        InterProcessMutex tmpLock;
-        for (String userId : userIds) {
-            tmpLock = ZKUtil.getLock(userLockPath + userId);
-            try {
-                tmpLock.acquire();
-            } catch (Exception e) {
-                logger.error("Failed to lock user[{}]", userId, e);
-                //TODO 锁失败，该怎么处理？
-            }
-            usersLocks.add(tmpLock);
-        }
-    }
-
-    private void releaseUserLock() {
-        for (InterProcessMutex lock : usersLocks) {
-            try {
-                lock.release();
-            } catch (Exception e) {
-                //
-                logger.error("Failed to release lock user.", e);
-                //TODO 释放锁，该怎么处理。
-            }
-        }
-
-        usersLocks.clear();
+        ProcessThreadValue processThreadValue = new Gson().fromJson(value, ProcessThreadValue.class);
+        return processThreadValue.getDealUserIds();
     }
 
     private void registerProcessThread(String threadId, ProcessThreadStatus status) {
         try {
             String registerPath = Config.ZKPath.REGISTER_SERVER_PATH + "/" + threadId;
-            String registerValue = status + "@ ";
+            ProcessThreadValue initValue = new ProcessThreadValue();
+            initValue.setStatus(status.getValue());
             ZKUtil.getZkClient().create().creatingParentsIfNeeded()
-                    .forPath(registerPath, registerValue.getBytes());
+                    .withMode(CreateMode.EPHEMERAL).forPath
+                    (registerPath, new Gson().toJson(initValue).getBytes());
 
             this.status = status;
 
@@ -144,11 +137,16 @@ public class AlarmMessageProcessThread extends Thread {
         @Override
         public void process(WatchedEvent watchedEvent) {
             if (watchedEvent.getType() == Watcher.Event.EventType.NodeDataChanged) {
-                String value = ZKUtil.getPathData(Config.ZKPath.COORDINATOR_STATUS_PATH);
-                status = ProcessThreadStatus.convert(value);
+                String value = ZKUtil.getPathData(Config.ZKPath.REGISTER_SERVER_PATH + "/" + threadId);
+                ProcessThreadValue processThreadValue = new Gson().fromJson(value, ProcessThreadValue.class);
+                status = ProcessThreadStatus.convert(processThreadValue.getStatus());
             }
 
-            ZKUtil.getPathDataWithWatch(Config.ZKPath.REGISTER_SERVER_PATH + "/" + threadId, watcher);
+            try {
+                ZKUtil.getPathDataWithWatch(Config.ZKPath.REGISTER_SERVER_PATH + "/" + threadId, watcher);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 

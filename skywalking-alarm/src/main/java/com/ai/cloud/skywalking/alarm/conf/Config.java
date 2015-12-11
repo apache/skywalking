@@ -4,7 +4,7 @@ public class Config {
 
     public static class Server {
 
-        public static int PROCESS_THREAD_SIZE = 2;
+        public static int PROCESS_THREAD_SIZE = 1;
 
         public static long DAEMON_THREAD_WAIT_INTERVAL = 50000L;
 
@@ -12,6 +12,7 @@ public class Config {
 
     public static class ProcessThread {
         public static long THREAD_WAIT_INTERVAL = 60 * 1000L;
+        //public static long THREAD_WAIT_INTERVAL = 1 * 1000L;
     }
 
     public static class ZKPath {
@@ -26,11 +27,22 @@ public class Config {
 
         public static String NODE_PREFIX = "/skywalking";
 
-        public static String COORDINATOR_STATUS_PATH = "/alarm-server/coordinator/status";
+        public static String REGISTER_SERVER_PATH = NODE_PREFIX + "/alarm-server/register-servers";
 
-        public static String REGISTER_SERVER_PATH = "/alarm-server/register-servers";
+        public static String COORDINATOR_PATH = NODE_PREFIX + "/alarm-server/coordinator/lock";
 
-        public static String USER_REGISTER_LOCK_PATH = "/alarm-server/users";
+    }
+
+
+    public static class Coordinator {
+        // 单位:(秒)
+        public static long RETRY_GET_COORDINATOR_LOCK_INTERVAL = 5;
+
+        public static long RETRY_BECOME_COORDINATOR_WAIT_TIME = 10 * 1000L;
+        // 单位:(毫秒)
+        public static long CHECK_REDISTRIBUTE_INTERVAL = 5 * 1000;
+        // 单位:(毫秒)
+        public static long CHECK_ALL_PROCESS_THREAD_INTERVAL = 100L;
     }
 
     public static class DB {
