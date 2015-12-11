@@ -30,7 +30,7 @@ public class AlarmRuleMDAO implements IAlarmRuleMDAO {
 	@Override
 	public AlarmRuleMVO queryUserDefaultAlarmRule(AlarmRuleMVO rule) {
 		final AlarmRuleMVO ruleMVO = new AlarmRuleMVO();
-		String sql = "select rule_id,app_id,uid,config_args,is_global,todo_type,todo_content,create_time,sts,modify_time from alarm_rule a where a.uid = ? and a.is_global = '1' and a.sts='A'";
+		String sql = "select rule_id,app_id,uid,config_args,is_global,todo_type,create_time,sts,modify_time from alarm_rule a where a.uid = ? and a.is_global = '1' and a.sts='A'";
 		final Object[] params = new Object[] { rule.getUid() };
 		jdbcTemplate.query(sql, params, new RowCallbackHandler() {
 			@Override
@@ -41,7 +41,6 @@ public class AlarmRuleMDAO implements IAlarmRuleMDAO {
 				ruleMVO.setConfigArgs(rs.getString("config_args"));
 				ruleMVO.setIsGlobal(rs.getString("is_global"));
 				ruleMVO.setTodoType(rs.getString("todo_type"));
-				ruleMVO.setTodoContent(rs.getString("todo_content"));
 				ruleMVO.setCreateTime(rs.getTimestamp("create_time"));
 				ruleMVO.setSts(rs.getString("sts"));
 				ruleMVO.setModifyTime(rs.getTimestamp("modify_time"));
@@ -54,7 +53,7 @@ public class AlarmRuleMDAO implements IAlarmRuleMDAO {
 	@Override
 	public AlarmRuleMVO queryAppAlarmRule(AlarmRuleMVO rule) {
 		final AlarmRuleMVO ruleMVO = new AlarmRuleMVO();
-		String sql = "select rule_id,app_id,uid,config_args,is_global,todo_type,todo_content,create_time,sts,modify_time from alarm_rule a where a.uid = ? and app_id = ? and a.is_global = '0' and a.sts='A'";
+		String sql = "select rule_id,app_id,uid,config_args,is_global,todo_type,create_time,sts,modify_time from alarm_rule a where a.uid = ? and app_id = ? and a.is_global = '0' and a.sts='A'";
 		final Object[] params = new Object[] { rule.getUid(), rule.getAppId() };
 		jdbcTemplate.query(sql, params, new RowCallbackHandler() {
 			@Override
@@ -65,7 +64,6 @@ public class AlarmRuleMDAO implements IAlarmRuleMDAO {
 				ruleMVO.setConfigArgs(rs.getString("config_args"));
 				ruleMVO.setIsGlobal(rs.getString("is_global"));
 				ruleMVO.setTodoType(rs.getString("todo_type"));
-				ruleMVO.setTodoContent(rs.getString("todo_content"));
 				ruleMVO.setCreateTime(rs.getTimestamp("create_time"));
 				ruleMVO.setSts(rs.getString("sts"));
 				ruleMVO.setModifyTime(rs.getTimestamp("modify_time"));
@@ -77,7 +75,7 @@ public class AlarmRuleMDAO implements IAlarmRuleMDAO {
 
 	@Override
 	public AlarmRuleMVO createAlarmRule(final AlarmRuleMVO ruleMVO) {
-		final String sql = "insert into alarm_rule (app_id,uid,config_args,is_global,todo_type,todo_content,create_time,sts,modify_time) values (?,?,?,?,?,?,sysdate(),?,sysdate())";
+		final String sql = "insert into alarm_rule (app_id,uid,config_args,is_global,todo_type,create_time,sts,modify_time) values (?,?,?,?,?,sysdate(),?,sysdate())";
 		KeyHolder keyHolder = new GeneratedKeyHolder();
 
 		int count = jdbcTemplate.update(new PreparedStatementCreator() {
@@ -89,7 +87,6 @@ public class AlarmRuleMDAO implements IAlarmRuleMDAO {
 				pstmt.setString(++i, ruleMVO.getConfigArgs());
 				pstmt.setString(++i, ruleMVO.getIsGlobal());
 				pstmt.setString(++i, ruleMVO.getTodoType());
-				pstmt.setString(++i, ruleMVO.getTodoContent());
 				pstmt.setString(++i, ruleMVO.getSts());
 				return pstmt;
 			}
@@ -102,7 +99,7 @@ public class AlarmRuleMDAO implements IAlarmRuleMDAO {
 
 	@Override
 	public AlarmRuleMVO modifyAlarmRule(final AlarmRuleMVO ruleMVO) {
-		final String sql = "update alarm_rule set config_args = ?,todo_type = ?,todo_content = ? where rule_id = ?";
+		final String sql = "update alarm_rule set config_args = ?,todo_type = ? where rule_id = ?";
 
 		int count = jdbcTemplate.update(new PreparedStatementCreator() {
 			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
@@ -110,7 +107,6 @@ public class AlarmRuleMDAO implements IAlarmRuleMDAO {
 				int i = 0;
 				pstmt.setString(++i, ruleMVO.getConfigArgs());
 				pstmt.setString(++i, ruleMVO.getTodoType());
-				pstmt.setString(++i, ruleMVO.getTodoContent());
 				pstmt.setString(++i, ruleMVO.getRuleId());
 				return pstmt;
 			}

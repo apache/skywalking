@@ -73,5 +73,10 @@ public class Constants {
 	
 	public static final String IS_GLOBAL_FALG_0 = "0";
 	public static final String IS_GLOBAL_FALG_1 = "1";
+	
+	public static final String TODO_TYPE_0 = "0";
+	public static final String TODO_TYPE_1 = "1";
+	
+	public static final String MAIL_SPLIT_CHAR = ",";
 
 }

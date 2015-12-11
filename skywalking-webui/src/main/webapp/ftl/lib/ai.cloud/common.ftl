@@ -74,7 +74,7 @@ ${userInfo}
 	<div class="col-md-12">
 		<h5 style="color:black">
 			${traceId!}</br>
-			调度入口IP：${(valueList[0].address)!}，开始时间：${beginTime?number_to_datetime}，${(valueList?size)!}条调用记录，消耗总时长：${(endTime - beginTime)!'0'} ms.<a id="originLog" href="#">显示原文</a>
+			调度入口IP：${(valueList[0].address)!}，开始时间：${beginTime?number_to_datetime}，${(valueList?size)!}条调用记录，消耗总时长：${(endTime - beginTime)!'0'} ms。<a id="originLog" href="#">显示原文</a>
 		</h5>
 		<div id="tableDiv">
 		<table id="example-advanced">
