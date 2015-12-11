@@ -227,8 +227,6 @@ public class UserInfoCoordinator extends Thread {
             try {
                 ZKUtil.getChildrenWithWatcher(Config.ZKPath.REGISTER_SERVER_PATH, watcher);
             } catch (Exception e) {
-                //
-                e.printStackTrace();
                 if (lock != null && lock.isAcquiredInThisProcess()) {
                     try {
                         lock.release();
