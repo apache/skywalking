@@ -55,6 +55,10 @@ public class DataSenderFactoryWithBalance {
         // 根据配置的服务器集群的地址，来计算保持连接的Sender的数量
         maxKeepConnectingSenderSize = calculateMaxKeeperConnectingSenderSize(tmpInetSocketAddress
                 .size());
+        //最大连接消费线程小于保持连接的Sender的数量，就不需要保持那么多的保持连接的Sender的数量
+        if (maxKeepConnectingSenderSize > Config.Consumer.MAX_CONSUMER * Config.Buffer.POOL_SIZE) {
+            maxKeepConnectingSenderSize = Config.Consumer.MAX_CONSUMER * Config.Buffer.POOL_SIZE;
+        }
 
         // 初始化的发送程序
         int index = 0;
