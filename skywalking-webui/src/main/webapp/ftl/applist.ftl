@@ -91,6 +91,105 @@
 		    </div>
 		  </div>
 		</div>
+		<div class="form-horizontal" id="authInfo" style="display:none">
+		  <div class="form-group">
+		  	<label for="buriedpoint.printf" class="col-sm-4 control-label">是否打印数据：</label>
+		  	<div class="col-sm-4">
+				<select class="form-control" id="buriedpoint.printf" >
+				  <option value="true">是</option>
+				  <option selected="selected" value="false">否</option>
+				</select>
+			</div>
+		  </div>
+		  <div class="form-group">
+		    <label for="period" class="col-sm-4 control-label">埋点异常的最大长度(字节)：</label>
+		    <div class="col-sm-4">
+		      <input type="text" class="form-control" id="buriedpoint.max_exception_stack_length" placeholder="埋点异常的最大长度(字节)" value="4000">
+		    </div>
+		  </div>
+		  <div class="form-group">
+		    <label for="period" class="col-sm-4 control-label">业务字段的最大长度(字节)：</label>
+		    <div class="col-sm-4">
+		      <input type="text" class="form-control" id="buriedpoint.max_exception_stack_length" placeholder="业务字段的最大长度" value="300">
+		    </div>
+		  </div>
+		  <div class="form-group">
+		    <label for="period" class="col-sm-4 control-label">发送的最大长度(字节)：</label>
+		    <div class="col-sm-4">
+		      <input type="text" class="form-control" id="sender.max_send_length" placeholder="发送的最大长度" value="20000">
+		    </div>
+		  </div>
+		  <div class="form-group">
+		    <label for="period" class="col-sm-4 control-label">最大发送者的连接数阀比例(百分比)：</label>
+		    <div class="col-sm-4">
+		      <input type="text" class="form-control" id="sender.max_send_length" placeholder="最大发送者的连接数阀比例" value="100">
+		    </div>
+		  </div>
+		  <div class="form-group">
+		    <label for="period" class="col-sm-4 control-label">sender的等待周期(秒)：</label>
+		    <div class="col-sm-4">
+		      <input type="text" class="form-control" id="sender.retry_get_sender_wait_interval" placeholder="当没有Sender时,尝试获取sender的等待周期" value="2000">
+		    </div>
+		  </div>
+		  <div class="form-group">
+		  	<label for="sender.is_off" class="col-sm-4 control-label">是否开启发送消息：</label>
+		  	<div class="col-sm-4">
+				<select class="form-control" id="sender.is_off" >
+				  <option value="true">是</option>
+				  <option selected="selected" value="false">否</option>
+				</select>
+			</div>
+		  </div>
+		  <div class="form-group">
+		    <label for="mailTemp" class="col-sm-4 control-label">发送服务端配置(,分隔)：</label>
+		    <div class="col-sm-4">
+		      <textarea class="form-control" id="sender.servers_addr" rows="4" placeholder="发送服务端配置">127.0.0.1:34000</textarea>
+		    </div>
+		  </div>
+		  <div class="form-group">
+		    <label for="period" class="col-sm-4 control-label">最大消费线程数：</label>
+		    <div class="col-sm-4">
+		      <input type="text" class="form-control" id="consumer.max_consumer" placeholder="最大消费线程数" value="2">
+		    </div>
+		  </div>
+		  <div class="form-group">
+		    <label for="period" class="col-sm-4 control-label">消费者最大等待时间(秒)：</label>
+		    <div class="col-sm-4">
+		      <input type="text" class="form-control" id="consumer.max_wait_time" placeholder="消费者最大等待时间" value="5">
+		    </div>
+		  </div>
+		  <div class="form-group">
+		    <label for="period" class="col-sm-4 control-label">发送失败等待时间(秒)：</label>
+		    <div class="col-sm-4">
+		      <input type="text" class="form-control" id="consumer.consumer_fail_retry_wait_interval" placeholder="发送失败等待时间" value="50">
+		    </div>
+		  </div>
+		  <div class="form-group">
+		    <label for="period" class="col-sm-4 control-label">每个Buffer的最大个数：</label>
+		    <div class="col-sm-4">
+		      <input type="text" class="form-control" id="buffer.buffer_max_size" placeholder="每个Buffer的最大个数" value="18000">
+		    </div>
+		  </div>
+		  <div class="form-group">
+		    <label for="period" class="col-sm-4 control-label">Buffer池的最大长度：</label>
+		    <div class="col-sm-4">
+		      <input type="text" class="form-control" id="buffer.pool_size" placeholder="Buffer池的最大长度" value="5">
+		    </div>
+		  </div>
+		  <div class="form-group">
+		    <label for="period" class="col-sm-4 control-label">发送检查线程检查周期(秒)：</label>
+		    <div class="col-sm-4">
+		      <input type="text" class="form-control" id="senderchecker.check_polling_time" placeholder="发送检查线程检查周期" value="200">
+		    </div>
+		  </div>
+		  <div class="form-group">
+		    <div class="col-sm-offset-4 col-sm-4">
+		      <input type='hidden' id="authAppCode">
+		      <button id="export" class="btn btn-lg btn-primary " type="button">生成授权文件</button>
+			  <button id="cannelExport" class="btn btn-lg btn-primary " type="button">取消生成</button>
+		    </div>
+		  </div>
+	    </div>
 		<table class="table table-condensed">
 			<caption>
 			  	<button id="crtApp" type="button" class="btn btn-warning" href="#">创建应用</button>
@@ -114,7 +213,7 @@
 	          <td>${appInfo.appCode!}</td>
 	          <td>
 	          	<button name="conf" appId="${appInfo.appId!}" appCode="${appInfo.appCode!}" type="button" class="btn btn-default btn-xs">配置告警规则</button>
-	          	<button name="export" appId="${appInfo.appId!}" type="button" class="btn btn-default btn-xs">生成授权</button>
+	          	<button name="exportAuthInfo" appId="${appInfo.appId!}" appCode="${appInfo.appCode!}" type="button" class="btn btn-default btn-xs">生成授权</button>
 	          	<button name="del" appId="${appInfo.appId!}" type="button" class="btn btn-default btn-xs">删除</button>
 	          	</td>
 	        </tr>
@@ -123,6 +222,7 @@
 </#if> 
 	    </table>
 	</div>
+	<iframe id="authFiledownLoad" style="width:0px;height:0px;display:none"></iframe>
 	<!-- script references -->
 	<@common.importJavaScript />
 	<script type="text/javascript">
@@ -431,6 +531,30 @@
 					});
 				}
 			});
+			
+			$("button[name='export']").each(function(){
+				$(this).bind("click",function(){
+					var downLoadFrame = document.getElementById('authFiledownLoad');
+					downLoadFrame.src = '${base}/exportAuth/test';
+				});
+			});
+			
+			$("button[name='exportAuthInfo']").each(function(){
+				$(this).bind("click",function(){
+					$("#authInfo").show();
+					$("#authAppCode").val($(this).attr("appCode"));
+				});
+			});
+			
+			$("#export").bind("click",function(){
+				var downLoadFrame = document.getElementById('authFiledownLoad');
+				downLoadFrame.src = '${base}/exportAuth/test';
+			});
+			
+			$("#cannelExport").bind("click",function(){
+				$("#authInfo").hide();
+			});
+			
 		});
 	</script>
 </body>
