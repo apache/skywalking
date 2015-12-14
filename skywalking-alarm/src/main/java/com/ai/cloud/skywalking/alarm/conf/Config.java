@@ -55,6 +55,10 @@ public class Config {
 
         public static String URL = "jdbc:mysql://10.1.228.200:31306/test";
 
+        public static int MAX_IDLE = 1;
+
+        public static int MAX_POOL_SIZE = 20;
+
     }
 
     public static class Alarm {
