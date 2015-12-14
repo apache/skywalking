@@ -11,7 +11,8 @@ public class Config {
     }
 
     public static class ProcessThread {
-        public static long THREAD_WAIT_INTERVAL = 60 * 1000L;
+        //        public static long THREAD_WAIT_INTERVAL = 60 * 1000L;
+        public static long THREAD_WAIT_INTERVAL = 5 * 1000L;
     }
 
     public static class ZKPath {

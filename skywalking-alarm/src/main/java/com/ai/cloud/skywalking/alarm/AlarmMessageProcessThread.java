@@ -56,6 +56,7 @@ public class AlarmMessageProcessThread extends Thread {
 
                 //检查是否分配线程的状态(重新分配状态)
                 if (status == ProcessThreadStatus.REDISTRIBUTING) {
+                    logger.info("The current thread[{}] state will change for the idle state", currentThread().getName());
                     // 修改自身状态：(空闲状态)
                     status = ProcessThreadStatus.FREE;
                     ProcessUtil.changeProcessThreadStatus(threadId, ProcessThreadStatus.FREE);
@@ -66,6 +67,7 @@ public class AlarmMessageProcessThread extends Thread {
 
                 //检查分配线程的状态(分配完成状态)
                 if (status == ProcessThreadStatus.REDISTRIBUTE_SUCCESS) {
+                    logger.info("The current thread[{}] state will change for the busy", currentThread().getName());
                     // 获取待处理的用户
                     processUserIds = acquireProcessedUsers();
 
@@ -106,7 +108,7 @@ public class AlarmMessageProcessThread extends Thread {
         }
     }
 
-    private List<String> acquireProcessedUsers() {
+    private List<String> acquireProcessedUsers() throws Exception {
         String path = Config.ZKPath.REGISTER_SERVER_PATH + "/" + threadId;
         String value = ZKUtil.getPathData(path);
         ProcessThreadValue processThreadValue = new Gson().fromJson(value, ProcessThreadValue.class);
@@ -134,7 +136,7 @@ public class AlarmMessageProcessThread extends Thread {
     private class CoordinatorStatusWatcher implements CuratorWatcher {
 
         @Override
-        public void process(WatchedEvent watchedEvent) {
+        public void process(WatchedEvent watchedEvent) throws Exception {
             if (watchedEvent.getType() == Watcher.Event.EventType.NodeDataChanged) {
                 String value = ZKUtil.getPathData(Config.ZKPath.REGISTER_SERVER_PATH + "/" + threadId);
                 ProcessThreadValue processThreadValue = new Gson().fromJson(value, ProcessThreadValue.class);
@@ -144,7 +146,7 @@ public class AlarmMessageProcessThread extends Thread {
             try {
                 ZKUtil.getPathDataWithWatch(Config.ZKPath.REGISTER_SERVER_PATH + "/" + threadId, watcher);
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error("Failed to Watcher path [{}]", e);
             }
         }
     }

@@ -11,7 +11,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.zookeeper.CreateMode;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ZKUtil {
@@ -42,34 +41,20 @@ public class ZKUtil {
     }
 
 
-    public static String getPathData(String path) {
-        try {
-            return new String(client.getData().forPath(path));
-        } catch (Exception e) {
-            logger.error("Failed to get the value of path[{}]", path, e);
-        }
-        return "";
+    public static String getPathData(String path) throws Exception {
+        return new String(client.getData().forPath(path));
     }
 
     public static String getPathDataWithWatch(String path, CuratorWatcher watcher) throws Exception {
         return new String(client.getData().usingWatcher(watcher).forPath(path));
     }
 
-    public static void setPathData(String path, String value) {
-        try {
-            client.setData().forPath(path, value.getBytes());
-        } catch (Exception e) {
-            logger.error("Failed to set date of path[{{}]", path, e);
-        }
+    public static void setPathData(String path, String value) throws Exception {
+        client.setData().forPath(path, value.getBytes());
     }
 
-    public static List<String> getChildren(String registerServerPath) {
-        try {
-            return client.getChildren().forPath(registerServerPath);
-        } catch (Exception e) {
-            logger.error("Failed to get child nodes of path[{{}]", registerServerPath, e);
-        }
-        return new ArrayList<String>();
+    public static List<String> getChildren(String registerServerPath) throws Exception {
+        return client.getChildren().forPath(registerServerPath);
     }
 
     public static List<String> getChildrenWithWatcher(String registerServerPath, CuratorWatcher watcher) throws Exception {

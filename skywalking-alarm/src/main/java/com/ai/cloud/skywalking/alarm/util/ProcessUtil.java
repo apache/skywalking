@@ -7,7 +7,7 @@ import com.google.gson.Gson;
 
 public class ProcessUtil {
 
-    public static void changeProcessThreadStatus(String threadId, ProcessThreadStatus status) {
+    public static void changeProcessThreadStatus(String threadId, ProcessThreadStatus status) throws Exception {
         String path = Config.ZKPath.REGISTER_SERVER_PATH + "/" + threadId;
         String value = ZKUtil.getPathData(path);
         ProcessThreadValue newValue = new Gson().fromJson(value, ProcessThreadValue.class);

@@ -86,8 +86,8 @@ public class AlarmMessageDao {
                     continue;
                 } else {
                     tmpAlarmRule = new AlarmRule(rs.getString("uid"), rs.getString("rule_id"));
-                    globalRules.setConfigArgs(rs.getString("config_args"));
-                    globalRules.setTodoType(rs.getString("todo_type"));
+                    tmpAlarmRule.setConfigArgs(rs.getString("config_args"));
+                    tmpAlarmRule.setTodoType(rs.getString("todo_type"));
                     // 自定义规则的Application
                     tmpApplication = new ApplicationInfo();
                     tmpApplication.setAppId(rs.getString("app_id"));
