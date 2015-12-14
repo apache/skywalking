@@ -140,8 +140,16 @@ public class DataSenderFactoryWithBalance {
                     if (usingDataSender.size() >= maxKeepConnectingSenderSize) {
                         DataSender toBeSwitchSender;
                         DataSender tmpSender;
-                        int toBeSwitchIndex = ThreadLocalRandom.current()
-                                .nextInt(0, usingDataSender.size() - 1);
+
+                        int toBeSwitchIndex;
+
+                        if (usingDataSender.size() - 1 > 0) {
+                            toBeSwitchIndex = ThreadLocalRandom.current()
+                                    .nextInt(0, usingDataSender.size() - 1);
+                        } else {
+                            toBeSwitchIndex = 0;
+                        }
+
                         toBeSwitchSender = usingDataSender.get(toBeSwitchIndex);
                         tmpSender = findReadySender();
                         if (tmpSender != null) {
