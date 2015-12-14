@@ -11,7 +11,7 @@ import java.sql.SQLException;
 public class SystemConfigDao {
     private static Logger logger = LogManager.getLogger(AlarmMessageDao.class);
 
-    public static String getMailSenderInfo(String configId) throws SQLException {
+    public static String getSystemConfig(String configId) throws SQLException {
         PreparedStatement ps = DBConnectUtil.getConnection().prepareStatement(
                 "SELECT system_config.conf_value FROM system_config WHERE system_config.sts = " +
                         "? AND system_config.config_id = ?");

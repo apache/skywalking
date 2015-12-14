@@ -142,7 +142,7 @@ public class UserInfoCoordinator extends Thread {
 	}
 
 	private List<String> allocationUser(List<String> registeredThreads,
-			List<String> userIds) {
+			List<String> userIds) throws Exception {
 		List<String> realRedistributeThread = new ArrayList<String>();
 		Set<String> sortThreadIds = new HashSet<String>(registeredThreads);
 		int step = (int) Math.ceil(userIds.size() * 1.0 / sortThreadIds.size());
@@ -181,12 +181,12 @@ public class UserInfoCoordinator extends Thread {
 		return realRedistributeThread;
 	}
 
-	private List<String> acquireAllRegisteredThread() {
+	private List<String> acquireAllRegisteredThread() throws Exception {
 		return ZKUtil.getChildren(Config.ZKPath.REGISTER_SERVER_PATH);
 	}
 
 	private boolean checkAllProcessStatus(List<String> registeredThreadIds,
-			ProcessThreadStatus status) {
+			ProcessThreadStatus status) throws Exception {
 		String registerPathPrefix = Config.ZKPath.REGISTER_SERVER_PATH + "/";
 		for (String threadId : registeredThreadIds) {
 
@@ -202,7 +202,7 @@ public class UserInfoCoordinator extends Thread {
 	}
 
 	private ProcessThreadStatus getProcessThreadStatus(
-			String registerPathPrefix, String threadId) {
+			String registerPathPrefix, String threadId) throws Exception {
 		if (!ZKUtil.exists(Config.ZKPath.REGISTER_SERVER_PATH + "/" + threadId))
 			return ProcessThreadStatus.FREE;
 		String value = ZKUtil.getPathData(registerPathPrefix + threadId);
@@ -214,7 +214,7 @@ public class UserInfoCoordinator extends Thread {
 	}
 
 	private void changeStatus(List<String> registeredThreadIds,
-			ProcessThreadStatus status) {
+			ProcessThreadStatus status) throws Exception {
 		for (String threadId : registeredThreadIds) {
 			ProcessUtil.changeProcessThreadStatus(threadId, status);
 		}

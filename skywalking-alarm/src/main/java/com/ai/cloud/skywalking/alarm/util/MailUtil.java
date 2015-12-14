@@ -23,7 +23,7 @@ public class MailUtil {
 
     static {
         try {
-            String senderInfo = SystemConfigDao.getMailSenderInfo(Config.MailSenderInfo.configId);
+            String senderInfo = SystemConfigDao.getSystemConfig(Config.MailSenderInfo.configId);
             Properties prop = new Gson().fromJson(senderInfo, Properties.class);
             session = Session.getInstance(prop);
             ts = session.getTransport();

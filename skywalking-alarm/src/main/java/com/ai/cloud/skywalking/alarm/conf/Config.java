@@ -73,4 +73,8 @@ public class Config {
     public static class MailSenderInfo {
         public static String configId = "1000";
     }
+
+    public static class TemplateInfo{
+        public static String CONFIG_ID = "1001";
+    }
 }

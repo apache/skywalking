@@ -1,12 +1,12 @@
 package com.ai.cloud.skywalking.alarm.procesor;
 
-import com.ai.cloud.skywalking.alarm.dao.AlarmMessageDao;
 import com.ai.cloud.skywalking.alarm.model.AlarmRule;
 import com.ai.cloud.skywalking.alarm.model.ApplicationInfo;
 import com.ai.cloud.skywalking.alarm.model.MailInfo;
 import com.ai.cloud.skywalking.alarm.model.UserInfo;
 import com.ai.cloud.skywalking.alarm.util.MailUtil;
 import com.ai.cloud.skywalking.alarm.util.RedisUtil;
+import com.ai.cloud.skywalking.alarm.util.TemplateConfigurationUtil;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -18,6 +18,7 @@ import redis.clients.jedis.Jedis;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -38,9 +39,9 @@ public class AlarmMessageProcessor {
                 for (int period = 0; period < warningTimeWindowSize; period++) {
                     String alarmKey = userInfo.getUserId()
                             + "-"
-                            + applicationInfo.getAppCode()
+                            + applicationInfo.getAppId()
                             + "-"
-                            + (currentFireMinuteTime - period);
+                            + (currentFireMinuteTime - period - 1);
 
                     warningMessageKeys.add(alarmKey);
                     warningTracingIds.addAll(getAlarmMessages(alarmKey));
@@ -50,6 +51,8 @@ public class AlarmMessageProcessor {
             // 发送告警数据
             if (warningTracingIds.size() > 0) {
                 if ("0".equals(rule.getTodoType())) {
+                    logger.info("A total of {} alarm information needs to be sent {}", warningTracingIds.size(),
+                            rule.getConfigArgsDescriber().getMailInfo().getMailTo());
                     // 发送邮件
                     String subjects = generateSubject(warningTracingIds.size(),
                             rule.getPreviousFireTimeM(), currentFireMinuteTime);
@@ -60,8 +63,6 @@ public class AlarmMessageProcessor {
                             rule.getPreviousFireTimeM() * 10000 * 6)));
                     parameter.put("endDate", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(
                             currentFireMinuteTime * 10000 * 6)));
-                    //TODO portalAddr需要初始化
-                    parameter.put("portalAddr", "http://127.0.0.1:8080/skywalking-webui/");
                     String mailContext = generateContent(rule
                             .getConfigArgsDescriber().getMailInfo()
                             .getMailTemp(), parameter);
@@ -135,11 +136,9 @@ public class AlarmMessageProcessor {
     }
 
     private String generateContent(String templateStr, Map parameter) {
-        Configuration cfg = new Configuration(new Version("2.3.23"));
-        cfg.setDefaultEncoding("UTF-8");
         Template t = null;
         try {
-            t = new Template(null, new StringReader(templateStr), cfg);
+            t = new Template(null, new StringReader(templateStr), TemplateConfigurationUtil.getConfiguration());
             StringWriter out = new StringWriter();
             t.process(parameter, out);
             return out.getBuffer().toString();
@@ -147,18 +146,16 @@ public class AlarmMessageProcessor {
             logger.error("Template illegal.", e);
         } catch (TemplateException e) {
             logger.error("Failed to generate content.", e);
+        } catch (SQLException e) {
+            logger.error("Failed to find template config");
         }
 
         return "";
     }
 
-    public static void main(String[] args) throws InterruptedException {
-        UserInfo userInfo = new UserInfo("27");
-        userInfo.setUserName("123");
-        List<AlarmRule> rules = AlarmMessageDao.selectAlarmRulesByUserId(userInfo.getUserId());
-        while (true) {
-            new AlarmMessageProcessor().process(userInfo, rules.get(0));
-            Thread.sleep(60 * 1000L);
-        }
+    public static void main(String[] args) {
+        System.out.println(System.currentTimeMillis() / (10000 * 6));
+        AlarmMessageProcessor processor = new AlarmMessageProcessor();
+        processor.getAlarmMessages("27-order-application-24167725");
     }
 }
