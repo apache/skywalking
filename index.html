@@ -28,11 +28,13 @@
 <h3>
 <a id="为什么需要sky-walking" class="anchor" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81sky-walking" aria-hidden="true"><span class="octicon octicon-link"></span></a>为什么需要Sky Walking?</h3>
 <p><img src="images/classicScene.jpeg"/></p>
-<p>目前主流的应用系统或者互联网系统，都是由各种不同职责的系统构成的大规模集群(如上图所示)，通过分布式调用（rest、webservice、dubbo、消息等）的模式，支持前台系统。系统间关系复杂，无法预先设计与规划。调用链路繁多，通过日志分析难度很大。<br/>
+<p>目前主流的应用系统或者互联网系统，都是由各种不同职责的系统构成的大规模集群(如上图所示)，通过分布式调用（rest、webservice、dubbo、dubbox、消息等）的模式，支持前台系统。系统间关系复杂，无法预先设计与规划。调用链路繁多，通过日志分析难度很大。<br/>
 <br/>
 分布式系统的开发者和维护人员，希望在系统出现业务错误时，得到邮件通知，并能从全局角度追踪调用关系，而不用在庞大的分布式日志中，寻找关联关系和错误原因。<br/>
 <br/>
 从Google发表自己的Drapper分布式追踪系统的论文发表以来，wiki、淘宝、京东等各家国内外大型互联网公司，都研发了自己的全链路追踪系统。可见此系统在离散的分布式集群中的重要作用。</p>
+<p>
+另外，针对非分布式应用，应用的性能调优也是开发团队头疼问题，全链路监控可以针对应用的各种本地或远程调用，为提高执行效率提供依据。</p>
 
 <h3>
 <a id="sky-walking支持追踪哪些调用" class="anchor" href="#sky-walking%E6%94%AF%E6%8C%81%E8%BF%BD%E8%B8%AA%E5%93%AA%E4%BA%9B%E8%B0%83%E7%94%A8" aria-hidden="true"><span class="octicon octicon-link"></span></a>Sky Walking支持追踪哪些调用?</h3>
