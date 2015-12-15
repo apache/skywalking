@@ -1,7 +1,7 @@
 #skyWalking用户ID
-skywalking.user_id=123
+skywalking.user_id=1
 #skyWalking应用ID
-skywalking.application_id=order-application
+skywalking.application_code=order-application
 
 #是否打印数据
 buriedpoint.printf=false
@@ -19,7 +19,7 @@ sender.retry_get_sender_wait_interval=2000
 #是否开启发送消息
 sender.is_off=false
 #发送服务端配置
-sender.servers_addr=127.0.0.1:34000
+sender.servers_addr=10.1.235.197:34000;10.1.235.197:35000
 
 #最大消费线程数
 consumer.max_consumer=2
