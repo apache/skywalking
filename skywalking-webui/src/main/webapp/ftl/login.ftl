@@ -51,7 +51,7 @@
 						console.log(data);
 						var result = data.result;
 						if(result == 'OK'){
-							parent.location.reload();
+							top.location.href='${base}';
 						}else{
 							alert(data.msg);
 						}
