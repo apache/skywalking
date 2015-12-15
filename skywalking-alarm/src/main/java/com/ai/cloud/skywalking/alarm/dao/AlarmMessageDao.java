@@ -131,23 +131,4 @@ public class AlarmMessageDao {
         }
         return rules;
     }
-
-    public static String selectAppCodeByAppId(String appId) throws SQLException {
-        Connection connection = DBConnectUtil.getConnection();
-        try {
-            PreparedStatement ps =
-                    connection.prepareStatement("SELECT app_code FROM application_info WHERE sts = ? AND  application_info.app_id = ?");
-            ps.setString(1, "A");
-            ps.setString(2, appId);
-            ResultSet rs = ps.executeQuery();
-            rs.next();
-            return rs.getString("app_code");
-        } catch (SQLException e) {
-            throw e;
-        } finally {
-            if (connection != null) {
-                connection.close();
-            }
-        }
-    }
 }

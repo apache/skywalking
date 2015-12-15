@@ -144,15 +144,4 @@ public class AlarmMessageProcessor {
     }
 
     private static Map<String, String> idCodeMapper = new ConcurrentHashMap<String, String>();
-
-    public static String convertAppId2AppCode(String appId) throws SQLException {
-        String resultCode = idCodeMapper.get(appId);
-        if (resultCode == null) {
-            resultCode = AlarmMessageDao.selectAppCodeByAppId(appId);
-
-            idCodeMapper.put(appId, resultCode);
-        }
-
-        return idCodeMapper.get(appId);
-    }
 }
