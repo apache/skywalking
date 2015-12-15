@@ -47,7 +47,7 @@ public class MailUtil {
             message.addRecipients(Message.RecipientType.TO, recipientAccountArray);
 
             InternetAddress[] ccAccountArray = new InternetAddress[ccList.length];
-            for (int i = 0; i < recipientAccounts.length; i++) {
+            for (int i = 0; i < ccList.length; i++) {
                 ccAccountArray[i] = new InternetAddress(ccList[i]);
             }
             message.addRecipients(Message.RecipientType.CC, ccAccountArray);

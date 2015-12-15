@@ -17,6 +17,7 @@ import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -94,8 +95,7 @@ public class AlarmMessageProcessThread extends Thread {
         cacheRules.clear();
     }
 
-    private void cacheProcessUser(List<String> processUserIds) {
-        // TODO 需要重新获取
+    private void cacheProcessUser(List<String> processUserIds) throws SQLException {
         UserInfo tmpUserInfo;
         List<AlarmRule> alarmRules;
         for (String userId : processUserIds) {

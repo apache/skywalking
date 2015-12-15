@@ -11,11 +11,12 @@ public class Config {
     }
 
     public static class ProcessThread {
-        //        public static long THREAD_WAIT_INTERVAL = 60 * 1000L;
-        public static long THREAD_WAIT_INTERVAL = 5 * 1000L;
+        public static long THREAD_WAIT_INTERVAL = 60 * 1000L;
+//        public static long THREAD_WAIT_INTERVAL = 5 * 1000L;
     }
 
     public static class ZKPath {
+
 
         public static String CONNECT_STR = "127.0.0.1:2181";
 
@@ -25,12 +26,11 @@ public class Config {
 
         public static int RETRY_TIMES = 3;
 
-        public static String NODE_PREFIX = "/skywalking";
+        public static String REGISTER_SERVER_PATH = "/skywalking/alarm-server/register-servers";
 
-        public static String REGISTER_SERVER_PATH = NODE_PREFIX + "/alarm-server/register-servers";
+        public static String COORDINATOR_PATH = "/skywalking/alarm-server/coordinator/lock";
 
-        public static String COORDINATOR_PATH = NODE_PREFIX + "/alarm-server/coordinator/lock";
-
+        public static String INSPECTOR_LOCK_PATH = "/skywalking/alarm-server/user-inspector/lock";
     }
 
 
@@ -59,7 +59,16 @@ public class Config {
 
         public static int MAX_POOL_SIZE = 20;
 
+        public static long CONNECT_TIMEOUT = 10000;
+
     }
+
+    public static class InspectThread {
+        public static long RETRY_GET_INSPECT_LOCK_INTERVAL = 10000;
+
+        public static long CHECK_USER_LIST_INTERVAL = 5 * 60 * 1000;
+    }
+
 
     public static class Alarm {
 
@@ -78,7 +87,7 @@ public class Config {
         public static String configId = "1000";
     }
 
-    public static class TemplateInfo{
+    public static class TemplateInfo {
         public static String CONFIG_ID = "1001";
     }
 }

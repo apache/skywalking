@@ -26,6 +26,7 @@ public class DBConnectUtil {
             config.addDataSourceProperty("prepStmtCacheSize", "250");
             config.setMinimumIdle(Config.DB.MAX_IDLE);
             config.setMaximumPoolSize(Config.DB.MAX_POOL_SIZE);
+            config.setConnectionTimeout(Config.DB.CONNECT_TIMEOUT);
             config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
             hikariDataSource = new HikariDataSource(config);
         }

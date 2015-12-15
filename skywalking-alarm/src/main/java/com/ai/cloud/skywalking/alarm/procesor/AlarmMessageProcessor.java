@@ -1,5 +1,6 @@
 package com.ai.cloud.skywalking.alarm.procesor;
 
+import com.ai.cloud.skywalking.alarm.dao.AlarmMessageDao;
 import com.ai.cloud.skywalking.alarm.model.AlarmRule;
 import com.ai.cloud.skywalking.alarm.model.ApplicationInfo;
 import com.ai.cloud.skywalking.alarm.model.MailInfo;
@@ -7,10 +8,8 @@ import com.ai.cloud.skywalking.alarm.model.UserInfo;
 import com.ai.cloud.skywalking.alarm.util.MailUtil;
 import com.ai.cloud.skywalking.alarm.util.RedisUtil;
 import com.ai.cloud.skywalking.alarm.util.TemplateConfigurationUtil;
-import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
-import freemarker.template.Version;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import redis.clients.jedis.Jedis;
@@ -21,13 +20,14 @@ import java.io.StringWriter;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class AlarmMessageProcessor {
 
     private static Logger logger = LogManager
             .getLogger(AlarmMessageProcessor.class);
 
-    public void process(UserInfo userInfo, AlarmRule rule) {
+    public void process(UserInfo userInfo, AlarmRule rule) throws TemplateException, IOException, SQLException {
         Set<String> warningTracingIds = new HashSet<String>();
         Set<String> warningMessageKeys = new HashSet<String>();
         long currentFireMinuteTime = System.currentTimeMillis() / (10000 * 6);
@@ -39,7 +39,7 @@ public class AlarmMessageProcessor {
                 for (int period = 0; period < warningTimeWindowSize; period++) {
                     String alarmKey = userInfo.getUserId()
                             + "-"
-                            + applicationInfo.getAppId()
+                            + applicationInfo.getAppCode()
                             + "-"
                             + (currentFireMinuteTime - period - 1);
 
@@ -135,27 +135,24 @@ public class AlarmMessageProcessor {
         return result.keySet();
     }
 
-    private String generateContent(String templateStr, Map parameter) {
+    private String generateContent(String templateStr, Map parameter) throws IOException, TemplateException, SQLException {
         Template t = null;
-        try {
-            t = new Template(null, new StringReader(templateStr), TemplateConfigurationUtil.getConfiguration());
-            StringWriter out = new StringWriter();
-            t.process(parameter, out);
-            return out.getBuffer().toString();
-        } catch (IOException e) {
-            logger.error("Template illegal.", e);
-        } catch (TemplateException e) {
-            logger.error("Failed to generate content.", e);
-        } catch (SQLException e) {
-            logger.error("Failed to find template config");
-        }
-
-        return "";
+        t = new Template(null, new StringReader(templateStr), TemplateConfigurationUtil.getConfiguration());
+        StringWriter out = new StringWriter();
+        t.process(parameter, out);
+        return out.getBuffer().toString();
     }
 
-    public static void main(String[] args) {
-        System.out.println(System.currentTimeMillis() / (10000 * 6));
-        AlarmMessageProcessor processor = new AlarmMessageProcessor();
-        processor.getAlarmMessages("27-order-application-24167725");
+    private static Map<String, String> idCodeMapper = new ConcurrentHashMap<String, String>();
+
+    public static String convertAppId2AppCode(String appId) throws SQLException {
+        String resultCode = idCodeMapper.get(appId);
+        if (resultCode == null) {
+            resultCode = AlarmMessageDao.selectAppCodeByAppId(appId);
+
+            idCodeMapper.put(appId, resultCode);
+        }
+
+        return idCodeMapper.get(appId);
     }
 }

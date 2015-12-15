@@ -24,7 +24,7 @@ public class UserInfoCoordinator extends Thread {
 
     private Logger logger = LogManager.getLogger(UserInfoCoordinator.class);
 
-    private boolean redistributing;
+    private static boolean redistributing;
     private RegisterServerWatcher watcher = new RegisterServerWatcher();
     private InterProcessMutex lock = new InterProcessMutex(
             ZKUtil.getZkClient(), Config.ZKPath.COORDINATOR_PATH);
@@ -157,7 +157,7 @@ public class UserInfoCoordinator extends Thread {
         for (String thread : sortThreadIds) {
             if (!ZKUtil.exists(Config.ZKPath.REGISTER_SERVER_PATH + "/"
                     + thread))
-                continue;
+                throw new RuntimeException("Process thread[" + thread + "] is not exists");
             String value = ZKUtil
                     .getPathData(Config.ZKPath.REGISTER_SERVER_PATH + "/"
                             + thread);
@@ -193,7 +193,7 @@ public class UserInfoCoordinator extends Thread {
 
             if (!ZKUtil.exists(Config.ZKPath.REGISTER_SERVER_PATH + "/"
                     + threadId))
-                continue;
+                throw new RuntimeException("Process thread[" + threadId + "] is not exists");
 
             if (getProcessThreadStatus(registerPathPrefix, threadId) != status) {
                 return false;
@@ -240,5 +240,9 @@ public class UserInfoCoordinator extends Thread {
         } catch (Exception e) {
             logger.error("Failed to set watcher for get children", e);
         }
+    }
+
+    public static void activateRedistribute() {
+        redistributing = true;
     }
 }
