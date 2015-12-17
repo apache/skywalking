@@ -22,7 +22,7 @@ $().ready(function() {
 			changeFrameUrl(baseUrl + "/showTraceLog/" + srchKey);
 		}
 	} else {
-		if(uid>0){
+		if(uid>=0){
 			changeFrameUrl(baseUrl + "/applist");
 		}
 		$("#srchKey").val("");
