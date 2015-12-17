@@ -1,7 +1,5 @@
 package com.ai.cloud.skywalking.util;
 
-import java.util.HashMap;
-import java.util.Random;
 import java.util.UUID;
 
 public final class TraceIdGenerator {
