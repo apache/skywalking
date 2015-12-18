@@ -111,7 +111,7 @@
                             <td>${logInfo.spanTypeName!'UNKNOWN'}</td>
                             <td>${logInfo.statusCodeName!'MISSING'}</td>
                             <td>
-                                <a href="#" data-toggle="tooltip" data-placement="bottom"
+                                <a href="#" name="detailInfo" data-toggle="tooltip" data-placement="bottom"
                                    title="${logInfo.viewPointId!}">${logInfo.viewPointIdSub!}</a>
                             </td>
                             <td>${logInfo.address!}</td>
@@ -250,6 +250,8 @@
                                 <div id="collapse${logInfo_index}" class="accordion-body collapse"
                                      style="height: 0px; ">
                                     <ul class="list-group">
+                                    	<li class="list-group-item" style="word-wrap:break-word">
+                                            <strong>服务/方法：</strong>${logInfo.viewPointId!''}</li>
                                         <li class="list-group-item">
                                             <strong>调用类型：</strong>${logInfo.spanTypeName!'UNKNOWN'}</li>
                                         <li class="list-group-item">
@@ -281,3 +283,24 @@
     </div>
 </div>
 </#macro>
+
+<#macro detailTraceLog>
+<div class="modal fade bs-example-modal-lg" id="detailLog" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" style="display: none;">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+        <h4 class="modal-title" id="myLargeModalLabel">日志详细信息</h4>
+      </div>
+      <div class="modal-body">
+      	<!-- form content -->
+        <form class="form-horizontal" id="detailContent">
+		  
+		</form>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div>
+</#macro>
+

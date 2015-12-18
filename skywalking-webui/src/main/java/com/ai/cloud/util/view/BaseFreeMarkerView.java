@@ -41,7 +41,7 @@ public class BaseFreeMarkerView extends FreeMarkerView {
 		}
 		String uid = (String) session.getAttribute("uid");
 		if(StringUtil.isBlank(uid)){
-			uid = "0";
+			uid = "-1";
 		}
 		String userName = (String) session.getAttribute("userName");
 		if(StringUtil.isBlank(userName)){

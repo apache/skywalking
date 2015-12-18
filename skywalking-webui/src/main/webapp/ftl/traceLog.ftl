@@ -12,10 +12,13 @@
   </head>
   <body>
   	
+  	<!-- show detailTraceLog -->
+    <@common.detailTraceLog />
+  	
   	<!-- show traceLogInfo -->
     <@common.dealTraceLog />
     
-    <!-- show traceLogInfo -->
+    <!-- show originLog -->
     <@common.importOriginLog />
 
     <!-- script references -->
@@ -52,6 +55,13 @@
 					var node = $(this).attr("data-tt-id");
 					$(this).css("color","red");
 				} 
+			});
+			
+			$("a[name='detailInfo']").each(function(index,ele){
+				$(this).bind("click",function(){
+					$("#detailContent").html($("#collapse"+index).html());
+					$("#detailLog").modal('show');
+				});
 			});
 			
     		$('#example-advanced').treetable('expandAll');
