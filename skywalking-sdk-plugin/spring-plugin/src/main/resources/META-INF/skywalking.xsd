@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<xsd:schema xmlns="http://code.alibabatech.com/schema/dubbo"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            targetNamespace="http://code.alibabatech.com/schema/dubbo">
+
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
+    <xsd:import namespace="http://www.springframework.org/schema/beans"/>
+    <xsd:import namespace="http://www.springframework.org/schema/tool"/>
+
+    <xsd:annotation>
+        <xsd:documentation><![CDATA[ Namespace support for the skywalking tracing class. ]]></xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexType name="tracingClassType">
+        <xsd:attribute name="name" type="xsd:string">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ The class name that need to tracing. ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+
+        <xsd:attribute name="method" type="xsd:wildcard">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ The method name that need to tracing. ]]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+    </xsd:complexType>
+
+    <xsd:complexType name="tracingPackageType">
+        <xsd:attribute name="name" type="xsd:string">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+    </xsd:complexType>
+
+    <xsd:element name="tracing-class" type="tracingClassType">
+        <xsd:annotation>
+            <xsd:documentation><![CDATA[ The service argument config ]]></xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:element name="tracing-package" type="tracingPackageType">
+        <xsd:annotation>
+            <xsd:documentation><![CDATA[ The service argument config ]]></xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:element name="tracing"/>
+</xsd:schema>
