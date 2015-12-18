@@ -1,49 +1,26 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<xsd:schema xmlns="http://code.alibabatech.com/schema/dubbo"
+<xsd:schema xmlns="http://cloud.asiainfo.com/schema/skywalking"
             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-            targetNamespace="http://code.alibabatech.com/schema/dubbo">
+            targetNamespace="http://cloud.asiainfo.com/schema/skywalking">
 
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
-    <xsd:import namespace="http://www.springframework.org/schema/beans"/>
-    <xsd:import namespace="http://www.springframework.org/schema/tool"/>
 
-    <xsd:annotation>
-        <xsd:documentation><![CDATA[ Namespace support for the skywalking tracing class. ]]></xsd:documentation>
-    </xsd:annotation>
-
-    <xsd:complexType name="tracingClassType">
-        <xsd:attribute name="name" type="xsd:string">
-            <xsd:annotation>
-                <xsd:documentation><![CDATA[ The class name that need to tracing. ]]></xsd:documentation>
-            </xsd:annotation>
-        </xsd:attribute>
-
-        <xsd:attribute name="method" type="xsd:wildcard">
-            <xsd:annotation>
-                <xsd:documentation><![CDATA[ The method name that need to tracing. ]]]></xsd:documentation>
-            </xsd:annotation>
-        </xsd:attribute>
-    </xsd:complexType>
-
-    <xsd:complexType name="tracingPackageType">
-        <xsd:attribute name="name" type="xsd:string">
-            <xsd:annotation>
-                <xsd:documentation><![CDATA[]]></xsd:documentation>
-            </xsd:annotation>
-        </xsd:attribute>
-    </xsd:complexType>
-
-    <xsd:element name="tracing-class" type="tracingClassType">
-        <xsd:annotation>
-            <xsd:documentation><![CDATA[ The service argument config ]]></xsd:documentation>
-        </xsd:annotation>
+    <xsd:element name="tracing-bean">
+        <xsd:complexType>
+            <xsd:attribute name="method" type="xsd:string" use="required"/>
+            <xsd:attribute name="packageName" type="xsd:string" use="required"/>
+            <xsd:attribute name="className" type="xsd:string" use="optional" default="*"/>
+        </xsd:complexType>
     </xsd:element>
 
-    <xsd:element name="tracing-package" type="tracingPackageType">
-        <xsd:annotation>
-            <xsd:documentation><![CDATA[ The service argument config ]]></xsd:documentation>
-        </xsd:annotation>
+    <xsd:element name="trace">
     </xsd:element>
 
-    <xsd:element name="tracing"/>
+    <!--<xsd:simpleType name="packageType">-->
+    <!--<xsd:restriction base="xsd:string">-->
+    <!--<xsd:whiteSpace value="replace"/>-->
+    <!--<xsd:pattern value="[a-z][a-z0-9]*([.][a-z][a-z0-9]*)+"/>-->
+    <!--</xsd:restriction>-->
+    <!--</xsd:simpleType>-->
+
 </xsd:schema>
