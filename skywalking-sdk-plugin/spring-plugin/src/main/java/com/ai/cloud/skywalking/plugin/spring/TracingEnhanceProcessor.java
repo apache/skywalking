@@ -1,7 +1,8 @@
-package com.ai.cloud.skywalking.plugin.spring;
+package com.ai.spring.plugin;
 
 import com.ai.cloud.skywalking.buriedpoint.LocalBuriedPointSender;
 import com.ai.cloud.skywalking.model.Identification;
+import com.ai.cloud.skywalking.plugin.spring.TracingClassBean;
 import com.ai.cloud.skywalking.plugin.spring.util.ConcurrentHashSet;
 import javassist.*;
 import javassist.bytecode.AnnotationsAttribute;
@@ -15,20 +16,13 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class TracingEnhanceProcessor implements DisposableBean, BeanPostProcessor, BeanFactoryPostProcessor, ApplicationContextAware {
 
-    private Logger logger = Logger.getLogger(TracingEnhanceProcessor.class.getName());
-
     private final Set<TracingClassBean> beanSet = new ConcurrentHashSet<TracingClassBean>();
     private ApplicationContext applicationContext;
-
 
     @Override
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
@@ -41,15 +35,38 @@ public class TracingEnhanceProcessor implements DisposableBean, BeanPostProcesso
         return bean;
     }
 
+    public enum MatchType {
+        METHOD, PACKAGE, CLASS;
+    }
+
+    private boolean checkMatch(String value, String pattern, MatchType matchType) {
+        boolean result;
+        if ("*".equals(pattern)) {
+            return true;
+        }
+        if (matchType == MatchType.PACKAGE && ".*".equals(pattern)) {
+            String newPattern = pattern.substring(0, pattern.lastIndexOf(".*"));
+            result = value.startsWith(newPattern);
+        } else {
+            if ("*".equals(pattern) && matchType != MatchType.PACKAGE) {
+                String newPattern = pattern.substring(0, pattern.lastIndexOf("*"));
+                result = value.startsWith(newPattern);
+            } else {
+                result = value.equals(pattern);
+            }
+        }
+        return result;
+    }
+
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-        boolean isMatch = false;
+        String packageName = bean.getClass().getPackage().getName();
+        String className = bean.getClass().getSimpleName();
         TracingClassBean matchClassBean = null;
+        boolean isMatch = false;
         for (TracingClassBean tracingClassBean : beanSet) {
-            //不符合符合规则
-            //报名只支持精确匹配，类名支持*号模糊
-            if (isPackageMatch(bean.getClass().getPackage().getName(), tracingClassBean.getPackageName())
-                    || isClassNameMatch(bean, tracingClassBean.getClassName())) {
+            if (checkMatch(packageName, tracingClassBean.getPackageName(), MatchType.PACKAGE)
+                    || checkMatch(className, tracingClassBean.getClassName(), MatchType.CLASS)) {
                 isMatch = true;
                 matchClassBean = tracingClassBean;
                 continue;
@@ -64,104 +81,91 @@ public class TracingEnhanceProcessor implements DisposableBean, BeanPostProcesso
             ClassPool pool = ClassPool.getDefault();
             CtClass ctSource = pool.get(bean.getClass().getName());
             CtClass ctDestination = pool.makeClass(generateProxyClassName(bean), ctSource);
-            //拷贝所有的方法，所有的属性以及注解
-            copy(ctSource, ctDestination);
-
-            String methodPrefix = matchClassBean.getMethod();
-            if (matchClassBean.getMethod().indexOf("*") != -1) {
-                methodPrefix = methodPrefix.substring(0, matchClassBean.getMethod().indexOf("*"));
-            }
-
-            List<CtMethod> methods = new ArrayList<CtMethod>();
-            for (CtMethod method : ctDestination.getDeclaredMethods()) {
-                if (methodPrefix.length() <= 0 || method.getName().startsWith(methodPrefix)) {
-                    methods.add(method);
+            //拷贝所有的方法，
+            copyAllFields(ctSource, ctDestination);
+            // 拷贝所有的注解
+            copyClassAnnotation(ctSource, ctDestination);
+            //拷贝所有的方法，并增强
+            ConstPool cp = ctDestination.getClassFile().getConstPool();
+            for (CtMethod m : ctSource.getDeclaredMethods()) {
+                CtMethod newm = CtNewMethod.copy(m, m.getName(), ctDestination, null);
+                copyMethodAnnotation(cp, m, newm);
+                // 是否符合规范，符合则增强
+                if (checkMatch(m.getName(), matchClassBean.getMethod(), MatchType.METHOD)) {
+                    enhanceMethod(bean, newm);
                 }
+                ctDestination.addMethod(newm);
             }
 
-            for (CtMethod method : methods) {
-                enhanceMethod(bean, method);
-            }
-
-            // 判断是否存在无参的构造函数，如果没有，则
-            // 生成实例，构造函数
             Class generateClass = ctDestination.toClass();
-
             Object newBean = generateClass.newInstance();
             BeanUtils.copyProperties(bean, newBean);
             return newBean;
         } catch (NotFoundException e) {
-            logger.log(Level.ALL, "Class [" + beanName.getClass().getName() + "] cannot be found");
             throw new IllegalStateException("Class [" + beanName.getClass().getName() + "] cannot be found", e);
         } catch (CannotCompileException e) {
             throw new IllegalStateException("Class [" + beanName.getClass().getName() + "] cannot be compile", e);
         } catch (InstantiationException e) {
-            e.printStackTrace();
+            throw new IllegalStateException("Failed to instance class[" + beanName.getClass().getName() + "]", e);
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            throw new IllegalStateException("Failed to access class[" + beanName.getClass().getName() + "]", e);
         }
-        return bean;
+    }
+
+    private void copyMethodAnnotation(ConstPool cp, CtMethod m, CtMethod newm) {
+        AnnotationsAttribute invAnn = (AnnotationsAttribute) m.getMethodInfo().getAttribute(
+                AnnotationsAttribute.invisibleTag);
+        AnnotationsAttribute visAnn = (AnnotationsAttribute) m.getMethodInfo().getAttribute(
+                AnnotationsAttribute.visibleTag);
+        if (invAnn != null) {
+            newm.getMethodInfo().addAttribute(invAnn.copy(cp, null));
+        }
+        if (visAnn != null) {
+            newm.getMethodInfo().addAttribute(visAnn.copy(cp, null));
+        }
     }
 
     private String generateProxyClassName(Object bean) {
         return bean.getClass().getName() + "$EnhanceBySWTracing$" + ThreadLocalRandom.current().nextInt(100);
     }
 
-    private void copy(CtClass ctSource, CtClass ctDestination) {
-        try {
-            // copy fields
-            ConstPool cp = ctDestination.getClassFile().getConstPool();
-            for (CtField f : ctSource.getDeclaredFields()) {
-                CtClass fieldTypeClass = ClassPool.getDefault().get(f.getType().getName());
-                //with annotations
-                AnnotationsAttribute invAnn = (AnnotationsAttribute) f.getFieldInfo().getAttribute(
-                        AnnotationsAttribute.invisibleTag);
-                AnnotationsAttribute visAnn = (AnnotationsAttribute) f.getFieldInfo().getAttribute(
-                        AnnotationsAttribute.visibleTag);
-                CtField ctField = new CtField(fieldTypeClass, f.getName(), ctDestination);
-                if (invAnn != null) {
-                    ctField.getFieldInfo().addAttribute(invAnn.copy(cp, null));
-                }
-                if (visAnn != null) {
-                    ctField.getFieldInfo().addAttribute(visAnn.copy(cp, null));
-                }
+    private void copyAllFields(CtClass ctSource, CtClass ctDestination) throws CannotCompileException, NotFoundException {
+        // copy fields
+        ConstPool cp = ctDestination.getClassFile().getConstPool();
+        for (CtField ctSourceField : ctSource.getDeclaredFields()) {
+            CtClass fieldTypeClass = ClassPool.getDefault().get(ctSourceField.getType().getName());
+            CtField ctField = new CtField(fieldTypeClass, ctSourceField.getName(), ctDestination);
+            //with annotations
+            copyAllFieldAnnotation(cp, ctSourceField, ctField);
+            ctDestination.addField(ctField);
+        }
+    }
 
-                ctDestination.addField(ctField);
-            }
-            // copy methods
-            for (CtMethod m : ctSource.getDeclaredMethods()) {
-                //copy the method prefixing it with the source class name
-                CtMethod newm = CtNewMethod.copy(m, /*ctSource.getSimpleName() + "_" + */m.getName(), ctDestination, null);
-                // with annotations
-                AnnotationsAttribute invAnn = (AnnotationsAttribute) m.getMethodInfo().getAttribute(
-                        AnnotationsAttribute.invisibleTag);
-                AnnotationsAttribute visAnn = (AnnotationsAttribute) m.getMethodInfo().getAttribute(
-                        AnnotationsAttribute.visibleTag);
-                if (invAnn != null) {
-                    newm.getMethodInfo().addAttribute(invAnn.copy(cp, null));
-                }
-                if (visAnn != null) {
-                    newm.getMethodInfo().addAttribute(visAnn.copy(cp, null));
-                }
+    private void copyAllFieldAnnotation(ConstPool cp, CtField ctSourceField, CtField ctDestinationField) throws CannotCompileException {
+        AnnotationsAttribute invAnn = (AnnotationsAttribute) ctSourceField.getFieldInfo().getAttribute(
+                AnnotationsAttribute.invisibleTag);
+        AnnotationsAttribute visAnn = (AnnotationsAttribute) ctSourceField.getFieldInfo().getAttribute(
+                AnnotationsAttribute.visibleTag);
 
-                ctDestination.addMethod(newm);
-            }
+        if (invAnn != null) {
+            ctDestinationField.getFieldInfo().addAttribute(invAnn.copy(cp, null));
+        }
+        if (visAnn != null) {
+            ctDestinationField.getFieldInfo().addAttribute(visAnn.copy(cp, null));
+        }
+    }
 
-            // copy annotation
-            AnnotationsAttribute invAnn = (AnnotationsAttribute) ctSource.getClassFile().getAttribute(
-                    AnnotationsAttribute.invisibleTag);
-            AnnotationsAttribute visAnn = (AnnotationsAttribute) ctSource.getClassFile().getAttribute(
-                    AnnotationsAttribute.visibleTag);
-            if (invAnn != null) {
-                ctDestination.getClassFile().addAttribute(invAnn.copy(cp, null));
-            }
-            if (visAnn != null) {
-                ctDestination.getClassFile().addAttribute(visAnn.copy(cp, null));
-            }
-
-        } catch (Exception e) {
-            logger.log(Level.ALL, "Failed to generate proxy class ");
-            throw new IllegalStateException("Failed to generate proxy class");
+    private void copyClassAnnotation(CtClass ctSource, CtClass ctDestination) {
+        ConstPool cp = ctDestination.getClassFile().getConstPool();
+        AnnotationsAttribute invAnn = (AnnotationsAttribute) ctSource.getClassFile().getAttribute(
+                AnnotationsAttribute.invisibleTag);
+        AnnotationsAttribute visAnn = (AnnotationsAttribute) ctSource.getClassFile().getAttribute(
+                AnnotationsAttribute.visibleTag);
+        if (invAnn != null) {
+            ctDestination.getClassFile().addAttribute(invAnn.copy(cp, null));
+        }
+        if (visAnn != null) {
+            ctDestination.getClassFile().addAttribute(visAnn.copy(cp, null));
         }
     }
 
