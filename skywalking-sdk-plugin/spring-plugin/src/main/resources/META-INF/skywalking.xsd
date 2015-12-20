@@ -7,20 +7,16 @@
 
     <xsd:element name="tracing-bean">
         <xsd:complexType>
-            <xsd:attribute name="method" type="xsd:string" use="required"/>
+            <xsd:attribute name="method" type="xsd:string" use="optional" default="*"/>
             <xsd:attribute name="packageName" type="xsd:string" use="required"/>
-            <xsd:attribute name="className" type="xsd:string" use="optional" default="*"/>
+            <xsd:attribute name="className" type="xsd:string" use="required"/>
         </xsd:complexType>
     </xsd:element>
 
     <xsd:element name="trace">
+        <xsd:complexType>
+            <xsd:attribute name="turnOn" use="optional" default="true" type="xsd:boolean"/>
+        </xsd:complexType>
     </xsd:element>
-
-    <!--<xsd:simpleType name="packageType">-->
-    <!--<xsd:restriction base="xsd:string">-->
-    <!--<xsd:whiteSpace value="replace"/>-->
-    <!--<xsd:pattern value="[a-z][a-z0-9]*([.][a-z][a-z0-9]*)+"/>-->
-    <!--</xsd:restriction>-->
-    <!--</xsd:simpleType>-->
 
 </xsd:schema>

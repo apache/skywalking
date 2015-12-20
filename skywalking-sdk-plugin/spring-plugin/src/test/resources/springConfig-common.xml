@@ -2,40 +2,16 @@
 <beans
         xmlns="http://www.springframework.org/schema/beans"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:skywalking="http://cloud.asiainfo.com/schema/skywalking"
         xsi:schemaLocation="http://www.springframework.org/schema/beans
-                    http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+                    http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+                    http://cloud.asiainfo.com/schema/skywalking
+				http://cloud.asiainfo.com/schema/skywalking/skywalking.xsd">
 
-    <bean id="postProcess1"
-          class="com.ai.cloud.skywalking.plugin.spring.TracingEnhanceProcessor">
-    </bean>
-    <bean id="callChainK" class="com.ai.cloud.skywalking.plugin.spring.common.CallChainK"/>
-    <bean id="callChainJ" class="com.ai.cloud.skywalking.plugin.spring.common.CallChainJ">
-        <property name="callChainK" ref="callChainK"/>
-    </bean>
-    <bean id="callChainI" class="com.ai.cloud.skywalking.plugin.spring.common.CallChainI">
-        <property name="callChainJ" ref="callChainJ"/>
-    </bean>
-    <bean id="callChainH" class="com.ai.cloud.skywalking.plugin.spring.common.CallChainH">
-        <property name="callChainI" ref="callChainI"/>
-    </bean>
+    <skywalking:trace turnOn="true"/>
 
-    <bean id="callChainG" class="com.ai.cloud.skywalking.plugin.spring.common.CallChainG">
-        <property name="callChainH" ref="callChainH"/>
-    </bean>
-    <bean id="callChainE" class="com.ai.cloud.skywalking.plugin.spring.common.CallChainE">
-        <property name="callChainG" ref="callChainG"/>
-    </bean>
-    <bean id="callChainF" class="com.ai.cloud.skywalking.plugin.spring.common.CallChainF"/>
-    <bean id="callChainC" class="com.ai.cloud.skywalking.plugin.spring.common.CallChainC">
-        <property name="callChainE" ref="callChainE"/>
-    </bean>
-    <bean id="callChainD" class="com.ai.cloud.skywalking.plugin.spring.common.CallChainD"/>
-    <bean id="callChainB" class="com.ai.cloud.skywalking.plugin.spring.common.CallChainB">
-        <property name="callChainC" ref="callChainC"/>
-    </bean>
-    <bean id="callChainA" class="com.ai.cloud.skywalking.plugin.spring.common.CallChainA">
-        <property name="callChainB" ref="callChainB"/>
-        <property name="callChainD" ref="callChainD"/>
-        <property name="callChainF" ref="callChainF"/>
-    </bean>
+    <skywalking:tracing-bean className="AppTest01" method="testPrintln*" packageName="*"/>
+
+    <bean id="testBean" class="com.ai.cloud.skywalking.plugin.spring.test.AppTest01"/>
+
 </beans>

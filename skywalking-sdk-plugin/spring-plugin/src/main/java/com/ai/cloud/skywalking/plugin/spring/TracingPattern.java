@@ -1,6 +1,6 @@
 package com.ai.cloud.skywalking.plugin.spring;
 
-public class TracingClassBean {
+public class TracingPattern {
 	private String packageName = "";
 	private String className = "";
 	private String method = "";
