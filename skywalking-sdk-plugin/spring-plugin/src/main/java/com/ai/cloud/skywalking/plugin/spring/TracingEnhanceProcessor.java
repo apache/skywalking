@@ -1,4 +1,4 @@
-package com.ai.spring.plugin;
+package com.ai.cloud.skywalking.plugin.spring;
 
 import com.ai.cloud.skywalking.buriedpoint.LocalBuriedPointSender;
 import com.ai.cloud.skywalking.model.Identification;
