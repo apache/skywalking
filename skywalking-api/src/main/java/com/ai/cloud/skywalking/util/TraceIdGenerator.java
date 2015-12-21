@@ -24,9 +24,9 @@ public final class TraceIdGenerator {
     	ThreadTraceIdSequence.set(seq);
     	
     	return System.currentTimeMillis()
-                + "." + PROCESS_UUID
-                + "." + BuriedPointMachineUtil.getProcessNo()
-                + "." + Thread.currentThread().getId() 
-                + "." + seq;
+                + PROCESS_UUID
+                + BuriedPointMachineUtil.getProcessNo()
+                + Thread.currentThread().getId() 
+                + seq;
     }
 }
