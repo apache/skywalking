@@ -58,7 +58,7 @@ public class SkyWalkingFilter implements Filter {
     private Identification generateIdentification(HttpServletRequest request) {
         return Identification.newBuilder()
                 .viewPoint(request.getRequestURL().toString())
-                .spanType('W')
+                .spanType("W")
                 .build();
     }
 

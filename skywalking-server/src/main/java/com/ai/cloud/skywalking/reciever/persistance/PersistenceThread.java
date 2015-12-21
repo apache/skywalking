@@ -27,17 +27,17 @@ public class PersistenceThread extends Thread {
         BufferedReader bufferedReader = null;
         int offset;
         while (true) {
-            file1 = getDataFiles();
-            if (file1 == null) {
-                try {
-                    Thread.sleep(SWITCH_FILE_WAIT_TIME);
-                } catch (InterruptedException e) {
-                    logger.error("Failure sleep", e);
-                }
-                continue;
-            }
-
             try {
+            	file1 = getDataFiles();
+                if (file1 == null) {
+                    try {
+                        Thread.sleep(SWITCH_FILE_WAIT_TIME);
+                    } catch (InterruptedException e) {
+                        logger.error("Failure sleep", e);
+                    }
+                    continue;
+                }
+            	
                 bufferedReader = new BufferedReader(new FileReader(file1));
                 offset = moveOffSet(file1, bufferedReader);
                 if (logger.isDebugEnabled()) {

@@ -7,7 +7,7 @@ public class ContextData {
     private String traceId;
     private String parentLevel;
     private int levelId;
-    private char spanType;
+    private String spanType;
 
     ContextData() {
 
@@ -23,10 +23,13 @@ public class ContextData {
     public ContextData(String contextDataStr) {
         // 反序列化参数
         String[] value = contextDataStr.split("-");
+        if(value == null || value.length != 4){
+        	throw new IllegalArgumentException("illegal context data.");
+        }
         this.traceId = value[0];
         this.parentLevel = value[1];
         this.levelId = Integer.valueOf(value[2]);
-        this.spanType = value[3].charAt(0);
+        this.spanType = value[3];
 
     }
 
@@ -42,7 +45,7 @@ public class ContextData {
         return levelId;
     }
 
-    public char getSpanType() {
+    public String getSpanType() {
         return spanType;
     }
 

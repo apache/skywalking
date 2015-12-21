@@ -135,9 +135,13 @@ public class TraceLogEntry extends Span {
 		if (StringUtil.isBlank(spanTypeStr) || Constants.SPAN_TYPE_MAP.containsKey(spanTypeStr)) {
 			result.spanTypeStr = Constants.SPAN_TYPE_U;
 		}
-		String spanTypeName = Constants.SPAN_TYPE_MAP.get(spanTypeStr);
 		result.spanTypeStr = spanTypeStr;
-		result.spanTypeName = spanTypeName;
+		if(Constants.SPAN_TYPE_MAP.containsKey(spanTypeStr)){
+			result.spanTypeName = Constants.SPAN_TYPE_MAP.get(spanTypeStr);;
+		}else{
+			//非默认支持的类型，使用原文中的类型，不需要解析
+			result.spanTypeName = result.spanTypeStr;
+		}
 
 		// 处理状态key-value
 		String statusCodeStr = String.valueOf(result.getStatusCode());

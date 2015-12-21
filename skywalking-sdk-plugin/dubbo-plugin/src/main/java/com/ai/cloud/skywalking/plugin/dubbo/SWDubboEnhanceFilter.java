@@ -87,7 +87,7 @@ public class SWDubboEnhanceFilter implements Filter {
         viewPoint.append(":" + invoker.getUrl().getPort());
         viewPoint.append(invoker.getUrl().getAbsolutePath());
         viewPoint.append("." + invocation.getMethodName() + "(");
-        for (Class classes : invocation.getParameterTypes()) {
+        for (Class<?> classes : invocation.getParameterTypes()) {
             viewPoint.append(classes.getSimpleName() + ",");
         }
 
@@ -96,7 +96,7 @@ public class SWDubboEnhanceFilter implements Filter {
         }
 
         viewPoint.append(")");
-        return Identification.newBuilder().viewPoint(viewPoint.toString()).spanType('D').build();
+        return Identification.newBuilder().viewPoint(viewPoint.toString()).spanType("D").build();
     }
 
 

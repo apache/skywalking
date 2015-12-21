@@ -16,7 +16,7 @@ public abstract class SpanData {
     protected String address = "";
     protected byte statusCode = 0;
     protected String exceptionStack;
-    protected char spanType = 'M';
+    protected String spanType = "";
     protected boolean isReceiver = false;
     protected String businessKey = "";
     protected String processNo = "";
@@ -69,11 +69,11 @@ public abstract class SpanData {
         this.address = address;
     }
 
-    public char getSpanType() {
+    public String getSpanType() {
         return spanType;
     }
 
-    public void setSpanType(char spanType) {
+    public void setSpanType(String spanType) {
         this.spanType = spanType;
     }
 

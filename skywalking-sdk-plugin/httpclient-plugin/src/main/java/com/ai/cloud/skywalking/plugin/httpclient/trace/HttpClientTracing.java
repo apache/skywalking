@@ -15,7 +15,7 @@ public class HttpClientTracing {
             httpRequest.setHeader(traceHearName,
                     "ContextData=" + sender.beforeSend(Identification.newBuilder()
                             .viewPoint(url)
-                            .spanType('W')
+                            .spanType("W")
                             .build())
                             .toString());
             return executor.execute();

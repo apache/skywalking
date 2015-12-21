@@ -42,7 +42,7 @@ public class Span extends SpanData {
             exceptionStack = fieldValues[8].trim().replaceAll(SPAN_ATTR_SPILT_CHARACTER,
                     NEW_LINE_CHARACTER_PATTERN);
         }
-        spanType = fieldValues[9].charAt(0);
+        spanType = fieldValues[9];
         isReceiver = Boolean.valueOf(fieldValues[10]);
 
         businessKey = fieldValues[11].trim().replaceAll(SPAN_ATTR_SPILT_CHARACTER,

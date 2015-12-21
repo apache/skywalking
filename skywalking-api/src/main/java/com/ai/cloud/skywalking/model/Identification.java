@@ -3,7 +3,7 @@ package com.ai.cloud.skywalking.model;
 public class Identification {
     private String viewPoint;
     private String businessKey;
-    private char spanType;
+    private String spanType;
 
     public Identification() {
         //Non
@@ -17,7 +17,7 @@ public class Identification {
         return businessKey;
     }
     
-    public char getSpanType(){
+    public String getSpanType(){
     	return spanType;
     }
 
@@ -46,7 +46,7 @@ public class Identification {
             return this;
         }
         
-        public IdentificationBuilder spanType(char spanType) {
+        public IdentificationBuilder spanType(String spanType) {
             sendData.spanType = spanType;
             return this;
         }

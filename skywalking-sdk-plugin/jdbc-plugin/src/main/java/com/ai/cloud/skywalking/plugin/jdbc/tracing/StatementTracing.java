@@ -25,7 +25,7 @@ public class StatementTracing {
 							"statement."
 									+ method
 									+ (sql == null || sql.length() == 0 ? ""
-											: ":" + sql)).spanType('J').build());
+											: ":" + sql)).spanType("J").build());
 			return exec.exe(realStatement, sql);
 		} catch (SQLException e) {
 			sender.handleException(e);

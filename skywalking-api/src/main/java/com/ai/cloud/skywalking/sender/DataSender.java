@@ -1,7 +1,5 @@
 package com.ai.cloud.skywalking.sender;
 
-import com.ai.cloud.skywalking.sender.protocol.ProtocolBuilder;
-
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.StandardSocketOptions;
@@ -12,7 +10,9 @@ import java.nio.channels.SocketChannel;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class DataSender {
+import com.ai.cloud.skywalking.sender.protocol.ProtocolBuilder;
+
+public class DataSender implements IDataSender{
 	private static Logger logger = Logger.getLogger(DataSender.class.getName());
 	
     private SocketChannel socketChannel;
@@ -41,6 +41,7 @@ public class DataSender {
      * @param data
      * @return
      */
+    @Override
     public boolean send(String data) {
         // 发送报文
         try {

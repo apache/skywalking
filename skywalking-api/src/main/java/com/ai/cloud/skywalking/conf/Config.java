@@ -45,6 +45,9 @@ public class Config {
 
 		// 是否开启发送
 		public static boolean IS_OFF = false;
+		
+		// 最大发送副本数量
+		public static int MAX_COPY_NUM = 2;
 
 		// 发送的最大长度
 		public static int MAX_SEND_LENGTH = 18500;
