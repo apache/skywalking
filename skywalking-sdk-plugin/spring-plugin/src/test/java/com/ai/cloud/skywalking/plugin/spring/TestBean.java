@@ -1,19 +1,17 @@
-package com.ai.cloud.skywalking.plugin.spring.test;
+package com.ai.cloud.skywalking.plugin.spring;
 
-import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-public class AppTest01 {
+public class TestBean {
 
     public void testPrintln(String value){
         System.out.println(value);
     }
 
 
-    @Test
-    public void testBean(){
+    public static void main(String[] args){
         ClassPathXmlApplicationContext classPathXmlApplicationContext = new ClassPathXmlApplicationContext("classpath*:springConfig-common.xml");
-        AppTest01 appTest01 = classPathXmlApplicationContext.getBean(AppTest01.class);
-        appTest01.testPrintln("Hello World");
+        TestBean testBean = classPathXmlApplicationContext.getBean(TestBean.class);
+        testBean.testPrintln("Hello World");
     }
 }

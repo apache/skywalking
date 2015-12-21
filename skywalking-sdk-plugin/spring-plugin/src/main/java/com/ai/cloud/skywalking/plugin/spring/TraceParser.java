@@ -16,9 +16,11 @@ public class TraceParser implements BeanDefinitionParser {
             //  只能存在一个
             throw new IllegalStateException("Duplicate spring bean id ");
         }
+        boolean turnOn = Boolean.parseBoolean(element.getAttribute("turnOn"));
         RootBeanDefinition rootBeanDefinition = new RootBeanDefinition();
         rootBeanDefinition.setLazyInit(false);
         rootBeanDefinition.setBeanClass(TracingEnhanceProcessor.class);
+        rootBeanDefinition.getPropertyValues().addPropertyValue("turnOn", turnOn);
         parserContext.getRegistry().registerBeanDefinition(TRACE_APPLICATION_BEAN_NAME, rootBeanDefinition);
         return rootBeanDefinition;
     }

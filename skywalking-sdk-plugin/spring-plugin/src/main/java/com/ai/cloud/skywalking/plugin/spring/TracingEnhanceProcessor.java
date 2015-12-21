@@ -23,6 +23,16 @@ public class TracingEnhanceProcessor implements DisposableBean, BeanPostProcesso
 
     private final Set<TracingPattern> beanSet = new ConcurrentHashSet<TracingPattern>();
 
+    private boolean turnOn;
+
+    public boolean isTurnOn() {
+        return turnOn;
+    }
+
+    public void setTurnOn(boolean turnOn) {
+        this.turnOn = turnOn;
+    }
+
     @Override
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
         beanSet.addAll(applicationContext.getBeansOfType(TracingPattern.class).values());
@@ -71,6 +81,10 @@ public class TracingEnhanceProcessor implements DisposableBean, BeanPostProcesso
 
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+        if (!turnOn) {
+            return bean;
+        }
+
         String packageName = bean.getClass().getPackage().getName();
         String className = bean.getClass().getSimpleName();
         TracingPattern matchClassBean = null;

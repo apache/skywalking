@@ -8,10 +8,10 @@
                     http://cloud.asiainfo.com/schema/skywalking
 				http://cloud.asiainfo.com/schema/skywalking/skywalking.xsd">
 
-    <skywalking:trace turnOn="true"/>
+    <skywalking:trace/>
 
-    <skywalking:tracing-bean className="AppTest01" method="testPrintln*" packageName="*"/>
+    <!--<skywalking:tracing-bean className="AppTest01" method="testPrintln*" packageName="*"/>-->
 
-    <bean id="testBean" class="com.ai.cloud.skywalking.plugin.spring.test.AppTest01"/>
+    <bean class="com.ai.cloud.skywalking.plugin.spring.TestBean" />
 
 </beans>
