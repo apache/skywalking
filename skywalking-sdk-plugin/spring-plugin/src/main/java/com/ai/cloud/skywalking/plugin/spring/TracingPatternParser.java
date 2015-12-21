@@ -11,15 +11,10 @@ import org.w3c.dom.Node;
 
 public class TracingPatternParser implements BeanDefinitionParser {
 	
-	private final String TRACE_PROCESSOR_BEAN_NAME = "TraceProcessorBean";
+	private final String TRACE_ENHANCE_PROCESSOR_BEAN_NAME = "TracingEnhanceProcessor";
 	
     @Override
     public BeanDefinition parse(Element element, ParserContext parserContext) {
-        // 获取Method并处理
-        String methodPattern = element.getAttribute("method");
-        if (methodPattern == null || methodPattern.length() == 0) {
-            throw new IllegalStateException("Miss method pattern");
-        }
         RootBeanDefinition beanDefinition = new RootBeanDefinition();
         beanDefinition.setBeanClass(TracingPattern.class);
         String id = element.getAttribute("id");
@@ -52,11 +47,11 @@ public class TracingPatternParser implements BeanDefinitionParser {
             }
         }
         
-        if (!parserContext.getRegistry().containsBeanDefinition(TRACE_PROCESSOR_BEAN_NAME)){
-        	RootBeanDefinition traceProcessorBeanDefinition = new RootBeanDefinition();
-        	traceProcessorBeanDefinition.setBeanClass(TracingEnhanceProcessor.class);
-        	traceProcessorBeanDefinition.setLazyInit(false);
-        	parserContext.getRegistry().registerBeanDefinition(TRACE_PROCESSOR_BEAN_NAME, traceProcessorBeanDefinition);
+        if (!parserContext.getRegistry().containsBeanDefinition(TRACE_ENHANCE_PROCESSOR_BEAN_NAME)){
+        	RootBeanDefinition traceEnhanceProcessorBeanDefinition = new RootBeanDefinition();
+        	traceEnhanceProcessorBeanDefinition.setBeanClass(TracingEnhanceProcessor.class);
+        	traceEnhanceProcessorBeanDefinition.setLazyInit(false);
+        	parserContext.getRegistry().registerBeanDefinition(TRACE_ENHANCE_PROCESSOR_BEAN_NAME, traceEnhanceProcessorBeanDefinition);
         }
        
         return beanDefinition;
