@@ -1,22 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <xsd:schema xmlns="http://cloud.asiainfo.com/schema/skywalking"
-            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-            targetNamespace="http://cloud.asiainfo.com/schema/skywalking">
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://cloud.asiainfo.com/schema/skywalking">
 
-    <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
+	<xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
 
-    <xsd:element name="tracing-bean">
-        <xsd:complexType>
-            <xsd:attribute name="method" type="xsd:string" use="optional" default="*"/>
-            <xsd:attribute name="packageName" type="xsd:string" use="required"/>
-            <xsd:attribute name="className" type="xsd:string" use="required"/>
-        </xsd:complexType>
-    </xsd:element>
+	<xsd:element name="trace" type="traceType">
+	</xsd:element>
 
-    <xsd:element name="trace">
-        <xsd:complexType>
-            <xsd:attribute name="turnOn" use="optional" default="true" type="xsd:boolean"/>
-        </xsd:complexType>
-    </xsd:element>
-
+	<xsd:complexType name="traceType">
+		<xsd:attribute name="packageName" type="xsd:string" use="required" />
+		<xsd:attribute name="className" type="xsd:string" use="required" />
+		<xsd:attribute name="method" type="xsd:string" use="optional"
+			default="*" />
+	</xsd:complexType>
 </xsd:schema>

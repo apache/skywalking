@@ -4,14 +4,11 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xmlns:skywalking="http://cloud.asiainfo.com/schema/skywalking"
         xsi:schemaLocation="http://www.springframework.org/schema/beans
-                    http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+                    http://www.springframework.org/schema/beans/spring-beans-2.5.xsd 
                     http://cloud.asiainfo.com/schema/skywalking
 				http://cloud.asiainfo.com/schema/skywalking/skywalking.xsd">
-
-    <skywalking:trace/>
-
-    <!--<skywalking:tracing-bean className="AppTest01" method="testPrintln*" packageName="*"/>-->
-
+	
+	<skywalking:trace className="TestBean" method="testPrintln*" packageName="*"/>
     <bean class="com.ai.cloud.skywalking.plugin.spring.TestBean" />
 
 </beans>

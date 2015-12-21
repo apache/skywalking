@@ -10,6 +10,9 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
 public class TracingPatternParser implements BeanDefinitionParser {
+	
+	private final String TRACE_PROCESSOR_BEAN_NAME = "TraceProcessorBean";
+	
     @Override
     public BeanDefinition parse(Element element, ParserContext parserContext) {
         // 获取Method并处理
@@ -48,7 +51,14 @@ public class TracingPatternParser implements BeanDefinitionParser {
                 beanDefinition.getPropertyValues().add(key, value);
             }
         }
-
+        
+        if (!parserContext.getRegistry().containsBeanDefinition(TRACE_PROCESSOR_BEAN_NAME)){
+        	RootBeanDefinition traceProcessorBeanDefinition = new RootBeanDefinition();
+        	traceProcessorBeanDefinition.setBeanClass(TracingEnhanceProcessor.class);
+        	traceProcessorBeanDefinition.setLazyInit(false);
+        	parserContext.getRegistry().registerBeanDefinition(TRACE_PROCESSOR_BEAN_NAME, traceProcessorBeanDefinition);
+        }
+       
         return beanDefinition;
     }
 }

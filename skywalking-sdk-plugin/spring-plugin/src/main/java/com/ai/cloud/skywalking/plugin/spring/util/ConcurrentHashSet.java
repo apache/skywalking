@@ -11,11 +11,13 @@ public class ConcurrentHashSet<E> extends AbstractSet<E> implements Set<E>, Seri
     private static final Object PRESENT = new Object();
     private final ConcurrentHashMap<E, Object> map;
 
-    public ConcurrentHashSet() {
+    @SuppressWarnings("unchecked")
+	public ConcurrentHashSet() {
         this.map = new ConcurrentHashMap();
     }
 
-    public ConcurrentHashSet(int initialCapacity) {
+    @SuppressWarnings("unchecked")
+	public ConcurrentHashSet(int initialCapacity) {
         this.map = new ConcurrentHashMap(initialCapacity);
     }
 
