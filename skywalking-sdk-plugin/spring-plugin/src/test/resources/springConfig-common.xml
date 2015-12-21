@@ -7,8 +7,10 @@
                     http://www.springframework.org/schema/beans/spring-beans-2.5.xsd 
                     http://cloud.asiainfo.com/schema/skywalking
 				http://cloud.asiainfo.com/schema/skywalking/skywalking.xsd">
-	
-	<skywalking:trace className="TestBean" method="testPrintln*" packageName="*"/>
-    <bean class="com.ai.cloud.skywalking.plugin.spring.TestBean" />
+
+    <skywalking:trace className="TestBean" method="testPrintln*" packageName="*"/>
+    <bean class="com.ai.cloud.skywalking.plugin.spring.TestBean">
+        <property name="value" value="Hello World"/>
+    </bean>
 
 </beans>
