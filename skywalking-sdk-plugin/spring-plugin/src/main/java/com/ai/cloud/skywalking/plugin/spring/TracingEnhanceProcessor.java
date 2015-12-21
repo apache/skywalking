@@ -110,6 +110,11 @@ public class TracingEnhanceProcessor implements DisposableBean,
 			// 拷贝所有的方法，并增强
 			ConstPool cp = ctDestination.getClassFile().getConstPool();
 			for (CtMethod m : ctSource.getDeclaredMethods()) {
+				
+				if (m.getModifiers() == Modifier.PRIVATE){
+					continue;
+				}
+				
 				CtMethod newm = CtNewMethod.delegator(m, ctDestination);
 				copyMethodAnnotation(cp, m, newm);
 				// 是否符合规范，符合则增强
