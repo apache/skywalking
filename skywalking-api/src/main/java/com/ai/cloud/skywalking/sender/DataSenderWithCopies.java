@@ -34,7 +34,17 @@ public class DataSenderWithCopies implements IDataSender{
 	 * 尝试向所有副本发送
 	 */
 	public boolean send(String data) {
-		return false;
+		int successNum = 0;
+		for(IDataSender sender : senders){
+			if(sender.send(data)){
+				successNum++;
+			}
+		}
+		if(successNum >= 2){
+			return true;
+		}else{
+			return false;
+		}
 	}
 
 }

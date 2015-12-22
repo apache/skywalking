@@ -84,7 +84,7 @@ public class DataSenderFactoryWithBalance {
 
 	// 获取连接
 	public static IDataSender getSender() {
-		DataSender readySender = null;
+		DataSenderWithCopies readySender = new DataSenderWithCopies(maxKeepConnectingSenderSize);
 		while (true) {
 			try {
 				if (usingDataSender.size() == 0) {
@@ -98,7 +98,11 @@ public class DataSenderFactoryWithBalance {
 				int index = ThreadLocalRandom.current().nextInt(0,
 						usingDataSender.size());
 				if (usingDataSender.get(index).getStatus() == DataSender.SenderStatus.READY) {
-					readySender = usingDataSender.get(index);
+					while(readySender.append(usingDataSender.get(index))){
+						if(++index == usingDataSender.size()){
+							index = 0;
+						}
+					}
 					break;
 				}
 
