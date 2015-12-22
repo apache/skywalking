@@ -1,12 +1,14 @@
 package com.ai.cloud.skywalking.plugin.web;
 
 
+import com.ai.cloud.skywalking.api.Tracing;
 import com.ai.cloud.skywalking.buriedpoint.RPCBuriedPointReceiver;
 import com.ai.cloud.skywalking.model.ContextData;
 import com.ai.cloud.skywalking.model.Identification;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public class SkyWalkingFilter implements Filter {
@@ -14,6 +16,7 @@ public class SkyWalkingFilter implements Filter {
     private final String secondKey = "ContextData";
     private String tracingName;
     private static final String DEFAULT_TRACE_NAME = "SkyWalking-TRACING-NAME";
+    private static final String TRACE_ID_HEADER_NAME = "SW-TraceId";
 
     public void init(FilterConfig filterConfig) throws ServletException {
         tracingName = filterConfig.getInitParameter("tracing-name");
@@ -45,6 +48,9 @@ public class SkyWalkingFilter implements Filter {
             receiver = new RPCBuriedPointReceiver();
             receiver.beforeReceived(contextData, generateIdentification(request));
             filterChain.doFilter(servletRequest, servletResponse);
+
+            HttpServletResponse httpServletResponse = (HttpServletResponse) servletResponse;
+            httpServletResponse.setHeader(TRACE_ID_HEADER_NAME, Tracing.getTraceId());
         } catch (Throwable e) {
             receiver.handleException(e);
             throw new ServletException(e);
