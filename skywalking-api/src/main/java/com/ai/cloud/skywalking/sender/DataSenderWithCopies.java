@@ -40,7 +40,7 @@ public class DataSenderWithCopies implements IDataSender{
 				successNum++;
 			}
 		}
-		if(successNum >= 2){
+		if(successNum >= 2 || successNum >= maxCopyNum){
 			return true;
 		}else{
 			return false;
