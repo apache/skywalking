@@ -1,7 +1,7 @@
-#skyWalking用户ID +++++
+#skyWalking用户ID
 skywalking.user_id=123
-#skyWalking应用ID +++++
-skywalking.application_id=test
+#skyWalking应用ID
+skywalking.application_code=test
 
 #是否打印数据
 buriedpoint.printf=false
@@ -18,7 +18,7 @@ sender.servers_addr=127.0.0.1:34000
 sender.max_copy_num=2
 #发送的最大长度
 sender.max_send_length=20000
-#当没有Sender时,尝试获取sender的等待周期 +++++
+#当没有Sender时,尝试获取sender的等待周期
 sender.retry_get_sender_wait_interval=2000
 #是否开启发送消息
 sender.is_off=false
@@ -28,7 +28,7 @@ sender.is_off=false
 consumer.max_consumer=2
 #消费者最大等待时间
 consumer.max_wait_time=5
-#发送失败等待时间   +++++++
+#发送失败等待时间  
 consumer.consumer_fail_retry_wait_interval=50
 
 #每个Buffer的最大个数
@@ -36,6 +36,6 @@ buffer.buffer_max_size=18000
 #Buffer池的最大长度
 buffer.pool_size=5
 
-#发送检查线程检查周期 ++++++++
+#发送检查线程检查周期 
 senderchecker.check_polling_time=200
 

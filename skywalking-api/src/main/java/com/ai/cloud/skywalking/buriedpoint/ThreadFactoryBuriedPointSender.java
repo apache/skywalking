@@ -14,7 +14,7 @@ import com.ai.cloud.skywalking.util.ContextGenerator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ThreadFactoryBuriedPointSender implements IBuriedPointSender {
+public class ThreadFactoryBuriedPointSender extends ApplicationExceptionHandler implements IBuriedPointSender {
 
     private static Logger logger = Logger.getLogger(ThreadBuriedPointSender.class.getName());
 
@@ -48,11 +48,5 @@ public class ThreadFactoryBuriedPointSender implements IBuriedPointSender {
         if (!Config.Sender.IS_OFF) {
             ContextBuffer.save(spanData);
         }
-    }
-
-    public void handleException(Throwable e) {
-        Span span = Context.getLastSpan();
-        span.handleException(e, Config.BuriedPoint.MAX_EXCEPTION_STACK_LENGTH);
-
     }
 }

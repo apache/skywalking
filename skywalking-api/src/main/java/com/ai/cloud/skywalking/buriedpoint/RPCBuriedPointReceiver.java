@@ -1,5 +1,8 @@
 package com.ai.cloud.skywalking.buriedpoint;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.ai.cloud.skywalking.api.IBuriedPointReceiver;
 import com.ai.cloud.skywalking.buffer.ContextBuffer;
 import com.ai.cloud.skywalking.conf.AuthDesc;
@@ -10,10 +13,7 @@ import com.ai.cloud.skywalking.model.Identification;
 import com.ai.cloud.skywalking.protocol.Span;
 import com.ai.cloud.skywalking.util.ContextGenerator;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-public class RPCBuriedPointReceiver implements IBuriedPointReceiver {
+public class RPCBuriedPointReceiver extends ApplicationExceptionHandler implements IBuriedPointReceiver {
 
     private static Logger logger = Logger.getLogger(LocalBuriedPointSender.class.getName());
 
@@ -43,10 +43,5 @@ public class RPCBuriedPointReceiver implements IBuriedPointReceiver {
         }
 
         Context.append(spanData);
-    }
-
-    public void handleException(Throwable e) {
-        Span span = Context.getLastSpan();
-        span.handleException(e, Config.BuriedPoint.MAX_EXCEPTION_STACK_LENGTH);
     }
 }
