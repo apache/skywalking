@@ -1,6 +1,7 @@
 package com.ai.cloud.skywalking.example.mail.util;
 
-import com.ai.cloud.skywalking.plugin.spring.Tracing;
+import java.io.IOException;
+import java.util.Properties;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -8,12 +9,9 @@ import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import java.io.IOException;
-import java.util.Properties;
 
 public class SendeUtil {
 
-    @Tracing
     public static boolean sendeMail(String recipientAccount) {
         try {
             Properties prop = new Properties();

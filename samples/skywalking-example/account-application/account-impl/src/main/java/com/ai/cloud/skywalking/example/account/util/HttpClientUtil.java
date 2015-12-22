@@ -1,7 +1,6 @@
 package com.ai.cloud.skywalking.example.account.util;
 
 import com.ai.cloud.skywalking.plugin.httpclient.SWTracingHttpClient;
-import com.ai.cloud.skywalking.plugin.spring.Tracing;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpEntity;
@@ -24,7 +23,6 @@ import java.util.Map;
 public class HttpClientUtil {
     private static final Log logger = LogFactory.getLog(HttpClientUtil.class);
 
-    @Tracing
     public static String sendPostRequest(String url, Map<String, String> parametersMap) throws IOException, URISyntaxException {
         HttpClient httpclient = new SWTracingHttpClient(new DefaultHttpClient());
         HttpPost httpPost = new HttpPost(new URL(url).toURI());

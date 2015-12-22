@@ -1,15 +1,15 @@
 package com.ai.cloud.skywalking.example.order.service.impl;
 
+import org.mybatis.spring.SqlSessionTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.ai.cloud.skywalking.example.order.dao.mapper.bo.TOrder;
 import com.ai.cloud.skywalking.example.order.dao.mapper.interfaces.TOrderMapper;
 import com.ai.cloud.skywalking.example.order.interfaces.parameter.OrderInfo;
 import com.ai.cloud.skywalking.example.order.service.IOrderManage;
 import com.ai.cloud.skywalking.example.order.util.OrderIdGenerator;
-import com.ai.cloud.skywalking.plugin.spring.Tracing;
-import org.mybatis.spring.SqlSessionTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
@@ -19,7 +19,6 @@ public class OrderManageImpl implements IOrderManage {
     private SqlSessionTemplate sqlSessionTemplate;
 
     @Override
-    @Tracing
     public String saveOrder(OrderInfo orderInfo) {
         String orderId = OrderIdGenerator.generate();
         TOrderMapper iOrderMapper = sqlSessionTemplate.getMapper(TOrderMapper.class);
