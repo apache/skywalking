@@ -333,6 +333,7 @@ public class AlarmRuleCtl {
 		ruleMVO.setTodoType(todoType);
 		JSONObject confArgs = new JSONObject();
 		confArgs.put("period", period);
+		confArgs.put("excludeExceptions", json.get("excludeExceptions"));
 		if (Constants.TODO_TYPE_0.equals(todoType)) {
 			// 设置邮件相关的信息
 			JSONObject mailInfo = new JSONObject();
