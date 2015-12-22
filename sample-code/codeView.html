@@ -19,21 +19,27 @@
       <h3>
       	<a id="useInSpring" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>如何追踪注册在Spring中类实例的方法调用？
       </h3>
-      <p>1.在需要追踪的方法上，加上@Tracing标识。</p>
+      <p>1.Spring配置文件头部，配置所需的命名空间</p>
       <pre>
-public class TracingAspectBean {
-
-    @Tracing
-    public String doBusiness() {
-        System.out.println("do business");
-        return "Hello World";
-    }
-}</pre>
-			<p><span style="color:red">注意：对于方法的追踪，仅限于实例级的public方法。其他方法由于Java运行时原因，无法追踪。</span></p>
-			<p>2.Spring配置文件中，配置所需如下信息。</p>
+xmlns:skywalking="http://cloud.asiainfo.com/schema/skywalking"
+xsi:schemaLocation="http://cloud.asiainfo.com/schema/skywalking
+		   http://cloud.asiainfo.com/schema/skywalking/skywalking.xsd"</pre>
+		  <p>典型Spring配置文件如下</p>
+		  <pre>&lt;beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:skywalking="http://cloud.asiainfo.com/schema/skywalking"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+				http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+				http://www.springframework.org/schema/context
+				http://www.springframework.org/schema/context/spring-context-3.0.xsd
+				http://cloud.asiainfo.com/schema/skywalking
+				http://cloud.asiainfo.com/schema/skywalking/skywalking.xsd"&gt;</pre>
+			<p>2.Spring配置文件中，设置需要追踪包名、类名或方法名。可配置多个。</p>
 			<pre>
-&lt;bean id="tracingEnhance" class="com.ai.cloud.skywalking.plugin.spring.TracingEnhanceProcessor"&gt;</pre>
-    
+&lt;skywalking:trace className="*" method="*" packageName="com.ai.cloud.skywalking.example.*" /&gt;
+&lt;skywalking:trace className="busy*" method="*" packageName="com.ai.bss.example.*" /&gt;</pre>
+       <p><span style="color:red">注意：对于方法的追踪，仅限于实例级的public方法。其他方法由于Java运行时原因，无法追踪。</span></p>
     	<p>3.通过Spring标注，或配置文件将TracingAspectBean注册到Spring Context上下文中</p>
       <h3>
       	<a id="useInDubbo" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>如何追踪dubbo调用？
