@@ -162,6 +162,20 @@ public class XXXDBTracingDriver extends TracingDriver {
       <p>上下文将被存储在http request head，中，默认名称和SkyWalkingFilter保持一致。<br/>如果服务端使用dubbox 2.8.4 的提供的http-rest，请使用方法重载</p>
       <pre>HttpClient httpclient = new SWTracingHttpClient(new DefaultHttpClient(), "Dubbo-Attachments");</pre>
       
+      <!--------------------->
+      <h3>
+      	<a id="useInHttpClient" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>能通过哪些渠道在应用中发现traceid？
+      </h3>
+      <p>1.通过向全链路监控绑定业务字段。建立traceid和业务字段的对应关系，在调用链路中，可以直接展现业务字段信息。</p>
+      <pre>String businessKey = "phoneNumber:" + phoneNumber + ",resourceId:" + resourceId + ",mail:" + mail;
+BusinessKeyAppender.setBusinessKey2Trace(businessKey);</pre>
+			<p>2.主动获取traceid，保存到应用程序数据库或其他存储中。</p>
+			<pre>Tracing.getTraceId();</pre>
+			
+      <p>3.通过web应用的http调用入口，通过返回的header信息，找到此次调用的traceid。</p>
+      
+      <p>4.通过log4j或log4j2的扩展，在每行本地日志中，输出traceid。
+      
       <footer class="site-footer">
         <span class="site-footer-owner"><a href="http://wu-sheng.github.io/sky-walking">Sky Walking</a> is maintained by <a href="https://github.com/wu-sheng">吴晟</a>，<a href="https://github.com/ascrutae">张鑫</a>，<a href="https://github.com/tanzhen84">谭真</a>.</span>
       </footer>
