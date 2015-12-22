@@ -27,7 +27,7 @@ public class DataSenderWithCopies implements IDataSender{
 	 */
 	public boolean append(IDataSender dataSender){
 		senders.add(dataSender);
-		return maxCopyNum == senders.size();
+		return senders.size() < maxCopyNum;
 	}
 
 	/**
