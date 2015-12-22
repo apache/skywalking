@@ -159,7 +159,7 @@ public class XXXDBTracingDriver extends TracingDriver {
       </h3>
       <p>使用SWTracingHttpClient封装所需的httpClient，此httpClient所有调用都会被监控</p>
       <pre>HttpClient httpclient = new SWTracingHttpClient(new DefaultHttpClient());</pre>
-      <p>上下文将被存储在http request head，中，默认名称和SkyWalkingFilter保持一致。<br/>如果服务端使用dubbox 2.4.3 的提供的http-rest，请使用方法重载</p>
+      <p>上下文将被存储在http request head，中，默认名称和SkyWalkingFilter保持一致。<br/>如果服务端使用dubbox 2.8.4 的提供的http-rest，请使用方法重载</p>
       <pre>HttpClient httpclient = new SWTracingHttpClient(new DefaultHttpClient(), "Dubbo-Attachments");</pre>
       
       <footer class="site-footer">
