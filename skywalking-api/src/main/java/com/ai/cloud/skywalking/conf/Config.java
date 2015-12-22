@@ -3,9 +3,9 @@ package com.ai.cloud.skywalking.conf;
 public class Config {
 
 	public static class SkyWalking {
-		public static String USER_ID;
+		public static String USER_ID = "";
 
-		public static String APPLICATION_CODE;
+		public static String APPLICATION_CODE = "";
 	}
 
 	public static class BuriedPoint {
@@ -16,6 +16,8 @@ public class Config {
 
 		// Business Key 最大长度
 		public static int BUSINESSKEY_MAX_LENGTH = 300;
+		
+		public static String EXCLUSIVE_EXCEPTIONS = "";
 	}
 
 	public static class Consumer {

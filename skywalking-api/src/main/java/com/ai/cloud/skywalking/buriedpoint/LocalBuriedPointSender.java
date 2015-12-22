@@ -14,7 +14,7 @@ import com.ai.cloud.skywalking.util.ContextGenerator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class LocalBuriedPointSender implements IBuriedPointSender {
+public class LocalBuriedPointSender extends ApplicationExceptionHandler implements IBuriedPointSender {
 
     private static Logger logger = Logger.getLogger(IBuriedPointSender.class.getName());
 
@@ -53,8 +53,5 @@ public class LocalBuriedPointSender implements IBuriedPointSender {
         }
     }
 
-    public void handleException(Throwable e) {
-        Span span = Context.getLastSpan();
-        span.handleException(e, Config.BuriedPoint.MAX_EXCEPTION_STACK_LENGTH);
-    }
+    public void handleException(Throwable e) {}
 }
