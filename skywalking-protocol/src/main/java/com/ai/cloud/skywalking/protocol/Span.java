@@ -2,8 +2,7 @@ package com.ai.cloud.skywalking.protocol;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -137,24 +136,35 @@ public class Span extends SpanData {
 		return str != null && str.length() > 0;
 	}
 
-	public void handleException(Throwable e,
-			List<String> exclusiveExceptionList, int maxExceptionStackLength) {
-		this.statusCode = 1;
-		ByteArrayOutputStream buf = new ByteArrayOutputStream();
+	public void handleException(Throwable e, Set<String> exclusiveExceptionSet,
+			int maxExceptionStackLength) {
+		ByteArrayOutputStream buf = null;
 		StringBuilder expMessage = new StringBuilder();
-		Throwable causeException = e;
-		while (causeException != null
-				&& (causeException.getCause() != null || expMessage.length() < maxExceptionStackLength)) {
-			causeException.printStackTrace(new java.io.PrintWriter(buf, true));
-			expMessage.append(buf.toString());
-			causeException = causeException.getCause();
-		}
 		try {
-			buf.close();
-		} catch (IOException e1) {
-			logger.log(Level.ALL, "Close exception stack input stream failed");
+			buf = new ByteArrayOutputStream();
+			Throwable causeException = e;
+			while (causeException != null
+					&& (causeException.getCause() != null || expMessage
+							.length() < maxExceptionStackLength)) {
+				causeException.printStackTrace(new java.io.PrintWriter(buf,
+						true));
+				expMessage.append(buf.toString());
+				causeException = causeException.getCause();
+			}
+
+		} finally {
+			try {
+				buf.close();
+			} catch (IOException ioe) {
+				logger.log(Level.ALL,
+						"Close exception stack input stream failed", ioe);
+			}
 		}
 		this.exceptionStack = expMessage.toString();
+
+		if (!exclusiveExceptionSet.contains(e.getClass().getName())) {
+			this.statusCode = 1;
+		}
 	}
 
 }

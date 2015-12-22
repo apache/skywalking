@@ -17,6 +17,7 @@ public class Config {
 		// Business Key 最大长度
 		public static int BUSINESSKEY_MAX_LENGTH = 300;
 		
+		// 使用逗号分离
 		public static String EXCLUSIVE_EXCEPTIONS = "";
 	}
 
