@@ -113,6 +113,10 @@ public abstract class SpanData {
         return exceptionStack;
     }
 
+    public void setExceptionStack(String exceptionStack) {
+        this.exceptionStack = exceptionStack;
+    }
+
     public String getBusinessKey() {
         return businessKey;
     }
