@@ -3,12 +3,14 @@ package com.ai.cloud.skywalking.plugin.web;
 
 import com.ai.cloud.skywalking.api.Tracing;
 import com.ai.cloud.skywalking.buriedpoint.RPCBuriedPointReceiver;
+import com.ai.cloud.skywalking.conf.AuthDesc;
 import com.ai.cloud.skywalking.model.ContextData;
 import com.ai.cloud.skywalking.model.Identification;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 
 public class SkyWalkingFilter implements Filter {
@@ -26,6 +28,11 @@ public class SkyWalkingFilter implements Filter {
     }
 
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+    	if(!AuthDesc.isAuth()){
+    		 filterChain.doFilter(servletRequest, servletResponse);
+    		 return;
+    	}
+    	
         RPCBuriedPointReceiver receiver = null;
         try {
             HttpServletRequest request = (HttpServletRequest) servletRequest;
