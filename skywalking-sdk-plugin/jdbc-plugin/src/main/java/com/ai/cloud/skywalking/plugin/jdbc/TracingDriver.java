@@ -7,6 +7,8 @@ import java.sql.SQLFeatureNotSupportedException;
 import java.util.Properties;
 import java.util.logging.Logger;
 
+import com.ai.cloud.skywalking.conf.AuthDesc;
+
 public abstract class TracingDriver implements Driver {
 	private static final String TRACING_SIGN = "tracing:";
 
@@ -20,7 +22,11 @@ public abstract class TracingDriver implements Driver {
 
 	public java.sql.Connection connect(String url, Properties info) throws SQLException {
 		java.sql.Connection conn = this.realDriver.connect(this.getRealUrl(url), info);
-		return new SWConnection(url, info, conn);
+		if(!AuthDesc.isAuth()){
+			return conn;
+		}else{
+			return new SWConnection(url, info, conn);
+		}
 	}
 
 	public boolean acceptsURL(String url) throws SQLException {

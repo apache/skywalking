@@ -1,12 +1,15 @@
 package com.ai.cloud.skywalking.plugin.spring;
 
 import com.ai.cloud.skywalking.buriedpoint.LocalBuriedPointSender;
+import com.ai.cloud.skywalking.conf.AuthDesc;
 import com.ai.cloud.skywalking.model.Identification;
 import com.ai.cloud.skywalking.plugin.spring.util.ConcurrentHashSet;
+
 import javassist.*;
 import javassist.Modifier;
 import javassist.bytecode.AnnotationsAttribute;
 import javassist.bytecode.ConstPool;
+
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
@@ -77,6 +80,10 @@ public class TracingEnhanceProcessor implements DisposableBean,
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName)
             throws BeansException {
+    	if(!AuthDesc.isAuth()){
+    		return bean;
+    	}
+    	
         String packageName;
         if (bean.getClass().getPackage() == null) {
             packageName = "";
