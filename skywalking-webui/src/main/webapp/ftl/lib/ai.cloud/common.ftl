@@ -264,7 +264,7 @@
                                         <li class="list-group-item"><strong>主机信息：</strong>${logInfo.address!}</li>
                                         <li class="list-group-item"><strong>调用进程号：</strong>${logInfo.processNo!}</li>
                                         <li class="list-group-item"><strong>异常堆栈：</strong>
-                                            <#if logInfo.statusCode == 0>
+                                            <#if (logInfo.exceptionStack!)?length == 0>
                                                 无
                                             <#else>
                                             ${logInfo.exceptionStack}

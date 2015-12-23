@@ -97,6 +97,9 @@ public class BuriedPointSDAO implements IBuriedPointSDAO {
 						clientLog.setViewPointId(serverLog.getViewPointId());
 						clientLog.setViewPointIdSub(serverLog.getViewPointIdSub());
 						clientLog.setAddress(serverLog.getAddress());
+						if (StringUtil.isBlank(clientLog.getExceptionStack())){
+							clientLog.setExceptionStack(serverLog.getExceptionStack());
+						}
 					}
 					logVO.addTimeLine(rpcVO.getValue().getStartDate(), rpcVO.getValue().getCost());
 				}
