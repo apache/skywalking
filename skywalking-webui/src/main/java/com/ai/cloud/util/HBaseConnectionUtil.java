@@ -27,8 +27,8 @@ public class HBaseConnectionUtil {
 		try {
 			if (configuration == null) {
 				configuration = HBaseConfiguration.create();
-				configuration.set("hbase.zookeeper.quorum", Constants.QUORUM);
-				configuration.set("hbase.zookeeper.property.clientPort", Constants.CLIENT_PORT);
+				configuration.set("hbase.zookeeper.quorum", Constants.HBaseConfig.QUORUM);
+				configuration.set("hbase.zookeeper.property.clientPort",  Constants.HBaseConfig.CLIENT_PORT);
 				connection = ConnectionFactory.createConnection(configuration);
 			}
 		} catch (Exception e) {
