@@ -5,7 +5,7 @@
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
     <title>Sky Walking</title>
-    <meta name="generator" content="Bootply"/>
+    <meta name="generator" content="Bootply" />
     <meta name="viewport"
           content="width=device-width, initial-scale=1, maximum-scale=1">
     <link href="${base}/css/bootstrap.min.css" rel="stylesheet">
@@ -49,7 +49,7 @@
         <div class="form-group">
             <label for="todoType" class="col-sm-4 control-label">告警操作：</label>
             <div class="col-sm-4">
-                <select class="form-control" id="todoType">
+                <select class="form-control" id="todoType" >
                     <option value="0">发送邮件</option>
                     <option value="1">回调接口</option>
                 </select>
@@ -82,12 +82,6 @@
             </div>
         </div>
         <div class="form-group">
-            <label for="excludeExceptions" class="col-sm-4 control-label">异常过滤：</label>
-            <div class="col-sm-4">
-                <textarea class="form-control" id="excludeExceptions" rows="3" placeholder="过滤异常,需要配置异常的全名，多个以,分割"></textarea>
-            </div>
-        </div>
-        <div class="form-group">
             <div class="col-sm-offset-4 col-sm-4">
                 <input type='hidden' id="ruleId">
                 <input type='hidden' id="appId">
@@ -99,101 +93,9 @@
     </div>
     <div class="form-horizontal" id="authInfo" style="display:none">
         <div class="form-group">
-            <label for="buriedpoint.printf" class="col-sm-4 control-label">是否打印数据：</label>
+            <label for="period" class="col-sm-4 control-label">需要排除的异常</label>
             <div class="col-sm-4">
-                <select class="form-control" id="buriedpoint.printf">
-                    <option value="true">是</option>
-                    <option selected="selected" value="false">否</option>
-                </select>
-            </div>
-        </div>
-        <div class="form-group">
-            <label for="period" class="col-sm-4 control-label">埋点异常的最大长度(字节)：</label>
-            <div class="col-sm-4">
-                <input type="text" class="form-control" id="buriedpoint.max_exception_stack_length"
-                       placeholder="埋点异常的最大长度(字节)" value="4000">
-            </div>
-        </div>
-        <div class="form-group">
-            <label for="period" class="col-sm-4 control-label">业务字段的最大长度(字节)：</label>
-            <div class="col-sm-4">
-                <input type="text" class="form-control" id="buriedpoint.max_exception_stack_length"
-                       placeholder="业务字段的最大长度" value="300">
-            </div>
-        </div>
-        <div class="form-group">
-            <label for="period" class="col-sm-4 control-label">发送的最大长度(字节)：</label>
-            <div class="col-sm-4">
-                <input type="text" class="form-control" id="sender.max_send_length" placeholder="发送的最大长度" value="20000">
-            </div>
-        </div>
-        <div class="form-group">
-            <label for="period" class="col-sm-4 control-label">最大发送者的连接数阀比例(百分比)：</label>
-            <div class="col-sm-4">
-                <input type="text" class="form-control" id="sender.max_send_length" placeholder="最大发送者的连接数阀比例"
-                       value="100">
-            </div>
-        </div>
-        <div class="form-group">
-            <label for="period" class="col-sm-4 control-label">sender的等待周期(秒)：</label>
-            <div class="col-sm-4">
-                <input type="text" class="form-control" id="sender.retry_get_sender_wait_interval"
-                       placeholder="当没有Sender时,尝试获取sender的等待周期" value="2000">
-            </div>
-        </div>
-        <div class="form-group">
-            <label for="sender.is_off" class="col-sm-4 control-label">是否开启发送消息：</label>
-            <div class="col-sm-4">
-                <select class="form-control" id="sender.is_off">
-                    <option value="true">是</option>
-                    <option selected="selected" value="false">否</option>
-                </select>
-            </div>
-        </div>
-        <div class="form-group">
-            <label for="mailTemp" class="col-sm-4 control-label">发送服务端配置(,分隔)：</label>
-            <div class="col-sm-4">
-                <textarea class="form-control" id="sender.servers_addr" rows="4"
-                          placeholder="发送服务端配置">127.0.0.1:34000</textarea>
-            </div>
-        </div>
-        <div class="form-group">
-            <label for="period" class="col-sm-4 control-label">最大消费线程数：</label>
-            <div class="col-sm-4">
-                <input type="text" class="form-control" id="consumer.max_consumer" placeholder="最大消费线程数" value="2">
-            </div>
-        </div>
-        <div class="form-group">
-            <label for="period" class="col-sm-4 control-label">消费者最大等待时间(秒)：</label>
-            <div class="col-sm-4">
-                <input type="text" class="form-control" id="consumer.max_wait_time" placeholder="消费者最大等待时间" value="5">
-            </div>
-        </div>
-        <div class="form-group">
-            <label for="period" class="col-sm-4 control-label">发送失败等待时间(秒)：</label>
-            <div class="col-sm-4">
-                <input type="text" class="form-control" id="consumer.consumer_fail_retry_wait_interval"
-                       placeholder="发送失败等待时间" value="50">
-            </div>
-        </div>
-        <div class="form-group">
-            <label for="period" class="col-sm-4 control-label">每个Buffer的最大个数：</label>
-            <div class="col-sm-4">
-                <input type="text" class="form-control" id="buffer.buffer_max_size" placeholder="每个Buffer的最大个数"
-                       value="18000">
-            </div>
-        </div>
-        <div class="form-group">
-            <label for="period" class="col-sm-4 control-label">Buffer池的最大长度：</label>
-            <div class="col-sm-4">
-                <input type="text" class="form-control" id="buffer.pool_size" placeholder="Buffer池的最大长度" value="5">
-            </div>
-        </div>
-        <div class="form-group">
-            <label for="period" class="col-sm-4 control-label">发送检查线程检查周期(秒)：</label>
-            <div class="col-sm-4">
-                <input type="text" class="form-control" id="senderchecker.check_polling_time" placeholder="发送检查线程检查周期"
-                       value="200">
+                <input type="text" class="form-control" id="exclusiveException" placeholder="java.lang.Exception,java.io.IOException">
             </div>
         </div>
         <div class="form-group">
@@ -210,9 +112,7 @@
             &nbsp;
             <button id="crtAlarm" type="button" class="btn btn-warning" href="#">默认告警规则</button>
             &nbsp;
-            <button type="button" class="btn btn-success" href="#" onclick="window.location.reload(); return false;">
-                刷新
-            </button>
+            <button type="button" class="btn btn-success" href="#" onclick="window.location.reload(); return false;">刷新</button>
         </caption>
         <thead>
         <tr>
@@ -228,14 +128,9 @@
                 <th scope="row">${appInfo_index + 1}</th>
                 <td>${appInfo.appCode!}</td>
                 <td>
-                    <button name="conf" appId="${appInfo.appId!}" appCode="${appInfo.appCode!}" type="button"
-                            class="btn btn-default btn-xs">配置告警规则
-                    </button>
-                    <button name="exportAuthInfo" appId="${appInfo.appId!}" appCode="${appInfo.appCode!}" type="button"
-                            class="btn btn-default btn-xs">生成授权
-                    </button>
-                    <button name="del" appId="${appInfo.appId!}" type="button" class="btn btn-default btn-xs">删除
-                    </button>
+                    <button name="conf" appId="${appInfo.appId!}" appCode="${appInfo.appCode!}" type="button" class="btn btn-default btn-xs">配置告警规则</button>
+                    <button name="exportAuthInfo" appId="${appInfo.appId!}" appCode="${appInfo.appCode!}" type="button" class="btn btn-default btn-xs">生成授权文件</button>
+                    <button name="del" appId="${appInfo.appId!}" type="button" class="btn btn-default btn-xs">删除</button>
                 </td>
             </tr>
             </#list>
@@ -243,18 +138,21 @@
     </#if>
     </table>
 </div>
-<iframe id="authFiledownLoad" style="width:0px;height:0px;display:none"></iframe>
+<div id="authFiledownLoad">
+
+</div>
+<#--<iframe id="authFiledownLoad" style="width:0px;height:0px;display:none"></iframe>-->
 <!-- script references -->
 <@common.importJavaScript />
 <script type="text/javascript">
-    $().ready(function () {
-        $("#crtApp").bind("click", function () {
+    $().ready(function(){
+        $("#crtApp").bind("click",function(){
             $("#cannelRuleBtn").click();
             $("#createAppDiv").show();
         });
 
-        $("#crtBtn").bind("click", function () {
-            if ($("#appCode").val() == '') {
+        $("#crtBtn").bind("click",function(){
+            if($("#appCode").val() == ''){
                 alert("请输入应用名称");
                 return false;
             }
@@ -262,31 +160,31 @@
             $.ajax({
                 type: 'POST',
                 url: urlStr,
-                contentType: "application/json",
-                data: "{'appCode':'" + $("#appCode").val() + "'}",
+                contentType:"application/json",
+                data:"{'appCode':'" + $("#appCode").val() + "'}",
                 dataType: 'json',
-                async: false,
-                success: function (data) {
+                async : false,
+                success: function(data){
                     console.log(data);
                     var result = data.result;
-                    if (result == 'OK') {
+                    if(result == 'OK'){
                         alert(data.msg);
                         //$("#createAppDiv").hide();
                         window.location.reload();
-                    } else {
+                    }else{
                         alert(data.msg);
                     }
                 },
-                error: function (xhr, type) {
+                error: function(xhr, type){
                     alert("操作失败");
                 }
             });
         });
 
-        $("button[name='del']").each(function () {
-            $(this).bind("click", function () {
+        $("button[name='del']").each(function(){
+            $(this).bind("click",function(){
                 var appId = $(this).attr("appId");
-                if (appId < 0) {
+                if(appId < 0){
                     alert("请选择应用");
                     return false;
                 }
@@ -294,37 +192,37 @@
                 $.ajax({
                     type: 'POST',
                     url: urlStr,
-                    contentType: "application/json",
-                    data: {},
+                    contentType:"application/json",
+                    data:{},
                     dataType: 'json',
-                    async: false,
-                    success: function (data) {
+                    async : false,
+                    success: function(data){
                         console.log(data);
                         var result = data.result;
-                        if (result == 'OK') {
+                        if(result == 'OK'){
                             alert(data.msg);
                             window.location.reload();
-                        } else {
+                        }else{
                             alert(data.msg);
                         }
                     },
-                    error: function (xhr, type) {
+                    error: function(xhr, type){
                         alert("操作失败");
                     }
                 });
             });
         });
 
-        $("#cannelBtn").bind("click", function () {
+        $("#cannelBtn").bind("click",function(){
             $("#appCode").val("");
             $("#createAppDiv").hide();
         });
 
-        $("#cannelRuleBtn").bind("click", function () {
+        $("#cannelRuleBtn").bind("click",function(){
             $("#crtAlarmDiv").hide();
         });
 
-        $("#crtAlarm").bind("click", function () {
+        $("#crtAlarm").bind("click",function(){
             $("#cannelBtn").click();
             $("#crtAlarmDiv").show();
 
@@ -332,58 +230,57 @@
             $.ajax({
                 type: 'POST',
                 url: urlStr,
-                contentType: "application/json",
-                data: "{}",
+                contentType:"application/json",
+                data:"{}",
                 dataType: 'json',
-                async: false,
-                success: function (data) {
+                async : false,
+                success: function(data){
                     console.log(data);
                     var result = data.result;
                     $("#isGlobal").val("1");
                     $("#appName").text("所有应用");
-                    if (result == 'OK') {
+                    if(result == 'OK'){
                         var obj = jQuery.parseJSON(data.data);
                         var confArg = jQuery.parseJSON(obj.configArgs);
                         $("#period").val(confArg.period);
                         $("#todoType").val(obj.todoType).change();
-                        if (obj.todoType == 1) {
+                        if(obj.todoType == 1){
                             $("#urlCall").val(confArg.urlInfo.urlCall);
-                        } else {
+                        }else {
                             $("#mailTo").val(confArg.mailInfo.mailTo);
                             $("#mailCc").val(confArg.mailInfo.mailCc);
                             $("#mailTemp").val(confArg.mailInfo.mailTemp);
                         }
-                        $("#excludeExceptions").val(confArg.mailInfo.excludeExceptions);
                         $("#ruleId").val(obj.ruleId);
                         $("#crtRuleBtn").text("修改规则");
                         $("#cannelRuleBtn").text("取消修改");
                         $("#appId").val("");
                     }
                 },
-                error: function (xhr, type) {
+                error: function(xhr, type){
                     alert("操作失败");
                 }
             });
         });
 
-        $("#todoType").bind("change", function () {
-            if ($(this).val() == 0) {
+        $("#todoType").bind("change",function(){
+            if($(this).val() == 0){
                 $("#mailTempDiv").show();
                 $("#callBackDiv").hide();
-            } else if ($(this).val() == 1) {
+            }else if($(this).val() == 1){
                 $("#mailTempDiv").hide();
                 $("#callBackDiv").show();
             }
         });
 
-        $("button[name='conf']").each(function () {
-            $(this).bind("click", function () {
+        $("button[name='conf']").each(function(){
+            $(this).bind("click",function(){
                 $("#cannelBtn").click();
                 $("#crtAlarmDiv").show();
 
                 var appId = $(this).attr("appId");
                 var appCode = $(this).attr("appCode");
-                if (appId < 0) {
+                if(appId < 0){
                     alert("请选择应用");
                     return false;
                 }
@@ -392,34 +289,33 @@
                 $.ajax({
                     type: 'POST',
                     url: urlStr,
-                    contentType: "application/json",
-                    data: "{}",
+                    contentType:"application/json",
+                    data:"{}",
                     dataType: 'json',
-                    async: false,
-                    success: function (data) {
+                    async : false,
+                    success: function(data){
                         console.log(data);
                         var result = data.result;
                         $("#isGlobal").val("0");
                         $("#appId").val(appId);
-                        if (result == 'OK') {
+                        if(result == 'OK'){
                             $("#appName").text(appCode);
                             var obj = jQuery.parseJSON(data.data);
                             var confArg = jQuery.parseJSON(obj.configArgs);
                             $("#period").val(confArg.period);
                             $("#todoType").val(obj.todoType).change();
-                            if (obj.todoType == 1) {
+                            if(obj.todoType == 1){
                                 $("#urlCall").val(confArg.urlInfo.urlCall);
-                            } else {
+                            }else {
                                 $("#mailTo").val(confArg.mailInfo.mailTo);
                                 $("#mailCc").val(confArg.mailInfo.mailCc);
                                 $("#mailTemp").val(confArg.mailInfo.mailTemp);
                             }
-                            $("#excludeExceptions").val(confArg.excludeExceptions);
                             $("#ruleId").val(obj.ruleId);
                             $("#crtRuleBtn").text("修改规则");
                             $("#cannelRuleBtn").text("取消修改");
-                        } else {
-                            $("#appName").html(appCode + "(<b>使用默认规则</b>)");
+                        }else{
+                            $("#appName").html(appCode+"(<b>使用默认规则</b>)");
                             $("#period").val("");
                             $("#todoType").val("0").change();
                             $("#urlCall").val("");
@@ -427,12 +323,11 @@
                             $("#mailCc").val("");
                             $("#mailTemp").val("");
                             $("#ruleId").val("");
-                            $("#excludeExceptions").val("");
                             $("#crtRuleBtn").text("创建规则");
                             $("#cannelRuleBtn").text("取消创建");
                         }
                     },
-                    error: function (xhr, type) {
+                    error: function(xhr, type){
                         alert("操作失败");
                     }
                 });
@@ -440,21 +335,21 @@
         });
 
         //创建规则操作
-        $("#crtRuleBtn").bind("click", function () {
+        $("#crtRuleBtn").bind("click",function(){
             var ruleId = $("#ruleId").val();
             var appId = $("#appId").val();//可空
             var period = $("#period").val();//不可空
-            if (period == null || period.length < 1) {
+            if(period == null || period.length < 1){
                 alert("告警频率不能为空");
                 return false;
             }
             var isGlobal = $("#isGlobal").val();//不可空
-            if (isGlobal == null || isGlobal.length < 1) {
+            if(isGlobal == null || isGlobal.length < 1){
                 alert("规则标识不能为空");
                 return false;
-            } else {
-                if (isGlobal == 0) {
-                    if (appId == null || appId.length < 1) {
+            }else{
+                if(isGlobal ==0){
+                    if(appId == null || appId.length < 1){
                         alert("应用标识不能为空");
                         return false;
                     }
@@ -462,75 +357,74 @@
             }
 
             var todoType = $("#todoType").val();//不可空
-            if (todoType == null || todoType.length < 1) {
+            if(todoType == null || todoType.length < 1){
                 alert("告警操作不能为空");
                 return false;
             }
             var urlCall = $("#urlCall").val();
             var mailTemp = $("#mailTemp").val();
             var todoContent = "";
-            if (todoType == 0) {
-                if (mailTemp == null || mailTemp.length < 1) {
+            if(todoType == 0){
+                if(mailTemp == null || mailTemp.length < 1){
                     alert("邮件模板不能为空");
                     return false;
                 }
                 var mailTo = $("#mailTo").val();
                 var mailCc = $("#mailCc").val();
-            } else if (todoType == 1) {
-                if (urlCall == null || urlCall.length < 1) {
+            }else if(todoType == 1){
+                if(urlCall == null || urlCall.length < 1){
                     alert("回调接口不能为空");
                     return false;
                 }
-            } else {
+            }else{
                 alert("告警规则不能为空");
                 return false;
             }
             var ruleId = $("#ruleId").val();
-            var excludeExceptions = $("#excludeExceptions").val();
             var jsonData = "";
-            if (ruleId > 0) {
+            if(ruleId > 0){
                 //调用修改规则
-                if (ruleId == null || ruleId.length < 0) {
+                if(ruleId == null || ruleId.length < 0){
                     alert("告警规则不能为空");
                     return false;
                 }
                 var urlStr = '${base}/alarmRule/modify';
-                if (todoType == 0) {
-                    jsonData = "{ruleId:'" + ruleId + "',appId:'" + appId + "',period:'" + period + "',isGlobal:'" + isGlobal + "',todoType:'" + todoType + "',mailTemp:'" + mailTemp + "',mailTo:'" + mailTo + "',mailCc:'" + mailCc  + "',excludeExceptions:'" + excludeExceptions+"'}";
-                } else if (todoType == 1) {
-                    jsonData = "{ruleId:'" + ruleId + "',appId:'" + appId + "',period:'" + period + "',isGlobal:'" + isGlobal + "',todoType:'" + todoType + "',urlCall:'" + urlCall + "',excludeExceptions:'" + excludeExceptions+"'}";
-                } else {
+                if(todoType ==0){
+                    jsonData = "{ruleId:'"+ruleId+"',appId:'"+appId+"',period:'"+period+"',isGlobal:'"+isGlobal+"',todoType:'"+todoType+"',mailTemp:'"+mailTemp+"',mailTo:'"+mailTo+"',mailCc:'"+mailCc+"'}";
+                }else if(todoType ==1){
+                    jsonData = "{ruleId:'"+ruleId+"',appId:'"+appId+"',period:'"+period+"',isGlobal:'"+isGlobal+"',todoType:'"+todoType+"',urlCall:'"+urlCall+"'}";
+                }else{
                     alert("请选择正确的告警操作");
                     return false;
                 }
-                alert(jsonData);
+                //alert(jsonData);
                 $.ajax({
                     type: 'POST',
                     url: urlStr,
-                    contentType: "application/json",
-                    data: jsonData,
+                    contentType:"application/json",
+                    data:jsonData,
                     dataType: 'json',
-                    async: false,
-                    success: function (data) {
-                        if (data.result == "OK") {
+                    async : false,
+                    success: function(data){
+                        if(data.result == "OK"){
                             alert(data.msg);
                             window.location.reload();
-                        } else {
+                        }else{
                             alert(data.msg);
                         }
                     },
-                    error: function (xhr, type) {
+                    error: function(xhr, type){
                         alert("操作失败");
                     }
                 });
-            } else {
+            }else{
                 //调用创建规则
                 var urlStr = '${base}/alarmRule/create';
-                if (todoType == 0) {
-                    jsonData = "{appId:'" + appId + "',period:'" + period + "',isGlobal:'" + isGlobal + "',todoType:'" + todoType + "',mailTemp:'" + mailTemp + "',mailTo:'" + mailTo + "',mailCc:'" + mailCc  + "',excludeExceptions:'" + excludeExceptions+"'}";
-                } else if (todoType == 1) {
-                    jsonData = "{appId:'" + appId + "',period:'" + period + "',isGlobal:'" + isGlobal + "',todoType:'" + todoType + "',urlCall:'" + urlCall  + "',excludeExceptions:'" + excludeExceptions+"'}";
-                } else {
+                if(todoType ==0){
+                    jsonData = "{appId:'"+appId+"',period:'"+period+"',isGlobal:'"+isGlobal+"',todoType:'"+todoType+"',mailTemp:'"+mailTemp+"',mailTo:'"+mailTo+"',mailCc:'"+mailCc+"'}";
+                }else if(todoType ==1){
+                    jsonData = "{appId:'"+appId+"',period:'"+period+"',isGlobal:'"+isGlobal+"',todoType:'"+todoType+"',urlCall:'"+urlCall+"'}";
+                }else{
                     alert("请选择正确的告警操作");
                     return false;
                 }
@@ -538,45 +432,70 @@
                 $.ajax({
                     type: 'POST',
                     url: urlStr,
-                    contentType: "application/json",
-                    data: jsonData,
+                    contentType:"application/json",
+                    data:jsonData,
                     dataType: 'json',
-                    async: false,
-                    success: function (data) {
-                        if (data.result == "OK") {
+                    async : false,
+                    success: function(data){
+                        if(data.result == "OK"){
                             alert(data.msg);
                             window.location.reload();
-                        } else {
+                        }else{
                             alert(data.msg);
                         }
                     },
-                    error: function (xhr, type) {
+                    error: function(xhr, type){
                         alert("操作失败");
                     }
                 });
             }
         });
 
-        $("button[name='export']").each(function () {
-            $(this).bind("click", function () {
+        $("button[name='export']").each(function(){
+            $(this).bind("click",function(){
                 var downLoadFrame = document.getElementById('authFiledownLoad');
                 downLoadFrame.src = '${base}/exportAuth/test';
             });
         });
 
-        $("button[name='exportAuthInfo']").each(function () {
-            $(this).bind("click", function () {
+        $("button[name='exportAuthInfo']").each(function(){
+            $(this).bind("click",function(){
                 $("#authInfo").show();
                 $("#authAppCode").val($(this).attr("appCode"));
+                //var downLoadFrame = document.getElementById('authFiledownLoad');
+                //downLoadFrame.src = '${base}/exportAuth/test';
             });
         });
 
-        $("#export").bind("click", function () {
-            var downLoadFrame = document.getElementById('authFiledownLoad');
-            downLoadFrame.src = '${base}/exportAuth/test';
+        $("#export").bind("click",function(){
+            <#--var downLoadFrame = document.getElementById('authFiledownLoad');-->
+            <#--downLoadFrame.src = '${base}/exportAuth/test';-->
+            var appCode = $("#authAppCode").val();
+            if (appCode == null){
+                alert("没有发现应用编码.");
+                return;
+            }
+            var form=$("<form>");//定义一个form表单
+            form.attr("style","display:none");
+            //form.attr("target","${base}/exportAuth/test");
+            form.attr("method","post");
+            form.attr("action","${base}/exportAuth/" + appCode);
+            var exportData=$("<input>");
+            exportData.attr("type","hidden");
+            exportData.attr("name","exportData");
+            exportData.attr("value",(new Date()).getMilliseconds());
+            var exclusiveException=$("<input>");
+            exclusiveException.attr("type","hidden");
+            exclusiveException.attr("name","exclusiveException");
+            exclusiveException.attr("value",$("#exclusiveException").val());
+            $("#authFiledownLoad").append(form);//将表单放置在web中
+            form.append(exportData);
+            form.append(exclusiveException);
+
+            form.submit();//表单提交
         });
 
-        $("#cannelExport").bind("click", function () {
+        $("#cannelExport").bind("click",function(){
             $("#authInfo").hide();
         });
 
