@@ -14,7 +14,7 @@ public class AuthFileSerImpl implements IAuthFileSer {
     private IAuthConfigMDAO authConfigMDAO;
 
     @Override
-    public Properties queryAuthFile() {
-        return authConfigMDAO.queryAllAuthConfig();
+    public Properties queryAuthFile(String authType) {
+        return authConfigMDAO.queryAllAuthConfig(authType);
     }
 }

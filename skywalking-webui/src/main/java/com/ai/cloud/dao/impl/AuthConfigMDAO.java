@@ -21,14 +21,14 @@ public class AuthConfigMDAO implements IAuthConfigMDAO {
     private static Logger logger = LogManager.getLogger(AuthConfigMDAO.class);
 
     @Override
-    public Properties queryAllAuthConfig() {
+    public Properties queryAllAuthConfig(final String authType) {
         final Properties properties = new Properties();
-        String sql = "select auth_file_config.key, auth_file_config.value from auth_file_config where auth_file_config.sts = ? ";
+        String sql = "select auth_file_config.key, auth_file_config.value" + authType + " from auth_file_config where auth_file_config.sts = ? ";
         final Object[] params = new Object[]{"A"};
-        jdbcTemplate.query(sql, params,new RowCallbackHandler() {
+        jdbcTemplate.query(sql, params, new RowCallbackHandler() {
             @Override
             public void processRow(ResultSet resultSet) throws SQLException {
-                properties.setProperty(resultSet.getString("key"), resultSet.getString("value"));
+                properties.setProperty(resultSet.getString("key"), resultSet.getString("value" + authType));
             }
         });
         return properties;

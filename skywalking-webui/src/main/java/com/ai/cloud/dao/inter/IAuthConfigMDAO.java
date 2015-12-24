@@ -3,5 +3,5 @@ package com.ai.cloud.dao.inter;
 import java.util.Properties;
 
 public interface IAuthConfigMDAO {
-    Properties queryAllAuthConfig();
+    Properties queryAllAuthConfig(String authType);
 }

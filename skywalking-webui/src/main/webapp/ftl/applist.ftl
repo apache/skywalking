@@ -99,6 +99,15 @@
             </div>
         </div>
         <div class="form-group">
+            <label for="period" class="col-sm-4 control-label">授权文件类型:</label>
+            <div class="col-sm-4">
+                <select class="form-control" id="authType">
+                    <option value="1">外网</option>
+                    <option value="0">内网</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
             <div class="col-sm-offset-4 col-sm-4">
                 <input type='hidden' id="authAppCode">
                 <button id="export" class="btn btn-lg btn-primary " type="button">生成授权文件</button>
@@ -488,9 +497,14 @@
             exclusiveException.attr("type","hidden");
             exclusiveException.attr("name","exclusiveException");
             exclusiveException.attr("value",$("#exclusiveException").val());
+            var authType=$("<input>");
+            authType.attr("type","hidden");
+            authType.attr("name","authType");
+            authType.attr("value",$("#authType").val());
             $("#authFiledownLoad").append(form);//将表单放置在web中
             form.append(exportData);
             form.append(exclusiveException);
+            form.append(authType);
 
             form.submit();//表单提交
         });

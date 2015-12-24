@@ -37,10 +37,9 @@ public class AuthFileCtl {
 
     @RequestMapping("/exportAuth/{appCode}")
     public void exportApplicationAuthFile(HttpServletRequest request, HttpServletResponse response,
-                                          @PathVariable("appCode") String appCode) throws Exception {
+                                          @PathVariable("appCode") String appCode, String authType) throws Exception {
         HttpSession session = request.getSession();
         String uid = (String) session.getAttribute("uid");
-
         JSONObject reJson = new JSONObject();
 
         if (StringUtil.isBlank(uid)) {
@@ -56,7 +55,7 @@ public class AuthFileCtl {
         java.net.URLEncoder.encode(fileName, "utf-8");
         response.addHeader("Content-Disposition",
                 "attachment;" + "filename=\"" + URLEncoder.encode(fileName, "utf-8") + "\"");
-        Properties properties = authFileSer.queryAuthFile();
+        Properties properties = authFileSer.queryAuthFile(authType);
         String propertyValue;
         for (Map.Entry<Object, Object> value : properties.entrySet()) {
             propertyValue = String.valueOf(value.getValue());
