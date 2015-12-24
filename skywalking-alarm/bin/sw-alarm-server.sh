@@ -46,4 +46,6 @@ done
 
 echo "CLASSPATH=$CLASSPATH"
 
-$JAVA -classpath $CLASSPATH com.ai.cloud.skywalking.alarm.AlarmProcessServer >> ${SW_ALARM_ALARM_SERVER_BIN_DIR}/../log/sw-alarm-server.log & 2>&1&
+JAVA_OPTS="$JAVA_OPTS -Djava.rmi.server.hostname=10.1.241.16 -Dcom.sun.management.jmxremote.port=28999 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false"
+
+$JAVA ${JAVA_OPTS} -classpath $CLASSPATH com.ai.cloud.skywalking.alarm.AlarmProcessServer >> ${SW_ALARM_ALARM_SERVER_BIN_DIR}/../log/sw-alarm-server.log & 2>&1&

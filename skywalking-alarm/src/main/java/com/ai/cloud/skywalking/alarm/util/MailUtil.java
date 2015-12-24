@@ -16,19 +16,14 @@ public class MailUtil {
 
     private static Logger logger = LogManager.getLogger(MailUtil.class);
 
-    private static Session session;
     private static String sendAccount;
-    private static Transport ts;
-
+    private static Properties config;
 
     static {
         try {
             String senderInfo = SystemConfigDao.getSystemConfig(Config.MailSenderInfo.configId);
-            Properties prop = new Gson().fromJson(senderInfo, Properties.class);
-            session = Session.getInstance(prop);
-            ts = session.getTransport();
-            ts.connect(prop.getProperty("mail.host"), prop.getProperty("mail.username"), prop.getProperty("mail.password"));
-            sendAccount = prop.getProperty("mail.username") + prop.getProperty("mail.account.prefix");
+            config = new Gson().fromJson(senderInfo, Properties.class);
+            sendAccount = config.getProperty("mail.username") + config.getProperty("mail.account.prefix");
         } catch (Exception e) {
             logger.error("Failed to connect the mail System.", e);
             System.exit(-1);
@@ -37,7 +32,11 @@ public class MailUtil {
 
 
     public static void sendMail(String[] recipientAccounts, String[] ccList, String content, String title) {
+        Session session = Session.getInstance(config);
+        Transport ts = null;
         try {
+            ts = session.getTransport();
+            ts.connect(config.getProperty("mail.host"), config.getProperty("mail.username"), config.getProperty("mail.password"));
             MimeMessage message = new MimeMessage(session);
             message.setFrom(new InternetAddress(sendAccount));
             InternetAddress[] recipientAccountArray = new InternetAddress[recipientAccounts.length];
@@ -45,23 +44,32 @@ public class MailUtil {
                 recipientAccountArray[i] = new InternetAddress(recipientAccounts[i]);
             }
             message.addRecipients(Message.RecipientType.TO, recipientAccountArray);
-
-            InternetAddress[] ccAccountArray = new InternetAddress[ccList.length];
-            for (int i = 0; i < ccList.length; i++) {
-                ccAccountArray[i] = new InternetAddress(ccList[i]);
+            if (ccList != null && ccList.length > 0) {
+                InternetAddress[] ccAccountArray = new InternetAddress[ccList.length];
+                for (int i = 0; i < ccList.length; i++) {
+                    ccAccountArray[i] = new InternetAddress(ccList[i]);
+                }
+                message.addRecipients(Message.RecipientType.CC, ccAccountArray);
             }
-            message.addRecipients(Message.RecipientType.CC, ccAccountArray);
-
             message.setSubject(title);
             message.setContent(content, "text/html;charset=UTF-8");
 
             ts.sendMessage(message, message.getAllRecipients());
+
         } catch (AddressException e) {
             logger.error("Recipient Account is not correct.", e);
         } catch (NoSuchProviderException e) {
             logger.error("Failed to send mail.", e);
         } catch (MessagingException e) {
             logger.error("Failed to send mail.", e);
+        } finally {
+            if (ts != null) {
+                try {
+                    ts.close();
+                } catch (MessagingException e) {
+                    logger.error("Failed to close transport.", e);
+                }
+            }
         }
     }
 
