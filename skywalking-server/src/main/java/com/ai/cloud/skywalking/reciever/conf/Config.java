@@ -29,11 +29,15 @@ public class Config {
         public static int DATA_FILE_MAX_LENGTH = 30 * 1024 * 1024;
 
         // 每次缓存数据写入失败，最大尝试时间
-        public static long WRITE_DATA_FAILURE_RETRY_INTERVAL = 10 * 60 * 1000L;
+        public static long WRITE_DATA_FAILURE_RETRY_INTERVAL =10 * 1000L;
 
         //每次Flush的缓存数据的个数
         public static int FLUSH_NUMBER_OF_CACHE = 30;
 
+    }
+
+    public static class DataPackage {
+        public static int MAX_DATA_PACKAGE = 1024 * 1024;
     }
 
     public static class Persistence {
@@ -47,7 +51,7 @@ public class Config {
         public static int MAX_APPEND_EOF_FLAGS_THREAD_NUMBER = 2;
 
         // 每次存储的最大数量
-        public static final int MAX_STORAGE_SIZE_PER_TIME = 1024 * 1024;
+        public static int MAX_STORAGE_SIZE_PER_TIME = 1024 * 1024;
 
         // 当读取到文件结束时等待时间
         public static long READ_ENDING_FILE_MAX_WAITE_TIME = 500L;

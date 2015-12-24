@@ -23,12 +23,12 @@ public class PersistenceThread extends Thread {
 
     @Override
     public void run() {
-        File file1;
+        File file1 = null;
         BufferedReader bufferedReader = null;
         int offset;
         while (true) {
             try {
-            	file1 = getDataFiles();
+                file1 = getDataFiles();
                 if (file1 == null) {
                     try {
                         Thread.sleep(SWITCH_FILE_WAIT_TIME);
@@ -37,7 +37,7 @@ public class PersistenceThread extends Thread {
                     }
                     continue;
                 }
-            	
+
                 bufferedReader = new BufferedReader(new FileReader(file1));
                 offset = moveOffSet(file1, bufferedReader);
                 if (logger.isDebugEnabled()) {
@@ -52,6 +52,7 @@ public class PersistenceThread extends Thread {
                     //文件结束
                     if (tmpData == null) {
                         if (stringBuilder != null && stringBuilder.length() > 0) {
+                            MemoryRegister.instance().updateOffSet(file1.getName(), offset);
                             StorageChainController.doStorage(stringBuilder
                                     .toString());
                             stringBuilder.delete(0, stringBuilder.length());
@@ -96,7 +97,8 @@ public class PersistenceThread extends Thread {
                         }
                         logger.info("Delete file[{}] {}", file1.getName(),
                                 (deleteSuccess ? "success" : "failed"));
-                        MemoryRegister.instance().unRegister(file1.getName());
+
+                        MemoryRegister.instance().removeEntry(file1.getName());
                         break;
                     }
 
@@ -104,13 +106,7 @@ public class PersistenceThread extends Thread {
                         StorageChainController.doStorage(stringBuilder
                                 .toString());
                         stringBuilder.delete(0, stringBuilder.length());
-                        MemoryRegister
-                                .instance()
-                                .doRegisterStatus(
-                                        new FileRegisterEntry(
-                                                file1.getName(),
-                                                offset,
-                                                FileRegisterEntry.FileRegisterEntryStatus.REGISTER));
+                        MemoryRegister.instance().updateOffSet(file1.getName(), offset);
                     }
 
                     stringBuilder.append(tmpData);
@@ -122,6 +118,9 @@ public class PersistenceThread extends Thread {
             } catch (IOException e) {
                 logger.error("The data file could not be found", e);
             } finally {
+                if (file1 != null) {
+                    MemoryRegister.instance().unRegister(file1.getName());
+                }
                 try {
                     if (bufferedReader != null)
                         bufferedReader.close();
@@ -142,14 +141,6 @@ public class PersistenceThread extends Thread {
             throws IOException {
         int offset = MemoryRegister.instance().getOffSet(file1.getName());
         if (-1 == offset || offset == 0) {
-            // 以前该文件没有被任何人处理过,需要重新注册
-            MemoryRegister
-                    .instance()
-                    .doRegisterStatus(
-                            new FileRegisterEntry(
-                                    file1.getName(),
-                                    0,
-                                    FileRegisterEntry.FileRegisterEntryStatus.REGISTER));
             offset = 0;
         } else {
             char[] cha = new char[STEP_SIZE_FOR_LOCATING_FILE_OFFSET];
@@ -174,7 +165,7 @@ public class PersistenceThread extends Thread {
             if (file.getName().startsWith(".")) {
                 continue;
             }
-            if (MemoryRegister.instance().isRegister(file.getName())) {
+            if (MemoryRegister.instance().doRegister(file.getName()) == null) {
                 if (logger.isDebugEnabled())
                     logger.debug(
                             "The file [{}] is being used by another thread ",

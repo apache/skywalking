@@ -20,30 +20,53 @@ public class MemoryRegister {
         return memoryRegister;
     }
 
-    public synchronized void doRegisterStatus(FileRegisterEntry fileRegisterEntry) {
+    public void updateOffSet(String fileName, int offset) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Register entry[{}] into the memory register", fileRegisterEntry.getFileName());
+            logger.debug("Register entry[{}] into the memory register", fileName);
         }
-        entries.put(fileRegisterEntry.getFileName(), fileRegisterEntry);
+        if (entries.containsKey(fileName)){
+            entries.get(fileName).setOffset(offset);
+        }
     }
 
     public void unRegister(String fileName) {
         if (logger.isDebugEnabled()) {
             logger.debug("Unregister[{}] from the memory register", fileName);
         }
+        if (entries.containsKey(fileName)) {
+            entries.get(fileName).setStatus(FileRegisterEntry.FileRegisterEntryStatus.UNREGISTER);
+        }
+    }
+
+
+    public  void removeEntry(String fileName){
         entries.remove(fileName);
     }
 
-    public synchronized boolean isRegister(String fileName) {
+    public synchronized FileRegisterEntry doRegister(String fileName) {
+        logger.debug("Begin to register File[{}]", fileName);
+        FileRegisterEntry entry = null;
+        // 已经存在entries.
         if (entries.containsKey(fileName)) {
+            logger.debug("FileRegisterEntry[{}] Status:[{}]", entries.get(fileName).getStatus());
+            // 已经被别的线程处理中
             if (entries.get(fileName).getStatus() == FileRegisterEntry.FileRegisterEntryStatus.REGISTER) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("Entry[{}] has been register", fileName);
                 }
-                return true;
+
+            } else {
+                // 没有被别的线程处理
+                entry = entries.get(fileName);
+                entry.setStatus(FileRegisterEntry.FileRegisterEntryStatus.REGISTER);
             }
+        } else {
+            // 以前没有被注册过的
+            entry = new FileRegisterEntry(fileName, 0, FileRegisterEntry.FileRegisterEntryStatus.REGISTER);
+            entries.put(fileName, entry);
         }
-        return false;
+
+        return entry;
     }
 
 
