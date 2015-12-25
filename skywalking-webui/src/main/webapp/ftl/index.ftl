@@ -37,13 +37,22 @@
 
 	<div>
 		<div class="text-center" style="height: 700px">
-			<iframe id="showTraceLog" border=2 frameborder=0 width=100%
-				height=100% marginheight=0 marginwidth=0 scrolling=yes src=""></iframe>
+			<iframe id="showTraceLog" width="100%" border=2 frameborder=0 marginheight=0 marginwidth=0 scrolling=yes src="" onLoad="iFrameHeight()"></iframe>
 		</div>
 	</div>
 	<input type="hidden" id="uid" value="${(userInfo?eval).uid!''}">
 	<!-- script references -->
 	<@common.importJavaScript />
 	<script src="${base}/js/webui-0.1.js"></script>
+	<script>
+        function iFrameHeight() {
+            var ifm= document.getElementById("showTraceLog");
+            var subWeb = document.frames ? document.frames["showTraceLog"].document : ifm.contentDocument;
+            if(ifm != null && subWeb != null) {
+                ifm.height = subWeb.body.scrollHeight;
+                ifm.width = subWeb.body.scrollWidth;
+            }
+        }
+	</script>
 </body>
 </html>
