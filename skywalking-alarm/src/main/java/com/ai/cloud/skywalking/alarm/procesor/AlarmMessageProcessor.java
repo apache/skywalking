@@ -1,6 +1,5 @@
 package com.ai.cloud.skywalking.alarm.procesor;
 
-import com.ai.cloud.skywalking.alarm.dao.AlarmMessageDao;
 import com.ai.cloud.skywalking.alarm.model.AlarmRule;
 import com.ai.cloud.skywalking.alarm.model.ApplicationInfo;
 import com.ai.cloud.skywalking.alarm.model.MailInfo;
@@ -20,12 +19,24 @@ import java.io.StringWriter;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class AlarmMessageProcessor {
 
     private static Logger logger = LogManager
             .getLogger(AlarmMessageProcessor.class);
+
+    static String mailTemplate = "";
+
+    static {
+        Properties properties = new Properties();
+        try {
+            properties.load(AlarmMessageProcessor.class.getResourceAsStream("/mail-template_new.config"));
+            mailTemplate = properties.getProperty("template.default");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     public void process(UserInfo userInfo, AlarmRule rule) throws TemplateException, IOException, SQLException {
         Set<String> warningTracingIds = new HashSet<String>();
@@ -63,9 +74,9 @@ public class AlarmMessageProcessor {
                             rule.getPreviousFireTimeM() * 10000 * 6)));
                     parameter.put("endDate", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(
                             currentFireMinuteTime * 10000 * 6)));
-                    String mailContext = generateContent(rule
+                    String mailContext = generateContent(/*rule
                             .getConfigArgsDescriber().getMailInfo()
-                            .getMailTemp(), parameter);
+                            .getMailTemp()*/mailTemplate, parameter);
                     if (mailContext.length() > 0) {
                         MailInfo mailInfo = rule.getConfigArgsDescriber()
                                 .getMailInfo();
@@ -142,6 +153,4 @@ public class AlarmMessageProcessor {
         t.process(parameter, out);
         return out.getBuffer().toString();
     }
-
-    private static Map<String, String> idCodeMapper = new ConcurrentHashMap<String, String>();
 }

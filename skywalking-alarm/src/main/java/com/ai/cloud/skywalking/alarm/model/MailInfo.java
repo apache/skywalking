@@ -5,8 +5,6 @@ public class MailInfo {
 
     private String[] mailCc;
 
-    private String mailTemp;
-
     public String[] getMailTo() {
         return mailTo;
     }
@@ -23,11 +21,4 @@ public class MailInfo {
         this.mailCc = mailCc;
     }
 
-    public String getMailTemp() {
-        return mailTemp;
-    }
-
-    public void setMailTemp(String mailTemp) {
-        this.mailTemp = mailTemp;
-    }
 }
