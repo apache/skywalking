@@ -63,15 +63,9 @@
                 </div>
             </div>
             <div class="form-group">
-                <label for="mailTemp" class="col-sm-4 control-label">抄送人地址：</label>
+                <label for="mailCc" class="col-sm-4 control-label">抄送人地址：</label>
                 <div class="col-sm-4">
                     <textarea class="form-control" id="mailCc" rows="3" placeholder="抄送人地址，请英文逗号,分割"></textarea>
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="mailTemp" class="col-sm-4 control-label">邮件模板：</label>
-                <div class="col-sm-4">
-                    <textarea class="form-control" id="mailTemp" rows="4" placeholder="邮件模板"></textarea>
                 </div>
             </div>
         </div>
@@ -258,7 +252,6 @@
                         }else {
                             $("#mailTo").val(confArg.mailInfo.mailTo);
                             $("#mailCc").val(confArg.mailInfo.mailCc);
-                            $("#mailTemp").val(confArg.mailInfo.mailTemp);
                         }
                         $("#ruleId").val(obj.ruleId);
                         $("#crtRuleBtn").text("修改规则");
@@ -318,7 +311,6 @@
                             }else {
                                 $("#mailTo").val(confArg.mailInfo.mailTo);
                                 $("#mailCc").val(confArg.mailInfo.mailCc);
-                                $("#mailTemp").val(confArg.mailInfo.mailTemp);
                             }
                             $("#ruleId").val(obj.ruleId);
                             $("#crtRuleBtn").text("修改规则");
@@ -330,7 +322,6 @@
                             $("#urlCall").val("");
                             $("#mailTo").val("");
                             $("#mailCc").val("");
-                            $("#mailTemp").val("");
                             $("#ruleId").val("");
                             $("#crtRuleBtn").text("创建规则");
                             $("#cannelRuleBtn").text("取消创建");
@@ -371,13 +362,8 @@
                 return false;
             }
             var urlCall = $("#urlCall").val();
-            var mailTemp = $("#mailTemp").val();
             var todoContent = "";
             if(todoType == 0){
-                if(mailTemp == null || mailTemp.length < 1){
-                    alert("邮件模板不能为空");
-                    return false;
-                }
                 var mailTo = $("#mailTo").val();
                 var mailCc = $("#mailCc").val();
             }else if(todoType == 1){
@@ -399,7 +385,7 @@
                 }
                 var urlStr = '${base}/alarmRule/modify';
                 if(todoType ==0){
-                    jsonData = "{ruleId:'"+ruleId+"',appId:'"+appId+"',period:'"+period+"',isGlobal:'"+isGlobal+"',todoType:'"+todoType+"',mailTemp:'"+mailTemp+"',mailTo:'"+mailTo+"',mailCc:'"+mailCc+"'}";
+                    jsonData = "{ruleId:'"+ruleId+"',appId:'"+appId+"',period:'"+period+"',isGlobal:'"+isGlobal+"',todoType:'"+todoType+"',mailTo:'"+mailTo+"',mailCc:'"+mailCc+"'}";
                 }else if(todoType ==1){
                     jsonData = "{ruleId:'"+ruleId+"',appId:'"+appId+"',period:'"+period+"',isGlobal:'"+isGlobal+"',todoType:'"+todoType+"',urlCall:'"+urlCall+"'}";
                 }else{
@@ -430,7 +416,7 @@
                 //调用创建规则
                 var urlStr = '${base}/alarmRule/create';
                 if(todoType ==0){
-                    jsonData = "{appId:'"+appId+"',period:'"+period+"',isGlobal:'"+isGlobal+"',todoType:'"+todoType+"',mailTemp:'"+mailTemp+"',mailTo:'"+mailTo+"',mailCc:'"+mailCc+"'}";
+                    jsonData = "{appId:'"+appId+"',period:'"+period+"',isGlobal:'"+isGlobal+"',todoType:'"+todoType+"',mailTo:'"+mailTo+"',mailCc:'"+mailCc+"'}";
                 }else if(todoType ==1){
                     jsonData = "{appId:'"+appId+"',period:'"+period+"',isGlobal:'"+isGlobal+"',todoType:'"+todoType+"',urlCall:'"+urlCall+"'}";
                 }else{

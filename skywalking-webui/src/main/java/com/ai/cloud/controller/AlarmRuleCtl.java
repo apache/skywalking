@@ -166,11 +166,6 @@ public class AlarmRuleCtl {
 			if (json.containsKey("mailCc")) {
 				mailCc = json.getString("mailCc").replace("\n", "");
 			}
-			if (!json.containsKey("mailTemp")) {
-				reJson.put(Constants.JSON_RESULT_KEY_RESULT, Constants.JSON_RESULT_KEY_RESULT_FAIL);
-				reJson.put(Constants.JSON_RESULT_KEY_RESULT_MSG, "未找到邮件模板信息");
-				return reJson.toJSONString();
-			}
 		} else if (Constants.TODO_TYPE_1.equals(todoType)) {
 			if (!json.containsKey("urlCall")) {
 				reJson.put(Constants.JSON_RESULT_KEY_RESULT, Constants.JSON_RESULT_KEY_RESULT_FAIL);
@@ -232,7 +227,6 @@ public class AlarmRuleCtl {
 			}
 
 			mailInfo.put("mailTo", mailToList);
-			mailInfo.put("mailTemp", json.getString("mailTemp"));
 			confArgs.put("mailInfo", mailInfo);
 		} else if (Constants.TODO_TYPE_1.equals(todoType)) {
 			// 设置接口相关的信息
@@ -311,11 +305,6 @@ public class AlarmRuleCtl {
 			if (json.containsKey("mailCc")) {
 				mailCc = json.getString("mailCc").replace("\n", "");
 			}
-			if (!json.containsKey("mailTemp")) {
-				reJson.put(Constants.JSON_RESULT_KEY_RESULT, Constants.JSON_RESULT_KEY_RESULT_FAIL);
-				reJson.put(Constants.JSON_RESULT_KEY_RESULT_MSG, "未找到邮件模板信息");
-				return reJson.toJSONString();
-			}
 		} else if (Constants.TODO_TYPE_1.equals(todoType)) {
 			if (!json.containsKey("urlCall")) {
 				reJson.put(Constants.JSON_RESULT_KEY_RESULT, Constants.JSON_RESULT_KEY_RESULT_FAIL);
@@ -345,7 +334,6 @@ public class AlarmRuleCtl {
 			}
 
 			mailInfo.put("mailTo", mailToList);
-			mailInfo.put("mailTemp", json.getString("mailTemp"));
 			confArgs.put("mailInfo", mailInfo);
 		} else if (Constants.TODO_TYPE_1.equals(todoType)) {
 			// 设置接口相关的信息
