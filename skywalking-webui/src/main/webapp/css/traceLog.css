@@ -1,31 +1,37 @@
 body {
-  background:#EEEEEE
+    background: #EEEEEE
 }
 
 .progress {
-	height: 15px;
-	margin-bottom:0px;
+    height: 15px;
+    margin-bottom: 0px;
 }
+
 .progress-bar {
-  font-size: 10px;
-  line-height:15px;
-  
+    font-size: 10px;
+    line-height: 15px;
+    background-color: transparent;
 }
+
 .progress-bar-white {
-  background-image: none;
-  background-color: #FFFFFF;
+    background-image: none;
+    background-color: #FFFFFF;
 }
-.highlight { 
-	background-color: #D8ECF6; 
+
+.highlight {
+    background-color: #D8ECF6;
 }
 
 .progress-bar-a {
-	background-color: #f0ad4e;
+    background-color: #f0ad4e;
 }
+
 .progress-bar-b {
-	background-color: #5cb85c;
+    background-color: #5cb85c;
 }
+
 .progress-bar-c {
-	background-color: #5bc0de;
+    background-color: #5bc0de;
 }
+
 

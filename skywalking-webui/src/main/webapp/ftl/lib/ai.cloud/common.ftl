@@ -3,8 +3,11 @@
 <script src="${base}/js/jquery/jquery-2.1.4.js"></script>
 <script src="${base}/js/jquery/jquery-ui-1.11.4.js"></script>
 <script src="${base}/js/jquery/jquery.treetable-3.2.0.js"></script>
+<script src="${base}/js/jquery/jquery.backstretch.min.js"></script>
 <script src="${base}/js/jquery/jquery-md5.js"></script>
 <script src="${base}/js/bootstrap.min-3.3.5.js"></script>
+<script src="${base}/js/jquery/bootbox.min.js"></script>
+<script src="${base}/js/scripts.js"></script>
 </#macro>
 
 <#-- importMenuInfo -->
@@ -19,6 +22,22 @@
         <li><a name="menuUrl" href="#" url="user/">告警配置</a></li>
     </#if>
 </ul>
+</#macro>
+
+<#macro importHeaderInfo userInfo>
+<input type="hidden" id="baseUrl" value="${base}">
+<input type="hidden" id="traceId" value="${traceId!''}">
+<div class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="./">Sky Walking</a>
+        </div>
+        <div class="collapse navbar-collapse">
+            <@common.importSearchInfo isLogin="${userInfo}" />
+        <@common.importUserInfo userInfo="${userInfo}" />
+        </div>
+    </div>
+</div>
 </#macro>
 
 <#-- importSearchInfo -->
@@ -47,24 +66,28 @@
     </#assign>
     <#assign json=text?eval />
     <#if json.isLogin == '1'>
-        <li class="dropdown"><a href="#" class="dropdown-toggle"
-                                data-toggle="dropdown" role="button" aria-haspopup="true"
-                                aria-expanded="false"> ${json.userName!} <span class="caret"></span></a>
+        <li class="dropdown">
+            <a href="javascript:void(0);" class="dropdown-toggle"
+               data-toggle="dropdown" role="button" aria-haspopup="true"
+               aria-expanded="false"> ${json.userName!} <span class="caret"></span></a>
             <ul class="dropdown-menu">
                 <#if json.menuList??>
                     <#list json.menuList?eval as menu>
-                        <li><a name="menuUrl" href="#" url="${menu.url!}">${menu.menuName!}</a></li>
+                        <li><a name="menuUrl" href="javascript:void(0);" url="${menu.url!}">${menu.menuName!}</a></li>
                     </#list>
                     <li role="separator" class="divider"></li>
                 </#if>
-                <li><a id="logout" href="#" url="logout">退出</a></li>
+                <li><a id="logout" href="javascript:void(0);" url="logout">退出</a></li>
             </ul>
         </li>
     <#else>
-        <li><a id="login" href="#" url="login">登录</a></li>
-        <li><a id="regist" name="menuUrl" href="#" url="regist">注册</a></li>
+        <li><a id="login" href="${base}/login">登录</a></li>
+        <li><a id="regist" name="menuUrl" href="${base}/regist">注册</a></li>
     </#if>
 </ul>
+<script>
+    $('.dropdown-toggle').dropdown();
+</script>
 </#macro>
 
 <#-- dealTraceLog -->
@@ -72,7 +95,7 @@
     <#if valueList??>
     <div id="row">
         <div class="col-md-12">
-            <h5 style="color:black">
+            <h5 style="color:white">
                 ${traceId!}</br>
                 调度入口IP：${(valueList[0].address)!}，开始时间：${beginTime?number_to_datetime}，${(valueList?size)!}条调用记录，消耗总时长：${(endTime - beginTime)!'0'}
                 ms。<a id="originLog" href="#">显示原文</a>
@@ -250,7 +273,7 @@
                                 <div id="collapse${logInfo_index}" class="accordion-body collapse"
                                      style="height: 0px; ">
                                     <ul class="list-group">
-                                    	<li class="list-group-item" style="word-wrap:break-word">
+                                        <li class="list-group-item" style="word-wrap:break-word">
                                             <strong>服务/方法：</strong>${logInfo.viewPointId!''}</li>
                                         <li class="list-group-item">
                                             <strong>调用类型：</strong>${logInfo.spanTypeName!'UNKNOWN'}</li>
@@ -260,7 +283,8 @@
                                             <strong>花费时间：</strong>${logInfo.cost}<strong>毫秒</strong>
                                         </li>
                                         <li class="list-group-item"><strong>业务字段：</strong>${logInfo.businessKey!}</li>
-                                        <li class="list-group-item"><strong>应用Code：</strong>${logInfo.applicationId}</li>
+                                        <li class="list-group-item"><strong>应用Code：</strong>${logInfo.applicationId}
+                                        </li>
                                         <li class="list-group-item"><strong>主机信息：</strong>${logInfo.address!}</li>
                                         <li class="list-group-item"><strong>调用进程号：</strong>${logInfo.processNo!}</li>
                                         <li class="list-group-item"><strong>异常堆栈：</strong>
@@ -285,22 +309,24 @@
 </#macro>
 
 <#macro detailTraceLog>
-<div class="modal fade bs-example-modal-lg" id="detailLog" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" style="display: none;">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
+<div class="modal fade bs-example-modal-lg" id="detailLog" tabindex="-1" role="dialog"
+     aria-labelledby="myLargeModalLabel" style="display: none;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
 
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
-        <h4 class="modal-title" id="myLargeModalLabel">日志详细信息</h4>
-      </div>
-      <div class="modal-body">
-      	<!-- form content -->
-        <form class="form-horizontal" id="detailContent">
-		  
-		</form>
-      </div>
-    </div><!-- /.modal-content -->
-  </div><!-- /.modal-dialog -->
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">×</span></button>
+                <h4 class="modal-title" id="myLargeModalLabel">日志详细信息</h4>
+            </div>
+            <div class="modal-body">
+                <!-- form content -->
+                <form class="form-horizontal" id="detailContent">
+
+                </form>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
 </div>
 </#macro>
 

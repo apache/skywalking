@@ -9,6 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -64,8 +65,8 @@ public class AuthFileCtl {
                 continue;
             }
 
-            if (propertyValue.startsWith("$")){
-                if (request.getParameter((propertyValue.substring(1))) != null ) {
+            if (propertyValue.startsWith("$")) {
+                if (request.getParameter((propertyValue.substring(1))) != null) {
                     value.setValue(request.getParameter(propertyValue.substring(1)));
                 }
             }
@@ -111,5 +112,11 @@ public class AuthFileCtl {
         }
 
         return reJson.toJSONString();
+    }
+
+    @RequestMapping("/download/{appCode}")
+    public String toDownloadAuthFile(@PathVariable("appCode") String appCode, ModelMap root) throws Exception {
+        root.addAttribute("appCode", appCode);
+        return "auth-file/authFile";
     }
 }

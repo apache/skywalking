@@ -3,7 +3,9 @@ package com.ai.cloud.vo.svo;
 import java.sql.Timestamp;
 
 public class AlarmRuleSVO {
-	
+
+	private String appCode;
+
 	private String ruleId;
 	
 	private String appId;
@@ -13,8 +15,8 @@ public class AlarmRuleSVO {
 	private String isGlobal;
 	
 	private String todoType;
-	
-	private String configArgs;
+
+	private ConfigArgs configArgs;
 	
 	private Timestamp createTime;
 	
@@ -46,11 +48,11 @@ public class AlarmRuleSVO {
 		this.uid = uid;
 	}
 
-	public String getConfigArgs() {
+	public ConfigArgs getConfigArgs() {
 		return configArgs;
 	}
 
-	public void setConfigArgs(String configArgs) {
+	public void setConfigArgs(ConfigArgs configArgs) {
 		this.configArgs = configArgs;
 	}
 
@@ -101,4 +103,11 @@ public class AlarmRuleSVO {
 				+ sts + ", modifyTime=" + modifyTime + "]";
 	}
 
+	public String getAppCode() {
+		return appCode;
+	}
+
+	public void setAppCode(String appCode) {
+		this.appCode = appCode;
+	}
 }
