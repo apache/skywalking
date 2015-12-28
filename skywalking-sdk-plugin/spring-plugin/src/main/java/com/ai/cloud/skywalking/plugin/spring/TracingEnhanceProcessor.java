@@ -24,7 +24,8 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class TracingEnhanceProcessor implements DisposableBean,
         BeanPostProcessor, BeanFactoryPostProcessor, ApplicationContextAware {
-
+	private static ClassPool pool = ClassPool.getDefault();
+	
     private final Set<TracingPattern> beanSet = new ConcurrentHashSet<TracingPattern>();
 
     @Override
@@ -109,7 +110,6 @@ public class TracingEnhanceProcessor implements DisposableBean,
 
         // 符合规范
         try {
-            ClassPool pool = ClassPool.getDefault();
             pool.appendClassPath(new ClassClassPath(bean.getClass()));
             CtClass ctSource = pool.get(bean.getClass().getName());
             CtClass ctDestination = pool.makeClass(
