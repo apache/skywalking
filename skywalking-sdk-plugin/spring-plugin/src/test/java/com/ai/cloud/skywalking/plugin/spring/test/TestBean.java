@@ -6,10 +6,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
-public class TestBean {
+public class TestBean/* implements TestInterface*/ {
     private String value;
 
     public void testPrintln(String value) {
+        System.out.println(value);
+    }
+
+    private void testPrintln2(String value) {
         System.out.println(value);
     }
 

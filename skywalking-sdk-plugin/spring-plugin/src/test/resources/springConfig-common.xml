@@ -18,10 +18,10 @@
     <context:component-scan base-package="com.ai.cloud.skywalking.plugin.spring.test"/>
     <bean id="jdbcConfig"
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-        <property name="order" value="1" />
-        <property name="ignoreUnresolvablePlaceholders" value="true" />
-        <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
-        <property name="locations" value="classpath:jdbc.properties" />
+        <property name="order" value="1"/>
+        <property name="ignoreUnresolvablePlaceholders" value="true"/>
+        <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE"/>
+        <property name="locations" value="classpath:jdbc.properties"/>
     </bean>
 
     <bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource">
@@ -45,6 +45,6 @@
         </tx:attributes>
     </tx:advice>
 
-    <skywalking:trace className="TestBean*" method="*" packageName="*"/>
+    <skywalking:trace packageExpression="com.ai.cloud.skywalking.plugin.spring.test.*" classExpression="*"/>
 
 </beans>

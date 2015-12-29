@@ -8,9 +8,7 @@
 	</xsd:element>
 
 	<xsd:complexType name="traceType">
-		<xsd:attribute name="packageName" type="xsd:string" use="required" />
-		<xsd:attribute name="className" type="xsd:string" use="required" />
-		<xsd:attribute name="method" type="xsd:string" use="optional"
-			default="*" />
+		<xsd:attribute name="packageExpression" type="xsd:string" use="required" />
+		<xsd:attribute name="classExpression" type="xsd:string" use="optional" default="*" />
 	</xsd:complexType>
 </xsd:schema>

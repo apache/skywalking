@@ -25,10 +25,11 @@
     </properties>
 
     <dependencies>
-    	<dependency>
-            <groupId>org.javassist</groupId>
-            <artifactId>javassist</artifactId>
-            <version>3.20.0-GA</version>
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+            <version>1.8.7</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.ai.cloud</groupId>
@@ -39,19 +40,13 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>3.8.1</version>
-            <scope>compile</scope>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
             <version>3.2.0.RELEASE</version>
             <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.aspectj</groupId>
-            <artifactId>aspectjweaver</artifactId>
-            <version>1.8.7</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.ai.cloud</groupId>
@@ -77,11 +72,7 @@
             <version>2.1.1</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
-        </dependency>
+
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
