@@ -57,7 +57,7 @@ public class SkyWalkingFilter implements Filter {
             filterChain.doFilter(servletRequest, servletResponse);
 
             HttpServletResponse httpServletResponse = (HttpServletResponse) servletResponse;
-            httpServletResponse.setHeader(TRACE_ID_HEADER_NAME, Tracing.getTraceId());
+            httpServletResponse.addHeader(TRACE_ID_HEADER_NAME, Tracing.getTraceId());
         } catch (Throwable e) {
             receiver.handleException(e);
             throw new ServletException(e);
