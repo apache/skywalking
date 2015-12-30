@@ -43,7 +43,7 @@ public class LocalBuriedPointSender extends ApplicationExceptionHandler implemen
         spanData.setCost(System.currentTimeMillis() - spanData.getStartDate());
 
         if (Config.BuriedPoint.PRINTF) {
-            logger.log(Level.INFO, "viewpointId:" + spanData.getViewPointId() + "\tParentLevelId:" + spanData.
+            logger.log(Level.INFO, "TraceId:" + spanData.getTraceId() + "\tviewpointId:" + spanData.getViewPointId() + "\tParentLevelId:" + spanData.
                     getParentLevel() + "\tLevelId:" + spanData.getLevelId());
         }
 

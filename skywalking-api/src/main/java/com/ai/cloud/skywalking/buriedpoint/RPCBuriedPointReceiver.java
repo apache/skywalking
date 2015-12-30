@@ -38,7 +38,7 @@ public class RPCBuriedPointReceiver extends ApplicationExceptionHandler implemen
         spanData.setReceiver(true);
 
         if (Config.BuriedPoint.PRINTF) {
-            logger.log(Level.INFO, "viewpointId:" + spanData.getViewPointId() + "\tParentLevelId:" + spanData.
+            logger.log(Level.INFO, "TraceId:" + spanData.getTraceId() + "\tviewpointId:" + spanData.getViewPointId() + "\tParentLevelId:" + spanData.
                     getParentLevel() + "\tLevelId:" + spanData.getLevelId());
         }
 
