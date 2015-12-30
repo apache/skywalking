@@ -33,5 +33,5 @@
 	<mvc:default-servlet-handler />
 
 	<import resource="consumer/dubbo-consumer.xml" />
-	<skywalking:trace className="*" method="save" packageName="com.ai.cloud.skywalking.example.controller"/>
+	<skywalking:trace classExpression="*" method="save" packageExpression="com.ai.cloud.skywalking.example.controller"/>
 </beans>

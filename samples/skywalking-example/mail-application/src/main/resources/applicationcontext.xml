@@ -32,5 +32,5 @@
     </bean>
     <!-- 对静态资源文件的访问 -->
     <mvc:default-servlet-handler/>
-    <skywalking:trace className="*" method="*" packageName="com.ai.cloud.skywalking.example.*"/>
+    <skywalking:trace classExpression="*" packageExpression="com.ai.cloud.skywalking.example.*"/>
 </beans>

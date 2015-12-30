@@ -9,7 +9,7 @@
      	        http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
      	        http://cloud.asiainfo.com/schema/skywalking
 				http://cloud.asiainfo.com/schema/skywalking/skywalking.xsd">
-				
+
 
     <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="locations">
@@ -56,7 +56,7 @@
         </tx:attributes>
     </tx:advice>
 
-	<skywalking:trace className="*" method="*" packageName="com.ai.cloud.skywalking.example.order.service.*"/>
-    <skywalking:trace className="*" method="*" packageName="com.ai.cloud.skywalking.example.order.dao.*"/>
+    <skywalking:trace classExpression="*" packageExpression="com.ai.cloud.skywalking.example.order.service.*"/>
+    <skywalking:trace classExpression="*" packageExpression="com.ai.cloud.skywalking.example.order.dao.*"/>
 
 </beans>
