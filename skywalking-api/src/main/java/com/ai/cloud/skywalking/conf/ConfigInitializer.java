@@ -21,7 +21,8 @@ public class ConfigInitializer {
                 Properties properties = new Properties();
                 properties.load(inputStream);
                 initNextLevel(properties, Config.class, new ConfigDesc());
-                AuthDesc.isAuth = true;
+                AuthDesc.isAuth = Boolean.valueOf(System.getenv(Config.SkyWalking.AUTH_SYSTEM_ENV_NAME));
+                logger.log(Level.ALL, "skywalking auth check : " + AuthDesc.isAuth);
             } catch (IllegalAccessException e) {
                 logger.log(Level.ALL, "Parsing certification file failed, buried won't work");
             } catch (IOException e) {

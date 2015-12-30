@@ -6,6 +6,8 @@ public class Config {
 		public static String USER_ID = "";
 
 		public static String APPLICATION_CODE = "";
+
+		public static String AUTH_SYSTEM_ENV_NAME = "SKYWALKING_RUN";
 	}
 
 	public static class BuriedPoint {
