@@ -1,7 +1,9 @@
 #skyWalking用户ID
 skywalking.user_id=123
-#skyWalking应用ID
+#skyWalking应用编码
 skywalking.application_code=test
+#skywalking auth的环境变量名字
+skywalking.auth_system_env_name=SKYWALKING_RUN
 
 #是否打印数据
 buriedpoint.printf=false
@@ -9,6 +11,8 @@ buriedpoint.printf=false
 buriedpoint.max_exception_stack_length=4000
 #业务字段的最大长度
 buriedpoint.businesskey_max_length=300
+#过滤异常
+buriedpoint.exclusive_exceptions=java.lang.RuntimeException
 
 #最大发送者的连接数阀比例
 sender.connect_percent=100
