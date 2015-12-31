@@ -1,6 +1,5 @@
-package com.ai.cloud.skywalking.plugin.httpclient;
+package com.ai.cloud.skywalking.plugin.httpclient.v42x;
 
-import com.ai.cloud.skywalking.plugin.httpclient.trace.HttpClientTracing;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
