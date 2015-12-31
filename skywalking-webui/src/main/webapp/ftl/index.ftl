@@ -14,6 +14,7 @@
         .leaf {
             background-color: white;
         }
+        .in{display:block;height:370px;}
     </style>
 <@common.importJavaScript />
 </head>

@@ -5,9 +5,13 @@
 <script src="${base}/js/jquery/jquery.treetable-3.2.0.js"></script>
 <script src="${base}/js/jquery/jquery.backstretch.min.js"></script>
 <script src="${base}/js/jquery/jquery-md5.js"></script>
-<script src="${base}/js/bootstrap.min-3.3.5.js"></script>
+<#--<script src="${base}/js/bootstrap.min-3.3.5.js"></script>-->
 <script src="${base}/js/jquery/bootbox.min.js"></script>
 <script src="${base}/js/scripts.js"></script>
+<style>
+
+    .liu{display:none;height:370px;!important}
+</style>
 </#macro>
 
 <#-- importMenuInfo -->
@@ -85,9 +89,6 @@
         <li><a id="regist" name="menuUrl" href="${base}/regist">注册</a></li>
     </#if>
 </ul>
-<script>
-    $('.dropdown-toggle').dropdown();
-</script>
 </#macro>
 
 <#-- dealTraceLog -->
@@ -98,7 +99,7 @@
             <h5 style="color:white">
                 ${traceId!}</br>
                 调度入口IP：${(valueList[0].address)!}，开始时间：${beginTime?number_to_datetime}，${(valueList?size)!}条调用记录，消耗总时长：${(endTime - beginTime)!'0'}
-                ms。<a id="originLog" href="#">显示原文</a>
+                ms。<a id="originLog" href="javascript:void(0);">显示原文</a>
             </h5>
             <div id="tableDiv">
                 <table id="example-advanced">
@@ -241,7 +242,7 @@
 <#macro importOriginLog>
 <div id="originRow" style="display:none">
     <div class="col-md-12">
-        <table class="table table-bordered table-hover">
+        <table class="table table-bordered table-hover" style="color: white;">
             <thead>
             <tr>
                 <th style="width:2%">#</th>
@@ -264,15 +265,15 @@
                         <td>
                             <div class="accordion-group">
                                 <div class="accordion-heading">
-                                    <li class="accordion-toggle list-group-item active" data-toggle="collapse"
-                                        style="background-color:rgb(133, 145, 156); border: 0px;cursor:pointer"
-                                        href="#collapse${logInfo_index}">
+                                    <li class="accordion-toggle list-group-item active testClass"
+                                        index="${logInfo_index}"
+                                        style="background-color:rgb(133, 145, 156); border: 0px;cursor:pointer">
                                     ${logInfo.viewPointId}
                                     </li>
                                 </div>
-                                <div id="collapse${logInfo_index}" class="accordion-body collapse"
-                                     style="height: 0px; ">
-                                    <ul class="list-group">
+                                <div id="collapse${logInfo_index}"
+                                     style="height: 0px;display:none " >
+                                    <ul class="list-group" style="color: black;">
                                         <li class="list-group-item" style="word-wrap:break-word">
                                             <strong>服务/方法：</strong>${logInfo.viewPointId!''}</li>
                                         <li class="list-group-item">
@@ -305,6 +306,14 @@
             </#if>
         </table>
     </div>
+    <script>
+//        $(".testClass").each(function(){
+//            var index = $(this).attr("index");
+//            $('#collapse' + index).collapse({
+//                toggle: true
+//            })
+//        });
+    </script>
 </div>
 </#macro>
 

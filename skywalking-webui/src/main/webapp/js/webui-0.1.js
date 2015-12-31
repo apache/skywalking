@@ -1,8 +1,6 @@
 function changeFrameUrl(url) {
     console.info('showTraceLog iframe url change: ' + url);
     $("#showTraceLog").attr("src", url);
-
-
     //$("#showTraceLog").attr("height",$("#showTraceLog").contentDocument.scrollHeight + 20);
 }
 
@@ -13,6 +11,19 @@ function drawData(url) {
         success: function (data) {
             $("#showTraceLog").empty();
             $("#showTraceLog").html(data);
+            var flag1=true;
+            $('.testClass').click(function(){
+                if(flag1){
+
+                    $(this).parent().siblings('').show();
+                    $(this).parent().siblings('').css('height','370px')
+                    flag1=false;
+                }else{
+                    $(this).parent().siblings('').hide();
+                    flag1=true;
+                }
+
+            })
         }
     });
 }
@@ -22,6 +33,13 @@ $().ready(function () {
     var baseUrl = $("#baseUrl").val();
     var traceId = $("#traceId").val();
     var uid = $("#uid").val();
+    var flag1=true;
+    $('.accordion-toggle').click(function(){
+        if(flag1){
+
+            $('.accordion-toggle').siblings('.collapse').css('display','block')
+        }
+    })
 
 
 
