@@ -10,7 +10,7 @@
 	<artifactId>skywalking-web-plugin</artifactId>
 	<packaging>jar</packaging>
 
-	<name>spring-plugin</name>
+	<name>web-plugin</name>
 	<url>http://maven.apache.org</url>
 
 	<properties>
