@@ -5,11 +5,10 @@
 <script src="${base}/js/jquery/jquery.treetable-3.2.0.js"></script>
 <script src="${base}/js/jquery/jquery.backstretch.min.js"></script>
 <script src="${base}/js/jquery/jquery-md5.js"></script>
-<#--<script src="${base}/js/bootstrap.min-3.3.5.js"></script>-->
+<script src="${base}/js/bootstrap.min-3.3.5.js"></script>
 <script src="${base}/js/jquery/bootbox.min.js"></script>
 <script src="${base}/js/scripts.js"></script>
 <style>
-
     .liu{display:none;height:370px;!important}
 </style>
 </#macro>
@@ -94,8 +93,8 @@
 <#-- dealTraceLog -->
 <#macro dealTraceLog>
     <#if valueList??>
-    <div id="row">
-        <div class="col-md-12">
+    <div id="row" style="overflow:hidden">
+        <div class="col-md-12" style="overflow:hidden">
             <h5 style="color:white">
                 ${traceId!}</br>
                 调度入口IP：${(valueList[0].address)!}，开始时间：${beginTime?number_to_datetime}，${(valueList?size)!}条调用记录，消耗总时长：${(endTime - beginTime)!'0'}
@@ -235,6 +234,8 @@
                 </table>
             </div>
         </div>
+        <!-- show detailTraceLog -->
+        <@common.detailTraceLog />
     </div>
     </#if>
 </#macro>

@@ -14,17 +14,19 @@
         .leaf {
             background-color: white;
         }
-        .in{display:block;height:370px;}
+
+        .in {
+            display: block;
+            /*height: 600px;*/
+        }
     </style>
 <@common.importJavaScript />
 </head>
 <body>
-<div class="container">
 <@common.importHeaderInfo userInfo="${userInfo}"/>
-    <div>
-        <div class="col-md-12" style="position:absolute;left:0px;right:0px;margin-top:20px;margin-left: 6px;"
-             id="showTraceLog">
-        </div>
+<div class="container">
+    <div class="col-md-12" style="position:absolute;left:0px;right:0px;margin-top:20px;margin-left: 6px;"
+         id="showTraceLog">
     </div>
     <input type="hidden" id="uid" value="${(userInfo?eval).uid!''}">
     <script src="${base}/js/webui-0.1.js?1=1"></script>

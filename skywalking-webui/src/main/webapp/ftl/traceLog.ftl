@@ -13,8 +13,7 @@
 <@common.importJavaScript />
 </head>
 <body>
-<!-- show detailTraceLog -->
-<@common.detailTraceLog />
+
 <!-- show traceLogInfo -->
 <@common.dealTraceLog />
 <!-- show originLog -->
