@@ -37,8 +37,9 @@ xsi:schemaLocation="http://cloud.asiainfo.com/schema/skywalking
 				http://cloud.asiainfo.com/schema/skywalking/skywalking.xsd"&gt;</pre>
 			<p>2.Spring配置文件中，设置需要追踪包名、类名或方法名。可配置多个。</p>
 			<pre>
-&lt;skywalking:trace className="*" method="*" packageName="com.ai.cloud.skywalking.example.*" /&gt;
-&lt;skywalking:trace className="busy*" method="*" packageName="com.ai.bss.example.*" /&gt;</pre>
+&lt;skywalking:trace packageExpression="com.ai.app.domain.test.*" classExpression="*"/&gt;
+&lt;skywalking:trace packageExpression="com.ai.app.domain.test..*" classExpression="className*"/&gt;
+</pre>
        <p><span style="color:red">注意：对于方法的追踪，仅限于实例级的public方法。其他方法由于Java运行时原因，无法追踪。</span></p>
     	<p>3.通过Spring标注，或配置文件将TracingAspectBean注册到Spring Context上下文中</p>
       <h3>
@@ -174,7 +175,14 @@ BusinessKeyAppender.setBusinessKey2Trace(businessKey);</pre>
 			
       <p>3.通过web应用的http调用入口，通过返回的header信息，找到此次调用的traceid。</p>
       
-      <p>4.通过log4j或log4j2的扩展，在每行本地日志中，输出traceid。
+      <p>4.通过log4j或log4j2的扩展，在每行本地日志中，输出traceid。</p>
+      <p>log4j1.x配置</p>
+      <pre>log4j.appender.A1.layout=com.ai.cloud.skywalking.plugin.log.log4j.v1.x.TraceIdPatternLayout
+#%x为traceid的转义符
+log4j.appender.A1.layout.ConversionPattern=[%x] %-d{yyyy-MM-dd HH:mm:ss.SSS} %c %n[%p] %n%m%n</pre>
+      <p>log4j2.x配置</p>
+      <pre>&lt;!--%tid为traceid的转义符--&gt;
+&lt;PatternLayout  pattern="%d{HH:mm:ss.SSS} [%tid] [%t] %-5level %logger{36} - %msg%n"/&gt;</pre>
       
       <footer class="site-footer">
         <span class="site-footer-owner"><a href="http://wu-sheng.github.io/sky-walking">Sky Walking</a> is maintained by <a href="https://github.com/wu-sheng">吴晟</a>，<a href="https://github.com/ascrutae">张鑫</a>，<a href="https://github.com/tanzhen84">谭真</a>.</span>
