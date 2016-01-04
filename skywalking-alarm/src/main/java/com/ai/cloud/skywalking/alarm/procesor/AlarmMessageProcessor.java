@@ -1,24 +1,35 @@
 package com.ai.cloud.skywalking.alarm.procesor;
 
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import redis.clients.jedis.Jedis;
+
 import com.ai.cloud.skywalking.alarm.model.AlarmRule;
 import com.ai.cloud.skywalking.alarm.model.ApplicationInfo;
 import com.ai.cloud.skywalking.alarm.model.MailInfo;
 import com.ai.cloud.skywalking.alarm.model.UserInfo;
 import com.ai.cloud.skywalking.alarm.util.MailUtil;
 import com.ai.cloud.skywalking.alarm.util.RedisUtil;
+import com.ai.cloud.skywalking.alarm.util.RedisUtil.Executable;
 import com.ai.cloud.skywalking.alarm.util.TemplateConfigurationUtil;
+
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import redis.clients.jedis.Jedis;
-
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.util.*;
 
 public class AlarmMessageProcessor {
 
@@ -117,33 +128,36 @@ public class AlarmMessageProcessor {
         return title;
     }
 
-    private void expiredAlarmMessage(String key) {
-        Jedis client = RedisUtil.getRedisClient();
-        client.expire(key, 0);
-        if (client != null) {
-            client.close();
-        }
+    private void expiredAlarmMessage(final String key) {
+    	RedisUtil.execute(new Executable<Long>() {
+			@Override
+			public Long exe(Jedis client) {
+				return client.expire(key, 0);
+			}
+		});
     }
 
-    private void savePreviousFireTime(String userId, String ruleId,
-                                      long currentFireMinuteTime) {
-        Jedis client = RedisUtil.getRedisClient();
-        client.hset(userId, ruleId, String.valueOf(currentFireMinuteTime));
-        if (client != null) {
-            client.close();
-        }
+    private void savePreviousFireTime(final String userId, final String ruleId,
+                                      final long currentFireMinuteTime) {
+    	RedisUtil.execute(new Executable<Long>() {
+			@Override
+			public Long exe(Jedis client) {
+				return client.hset(userId, ruleId, String.valueOf(currentFireMinuteTime));
+			}
+		});
     }
 
-    private Collection<String> getAlarmMessages(String key) {
-        Jedis client = RedisUtil.getRedisClient();
-        Map<String, String> result = client.hgetAll(key);
-        if (result == null) {
-            return new ArrayList<String>();
-        }
-
-        client.close();
-
-        return result.keySet();
+    private Collection<String> getAlarmMessages(final String key) {
+    	return RedisUtil.execute(new Executable<Collection<String>>() {
+			@Override
+			public Collection<String> exe(Jedis client) {
+				Map<String, String> result = client.hgetAll(key);
+		        if (result == null) {
+		            return new ArrayList<String>();
+		        }
+		        return result.keySet();
+			}
+		});
     }
 
     private String generateContent(String templateStr, Map parameter) throws IOException, TemplateException, SQLException {

@@ -1,7 +1,9 @@
 package com.ai.cloud.skywalking.alarm.model;
 
 import com.ai.cloud.skywalking.alarm.util.RedisUtil;
+import com.ai.cloud.skywalking.alarm.util.RedisUtil.Executable;
 import com.google.gson.Gson;
+
 import redis.clients.jedis.Jedis;
 
 import java.util.ArrayList;
@@ -78,18 +80,16 @@ public class AlarmRule {
         this.previousFireTimeM = previousFireTimeM;
     }
 
-    private static long getPreviousFireTime(String userId, String ruleId) {
-        Jedis client = RedisUtil.getRedisClient();
-        try {
-            String previousTime = client.get(userId + "-" + ruleId);
-            if (previousTime == null || previousTime.length() <= 0) {
-                return System.currentTimeMillis() / (10000 * 6);
-            }
-            return Long.valueOf(previousTime);
-        } finally {
-            if (client != null) {
-                client.close();
-            }
-        }
+    private static long getPreviousFireTime(final String userId, final String ruleId) {
+    	return RedisUtil.execute(new Executable<Long>() {
+			@Override
+			public Long exe(Jedis client) {
+				String previousTime = client.get(userId + "-" + ruleId);
+	            if (previousTime == null || previousTime.length() <= 0) {
+	                return System.currentTimeMillis() / (10000 * 6);
+	            }
+	            return Long.valueOf(previousTime);
+			}
+		});
     }
 }
