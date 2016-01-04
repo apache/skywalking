@@ -1,6 +1,7 @@
 package com.ai.cloud.skywalking.plugin.log.log4j.v2.x;
 
 import com.ai.cloud.skywalking.api.Tracing;
+import com.ai.cloud.skywalking.conf.AuthDesc;
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.config.plugins.Plugin;
 import org.apache.logging.log4j.core.pattern.ConverterKeys;
@@ -26,6 +27,10 @@ public class TraceIdConverter extends LogEventPatternConverter {
 
     @Override
     public void format(LogEvent event, StringBuilder toAppendTo) {
-        toAppendTo.append("TId:" + Tracing.getTraceId());
+        if (AuthDesc.isAuth()) {
+            toAppendTo.append("TID:" + Tracing.getTraceId());
+        }else{
+            toAppendTo.append("TID: N/A");
+        }
     }
 }
