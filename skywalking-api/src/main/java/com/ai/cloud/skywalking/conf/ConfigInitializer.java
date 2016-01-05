@@ -9,24 +9,30 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static com.ai.cloud.skywalking.conf.Config.SkyWalking.*;
+
 public class ConfigInitializer {
     private static Logger logger = Logger.getLogger(ConfigInitializer.class.getName());
 
     public static void initialize() {
         InputStream inputStream = ConfigInitializer.class.getResourceAsStream("/sky-walking.auth");
         if (inputStream == null) {
-            logger.log(Level.ALL, "No provider sky-walking certification documents, buried point won't work");
+            logger.log(Level.ALL, "No provider sky-walking certification documents, sky-walking api auto shutdown.");
         } else {
             try {
                 Properties properties = new Properties();
                 properties.load(inputStream);
                 initNextLevel(properties, Config.class, new ConfigDesc());
-                AuthDesc.isAuth = Boolean.valueOf(System.getenv(Config.SkyWalking.AUTH_SYSTEM_ENV_NAME));
-                logger.log(Level.ALL, "skywalking auth check : " + AuthDesc.isAuth);
+                AuthDesc.isAuth = Boolean.valueOf(System.getenv(AUTH_SYSTEM_ENV_NAME));
+                logger.log(Level.ALL, "sky-walking auth check : " + AuthDesc.isAuth);
+                if(!AuthDesc.isAuth && AUTH_OVERRIDE){
+                	AuthDesc.isAuth = AUTH_OVERRIDE;
+                	logger.log(Level.ALL, "sky-walking auth override: " + AuthDesc.isAuth);
+                }
             } catch (IllegalAccessException e) {
-                logger.log(Level.ALL, "Parsing certification file failed, buried won't work");
+                logger.log(Level.ALL, "Parsing certification file failed, sky-walking api auto shutdown.");
             } catch (IOException e) {
-                logger.log(Level.ALL, "Failed to read the certification file, buried won't work");
+                logger.log(Level.ALL, "Failed to read the certification file, sky-walking api auto shutdown.");
             }
         }
     }

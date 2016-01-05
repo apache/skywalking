@@ -52,6 +52,4 @@ public class LocalBuriedPointSender extends ApplicationExceptionHandler implemen
             ContextBuffer.save(spanData);
         }
     }
-
-    public void handleException(Throwable e) {}
 }
