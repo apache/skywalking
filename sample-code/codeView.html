@@ -109,7 +109,7 @@ import com.ai.cloud.skywalking.plugin.jdbc.TracingDriver;
 public class XXXDBTracingDriver extends TracingDriver {
 	static {
 		try {
-			DriverManager.registerDriver(new MySQLTracingDriver());
+			DriverManager.registerDriver(new XXXDBTracingDriver());
 		} catch (SQLException e) {
 			throw new RuntimeException("register "
 					+ MySQLTracingDriver.class.getName() + " driver failure.");
