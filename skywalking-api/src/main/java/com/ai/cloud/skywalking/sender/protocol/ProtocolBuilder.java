@@ -1,12 +1,16 @@
 package com.ai.cloud.skywalking.sender.protocol;
 
+import com.ai.cloud.skywalking.conf.Config;
+
+import java.nio.charset.Charset;
+
 public class ProtocolBuilder {
 
     //协议格式:
     // xx xx xx xx | xx xx xx xx xxx xxx xxx
     //   header(4) |        content
     public static byte[] builder(String data) {
-        byte[] content = data.getBytes();
+        byte[] content = data.getBytes(Charset.forName(Config.SkyWalking.CHARSET));
         byte[] header = intToByteArray(content.length);
         byte[] des = new byte[header.length + content.length];
         System.arraycopy(header, 0, des, 0, header.length);

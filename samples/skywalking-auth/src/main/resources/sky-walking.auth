@@ -4,6 +4,8 @@ skywalking.user_id=123
 skywalking.application_code=test
 #skywalking auth的环境变量名字
 skywalking.auth_system_env_name=SKYWALKING_RUN
+#skywalking数据编码
+skywalking.charset=UTF-8
 
 #是否打印数据
 buriedpoint.printf=false
