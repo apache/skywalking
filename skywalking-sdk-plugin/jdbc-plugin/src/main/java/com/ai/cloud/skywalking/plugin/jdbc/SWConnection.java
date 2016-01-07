@@ -97,7 +97,14 @@ public class SWConnection implements java.sql.Connection {
 	}
 
 	public void close() throws SQLException {
-		realConnection.close();
+		ConnectionTracing.execute(realConnection, connectInfo, "close", "",
+				new Executable<String>() {
+					public String exe(java.sql.Connection realConnection,
+							String sql) throws SQLException {
+						realConnection.close();
+						return null;
+					}
+				});
 	}
 
 	public boolean isClosed() throws SQLException {
