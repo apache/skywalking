@@ -3,6 +3,11 @@ package com.ai.cloud.skywalking.plugin.spring;
 import com.ai.cloud.skywalking.buriedpoint.LocalBuriedPointSender;
 import com.ai.cloud.skywalking.model.Identification;
 import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.reflect.MethodSignature;
+
+import java.lang.reflect.Method;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class TracingAspect {
 
@@ -10,8 +15,7 @@ public class TracingAspect {
         LocalBuriedPointSender _sender = new LocalBuriedPointSender();
         try {
             StringBuilder viewPoint = new StringBuilder();
-            viewPoint.append(proceedingJoinPoint.getTarget().getClass().getName()
-                    + "(");
+            viewPoint.append(proceedingJoinPoint.getTarget().getClass().getName() + "." +  proceedingJoinPoint.getSignature().getName() + "(");
             boolean first = true;
             for (Object arg : proceedingJoinPoint.getArgs()) {
                 if (!first) {
@@ -30,5 +34,10 @@ public class TracingAspect {
         } finally {
             _sender.afterSend();
         }
+    }
+
+    public static void main(String[] args) {
+        System.out.println(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(1451460306723L)));
+
     }
 }
