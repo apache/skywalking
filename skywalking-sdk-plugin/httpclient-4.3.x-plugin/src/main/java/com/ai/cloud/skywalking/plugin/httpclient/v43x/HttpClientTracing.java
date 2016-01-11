@@ -1,6 +1,7 @@
 package com.ai.cloud.skywalking.plugin.httpclient.v43x;
 
 import com.ai.cloud.skywalking.buriedpoint.RPCBuriedPointSender;
+import com.ai.cloud.skywalking.buriedpoint.type.WEBBuriedPointType;
 import com.ai.cloud.skywalking.conf.AuthDesc;
 import com.ai.cloud.skywalking.model.Identification;
 import org.apache.http.HttpRequest;
@@ -20,7 +21,7 @@ public class HttpClientTracing {
             httpRequest.setHeader(traceHearName,
                     "ContextData=" + sender.beforeSend(Identification.newBuilder()
                             .viewPoint(url)
-                            .spanType("W")
+                            .spanType(new WEBBuriedPointType())
                             .build())
                             .toString());
             return executor.execute();

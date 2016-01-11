@@ -1,11 +1,10 @@
 package com.ai.cloud.skywalking.plugin.spring;
 
 import com.ai.cloud.skywalking.buriedpoint.LocalBuriedPointSender;
+import com.ai.cloud.skywalking.buriedpoint.type.SpringBuriedPointType;
 import com.ai.cloud.skywalking.model.Identification;
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.reflect.MethodSignature;
 
-import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -15,7 +14,7 @@ public class TracingAspect {
         LocalBuriedPointSender _sender = new LocalBuriedPointSender();
         try {
             StringBuilder viewPoint = new StringBuilder();
-            viewPoint.append(proceedingJoinPoint.getTarget().getClass().getName() + "." +  proceedingJoinPoint.getSignature().getName() + "(");
+            viewPoint.append(proceedingJoinPoint.getTarget().getClass().getName() + "." + proceedingJoinPoint.getSignature().getName() + "(");
             boolean first = true;
             for (Object arg : proceedingJoinPoint.getArgs()) {
                 if (!first) {
@@ -26,7 +25,7 @@ public class TracingAspect {
                 viewPoint.append(arg.getClass().getName());
             }
             viewPoint.append(")");
-            _sender.beforeSend(Identification.newBuilder().viewPoint(viewPoint.toString()).spanType("M").build());
+            _sender.beforeSend(Identification.newBuilder().viewPoint(viewPoint.toString()).spanType(new SpringBuriedPointType()).build());
             return proceedingJoinPoint.proceed();
         } catch (Throwable e) {
             _sender.handleException(e);

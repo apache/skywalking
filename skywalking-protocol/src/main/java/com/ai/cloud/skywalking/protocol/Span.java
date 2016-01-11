@@ -48,6 +48,7 @@ public class Span extends SpanData {
         processNo = fieldValues[12].trim();
         applicationId = fieldValues[13].trim();
         userId = fieldValues[14].trim();
+        callType = fieldValues[15].trim();
         this.originData = originData;
     }
 
@@ -121,10 +122,12 @@ public class Span extends SpanData {
         }
 
         if (isNonBlank(userId)) {
-            toStringValue.append(userId);
+            toStringValue.append(userId + SPAN_FIELD_SPILT_PATTERN);
         } else {
             toStringValue.append(" " + SPAN_FIELD_SPILT_PATTERN);
         }
+
+        toStringValue.append(callType);
 
         return toStringValue.toString();
     }

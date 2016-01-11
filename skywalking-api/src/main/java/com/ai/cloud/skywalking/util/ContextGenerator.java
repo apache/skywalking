@@ -45,6 +45,8 @@ public final class ContextGenerator {
         spanData.setSpanType(id.getSpanType());
         spanData.setViewPointId(id.getViewPoint());
         spanData.setBusinessKey(id.getBusinessKey());
+        //FIX Add Call Type field
+        spanData.setCallType(id.getCallType());
         // 设置基本信息
         spanData.setStartDate(System.currentTimeMillis());
         spanData.setProcessNo(BuriedPointMachineUtil.getProcessNo());

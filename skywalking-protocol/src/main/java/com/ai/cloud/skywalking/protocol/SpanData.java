@@ -17,6 +17,7 @@ public abstract class SpanData {
     protected byte statusCode = 0;
     protected String exceptionStack;
     protected String spanType = "";
+    protected String callType = "";
     protected boolean isReceiver = false;
     protected String businessKey = "";
     protected String processNo = "";
@@ -131,5 +132,9 @@ public abstract class SpanData {
 
     public String getUserId() {
         return userId;
+    }
+
+    public void setCallType(String callType) {
+        this.callType = callType;
     }
 }

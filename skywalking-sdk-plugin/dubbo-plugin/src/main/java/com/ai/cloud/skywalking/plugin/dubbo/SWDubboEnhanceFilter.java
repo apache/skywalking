@@ -2,6 +2,7 @@ package com.ai.cloud.skywalking.plugin.dubbo;
 
 import com.ai.cloud.skywalking.buriedpoint.RPCBuriedPointReceiver;
 import com.ai.cloud.skywalking.buriedpoint.RPCBuriedPointSender;
+import com.ai.cloud.skywalking.buriedpoint.type.DubboBuriedPointType;
 import com.ai.cloud.skywalking.conf.AuthDesc;
 import com.ai.cloud.skywalking.model.ContextData;
 import com.ai.cloud.skywalking.model.Identification;
@@ -14,10 +15,10 @@ import com.alibaba.dubbo.rpc.*;
 public class SWDubboEnhanceFilter implements Filter {
 
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
-    	if(!AuthDesc.isAuth()){
-    		return invoker.invoke(invocation);
-		}
-    	
+        if (!AuthDesc.isAuth()) {
+            return invoker.invoke(invocation);
+        }
+
         RpcContext context = RpcContext.getContext();
         boolean isConsumer = context.isConsumerSide();
         Result result = null;
@@ -101,7 +102,7 @@ public class SWDubboEnhanceFilter implements Filter {
         }
 
         viewPoint.append(")");
-        return Identification.newBuilder().viewPoint(viewPoint.toString()).spanType("D").build();
+        return Identification.newBuilder().viewPoint(viewPoint.toString()).spanType(new DubboBuriedPointType()).build();
     }
 
 

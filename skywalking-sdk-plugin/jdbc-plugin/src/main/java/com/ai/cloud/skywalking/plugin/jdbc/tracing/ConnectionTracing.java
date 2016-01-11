@@ -3,6 +3,7 @@ package com.ai.cloud.skywalking.plugin.jdbc.tracing;
 import java.sql.SQLException;
 
 import com.ai.cloud.skywalking.buriedpoint.RPCBuriedPointSender;
+import com.ai.cloud.skywalking.buriedpoint.type.JDBCBuriedPointType;
 import com.ai.cloud.skywalking.model.Identification;
 
 /**
@@ -25,7 +26,7 @@ public class ConnectionTracing {
 							"connection."
 									+ method
 									+ (sql == null || sql.length() == 0 ? ""
-											: ":" + sql)).spanType("J").build());
+											: ":" + sql)).spanType(new JDBCBuriedPointType()).build());
 			return exec.exe(realConnection, sql);
 		} catch (SQLException e) {
 			sender.handleException(e);
