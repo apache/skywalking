@@ -2,7 +2,6 @@ package com.ai.cloud.skywalking.model;
 
 import com.ai.cloud.skywalking.api.IBuriedPointType;
 import com.ai.cloud.skywalking.util.StringUtil;
-import com.sun.xml.internal.txw2.IllegalSignatureException;
 
 public class Identification {
     private String viewPoint;
@@ -57,7 +56,7 @@ public class Identification {
 
         public IdentificationBuilder spanType(IBuriedPointType spanType) {
             if (StringUtil.isEmpty(spanType.getTypeName())) {
-                throw new IllegalSignatureException("Span Type name cannot be null");
+                throw new IllegalArgumentException("Span Type name cannot be null");
             }
             sendData.spanType = spanType.getTypeName();
             sendData.callType = spanType.getCallType().toString();
