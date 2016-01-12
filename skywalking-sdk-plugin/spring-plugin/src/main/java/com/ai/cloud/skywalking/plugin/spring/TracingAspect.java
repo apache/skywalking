@@ -34,9 +34,4 @@ public class TracingAspect {
             _sender.afterSend();
         }
     }
-
-    public static void main(String[] args) {
-        System.out.println(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(1451460306723L)));
-
-    }
 }

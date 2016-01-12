@@ -2,6 +2,7 @@ package com.ai.cloud.skywalking.plugin.spring;
 
 import com.ai.cloud.skywalking.conf.AuthDesc;
 import com.ai.cloud.skywalking.plugin.spring.util.ConcurrentHashSet;
+import org.aspectj.lang.ProceedingJoinPoint;
 import org.springframework.aop.aspectj.AspectInstanceFactory;
 import org.springframework.aop.aspectj.AspectJAroundAdvice;
 import org.springframework.aop.aspectj.AspectJExpressionPointcut;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
+import java.lang.reflect.Method;
 import java.util.Set;
 
 public class TracingEnhanceProcessor implements DisposableBean,
@@ -67,7 +69,13 @@ public class TracingEnhanceProcessor implements DisposableBean,
                 ProxyFactory proxyFactory = new ProxyFactory(bean);
                 proxyFactory.setProxyTargetClass(true);
                 AspectInstanceFactory aspectInstanceFactory = new SimpleAspectInstanceFactory(TracingAspect.class);
-                AspectJAroundAdvice advised = new AspectJAroundAdvice(TracingAspect.class.getDeclaredMethods()[0],
+                Method method = null;
+                try {
+                    method = TracingAspect.class.getMethod("doTracing", ProceedingJoinPoint.class);
+                } catch (NoSuchMethodException e) {
+                    throw new IllegalStateException("Failed to find doTracing method", e);
+                }
+                AspectJAroundAdvice advised = new AspectJAroundAdvice(method,
                         tracingPattern.getPointcut(), aspectInstanceFactory);
                 proxyFactory.addAdvice(advised);
 
