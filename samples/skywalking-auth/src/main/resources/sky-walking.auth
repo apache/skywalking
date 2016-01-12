@@ -6,8 +6,6 @@ skywalking.application_code=test
 skywalking.auth_system_env_name=SKYWALKING_RUN
 #skywalking数据编码
 skywalking.charset=UTF-8
-#skywalking SDK的版本
-skywalking.sdk_version=1.0a2
 
 #是否打印数据
 buriedpoint.printf=false
