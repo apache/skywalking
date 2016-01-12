@@ -12,8 +12,6 @@ public class Config {
         public static boolean AUTH_OVERRIDE = false;
 
         public static String CHARSET = "UTF-8";
-
-        public static String SDK_VERSION = "";
     }
 
     public static class BuriedPoint {
