@@ -25,7 +25,7 @@ public class TracingAspect {
                 viewPoint.append(arg.getClass().getName());
             }
             viewPoint.append(")");
-            _sender.beforeSend(Identification.newBuilder().viewPoint(viewPoint.toString()).spanType(new SpringBuriedPointType()).build());
+            _sender.beforeSend(Identification.newBuilder().viewPoint(viewPoint.toString()).spanType(SpringBuriedPointType.instance()).build());
             return proceedingJoinPoint.proceed();
         } catch (Throwable e) {
             _sender.handleException(e);

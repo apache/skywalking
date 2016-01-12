@@ -102,7 +102,7 @@ public class SWDubboEnhanceFilter implements Filter {
         }
 
         viewPoint.append(")");
-        return Identification.newBuilder().viewPoint(viewPoint.toString()).spanType(new DubboBuriedPointType()).build();
+        return Identification.newBuilder().viewPoint(viewPoint.toString()).spanType(DubboBuriedPointType.instance()).build();
     }
 
 

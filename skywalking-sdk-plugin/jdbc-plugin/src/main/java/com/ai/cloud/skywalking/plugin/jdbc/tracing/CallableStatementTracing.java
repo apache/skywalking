@@ -26,7 +26,7 @@ public class CallableStatementTracing {
 							"callableStatement."
 									+ method
 									+ (sql == null || sql.length() == 0 ? ""
-											: ":" + sql)).spanType(new JDBCBuriedPointType()).build());
+											: ":" + sql)).spanType(JDBCBuriedPointType.instance()).build());
 			return exec.exe(realStatement, sql);
 		} catch (SQLException e) {
 			sender.handleException(e);
