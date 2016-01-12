@@ -1,32 +1,34 @@
 package com.ai.cloud.skywalking.util;
 
+import com.ai.cloud.skywalking.conf.Config;
+
 import java.util.UUID;
 
 public final class TraceIdGenerator {
-	private static final ThreadLocal<Integer> ThreadTraceIdSequence = new ThreadLocal<Integer>();
-	
-	private static final String PROCESS_UUID;
-	
-	static{
-		String uuid = UUID.randomUUID().toString().replaceAll("-", "");
-		PROCESS_UUID = uuid.substring(uuid.length() - 7);
-	}
-	
+    private static final ThreadLocal<Integer> ThreadTraceIdSequence = new ThreadLocal<Integer>();
+
+    private static final String PROCESS_UUID;
+
+    static {
+        String uuid = UUID.randomUUID().toString().replaceAll("-", "");
+        PROCESS_UUID = uuid.substring(uuid.length() - 7);
+    }
+
     private TraceIdGenerator() {
     }
-    
-    public static String generate(){
-    	Integer seq = ThreadTraceIdSequence.get();
-    	if(seq == null || seq == 10000 || seq > 10000){
-    		seq = 0;
-    	}
-    	seq++;
-    	ThreadTraceIdSequence.set(seq);
-    	
-    	return System.currentTimeMillis()
+
+    public static String generate() {
+        Integer seq = ThreadTraceIdSequence.get();
+        if (seq == null || seq == 10000 || seq > 10000) {
+            seq = 0;
+        }
+        seq++;
+        ThreadTraceIdSequence.set(seq);
+
+        return Config.SkyWalking.SDK_VERSION + "." + System.currentTimeMillis()
                 + PROCESS_UUID
                 + BuriedPointMachineUtil.getProcessNo()
-                + Thread.currentThread().getId() 
+                + Thread.currentThread().getId()
                 + seq;
     }
 }

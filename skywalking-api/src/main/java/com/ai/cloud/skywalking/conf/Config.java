@@ -2,76 +2,78 @@ package com.ai.cloud.skywalking.conf;
 
 public class Config {
 
-	public static class SkyWalking {
-		public static String USER_ID = "";
+    public static class SkyWalking {
+        public static String USER_ID = "";
 
-		public static String APPLICATION_CODE = "";
+        public static String APPLICATION_CODE = "";
 
-		public static String AUTH_SYSTEM_ENV_NAME = "SKYWALKING_RUN";
-		
-		public static boolean AUTH_OVERRIDE = false;
+        public static String AUTH_SYSTEM_ENV_NAME = "SKYWALKING_RUN";
 
-		public static String CHARSET = "UTF-8";
-	}
+        public static boolean AUTH_OVERRIDE = false;
 
-	public static class BuriedPoint {
-		// 是否打印埋点信息
-		public static boolean PRINTF = false;
+        public static String CHARSET = "UTF-8";
 
-		public static int MAX_EXCEPTION_STACK_LENGTH = 4000;
+        public static String SDK_VERSION = "";
+    }
 
-		// Business Key 最大长度
-		public static int BUSINESSKEY_MAX_LENGTH = 300;
-		
-		// 使用逗号分离
-		public static String EXCLUSIVE_EXCEPTIONS = "";
-	}
+    public static class BuriedPoint {
+        // 是否打印埋点信息
+        public static boolean PRINTF = false;
 
-	public static class Consumer {
-		// 最大消费线程数
-		public static int MAX_CONSUMER = 2;
-		// 消费者最大等待时间
-		public static long MAX_WAIT_TIME = 5L;
+        public static int MAX_EXCEPTION_STACK_LENGTH = 4000;
 
-		//
-		public static long CONSUMER_FAIL_RETRY_WAIT_INTERVAL = 50L;
-	}
+        // Business Key 最大长度
+        public static int BUSINESSKEY_MAX_LENGTH = 300;
 
-	public static class Buffer {
-		// 每个Buffer的最大个数
-		public static int BUFFER_MAX_SIZE = 20000;
+        // 使用逗号分离
+        public static String EXCLUSIVE_EXCEPTIONS = "";
+    }
 
-		// Buffer池的最大长度
-		public static int POOL_SIZE = 5;
-	}
+    public static class Consumer {
+        // 最大消费线程数
+        public static int MAX_CONSUMER = 2;
+        // 消费者最大等待时间
+        public static long MAX_WAIT_TIME = 5L;
 
-	public static class Sender {
-		// 最大发送者的连接数阀比例
-		public static int CONNECT_PERCENT = 50;
+        //
+        public static long CONSUMER_FAIL_RETRY_WAIT_INTERVAL = 50L;
+    }
 
-		// 发送服务端配置
-		public static String SERVERS_ADDR = "127.0.0.1:34000;127.0.0.1:34001;127.0.0.1:34002";
+    public static class Buffer {
+        // 每个Buffer的最大个数
+        public static int BUFFER_MAX_SIZE = 20000;
 
-		// 是否开启发送
-		public static boolean IS_OFF = false;
-		
-		// 最大发送副本数量
-		public static int MAX_COPY_NUM = 2;
+        // Buffer池的最大长度
+        public static int POOL_SIZE = 5;
+    }
 
-		// 发送的最大长度
-		public static int MAX_SEND_LENGTH = 18500;
+    public static class Sender {
+        // 最大发送者的连接数阀比例
+        public static int CONNECT_PERCENT = 50;
 
-		public static long RETRY_GET_SENDER_WAIT_INTERVAL = 2000L;
+        // 发送服务端配置
+        public static String SERVERS_ADDR = "127.0.0.1:34000;127.0.0.1:34001;127.0.0.1:34002";
 
-		// 切换Sender的周期
-		public static long SWITCH_SENDER_INTERVAL = 10 * 60 * 1000;
+        // 是否开启发送
+        public static boolean IS_OFF = false;
 
-		// 切换Sender之后，关闭Sender的倒计时
-		public static long CLOSE_SENDER_COUNTDOWN = 10 * 1000;
+        // 最大发送副本数量
+        public static int MAX_COPY_NUM = 2;
 
-		// Checker线程处理完成等待周期
-		public static long CHECKER_THREAD_WAIT_INTERVAL = 1000;
+        // 发送的最大长度
+        public static int MAX_SEND_LENGTH = 18500;
 
-		public static long RETRY_FIND_CONNECTION_SENDER = 1000;
-	}
+        public static long RETRY_GET_SENDER_WAIT_INTERVAL = 2000L;
+
+        // 切换Sender的周期
+        public static long SWITCH_SENDER_INTERVAL = 10 * 60 * 1000;
+
+        // 切换Sender之后，关闭Sender的倒计时
+        public static long CLOSE_SENDER_COUNTDOWN = 10 * 1000;
+
+        // Checker线程处理完成等待周期
+        public static long CHECKER_THREAD_WAIT_INTERVAL = 1000;
+
+        public static long RETRY_FIND_CONNECTION_SENDER = 1000;
+    }
 }
