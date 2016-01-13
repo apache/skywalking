@@ -54,7 +54,7 @@ public class ContextData {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(traceId);
         stringBuilder.append("-");
-        if (parentLevel != null && parentLevel.length() > 0) {
+        if (parentLevel == null || parentLevel.length() == 0) {
             stringBuilder.append(" ");
         } else {
             stringBuilder.append(parentLevel);

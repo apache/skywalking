@@ -37,6 +37,11 @@ public class DataSenderWithCopies implements IDataSender {
 		return senders.size() < maxCopyNum;
 	}
 
+	boolean isReady(){
+		return senders.size() > 0 ;
+	}
+
+
 	/**
 	 * 尝试向所有副本发送
 	 */
