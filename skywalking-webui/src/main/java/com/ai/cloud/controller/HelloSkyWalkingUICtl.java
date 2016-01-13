@@ -82,7 +82,7 @@ public class HelloSkyWalkingUICtl {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/{traceId}")
+	@RequestMapping(value = "/{traceId:.+}")
 	public String showIndexPageWithTraceId(ModelMap root, @PathVariable("traceId") String traceId) throws Exception {
 		showIndexPage(root, null);
 		root.put("traceId", traceId);
@@ -100,7 +100,7 @@ public class HelloSkyWalkingUICtl {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/showTraceLog/{traceId}")
+	@RequestMapping(value = "/showTraceLog/{traceId:.+}")
 	public String showTraceLog(ModelMap root, @PathVariable("traceId") String traceId) throws Exception {
 //		traceId = "bcb759bc12db474aa54bc4bea605cb81123";
 		Map<String, TraceLogEntry> traceLogMap = traceLogSer.queryLogByTraceId(traceId);
