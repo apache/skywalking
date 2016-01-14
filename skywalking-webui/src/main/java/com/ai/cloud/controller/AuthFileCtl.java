@@ -16,13 +16,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.Map;
 import java.util.Properties;
+import java.util.jar.JarEntry;
+import java.util.jar.JarOutputStream;
 
 @Controller
 public class AuthFileCtl {
@@ -41,6 +41,7 @@ public class AuthFileCtl {
                                           @PathVariable("appCode") String appCode, String authType) throws Exception {
         HttpSession session = request.getSession();
         String uid = (String) session.getAttribute("uid");
+        String userName = (String) session.getAttribute("userName");
         JSONObject reJson = new JSONObject();
 
         if (StringUtil.isBlank(uid)) {
@@ -49,13 +50,14 @@ public class AuthFileCtl {
             return;
         }
 
-        String filepath = "sky-walking.auth";
+        String filepath = userName + "-" + appCode + ".jar";
         response.reset();
         response.setContentType("application/octet-stream");
         String fileName = URLDecoder.decode(filepath, "utf-8");
         java.net.URLEncoder.encode(fileName, "utf-8");
         response.addHeader("Content-Disposition",
                 "attachment;" + "filename=\"" + URLEncoder.encode(fileName, "utf-8") + "\"");
+
         Properties properties = authFileSer.queryAuthFile(authType);
         String propertyValue;
         for (Map.Entry<Object, Object> value : properties.entrySet()) {
@@ -73,20 +75,35 @@ public class AuthFileCtl {
         }
         properties.setProperty("skywalking.user_id", uid);
         properties.setProperty("skywalking.application_code", appCode);
+
+        File file = new File(request.getServletContext().getRealPath("/") + File.separator + "download" + File.separator + fileName);
+        file.delete();
+        // 生成JarFile
+        JarOutputStream stream = new JarOutputStream(new FileOutputStream(file));
+        JarEntry entry = new JarEntry("sky-walking.auth");
+        stream.putNextEntry(entry);
+        properties.store(stream, "");
+        stream.flush();
+        stream.close();
+        FileInputStream inputStream = new FileInputStream(file);
+
         BufferedOutputStream output = null;
         BufferedInputStream input = null;
         OutputStream os = null;
         try {
             os = response.getOutputStream();
-            //byte[] byt = sb.toString().getBytes();
-            properties.store(os, "test");
-//			os.write(byt);
+            byte[] bytes = new byte[1024];
+            while ((inputStream.read(bytes)) != -1) {
+                os.write(bytes);
+            }
+            //properties.store(os, "test");
         } catch (Exception e) {
             logger.error("导出 {} 应用制空权文件异常", appCode);
             e.printStackTrace();
         } finally {
             os.flush();
             os.close();
+            inputStream.close();
             if (input != null) {
                 input.close();
             }
