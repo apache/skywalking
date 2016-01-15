@@ -137,4 +137,8 @@ public abstract class SpanData {
     public void setCallType(String callType) {
         this.callType = callType;
     }
+
+    public String getCallType() {
+        return callType;
+    }
 }

@@ -34,4 +34,16 @@ public class NodeChain {
         filters.add(new CopyAttrNodeFilter());
         filters.add(new ViewPointNodeFilter());
     }
+
+    public static void main(String[] args) {
+        Span span = new Span("1.0a2.1452649597690.035d27f.1608.56.1@~ @~0@~" +
+                "http://localhost:8080/skywalking-web/order/save@~1452649597692@~5202@~" +
+                "astraea-PC/192.168.1.102@~0@~ @~W@~true@~ @~1608@~web-application@~6@~A ");
+        NodeChain nodeChain = new NodeChain();
+        CostMap costMap = new CostMap();
+        ChainNode chainNode = new ChainNode();
+        nodeChain.doChain(span, chainNode, costMap);
+
+        System.out.print("xx");
+    }
 }

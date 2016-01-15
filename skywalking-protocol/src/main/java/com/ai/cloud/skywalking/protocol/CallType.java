@@ -1,4 +1,4 @@
-package com.ai.cloud.skywalking.model;
+package com.ai.cloud.skywalking.protocol;
 
 public enum CallType {
 

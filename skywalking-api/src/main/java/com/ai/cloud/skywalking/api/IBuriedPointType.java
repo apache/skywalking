@@ -1,6 +1,6 @@
 package com.ai.cloud.skywalking.api;
 
-import com.ai.cloud.skywalking.model.CallType;
+import com.ai.cloud.skywalking.protocol.CallType;
 
 public interface IBuriedPointType {
 

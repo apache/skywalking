@@ -16,6 +16,8 @@ public class ViewPointFilterFactory {
 
     private static Map<String, ViewPointFilter> filterType;
 
+    private static Object lock = new Object();
+
     private ViewPointFilterFactory() {
         //Non
     }
@@ -55,7 +57,7 @@ public class ViewPointFilterFactory {
                 }
             }
 
-            filterType = new HashMap<String, ViewPointFilter>();
+
             String[] type = types.split(",");
             for (int i = 0; i < type.length; i++) {
                 filterType.put(type[i], filter);
@@ -65,7 +67,12 @@ public class ViewPointFilterFactory {
 
     public static ViewPointFilter getFilter(String type) {
         if (filterType == null) {
-            initFilterChain();
+            synchronized (lock) {
+                if (filterType == null) {
+                    filterType = new HashMap<String, ViewPointFilter>();
+                    initFilterChain();
+                }
+            }
         }
 
         ViewPointFilter filter = filterType.get(type);

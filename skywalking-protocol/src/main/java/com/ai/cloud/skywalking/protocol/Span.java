@@ -48,7 +48,9 @@ public class Span extends SpanData {
         processNo = fieldValues[12].trim();
         applicationId = fieldValues[13].trim();
         userId = fieldValues[14].trim();
-        callType = fieldValues[15].trim();
+        if (fieldValues.length > 14) {
+            callType = fieldValues[15].trim();
+        }
         this.originData = originData;
     }
 

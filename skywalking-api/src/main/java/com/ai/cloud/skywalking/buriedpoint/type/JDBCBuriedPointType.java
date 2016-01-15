@@ -1,7 +1,7 @@
 package com.ai.cloud.skywalking.buriedpoint.type;
 
 import com.ai.cloud.skywalking.api.IBuriedPointType;
-import com.ai.cloud.skywalking.model.CallType;
+import com.ai.cloud.skywalking.protocol.CallType;
 
 public class JDBCBuriedPointType implements IBuriedPointType {
 
