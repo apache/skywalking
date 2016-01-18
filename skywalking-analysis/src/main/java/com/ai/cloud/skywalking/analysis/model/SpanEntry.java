@@ -132,13 +132,13 @@ public class SpanEntry {
     public Span getServerSpan() {
         return serverSpan;
     }
-
-    public void setClientSpan(Span clientSpan) {
-        this.clientSpan = clientSpan;
-    }
-
-    public void setServerSpan(Span serverSpan) {
-        this.serverSpan = serverSpan;
+    
+    public void setSpan(Span span){
+    	if (span.isReceiver()) {
+    		this.serverSpan = span;
+    	}else{
+    		this.clientSpan = span;
+    	}
     }
 
     public String getSpanType() {

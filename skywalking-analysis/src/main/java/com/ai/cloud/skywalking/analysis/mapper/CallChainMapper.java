@@ -101,21 +101,11 @@ public class CallChainMapper extends TableMapper<Text, ChainInfo> {
         Map<String, SpanEntry> spanEntryMap = new HashMap<String, SpanEntry>();
         for (Span span : spanList) {
             SpanEntry spanEntry = spanEntryMap.get(span.getParentLevel() + "." + span.getLevelId());
-            if (spanEntry != null && span.isReceiver()) {
-                if (span.isReceiver()) {
-                    spanEntry.setServerSpan(span);
-                } else {
-                    spanEntry.setClientSpan(span);
-                }
-            } else {
+            if (spanEntry == null) {
                 spanEntry = new SpanEntry();
-                if (span.isReceiver()) {
-                    spanEntry.setServerSpan(span);
-                } else {
-                    spanEntry.setClientSpan(span);
-                }
                 spanEntryMap.put(span.getParentLevel() + "." + span.getLevelId(), spanEntry);
             }
+            spanEntry.setSpan(span);
         }
         return spanEntryMap;
     }
