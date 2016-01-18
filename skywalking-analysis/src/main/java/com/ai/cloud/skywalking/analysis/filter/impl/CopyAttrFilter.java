@@ -15,6 +15,7 @@ public class CopyAttrFilter extends SpanNodeProcessFilter {
         node.setParentLevelId(spanEntry.getParentLevelId());
         node.setViewPoint(spanEntry.getViewPoint());
         node.setUserId(spanEntry.getUserId());
+        node.setBusinessKey(spanEntry.getBusinessKey());
 
         if (getNextProcessChain() != null) {
             getNextProcessChain().doFilter(spanEntry, node, costMap);
