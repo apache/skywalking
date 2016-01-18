@@ -1,5 +1,8 @@
 package com.ai.cloud.skywalking.analysis.mapper;
 
+
+import com.ai.cloud.skywalking.analysis.config.Config;
+import com.ai.cloud.skywalking.analysis.config.ConfigInitializer;
 import com.ai.cloud.skywalking.analysis.filter.SpanNodeProcessChain;
 import com.ai.cloud.skywalking.analysis.filter.SpanNodeProcessFilter;
 import com.ai.cloud.skywalking.analysis.model.ChainInfo;
@@ -9,14 +12,14 @@ import com.ai.cloud.skywalking.analysis.model.SpanEntry;
 import com.ai.cloud.skywalking.analysis.util.HBaseUtil;
 import com.ai.cloud.skywalking.analysis.util.TokenGenerator;
 import com.ai.cloud.skywalking.protocol.Span;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.Cell;
-import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
-import org.apache.hadoop.hbase.mapreduce.TableMapper;
+import org.apache.hadoop.hbase.HBaseConfiguration;
+import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.hadoop.io.Text;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,20 +27,24 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CallChainMapper extends TableMapper<Text, ChainInfo> {
-    private Logger logger = LoggerFactory.getLogger(CallChainMapper.class.getName());
+/**
+ * Created by astraea on 2016/1/15.
+ */
+public class CallChainMapperTest {
 
-    @Override
-    protected void map(ImmutableBytesWritable key, Result value, Context context) throws IOException,
-            InterruptedException {
+    private static String ZK_QUORUM = "10.1.235.197,10.1.235.198,10.1.235.199";
+    private static String ZK_CLIENT_PORT = "29181";
+    private static String chain_Id = "1.0a2.1452852040127.0664234.11036.55.1";
 
+    private static Configuration configuration = null;
+    private static Connection connection;
+
+    @Test
+    public void testMap() throws Exception {
+        ConfigInitializer.initialize();
+        List<Span> spanList = selectByTraceId(chain_Id);
         ChainInfo chainInfo = new ChainInfo();
-        List<Span> spanList = new ArrayList<Span>();
         CostMap costMap = new CostMap();
-        for (Cell cell : value.rawCells()) {
-            Span span = new Span(Bytes.toString(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength()));
-            spanList.add(span);
-        }
 
         Map<String, SpanEntry> spanEntryMap = mergeSpanDataset(spanList);
         for (Map.Entry<String, SpanEntry> entry : spanEntryMap.entrySet()) {
@@ -80,9 +87,9 @@ public class CallChainMapper extends TableMapper<Text, ChainInfo> {
         chainInfo.setChainToken(TokenGenerator.generate(stringBuilder.toString()));
 
         //SaveToHbase
-        HBaseUtil.saveData(key.toString(), chainInfo);
+        HBaseUtil.saveData(chain_Id, chainInfo);
 
-        context.write(new Text(key.toString() + ":" + firstNodeToken), chainInfo);
+        System.out.println(chainInfo);
     }
 
     private void computeChainNodeCost(CostMap costMap, ChainNode node) {
@@ -118,5 +125,28 @@ public class CallChainMapper extends TableMapper<Text, ChainInfo> {
             }
         }
         return spanEntryMap;
+    }
+
+    public static List<Span> selectByTraceId(String traceId) throws IOException {
+        List<Span> entries = new ArrayList<Span>();
+        Table table = connection.getTable(TableName.valueOf(Config.HBase.CALL_CHAIN_TABLE_NAME));
+        Get g = new Get(Bytes.toBytes(traceId));
+        Result r = table.get(g);
+        for (Cell cell : r.rawCells()) {
+            if (cell.getValueArray().length > 0)
+                entries.add(new Span(Bytes.toString(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength())));
+        }
+        return entries;
+    }
+
+
+    @Before
+    public void initHBaseClient() throws IOException {
+        if (configuration == null) {
+            configuration = HBaseConfiguration.create();
+            configuration.set("hbase.zookeeper.quorum", ZK_QUORUM);
+            configuration.set("hbase.zookeeper.property.clientPort", ZK_CLIENT_PORT);
+            connection = ConnectionFactory.createConnection(configuration);
+        }
     }
 }

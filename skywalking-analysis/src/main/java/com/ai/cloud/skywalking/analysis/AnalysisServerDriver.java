@@ -41,7 +41,7 @@ public class AnalysisServerDriver extends Configured implements Tool {
         job.setJarByClass(AnalysisServerDriver.class);
         Scan scan = buildHBaseScan(args);
 
-        TableMapReduceUtil.initTableMapperJob(Config.HBase.TABLE_NAME, scan, CallChainMapper.class,
+        TableMapReduceUtil.initTableMapperJob(Config.HBase.CALL_CHAIN_TABLE_NAME, scan, CallChainMapper.class,
                 String.class, ChainInfo.class, job);
         //TableMapReduceUtil.initTableReducerJob("sw-call-chain-model", CallChainReducer.class, job);
         return job.waitForCompletion(true) ? 0 : 1;

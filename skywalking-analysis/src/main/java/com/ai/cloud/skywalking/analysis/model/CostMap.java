@@ -14,7 +14,7 @@ public class CostMap {
         return costs.containsKey(parentLevel);
     }
 
-    public long get(String parentLevel) {
+    public Long get(String parentLevel) {
         return costs.get(parentLevel);
     }
 }

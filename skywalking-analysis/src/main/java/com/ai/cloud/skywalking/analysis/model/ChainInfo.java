@@ -12,6 +12,7 @@ public class ChainInfo implements Writable {
     private String chainToken;
     private ChainStatus chainStatus;
     private List<ChainNode> nodes;
+    private String userId;
 
     public ChainInfo() {
         this.nodes = new ArrayList<ChainNode>();
@@ -75,6 +76,14 @@ public class ChainInfo implements Writable {
 
     public void setNodes(List<ChainNode> nodes) {
         this.nodes = nodes;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public enum ChainStatus {

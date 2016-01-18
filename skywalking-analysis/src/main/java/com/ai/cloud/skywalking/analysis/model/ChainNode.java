@@ -5,14 +5,15 @@ public class ChainNode {
     private String nodeToken;
 
     private String viewPoint;
-    //TODO
     private String businessKey;
-
     private long cost;
     private NodeStatus status;
     private String parentLevelId;
     private int levelId;
     private String callType;
+
+    // 不参与序列化
+    private String userId;
 
     public String getNodeToken() {
         return nodeToken;
@@ -68,6 +69,22 @@ public class ChainNode {
 
     public String getCallType() {
         return callType;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public String getBusinessKey() {
+        return businessKey;
+    }
+
+    public void setBusinessKey(String businessKey) {
+        this.businessKey = businessKey;
     }
 
     public enum NodeStatus {
