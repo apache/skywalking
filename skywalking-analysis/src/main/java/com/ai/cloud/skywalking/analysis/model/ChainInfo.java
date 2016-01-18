@@ -2,6 +2,8 @@ package com.ai.cloud.skywalking.analysis.model;
 
 import org.apache.hadoop.io.Writable;
 
+import com.ai.cloud.skywalking.analysis.util.TokenGenerator;
+
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -10,9 +12,10 @@ import java.util.List;
 
 public class ChainInfo implements Writable {
     private String chainToken;
-    private ChainStatus chainStatus;
+    private ChainStatus chainStatus = ChainStatus.NORMAL;
     private List<ChainNode> nodes;
-    private String userId;
+    private String userId = null;
+    private ChainNode firstChainNode;
 
     public ChainInfo() {
         this.nodes = new ArrayList<ChainNode>();
@@ -53,13 +56,24 @@ public class ChainInfo implements Writable {
         }
     }
 
-
     public String getChainToken() {
         return chainToken;
     }
+    
+    public String getEntranceNodeToken(){
+    	if(firstChainNode == null){
+    		return "";
+    	}else{
+    		return firstChainNode.getNodeToken();
+    	}
+    }
 
-    public void setChainToken(String chainToken) {
-        this.chainToken = chainToken;
+    public void generateChainToken() {
+    	StringBuilder chainTokenDesc = new StringBuilder();
+    	for(ChainNode node: nodes){
+    		chainTokenDesc.append(node.getParentLevelId() + "." + node.getLevelId() + "-" + node.getNodeToken() + ";");
+    	}
+        this.chainToken = TokenGenerator.generate(chainTokenDesc.toString());
     }
 
     public ChainStatus getChainStatus() {
@@ -69,13 +83,23 @@ public class ChainInfo implements Writable {
     public void setChainStatus(ChainStatus chainStatus) {
         this.chainStatus = chainStatus;
     }
+    
+    public void addNodes(ChainNode chainNode){
+    	this.nodes.add(0, chainNode);
+    	if (chainNode.getStatus() == ChainNode.NodeStatus.ABNORMAL) {
+    		chainStatus = ChainStatus.ABNORMAL;
+    	}
+    	if(userId == null){
+    		userId = chainNode.getUserId();
+    	}
+    	if ((chainNode.getParentLevelId() == null || chainNode.getParentLevelId().length() == 0)
+                && chainNode.getLevelId() == 0) {
+    		firstChainNode = chainNode;
+    	}
+    }
 
     public List<ChainNode> getNodes() {
         return nodes;
-    }
-
-    public void setNodes(List<ChainNode> nodes) {
-        this.nodes = nodes;
     }
 
     public String getUserId() {
@@ -85,7 +109,7 @@ public class ChainInfo implements Writable {
     public void setUserId(String userId) {
         this.userId = userId;
     }
-
+    
     public enum ChainStatus {
         NORMAL('N'), ABNORMAL('A');
         private char value;
