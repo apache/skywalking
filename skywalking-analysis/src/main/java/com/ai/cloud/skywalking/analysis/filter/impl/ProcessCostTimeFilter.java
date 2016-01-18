@@ -17,8 +17,6 @@ public class ProcessCostTimeFilter extends SpanNodeProcessFilter {
 
         costMap.put(spanEntry.getParentLevelId(), subNodeCost);
 
-        if (getNextProcessChain() != null) {
-            getNextProcessChain().doFilter(spanEntry, node, costMap);
-        }
+        this.doNext(spanEntry, node, costMap);
     }
 }

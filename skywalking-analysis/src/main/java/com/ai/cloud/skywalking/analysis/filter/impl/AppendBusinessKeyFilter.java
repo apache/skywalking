@@ -11,8 +11,6 @@ public class AppendBusinessKeyFilter extends SpanNodeProcessFilter {
     public void doFilter(SpanEntry spanEntry, ChainNode node, CostMap costMap) {
         node.setViewPoint(node.getViewPoint() + spanEntry.getBusinessKey());
 
-        if (getNextProcessChain() != null) {
-            getNextProcessChain().doFilter(spanEntry, node, costMap);
-        }
+        this.doNext(spanEntry, node, costMap);
     }
 }

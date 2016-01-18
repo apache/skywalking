@@ -17,8 +17,6 @@ public class CopyAttrFilter extends SpanNodeProcessFilter {
         node.setUserId(spanEntry.getUserId());
         node.setBusinessKey(spanEntry.getBusinessKey());
 
-        if (getNextProcessChain() != null) {
-            getNextProcessChain().doFilter(spanEntry, node, costMap);
-        }
+        this.doNext(spanEntry, node, costMap);
     }
 }

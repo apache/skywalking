@@ -16,8 +16,6 @@ public class ReplaceAddressFilter extends SpanNodeProcessFilter {
         String viewPoint = spanEntry.getViewPoint().replaceAll(IP_PORT_REGEX, spanEntry.getApplicationId());
         node.setViewPoint(viewPoint);
 
-        if (getNextProcessChain() != null) {
-            getNextProcessChain().doFilter(spanEntry, node, costMap);
-        }
+        this.doNext(spanEntry, node, costMap);
     }
 }

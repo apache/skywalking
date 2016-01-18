@@ -1,18 +1,14 @@
 package com.ai.cloud.skywalking.analysis.filter;
 
-import com.ai.cloud.skywalking.analysis.config.Config;
-import com.ai.cloud.skywalking.analysis.config.ConfigInitializer;
-import com.ai.cloud.skywalking.analysis.model.ChainNode;
-import com.ai.cloud.skywalking.analysis.model.CostMap;
-import com.ai.cloud.skywalking.analysis.model.SpanEntry;
-import com.ai.cloud.skywalking.protocol.Span;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.ai.cloud.skywalking.analysis.config.Config;
 
 public class SpanNodeProcessChain {
     private static Logger logger = LoggerFactory.getLogger(SpanNodeProcessChain.class.getName());
@@ -40,7 +36,7 @@ public class SpanNodeProcessChain {
             SpanNodeProcessFilter currentFilter = null;
             for (int i = filters.length - 1; i >= 0; i--) {
                 try {
-                    Class filterClass = Class.forName(Config.Filter.FILTER_PACKAGE_NAME + "." + filters[i]);
+                    Class<?> filterClass = Class.forName(Config.Filter.FILTER_PACKAGE_NAME + "." + filters[i]);
                     SpanNodeProcessFilter tmpSpanNodeFilter = (SpanNodeProcessFilter) filterClass.newInstance();
                     tmpSpanNodeFilter.setNextProcessChain(currentFilter);
                     currentFilter = tmpSpanNodeFilter;

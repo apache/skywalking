@@ -16,8 +16,6 @@ public class TokenGenerateFilter extends SpanNodeProcessFilter {
 
         node.setNodeToken(nodeToken);
 
-        if (getNextProcessChain() != null) {
-            getNextProcessChain().doFilter(spanEntry, node, costMap);
-        }
+        this.doNext(spanEntry, node, costMap);
     }
 }
