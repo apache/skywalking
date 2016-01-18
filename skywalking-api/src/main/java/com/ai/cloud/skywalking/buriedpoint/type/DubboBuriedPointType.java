@@ -22,7 +22,7 @@ public class DubboBuriedPointType implements IBuriedPointType {
 
     @Override
     public CallType getCallType() {
-        return CallType.ASYNC;
+        return CallType.SYNC;
     }
 
     private DubboBuriedPointType() {

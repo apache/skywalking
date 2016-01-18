@@ -10,7 +10,7 @@ public enum CallType {
         this.value = value;
     }
 
-    public CallType convert(String id) {
+    public static CallType convert(String id) {
         char v = id.charAt(0);
         switch (v) {
             case 'L':

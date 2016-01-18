@@ -22,7 +22,7 @@ public class WEBBuriedPointType implements IBuriedPointType {
 
     @Override
     public CallType getCallType() {
-        return CallType.ASYNC;
+        return CallType.SYNC;
     }
 
     private WEBBuriedPointType() {
