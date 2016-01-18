@@ -109,7 +109,7 @@ public class HelloSkyWalkingUICtl {
 			List<TraceLogEntry> valueList = new ArrayList<TraceLogEntry>();
 			valueList.addAll(traceLogMap.values());
 			final List<Long> endTime = new ArrayList<Long>();
-			endTime.add(0, 0l);
+			endTime.add(0, valueList.get(0).getEndDate());
 			Collections.sort(valueList, new Comparator<TraceLogEntry>() {
 				@Override
 				public int compare(TraceLogEntry arg0, TraceLogEntry arg1) {
@@ -123,10 +123,6 @@ public class HelloSkyWalkingUICtl {
 					return arg0.getColId().compareTo(arg1.getColId());
 				}
 			});
-//			int m = 1;
-//			for (TraceLogEntry tmpEntry : valueList) {
-//				logger.info("sort result level:{} : {}", m++, tmpEntry);
-//			}
 			long beginTime = valueList.get(0).getStartDate();
 			root.put("traceId", traceId);
 			root.put("valueList", valueList);
