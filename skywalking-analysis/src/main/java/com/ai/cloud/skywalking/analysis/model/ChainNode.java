@@ -67,20 +67,12 @@ public class ChainNode {
         this.callType = callType;
     }
 
-    public String getCallType() {
-        return callType;
-    }
-
     public void setUserId(String userId) {
         this.userId = userId;
     }
 
     public String getUserId() {
         return userId;
-    }
-
-    public String getBusinessKey() {
-        return businessKey;
     }
 
     public void setBusinessKey(String businessKey) {
@@ -110,5 +102,4 @@ public class ChainNode {
             }
         }
     }
-
 }

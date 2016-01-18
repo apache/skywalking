@@ -2,7 +2,6 @@ package com.ai.cloud.skywalking.analysis.util;
 
 import com.ai.cloud.skywalking.analysis.config.Config;
 import com.ai.cloud.skywalking.analysis.model.ChainInfo;
-import com.ai.cloud.skywalking.analysis.model.ChainNode;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
@@ -32,41 +31,9 @@ public class HBaseUtil {
 
         Put put = new Put(Bytes.toBytes(traceId));
 
-        for (ChainNode chainNode : chainInfo.getNodes()) {
-
-            put.addColumn(Bytes.toBytes(Config.HBase.TRACE_INFO_COLUMN_FAMILY),
-                    Bytes.toBytes(Config.TraceInfo.USER_ID),
-                    Bytes.toBytes(chainNode.getUserId()));
-
-            put.addColumn(Bytes.toBytes(Config.HBase.TRACE_INFO_COLUMN_FAMILY),
-                    Bytes.toBytes(Config.TraceInfo.STATUS),
-                    Bytes.toBytes(chainNode.getStatus().getValue()));
-
-            put.addColumn(Bytes.toBytes(Config.HBase.TRACE_INFO_COLUMN_FAMILY),
-                    Bytes.toBytes(Config.TraceInfo.TRACE_INFO_COLUMN_CID),
-                    Bytes.toBytes(chainInfo.getChainToken()));
-
-            put.addColumn(Bytes.toBytes(Config.HBase.TRACE_INFO_COLUMN_FAMILY),
-                    Bytes.toBytes(Config.TraceInfo.TRACE_INFO_COLUMN_CID),
-                    Bytes.toBytes(chainInfo.getChainToken()));
-
-            put.addColumn(Bytes.toBytes(Config.HBase.TRACE_INFO_COLUMN_FAMILY),
-                    Bytes.toBytes(Config.TraceInfo.COST),
-                    Bytes.toBytes(chainNode.getCost()));
-
-            put.addColumn(Bytes.toBytes(Config.HBase.TRACE_INFO_COLUMN_FAMILY),
-                    Bytes.toBytes(Config.TraceInfo.PARENT_LEVEL_ID),
-                    Bytes.toBytes(chainNode.getParentLevelId()));
-
-            put.addColumn(Bytes.toBytes(Config.HBase.TRACE_INFO_COLUMN_FAMILY),
-                    Bytes.toBytes(Config.TraceInfo.LEVEL_ID),
-                    Bytes.toBytes(chainNode.getLevelId()));
-
-            put.addColumn(Bytes.toBytes(Config.HBase.TRACE_INFO_COLUMN_FAMILY),
-                    Bytes.toBytes(Config.TraceInfo.BUSINESS_KEY),
-                    Bytes.toBytes(chainNode.getBusinessKey()));
-        }
-
+        put.addColumn(Bytes.toBytes(Config.HBase.TRACE_INFO_COLUMN_FAMILY),
+                Bytes.toBytes(Config.TraceInfo.TRACE_INFO_COLUMN_CID),
+                Bytes.toBytes(chainInfo.getChainToken()));
         try {
             table.put(put);
             if (logger.isDebugEnabled()) {
