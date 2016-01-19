@@ -17,4 +17,5 @@ buriedpoint.exclusive_exceptions=
 buriedpoint.max_exception_stack_length=4000
 sender.connect_percent=100
 buffer.buffer_max_size=18000
-sender.servers_addr=127.0.0.1:34000;
+sender.servers_addr=10.1.235.197:34000;10.1.235.197:35000;
+skywalking.sdk_version=1.0a2

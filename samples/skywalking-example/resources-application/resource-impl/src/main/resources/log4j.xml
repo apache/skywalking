@@ -4,9 +4,9 @@
 <log4j:configuration>
 
     <appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
-        <layout class="org.apache.log4j.PatternLayout">
+        <layout class="com.ai.cloud.skywalking.plugin.log.log4j.v1.x.TraceIdPatternLayout">
             <param name="ConversionPattern"
-                   value="%d - %c -%-4r [%t] %-5p %x - %m%n" />
+                   value="%x %d - %c -%-4r [%t] %-5p %x - %m%n" />
         </layout>
     </appender>
 

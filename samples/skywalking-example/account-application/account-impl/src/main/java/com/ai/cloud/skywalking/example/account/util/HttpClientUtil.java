@@ -1,6 +1,6 @@
 package com.ai.cloud.skywalking.example.account.util;
 
-import com.ai.cloud.skywalking.plugin.httpclient.SWTracingHttpClient;
+import com.ai.cloud.skywalking.plugin.httpclient.v42x.SWTracingHttpClient;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpEntity;

@@ -48,7 +48,7 @@ public class OrderMaintainImpl implements IOrderMaintain {
             }
             return orderManage.saveOrder(orderInfo);
         } else {
-            throw new BusinessException("Resource check failed, please mail to Administrator");
+            throw new BusinessException("请联系管理员");
         }
     }
 }
