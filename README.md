@@ -95,7 +95,26 @@ $./sw-alarm-server.sh
 - 可根据需要部署多个实例，根据实例启动数量，自动负载均衡
 
 ### 编译安装SkyWalking WebUI
+- 修改配置文件config.properties
+```properties
+#hbase的连接地址
+hbaseconfig.quorum=10.1.235.197,10.1.235.198,10.1.235.199
+hbaseconfig.client_port=29181
+```
+- 修改配置文件jdbc.properties
+```properties
+#管理数据库的JDBC连接信息
+jdbc.url=jdbc:mysql://10.1.228.202:31316/test
+jdbc.username=devrdbusr21
+jdbc.password=devrdbusr21
+```
+- 编译工程
+```shell
+$cd github/sky-walking/skywalking-webui
+$mvn package
+```
 
+- 初始化管理数据库
 
 ### 编译安装SkyWalking Analysis
 暂未提供
