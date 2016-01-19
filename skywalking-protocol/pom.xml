@@ -56,13 +56,4 @@
 			</plugin>
 		</plugins>
 	</build>
-	<!--发布-->
-	<distributionManagement>
-		<snapshotRepository>
-			<id>company-private-nexus-library-snapshots</id>
-			<name>private-nexus-library-snapshots</name>
-			<url>http://10.1.228.199:18081/nexus/content/repositories/snapshots/</url>
-		</snapshotRepository>
-	</distributionManagement>
-
 </project>

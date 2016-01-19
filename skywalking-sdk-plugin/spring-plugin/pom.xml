@@ -13,13 +13,6 @@
     <name>spring-plugin</name>
     <url>http://maven.apache.org</url>
 
-    <repositories>
-        <repository>
-            <id>Company</id>
-            <url>http://10.1.228.199:18081/nexus/content/groups/public/</url>
-        </repository>
-    </repositories>
-
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
