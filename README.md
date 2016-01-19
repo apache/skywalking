@@ -95,7 +95,35 @@ $./sw-alarm-server.sh
 - 可根据需要部署多个实例，根据实例启动数量，自动负载均衡
 
 ### 编译安装SkyWalking WebUI
-
+- 修改配置文件config.properties
+```properties
+#hbase的连接地址
+hbaseconfig.quorum=10.1.235.197,10.1.235.198,10.1.235.199
+hbaseconfig.client_port=29181
+```
+- 修改配置文件jdbc.properties
+```properties
+#管理数据库的JDBC连接信息
+jdbc.url=jdbc:mysql://10.1.228.202:31316/test
+jdbc.username=devrdbusr21
+jdbc.password=devrdbusr21
+```
+- 编译工程
+```shell
+$cd github/sky-walking/skywalking-webui
+$mvn package
+```
+- 初始化管理数据库
+根据[数据库脚本](https://github.com/wu-sheng/sky-walking/blob/master/skywalking-webui/src/main/sql/table.mysql)初始化管理数据库，根据实际环境配置如下SQL：
+```sql
+--配置告警邮件的发送人和SMTP信息
+INSERT INTO `system_config` (`config_id`,`conf_key`,`conf_value`,`val_type`,`val_desc`,`create_time`,`sts`,`modify_time`) VALUES (1000,'mail_info','{\"mail.host\":\"mail.asiainfo.com\",\"mail.transport.protocol\":\"smtp\",\"mail.smtp.auth\":\"true\",\"mail.smtp.starttls.enable\":\"false\",\"mail.username\":\"testA\",\"mail.password\":\"******\",\"mail.account.prefix\":\"@asiainfo.com\"}','json','默认邮件发送人信息','2015-12-10 11:54:06','A','2015-12-10 11:54:06');
+--配置部署页面地址，用于告警邮件内的链接
+INSERT INTO `system_config` (`config_id`,`conf_key`,`conf_value`,`val_type`,`val_desc`,`create_time`,`sts`,`modify_time`) VALUES (1001,'portal_addr','http://10.1.235.197:48080/skywalking/','string','默认门户地址','2015-12-10 15:23:53','A','2015-12-10 15:23:53');
+--配置SkyWalking Server的集群地址
+INSERT INTO `system_config` (`config_id`,`conf_key`,`conf_value`,`val_type`,`val_desc`,`create_time`,`sts`,`modify_time`) VALUES (1002,'servers_addr','10.1.235.197:34000;10.1.235.197:35000;','string','日志采集地址','2015-12-10 15:23:53','A','2015-12-10 15:23:53');
+```
+- 上传war包到服务器，启动Tomcat服务器
 
 ### 编译安装SkyWalking Analysis
 暂未提供
