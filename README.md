@@ -40,6 +40,9 @@ $cd github/sky-walking/skywalking-server/target/installer
 - 拷贝installer到服务器
 - 根据服务器环境修改/config/config.properties
 ```properties
+#服务器收集数据监听端口
+server.port=34000
+
 #数据缓存文件目录，请确保此目录有一定的存储容量
 buffer.data_buffer_file_parent_directory=D:/test-data/data/buffer
 #偏移量注册文件的目录
@@ -53,8 +56,45 @@ hbaseconfig.client_port=29181
 #Redis配置
 alarm.redis_server=10.1.241.18:16379
 ```
+- 启动服务
+```shell
+$cd installer/bin
+$./swserver.sh
+```
+- 可根据需要部署多个实例
 
 ### 编译安装SkyWalking Alarm
+- 编译工程
+```shell
+$cd github/sky-walking/skywalking-alarm
+$mvn package -Dmaven.test.skip=true
+$cd github/sky-walking/skywalking-alarm/target/installer
+```
+- 拷贝installer到服务器
+- 根据服务器环境修改/config/config.properties
+```properties
+#zookeeper连接地址,用于协调集群，可以和hbase的zookeeper共用
+zkpath.connect_str=10.1.241.18:29181,10.1.241.19:29181,10.1.241.20:29181
+
+#管理数据库的JDBC连接信息
+#数据库连接地址
+db.url=jdbc:mysql://10.1.241.20:31306/sw_db
+#数据库用户名
+db.user_name=sw_dbusr01
+#数据库密码
+db.password=sw_dbusr01
+
+#告警信息存在的redis服务器地址，需要和skywalking-server的alarm.redis_server设置一致
+alarm.redis_server=127.0.0.1:6379
+```
+- 启动服务
+```shell
+$cd installer/bin
+$./sw-alarm-server.sh
+```
+- 可根据需要部署多个实例，根据实例启动数量，自动负载均衡
+
+### 编译安装SkyWalking WebUI
 
 
 ### 编译安装SkyWalking Analysis
