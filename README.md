@@ -24,14 +24,35 @@ Mail: wu.sheng@foxmail.com
 
 # Quick Start
 ## 编译与部署
-### 部署软件
+### 部署第三方软件
 - 安装zookeeper 3.4.6
 - 安装apache hbase 1.1.2
 - 安装mysql
 - 安装tomcat 7
 
 ### 编译安装SkyWalking Server
+- 编译工程
+```shell
+$cd github/sky-walking/skywalking-server
+$mvn package -Dmaven.test.skip=true
+$cd github/sky-walking/skywalking-server/target/installer
+```
+- 拷贝installer到服务器
+- 根据服务器环境修改/config/config.properties
+```properties
+#数据缓存文件目录，请确保此目录有一定的存储容量
+buffer.data_buffer_file_parent_directory=D:/test-data/data/buffer
+#偏移量注册文件的目录
+registerpersistence.register_file_parent_directory=d:/test-data/data/offset
 
+#hbase zk quorum
+hbaseconfig.zk_hostname=10.1.235.197,10.1.235.198,10.1.235.199
+#hbase zk port
+hbaseconfig.client_port=29181
+
+#Redis配置
+alarm.redis_server=10.1.241.18:16379
+```
 
 ### 编译安装SkyWalking Alarm
 
