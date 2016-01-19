@@ -4,8 +4,8 @@ SkyWalking-Distributed Application Tracing System, 是一个对JAVA应用程序�
 * 本分析系统能通过不修改或少量修改代码的模式，对现有的JAVA应用或J2EE应用进行监控和数据收集，并针对应用进场进行准实时告警。此外提供大量的调用性能分析功能，解决目前的监控系统主要监控进程、端口而非应用实际性能的问题。
 
 # 主要贡献者
-* 吴晟 &nbsp;&nbsp;&nbsp;[亚信](http://www.asiainfo.com/) wusheng@asiainfo.com
-* 张鑫 [亚信](http://www.asiainfo.com/) zhangxin10@asiainfo.com
+* 吴晟 &nbsp;&nbsp;[亚信](http://www.asiainfo.com/) wusheng@asiainfo.com
+* 张鑫 &nbsp;&nbsp;[亚信](http://www.asiainfo.com/) zhangxin10@asiainfo.com
 
 # 整体架构图
 ![整体架构图](http://wu-sheng.github.io/sky-walking/sample-code/images/skywalkingClusterDeploy.jpeg)
