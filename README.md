@@ -23,8 +23,15 @@ http://wu-sheng.github.io/sky-walking/sample-code/codeView.html
 Mail: wu.sheng@foxmail.com
 
 # Quick Start
-## 根据所需的监控点，引入maven依赖（暂不存在公网仓库，需要本地编译并发布）
+## 根据所需的监控点，引入maven依赖
+暂不存在公网仓库，需要本地编译并发布
 ```xml
+<!-- 监控api，可监控插件不支持的调用 -->
+<dependency>
+    <groupId>com.ai.cloud</groupId>
+    <artifactId>skywalking-api</artifactId>
+    <version>1.0-SNAPSHOT</version>
+</dependency>
 <!-- Spring插件，监控所有Spring托管对象的调用-->
 <dependency>
     <groupId>com.ai.cloud</groupId>
@@ -56,12 +63,13 @@ Mail: wu.sheng@foxmail.com
     <version>1.0-SNAPSHOT</version>
 </dependency>
 ```
+查询不会引用所需的第三方组件（如Spring、dubbo、dubbox等），请自行引入所需的版本。
 
 ## 根据所需插件配置应用程序
 参考[用户指南](http://wu-sheng.github.io/sky-walking/sample-code/codeView.html)
 
-## 下载授权文件
-通过skywalking-webui工程下载授权文件
+## 下载并设置授权文件
+通过skywalking-webui工程下载授权文件，并在运行时环境中，将授权文件加入到CLASSPATH中
 
 ## 在运行时环境中设置环境变量
 export SKYWALKING_RUN=true
