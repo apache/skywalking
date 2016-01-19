@@ -120,13 +120,18 @@ $mvn package
 INSERT INTO `system_config` (`config_id`,`conf_key`,`conf_value`,`val_type`,`val_desc`,`create_time`,`sts`,`modify_time`) VALUES (1000,'mail_info','{\"mail.host\":\"mail.asiainfo.com\",\"mail.transport.protocol\":\"smtp\",\"mail.smtp.auth\":\"true\",\"mail.smtp.starttls.enable\":\"false\",\"mail.username\":\"testA\",\"mail.password\":\"******\",\"mail.account.prefix\":\"@asiainfo.com\"}','json','默认邮件发送人信息','2015-12-10 11:54:06','A','2015-12-10 11:54:06');
 --配置部署页面地址，用于告警邮件内的链接
 INSERT INTO `system_config` (`config_id`,`conf_key`,`conf_value`,`val_type`,`val_desc`,`create_time`,`sts`,`modify_time`) VALUES (1001,'portal_addr','http://10.1.235.197:48080/skywalking/','string','默认门户地址','2015-12-10 15:23:53','A','2015-12-10 15:23:53');
---配置SkyWalking Server的集群地址
+--配置SkyWalking Server的集群地址（内网地址）
 INSERT INTO `system_config` (`config_id`,`conf_key`,`conf_value`,`val_type`,`val_desc`,`create_time`,`sts`,`modify_time`) VALUES (1002,'servers_addr','10.1.235.197:34000;10.1.235.197:35000;','string','日志采集地址','2015-12-10 15:23:53','A','2015-12-10 15:23:53');
+--配置SkyWalking Server的集群地址（外网地址）
+INSERT INTO `system_config` (`config_id`,`conf_key`,`conf_value`,`val_type`,`val_desc`,`create_time`,`sts`,`modify_time`) VALUES (1003,'servers_addr_1','60.194.3.183:34000;60.194.3.183:35000;60.194.3.184:34000;60.194.3.184:35000;','string','日志采集地址-外网','2015-12-10 15:23:53','A','2015-12-10 15:23:53');
 ```
 - 上传war包到服务器，启动Tomcat服务器
 
 ### 编译安装SkyWalking Analysis
 暂未提供
+
+## 使用maven发布各插件工程
+发布skywalking-sdk-plugin下的各子工程(dubbo-plugin，spring-plugin，web-plugin，jdbc-plugin，httpclient-4.2.x-plugin，httpclient-4.3.x-plugin)
 
 ## 根据所需的监控点，引入maven依赖
 暂不存在公网仓库，需要本地编译并发布
@@ -155,6 +160,12 @@ INSERT INTO `system_config` (`config_id`,`conf_key`,`conf_value`,`val_type`,`val
     <artifactId>skywalking-jdbc-plugin</artifactId>
     <version>1.0-SNAPSHOT</version>
 </dependency>
+<!-- web，监控web调用 -->
+<dependency>
+    <groupId>com.ai.cloud</groupId>
+    <artifactId>skywalking-web-plugin</artifactId>
+    <version>1.0-SNAPSHOT</version>
+</dependency>
 <!-- httpClient插件，监控httpClient 4.2的调用 -->
 <dependency>
     <groupId>com.ai.cloud</groupId>
@@ -174,7 +185,8 @@ INSERT INTO `system_config` (`config_id`,`conf_key`,`conf_value`,`val_type`,`val
 参考[用户指南](http://wu-sheng.github.io/sky-walking/sample-code/codeView.html)
 
 ## 下载并设置授权文件
-通过skywalking-webui工程下载授权文件，并在运行时环境中，将授权文件加入到CLASSPATH中
+- 注册并登陆过skywalking-webui，创建应用。（一个用户代表一个逻辑集群，一个应用代表一个服务集群。如前后端应用应该设置两个应用，但归属一个用户）
+- 下载授权文件，并在运行时环境中，将授权文件加入到CLASSPATH中
 
 ## 在运行时环境中设置环境变量
 export SKYWALKING_RUN=true
