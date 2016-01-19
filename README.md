@@ -20,6 +20,7 @@ http://wu-sheng.github.io/sky-walking/
 http://wu-sheng.github.io/sky-walking/sample-code/codeView.html
 
 # Contact Us
+
 Mail: wu.sheng@foxmail.com
 
 # Quick Start
@@ -189,4 +190,31 @@ INSERT INTO `system_config` (`config_id`,`conf_key`,`conf_value`,`val_type`,`val
 - 下载授权文件，并在运行时环境中，将授权文件加入到CLASSPATH中
 
 ## 在运行时环境中设置环境变量
+```
 export SKYWALKING_RUN=true
+```
+- 设置完成后，可以在当前环境中启动业务应用系统
+
+## 通过扩展log在应用日志中，显示trace-id
+- 编译并发布skywalking-log/log4j-1.x-plugin和skywalking-log/log4j-2.x-plugin
+- 引用所需的日志插件
+```xml
+<dependency>
+    <groupId>com.ai.cloud</groupId>
+    <artifactId>skywalking-log4j-1.x-plugin</artifactId>
+    <version>1.0-SNAPSHOT</version>
+</dependency>
+<dependency>
+    <groupId>com.ai.cloud</groupId>
+    <artifactId>skywalking-log4j-2.x-plugin</artifactId>
+    <version>1.0-SNAPSHOT</version>
+</dependency>
+```
+- 设置log4j和log4j2参考[用户指南](http://wu-sheng.github.io/sky-walking/sample-code/codeView.html)->能通过哪些渠道在应用中发现traceid?
+- 日志示例
+```
+#tid:N/A，代表环境设置不正确或监控已经关闭
+#tid: ,代表测试当前访问不在监控范围
+#tid:1.0a2.1453065000002.c3f8779.27878.30.184，标识此次访问的tid信息，示例如下
+[DEBUG] Returning handler method [public org.springframework.web.servlet.ModelAndView com.ai.cloud.skywalking.example.controller.OrderSaveController.save(javax.servlet.http.HttpServletRequest)] TID:1.0a2.1453192613272.2e0c63e.11144.58.1 2016-01-19 16:36:53.288 org.springframework.beans.factory.support.DefaultListableBeanFactory 
+```
