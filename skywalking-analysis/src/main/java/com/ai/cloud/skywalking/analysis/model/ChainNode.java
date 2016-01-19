@@ -79,6 +79,14 @@ public class ChainNode {
         this.businessKey = businessKey;
     }
 
+    public String getCallType() {
+        return callType;
+    }
+
+    public String getBusinessKey() {
+        return businessKey;
+    }
+
     public enum NodeStatus {
         NORMAL('N'), ABNORMAL('A');
         private char value;

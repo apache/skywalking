@@ -1,8 +1,7 @@
 package com.ai.cloud.skywalking.analysis.model;
 
-import org.apache.hadoop.io.Writable;
-
 import com.ai.cloud.skywalking.analysis.util.TokenGenerator;
+import org.apache.hadoop.io.Writable;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -25,6 +24,7 @@ public class ChainInfo implements Writable {
     public void write(DataOutput out) throws IOException {
         out.write(chainToken.getBytes());
         out.writeChar(chainStatus.getValue());
+        out.write(userId.getBytes());
 
         out.writeInt(nodes.size());
         for (ChainNode chainNode : nodes) {
@@ -34,6 +34,7 @@ public class ChainInfo implements Writable {
             out.writeLong(chainNode.getCost());
             out.write(chainNode.getParentLevelId().getBytes());
             out.writeInt(chainNode.getLevelId());
+            out.write(chainNode.getBusinessKey().getBytes());
         }
     }
 
@@ -41,6 +42,7 @@ public class ChainInfo implements Writable {
     public void readFields(DataInput in) throws IOException {
         chainToken = in.readLine();
         chainStatus = ChainStatus.convert(in.readChar());
+        userId = in.readLine();
 
         int nodeSize = in.readInt();
         this.nodes = new ArrayList<ChainNode>();
@@ -52,6 +54,8 @@ public class ChainInfo implements Writable {
             chainNode.setCost(in.readLong());
             chainNode.setParentLevelId(in.readLine());
             chainNode.setLevelId(in.readInt());
+            chainNode.setBusinessKey(in.readLine());
+            
             nodes.add(chainNode);
         }
     }
@@ -59,20 +63,20 @@ public class ChainInfo implements Writable {
     public String getChainToken() {
         return chainToken;
     }
-    
-    public String getEntranceNodeToken(){
-    	if(firstChainNode == null){
-    		return "";
-    	}else{
-    		return firstChainNode.getNodeToken();
-    	}
+
+    public String getEntranceNodeToken() {
+        if (firstChainNode == null) {
+            return "";
+        } else {
+            return firstChainNode.getNodeToken();
+        }
     }
 
     public void generateChainToken() {
-    	StringBuilder chainTokenDesc = new StringBuilder();
-    	for(ChainNode node: nodes){
-    		chainTokenDesc.append(node.getParentLevelId() + "." + node.getLevelId() + "-" + node.getNodeToken() + ";");
-    	}
+        StringBuilder chainTokenDesc = new StringBuilder();
+        for (ChainNode node : nodes) {
+            chainTokenDesc.append(node.getParentLevelId() + "." + node.getLevelId() + "-" + node.getNodeToken() + ";");
+        }
         this.chainToken = TokenGenerator.generate(chainTokenDesc.toString());
     }
 
@@ -83,19 +87,19 @@ public class ChainInfo implements Writable {
     public void setChainStatus(ChainStatus chainStatus) {
         this.chainStatus = chainStatus;
     }
-    
-    public void addNodes(ChainNode chainNode){
-    	this.nodes.add(0, chainNode);
-    	if (chainNode.getStatus() == ChainNode.NodeStatus.ABNORMAL) {
-    		chainStatus = ChainStatus.ABNORMAL;
-    	}
-    	if(userId == null){
-    		userId = chainNode.getUserId();
-    	}
-    	if ((chainNode.getParentLevelId() == null || chainNode.getParentLevelId().length() == 0)
+
+    public void addNodes(ChainNode chainNode) {
+        this.nodes.add(0, chainNode);
+        if (chainNode.getStatus() == ChainNode.NodeStatus.ABNORMAL) {
+            chainStatus = ChainStatus.ABNORMAL;
+        }
+        if (userId == null) {
+            userId = chainNode.getUserId();
+        }
+        if ((chainNode.getParentLevelId() == null || chainNode.getParentLevelId().length() == 0)
                 && chainNode.getLevelId() == 0) {
-    		firstChainNode = chainNode;
-    	}
+            firstChainNode = chainNode;
+        }
     }
 
     public List<ChainNode> getNodes() {
@@ -109,7 +113,7 @@ public class ChainInfo implements Writable {
     public void setUserId(String userId) {
         this.userId = userId;
     }
-    
+
     public enum ChainStatus {
         NORMAL('N'), ABNORMAL('A');
         private char value;

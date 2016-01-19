@@ -2,17 +2,17 @@ package com.ai.cloud.skywalking.analysis.util;
 
 import com.ai.cloud.skywalking.analysis.config.Config;
 import com.ai.cloud.skywalking.analysis.model.ChainInfo;
+import com.ai.cloud.skywalking.protocol.Span;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.HBaseConfiguration;
-import org.apache.hadoop.hbase.HColumnDescriptor;
-import org.apache.hadoop.hbase.HTableDescriptor;
-import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.*;
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class HBaseUtil {
     private static Logger logger = LoggerFactory.getLogger(HBaseUtil.class.getName());
@@ -72,6 +72,18 @@ public class HBaseUtil {
             configuration.set("hbase.zookeeper.quorum", Config.HBase.ZK_QUORUM);
             configuration.set("hbase.zookeeper.property.clientPort", Config.HBase.ZK_CLIENT_PORT);
             connection = ConnectionFactory.createConnection(configuration);
+        }
+    }
+
+
+    public static void selectById(String id) throws IOException {
+        List<Span> entries = new ArrayList<Span>();
+        Table table = connection.getTable(TableName.valueOf(Config.HBase.TABLE_CALL_CHAIN_RELATIONSHIP));
+        Get g = new Get(Bytes.toBytes(id));
+        Result r = table.get(g);
+        for (Cell cell : r.rawCells()) {
+            if (cell.getValueArray().length > 0)
+                entries.add(new Span(Bytes.toString(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength())));
         }
     }
 

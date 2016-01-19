@@ -31,6 +31,6 @@ public class TokenGenerator {
                 System.exit(-1);
             }
         }
-        return result.toString().toUpperCase();
+        return "CID:" + result.toString().toUpperCase();
     }
 }

@@ -7,9 +7,14 @@ import org.apache.hadoop.io.Text;
 
 import java.io.IOException;
 
-public class ChainInfoReduce  extends TableReducer<Text, ChainInfo, Put> {
+public class ChainInfoReduce extends TableReducer<Text, ChainInfo, Put> {
     @Override
     protected void reduce(Text key, Iterable<ChainInfo> values, Context context) throws IOException, InterruptedException {
-        super.reduce(key, values, context);
+        String[] keyArray = key.toString().split(":");
+        String userId = keyArray[0];
+        String firstNode = keyArray[1];
+
+        //
+
     }
 }
