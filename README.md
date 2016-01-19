@@ -23,6 +23,22 @@ http://wu-sheng.github.io/sky-walking/sample-code/codeView.html
 Mail: wu.sheng@foxmail.com
 
 # Quick Start
+## 编译与部署
+### 部署软件
+- 安装zookeeper 3.4.6
+- 安装apache hbase 1.1.2
+- 安装mysql
+- 安装tomcat 7
+
+### 编译安装SkyWalking Server
+
+
+### 编译安装SkyWalking Alarm
+
+
+### 编译安装SkyWalking Analysis
+暂未提供
+
 ## 根据所需的监控点，引入maven依赖
 暂不存在公网仓库，需要本地编译并发布
 ```xml
