@@ -196,7 +196,7 @@ SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
 
 
-CREATE TABLE `test`.`auth_file_config` (
+CREATE TABLE `auth_file_config` (
   `config_id` INT(11) NOT NULL,
   `key` VARCHAR(200) NOT NULL,
   `value0` VARCHAR(200) NULL,
@@ -207,6 +207,22 @@ CREATE TABLE `test`.`auth_file_config` (
   `key_desc` VARCHAR(500) NULL,
   `sts` VARCHAR(2) NULL,
   PRIMARY KEY (`config_id`));
+
+
+  CREATE TABLE `sw_chain_info` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `viewpoint` VARCHAR(1024) NULL,
+  `cid` VARCHAR(32) NULL,
+  `uid` VARCHAR(32) NULL,
+  `parentLevelId` VARCHAR(32) NULL,
+  `levelId` INT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `id_UNIQUE` (`id` ASC));
+
+INSERT INTO `system_config` (`config_id`,`conf_key`,`conf_value`,`val_type`,`val_desc`,`create_time`,`sts`,`modify_time`) VALUES (1000,'mail_info','{\"mail.host\":\"mail.asiainfo.com\",\"mail.transport.protocol\":\"smtp\",\"mail.smtp.auth\":\"true\",\"mail.smtp.starttls.enable\":\"false\",\"mail.username\":\"testA\",\"mail.password\":\"******\",\"mail.account.prefix\":\"@asiainfo.com\"}','json','默认邮件发送人信息','2015-12-10 11:54:06','A','2015-12-10 11:54:06');
+INSERT INTO `system_config` (`config_id`,`conf_key`,`conf_value`,`val_type`,`val_desc`,`create_time`,`sts`,`modify_time`) VALUES (1001,'portal_addr','http://10.1.235.197:48080/skywalking/','string','默认门户地址','2015-12-10 15:23:53','A','2015-12-10 15:23:53');
+INSERT INTO `system_config` (`config_id`,`conf_key`,`conf_value`,`val_type`,`val_desc`,`create_time`,`sts`,`modify_time`) VALUES (1002,'servers_addr','10.1.235.197:34000;10.1.235.197:35000;','string','日志采集地址','2015-12-10 15:23:53','A','2015-12-10 15:23:53');
+
 
 
 INSERT INTO `test`.`auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_desc`, `sts`) VALUES ('1', 'buriedpoint.printf', 'false', 'false', '是否打印数据', 'A');
@@ -225,3 +241,6 @@ INSERT INTO `test`.`auth_file_config` (`config_id`, `key`, `value0`, `value1`, `
 INSERT INTO `test`.`auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_desc`, `sts`) VALUES ('14', 'buffer.buffer_max_size', '18000', '18000', '每个Buffer的最大个数', 'A');
 INSERT INTO `test`.`auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_desc`, `sts`) VALUES ('15', 'buffer.pool_size', '5', '5', 'Buffer池的最大长度', 'A');
 INSERT INTO `test`.`auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_desc`, `sts`) VALUES ('16', 'senderchecker.check_polling_time', '200', '200', '发送检查线程检查周期', 'A');
+INSERT INTO `test`.`auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_desc`, `sts`) VALUES ('18', 'skywalking.charset', 'UTF-8', 'UTF-8', 'skywalking数据编码', 'A');
+INSERT INTO `test`.`auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_desc`, `sts`) VALUES ('19', 'skywalking.sdk_version', '1.0a2', '1.0a2', 'skywalking SDK的版本', 'A');
+
