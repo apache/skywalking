@@ -4,20 +4,20 @@ import java.util.Map;
 
 public class Summary {
 
-    private Map<String, ChainSummaryResult> summaryResultMap;
+    private Map<String, ChainSpecificTimeWindowSummary> summaryResultMap;
 
     public void summary(ChainInfo chainInfo) {
-        String key = generateKey(chainInfo);
-        ChainSummaryResult chainSummaryResult = summaryResultMap.get(key);
+        String csk = generateChainSummaryKey(chainInfo);
+        ChainSpecificTimeWindowSummary chainSummaryResult = summaryResultMap.get(csk);
         if (chainSummaryResult == null) {
-            chainSummaryResult = ChainSummaryResult.load(key);
-            summaryResultMap.put(key, chainSummaryResult);
+            chainSummaryResult = ChainSpecificTimeWindowSummary.load(csk);
+            summaryResultMap.put(csk, chainSummaryResult);
         }
 
         chainSummaryResult.summaryResult(chainInfo);
     }
 
-    private String generateKey(ChainInfo chainInfo) {
+    private String generateChainSummaryKey(ChainInfo chainInfo) {
         return chainInfo.getChainToken() + ":" + (chainInfo.getStartDate() / (1000 * 60 * 60));
     }
 

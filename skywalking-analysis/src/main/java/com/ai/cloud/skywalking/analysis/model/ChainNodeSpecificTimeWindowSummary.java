@@ -4,15 +4,26 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 
+import java.util.HashMap;
 import java.util.Map;
 
-public class ChainNodeSummaryResult {
+public class ChainNodeSpecificTimeWindowSummary {
 
     private String traceLevelId;
 
     private Map<String, SummaryResult> summerResultMap;
+    
+    public static ChainNodeSpecificTimeWindowSummary newInstance(String traceLevelId){
+    	ChainNodeSpecificTimeWindowSummary cns = new ChainNodeSpecificTimeWindowSummary();
+    	cns.traceLevelId = traceLevelId;
+    	return cns;
+    }
+    
+    private ChainNodeSpecificTimeWindowSummary(){
+    	summerResultMap = new HashMap<String, SummaryResult>();
+    }
 
-    public ChainNodeSummaryResult(String value) {
+    public ChainNodeSpecificTimeWindowSummary(String value) {
         JsonObject jsonObject = new Gson().fromJson(value, JsonObject.class);
         traceLevelId = jsonObject.get("traceLevelId").getAsString();
         summerResultMap = new Gson().fromJson(jsonObject.get("summerResultMap").getAsString(),

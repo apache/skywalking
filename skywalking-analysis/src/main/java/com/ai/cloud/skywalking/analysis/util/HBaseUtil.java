@@ -2,9 +2,9 @@ package com.ai.cloud.skywalking.analysis.util;
 
 import com.ai.cloud.skywalking.analysis.config.Config;
 import com.ai.cloud.skywalking.analysis.model.ChainInfo;
-import com.ai.cloud.skywalking.analysis.model.ChainNodeSummaryResult;
+import com.ai.cloud.skywalking.analysis.model.ChainNodeSpecificTimeWindowSummary;
 import com.ai.cloud.skywalking.analysis.model.ChainRelate;
-import com.ai.cloud.skywalking.analysis.model.ChainSummaryResult;
+import com.ai.cloud.skywalking.analysis.model.ChainSpecificTimeWindowSummary;
 import com.ai.cloud.skywalking.protocol.Span;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.*;
@@ -91,17 +91,17 @@ public class HBaseUtil {
         return null;
     }
 
-    public static ChainSummaryResult selectChainSummaryResult(String key) throws IOException {
-        ChainSummaryResult result = null;
+    public static ChainSpecificTimeWindowSummary selectChainSummaryResult(String key) throws IOException {
+        ChainSpecificTimeWindowSummary result = null;
         //TODO 初始化表
         Table table = connection.getTable(TableName.valueOf(Config.HBase.TABLE_CHAIN_INFO));
         Get g = new Get(Bytes.toBytes(key));
         Result r = table.get(g);
 
         for (Cell cell : r.rawCells()) {
-            result = new ChainSummaryResult();
+            result = new ChainSpecificTimeWindowSummary();
             if (cell.getValueArray().length > 0)
-                result.addNodeSummaryResult(new ChainNodeSummaryResult(Bytes.toString(cell.getValueArray(),
+                result.addNodeSummaryResult(new ChainNodeSpecificTimeWindowSummary(Bytes.toString(cell.getValueArray(),
                         cell.getValueOffset(), cell.getValueLength())));
         }
 
