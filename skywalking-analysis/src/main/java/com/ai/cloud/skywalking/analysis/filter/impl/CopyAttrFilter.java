@@ -16,6 +16,7 @@ public class CopyAttrFilter extends SpanNodeProcessFilter {
         node.setViewPoint(spanEntry.getViewPoint());
         node.setUserId(spanEntry.getUserId());
         node.setBusinessKey(spanEntry.getBusinessKey());
+        node.setStartDate(spanEntry.getStartDate());
 
         this.doNext(spanEntry, node, costMap);
     }

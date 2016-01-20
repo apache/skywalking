@@ -15,6 +15,8 @@ public class Config {
 
         public static String TABLE_CALL_CHAIN_RELATIONSHIP = "sw_chain_relationship";
 
+        public static String TABLE_CHAIN_INFO = "sw_chain_info";
+
     }
 
     public static class TraceInfo {

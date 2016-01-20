@@ -7,6 +7,7 @@ public class SpanEntry {
 
     private Span clientSpan;
     private Span serverSpan;
+    private String startTime;
 
     public SpanEntry() {
 
@@ -132,13 +133,13 @@ public class SpanEntry {
     public Span getServerSpan() {
         return serverSpan;
     }
-    
-    public void setSpan(Span span){
-    	if (span.isReceiver()) {
-    		this.serverSpan = span;
-    	}else{
-    		this.clientSpan = span;
-    	}
+
+    public void setSpan(Span span) {
+        if (span.isReceiver()) {
+            this.serverSpan = span;
+        } else {
+            this.clientSpan = span;
+        }
     }
 
     public String getSpanType() {
@@ -153,5 +154,12 @@ public class SpanEntry {
             return clientSpan.getUserId();
         }
         return serverSpan.getUserId();
+    }
+
+    public long getStartDate() {
+        if (clientSpan != null) {
+            return clientSpan.getStartDate();
+        }
+        return serverSpan.getStartDate();
     }
 }

@@ -11,6 +11,7 @@ public class ChainNode {
     private String parentLevelId;
     private int levelId;
     private String callType;
+    private long startDate;
 
     // 不参与序列化
     private String userId;
@@ -79,12 +80,24 @@ public class ChainNode {
         this.businessKey = businessKey;
     }
 
-    public String getCallType() {
-        return callType;
-    }
-
     public String getBusinessKey() {
         return businessKey;
+    }
+
+    public String getTraceLevelId() {
+        StringBuilder stringBuilder = new StringBuilder();
+        if (getParentLevelId() != null && getParentLevelId().length() > 0) {
+            stringBuilder.append(getParentLevelId() + ".");
+        }
+        return stringBuilder.append(getLevelId()).toString();
+    }
+
+    public void setStartDate(long startDate) {
+        this.startDate = startDate;
+    }
+
+    public long getStartDate() {
+        return startDate;
     }
 
     public enum NodeStatus {

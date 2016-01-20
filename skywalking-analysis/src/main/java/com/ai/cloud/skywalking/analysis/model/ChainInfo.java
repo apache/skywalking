@@ -15,6 +15,7 @@ public class ChainInfo implements Writable {
     private List<ChainNode> nodes;
     private String userId = null;
     private ChainNode firstChainNode;
+    private long startDate;
 
     public ChainInfo() {
         this.nodes = new ArrayList<ChainNode>();
@@ -55,7 +56,7 @@ public class ChainInfo implements Writable {
             chainNode.setParentLevelId(in.readLine());
             chainNode.setLevelId(in.readInt());
             chainNode.setBusinessKey(in.readLine());
-            
+
             nodes.add(chainNode);
         }
     }
@@ -99,6 +100,7 @@ public class ChainInfo implements Writable {
         if ((chainNode.getParentLevelId() == null || chainNode.getParentLevelId().length() == 0)
                 && chainNode.getLevelId() == 0) {
             firstChainNode = chainNode;
+            startDate = chainNode.getStartDate();
         }
     }
 
@@ -136,6 +138,14 @@ public class ChainInfo implements Writable {
                     throw new IllegalStateException("Failed to convert[" + value + "]");
             }
         }
+    }
+
+    public void setChainToken(String chainToken) {
+        this.chainToken = chainToken;
+    }
+
+    public long getStartDate() {
+        return startDate;
     }
 }
 

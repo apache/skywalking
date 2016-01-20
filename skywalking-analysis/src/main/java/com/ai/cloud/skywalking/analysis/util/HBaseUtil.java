@@ -2,6 +2,9 @@ package com.ai.cloud.skywalking.analysis.util;
 
 import com.ai.cloud.skywalking.analysis.config.Config;
 import com.ai.cloud.skywalking.analysis.model.ChainInfo;
+import com.ai.cloud.skywalking.analysis.model.ChainNodeSummaryResult;
+import com.ai.cloud.skywalking.analysis.model.ChainRelate;
+import com.ai.cloud.skywalking.analysis.model.ChainSummaryResult;
 import com.ai.cloud.skywalking.protocol.Span;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.*;
@@ -76,7 +79,7 @@ public class HBaseUtil {
     }
 
 
-    public static void selectById(String id) throws IOException {
+    public static ChainRelate selectCallChainRelationship(String id) throws IOException {
         List<Span> entries = new ArrayList<Span>();
         Table table = connection.getTable(TableName.valueOf(Config.HBase.TABLE_CALL_CHAIN_RELATIONSHIP));
         Get g = new Get(Bytes.toBytes(id));
@@ -85,6 +88,23 @@ public class HBaseUtil {
             if (cell.getValueArray().length > 0)
                 entries.add(new Span(Bytes.toString(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength())));
         }
+        return null;
     }
 
+    public static ChainSummaryResult selectChainSummaryResult(String key) throws IOException {
+        ChainSummaryResult result = null;
+        //TODO 初始化表
+        Table table = connection.getTable(TableName.valueOf(Config.HBase.TABLE_CHAIN_INFO));
+        Get g = new Get(Bytes.toBytes(key));
+        Result r = table.get(g);
+
+        for (Cell cell : r.rawCells()) {
+            result = new ChainSummaryResult();
+            if (cell.getValueArray().length > 0)
+                result.addNodeSummaryResult(new ChainNodeSummaryResult(Bytes.toString(cell.getValueArray(),
+                        cell.getValueOffset(), cell.getValueLength())));
+        }
+
+        return result;
+    }
 }
