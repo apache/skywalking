@@ -10,8 +10,16 @@ SkyWalking-Distributed Application Tracing System, 是一个对JAVA应用程序�
 # 整体架构图
 ![整体架构图](http://wu-sheng.github.io/sky-walking/sample-code/images/skywalkingClusterDeploy.jpeg)
 
-# 追踪链路图
-![追踪连路途](http://wu-sheng.github.io/sky-walking/sample-code/images/traceLogView.jpeg)
+# 典型页面展现
+## 实时调用链路
+* 实时链路追踪展现
+![追踪连路图1](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/callChain.png)
+* 实时链路追踪详细信息查看
+![追踪连路图2](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/callChainDetail.png)
+* 实时链路追踪日志查看
+![追踪连路图3](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/callChainLog.png)
+
+## 分析汇总
 
 # Home Page
 http://wu-sheng.github.io/sky-walking/
@@ -115,7 +123,7 @@ $cd github/sky-walking/skywalking-webui
 $mvn package
 ```
 - 初始化管理数据库
-根据[数据库脚本](https://github.com/wu-sheng/sky-walking/blob/master/skywalking-webui/src/main/sql/table.mysql)初始化管理数据库，根据实际环境配置如下SQL：
+根据[数据库脚本](https://github.com/wu-sheng/sky-walking/blob/master/skywalking-webui/src/main/sql/table.mysql)初始化管理数据库。其中，脚本中如下SQL片段需要修改：
 ```sql
 --配置告警邮件的发送人和SMTP信息
 INSERT INTO `system_config` (`config_id`,`conf_key`,`conf_value`,`val_type`,`val_desc`,`create_time`,`sts`,`modify_time`) VALUES (1000,'mail_info','{\"mail.host\":\"mail.asiainfo.com\",\"mail.transport.protocol\":\"smtp\",\"mail.smtp.auth\":\"true\",\"mail.smtp.starttls.enable\":\"false\",\"mail.username\":\"testA\",\"mail.password\":\"******\",\"mail.account.prefix\":\"@asiainfo.com\"}','json','默认邮件发送人信息','2015-12-10 11:54:06','A','2015-12-10 11:54:06');
