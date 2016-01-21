@@ -45,13 +45,12 @@ public class CategorizedChainInfo {
     }
 
     public boolean isContained(UncategorizeChainInfo uncategorizeChainInfo) {
-
-        if (children_Token.contains(uncategorizeChainInfo.getChainToken())) {
-            return false;
-        }
-
         Pattern pattern = Pattern.compile(uncategorizeChainInfo.getNodeRegEx());
         return pattern.matcher(getChainStr()).find();
+    }
+
+    public boolean isAlreadyContained(UncategorizeChainInfo uncategorizeChainInfo) {
+        return children_Token.contains(uncategorizeChainInfo.getChainToken());
     }
 
     public void add(UncategorizeChainInfo uncategorizeChainInfo) {

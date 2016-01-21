@@ -35,18 +35,21 @@ public class ChainRelate {
     private void classifiedChains(UncategorizeChainInfo child) {
         boolean isContained = false;
         for (Map.Entry<String, CategorizedChainInfo> entry : categorizedChainInfoMap.entrySet()) {
-            if (entry.getValue().isContained(child)) {
+
+            if (!entry.getValue().isAlreadyContained(child) && entry.getValue().isContained(child)) {
                 entry.getValue().add(child);
                 isContained = true;
+            }
 
-
+            if (!entry.getValue().isAlreadyContained(child)) {
+                chainDetailMap.put(child.getChainToken(), new ChainDetail(child));
             }
         }
 
         if (!isContained) {
             uncategorizeChainInfoList.add(child);
 
-            if (!uncategorizeChainInfoList.contains(child)){
+            if (!uncategorizeChainInfoList.contains(child)) {
                 chainDetailMap.put(child.getChainToken(), new ChainDetail(child));
             }
 
