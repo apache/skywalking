@@ -10,10 +10,15 @@ SkyWalking-Distributed Application Tracing System, 是一个对JAVA应用程序�
 # 整体架构图
 ![整体架构图](http://wu-sheng.github.io/sky-walking/sample-code/images/skywalkingClusterDeploy.jpeg)
 
-# 追踪链路图
+# 典型页面展现
+## 实时调用链路
+* 实时链路追踪展现
 ![追踪连路图1](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/callChain.png)
+* 实时链路追踪详细信息查看
 ![追踪连路图2](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/callChainDetail.png)
+* 实时链路追踪日志查看
 ![追踪连路图3](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/callChainLog.png)
+## 分析汇总
 
 # Home Page
 http://wu-sheng.github.io/sky-walking/
