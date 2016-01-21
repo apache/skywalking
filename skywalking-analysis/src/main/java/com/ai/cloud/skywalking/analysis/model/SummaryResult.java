@@ -36,12 +36,10 @@ public class SummaryResult {
     }
 
     public void summary(ChainNode node) {
-
         totalCall++;
         if (node.getStatus() == ChainNode.NodeStatus.NORMAL) {
             correctNumber++;
         }
-
         totalCostTime += node.getCost();
     }
 }

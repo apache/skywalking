@@ -1,11 +1,10 @@
 package com.ai.cloud.skywalking.analysis.util;
 
 import com.ai.cloud.skywalking.analysis.config.Config;
-import com.ai.cloud.skywalking.analysis.model.ChainInfo;
-import com.ai.cloud.skywalking.analysis.model.ChainNodeSpecificTimeWindowSummary;
-import com.ai.cloud.skywalking.analysis.model.ChainRelate;
-import com.ai.cloud.skywalking.analysis.model.ChainSpecificTimeWindowSummary;
-import com.ai.cloud.skywalking.protocol.Span;
+import com.ai.cloud.skywalking.analysis.config.Constants;
+import com.ai.cloud.skywalking.analysis.model.*;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.*;
 import org.apache.hadoop.hbase.client.*;
@@ -14,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class HBaseUtil {
@@ -53,15 +51,24 @@ public class HBaseUtil {
     static {
         try {
             initHBaseClient();
-            Admin admin = connection.getAdmin();
-            if (!admin.isTableAvailable(TableName.valueOf(Config.HBase.TRACE_INFO_TABLE_NAME))) {
-                HTableDescriptor tableDesc = new HTableDescriptor(TableName.valueOf(Config.HBase.TRACE_INFO_TABLE_NAME));
-                tableDesc.addFamily(new HColumnDescriptor(Config.HBase.TRACE_INFO_COLUMN_FAMILY));
-                admin.createTable(tableDesc);
-                logger.info("Create table [{}] ok!", Config.HBase.TRACE_INFO_TABLE_NAME);
-            }
+            //
+            createTableIfNeed(Config.HBase.TRACE_INFO_TABLE_NAME, Config.HBase.TRACE_INFO_COLUMN_FAMILY);
+            //
+            createTableIfNeed(Config.HBase.TABLE_CALL_CHAIN_RELATIONSHIP, Config.HBase.CHAIN_RELATIONSHIP_COLUMN_FAMILY);
+
+            createTableIfNeed(Config.HBase.TABLE_CHAIN_SUMMARY, Config.HBase.CHAIN_SUMMARY_COLUMN_FAMILY);
         } catch (IOException e) {
             logger.error("Create table[{}] failed", Config.HBase.TRACE_INFO_TABLE_NAME, e);
+        }
+    }
+
+    private static void createTableIfNeed(String tableName, String familyName) throws IOException {
+        Admin admin = connection.getAdmin();
+        if (!admin.isTableAvailable(TableName.valueOf(tableName))) {
+            HTableDescriptor tableDesc = new HTableDescriptor(TableName.valueOf(tableName));
+            tableDesc.addFamily(new HColumnDescriptor(familyName.getBytes()));
+            admin.createTable(tableDesc);
+            logger.info("Create table [{}] ok!", tableName);
         }
     }
 
@@ -79,21 +86,34 @@ public class HBaseUtil {
     }
 
 
-    public static ChainRelate selectCallChainRelationship(String id) throws IOException {
-        List<Span> entries = new ArrayList<Span>();
+    public static ChainRelate selectCallChainRelationship(String key) throws IOException {
+        ChainRelate chainRelate = new ChainRelate(key);
         Table table = connection.getTable(TableName.valueOf(Config.HBase.TABLE_CALL_CHAIN_RELATIONSHIP));
-        Get g = new Get(Bytes.toBytes(id));
+        Get g = new Get(Bytes.toBytes(key));
         Result r = table.get(g);
         for (Cell cell : r.rawCells()) {
-            if (cell.getValueArray().length > 0)
-                entries.add(new Span(Bytes.toString(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength())));
+            if (cell.getValueArray().length > 0) {
+
+                String qualifierName = Bytes.toString(cell.getQualifierArray(), cell.getQualifierOffset(),
+                        cell.getQualifierLength());
+                if (Constants.UNCATEGORIZED_QUALIFIER_NAME.equals(qualifierName)) {
+                    List<UncategorizeChainInfo> uncategorizeChainInfoList = new Gson().fromJson(Bytes.toString(cell.getValueArray(),
+                            cell.getValueOffset(), cell.getValueLength()),
+                            new TypeToken<List<UncategorizeChainInfo>>() {
+                            }.getType());
+                    chainRelate.addUncategorizeChain(uncategorizeChainInfoList);
+                } else {
+                    chainRelate.addCategorizeChain(qualifierName, new CategorizedChainInfo(
+                            Bytes.toString(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength())
+                    ));
+                }
+            }
         }
-        return null;
+        return chainRelate;
     }
 
     public static ChainSpecificTimeWindowSummary selectChainSummaryResult(String key) throws IOException {
         ChainSpecificTimeWindowSummary result = null;
-        //TODO 初始化表
         Table table = connection.getTable(TableName.valueOf(Config.HBase.TABLE_CHAIN_INFO));
         Get g = new Get(Bytes.toBytes(key));
         Result r = table.get(g);
@@ -106,5 +126,26 @@ public class HBaseUtil {
         }
 
         return result;
+    }
+
+    public static void saveChainRelate(Put put) throws IOException {
+        Table table = connection.getTable(TableName.valueOf(Config.HBase.TABLE_CALL_CHAIN_RELATIONSHIP));
+
+        table.put(put);
+        if (logger.isDebugEnabled()) {
+            logger.debug("Insert data[RowKey:{}] success.", put.getId());
+        }
+    }
+
+    public static void batchSaveChainSpecificTimeWindowSummary(List<Put> puts) throws IOException, InterruptedException {
+        Table table = connection.getTable(TableName.valueOf(Config.HBase.TABLE_CHAIN_SUMMARY));
+        Object[] resultArrays = new Object[puts.size()];
+        table.batch(puts, resultArrays);
+        for (Object result : resultArrays) {
+            if (result == null) {
+                //TODO
+
+            }
+        }
     }
 }

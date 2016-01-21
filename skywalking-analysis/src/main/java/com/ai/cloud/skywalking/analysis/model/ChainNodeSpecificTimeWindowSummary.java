@@ -1,5 +1,6 @@
 package com.ai.cloud.skywalking.analysis.model;
 
+import com.ai.cloud.skywalking.analysis.config.Config;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
@@ -12,15 +13,15 @@ public class ChainNodeSpecificTimeWindowSummary {
     private String traceLevelId;
 
     private Map<String, SummaryResult> summerResultMap;
-    
-    public static ChainNodeSpecificTimeWindowSummary newInstance(String traceLevelId){
-    	ChainNodeSpecificTimeWindowSummary cns = new ChainNodeSpecificTimeWindowSummary();
-    	cns.traceLevelId = traceLevelId;
-    	return cns;
+
+    public static ChainNodeSpecificTimeWindowSummary newInstance(String traceLevelId) {
+        ChainNodeSpecificTimeWindowSummary cns = new ChainNodeSpecificTimeWindowSummary();
+        cns.traceLevelId = traceLevelId;
+        return cns;
     }
-    
-    private ChainNodeSpecificTimeWindowSummary(){
-    	summerResultMap = new HashMap<String, SummaryResult>();
+
+    private ChainNodeSpecificTimeWindowSummary() {
+        summerResultMap = new HashMap<String, SummaryResult>();
     }
 
     public ChainNodeSpecificTimeWindowSummary(String value) {
@@ -57,7 +58,12 @@ public class ChainNodeSpecificTimeWindowSummary {
     }
 
     private String generateKey(long startTime) {
+        long minutes = (startTime % (1000 * 60 * 60)) / (1000 * 60);
+        return String.valueOf(minutes / Config.ChainNodeSummary.INTERVAL);
+    }
 
-        return null;
+    @Override
+    public String toString() {
+        return new Gson().toJson(this);
     }
 }

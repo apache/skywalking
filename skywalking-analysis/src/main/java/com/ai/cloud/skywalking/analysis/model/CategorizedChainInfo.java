@@ -1,5 +1,9 @@
 package com.ai.cloud.skywalking.analysis.model;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -27,16 +31,35 @@ public class CategorizedChainInfo {
         children_Token = new ArrayList<String>();
     }
 
+    public CategorizedChainInfo(String value) {
+        JsonObject jsonObject = new Gson().fromJson(value, JsonObject.class);
+        chainToken = jsonObject.get("chainToken").getAsString();
+        chainStr = jsonObject.get("chainStr").getAsString();
+        children_Token = new Gson().fromJson(jsonObject.get("children_Token"),
+                new TypeToken<List<String>>() {
+                }.getType());
+    }
+
     public String getChainStr() {
         return chainStr;
     }
 
     public boolean isContained(UncategorizeChainInfo uncategorizeChainInfo) {
+
+        if (children_Token.contains(uncategorizeChainInfo.getChainToken())) {
+            return false;
+        }
+
         Pattern pattern = Pattern.compile(uncategorizeChainInfo.getNodeRegEx());
         return pattern.matcher(getChainStr()).find();
     }
 
     public void add(UncategorizeChainInfo uncategorizeChainInfo) {
         children_Token.add(uncategorizeChainInfo.getChainToken());
+    }
+
+    @Override
+    public String toString() {
+        return new Gson().toJson(this);
     }
 }

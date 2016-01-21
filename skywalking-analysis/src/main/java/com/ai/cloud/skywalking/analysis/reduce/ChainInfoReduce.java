@@ -14,7 +14,6 @@ import java.util.Iterator;
 public class ChainInfoReduce extends TableReducer<Text, ChainInfo, Put> {
     @Override
     protected void reduce(Text key, Iterable<ChainInfo> values, Context context) throws IOException, InterruptedException {
-
         ChainRelate chainRelate = HBaseUtil.selectCallChainRelationship(key.toString());
         Summary summary = new Summary();
         Iterator<ChainInfo> chainInfoIterator = values.iterator();
@@ -28,6 +27,7 @@ public class ChainInfoReduce extends TableReducer<Text, ChainInfo, Put> {
         // 入HBase库（关系表，Info表，汇总表）
         summary.save();
         // 入Mysql表
+
 
     }
 }

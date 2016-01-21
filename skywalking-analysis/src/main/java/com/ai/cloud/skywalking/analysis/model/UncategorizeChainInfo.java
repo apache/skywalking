@@ -1,8 +1,13 @@
 package com.ai.cloud.skywalking.analysis.model;
 
+import com.google.gson.Gson;
+
 public class UncategorizeChainInfo {
     private String chainToken;
     private String nodeRegEx;
+
+    public UncategorizeChainInfo() {
+    }
 
     public UncategorizeChainInfo(ChainInfo chainInfo) {
         this.chainToken = chainInfo.getChainToken();
@@ -33,5 +38,10 @@ public class UncategorizeChainInfo {
 
     public void setNodeRegEx(String nodeRegEx) {
         this.nodeRegEx = nodeRegEx;
+    }
+
+    @Override
+    public String toString() {
+        return new Gson().toJson(this);
     }
 }

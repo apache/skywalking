@@ -1,6 +1,8 @@
 package com.ai.cloud.skywalking.analysis.model;
 
+import com.ai.cloud.skywalking.analysis.config.Config;
 import com.ai.cloud.skywalking.analysis.util.HBaseUtil;
+import org.apache.hadoop.hbase.client.Put;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -28,18 +30,23 @@ public class ChainSpecificTimeWindowSummary {
         return result;
     }
 
-    public void summaryResult(ChainInfo chainInfo) {
-        for (ChainNode node : chainInfo.getNodes()) {
-        	String tlid = node.getTraceLevelId();
-            ChainNodeSpecificTimeWindowSummary chainNodeSummaryResult = chainNodeSummaryResultMap.get(tlid);
-            if(chainNodeSummaryResult == null){
-            	chainNodeSummaryResult = ChainNodeSpecificTimeWindowSummary.newInstance(tlid);
-            }
-            chainNodeSummaryResult.summary(node);
-        }
-    }
-
     public void addNodeSummaryResult(ChainNodeSpecificTimeWindowSummary chainNodeSummaryResult) {
         chainNodeSummaryResultMap.put(chainNodeSummaryResult.getTraceLevelId(), chainNodeSummaryResult);
+    }
+
+    public void summaryResult(ChainNode node) {
+        String tlid = node.getTraceLevelId();
+        ChainNodeSpecificTimeWindowSummary chainNodeSummaryResult = chainNodeSummaryResultMap.get(tlid);
+        if (chainNodeSummaryResult == null) {
+            chainNodeSummaryResult = ChainNodeSpecificTimeWindowSummary.newInstance(tlid);
+            chainNodeSummaryResultMap.put(tlid, chainNodeSummaryResult);
+        }
+        chainNodeSummaryResult.summary(node);
+    }
+
+    public void save(Put put) {
+        for (Map.Entry<String, ChainNodeSpecificTimeWindowSummary> entry : chainNodeSummaryResultMap.entrySet()) {
+            put.addColumn(Config.HBase.CHAIN_SUMMARY_COLUMN_FAMILY.getBytes(), entry.getKey().getBytes(), entry.getValue().toString().getBytes());
+        }
     }
 }
