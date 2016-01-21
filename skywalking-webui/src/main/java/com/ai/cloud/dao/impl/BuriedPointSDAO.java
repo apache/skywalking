@@ -102,6 +102,8 @@ public class BuriedPointSDAO implements IBuriedPointSDAO {
 						}
 					}
 					logVO.addTimeLine(rpcVO.getValue().getStartDate(), rpcVO.getValue().getCost());
+				}else{
+					traceLogMap.put(colId, rpcVO.getValue());
 				}
 			}
 		}
