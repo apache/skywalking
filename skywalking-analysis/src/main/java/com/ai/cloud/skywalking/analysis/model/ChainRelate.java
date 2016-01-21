@@ -38,11 +38,12 @@ public class ChainRelate {
 
             if (!entry.getValue().isAlreadyContained(child) && entry.getValue().isContained(child)) {
                 entry.getValue().add(child);
+                chainDetailMap.put(child.getChainToken(), new ChainDetail(child));
                 isContained = true;
             }
 
-            if (!entry.getValue().isAlreadyContained(child)) {
-                chainDetailMap.put(child.getChainToken(), new ChainDetail(child));
+            if (entry.getValue().isAlreadyContained(child)) {
+                isContained = true;
             }
         }
 
