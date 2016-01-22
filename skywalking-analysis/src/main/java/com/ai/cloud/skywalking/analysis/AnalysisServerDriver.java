@@ -45,8 +45,8 @@ public class AnalysisServerDriver extends Configured implements Tool {
 
         TableMapReduceUtil.initTableMapperJob(Config.HBase.CALL_CHAIN_TABLE_NAME, scan, Categorize2ChainMapper.class,
                 String.class, ChainInfo.class, job);
-
-        TableMapReduceUtil.initTableReducerJob(Config.HBase.CALL_CHAIN_TABLE_NAME, Categorize2ChainReduce.class, job);
+        
+        job.setReducerClass(Categorize2ChainReduce.class);
         return job.waitForCompletion(true) ? 0 : 1;
     }
 
