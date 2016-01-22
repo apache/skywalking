@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ChainInfo implements Writable {
-    private String chainToken;
+    private String cid;
     private ChainStatus chainStatus = ChainStatus.NORMAL;
     private List<ChainNode> nodes;
     private String userId = null;
@@ -28,7 +28,7 @@ public class ChainInfo implements Writable {
 
     @Override
     public void write(DataOutput out) throws IOException {
-        out.write(chainToken.getBytes());
+        out.write(cid.getBytes());
         out.writeChar(chainStatus.getValue());
         out.write(userId.getBytes());
 
@@ -46,7 +46,7 @@ public class ChainInfo implements Writable {
 
     @Override
     public void readFields(DataInput in) throws IOException {
-        chainToken = in.readLine();
+    	cid = in.readLine();
         chainStatus = ChainStatus.convert(in.readChar());
         userId = in.readLine();
 
@@ -66,8 +66,8 @@ public class ChainInfo implements Writable {
         }
     }
 
-    public String getChainToken() {
-        return chainToken;
+    public String getCID() {
+        return cid;
     }
 
     public String getEntranceNodeToken() {
@@ -83,7 +83,7 @@ public class ChainInfo implements Writable {
         for (ChainNode node : nodes) {
             chainTokenDesc.append(node.getParentLevelId() + "." + node.getLevelId() + "-" + node.getNodeToken() + ";");
         }
-        this.chainToken = TokenGenerator.generate(chainTokenDesc.toString()) + "-";
+        this.cid = TokenGenerator.generate(chainTokenDesc.toString()) + "-";
     }
 
     public ChainStatus getChainStatus() {
@@ -145,8 +145,8 @@ public class ChainInfo implements Writable {
         }
     }
 
-    public void setChainToken(String chainToken) {
-        this.chainToken = chainToken;
+    public void setCID(String cid) {
+        this.cid = cid;
     }
 
     public long getStartDate() {

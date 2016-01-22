@@ -18,7 +18,7 @@ public class ChainDetail {
     private String userId;
 
     public ChainDetail(ChainInfo chainInfo) {
-        chainToken = chainInfo.getChainToken();
+        chainToken = chainInfo.getCID();
         for (ChainNode chainNode : chainInfo.getNodes()) {
             chainNodeMap.put(chainNode.getTraceLevelId(), chainNode);
         }

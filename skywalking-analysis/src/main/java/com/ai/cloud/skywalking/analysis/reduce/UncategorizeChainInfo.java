@@ -7,7 +7,7 @@ import com.google.gson.annotations.Expose;
 
 public class UncategorizeChainInfo {
     @Expose
-    private String chainToken;
+    private String cid;
     @Expose
     private String nodeRegEx;
 
@@ -17,7 +17,7 @@ public class UncategorizeChainInfo {
     }
 
     public UncategorizeChainInfo(ChainInfo chainInfo) {
-        this.chainToken = chainInfo.getChainToken();
+        this.cid = chainInfo.getCID();
         StringBuilder stringBuilder = new StringBuilder();
         boolean flag = false;
         for (ChainNode node : chainInfo.getNodes()) {
@@ -33,8 +33,8 @@ public class UncategorizeChainInfo {
         this.chainInfo = chainInfo;
     }
 
-    public String getChainToken() {
-        return chainToken;
+    public String getCID() {
+        return cid;
     }
 
     public String getNodeRegEx() {

@@ -12,13 +12,13 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 public class CategorizedChainInfo {
-    private String chainToken;
-    private String chainStr;
+    private String cid;
+    private String chainFullToken;
 
     private List<String> children_Token;
 
     public CategorizedChainInfo(ChainInfo chainInfo) {
-        chainToken = chainInfo.getChainToken();
+    	cid = chainInfo.getCID();
 
         StringBuilder stringBuilder = new StringBuilder();
         boolean flag = false;
@@ -26,38 +26,38 @@ public class CategorizedChainInfo {
             if (flag) {
                 stringBuilder.append(";");
             }
-            stringBuilder.append((chainNode.getTraceLevelId() + "-" + chainNode.getNodeToken()));
+            stringBuilder.append(chainNode.getNodeToken());
             flag = true;
         }
 
-        chainStr = stringBuilder.toString();
+        chainFullToken = stringBuilder.toString();
         children_Token = new ArrayList<String>();
     }
 
     public CategorizedChainInfo(String value) {
         JsonObject jsonObject = (JsonObject) new JsonParser().parse(value);
-        chainToken = jsonObject.get("chainToken").getAsString();
-        chainStr = jsonObject.get("chainStr").getAsString();
+        cid = jsonObject.get("chainToken").getAsString();
+        chainFullToken = jsonObject.get("chainFullToken").getAsString();
         children_Token = new Gson().fromJson(jsonObject.get("children_Token"),
                 new TypeToken<List<String>>() {
                 }.getType());
     }
 
-    public String getChainStr() {
-        return chainStr;
+    public String getChainFullToken() {
+        return chainFullToken;
     }
 
     public boolean isContained(UncategorizeChainInfo uncategorizeChainInfo) {
         Pattern pattern = Pattern.compile(uncategorizeChainInfo.getNodeRegEx());
-        return pattern.matcher(getChainStr()).find();
+        return pattern.matcher(this.chainFullToken).find();
     }
 
     public boolean isAlreadyContained(UncategorizeChainInfo uncategorizeChainInfo) {
-        return children_Token.contains(uncategorizeChainInfo.getChainToken());
+        return children_Token.contains(uncategorizeChainInfo.getCID());
     }
 
     public void add(UncategorizeChainInfo uncategorizeChainInfo) {
-        children_Token.add(uncategorizeChainInfo.getChainToken());
+        children_Token.add(uncategorizeChainInfo.getCID());
     }
 
     @Override

@@ -35,7 +35,7 @@ public class HBaseUtil {
 
         put.addColumn(Bytes.toBytes(Config.HBase.TRACE_INFO_COLUMN_FAMILY),
                 Bytes.toBytes(Config.TraceInfo.TRACE_INFO_COLUMN_CID),
-                Bytes.toBytes(chainInfo.getChainToken()));
+                Bytes.toBytes(chainInfo.getCID()));
         try {
             table.put(put);
             if (logger.isDebugEnabled()) {

@@ -24,7 +24,7 @@ public class Summary {
 
     public void summary(ChainInfo chainInfo) {
         for (ChainNode node : chainInfo.getNodes()) {
-            String csk = generateChainSummaryKey(chainInfo.getChainToken(), node.getStartDate());
+            String csk = generateChainSummaryKey(chainInfo.getCID(), node.getStartDate());
             ChainSpecificTimeWindowSummary chainSummaryResult = summaryResultMap.get(csk);
             if (chainSummaryResult == null) {
                 chainSummaryResult = ChainSpecificTimeWindowSummary.load(csk);
@@ -34,7 +34,7 @@ public class Summary {
             summaryResultMap.get(csk).summaryResult(node);
         }
 
-        updateChainInfo.put(chainInfo.getChainToken(), new Timestamp(System.currentTimeMillis()));
+        updateChainInfo.put(chainInfo.getCID(), new Timestamp(System.currentTimeMillis()));
     }
 
     private String generateChainSummaryKey(String chainToken, long startDate) {

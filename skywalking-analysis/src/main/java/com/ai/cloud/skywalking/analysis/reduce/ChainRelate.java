@@ -45,7 +45,7 @@ public class ChainRelate {
                 isContained = true;
             } else if (entry.getValue().isContained(child)) {
                 entry.getValue().add(child);
-                chainDetailMap.put(child.getChainToken(), new ChainDetail(child.getChainInfo()));
+                chainDetailMap.put(child.getCID(), new ChainDetail(child.getChainInfo()));
                 isContained = true;
             }
         }
@@ -54,20 +54,20 @@ public class ChainRelate {
             uncategorizeChainInfoList.add(child);
 
             if (!uncategorizeChainInfoList.contains(child)) {
-                chainDetailMap.put(child.getChainToken(), new ChainDetail(child.getChainInfo()));
+                chainDetailMap.put(child.getCID(), new ChainDetail(child.getChainInfo()));
             }
         }
 
     }
 
     private CategorizedChainInfo addCategorizedChain(ChainInfo chainInfo) {
-        if (!categorizedChainInfoMap.containsKey(chainInfo.getChainToken())) {
-            categorizedChainInfoMap.put(chainInfo.getChainToken(),
+        if (!categorizedChainInfoMap.containsKey(chainInfo.getCID())) {
+            categorizedChainInfoMap.put(chainInfo.getCID(),
                     new CategorizedChainInfo(chainInfo));
 
-            chainDetailMap.put(chainInfo.getChainToken(), new ChainDetail(chainInfo));
+            chainDetailMap.put(chainInfo.getCID(), new ChainDetail(chainInfo));
         }
-        return categorizedChainInfoMap.get(chainInfo.getChainToken());
+        return categorizedChainInfoMap.get(chainInfo.getCID());
     }
 
     public void addRelate(ChainInfo chainInfo) {
