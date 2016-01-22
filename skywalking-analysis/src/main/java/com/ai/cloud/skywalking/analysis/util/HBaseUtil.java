@@ -2,7 +2,7 @@ package com.ai.cloud.skywalking.analysis.util;
 
 import com.ai.cloud.skywalking.analysis.config.Config;
 import com.ai.cloud.skywalking.analysis.config.Constants;
-import com.ai.cloud.skywalking.analysis.model.*;
+import com.ai.cloud.skywalking.analysis.model.ChainInfo;
 import com.ai.cloud.skywalking.analysis.reduce.*;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -150,8 +150,7 @@ public class HBaseUtil {
         table.batch(puts, resultArrays);
         for (Object result : resultArrays) {
             if (result == null) {
-                //TODO
-
+                logger.error("Failed to save chain specificTimeWindows Summary.");
             }
         }
     }
@@ -163,8 +162,7 @@ public class HBaseUtil {
             table.batch(puts, resultArrays);
             for (Object result : resultArrays) {
                 if (result == null) {
-                    //TODO
-
+                    logger.error("Failed to save chain specificTimeWindows Summary.");
                 }
             }
         }

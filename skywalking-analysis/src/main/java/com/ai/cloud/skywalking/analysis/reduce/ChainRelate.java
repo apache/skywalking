@@ -6,12 +6,16 @@ import com.ai.cloud.skywalking.analysis.model.ChainInfo;
 import com.ai.cloud.skywalking.analysis.util.HBaseUtil;
 import com.google.gson.Gson;
 import org.apache.hadoop.hbase.client.Put;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
 
 public class ChainRelate {
+    private static Logger logger = LoggerFactory.getLogger(ChainRelate.class.getName());
+
     private String key;
     private Map<String, CategorizedChainInfo> categorizedChainInfoMap = new HashMap<String, CategorizedChainInfo>();
     private List<UncategorizeChainInfo> uncategorizeChainInfoList = new ArrayList<UncategorizeChainInfo>();
@@ -41,12 +45,17 @@ public class ChainRelate {
                 isContained = true;
             } else if (entry.getValue().isContained(child)) {
                 entry.getValue().add(child);
+                chainDetailMap.put(child.getChainToken(), new ChainDetail(child.getChainInfo()));
                 isContained = true;
             }
         }
 
         if (!isContained) {
             uncategorizeChainInfoList.add(child);
+
+            if (!uncategorizeChainInfoList.contains(child)) {
+                chainDetailMap.put(child.getChainToken(), new ChainDetail(child.getChainInfo()));
+            }
         }
 
     }
@@ -71,12 +80,12 @@ public class ChainRelate {
         }
     }
 
-    public void save() throws SQLException {
+    public void save() throws SQLException, IOException, InterruptedException {
         saveChainRelationShip();
         saveChainDetail();
     }
 
-    private void saveChainDetail() throws SQLException {
+    private void saveChainDetail() throws SQLException, IOException, InterruptedException {
         List<Put> puts = new ArrayList<Put>();
         for (Map.Entry<String, ChainDetail> entry : chainDetailMap.entrySet()) {
             Put put1 = new Put(entry.getKey().getBytes());
@@ -88,13 +97,15 @@ public class ChainRelate {
         try {
             HBaseUtil.saveChainDetails(puts);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Faild to save chain detail to hbase.", e);
+            throw e;
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            logger.error("Faild to save chain detail to hbase.", e);
+            throw e;
         }
     }
 
-    private void saveChainRelationShip() {
+    private void saveChainRelationShip() throws IOException {
         Put put = new Put(getKey().getBytes());
 
         put.addColumn(Config.HBase.CHAIN_RELATIONSHIP_COLUMN_FAMILY.getBytes(), Constants.UNCATEGORIZED_QUALIFIER_NAME.getBytes()
@@ -108,8 +119,8 @@ public class ChainRelate {
         try {
             HBaseUtil.saveChainRelate(put);
         } catch (IOException e) {
-            //TODO
-            e.printStackTrace();
+            logger.error("Faild to save chain relationship to hbase.", e);
+            throw e;
         }
     }
 

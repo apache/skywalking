@@ -25,11 +25,19 @@ public class CallChainMapper extends TableMapper<Text, ChainInfo> {
     protected void map(ImmutableBytesWritable key, Result value, Context context) throws IOException,
             InterruptedException {
         List<Span> spanList = new ArrayList<Span>();
-        for (Cell cell : value.rawCells()) {
-            Span span = new Span(Bytes.toString(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength()));
-            spanList.add(span);
+        ChainInfo chainInfo = null;
+        try {
+            for (Cell cell : value.rawCells()) {
+                Span span = new Span(Bytes.toString(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength()));
+                spanList.add(span);
+            }
+
+            chainInfo = spanToChainInfo(key.toString(), spanList);
+        } catch (Exception e) {
+            logger.error("Failed to mapper call chain[" + key.toString() + "]", e);
+            chainInfo = new ChainInfo("-1");
         }
-        ChainInfo chainInfo = spanToChainInfo(key.toString(), spanList);
+        
         context.write(new Text(chainInfo.getUserId() + ":" + chainInfo.getEntranceNodeToken()), chainInfo);
     }
 

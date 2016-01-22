@@ -41,7 +41,9 @@ public class CallChainInfoDao {
         }
         int[] result = preparedStatement.executeBatch();
         for (int i : result) {
-            //TODO
+            if (i != 1) {
+                logger.error("Failed to save chain detail [" + chainDetail.getChainToken() + "]");
+            }
         }
         preparedStatement.close();
         connection.commit();
@@ -56,7 +58,9 @@ public class CallChainInfoDao {
         }
         int[] result = preparedStatement.executeBatch();
         for (int i : result) {
-            //TODO
+            if (i != 1) {
+                logger.error("Failed to update chain detail");
+            }
         }
         preparedStatement.close();
         connection.commit();
