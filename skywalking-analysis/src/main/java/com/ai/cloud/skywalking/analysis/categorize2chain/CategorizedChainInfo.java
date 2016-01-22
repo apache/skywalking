@@ -1,7 +1,7 @@
-package com.ai.cloud.skywalking.analysis.reduce;
+package com.ai.cloud.skywalking.analysis.categorize2chain;
 
-import com.ai.cloud.skywalking.analysis.model.ChainInfo;
-import com.ai.cloud.skywalking.analysis.model.ChainNode;
+import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainInfo;
+import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainNode;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;

@@ -1,4 +1,4 @@
-package com.ai.cloud.skywalking.analysis.filter;
+package com.ai.cloud.skywalking.analysis.categorize2chain.filter;
 
 import java.io.IOException;
 import java.util.HashMap;

@@ -1,10 +1,11 @@
-package com.ai.cloud.skywalking.analysis.reduce;
+package com.ai.cloud.skywalking.analysis.categorize2chain;
 
+import com.ai.cloud.skywalking.analysis.categorize2chain.dao.CallChainInfoDao;
+import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainInfo;
+import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainNode;
 import com.ai.cloud.skywalking.analysis.config.Config;
-import com.ai.cloud.skywalking.analysis.dao.CallChainInfoDao;
-import com.ai.cloud.skywalking.analysis.model.ChainInfo;
-import com.ai.cloud.skywalking.analysis.model.ChainNode;
 import com.google.gson.Gson;
+
 import org.apache.hadoop.hbase.client.Put;
 
 import java.sql.SQLException;

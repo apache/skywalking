@@ -1,13 +1,13 @@
-package com.ai.cloud.skywalking.analysis.reduce;
+package com.ai.cloud.skywalking.analysis.categorize2chain;
 
-import com.ai.cloud.skywalking.analysis.model.ChainNode;
+import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainNode;
 
-public class SummaryResult {
+public class ChainNodeSpecificTimeWindowSummaryValue {
     private long totalCall;
     private long totalCostTime;
     private long correctNumber;
 
-    public SummaryResult() {
+    public ChainNodeSpecificTimeWindowSummaryValue() {
         totalCall = 0;
         totalCostTime = 0;
         correctNumber = 0;

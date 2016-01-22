@@ -1,8 +1,9 @@
-package com.ai.cloud.skywalking.analysis.reduce;
+package com.ai.cloud.skywalking.analysis.categorize2chain;
 
+import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainNode;
 import com.ai.cloud.skywalking.analysis.config.Config;
-import com.ai.cloud.skywalking.analysis.model.ChainNode;
 import com.ai.cloud.skywalking.analysis.util.HBaseUtil;
+
 import org.apache.hadoop.hbase.client.Put;
 
 import java.io.IOException;
@@ -11,6 +12,9 @@ import java.util.Map;
 
 public class ChainSpecificTimeWindowSummary {
 
+	/**
+	 * key : cid + 时间窗口
+	 */
     private Map<String, ChainNodeSpecificTimeWindowSummary> chainNodeSummaryResultMap;
 
     public ChainSpecificTimeWindowSummary() {

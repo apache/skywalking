@@ -1,4 +1,4 @@
-package com.ai.cloud.skywalking.analysis.mapper;
+package com.ai.cloud.skywalking.analysis.categorize2chain;
 
 import java.util.HashMap;
 import java.util.Map;

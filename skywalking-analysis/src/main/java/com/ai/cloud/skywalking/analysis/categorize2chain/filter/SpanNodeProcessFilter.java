@@ -1,8 +1,8 @@
-package com.ai.cloud.skywalking.analysis.filter;
+package com.ai.cloud.skywalking.analysis.categorize2chain.filter;
 
-import com.ai.cloud.skywalking.analysis.model.ChainNode;
-import com.ai.cloud.skywalking.analysis.mapper.CostMap;
-import com.ai.cloud.skywalking.analysis.mapper.SpanEntry;
+import com.ai.cloud.skywalking.analysis.categorize2chain.CostMap;
+import com.ai.cloud.skywalking.analysis.categorize2chain.SpanEntry;
+import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainNode;
 
 public abstract class SpanNodeProcessFilter {
 

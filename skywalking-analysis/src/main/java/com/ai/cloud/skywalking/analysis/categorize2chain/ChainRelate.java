@@ -1,10 +1,11 @@
-package com.ai.cloud.skywalking.analysis.reduce;
+package com.ai.cloud.skywalking.analysis.categorize2chain;
 
+import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainInfo;
 import com.ai.cloud.skywalking.analysis.config.Config;
 import com.ai.cloud.skywalking.analysis.config.Constants;
-import com.ai.cloud.skywalking.analysis.model.ChainInfo;
 import com.ai.cloud.skywalking.analysis.util.HBaseUtil;
 import com.google.gson.Gson;
+
 import org.apache.hadoop.hbase.client.Put;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

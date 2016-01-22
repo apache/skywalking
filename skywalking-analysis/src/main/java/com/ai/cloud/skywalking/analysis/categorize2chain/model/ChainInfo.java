@@ -1,4 +1,4 @@
-package com.ai.cloud.skywalking.analysis.model;
+package com.ai.cloud.skywalking.analysis.categorize2chain.model;
 
 import com.ai.cloud.skywalking.analysis.util.TokenGenerator;
 import org.apache.hadoop.io.Writable;

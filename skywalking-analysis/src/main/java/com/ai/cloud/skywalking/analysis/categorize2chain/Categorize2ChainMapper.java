@@ -1,11 +1,12 @@
-package com.ai.cloud.skywalking.analysis.mapper;
+package com.ai.cloud.skywalking.analysis.categorize2chain;
 
-import com.ai.cloud.skywalking.analysis.filter.SpanNodeProcessChain;
-import com.ai.cloud.skywalking.analysis.filter.SpanNodeProcessFilter;
-import com.ai.cloud.skywalking.analysis.model.ChainInfo;
-import com.ai.cloud.skywalking.analysis.model.ChainNode;
+import com.ai.cloud.skywalking.analysis.categorize2chain.filter.SpanNodeProcessChain;
+import com.ai.cloud.skywalking.analysis.categorize2chain.filter.SpanNodeProcessFilter;
+import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainInfo;
+import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainNode;
 import com.ai.cloud.skywalking.analysis.util.HBaseUtil;
 import com.ai.cloud.skywalking.protocol.Span;
+
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
@@ -18,8 +19,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.*;
 
-public class CallChainMapper extends TableMapper<Text, ChainInfo> {
-    private Logger logger = LoggerFactory.getLogger(CallChainMapper.class.getName());
+public class Categorize2ChainMapper extends TableMapper<Text, ChainInfo> {
+    private Logger logger = LoggerFactory.getLogger(Categorize2ChainMapper.class.getName());
 
     @Override
     protected void map(ImmutableBytesWritable key, Result value, Context context) throws IOException,
@@ -33,12 +34,11 @@ public class CallChainMapper extends TableMapper<Text, ChainInfo> {
             }
 
             chainInfo = spanToChainInfo(key.toString(), spanList);
+            
+            context.write(new Text(chainInfo.getUserId() + ":" + chainInfo.getEntranceNodeToken()), chainInfo);
         } catch (Exception e) {
             logger.error("Failed to mapper call chain[" + key.toString() + "]", e);
-            chainInfo = new ChainInfo("-1");
         }
-        
-        context.write(new Text(chainInfo.getUserId() + ":" + chainInfo.getEntranceNodeToken()), chainInfo);
     }
 
     public static ChainInfo spanToChainInfo(String key, List<Span> spanList) {

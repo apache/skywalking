@@ -1,8 +1,9 @@
-package com.ai.cloud.skywalking.analysis.dao;
+package com.ai.cloud.skywalking.analysis.categorize2chain.dao;
 
+import com.ai.cloud.skywalking.analysis.categorize2chain.ChainDetail;
+import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainNode;
 import com.ai.cloud.skywalking.analysis.config.Config;
-import com.ai.cloud.skywalking.analysis.model.ChainNode;
-import com.ai.cloud.skywalking.analysis.reduce.ChainDetail;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

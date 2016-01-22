@@ -1,11 +1,13 @@
 package com.ai.cloud.skywalking.analysis.mapper;
 
 
+import com.ai.cloud.skywalking.analysis.categorize2chain.Categorize2ChainMapper;
+import com.ai.cloud.skywalking.analysis.categorize2chain.Categorize2ChainReduce;
+import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainInfo;
 import com.ai.cloud.skywalking.analysis.config.Config;
 import com.ai.cloud.skywalking.analysis.config.ConfigInitializer;
-import com.ai.cloud.skywalking.analysis.model.ChainInfo;
-import com.ai.cloud.skywalking.analysis.reduce.ChainInfoReduce;
 import com.ai.cloud.skywalking.protocol.Span;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.HBaseConfiguration;
@@ -36,12 +38,12 @@ public class CallChainMapperTest {
     public void testMap() throws Exception {
         ConfigInitializer.initialize();
         List<Span> spanList = selectByTraceId(chain_Id);
-        ChainInfo chainInfo = CallChainMapper.spanToChainInfo(chain_Id, spanList);
+        ChainInfo chainInfo = Categorize2ChainMapper.spanToChainInfo(chain_Id, spanList);
 
         List<ChainInfo> chainInfos = new ArrayList<ChainInfo>();
         chainInfos.add(chainInfo);
 
-        ChainInfoReduce.reduceAction(chainInfo.getUserId() + ":" + chainInfo.getEntranceNodeToken(), chainInfos.iterator());
+        Categorize2ChainReduce.reduceAction(chainInfo.getUserId() + ":" + chainInfo.getEntranceNodeToken(), chainInfos.iterator());
     }
 
     public static List<Span> selectByTraceId(String traceId) throws IOException {

@@ -1,4 +1,4 @@
-package com.ai.cloud.skywalking.analysis.model;
+package com.ai.cloud.skywalking.analysis.categorize2chain.model;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;

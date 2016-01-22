@@ -11,7 +11,7 @@ public class Config {
 
         public static String TRACE_INFO_COLUMN_FAMILY = "trace_info";
 
-        public static String CALL_CHAIN_TABLE_NAME;
+        public static String CALL_CHAIN_TABLE_NAME = "sw-call-chain";
 
         public static String ZK_QUORUM;
 

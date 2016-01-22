@@ -1,7 +1,7 @@
-package com.ai.cloud.skywalking.analysis.reduce;
+package com.ai.cloud.skywalking.analysis.categorize2chain;
 
+import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainNode;
 import com.ai.cloud.skywalking.analysis.config.Config;
-import com.ai.cloud.skywalking.analysis.model.ChainNode;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -14,7 +14,7 @@ public class ChainNodeSpecificTimeWindowSummary {
 
     private String traceLevelId;
 
-    private Map<String, SummaryResult> summerResultMap;
+    private Map<String, ChainNodeSpecificTimeWindowSummaryValue> summerResultMap;
 
     public static ChainNodeSpecificTimeWindowSummary newInstance(String traceLevelId) {
         ChainNodeSpecificTimeWindowSummary cns = new ChainNodeSpecificTimeWindowSummary();
@@ -23,14 +23,14 @@ public class ChainNodeSpecificTimeWindowSummary {
     }
 
     private ChainNodeSpecificTimeWindowSummary() {
-        summerResultMap = new HashMap<String, SummaryResult>();
+        summerResultMap = new HashMap<String, ChainNodeSpecificTimeWindowSummaryValue>();
     }
 
     public ChainNodeSpecificTimeWindowSummary(String value) {
         JsonObject jsonObject = (JsonObject) new JsonParser().parse(value);
         traceLevelId = jsonObject.get("traceLevelId").getAsString();
         summerResultMap = new Gson().fromJson(jsonObject.get("summerResultMap").toString(),
-                new TypeToken<Map<String, SummaryResult>>() {
+                new TypeToken<Map<String, ChainNodeSpecificTimeWindowSummaryValue>>() {
                 }.getType());
     }
 
@@ -40,9 +40,9 @@ public class ChainNodeSpecificTimeWindowSummary {
 
     public void summary(ChainNode node) {
         String key = generateKey(node.getStartDate());
-        SummaryResult summaryResult = summerResultMap.get(key);
+        ChainNodeSpecificTimeWindowSummaryValue summaryResult = summerResultMap.get(key);
         if (summaryResult == null) {
-            summaryResult = new SummaryResult();
+            summaryResult = new ChainNodeSpecificTimeWindowSummaryValue();
             summerResultMap.put(key, summaryResult);
         }
         summaryResult.summary(node);
