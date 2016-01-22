@@ -12,8 +12,16 @@ public class TokenGenerator {
     private TokenGenerator() {
         //Non
     }
+    
+    public static String generateCID(String originData) {
+    	return "CID_" + generate(originData);
+    }
+    
+    public static String generateNodeToken(String originData){
+    	return "C_NID_" + generate(originData);
+    }
 
-    public static String generate(String originData) {
+    private static String generate(String originData) {
         StringBuilder result = new StringBuilder();
         if (originData != null) {
             try {
@@ -31,6 +39,6 @@ public class TokenGenerator {
                 System.exit(-1);
             }
         }
-        return "CID:" + result.toString().toUpperCase();
+        return result.toString().toUpperCase();
     }
 }

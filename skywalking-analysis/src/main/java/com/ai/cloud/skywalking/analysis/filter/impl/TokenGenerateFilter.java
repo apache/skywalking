@@ -11,7 +11,7 @@ public class TokenGenerateFilter extends SpanNodeProcessFilter {
     @Override
     public void doFilter(SpanEntry spanEntry, ChainNode node, CostMap costMap) {
 
-        String nodeToken = TokenGenerator.generate(node.getParentLevelId() + "." + node.getLevelId() +
+        String nodeToken = TokenGenerator.generateNodeToken(node.getParentLevelId() + "." + node.getLevelId() +
                 "-" + node.getViewPoint());
 
         node.setNodeToken(nodeToken);

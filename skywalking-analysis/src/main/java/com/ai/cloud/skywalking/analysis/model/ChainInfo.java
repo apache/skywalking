@@ -83,7 +83,7 @@ public class ChainInfo implements Writable {
         for (ChainNode node : nodes) {
             chainTokenDesc.append(node.getParentLevelId() + "." + node.getLevelId() + "-" + node.getNodeToken() + ";");
         }
-        this.cid = TokenGenerator.generate(chainTokenDesc.toString()) + "-";
+        this.cid = TokenGenerator.generateCID(chainTokenDesc.toString());
     }
 
     public ChainStatus getChainStatus() {
