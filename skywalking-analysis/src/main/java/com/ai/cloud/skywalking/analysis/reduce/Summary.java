@@ -1,20 +1,25 @@
-package com.ai.cloud.skywalking.analysis.model;
+package com.ai.cloud.skywalking.analysis.reduce;
 
+import com.ai.cloud.skywalking.analysis.dao.CallChainInfoDao;
+import com.ai.cloud.skywalking.analysis.model.ChainInfo;
+import com.ai.cloud.skywalking.analysis.model.ChainNode;
 import com.ai.cloud.skywalking.analysis.util.HBaseUtil;
 import org.apache.hadoop.hbase.client.Put;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.sql.*;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.Date;
 
 public class Summary {
 
     private Map<String, ChainSpecificTimeWindowSummary> summaryResultMap;
+    private Map<String, Timestamp> updateChainInfo;
 
     public Summary() {
         summaryResultMap = new HashMap<String, ChainSpecificTimeWindowSummary>();
+        updateChainInfo = new HashMap<String, Timestamp>();
     }
 
     public void summary(ChainInfo chainInfo) {
@@ -26,15 +31,27 @@ public class Summary {
                 summaryResultMap.put(csk, chainSummaryResult);
             }
 
-            chainSummaryResult.summaryResult(node);
+            summaryResultMap.get(csk).summaryResult(node);
         }
+
+        updateChainInfo.put(chainInfo.getChainToken(), new Timestamp(System.currentTimeMillis()));
     }
 
     private String generateChainSummaryKey(String chainToken, long startDate) {
-        return chainToken + "-" + (startDate / (1000 * 60 * 60));
+        return chainToken + "-" + new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").
+                format(new Date(startDate / (1000 * 60 * 60) * (1000 * 60 * 60)));
     }
 
-    public void save() throws IOException, InterruptedException {
+    public void save() throws IOException, InterruptedException, SQLException {
+        batchSaveChainSpecificTimeWindowSummary();
+        batchUpdateChainDetail();
+    }
+
+    private void batchUpdateChainDetail() throws SQLException {
+        CallChainInfoDao.updateChainDetail(updateChainInfo);
+    }
+
+    private void batchSaveChainSpecificTimeWindowSummary() throws IOException, InterruptedException {
         List<Put> puts = new ArrayList<Put>();
         for (Map.Entry<String, ChainSpecificTimeWindowSummary> entry : summaryResultMap.entrySet()) {
             Put put = new Put(entry.getKey().getBytes());

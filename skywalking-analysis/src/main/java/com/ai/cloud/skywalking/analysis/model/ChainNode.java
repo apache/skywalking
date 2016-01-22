@@ -1,19 +1,26 @@
 package com.ai.cloud.skywalking.analysis.model;
 
+import com.google.gson.GsonBuilder;
+import com.google.gson.annotations.Expose;
+
 public class ChainNode {
-
+    @Expose
     private String nodeToken;
-
+    @Expose
     private String viewPoint;
+    @Expose
     private String businessKey;
+
     private long cost;
     private NodeStatus status;
+    @Expose
     private String parentLevelId;
+    @Expose
     private int levelId;
+    @Expose
     private String callType;
     private long startDate;
-
-    // 不参与序列化
+    @Expose
     private String userId;
 
     public String getNodeToken() {
@@ -122,5 +129,10 @@ public class ChainNode {
                     throw new IllegalStateException("Failed to convert[" + value + "]");
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        return new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create().toJson(this);
     }
 }

@@ -1,6 +1,7 @@
-package com.ai.cloud.skywalking.analysis.model;
+package com.ai.cloud.skywalking.analysis.reduce;
 
 import com.ai.cloud.skywalking.analysis.config.Config;
+import com.ai.cloud.skywalking.analysis.model.ChainNode;
 import com.ai.cloud.skywalking.analysis.util.HBaseUtil;
 import org.apache.hadoop.hbase.client.Put;
 

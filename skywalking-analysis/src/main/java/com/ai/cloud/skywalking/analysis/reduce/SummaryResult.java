@@ -1,4 +1,6 @@
-package com.ai.cloud.skywalking.analysis.model;
+package com.ai.cloud.skywalking.analysis.reduce;
+
+import com.ai.cloud.skywalking.analysis.model.ChainNode;
 
 public class SummaryResult {
     private long totalCall;

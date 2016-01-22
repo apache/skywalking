@@ -1,8 +1,10 @@
-package com.ai.cloud.skywalking.analysis.model;
+package com.ai.cloud.skywalking.analysis.reduce;
 
 import com.ai.cloud.skywalking.analysis.config.Config;
+import com.ai.cloud.skywalking.analysis.model.ChainNode;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 
 import java.util.HashMap;
@@ -25,9 +27,9 @@ public class ChainNodeSpecificTimeWindowSummary {
     }
 
     public ChainNodeSpecificTimeWindowSummary(String value) {
-        JsonObject jsonObject = new Gson().fromJson(value, JsonObject.class);
+        JsonObject jsonObject = (JsonObject) new JsonParser().parse(value);
         traceLevelId = jsonObject.get("traceLevelId").getAsString();
-        summerResultMap = new Gson().fromJson(jsonObject.get("summerResultMap").getAsString(),
+        summerResultMap = new Gson().fromJson(jsonObject.get("summerResultMap").toString(),
                 new TypeToken<Map<String, SummaryResult>>() {
                 }.getType());
     }
@@ -36,23 +38,12 @@ public class ChainNodeSpecificTimeWindowSummary {
         return traceLevelId;
     }
 
-    public void setTraceLevelId(String traceLevelId) {
-        this.traceLevelId = traceLevelId;
-    }
-
-    public Map<String, SummaryResult> getSummerResultMap() {
-        return summerResultMap;
-    }
-
-    public void setSummerResultMap(Map<String, SummaryResult> summerResultMap) {
-        this.summerResultMap = summerResultMap;
-    }
-
     public void summary(ChainNode node) {
-        SummaryResult summaryResult = summerResultMap.get(generateKey(node.getStartDate()));
+        String key = generateKey(node.getStartDate());
+        SummaryResult summaryResult = summerResultMap.get(key);
         if (summaryResult == null) {
             summaryResult = new SummaryResult();
-            summerResultMap.put(node.getTraceLevelId(), summaryResult);
+            summerResultMap.put(key, summaryResult);
         }
         summaryResult.summary(node);
     }

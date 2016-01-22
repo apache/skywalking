@@ -1,7 +1,10 @@
-package com.ai.cloud.skywalking.analysis.model;
+package com.ai.cloud.skywalking.analysis.reduce;
 
+import com.ai.cloud.skywalking.analysis.model.ChainInfo;
+import com.ai.cloud.skywalking.analysis.model.ChainNode;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
@@ -23,7 +26,7 @@ public class CategorizedChainInfo {
             if (flag) {
                 stringBuilder.append(";");
             }
-            stringBuilder.append(chainNode.getTraceLevelId() + "-" + chainNode.getViewPoint());
+            stringBuilder.append((chainNode.getTraceLevelId() + "-" + chainNode.getNodeToken()));
             flag = true;
         }
 
@@ -32,7 +35,7 @@ public class CategorizedChainInfo {
     }
 
     public CategorizedChainInfo(String value) {
-        JsonObject jsonObject = new Gson().fromJson(value, JsonObject.class);
+        JsonObject jsonObject = (JsonObject) new JsonParser().parse(value);
         chainToken = jsonObject.get("chainToken").getAsString();
         chainStr = jsonObject.get("chainStr").getAsString();
         children_Token = new Gson().fromJson(jsonObject.get("children_Token"),

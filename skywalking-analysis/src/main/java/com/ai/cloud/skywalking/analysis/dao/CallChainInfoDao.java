@@ -1,11 +1,13 @@
 package com.ai.cloud.skywalking.analysis.dao;
 
 import com.ai.cloud.skywalking.analysis.config.Config;
-import com.ai.cloud.skywalking.analysis.model.ChainInfo;
+import com.ai.cloud.skywalking.analysis.model.ChainNode;
+import com.ai.cloud.skywalking.analysis.reduce.ChainDetail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.*;
+import java.util.Map;
 
 public class CallChainInfoDao {
     private static Logger logger = LoggerFactory.getLogger(CallChainInfoDao.class.getName());
@@ -25,14 +27,38 @@ public class CallChainInfoDao {
         }
     }
 
-    public static boolean existCallChainInfo(String cid, String userId) throws SQLException {
-        final String sql = "SELECT COUNT(cid) as TOTAL_SIZE FROM sw_chain_info WHERE cid = ? AND uid = ?";
-        PreparedStatement ps = connection.prepareStatement(sql);
-        ps.setString(1, cid);
-        ps.setString(2, userId);
-        ResultSet resultSet = ps.executeQuery();
-        resultSet.next();
-        return resultSet.getInt("TOTAL_SIZE") > 0 ? true : false;
+
+    public static void saveChainDetail(ChainDetail chainDetail) throws SQLException {
+        PreparedStatement preparedStatement = connection.prepareStatement("INSERT  INTO sw_chain_detail(cid,uid,traceLevelId,viewpoint,create_time)" +
+                " VALUES(?,?,?,?,?)");
+        for (ChainNode chainNode : chainDetail.getChainNodes()) {
+            preparedStatement.setString(1, chainDetail.getChainToken());
+            preparedStatement.setString(2, chainDetail.getUserId());
+            preparedStatement.setString(3, chainNode.getTraceLevelId());
+            preparedStatement.setString(4, chainNode.getViewPoint() + ":" + chainNode.getBusinessKey());
+            preparedStatement.setTimestamp(5, new Timestamp(System.currentTimeMillis()));
+            preparedStatement.addBatch();
+        }
+        int[] result = preparedStatement.executeBatch();
+        for (int i : result) {
+            //TODO
+        }
+        preparedStatement.close();
+        connection.commit();
     }
 
+    public static void updateChainDetail(Map<String, Timestamp> updateChainInfo) throws SQLException {
+        PreparedStatement preparedStatement = connection.prepareStatement("UPDATE sw_chain_detail SET update_time = ? WHERE cid = ?");
+        for (Map.Entry<String, Timestamp> entry : updateChainInfo.entrySet()) {
+            preparedStatement.setTimestamp(1, entry.getValue());
+            preparedStatement.setString(2, entry.getKey());
+            preparedStatement.addBatch();
+        }
+        int[] result = preparedStatement.executeBatch();
+        for (int i : result) {
+            //TODO
+        }
+        preparedStatement.close();
+        connection.commit();
+    }
 }

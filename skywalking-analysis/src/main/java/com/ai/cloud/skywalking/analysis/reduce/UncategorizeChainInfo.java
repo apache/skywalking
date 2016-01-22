@@ -1,10 +1,17 @@
-package com.ai.cloud.skywalking.analysis.model;
+package com.ai.cloud.skywalking.analysis.reduce;
 
-import com.google.gson.Gson;
+import com.ai.cloud.skywalking.analysis.model.ChainInfo;
+import com.ai.cloud.skywalking.analysis.model.ChainNode;
+import com.google.gson.GsonBuilder;
+import com.google.gson.annotations.Expose;
 
 public class UncategorizeChainInfo {
+    @Expose
     private String chainToken;
+    @Expose
     private String nodeRegEx;
+
+    private ChainInfo chainInfo;
 
     public UncategorizeChainInfo() {
     }
@@ -15,33 +22,33 @@ public class UncategorizeChainInfo {
         boolean flag = false;
         for (ChainNode node : chainInfo.getNodes()) {
             if (flag) {
-                stringBuilder.append("*");
+                stringBuilder.append(";*");
             }
-            stringBuilder.append(node.getTraceLevelId() + "-" + node.getViewPoint());
+            stringBuilder.append((node.getTraceLevelId() + "-" + node.getNodeToken()));
             flag = true;
         }
 
         nodeRegEx = stringBuilder.toString();
+
+        this.chainInfo = chainInfo;
     }
 
     public String getChainToken() {
         return chainToken;
     }
 
-    public void setChainToken(String chainToken) {
-        this.chainToken = chainToken;
-    }
-
     public String getNodeRegEx() {
         return nodeRegEx;
     }
 
-    public void setNodeRegEx(String nodeRegEx) {
-        this.nodeRegEx = nodeRegEx;
+    public ChainInfo getChainInfo() {
+        return chainInfo;
     }
 
     @Override
     public String toString() {
-        return new Gson().toJson(this);
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.excludeFieldsWithoutExposeAnnotation();
+        return gsonBuilder.create().toJson(this);
     }
 }

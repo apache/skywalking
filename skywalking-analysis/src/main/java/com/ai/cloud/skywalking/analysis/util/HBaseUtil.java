@@ -3,6 +3,7 @@ package com.ai.cloud.skywalking.analysis.util;
 import com.ai.cloud.skywalking.analysis.config.Config;
 import com.ai.cloud.skywalking.analysis.config.Constants;
 import com.ai.cloud.skywalking.analysis.model.*;
+import com.ai.cloud.skywalking.analysis.reduce.*;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.apache.hadoop.conf.Configuration;
@@ -25,7 +26,7 @@ public class HBaseUtil {
         Table table = null;
 
         try {
-            table = connection.getTable(TableName.valueOf(Config.HBase.TRACE_INFO_TABLE_NAME));
+            table = connection.getTable(TableName.valueOf(Config.HBase.TABLE_CHAIN_INFO));
         } catch (IOException e) {
             logger.error("Cannot found table[" + Config.HBase.TRACE_INFO_TABLE_NAME + "]", e);
         }
@@ -52,11 +53,14 @@ public class HBaseUtil {
         try {
             initHBaseClient();
             //
-            createTableIfNeed(Config.HBase.TRACE_INFO_TABLE_NAME, Config.HBase.TRACE_INFO_COLUMN_FAMILY);
+            createTableIfNeed(Config.HBase.TABLE_CHAIN_INFO, Config.HBase.TRACE_INFO_COLUMN_FAMILY);
             //
             createTableIfNeed(Config.HBase.TABLE_CALL_CHAIN_RELATIONSHIP, Config.HBase.CHAIN_RELATIONSHIP_COLUMN_FAMILY);
 
             createTableIfNeed(Config.HBase.TABLE_CHAIN_SUMMARY, Config.HBase.CHAIN_SUMMARY_COLUMN_FAMILY);
+
+            createTableIfNeed(Config.HBase.TABLE_CHAIN_DETAIL, Config.HBase.TRACE_DETAIL_FAMILY_COLUMN);
+
         } catch (IOException e) {
             logger.error("Create table[{}] failed", Config.HBase.TRACE_INFO_TABLE_NAME, e);
         }
@@ -114,12 +118,15 @@ public class HBaseUtil {
 
     public static ChainSpecificTimeWindowSummary selectChainSummaryResult(String key) throws IOException {
         ChainSpecificTimeWindowSummary result = null;
-        Table table = connection.getTable(TableName.valueOf(Config.HBase.TABLE_CHAIN_INFO));
+        Table table = connection.getTable(TableName.valueOf(Config.HBase.TABLE_CHAIN_SUMMARY));
         Get g = new Get(Bytes.toBytes(key));
         Result r = table.get(g);
 
+        if (r.rawCells().length == 0) {
+            return null;
+        }
+        result = new ChainSpecificTimeWindowSummary();
         for (Cell cell : r.rawCells()) {
-            result = new ChainSpecificTimeWindowSummary();
             if (cell.getValueArray().length > 0)
                 result.addNodeSummaryResult(new ChainNodeSpecificTimeWindowSummary(Bytes.toString(cell.getValueArray(),
                         cell.getValueOffset(), cell.getValueLength())));
@@ -145,6 +152,20 @@ public class HBaseUtil {
             if (result == null) {
                 //TODO
 
+            }
+        }
+    }
+
+    public static void saveChainDetails(List<Put> puts) throws IOException, InterruptedException {
+        Table table = connection.getTable(TableName.valueOf(Config.HBase.TABLE_CHAIN_DETAIL));
+        if (puts != null && puts.size() > 0) {
+            Object[] resultArrays = new Object[puts.size()];
+            table.batch(puts, resultArrays);
+            for (Object result : resultArrays) {
+                if (result == null) {
+                    //TODO
+
+                }
             }
         }
     }

@@ -1,4 +1,4 @@
-package com.ai.cloud.skywalking.analysis.model;
+package com.ai.cloud.skywalking.analysis.mapper;
 
 import java.util.HashMap;
 import java.util.Map;

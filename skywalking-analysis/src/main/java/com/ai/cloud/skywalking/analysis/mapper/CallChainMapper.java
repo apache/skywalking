@@ -4,8 +4,6 @@ import com.ai.cloud.skywalking.analysis.filter.SpanNodeProcessChain;
 import com.ai.cloud.skywalking.analysis.filter.SpanNodeProcessFilter;
 import com.ai.cloud.skywalking.analysis.model.ChainInfo;
 import com.ai.cloud.skywalking.analysis.model.ChainNode;
-import com.ai.cloud.skywalking.analysis.model.CostMap;
-import com.ai.cloud.skywalking.analysis.model.SpanEntry;
 import com.ai.cloud.skywalking.analysis.util.HBaseUtil;
 import com.ai.cloud.skywalking.protocol.Span;
 import org.apache.hadoop.hbase.Cell;

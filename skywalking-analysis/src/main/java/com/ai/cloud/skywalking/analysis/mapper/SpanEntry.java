@@ -1,5 +1,6 @@
-package com.ai.cloud.skywalking.analysis.model;
+package com.ai.cloud.skywalking.analysis.mapper;
 
+import com.ai.cloud.skywalking.analysis.model.ChainNode;
 import com.ai.cloud.skywalking.protocol.CallType;
 import com.ai.cloud.skywalking.protocol.Span;
 

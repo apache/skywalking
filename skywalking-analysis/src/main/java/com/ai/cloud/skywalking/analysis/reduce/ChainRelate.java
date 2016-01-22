@@ -1,12 +1,14 @@
-package com.ai.cloud.skywalking.analysis.model;
+package com.ai.cloud.skywalking.analysis.reduce;
 
 import com.ai.cloud.skywalking.analysis.config.Config;
 import com.ai.cloud.skywalking.analysis.config.Constants;
+import com.ai.cloud.skywalking.analysis.model.ChainInfo;
 import com.ai.cloud.skywalking.analysis.util.HBaseUtil;
 import com.google.gson.Gson;
 import org.apache.hadoop.hbase.client.Put;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.*;
 
 public class ChainRelate {
@@ -37,20 +39,14 @@ public class ChainRelate {
         for (Map.Entry<String, CategorizedChainInfo> entry : categorizedChainInfoMap.entrySet()) {
             if (entry.getValue().isAlreadyContained(child)) {
                 isContained = true;
-            }else if(entry.getValue().isContained(child)){
-            	entry.getValue().add(child);
-                chainDetailMap.put(child.getChainToken(), new ChainDetail(child));
+            } else if (entry.getValue().isContained(child)) {
+                entry.getValue().add(child);
                 isContained = true;
             }
         }
 
         if (!isContained) {
             uncategorizeChainInfoList.add(child);
-
-            if (!uncategorizeChainInfoList.contains(child)) {
-                chainDetailMap.put(child.getChainToken(), new ChainDetail(child));
-            }
-
         }
 
     }
@@ -75,7 +71,30 @@ public class ChainRelate {
         }
     }
 
-    public void save() {
+    public void save() throws SQLException {
+        saveChainRelationShip();
+        saveChainDetail();
+    }
+
+    private void saveChainDetail() throws SQLException {
+        List<Put> puts = new ArrayList<Put>();
+        for (Map.Entry<String, ChainDetail> entry : chainDetailMap.entrySet()) {
+            Put put1 = new Put(entry.getKey().getBytes());
+            puts.add(put1);
+            entry.getValue().save(put1);
+        }
+
+
+        try {
+            HBaseUtil.saveChainDetails(puts);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void saveChainRelationShip() {
         Put put = new Put(getKey().getBytes());
 
         put.addColumn(Config.HBase.CHAIN_RELATIONSHIP_COLUMN_FAMILY.getBytes(), Constants.UNCATEGORIZED_QUALIFIER_NAME.getBytes()
@@ -92,10 +111,6 @@ public class ChainRelate {
             //TODO
             e.printStackTrace();
         }
-    }
-
-    public void addUncategorizeChain(UncategorizeChainInfo uncategorizeChainInfo) {
-        uncategorizeChainInfoList.add(uncategorizeChainInfo);
     }
 
     public void addCategorizeChain(String qualifierName, CategorizedChainInfo categorizedChainInfo) {

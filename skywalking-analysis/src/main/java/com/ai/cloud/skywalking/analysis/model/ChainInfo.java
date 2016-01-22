@@ -78,15 +78,11 @@ public class ChainInfo implements Writable {
         for (ChainNode node : nodes) {
             chainTokenDesc.append(node.getParentLevelId() + "." + node.getLevelId() + "-" + node.getNodeToken() + ";");
         }
-        this.chainToken = TokenGenerator.generate(chainTokenDesc.toString());
+        this.chainToken = TokenGenerator.generate(chainTokenDesc.toString()) + "-" + userId;
     }
 
     public ChainStatus getChainStatus() {
         return chainStatus;
-    }
-
-    public void setChainStatus(ChainStatus chainStatus) {
-        this.chainStatus = chainStatus;
     }
 
     public void addNodes(ChainNode chainNode) {
@@ -142,10 +138,6 @@ public class ChainInfo implements Writable {
 
     public void setChainToken(String chainToken) {
         this.chainToken = chainToken;
-    }
-
-    public long getStartDate() {
-        return startDate;
     }
 }
 

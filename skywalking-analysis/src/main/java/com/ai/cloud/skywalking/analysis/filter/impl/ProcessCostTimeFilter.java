@@ -2,8 +2,8 @@ package com.ai.cloud.skywalking.analysis.filter.impl;
 
 import com.ai.cloud.skywalking.analysis.filter.SpanNodeProcessFilter;
 import com.ai.cloud.skywalking.analysis.model.ChainNode;
-import com.ai.cloud.skywalking.analysis.model.CostMap;
-import com.ai.cloud.skywalking.analysis.model.SpanEntry;
+import com.ai.cloud.skywalking.analysis.mapper.CostMap;
+import com.ai.cloud.skywalking.analysis.mapper.SpanEntry;
 
 public class ProcessCostTimeFilter extends SpanNodeProcessFilter {
 	@Override

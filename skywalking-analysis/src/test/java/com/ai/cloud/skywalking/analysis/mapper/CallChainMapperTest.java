@@ -4,6 +4,7 @@ package com.ai.cloud.skywalking.analysis.mapper;
 import com.ai.cloud.skywalking.analysis.config.Config;
 import com.ai.cloud.skywalking.analysis.config.ConfigInitializer;
 import com.ai.cloud.skywalking.analysis.model.ChainInfo;
+import com.ai.cloud.skywalking.analysis.reduce.ChainInfoReduce;
 import com.ai.cloud.skywalking.protocol.Span;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.Cell;
@@ -25,7 +26,8 @@ public class CallChainMapperTest {
 
     private static String ZK_QUORUM = "10.1.235.197,10.1.235.198,10.1.235.199";
     private static String ZK_CLIENT_PORT = "29181";
-    private static String chain_Id = "1.0a2.1452852040127.0664234.11036.55.1";
+//     private static String chain_Id = "1.0a2.1453430186581.3efa259.4296.56.1";
+    private static String chain_Id = "1.0a2.1453429608422.2701d43.6468.56.1";
 
     private static Configuration configuration = null;
     private static Connection connection;
@@ -35,6 +37,11 @@ public class CallChainMapperTest {
         ConfigInitializer.initialize();
         List<Span> spanList = selectByTraceId(chain_Id);
         ChainInfo chainInfo = CallChainMapper.spanToChainInfo(chain_Id, spanList);
+
+        List<ChainInfo> chainInfos = new ArrayList<ChainInfo>();
+        chainInfos.add(chainInfo);
+
+        ChainInfoReduce.reduceAction(chainInfo.getUserId() + ":" + chainInfo.getEntranceNodeToken(), chainInfos.iterator());
     }
 
     public static List<Span> selectByTraceId(String traceId) throws IOException {
