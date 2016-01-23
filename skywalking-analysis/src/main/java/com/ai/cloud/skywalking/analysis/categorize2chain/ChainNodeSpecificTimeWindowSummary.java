@@ -14,7 +14,7 @@ public class ChainNodeSpecificTimeWindowSummary {
 
     private String traceLevelId;
 
-    private Map<String, ChainNodeSpecificTimeWindowSummaryValue> summerResultMap;
+    private Map<String, ChainNodeSpecificTimeWindowSummaryValue> summerValueMap;
 
     public static ChainNodeSpecificTimeWindowSummary newInstance(String traceLevelId) {
         ChainNodeSpecificTimeWindowSummary cns = new ChainNodeSpecificTimeWindowSummary();
@@ -23,13 +23,13 @@ public class ChainNodeSpecificTimeWindowSummary {
     }
 
     private ChainNodeSpecificTimeWindowSummary() {
-        summerResultMap = new HashMap<String, ChainNodeSpecificTimeWindowSummaryValue>();
+        summerValueMap = new HashMap<String, ChainNodeSpecificTimeWindowSummaryValue>();
     }
 
     public ChainNodeSpecificTimeWindowSummary(String value) {
         JsonObject jsonObject = (JsonObject) new JsonParser().parse(value);
         traceLevelId = jsonObject.get("traceLevelId").getAsString();
-        summerResultMap = new Gson().fromJson(jsonObject.get("summerResultMap").toString(),
+        summerValueMap = new Gson().fromJson(jsonObject.get("summerValueMap").toString(),
                 new TypeToken<Map<String, ChainNodeSpecificTimeWindowSummaryValue>>() {
                 }.getType());
     }
@@ -40,10 +40,10 @@ public class ChainNodeSpecificTimeWindowSummary {
 
     public void summary(ChainNode node) {
         String key = generateKey(node.getStartDate());
-        ChainNodeSpecificTimeWindowSummaryValue summaryResult = summerResultMap.get(key);
+        ChainNodeSpecificTimeWindowSummaryValue summaryResult = summerValueMap.get(key);
         if (summaryResult == null) {
             summaryResult = new ChainNodeSpecificTimeWindowSummaryValue();
-            summerResultMap.put(key, summaryResult);
+            summerValueMap.put(key, summaryResult);
         }
         summaryResult.summary(node);
     }

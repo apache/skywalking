@@ -1,6 +1,5 @@
 package com.ai.cloud.skywalking.analysis.categorize2chain;
 
-import com.ai.cloud.skywalking.analysis.categorize2chain.dao.CallChainInfoDao;
 import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainInfo;
 import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainNode;
 import com.ai.cloud.skywalking.analysis.config.Config;
@@ -40,7 +39,7 @@ public class ChainDetail {
                     entry.getValue().toString().getBytes());
         }
         if (isNormal) {
-            CallChainInfoDao.saveChainDetail(this);
+            DBCallChainInfoDao.saveChainDetail(this);
         }
     }
 

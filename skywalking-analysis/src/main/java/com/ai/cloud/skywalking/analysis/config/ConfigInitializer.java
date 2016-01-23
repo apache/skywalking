@@ -14,7 +14,7 @@ public class ConfigInitializer {
 
     public static void initialize() {
         InputStream inputStream = Thread.currentThread()
-                .getContextClassLoader().getResourceAsStream("/config.properties");
+                .getContextClassLoader().getResourceAsStream("/analysis.conf");
         //InputStream inputStream = ConfigInitializer.class.getResourceAsStream("/config.properties");
         if (inputStream == null) {
             logger.log(Level.ALL, "No provider sky-walking certification documents, sky-walking api auto shutdown.");

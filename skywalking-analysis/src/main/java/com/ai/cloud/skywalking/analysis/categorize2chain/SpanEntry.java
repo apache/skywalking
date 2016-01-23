@@ -93,13 +93,21 @@ public class SpanEntry {
     public ChainNode.NodeStatus getSpanStatus() {
         if (clientSpan != null) {
             if (clientSpan.getExceptionStack() != null && clientSpan.getExceptionStack().length() > 0) {
-                return ChainNode.NodeStatus.ABNORMAL;
+            	if(clientSpan.getStatusCode() == 1){
+            		return ChainNode.NodeStatus.ABNORMAL;
+            	}else{
+            		return ChainNode.NodeStatus.HUMAN_INTERRUPTION;
+            	}
             }
         }
 
         if (serverSpan != null) {
             if (serverSpan.getExceptionStack() != null && serverSpan.getExceptionStack().length() > 0) {
-                return ChainNode.NodeStatus.ABNORMAL;
+            	if(clientSpan.getStatusCode() == 1){
+            		return ChainNode.NodeStatus.ABNORMAL;
+            	}else{
+            		return ChainNode.NodeStatus.HUMAN_INTERRUPTION;
+            	}
             }
         }
 

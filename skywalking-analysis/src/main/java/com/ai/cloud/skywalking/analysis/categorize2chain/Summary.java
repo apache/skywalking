@@ -1,6 +1,5 @@
 package com.ai.cloud.skywalking.analysis.categorize2chain;
 
-import com.ai.cloud.skywalking.analysis.categorize2chain.dao.CallChainInfoDao;
 import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainInfo;
 import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainNode;
 import com.ai.cloud.skywalking.analysis.util.HBaseUtil;
@@ -49,7 +48,7 @@ public class Summary {
     }
 
     private void batchUpdateChainDetail() throws SQLException {
-        CallChainInfoDao.updateChainDetail(updateChainInfo);
+        DBCallChainInfoDao.updateChainDetail(updateChainInfo);
     }
 
     private void batchSaveChainSpecificTimeWindowSummary() throws IOException, InterruptedException {

@@ -1,16 +1,16 @@
 package com.ai.cloud.skywalking.analysis.categorize2chain;
 
-import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainInfo;
-import com.ai.cloud.skywalking.analysis.util.HBaseUtil;
-import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
+import java.io.IOException;
+import java.util.Iterator;
+
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.Iterator;
+import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainInfo;
+import com.ai.cloud.skywalking.analysis.util.HBaseUtil;
 
 public class Categorize2ChainReducer extends Reducer<Text, ChainInfo, Text, IntWritable> {
     private static Logger logger = LoggerFactory.getLogger(Categorize2ChainReducer.class.getName());
@@ -24,12 +24,12 @@ public class Categorize2ChainReducer extends Reducer<Text, ChainInfo, Text, IntW
     public static int reduceAction(String key, Iterator<ChainInfo> chainInfoIterator) throws IOException, InterruptedException {
         int totalCount = 0;
         try {
-            ChainRelate chainRelate = HBaseUtil.selectCallChainRelationship(key.toString());
+            ChainRelationship chainRelate = HBaseUtil.selectCallChainRelationship(key.toString());
             Summary summary = new Summary();
             while (chainInfoIterator.hasNext()) {
                 ChainInfo chainInfo = chainInfoIterator.next();
                 try {
-                    chainRelate.addRelate(chainInfo);
+                    chainRelate.categoryChain(chainInfo);
                     summary.summary(chainInfo);
                 } catch (Exception e) {
                     continue;

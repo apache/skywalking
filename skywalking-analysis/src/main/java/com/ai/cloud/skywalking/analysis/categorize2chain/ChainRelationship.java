@@ -13,21 +13,21 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
 
-public class ChainRelate {
-    private static Logger logger = LoggerFactory.getLogger(ChainRelate.class.getName());
+public class ChainRelationship {
+    private static Logger logger = LoggerFactory.getLogger(ChainRelationship.class.getName());
 
     private String key;
     private Map<String, CategorizedChainInfo> categorizedChainInfoMap = new HashMap<String, CategorizedChainInfo>();
-    private Set<UncategorizeChainInfo> uncategorizeChainInfoList = new HashSet<UncategorizeChainInfo>();
+    private Set<UncategorizeChainInfo> uncategorizeChainInfoSet = new HashSet<UncategorizeChainInfo>();
     private Map<String, ChainDetail> chainDetailMap = new HashMap<String, ChainDetail>();
 
-    public ChainRelate(String key) {
+    public ChainRelationship(String key) {
         this.key = key;
     }
 
     private void categoryAllUncategorizedChainInfo(CategorizedChainInfo parentChains) {
-        if (uncategorizeChainInfoList != null && uncategorizeChainInfoList.size() > 0) {
-            Iterator<UncategorizeChainInfo> uncategorizeChainInfoIterator = uncategorizeChainInfoList.iterator();
+        if (uncategorizeChainInfoSet != null && uncategorizeChainInfoSet.size() > 0) {
+            Iterator<UncategorizeChainInfo> uncategorizeChainInfoIterator = uncategorizeChainInfoSet.iterator();
             while (uncategorizeChainInfoIterator.hasNext()) {
                 UncategorizeChainInfo uncategorizeChainInfo = uncategorizeChainInfoIterator.next();
                 if (parentChains.isContained(uncategorizeChainInfo)) {
@@ -51,10 +51,10 @@ public class ChainRelate {
         }
 
         if (!isContained) {
-            if (!uncategorizeChainInfoList.contains(child)) {
+            if (!uncategorizeChainInfoSet.contains(child)) {
                 chainDetailMap.put(child.getCID(), new ChainDetail(child.getChainInfo(), false));
+                uncategorizeChainInfoSet.add(child);
             }
-            uncategorizeChainInfoList.add(child);
         }
 
     }
@@ -69,7 +69,7 @@ public class ChainRelate {
         return categorizedChainInfoMap.get(chainInfo.getCID());
     }
 
-    public void addRelate(ChainInfo chainInfo) {
+    public void categoryChain(ChainInfo chainInfo) {
         if (chainInfo.getChainStatus() == ChainInfo.ChainStatus.NORMAL) {
             CategorizedChainInfo categorizedChainInfo = addCategorizedChain(chainInfo);
             categoryAllUncategorizedChainInfo(categorizedChainInfo);
@@ -80,7 +80,7 @@ public class ChainRelate {
     }
 
     public void save() throws SQLException, IOException, InterruptedException {
-        saveChainRelationShip();
+    	saveChainRelationship();
         saveChainDetail();
     }
 
@@ -104,7 +104,7 @@ public class ChainRelate {
         }
     }
 
-    private void saveChainRelationShip() throws IOException {
+    private void saveChainRelationship() throws IOException {
         Put put = new Put(getKey().getBytes());
 
         put.addColumn(Config.HBase.CHAIN_RELATIONSHIP_COLUMN_FAMILY.getBytes(), Constants.UNCATEGORIZED_QUALIFIER_NAME.getBytes()
@@ -116,7 +116,7 @@ public class ChainRelate {
         }
 
         try {
-            HBaseUtil.saveChainRelate(put);
+            HBaseUtil.saveChainRelationship(put);
         } catch (IOException e) {
             logger.error("Faild to save chain relationship to hbase.", e);
             throw e;
@@ -136,10 +136,10 @@ public class ChainRelate {
     }
 
     public Set<UncategorizeChainInfo> getUncategorizeChainInfoList() {
-        return uncategorizeChainInfoList;
+        return uncategorizeChainInfoSet;
     }
 
     public void addUncategorizeChain(List<UncategorizeChainInfo> uncategorizeChainInfos) {
-        uncategorizeChainInfoList.addAll(uncategorizeChainInfos);
+        uncategorizeChainInfoSet.addAll(uncategorizeChainInfos);
     }
 }

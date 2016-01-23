@@ -2,7 +2,7 @@ package com.ai.cloud.skywalking.analysis.util;
 
 import com.ai.cloud.skywalking.analysis.categorize2chain.CategorizedChainInfo;
 import com.ai.cloud.skywalking.analysis.categorize2chain.ChainNodeSpecificTimeWindowSummary;
-import com.ai.cloud.skywalking.analysis.categorize2chain.ChainRelate;
+import com.ai.cloud.skywalking.analysis.categorize2chain.ChainRelationship;
 import com.ai.cloud.skywalking.analysis.categorize2chain.ChainSpecificTimeWindowSummary;
 import com.ai.cloud.skywalking.analysis.categorize2chain.UncategorizeChainInfo;
 import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainInfo;
@@ -95,8 +95,8 @@ public class HBaseUtil {
     }
 
 
-    public static ChainRelate selectCallChainRelationship(String key) throws IOException {
-        ChainRelate chainRelate = new ChainRelate(key);
+    public static ChainRelationship selectCallChainRelationship(String key) throws IOException {
+        ChainRelationship chainRelate = new ChainRelationship(key);
         Table table = connection.getTable(TableName.valueOf(Config.HBase.TABLE_CALL_CHAIN_RELATIONSHIP));
         Get g = new Get(Bytes.toBytes(key));
         Result r = table.get(g);
@@ -140,7 +140,7 @@ public class HBaseUtil {
         return result;
     }
 
-    public static void saveChainRelate(Put put) throws IOException {
+    public static void saveChainRelationship(Put put) throws IOException {
         Table table = connection.getTable(TableName.valueOf(Config.HBase.TABLE_CALL_CHAIN_RELATIONSHIP));
 
         table.put(put);

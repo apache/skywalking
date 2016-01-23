@@ -108,7 +108,7 @@ public class ChainNode {
     }
 
     public enum NodeStatus {
-        NORMAL('N'), ABNORMAL('A');
+        NORMAL('N'), ABNORMAL('A'), HUMAN_INTERRUPTION('I');
         private char value;
 
         NodeStatus(char value) {
@@ -125,6 +125,8 @@ public class ChainNode {
                     return NORMAL;
                 case 'A':
                     return ABNORMAL;
+                case 'I':
+                	return HUMAN_INTERRUPTION;
                 default:
                     throw new IllegalStateException("Failed to convert[" + value + "]");
             }
