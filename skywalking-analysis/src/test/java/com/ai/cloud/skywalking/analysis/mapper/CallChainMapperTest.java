@@ -2,7 +2,7 @@ package com.ai.cloud.skywalking.analysis.mapper;
 
 
 import com.ai.cloud.skywalking.analysis.categorize2chain.Categorize2ChainMapper;
-import com.ai.cloud.skywalking.analysis.categorize2chain.Categorize2ChainReduce;
+import com.ai.cloud.skywalking.analysis.categorize2chain.Categorize2ChainReducer;
 import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainInfo;
 import com.ai.cloud.skywalking.analysis.config.Config;
 import com.ai.cloud.skywalking.analysis.config.ConfigInitializer;
@@ -43,12 +43,12 @@ public class CallChainMapperTest {
         List<ChainInfo> chainInfos = new ArrayList<ChainInfo>();
         chainInfos.add(chainInfo);
 
-        Categorize2ChainReduce.reduceAction(chainInfo.getUserId() + ":" + chainInfo.getEntranceNodeToken(), chainInfos.iterator());
+        Categorize2ChainReducer.reduceAction(chainInfo.getUserId() + ":" + chainInfo.getEntranceNodeToken(), chainInfos.iterator());
     }
 
     public static List<Span> selectByTraceId(String traceId) throws IOException {
         List<Span> entries = new ArrayList<Span>();
-        Table table = connection.getTable(TableName.valueOf(Config.HBase.CALL_CHAIN_TABLE_NAME));
+        Table table = connection.getTable(TableName.valueOf(Config.HBase.TABLE_CALL_CHAIN));
         Get g = new Get(Bytes.toBytes(traceId));
         Result r = table.get(g);
         for (Cell cell : r.rawCells()) {

@@ -13,7 +13,9 @@ public class ConfigInitializer {
     private static Logger logger = Logger.getLogger(ConfigInitializer.class.getName());
 
     public static void initialize() {
-        InputStream inputStream = ConfigInitializer.class.getResourceAsStream("/config.properties");
+        InputStream inputStream = Thread.currentThread()
+                .getContextClassLoader().getResourceAsStream("/config.properties");
+        //InputStream inputStream = ConfigInitializer.class.getResourceAsStream("/config.properties");
         if (inputStream == null) {
             logger.log(Level.ALL, "No provider sky-walking certification documents, sky-walking api auto shutdown.");
         } else {

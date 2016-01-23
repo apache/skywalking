@@ -17,10 +17,10 @@ public class CallChainInfoDao {
 
     static {
         try {
-            Class.forName(Config.MySql.driverClass);
-            connection = DriverManager.getConnection(Config.MySql.url, Config.MySql.userName, Config.MySql.password);
+            Class.forName(Config.MySql.DRIVER_CLASS);
+            connection = DriverManager.getConnection(Config.MySql.URL, Config.MySql.USERNAME, Config.MySql.PASSWORD);
         } catch (ClassNotFoundException e) {
-            logger.error("Failed to find jdbc driver class[" + Config.MySql.driverClass + "]", e);
+            logger.error("Failed to find jdbc driver class[" + Config.MySql.DRIVER_CLASS + "]", e);
             System.exit(-1);
         } catch (SQLException e) {
             logger.error("Failed to connection database.", e);

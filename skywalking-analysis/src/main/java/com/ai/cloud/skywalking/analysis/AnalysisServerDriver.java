@@ -1,25 +1,32 @@
 package com.ai.cloud.skywalking.analysis;
 
-import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
+import com.ai.cloud.skywalking.analysis.categorize2chain.Categorize2ChainMapper;
+import com.ai.cloud.skywalking.analysis.categorize2chain.Categorize2ChainReducer;
+import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainInfo;
+import com.ai.cloud.skywalking.analysis.config.Config;
+import com.ai.cloud.skywalking.analysis.config.ConfigInitializer;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.hbase.MetaTableAccessor;
+import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.mapreduce.TableMapReduceUtil;
+import org.apache.hadoop.io.RawComparator;
+import org.apache.hadoop.mapred.JobContext;
 import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.ai.cloud.skywalking.analysis.categorize2chain.Categorize2ChainMapper;
-import com.ai.cloud.skywalking.analysis.categorize2chain.Categorize2ChainReduce;
-import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainInfo;
-import com.ai.cloud.skywalking.analysis.config.Config;
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class AnalysisServerDriver extends Configured implements Tool {
 
@@ -33,20 +40,29 @@ public class AnalysisServerDriver extends Configured implements Tool {
 
     @Override
     public int run(String[] args) throws Exception {
+       // ConfigInitializer.initialize();
         Configuration conf = new Configuration();
+        conf.set("hbase.zookeeper.quorum", Config.HBase.ZK_QUORUM);
+        conf.set("hbase.zookeeper.property.clientPort",  Config.HBase.ZK_CLIENT_PORT);
         String[] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
         if (otherArgs.length != 2) {
             System.err.println("Usage: AnalysisServer yyyy-MM-dd/HH:mm:ss yyyy-MM-dd/HH:mm:ss");
             System.exit(2);
         }
+
         Job job = Job.getInstance(conf);
         job.setJarByClass(AnalysisServerDriver.class);
         Scan scan = buildHBaseScan(args);
 
-        TableMapReduceUtil.initTableMapperJob(Config.HBase.CALL_CHAIN_TABLE_NAME, scan, Categorize2ChainMapper.class,
-                String.class, ChainInfo.class, job);
-        
-        job.setReducerClass(Categorize2ChainReduce.class);
+        TableMapReduceUtil.initTableMapperJob(Config.HBase.TABLE_CALL_CHAIN, scan, Categorize2ChainMapper.class,
+                ImmutableBytesWritable.class, ChainInfo.class, job);
+        int regions = MetaTableAccessor.getRegionCount(conf, TableName.valueOf(Config.HBase.TABLE_CHAIN_SUMMARY));
+        if (regions == 0){
+            regions = 1;
+        }
+        job.setReducerClass(Categorize2ChainReducer.class);
+        job.setNumReduceTasks(regions);
+        FileOutputFormat.setOutputPath(job, new Path("/tmp/mr/mySummaryFile"));
         return job.waitForCompletion(true) ? 0 : 1;
     }
 

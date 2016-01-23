@@ -6,20 +6,20 @@ import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainInfo;
 import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainNode;
 import com.ai.cloud.skywalking.analysis.util.HBaseUtil;
 import com.ai.cloud.skywalking.protocol.Span;
-
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.mapreduce.TableMapper;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.RawComparator;
+import org.apache.hadoop.mapred.JobContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
 
-public class Categorize2ChainMapper extends TableMapper<Text, ChainInfo> {
+public class Categorize2ChainMapper extends TableMapper<ImmutableBytesWritable, ChainInfo> {
     private Logger logger = LoggerFactory.getLogger(Categorize2ChainMapper.class.getName());
 
     @Override
@@ -34,8 +34,8 @@ public class Categorize2ChainMapper extends TableMapper<Text, ChainInfo> {
             }
 
             chainInfo = spanToChainInfo(key.toString(), spanList);
-            
-            context.write(new Text(chainInfo.getUserId() + ":" + chainInfo.getEntranceNodeToken()), chainInfo);
+            logger.info("Success convert span to chain info...." + chainInfo.getCID());
+            context.write(new ImmutableBytesWritable((chainInfo.getUserId() + ":" + chainInfo.getEntranceNodeToken()).getBytes()), chainInfo);
         } catch (Exception e) {
             logger.error("Failed to mapper call chain[" + key.toString() + "]", e);
         }
