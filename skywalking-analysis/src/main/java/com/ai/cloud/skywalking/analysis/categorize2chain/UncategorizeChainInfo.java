@@ -46,6 +46,21 @@ public class UncategorizeChainInfo {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof UncategorizeChainInfo)) return false;
+
+        UncategorizeChainInfo that = (UncategorizeChainInfo) o;
+
+        return cid != null ? cid.equals(that.cid) : that.cid == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return cid != null ? cid.hashCode() : 0;
+    }
+
+    @Override
     public String toString() {
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.excludeFieldsWithoutExposeAnnotation();

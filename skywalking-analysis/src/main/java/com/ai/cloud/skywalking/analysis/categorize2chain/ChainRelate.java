@@ -6,6 +6,7 @@ import com.ai.cloud.skywalking.analysis.config.Constants;
 import com.ai.cloud.skywalking.analysis.util.HBaseUtil;
 import com.google.gson.Gson;
 
+import com.google.gson.GsonBuilder;
 import org.apache.hadoop.hbase.client.Put;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +20,7 @@ public class ChainRelate {
 
     private String key;
     private Map<String, CategorizedChainInfo> categorizedChainInfoMap = new HashMap<String, CategorizedChainInfo>();
-    private List<UncategorizeChainInfo> uncategorizeChainInfoList = new ArrayList<UncategorizeChainInfo>();
+    private Set<UncategorizeChainInfo> uncategorizeChainInfoList = new HashSet<UncategorizeChainInfo>();
     private Map<String, ChainDetail> chainDetailMap = new HashMap<String, ChainDetail>();
 
     public ChainRelate(String key) {
@@ -46,17 +47,12 @@ public class ChainRelate {
                 isContained = true;
             } else if (entry.getValue().isContained(child)) {
                 entry.getValue().add(child);
-                chainDetailMap.put(child.getCID(), new ChainDetail(child.getChainInfo()));
                 isContained = true;
             }
         }
 
         if (!isContained) {
             uncategorizeChainInfoList.add(child);
-
-            if (!uncategorizeChainInfoList.contains(child)) {
-                chainDetailMap.put(child.getCID(), new ChainDetail(child.getChainInfo()));
-            }
         }
 
     }
@@ -110,7 +106,7 @@ public class ChainRelate {
         Put put = new Put(getKey().getBytes());
 
         put.addColumn(Config.HBase.CHAIN_RELATIONSHIP_COLUMN_FAMILY.getBytes(), Constants.UNCATEGORIZED_QUALIFIER_NAME.getBytes()
-                , new Gson().toJson(getUncategorizeChainInfoList()).getBytes());
+                , new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create().toJson(getUncategorizeChainInfoList()).getBytes());
 
         for (Map.Entry<String, CategorizedChainInfo> entry : getCategorizedChainInfoMap().entrySet()) {
             put.addColumn(Config.HBase.CHAIN_RELATIONSHIP_COLUMN_FAMILY.getBytes(), entry.getKey().getBytes()
@@ -137,7 +133,7 @@ public class ChainRelate {
         return categorizedChainInfoMap;
     }
 
-    public List<UncategorizeChainInfo> getUncategorizeChainInfoList() {
+    public Set<UncategorizeChainInfo> getUncategorizeChainInfoList() {
         return uncategorizeChainInfoList;
     }
 

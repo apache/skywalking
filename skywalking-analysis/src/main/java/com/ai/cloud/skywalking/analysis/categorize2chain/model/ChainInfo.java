@@ -1,6 +1,10 @@
 package com.ai.cloud.skywalking.analysis.categorize2chain.model;
 
 import com.ai.cloud.skywalking.analysis.util.TokenGenerator;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 import org.apache.hadoop.io.Writable;
 
 import java.io.DataInput;
@@ -28,42 +32,18 @@ public class ChainInfo implements Writable {
 
     @Override
     public void write(DataOutput out) throws IOException {
-        out.write(cid.getBytes());
-        out.writeChar(chainStatus.getValue());
-        out.write(userId.getBytes());
-
-        out.writeInt(nodes.size());
-        for (ChainNode chainNode : nodes) {
-            out.write(chainNode.getNodeToken().getBytes());
-            out.write(chainNode.getViewPoint().getBytes());
-            out.writeChar(chainNode.getStatus().getValue());
-            out.writeLong(chainNode.getCost());
-            out.write(chainNode.getParentLevelId().getBytes());
-            out.writeInt(chainNode.getLevelId());
-            out.write(chainNode.getBusinessKey().getBytes());
-        }
+        out.write(new Gson().toJson(this).getBytes());
     }
 
     @Override
     public void readFields(DataInput in) throws IOException {
-    	cid = in.readLine();
-        chainStatus = ChainStatus.convert(in.readChar());
-        userId = in.readLine();
-
-        int nodeSize = in.readInt();
-        this.nodes = new ArrayList<ChainNode>();
-        for (int i = 0; i < nodeSize; i++) {
-            ChainNode chainNode = new ChainNode();
-            chainNode.setNodeToken(in.readLine());
-            chainNode.setViewPoint(in.readLine());
-            chainNode.setStatus(ChainNode.NodeStatus.convert(in.readChar()));
-            chainNode.setCost(in.readLong());
-            chainNode.setParentLevelId(in.readLine());
-            chainNode.setLevelId(in.readInt());
-            chainNode.setBusinessKey(in.readLine());
-
-            nodes.add(chainNode);
-        }
+        JsonObject jsonObject = (JsonObject) new JsonParser().parse(in.readLine());
+        cid = jsonObject.get("cid").getAsString();
+        chainStatus = ChainStatus.convert(jsonObject.get("chainStatus").getAsCharacter());
+        nodes = new Gson().fromJson(jsonObject.get("nodes"),
+                new TypeToken<List<ChainNode>>() {
+                }.getType());
+        userId = jsonObject.get("userId").getAsString();
     }
 
     public String getCID() {
@@ -129,10 +109,6 @@ public class ChainInfo implements Writable {
             this.value = value;
         }
 
-        public char getValue() {
-            return value;
-        }
-
         public static ChainStatus convert(char value) {
             switch (value) {
                 case 'N':
@@ -142,6 +118,11 @@ public class ChainInfo implements Writable {
                 default:
                     throw new IllegalStateException("Failed to convert[" + value + "]");
             }
+        }
+
+        @Override
+        public String toString() {
+            return value + "";
         }
     }
 

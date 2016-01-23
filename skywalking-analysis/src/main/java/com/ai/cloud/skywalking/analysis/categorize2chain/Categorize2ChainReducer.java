@@ -1,8 +1,8 @@
 package com.ai.cloud.skywalking.analysis.categorize2chain;
 
 import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainInfo;
-import com.ai.cloud.skywalking.analysis.config.ConfigInitializer;
 import com.ai.cloud.skywalking.analysis.util.HBaseUtil;
+import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -17,9 +17,8 @@ public class Categorize2ChainReducer extends Reducer<Text, ChainInfo, Text, IntW
 
     @Override
     protected void reduce(Text key, Iterable<ChainInfo> values, Context context) throws IOException, InterruptedException {
-        //ConfigInitializer.initialize();
         int totalCount = reduceAction(key.toString(), values.iterator());
-        context.write(key, new IntWritable(totalCount));
+        context.write(new Text(key.toString()), new IntWritable(totalCount));
     }
 
     public static int reduceAction(String key, Iterator<ChainInfo> chainInfoIterator) throws IOException, InterruptedException {

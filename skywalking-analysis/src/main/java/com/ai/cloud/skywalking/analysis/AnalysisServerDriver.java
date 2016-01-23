@@ -4,17 +4,14 @@ import com.ai.cloud.skywalking.analysis.categorize2chain.Categorize2ChainMapper;
 import com.ai.cloud.skywalking.analysis.categorize2chain.Categorize2ChainReducer;
 import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainInfo;
 import com.ai.cloud.skywalking.analysis.config.Config;
-import com.ai.cloud.skywalking.analysis.config.ConfigInitializer;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.MetaTableAccessor;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Scan;
-import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.mapreduce.TableMapReduceUtil;
-import org.apache.hadoop.io.RawComparator;
-import org.apache.hadoop.mapred.JobContext;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
@@ -40,10 +37,10 @@ public class AnalysisServerDriver extends Configured implements Tool {
 
     @Override
     public int run(String[] args) throws Exception {
-       // ConfigInitializer.initialize();
+        // ConfigInitializer.initialize();
         Configuration conf = new Configuration();
         conf.set("hbase.zookeeper.quorum", Config.HBase.ZK_QUORUM);
-        conf.set("hbase.zookeeper.property.clientPort",  Config.HBase.ZK_CLIENT_PORT);
+        conf.set("hbase.zookeeper.property.clientPort", Config.HBase.ZK_CLIENT_PORT);
         String[] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
         if (otherArgs.length != 2) {
             System.err.println("Usage: AnalysisServer yyyy-MM-dd/HH:mm:ss yyyy-MM-dd/HH:mm:ss");
@@ -55,9 +52,9 @@ public class AnalysisServerDriver extends Configured implements Tool {
         Scan scan = buildHBaseScan(args);
 
         TableMapReduceUtil.initTableMapperJob(Config.HBase.TABLE_CALL_CHAIN, scan, Categorize2ChainMapper.class,
-                ImmutableBytesWritable.class, ChainInfo.class, job);
+                Text.class, ChainInfo.class, job);
         int regions = MetaTableAccessor.getRegionCount(conf, TableName.valueOf(Config.HBase.TABLE_CHAIN_SUMMARY));
-        if (regions == 0){
+        if (regions == 0) {
             regions = 1;
         }
         job.setReducerClass(Categorize2ChainReducer.class);
