@@ -14,16 +14,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ChainDetail {
+    private boolean isNormal = true;
     private String chainToken;
     private Map<String, ChainNode> chainNodeMap = new HashMap<String, ChainNode>();
     private String userId;
 
-    public ChainDetail(ChainInfo chainInfo) {
+    public ChainDetail(ChainInfo chainInfo, boolean isNormal) {
         chainToken = chainInfo.getCID();
         for (ChainNode chainNode : chainInfo.getNodes()) {
             chainNodeMap.put(chainNode.getTraceLevelId(), chainNode);
         }
         userId = chainInfo.getUserId();
+
+        this.isNormal = isNormal;
     }
 
     @Override
@@ -36,8 +39,9 @@ public class ChainDetail {
             put.addColumn(Config.HBase.TRACE_DETAIL_FAMILY_COLUMN.getBytes(),entry.getKey().getBytes(),
                     entry.getValue().toString().getBytes());
         }
-
-        CallChainInfoDao.saveChainDetail(this);
+        if (isNormal) {
+            CallChainInfoDao.saveChainDetail(this);
+        }
     }
 
     public Collection<ChainNode> getChainNodes() {

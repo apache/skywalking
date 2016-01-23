@@ -4,8 +4,6 @@ import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainInfo;
 import com.ai.cloud.skywalking.analysis.config.Config;
 import com.ai.cloud.skywalking.analysis.config.Constants;
 import com.ai.cloud.skywalking.analysis.util.HBaseUtil;
-import com.google.gson.Gson;
-
 import com.google.gson.GsonBuilder;
 import org.apache.hadoop.hbase.client.Put;
 import org.slf4j.Logger;
@@ -27,7 +25,7 @@ public class ChainRelate {
         this.key = key;
     }
 
-    private void categoryUncategorizedChainInfo(CategorizedChainInfo parentChains) {
+    private void categoryAllUncategorizedChainInfo(CategorizedChainInfo parentChains) {
         if (uncategorizeChainInfoList != null && uncategorizeChainInfoList.size() > 0) {
             Iterator<UncategorizeChainInfo> uncategorizeChainInfoIterator = uncategorizeChainInfoList.iterator();
             while (uncategorizeChainInfoIterator.hasNext()) {
@@ -40,18 +38,22 @@ public class ChainRelate {
         }
     }
 
-    private void classifiedChains(UncategorizeChainInfo child) {
+    private void try2CategoryUncategorizedChainInfo(UncategorizeChainInfo child) {
         boolean isContained = false;
         for (Map.Entry<String, CategorizedChainInfo> entry : categorizedChainInfoMap.entrySet()) {
             if (entry.getValue().isAlreadyContained(child)) {
                 isContained = true;
             } else if (entry.getValue().isContained(child)) {
                 entry.getValue().add(child);
+                chainDetailMap.put(child.getCID(), new ChainDetail(child.getChainInfo(), false));
                 isContained = true;
             }
         }
 
         if (!isContained) {
+            if (!uncategorizeChainInfoList.contains(child)) {
+                chainDetailMap.put(child.getCID(), new ChainDetail(child.getChainInfo(), false));
+            }
             uncategorizeChainInfoList.add(child);
         }
 
@@ -62,7 +64,7 @@ public class ChainRelate {
             categorizedChainInfoMap.put(chainInfo.getCID(),
                     new CategorizedChainInfo(chainInfo));
 
-            chainDetailMap.put(chainInfo.getCID(), new ChainDetail(chainInfo));
+            chainDetailMap.put(chainInfo.getCID(), new ChainDetail(chainInfo, true));
         }
         return categorizedChainInfoMap.get(chainInfo.getCID());
     }
@@ -70,10 +72,10 @@ public class ChainRelate {
     public void addRelate(ChainInfo chainInfo) {
         if (chainInfo.getChainStatus() == ChainInfo.ChainStatus.NORMAL) {
             CategorizedChainInfo categorizedChainInfo = addCategorizedChain(chainInfo);
-            categoryUncategorizedChainInfo(categorizedChainInfo);
+            categoryAllUncategorizedChainInfo(categorizedChainInfo);
         } else {
             UncategorizeChainInfo uncategorizeChainInfo = new UncategorizeChainInfo(chainInfo);
-            classifiedChains(uncategorizeChainInfo);
+            try2CategoryUncategorizedChainInfo(uncategorizeChainInfo);
         }
     }
 
@@ -86,8 +88,8 @@ public class ChainRelate {
         List<Put> puts = new ArrayList<Put>();
         for (Map.Entry<String, ChainDetail> entry : chainDetailMap.entrySet()) {
             Put put1 = new Put(entry.getKey().getBytes());
-            puts.add(put1);
             entry.getValue().save(put1);
+            puts.add(put1);
         }
 
 
