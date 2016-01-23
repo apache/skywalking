@@ -91,6 +91,8 @@ public class Config {
     public static class Alarm {
 
         public static int ALARM_EXPIRE_SECONDS = 1000 * 60 * 90;
+        
+        public static int ALARM_EXCEPTION_STACK_LENGTH = 300;
 
         public static String REDIS_SERVER = "127.0.0.1:6379";
 

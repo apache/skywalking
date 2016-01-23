@@ -14,6 +14,7 @@ import redis.clients.jedis.exceptions.JedisConnectionException;
 import java.util.List;
 
 import static com.ai.cloud.skywalking.reciever.conf.Config.Alarm.ALARM_EXPIRE_SECONDS;
+import static com.ai.cloud.skywalking.reciever.conf.Config.Alarm.ALARM_EXCEPTION_STACK_LENGTH;
 
 public class AlarmChain implements IStorageChain {
 	private static Logger logger = LogManager.getLogger(AlarmChain.class);
@@ -58,7 +59,13 @@ public class AlarmChain implements IStorageChain {
 		for (Span span : spans) {
 			if (span.getStatusCode() != 1)
 				continue;
-			saveAlarmMessage(generateAlarmKey(span), span.getTraceId());
+			String exceptionStack = span.getExceptionStack();
+			if(exceptionStack == null){
+				exceptionStack = "";
+			}else if(exceptionStack.length() > ALARM_EXCEPTION_STACK_LENGTH){
+				exceptionStack = exceptionStack.substring(0, ALARM_EXCEPTION_STACK_LENGTH);
+			}
+			saveAlarmMessage(generateAlarmKey(span), span.getTraceId(), exceptionStack);
 		}
 		chain.doChain(spans);
 	}
@@ -68,7 +75,7 @@ public class AlarmChain implements IStorageChain {
 				+ (System.currentTimeMillis() / (10000 * 6));
 	}
 
-	private void saveAlarmMessage(String key, String traceId) {
+	private void saveAlarmMessage(String key, String traceId, String exceptionMsgOutline) {
 		if (Config.Alarm.ALARM_OFF_FLAG) {
 			return;
 		}
@@ -76,7 +83,7 @@ public class AlarmChain implements IStorageChain {
 		Jedis jedis = null;
 		try {
 			jedis = jedisPool.getResource();
-			jedis.hset(key, traceId, "");
+			jedis.hsetnx(key, traceId, exceptionMsgOutline);
 			jedis.expire(key, ALARM_EXPIRE_SECONDS);
 		} catch (Exception e) {
 			handleFailedToConnectRedisServerException(e);

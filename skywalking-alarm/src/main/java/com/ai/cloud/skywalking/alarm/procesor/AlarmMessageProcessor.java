@@ -5,7 +5,6 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -19,6 +18,7 @@ import org.apache.logging.log4j.Logger;
 
 import redis.clients.jedis.Jedis;
 
+import com.ai.cloud.skywalking.alarm.model.AlarmMessage;
 import com.ai.cloud.skywalking.alarm.model.AlarmRule;
 import com.ai.cloud.skywalking.alarm.model.ApplicationInfo;
 import com.ai.cloud.skywalking.alarm.model.MailInfo;
@@ -50,7 +50,7 @@ public class AlarmMessageProcessor {
 
 
     public void process(UserInfo userInfo, AlarmRule rule) throws TemplateException, IOException, SQLException {
-        Set<String> warningTracingIds = new HashSet<String>();
+        Set<AlarmMessage> warningObjects = new HashSet<AlarmMessage>();
         Set<String> warningMessageKeys = new HashSet<String>();
         long currentFireMinuteTime = System.currentTimeMillis() / (10000 * 6);
         long warningTimeWindowSize = currentFireMinuteTime
@@ -66,28 +66,26 @@ public class AlarmMessageProcessor {
                             + (currentFireMinuteTime - period - 1);
 
                     warningMessageKeys.add(alarmKey);
-                    warningTracingIds.addAll(getAlarmMessages(alarmKey));
+                    setAlarmMessages(alarmKey, warningObjects);
                 }
             }
 
             // 发送告警数据
-            if (warningTracingIds.size() > 0) {
+            if (warningObjects.size() > 0) {
                 if ("0".equals(rule.getTodoType())) {
-                    logger.info("A total of {} alarm information needs to be sent {}", warningTracingIds.size(),
+                    logger.info("A total of {} alarm information needs to be sent {}", warningObjects.size(),
                             rule.getConfigArgsDescriber().getMailInfo().getMailTo());
                     // 发送邮件
-                    String subjects = generateSubject(warningTracingIds.size(),
+                    String subjects = generateSubject(warningObjects.size(),
                             rule.getPreviousFireTimeM(), currentFireMinuteTime);
-                    Map parameter = new HashMap();
-                    parameter.put("warningTracingIds", warningTracingIds);
+                    Map<String, Object> parameter = new HashMap<String, Object>();
+                    parameter.put("warningObjects", warningObjects);
                     parameter.put("name", userInfo.getUserName());
                     parameter.put("startDate", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(
                             rule.getPreviousFireTimeM() * 10000 * 6)));
                     parameter.put("endDate", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(
                             currentFireMinuteTime * 10000 * 6)));
-                    String mailContext = generateContent(/*rule
-                            .getConfigArgsDescriber().getMailInfo()
-                            .getMailTemp()*/mailTemplate, parameter);
+                    String mailContext = generateContent(mailTemplate, parameter);
                     if (mailContext.length() > 0) {
                         MailInfo mailInfo = rule.getConfigArgsDescriber()
                                 .getMailInfo();
@@ -147,15 +145,17 @@ public class AlarmMessageProcessor {
 		});
     }
 
-    private Collection<String> getAlarmMessages(final String key) {
-    	return RedisUtil.execute(new Executable<Collection<String>>() {
+    private void setAlarmMessages(final String key, final Collection<AlarmMessage> warningTracingIds) {
+    	RedisUtil.execute(new Executable<Object>() {
 			@Override
 			public Collection<String> exe(Jedis client) {
 				Map<String, String> result = client.hgetAll(key);
-		        if (result == null) {
-		            return new ArrayList<String>();
+		        if (result != null) {
+		        	for(String traceid : result.keySet()){
+		        		warningTracingIds.add(new AlarmMessage(traceid, result.get(traceid)));
+		        	}
 		        }
-		        return result.keySet();
+		        return null;
 			}
 		});
     }
