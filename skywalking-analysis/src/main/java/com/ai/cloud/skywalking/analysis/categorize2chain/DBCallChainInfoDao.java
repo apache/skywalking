@@ -61,7 +61,7 @@ public class DBCallChainInfoDao {
 		connection.commit();
 	}
 
-	public synchronized static void updateChainDetail(Map<String, Timestamp> updateChainInfo)
+	public synchronized static void updateChainLastActiveTime(Map<String, Timestamp> updateChainInfo)
 			throws SQLException {
 		PreparedStatement preparedStatement = null;
 		try {

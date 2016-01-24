@@ -14,24 +14,22 @@ import java.util.Date;
 
 public class ChainSummary {
 
-    private Map<String, ChainSpecificTimeWindowSummary> summaryResultMap;
+    private Map<String, ChainSpecificTimeWindowSummary> loadedChainSpecificTimeWindowSummary;
     private Map<String, Timestamp> updateChainInfo;
 
     public ChainSummary() {
-        summaryResultMap = new HashMap<String, ChainSpecificTimeWindowSummary>();
+        loadedChainSpecificTimeWindowSummary = new HashMap<String, ChainSpecificTimeWindowSummary>();
         updateChainInfo = new HashMap<String, Timestamp>();
     }
 
     public void summary(ChainInfo chainInfo) {
         for (ChainNode node : chainInfo.getNodes()) {
             String csk = generateChainSummaryKey(chainInfo.getCID(), node.getStartDate());
-            ChainSpecificTimeWindowSummary chainSummaryResult = summaryResultMap.get(csk);
-            if (chainSummaryResult == null) {
-                chainSummaryResult = ChainSpecificTimeWindowSummary.load(csk);
-                summaryResultMap.put(csk, chainSummaryResult);
+            if (loadedChainSpecificTimeWindowSummary.containsKey(csk)) {
+                loadedChainSpecificTimeWindowSummary.put(csk, ChainSpecificTimeWindowSummary.load(csk));
             }
 
-            summaryResultMap.get(csk).summaryResult(node);
+            loadedChainSpecificTimeWindowSummary.get(csk).summaryNodeValue(node);
         }
 
         updateChainInfo.put(chainInfo.getCID(), new Timestamp(System.currentTimeMillis()));
@@ -44,16 +42,16 @@ public class ChainSummary {
 
     public void save() throws IOException, InterruptedException, SQLException {
         batchSaveChainSpecificTimeWindowSummary();
-        batchUpdateChainDetail();
+        updateChainLastActiveTime();
     }
 
-    private void batchUpdateChainDetail() throws SQLException {
-        DBCallChainInfoDao.updateChainDetail(updateChainInfo);
+    private void updateChainLastActiveTime() throws SQLException {
+        DBCallChainInfoDao.updateChainLastActiveTime(updateChainInfo);
     }
 
     private void batchSaveChainSpecificTimeWindowSummary() throws IOException, InterruptedException {
         List<Put> puts = new ArrayList<Put>();
-        for (Map.Entry<String, ChainSpecificTimeWindowSummary> entry : summaryResultMap.entrySet()) {
+        for (Map.Entry<String, ChainSpecificTimeWindowSummary> entry : loadedChainSpecificTimeWindowSummary.entrySet()) {
             Put put = new Put(entry.getKey().getBytes());
             entry.getValue().save(put);
             puts.add(put);

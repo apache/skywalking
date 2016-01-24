@@ -39,7 +39,7 @@ public class ChainSpecificTimeWindowSummary {
         chainNodeSummaryResultMap.put(chainNodeSummaryResult.getTraceLevelId(), chainNodeSummaryResult);
     }
 
-    public void summaryResult(ChainNode node) {
+    public void summaryNodeValue(ChainNode node) {
         String tlid = node.getTraceLevelId();
         ChainNodeSpecificTimeWindowSummary chainNodeSummaryResult = chainNodeSummaryResultMap.get(tlid);
         if (chainNodeSummaryResult == null) {
