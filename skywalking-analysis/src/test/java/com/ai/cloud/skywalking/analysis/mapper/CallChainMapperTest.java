@@ -43,7 +43,7 @@ public class CallChainMapperTest {
         List<ChainInfo> chainInfos = new ArrayList<ChainInfo>();
         chainInfos.add(chainInfo);
 
-        Categorize2ChainReducer.reduceAction(chainInfo.getUserId() + ":" + chainInfo.getEntranceNodeToken(), chainInfos.iterator(), context);
+        Categorize2ChainReducer.reduceAction(chainInfo.getUserId() + ":" + chainInfo.getEntranceNodeToken(), chainInfos.iterator());
     }
 
     public static List<Span> selectByTraceId(String traceId) throws IOException {
