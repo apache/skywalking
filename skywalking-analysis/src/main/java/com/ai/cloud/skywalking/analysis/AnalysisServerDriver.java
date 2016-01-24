@@ -15,6 +15,7 @@ import org.apache.hadoop.hbase.mapreduce.TableMapReduceUtil;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.NullOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
@@ -55,13 +56,10 @@ public class AnalysisServerDriver extends Configured implements Tool {
 
         TableMapReduceUtil.initTableMapperJob(Config.HBase.TABLE_CALL_CHAIN, scan, Categorize2ChainMapper.class,
                 Text.class, ChainInfo.class, job);
-        int regions = MetaTableAccessor.getRegionCount(conf, TableName.valueOf(Config.HBase.TABLE_CHAIN_SUMMARY));
-        if (regions == 0) {
-            regions = 1;
-        }
+
         job.setReducerClass(Categorize2ChainReducer.class);
-        job.setNumReduceTasks(regions);
-        FileOutputFormat.setOutputPath(job, new Path("/tmp/mr/mySummaryFile"));
+        job.setNumReduceTasks(Config.Reducer.REDUCER_NUMBER);
+        job.setOutputFormatClass(NullOutputFormat.class);
         return job.waitForCompletion(true) ? 0 : 1;
     }
 

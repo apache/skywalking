@@ -4,6 +4,7 @@ import com.ai.cloud.skywalking.analysis.categorize2chain.filter.SpanNodeProcessC
 import com.ai.cloud.skywalking.analysis.categorize2chain.filter.SpanNodeProcessFilter;
 import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainInfo;
 import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainNode;
+import com.ai.cloud.skywalking.analysis.config.ConfigInitializer;
 import com.ai.cloud.skywalking.analysis.util.HBaseUtil;
 import com.ai.cloud.skywalking.protocol.Span;
 import org.apache.hadoop.hbase.Cell;
@@ -24,6 +25,7 @@ public class Categorize2ChainMapper extends TableMapper<Text, ChainInfo> {
     @Override
     protected void map(ImmutableBytesWritable key, Result value, Context context) throws IOException,
             InterruptedException {
+        ConfigInitializer.initialize();
         List<Span> spanList = new ArrayList<Span>();
         ChainInfo chainInfo = null;
         try {
@@ -32,7 +34,7 @@ public class Categorize2ChainMapper extends TableMapper<Text, ChainInfo> {
                 spanList.add(span);
             }
 
-            chainInfo = spanToChainInfo(key.toString(), spanList);
+            chainInfo = spanToChainInfo(Bytes.toString(key.get()), spanList);
             logger.info("Success convert span to chain info...." + chainInfo.getCID());
             context.write(new Text(chainInfo.getUserId() + ":" + chainInfo.getEntranceNodeToken()), chainInfo);
         } catch (Exception e) {

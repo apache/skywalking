@@ -1,32 +1,31 @@
 package com.ai.cloud.skywalking.analysis.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.LinkedList;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class ConfigInitializer {
-    private static Logger logger = Logger.getLogger(ConfigInitializer.class.getName());
+    private static Logger logger = LoggerFactory.getLogger(ConfigInitializer.class.getName());
 
     public static void initialize() {
-        InputStream inputStream = Thread.currentThread()
-                .getContextClassLoader().getResourceAsStream("/analysis.conf");
-        //InputStream inputStream = ConfigInitializer.class.getResourceAsStream("/config.properties");
+        InputStream inputStream = ConfigInitializer.class.getResourceAsStream("/analysis.conf");
         if (inputStream == null) {
-            logger.log(Level.ALL, "No provider sky-walking certification documents, sky-walking api auto shutdown.");
+            logger.error("No provider sky-walking certification documents, sky-walking api auto shutdown.");
         } else {
             try {
                 Properties properties = new Properties();
                 properties.load(inputStream);
                 initNextLevel(properties, Config.class, new ConfigDesc());
             } catch (IllegalAccessException e) {
-                logger.log(Level.ALL, "Parsing certification file failed, sky-walking api auto shutdown.");
+                logger.error("Parsing certification file failed, sky-walking api auto shutdown.");
             } catch (IOException e) {
-                logger.log(Level.ALL, "Failed to read the certification file, sky-walking api auto shutdown.");
+                logger.error("Failed to read the certification file, sky-walking api auto shutdown.");
             }
         }
     }
