@@ -3,7 +3,7 @@ package com.ai.cloud.skywalking.analysis.categorize2chain;
 import java.util.HashMap;
 import java.util.Map;
 
-public class CostMap {
+public class SubLevelSpanCostCounter {
     private Map<String, Long> costs = new HashMap<String, Long>();
 
     public void put(String parentLevel, Long cost) {

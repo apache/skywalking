@@ -27,7 +27,7 @@ public class Categorize2ChainReducer extends Reducer<Text, ChainInfo, Text, IntW
         int totalCount = 0;
         try {
             ChainRelationship chainRelate = HBaseUtil.selectCallChainRelationship(key.toString());
-            Summary summary = new Summary();
+            ChainSummary summary = new ChainSummary();
             while (chainInfoIterator.hasNext()) {
                 ChainInfo chainInfo = chainInfoIterator.next();
                 try {

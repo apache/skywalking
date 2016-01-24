@@ -12,12 +12,12 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Date;
 
-public class Summary {
+public class ChainSummary {
 
     private Map<String, ChainSpecificTimeWindowSummary> summaryResultMap;
     private Map<String, Timestamp> updateChainInfo;
 
-    public Summary() {
+    public ChainSummary() {
         summaryResultMap = new HashMap<String, ChainSpecificTimeWindowSummary>();
         updateChainInfo = new HashMap<String, Timestamp>();
     }

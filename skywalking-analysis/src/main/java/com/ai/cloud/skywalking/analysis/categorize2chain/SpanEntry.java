@@ -8,7 +8,6 @@ public class SpanEntry {
 
     private Span clientSpan;
     private Span serverSpan;
-    private String startTime;
 
     public SpanEntry() {
 
@@ -66,7 +65,7 @@ public class SpanEntry {
         return resultCost;
     }
 
-    public long getClientCost() {
+    private long getClientCost() {
         if (clientSpan != null) {
             return clientSpan.getCost();
         }
@@ -74,7 +73,7 @@ public class SpanEntry {
         return 0;
     }
 
-    public long getServerCost() {
+    private long getServerCost() {
         if (serverSpan != null) {
             return serverSpan.getCost();
         }

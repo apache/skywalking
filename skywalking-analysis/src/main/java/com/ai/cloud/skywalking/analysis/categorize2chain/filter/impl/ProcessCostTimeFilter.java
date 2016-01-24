@@ -1,13 +1,13 @@
 package com.ai.cloud.skywalking.analysis.categorize2chain.filter.impl;
 
-import com.ai.cloud.skywalking.analysis.categorize2chain.CostMap;
+import com.ai.cloud.skywalking.analysis.categorize2chain.SubLevelSpanCostCounter;
 import com.ai.cloud.skywalking.analysis.categorize2chain.SpanEntry;
 import com.ai.cloud.skywalking.analysis.categorize2chain.filter.SpanNodeProcessFilter;
 import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainNode;
 
 public class ProcessCostTimeFilter extends SpanNodeProcessFilter {
 	@Override
-	public void doFilter(SpanEntry spanEntry, ChainNode node, CostMap costMap) {
+	public void doFilter(SpanEntry spanEntry, ChainNode node, SubLevelSpanCostCounter costMap) {
 		node.setCost(spanEntry.getCost());
 		
 		this.saveCostAsSubNodeCost(spanEntry, node, costMap);
@@ -17,7 +17,7 @@ public class ProcessCostTimeFilter extends SpanNodeProcessFilter {
 	}
 
 	private void saveCostAsSubNodeCost(SpanEntry spanEntry, ChainNode node,
-			CostMap costMap) {
+			SubLevelSpanCostCounter costMap) {
 		long subNodeCost = spanEntry.getCost();
 		if (costMap.exists(spanEntry.getParentLevelId())) {
 			subNodeCost += costMap.get(spanEntry.getParentLevelId());
@@ -26,7 +26,7 @@ public class ProcessCostTimeFilter extends SpanNodeProcessFilter {
 		costMap.put(spanEntry.getParentLevelId(), subNodeCost);
 	}
 
-	private void computeChainNodeCost(CostMap costMap, ChainNode node) {
+	private void computeChainNodeCost(SubLevelSpanCostCounter costMap, ChainNode node) {
 		String levelId = node.getParentLevelId();
 		if (levelId != null && levelId.length() > 0) {
 			levelId += ".";

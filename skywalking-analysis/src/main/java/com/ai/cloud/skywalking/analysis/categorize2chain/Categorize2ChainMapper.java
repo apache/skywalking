@@ -43,7 +43,7 @@ public class Categorize2ChainMapper extends TableMapper<Text, ChainInfo> {
     }
 
     public static ChainInfo spanToChainInfo(String key, List<Span> spanList) {
-        CostMap costMap = new CostMap();
+        SubLevelSpanCostCounter costMap = new SubLevelSpanCostCounter();
         ChainInfo chainInfo = new ChainInfo();
         Collections.sort(spanList, new Comparator<Span>() {
             @Override
