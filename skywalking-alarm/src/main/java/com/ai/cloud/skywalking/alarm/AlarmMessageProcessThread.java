@@ -41,12 +41,19 @@ public class AlarmMessageProcessThread extends Thread {
 
     @Override
     public void run() {
+        long interval = 0L;
         //注册服务(默认为空闲状态)
         registerProcessThread(threadId, ProcessThreadStatus.FREE);
         while (true) {
             try {
                 //检查是否为忙碌状态
                 if (status == ProcessThreadStatus.BUSY) {
+
+                    if (interval > Config.Server.ALARM_RULE_ACTIVITY_INTERVAL) {
+                        //重新加载用户配置
+                        cacheProcessUser(processUserIds);
+                        interval = 0;
+                    }
                     //处理告警信息
                     for (Map.Entry<UserInfo, List<AlarmRule>> entry : cacheRules.entrySet()) {
                         for (AlarmRule rule : entry.getValue()) {
@@ -74,6 +81,7 @@ public class AlarmMessageProcessThread extends Thread {
 
                     // 缓存数据
                     cacheProcessUser(processUserIds);
+                    interval = 0;
 
                     // 修改自身状态 ：(忙碌状态)
                     status = ProcessThreadStatus.BUSY;
@@ -82,6 +90,7 @@ public class AlarmMessageProcessThread extends Thread {
 
                 try {
                     Thread.sleep(Config.ProcessThread.THREAD_WAIT_INTERVAL);
+                    interval += Config.ProcessThread.THREAD_WAIT_INTERVAL;
                 } catch (InterruptedException e) {
                     logger.error("Sleep failed.", e);
                 }
@@ -98,6 +107,8 @@ public class AlarmMessageProcessThread extends Thread {
     private void cacheProcessUser(List<String> processUserIds) throws SQLException {
         UserInfo tmpUserInfo;
         List<AlarmRule> alarmRules;
+        // 清理原有的CacheRule
+        cacheRules.clear();
         for (String userId : processUserIds) {
             tmpUserInfo = AlarmMessageDao.selectUser(userId);
             if (tmpUserInfo == null) {

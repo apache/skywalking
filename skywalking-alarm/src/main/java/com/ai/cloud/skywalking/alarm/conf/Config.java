@@ -8,6 +8,8 @@ public class Config {
 
         public static long DAEMON_THREAD_WAIT_INTERVAL = 50000L;
 
+        public static long ALARM_RULE_ACTIVITY_INTERVAL = 3600000L;
+
     }
 
     public static class ProcessThread {
@@ -47,13 +49,13 @@ public class Config {
 
     public static class DB {
 
-        public static String PASSWORD = "devrdbusr13";
+        public static String PASSWORD = "devrdbusr21";
 
-        public static String USER_NAME = "devrdbusr13";
+        public static String USER_NAME = "devrdbusr21";
 
         public static String DRIVER_CLASS = "com.mysql.jdbc.Driver";
 
-        public static String URL = "jdbc:mysql://10.1.228.200:31306/test";
+        public static String URL = "jdbc:mysql://10.1.228.202:31316/test";
 
         public static int MAX_IDLE = 1;
 
