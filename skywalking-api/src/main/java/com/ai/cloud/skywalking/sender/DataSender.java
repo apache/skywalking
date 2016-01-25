@@ -1,38 +1,53 @@
 package com.ai.cloud.skywalking.sender;
 
+import com.ai.cloud.io.netty.bootstrap.Bootstrap;
+import com.ai.cloud.io.netty.channel.*;
+import com.ai.cloud.io.netty.channel.nio.NioEventLoopGroup;
+import com.ai.cloud.io.netty.channel.socket.ServerSocketChannel;
+import com.ai.cloud.io.netty.channel.socket.nio.NioSocketChannel;
+import com.ai.cloud.io.netty.handler.codec.LengthFieldBasedFrameDecoder;
+import com.ai.cloud.io.netty.handler.codec.LengthFieldPrepender;
+import com.ai.cloud.io.netty.handler.codec.bytes.ByteArrayDecoder;
+import com.ai.cloud.io.netty.handler.codec.bytes.ByteArrayEncoder;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.StandardSocketOptions;
-import java.nio.ByteBuffer;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.nio.channels.SocketChannel;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.ai.cloud.skywalking.sender.protocol.ProtocolBuilder;
-
-public class DataSender implements IDataSender{
-	private static Logger logger = Logger.getLogger(DataSender.class.getName());
-	
-    private SocketChannel socketChannel;
-    private Selector selector;
-    private InetSocketAddress socketAddress;
+public class DataSender extends ChannelInboundHandlerAdapter implements IDataSender {
+    private static Logger logger = Logger.getLogger(DataSender.class.getName());
+    private EventLoopGroup group;
     private SenderStatus status = SenderStatus.FAILED;
+    private InetSocketAddress socketAddress;
+    private ChannelFuture channelFuture;
 
     public DataSender(String ip, int port) throws IOException {
-    	this(new InetSocketAddress(ip, port));
+        this(new InetSocketAddress(ip, port));
     }
 
     public DataSender(InetSocketAddress address) throws IOException {
-        selector = Selector.open();
-        socketChannel = SocketChannel.open(address);
-        //设置该sc已非阻塞的方式工作
-        socketChannel.configureBlocking(false);
-        socketChannel.register(selector, SelectionKey.OP_CONNECT);
-        socketChannel.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
         this.socketAddress = address;
         status = SenderStatus.READY;
+        group = new NioEventLoopGroup();
+        try {
+            Bootstrap bootstrap = new Bootstrap();
+            bootstrap.group(group)
+                    .channel(NioSocketChannel.class)
+                    .option(ChannelOption.TCP_NODELAY, true)
+                    .handler(new ChannelInitializer<ServerSocketChannel>() {
+                        @Override
+                        protected void initChannel(ServerSocketChannel ch) throws Exception {
+                            ChannelPipeline p = ch.pipeline();
+                            p.addLast("frameDecoder", new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4));
+                            p.addLast("frameEncoder", new LengthFieldPrepender(4));
+                            p.addLast("decoder", new ByteArrayDecoder());
+                            p.addLast("encoder", new ByteArrayEncoder());
+                        }
+                    });
+            channelFuture = bootstrap.connect(address).sync();
+        } catch (Exception e) {
+            status = SenderStatus.FAILED;
+        }
     }
 
     /**
@@ -43,29 +58,30 @@ public class DataSender implements IDataSender{
      */
     @Override
     public boolean send(String data) {
-        // 发送报文
         try {
-            socketChannel.register(selector, SelectionKey.OP_READ);
-            socketChannel.write(ByteBuffer.wrap(ProtocolBuilder.builder(data)));
-            return true;
-        } catch (IOException e) {
-            // 发送失败 认为不可连接
+            if (channelFuture != null) {
+                channelFuture.channel().writeAndFlush(data);
+                return true;
+            }
+        } catch (Exception e) {
             DataSenderFactoryWithBalance.unRegister(this);
-            return false;
         }
+
+        return false;
     }
 
     public InetSocketAddress getServerIp() {
         return this.socketAddress;
     }
 
-    public void close(){
-        if (socketChannel != null) {
-            try {
-				socketChannel.close();
-			} catch (IOException e) {
-				logger.log(Level.ALL, "close connection Failed");
-			}
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        close();
+    }
+
+    public void close() {
+        if (group != null) {
+            group.shutdownGracefully();
         }
     }
 

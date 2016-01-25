@@ -50,7 +50,7 @@ public class Config {
         public static int CONNECT_PERCENT = 50;
 
         // 发送服务端配置
-        public static String SERVERS_ADDR = "127.0.0.1:34000;127.0.0.1:34001;127.0.0.1:34002";
+        public static String SERVERS_ADDR = "127.0.0.1:34000";
 
         // 是否开启发送
         public static boolean IS_OFF = false;
