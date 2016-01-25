@@ -1,17 +1,7 @@
 package com.ai.cloud.skywalking.sender;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.util.logging.Logger;
-
 import com.ai.cloud.io.netty.bootstrap.Bootstrap;
-import com.ai.cloud.io.netty.channel.Channel;
-import com.ai.cloud.io.netty.channel.ChannelHandlerContext;
-import com.ai.cloud.io.netty.channel.ChannelInboundHandlerAdapter;
-import com.ai.cloud.io.netty.channel.ChannelInitializer;
-import com.ai.cloud.io.netty.channel.ChannelOption;
-import com.ai.cloud.io.netty.channel.ChannelPipeline;
-import com.ai.cloud.io.netty.channel.EventLoopGroup;
+import com.ai.cloud.io.netty.channel.*;
 import com.ai.cloud.io.netty.channel.nio.NioEventLoopGroup;
 import com.ai.cloud.io.netty.channel.socket.SocketChannel;
 import com.ai.cloud.io.netty.channel.socket.nio.NioSocketChannel;
@@ -20,7 +10,11 @@ import com.ai.cloud.io.netty.handler.codec.LengthFieldPrepender;
 import com.ai.cloud.io.netty.handler.codec.bytes.ByteArrayDecoder;
 import com.ai.cloud.io.netty.handler.codec.bytes.ByteArrayEncoder;
 
-public class DataSender extends ChannelInboundHandlerAdapter implements IDataSender {
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.util.logging.Logger;
+
+public class DataSender implements IDataSender {
     private static Logger logger = Logger.getLogger(DataSender.class.getName());
     private EventLoopGroup group;
     private SenderStatus status = SenderStatus.FAILED;
@@ -48,11 +42,11 @@ public class DataSender extends ChannelInboundHandlerAdapter implements IDataSen
                             p.addLast("frameEncoder", new LengthFieldPrepender(4));
                             p.addLast("decoder", new ByteArrayDecoder());
                             p.addLast("encoder", new ByteArrayEncoder());
-                            p.addLast(new ChannelInboundHandlerAdapter(){
-                            	public void channelActive(ChannelHandlerContext ctx) throws Exception {
-                            		super.channelActive(ctx);
-                            		channel = ctx.channel();
-                            	}
+                            p.addLast(new ChannelInboundHandlerAdapter() {
+                                public void channelActive(ChannelHandlerContext ctx) throws Exception {
+                                    super.channelActive(ctx);
+                                    channel = ctx.channel();
+                                }
                             });
                         }
                     });
@@ -72,7 +66,7 @@ public class DataSender extends ChannelInboundHandlerAdapter implements IDataSen
     public boolean send(String data) {
         try {
             if (channel != null && channel.isActive()) {
-            	channel.writeAndFlush(data.getBytes());
+                channel.writeAndFlush(data.getBytes());
                 return true;
             }
         } catch (Exception e) {
@@ -84,11 +78,6 @@ public class DataSender extends ChannelInboundHandlerAdapter implements IDataSen
 
     public InetSocketAddress getServerIp() {
         return this.socketAddress;
-    }
-
-    @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        close();
     }
 
     public void close() {
