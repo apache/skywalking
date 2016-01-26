@@ -43,7 +43,7 @@ public class CollectionServer {
                         @Override
                         public void initChannel(io.netty.channel.socket.SocketChannel ch) throws Exception {
                             ChannelPipeline p = ch.pipeline();
-                            p.addLast("frameDecoder", new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 0));
+                            p.addLast("frameDecoder", new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0,4));
                             p.addLast("frameEncoder", new LengthFieldPrepender(4));
                             p.addLast("decoder", new ByteArrayDecoder());
                             p.addLast("encoder", new ByteArrayEncoder());
