@@ -192,9 +192,8 @@ public class Span extends SpanData {
 		try {
 			buf = new ByteArrayOutputStream();
 			Throwable causeException = e;
-			while (causeException != null
-					&& (causeException.getCause() != null || expMessage
-							.length() < maxExceptionStackLength)) {
+			while (expMessage.length() < maxExceptionStackLength && causeException != null
+					&& causeException.getCause() != null) {
 				causeException.printStackTrace(new java.io.PrintWriter(buf,
 						true));
 				expMessage.append(buf.toString());
@@ -209,7 +208,13 @@ public class Span extends SpanData {
 						"Close exception stack input stream failed", ioe);
 			}
 		}
-		this.exceptionStack = expMessage.toString();
+
+		int sublength = maxExceptionStackLength;
+		if (maxExceptionStackLength > expMessage.length()){
+			sublength = expMessage.length();
+		}
+
+		this.exceptionStack = expMessage.toString().substring(0, sublength);
 
 		if (!exclusiveExceptionSet.contains(e.getClass().getName())) {
 			this.statusCode = 1;
