@@ -30,7 +30,18 @@ public class SWDubboEnhanceFilter implements Filter {
 
             //追加参数
             if (!BugFixAcitve.isActive) {
-                context.setAttachment("contextData", contextDataStr);
+                // context.setAttachment("contextData", contextDataStr);
+                // context的setAttachment方法在重试机制的时候并不会覆盖原有的Attachment
+                // 参见Dubbo源代码：“com.alibaba.dubbo.rpc.RpcInvocation”
+                //  public void setAttachmentIfAbsent(String key, String value) {
+                //      if (attachments == null) {
+                //          attachments = new HashMap<String, String>();
+                //      }
+                //      if (! attachments.containsKey(key)) {
+                //          attachments.put(key, value);
+                //      }
+                //  }
+                invocation.getAttachments().put("contextData", contextDataStr);
             } else {
                 fix283SendNoAttachmentIssue(invocation, contextDataStr);
             }
