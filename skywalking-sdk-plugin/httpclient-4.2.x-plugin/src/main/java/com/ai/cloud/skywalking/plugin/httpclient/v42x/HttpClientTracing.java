@@ -1,7 +1,6 @@
 package com.ai.cloud.skywalking.plugin.httpclient.v42x;
 
 import com.ai.cloud.skywalking.buriedpoint.RPCBuriedPointSender;
-import com.ai.cloud.skywalking.buriedpoint.type.WEBBuriedPointType;
 import com.ai.cloud.skywalking.conf.AuthDesc;
 import com.ai.cloud.skywalking.model.Identification;
 import org.apache.http.HttpRequest;
