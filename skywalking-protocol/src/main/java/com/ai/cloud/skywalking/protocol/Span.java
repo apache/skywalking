@@ -29,7 +29,7 @@ public class Span extends SpanData {
 	}
 
 	public Span(String originData) {
-		String[] fieldValues = originData.split(SPAN_FIELD_SPILT_PATTERN);
+		String[] fieldValues = originData.split(SPAN_FIELD_SEPARATOR);
 
 		int index = 0;
 		while (this.setValueByIndex(fieldValues, index)) {
@@ -67,7 +67,7 @@ public class Span extends SpanData {
 				break;
 			case 8:
 				exceptionStack = fieldValues[8].trim().replaceAll(
-						SPAN_ATTR_SPILT_CHARACTER, NEW_LINE_CHARACTER_PATTERN);
+						NEW_LINE_PLACEHOLDER, OS_NEW_LINE);
 				break;
 			case 9:
 				spanType = fieldValues[9];
@@ -77,7 +77,7 @@ public class Span extends SpanData {
 				break;
 			case 11:
 				businessKey = fieldValues[11].trim().replaceAll(
-						SPAN_ATTR_SPILT_CHARACTER, NEW_LINE_CHARACTER_PATTERN);
+						NEW_LINE_PLACEHOLDER, OS_NEW_LINE);
 				break;
 			case 12:
 				processNo = fieldValues[12].trim();
@@ -104,76 +104,76 @@ public class Span extends SpanData {
 	@Override
 	public String toString() {
 		StringBuilder toStringValue = new StringBuilder();
-		toStringValue.append(traceId + SPAN_FIELD_SPILT_PATTERN);
+		toStringValue.append(traceId + SPAN_FIELD_SEPARATOR);
 
 		if (isNonBlank(parentLevel)) {
-			toStringValue.append(parentLevel + SPAN_FIELD_SPILT_PATTERN);
+			toStringValue.append(parentLevel + SPAN_FIELD_SEPARATOR);
 		} else {
-			toStringValue.append(" " + SPAN_FIELD_SPILT_PATTERN);
+			toStringValue.append(" " + SPAN_FIELD_SEPARATOR);
 		}
 
-		toStringValue.append(levelId + SPAN_FIELD_SPILT_PATTERN);
+		toStringValue.append(levelId + SPAN_FIELD_SEPARATOR);
 
 		if (isNonBlank(viewPointId)) {
-			toStringValue.append(viewPointId + SPAN_FIELD_SPILT_PATTERN);
+			toStringValue.append(viewPointId + SPAN_FIELD_SEPARATOR);
 		} else {
-			toStringValue.append(" " + SPAN_FIELD_SPILT_PATTERN);
+			toStringValue.append(" " + SPAN_FIELD_SEPARATOR);
 		}
 
-		toStringValue.append(startDate + SPAN_FIELD_SPILT_PATTERN);
-		toStringValue.append(cost + SPAN_FIELD_SPILT_PATTERN);
+		toStringValue.append(startDate + SPAN_FIELD_SEPARATOR);
+		toStringValue.append(cost + SPAN_FIELD_SEPARATOR);
 
 		if (isNonBlank(address)) {
-			toStringValue.append(address + SPAN_FIELD_SPILT_PATTERN);
+			toStringValue.append(address + SPAN_FIELD_SEPARATOR);
 		} else {
-			toStringValue.append(" " + SPAN_FIELD_SPILT_PATTERN);
+			toStringValue.append(" " + SPAN_FIELD_SEPARATOR);
 		}
 
-		toStringValue.append(statusCode + SPAN_FIELD_SPILT_PATTERN);
+		toStringValue.append(statusCode + SPAN_FIELD_SEPARATOR);
 
 		if (isNonBlank(exceptionStack)) {
 			// 换行符在各个系统中表现不一致，
 			// windows平台的换行符为/r/n
 			// linux平台的换行符为/n
 			toStringValue.append(exceptionStack.replaceAll(
-					CARRIAGE_RETURN_CHARACTER_PATTERN, "").replaceAll(
-					NEW_LINE_CHARACTER_PATTERN, SPAN_ATTR_SPILT_CHARACTER)
-					+ SPAN_FIELD_SPILT_PATTERN);
+					WINDOWS_OS_NEW_LINE_REDUNDANT_CHAR, "").replaceAll(
+					OS_NEW_LINE, NEW_LINE_PLACEHOLDER)
+					+ SPAN_FIELD_SEPARATOR);
 		} else {
-			toStringValue.append(" " + SPAN_FIELD_SPILT_PATTERN);
+			toStringValue.append(" " + SPAN_FIELD_SEPARATOR);
 		}
 
-		toStringValue.append(spanType + SPAN_FIELD_SPILT_PATTERN);
-		toStringValue.append(isReceiver + SPAN_FIELD_SPILT_PATTERN);
+		toStringValue.append(spanType + SPAN_FIELD_SEPARATOR);
+		toStringValue.append(isReceiver + SPAN_FIELD_SEPARATOR);
 
 		if (isNonBlank(businessKey)) {
 			// 换行符在各个系统中表现不一致，
 			// windows平台的换行符为/r/n
 			// linux平台的换行符为/n
 			toStringValue.append(businessKey.replaceAll(
-					CARRIAGE_RETURN_CHARACTER_PATTERN, "").replaceAll(
-					NEW_LINE_CHARACTER_PATTERN, SPAN_ATTR_SPILT_CHARACTER)
-					+ SPAN_FIELD_SPILT_PATTERN);
+					WINDOWS_OS_NEW_LINE_REDUNDANT_CHAR, "").replaceAll(
+					OS_NEW_LINE, NEW_LINE_PLACEHOLDER)
+					+ SPAN_FIELD_SEPARATOR);
 		} else {
-			toStringValue.append(" " + SPAN_FIELD_SPILT_PATTERN);
+			toStringValue.append(" " + SPAN_FIELD_SEPARATOR);
 		}
 
 		if (isNonBlank(processNo)) {
-			toStringValue.append(processNo + SPAN_FIELD_SPILT_PATTERN);
+			toStringValue.append(processNo + SPAN_FIELD_SEPARATOR);
 		} else {
-			toStringValue.append(" " + SPAN_FIELD_SPILT_PATTERN);
+			toStringValue.append(" " + SPAN_FIELD_SEPARATOR);
 		}
 
 		if (isNonBlank(applicationId)) {
-			toStringValue.append(applicationId + SPAN_FIELD_SPILT_PATTERN);
+			toStringValue.append(applicationId + SPAN_FIELD_SEPARATOR);
 		} else {
-			toStringValue.append(" " + SPAN_FIELD_SPILT_PATTERN);
+			toStringValue.append(" " + SPAN_FIELD_SEPARATOR);
 		}
 
 		if (isNonBlank(userId)) {
-			toStringValue.append(userId + SPAN_FIELD_SPILT_PATTERN);
+			toStringValue.append(userId + SPAN_FIELD_SEPARATOR);
 		} else {
-			toStringValue.append(" " + SPAN_FIELD_SPILT_PATTERN);
+			toStringValue.append(" " + SPAN_FIELD_SEPARATOR);
 		}
 
 		toStringValue.append(callType);
