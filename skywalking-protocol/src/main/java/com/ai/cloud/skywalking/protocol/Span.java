@@ -192,8 +192,7 @@ public class Span extends SpanData {
 		try {
 			buf = new ByteArrayOutputStream();
 			Throwable causeException = e;
-			while (expMessage.length() < maxExceptionStackLength && causeException != null
-					&& causeException.getCause() != null) {
+			while (expMessage.length() < maxExceptionStackLength && causeException != null) {
 				causeException.printStackTrace(new java.io.PrintWriter(buf,
 						true));
 				expMessage.append(buf.toString());
