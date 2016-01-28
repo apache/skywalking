@@ -1,12 +1,8 @@
 package com.ai.cloud.skywalking.plugin.spring;
 
 import com.ai.cloud.skywalking.buriedpoint.LocalBuriedPointSender;
-import com.ai.cloud.skywalking.buriedpoint.type.SpringBuriedPointType;
 import com.ai.cloud.skywalking.model.Identification;
 import org.aspectj.lang.ProceedingJoinPoint;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 public class TracingAspect {
 

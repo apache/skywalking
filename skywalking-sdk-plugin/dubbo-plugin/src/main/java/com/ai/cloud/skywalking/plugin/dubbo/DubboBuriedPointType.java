@@ -1,4 +1,4 @@
-package com.ai.cloud.skywalking.buriedpoint.type;
+package com.ai.cloud.skywalking.plugin.dubbo;
 
 import com.ai.cloud.skywalking.api.IBuriedPointType;
 import com.ai.cloud.skywalking.protocol.CallType;

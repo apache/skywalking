@@ -3,7 +3,6 @@ package com.ai.cloud.skywalking.plugin.web;
 
 import com.ai.cloud.skywalking.api.Tracing;
 import com.ai.cloud.skywalking.buriedpoint.RPCBuriedPointReceiver;
-import com.ai.cloud.skywalking.buriedpoint.type.WEBBuriedPointType;
 import com.ai.cloud.skywalking.conf.AuthDesc;
 import com.ai.cloud.skywalking.model.ContextData;
 import com.ai.cloud.skywalking.model.Identification;
