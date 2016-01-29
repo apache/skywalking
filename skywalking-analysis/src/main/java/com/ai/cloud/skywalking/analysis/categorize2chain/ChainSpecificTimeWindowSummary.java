@@ -2,10 +2,10 @@ package com.ai.cloud.skywalking.analysis.categorize2chain;
 
 import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainNode;
 import com.ai.cloud.skywalking.analysis.categorize2chain.util.HBaseUtil;
-import com.ai.cloud.skywalking.analysis.config.Config;
 import com.ai.cloud.skywalking.analysis.config.HBaseTableMetaData;
-
 import org.apache.hadoop.hbase.client.Put;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -13,9 +13,10 @@ import java.util.Map;
 
 public class ChainSpecificTimeWindowSummary {
 
-	/**
-	 * key : cid + 时间窗口
-	 */
+    private static Logger logger = LoggerFactory.getLogger(ChainSpecificTimeWindowSummary.class.getName());
+    /**
+     * key : cid + 时间窗口
+     */
     private Map<String, ChainNodeSpecificTimeWindowSummary> chainNodeSummaryResultMap;
 
     public ChainSpecificTimeWindowSummary() {
@@ -27,7 +28,7 @@ public class ChainSpecificTimeWindowSummary {
         try {
             result = HBaseUtil.selectChainSummaryResult(cid_time);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Failed to load the key[" + cid_time + "] summary result.", e);
         }
 
         if (result == null) {
