@@ -20,7 +20,7 @@ public class HttpClientTracing {
             httpRequest.setHeader(traceHearName,
                     "ContextData=" + sender.beforeSend(Identification.newBuilder()
                             .viewPoint(url)
-                            .spanType(WEBBuriedPointType.instance())
+                            .spanType(WebBuriedPointType.instance())
                             .build())
                             .toString());
             return executor.execute();

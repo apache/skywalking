@@ -3,13 +3,13 @@ package com.ai.cloud.skywalking.plugin.httpclient.v43x;
 import com.ai.cloud.skywalking.api.IBuriedPointType;
 import com.ai.cloud.skywalking.protocol.CallType;
 
-public class WEBBuriedPointType implements IBuriedPointType {
+public class WebBuriedPointType implements IBuriedPointType {
 
-    private static WEBBuriedPointType webBuriedPointType;
+    private static WebBuriedPointType webBuriedPointType;
 
     public static IBuriedPointType instance() {
         if (webBuriedPointType == null) {
-            webBuriedPointType = new WEBBuriedPointType();
+            webBuriedPointType = new WebBuriedPointType();
         }
 
         return webBuriedPointType;
@@ -25,7 +25,7 @@ public class WEBBuriedPointType implements IBuriedPointType {
         return CallType.SYNC;
     }
 
-    private WEBBuriedPointType() {
+    private WebBuriedPointType() {
         // Non
     }
 }
