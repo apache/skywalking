@@ -48,7 +48,7 @@ public class UsersChangedDetectionThread extends Thread {
 
     private boolean checkUserNumber() throws SQLException {
         String currentUserIdsEncryptedStr = MD5Encryption.getEncryption(AlarmMessageDao.selectAllUserIds().toString());
-        if (userIdsEncryptedStr == currentUserIdsEncryptedStr) {
+        if (userIdsEncryptedStr.equals(currentUserIdsEncryptedStr)) {
             return false;
         }
         userIdsEncryptedStr = currentUserIdsEncryptedStr;
