@@ -107,11 +107,11 @@ public class ChainRelationship {
     private void saveChainRelationship() throws IOException {
         Put put = new Put(getKey().getBytes());
 
-        put.addColumn(Config.HBase.CHAIN_RELATIONSHIP_COLUMN_FAMILY.getBytes(), Constants.UNCATEGORIZED_QUALIFIER_NAME.getBytes()
+        put.addColumn(Constants.COLUMN_FAMILY_CHAIN_RELATIONSHIP.getBytes(), Constants.UNCATEGORIZE_COLUMN_FAMILY.getBytes()
                 , new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create().toJson(getUncategorizeChainInfoList()).getBytes());
 
         for (Map.Entry<String, CategorizedChainInfo> entry : getCategorizedChainInfoMap().entrySet()) {
-            put.addColumn(Config.HBase.CHAIN_RELATIONSHIP_COLUMN_FAMILY.getBytes(), entry.getKey().getBytes()
+            put.addColumn(Constants.COLUMN_FAMILY_CHAIN_RELATIONSHIP.getBytes(), entry.getKey().getBytes()
                     , entry.getValue().toString().getBytes());
         }
 

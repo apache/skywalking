@@ -1,16 +1,11 @@
 package com.ai.cloud.skywalking.analysis.util;
 
-import com.ai.cloud.skywalking.analysis.categorize2chain.CategorizedChainInfo;
-import com.ai.cloud.skywalking.analysis.categorize2chain.ChainNodeSpecificTimeWindowSummary;
-import com.ai.cloud.skywalking.analysis.categorize2chain.ChainRelationship;
-import com.ai.cloud.skywalking.analysis.categorize2chain.ChainSpecificTimeWindowSummary;
-import com.ai.cloud.skywalking.analysis.categorize2chain.UncategorizeChainInfo;
+import com.ai.cloud.skywalking.analysis.categorize2chain.*;
 import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainInfo;
 import com.ai.cloud.skywalking.analysis.config.Config;
 import com.ai.cloud.skywalking.analysis.config.Constants;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.*;
 import org.apache.hadoop.hbase.client.*;
@@ -31,15 +26,15 @@ public class HBaseUtil {
         Table table = null;
 
         try {
-            table = connection.getTable(TableName.valueOf(Config.HBase.TABLE_CHAIN_INFO));
+            table = connection.getTable(TableName.valueOf(Constants.TABLE_CID_TID_MAPPING));
         } catch (IOException e) {
-            logger.error("Cannot found table[" + Config.HBase.TRACE_INFO_TABLE_NAME + "]", e);
+            logger.error("Cannot found table[" + Constants.TABLE_CID_TID_MAPPING + "]", e);
         }
 
         Put put = new Put(Bytes.toBytes(traceId));
 
-        put.addColumn(Bytes.toBytes(Config.HBase.TRACE_INFO_COLUMN_FAMILY),
-                Bytes.toBytes(Config.TraceInfo.TRACE_INFO_COLUMN_CID),
+        put.addColumn(Bytes.toBytes(Constants.COLUMN_FAMILY_NAME_TRACE_INFO),
+                Bytes.toBytes(Constants.COLUMN_FAMILY_NAME_CID),
                 Bytes.toBytes(chainInfo.getCID()));
         try {
             table.put(put);
@@ -58,16 +53,16 @@ public class HBaseUtil {
         try {
             initHBaseClient();
             //
-            createTableIfNeed(Config.HBase.TABLE_CHAIN_INFO, Config.HBase.TRACE_INFO_COLUMN_FAMILY);
+            createTableIfNeed(Constants.TABLE_CID_TID_MAPPING, Constants.COLUMN_FAMILY_NAME_TRACE_INFO);
             //
-            createTableIfNeed(Config.HBase.TABLE_CALL_CHAIN_RELATIONSHIP, Config.HBase.CHAIN_RELATIONSHIP_COLUMN_FAMILY);
+            createTableIfNeed(Constants.TABLE_CALL_CHAIN_RELATIONSHIP, Constants.COLUMN_FAMILY_CHAIN_RELATIONSHIP);
 
-            createTableIfNeed(Config.HBase.TABLE_CHAIN_SUMMARY, Config.HBase.CHAIN_SUMMARY_COLUMN_FAMILY);
+            createTableIfNeed(Constants.TABLE_CHAIN_ONE_MINUTE_SUMMARY_EXCLUDE_RELATIONSHIP, Constants.COLUMN_FAMILY_NAME_CHAIN_SUMMARY);
 
-            createTableIfNeed(Config.HBase.TABLE_CHAIN_DETAIL, Config.HBase.TRACE_DETAIL_FAMILY_COLUMN);
+            createTableIfNeed(Constants.TABLE_CHAIN_DETAIL, Constants.COLUMN_FAMILY_NAME_TRACE_DETAIL);
 
         } catch (IOException e) {
-            logger.error("Create table[{}] failed", Config.HBase.TRACE_INFO_TABLE_NAME, e);
+            logger.error("Create tables failed", e);
         }
     }
 
@@ -97,7 +92,7 @@ public class HBaseUtil {
 
     public static ChainRelationship selectCallChainRelationship(String key) throws IOException {
         ChainRelationship chainRelate = new ChainRelationship(key);
-        Table table = connection.getTable(TableName.valueOf(Config.HBase.TABLE_CALL_CHAIN_RELATIONSHIP));
+        Table table = connection.getTable(TableName.valueOf(Constants.TABLE_CALL_CHAIN_RELATIONSHIP));
         Get g = new Get(Bytes.toBytes(key));
         Result r = table.get(g);
         for (Cell cell : r.rawCells()) {
@@ -105,7 +100,7 @@ public class HBaseUtil {
 
                 String qualifierName = Bytes.toString(cell.getQualifierArray(), cell.getQualifierOffset(),
                         cell.getQualifierLength());
-                if (Constants.UNCATEGORIZED_QUALIFIER_NAME.equals(qualifierName)) {
+                if (Constants.UNCATEGORIZE_COLUMN_FAMILY.equals(qualifierName)) {
                     List<UncategorizeChainInfo> uncategorizeChainInfoList = new Gson().fromJson(Bytes.toString(cell.getValueArray(),
                             cell.getValueOffset(), cell.getValueLength()),
                             new TypeToken<List<UncategorizeChainInfo>>() {
@@ -123,7 +118,7 @@ public class HBaseUtil {
 
     public static ChainSpecificTimeWindowSummary selectChainSummaryResult(String key) throws IOException {
         ChainSpecificTimeWindowSummary result = null;
-        Table table = connection.getTable(TableName.valueOf(Config.HBase.TABLE_CHAIN_SUMMARY));
+        Table table = connection.getTable(TableName.valueOf(Constants.TABLE_CHAIN_ONE_MINUTE_SUMMARY_EXCLUDE_RELATIONSHIP));
         Get g = new Get(Bytes.toBytes(key));
         Result r = table.get(g);
 
@@ -141,7 +136,7 @@ public class HBaseUtil {
     }
 
     public static void saveChainRelationship(Put put) throws IOException {
-        Table table = connection.getTable(TableName.valueOf(Config.HBase.TABLE_CALL_CHAIN_RELATIONSHIP));
+        Table table = connection.getTable(TableName.valueOf(Constants.TABLE_CALL_CHAIN_RELATIONSHIP));
 
         table.put(put);
         if (logger.isDebugEnabled()) {
@@ -150,7 +145,7 @@ public class HBaseUtil {
     }
 
     public static void batchSaveChainSpecificTimeWindowSummary(List<Put> puts) throws IOException, InterruptedException {
-        Table table = connection.getTable(TableName.valueOf(Config.HBase.TABLE_CHAIN_SUMMARY));
+        Table table = connection.getTable(TableName.valueOf(Constants.TABLE_CHAIN_ONE_MINUTE_SUMMARY_EXCLUDE_RELATIONSHIP));
         Object[] resultArrays = new Object[puts.size()];
         table.batch(puts, resultArrays);
         for (Object result : resultArrays) {
@@ -161,7 +156,7 @@ public class HBaseUtil {
     }
 
     public static void saveChainDetails(List<Put> puts) throws IOException, InterruptedException {
-        Table table = connection.getTable(TableName.valueOf(Config.HBase.TABLE_CHAIN_DETAIL));
+        Table table = connection.getTable(TableName.valueOf(Constants.TABLE_CHAIN_DETAIL));
         if (puts != null && puts.size() > 0) {
             Object[] resultArrays = new Object[puts.size()];
             table.batch(puts, resultArrays);
