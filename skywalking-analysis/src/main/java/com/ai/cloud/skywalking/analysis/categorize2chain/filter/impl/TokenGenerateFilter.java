@@ -4,7 +4,7 @@ import com.ai.cloud.skywalking.analysis.categorize2chain.SubLevelSpanCostCounter
 import com.ai.cloud.skywalking.analysis.categorize2chain.SpanEntry;
 import com.ai.cloud.skywalking.analysis.categorize2chain.filter.SpanNodeProcessFilter;
 import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainNode;
-import com.ai.cloud.skywalking.analysis.util.TokenGenerator;
+import com.ai.cloud.skywalking.analysis.categorize2chain.util.TokenGenerator;
 
 public class TokenGenerateFilter extends SpanNodeProcessFilter {
 

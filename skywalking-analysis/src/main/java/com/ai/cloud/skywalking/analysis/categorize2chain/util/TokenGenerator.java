@@ -1,4 +1,4 @@
-package com.ai.cloud.skywalking.analysis.util;
+package com.ai.cloud.skywalking.analysis.categorize2chain.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

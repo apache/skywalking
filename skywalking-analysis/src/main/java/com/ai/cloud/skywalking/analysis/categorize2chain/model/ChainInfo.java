@@ -1,10 +1,11 @@
 package com.ai.cloud.skywalking.analysis.categorize2chain.model;
 
-import com.ai.cloud.skywalking.analysis.util.TokenGenerator;
+import com.ai.cloud.skywalking.analysis.categorize2chain.util.TokenGenerator;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
+
 import org.apache.hadoop.io.Writable;
 
 import java.io.DataInput;

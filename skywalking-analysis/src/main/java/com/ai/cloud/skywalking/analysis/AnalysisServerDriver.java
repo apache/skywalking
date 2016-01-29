@@ -5,7 +5,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import com.ai.cloud.skywalking.analysis.config.Constants;
+import com.ai.cloud.skywalking.analysis.config.HBaseTableMetaData;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.hbase.client.Scan;
@@ -51,7 +51,7 @@ public class AnalysisServerDriver extends Configured implements Tool {
         job.setJarByClass(AnalysisServerDriver.class);
         Scan scan = buildHBaseScan(args);
 
-        TableMapReduceUtil.initTableMapperJob(Constants.TABLE_CALL_CHAIN, scan, Categorize2ChainMapper.class,
+        TableMapReduceUtil.initTableMapperJob(HBaseTableMetaData.TABLE_CALL_CHAIN.TABLE_NAME, scan, Categorize2ChainMapper.class,
                 Text.class, ChainInfo.class, job);
 
         job.setReducerClass(Categorize2ChainReducer.class);

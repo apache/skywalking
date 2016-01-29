@@ -1,17 +1,23 @@
 package com.ai.cloud.skywalking.analysis.categorize2chain;
 
-import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainInfo;
-import com.ai.cloud.skywalking.analysis.config.Config;
-import com.ai.cloud.skywalking.analysis.config.Constants;
-import com.ai.cloud.skywalking.analysis.util.HBaseUtil;
-import com.google.gson.GsonBuilder;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.hadoop.hbase.client.Put;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.*;
+import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainInfo;
+import com.ai.cloud.skywalking.analysis.categorize2chain.util.HBaseUtil;
+import com.ai.cloud.skywalking.analysis.config.HBaseTableMetaData;
+import com.google.gson.GsonBuilder;
 
 public class ChainRelationship {
     private static Logger logger = LoggerFactory.getLogger(ChainRelationship.class.getName());
@@ -107,11 +113,11 @@ public class ChainRelationship {
     private void saveChainRelationship() throws IOException {
         Put put = new Put(getKey().getBytes());
 
-        put.addColumn(Constants.COLUMN_FAMILY_CHAIN_RELATIONSHIP.getBytes(), Constants.UNCATEGORIZE_COLUMN_FAMILY.getBytes()
+        put.addColumn(HBaseTableMetaData.TABLE_CALL_CHAIN_RELATIONSHIP.COLUMN_FAMILY_NAME.getBytes(), HBaseTableMetaData.TABLE_CALL_CHAIN_RELATIONSHIP.UNCATEGORIZE_COLUMN_NAME.getBytes()
                 , new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create().toJson(getUncategorizeChainInfoList()).getBytes());
 
         for (Map.Entry<String, CategorizedChainInfo> entry : getCategorizedChainInfoMap().entrySet()) {
-            put.addColumn(Constants.COLUMN_FAMILY_CHAIN_RELATIONSHIP.getBytes(), entry.getKey().getBytes()
+            put.addColumn(HBaseTableMetaData.TABLE_CALL_CHAIN_RELATIONSHIP.COLUMN_FAMILY_NAME.getBytes(), entry.getKey().getBytes()
                     , entry.getValue().toString().getBytes());
         }
 

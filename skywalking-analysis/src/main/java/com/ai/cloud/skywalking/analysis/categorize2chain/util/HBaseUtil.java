@@ -1,9 +1,9 @@
-package com.ai.cloud.skywalking.analysis.util;
+package com.ai.cloud.skywalking.analysis.categorize2chain.util;
 
 import com.ai.cloud.skywalking.analysis.categorize2chain.*;
 import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainInfo;
 import com.ai.cloud.skywalking.analysis.config.Config;
-import com.ai.cloud.skywalking.analysis.config.Constants;
+import com.ai.cloud.skywalking.analysis.config.HBaseTableMetaData;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.apache.hadoop.conf.Configuration;
@@ -22,44 +22,17 @@ public class HBaseUtil {
     private static Configuration configuration = null;
     private static Connection connection;
 
-    public static boolean saveData(String traceId, ChainInfo chainInfo) {
-        Table table = null;
-
-        try {
-            table = connection.getTable(TableName.valueOf(Constants.TABLE_CID_TID_MAPPING));
-        } catch (IOException e) {
-            logger.error("Cannot found table[" + Constants.TABLE_CID_TID_MAPPING + "]", e);
-        }
-
-        Put put = new Put(Bytes.toBytes(traceId));
-
-        put.addColumn(Bytes.toBytes(Constants.COLUMN_FAMILY_NAME_TRACE_INFO),
-                Bytes.toBytes(Constants.COLUMN_FAMILY_NAME_CID),
-                Bytes.toBytes(chainInfo.getCID()));
-        try {
-            table.put(put);
-            if (logger.isDebugEnabled()) {
-                logger.debug("Insert data[RowKey:{}] success.", put.getId());
-            }
-        } catch (IOException e) {
-            logger.error("Insert data [Rowkey:{}] failed.", put.getId(), e);
-            return false;
-        }
-
-        return true;
-    }
-
     static {
         try {
             initHBaseClient();
-            //
-            createTableIfNeed(Constants.TABLE_CID_TID_MAPPING, Constants.COLUMN_FAMILY_NAME_TRACE_INFO);
-            //
-            createTableIfNeed(Constants.TABLE_CALL_CHAIN_RELATIONSHIP, Constants.COLUMN_FAMILY_CHAIN_RELATIONSHIP);
 
-            createTableIfNeed(Constants.TABLE_CHAIN_ONE_MINUTE_SUMMARY_EXCLUDE_RELATIONSHIP, Constants.COLUMN_FAMILY_NAME_CHAIN_SUMMARY);
+            createTableIfNeed(HBaseTableMetaData.TABLE_CID_TID_MAPPING.TABLE_NAME, HBaseTableMetaData.TABLE_CID_TID_MAPPING.COLUMN_FAMILY_NAME);
 
-            createTableIfNeed(Constants.TABLE_CHAIN_DETAIL, Constants.COLUMN_FAMILY_NAME_TRACE_DETAIL);
+            createTableIfNeed(HBaseTableMetaData.TABLE_CALL_CHAIN_RELATIONSHIP.TABLE_NAME, HBaseTableMetaData.TABLE_CALL_CHAIN_RELATIONSHIP.COLUMN_FAMILY_NAME);
+
+            createTableIfNeed(HBaseTableMetaData.TABLE_CHAIN_ONE_MINUTE_SUMMARY_EXCLUDE_RELATIONSHIP.TABLE_NAME, HBaseTableMetaData.TABLE_CHAIN_ONE_MINUTE_SUMMARY_EXCLUDE_RELATIONSHIP.COLUMN_FAMILY_NAME);
+
+            createTableIfNeed(HBaseTableMetaData.TABLE_CHAIN_DETAIL.TABLE_NAME, HBaseTableMetaData.TABLE_CHAIN_DETAIL.COLUMN_FAMILY_NAME);
 
         } catch (IOException e) {
             logger.error("Create tables failed", e);
@@ -88,11 +61,38 @@ public class HBaseUtil {
             connection = ConnectionFactory.createConnection(configuration);
         }
     }
+    
+    public static boolean saveCidTidMapping(String traceId, ChainInfo chainInfo) {
+        Table table = null;
+
+        try {
+            table = connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_CID_TID_MAPPING.TABLE_NAME));
+        } catch (IOException e) {
+            logger.error("Cannot found table[" + HBaseTableMetaData.TABLE_CID_TID_MAPPING.TABLE_NAME + "]", e);
+        }
+
+        Put put = new Put(Bytes.toBytes(traceId));
+
+        put.addColumn(Bytes.toBytes(HBaseTableMetaData.TABLE_CID_TID_MAPPING.COLUMN_FAMILY_NAME),
+                Bytes.toBytes(HBaseTableMetaData.TABLE_CID_TID_MAPPING.CID_COLUMN_NAME),
+                Bytes.toBytes(chainInfo.getCID()));
+        try {
+            table.put(put);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Insert data[RowKey:{}] success.", put.getId());
+            }
+        } catch (IOException e) {
+            logger.error("Insert data [Rowkey:{}] failed.", put.getId(), e);
+            return false;
+        }
+
+        return true;
+    }
 
 
     public static ChainRelationship selectCallChainRelationship(String key) throws IOException {
         ChainRelationship chainRelate = new ChainRelationship(key);
-        Table table = connection.getTable(TableName.valueOf(Constants.TABLE_CALL_CHAIN_RELATIONSHIP));
+        Table table = connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_CALL_CHAIN_RELATIONSHIP.TABLE_NAME));
         Get g = new Get(Bytes.toBytes(key));
         Result r = table.get(g);
         for (Cell cell : r.rawCells()) {
@@ -100,7 +100,7 @@ public class HBaseUtil {
 
                 String qualifierName = Bytes.toString(cell.getQualifierArray(), cell.getQualifierOffset(),
                         cell.getQualifierLength());
-                if (Constants.UNCATEGORIZE_COLUMN_FAMILY.equals(qualifierName)) {
+                if (HBaseTableMetaData.TABLE_CALL_CHAIN_RELATIONSHIP.UNCATEGORIZE_COLUMN_NAME.equals(qualifierName)) {
                     List<UncategorizeChainInfo> uncategorizeChainInfoList = new Gson().fromJson(Bytes.toString(cell.getValueArray(),
                             cell.getValueOffset(), cell.getValueLength()),
                             new TypeToken<List<UncategorizeChainInfo>>() {
@@ -118,7 +118,7 @@ public class HBaseUtil {
 
     public static ChainSpecificTimeWindowSummary selectChainSummaryResult(String key) throws IOException {
         ChainSpecificTimeWindowSummary result = null;
-        Table table = connection.getTable(TableName.valueOf(Constants.TABLE_CHAIN_ONE_MINUTE_SUMMARY_EXCLUDE_RELATIONSHIP));
+        Table table = connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_CHAIN_ONE_MINUTE_SUMMARY_EXCLUDE_RELATIONSHIP.TABLE_NAME));
         Get g = new Get(Bytes.toBytes(key));
         Result r = table.get(g);
 
@@ -136,7 +136,7 @@ public class HBaseUtil {
     }
 
     public static void saveChainRelationship(Put put) throws IOException {
-        Table table = connection.getTable(TableName.valueOf(Constants.TABLE_CALL_CHAIN_RELATIONSHIP));
+        Table table = connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_CALL_CHAIN_RELATIONSHIP.TABLE_NAME));
 
         table.put(put);
         if (logger.isDebugEnabled()) {
@@ -145,7 +145,7 @@ public class HBaseUtil {
     }
 
     public static void batchSaveChainSpecificTimeWindowSummary(List<Put> puts) throws IOException, InterruptedException {
-        Table table = connection.getTable(TableName.valueOf(Constants.TABLE_CHAIN_ONE_MINUTE_SUMMARY_EXCLUDE_RELATIONSHIP));
+        Table table = connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_CHAIN_ONE_MINUTE_SUMMARY_EXCLUDE_RELATIONSHIP.TABLE_NAME));
         Object[] resultArrays = new Object[puts.size()];
         table.batch(puts, resultArrays);
         for (Object result : resultArrays) {
@@ -156,7 +156,7 @@ public class HBaseUtil {
     }
 
     public static void saveChainDetails(List<Put> puts) throws IOException, InterruptedException {
-        Table table = connection.getTable(TableName.valueOf(Constants.TABLE_CHAIN_DETAIL));
+        Table table = connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_CHAIN_DETAIL.TABLE_NAME));
         if (puts != null && puts.size() > 0) {
             Object[] resultArrays = new Object[puts.size()];
             table.batch(puts, resultArrays);

@@ -1,16 +1,16 @@
 package com.ai.cloud.skywalking.analysis.categorize2chain;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainNode;
-import com.ai.cloud.skywalking.analysis.config.Config;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class ChainNodeSpecificTimeWindowSummary {
+	public static final long INTERVAL = 1L;
 
     private String traceLevelId;
 
@@ -50,7 +50,7 @@ public class ChainNodeSpecificTimeWindowSummary {
 
     private String generateKey(long startTime) {
         long minutes = (startTime % (1000 * 60 * 60)) / (1000 * 60);
-        return String.valueOf(minutes / Config.ChainNodeSummary.INTERVAL);
+        return String.valueOf(minutes / INTERVAL);
     }
 
     @Override

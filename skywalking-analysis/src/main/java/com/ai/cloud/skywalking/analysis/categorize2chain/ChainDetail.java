@@ -3,7 +3,7 @@ package com.ai.cloud.skywalking.analysis.categorize2chain;
 import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainInfo;
 import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainNode;
 import com.ai.cloud.skywalking.analysis.config.Config;
-import com.ai.cloud.skywalking.analysis.config.Constants;
+import com.ai.cloud.skywalking.analysis.config.HBaseTableMetaData;
 import com.google.gson.Gson;
 
 import org.apache.hadoop.hbase.client.Put;
@@ -36,7 +36,7 @@ public class ChainDetail {
 
     public void save(Put put) throws SQLException {
         for (Map.Entry<String, ChainNode> entry : chainNodeMap.entrySet()){
-            put.addColumn(Constants.COLUMN_FAMILY_NAME_TRACE_DETAIL.getBytes(),entry.getKey().getBytes(),
+            put.addColumn(HBaseTableMetaData.TABLE_CHAIN_DETAIL.COLUMN_FAMILY_NAME.getBytes(),entry.getKey().getBytes(),
                     entry.getValue().toString().getBytes());
         }
         if (isNormal) {

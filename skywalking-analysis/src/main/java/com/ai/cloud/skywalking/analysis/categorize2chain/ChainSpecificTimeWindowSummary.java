@@ -1,9 +1,9 @@
 package com.ai.cloud.skywalking.analysis.categorize2chain;
 
 import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainNode;
+import com.ai.cloud.skywalking.analysis.categorize2chain.util.HBaseUtil;
 import com.ai.cloud.skywalking.analysis.config.Config;
-import com.ai.cloud.skywalking.analysis.config.Constants;
-import com.ai.cloud.skywalking.analysis.util.HBaseUtil;
+import com.ai.cloud.skywalking.analysis.config.HBaseTableMetaData;
 
 import org.apache.hadoop.hbase.client.Put;
 
@@ -52,7 +52,7 @@ public class ChainSpecificTimeWindowSummary {
 
     public void save(Put put) {
         for (Map.Entry<String, ChainNodeSpecificTimeWindowSummary> entry : chainNodeSummaryResultMap.entrySet()) {
-            put.addColumn(Constants.COLUMN_FAMILY_NAME_CHAIN_SUMMARY.getBytes(), entry.getKey().getBytes(), entry.getValue().toString().getBytes());
+            put.addColumn(HBaseTableMetaData.TABLE_CHAIN_ONE_MINUTE_SUMMARY_EXCLUDE_RELATIONSHIP.COLUMN_FAMILY_NAME.getBytes(), entry.getKey().getBytes(), entry.getValue().toString().getBytes());
         }
     }
 }

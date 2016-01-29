@@ -38,7 +38,7 @@ public class AlarmProcessServer {
             processThreads.add(tmpThread);
         }
         logger.info("Successfully launched {} processing threads.", Config.Server.PROCESS_THREAD_SIZE);
-        new NumberOfUsersChangeDetectionThread().start();
+        new UsersChangedDetectionThread().start();
         logger.info("Successfully launched the thread that inspect the number of user");
         logger.info("Alarm process server successfully started.");
         while (true) {

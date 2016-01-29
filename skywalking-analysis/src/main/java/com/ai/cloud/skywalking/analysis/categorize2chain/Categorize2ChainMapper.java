@@ -4,9 +4,10 @@ import com.ai.cloud.skywalking.analysis.categorize2chain.filter.SpanNodeProcessC
 import com.ai.cloud.skywalking.analysis.categorize2chain.filter.SpanNodeProcessFilter;
 import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainInfo;
 import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainNode;
+import com.ai.cloud.skywalking.analysis.categorize2chain.util.HBaseUtil;
 import com.ai.cloud.skywalking.analysis.config.ConfigInitializer;
-import com.ai.cloud.skywalking.analysis.util.HBaseUtil;
 import com.ai.cloud.skywalking.protocol.Span;
+
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
@@ -63,7 +64,7 @@ public class Categorize2ChainMapper extends TableMapper<Text, ChainInfo> {
         }
 
         chainInfo.generateChainToken();
-        HBaseUtil.saveData(key, chainInfo);
+        HBaseUtil.saveCidTidMapping(key, chainInfo);
         return chainInfo;
     }
 

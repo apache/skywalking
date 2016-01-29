@@ -25,8 +25,4 @@ public class Config {
     public static class Filter {
         public static String FILTER_PACKAGE_NAME;
     }
-
-    public static class ChainNodeSummary {
-        public static long INTERVAL = 1L;
-    }
 }

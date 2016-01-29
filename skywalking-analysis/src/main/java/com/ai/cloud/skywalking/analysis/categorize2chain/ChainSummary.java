@@ -2,7 +2,7 @@ package com.ai.cloud.skywalking.analysis.categorize2chain;
 
 import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainInfo;
 import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainNode;
-import com.ai.cloud.skywalking.analysis.util.HBaseUtil;
+import com.ai.cloud.skywalking.analysis.categorize2chain.util.HBaseUtil;
 
 import org.apache.hadoop.hbase.client.Put;
 
