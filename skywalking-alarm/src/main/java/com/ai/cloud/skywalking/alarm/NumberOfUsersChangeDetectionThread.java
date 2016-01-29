@@ -11,13 +11,13 @@ import org.apache.logging.log4j.Logger;
 import java.sql.SQLException;
 import java.util.concurrent.TimeUnit;
 
-public class UserNumberInspectThread extends Thread {
+public class NumberOfUsersChangeDetectionThread extends Thread {
 
     private boolean isInspector = false;
     private InterProcessMutex inspectorLock = new InterProcessMutex(ZKUtil.getZkClient(),
             Config.ZKPath.INSPECTOR_LOCK_PATH);
     private String userIdsEncryptedStr;
-    private Logger logger = LogManager.getLogger(UserNumberInspectThread.class);
+    private Logger logger = LogManager.getLogger(NumberOfUsersChangeDetectionThread.class);
 
     public void run() {
         while (true) {
