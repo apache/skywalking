@@ -2,6 +2,7 @@ package com.ai.cloud.skywalking.alarm;
 
 import com.ai.cloud.skywalking.alarm.conf.Config;
 import com.ai.cloud.skywalking.alarm.dao.AlarmMessageDao;
+import com.ai.cloud.skywalking.alarm.util.MD5Encryption;
 import com.ai.cloud.skywalking.alarm.util.ZKUtil;
 import org.apache.curator.framework.recipes.locks.InterProcessMutex;
 import org.apache.logging.log4j.LogManager;
@@ -10,13 +11,13 @@ import org.apache.logging.log4j.Logger;
 import java.sql.SQLException;
 import java.util.concurrent.TimeUnit;
 
-public class UserInfoInspectThread extends Thread {
+public class UserNumberInspectThread extends Thread {
 
     private boolean isInspector = false;
     private InterProcessMutex inspectorLock = new InterProcessMutex(ZKUtil.getZkClient(),
             Config.ZKPath.INSPECTOR_LOCK_PATH);
-    private int userHashCode;
-    private Logger logger = LogManager.getLogger(UserInfoInspectThread.class);
+    private String userIdsEncryptedStr;
+    private Logger logger = LogManager.getLogger(UserNumberInspectThread.class);
 
     public void run() {
         while (true) {
@@ -28,7 +29,7 @@ public class UserInfoInspectThread extends Thread {
                     }
 
                     isInspector = true;
-                    userHashCode = AlarmMessageDao.selectAllUserIds().toString().hashCode();
+                    userIdsEncryptedStr = MD5Encryption.getEncryption(AlarmMessageDao.selectAllUserIds().toString());
                 }
 
                 // 判断上次用户数量是否发生变化
@@ -46,11 +47,11 @@ public class UserInfoInspectThread extends Thread {
     }
 
     private boolean checkUserNumber() throws SQLException {
-        int currentUserHashCode = AlarmMessageDao.selectAllUserIds().toString().hashCode();
-        if (userHashCode == currentUserHashCode) {
+        String currentUserIdsEncryptedStr = MD5Encryption.getEncryption(AlarmMessageDao.selectAllUserIds().toString());
+        if (userIdsEncryptedStr == currentUserIdsEncryptedStr) {
             return false;
         }
-        userHashCode = currentUserHashCode;
+        userIdsEncryptedStr = currentUserIdsEncryptedStr;
         return true;
     }
 }
