@@ -6,6 +6,7 @@ import com.ai.cloud.skywalking.analysis.categorize2chain.Categorize2ChainReducer
 import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainInfo;
 import com.ai.cloud.skywalking.analysis.config.Config;
 import com.ai.cloud.skywalking.analysis.config.ConfigInitializer;
+import com.ai.cloud.skywalking.analysis.config.Constants;
 import com.ai.cloud.skywalking.protocol.Span;
 
 import org.apache.hadoop.conf.Configuration;
@@ -48,7 +49,7 @@ public class CallChainMapperTest {
 
     public static List<Span> selectByTraceId(String traceId) throws IOException {
         List<Span> entries = new ArrayList<Span>();
-        Table table = connection.getTable(TableName.valueOf(Config.HBase.TABLE_CALL_CHAIN));
+        Table table = connection.getTable(TableName.valueOf(Constants.TABLE_CALL_CHAIN));
         Get g = new Get(Bytes.toBytes(traceId));
         Result r = table.get(g);
         for (Cell cell : r.rawCells()) {
