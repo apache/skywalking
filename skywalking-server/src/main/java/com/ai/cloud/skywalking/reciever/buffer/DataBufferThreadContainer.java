@@ -1,6 +1,7 @@
 package com.ai.cloud.skywalking.reciever.buffer;
 
 import com.ai.cloud.skywalking.reciever.conf.Config;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.comparator.NameFileComparator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,6 +32,10 @@ public class DataBufferThreadContainer {
     public static void init() {
         logger.info("Add EOF flags to the unprocessed data file last time.");
         File parentDir = new File(Config.Buffer.DATA_BUFFER_FILE_PARENT_DIRECTORY);
+        // 判断数据缓存文件是否存在，如果不存在，则创建
+        if (!parentDir.exists()) {
+            parentDir.mkdirs();
+        }
         NameFileComparator sizeComparator = new NameFileComparator();
         File[] dataFileList = sizeComparator.sort(parentDir.listFiles());
         logger.info("Pending file number :" + dataFileList.length);
