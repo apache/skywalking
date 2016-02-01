@@ -188,9 +188,9 @@ INSERT INTO `system_config` (`config_id`,`conf_key`,`conf_value`,`val_type`,`val
     <version>1.0-SNAPSHOT</version>
 </dependency>
 ```
-查询不会引用所需的第三方组件（如Spring、dubbo、dubbox等），请自行引入所需的版本。
+插件不会引用所需的第三方组件（如Spring、dubbo、dubbox等），请自行引入所需的版本。
 
-## 根据所需插件配置应用程序
+## 根据所需插件，配置应用程序
 参考[用户指南](http://wu-sheng.github.io/sky-walking/sample-code/codeView.html)
 
 ## 下载并设置授权文件
