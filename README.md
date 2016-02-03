@@ -37,6 +37,7 @@ Mail: wu.sheng@foxmail.com
 # Quick Start
 ## 编译与部署
 ### 部署第三方软件
+- JDK 1.7
 - 安装zookeeper 3.4.6
 - 安装apache hbase 1.1.2
 - 安装mysql
@@ -148,6 +149,12 @@ INSERT INTO `system_config` (`config_id`,`conf_key`,`conf_value`,`val_type`,`val
 ## 根据所需的监控点，引入maven依赖
 暂不存在公网仓库，需要本地编译并发布
 ```xml
+<!-- API日志输出，客户端可指定所需的log4j2版本 -->
+<dependency>
+    <groupId>org.apache.logging.log4j</groupId>
+    <artifactId>log4j-core</artifactId>
+    <version>2.4.1</version>
+</dependency>
 <!-- 监控api，可监控插件不支持的调用 -->
 <dependency>
     <groupId>com.ai.cloud</groupId>
