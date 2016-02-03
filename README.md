@@ -150,6 +150,7 @@ INSERT INTO `system_config` (`config_id`,`conf_key`,`conf_value`,`val_type`,`val
 暂不存在公网仓库，需要本地编译并发布
 ```xml
 <!-- API日志输出，客户端可指定所需的log4j2版本 -->
+<!-- 2.4.1为开发过程所选用版本 -->
 <dependency>
     <groupId>org.apache.logging.log4j</groupId>
     <artifactId>log4j-core</artifactId>
