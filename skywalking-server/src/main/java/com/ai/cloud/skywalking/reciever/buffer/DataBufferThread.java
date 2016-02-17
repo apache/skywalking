@@ -23,8 +23,8 @@ public class DataBufferThread extends Thread {
     private FileOutputStream outputStream;
     private AtomicInteger index = new AtomicInteger();
 
-    public DataBufferThread() {
-    	super("DataBufferThread");
+    public DataBufferThread(int threadIdx) {
+    	super("DataBufferThread_" + threadIdx);
         try {
             file = new File(DATA_BUFFER_FILE_PARENT_DIRECTORY, getFileName());
             if (file.exists()) {

@@ -14,6 +14,7 @@ class AppendEOFFlagThread extends Thread {
     private File[] dataBufferFiles;
 
     public AppendEOFFlagThread(File[] dataBufferFiles) {
+    	super("AppendEOFFlagThread");
         this.dataBufferFiles = dataBufferFiles;
     }
 

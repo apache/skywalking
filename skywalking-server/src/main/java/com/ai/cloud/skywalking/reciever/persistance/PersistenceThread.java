@@ -17,8 +17,8 @@ public class PersistenceThread extends Thread {
 
     private Logger logger = LogManager.getLogger(PersistenceThread.class);
 
-    PersistenceThread() {
-        super("PersistenceThread");
+    PersistenceThread(int threadIdx) {
+        super("PersistenceThread_" + threadIdx);
     }
 
     @Override

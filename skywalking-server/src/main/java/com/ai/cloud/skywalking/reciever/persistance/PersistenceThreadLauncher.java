@@ -7,7 +7,7 @@ public class PersistenceThreadLauncher {
     public static void doLaunch() {
         new RegisterPersistenceThread().start();
         for (int i = 0; i < Config.Server.MAX_DEAL_DATA_THREAD_NUMBER; i++) {
-            new PersistenceThread().start();
+            new PersistenceThread(i).start();
         }
     }
 }

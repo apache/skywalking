@@ -1,10 +1,6 @@
 package com.ai.cloud.skywalking.reciever.buffer;
 
-import com.ai.cloud.skywalking.reciever.conf.Config;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.comparator.NameFileComparator;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import static com.ai.cloud.skywalking.reciever.conf.Config.Persistence.MAX_APPEND_EOF_FLAGS_THREAD_NUMBER;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -12,7 +8,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static com.ai.cloud.skywalking.reciever.conf.Config.Persistence.MAX_APPEND_EOF_FLAGS_THREAD_NUMBER;
+import org.apache.commons.io.comparator.NameFileComparator;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.ai.cloud.skywalking.reciever.conf.Config;
 
 public class DataBufferThreadContainer {
 
@@ -57,7 +57,7 @@ public class DataBufferThreadContainer {
         logger.info("Data buffer thread size {} begin to init ", Config.Server.
                 MAX_DEAL_DATA_THREAD_NUMBER);
         for (int i = 0; i < Config.Server.MAX_DEAL_DATA_THREAD_NUMBER; i++) {
-            DataBufferThread dataBufferThread = new DataBufferThread();
+            DataBufferThread dataBufferThread = new DataBufferThread(i);
             dataBufferThread.start();
             buffers.add(dataBufferThread);
         }
