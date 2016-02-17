@@ -214,7 +214,7 @@ export SKYWALKING_RUN=true
 ```
 - 设置完成后，可以在当前环境中启动业务应用系统
 
-## 通过扩展log在应用日志中，显示trace-id
+## 通过扩展log4j或log4j2，在应用日志中，显示trace-id
 - 编译并发布skywalking-log/log4j-1.x-plugin和skywalking-log/log4j-2.x-plugin
 - 引用所需的日志插件
 ```xml
