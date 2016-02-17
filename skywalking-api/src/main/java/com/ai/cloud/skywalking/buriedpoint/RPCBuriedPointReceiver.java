@@ -1,7 +1,7 @@
 package com.ai.cloud.skywalking.buriedpoint;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.ai.cloud.skywalking.api.IBuriedPointReceiver;
 import com.ai.cloud.skywalking.buffer.ContextBuffer;
@@ -15,7 +15,7 @@ import com.ai.cloud.skywalking.util.ContextGenerator;
 
 public class RPCBuriedPointReceiver extends ApplicationExceptionHandler implements IBuriedPointReceiver {
 
-    private static Logger logger = Logger.getLogger(LocalBuriedPointSender.class.getName());
+	private static Logger logger = LogManager.getLogger(RPCBuriedPointReceiver.class);
 
     public void afterReceived() {
         if (!AuthDesc.isAuth())
@@ -38,7 +38,7 @@ public class RPCBuriedPointReceiver extends ApplicationExceptionHandler implemen
         spanData.setReceiver(true);
 
         if (Config.BuriedPoint.PRINTF) {
-            logger.log(Level.INFO, "TraceId:" + spanData.getTraceId() + "\tviewpointId:" + spanData.getViewPointId() + "\tParentLevelId:" + spanData.
+            logger.debug("TraceId:" + spanData.getTraceId() + "\tviewpointId:" + spanData.getViewPointId() + "\tParentLevelId:" + spanData.
                     getParentLevel() + "\tLevelId:" + spanData.getLevelId());
         }
 

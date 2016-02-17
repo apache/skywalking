@@ -1,5 +1,8 @@
 package com.ai.cloud.skywalking.buriedpoint;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.ai.cloud.skywalking.api.IBuriedPointSender;
 import com.ai.cloud.skywalking.buffer.ContextBuffer;
 import com.ai.cloud.skywalking.conf.AuthDesc;
@@ -11,12 +14,8 @@ import com.ai.cloud.skywalking.model.Identification;
 import com.ai.cloud.skywalking.protocol.Span;
 import com.ai.cloud.skywalking.util.ContextGenerator;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 public class ThreadFactoryBuriedPointSender extends ApplicationExceptionHandler implements IBuriedPointSender {
-
-    private static Logger logger = Logger.getLogger(ThreadBuriedPointSender.class.getName());
+	private static Logger logger = LogManager.getLogger(ThreadBuriedPointSender.class);
 
     public ContextData beforeSend(Identification id) {
         if (!AuthDesc.isAuth())
@@ -41,7 +40,7 @@ public class ThreadFactoryBuriedPointSender extends ApplicationExceptionHandler 
         // 填上必要信息
         spanData.setCost(System.currentTimeMillis() - spanData.getStartDate());
         if (Config.BuriedPoint.PRINTF) {
-            logger.log(Level.INFO, "viewpointId:" + spanData.getViewPointId() + "\tParentLevelId:" + spanData.
+            logger.debug("viewpointId:" + spanData.getViewPointId() + "\tParentLevelId:" + spanData.
                     getParentLevel() + "\tLevelId:" + spanData.getLevelId());
         }
         // 存放到本地发送进程中

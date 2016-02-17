@@ -6,8 +6,9 @@ import static com.ai.cloud.skywalking.conf.Config.Consumer.MAX_CONSUMER;
 import static com.ai.cloud.skywalking.conf.Config.Consumer.MAX_WAIT_TIME;
 
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.ai.cloud.skywalking.conf.Config;
 import com.ai.cloud.skywalking.conf.Constants;
@@ -17,8 +18,7 @@ import com.ai.cloud.skywalking.selfexamination.HeathReading;
 import com.ai.cloud.skywalking.sender.DataSenderFactoryWithBalance;
 
 public class BufferGroup {
-	private static Logger logger = Logger
-			.getLogger(BufferGroup.class.getName());
+	private static Logger logger = LogManager.getLogger(BufferGroup.class);
 	private String groupName;
 	private Span[] dataBuffer = new Span[BUFFER_MAX_SIZE];
 	AtomicInteger index = new AtomicInteger(0);
@@ -42,6 +42,9 @@ public class BufferGroup {
 	public void save(Span span) {
 		int i = Math.abs(index.getAndIncrement() % BUFFER_MAX_SIZE);
 		if (dataBuffer[i] != null) {
+			logger.warn(
+					"Group[{}] index[{}] data collision, discard old data.",
+					groupName, i);
 			HealthCollector.getCurrentHeathReading(null).updateData(
 					HeathReading.WARNING,
 					"Group[" + groupName + "] index[" + i
@@ -77,7 +80,7 @@ public class BufferGroup {
 								try {
 									Thread.sleep(CONSUMER_FAIL_RETRY_WAIT_INTERVAL);
 								} catch (InterruptedException e) {
-									logger.log(Level.ALL, "Sleep Failure");
+									logger.error("Sleep Failure");
 								}
 							}
 							HealthCollector.getCurrentHeathReading(null)
@@ -96,20 +99,20 @@ public class BufferGroup {
 							try {
 								Thread.sleep(CONSUMER_FAIL_RETRY_WAIT_INTERVAL);
 							} catch (InterruptedException e) {
-								logger.log(Level.ALL, "Sleep Failure");
+								logger.error("Sleep Failure");
 							}
 						}
 						data = new StringBuilder();
 					}
 				} catch (Throwable e) {
-					logger.log(Level.ALL, "buffer group running failed", e);
+					logger.error("buffer group running failed", e);
 				}
 
 				if (!bool) {
 					try {
 						Thread.sleep(MAX_WAIT_TIME);
 					} catch (InterruptedException e) {
-						logger.log(Level.ALL, "Sleep Failure");
+						logger.error("Sleep Failure");
 					}
 				}
 			}

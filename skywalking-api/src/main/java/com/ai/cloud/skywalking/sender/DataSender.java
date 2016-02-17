@@ -1,7 +1,16 @@
 package com.ai.cloud.skywalking.sender;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
+
 import com.ai.cloud.io.netty.bootstrap.Bootstrap;
-import com.ai.cloud.io.netty.channel.*;
+import com.ai.cloud.io.netty.channel.Channel;
+import com.ai.cloud.io.netty.channel.ChannelHandlerContext;
+import com.ai.cloud.io.netty.channel.ChannelInboundHandlerAdapter;
+import com.ai.cloud.io.netty.channel.ChannelInitializer;
+import com.ai.cloud.io.netty.channel.ChannelOption;
+import com.ai.cloud.io.netty.channel.ChannelPipeline;
+import com.ai.cloud.io.netty.channel.EventLoopGroup;
 import com.ai.cloud.io.netty.channel.nio.NioEventLoopGroup;
 import com.ai.cloud.io.netty.channel.socket.SocketChannel;
 import com.ai.cloud.io.netty.channel.socket.nio.NioSocketChannel;
@@ -10,12 +19,7 @@ import com.ai.cloud.io.netty.handler.codec.LengthFieldPrepender;
 import com.ai.cloud.io.netty.handler.codec.bytes.ByteArrayDecoder;
 import com.ai.cloud.io.netty.handler.codec.bytes.ByteArrayEncoder;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.util.logging.Logger;
-
 public class DataSender implements IDataSender {
-    private static Logger logger = Logger.getLogger(DataSender.class.getName());
     private EventLoopGroup group;
     private SenderStatus status = SenderStatus.FAILED;
     private InetSocketAddress socketAddress;

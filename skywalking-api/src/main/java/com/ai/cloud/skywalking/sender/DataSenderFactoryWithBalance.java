@@ -1,21 +1,30 @@
 package com.ai.cloud.skywalking.sender;
 
-import com.ai.cloud.skywalking.conf.Config;
-import com.ai.cloud.skywalking.util.StringUtil;
+import static com.ai.cloud.skywalking.conf.Config.Sender.CHECKER_THREAD_WAIT_INTERVAL;
+import static com.ai.cloud.skywalking.conf.Config.Sender.CLOSE_SENDER_COUNTDOWN;
+import static com.ai.cloud.skywalking.conf.Config.Sender.CONNECT_PERCENT;
+import static com.ai.cloud.skywalking.conf.Config.Sender.RETRY_GET_SENDER_WAIT_INTERVAL;
+import static com.ai.cloud.skywalking.conf.Config.Sender.SWITCH_SENDER_INTERVAL;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import static com.ai.cloud.skywalking.conf.Config.Sender.*;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.ai.cloud.skywalking.conf.Config;
+import com.ai.cloud.skywalking.util.StringUtil;
 
 public class DataSenderFactoryWithBalance {
 
-    private static Logger logger = Logger
-            .getLogger(DataSenderFactoryWithBalance.class.getName());
+	private static Logger logger = LogManager.getLogger(DataSenderFactoryWithBalance.class);
     // unUsedServerAddress存放没有使用的服务器地址，
     private static List<InetSocketAddress> unusedServerAddresses = new ArrayList<InetSocketAddress>();
 
@@ -24,7 +33,7 @@ public class DataSenderFactoryWithBalance {
 
     private static int calculateMaxKeeperConnectingSenderSize(int allAddressSize) {
         if (CONNECT_PERCENT <= 0 || CONNECT_PERCENT > 100) {
-            logger.log(Level.ALL, "CONNECT_PERCENT must between 1 and 100");
+            logger.error("CONNECT_PERCENT must between 1 and 100");
             System.exit(-1);
         }
         return (int) Math.ceil(allAddressSize
@@ -87,11 +96,11 @@ public class DataSenderFactoryWithBalance {
                     try {
                         Thread.sleep(RETRY_GET_SENDER_WAIT_INTERVAL);
                     } catch (InterruptedException e) {
-                        logger.log(Level.ALL, "Sleep failed", e);
+                        logger.error("Sleep failed", e);
                     }
                 }
             } catch (Throwable e) {
-                logger.log(Level.ALL, "get sender failed", e);
+                logger.error("get sender failed", e);
             }
 
         }
@@ -171,14 +180,14 @@ public class DataSenderFactoryWithBalance {
                         sleepTime = 0;
                     }
                 } catch (Throwable e) {
-                    logger.log(Level.ALL, "DataSenderChecker running failed", e);
+                    logger.error("DataSenderChecker running failed", e);
                 }
 
                 sleepTime += CHECKER_THREAD_WAIT_INTERVAL;
                 try {
                     Thread.sleep(CHECKER_THREAD_WAIT_INTERVAL);
                 } catch (InterruptedException e) {
-                    logger.log(Level.ALL, "Sleep failed");
+                    logger.error("Sleep failed");
                 }
 
             }

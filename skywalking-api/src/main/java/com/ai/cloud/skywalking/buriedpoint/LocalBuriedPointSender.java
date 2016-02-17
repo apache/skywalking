@@ -1,5 +1,8 @@
 package com.ai.cloud.skywalking.buriedpoint;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.ai.cloud.skywalking.api.IBuriedPointSender;
 import com.ai.cloud.skywalking.buffer.ContextBuffer;
 import com.ai.cloud.skywalking.conf.AuthDesc;
@@ -11,12 +14,9 @@ import com.ai.cloud.skywalking.model.Identification;
 import com.ai.cloud.skywalking.protocol.Span;
 import com.ai.cloud.skywalking.util.ContextGenerator;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 public class LocalBuriedPointSender extends ApplicationExceptionHandler implements IBuriedPointSender {
 
-    private static Logger logger = Logger.getLogger(IBuriedPointSender.class.getName());
+	private static Logger logger = LogManager.getLogger(LocalBuriedPointSender.class);
 
     public ContextData beforeSend(Identification id) {
         if (!AuthDesc.isAuth())
@@ -43,7 +43,7 @@ public class LocalBuriedPointSender extends ApplicationExceptionHandler implemen
         spanData.setCost(System.currentTimeMillis() - spanData.getStartDate());
 
         if (Config.BuriedPoint.PRINTF) {
-            logger.log(Level.INFO, "TraceId:" + spanData.getTraceId() + "\tviewpointId:" + spanData.getViewPointId() + "\tParentLevelId:" + spanData.
+            logger.debug("TraceId:" + spanData.getTraceId() + "\tviewpointId:" + spanData.getViewPointId() + "\tParentLevelId:" + spanData.
                     getParentLevel() + "\tLevelId:" + spanData.getLevelId());
         }
 
