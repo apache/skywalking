@@ -238,4 +238,4 @@ export SKYWALKING_RUN=true
 ```
 
 # 源代码说明
-[HBase存储结构说明](https://github.com/wu-sheng/sky-walking/blob/master/skywalking-server/doc/hbase_table_desc.md)
+* [HBase存储结构说明](https://github.com/wu-sheng/sky-walking/blob/master/skywalking-server/doc/hbase_table_desc.md)
