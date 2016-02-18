@@ -1,4 +1,4 @@
-# Sky Walking Server HBASE存储结构说明
+# Sky Walking HBase存储结构说明
 ## sw-call-chain
 - 此表用于存储追踪到明细的日志信息，包含左右从客户端收集到的日志全文。
 
