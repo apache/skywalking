@@ -3,8 +3,6 @@ package com.ai.cloud.skywalking.analysis.categorize2chain;
 import java.io.IOException;
 import java.util.Iterator;
 
-import com.ai.cloud.skywalking.analysis.config.ConfigInitializer;
-
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -13,13 +11,19 @@ import org.slf4j.LoggerFactory;
 
 import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainInfo;
 import com.ai.cloud.skywalking.analysis.categorize2chain.util.HBaseUtil;
+import com.ai.cloud.skywalking.analysis.config.ConfigInitializer;
 
 public class Categorize2ChainReducer extends Reducer<Text, ChainInfo, Text, IntWritable> {
     private static Logger logger = LoggerFactory.getLogger(Categorize2ChainReducer.class.getName());
 
     @Override
+	protected void setup(Context context) throws IOException,
+			InterruptedException {
+		ConfigInitializer.initialize();
+	}
+    
+    @Override
     protected void reduce(Text key, Iterable<ChainInfo> values, Context context) throws IOException, InterruptedException {
-        ConfigInitializer.initialize();
         int totalCount = reduceAction(key.toString(), values.iterator());
         context.write(new Text(key.toString()), new IntWritable(totalCount));
     }
