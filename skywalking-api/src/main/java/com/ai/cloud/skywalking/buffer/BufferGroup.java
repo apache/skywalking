@@ -86,6 +86,7 @@ public class BufferGroup {
 							HealthCollector.getCurrentHeathReading(null)
 									.updateData(HeathReading.INFO,
 											"send buried-point data.");
+							logger.debug("send buried-point data, size:{}", data.length());
 							data = new StringBuilder();
 						}
 
