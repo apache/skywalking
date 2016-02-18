@@ -33,6 +33,15 @@
 ### 存储结构示例
 |row_key|column_family|column_name|column_value|
 | ------| ----------- |---------| ----------|
-|1.0a2.1455720324167.4c6b535.22455.2629.289|trace_info|cid|cid_123456|
+|1.0a2.1455720324167.4c6b535.22455.2629.289|trace_info|cid|CID_1EFBFAC8994FDD6993B5E8A23E3C83A7|
 
-## 
+## sw-chain-detail
+- 用于存放CID的的明细信息
+
+### 存储结构
+* row_key: cid。
+* column_family: (常量)chain_detail
+* column_name:动态列名，列名称由各埋点的序号决定。RPC调用数据已经合并。
+* column_value:埋点viewpoint标识详细信息。如：节点的token值，viewpoint，businesskey，层级编号，调用类型，userId等
+
+### 存储结构示例
