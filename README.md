@@ -31,7 +31,6 @@ http://wu-sheng.github.io/sky-walking/
 http://wu-sheng.github.io/sky-walking/sample-code/codeView.html
 
 # Contact Us
-
 Mail: wu.sheng@foxmail.com
 
 # Quick Start
@@ -237,3 +236,6 @@ export SKYWALKING_RUN=true
 #tid:1.0a2.1453065000002.c3f8779.27878.30.184，标识此次访问的tid信息，示例如下
 [DEBUG] Returning handler method [public org.springframework.web.servlet.ModelAndView com.ai.cloud.skywalking.example.controller.OrderSaveController.save(javax.servlet.http.HttpServletRequest)] TID:1.0a2.1453192613272.2e0c63e.11144.58.1 2016-01-19 16:36:53.288 org.springframework.beans.factory.support.DefaultListableBeanFactory 
 ```
+
+# 源代码说明
+[HBase存储结构说明](https://github.com/wu-sheng/sky-walking/blob/master/skywalking-server/doc/hbase_table_desc.md)
