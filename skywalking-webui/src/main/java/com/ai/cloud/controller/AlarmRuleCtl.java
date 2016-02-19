@@ -231,7 +231,9 @@ public class AlarmRuleCtl {
         ConfigArgs configArgs = new ConfigArgs();
         configArgs.setPeriod(json.getInteger("period"));
         MailInfo mailInfo = new MailInfo();
-        mailInfo.setMailCc(json.getString("mailCc").toString().trim().split(","));
+        if(json.containsKey("mailCc") && !StringUtil.isBlank(json.getString("mailCc"))){
+        	mailInfo.setMailCc(json.getString("mailCc").toString().trim().split(","));
+        }
         mailInfo.setMailTo(json.getString("mailTo").toString().trim().split(","));
         configArgs.setMailInfo(mailInfo);
         ruleMVO.setConfigArgs(configArgs);
@@ -322,7 +324,9 @@ public class AlarmRuleCtl {
         ConfigArgs configArgs = new ConfigArgs();
         configArgs.setPeriod(json.getInteger("period"));
         MailInfo mailInfo = new MailInfo();
-        mailInfo.setMailCc(json.getString("mailCc").toString().trim().split(","));
+        if(json.containsKey("mailCc") && !StringUtil.isBlank(json.getString("mailCc"))){
+        	mailInfo.setMailCc(json.getString("mailCc").toString().trim().split(","));
+        }
         mailInfo.setMailTo(json.getString("mailTo").toString().trim().split(","));
         configArgs.setMailInfo(mailInfo);
         ruleMVO.setConfigArgs(configArgs);
