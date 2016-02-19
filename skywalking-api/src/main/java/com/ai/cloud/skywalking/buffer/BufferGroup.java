@@ -13,8 +13,6 @@ import org.apache.logging.log4j.Logger;
 import com.ai.cloud.skywalking.conf.Config;
 import com.ai.cloud.skywalking.conf.Constants;
 import com.ai.cloud.skywalking.protocol.Span;
-import com.ai.cloud.skywalking.selfexamination.HealthCollector;
-import com.ai.cloud.skywalking.selfexamination.HeathReading;
 import com.ai.cloud.skywalking.sender.DataSenderFactoryWithBalance;
 
 public class BufferGroup {
@@ -45,10 +43,6 @@ public class BufferGroup {
 			logger.warn(
 					"Group[{}] index[{}] data collision, discard old data.",
 					groupName, i);
-			HealthCollector.getCurrentHeathReading(null).updateData(
-					HeathReading.WARNING,
-					"Group[" + groupName + "] index[" + i
-							+ "] data collision, discard old data.");
 		}
 		dataBuffer[i] = span;
 	}
@@ -83,9 +77,6 @@ public class BufferGroup {
 									logger.error("Sleep Failure");
 								}
 							}
-							HealthCollector.getCurrentHeathReading(null)
-									.updateData(HeathReading.INFO,
-											"send buried-point data.");
 							logger.debug("send buried-point data, size:{}", data.length());
 							data = new StringBuilder();
 						}
