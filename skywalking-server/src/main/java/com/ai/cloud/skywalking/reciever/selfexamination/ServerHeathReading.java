@@ -3,12 +3,10 @@ package com.ai.cloud.skywalking.reciever.selfexamination;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.ai.cloud.skywalking.reciever.conf.Constants;
-
 public class ServerHeathReading {
-	public static final String ERROR = "ERROR";
-	public static final String WARNING = "WARNING";
-	public static final String INFO = "INFO";
+	public static final String ERROR = "[ERROR]";
+	public static final String WARNING = "[WARNING]";
+	public static final String INFO = "[INFO]";
 	
 	private String id;
 	
@@ -32,10 +30,10 @@ public class ServerHeathReading {
 	
 	@Override
 	public String toString(){
-		StringBuilder sb = new StringBuilder(this.id);
-		sb.append(Constants.HEALTH_DATA_SPILT_PATTERN);
+		StringBuilder sb = new StringBuilder();
+		sb.append("id<").append(this.id).append(">\n");
 		for(Map.Entry<String, HeathDetailData> data : datas.entrySet()){
-			sb.append(data.getKey()).append(Constants.HEALTH_DATA_SPILT_PATTERN).append(data.getValue().toString()).append(Constants.HEALTH_DATA_SPILT_PATTERN);
+			sb.append(data.getKey()).append(data.getValue().toString()).append("\n");
 		}
 		
 		//reset data
@@ -68,7 +66,7 @@ public class ServerHeathReading {
 		
 		@Override
 		public String toString(){
-			return "d:" + data + Constants.HEALTH_DATA_SPILT_PATTERN + "t:" + statusTime;
+			return  data + "(t:" + statusTime + ")";
 		}
 	}
 }

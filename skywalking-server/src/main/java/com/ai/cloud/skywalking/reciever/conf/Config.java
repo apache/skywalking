@@ -72,9 +72,9 @@ public class Config {
     }
 
     public static class HBaseConfig {
-        //
+        
         public static String TABLE_NAME = "sw-call-chain";
-        //
+        
         public static String FAMILY_COLUMN_NAME = "call-chain";
 
         public static String ZK_HOSTNAME;
@@ -103,5 +103,10 @@ public class Config {
         public static int REDIS_MAX_TOTAL = 20;
 
         public static boolean ALARM_OFF_FLAG = false;
+    }
+    
+    public static class HealthCollector {
+    	// 默认健康检查上报时间
+    	public static long REPORT_INTERVAL = 5 * 60 * 1000L;
     }
 }
