@@ -72,6 +72,8 @@ public class DataSender implements IDataSender {
             if (channel != null && channel.isActive()) {
                 channel.writeAndFlush(data.getBytes());
                 return true;
+            }else{
+                DataSenderFactoryWithBalance.unRegister(this);
             }
         } catch (Exception e) {
             DataSenderFactoryWithBalance.unRegister(this);
