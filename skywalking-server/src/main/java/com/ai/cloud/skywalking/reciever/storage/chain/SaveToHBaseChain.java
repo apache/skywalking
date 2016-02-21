@@ -73,14 +73,14 @@ public class SaveToHBaseChain implements IStorageChain {
 
     }
 
-    private static void bulkInsertBuriedPointData(List<Span> spans) {
+    public static void bulkInsertBuriedPointData(List<Span> spans) {
         if (spans == null || spans.size() <= 0)
             return;
         List<Put> puts = new ArrayList<Put>();
         Put put;
         String columnName;
         for (Span span : spans) {
-            put = new Put(Bytes.toBytes(span.getTraceId()));
+            put = new Put(Bytes.toBytes(span.getTraceId()), getTSBySpanTraceId(span));
             if (StringUtils.isEmpty(span.getParentLevel().trim())) {
                 columnName = span.getLevelId() + "";
                 if (span.isReceiver()) {
@@ -102,6 +102,10 @@ public class SaveToHBaseChain implements IStorageChain {
         bulkInsertBuriedPointData(Config.HBaseConfig.TABLE_NAME, puts);
 
         ServerHealthCollector.getCurrentHeathReading("hbase").updateData(ServerHeathReading.INFO, "save " + spans.size() + " BuriedPointEntries.");
+    }
+
+    private static long getTSBySpanTraceId(Span span) {
+        return Long.parseLong(span.getTraceId().split("\\.")[2]);
     }
 
     private static void bulkInsertBuriedPointData(String tableName, List<Put> data) {
