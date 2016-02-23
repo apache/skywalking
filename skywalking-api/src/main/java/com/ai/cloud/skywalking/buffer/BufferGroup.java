@@ -5,8 +5,6 @@ import static com.ai.cloud.skywalking.conf.Config.Consumer.CONSUMER_FAIL_RETRY_W
 import static com.ai.cloud.skywalking.conf.Config.Consumer.MAX_CONSUMER;
 import static com.ai.cloud.skywalking.conf.Config.Consumer.MAX_WAIT_TIME;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -14,12 +12,13 @@ import com.ai.cloud.skywalking.conf.Config;
 import com.ai.cloud.skywalking.conf.Constants;
 import com.ai.cloud.skywalking.protocol.Span;
 import com.ai.cloud.skywalking.sender.DataSenderFactoryWithBalance;
+import com.ai.cloud.skywalking.util.AtomicRangeInteger;
 
 public class BufferGroup {
 	private static Logger logger = LogManager.getLogger(BufferGroup.class);
 	private String groupName;
 	private Span[] dataBuffer = new Span[BUFFER_MAX_SIZE];
-	AtomicInteger index = new AtomicInteger(0);
+	AtomicRangeInteger index = new AtomicRangeInteger(0, BUFFER_MAX_SIZE);
 
 	public BufferGroup(String groupName) {
 		this.groupName = groupName;
@@ -38,7 +37,7 @@ public class BufferGroup {
 	}
 
 	public void save(Span span) {
-		int i = Math.abs(index.getAndIncrement() % BUFFER_MAX_SIZE);
+		int i = index.getAndIncrement();
 		if (dataBuffer[i] != null) {
 			logger.warn(
 					"Group[{}] index[{}] data collision, discard old data.",

@@ -1,19 +1,25 @@
 package com.ai.cloud.skywalking.reciever.buffer;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import com.ai.cloud.skywalking.reciever.selfexamination.ServerHealthCollector;
-import com.ai.cloud.skywalking.reciever.selfexamination.ServerHeathReading;
+import static com.ai.cloud.skywalking.reciever.conf.Config.Buffer.DATA_BUFFER_FILE_PARENT_DIRECTORY;
+import static com.ai.cloud.skywalking.reciever.conf.Config.Buffer.DATA_CONFLICT_WAIT_TIME;
+import static com.ai.cloud.skywalking.reciever.conf.Config.Buffer.DATA_FILE_MAX_LENGTH;
+import static com.ai.cloud.skywalking.reciever.conf.Config.Buffer.FLUSH_NUMBER_OF_CACHE;
+import static com.ai.cloud.skywalking.reciever.conf.Config.Buffer.MAX_WAIT_TIME;
+import static com.ai.cloud.skywalking.reciever.conf.Config.Buffer.PER_THREAD_MAX_BUFFER_NUMBER;
+import static com.ai.cloud.skywalking.reciever.conf.Config.Buffer.WRITE_DATA_FAILURE_RETRY_INTERVAL;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.ai.cloud.skywalking.reciever.conf.Config.Buffer.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.ai.cloud.skywalking.reciever.selfexamination.ServerHealthCollector;
+import com.ai.cloud.skywalking.reciever.selfexamination.ServerHeathReading;
+import com.ai.cloud.skywalking.util.AtomicRangeInteger;
 
 public class DataBufferThread extends Thread {
 
@@ -21,7 +27,7 @@ public class DataBufferThread extends Thread {
     private byte[][] data = new byte[PER_THREAD_MAX_BUFFER_NUMBER][];
     private File file;
     private FileOutputStream outputStream;
-    private AtomicInteger index = new AtomicInteger();
+    private AtomicRangeInteger index = new AtomicRangeInteger(0, PER_THREAD_MAX_BUFFER_NUMBER);
 
     public DataBufferThread(int threadIdx) {
     	super("DataBufferThread_" + threadIdx);
@@ -142,7 +148,7 @@ public class DataBufferThread extends Thread {
     }
 
     public void saveTemporarily(byte[] s) {
-        int i = Math.abs(index.getAndIncrement() % data.length);
+        int i = index.getAndIncrement();
         while (data[i] != null) {
             try {
             	ServerHealthCollector.getCurrentHeathReading(null).updateData(ServerHeathReading.WARNING, "DataBuffer index[" + i + "] data collision, service pausing. ");
