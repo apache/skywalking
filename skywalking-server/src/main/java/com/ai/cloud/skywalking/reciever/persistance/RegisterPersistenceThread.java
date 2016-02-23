@@ -22,6 +22,10 @@ public class RegisterPersistenceThread extends Thread {
 
     public RegisterPersistenceThread() {
         super("RegisterPersistenceThread");
+        File offsetParentDir = new File(REGISTER_FILE_PARENT_DIRECTORY);
+        if (!offsetParentDir.exists()){
+            offsetParentDir.mkdirs();
+        }
     }
 
     @Override
