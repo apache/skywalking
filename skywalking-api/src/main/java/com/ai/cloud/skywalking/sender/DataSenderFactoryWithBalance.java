@@ -197,8 +197,14 @@ public class DataSenderFactoryWithBalance {
     private static DataSender findReadySender() {
 
         DataSender result = null;
-        int index = ThreadLocalRandom.current().nextInt(0,
-                unusedServerAddresses.size());
+
+        int index = 0;
+
+        if (unusedServerAddresses.size() > 1){
+            index = ThreadLocalRandom.current().nextInt(0,
+                    unusedServerAddresses.size());
+        }
+
         for (int i = 0; i < unusedServerAddresses.size(); i++, index++) {
 
             if (index == unusedServerAddresses.size()) {
