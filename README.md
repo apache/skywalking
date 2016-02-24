@@ -8,7 +8,8 @@ SkyWalking-Distributed Application Tracing System, 是一个对JAVA应用程序�
 * 张鑫 &nbsp;&nbsp;[亚信](http://www.asiainfo.com/) zhangxin10@asiainfo.com
 
 # 交流群
-QQ群：392443393，请注明“Sky Walking交流”
+* QQ群：392443393，请注明“Sky Walking交流”
+* 请各位使用者反馈下，都在哪些项目中使用。[点击进入](https://github.com/wu-sheng/sky-walking/issues/34)
 
 # 整体架构图
 ![整体架构图](http://wu-sheng.github.io/sky-walking/sample-code/images/skywalkingClusterDeploy.jpeg)

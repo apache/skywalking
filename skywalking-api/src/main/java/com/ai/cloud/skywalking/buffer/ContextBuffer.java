@@ -4,9 +4,13 @@ import com.ai.cloud.skywalking.protocol.Span;
 
 import java.util.concurrent.ThreadLocalRandom;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import static com.ai.cloud.skywalking.conf.Config.Buffer.POOL_SIZE;
 
 public class ContextBuffer {
+	private static Logger logger = LogManager.getLogger(ContextBuffer.class);
 
     private static BufferPool pool = new BufferPool();
 
@@ -15,7 +19,11 @@ public class ContextBuffer {
     }
 
     public static void save(Span span) {
-        pool.save(span);
+    	try{
+    		pool.save(span);
+    	}catch(Throwable t){
+    		logger.error("save span error.", t);
+    	}
     }
 
 
