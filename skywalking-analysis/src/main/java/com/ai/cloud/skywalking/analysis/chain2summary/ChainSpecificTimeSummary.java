@@ -25,6 +25,9 @@ public class ChainSpecificTimeSummary implements Writable {
     private Map<String, ChainNodeSpecificTimeWindowSummary> summaryMap;
     private long summaryTimestamp;
 
+    public ChainSpecificTimeSummary() {
+    }
+
     public ChainSpecificTimeSummary(String rowKey) throws ParseException {
         String[] splitValue = rowKey.split("-");
         this.cId = splitValue[0];
@@ -43,6 +46,9 @@ public class ChainSpecificTimeSummary implements Writable {
         JsonObject jsonObject = (JsonObject) new JsonParser().parse(in.readLine());
         cId = jsonObject.get("cId").getAsString();
         userId = jsonObject.get("userId").getAsString();
+        if (jsonObject.get("entranceNodeToken") == null) {
+            throw new IOException("No entryNode Token CId[" + cId + "]");
+        }
         entranceNodeToken = jsonObject.get("entranceNodeToken").getAsString();
         summaryMap = new Gson().fromJson(jsonObject.get("summaryMap").toString(),
                 new TypeToken<Map<String, ChainNodeSpecificTimeWindowSummary>>() {

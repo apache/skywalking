@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-public class Chain2SummaryMapper extends TableMapper<Text, Object> {
+public class Chain2SummaryMapper extends TableMapper<Text, ChainSpecificTimeSummary> {
 
     private Logger logger = LoggerFactory
             .getLogger(Chain2SummaryMapper.class.getName());
@@ -34,6 +34,7 @@ public class Chain2SummaryMapper extends TableMapper<Text, Object> {
             }
             context.write(new Text(summary.buildMapperKey()), summary);
         } catch (Exception e) {
+            e.printStackTrace();
             logger.error("Failed to mapper call chain[" + key.toString() + "]",
                     e);
         }
