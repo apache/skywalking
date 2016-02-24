@@ -50,6 +50,7 @@ public class ChainRelationship {
             if (entry.getValue().isAlreadyContained(child)) {
                 isContained = true;
             } else if (entry.getValue().isContained(child)) {
+                logger.info("There has contained :" + entry.getKey() + "  " + child.getCID());
                 entry.getValue().add(child);
                 chainDetailMap.put(child.getCID(), new ChainDetail(child.getChainInfo(), false));
                 isContained = true;

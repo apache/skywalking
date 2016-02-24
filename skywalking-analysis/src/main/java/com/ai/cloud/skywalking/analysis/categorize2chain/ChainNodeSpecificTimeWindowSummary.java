@@ -13,12 +13,14 @@ public class ChainNodeSpecificTimeWindowSummary {
 	public static final long INTERVAL = 1L;
 
     private String traceLevelId;
-
+    private String nodeToken;
+    // key : 分钟
     private Map<String, ChainNodeSpecificTimeWindowSummaryValue> summerValueMap;
 
-    public static ChainNodeSpecificTimeWindowSummary newInstance(String traceLevelId) {
+    public static ChainNodeSpecificTimeWindowSummary newInstance(String traceLevelId, String nodeToken) {
         ChainNodeSpecificTimeWindowSummary cns = new ChainNodeSpecificTimeWindowSummary();
         cns.traceLevelId = traceLevelId;
+        cns.nodeToken = nodeToken;
         return cns;
     }
 
@@ -32,6 +34,7 @@ public class ChainNodeSpecificTimeWindowSummary {
         summerValueMap = new Gson().fromJson(jsonObject.get("summerValueMap").toString(),
                 new TypeToken<Map<String, ChainNodeSpecificTimeWindowSummaryValue>>() {
                 }.getType());
+        nodeToken = jsonObject.get("nodeToken").getAsString();
     }
 
     public String getTraceLevelId() {
@@ -56,5 +59,13 @@ public class ChainNodeSpecificTimeWindowSummary {
     @Override
     public String toString() {
         return new Gson().toJson(this);
+    }
+
+    public String getNodeToken() {
+        return nodeToken;
+    }
+
+    public Map<String, ChainNodeSpecificTimeWindowSummaryValue> getSummerValueMap() {
+        return summerValueMap;
     }
 }

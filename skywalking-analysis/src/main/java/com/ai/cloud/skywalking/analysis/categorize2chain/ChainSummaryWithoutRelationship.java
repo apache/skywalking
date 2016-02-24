@@ -13,13 +13,13 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-public class ChainSummary {
+public class ChainSummaryWithoutRelationship {
 
-    private static Logger logger = LoggerFactory.getLogger(ChainSummary.class.getName());
+    private static Logger logger = LoggerFactory.getLogger(ChainSummaryWithoutRelationship.class.getName());
     private Map<String, ChainSpecificTimeWindowSummary> loadedChainSpecificTimeWindowSummary;
     private Map<String, Timestamp> updateChainInfo;
 
-    public ChainSummary() {
+    public ChainSummaryWithoutRelationship() {
         loadedChainSpecificTimeWindowSummary = new HashMap<String, ChainSpecificTimeWindowSummary>();
         updateChainInfo = new HashMap<String, Timestamp>();
     }

@@ -15,7 +15,7 @@ public class ChainSpecificTimeWindowSummary {
 
     private static Logger logger = LoggerFactory.getLogger(ChainSpecificTimeWindowSummary.class.getName());
     /**
-     * key : cid + 时间窗口
+     * key : cid + uid + 时间窗口
      */
     private Map<String, ChainNodeSpecificTimeWindowSummary> chainNodeSummaryResultMap;
 
@@ -23,12 +23,12 @@ public class ChainSpecificTimeWindowSummary {
         chainNodeSummaryResultMap = new HashMap<String, ChainNodeSpecificTimeWindowSummary>();
     }
 
-    public static ChainSpecificTimeWindowSummary load(String cid_time) {
+    public static ChainSpecificTimeWindowSummary load(String cid_uid_time) {
         ChainSpecificTimeWindowSummary result = null;
         try {
-            result = HBaseUtil.selectChainSummaryResult(cid_time);
+            result = HBaseUtil.selectChainSummaryResult(cid_uid_time);
         } catch (IOException e) {
-            logger.error("Failed to load the key[" + cid_time + "] summary result.", e);
+            logger.error("Failed to load the key[" + cid_uid_time + "] summary result.", e);
         }
 
         if (result == null) {
@@ -45,7 +45,7 @@ public class ChainSpecificTimeWindowSummary {
         String tlid = node.getTraceLevelId();
         ChainNodeSpecificTimeWindowSummary chainNodeSummaryResult = chainNodeSummaryResultMap.get(tlid);
         if (chainNodeSummaryResult == null) {
-            chainNodeSummaryResult = ChainNodeSpecificTimeWindowSummary.newInstance(tlid);
+            chainNodeSummaryResult = ChainNodeSpecificTimeWindowSummary.newInstance(tlid, node.getNodeToken());
             chainNodeSummaryResultMap.put(tlid, chainNodeSummaryResult);
         }
         chainNodeSummaryResult.summary(node);

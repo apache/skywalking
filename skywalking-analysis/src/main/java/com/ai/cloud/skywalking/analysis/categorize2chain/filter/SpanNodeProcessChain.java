@@ -25,7 +25,7 @@ public class SpanNodeProcessChain {
         try {
             properties.load(SpanNodeProcessChain.class.getResourceAsStream("/viewpointfilter.conf"));
         } catch (IOException e) {
-            logger.error("Failed to find config file[viewpointfilter.conf]", e);
+            logger.error("Failed to searchRelationship config file[viewpointfilter.conf]", e);
             System.exit(-1);
         }
 
@@ -41,7 +41,7 @@ public class SpanNodeProcessChain {
                     tmpSpanNodeFilter.setNextProcessChain(currentFilter);
                     currentFilter = tmpSpanNodeFilter;
                 } catch (ClassNotFoundException e) {
-                    logger.error("Filed to find class[" + Config.Filter.FILTER_PACKAGE_NAME + "." + filters[i] + "]", e);
+                    logger.error("Filed to searchRelationship class[" + Config.Filter.FILTER_PACKAGE_NAME + "." + filters[i] + "]", e);
                     System.exit(-1);
                 } catch (InstantiationException e) {
                     logger.error("Can not instance class[" + Config.Filter.FILTER_PACKAGE_NAME + "." + filters[i] + "]", e);

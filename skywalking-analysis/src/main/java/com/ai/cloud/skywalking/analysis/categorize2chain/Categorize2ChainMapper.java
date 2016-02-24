@@ -49,7 +49,7 @@ public class Categorize2ChainMapper extends TableMapper<Text, ChainInfo> {
 
 			chainInfo = spanToChainInfo(Bytes.toString(key.get()), spanList);
 			logger.info("Success convert span to chain info...."
-					+ chainInfo.getCID());
+					+ chainInfo.getCID() + " TraceId : " + Bytes.toString(key.get()));
 			context.write(
 					new Text(chainInfo.getUserId() + ":"
 							+ chainInfo.getEntranceNodeToken()), chainInfo);

@@ -7,7 +7,9 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -18,7 +20,7 @@ public class CategorizedChainInfo {
     private List<String> children_Token;
 
     public CategorizedChainInfo(ChainInfo chainInfo) {
-    	cid = chainInfo.getCID();
+        cid = chainInfo.getCID();
 
         StringBuilder stringBuilder = new StringBuilder();
         boolean flag = false;
@@ -26,7 +28,7 @@ public class CategorizedChainInfo {
             if (flag) {
                 stringBuilder.append(";");
             }
-            stringBuilder.append(chainNode.getNodeToken());
+            stringBuilder.append(chainNode.getTraceLevelId() + "-" + chainNode.getNodeToken());
             flag = true;
         }
 
@@ -52,6 +54,10 @@ public class CategorizedChainInfo {
         return pattern.matcher(this.chainFullToken).find();
     }
 
+    public static void main(String[] args) {
+        System.out.println(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(1453507835957L)));
+    }
+
     public boolean isAlreadyContained(UncategorizeChainInfo uncategorizeChainInfo) {
         return children_Token.contains(uncategorizeChainInfo.getCID());
     }
@@ -63,5 +69,9 @@ public class CategorizedChainInfo {
     @Override
     public String toString() {
         return new Gson().toJson(this);
+    }
+
+    public List<String> getChildren_Token() {
+        return children_Token;
     }
 }

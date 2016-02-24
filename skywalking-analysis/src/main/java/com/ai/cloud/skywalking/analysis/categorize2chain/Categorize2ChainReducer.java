@@ -31,8 +31,8 @@ public class Categorize2ChainReducer extends Reducer<Text, ChainInfo, Text, IntW
     public static int reduceAction(String key, Iterator<ChainInfo> chainInfoIterator) throws IOException, InterruptedException {
         int totalCount = 0;
         try {
-            ChainRelationship chainRelate = HBaseUtil.selectCallChainRelationship(key.toString());
-            ChainSummary summary = new ChainSummary();
+            ChainRelationship chainRelate = HBaseUtil.loadCallChainRelationship(key.toString());
+            ChainSummaryWithoutRelationship summary = new ChainSummaryWithoutRelationship();
             while (chainInfoIterator.hasNext()) {
                 ChainInfo chainInfo = chainInfoIterator.next();
                 try {

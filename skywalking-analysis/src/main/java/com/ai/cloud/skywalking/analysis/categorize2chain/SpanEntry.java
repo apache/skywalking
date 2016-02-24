@@ -102,7 +102,7 @@ public class SpanEntry {
 
         if (serverSpan != null) {
             if (serverSpan.getExceptionStack() != null && serverSpan.getExceptionStack().length() > 0) {
-            	if(clientSpan.getStatusCode() == 1){
+            	if(clientSpan != null && clientSpan.getStatusCode() == 1){
             		return ChainNode.NodeStatus.ABNORMAL;
             	}else{
             		return ChainNode.NodeStatus.HUMAN_INTERRUPTION;

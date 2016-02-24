@@ -19,16 +19,8 @@ public class ChainNodeSpecificTimeWindowSummaryValue {
         return totalCall;
     }
 
-    public void setTotalCall(long totalCall) {
-        this.totalCall = totalCall;
-    }
-
     public long getTotalCostTime() {
         return totalCostTime;
-    }
-
-    public void setTotalCostTime(long totalCostTime) {
-        this.totalCostTime = totalCostTime;
     }
 
     public long getCorrectNumber() {
@@ -37,10 +29,6 @@ public class ChainNodeSpecificTimeWindowSummaryValue {
     
     public long getHumanInterruptionNumber() {
         return humanInterruptionNumber;
-    }
-
-    public void setCorrectNumber(long correctNumber) {
-        this.correctNumber = correctNumber;
     }
 
     public void summary(ChainNode node) {
@@ -52,5 +40,12 @@ public class ChainNodeSpecificTimeWindowSummaryValue {
         	humanInterruptionNumber++;
         }
         totalCostTime += node.getCost();
+    }
+
+    public void accumulate(ChainNodeSpecificTimeWindowSummaryValue value) {
+        this.totalCall += value.getTotalCall();
+        this.correctNumber += value.getCorrectNumber();
+        this.totalCostTime += value.getTotalCostTime();
+        this.humanInterruptionNumber += value.getHumanInterruptionNumber();
     }
 }

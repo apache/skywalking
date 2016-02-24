@@ -21,7 +21,7 @@ public class DBCallChainInfoDao {
 			connection = DriverManager.getConnection(Config.MySql.URL,
 					Config.MySql.USERNAME, Config.MySql.PASSWORD);
 		} catch (ClassNotFoundException e) {
-			logger.error("Failed to find jdbc driver class["
+			logger.error("Failed to searchRelationship jdbc driver class["
 					+ Config.MySql.DRIVER_CLASS + "]", e);
 			System.exit(-1);
 		} catch (SQLException e) {
