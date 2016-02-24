@@ -21,11 +21,14 @@ public class AtomicRangeInteger extends Number implements java.io.Serializable {
 	 *
 	 * @param initialValue
 	 *            the initial value
+	 * @param endValue
+	 * 
+	 * AtomicRangeInteger在startValue和maxValue循环取值（ startValue <= value <  maxValue）
 	 */
-	public AtomicRangeInteger(int startValue, int endValue) {
+	public AtomicRangeInteger(int startValue, int maxValue) {
 		value = new AtomicInteger(startValue);
 		this.startValue = startValue;
-		this.endValue = endValue;
+		this.endValue = maxValue - 1;
 	}
 
 	/**
@@ -35,11 +38,8 @@ public class AtomicRangeInteger extends Number implements java.io.Serializable {
 	 */
 	public final int getAndIncrement() {
 		for (;;) {
-			int current = get();
-			int next = current + 1;
-			if (next >= this.endValue) {
-				next = this.startValue;
-			}
+			int current = value.get();
+			int next = current >= this.endValue ? this.startValue : current + 1;
 			if (value.compareAndSet(current, next))
 				return current;
 		}

@@ -9,6 +9,10 @@ import junit.framework.TestCase;
 import com.ai.cloud.skywalking.util.AtomicRangeInteger;
 
 public class AtomicRangeIntegerTest extends TestCase{
+	static String[] buffer = new String[5000];
+	
+	static AtomicRangeInteger ari = new AtomicRangeInteger(0, buffer.length);
+	
 	public void testGet(){
 		AtomicRangeInteger ari = new AtomicRangeInteger(0, 12);
 		for(int i = 0; i < 51; i++){
@@ -36,22 +40,20 @@ public class AtomicRangeIntegerTest extends TestCase{
 }
 
 class RangeIntegerThread extends Thread{
-	private static String[] buffer = new String[500000000];
-	
-	private static AtomicRangeInteger ari = new AtomicRangeInteger(0, buffer.length);
-	
 	@Override
 	public void run(){
 		while(true){
-			int i = ari.getAndIncrement();
+			int i = AtomicRangeIntegerTest.ari.getAndIncrement();
 			if(i % 10000000 == 0){
-				System.out.println(ari.get());
+				System.out.println(AtomicRangeIntegerTest.ari.get());
 			}
-			if(i >= buffer.length - 100000){
+			if(AtomicRangeIntegerTest.buffer[i] != null){
+				System.out.println("end at index:" + i + "," + AtomicRangeIntegerTest.buffer[i]);
 				break;
+			}else{
+				System.out.println("at index:" + i);
+				AtomicRangeIntegerTest.buffer[i] = "string";
 			}
-			Assert.assertNull(buffer[i]);
-			buffer[i] = "string";
 		}
 	}
 }
