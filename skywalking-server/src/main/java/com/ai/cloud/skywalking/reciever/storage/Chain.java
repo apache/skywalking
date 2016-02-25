@@ -1,6 +1,8 @@
 package com.ai.cloud.skywalking.reciever.storage;
 
 import com.ai.cloud.skywalking.protocol.Span;
+import com.ai.cloud.skywalking.reciever.selfexamination.ServerHealthCollector;
+import com.ai.cloud.skywalking.reciever.selfexamination.ServerHeathReading;
 
 import java.util.List;
 
@@ -15,7 +17,15 @@ public class Chain {
 
     public void doChain(List<Span> spans) {
         if (index < chains.size()) {
-            chains.get(index++).doChain(spans, this);
+            while (true) {
+                try {
+                    chains.get(index++).doChain(spans, this);
+                    break;
+                } catch (Throwable e) {
+                    ServerHealthCollector.getCurrentHeathReading("storage-chain").updateData(ServerHeathReading.ERROR,
+                            "Failed to do chain action.Cause:" + e.getMessage());
+                }
+            }
         }
     }
 
