@@ -7,6 +7,7 @@ import com.ai.cloud.skywalking.reciever.selfexamination.ServerHeathReading;
 import com.ai.cloud.skywalking.reciever.storage.Chain;
 import com.ai.cloud.skywalking.reciever.storage.ChainException;
 import com.ai.cloud.skywalking.reciever.storage.IStorageChain;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.*;
@@ -14,6 +15,7 @@ import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.mortbay.log.Log;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -101,7 +103,12 @@ public class SaveToHBaseChain implements IStorageChain {
     }
 
     private static long getTSBySpanTraceId(Span span) {
-        return Long.parseLong(span.getTraceId().split("\\.")[2]);
+    	try{
+    		return Long.parseLong(span.getTraceId().split("\\.")[2]);
+    	}catch(Throwable t){
+    		Log.warn("can't get timestamp from trace id:" + span.getTraceId() + ", going to use current timestamp.");
+    		return System.currentTimeMillis();
+    	}
     }
 
     private static void bulkInsertBuriedPointData(String tableName, List<Put> data) {

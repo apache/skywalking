@@ -23,7 +23,7 @@ public class Chain {
                     break;
                 } catch (Throwable e) {
                     ServerHealthCollector.getCurrentHeathReading("storage-chain").updateData(ServerHeathReading.ERROR,
-                            "Failed to do chain action.Cause:" + e.getMessage());
+                            "Failed to do chain action. spans list hash code:" + spans.hashCode() + ",Cause:" + e.getMessage());
                 }
             }
         }
