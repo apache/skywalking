@@ -86,6 +86,8 @@ public class Config {
         public static long RETRY_STORAGE_WAIT_TIME = 50L;
 
         public static String STORAGE_TYPE = "hbase";
+
+        public static int RETRY_STORAGE_TIMES = 3;
     }
 
     public static class Alarm {

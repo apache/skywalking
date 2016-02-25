@@ -49,12 +49,13 @@ public class StorageChainController {
             }
         }
 
-        while (true) {
+        int retryTimes = 0;
+        while(retryTimes++ < Config.StorageChain.RETRY_STORAGE_TIMES) {
             try {
                 Chain chain = new Chain(chainArray);
                 chain.doChain(spans);
-                break;
             } catch (Throwable e) {
+                // 主要的异常可能跟环境有关系，比如Redis,HBase，将会重试N次
                 try {
                     Thread.sleep(Config.StorageChain.RETRY_STORAGE_WAIT_TIME);
                 } catch (InterruptedException e1) {

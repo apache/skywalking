@@ -77,24 +77,30 @@ public class SaveToHBaseChain implements IStorageChain {
         if (spans == null || spans.size() <= 0)
             return;
         List<Put> puts = new ArrayList<Put>();
-        Put put;
+        Put put = null;
         String columnName;
         for (Span span : spans) {
-            put = new Put(Bytes.toBytes(span.getTraceId()), getTSBySpanTraceId(span));
-            if (StringUtils.isEmpty(span.getParentLevel().trim())) {
-                columnName = span.getLevelId() + "";
-                if (span.isReceiver()) {
-                    columnName = span.getLevelId() + "-S";
+            try {
+                put = new Put(Bytes.toBytes(span.getTraceId()), getTSBySpanTraceId(span));
+                if (StringUtils.isEmpty(span.getParentLevel().trim())) {
+                    columnName = span.getLevelId() + "";
+                    if (span.isReceiver()) {
+                        columnName = span.getLevelId() + "-S";
+                    }
+                    put.addColumn(Bytes.toBytes(Config.HBaseConfig.FAMILY_COLUMN_NAME), Bytes.toBytes(columnName),
+                            Bytes.toBytes(span.getOriginData()));
+                } else {
+                    columnName = span.getParentLevel() + "." + span.getLevelId();
+                    if (span.isReceiver()) {
+                        columnName = span.getParentLevel() + "." + span.getLevelId() + "-S";
+                    }
+                    put.addColumn(Bytes.toBytes(Config.HBaseConfig.FAMILY_COLUMN_NAME), Bytes.toBytes(columnName),
+                            Bytes.toBytes(span.getOriginData()));
                 }
-                put.addColumn(Bytes.toBytes(Config.HBaseConfig.FAMILY_COLUMN_NAME), Bytes.toBytes(columnName),
-                        Bytes.toBytes(span.getOriginData()));
-            } else {
-                columnName = span.getParentLevel() + "." + span.getLevelId();
-                if (span.isReceiver()) {
-                    columnName = span.getParentLevel() + "." + span.getLevelId() + "-S";
-                }
-                put.addColumn(Bytes.toBytes(Config.HBaseConfig.FAMILY_COLUMN_NAME), Bytes.toBytes(columnName),
-                        Bytes.toBytes(span.getOriginData()));
+            } catch (Exception e) {
+                // 不合规范的数据
+                logger.error("Failed to convert Span[" + span.getTraceId() + "] to put Object", e);
+                continue;
             }
             puts.add(put);
         }
