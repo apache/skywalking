@@ -47,12 +47,14 @@ public class ServerHealthCollector extends Thread {
 	public void run() {
 		while (true) {
 			try {
-				String[] keyList = heathReadings.keySet().toArray(new String[0]);
+				Map<String, ServerHeathReading> heathReadingsSnapshot = heathReadings;
+				heathReadings = new ConcurrentHashMap<String, ServerHeathReading>();
+				String[] keyList = heathReadingsSnapshot.keySet().toArray(new String[0]);
 				Arrays.sort(keyList);
 				StringBuilder log = new StringBuilder();
 				log.append("\n---------Server Health Collector Report---------\n");
 				for(String key : keyList){
-					log.append(heathReadings.get(key)).append("\n");
+					log.append(heathReadingsSnapshot.get(key)).append("\n");
 				}
 				log.append("------------------------------------------------\n");
 				
