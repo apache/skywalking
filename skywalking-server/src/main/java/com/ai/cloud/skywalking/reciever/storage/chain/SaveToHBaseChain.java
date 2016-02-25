@@ -122,15 +122,15 @@ public class SaveToHBaseChain implements IStorageChain {
             int index = 0;
             for (Object result : resultArrays) {
                 if (result == null) {
-                    while (!insert(tableName, data.get(index))) {
-                        Thread.sleep(100L);
-                    }
+                   throw new RuntimeException("Failed to storage puts to Table[" + tableName + "]");
                 }
                 index++;
             }
         } catch (IOException e) {
             throw new ChainException(e);
         } catch (InterruptedException e) {
+            throw new ChainException(e);
+        }catch (RuntimeException e){
             throw new ChainException(e);
         }
 

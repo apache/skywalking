@@ -1,8 +1,9 @@
 package com.ai.cloud.skywalking.reciever.storage;
 
 import com.ai.cloud.skywalking.protocol.Span;
-import com.ai.cloud.skywalking.reciever.conf.Config;
 import com.ai.cloud.skywalking.reciever.conf.Constants;
+import com.ai.cloud.skywalking.reciever.selfexamination.ServerHealthCollector;
+import com.ai.cloud.skywalking.reciever.selfexamination.ServerHeathReading;
 import com.ai.cloud.skywalking.reciever.storage.chain.AlarmChain;
 import com.ai.cloud.skywalking.reciever.storage.chain.SaveToHBaseChain;
 import com.ai.cloud.skywalking.reciever.storage.chain.SaveToMySQLChain;
@@ -49,19 +50,13 @@ public class StorageChainController {
             }
         }
 
-        int retryTimes = 0;
-        while(retryTimes++ < Config.StorageChain.RETRY_STORAGE_TIMES) {
-            try {
-                Chain chain = new Chain(chainArray);
-                chain.doChain(spans);
-            } catch (Throwable e) {
-                // 主要的异常可能跟环境有关系，比如Redis,HBase，将会重试N次
-                try {
-                    Thread.sleep(Config.StorageChain.RETRY_STORAGE_WAIT_TIME);
-                } catch (InterruptedException e1) {
-                    logger.error("Sleep failure", e);
-                }
-            }
+        try {
+            Chain chain = new Chain(chainArray);
+            chain.doChain(spans);
+        } catch (Throwable e) {
+            logger.error("Failed to storage chain.", e);
+            ServerHealthCollector.getCurrentHeathReading("storage-chain").updateData(ServerHeathReading.ERROR,
+                    "Failed to storage chain.Cause:" + e.getMessage());
         }
     }
 }
