@@ -135,7 +135,7 @@ public class DataSenderFactoryWithBalance {
                     }
 
                     // try to fill up senders. if size is not enough.
-                    while (usingDataSender.size() < maxKeepConnectingSenderSize) {
+                    while (unusedServerAddresses.size() > 0 && usingDataSender.size() < maxKeepConnectingSenderSize) {
                         if ((newSender = findReadySender()) == null) {
                             // no available sender. ignore.
                             break;
@@ -145,7 +145,7 @@ public class DataSenderFactoryWithBalance {
                     }
 
                     // try to switch.
-                    if (sleepTime >= SWITCH_SENDER_INTERVAL) {
+                    if (sleepTime >= SWITCH_SENDER_INTERVAL && unusedServerAddresses.size() > 0) {
                         // if sender is enough, go to switch for balancing.
                         if (usingDataSender.size() >= maxKeepConnectingSenderSize) {
                             DataSender toBeSwitchSender;
