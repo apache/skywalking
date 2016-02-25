@@ -58,49 +58,39 @@ public class SaveToHBaseChain implements IStorageChain {
         }
     }
 
-    public static boolean insert(String tableName, Put put) {
+    private static void insert(String tableName, Put put) {
         try {
             Table table = connection.getTable(TableName.valueOf(tableName));
             table.put(put);
-            if (logger.isDebugEnabled()) {
-                logger.debug("Insert data[RowKey:{}] success.", put.getId());
-            }
-            return true;
         } catch (IOException e) {
-            logger.error("Insert the data error.RowKey:[{}]", put.getId(), e);
-            return false;
+        	ServerHealthCollector.getCurrentHeathReading("hbase").updateData(ServerHeathReading.ERROR, "save RowKey[" + put.getId() + "] failure.");
+            throw new RuntimeException("Insert the data error.RowKey:[" + put.getId() + "]", e);
         }
 
     }
 
-    public static void bulkInsertBuriedPointData(List<Span> spans) {
+    private static void bulkInsertBuriedPointData(List<Span> spans) {
         if (spans == null || spans.size() <= 0)
             return;
         List<Put> puts = new ArrayList<Put>();
-        Put put = null;
+        Put put;
         String columnName;
         for (Span span : spans) {
-            try {
-                put = new Put(Bytes.toBytes(span.getTraceId()), getTSBySpanTraceId(span));
-                if (StringUtils.isEmpty(span.getParentLevel().trim())) {
-                    columnName = span.getLevelId() + "";
-                    if (span.isReceiver()) {
-                        columnName = span.getLevelId() + "-S";
-                    }
-                    put.addColumn(Bytes.toBytes(Config.HBaseConfig.FAMILY_COLUMN_NAME), Bytes.toBytes(columnName),
-                            Bytes.toBytes(span.getOriginData()));
-                } else {
-                    columnName = span.getParentLevel() + "." + span.getLevelId();
-                    if (span.isReceiver()) {
-                        columnName = span.getParentLevel() + "." + span.getLevelId() + "-S";
-                    }
-                    put.addColumn(Bytes.toBytes(Config.HBaseConfig.FAMILY_COLUMN_NAME), Bytes.toBytes(columnName),
-                            Bytes.toBytes(span.getOriginData()));
+            put = new Put(Bytes.toBytes(span.getTraceId()), getTSBySpanTraceId(span));
+            if (StringUtils.isEmpty(span.getParentLevel().trim())) {
+                columnName = span.getLevelId() + "";
+                if (span.isReceiver()) {
+                    columnName = span.getLevelId() + "-S";
                 }
-            } catch (Exception e) {
-                // 不合规范的数据
-                logger.error("Failed to convert Span[" + span.getTraceId() + "] to put Object", e);
-                continue;
+                put.addColumn(Bytes.toBytes(Config.HBaseConfig.FAMILY_COLUMN_NAME), Bytes.toBytes(columnName),
+                        Bytes.toBytes(span.getOriginData()));
+            } else {
+                columnName = span.getParentLevel() + "." + span.getLevelId();
+                if (span.isReceiver()) {
+                    columnName = span.getParentLevel() + "." + span.getLevelId() + "-S";
+                }
+                put.addColumn(Bytes.toBytes(Config.HBaseConfig.FAMILY_COLUMN_NAME), Bytes.toBytes(columnName),
+                        Bytes.toBytes(span.getOriginData()));
             }
             puts.add(put);
         }
@@ -121,8 +111,8 @@ public class SaveToHBaseChain implements IStorageChain {
             table.batch(data, resultArrays);
             int index = 0;
             for (Object result : resultArrays) {
-                if (result == null) {
-                   throw new RuntimeException("Failed to storage puts to Table[" + tableName + "]");
+                if (result != null) {
+                    insert(tableName, data.get(index));
                 }
                 index++;
             }
@@ -130,21 +120,7 @@ public class SaveToHBaseChain implements IStorageChain {
             throw new ChainException(e);
         } catch (InterruptedException e) {
             throw new ChainException(e);
-        }catch (RuntimeException e){
-            throw new ChainException(e);
         }
 
-    }
-
-    public static List<Span> selectByTraceId(String traceId) throws IOException {
-        List<Span> entries = new ArrayList<Span>();
-        Table table = connection.getTable(TableName.valueOf(Config.HBaseConfig.TABLE_NAME));
-        Get g = new Get(Bytes.toBytes(traceId));
-        Result r = table.get(g);
-        for (Cell cell : r.rawCells()) {
-            if (cell.getValueArray().length > 0)
-                entries.add(new Span(Bytes.toString(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength())));
-        }
-        return entries;
     }
 }
