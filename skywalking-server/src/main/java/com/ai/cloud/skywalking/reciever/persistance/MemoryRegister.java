@@ -25,7 +25,7 @@ public class MemoryRegister {
 
     public void updateOffSet(String fileName, int offset) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Register entry[{}] into the memory register", fileName);
+            logger.debug("Register entry[{}] offset[{}] into the memory register", fileName, offset);
         }
         if (entries.containsKey(fileName)) {
             entries.get(fileName).setOffset(offset);
