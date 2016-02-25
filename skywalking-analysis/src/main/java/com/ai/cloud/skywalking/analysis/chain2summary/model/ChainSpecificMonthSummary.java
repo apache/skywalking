@@ -20,6 +20,9 @@ public class ChainSpecificMonthSummary {
         Map<String, ChainNodeSpecificTimeWindowSummary> chainNodeSpecificTimeWindowSummaryMap = timeSummary.getSummaryMap();
 
         for (Map.Entry<String, ChainNodeSpecificTimeWindowSummary> entry : chainNodeSpecificTimeWindowSummaryMap.entrySet()) {
+            if (chainNodeSpecificMinSummaryMap.get(entry.getKey()) == null){
+                chainNodeSpecificMinSummaryMap.put(entry.getKey(), new ChainNodeSpecificMonthSummary());
+            }
             chainNodeSpecificMinSummaryMap.get(entry.getKey()).summary(timeSummary.getSummaryTimestamp(), entry.getValue());
         }
     }

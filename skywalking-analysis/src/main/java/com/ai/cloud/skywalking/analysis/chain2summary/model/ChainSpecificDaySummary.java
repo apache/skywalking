@@ -23,6 +23,9 @@ public class ChainSpecificDaySummary {
         Map<String, ChainNodeSpecificTimeWindowSummary> chainNodeSpecificTimeWindowSummaryMap = timeSummary.getSummaryMap();
 
         for (Map.Entry<String, ChainNodeSpecificTimeWindowSummary> entry : chainNodeSpecificTimeWindowSummaryMap.entrySet()) {
+            if (chainNodeSpecificHourSummaryMap.get(entry.getKey()) == null){
+                chainNodeSpecificHourSummaryMap.put(entry.getKey(), new ChainNodeSpecificDaySummary());
+            }
             chainNodeSpecificHourSummaryMap.get(entry.getKey()).summary(timeSummary.getSummaryTimestamp(), entry.getValue());
         }
     }

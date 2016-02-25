@@ -7,6 +7,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class ChainNodeSpecificMinSummary {
@@ -15,6 +16,10 @@ public class ChainNodeSpecificMinSummary {
     // key: 分钟  value: 统计结果
     private Map<String, ChainNodeSpecificTimeWindowSummaryValue> summerValueMap;
 
+
+    public  ChainNodeSpecificMinSummary(){
+        summerValueMap = new HashMap<String, ChainNodeSpecificTimeWindowSummaryValue>();
+    }
 
     public ChainNodeSpecificMinSummary(String originData) {
         JsonObject jsonObject = (JsonObject) new JsonParser().parse(originData);
@@ -30,7 +35,15 @@ public class ChainNodeSpecificMinSummary {
 
     public void summary(ChainNodeSpecificTimeWindowSummary value) {
         for (Map.Entry<String, ChainNodeSpecificTimeWindowSummaryValue> entry :value.getSummerValueMap().entrySet()){
+            if (summerValueMap.get(entry.getKey()) == null){
+                summerValueMap.put(entry.getKey(), new ChainNodeSpecificTimeWindowSummaryValue());
+            }
             summerValueMap.get(entry.getKey()).accumulate(entry.getValue());
         }
+    }
+
+    @Override
+    public String toString() {
+        return new Gson().toJson(this);
     }
 }

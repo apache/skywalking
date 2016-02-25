@@ -78,20 +78,20 @@ public class ChainSpecificTimeSummary implements Writable {
     public String getHourKey() {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date(summaryTimestamp));
-        return calendar.get(Calendar.YEAR) + "-" + calendar.get(Calendar.MONTH) + calendar.get(Calendar.DAY_OF_MONTH)
-                + " " + calendar.get(Calendar.HOUR);
+        return calendar.get(Calendar.YEAR) + "/" + (calendar.get(Calendar.MONTH) + 1) + "/"  +calendar.get(Calendar.DAY_OF_MONTH)
+                + " " + calendar.get(Calendar.HOUR) + ":00:00";
     }
 
     public String getDayKey() {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date(summaryTimestamp));
-        return calendar.get(Calendar.YEAR) + "-" + calendar.get(Calendar.MONTH) + calendar.get(Calendar.DAY_OF_MONTH);
+        return calendar.get(Calendar.YEAR) + "-" + (calendar.get(Calendar.MONTH) + 1)  + "-" + (calendar.get(Calendar.DAY_OF_MONTH) + 1);
     }
 
     public String getMonthKey() {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date(summaryTimestamp));
-        return calendar.get(Calendar.YEAR) + "-" + calendar.get(Calendar.MONTH);
+        return calendar.get(Calendar.YEAR) + "-" + (calendar.get(Calendar.MONTH) + 1);
     }
 
     public String getYearKey() {

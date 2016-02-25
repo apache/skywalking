@@ -9,12 +9,17 @@ import com.google.gson.reflect.TypeToken;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 public class ChainNodeSpecificHourSummary {
     private String traceLevelId;
     // key : 小时
     private Map<String, ChainNodeSpecificTimeWindowSummaryValue> summerValueMap;
+
+    public ChainNodeSpecificHourSummary() {
+        summerValueMap = new HashMap<String, ChainNodeSpecificTimeWindowSummaryValue>();
+    }
 
     public ChainNodeSpecificHourSummary(String originData) {
         JsonObject jsonObject = (JsonObject) new JsonParser().parse(originData);
@@ -29,8 +34,12 @@ public class ChainNodeSpecificHourSummary {
     }
 
     public void summary(long summaryTimestamp, ChainNodeSpecificTimeWindowSummary value) {
+        String key = generateSummaryValueMapKey(summaryTimestamp);
         for (Map.Entry<String, ChainNodeSpecificTimeWindowSummaryValue> entry : value.getSummerValueMap().entrySet()) {
-            summerValueMap.get(generateSummaryValueMapKey(summaryTimestamp)).accumulate(entry.getValue());
+            if (summerValueMap.get(key) == null) {
+                summerValueMap.put(key, new ChainNodeSpecificTimeWindowSummaryValue());
+            }
+            summerValueMap.get(key).accumulate(entry.getValue());
         }
     }
 
@@ -38,5 +47,10 @@ public class ChainNodeSpecificHourSummary {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date(timeStamp));
         return String.valueOf(calendar.get(Calendar.HOUR));
+    }
+
+    @Override
+    public String toString() {
+        return new Gson().toJson(this);
     }
 }
