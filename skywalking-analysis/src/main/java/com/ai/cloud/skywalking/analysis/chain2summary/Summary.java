@@ -1,8 +1,8 @@
 package com.ai.cloud.skywalking.analysis.chain2summary;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.ai.cloud.skywalking.analysis.chain2summary.entity.ChainSummaryWithRelationship;
 import com.ai.cloud.skywalking.analysis.chain2summary.po.ChainSpecificTimeSummary;
@@ -11,7 +11,7 @@ public class Summary {
     private Map<String, ChainSummaryWithRelationship> summaryWithRelationshipMap;
 
     public  Summary(){
-        summaryWithRelationshipMap = new HashMap<String, ChainSummaryWithRelationship>();
+        summaryWithRelationshipMap = new ConcurrentHashMap<String, ChainSummaryWithRelationship>();
     }
 
     public void summary(ChainSpecificTimeSummary timeSummary, ChainRelationship4Search chainRelationship) throws IOException {

@@ -17,7 +17,7 @@ import java.io.IOException;
 public class Chain2SummaryMapper extends TableMapper<Text, ChainSpecificTimeSummary> {
 
     private Logger logger = LoggerFactory
-            .getLogger(Chain2SummaryMapper.class.getName());
+            .getLogger(Chain2SummaryMapper.class);
 
 
     @Override
@@ -36,7 +36,6 @@ public class Chain2SummaryMapper extends TableMapper<Text, ChainSpecificTimeSumm
             }
             context.write(new Text(summary.buildMapperKey()), summary);
         } catch (Exception e) {
-            e.printStackTrace();
             logger.error("Failed to mapper call chain[" + key.toString() + "]",
                     e);
         }

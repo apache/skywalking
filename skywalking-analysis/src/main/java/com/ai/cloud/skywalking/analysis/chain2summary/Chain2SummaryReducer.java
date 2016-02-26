@@ -15,7 +15,7 @@ import java.util.Iterator;
 
 public class Chain2SummaryReducer extends Reducer<Text, ChainSpecificTimeSummary, Text, IntWritable> {
     private Logger logger = LoggerFactory
-            .getLogger(Chain2SummaryReducer.class.getName());
+            .getLogger(Chain2SummaryReducer.class);
 
     @Override
     protected void setup(Context context) throws IOException, InterruptedException {
@@ -36,7 +36,6 @@ public class Chain2SummaryReducer extends Reducer<Text, ChainSpecificTimeSummary
                     ChainSpecificTimeSummary timeSummary = summaryIterator.next();
                     summary.summary(timeSummary, chainRelationship);
                 } catch (Exception e) {
-                    e.printStackTrace();
                     logger.error("Failed to reduce", e);
                 }
             }
@@ -44,7 +43,7 @@ public class Chain2SummaryReducer extends Reducer<Text, ChainSpecificTimeSummary
             summary.saveToHBase();
         } catch (Exception e) {
             e.printStackTrace();
-            logger.error("Failed to reduce", e);
+            logger.error("Failed to reduce key=" + Bytes.toString(key.getBytes()), e);
         }
     }
 }

@@ -23,6 +23,7 @@ import com.ai.cloud.skywalking.analysis.categorize2chain.po.ChainInfo;
 import com.ai.cloud.skywalking.analysis.categorize2chain.po.ChainNode;
 import com.ai.cloud.skywalking.analysis.categorize2chain.util.HBaseUtil;
 import com.ai.cloud.skywalking.analysis.categorize2chain.util.SubLevelSpanCostCounter;
+import com.ai.cloud.skywalking.analysis.categorize2chain.util.VersionIdentifier;
 import com.ai.cloud.skywalking.analysis.config.ConfigInitializer;
 import com.ai.cloud.skywalking.protocol.Span;
 
@@ -39,6 +40,10 @@ public class Categorize2ChainMapper extends TableMapper<Text, ChainInfo> {
 	@Override
 	protected void map(ImmutableBytesWritable key, Result value, Context context)
 			throws IOException, InterruptedException {
+		if(!VersionIdentifier.enableAnaylsis(Bytes.toString(key.get()))){
+			return;
+		}
+		
 		List<Span> spanList = new ArrayList<Span>();
 		ChainInfo chainInfo = null;
 		try {
