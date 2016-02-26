@@ -146,8 +146,8 @@ INSERT INTO `system_config` (`config_id`,`conf_key`,`conf_value`,`val_type`,`val
 ## 使用maven发布各插件工程
 发布skywalking-sdk-plugin下的各子工程(dubbo-plugin，spring-plugin，web-plugin，jdbc-plugin，httpclient-4.2.x-plugin，httpclient-4.3.x-plugin)
 
-## 根据所需的监控点，引入maven依赖
-暂不存在公网仓库，需要本地编译并发布
+## 引入核心SDK
+无论试用哪种插件，都必须引入
 ```xml
 <!-- API日志输出，客户端可指定所需的log4j2版本 -->
 <!-- 2.4.1为开发过程所选用版本 -->
@@ -162,47 +162,11 @@ INSERT INTO `system_config` (`config_id`,`conf_key`,`conf_value`,`val_type`,`val
     <artifactId>skywalking-api</artifactId>
     <version>1.0-SNAPSHOT</version>
 </dependency>
-<!-- Spring插件，监控所有Spring托管对象的调用-->
-<dependency>
-    <groupId>com.ai.cloud</groupId>
-    <artifactId>skywalking-spring-plugin</artifactId>
-    <version>1.0-SNAPSHOT</version>
-</dependency>
-<!-- dubbo插件，监控dubbo/dubbox调用 -->
-<dependency>
-    <groupId>com.ai.cloud</groupId>
-    <artifactId>skywalking-dubbo-plugin</artifactId>
-    <version>1.0-SNAPSHOT</version>
-</dependency>
-<!-- jdbc插件，监控所有的jdbc调用 -->
-<dependency>
-    <groupId>com.ai.cloud</groupId>
-    <artifactId>skywalking-jdbc-plugin</artifactId>
-    <version>1.0-SNAPSHOT</version>
-</dependency>
-<!-- web，监控web调用 -->
-<dependency>
-    <groupId>com.ai.cloud</groupId>
-    <artifactId>skywalking-web-plugin</artifactId>
-    <version>1.0-SNAPSHOT</version>
-</dependency>
-<!-- httpClient插件，监控httpClient 4.2的调用 -->
-<dependency>
-    <groupId>com.ai.cloud</groupId>
-    <artifactId>skywalking-httpClient-4.2.x-plugin</artifactId>
-    <version>1.0-SNAPSHOT</version>
-</dependency>
-<!-- httpClient插件，监控httpClient 4.3的调用 -->
-<dependency>
-    <groupId>com.ai.cloud</groupId>
-    <artifactId>skywalking-httpClient-4.3.x-plugin</artifactId>
-    <version>1.0-SNAPSHOT</version>
-</dependency>
 ```
-插件不会引用所需的第三方组件（如Spring、dubbo、dubbox等），请自行引入所需的版本。
 
 ## 根据所需插件，配置应用程序
-参考[SDK用户指南](https://github.com/wu-sheng/sky-walking/tree/master/skywalking-sdk-plugin)
+- 参考[SDK用户指南](https://github.com/wu-sheng/sky-walking/tree/master/skywalking-sdk-plugin)
+- 注意：插件不会引用所需的第三方组件（如Spring、dubbo、dubbox等），请自行引入所需的版本。
 
 
 ## 下载并设置授权文件
