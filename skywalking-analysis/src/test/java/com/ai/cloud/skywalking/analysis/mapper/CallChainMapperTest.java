@@ -3,9 +3,9 @@ package com.ai.cloud.skywalking.analysis.mapper;
 
 import com.ai.cloud.skywalking.analysis.categorize2chain.Categorize2ChainMapper;
 import com.ai.cloud.skywalking.analysis.categorize2chain.Categorize2ChainReducer;
-import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainInfo;
+import com.ai.cloud.skywalking.analysis.categorize2chain.po.ChainInfo;
 import com.ai.cloud.skywalking.analysis.chain2summary.Chain2SummaryReducer;
-import com.ai.cloud.skywalking.analysis.chain2summary.ChainSpecificTimeSummary;
+import com.ai.cloud.skywalking.analysis.chain2summary.po.ChainSpecificTimeSummary;
 import com.ai.cloud.skywalking.analysis.config.ConfigInitializer;
 import com.ai.cloud.skywalking.analysis.config.HBaseTableMetaData;
 import com.ai.cloud.skywalking.protocol.Span;

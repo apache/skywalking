@@ -1,7 +1,7 @@
-package com.ai.cloud.skywalking.analysis.chain2summary.model;
+package com.ai.cloud.skywalking.analysis.chain2summary.entity;
 
-import com.ai.cloud.skywalking.analysis.categorize2chain.ChainNodeSpecificTimeWindowSummary;
-import com.ai.cloud.skywalking.analysis.categorize2chain.ChainNodeSpecificTimeWindowSummaryValue;
+import com.ai.cloud.skywalking.analysis.categorize2chain.entity.ChainNodeSpecificTimeWindowSummary;
+import com.ai.cloud.skywalking.analysis.categorize2chain.entity.ChainNodeSpecificTimeWindowSummaryValue;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -12,19 +12,20 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ChainNodeSpecificHourSummary {
+public class ChainNodeSpecificDaySummary {
     private String traceLevelId;
-    // key : 小时
-    private Map<String, ChainNodeSpecificTimeWindowSummaryValue> summerValueMap;
+    // key: 天
+    private Map<String, ChainNodeSpecificTimeWindowSummaryValue> summaryValueMap;
+    private String key;
 
-    public ChainNodeSpecificHourSummary() {
-        summerValueMap = new HashMap<String, ChainNodeSpecificTimeWindowSummaryValue>();
+    public ChainNodeSpecificDaySummary() {
+        summaryValueMap = new HashMap<String, ChainNodeSpecificTimeWindowSummaryValue>();
     }
 
-    public ChainNodeSpecificHourSummary(String originData) {
+    public ChainNodeSpecificDaySummary(String originData) {
         JsonObject jsonObject = (JsonObject) new JsonParser().parse(originData);
         traceLevelId = jsonObject.get("traceLevelId").getAsString();
-        summerValueMap = new Gson().fromJson(jsonObject.get("summerValueMap").toString(),
+        summaryValueMap = new Gson().fromJson(jsonObject.get("summaryValueMap").toString(),
                 new TypeToken<Map<String, ChainNodeSpecificTimeWindowSummaryValue>>() {
                 }.getType());
     }
@@ -34,19 +35,19 @@ public class ChainNodeSpecificHourSummary {
     }
 
     public void summary(long summaryTimestamp, ChainNodeSpecificTimeWindowSummary value) {
-        String key = generateSummaryValueMapKey(summaryTimestamp);
+        key = generateSummaryValueMapKey(summaryTimestamp);
         for (Map.Entry<String, ChainNodeSpecificTimeWindowSummaryValue> entry : value.getSummerValueMap().entrySet()) {
-            if (summerValueMap.get(key) == null) {
-                summerValueMap.put(key, new ChainNodeSpecificTimeWindowSummaryValue());
+            if (summaryValueMap.get(key) == null) {
+                summaryValueMap.put(key, new ChainNodeSpecificTimeWindowSummaryValue());
             }
-            summerValueMap.get(key).accumulate(entry.getValue());
+            summaryValueMap.get(key).accumulate(entry.getValue());
         }
     }
 
     private String generateSummaryValueMapKey(long timeStamp) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date(timeStamp));
-        return String.valueOf(calendar.get(Calendar.HOUR));
+        return String.valueOf(calendar.get(Calendar.DAY_OF_MONTH));
     }
 
     @Override

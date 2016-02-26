@@ -1,6 +1,6 @@
-package com.ai.cloud.skywalking.analysis.categorize2chain;
+package com.ai.cloud.skywalking.analysis.categorize2chain.entity;
 
-import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainNode;
+import com.ai.cloud.skywalking.analysis.categorize2chain.po.ChainNode;
 
 public class ChainNodeSpecificTimeWindowSummaryValue {
     private long totalCall;

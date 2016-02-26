@@ -1,9 +1,9 @@
-package com.ai.cloud.skywalking.analysis.categorize2chain;
+package com.ai.cloud.skywalking.analysis.categorize2chain.entity;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainNode;
+import com.ai.cloud.skywalking.analysis.categorize2chain.po.ChainNode;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;

@@ -1,4 +1,4 @@
-package com.ai.cloud.skywalking.analysis.categorize2chain;
+package com.ai.cloud.skywalking.analysis.categorize2chain.entity;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -14,7 +14,7 @@ import org.apache.hadoop.hbase.client.Put;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainInfo;
+import com.ai.cloud.skywalking.analysis.categorize2chain.po.ChainInfo;
 import com.ai.cloud.skywalking.analysis.categorize2chain.util.HBaseUtil;
 import com.ai.cloud.skywalking.analysis.config.HBaseTableMetaData;
 import com.google.gson.GsonBuilder;

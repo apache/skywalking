@@ -1,9 +1,9 @@
 package com.ai.cloud.skywalking.analysis.categorize2chain.filter.impl;
 
-import com.ai.cloud.skywalking.analysis.categorize2chain.SubLevelSpanCostCounter;
 import com.ai.cloud.skywalking.analysis.categorize2chain.SpanEntry;
 import com.ai.cloud.skywalking.analysis.categorize2chain.filter.SpanNodeProcessFilter;
-import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainNode;
+import com.ai.cloud.skywalking.analysis.categorize2chain.po.ChainNode;
+import com.ai.cloud.skywalking.analysis.categorize2chain.util.SubLevelSpanCostCounter;
 
 public class ReplaceAddressFilter extends SpanNodeProcessFilter {
 

@@ -1,8 +1,9 @@
-package com.ai.cloud.skywalking.analysis.chain2summary.model;
+package com.ai.cloud.skywalking.analysis.chain2summary.entity;
 
-import com.ai.cloud.skywalking.analysis.categorize2chain.ChainNodeSpecificTimeWindowSummary;
-import com.ai.cloud.skywalking.analysis.chain2summary.ChainSpecificTimeSummary;
+import com.ai.cloud.skywalking.analysis.categorize2chain.entity.ChainNodeSpecificTimeWindowSummary;
+import com.ai.cloud.skywalking.analysis.chain2summary.po.ChainSpecificTimeSummary;
 import com.ai.cloud.skywalking.analysis.config.HBaseTableMetaData;
+
 import org.apache.hadoop.hbase.client.Put;
 
 import java.util.Map;

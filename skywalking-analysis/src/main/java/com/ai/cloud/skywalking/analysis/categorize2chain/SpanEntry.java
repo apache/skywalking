@@ -1,6 +1,6 @@
 package com.ai.cloud.skywalking.analysis.categorize2chain;
 
-import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainNode;
+import com.ai.cloud.skywalking.analysis.categorize2chain.po.ChainNode;
 import com.ai.cloud.skywalking.protocol.CallType;
 import com.ai.cloud.skywalking.protocol.Span;
 

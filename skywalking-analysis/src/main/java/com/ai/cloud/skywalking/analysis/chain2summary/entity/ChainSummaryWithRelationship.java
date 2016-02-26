@@ -1,10 +1,7 @@
-package com.ai.cloud.skywalking.analysis.chain2summary;
+package com.ai.cloud.skywalking.analysis.chain2summary.entity;
 
 import com.ai.cloud.skywalking.analysis.categorize2chain.util.HBaseUtil;
-import com.ai.cloud.skywalking.analysis.chain2summary.model.ChainSpecificDaySummary;
-import com.ai.cloud.skywalking.analysis.chain2summary.model.ChainSpecificHourSummary;
-import com.ai.cloud.skywalking.analysis.chain2summary.model.ChainSpecificMinSummary;
-import com.ai.cloud.skywalking.analysis.chain2summary.model.ChainSpecificMonthSummary;
+import com.ai.cloud.skywalking.analysis.chain2summary.po.ChainSpecificTimeSummary;
 
 import java.io.IOException;
 import java.util.HashMap;

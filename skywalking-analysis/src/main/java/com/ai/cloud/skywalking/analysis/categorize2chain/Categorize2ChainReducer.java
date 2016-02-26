@@ -9,7 +9,9 @@ import org.apache.hadoop.mapreduce.Reducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainInfo;
+import com.ai.cloud.skywalking.analysis.categorize2chain.entity.ChainRelationship;
+import com.ai.cloud.skywalking.analysis.categorize2chain.entity.ChainSummaryWithoutRelationship;
+import com.ai.cloud.skywalking.analysis.categorize2chain.po.ChainInfo;
 import com.ai.cloud.skywalking.analysis.categorize2chain.util.HBaseUtil;
 import com.ai.cloud.skywalking.analysis.config.ConfigInitializer;
 

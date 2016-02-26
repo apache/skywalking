@@ -1,13 +1,19 @@
 package com.ai.cloud.skywalking.analysis.categorize2chain.util;
 
 import com.ai.cloud.skywalking.analysis.categorize2chain.*;
-import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainInfo;
+import com.ai.cloud.skywalking.analysis.categorize2chain.entity.CategorizedChainInfo;
+import com.ai.cloud.skywalking.analysis.categorize2chain.entity.ChainNodeSpecificTimeWindowSummary;
+import com.ai.cloud.skywalking.analysis.categorize2chain.entity.ChainRelationship;
+import com.ai.cloud.skywalking.analysis.categorize2chain.entity.ChainSpecificTimeWindowSummary;
+import com.ai.cloud.skywalking.analysis.categorize2chain.entity.UncategorizeChainInfo;
+import com.ai.cloud.skywalking.analysis.categorize2chain.po.ChainInfo;
 import com.ai.cloud.skywalking.analysis.chain2summary.ChainRelationship4Search;
-import com.ai.cloud.skywalking.analysis.chain2summary.model.*;
+import com.ai.cloud.skywalking.analysis.chain2summary.entity.*;
 import com.ai.cloud.skywalking.analysis.config.Config;
 import com.ai.cloud.skywalking.analysis.config.HBaseTableMetaData;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.*;
 import org.apache.hadoop.hbase.client.*;

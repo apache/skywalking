@@ -1,7 +1,7 @@
-package com.ai.cloud.skywalking.analysis.categorize2chain;
+package com.ai.cloud.skywalking.analysis.categorize2chain.entity;
 
-import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainInfo;
-import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainNode;
+import com.ai.cloud.skywalking.analysis.categorize2chain.po.ChainInfo;
+import com.ai.cloud.skywalking.analysis.categorize2chain.po.ChainNode;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 

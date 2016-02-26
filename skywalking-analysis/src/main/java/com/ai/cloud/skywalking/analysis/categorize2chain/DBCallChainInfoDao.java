@@ -1,6 +1,7 @@
 package com.ai.cloud.skywalking.analysis.categorize2chain;
 
-import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainNode;
+import com.ai.cloud.skywalking.analysis.categorize2chain.entity.ChainDetail;
+import com.ai.cloud.skywalking.analysis.categorize2chain.po.ChainNode;
 import com.ai.cloud.skywalking.analysis.config.Config;
 
 import org.slf4j.Logger;

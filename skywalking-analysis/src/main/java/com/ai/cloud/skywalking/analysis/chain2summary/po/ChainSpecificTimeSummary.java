@@ -1,10 +1,11 @@
-package com.ai.cloud.skywalking.analysis.chain2summary;
+package com.ai.cloud.skywalking.analysis.chain2summary.po;
 
-import com.ai.cloud.skywalking.analysis.categorize2chain.ChainNodeSpecificTimeWindowSummary;
+import com.ai.cloud.skywalking.analysis.categorize2chain.entity.ChainNodeSpecificTimeWindowSummary;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
+
 import org.apache.hadoop.io.Writable;
 
 import java.io.DataInput;

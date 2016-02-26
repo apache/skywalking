@@ -1,6 +1,8 @@
 package com.ai.cloud.skywalking.analysis.chain2summary;
 
+import com.ai.cloud.skywalking.analysis.chain2summary.po.ChainSpecificTimeSummary;
 import com.ai.cloud.skywalking.analysis.config.ConfigInitializer;
+
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;

@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import com.ai.cloud.skywalking.analysis.config.HBaseTableMetaData;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.hbase.client.Scan;
@@ -21,7 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import com.ai.cloud.skywalking.analysis.categorize2chain.Categorize2ChainMapper;
 import com.ai.cloud.skywalking.analysis.categorize2chain.Categorize2ChainReducer;
-import com.ai.cloud.skywalking.analysis.categorize2chain.model.ChainInfo;
+import com.ai.cloud.skywalking.analysis.categorize2chain.po.ChainInfo;
 import com.ai.cloud.skywalking.analysis.config.Config;
 import com.ai.cloud.skywalking.analysis.config.ConfigInitializer;
 
