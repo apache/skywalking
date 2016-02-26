@@ -204,6 +204,7 @@ INSERT INTO `system_config` (`config_id`,`conf_key`,`conf_value`,`val_type`,`val
 ## 根据所需插件，配置应用程序
 参考[用户指南](http://wu-sheng.github.io/sky-walking/sample-code/codeView.html)
 
+
 ## 下载并设置授权文件
 - 注册并登陆过skywalking-webui，创建应用。（一个用户代表一个逻辑集群，一个应用代表一个服务集群。如前后端应用应该设置两个应用，但归属一个用户）
 - 下载授权文件，并在运行时环境中，将授权文件加入到CLASSPATH中
