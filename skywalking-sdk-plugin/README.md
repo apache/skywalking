@@ -32,8 +32,8 @@ xsi:schemaLocation="http://cloud.asiainfo.com/schema/skywalking
 <skywalking:trace packageExpression="com.ai.app.domain.test.*" classExpression="*"/>
 <skywalking:trace packageExpression="com.ai.app.domain.test..*" classExpression="className*"/>
 ```
-- 对于方法的追踪，仅限于实例级的public方法。其他方法由于Java运行时原因，无法追踪。
-- 部分类由于被Spring代理后，类名发生变化，可能造成无法追踪
+- <font color=red>对于方法的追踪，仅限于实例级的public方法。其他方法由于Java运行时原因，无法追踪。</font>
+- <font color=red>部分类由于被Spring代理后，类名发生变化，可能造成无法追踪</font>
 
 # 如何追踪dubbo调用？
 - 引入所需插件
@@ -87,7 +87,7 @@ xsi:schemaLocation="http://cloud.asiainfo.com/schema/skywalking
 ```
 - 由于引入dubbox，主要目的是使用rest+json协议，所以以下方案都是在此种调用模式下的解决方案。其他协议未测试，请谅解，望大家提供测试结果与反馈。
 - dubbox 2.8.3 以及之前版本不能正确的支持RpcContext中的attachment，存在BUG（2.8.4已修复）。采用扩展参数对象的方法支持追踪的传递性。
-- 注意：依然推荐升级到dubbox 2.8.4，此时能更好的进行追踪，并对程序侵入性更小。
+- <font color=red>注意：依然推荐升级到dubbox 2.8.4，此时能更好的进行追踪，并对程序侵入性更小。</font>
 - 在客户端和服务端配置全局filter：swEnhanceFilter。
 ```xml
 //客户端Spring配置文件
@@ -100,7 +100,7 @@ xsi:schemaLocation="http://cloud.asiainfo.com/schema/skywalking
 ```java
 new com.ai.cloud.skywalking.plugin.dubbox.bugfix.below283.BugFixAcitve();
 ```
-- dubbox调用参数包含javabean参数，并继承com.ai.cloud.skywalking.plugin.dubbox.bugfix.below283.SWBaseBean。只包含java基础类型（如：String、Integer等）的调用，无法支持追踪传递
+- dubbox调用参数包含javabean参数，并继承com.ai.cloud.skywalking.plugin.dubbox.bugfix.below283.SWBaseBean。<font color=red>只包含java基础类型（如：String、Integer等）的调用，无法支持追踪传递</font>
 - 客户端如果直接使用非dubbox客户端发起http restful调用，需要在发送的参数中设置contextData。
 
 # 如何追踪MySQL访问？
