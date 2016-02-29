@@ -131,7 +131,7 @@ public class DataSenderFactoryWithBalance {
                         if (tmpDataSender.getStatus() == DataSender.SenderStatus.FAILED) {
                             tmpDataSender.close();
                             unusedServerAddresses.add(tmpDataSender
-                                    .getServerIp());
+                                    .getServerAddr());
                             senderIterator.remove();
                             SDKHealthCollector.getCurrentHeathReading("remove").updateData(HeathReading.INFO, "remove disconnected sender.");
                         }
@@ -175,19 +175,19 @@ public class DataSenderFactoryWithBalance {
                                 }
                                 toBeSwitchSender.close();
                                 unusedServerAddresses.remove(tmpSender
-                                        .getServerIp());
+                                        .getServerAddr());
                                 unusedServerAddresses.add(toBeSwitchSender
-                                        .getServerIp());
+                                        .getServerAddr());
                                 SDKHealthCollector.getCurrentHeathReading("switch").updateData(HeathReading.INFO, "switch existed sender.");
                             }
                         }
                         sleepTime = 0;
                     }
-                    
-                    SDKHealthCollector.getCurrentHeathReading(null).updateData(HeathReading.INFO, "using available DataSender size:" + usingDataSender);
                 } catch (Throwable e) {
                 	SDKHealthCollector.getCurrentHeathReading(null).updateData(HeathReading.ERROR, "DataSenderChecker running failed:" + e.getMessage());
                     logger.error("DataSenderChecker running failed", e);
+                } finally{
+                	SDKHealthCollector.getCurrentHeathReading(null).updateData(HeathReading.INFO, "using available DataSender connect to: " + listUsingServers());
                 }
 
                 sleepTime += CHECKER_THREAD_WAIT_INTERVAL;
@@ -239,5 +239,18 @@ public class DataSenderFactoryWithBalance {
             usingDataSender.get(index)
                     .setStatus(DataSender.SenderStatus.FAILED);
         }
+    }
+    
+    private static String listUsingServers(){
+    	StringBuilder usingAddrDesc = new StringBuilder();
+    	if(usingDataSender.size() > 0){
+    		for(DataSender sender : usingDataSender){
+    			if(usingAddrDesc.length() > 0){
+    				usingAddrDesc.append(",");
+    			}
+    			usingAddrDesc.append(sender.getServerAddr().toString());
+    		}
+    	}
+    	return usingAddrDesc.toString();
     }
 }

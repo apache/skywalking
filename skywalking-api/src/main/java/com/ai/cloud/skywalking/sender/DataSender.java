@@ -88,7 +88,7 @@ public class DataSender implements IDataSender {
         return false;
     }
 
-    public InetSocketAddress getServerIp() {
+    public InetSocketAddress getServerAddr() {
         return this.socketAddress;
     }
 
