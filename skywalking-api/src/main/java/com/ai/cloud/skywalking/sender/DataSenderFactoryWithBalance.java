@@ -202,9 +202,7 @@ public class DataSenderFactoryWithBalance {
     }
 
     private static DataSender findReadySender() {
-
         DataSender result = null;
-
         int index = 0;
 
         if (unusedServerAddresses.size() > 1){
@@ -234,11 +232,7 @@ public class DataSenderFactoryWithBalance {
     }
 
     public static void unRegister(DataSender socket) {
-        int index = usingDataSender.indexOf(socket);
-        if (index != -1) {
-            usingDataSender.get(index)
-                    .setStatus(DataSender.SenderStatus.FAILED);
-        }
+    	socket.setStatus(DataSender.SenderStatus.FAILED);
     }
     
     private static String listUsingServers(){
