@@ -74,4 +74,9 @@ public class Config {
 
         public static long RETRY_FIND_CONNECTION_SENDER = 1000;
     }
+    
+    public static class HealthCollector {
+    	// 默认健康检查上报时间
+    	public static long REPORT_INTERVAL = 5 * 60 * 1000L;
+    }
 }

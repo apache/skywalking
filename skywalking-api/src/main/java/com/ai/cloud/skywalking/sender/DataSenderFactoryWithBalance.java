@@ -20,6 +20,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.ai.cloud.skywalking.conf.Config;
+import com.ai.cloud.skywalking.selfexamination.HeathReading;
+import com.ai.cloud.skywalking.selfexamination.SDKHealthCollector;
 import com.ai.cloud.skywalking.util.StringUtil;
 
 public class DataSenderFactoryWithBalance {
@@ -131,6 +133,7 @@ public class DataSenderFactoryWithBalance {
                             unusedServerAddresses.add(tmpDataSender
                                     .getServerIp());
                             senderIterator.remove();
+                            SDKHealthCollector.getCurrentHeathReading("remove").updateData(HeathReading.INFO, "remove disconnected sender.");
                         }
                     }
 
@@ -141,7 +144,7 @@ public class DataSenderFactoryWithBalance {
                             break;
                         }
                         usingDataSender.add(newSender);
-
+                        SDKHealthCollector.getCurrentHeathReading("add").updateData(HeathReading.INFO, "add new sender.");
                     }
 
                     // try to switch.
@@ -175,11 +178,15 @@ public class DataSenderFactoryWithBalance {
                                         .getServerIp());
                                 unusedServerAddresses.add(toBeSwitchSender
                                         .getServerIp());
+                                SDKHealthCollector.getCurrentHeathReading("switch").updateData(HeathReading.INFO, "switch existed sender.");
                             }
                         }
                         sleepTime = 0;
                     }
+                    
+                    SDKHealthCollector.getCurrentHeathReading(null).updateData(HeathReading.INFO, "using available DataSender size:" + usingDataSender);
                 } catch (Throwable e) {
+                	SDKHealthCollector.getCurrentHeathReading(null).updateData(HeathReading.ERROR, "DataSenderChecker running failed:" + e.getMessage());
                     logger.error("DataSenderChecker running failed", e);
                 }
 

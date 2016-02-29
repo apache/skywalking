@@ -18,6 +18,8 @@ import com.ai.cloud.io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import com.ai.cloud.io.netty.handler.codec.LengthFieldPrepender;
 import com.ai.cloud.io.netty.handler.codec.bytes.ByteArrayDecoder;
 import com.ai.cloud.io.netty.handler.codec.bytes.ByteArrayEncoder;
+import com.ai.cloud.skywalking.selfexamination.HeathReading;
+import com.ai.cloud.skywalking.selfexamination.SDKHealthCollector;
 
 public class DataSender implements IDataSender {
     private EventLoopGroup group;
@@ -71,12 +73,15 @@ public class DataSender implements IDataSender {
         try {
             if (channel != null && channel.isActive()) {
                 channel.writeAndFlush(data.getBytes());
+                SDKHealthCollector.getCurrentHeathReading("sender").updateData(HeathReading.INFO, "DataSender send data successfully.");
                 return true;
             }else{
                 DataSenderFactoryWithBalance.unRegister(this);
+                SDKHealthCollector.getCurrentHeathReading("sender").updateData(HeathReading.WARNING, "DataSender channel isn't active. unregister sender.");
             }
         } catch (Exception e) {
             DataSenderFactoryWithBalance.unRegister(this);
+            SDKHealthCollector.getCurrentHeathReading("sender").updateData(HeathReading.WARNING, "DataSender channel broken. unregister sender.");
         }
 
         return false;

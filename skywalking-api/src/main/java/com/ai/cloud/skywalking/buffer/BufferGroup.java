@@ -11,6 +11,8 @@ import org.apache.logging.log4j.Logger;
 import com.ai.cloud.skywalking.conf.Config;
 import com.ai.cloud.skywalking.conf.Constants;
 import com.ai.cloud.skywalking.protocol.Span;
+import com.ai.cloud.skywalking.selfexamination.HeathReading;
+import com.ai.cloud.skywalking.selfexamination.SDKHealthCollector;
 import com.ai.cloud.skywalking.sender.DataSenderFactoryWithBalance;
 import com.ai.cloud.skywalking.util.AtomicRangeInteger;
 
@@ -42,8 +44,10 @@ public class BufferGroup {
 			logger.warn(
 					"Group[{}] index[{}] data collision, discard old data.",
 					groupName, i);
+			SDKHealthCollector.getCurrentHeathReading("BufferGroup").updateData(HeathReading.WARNING, "BufferGroup index[" + i + "] data collision, data been coverd.");
 		}
 		dataBuffer[i] = span;
+		SDKHealthCollector.getCurrentHeathReading("BufferGroup").updateData(HeathReading.INFO, "save span");
 	}
 
 	class ConsumerWorker extends Thread {

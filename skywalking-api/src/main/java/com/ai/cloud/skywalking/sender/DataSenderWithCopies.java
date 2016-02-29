@@ -5,6 +5,9 @@ import static com.ai.cloud.skywalking.conf.Config.Sender.MAX_COPY_NUM;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.ai.cloud.skywalking.selfexamination.HeathReading;
+import com.ai.cloud.skywalking.selfexamination.SDKHealthCollector;
+
 /**
  * 带副本的数据发送器
  * 
@@ -52,6 +55,7 @@ public class DataSenderWithCopies implements IDataSender {
 				successNum++;
 			}
 		}
+		SDKHealthCollector.getCurrentHeathReading("DataSenderWithCopies").updateData(HeathReading.INFO, "DataSender send data with copynum=" + successNum + " successfully.");
 		if (senders.size() == 1 && successNum == 1) {
 			return true;
 		} else if (successNum >= 2) {
