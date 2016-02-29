@@ -59,6 +59,7 @@ public class DataSender implements IDataSender {
             bootstrap.connect(address).sync();
         } catch (Exception e) {
             status = SenderStatus.FAILED;
+            SDKHealthCollector.getCurrentHeathReading("sender").updateData(HeathReading.INFO, "DataSender[" + socketAddress + "] send data successfully.");
         }
     }
 
@@ -73,15 +74,15 @@ public class DataSender implements IDataSender {
         try {
             if (channel != null && channel.isActive()) {
                 channel.writeAndFlush(data.getBytes());
-                SDKHealthCollector.getCurrentHeathReading("sender").updateData(HeathReading.INFO, "DataSender send data successfully.");
+                SDKHealthCollector.getCurrentHeathReading("sender").updateData(HeathReading.INFO, "DataSender[" + socketAddress + "] send data successfully.");
                 return true;
             }else{
                 DataSenderFactoryWithBalance.unRegister(this);
-                SDKHealthCollector.getCurrentHeathReading("sender").updateData(HeathReading.WARNING, "DataSender channel isn't active. unregister sender.");
+                SDKHealthCollector.getCurrentHeathReading("sender").updateData(HeathReading.WARNING, "DataSender[" + socketAddress + "] channel isn't active. unregister sender.");
             }
         } catch (Exception e) {
             DataSenderFactoryWithBalance.unRegister(this);
-            SDKHealthCollector.getCurrentHeathReading("sender").updateData(HeathReading.WARNING, "DataSender channel broken. unregister sender.");
+            SDKHealthCollector.getCurrentHeathReading("sender").updateData(HeathReading.WARNING, "DataSender[" + socketAddress + "] channel broken. unregister sender.");
         }
 
         return false;
