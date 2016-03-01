@@ -1,6 +1,6 @@
 package com.ai.cloud.skywalking.analysis.categorize2chain.po;
 
-import com.ai.cloud.skywalking.analysis.categorize2chain.util.TokenGenerator;
+import com.ai.cloud.skywalking.analysis.chainbuild.util.TokenGenerator;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;

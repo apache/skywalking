@@ -23,7 +23,7 @@ import com.ai.cloud.skywalking.analysis.categorize2chain.po.ChainInfo;
 import com.ai.cloud.skywalking.analysis.categorize2chain.po.ChainNode;
 import com.ai.cloud.skywalking.analysis.categorize2chain.util.HBaseUtil;
 import com.ai.cloud.skywalking.analysis.categorize2chain.util.SubLevelSpanCostCounter;
-import com.ai.cloud.skywalking.analysis.categorize2chain.util.VersionIdentifier;
+import com.ai.cloud.skywalking.analysis.chainbuild.util.VersionIdentifier;
 import com.ai.cloud.skywalking.analysis.config.ConfigInitializer;
 import com.ai.cloud.skywalking.protocol.Span;
 

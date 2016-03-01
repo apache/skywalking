@@ -1,4 +1,4 @@
-package com.ai.cloud.skywalking.analysis.categorize2chain.util;
+package com.ai.cloud.skywalking.analysis.chainbuild.util;
 
 /**
  * 版本识别器
