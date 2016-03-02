@@ -1,5 +1,5 @@
 # Sky Walking
-SkyWalking-Distributed Application Tracing System, 是一个对JAVA应用程序运行情况进行追踪、告警和分析的系统。
+SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对JAVA分布式应用程序集群的业务运行情况进行追踪、告警和分析的系统。
 * 核心理论为[Google Dapper论文：Dapper, a Large-Scale Distributed Systems Tracing Infrastructure](http://research.google.com/pubs/pub36356.html),英语有困难的同学可参考[国内翻译](http://duanple.blog.163.com/blog/static/70971767201329113141336/)
 * 本分析系统能通过不修改或少量修改代码的模式，对现有的JAVA应用或J2EE应用进行监控和数据收集，并针对应用进场进行准实时告警。此外提供大量的调用性能分析功能，解决目前的监控系统主要监控进程、端口而非应用实际性能的问题。
 
@@ -7,7 +7,8 @@ SkyWalking-Distributed Application Tracing System, 是一个对JAVA应用程序�
 * 吴晟 &nbsp;&nbsp;[亚信](http://www.asiainfo.com/) wusheng@asiainfo.com
 * 张鑫 &nbsp;&nbsp;[亚信](http://www.asiainfo.com/) zhangxin10@asiainfo.com
 
-# 交流群
+# 交流
+* 联系邮箱：wu.sheng@foxmail.com
 * QQ群：392443393，请注明“Sky Walking交流”
 * 谁在使用Sky Walking?[点击进入](https://github.com/wu-sheng/sky-walking/issues/34)。同时请各位使用者反馈下，都在哪些项目中使用。
 
@@ -24,15 +25,6 @@ SkyWalking-Distributed Application Tracing System, 是一个对JAVA应用程序�
 ![追踪连路图3](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/callChainLog.png)
 
 ## 分析汇总
-
-# Home Page
-http://wu-sheng.github.io/sky-walking/
-
-# API Guide
-http://wu-sheng.github.io/sky-walking/sample-code/codeView.html
-
-# Contact Us
-Mail: wu.sheng@foxmail.com
 
 # Quick Start
 ## 编译与部署
