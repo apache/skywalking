@@ -45,7 +45,7 @@ public class ChainBuildMapper extends TableMapper<Text, TraceSpanTree> {
 
             TraceSpanTree tree = new TraceSpanTree();
             tree.build(spanList);
-            context.write(new Text(tree.getTreeRoot().getNodeRefToken()), tree);
+            context.write(new Text(tree.getCid()), tree);
         } catch (Throwable e) {
             logger.error("Failed to mapper call chain[" + key.toString() + "]",
                     e);
