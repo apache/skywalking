@@ -1,42 +1,55 @@
 package com.ai.cloud.skywalking.analysis.chainbuild.entity;
 
+import java.util.List;
+
+import com.ai.cloud.skywalking.analysis.chainbuild.exception.TraceSpanTreeNotFountException;
 import com.ai.cloud.skywalking.analysis.chainbuild.exception.TraceSpanTreeSerializeException;
 import com.ai.cloud.skywalking.analysis.chainbuild.util.StringUtil;
 import com.ai.cloud.skywalking.analysis.chainbuild.util.TokenGenerator;
 import com.ai.cloud.skywalking.protocol.CallType;
 import com.ai.cloud.skywalking.protocol.Span;
-
-import java.util.List;
+import com.google.gson.annotations.Expose;
 
 public class TraceSpanNode {
+
     protected TraceSpanNode prev = null;
+
 
     protected TraceSpanNode next = null;
 
+
     protected TraceSpanNode parent = null;
 
+
     protected TraceSpanNode sub = null;
-
+    @Expose
     protected String prevNodeRefToken = null;
-
+    @Expose
     protected String nextNodeRefToken = null;
-
+    @Expose
     protected String parentNodeRefToken = null;
-
+    @Expose
     protected String subNodeRefToken = null;
 
+    @Expose
     protected String nodeRefToken = null;
 
+    @Expose
     protected boolean visualNode = true;
 
+    @Expose
     protected String parentLevel;
 
+    @Expose
     protected int levelId;
 
+    @Expose
     protected String viewPointId = "";
 
+    @Expose
     protected long cost = 0;
 
+    @Expose
     protected long callTimes = 0;
 
     /**
@@ -45,32 +58,44 @@ public class TraceSpanNode {
      * 1：异常<br/>
      * 异常判断原则：代码产生exception，并且此exception不在忽略列表中
      */
+    @Expose
     protected byte statusCode = 0;
 
     /**
      * 节点调用的错误堆栈<br/>
      * 堆栈以JAVA的exception为主要判断依据
      */
+    @Expose
     protected String exceptionStack;
     /**
      * 节点类型描述<br/>
      * 已字符串的形式描述<br/>
      * 如：java,dubbo等
      */
+    @Expose
     protected String spanType = "";
 
     /**
      * 节点调用过程中的业务字段<br/>
      * 如：业务系统设置的订单号，SQL语句等
      */
+    @Expose
     protected String businessKey = "";
 
     /**
      * 节点调用所在的系统逻辑名称<br/>
      * 由授权文件指定
      */
+    @Expose
     protected String applicationId = "";
 
+    /**
+     * Warning: call this constructor ONLY by gson for deserialize
+     */
+    public TraceSpanNode(){
+    	
+    }
+    
     public TraceSpanNode(TraceSpanNode parent, TraceSpanNode sub, TraceSpanNode prev, TraceSpanNode next, Span span, List<TraceSpanNode> spanContainer) {
         this(parent, sub, prev, next, spanContainer);
         this.visualNode = false;
@@ -153,19 +178,47 @@ public class TraceSpanNode {
         }
     }
 
-    public TraceSpanNode prev() {
+    public TraceSpanNode prev(TraceSpanTree tree) throws TraceSpanTreeNotFountException {
+    	if(prev == null){
+    		if(prevNodeRefToken == null){
+    			throw new TraceSpanTreeNotFountException(getDesc() + " unexpected prev== null and prevNodeRefToken==null");
+    		}else{
+    			prev = tree.findNode(prevNodeRefToken);
+    		}
+    	}
         return prev;
     }
 
-    public TraceSpanNode next() {
+    public TraceSpanNode next(TraceSpanTree tree) throws TraceSpanTreeNotFountException {
+    	if(next == null){
+    		if(nextNodeRefToken == null){
+    			throw new TraceSpanTreeNotFountException(getDesc() + " unexpected next== null and nextNodeRefToken==null");
+    		}else{
+    			next = tree.findNode(nextNodeRefToken);
+    		}
+    	}
         return next;
     }
 
-    public TraceSpanNode parent() {
+    public TraceSpanNode parent(TraceSpanTree tree) throws TraceSpanTreeNotFountException {
+    	if(parent == null){
+    		if(parentNodeRefToken == null){
+    			throw new TraceSpanTreeNotFountException(getDesc() + " unexpected parent== null and parentNodeRefToken==null");
+    		}else{
+    			parent = tree.findNode(parentNodeRefToken);
+    		}
+    	}
         return parent;
     }
 
-    public TraceSpanNode sub() {
+    public TraceSpanNode sub(TraceSpanTree tree) throws TraceSpanTreeNotFountException {
+    	if(sub == null){
+    		if(subNodeRefToken == null){
+    			throw new TraceSpanTreeNotFountException(getDesc() + " unexpected sub== null and subNodeRefToken==null");
+    		}else{
+    			sub = tree.findNode(subNodeRefToken);
+    		}
+    	}
         return sub;
     }
 
@@ -227,9 +280,13 @@ public class TraceSpanNode {
 
     public String getNodeRefToken() throws TraceSpanTreeSerializeException {
         if (StringUtil.isBlank(nodeRefToken)) {
-            throw new TraceSpanTreeSerializeException("parentLevel=" + parentLevel + ", levelId=" + levelId + ", viewPointId=" + viewPointId + ", node ref token is null.");
+            throw new TraceSpanTreeSerializeException(getDesc() + " ref token is null.");
         }
         return nodeRefToken;
+    }
+    
+    private String getDesc(){
+    	return "Node[parentLevel=" + parentLevel + ", levelId=" + levelId + ", viewPointId=" + viewPointId + "]";
     }
 
     void serializeRef() throws TraceSpanTreeSerializeException {
