@@ -5,38 +5,50 @@ import com.ai.cloud.skywalking.analysis.chainbuild.util.StringUtil;
 import com.ai.cloud.skywalking.analysis.chainbuild.util.TokenGenerator;
 import com.ai.cloud.skywalking.protocol.CallType;
 import com.ai.cloud.skywalking.protocol.Span;
+import com.google.gson.annotations.Expose;
 
 import java.util.List;
 
 public class TraceSpanNode {
+
     protected TraceSpanNode prev = null;
+
 
     protected TraceSpanNode next = null;
 
+
     protected TraceSpanNode parent = null;
 
+
     protected TraceSpanNode sub = null;
-
+    @Expose
     protected String prevNodeRefToken = null;
-
+    @Expose
     protected String nextNodeRefToken = null;
-
+    @Expose
     protected String parentNodeRefToken = null;
-
+    @Expose
     protected String subNodeRefToken = null;
 
+    @Expose
     protected String nodeRefToken = null;
 
+    @Expose
     protected boolean visualNode = true;
 
+    @Expose
     protected String parentLevel;
 
+    @Expose
     protected int levelId;
 
+    @Expose
     protected String viewPointId = "";
 
+    @Expose
     protected long cost = 0;
 
+    @Expose
     protected long callTimes = 0;
 
     /**
@@ -45,30 +57,35 @@ public class TraceSpanNode {
      * 1：异常<br/>
      * 异常判断原则：代码产生exception，并且此exception不在忽略列表中
      */
+    @Expose
     protected byte statusCode = 0;
 
     /**
      * 节点调用的错误堆栈<br/>
      * 堆栈以JAVA的exception为主要判断依据
      */
+    @Expose
     protected String exceptionStack;
     /**
      * 节点类型描述<br/>
      * 已字符串的形式描述<br/>
      * 如：java,dubbo等
      */
+    @Expose
     protected String spanType = "";
 
     /**
      * 节点调用过程中的业务字段<br/>
      * 如：业务系统设置的订单号，SQL语句等
      */
+    @Expose
     protected String businessKey = "";
 
     /**
      * 节点调用所在的系统逻辑名称<br/>
      * 由授权文件指定
      */
+    @Expose
     protected String applicationId = "";
 
     public TraceSpanNode(TraceSpanNode parent, TraceSpanNode sub, TraceSpanNode prev, TraceSpanNode next, Span span, List<TraceSpanNode> spanContainer) {

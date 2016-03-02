@@ -6,6 +6,7 @@ import com.ai.cloud.skywalking.analysis.chainbuild.util.StringUtil;
 import com.ai.cloud.skywalking.analysis.chainbuild.util.TokenGenerator;
 import com.ai.cloud.skywalking.protocol.Span;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
@@ -151,7 +152,7 @@ public class TraceSpanTree implements Writable {
 
     public String serialize() throws TraceSpanTreeSerializeException {
         beforeSerialize();
-        return new Gson().toJson(this);
+        return new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create().toJson(this);
     }
 
     @Override
