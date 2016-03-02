@@ -1,5 +1,8 @@
 package com.ai.cloud.skywalking.analysis.chainbuild.entity;
 
+import java.util.List;
+
+import com.ai.cloud.skywalking.analysis.chainbuild.exception.TraceSpanTreeSerializeException;
 import com.ai.cloud.skywalking.analysis.chainbuild.util.StringUtil;
 import com.ai.cloud.skywalking.protocol.CallType;
 import com.ai.cloud.skywalking.protocol.Span;
@@ -12,6 +15,16 @@ public class TraceSpanNode {
 	protected TraceSpanNode parent = null;
 	
 	protected TraceSpanNode sub = null;
+	
+	protected String prevNodeRefToken = null;
+	
+	protected String nextNodeRefToken = null;
+	
+	protected String parentNodeRefToken = null;
+	
+	protected String subNodeRefToken = null;
+	
+	protected String nodeRefToken = null;
 	
 	protected boolean visualNode = true;
 	
@@ -57,8 +70,8 @@ public class TraceSpanNode {
      */
 	protected String applicationId = ""; 
 	
-	public TraceSpanNode(TraceSpanNode parent, TraceSpanNode sub, TraceSpanNode prev, TraceSpanNode next, Span span) {
-		this(parent, sub, prev, next);
+	public TraceSpanNode(TraceSpanNode parent, TraceSpanNode sub, TraceSpanNode prev, TraceSpanNode next, Span span, List<TraceSpanNode> spanContainer) {
+		this(parent, sub, prev, next, spanContainer);
 		this.visualNode = false;
 		this.parentLevel = span.getParentLevel();
 		this.levelId = span.getLevelId();
@@ -75,30 +88,33 @@ public class TraceSpanNode {
 		this.spanType = span.getSpanType();
 		this.businessKey = span.getBusinessKey();
 		this.applicationId = span.getApplicationId();
+		
+		//TODO: to set nodeToken
 	}
 	
-	public TraceSpanNode(TraceSpanNode parent, TraceSpanNode sub, TraceSpanNode prev, TraceSpanNode next){
+	protected TraceSpanNode(TraceSpanNode parent, TraceSpanNode sub, TraceSpanNode prev, TraceSpanNode next, List<TraceSpanNode> spanContainer){
 		this.visualNode = true;
-		this.parent = parent;
+		this.setParent(parent);
 		if(parent != null){
-			parent.sub = this;
+			parent.setSub(this);
 		}
-		this.sub = sub;
+		this.setSub(sub);
 		if(sub != null){
-			sub.parent = this;
+			sub.setParent(this);
 		}
-		this.prev = prev;
+		this.setPrev(prev);
 		if(prev != null){
-			prev.next = this;
+			prev.setNext(this);
 		}
-		this.next = next;
+		this.setNext(next);
 		if(next != null){
-			next.prev = this;
+			next.setPrev(this);
 		}
+		spanContainer.add(this);
 	}
 	
-	protected TraceSpanNode(TraceSpanNode parent, TraceSpanNode sub, TraceSpanNode prev, TraceSpanNode next, String parentLevelId, int levelId){
-		this(parent, sub, prev, next);
+	protected TraceSpanNode(TraceSpanNode parent, TraceSpanNode sub, TraceSpanNode prev, TraceSpanNode next, String parentLevelId, int levelId, List<TraceSpanNode> spanContainer){
+		this(parent, sub, prev, next, spanContainer);
 		this.parentLevel = parentLevelId;
 		this.levelId = levelId;
 		this.callTimes = 0;
@@ -134,28 +150,36 @@ public class TraceSpanNode {
 		}
 	}
 	
-	TraceSpanNode next(){
-		return this.next;
-	}
-	
-	TraceSpanNode sub(){
-		return this.sub;
-	}
-
-	public TraceSpanNode getPrev() {
+	public TraceSpanNode prev() {
 		return prev;
 	}
 
-	public TraceSpanNode getNext() {
+	public TraceSpanNode next() {
 		return next;
 	}
 
-	public TraceSpanNode getParent() {
+	public TraceSpanNode parent() {
 		return parent;
 	}
 
-	public TraceSpanNode getSub() {
+	public TraceSpanNode sub() {
 		return sub;
+	}
+
+	public void setPrev(TraceSpanNode prev) {
+		this.prev = prev;
+	}
+
+	public void setNext(TraceSpanNode next) {
+		this.next = next;
+	}
+
+	public void setParent(TraceSpanNode parent) {
+		this.parent = parent;
+	}
+
+	public void setSub(TraceSpanNode sub) {
+		this.sub = sub;
 	}
 
 	public boolean isVisualNode() {
@@ -196,5 +220,27 @@ public class TraceSpanNode {
 
 	public String getApplicationId() {
 		return applicationId;
+	}
+	
+	public String getNodeRefToken() throws TraceSpanTreeSerializeException {
+		if(StringUtil.isBlank(nodeRefToken)){
+			throw new TraceSpanTreeSerializeException("parentLevel=" + parentLevel + ", levelId=" + levelId + ", viewPointId=" + viewPointId + ", node ref token is null.");
+		}
+		return nodeRefToken;
+	}
+
+	void serializeRef() throws TraceSpanTreeSerializeException{
+		if(prev != null){
+			prevNodeRefToken = prev.getNodeRefToken();
+		}
+		if(parent != null){
+			parentNodeRefToken = parent.getNodeRefToken();
+		}
+		if(next != null){
+			nextNodeRefToken = next.getNodeRefToken();
+		}
+		if(sub != null){
+			subNodeRefToken = sub.getNodeRefToken();
+		}
 	}
 }

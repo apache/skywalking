@@ -1,5 +1,6 @@
 package com.ai.cloud.skywalking.analysis.chainbuild.entity;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -8,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.ai.cloud.skywalking.analysis.chainbuild.exception.BuildTraceSpanTreeException;
+import com.ai.cloud.skywalking.analysis.chainbuild.exception.TraceSpanTreeSerializeException;
 import com.ai.cloud.skywalking.analysis.chainbuild.util.StringUtil;
 import com.ai.cloud.skywalking.analysis.chainbuild.util.TokenGenerator;
 import com.ai.cloud.skywalking.protocol.Span;
@@ -20,6 +22,8 @@ public class TraceSpanTree {
 	private String cid;
 
 	private TraceSpanNode treeRoot;
+	
+	private List<TraceSpanNode> spanContainer = new ArrayList<TraceSpanNode>();
 
 	public TraceSpanTree() {
 	}
@@ -40,7 +44,7 @@ public class TraceSpanTree {
 			}
 		});
 		cid = generateChainToken(spanList.get(0));
-		treeRoot = new TraceSpanNode(null, null, null, null, spanList.get(0));
+		treeRoot = new TraceSpanNode(null, null, null, null, spanList.get(0), spanContainer);
 		if (spanList.size() > 1) {
 			for (int i = 1; i < spanList.size(); i++) {
 				this.build(spanList.get(i));
@@ -65,7 +69,7 @@ public class TraceSpanTree {
 			TraceSpanNode foundNode = findNodeAndCreateVisualNodeIfNess(
 					span.getParentLevel(), span.getLevelId() - 1);
 			if (foundNode != null) {
-				new TraceSpanNode(null, null, foundNode, foundNode.next(), span);
+				new TraceSpanNode(null, null, foundNode, foundNode.next(), span, spanContainer);
 			}
 		} else {
 			/**
@@ -101,7 +105,7 @@ public class TraceSpanTree {
 				} else {
 					// create visual next node
 					currentNode = new VisualTraceSpanNode(null, null,
-							currentNode, null, contextParentLevelId, i);
+							currentNode, null, contextParentLevelId, i, spanContainer);
 				}
 			}
 			contextParentLevelId = contextParentLevelId == "" ? ("" + currentLevelInt)
@@ -111,7 +115,7 @@ public class TraceSpanTree {
 			} else {
 				// create visual sub node
 				currentNode = new VisualTraceSpanNode(currentNode, null, null,
-						null, contextParentLevelId, 0);
+						null, contextParentLevelId, 0, spanContainer);
 			}
 		}
 
@@ -128,6 +132,13 @@ public class TraceSpanTree {
 		} else {
 			throw new BuildTraceSpanTreeException("tid:"
 					+ level0Span.getTraceId() + " level0 span data is illegal");
+		}
+	}
+	
+	
+	private void beforeSerialize() throws TraceSpanTreeSerializeException{
+		for(TraceSpanNode treeNode : spanContainer){
+			treeNode.serializeRef();
 		}
 	}
 
