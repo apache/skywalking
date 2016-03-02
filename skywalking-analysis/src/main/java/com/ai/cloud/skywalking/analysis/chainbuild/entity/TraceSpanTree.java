@@ -1,6 +1,21 @@
 package com.ai.cloud.skywalking.analysis.chainbuild.entity;
 
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.hadoop.io.Writable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.ai.cloud.skywalking.analysis.chainbuild.exception.BuildTraceSpanTreeException;
+import com.ai.cloud.skywalking.analysis.chainbuild.exception.TraceSpanTreeNotFountException;
 import com.ai.cloud.skywalking.analysis.chainbuild.exception.TraceSpanTreeSerializeException;
 import com.ai.cloud.skywalking.analysis.chainbuild.util.StringUtil;
 import com.ai.cloud.skywalking.analysis.chainbuild.util.TokenGenerator;
@@ -9,34 +24,30 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.annotations.Expose;
 import com.google.gson.reflect.TypeToken;
-import org.apache.hadoop.io.Writable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 
 public class TraceSpanTree implements Writable {
     private Logger logger = LoggerFactory.getLogger(TraceSpanTree.class);
 
+    @Expose
     private String userId = null;
 
+    @Expose
     private String cid;
 
+    @Expose
     private TraceSpanNode treeRoot;
 
+    @Expose
     private List<TraceSpanNode> spanContainer = new ArrayList<TraceSpanNode>();
+    
+    private Map<String, TraceSpanNode> traceSpanNodeMap = new HashMap<String, TraceSpanNode>();
 
     public TraceSpanTree() {
     }
 
-    public String build(List<Span> spanList) throws BuildTraceSpanTreeException {
+    public String build(List<Span> spanList) throws BuildTraceSpanTreeException, TraceSpanTreeNotFountException {
         if (spanList.size() == 0) {
             throw new BuildTraceSpanTreeException("spanList is empty.");
         }
@@ -62,7 +73,7 @@ public class TraceSpanTree implements Writable {
         return cid;
     }
 
-    private void build(Span span) throws BuildTraceSpanTreeException {
+    private void build(Span span) throws BuildTraceSpanTreeException, TraceSpanTreeNotFountException {
         if (userId == null && span.getUserId() != null) {
             userId = span.getUserId();
         }
@@ -76,7 +87,10 @@ public class TraceSpanTree implements Writable {
         if (span.getLevelId() > 0) {
             TraceSpanNode foundNode = findNodeAndCreateVisualNodeIfNess(
                     span.getParentLevel(), span.getLevelId() - 1);
-            new TraceSpanNode(null, null, foundNode, foundNode.next(), span, spanContainer);
+            /**
+             * Create node between foundNode and foundNode.next(maybe foundNode.next == null)
+             */
+            new TraceSpanNode(null, null, foundNode, foundNode.next(this), span, spanContainer);
         } else {
             /**
              * levelId=0 find for parent level if parentLevelId = 0.0.1 then
@@ -91,13 +105,16 @@ public class TraceSpanTree implements Writable {
             TraceSpanNode foundNode = findNodeAndCreateVisualNodeIfNess(
                     parentLevel.substring(0, idx),
                     Integer.parseInt(parentLevel.substring(idx + 1)));
+            /**
+             * Create sub node of using span data. FoundNode is parent node.
+             */
             new TraceSpanNode(foundNode, null, null, null, span, spanContainer);
 
         }
     }
 
     private TraceSpanNode findNodeAndCreateVisualNodeIfNess(
-            String parentLevelId, int levelId) {
+            String parentLevelId, int levelId) throws TraceSpanTreeNotFountException {
         String levelDesc = StringUtil.isBlank(parentLevelId) ? (levelId + "")
                 : (parentLevelId + "." + levelId);
         String[] levelArray = levelDesc.split("\\.");
@@ -108,7 +125,7 @@ public class TraceSpanTree implements Writable {
             int currentLevelInt = Integer.parseInt(currentLevel);
             for (int i = 0; i < currentLevelInt; i++) {
                 if (currentNode.hasNext()) {
-                    currentNode = currentNode.next();
+                    currentNode = currentNode.next(this);
                 } else {
                     // create visual next node
                     currentNode = new VisualTraceSpanNode(null, null,
@@ -118,7 +135,7 @@ public class TraceSpanTree implements Writable {
             contextParentLevelId = contextParentLevelId == "" ? ("" + currentLevelInt)
                     : (contextParentLevelId + "." + currentLevelInt);
             if (currentNode.hasSub()) {
-                currentNode = currentNode.sub();
+                currentNode = currentNode.sub(this);
             } else {
                 // create visual sub node
                 currentNode = new VisualTraceSpanNode(currentNode, null, null,
@@ -153,6 +170,14 @@ public class TraceSpanTree implements Writable {
         beforeSerialize();
         return new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create().toJson(this);
     }
+    
+    TraceSpanNode findNode(String nodeRefToken) throws TraceSpanTreeNotFountException{
+    	if(traceSpanNodeMap.containsKey(nodeRefToken)){
+    		return traceSpanNodeMap.get(nodeRefToken);
+    	}else{
+    		throw new TraceSpanTreeNotFountException("nodeRefToken=" + nodeRefToken + " not found.");
+    	}
+    }
 
     @Override
     public void write(DataOutput out) throws IOException {
@@ -174,6 +199,9 @@ public class TraceSpanTree implements Writable {
             spanContainer = new Gson().fromJson(jsonObject.get("spanContainer"),
                     new TypeToken<List<TraceSpanNode>>() {
                     }.getType());
+            for(TraceSpanNode node : spanContainer){
+            	traceSpanNodeMap.put(node.getNodeRefToken(), node);
+            }
         } catch (Exception e) {
             logger.error("Failed to parse the value[" + value + "] to TraceSpanTree Object", e);
         }
