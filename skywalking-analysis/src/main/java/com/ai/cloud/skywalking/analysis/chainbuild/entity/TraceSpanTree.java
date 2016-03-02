@@ -75,9 +75,7 @@ public class TraceSpanTree implements Writable {
         if (span.getLevelId() > 0) {
             TraceSpanNode foundNode = findNodeAndCreateVisualNodeIfNess(
                     span.getParentLevel(), span.getLevelId() - 1);
-            if (foundNode != null) {
-                new TraceSpanNode(null, null, foundNode, foundNode.next(), span, spanContainer);
-            }
+            new TraceSpanNode(null, null, foundNode, foundNode.next(), span, spanContainer);
         } else {
             /**
              * levelId=0 find for parent level if parentLevelId = 0.0.1 then
@@ -92,6 +90,7 @@ public class TraceSpanTree implements Writable {
             TraceSpanNode foundNode = findNodeAndCreateVisualNodeIfNess(
                     parentLevel.substring(0, idx),
                     Integer.parseInt(parentLevel.substring(idx + 1)));
+            new TraceSpanNode(foundNode, null, null, null, span, spanContainer);
 
         }
     }
