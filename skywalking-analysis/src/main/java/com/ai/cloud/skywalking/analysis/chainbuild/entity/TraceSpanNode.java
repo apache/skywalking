@@ -90,6 +90,15 @@ public class TraceSpanNode {
     protected String applicationId = "";
 
     /**
+     * 是否为分支节点
+     */
+    @Expose
+    protected boolean branchNode;
+
+    @Expose
+    protected TraceSpanNode nextBranchNode;
+
+    /**
      * Warning: call this constructor ONLY by gson for deserialize
      */
     public TraceSpanNode(){
@@ -234,6 +243,10 @@ public class TraceSpanNode {
         this.parent = parent;
     }
 
+    public void setNextBranchNode(TraceSpanNode nextBranchNode){
+        this.nextBranchNode = nextBranchNode;
+    }
+
     public void setSub(TraceSpanNode sub) {
         this.sub = sub;
     }
@@ -302,5 +315,9 @@ public class TraceSpanNode {
         if (sub != null) {
             subNodeRefToken = sub.getNodeRefToken();
         }
+    }
+
+    public boolean isBranchNode() {
+        return branchNode;
     }
 }
