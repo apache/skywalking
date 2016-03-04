@@ -34,6 +34,7 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 - 安装apache hbase 1.1.2
 - 安装mysql
 - 安装tomcat 7
+- redis-3.0.5
 
 ### 编译安装SkyWalking Server
 - 编译工程
