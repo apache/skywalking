@@ -1,9 +1,8 @@
-package com.ai.cloud.skywalking.analysis.categorize2chain;
+package com.ai.cloud.skywalking.analysis.chainbuild;
 
-import com.ai.cloud.skywalking.analysis.categorize2chain.entity.ChainDetail;
-import com.ai.cloud.skywalking.analysis.categorize2chain.po.ChainNode;
+import com.ai.cloud.skywalking.analysis.chainbuild.entity.CallChainDetail;
+import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainNode;
 import com.ai.cloud.skywalking.analysis.config.Config;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,16 +30,16 @@ public class DBCallChainInfoDao {
 		}
 	}
 
-	public synchronized static void saveChainDetail(ChainDetail chainDetail)
+	public synchronized static void saveChainDetail(CallChainDetail callChainDetail)
 			throws SQLException {
 		PreparedStatement preparedStatement = null;
 		try {
 			preparedStatement = connection
 					.prepareStatement("INSERT  INTO sw_chain_detail(cid,uid,traceLevelId,viewpoint,create_time)"
 							+ " VALUES(?,?,?,?,?)");
-			for (ChainNode chainNode : chainDetail.getChainNodes()) {
-				preparedStatement.setString(1, chainDetail.getChainToken());
-				preparedStatement.setString(2, chainDetail.getUserId());
+			for (ChainNode chainNode : callChainDetail.getChainNodes()) {
+				preparedStatement.setString(1, callChainDetail.getChainToken());
+				preparedStatement.setString(2, callChainDetail.getUserId());
 				preparedStatement.setString(3, chainNode.getTraceLevelId());
 				preparedStatement.setString(4, chainNode.getViewPoint() + ":"
 						+ chainNode.getBusinessKey());
@@ -52,7 +51,7 @@ public class DBCallChainInfoDao {
 			for (int i : result) {
 				if (i != 1) {
 					logger.error("Failed to save chain detail ["
-							+ chainDetail.getChainToken() + "]");
+							+ callChainDetail.getChainToken() + "]");
 				}
 			}
 		} finally {

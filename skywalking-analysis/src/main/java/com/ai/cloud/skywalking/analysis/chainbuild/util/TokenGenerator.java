@@ -12,13 +12,13 @@ public class TokenGenerator {
     private TokenGenerator() {
         //Non
     }
-    
+
     public static String generateCID(String originData) {
-    	return "CID_" + generate(originData);
+        return "CID_" + generate(originData);
     }
-    
+
     public static String generateNodeToken(String originData){
-    	return "C_NID_" + generate(originData);
+        return "C_NID_" + generate(originData);
     }
 
     private static String generate(String originData) {

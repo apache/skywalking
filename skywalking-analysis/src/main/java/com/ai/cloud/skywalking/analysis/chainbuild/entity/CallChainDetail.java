@@ -1,12 +1,10 @@
-package com.ai.cloud.skywalking.analysis.categorize2chain.entity;
+package com.ai.cloud.skywalking.analysis.chainbuild.entity;
 
-import com.ai.cloud.skywalking.analysis.categorize2chain.DBCallChainInfoDao;
-import com.ai.cloud.skywalking.analysis.categorize2chain.po.ChainInfo;
-import com.ai.cloud.skywalking.analysis.categorize2chain.po.ChainNode;
-import com.ai.cloud.skywalking.analysis.config.Config;
+import com.ai.cloud.skywalking.analysis.chainbuild.DBCallChainInfoDao;
+import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainInfo;
+import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainNode;
 import com.ai.cloud.skywalking.analysis.config.HBaseTableMetaData;
 import com.google.gson.Gson;
-
 import org.apache.hadoop.hbase.client.Put;
 
 import java.sql.SQLException;
@@ -14,13 +12,13 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ChainDetail {
+public class CallChainDetail {
     private boolean isNormal = true;
     private String chainToken;
     private Map<String, ChainNode> chainNodeMap = new HashMap<String, ChainNode>();
     private String userId;
 
-    public ChainDetail(ChainInfo chainInfo, boolean isNormal) {
+    public CallChainDetail(ChainInfo chainInfo, boolean isNormal) {
         chainToken = chainInfo.getCID();
         for (ChainNode chainNode : chainInfo.getNodes()) {
             chainNodeMap.put(chainNode.getTraceLevelId(), chainNode);

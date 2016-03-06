@@ -43,8 +43,6 @@ public class HBaseTableMetaData {
         public static final String TABLE_NAME = "sw-chain-relationship";
 
         public static final String COLUMN_FAMILY_NAME = "chain-relationship";
-
-        public static final String UNCATEGORIZE_COLUMN_NAME = "UNCATEGORIZED_CALL_CHAIN";
     }
 
     /**
@@ -100,5 +98,23 @@ public class HBaseTableMetaData {
         public static final String TABLE_NAME = "sw-chain-1mon-summary-ic-rela";
 
         public static final String COLUMN_FAMILY_NAME = "chain_summary";
+    }
+
+    /**
+     * 用于存放已经合并的调用链的信息
+     *
+     * @author zhangxin
+     */
+    public final static class TABLE_MERGED_CHAIN_DETAIL {
+        public static final String TABLE_NAME = "sw-merged-chain-detail";
+
+        public static final String COLUMN_FAMILY_NAME = "chain_detail";
+    }
+
+
+    public final static class TABLE_CALL_CHAIN_TREE_ID_AND_CID_MAPPING {
+        public static final String TABLE_NAME = "sw-topologyId-cid-mapping";
+
+        public static final String COLUMN_FAMILY_NAME = "sw-topologyId-cid-mapping";
     }
 }

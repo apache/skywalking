@@ -1,11 +1,11 @@
-package com.ai.cloud.skywalking.analysis.categorize2chain.po;
+package com.ai.cloud.skywalking.analysis.chainbuild.po;
 
 import com.ai.cloud.skywalking.analysis.chainbuild.util.TokenGenerator;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
-
+import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.io.Writable;
 
 import java.io.DataInput;
@@ -21,6 +21,7 @@ public class ChainInfo implements Writable {
 	private String userId = null;
 	private ChainNode firstChainNode;
 	private long startDate;
+	private String chainToken;
 
 	public ChainInfo(String userId) {
 		super();
@@ -61,15 +62,6 @@ public class ChainInfo implements Writable {
 		}
 	}
 
-	public void generateChainToken() {
-		StringBuilder chainTokenDesc = new StringBuilder();
-		for (ChainNode node : nodes) {
-			chainTokenDesc.append(node.getParentLevelId() + "."
-					+ node.getLevelId() + "-" + node.getNodeToken() + ";");
-		}
-		this.cid = TokenGenerator.generateCID(chainTokenDesc.toString());
-	}
-
 	public ChainStatus getChainStatus() {
 		return chainStatus;
 	}
@@ -92,6 +84,7 @@ public class ChainInfo implements Writable {
 				&& chainNode.getLevelId() == 0) {
 			firstChainNode = chainNode;
 			startDate = chainNode.getStartDate();
+			cid = firstChainNode.getViewPoint();
 		}
 	}
 
@@ -105,6 +98,14 @@ public class ChainInfo implements Writable {
 
 	public void setUserId(String userId) {
 		this.userId = userId;
+	}
+
+	public String getChainToken() {
+		return chainToken;
+	}
+
+	public void saveToHBase(Put put) {
+
 	}
 
 	public enum ChainStatus {

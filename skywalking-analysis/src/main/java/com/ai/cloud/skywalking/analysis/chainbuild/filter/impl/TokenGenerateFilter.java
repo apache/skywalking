@@ -1,9 +1,9 @@
-package com.ai.cloud.skywalking.analysis.categorize2chain.filter.impl;
+package com.ai.cloud.skywalking.analysis.chainbuild.filter.impl;
 
-import com.ai.cloud.skywalking.analysis.categorize2chain.SpanEntry;
-import com.ai.cloud.skywalking.analysis.categorize2chain.filter.SpanNodeProcessFilter;
-import com.ai.cloud.skywalking.analysis.categorize2chain.po.ChainNode;
-import com.ai.cloud.skywalking.analysis.categorize2chain.util.SubLevelSpanCostCounter;
+import com.ai.cloud.skywalking.analysis.chainbuild.SpanEntry;
+import com.ai.cloud.skywalking.analysis.chainbuild.filter.SpanNodeProcessFilter;
+import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainNode;
+import com.ai.cloud.skywalking.analysis.chainbuild.util.SubLevelSpanCostCounter;
 import com.ai.cloud.skywalking.analysis.chainbuild.util.TokenGenerator;
 
 public class TokenGenerateFilter extends SpanNodeProcessFilter {

@@ -1,19 +1,13 @@
-package com.ai.cloud.skywalking.analysis.categorize2chain.util;
+package com.ai.cloud.skywalking.analysis.chainbuild.util;
 
-import com.ai.cloud.skywalking.analysis.categorize2chain.*;
-import com.ai.cloud.skywalking.analysis.categorize2chain.entity.CategorizedChainInfo;
-import com.ai.cloud.skywalking.analysis.categorize2chain.entity.ChainNodeSpecificTimeWindowSummary;
-import com.ai.cloud.skywalking.analysis.categorize2chain.entity.ChainRelationship;
-import com.ai.cloud.skywalking.analysis.categorize2chain.entity.ChainSpecificTimeWindowSummary;
-import com.ai.cloud.skywalking.analysis.categorize2chain.entity.UncategorizeChainInfo;
-import com.ai.cloud.skywalking.analysis.categorize2chain.po.ChainInfo;
-import com.ai.cloud.skywalking.analysis.chain2summary.ChainRelationship4Search;
 import com.ai.cloud.skywalking.analysis.chain2summary.entity.*;
+import com.ai.cloud.skywalking.analysis.chainbuild.CallChainTree;
+import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainInfo;
+import com.ai.cloud.skywalking.analysis.chainbuild.po.CallChainTreeNode;
 import com.ai.cloud.skywalking.analysis.config.Config;
 import com.ai.cloud.skywalking.analysis.config.HBaseTableMetaData;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.*;
 import org.apache.hadoop.hbase.client.*;
@@ -36,30 +30,35 @@ public class HBaseUtil {
         try {
             initHBaseClient();
 
-            createTableIfNeed(HBaseTableMetaData.TABLE_CID_TID_MAPPING.TABLE_NAME,
-                    HBaseTableMetaData.TABLE_CID_TID_MAPPING.COLUMN_FAMILY_NAME);
+//            createTableIfNeed(HBaseTableMetaData.TABLE_CID_TID_MAPPING.TABLE_NAME,
+//                    HBaseTableMetaData.TABLE_CID_TID_MAPPING.COLUMN_FAMILY_NAME);
+//
+//            createTableIfNeed(HBaseTableMetaData.TABLE_CALL_CHAIN_RELATIONSHIP.TABLE_NAME,
+//                    HBaseTableMetaData.TABLE_CALL_CHAIN_RELATIONSHIP.COLUMN_FAMILY_NAME);
+//
+//            createTableIfNeed(HBaseTableMetaData.TABLE_CHAIN_ONE_MINUTE_SUMMARY_EXCLUDE_RELATIONSHIP.TABLE_NAME,
+//                    HBaseTableMetaData.TABLE_CHAIN_ONE_MINUTE_SUMMARY_EXCLUDE_RELATIONSHIP.COLUMN_FAMILY_NAME);
+//
+//            createTableIfNeed(HBaseTableMetaData.TABLE_CHAIN_DETAIL.TABLE_NAME,
+//                    HBaseTableMetaData.TABLE_CHAIN_DETAIL.COLUMN_FAMILY_NAME);
+//
+//            createTableIfNeed(HBaseTableMetaData.TABLE_CHAIN_ONE_HOUR_SUMMARY_INCLUDE_RELATIONSHIP.TABLE_NAME,
+//                    HBaseTableMetaData.TABLE_CHAIN_ONE_HOUR_SUMMARY_INCLUDE_RELATIONSHIP.COLUMN_FAMILY_NAME);
+//
+//            createTableIfNeed(HBaseTableMetaData.TABLE_CHAIN_ONE_DAY_SUMMARY_INCLUDE_RELATIONSHIP.TABLE_NAME,
+//                    HBaseTableMetaData.TABLE_CHAIN_ONE_DAY_SUMMARY_INCLUDE_RELATIONSHIP.COLUMN_FAMILY_NAME);
+//
+//            createTableIfNeed(HBaseTableMetaData.TABLE_CHAIN_ONE_MINUTE_SUMMARY_INCLUDE_RELATIONSHIP.TABLE_NAME,
+//                    HBaseTableMetaData.TABLE_CHAIN_ONE_MINUTE_SUMMARY_INCLUDE_RELATIONSHIP.COLUMN_FAMILY_NAME);
+//
+//            createTableIfNeed(HBaseTableMetaData.TABLE_CHAIN_ONE_MONTH_SUMMARY_INCLUDE_RELATIONSHIP.TABLE_NAME,
+//                    HBaseTableMetaData.TABLE_CHAIN_ONE_MONTH_SUMMARY_INCLUDE_RELATIONSHIP.COLUMN_FAMILY_NAME);
 
-            createTableIfNeed(HBaseTableMetaData.TABLE_CALL_CHAIN_RELATIONSHIP.TABLE_NAME,
-                    HBaseTableMetaData.TABLE_CALL_CHAIN_RELATIONSHIP.COLUMN_FAMILY_NAME);
+            createTableIfNeed(HBaseTableMetaData.TABLE_MERGED_CHAIN_DETAIL.TABLE_NAME,
+                    HBaseTableMetaData.TABLE_MERGED_CHAIN_DETAIL.COLUMN_FAMILY_NAME);
 
-            createTableIfNeed(HBaseTableMetaData.TABLE_CHAIN_ONE_MINUTE_SUMMARY_EXCLUDE_RELATIONSHIP.TABLE_NAME,
-                    HBaseTableMetaData.TABLE_CHAIN_ONE_MINUTE_SUMMARY_EXCLUDE_RELATIONSHIP.COLUMN_FAMILY_NAME);
-
-            createTableIfNeed(HBaseTableMetaData.TABLE_CHAIN_DETAIL.TABLE_NAME,
-                    HBaseTableMetaData.TABLE_CHAIN_DETAIL.COLUMN_FAMILY_NAME);
-
-            createTableIfNeed(HBaseTableMetaData.TABLE_CHAIN_ONE_HOUR_SUMMARY_INCLUDE_RELATIONSHIP.TABLE_NAME,
-                    HBaseTableMetaData.TABLE_CHAIN_ONE_HOUR_SUMMARY_INCLUDE_RELATIONSHIP.COLUMN_FAMILY_NAME);
-
-            createTableIfNeed(HBaseTableMetaData.TABLE_CHAIN_ONE_DAY_SUMMARY_INCLUDE_RELATIONSHIP.TABLE_NAME,
-                    HBaseTableMetaData.TABLE_CHAIN_ONE_DAY_SUMMARY_INCLUDE_RELATIONSHIP.COLUMN_FAMILY_NAME);
-
-            createTableIfNeed(HBaseTableMetaData.TABLE_CHAIN_ONE_MINUTE_SUMMARY_INCLUDE_RELATIONSHIP.TABLE_NAME,
-                    HBaseTableMetaData.TABLE_CHAIN_ONE_MINUTE_SUMMARY_INCLUDE_RELATIONSHIP.COLUMN_FAMILY_NAME);
-
-            createTableIfNeed(HBaseTableMetaData.TABLE_CHAIN_ONE_MONTH_SUMMARY_INCLUDE_RELATIONSHIP.TABLE_NAME,
-                    HBaseTableMetaData.TABLE_CHAIN_ONE_MONTH_SUMMARY_INCLUDE_RELATIONSHIP.COLUMN_FAMILY_NAME);
-
+            createTableIfNeed(HBaseTableMetaData.TABLE_CALL_CHAIN_TREE_ID_AND_CID_MAPPING.TABLE_NAME,
+                    HBaseTableMetaData.TABLE_CALL_CHAIN_TREE_ID_AND_CID_MAPPING.COLUMN_FAMILY_NAME);
         } catch (IOException e) {
             logger.error("Create tables failed", e);
         }
@@ -115,52 +114,6 @@ public class HBaseUtil {
         return true;
     }
 
-
-    public static ChainRelationship loadCallChainRelationship(String key) throws IOException {
-        ChainRelationship chainRelate = new ChainRelationship(key);
-        Table table = connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_CALL_CHAIN_RELATIONSHIP.TABLE_NAME));
-        Get g = new Get(Bytes.toBytes(key));
-        Result r = table.get(g);
-        for (Cell cell : r.rawCells()) {
-            if (cell.getValueArray().length > 0) {
-
-                String qualifierName = Bytes.toString(cell.getQualifierArray(), cell.getQualifierOffset(),
-                        cell.getQualifierLength());
-                if (HBaseTableMetaData.TABLE_CALL_CHAIN_RELATIONSHIP.UNCATEGORIZE_COLUMN_NAME.equals(qualifierName)) {
-                    List<UncategorizeChainInfo> uncategorizeChainInfoList = new Gson().fromJson(Bytes.toString(cell.getValueArray(),
-                            cell.getValueOffset(), cell.getValueLength()),
-                            new TypeToken<List<UncategorizeChainInfo>>() {
-                            }.getType());
-                    chainRelate.addUncategorizeChain(uncategorizeChainInfoList);
-                } else {
-                    chainRelate.addCategorizeChain(qualifierName, new CategorizedChainInfo(
-                            Bytes.toString(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength())
-                    ));
-                }
-            }
-        }
-        return chainRelate;
-    }
-
-    public static ChainSpecificTimeWindowSummary selectChainSummaryResult(String key) throws IOException {
-        ChainSpecificTimeWindowSummary result = null;
-        Table table = connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_CHAIN_ONE_MINUTE_SUMMARY_EXCLUDE_RELATIONSHIP.TABLE_NAME));
-        Get g = new Get(Bytes.toBytes(key));
-        Result r = table.get(g);
-
-        if (r.rawCells().length == 0) {
-            return null;
-        }
-        result = new ChainSpecificTimeWindowSummary();
-        for (Cell cell : r.rawCells()) {
-            if (cell.getValueArray().length > 0)
-                result.addNodeSummaryResult(new ChainNodeSpecificTimeWindowSummary(Bytes.toString(cell.getValueArray(),
-                        cell.getValueOffset(), cell.getValueLength())));
-        }
-
-        return result;
-    }
-
     public static void saveChainRelationship(Put put) throws IOException {
         Table table = connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_CALL_CHAIN_RELATIONSHIP.TABLE_NAME));
 
@@ -192,44 +145,6 @@ public class HBaseUtil {
                 }
             }
         }
-    }
-
-    public static ChainRelationship4Search queryChainRelationship(String key) throws IOException {
-        Table table = connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_CHAIN_ONE_MINUTE_SUMMARY_EXCLUDE_RELATIONSHIP.TABLE_NAME));
-        Get g = new Get(key.getBytes());
-        Result r = table.get(g);
-
-        if (r.rawCells().length == 0) {
-            return null;
-        }
-        ChainRelationship4Search result = new ChainRelationship4Search();
-
-        for (Cell cell : r.rawCells()) {
-            if (cell.getValueArray().length > 0) {
-                String qualifierName = Bytes.toString(cell.getQualifierArray(), cell.getQualifierOffset(),
-                        cell.getQualifierLength());
-
-                if (HBaseTableMetaData.TABLE_CALL_CHAIN_RELATIONSHIP.UNCATEGORIZE_COLUMN_NAME.equals(qualifierName)) {
-                    List<UncategorizeChainInfo> uncategorizeChainInfoList = new Gson().fromJson(Bytes.toString(cell.getValueArray(),
-                            cell.getValueOffset(), cell.getValueLength()),
-                            new TypeToken<List<UncategorizeChainInfo>>() {
-                            }.getType());
-                    for (UncategorizeChainInfo chainInfo : uncategorizeChainInfoList) {
-                        result.addRelationship(chainInfo.getCID());
-                    }
-                } else {
-                    CategorizedChainInfo categorizedChainInfo = new CategorizedChainInfo(
-                            Bytes.toString(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength())
-                    );
-
-                    for (String cid : categorizedChainInfo.getChildren_Token()) {
-                        result.addRelationship(qualifierName, cid);
-                    }
-                }
-            }
-        }
-
-        return result;
     }
 
     public static ChainSpecificMinSummary loadSpecificMinSummary(String key) throws IOException {
@@ -357,5 +272,47 @@ public class HBaseUtil {
                 logger.error("Failed to save chain specific Summary");
             }
         }
+    }
+
+    public static CallChainTree loadMergedCallChain(String callEntrance) throws IOException {
+        CallChainTree result = null;
+        Table table = connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_MERGED_CHAIN_DETAIL.TABLE_NAME));
+        Get g = new Get(Bytes.toBytes(callEntrance));
+        Result r = table.get(g);
+        if (r.rawCells().length == 0) {
+            return null;
+        }
+        result = new CallChainTree(callEntrance);
+        for (Cell cell : r.rawCells()) {
+            if (cell.getValueArray().length > 0)
+                result.addMergedChainNode(new CallChainTreeNode(Bytes.toString(cell.getValueArray(),
+                        cell.getValueOffset(), cell.getValueLength())));
+        }
+        return result;
+    }
+
+    public static void saveMergedCallChain(CallChainTree callChainTree) {
+        // save
+        // save relationship
+    }
+
+    public static List<String> loadHasBeenMergeChainIds(String topoId) throws IOException {
+        List<String> result = new ArrayList<String>();
+        Table table = connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_CALL_CHAIN_TREE_ID_AND_CID_MAPPING.TABLE_NAME));
+        Get g = new Get(Bytes.toBytes(topoId));
+        Result r = table.get(g);
+        if (r.rawCells().length == 0) {
+            return null;
+        }
+        for (Cell cell : r.rawCells()) {
+            if (cell.getValueArray().length > 0) {
+                List<String> hasBeenMergedCIds = new Gson().fromJson("",
+                        new TypeToken<List<String>>() {
+                        }.getType());
+                result.addAll(hasBeenMergedCIds);
+            }
+
+        }
+        return result;
     }
 }
