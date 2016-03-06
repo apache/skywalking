@@ -82,7 +82,7 @@ public class ChainBuildMapper extends TableMapper<Text, ChainInfo> {
             filter.doFilter(entry.getValue(), chainNode, costMap);
             chainInfo.addNodes(chainNode);
         }
-        //chainInfo.generateChainToken();
+        chainInfo.generateChainToken();
         //HBaseUtil.saveCidTidMapping(key, chainInfo);
         return chainInfo;
     }

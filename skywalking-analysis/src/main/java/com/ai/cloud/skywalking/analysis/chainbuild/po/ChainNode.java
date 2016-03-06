@@ -11,6 +11,7 @@ public class ChainNode {
     @Expose
     private String businessKey;
 
+    @Expose
     private long cost;
     private NodeStatus status;
     @Expose
@@ -19,6 +20,7 @@ public class ChainNode {
     private int levelId;
     @Expose
     private String callType;
+    @Expose
     private long startDate;
     @Expose
     private String userId;

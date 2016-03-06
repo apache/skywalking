@@ -5,6 +5,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import com.ai.cloud.skywalking.analysis.chainbuild.ChainBuildMapper;
+import com.ai.cloud.skywalking.analysis.chainbuild.ChainBuildReducer;
+import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainInfo;
 import com.ai.cloud.skywalking.analysis.config.HBaseTableMetaData;
 
 import org.apache.hadoop.conf.Configuration;
@@ -20,9 +23,6 @@ import org.apache.hadoop.util.ToolRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.ai.cloud.skywalking.analysis.categorize2chain.Categorize2ChainMapper;
-import com.ai.cloud.skywalking.analysis.categorize2chain.Categorize2ChainReducer;
-import com.ai.cloud.skywalking.analysis.categorize2chain.po.ChainInfo;
 import com.ai.cloud.skywalking.analysis.config.Config;
 import com.ai.cloud.skywalking.analysis.config.ConfigInitializer;
 
@@ -52,10 +52,10 @@ public class AnalysisServerDriver extends Configured implements Tool {
         job.setJarByClass(AnalysisServerDriver.class);
         Scan scan = buildHBaseScan(args);
 
-        TableMapReduceUtil.initTableMapperJob(HBaseTableMetaData.TABLE_CALL_CHAIN.TABLE_NAME, scan, Categorize2ChainMapper.class,
+        TableMapReduceUtil.initTableMapperJob(HBaseTableMetaData.TABLE_CALL_CHAIN.TABLE_NAME, scan, ChainBuildMapper.class,
                 Text.class, ChainInfo.class, job);
 
-        job.setReducerClass(Categorize2ChainReducer.class);
+        job.setReducerClass(ChainBuildReducer.class);
         job.setNumReduceTasks(Config.Reducer.REDUCER_NUMBER);
         job.setOutputFormatClass(NullOutputFormat.class);
         return job.waitForCompletion(true) ? 0 : 1;

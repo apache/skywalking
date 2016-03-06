@@ -1,6 +1,5 @@
-package com.ai.cloud.skywalking.analysis.chainbuild;
+package com.ai.cloud.skywalking.analysis.chainbuild.entity;
 
-import com.ai.cloud.skywalking.analysis.chainbuild.po.CallChainTreeNode;
 import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainInfo;
 import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainNode;
 import com.ai.cloud.skywalking.analysis.chainbuild.util.HBaseUtil;
@@ -16,6 +15,8 @@ import java.util.Map;
 public class CallChainTree {
 
     private String callEntrance;
+
+    private String treeId;
 
     //存放已经合并过的调用链ID
     private List<String> hasBeenMergedChainIds;
@@ -35,7 +36,7 @@ public class CallChainTree {
     }
 
     public static CallChainTree load(String callEntrance) throws IOException {
-        CallChainTree chain = HBaseUtil.loadMergedCallChain(callEntrance);
+        CallChainTree chain = HBaseUtil.loadCallChainTree(callEntrance);
         chain.hasBeenMergedChainIds.addAll(HBaseUtil.loadHasBeenMergeChainIds(callEntrance));
         if (chain == null) {
             chain = new CallChainTree(callEntrance);
@@ -57,14 +58,14 @@ public class CallChainTree {
             }
         }
 
-        hasBeenMergedChainIds.add(chainInfo.getChainToken());
-        combineChains.put(chainInfo.getChainToken(), chainInfo);
+        hasBeenMergedChainIds.add(chainInfo.getCID());
+        combineChains.put(chainInfo.getCID(), chainInfo);
     }
 
-    public void summary(ChainInfo chainInfo) {
+    public void summary(ChainInfo chainInfo) throws IOException {
         for (ChainNode node : chainInfo.getNodes()) {
             CallChainTreeNode callChainTreeNode = nodes.get(node.getTraceLevelId());
-            callChainTreeNode.summary(node);
+            callChainTreeNode.summary(treeId, node);
         }
     }
 
@@ -77,6 +78,11 @@ public class CallChainTree {
         }
 
         HBaseUtil.saveCallChainTree(this);
+
+        //save summary value
+        for (CallChainTreeNode entry : nodes.values()) {
+            entry.saveSummaryResultToHBase();
+        }
     }
 
     public String getCallEntrance() {

@@ -1,5 +1,6 @@
 package com.ai.cloud.skywalking.analysis.chainbuild;
 
+import com.ai.cloud.skywalking.analysis.chainbuild.entity.CallChainTree;
 import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainInfo;
 import com.ai.cloud.skywalking.analysis.config.ConfigInitializer;
 import org.apache.hadoop.hbase.util.Bytes;
