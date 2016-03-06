@@ -43,4 +43,9 @@ public class CallChainTreeNode {
     public String getTraceLevelId() {
         return traceLevelId;
     }
+
+    @Override
+    public String toString() {
+        return new Gson().toJson(this);
+    }
 }

@@ -111,10 +111,20 @@ public class HBaseTableMetaData {
         public static final String COLUMN_FAMILY_NAME = "chain_detail";
     }
 
-
+    /**
+     * 用于存放调用树和CID的映射关系
+     *
+     * @author zhangxin
+     */
     public final static class TABLE_CALL_CHAIN_TREE_ID_AND_CID_MAPPING {
         public static final String TABLE_NAME = "sw-topologyId-cid-mapping";
 
         public static final String COLUMN_FAMILY_NAME = "sw-topologyId-cid-mapping";
+    }
+
+    public final static class TABLE_CALL_CHAIN_TREE_DETAIL {
+        public static final String TABLE_NAME = "sw-call-chain-tree-detail";
+
+        public static final String COLUMN_FAMILY_NAME = "tree-detail";
     }
 }

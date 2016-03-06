@@ -2,8 +2,8 @@ package com.ai.cloud.skywalking.analysis.chainbuild.util;
 
 import com.ai.cloud.skywalking.analysis.chain2summary.entity.*;
 import com.ai.cloud.skywalking.analysis.chainbuild.CallChainTree;
-import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainInfo;
 import com.ai.cloud.skywalking.analysis.chainbuild.po.CallChainTreeNode;
+import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainInfo;
 import com.ai.cloud.skywalking.analysis.config.Config;
 import com.ai.cloud.skywalking.analysis.config.HBaseTableMetaData;
 import com.google.gson.Gson;
@@ -291,15 +291,27 @@ public class HBaseUtil {
         return result;
     }
 
-    public static void saveMergedCallChain(CallChainTree callChainTree) {
+    public static void saveCallChainTree(CallChainTree callChainTree) throws IOException {
         // save
+        Put callChainTreePut = new Put(callChainTree.getCallEntrance().getBytes());
+        for (Map.Entry<String, CallChainTreeNode> entry : callChainTree.getNodes().entrySet()) {
+            callChainTreePut.addColumn(HBaseTableMetaData.TABLE_CALL_CHAIN_TREE_DETAIL.COLUMN_FAMILY_NAME.getBytes(),
+                    entry.getKey().getBytes(), entry.getValue().toString().getBytes());
+        }
+        Table table = connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_MERGED_CHAIN_DETAIL.TABLE_NAME));
+        table.put(callChainTreePut);
         // save relationship
+        Put treeIdCidMappingPut = new Put(callChainTree.getCallEntrance().getBytes());
+        treeIdCidMappingPut.addColumn(HBaseTableMetaData.TABLE_CALL_CHAIN_TREE_ID_AND_CID_MAPPING.COLUMN_FAMILY_NAME.getBytes()
+                , "HAS_BEEN_MERGED_CHAIN_ID".getBytes(), callChainTree.getHasBeenMergedChainIds().getBytes());
+        Table relationshipTable = connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_CALL_CHAIN_TREE_ID_AND_CID_MAPPING.TABLE_NAME));
+        relationshipTable.put(treeIdCidMappingPut);
     }
 
-    public static List<String> loadHasBeenMergeChainIds(String topoId) throws IOException {
+    public static List<String> loadHasBeenMergeChainIds(String treeId) throws IOException {
         List<String> result = new ArrayList<String>();
         Table table = connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_CALL_CHAIN_TREE_ID_AND_CID_MAPPING.TABLE_NAME));
-        Get g = new Get(Bytes.toBytes(topoId));
+        Get g = new Get(Bytes.toBytes(treeId));
         Result r = table.get(g);
         if (r.rawCells().length == 0) {
             return null;

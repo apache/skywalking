@@ -1,9 +1,10 @@
 package com.ai.cloud.skywalking.analysis.chainbuild;
 
+import com.ai.cloud.skywalking.analysis.chainbuild.po.CallChainTreeNode;
 import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainInfo;
 import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainNode;
-import com.ai.cloud.skywalking.analysis.chainbuild.po.CallChainTreeNode;
 import com.ai.cloud.skywalking.analysis.chainbuild.util.HBaseUtil;
+import com.google.gson.Gson;
 import org.apache.hadoop.hbase.client.Put;
 
 import java.io.IOException;
@@ -67,7 +68,7 @@ public class CallChainTree {
         }
     }
 
-    public void saveToHbase() {
+    public void saveToHbase() throws IOException {
         List<Put> chainInfoPuts = new ArrayList<Put>();
         for (Map.Entry<String, ChainInfo> entry : combineChains.entrySet()) {
             Put put = new Put(entry.getKey().getBytes());
@@ -75,7 +76,7 @@ public class CallChainTree {
             chainInfoPuts.add(put);
         }
 
-        HBaseUtil.saveMergedCallChain(this);
+        HBaseUtil.saveCallChainTree(this);
     }
 
     public String getCallEntrance() {
@@ -84,5 +85,13 @@ public class CallChainTree {
 
     public void addMergedChainNode(CallChainTreeNode chainNode) {
         nodes.put(chainNode.getTraceLevelId(), chainNode);
+    }
+
+    public Map<String, CallChainTreeNode> getNodes() {
+        return nodes;
+    }
+
+    public String getHasBeenMergedChainIds() {
+        return new Gson().toJson(hasBeenMergedChainIds);
     }
 }
