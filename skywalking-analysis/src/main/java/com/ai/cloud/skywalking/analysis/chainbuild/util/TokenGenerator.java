@@ -17,8 +17,12 @@ public class TokenGenerator {
         return "CID_" + generate(originData);
     }
 
-    public static String generateNodeToken(String originData){
+    public static String generateNodeToken(String originData) {
         return "C_NID_" + generate(originData);
+    }
+
+    public static String generateTreeToken(String originData) {
+        return "TREE_ID_" + generate(originData);
     }
 
     private static String generate(String originData) {

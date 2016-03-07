@@ -27,8 +27,12 @@ public class ChainBuildReducer extends Reducer<Text, ChainInfo, Text, IntWritabl
     @Override
     protected void reduce(Text key, Iterable<ChainInfo> values, Context context) throws IOException,
             InterruptedException {
-        CallChainTree chainTree = CallChainTree.load(Bytes.toString(key.getBytes()));
-        Iterator<ChainInfo> chainInfoIterator = values.iterator();
+        doReduceAction(Bytes.toString(key.getBytes()), values.iterator());
+    }
+
+    public static void doReduceAction(String key, Iterator<ChainInfo> chainInfoIterator) throws IOException, InterruptedException {
+        CallChainTree chainTree = CallChainTree.load(key);
+
         while (chainInfoIterator.hasNext()) {
             ChainInfo chainInfo = chainInfoIterator.next();
             if (chainInfo.getChainStatus() == ChainInfo.ChainStatus.NORMAL) {

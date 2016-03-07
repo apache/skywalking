@@ -34,6 +34,9 @@ public class HBaseUtil {
 
             createTableIfNeed(HBaseTableMetaData.TABLE_CALL_CHAIN_TREE_ID_AND_CID_MAPPING.TABLE_NAME,
                     HBaseTableMetaData.TABLE_CALL_CHAIN_TREE_ID_AND_CID_MAPPING.COLUMN_FAMILY_NAME);
+
+            createTableIfNeed(HBaseTableMetaData.TABLE_CHAIN_ONE_MINUTE_SUMMARY.TABLE_NAME,
+                    HBaseTableMetaData.TABLE_CHAIN_ONE_MINUTE_SUMMARY.COLUMN_FAMILY_NAME);
         } catch (IOException e) {
             logger.error("Create tables failed", e);
         }
@@ -69,13 +72,13 @@ public class HBaseUtil {
         Result r = table.get(g);
 
         if (r.rawCells().length == 0) {
-            return null;
+            return new ChainNodeSpecificMinSummary();
         }
 
         Cell cell = r.getColumnLatestCell(HBaseTableMetaData.TABLE_CHAIN_ONE_MINUTE_SUMMARY.COLUMN_FAMILY_NAME.getBytes(),
                 qualifier.getBytes());
 
-        if (cell.getValueArray().length > 0) {
+        if (cell != null && cell.getValueArray().length > 0) {
             result = new ChainNodeSpecificMinSummary(Bytes.toString(cell.getValueArray(),
                     cell.getValueOffset(), cell.getValueLength()));
         } else {
@@ -91,7 +94,7 @@ public class HBaseUtil {
         Get g = new Get(Bytes.toBytes(callEntrance));
         Result r = table.get(g);
         if (r.rawCells().length == 0) {
-            return null;
+            return new CallChainTree(callEntrance);
         }
         result = new CallChainTree(callEntrance);
         for (Cell cell : r.rawCells()) {
@@ -125,11 +128,12 @@ public class HBaseUtil {
         Get g = new Get(Bytes.toBytes(treeId));
         Result r = table.get(g);
         if (r.rawCells().length == 0) {
-            return null;
+            return new ArrayList<>();
         }
         for (Cell cell : r.rawCells()) {
             if (cell.getValueArray().length > 0) {
-                List<String> hasBeenMergedCIds = new Gson().fromJson("",
+                List<String> hasBeenMergedCIds = new Gson().fromJson(Bytes.toString(cell.getValueArray(),
+                        cell.getValueOffset(), cell.getValueLength()),
                         new TypeToken<List<String>>() {
                         }.getType());
                 result.addAll(hasBeenMergedCIds);

@@ -93,7 +93,7 @@ public class ChainInfo implements Writable {
                 && chainNode.getLevelId() == 0) {
             firstChainNode = chainNode;
             startDate = chainNode.getStartDate();
-            cid = firstChainNode.getViewPoint();
+            callEntrance = firstChainNode.getViewPoint();
         }
     }
 
@@ -141,5 +141,9 @@ public class ChainInfo implements Writable {
 
     public long getStartDate() {
         return startDate;
+    }
+
+    public String getCallEntrance() {
+        return callEntrance;
     }
 }
