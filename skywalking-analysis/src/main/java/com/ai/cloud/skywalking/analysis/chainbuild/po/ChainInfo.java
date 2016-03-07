@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.ai.cloud.skywalking.analysis.config.HBaseTableMetaData;
 import org.apache.hadoop.hbase.client.Put;
 
 import com.ai.cloud.skywalking.analysis.chainbuild.exception.Tid2CidECovertException;
@@ -86,7 +87,10 @@ public class ChainInfo implements Serializable {
     }
 
     public void saveToHBase(Put put) {
-    	//TODO： @zhangxin，未完成的入库代码
+        for (ChainNode node : nodes){
+            put.addColumn(HBaseTableMetaData.TABLE_CHAIN_DETAIL.COLUMN_FAMILY_NAME.getBytes(),
+                    node.getTraceLevelId().getBytes(), node.toString().getBytes());
+        }
     }
 
     public enum ChainStatus {

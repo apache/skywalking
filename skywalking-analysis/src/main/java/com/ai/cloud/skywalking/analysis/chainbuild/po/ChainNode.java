@@ -8,20 +8,21 @@ public class ChainNode {
     private String nodeToken;
     @Expose
     private String viewPoint;
-    @Expose
+
     private String businessKey;
 
-    @Expose
     private long cost;
+
     private NodeStatus status;
     @Expose
     private String parentLevelId;
     @Expose
     private int levelId;
-    @Expose
+
     private String callType;
-    @Expose
+
     private long startDate;
+
     @Expose
     private String userId;
 

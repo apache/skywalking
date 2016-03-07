@@ -49,7 +49,7 @@ public class CallChainTreeNode {
         String keyOfMinSummaryTable = generateKeyOfMinSummaryTable(treeId, calendar);
         ChainNodeSpecificMinSummary minSummary = chainNodeContainer.get(keyOfMinSummaryTable);
         if (minSummary == null) {
-            minSummary = HBaseUtil.loadSpecificMinSummary(keyOfMinSummaryTable, node.getTraceLevelId());
+            minSummary = HBaseUtil.loadSpecificMinSummary(keyOfMinSummaryTable, getTreeNodeDesc());
             chainNodeContainer.put(keyOfMinSummaryTable, minSummary);
         }
 
@@ -59,10 +59,6 @@ public class CallChainTreeNode {
     private String generateKeyOfMinSummaryTable(String treeId, Calendar calendar) {
         return treeId + "/" + calendar.get(Calendar.YEAR) + "-" + calendar.get(Calendar.MONTH) + "-"
                 + calendar.get(Calendar.DAY_OF_MONTH) + " " + calendar.get(Calendar.HOUR) + ":00:00";
-    }
-
-    public String getTraceLevelId() {
-        return traceLevelId;
     }
 
     @Override
@@ -75,10 +71,14 @@ public class CallChainTreeNode {
         for (Map.Entry<String, ChainNodeSpecificMinSummary> entry : chainNodeContainer.entrySet()) {
             Put put = new Put(entry.getKey().getBytes());
             put.addColumn(HBaseTableMetaData.TABLE_CHAIN_ONE_MINUTE_SUMMARY.COLUMN_FAMILY_NAME.getBytes()
-                    , traceLevelId.getBytes(), entry.getValue().toString().getBytes());
+                    , getTreeNodeDesc().getBytes(), entry.getValue().toString().getBytes());
             puts.add(put);
         }
 
         HBaseUtil.batchSaveMinSummaryResult(puts);
+    }
+
+    public String getTreeNodeDesc() {
+        return traceLevelId + "@" + viewPointId;
     }
 }

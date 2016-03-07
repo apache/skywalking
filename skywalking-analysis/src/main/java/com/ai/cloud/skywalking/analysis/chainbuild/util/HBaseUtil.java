@@ -29,14 +29,14 @@ public class HBaseUtil {
         try {
             initHBaseClient();
 
-            createTableIfNeed(HBaseTableMetaData.TABLE_CALL_CHAIN_TREE_DETAIL.TABLE_NAME,
-                    HBaseTableMetaData.TABLE_CALL_CHAIN_TREE_DETAIL.COLUMN_FAMILY_NAME);
-
             createTableIfNeed(HBaseTableMetaData.TABLE_CALL_CHAIN_TREE_ID_AND_CID_MAPPING.TABLE_NAME,
                     HBaseTableMetaData.TABLE_CALL_CHAIN_TREE_ID_AND_CID_MAPPING.COLUMN_FAMILY_NAME);
 
             createTableIfNeed(HBaseTableMetaData.TABLE_CHAIN_ONE_MINUTE_SUMMARY.TABLE_NAME,
                     HBaseTableMetaData.TABLE_CHAIN_ONE_MINUTE_SUMMARY.COLUMN_FAMILY_NAME);
+
+            createTableIfNeed(HBaseTableMetaData.TABLE_CHAIN_DETAIL.TABLE_NAME,
+                    HBaseTableMetaData.TABLE_CHAIN_DETAIL.COLUMN_FAMILY_NAME);
         } catch (IOException e) {
             logger.error("Create tables failed", e);
         }
@@ -88,40 +88,6 @@ public class HBaseUtil {
         return result;
     }
 
-    public static CallChainTree loadCallChainTree(String callEntrance) throws IOException {
-        CallChainTree result = null;
-        Table table = connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_CALL_CHAIN_TREE_DETAIL.TABLE_NAME));
-        Get g = new Get(Bytes.toBytes(callEntrance));
-        Result r = table.get(g);
-        if (r.rawCells().length == 0) {
-            return new CallChainTree(callEntrance);
-        }
-        result = new CallChainTree(callEntrance);
-        for (Cell cell : r.rawCells()) {
-            if (cell.getValueArray().length > 0)
-                result.addMergedChainNode(new CallChainTreeNode(Bytes.toString(cell.getValueArray(),
-                        cell.getValueOffset(), cell.getValueLength())));
-        }
-        return result;
-    }
-
-    public static void saveCallChainTree(CallChainTree callChainTree) throws IOException {
-        // save
-        Put callChainTreePut = new Put(callChainTree.getCallEntrance().getBytes());
-        for (Map.Entry<String, CallChainTreeNode> entry : callChainTree.getNodes().entrySet()) {
-            callChainTreePut.addColumn(HBaseTableMetaData.TABLE_CALL_CHAIN_TREE_DETAIL.COLUMN_FAMILY_NAME.getBytes(),
-                    entry.getKey().getBytes(), entry.getValue().toString().getBytes());
-        }
-        Table table = connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_CALL_CHAIN_TREE_DETAIL.TABLE_NAME));
-        table.put(callChainTreePut);
-        // save relationship
-        Put treeIdCidMappingPut = new Put(callChainTree.getCallEntrance().getBytes());
-        treeIdCidMappingPut.addColumn(HBaseTableMetaData.TABLE_CALL_CHAIN_TREE_ID_AND_CID_MAPPING.COLUMN_FAMILY_NAME.getBytes()
-                , "HAS_BEEN_MERGED_CHAIN_ID".getBytes(), callChainTree.getHasBeenMergedChainIds().getBytes());
-        Table relationshipTable = connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_CALL_CHAIN_TREE_ID_AND_CID_MAPPING.TABLE_NAME));
-        relationshipTable.put(treeIdCidMappingPut);
-    }
-
     public static List<String> loadHasBeenMergeChainIds(String treeId) throws IOException {
         List<String> result = new ArrayList<String>();
         Table table = connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_CALL_CHAIN_TREE_ID_AND_CID_MAPPING.TABLE_NAME));
@@ -151,6 +117,32 @@ public class HBaseUtil {
         for (Object result : resultArray) {
             if (result == null) {
                 logger.error("Failed to insert the put the Value[" + puts.get(index).getId() + "]");
+            }
+            index++;
+        }
+    }
+
+    public static void batchSaveChainInfo(List<Put> chainInfoPuts) throws IOException, InterruptedException {
+        Table table = connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_CHAIN_DETAIL.TABLE_NAME));
+        Object[] resultArray = new Object[chainInfoPuts.size()];
+        table.batch(chainInfoPuts, resultArray);
+        int index = 0;
+        for (Object result : resultArray) {
+            if (result == null) {
+                logger.error("Failed to insert the put the Value[" + chainInfoPuts.get(index).getId() + "]");
+            }
+            index++;
+        }
+    }
+
+    public static void batchSaveHasBeenMergedCID(List<Put> chainIdPuts) throws IOException, InterruptedException {
+        Table table = connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_CALL_CHAIN_TREE_ID_AND_CID_MAPPING.TABLE_NAME));
+        Object[] resultArray = new Object[chainIdPuts.size()];
+        table.batch(chainIdPuts, resultArray);
+        int index = 0;
+        for (Object result : resultArray) {
+            if (result == null) {
+                logger.error("Failed to insert the put the Value[" + chainIdPuts.get(index).getId() + "]");
             }
             index++;
         }

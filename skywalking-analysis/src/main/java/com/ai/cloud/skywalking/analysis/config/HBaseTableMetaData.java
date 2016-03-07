@@ -43,15 +43,4 @@ public class HBaseTableMetaData {
 
         public static final String COLUMN_FAMILY_NAME = "sw-treeId-cid-mapping";
     }
-
-    /**
-     * 用于存放调用树
-     *
-     * @author zhangxin
-     */
-    public final static class TABLE_CALL_CHAIN_TREE_DETAIL {
-        public static final String TABLE_NAME = "sw-call-chain-tree-detail";
-
-        public static final String COLUMN_FAMILY_NAME = "tree-detail";
-    }
 }
