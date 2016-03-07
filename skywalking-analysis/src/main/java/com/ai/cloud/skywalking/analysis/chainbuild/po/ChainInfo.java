@@ -1,64 +1,44 @@
 package com.ai.cloud.skywalking.analysis.chainbuild.po;
 
-import com.ai.cloud.skywalking.analysis.chainbuild.util.TokenGenerator;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.reflect.TypeToken;
-import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.io.Writable;
-
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ChainInfo implements Writable {
-    private String callEntrance;
+import org.apache.hadoop.hbase.client.Put;
+
+import com.ai.cloud.skywalking.analysis.chainbuild.exception.Tid2CidECovertException;
+import com.ai.cloud.skywalking.analysis.chainbuild.util.TokenGenerator;
+
+public class ChainInfo implements Serializable {
+	private static final long serialVersionUID = -7194044877533469817L;
+	
+	/**
+	 * 0节点的viewpoint，用于明文标识入口
+	 */
+	private String callEntrance;
     private String cid;
     private ChainStatus chainStatus = ChainStatus.NORMAL;
-    private List<ChainNode> nodes;
+    private List<ChainNode> nodes = new ArrayList<ChainNode>();
     private String userId = null;
     private ChainNode firstChainNode;
     private long startDate;
+    private String tid;
 
-    public ChainInfo(String userId) {
+    public ChainInfo(String tid) {
         super();
-        this.userId = userId;
-    }
-
-    public ChainInfo() {
-        this.nodes = new ArrayList<ChainNode>();
-    }
-
-    @Override
-    public void write(DataOutput out) throws IOException {
-        out.write(new Gson().toJson(this).getBytes());
-    }
-
-    @Override
-    public void readFields(DataInput in) throws IOException {
-        JsonObject jsonObject = (JsonObject) new JsonParser().parse(in
-                .readLine());
-        cid = jsonObject.get("cid").getAsString();
-        chainStatus = ChainStatus.convert(jsonObject.get("chainStatus")
-                .getAsCharacter());
-        nodes = new Gson().fromJson(jsonObject.get("nodes"),
-                new TypeToken<List<ChainNode>>() {
-                }.getType());
-        userId = jsonObject.get("userId").getAsString();
+        this.tid = tid;
     }
 
     public String getCID() {
         return cid;
     }
 
-    public String getEntranceNodeToken() {
+    public String getEntranceNodeToken() throws Tid2CidECovertException {
         if (firstChainNode == null) {
-            return "";
+        	throw new Tid2CidECovertException("tid[" + tid + "] can't find span node with level=0.");
         } else {
-            return firstChainNode.getNodeToken();
+            return this.getUserId() + ":"
+					+ firstChainNode.getNodeToken();
         }
     }
 
@@ -106,7 +86,7 @@ public class ChainInfo implements Writable {
     }
 
     public void saveToHBase(Put put) {
-
+    	//TODO： @zhangxin，未完成的入库代码
     }
 
     public enum ChainStatus {

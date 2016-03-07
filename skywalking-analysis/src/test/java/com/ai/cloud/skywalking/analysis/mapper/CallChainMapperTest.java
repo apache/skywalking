@@ -1,24 +1,31 @@
 package com.ai.cloud.skywalking.analysis.mapper;
 
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.HBaseConfiguration;
+import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.Connection;
+import org.apache.hadoop.hbase.client.ConnectionFactory;
+import org.apache.hadoop.hbase.client.Get;
+import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.Table;
+import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.hadoop.io.Text;
+import org.junit.Before;
+import org.junit.Test;
+
 import com.ai.cloud.skywalking.analysis.chainbuild.ChainBuildMapper;
 import com.ai.cloud.skywalking.analysis.chainbuild.ChainBuildReducer;
 import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainInfo;
 import com.ai.cloud.skywalking.analysis.config.ConfigInitializer;
 import com.ai.cloud.skywalking.analysis.config.HBaseTableMetaData;
 import com.ai.cloud.skywalking.protocol.Span;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.Cell;
-import org.apache.hadoop.hbase.HBaseConfiguration;
-import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.*;
-import org.apache.hadoop.hbase.util.Bytes;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import com.google.gson.Gson;
 
 /**
  * Created by astraea on 2016/1/15.
@@ -39,10 +46,10 @@ public class CallChainMapperTest {
         List<Span> spanList = selectByTraceId(chain_Id);
         ChainInfo chainInfo = ChainBuildMapper.spanToChainInfo(chain_Id, spanList);
 
-        List<ChainInfo> chainInfos = new ArrayList<ChainInfo>();
-        chainInfos.add(chainInfo);
+        List<Text> chainInfos = new ArrayList<Text>();
+        chainInfos.add(new Text(new Gson().toJson(chainInfo)));
 
-        ChainBuildReducer.doReduceAction(chainInfo.getCallEntrance(), chainInfos.iterator());
+        new ChainBuildReducer().doReduceAction(chainInfo.getCallEntrance(), chainInfos.iterator());
     }
 
     public static List<Span> selectByTraceId(String traceId) throws IOException {
