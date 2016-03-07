@@ -67,7 +67,7 @@ public class CallChainTreeNode {
         return new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create().toJson(this);
     }
 
-    public void saveSummaryResultToHBase() {
+    public void saveSummaryResultToHBase() throws IOException, InterruptedException {
         List<Put>  puts = new ArrayList<Put>();
         for (Map.Entry<String, ChainNodeSpecificMinSummary> entry : chainNodeContainer.entrySet()) {
             Put put = new Put(entry.getKey().getBytes());

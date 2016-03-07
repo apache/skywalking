@@ -69,7 +69,7 @@ public class CallChainTree {
         }
     }
 
-    public void saveToHbase() throws IOException {
+    public void saveToHbase() throws IOException, InterruptedException {
         List<Put> chainInfoPuts = new ArrayList<Put>();
         for (Map.Entry<String, ChainInfo> entry : combineChains.entrySet()) {
             Put put = new Put(entry.getKey().getBytes());
