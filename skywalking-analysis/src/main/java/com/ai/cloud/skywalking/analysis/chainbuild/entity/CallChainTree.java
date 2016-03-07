@@ -3,6 +3,7 @@ package com.ai.cloud.skywalking.analysis.chainbuild.entity;
 import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainInfo;
 import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainNode;
 import com.ai.cloud.skywalking.analysis.chainbuild.util.HBaseUtil;
+import com.ai.cloud.skywalking.analysis.chainbuild.util.TokenGenerator;
 import com.google.gson.Gson;
 import org.apache.hadoop.hbase.client.Put;
 
@@ -33,14 +34,12 @@ public class CallChainTree {
         combineChains = new HashMap<String, ChainInfo>();
         nodes = new HashMap<String, CallChainTreeNode>();
         this.callEntrance = callEntrance;
+        this.treeId = TokenGenerator.generateTreeToken(callEntrance);
     }
 
     public static CallChainTree load(String callEntrance) throws IOException {
         CallChainTree chain = HBaseUtil.loadCallChainTree(callEntrance);
         chain.hasBeenMergedChainIds.addAll(HBaseUtil.loadHasBeenMergeChainIds(callEntrance));
-        if (chain == null) {
-            chain = new CallChainTree(callEntrance);
-        }
         return chain;
     }
 

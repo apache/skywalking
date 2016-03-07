@@ -24,13 +24,16 @@ public class CallChainTreeNode {
 
     public CallChainTreeNode(ChainNode node) {
         this.traceLevelId = node.getTraceLevelId();
-        chainNodeContainer.put(node.getNodeToken(), new ChainNodeSpecificMinSummary());
+        chainNodeContainer = new HashMap<String, ChainNodeSpecificMinSummary>();
+        this.viewPointId = node.getViewPoint();
     }
 
     public CallChainTreeNode(String originData) {
         JsonObject jsonObject = (JsonObject) new JsonParser().parse(originData);
         traceLevelId = jsonObject.get("traceLevelId").getAsString();
         viewPointId = jsonObject.get("viewPointId").getAsString();
+        // 每次都只load对应的节点统计结果，不全部load出来
+        chainNodeContainer = new HashMap<String, ChainNodeSpecificMinSummary>();
     }
 
     public void mergeIfNess(ChainNode node) {
@@ -46,11 +49,11 @@ public class CallChainTreeNode {
         String keyOfMinSummaryTable = generateKeyOfMinSummaryTable(treeId, calendar);
         ChainNodeSpecificMinSummary minSummary = chainNodeContainer.get(keyOfMinSummaryTable);
         if (minSummary == null) {
-            minSummary = HBaseUtil.loadSpecificMinSummary(keyOfMinSummaryTable, node.getNodeToken());
+            minSummary = HBaseUtil.loadSpecificMinSummary(keyOfMinSummaryTable, node.getTraceLevelId());
             chainNodeContainer.put(keyOfMinSummaryTable, minSummary);
         }
 
-        minSummary.summary(String.valueOf(calendar.get(Calendar.MINUTE) + 1), node);
+        minSummary.summary(String.valueOf(calendar.get(Calendar.MINUTE)), node);
     }
 
     private String generateKeyOfMinSummaryTable(String treeId, Calendar calendar) {
@@ -68,7 +71,7 @@ public class CallChainTreeNode {
     }
 
     public void saveSummaryResultToHBase() throws IOException, InterruptedException {
-        List<Put>  puts = new ArrayList<Put>();
+        List<Put> puts = new ArrayList<Put>();
         for (Map.Entry<String, ChainNodeSpecificMinSummary> entry : chainNodeContainer.entrySet()) {
             Put put = new Put(entry.getKey().getBytes());
             put.addColumn(HBaseTableMetaData.TABLE_CHAIN_ONE_MINUTE_SUMMARY.COLUMN_FAMILY_NAME.getBytes()
