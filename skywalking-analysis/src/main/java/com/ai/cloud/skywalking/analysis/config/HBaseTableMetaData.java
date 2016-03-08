@@ -41,6 +41,8 @@ public class HBaseTableMetaData {
     public final static class TABLE_CALL_CHAIN_TREE_ID_AND_CID_MAPPING {
         public static final String TABLE_NAME = "sw-treeId-cid-mapping";
 
-        public static final String COLUMN_FAMILY_NAME = "sw-treeId-cid-mapping";
+        public static final String COLUMN_FAMILY_NAME = "cids";
+        
+        public static final String COLUMN_NAME = "been_merged_cid";
     }
 }

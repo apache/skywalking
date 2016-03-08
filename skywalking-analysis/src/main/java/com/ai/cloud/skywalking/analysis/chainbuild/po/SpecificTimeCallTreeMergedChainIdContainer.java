@@ -49,18 +49,30 @@ public class SpecificTimeCallTreeMergedChainIdContainer {
         batchSaveMergedChainId();
     }
 
+    /**
+     * 保存被合并的cid信息列表
+     * 
+     * @throws IOException
+     * @throws InterruptedException
+     */
     private void batchSaveMergedChainId() throws IOException, InterruptedException {
         List<Put> chainIdPuts = new ArrayList<Put>();
         for (Map.Entry<String, List<String>> entry : hasBeenMergedChainIds.entrySet()) {
             Put chainIdPut = new Put(entry.getKey().getBytes());
             chainIdPut.addColumn(HBaseTableMetaData.TABLE_CALL_CHAIN_TREE_ID_AND_CID_MAPPING.COLUMN_FAMILY_NAME.getBytes()
-                    , "HAS_BEEN_MERGED_CHAIN_ID".getBytes(), new Gson().toJson(entry.getValue()).getBytes());
+                    , HBaseTableMetaData.TABLE_CALL_CHAIN_TREE_ID_AND_CID_MAPPING.COLUMN_NAME.getBytes(), new Gson().toJson(entry.getValue()).getBytes());
             chainIdPuts.add(chainIdPut);
         }
 
         HBaseUtil.batchSaveHasBeenMergedCID(chainIdPuts);
     }
 
+    /**
+     * 保存已经合并的调用链信息，包含调用链明细
+     * 
+     * @throws IOException
+     * @throws InterruptedException
+     */
     private void batchSaveCurrentHasBeenMergedChainInfo() throws IOException, InterruptedException {
         List<Put> chainInfoPuts = new ArrayList<Put>();
         for (Map.Entry<String, ChainInfo> entry : combineChains.entrySet()) {
