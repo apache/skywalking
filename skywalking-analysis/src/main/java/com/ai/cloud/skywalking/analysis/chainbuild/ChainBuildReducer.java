@@ -2,7 +2,7 @@ package com.ai.cloud.skywalking.analysis.chainbuild;
 
 import com.ai.cloud.skywalking.analysis.chainbuild.entity.CallChainTree;
 import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainInfo;
-import com.ai.cloud.skywalking.analysis.chainbuild.po.SpecificTimeCallChainTreeMergedChainIdContainer;
+import com.ai.cloud.skywalking.analysis.chainbuild.po.SpecificTimeCallTreeMergedChainIdContainer;
 import com.ai.cloud.skywalking.analysis.config.ConfigInitializer;
 import com.google.gson.Gson;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -33,7 +33,7 @@ public class ChainBuildReducer extends Reducer<Text, Text, Text, IntWritable> {
     public void doReduceAction(String key, Iterator<Text> chainInfoIterator)
             throws IOException, InterruptedException {
         CallChainTree chainTree = CallChainTree.load(key);
-        SpecificTimeCallChainTreeMergedChainIdContainer container = new SpecificTimeCallChainTreeMergedChainIdContainer(chainTree.getTreeToken());
+        SpecificTimeCallTreeMergedChainIdContainer container = new SpecificTimeCallTreeMergedChainIdContainer(chainTree.getTreeToken());
         while (chainInfoIterator.hasNext()) {
             String callChainData = chainInfoIterator.next().toString();
             ChainInfo chainInfo = null;

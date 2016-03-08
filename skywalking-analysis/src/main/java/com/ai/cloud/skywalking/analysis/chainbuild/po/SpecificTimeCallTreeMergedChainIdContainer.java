@@ -8,7 +8,7 @@ import org.apache.hadoop.hbase.client.Put;
 import java.io.IOException;
 import java.util.*;
 
-public class SpecificTimeCallChainTreeMergedChainIdContainer {
+public class SpecificTimeCallTreeMergedChainIdContainer {
 
     private String treeToken;
 
@@ -17,7 +17,7 @@ public class SpecificTimeCallChainTreeMergedChainIdContainer {
     // 本次Reduce合并过的调用链
     private Map<String, ChainInfo> combineChains;
 
-    public SpecificTimeCallChainTreeMergedChainIdContainer(String treeToken) {
+    public SpecificTimeCallTreeMergedChainIdContainer(String treeToken) {
         this.treeToken = treeToken;
         hasBeenMergedChainIds = new HashMap<String, List<String>>();
         combineChains = new HashMap<String, ChainInfo>();
@@ -45,14 +45,11 @@ public class SpecificTimeCallChainTreeMergedChainIdContainer {
     }
 
     public void saveToHBase() throws IOException, InterruptedException {
-        List<Put> chainInfoPuts = new ArrayList<Put>();
-        for (Map.Entry<String, ChainInfo> entry : combineChains.entrySet()) {
-            Put put = new Put(entry.getKey().getBytes());
-            entry.getValue().saveToHBase(put);
-            chainInfoPuts.add(put);
-        }
-        HBaseUtil.batchSaveChainInfo(chainInfoPuts);
+        batchSaveCurrentHasBeenMergedChainInfo();
+        batchSaveMergedChainId();
+    }
 
+    private void batchSaveMergedChainId() throws IOException, InterruptedException {
         List<Put> chainIdPuts = new ArrayList<Put>();
         for (Map.Entry<String, List<String>> entry : hasBeenMergedChainIds.entrySet()) {
             Put chainIdPut = new Put(entry.getKey().getBytes());
@@ -62,5 +59,15 @@ public class SpecificTimeCallChainTreeMergedChainIdContainer {
         }
 
         HBaseUtil.batchSaveHasBeenMergedCID(chainIdPuts);
+    }
+
+    private void batchSaveCurrentHasBeenMergedChainInfo() throws IOException, InterruptedException {
+        List<Put> chainInfoPuts = new ArrayList<Put>();
+        for (Map.Entry<String, ChainInfo> entry : combineChains.entrySet()) {
+            Put put = new Put(entry.getKey().getBytes());
+            entry.getValue().saveToHBase(put);
+            chainInfoPuts.add(put);
+        }
+        HBaseUtil.batchSaveChainInfo(chainInfoPuts);
     }
 }
