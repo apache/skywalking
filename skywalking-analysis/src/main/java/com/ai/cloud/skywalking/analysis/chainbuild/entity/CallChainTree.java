@@ -1,19 +1,22 @@
 package com.ai.cloud.skywalking.analysis.chainbuild.entity;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainInfo;
 import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainNode;
 import com.ai.cloud.skywalking.analysis.chainbuild.util.TokenGenerator;
 
-import java.io.IOException;
-import java.util.*;
-
 public class CallChainTree {
-
     private String callEntrance;
 
     private String treeToken;
-    //合并之后的节点
-    // key :  trace level Id
+    
+    /**
+     * 命名规则：levelId + @ + viewPoint
+     * 存放各级的各个viewpoint节点的统计数值
+     */
     private Map<String, CallChainTreeNode> nodes;
 
     public CallChainTree(String callEntrance) {
@@ -29,10 +32,11 @@ public class CallChainTree {
 
     public void summary(ChainInfo chainInfo) throws IOException {
         for (ChainNode node : chainInfo.getNodes()) {
-            CallChainTreeNode callChainTreeNode = nodes.get(node.getTraceLevelId());
+        	CallChainTreeNode newCallChainTreeNode = new CallChainTreeNode(node);
+            CallChainTreeNode callChainTreeNode = nodes.get(newCallChainTreeNode.getTreeNodeId());
             if (callChainTreeNode == null) {
-                callChainTreeNode = new CallChainTreeNode(node);
-                nodes.put(node.getTraceLevelId() + "@" + node.getViewPoint(), callChainTreeNode);
+                callChainTreeNode = newCallChainTreeNode;
+                nodes.put(newCallChainTreeNode.getTreeNodeId(), callChainTreeNode);
             }
             callChainTreeNode.summary(treeToken, node);
         }

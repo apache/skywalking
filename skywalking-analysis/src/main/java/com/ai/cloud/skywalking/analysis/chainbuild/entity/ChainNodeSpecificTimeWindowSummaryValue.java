@@ -3,7 +3,6 @@ package com.ai.cloud.skywalking.analysis.chainbuild.entity;
 import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainNode;
 
 public class ChainNodeSpecificTimeWindowSummaryValue {
-
     private long totalCall;
     private long totalCostTime;
     private long correctNumber;

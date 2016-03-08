@@ -1,26 +1,40 @@
 package com.ai.cloud.skywalking.analysis.chainbuild.entity;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.hadoop.hbase.client.Put;
+
 import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainNode;
 import com.ai.cloud.skywalking.analysis.chainbuild.util.HBaseUtil;
 import com.ai.cloud.skywalking.analysis.config.HBaseTableMetaData;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.google.gson.annotations.Expose;
-import org.apache.hadoop.hbase.client.Put;
 
-import java.io.IOException;
-import java.util.*;
-
+/**
+ * 
+ * 调用树的每个traceLevelId + "@" + viewPointId构成一个树节点<br/>
+ * 虚拟化节点概念。节点存储落地时，按照节点对应的时间戳<br/>
+ * 
+ * @author wusheng
+ *
+ */
 public class CallChainTreeNode {
     @Expose
     private String traceLevelId;
     @Expose
     private String viewPointId;
 
-    // key: treeId + 小时
+    /**
+     * key: treeId + 小时
+     * value: 当前树的当前小时范围内的，所有分钟和节点的统计数据
+     */
     private Map<String, ChainNodeSpecificMinSummary> chainNodeContainer;
-
 
     public CallChainTreeNode(ChainNode node) {
         this.traceLevelId = node.getTraceLevelId();
@@ -28,28 +42,17 @@ public class CallChainTreeNode {
         this.viewPointId = node.getViewPoint();
     }
 
-    public CallChainTreeNode(String originData) {
-        JsonObject jsonObject = (JsonObject) new JsonParser().parse(originData);
-        traceLevelId = jsonObject.get("traceLevelId").getAsString();
-        viewPointId = jsonObject.get("viewPointId").getAsString();
-        // 每次都只load对应的节点统计结果，不全部load出来
-        chainNodeContainer = new HashMap<String, ChainNodeSpecificMinSummary>();
-    }
-
-    public void mergeIfNess(ChainNode node) {
-        if (!chainNodeContainer.containsKey(node.getNodeToken())) {
-            chainNodeContainer.put(node.getNodeToken(), new ChainNodeSpecificMinSummary());
-        }
-    }
-
     public void summary(String treeId, ChainNode node) throws IOException {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date(node.getStartDate()));
-        // summary min
+        /**
+         * 按分钟维度进行汇总<br/>
+         * chainNodeContainer以treeId和时间（精确到分钟）为key，value为当前时间范围内的所有分钟的汇总数据
+         */
         String keyOfMinSummaryTable = generateKeyOfMinSummaryTable(treeId, calendar);
         ChainNodeSpecificMinSummary minSummary = chainNodeContainer.get(keyOfMinSummaryTable);
         if (minSummary == null) {
-            minSummary = HBaseUtil.loadSpecificMinSummary(keyOfMinSummaryTable, getTreeNodeDesc());
+            minSummary = HBaseUtil.loadSpecificMinSummary(keyOfMinSummaryTable, getTreeNodeId());
             chainNodeContainer.put(keyOfMinSummaryTable, minSummary);
         }
 
@@ -66,19 +69,28 @@ public class CallChainTreeNode {
         return new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create().toJson(this);
     }
 
+    /**
+     * 存储入库时 <br/>
+     * hbase的key 为 treeId + 小时 <br/>
+     * 列族中，列为节点id，规则为：traceLevelId + "@" + viewPointId <br/>
+     * 列的值，为当前节点按小时内各分钟的汇总 <br/>
+     * 
+     * @throws IOException
+     * @throws InterruptedException
+     */
     public void saveSummaryResultToHBase() throws IOException, InterruptedException {
         List<Put> puts = new ArrayList<Put>();
         for (Map.Entry<String, ChainNodeSpecificMinSummary> entry : chainNodeContainer.entrySet()) {
             Put put = new Put(entry.getKey().getBytes());
             put.addColumn(HBaseTableMetaData.TABLE_CHAIN_ONE_MINUTE_SUMMARY.COLUMN_FAMILY_NAME.getBytes()
-                    , getTreeNodeDesc().getBytes(), entry.getValue().toString().getBytes());
+                    , getTreeNodeId().getBytes(), entry.getValue().toString().getBytes());
             puts.add(put);
         }
 
         HBaseUtil.batchSaveMinSummaryResult(puts);
     }
 
-    public String getTreeNodeDesc() {
+    public String getTreeNodeId() {
         return traceLevelId + "@" + viewPointId;
     }
 }

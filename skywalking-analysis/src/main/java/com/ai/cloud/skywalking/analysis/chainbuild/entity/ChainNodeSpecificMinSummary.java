@@ -1,17 +1,19 @@
 package com.ai.cloud.skywalking.analysis.chainbuild.entity;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainNode;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
-import org.apache.hadoop.hbase.client.Put;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class ChainNodeSpecificMinSummary {
-    // key : 分钟
+    /**
+     * key : 分钟
+     * value: 各节点统计数据
+     */
     private Map<String, ChainNodeSpecificTimeWindowSummaryValue> summaryValueMap;
 
     public ChainNodeSpecificMinSummary(String originData) {
