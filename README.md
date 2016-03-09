@@ -58,15 +58,15 @@ server.port=34000
 
 #数据缓存文件目录，请确保此目录有一定的存储容量
 buffer.data_buffer_file_parent_directory=D:/test-data/data/buffer
-#偏移量注册文件的目录
+#偏移量注册文件的目录，这里为系统绝对路径
 registerpersistence.register_file_parent_directory=d:/test-data/data/offset
 
-#hbase zk quorum
+#hbase zk quorum，hbase的zk地址
 hbaseconfig.zk_hostname=10.1.235.197,10.1.235.198,10.1.235.199
-#hbase zk port
+#hbase zk port，hbase的zk使用端口
 hbaseconfig.client_port=29181
 
-#Redis配置
+#告警数据暂存的Redis配置
 alarm.redis_server=10.1.241.18:16379
 ```
 - 启动服务
