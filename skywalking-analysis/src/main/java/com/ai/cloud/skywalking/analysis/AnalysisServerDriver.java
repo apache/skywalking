@@ -53,7 +53,7 @@ public class AnalysisServerDriver extends Configured implements Tool {
         Scan scan = buildHBaseScan(args);
 
         TableMapReduceUtil.initTableMapperJob(HBaseTableMetaData.TABLE_CALL_CHAIN.TABLE_NAME, scan, ChainBuildMapper.class,
-                Text.class, ChainInfo.class, job);
+                Text.class, Text.class, job);
 
         job.setReducerClass(ChainBuildReducer.class);
         job.setNumReduceTasks(Config.Reducer.REDUCER_NUMBER);
