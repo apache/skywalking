@@ -75,6 +75,7 @@ $cd installer/bin
 $./swserver.sh
 ```
 - 可根据需要部署多个实例
+- 启动服务前，请注意hbase的客户端使用机器名而非ip连接主机，请在server所在机器上正确配置hosts文件，否则会造成数据无法入库
 
 ### 编译安装SkyWalking Alarm
 - 编译工程
