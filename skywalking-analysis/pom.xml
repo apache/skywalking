@@ -78,15 +78,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <addClasspath>true</addClasspath>
-                            <classpathPrefix>libs/</classpathPrefix>
-                            <mainClass>com.ai.cloud.skywalking.analysis.AnalysisServerDriver</mainClass>
-                        </manifest>
-                    </archive>
-                </configuration>
                 <version>2.4</version>
                 <executions>
                     <execution>
