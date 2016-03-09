@@ -42,6 +42,7 @@ public class ChainBuildReducer extends Reducer<Text, Text, Text, IntWritable> {
                 container.addMergedChainIfNotContain(chainInfo);
                 chainTree.summary(chainInfo);
             } catch (Exception e) {
+                e.printStackTrace();
                 logger.error(
                         "Failed to summary call chain, maybe illegal data:"
                                 + callChainData, e);

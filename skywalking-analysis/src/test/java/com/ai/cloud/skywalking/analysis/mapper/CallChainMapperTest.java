@@ -1,40 +1,38 @@
 package com.ai.cloud.skywalking.analysis.mapper;
 
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
+import com.ai.cloud.skywalking.analysis.chainbuild.ChainBuildMapper;
+import com.ai.cloud.skywalking.analysis.chainbuild.ChainBuildReducer;
+import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainInfo;
+import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainNode;
+import com.ai.cloud.skywalking.analysis.config.ConfigInitializer;
+import com.ai.cloud.skywalking.analysis.config.HBaseTableMetaData;
+import com.ai.cloud.skywalking.protocol.Span;
+import com.google.gson.Gson;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.Connection;
-import org.apache.hadoop.hbase.client.ConnectionFactory;
-import org.apache.hadoop.hbase.client.Get;
-import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.client.Table;
+import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.Text;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.ai.cloud.skywalking.analysis.chainbuild.ChainBuildMapper;
-import com.ai.cloud.skywalking.analysis.chainbuild.ChainBuildReducer;
-import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainInfo;
-import com.ai.cloud.skywalking.analysis.config.ConfigInitializer;
-import com.ai.cloud.skywalking.analysis.config.HBaseTableMetaData;
-import com.ai.cloud.skywalking.protocol.Span;
-import com.google.gson.Gson;
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * Created by astraea on 2016/1/15.
  */
 public class CallChainMapperTest {
 
-    private static String ZK_QUORUM = "10.1.235.197,10.1.235.198,10.1.235.199";
+    //private static String ZK_QUORUM = "10.1.235.197,10.1.235.198,10.1.235.199";
+    private static String ZK_QUORUM = "10.1.241.18,10.1.241.19,10.1.241.20";
     private static String ZK_CLIENT_PORT = "29181";
-    private static String chain_Id = "1.0a2.1455875996366.eb2055d.30051.88.29";
+    private static String chain_Id = "1.0a2.1457436000002.860568c.21818.49.82";
 //    private static String chain_Id = "1.0a2.1453429608422.2701d43.6468.56.1";
 
     private static Configuration configuration = null;
@@ -64,6 +62,67 @@ public class CallChainMapperTest {
         return entries;
     }
 
+    @Test
+    public void testDataIsCorrect() throws IOException, ParseException {
+        List<ChainInfo> chainInfos = selectSpans();
+        Iterator<ChainInfo> chainInfoIterator = chainInfos.iterator();
+        while (chainInfoIterator.hasNext()) {
+            ChainInfo chainInfo = chainInfoIterator.next();
+            if (!"http://m.aisse.asiainfo.com/aisseWorkPage/workPay".equals(chainInfo.getCallEntrance())) {
+                chainInfoIterator.remove();
+            }
+        }
+
+        Map<String, List<ChainNode>> result = new HashMap<>();
+        for (int i = 0; i < chainInfos.size(); i++) {
+            for (ChainNode chainNode :chainInfos.get(i).getNodes()){
+                if ("0".equals(chainNode.getTraceLevelId())){
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTime(new Date(chainNode.getStartDate()));
+                    List<ChainNode> chainNodes = result.get(getKey(calendar));
+                    if (chainNodes == null){
+                        chainNodes = new ArrayList<>();
+                    }
+                    chainNodes.add(chainNode);
+                   result.put(getKey(calendar), chainNodes);
+                }
+            }
+        }
+
+        System.out.println(result.size());
+    }
+
+    private String getKey(Calendar calendar) {
+        return calendar.get(Calendar.YEAR) + "-" + (calendar.get(Calendar.MONTH)) + "-"
+                + calendar.get(Calendar.DAY_OF_MONTH) + " " + calendar.get(Calendar.HOUR) + ":00:00";
+    }
+
+    public static List<ChainInfo> selectSpans() throws IOException, ParseException {
+        List<ChainInfo> chainInfos = new ArrayList<ChainInfo>();
+        Table table = connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_CALL_CHAIN.TABLE_NAME));
+        Scan scan = new Scan();
+        scan.setTimeRange(new SimpleDateFormat("yyyy-MM-dd/HH:mm:ss").parse("2015-12-09/18:44:48").getTime(), new SimpleDateFormat("yyyy-MM-dd/HH:mm:ss").parse("2016-03-09/18:44:48").getTime());
+        ResultScanner resultScanner = table.getScanner(scan);
+        Iterator<Result> resultIterator = resultScanner.iterator();
+        while (resultIterator.hasNext()) {
+            Result result = resultIterator.next();
+            List<Span> entries = new ArrayList<Span>();
+            for (Cell cell : result.rawCells()) {
+                if (cell.getValueArray().length > 0)
+                    entries.add(new Span(Bytes.toString(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength())));
+            }
+            ChainInfo chainInfo = null;
+            try {
+                chainInfo = ChainBuildMapper.spanToChainInfo(Bytes.toString(result.getRow()), entries);
+            } catch (Exception e) {
+                continue;
+            }
+            chainInfos.add(chainInfo);
+        }
+
+        return chainInfos;
+    }
+
 
     @Before
     public void initHBaseClient() throws IOException {
@@ -73,5 +132,7 @@ public class CallChainMapperTest {
             configuration.set("hbase.zookeeper.property.clientPort", ZK_CLIENT_PORT);
             connection = ConnectionFactory.createConnection(configuration);
         }
+
+        ConfigInitializer.initialize();
     }
 }

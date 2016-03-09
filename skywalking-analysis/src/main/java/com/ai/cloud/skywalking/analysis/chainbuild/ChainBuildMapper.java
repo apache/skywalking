@@ -58,6 +58,7 @@ public class ChainBuildMapper extends TableMapper<Text, Text> {
             context.write(
                     new Text(chainInfo.getEntranceNodeToken()), new Text(new Gson().toJson(chainInfo)));
         } catch (Exception e) {
+            e.printStackTrace();
             logger.error("Failed to mapper call chain[" + key.toString() + "]",
                     e);
         }
