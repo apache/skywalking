@@ -1,28 +1,20 @@
 package com.ai.cloud.skywalking.analysis.chainbuild.entity;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.hadoop.hbase.client.Put;
-
 import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainNode;
 import com.ai.cloud.skywalking.analysis.chainbuild.util.HBaseUtil;
 import com.ai.cloud.skywalking.analysis.config.HBaseTableMetaData;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
+import org.apache.hadoop.hbase.client.Put;
+
+import java.io.IOException;
+import java.util.*;
 
 /**
- * 
  * 调用树的每个traceLevelId + "@" + viewPointId构成一个树节点<br/>
  * 虚拟化节点概念。节点存储落地时，按照节点对应的时间戳<br/>
- * 
- * @author wusheng
  *
+ * @author wusheng
  */
 public class CallChainTreeNode {
     @Expose
@@ -60,7 +52,7 @@ public class CallChainTreeNode {
     }
 
     private String generateKeyOfMinSummaryTable(String treeId, Calendar calendar) {
-        return treeId + "/" + calendar.get(Calendar.YEAR) + "-" + calendar.get(Calendar.MONTH) + "-"
+        return treeId + "/" + calendar.get(Calendar.YEAR) + "-" + (calendar.get(Calendar.MONTH) + 1) + "-"
                 + calendar.get(Calendar.DAY_OF_MONTH) + " " + calendar.get(Calendar.HOUR) + ":00:00";
     }
 
@@ -74,7 +66,7 @@ public class CallChainTreeNode {
      * hbase的key 为 treeId + 小时 <br/>
      * 列族中，列为节点id，规则为：traceLevelId + "@" + viewPointId <br/>
      * 列的值，为当前节点按小时内各分钟的汇总 <br/>
-     * 
+     *
      * @throws IOException
      * @throws InterruptedException
      */
