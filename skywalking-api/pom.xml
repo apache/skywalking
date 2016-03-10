@@ -12,6 +12,11 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<version.plugin.shade>2.4.1</version.plugin.shade>
+		<shade.net.bytebuddy.source>net.bytebuddy</shade.net.bytebuddy.source>
+		<shade.net.bytebuddy.target>com.ai.cloud.skywalking.api.dependencies.net.bytebuddy</shade.net.bytebuddy.target>
+		<shade.io.netty.source>io.netty</shade.io.netty.source>
+		<shade.io.netty.target>com.ai.cloud.skywalking.api.dependencies.io.netty</shade.io.netty.target>
 	</properties>
 
 	<dependencies>
@@ -20,73 +25,24 @@
 			<artifactId>skywalking-protocol</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
-		
-		<dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>2.4.1</version>
-            <scope>provided</scope>
-        </dependency>
 
 		<dependency>
-			<groupId>com.jcraft</groupId>
-			<artifactId>jzlib</artifactId>
-			<version>1.1.3</version>
-			<scope>compile</scope>
+			<groupId>net.bytebuddy</groupId>
+			<artifactId>byte-buddy</artifactId>
+			<version>1.3.0</version>
 		</dependency>
 
 		<dependency>
-			<groupId>org.javassist</groupId>
-			<artifactId>javassist</artifactId>
-			<version>3.19.0-GA</version>
-			<scope>compile</scope>
+			<groupId>io.netty</groupId>
+			<artifactId>netty-all</artifactId>
+			<version>4.0.33.Final</version>
 		</dependency>
 
 		<dependency>
-			<groupId>commons-logging</groupId>
-			<artifactId>commons-logging</artifactId>
-			<version>1.1.3</version>
-			<scope>compile</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.osgi</groupId>
-			<artifactId>org.osgi.core</artifactId>
-			<version>4.3.1</version>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+			<version>2.4.1</version>
 			<scope>provided</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>1.2.17</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>mail</artifactId>
-					<groupId>javax.mail</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>jms</artifactId>
-					<groupId>javax.jms</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>jmxtools</artifactId>
-					<groupId>com.sun.jdmk</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>jmxri</artifactId>
-					<groupId>com.sun.jmx</groupId>
-				</exclusion>
-			</exclusions>
-			<scope>compile</scope>
-			<optional>true</optional>
-		</dependency>
-
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>1.7.5</version>
-			<scope>compile</scope>
 		</dependency>
 
 		<dependency>
@@ -129,6 +85,36 @@
 						<goals>
 							<goal>jar</goal>
 						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<!-- Shade the net.bytebuddy/io.netty dependency. -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>${version.plugin.shade}</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<shadedArtifactAttached>false</shadedArtifactAttached>
+							<createDependencyReducedPom>true</createDependencyReducedPom>
+							<createSourcesJar>true</createSourcesJar>
+							<shadeSourcesContent>true</shadeSourcesContent>
+							<relocations>
+								<relocation>
+									<pattern>${shade.net.bytebuddy.source}</pattern>
+									<shadedPattern>${shade.net.bytebuddy.target}</shadedPattern>
+								</relocation>
+								<relocation>
+									<pattern>${shade.io.netty.source}</pattern>
+									<shadedPattern>${shade.io.netty.target}</shadedPattern>
+								</relocation>
+							</relocations>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
