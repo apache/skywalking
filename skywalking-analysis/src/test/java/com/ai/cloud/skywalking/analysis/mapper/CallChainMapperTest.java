@@ -62,46 +62,11 @@ public class CallChainMapperTest {
         return entries;
     }
 
-    @Test
-    public void testDataIsCorrect() throws IOException, ParseException {
-        List<ChainInfo> chainInfos = selectSpans();
-        Iterator<ChainInfo> chainInfoIterator = chainInfos.iterator();
-        while (chainInfoIterator.hasNext()) {
-            ChainInfo chainInfo = chainInfoIterator.next();
-            if (!"http://m.aisse.asiainfo.com/aisseWorkPage/workPay".equals(chainInfo.getCallEntrance())) {
-                chainInfoIterator.remove();
-            }
-        }
-
-        Map<String, List<ChainNode>> result = new HashMap<>();
-        for (int i = 0; i < chainInfos.size(); i++) {
-            for (ChainNode chainNode :chainInfos.get(i).getNodes()){
-                if ("0".equals(chainNode.getTraceLevelId())){
-                    Calendar calendar = Calendar.getInstance();
-                    calendar.setTime(new Date(chainNode.getStartDate()));
-                    List<ChainNode> chainNodes = result.get(getKey(calendar));
-                    if (chainNodes == null){
-                        chainNodes = new ArrayList<>();
-                    }
-                    chainNodes.add(chainNode);
-                   result.put(getKey(calendar), chainNodes);
-                }
-            }
-        }
-
-        System.out.println(result.size());
-    }
-
-    private String getKey(Calendar calendar) {
-        return calendar.get(Calendar.YEAR) + "-" + (calendar.get(Calendar.MONTH)) + "-"
-                + calendar.get(Calendar.DAY_OF_MONTH) + " " + calendar.get(Calendar.HOUR) + ":00:00";
-    }
-
     public static List<ChainInfo> selectSpans() throws IOException, ParseException {
         List<ChainInfo> chainInfos = new ArrayList<ChainInfo>();
         Table table = connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_CALL_CHAIN.TABLE_NAME));
         Scan scan = new Scan();
-        scan.setTimeRange(new SimpleDateFormat("yyyy-MM-dd/HH:mm:ss").parse("2015-12-09/18:44:48").getTime(), new SimpleDateFormat("yyyy-MM-dd/HH:mm:ss").parse("2016-03-09/18:44:48").getTime());
+        scan.setTimeRange(new SimpleDateFormat("yyyy-MM-dd/HH:mm:ss").parse("2016-01-10/11:55:48").getTime(), new SimpleDateFormat("yyyy-MM-dd/HH:mm:ss").parse("2016-02-10/11:55:48").getTime());
         ResultScanner resultScanner = table.getScanner(scan);
         Iterator<Result> resultIterator = resultScanner.iterator();
         while (resultIterator.hasNext()) {

@@ -16,15 +16,16 @@ import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.mapreduce.TableMapper;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.Text;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 
 import java.io.IOException;
 import java.util.*;
 
 public class ChainBuildMapper extends TableMapper<Text, Text> {
 
-    private Logger logger = LoggerFactory.getLogger(ChainBuildMapper.class);
+    private Logger logger = LogManager.getLogger(ChainBuildMapper.class);
 
     @Override
     protected void setup(Context context) throws IOException,
@@ -56,9 +57,8 @@ public class ChainBuildMapper extends TableMapper<Text, Text> {
             logger.debug("convert tid[" + Bytes.toString(key.get())
                     + "] to chain with cid[" + chainInfo.getCID() + "].");
             context.write(
-                    new Text(chainInfo.getEntranceNodeToken()), new Text(new Gson().toJson(chainInfo)));
+                    new Text(chainInfo.getCallEntrance()), new Text(new Gson().toJson(chainInfo)));
         } catch (Exception e) {
-            e.printStackTrace();
             logger.error("Failed to mapper call chain[" + key.toString() + "]",
                     e);
         }

@@ -7,8 +7,12 @@ import java.util.Map;
 import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainInfo;
 import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainNode;
 import com.ai.cloud.skywalking.analysis.chainbuild.util.TokenGenerator;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class CallChainTree {
+    private Logger logger = LogManager.getLogger(CallChainTree.class);
+
     private String callEntrance;
 
     private String treeToken;
@@ -23,6 +27,7 @@ public class CallChainTree {
         nodes = new HashMap<String, CallChainTreeNode>();
         this.callEntrance = callEntrance;
         this.treeToken = TokenGenerator.generateTreeToken(callEntrance);
+        logger.info("CallEntrance:[{}] == TreeToken[{}]",callEntrance, treeToken);
     }
 
     public static CallChainTree load(String callEntrance) throws IOException {

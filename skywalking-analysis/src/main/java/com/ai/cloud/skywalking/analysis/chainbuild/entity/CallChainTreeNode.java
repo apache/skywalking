@@ -6,6 +6,8 @@ import com.ai.cloud.skywalking.analysis.config.HBaseTableMetaData;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 import org.apache.hadoop.hbase.client.Put;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.*;
@@ -17,6 +19,8 @@ import java.util.*;
  * @author wusheng
  */
 public class CallChainTreeNode {
+    private Logger logger = LogManager.getLogger(CallChainTreeNode.class);
+
     @Expose
     private String traceLevelId;
     @Expose
