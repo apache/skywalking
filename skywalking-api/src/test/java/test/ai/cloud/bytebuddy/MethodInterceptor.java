@@ -7,12 +7,13 @@ import net.bytebuddy.implementation.bind.annotation.AllArguments;
 import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import net.bytebuddy.implementation.bind.annotation.SuperCall;
+import net.bytebuddy.implementation.bind.annotation.This;
 
-public class Interceptor{
+public class MethodInterceptor{
 	@RuntimeType
-	public Object intercept(@AllArguments Object[] allArguments, @Origin Method method, @SuperCall Callable<?> zuper){
+	public Object intercept(@This Object obj, @AllArguments Object[] allArguments, @Origin Method method, @SuperCall Callable<?> zuper){
 		try {
-			return "intercept_" + zuper.call();
+			return method.getName() + ":intercept_" + zuper.call();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
