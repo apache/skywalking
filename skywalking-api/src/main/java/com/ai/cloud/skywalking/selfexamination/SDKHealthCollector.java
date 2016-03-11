@@ -12,7 +12,7 @@ import com.ai.cloud.skywalking.conf.Config;
 import com.ai.cloud.skywalking.util.BuriedPointMachineUtil;
 
 public class SDKHealthCollector extends Thread {
-	private Logger logger = LogManager.getLogger(SDKHealthCollector.class);
+	private static Logger logger = LogManager.getLogger(SDKHealthCollector.class);
 
 	private static Map<String, HeathReading> heathReadings = new ConcurrentHashMap<String, HeathReading>();
 
