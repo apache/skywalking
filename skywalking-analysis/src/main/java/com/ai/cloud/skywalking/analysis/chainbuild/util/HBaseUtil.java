@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.ai.cloud.skywalking.analysis.chainbuild.entity.ChainNodeSpecificDaySummary;
+import com.ai.cloud.skywalking.analysis.chainbuild.entity.ChainNodeSpecificHourSummary;
+import com.ai.cloud.skywalking.analysis.chainbuild.entity.ChainNodeSpecificMonthSummary;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.HBaseConfiguration;
@@ -154,5 +157,17 @@ public class HBaseUtil {
             }
             index++;
         }
+    }
+
+    public static ChainNodeSpecificHourSummary loadSpecificHourSummary(String keyOfHourSummaryTable, String treeNodeId) {
+        return null;
+    }
+
+    public static ChainNodeSpecificDaySummary loadSpecificDaySummary(String keyOfDaySummaryTable, String treeNodeId) {
+        return null;
+    }
+
+    public static ChainNodeSpecificMonthSummary loadSpecificMonthSummary(String keyOfMonthSummaryTable, String treeNodeId) {
+        return null;
     }
 }
