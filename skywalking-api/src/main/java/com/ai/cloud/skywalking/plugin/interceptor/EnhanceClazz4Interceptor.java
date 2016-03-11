@@ -36,7 +36,10 @@ public class EnhanceClazz4Interceptor {
 		}
 	}
 
-	private void enhance0(String enhanceOriginClassName) {
+	private void enhance0(String interceptorDefineClassName) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+		InterceptorDefine define = (InterceptorDefine)Class.forName(interceptorDefineClassName).newInstance();
+		
+		String enhanceOriginClassName = define.getBeInterceptedClassName();
 		/**
 		 * add '$$Origin' at the end of be enhanced classname <br/>
 		 * such as: class com.ai.cloud.TestClass to class com.ai.cloud.TestClass$$Origin
@@ -48,5 +51,13 @@ public class EnhanceClazz4Interceptor {
 				.make()
 				.load(ClassLoader.getSystemClassLoader(),
 						ClassLoadingStrategy.Default.INJECTION).getLoaded();
+		
+		/**
+		 * define class as origin class name. and inject to classloader. <br/>
+		 * new class need:<br/>
+		 * 1.implement com.ai.cloud.skywalking.plugin.interceptor.IEnhancedClassInstanceContext();  <br/>
+		 * 2.add field '_$EnhancedClassInstanceContext' of type EnhancedClassInstanceContext
+		 * 3.intercept constructor and method if required by interceptorDefineClass
+		 */
 	}
 }

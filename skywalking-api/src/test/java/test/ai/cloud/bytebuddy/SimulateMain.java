@@ -11,7 +11,7 @@ import net.bytebuddy.pool.TypePool;
 
 public class SimulateMain {
 	public static void main(String[] args) throws NoSuchFieldException,
-			SecurityException, InstantiationException, IllegalAccessException {
+			SecurityException, InstantiationException, IllegalAccessException, ClassNotFoundException {
 		TypePool typePool = TypePool.Default.ofClassPath();
 
 		Class<?> newClazz = new ByteBuddy()
@@ -38,6 +38,9 @@ public class SimulateMain {
 
 		// System.out.println(t22.testA("1"));
 		TestClass t = new TestClass("abc");
+		System.out.println(t.testA("1"));
+		
+		t = new TestClass("abc");
 		System.out.println(t.testA("1"));
 
 //		TestClass t2 = null;
