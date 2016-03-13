@@ -1,44 +1,7 @@
 #!/bin/bash
 
-# check environment virables
-SW_ANALYSIS_HOME=/tmp/skywalking-analysis
-
-# check Java home
-if [ -z "$JAVA_HOME" -a -z "$JRE_HOME" ]; then
-  if $darwin; then
-    # Bugzilla 54390
-    if [ -x '/usr/libexec/java_home' ] ; then
-      export JAVA_HOME=`/usr/libexec/java_home`
-    # Bugzilla 37284 (reviewed).
-    elif [ -d "/System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK/Home" ]; then
-      export JAVA_HOME="/System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK/Home"
-    fi
-  else
-    JAVA_PATH=`which java 2>/dev/null`
-    if [ "x$JAVA_PATH" != "x" ]; then
-      JAVA_PATH=`dirname $JAVA_PATH 2>/dev/null`
-      JRE_HOME=`dirname $JAVA_PATH 2>/dev/null`
-    fi
-    if [ "x$JRE_HOME" = "x" ]; then
-      # XXX: Should we try other locations?
-      if [ -x /usr/bin/java ]; then
-        JRE_HOME=/usr
-      fi
-    fi
-  fi
-  if [ -z "$JAVA_HOME" -a -z "$JRE_HOME" ]; then
-    echo "Neither the JAVA_HOME nor the JRE_HOME environment variable is defined"
-    echo "At least one of these environment variable is needed to run this program"
-    exit 1
-  fi
-fi
-if [ -z "$JAVA_HOME" -a "$1" = "debug" ]; then
-  echo "JAVA_HOME should point to a JDK in order to run in debug mode."
-  exit 1
-fi
-if [ -z "$JRE_HOME" ]; then
-  JRE_HOME="$JAVA_HOME"
-fi
+# check environment variables
+SW_ANALYSIS_HOME=${HOME}/skywalking-analysis
 
 #check hbase home
 HBASE_HOME=${HOME}/hbase-1.1.2
@@ -46,30 +9,89 @@ HBASE_HOME=${HOME}/hbase-1.1.2
 #check hadoop home
 HADOOP_HOME=${HOME}/hadoop-2.6.0
 
-## check provious execute time
-PID_DIR="${SW_ANALYSIS_HOME}/tmp"
-
-if [ ! -d "$PID_DIR" ]; then
-    mkdir -p $PID_DIR
+#check skywalking runtime config directory is exisit, if not, will create it.
+SW_RT_CONF_DIR="${SW_ANALYSIS_HOME}/runtime-conf"
+if [ ! -d "$SW_RT_CONF_DIR" ]; then
+    mkdir -p $SW_RT_CONF_DIR
 fi
 
-PID_FILES="${PID_DIR}/analysis.pid"
+# get the previous process id
+PID_FILES="${SW_RT_CONF_DIR}/analysis.pid"
 
-if [ ! -f "$FILE_PROVIOUS_EXECUTE_TIME" ]; then
+if [ ! -f "$FILE_PREVIOUS_EXECUTE_TIME" ]; then
   touch "$PID_FILES"
 fi
 
-START_TIME=`cat ${PID_FILES}`
-if [ "$START_TIME" = "" ]; then
-    START_TIME=`date --date='3 month ago' "+%Y-%m-%d/%H:%M:%S"`
+SW_ANALYSIS_PID=`cat ${PID_FILES}`
+# check if the skywalking analysis process is running
+if [ "$SW_ANALYSIS_PID" != "" ]; then
+    PS_OUT=`ps -ef | grep $SW_ANALYSIS_PID | grep -v 'grep' | grep -v $0`
+    result=$(echo $PS_OUT | grep $SW_ALALYSIS_PID)
+    if [ "$result" != "" ]; then
+        echo "The skywalking analysis process is running. Will delay the analysis."
+        exit -1;
+    fi
 fi
-#echo $START_TIME
 
-##Get the current datetime
-END_TIME=`date "+%Y-%m-%d/%H:%M:%S"`
+#skywalking analysis mode:1)accumulate(default) 2)rewrite
+SW_ANALYSIS_MODE=ACCUMULATE
+#skywalking rewrite execute dates. Each number represents the day of the month.
+REWRITE_EXECUTIVE_DAY_ARR=(5,10)
+
+#Get the previous execute time of rewrite mode
+PRE_TIME_OF_REWRITE_FILE="${SW_RT_CONF_DIR}/rewrite_pre_time.conf"
+if [ ! -f "$PRE_TIME_OF_REWRITE_FILE" ]; then
+    echo "skywalking rewrite time file is not exists, create it"
+    touch $PRE_TIME_OF_REWRITE_FILE
+fi
+
+PRE_TIME_OF_REWRITE_TIME=`cat $PRE_TIME_OF_REWRITE_FILE`
+#check if the day is in the date of rewrite mode
+if [ "$PRE_TIME_OF_REWRITE_TIME" != "" ]; then
+    TODAY=$(date "+%d")
+    if [ "$PRE_TIME_OF_REWRITE_TIME" != $TODAY ]; then
+        THE_DAY_OF_MONTH=$(date "+%d")
+        for THE_DAY in ${REWRITE_EXECUTIVE_DAY_ARR[@]}
+        do
+            if [ ${THE_DAY} -eq ${THE_DAY_OF_MONTH} ]; then
+                SW_ANALYSIS_MODE=REWRITE
+                START_TIME=$(date --date='1 month ago' '+%Y-%m-01/00:00:00')
+                echo "skywalking analysis will execute rewrite mode. Start time:${START_TIME}"
+                break
+            fi
+        done
+    else
+        echo "${TODAY} has been execute rewrite analysis process.Will not execute rewrite mode!!"
+    fi
+fi
+
+if [ "${SW_ANALYSIS_MODE}" != "REWRITE" ]; then
+    #check the file of previous executive accumulate mode time
+    PRE_TIME_OF_ACCUMULATE_FILE="${SW_RT_CONF_DIR}/accumulate_pre_time.conf"
+    if [ ! -f "${PRE_TIME_OF_ACCUMULATE_FILE}" ]; then
+        echo "skywalking accumulate time file is not exists, create it."
+        touch $PRE_TIME_OF_ACCUMULATE_FILE
+    fi
+
+    START_TIME=`cat ${PRE_TIME_OF_ACCUMULATE_FILE}`
+    if [ "$START_TIME" = "" ]; then
+        START_TIME=`date --date='3 month ago' "+%Y-%m-%d/%H:%M:%S"`
+    fi
+    SW_ANALYSIS_MODE=ACCUMULATE
+    echo "skywalking analysis process will execute accumulate mode. start time: ${START_TIME}."
+fi
+
+#Get the current datetime
+END_TIME=`date --date='10 minute ago' "+%Y-%m-%d/%H:%M:%S"`
 #echo $END_TIME
 
 ## execute command
-HADOOP_CLASSPATH=`${HBASE_HOME}/bin/hbase classpath` ${HADOOP_HOME}/bin/hadoop jar skywalking-analysis-1.0-SNAPSHOT.jar ${START_TIME} ${END_TIME}
+echo "Begin to analysis the buried point data between ${START_TIME} to ${END_TIME}."
+HADOOP_CLASSPATH=`${HBASE_HOME}/bin/hbase classpath` ${HADOOP_HOME}/bin/hadoop jar skywalking-analysis-1.0-SNAPSHOT.jar -Dskywalking.analysis.mode=${SW_ANALYSIS_MODE} ${START_TIME} ${END_TIME}
 
-echo $END_TIME > ${PID_FILES}
+
+if [ "${SW_ANALYSIS_MODE}" = "REWRITE" ]; then
+    echo $(date "+%d") > ${PRE_TIME_OF_REWRITE_FILE}
+else
+    echo $END_TIME > ${PRE_TIME_OF_ACCUMULATE_FILE}
+fi

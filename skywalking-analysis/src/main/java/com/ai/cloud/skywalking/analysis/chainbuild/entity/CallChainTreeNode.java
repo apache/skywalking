@@ -2,6 +2,7 @@ package com.ai.cloud.skywalking.analysis.chainbuild.entity;
 
 import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainNode;
 import com.ai.cloud.skywalking.analysis.chainbuild.util.HBaseUtil;
+import com.ai.cloud.skywalking.analysis.config.Config;
 import com.ai.cloud.skywalking.analysis.config.HBaseTableMetaData;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
@@ -69,31 +70,43 @@ public class CallChainTreeNode {
         summaryMonthResult(treeId, node, calendar);
     }
 
-    private void summaryMonthResult(String treeId, ChainNode node, Calendar calendar) {
+    private void summaryMonthResult(String treeId, ChainNode node, Calendar calendar) throws IOException {
         String keyOfMonthSummaryTable = generateKeyOfMonthSummaryTable(treeId, calendar);
         ChainNodeSpecificMonthSummary monthSummary = chainNodeSpecificMonthSummaryContainer.get(keyOfMonthSummaryTable);
         if (monthSummary == null) {
-            monthSummary = HBaseUtil.loadSpecificMonthSummary(keyOfMonthSummaryTable, getTreeNodeId());
+            if (Config.AnalysisServer.IS_ACCUMULATE_MODE) {
+                monthSummary = HBaseUtil.loadSpecificMonthSummary(keyOfMonthSummaryTable, getTreeNodeId());
+            } else {
+                monthSummary = new ChainNodeSpecificMonthSummary();
+            }
             chainNodeSpecificMonthSummaryContainer.put(keyOfMonthSummaryTable, monthSummary);
         }
         monthSummary.summary(String.valueOf(calendar.get(Calendar.YEAR)), node);
     }
 
-    private void summaryDayResult(String treeId, ChainNode node, Calendar calendar) {
+    private void summaryDayResult(String treeId, ChainNode node, Calendar calendar) throws IOException {
         String keyOfDaySummaryTable = generateKeyOfDaySummaryTable(treeId, calendar);
         ChainNodeSpecificDaySummary daySummary = chainNodeSpecificDaySummaryContainer.get(keyOfDaySummaryTable);
         if (daySummary == null) {
-            daySummary = HBaseUtil.loadSpecificDaySummary(keyOfDaySummaryTable, getTreeNodeId());
+            if (Config.AnalysisServer.IS_ACCUMULATE_MODE) {
+                daySummary = HBaseUtil.loadSpecificDaySummary(keyOfDaySummaryTable, getTreeNodeId());
+            } else {
+                daySummary = new ChainNodeSpecificDaySummary();
+            }
             chainNodeSpecificDaySummaryContainer.put(keyOfDaySummaryTable, daySummary);
         }
         daySummary.summary(String.valueOf(calendar.get(Calendar.DAY_OF_MONTH)), node);
     }
 
-    private void summaryHourResult(String treeId, ChainNode node, Calendar calendar) {
+    private void summaryHourResult(String treeId, ChainNode node, Calendar calendar) throws IOException {
         String keyOfHourSummaryTable = generateKeyOfHourSummaryTable(treeId, calendar);
         ChainNodeSpecificHourSummary hourSummary = chainNodeSpecificHourSummaryContainer.get(keyOfHourSummaryTable);
         if (hourSummary == null) {
-            hourSummary = HBaseUtil.loadSpecificHourSummary(keyOfHourSummaryTable, getTreeNodeId());
+            if (Config.AnalysisServer.IS_ACCUMULATE_MODE) {
+                hourSummary = HBaseUtil.loadSpecificHourSummary(keyOfHourSummaryTable, getTreeNodeId());
+            } else {
+                hourSummary = new ChainNodeSpecificHourSummary();
+            }
             chainNodeSpecificHourSummaryContainer.put(keyOfHourSummaryTable, hourSummary);
         }
         hourSummary.summary(String.valueOf(calendar.get(Calendar.HOUR)), node);
@@ -107,7 +120,11 @@ public class CallChainTreeNode {
         String keyOfMinSummaryTable = generateKeyOfMinSummaryTable(treeId, calendar);
         ChainNodeSpecificMinSummary minSummary = chainNodeSpecificMinSummaryContainer.get(keyOfMinSummaryTable);
         if (minSummary == null) {
-            minSummary = HBaseUtil.loadSpecificMinSummary(keyOfMinSummaryTable, getTreeNodeId());
+            if (Config.AnalysisServer.IS_ACCUMULATE_MODE) {
+                minSummary = HBaseUtil.loadSpecificMinSummary(keyOfMinSummaryTable, getTreeNodeId());
+            } else {
+                minSummary = new ChainNodeSpecificMinSummary();
+            }
             chainNodeSpecificMinSummaryContainer.put(keyOfMinSummaryTable, minSummary);
         }
         minSummary.summary(String.valueOf(calendar.get(Calendar.MINUTE)), node);
@@ -146,6 +163,50 @@ public class CallChainTreeNode {
      * @throws InterruptedException
      */
     public void saveSummaryResultToHBase() throws IOException, InterruptedException {
+        batchSaveMinSummaryResult();
+        batchSaveHourSummaryResult();
+        batchSaveDaySummaryResult();
+        batchSaveMonthSummaryResult();
+    }
+
+    private void batchSaveMonthSummaryResult() throws IOException, InterruptedException {
+        List<Put> puts = new ArrayList<Put>();
+        for (Map.Entry<String, ChainNodeSpecificMonthSummary> entry : chainNodeSpecificMonthSummaryContainer.entrySet()) {
+            Put put = new Put(entry.getKey().getBytes());
+            put.addColumn(HBaseTableMetaData.TABLE_CHAIN_ONE_MONTH_SUMMARY.COLUMN_FAMILY_NAME.getBytes()
+                    , getTreeNodeId().getBytes(), entry.getValue().toString().getBytes());
+            puts.add(put);
+        }
+
+        HBaseUtil.batchSaveMonthSummaryResult(puts);
+    }
+
+
+    private void batchSaveDaySummaryResult() throws IOException, InterruptedException {
+        List<Put> puts = new ArrayList<Put>();
+        for (Map.Entry<String, ChainNodeSpecificDaySummary> entry : chainNodeSpecificDaySummaryContainer.entrySet()) {
+            Put put = new Put(entry.getKey().getBytes());
+            put.addColumn(HBaseTableMetaData.TABLE_CHAIN_ONE_DAY_SUMMARY.COLUMN_FAMILY_NAME.getBytes()
+                    , getTreeNodeId().getBytes(), entry.getValue().toString().getBytes());
+            puts.add(put);
+        }
+
+        HBaseUtil.batchSaveDaySummaryResult(puts);
+    }
+
+    private void batchSaveHourSummaryResult() throws IOException, InterruptedException {
+        List<Put> puts = new ArrayList<Put>();
+        for (Map.Entry<String, ChainNodeSpecificHourSummary> entry : chainNodeSpecificHourSummaryContainer.entrySet()) {
+            Put put = new Put(entry.getKey().getBytes());
+            put.addColumn(HBaseTableMetaData.TABLE_CHAIN_ONE_HOUR_SUMMARY.COLUMN_FAMILY_NAME.getBytes()
+                    , getTreeNodeId().getBytes(), entry.getValue().toString().getBytes());
+            puts.add(put);
+        }
+
+        HBaseUtil.batchSaveHourSummaryResult(puts);
+    }
+
+    private void batchSaveMinSummaryResult() throws IOException, InterruptedException {
         List<Put> puts = new ArrayList<Put>();
         for (Map.Entry<String, ChainNodeSpecificMinSummary> entry : chainNodeSpecificMinSummaryContainer.entrySet()) {
             Put put = new Put(entry.getKey().getBytes());

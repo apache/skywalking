@@ -1,34 +1,23 @@
 package com.ai.cloud.skywalking.analysis.chainbuild.util;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.ai.cloud.skywalking.analysis.chainbuild.entity.ChainNodeSpecificDaySummary;
 import com.ai.cloud.skywalking.analysis.chainbuild.entity.ChainNodeSpecificHourSummary;
-import com.ai.cloud.skywalking.analysis.chainbuild.entity.ChainNodeSpecificMonthSummary;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.Cell;
-import org.apache.hadoop.hbase.HBaseConfiguration;
-import org.apache.hadoop.hbase.HColumnDescriptor;
-import org.apache.hadoop.hbase.HTableDescriptor;
-import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.Admin;
-import org.apache.hadoop.hbase.client.Connection;
-import org.apache.hadoop.hbase.client.ConnectionFactory;
-import org.apache.hadoop.hbase.client.Get;
-import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.client.Table;
-import org.apache.hadoop.hbase.util.Bytes;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.ai.cloud.skywalking.analysis.chainbuild.entity.ChainNodeSpecificMinSummary;
+import com.ai.cloud.skywalking.analysis.chainbuild.entity.ChainNodeSpecificMonthSummary;
 import com.ai.cloud.skywalking.analysis.config.Config;
 import com.ai.cloud.skywalking.analysis.config.HBaseTableMetaData;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.*;
+import org.apache.hadoop.hbase.client.*;
+import org.apache.hadoop.hbase.util.Bytes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class HBaseUtil {
     private static Logger logger = LoggerFactory.getLogger(HBaseUtil.class.getName());
@@ -48,6 +37,16 @@ public class HBaseUtil {
 
             createTableIfNeed(HBaseTableMetaData.TABLE_CHAIN_DETAIL.TABLE_NAME,
                     HBaseTableMetaData.TABLE_CHAIN_DETAIL.COLUMN_FAMILY_NAME);
+            // 1 hour summary table
+            createTableIfNeed(HBaseTableMetaData.TABLE_CHAIN_ONE_HOUR_SUMMARY.TABLE_NAME,
+                    HBaseTableMetaData.TABLE_CHAIN_ONE_HOUR_SUMMARY.COLUMN_FAMILY_NAME);
+            // 1 day summary table
+            createTableIfNeed(HBaseTableMetaData.TABLE_CHAIN_ONE_DAY_SUMMARY.TABLE_NAME,
+                    HBaseTableMetaData.TABLE_CHAIN_ONE_DAY_SUMMARY.COLUMN_FAMILY_NAME);
+            // 1 month summary table
+            createTableIfNeed(HBaseTableMetaData.TABLE_CHAIN_ONE_MONTH_SUMMARY.TABLE_NAME,
+                    HBaseTableMetaData.TABLE_CHAIN_ONE_MONTH_SUMMARY.COLUMN_FAMILY_NAME);
+
         } catch (IOException e) {
             logger.error("Create tables failed", e);
         }
@@ -99,6 +98,75 @@ public class HBaseUtil {
         return result;
     }
 
+    public static ChainNodeSpecificHourSummary loadSpecificHourSummary(String keyOfHourSummaryTable, String treeNodeId) throws IOException {
+        ChainNodeSpecificHourSummary result = null;
+        Table table = connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_CHAIN_ONE_HOUR_SUMMARY.TABLE_NAME));
+        Get g = new Get(Bytes.toBytes(keyOfHourSummaryTable));
+        Result r = table.get(g);
+
+        if (r.rawCells().length == 0) {
+            return new ChainNodeSpecificHourSummary();
+        }
+
+        Cell cell = r.getColumnLatestCell(HBaseTableMetaData.TABLE_CHAIN_ONE_MINUTE_SUMMARY.COLUMN_FAMILY_NAME.getBytes(),
+                treeNodeId.getBytes());
+
+        if (cell != null && cell.getValueArray().length > 0) {
+            result = new ChainNodeSpecificHourSummary(Bytes.toString(cell.getValueArray(),
+                    cell.getValueOffset(), cell.getValueLength()));
+        } else {
+            result = new ChainNodeSpecificHourSummary();
+        }
+
+        return result;
+    }
+
+    public static ChainNodeSpecificDaySummary loadSpecificDaySummary(String keyOfDaySummaryTable, String treeNodeId) throws IOException {
+        ChainNodeSpecificDaySummary result = null;
+        Table table = connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_CHAIN_ONE_DAY_SUMMARY.TABLE_NAME));
+        Get g = new Get(Bytes.toBytes(keyOfDaySummaryTable));
+        Result r = table.get(g);
+
+        if (r.rawCells().length == 0) {
+            return new ChainNodeSpecificDaySummary();
+        }
+
+        Cell cell = r.getColumnLatestCell(HBaseTableMetaData.TABLE_CHAIN_ONE_MINUTE_SUMMARY.COLUMN_FAMILY_NAME.getBytes(),
+                treeNodeId.getBytes());
+
+        if (cell != null && cell.getValueArray().length > 0) {
+            result = new ChainNodeSpecificDaySummary(Bytes.toString(cell.getValueArray(),
+                    cell.getValueOffset(), cell.getValueLength()));
+        } else {
+            result = new ChainNodeSpecificDaySummary();
+        }
+
+        return result;
+    }
+
+    public static ChainNodeSpecificMonthSummary loadSpecificMonthSummary(String keyOfMonthSummaryTable, String treeNodeId) throws IOException {
+        ChainNodeSpecificMonthSummary result = null;
+        Table table = connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_CHAIN_ONE_DAY_SUMMARY.TABLE_NAME));
+        Get g = new Get(Bytes.toBytes(keyOfMonthSummaryTable));
+        Result r = table.get(g);
+
+        if (r.rawCells().length == 0) {
+            return new ChainNodeSpecificMonthSummary();
+        }
+
+        Cell cell = r.getColumnLatestCell(HBaseTableMetaData.TABLE_CHAIN_ONE_MINUTE_SUMMARY.COLUMN_FAMILY_NAME.getBytes(),
+                treeNodeId.getBytes());
+
+        if (cell != null && cell.getValueArray().length > 0) {
+            result = new ChainNodeSpecificMonthSummary(Bytes.toString(cell.getValueArray(),
+                    cell.getValueOffset(), cell.getValueLength()));
+        } else {
+            result = new ChainNodeSpecificMonthSummary();
+        }
+
+        return result;
+    }
+
     public static List<String> loadHasBeenMergeChainIds(String treeId) throws IOException {
         List<String> result = new ArrayList<String>();
         Table table = connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_CALL_CHAIN_TREE_ID_AND_CID_MAPPING.TABLE_NAME));
@@ -122,6 +190,25 @@ public class HBaseUtil {
 
     public static void batchSaveMinSummaryResult(List<Put> puts) throws IOException, InterruptedException {
         Table table = connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_CHAIN_ONE_MINUTE_SUMMARY.TABLE_NAME));
+        batchSaveData(puts, table);
+    }
+
+    public static void batchSaveMonthSummaryResult(List<Put> puts) throws IOException, InterruptedException {
+        Table table = connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_CHAIN_ONE_MONTH_SUMMARY.TABLE_NAME));
+        batchSaveData(puts, table);
+    }
+
+    public static void batchSaveDaySummaryResult(List<Put> puts) throws IOException, InterruptedException {
+        Table table = connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_CHAIN_ONE_DAY_SUMMARY.TABLE_NAME));
+        batchSaveData(puts, table);
+    }
+
+    public static void batchSaveHourSummaryResult(List<Put> puts) throws IOException, InterruptedException {
+        Table table = connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_CHAIN_ONE_HOUR_SUMMARY.TABLE_NAME));
+        batchSaveData(puts, table);
+    }
+
+    private static void batchSaveData(List<Put> puts, Table table) throws IOException, InterruptedException {
         Object[] resultArray = new Object[puts.size()];
         table.batch(puts, resultArray);
         int index = 0;
@@ -135,39 +222,13 @@ public class HBaseUtil {
 
     public static void batchSaveChainInfo(List<Put> chainInfoPuts) throws IOException, InterruptedException {
         Table table = connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_CHAIN_DETAIL.TABLE_NAME));
-        Object[] resultArray = new Object[chainInfoPuts.size()];
-        table.batch(chainInfoPuts, resultArray);
-        int index = 0;
-        for (Object result : resultArray) {
-            if (result == null) {
-                logger.error("Failed to insert the put the Value[" + chainInfoPuts.get(index).getId() + "]");
-            }
-            index++;
-        }
+        batchSaveData(chainInfoPuts, table);
     }
 
     public static void batchSaveHasBeenMergedCID(List<Put> chainIdPuts) throws IOException, InterruptedException {
         Table table = connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_CALL_CHAIN_TREE_ID_AND_CID_MAPPING.TABLE_NAME));
-        Object[] resultArray = new Object[chainIdPuts.size()];
-        table.batch(chainIdPuts, resultArray);
-        int index = 0;
-        for (Object result : resultArray) {
-            if (result == null) {
-                logger.error("Failed to insert the put the Value[" + chainIdPuts.get(index).getId() + "]");
-            }
-            index++;
-        }
+        batchSaveData(chainIdPuts, table);
     }
 
-    public static ChainNodeSpecificHourSummary loadSpecificHourSummary(String keyOfHourSummaryTable, String treeNodeId) {
-        return null;
-    }
 
-    public static ChainNodeSpecificDaySummary loadSpecificDaySummary(String keyOfDaySummaryTable, String treeNodeId) {
-        return null;
-    }
-
-    public static ChainNodeSpecificMonthSummary loadSpecificMonthSummary(String keyOfMonthSummaryTable, String treeNodeId) {
-        return null;
-    }
 }

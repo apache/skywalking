@@ -32,7 +32,19 @@ public class AnalysisServerDriver extends Configured implements Tool {
 
     public static void main(String[] args) throws Exception {
         logger.info("Begin to analysis call chain.");
+
+        String analysisMode = System.getenv("skywalking.analysis.mode");
+
+        if ("rewrite".equalsIgnoreCase(analysisMode)){
+            logger.info("Skywalking analysis mode will switch to [REWRITE] mode");
+            Config.AnalysisServer.IS_ACCUMULATE_MODE = false;
+        }else{
+            logger.info("Skywalking analysis mode will switch to [ACCUMULATE] mode");
+            Config.AnalysisServer.IS_ACCUMULATE_MODE = true;
+        }
+
         int res = ToolRunner.run(new AnalysisServerDriver(), args);
+
         System.exit(res);
     }
 

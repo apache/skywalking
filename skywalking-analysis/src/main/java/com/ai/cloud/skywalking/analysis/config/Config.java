@@ -25,4 +25,8 @@ public class Config {
     public static class Filter {
         public static String FILTER_PACKAGE_NAME;
     }
+
+    public static class AnalysisServer{
+        public static boolean IS_ACCUMULATE_MODE = true;
+    }
 }

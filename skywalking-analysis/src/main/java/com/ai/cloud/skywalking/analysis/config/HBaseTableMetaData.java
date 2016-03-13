@@ -34,6 +34,39 @@ public class HBaseTableMetaData {
     }
 
     /**
+     * 用于存放每个CID在一小时内的汇总，汇总结果不包含关系汇总
+     *
+     * @author zhangxin
+     */
+    public final static class TABLE_CHAIN_ONE_HOUR_SUMMARY {
+        public static final String TABLE_NAME = "sw-chain-1hour-summary";
+
+        public static final String COLUMN_FAMILY_NAME = "chain_summary";
+    }
+
+    /**
+     * 用于存放每个CID在一小时内的汇总，汇总结果不包含关系汇总
+     *
+     * @author zhangxin
+     */
+    public final static class TABLE_CHAIN_ONE_DAY_SUMMARY {
+        public static final String TABLE_NAME = "sw-chain-1day-summary";
+
+        public static final String COLUMN_FAMILY_NAME = "chain_summary";
+    }
+
+    /**
+     * 用于存放每个CID在一小时内的汇总，汇总结果不包含关系汇总
+     *
+     * @author zhangxin
+     */
+    public final static class TABLE_CHAIN_ONE_MONTH_SUMMARY {
+        public static final String TABLE_NAME = "sw-chain-1month-summary";
+
+        public static final String COLUMN_FAMILY_NAME = "chain_summary";
+    }
+
+    /**
      * 用于存放调用树和CID的映射关系
      *
      * @author zhangxin
