@@ -41,6 +41,7 @@ public class EnhanceClazz4Interceptor {
 		
 		String enhanceOriginClassName = define.getBeInterceptedClassName();
 		/**
+		 * rename origin class <br/>
 		 * add '$$Origin' at the end of be enhanced classname <br/>
 		 * such as: class com.ai.cloud.TestClass to class com.ai.cloud.TestClass$$Origin
 		 */
@@ -53,11 +54,11 @@ public class EnhanceClazz4Interceptor {
 						ClassLoadingStrategy.Default.INJECTION).getLoaded();
 		
 		/**
+		 * TODO: need to confirm
 		 * define class as origin class name. and inject to classloader. <br/>
 		 * new class need:<br/>
-		 * 1.implement com.ai.cloud.skywalking.plugin.interceptor.IEnhancedClassInstanceContext();  <br/>
-		 * 2.add field '_$EnhancedClassInstanceContext' of type EnhancedClassInstanceContext
-		 * 3.intercept constructor and method if required by interceptorDefineClass
+		 * 1.add field '_$EnhancedClassInstanceContext' of type EnhancedClassInstanceContext <br/>
+		 * 2.intercept constructor and method if required by interceptorDefineClass. use '@FieldValue' get '_$EnhancedClassInstanceContext' ref<br/>
 		 */
 	}
 }
