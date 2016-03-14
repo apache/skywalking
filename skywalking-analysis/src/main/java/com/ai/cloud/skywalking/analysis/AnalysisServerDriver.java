@@ -52,6 +52,7 @@ public class AnalysisServerDriver extends Configured implements Tool {
     public int run(String[] args) throws Exception {
         ConfigInitializer.initialize();
         Configuration conf = new Configuration();
+        conf.set("skywalking.analysis.mode", String.valueOf(Config.AnalysisServer.IS_ACCUMULATE_MODE));
         conf.set("hbase.zookeeper.quorum", Config.HBase.ZK_QUORUM);
         conf.set("hbase.zookeeper.property.clientPort", Config.HBase.ZK_CLIENT_PORT);
         String[] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
@@ -62,6 +63,7 @@ public class AnalysisServerDriver extends Configured implements Tool {
 
         Job job = Job.getInstance(conf);
         job.setJarByClass(AnalysisServerDriver.class);
+
         Scan scan = buildHBaseScan(args);
 
         TableMapReduceUtil.initTableMapperJob(HBaseTableMetaData.TABLE_CALL_CHAIN.TABLE_NAME, scan, ChainBuildMapper.class,

@@ -3,6 +3,7 @@ package com.ai.cloud.skywalking.analysis.chainbuild;
 import com.ai.cloud.skywalking.analysis.chainbuild.entity.CallChainTree;
 import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainInfo;
 import com.ai.cloud.skywalking.analysis.chainbuild.po.SpecificTimeCallTreeMergedChainIdContainer;
+import com.ai.cloud.skywalking.analysis.config.Config;
 import com.ai.cloud.skywalking.analysis.config.ConfigInitializer;
 import com.google.gson.Gson;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -22,6 +23,10 @@ public class ChainBuildReducer extends Reducer<Text, Text, Text, IntWritable> {
     protected void setup(Context context) throws IOException,
             InterruptedException {
         ConfigInitializer.initialize();
+        Config.AnalysisServer.IS_ACCUMULATE_MODE = Boolean.parseBoolean(context.getConfiguration()
+                .get("skywalking.analysis.mode", "false"));
+        logger.info("Skywalking analysis mode :[{}]",
+                Config.AnalysisServer.IS_ACCUMULATE_MODE ? "ACCUMULATE" : "REWRITE");
     }
 
     @Override
