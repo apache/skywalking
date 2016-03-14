@@ -2,7 +2,9 @@ package com.ai.cloud.skywalking.plugin;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -10,10 +12,11 @@ import org.apache.logging.log4j.Logger;
 public class PluginResourcesResolver {
 	private static Logger logger = LogManager.getLogger(PluginResourcesResolver.class);
 	
-	public Enumeration<URL> getResources(){
+	public List<URL> getResources(){
+		List<URL> cfgUrlPaths = new ArrayList<URL>();
 		Enumeration<URL> urls;
 		try {
-			urls = getDefaultClassLoader().getResources("skywalking-plugin.properties");
+			urls = getDefaultClassLoader().getResources("skywalking-plugin.def");
 			
 			if(!urls.hasMoreElements()){
 				logger.info("no plugin files (skywalking-plugin.properties) found");
@@ -21,10 +24,11 @@ public class PluginResourcesResolver {
 			
 			while(urls.hasMoreElements()){
 				URL pluginUrl = urls.nextElement();
+				cfgUrlPaths.add(pluginUrl);
 				logger.info("find skywalking plugin define in {}", pluginUrl);
 			}
 			
-			return urls;
+			return cfgUrlPaths;
 		} catch (IOException e) {
 			logger.error("read resources failure.", e);
 		}
