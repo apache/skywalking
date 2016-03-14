@@ -1,5 +1,8 @@
 package com.ai.cloud.skywalking.plugin;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -16,7 +19,9 @@ public class TracingBootstrap {
 	private TracingBootstrap() {
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IllegalAccessException,
+			IllegalArgumentException, InvocationTargetException,
+			NoSuchMethodException, SecurityException, ClassNotFoundException {
 		if (args.length == 0) {
 			throw new RuntimeException(
 					"bootstrap failure. need args[0] to be main class.");
@@ -29,5 +34,10 @@ public class TracingBootstrap {
 			logger.error("PluginBootstrap start failure.", t);
 		}
 
+		String[] newArgs = Arrays.copyOfRange(args, 1, args.length);
+
+		
+		Class.forName(args[0]).getMethod("main", String[].class)
+				.invoke(null, new Object[]{newArgs});
 	}
 }

@@ -2,6 +2,7 @@ package com.ai.cloud.skywalking.plugin;
 
 import java.net.URL;
 import java.util.Enumeration;
+import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,23 +19,23 @@ public class PluginBootstrap {
 		}
 
 		PluginResourcesResolver resolver = new PluginResourcesResolver();
-		Enumeration<URL> resources = resolver.getResources();
+		List<URL> resources = resolver.getResources();
 
-		if (resources == null || !resources.hasMoreElements()) {
+		if (resources == null || resources.size() == 0) {
 			logger.info("no plugin files (skywalking-plugin.properties) found, continue to start application.");
 			return;
 		}
 
-		while (resources.hasMoreElements()) {
-			URL pluginUrl = resources.nextElement();
+		for (URL pluginUrl : resources) {
 			try {
 				PluginCfg.CFG.load(pluginUrl.openStream());
 			} catch (Throwable t) {
 				logger.error("plugin [{}] init failure.", pluginUrl, t);
 			}
 		}
-		
+
 		EnhanceClazz4Interceptor enhanceClazz4Interceptor = new EnhanceClazz4Interceptor();
 		enhanceClazz4Interceptor.enhance();
+
 	}
 }

@@ -5,6 +5,7 @@ import static net.bytebuddy.matcher.ElementMatchers.isMethod;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.dynamic.ClassFileLocator;
 import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
+import net.bytebuddy.dynamic.scaffold.subclass.ConstructorStrategy;
 import net.bytebuddy.implementation.MethodDelegation;
 import net.bytebuddy.implementation.SuperMethodCall;
 import net.bytebuddy.pool.TypePool;
@@ -25,7 +26,7 @@ public class SimulateMain {
 						ClassLoadingStrategy.Default.INJECTION).getLoaded();
 
 		TestClass t22 = (TestClass) (new ByteBuddy()
-				.subclass(newClazz)
+				.subclass(newClazz, ConstructorStrategy.Default.IMITATE_SUPER_CLASS)
 				.method(isMethod())
 				.intercept(MethodDelegation.to(new MethodInterceptor()))
 				.constructor(isConstructor())
