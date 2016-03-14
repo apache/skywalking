@@ -24,21 +24,14 @@ public class ClassConstructorInterceptor {
 			@FieldProxy(EnhanceClazz4Interceptor.contextAttrName) FieldSetter accessor,
 			@AllArguments Object[] allArguments) {
 		try {
-			accessor.setValue(new EnhancedClassInstanceContext());
+			EnhancedClassInstanceContext context = new EnhancedClassInstanceContext();
+			accessor.setValue(context);
 			ConstructorContext interceptorContext = new ConstructorContext(
 					allArguments);
-			interceptor.onConstruct(null, interceptorContext);
+			interceptor.onConstruct(context, interceptorContext);
 		} catch (Throwable t) {
 			logger.error("ClassConstructorInterceptor failue.", t);
 		}
 
-	}
-	
-	public interface FieldGetter {
-		Object getValue();
-	}
-
-	public interface FieldSetter {
-		void setValue(Object value);
 	}
 }

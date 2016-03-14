@@ -16,6 +16,10 @@ public class InterceptorContext {
 		return this.allArguments;
 	}
 	
+	public String methodName(){
+		return methodName;
+	}
+	
 	public Object inst(){
 		return objInst;
 	}

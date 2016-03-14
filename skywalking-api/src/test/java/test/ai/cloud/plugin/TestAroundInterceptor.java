@@ -9,17 +9,18 @@ public class TestAroundInterceptor implements IAroundInterceptor {
 
 	@Override
 	public void onConstruct(EnhancedClassInstanceContext context, ConstructorContext interceptorContext) {
+		context.set("test.key", "123");
 		System.out.println("onConstruct, args size=" + interceptorContext.allArguments().length);
 	}
 
 	@Override
 	public void beforeMethod(EnhancedClassInstanceContext context, InterceptorContext interceptorContext) {
-		System.out.println("beforeMethod : " + context);
+		System.out.println("beforeMethod : " + context.get("test.key", String.class));
 	}
 
 	@Override
 	public void afterMethod(EnhancedClassInstanceContext context, InterceptorContext interceptorContext) {
-		System.out.println("afterMethod: " + context);
+		System.out.println("afterMethod: " + context.get("test.key", String.class));
 	}
 
 }

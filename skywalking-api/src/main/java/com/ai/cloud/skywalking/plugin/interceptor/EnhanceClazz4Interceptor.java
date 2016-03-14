@@ -19,8 +19,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.ai.cloud.skywalking.plugin.PluginCfg;
-import com.ai.cloud.skywalking.plugin.interceptor.ClassConstructorInterceptor.FieldGetter;
-import com.ai.cloud.skywalking.plugin.interceptor.ClassConstructorInterceptor.FieldSetter;
 
 public class EnhanceClazz4Interceptor {
 	private static Logger logger = LogManager
@@ -76,15 +74,14 @@ public class EnhanceClazz4Interceptor {
 						ClassLoadingStrategy.Default.INJECTION).getLoaded();
 
 		/**
-		 * to classloader. <br/>
+		 * create a new class using origin classname.<br/>
 		 * 
 		 * new class need:<br/>
 		 * 1.add field '_$EnhancedClassInstanceContext' of type
 		 * EnhancedClassInstanceContext <br/>
 		 * 
-		 * 2.intercept constructor and method if required by
-		 * interceptorDefineClass. use '@FieldValue' get
-		 * '_$EnhancedClassInstanceContext' ref<br/>
+		 * 2.intercept constructor by default, and intercept method which it's required by
+		 * interceptorDefineClass. <br/>
 		 */
 		IAroundInterceptor interceptor = define.instance();
 
