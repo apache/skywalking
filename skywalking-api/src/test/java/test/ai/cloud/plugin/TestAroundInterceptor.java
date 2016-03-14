@@ -19,8 +19,9 @@ public class TestAroundInterceptor implements IAroundInterceptor {
 	}
 
 	@Override
-	public void afterMethod(EnhancedClassInstanceContext context, InterceptorContext interceptorContext) {
+	public Object afterMethod(EnhancedClassInstanceContext context, InterceptorContext interceptorContext, Object ret) {
 		System.out.println("afterMethod: " + context.get("test.key", String.class));
+		return ret;
 	}
 
 }

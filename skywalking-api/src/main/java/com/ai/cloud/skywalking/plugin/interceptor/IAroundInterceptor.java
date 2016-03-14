@@ -5,7 +5,7 @@ public interface IAroundInterceptor {
 	
 	public void beforeMethod(EnhancedClassInstanceContext context, InterceptorContext interceptorContext);
 	
-	public void afterMethod(EnhancedClassInstanceContext context, InterceptorContext interceptorContext);
+	public Object afterMethod(EnhancedClassInstanceContext context, InterceptorContext interceptorContext, Object ret);
 	
 	
 }

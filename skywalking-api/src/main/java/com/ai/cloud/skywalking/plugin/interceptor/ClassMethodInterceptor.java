@@ -45,15 +45,17 @@ public class ClassMethodInterceptor {
 			logger.error("class[{}] before method[{}] intercept failue:{}",
 					obj.getClass(), method.getName(), t.getMessage(), t);
 		}
+		Object ret = null;
 		try {
-			return zuper.call();
+			ret =  zuper.call();
 		} finally {
 			try {
-				interceptor.afterMethod(instanceContext, interceptorContext);
+				ret = interceptor.afterMethod(instanceContext, interceptorContext, ret);
 			} catch (Throwable t) {
 				logger.error("class[{}] after method[{}] intercept failue:{}",
 						obj.getClass(), method.getName(), t.getMessage(), t);
 			}
 		}
+		return ret;
 	}
 }
