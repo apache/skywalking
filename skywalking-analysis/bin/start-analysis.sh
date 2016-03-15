@@ -33,6 +33,11 @@ if [ "$SW_ANALYSIS_PID" != "" ]; then
     fi
 fi
 
+# echo the current process Id to pid file
+PID=$!
+echo "Current analysis process Id : ${PID}"
+echo $PID > SW_ANALYSIS_PID
+
 #skywalking analysis mode:1)accumulate(default) 2)rewrite
 SW_ANALYSIS_MODE=ACCUMULATE
 #skywalking rewrite execute dates. Each number represents the day of the month.
@@ -63,6 +68,9 @@ if [ "$PRE_TIME_OF_REWRITE_TIME" != "" ]; then
     else
         echo "${TODAY} has been execute rewrite analysis process.Will not execute rewrite mode!!"
     fi
+    else
+    echo "The previous time of rewrite execute is Null, will put today to the ${PRE_TIME_OF_REWRITE_FILE} file."
+    echo $(date "+%d") > ${PRE_TIME_OF_REWRITE_FILE}
 fi
 
 if [ "${SW_ANALYSIS_MODE}" != "REWRITE" ]; then
@@ -87,8 +95,8 @@ END_TIME=`date --date='10 minute ago' "+%Y-%m-%d/%H:%M:%S"`
 
 ## execute command
 echo "Begin to analysis the buried point data between ${START_TIME} to ${END_TIME}."
-HADOOP_CLASSPATH=`${HBASE_HOME}/bin/hbase classpath` ${HADOOP_HOME}/bin/hadoop jar skywalking-analysis-1.0-SNAPSHOT.jar -Dskywalking.analysis.mode=${SW_ANALYSIS_MODE} ${START_TIME} ${END_TIME}
 
+HADOOP_CLASSPATH=`${HBASE_HOME}/bin/hbase classpath` ${HADOOP_HOME}/bin/hadoop jar skywalking-analysis-1.0-SNAPSHOT.jar -Dskywalking.analysis.mode=${SW_ANALYSIS_MODE} ${START_TIME} ${END_TIME}
 
 if [ "${SW_ANALYSIS_MODE}" = "REWRITE" ]; then
     echo $(date "+%d") > ${PRE_TIME_OF_REWRITE_FILE}
