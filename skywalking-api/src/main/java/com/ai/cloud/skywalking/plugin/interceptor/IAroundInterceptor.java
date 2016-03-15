@@ -1,11 +1,11 @@
 package com.ai.cloud.skywalking.plugin.interceptor;
 
 public interface IAroundInterceptor {
-	public void onConstruct(EnhancedClassInstanceContext context, ConstructorContext interceptorContext);
+	public void onConstruct(EnhancedClassInstanceContext context, ConstructorInvokeContext interceptorContext);
 	
-	public void beforeMethod(EnhancedClassInstanceContext context, InterceptorContext interceptorContext);
+	public void beforeMethod(EnhancedClassInstanceContext context, MethodInvokeContext interceptorContext);
 	
-	public Object afterMethod(EnhancedClassInstanceContext context, InterceptorContext interceptorContext, Object ret);
+	public Object afterMethod(EnhancedClassInstanceContext context, MethodInvokeContext interceptorContext, Object ret);
 	
 	
 }

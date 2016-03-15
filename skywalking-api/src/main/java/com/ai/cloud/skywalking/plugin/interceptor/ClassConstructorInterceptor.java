@@ -26,7 +26,7 @@ public class ClassConstructorInterceptor {
 		try {
 			EnhancedClassInstanceContext context = new EnhancedClassInstanceContext();
 			accessor.setValue(context);
-			ConstructorContext interceptorContext = new ConstructorContext(
+			ConstructorInvokeContext interceptorContext = new ConstructorInvokeContext(obj,
 					allArguments);
 			interceptor.onConstruct(context, interceptorContext);
 		} catch (Throwable t) {

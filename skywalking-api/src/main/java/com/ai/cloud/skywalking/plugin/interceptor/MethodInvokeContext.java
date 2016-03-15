@@ -1,12 +1,26 @@
 package com.ai.cloud.skywalking.plugin.interceptor;
 
-
-public class InterceptorContext {
+/**
+ * 方法执行拦截上下文
+ * 
+ * @author wusheng
+ *
+ */
+public class MethodInvokeContext {
+	/**
+	 * 代理类实例
+	 */
 	private Object objInst;
+	/**
+	 * 方法名称
+	 */
 	private String methodName;
+	/**
+	 * 方法参数
+	 */
 	private Object[] allArguments;
 	
-	InterceptorContext(Object objInst, String methodName, Object[] allArguments) {
+	MethodInvokeContext(Object objInst, String methodName, Object[] allArguments) {
 		this.objInst = objInst;
 		this.methodName = methodName;
 		this.allArguments = allArguments;

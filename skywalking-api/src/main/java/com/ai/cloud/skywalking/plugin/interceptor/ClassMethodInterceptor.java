@@ -37,7 +37,7 @@ public class ClassMethodInterceptor {
 			@SuperCall Callable<?> zuper,
 			@FieldValue(EnhanceClazz4Interceptor.contextAttrName) EnhancedClassInstanceContext instanceContext)
 			throws Exception {
-		InterceptorContext interceptorContext = new InterceptorContext(obj,
+		MethodInvokeContext interceptorContext = new MethodInvokeContext(obj,
 				method.getName(), allArguments);
 		try {
 			interceptor.beforeMethod(instanceContext, interceptorContext);
