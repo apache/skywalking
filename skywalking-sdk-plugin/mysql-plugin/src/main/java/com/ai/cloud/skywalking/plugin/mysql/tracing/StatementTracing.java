@@ -1,7 +1,7 @@
-package com.ai.cloud.skywalking.plugin.jdbc.tracing;
+package com.ai.cloud.skywalking.plugin.mysql.tracing;
 
 import com.ai.cloud.skywalking.buriedpoint.RPCBuriedPointSender;
-import com.ai.cloud.skywalking.plugin.jdbc.JDBCBuriedPointType;
+import com.ai.cloud.skywalking.plugin.mysql.JDBCBuriedPointType;
 import com.ai.cloud.skywalking.model.Identification;
 
 import java.sql.SQLException;

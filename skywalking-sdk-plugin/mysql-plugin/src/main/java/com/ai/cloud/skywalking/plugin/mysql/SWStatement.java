@@ -1,20 +1,20 @@
-package com.ai.cloud.skywalking.plugin.jdbc;
+package com.ai.cloud.skywalking.plugin.mysql;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
 
-import com.ai.cloud.skywalking.plugin.jdbc.tracing.StatementTracing;
-import com.ai.cloud.skywalking.plugin.jdbc.tracing.StatementTracing.Executable;
+import com.ai.cloud.skywalking.plugin.mysql.tracing.StatementTracing;
+import com.ai.cloud.skywalking.plugin.mysql.tracing.StatementTracing.Executable;
 
 
 public class SWStatement implements java.sql.Statement {
-	private SWConnection realConnection;
+	private Connection realConnection;
 	private java.sql.Statement realStatement;
 	private String connectInfo;
 	
-	SWStatement(SWConnection realConnection, java.sql.Statement realStatement, String connectInfo){
+	SWStatement(Connection realConnection, java.sql.Statement realStatement, String connectInfo){
 		this.realConnection = realConnection;
 		this.realStatement = realStatement;
 		this.connectInfo = connectInfo;

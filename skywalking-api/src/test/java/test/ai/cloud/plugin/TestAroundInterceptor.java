@@ -24,4 +24,11 @@ public class TestAroundInterceptor implements IAroundInterceptor {
 		return ret;
 	}
 
+	@Override
+	public void handleMethodException(Throwable t, EnhancedClassInstanceContext context,
+			MethodInvokeContext interceptorContext, Object ret) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

@@ -19,10 +19,10 @@ public class PluginCfg {
 	void load(InputStream input) throws IOException{
 		try{
 			BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-			String nhanceOriginClassName = null;
-			while((nhanceOriginClassName = reader.readLine()) != null){
-				if(!StringUtil.isEmpty(nhanceOriginClassName)){
-					interceptorClassList.add(nhanceOriginClassName.trim());
+			String interceptorDefineClassName = null;
+			while((interceptorDefineClassName = reader.readLine()) != null){
+				if(!StringUtil.isEmpty(interceptorDefineClassName)){
+					interceptorClassList.add(interceptorDefineClassName.trim());
 				}
 			}
 		}finally{

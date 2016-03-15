@@ -48,7 +48,15 @@ public class ClassMethodInterceptor {
 		Object ret = null;
 		try {
 			ret =  zuper.call();
-		} finally {
+		} catch(Throwable t){
+			try {
+				interceptor.handleMethodException(t, instanceContext, interceptorContext, ret);
+				throw t;
+			} catch (Throwable t2) {
+				logger.error("class[{}] handle method[{}] exception failue:{}",
+						obj.getClass(), method.getName(), t2.getMessage(), t2);
+			}
+		}finally {
 			try {
 				ret = interceptor.afterMethod(instanceContext, interceptorContext, ret);
 			} catch (Throwable t) {

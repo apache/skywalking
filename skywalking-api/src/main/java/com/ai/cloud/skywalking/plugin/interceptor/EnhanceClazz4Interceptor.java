@@ -2,6 +2,8 @@ package com.ai.cloud.skywalking.plugin.interceptor;
 
 import static net.bytebuddy.matcher.ElementMatchers.isConstructor;
 import static net.bytebuddy.matcher.ElementMatchers.named;
+import static net.bytebuddy.matcher.ElementMatchers.any;
+import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 
 import java.util.Set;
 
@@ -80,8 +82,8 @@ public class EnhanceClazz4Interceptor {
 		 * 1.add field '_$EnhancedClassInstanceContext' of type
 		 * EnhancedClassInstanceContext <br/>
 		 * 
-		 * 2.intercept constructor by default, and intercept method which it's required by
-		 * interceptorDefineClass. <br/>
+		 * 2.intercept constructor by default, and intercept method which it's
+		 * required by interceptorDefineClass. <br/>
 		 */
 		IAroundInterceptor interceptor = define.instance();
 
@@ -90,7 +92,7 @@ public class EnhanceClazz4Interceptor {
 		newClassBuilder = newClassBuilder
 				.defineField(contextAttrName,
 						EnhancedClassInstanceContext.class)
-				.constructor(isConstructor())
+				.constructor(any())
 				.intercept(
 						SuperMethodCall.INSTANCE.andThen(MethodDelegation.to(
 								new ClassConstructorInterceptor(interceptor))
@@ -99,12 +101,27 @@ public class EnhanceClazz4Interceptor {
 												FieldGetter.class,
 												FieldSetter.class))));
 
-		String[] methodNameList = define.getBeInterceptedMethods();
-		for (String methodName : methodNameList) {
-			newClassBuilder = newClassBuilder.method(named(methodName))
-					.intercept(
-							MethodDelegation.to(new ClassMethodInterceptor(
-									interceptor)));
+		InterceptPoint[] methodNameList = define.getBeInterceptedMethods();
+		ClassMethodInterceptor classMethodInterceptor = new ClassMethodInterceptor(
+				interceptor);
+		for (InterceptPoint method : methodNameList) {
+			logger.debug("prepare to enhance class {} method [{}] ",
+					enhanceOriginClassName, method.getMethodName());
+			if (method.getArgTypeArray() != null) {
+				newClassBuilder = newClassBuilder.method(
+						named(method.getMethodName()).and(
+								takesArguments(method.getArgTypeArray()))).intercept(
+						MethodDelegation.to(classMethodInterceptor));
+			} else if (method.getArgNum() > -1) {
+				newClassBuilder = newClassBuilder.method(
+						named(method.getMethodName()).and(
+								takesArguments(method.getArgNum()))).intercept(
+						MethodDelegation.to(classMethodInterceptor));
+			} else {
+				newClassBuilder = newClassBuilder.method(
+						named(method.getMethodName())).intercept(
+						MethodDelegation.to(classMethodInterceptor));
+			}
 		}
 
 		/**

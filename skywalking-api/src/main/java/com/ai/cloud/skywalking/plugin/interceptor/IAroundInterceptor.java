@@ -7,5 +7,5 @@ public interface IAroundInterceptor {
 	
 	public Object afterMethod(EnhancedClassInstanceContext context, MethodInvokeContext interceptorContext, Object ret);
 	
-	
+	public void handleMethodException(Throwable t, EnhancedClassInstanceContext context, MethodInvokeContext interceptorContext, Object ret);
 }

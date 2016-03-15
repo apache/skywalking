@@ -1,4 +1,4 @@
-package com.ai.cloud.skywalking.plugin.jdbc;
+package com.ai.cloud.skywalking.plugin.mysql;
 
 import java.io.InputStream;
 import java.io.Reader;
@@ -23,16 +23,16 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
 
-import com.ai.cloud.skywalking.plugin.jdbc.tracing.PreparedStatementTracing;
-import com.ai.cloud.skywalking.plugin.jdbc.tracing.PreparedStatementTracing.Executable;
+import com.ai.cloud.skywalking.plugin.mysql.tracing.PreparedStatementTracing;
+import com.ai.cloud.skywalking.plugin.mysql.tracing.PreparedStatementTracing.Executable;
 
 public class SWPreparedStatement implements PreparedStatement {
-	private SWConnection realConnection;
+	private Connection realConnection;
 	private java.sql.PreparedStatement realStatement;
 	private String connectInfo;
 	private String sql;
 
-	SWPreparedStatement(SWConnection realConnection,
+	SWPreparedStatement(Connection realConnection,
 			java.sql.PreparedStatement realStatement, String connectInfo,
 			String sql) {
 		this.realConnection = realConnection;

@@ -44,7 +44,7 @@ public class LocalBuriedPointSender extends ApplicationExceptionHandler implemen
 
         if (Config.BuriedPoint.PRINTF) {
             logger.debug("TraceId:" + spanData.getTraceId() + "\tviewpointId:" + spanData.getViewPointId() + "\tParentLevelId:" + spanData.
-                    getParentLevel() + "\tLevelId:" + spanData.getLevelId());
+                    getParentLevel() + "\tLevelId:" + spanData.getLevelId() + "\tbusinessKey:" + spanData.getBusinessKey());
         }
 
         // 存放到本地发送进程中

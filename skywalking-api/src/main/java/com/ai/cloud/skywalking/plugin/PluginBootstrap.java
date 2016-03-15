@@ -1,7 +1,6 @@
 package com.ai.cloud.skywalking.plugin;
 
 import java.net.URL;
-import java.util.Enumeration;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;

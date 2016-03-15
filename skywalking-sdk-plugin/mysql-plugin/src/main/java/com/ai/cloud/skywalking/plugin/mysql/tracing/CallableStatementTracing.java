@@ -1,9 +1,9 @@
-package com.ai.cloud.skywalking.plugin.jdbc.tracing;
+package com.ai.cloud.skywalking.plugin.mysql.tracing;
 
 import java.sql.SQLException;
 
 import com.ai.cloud.skywalking.buriedpoint.RPCBuriedPointSender;
-import com.ai.cloud.skywalking.plugin.jdbc.JDBCBuriedPointType;
+import com.ai.cloud.skywalking.plugin.mysql.JDBCBuriedPointType;
 import com.ai.cloud.skywalking.model.Identification;
 
 /**
@@ -12,10 +12,10 @@ import com.ai.cloud.skywalking.model.Identification;
  * @author wusheng
  *
  */
-public class ConnectionTracing {
+public class CallableStatementTracing {
 	private static RPCBuriedPointSender sender = new RPCBuriedPointSender();
 
-	public static <R> R execute(java.sql.Connection realConnection,
+	public static <R> R execute(java.sql.CallableStatement realStatement,
 			String connectInfo, String method, String sql, Executable<R> exec)
 			throws SQLException {
 		try {
@@ -23,11 +23,11 @@ public class ConnectionTracing {
 					.newBuilder()
 					.viewPoint(connectInfo)
 					.businessKey(
-							"connection."
+							"callableStatement."
 									+ method
 									+ (sql == null || sql.length() == 0 ? ""
 											: ":" + sql)).spanType(JDBCBuriedPointType.instance()).build());
-			return exec.exe(realConnection, sql);
+			return exec.exe(realStatement, sql);
 		} catch (SQLException e) {
 			sender.handleException(e);
 			throw e;
@@ -37,7 +37,7 @@ public class ConnectionTracing {
 	}
 
 	public interface Executable<R> {
-		public R exe(java.sql.Connection realConnection, String sql)
+		public R exe(java.sql.CallableStatement realConnection, String sql)
 				throws SQLException;
 	}
 }

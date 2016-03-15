@@ -1,4 +1,4 @@
-package com.ai.cloud.skywalking.plugin.jdbc;
+package com.ai.cloud.skywalking.plugin.mysql;
 
 import java.io.InputStream;
 import java.io.Reader;
@@ -24,16 +24,16 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Map;
 
-import com.ai.cloud.skywalking.plugin.jdbc.tracing.CallableStatementTracing;
-import com.ai.cloud.skywalking.plugin.jdbc.tracing.CallableStatementTracing.Executable;
+import com.ai.cloud.skywalking.plugin.mysql.tracing.CallableStatementTracing;
+import com.ai.cloud.skywalking.plugin.mysql.tracing.CallableStatementTracing.Executable;
 
 public class SWCallableStatement implements CallableStatement {
-	private SWConnection realConnection;
+	private Connection realConnection;
 	private java.sql.CallableStatement realStatement;
 	private String connectInfo;
 	private String sql;
 
-	SWCallableStatement(SWConnection realConnection,
+	SWCallableStatement(Connection realConnection,
 			java.sql.CallableStatement realStatement, String connectInfo,
 			String sql) {
 		this.realConnection = realConnection;

@@ -1,6 +1,7 @@
 package test.ai.cloud.plugin;
 
 import com.ai.cloud.skywalking.plugin.interceptor.IAroundInterceptor;
+import com.ai.cloud.skywalking.plugin.interceptor.InterceptPoint;
 import com.ai.cloud.skywalking.plugin.interceptor.InterceptorDefine;
 
 public class TestInterceptorDefine implements InterceptorDefine {
@@ -11,8 +12,8 @@ public class TestInterceptorDefine implements InterceptorDefine {
 	}
 
 	@Override
-	public String[] getBeInterceptedMethods() {
-		return new String[] { "printabc" };
+	public InterceptPoint[] getBeInterceptedMethods() {
+		return new InterceptPoint[] { new InterceptPoint("printabc") };
 	}
 
 	@Override
