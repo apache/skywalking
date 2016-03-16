@@ -15,6 +15,7 @@ import net.bytebuddy.implementation.MethodDelegation;
 import net.bytebuddy.implementation.SuperMethodCall;
 import net.bytebuddy.implementation.bind.annotation.FieldProxy;
 import net.bytebuddy.pool.TypePool;
+import net.bytebuddy.pool.TypePool.Resolution;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -59,6 +60,14 @@ public class EnhanceClazz4Interceptor {
 
 		logger.debug("prepare to enhance class {} by {}.",
 				enhanceOriginClassName, interceptorDefineClassName);
+		
+		Resolution resolution = typePool.describe(enhanceOriginClassName);
+		if(!resolution.isResolved()){
+			logger.warn("class {} can't be resolved, enhance by {} failue.",
+					enhanceOriginClassName, interceptorDefineClassName);
+			return;
+		}
+		
 		/**
 		 * rename origin class <br/>
 		 * add '$$Origin' at the end of be enhanced classname <br/>
@@ -67,7 +76,7 @@ public class EnhanceClazz4Interceptor {
 		 */
 		String renameClassName = enhanceOriginClassName + "$$Origin";
 		Class<?> originClass = new ByteBuddy()
-				.redefine(typePool.describe(enhanceOriginClassName).resolve(),
+				.redefine(resolution.resolve(),
 						ClassFileLocator.ForClassLoader.ofClassPath())
 				.name(renameClassName)
 				.make()

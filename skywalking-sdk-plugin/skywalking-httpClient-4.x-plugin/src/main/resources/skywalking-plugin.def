@@ -1,0 +1,3 @@
+org.skywalking.httpClient.v4.plugin.define.AbstractHttpClientPluginDefine
+org.skywalking.httpClient.v4.plugin.define.InternalHttpClientPluginDefine
+org.skywalking.httpClient.v4.plugin.define.MinimalHttpClientPluginDefine

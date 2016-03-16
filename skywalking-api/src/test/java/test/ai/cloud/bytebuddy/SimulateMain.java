@@ -14,6 +14,7 @@ public class SimulateMain {
 	public static void main(String[] args) throws NoSuchFieldException,
 			SecurityException, InstantiationException, IllegalAccessException, ClassNotFoundException {
 		TypePool typePool = TypePool.Default.ofClassPath();
+		System.out.println(typePool.describe("test.ai.cloud.bytebuddy.TestClass").isResolved());
 
 		Class<?> newClazz = new ByteBuddy()
 				.redefine(

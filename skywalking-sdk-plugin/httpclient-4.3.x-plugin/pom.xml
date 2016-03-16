@@ -33,6 +33,7 @@
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
             <version>4.3</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
     <build>
