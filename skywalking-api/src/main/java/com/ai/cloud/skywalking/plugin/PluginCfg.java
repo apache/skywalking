@@ -4,7 +4,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import com.ai.cloud.skywalking.util.StringUtil;
@@ -12,7 +13,7 @@ import com.ai.cloud.skywalking.util.StringUtil;
 public class PluginCfg {
 	public final static PluginCfg CFG = new PluginCfg();
 	
-	private Set<String> interceptorClassList = new HashSet<String>();
+	private List<String> interceptorClassList = new ArrayList<String>();
 	
 	private PluginCfg(){}
 	
@@ -30,7 +31,7 @@ public class PluginCfg {
 		}
 	}
 	
-	public Set<String> getInterceptorClassList(){
+	public List<String> getInterceptorClassList(){
 		return interceptorClassList;
 	}
 }

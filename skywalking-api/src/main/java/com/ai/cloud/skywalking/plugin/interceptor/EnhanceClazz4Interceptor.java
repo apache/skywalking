@@ -1,11 +1,10 @@
 package com.ai.cloud.skywalking.plugin.interceptor;
 
-import static net.bytebuddy.matcher.ElementMatchers.isConstructor;
-import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.any;
+import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 
-import java.util.Set;
+import java.util.List;
 
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.dynamic.ClassFileLocator;
@@ -35,7 +34,7 @@ public class EnhanceClazz4Interceptor {
 	}
 
 	public void enhance() {
-		Set<String> interceptorClassList = PluginCfg.CFG
+		List<String> interceptorClassList = PluginCfg.CFG
 				.getInterceptorClassList();
 
 		for (String interceptorClassName : interceptorClassList) {
