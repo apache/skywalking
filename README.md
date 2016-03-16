@@ -3,10 +3,18 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 * 核心理论为[Google Dapper论文：Dapper, a Large-Scale Distributed Systems Tracing Infrastructure](http://research.google.com/pubs/pub36356.html),英语有困难的同学可参考[国内翻译](http://duanple.blog.163.com/blog/static/70971767201329113141336/)
 * 本分析系统能通过不修改或少量修改代码的模式，对现有的JAVA应用或J2EE应用进行监控和数据收集，并针对应用进场进行准实时告警。此外提供大量的调用性能分析功能，解决目前的监控系统主要监控进程、端口而非应用实际性能的问题。
 * 支持国内常用的dubbo以及dubbox等常见RPC框架，支持应用异常的邮件告警
+* 通过[byte-buddy](https://github.com/raphw/byte-buddy)避免代码侵入性，插件将通过配置文件或动态字节码机制，完成监控。
+** 通过配置文件支持的监控插件
+*** web-plugin
+*** dubbo-plugin(support dubbo/dubbox)
+*** spring-plugin
+*** jdbc-plugin
+** 通过动态字节码机制支持的监控插件
+*** mysql-plugin（和jdbc-plugin实现模式不同，对于mysql等效）
+*** httpClient-4.x-plugin，同时支持4.2和4.3。原有的httpclient-4.2.x-plugin，httpclient-4.3.x-plugin由比较严重的代码侵入，将在适当以后予以移除。
 
 # 新版本能力规划
 * 提供一定的日志数据分析和展现能力，减少或者避免使用团队的二次开发
-* 通过javaagent和[byte-buddy](https://github.com/raphw/byte-buddy)减少代码侵入性，增加更多的组件支持
 
 # 主要贡献者
 * 吴晟 &nbsp;&nbsp;[亚信](http://www.asiainfo.com/) wusheng@asiainfo.com
