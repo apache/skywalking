@@ -57,13 +57,7 @@ public class SWConnection implements java.sql.Connection {
 	}
 
 	public String nativeSQL(String sql) throws SQLException {
-		return ConnectionTracing.execute(realConnection, connectInfo,
-				"nativeSQL", sql, new Executable<String>() {
-					public String exe(java.sql.Connection realConnection,
-							String sql) throws SQLException {
-						return realConnection.nativeSQL(sql);
-					}
-				});
+		return realConnection.nativeSQL(sql);
 	}
 
 	public void setAutoCommit(boolean autoCommit) throws SQLException {
