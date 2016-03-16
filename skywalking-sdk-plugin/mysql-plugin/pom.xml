@@ -10,7 +10,7 @@
     <artifactId>skywalking-mysql-plugin</artifactId>
     <packaging>jar</packaging>
 
-    <name>jdbc-plugin</name>
+    <name>mysql-plugin</name>
     <url>http://maven.apache.org</url>
 
     <properties>
@@ -74,4 +74,5 @@
             </plugin>
         </plugins>
     </build>
+    
 </project>
