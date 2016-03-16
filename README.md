@@ -7,14 +7,14 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 
 |插件名称|配置文件支持|动态代码机制|代码侵入|
 | ----------- |---------| ----------|----------|
-|web-plugin|web.xml| N/A |N/A |
-|dubbo-plugin| dubbo/dubbox配置文件 | N/A|N/A |
-|spring-plugin| spring配置文件 | N/A |N/A |
-|jdbc-plugin| jdbc配置文件 | N/A |N/A |
-|mysql-plugin| N/A | YES |N/A |
-|httpClient-4.x-plugin| N/A | YES |N/A |
-|httpclient-4.2.x-plugin| N/A | N/A | YES |
-|httpclient-4.3.x-plugin| N/A | N/A | YES |
+|web-plugin|web.xml| - | - |
+|dubbo-plugin| dubbo/dubbox配置文件 | - | - |
+|spring-plugin| spring配置文件 | - | - |
+|jdbc-plugin| jdbc配置文件 | - | - |
+|mysql-plugin| - | YES | - |
+|httpClient-4.x-plugin| - | YES | - |
+|httpclient-4.2.x-plugin| - | - | YES |
+|httpclient-4.3.x-plugin| - | - | YES |
 
 # 新版本能力规划
 * 提供一定的日志数据分析和展现能力，减少或者避免使用团队的二次开发
@@ -230,7 +230,7 @@ log4j.appender.A1.layout.ConversionPattern=[%x] %-d{yyyy-MM-dd HH:mm:ss.SSS} %c 
 
 - 日志示例
 ```
-#tid: - ，代表环境设置不正确或监控已经关闭
+#tid:N/A，代表环境设置不正确或监控已经关闭
 #tid: ,代表测试当前访问不在监控范围
 #tid:1.0a2.1453065000002.c3f8779.27878.30.184，标识此次访问的tid信息，示例如下
 [DEBUG] Returning handler method [public org.springframework.web.servlet.ModelAndView com.ai.cloud.skywalking.example.controller.OrderSaveController.save(javax.servlet.http.HttpServletRequest)] TID:1.0a2.1453192613272.2e0c63e.11144.58.1 2016-01-19 16:36:53.288 org.springframework.beans.factory.support.DefaultListableBeanFactory 
