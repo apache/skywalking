@@ -230,7 +230,7 @@ log4j.appender.A1.layout.ConversionPattern=[%x] %-d{yyyy-MM-dd HH:mm:ss.SSS} %c 
 
 - 日志示例
 ```
-#tid:N/A，代表环境设置不正确或监控已经关闭
+#tid: - ，代表环境设置不正确或监控已经关闭
 #tid: ,代表测试当前访问不在监控范围
 #tid:1.0a2.1453065000002.c3f8779.27878.30.184，标识此次访问的tid信息，示例如下
 [DEBUG] Returning handler method [public org.springframework.web.servlet.ModelAndView com.ai.cloud.skywalking.example.controller.OrderSaveController.save(javax.servlet.http.HttpServletRequest)] TID:1.0a2.1453192613272.2e0c63e.11144.58.1 2016-01-19 16:36:53.288 org.springframework.beans.factory.support.DefaultListableBeanFactory 
