@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.ai.cloud</groupId>
@@ -13,8 +14,9 @@
 		<module>web-plugin</module>
 		<module>httpclient-4.2.x-plugin</module>
 		<module>httpclient-4.3.x-plugin</module>
-    	<module>httpClient-4.x-plugin</module>
-  </modules>
+		<module>httpClient-4.x-plugin</module>
+		<module>httpClient-4.x-plugin-dubbox-rest-attachment</module>
+	</modules>
 	<packaging>pom</packaging>
 
 	<name>skywalking-sdk-plugin</name>

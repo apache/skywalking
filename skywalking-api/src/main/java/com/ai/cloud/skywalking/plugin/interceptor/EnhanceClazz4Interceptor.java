@@ -21,6 +21,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.ai.cloud.skywalking.plugin.PluginCfg;
+import com.ai.cloud.skywalking.util.StringUtil;
 
 public class EnhanceClazz4Interceptor {
 	private static Logger logger = LogManager
@@ -50,13 +51,18 @@ public class EnhanceClazz4Interceptor {
 
 	private void enhance0(String interceptorDefineClassName)
 			throws InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			ClassNotFoundException, EnhanceException {
 		logger.debug("prepare to enhance class by {}.",
 				interceptorDefineClassName);
 		InterceptorDefine define = (InterceptorDefine) Class.forName(
 				interceptorDefineClassName).newInstance();
 
 		String enhanceOriginClassName = define.getBeInterceptedClassName();
+		if(StringUtil.isEmpty(enhanceOriginClassName)){
+			logger.warn("classname of being intercepted is not defined by {}.",
+					interceptorDefineClassName);
+			return;
+		}
 
 		logger.debug("prepare to enhance class {} by {}.",
 				enhanceOriginClassName, interceptorDefineClassName);
@@ -94,6 +100,9 @@ public class EnhanceClazz4Interceptor {
 		 * required by interceptorDefineClass. <br/>
 		 */
 		IAroundInterceptor interceptor = define.instance();
+		if(interceptor == null){
+			throw new EnhanceException("no IAroundInterceptor instance. "); 
+		}
 
 		DynamicType.Builder<?> newClassBuilder = new ByteBuddy().subclass(
 				originClass, ConstructorStrategy.Default.IMITATE_SUPER_CLASS);
