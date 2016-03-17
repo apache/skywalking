@@ -67,8 +67,17 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 </dependency>
 ```
 
+## 使用全新的main class。原main class，以及参数作为参数传入
+```shell
+#原进程启动命令：
+java com.company.product.Startup arg0 arg1
+
+#全新的进程启动命令：
+java com.ai.cloud.skywalking.plugin.TracingBootstrap com.company.product.Startup arg0 arg1
+```
+
 ## 根据所需插件，配置应用程序
-- 参考[SDK用户指南](https://github.com/wu-sheng/sky-walking/tree/master/skywalking-sdk-plugin)
+- 参考[SDK用户指南](skywalking-sdk-plugin)
 - 注意：插件不会引用所需的第三方组件（如Spring、dubbo、dubbox等），请自行引入所需的版本。
 
 
