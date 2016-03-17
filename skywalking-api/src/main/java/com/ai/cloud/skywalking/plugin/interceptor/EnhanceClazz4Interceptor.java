@@ -121,6 +121,7 @@ public class EnhanceClazz4Interceptor {
 		InterceptPoint[] methodNameList = define.getBeInterceptedMethods();
 		ClassMethodInterceptor classMethodInterceptor = new ClassMethodInterceptor(
 				interceptor);
+		
 		for (InterceptPoint method : methodNameList) {
 			logger.debug("prepare to enhance class {} method [{}] ",
 					enhanceOriginClassName, method.getMethodName());
@@ -133,6 +134,9 @@ public class EnhanceClazz4Interceptor {
 				newClassBuilder = newClassBuilder.method(
 						named(method.getMethodName()).and(
 								takesArguments(method.getArgNum()))).intercept(
+						MethodDelegation.to(classMethodInterceptor));
+			} else if("*".equals(method.getMethodName())){
+				newClassBuilder = newClassBuilder.method(any()).intercept(
 						MethodDelegation.to(classMethodInterceptor));
 			} else {
 				newClassBuilder = newClassBuilder.method(
