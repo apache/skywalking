@@ -47,7 +47,7 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 
 # Quick Start
 ## 编译与部署
-- 参考[代码编译部署说明](BUILD_DOC.md)
+- 参考《[代码编译部署说明](BUILD_DOC.md)》
 
 ## 引入核心SDK
 无论试用哪种插件，都必须引入
@@ -77,7 +77,7 @@ java com.ai.cloud.skywalking.plugin.TracingBootstrap com.company.product.Startup
 ```
 
 ## 根据所需插件，配置应用程序
-- 参考[SDK用户指南](skywalking-sdk-plugin)
+- 参考《[SDK用户指南](skywalking-sdk-plugin)》
 - 注意：插件不会引用所需的第三方组件（如Spring、dubbo、dubbox等），请自行引入所需的版本。
 
 
