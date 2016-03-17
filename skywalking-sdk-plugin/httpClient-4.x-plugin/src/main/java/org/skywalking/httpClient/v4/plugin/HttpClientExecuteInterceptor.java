@@ -12,9 +12,9 @@ import com.ai.cloud.skywalking.plugin.interceptor.MethodInvokeContext;
 
 public class HttpClientExecuteInterceptor implements IAroundInterceptor {
 	/**
-	 * TODO: need laod from config
+	 * default headname of sky walking context<br/>
 	 */
-	public static String traceHearName = "";
+	public static String TRACE_HEAD_NAME = "SkyWalking-TRACING-NAME";
 
 	private static RPCBuriedPointSender sender = new RPCBuriedPointSender();
 
@@ -35,7 +35,7 @@ public class HttpClientExecuteInterceptor implements IAroundInterceptor {
 		HttpRequest httpRequest = (HttpRequest) allArguments[1];
 		httpRequest
 				.setHeader(
-						traceHearName,
+						TRACE_HEAD_NAME,
 						"ContextData="
 								+ sender.beforeSend(
 										Identification

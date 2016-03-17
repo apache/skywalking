@@ -50,7 +50,7 @@ public class EnhanceClazz4Interceptor {
 
 	private void enhance0(String interceptorDefineClassName)
 			throws InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			ClassNotFoundException, EnhanceException {
 		logger.debug("prepare to enhance class by {}.",
 				interceptorDefineClassName);
 		InterceptorDefine define = (InterceptorDefine) Class.forName(
@@ -94,6 +94,9 @@ public class EnhanceClazz4Interceptor {
 		 * required by interceptorDefineClass. <br/>
 		 */
 		IAroundInterceptor interceptor = define.instance();
+		if(interceptor == null){
+			throw new EnhanceException("no IAroundInterceptor instance. "); 
+		}
 
 		DynamicType.Builder<?> newClassBuilder = new ByteBuddy().subclass(
 				originClass, ConstructorStrategy.Default.IMITATE_SUPER_CLASS);
