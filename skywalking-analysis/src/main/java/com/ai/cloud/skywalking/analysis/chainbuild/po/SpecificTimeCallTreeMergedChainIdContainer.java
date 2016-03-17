@@ -1,11 +1,13 @@
 package com.ai.cloud.skywalking.analysis.chainbuild.po;
 
+import com.ai.cloud.skywalking.analysis.chainbuild.entity.CallChainDetailForMysql;
 import com.ai.cloud.skywalking.analysis.chainbuild.util.HBaseUtil;
 import com.ai.cloud.skywalking.analysis.config.HBaseTableMetaData;
 import com.google.gson.Gson;
 import org.apache.hadoop.hbase.client.Put;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.*;
 
 public class SpecificTimeCallTreeMergedChainIdContainer {
@@ -14,6 +16,8 @@ public class SpecificTimeCallTreeMergedChainIdContainer {
 
     private Map<String, List<String>> hasBeenMergedChainIds;
 
+    private Map<String, CallChainDetailForMysql> callChainDetailMap;
+
     // 本次Reduce合并过的调用链
     private Map<String, ChainInfo> combineChains;
 
@@ -21,6 +25,7 @@ public class SpecificTimeCallTreeMergedChainIdContainer {
         this.treeToken = treeToken;
         hasBeenMergedChainIds = new HashMap<String, List<String>>();
         combineChains = new HashMap<String, ChainInfo>();
+        callChainDetailMap = new HashMap<String, CallChainDetailForMysql>();
     }
 
     public void addMergedChainIfNotContain(ChainInfo chainInfo) throws IOException {
@@ -34,6 +39,13 @@ public class SpecificTimeCallTreeMergedChainIdContainer {
         if (!cIds.contains(chainInfo.getCID())) {
             cIds.add(chainInfo.getCID());
             combineChains.put(chainInfo.getCID(), chainInfo);
+
+            //
+            if (chainInfo.getChainStatus() == ChainInfo.ChainStatus.NORMAL) {
+                callChainDetailMap.put(chainInfo.getCID(), new CallChainDetailForMysql(chainInfo));
+            }
+        }else{
+
         }
     }
 
@@ -44,14 +56,21 @@ public class SpecificTimeCallTreeMergedChainIdContainer {
         return treeToken + "@" + calendar.get(Calendar.YEAR) + "-" + calendar.get(Calendar.MONTH);
     }
 
-    public void saveToHBase() throws IOException, InterruptedException {
+    public void saveToHBase() throws IOException, InterruptedException, SQLException {
         batchSaveCurrentHasBeenMergedChainInfo();
         batchSaveMergedChainId();
+        batchSaveToMysql();
+    }
+
+    private void batchSaveToMysql() throws SQLException {
+        for (Map.Entry<String, CallChainDetailForMysql> entry : callChainDetailMap.entrySet()){
+            entry.getValue().saveToMysql();
+        }
     }
 
     /**
      * 保存被合并的cid信息列表
-     * 
+     *
      * @throws IOException
      * @throws InterruptedException
      */
@@ -69,7 +88,7 @@ public class SpecificTimeCallTreeMergedChainIdContainer {
 
     /**
      * 保存已经合并的调用链信息，包含调用链明细
-     * 
+     *
      * @throws IOException
      * @throws InterruptedException
      */

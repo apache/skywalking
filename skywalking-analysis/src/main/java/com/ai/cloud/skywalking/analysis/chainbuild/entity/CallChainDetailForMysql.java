@@ -12,20 +12,17 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-public class CallChainDetail {
-    private boolean isNormal = true;
+public class CallChainDetailForMysql {
     private String chainToken;
     private Map<String, ChainNode> chainNodeMap = new HashMap<String, ChainNode>();
     private String userId;
 
-    public CallChainDetail(ChainInfo chainInfo, boolean isNormal) {
+    public CallChainDetailForMysql(ChainInfo chainInfo) {
         chainToken = chainInfo.getCID();
         for (ChainNode chainNode : chainInfo.getNodes()) {
             chainNodeMap.put(chainNode.getTraceLevelId(), chainNode);
         }
         userId = chainInfo.getUserId();
-
-        this.isNormal = isNormal;
     }
 
     @Override
@@ -33,14 +30,8 @@ public class CallChainDetail {
         return new Gson().toJson(this);
     }
 
-    public void save(Put put) throws SQLException {
-        for (Map.Entry<String, ChainNode> entry : chainNodeMap.entrySet()){
-            put.addColumn(HBaseTableMetaData.TABLE_CHAIN_DETAIL.COLUMN_FAMILY_NAME.getBytes(),entry.getKey().getBytes(),
-                    entry.getValue().toString().getBytes());
-        }
-        if (isNormal) {
-            DBCallChainInfoDao.saveChainDetail(this);
-        }
+    public void saveToMysql() throws SQLException {
+        DBCallChainInfoDao.saveChainDetail(this);
     }
 
     public Collection<ChainNode> getChainNodes() {

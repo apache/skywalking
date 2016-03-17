@@ -1,6 +1,6 @@
 package com.ai.cloud.skywalking.analysis.chainbuild;
 
-import com.ai.cloud.skywalking.analysis.chainbuild.entity.CallChainDetail;
+import com.ai.cloud.skywalking.analysis.chainbuild.entity.CallChainDetailForMysql;
 import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainNode;
 import com.ai.cloud.skywalking.analysis.config.Config;
 import org.slf4j.Logger;
@@ -30,16 +30,16 @@ public class DBCallChainInfoDao {
 		}
 	}
 
-	public synchronized static void saveChainDetail(CallChainDetail callChainDetail)
+	public synchronized static void saveChainDetail(CallChainDetailForMysql callChainDetailForMysql)
 			throws SQLException {
 		PreparedStatement preparedStatement = null;
 		try {
 			preparedStatement = connection
 					.prepareStatement("INSERT  INTO sw_chain_detail(cid,uid,traceLevelId,viewpoint,create_time)"
 							+ " VALUES(?,?,?,?,?)");
-			for (ChainNode chainNode : callChainDetail.getChainNodes()) {
-				preparedStatement.setString(1, callChainDetail.getChainToken());
-				preparedStatement.setString(2, callChainDetail.getUserId());
+			for (ChainNode chainNode : callChainDetailForMysql.getChainNodes()) {
+				preparedStatement.setString(1, callChainDetailForMysql.getChainToken());
+				preparedStatement.setString(2, callChainDetailForMysql.getUserId());
 				preparedStatement.setString(3, chainNode.getTraceLevelId());
 				preparedStatement.setString(4, chainNode.getViewPoint() + ":"
 						+ chainNode.getBusinessKey());
@@ -51,32 +51,7 @@ public class DBCallChainInfoDao {
 			for (int i : result) {
 				if (i != 1) {
 					logger.error("Failed to save chain detail ["
-							+ callChainDetail.getChainToken() + "]");
-				}
-			}
-		} finally {
-			if (preparedStatement != null)
-				preparedStatement.close();
-		}
-		connection.commit();
-	}
-
-	public synchronized static void updateChainLastActiveTime(Map<String, Timestamp> updateChainInfo)
-			throws SQLException {
-		PreparedStatement preparedStatement = null;
-		try {
-			preparedStatement = connection
-					.prepareStatement("UPDATE sw_chain_detail SET update_time = ? WHERE cid = ?");
-			for (Map.Entry<String, Timestamp> entry : updateChainInfo
-					.entrySet()) {
-				preparedStatement.setTimestamp(1, entry.getValue());
-				preparedStatement.setString(2, entry.getKey());
-				preparedStatement.addBatch();
-			}
-			int[] result = preparedStatement.executeBatch();
-			for (int i : result) {
-				if (i != 1) {
-					logger.error("Failed to update chain detail");
+							+ callChainDetailForMysql.getChainToken() + "]");
 				}
 			}
 		} finally {

@@ -53,7 +53,11 @@ public class ChainBuildReducer extends Reducer<Text, Text, Text, IntWritable> {
                                 + callChainData, e);
             }
         }
-        container.saveToHBase();
-        chainTree.saveToHbase();
+        try {
+            container.saveToHBase();
+            chainTree.saveToHbase();
+        } catch (Exception e) {
+            logger.error("Failed to save summaryresult/chainTree.", e);
+        }
     }
 }
