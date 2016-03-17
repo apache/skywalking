@@ -21,6 +21,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.ai.cloud.skywalking.plugin.PluginCfg;
+import com.ai.cloud.skywalking.util.StringUtil;
 
 public class EnhanceClazz4Interceptor {
 	private static Logger logger = LogManager
@@ -57,6 +58,11 @@ public class EnhanceClazz4Interceptor {
 				interceptorDefineClassName).newInstance();
 
 		String enhanceOriginClassName = define.getBeInterceptedClassName();
+		if(StringUtil.isEmpty(enhanceOriginClassName)){
+			logger.warn("classname of being intercepted is not defined by {}.",
+					interceptorDefineClassName);
+			return;
+		}
 
 		logger.debug("prepare to enhance class {} by {}.",
 				enhanceOriginClassName, interceptorDefineClassName);
