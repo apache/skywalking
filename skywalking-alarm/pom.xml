@@ -187,9 +187,5 @@
 				<enabled>true</enabled>
 			</releases>
 		</repository>
-		<snapshots>
-			<enabled>false</enabled>
-		</snapshots>
-		<layout>default</layout>
 	</repositories>
 </project>
