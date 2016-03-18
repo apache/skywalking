@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Sky Walking API Guide</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <link rel="stylesheet" type="text/css" href="../stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="../stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="../stylesheets/github-light.css" media="screen">
+  </head>
+  <body style="font-family:'Open Sans','Helvetica Neue',Helvetica,Arial,sans-serif;margin:0;padding:0;font-size:16px;line-height:1.5">
+  	<section class="page-header" style="background-image: url(../images/backgroud.png);padding: 0.5rem 1rem;text-align:center;">
+      <h2 style="color:#fff;font-family:'Open Sans','Helvetica Neue',Helvetica,Arial,sans-serif;line-height:1.5">Sky Walking API Guide</h2>
+    </section>
+    
+    <section class="main-content">
+      <h3>
+      	<a id="useInSpring" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>如何追踪注册在Spring中类实例的方法调用？
+      </h3>
+      <p>1.Spring配置文件头部，配置所需的命名空间</p>
+      <pre>
+xmlns:skywalking="http://cloud.asiainfo.com/schema/skywalking"
+xsi:schemaLocation="http://cloud.asiainfo.com/schema/skywalking
+		   http://cloud.asiainfo.com/schema/skywalking/skywalking.xsd"</pre>
+		  <p>典型Spring配置文件如下</p>
+		  <pre>&lt;beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:skywalking="http://cloud.asiainfo.com/schema/skywalking"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+				http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+				http://www.springframework.org/schema/context
+				http://www.springframework.org/schema/context/spring-context-3.0.xsd
+				http://cloud.asiainfo.com/schema/skywalking
+				http://cloud.asiainfo.com/schema/skywalking/skywalking.xsd"&gt;</pre>
+			<p>2.Spring配置文件中，设置需要追踪包名、类名或方法名。可配置多个。</p>
+			<pre>
+&lt;skywalking:trace packageExpression="com.ai.app.domain.test.*" classExpression="*"/&gt;
+&lt;skywalking:trace packageExpression="com.ai.app.domain.test..*" classExpression="className*"/&gt;
+</pre>
+       <p><span style="color:red">注意：对于方法的追踪，仅限于实例级的public方法。其他方法由于Java运行时原因，无法追踪。</span></p>
+    	<p>3.通过Spring标注，或配置文件将TracingAspectBean注册到Spring Context上下文中</p>
+      <h3>
+      	<a id="useInDubbo" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>如何追踪dubbo调用？
+      </h3>
+      <p>这里的dubbo，专指阿里发布的，已停止维护的标准dubbo版本（<a href='http://dubbo.io'>dubbo.io</a>）。扩展版本dubbox请参考相关章节。</p>
+      <p>在客户端和服务端配置全局filter：swEnhanceFilter。</p>
+      <pre>
+//客户端Spring配置文件
+&lt;dubbo:consumer filter="swEnhanceFilter"/&gt;
+
+//服务端Spring配置文件
+&lt;dubbo:provider filter="swEnhanceFilter"/&gt;</pre>
+   
+   		<h3>
+      	<a id="useInDubbox" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>如何追踪dubbox 2.8.4 调用？
+      </h3>
+			<p>dubbox 2.8.4 较为符合dubbo的服务规范，这里指dubbox支持RpcContext中的attachment。追踪方式和dubbo相同。</p>
+			<p>在客户端和服务端配置全局filter：swEnhanceFilter。</p>
+			<pre>
+//客户端Spring配置文件
+&lt;dubbo:consumer filter="swEnhanceFilter"/&gt;
+
+//服务端Spring配置文件
+&lt;dubbo:provider filter="swEnhanceFilter"/&gt;</pre>
+
+			<h3>
+      	<a id="useInDubbox283" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>如何追踪dubbox 2.8.3 以及之前的调用？
+      </h3>
+      <p>由于引入dubbox，主要目的是使用rest+json协议，所以以下方案都是在此种调用模式下的解决方案。其他协议未测试，请谅解，望大家提供测试结果与反馈。</p>
+      <p>dubbox 2.8.3 以及之前版本不能正确的支持RpcContext中的attachment，存在BUG（2.8.4已修复）。采用扩展参数对象的方法支持追踪的传递性。</p>
+      <p><span style="color:red">注意：依然推荐升级到dubbox 2.8.4，此时能更好的进行追踪，并对程序侵入性更小。</span></p>
+      <p>1.在客户端和服务端配置全局filter：swEnhanceFilter。</p>
+			<pre>
+//客户端Spring配置文件
+&lt;dubbo:consumer filter="swEnhanceFilter"/&gt;
+
+//服务端Spring配置文件
+&lt;dubbo:provider filter="swEnhanceFilter"/&gt;</pre>
+			<p>2.在客户端和服务端启动时，开启dubbox 2.8.3之前版本的修复功能。在服务启动前调用如下代码，或将com.ai.cloud.skywalking.plugin.dubbox.bugfix.below283.BugFixAcitve注册到Spring中。</p>
+			<pre>
+new com.ai.cloud.skywalking.plugin.dubbox.bugfix.below283.BugFixAcitve();</pre>
+		
+			<p>3.dubbox调用参数包含javabean参数，并继承com.ai.cloud.skywalking.plugin.dubbox.bugfix.below283.SWBaseBean。<span style="color:red">只包含java基础类型（如：String、Integer等）的调用，无法支持追踪传递</span></p>
+			
+			<p>4.客户端如果直接使用非dubbox客户端发起调用，需要在发送的参数中设置contextData。</p>
+			
+			<h3>
+      	<a id="useInMySQL" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>如何追踪MySQL访问？
+      </h3>
+      <p>1.设置特定的JDBC Driver</p>
+      <pre>Driver="com.ai.cloud.skywalking.plugin.jdbc.mysql.MySQLTracingDriver"</pre>
+      <p>2.设置特定的JDBC URL</p>
+      <p></p>
+      <pre>jdbc.url=tracing:jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=UTF-8</pre>
+      
+      <h3>
+      	<a id="useInJDBC" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>如何追踪MySQL之外的其他JDBC？
+      </h3>
+      <p>1.轻松实现自定义的JDBC Driver扩展</p>
+      <pre>import java.sql.Driver;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+import com.ai.cloud.skywalking.plugin.jdbc.TracingDriver;
+
+public class XXXDBTracingDriver extends TracingDriver {
+	static {
+		try {
+			DriverManager.registerDriver(new XXXDBTracingDriver());
+		} catch (SQLException e) {
+			throw new RuntimeException("register "
+					+ MySQLTracingDriver.class.getName() + " driver failure.");
+		}
+	}
+
+	/**
+	 * 继承自TracingDriver，返回真实的Driver
+	 */
+	@Override
+	protected Driver registerTracingDriver() {
+		try {
+			//示例：return new com.mysql.jdbc.Driver();
+			return new Driver();
+		} catch (SQLException e) {
+			throw new RuntimeException("create Driver failure.");
+		}
+	}
+
+}
+</pre>
+			<p>2.设置新实现的JDBC Driver</p>
+      <pre>Driver="XXXDBTracingDriver"</pre>
+      <p>3.设置特定的JDBC URL</p>
+      <pre>jdbc.url=tracing:jdbc:xxxdb://localhost:3306/test</pre>
+      
+      <h3>
+      	<a id="useInWebFilter" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>如何追踪web服务端访问？
+      </h3>
+      <p>服务端使用Filter追踪web请求</p>
+      <pre>    &lt;filter&gt;
+        &lt;filter-namer&gt;tracingFilter&lt;/filter-namer&gt;
+        &lt;filter-classr&gt;com.ai.cloud.skywalking.plugin.web.SkyWalkingFilter&lt;/filter-class&gt;
+        &lt;init-param&gt;
+            &lt;param-name&gt;tracing-name&lt;/param-name&gt;
+            &lt;!--分布式埋点信息，默认放在request的header中，key=SkyWalking-TRACING-NAME,可根据需要修改--&gt;
+            &lt;param-value&gt;SkyWalking-TRACING-NAME&lt;/param-value&gt;
+        &lt;/init-param&gt;
+    &lt;/filterr&gt;
+    &lt;filter-mappingr&gt;
+        &lt;filter-name&gt;tracingFilter&lt;/filter-namer&gt;
+        &lt;!--追踪路径应为MVC的请求路径，不建议包括js/css/图片等资源路径--&gt;
+        &lt;url-patternr&gt;/request-uri&lt;/url-patternr&gt;
+    &lt;/filter-mappingr&gt;</pre>
+      
+      <h3>
+      	<a id="useInHttpClient" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>如何通过HttpClient追踪HTTP调用？
+      </h3>
+      <p>使用SWTracingHttpClient封装所需的httpClient，此httpClient所有调用都会被监控</p>
+      <pre>HttpClient httpclient = new SWTracingHttpClient(new DefaultHttpClient());</pre>
+      <p>上下文将被存储在http request head，中，默认名称和SkyWalkingFilter保持一致。<br/>如果服务端使用dubbox 2.8.4 的提供的http-rest，请使用方法重载</p>
+      <pre>HttpClient httpclient = new SWTracingHttpClient(new DefaultHttpClient(), "Dubbo-Attachments");</pre>
+      
+      <!--------------------->
+      <h3>
+      	<a id="useInHttpClient" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>能通过哪些渠道在应用中发现traceid？
+      </h3>
+      <p>1.通过向全链路监控绑定业务字段。建立traceid和业务字段的对应关系，在调用链路中，可以直接展现业务字段信息。</p>
+      <pre>String businessKey = "phoneNumber:" + phoneNumber + ",resourceId:" + resourceId + ",mail:" + mail;
+BusinessKeyAppender.setBusinessKey2Trace(businessKey);</pre>
+			<p>2.主动获取traceid，保存到应用程序数据库或其他存储中。</p>
+			<pre>Tracing.getTraceId();</pre>
+			
+      <p>3.通过web应用的http调用入口，通过返回的header信息，找到此次调用的traceid。</p>
+      
+      <p>4.通过log4j或log4j2的扩展，在每行本地日志中，输出traceid。</p>
+      <p>log4j1.x配置</p>
+      <pre>log4j.appender.A1.layout=com.ai.cloud.skywalking.plugin.log.log4j.v1.x.TraceIdPatternLayout
+#%x为traceid的转义符
+log4j.appender.A1.layout.ConversionPattern=[%x] %-d{yyyy-MM-dd HH:mm:ss.SSS} %c %n[%p] %n%m%n</pre>
+      <p>log4j2.x配置</p>
+      <pre>&lt;!--%tid为traceid的转义符--&gt;
+&lt;PatternLayout  pattern="%d{HH:mm:ss.SSS} [%tid] [%t] %-5level %logger{36} - %msg%n"/&gt;</pre>
+      
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="http://wu-sheng.github.io/sky-walking">Sky Walking</a> is maintained by <a href="https://github.com/wu-sheng">吴晟</a>，<a href="https://github.com/ascrutae">张鑫</a>，<a href="https://github.com/tanzhen84">谭真</a>.</span>
+      </footer>
+</section>
+	</body>
+
+</html>
