@@ -190,5 +190,16 @@
 				<enabled>true</enabled>
 			</snapshots>
 		</repository>
+		<repository>
+			<id>jbossrepository</id>
+			<name>jboss repository</name>
+			<url>http://http://repository.jboss.com</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
 	</repositories>
 </project>
