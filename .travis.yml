@@ -2,3 +2,23 @@ language: java
 script: 
   - cd skywalking-protocol
   - mvn install -Dmaven.test.skip=true
+  
+  - cd ..
+  - cd skywalking-api
+  - mvn install -Dmaven.test.skip=true
+  
+  - cd ..
+  - cd skywalking-server
+  - mvn install -Dmaven.test.skip=true
+  
+  - cd ..
+  - cd skywalking-alarm
+  - mvn install -Dmaven.test.skip=true
+  
+  - cd ..
+  - cd skywalking-analysis
+  - mvn install -Dmaven.test.skip=true
+  
+  - cd ..
+  - cd skywalking-webui
+  - mvn install -Dmaven.test.skip=true
