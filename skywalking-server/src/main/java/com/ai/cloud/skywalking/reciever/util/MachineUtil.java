@@ -35,9 +35,10 @@ public class MachineUtil {
         if (StringUtil.isEmpty(IP)) {
             InetAddress netAddress = getInetAddress();
             if (null == netAddress) {
-                return null;
+            	IP = "N/A";
+            }else{
+            	IP = netAddress.getHostAddress(); //get the ip address
             }
-            IP = netAddress.getHostAddress(); //get the ip address
         }
         return IP;
     }
@@ -46,9 +47,10 @@ public class MachineUtil {
         if (StringUtil.isEmpty(hostName)) {
             InetAddress netAddress = getInetAddress();
             if (null == netAddress) {
-                return null;
+            	hostName = "N/A";
+            }else{
+            	hostName = netAddress.getHostName(); //get the host address
             }
-            hostName = netAddress.getHostName(); //get the host address
         }
         return hostName;
     }
