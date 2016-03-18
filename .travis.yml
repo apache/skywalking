@@ -2,4 +2,4 @@ language: java
 script: 
   - ls
   - cd skywalking-api
-  - mvn build -Dmaven.test.skip=true
+  - mvn install -Dmaven.test.skip=true
