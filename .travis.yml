@@ -1,8 +1,10 @@
 language: java
 script: 
+	- # build protocol
   - cd skywalking-protocol
   - mvn install -Dmaven.test.skip=true
   
+  - # build api
   - cd ..
   - cd skywalking-api
   - mvn install -Dmaven.test.skip=true
