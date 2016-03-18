@@ -1,2 +1,3 @@
 language: java
-skywalking-api/mvn build -Dmaven.test.skip=true
+script: 
+  - skywalking-api/mvn build -Dmaven.test.skip=true
