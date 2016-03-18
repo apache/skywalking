@@ -180,9 +180,9 @@
 
 	<repositories>
 		<repository>
-			<id>jboss</id>
-			<name>JBoss Repository</name>
-			<url>http://http://mvnrepository.com</url>
+			<id>mvnrepository</id>
+			<name>mvnrepository</name>
+			<url>http://mvnrepository.com</url>
 			<releases>
 				<enabled>true</enabled>
 			</releases>
