@@ -193,7 +193,7 @@
 		<repository>
 			<id>jbossrepository</id>
 			<name>jboss repository</name>
-			<url>http://http://repository.jboss.com</url>
+			<url>http://repository.jboss.com</url>
 			<releases>
 				<enabled>true</enabled>
 			</releases>
