@@ -14,7 +14,7 @@ script:
   - mvn install -Dmaven.test.skip=true
 
   - cd ..
-  - cd skywalking-auth
+  - cd samples/skywalking-auth
   - mvn install -Dmaven.test.skip=true 
   
   - cd ..
