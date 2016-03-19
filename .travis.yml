@@ -12,6 +12,10 @@ script:
   - cd ..
   - cd skywalking-api
   - mvn install -Dmaven.test.skip=true
+
+  - cd ..
+  - cd skywalking-auth
+  - mvn install -Dmaven.test.skip=true 
   
   - cd ..
   - cd skywalking-sdk-plugin
