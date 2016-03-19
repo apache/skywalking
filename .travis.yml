@@ -7,33 +7,33 @@ script:
   
   - cd ..
   - cd skywalking-protocol
-  - mvn install -Dmaven.test.skip=true
+  - mvn clean install -Dmaven.test.skip=true
   
   - cd ..
   - cd skywalking-api
-  - mvn install -Dmaven.test.skip=true
+  - mvn clean install -Dmaven.test.skip=true
 
   - cd ..
   - cd samples/skywalking-auth
-  - mvn install -Dmaven.test.skip=true 
+  - mvn clean install -Dmaven.test.skip=true 
   
   - cd ..
   - cd ..
   - cd skywalking-sdk-plugin
-  - mvn install -Dmaven.test.skip=true
+  - mvn clean install -Dmaven.test.skip=true
   
   - cd ..
   - cd skywalking-server
-  - mvn install -Dmaven.test.skip=true
+  - mvn clean install -Dmaven.test.skip=true
   
   - cd ..
   - cd skywalking-alarm
-  - mvn install -Dmaven.test.skip=true
+  - mvn clean install -Dmaven.test.skip=true
   
   - cd ..
   - cd skywalking-analysis
-  - mvn install -Dmaven.test.skip=true
+  - mvn clean install -Dmaven.test.skip=true
   
   - cd ..
   - cd skywalking-webui
-  - mvn install -Dmaven.test.skip=true
+  - mvn clean install -Dmaven.test.skip=true
