@@ -18,6 +18,7 @@ script:
   - mvn install -Dmaven.test.skip=true 
   
   - cd ..
+  - cd ..
   - cd skywalking-sdk-plugin
   - mvn install -Dmaven.test.skip=true
   
