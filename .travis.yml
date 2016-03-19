@@ -13,6 +13,10 @@ script:
   - mvn install -Dmaven.test.skip=true
   
   - cd ..
+  - cd skywalking-sdk-plugin
+  - mvn install -Dmaven.test.skip=true
+  
+  - cd ..
   - cd skywalking-server
   - mvn install -Dmaven.test.skip=true
   
