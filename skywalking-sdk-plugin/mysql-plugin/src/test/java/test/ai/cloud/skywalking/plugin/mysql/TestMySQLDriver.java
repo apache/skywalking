@@ -12,7 +12,7 @@ import org.junit.Test;
 import com.ai.cloud.skywalking.plugin.TracingBootstrap;
 
 public class TestMySQLDriver {
-	@Test
+	//@Test
 	public void testsql() throws IllegalAccessException,
 			IllegalArgumentException, InvocationTargetException,
 			NoSuchMethodException, SecurityException, ClassNotFoundException {
