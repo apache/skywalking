@@ -7,6 +7,7 @@
 	<artifactId>skywalking</artifactId>
 	<version>1.0-SNAPSHOT</version>
 	<modules>
+		<module>samples/skywalking-auth</module>
 		<module>skywalking-protocol</module>
 		<module>skywalking-api</module>
 		<module>skywalking-sdk-plugin</module>
