@@ -39,4 +39,6 @@ script:
   - mvn clean install -Dmaven.test.skip=true
 
 after_success:
+  - cd ..
+  - cd skywalking-api
   - mvn clean cobertura:cobertura coveralls:report
