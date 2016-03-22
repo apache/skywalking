@@ -6,39 +6,11 @@ script:
   - mvn install:install-file  -Dfile=dubbox-2.8.4.jar  -DgroupId=com.alibaba  -DartifactId=dubbox -Dversion=2.8.4 -Dpackaging=jar
   
   - cd ..
-  - cd skywalking-protocol
-  - mvn clean install -Dmaven.test.skip=true
-  
-  - cd ..
-  - cd skywalking-api
-  - mvn clean install -Dmaven.test.skip=true
-
-  - cd ..
   - cd samples/skywalking-auth
   - mvn clean install -Dmaven.test.skip=true 
   
   - cd ..
-  - cd ..
-  - cd skywalking-sdk-plugin
-  - mvn clean install -Dmaven.test.skip=true
-  
-  - cd ..
-  - cd skywalking-server
-  - mvn clean install -Dmaven.test.skip=true
-  
-  - cd ..
-  - cd skywalking-alarm
-  - mvn clean install -Dmaven.test.skip=true
-  
-  - cd ..
-  - cd skywalking-analysis
-  - mvn clean install -Dmaven.test.skip=true
-  
-  - cd ..
-  - cd skywalking-webui
   - mvn clean install -Dmaven.test.skip=true
 
 after_success:
-  - cd ..
-  - cd skywalking-api
   - mvn clean cobertura:cobertura coveralls:report
