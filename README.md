@@ -23,8 +23,10 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 |httpClient-4.x-plugin| - | YES | - | - |
 |httpClient-4.x-plugin-dubbox-rest-attachment| - | YES | - | 需引用httpClient-4.x-plugin |
 |jedis-2.x-plugin| - | YES | - | - |
-|httpclient-4.2.x-plugin| - | - | YES | 需要使用新提供的httpClient包装对象 |
-|httpclient-4.3.x-plugin| - | - | YES | 需要使用新提供的httpClient包装对象 |
+|~~httpclient-4.2.x-plugin~~| - | - | YES | 需要使用新提供的httpClient包装对象 |
+|~~httpclient-4.3.x-plugin~~| - | - | YES | 需要使用新提供的httpClient包装对象 |
+
+* 删除插件为最新版本不推荐使用的插件
 
 # 新版本能力规划
 * 提供一定的日志数据分析和展现能力，减少或者避免使用团队的二次开发
