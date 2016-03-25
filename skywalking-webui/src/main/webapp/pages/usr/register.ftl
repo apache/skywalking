@@ -6,11 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 <@common.importResources />
     <script src="${_base}/node_modules/skywalking/js/jquery-md5.js"></script>
-    <style>
-        .login-panel {
-            margin-top: 30%;
-        }
-    </style>
 </head>
 <body>
 <div class="container-fluid">
@@ -23,15 +18,22 @@
         <div class="col-md-4 col-md-offset-4">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h3 class="panel-title">Please sign in</h3>
+                    <h3 class="panel-title">Welcome to join skywalking</h3>
                 </div>
                 <div class="panel-body">
-                    <div class="alert alert-warning alert-dismissible" role="alert" id="alertMessageBox"
+                    <div class="alert alert-warning alert-dismissible" role="alert" id="alertWarnMessageBox"
                          style="display:none">
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
                                 aria-hidden="true">&times;</span></button>
                         <strong>Warning!</strong>
                         <p id="errorMessage"></p>
+                    </div>
+                    <div class="alert alert-success alert-dismissible" role="alert" id="alertSuccessMessageBox"
+                         style="display:none">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
+                                aria-hidden="true">&times;</span></button>
+                        <strong>Congratulate!</strong>
+                        <p>You have successfully registered!<a href="${_base}/usr/login"><ins>Go to sign in</ins></a></p>
                     </div>
                     <form role="form">
                         <fieldset>
@@ -46,12 +48,12 @@
                                        class="form-control">
                             </div>
                             <a id="loginBtn" class="btn btn-lg btn-success btn-block"
-                               href="javascript:void(0);">Login</a>
+                               href="javascript:void(0);">sign up</a>
                         </fieldset>
                     </form>
                 </div>
                 <div class="panel-footer text-center">
-                    <p>New to Skywalking? <a href="${_base}/usr/register">Create an account. </a></p>
+                    <p>Have an account? <a href="${_base}/usr/login"> To sign in</a></p>
                 </div>
             </div>
         </div>
@@ -61,7 +63,7 @@
     $(document).ready(function () {
         $("#loginBtn").click(function () {
             $("#alertMessageBox").hide();
-            var url = "${_base}/usr/doLogin"
+            var url = "${_base}/usr/doRegister"
             $.ajax({
                 type: 'POST',
                 url: url,
@@ -77,9 +79,11 @@
                 success: function (data) {
                     if (data.code != '200') {
                         $("#errorMessage").text(data.message);
-                        $("#alertMessageBox").show();
+                        $("#alertWarnMessageBox").show();
+                        return;
+                    }else{
+                        $("#alertSuccessMessageBox").show();
                     }
-
                 },
                 error: function () {
                     $("#errorMessage").text("Fatal Error, please try it again.");

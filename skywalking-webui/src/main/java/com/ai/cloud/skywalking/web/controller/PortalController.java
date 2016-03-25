@@ -1,14 +1,14 @@
 package com.ai.cloud.skywalking.web.controller;
 
-import com.sun.org.apache.xpath.internal.operations.String;
+import com.ai.cloud.skywalking.web.common.BaseController;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-public class PortalController {
+public class PortalController extends BaseController{
 
     @RequestMapping("/index")
     public String index() {
-        return null;
+        return "index";
     }
 }
