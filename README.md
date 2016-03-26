@@ -8,12 +8,10 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 [![Build Status](https://travis-ci.org/wu-sheng/sky-walking.svg?branch=master)](https://travis-ci.org/wu-sheng/sky-walking)
 
 * 核心理论为[Google Dapper论文：Dapper, a Large-Scale Distributed Systems Tracing Infrastructure](http://research.google.com/pubs/pub36356.html),英语有困难的同学可参考[国内翻译](http://duanple.blog.163.com/blog/static/70971767201329113141336/)
-
 * 本分析系统能通过不修改或少量修改代码的模式，对现有的JAVA应用或J2EE应用进行监控和数据收集，并针对应用进场进行准实时告警。此外提供大量的调用性能分析功能，解决目前的监控系统主要监控进程、端口而非应用实际性能的问题。
 * 支持国内常用的dubbo以及dubbox等常见RPC框架，支持应用异常的邮件告警
 * skywalking-sdk层面提供的埋点API，同步阻塞访问时间小于100μs
 * 通过[byte-buddy](https://github.com/raphw/byte-buddy)，部分插件将通过动态字节码机制，避免代码侵入性，完成监控。动态代码模式埋点，同步阻塞访问时间应在200-300μs
-
 * SkyWalking is an open source Large-Scale Distributed Systems Tracing Infrastructure, also been known as APM(Application Performance Management) tool. SkyWalking provides a solution to help monitor and analysis a Large-Scale Distributed Systems.
 * SkyWalking supports popular rpc frameworks, such as [dubbo](https://github.com/alibaba/dubbo), [dubbox](https://github.com/dangdangdotcom/dubbox), etc., supports email-alert when application occurs unexpected exception。
 * SkyWalking's basic API, execution time of blocking saving span must less than 100μs.
