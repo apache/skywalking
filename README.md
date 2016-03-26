@@ -8,16 +8,19 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 [![Build Status](https://travis-ci.org/wu-sheng/sky-walking.svg?branch=master)](https://travis-ci.org/wu-sheng/sky-walking)
 
 * 核心理论为[Google Dapper论文：Dapper, a Large-Scale Distributed Systems Tracing Infrastructure](http://research.google.com/pubs/pub36356.html),英语有困难的同学可参考[国内翻译](http://duanple.blog.163.com/blog/static/70971767201329113141336/)
+
 * 本分析系统能通过不修改或少量修改代码的模式，对现有的JAVA应用或J2EE应用进行监控和数据收集，并针对应用进场进行准实时告警。此外提供大量的调用性能分析功能，解决目前的监控系统主要监控进程、端口而非应用实际性能的问题。
 * SkyWalking is an open source Large-Scale Distributed Systems Tracing Infrastructure, also been known as APM(Application Performance Management) tool. SkyWalking provides a solution to help monitor and analysis a Large-Scale Distributed Systems.
+
 * 支持国内常用的dubbo以及dubbox等常见RPC框架，支持应用异常的邮件告警
-* SkyWalking supports popular rpc frameworks(such as [dubbo(https://github.com/alibaba/dubbo)], [dubbox(https://github.com/dangdangdotcom/dubbox)], etc.), supports email-alert when application occurs unexpected exception。
+* SkyWalking supports popular rpc frameworks, such as [dubbo(https://github.com/alibaba/dubbo)], [dubbox(https://github.com/dangdangdotcom/dubbox)], etc., supports email-alert when application occurs unexpected exception。
+
 * skywalking-sdk层面提供的埋点API，同步阻塞访问时间小于100μs
 * SkyWalking's basic API, execution time of blocking saving span must less than 100μs.
+
 * 通过[byte-buddy](https://github.com/raphw/byte-buddy)，部分插件将通过动态字节码机制，避免代码侵入性，完成监控。动态代码模式埋点，同步阻塞访问时间应在200-300μs
 * By using [byte-buddy](https://github.com/raphw/byte-buddy) (Thanks), some plugins use dynamic byte code mechanisms to avoid invasive codes. plugins API, execution time of blocking saving span must between 200μs and 300μs, including execution time dynamic byte code.
 
-|插件名称|配置文件支持|动态代码机制|代码侵入模式|备注|
 |plugins|using config file|using dynamic byte code| coding |remarks|
 | ----------- |---------| ----------|----------|----------|
 |web-plugin|web.xml| - | - | - |
@@ -44,7 +47,7 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 * 联系邮箱：wu.sheng@foxmail.com
 * QQ群：392443393，请注明“Sky Walking交流”
 * 谁在使用Sky Walking?[点击进入](https://github.com/wu-sheng/sky-walking/issues/34)。同时请各位使用者反馈下，都在哪些项目中使用。
-* if you are using SkyWalking，[Report to us(https://github.com/wu-sheng/sky-walking/issues/34)] please.
+* if you are using SkyWalking，[Report to us](https://github.com/wu-sheng/sky-walking/issues/34) please.
 
 # 整体架构图
 ![整体架构图](http://wu-sheng.github.io/sky-walking/sample-code/images/skywalkingClusterDeploy.jpeg)
@@ -63,7 +66,7 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 ## 分析汇总
 
 # Quick Start
-## 编译与部署 / Build&Deploy
+## 编译与部署 / Build and deploy
 - 参考《[代码编译部署说明](BUILD_DOC.md)》
 
 ## 引入核心SDK / Import SDK
@@ -113,8 +116,8 @@ java com.ai.cloud.skywalking.plugin.TracingBootstrap com.company.product.Startup
 export SKYWALKING_RUN=true
 ```
 - 设置完成后，可以在当前环境中启动业务应用系统
-- [在应用程序中显示traceid(HOW_TO_FIND_TID.md)]
+- [在应用程序中显示traceid](HOW_TO_FIND_TID.md)
 
 # 源代码说明
-* [追踪日志明细存储结构说明(https://github.com/wu-sheng/sky-walking/blob/master/skywalking-server/doc/hbase_table_desc.md)]
-* [the storage structure of tracking logs(https://github.com/wu-sheng/sky-walking/blob/master/skywalking-server/doc/hbase_table_desc.md)]
+* [追踪日志明细存储结构说明](https://github.com/wu-sheng/sky-walking/blob/master/skywalking-server/doc/hbase_table_desc.md)
+* [the storage structure of tracking logs](https://github.com/wu-sheng/sky-walking/blob/master/skywalking-server/doc/hbase_table_desc.md)
