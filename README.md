@@ -111,8 +111,11 @@ java com.ai.cloud.skywalking.plugin.TracingBootstrap com.company.product.Startup
 ```
 export SKYWALKING_RUN=true
 ```
-- 设置完成后，可以在当前环境中启动业务应用系统
-- [在应用程序中显示traceid](HOW_TO_FIND_TID.md)
+- 设置完成后，SkyWalking将随应用启动运行
+- After set env, SkyWalking will be working, when application startup.
+
+# 在应用程序中显示traceid / How to find tid
+- [Find TID](HOW_TO_FIND_TID.md)
 
 # 源代码说明
 * [追踪日志明细存储结构说明](https://github.com/wu-sheng/sky-walking/blob/master/skywalking-server/doc/hbase_table_desc.md)
