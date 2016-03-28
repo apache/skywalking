@@ -11,7 +11,7 @@
     <repositories>
         <repository>
             <id>Company</id>
-            <url>http://10.1.228.199:18081/nexus/content/groups/public/</url>
+            <url>http://maven.glodon.com/nexus/content/groups/public/</url>
         </repository>
     </repositories>
 

@@ -8,6 +8,7 @@
 	<version>1.0-SNAPSHOT</version>
 	<modules>
 		<module>samples/skywalking-auth</module>
+		<module>samples/skywalking-example</module>
 		<module>skywalking-protocol</module>
 		<module>skywalking-api</module>
 		<module>skywalking-sdk-plugin</module>
@@ -15,6 +16,7 @@
 		<module>skywalking-alarm</module>
 		<module>skywalking-analysis</module>
 		<module>skywalking-webui</module>
+		<module>skywalking-log</module>
 	</modules>
 	<packaging>pom</packaging>
 
@@ -54,4 +56,16 @@
 			</plugin>
 		</plugins>
 	</build>
+	<distributionManagement>
+		<repository>
+			<id>glodon-nexus-releases</id>
+			<name>Glodon Nexus Release Repository</name>
+			<url>http://maven.glodon.com/nexus/content/repositories/releases/</url>
+		</repository>
+		<snapshotRepository>
+			<id>glodon-nexus-snapshots</id>
+			<name>Glodon Nexus Snapshot Repository</name>
+			<url>http://maven.glodon.com/nexus/content/repositories/snapshots/</url>
+		</snapshotRepository>
+	</distributionManagement>
 </project>
