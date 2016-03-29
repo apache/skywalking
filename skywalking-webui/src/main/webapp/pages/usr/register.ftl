@@ -18,7 +18,7 @@
         <div class="col-md-4 col-md-offset-4">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h3 class="panel-title">Welcome to join skywalking</h3>
+                    <h1  class="panel-title">Welcome to join skywalking</h1>
                 </div>
                 <div class="panel-body">
                     <div class="alert alert-warning alert-dismissible" role="alert" id="alertWarnMessageBox"

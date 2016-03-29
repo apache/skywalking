@@ -2,22 +2,17 @@ package com.ai.cloud.skywalking.web.dao.impl;
 
 import com.ai.cloud.skywalking.web.dao.inter.IUserMaintainDao;
 import com.ai.cloud.skywalking.web.util.DBConnectUtil;
-import com.ai.cloud.skywalking.web.vo.LoginUserInfo;
-import com.ai.cloud.skywalking.web.vo.SignInUserInfo;
+import com.ai.cloud.skywalking.web.bo.LoginUserInfo;
+import com.ai.cloud.skywalking.web.bo.SignInUserInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 
 @Repository
 public class UserMaintainDao implements IUserMaintainDao {
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
 
     @Autowired
     private DBConnectUtil dbConnectUtil;
@@ -25,12 +20,13 @@ public class UserMaintainDao implements IUserMaintainDao {
     private static Logger logger = LogManager.getLogger(UserMaintainDao.class);
 
     @Override
-    public LoginUserInfo queryUserInfoByName(String userName) {
+    public LoginUserInfo queryUserInfoByName(String userName) throws SQLException {
         logger.debug("query user name {} ", userName);
         LoginUserInfo userInfo = null;
         String sql = "select uid,user_name,password from user_info where user_name = ? ";
+        Connection connection = dbConnectUtil.getConnection();
         try {
-            PreparedStatement ps = dbConnectUtil.getConnection().prepareStatement(sql);
+            PreparedStatement ps = connection.prepareStatement(sql);
             ps.setString(1, userName);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
@@ -41,6 +37,10 @@ public class UserMaintainDao implements IUserMaintainDao {
             }
         } catch (Exception e) {
             logger.error("Failed to query the user[{}]", userName, e);
+        } finally {
+            if (connection != null)
+                connection.close();
+
         }
 
         logger.info("result : {}", userInfo);
@@ -48,12 +48,13 @@ public class UserMaintainDao implements IUserMaintainDao {
     }
 
     @Override
-    public void addUser(final SignInUserInfo userInfo) {
+    public void addUser(final SignInUserInfo userInfo) throws SQLException {
         final String sql = "insert into user_info(user_name,password,role_type," +
                 "create_time,sts,modify_time) values (?,?,?,?,?,?)";
         int num = -1;
+        Connection connection = dbConnectUtil.getConnection();
         try {
-            PreparedStatement pstmt = dbConnectUtil.getConnection().
+            PreparedStatement pstmt = connection.
                     prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             int i = 0;
             pstmt.setString(++i, userInfo.getUserName());
@@ -71,6 +72,10 @@ public class UserMaintainDao implements IUserMaintainDao {
         } catch (Exception e) {
             logger.error("Failed to register the user[{}]", userInfo.getUserName(), e);
             throw new RuntimeException("Failed to register the user " + userInfo.getUserName(), e);
+        } finally {
+            if (connection != null)
+                connection.close();
+
         }
         logger.info("用户注册成功：{}", num);
         userInfo.setUid(String.valueOf(num));

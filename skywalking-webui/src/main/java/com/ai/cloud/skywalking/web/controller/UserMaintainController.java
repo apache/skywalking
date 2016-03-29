@@ -2,10 +2,10 @@ package com.ai.cloud.skywalking.web.controller;
 
 import com.ai.cloud.skywalking.web.common.BaseController;
 import com.ai.cloud.skywalking.web.dao.inter.IUserMaintainDao;
-import com.ai.cloud.skywalking.web.vo.LoginUserInfo;
-import com.ai.cloud.skywalking.web.vo.SignInUserInfo;
-import com.ai.cloud.skywalking.web.vo.UserInfo;
-import com.ai.cloud.util.Constants;
+import com.ai.cloud.skywalking.web.util.Constants;
+import com.ai.cloud.skywalking.web.bo.LoginUserInfo;
+import com.ai.cloud.skywalking.web.bo.SignInUserInfo;
+import com.ai.cloud.skywalking.web.entity.UserInfo;
 import com.ai.cloud.util.common.StringUtil;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.logging.log4j.LogManager;
@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * Created by xin on 16-3-24.
@@ -33,7 +35,7 @@ public class UserMaintainController extends BaseController {
 
     @RequestMapping(value = "/doLogin", produces = "application/json; charset=UTF-8")
     @ResponseBody
-    public String doLogin(LoginUserInfo loginInfo) {
+    public String doLogin(HttpServletRequest request, LoginUserInfo loginInfo) {
         JSONObject result = new JSONObject();
         try {
             if (validateUserInfo(loginInfo, result)) {
@@ -41,15 +43,18 @@ public class UserMaintainController extends BaseController {
             }
 
             LoginUserInfo dbLoginInfo = iUserMaintainDao.queryUserInfoByName(loginInfo.getUserName());
-            logger.info("{}", dbLoginInfo.getPassword());
+
             if (dbLoginInfo == null || !loginInfo.getPassword().equals(dbLoginInfo.getPassword())) {
                 result.put("code", "400");
                 result.put("message", "Username or password is not correct");
                 return result.toJSONString();
             }
 
+            logger.info("The userId[{}] has been login", dbLoginInfo.getUid());
             result.put("code", "200");
             result.put("message", "Login success");
+            //
+            request.getSession().setAttribute(Constants.SESSION_LOGIN_INFO_KEY, dbLoginInfo);
         } catch (Exception e) {
             logger.error("Failed to login the user[{}] and password[{}]", loginInfo.getUserName(),
                     loginInfo.getPassword(), e);
@@ -82,8 +87,8 @@ public class UserMaintainController extends BaseController {
             if (validateUserInfo(signInUserInfo, result)) {
                 return result.toJSONString();
             }
-            signInUserInfo.setRoleType(Constants.ROLE_TYPE_USER);
-            signInUserInfo.setSts(Constants.STR_VAL_A);
+            signInUserInfo.setRoleType(Constants.USR.ROLE_TYPE_USER);
+            signInUserInfo.setSts(Constants.USR.STR_VAL_A);
             iUserMaintainDao.addUser(signInUserInfo);
             if (StringUtil.isBlank(signInUserInfo.getUid())) {
                 result.put("code", "500");

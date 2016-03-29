@@ -18,6 +18,26 @@
             </button>
         </div>
         <div role="navigation" class="navbar-collapse collapse">
+        <#if loginUser??>
+            <div class="col-md-1 col-md-offset-10 pull-right">
+                <div class="row" style="margin-top:7%">
+                    <div class="dropdown">
+                        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        ${loginUser.userName}
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                            <li><a href="${_base}/usr/applications/list">系统配置</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a href="${_base}/usr/applications/add">新增应用</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a href="">退出</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        <#else >
             <ul class="nav navbar-nav navbar-right hidden-sm">
                 <li>
                     <a onclick="javascript:void(0);" href="${_base}/usr/login">
@@ -30,6 +50,7 @@
                     </a>
                 </li>
             </ul>
+        </#if>
         </div>
     </div>
 </div>

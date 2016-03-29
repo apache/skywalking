@@ -6,11 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 <@common.importResources />
     <script src="${_base}/node_modules/skywalking/js/jquery-md5.js"></script>
-    <style>
-        .login-panel {
-            margin-top: 30%;
-        }
-    </style>
 </head>
 <body>
 <div class="container-fluid">
@@ -23,7 +18,7 @@
         <div class="col-md-4 col-md-offset-4">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h3 class="panel-title">Please sign in</h3>
+                    <h1 class="panel-title">Please sign in</h1>
                 </div>
                 <div class="panel-body">
                     <div class="alert alert-warning alert-dismissible" role="alert" id="alertMessageBox"
@@ -79,7 +74,7 @@
                         $("#errorMessage").text(data.message);
                         $("#alertMessageBox").show();
                     }
-
+                    location.href="${_base}/index";
                 },
                 error: function () {
                     $("#errorMessage").text("Fatal Error, please try it again.");
