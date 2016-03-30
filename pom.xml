@@ -15,6 +15,7 @@
 		<module>skywalking-alarm</module>
 		<module>skywalking-analysis</module>
 		<module>skywalking-webui</module>
+		<module>skywalking-log</module>
 	</modules>
 	<packaging>pom</packaging>
 
