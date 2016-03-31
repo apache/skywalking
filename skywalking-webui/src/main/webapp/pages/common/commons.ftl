@@ -1,7 +1,7 @@
 <#macro importResources>
-<link href="${_base}/node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
-<script src="${_base}/node_modules/jquery/dist/jquery.min.js"></script>
-<script src="${_base}/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+<link href="${_base}/bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="${_base}/bower_components/jquery/dist/jquery.min.js"></script>
+<script src="${_base}/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
 </#macro>
 
 <#macro navbar>
@@ -10,14 +10,14 @@
         <div class="navbar-body">
             <div class="row">
                 <div class="col-md-2 col-xs-3 col-sm-2 col-lg-2">
-                    <img src="${_base}/node_modules/skywalking/img/logo.png" class="img-responsive center-block">
+                    <img src="${_base}/bower_components/skywalking/img/logo.png" class="img-responsive center-block">
                 </div>
                 <div class="col-md-6 col-xs-5 col-sm-6 col-lg-6">
                     <div class="input-group" style="margin-top:3%">
-                        <input type="text" class="form-control">
-              <span class="input-group-btn">
-                  <button class="btn btn-default" type="button">搜索</button>
-              </span>
+                        <input type="text" class="form-control" value="${key}" id="searchKey">
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="button" id="searchBtn">搜索</button>
+                        </span>
                     </div>
                 </div>
                 <div class="col-md-3 col-md-offset-1 col-xs-4 col-sm-3 col-lg-3 col-xs-offset-1 col-sm-offset-1 col-lg-offset-1">

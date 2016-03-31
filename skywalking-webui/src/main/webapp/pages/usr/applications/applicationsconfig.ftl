@@ -6,12 +6,24 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 <@common.importResources />
-    <script src="${_base}/node_modules/vue/dist/vue.min.js"></script>
+    <script src="${_base}/bower_components/vue/dist/vue.min.js"></script>
 </head>
 
 <body style="padding-top:80px">
 <@common.navbar/>
 <div class="container">
+    <div class="row" style="display: none;" id="errorMessageAlert">
+        <div class="col-md-8">
+            <div class="row">
+                <div class="alert alert-warning alert-dismissible" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <strong>Warning!</strong>&nbsp;<p id="errormessage"></p>
+                    </a>.
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="row">
         <div class="col-md-8">
             <div class="row">
@@ -36,7 +48,9 @@
                                href="${_base}/usr/applications/modify/{{application.appId}}">Update</a>
                             <a class="btn btn-danger btn-xs" href="javascript:void(0)"
                                onclick="del('{{application.appId}}')">Delete</a>
-                            <a class="btn btn-info btn-xs" href="${_base}/usr/applications/authfile/todownload/{{application.appCode}}">Download auth File</a>
+                            <a class="btn btn-info btn-xs"
+                               href="${_base}/usr/applications/authfile/todownload/{{application.appCode}}">Download
+                                auth File</a>
                         </td>
                     </tr>
                     </tbody>
@@ -64,12 +78,12 @@
                     loadData();
                 } else {
                     $("#errormessage").text(data.message);
-                    $("#errorMessageAlter").show();
+                    $("#errorMessageAlert").show();
                 }
             },
             error: function () {
                 $("#errormessage").text("Fatal error");
-                $("#errorMessageAlter").show();
+                $("#errorMessageAlert").show();
             }
         });
     }
@@ -89,12 +103,13 @@
                         }
                     });
                 } else {
-
+                    $("#errormessage").text(data.message);
+                    $("#errorMessageAlert").show();
                 }
             },
             error: function () {
                 $("#errormessage").text("Fatal error");
-                $("#errorMessageAlter").show();
+                $("#errorMessageAlert").show();
             }
         });
     }

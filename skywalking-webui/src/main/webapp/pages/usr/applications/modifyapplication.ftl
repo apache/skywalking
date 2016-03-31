@@ -6,8 +6,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 <@common.importResources />
-    <link href="${_base}/node_modules/bootstrap-toggle/css/bootstrap-toggle.min.css" rel="stylesheet">
-    <script src="${_base}/node_modules/bootstrap-toggle/js/bootstrap-toggle.min.js"></script>
+    <link href="${_base}/bower_components/bootstrap-toggle/css/bootstrap-toggle.min.css" rel="stylesheet">
+    <script src="${_base}/bower_components/bootstrap-toggle/js/bootstrap-toggle.min.js"></script>
 </head>
 
 <body style="padding-top:80px">

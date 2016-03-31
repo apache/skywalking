@@ -57,7 +57,7 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-4 col-md-offset-4">
-            <img src="${_base}/node_modules/skywalking/img/logo.png" class="img-responsive center-block"/>
+            <img src="${_base}/bower_components/skywalking/img/logo.png" class="img-responsive center-block"/>
         </div>
         <div class="input-group col-md-6 col-md-offset-3">
             <input type="text" class="form-control">
