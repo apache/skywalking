@@ -23,12 +23,4 @@ public class ConfigArgs implements Serializable {
     public void setPeriod(int period) {
         this.period = period;
     }
-
-    @Override
-    public String toString() {
-        return "ConfigArgs{" +
-                "period=" + period +
-                ", mailInfo=" + mailInfo +
-                '}';
-    }
 }

@@ -5,16 +5,6 @@
     <display-name>skywalking-webui</display-name>
 
     <filter>
-        <filter-name>AccessControllerFilter</filter-name>
-        <filter-class>com.ai.cloud.skywalking.web.filter.AccessControllerFilter</filter-class>
-    </filter>
-
-    <filter-mapping>
-        <filter-name>AccessControllerFilter</filter-name>
-        <url-pattern>/usr/applications/*</url-pattern>
-    </filter-mapping>
-
-    <filter>
         <filter-name>InitialConfig</filter-name>
         <filter-class>com.ai.cloud.config.InitialConfigFilter</filter-class>
     </filter>
