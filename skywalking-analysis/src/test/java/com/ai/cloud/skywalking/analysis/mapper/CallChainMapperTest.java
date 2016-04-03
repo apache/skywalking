@@ -15,13 +15,13 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.Text;
-import org.junit.Before;
-import org.junit.Test;
 
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Created by astraea on 2016/1/15.
@@ -37,8 +37,7 @@ public class CallChainMapperTest {
     private static Configuration configuration = null;
     private static Connection connection;
 
-    @Test
-    public void testMap() throws Exception {
+    public static void main(String[] args) throws Exception {
         ConfigInitializer.initialize();
         List<Span> spanList = selectByTraceId(chain_Id);
         ChainInfo chainInfo = ChainBuildMapper.spanToChainInfo(chain_Id, spanList);
@@ -119,7 +118,6 @@ public class CallChainMapperTest {
     }
 
 
-    @Before
     public void initHBaseClient() throws IOException {
         if (configuration == null) {
             configuration = HBaseConfiguration.create();

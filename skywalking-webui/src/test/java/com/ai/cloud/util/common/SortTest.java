@@ -30,7 +30,7 @@ public class SortTest {
 	 * @throws IllegalAccessException 
 	 * 
 	 */
-	@Test
+	//@Test
 	public void testSelectByTraceId() throws IOException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
 		BuriedPointSDAO sdao = new BuriedPointSDAO();
 		Map<String, TraceLogEntry> bpe = sdao.queryLogByTraceId(Constants.TABLE_NAME_CHAIN,
@@ -59,7 +59,7 @@ public class SortTest {
 	 * 
 	 * @throws IOException
 	 */
-	@Test
+	//@Test
 	public void testGenTreeMapKey() throws IOException {
 
 		StringBuffer sb = new StringBuffer("0");
@@ -101,7 +101,7 @@ public class SortTest {
 	 * 
 	 * @param args
 	 */
-	@Test
+	//@Test
 	public void testSortList() {
 		List<String> StrList = new ArrayList<String>();
 		Random random = new Random(System.currentTimeMillis());
