@@ -20,7 +20,9 @@ public class JedisTest {
 
 	public static void main(String[] args) throws ClassNotFoundException,
 			SQLException, InterruptedException {
-		try(Jedis jedis = new Jedis("10.1.241.18", 16379)){
+		Jedis jedis = null;
+		try{
+			jedis = new Jedis("10.1.241.18", 16379);
 			long start = System.currentTimeMillis();
 			jedis.set("11111", "111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
 			for (int i = 0; i < 1; i++) {
@@ -29,6 +31,10 @@ public class JedisTest {
 			long end = System.currentTimeMillis();
 			System.out.println(end - start + "ms");
 			jedis.del("11111");
+		}catch(Exception e){
+			e.printStackTrace();
+		}finally{
+			jedis.close();
 		}
 	}
 	
