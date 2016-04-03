@@ -64,6 +64,7 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 # Quick Start
 ## 编译与部署 / Build and deploy
 - 参考《[代码编译部署说明](BUILD_DOC.md)》
+- [Code compilation and deployment instructions](BUILD_DOC.md)
 
 ## 引入核心SDK / Import SDK
 - 无论试用哪种插件，都必须引入
