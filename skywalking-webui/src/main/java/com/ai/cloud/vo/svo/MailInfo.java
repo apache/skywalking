@@ -1,6 +1,7 @@
 package com.ai.cloud.vo.svo;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 public class MailInfo implements Serializable {
     private String[] mailTo;
@@ -20,5 +21,13 @@ public class MailInfo implements Serializable {
 
     public void setMailCc(String[] mailCc) {
         this.mailCc = mailCc;
+    }
+
+    @Override
+    public String toString() {
+        return "MailInfo{" +
+                "mailTo=" + Arrays.toString(mailTo) +
+                ", mailCc=" + Arrays.toString(mailCc) +
+                '}';
     }
 }

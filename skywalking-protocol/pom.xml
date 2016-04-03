@@ -53,6 +53,7 @@
 						</goals>
 					</execution>
 				</executions>
+				<version>2.4</version>
 			</plugin>
 		</plugins>
 	</build>

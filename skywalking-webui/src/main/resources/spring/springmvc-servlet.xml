@@ -12,16 +12,14 @@
     <!-- 添加注解驱动 -->
     <mvc:annotation-driven/>
     <!-- 默认扫描的包路径 -->
-    <context:component-scan base-package="com.ai"/>
+    <context:component-scan base-package="com.ai.cloud.skywalking.web"/>
 
-    <mvc:resources mapping="/img/**" location="/img/"/>
-    <mvc:resources mapping="/js/**" location="/js/"/>
-    <mvc:resources mapping="/css/**" location="/css/"/>
+    <mvc:resources mapping="/node_modules/**" location="/node_modules/"/>
 
     <!-- freemarker 配置 -->
     <bean id="freemarkerConfig"
           class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
-        <property name="templateLoaderPath" value="/ftl"/>
+        <property name="templateLoaderPath" value="/pages"/>
         <property name="freemarkerSettings">
             <props>
                 <prop key="template_update_delay">10</prop>
@@ -46,13 +44,16 @@
 
     </bean>
 
-    <bean id="propertyConfigurer"
-          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    <bean id="configProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
         <property name="locations">
             <list>
                 <value>classpath:jdbc.properties</value>
             </list>
         </property>
+    </bean>
+
+    <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer">
+        <property name="properties" ref="configProperties" />
     </bean>
 
     <!-- 数据库、事务配置 -->
