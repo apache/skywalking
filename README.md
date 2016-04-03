@@ -38,12 +38,12 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 # 新版本能力规划
 * 提供一定的日志数据分析和展现能力，减少或者避免使用团队的二次开发
 
-# 主要贡献者
-* 吴晟 &nbsp;&nbsp;[亚信](http://www.asiainfo.com/) wusheng@asiainfo.com
-* 张鑫 &nbsp;&nbsp;[亚信](http://www.asiainfo.com/) zhangxin10@asiainfo.com
+# 主要贡献者 / Contributors
+* 吴晟 [wusheng](https://github.com/wu-sheng) &nbsp;&nbsp;[亚信 Asiainfo](http://www.asiainfo.com/) wusheng@asiainfo.com
+* 张鑫 [zhangxin](https://github.com/ascrutae) &nbsp;&nbsp;[亚信 Asiainfo](http://www.asiainfo.com/) zhangxin10@asiainfo.com
 
 # 交流
-* 联系邮箱：wu.sheng@foxmail.com
+* Mail to：wu.sheng@foxmail.com
 * QQ群：392443393，请注明“Sky Walking交流”
 * 谁在使用Sky Walking?[点击进入](https://github.com/wu-sheng/sky-walking/issues/34)。同时请各位使用者反馈下，都在哪些项目中使用。
 * if you are using SkyWalking，[Report to us](https://github.com/wu-sheng/sky-walking/issues/34) please.
@@ -88,7 +88,7 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 </dependency>
 ```
 
-## 使用全新的main class。原main class，以及参数作为参数传入
+## 使用全新的main class
 - using new main class, instead of the original main class.
 ```shell
 #原进程启动命令：
@@ -101,7 +101,7 @@ java com.ai.cloud.skywalking.plugin.TracingBootstrap com.company.product.Startup
 ```
 
 ## 根据所需插件，配置应用程序 / Config application
-- 参考《[SDK Guides](skywalking-sdk-plugin)》
+- Ref 《[SDK Guides](skywalking-sdk-plugin)》
 - 注意：插件不会引用所需的第三方组件（如Spring、dubbo、dubbox等），请自行引入所需的版本。
 
 
