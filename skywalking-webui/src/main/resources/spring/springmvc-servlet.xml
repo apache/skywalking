@@ -14,7 +14,7 @@
     <!-- 默认扫描的包路径 -->
     <context:component-scan base-package="com.ai.cloud.skywalking.web"/>
 
-    <mvc:resources mapping="/node_modules/**" location="/node_modules/"/>
+    <mvc:resources mapping="/bower_components/**" location="/bower_components/"/>
 
     <!-- freemarker 配置 -->
     <bean id="freemarkerConfig"
@@ -48,6 +48,7 @@
         <property name="locations">
             <list>
                 <value>classpath:jdbc.properties</value>
+                <value>classpath:config.properties</value>
             </list>
         </property>
     </bean>

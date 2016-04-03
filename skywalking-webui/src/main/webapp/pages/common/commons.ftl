@@ -1,5 +1,6 @@
 <#macro importResources>
-<link href="${_base}/bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="${_base}/bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<link href="${_base}/bower_components/bootstrap/dist/css/bootstrap-theme.min.css" rel="stylesheet"/>
 <script src="${_base}/bower_components/jquery/dist/jquery.min.js"></script>
 <script src="${_base}/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
 </#macro>
@@ -55,4 +56,9 @@
         </div>
     </div>
 </nav>
+<script>
+   $("#searchBtn").click(function(){
+       loadTraceTreeData("${_base}");
+   });
+</script>
 </#macro>

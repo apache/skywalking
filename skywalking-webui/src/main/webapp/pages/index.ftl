@@ -60,10 +60,17 @@
             <img src="${_base}/bower_components/skywalking/img/logo.png" class="img-responsive center-block"/>
         </div>
         <div class="input-group col-md-6 col-md-offset-3">
-            <input type="text" class="form-control">
-            <a class="input-group-addon btn btn-primary" href="./searchResult.html">搜索</a>
+            <input type="text" class="form-control" id="key">
+            <a class="input-group-addon btn" href="javascript:void(0);" id="searchBtn">搜索</a>
         </div>
     </div>
 </div>
+<script>
+    $(document).ready(function () {
+        $("#searchBtn").click(function () {
+            window.location.href="${_base}/" + $("#key").val();
+        });
+    })
+</script>
 </body>
 </html>
