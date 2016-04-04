@@ -39,6 +39,8 @@ public class TraceNodeInfo extends Span {
 
     private String viewPointIdSub;
 
+    private String serverExceptionStr;
+
     private TraceNodeInfo() {
     }
 
@@ -181,5 +183,13 @@ public class TraceNodeInfo extends Span {
 
     public String getStatusCodeName() {
         return statusCodeName;
+    }
+
+    public String getServerExceptionStr() {
+        return serverExceptionStr;
+    }
+
+    public void setServerExceptionStr(String serverExceptionStr) {
+        this.serverExceptionStr = serverExceptionStr;
     }
 }

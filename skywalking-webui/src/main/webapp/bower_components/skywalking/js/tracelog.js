@@ -1,16 +1,22 @@
 function changeData(data) {
     var result = {
         traceTree: {
+            traceId: "",
             totalTime: 0,
             beginTime: 0,
             endTime: 0,
+            totalSize: 0,
             treeNodes: []
         }
     };
+    result.traceTree.traceId = data.traceId;
     result.traceTree.totalTime = data.endTime - data.beginTime;
     var totalTime = result.traceTree.totalTime;
     result.traceTree.startTime = data.beginTime;
     result.traceTree.endTime = data.endTime;
+    result.traceTree.totalSize = data.nodes.length;
+    result.traceTree.startTimeStr = convertDate(new Date(result.traceTree.startTime));
+    result.traceTree.callIP = data.nodes[0].address;
     var tmpNode;
     for (var i = 0; i < data.nodes.length; i++) {
         tmpNode = data.nodes[i];
@@ -108,4 +114,14 @@ function loadTraceTreeData(baseUrl) {
             $("#alertMessageBox").show();
         }
     });
+}
+
+function convertDate(date) {
+    var year = date.getFullYear();
+    var month = date.getMonth() + 1;    //js从0开始取
+    var date1 = date.getDate();
+    var hour = date.getHours();
+    var minutes = date.getMinutes();
+    var second = date.getSeconds();
+    return year + "年" + month + "月" + date1 + "日" + hour + "时" + minutes + "分" + second + "秒";
 }

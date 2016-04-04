@@ -77,6 +77,8 @@ public class TraceNodeDao implements ITraceNodeDao {
                         clientLog.setAddress(serverLog.getAddress());
                         if (StringUtil.isBlank(clientLog.getExceptionStack())) {
                             clientLog.setExceptionStack(serverLog.getExceptionStack());
+                        }else{
+                            clientLog.setServerExceptionStr(serverLog.getServerExceptionStr());
                         }
                     }
                     logVO.addTimeLine(rpcVO.getValue().getStartDate(), rpcVO.getValue().getCost());

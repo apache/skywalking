@@ -84,8 +84,9 @@
                         <li class="list-group-item"><strong>异常堆栈：</strong>
                             {{if　exceptionStack}}
                                 {{>exceptionStack}}
-                            {{else}}
-                                无
+                            {{/if}}
+                            {{if serverExceptionStr}}
+                                <br/>服务端异常堆栈:{{>serverExceptionStr}}
                             {{/if}}
                         </li>
                     </ul>
@@ -98,6 +99,12 @@
 </#macro>
 <#macro traceTreeAllTmpl>
 <script type="text/x-jsrender" id="traceTreeAllTmpl">
+        <div class="row">
+            <h5>
+                {{>traceId}}</br>
+                调度入口IP：{{>callIP}}，开始时间：{{>startTimeStr}}，{{>totalSize}}条调用记录，消耗总时长：{{>totalTime}}ms。
+            </h5>
+        </div>
         <ul id="myTab" class="nav nav-tabs">
             <li class="active">
                 <a href="#traceTree" data-toggle="tab">
