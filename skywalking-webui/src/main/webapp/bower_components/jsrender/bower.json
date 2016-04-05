@@ -1,0 +1,43 @@
+{
+  "name": "jsrender",
+  "main": "jsrender.js",
+  "homepage": "http://www.jsviews.com/#jsrender",
+  "authors": [
+    {
+      "name": "Boris Moore",
+      "email": "borismoore@gmail.com",
+      "homepage": "https://github.com/borismoore"
+    }
+  ],
+  "description": "Best-of-breed templating in browser or on Node.js (with Express 4, Hapi and Browserify integration)",
+  "moduleType": [
+    "amd",
+    "globals",
+    "node"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/borismoore/jsrender.git"
+  },
+  "keywords": [
+    "jsrender",
+    "jquery",
+    "node",
+    "express",
+    "hapi",
+    "browserify",
+    "templates",
+    "template"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "demos",
+    "*.md",
+    "gulpfile.js",
+    "package.json"
+  ]
+}
