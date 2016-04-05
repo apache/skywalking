@@ -121,6 +121,8 @@ export SKYWALKING_RUN=true
 # 在应用程序中显示traceid / How to find tid
 - [Find TID](HOW_TO_FIND_TID.md)
 
+# QA
+- [SkyWalking SDK是否已经工作？ Is SkyWalking SDK Running?](QA/IS_RUNNING.md)
+
 # 源代码说明
-* [追踪日志明细存储结构说明](https://github.com/wu-sheng/sky-walking/blob/master/skywalking-server/doc/hbase_table_desc.md)
-* [the storage structure of tracking logs](https://github.com/wu-sheng/sky-walking/blob/master/skywalking-server/doc/hbase_table_desc.md)
+* [追踪日志明细存储结构说明. the storage structure of tracking logs](skywalking-server/doc/hbase_table_desc.md)
