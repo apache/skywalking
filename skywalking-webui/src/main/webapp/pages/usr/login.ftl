@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 <@common.importResources />
+    <title>Welcome to skywalking</title>
     <script src="${_base}/bower_components/skywalking/js/jquery-md5.js"></script>
 </head>
 <body>
@@ -73,8 +74,9 @@
                     if (data.code != '200') {
                         $("#errorMessage").text(data.message);
                         $("#alertMessageBox").show();
+                    }else{
+                        location.href="${_base}/index";
                     }
-                    location.href="${_base}/index";
                 },
                 error: function () {
                     $("#errorMessage").text("Fatal Error, please try it again.");

@@ -18,8 +18,11 @@ function changeData(data) {
     result.traceTree.startTimeStr = convertDate(new Date(result.traceTree.startTime));
     result.traceTree.callIP = data.nodes[0].address;
     var tmpNode;
+    var colId;
     for (var i = 0; i < data.nodes.length; i++) {
         tmpNode = data.nodes[i];
+        colId = JSON.stringify(tmpNode.colId);
+        tmpNode.modalId = colId.replace(/\./g,'');
         if (tmpNode.colId == "0") {
             tmpNode.isEntryNode = true;
         } else {
@@ -98,7 +101,7 @@ function loadTraceTreeData(baseUrl) {
                 var htmlOutput = template.render(changedData.traceTree);
                 $("#mainPanel").empty();
                 $("#mainPanel").html(htmlOutput);
-                $("#traceTreeTable").treetable({expandable: true, indent: 10, clickableNodeNames: true});
+                $("#traceTreeTable").treetable({expandable: false, indent: 10, clickableNodeNames: true});
 
                 $("tr[name='log']").each(function () {
                     var code = $(this).attr("statusCodeStr");
@@ -123,5 +126,5 @@ function convertDate(date) {
     var hour = date.getHours();
     var minutes = date.getMinutes();
     var second = date.getSeconds();
-    return year + "年" + month + "月" + date1 + "日" + hour + "时" + minutes + "分" + second + "秒";
+    return year + "-" + month + "-" + date1 + " " + hour + ":" + minutes + ":" + second;
 }

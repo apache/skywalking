@@ -6,7 +6,7 @@ import com.ai.cloud.skywalking.web.common.BaseController;
 import com.ai.cloud.skywalking.web.dao.inter.IAlarmRuleMaintainDao;
 import com.ai.cloud.skywalking.web.dao.inter.IApplicationsMaintainDao;
 import com.ai.cloud.skywalking.web.entity.AlarmRule;
-import com.ai.cloud.util.common.StringUtil;
+import com.ai.cloud.skywalking.web.util.StringUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import org.apache.logging.log4j.LogManager;

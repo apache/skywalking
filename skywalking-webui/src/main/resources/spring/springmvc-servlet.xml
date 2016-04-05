@@ -36,7 +36,6 @@
             class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver">
         <property name="suffix" value=".ftl"/>
         <property name="order" value="1"/>
-        <property name="viewClass" value="com.ai.cloud.util.view.BaseFreeMarkerView"/>
         <property name="contentType" value="text/html;charset=UTF-8"/>
         <property name="exposeRequestAttributes" value="false"/>
         <property name="exposeSessionAttributes" value="false"/>

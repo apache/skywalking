@@ -1,5 +1,4 @@
-<#import "./common/commons.ftl" as common>
-<#import "./common/traceInfo.ftl" as traceInfo>
+<#import "../common/commons.ftl" as common>
 <!DOCTYPE html>
 <html lang="zh-CN">
 
@@ -10,7 +9,7 @@
     <script src="${_base}/bower_components/jsrender/jsrender.min.js"></script>
     <script src="${_base}/bower_components/jquery-ui/jquery-ui.min.js"></script>
     <link href="${_base}/bower_components/jquery-treetable/css/jquery.treetable.css" rel="stylesheet" type="text/css"/>
-    <link rel="stylesheet" href="${_base}/bower_components/jquery-treetable/css/jquery.treetable.theme.default.css"/>
+    <link rel="stylesheet" href="${base}/bower_components/jquery-treetable/css/jquery.treetable.theme.default.css"/>
     <script src="${_base}/bower_components/jquery-treetable/jquery.treetable.js"></script>
     <link href="${_base}/bower_components/jquery-treetable/css/jquery.treetable.css" rel="stylesheet"/>
     <link href="${_base}/bower_components/skywalking/css/tracelog.css" rel="stylesheet"/>
@@ -19,18 +18,25 @@
 
 <body style="padding-top:80px">
 <@common.navbar/>
-<@traceInfo.traceTableTmpl/>
-<@traceInfo.traceLogTmpl/>
-<@traceInfo.traceTreeAllTmpl/>
-
 <div class="container" id="mainPanel">
-    <p id="searchType" style="display: none">${searchType}</p>
+    <div class="row">
+        <div class="col-md-9">
+
+        </div>
+        <div class="col-md-3">
+
+        </div>
+    </div>
 </div>
 
 <script>
     $(document).ready(function () {
-        loadTraceTreeData("${_base}");
+        loadAnalysisResult();
     });
+
+    function loadAnalysisResult(){
+
+    }
 </script>
 </body>
 </html>

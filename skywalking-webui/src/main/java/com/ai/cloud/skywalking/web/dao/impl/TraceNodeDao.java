@@ -2,11 +2,10 @@ package com.ai.cloud.skywalking.web.dao.impl;
 
 import com.ai.cloud.skywalking.web.bo.TraceNodeInfo;
 import com.ai.cloud.skywalking.web.dao.inter.ITraceNodeDao;
+import com.ai.cloud.skywalking.web.util.Constants;
 import com.ai.cloud.skywalking.web.util.HBaseUtils;
 import com.ai.cloud.skywalking.web.util.SortUtil;
-import com.ai.cloud.util.Constants;
-import com.ai.cloud.util.HBaseConnectionUtil;
-import com.ai.cloud.util.common.StringUtil;
+import com.ai.cloud.skywalking.web.util.StringUtil;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Get;
@@ -35,7 +34,7 @@ public class TraceNodeDao implements ITraceNodeDao {
 
     @Override
     public Map<String, TraceNodeInfo> queryTraceNodesByTraceId(String traceId) throws IOException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
-        Table table = HBaseConnectionUtil.getConnection().getTable(TableName.valueOf(CALL_CHAIN_TABLE_NAME));
+        Table table = hBaseUtils.getConnection().getTable(TableName.valueOf(CALL_CHAIN_TABLE_NAME));
         Get g = new Get(Bytes.toBytes(traceId));
         Result r = table.get(g);
         Map<String, TraceNodeInfo> traceLogMap = new HashMap<String, TraceNodeInfo>();

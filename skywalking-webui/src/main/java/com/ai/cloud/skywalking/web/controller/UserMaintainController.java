@@ -1,12 +1,12 @@
 package com.ai.cloud.skywalking.web.controller;
 
-import com.ai.cloud.skywalking.web.common.BaseController;
-import com.ai.cloud.skywalking.web.dao.inter.IUserMaintainDao;
-import com.ai.cloud.skywalking.web.util.Constants;
 import com.ai.cloud.skywalking.web.bo.LoginUserInfo;
 import com.ai.cloud.skywalking.web.bo.SignInUserInfo;
+import com.ai.cloud.skywalking.web.common.BaseController;
+import com.ai.cloud.skywalking.web.dao.inter.IUserMaintainDao;
 import com.ai.cloud.skywalking.web.entity.UserInfo;
-import com.ai.cloud.util.common.StringUtil;
+import com.ai.cloud.skywalking.web.util.Constants;
+import com.ai.cloud.skywalking.web.util.StringUtil;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

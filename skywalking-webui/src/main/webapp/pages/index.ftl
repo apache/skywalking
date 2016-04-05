@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 <@common.importResources />
+    <title>Skywalking</title>
 </head>
 <body>
 <div class="navbar">
@@ -32,7 +33,7 @@
                             <li role="separator" class="divider"></li>
                             <li><a href="${_base}/usr/applications/add">新增应用</a></li>
                             <li role="separator" class="divider"></li>
-                            <li><a href="">退出</a></li>
+                            <li><a href="javascript:void(0);" id="logoutBtn">退出</a></li>
                         </ul>
                     </div>
                 </div>
@@ -59,7 +60,7 @@
         <div class="col-md-4 col-md-offset-4">
             <img src="${_base}/bower_components/skywalking/img/logo.png" class="img-responsive center-block"/>
         </div>
-        <div class="input-group col-md-6 col-md-offset-3">
+        <div class="input-group col-md-6 col-md-offset-3 col-">
             <input type="text" class="form-control" id="key">
             <a class="input-group-addon btn" href="javascript:void(0);" id="searchBtn">搜索</a>
         </div>
@@ -68,8 +69,27 @@
 <script>
     $(document).ready(function () {
         $("#searchBtn").click(function () {
-            window.location.href="${_base}/" + $("#key").val();
+            window.location.href = "${_base}/" + $("#key").val();
         });
+
+        $("#logoutBtn").click(function () {
+            var url = "${_base}/usr/doLogout";
+            $.ajax({
+                type: 'POST',
+                url: url,
+                dataType: 'json',
+                async: true,
+                success: function (data) {
+                    if (data.code == '200') {
+                        location.href = "${_base}/index";
+                    }
+                },
+                error: function () {
+                    $("#errorMessage").text("Fatal Error, please try it again.");
+                    $("#alertMessageBox").show();
+                }
+            });
+        }
     })
 </script>
 </body>

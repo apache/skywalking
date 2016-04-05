@@ -14,16 +14,6 @@
         <url-pattern>/usr/applications/*</url-pattern>
     </filter-mapping>
 
-    <filter>
-        <filter-name>InitialConfig</filter-name>
-        <filter-class>com.ai.cloud.config.InitialConfigFilter</filter-class>
-    </filter>
-
-    <filter-mapping>
-        <filter-name>InitialConfig</filter-name>
-        <url-pattern>/</url-pattern>
-    </filter-mapping>
-
     <servlet>
         <servlet-name>springmvc</servlet-name>
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>

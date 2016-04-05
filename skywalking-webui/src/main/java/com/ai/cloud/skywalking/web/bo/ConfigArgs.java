@@ -1,4 +1,4 @@
-package com.ai.cloud.vo.svo;
+package com.ai.cloud.skywalking.web.bo;
 
 import java.io.Serializable;
 

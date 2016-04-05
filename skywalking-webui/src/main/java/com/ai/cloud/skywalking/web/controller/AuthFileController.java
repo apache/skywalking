@@ -4,7 +4,7 @@ import com.ai.cloud.skywalking.web.bo.LoginUserInfo;
 import com.ai.cloud.skywalking.web.common.BaseController;
 import com.ai.cloud.skywalking.web.dao.inter.IAuthFileMaintainDao;
 import com.ai.cloud.skywalking.web.dao.inter.ISystemConfigMaintainDao;
-import com.ai.cloud.util.common.StringUtil;
+import com.ai.cloud.skywalking.web.util.StringUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,7 +63,7 @@ public class AuthFileController extends BaseController {
         for (Map.Entry<Object, Object> value : properties.entrySet()) {
             propertyValue = String.valueOf(value.getValue());
             if (propertyValue.startsWith("#")) {
-                logger.info("{}",propertyValue.substring(1));
+                logger.info("{}", propertyValue.substring(1));
                 value.setValue(systemConfigMaintainDao.querySystemConfigByKey(propertyValue.substring(1)).getConfValue());
                 continue;
             }

@@ -11,11 +11,13 @@
         <div class="navbar-body">
             <div class="row">
                 <div class="col-md-2 col-xs-3 col-sm-2 col-lg-2">
+                    <a href="${_base}/index">
                     <img src="${_base}/bower_components/skywalking/img/logo.png" class="img-responsive center-block">
+                    </a>
                 </div>
                 <div class="col-md-6 col-xs-5 col-sm-6 col-lg-6">
                     <div class="input-group" style="margin-top:3%">
-                        <input type="text" class="form-control" value="${key}" id="searchKey">
+                        <input type="text" class="form-control" value="${key!''}" id="searchKey">
                         <span class="input-group-btn">
                             <button class="btn btn-default" type="button" id="searchBtn">搜索</button>
                         </span>
@@ -34,7 +36,7 @@
                                 <li role="separator" class="divider"></li>
                                 <li><a href="${_base}/usr/applications/add">新增应用</a></li>
                                 <li role="separator" class="divider"></li>
-                                <li><a href="">退出</a></li>
+                                <li><a href="javascript:void(0);" id="logoutBtn">退出</a></li>
                             </ul>
                         </div>
                     <#else>
@@ -57,8 +59,27 @@
     </div>
 </nav>
 <script>
-   $("#searchBtn").click(function(){
-       loadTraceTreeData("${_base}");
-   });
+    $("#searchBtn").click(function () {
+        loadTraceTreeData("${_base}");
+    });
+
+    $("#logoutBtn").click(function () {
+        var url = "${_base}/usr/doLogout";
+        $.ajax({
+            type: 'POST',
+            url: url,
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                if (data.code == '200') {
+                    location.href = "${_base}/index";
+                }
+            },
+            error: function () {
+                $("#errorMessage").text("Fatal Error, please try it again.");
+                $("#alertMessageBox").show();
+            }
+        });
+    })
 </script>
 </#macro>

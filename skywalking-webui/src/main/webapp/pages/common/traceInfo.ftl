@@ -19,35 +19,57 @@
                         <td><b>{{>applicationIdStr}}</b></td>
                         <td>{{>spanTypeName}}</td>
                         <td>{{>statusCodeName}}</td>
-                        <td><a href="#" >{{>viewPointIdSub}}</a> </td>
+                        <td><a href="javascript:void(0);" data-toggle="modal" data-target="#modal{{>modalId}}">{{>viewPointIdSub}}</a> </td>
+                        <!-- Modal -->
+                        <div class="modal fade" id="modal{{>modalId}}" tabindex="-1" role="dialog" aria-labelledby="modal{{>modalId}}Label">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-body">
+                                       <ul class="list-group">
+                                            <li class="list-group-item" style="word-wrap:break-word"><strong>服务/方法：</strong>{{>viewPointId}}</li>
+                                            <li class="list-group-item"><strong>调用类型：</strong>{{>spanTypeName}}</li>
+                                            <li class="list-group-item"><strong>花费时间：</strong>{{>cost}}<strong>毫秒</strong></li>
+                                            <li class="list-group-item"><strong>业务字段：</strong>{{>businessKey}}</li>
+                                            <li class="list-group-item"><strong>应用Code：</strong>{{>applicationId}}</li>
+                                            <li class="list-group-item"><strong>主机信息：</strong>{{>address}}}</li>
+                                            <li class="list-group-item"><strong>调用进程号：</strong>{{>processNo}}</li>
+                                            <li class="list-group-item"><strong>异常堆栈：</strong>
+                                                {{if　exceptionStack}}
+                                                    {{>exceptionStack}}
+                                                {{/if}}
+                                                {{if serverExceptionStr}}
+                                                    <br/>服务端异常堆栈:{{>serverExceptionStr}}
+                                                {{/if}}
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <td>{{>address}}</td>
                         <td>
                          <div class="progress">
                             <div class="progress-bar" style="width: {{>totalLengthPercent}}%"></div>
                         {{if case == 1}}
-                            <div class="progress-bar progress-bar-b progress-bar-striped" style="color:black;min-width: {{>spiltLengthPercent}}%;"></div>
-                            <div class="progress-bar progress-split progress-bar-striped" style="color:black;">&nbsp;{{>cost}}ms </div>
+                            <div class="progress-bar progress-bar-b progress-bar-striped" style="color:black;min-width: {{>spiltLengthPercent}}%;">{{>cost}}ms </div>
                         {{/if}}
                         {{if case == 2}}
-                            <div class="progress-bar progress-bar-b progress-bar-striped" style="color:black;min-width: {{>spiltLengthPercent}}%;"></div>
-                            <div class="progress-bar progress-split progress-bar-striped" style="color:black;">&nbsp;{{>cost}}ms</div>
+                            <div class="progress-bar progress-bar-b progress-bar-striped" style="color:black;min-width: {{>spiltLengthPercent}}%;">{{>cost}}ms</div>
                         {{/if}}
                         {{if case == 3}}
                             <div class="progress-bar progress-bar-b progress-bar-striped" style="color:black;min-width: {{>clientCostPercent}}%;"></div>
-                            <div class="progress-bar progress-bar-a progress-bar-striped" style="color:black;min-width: {{>networkCostPercent}}%;"></div>
+                            <div class="progress-bar progress-bar-a progress-bar-striped" style="color:black;min-width: {{>networkCostPercent}}%;">{{>clientCost}}/{{>networkCost}}/{{>serverCost}}ms</div>
                             <div class="progress-bar progress-bar-b progress-bar-striped" style="color:black;min-width: {{>serverCostPercent}}%;"></div>
-                            <div class="progress-bar progress-split progress-bar-striped" style="color:black;">&nbsp;{{>clientCost}}/{{>networkCost}}/{{>serverCost}}ms</div>
                         {{/if}}
                         {{if case == 4}}
-                            <div class="progress-bar progress-bar-b progress-bar-striped" style="color:black;min-width: {{>clientCostPercent}}%;"></div>
-                            <div class="progress-bar progress-bar-a progress-bar-striped" style="color:black;min-width: {{>serverCostPercent}}%;"></div>
-                            <div class="progress-bar progress-split progress-bar-striped" style="color:black;">&nbsp;{{>totalLength}}ms->{{>clientCost}}ms->{{>serverCost}}ms </div>
+                            <div class="progress-bar progress-bar-b progress-bar-striped" style="color:black;min-width: {{>clientCostPercent}}%;">{{>totalLength}}ms</div>
+                            <div class="progress-bar progress-bar-a progress-bar-striped" style="color:black;min-width: {{>serverCostPercent}}%;">->{{>clientCost}}->{{>serverCost}}ms</div>
                         {{/if}}
                         {{if case == 5}}
-                            <div class="progress-bar progress-bar-b progress-bar-striped" style="color:black;min-width: {{>clientCostPercent}}%;"></div>
-                            <div class="progress-bar progress-bar-striped" style="color:black;min-width: {{>networkCostPercent}}%;"></div>
+                            <div class="progress-bar progress-bar-b progress-bar-striped" style="color:black;min-width: {{>clientCostPercent}}%;">{{>clientCost}}</div>
+                            <div class="progress-bar progress-bar-striped" style="color:black;min-width: {{>networkCostPercent}}%;">/{{>serverCost}}ms</div>
                             <div class="progress-bar progress-bar-b progress-bar-striped" style="color:black;min-width: {{>serverCostPercent}}%;"></div>
-                            <div class="progress-bar progress-split progress-bar-striped" style="color:black;">&nbsp;{{>clientCost}}/{{>serverCost}}ms </div>
+                            <div class="progress-bar progress-split progress-bar-striped" style="color:black;">&nbsp; </div>
                         {{/if}}
                         </div>
                       </td>
@@ -56,6 +78,7 @@
             </tbody>
         </table>
 </script>
+
 </#macro>
 
 <#macro traceLogTmpl>
@@ -108,10 +131,10 @@
         <ul id="myTab" class="nav nav-tabs">
             <li class="active">
                 <a href="#traceTree" data-toggle="tab">
-                    Trace Tree
+                   trace tree
                 </a>
             </li>
-            <li><a href="#traceLog" data-toggle="tab">Trace log</a></li>
+            <li><a href="#traceLog" data-toggle="tab">trace log</a></li>
         </ul>
 
         <div id="myTabContent" class="tab-content">

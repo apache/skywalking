@@ -4,8 +4,6 @@
 package com.ai.cloud.skywalking.web.util;
 
 import com.ai.cloud.skywalking.web.bo.TraceNodeInfo;
-import com.ai.cloud.util.Constants;
-import com.ai.cloud.vo.mvo.TraceLogEntry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

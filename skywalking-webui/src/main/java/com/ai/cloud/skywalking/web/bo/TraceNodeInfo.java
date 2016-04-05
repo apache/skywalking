@@ -1,8 +1,8 @@
 package com.ai.cloud.skywalking.web.bo;
 
 import com.ai.cloud.skywalking.protocol.Span;
-import com.ai.cloud.util.Constants;
-import com.ai.cloud.util.common.StringUtil;
+import com.ai.cloud.skywalking.web.util.Constants;
+import com.ai.cloud.skywalking.web.util.StringUtil;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;

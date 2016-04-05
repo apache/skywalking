@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 <@common.importResources />
+    <title>New to skywalking</title>
     <script src="${_base}/bower_components/skywalking/js/jquery-md5.js"></script>
 </head>
 <body>

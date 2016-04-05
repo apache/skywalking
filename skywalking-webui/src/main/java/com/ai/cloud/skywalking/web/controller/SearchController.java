@@ -3,7 +3,7 @@ package com.ai.cloud.skywalking.web.controller;
 import com.ai.cloud.skywalking.web.bo.TraceTreeInfo;
 import com.ai.cloud.skywalking.web.common.BaseController;
 import com.ai.cloud.skywalking.web.service.inter.ITraceTreeService;
-import com.ai.cloud.util.common.StringUtil;
+import com.ai.cloud.skywalking.web.util.StringUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,6 +1,6 @@
 package com.ai.cloud.skywalking.web.entity;
 
-import com.ai.cloud.vo.svo.ConfigArgs;
+import com.ai.cloud.skywalking.web.bo.ConfigArgs;
 
 import java.sql.Timestamp;
 
