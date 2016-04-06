@@ -14,15 +14,17 @@ import java.util.Map;
 
 public class CallChainDetailForMysql {
     private String chainToken;
+    private String treeToken;
     private Map<String, ChainNode> chainNodeMap = new HashMap<String, ChainNode>();
     private String userId;
 
-    public CallChainDetailForMysql(ChainInfo chainInfo) {
+    public CallChainDetailForMysql(ChainInfo chainInfo, String treeToken) {
         chainToken = chainInfo.getCID();
         for (ChainNode chainNode : chainInfo.getNodes()) {
             chainNodeMap.put(chainNode.getTraceLevelId(), chainNode);
         }
         userId = chainInfo.getUserId();
+        this.treeToken = treeToken;
     }
 
     @Override
@@ -44,5 +46,9 @@ public class CallChainDetailForMysql {
 
     public String getChainToken() {
         return chainToken;
+    }
+
+    public String getTreeToken() {
+        return treeToken;
     }
 }

@@ -42,7 +42,7 @@ public class SpecificTimeCallTreeMergedChainIdContainer {
 
             //
             if (chainInfo.getChainStatus() == ChainInfo.ChainStatus.NORMAL) {
-                callChainDetailMap.put(chainInfo.getCID(), new CallChainDetailForMysql(chainInfo));
+                callChainDetailMap.put(chainInfo.getCID(), new CallChainDetailForMysql(chainInfo,treeToken));
             }
         }else{
 

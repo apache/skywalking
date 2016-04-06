@@ -35,10 +35,10 @@ public class DBCallChainInfoDao {
 		PreparedStatement preparedStatement = null;
 		try {
 			preparedStatement = connection
-					.prepareStatement("INSERT  INTO sw_chain_detail(cid,uid,traceLevelId,viewpoint,create_time)"
+					.prepareStatement("INSERT  INTO sw_chain_detail(treeId,uid,traceLevelId,viewpoint,create_time)"
 							+ " VALUES(?,?,?,?,?)");
 			for (ChainNode chainNode : callChainDetailForMysql.getChainNodes()) {
-				preparedStatement.setString(1, callChainDetailForMysql.getChainToken());
+				preparedStatement.setString(1, callChainDetailForMysql.getTreeToken());
 				preparedStatement.setString(2, callChainDetailForMysql.getUserId());
 				preparedStatement.setString(3, chainNode.getTraceLevelId());
 				preparedStatement.setString(4, chainNode.getViewPoint() + ":"
