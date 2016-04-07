@@ -47,6 +47,8 @@ public class StorageChainController {
             } catch (Throwable e) {
                 logger.error("ready to save buriedPoint error, choose to ignore. data="
                         + buriedPoint, e);
+                ServerHealthCollector.getCurrentHeathReading("StorageChainController").updateData(ServerHeathReading.ERROR,
+                        "ready to save buriedPoint error, choose to ignore. data=" + buriedPoint);
             }
         }
 
@@ -55,7 +57,7 @@ public class StorageChainController {
             chain.doChain(spans);
         } catch (Throwable e) {
             logger.error("Failed to storage chain.", e);
-            ServerHealthCollector.getCurrentHeathReading("storage-chain").updateData(ServerHeathReading.ERROR,
+            ServerHealthCollector.getCurrentHeathReading("StorageChainController").updateData(ServerHeathReading.ERROR,
                     "Failed to storage chain.Cause:" + e.getMessage());
         }
     }
