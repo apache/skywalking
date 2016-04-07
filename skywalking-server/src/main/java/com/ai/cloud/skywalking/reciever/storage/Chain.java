@@ -25,8 +25,7 @@ public class Chain {
         if (index < chains.size()) {
             while (true) {
                 try {
-                    chains.get(index).doChain(spans, this);
-                    index++;
+                    chains.get(index++).doChain(spans, this);
                     break;
                 } catch (Throwable e) {
                 	logger.error("do chain at index[{}] failure.", index, e);
@@ -35,6 +34,7 @@ public class Chain {
                 }
             }
         }
+
     }
 
     void addChain(IStorageChain chain) {
