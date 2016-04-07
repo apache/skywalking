@@ -57,8 +57,6 @@ public class RegisterPersistenceThread extends Thread {
 
                 Collection<FileRegisterEntry> fileRegisterEntries = MemoryRegister
                         .instance().getEntries();
-                logger.debug("file Register Entries size [{}]",
-                        fileRegisterEntries.size());
                 try {
                     writer = new BufferedWriter(new FileWriter(file));
                 } catch (IOException e) {
