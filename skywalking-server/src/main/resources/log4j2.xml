@@ -1,13 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="debug">
-    <Appenders>
-        <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d [%t](%F:%L) %-5level %logger{36} - %msg%n"/>
-        </Console>
-    </Appenders>
-    <Loggers>
-        <Root level="debug">
-            <AppenderRef ref="Console"/>
-        </Root>
-    </Loggers>
+    <appender name="consoleAppend" class="org.apache.log4j.ConsoleAppender" >
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%-d{yyyy-MM-dd HH:mm:ss} [%5p][%t][%c{1}]-[%M] %m%n" />
+        </layout>
+    </appender>
+
+    <appender name="bizAppend" class="org.apache.log4j.DailyRollingFileAppender">
+        <param name="File" value="../log/skywalking-server.log" />
+        <param name="Append" value="true" />
+        <param name="DatePattern" value="'.'yyyy-MM-dd-HH'.log'" />
+        <param name="encoding" value="utf-8"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="[date:%d{yyyy-MM-dd HH:mm:ss}] %m%n" />
+        </layout>
+    </appender>
+
+    <root>
+        <priority value="INFO" />
+        <appender-ref ref="bizAppend" />
+    </root>
 </Configuration>
