@@ -27,9 +27,9 @@ public class Chain {
                     chains.get(index++).doChain(spans, this);
                     break;
                 } catch (Throwable e) {
-                    logger.error("do chain at index[{}] failure.", index, e);
+                    logger.error("do chain at index[" + (index - 1) + "] failure.", e);
                     ServerHealthCollector.getCurrentHeathReading("storage-chain").updateData(ServerHeathReading.ERROR,
-                            "Failed to do chain action. spans list hash code:" + spans.hashCode() + ",Cause:" + e.getMessage());
+                    		"do chain at index[" + (index - 1) + "] failure. spans list hash code:" + spans.hashCode() + ",Cause:" + e.getMessage());
                     // 如果Chain出现任何异常，将重做Chain,保证数据不丢失
                     index--;
                 }
