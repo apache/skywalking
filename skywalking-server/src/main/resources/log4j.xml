@@ -1,26 +1,21 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
-
-<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
-    <appender name="consoleAppend" class="org.apache.log4j.ConsoleAppender" >
+<log4j:configuration>
+    <appender name="rollingFile"
+              class="org.apache.log4j.RollingFileAppender">
+        <param name="File" value="../log/skywalking-server-log4j.log"/>
+        <param name="ImmediateFlush" value="true"/>
+        <param name="Threshold" value="INFO"></param>
+        <param name="Append" value="true"></param>
+        <param name="MaxFileSize" value="10240KB"></param>
+        <param name="MaxBackupIndex" value="10"></param>
         <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%-d{yyyy-MM-dd HH:mm:ss} [%5p][%t][%c{1}]-[%M] %m%n" />
-        </layout>
-    </appender>
-
-    <appender name="bizAppend" class="org.apache.log4j.DailyRollingFileAppender">
-        <param name="File" value="../log/skywalking-server.log" />
-        <param name="Append" value="true" />
-        <param name="DatePattern" value="'.'yyyy-MM-dd-HH'.log'" />
-        <param name="encoding" value="utf-8"/>
-        <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="[date:%d{yyyy-MM-dd HH:mm:ss}] %m%n" />
+            <param name="ConversionPattern" value="%d - %c -%-4r [%t] %-5p %x - %m%n"></param>
         </layout>
     </appender>
 
     <root>
         <priority value="INFO" />
-        <appender-ref ref="bizAppend" />
+        <appender-ref ref="rollingFile" />
     </root>
-
 </log4j:configuration>
