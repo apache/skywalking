@@ -21,7 +21,7 @@ function changeData(data) {
     var colId;
     for (var i = 0; i < data.nodes.length; i++) {
         tmpNode = data.nodes[i];
-        colId = JSON.stringify(tmpNode.colId);
+        colId = tmpNode.colId;
         tmpNode.modalId = colId.replace(/\./g,'');
         if (tmpNode.colId == "0") {
             tmpNode.isEntryNode = true;
