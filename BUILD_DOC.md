@@ -49,6 +49,30 @@ $./swserver.sh
 - Multiple instances can be deployed， according to the needs of processing capacity.
 - 启动服务前，请注意hbase的客户端使用机器名而非ip连接主机，请在server所在机器上正确配置hosts文件，否则会造成数据无法入库
 
+### 初始化MySQL数据库
+- 初始化管理数据库，根据[数据库脚本](https://github.com/wu-sheng/sky-walking/blob/master/skywalking-webui/src/main/sql/table.mysql)初始化管理数据库。其中，脚本中如下SQL片段需要修改
+- initialize database using [database-script](https://github.com/wu-sheng/sky-walking/blob/master/skywalking-webui/src/main/sql/table.mysql)
+```sql
+--配置告警邮件的发送人和SMTP信息
+--set sender and smtp of alarm e-mail
+INSERT INTO `system_config` (`config_id`,`conf_key`,`conf_value`,`val_type`,`val_desc`,`create_time`,`sts`,`modify_time`) VALUES (1000,'mail_info','{\"mail.host\":\"mail.asiainfo.com\",\"mail.transport.protocol\":\"smtp\",\"mail.smtp.auth\":\"true\",\"mail.smtp.starttls.enable\":\"false\",\"mail.username\":\"testA\",\"mail.password\":\"******\",\"mail.account.prefix\":\"@asiainfo.com\"}','json','默认邮件发送人信息','2015-12-10 11:54:06','A','2015-12-10 11:54:06');
+--配置部署页面地址，用于告警邮件内的链接
+--set webui addr of internet
+INSERT INTO `system_config` (`config_id`,`conf_key`,`conf_value`,`val_type`,`val_desc`,`create_time`,`sts`,`modify_time`) VALUES (1001,'portal_addr','http://10.1.235.197:48080/skywalking/','string','默认门户地址','2015-12-10 15:23:53','A','2015-12-10 15:23:53');
+--配置SkyWalking Server的集群地址（内网地址）
+--set LAN addrs of server cluster
+INSERT INTO `system_config` (`config_id`,`conf_key`,`conf_value`,`val_type`,`val_desc`,`create_time`,`sts`,`modify_time`) VALUES (1002,'servers_addr','10.1.235.197:34000;10.1.235.197:35000;','string','日志采集地址','2015-12-10 15:23:53','A','2015-12-10 15:23:53');
+--配置SkyWalking Server的集群地址（外网地址）
+--set internet addrs of server cluster
+INSERT INTO `system_config` (`config_id`,`conf_key`,`conf_value`,`val_type`,`val_desc`,`create_time`,`sts`,`modify_time`) VALUES (1003,'servers_addr_1','60.194.3.183:34000;60.194.3.183:35000;60.194.3.184:34000;60.194.3.184:35000;','string','日志采集地址-外网','2015-12-10 15:23:53','A','2015-12-10 15:23:53');
+```
+- 注：2016-4-8日前的版本，请升级脚本中的相关片段
+- execute update scripts, if update from the version which releases before 2016-4-8
+```
+# alter table since 2016-4-8
+...
+```
+
 ### 编译安装SkyWalking Alarm / Build SkyWalking Alarm
 - 编译工程
 - build
@@ -107,22 +131,7 @@ jdbc.password=devrdbusr21
 $cd github/sky-walking/skywalking-webui
 $mvn package
 ```
-- 初始化管理数据库，根据[数据库脚本](https://github.com/wu-sheng/sky-walking/blob/master/skywalking-webui/src/main/sql/table.mysql)初始化管理数据库。其中，脚本中如下SQL片段需要修改
-- initialize database using [database-script](https://github.com/wu-sheng/sky-walking/blob/master/skywalking-webui/src/main/sql/table.mysql)
-```sql
---配置告警邮件的发送人和SMTP信息
---set sender and smtp of alarm e-mail
-INSERT INTO `system_config` (`config_id`,`conf_key`,`conf_value`,`val_type`,`val_desc`,`create_time`,`sts`,`modify_time`) VALUES (1000,'mail_info','{\"mail.host\":\"mail.asiainfo.com\",\"mail.transport.protocol\":\"smtp\",\"mail.smtp.auth\":\"true\",\"mail.smtp.starttls.enable\":\"false\",\"mail.username\":\"testA\",\"mail.password\":\"******\",\"mail.account.prefix\":\"@asiainfo.com\"}','json','默认邮件发送人信息','2015-12-10 11:54:06','A','2015-12-10 11:54:06');
---配置部署页面地址，用于告警邮件内的链接
---set webui addr of internet
-INSERT INTO `system_config` (`config_id`,`conf_key`,`conf_value`,`val_type`,`val_desc`,`create_time`,`sts`,`modify_time`) VALUES (1001,'portal_addr','http://10.1.235.197:48080/skywalking/','string','默认门户地址','2015-12-10 15:23:53','A','2015-12-10 15:23:53');
---配置SkyWalking Server的集群地址（内网地址）
---set LAN addrs of server cluster
-INSERT INTO `system_config` (`config_id`,`conf_key`,`conf_value`,`val_type`,`val_desc`,`create_time`,`sts`,`modify_time`) VALUES (1002,'servers_addr','10.1.235.197:34000;10.1.235.197:35000;','string','日志采集地址','2015-12-10 15:23:53','A','2015-12-10 15:23:53');
---配置SkyWalking Server的集群地址（外网地址）
---set internet addrs of server cluster
-INSERT INTO `system_config` (`config_id`,`conf_key`,`conf_value`,`val_type`,`val_desc`,`create_time`,`sts`,`modify_time`) VALUES (1003,'servers_addr_1','60.194.3.183:34000;60.194.3.183:35000;60.194.3.184:34000;60.194.3.184:35000;','string','日志采集地址-外网','2015-12-10 15:23:53','A','2015-12-10 15:23:53');
-```
+
 - 上传war包到服务器，启动Tomcat服务器
 - startup tomcat of webui
 

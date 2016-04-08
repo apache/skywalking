@@ -226,7 +226,7 @@ INSERT INTO `system_config` (`config_id`,`conf_key`,`conf_value`,`val_type`,`val
 INSERT INTO `system_config` (`config_id`,`conf_key`,`conf_value`,`val_type`,`val_desc`,`create_time`,`sts`,`modify_time`) VALUES (1003,'servers_addr_1','XXX.XXX.XXX.XXX:34000;','string','日志采集地址-外网','2015-12-10 15:23:53','A','2015-12-10 15:23:53');
 
 
-
+# init default value of auth_file_config
 INSERT INTO `auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_desc`, `sts`) VALUES ('1', 'buriedpoint.printf', 'false', 'false', '是否打印数据', 'A');
 INSERT INTO `auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_desc`, `sts`) VALUES ('2', 'buriedpoint.max_exception_stack_length', '4000', '4000', '埋点异常的最大长度', 'A');
 INSERT INTO `auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_desc`, `sts`) VALUES ('3', 'buriedpoint.businesskey_max_length', '300', '300', '业务字段的最大长度', 'A');
@@ -246,7 +246,7 @@ INSERT INTO `auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_des
 INSERT INTO `auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_desc`, `sts`) VALUES ('18', 'skywalking.charset', 'UTF-8', 'UTF-8', 'skywalking数据编码', 'A');
 INSERT INTO `auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_desc`, `sts`) VALUES ('19', 'skywalking.sdk_version', '1.0a2', '1.0a2', 'skywalking SDK的版本', 'A');
 
-#新版页面更新两个字段--
+# alter table since 2016-4-8
 ALTER TABLE `application_info` 
 ADD COLUMN `update_time` DATETIME NULL AFTER `sts`,
 ADD COLUMN `app_desc` VARCHAR(1024) NULL AFTER `update_time`;
