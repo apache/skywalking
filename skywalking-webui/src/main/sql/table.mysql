@@ -227,22 +227,26 @@ INSERT INTO `system_config` (`config_id`,`conf_key`,`conf_value`,`val_type`,`val
 
 
 
-INSERT INTO `test`.`auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_desc`, `sts`) VALUES ('1', 'buriedpoint.printf', 'false', 'false', '是否打印数据', 'A');
-INSERT INTO `test`.`auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_desc`, `sts`) VALUES ('2', 'buriedpoint.max_exception_stack_length', '4000', '4000', '埋点异常的最大长度', 'A');
-INSERT INTO `test`.`auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_desc`, `sts`) VALUES ('3', 'buriedpoint.businesskey_max_length', '300', '300', '业务字段的最大长度', 'A');
-INSERT INTO `test`.`auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_desc`, `sts`) VALUES ('4', 'buriedpoint.exclusive_exceptions', '$exclusiveException', '$exclusiveException', '过滤异常', 'A');
-INSERT INTO `test`.`auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_desc`, `sts`) VALUES ('5', 'sender.connect_percent', '100', '100', '最大发送者的连接数阀比例', 'A');
-INSERT INTO `test`.`auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_desc`, `sts`) VALUES ('6', 'sender.servers_addr', '#servers_addr', '#servers_addr_1', '发送服务端配置', 'A');
-INSERT INTO `test`.`auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_desc`, `sts`) VALUES ('7', 'sender.max_copy_num', '2', '2', '最大发送的副本数量', 'A');
-INSERT INTO `test`.`auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_desc`, `sts`) VALUES ('8', 'sender.max_send_length', '20000', '20000', '发送的最大长度', 'A');
-INSERT INTO `test`.`auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_desc`, `sts`) VALUES ('9', 'sender.retry_get_sender_wait_interval', '2000', '2000', '当没有Sender时,尝试获取sender的等待周期', 'A');
-INSERT INTO `test`.`auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_desc`, `sts`) VALUES ('10', 'sender.is_off', 'false', 'false', '是否开启发送消息', 'A');
-INSERT INTO `test`.`auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_desc`, `sts`) VALUES ('11', 'consumer.max_consumer', '2', '2', '最大消费线程数', 'A');
-INSERT INTO `test`.`auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_desc`, `sts`) VALUES ('12', 'consumer.max_wait_time', '5', '5', '消费者最大等待时间', 'A');
-INSERT INTO `test`.`auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_desc`, `sts`) VALUES ('13', 'consumer.consumer_fail_retry_wait_interval', '50', '50', '发送失败等待时间  ', 'A');
-INSERT INTO `test`.`auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_desc`, `sts`) VALUES ('14', 'buffer.buffer_max_size', '18000', '18000', '每个Buffer的最大个数', 'A');
-INSERT INTO `test`.`auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_desc`, `sts`) VALUES ('15', 'buffer.pool_size', '5', '5', 'Buffer池的最大长度', 'A');
-INSERT INTO `test`.`auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_desc`, `sts`) VALUES ('16', 'senderchecker.check_polling_time', '200', '200', '发送检查线程检查周期', 'A');
-INSERT INTO `test`.`auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_desc`, `sts`) VALUES ('18', 'skywalking.charset', 'UTF-8', 'UTF-8', 'skywalking数据编码', 'A');
-INSERT INTO `test`.`auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_desc`, `sts`) VALUES ('19', 'skywalking.sdk_version', '1.0a2', '1.0a2', 'skywalking SDK的版本', 'A');
+INSERT INTO `auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_desc`, `sts`) VALUES ('1', 'buriedpoint.printf', 'false', 'false', '是否打印数据', 'A');
+INSERT INTO `auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_desc`, `sts`) VALUES ('2', 'buriedpoint.max_exception_stack_length', '4000', '4000', '埋点异常的最大长度', 'A');
+INSERT INTO `auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_desc`, `sts`) VALUES ('3', 'buriedpoint.businesskey_max_length', '300', '300', '业务字段的最大长度', 'A');
+INSERT INTO `auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_desc`, `sts`) VALUES ('4', 'buriedpoint.exclusive_exceptions', '$exclusiveException', '$exclusiveException', '过滤异常', 'A');
+INSERT INTO `auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_desc`, `sts`) VALUES ('5', 'sender.connect_percent', '100', '100', '最大发送者的连接数阀比例', 'A');
+INSERT INTO `auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_desc`, `sts`) VALUES ('6', 'sender.servers_addr', '#servers_addr', '#servers_addr_1', '发送服务端配置', 'A');
+INSERT INTO `auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_desc`, `sts`) VALUES ('7', 'sender.max_copy_num', '2', '2', '最大发送的副本数量', 'A');
+INSERT INTO `auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_desc`, `sts`) VALUES ('8', 'sender.max_send_length', '20000', '20000', '发送的最大长度', 'A');
+INSERT INTO `auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_desc`, `sts`) VALUES ('9', 'sender.retry_get_sender_wait_interval', '2000', '2000', '当没有Sender时,尝试获取sender的等待周期', 'A');
+INSERT INTO `auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_desc`, `sts`) VALUES ('10', 'sender.is_off', 'false', 'false', '是否开启发送消息', 'A');
+INSERT INTO `auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_desc`, `sts`) VALUES ('11', 'consumer.max_consumer', '2', '2', '最大消费线程数', 'A');
+INSERT INTO `auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_desc`, `sts`) VALUES ('12', 'consumer.max_wait_time', '5', '5', '消费者最大等待时间', 'A');
+INSERT INTO `auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_desc`, `sts`) VALUES ('13', 'consumer.consumer_fail_retry_wait_interval', '50', '50', '发送失败等待时间  ', 'A');
+INSERT INTO `auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_desc`, `sts`) VALUES ('14', 'buffer.buffer_max_size', '18000', '18000', '每个Buffer的最大个数', 'A');
+INSERT INTO `auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_desc`, `sts`) VALUES ('15', 'buffer.pool_size', '5', '5', 'Buffer池的最大长度', 'A');
+INSERT INTO `auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_desc`, `sts`) VALUES ('16', 'senderchecker.check_polling_time', '200', '200', '发送检查线程检查周期', 'A');
+INSERT INTO `auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_desc`, `sts`) VALUES ('18', 'skywalking.charset', 'UTF-8', 'UTF-8', 'skywalking数据编码', 'A');
+INSERT INTO `auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_desc`, `sts`) VALUES ('19', 'skywalking.sdk_version', '1.0a2', '1.0a2', 'skywalking SDK的版本', 'A');
 
+#新版页面更新两个字段--
+ALTER TABLE `application_info` 
+ADD COLUMN `update_time` DATETIME NULL AFTER `sts`,
+ADD COLUMN `app_desc` VARCHAR(1024) NULL AFTER `update_time`;
