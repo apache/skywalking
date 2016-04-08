@@ -101,8 +101,8 @@ function loadTraceTreeData(baseUrl) {
                 var htmlOutput = template.render(changedData.traceTree);
                 $("#mainPanel").empty();
                 $("#mainPanel").html(htmlOutput);
-                $("#traceTreeTable").treetable({expandable: false, indent: 10, clickableNodeNames: true});
-
+                $("#traceTreeTable").treetable({expandable: true, indent: 10, clickableNodeNames: true});
+                $("#traceTreeTable").treetable("expandAll");
                 $("tr[name='log']").each(function () {
                     var code = $(this).attr("statusCodeStr");
                     if (code != 0 || code == '') {

@@ -89,7 +89,7 @@
                     $("#alertMessageBox").show();
                 }
             });
-        }
+        });
     })
 </script>
 </body>

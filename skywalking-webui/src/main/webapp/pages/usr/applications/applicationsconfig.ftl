@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 <@common.importResources />
     <title>All Applications configuration</title>
-    <script src="${_base}/bower_components/vue/dist/vue.min.js"></script>
+    <script src="${_base}/bower_components/jsrender/jsrender.min.js"></script>
 </head>
 
 <body style="padding-top:80px">
@@ -31,7 +31,6 @@
                 <table class="table table-hover">
                     <thead>
                     <tr>
-                        <th>序号</th>
                         <th>应用编码</th>
                         <th>创建时间</th>
                         <th>更新时间</th>
@@ -39,21 +38,6 @@
                     </tr>
                     </thead>
                     <tbody id="allApplications">
-                    <tr v-for="application in applications">
-                        <td>{{ $index }}</td>
-                        <td>{{application.appCode}}</td>
-                        <td>{{application.createTime}}</td>
-                        <td>{{application.updateTime}}</td>
-                        <td>
-                            <a class="btn btn-xs"
-                               href="${_base}/usr/applications/modify/{{application.appId}}">Update</a>
-                            <a class="btn btn-danger btn-xs" href="javascript:void(0)"
-                               onclick="del('{{application.appId}}')">Delete</a>
-                            <a class="btn btn-info btn-xs"
-                               href="${_base}/usr/applications/authfile/todownload/{{application.appCode}}">Download
-                                auth File</a>
-                        </td>
-                    </tr>
                     </tbody>
                 </table>
             </div>
@@ -62,6 +46,18 @@
         </div>
     </div>
 </div>
+<script type="text/x-jsrender" id="applicationsAllTmpl">
+    <tr>
+        <td>{{>appCode}}</td>
+        <td>{{>createTime}}</td>
+        <td>{{>updateTime}}</td>
+        <td>
+            <a class="btn btn-xs" href="${_base}/usr/applications/modify/{{>appId}}">Update</a>
+            <a class="btn btn-danger btn-xs" href="javascript:void(0)" onclick="del('{{>appId}}')">Delete</a>
+            <a class="btn btn-info btn-xs" href="${_base}/usr/applications/authfile/todownload/{{>appCode}}">Download auth File</a>
+        </td>
+    </tr>
+</script>
 <script>
     $(document).ready(function () {
         loadData();
@@ -97,12 +93,10 @@
             dataType: 'json',
             success: function (data) {
                 if (data.code == 200) {
-                    new Vue({
-                        el: "#allApplications",
-                        data: {
-                            applications: jQuery.parseJSON(data.result)
-                        }
-                    });
+                    var template = $.templates("#applicationsAllTmpl");
+                    var htmlOutput = template.render(jQuery.parseJSON(data.result));
+                    $("#allApplications").empty();
+                    $("#allApplications").html(htmlOutput);
                 } else {
                     $("#errormessage").text(data.message);
                     $("#errorMessageAlert").show();
