@@ -43,7 +43,7 @@ public class AuthFileController extends BaseController {
         return "usr/authfile/download";
     }
 
-    @RequestMapping("/download/{applicationId}")
+    @RequestMapping("/download/{applicationCode}")
     public void exportApplicationAuthFile(HttpServletRequest request, HttpServletResponse response,
                                           @PathVariable("applicationCode") String applicationCode, String authType) throws Exception {
         if (StringUtil.isBlank(applicationCode)) {

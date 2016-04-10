@@ -83,7 +83,7 @@
         var form = $("<form>");
         form.attr("style", "display:none");
         form.attr("method", "post");
-        form.attr("action", "${base}/usr/applications/authfile/download/" + applicationId);
+        form.attr("action", "${_base}/usr/applications/authfile/download/" + applicationId);
         var exportData = $("<input>");
         exportData.attr("type", "hidden");
         exportData.attr("name", "exportData");
