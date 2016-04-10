@@ -11,17 +11,17 @@
 - 服务端使用Filter追踪web请求
 ```xml
 <filter>
-    <filter-namer>tracingFilter</filter-namer>
-    <filter-classr>com.ai.cloud.skywalking.plugin.web.SkyWalkingFilter</filter-class>
+    <filter-name>tracingFilter</filter-name>
+    <filter-class>com.ai.cloud.skywalking.plugin.web.SkyWalkingFilter</filter-class>
     <init-param>
         <param-name>tracing-name</param-name>
         <!--分布式埋点信息，默认放在request的header中，key=SkyWalking-TRACING-NAME,可根据需要修改-->
         <param-value>SkyWalking-TRACING-NAME</param-value>
     </init-param>
-</filterr>
-<filter-mappingr>
-    <filter-name>tracingFilter</filter-namer>
+</filter>
+<filter-mapping>
+    <filter-name>tracingFilter</filter-name>
     <!--追踪路径应为MVC的请求路径，不建议包括js/css/图片等资源路径-->
-    <url-patternr>/request-uri</url-patternr>
-</filter-mappingr>
+    <url-pattern>/request-uri</url-pattern>
+</filter-mapping>
 ```
