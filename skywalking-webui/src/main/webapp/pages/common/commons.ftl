@@ -3,6 +3,7 @@
 <link href="${_base}/bower_components/bootstrap/dist/css/bootstrap-theme.min.css" rel="stylesheet"/>
 <script src="${_base}/bower_components/jquery/dist/jquery.min.js"></script>
 <script src="${_base}/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="${_base}/bower_components/jsrender/jsrender.min.js"></script>
 </#macro>
 
 <#macro navbar>
@@ -32,9 +33,9 @@
                                 <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                                <li><a href="${_base}/usr/applications/list">系统配置</a></li>
+                                <li><a href="javascript:void(0);" onclick="loadContent('applicationList')">系统配置</a></li>
                                 <li role="separator" class="divider"></li>
-                                <li><a href="${_base}/usr/applications/add">新增应用</a></li>
+                                <li><a href="javascript:void(0);" onclick="loadContent('addApplication')">新增应用</a></li>
                                 <li role="separator" class="divider"></li>
                                 <li><a href="javascript:void(0);" id="logoutBtn">退出</a></li>
                             </ul>

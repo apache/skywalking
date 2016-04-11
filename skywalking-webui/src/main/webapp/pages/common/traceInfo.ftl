@@ -33,7 +33,7 @@
                                             <li class="list-group-item"><strong>应用Code：</strong>{{>applicationId}}</li>
                                             <li class="list-group-item"><strong>主机信息：</strong>{{>address}}}</li>
                                             <li class="list-group-item"><strong>调用进程号：</strong>{{>processNo}}</li>
-                                            <li class="list-group-item"><strong>异常堆栈：</strong>
+                                            <li class="list-group-item" style="word-wrap: break-word;word-break: normal;"><strong>异常堆栈：</strong>
                                                 {{if　exceptionStack}}
                                                     {{>exceptionStack}}
                                                 {{/if}}

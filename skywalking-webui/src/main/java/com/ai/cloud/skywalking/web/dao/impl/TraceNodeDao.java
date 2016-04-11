@@ -79,6 +79,7 @@ public class TraceNodeDao implements ITraceNodeDao {
                         }else{
                             clientLog.setServerExceptionStr(serverLog.getServerExceptionStr());
                         }
+                        System.out.println("1");
                     }
                     logVO.addTimeLine(rpcVO.getValue().getStartDate(), rpcVO.getValue().getCost());
                 } else {

@@ -30,12 +30,24 @@
 </div>
 
 <script>
-    $(document).ready(function () {
-        loadAnalysisResult();
-    });
 
     function loadAnalysisResult(){
-
+        var url = "${_base}/usr/doLogout";
+        $.ajax({
+            type: 'POST',
+            url: url,
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                if (data.code == '200') {
+                    location.href = "${_base}/index";
+                }
+            },
+            error: function () {
+                $("#errorMessage").text("Fatal Error, please try it again.");
+                $("#alertMessageBox").show();
+            }
+        });
     }
 </script>
 </body>

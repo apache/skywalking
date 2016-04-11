@@ -29,9 +29,9 @@
                             <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                            <li><a href="${_base}/usr/applications/list">系统配置</a></li>
+                            <li><a href="${_base}/mainPage?loadType=applicationList">系统配置</a></li>
                             <li role="separator" class="divider"></li>
-                            <li><a href="${_base}/usr/applications/add">新增应用</a></li>
+                            <li><a href="${_base}/mainPage?loadType=addApplication">新增应用</a></li>
                             <li role="separator" class="divider"></li>
                             <li><a href="javascript:void(0);" id="logoutBtn">退出</a></li>
                         </ul>

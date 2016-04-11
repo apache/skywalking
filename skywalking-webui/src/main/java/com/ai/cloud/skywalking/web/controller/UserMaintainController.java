@@ -106,4 +106,19 @@ public class UserMaintainController extends BaseController {
         }
         return result.toJSONString();
     }
+
+    @RequestMapping(value = "/doLogout", produces = "application/json; charset=UTF-8")
+    @ResponseBody
+    public String doLogout(HttpServletRequest request) {
+        JSONObject result = new JSONObject();
+        try {
+            request.getSession().removeAttribute(Constants.SESSION_LOGIN_INFO_KEY);
+            result.put("code", "200");
+            result.put("message", "register success");
+        } catch (Exception e) {
+            result.put("code", "500");
+            result.put("message", "fatal error. please try it again.");
+        }
+        return result.toJSONString();
+    }
 }
