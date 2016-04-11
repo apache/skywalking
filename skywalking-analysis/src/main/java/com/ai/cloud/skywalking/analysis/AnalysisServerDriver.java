@@ -12,6 +12,7 @@ import com.ai.cloud.skywalking.analysis.config.HBaseTableMetaData;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.mapreduce.TableMapReduceUtil;
 import org.apache.hadoop.io.Text;
@@ -55,6 +56,8 @@ public class AnalysisServerDriver extends Configured implements Tool {
         conf.set("skywalking.analysis.mode", String.valueOf(Config.AnalysisServer.IS_ACCUMULATE_MODE));
         conf.set("hbase.zookeeper.quorum", Config.HBase.ZK_QUORUM);
         conf.set("hbase.zookeeper.property.clientPort", Config.HBase.ZK_CLIENT_PORT);
+        //-XX:+UseParallelGC -XX:ParallelGCThreads=4 -XX:GCTimeRatio=10 -XX:YoungGenerationSizeIncrement=20 -XX:TenuredGenerationSizeIncrement=20 -XX:AdaptiveSizeDecrementScaleFactor=2
+        conf.set("mapred.child.java.opts",Config.MapReduce.java_opts);
         String[] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
         if (otherArgs.length != 2) {
             System.err.println("Usage: AnalysisServer yyyy-MM-dd/HH:mm:ss yyyy-MM-dd/HH:mm:ss");

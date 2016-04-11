@@ -29,4 +29,8 @@ public class Config {
     public static class AnalysisServer{
         public static boolean IS_ACCUMULATE_MODE = true;
     }
+
+    public static class MapReduce{
+        public static String java_opts = "-Xmx200m";
+    }
 }

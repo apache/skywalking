@@ -19,7 +19,6 @@ import org.apache.hadoop.io.Text;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-
 import java.io.IOException;
 import java.util.*;
 
@@ -56,8 +55,10 @@ public class ChainBuildMapper extends TableMapper<Text, Text> {
             chainInfo = spanToChainInfo(Bytes.toString(key.get()), spanList);
             logger.debug("convert tid[" + Bytes.toString(key.get())
                     + "] to chain with cid[" + chainInfo.getCID() + "].");
-            context.write(
-                    new Text(chainInfo.getCallEntrance()), new Text(new Gson().toJson(chainInfo)));
+            if (chainInfo.getCallEntrance() != null && chainInfo.getCallEntrance().length() > 0) {
+                context.write(
+                        new Text(chainInfo.getCallEntrance()), new Text(new Gson().toJson(chainInfo)));
+            }
         } catch (Exception e) {
             logger.error("Failed to mapper call chain[" + key.toString() + "]",
                     e);
