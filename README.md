@@ -51,15 +51,20 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 
 # 典型页面展现 / Typical UI show
 * 支持浏览器：Firefox/Chrome
+
 ## 实时调用链路
 * 实时链路追踪展现
-![追踪连路图1](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/callChain.png)
+![追踪连路图1](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/1.0b/callChain.png)
 * 实时链路追踪详细信息查看
-![追踪连路图2](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/callChainDetail.png)
+![追踪连路图2](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/1.0b/callChainDetail.png)
 * 实时链路追踪日志查看
-![追踪连路图3](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/callChainLog.png)
+![追踪连路图3](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/1.0b/callChainLog.png)
 * 实时链路异常告警邮件
 ![告警邮件](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/alarmMail.jpg)
+* 添加应用
+![添加应用](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/1.0b/addApp.png)
+* 应用列表展现
+![应用列表展现](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/1.0b/appList.png)
 
 ## 分析汇总
 
