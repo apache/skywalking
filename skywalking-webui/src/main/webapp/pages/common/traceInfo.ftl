@@ -29,9 +29,9 @@
                                             <li class="list-group-item" style="word-wrap:break-word"><strong>服务/方法：</strong>{{>viewPointId}}</li>
                                             <li class="list-group-item"><strong>调用类型：</strong>{{>spanTypeName}}</li>
                                             <li class="list-group-item"><strong>花费时间：</strong>{{>cost}}<strong>毫秒</strong></li>
-                                            <li class="list-group-item"><strong>业务字段：</strong>{{>businessKey}}</li>
+                                            <li class="list-group-item" style="word-wrap: break-word;word-break: normal;"><strong>业务字段：</strong>{{>businessKey}}</li>
                                             <li class="list-group-item"><strong>应用Code：</strong>{{>applicationId}}</li>
-                                            <li class="list-group-item"><strong>主机信息：</strong>{{>address}}}</li>
+                                            <li class="list-group-item" style="word-wrap: break-word;word-break: normal;"><strong>主机信息：</strong>{{>address}}}</li>
                                             <li class="list-group-item"><strong>调用进程号：</strong>{{>processNo}}</li>
                                             <li class="list-group-item" style="word-wrap: break-word;word-break: normal;"><strong>异常堆栈：</strong>
                                                 {{if　exceptionStack}}
