@@ -21,14 +21,11 @@ public class AlarmRedisConnector {
 	private static JedisPool jedisPool;
 
 	static {
-		new RedisInspector().start();
+		new RedisInspector().connect().start();
 	}
 
 	public static Jedis getJedis() {
 		if (Config.Alarm.ALARM_OFF_FLAG) {
-			return null;
-		} else if (jedisPool == null || jedisPool.isClosed()) {
-			reportJedisFailure();
 			return null;
 		} else {
 			return jedisPool.getResource();
@@ -62,6 +59,31 @@ public class AlarmRedisConnector {
 			}
 		}
 
+		private RedisInspector connect() {
+			if (jedisPool != null && !jedisPool.isClosed()) {
+				jedisPool.close();
+			}
+
+			GenericObjectPoolConfig genericObjectPoolConfig = buildGenericObjectPoolConfig();
+			jedisPool = new JedisPool(genericObjectPoolConfig, config[0],
+					Integer.valueOf(config[1]));
+			// Test connect redis.
+			Jedis jedis = null;
+			try {
+				jedis = jedisPool.getResource();
+				jedis.get("ok");
+				needConnectInit = false;
+			} catch (Exception e) {
+				logger.error("can't connect to redis["
+						+ Config.Alarm.REDIS_SERVER + "]", e);
+			} finally {
+				if (jedis != null) {
+					jedis.close();
+				}
+			}
+			return this;
+		}
+
 		@Override
 		public void run() {
 			if (Config.Alarm.ALARM_OFF_FLAG)
@@ -70,27 +92,7 @@ public class AlarmRedisConnector {
 			while (true) {
 				try {
 					if (needConnectInit) {
-						if (jedisPool != null && !jedisPool.isClosed()) {
-							jedisPool.close();
-						}
-
-						GenericObjectPoolConfig genericObjectPoolConfig = buildGenericObjectPoolConfig();
-						jedisPool = new JedisPool(genericObjectPoolConfig,
-								config[0], Integer.valueOf(config[1]));
-						// Test connect redis.
-						Jedis jedis = null;
-						try {
-							jedis = jedisPool.getResource();
-							jedis.get("ok");
-							needConnectInit = false;
-						} catch (Exception e) {
-							logger.error("can't connect to redis["
-									+ Config.Alarm.REDIS_SERVER + "]", e);
-						} finally {
-							if (jedis != null) {
-								jedis.close();
-							}
-						}
+						connect();
 					}
 
 					if (needConnectInit) {

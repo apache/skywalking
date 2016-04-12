@@ -103,6 +103,12 @@ public class Config {
         public static boolean ALARM_OFF_FLAG = false;
         
         public static long ALARM_REDIS_INSPECTOR_INTERVAL = 5 * 1000L;
+        
+        public static class Checker {
+        	public static boolean TURN_ON_EXCEPTION_CHECKER = true;
+        	
+        	public static boolean TURN_ON_EXECUTE_TIME_CHECKER = true;
+        }
     }
     
     public static class HealthCollector {
