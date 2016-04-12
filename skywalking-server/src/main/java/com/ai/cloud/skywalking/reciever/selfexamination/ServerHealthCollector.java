@@ -28,6 +28,9 @@ public class ServerHealthCollector extends Thread {
 		if (!heathReadings.containsKey(id)) {
 			synchronized (heathReadings) {
 				if (!heathReadings.containsKey(id)) {
+					if(heathReadings.keySet().size() > 5000){
+						throw new RuntimeException("use ServerHealthCollector illegal. There is an overflow trend of Server Health Collector Report Data.");
+					}
 					heathReadings.put(id, new ServerHeathReading(id));
 				}
 			}

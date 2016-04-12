@@ -83,11 +83,7 @@ public class Config {
     }
 
     public static class StorageChain {
-        public static long RETRY_STORAGE_WAIT_TIME = 50L;
-
         public static String STORAGE_TYPE = "hbase";
-
-        public static int RETRY_STORAGE_TIMES = 3;
     }
 
     public static class Alarm {
@@ -105,6 +101,8 @@ public class Config {
         public static int REDIS_MAX_TOTAL = 20;
 
         public static boolean ALARM_OFF_FLAG = false;
+        
+        public static long ALARM_REDIS_INSPECTOR_INTERVAL = 5 * 1000L;
     }
     
     public static class HealthCollector {
