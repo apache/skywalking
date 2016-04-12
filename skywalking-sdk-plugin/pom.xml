@@ -12,8 +12,8 @@
 		<module>mysql-plugin</module>
 		<module>jdbc-plugin</module>
 		<module>web-plugin</module>
-		<module>httpclient-4.2.x-plugin</module>
-		<module>httpclient-4.3.x-plugin</module>
+		<module>httpClient-4.2.x-plugin</module>
+		<module>httpClient-4.3.x-plugin</module>
 		<module>httpClient-4.x-plugin</module>
 		<module>httpClient-4.x-plugin-dubbox-rest-attachment</module>
 		<module>jedis-2.x-plugin</module>
