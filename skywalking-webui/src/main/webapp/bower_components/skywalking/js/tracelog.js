@@ -88,11 +88,12 @@ function changeData(data) {
 }
 
 function loadTraceTreeData(baseUrl) {
-    var url = baseUrl + "/search/traceId/" + $("#searchKey").val();
+    var url = baseUrl + "/search/traceId";
     $.ajax({
         type: 'POST',
         url: url,
         dataType: 'json',
+        data: {traceId:$("#searchKey").val()},
         async: true,
         success: function (data) {
             if (data.code == '200') {

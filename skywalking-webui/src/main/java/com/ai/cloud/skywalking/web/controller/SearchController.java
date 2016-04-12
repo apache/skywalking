@@ -10,6 +10,7 @@ import com.ai.cloud.skywalking.web.util.StringUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,9 +18,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,9 +50,9 @@ public class SearchController extends BaseController {
         return "";
     }
 
-    @RequestMapping(value = "/search/traceId/{traceId:.+}", produces = "application/json; charset=UTF-8")
+    @RequestMapping(value = "/search/traceId", produces = "application/json; charset=UTF-8")
     @ResponseBody
-    public String loadTraceTree(@PathVariable("traceId") String traceId) {
+    public String loadTraceTree(@RequestParam("traceId") String traceId) {
         JSONObject jsonObject = new JSONObject();
         try {
             if (StringUtil.isBlank(traceId)) {
