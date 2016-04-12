@@ -7,10 +7,10 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>skywalking-httpClient-4.2.x-plugin</artifactId>
+    <artifactId>skywalking-httpclient-4.2.x-plugin</artifactId>
     <packaging>jar</packaging>
 
-    <name>httpClient-4.2.x-plugin</name>
+    <name>httpclient-4.2.x-plugin</name>
     <url>http://maven.apache.org</url>
 
     <properties>
