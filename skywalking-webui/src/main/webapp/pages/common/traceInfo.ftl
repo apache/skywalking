@@ -125,7 +125,7 @@
         <div class="row">
             <h5>
                 {{>traceId}}</br>
-                调度入口IP：{{>callIP}}，开始时间：{{>startTimeStr}}，{{>totalSize}}条调用记录，消耗总时长：{{>totalTime}}ms。
+                调度入口IP：{{>callIP}}，开始时间：{{>startTimeStr}}，{{if totalSize > 10000}}<strong>调用记录大于10000条，无法展示全部</strong>，{{else}}{{>totalSize}}条调用记录，{{/if}}消耗总时长：{{>totalTime}}ms。
             </h5>
         </div>
         <ul id="myTab" class="nav nav-tabs">

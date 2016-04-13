@@ -22,12 +22,10 @@ public class TraceTreeService implements ITraceTreeService {
 
     @Override
     public TraceTreeInfo queryTraceTreeByTraceId(String traceId) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, IOException {
-        TraceTreeInfo traceTreeInfo = null;
 
-        Map<String, TraceNodeInfo> traceLogMap = traceTreeDao.queryTraceNodesByTraceId(traceId);
-        if (traceLogMap != null && traceLogMap.size() > 0) {
-            List<TraceNodeInfo> nodes = new ArrayList<TraceNodeInfo>();
-            nodes.addAll(traceLogMap.values());
+        TraceTreeInfo traceTreeInfo  = traceTreeDao.queryTraceNodesByTraceId(traceId);
+        if (traceTreeInfo != null) {
+            List<TraceNodeInfo> nodes = traceTreeInfo.getNodes();
             final List<Long> endTime = new ArrayList<Long>();
             endTime.add(0, nodes.get(0).getEndDate());
             Collections.sort(nodes, new Comparator<TraceNodeInfo>() {
@@ -43,7 +41,6 @@ public class TraceTreeService implements ITraceTreeService {
                 }
             });
             long beginTime = nodes.get(0).getStartDate();
-            traceTreeInfo = new TraceTreeInfo(traceId, nodes);
             traceTreeInfo.setBeginTime(beginTime);
             traceTreeInfo.setEndTime(endTime.get(0));
         }

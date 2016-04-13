@@ -7,6 +7,7 @@ public class TraceTreeInfo {
     private long beginTime;
     private long endTime;
     private List<TraceNodeInfo> nodes;
+    private int nodeSize;
 
     public TraceTreeInfo(String traceId, List<TraceNodeInfo> nodes) {
         this.traceId = traceId;
@@ -43,5 +44,13 @@ public class TraceTreeInfo {
 
     public void setNodes(List<TraceNodeInfo> nodes) {
         this.nodes = nodes;
+    }
+
+    public void setNodeSize(int nodeSize) {
+        this.nodeSize = nodeSize;
+    }
+
+    public int getNodeSize() {
+        return nodeSize;
     }
 }
