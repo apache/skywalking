@@ -1,27 +1,30 @@
 package com.ai.cloud.skywalking.web.entity;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.ai.cloud.skywalking.web.dto.AnlyResult;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by xin on 16-4-6.
  */
 public class CallChainTree {
     private String treeId;
-    private List<CallChainTreeNode> nodes;
-
     private String entranceViewpoint;
+    private Map<String, String> nodes;
+    private AnlyResult entranceAnlyResult;
 
-    public CallChainTree(String treeId) {
+    public CallChainTree(String treeId, String entranceViewpoint) {
         this.treeId = treeId;
-        nodes = new ArrayList<CallChainTreeNode>();
+        this.entranceViewpoint = entranceViewpoint;
+        nodes = new HashMap<String, String>();
     }
 
-    public void addNode(String levelId, String viewpoint) {
-        if ("0".equals(levelId)) {
-            entranceViewpoint = viewpoint;
-        }
+    public void setEntranceAnlyResult(AnlyResult entranceAnlyResult) {
+        this.entranceAnlyResult = entranceAnlyResult;
+    }
 
-        nodes.add(new CallChainTreeNode(levelId, viewpoint));
+    public void addNodes(Map<String, String> nodes) {
+        this.nodes.putAll(nodes);
     }
 }

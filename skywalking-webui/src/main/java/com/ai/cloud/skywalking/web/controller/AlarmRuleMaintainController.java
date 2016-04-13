@@ -1,8 +1,8 @@
 package com.ai.cloud.skywalking.web.controller;
 
-import com.ai.cloud.skywalking.web.bo.AlarmRuleInfo;
-import com.ai.cloud.skywalking.web.bo.ConfigArgs;
-import com.ai.cloud.skywalking.web.bo.LoginUserInfo;
+import com.ai.cloud.skywalking.web.dto.AlarmRuleInfo;
+import com.ai.cloud.skywalking.web.dto.ConfigArgs;
+import com.ai.cloud.skywalking.web.dto.LoginUserInfo;
 import com.ai.cloud.skywalking.web.common.BaseController;
 import com.ai.cloud.skywalking.web.dao.inter.IAlarmRuleMaintainDao;
 import com.ai.cloud.skywalking.web.entity.AlarmRule;

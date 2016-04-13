@@ -60,10 +60,6 @@
     </div>
 </nav>
 <script>
-    $("#searchBtn").click(function () {
-        loadTraceTreeData("${_base}");
-    });
-
     $("#logoutBtn").click(function () {
         var url = "${_base}/usr/doLogout";
         $.ajax({

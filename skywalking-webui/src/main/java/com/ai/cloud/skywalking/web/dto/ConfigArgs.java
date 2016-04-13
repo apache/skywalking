@@ -1,4 +1,4 @@
-package com.ai.cloud.skywalking.web.bo;
+package com.ai.cloud.skywalking.web.dto;
 
 import java.io.Serializable;
 

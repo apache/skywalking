@@ -1,7 +1,7 @@
 package com.ai.cloud.skywalking.web.controller;
 
-import com.ai.cloud.skywalking.web.bo.LoginUserInfo;
-import com.ai.cloud.skywalking.web.bo.TraceTreeInfo;
+import com.ai.cloud.skywalking.web.dto.LoginUserInfo;
+import com.ai.cloud.skywalking.web.dto.TraceTreeInfo;
 import com.ai.cloud.skywalking.web.common.BaseController;
 import com.ai.cloud.skywalking.web.entity.CallChainTree;
 import com.ai.cloud.skywalking.web.service.inter.ICallChainTreeService;
@@ -70,6 +70,7 @@ public class SearchController extends BaseController {
                 jsonObject.put("message", "Cannot find TraceId[" + traceId + "]");
             }
         } catch (Exception e) {
+            logger.error("Search tree Id ", e);
             jsonObject.put("code", "500");
             jsonObject.put("result", "Fatal error");
         }

@@ -15,6 +15,9 @@ function changeData(data) {
     result.traceTree.startTime = data.beginTime;
     result.traceTree.endTime = data.endTime;
     result.traceTree.totalSize = data.nodeSize;
+    result.traceTree.showSize = data.nodes.length;
+    result.traceTree.maxShowNodeSize = data.maxShowNodeSize;
+    result.traceTree.maxQueryNodeSize = data.maxQueryNodeSize;
     result.traceTree.startTimeStr = convertDate(new Date(result.traceTree.startTime));
     result.traceTree.callIP = data.nodes[0].address;
     var tmpNode;

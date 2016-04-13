@@ -1,7 +1,7 @@
 package com.ai.cloud.skywalking.web.dao.inter;
 
-import com.ai.cloud.skywalking.web.bo.LoginUserInfo;
-import com.ai.cloud.skywalking.web.bo.SignInUserInfo;
+import com.ai.cloud.skywalking.web.dto.LoginUserInfo;
+import com.ai.cloud.skywalking.web.dto.SignInUserInfo;
 
 import java.sql.SQLException;
 

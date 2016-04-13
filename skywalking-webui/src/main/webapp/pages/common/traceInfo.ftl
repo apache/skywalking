@@ -75,6 +75,26 @@
                       </td>
                     </tr>
                 {{/for}}
+                {{if totalSize > maxQueryNodeSize}}
+                    <tr data-tt-parent-id='0' data-tt-id="greatThanMaxQueryNodeSize">
+                        <td>....</td>
+                        <td>....</td>
+                        <td>....</td>
+                        <td style="text-align:center;color:green;">该调用链超过{{>maxQueryNodeSize}}个节点，仅展现调用入口，具体调用情况可查询HBase</td>
+                        <td>....</td>
+                        <td>....</td>
+                    </tr>
+                {{/if}}
+                {{if totalSize > maxShowNodeSize && totalSize <= maxQueryNodeSize}}
+                    <tr data-tt-parent-id='0' data-tt-id="greatThanMaxShowNodeSize">
+                        <td>....</td>
+                        <td>....</td>
+                        <td>....</td>
+                        <td style="text-align:center;color:green;">该调用链共{{>totalSize}}个调用节点，已超过最大展示节点数({{>maxShowNodeSize}}个)，仅展现前{{>showSize}}个节点的缩略图</td>
+                        <td>....</td>
+                        <td>....</td>
+                    </tr>
+                {{/if}}
             </tbody>
         </table>
 </script>
@@ -125,7 +145,14 @@
         <div class="row">
             <h5>
                 {{>traceId}}</br>
-                调度入口IP：{{>callIP}}，开始时间：{{>startTimeStr}}，{{if totalSize > 10000}}<strong>调用记录大于10000条，无法展示全部</strong>，{{else}}{{>totalSize}}条调用记录，{{/if}}消耗总时长：{{>totalTime}}ms。
+                调度入口IP：{{>callIP}}，开始时间：{{>startTimeStr}}，
+                {{if totalSize > maxQueryNodeSize}}
+                    调用超过{{>maxQueryNodeSize}}个节点，仅展示入口调用，
+                {{else totalSize > maxShowNodeSize}}
+                    共{{>totalSize}}个调用节点，仅展示前{{>showSize}}个调用节点，
+                {{else}}
+                    {{>totalSize}}个调用节点，
+                {{/if}}消耗总时长：{{>totalTime}}ms。
             </h5>
         </div>
         <ul id="myTab" class="nav nav-tabs">

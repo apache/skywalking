@@ -2,8 +2,8 @@ package com.ai.cloud.skywalking.web.dao.impl;
 
 import com.ai.cloud.skywalking.web.dao.inter.IUserMaintainDao;
 import com.ai.cloud.skywalking.web.util.DBConnectUtil;
-import com.ai.cloud.skywalking.web.bo.LoginUserInfo;
-import com.ai.cloud.skywalking.web.bo.SignInUserInfo;
+import com.ai.cloud.skywalking.web.dto.LoginUserInfo;
+import com.ai.cloud.skywalking.web.dto.SignInUserInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

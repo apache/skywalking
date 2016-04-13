@@ -1,5 +1,8 @@
-package com.ai.cloud.skywalking.web.bo;
+package com.ai.cloud.skywalking.web.dto;
 
+import com.ai.cloud.skywalking.web.util.Constants;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class TraceTreeInfo {
@@ -8,10 +11,16 @@ public class TraceTreeInfo {
     private long endTime;
     private List<TraceNodeInfo> nodes;
     private int nodeSize;
+    private int maxShowNodeSize = Constants.MAX_SHOW_SPAN_SIZE;
+    private int maxQueryNodeSize = Constants.MAX_SEARCH_SPAN_SIZE;
+
+    public TraceTreeInfo(String traceId) {
+        this.traceId = traceId;
+    }
 
     public TraceTreeInfo(String traceId, List<TraceNodeInfo> nodes) {
         this.traceId = traceId;
-        this.nodes = nodes;
+        nodeSize = nodes.size();
     }
 
     public void setBeginTime(long beginTime) {
@@ -42,15 +51,31 @@ public class TraceTreeInfo {
         return nodes;
     }
 
-    public void setNodes(List<TraceNodeInfo> nodes) {
+    public void setHasBeenSpiltNodes(List<TraceNodeInfo> nodes) {
         this.nodes = nodes;
     }
 
-    public void setNodeSize(int nodeSize) {
+    public void setRealNodeSize(int nodeSize) {
         this.nodeSize = nodeSize;
     }
 
     public int getNodeSize() {
         return nodeSize;
+    }
+
+    public int getMaxShowNodeSize() {
+        return maxShowNodeSize;
+    }
+
+    public void setMaxShowNodeSize(int maxShowNodeSize) {
+        this.maxShowNodeSize = maxShowNodeSize;
+    }
+
+    public int getMaxQueryNodeSize() {
+        return maxQueryNodeSize;
+    }
+
+    public void setMaxQueryNodeSize(int maxQueryNodeSize) {
+        this.maxQueryNodeSize = maxQueryNodeSize;
     }
 }
