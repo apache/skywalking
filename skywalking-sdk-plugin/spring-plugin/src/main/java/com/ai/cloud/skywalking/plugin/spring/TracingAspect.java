@@ -9,19 +9,7 @@ public class TracingAspect {
     public Object doTracing(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
         LocalBuriedPointSender _sender = new LocalBuriedPointSender();
         try {
-            StringBuilder viewPoint = new StringBuilder();
-            viewPoint.append(proceedingJoinPoint.getTarget().getClass().getName() + "." + proceedingJoinPoint.getSignature().getName() + "(");
-            boolean first = true;
-            for (Object arg : proceedingJoinPoint.getArgs()) {
-                if (!first) {
-                    viewPoint.append(",");
-                } else {
-                    first = false;
-                }
-                viewPoint.append(arg.getClass().getName());
-            }
-            viewPoint.append(")");
-            _sender.beforeSend(Identification.newBuilder().viewPoint(viewPoint.toString()).spanType(SpringBuriedPointType.instance()).build());
+            _sender.beforeSend(Identification.newBuilder().viewPoint(proceedingJoinPoint.getSignature().toString()).spanType(SpringBuriedPointType.instance()).build());
             return proceedingJoinPoint.proceed();
         } catch (Throwable e) {
             _sender.handleException(e);
