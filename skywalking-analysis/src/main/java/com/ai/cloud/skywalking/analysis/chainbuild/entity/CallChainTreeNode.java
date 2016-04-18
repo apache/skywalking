@@ -81,7 +81,7 @@ public class CallChainTreeNode {
             }
             chainNodeSpecificMonthSummaryContainer.put(keyOfMonthSummaryTable, monthSummary);
         }
-        monthSummary.summary(String.valueOf(calendar.get(Calendar.YEAR)), node);
+        monthSummary.summary(String.valueOf(calendar.get(Calendar.MONTH)), node);
     }
 
     private void summaryDayResult(String treeId, ChainNode node, Calendar calendar) throws IOException {
