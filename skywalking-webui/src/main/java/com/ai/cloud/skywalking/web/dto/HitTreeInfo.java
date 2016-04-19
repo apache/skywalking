@@ -5,9 +5,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.sql.SQLException;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by xin on 16-4-11.
@@ -61,8 +59,7 @@ public class HitTreeInfo {
             result[1] = levelId;
             return result;
         }
-
-        result[0] = levelId.substring(0, indexOf - 1);
+        result[0] = levelId.substring(0, indexOf);
         result[1] = levelId.substring(indexOf + 1);
 
         return result;
@@ -70,7 +67,7 @@ public class HitTreeInfo {
 
     public String getCurrentMonthAnlyTableName() {
         Calendar calendar = Calendar.getInstance();
-        String monthSuffix = "/" + calendar.get(Calendar.YEAR) + "-" + (calendar.get(Calendar.MONTH) + 1);
+        String monthSuffix = "/" + calendar.get(Calendar.YEAR);
         return getTreeId() + monthSuffix;
     }
 
@@ -83,8 +80,78 @@ public class HitTreeInfo {
     }
 
     public void guessLevelIdAndSearchViewPoint(IChainDetailDao iChainDetailDao) throws SQLException {
+        Set<String> levelIds = new HashSet<>();
+        for (String levelId : levelIds) {
+            String[] levelIdArray = levelId.split(".");
+            if (levelId.length() < 2) {
+                // 当前节点为根节点
+                String tmpViewpoint = iChainDetailDao.queryChainViewPoint("0.0",
+                        treeId, uid);
+                if (tmpViewpoint != null) {
+                    addHitTraceLevelId("0.0", tmpViewpoint);
+                }
+            } else {
+                // 找上级
+                guessPreLevelId(iChainDetailDao, levelId);
+                //找下级
+                guessNexLevelId(iChainDetailDao, levelId);
+            }
+        }
+    }
+
+    private void guessNexLevelId(IChainDetailDao iChainDetailDao, String levelId) throws SQLException {
+        String[] levelIdArray = levelId.split(".");
+        String parentLevelId = levelId.substring(0, levelId.lastIndexOf('.'));
+        String nextLevelId = parentLevelId +"." + (Integer.parseInt(levelIdArray[levelIdArray.length - 1]) + 1);
+        String tmpViewpoint = iChainDetailDao.queryChainViewPoint(nextLevelId,
+                treeId, uid);
+        if (tmpViewpoint != null) {
+            addHitTraceLevelId(nextLevelId, tmpViewpoint);
+        } else {
+            levelIdArray = parentLevelId.split(".");
+            parentLevelId = levelId.substring(0, levelId.lastIndexOf('.'));
+            nextLevelId = parentLevelId + "." + (Integer.parseInt(levelIdArray[levelIdArray.length - 1]) + 1);
+            tmpViewpoint = iChainDetailDao.queryChainViewPoint(nextLevelId,
+                    treeId, uid);
+            if (tmpViewpoint != null) {
+                addHitTraceLevelId(nextLevelId, tmpViewpoint);
+            }
+        }
+
+        logger.info("LevelId :{}, nextLevelId :{} ", levelId, nextLevelId);
+    }
+
+    private void guessPreLevelId(IChainDetailDao iChainDetailDao, String levelId) throws SQLException {
+        String[] levelIdArray = levelId.split(".");
+        String parentLevelId = levelId.substring(0, levelId.lastIndexOf('.'));
+        if (levelIdArray.length == 2 && "0".equals(parentLevelId)) {
+            //当前节点的父节点位根节点，不查询
+            return;
+        }
+
+        if ("0".equals(levelIdArray[levelIdArray.length - 1])) {
+            String tmpViewpoint = iChainDetailDao.queryChainViewPoint(parentLevelId,
+                    treeId, uid);
+            if (tmpViewpoint != null) {
+                addHitTraceLevelId(parentLevelId, tmpViewpoint);
+            }
+        } else {
+            parentLevelId += "." + (Integer.parseInt(levelIdArray[levelIdArray.length - 1]) - 1);
+            String tmpViewpoint = iChainDetailDao.queryChainViewPoint(parentLevelId,
+                    treeId, uid);
+            if (tmpViewpoint != null) {
+                addHitTraceLevelId(parentLevelId, tmpViewpoint);
+            }
+        }
+
+        logger.info("LevelId :{}, preLevelId :{} ", levelId, parentLevelId);
+    }
+
+    public void guessLevelIdAndSearchViewPoint1(IChainDetailDao iChainDetailDao) throws SQLException {
         String tmpViewpoint;
-        for (String levelId : hitTraceLevelId.keySet()) {
+        Set<String> leveIds = new HashSet<String>();
+        leveIds.addAll(hitTraceLevelId.keySet());
+        for (String levelId : leveIds) {
             String[] result = spiltParentLevelIdAndLevelId(levelId);
             if (result[0].length() == 0) {
                 // 根节点，单独处理
@@ -96,23 +163,24 @@ public class HitTreeInfo {
                 }
             } else {
                 //找上级
-                guessPreTraceLevelId(iChainDetailDao, result);
+                guessPreTraceLevelId(iChainDetailDao, levelId);
                 //找下级
-                guessNextTraceLevelId(iChainDetailDao, result);
+                guessNextTraceLevelId(iChainDetailDao, levelId);
             }
         }
         logger.debug("hitTraceLevelId : {}", hitTraceLevelId);
     }
 
-    private void guessNextTraceLevelId(IChainDetailDao iChainDetailDao, String[] result) throws SQLException {
-        String tmpViewpoint = iChainDetailDao.queryChainViewPoint(getSubTraceLevelId(result),
+    private void guessNextTraceLevelId(IChainDetailDao iChainDetailDao, String levelId) throws SQLException {
+        String traceLevelId = getSubTraceLevelId(levelId);
+        if (hitTraceLevelId.containsKey(traceLevelId)) {
+            return;
+        }
+        String tmpViewpoint = iChainDetailDao.queryChainViewPoint(traceLevelId,
                 treeId, uid);
-        String traceLevelId = null;
-        if (tmpViewpoint != null) {
-            traceLevelId = getSubTraceLevelId(result);
-        } else {
-            traceLevelId = getBrotherOfParentLevelId(result);
-            if (traceLevelId != null && traceLevelId.length() > 0)
+        if (tmpViewpoint == null) {
+            traceLevelId = getBrotherOfParentLevelId(levelId);
+            if (traceLevelId.length() > 0)
                 tmpViewpoint = iChainDetailDao.queryChainViewPoint(traceLevelId, treeId, uid);
         }
 
@@ -121,17 +189,17 @@ public class HitTreeInfo {
         }
     }
 
-    private void guessPreTraceLevelId(IChainDetailDao iChainDetailDao, String[] result) throws SQLException {
+    private void guessPreTraceLevelId(IChainDetailDao iChainDetailDao, String levelId) throws SQLException {
         String tmpViewpoint = null;
         String traceLevelId = null;
-        if ((Integer.parseInt(result[1]) - 1) != -1) {
+        String[] result = spiltParentLevelIdAndLevelId(levelId);
+        if (result[0].length() > 0 && (Integer.parseInt(result[1]) - 1) != -1) {
             traceLevelId = getPreBrotherLevelId(result);
             tmpViewpoint = iChainDetailDao.queryChainViewPoint(traceLevelId,
                     treeId, uid);
         } else {
-            String[] resultA = spiltParentLevelIdAndLevelId(result[0]);
-            if (result[0].length() != 0) {
-                traceLevelId = resultA[0];
+            if (result[0].length() > 0) {
+                traceLevelId = result[0];
                 tmpViewpoint = iChainDetailDao.queryChainViewPoint(traceLevelId,
                         treeId, uid);
             }
@@ -146,16 +214,24 @@ public class HitTreeInfo {
         return result[0] + "." + (Integer.parseInt(result[1]) - 1);
     }
 
-    private String getBrotherOfParentLevelId(String[] result) {
-        String[] resultB = spiltParentLevelIdAndLevelId(result[0]);
-        if (resultB[1] != null && resultB.length > 0) {
-            return resultB[0] + (Integer.parseInt(resultB[1]) + 1);
+    private String getBrotherOfParentLevelId(String levelId) {
+        String[] result = spiltParentLevelIdAndLevelId(levelId);
+        if (result[0].length() > 0) {
+            result = spiltParentLevelIdAndLevelId(result[0]);
+            if (result[1] != null && result[1].length() > 0) {
+                return result[0] + (Integer.parseInt(result[1]) + 1);
+            }
         }
 
         return "";
     }
 
-    private String getSubTraceLevelId(String[] result) {
+    private String getSubTraceLevelId(String levelId) {
+        String[] result = spiltParentLevelIdAndLevelId(levelId);
         return result[0] + "." + (Integer.parseInt(result[1]) + 1);
+    }
+
+    public String getUid() {
+        return uid;
     }
 }

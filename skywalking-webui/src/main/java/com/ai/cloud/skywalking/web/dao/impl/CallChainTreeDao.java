@@ -1,10 +1,13 @@
 package com.ai.cloud.skywalking.web.dao.impl;
 
-import com.ai.cloud.skywalking.web.dto.AnlyResult;
 import com.ai.cloud.skywalking.web.dao.inter.ICallChainTreeDao;
+import com.ai.cloud.skywalking.web.dto.AnlyResult;
 import com.ai.cloud.skywalking.web.entity.CallChainTree;
 import com.ai.cloud.skywalking.web.util.HBaseUtils;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Get;
@@ -17,6 +20,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
+import java.util.Calendar;
+import java.util.Map;
 
 @Repository
 public class CallChainTreeDao implements ICallChainTreeDao {
@@ -28,21 +33,36 @@ public class CallChainTreeDao implements ICallChainTreeDao {
 
     @Override
     public AnlyResult queryEntranceAnlyResult(String entranceColumnName, String treeId) throws IOException {
-        Table table = hBaseUtils.getConnection().getTable(TableName.valueOf("sw-chain-1day-summary"));
+        String columnName = null;
+        if (entranceColumnName.lastIndexOf(":") != -1) {
+            columnName = entranceColumnName.substring(0, entranceColumnName.length() - 1);
+        }
+        Table table = hBaseUtils.getConnection().getTable(TableName.valueOf("sw-chain-1month-summary"));
         Get get = new Get(treeId.getBytes());
         Result result = table.get(get);
         if (result.rawCells().length == 0) {
-            return null;
+            Calendar calendar = Calendar.getInstance();
+            return new AnlyResult(calendar.get(Calendar.YEAR) + "",(calendar.get(Calendar.MONTH)+1) + "");
         }
-        Cell cell = result.getColumnLatestCell("chain_summary".getBytes(), entranceColumnName.getBytes());
+        AnlyResult anlyResult = null;
+        Cell cell = result.getColumnLatestCell("chain_summary".getBytes(), columnName.getBytes());
         if (cell != null) {
-            String anlyResultStr = Bytes.toString(cell.getQualifierArray(),
-                    cell.getQualifierOffset(), cell.getQualifierLength());
+            String anlyResultStr = Bytes.toString(cell.getValueArray(),
+                    cell.getValueOffset(), cell.getValueLength());
             logger.debug("traceId: {} , entranceColumnName : {}, anlyResultStr : {}",
-                    treeId, entranceColumnName, anlyResultStr);
-            return new Gson().fromJson(anlyResultStr, AnlyResult.class);
+                    treeId, columnName, anlyResultStr);
+            JsonObject jsonObject = (JsonObject) new JsonParser().parse(anlyResultStr);
+            Map<String, AnlyResult> resultMap = new Gson().fromJson(jsonObject.getAsJsonObject("summaryValueMap"),
+                    new TypeToken<Map<String, AnlyResult>>() {
+                    }.getType());
+            anlyResult = resultMap.get((Calendar.getInstance().get(Calendar.MONTH)+1) + "");
         }
 
-        return new AnlyResult();
+        if(anlyResult == null){
+            anlyResult = new AnlyResult();
+        }
+        anlyResult.setYearOfAnlyResult((Calendar.getInstance().get(Calendar.YEAR)) + "");
+        anlyResult.setMonthOfAnlyResult((Calendar.getInstance().get(Calendar.MONTH)+1) + "");
+        return anlyResult;
     }
 }

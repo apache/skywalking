@@ -69,7 +69,12 @@
 <script>
     $(document).ready(function () {
         $("#searchBtn").click(function () {
-            window.location.href = "${_base}/" + $("#key").val();
+            var searchKey = $("#key").val();
+            if (searchKey.match(/viewpoint:*/i)) {
+                window.location.href = "${_base}/" + "mainPage?loadType=showAnlyResult&key=" + searchKey;
+            } else {
+                window.location.href = "${_base}/" + searchKey;
+            }
         });
 
         $("#logoutBtn").click(function () {

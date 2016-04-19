@@ -1,25 +1,58 @@
-<#macro analysisResult>
-<script type="text/x-jsrender" id="analysisResultList">
-<div class="row">
-    <div class="col-md-9">
-        {{for trees}}
-        <div class="row">
-              <h4><a>{{>entranceViewpoint}}</a></h4>
-              <p>{{>entranceViewpoint}}<br/>
-                &nbsp;&nbsp;com.ai.test.controller.com.ai.test.controllersaveOrder()<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;com.ai.test.controller.saveOrder()<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; com.ai.test.controller.saveOrder()<br/>
-                &nbsp;&nbsp;com.ai.test.controller.saveOrder()<br/>
-                ....
-              </p>
-              <p style="font-color">2016年03月已经被调用100次，成功100次，失败0次 <a class="pull-right"><ins>more</ins></a></p>
-              <hr/>
+<#macro anlyResultTmpl>
+<script type="text/x-jsrender" id="anlyResultPanelTmpl">
+    <div class="row">
+        <div class="col-md-8" id="anlyResultmPanel">
         </div>
-        {{/for}}
+        <div class="col-md-4">
+        </div>
     </div>
-    <div class="col-md-3">
+    <hr/>
+</script>
+</#macro>
 
+<#macro anlyResultDisplayTmpl>
+<script type="text/x-jsrender" id="anlyResultDisplayTmpl">
+    <div class="row">
+        <h4><a>{{>entranceViewpoint}}</a></h4>
+        <p>
+         {{for nodes}}
+         {{if isPrintSlipDot}}
+            <span style="margin-left:15%">....</span></br>
+         {{/if}}
+         <span style="margin-left:{{>marginLeftSize}}px" data={{>traceLevelId}}>{{>viewPoint}}</span></br>
+         {{/for}}
+         <span style="margin-left:15%">....</span></br>
+         </p>
+         <p style="font-color">{{>entranceAnlyResult.yearOfAnlyResult}}年{{>entranceAnlyResult.monthOfAnlyResult}}月已经被调用{{>entranceAnlyResult.totalCall}}次&nbsp;
+         成功<span class="text-success"><strong>{{>entranceAnlyResult.correctNumber}}</strong></span>次&nbsp;
+         失败<span class="text-danger"><strong>{{>entranceAnlyResult.humanInterruptionNumber}}</strong></span>次&nbsp;
+         成功调用率<span class="
+         {{if correctRate >= 99.00}}
+         text-success
+         {{else correctRate >= 97}}
+         text-warning
+         {{else}}
+         text-danger
+         {{/if}}
+         "><strong>{{>correctRate}}%</strong></span>
+         <a class="pull-right"><ins>more</ins></a></p>
+         <hr/>
     </div>
-</div>
+</script>
+</#macro>
+
+<#macro pageInfoTmpl>
+<script type="text/x-jsrender" id="pageInfoTmpl">
+    <input type="hidden" value="{{>pageSize}}" id="pageSize"/>
+    <nav>
+    <ul class="pager">
+            {{if hasPreviousPage}}
+            <li><a href="javascript:void(0);" id="doPreviousPageBtn">Previous</a></li>
+            {{/if}}
+            {{if hasNextPage}}
+            <li disabled><a href="javascript:void(0);" id="doNextPageBtn">Next</a></li>
+            {{/if}}
+    </ul>
+    </nav>
 </script>
 </#macro>

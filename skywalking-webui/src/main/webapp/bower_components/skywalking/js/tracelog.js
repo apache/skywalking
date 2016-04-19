@@ -97,7 +97,7 @@ function loadTraceTreeData(baseUrl) {
         url: url,
         dataType: 'json',
         data: {traceId:$("#searchKey").val()},
-        async: true,
+        async: false,
         success: function (data) {
             if (data.code == '200') {
                 var changedData = changeData(jQuery.parseJSON(data.result));

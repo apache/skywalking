@@ -45,4 +45,6 @@ public class Constants {
     public static int MAX_SEARCH_SPAN_SIZE = 10000;
 
     public static int MAX_SHOW_SPAN_SIZE = 200;
+
+    public static int MAX_ANALYSIS_RESULT_PAGE_SIZE = 10;
 }

@@ -13,8 +13,9 @@ import javax.servlet.http.HttpServletRequest;
 public class MainPageController extends BaseController{
 
     @RequestMapping("/mainPage")
-    public String mainPage(String loadType, HttpServletRequest request){
+    public String mainPage(String loadType, String key,HttpServletRequest request){
         request.setAttribute("loadType", loadType);
+        request.setAttribute("key", key);
         return "main";
     }
 }
