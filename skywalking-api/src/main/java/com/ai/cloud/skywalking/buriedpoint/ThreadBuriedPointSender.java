@@ -15,7 +15,13 @@ import com.ai.cloud.skywalking.protocol.Span;
 import com.ai.cloud.skywalking.util.BuriedPointMachineUtil;
 import com.ai.cloud.skywalking.util.TraceIdGenerator;
 
-
+/**
+ * 暂不确定多线程的实现方式
+ * 
+ * @author wusheng
+ *
+ */
+@Deprecated
 public class ThreadBuriedPointSender extends ApplicationExceptionHandler implements IBuriedPointSender {
 	private static Logger logger = LogManager.getLogger(ThreadBuriedPointSender.class);
 
