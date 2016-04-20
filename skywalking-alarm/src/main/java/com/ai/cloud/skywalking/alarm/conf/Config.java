@@ -84,11 +84,7 @@ public class Config {
 
         public static boolean ALARM_OFF_FLAG = false;
         
-        public static class Checker {
-        	public static boolean TURN_ON_EXCEPTION_CHECKER = true;
-        	
-        	public static boolean TURN_ON_EXECUTE_TIME_CHECKER = true;
-        }
+        public static String ALARM_TYPE_CONFIG_ID = "1004";        
     }
 
     public static class MailSenderInfo {
@@ -97,5 +93,5 @@ public class Config {
 
     public static class TemplateInfo {
         public static String CONFIG_ID = "1001";
-    }
+    }    
 }

@@ -1,31 +1,37 @@
 package com.ai.cloud.skywalking.alarm.util;
 
-import com.ai.cloud.skywalking.alarm.conf.Config;
-import com.ai.cloud.skywalking.alarm.dao.SystemConfigDao;
-import com.google.gson.Gson;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.util.Properties;
 
-import javax.mail.*;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.NoSuchProviderException;
+import javax.mail.Session;
+import javax.mail.Transport;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import java.util.Properties;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.ai.cloud.skywalking.alarm.conf.Config;
+import com.ai.cloud.skywalking.alarm.dao.SystemConfigDao;
+import com.google.gson.Gson;
 
 public class MailUtil {
 
     private static Logger logger = LogManager.getLogger(MailUtil.class);
 
-    private static String sendAccount;
+    private static String mailSender;
     private static Properties config;
 
     static {
         try {
             String senderInfo = SystemConfigDao.getSystemConfig(Config.MailSenderInfo.configId);
             config = new Gson().fromJson(senderInfo, Properties.class);
-            sendAccount = config.getProperty("mail.username") + config.getProperty("mail.account.prefix");
+            mailSender = config.getProperty("mail.sender");
         } catch (Exception e) {
-            logger.error("Failed to connect the mail System.", e);
+            logger.error("Failed to load mail sender info.", e);
             System.exit(-1);
         }
     }
@@ -38,7 +44,7 @@ public class MailUtil {
             ts = session.getTransport();
             ts.connect(config.getProperty("mail.host"), config.getProperty("mail.username"), config.getProperty("mail.password"));
             MimeMessage message = new MimeMessage(session);
-            message.setFrom(new InternetAddress(sendAccount));
+            message.setFrom(new InternetAddress(mailSender));
             InternetAddress[] recipientAccountArray = new InternetAddress[recipientAccounts.length];
             for (int i = 0; i < recipientAccounts.length; i++) {
                 recipientAccountArray[i] = new InternetAddress(recipientAccounts[i]);
