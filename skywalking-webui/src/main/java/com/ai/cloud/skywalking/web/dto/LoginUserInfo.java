@@ -1,4 +1,4 @@
-package com.ai.cloud.skywalking.web.bo;
+package com.ai.cloud.skywalking.web.dto;
 
 import com.ai.cloud.skywalking.web.entity.UserInfo;
 

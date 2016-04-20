@@ -2,6 +2,7 @@
 <#import "./common/traceInfo.ftl" as traceInfo>
 <#import "./usr/applications/applicationMaintain.ftl" as applicationMaintain>
 <#import "./usr/authfile/auth.ftl" as auth>
+<#import "./anls-result/analysisResult.ftl" as anlyResult>
 <!DOCTYPE html>
 <html lang="zh-CN">
 
@@ -16,6 +17,7 @@
     <link href="${_base}/bower_components/skywalking/css/tracelog.css" rel="stylesheet"/>
     <script src="${_base}/bower_components/skywalking/js/tracelog.js"></script>
     <script src="${_base}/bower_components/skywalking/js/application.js"></script>
+    <script src="${_base}/bower_components/skywalking/js/analysisresult.js"></script>
     <link href="${_base}/bower_components/bootstrap-toggle/css/bootstrap-toggle.min.css" rel="stylesheet">
     <script src="${_base}/bower_components/bootstrap-toggle/js/bootstrap-toggle.min.js"></script>
 </head>
@@ -32,6 +34,9 @@
 <@applicationMaintain.createglobalConfig/>
 <@applicationMaintain.modifyApplication/>
 <@auth.downloadAuth/>
+<@anlyResult.anlyResultTmpl/>
+<@anlyResult.anlyResultDisplayTmpl/>
+<@anlyResult.pageInfoTmpl/>
 <p id="baseUrl" style="display: none">${_base}</p>
 <div class="container" id="mainPanel">
     <p id="searchType" style="display: none">${searchType!''}</p>
@@ -45,7 +50,12 @@
         loadContent(loadType);
         // bind
         $("#searchBtn").click(function () {
-            loadTraceTreeData("${_base}");
+            var searchKey = $("#searchKey").val();
+            if (searchKey.match(/viewpoint:*/i)){
+                loadContent("showAnlyResult")
+            }else {
+                loadContent("showTraceInfo");
+            }
         })
     });
 
@@ -53,6 +63,20 @@
 
         if (loadType == "showTraceInfo"){
             loadTraceTreeData("${_base}");
+        }
+
+        if (loadType == "showAnlyResult"){
+            var template = $.templates("#anlyResultPanelTmpl");
+            var htmlOutput = template.render({});
+            $("#mainPanel").empty();
+            $("#mainPanel").html(htmlOutput);
+            var searchKey = $("#searchKey").val();
+            var index = searchKey.indexOf(':');
+            if (index != -1) {
+                searchKey = searchKey.substr(index + 1);
+            }
+            toSearchAnlyResult(searchKey);
+            return;
         }
 
         if (loadType == "applicationList") {

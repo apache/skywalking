@@ -41,8 +41,7 @@ public class DBCallChainInfoDao {
 				preparedStatement.setString(1, callChainDetailForMysql.getTreeToken());
 				preparedStatement.setString(2, callChainDetailForMysql.getUserId());
 				preparedStatement.setString(3, chainNode.getTraceLevelId());
-				preparedStatement.setString(4, chainNode.getViewPoint() + ":"
-						+ chainNode.getBusinessKey());
+				preparedStatement.setString(4, chainNode.getViewPoint());
 				preparedStatement.setTimestamp(5,
 						new Timestamp(System.currentTimeMillis()));
 				preparedStatement.addBatch();

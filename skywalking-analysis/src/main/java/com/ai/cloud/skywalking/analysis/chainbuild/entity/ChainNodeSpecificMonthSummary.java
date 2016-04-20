@@ -29,11 +29,11 @@ public class ChainNodeSpecificMonthSummary {
         summaryValueMap = new HashMap<String, ChainNodeSpecificTimeWindowSummaryValue>();
     }
 
-    public void summary(String minute, ChainNode node) {
-        ChainNodeSpecificTimeWindowSummaryValue summarValue = summaryValueMap.get(minute);
+    public void summary(String month, ChainNode node) {
+        ChainNodeSpecificTimeWindowSummaryValue summarValue = summaryValueMap.get(month);
         if (summarValue == null) {
             summarValue = new ChainNodeSpecificTimeWindowSummaryValue();
-            summaryValueMap.put(minute, summarValue);
+            summaryValueMap.put(month, summarValue);
         }
 
         summarValue.summary(node);

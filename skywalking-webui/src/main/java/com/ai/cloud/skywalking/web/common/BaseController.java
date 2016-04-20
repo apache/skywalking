@@ -1,7 +1,7 @@
 package com.ai.cloud.skywalking.web.common;
 
 import com.ai.cloud.skywalking.web.util.Constants;
-import com.ai.cloud.skywalking.web.bo.LoginUserInfo;
+import com.ai.cloud.skywalking.web.dto.LoginUserInfo;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
 

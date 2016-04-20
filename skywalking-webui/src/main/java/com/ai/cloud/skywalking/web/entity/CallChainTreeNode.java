@@ -12,4 +12,8 @@ public class CallChainTreeNode {
         this.traceLevelId = traceLevelId;
         this.viewPoint = viewpoint;
     }
+
+    public String getTraceLevelId() {
+        return traceLevelId;
+    }
 }

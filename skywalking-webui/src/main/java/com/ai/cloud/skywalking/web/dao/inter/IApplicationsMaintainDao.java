@@ -1,6 +1,6 @@
 package com.ai.cloud.skywalking.web.dao.inter;
 
-import com.ai.cloud.skywalking.web.bo.ApplicationInfo;
+import com.ai.cloud.skywalking.web.dto.ApplicationInfo;
 import com.ai.cloud.skywalking.web.entity.Application;
 
 import java.sql.SQLException;

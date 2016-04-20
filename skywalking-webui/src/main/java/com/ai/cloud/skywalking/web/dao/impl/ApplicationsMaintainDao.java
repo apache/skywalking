@@ -1,6 +1,6 @@
 package com.ai.cloud.skywalking.web.dao.impl;
 
-import com.ai.cloud.skywalking.web.bo.ApplicationInfo;
+import com.ai.cloud.skywalking.web.dto.ApplicationInfo;
 import com.ai.cloud.skywalking.web.dao.inter.IApplicationsMaintainDao;
 import com.ai.cloud.skywalking.web.entity.Application;
 import com.ai.cloud.skywalking.web.util.DBConnectUtil;

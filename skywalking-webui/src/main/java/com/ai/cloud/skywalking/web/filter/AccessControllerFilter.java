@@ -1,7 +1,7 @@
 package com.ai.cloud.skywalking.web.filter;
 
 import com.ai.cloud.skywalking.web.util.Constants;
-import com.ai.cloud.skywalking.web.bo.LoginUserInfo;
+import com.ai.cloud.skywalking.web.dto.LoginUserInfo;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -24,6 +24,7 @@ public class AccessControllerFilter implements Filter {
         contained.add("addApplication");
         contained.add("createGlobalApplication");
         contained.add("modifyApplication");
+        contained.add("showAnlyResult");
     }
 
     @Override

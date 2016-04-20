@@ -10,5 +10,5 @@ import java.util.List;
  * Created by xin on 16-4-6.
  */
 public interface ICallChainTreeService {
-    List<CallChainTree> queryCurrentMonthCallChainTree(String uid, String viewpoint) throws SQLException, IOException;
+    List<CallChainTree> queryCallChainTreeByKey(String uid, String viewpoint, int pageSize) throws SQLException, IOException;
 }

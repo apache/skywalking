@@ -1,6 +1,6 @@
 package com.ai.cloud.skywalking.web.service.inter;
 
-import com.ai.cloud.skywalking.web.bo.TraceTreeInfo;
+import com.ai.cloud.skywalking.web.dto.TraceTreeInfo;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;

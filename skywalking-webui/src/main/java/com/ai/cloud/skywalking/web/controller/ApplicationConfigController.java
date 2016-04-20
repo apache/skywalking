@@ -1,7 +1,7 @@
 package com.ai.cloud.skywalking.web.controller;
 
-import com.ai.cloud.skywalking.web.bo.ApplicationInfo;
-import com.ai.cloud.skywalking.web.bo.LoginUserInfo;
+import com.ai.cloud.skywalking.web.dto.ApplicationInfo;
+import com.ai.cloud.skywalking.web.dto.LoginUserInfo;
 import com.ai.cloud.skywalking.web.common.BaseController;
 import com.ai.cloud.skywalking.web.dao.inter.IAlarmRuleMaintainDao;
 import com.ai.cloud.skywalking.web.dao.inter.IApplicationsMaintainDao;

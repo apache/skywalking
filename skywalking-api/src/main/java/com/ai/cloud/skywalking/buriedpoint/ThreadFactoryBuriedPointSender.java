@@ -14,6 +14,13 @@ import com.ai.cloud.skywalking.model.Identification;
 import com.ai.cloud.skywalking.protocol.Span;
 import com.ai.cloud.skywalking.util.ContextGenerator;
 
+/**
+ * 暂不确定多线程的实现方式
+ * 
+ * @author wusheng
+ *
+ */
+@Deprecated
 public class ThreadFactoryBuriedPointSender extends ApplicationExceptionHandler implements IBuriedPointSender {
 	private static Logger logger = LogManager.getLogger(ThreadBuriedPointSender.class);
 
