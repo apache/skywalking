@@ -104,6 +104,24 @@ java com.company.product.Startup arg0 arg1
 java com.ai.cloud.skywalking.plugin.TracingBootstrap com.company.product.Startup arg0 arg1
 ```
 
+-如果应用为Tomcat，需要修改tomcat相关启动文件:catalina.sh
+-If you want to trace a tomcat application, you need to modify 'catalina.sh'
+```
+# add skywalking jar into CLASSPATH
+CLASSPATH=$CLASSPATH:$CATALINA_HOME/lib/skywalking-api-1.0-SNAPSHOT.jar:$CATALINA_HOME/lib/log4j-api.jar:$CATALINA_HOME/lib/log4j-core.jar
+
+# use new main, samples in Tomcat8
+exec "$_RUNJDB" "$LOGGING_CONFIG" $LOGGING_MANAGER $JAVA_OPTS $CATALINA_OPTS \
+  -Djava.endorsed.dirs="$JAVA_ENDORSED_DIRS" -classpath "$CLASSPATH" \
+  -sourcepath "$CATALINA_HOME"/../../java \
+  -Djava.security.manager \
+  -Djava.security.policy=="$CATALINA_BASE"/conf/catalina.policy \
+  -Dcatalina.base="$CATALINA_BASE" \
+  -Dcatalina.home="$CATALINA_HOME" \
+  -Djava.io.tmpdir="$CATALINA_TMPDIR" \
+  com.ai.cloud.skywalking.plugin.TracingBootstrap org.apache.catalina.startup.Bootstrap "$@" start
+```
+
 ## 根据所需插件，配置应用程序 / Config application
 - Ref 《[SDK Guides](skywalking-sdk-plugin)》
 - 注意：插件不会引用所需的第三方组件（如Spring、dubbo、dubbox等），请自行引入所需的版本。
