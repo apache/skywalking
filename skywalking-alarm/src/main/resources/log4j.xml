@@ -1,18 +1,21 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
-
 <log4j:configuration>
-
-    <appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
+    <appender name="rollingFile"
+              class="org.apache.log4j.RollingFileAppender">
+        <param name="File" value="../log/skywalking-server-log4j.log"/>
+        <param name="ImmediateFlush" value="true"/>
+        <param name="Threshold" value="INFO"></param>
+        <param name="Append" value="true"></param>
+        <param name="MaxFileSize" value="10240KB"></param>
+        <param name="MaxBackupIndex" value="10"></param>
         <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern"
-                   value="%d - %c -%-4r [%t](%F:%L) %-5p %x - %m%n" />
+            <param name="ConversionPattern" value="%d - %c -%-4r [%t] %-5p %x - %m%n"></param>
         </layout>
     </appender>
 
     <root>
         <priority value="INFO" />
-        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="rollingFile" />
     </root>
-
 </log4j:configuration>
