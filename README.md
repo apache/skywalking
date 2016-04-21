@@ -104,8 +104,8 @@ java com.company.product.Startup arg0 arg1
 java com.ai.cloud.skywalking.plugin.TracingBootstrap com.company.product.Startup arg0 arg1
 ```
 
--如果应用为Tomcat，需要修改tomcat相关启动文件:catalina.sh
--If you want to trace a tomcat application, you need to modify 'catalina.sh'
+- 如果应用为Tomcat，需要修改tomcat相关启动文件:catalina.sh
+- If you want to trace a tomcat application, you need to modify 'catalina.sh'
 ```
 # add skywalking jar into CLASSPATH
 CLASSPATH=$CLASSPATH:$CATALINA_HOME/lib/skywalking-api-1.0-SNAPSHOT.jar:$CATALINA_HOME/lib/log4j-api.jar:$CATALINA_HOME/lib/log4j-core.jar
