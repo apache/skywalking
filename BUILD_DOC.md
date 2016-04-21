@@ -67,7 +67,7 @@ INSERT INTO `system_config` (`config_id`,`conf_key`,`conf_value`,`val_type`,`val
 INSERT INTO `system_config` (`config_id`,`conf_key`,`conf_value`,`val_type`,`val_desc`,`create_time`,`sts`,`modify_time`) VALUES (1003,'servers_addr_1','60.194.3.183:34000;60.194.3.183:35000;60.194.3.184:34000;60.194.3.184:35000;','string','日志采集地址-外网','2015-12-10 15:23:53','A','2015-12-10 15:23:53');
 --配置告警类型
 --config types of alarm
-INSERT INTO `system_config` (`config_id`,`conf_key`,`conf_value`,`val_type`,`val_desc`,`create_time`,`sts`,`modify_time`) VALUES ('1004', 'alarm_type_info', '[{\"type\":\"default\",\"label\":\"exception\",\"desc\":\"System Exception\"},{\"type\":\"ExecuteTime-PossibleError\",\"label\":\"mark\",\"desc\":\"Excution Time > 5s\"},{\"type\":\"ExecuteTime-Warning\",\"label\":\"mark\",\"desc\":\"Excution Time > 500ms\"}]', 'json', '告警类型', '2016-04-18 16:04:51', 'A', '2016-04-18 16:04:53');
+INSERT INTO `system_config` (`config_id`,`conf_key`,`conf_value`,`val_type`,`val_desc`,`create_time`,`sts`,`modify_time`) VALUES ('1004', 'alarm_type_info', '[{"type":"default","label":"exception","desc":"System Exception"},{"type":"ExecuteTime-PossibleError","label":"mark","desc":"Excution Time > 5s"},{"type":"ExecuteTime-Warning","label":"mark","desc":"Excution Time > 500ms"}]', 'json', '告警类型', '2016-04-18 16:04:51', 'A', '2016-04-18 16:04:53');
 ```
 - 注：2016-4-21日前的版本升级，system_config表config_id=1000,SQL语句更新，请注意修改，新增配置config_id=1004
 - 注：2016-4-8日前的版本升级，请升级脚本中的相关片段
