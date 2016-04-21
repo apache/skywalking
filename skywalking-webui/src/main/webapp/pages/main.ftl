@@ -63,6 +63,7 @@
 
         if (loadType == "showTraceInfo"){
             loadTraceTreeData("${_base}");
+            return;
         }
 
         if (loadType == "showAnlyResult"){

@@ -1,4 +1,5 @@
 function changeData(data) {
+
     var result = {
         traceTree: {
             traceId: "",
@@ -9,6 +10,11 @@ function changeData(data) {
             treeNodes: []
         }
     };
+
+    if (data.nodes == undefined || data.nodes.length  == 0){
+        return result;
+    }
+
     result.traceTree.traceId = data.traceId;
     result.traceTree.totalTime = data.endTime - data.beginTime;
     var totalTime = result.traceTree.totalTime;
