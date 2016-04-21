@@ -33,12 +33,6 @@ public class AlarmTypeUtil {
 		if (alarmTypeList == null || alarmTypeList.isEmpty()) {
 			alarmTypeList = new ArrayList<AlarmType>();
 		} 
-		
-		AlarmType defaultType = new AlarmType();
-    	defaultType.setType("default");
-    	defaultType.setLabel("mark");
-    	defaultType.setDesc("Others");    	
-    	alarmTypeList.add(defaultType);
     	
     	return alarmTypeList;
 	}

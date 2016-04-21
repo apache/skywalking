@@ -12,11 +12,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Properties;
 import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import redis.clients.jedis.Jedis;
 
 import com.ai.cloud.skywalking.alarm.model.AlarmMessage;
 import com.ai.cloud.skywalking.alarm.model.AlarmRule;
@@ -32,7 +33,6 @@ import com.ai.cloud.skywalking.alarm.util.TemplateConfigurationUtil;
 
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
-import redis.clients.jedis.Jedis;
 
 public class AlarmMessageProcessor {
 
