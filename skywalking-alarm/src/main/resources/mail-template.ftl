@@ -108,7 +108,7 @@
                 <#list warningMap[alarmType.type] as element>
                     <tr>
                         <th class="spec"><p>traceid</p></th>
-                        <td class="alt"><a href=\"${(portalAddr + warningObject.traceid)!}\">${element.traceid!}</a><#if element.date?exists>&nbsp&nbsp&nbsp&nbsp<span>${element.date?string("yyyy-MM-dd HH:mm:ss ")}</span></#if></td>
+                        <td class="alt"><a href=\"${(portalAddr + element.traceid)!}\">${element.traceid!}</a><#if element.date?exists>&nbsp&nbsp&nbsp&nbsp<span>${element.date?string("yyyy-MM-dd HH:mm:ss ")}</span></#if></td>
                     </tr>
                     <tr>
                         <th class="specalt"><p>${(alarmType.label)}</p></th>
