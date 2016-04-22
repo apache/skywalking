@@ -40,7 +40,10 @@ public class SWDubboEnhanceFilter implements Filter {
                 //          attachments.put(key, value);
                 //      }
                 //  }
-                invocation.getAttachments().put("contextData", contextDataStr);
+                // 在Rest模式中attachment会被抹除，不会传入到服务端
+                // Rest模式会将attachment存放到header里面，具体见com.alibaba.dubbo.rpc.protocol.rest.RpcContextFilter
+                //invocation.getAttachments().put("contextData", contextDataStr);
+                context.getAttachments().put("contextData", contextDataStr);
             } else {
                 fix283SendNoAttachmentIssue(invocation, contextDataStr);
             }
