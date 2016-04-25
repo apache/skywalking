@@ -24,7 +24,6 @@
             color: #c75f3e;
         }
         .greetings {
-            background:#f9f9f9;
             font-family:Microsoft YaHei,SimHei,Arial;
 
         }
@@ -33,7 +32,6 @@
             padding:0;
         }
         #mainDiv {
-            background:#f9f9f9;
             padding:25px;
             font-size:14px;
             line-height:25px;
@@ -92,7 +90,7 @@
 
 <div id="mainDiv">
     <p class="greetings">Dear ${name!}:</p>
-    <p class="greetings">&nbsp&nbsp&nbsp&nbspOur platform received alarm infomation between <b>${startDate!} </b>to<b> ${endDate!}</b> as follows:
+    <p class="greetings">&nbsp&nbsp&nbsp&nbspOur platform collects alarm infomation between <b>${startDate!} </b>to<b> ${endDate!}</b> as follows:
     </p>
     <table id="dataTable" width="80%">
         <tr id="dataTableHead">
