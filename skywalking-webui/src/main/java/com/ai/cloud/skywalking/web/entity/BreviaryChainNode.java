@@ -1,15 +1,15 @@
-package com.ai.cloud.skywalking.web.dto;
+package com.ai.cloud.skywalking.web.entity;
 
 import com.ai.cloud.skywalking.web.util.ViewPointBeautiUtil;
 
 /**
  * Created by xin on 16-4-14.
  */
-public class CallChainNode {
+public class BreviaryChainNode {
     private String traceLevelId="";
     private String viewPoint;
     private boolean isGuess;
-    public CallChainNode(String traceLevelId, String viewPoint, boolean isGuess) {
+    public BreviaryChainNode(String traceLevelId, String viewPoint, boolean isGuess) {
         this.traceLevelId = traceLevelId;
         this.viewPoint = viewPoint;
         this.isGuess = isGuess;
@@ -42,7 +42,7 @@ public class CallChainNode {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        CallChainNode that = (CallChainNode) o;
+        BreviaryChainNode that = (BreviaryChainNode) o;
 
         return traceLevelId != null ? traceLevelId.equals(that.traceLevelId) : that.traceLevelId == null;
 

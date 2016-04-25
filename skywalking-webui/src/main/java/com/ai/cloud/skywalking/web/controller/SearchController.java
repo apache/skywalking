@@ -2,10 +2,10 @@ package com.ai.cloud.skywalking.web.controller;
 
 import com.ai.cloud.skywalking.web.common.BaseController;
 import com.ai.cloud.skywalking.web.dto.AnlyResult;
-import com.ai.cloud.skywalking.web.dto.CallChainNode;
+import com.ai.cloud.skywalking.web.entity.BreviaryChainNode;
 import com.ai.cloud.skywalking.web.dto.LoginUserInfo;
 import com.ai.cloud.skywalking.web.dto.TraceTreeInfo;
-import com.ai.cloud.skywalking.web.entity.CallChainTree;
+import com.ai.cloud.skywalking.web.entity.BreviaryChainTree;
 import com.ai.cloud.skywalking.web.service.inter.ICallChainTreeService;
 import com.ai.cloud.skywalking.web.service.inter.ITraceTreeService;
 import com.ai.cloud.skywalking.web.util.Constants;
@@ -95,23 +95,23 @@ public class SearchController extends BaseController {
         try {
             if (StringUtil.isBlank(key)) {
                 jsonObject.put("code", "200");
-                jsonObject.put("result", JSON.toJSONString(new ArrayList<CallChainTree>()));
+                jsonObject.put("result", JSON.toJSONString(new ArrayList<BreviaryChainTree>()));
                 return jsonObject.toJSONString();
             }
 
             LoginUserInfo loginUserInfo = fetchLoginUserInfoFromSession(request);
 
-            List<CallChainTree> callChainTreeList =
+            List<BreviaryChainTree> acronymousChainTreeWithGuessNodeList =
                     callChainTreeService.queryCallChainTreeByKey(loginUserInfo.getUid(), key, pageSize);
-            //List<CallChainTree> callChainTreeList = generateCallChainTree();
+            //List<BreviaryChainTree> acronymousChainTreeWithGuessNodeList = generateCallChainTree();
             JsonObject result = new JsonObject();
-            if (callChainTreeList.size() > Constants.MAX_ANALYSIS_RESULT_PAGE_SIZE) {
+            if (acronymousChainTreeWithGuessNodeList.size() > Constants.MAX_ANALYSIS_RESULT_PAGE_SIZE) {
                 result.addProperty("hasNextPage", true);
-                callChainTreeList.remove(callChainTreeList.size() - 1);
+                acronymousChainTreeWithGuessNodeList.remove(acronymousChainTreeWithGuessNodeList.size() - 1);
             } else {
                 result.addProperty("hasNexPage", false);
             }
-            JsonElement jsonElements =  new JsonParser().parse(new Gson().toJson(callChainTreeList));
+            JsonElement jsonElements =  new JsonParser().parse(new Gson().toJson(acronymousChainTreeWithGuessNodeList));
             result.add("children", jsonElements);
             jsonObject.put("code", "200");
             jsonObject.put("result", result.toString());
@@ -123,29 +123,29 @@ public class SearchController extends BaseController {
         return jsonObject.toJSONString();
     }
 
-    private List<CallChainTree> generateCallChainTree() {
-        List<CallChainTree> callChainTrees = new ArrayList<CallChainTree>();
-        CallChainTree chainTree = new CallChainTree("test");
+    private List<BreviaryChainTree> generateCallChainTree() {
+        List<BreviaryChainTree> acronymousChainTreeWithGuessNodes = new ArrayList<BreviaryChainTree>();
+        BreviaryChainTree chainTree = new BreviaryChainTree("test");
         chainTree.setEntranceViewpoint("test");
         chainTree.setTreeId("test tree id");
-        List<CallChainNode> callChainNodes = new ArrayList<>();
-        CallChainNode callChainNode = new CallChainNode("0.0", "test view point id", true);
-        CallChainNode callChainNode1 = new CallChainNode("0.0.0", "test view point id", true);
-        CallChainNode callChainNode2 = new CallChainNode("0.1", "test view point id", true);
-        CallChainNode callChainNode3 = new CallChainNode("0.2", "test view point id", true);
-        callChainNodes.add(callChainNode);
-        callChainNodes.add(callChainNode1);
-        callChainNodes.add(callChainNode2);
-        callChainNodes.add(callChainNode3);
-        chainTree.setNodes(callChainNodes);
-        callChainTrees.add(chainTree);
+        List<BreviaryChainNode> breviaryChainNodes = new ArrayList<>();
+        BreviaryChainNode breviaryChainNode = new BreviaryChainNode("0.0", "test view point id", true);
+        BreviaryChainNode breviaryChainNode1 = new BreviaryChainNode("0.0.0", "test view point id", true);
+        BreviaryChainNode breviaryChainNode2 = new BreviaryChainNode("0.1", "test view point id", true);
+        BreviaryChainNode breviaryChainNode3 = new BreviaryChainNode("0.2", "test view point id", true);
+        breviaryChainNodes.add(breviaryChainNode);
+        breviaryChainNodes.add(breviaryChainNode1);
+        breviaryChainNodes.add(breviaryChainNode2);
+        breviaryChainNodes.add(breviaryChainNode3);
+        chainTree.setNodes(breviaryChainNodes);
+        acronymousChainTreeWithGuessNodes.add(chainTree);
         AnlyResult anlyResult = new AnlyResult();
         anlyResult.setTotalCostTime(1000);
         anlyResult.setTotalCall(20);
         anlyResult.setHumanInterruptionNumber(10);
         anlyResult.setCorrectNumber(10);
         chainTree.setEntranceAnlyResult(anlyResult);
-        return callChainTrees;
+        return acronymousChainTreeWithGuessNodes;
     }
 
 }

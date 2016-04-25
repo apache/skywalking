@@ -1,7 +1,6 @@
 package com.ai.cloud.skywalking.web.entity;
 
 import com.ai.cloud.skywalking.web.dto.AnlyResult;
-import com.ai.cloud.skywalking.web.dto.CallChainNode;
 import com.ai.cloud.skywalking.web.util.ViewPointBeautiUtil;
 
 import java.util.*;
@@ -9,15 +8,15 @@ import java.util.*;
 /**
  * Created by xin on 16-4-6.
  */
-public class CallChainTree {
+public class BreviaryChainTree {
     private String treeId;
     private String entranceViewpoint;
-    private List<CallChainNode> nodes;
+    private List<BreviaryChainNode> nodes;
     private AnlyResult entranceAnlyResult;
 
-    public CallChainTree(String treeId) {
+    public BreviaryChainTree(String treeId) {
         this.treeId = treeId;
-        nodes = new ArrayList<CallChainNode>();
+        nodes = new ArrayList<BreviaryChainNode>();
     }
 
     public void setEntranceAnlyResult(AnlyResult entranceAnlyResult) {
@@ -26,8 +25,8 @@ public class CallChainTree {
 
     public void addHitNodes(Map<String, String> nodes) {
         for (Map.Entry<String, String> entry : nodes.entrySet()) {
-            CallChainNode callChainNode = new CallChainNode(entry.getKey(), entry.getValue(), false);
-            this.nodes.add(callChainNode);
+            BreviaryChainNode breviaryChainNode = new BreviaryChainNode(entry.getKey(), entry.getValue(), false);
+            this.nodes.add(breviaryChainNode);
         }
     }
 
@@ -37,23 +36,23 @@ public class CallChainTree {
             //
         }
 
-        for (CallChainNode chainNode : nodes) {
+        for (BreviaryChainNode chainNode : nodes) {
             //高亮
             chainNode.beautiViewPointString(searchKey);
         }
     }
 
     public void sortNodes() {
-        Collections.sort(nodes, new Comparator<CallChainNode>() {
+        Collections.sort(nodes, new Comparator<BreviaryChainNode>() {
             @Override
-            public int compare(CallChainNode o1, CallChainNode o2) {
+            public int compare(BreviaryChainNode o1, BreviaryChainNode o2) {
                 return o1.getTraceLevelId().compareTo(o2.getTraceLevelId());
             }
         });
     }
 
-    public void addGuessNodesAndRemoveDuplicate(List<CallChainNode> nodes) {
-        for (CallChainNode node : nodes) {
+    public void addGuessNodesAndRemoveDuplicate(List<BreviaryChainNode> nodes) {
+        for (BreviaryChainNode node : nodes) {
             if (!this.nodes.contains(node)) {
                 this.nodes.add(node);
             }
@@ -68,7 +67,7 @@ public class CallChainTree {
         return entranceAnlyResult;
     }
 
-    public List<CallChainNode> getNodes() {
+    public List<BreviaryChainNode> getNodes() {
         return nodes;
     }
 
@@ -84,7 +83,7 @@ public class CallChainTree {
         this.treeId = treeId;
     }
 
-    public void setNodes(List<CallChainNode> nodes) {
+    public void setNodes(List<BreviaryChainNode> nodes) {
         this.nodes = nodes;
     }
 }

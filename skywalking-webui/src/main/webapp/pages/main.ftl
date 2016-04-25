@@ -2,7 +2,7 @@
 <#import "./common/traceInfo.ftl" as traceInfo>
 <#import "./usr/applications/applicationMaintain.ftl" as applicationMaintain>
 <#import "./usr/authfile/auth.ftl" as auth>
-<#import "./anls-result/analysisResult.ftl" as anlyResult>
+<#import "anls-result/analysisSearchResult.ftl" as anlyResult>
 <!DOCTYPE html>
 <html lang="zh-CN">
 

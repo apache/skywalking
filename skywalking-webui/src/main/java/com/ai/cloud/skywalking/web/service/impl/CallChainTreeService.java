@@ -3,9 +3,9 @@ package com.ai.cloud.skywalking.web.service.impl;
 import com.ai.cloud.skywalking.web.dao.inter.ICallChainTreeDao;
 import com.ai.cloud.skywalking.web.dao.inter.IChainDetailDao;
 import com.ai.cloud.skywalking.web.dto.AnlyResult;
-import com.ai.cloud.skywalking.web.dto.CallChainNode;
+import com.ai.cloud.skywalking.web.entity.BreviaryChainNode;
 import com.ai.cloud.skywalking.web.dto.HitTreeInfo;
-import com.ai.cloud.skywalking.web.entity.CallChainTree;
+import com.ai.cloud.skywalking.web.entity.BreviaryChainTree;
 import com.ai.cloud.skywalking.web.service.inter.ICallChainTreeService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,11 +29,11 @@ public class CallChainTreeService implements ICallChainTreeService {
     private ICallChainTreeDao chainTreeDao;
 
     @Override
-    public List<CallChainTree> queryCallChainTreeByKey(String uid, String viewpoint, int pageSize) throws SQLException, IOException {
-        List<CallChainTree> trees = new ArrayList<CallChainTree>();
+    public List<BreviaryChainTree> queryCallChainTreeByKey(String uid, String viewpoint, int pageSize) throws SQLException, IOException {
+        List<BreviaryChainTree> trees = new ArrayList<BreviaryChainTree>();
         List<HitTreeInfo> hitTrees = chainDetailDao.queryChainTreeIds(uid, viewpoint, pageSize);
         for (HitTreeInfo hitTree : hitTrees) {
-            CallChainTree chainTree = new CallChainTree(hitTree.getTreeId());
+            BreviaryChainTree chainTree = new BreviaryChainTree(hitTree.getTreeId());
             chainTree.setEntranceViewpoint(chainDetailDao.queryChainViewPoint("0", hitTree.getTreeId(), uid));
 
             chainTree.addHitNodes(hitTree.getHitTraceLevelId());
@@ -50,18 +50,18 @@ public class CallChainTreeService implements ICallChainTreeService {
         return trees;
     }
 
-    private List<CallChainNode> doGuessNodes(HitTreeInfo hitTraceLevelIds) throws SQLException {
-        List<CallChainNode> guessNodes = new ArrayList<CallChainNode>();
+    private List<BreviaryChainNode> doGuessNodes(HitTreeInfo hitTraceLevelIds) throws SQLException {
+        List<BreviaryChainNode> guessNodes = new ArrayList<BreviaryChainNode>();
         for (String traceLevelId : hitTraceLevelIds.getHitTraceLevelId().keySet()) {
             //
-            CallChainNode preTraceLevelNode = guessPreTraceLevelId(traceLevelId, hitTraceLevelIds.getTreeId(), hitTraceLevelIds.getUid());
+            BreviaryChainNode preTraceLevelNode = guessPreTraceLevelId(traceLevelId, hitTraceLevelIds.getTreeId(), hitTraceLevelIds.getUid());
             if (preTraceLevelNode != null) {
                 guessNodes.add(preTraceLevelNode);
                 logger.info("treeId:{}, traceLevelId :{}, preTraceLevelId:{}", hitTraceLevelIds.getTreeId(), traceLevelId, preTraceLevelNode.getTraceLevelId());
             }
 
             //
-            CallChainNode nextTraceLevelNode = guessNextTraceLevelId(traceLevelId, hitTraceLevelIds.getTreeId(), hitTraceLevelIds.getUid());
+            BreviaryChainNode nextTraceLevelNode = guessNextTraceLevelId(traceLevelId, hitTraceLevelIds.getTreeId(), hitTraceLevelIds.getUid());
             if (nextTraceLevelNode != null) {
                 guessNodes.add(nextTraceLevelNode);
                 logger.info("treeId:{}, traceLevelId :{}, nextTraceLevelId:{}", hitTraceLevelIds.getTreeId(), traceLevelId, nextTraceLevelNode.getTraceLevelId());
@@ -72,7 +72,7 @@ public class CallChainTreeService implements ICallChainTreeService {
         return guessNodes;
     }
 
-    private CallChainNode guessNextTraceLevelId(String traceLevelId, String treeId, String uid) throws SQLException {
+    private BreviaryChainNode guessNextTraceLevelId(String traceLevelId, String treeId, String uid) throws SQLException {
         String[] levelIdArray = traceLevelId.split("\\.");
         if (traceLevelId.lastIndexOf('.') == -1) {
             return null;
@@ -83,7 +83,7 @@ public class CallChainTreeService implements ICallChainTreeService {
         String subLevelId = parentLevelId + "." + (Integer.parseInt(levelIdArray[levelIdArray.length - 1]) + 1);
         String tmpViewpoint = chainDetailDao.queryChainViewPoint(subLevelId,
                 treeId, uid);
-        CallChainNode result = null;
+        BreviaryChainNode result = null;
         if (tmpViewpoint == null) {
             levelIdArray = parentLevelId.split("\\.");
             if (levelIdArray.length != 1) {
@@ -97,27 +97,27 @@ public class CallChainTreeService implements ICallChainTreeService {
         }
 
         if (tmpViewpoint != null) {
-            result = new CallChainNode(subLevelId, tmpViewpoint, true);
+            result = new BreviaryChainNode(subLevelId, tmpViewpoint, true);
         }
 
         return result;
     }
 
-    private CallChainNode guessPreTraceLevelId(String traceLevelId, String treeId, String uid) throws SQLException {
+    private BreviaryChainNode guessPreTraceLevelId(String traceLevelId, String treeId, String uid) throws SQLException {
         String[] levelIdArray = traceLevelId.split("\\.");
         if (levelIdArray.length <= 2) {
             //上级节点为根节点，不用臆测，页面自动展示
             return null;
         }
 
-        CallChainNode result = null;
+        BreviaryChainNode result = null;
         String parentLevelId = traceLevelId.substring(0, traceLevelId.lastIndexOf('.'));
         if ("0".equals(levelIdArray[levelIdArray.length - 1])) {
             // 本机节点为0，找父级
             String tmpViewpoint = chainDetailDao.queryChainViewPoint(parentLevelId,
                     treeId, uid);
             if (tmpViewpoint != null) {
-                result = new CallChainNode(parentLevelId, tmpViewpoint, true);
+                result = new BreviaryChainNode(parentLevelId, tmpViewpoint, true);
             }
         } else {
             // 本机节点不为0，找上级
@@ -125,7 +125,7 @@ public class CallChainTreeService implements ICallChainTreeService {
             String tmpViewpoint = chainDetailDao.queryChainViewPoint(preLevelId,
                     treeId, uid);
             if (tmpViewpoint != null) {
-                result = new CallChainNode(preLevelId, tmpViewpoint, true);
+                result = new BreviaryChainNode(preLevelId, tmpViewpoint, true);
             }
         }
 

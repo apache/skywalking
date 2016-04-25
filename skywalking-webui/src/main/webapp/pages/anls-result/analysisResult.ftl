@@ -1,58 +1,26 @@
-<#macro anlyResultTmpl>
-<script type="text/x-jsrender" id="anlyResultPanelTmpl">
-    <div class="row">
-        <div class="col-md-8" id="anlyResultmPanel">
-        </div>
-        <div class="col-md-4">
-        </div>
-    </div>
-    <hr/>
-</script>
-</#macro>
+<!DOCTYPE html>
+<html lang="zh-CN">
 
-<#macro anlyResultDisplayTmpl>
-<script type="text/x-jsrender" id="anlyResultDisplayTmpl">
-    <div class="row">
-        <h4><a>{{>entranceViewpoint}}</a></h4>
-        <p>
-         {{for nodes}}
-         {{if isPrintSlipDot}}
-            <span style="margin-left:15%">....</span></br>
-         {{/if}}
-         <span style="margin-left:{{>marginLeftSize}}px" data={{>traceLevelId}}>{{>viewPoint}}</span></br>
-         {{/for}}
-         <span style="margin-left:15%">....</span></br>
-         </p>
-         <p style="font-color">{{>entranceAnlyResult.yearOfAnlyResult}}年{{>entranceAnlyResult.monthOfAnlyResult}}月已经被调用{{>entranceAnlyResult.totalCall}}次&nbsp;
-         成功<span class="text-success"><strong>{{>entranceAnlyResult.correctNumber}}</strong></span>次&nbsp;
-         失败<span class="text-danger"><strong>{{>entranceAnlyResult.humanInterruptionNumber}}</strong></span>次&nbsp;
-         成功调用率<span class="
-         {{if correctRate >= 99.00}}
-         text-success
-         {{else correctRate >= 97}}
-         text-warning
-         {{else}}
-         text-danger
-         {{/if}}
-         "><strong>{{>correctRate}}%</strong></span>
-         <a class="pull-right"><ins>more</ins></a></p>
-         <hr/>
-    </div>
-</script>
-</#macro>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<@common.importResources />
+    <script src="${_base}/bower_components/jquery-ui/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="${_base}/bower_components/jquery-treetable/css/jquery.treetable.theme.default.css"/>
+    <script src="${_base}/bower_components/jquery-treetable/jquery.treetable.js"></script>
+    <link href="${_base}/bower_components/jquery-treetable/css/jquery.treetable.css" rel="stylesheet"/>
+    <link href="${_base}/bower_components/skywalking/css/tracelog.css" rel="stylesheet"/>
+    <script src="${_base}/bower_components/skywalking/js/tracelog.js"></script>
+    <script src="${_base}/bower_components/skywalking/js/application.js"></script>
+    <script src="${_base}/bower_components/skywalking/js/analysisresult.js"></script>
+    <link href="${_base}/bower_components/bootstrap-toggle/css/bootstrap-toggle.min.css" rel="stylesheet">
+    <script src="${_base}/bower_components/bootstrap-toggle/js/bootstrap-toggle.min.js"></script>
+</head>
 
-<#macro pageInfoTmpl>
-<script type="text/x-jsrender" id="pageInfoTmpl">
-    <input type="hidden" value="{{>pageSize}}" id="pageSize"/>
-    <nav>
-    <ul class="pager">
-            {{if hasPreviousPage}}
-            <li><a href="javascript:void(0);" id="doPreviousPageBtn">Previous</a></li>
-            {{/if}}
-            {{if hasNextPage}}
-            <li disabled><a href="javascript:void(0);" id="doNextPageBtn">Next</a></li>
-            {{/if}}
-    </ul>
-    </nav>
-</script>
-</#macro>
+<body style="padding-top:80px">
+<@common.navbar/>
+<div class="container" id="mainPanel">
+
+</div>
+</body>
+</html>
