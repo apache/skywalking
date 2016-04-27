@@ -23,6 +23,7 @@ import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Map;
 
 @Repository
@@ -35,7 +36,7 @@ public class CallChainTreeDao implements ICallChainTreeDao {
 
     @Override
     public AnlyResult queryEntranceAnlyResult(String entranceColumnName, String treeId) throws IOException {
-        String columnName = null;
+        String columnName = entranceColumnName;
         if (entranceColumnName.lastIndexOf(":") != -1) {
             columnName = entranceColumnName.substring(0, entranceColumnName.length() - 1);
         }
@@ -84,6 +85,7 @@ public class CallChainTreeDao implements ICallChainTreeDao {
             CallChainTreeNode callChainTreeNode = new CallChainTreeNode(qualifierStr, valueStr, loadKey);
             chainTree.addNode(callChainTreeNode);
         }
+
 
         return chainTree;
     }

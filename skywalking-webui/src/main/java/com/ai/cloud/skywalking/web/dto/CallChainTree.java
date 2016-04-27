@@ -22,4 +22,18 @@ public class CallChainTree {
     public void setTreeId(String treeId) {
         this.treeId = treeId;
     }
+
+    public List<CallChainTreeNode> getCallChainTreeNodeList() {
+        return callChainTreeNodeList;
+    }
+
+    public void setCallChainTreeNodeList(List<CallChainTreeNode> callChainTreeNodeList) {
+        this.callChainTreeNodeList = callChainTreeNodeList;
+    }
+
+    public void beautifulViewPointForShow() {
+        for (CallChainTreeNode node : callChainTreeNodeList){
+            node.beautifulViewPoint();
+        }
+    }
 }

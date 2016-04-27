@@ -5,6 +5,8 @@ import com.ai.cloud.skywalking.web.dto.CallChainTree;
 import com.ai.cloud.skywalking.web.dto.LoginUserInfo;
 import com.ai.cloud.skywalking.web.service.inter.IAnalysisResultService;
 import com.alibaba.fastjson.JSONObject;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * Created by xin on 16-4-5.
  */
-@RequestMapping("/usr/applications")
+@RequestMapping("/analy")
 @Controller
 public class AnalysisResultController extends BaseController {
 
@@ -27,8 +29,9 @@ public class AnalysisResultController extends BaseController {
     @Autowired
     private IAnalysisResultService analysisResultService;
 
-    @RequestMapping("/anlsResult")
-    public String analysisResult() {
+    @RequestMapping("/mainPage")
+    public String analysisResult(String treeId, HttpServletRequest request) {
+        request.setAttribute("treeId", treeId);
         return "anls-result/analysisResult";
     }
 
@@ -44,12 +47,18 @@ public class AnalysisResultController extends BaseController {
                                      @PathVariable("analyDate") String analyDate) {
         JSONObject result = new JSONObject();
         try {
-            LoginUserInfo userInfo = fetchLoginUserInfoFromSession(request);
+           // LoginUserInfo userInfo = fetchLoginUserInfoFromSession(request);
             CallChainTree callChainTree = analysisResultService.
                     fetchAnalysisResult(treeId, analyType, analyDate);
+            result.put("code", "200");
+            if (callChainTree != null) {
+                result.put("result", new Gson().toJson(callChainTree));
+            }else{
+                result.put("result", "{}");
+            }
         } catch (Exception e) {
             logger.error("Failed to load treeId[{}], anlysisType:[{}], anlyDate:[{}]", treeId, analyType, analyDate);
-            logger.error(e);
+            e.printStackTrace();
             result.put("code", "500");
             result.put("message", "Fatal error");
         }

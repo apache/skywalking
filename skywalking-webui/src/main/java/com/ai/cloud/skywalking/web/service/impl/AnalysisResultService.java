@@ -2,6 +2,7 @@ package com.ai.cloud.skywalking.web.service.impl;
 
 import com.ai.cloud.skywalking.web.dao.inter.ICallChainTreeDao;
 import com.ai.cloud.skywalking.web.dto.CallChainTree;
+import com.ai.cloud.skywalking.web.dto.CallChainTreeNode;
 import com.ai.cloud.skywalking.web.service.inter.IAnalysisResultService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -12,6 +13,8 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 
 /**
@@ -43,8 +46,7 @@ public class AnalysisResultService implements IAnalysisResultService {
             Date date = format.parse(analyDate);
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(date);
-            rowKey = treeId + "/" + calendar.get(Calendar.YEAR) + "-" + (calendar.get(Calendar.MONTH) + 1)
-                    + "-" + calendar.get(Calendar.DAY_OF_MONTH);
+            rowKey = treeId + "/" + calendar.get(Calendar.YEAR) + "-" + (calendar.get(Calendar.MONTH) + 1);
             loadKey = calendar.get(Calendar.DAY_OF_MONTH) + "";
             tableName = "sw-chain-1day-summary";
         } else if ("HOUR".equals(analyType)) {
@@ -64,7 +66,17 @@ public class AnalysisResultService implements IAnalysisResultService {
 
         logger.info("fetchAnalysisResult: tableName :{}, rowKey : {}, loadKey:{}", tableName, rowKey, loadKey);
         CallChainTree callChainTree = callChainTreeDao.queryAnalysisCallTree(tableName, rowKey, loadKey);
-        callChainTree.setTreeId(treeId);
+        if (callChainTree != null) {
+            callChainTree.setTreeId(treeId);
+            Collections.sort(callChainTree.getCallChainTreeNodeList(), new Comparator<CallChainTreeNode>() {
+                @Override
+                public int compare(CallChainTreeNode o1, CallChainTreeNode o2) {
+                    return o1.getTraceLevelId().compareTo(o2.getTraceLevelId());
+                }
+            });
+            callChainTree.beautifulViewPointForShow();
+        }
+
         return callChainTree;
     }
 }
