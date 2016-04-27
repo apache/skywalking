@@ -60,7 +60,7 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 * 实时链路追踪日志查看
 ![追踪连路图3](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/1.0b/callChainLog.png)
 * 实时链路异常告警邮件
-![告警邮件](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/alarmMail.jpg)
+![告警邮件](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/1.0b/alarmMail.png)
 * 添加应用
 ![添加应用](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/1.0b/addApp.png)
 * 应用列表展现
