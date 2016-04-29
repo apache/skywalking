@@ -59,7 +59,7 @@
             var searchKey = $("#searchKey").val();
             if (searchKey.match(/viewpoint:*/i)) {
                 loadContent("showAnlySearchResult")
-            } else if (searchKey.match(/analyResult:*/i)){
+            } else if (searchKey.match(/analysisresult:*/i)){
                 loadContent("showAnalysisResult");
             } else{
                 loadContent("showTraceInfo");
