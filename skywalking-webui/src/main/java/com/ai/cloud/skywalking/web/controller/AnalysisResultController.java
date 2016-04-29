@@ -2,11 +2,10 @@ package com.ai.cloud.skywalking.web.controller;
 
 import com.ai.cloud.skywalking.web.common.BaseController;
 import com.ai.cloud.skywalking.web.dto.CallChainTree;
-import com.ai.cloud.skywalking.web.dto.LoginUserInfo;
+import com.ai.cloud.skywalking.web.dto.TypicalCallTree;
 import com.ai.cloud.skywalking.web.service.inter.IAnalysisResultService;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * Created by xin on 16-4-5.
@@ -47,17 +47,41 @@ public class AnalysisResultController extends BaseController {
                                      @PathVariable("analyDate") String analyDate) {
         JSONObject result = new JSONObject();
         try {
-           // LoginUserInfo userInfo = fetchLoginUserInfoFromSession(request);
+            // LoginUserInfo userInfo = fetchLoginUserInfoFromSession(request);
             CallChainTree callChainTree = analysisResultService.
                     fetchAnalysisResult(treeId, analyType, analyDate);
             result.put("code", "200");
             if (callChainTree != null) {
                 result.put("result", new Gson().toJson(callChainTree));
-            }else{
+            } else {
                 result.put("result", "{}");
             }
         } catch (Exception e) {
             logger.error("Failed to load treeId[{}], anlysisType:[{}], anlyDate:[{}]", treeId, analyType, analyDate);
+            e.printStackTrace();
+            result.put("code", "500");
+            result.put("message", "Fatal error");
+        }
+        return result.toJSONString();
+    }
+
+    @RequestMapping(value = "/load/{treeId}/{analyDate}", produces = "application/json; charset=UTF-8")
+    @ResponseBody
+    public String loadTypicalCallTree(HttpServletRequest request,
+                                      @PathVariable("treeId") String treeId,
+                                      @PathVariable("analyDate") String analyDate) {
+        JSONObject result = new JSONObject();
+
+        try {
+            List<TypicalCallTree> typicalCallTrees = analysisResultService.fetchTypicalCallTrees(treeId, analyDate);
+            result.put("code", "200");
+            if (typicalCallTrees != null) {
+                result.put("result", new Gson().toJson(typicalCallTrees));
+            } else {
+                result.put("result", "{}");
+            }
+        } catch (Exception e) {
+            logger.error("Failed to load treeId[{}], anlyDate:[{}]", treeId, analyDate);
             e.printStackTrace();
             result.put("code", "500");
             result.put("message", "Fatal error");

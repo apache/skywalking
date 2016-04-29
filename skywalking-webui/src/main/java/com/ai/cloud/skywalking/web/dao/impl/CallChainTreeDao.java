@@ -23,7 +23,6 @@ import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Map;
 
 @Repository
@@ -36,10 +35,6 @@ public class CallChainTreeDao implements ICallChainTreeDao {
 
     @Override
     public AnlyResult queryEntranceAnlyResult(String entranceColumnName, String treeId) throws IOException {
-        String columnName = entranceColumnName;
-        if (entranceColumnName.lastIndexOf(":") != -1) {
-            columnName = entranceColumnName.substring(0, entranceColumnName.length() - 1);
-        }
         Table table = hBaseUtils.getConnection().getTable(TableName.valueOf("sw-chain-1month-summary"));
         Get get = new Get(treeId.getBytes());
         Result result = table.get(get);
@@ -48,19 +43,17 @@ public class CallChainTreeDao implements ICallChainTreeDao {
             return new AnlyResult(calendar.get(Calendar.YEAR) + "", (calendar.get(Calendar.MONTH) + 1) + "");
         }
         AnlyResult anlyResult = null;
-        Cell cell = result.getColumnLatestCell("chain_summary".getBytes(), columnName.getBytes());
-        if (cell != null) {
-            String anlyResultStr = Bytes.toString(cell.getValueArray(),
-                    cell.getValueOffset(), cell.getValueLength());
-            logger.debug("traceId: {} , entranceColumnName : {}, anlyResultStr : {}",
-                    treeId, columnName, anlyResultStr);
-            JsonObject jsonObject = (JsonObject) new JsonParser().parse(anlyResultStr);
-            Map<String, AnlyResult> resultMap = new Gson().fromJson(jsonObject.getAsJsonObject("summaryValueMap"),
-                    new TypeToken<Map<String, AnlyResult>>() {
-                    }.getType());
-            anlyResult = resultMap.get((Calendar.getInstance().get(Calendar.MONTH) + 1) + "");
-        }
+        Cell cell = result.getColumnLatestCell("chain_summary".getBytes(), entranceColumnName.getBytes());
 
+        String anlyResultStr = Bytes.toString(cell.getValueArray(),
+                cell.getValueOffset(), cell.getValueLength());
+        logger.debug("traceId: {} , entranceColumnName : {}, anlyResultStr : {}",
+                treeId, entranceColumnName, anlyResultStr);
+        JsonObject jsonObject = (JsonObject) new JsonParser().parse(anlyResultStr);
+        Map<String, AnlyResult> resultMap = new Gson().fromJson(jsonObject.getAsJsonObject("summaryValueMap"),
+                new TypeToken<Map<String, AnlyResult>>() {
+                }.getType());
+        anlyResult = resultMap.get((Calendar.getInstance().get(Calendar.MONTH) + 1) + "");
         if (anlyResult == null) {
             anlyResult = new AnlyResult();
         }

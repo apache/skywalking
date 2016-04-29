@@ -1,8 +1,10 @@
 package com.ai.cloud.skywalking.web.service.impl;
 
 import com.ai.cloud.skywalking.web.dao.inter.ICallChainTreeDao;
+import com.ai.cloud.skywalking.web.dao.inter.ITypicalCallTreeDao;
 import com.ai.cloud.skywalking.web.dto.CallChainTree;
 import com.ai.cloud.skywalking.web.dto.CallChainTreeNode;
+import com.ai.cloud.skywalking.web.dto.TypicalCallTree;
 import com.ai.cloud.skywalking.web.service.inter.IAnalysisResultService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -12,10 +14,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
+import java.util.*;
 
 /**
  * Created by xin on 16-4-25.
@@ -27,6 +26,9 @@ public class AnalysisResultService implements IAnalysisResultService {
 
     @Autowired
     private ICallChainTreeDao callChainTreeDao;
+
+    @Autowired
+    private ITypicalCallTreeDao typicalCallTreeDao;
 
     @Override
     public CallChainTree fetchAnalysisResult(String treeId, String analyType, String analyDate) throws ParseException, IOException {
@@ -78,5 +80,27 @@ public class AnalysisResultService implements IAnalysisResultService {
         }
 
         return callChainTree;
+    }
+
+    @Override
+    public List<TypicalCallTree> fetchTypicalCallTrees(String treeId, String analyDate) throws ParseException, IOException {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM");
+        Date date = format.parse(analyDate);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+
+        String rowKey = treeId + "@" + calendar.get(Calendar.YEAR) + "-" + calendar.get(Calendar.MONTH);
+        //load treeID
+        String[] typicalCallTreeIds = typicalCallTreeDao.queryAllCombineCallChainTreeIds(rowKey);
+        if (typicalCallTreeIds == null) {
+            return new ArrayList<TypicalCallTree>();
+        }
+        List<TypicalCallTree> typicalCallTrees = new ArrayList<TypicalCallTree>();
+        for (String callTreeId : typicalCallTreeIds) {
+            TypicalCallTree typicalCallTree = typicalCallTreeDao.queryCallChainTree(callTreeId);
+            typicalCallTrees.add(typicalCallTree);
+        }
+
+        return typicalCallTrees;
     }
 }

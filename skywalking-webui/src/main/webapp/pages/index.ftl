@@ -71,7 +71,9 @@
         $("#searchBtn").click(function () {
             var searchKey = $("#key").val();
             if (searchKey.match(/viewpoint:*/i)) {
-                window.location.href = "${_base}/" + "mainPage?loadType=showAnlyResult&key=" + searchKey;
+                window.location.href = "${_base}/mainPage?loadType=showAnlySearchResult&key=" + searchKey;
+            }else if (searchKey.match(/analyResult:*/i)){
+                window.location.href = "${_base}/mainPage?loadType=showAnalysisResult&key=" + searchKey;
             } else {
                 window.location.href = "${_base}/" + searchKey;
             }

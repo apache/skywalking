@@ -13,7 +13,7 @@
 <#macro anlyResultDisplayTmpl>
 <script type="text/x-jsrender" id="anlyResultDisplayTmpl">
     <div class="row">
-        <h4><a href="${_base}/analy/mainPage?treeId={{>treeId}}">{{>entranceViewpoint}}</a></h4>
+        <h4><a href="${_base}/mainPage?loadType=showAnalysisResult&key=analyResult:{{>treeId}}">{{>entranceViewpoint}}</a></h4>
         <p>
          {{for nodes}}
          {{if isPrintSlipDot}}
