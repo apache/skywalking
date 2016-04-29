@@ -92,6 +92,7 @@ public class SpanEntry {
     public void setBusinessKey(String businessKey) {
         if (clientSpan != null) {
             clientSpan.setBusinessKey(businessKey);
+            return;
         }
         serverSpan.setBusinessKey(businessKey);
     }
