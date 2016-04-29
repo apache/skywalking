@@ -4,8 +4,12 @@ import com.ai.cloud.skywalking.analysis.chainbuild.SpanEntry;
 import com.ai.cloud.skywalking.analysis.chainbuild.filter.SpanNodeProcessFilter;
 import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainNode;
 import com.ai.cloud.skywalking.analysis.chainbuild.util.SubLevelSpanCostCounter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class JDBCBusinessKeyHandleFilter extends SpanNodeProcessFilter {
+    private Logger logger = LogManager.getLogger(JDBCBusinessKeyHandleFilter.class);
+
     @Override
     public void doFilter(SpanEntry spanEntry, ChainNode node, SubLevelSpanCostCounter costMap) {
         String businessKey = spanEntry.getBusinessKey();
@@ -29,7 +33,7 @@ public class JDBCBusinessKeyHandleFilter extends SpanNodeProcessFilter {
         this.doNext(spanEntry, node, costMap);
     }
 
-    private String subBusinessKey(String businessKey, String key,String keyWord) {
+    private String subBusinessKey(String businessKey, String key, String keyWord) {
         int whereIndex = key.indexOf(keyWord);
         if (whereIndex != -1) {
             businessKey = businessKey.substring(0, whereIndex - 1).trim();

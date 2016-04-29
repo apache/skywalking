@@ -219,6 +219,6 @@ public class CallChainTreeNode {
     }
 
     public String getTreeNodeId() {
-        return traceLevelId + "@~" + viewPointId;
+        return traceLevelId + "@" + viewPointId;
     }
 }
