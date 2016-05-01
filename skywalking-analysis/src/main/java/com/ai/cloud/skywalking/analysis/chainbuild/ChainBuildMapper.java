@@ -5,6 +5,7 @@ import com.ai.cloud.skywalking.analysis.chainbuild.filter.SpanNodeProcessChain;
 import com.ai.cloud.skywalking.analysis.chainbuild.filter.SpanNodeProcessFilter;
 import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainInfo;
 import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainNode;
+import com.ai.cloud.skywalking.analysis.chainbuild.po.SummaryType;
 import com.ai.cloud.skywalking.analysis.chainbuild.util.SubLevelSpanCostCounter;
 import com.ai.cloud.skywalking.analysis.chainbuild.util.VersionIdentifier;
 import com.ai.cloud.skywalking.analysis.config.ConfigInitializer;
@@ -57,7 +58,13 @@ public class ChainBuildMapper extends TableMapper<Text, Text> {
                     + "] to chain with cid[" + chainInfo.getCID() + "].");
             if (chainInfo.getCallEntrance() != null && chainInfo.getCallEntrance().length() > 0) {
                 context.write(
-                        new Text(chainInfo.getCallEntrance()), new Text(new Gson().toJson(chainInfo)));
+                        new Text(chainInfo.getCallEntrance() + "@#!" + SummaryType.MINUTER.getValue()), new Text(new Gson().toJson(chainInfo)));
+                context.write(
+                        new Text(chainInfo.getCallEntrance() + "@#!" + SummaryType.HOUR.getValue()), new Text(new Gson().toJson(chainInfo)));
+                context.write(
+                        new Text(chainInfo.getCallEntrance() + "@#!" + SummaryType.DAY.getValue()), new Text(new Gson().toJson(chainInfo)));
+                context.write(
+                        new Text(chainInfo.getCallEntrance() + "@#!" + SummaryType.MONTH.getValue()), new Text(new Gson().toJson(chainInfo)));
             }
         } catch (Exception e) {
             logger.error("Failed to mapper call chain[" + key.toString() + "]",

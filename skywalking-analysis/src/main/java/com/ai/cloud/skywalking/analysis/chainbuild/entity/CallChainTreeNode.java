@@ -1,6 +1,7 @@
 package com.ai.cloud.skywalking.analysis.chainbuild.entity;
 
 import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainNode;
+import com.ai.cloud.skywalking.analysis.chainbuild.po.SummaryType;
 import com.ai.cloud.skywalking.analysis.chainbuild.util.HBaseUtil;
 import com.ai.cloud.skywalking.analysis.config.Config;
 import com.ai.cloud.skywalking.analysis.config.HBaseTableMetaData;
@@ -60,14 +61,21 @@ public class CallChainTreeNode {
         this.viewPointId = node.getViewPoint();
     }
 
-    public void summary(String treeId, ChainNode node) throws IOException {
+    public void summary(String treeId, ChainNode node, SummaryType summaryType) throws IOException {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date(node.getStartDate()));
-
-        summaryMinResult(treeId, node, calendar);
-        summaryHourResult(treeId, node, calendar);
-        summaryDayResult(treeId, node, calendar);
-        summaryMonthResult(treeId, node, calendar);
+        if (summaryType == SummaryType.MINUTER) {
+            summaryMinResult(treeId, node, calendar);
+        }
+        if (summaryType == SummaryType.DAY) {
+            summaryHourResult(treeId, node, calendar);
+        }
+        if (summaryType == SummaryType.DAY) {
+            summaryDayResult(treeId, node, calendar);
+        }
+        if (summaryType == SummaryType.MONTH) {
+            summaryMonthResult(treeId, node, calendar);
+        }
     }
 
     private void summaryMonthResult(String treeId, ChainNode node, Calendar calendar) throws IOException {

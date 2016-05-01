@@ -6,6 +6,7 @@ import java.util.Map;
 
 import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainInfo;
 import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainNode;
+import com.ai.cloud.skywalking.analysis.chainbuild.po.SummaryType;
 import com.ai.cloud.skywalking.analysis.chainbuild.util.TokenGenerator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -35,7 +36,7 @@ public class CallChainTree {
         return chain;
     }
 
-    public void summary(ChainInfo chainInfo) throws IOException {
+    public void summary(ChainInfo chainInfo, SummaryType summaryType) throws IOException {
         for (ChainNode node : chainInfo.getNodes()) {
         	CallChainTreeNode newCallChainTreeNode = new CallChainTreeNode(node);
             CallChainTreeNode callChainTreeNode = nodes.get(newCallChainTreeNode.getTreeNodeId());
@@ -43,7 +44,7 @@ public class CallChainTree {
                 callChainTreeNode = newCallChainTreeNode;
                 nodes.put(newCallChainTreeNode.getTreeNodeId(), callChainTreeNode);
             }
-            callChainTreeNode.summary(treeToken, node);
+            callChainTreeNode.summary(treeToken, node, summaryType);
         }
     }
 

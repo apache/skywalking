@@ -3,6 +3,7 @@ package com.ai.cloud.skywalking.analysis.chainbuild;
 import com.ai.cloud.skywalking.analysis.chainbuild.entity.CallChainTree;
 import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainInfo;
 import com.ai.cloud.skywalking.analysis.chainbuild.po.SpecificTimeCallTreeMergedChainIdContainer;
+import com.ai.cloud.skywalking.analysis.chainbuild.po.SummaryType;
 import com.ai.cloud.skywalking.analysis.config.Config;
 import com.ai.cloud.skywalking.analysis.config.ConfigInitializer;
 import com.google.gson.Gson;
@@ -32,10 +33,16 @@ public class ChainBuildReducer extends Reducer<Text, Text, Text, IntWritable> {
     @Override
     protected void reduce(Text key, Iterable<Text> values, Context context)
             throws IOException, InterruptedException {
-        doReduceAction(Bytes.toString(key.getBytes()), values.iterator());
+        String reduceKey = Bytes.toString(key.getBytes());
+        int index = reduceKey.indexOf("@#!");
+        if (index == -1){
+            return;
+        }
+
+        doReduceAction(reduceKey.substring(0, index - 1), SummaryType.convert(reduceKey.substring(index + 3)), values.iterator());
     }
 
-    public void doReduceAction(String key, Iterator<Text> chainInfoIterator)
+    public void doReduceAction(String key, SummaryType summaryType, Iterator<Text> chainInfoIterator)
             throws IOException, InterruptedException {
         CallChainTree chainTree = CallChainTree.load(key);
         SpecificTimeCallTreeMergedChainIdContainer container
@@ -46,7 +53,7 @@ public class ChainBuildReducer extends Reducer<Text, Text, Text, IntWritable> {
             try {
                 chainInfo = new Gson().fromJson(callChainData, ChainInfo.class);
                 container.addMergedChainIfNotContain(chainInfo);
-                chainTree.summary(chainInfo);
+                chainTree.summary(chainInfo, summaryType);
             } catch (Exception e) {
                 logger.error(
                         "Failed to summary call chain, maybe illegal data:"
@@ -54,7 +61,7 @@ public class ChainBuildReducer extends Reducer<Text, Text, Text, IntWritable> {
             }
         }
         try {
-            container.saveToHBase();
+            container.saveToHBase(summaryType);
             chainTree.saveToHbase();
         } catch (Exception e) {
             logger.error("Failed to save summaryresult/chainTree.", e);
