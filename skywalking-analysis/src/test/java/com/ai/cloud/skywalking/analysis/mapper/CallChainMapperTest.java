@@ -3,7 +3,7 @@ package com.ai.cloud.skywalking.analysis.mapper;
 
 import com.ai.cloud.skywalking.analysis.chainbuild.ChainBuildMapper;
 import com.ai.cloud.skywalking.analysis.chainbuild.ChainBuildReducer;
-import com.ai.cloud.skywalking.analysis.chainbuild.action.ISummaryAction;
+import com.ai.cloud.skywalking.analysis.chainbuild.action.IStatisticsAction;
 import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainInfo;
 import com.ai.cloud.skywalking.analysis.chainbuild.po.SummaryType;
 import com.ai.cloud.skywalking.analysis.chainbuild.util.TokenGenerator;
@@ -62,9 +62,9 @@ public class CallChainMapperTest {
 
         String summaryTypeAndDateStr = reduceKey.substring(0, index - 1);
         String entryKey = reduceKey.substring(index + 1);
-        ISummaryAction summaryAction = SummaryType.chooseSummaryAction(summaryTypeAndDateStr, entryKey);
+        IStatisticsAction summaryAction = SummaryType.chooseSummaryAction(summaryTypeAndDateStr, entryKey);
 
-        new ChainBuildReducer().doReduceAction(summaryAction, chainNodeInfo.iterator());
+        new ChainBuildReducer().doReduceAction(reduceKey, summaryAction, chainNodeInfo.iterator());
     }
 
     public static List<Span> selectByTraceId(String traceId) throws IOException {

@@ -1,8 +1,8 @@
 package com.ai.cloud.skywalking.analysis.chainbuild.po;
 
-import com.ai.cloud.skywalking.analysis.chainbuild.action.ISummaryAction;
-import com.ai.cloud.skywalking.analysis.chainbuild.action.impl.DateDetailSummaryAction;
-import com.ai.cloud.skywalking.analysis.chainbuild.action.impl.RelationShipAction;
+import com.ai.cloud.skywalking.analysis.chainbuild.action.IStatisticsAction;
+import com.ai.cloud.skywalking.analysis.chainbuild.action.impl.NumberOfCalledStatisticsAction;
+import com.ai.cloud.skywalking.analysis.chainbuild.action.impl.CallChainRelationshipAction;
 
 import java.io.IOException;
 
@@ -19,7 +19,7 @@ public enum SummaryType {
         return value;
     }
 
-    public static ISummaryAction chooseSummaryAction(String summaryTypeAndDateStr, String entryKey) throws IOException {
+    public static IStatisticsAction chooseSummaryAction(String summaryTypeAndDateStr, String entryKey) throws IOException {
         char valueChar = summaryTypeAndDateStr.charAt(0);
         // HOUR : 2016-05-02/12
         // DAY : 2016-05-02
@@ -42,11 +42,11 @@ public enum SummaryType {
                 type = YEAR;
                 break;
             case 'R':
-                return new RelationShipAction(entryKey);
+                return new CallChainRelationshipAction(entryKey);
             default:
                 throw new RuntimeException("Can not find the summary type[" + valueChar + "]");
         }
-        DateDetailSummaryAction summaryAction = new DateDetailSummaryAction(entryKey, summaryDateStr);
+        NumberOfCalledStatisticsAction summaryAction = new NumberOfCalledStatisticsAction(entryKey, summaryDateStr);
         summaryAction.setSummaryType(type);
         return summaryAction;
     }

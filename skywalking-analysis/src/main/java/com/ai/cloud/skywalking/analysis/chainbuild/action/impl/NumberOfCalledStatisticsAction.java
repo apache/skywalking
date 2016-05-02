@@ -1,6 +1,6 @@
 package com.ai.cloud.skywalking.analysis.chainbuild.action.impl;
 
-import com.ai.cloud.skywalking.analysis.chainbuild.action.ISummaryAction;
+import com.ai.cloud.skywalking.analysis.chainbuild.action.IStatisticsAction;
 import com.ai.cloud.skywalking.analysis.chainbuild.entity.CallChainTree;
 import com.ai.cloud.skywalking.analysis.chainbuild.entity.CallChainTreeNode;
 import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainNode;
@@ -10,13 +10,13 @@ import com.google.gson.Gson;
 import java.io.IOException;
 import java.sql.SQLException;
 
-public class DateDetailSummaryAction implements ISummaryAction {
+public class NumberOfCalledStatisticsAction implements IStatisticsAction {
     private CallChainTree callChainTree;
     private String summaryDate;
     private SummaryType summaryType;
 
-    public DateDetailSummaryAction(String entryKey, String summaryDate) throws IOException {
-        callChainTree = CallChainTree.load(entryKey);
+    public NumberOfCalledStatisticsAction(String entryKey, String summaryDate) throws IOException {
+        callChainTree = CallChainTree.create(entryKey);
         this.summaryDate = summaryDate;
     }
 

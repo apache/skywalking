@@ -10,25 +10,25 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
 
-public class SpecificTimeCallTreeMergedChainIdContainer {
+public class SpecificTimeCallChainTreeContainer {
 
     private String treeToken;
 
     private Map<String, List<String>> hasBeenMergedChainIds;
 
-    private Map<String, CallChainDetailForMysql> callChainDetailMap;
+    private Map<String, CallChainDetailForMysql> newChain4DB;
 
     // 本次Reduce合并过的调用链
-    private Map<String, ChainInfo> combineChains;
+    private Map<String, ChainInfo> newChains;
 
-    public SpecificTimeCallTreeMergedChainIdContainer(String treeToken) {
+    public SpecificTimeCallChainTreeContainer(String treeToken) {
         this.treeToken = treeToken;
         hasBeenMergedChainIds = new HashMap<String, List<String>>();
-        combineChains = new HashMap<String, ChainInfo>();
-        callChainDetailMap = new HashMap<String, CallChainDetailForMysql>();
+        newChains = new HashMap<String, ChainInfo>();
+        newChain4DB = new HashMap<String, CallChainDetailForMysql>();
     }
 
-    public void addMergedChainIfNotContain(ChainInfo chainInfo) throws IOException {
+    public void addChainIfNew(ChainInfo chainInfo) throws IOException {
         String key = generateKey(chainInfo.getStartDate());
         List<String> cIds = hasBeenMergedChainIds.get(key);
         if (cIds == null) {
@@ -38,11 +38,10 @@ public class SpecificTimeCallTreeMergedChainIdContainer {
 
         if (!cIds.contains(chainInfo.getCID())) {
             cIds.add(chainInfo.getCID());
-            combineChains.put(chainInfo.getCID(), chainInfo);
+            newChains.put(chainInfo.getCID(), chainInfo);
 
-            //
             if (chainInfo.getChainStatus() == ChainInfo.ChainStatus.NORMAL) {
-                callChainDetailMap.put(chainInfo.getCID(), new CallChainDetailForMysql(chainInfo, treeToken));
+                newChain4DB.put(chainInfo.getCID(), new CallChainDetailForMysql(chainInfo, treeToken));
             }
         }
     }
@@ -55,13 +54,13 @@ public class SpecificTimeCallTreeMergedChainIdContainer {
     }
 
     public void saveToHBase() throws IOException, InterruptedException, SQLException {
-        batchSaveCurrentHasBeenMergedChainInfo();
+        batchSaveNewChainsInfo();
         batchSaveMergedChainId();
         batchSaveToMysql();
     }
 
     private void batchSaveToMysql() throws SQLException {
-        for (Map.Entry<String, CallChainDetailForMysql> entry : callChainDetailMap.entrySet()) {
+        for (Map.Entry<String, CallChainDetailForMysql> entry : newChain4DB.entrySet()) {
             entry.getValue().saveToMysql();
         }
     }
@@ -90,9 +89,9 @@ public class SpecificTimeCallTreeMergedChainIdContainer {
      * @throws IOException
      * @throws InterruptedException
      */
-    private void batchSaveCurrentHasBeenMergedChainInfo() throws IOException, InterruptedException {
+    private void batchSaveNewChainsInfo() throws IOException, InterruptedException {
         List<Put> chainInfoPuts = new ArrayList<Put>();
-        for (Map.Entry<String, ChainInfo> entry : combineChains.entrySet()) {
+        for (Map.Entry<String, ChainInfo> entry : newChains.entrySet()) {
             Put put = new Put(entry.getKey().getBytes());
             entry.getValue().saveToHBase(put);
             chainInfoPuts.add(put);

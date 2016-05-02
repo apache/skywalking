@@ -4,12 +4,11 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainInfo;
-import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainNode;
-import com.ai.cloud.skywalking.analysis.chainbuild.po.SummaryType;
-import com.ai.cloud.skywalking.analysis.chainbuild.util.TokenGenerator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import com.ai.cloud.skywalking.analysis.chainbuild.po.SummaryType;
+import com.ai.cloud.skywalking.analysis.chainbuild.util.TokenGenerator;
 
 public class CallChainTree {
     private Logger logger = LogManager.getLogger(CallChainTree.class);
@@ -31,7 +30,7 @@ public class CallChainTree {
         logger.info("CallEntrance:[{}] == TreeToken[{}]",callEntrance, treeToken);
     }
 
-    public static CallChainTree load(String callEntrance) throws IOException {
+    public static CallChainTree create(String callEntrance) throws IOException {
         CallChainTree chain = new CallChainTree(callEntrance);
         return chain;
     }
