@@ -61,25 +61,32 @@ public class CallChainTreeNode {
         this.viewPointId = node.getViewPoint();
     }
 
-    public void summary(String treeId, ChainNode node, SummaryType summaryType) throws IOException {
+    public void summary(String treeId, ChainNode node, SummaryType summaryType, String summaryDate) throws IOException {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date(node.getStartDate()));
-        if (summaryType == SummaryType.MINUTER) {
-            summaryMinResult(treeId, node, calendar);
+        switch (summaryType) {
+            case HOUR: {
+                summaryMinResult(treeId, node, calendar, summaryDate);
+                break;
+            }
+            case DAY: {
+                summaryHourResult(treeId, node, calendar, summaryDate);
+                break;
+            }
+            case MONTH: {
+                summaryDayResult(treeId, node, calendar, summaryDate);
+                break;
+            }
+            case YEAR: {
+                summaryMonthResult(treeId, node, calendar, summaryDate);
+                break;
+            }
         }
-        if (summaryType == SummaryType.DAY) {
-            summaryHourResult(treeId, node, calendar);
-        }
-        if (summaryType == SummaryType.DAY) {
-            summaryDayResult(treeId, node, calendar);
-        }
-        if (summaryType == SummaryType.MONTH) {
-            summaryMonthResult(treeId, node, calendar);
-        }
+
     }
 
-    private void summaryMonthResult(String treeId, ChainNode node, Calendar calendar) throws IOException {
-        String keyOfMonthSummaryTable = generateKeyOfMonthSummaryTable(treeId, calendar);
+    private void summaryMonthResult(String treeId, ChainNode node, Calendar calendar, String summaryDate) throws IOException {
+        String keyOfMonthSummaryTable = generateRowKey(treeId, summaryDate);
         ChainNodeSpecificMonthSummary monthSummary = chainNodeSpecificMonthSummaryContainer.get(keyOfMonthSummaryTable);
         if (monthSummary == null) {
             if (Config.AnalysisServer.IS_ACCUMULATE_MODE) {
@@ -92,8 +99,8 @@ public class CallChainTreeNode {
         monthSummary.summary(String.valueOf(calendar.get(Calendar.MONTH) + 1), node);
     }
 
-    private void summaryDayResult(String treeId, ChainNode node, Calendar calendar) throws IOException {
-        String keyOfDaySummaryTable = generateKeyOfDaySummaryTable(treeId, calendar);
+    private void summaryDayResult(String treeId, ChainNode node, Calendar calendar, String summaryDate) throws IOException {
+        String keyOfDaySummaryTable = generateRowKey(treeId, summaryDate);
         ChainNodeSpecificDaySummary daySummary = chainNodeSpecificDaySummaryContainer.get(keyOfDaySummaryTable);
         if (daySummary == null) {
             if (Config.AnalysisServer.IS_ACCUMULATE_MODE) {
@@ -106,8 +113,8 @@ public class CallChainTreeNode {
         daySummary.summary(String.valueOf(calendar.get(Calendar.DAY_OF_MONTH)), node);
     }
 
-    private void summaryHourResult(String treeId, ChainNode node, Calendar calendar) throws IOException {
-        String keyOfHourSummaryTable = generateKeyOfHourSummaryTable(treeId, calendar);
+    private void summaryHourResult(String treeId, ChainNode node, Calendar calendar, String summaryDate) throws IOException {
+        String keyOfHourSummaryTable = generateRowKey(treeId, summaryDate);
         ChainNodeSpecificHourSummary hourSummary = chainNodeSpecificHourSummaryContainer.get(keyOfHourSummaryTable);
         if (hourSummary == null) {
             if (Config.AnalysisServer.IS_ACCUMULATE_MODE) {
@@ -124,8 +131,8 @@ public class CallChainTreeNode {
      * 按分钟维度进行汇总<br/>
      * chainNodeContainer以treeId和时间（精确到分钟）为key，value为当前时间范围内的所有分钟的汇总数据
      */
-    private void summaryMinResult(String treeId, ChainNode node, Calendar calendar) throws IOException {
-        String keyOfMinSummaryTable = generateKeyOfMinSummaryTable(treeId, calendar);
+    private void summaryMinResult(String treeId, ChainNode node, Calendar calendar, String summaryDate) throws IOException {
+        String keyOfMinSummaryTable = generateRowKey(treeId, summaryDate);
         ChainNodeSpecificMinSummary minSummary = chainNodeSpecificMinSummaryContainer.get(keyOfMinSummaryTable);
         if (minSummary == null) {
             if (Config.AnalysisServer.IS_ACCUMULATE_MODE) {
@@ -138,23 +145,10 @@ public class CallChainTreeNode {
         minSummary.summary(String.valueOf(calendar.get(Calendar.MINUTE)), node);
     }
 
-    private String generateKeyOfMonthSummaryTable(String treeId, Calendar calendar) {
-        return treeId + "/" + calendar.get(Calendar.YEAR);
+    private String generateRowKey(String treeId, String dateKey) {
+        return treeId + "/" + dateKey;
     }
 
-    private String generateKeyOfDaySummaryTable(String treeId, Calendar calendar) {
-        return treeId + "/" + calendar.get(Calendar.YEAR) + "-" + (calendar.get(Calendar.MONTH) + 1);
-    }
-
-    private String generateKeyOfHourSummaryTable(String treeId, Calendar calendar) {
-        return treeId + "/" + calendar.get(Calendar.YEAR) + "-" + (calendar.get(Calendar.MONTH) + 1) + "-"
-                + calendar.get(Calendar.DAY_OF_MONTH);
-    }
-
-    private String generateKeyOfMinSummaryTable(String treeId, Calendar calendar) {
-        return treeId + "/" + calendar.get(Calendar.YEAR) + "-" + (calendar.get(Calendar.MONTH) + 1) + "-"
-                + calendar.get(Calendar.DAY_OF_MONTH) + " " + calendar.get(Calendar.HOUR) + ":00:00";
-    }
 
     @Override
     public String toString() {
@@ -170,11 +164,25 @@ public class CallChainTreeNode {
      * @throws IOException
      * @throws InterruptedException
      */
-    public void saveSummaryResultToHBase() throws IOException, InterruptedException {
-        batchSaveMinSummaryResult();
-        batchSaveHourSummaryResult();
-        batchSaveDaySummaryResult();
-        batchSaveMonthSummaryResult();
+    public void saveSummaryResultToHBase(SummaryType summaryType) throws IOException, InterruptedException {
+        switch (summaryType) {
+            case HOUR: {
+                batchSaveMinSummaryResult();
+                break;
+            }
+            case DAY: {
+                batchSaveHourSummaryResult();
+                break;
+            }
+            case MONTH: {
+                batchSaveDaySummaryResult();
+                break;
+            }
+            case YEAR: {
+                batchSaveMonthSummaryResult();
+                break;
+            }
+        }
     }
 
     private void batchSaveMonthSummaryResult() throws IOException, InterruptedException {

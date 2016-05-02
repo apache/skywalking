@@ -3,7 +3,10 @@ package com.ai.cloud.skywalking.analysis.mapper;
 
 import com.ai.cloud.skywalking.analysis.chainbuild.ChainBuildMapper;
 import com.ai.cloud.skywalking.analysis.chainbuild.ChainBuildReducer;
+import com.ai.cloud.skywalking.analysis.chainbuild.action.ISummaryAction;
 import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainInfo;
+import com.ai.cloud.skywalking.analysis.chainbuild.po.SummaryType;
+import com.ai.cloud.skywalking.analysis.chainbuild.util.TokenGenerator;
 import com.ai.cloud.skywalking.analysis.config.ConfigInitializer;
 import com.ai.cloud.skywalking.analysis.config.HBaseTableMetaData;
 import com.ai.cloud.skywalking.protocol.Span;
@@ -30,21 +33,38 @@ public class CallChainMapperTest {
     private static String ZK_QUORUM = "10.1.235.197,10.1.235.198,10.1.235.199";
     //    private static String ZK_QUORUM = "10.1.241.18,10.1.241.19,10.1.241.20";
     private static String ZK_CLIENT_PORT = "29181";
-    private static String chain_Id = "1.0a2.1457436000002.860568c.21818.49.82";
-//    private static String chain_Id = "1.0a2.1453429608422.2701d43.6468.56.1";
+    private static String chain_Id = "1.0a2.1453123911750.b3d7400.13582.96.2";
+    //private static String chain_Id = "1.0a2.1453429608422.2701d43.6468.56.1";
 
     private static Configuration configuration = null;
     private static Connection connection;
 
+
+    private static SimpleDateFormat hourSimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH");
+    private static SimpleDateFormat daySimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    private static SimpleDateFormat monthSimpleDateFormat = new SimpleDateFormat("yyyy-MM");
+    private static SimpleDateFormat yearSimpleDateFormat = new SimpleDateFormat("yyyy");
+
     public static void main(String[] args) throws Exception {
         ConfigInitializer.initialize();
+        initHBaseClient();
         List<Span> spanList = selectByTraceId(chain_Id);
         ChainInfo chainInfo = ChainBuildMapper.spanToChainInfo(chain_Id, spanList);
+        List<Text> chainNodeInfo = new ArrayList<>();
+        chainNodeInfo.add(new Text(new Gson().toJson(chainInfo)));
+        Text key = new Text(SummaryType.RELATIONSHIP + "-" + TokenGenerator.generateTreeToken(chainInfo.getCallEntrance())
+                + ":" + chainInfo.getCallEntrance());
+        String reduceKey = Bytes.toString(key.getBytes());
+        int index = reduceKey.indexOf(":");
+        if (index == -1) {
+            return;
+        }
 
-        List<Text> chainInfos = new ArrayList<Text>();
-        chainInfos.add(new Text(new Gson().toJson(chainInfo)));
+        String summaryTypeAndDateStr = reduceKey.substring(0, index - 1);
+        String entryKey = reduceKey.substring(index + 1);
+        ISummaryAction summaryAction = SummaryType.chooseSummaryAction(summaryTypeAndDateStr, entryKey);
 
-        new ChainBuildReducer().doReduceAction(chainInfo.getCallEntrance(), chainInfos.iterator());
+        new ChainBuildReducer().doReduceAction(summaryAction, chainNodeInfo.iterator());
     }
 
     public static List<Span> selectByTraceId(String traceId) throws IOException {
@@ -68,13 +88,13 @@ public class CallChainMapperTest {
         for (ChainInfo chainInfo : chainInfoList) {
             String key = generateKey(chainInfo.getStartDate());
             Integer total = summaryResult.get(key);
-            if (total == null){
+            if (total == null) {
                 total = 0;
             }
             summaryResult.put(key, ++total);
         }
 
-        for (Map.Entry<String, Integer> entry : summaryResult.entrySet()){
+        for (Map.Entry<String, Integer> entry : summaryResult.entrySet()) {
             System.out.println(entry.getKey() + "  " + entry.getValue());
         }
 
@@ -116,8 +136,7 @@ public class CallChainMapperTest {
         return chainInfos;
     }
 
-
-    public void initHBaseClient() throws IOException {
+    public static void initHBaseClient() throws IOException {
         if (configuration == null) {
             configuration = HBaseConfiguration.create();
             configuration.set("hbase.zookeeper.quorum", ZK_QUORUM);

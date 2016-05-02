@@ -7,9 +7,11 @@ import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainInfo;
 import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainNode;
 import com.ai.cloud.skywalking.analysis.chainbuild.po.SummaryType;
 import com.ai.cloud.skywalking.analysis.chainbuild.util.SubLevelSpanCostCounter;
+import com.ai.cloud.skywalking.analysis.chainbuild.util.TokenGenerator;
 import com.ai.cloud.skywalking.analysis.chainbuild.util.VersionIdentifier;
 import com.ai.cloud.skywalking.analysis.config.ConfigInitializer;
 import com.ai.cloud.skywalking.protocol.Span;
+import com.ai.cloud.skywalking.util.SpanLevelIdComparators;
 import com.google.gson.Gson;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Result;
@@ -21,11 +23,16 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class ChainBuildMapper extends TableMapper<Text, Text> {
 
     private Logger logger = LogManager.getLogger(ChainBuildMapper.class);
+    private SimpleDateFormat hourSimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH");
+    private SimpleDateFormat daySimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    private SimpleDateFormat monthSimpleDateFormat = new SimpleDateFormat("yyyy-MM");
+    private SimpleDateFormat yearSimpleDateFormat = new SimpleDateFormat("yyyy");
 
     @Override
     protected void setup(Context context) throws IOException,
@@ -57,14 +64,27 @@ public class ChainBuildMapper extends TableMapper<Text, Text> {
             logger.debug("convert tid[" + Bytes.toString(key.get())
                     + "] to chain with cid[" + chainInfo.getCID() + "].");
             if (chainInfo.getCallEntrance() != null && chainInfo.getCallEntrance().length() > 0) {
-                context.write(
-                        new Text(chainInfo.getCallEntrance() + "@#!" + SummaryType.MINUTER.getValue()), new Text(new Gson().toJson(chainInfo)));
-                context.write(
-                        new Text(chainInfo.getCallEntrance() + "@#!" + SummaryType.HOUR.getValue()), new Text(new Gson().toJson(chainInfo)));
-                context.write(
-                        new Text(chainInfo.getCallEntrance() + "@#!" + SummaryType.DAY.getValue()), new Text(new Gson().toJson(chainInfo)));
-                context.write(
-                        new Text(chainInfo.getCallEntrance() + "@#!" + SummaryType.MONTH.getValue()), new Text(new Gson().toJson(chainInfo)));
+                for (ChainNode chainNode : chainInfo.getNodes()) {
+                    context.write(new Text(SummaryType.HOUR.getValue() + "-" + hourSimpleDateFormat.format(
+                            new Date(chainNode.getStartDate())
+                    ) + ":" + chainInfo.getCallEntrance()), new Text(new Gson().toJson(chainNode)));
+
+                    context.write(new Text(SummaryType.DAY.getValue() + "-" + daySimpleDateFormat.format(
+                            new Date(chainNode.getStartDate())
+                    ) + ":" + chainInfo.getCallEntrance()), new Text(new Gson().toJson(chainNode)));
+
+                    context.write(new Text(SummaryType.MONTH.getValue() + "-" + monthSimpleDateFormat.format(
+                            new Date(chainNode.getStartDate())
+                    ) + ":" + chainInfo.getCallEntrance()), new Text(new Gson().toJson(chainNode)));
+
+                    context.write(new Text(SummaryType.YEAR.getValue() + "-" + yearSimpleDateFormat.format(
+                            new Date(chainNode.getStartDate())
+                    ) + ":" + chainInfo.getCallEntrance()), new Text(new Gson().toJson(chainNode)));
+                }
+                // Reduce key : R-CallEntrance
+                context.write(new Text(SummaryType.RELATIONSHIP + "-" + TokenGenerator.generateTreeToken(chainInfo.getCallEntrance())
+                                + ":" + chainInfo.getCallEntrance()),
+                        new Text(new Gson().toJson(chainInfo)));
             }
         } catch (Exception e) {
             logger.error("Failed to mapper call chain[" + key.toString() + "]",
@@ -75,16 +95,7 @@ public class ChainBuildMapper extends TableMapper<Text, Text> {
     public static ChainInfo spanToChainInfo(String tid, List<Span> spanList) {
         SubLevelSpanCostCounter costMap = new SubLevelSpanCostCounter();
         ChainInfo chainInfo = new ChainInfo(tid);
-        Collections.sort(spanList, new Comparator<Span>() {
-            @Override
-            public int compare(Span span1, Span span2) {
-                String span1TraceLevel = span1.getParentLevel() + "."
-                        + span1.getLevelId();
-                String span2TraceLevel = span2.getParentLevel() + "."
-                        + span2.getLevelId();
-                return span1TraceLevel.compareTo(span2TraceLevel);
-            }
-        });
+        Collections.sort(spanList, new SpanLevelIdComparators.SpanASCComparator());
 
         Map<String, SpanEntry> spanEntryMap = mergeSpanDataSet(spanList);
         for (Map.Entry<String, SpanEntry> entry : spanEntryMap.entrySet()) {

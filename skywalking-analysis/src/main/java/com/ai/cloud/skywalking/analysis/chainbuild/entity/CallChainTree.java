@@ -36,25 +36,17 @@ public class CallChainTree {
         return chain;
     }
 
-    public void summary(ChainInfo chainInfo, SummaryType summaryType) throws IOException {
-        for (ChainNode node : chainInfo.getNodes()) {
-        	CallChainTreeNode newCallChainTreeNode = new CallChainTreeNode(node);
-            CallChainTreeNode callChainTreeNode = nodes.get(newCallChainTreeNode.getTreeNodeId());
-            if (callChainTreeNode == null) {
-                callChainTreeNode = newCallChainTreeNode;
-                nodes.put(newCallChainTreeNode.getTreeNodeId(), callChainTreeNode);
-            }
-            callChainTreeNode.summary(treeToken, node, summaryType);
-        }
-    }
-
-    public void saveToHbase() throws IOException, InterruptedException {
+    public void saveToHBase(SummaryType summaryType) throws IOException, InterruptedException {
         for (CallChainTreeNode entry : nodes.values()) {
-            entry.saveSummaryResultToHBase();
+            entry.saveSummaryResultToHBase(summaryType);
         }
     }
 
     public String getTreeToken() {
         return treeToken;
+    }
+
+    public Map<String, CallChainTreeNode> getNodes() {
+        return nodes;
     }
 }

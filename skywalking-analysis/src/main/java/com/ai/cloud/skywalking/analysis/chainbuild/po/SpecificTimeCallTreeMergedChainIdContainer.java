@@ -44,8 +44,6 @@ public class SpecificTimeCallTreeMergedChainIdContainer {
             if (chainInfo.getChainStatus() == ChainInfo.ChainStatus.NORMAL) {
                 callChainDetailMap.put(chainInfo.getCID(), new CallChainDetailForMysql(chainInfo, treeToken));
             }
-        } else {
-
         }
     }
 
@@ -56,16 +54,13 @@ public class SpecificTimeCallTreeMergedChainIdContainer {
         return treeToken + "@" + calendar.get(Calendar.YEAR) + "-" + calendar.get(Calendar.MONTH);
     }
 
-    public void saveToHBase(SummaryType summaryType) throws IOException, InterruptedException, SQLException {
+    public void saveToHBase() throws IOException, InterruptedException, SQLException {
         batchSaveCurrentHasBeenMergedChainInfo();
         batchSaveMergedChainId();
-        batchSaveToMysql(summaryType);
+        batchSaveToMysql();
     }
 
-    private void batchSaveToMysql(SummaryType summaryType) throws SQLException {
-        if (summaryType != SummaryType.MONTH) {
-            return;
-        }
+    private void batchSaveToMysql() throws SQLException {
         for (Map.Entry<String, CallChainDetailForMysql> entry : callChainDetailMap.entrySet()) {
             entry.getValue().saveToMysql();
         }
@@ -104,4 +99,5 @@ public class SpecificTimeCallTreeMergedChainIdContainer {
         }
         HBaseUtil.batchSaveChainInfo(chainInfoPuts);
     }
+
 }
