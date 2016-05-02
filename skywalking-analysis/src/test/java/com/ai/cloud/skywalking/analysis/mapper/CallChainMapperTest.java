@@ -5,6 +5,7 @@ import com.ai.cloud.skywalking.analysis.chainbuild.ChainBuildMapper;
 import com.ai.cloud.skywalking.analysis.chainbuild.ChainBuildReducer;
 import com.ai.cloud.skywalking.analysis.chainbuild.action.IStatisticsAction;
 import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainInfo;
+import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainNode;
 import com.ai.cloud.skywalking.analysis.chainbuild.po.SummaryType;
 import com.ai.cloud.skywalking.analysis.chainbuild.util.TokenGenerator;
 import com.ai.cloud.skywalking.analysis.config.ConfigInitializer;
@@ -33,7 +34,7 @@ public class CallChainMapperTest {
     private static String ZK_QUORUM = "10.1.235.197,10.1.235.198,10.1.235.199";
     //    private static String ZK_QUORUM = "10.1.241.18,10.1.241.19,10.1.241.20";
     private static String ZK_CLIENT_PORT = "29181";
-    private static String chain_Id = "1.0a2.1453123911750.b3d7400.13582.96.2";
+    private static String chain_Id = "1.0b.1461569643178.5b468e7.23292.118.68";
     //private static String chain_Id = "1.0a2.1453429608422.2701d43.6468.56.1";
 
     private static Configuration configuration = null;
@@ -48,23 +49,42 @@ public class CallChainMapperTest {
     public static void main(String[] args) throws Exception {
         ConfigInitializer.initialize();
         initHBaseClient();
-        List<Span> spanList = selectByTraceId(chain_Id);
-        ChainInfo chainInfo = ChainBuildMapper.spanToChainInfo(chain_Id, spanList);
-        List<Text> chainNodeInfo = new ArrayList<>();
-        chainNodeInfo.add(new Text(new Gson().toJson(chainInfo)));
-        Text key = new Text(SummaryType.RELATIONSHIP + "-" + TokenGenerator.generateTreeToken(chainInfo.getCallEntrance())
-                + ":" + chainInfo.getCallEntrance());
-        String reduceKey = Bytes.toString(key.getBytes());
-        int index = reduceKey.indexOf(":");
-        if (index == -1) {
-            return;
+        // 2016-04-22/23:57:03 to 2016-05-02/23:47:03
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd/HH:mm:ss");
+        Date startDate = simpleDateFormat.parse("2016-04-22/23:57:03");
+        Date endDate = simpleDateFormat.parse("2016-05-02/23:47:03");
+        Scan scan = new Scan();
+        scan.setTimeRange(startDate.getTime(), endDate.getTime());
+        Table table = connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_CALL_CHAIN.TABLE_NAME));
+        ResultScanner result = table.getScanner(scan);
+        int count = 0;
+        for (Result result1  : result){
+            count++;
         }
+        System.out.println(count);
 
-        String summaryTypeAndDateStr = reduceKey.substring(0, index - 1);
-        String entryKey = reduceKey.substring(index + 1);
-        IStatisticsAction summaryAction = SummaryType.chooseSummaryAction(summaryTypeAndDateStr, entryKey);
-
-        new ChainBuildReducer().doReduceAction(reduceKey, summaryAction, chainNodeInfo.iterator());
+//        List<Span> spanList = selectByTraceId(chain_Id);
+//        ChainInfo chainInfo = ChainBuildMapper.spanToChainInfo(chain_Id, spanList);
+//        List<Text> chainNodeInfo = new ArrayList<>();
+//        for (ChainNode chainNode : chainInfo.getNodes()) {
+//            List<Text> value1 = new ArrayList<Text>();
+//            Text key =new Text(SummaryType.YEAR.getValue() + "-" + yearSimpleDateFormat.format(
+//                    new Date(chainNode.getStartDate())
+//            ) + ":" + chainInfo.getCallEntrance());
+//            value1.add(new Text(new Gson().toJson(chainNode)));
+//
+//            String reduceKey = Bytes.toString(key.getBytes());
+//            int index = reduceKey.indexOf(":");
+//            if (index == -1) {
+//                return;
+//            }
+//
+//            String summaryTypeAndDateStr = reduceKey.substring(0, index);
+//            String entryKey = reduceKey.substring(index + 1);
+//            IStatisticsAction summaryAction = SummaryType.chooseSummaryAction(summaryTypeAndDateStr, entryKey);
+//
+//            new ChainBuildReducer().doReduceAction(reduceKey, summaryAction, value1.iterator());
+//        }
     }
 
     public static List<Span> selectByTraceId(String traceId) throws IOException {

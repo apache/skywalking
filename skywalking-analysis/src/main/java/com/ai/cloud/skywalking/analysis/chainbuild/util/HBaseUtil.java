@@ -32,6 +32,9 @@ public class HBaseUtil {
             createTableIfNeed(HBaseTableMetaData.TABLE_CALL_CHAIN_TREE_ID_AND_CID_MAPPING.TABLE_NAME,
                     HBaseTableMetaData.TABLE_CALL_CHAIN_TREE_ID_AND_CID_MAPPING.COLUMN_FAMILY_NAME);
 
+            createTableIfNeed(HBaseTableMetaData.TABLE_TRACE_ID_AND_CID_MAPPING.TABLE_NAME,
+                    HBaseTableMetaData.TABLE_TRACE_ID_AND_CID_MAPPING.COLUMN_FAMILY_NAME);
+
             createTableIfNeed(HBaseTableMetaData.TABLE_CHAIN_ONE_MINUTE_SUMMARY.TABLE_NAME,
                     HBaseTableMetaData.TABLE_CHAIN_ONE_MINUTE_SUMMARY.COLUMN_FAMILY_NAME);
 
@@ -231,4 +234,12 @@ public class HBaseUtil {
     }
 
 
+    public static void saveTraceIdAndTreeIdMapping(String traceId, String cid) throws IOException {
+        Put put = new Put(traceId.getBytes());
+        put.addColumn(HBaseTableMetaData.TABLE_TRACE_ID_AND_CID_MAPPING.COLUMN_FAMILY_NAME.getBytes(),
+                HBaseTableMetaData.TABLE_TRACE_ID_AND_CID_MAPPING.COLUMN_NAME.getBytes(),
+                cid.getBytes());
+        Table table = connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_TRACE_ID_AND_CID_MAPPING.TABLE_NAME));
+        table.put(put);
+    }
 }

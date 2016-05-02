@@ -35,7 +35,7 @@ public class SpanLevelIdComparators {
         return spanTraceLevelId;
     }
 
-    private static int descComparator(String levelId0, String levelId1) {
+    public static int descComparator(String levelId0, String levelId1) {
         String[] levelId0Array = levelId0.split("\\.");
         String[] levelId1Array = levelId1.split("\\.");
         int result = -1;
@@ -60,7 +60,7 @@ public class SpanLevelIdComparators {
     }
 
 
-    private static int ascCompare(String levelId0, String levelId1) {
+    public static int ascCompare(String levelId0, String levelId1) {
         String[] levelId0Array = levelId0.split("\\.");
         String[] levelId1Array = levelId1.split("\\.");
         int result = -1;
