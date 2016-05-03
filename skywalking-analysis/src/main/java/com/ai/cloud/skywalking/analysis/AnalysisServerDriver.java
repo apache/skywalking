@@ -57,10 +57,10 @@ public class AnalysisServerDriver extends Configured implements Tool {
         conf.set("hbase.zookeeper.quorum", Config.HBase.ZK_QUORUM);
         conf.set("hbase.zookeeper.property.clientPort", Config.HBase.ZK_CLIENT_PORT);
         //-XX:+UseParallelGC -XX:ParallelGCThreads=4 -XX:GCTimeRatio=10 -XX:YoungGenerationSizeIncrement=20 -XX:TenuredGenerationSizeIncrement=20 -XX:AdaptiveSizeDecrementScaleFactor=2
-        conf.set("mapred.child.java.opts",Config.MapReduce.java_opts);
+        conf.set("mapred.child.java.opts",Config.MapReduce.JAVA_OPTS);
         String[] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
         if (otherArgs.length != 2) {
-            System.err.println("Usage: AnalysisServer yyyy-MM-dd/HH:mm:ss yyyy-MM-dd/HH:mm:ss");
+            System.err.println("Usage: com.ai.cloud.skywalking.analysis.AnalysisServerDriver yyyy-MM-dd/HH:mm:ss yyyy-MM-dd/HH:mm:ss");
             System.exit(2);
         }
 

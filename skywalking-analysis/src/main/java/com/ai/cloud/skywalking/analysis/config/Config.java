@@ -31,6 +31,6 @@ public class Config {
     }
 
     public static class MapReduce{
-        public static String java_opts = "-Xmx200m";
+        public static String JAVA_OPTS = "-Xmx200m";
     }
 }
