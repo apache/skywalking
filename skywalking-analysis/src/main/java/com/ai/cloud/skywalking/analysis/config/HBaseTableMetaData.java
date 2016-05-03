@@ -78,4 +78,17 @@ public class HBaseTableMetaData {
         
         public static final String COLUMN_NAME = "been_merged_cid";
     }
+
+    /**
+     * 用于存放TraceID和CID的映射关系
+     *
+     * @author zhangxin
+     */
+    public final static class TABLE_TRACE_ID_AND_CID_MAPPING {
+        public static final String TABLE_NAME = "sw-traceId-cid-mapping";
+
+        public static final String COLUMN_FAMILY_NAME = "cid";
+
+        public static final String COLUMN_NAME = "cid";
+    }
 }

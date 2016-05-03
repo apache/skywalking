@@ -1,5 +1,6 @@
 package com.ai.cloud.skywalking.web.service.impl;
 
+import com.ai.cloud.skywalking.util.SpanLevelIdComparators;
 import com.ai.cloud.skywalking.web.dao.inter.ICallChainTreeDao;
 import com.ai.cloud.skywalking.web.dao.inter.ITypicalCallTreeDao;
 import com.ai.cloud.skywalking.web.dto.CallChainTree;
@@ -73,7 +74,7 @@ public class AnalysisResultService implements IAnalysisResultService {
             Collections.sort(callChainTree.getCallChainTreeNodeList(), new Comparator<CallChainTreeNode>() {
                 @Override
                 public int compare(CallChainTreeNode o1, CallChainTreeNode o2) {
-                    return o1.getTraceLevelId().compareTo(o2.getTraceLevelId());
+                    return SpanLevelIdComparators.ascCompare(o1.getTraceLevelId(), o2.getTraceLevelId());
                 }
             });
             callChainTree.beautifulViewPointForShow();

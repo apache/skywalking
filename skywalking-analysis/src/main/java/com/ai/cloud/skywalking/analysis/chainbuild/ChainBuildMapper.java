@@ -6,6 +6,7 @@ import com.ai.cloud.skywalking.analysis.chainbuild.filter.SpanNodeProcessFilter;
 import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainInfo;
 import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainNode;
 import com.ai.cloud.skywalking.analysis.chainbuild.po.SummaryType;
+import com.ai.cloud.skywalking.analysis.chainbuild.util.HBaseUtil;
 import com.ai.cloud.skywalking.analysis.chainbuild.util.SubLevelSpanCostCounter;
 import com.ai.cloud.skywalking.analysis.chainbuild.util.TokenGenerator;
 import com.ai.cloud.skywalking.analysis.chainbuild.util.VersionIdentifier;
@@ -63,6 +64,8 @@ public class ChainBuildMapper extends TableMapper<Text, Text> {
             chainInfo = spanToChainInfo(Bytes.toString(key.get()), spanList);
             logger.debug("convert tid[" + Bytes.toString(key.get())
                     + "] to chain with cid[" + chainInfo.getCID() + "].");
+            HBaseUtil.saveTraceIdAndTreeIdMapping(Bytes.toString(key.get()), chainInfo.getCID());
+
             if (chainInfo.getCallEntrance() != null && chainInfo.getCallEntrance().length() > 0) {
                 for (ChainNode chainNode : chainInfo.getNodes()) {
                     context.write(new Text(SummaryType.HOUR.getValue() + "-" + hourSimpleDateFormat.format(

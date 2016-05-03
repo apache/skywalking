@@ -37,7 +37,7 @@ public class ChainBuildReducer extends Reducer<Text, Text, Text, IntWritable> {
 		if (index == -1) {
 			return;
 		}
-		String summaryTypeAndDateStr = reduceKey.substring(0, index - 1);
+		String summaryTypeAndDateStr = reduceKey.substring(0, index);
 		String entryKey = reduceKey.substring(index + 1);
 		
 		logger.debug("begin to reduce for key: {}", reduceKey);
