@@ -68,6 +68,22 @@ public class ChainBuildMapper extends TableMapper<Text, Text> {
 
             if (chainInfo.getCallEntrance() != null && chainInfo.getCallEntrance().length() > 0) {
                 for (ChainNode chainNode : chainInfo.getNodes()) {
+                	/**
+                	 * TODO: 进一步提高运行速度所需的性能提升
+                	 * 此处修改原因，
+                	 * 1.更细粒度划分reduce任务，提高性能。
+                	 * 2.减少数据传输量，以及处理复杂度。
+                	 * 3.请避免使用gson序列化，提高程序处理性能
+                	 * 
+                	 * hour/day/month/year，
+                	 * key 修改为：类型+时间字符+callEntrance+levelId+viewpoint, 
+                	 * value 为ChainNodeSpecificTimeWindowSummaryValue中所需的明确的值组成的简单串
+                	 *     value包含：
+                	 *         1.是否正确调用，由NodeStatus获取，值为N/A/I
+                	 *         2.调用所需时间，由cost获取
+                	 * 
+                	 */
+                	
                     context.write(new Text(SummaryType.HOUR.getValue() + "-" + hourSimpleDateFormat.format(
                             new Date(chainNode.getStartDate())
                     ) + ":" + chainInfo.getCallEntrance()), new Text(new Gson().toJson(chainNode)));
@@ -84,6 +100,17 @@ public class ChainBuildMapper extends TableMapper<Text, Text> {
                             new Date(chainNode.getStartDate())
                     ) + ":" + chainInfo.getCallEntrance()), new Text(new Gson().toJson(chainNode)));
                 }
+                
+                /**
+                 * TODO：通过对本地的调用链进行缓存，每个map任务中的调用链，在一个JVM内只会被传递一次，大幅度降低reduce任务的数据量。
+                 * 
+                 * 1.使用静态变量，缓存MAP中的调用链。每个典型调用链ID只传递一次
+                 * 2.注意缓存需要限制容量，初期规划，缓存1W个典型调用链KEY（可通过配置扩展）。仅缓存典型调用链ID，非链路明细。
+                 * 3.对于节点数量大于2K条的调用量，暂不进行关系处理
+                 * 
+                 * 注意：CallChainRelationshipAction暂时不做修改，此处的修改会大规模降低reduce的处理数据量，提高总体运行速度
+                 * 
+                 */
                 // Reduce key : R-CallEntrance
                 context.write(new Text(SummaryType.RELATIONSHIP + "-" + TokenGenerator.generateTreeToken(chainInfo.getCallEntrance())
                                 + ":" + chainInfo.getCallEntrance()),
