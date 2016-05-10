@@ -19,14 +19,16 @@
     <script src="${_base}/bower_components/skywalking/js/tracelog.js"></script>
     <script src="${_base}/bower_components/skywalking/js/application.js"></script>
     <script src="${_base}/bower_components/skywalking/js/analysisSearchResult.js"></script>
-    <script src="${_base}/bower_components/skywalking/js/analysisResult.js"></script>
+<#--<script src="${_base}/bower_components/skywalking/js/analysisResult.js"></script>-->
+    <script src="${_base}/bower_components/skywalking/js/analysisResultViewResovler.js"></script>
     <script src="${_base}/bower_components/smalot-bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
-    <link href="${_base}/bower_components/smalot-bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" rel="stylesheet">
+    <link href="${_base}/bower_components/smalot-bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css"
+          rel="stylesheet">
     <link href="${_base}/bower_components/bootstrap-toggle/css/bootstrap-toggle.min.css" rel="stylesheet">
     <script src="${_base}/bower_components/bootstrap-toggle/js/bootstrap-toggle.min.js"></script>
 </head>
 
-<body style="padding-top:100px">
+<body style="padding-top:80px">
 <@common.navbar/>
 <!--Trace Info -->
 <@traceInfo.traceTableTmpl/>
@@ -43,6 +45,7 @@
 <@anlySearchResult.pageInfoTmpl/>
 <@anlyResult.analysisResult/>
 <@anlyResult.analysisResultTableTmpl/>
+<@anlyResult.typicalCallChainTrees/>
 <p id="baseUrl" style="display: none">${_base}</p>
 <div class="container" id="mainPanel">
     <p id="searchType" style="display: none">${searchType!''}</p>
@@ -59,14 +62,15 @@
             var searchKey = $("#searchKey").val();
             if (searchKey.match(/viewpoint:*/i)) {
                 loadContent("showAnlySearchResult")
-            } else if (searchKey.match(/analysisresult:*/i)){
+            } else if (searchKey.match(/analysisresult:*/i)) {
                 loadContent("showAnalysisResult");
-            } else{
+            } else {
                 loadContent("showTraceInfo");
             }
         })
     });
 
+    var viewResolver;
     function loadContent(loadType, param) {
 
         if (loadType == "showTraceInfo") {
@@ -99,7 +103,7 @@
             var htmlOutput = template.render({treeId: searchKey});
             $("#mainPanel").empty();
             $("#mainPanel").html(htmlOutput);
-            initAnalysisResult()
+            viewResolver = new AnalysisResultViewResolver({baseUrl: "${_base}", treeId: searchKey})
             return;
         }
 

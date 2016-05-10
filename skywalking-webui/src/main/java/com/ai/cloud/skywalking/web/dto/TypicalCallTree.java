@@ -1,22 +1,22 @@
 package com.ai.cloud.skywalking.web.dto;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by xin on 16-4-28.
  */
 public class TypicalCallTree {
     private String callTreeId;
-    private List<TypicalCallTreeNode> treeNodes;
+    private Map<String, TypicalCallTreeNode> treeNodes;
 
 
     public TypicalCallTree(String callTreeId) {
         this.callTreeId = callTreeId;
-        this.treeNodes = new ArrayList<TypicalCallTreeNode>();
+        this.treeNodes = new HashMap<String, TypicalCallTreeNode>();
     }
 
     public void addNode(TypicalCallTreeNode typicalCallTreeNode) {
-        this.treeNodes.add(typicalCallTreeNode);
+        this.treeNodes.put(typicalCallTreeNode.getNodeToken(), typicalCallTreeNode);
     }
 }

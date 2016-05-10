@@ -19,7 +19,11 @@ public class ViewPointBeautiUtil {
         if (index == -1) {
             return viewPoint;
         }
-        StringBuilder result = new StringBuilder(viewPoint.substring(0, index - 1));
+        StringBuilder result = new StringBuilder();
+        if (index > 0) {
+            result = new StringBuilder(viewPoint.substring(0, index - 1));
+        }
+
         result.append("<span class='highlight-viewpoint'>");
         result.append(searchKey);
         result.append("</span>");
@@ -57,15 +61,4 @@ public class ViewPointBeautiUtil {
         return result.toString();
     }
 
-    public static void main(String[] args) {
-        List<String> list = new ArrayList<>();
-        list.add("tracing:jdbc:oracle:thin:@10.1.1.61:1521:OAPROD(aisse)preaparedStatement.executeQuery:select a.ACCOUNT_TYPE,a.PHONE_ACCOUNT,a.PHONE_NUMBER,a.ATTRIBUTE4 from AISSE_EMPLOYEE_MOBILE_INFO_V a where PHONE_NUMBER  is not null and NT_ACCOUNT = ? and ACCOUNT_TYPE not in ('统一充值','United Voucher'):preaparedStatement.executeQuery:select a.ACCOUNT_TYPE,a.PHONE_ACCOUNT,a.PHONE_NUMBER,a.ATTRIBUTE4 from AISSE_EMPLOYEE_MOBILE_INFO_V a where PHONE_NUMBER  is not null and NT_ACCOUNT = ? and ACCOUNT_TYPE not in ('统一充值','United Voucher')");
-        list.add("tracing:jdbc:oracle:thin:@10.1.1.61:1521:OAPROD(aisse)preaparedStatement.executeQuery:select a.ACCOUNT_TYPE,a.PHONE_ACCOUNT,a.PHONE_NUMBER,a.ATTRIBUTE4 from AISSE_EMPLOYEE_MOBILE_INFO_V a where  lower(a.NT_ACCOUNT) = ?:preaparedStatement.executeQuery:select a.ACCOUNT_TYPE,a.PHONE_ACCOUNT,a.PHONE_NUMBER,a.ATTRIBUTE4 from AISSE_EMPLOYEE_MOBILE_INFO_V a where  lower(a.NT_ACCOUNT) = ?");
-        list.add("dubbo://aisse-mobile-web/com.ai.aisse.core.rest.ExpenseInitApi.searchMembersinfo(String):");
-        list.add("com.ai.aisse.core.dao.impl.QueryUserMessageDaoImpl.selectDemoList(java.lang.String):");
-        list.add("com.ai.aisse.controller.common.CommonController.toAisseMobilePage(com.ai.net.xss.wrapper.XssRequestWrapper,org.apache.catalina.connector.ResponseFacade,org.springframework.validation.support.BindingAwareModelMap):");
-        for (String string : list) {
-            System.out.println(beautifulViewPoint(string, "ACCOUNT_TYPE"));
-        }
-    }
 }

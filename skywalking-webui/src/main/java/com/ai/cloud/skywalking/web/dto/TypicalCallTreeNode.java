@@ -1,5 +1,6 @@
 package com.ai.cloud.skywalking.web.dto;
 
+import com.ai.cloud.skywalking.web.util.StringUtil;
 import com.ai.cloud.skywalking.web.util.TokenGenerator;
 
 /**
@@ -7,13 +8,21 @@ import com.ai.cloud.skywalking.web.util.TokenGenerator;
  */
 public class TypicalCallTreeNode {
     private String nodeToken;
+    private String viewPoint;
     private String levelId;
-    private String viewpoint;
 
+    public TypicalCallTreeNode(String parentLevelId, String levelId, String viewPoint) {
+        if (StringUtil.isBlank(parentLevelId)){
+            this.levelId = levelId;
+        }else{
+            this.levelId = parentLevelId + "." + levelId;
+        }
 
-    public TypicalCallTreeNode(String levelId, String viewPoint) {
-        this.levelId = levelId;
-        this.viewpoint = viewPoint;
-        this.nodeToken = TokenGenerator.generate(levelId + ":" + viewPoint);
+        this.viewPoint = viewPoint;
+        nodeToken = TokenGenerator.generate(levelId + ":" + viewPoint);
+    }
+
+    public String getNodeToken() {
+        return nodeToken;
     }
 }
