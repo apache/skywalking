@@ -133,8 +133,8 @@
                 <td>20.0ms</td>
               </tr>
               <tr id="b">
-                <td rowspan="0" valign="middle">0.0</td>
-                <td>&nbsp;&nbsp;<a>com.ai.aisse.core.service.impl...taServiceImpl.SynchAisseData()</a></td>
+                <td  valign="middle">0.0</td>
+                <td>&nbsp;&nbsp;<a  id="popBtn" data-toggle="modal"  data-target="#myModal">com.ai.aisse.core.service.impl...taServiceImpl.SynchAisseData()</a></td>
                 <td>Account-Application</td>
                 <td>100</td>
                 <td>100</td>
@@ -143,6 +143,7 @@
                 <td>20.0ms</td>
               </tr>
               <tr id="c">
+                <td  valign="middle">0.0</td>
                 <td>&nbsp;&nbsp;<a>com.ai.aisse.core.dao.impl.Syn...taDaoImpl.queryAppAisseTimer()</a></td>
                 <td>Biling-Application</td>
                 <td>100</td>
@@ -152,7 +153,7 @@
                 <td>20.0ms</td>
               </tr>
               <tr id="d">
-                <td rowspan="1">0.2</td>
+                <td >0.2</td>
                 <td>&nbsp;&nbsp;<a>tracing:jdbc:oracle:thin:@10.1.1.61:1521:OAPROD(aisse)</a></td>
                 <td>Order-Application</td>
                 <td>100</td>
@@ -162,7 +163,7 @@
                 <td>20.0ms</td>
               </tr>
               <tr id="e">
-                <td rowspan="2" valign="middle">0.3</td>
+                <td valign="middle">0.3</td>
                 <td>&nbsp;&nbsp;<a>com.ai.aisse.core.dao.impl.Syn...AisseTimer(java.sql.Timestamp)</a></td>
                 <td>Order-Application</td>
                 <td>100</td>
@@ -172,6 +173,7 @@
                 <td>20.0ms</td>
               </tr>
               <tr id="f">
+                <td  valign="middle">0.0</td>
                 <td>&nbsp;&nbsp;<a>tracing:jdbc:oracle:thin:@10.1.1.61:1521:OAPROD(aisse)</a></td>
                 <td>Order-Application</td>
                 <td>100</td>
@@ -185,7 +187,109 @@
           <hr/>
         </div>
       </div>
+
       <div>
+        <!-- 模态框（Modal） -->
+<div class="modal fade " id="myModal" tabindex="-1" role="dialog"
+   aria-labelledby="myModalLabel" aria-hidden="true">
+   <div class="modal-dialog " style="width:1000px">
+      <div class="modal-content">
+        <div class="modal-header">
+          典型调用链管理
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-2">
+              典型调用连列表
+            </div>
+            <div class="col-md-10">
+              <a>典型调用连A</a>&nbsp;&nbsp;&nbsp;&nbsp;<a>典型调用连A</a>&nbsp;&nbsp;&nbsp;&nbsp;<a>典型调用连A</a>&nbsp;&nbsp;&nbsp;&nbsp;<a>典型调用连A</a>
+            </div>
+          </div>
+          <hr/>
+          <div class="row">
+              <table class="gridtable" style="margin:10px">
+                <thead>
+                  <tr>
+                    <th>LevelId</th>
+                    <th>ViewPoint</th>
+                    <th>应用</th>
+                    <th>调用次数</th>
+                    <th>正确次数</th>
+                    <th>错误次数</th>
+                    <th>正确率</th>
+                    <th>平均耗时</th>
+                  </tr>
+                </thead>
+                <tbody id="dataBody">
+                  <tr id="a">
+                    <td>0</td>
+                    <td>Http://localhost:8080/order/save1</td>
+                    <td>Order-Application</td>
+                    <td>100</td>
+                    <td>100</td>
+                    <td>0</td>
+                    <td>100%</td>
+                    <td>20.0ms</td>
+                  </tr>
+                  <tr id="b">
+                    <td  valign="middle">0.0</td>
+                    <td>&nbsp;&nbsp;<a  id="popBtn" data-toggle="modal"  data-target="#myModal">com.ai.aisse.core.service.impl...taServiceImpl.SynchAisseData()</a></td>
+                    <td>Account-Application</td>
+                    <td>100</td>
+                    <td>100</td>
+                    <td>0</td>
+                    <td>100%</td>
+                    <td>20.0ms</td>
+                  </tr>
+                  <tr id="c">
+                    <td  valign="middle">0.0</td>
+                    <td>&nbsp;&nbsp;<a>com.ai.aisse.core.dao.impl.Syn...taDaoImpl.queryAppAisseTimer()</a></td>
+                    <td>Biling-Application</td>
+                    <td>100</td>
+                    <td>100</td>
+                    <td>0</td>
+                    <td>100%</td>
+                    <td>20.0ms</td>
+                  </tr>
+                  <tr id="d">
+                    <td >0.2</td>
+                    <td>&nbsp;&nbsp;<a>tracing:jdbc:oracle:thin:@10.1.1.61:1521:OAPROD(aisse)</a></td>
+                    <td>Order-Application</td>
+                    <td>100</td>
+                    <td>100</td>
+                    <td>0</td>
+                    <td>100%</td>
+                    <td>20.0ms</td>
+                  </tr>
+                  <tr id="e">
+                    <td valign="middle">0.3</td>
+                    <td>&nbsp;&nbsp;<a>com.ai.aisse.core.dao.impl.Syn...AisseTimer(java.sql.Timestamp)</a></td>
+                    <td>Order-Application</td>
+                    <td>100</td>
+                    <td>100</td>
+                    <td>0</td>
+                    <td>100%</td>
+                    <td>20.0ms</td>
+                  </tr>
+                  <tr id="f">
+                    <td  valign="middle">0.0</td>
+                    <td>&nbsp;&nbsp;<a>tracing:jdbc:oracle:thin:@10.1.1.61:1521:OAPROD(aisse)</a></td>
+                    <td>Order-Application</td>
+                    <td>100</td>
+                    <td>100</td>
+                    <td>0</td>
+                    <td>100%</td>
+                    <td>20.0ms</td>
+                  </tr>
+                </tbody>
+              </table>
+              <hr/>
+          </div>
+       </div>
+     </div>
+      </div><!-- /.modal-content -->
+</div><!-- /.modal -->
         <script>
           $(document).ready(function() {
             $('#datetimepicker').val();
@@ -220,23 +324,26 @@
 
             $("a[name='analyTypeDropDownOption'][value='2']").click();
 
-            alert(getPreviousMonth());
+            //alert(getPreviousMonth());
+            $("#popBtn").click(function() {
+
+            });
           });
 
-          function getPreviousMonth(){
+          function getPreviousMonth() {
             var date = new Date();
             var seperator1 = "-";
             var month = date.getMonth();
             var year = date.getFullYear();
-            if (month == 0){
-                year = date.getFullYear() - 1;
-                month = 12;
+            if (month == 0) {
+              year = date.getFullYear() - 1;
+              month = 12;
             }
             if (month >= 1 && month <= 9) {
-                month = "0" + month;
+              month = "0" + month;
             }
             return year + seperator1 + month;
-        }
+          }
         </script>
 </body>
 

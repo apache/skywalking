@@ -58,6 +58,7 @@
             {{/if}}
             <td>
                 <a href="javascript:void(0);" data-toggle="modal" data-target="#modal{{>nodeToken}}">{{>viewPoint}}</a>
+                <span style="display:none" id="{{>nodeToken}}ViewPoint">{{>viewPoint}}</span>
                     <div class="modal fade" id="modal{{>nodeToken}}" tabindex="-1" role="dialog" aria-labelledby="modal{{>modalId}}Label">
                         <div class="modal-dialog" role="document">
                             <div class="modal-dialog">
@@ -106,11 +107,11 @@
 
 <#macro typicalCallChainTrees>
 <script type="text/x-jsrender" id="typicalCallChainTreesTmpl">
-          <br/>
+    <br/>
       <div class="row">
-        <small>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a>http://aisse-mobile-web/Aisse-Mobile-Web/aisseWorkPage/backOvertimeInit</a> </small>
+        <small>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="javascript:void(0);" id="rebackCallChainTreeBtn">{{>entryViewPoint}}</a> </small>
         <br/>
-        <small>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;com.ai.aisse.controller.overtimeexpense.Ov...t(HttpServletRequest,HttpServletResponse,ModelMap)</small>
+        <small>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{>currentViewPoint}}</small>
       </div>
 
     <br/>
@@ -143,7 +144,7 @@
 <script type="text/x-jsrender" id="typicalTreeCheckBoxTmpl">
     <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;归属该节点下所有的典型调用链：</span>
     {{for typicalTreeIds}}
-        <input name="typicalTreeCheckBox" type="checkbox" checked/>典型调用链{{: #index}}&nbsp;
+        <input name="typicalTreeCheckBox" type="checkbox" checked value="{{>callTreeToken}}"/>典型调用链{{: #index}}&nbsp;
     {{/for}}
 </script>
 </#macro>

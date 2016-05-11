@@ -100,12 +100,8 @@
             if (index != -1) {
                 searchKey = searchKey.substr(index + 1);
             }
-
-            var template = $.templates("#analysisResultPanelTmpl");
-            var htmlOutput = template.render({treeId: searchKey});
-            $("#mainPanel").empty();
-            $("#mainPanel").html(htmlOutput);
-            viewResolver = new AnalysisResultViewResolver({baseUrl: "${_base}", treeId: searchKey})
+            viewResolver = new AnalysisResultViewResolver({baseUrl: "${_base}", treeId: searchKey});
+            viewResolver.loadMainPage();
             return;
         }
 

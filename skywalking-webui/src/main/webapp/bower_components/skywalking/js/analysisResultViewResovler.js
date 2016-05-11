@@ -1,7 +1,50 @@
 function AnalysisResultViewResolver(param) {
     AnalysisResultViewResolver.prototype.baseUrl = param.baseUrl;
     AnalysisResultViewResolver.prototype.treeId = param.treeId;
+    this.changetAnalyCondition("MONTH", this.getCurrentMonth());
+}
+
+AnalysisResultViewResolver.prototype.callChainTreeData = [];
+AnalysisResultViewResolver.prototype.callEntrance = {};
+AnalysisResultViewResolver.prototype.typicCallChainData = [];
+
+AnalysisResultViewResolver.prototype.analyType = "MONTH";
+AnalysisResultViewResolver.prototype.analyDate = "";
+
+AnalysisResultViewResolver.prototype.currentTypicalTreeNodes = {callChainTreeNodeList: []};
+AnalysisResultViewResolver.prototype.currentTypicalTreeNodeMapping = {typicalTreeIds: []};
+
+
+AnalysisResultViewResolver.prototype.paintChainTreeMainPage = function () {
+    var template = $.templates("#analysisResultPanelTmpl");
+    var htmlOutput = template.render({treeId: this.treeId});
+    $("#mainPanel").empty();
+    $("#mainPanel").html(htmlOutput);
+}
+
+AnalysisResultViewResolver.prototype.loadMainPage = function () {
+    this.paintChainTreeMainPage();
     this.bindEvent();
+
+    $("a[name='analyTypeDropDownOption'][value='" + this.analyType + "']").click();
+    $("#analyDate").val(this.analyDate);
+    $("#showAnalyResultBtn").click();
+}
+
+AnalysisResultViewResolver.prototype.reloadMainPage = function () {
+    this.paintChainTreeMainPage();
+    this.bindEvent();
+
+    $("a[name='analyTypeDropDownOption'][value='" + this.analyType + "']").click();
+    $("#analyDate").val(this.analyDate);
+
+    this.paintChainTreeDataTable();
+    this.bindGotoTypicalPageEvent();
+}
+
+AnalysisResultViewResolver.prototype.changetAnalyCondition = function (type, date) {
+    this.analyDate = date;
+    this.analyType = type;
 }
 
 AnalysisResultViewResolver.prototype.bindEvent = function () {
@@ -16,24 +59,14 @@ AnalysisResultViewResolver.prototype.bindEvent = function () {
     this.bindHotSearchLink();
     this.bindEventForSearchDateInput();
 
-    $("a[name='analyTypeDropDownOption'][value='MONTH']").click();
-    $("#analyDate").val(this.getCurrentMonth());
-
     $("#showAnalyResultBtn").click(function () {
         self.loadData($("#analyType").val(), $("#analyDate").val());
     });
-    $("#showAnalyResultBtn").click();
-
-
 }
 
-AnalysisResultViewResolver.prototype.callChainTreeData = [];
-AnalysisResultViewResolver.prototype.callEntrance = {};
-AnalysisResultViewResolver.prototype.typicCallChainData = [];
-AnalysisResultViewResolver.prototype.currentTypicalTreeNodes = {callChainTreeNodeList:[]};
-AnalysisResultViewResolver.prototype.currentTypicalTreeNodeMapping={typicalTreeIds:[]};
-
 AnalysisResultViewResolver.prototype.showTypicalCallTree = function (nodeToken) {
+    this.currentTypicalTreeNodes = {callChainTreeNodeList: []};
+    this.currentTypicalTreeNodeMapping = {typicalTreeIds: []};
     for (var i = 0; i < this.typicCallChainData.length; i++) {
         var node = this.typicCallChainData[i];
         var tmpInfo = node.treeNodes[nodeToken];
@@ -45,12 +78,19 @@ AnalysisResultViewResolver.prototype.showTypicalCallTree = function (nodeToken) 
         for (var key in node.treeNodes) {
             var tmpNode = node.treeNodes[key];
             tmpNode.anlyResult = JSON.parse($("#" + key).text());
-            tmpTypicalCallChain.push(key);
+            tmpTypicalCallChain.push(tmpNode);
             this.currentTypicalTreeNodes.callChainTreeNodeList.push(tmpNode);
         }
         this.currentTypicalTreeNodeMapping[node.callTreeId] = tmpTypicalCallChain;
-        this.currentTypicalTreeNodeMapping.typicalTreeIds.push(node.callTreeId);
+        this.currentTypicalTreeNodeMapping.typicalTreeIds.push({"callTreeToken": node.callTreeId});
     }
+}
+
+AnalysisResultViewResolver.prototype.paintChainTreeDataTable = function () {
+    var template = $.templates("#analysisResultTableTmpl");
+    var htmlOutput = template.render(this.callChainTreeData);
+    $("#dataBody").empty();
+    $("#dataBody").html(htmlOutput);
 }
 
 AnalysisResultViewResolver.prototype.loadData = function (analyType, analyDate) {
@@ -65,43 +105,16 @@ AnalysisResultViewResolver.prototype.loadData = function (analyType, analyDate) 
         success: function (data) {
             if (data.code == '200') {
                 self.callChainTreeData = self.convertAnalysisResult(jQuery.parseJSON(data.result));
-                var template = $.templates("#analysisResultTableTmpl");
-                var htmlOutput = template.render(self.callChainTreeData);
-                $("#dataBody").empty();
-                $("#dataBody").html(htmlOutput);
+                for (var i = 0; i < self.callChainTreeData.length; i++) {
+                    var node = self.callChainTreeData[i];
+                    if (node.traceLevelId == "0") {
+                        self.callEntrance = node.viewPoint;
+                        break;
+                    }
+                }
 
-                $("button[name='showTypicalCallTreeBtn']").each(function () {
-                    $(this).click(function () {
-                        var treeNode = $(this).attr("value");
-                        $(".modal-backdrop").remove();
-                        self.showTypicalCallTree(treeNode);
-
-                        var template = $.templates("#typicalCallChainTreesTmpl");
-                        var htmlOutput = template.render({});
-                        $("#mainPanel").empty();
-                        $("#mainPanel").html(htmlOutput);
-
-                        template = $.templates("#typicalTreeCheckBoxTmpl");
-                         htmlOutput = template.render({"typicalTreeIds": self.currentTypicalTreeNodeMapping.typicalTreeIds});
-                        alert(htmlOutput);
-                        $("#typicalCheckBoxDiv").empty();
-                        $("#typicalCheckBoxDiv").html(htmlOutput);
-
-                        $("input[name='typicalTreeCheckBox']").each(function(){
-                            $(this).change(function(){
-                                var treeIds = new Array();
-                                $("input[name='typicalTreeCheckBox']").each(function(){
-                                    
-                                });
-                            });
-                        });
-
-                         template = $.templates("#typicalTreeTableTmpl");
-                        var htmlOutput = template.render((self.convertAnalysisResult(self.currentTypicalTreeNodes)));
-                        $("#typicalTreeTableDataBody").empty();
-                        $("#typicalTreeTableDataBody").html(htmlOutput);
-                    })
-                });
+                self.paintChainTreeDataTable();
+                self.bindGotoTypicalPageEvent();
             }
         },
         error: function () {
@@ -126,6 +139,64 @@ AnalysisResultViewResolver.prototype.loadData = function (analyType, analyDate) 
             $("#alertMessageBox").show();
         }
     })
+}
+
+AnalysisResultViewResolver.prototype.bindGotoTypicalPageEvent = function () {
+    var self = this;
+    $("button[name='showTypicalCallTreeBtn']").each(function () {
+        $(this).click(function () {
+            var treeNodeToken = $(this).attr("value");
+            $(".modal-backdrop").remove();
+            self.showTypicalCallTree(treeNodeToken);
+
+            var template = $.templates("#typicalCallChainTreesTmpl");
+            var htmlOutput = template.render({
+                "entryViewPoint": self.callEntrance,
+                "currentViewPoint": $("#" + treeNodeToken + "ViewPoint").text()
+            });
+            $("#mainPanel").empty();
+            $("#mainPanel").html(htmlOutput);
+
+            template = $.templates("#typicalTreeCheckBoxTmpl");
+            htmlOutput = template.render({"typicalTreeIds": self.currentTypicalTreeNodeMapping.typicalTreeIds});
+            $("#typicalCheckBoxDiv").empty();
+            $("#typicalCheckBoxDiv").html(htmlOutput);
+
+            $("input[name='typicalTreeCheckBox']").each(function () {
+                $(this).change(function () {
+                    var treeIds = new Array();
+                    $("input[name='typicalTreeCheckBox']").each(function () {
+                        if ($(this).prop("checked")) {
+                            treeIds.push($(this).attr("value"));
+                        }
+                    });
+
+                    self.currentTypicalTreeNodes.callChainTreeNodeList = [];
+                    for (var i = 0; i < treeIds.length; i++) {
+                        var tmpNodes = self.currentTypicalTreeNodeMapping[treeIds[i]];
+                        for (var j = 0; j < tmpNodes.length; j++) {
+                            self.currentTypicalTreeNodes.callChainTreeNodeList.push(tmpNodes[j]);
+                        }
+                    }
+
+                    template = $.templates("#typicalTreeTableTmpl");
+                    var htmlOutput = template.render((self.convertAnalysisResult(self.currentTypicalTreeNodes)));
+                    $("#typicalTreeTableDataBody").empty();
+                    $("#typicalTreeTableDataBody").html(htmlOutput);
+
+                });
+            });
+
+            template = $.templates("#typicalTreeTableTmpl");
+            var htmlOutput = template.render((self.convertAnalysisResult(self.currentTypicalTreeNodes)));
+            $("#typicalTreeTableDataBody").empty();
+            $("#typicalTreeTableDataBody").html(htmlOutput);
+
+            $("#rebackCallChainTreeBtn").click(function () {
+                self.reloadMainPage();
+            });
+        })
+    });
 }
 
 AnalysisResultViewResolver.prototype.convertAnalysisResult = function (originData) {
@@ -174,7 +245,6 @@ AnalysisResultViewResolver.prototype.convertAnalysisResult = function (originDat
 
     return originData.callChainTreeNodeList;
 }
-
 
 AnalysisResultViewResolver.prototype.getPreviousHour = function () {
     var date = new Date();
@@ -230,7 +300,6 @@ AnalysisResultViewResolver.prototype.getPreviousMonth = function () {
     return year + seperator1 + month;
 }
 
-
 AnalysisResultViewResolver.prototype.bindEventForSearchDateInput = function () {
     $("a[name='analyTypeDropDownOption']").each(function () {
         $(this).click(function () {
@@ -268,18 +337,30 @@ AnalysisResultViewResolver.prototype.bindEventForSearchDateInput = function () {
 AnalysisResultViewResolver.prototype.bindHotSearchLink = function () {
     var self = this;
     $("#previousHourBtn").click(function () {
-        self.loadData("HOUR", self.getPreviousHour())
+        $("a[name='analyTypeDropDownOption'][value='HOUR']").click();
+        $("#analyDate").val(self.getPreviousHour());
+        self.changetAnalyCondition("HOUR", self.getPreviousHour());
+        $("#showAnalyResultBtn").click();
     });
 
     $("#yesterdayBtn").click(function () {
-        self.loadData("DAY", self.getYesterday())
+        $("a[name='analyTypeDropDownOption'][value='DAY']").click();
+        $("#analyDate").val(self.getYesterday());
+        self.changetAnalyCondition("DAY", self.getYesterday());
+        $("#showAnalyResultBtn").click();
     });
 
     $("#currentMonthBtn").click(function () {
-        self.loadData("MONTH", self.getCurrentMonth())
+        $("a[name='analyTypeDropDownOption'][value='MONTH']").click();
+        $("#analyDate").val(self.getCurrentMonth());
+        self.changetAnalyCondition("MONTH", self.getCurrentMonth());
+        $("#showAnalyResultBtn").click();
     });
 
     $("#previousMonthBtn").click(function () {
-        self.loadData("MONTH", self.getPreviousMonth())
+        $("a[name='analyTypeDropDownOption'][value='MONTH']").click();
+        $("#analyDate").val(self.getPreviousMonth());
+        self.changetAnalyCondition("MONTH", self.getPreviousMonth());
+        $("#showAnalyResultBtn").click();
     });
 }
