@@ -46,6 +46,8 @@
 <@anlyResult.analysisResult/>
 <@anlyResult.analysisResultTableTmpl/>
 <@anlyResult.typicalCallChainTrees/>
+<@anlyResult.typicalCallChainTreeTable/>
+<@anlyResult.typicalCallChainCheckBox/>
 <p id="baseUrl" style="display: none">${_base}</p>
 <div class="container" id="mainPanel">
     <p id="searchType" style="display: none">${searchType!''}</p>

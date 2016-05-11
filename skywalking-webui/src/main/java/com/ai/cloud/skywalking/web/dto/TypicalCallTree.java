@@ -19,4 +19,10 @@ public class TypicalCallTree {
     public void addNode(TypicalCallTreeNode typicalCallTreeNode) {
         this.treeNodes.put(typicalCallTreeNode.getNodeToken(), typicalCallTreeNode);
     }
+
+    public void beautifulViewPointForShow() {
+        for (Map.Entry<String, TypicalCallTreeNode> entry : treeNodes.entrySet()) {
+            entry.getValue().beautifulViewPoint();
+        }
+    }
 }

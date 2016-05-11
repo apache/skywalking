@@ -27,15 +27,13 @@ AnalysisResultViewResolver.prototype.bindEvent = function () {
 
 }
 
-
 AnalysisResultViewResolver.prototype.callChainTreeData = [];
 AnalysisResultViewResolver.prototype.callEntrance = {};
 AnalysisResultViewResolver.prototype.typicCallChainData = [];
-AnalysisResultViewResolver.prototype.currentTypicalTreeNodeMapping = [];
+AnalysisResultViewResolver.prototype.currentTypicalTreeNodes = {callChainTreeNodeList:[]};
+AnalysisResultViewResolver.prototype.currentTypicalTreeNodeMapping={typicalTreeIds:[]};
 
 AnalysisResultViewResolver.prototype.showTypicalCallTree = function (nodeToken) {
-
-
     for (var i = 0; i < this.typicCallChainData.length; i++) {
         var node = this.typicCallChainData[i];
         var tmpInfo = node.treeNodes[nodeToken];
@@ -43,18 +41,16 @@ AnalysisResultViewResolver.prototype.showTypicalCallTree = function (nodeToken) 
             continue;
         }
 
-        var tmpTypicalCallChain = {};
-        tmpTypicalCallChain.callTreeId = node.callTreeId;
+        var tmpTypicalCallChain = [];
         for (var key in node.treeNodes) {
             var tmpNode = node.treeNodes[key];
-            tmpNode.analyResult = JSON.parse($("#" + key).text());
-            tmpTypicalCallChain.nodes.push(tmpNode);
+            tmpNode.anlyResult = JSON.parse($("#" + key).text());
+            tmpTypicalCallChain.push(key);
+            this.currentTypicalTreeNodes.callChainTreeNodeList.push(tmpNode);
         }
-        this.currentTypicalTreeNodeMapping.push(tmpTypicalCallChain);
+        this.currentTypicalTreeNodeMapping[node.callTreeId] = tmpTypicalCallChain;
+        this.currentTypicalTreeNodeMapping.typicalTreeIds.push(node.callTreeId);
     }
-
-    alert(currentTypicalTreeNodeMapping);
-
 }
 
 AnalysisResultViewResolver.prototype.loadData = function (analyType, analyDate) {
@@ -84,6 +80,26 @@ AnalysisResultViewResolver.prototype.loadData = function (analyType, analyDate) 
                         var htmlOutput = template.render({});
                         $("#mainPanel").empty();
                         $("#mainPanel").html(htmlOutput);
+
+                        template = $.templates("#typicalTreeCheckBoxTmpl");
+                         htmlOutput = template.render({"typicalTreeIds": self.currentTypicalTreeNodeMapping.typicalTreeIds});
+                        alert(htmlOutput);
+                        $("#typicalCheckBoxDiv").empty();
+                        $("#typicalCheckBoxDiv").html(htmlOutput);
+
+                        $("input[name='typicalTreeCheckBox']").each(function(){
+                            $(this).change(function(){
+                                var treeIds = new Array();
+                                $("input[name='typicalTreeCheckBox']").each(function(){
+                                    
+                                });
+                            });
+                        });
+
+                         template = $.templates("#typicalTreeTableTmpl");
+                        var htmlOutput = template.render((self.convertAnalysisResult(self.currentTypicalTreeNodes)));
+                        $("#typicalTreeTableDataBody").empty();
+                        $("#typicalTreeTableDataBody").html(htmlOutput);
                     })
                 });
             }
@@ -122,10 +138,6 @@ AnalysisResultViewResolver.prototype.convertAnalysisResult = function (originDat
     var flag = false;
     for (var i = 0; i < originData.callChainTreeNodeList.length; i++) {
         var node = originData.callChainTreeNodeList[i];
-        if (node.traceLevelId == "0") {
-            self.callEntrance = node;
-        }
-
         if (previousNodeLevelId == node.traceLevelId) {
             if (count == 1) {
                 index = i - 1;

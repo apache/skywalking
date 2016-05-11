@@ -9,20 +9,29 @@ import com.ai.cloud.skywalking.web.util.TokenGenerator;
 public class TypicalCallTreeNode {
     private String nodeToken;
     private String viewPoint;
-    private String levelId;
+    private String viewPointStr;
+    private String traceLevelId;
 
     public TypicalCallTreeNode(String parentLevelId, String levelId, String viewPoint) {
         if (StringUtil.isBlank(parentLevelId)){
-            this.levelId = levelId;
+            this.traceLevelId = levelId;
         }else{
-            this.levelId = parentLevelId + "." + levelId;
+            this.traceLevelId = parentLevelId + "." + levelId;
         }
 
         this.viewPoint = viewPoint;
-        nodeToken = TokenGenerator.generate(levelId + ":" + viewPoint);
+        this.viewPointStr = viewPoint;
+        nodeToken = TokenGenerator.generate(this.traceLevelId + ":" + viewPoint);
     }
 
     public String getNodeToken() {
         return nodeToken;
+    }
+
+    public void beautifulViewPoint() {
+        if (!StringUtil.isBlank(viewPoint) && viewPoint.length() > 80) {
+            viewPoint = viewPoint.substring(0, 50) + "..."
+                    + viewPoint.substring(viewPoint.length() - 50);
+        }
     }
 }

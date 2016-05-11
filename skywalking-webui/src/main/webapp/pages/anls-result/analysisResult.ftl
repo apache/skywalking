@@ -46,12 +46,13 @@
             </table>
     </div>
     <hr/>
+
 </script>
 </#macro>
 
 <#macro analysisResultTableTmpl>
 <script type="text/x-jsrender" id="analysisResultTableTmpl">
-        <tr id="a">
+        <tr>
             {{if isPrintLevelId}}
                 <td rowspan="{{>rowSpanCount}}" valign="middle">{{>traceLevelId}}</td>
             {{/if}}
@@ -99,6 +100,7 @@
             <span id="{{>nodeToken}}" style="display:none">{{>anlyResultStr}}</span></td>
 
         </tr>
+
 </script>
 </#macro>
 
@@ -114,11 +116,7 @@
     <br/>
     <div class="panel panel-default">
       <div class="panel-body">
-        <div class="row">
-          <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;归属该节点下所有的典型调用链：</span>
-          <input type="checkbox"/>典型调用链1&nbsp;
-          <input type="checkbox">典型调用链2</input>&nbsp;
-          <input type="checkbox">典型调用链3</input>
+        <div class="row" id="typicalCheckBoxDiv">
         </div>
         <br/>
         <table class="gridtable" style="width:100%;">
@@ -126,79 +124,56 @@
             <tr>
               <th>LevelId</th>
               <th>ViewPoint</th>
-              <th>应用</th>
               <th>调用次数</th>
               <th>正确次数</th>
-              <th>错误次数</th>
               <th>正确率</th>
               <th>平均耗时</th>
             </tr>
           </thead>
-          <tbody id="dataBody">
-            <tr id="a">
-              <td>0</td>
-              <td>Http://localhost:8080/order/save1</td>
-              <td>Order-Application</td>
-              <td>100</td>
-              <td>100</td>
-              <td>0</td>
-              <td>100%</td>
-              <td>20.0ms</td>
-            </tr>
-            <tr id="b">
-              <td valign="middle">0.0</td>
-              <td>&nbsp;&nbsp;<a id="popBtn" data-toggle="modal" data-target="#myModal">com.ai.aisse.core.service.impl...taServiceImpl.SynchAisseData()</a></td>
-              <td>Account-Application</td>
-              <td>100</td>
-              <td>100</td>
-              <td>0</td>
-              <td>100%</td>
-              <td>20.0ms</td>
-            </tr>
-            <tr id="c">
-              <td valign="middle">0.0</td>
-              <td>&nbsp;&nbsp;<a>com.ai.aisse.core.dao.impl.Syn...taDaoImpl.queryAppAisseTimer()</a></td>
-              <td>Biling-Application</td>
-              <td>100</td>
-              <td>100</td>
-              <td>0</td>
-              <td>100%</td>
-              <td>20.0ms</td>
-            </tr>
-            <tr id="d">
-              <td>0.2</td>
-              <td>&nbsp;&nbsp;<a>tracing:jdbc:oracle:thin:@10.1.1.61:1521:OAPROD(aisse)</a></td>
-              <td>Order-Application</td>
-              <td>100</td>
-              <td>100</td>
-              <td>0</td>
-              <td>100%</td>
-              <td>20.0ms</td>
-            </tr>
-            <tr id="e">
-              <td valign="middle">0.3</td>
-              <td>&nbsp;&nbsp;<a>com.ai.aisse.core.dao.impl.Syn...AisseTimer(java.sql.Timestamp)</a></td>
-              <td>Order-Application</td>
-              <td>100</td>
-              <td>100</td>
-              <td>0</td>
-              <td>100%</td>
-              <td>20.0ms</td>
-            </tr>
-            <tr id="f">
-              <td valign="middle">0.0</td>
-              <td>&nbsp;&nbsp;<a>tracing:jdbc:oracle:thin:@10.1.1.61:1521:OAPROD(aisse)</a></td>
-              <td>Order-Application</td>
-              <td>100</td>
-              <td>100</td>
-              <td>0</td>
-              <td>100%</td>
-              <td>20.0ms</td>
-            </tr>
+          <tbody id="typicalTreeTableDataBody">
           </tbody>
         </table>
       </div>
     </div>
+
+</script>
+</#macro>
+
+<#macro typicalCallChainCheckBox>
+<script type="text/x-jsrender" id="typicalTreeCheckBoxTmpl">
+    <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;归属该节点下所有的典型调用链：</span>
+    {{for typicalTreeIds}}
+        <input name="typicalTreeCheckBox" type="checkbox" checked/>典型调用链{{: #index}}&nbsp;
+    {{/for}}
+</script>
+</#macro>
+
+<#macro typicalCallChainTreeTable>
+<script type="text/x-jsrender" id="typicalTreeTableTmpl">
+        <tr>
+            {{if isPrintLevelId}}
+                <td rowspan="{{>rowSpanCount}}" valign="middle">{{>traceLevelId}}</td>
+            {{/if}}
+            <td>
+                <a href="javascript:void(0);" data-toggle="modal" data-target="#modal{{>nodeToken}}">{{>viewPoint}}</a>
+            </td>
+            <td>{{>anlyResult.totalCall}}</td>
+            <td>{{>anlyResult.correctNumber}}</td>
+            <td>
+            <span class="
+         {{if anlyResult.correctRate >= 99.00}}
+         text-success
+         {{else anlyResult.correctRate >= 97}}
+         text-warning
+         {{else}}
+         text-danger
+         {{/if}}
+         ">
+            <strong>{{>anlyResult.correctRate}}%</strong></span></td>
+            <td>{{>anlyResult.averageCost}}ms
+            <span id="{{>nodeToken}}" style="display:none">{{>anlyResultStr}}</span></td>
+        </tr>
+
 </script>
 </#macro>
 

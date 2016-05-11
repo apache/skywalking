@@ -99,6 +99,7 @@ public class AnalysisResultService implements IAnalysisResultService {
         List<TypicalCallTree> typicalCallTrees = new ArrayList<TypicalCallTree>();
         for (String callTreeId : typicalCallTreeIds) {
             TypicalCallTree typicalCallTree = typicalCallTreeDao.queryCallChainTree(callTreeId);
+            typicalCallTree.beautifulViewPointForShow();
             typicalCallTrees.add(typicalCallTree);
         }
 
