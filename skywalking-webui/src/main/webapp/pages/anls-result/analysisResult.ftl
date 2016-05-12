@@ -47,6 +47,7 @@
     </div>
     <hr/>
 
+
 </script>
 </#macro>
 
@@ -59,29 +60,7 @@
             <td>
                 <a href="javascript:void(0);" data-toggle="modal" data-target="#modal{{>nodeToken}}">{{>viewPoint}}</a>
                 <span style="display:none" id="{{>nodeToken}}ViewPoint">{{>viewPoint}}</span>
-                    <div class="modal fade" id="modal{{>nodeToken}}" tabindex="-1" role="dialog" aria-labelledby="modal{{>modalId}}Label">
-                        <div class="modal-dialog" role="document">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                  <div class="modal-header">
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                    <h4 class="modal-title">节点详情</h4>
-                                  </div>
-                                  <div class="modal-body">
-                                    <div class= "row">
-                                        <div  class="col-md-10">
-                                            <label>viewpoint：</label><br/>
-                                            <span style="word-wrap:break-word;">{{>viewPointStr}}</span>
-                                        </div>
-                                    </div>
-                                  </div>
-                                  <div class="modal-footer">
-                                    <button name="showTypicalCallTreeBtn" type="button" class="btn btn-primary" value="{{>nodeToken}}">查看调用链</button>
-                                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                                  </div>
-                                </div>
-                              </div>
-                        </div>
+
                  </div>
             </td>
             <td>{{>anlyResult.totalCall}}</td>
@@ -102,7 +81,36 @@
 
         </tr>
 
+
 </script>
+</#macro>
+
+
+<#macro viewPointPickUp>
+    <div class="modal fade" id="viewPointPickupModal" tabindex="-1" role="dialog" aria-labelledby="viewPointPickupModal" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">节点详情</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class= "row">
+                            <div  class="col-md-10">
+                                <label>viewpoint：</label><br/>
+                                <span style="word-wrap:break-word;">{{>viewPointStr}}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="showTypicalCallTreeBtn" type="button" class="btn btn-primary" value="{{>nodeToken}}">查看调用链</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </#macro>
 
 <#macro typicalCallChainTrees>
@@ -136,6 +144,7 @@
         </table>
       </div>
     </div>
+    <hr/>
 
 </script>
 </#macro>
@@ -146,6 +155,7 @@
     {{for typicalTreeIds}}
         <input name="typicalTreeCheckBox" type="checkbox" checked value="{{>callTreeToken}}"/>典型调用链{{: #index}}&nbsp;
     {{/for}}
+
 </script>
 </#macro>
 
@@ -174,6 +184,7 @@
             <td>{{>anlyResult.averageCost}}ms
             <span id="{{>nodeToken}}" style="display:none">{{>anlyResultStr}}</span></td>
         </tr>
+
 
 </script>
 </#macro>

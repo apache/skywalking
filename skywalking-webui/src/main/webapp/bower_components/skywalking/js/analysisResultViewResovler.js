@@ -67,6 +67,7 @@ AnalysisResultViewResolver.prototype.bindEvent = function () {
 AnalysisResultViewResolver.prototype.showTypicalCallTree = function (nodeToken) {
     this.currentTypicalTreeNodes = {callChainTreeNodeList: []};
     this.currentTypicalTreeNodeMapping = {typicalTreeIds: []};
+    var tmpTypicalCallChainNodeIds = {};
     for (var i = 0; i < this.typicCallChainData.length; i++) {
         var node = this.typicCallChainData[i];
         var tmpInfo = node.treeNodes[nodeToken];
@@ -75,15 +76,69 @@ AnalysisResultViewResolver.prototype.showTypicalCallTree = function (nodeToken) 
         }
 
         var tmpTypicalCallChain = [];
+
         for (var key in node.treeNodes) {
             var tmpNode = node.treeNodes[key];
             tmpNode.anlyResult = JSON.parse($("#" + key).text());
             tmpTypicalCallChain.push(tmpNode);
-            this.currentTypicalTreeNodes.callChainTreeNodeList.push(tmpNode);
+            if (tmpTypicalCallChainNodeIds[key] == undefined || tmpTypicalCallChainNodeIds[key] == "") {
+                this.currentTypicalTreeNodes.callChainTreeNodeList.push(tmpNode);
+                tmpTypicalCallChainNodeIds[key] = {};
+            }
         }
         this.currentTypicalTreeNodeMapping[node.callTreeId] = tmpTypicalCallChain;
         this.currentTypicalTreeNodeMapping.typicalTreeIds.push({"callTreeToken": node.callTreeId});
     }
+
+
+    this.sortTypicalCallChainTreeNode(this.currentTypicalTreeNodes.callChainTreeNodeList);
+}
+
+AnalysisResultViewResolver.prototype.sortTypicalCallChainTreeNode = function (callChainTreeNodeList) {
+    for (var i = 0 ; i < callChainTreeNodeList.length - 1; i++){
+        var testTraceLevelId = callChainTreeNodeList[i].traceLevelId;
+        var index = i;
+        for (var j = i + 1; j < callChainTreeNodeList.length; j++){
+            if (!this.compareTraceLevelId(testTraceLevelId, callChainTreeNodeList[j].traceLevelId)){
+                index = j;
+                testTraceLevelId = callChainTreeNodeList[j].traceLevelId;
+            }
+        }
+
+        if (index != i){
+            var tmpNode = callChainTreeNodeList[i];
+            callChainTreeNodeList[i] = callChainTreeNodeList[index];
+            callChainTreeNodeList[index] = tmpNode;
+        }
+    }
+}
+
+AnalysisResultViewResolver.prototype.compareTraceLevelId = function (traceLevelIdA, traceLevelIdB) {
+    var traceLevelIdAArray = traceLevelIdA.split(".");
+    var traceLevelIdBArray = traceLevelIdB.split(".");
+    var result = -1;
+    var index = 0;
+    while (true) {
+        if (index >= traceLevelIdAArray.length) {
+            result = true;
+            break;
+        }
+
+        if (index >= traceLevelIdBArray.length) {
+            result = false;
+            break;
+        }
+        if (parseInt(traceLevelIdAArray[index]) > parseInt(traceLevelIdBArray[index])) {
+            result = false;
+            break;
+        } else if (parseInt(traceLevelIdAArray[index]) < parseInt(traceLevelIdBArray[index])) {
+            result = true;
+            break;
+        }
+        index++;
+    }
+
+    return result;
 }
 
 AnalysisResultViewResolver.prototype.paintChainTreeDataTable = function () {
@@ -146,7 +201,8 @@ AnalysisResultViewResolver.prototype.bindGotoTypicalPageEvent = function () {
     $("button[name='showTypicalCallTreeBtn']").each(function () {
         $(this).click(function () {
             var treeNodeToken = $(this).attr("value");
-            $(".modal-backdrop").remove();
+            //$(".modal-backdrop").remove();
+            $("#modal" + treeNodeToken).modal('hide');
             self.showTypicalCallTree(treeNodeToken);
 
             var template = $.templates("#typicalCallChainTreesTmpl");
@@ -170,14 +226,19 @@ AnalysisResultViewResolver.prototype.bindGotoTypicalPageEvent = function () {
                             treeIds.push($(this).attr("value"));
                         }
                     });
-
+                    var tmpTpicalTreeNodes = {};
                     self.currentTypicalTreeNodes.callChainTreeNodeList = [];
                     for (var i = 0; i < treeIds.length; i++) {
                         var tmpNodes = self.currentTypicalTreeNodeMapping[treeIds[i]];
                         for (var j = 0; j < tmpNodes.length; j++) {
-                            self.currentTypicalTreeNodes.callChainTreeNodeList.push(tmpNodes[j]);
+                            if (tmpTpicalTreeNodes[tmpNodes[j].nodeToken] == undefined || tmpTpicalTreeNodes[tmpNodes[j].nodeToken] == "") {
+                                self.currentTypicalTreeNodes.callChainTreeNodeList.push(tmpNodes[j]);
+                                tmpTpicalTreeNodes[tmpNodes[j].nodeToken] = {};
+                            }
                         }
                     }
+
+                    self.sortTypicalCallChainTreeNode(self.currentTypicalTreeNodes.callChainTreeNodeList);
 
                     template = $.templates("#typicalTreeTableTmpl");
                     var htmlOutput = template.render((self.convertAnalysisResult(self.currentTypicalTreeNodes)));
