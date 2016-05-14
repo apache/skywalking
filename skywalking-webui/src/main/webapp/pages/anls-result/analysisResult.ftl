@@ -58,9 +58,8 @@
                 <td rowspan="{{>rowSpanCount}}" valign="middle">{{>traceLevelId}}</td>
             {{/if}}
             <td>
-                <a href="javascript:void(0);" data-toggle="modal" data-target="#modal{{>nodeToken}}">{{>viewPoint}}</a>
+                <a href="javascript:pickUpViewPoint('{{>nodeToken}}');"> {{>viewPoint}}</a>
                 <span style="display:none" id="{{>nodeToken}}ViewPoint">{{>viewPoint}}</span>
-
                  </div>
             </td>
             <td>{{>anlyResult.totalCall}}</td>
@@ -80,8 +79,6 @@
             <span id="{{>nodeToken}}" style="display:none">{{>anlyResultStr}}</span></td>
 
         </tr>
-
-
 </script>
 </#macro>
 
@@ -99,7 +96,7 @@
                         <div class= "row">
                             <div  class="col-md-10">
                                 <label>viewpoint：</label><br/>
-                                <span style="word-wrap:break-word;">{{>viewPointStr}}</span>
+                                <span style="word-wrap:break-word;" id="viewpointStr"></span>
                             </div>
                         </div>
                     </div>
@@ -145,7 +142,6 @@
       </div>
     </div>
     <hr/>
-
 </script>
 </#macro>
 
@@ -155,7 +151,6 @@
     {{for typicalTreeIds}}
         <input name="typicalTreeCheckBox" type="checkbox" checked value="{{>callTreeToken}}"/>典型调用链{{: #index}}&nbsp;
     {{/for}}
-
 </script>
 </#macro>
 
@@ -166,7 +161,7 @@
                 <td rowspan="{{>rowSpanCount}}" valign="middle">{{>traceLevelId}}</td>
             {{/if}}
             <td>
-                <a href="javascript:void(0);" data-toggle="modal" data-target="#modal{{>nodeToken}}">{{>viewPoint}}</a>
+                <span>{{>viewPoint}}</span>
             </td>
             <td>{{>anlyResult.totalCall}}</td>
             <td>{{>anlyResult.correctNumber}}</td>
@@ -184,8 +179,6 @@
             <td>{{>anlyResult.averageCost}}ms
             <span id="{{>nodeToken}}" style="display:none">{{>anlyResultStr}}</span></td>
         </tr>
-
-
 </script>
 </#macro>
 
