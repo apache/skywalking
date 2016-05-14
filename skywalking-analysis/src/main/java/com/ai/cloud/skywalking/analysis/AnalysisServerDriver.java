@@ -1,18 +1,12 @@
 package com.ai.cloud.skywalking.analysis;
 
-import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import com.ai.cloud.skywalking.analysis.chainbuild.ChainBuildMapper;
 import com.ai.cloud.skywalking.analysis.chainbuild.ChainBuildReducer;
-import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainInfo;
+import com.ai.cloud.skywalking.analysis.config.Config;
+import com.ai.cloud.skywalking.analysis.config.ConfigInitializer;
 import com.ai.cloud.skywalking.analysis.config.HBaseTableMetaData;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
-import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.mapreduce.TableMapReduceUtil;
 import org.apache.hadoop.io.Text;
@@ -24,8 +18,10 @@ import org.apache.hadoop.util.ToolRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.ai.cloud.skywalking.analysis.config.Config;
-import com.ai.cloud.skywalking.analysis.config.ConfigInitializer;
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class AnalysisServerDriver extends Configured implements Tool {
 
@@ -36,10 +32,10 @@ public class AnalysisServerDriver extends Configured implements Tool {
 
         String analysisMode = System.getenv("skywalking.analysis.mode");
 
-        if ("rewrite".equalsIgnoreCase(analysisMode)){
+        if ("rewrite".equalsIgnoreCase(analysisMode)) {
             logger.info("Skywalking analysis mode will switch to [REWRITE] mode");
             Config.AnalysisServer.IS_ACCUMULATE_MODE = false;
-        }else{
+        } else {
             logger.info("Skywalking analysis mode will switch to [ACCUMULATE] mode");
             Config.AnalysisServer.IS_ACCUMULATE_MODE = true;
         }
@@ -57,7 +53,7 @@ public class AnalysisServerDriver extends Configured implements Tool {
         conf.set("hbase.zookeeper.quorum", Config.HBase.ZK_QUORUM);
         conf.set("hbase.zookeeper.property.clientPort", Config.HBase.ZK_CLIENT_PORT);
         //-XX:+UseParallelGC -XX:ParallelGCThreads=4 -XX:GCTimeRatio=10 -XX:YoungGenerationSizeIncrement=20 -XX:TenuredGenerationSizeIncrement=20 -XX:AdaptiveSizeDecrementScaleFactor=2
-        conf.set("mapred.child.java.opts",Config.MapReduce.JAVA_OPTS);
+        conf.set("mapred.child.java.opts", Config.MapReduce.JAVA_OPTS);
         String[] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
         if (otherArgs.length != 2) {
             System.err.println("Usage: com.ai.cloud.skywalking.analysis.AnalysisServerDriver yyyy-MM-dd/HH:mm:ss yyyy-MM-dd/HH:mm:ss");
@@ -83,6 +79,9 @@ public class AnalysisServerDriver extends Configured implements Tool {
         Date startDate = simpleDateFormat.parse(args[0]);
         Date endDate = simpleDateFormat.parse(args[1]);
         Scan scan = new Scan();
+        //scan.setMaxVersions();
+        scan.setBatch(2001);
+        scan.setMaxVersions();
         scan.setTimeRange(startDate.getTime(), endDate.getTime());
         return scan;
     }
