@@ -1,17 +1,14 @@
 package com.ai.cloud.skywalking.analysis.chainbuild;
 
-import com.ai.cloud.skywalking.analysis.chainbuild.exception.Tid2CidECovertException;
-import com.ai.cloud.skywalking.analysis.chainbuild.filter.SpanNodeProcessChain;
-import com.ai.cloud.skywalking.analysis.chainbuild.filter.SpanNodeProcessFilter;
-import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainInfo;
-import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainNode;
-import com.ai.cloud.skywalking.analysis.chainbuild.po.SummaryType;
-import com.ai.cloud.skywalking.analysis.chainbuild.util.*;
-import com.ai.cloud.skywalking.analysis.config.Config;
-import com.ai.cloud.skywalking.analysis.config.ConfigInitializer;
-import com.ai.cloud.skywalking.protocol.Span;
-import com.ai.cloud.skywalking.util.SpanLevelIdComparators;
-import com.google.gson.Gson;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
@@ -21,9 +18,20 @@ import org.apache.hadoop.io.Text;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import com.ai.cloud.skywalking.analysis.chainbuild.exception.Tid2CidECovertException;
+import com.ai.cloud.skywalking.analysis.chainbuild.filter.SpanNodeProcessChain;
+import com.ai.cloud.skywalking.analysis.chainbuild.filter.SpanNodeProcessFilter;
+import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainInfo;
+import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainNode;
+import com.ai.cloud.skywalking.analysis.chainbuild.po.SummaryType;
+import com.ai.cloud.skywalking.analysis.chainbuild.util.HBaseUtil;
+import com.ai.cloud.skywalking.analysis.chainbuild.util.SubLevelSpanCostCounter;
+import com.ai.cloud.skywalking.analysis.chainbuild.util.TokenGenerator;
+import com.ai.cloud.skywalking.analysis.chainbuild.util.VersionIdentifier;
+import com.ai.cloud.skywalking.analysis.config.ConfigInitializer;
+import com.ai.cloud.skywalking.protocol.Span;
+import com.ai.cloud.skywalking.util.SpanLevelIdComparators;
+import com.google.gson.Gson;
 
 public class ChainBuildMapper extends TableMapper<Text, Text> {
 
@@ -46,7 +54,6 @@ public class ChainBuildMapper extends TableMapper<Text, Text> {
             return;
         }
 
-        RedisUtil.autoIncrement(Config.Redis.MAPPER_COUNT_KEY);
         List<Span> spanList = new ArrayList<Span>();
         ChainInfo chainInfo = null;
         try {
@@ -121,11 +128,9 @@ public class ChainBuildMapper extends TableMapper<Text, Text> {
                                 + ":" + chainInfo.getCallEntrance()),
                         new Text(new Gson().toJson(chainInfo)));
             }
-            RedisUtil.autoIncrement(Config.Redis.SUCCESS_MAPPER_COUNT_KEY);
         } catch (Exception e) {
             logger.error("Failed to mapper call chain[" + key.toString() + "]",
                     e);
-            RedisUtil.autoIncrement(Config.Redis.FAILED_MAPPER_COUNT_KEY);
         }
     }
 
@@ -161,11 +166,5 @@ public class ChainBuildMapper extends TableMapper<Text, Text> {
             spanEntry.setSpan(span);
         }
         return spanEntryMap;
-    }
-
-    private void clearData(){
-        RedisUtil.clearData(Config.Redis.MAPPER_COUNT_KEY);
-        RedisUtil.clearData(Config.Redis.FAILED_MAPPER_COUNT_KEY);
-        RedisUtil.clearData(Config.Redis.SUCCESS_MAPPER_COUNT_KEY);
     }
 }

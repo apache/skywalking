@@ -1,18 +1,18 @@
 package com.ai.cloud.skywalking.analysis.chainbuild;
 
-import com.ai.cloud.skywalking.analysis.chainbuild.action.IStatisticsAction;
-import com.ai.cloud.skywalking.analysis.chainbuild.po.SummaryType;
-import com.ai.cloud.skywalking.analysis.config.Config;
-import com.ai.cloud.skywalking.analysis.config.ConfigInitializer;
-import org.apache.hadoop.hbase.util.Bytes;
+import java.io.IOException;
+import java.util.Iterator;
+
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.IOException;
-import java.util.Iterator;
+import com.ai.cloud.skywalking.analysis.chainbuild.action.IStatisticsAction;
+import com.ai.cloud.skywalking.analysis.chainbuild.po.SummaryType;
+import com.ai.cloud.skywalking.analysis.config.Config;
+import com.ai.cloud.skywalking.analysis.config.ConfigInitializer;
 
 public class ChainBuildReducer extends Reducer<Text, Text, Text, IntWritable> {
     private Logger logger = LogManager.getLogger(ChainBuildReducer.class);

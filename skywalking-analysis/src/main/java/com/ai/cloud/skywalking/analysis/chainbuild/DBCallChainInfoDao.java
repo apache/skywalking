@@ -1,13 +1,17 @@
 package com.ai.cloud.skywalking.analysis.chainbuild;
 
-import com.ai.cloud.skywalking.analysis.chainbuild.entity.CallChainDetailForMysql;
-import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainNode;
-import com.ai.cloud.skywalking.analysis.config.Config;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.*;
-import java.util.Map;
+import com.ai.cloud.skywalking.analysis.chainbuild.entity.CallChainDetailForMysql;
+import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainNode;
+import com.ai.cloud.skywalking.analysis.config.Config;
 
 public class DBCallChainInfoDao {
 	private static Logger logger = LoggerFactory

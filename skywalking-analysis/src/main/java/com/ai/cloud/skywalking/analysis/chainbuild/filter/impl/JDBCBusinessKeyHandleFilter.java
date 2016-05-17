@@ -1,11 +1,12 @@
 package com.ai.cloud.skywalking.analysis.chainbuild.filter.impl;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.ai.cloud.skywalking.analysis.chainbuild.SpanEntry;
 import com.ai.cloud.skywalking.analysis.chainbuild.filter.SpanNodeProcessFilter;
 import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainNode;
 import com.ai.cloud.skywalking.analysis.chainbuild.util.SubLevelSpanCostCounter;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public class JDBCBusinessKeyHandleFilter extends SpanNodeProcessFilter {
     private Logger logger = LogManager.getLogger(JDBCBusinessKeyHandleFilter.class);
