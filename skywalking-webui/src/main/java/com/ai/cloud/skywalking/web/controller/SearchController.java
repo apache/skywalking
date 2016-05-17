@@ -6,6 +6,7 @@ import com.ai.cloud.skywalking.web.entity.BreviaryChainNode;
 import com.ai.cloud.skywalking.web.dto.LoginUserInfo;
 import com.ai.cloud.skywalking.web.dto.TraceTreeInfo;
 import com.ai.cloud.skywalking.web.entity.BreviaryChainTree;
+import com.ai.cloud.skywalking.web.exception.UserNotLoginException;
 import com.ai.cloud.skywalking.web.service.inter.ICallChainTreeService;
 import com.ai.cloud.skywalking.web.service.inter.ITraceTreeService;
 import com.ai.cloud.skywalking.web.util.Constants;
@@ -115,7 +116,11 @@ public class SearchController extends BaseController {
             result.add("children", jsonElements);
             jsonObject.put("code", "200");
             jsonObject.put("result", result.toString());
-        } catch (Exception e) {
+        }catch (UserNotLoginException e){
+            logger.error("Failed to search chain tree:{}", key, e);
+            jsonObject.put("code", "505");
+            jsonObject.put("result", "User is not login.");
+        }catch (Exception e) {
             logger.error("Failed to search chain tree:{}", key, e);
             jsonObject.put("code", "500");
             jsonObject.put("result", "Fatal error");

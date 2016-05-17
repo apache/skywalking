@@ -1,5 +1,7 @@
 package com.ai.cloud.skywalking.web.common;
 
+import com.ai.cloud.skywalking.web.exception.UserInvalidateException;
+import com.ai.cloud.skywalking.web.exception.UserNotLoginException;
 import com.ai.cloud.skywalking.web.util.Constants;
 import com.ai.cloud.skywalking.web.dto.LoginUserInfo;
 import org.springframework.ui.ModelMap;
@@ -29,11 +31,11 @@ public class BaseController {
         LoginUserInfo loginUserInfo = (LoginUserInfo) request.getSession().
                 getAttribute(Constants.SESSION_LOGIN_INFO_KEY);
         if (loginUserInfo == null) {
-            throw new RuntimeException("Failed to find login user info");
+            throw new UserNotLoginException("Failed to find login user info");
         }
 
         if (loginUserInfo.getUid() == null) {
-            throw new RuntimeException("Login user Id is null");
+            throw new UserInvalidateException("Login user Id is null");
         }
 
         return loginUserInfo;

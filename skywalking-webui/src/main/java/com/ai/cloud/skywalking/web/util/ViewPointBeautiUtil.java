@@ -1,8 +1,5 @@
 package com.ai.cloud.skywalking.web.util;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Created by xin on 16-4-19.
  */
@@ -10,7 +7,10 @@ public class ViewPointBeautiUtil {
 
 
     public static String beautifulViewPoint(String viewPoint, String searchKey) {
-        String highLightViewPoint = ViewPointBeautiUtil.addViewPoint(viewPoint, searchKey);
+        String highLightViewPoint = viewPoint;
+        if (viewPoint.length() > 100) {
+            highLightViewPoint = ViewPointBeautiUtil.addViewPoint(viewPoint, searchKey);
+        }
         return ViewPointBeautiUtil.highLightViewPoint(highLightViewPoint, searchKey);
     }
 
@@ -27,7 +27,9 @@ public class ViewPointBeautiUtil {
         result.append("<span class='highlight-viewpoint'>");
         result.append(searchKey);
         result.append("</span>");
-        result.append(viewPoint.substring(index + searchKey.length() + 1));
+        if (viewPoint.length() > index + searchKey.length() + 1) {
+            result.append(viewPoint.substring(index + searchKey.length() + 1));
+        }
         return result.toString();
     }
 

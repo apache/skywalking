@@ -6,9 +6,10 @@ import com.ai.cloud.skywalking.web.util.ViewPointBeautiUtil;
  * Created by xin on 16-4-14.
  */
 public class BreviaryChainNode {
-    private String traceLevelId="";
+    private String traceLevelId = "";
     private String viewPoint;
     private boolean isGuess;
+
     public BreviaryChainNode(String traceLevelId, String viewPoint, boolean isGuess) {
         this.traceLevelId = traceLevelId;
         this.viewPoint = viewPoint;
@@ -32,9 +33,7 @@ public class BreviaryChainNode {
     }
 
     public void beautiViewPointString(String searchKey) {
-        if (viewPoint.length() > 100) {
-            viewPoint = ViewPointBeautiUtil.beautifulViewPoint(viewPoint, searchKey);
-        }
+        viewPoint = ViewPointBeautiUtil.beautifulViewPoint(viewPoint, searchKey);
     }
 
     @Override

@@ -24,7 +24,8 @@ public class AccessControllerFilter implements Filter {
         contained.add("addApplication");
         contained.add("createGlobalApplication");
         contained.add("modifyApplication");
-        contained.add("showAnlyResult");
+        contained.add("showAnlySearchResult");
+        contained.add("showAnalysisResult");
     }
 
     @Override

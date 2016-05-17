@@ -89,6 +89,8 @@ function loadAnalyResult(searchKey, pageSize) {
                     $("#anlyResultmPanel").append(htmlOutput);
                     bindPagerBtn();
                 }
+            }else if (data.code == '505'){
+                window.location.href = baseUrl + "/usr/login";
             }
         },
         error: function () {
