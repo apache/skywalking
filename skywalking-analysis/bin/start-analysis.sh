@@ -84,7 +84,7 @@ if [ "${SW_ANALYSIS_MODE}" != "REWRITE" ]; then
 
     START_TIME=`cat ${PRE_TIME_OF_ACCUMULATE_FILE}`
     if [ "$START_TIME" = "" ]; then
-        START_TIME=`date --date='1 month ago' "+%Y-%m-%d/%H:%M:%S"`
+        START_TIME=`date --date='3 month ago' "+%Y-%m-%d/%H:%M:%S"`
     fi
     SW_ANALYSIS_MODE=ACCUMULATE
     echo "skywalking analysis process will execute accumulate mode. start time: ${START_TIME}."
