@@ -33,17 +33,4 @@ public class Config {
     public static class MapReduce {
         public static String JAVA_OPTS = "-Xmx200m";
     }
-
-
-    public static class Redis {
-        public static String HOST = "127.0.0.1";
-
-        public static int PORT = 6379;
-
-        public static String MAPPER_COUNT_KEY = "ANALYSIS_TOTAL_SIZE";
-
-        public static String SUCCESS_MAPPER_COUNT_KEY = "ANALYSIS_SUCCESS_TOTAL_SIZE";
-
-        public static  String FAILED_MAPPER_COUNT_KEY = "ANALYSIS_FAILED_TOTAL_SIZE";
-    }
 }

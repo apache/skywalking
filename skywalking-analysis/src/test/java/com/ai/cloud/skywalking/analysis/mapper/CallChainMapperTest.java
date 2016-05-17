@@ -33,9 +33,9 @@ public class CallChainMapperTest {
         Table table = connection.getTable(TableName.valueOf
                 (HBaseTableMetaData.TABLE_CALL_CHAIN.TABLE_NAME));
         Scan scan = new Scan();
-        //2016-04-13/16:59:24 to 2016-05-13/16:49:24
-        Date startDate = simpleDateFormat.parse("2016-04-13/16:59:24");
-        Date endDate = simpleDateFormat.parse("2016-05-13/16:49:24");
+        //2016-04-16/19:49:25 to 2016-05-16/19:39:25
+        Date startDate = simpleDateFormat.parse("2016-04-16/19:49:25");
+        Date endDate = simpleDateFormat.parse("2016-05-16/19:39:25");
         scan.setBatch(2001);
         scan.setTimeRange(startDate.getTime(), endDate.getTime());
 

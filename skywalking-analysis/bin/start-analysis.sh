@@ -25,18 +25,14 @@ fi
 SW_ANALYSIS_PID=`cat ${PID_FILES}`
 # check if the skywalking analysis process is running
 if [ "$SW_ANALYSIS_PID" != "" ]; then
-    PS_OUT=`ps -ef | grep $SW_ANALYSIS_PID | grep -v 'grep' | grep -v $0`
-    result=$(echo $PS_OUT | grep $SW_ALALYSIS_PID)
-    if [ "$result" != "" ]; then
+    #PS_OUT=`ps -ef | grep $SW_ANALYSIS_PID | grep -v 'grep' | grep -v $0`
+    #PS_OUT=`ps -ax | awk '{ print $1 }' | grep -e "^${SW_ANALYSIS_PID}$"` | echo ${PS_OUT}
+    PS_OUT=`ps -ax | awk '{print $1}' | grep -e "^${SW_ANALYSIS_PID}$"`
+    if [ "$PS_OUT" != "" ]; then
         echo "The skywalking analysis process is running. Will delay the analysis."
         exit -1;
     fi
 fi
-
-# echo the current process Id to pid file
-PID=$!
-echo "Current analysis process Id : ${PID}"
-echo $PID > SW_ANALYSIS_PID
 
 #skywalking analysis mode:1)accumulate(default) 2)rewrite
 SW_ANALYSIS_MODE=ACCUMULATE
@@ -58,7 +54,7 @@ if [ "$PRE_TIME_OF_REWRITE_TIME" != "" ]; then
         THE_DAY_OF_MONTH=$(date "+%d")
         for THE_DAY in ${REWRITE_EXECUTIVE_DAY_ARR[@]}
         do
-            if [ ${THE_DAY} -eq ${THE_DAY_OF_MONTH} ]; then
+            if [ ${THE_DAY} == ${THE_DAY_OF_MONTH} ]; then
                 SW_ANALYSIS_MODE=REWRITE
                 START_TIME=$(date --date='1 month ago' '+%Y-%m-01/00:00:00')
                 echo "skywalking analysis will execute rewrite mode. Start time:${START_TIME}"
@@ -83,7 +79,7 @@ if [ "${SW_ANALYSIS_MODE}" != "REWRITE" ]; then
 
     START_TIME=`cat ${PRE_TIME_OF_ACCUMULATE_FILE}`
     if [ "$START_TIME" = "" ]; then
-        START_TIME=`date --date='3 month ago' "+%Y-%m-%d/%H:%M:%S"`
+        START_TIME=`date --date='1 month ago' "+%Y-%m-%d/%H:%M:%S"`
     fi
     SW_ANALYSIS_MODE=ACCUMULATE
     echo "skywalking analysis process will execute accumulate mode. start time: ${START_TIME}."
@@ -95,8 +91,13 @@ END_TIME=`date --date='10 minute ago' "+%Y-%m-%d/%H:%M:%S"`
 
 ## execute command
 echo "Begin to analysis the buried point data between ${START_TIME} to ${END_TIME}."
+export HADOOP_CLASSPATH=`${HBASE_HOME}/bin/hbase classpath`
+nohup ${HADOOP_HOME}/bin/hadoop jar skywalking-analysis-1.0-SNAPSHOT.jar -Dskywalking.analysis.mode=${SW_ANALYSIS_MODE} ${START_TIME} ${END_TIME} > ${SW_ANALYSIS_HOME}/log/map-reduce.log 2>&1 &
 
-HADOOP_CLASSPATH=`${HBASE_HOME}/bin/hbase classpath` ${HADOOP_HOME}/bin/hadoop jar skywalking-analysis-1.0-SNAPSHOT.jar -Dskywalking.analysis.mode=${SW_ANALYSIS_MODE} ${START_TIME} ${END_TIME}
+CURRENT_PID=`echo $!`
+
+echo "current analysis process Id is ${CURRENT_PID}"
+echo ${CURRENT_PID} > ${PID_FILES}
 
 if [ "${SW_ANALYSIS_MODE}" = "REWRITE" ]; then
     echo $(date "+%d") > ${PRE_TIME_OF_REWRITE_FILE}

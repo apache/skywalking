@@ -19,7 +19,7 @@ import java.util.List;
  */
 public class HBaseUtils {
 
-    private static String ZK_QUORUM = "host-10-1-241-18,host-10-1-241-19,host-10-1-241-20";
+    private static String ZK_QUORUM = "host-10-1-235-197,host-10-1-235-198,host-10-1-235-199";
     private static String ZK_CLIENT_PORT = "29181";
 
     private static Configuration configuration = null;

@@ -79,9 +79,7 @@ public class AnalysisServerDriver extends Configured implements Tool {
         Date startDate = simpleDateFormat.parse(args[0]);
         Date endDate = simpleDateFormat.parse(args[1]);
         Scan scan = new Scan();
-        //scan.setMaxVersions();
         scan.setBatch(2001);
-        scan.setMaxVersions();
         scan.setTimeRange(startDate.getTime(), endDate.getTime());
         return scan;
     }
