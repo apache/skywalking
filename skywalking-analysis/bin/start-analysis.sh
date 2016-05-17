@@ -9,6 +9,11 @@ HBASE_HOME=${HOME}/hbase-1.1.2
 #check hadoop home
 HADOOP_HOME=${HOME}/hadoop-2.6.0
 
+SW_RT_LOG_DIR=${SW_ANALYSIS_HOME}/log
+if [ ! -d "$SW_RT_LOG_DIR" ]; then
+    mkdir -p $SW_RT_LOG_DIR
+fi
+
 #check skywalking runtime config directory is exisit, if not, will create it.
 SW_RT_CONF_DIR="${SW_ANALYSIS_HOME}/runtime-conf"
 if [ ! -d "$SW_RT_CONF_DIR" ]; then
@@ -92,7 +97,7 @@ END_TIME=`date --date='10 minute ago' "+%Y-%m-%d/%H:%M:%S"`
 ## execute command
 echo "Begin to analysis the buried point data between ${START_TIME} to ${END_TIME}."
 export HADOOP_CLASSPATH=`${HBASE_HOME}/bin/hbase classpath`
-nohup ${HADOOP_HOME}/bin/hadoop jar skywalking-analysis-1.0-SNAPSHOT.jar -Dskywalking.analysis.mode=${SW_ANALYSIS_MODE} ${START_TIME} ${END_TIME} > ${SW_ANALYSIS_HOME}/log/map-reduce.log 2>&1 &
+nohup ${HADOOP_HOME}/bin/hadoop jar skywalking-analysis-1.0-SNAPSHOT.jar -Dskywalking.analysis.mode=${SW_ANALYSIS_MODE} ${START_TIME} ${END_TIME} > ${SW_RT_LOG_DIR}/map-reduce.log 2>&1 &
 
 CURRENT_PID=`echo $!`
 
