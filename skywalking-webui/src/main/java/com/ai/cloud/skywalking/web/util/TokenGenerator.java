@@ -11,6 +11,10 @@ public final class TokenGenerator {
 
     private static Logger logger = LogManager.getLogger(TokenGenerator.class);
 
+    public static String generateTreeToken(String originData) {
+        return "TREE_ID_" + generate(originData);
+    }
+    
     public static String generate(String originData) {
         StringBuilder result = new StringBuilder();
         if (originData != null) {

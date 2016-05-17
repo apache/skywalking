@@ -62,12 +62,16 @@ public class TraceNodeDao implements ITraceNodeDao {
         Table table = hBaseUtils.getConnection().getTable(TableName.valueOf(CALL_CHAIN_TABLE_NAME));
         Get g = new Get(Bytes.toBytes(traceId));
         g.addColumn("call-chain".getBytes(), "0".getBytes());
+        g.addColumn("call-chain".getBytes(), "0-S".getBytes());
         g.addColumn("call-chain".getBytes(), "0.0".getBytes());
         Result r = table.get(g);
 
         Map<String, TraceNodeInfo> traceLogMap = new HashMap<String, TraceNodeInfo>();
         Map<String, TraceNodeInfo> rpcMap = new HashMap<String, TraceNodeInfo>();
         Cell cell = r.getColumnLatestCell("call-chain".getBytes(), "0".getBytes());
+        if (cell == null){
+            cell = r.getColumnLatestCell("call-chain".getBytes(), "0-S".getBytes());
+        }
         doDealSingleSpan(traceLogMap, rpcMap, cell);
 
         cell = r.getColumnLatestCell("call-chain".getBytes(), "0.0".getBytes());

@@ -1,12 +1,15 @@
 package com.ai.cloud.skywalking.web.dto;
 
 import com.ai.cloud.skywalking.web.util.Constants;
+import com.ai.cloud.skywalking.web.util.TokenGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class TraceTreeInfo {
     private String traceId;
+    private boolean hasCallChainTree = true;
+    private String callChainTreeToken = "";
     private long beginTime;
     private long endTime;
     private List<TraceNodeInfo> nodes;
@@ -77,5 +80,28 @@ public class TraceTreeInfo {
 
     public void setMaxQueryNodeSize(int maxQueryNodeSize) {
         this.maxQueryNodeSize = maxQueryNodeSize;
+    }
+
+    public void fillCallChainTreeToken(String entranceViewPoint) {
+        if (entranceViewPoint == null || entranceViewPoint.length() == 0){
+            hasCallChainTree = false;
+        }
+        callChainTreeToken = TokenGenerator.generateTreeToken(entranceViewPoint);
+    }
+
+    public boolean isHasCallChainTree() {
+        return hasCallChainTree;
+    }
+
+    public void setHasCallChainTree(boolean hasCallChainTree) {
+        this.hasCallChainTree = hasCallChainTree;
+    }
+
+    public String getCallChainTreeToken() {
+        return callChainTreeToken;
+    }
+
+    public void setCallChainTreeToken(String callChainTreeToken) {
+        this.callChainTreeToken = callChainTreeToken;
     }
 }

@@ -1,5 +1,4 @@
 function changeData(data) {
-
     var result = {
         traceTree: {
             traceId: "",
@@ -26,6 +25,8 @@ function changeData(data) {
     result.traceTree.maxQueryNodeSize = data.maxQueryNodeSize;
     result.traceTree.startTimeStr = convertDate(new Date(result.traceTree.startTime));
     result.traceTree.callIP = data.nodes[0].address;
+    result.traceTree.hasCallChainTree = data.hasCallChainTree;
+    result.traceTree.callChainTreeToken = data.callChainTreeToken;
     var tmpNode;
     var colId;
     for (var i = 0; i < data.nodes.length; i++) {
@@ -137,4 +138,10 @@ function convertDate(date) {
     var minutes = date.getMinutes();
     var second = date.getSeconds();
     return year + "-" + month + "-" + date1 + " " + hour + ":" + minutes + ":" + second;
+}
+
+function gotoCallChainTree(obj){
+   var callChainTreeToken =  $(obj).attr("value");
+    $("#searchKey").val("analysisresult:" + callChainTreeToken);
+    $("#searchBtn").click();
 }

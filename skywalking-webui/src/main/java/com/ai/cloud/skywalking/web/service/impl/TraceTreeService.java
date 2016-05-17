@@ -1,11 +1,13 @@
 package com.ai.cloud.skywalking.web.service.impl;
 
+import com.ai.cloud.skywalking.util.SpanLevelIdComparators;
 import com.ai.cloud.skywalking.web.dao.inter.ITraceNodeDao;
 import com.ai.cloud.skywalking.web.dto.TraceNodeInfo;
 import com.ai.cloud.skywalking.web.dto.TraceNodesResult;
 import com.ai.cloud.skywalking.web.dto.TraceTreeInfo;
 import com.ai.cloud.skywalking.web.service.inter.ITraceTreeService;
 import com.ai.cloud.skywalking.web.util.Constants;
+import com.ai.cloud.skywalking.web.util.ReplaceAddressUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,13 +36,15 @@ public class TraceTreeService implements ITraceTreeService {
             traceNodeInfoList = new ArrayList<TraceNodeInfo>();
             traceNodeInfoList.addAll(traceTreeDao.queryEntranceNodeByTraceId(traceId));
             traceTreeInfo.setRealNodeSize(Constants.MAX_SEARCH_SPAN_SIZE + 1);
-        }else{
+        } else {
             traceTreeInfo.setRealNodeSize(traceNodeInfoList.size());
         }
 
-        if (traceNodeInfoList.size() > 0){
+        if (traceNodeInfoList.size() > 0) {
             final List<Long> endTime = new ArrayList<Long>();
             endTime.add(0, traceNodeInfoList.get(0).getEndDate());
+
+
             Collections.sort(traceNodeInfoList, new Comparator<TraceNodeInfo>() {
                 @Override
                 public int compare(TraceNodeInfo arg0, TraceNodeInfo arg1) {
@@ -50,18 +54,22 @@ public class TraceTreeService implements ITraceTreeService {
                     if (endTime.get(0) < arg1.getEndDate()) {
                         endTime.set(0, arg1.getEndDate());
                     }
-                    return arg0.getColId().compareTo(arg1.getColId());
+                    return SpanLevelIdComparators.ascCompare(arg0.getColId(), arg1.getColId());
                 }
             });
 
             // 截断
             int subIndex = traceNodeInfoList.size();
-            if (subIndex > Constants.MAX_SHOW_SPAN_SIZE){
+            if (subIndex > Constants.MAX_SHOW_SPAN_SIZE) {
                 subIndex = Constants.MAX_SHOW_SPAN_SIZE;
             }
             traceTreeInfo.setHasBeenSpiltNodes(traceNodeInfoList.subList(0, subIndex));
             traceTreeInfo.setBeginTime(traceNodeInfoList.get(0).getStartDate());
             traceTreeInfo.setEndTime(endTime.get(0));
+            if (traceNodeInfoList.get(0) != null) {
+                traceTreeInfo.fillCallChainTreeToken(ReplaceAddressUtil.replace(traceNodeInfoList.get(0).getViewPointId(),
+                        traceNodeInfoList.get(0).getApplicationId()));
+            }
         }
 
         return traceTreeInfo;
