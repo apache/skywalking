@@ -250,3 +250,17 @@ INSERT INTO `auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_des
 ALTER TABLE `application_info` 
 ADD COLUMN `update_time` DATETIME NULL AFTER `sts`,
 ADD COLUMN `app_desc` VARCHAR(1024) NULL AFTER `update_time`;
+
+# 新增sw_chain_detail，用于调用链分析表
+CREATE TABLE `sw_chain_detail` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `viewpoint` varchar(8192) COLLATE utf8_bin DEFAULT NULL,
+  `treeId` varchar(40) COLLATE utf8_bin DEFAULT NULL,
+  `uid` varchar(32) COLLATE utf8_bin DEFAULT NULL,
+  `traceLevelId` varchar(32) COLLATE utf8_bin DEFAULT NULL,
+  `create_time` timestamp NULL DEFAULT NULL,
+  `update_time` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=8146 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+SELECT * FROM sw_chain_detail;
