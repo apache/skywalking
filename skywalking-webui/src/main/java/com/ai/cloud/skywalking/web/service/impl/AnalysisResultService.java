@@ -49,7 +49,7 @@ public class AnalysisResultService implements IAnalysisResultService {
             Date date = format.parse(analyDate);
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(date);
-            rowKey = treeId + "/" + calendar.get(Calendar.YEAR) + "-" + (calendar.get(Calendar.MONTH) + 1);
+            rowKey = treeId + "/" + new SimpleDateFormat("yyyy-MM").format(date);
             loadKey = calendar.get(Calendar.DAY_OF_MONTH) + "";
             tableName = "sw-chain-1day-summary";
         } else if ("HOUR".equals(analyType)) {
@@ -57,8 +57,7 @@ public class AnalysisResultService implements IAnalysisResultService {
             Date date = format.parse(analyDate);
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(date);
-            rowKey = treeId + "/" + calendar.get(Calendar.YEAR) + "-" + (calendar.get(Calendar.MONTH) + 1)
-                    + "-" + calendar.get(Calendar.DAY_OF_MONTH);
+            rowKey = treeId + "/" + new SimpleDateFormat("yyyy-MM-dd").format(date);
             loadKey = calendar.get(Calendar.HOUR) + "";
             tableName = "sw-chain-1hour-summary";
         }
