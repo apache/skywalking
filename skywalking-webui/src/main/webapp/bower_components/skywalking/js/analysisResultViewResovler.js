@@ -79,7 +79,11 @@ AnalysisResultViewResolver.prototype.showTypicalCallTree = function (nodeToken) 
 
         for (var key in node.treeNodes) {
             var tmpNode = node.treeNodes[key];
-            tmpNode.anlyResult = JSON.parse($("#" + key).text());
+            var analyResultStr = $("#" + key).text();
+            if (analyResultStr == undefined || analyResultStr == "") {
+                analyResultStr = "{\"totalCall\":0,\"totalCostTime\":0,\"correctNumber\":0,\"humanInterruptionNumber\":0,\"correctRate\":\"0.00\",\"averageCost\":\"0.00\"}";
+            }
+            tmpNode.anlyResult = JSON.parse(analyResultStr);
             tmpTypicalCallChain.push(tmpNode);
             if (tmpTypicalCallChainNodeIds[key] == undefined || tmpTypicalCallChainNodeIds[key] == "") {
                 this.currentTypicalTreeNodes.callChainTreeNodeList.push(tmpNode);
