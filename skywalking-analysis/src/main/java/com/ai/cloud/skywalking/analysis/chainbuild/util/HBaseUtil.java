@@ -111,7 +111,7 @@ public class HBaseUtil {
             return new ChainNodeSpecificHourSummary();
         }
 
-        Cell cell = r.getColumnLatestCell(HBaseTableMetaData.TABLE_CHAIN_ONE_MINUTE_SUMMARY.COLUMN_FAMILY_NAME.getBytes(),
+        Cell cell = r.getColumnLatestCell(HBaseTableMetaData.TABLE_CHAIN_ONE_HOUR_SUMMARY.COLUMN_FAMILY_NAME.getBytes(),
                 treeNodeId.getBytes());
 
         if (cell != null && cell.getValueArray().length > 0) {
@@ -134,7 +134,7 @@ public class HBaseUtil {
             return new ChainNodeSpecificDaySummary();
         }
 
-        Cell cell = r.getColumnLatestCell(HBaseTableMetaData.TABLE_CHAIN_ONE_MINUTE_SUMMARY.COLUMN_FAMILY_NAME.getBytes(),
+        Cell cell = r.getColumnLatestCell(HBaseTableMetaData.TABLE_CHAIN_ONE_DAY_SUMMARY.COLUMN_FAMILY_NAME.getBytes(),
                 treeNodeId.getBytes());
 
         if (cell != null && cell.getValueArray().length > 0) {
@@ -149,7 +149,7 @@ public class HBaseUtil {
 
     public static ChainNodeSpecificMonthSummary loadSpecificMonthSummary(String keyOfMonthSummaryTable, String treeNodeId) throws IOException {
         ChainNodeSpecificMonthSummary result = null;
-        Table table = connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_CHAIN_ONE_DAY_SUMMARY.TABLE_NAME));
+        Table table = connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_CHAIN_ONE_MONTH_SUMMARY.TABLE_NAME));
         Get g = new Get(Bytes.toBytes(keyOfMonthSummaryTable));
         Result r = table.get(g);
 
@@ -157,7 +157,7 @@ public class HBaseUtil {
             return new ChainNodeSpecificMonthSummary();
         }
 
-        Cell cell = r.getColumnLatestCell(HBaseTableMetaData.TABLE_CHAIN_ONE_MINUTE_SUMMARY.COLUMN_FAMILY_NAME.getBytes(),
+        Cell cell = r.getColumnLatestCell(HBaseTableMetaData.TABLE_CHAIN_ONE_MONTH_SUMMARY.COLUMN_FAMILY_NAME.getBytes(),
                 treeNodeId.getBytes());
 
         if (cell != null && cell.getValueArray().length > 0) {
