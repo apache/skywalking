@@ -58,7 +58,9 @@ public class ViewPointBeautiUtil {
             result.append(viewPoint.substring(viewPoint.length() - 40, viewPoint.length() - 20));
             result.append("....");
         } else {
-            result.append(viewPoint.substring(startSize, viewPoint.length() - 10));
+            if (viewPoint.length() - 10 >=  startSize) {
+                result.append(viewPoint.substring(startSize, viewPoint.length() - 10));
+            }
         }
         return result.toString();
     }

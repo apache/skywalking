@@ -35,7 +35,7 @@
          text-danger
          {{/if}}
          "><strong>{{>correctRate}}%</strong></span>
-         <a class="pull-right"><ins>more</ins></a></p>
+         <a class="pull-right" href="${_base}/mainPage?loadType=showAnalysisResult&key=analysisresult:{{>treeId}}"><ins>more</ins></a></p>
          <hr/>
     </div>
 </script>

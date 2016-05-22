@@ -4,15 +4,25 @@ function toSearchAnlyResult(searchKey) {
 
 function bindPagerBtn() {
     $("#doPreviousPageBtn").click(function () {
+        var searchKey = $("#searchKey").val();
+        var index = searchKey.indexOf(':');
+        if (index != -1) {
+            searchKey = searchKey.substr(index + 1);
+        }
         var pageSize = $("#pageSize").val();
         $("#anlyResultmPanel").empty();
-        loadAnalyResult(parseInt(pageSize) - 1);
+        loadAnalyResult(searchKey,parseInt(pageSize) - 1);
     });
 
     $("#doNextPageBtn").click(function () {
+        var searchKey = $("#searchKey").val();
+        var index = searchKey.indexOf(':');
+        if (index != -1) {
+            searchKey = searchKey.substr(index + 1);
+        }
         var pageSize = $("#pageSize").val();
         $("#anlyResultmPanel").empty();
-        loadAnalyResult(parseInt(pageSize) + 1);
+        loadAnalyResult(searchKey,parseInt(pageSize) + 1);
     });
 }
 
