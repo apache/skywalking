@@ -75,11 +75,24 @@ public class CallChainTreeDao implements ICallChainTreeDao {
             String qualifierStr = Bytes.toString(cell.getQualifierArray(),
                     cell.getQualifierOffset(), cell.getQualifierLength());
             String valueStr = Bytes.toString(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
-            CallChainTreeNode callChainTreeNode = new CallChainTreeNode(qualifierStr, valueStr, loadKey);
-            chainTree.addNode(callChainTreeNode);
+            AnlyResult anlyResult = buildAnlyResult(valueStr, loadKey);
+            if (anlyResult == null) {
+                continue;
+            } else {
+                CallChainTreeNode callChainTreeNode = new CallChainTreeNode(qualifierStr, anlyResult);
+                chainTree.addNode(callChainTreeNode);
+            }
         }
 
 
         return chainTree;
+    }
+
+    private AnlyResult buildAnlyResult(String valueStr, String loadKey) {
+        JsonObject jsonObject = (JsonObject) new JsonParser().parse(valueStr);
+        Map<String, AnlyResult> resultMap = new Gson().fromJson(jsonObject.getAsJsonObject("summaryValueMap"),
+                new TypeToken<Map<String, AnlyResult>>() {
+                }.getType());
+        return resultMap.get(loadKey);
     }
 }

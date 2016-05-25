@@ -20,19 +20,12 @@ public class CallChainTreeNode {
     private String viewPointStr;
     private AnlyResult anlyResult;
 
-    public CallChainTreeNode(String qualifierStr, String valueStr, String loadKey) {
+    public CallChainTreeNode(String qualifierStr, AnlyResult anlyResult) {
         traceLevelId = qualifierStr.substring(0, qualifierStr.indexOf("@"));
         viewPoint = qualifierStr.substring(qualifierStr.indexOf("@") + 1);
         viewPointStr = viewPoint;
         nodeToken = TokenGenerator.generate(traceLevelId + ":" + viewPoint);
-        JsonObject jsonObject = (JsonObject) new JsonParser().parse(valueStr);
-        Map<String, AnlyResult> resultMap = new Gson().fromJson(jsonObject.getAsJsonObject("summaryValueMap"),
-                new TypeToken<Map<String, AnlyResult>>() {
-                }.getType());
-        anlyResult = resultMap.get(loadKey);
-        if (anlyResult == null) {
-            anlyResult = new AnlyResult();
-        }
+        this.anlyResult = anlyResult;
     }
 
     public String getTraceLevelId() {
