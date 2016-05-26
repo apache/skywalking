@@ -188,7 +188,7 @@ $mvn package -Dmaven.test.skip=true
 > chmod +x start-analysis.sh
 ```
 
-- 运行脚本. Run the command.
+- 创建crontab并运行脚本. Create crontab and run the command.
 ```
 >./start-analysis.sh
 ```
