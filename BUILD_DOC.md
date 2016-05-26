@@ -147,7 +147,6 @@ $mvn package
 - startup tomcat of webui
 
 ### 编译安装SkyWalking Analysis / Build SkyWalking Analysis
-#### 前置步骤,仅供参考 Prepared deploy skywalking-analysis
 - 将HBase安装包拷贝到Hadoop安装目录下. Copy HBase installation package to the Hadoop installation directory.
 - 用HBase的主节点的配置覆盖HBase的安装包里面的配置. Use the configuration of the HBase master node converting the new Hbase package
 - 在.bash_profile文件添加下面的配置,(需要根据实际情况进行配置). Add the following configuration to .base_profile
@@ -160,6 +159,7 @@ export PATH=$HBASE_HOME/bin:$PATH
 source .bash_profile
 echo ${HBASE_HOME}
 ```
+- 以上配置用于运行HBase MR任务，仅供参考
 
 - 修改配置文件analysis.conf
 - config 'analysis.conf'
