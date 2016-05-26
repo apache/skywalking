@@ -76,6 +76,13 @@ INSERT INTO `system_config` (`config_id`,`conf_key`,`conf_value`,`val_type`,`val
 # alter table since 2016-4-8
 ...
 ```
+- 注：2016-5-26日前的版本升级，请升级脚本中的相关片段
+- execute update scripts, if update from the version which releases before 2016-5-26
+```
+# alter table since 2016-5-26
+...
+```
+
 
 ### 编译安装SkyWalking Alarm / Build SkyWalking Alarm
 - 编译工程
@@ -140,8 +147,56 @@ $mvn package
 - startup tomcat of webui
 
 ### 编译安装SkyWalking Analysis / Build SkyWalking Analysis
-- 暂未提供
-- next version
+#### 前置步骤,仅供参考 Prepared deploy skywalking-analysis
+- 将HBase安装包拷贝到Hadoop安装目录下. Copy HBase installation package to the Hadoop installation directory.
+- 用HBase的主节点的配置覆盖HBase的安装包里面的配置. Use the configuration of the HBase master node converting the new Hbase package
+- 在.bash_profile文件添加下面的配置,(需要根据实际情况进行配置). Add the following configuration to .base_profile
+```
+export HBASE_HOME=/aifs01/users/hdpusr01/hbase-1.1.2
+export PATH=$HBASE_HOME/bin:$PATH
+```
+- 运行以下命令. Run the command as follow.
+```
+source .bash_profile
+echo ${HBASE_HOME}
+```
+
+- 修改配置文件analysis.conf
+- config 'analysis.conf'
+```
+#hbase连接信息
+hbase.zk_quorum=10.1.235.197,10.1.235.198,10.1.235.199
+hbase.zk_client_port=29181
+
+#mysql连接信息
+mysql.url=jdbc:mysql://10.1.228.202:31316/test
+mysql.username=devrdbusr21
+mysql.password=devrdbusr21
+```
+
+- 编译工程
+- build
+```shell
+$cd github/sky-walking/skywalking-analysis
+$mvn package -Dmaven.test.skip=true
+```
+
+- 上传skywalking-analysis-1.0-SNAPSHOT.jar. Upload the skywalking-analysis-1.0-SNAPSHOT.jar
+- 上传start-analysis.sh. Upload the start-analysis.sh
+- 修改权限. Change mode start-analysis.sh
+```
+> chmod +x start-analysis.sh
+```
+
+- 运行脚本. Run the command.
+```
+>./start-analysis.sh
+```
+
+- 查看日志. tail the log
+```
+skywalking-analysis/log> tail -f map-reduce.log
+```
 
 ## 使用maven发布各插件工程 / build and deploy plugins
 - build and deploy skywalking-sdk-plugin(dubbo-plugin，spring-plugin，web-plugin，jdbc-plugin，httpclient-4.2.x-plugin，httpclient-4.3.x-plugin, etc.)
