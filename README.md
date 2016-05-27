@@ -42,6 +42,7 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 |skywalking-protocol|  [ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/com.ai.cloud.skywalking-protocol/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/com.ai.cloud.skywalking-protocol/_latestVersion) |
 |skywalking-api|[ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/com.ai.cloud.skywalking-api/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/com.ai.cloud.skywalking-api/_latestVersion) |
 |skywalking-dubbo-plugin| [ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/com.ai.cloud.skywalking-dubbo-plugin/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/com.ai.cloud.skywalking-dubbo-plugin/_latestVersion) |
+|skywalking-httpClient-4.x-plugin| [ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/com.ai.cloud.skywalking-httpClient-4.x-plugin/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/com.ai.cloud.skywalking-httpClient-4.x-plugin/_latestVersion) |
 
 
 # 新版本能力规划
@@ -105,7 +106,7 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 <dependency>
     <groupId>com.ai.cloud</groupId>
     <artifactId>skywalking-api</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>{lastest-version}</version>
 </dependency>
 ```
 
@@ -125,7 +126,7 @@ java com.ai.cloud.skywalking.plugin.TracingBootstrap com.company.product.Startup
 - If you want to trace a tomcat application, you need to modify 'catalina.sh'
 ```
 # add skywalking jar into CLASSPATH
-CLASSPATH=$CLASSPATH:$CATALINA_HOME/lib/skywalking-api-1.0-SNAPSHOT.jar:$CATALINA_HOME/lib/log4j-api.jar:$CATALINA_HOME/lib/log4j-core.jar
+CLASSPATH=$CLASSPATH:$CATALINA_HOME/lib/skywalking-api-{lastest-version}.jar:$CATALINA_HOME/lib/log4j-api.jar:$CATALINA_HOME/lib/log4j-core.jar
 
 # use new main, samples in Tomcat8
 exec "$_RUNJDB" "$LOGGING_CONFIG" $LOGGING_MANAGER $JAVA_OPTS $CATALINA_OPTS \
