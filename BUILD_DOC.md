@@ -190,7 +190,9 @@ $mvn package -Dmaven.test.skip=true
 
 - 创建crontab并运行脚本. Create crontab and run the command.
 ```
->./start-analysis.sh
+> crontab -e
+# 此处为每20分钟执行start-analysis.sh脚本. Executed start-analysis script every 20 minutes 
+*/20 * * * * start-analysis.sh
 ```
 
 - 查看日志. tail the log
