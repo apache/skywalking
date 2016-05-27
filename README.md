@@ -34,23 +34,6 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 
 * 删除插件为最新版本不推荐使用的插件
 
-* 所需应用程序包下载
-
-|components| download lastest version|
-| ----------- |---------|
-|skywalking-base| [ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/com.ai.cloud.skywalking/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/com.ai.cloud.skywalking/_latestVersion) |
-|skywalking-protocol|  [ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/com.ai.cloud.skywalking-protocol/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/com.ai.cloud.skywalking-protocol/_latestVersion) |
-|skywalking-api|[ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/com.ai.cloud.skywalking-api/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/com.ai.cloud.skywalking-api/_latestVersion) |
-|skywalking-sdk-plugin| [ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/com.ai.cloud.skywalking-sdk-plugin/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/com.ai.cloud.skywalking-sdk-plugin/_latestVersion) |
-|skywalking-web-plugin| [ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/com.ai.cloud.skywalking-web-plugin/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/com.ai.cloud.skywalking-web-plugin/_latestVersion) |
-|skywalking-spring-plugin|  [ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/com.ai.cloud.skywalking-spring-plugin/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/com.ai.cloud.skywalking-spring-plugin/_latestVersion) |  
-|skywalking-jdbc-plugin| [ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/com.ai.cloud.skywalking-jdbc-plugin/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/com.ai.cloud.skywalking-jdbc-plugin/_latestVersion) |  
-|skywalking-mysql-plugin| [ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/com.ai.cloud.skywalking-mysql-plugin/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/com.ai.cloud.skywalking-mysql-plugin/_latestVersion) |
-|skywalking-dubbo-plugin| [ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/com.ai.cloud.skywalking-dubbo-plugin/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/com.ai.cloud.skywalking-dubbo-plugin/_latestVersion) |
-|skywalking-httpClient-4.x-plugin| [ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/com.ai.cloud.skywalking-httpClient-4.x-plugin/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/com.ai.cloud.skywalking-httpClient-4.x-plugin/_latestVersion) |
-|skywalking-httpClient-4.x-plugin-dubbox-rest-attachment| [ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/com.ai.cloud.skywalking-httpClient-4.x-plugin-dubbox-rest-attachment/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/com.ai.cloud.skywalking-httpClient-4.x-plugin-dubbox-rest-attachment/_latestVersion) |
-|skywalking-jedis-2.x-plugin| [ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/com.ai.cloud.skywalking-web-plugin/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/com.ai.cloud.skywalking-web-plugin/_latestVersion) |
-
 
 # 新版本能力规划
 * 提供一定的日志数据分析和展现能力，减少或者避免使用团队的二次开发
@@ -95,11 +78,11 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 
 # Quick Start
 ## 编译与部署 / Build and deploy
-- 参考《[代码编译部署说明](BUILD_DOC.md)》
+- 如果您想自己编译最新版本，可参考《[代码编译部署说明](BUILD_DOC.md)》
 - [Code compilation and deployment instructions](BUILD_DOC.md)
 
 ## 引入核心SDK / Import SDK
-- 通过公网仓库，引入所需的插件
+- 通过公网仓库[https://dl.bintray.com/wu-sheng/skywalking](https://dl.bintray.com/wu-sheng/skywalking)，引入所需的插件
 - use my own public repository  [https://dl.bintray.com/wu-sheng/skywalking](https://dl.bintray.com/wu-sheng/skywalking) to download sdk
 - 无论试用哪种插件，都必须引入
 - add dependencies to pom.xml
@@ -131,7 +114,7 @@ java com.company.product.Startup arg0 arg1
 java com.ai.cloud.skywalking.plugin.TracingBootstrap com.company.product.Startup arg0 arg1
 ```
 
-- 如果应用为Tomcat，需要修改tomcat相关启动文件:catalina.sh
+- 如果应用为Tomcat，需要修改tomcat相关启动文件:catalina.sh。推荐将项目转为tomcat-embeded模式。以下修改，仅作为参考。
 - If you want to trace a tomcat application, you need to modify 'catalina.sh'
 ```
 # add skywalking jar into CLASSPATH
@@ -151,6 +134,7 @@ exec "$_RUNJDB" "$LOGGING_CONFIG" $LOGGING_MANAGER $JAVA_OPTS $CATALINA_OPTS \
 
 ## 根据所需插件，配置应用程序 / Config application
 - Ref 《[SDK Guides](skywalking-sdk-plugin)》
+- 所有插件，已经通过[skywalking bintray官网托管](https://bintray.com/wu-sheng/skywalking/)，可使用公网仓库[https://dl.bintray.com/wu-sheng/skywalking](https://dl.bintray.com/wu-sheng/skywalking)下载。
 - 注意：插件不会引用所需的第三方组件（如Spring、dubbo、dubbox等），请自行引入所需的版本。
 
 
