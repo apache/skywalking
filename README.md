@@ -6,6 +6,7 @@ Sky Walking
 SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对JAVA分布式应用程序集群的业务运行情况进行追踪、告警和分析的系统。
 
 [![Build Status](https://travis-ci.org/wu-sheng/sky-walking.svg?branch=master)](https://travis-ci.org/wu-sheng/sky-walking)
+![license](https://img.shields.io/aur/license/yaourt.svg)
 
 # 简介 / abstract
 * 核心理论为[Google Dapper论文：Dapper, a Large-Scale Distributed Systems Tracing Infrastructure](http://research.google.com/pubs/pub36356.html),英语有困难的同学可参考[国内翻译](http://duanple.blog.163.com/blog/static/70971767201329113141336/)
@@ -65,6 +66,12 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 ![添加应用](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/1.0b/addApp.png)
 * 应用列表展现
 ![应用列表展现](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/1.0b/appList.png)
+* 分析结果查询
+![应用列表展现](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/1.0b/searchAnalysisResult.png)
+* 分析结果展现
+![应用列表展现](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/1.0b/analysisResult.png)
+* 分析典型调用链展现
+![应用列表展现](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/1.0b/typicalAnalysisResult.png)
 
 ## 分析汇总
 
@@ -147,6 +154,7 @@ export SKYWALKING_RUN=true
 - [SkyWalking SDK是否已经工作？ Is SkyWalking SDK Running?](QA/IS_RUNNING.md)
 - [tid在web-ui上无法查询. tid can't be search on web-ui](QA/TID_CANNOT_BE_SEARCH.md)
 - [SkyWalking Server的运行情况. The status of SkyWalking Server](QA/SERVER_RUNNING_STAUTS.md)
+- [SkyWalking Analysis部署运行常见问题. The FAQ of SkyWalking Analysis deployment](QA/deploy-sw_analysis-problem.md)
 
 # 源代码说明
 * [追踪日志明细存储结构说明. the storage structure of tracking logs](skywalking-server/doc/hbase_table_desc.md)

@@ -251,7 +251,11 @@ ALTER TABLE `application_info`
 ADD COLUMN `update_time` DATETIME NULL AFTER `sts`,
 ADD COLUMN `app_desc` VARCHAR(1024) NULL AFTER `update_time`;
 
+# alter table since 2016-5-26
 # 新增sw_chain_detail，用于调用链分析表
+-- -----------------------------------------------------
+-- Table `sw_chain_detail`
+-- -----------------------------------------------------
 CREATE TABLE `sw_chain_detail` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `viewpoint` varchar(8192) COLLATE utf8_bin DEFAULT NULL,
@@ -263,4 +267,3 @@ CREATE TABLE `sw_chain_detail` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=8146 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-SELECT * FROM sw_chain_detail;
