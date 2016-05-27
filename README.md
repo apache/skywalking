@@ -83,7 +83,7 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 ## 引入核心SDK / Import SDK
 [ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/com.ai.cloud.skywalking-api/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/com.ai.cloud.skywalking-api/_latestVersion) 
 
-- 通过公网仓库[https://dl.bintray.com/wu-sheng/skywalking](https://dl.bintray.com/wu-sheng/skywalking)，引入所需的插件
+- 核心SDK通过[skywalking bintray官网](https://bintray.com/wu-sheng/skywalking/)托管，可使用公网仓库[https://dl.bintray.com/wu-sheng/skywalking](https://dl.bintray.com/wu-sheng/skywalking)下载。
 - use my own public repository  [https://dl.bintray.com/wu-sheng/skywalking](https://dl.bintray.com/wu-sheng/skywalking) to download sdk
 - 无论试用哪种插件，都必须引入
 - add dependencies to pom.xml
@@ -135,7 +135,7 @@ exec "$_RUNJDB" "$LOGGING_CONFIG" $LOGGING_MANAGER $JAVA_OPTS $CATALINA_OPTS \
 
 ## 根据所需插件，配置应用程序 / Config application
 - Ref 《[SDK Guides](skywalking-sdk-plugin)》
-- 所有插件，已经通过[skywalking bintray官网托管](https://bintray.com/wu-sheng/skywalking/)，可使用公网仓库[https://dl.bintray.com/wu-sheng/skywalking](https://dl.bintray.com/wu-sheng/skywalking)下载。
+- 所有插件，已经通过[skywalking bintray官网](https://bintray.com/wu-sheng/skywalking/)托管，可使用公网仓库[https://dl.bintray.com/wu-sheng/skywalking](https://dl.bintray.com/wu-sheng/skywalking)下载。
 - 注意：插件不会引用所需的第三方组件（如Spring、dubbo、dubbox等），请自行引入所需的版本。
 
 
