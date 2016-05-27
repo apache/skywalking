@@ -81,7 +81,7 @@ AnalysisResultViewResolver.prototype.showTypicalCallTree = function (nodeToken) 
             var tmpNode = node.treeNodes[key];
             var analyResultStr = $("#" + key).text();
             if (analyResultStr == undefined || analyResultStr == "") {
-                analyResultStr = "{\"totalCall\":0,\"totalCostTime\":0,\"correctNumber\":0,\"humanInterruptionNumber\":0,\"correctRate\":\"0.00\",\"averageCost\":\"0.00\"}";
+                continue;
             }
             tmpNode.anlyResult = JSON.parse(analyResultStr);
             tmpTypicalCallChain.push(tmpNode);
@@ -203,6 +203,11 @@ function pickUpViewPoint(nodeToken) {
     $("#viewpointStr").text($("#" + nodeToken + "ViewPoint").text());
     $("#showTypicalCallTreeBtn").attr("value", nodeToken);
     $("#viewPointPickupModal").modal('show');
+}
+
+function typicalCallChainTreeViewPointPickUp(nodeToken) {
+    $("#typicalCallTreeViewpointStr").text($("#" + nodeToken + "TypicalCallChainViewPoint").text());
+    $("#typicalCallTreeViewPointPickUpModal").modal('show');
 }
 
 AnalysisResultViewResolver.prototype.bindGotoTypicalPageEvent = function () {

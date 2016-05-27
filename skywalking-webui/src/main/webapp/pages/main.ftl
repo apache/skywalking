@@ -49,6 +49,7 @@
 <@anlyResult.typicalCallChainTreeTable/>
 <@anlyResult.typicalCallChainCheckBox/>
 <@anlyResult.viewPointPickUp/>
+<@anlyResult.typicalCallTreeViewPointPickUp/>
 <p id="baseUrl" style="display: none">${_base}</p>
 <div class="container" id="mainPanel">
     <p id="searchType" style="display: none">${searchType!''}</p>
