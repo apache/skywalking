@@ -3,7 +3,7 @@
 	<parent>
 		<artifactId>skywalking-sdk-plugin</artifactId>
 		<groupId>com.ai.cloud</groupId>
-		<version>1.0-SNAPSHOT</version>
+		<version>1.0-RELEASE</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 
@@ -47,12 +47,14 @@
 			<version>3.2.0.RELEASE</version>
 			<scope>compile</scope>
 		</dependency>
+		<!-- 
 		<dependency>
 			<groupId>com.ai.cloud</groupId>
 			<artifactId>skywalking-auth</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>
+		 -->
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-tx</artifactId>
@@ -100,10 +102,6 @@
 				</configuration>
 			</plugin>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-deploy-plugin</artifactId>
-			</plugin>
-			<plugin>
 				<!-- 源码插件 -->
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
@@ -119,4 +117,12 @@
 			</plugin>
 		</plugins>
 	</build>
+	
+	<distributionManagement>
+		<repository>
+			<id>bintray-wu-sheng-sky-walking-repository</id>
+			<name>wu-sheng-sky-walking-repository</name>
+			<url>https://api.bintray.com/maven/wu-sheng/skywalking/com.ai.cloud.skywalking-spring-plugin/;publish=1</url>
+		</repository>
+	</distributionManagement>
 </project>

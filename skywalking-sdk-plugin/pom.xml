@@ -5,7 +5,7 @@
 
 	<groupId>com.ai.cloud</groupId>
 	<artifactId>skywalking-sdk-plugin</artifactId>
-	<version>1.0-SNAPSHOT</version>
+	<version>1.0-RELEASE</version>
 	<modules>
 		<module>dubbo-plugin</module>
 		<module>spring-plugin</module>
@@ -56,4 +56,12 @@
 			</plugin>
 		</plugins>
 	</build>
+	
+	<distributionManagement>
+		<repository>
+			<id>bintray-wu-sheng-sky-walking-repository</id>
+			<name>wu-sheng-sky-walking-repository</name>
+			<url>https://api.bintray.com/maven/wu-sheng/skywalking/com.ai.cloud.skywalking-sdk-plugin/;publish=1</url>
+		</repository>
+	</distributionManagement>
 </project>

@@ -4,7 +4,7 @@
 <dependency>
   <groupId>com.ai.cloud</groupId>
   <artifactId>skywalking-mysql-plugin</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0-RELEASE</version>
 </dependency>
 ```
 

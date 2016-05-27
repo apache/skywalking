@@ -3,7 +3,7 @@
     <parent>
         <artifactId>skywalking-sdk-plugin</artifactId>
         <groupId>com.ai.cloud</groupId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.0-RELEASE</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -125,10 +125,6 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-deploy-plugin</artifactId>
-            </plugin>
-            <plugin>
                 <!-- 源码插件 -->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
@@ -144,4 +140,12 @@
             </plugin>
         </plugins>
     </build>
+    
+    <distributionManagement>
+		<repository>
+			<id>bintray-wu-sheng-sky-walking-repository</id>
+			<name>wu-sheng-sky-walking-repository</name>
+			<url>https://api.bintray.com/maven/wu-sheng/skywalking/com.ai.cloud.skywalking-dubbo-plugin/;publish=1</url>
+		</repository>
+	</distributionManagement>
 </project>

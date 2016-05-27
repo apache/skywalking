@@ -5,7 +5,7 @@
 <dependency>
     <groupId>com.ai.cloud</groupId>
     <artifactId>skywalking-log4j-1.x-plugin</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>{lastest-version}</version>
 </dependency>
 ```
 - 配置log4j配置文件
@@ -22,7 +22,7 @@ log4j.appender.A1.layout.ConversionPattern=[%x] %-d{yyyy-MM-dd HH:mm:ss.SSS} %c 
 <dependency>
     <groupId>com.ai.cloud</groupId>
     <artifactId>skywalking-log4j-2.x-plugin</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>{lastest-version}</version>
 </dependency>
 ```
 - 配置log4j2配置文件

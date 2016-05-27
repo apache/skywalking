@@ -4,7 +4,7 @@
 
     <groupId>com.ai.cloud</groupId>
     <artifactId>skywalking-example-resource-impl</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0-RELEASE</version>
 
     <name>skywalking-example-resource-impl</name>
     <url>http://maven.apache.org</url>
@@ -83,24 +83,24 @@
         <dependency>
             <groupId>com.ai.cloud</groupId>
             <artifactId>skywalking-example-resource-interfaces</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.0-RELEASE</version>
         </dependency>
 
         <!-- -->
         <dependency>
             <groupId>com.ai.cloud</groupId>
             <artifactId>skywalking-spring-plugin</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.0-RELEASE</version>
         </dependency>
         <dependency>
             <groupId>com.ai.cloud</groupId>
             <artifactId>skywalking-dubbo-plugin</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.0-RELEASE</version>
         </dependency>
         <dependency>
             <groupId>com.ai.cloud</groupId>
             <artifactId>skywalking-jdbc-plugin</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.0-RELEASE</version>
         </dependency>
         <dependency>
             <groupId>org.aspectj</groupId>
@@ -110,12 +110,12 @@
         <dependency>
             <groupId>com.ai.cloud</groupId>
             <artifactId>skywalking-log4j-1.x-plugin</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.0-RELEASE</version>
         </dependency>
         <dependency>
             <groupId>com.ai.cloud</groupId>
             <artifactId>skywalking-log4j-2.x-plugin</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.0-RELEASE</version>
         </dependency>
     </dependencies>
 

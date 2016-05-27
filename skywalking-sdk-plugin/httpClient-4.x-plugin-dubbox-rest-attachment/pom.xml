@@ -5,13 +5,13 @@
 	<parent>
 		<groupId>com.ai.cloud</groupId>
 		<artifactId>skywalking-sdk-plugin</artifactId>
-		<version>1.0-SNAPSHOT</version>
+		<version>1.0-RELEASE</version>
 	</parent>
 	
 	<artifactId>skywalking-httpClient-4.x-plugin-dubbox-rest-attachment</artifactId>
 	<packaging>jar</packaging>
 
-    <name>httpclient-4.x-plugin</name>
+    <name>httpClient-4.x-plugin-dubbox-rest-attachment</name>
     <url>http://maven.apache.org</url>
     
   <properties>
@@ -22,7 +22,7 @@
 		<dependency>
 			<groupId>com.ai.cloud</groupId>
 			<artifactId>skywalking-httpClient-4.x-plugin</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.0-RELEASE</version>
 			<scope>compile</scope>
 		</dependency>
 		
@@ -76,4 +76,12 @@
 			</plugin>
 		</plugins>
 	</build>
+	
+	<distributionManagement>
+		<repository>
+			<id>bintray-wu-sheng-sky-walking-repository</id>
+			<name>wu-sheng-sky-walking-repository</name>
+			<url>https://api.bintray.com/maven/wu-sheng/skywalking/com.ai.cloud.skywalking-httpClient-4.x-plugin-dubbox-rest-attachment/;publish=1</url>
+		</repository>
+	</distributionManagement>
 </project>
