@@ -84,6 +84,8 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 ![添加应用](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/1.0b/addApp.png)
 * 应用列表展现
 ![应用列表展现](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/1.0b/appList.png)
+
+## 分析汇总
 * 分析结果查询
 ![应用列表展现](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/1.0b/searchAnalysisResult.png)
 * 分析结果展现
@@ -91,14 +93,14 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 * 分析典型调用链展现
 ![应用列表展现](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/1.0b/typicalAnalysisResult.png)
 
-## 分析汇总
-
 # Quick Start
 ## 编译与部署 / Build and deploy
 - 参考《[代码编译部署说明](BUILD_DOC.md)》
 - [Code compilation and deployment instructions](BUILD_DOC.md)
 
 ## 引入核心SDK / Import SDK
+- 通过公网仓库，引入所需的插件
+- use my own public repository  [https://dl.bintray.com/wu-sheng/skywalking](https://dl.bintray.com/wu-sheng/skywalking) to download sdk
 - 无论试用哪种插件，都必须引入
 - add dependencies to pom.xml
 ```xml
