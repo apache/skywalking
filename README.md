@@ -41,8 +41,10 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 |skywalking-base| [ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/com.ai.cloud.skywalking/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/com.ai.cloud.skywalking/_latestVersion) |
 |skywalking-protocol|  [ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/com.ai.cloud.skywalking-protocol/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/com.ai.cloud.skywalking-protocol/_latestVersion) |
 |skywalking-api|[ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/com.ai.cloud.skywalking-api/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/com.ai.cloud.skywalking-api/_latestVersion) |
+|skywalking-sdk-plugin| [ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/com.ai.cloud.skywalking-sdk-plugin/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/com.ai.cloud.skywalking-sdk-plugin/_latestVersion) |
 |skywalking-dubbo-plugin| [ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/com.ai.cloud.skywalking-dubbo-plugin/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/com.ai.cloud.skywalking-dubbo-plugin/_latestVersion) |
 |skywalking-httpClient-4.x-plugin| [ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/com.ai.cloud.skywalking-httpClient-4.x-plugin/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/com.ai.cloud.skywalking-httpClient-4.x-plugin/_latestVersion) |
+|com.ai.cloud.skywalking-httpClient-4.x-plugin-dubbox-rest-attachment| [ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/com.ai.cloud.skywalking-httpClient-4.x-plugin-dubbox-rest-attachment/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/com.ai.cloud.skywalking-httpClient-4.x-plugin-dubbox-rest-attachment/_latestVersion) |
 
 
 # 新版本能力规划
