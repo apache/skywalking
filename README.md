@@ -49,6 +49,7 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 |skywalking-dubbo-plugin| [ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/com.ai.cloud.skywalking-dubbo-plugin/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/com.ai.cloud.skywalking-dubbo-plugin/_latestVersion) |
 |skywalking-httpClient-4.x-plugin| [ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/com.ai.cloud.skywalking-httpClient-4.x-plugin/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/com.ai.cloud.skywalking-httpClient-4.x-plugin/_latestVersion) |
 |skywalking-httpClient-4.x-plugin-dubbox-rest-attachment| [ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/com.ai.cloud.skywalking-httpClient-4.x-plugin-dubbox-rest-attachment/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/com.ai.cloud.skywalking-httpClient-4.x-plugin-dubbox-rest-attachment/_latestVersion) |
+|skywalking-jedis-2.x-plugin| [ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/com.ai.cloud.skywalking-web-plugin/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/com.ai.cloud.skywalking-web-plugin/_latestVersion) |
 
 
 # 新版本能力规划
