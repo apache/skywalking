@@ -14,10 +14,12 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 * 支持国内常用的dubbo以及dubbox等常见RPC框架，支持应用异常的邮件告警
 * skywalking-sdk层面提供的埋点API，同步阻塞访问时间小于100μs
 * 通过[byte-buddy](https://github.com/raphw/byte-buddy)，部分插件将通过动态字节码机制，避免代码侵入性，完成监控。动态代码模式埋点，同步阻塞访问时间应在200-300μs
+* 提供一定的日志数据分析和展现能力，减少或者避免使用团队的二次开发
 * SkyWalking is an open source Large-Scale Distributed Systems Tracing Infrastructure, also been known as APM(Application Performance Management) tool. SkyWalking provides a solution to help monitor and analysis a Large-Scale Distributed Systems.
 * SkyWalking supports popular rpc frameworks, such as [dubbo](https://github.com/alibaba/dubbo), [dubbox](https://github.com/dangdangdotcom/dubbox), etc., supports email-alert when application occurs unexpected exception。
 * SkyWalking's basic API, execution time of blocking saving span must less than 100μs.
 * By using [byte-buddy](https://github.com/raphw/byte-buddy) (Thanks to [raphw](https://github.com/raphw)), some plugins use dynamic byte code generation to avoid invasive codes. plugins API, execution time of blocking saving span must between 200μs and 300μs, including execution time of dynamic byte code.
+* Provide trace log analysis and presentation capabilities, Reduce or avoid add-on functions development.
 
 |plugins|using config file|using dynamic byte code| coding |remarks|
 | ----------- |---------| ----------|----------|----------|
@@ -34,9 +36,6 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 
 * 删除插件为最新版本不推荐使用的插件
 
-
-# 新版本能力规划
-* 提供一定的日志数据分析和展现能力，减少或者避免使用团队的二次开发
 
 # 主要贡献者 / Contributors
 * 吴晟 [wusheng](https://github.com/wu-sheng) &nbsp;&nbsp;[亚信 Asiainfo](http://www.asiainfo.com/) wusheng@asiainfo.com
@@ -82,6 +81,8 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 - [Code compilation and deployment instructions](BUILD_DOC.md)
 
 ## 引入核心SDK / Import SDK
+[ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/com.ai.cloud.skywalking-api/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/com.ai.cloud.skywalking-api/_latestVersion) 
+
 - 通过公网仓库[https://dl.bintray.com/wu-sheng/skywalking](https://dl.bintray.com/wu-sheng/skywalking)，引入所需的插件
 - use my own public repository  [https://dl.bintray.com/wu-sheng/skywalking](https://dl.bintray.com/wu-sheng/skywalking) to download sdk
 - 无论试用哪种插件，都必须引入
