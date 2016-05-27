@@ -34,6 +34,14 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 
 * 删除插件为最新版本不推荐使用的插件
 
+* 所需应用程序包下载
+
+|components| download lastest version|
+| ----------- |---------|
+|skywalking-protocol|  [ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/com.ai.cloud.skywalking-protocol/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/com.ai.cloud.skywalking-protocol/_latestVersion) |
+|skywalking-api|[ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/com.ai.cloud.skywalking-api/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/com.ai.cloud.skywalking-api/_latestVersion) |
+
+
 # 新版本能力规划
 * 提供一定的日志数据分析和展现能力，减少或者避免使用团队的二次开发
 
