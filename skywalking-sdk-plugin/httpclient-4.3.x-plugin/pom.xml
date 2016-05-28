@@ -3,7 +3,7 @@
     <parent>
         <artifactId>skywalking-sdk-plugin</artifactId>
         <groupId>com.ai.cloud</groupId>
-        <version>1.0b</version>
+        <version>1.0-Final</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -27,7 +27,7 @@
         <dependency>
             <groupId>com.ai.cloud</groupId>
             <artifactId>skywalking-api</artifactId>
-            <version>1.0b</version>
+            <version>1.0-Final</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>

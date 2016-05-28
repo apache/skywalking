@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>com.ai.cloud</groupId>
 		<artifactId>skywalking</artifactId>
-		<version>1.0b</version>
+		<version>1.0-Final</version>
 	</parent>
 
 
@@ -28,7 +28,7 @@
 		<dependency>
 			<groupId>com.ai.cloud</groupId>
 			<artifactId>skywalking-protocol</artifactId>
-			<version>1.0b</version>
+			<version>1.0-Final</version>
 		</dependency>
 
 		<dependency>

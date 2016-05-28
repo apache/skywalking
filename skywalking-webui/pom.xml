@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.ai.cloud</groupId>
     <artifactId>skywalking-webui</artifactId>
-    <version>1.0b</version>
+    <version>1.0-Final</version>
     <url>http://maven.apache.org</url>
     <packaging>war</packaging>
 
@@ -37,7 +37,7 @@
         <dependency>
             <groupId>com.ai.cloud</groupId>
             <artifactId>skywalking-protocol</artifactId>
-            <version>1.0b</version>
+            <version>1.0-Final</version>
         </dependency>
 
         <dependency>

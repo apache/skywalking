@@ -4,7 +4,7 @@
 
     <groupId>com.ai.cloud</groupId>
     <artifactId>skywalking-example-order-impl</artifactId>
-    <version>1.0b</version>
+    <version>1.0-Final</version>
 
     <name>skywalking-example-order-impl</name>
     <url>http://maven.apache.org</url>
@@ -91,13 +91,13 @@
         <dependency>
             <groupId>com.ai.cloud</groupId>
             <artifactId>skywalking-example-order-interfaces</artifactId>
-            <version>1.0b</version>
+            <version>1.0-Final</version>
         </dependency>
         <!-- resource dubbo interfaces -->
         <dependency>
             <groupId>com.ai.cloud</groupId>
             <artifactId>skywalking-example-resource-interfaces</artifactId>
-            <version>1.0b</version>
+            <version>1.0-Final</version>
         </dependency>
         <!--  mybatis -->
         <dependency>
@@ -124,12 +124,12 @@
         <dependency>
             <groupId>com.ai.cloud</groupId>
             <artifactId>skywalking-spring-plugin</artifactId>
-            <version>1.0b</version>
+            <version>1.0-Final</version>
         </dependency>
         <dependency>
             <groupId>com.ai.cloud</groupId>
             <artifactId>skywalking-dubbo-plugin</artifactId>
-            <version>1.0b</version>
+            <version>1.0-Final</version>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>
@@ -139,12 +139,12 @@
         <dependency>
             <groupId>com.ai.cloud</groupId>
             <artifactId>skywalking-example-account-interfaces</artifactId>
-            <version>1.0b</version>
+            <version>1.0-Final</version>
         </dependency>
         <dependency>
             <groupId>com.ai.cloud</groupId>
             <artifactId>skywalking-jdbc-plugin</artifactId>
-            <version>1.0b</version>
+            <version>1.0-Final</version>
         </dependency>
         <dependency>
             <groupId>org.aspectj</groupId>
@@ -154,7 +154,7 @@
         <dependency>
             <groupId>com.ai.cloud</groupId>
             <artifactId>skywalking-log4j-1.x-plugin</artifactId>
-            <version>1.0b</version>
+            <version>1.0-Final</version>
         </dependency>
     </dependencies>
 

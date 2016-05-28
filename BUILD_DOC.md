@@ -181,7 +181,7 @@ $cd github/sky-walking/skywalking-analysis
 $mvn package -Dmaven.test.skip=true
 ```
 
-- 上传skywalking-analysis-1.0b.jar. Upload the skywalking-analysis-1.0b.jar
+- 上传skywalking-analysis-1.0-Final.jar. Upload the skywalking-analysis-1.0-Final.jar
 - 上传start-analysis.sh. Upload the start-analysis.sh
 - 修改权限. Change mode start-analysis.sh
 ```
