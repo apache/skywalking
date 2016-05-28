@@ -4,7 +4,7 @@
 
     <groupId>com.ai.cloud</groupId>
     <artifactId>skywalking-log</artifactId>
-    <version>1.0-RELEASE</version>
+    <version>1.0b</version>
     <modules>
         <module>log4j-1.x-plugin</module>
         <module>log4j-2.x-plugin</module>

@@ -4,6 +4,6 @@
 <dependency>
   <groupId>com.ai.cloud</groupId>
   <artifactId>skywalking-httpClient-4.x-plugin</artifactId>
-  <version>1.0-RELEASE</version>
+  <version>{latest_version}</version>
 </dependency>
 ```

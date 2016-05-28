@@ -4,7 +4,7 @@
 
   <groupId>com.ai.cloud</groupId>
   <artifactId>skywalking-auth</artifactId>
-  <version>1.0-RELEASE</version>
+  <version>1.0b</version>
   <packaging>jar</packaging>
 
   <name>skywalking-auth</name>

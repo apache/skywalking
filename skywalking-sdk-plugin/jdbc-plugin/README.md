@@ -5,7 +5,7 @@
 <dependency>
     <groupId>com.ai.cloud</groupId>
     <artifactId>skywalking-jdbc-plugin</artifactId>
-    <version>1.0-RELEASE</version>
+    <version>{latest_version}</version>
 </dependency>
 ```
 - 设置特定的JDBC Driver
@@ -24,7 +24,7 @@ jdbc.url=tracing:jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncod
 <dependency>
     <groupId>com.ai.cloud</groupId>
     <artifactId>skywalking-jdbc-plugin</artifactId>
-    <version>1.0-RELEASE</version>
+    <version>{latest_version}</version>
 </dependency>
 ```
 - 轻松实现自定义的JDBC Driver扩展

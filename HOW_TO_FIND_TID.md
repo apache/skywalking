@@ -1,6 +1,7 @@
 ## 通过扩展log4j或log4j2，在应用日志中，显示trace-id
 ### log4j
-- 编译并发布skywalking-log/log4j-1.x-plugin
+- 编译并发布skywalking-log/log4j-1.x-plugin,或通过公网仓库[https://dl.bintray.com/wu-sheng/skywalking](https://dl.bintray.com/wu-sheng/skywalking)下载。
+[ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/com.ai.cloud.skywalking-log4j-1.x-plugin/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/com.ai.cloud.skywalking-log4j-1.x-plugin/_latestVersion)
 ```xml
 <dependency>
     <groupId>com.ai.cloud</groupId>
@@ -16,7 +17,8 @@ log4j.appender.A1.layout.ConversionPattern=[%x] %-d{yyyy-MM-dd HH:mm:ss.SSS} %c 
 ```
 
 ### log4j2
-- 编译并发布skywalking-log/log4j-2.x-plugin
+- 编译并发布skywalking-log/log4j-2.x-plugin,或通过公网仓库[https://dl.bintray.com/wu-sheng/skywalking](https://dl.bintray.com/wu-sheng/skywalking)下载。
+ [ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/com.ai.cloud.skywalking-log4j-2.x-plugin/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/com.ai.cloud.skywalking-log4j-2.x-plugin/_latestVersion)
 - 引用所需的日志插件
 ```xml
 <dependency>

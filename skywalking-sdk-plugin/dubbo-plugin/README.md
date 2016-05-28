@@ -5,7 +5,7 @@
 <dependency>
     <groupId>com.ai.cloud</groupId>
     <artifactId>skywalking-dubbo-plugin</artifactId>
-    <version>1.0-RELEASE</version>
+    <version>{latest_version}</version>
 </dependency>
 ```
 - 这里的dubbo，专指阿里发布的，已停止维护的标准dubbo版本（[dubbo.io](http://dubbo.io/)）。扩展版本dubbox请参考相关章节。
@@ -25,7 +25,7 @@
 <dependency>
     <groupId>com.ai.cloud</groupId>
     <artifactId>skywalking-dubbo-plugin</artifactId>
-    <version>1.0-RELEASE</version>
+    <version>{latest_version}</version>
 </dependency>
 ```
 - dubbox 2.8.4 较为符合dubbo的服务规范，这里指dubbox支持RpcContext中的attachment。追踪方式和dubbo相同。
@@ -45,7 +45,7 @@
 <dependency>
     <groupId>com.ai.cloud</groupId>
     <artifactId>skywalking-dubbo-plugin</artifactId>
-    <version>1.0-RELEASE</version>
+    <version>{latest_version}</version>
 </dependency>
 ```
 - 由于引入dubbox，主要目的是使用rest+json协议，所以以下方案都是在此种调用模式下的解决方案。其他协议未测试，请谅解，望大家提供测试结果与反馈。

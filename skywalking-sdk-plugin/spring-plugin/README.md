@@ -5,7 +5,7 @@
 <dependency>
     <groupId>com.ai.cloud</groupId>
     <artifactId>skywalking-spring-plugin</artifactId>
-    <version>1.0-RELEASE</version>
+    <version>{latest_version}</version>
 </dependency>
 ```
 - Spring配置文件头部，配置所需的命名空间

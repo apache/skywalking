@@ -5,7 +5,7 @@
 
 	<groupId>com.ai.cloud</groupId>
 	<artifactId>skywalking-sdk-plugin</artifactId>
-	<version>1.0-RELEASE</version>
+	<version>1.0b</version>
 	<modules>
 		<module>dubbo-plugin</module>
 		<module>spring-plugin</module>

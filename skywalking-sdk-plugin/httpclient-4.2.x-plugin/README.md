@@ -7,7 +7,7 @@
 <dependency>
     <groupId>com.ai.cloud</groupId>
     <artifactId>skywalking-httpClient-4.2.x-plugin</artifactId>
-    <version>1.0-RELEASE</version>
+    <version>{latest_version}</version>
 </dependency>
 ```
 - 使用SWTracingHttpClient封装所需的httpClient，此httpClient所有调用都会被监控

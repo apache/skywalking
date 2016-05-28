@@ -4,7 +4,7 @@
 
     <groupId>com.ai.cloud</groupId>
     <artifactId>skywalking-example-web</artifactId>
-    <version>1.0-RELEASE</version>
+    <version>1.0b</version>
 
     <name>skywalking-example-web</name>
     <url>http://maven.apache.org</url>
@@ -76,25 +76,25 @@
         <dependency>
             <groupId>com.ai.cloud</groupId>
             <artifactId>skywalking-web-plugin</artifactId>
-            <version>1.0-RELEASE</version>
+            <version>1.0b</version>
         </dependency>
         <!-- SkyWalking dubbo filter -->
         <dependency>
             <groupId>com.ai.cloud</groupId>
             <artifactId>skywalking-dubbo-plugin</artifactId>
-            <version>1.0-RELEASE</version>
+            <version>1.0b</version>
         </dependency>
         <!-- SkyWalking spring plugin-->
         <dependency>
             <groupId>com.ai.cloud</groupId>
             <artifactId>skywalking-spring-plugin</artifactId>
-            <version>1.0-RELEASE</version>
+            <version>1.0b</version>
         </dependency>
         <!--Save order Dubbo server -->
         <dependency>
             <groupId>com.ai.cloud</groupId>
             <artifactId>skywalking-example-order-interfaces</artifactId>
-            <version>1.0-RELEASE</version>
+            <version>1.0b</version>
         </dependency>
         <dependency>
             <groupId>org.aspectj</groupId>
@@ -104,7 +104,7 @@
         <dependency>
             <groupId>com.ai.cloud</groupId>
             <artifactId>skywalking-log4j-1.x-plugin</artifactId>
-            <version>1.0-RELEASE</version>
+            <version>1.0b</version>
         </dependency>
     </dependencies>
 
