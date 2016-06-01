@@ -77,7 +77,7 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 
 # Quick Start
 ## 编译与部署 / Build and deploy
-- Server程序的发布版本，[下载](releases)  (.tar.gz)
+- 服务端发布版本[下载](releases)  (.tar.gz)
 - Download Server release version. [Download](releases)  (.tar.gz)
 - 如果您想自己编译最新版本，可参考《[代码编译部署说明](BUILD_DOC.md)》
 - [Code compilation and deployment instructions](BUILD_DOC.md)
