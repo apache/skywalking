@@ -4,7 +4,7 @@
 
     <groupId>com.ai.cloud</groupId>
     <artifactId>skywalking-server</artifactId>
-    <version>1.0-Final</version>
+    <version>1.0b</version>
     <packaging>jar</packaging>
 
     <name>skywalking-server</name>
@@ -13,6 +13,13 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
+    <repositories>
+        <repository>
+            <id>bintray-wu-sheng-sky-walking-repository</id>
+            <url>https://jcenter.bintray.com</url>
+        </repository>
+    </repositories>
 
     <dependencies>
         <dependency>
@@ -44,7 +51,7 @@
         <dependency>
             <groupId>com.ai.cloud</groupId>
             <artifactId>skywalking-protocol</artifactId>
-            <version>1.0-Final</version>
+            <version>1.0b</version>
         </dependency>
         <dependency>
             <groupId>redis.clients</groupId>

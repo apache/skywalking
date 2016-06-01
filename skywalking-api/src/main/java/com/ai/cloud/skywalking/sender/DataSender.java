@@ -18,6 +18,7 @@ import io.netty.handler.codec.bytes.ByteArrayEncoder;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.Arrays;
 
 import com.ai.cloud.skywalking.selfexamination.HeathReading;
 import com.ai.cloud.skywalking.selfexamination.SDKHealthCollector;
@@ -74,7 +75,14 @@ public class DataSender implements IDataSender {
     public boolean send(String data) {
         try {
             if (channel != null && channel.isActive()) {
-                channel.writeAndFlush(data.getBytes());
+                // 对协议格式进行修改
+                // | check sum(4 byte) |  data
+                byte[] dataArray = new byte[data.getBytes().length + 4];
+                System.arraycopy(dataArray,0, dataArray,4, dataArray.length);
+                byte[] checkSumArray = generateChecksum(data);
+                System.arraycopy(checkSumArray,0, dataArray,0, checkSumArray.length);
+
+                channel.writeAndFlush(dataArray);
                 SDKHealthCollector.getCurrentHeathReading("sender").updateData(HeathReading.INFO, "DataSender[" + socketAddress + "] send data successfully.");
                 return true;
             }else{
@@ -87,6 +95,30 @@ public class DataSender implements IDataSender {
         }
 
         return false;
+    }
+
+    /**
+     * 生成校验和参数
+     * @param data
+     * @return
+     */
+    private byte[] generateChecksum(String data) {
+        char[] dataArray = data.toCharArray();
+        int result = dataArray[0];
+        for (int i = 0; i < dataArray.length; i++) {
+            result ^= dataArray[i];
+        }
+
+        return intToBytes(result);
+    }
+
+    private byte[] intToBytes(int value) {
+        byte[] src = new byte[4];
+        src[0] = (byte) ((value >> 24) & 0xFF);
+        src[1] = (byte) ((value >> 16) & 0xFF);
+        src[2] = (byte) ((value >> 8) & 0xFF);
+        src[3] = (byte) (value & 0xFF);
+        return src;
     }
 
     public InetSocketAddress getServerAddr() {

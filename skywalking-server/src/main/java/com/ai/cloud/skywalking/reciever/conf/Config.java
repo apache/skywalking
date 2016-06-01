@@ -8,6 +8,12 @@ public class Config {
         public static int PORT = 34000;
         // 最大数据处理线程数量
         public static int MAX_DEAL_DATA_THREAD_NUMBER = 3;
+
+        // 异常数据的时间间隔
+        public static int EXCEPTION_DATA_SENDING_INTERVAL = 5 * 60;
+
+        // 时间间隔内最大异常数据次数
+        public static int MAX_SEND_EXCEPTION_DATA_COUNT = 200;
     }
 
     // 数据缓存配置类
@@ -86,19 +92,22 @@ public class Config {
         public static String STORAGE_TYPE = "hbase";
     }
 
-    public static class Alarm {
+    public static class Redis{
 
-        public static int ALARM_EXPIRE_SECONDS = 1000 * 60 * 90;
-        
-        public static int ALARM_EXCEPTION_STACK_LENGTH = 300;
-
-        public static String REDIS_SERVER = "127.0.0.1:6379";
+        public static String REDIS_SERVER = "10.1.241.18:16379";
 
         public static int REDIS_MAX_IDLE = 10;
 
         public static int REDIS_MIN_IDLE = 1;
 
         public static int REDIS_MAX_TOTAL = 20;
+    }
+
+    public static class Alarm {
+
+        public static int ALARM_EXPIRE_SECONDS = 1000 * 60 * 90;
+        
+        public static int ALARM_EXCEPTION_STACK_LENGTH = 300;
 
         public static boolean ALARM_OFF_FLAG = false;
         
@@ -115,4 +124,5 @@ public class Config {
     	// 默认健康检查上报时间
     	public static long REPORT_INTERVAL = 5 * 60 * 1000L;
     }
+
 }

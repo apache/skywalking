@@ -46,7 +46,7 @@ public class AlarmRedisConnector {
 
 		public RedisInspector() {
 			super("RedisInspectorThread");
-			String redisServerConfig = Config.Alarm.REDIS_SERVER;
+			String redisServerConfig = Config.Redis.REDIS_SERVER;
 			if (redisServerConfig == null || redisServerConfig.length() <= 0) {
 				logger.error("Redis server is not setting. Switch off alarm module. ");
 				Config.Alarm.ALARM_OFF_FLAG = true;
@@ -75,7 +75,7 @@ public class AlarmRedisConnector {
 				needConnectInit = false;
 			} catch (Exception e) {
 				logger.error("can't connect to redis["
-						+ Config.Alarm.REDIS_SERVER + "]", e);
+						+ Config.Redis.REDIS_SERVER + "]", e);
 			} finally {
 				if (jedis != null) {
 					jedis.close();
@@ -119,9 +119,9 @@ public class AlarmRedisConnector {
 		private GenericObjectPoolConfig buildGenericObjectPoolConfig() {
 			GenericObjectPoolConfig genericObjectPoolConfig = new GenericObjectPoolConfig();
 			genericObjectPoolConfig.setTestOnBorrow(true);
-			genericObjectPoolConfig.setMaxIdle(Config.Alarm.REDIS_MAX_IDLE);
-			genericObjectPoolConfig.setMinIdle(Config.Alarm.REDIS_MIN_IDLE);
-			genericObjectPoolConfig.setMaxTotal(Config.Alarm.REDIS_MAX_TOTAL);
+			genericObjectPoolConfig.setMaxIdle(Config.Redis.REDIS_MAX_IDLE);
+			genericObjectPoolConfig.setMinIdle(Config.Redis.REDIS_MIN_IDLE);
+			genericObjectPoolConfig.setMaxTotal(Config.Redis.REDIS_MAX_TOTAL);
 			return genericObjectPoolConfig;
 		}
 	}
