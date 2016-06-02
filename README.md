@@ -68,17 +68,20 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 ![应用列表展现](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/1.0b/appList.png)
 
 ## 分析汇总
-* 分析结果查询
+* 分析结果查询，根据viewpoint模糊匹配查询。查询方式为viewpoint: + 关键字
 ![应用列表展现](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/1.0b/searchAnalysisResult.png)
-* 分析结果展现
+* 分析结果展现，通过分析结果查询页面点击进入
 ![应用列表展现](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/1.0b/analysisResult.png)
 * 分析典型调用链展现
 ![应用列表展现](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/1.0b/typicalAnalysisResult.png)
 
 # Quick Start
 ## 编译与部署 / Build and deploy
+- 服务端发布版本[下载](https://github.com/wu-sheng/sky-walking/releases)  (.tar.gz)
+- Download Server release version. [Download](https://github.com/wu-sheng/sky-walking/releases)  (.tar.gz)
 - 如果您想自己编译最新版本，可参考《[代码编译部署说明](BUILD_DOC.md)》
 - [Code compilation and deployment instructions](BUILD_DOC.md)
+
 
 ## 引入核心SDK / Import SDK
 [ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/com.ai.cloud.skywalking-api/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/com.ai.cloud.skywalking-api/_latestVersion) 
