@@ -29,7 +29,7 @@ public class CollectionServerDataHandler extends SimpleChannelInboundHandler<byt
                 DataBufferThreadContainer.getDataBufferThread().saveTemporarily(data.getBytes());
             } else {
                 InetSocketAddress socketAddress = (InetSocketAddress) ctx.channel().localAddress();
-                String key = socketAddress.getHostName() + ":" + socketAddress.getPort();
+                String key = ctx.name() + "-" + socketAddress.getHostName() + ":" + socketAddress.getPort();
                 Jedis jedis = AlarmRedisConnector.getJedis();
                 // 如果不存在，则置为0，并且设置生失效时间
                 if (jedis.setnx(key, 0 + "") == 1) {
@@ -43,7 +43,6 @@ public class CollectionServerDataHandler extends SimpleChannelInboundHandler<byt
             }
         }
     }
-
 
     /**
      * 生成校验和参数
