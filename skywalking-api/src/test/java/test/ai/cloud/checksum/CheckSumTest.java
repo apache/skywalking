@@ -4,7 +4,7 @@ import org.junit.Test;
 
 public class CheckSumTest {
     private static final int dataIndex = 2;
-    private static final int MAX_TEST_COUNT = 100000;
+    private static final int MAX_TEST_COUNT = 100_000_00;
 
     @Test
     public void TestAllXORSum() {

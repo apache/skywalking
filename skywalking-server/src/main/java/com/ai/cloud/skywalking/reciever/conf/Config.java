@@ -10,10 +10,10 @@ public class Config {
         public static int MAX_DEAL_DATA_THREAD_NUMBER = 3;
 
         // 异常数据的时间间隔
-        public static int EXCEPTION_DATA_SENDING_INTERVAL = 5 * 60;
+        public static int FAILED_PACKAGE_WATCHING_TIME_WINDOW = 5 * 60;
 
         // 时间间隔内最大异常数据次数
-        public static int MAX_SEND_EXCEPTION_DATA_COUNT = 200;
+        public static int MAX_WATCHING_FAILED_PACKAGE_SIZE = 200;
     }
 
     // 数据缓存配置类
