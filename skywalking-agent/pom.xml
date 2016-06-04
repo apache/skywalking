@@ -16,21 +16,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>3.8.1</version>
-            <scope>test</scope>
-        </dependency>
-        <!-- http://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>2.6</version>
-        </dependency>
-        <dependency>
             <groupId>com.ai.cloud</groupId>
             <artifactId>skywalking-jedis-2.x-plugin</artifactId>
-            <version>1.0b</version>
+            <version>1.0-Final</version>
         </dependency>
     </dependencies>
     <build>
