@@ -7,7 +7,7 @@ import org.apache.logging.log4j.Logger;
 
 import redis.clients.jedis.Jedis;
 
-import com.ai.cloud.skywalking.reciever.storage.AlarmRedisConnector;
+import com.ai.cloud.skywalking.reciever.util.RedisConnector;
 
 public abstract class AbstractSpanChecker implements ISpanChecker {
 	private static Logger logger = LogManager.getLogger(AbstractSpanChecker.class);
@@ -15,11 +15,11 @@ public abstract class AbstractSpanChecker implements ISpanChecker {
 	protected void saveAlarmMessage(String key, String traceId, String alarmMsg) {
         Jedis jedis = null;
         try {
-            jedis = AlarmRedisConnector.getJedis();
+            jedis = RedisConnector.getJedis();
             jedis.hsetnx(key, traceId, alarmMsg);
             jedis.expire(key, ALARM_EXPIRE_SECONDS);
         } catch (Exception e) {
-        	AlarmRedisConnector.reportJedisFailure();
+        	RedisConnector.reportJedisFailure();
             logger.error("Failed to set data.", e);
         } finally {
             if (jedis != null) {

@@ -2,7 +2,7 @@ package com.ai.cloud.skywalking.reciever.handler;
 
 import com.ai.cloud.skywalking.reciever.buffer.DataBufferThreadContainer;
 import com.ai.cloud.skywalking.reciever.conf.Config;
-import com.ai.cloud.skywalking.reciever.storage.AlarmRedisConnector;
+import com.ai.cloud.skywalking.reciever.util.RedisConnector;
 import com.ai.cloud.skywalking.util.ProtocolPackager;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -32,7 +32,7 @@ public class CollectionServerDataHandler extends SimpleChannelInboundHandler<byt
     private void dealFailedPackage(ChannelHandlerContext ctx) {
         InetSocketAddress socketAddress = (InetSocketAddress) ctx.channel().localAddress();
         String key = ctx.name() + "-" + socketAddress.getHostName() + ":" + socketAddress.getPort();
-        Jedis jedis = AlarmRedisConnector.getJedis();
+        Jedis jedis = RedisConnector.getJedis();
         if (jedis.setnx(key, 0 + "") == 1) {
             jedis.expire(key, Config.Server.FAILED_PACKAGE_WATCHING_TIME_WINDOW);
         }
