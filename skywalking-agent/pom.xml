@@ -2,9 +2,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.ai.cloud</groupId>
+    <parent>
+        <groupId>com.ai.cloud</groupId>
+        <artifactId>skywalking</artifactId>
+        <version>1.0-Final</version>
+    </parent>
+
     <artifactId>skywalking-agent</artifactId>
-    <version>1.0-Final</version>
     <packaging>jar</packaging>
 
     <name>skywalking-agent</name>
