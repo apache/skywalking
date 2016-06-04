@@ -17,11 +17,6 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<version.plugin.shade>2.4.1</version.plugin.shade>
-		<shade.net.bytebuddy.source>net.bytebuddy</shade.net.bytebuddy.source>
-		<shade.net.bytebuddy.target>com.ai.cloud.skywalking.api.dependencies.net.bytebuddy</shade.net.bytebuddy.target>
-		<shade.io.netty.source>io.netty</shade.io.netty.source>
-		<shade.io.netty.target>com.ai.cloud.skywalking.api.dependencies.io.netty</shade.io.netty.target>
 	</properties>
 
 	<dependencies>
@@ -86,36 +81,6 @@
 						<goals>
 							<goal>jar</goal>
 						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<!-- Shade the net.bytebuddy/io.netty dependency. -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-shade-plugin</artifactId>
-				<version>${version.plugin.shade}</version>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>shade</goal>
-						</goals>
-						<configuration>
-							<shadedArtifactAttached>false</shadedArtifactAttached>
-							<createDependencyReducedPom>true</createDependencyReducedPom>
-							<createSourcesJar>true</createSourcesJar>
-							<shadeSourcesContent>true</shadeSourcesContent>
-							<relocations>
-								<relocation>
-									<pattern>${shade.net.bytebuddy.source}</pattern>
-									<shadedPattern>${shade.net.bytebuddy.target}</shadedPattern>
-								</relocation>
-								<relocation>
-									<pattern>${shade.io.netty.source}</pattern>
-									<shadedPattern>${shade.io.netty.target}</shadedPattern>
-								</relocation>
-							</relocations>
-						</configuration>
 					</execution>
 				</executions>
 			</plugin>

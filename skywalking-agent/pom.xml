@@ -17,6 +17,12 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <premain.class>com.ai.cloud.skywalking.agent.SkywalkingAgent</premain.class>
+        <shade.net.bytebuddy.source>net.bytebuddy</shade.net.bytebuddy.source>
+        <shade.net.bytebuddy.target>com.ai.cloud.skywalking.api.dependencies.net.bytebuddy</shade.net.bytebuddy.target>
+        <shade.io.netty.source>io.netty</shade.io.netty.source>
+        <shade.io.netty.target>com.ai.cloud.skywalking.api.dependencies.io.netty</shade.io.netty.target>
+        <shade.org.apache.logging.log4j>org.apache.logging.log4j</shade.org.apache.logging.log4j>
+        <shade.org.apache.logging.log4j.target>com.ai.cloud.skywalking.api.dependencies.org.apache.logging.log4j</shade.org.apache.logging.log4j.target>
     </properties>
 
     <dependencies>
@@ -25,13 +31,28 @@
             <artifactId>skywalking-jedis-2.x-plugin</artifactId>
             <version>1.0-Final</version>
         </dependency>
+        <dependency>
+            <groupId>com.ai.cloud</groupId>
+            <artifactId>skywalking-mysql-plugin</artifactId>
+            <version>1.0-Final</version>
+        </dependency>
+        <dependency>
+            <groupId>com.ai.cloud</groupId>
+            <artifactId>skywalking-httpClient-4.x-plugin</artifactId>
+            <version>1.0-Final</version>
+        </dependency>
+        <dependency>
+            <groupId>com.ai.cloud</groupId>
+            <artifactId>skywalking-httpClient-4.x-plugin-dubbox-rest-attachment</artifactId>
+            <version>1.0-Final</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>1.4</version>
+                <version>2.4.1</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -39,6 +60,10 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
+                            <shadedArtifactAttached>false</shadedArtifactAttached>
+                            <createDependencyReducedPom>true</createDependencyReducedPom>
+                            <createSourcesJar>true</createSourcesJar>
+                            <shadeSourcesContent>true</shadeSourcesContent>
                             <transformers>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
@@ -50,6 +75,21 @@
                                     </manifestEntries>
                                 </transformer>
                             </transformers>
+                            <relocations>
+                                <relocation>
+                                    <pattern>${shade.net.bytebuddy.source}</pattern>
+                                    <shadedPattern>${shade.net.bytebuddy.target}</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>${shade.io.netty.source}</pattern>
+                                    <shadedPattern>${shade.io.netty.target}</shadedPattern>
+                                </relocation>
+                                <!--替换log4j -->
+                                <relocation>
+                                    <pattern>${shade.org.apache.logging.log4j}</pattern>
+                                    <shadedPattern>${shade.org.apache.logging.log4j.target}</shadedPattern>
+                                </relocation>
+                            </relocations>
                         </configuration>
                     </execution>
                 </executions>
