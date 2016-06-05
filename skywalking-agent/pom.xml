@@ -21,8 +21,6 @@
         <shade.net.bytebuddy.target>com.ai.cloud.skywalking.api.dependencies.net.bytebuddy</shade.net.bytebuddy.target>
         <shade.io.netty.source>io.netty</shade.io.netty.source>
         <shade.io.netty.target>com.ai.cloud.skywalking.api.dependencies.io.netty</shade.io.netty.target>
-        <shade.org.apache.logging.log4j>org.apache.logging.log4j</shade.org.apache.logging.log4j>
-        <shade.org.apache.logging.log4j.target>com.ai.cloud.skywalking.api.dependencies.org.apache.logging.log4j</shade.org.apache.logging.log4j.target>
     </properties>
 
     <dependencies>
@@ -31,21 +29,21 @@
             <artifactId>skywalking-jedis-2.x-plugin</artifactId>
             <version>1.0-Final</version>
         </dependency>
-        <dependency>
-            <groupId>com.ai.cloud</groupId>
-            <artifactId>skywalking-mysql-plugin</artifactId>
-            <version>1.0-Final</version>
-        </dependency>
-        <dependency>
-            <groupId>com.ai.cloud</groupId>
-            <artifactId>skywalking-httpClient-4.x-plugin</artifactId>
-            <version>1.0-Final</version>
-        </dependency>
-        <dependency>
-            <groupId>com.ai.cloud</groupId>
-            <artifactId>skywalking-httpClient-4.x-plugin-dubbox-rest-attachment</artifactId>
-            <version>1.0-Final</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>com.ai.cloud</groupId>-->
+            <!--<artifactId>skywalking-mysql-plugin</artifactId>-->
+            <!--<version>1.0-Final</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>com.ai.cloud</groupId>-->
+            <!--<artifactId>skywalking-httpClient-4.x-plugin</artifactId>-->
+            <!--<version>1.0-Final</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>com.ai.cloud</groupId>-->
+            <!--<artifactId>skywalking-httpClient-4.x-plugin-dubbox-rest-attachment</artifactId>-->
+            <!--<version>1.0-Final</version>-->
+        <!--</dependency>-->
     </dependencies>
     <build>
         <plugins>
@@ -83,11 +81,6 @@
                                 <relocation>
                                     <pattern>${shade.io.netty.source}</pattern>
                                     <shadedPattern>${shade.io.netty.target}</shadedPattern>
-                                </relocation>
-                                <!--替换log4j -->
-                                <relocation>
-                                    <pattern>${shade.org.apache.logging.log4j}</pattern>
-                                    <shadedPattern>${shade.org.apache.logging.log4j.target}</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>
