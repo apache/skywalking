@@ -17,6 +17,8 @@
 		<module>skywalking-webui</module>
 		<module>skywalking-log</module>
 		<module>skywalking-agent</module>
+		
+		<module>test/skywalking-test-api</module>
 	</modules>
 	<packaging>pom</packaging>
 
