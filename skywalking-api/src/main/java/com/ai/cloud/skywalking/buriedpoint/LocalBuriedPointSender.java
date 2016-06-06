@@ -59,10 +59,7 @@ public class LocalBuriedPointSender extends ApplicationExceptionHandler
 						+ "\tbusinessKey:" + spanData.getBusinessKey());
 			}
 
-			// 存放到本地发送进程中
-			if (!Config.Sender.IS_OFF) {
-				ContextBuffer.save(spanData);
-			}
+			ContextBuffer.save(spanData);
 		} catch (Throwable t) {
 			logger.error(t.getMessage(), t);
 		}

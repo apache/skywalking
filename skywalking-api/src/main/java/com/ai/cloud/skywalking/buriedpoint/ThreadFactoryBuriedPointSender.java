@@ -21,38 +21,38 @@ import com.ai.cloud.skywalking.util.ContextGenerator;
  *
  */
 @Deprecated
-public class ThreadFactoryBuriedPointSender extends ApplicationExceptionHandler implements IBuriedPointSender {
-	private static Logger logger = LogManager.getLogger(ThreadBuriedPointSender.class);
+public class ThreadFactoryBuriedPointSender extends ApplicationExceptionHandler
+		implements IBuriedPointSender {
+	private static Logger logger = LogManager
+			.getLogger(ThreadBuriedPointSender.class);
 
-    public ContextData beforeSend(Identification id) {
-        if (!AuthDesc.isAuth())
-            return new EmptyContextData();
+	public ContextData beforeSend(Identification id) {
+		if (!AuthDesc.isAuth())
+			return new EmptyContextData();
 
-        Span spanData = ContextGenerator.generateSpanFromThreadLocal(id);
-        // 将新创建的Context存放到ThreadLocal栈中。
-        Context.append(spanData);
-        // 并将当前的Context返回回去
-        return new ContextData(spanData);
-    }
+		Span spanData = ContextGenerator.generateSpanFromThreadLocal(id);
+		// 将新创建的Context存放到ThreadLocal栈中。
+		Context.append(spanData);
+		// 并将当前的Context返回回去
+		return new ContextData(spanData);
+	}
 
-    public void afterSend() {
-        if (!AuthDesc.isAuth())
-            return;
+	public void afterSend() {
+		if (!AuthDesc.isAuth())
+			return;
 
-        // 获取上下文的栈顶中的元素
-        Span spanData = Context.removeLastSpan();
-        if (spanData == null) {
-            return;
-        }
-        // 填上必要信息
-        spanData.setCost(System.currentTimeMillis() - spanData.getStartDate());
-        if (Config.BuriedPoint.PRINTF) {
-            logger.debug("viewpointId:" + spanData.getViewPointId() + "\tParentLevelId:" + spanData.
-                    getParentLevel() + "\tLevelId:" + spanData.getLevelId());
-        }
-        // 存放到本地发送进程中
-        if (!Config.Sender.IS_OFF) {
-            ContextBuffer.save(spanData);
-        }
-    }
+		// 获取上下文的栈顶中的元素
+		Span spanData = Context.removeLastSpan();
+		if (spanData == null) {
+			return;
+		}
+		// 填上必要信息
+		spanData.setCost(System.currentTimeMillis() - spanData.getStartDate());
+		if (Config.BuriedPoint.PRINTF) {
+			logger.debug("viewpointId:" + spanData.getViewPointId()
+					+ "\tParentLevelId:" + spanData.getParentLevel()
+					+ "\tLevelId:" + spanData.getLevelId());
+		}
+		ContextBuffer.save(spanData);
+	}
 }

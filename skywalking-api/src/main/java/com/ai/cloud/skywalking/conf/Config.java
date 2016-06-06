@@ -52,9 +52,6 @@ public class Config {
         // 发送服务端配置
         public static String SERVERS_ADDR = "127.0.0.1:34000";
 
-        // 是否开启发送
-        public static boolean IS_OFF = false;
-
         // 最大发送副本数量
         public static int MAX_COPY_NUM = 2;
 
