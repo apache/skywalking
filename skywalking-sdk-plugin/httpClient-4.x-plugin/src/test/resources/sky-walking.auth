@@ -26,8 +26,8 @@ sender.max_copy_num=2
 sender.max_send_length=20000
 #当没有Sender时,尝试获取sender的等待周期
 sender.retry_get_sender_wait_interval=2000
-#是否开启发送消息
-sender.is_off=false
+
+
 
 
 #最大消费线程数
