@@ -16,6 +16,7 @@ import static com.ai.cloud.skywalking.conf.Config.Consumer.*;
 public class BufferGroup {
     private static Logger logger = LogManager.getLogger(BufferGroup.class);
     private String groupName;
+    //注意： 修改这个变量名，需要修改test-api工程的Config类中的SPAN_ARRAY_FIELD_NAME变量
     private Span[] dataBuffer = new Span[BUFFER_MAX_SIZE];
     AtomicRangeInteger index = new AtomicRangeInteger(0, BUFFER_MAX_SIZE);
 

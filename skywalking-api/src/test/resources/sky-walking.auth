@@ -31,7 +31,7 @@ sender.is_off=false
 
 
 #最大消费线程数
-consumer.max_consumer=2
+consumer.max_consumer=0
 #消费者最大等待时间
 consumer.max_wait_time=5
 #发送失败等待时间  

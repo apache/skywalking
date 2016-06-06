@@ -22,7 +22,7 @@
     <dependencies>
         <dependency>
             <groupId>com.ai.cloud</groupId>
-            <artifactId>skywalking-api</artifactId>
+            <artifactId>skywalking-protocol</artifactId>
             <version>${parent.version}</version>
         </dependency>
     </dependencies>

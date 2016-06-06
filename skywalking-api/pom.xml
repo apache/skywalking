@@ -46,9 +46,9 @@
 		</dependency>
 
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.12</version>
+			<groupId>com.ai.cloud</groupId>
+			<artifactId>skywalking-test-api</artifactId>
+			<version>1.0-Final</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
