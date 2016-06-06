@@ -3,6 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
+		<relativePath>../../</relativePath>
 		<groupId>com.ai.cloud</groupId>
 		<artifactId>skywalking</artifactId>
 		<version>1.0-Final</version>
