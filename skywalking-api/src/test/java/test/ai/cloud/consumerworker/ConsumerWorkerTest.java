@@ -1,4 +1,4 @@
-package test.ai.cloud;
+package test.ai.cloud.consumerworker;
 
 import com.ai.cloud.skywalking.buffer.BufferGroup;
 import com.ai.cloud.skywalking.conf.Config;
@@ -6,7 +6,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class bufferGroup {
+public class ConsumerWorkerTest {
 
     @Test
     public void checkConsumerWorkerIsStartIfConsumerSizeIsZero() {
@@ -14,6 +14,7 @@ public class bufferGroup {
         BufferGroup bufferGroup = new BufferGroup("testBufferGroup");
         int count = getConsumerWorkerThreadCount();
         assertEquals(Config.Consumer.MAX_CONSUMER, count);
+
     }
 
     private int getConsumerWorkerThreadCount() {
