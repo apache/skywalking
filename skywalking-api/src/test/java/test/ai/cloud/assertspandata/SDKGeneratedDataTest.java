@@ -10,7 +10,7 @@ import org.junit.Test;
 /**
  * Created by xin on 16-6-6.
  */
-public class TraceTreeAssertTest {
+public class SDKGeneratedDataTest {
 
     @Test
     public void traceTreeAssertTest() {
@@ -19,7 +19,7 @@ public class TraceTreeAssertTest {
         testSpan.setViewPointId("http://hire.asiainfo.com/Aisse-Mobile-Web/aisseWorkPage/submitReimbursement");
         ContextBuffer.save(testSpan);
         TraceTreeAssert.assertEquals(new String[][]{
-                {null, "0", "http://hire.asiainfo.com/Aisse-Mobile-Web/aisseWorkPage/submitReimbursement", null}
+                {"0", "http://hire.asiainfo.com/Aisse-Mobile-Web/aisseWorkPage/submitReimbursement", null}
         });
 
     }
