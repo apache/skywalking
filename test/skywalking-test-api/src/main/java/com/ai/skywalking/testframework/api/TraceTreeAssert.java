@@ -1,4 +1,4 @@
-package test.com.ai.skywalking.test.api;
+package com.ai.skywalking.testframework.api;
 
 import com.ai.cloud.skywalking.protocol.Span;
 

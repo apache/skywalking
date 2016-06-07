@@ -1,6 +1,6 @@
 package com.ai.cloud.skywalking.agent.test;
 
-import test.com.ai.skywalking.reflect.api.TraceTreeAssert;
+import com.ai.skywalking.testframework.api.TraceTreeAssert;
 
 public class RedisPluginTest {
     public static void main(String[] args) {

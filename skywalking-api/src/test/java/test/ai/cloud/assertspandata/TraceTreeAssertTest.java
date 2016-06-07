@@ -3,8 +3,9 @@ package test.ai.cloud.assertspandata;
 import com.ai.cloud.skywalking.buffer.ContextBuffer;
 import com.ai.cloud.skywalking.conf.Config;
 import com.ai.cloud.skywalking.protocol.Span;
+import com.ai.skywalking.testframework.api.TraceTreeAssert;
+
 import org.junit.Test;
-import test.com.ai.skywalking.test.api.TraceTreeAssert;
 
 /**
  * Created by xin on 16-6-6.

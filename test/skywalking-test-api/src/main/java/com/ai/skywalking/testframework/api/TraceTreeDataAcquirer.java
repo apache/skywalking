@@ -1,7 +1,7 @@
-package test.com.ai.skywalking.test.api;
+package com.ai.skywalking.testframework.api;
 
 import com.ai.cloud.skywalking.protocol.Span;
-import test.com.ai.skywalking.test.api.config.Config;
+import com.ai.skywalking.testframework.api.config.Config;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;

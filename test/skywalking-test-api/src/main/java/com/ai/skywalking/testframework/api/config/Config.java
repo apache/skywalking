@@ -1,4 +1,4 @@
-package test.com.ai.skywalking.test.api.config;
+package com.ai.skywalking.testframework.api.config;
 
 public class Config {
 
