@@ -70,7 +70,7 @@ public abstract class MethodMatcher {
     public enum Modifier {
         Public, Default, Private, Protected;
 
-        private ElementMatcher elementMatcher() {
+        private ElementMatcher.Junction<MethodDescription> elementMatcher() {
             switch (this) {
                 case Private: {
                     return isPrivate();
