@@ -13,7 +13,7 @@ public interface InterceptorDefine {
 	 * 
 	 * @return
 	 */
-	public InterceptPoint[] getBeInterceptedMethods();
+	public MethodNameMatcher[] getBeInterceptedMethods();
 	
 	/**
 	 * 返回增强拦截器的实现<br/>

@@ -3,6 +3,8 @@ package com.ai.cloud.skywalking.plugin.mysql;
 import com.ai.cloud.skywalking.plugin.interceptor.IAroundInterceptor;
 import com.ai.cloud.skywalking.plugin.interceptor.InterceptPoint;
 import com.ai.cloud.skywalking.plugin.interceptor.InterceptorDefine;
+import com.ai.cloud.skywalking.plugin.interceptor.MethodNameMatcher;
+import com.ai.cloud.skywalking.plugin.interceptor.matcher.FullNameMatcher;
 
 public class ConnectionPluginDefine implements InterceptorDefine {
 
@@ -12,12 +14,12 @@ public class ConnectionPluginDefine implements InterceptorDefine {
 	}
 
 	@Override
-	public InterceptPoint[] getBeInterceptedMethods() {
-		return new InterceptPoint[] { new InterceptPoint("createStatement", 2),
-				new InterceptPoint("prepareStatement", 3),
-				new InterceptPoint("prepareCall", 3),
-				new InterceptPoint("commit"), new InterceptPoint("rollback"),
-				new InterceptPoint("close") };
+	public MethodNameMatcher[] getBeInterceptedMethods() {
+		return new MethodNameMatcher[] { new FullNameMatcher("createStatement", 2),
+				new FullNameMatcher("prepareStatement", 3),
+				new FullNameMatcher("prepareCall", 3),
+				new FullNameMatcher("commit"), new FullNameMatcher("rollback"),
+				new FullNameMatcher("close") };
 	}
 
 	@Override
