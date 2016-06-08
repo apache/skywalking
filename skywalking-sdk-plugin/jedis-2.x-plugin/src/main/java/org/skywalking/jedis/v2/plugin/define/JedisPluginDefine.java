@@ -1,27 +1,35 @@
 package org.skywalking.jedis.v2.plugin.define;
 
-import org.skywalking.jedis.v2.plugin.JedisInterceptor;
-
 import com.ai.cloud.skywalking.plugin.interceptor.IAroundInterceptor;
 import com.ai.cloud.skywalking.plugin.interceptor.InterceptorDefine;
 import com.ai.cloud.skywalking.plugin.interceptor.MethodMatcher;
-import com.ai.cloud.skywalking.plugin.interceptor.matcher.AnyMethodMatcher;
+import com.ai.cloud.skywalking.plugin.interceptor.matcher.MethodsExclusiveMatcher;
+import com.ai.cloud.skywalking.plugin.interceptor.matcher.PrivateMethodMatcher;
+import com.ai.cloud.skywalking.plugin.interceptor.matcher.SimpleMethodMatcher;
+import org.skywalking.jedis.v2.plugin.JedisInterceptor;
 
 public class JedisPluginDefine implements InterceptorDefine {
 
-	@Override
-	public String getBeInterceptedClassName() {
-		return "redis.clients.jedis.Jedis";
-	}
+    @Override
+    public String getBeInterceptedClassName() {
+        return "redis.clients.jedis.Jedis";
+    }
 
-	@Override
-	public MethodMatcher[] getBeInterceptedMethodsMatchers() {
-		return new MethodMatcher[] { new AnyMethodMatcher() };
-	}
+    @Override
+    public MethodMatcher[] getBeInterceptedMethodsMatchers() {
+        return new MethodMatcher[]{
+                new MethodsExclusiveMatcher(
+                        new PrivateMethodMatcher(),
+                        new SimpleMethodMatcher("close"),
+                        new SimpleMethodMatcher("getDB"),
+                        new SimpleMethodMatcher("connect")
+                )
+        };
+    }
 
-	@Override
-	public IAroundInterceptor instance() {
-		return new JedisInterceptor();
-	}
+    @Override
+    public IAroundInterceptor instance() {
+        return new JedisInterceptor();
+    }
 
 }
