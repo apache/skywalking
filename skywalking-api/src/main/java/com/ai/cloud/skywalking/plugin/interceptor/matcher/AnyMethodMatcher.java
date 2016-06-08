@@ -1,19 +1,19 @@
 package com.ai.cloud.skywalking.plugin.interceptor.matcher;
 
-import static net.bytebuddy.matcher.ElementMatchers.any;
+import com.ai.cloud.skywalking.plugin.interceptor.MethodMatcher;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 
-import com.ai.cloud.skywalking.plugin.interceptor.MethodNameMatcher;
+import static net.bytebuddy.matcher.ElementMatchers.any;
 
-public class AnyMethodMatcher extends MethodNameMatcher {
+public class AnyMethodMatcher extends MethodMatcher {
 
     public AnyMethodMatcher() {
         super("*");
     }
 
     @Override
-    public ElementMatcher<MethodDescription> builderMatcher() {
+    public ElementMatcher.Junction<MethodDescription> builderMatcher() {
         return any();
     }
 }

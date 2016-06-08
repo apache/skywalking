@@ -116,11 +116,11 @@ public class EnhanceClazz4Interceptor {
                                                 FieldGetter.class,
                                                 FieldSetter.class))));
 
-        MethodNameMatcher[] methodMatchers = define.getBeInterceptedMethodsMatchers();
+        MethodMatcher[] methodMatchers = define.getBeInterceptedMethodsMatchers();
         ClassMethodInterceptor classMethodInterceptor = new ClassMethodInterceptor(
                 interceptor);
 
-        for (MethodNameMatcher methodMatcher : methodMatchers) {
+        for (MethodMatcher methodMatcher : methodMatchers) {
             logger.debug("prepare to enhance class {} method [{}] ",
                     enhanceOriginClassName, methodMatcher.getMethodMatchDescribe());
             newClassBuilder = newClassBuilder.method(

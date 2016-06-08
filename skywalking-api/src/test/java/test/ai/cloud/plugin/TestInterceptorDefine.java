@@ -2,8 +2,8 @@ package test.ai.cloud.plugin;
 
 import com.ai.cloud.skywalking.plugin.interceptor.IAroundInterceptor;
 import com.ai.cloud.skywalking.plugin.interceptor.InterceptorDefine;
-import com.ai.cloud.skywalking.plugin.interceptor.MethodNameMatcher;
-import com.ai.cloud.skywalking.plugin.interceptor.matcher.FullNameMatcher;
+import com.ai.cloud.skywalking.plugin.interceptor.MethodMatcher;
+import com.ai.cloud.skywalking.plugin.interceptor.matcher.SimpleMethodMatcher;
 
 public class TestInterceptorDefine implements InterceptorDefine {
 
@@ -13,8 +13,8 @@ public class TestInterceptorDefine implements InterceptorDefine {
 	}
 
 	@Override
-	public MethodNameMatcher[] getBeInterceptedMethodsMatchers() {
-		return new MethodNameMatcher[] { new FullNameMatcher("printabc") };
+	public MethodMatcher[] getBeInterceptedMethodsMatchers() {
+		return new MethodMatcher[] { new SimpleMethodMatcher("printabc") };
 	}
 
 	@Override

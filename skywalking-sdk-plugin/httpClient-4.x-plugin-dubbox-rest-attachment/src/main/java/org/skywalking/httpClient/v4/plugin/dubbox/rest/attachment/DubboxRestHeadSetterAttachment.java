@@ -4,7 +4,7 @@ import org.skywalking.httpClient.v4.plugin.HttpClientExecuteInterceptor;
 
 import com.ai.cloud.skywalking.plugin.interceptor.IAroundInterceptor;
 import com.ai.cloud.skywalking.plugin.interceptor.InterceptorDefine;
-import com.ai.cloud.skywalking.plugin.interceptor.MethodNameMatcher;
+import com.ai.cloud.skywalking.plugin.interceptor.MethodMatcher;
 
 public class DubboxRestHeadSetterAttachment implements InterceptorDefine {
 
@@ -20,7 +20,7 @@ public class DubboxRestHeadSetterAttachment implements InterceptorDefine {
 	}
 
 	@Override
-	public MethodNameMatcher[] getBeInterceptedMethodsMatchers() {
+	public MethodMatcher[] getBeInterceptedMethodsMatchers() {
 		return null;
 	}
 
