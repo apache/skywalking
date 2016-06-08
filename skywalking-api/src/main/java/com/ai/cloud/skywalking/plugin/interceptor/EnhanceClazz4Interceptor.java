@@ -1,9 +1,10 @@
 package com.ai.cloud.skywalking.plugin.interceptor;
 
-import com.ai.cloud.skywalking.plugin.PluginCfg;
-import com.ai.cloud.skywalking.util.StringUtil;
+import static net.bytebuddy.matcher.ElementMatchers.any;
+
+import java.util.List;
+
 import net.bytebuddy.ByteBuddy;
-import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.dynamic.ClassFileLocator;
 import net.bytebuddy.dynamic.DynamicType;
 import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
@@ -13,12 +14,12 @@ import net.bytebuddy.implementation.SuperMethodCall;
 import net.bytebuddy.implementation.bind.annotation.FieldProxy;
 import net.bytebuddy.pool.TypePool;
 import net.bytebuddy.pool.TypePool.Resolution;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.List;
-
-import static net.bytebuddy.matcher.ElementMatchers.any;
+import com.ai.cloud.skywalking.plugin.PluginCfg;
+import com.ai.cloud.skywalking.util.StringUtil;
 
 public class EnhanceClazz4Interceptor {
     private static Logger logger = LogManager
@@ -115,15 +116,15 @@ public class EnhanceClazz4Interceptor {
                                                 FieldGetter.class,
                                                 FieldSetter.class))));
 
-        MethodNameMatcher[] methodNameList = define.getBeInterceptedMethods();
+        MethodNameMatcher[] methodMatchers = define.getBeInterceptedMethodsMatchers();
         ClassMethodInterceptor classMethodInterceptor = new ClassMethodInterceptor(
                 interceptor);
 
-        for (MethodNameMatcher method : methodNameList) {
+        for (MethodNameMatcher methodMatcher : methodMatchers) {
             logger.debug("prepare to enhance class {} method [{}] ",
-                    enhanceOriginClassName, method.getMethodMatchDescribe());
+                    enhanceOriginClassName, methodMatcher.getMethodMatchDescribe());
             newClassBuilder = newClassBuilder.method(
-                    method.<MethodDescription>builderMatcher()).intercept(
+            		methodMatcher.builderMatcher()).intercept(
                     MethodDelegation.to(classMethodInterceptor));
         }
 

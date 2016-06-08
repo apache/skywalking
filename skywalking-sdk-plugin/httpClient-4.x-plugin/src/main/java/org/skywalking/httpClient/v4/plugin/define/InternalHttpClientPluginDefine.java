@@ -5,7 +5,7 @@ import com.ai.cloud.skywalking.plugin.interceptor.matcher.FullNameMatcher;
 
 public class InternalHttpClientPluginDefine extends HttpClientPluginDefine {
     @Override
-    public MethodNameMatcher[] getBeInterceptedMethods() {
+    public MethodNameMatcher[] getBeInterceptedMethodsMatchers() {
         return new MethodNameMatcher[]{new FullNameMatcher("doExecute")};
     }
 

@@ -1,6 +1,5 @@
 package com.ai.cloud.skywalking.sender;
 
-import com.ai.cloud.skywalking.util.ProtocolPackager;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -19,10 +18,10 @@ import io.netty.handler.codec.bytes.ByteArrayEncoder;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.Arrays;
 
 import com.ai.cloud.skywalking.selfexamination.HeathReading;
 import com.ai.cloud.skywalking.selfexamination.SDKHealthCollector;
+import com.ai.cloud.skywalking.util.ProtocolPackager;
 
 public class DataSender implements IDataSender {
     private EventLoopGroup group;

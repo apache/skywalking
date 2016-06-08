@@ -1,6 +1,5 @@
 package org.skywalking.httpClient.v4.plugin.define;
 
-import com.ai.cloud.skywalking.plugin.interceptor.InterceptPoint;
 import com.ai.cloud.skywalking.plugin.interceptor.MethodNameMatcher;
 import com.ai.cloud.skywalking.plugin.interceptor.matcher.FullNameMatcher;
 
@@ -16,7 +15,7 @@ public class DefaultRequestDirectorPluginDefine extends HttpClientPluginDefine {
 	}
 
 	@Override
-	public MethodNameMatcher[] getBeInterceptedMethods() {
+	public MethodNameMatcher[] getBeInterceptedMethodsMatchers() {
 		return new MethodNameMatcher[] {
 				new FullNameMatcher("execute")};
 	}

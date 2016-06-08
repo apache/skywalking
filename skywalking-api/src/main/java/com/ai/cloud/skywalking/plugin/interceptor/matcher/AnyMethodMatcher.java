@@ -1,9 +1,10 @@
 package com.ai.cloud.skywalking.plugin.interceptor.matcher;
 
-import com.ai.cloud.skywalking.plugin.interceptor.MethodNameMatcher;
+import static net.bytebuddy.matcher.ElementMatchers.any;
+import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 
-import static net.bytebuddy.matcher.ElementMatchers.any;
+import com.ai.cloud.skywalking.plugin.interceptor.MethodNameMatcher;
 
 public class AnyMethodMatcher extends MethodNameMatcher {
 
@@ -12,7 +13,7 @@ public class AnyMethodMatcher extends MethodNameMatcher {
     }
 
     @Override
-    public ElementMatcher builderMatcher() {
+    public ElementMatcher<MethodDescription> builderMatcher() {
         return any();
     }
 }

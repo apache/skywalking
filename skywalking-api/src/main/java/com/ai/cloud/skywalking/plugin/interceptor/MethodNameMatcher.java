@@ -1,8 +1,9 @@
 package com.ai.cloud.skywalking.plugin.interceptor;
 
+import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 
-public abstract class MethodNameMatcher<T> {
+public abstract class MethodNameMatcher {
 
     private String methodMatchDescribe;
 
@@ -24,7 +25,7 @@ public abstract class MethodNameMatcher<T> {
         this.methodMatchDescribe = methodMatchDescribe;
     }
 
-    public abstract <T> ElementMatcher<T> builderMatcher();
+    public abstract ElementMatcher<MethodDescription> builderMatcher();
 
     protected String getMethodMatchDescribe() {
         return methodMatchDescribe;

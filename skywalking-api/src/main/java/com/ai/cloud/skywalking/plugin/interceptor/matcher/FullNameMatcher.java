@@ -1,10 +1,11 @@
 package com.ai.cloud.skywalking.plugin.interceptor.matcher;
 
-import com.ai.cloud.skywalking.plugin.interceptor.MethodNameMatcher;
-import net.bytebuddy.matcher.ElementMatcher;
-
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
+import net.bytebuddy.description.method.MethodDescription;
+import net.bytebuddy.matcher.ElementMatcher;
+
+import com.ai.cloud.skywalking.plugin.interceptor.MethodNameMatcher;
 
 public class FullNameMatcher extends MethodNameMatcher {
 
@@ -21,8 +22,8 @@ public class FullNameMatcher extends MethodNameMatcher {
     }
 
     @Override
-    public ElementMatcher builderMatcher() {
-        ElementMatcher.Junction matcher = named(getMethodMatchDescribe());
+    public ElementMatcher<MethodDescription> builderMatcher() {
+        ElementMatcher.Junction<MethodDescription> matcher = named(getMethodMatchDescribe());
 
         if (getArgTypeArray() != null) {
             matcher.and(takesArguments(getArgTypeArray()));
