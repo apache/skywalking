@@ -46,4 +46,19 @@ public class MethodsExclusiveMatcher extends MethodMatcher {
         return not(result);
     }
 
+    @Override
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder("any method exclude the method(s) as follow:\n ");
+        int i = 0;
+        for (MethodMatcher methodMatcher : matchers) {
+            if (i == 0) {
+                stringBuilder.append(methodMatcher.toString() + " or ");
+                i++;
+            } else {
+                stringBuilder.append(methodMatcher.toString());
+            }
+        }
+
+        return stringBuilder.toString();
+    }
 }

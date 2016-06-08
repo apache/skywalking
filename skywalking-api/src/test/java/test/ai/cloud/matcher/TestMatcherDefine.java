@@ -4,6 +4,7 @@ import com.ai.cloud.skywalking.plugin.interceptor.IAroundInterceptor;
 import com.ai.cloud.skywalking.plugin.interceptor.InterceptorDefine;
 import com.ai.cloud.skywalking.plugin.interceptor.MethodMatcher;
 import com.ai.cloud.skywalking.plugin.interceptor.matcher.MethodsExclusiveMatcher;
+import com.ai.cloud.skywalking.plugin.interceptor.matcher.PrivateMethodMatcher;
 import com.ai.cloud.skywalking.plugin.interceptor.matcher.SimpleMethodMatcher;
 
 /**
@@ -18,8 +19,9 @@ public class TestMatcherDefine implements InterceptorDefine {
     @Override
     public MethodMatcher[] getBeInterceptedMethodsMatchers() {
         return new MethodMatcher[]{
-                new MethodsExclusiveMatcher("set", "get"),
-                new SimpleMethodMatcher(MethodMatcher.Modifier.Private, "set")
+                new PrivateMethodMatcher(),
+                new MethodsExclusiveMatcher(new SimpleMethodMatcher("set"), new SimpleMethodMatcher(MethodMatcher.Modifier.Public,"get")),
+                new SimpleMethodMatcher(MethodMatcher.Modifier.Private, "set", 1)
         };
     }
 

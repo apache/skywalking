@@ -38,4 +38,5 @@ public class MethodRegexMatcher extends MethodMatcher {
         ElementMatcher.Junction<MethodDescription> matcher = nameMatches(getMethodMatchDescribe());
         return mergeArgumentsIfNecessary(matcher);
     }
+
 }

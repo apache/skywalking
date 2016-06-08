@@ -121,8 +121,8 @@ public class EnhanceClazz4Interceptor {
                 interceptor);
 
         for (MethodMatcher methodMatcher : methodMatchers) {
-            logger.debug("prepare to enhance class {} method [{}] ",
-                    enhanceOriginClassName, methodMatcher.getMethodMatchDescribe());
+            logger.debug("prepare to enhance class {} {}",
+                    enhanceOriginClassName, methodMatcher);
             newClassBuilder = newClassBuilder.method(
             		methodMatcher.builderMatcher()).intercept(
                     MethodDelegation.to(classMethodInterceptor));

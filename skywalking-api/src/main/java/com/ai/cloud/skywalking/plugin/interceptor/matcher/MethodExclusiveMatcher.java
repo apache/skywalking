@@ -38,4 +38,28 @@ public class MethodExclusiveMatcher extends MethodMatcher {
         ElementMatcher.Junction<MethodDescription> matcher = named(getMethodMatchDescribe());
         return not(mergeArgumentsIfNecessary(matcher));
     }
+
+    @Override
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder("any method exclude ");
+
+        stringBuilder.append(" method named " + getMethodMatchDescribe());
+
+        if (getModifier() != null) {
+            stringBuilder.append(getModifier());
+        }
+
+        if (getArgNum() > -1) {
+            stringBuilder.append(" with " + getArgNum() + " arguments");
+        }
+
+        if (getArgTypeArray() != null) {
+            stringBuilder.append(" with ");
+            for (Class argType : getArgTypeArray()) {
+                stringBuilder.append(argType.getName());
+            }
+        }
+
+        return stringBuilder.toString();
+    }
 }
