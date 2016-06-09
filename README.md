@@ -79,11 +79,21 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 - master分支正在进行1.0-Final迭代。1.0b的完整代码，请参见 [1.0-beta-tag](https://github.com/wu-sheng/sky-walking/tree/1.0-beta)
 - Developing of version 1.0-Final on branch Master. The source code of version [1.0-beta-tag](https://github.com/wu-sheng/sky-walking/tree/1.0-beta)
 
+## 部署第三方软件 / Required of third party softwares
+- JDK 1.7
+- zookeeper 3.4.6
+- apache hbase 1.1.2
+- mysql
+- tomcat 7
+- redis-3.0.5
+
 ## 编译与部署 / Build and deploy
 - 服务端发布版本[下载](https://github.com/wu-sheng/sky-walking/releases)  (.tar.gz)
 - Download Server release version. [Download](https://github.com/wu-sheng/sky-walking/releases)  (.tar.gz)
-- 如果您想自己编译最新版本，可参考《[代码编译部署说明](BUILD_DOC.md)》
-- [Code compilation and deployment instructions](BUILD_DOC.md)
+- [配置应用服务器](CONFIG_DOC.md)
+- [config servers](CONFIG_DOC.md)
+- 如果您想自己编译最新版本，可参考《[代码编译说明](BUILD_DOC.md)》
+- [Code compilation instructions](BUILD_DOC.md)
 
 
 ## 引入核心SDK / Import SDK
