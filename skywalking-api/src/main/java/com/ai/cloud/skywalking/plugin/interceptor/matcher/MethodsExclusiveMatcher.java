@@ -18,14 +18,14 @@ public class MethodsExclusiveMatcher extends MethodMatcher {
     private List<MethodMatcher> matchers = new ArrayList<MethodMatcher>();
 
     public MethodsExclusiveMatcher(String... methodNames) {
-        super("Exclusive method name: " + methodNames.toString());
+        super("exclude method name: " + methodNames.toString());
         for (String methodName : methodNames) {
             matchers.add(new SimpleMethodMatcher(methodName));
         }
     }
 
     public MethodsExclusiveMatcher(MethodMatcher... matchers) {
-        super("Exclusive methods description :" + matchers.toString());
+        super("exclude methods description :" + matchers.toString());
         this.matchers.addAll(Arrays.asList(matchers));
     }
 
@@ -48,15 +48,10 @@ public class MethodsExclusiveMatcher extends MethodMatcher {
 
     @Override
     public String toString() {
-        StringBuilder stringBuilder = new StringBuilder("any method exclude the method(s) as follow:\n ");
-        int i = 0;
+        StringBuilder stringBuilder = new StringBuilder("exclude following method(s): ");
+        int idx = 1;
         for (MethodMatcher methodMatcher : matchers) {
-            if (i == 0) {
-                stringBuilder.append(methodMatcher.toString() + " or ");
-                i++;
-            } else {
-                stringBuilder.append(methodMatcher.toString());
-            }
+        	stringBuilder.append(idx++ + "." + methodMatcher.toString() + ". ");
         }
 
         return stringBuilder.toString();

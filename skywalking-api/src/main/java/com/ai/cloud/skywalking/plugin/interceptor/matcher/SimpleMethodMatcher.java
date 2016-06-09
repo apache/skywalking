@@ -1,11 +1,12 @@
 package com.ai.cloud.skywalking.plugin.interceptor.matcher;
 
+import static net.bytebuddy.matcher.ElementMatchers.named;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 
-import static net.bytebuddy.matcher.ElementMatchers.named;
+import com.ai.cloud.skywalking.plugin.interceptor.MethodMatcher;
 
-public class SimpleMethodMatcher extends com.ai.cloud.skywalking.plugin.interceptor.MethodMatcher {
+public class SimpleMethodMatcher extends MethodMatcher {
 
     public SimpleMethodMatcher(String methodName) {
         super(methodName);

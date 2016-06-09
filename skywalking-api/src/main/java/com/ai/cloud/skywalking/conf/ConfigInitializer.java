@@ -26,7 +26,7 @@ public class ConfigInitializer {
                 properties.load(inputStream);
                 initNextLevel(properties, Config.class, new ConfigDesc());
                 AuthDesc.isAuth = Boolean.valueOf(System.getenv(AUTH_SYSTEM_ENV_NAME));
-                logger.info("sky-walking auth check : " + AuthDesc.isAuth);
+                logger.info("sky-walking system-env auth : " + AuthDesc.isAuth);
                 if(!AuthDesc.isAuth && AUTH_OVERRIDE){
                 	AuthDesc.isAuth = AUTH_OVERRIDE;
                 	logger.info("sky-walking auth override: " + AuthDesc.isAuth);

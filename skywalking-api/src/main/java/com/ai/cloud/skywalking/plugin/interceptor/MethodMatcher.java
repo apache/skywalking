@@ -92,18 +92,24 @@ public abstract class MethodMatcher {
 
     @Override
     public String toString() {
-        StringBuilder stringBuilder = new StringBuilder(" the method named " + getMethodMatchDescribe());
+        StringBuilder stringBuilder = new StringBuilder("method name=" + getMethodMatchDescribe());
         if (getModifier() != null) {
-            stringBuilder.append(" with " + getModifier() + " modifier");
+        	stringBuilder.insert(0, getModifier() + " ");
         }
 
         if (getArgNum() > -1) {
-            stringBuilder.append("," + getArgNum() + " arguments");
+            stringBuilder.append(", argnum=" + getArgNum());
         }
 
         if (getArgTypeArray() != null) {
-            stringBuilder.append(",argument type are ");
-            for (Class argType : getArgTypeArray()) {
+            stringBuilder.append(",  types of arguments are ");
+            boolean isFirst = true;
+            for (Class<?> argType : getArgTypeArray()) {
+            	if(isFirst){
+            		isFirst = false;
+            	}else{
+            		stringBuilder.append(",");
+            	}
                 stringBuilder.append(argType.getName());
             }
         }

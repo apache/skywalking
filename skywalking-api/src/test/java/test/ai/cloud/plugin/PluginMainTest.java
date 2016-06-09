@@ -12,10 +12,9 @@ public class PluginMainTest {
 				.main(new String[] { "test.ai.cloud.plugin.PluginMainTest" });
 	}
 
-	public static void main(String[] args) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+	public static void main(String[] args) throws InstantiationException, IllegalAccessException, ClassNotFoundException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
 		long start = System.currentTimeMillis();
 
-		
 		BeInterceptedClass inst = (BeInterceptedClass) Class.forName("test.ai.cloud.plugin.BeInterceptedClass").newInstance();
 		inst.printabc();
 		long end = System.currentTimeMillis();

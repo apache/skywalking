@@ -119,9 +119,16 @@ public class EnhanceClazz4Interceptor {
         MethodMatcher[] methodMatchers = define.getBeInterceptedMethodsMatchers();
         ClassMethodInterceptor classMethodInterceptor = new ClassMethodInterceptor(
                 interceptor);
+        
+        StringBuilder enhanceRules = new StringBuilder("\nprepare to enhance class [" + enhanceOriginClassName + "] as following rules:\n"); 
+        int ruleIdx = 1;
+        for (MethodMatcher methodMatcher : methodMatchers) {
+        	enhanceRules.append("\t" + ruleIdx++ + ". " +  methodMatcher + "\n");
+        }
+        logger.debug(enhanceRules);
 
         for (MethodMatcher methodMatcher : methodMatchers) {
-            logger.debug("prepare to enhance class {} {}",
+            logger.debug("enhance class {} by rule: {}",
                     enhanceOriginClassName, methodMatcher);
             newClassBuilder = newClassBuilder.method(
             		methodMatcher.builderMatcher()).intercept(
