@@ -6,11 +6,8 @@
 		</Console>
 	</Appenders>
 	<Loggers>
-		<Root level="error">
+		<Root level="debug">
 			<AppenderRef ref="Console" />
 		</Root>
-		<logger name="com.ai.cloud.skywalking" level="debug">
-			<AppenderRef ref="Console" />
-		</logger>
 	</Loggers>
 </Configuration>
