@@ -22,7 +22,9 @@ public class JedisPluginDefine implements InterceptorDefine {
                         new PrivateMethodMatcher(),
                         new SimpleMethodMatcher("close"),
                         new SimpleMethodMatcher("getDB"),
-                        new SimpleMethodMatcher("connect")
+                        new SimpleMethodMatcher("connect"),
+                        new SimpleMethodMatcher("setDataSource"),
+                        new SimpleMethodMatcher("resetState")
                 )
         };
     }
