@@ -1,4 +1,4 @@
-package org.skywalking.jedis.v2.plugin;
+package com.ai.cloud.skywalking.jedis.v2.plugin;
 
 import com.ai.cloud.skywalking.api.IBuriedPointType;
 import com.ai.cloud.skywalking.protocol.CallType;

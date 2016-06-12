@@ -1,4 +1,4 @@
-package org.skywalking.jedis.v2.plugin;
+package com.ai.cloud.skywalking.jedis.v2.plugin;
 
 import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
@@ -15,7 +15,7 @@ public class JedisTest {
 			InvocationTargetException, NoSuchMethodException,
 			SecurityException, ClassNotFoundException {
 		TracingBootstrap
-				.main(new String[] { "org.skywalking.jedis.v2.plugin.JedisTest" });
+				.main(new String[] { "com.ai.cloud.skywalking.jedis.v2.plugin.JedisTest" });
 	}
 
 	public static void main(String[] args) throws ClassNotFoundException,
