@@ -8,7 +8,6 @@ import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.dynamic.ClassFileLocator;
 import net.bytebuddy.dynamic.DynamicType;
 import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
-import net.bytebuddy.dynamic.scaffold.subclass.ConstructorStrategy;
 import net.bytebuddy.implementation.MethodDelegation;
 import net.bytebuddy.implementation.SuperMethodCall;
 import net.bytebuddy.implementation.bind.annotation.FieldProxy;
@@ -73,22 +72,14 @@ public class EnhanceClazz4Interceptor {
         }
 
         /**
-         * rename origin class <br/>
-         * add '$$Origin' at the end of be enhanced classname <br/>
-         * such as: class com.ai.cloud.TestClass to class
-         * com.ai.cloud.TestClass$$Origin
+         * find origin class source code for interceptor
          */
-        String renameClassName = enhanceOriginClassName + "$$Origin";
-        Class<?> originClass = new ByteBuddy()
-                .redefine(resolution.resolve(),
-                        ClassFileLocator.ForClassLoader.ofClassPath())
-                .name(renameClassName)
-                .make()
-                .load(ClassLoader.getSystemClassLoader(),
-                        ClassLoadingStrategy.Default.INJECTION).getLoaded();
-
+        DynamicType.Builder<?> newClassBuilder =  new ByteBuddy()
+                .rebase(resolution.resolve(),
+                        ClassFileLocator.ForClassLoader.ofClassPath());
+                
         /**
-         * create a new class using origin classname.<br/>
+         * alter class source code.<br/>
          *
          * new class need:<br/>
          * 1.add field '_$EnhancedClassInstanceContext' of type
@@ -102,8 +93,6 @@ public class EnhanceClazz4Interceptor {
             throw new EnhanceException("no IAroundInterceptor instance. ");
         }
 
-        DynamicType.Builder<?> newClassBuilder = new ByteBuddy().subclass(
-                originClass, ConstructorStrategy.Default.IMITATE_SUPER_CLASS);
         newClassBuilder = newClassBuilder
                 .defineField(contextAttrName,
                         EnhancedClassInstanceContext.class)
