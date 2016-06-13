@@ -12,9 +12,15 @@ import java.util.List;
 public class TraceTreeAssert {
 
     public static void assertEquals(String[][] expectedTraceTree) {
+        assertEquals(expectedTraceTree, false);
+    }
+
+    public static void assertEquals(String[][] expectedTraceTree, boolean skipValidateTraceId) {
         List<Span> spanDataInBuffer = ContextPoolOperator.acquireSpanData();
 
-        validateTraceId(spanDataInBuffer);
+        if (!skipValidateTraceId) {
+            validateTraceId(spanDataInBuffer);
+        }
 
         List<String> assertSpanData = convertSpanDataToCompareStr(spanDataInBuffer);
 
