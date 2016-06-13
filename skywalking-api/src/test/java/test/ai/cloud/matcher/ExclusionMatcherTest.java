@@ -6,7 +6,7 @@ import com.ai.cloud.skywalking.plugin.PluginBootstrap;
 
 public class ExclusionMatcherTest extends TestCase{
 
-    public void testMatcher() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+    public void testMatcher() throws ClassNotFoundException, IllegalAccessException, InstantiationException, InterruptedException {
         new PluginBootstrap().start();
         TestMatcherClass testMatcherClass = (TestMatcherClass) Class.forName("test.ai.cloud.matcher.TestMatcherClass").newInstance();
 
@@ -15,6 +15,7 @@ public class ExclusionMatcherTest extends TestCase{
         testMatcherClass.get("a");
         testMatcherClass.find();
         System.out.println(testMatcherClass.toString());
+        testMatcherClass.equals(new TestMatcherClass());
     }
 
 }

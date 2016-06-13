@@ -10,10 +10,7 @@ import java.util.List;
 
 import static net.bytebuddy.matcher.ElementMatchers.not;
 
-/**
- * Created by xin on 16-6-8.
- */
-public class MethodsExclusiveMatcher extends ExclusiveObjectDefaultMethodMatcher {
+public class MethodsExclusiveMatcher extends ExclusiveObjectDefaultMethodsMatcher {
 
     private List<MethodMatcher> matchers = new ArrayList<MethodMatcher>();
 

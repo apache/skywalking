@@ -30,4 +30,10 @@ public class TestMatcherClass {
     public String toString() {
         return "Call toString()";
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        System.out.println("equals(Object obj)");
+        return true;
+    }
 }

@@ -29,7 +29,7 @@ public class SimpleMethodMatcher extends MethodMatcher {
         super(modifier, methodMatchDescribe, argNum);
     }
 
-    public SimpleMethodMatcher(Modifier modifier, String methodMatchDescribe, Class<?>[] argTypeArray) {
+    public SimpleMethodMatcher(Modifier modifier, String methodMatchDescribe, Class<?>... argTypeArray) {
         super(modifier, methodMatchDescribe, argTypeArray);
     }
 

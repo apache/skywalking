@@ -1,14 +1,13 @@
 package com.ai.cloud.skywalking.plugin.interceptor.matcher;
 
-import com.ai.cloud.skywalking.plugin.interceptor.MethodMatcher;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 
 import static net.bytebuddy.matcher.ElementMatchers.any;
 
-public class AnyMethodMatcher extends ExclusiveObjectDefaultMethodMatcher {
+public class AnyMethodsMatcher extends ExclusiveObjectDefaultMethodsMatcher {
 
-    public AnyMethodMatcher() {
+    public AnyMethodsMatcher() {
         super("any method");
     }
 

@@ -16,7 +16,7 @@ public class MethodRegexMatcher extends MethodMatcher {
         super(methodMatchDescribe, argNum);
     }
 
-    public MethodRegexMatcher(String methodMatchDescribe, Class<?>[] argTypeArray) {
+    public MethodRegexMatcher(String methodMatchDescribe, Class<?>... argTypeArray) {
         super(methodMatchDescribe, argTypeArray);
     }
 
@@ -28,7 +28,7 @@ public class MethodRegexMatcher extends MethodMatcher {
         super(modifier, methodMatchDescribe, argNum);
     }
 
-    public MethodRegexMatcher(Modifier modifier, String methodMatchDescribe, Class<?>[] argTypeArray) {
+    public MethodRegexMatcher(Modifier modifier, String methodMatchDescribe, Class<?>... argTypeArray) {
         super(modifier, methodMatchDescribe, argTypeArray);
     }
 
