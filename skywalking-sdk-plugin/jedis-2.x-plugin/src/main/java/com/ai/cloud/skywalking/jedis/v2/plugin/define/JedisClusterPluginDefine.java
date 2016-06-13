@@ -4,9 +4,7 @@ import com.ai.cloud.skywalking.jedis.v2.plugin.JedisClusterInterceptor;
 import com.ai.cloud.skywalking.plugin.interceptor.IAroundInterceptor;
 import com.ai.cloud.skywalking.plugin.interceptor.InterceptorDefine;
 import com.ai.cloud.skywalking.plugin.interceptor.MethodMatcher;
-import com.ai.cloud.skywalking.plugin.interceptor.matcher.AnyMethodMatcher;
-import com.ai.cloud.skywalking.plugin.interceptor.matcher.MethodsExclusiveMatcher;
-import com.ai.cloud.skywalking.plugin.interceptor.matcher.SimpleMethodMatcher;
+import com.ai.cloud.skywalking.plugin.interceptor.matcher.AnyMethodsMatcher;
 
 public class JedisClusterPluginDefine implements InterceptorDefine {
 
@@ -18,7 +16,7 @@ public class JedisClusterPluginDefine implements InterceptorDefine {
     @Override
     public MethodMatcher[] getBeInterceptedMethodsMatchers() {
         return new MethodMatcher[]{
-               new SimpleMethodMatcher("set")
+                new AnyMethodsMatcher()
         };
     }
 

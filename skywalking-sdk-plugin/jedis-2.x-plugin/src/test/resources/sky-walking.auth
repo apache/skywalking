@@ -6,7 +6,7 @@ skywalking.application_code=test
 skywalking.auth_system_env_name=SKYWALKING_RUN
 #skywalking数据编码
 skywalking.charset=UTF-8
-
+skywalking.auth_override=true
 #是否打印数据
 buriedpoint.printf=true
 #埋点异常的最大长度
@@ -27,11 +27,8 @@ sender.max_send_length=20000
 #当没有Sender时,尝试获取sender的等待周期
 sender.retry_get_sender_wait_interval=2000
 
-
-
-
 #最大消费线程数
-consumer.max_consumer=2
+consumer.max_consumer=0
 #消费者最大等待时间
 consumer.max_wait_time=5
 #发送失败等待时间  

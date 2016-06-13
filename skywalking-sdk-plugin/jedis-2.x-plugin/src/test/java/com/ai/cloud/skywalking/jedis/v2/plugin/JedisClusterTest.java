@@ -1,6 +1,7 @@
 package com.ai.cloud.skywalking.jedis.v2.plugin;
 
 import com.ai.cloud.skywalking.plugin.TracingBootstrap;
+import com.ai.skywalking.testframework.api.TraceTreeAssert;
 import org.junit.Test;
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisCluster;
@@ -21,17 +22,14 @@ public class JedisClusterTest {
 
     public static void main(String[] args) throws ClassNotFoundException,
             SQLException, InterruptedException {
-        JedisCluster jedisCluster = null;
-        try {
-            jedisCluster = new JedisCluster(getHostAndPorts());
-            long start = System.currentTimeMillis();
-            jedisCluster.set("11111", "111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
-            long end = System.currentTimeMillis();
-            System.out.println(end - start + "ms");
-            jedisCluster.del("11111");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        JedisCluster jedisCluster = new JedisCluster(getHostAndPorts());
+        jedisCluster.set("11111", "111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
+        TraceTreeAssert.assertEquals(new String[][]{
+                // 根据实际情况进行修改
+                {"0.0", "127.0.0.1:7001 set", "key=11111"},
+                {"0", "127.0.0.1:7002;127.0.0.1:7001;127.0.0.1:7000;127.0.0.1:7005;127.0.0.1:7004;127.0.0.1:7003; set", "key=11111"},
+        });
+
     }
 
     private static Set<HostAndPort> getHostAndPorts() {
@@ -43,9 +41,5 @@ public class JedisClusterTest {
         redisEnv.add(new HostAndPort("127.0.0.1", 7004));
         redisEnv.add(new HostAndPort("127.0.0.1", 7005));
         return redisEnv;
-    }
-
-    public void testNormal() throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException, InterruptedException {
-        JedisClusterTest.main(null);
     }
 }

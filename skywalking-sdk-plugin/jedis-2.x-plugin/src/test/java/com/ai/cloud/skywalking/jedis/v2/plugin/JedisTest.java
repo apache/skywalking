@@ -3,6 +3,7 @@ package com.ai.cloud.skywalking.jedis.v2.plugin;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
 
+import com.ai.skywalking.testframework.api.TraceTreeAssert;
 import org.junit.Test;
 
 import redis.clients.jedis.Jedis;
@@ -22,16 +23,12 @@ public class JedisTest {
 			SQLException, InterruptedException {
 		Jedis jedis = null;
 		try{
-			jedis = new Jedis("10.1.241.18", 16379);
-			long start = System.currentTimeMillis();
+			jedis = new Jedis("127.0.0.1", 6379);
 			jedis.set("11111", "111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
-			for (int i = 0; i < 1; i++) {
-				jedis.get("11111");
-			}
-			long end = System.currentTimeMillis();
-			System.out.println(end - start + "ms");
-			jedis.del("11111");
-		}catch(Exception e){
+            TraceTreeAssert.assertEquals(new String[][]{
+                    {"0", "127.0.0.1:6379 set", "key=11111"},
+            });
+        }catch(Exception e){
 			e.printStackTrace();
 		}finally{
 			jedis.close();
