@@ -24,7 +24,8 @@ public class JedisPluginDefine implements InterceptorDefine {
                         new SimpleMethodMatcher("getDB"),
                         new SimpleMethodMatcher("connect"),
                         new SimpleMethodMatcher("setDataSource"),
-                        new SimpleMethodMatcher("resetState")
+                        new SimpleMethodMatcher("resetState"),
+                        new SimpleMethodMatcher("clusterSlots")
                 )
         };
     }
