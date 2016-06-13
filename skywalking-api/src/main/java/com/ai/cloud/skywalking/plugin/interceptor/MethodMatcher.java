@@ -45,7 +45,7 @@ public abstract class MethodMatcher {
         this.modifier = modifier;
     }
 
-    public abstract ElementMatcher.Junction<MethodDescription> builderMatcher();
+    public abstract ElementMatcher.Junction<MethodDescription> buildMatcher();
 
     protected String getMethodMatchDescribe() {
         return methodMatchDescribe;

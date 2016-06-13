@@ -13,7 +13,7 @@ public class PrivateMethodMatcher extends MethodMatcher {
     }
 
     @Override
-    public ElementMatcher.Junction<MethodDescription> builderMatcher() {
+    public ElementMatcher.Junction<MethodDescription> buildMatcher() {
         return any().and(ElementMatchers.<MethodDescription>isPrivate());
     }
 

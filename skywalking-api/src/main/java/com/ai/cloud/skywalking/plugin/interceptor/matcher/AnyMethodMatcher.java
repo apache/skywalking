@@ -6,14 +6,14 @@ import net.bytebuddy.matcher.ElementMatcher;
 
 import static net.bytebuddy.matcher.ElementMatchers.any;
 
-public class AnyMethodMatcher extends MethodMatcher {
+public class AnyMethodMatcher extends ExclusiveObjectDefaultMethodMatcher {
 
     public AnyMethodMatcher() {
         super("any method");
     }
 
     @Override
-    public ElementMatcher.Junction<MethodDescription> builderMatcher() {
+    public ElementMatcher.Junction<MethodDescription> match() {
         return any();
     }
 

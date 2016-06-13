@@ -34,7 +34,7 @@ public class MethodRegexMatcher extends MethodMatcher {
 
 
     @Override
-    public ElementMatcher.Junction<MethodDescription> builderMatcher() {
+    public ElementMatcher.Junction<MethodDescription> buildMatcher() {
         ElementMatcher.Junction<MethodDescription> matcher = nameMatches(getMethodMatchDescribe());
         return mergeArgumentsIfNecessary(matcher);
     }

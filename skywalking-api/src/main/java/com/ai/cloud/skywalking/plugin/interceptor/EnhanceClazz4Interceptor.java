@@ -1,9 +1,7 @@
 package com.ai.cloud.skywalking.plugin.interceptor;
 
-import static net.bytebuddy.matcher.ElementMatchers.any;
-
-import java.util.List;
-
+import com.ai.cloud.skywalking.plugin.PluginCfg;
+import com.ai.cloud.skywalking.util.StringUtil;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.dynamic.ClassFileLocator;
 import net.bytebuddy.dynamic.DynamicType;
@@ -11,14 +9,17 @@ import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
 import net.bytebuddy.implementation.MethodDelegation;
 import net.bytebuddy.implementation.SuperMethodCall;
 import net.bytebuddy.implementation.bind.annotation.FieldProxy;
+import net.bytebuddy.matcher.ElementMatcher;
+import net.bytebuddy.matcher.ElementMatchers;
 import net.bytebuddy.pool.TypePool;
 import net.bytebuddy.pool.TypePool.Resolution;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.ai.cloud.skywalking.plugin.PluginCfg;
-import com.ai.cloud.skywalking.util.StringUtil;
+import java.util.List;
+
+import static net.bytebuddy.matcher.ElementMatchers.any;
+import static net.bytebuddy.matcher.ElementMatchers.not;
 
 public class EnhanceClazz4Interceptor {
     private static Logger logger = LogManager
@@ -74,10 +75,10 @@ public class EnhanceClazz4Interceptor {
         /**
          * find origin class source code for interceptor
          */
-        DynamicType.Builder<?> newClassBuilder =  new ByteBuddy()
+        DynamicType.Builder<?> newClassBuilder = new ByteBuddy()
                 .rebase(resolution.resolve(),
                         ClassFileLocator.ForClassLoader.ofClassPath());
-                
+
         /**
          * alter class source code.<br/>
          *
@@ -108,21 +109,30 @@ public class EnhanceClazz4Interceptor {
         MethodMatcher[] methodMatchers = define.getBeInterceptedMethodsMatchers();
         ClassMethodInterceptor classMethodInterceptor = new ClassMethodInterceptor(
                 interceptor);
-        
-        StringBuilder enhanceRules = new StringBuilder("\nprepare to enhance class [" + enhanceOriginClassName + "] as following rules:\n"); 
+
+        StringBuilder enhanceRules = new StringBuilder("\nprepare to enhance class [" + enhanceOriginClassName + "] as following rules:\n");
         int ruleIdx = 1;
         for (MethodMatcher methodMatcher : methodMatchers) {
-        	enhanceRules.append("\t" + ruleIdx++ + ". " +  methodMatcher + "\n");
+            enhanceRules.append("\t" + ruleIdx++ + ". " + methodMatcher + "\n");
         }
         logger.debug(enhanceRules);
-
+        ElementMatcher.Junction matcher = null;
         for (MethodMatcher methodMatcher : methodMatchers) {
             logger.debug("enhance class {} by rule: {}",
                     enhanceOriginClassName, methodMatcher);
-            newClassBuilder = newClassBuilder.method(
-            		methodMatcher.builderMatcher()).intercept(
-                    MethodDelegation.to(classMethodInterceptor));
+            if (matcher == null) {
+                matcher = methodMatcher.buildMatcher();
+                continue;
+            }
+
+            matcher = matcher.or(methodMatcher.buildMatcher());
+
         }
+
+        // TODO: not support static method now. will enhance it.
+        matcher = matcher.and(not(ElementMatchers.isStatic()));
+        newClassBuilder = newClassBuilder.method(matcher).intercept(
+                MethodDelegation.to(classMethodInterceptor));
 
         /**
          * naming class as origin class name, make and load class to

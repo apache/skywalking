@@ -13,7 +13,7 @@ import static net.bytebuddy.matcher.ElementMatchers.not;
 /**
  * Created by xin on 16-6-8.
  */
-public class MethodsExclusiveMatcher extends MethodMatcher {
+public class MethodsExclusiveMatcher extends ExclusiveObjectDefaultMethodMatcher {
 
     private List<MethodMatcher> matchers = new ArrayList<MethodMatcher>();
 
@@ -30,17 +30,16 @@ public class MethodsExclusiveMatcher extends MethodMatcher {
     }
 
     @Override
-    public ElementMatcher.Junction<MethodDescription> builderMatcher() {
-
+    public ElementMatcher.Junction<MethodDescription> match() {
         ElementMatcher.Junction<MethodDescription> result = null;
 
         for (MethodMatcher matcher : matchers) {
             if (result == null) {
-                result = matcher.builderMatcher();
+                result = matcher.buildMatcher();
                 continue;
             }
 
-            result = result.or(matcher.builderMatcher());
+            result = result.or(matcher.buildMatcher());
         }
 
         return not(result);

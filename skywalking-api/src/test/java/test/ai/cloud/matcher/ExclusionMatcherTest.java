@@ -14,6 +14,7 @@ public class ExclusionMatcherTest extends TestCase{
         testMatcherClass.seta("a");
         testMatcherClass.get("a");
         testMatcherClass.find();
+        System.out.println(testMatcherClass.toString());
     }
 
 }
