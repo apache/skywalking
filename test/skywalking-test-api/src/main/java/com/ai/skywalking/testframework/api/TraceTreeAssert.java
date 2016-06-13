@@ -65,7 +65,7 @@ public class TraceTreeAssert {
     }
 
 
-    private static void validateTraceSpanSize(int actualSpanSize, int expectedSpanSize) {
+    private static void validateTraceSpanSize(int expectedSpanSize, int actualSpanSize) {
         if (actualSpanSize != expectedSpanSize) {
             throw new TraceNodeSizeNotEqualException("expected span size : " + expectedSpanSize +
                     "\n actual span size : " + actualSpanSize);
