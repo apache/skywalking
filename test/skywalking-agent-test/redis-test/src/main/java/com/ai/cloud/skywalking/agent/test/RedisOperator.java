@@ -27,7 +27,7 @@ public class RedisOperator {
             System.exit(-1);
         }
         jedisPool = new JedisPool(properties.getProperty("redis.ip", "127.0.0.1"),
-                Integer.parseInt(properties.getProperty("redis.port", "2181")));
+                Integer.parseInt(properties.getProperty("redis.port", "6379")));
     }
 
 
@@ -38,6 +38,7 @@ public class RedisOperator {
             jedis.set(key, value);
         } catch (Exception e) {
             logger.error(e);
+            throw e;
         } finally {
             if (jedis != null)
                 jedis.close();
@@ -51,11 +52,25 @@ public class RedisOperator {
             return jedis.get(key);
         } catch (Exception e) {
             logger.error(e);
+            throw e;
         } finally {
             if (jedis != null)
                 jedis.close();
         }
 
-        return "";
+    }
+
+    public static void delData(String key) {
+        Jedis jedis = null;
+        try {
+            jedis = jedisPool.getResource();
+            jedis.del(key);
+        } catch (Exception e) {
+            logger.error(e);
+            throw e;
+        } finally {
+            if (jedis != null)
+                jedis.close();
+        }
     }
 }
