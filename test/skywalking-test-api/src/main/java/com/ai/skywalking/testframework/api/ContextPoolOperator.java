@@ -7,8 +7,8 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TraceTreeDataAcquirer {
-    public static List<Span> acquireCurrentTraceSpanData() {
+public class ContextPoolOperator {
+    public static List<Span> acquireSpanData() {
         List<Span> resultSpan = new ArrayList<Span>();
         Object[] bufferGroupObjectArray = acquireBufferGroupObjectArrayByClassLoader();
 
@@ -24,6 +24,17 @@ public class TraceTreeDataAcquirer {
         return resultSpan;
     }
 
+    public static void clearSpanData() {
+        Object[] bufferGroupObjectArray = acquireBufferGroupObjectArrayByClassLoader();
+
+        for (Object bufferGroup : bufferGroupObjectArray) {
+            Span[] spanList = acquireSpanData(bufferGroup);
+            for (int i = 0; i < spanList.length; i++) {
+                spanList[i] = null;
+            }
+        }
+    }
+
     private static Span[] acquireSpanData(Object bufferGroup) {
         try {
             Class bufferGroupClass = Thread.currentThread().getContextClassLoader()
@@ -32,7 +43,7 @@ public class TraceTreeDataAcquirer {
             spanArrayField.setAccessible(true);
             return (Span[]) spanArrayField.get(bufferGroup);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to acquire span array",e);
+            throw new RuntimeException("Failed to acquire span array", e);
         }
     }
 
@@ -43,7 +54,7 @@ public class TraceTreeDataAcquirer {
             Field field = fetchBufferPoolObject(bufferPoolClass);
             return (Object[]) field.get(bufferPoolClass);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to acquire buffer group object array",e);
+            throw new RuntimeException("Failed to acquire buffer group object array", e);
         }
     }
 

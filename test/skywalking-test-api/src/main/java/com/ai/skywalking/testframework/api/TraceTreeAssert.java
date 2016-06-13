@@ -12,7 +12,7 @@ import java.util.List;
 public class TraceTreeAssert {
 
     public static void assertEquals(String[][] expectedTraceTree) {
-        List<Span> spanDataInBuffer = TraceTreeDataAcquirer.acquireCurrentTraceSpanData();
+        List<Span> spanDataInBuffer = ContextPoolOperator.acquireSpanData();
 
         validateTraceId(spanDataInBuffer);
 
@@ -23,6 +23,10 @@ public class TraceTreeAssert {
         validateTraceSpanSize(expectedSpanData.size(), assertSpanData.size());
 
         validateSpanData(expectedSpanData, assertSpanData);
+    }
+
+    public static void clearTraceData() {
+        ContextPoolOperator.clearSpanData();
     }
 
     private static List<String> convertSpanDataToCompareStr(List<Span> assertSpanData) {
