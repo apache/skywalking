@@ -1,8 +1,12 @@
 package com.ai.cloud.skywalking.plugin.interceptor;
 
-import com.ai.cloud.skywalking.plugin.PluginCfg;
-import com.ai.cloud.skywalking.util.StringUtil;
+import static net.bytebuddy.matcher.ElementMatchers.any;
+import static net.bytebuddy.matcher.ElementMatchers.not;
+
+import java.util.List;
+
 import net.bytebuddy.ByteBuddy;
+import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.dynamic.ClassFileLocator;
 import net.bytebuddy.dynamic.DynamicType;
 import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
@@ -13,13 +17,12 @@ import net.bytebuddy.matcher.ElementMatcher;
 import net.bytebuddy.matcher.ElementMatchers;
 import net.bytebuddy.pool.TypePool;
 import net.bytebuddy.pool.TypePool.Resolution;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.List;
-
-import static net.bytebuddy.matcher.ElementMatchers.any;
-import static net.bytebuddy.matcher.ElementMatchers.not;
+import com.ai.cloud.skywalking.plugin.PluginCfg;
+import com.ai.cloud.skywalking.util.StringUtil;
 
 public class EnhanceClazz4Interceptor {
     private static Logger logger = LogManager
@@ -116,7 +119,7 @@ public class EnhanceClazz4Interceptor {
             enhanceRules.append("\t" + ruleIdx++ + ". " + methodMatcher + "\n");
         }
         logger.debug(enhanceRules);
-        ElementMatcher.Junction matcher = null;
+        ElementMatcher.Junction<MethodDescription> matcher = null;
         for (MethodMatcher methodMatcher : methodMatchers) {
             logger.debug("enhance class {} by rule: {}",
                     enhanceOriginClassName, methodMatcher);
@@ -129,7 +132,9 @@ public class EnhanceClazz4Interceptor {
 
         }
 
-        // TODO: not support static method now. will enhance it.
+        /**
+         * exclude static methods.
+         */
         matcher = matcher.and(not(ElementMatchers.isStatic()));
         newClassBuilder = newClassBuilder.method(matcher).intercept(
                 MethodDelegation.to(classMethodInterceptor));
