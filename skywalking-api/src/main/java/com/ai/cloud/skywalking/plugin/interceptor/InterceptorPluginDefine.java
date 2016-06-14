@@ -1,8 +1,8 @@
 package com.ai.cloud.skywalking.plugin.interceptor;
 
+import static com.ai.cloud.skywalking.plugin.PluginBootstrap.CLASS_TYPE_POOL;
 import static net.bytebuddy.matcher.ElementMatchers.any;
 import static net.bytebuddy.matcher.ElementMatchers.not;
-import static com.ai.cloud.skywalking.plugin.PluginBootstrap.CLASS_TYPE_POOL;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.dynamic.ClassFileLocator;
@@ -13,7 +13,6 @@ import net.bytebuddy.implementation.SuperMethodCall;
 import net.bytebuddy.implementation.bind.annotation.FieldProxy;
 import net.bytebuddy.matcher.ElementMatcher;
 import net.bytebuddy.matcher.ElementMatchers;
-import net.bytebuddy.pool.TypePool;
 import net.bytebuddy.pool.TypePool.Resolution;
 
 import org.apache.logging.log4j.LogManager;
