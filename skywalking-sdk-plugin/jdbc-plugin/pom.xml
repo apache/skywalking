@@ -29,6 +29,12 @@
             <version>5.1.36</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>com.oracle</groupId>
+            <artifactId>ojdbc14</artifactId>
+            <version>10.2.0.4.0</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
