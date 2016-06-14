@@ -2,9 +2,7 @@ package com.ai.cloud.skywalking.plugin.interceptor;
 
 import static net.bytebuddy.matcher.ElementMatchers.any;
 import static net.bytebuddy.matcher.ElementMatchers.not;
-
-import java.util.List;
-
+import static com.ai.cloud.skywalking.plugin.PluginBootstrap.CLASS_TYPE_POOL;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.dynamic.ClassFileLocator;
@@ -21,44 +19,21 @@ import net.bytebuddy.pool.TypePool.Resolution;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.ai.cloud.skywalking.plugin.PluginCfg;
+import com.ai.cloud.skywalking.plugin.IPlugin;
+import com.ai.cloud.skywalking.plugin.PluginException;
 import com.ai.cloud.skywalking.util.StringUtil;
 
-public class EnhanceClazz4Interceptor {
-    private static Logger logger = LogManager
-            .getLogger(EnhanceClazz4Interceptor.class);
-
-    private TypePool typePool;
-
+public abstract class InterceptorPluginDefine implements IPlugin {
+	private static Logger logger = LogManager.getLogger(InterceptorPluginDefine.class);
+	
     public static final String contextAttrName = "_$EnhancedClassInstanceContext";
+    
 
-    public EnhanceClazz4Interceptor() {
-        typePool = TypePool.Default.ofClassPath();
-    }
-
-    public void enhance() {
-        List<String> interceptorClassList = PluginCfg.CFG
-                .getInterceptorClassList();
-
-        for (String interceptorClassName : interceptorClassList) {
-            try {
-                enhance0(interceptorClassName);
-            } catch (Throwable t) {
-                logger.error("enhance class [{}] for intercept failure.",
-                        interceptorClassName, t);
-            }
-        }
-    }
-
-    private void enhance0(String interceptorDefineClassName)
-            throws InstantiationException, IllegalAccessException,
-            ClassNotFoundException, EnhanceException {
-        logger.debug("prepare to enhance class by {}.",
-                interceptorDefineClassName);
-        InterceptorDefine define = (InterceptorDefine) Class.forName(
-                interceptorDefineClassName).newInstance();
-
-        String enhanceOriginClassName = define.getBeInterceptedClassName();
+	@Override
+	public void define() throws PluginException {
+		String interceptorDefineClassName = this.getClass().getName();
+		
+		String enhanceOriginClassName = getBeInterceptedClassName();
         if (StringUtil.isEmpty(enhanceOriginClassName)) {
             logger.warn("classname of being intercepted is not defined by {}.",
                     interceptorDefineClassName);
@@ -68,7 +43,7 @@ public class EnhanceClazz4Interceptor {
         logger.debug("prepare to enhance class {} by {}.",
                 enhanceOriginClassName, interceptorDefineClassName);
 
-        Resolution resolution = typePool.describe(enhanceOriginClassName);
+        Resolution resolution = CLASS_TYPE_POOL.describe(enhanceOriginClassName);
         if (!resolution.isResolved()) {
             logger.warn("class {} can't be resolved, enhance by {} failue.",
                     enhanceOriginClassName, interceptorDefineClassName);
@@ -92,7 +67,7 @@ public class EnhanceClazz4Interceptor {
          * 2.intercept constructor by default, and intercept method which it's
          * required by interceptorDefineClass. <br/>
          */
-        IAroundInterceptor interceptor = define.instance();
+        IAroundInterceptor interceptor = instance();
         if (interceptor == null) {
             throw new EnhanceException("no IAroundInterceptor instance. ");
         }
@@ -109,7 +84,7 @@ public class EnhanceClazz4Interceptor {
                                                 FieldGetter.class,
                                                 FieldSetter.class))));
 
-        MethodMatcher[] methodMatchers = define.getBeInterceptedMethodsMatchers();
+        MethodMatcher[] methodMatchers = getBeInterceptedMethodsMatchers();
         ClassMethodInterceptor classMethodInterceptor = new ClassMethodInterceptor(
                 interceptor);
 
@@ -151,5 +126,27 @@ public class EnhanceClazz4Interceptor {
 
         logger.debug("enhance class {} by {} completely.",
                 enhanceOriginClassName, interceptorDefineClassName);
-    }
+	}
+
+	/**
+	 * 返回要被增强的类，应当返回类全名
+	 * 
+	 * @return
+	 */
+	public abstract String getBeInterceptedClassName();
+
+	/**
+	 * 返回需要被增强的方法列表
+	 * 
+	 * @return
+	 */
+	public abstract MethodMatcher[] getBeInterceptedMethodsMatchers();
+
+	/**
+	 * 返回增强拦截器的实现<br/>
+	 * 每个拦截器在同一个被增强类的内部，保持单例
+	 * 
+	 * @return
+	 */
+	public abstract IAroundInterceptor instance();
 }

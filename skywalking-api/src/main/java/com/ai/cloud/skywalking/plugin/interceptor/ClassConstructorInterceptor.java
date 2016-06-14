@@ -21,7 +21,7 @@ public class ClassConstructorInterceptor {
 	@RuntimeType
 	public void intercept(
 			@This Object obj,
-			@FieldProxy(EnhanceClazz4Interceptor.contextAttrName) FieldSetter accessor,
+			@FieldProxy(InterceptorPluginDefine.contextAttrName) FieldSetter accessor,
 			@AllArguments Object[] allArguments) {
 		try {
 			EnhancedClassInstanceContext context = new EnhancedClassInstanceContext();

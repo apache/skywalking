@@ -12,17 +12,17 @@ import com.ai.cloud.skywalking.util.StringUtil;
 public class PluginCfg {
 	public final static PluginCfg CFG = new PluginCfg();
 	
-	private List<String> interceptorClassList = new ArrayList<String>();
+	private List<String> pluginClassList = new ArrayList<String>();
 	
 	private PluginCfg(){}
 	
 	void load(InputStream input) throws IOException{
 		try{
 			BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-			String interceptorDefineClassName = null;
-			while((interceptorDefineClassName = reader.readLine()) != null){
-				if(!StringUtil.isEmpty(interceptorDefineClassName)){
-					interceptorClassList.add(interceptorDefineClassName.trim());
+			String pluginDefineClassName = null;
+			while((pluginDefineClassName = reader.readLine()) != null){
+				if(!StringUtil.isEmpty(pluginDefineClassName)){
+					pluginClassList.add(pluginDefineClassName.trim());
 				}
 			}
 		}finally{
@@ -30,7 +30,7 @@ public class PluginCfg {
 		}
 	}
 	
-	public List<String> getInterceptorClassList(){
-		return interceptorClassList;
+	public List<String> getPluginClassList(){
+		return pluginClassList;
 	}
 }

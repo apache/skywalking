@@ -1,7 +1,7 @@
 package test.ai.cloud.matcher;
 
 import com.ai.cloud.skywalking.plugin.interceptor.IAroundInterceptor;
-import com.ai.cloud.skywalking.plugin.interceptor.InterceptorDefine;
+import com.ai.cloud.skywalking.plugin.interceptor.InterceptorPluginDefine;
 import com.ai.cloud.skywalking.plugin.interceptor.MethodMatcher;
 import com.ai.cloud.skywalking.plugin.interceptor.matcher.MethodsExclusiveMatcher;
 import com.ai.cloud.skywalking.plugin.interceptor.matcher.PrivateMethodMatcher;
@@ -10,7 +10,7 @@ import com.ai.cloud.skywalking.plugin.interceptor.matcher.SimpleMethodMatcher;
 /**
  * Created by xin on 16-6-8.
  */
-public class TestMatcherDefine implements InterceptorDefine {
+public class TestMatcherDefine extends InterceptorPluginDefine {
     @Override
     public String getBeInterceptedClassName() {
         return "test.ai.cloud.matcher.TestMatcherClass";

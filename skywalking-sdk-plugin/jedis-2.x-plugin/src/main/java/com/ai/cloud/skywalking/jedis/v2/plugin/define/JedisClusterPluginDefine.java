@@ -2,11 +2,11 @@ package com.ai.cloud.skywalking.jedis.v2.plugin.define;
 
 import com.ai.cloud.skywalking.jedis.v2.plugin.JedisClusterInterceptor;
 import com.ai.cloud.skywalking.plugin.interceptor.IAroundInterceptor;
-import com.ai.cloud.skywalking.plugin.interceptor.InterceptorDefine;
+import com.ai.cloud.skywalking.plugin.interceptor.InterceptorPluginDefine;
 import com.ai.cloud.skywalking.plugin.interceptor.MethodMatcher;
 import com.ai.cloud.skywalking.plugin.interceptor.matcher.AnyMethodsMatcher;
 
-public class JedisClusterPluginDefine implements InterceptorDefine {
+public class JedisClusterPluginDefine extends InterceptorPluginDefine {
 
     @Override
     public String getBeInterceptedClassName() {

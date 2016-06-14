@@ -1,11 +1,11 @@
 package com.ai.cloud.skywalking.plugin.mysql;
 
 import com.ai.cloud.skywalking.plugin.interceptor.IAroundInterceptor;
-import com.ai.cloud.skywalking.plugin.interceptor.InterceptorDefine;
+import com.ai.cloud.skywalking.plugin.interceptor.InterceptorPluginDefine;
 import com.ai.cloud.skywalking.plugin.interceptor.MethodMatcher;
 import com.ai.cloud.skywalking.plugin.interceptor.matcher.SimpleMethodMatcher;
 
-public class ConnectionPluginDefine implements InterceptorDefine {
+public class ConnectionPluginDefine extends InterceptorPluginDefine {
 
 	@Override
 	public String getBeInterceptedClassName() {

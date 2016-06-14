@@ -1,6 +1,8 @@
 package com.ai.cloud.skywalking.plugin.interceptor;
 
-public class EnhanceException extends Exception {
+import com.ai.cloud.skywalking.plugin.PluginException;
+
+public class EnhanceException extends PluginException {
 	private static final long serialVersionUID = -2234782755784217255L;
 
 	public EnhanceException(String message) {
