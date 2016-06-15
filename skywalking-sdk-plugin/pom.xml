@@ -13,7 +13,6 @@
 	<modules>
 		<module>dubbo-plugin</module>
 		<module>spring-plugin</module>
-		<module>mysql-plugin</module>
 		<module>jdbc-plugin</module>
 		<module>web-plugin</module>
 		<module>httpclient-4.2.x-plugin</module>
@@ -74,7 +73,7 @@
 			</plugin>
 		</plugins>
 	</build>
-	
+
 	<distributionManagement>
 		<repository>
 			<id>bintray-wu-sheng-sky-walking-repository</id>
