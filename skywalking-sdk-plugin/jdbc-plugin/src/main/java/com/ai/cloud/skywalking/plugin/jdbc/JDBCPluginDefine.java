@@ -11,7 +11,6 @@ import org.apache.logging.log4j.Logger;
 
 import com.ai.cloud.skywalking.plugin.boot.BootException;
 import com.ai.cloud.skywalking.plugin.boot.BootPluginDefine;
-import com.ai.cloud.skywalking.plugin.jdbc.driver.TracingDriver;
 
 public class JDBCPluginDefine extends BootPluginDefine {
     private static Logger logger = LogManager.getLogger(JDBCPluginDefine.class);

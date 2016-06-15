@@ -1,4 +1,4 @@
-package com.ai.cloud.skywalking.plugin.jdbc.driver;
+package com.ai.cloud.skywalking.plugin.jdbc;
 
 import java.sql.*;
 import java.util.Map;

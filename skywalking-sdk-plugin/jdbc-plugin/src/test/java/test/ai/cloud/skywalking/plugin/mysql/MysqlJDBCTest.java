@@ -23,7 +23,7 @@ public class MysqlJDBCTest {
     public static void main(String[] args) throws ClassNotFoundException,
             SQLException, InterruptedException {
         Class.forName("com.mysql.jdbc.Driver");
-        String url = "jdbc:mysql://10.1.241.20:31306/sw_db?user=sw_dbusr01&password=sw_dbusr01";
+        String url = "tracing:jdbc:mysql://10.1.241.20:31306/sw_db?user=sw_dbusr01&password=sw_dbusr01";
         Connection con = DriverManager.getConnection(url);
         con.setAutoCommit(false);
 

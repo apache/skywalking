@@ -1,4 +1,4 @@
-package com.ai.cloud.skywalking.plugin.jdbc.driver;
+package com.ai.cloud.skywalking.plugin.jdbc;
 
 import com.ai.cloud.skywalking.buriedpoint.RPCBuriedPointSender;
 import com.ai.cloud.skywalking.model.Identification;

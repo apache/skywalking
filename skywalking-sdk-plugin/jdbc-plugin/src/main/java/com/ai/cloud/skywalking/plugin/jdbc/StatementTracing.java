@@ -1,4 +1,4 @@
-package com.ai.cloud.skywalking.plugin.jdbc.driver;
+package com.ai.cloud.skywalking.plugin.jdbc;
 
 import com.ai.cloud.skywalking.buriedpoint.RPCBuriedPointSender;
 import com.ai.cloud.skywalking.model.Identification;
@@ -6,14 +6,14 @@ import com.ai.cloud.skywalking.model.Identification;
 import java.sql.SQLException;
 
 /**
- * 连接级追踪，用于追踪用于Connection的操作追踪
+ * 连接级追踪，用于追踪用于Statement的操作追踪
  *
  * @author wusheng
  */
-public class ConnectionTracing {
+public class StatementTracing {
     private static RPCBuriedPointSender sender = new RPCBuriedPointSender();
 
-    public static <R> R execute(java.sql.Connection realConnection,
+    public static <R> R execute(java.sql.Statement realStatement,
                                 String connectInfo, String method, String sql, Executable<R> exec)
             throws SQLException {
         try {
@@ -21,11 +21,11 @@ public class ConnectionTracing {
                     .newBuilder()
                     .viewPoint(connectInfo)
                     .businessKey(
-                            "connection."
+                            "statement."
                                     + method
                                     + (sql == null || sql.length() == 0 ? ""
                                     : ":" + sql)).spanType(JDBCBuriedPointType.instance()).build());
-            return exec.exe(realConnection, sql);
+            return exec.exe(realStatement, sql);
         } catch (SQLException e) {
             sender.handleException(e);
             throw e;
@@ -35,7 +35,7 @@ public class ConnectionTracing {
     }
 
     public interface Executable<R> {
-        public R exe(java.sql.Connection realConnection, String sql)
+        public R exe(java.sql.Statement realStatement, String sql)
                 throws SQLException;
     }
 }
