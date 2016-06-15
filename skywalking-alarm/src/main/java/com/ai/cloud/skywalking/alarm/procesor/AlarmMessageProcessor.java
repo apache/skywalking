@@ -144,7 +144,7 @@ public class AlarmMessageProcessor {
 				+ (exceptionAlarmSize > 0 ? exceptionAlarmSize
 						+ " tid of system exceptions, " : "");
 		if (count > exceptionAlarmSize) {
-			title += (count - exceptionAlarmSize) + " tid of warings, ";
+			title += (count - exceptionAlarmSize) + " tid of warnings, ";
 		}
 		title += "between "
 				+ new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(
