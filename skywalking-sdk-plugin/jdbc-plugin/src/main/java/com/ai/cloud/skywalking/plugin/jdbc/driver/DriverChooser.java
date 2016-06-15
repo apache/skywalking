@@ -5,16 +5,20 @@ import java.sql.Driver;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class DriverChooser {
+	private static Logger logger = LogManager.getLogger(DriverChooser.class);
 
     private static Properties urlDriverMapping = new Properties();
 
     static {
-        InputStream inputStream = DriverChooser.class.getResourceAsStream("/conurl-driver-mapping.properties");
+        InputStream inputStream = DriverChooser.class.getResourceAsStream("/driver-mapping-url.properties");
         try {
             urlDriverMapping.load(inputStream);
         } catch (Exception e) {
-            System.err.println("Failed to load conurl-driver-mapping.properties");
+            logger.error("Failed to load driver-mapping-url.properties");
         }
     }
 
@@ -24,7 +28,7 @@ public class DriverChooser {
         Driver driver = null;
         for (Map.Entry<Object, Object> entry : urlDriverMapping.entrySet()) {
             if (url.startsWith(entry.getValue().toString())) {
-                Class driverClass = Class.forName(entry.getKey().toString());
+                Class<?> driverClass = Class.forName(entry.getKey().toString());
                 driver = (Driver) driverClass.newInstance();
             }
         }

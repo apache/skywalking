@@ -1,11 +1,11 @@
 package com.ai.cloud.skywalking.jedis.v2.plugin;
 
-import com.ai.cloud.skywalking.buriedpoint.RPCBuriedPointSender;
-import com.ai.cloud.skywalking.plugin.interceptor.ConstructorInvokeContext;
-import com.ai.cloud.skywalking.plugin.interceptor.EnhancedClassInstanceContext;
+import java.net.URI;
+
 import redis.clients.jedis.JedisShardInfo;
 
-import java.net.URI;
+import com.ai.cloud.skywalking.plugin.interceptor.ConstructorInvokeContext;
+import com.ai.cloud.skywalking.plugin.interceptor.EnhancedClassInstanceContext;
 
 public class JedisInterceptor extends JedisBaseInterceptor {
 

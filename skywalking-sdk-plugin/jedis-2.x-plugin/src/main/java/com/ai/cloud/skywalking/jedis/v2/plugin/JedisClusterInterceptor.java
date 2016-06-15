@@ -2,6 +2,7 @@ package com.ai.cloud.skywalking.jedis.v2.plugin;
 
 import com.ai.cloud.skywalking.plugin.interceptor.ConstructorInvokeContext;
 import com.ai.cloud.skywalking.plugin.interceptor.EnhancedClassInstanceContext;
+
 import redis.clients.jedis.HostAndPort;
 
 import java.util.Set;
@@ -15,7 +16,8 @@ public class JedisClusterInterceptor extends JedisBaseInterceptor {
         StringBuilder redisConnInfo = new StringBuilder();
         if (interceptorContext.allArguments().length > 0) {
             if (interceptorContext.allArguments()[0] instanceof Set) {
-                Set<HostAndPort> hostAndPorts = (Set<HostAndPort>) interceptorContext.allArguments()[0];
+                @SuppressWarnings("unchecked")
+				Set<HostAndPort> hostAndPorts = (Set<HostAndPort>) interceptorContext.allArguments()[0];
                 for (HostAndPort hostAndPort : hostAndPorts) {
                     redisConnInfo.append(hostAndPort.toString()).append(";");
                 }
