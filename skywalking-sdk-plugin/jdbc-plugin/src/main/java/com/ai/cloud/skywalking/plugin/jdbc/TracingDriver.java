@@ -67,11 +67,11 @@ public class TracingDriver implements Driver {
     }
 
     public int getMajorVersion() {
-        return safeIntParse("1");
+        return 1;
     }
 
     public int getMinorVersion() {
-        return safeIntParse("0");
+        return 0;
     }
 
     public boolean jdbcCompliant() {
@@ -80,14 +80,6 @@ public class TracingDriver implements Driver {
 
     public Logger getParentLogger() throws SQLFeatureNotSupportedException {
         return null;
-    }
-
-    private static int safeIntParse(String intAsString) {
-        try {
-            return Integer.parseInt(intAsString);
-        } catch (NumberFormatException nfe) {
-        }
-        return 0;
     }
 
     static class DriverChooser {
