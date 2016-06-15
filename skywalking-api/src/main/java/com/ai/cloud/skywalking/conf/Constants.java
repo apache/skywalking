@@ -4,7 +4,7 @@ public class Constants {
 	/**
 	 * 务必严格保持两位的version
 	 */
-	public static String SDK_VERSION = "1.0-Final";
+	public static String SDK_VERSION = "1.0Final";
 
     public static final String HEALTH_DATA_SPILT_PATTERN = "^~";
 
