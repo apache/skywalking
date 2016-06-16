@@ -110,12 +110,12 @@ public class TracingDriver implements Driver {
                 String urlPrefix = mapping.next();
                 if (url.startsWith(urlPrefix)) {
                     String driverClassStr = urlDriverMapping.get(urlPrefix);
-                    logger.debug("Success choose the driver class [" + driverClassStr + "] by connection url[ " + url + " ]");
+                    logger.debug("Success choose the driver class [{}] by connection url[{}]", driverClassStr, url);
                     return driverClassStr;
                 }
             }
 
-            logger.warn("Cannot match the driver class by connection url [" + url + "].");
+            logger.warn("Cannot match the driver class by connection url [{}].", url);
             return null;
         }
 
