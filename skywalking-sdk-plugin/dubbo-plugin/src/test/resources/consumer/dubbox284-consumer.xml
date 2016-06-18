@@ -7,9 +7,8 @@
 
     <dubbo:application name="skywalking-consumer"/>
     <dubbo:registry address="zookeeper://127.0.0.1:2181"/>
-    <dubbo:consumer filter="swEnhanceFilter"/>
     <dubbo:reference id="dubboxRestInterA"
                      interface="com.ai.cloud.skywalking.plugin.test.dubbox284.interfaces.IDubboxRestInterA"
-                     url="rest://192.168.1.108:20880"/>
+                     url="rest://127.0.0.1:20880"/>
 
 </beans>

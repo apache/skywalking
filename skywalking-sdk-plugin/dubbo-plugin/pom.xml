@@ -35,6 +35,12 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aop</artifactId>
+            <version>3.0.0.RELEASE</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-jaxrs</artifactId>
             <version>3.0.7.Final</version>
@@ -88,18 +94,26 @@
             <version>0.7</version>
             <scope>test</scope>
         </dependency>
-        <!-- 
+        <!--
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>dubbox</artifactId>
             <version>2.8.3</version>
             <scope>compile</scope>
         </dependency>
-         -->
-         <dependency>
+        -->
+        <!--
+        <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>dubbox</artifactId>
             <version>2.8.4</version>
+            <scope>compile</scope>
+        </dependency>
+        -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>dubbo</artifactId>
+            <version>2.5.3</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -140,12 +154,12 @@
             </plugin>
         </plugins>
     </build>
-    
+
     <distributionManagement>
-		<repository>
-			<id>bintray-wu-sheng-sky-walking-repository</id>
-			<name>wu-sheng-sky-walking-repository</name>
-			<url>https://api.bintray.com/maven/wu-sheng/skywalking/com.ai.cloud.skywalking-dubbo-plugin/;publish=1</url>
-		</repository>
-	</distributionManagement>
+        <repository>
+            <id>bintray-wu-sheng-sky-walking-repository</id>
+            <name>wu-sheng-sky-walking-repository</name>
+            <url>https://api.bintray.com/maven/wu-sheng/skywalking/com.ai.cloud.skywalking-dubbo-plugin/;publish=1</url>
+        </repository>
+    </distributionManagement>
 </project>

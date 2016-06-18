@@ -1,1 +1,1 @@
-swEnhanceFilter=com.ai.cloud.skywalking.plugin.dubbo.SWDubboEnhanceFilter
+skywalking$enhanceFilter=com.ai.cloud.skywalking.plugin.dubbo.SWDubboEnhanceFilter
