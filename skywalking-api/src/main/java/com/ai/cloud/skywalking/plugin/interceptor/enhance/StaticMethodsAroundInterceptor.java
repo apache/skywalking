@@ -2,7 +2,7 @@ package com.ai.cloud.skywalking.plugin.interceptor.enhance;
 
 
 public interface StaticMethodsAroundInterceptor {
-	public void beforeMethod(MethodInvokeContext interceptorContext);
+	public void beforeMethod(MethodInvokeContext interceptorContext, MethodInterceptResult result);
 	
 	public Object afterMethod(MethodInvokeContext interceptorContext, Object ret);
 	

@@ -1,12 +1,13 @@
 package test.ai.cloud.plugin;
 
+import com.ai.cloud.skywalking.plugin.interceptor.enhance.MethodInterceptResult;
 import com.ai.cloud.skywalking.plugin.interceptor.enhance.MethodInvokeContext;
 import com.ai.cloud.skywalking.plugin.interceptor.enhance.StaticMethodsAroundInterceptor;
 
 public class TestStaticAroundInterceptor implements StaticMethodsAroundInterceptor {
 
 	@Override
-	public void beforeMethod(MethodInvokeContext interceptorContext) {
+	public void beforeMethod(MethodInvokeContext interceptorContext, MethodInterceptResult result) {
 		System.out.println("beforeMethod : static");
 	}
 

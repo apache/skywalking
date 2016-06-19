@@ -4,6 +4,7 @@ import com.ai.cloud.skywalking.plugin.interceptor.EnhancedClassInstanceContext;
 import com.ai.cloud.skywalking.plugin.interceptor.enhance.ConstructorInvokeContext;
 import com.ai.cloud.skywalking.plugin.interceptor.enhance.InstanceMethodInvokeContext;
 import com.ai.cloud.skywalking.plugin.interceptor.enhance.IntanceMethodsAroundInterceptor;
+import com.ai.cloud.skywalking.plugin.interceptor.enhance.MethodInterceptResult;
 
 public class TestAroundInterceptor implements IntanceMethodsAroundInterceptor {
 
@@ -14,7 +15,7 @@ public class TestAroundInterceptor implements IntanceMethodsAroundInterceptor {
 	}
 
 	@Override
-	public void beforeMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext) {
+	public void beforeMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext, MethodInterceptResult result) {
 		System.out.println("beforeMethod : " + context.get("test.key", String.class));
 	}
 

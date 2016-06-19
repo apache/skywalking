@@ -5,6 +5,7 @@ import com.ai.cloud.skywalking.model.Identification;
 import com.ai.cloud.skywalking.plugin.interceptor.EnhancedClassInstanceContext;
 import com.ai.cloud.skywalking.plugin.interceptor.assist.SimpleObjectFirstInvokeInterceptor;
 import com.ai.cloud.skywalking.plugin.interceptor.enhance.InstanceMethodInvokeContext;
+import com.ai.cloud.skywalking.plugin.interceptor.enhance.MethodInterceptResult;
 
 public abstract class JedisBaseInterceptor extends SimpleObjectFirstInvokeInterceptor {
     protected static final String REDIS_CONN_INFO_KEY = "redisClusterConnInfo";
@@ -12,7 +13,7 @@ public abstract class JedisBaseInterceptor extends SimpleObjectFirstInvokeInterc
     private static RPCBuriedPointSender sender = new RPCBuriedPointSender();
 
     @Override
-    public void beforeMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext) {
+    public void beforeMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext, MethodInterceptResult result) {
         if (this.isFirstBeforeMethod(context)) {
             /**
              * redis server wouldn't process rpc context. ignore the

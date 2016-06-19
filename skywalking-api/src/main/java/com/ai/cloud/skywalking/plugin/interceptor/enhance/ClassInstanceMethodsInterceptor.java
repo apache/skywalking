@@ -41,12 +41,17 @@ public class ClassInstanceMethodsInterceptor {
 			throws Exception {
 		InstanceMethodInvokeContext interceptorContext = new InstanceMethodInvokeContext(obj,
 				method.getName(), allArguments);
+		MethodInterceptResult result = new MethodInterceptResult();
 		try {
-			interceptor.beforeMethod(instanceContext, interceptorContext);
+			interceptor.beforeMethod(instanceContext, interceptorContext, result);
 		} catch (Throwable t) {
 			logger.error("class[{}] before method[{}] intercept failue:{}",
 					obj.getClass(), method.getName(), t.getMessage(), t);
 		}
+		if(!result.isContinue()){
+			return result._ret();
+		}
+		
 		Object ret = null;
 		try {
 			ret =  zuper.call();

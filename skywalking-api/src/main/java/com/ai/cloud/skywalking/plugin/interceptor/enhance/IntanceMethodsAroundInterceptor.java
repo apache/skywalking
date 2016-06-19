@@ -5,7 +5,7 @@ import com.ai.cloud.skywalking.plugin.interceptor.EnhancedClassInstanceContext;
 public interface IntanceMethodsAroundInterceptor {
 	public void onConstruct(EnhancedClassInstanceContext context, ConstructorInvokeContext interceptorContext);
 	
-	public void beforeMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext);
+	public void beforeMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext, MethodInterceptResult result);
 	
 	public Object afterMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext, Object ret);
 	

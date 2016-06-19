@@ -34,12 +34,17 @@ public class ClassStaticMethodsInterceptor {
 			@SuperCall Callable<?> zuper) throws Exception {
 		MethodInvokeContext interceptorContext = new MethodInvokeContext(
 				method.getName(), allArguments);
+		MethodInterceptResult result = new MethodInterceptResult();
 		try {
-			interceptor.beforeMethod(interceptorContext);
+			interceptor.beforeMethod(interceptorContext, result);
 		} catch (Throwable t) {
 			logger.error("class[{}] before static method[{}] intercept failue:{}",
 					clazz, method.getName(), t.getMessage(), t);
 		}
+		if(!result.isContinue()){
+			return result._ret();
+		}
+		
 		Object ret = null;
 		try {
 			ret = zuper.call();

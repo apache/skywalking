@@ -9,6 +9,7 @@ import com.ai.cloud.skywalking.plugin.interceptor.EnhancedClassInstanceContext;
 import com.ai.cloud.skywalking.plugin.interceptor.enhance.ConstructorInvokeContext;
 import com.ai.cloud.skywalking.plugin.interceptor.enhance.InstanceMethodInvokeContext;
 import com.ai.cloud.skywalking.plugin.interceptor.enhance.IntanceMethodsAroundInterceptor;
+import com.ai.cloud.skywalking.plugin.interceptor.enhance.MethodInterceptResult;
 
 public class HttpClientExecuteInterceptor implements IntanceMethodsAroundInterceptor {
 	/**
@@ -25,7 +26,7 @@ public class HttpClientExecuteInterceptor implements IntanceMethodsAroundInterce
 
 	@Override
 	public void beforeMethod(EnhancedClassInstanceContext context,
-			InstanceMethodInvokeContext interceptorContext) {
+			InstanceMethodInvokeContext interceptorContext, MethodInterceptResult result) {
 		Object[] allArguments = interceptorContext.allArguments();
 		if (allArguments[0] == null || allArguments[1] == null) {
 			// illegal args, can't trace. ignore.

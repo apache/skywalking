@@ -1,4 +1,4 @@
-package com.ai.cloud.skywalking.plugin;
+package com.ai.cloud.skywalking.plugin.dubbo;
 
 import com.ai.cloud.skywalking.plugin.interceptor.MethodMatcher;
 import com.ai.cloud.skywalking.plugin.interceptor.enhance.ClassStaticMethodsEnhancePluginDefine;
@@ -13,7 +13,6 @@ public class DubboPluginDefine extends ClassStaticMethodsEnhancePluginDefine {
 
 	@Override
 	protected StaticMethodsAroundInterceptor getStaticMethodsInterceptor() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
