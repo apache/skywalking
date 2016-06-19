@@ -6,18 +6,18 @@ import com.ai.cloud.skywalking.plugin.interceptor.enhance.StaticMethodsAroundInt
 import com.ai.cloud.skywalking.plugin.interceptor.matcher.SimpleMethodMatcher;
 
 public class DubboPluginDefine extends ClassStaticMethodsEnhancePluginDefine {
-	@Override
-	protected MethodMatcher[] getStaticMethodsMatchers() {
-		return new MethodMatcher[] { new SimpleMethodMatcher("buildInvokerChain") };
-	}
+    @Override
+    protected MethodMatcher[] getStaticMethodsMatchers() {
+        return new MethodMatcher[]{new SimpleMethodMatcher("buildInvokerChain")};
+    }
 
-	@Override
-	protected StaticMethodsAroundInterceptor getStaticMethodsInterceptor() {
-		return null;
-	}
+    @Override
+    protected StaticMethodsAroundInterceptor getStaticMethodsInterceptor() {
+        return new ProtocolFilterBuildChainInterceptor();
+    }
 
-	@Override
-	protected String getBeInterceptedClassName() {
-		return "com.alibaba.dubbo.rpc.protocol.ProtocolFilterWrapper";
-	}
+    @Override
+    protected String getBeInterceptedClassName() {
+        return "com.alibaba.dubbo.rpc.protocol.ProtocolFilterWrapper";
+    }
 }
