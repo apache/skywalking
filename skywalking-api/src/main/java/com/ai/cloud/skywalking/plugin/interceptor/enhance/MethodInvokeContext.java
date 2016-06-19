@@ -1,4 +1,4 @@
-package com.ai.cloud.skywalking.plugin.interceptor;
+package com.ai.cloud.skywalking.plugin.interceptor.enhance;
 
 /**
  * 方法执行拦截上下文
@@ -8,10 +8,6 @@ package com.ai.cloud.skywalking.plugin.interceptor;
  */
 public class MethodInvokeContext {
 	/**
-	 * 代理类实例
-	 */
-	private Object objInst;
-	/**
 	 * 方法名称
 	 */
 	private String methodName;
@@ -20,8 +16,7 @@ public class MethodInvokeContext {
 	 */
 	private Object[] allArguments;
 	
-	MethodInvokeContext(Object objInst, String methodName, Object[] allArguments) {
-		this.objInst = objInst;
+	MethodInvokeContext(String methodName, Object[] allArguments) {
 		this.methodName = methodName;
 		this.allArguments = allArguments;
 	}
@@ -32,9 +27,5 @@ public class MethodInvokeContext {
 	
 	public String methodName(){
 		return methodName;
-	}
-	
-	public Object inst(){
-		return objInst;
 	}
 }

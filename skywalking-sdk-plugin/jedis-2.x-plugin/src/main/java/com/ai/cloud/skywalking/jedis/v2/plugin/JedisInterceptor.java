@@ -4,8 +4,8 @@ import java.net.URI;
 
 import redis.clients.jedis.JedisShardInfo;
 
-import com.ai.cloud.skywalking.plugin.interceptor.ConstructorInvokeContext;
 import com.ai.cloud.skywalking.plugin.interceptor.EnhancedClassInstanceContext;
+import com.ai.cloud.skywalking.plugin.interceptor.enhance.ConstructorInvokeContext;
 
 public class JedisInterceptor extends JedisBaseInterceptor {
 

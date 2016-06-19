@@ -1,14 +1,14 @@
 package com.ai.cloud.skywalking.jedis.v2.plugin.define;
 
 import com.ai.cloud.skywalking.jedis.v2.plugin.JedisInterceptor;
-import com.ai.cloud.skywalking.plugin.interceptor.IAroundInterceptor;
-import com.ai.cloud.skywalking.plugin.interceptor.InterceptorPluginDefine;
 import com.ai.cloud.skywalking.plugin.interceptor.MethodMatcher;
+import com.ai.cloud.skywalking.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
+import com.ai.cloud.skywalking.plugin.interceptor.enhance.IntanceMethodsAroundInterceptor;
 import com.ai.cloud.skywalking.plugin.interceptor.matcher.MethodsExclusiveMatcher;
 import com.ai.cloud.skywalking.plugin.interceptor.matcher.PrivateMethodMatcher;
 import com.ai.cloud.skywalking.plugin.interceptor.matcher.SimpleMethodMatcher;
 
-public class JedisPluginDefine extends InterceptorPluginDefine {
+public class JedisPluginDefine extends ClassInstanceMethodsEnhancePluginDefine {
 
     @Override
     public String getBeInterceptedClassName() {
@@ -16,7 +16,7 @@ public class JedisPluginDefine extends InterceptorPluginDefine {
     }
 
     @Override
-    public MethodMatcher[] getBeInterceptedMethodsMatchers() {
+    public MethodMatcher[] getInstanceMethodsMatchers() {
         return new MethodMatcher[]{
                 new MethodsExclusiveMatcher(
                         new PrivateMethodMatcher(),
@@ -32,7 +32,7 @@ public class JedisPluginDefine extends InterceptorPluginDefine {
     }
 
     @Override
-    public IAroundInterceptor instance() {
+    public IntanceMethodsAroundInterceptor getInstanceMethodsInterceptor() {
         return new JedisInterceptor();
     }
 

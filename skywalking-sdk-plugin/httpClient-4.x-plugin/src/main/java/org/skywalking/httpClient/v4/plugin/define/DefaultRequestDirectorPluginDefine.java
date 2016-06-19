@@ -15,7 +15,7 @@ public class DefaultRequestDirectorPluginDefine extends HttpClientPluginDefine {
 	}
 
 	@Override
-	public MethodMatcher[] getBeInterceptedMethodsMatchers() {
+	public MethodMatcher[] getInstanceMethodsMatchers() {
 		return new MethodMatcher[] {
 				new SimpleMethodMatcher("execute")};
 	}

@@ -1,7 +1,7 @@
 package com.ai.cloud.skywalking.jedis.v2.plugin;
 
-import com.ai.cloud.skywalking.plugin.interceptor.ConstructorInvokeContext;
 import com.ai.cloud.skywalking.plugin.interceptor.EnhancedClassInstanceContext;
+import com.ai.cloud.skywalking.plugin.interceptor.enhance.ConstructorInvokeContext;
 
 import redis.clients.jedis.HostAndPort;
 

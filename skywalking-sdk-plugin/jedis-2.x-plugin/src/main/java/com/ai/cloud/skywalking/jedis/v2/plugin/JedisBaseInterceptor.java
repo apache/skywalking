@@ -3,16 +3,16 @@ package com.ai.cloud.skywalking.jedis.v2.plugin;
 import com.ai.cloud.skywalking.buriedpoint.RPCBuriedPointSender;
 import com.ai.cloud.skywalking.model.Identification;
 import com.ai.cloud.skywalking.plugin.interceptor.EnhancedClassInstanceContext;
-import com.ai.cloud.skywalking.plugin.interceptor.MethodInvokeContext;
-import com.ai.cloud.skywalking.plugin.interceptor.assist.FirstInvokeInterceptor;
+import com.ai.cloud.skywalking.plugin.interceptor.assist.SimpleObjectFirstInvokeInterceptor;
+import com.ai.cloud.skywalking.plugin.interceptor.enhance.InstanceMethodInvokeContext;
 
-public abstract class JedisBaseInterceptor extends FirstInvokeInterceptor {
+public abstract class JedisBaseInterceptor extends SimpleObjectFirstInvokeInterceptor {
     protected static final String REDIS_CONN_INFO_KEY = "redisClusterConnInfo";
 
     private static RPCBuriedPointSender sender = new RPCBuriedPointSender();
 
     @Override
-    public void beforeMethod(EnhancedClassInstanceContext context, MethodInvokeContext interceptorContext) {
+    public void beforeMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext) {
         if (this.isFirstBeforeMethod(context)) {
             /**
              * redis server wouldn't process rpc context. ignore the
@@ -34,7 +34,7 @@ public abstract class JedisBaseInterceptor extends FirstInvokeInterceptor {
     }
 
     @Override
-    public Object afterMethod(EnhancedClassInstanceContext context, MethodInvokeContext interceptorContext, Object ret) {
+    public Object afterMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext, Object ret) {
         if (this.isLastAfterMethod(context)) {
             sender.afterSend();
         }
@@ -42,7 +42,7 @@ public abstract class JedisBaseInterceptor extends FirstInvokeInterceptor {
     }
 
     @Override
-    public void handleMethodException(Throwable t, EnhancedClassInstanceContext context, MethodInvokeContext interceptorContext, Object ret) {
+    public void handleMethodException(Throwable t, EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext, Object ret) {
         sender.handleException(t);
     }
 }

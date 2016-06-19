@@ -5,12 +5,12 @@ import org.apache.http.HttpRequest;
 
 import com.ai.cloud.skywalking.buriedpoint.RPCBuriedPointSender;
 import com.ai.cloud.skywalking.model.Identification;
-import com.ai.cloud.skywalking.plugin.interceptor.ConstructorInvokeContext;
 import com.ai.cloud.skywalking.plugin.interceptor.EnhancedClassInstanceContext;
-import com.ai.cloud.skywalking.plugin.interceptor.IAroundInterceptor;
-import com.ai.cloud.skywalking.plugin.interceptor.MethodInvokeContext;
+import com.ai.cloud.skywalking.plugin.interceptor.enhance.ConstructorInvokeContext;
+import com.ai.cloud.skywalking.plugin.interceptor.enhance.InstanceMethodInvokeContext;
+import com.ai.cloud.skywalking.plugin.interceptor.enhance.IntanceMethodsAroundInterceptor;
 
-public class HttpClientExecuteInterceptor implements IAroundInterceptor {
+public class HttpClientExecuteInterceptor implements IntanceMethodsAroundInterceptor {
 	/**
 	 * default headname of sky walking context<br/>
 	 */
@@ -25,7 +25,7 @@ public class HttpClientExecuteInterceptor implements IAroundInterceptor {
 
 	@Override
 	public void beforeMethod(EnhancedClassInstanceContext context,
-			MethodInvokeContext interceptorContext) {
+			InstanceMethodInvokeContext interceptorContext) {
 		Object[] allArguments = interceptorContext.allArguments();
 		if (allArguments[0] == null || allArguments[1] == null) {
 			// illegal args, can't trace. ignore.
@@ -51,7 +51,7 @@ public class HttpClientExecuteInterceptor implements IAroundInterceptor {
 
 	@Override
 	public Object afterMethod(EnhancedClassInstanceContext context,
-			MethodInvokeContext interceptorContext, Object ret) {
+			InstanceMethodInvokeContext interceptorContext, Object ret) {
 		Object[] allArguments = interceptorContext.allArguments();
 		if (allArguments[0] == null || allArguments[1] == null) {
 			// illegal args, can't trace. ignore.
@@ -64,7 +64,7 @@ public class HttpClientExecuteInterceptor implements IAroundInterceptor {
 	@Override
 	public void handleMethodException(Throwable t,
 			EnhancedClassInstanceContext context,
-			MethodInvokeContext interceptorContext, Object ret) {
+			InstanceMethodInvokeContext interceptorContext, Object ret) {
 		Object[] allArguments = interceptorContext.allArguments();
 		if (allArguments[0] == null || allArguments[1] == null) {
 			// illegal args, can't trace. ignore.

@@ -2,11 +2,11 @@ package org.skywalking.httpClient.v4.plugin.dubbox.rest.attachment;
 
 import org.skywalking.httpClient.v4.plugin.HttpClientExecuteInterceptor;
 
-import com.ai.cloud.skywalking.plugin.interceptor.IAroundInterceptor;
-import com.ai.cloud.skywalking.plugin.interceptor.InterceptorPluginDefine;
 import com.ai.cloud.skywalking.plugin.interceptor.MethodMatcher;
+import com.ai.cloud.skywalking.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
+import com.ai.cloud.skywalking.plugin.interceptor.enhance.IntanceMethodsAroundInterceptor;
 
-public class DubboxRestHeadSetterAttachment extends InterceptorPluginDefine {
+public class DubboxRestHeadSetterAttachment extends ClassInstanceMethodsEnhancePluginDefine {
 
 	/**
 	 * this method is called as InterceptorPluginDefine<br/>
@@ -20,12 +20,12 @@ public class DubboxRestHeadSetterAttachment extends InterceptorPluginDefine {
 	}
 
 	@Override
-	public MethodMatcher[] getBeInterceptedMethodsMatchers() {
+	public MethodMatcher[] getInstanceMethodsMatchers() {
 		return null;
 	}
 
 	@Override
-	public IAroundInterceptor instance() {
+	public IntanceMethodsAroundInterceptor getInstanceMethodsInterceptor() {
 		return null;
 	}
 

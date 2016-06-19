@@ -1,4 +1,4 @@
-package com.ai.cloud.skywalking.plugin.interceptor;
+package com.ai.cloud.skywalking.plugin.interceptor.enhance;
 
 import net.bytebuddy.implementation.bind.annotation.AllArguments;
 import net.bytebuddy.implementation.bind.annotation.FieldProxy;
@@ -8,20 +8,22 @@ import net.bytebuddy.implementation.bind.annotation.This;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.ai.cloud.skywalking.plugin.interceptor.EnhancedClassInstanceContext;
+
 public class ClassConstructorInterceptor {
 	private static Logger logger = LogManager
 			.getLogger(ClassConstructorInterceptor.class);
 
-	private IAroundInterceptor interceptor;
+	private IntanceMethodsAroundInterceptor interceptor;
 
-	public ClassConstructorInterceptor(IAroundInterceptor interceptor) {
+	public ClassConstructorInterceptor(IntanceMethodsAroundInterceptor interceptor) {
 		this.interceptor = interceptor;
 	}
 
 	@RuntimeType
 	public void intercept(
 			@This Object obj,
-			@FieldProxy(InterceptorPluginDefine.contextAttrName) FieldSetter accessor,
+			@FieldProxy(ClassEnhancePluginDefine.contextAttrName) FieldSetter accessor,
 			@AllArguments Object[] allArguments) {
 		try {
 			EnhancedClassInstanceContext context = new EnhancedClassInstanceContext();

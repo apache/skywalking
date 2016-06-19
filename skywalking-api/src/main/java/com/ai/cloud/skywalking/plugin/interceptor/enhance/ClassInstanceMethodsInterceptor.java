@@ -1,4 +1,4 @@
-package com.ai.cloud.skywalking.plugin.interceptor;
+package com.ai.cloud.skywalking.plugin.interceptor.enhance;
 
 import java.lang.reflect.Method;
 import java.util.concurrent.Callable;
@@ -13,19 +13,21 @@ import net.bytebuddy.implementation.bind.annotation.This;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.ai.cloud.skywalking.plugin.interceptor.EnhancedClassInstanceContext;
+
 /**
  * 类方法拦截、控制器
  * 
  * @author wusheng
  *
  */
-public class ClassMethodInterceptor {
+public class ClassInstanceMethodsInterceptor {
 	private static Logger logger = LogManager
-			.getLogger(ClassMethodInterceptor.class);
+			.getLogger(ClassInstanceMethodsInterceptor.class);
 
-	private IAroundInterceptor interceptor;
+	private IntanceMethodsAroundInterceptor interceptor;
 
-	public ClassMethodInterceptor(IAroundInterceptor interceptor) {
+	public ClassInstanceMethodsInterceptor(IntanceMethodsAroundInterceptor interceptor) {
 		this.interceptor = interceptor;
 	}
 
@@ -35,9 +37,9 @@ public class ClassMethodInterceptor {
 			@AllArguments Object[] allArguments,
 			@Origin Method method,
 			@SuperCall Callable<?> zuper,
-			@FieldValue(InterceptorPluginDefine.contextAttrName) EnhancedClassInstanceContext instanceContext)
+			@FieldValue(ClassEnhancePluginDefine.contextAttrName) EnhancedClassInstanceContext instanceContext)
 			throws Exception {
-		MethodInvokeContext interceptorContext = new MethodInvokeContext(obj,
+		InstanceMethodInvokeContext interceptorContext = new InstanceMethodInvokeContext(obj,
 				method.getName(), allArguments);
 		try {
 			interceptor.beforeMethod(instanceContext, interceptorContext);

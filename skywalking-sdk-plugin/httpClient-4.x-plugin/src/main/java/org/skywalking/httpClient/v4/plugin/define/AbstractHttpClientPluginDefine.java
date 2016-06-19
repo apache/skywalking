@@ -17,7 +17,7 @@ public class AbstractHttpClientPluginDefine extends HttpClientPluginDefine {
 	 * 
 	 */
 	@Override
-	public MethodMatcher[] getBeInterceptedMethodsMatchers() {
+	public MethodMatcher[] getInstanceMethodsMatchers() {
 		return new MethodMatcher[] {
 				new SimpleMethodMatcher("doExecute")};
 	}

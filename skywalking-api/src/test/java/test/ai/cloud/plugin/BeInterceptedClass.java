@@ -8,4 +8,8 @@ public class BeInterceptedClass {
 	public void printabc(){
 		System.out.println("printabc");
 	}
+	
+	public static void call(){
+		System.out.println("static call");
+	}
 }

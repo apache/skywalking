@@ -1,11 +1,11 @@
 package test.ai.cloud.plugin;
 
-import com.ai.cloud.skywalking.plugin.interceptor.ConstructorInvokeContext;
 import com.ai.cloud.skywalking.plugin.interceptor.EnhancedClassInstanceContext;
-import com.ai.cloud.skywalking.plugin.interceptor.IAroundInterceptor;
-import com.ai.cloud.skywalking.plugin.interceptor.MethodInvokeContext;
+import com.ai.cloud.skywalking.plugin.interceptor.enhance.ConstructorInvokeContext;
+import com.ai.cloud.skywalking.plugin.interceptor.enhance.InstanceMethodInvokeContext;
+import com.ai.cloud.skywalking.plugin.interceptor.enhance.IntanceMethodsAroundInterceptor;
 
-public class TestAroundInterceptor implements IAroundInterceptor {
+public class TestAroundInterceptor implements IntanceMethodsAroundInterceptor {
 
 	@Override
 	public void onConstruct(EnhancedClassInstanceContext context, ConstructorInvokeContext interceptorContext) {
@@ -14,19 +14,19 @@ public class TestAroundInterceptor implements IAroundInterceptor {
 	}
 
 	@Override
-	public void beforeMethod(EnhancedClassInstanceContext context, MethodInvokeContext interceptorContext) {
+	public void beforeMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext) {
 		System.out.println("beforeMethod : " + context.get("test.key", String.class));
 	}
 
 	@Override
-	public Object afterMethod(EnhancedClassInstanceContext context, MethodInvokeContext interceptorContext, Object ret) {
+	public Object afterMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext, Object ret) {
 		System.out.println("afterMethod: " + context.get("test.key", String.class));
 		return ret;
 	}
 
 	@Override
 	public void handleMethodException(Throwable t, EnhancedClassInstanceContext context,
-			MethodInvokeContext interceptorContext, Object ret) {
+			InstanceMethodInvokeContext interceptorContext, Object ret) {
 		// TODO Auto-generated method stub
 		
 	}

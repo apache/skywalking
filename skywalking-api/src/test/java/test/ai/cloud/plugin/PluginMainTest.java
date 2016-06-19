@@ -22,5 +22,7 @@ public class PluginMainTest {
 		inst.printabc();
 		long end = System.currentTimeMillis();
 		System.out.println(end - start + "ms");
+		
+		BeInterceptedClass.call();
 	}
 }
