@@ -1,14 +1,14 @@
 package com.ai.cloud.skywalking.plugin.interceptor;
 
 import static com.ai.cloud.skywalking.plugin.PluginBootstrap.CLASS_TYPE_POOL;
+
+import com.ai.cloud.skywalking.logging.LogManager;
+import com.ai.cloud.skywalking.logging.Logger;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.dynamic.ClassFileLocator;
 import net.bytebuddy.dynamic.DynamicType;
 import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
 import net.bytebuddy.pool.TypePool.Resolution;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import com.ai.cloud.skywalking.plugin.IPlugin;
 import com.ai.cloud.skywalking.plugin.PluginException;

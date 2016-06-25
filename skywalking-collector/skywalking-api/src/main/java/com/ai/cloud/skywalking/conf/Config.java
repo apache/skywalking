@@ -71,9 +71,20 @@ public class Config {
 
         public static long RETRY_FIND_CONNECTION_SENDER = 1000;
     }
-    
+
     public static class HealthCollector {
-    	// 默认健康检查上报时间
-    	public static long REPORT_INTERVAL = 5 * 60 * 1000L;
+        // 默认健康检查上报时间
+        public static long REPORT_INTERVAL = 5 * 60 * 1000L;
+    }
+
+    public static class Logging {
+        // log文件名
+        public static String LOG_FILE_NAME = "skywalking-api.log";
+        // log文件路径
+        public static String LOG_FILE_PATH = "/home/xin/tmp";
+        // 最大文件大小
+        public static int MAX_LOG_FILE_LENGTH = 3 * 1024 * 1024;
+        // skywalking 系统错误文件日志
+        public static String SYSTEM_ERROR_LOG_FILE_NAME = "skywalking-api-error.log";
     }
 }

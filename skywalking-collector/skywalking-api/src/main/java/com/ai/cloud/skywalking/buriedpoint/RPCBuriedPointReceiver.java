@@ -1,13 +1,12 @@
 package com.ai.cloud.skywalking.buriedpoint;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.ai.cloud.skywalking.api.IBuriedPointReceiver;
 import com.ai.cloud.skywalking.buffer.ContextBuffer;
 import com.ai.cloud.skywalking.conf.AuthDesc;
 import com.ai.cloud.skywalking.conf.Config;
 import com.ai.cloud.skywalking.context.Context;
+import com.ai.cloud.skywalking.logging.LogManager;
+import com.ai.cloud.skywalking.logging.Logger;
 import com.ai.cloud.skywalking.model.ContextData;
 import com.ai.cloud.skywalking.model.Identification;
 import com.ai.cloud.skywalking.protocol.Span;

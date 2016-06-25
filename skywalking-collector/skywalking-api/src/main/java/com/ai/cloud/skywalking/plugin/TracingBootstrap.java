@@ -1,10 +1,10 @@
 package com.ai.cloud.skywalking.plugin;
 
+import com.ai.cloud.skywalking.logging.LogManager;
+import com.ai.cloud.skywalking.logging.Logger;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  * 替代应用函数的main函数入口，确保在程序入口处运行 <br/>

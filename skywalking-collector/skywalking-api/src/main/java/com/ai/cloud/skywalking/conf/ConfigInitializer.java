@@ -1,5 +1,8 @@
 package com.ai.cloud.skywalking.conf;
 
+import com.ai.cloud.skywalking.logging.LogManager;
+import com.ai.cloud.skywalking.logging.Logger;
+
 import static com.ai.cloud.skywalking.conf.Config.SkyWalking.AUTH_OVERRIDE;
 import static com.ai.cloud.skywalking.conf.Config.SkyWalking.AUTH_SYSTEM_ENV_NAME;
 
@@ -9,9 +12,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.LinkedList;
 import java.util.Properties;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public class ConfigInitializer {
 	private static Logger logger = LogManager.getLogger(ConfigInitializer.class);

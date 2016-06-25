@@ -2,13 +2,13 @@ package com.ai.cloud.skywalking.buffer;
 
 import com.ai.cloud.skywalking.conf.Config;
 import com.ai.cloud.skywalking.conf.Constants;
+import com.ai.cloud.skywalking.logging.LogManager;
+import com.ai.cloud.skywalking.logging.Logger;
 import com.ai.cloud.skywalking.protocol.Span;
 import com.ai.cloud.skywalking.selfexamination.HeathReading;
 import com.ai.cloud.skywalking.selfexamination.SDKHealthCollector;
 import com.ai.cloud.skywalking.sender.DataSenderFactoryWithBalance;
 import com.ai.cloud.skywalking.util.AtomicRangeInteger;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import static com.ai.cloud.skywalking.conf.Config.Buffer.BUFFER_MAX_SIZE;
 import static com.ai.cloud.skywalking.conf.Config.Consumer.*;

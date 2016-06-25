@@ -5,12 +5,12 @@ import static com.ai.cloud.skywalking.conf.Config.BuriedPoint.EXCLUSIVE_EXCEPTIO
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import com.ai.cloud.skywalking.api.IExceptionHandler;
 import com.ai.cloud.skywalking.conf.Config;
 import com.ai.cloud.skywalking.context.Context;
+import com.ai.cloud.skywalking.logging.LogManager;
+import com.ai.cloud.skywalking.logging.Logger;
 import com.ai.cloud.skywalking.protocol.Span;
 
 public class ApplicationExceptionHandler implements IExceptionHandler {

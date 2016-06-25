@@ -1,11 +1,11 @@
 package com.ai.cloud.skywalking.buffer;
 
+import com.ai.cloud.skywalking.logging.LogManager;
+import com.ai.cloud.skywalking.logging.Logger;
 import com.ai.cloud.skywalking.protocol.Span;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import static com.ai.cloud.skywalking.conf.Config.Buffer.POOL_SIZE;
 

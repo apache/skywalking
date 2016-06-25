@@ -1,32 +1,22 @@
 package com.ai.cloud.skywalking.sender;
 
-import static com.ai.cloud.skywalking.conf.Config.Sender.CHECKER_THREAD_WAIT_INTERVAL;
-import static com.ai.cloud.skywalking.conf.Config.Sender.CLOSE_SENDER_COUNTDOWN;
-import static com.ai.cloud.skywalking.conf.Config.Sender.CONNECT_PERCENT;
-import static com.ai.cloud.skywalking.conf.Config.Sender.RETRY_GET_SENDER_WAIT_INTERVAL;
-import static com.ai.cloud.skywalking.conf.Config.Sender.SWITCH_SENDER_INTERVAL;
-
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ThreadLocalRandom;
-
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.ai.cloud.skywalking.conf.Config;
+import com.ai.cloud.skywalking.logging.LogManager;
+import com.ai.cloud.skywalking.logging.Logger;
 import com.ai.cloud.skywalking.selfexamination.HeathReading;
 import com.ai.cloud.skywalking.selfexamination.SDKHealthCollector;
 import com.ai.cloud.skywalking.util.StringUtil;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
+
+import static com.ai.cloud.skywalking.conf.Config.Sender.*;
+
 public class DataSenderFactoryWithBalance {
 
-	private static Logger logger = LogManager.getLogger(DataSenderFactoryWithBalance.class);
+    private static Logger logger = LogManager.getLogger(DataSenderFactoryWithBalance.class);
     // unUsedServerAddress存放没有使用的服务器地址，
     private static List<InetSocketAddress> unusedServerAddresses = new ArrayList<InetSocketAddress>();
 
@@ -171,7 +161,7 @@ public class DataSenderFactoryWithBalance {
                                 try {
                                     Thread.sleep(CLOSE_SENDER_COUNTDOWN);
                                 } catch (InterruptedException e) {
-                                    logger.log(Level.ALL, "Sleep Failed");
+                                    logger.error("Sleep Failed", e);
                                 }
                                 toBeSwitchSender.close();
                                 unusedServerAddresses.remove(tmpSender
@@ -184,10 +174,10 @@ public class DataSenderFactoryWithBalance {
                         sleepTime = 0;
                     }
                 } catch (Throwable e) {
-                	SDKHealthCollector.getCurrentHeathReading(null).updateData(HeathReading.ERROR, "DataSenderChecker running failed:" + e.getMessage());
+                    SDKHealthCollector.getCurrentHeathReading(null).updateData(HeathReading.ERROR, "DataSenderChecker running failed:" + e.getMessage());
                     logger.error("DataSenderChecker running failed", e);
-                } finally{
-                	SDKHealthCollector.getCurrentHeathReading(null).updateData(HeathReading.INFO, "using available DataSender connect to: " + listUsingServers());
+                } finally {
+                    SDKHealthCollector.getCurrentHeathReading(null).updateData(HeathReading.INFO, "using available DataSender connect to: " + listUsingServers());
                 }
 
                 sleepTime += CHECKER_THREAD_WAIT_INTERVAL;
@@ -205,7 +195,7 @@ public class DataSenderFactoryWithBalance {
         DataSender result = null;
         int index = 0;
 
-        if (unusedServerAddresses.size() > 1){
+        if (unusedServerAddresses.size() > 1) {
             index = ThreadLocalRandom.current().nextInt(0,
                     unusedServerAddresses.size());
         }
@@ -232,19 +222,19 @@ public class DataSenderFactoryWithBalance {
     }
 
     public static void unRegister(DataSender socket) {
-    	socket.setStatus(DataSender.SenderStatus.FAILED);
+        socket.setStatus(DataSender.SenderStatus.FAILED);
     }
-    
-    private static String listUsingServers(){
-    	StringBuilder usingAddrDesc = new StringBuilder();
-    	if(usingDataSender.size() > 0){
-    		for(DataSender sender : usingDataSender){
-    			if(usingAddrDesc.length() > 0){
-    				usingAddrDesc.append(",");
-    			}
-    			usingAddrDesc.append(sender.getServerAddr().toString());
-    		}
-    	}
-    	return usingAddrDesc.toString();
+
+    private static String listUsingServers() {
+        StringBuilder usingAddrDesc = new StringBuilder();
+        if (usingDataSender.size() > 0) {
+            for (DataSender sender : usingDataSender) {
+                if (usingAddrDesc.length() > 0) {
+                    usingAddrDesc.append(",");
+                }
+                usingAddrDesc.append(sender.getServerAddr().toString());
+            }
+        }
+        return usingAddrDesc.toString();
     }
 }
