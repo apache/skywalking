@@ -1,24 +1,17 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.ai.cloud</groupId>
-	<artifactId>skywalking</artifactId>
-	<version>1.0-Final</version>
-	<modules>
-		<module>samples/skywalking-auth</module>
-		<module>skywalking-collector</module>
-		<module>skywalking-server</module>
-		<module>skywalking-alarm</module>
-		<module>skywalking-analysis</module>
-		<module>skywalking-webui</module>
-		<module>test/skywalking-test-api</module>
-	</modules>
-	<packaging>pom</packaging>
+	<parent>
+		<groupId>com.ai.cloud</groupId>
+		<artifactId>skywalking-collector</artifactId>
+		<version>1.0-Final</version>
+	</parent>
 
-	<name>skywalking</name>
+	<name>skywalking-protocol</name>
 	<url>http://maven.apache.org</url>
+	<artifactId>skywalking-protocol</artifactId>
+	<packaging>jar</packaging>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -28,21 +21,13 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.12</version>
+			<version>3.8.1</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
 	<build>
 		<plugins>
-			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<source>1.7</source>
-					<target>1.7</target>
-					<encoding>${project.build.sourceEncoding}</encoding>
-				</configuration>
-			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-resources-plugin</artifactId>
@@ -51,14 +36,29 @@
 					<encoding>${project.build.sourceEncoding}</encoding>
 				</configuration>
 			</plugin>
+			<plugin>
+				<!-- 源码插件 -->
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<!-- 发布时自动将源码同时发布的配置 -->
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+				<version>2.4</version>
+			</plugin>
 		</plugins>
 	</build>
-	
+
 	<distributionManagement>
 		<repository>
 			<id>bintray-wu-sheng-sky-walking-repository</id>
 			<name>wu-sheng-sky-walking-repository</name>
-			<url>https://api.bintray.com/maven/wu-sheng/skywalking/com.ai.cloud.skywalking/;publish=1</url>
+			<url>https://api.bintray.com/maven/wu-sheng/skywalking/com.ai.cloud.skywalking-protocol/;publish=1</url>
 		</repository>
 	</distributionManagement>
 </project>

@@ -2,6 +2,7 @@ package com.ai.cloud.skywalking.agent.test;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
@@ -31,7 +32,7 @@ public class RedisOperator {
     }
 
 
-    public static void setData(String key, String value) {
+    public static void setData(String key, String value) throws Exception {
         Jedis jedis = null;
         try {
             jedis = jedisPool.getResource();
@@ -45,7 +46,7 @@ public class RedisOperator {
         }
     }
 
-    public static String getData(String key) {
+    public static String getData(String key) throws Exception {
         Jedis jedis = null;
         try {
             jedis = jedisPool.getResource();
@@ -60,7 +61,7 @@ public class RedisOperator {
 
     }
 
-    public static void delData(String key) {
+    public static void delData(String key) throws Exception {
         Jedis jedis = null;
         try {
             jedis = jedisPool.getResource();

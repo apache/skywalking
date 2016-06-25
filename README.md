@@ -10,15 +10,15 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 
 # 简介 / abstract
 * 核心理论为[Google Dapper论文：Dapper, a Large-Scale Distributed Systems Tracing Infrastructure](http://research.google.com/pubs/pub36356.html),英语有困难的同学可参考[国内翻译](http://duanple.blog.163.com/blog/static/70971767201329113141336/)
-* 本分析系统能通过不修改或少量修改代码的模式，对现有的JAVA应用或J2EE应用进行监控和数据收集，并针对应用进场进行准实时告警。此外提供大量的调用性能分析功能，解决目前的监控系统主要监控进程、端口而非应用实际性能的问题。
+* 本分析系统能通过动态字节码技术，对现有的JAVA应用或J2EE应用进行监控和数据收集，并针对应用进场进行准实时告警。此外提供大量的调用性能分析功能，解决目前的监控系统主要监控进程、端口而非应用实际性能的问题。
 * 支持国内常用的dubbo以及dubbox等常见RPC框架，支持应用异常的邮件告警
 * skywalking-sdk层面提供的埋点API，同步阻塞访问时间小于100μs
-* 通过[byte-buddy](https://github.com/raphw/byte-buddy)，部分插件将通过动态字节码机制，避免代码侵入性，完成监控。动态代码模式埋点，同步阻塞访问时间应在200-300μs
+* 通过[byte-buddy](https://github.com/raphw/byte-buddy)，插件将通过动态字节码机制，避免代码侵入性，完成监控。动态代码模式埋点，同步阻塞访问时间应在200-300μs
 * 提供一定的日志数据分析和展现能力，减少或者避免使用团队的二次开发
 * SkyWalking is an open source Large-Scale Distributed Systems Tracing Infrastructure, also been known as APM(Application Performance Management) tool. SkyWalking provides a solution to help monitor and analysis a Large-Scale Distributed Systems.
 * SkyWalking supports popular rpc frameworks, such as [dubbo](https://github.com/alibaba/dubbo), [dubbox](https://github.com/dangdangdotcom/dubbox), etc., supports email-alert when application occurs unexpected exception。
 * SkyWalking's basic API, execution time of blocking saving span must less than 100μs.
-* By using [byte-buddy](https://github.com/raphw/byte-buddy) (Thanks to [raphw](https://github.com/raphw)), some plugins use dynamic byte code generation to avoid invasive codes. plugins API, execution time of blocking saving span must between 200μs and 300μs, including execution time of dynamic byte code.
+* By using [byte-buddy](https://github.com/raphw/byte-buddy) (Thanks to [raphw](https://github.com/raphw)), plugins use dynamic byte code generation to avoid invasive codes. plugins API, execution time of blocking saving span must between 200μs and 300μs, including execution time of dynamic byte code.
 * Provide trace log analysis and presentation capabilities, Reduce or avoid add-on functions development.
 
 |plugins|using config file|using dynamic byte code| coding |remarks|
@@ -31,15 +31,12 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 |httpClient-4.x-plugin| - | YES | - | - |
 |httpClient-4.x-plugin-dubbox-rest-attachment| - | YES | - | required client-4.x-plugin |
 |jedis-2.x-plugin| - | YES | - | - |
-|~~httpclient-4.2.x-plugin~~| - | - | YES | 需要使用新提供的httpClient包装对象 |
-|~~httpclient-4.3.x-plugin~~| - | - | YES | 需要使用新提供的httpClient包装对象 |
 
-* 删除插件为最新版本不推荐使用的插件
 
 
 # 主要贡献者 / Contributors
-* 吴晟 [wusheng](https://github.com/wu-sheng) &nbsp;&nbsp;[亚信 Asiainfo](http://www.asiainfo.com/) wusheng@asiainfo.com
-* 张鑫 [zhangxin](https://github.com/ascrutae) &nbsp;&nbsp;[亚信 Asiainfo](http://www.asiainfo.com/) zhangxin10@asiainfo.com
+* 吴晟 [wusheng](https://github.com/wu-sheng) &nbsp;&nbsp;wu.sheng@foxmail.com
+* 张鑫 [zhangxin](https://github.com/ascrutae) &nbsp;&nbsp;
 
 # 交流
 * Mail to：wu.sheng@foxmail.com
@@ -87,6 +84,9 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 - tomcat 7
 - redis-3.0.5
 
+## 插件支持的JDK / Supported jdk version
+- 1.6以上版本 / support 1.6+
+
 ## 编译与部署 / Build and deploy
 - 服务端发布版本[下载](https://github.com/wu-sheng/sky-walking/releases)  (.tar.gz)
 - Download Server release version. [Download](https://github.com/wu-sheng/sky-walking/releases)  (.tar.gz)
@@ -119,8 +119,10 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 </dependency>
 ```
 
-## 使用全新的main class
-- using new main class, instead of the original main class.
+## 使用-javaagent 或 全新的main class
+- start application with -javaagent. 
+
+- Or using new main class, instead of the original main class.
 ```shell
 #原进程启动命令：
 #original starup command
