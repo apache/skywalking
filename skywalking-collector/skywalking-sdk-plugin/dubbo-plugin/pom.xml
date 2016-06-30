@@ -126,6 +126,7 @@
             <groupId>org.javassist</groupId>
             <artifactId>javassist</artifactId>
             <version>3.20.0-GA</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
     <build>
