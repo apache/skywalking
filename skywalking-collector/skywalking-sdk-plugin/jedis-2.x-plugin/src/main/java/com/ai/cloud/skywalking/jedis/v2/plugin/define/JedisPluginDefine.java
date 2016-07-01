@@ -11,7 +11,7 @@ import com.ai.cloud.skywalking.plugin.interceptor.matcher.SimpleMethodMatcher;
 public class JedisPluginDefine extends ClassInstanceMethodsEnhancePluginDefine {
 
     @Override
-    public String getBeInterceptedClassName() {
+    public String enhanceClassName() {
         return "redis.clients.jedis.Jedis";
     }
 

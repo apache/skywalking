@@ -10,7 +10,7 @@ public class DefaultRequestDirectorPluginDefine extends HttpClientPluginDefine {
 	 * since 4.3, this class is Deprecated.
 	 */
 	@Override
-	public String getBeInterceptedClassName() {
+	public String enhanceClassName() {
 		return "org.apache.http.impl.client.DefaultRequestDirector";
 	}
 

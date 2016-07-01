@@ -10,7 +10,7 @@ public class InternalHttpClientPluginDefine extends HttpClientPluginDefine {
     }
 
     @Override
-    public String getBeInterceptedClassName() {
+    public String enhanceClassName() {
         return "org.apache.http.impl.client.InternalHttpClient";
     }
 

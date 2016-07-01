@@ -17,7 +17,7 @@ public class DubboPluginDefine extends ClassStaticMethodsEnhancePluginDefine {
     }
 
     @Override
-    protected String getBeInterceptedClassName() {
+    protected String enhanceClassName() {
         return "com.alibaba.dubbo.rpc.protocol.ProtocolFilterWrapper";
     }
 }
