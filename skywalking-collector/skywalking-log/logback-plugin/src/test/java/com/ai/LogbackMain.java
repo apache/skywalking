@@ -16,7 +16,7 @@ public class LogbackMain {
         JoranConfigurator configurator = new JoranConfigurator();
         configurator.setContext(lc);
         lc.reset();
-        configurator.doConfigure("E:\\testdubbo\\GTrace\\GTrace-client\\src\\test\\resources\\logback.xml");
+        configurator.doConfigure("E:\\testdubbo\\sky-walking\\skywalking-collector\\skywalking-log\\logback-plugin\\src\\test\\resources\\logback.xml");
         StatusPrinter.printInCaseOfErrorsOrWarnings(lc);
 
         logger.info("Hello world11");

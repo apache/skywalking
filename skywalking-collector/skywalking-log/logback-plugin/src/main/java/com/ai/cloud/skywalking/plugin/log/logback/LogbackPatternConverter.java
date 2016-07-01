@@ -17,6 +17,6 @@ public class LogbackPatternConverter extends ClassicConverter {
 			return "TID:" + Tracing.getTraceId();
 		}
 
-		return "TID: N/A"+" "+event.toString();
+		return "TID: N/A";
 	}
 }
