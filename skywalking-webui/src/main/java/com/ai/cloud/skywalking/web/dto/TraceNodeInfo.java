@@ -165,7 +165,7 @@ public class TraceNodeInfo extends Span {
                 + viewPointIdSub + ", traceId=" + traceId + ", parentLevel=" + parentLevel + ", levelId=" + levelId
                 + ", viewPointId=" + viewPointId + ", startDate=" + startDate + ", cost=" + cost + ", address="
                 + address + ", statusCode=" + statusCode + ", exceptionStack=" + exceptionStack + ", spanType="
-                + spanType + ", isReceiver=" + isReceiver + ", businessKey=" + businessKey + ", processNo=" + processNo
+                + spanType + ",  businessKey=" + businessKey + ", processNo=" + processNo
                 + ", applicationId=" + applicationId + ", originData=" + originData + "]";
     }
 
