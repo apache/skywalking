@@ -41,11 +41,6 @@
         </dependency>
         <dependency>
             <groupId>com.ai.cloud</groupId>
-            <artifactId>skywalking-httpClient-4.x-plugin-dubbox-rest-attachment</artifactId>
-            <version>1.0-Final</version>
-        </dependency>
-        <dependency>
-            <groupId>com.ai.cloud</groupId>
             <artifactId>skywalking-dubbo-plugin</artifactId>
             <version>1.0-Final</version>
         </dependency>

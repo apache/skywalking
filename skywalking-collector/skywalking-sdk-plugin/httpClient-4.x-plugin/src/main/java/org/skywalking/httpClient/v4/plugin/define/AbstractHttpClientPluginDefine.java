@@ -6,7 +6,7 @@ import com.ai.cloud.skywalking.plugin.interceptor.matcher.SimpleMethodMatcher;
 public class AbstractHttpClientPluginDefine extends HttpClientPluginDefine {
 
 	@Override
-	public String getBeInterceptedClassName() {
+	public String enhanceClassName() {
 		return "org.apache.http.impl.client.AbstractHttpClient";
 	}
 

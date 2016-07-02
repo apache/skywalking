@@ -9,7 +9,7 @@ import com.ai.cloud.skywalking.plugin.interceptor.matcher.SimpleMethodMatcher;
 public class TestInterceptorDefine extends ClassEnhancePluginDefine {
 
 	@Override
-	public String getBeInterceptedClassName() {
+	public String enhanceClassName() {
 		return "test.ai.cloud.plugin.BeInterceptedClass";
 	}
 
