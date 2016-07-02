@@ -105,19 +105,12 @@ public class SaveToHBaseChain implements IStorageChain {
 			try {
 				if (StringUtils.isEmpty(span.getParentLevel().trim())) {
 					columnName = span.getLevelId() + "";
-					if (span.isReceiver()) {
-						columnName = span.getLevelId() + "-S";
-					}
 					put.addColumn(
 							Bytes.toBytes(Config.HBaseConfig.FAMILY_COLUMN_NAME),
 							Bytes.toBytes(columnName),
 							Bytes.toBytes(span.getOriginData()));
 				} else {
 					columnName = span.getParentLevel() + "." + span.getLevelId();
-					if (span.isReceiver()) {
-						columnName = span.getParentLevel() + "."
-								+ span.getLevelId() + "-S";
-					}
 					put.addColumn(
 							Bytes.toBytes(Config.HBaseConfig.FAMILY_COLUMN_NAME),
 							Bytes.toBytes(columnName),
