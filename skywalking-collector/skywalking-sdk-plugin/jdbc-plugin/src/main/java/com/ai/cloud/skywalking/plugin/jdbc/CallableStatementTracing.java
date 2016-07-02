@@ -1,6 +1,6 @@
 package com.ai.cloud.skywalking.plugin.jdbc;
 
-import com.ai.cloud.skywalking.tracer.RPCClientTracer;
+import com.ai.cloud.skywalking.invoke.monitor.RPCClientInvokeMonitor;
 import com.ai.cloud.skywalking.model.Identification;
 
 import java.sql.SQLException;
@@ -11,13 +11,13 @@ import java.sql.SQLException;
  * @author wusheng
  */
 public class CallableStatementTracing {
-    private static RPCClientTracer clientTracer = new RPCClientTracer();
+    private static RPCClientInvokeMonitor rpcClientInvokeMonitor = new RPCClientInvokeMonitor();
 
     public static <R> R execute(java.sql.CallableStatement realStatement,
                                 String connectInfo, String method, String sql, Executable<R> exec)
             throws SQLException {
         try {
-            clientTracer.traceBeforeInvoke(Identification
+            rpcClientInvokeMonitor.traceBeforeInvoke(Identification
                     .newBuilder()
                     .viewPoint(connectInfo)
                     .businessKey(
@@ -27,10 +27,10 @@ public class CallableStatementTracing {
                                     : ":" + sql)).spanType(JDBCBuriedPointType.instance()).build());
             return exec.exe(realStatement, sql);
         } catch (SQLException e) {
-            clientTracer.occurException(e);
+            rpcClientInvokeMonitor.occurException(e);
             throw e;
         } finally {
-            clientTracer.traceAfterInvoke();
+            rpcClientInvokeMonitor.afterInvoke();
         }
     }
 

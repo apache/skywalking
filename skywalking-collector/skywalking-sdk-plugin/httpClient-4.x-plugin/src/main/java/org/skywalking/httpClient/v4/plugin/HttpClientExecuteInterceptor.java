@@ -3,7 +3,7 @@ package org.skywalking.httpClient.v4.plugin;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 
-import com.ai.cloud.skywalking.tracer.RPCClientTracer;
+import com.ai.cloud.skywalking.invoke.monitor.RPCClientInvokeMonitor;
 import com.ai.cloud.skywalking.model.Identification;
 import com.ai.cloud.skywalking.plugin.interceptor.EnhancedClassInstanceContext;
 import com.ai.cloud.skywalking.plugin.interceptor.enhance.ConstructorInvokeContext;
@@ -17,7 +17,7 @@ public class HttpClientExecuteInterceptor implements IntanceMethodsAroundInterce
 	 */
 	public static String TRACE_HEAD_NAME = "SkyWalking-TRACING-NAME";
 
-	private static RPCClientTracer clientTracer = new RPCClientTracer();
+	private static RPCClientInvokeMonitor rpcClientInvokeMonitor = new RPCClientInvokeMonitor();
 
 	@Override
 	public void onConstruct(EnhancedClassInstanceContext context,
@@ -38,7 +38,7 @@ public class HttpClientExecuteInterceptor implements IntanceMethodsAroundInterce
 				.setHeader(
 						TRACE_HEAD_NAME,
 						"ContextData="
-								+ clientTracer.traceBeforeInvoke(
+								+ rpcClientInvokeMonitor.traceBeforeInvoke(
 										Identification
 												.newBuilder()
 												.viewPoint(
@@ -58,7 +58,7 @@ public class HttpClientExecuteInterceptor implements IntanceMethodsAroundInterce
 			// illegal args, can't trace. ignore.
 			return ret;
 		}
-		clientTracer.traceAfterInvoke();
+		rpcClientInvokeMonitor.afterInvoke();
 		return ret;
 	}
 
@@ -71,7 +71,7 @@ public class HttpClientExecuteInterceptor implements IntanceMethodsAroundInterce
 			// illegal args, can't trace. ignore.
 			return;
 		}
-		clientTracer.occurException(t);
+		rpcClientInvokeMonitor.occurException(t);
 	}
 
 }

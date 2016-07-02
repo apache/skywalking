@@ -1,7 +1,7 @@
 package com.ai.cloud.skywalking.plugin.dubbo;
 
-import com.ai.cloud.skywalking.tracer.RPCServerTracer;
-import com.ai.cloud.skywalking.tracer.RPCClientTracer;
+import com.ai.cloud.skywalking.invoke.monitor.RPCServerInvokeMonitor;
+import com.ai.cloud.skywalking.invoke.monitor.RPCClientInvokeMonitor;
 import com.ai.cloud.skywalking.conf.AuthDesc;
 import com.ai.cloud.skywalking.model.ContextData;
 import com.ai.cloud.skywalking.model.Identification;
@@ -22,9 +22,9 @@ public class SWDubboEnhanceFilter implements Filter {
         boolean isConsumer = context.isConsumerSide();
         Result result = null;
         if (isConsumer) {
-            RPCClientTracer clientTracer = new RPCClientTracer();
+            RPCClientInvokeMonitor rpcClientInvokeMonitor = new RPCClientInvokeMonitor();
 
-            ContextData contextData = clientTracer.traceBeforeInvoke(createIdentification(invoker, invocation));
+            ContextData contextData = rpcClientInvokeMonitor.traceBeforeInvoke(createIdentification(invoker, invocation));
             String contextDataStr = contextData.toString();
 
             //追加参数
@@ -53,18 +53,18 @@ public class SWDubboEnhanceFilter implements Filter {
                 result = invoker.invoke(invocation);
                 //结果是否包含异常
                 if (result.getException() != null) {
-                    clientTracer.occurException(result.getException());
+                    rpcClientInvokeMonitor.occurException(result.getException());
                 }
             } catch (RpcException e) {
                 // 自身异常
-                clientTracer.occurException(e);
+                rpcClientInvokeMonitor.occurException(e);
                 throw e;
             } finally {
-                clientTracer.traceAfterInvoke();
+                rpcClientInvokeMonitor.afterInvoke();
             }
         } else {
             // 读取参数
-            RPCServerTracer serverTracer = new RPCServerTracer();
+            RPCServerInvokeMonitor rpcServerInvokeMonitor = new RPCServerInvokeMonitor();
             String contextDataStr;
 
             if (!BugFixAcitve.isActive) {
@@ -78,21 +78,21 @@ public class SWDubboEnhanceFilter implements Filter {
                 contextData = new ContextData(contextDataStr);
             }
 
-            serverTracer.traceBeforeInvoke(contextData, createIdentification(invoker, invocation));
+            rpcServerInvokeMonitor.traceBeforeInvoke(contextData, createIdentification(invoker, invocation));
 
             try {
                 //执行结果
                 result = invoker.invoke(invocation);
                 //结果是否包含异常
                 if (result.getException() != null) {
-                    serverTracer.occurException(result.getException());
+                    rpcServerInvokeMonitor.occurException(result.getException());
                 }
             } catch (RpcException e) {
                 // 自身异常
-                serverTracer.occurException(e);
+                rpcServerInvokeMonitor.occurException(e);
                 throw e;
             } finally {
-                serverTracer.traceAfterInvoke();
+                rpcServerInvokeMonitor.afterInvoke();
             }
         }
 

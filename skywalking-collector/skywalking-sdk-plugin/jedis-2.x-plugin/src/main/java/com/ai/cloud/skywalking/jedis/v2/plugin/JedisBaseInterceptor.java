@@ -1,6 +1,6 @@
 package com.ai.cloud.skywalking.jedis.v2.plugin;
 
-import com.ai.cloud.skywalking.tracer.RPCClientTracer;
+import com.ai.cloud.skywalking.invoke.monitor.RPCClientInvokeMonitor;
 import com.ai.cloud.skywalking.model.Identification;
 import com.ai.cloud.skywalking.plugin.interceptor.EnhancedClassInstanceContext;
 import com.ai.cloud.skywalking.plugin.interceptor.assist.SimpleObjectFirstInvokeInterceptor;
@@ -10,7 +10,7 @@ import com.ai.cloud.skywalking.plugin.interceptor.enhance.MethodInterceptResult;
 public abstract class JedisBaseInterceptor extends SimpleObjectFirstInvokeInterceptor {
     protected static final String REDIS_CONN_INFO_KEY = "redisClusterConnInfo";
 
-    private static RPCClientTracer clientTracer = new RPCClientTracer();
+    private static RPCClientInvokeMonitor rpcClientInvokeMonitor = new RPCClientInvokeMonitor();
 
     @Override
     public void beforeMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext, MethodInterceptResult result) {
@@ -30,20 +30,20 @@ public abstract class JedisBaseInterceptor extends SimpleObjectFirstInvokeInterc
                 builder.businessKey("key="
                         + interceptorContext.allArguments()[0]);
             }
-            clientTracer.traceBeforeInvoke(builder.build());
+            rpcClientInvokeMonitor.traceBeforeInvoke(builder.build());
         }
     }
 
     @Override
     public Object afterMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext, Object ret) {
         if (this.isLastAfterMethod(context)) {
-            clientTracer.traceAfterInvoke();
+            rpcClientInvokeMonitor.afterInvoke();
         }
         return ret;
     }
 
     @Override
     public void handleMethodException(Throwable t, EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext, Object ret) {
-        clientTracer.occurException(t);
+        rpcClientInvokeMonitor.occurException(t);
     }
 }

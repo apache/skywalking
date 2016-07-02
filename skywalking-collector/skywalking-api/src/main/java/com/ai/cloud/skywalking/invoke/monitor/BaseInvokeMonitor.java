@@ -1,4 +1,4 @@
-package com.ai.cloud.skywalking.tracer;
+package com.ai.cloud.skywalking.invoke.monitor;
 
 import com.ai.cloud.skywalking.buffer.ContextBuffer;
 import com.ai.cloud.skywalking.conf.AuthDesc;
@@ -14,17 +14,17 @@ import java.util.Set;
 
 import static com.ai.cloud.skywalking.conf.Config.BuriedPoint.EXCLUSIVE_EXCEPTIONS;
 
-public abstract class BaseTracer {
+public abstract class BaseInvokeMonitor {
 
     private static Logger logger = LogManager
-            .getLogger(BaseTracer.class);
+            .getLogger(BaseInvokeMonitor.class);
 
     private static String EXCEPTION_SPLIT = ",";
 
     private static Set<String> exclusiveExceptionSet = null;
 
 
-    protected ContextData traceBeforeInvoke(Span spanData) {
+    protected ContextData beforeInvoke(Span spanData) {
         if (Config.BuriedPoint.PRINTF) {
             logger.debug("TraceId:" + spanData.getTraceId()
                     + "\tviewpointId:" + spanData.getViewPointId()
@@ -38,7 +38,7 @@ public abstract class BaseTracer {
         return new ContextData(spanData);
     }
 
-    protected void traceAfterInvoke() {
+    protected void afterInvoke() {
         try {
             if (!AuthDesc.isAuth())
                 return;

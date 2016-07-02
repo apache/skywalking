@@ -1,4 +1,4 @@
-package com.ai.cloud.skywalking.tracer;
+package com.ai.cloud.skywalking.invoke.monitor;
 
 import com.ai.cloud.skywalking.conf.AuthDesc;
 import com.ai.cloud.skywalking.context.CurrentThreadSpanStack;
@@ -10,10 +10,10 @@ import com.ai.cloud.skywalking.protocol.Span;
 import com.ai.cloud.skywalking.protocol.SpanType;
 import com.ai.cloud.skywalking.util.ContextGenerator;
 
-public class RPCServerTracer extends BaseTracer{
+public class RPCServerInvokeMonitor extends BaseInvokeMonitor {
 
     private static Logger logger = LogManager
-            .getLogger(RPCServerTracer.class);
+            .getLogger(RPCServerInvokeMonitor.class);
 
     public void traceBeforeInvoke(ContextData context, Identification id) {
         try {
@@ -27,14 +27,14 @@ public class RPCServerTracer extends BaseTracer{
 
             invalidateAllSpanIfIsNotFirstSpan(spanData);
 
-            super.traceBeforeInvoke(spanData);
+            super.beforeInvoke(spanData);
         } catch (Throwable t) {
             logger.error(t.getMessage(), t);
         }
     }
 
-    public void traceAfterInvoke(){
-        super.traceAfterInvoke();
+    public void afterInvoke(){
+        super.afterInvoke();
     }
 
 
