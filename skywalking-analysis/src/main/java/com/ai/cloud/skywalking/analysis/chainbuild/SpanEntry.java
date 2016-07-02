@@ -151,11 +151,7 @@ public class SpanEntry {
     }
 
     public void setSpan(Span span) {
-        if (span.isReceiver()) {
-            this.serverSpan = span;
-        } else {
-            this.clientSpan = span;
-        }
+        this.clientSpan = span;
     }
 
     public String getSpanType() {
