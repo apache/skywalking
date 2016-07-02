@@ -1,7 +1,7 @@
 package com.ai.cloud.skywalking.plugin.dubbo;
 
-import com.ai.cloud.skywalking.buriedpoint.RPCBuriedPointReceiver;
-import com.ai.cloud.skywalking.buriedpoint.RPCBuriedPointSender;
+import com.ai.cloud.skywalking.tracer.RPCServerTracer;
+import com.ai.cloud.skywalking.tracer.RPCClientTracer;
 import com.ai.cloud.skywalking.conf.AuthDesc;
 import com.ai.cloud.skywalking.model.ContextData;
 import com.ai.cloud.skywalking.model.Identification;
@@ -22,9 +22,9 @@ public class SWDubboEnhanceFilter implements Filter {
         boolean isConsumer = context.isConsumerSide();
         Result result = null;
         if (isConsumer) {
-            RPCBuriedPointSender sender = new RPCBuriedPointSender();
+            RPCClientTracer clientTracer = new RPCClientTracer();
 
-            ContextData contextData = sender.beforeSend(createIdentification(invoker, invocation));
+            ContextData contextData = clientTracer.traceBeforeInvoke(createIdentification(invoker, invocation));
             String contextDataStr = contextData.toString();
 
             //追加参数
@@ -53,18 +53,18 @@ public class SWDubboEnhanceFilter implements Filter {
                 result = invoker.invoke(invocation);
                 //结果是否包含异常
                 if (result.getException() != null) {
-                    sender.handleException(result.getException());
+                    clientTracer.occurException(result.getException());
                 }
             } catch (RpcException e) {
                 // 自身异常
-                sender.handleException(e);
+                clientTracer.occurException(e);
                 throw e;
             } finally {
-                sender.afterSend();
+                clientTracer.traceAfterInvoke();
             }
         } else {
             // 读取参数
-            RPCBuriedPointReceiver rpcBuriedPointReceiver = new RPCBuriedPointReceiver();
+            RPCServerTracer serverTracer = new RPCServerTracer();
             String contextDataStr;
 
             if (!BugFixAcitve.isActive) {
@@ -78,21 +78,21 @@ public class SWDubboEnhanceFilter implements Filter {
                 contextData = new ContextData(contextDataStr);
             }
 
-            rpcBuriedPointReceiver.beforeReceived(contextData, createIdentification(invoker, invocation));
+            serverTracer.traceBeforeInvoke(contextData, createIdentification(invoker, invocation));
 
             try {
                 //执行结果
                 result = invoker.invoke(invocation);
                 //结果是否包含异常
                 if (result.getException() != null) {
-                    rpcBuriedPointReceiver.handleException(result.getException());
+                    serverTracer.occurException(result.getException());
                 }
             } catch (RpcException e) {
                 // 自身异常
-                rpcBuriedPointReceiver.handleException(e);
+                serverTracer.occurException(e);
                 throw e;
             } finally {
-                rpcBuriedPointReceiver.afterReceived();
+                serverTracer.traceAfterInvoke();
             }
         }
 

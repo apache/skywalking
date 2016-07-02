@@ -5,56 +5,60 @@ import com.ai.cloud.skywalking.protocol.Span;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Context {
+public class CurrentThreadSpanStack {
     private static ThreadLocal<SpanNodeStack> nodes = new ThreadLocal<SpanNodeStack>();
 
-    private Context() {
+    private CurrentThreadSpanStack() {
 
     }
 
-    public static void append(Span span) {
+    public static void push(Span span) {
         if (nodes.get() == null) {
             nodes.set(new SpanNodeStack());
         }
         nodes.get().push(span);
     }
 
-    public static Span getLastSpan() {
+    public static Span peek() {
         if (nodes.get() == null) {
             return null;
         }
         return nodes.get().peek();
     }
 
-    public static Span removeLastSpan() {
+    public static Span pop() {
         if (nodes.get() == null) {
             return null;
         }
         return nodes.get().pop();
     }
 
-    public static void invalidateAllSpan() {
+    public static void invalidatePresentSpans() {
         if (nodes.get() == null) {
             nodes.set(new SpanNodeStack());
         }
 
-        nodes.get().invalidateAllCurrentSpan();
+        nodes.get().invalidatePresentSpans();
     }
 
     static class SpanNodeStack {
-        private List<SpanNode> spans = new ArrayList<SpanNode>();
+        /**
+         * 单JVM的单线程,埋点数量一般不会超过20.
+         * 超过20会影响性能,不推荐使用
+         */
+        private List<SpanNode> spans = new ArrayList<SpanNode>(20);
 
         public Span pop() {
-            Span span = listPop();
+            Span span = spans.remove(getTopElementIdx()).getData();
             if (!isEmpty()) {
-                listPeek().incrementNextSubSpanLevelId();
+                spans.get(getTopElementIdx()).incrementNextSubSpanLevelId();
             }
             return span;
         }
 
         public void push(Span span) {
             if (!isEmpty()) {
-                listPush(new SpanNode(span, listPeek().getNextSubSpanLevelId()));
+                listPush(new SpanNode(span, spans.get(getTopElementIdx()).getNextSubSpanLevelId()));
             } else {
                 listPush(new SpanNode(span));
             }
@@ -65,26 +69,22 @@ public class Context {
             if (spans.isEmpty()) {
                 return null;
             }
-            return listPeek().getData();
+            return spans.get(getTopElementIdx()).getData();
         }
 
-        public boolean isEmpty() {
+        private int getTopElementIdx() {
+            return spans.size() - 1;
+        }
+
+        private boolean isEmpty() {
             return spans.isEmpty();
-        }
-
-        private Span listPop() {
-            return spans.remove(spans.size() - 1).getData();
-        }
-
-        private SpanNode listPeek() {
-            return spans.get(spans.size() - 1);
         }
 
         private void listPush(SpanNode spanNode) {
             spans.add(spans.size(), spanNode);
         }
 
-        public void invalidateAllCurrentSpan() {
+        public void invalidatePresentSpans() {
             for (SpanNode spanNode : spans) {
                 spanNode.getData().setIsInvalidate(true);
             }
@@ -93,7 +93,7 @@ public class Context {
 
     static class SpanNode {
         private Span data;
-        //
+
         private int nextSubSpanLevelId = 0;
 
         public SpanNode(Span data) {

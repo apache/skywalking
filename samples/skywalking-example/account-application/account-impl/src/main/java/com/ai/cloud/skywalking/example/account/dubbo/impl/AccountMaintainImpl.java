@@ -1,6 +1,6 @@
 package com.ai.cloud.skywalking.example.account.dubbo.impl;
 
-import com.ai.cloud.skywalking.buriedpoint.RPCBuriedPointSender;
+import com.ai.cloud.skywalking.tracer.RPCBuriedPointSender;
 import com.ai.cloud.skywalking.example.account.dubbo.interfaces.IAccountMaintain;
 import com.ai.cloud.skywalking.example.account.dubbo.interfaces.param.AccountInfo;
 import com.ai.cloud.skywalking.example.account.exception.BusinessException;

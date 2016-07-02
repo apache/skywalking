@@ -1,9 +1,9 @@
-package com.ai.cloud.skywalking.buriedpoint;
+package com.ai.cloud.skywalking.tracer;
 
 import com.ai.cloud.skywalking.buffer.ContextBuffer;
 import com.ai.cloud.skywalking.conf.AuthDesc;
 import com.ai.cloud.skywalking.conf.Config;
-import com.ai.cloud.skywalking.context.Context;
+import com.ai.cloud.skywalking.context.CurrentThreadSpanStack;
 import com.ai.cloud.skywalking.logging.LogManager;
 import com.ai.cloud.skywalking.logging.Logger;
 import com.ai.cloud.skywalking.model.ContextData;
@@ -14,17 +14,17 @@ import java.util.Set;
 
 import static com.ai.cloud.skywalking.conf.Config.BuriedPoint.EXCLUSIVE_EXCEPTIONS;
 
-public class BuriedPointInvoker {
+public abstract class BaseTracer {
 
     private static Logger logger = LogManager
-            .getLogger(BuriedPointInvoker.class);
+            .getLogger(BaseTracer.class);
 
     private static String EXCEPTION_SPLIT = ",";
 
     private static Set<String> exclusiveExceptionSet = null;
 
 
-    public ContextData beforeInvoker(Span spanData) {
+    protected ContextData traceBeforeInvoke(Span spanData) {
         if (Config.BuriedPoint.PRINTF) {
             logger.debug("TraceId:" + spanData.getTraceId()
                     + "\tviewpointId:" + spanData.getViewPointId()
@@ -33,18 +33,18 @@ public class BuriedPointInvoker {
         }
 
         // 将新创建的Context存放到ThreadLocal栈中。
-        Context.append(spanData);
+        CurrentThreadSpanStack.push(spanData);
         // 并将当前的Context返回回去
         return new ContextData(spanData);
     }
 
-    public void afterInvoker() {
+    protected void traceAfterInvoke() {
         try {
             if (!AuthDesc.isAuth())
                 return;
 
             // 弹出上下文的栈顶中的元素
-            Span spanData = Context.removeLastSpan();
+            Span spanData = CurrentThreadSpanStack.pop();
             if (spanData == null || spanData.isInvalidate()) {
                 return;
             }
@@ -67,7 +67,7 @@ public class BuriedPointInvoker {
         }
     }
 
-    public void handleException(Throwable th) {
+    protected void occurException(Throwable th) {
         try {
             if (exclusiveExceptionSet == null) {
                 Set<String> exclusiveExceptions = new HashSet<String>();
@@ -80,7 +80,7 @@ public class BuriedPointInvoker {
                 exclusiveExceptionSet = exclusiveExceptions;
             }
 
-            Span span = Context.getLastSpan();
+            Span span = CurrentThreadSpanStack.peek();
             span.handleException(th, exclusiveExceptionSet,
                     Config.BuriedPoint.MAX_EXCEPTION_STACK_LENGTH);
         } catch (Throwable t) {

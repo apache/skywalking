@@ -1,7 +1,7 @@
 package com.ai.cloud.skywalking.api;
 
 import com.ai.cloud.skywalking.conf.AuthDesc;
-import com.ai.cloud.skywalking.context.Context;
+import com.ai.cloud.skywalking.context.CurrentThreadSpanStack;
 import com.ai.cloud.skywalking.model.ContextData;
 import com.ai.cloud.skywalking.protocol.Span;
 
@@ -15,7 +15,7 @@ public class Tracing {
         if (!AuthDesc.isAuth())
             return "";
 
-        Span spanData = Context.getLastSpan();
+        Span spanData = CurrentThreadSpanStack.peek();
         if (spanData == null) {
             return "";
         }
@@ -27,7 +27,7 @@ public class Tracing {
        if (!AuthDesc.isAuth())
            return null;
 
-       Span spanData = Context.getLastSpan();
+       Span spanData = CurrentThreadSpanStack.peek();
        if (spanData == null) {
            return null;
        }

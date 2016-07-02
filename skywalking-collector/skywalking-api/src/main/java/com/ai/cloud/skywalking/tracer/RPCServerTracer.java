@@ -1,8 +1,7 @@
-package com.ai.cloud.skywalking.buriedpoint;
+package com.ai.cloud.skywalking.tracer;
 
-import com.ai.cloud.skywalking.api.IBuriedPointReceiver;
 import com.ai.cloud.skywalking.conf.AuthDesc;
-import com.ai.cloud.skywalking.context.Context;
+import com.ai.cloud.skywalking.context.CurrentThreadSpanStack;
 import com.ai.cloud.skywalking.logging.LogManager;
 import com.ai.cloud.skywalking.logging.Logger;
 import com.ai.cloud.skywalking.model.ContextData;
@@ -11,17 +10,12 @@ import com.ai.cloud.skywalking.protocol.Span;
 import com.ai.cloud.skywalking.protocol.SpanType;
 import com.ai.cloud.skywalking.util.ContextGenerator;
 
-public class RPCBuriedPointReceiver extends BuriedPointInvoker
-        implements IBuriedPointReceiver {
+public class RPCServerTracer extends BaseTracer{
 
     private static Logger logger = LogManager
-            .getLogger(RPCBuriedPointReceiver.class);
+            .getLogger(RPCServerTracer.class);
 
-    public void afterReceived() {
-        super.afterInvoker();
-    }
-
-    public void beforeReceived(ContextData context, Identification id) {
+    public void traceBeforeInvoke(ContextData context, Identification id) {
         try {
             if (!AuthDesc.isAuth())
                 return;
@@ -33,15 +27,24 @@ public class RPCBuriedPointReceiver extends BuriedPointInvoker
 
             invalidateAllSpanIfIsNotFirstSpan(spanData);
 
-            super.beforeInvoker(spanData);
+            super.traceBeforeInvoke(spanData);
         } catch (Throwable t) {
             logger.error(t.getMessage(), t);
         }
     }
 
+    public void traceAfterInvoke(){
+        super.traceAfterInvoke();
+    }
+
+
+    public void occurException(Throwable th){
+        super.occurException(th);
+    }
+
     private void invalidateAllSpanIfIsNotFirstSpan(Span spanData) {
-        if (!Context.getLastSpan().getTraceId().equals(spanData.getTraceId())) {
-            Context.invalidateAllSpan();
+        if (!CurrentThreadSpanStack.peek().getTraceId().equals(spanData.getTraceId())) {
+            CurrentThreadSpanStack.invalidatePresentSpans();
         }
     }
 }

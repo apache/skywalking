@@ -1,21 +1,21 @@
 package com.ai.cloud.skywalking.plugin.spring;
 
-import com.ai.cloud.skywalking.buriedpoint.LocalBuriedPointSender;
+import com.ai.cloud.skywalking.tracer.LocalMethodTracer;
 import com.ai.cloud.skywalking.model.Identification;
 import org.aspectj.lang.ProceedingJoinPoint;
 
 public class TracingAspect {
 
     public Object doTracing(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
-        LocalBuriedPointSender _sender = new LocalBuriedPointSender();
+        LocalMethodTracer localMethodTracer = new LocalMethodTracer();
         try {
-            _sender.beforeSend(Identification.newBuilder().viewPoint(proceedingJoinPoint.getSignature().toString()).spanType(SpringBuriedPointType.instance()).build());
+            localMethodTracer.traceBeforeInvoke(Identification.newBuilder().viewPoint(proceedingJoinPoint.getSignature().toString()).spanType(SpringBuriedPointType.instance()).build());
             return proceedingJoinPoint.proceed();
         } catch (Throwable e) {
-            _sender.handleException(e);
+            localMethodTracer.occurException(e);
             throw e;
         } finally {
-            _sender.afterSend();
+            localMethodTracer.traceAfterInvoke();
         }
     }
 }
