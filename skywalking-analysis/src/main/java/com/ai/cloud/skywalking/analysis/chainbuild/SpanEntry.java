@@ -156,9 +156,9 @@ public class SpanEntry {
 
     public String getSpanType() {
         if (clientSpan != null) {
-            return clientSpan.getSpanType();
+            return clientSpan.getSpanTypeDesc();
         }
-        return serverSpan.getSpanType();
+        return serverSpan.getSpanTypeDesc();
     }
 
     public String getUserId() {
