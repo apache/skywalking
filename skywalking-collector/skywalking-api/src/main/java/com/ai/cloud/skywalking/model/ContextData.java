@@ -13,11 +13,17 @@ public class ContextData {
 
     }
 
+    public ContextData(String traceId, String parentLevel, String spanType) {
+        this.traceId = traceId;
+        this.parentLevel = parentLevel;
+        this.spanType = spanType;
+    }
+
     public ContextData(Span span) {
         this.traceId = span.getTraceId();
         this.parentLevel = span.getParentLevel();
         this.levelId = span.getLevelId();
-        this.spanType = span.getSpanType();
+        this.spanType = span.getSpanTypeDesc();
     }
 
     public ContextData(String contextDataStr) {

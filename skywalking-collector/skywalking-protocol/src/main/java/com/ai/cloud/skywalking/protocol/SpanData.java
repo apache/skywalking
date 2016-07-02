@@ -67,17 +67,24 @@ public abstract class SpanData {
      * 已字符串的形式描述<br/>
      * 如：java,dubbo等
      */
-    protected String spanType = "";
+    protected String spanTypeDesc = "";
     /**
      * 节点调用类型描述<br/>
      * @see com.ai.cloud.skywalking.protocol.CallType
      */
     protected String callType = "";
+
+    /**
+     * 节点的状态<br/>
+     *  不参与序列化
+     */
+    protected boolean isInvalidate = false;
+
     /**
      * 节点分布式类型<br/>
-     * 服务端/客户端
+     * 本地调用 / RPC服务端 / RPC客户端
      */
-    protected boolean isReceiver = false;
+    protected SpanType spanType = SpanType.LOCAL;
     /**
      * 节点调用过程中的业务字段<br/>
      * 如：业务系统设置的订单号，SQL语句等
@@ -147,20 +154,24 @@ public abstract class SpanData {
         this.address = address;
     }
 
-    public String getSpanType() {
+    public String getSpanTypeDesc() {
+        return spanTypeDesc;
+    }
+
+    public void setSpanTypeDesc(String spanTypeDesc) {
+        this.spanTypeDesc = spanTypeDesc;
+    }
+
+    public SpanType getSpanType() {
         return spanType;
     }
 
-    public void setSpanType(String spanType) {
+    public void setSpanType(SpanType spanType) {
         this.spanType = spanType;
     }
 
-    public boolean isReceiver() {
-        return isReceiver;
-    }
-
-    public void setReceiver(boolean receiver) {
-        isReceiver = receiver;
+    public boolean isInvalidate() {
+        return isInvalidate;
     }
 
     public void setBusinessKey(String businessKey) {

@@ -6,7 +6,7 @@ import com.ai.cloud.skywalking.util.StringUtil;
 public class Identification {
     private String viewPoint;
     private String businessKey;
-    private String spanType;
+    private String spanTypeDesc;
     private String callType;
 
     public Identification() {
@@ -21,8 +21,8 @@ public class Identification {
         return businessKey;
     }
 
-    public String getSpanType() {
-        return spanType;
+    public String getSpanTypeDesc() {
+        return spanTypeDesc;
     }
 
     public String getCallType() {
@@ -58,7 +58,7 @@ public class Identification {
             if (StringUtil.isEmpty(spanType.getTypeName())) {
                 throw new IllegalArgumentException("Span Type name cannot be null");
             }
-            sendData.spanType = spanType.getTypeName();
+            sendData.spanTypeDesc = spanType.getTypeName();
             sendData.callType = spanType.getCallType().toString();
             return this;
         }

@@ -2,7 +2,8 @@ package com.ai.cloud.skywalking.context;
 
 import com.ai.cloud.skywalking.protocol.Span;
 
-import java.util.Stack;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Context {
     private static ThreadLocal<SpanNodeStack> nodes = new ThreadLocal<SpanNodeStack>();
@@ -32,22 +33,30 @@ public class Context {
         return nodes.get().pop();
     }
 
+    public static void invalidateAllSpan() {
+        if (nodes.get() == null) {
+            nodes.set(new SpanNodeStack());
+        }
+
+        nodes.get().invalidateAllCurrentSpan();
+    }
+
     static class SpanNodeStack {
-        private Stack<SpanNode> spans = new Stack<SpanNode>();
+        private List<SpanNode> spans = new ArrayList<SpanNode>();
 
         public Span pop() {
-            Span span = spans.pop().getData();
+            Span span = listPop();
             if (!isEmpty()) {
-                spans.peek().incrementNextSubSpanLevelId();
+                listPeek().incrementNextSubSpanLevelId();
             }
             return span;
         }
 
         public void push(Span span) {
             if (!isEmpty()) {
-                spans.push(new SpanNode(span, spans.peek().getNextSubSpanLevelId()));
+                listPush(new SpanNode(span, listPeek().getNextSubSpanLevelId()));
             } else {
-                spans.push(new SpanNode(span));
+                listPush(new SpanNode(span));
             }
 
         }
@@ -56,11 +65,29 @@ public class Context {
             if (spans.isEmpty()) {
                 return null;
             }
-            return spans.peek().getData();
+            return listPeek().getData();
         }
 
         public boolean isEmpty() {
             return spans.isEmpty();
+        }
+
+        private Span listPop() {
+            return spans.remove(spans.size() - 1).getData();
+        }
+
+        private SpanNode listPeek() {
+            return spans.get(spans.size() - 1);
+        }
+
+        private void listPush(SpanNode spanNode) {
+            spans.add(spans.size(), spanNode);
+        }
+
+        public void invalidateAllCurrentSpan() {
+            for (SpanNode spanNode : spans) {
+                spanNode.getData().setIsInvalidate(true);
+            }
         }
     }
 
