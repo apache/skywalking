@@ -1,4 +1,4 @@
-package com.ai.cloud.skywalking.exception;
+package com.ai.cloud.skywalking.protocol.exception;
 
 public class SpanTypeCannotConvertException extends RuntimeException {
     public SpanTypeCannotConvertException(String spanTypeValue) {

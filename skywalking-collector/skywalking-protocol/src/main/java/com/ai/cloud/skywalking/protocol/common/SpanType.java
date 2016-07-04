@@ -1,6 +1,6 @@
 package com.ai.cloud.skywalking.protocol.common;
 
-import com.ai.cloud.skywalking.exception.SpanTypeCannotConvertException;
+import com.ai.cloud.skywalking.protocol.exception.SpanTypeCannotConvertException;
 
 /**
  * Created by xin on 16-7-2.

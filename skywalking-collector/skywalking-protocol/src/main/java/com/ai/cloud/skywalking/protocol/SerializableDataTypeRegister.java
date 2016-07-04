@@ -1,6 +1,6 @@
 package com.ai.cloud.skywalking.protocol;
 
-import com.ai.cloud.skywalking.exception.SerializableDataTypeRegisterException;
+import com.ai.cloud.skywalking.protocol.exception.SerializableDataTypeRegisterException;
 
 import java.util.HashMap;
 import java.util.Map;

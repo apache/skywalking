@@ -1,4 +1,4 @@
-package com.ai.cloud.skywalking.exception;
+package com.ai.cloud.skywalking.protocol.exception;
 
 /**
  * Created by wusheng on 16/7/4.
