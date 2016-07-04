@@ -3,7 +3,7 @@ package com.ai.cloud.skywalking.reciever.handler;
 import com.ai.cloud.skywalking.reciever.buffer.DataBufferThreadContainer;
 import com.ai.cloud.skywalking.reciever.conf.Config;
 import com.ai.cloud.skywalking.reciever.util.RedisConnector;
-import com.ai.cloud.skywalking.util.ProtocolPackager;
+import com.ai.cloud.skywalking.util.TransportPackager;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import redis.clients.jedis.Jedis;
@@ -18,7 +18,7 @@ public class CollectionServerDataHandler extends SimpleChannelInboundHandler<byt
         // 当接受到这条消息的是空，则忽略
         if (msg != null && msg.length >= 0 && msg.length < Config.DataPackage.MAX_DATA_PACKAGE) {
 
-            byte[] data = ProtocolPackager.unpack(msg);
+            byte[] data = TransportPackager.unpack(msg);
 
             if (data != null) {
                 DataBufferThreadContainer.getDataBufferThread().saveTemporarily(data);

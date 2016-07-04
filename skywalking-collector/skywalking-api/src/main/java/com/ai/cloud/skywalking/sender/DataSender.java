@@ -21,7 +21,7 @@ import java.net.InetSocketAddress;
 
 import com.ai.cloud.skywalking.selfexamination.HeathReading;
 import com.ai.cloud.skywalking.selfexamination.SDKHealthCollector;
-import com.ai.cloud.skywalking.util.ProtocolPackager;
+import com.ai.cloud.skywalking.util.TransportPackager;
 
 public class DataSender implements IDataSender {
     private EventLoopGroup group;
@@ -76,7 +76,7 @@ public class DataSender implements IDataSender {
         try {
             if (channel != null && channel.isActive()) {
 
-                byte[] dataPackage = ProtocolPackager.pack(data.getBytes());
+                byte[] dataPackage = TransportPackager.pack(data.getBytes());
                 channel.writeAndFlush(dataPackage);
 
                 SDKHealthCollector.getCurrentHeathReading("sender").updateData(HeathReading.INFO, "DataSender[" + socketAddress + "] send data successfully.");

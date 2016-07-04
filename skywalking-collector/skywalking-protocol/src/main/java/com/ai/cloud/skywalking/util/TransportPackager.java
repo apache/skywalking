@@ -2,7 +2,7 @@ package com.ai.cloud.skywalking.util;
 
 import java.util.Arrays;
 
-public class ProtocolPackager {
+public class TransportPackager {
     public static byte[] pack(byte[] data) {
         // 对协议格式进行修改
         // | check sum(4 byte) |  data
@@ -58,16 +58,6 @@ public class ProtocolPackager {
             result ^= data[i];
         }
 
-        return intToBytes(result);
+        return IntegerAssist.intToBytes(result);
     }
-
-    private static byte[] intToBytes(int value) {
-        byte[] src = new byte[4];
-        src[0] = (byte) ((value >> 24) & 0xFF);
-        src[1] = (byte) ((value >> 16) & 0xFF);
-        src[2] = (byte) ((value >> 8) & 0xFF);
-        src[3] = (byte) (value & 0xFF);
-        return src;
-    }
-
 }
