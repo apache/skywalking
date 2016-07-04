@@ -3,8 +3,10 @@ package com.ai.cloud.skywalking.sender;
 import static com.ai.cloud.skywalking.conf.Config.Sender.MAX_COPY_NUM;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
+import com.ai.cloud.skywalking.protocol.common.ISerializable;
 import com.ai.cloud.skywalking.selfexamination.HeathReading;
 import com.ai.cloud.skywalking.selfexamination.SDKHealthCollector;
 
@@ -48,7 +50,7 @@ public class DataSenderWithCopies implements IDataSender {
 	/**
 	 * 尝试向所有副本发送
 	 */
-	public boolean send(String data) {
+	public boolean send(List<ISerializable> packageData) {
 		int successNum = 0;
 		for (IDataSender sender : senders) {
 			if (sender.send(data)) {

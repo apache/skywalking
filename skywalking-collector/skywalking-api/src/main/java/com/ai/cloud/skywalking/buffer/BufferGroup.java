@@ -5,10 +5,14 @@ import com.ai.cloud.skywalking.conf.Constants;
 import com.ai.cloud.skywalking.logging.LogManager;
 import com.ai.cloud.skywalking.logging.Logger;
 import com.ai.cloud.skywalking.protocol.Span;
+import com.ai.cloud.skywalking.protocol.common.ISerializable;
 import com.ai.cloud.skywalking.selfexamination.HeathReading;
 import com.ai.cloud.skywalking.selfexamination.SDKHealthCollector;
 import com.ai.cloud.skywalking.sender.DataSenderFactoryWithBalance;
 import com.ai.cloud.skywalking.util.AtomicRangeInteger;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.ai.cloud.skywalking.conf.Config.Buffer.BUFFER_MAX_SIZE;
 import static com.ai.cloud.skywalking.conf.Config.Consumer.*;
@@ -17,7 +21,7 @@ public class BufferGroup {
     private static Logger logger = LogManager.getLogger(BufferGroup.class);
     private String groupName;
     //注意： 修改这个变量名，需要修改test-api工程的Config类中的SPAN_ARRAY_FIELD_NAME变量
-    private Span[] dataBuffer = new Span[BUFFER_MAX_SIZE];
+    private ISerializable[] dataBuffer = new ISerializable[BUFFER_MAX_SIZE];
     AtomicRangeInteger index = new AtomicRangeInteger(0, BUFFER_MAX_SIZE);
 
     public BufferGroup(String groupName) {
@@ -65,7 +69,8 @@ public class BufferGroup {
 
         @Override
         public void run() {
-            StringBuilder data = new StringBuilder();
+            //TODO: 根据list长度进行限制
+            List<ISerializable> packageData = new ArrayList<ISerializable>();
             while (true) {
                 boolean bool = false;
                 try {

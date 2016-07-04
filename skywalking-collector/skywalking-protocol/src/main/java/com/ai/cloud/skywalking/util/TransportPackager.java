@@ -1,9 +1,12 @@
 package com.ai.cloud.skywalking.util;
 
+import com.ai.cloud.skywalking.protocol.common.ISerializable;
+
 import java.util.Arrays;
+import java.util.List;
 
 public class TransportPackager {
-    public static byte[] pack(byte[] data) {
+    public static byte[] pack(List<ISerializable> packageData) {
         // 对协议格式进行修改
         // | check sum(4 byte) |  data
         byte[] dataPackage = new byte[data.length + 4];
@@ -24,7 +27,7 @@ public class TransportPackager {
     }
 
 
-    public static byte[] unpack(byte[] dataPackage) {
+    public static List<ISerializable> unpack(byte[] dataPackage) {
         if (validateCheckSum(dataPackage)) {
             return unpackDataText(dataPackage);
         } else {

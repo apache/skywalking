@@ -1,5 +1,6 @@
 package com.ai.cloud.skywalking.sender;
 
+import com.ai.cloud.skywalking.protocol.common.ISerializable;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -18,6 +19,7 @@ import io.netty.handler.codec.bytes.ByteArrayEncoder;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.List;
 
 import com.ai.cloud.skywalking.selfexamination.HeathReading;
 import com.ai.cloud.skywalking.selfexamination.SDKHealthCollector;
@@ -72,7 +74,7 @@ public class DataSender implements IDataSender {
      * @return
      */
     @Override
-    public boolean send(String data) {
+    public boolean send(List<ISerializable> packageData) {
         try {
             if (channel != null && channel.isActive()) {
 

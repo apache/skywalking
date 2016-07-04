@@ -21,11 +21,18 @@ public abstract class AbstractDataSerializable implements ISerializable, Nullabl
 
     public abstract byte[] getData();
 
+    /**
+     * 消息包结构:
+     * 4位消息体类型
+     * n位数据正文
+     *
+     * @return
+     */
     @Override
     public byte[] convert2Bytes() {
         byte[] type = IntegerAssist.intToBytes(SerializableDataTypeRegister.getType(this.getClass()));
 
-        //TODO:类型+ data = 消息包
+        //TODO:消息包 = 4位
         return getData();
     }
 

@@ -3,6 +3,7 @@ package com.ai.cloud.skywalking.buffer;
 import com.ai.cloud.skywalking.logging.LogManager;
 import com.ai.cloud.skywalking.logging.Logger;
 import com.ai.cloud.skywalking.protocol.Span;
+import com.ai.cloud.skywalking.protocol.common.ISerializable;
 
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -18,9 +19,9 @@ public class ContextBuffer {
         //non
     }
 
-    public static void save(Span span) {
+    public static void save(ISerializable data) {
     	try{
-    		pool.save(span);
+    		pool.save(data);
     	}catch(Throwable t){
     		logger.error("save span error.", t);
     	}
@@ -36,8 +37,8 @@ public class ContextBuffer {
             }
         }
 
-        public void save(Span span) {
-            bufferGroups[ThreadLocalRandom.current().nextInt(0, POOL_SIZE)].save(span);
+        public void save(ISerializable data) {
+            bufferGroups[ThreadLocalRandom.current().nextInt(0, POOL_SIZE)].save(data);
         }
 
     }
