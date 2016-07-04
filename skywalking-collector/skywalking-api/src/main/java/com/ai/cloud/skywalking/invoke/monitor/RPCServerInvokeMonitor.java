@@ -7,7 +7,7 @@ import com.ai.cloud.skywalking.logging.Logger;
 import com.ai.cloud.skywalking.model.ContextData;
 import com.ai.cloud.skywalking.model.Identification;
 import com.ai.cloud.skywalking.protocol.Span;
-import com.ai.cloud.skywalking.protocol.SpanType;
+import com.ai.cloud.skywalking.protocol.common.SpanType;
 import com.ai.cloud.skywalking.util.ContextGenerator;
 
 public class RPCServerInvokeMonitor extends BaseInvokeMonitor {

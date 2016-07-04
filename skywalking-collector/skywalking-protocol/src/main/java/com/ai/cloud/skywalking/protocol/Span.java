@@ -1,5 +1,7 @@
 package com.ai.cloud.skywalking.protocol;
 
+import com.ai.cloud.skywalking.protocol.common.SpanType;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Set;

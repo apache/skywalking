@@ -1,5 +1,7 @@
-package com.ai.cloud.skywalking.protocol;
+package com.ai.cloud.skywalking.protocol.common;
 
+import com.ai.cloud.skywalking.protocol.NullClass;
+import com.ai.cloud.skywalking.protocol.SerializableDataTypeRegister;
 import com.ai.cloud.skywalking.util.IntegerAssist;
 
 import java.util.HashSet;
@@ -8,7 +10,7 @@ import java.util.Set;
 /**
  * Created by wusheng on 16/7/4.
  */
-public abstract class AbstractDataSerializable implements ISerializable, NullableClass{
+public abstract class AbstractDataSerializable implements ISerializable, NullableClass {
     private static Set<Integer> DATA_TYPE_SCOPE = new HashSet<Integer>();
 
     public AbstractDataSerializable(){

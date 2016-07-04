@@ -1,7 +1,7 @@
 package com.ai.cloud.skywalking.plugin.web;
 
 import com.ai.cloud.skywalking.api.IBuriedPointType;
-import com.ai.cloud.skywalking.protocol.CallType;
+import com.ai.cloud.skywalking.protocol.common.CallType;
 
 public class WebBuriedPointType implements IBuriedPointType {
 

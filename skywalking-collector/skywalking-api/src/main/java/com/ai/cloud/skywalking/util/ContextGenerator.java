@@ -5,7 +5,7 @@ import com.ai.cloud.skywalking.context.CurrentThreadSpanStack;
 import com.ai.cloud.skywalking.model.ContextData;
 import com.ai.cloud.skywalking.model.Identification;
 import com.ai.cloud.skywalking.protocol.Span;
-import com.ai.cloud.skywalking.protocol.SpanType;
+import com.ai.cloud.skywalking.protocol.common.SpanType;
 
 public final class ContextGenerator {
     /**
