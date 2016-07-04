@@ -15,7 +15,7 @@ public enum SpanType {
         this.value = value;
     }
 
-    static SpanType convert(String spanTypeValue) {
+   public static SpanType convert(String spanTypeValue) {
         switch (Byte.valueOf(spanTypeValue)){
             case 1 : return LOCAL;
             case 2 : return RPC_CLIENT;
