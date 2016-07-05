@@ -28,6 +28,7 @@
 	</properties>
 
 	<dependencies>
+
 		<dependency>
             <groupId>com.ai.cloud</groupId>
             <artifactId>skywalking-test-api</artifactId>

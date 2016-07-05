@@ -76,6 +76,9 @@ public class RequestSpan extends AbstractDataSerializable {
      */
     private String userId;
 
+    /**
+     * 埋点入参列表
+     */
     private Map<String, String> paramters = new HashMap<String, String>();
 
     public RequestSpan(Span spanData) {

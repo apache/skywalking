@@ -2,6 +2,9 @@ package com.ai.cloud.skywalking.protocol;
 
 import com.ai.cloud.skywalking.protocol.common.AbstractDataSerializable;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by wusheng on 16/7/4.
  */
@@ -19,11 +22,11 @@ public class AckSpan extends AbstractDataSerializable {
      * 当前调用链的本机描述<br/>
      * 如当前序号为：0.1.0时，levelId=0
      */
-    private int levelId = 0;
+    private int  levelId    = 0;
     /**
      * 节点调用花费时间
      */
-    private long cost = 0L;
+    private long cost       = 0L;
     /**
      * 节点调用的状态<br/>
      * 0：成功<br/>
@@ -37,6 +40,7 @@ public class AckSpan extends AbstractDataSerializable {
      */
     private String exceptionStack;
 
+
     public AckSpan(Span spanData) {
         this.traceId = spanData.getTraceId();
         this.parentLevel = spanData.getParentLevel();
@@ -45,6 +49,11 @@ public class AckSpan extends AbstractDataSerializable {
         this.statusCode = spanData.getStatusCode();
         this.exceptionStack = spanData.getExceptionStack();
     }
+
+    /**
+     * 埋点入参列表,补充时触发
+     */
+    private Map<String, String> paramters = new HashMap<String, String>();
 
     public String getTraceId() {
         return traceId;
@@ -92,6 +101,14 @@ public class AckSpan extends AbstractDataSerializable {
 
     public void setExceptionStack(String exceptionStack) {
         this.exceptionStack = exceptionStack;
+    }
+
+    public Map<String, String> getParamters() {
+        return paramters;
+    }
+
+    public void setParamters(Map<String, String> paramters) {
+        this.paramters = paramters;
     }
 
     @Override

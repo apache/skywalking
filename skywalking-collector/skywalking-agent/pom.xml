@@ -21,6 +21,8 @@
         <shade.net.bytebuddy.target>com.ai.cloud.skywalking.api.dependencies.net.bytebuddy</shade.net.bytebuddy.target>
         <shade.io.netty.source>io.netty</shade.io.netty.source>
         <shade.io.netty.target>com.ai.cloud.skywalking.api.dependencies.io.netty</shade.io.netty.target>
+        <shade.com.google.protobuf.source>com.google.protobuf</shade.com.google.protobuf.source>
+        <shade.com.google.protobuf.target>com.ai.cloud.skywalking.api.dependencies.google.protobuf</shade.com.google.protobuf.target>
     </properties>
 
     <dependencies>
@@ -81,6 +83,10 @@
                                 <relocation>
                                     <pattern>${shade.io.netty.source}</pattern>
                                     <shadedPattern>${shade.io.netty.target}</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>${shade.com.google.protobuf.source}</pattern>
+                                    <shadedPattern>${shade.com.google.protobuf.target}</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>
