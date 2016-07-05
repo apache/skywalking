@@ -70,7 +70,7 @@ public class DataSender implements IDataSender {
     /**
      * 返回是否发送成功
      *
-     * @param data
+     * @param packageData
      * @return
      */
     @Override
@@ -78,7 +78,7 @@ public class DataSender implements IDataSender {
         try {
             if (channel != null && channel.isActive()) {
 
-                byte[] dataPackage = TransportPackager.pack(data.getBytes());
+                byte[] dataPackage = TransportPackager.pack(packageData);
                 channel.writeAndFlush(dataPackage);
 
                 SDKHealthCollector.getCurrentHeathReading("sender").updateData(HeathReading.INFO, "DataSender[" + socketAddress + "] send data successfully.");

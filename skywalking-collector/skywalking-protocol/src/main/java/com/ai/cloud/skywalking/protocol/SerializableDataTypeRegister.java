@@ -1,9 +1,13 @@
 package com.ai.cloud.skywalking.protocol;
 
+import com.ai.cloud.skywalking.protocol.common.AbstractDataSerializable;
+import com.ai.cloud.skywalking.protocol.common.ISerializable;
+import com.ai.cloud.skywalking.protocol.common.NullableClass;
 import com.ai.cloud.skywalking.protocol.exception.SerializableDataTypeRegisterException;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by wusheng on 16/7/4.
@@ -31,6 +35,24 @@ public class SerializableDataTypeRegister {
         } else {
             return false;
         }
+    }
+
+    public static ISerializable findSerializableClassAndSerialize(byte[] data) {
+        Set<Class<?>> registerSerializableClasses = CLASS_MAPPING_DATA_TYPE.keySet();
+        for (Class<?> serializableClass : registerSerializableClasses) {
+            try {
+                ISerializable result = ((ISerializable) serializableClass.newInstance());
+                //TODO
+               NullableClass nullableClass = result.convert2Object(data);
+               if (!nullableClass.isNull()){
+
+               }
+            } catch (Exception e) {
+
+            }
+
+        }
+        return null;
     }
 
     public static Integer getType(Class<?> clazz) {

@@ -3,6 +3,9 @@ package com.ai.cloud.skywalking.protocol;
 import com.ai.cloud.skywalking.protocol.common.CallType;
 import com.ai.cloud.skywalking.protocol.common.SpanType;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public abstract class SpanData {
 	/**
 	 * Span在序列中，各字段间的分隔符
@@ -92,7 +95,7 @@ public abstract class SpanData {
      * 节点调用过程中的业务字段<br/>
      * 如：业务系统设置的订单号，SQL语句等
      */
-    protected String businessKey = "";
+    protected Map<String, String> parameters = new HashMap<String, String>();
     /**
      * 节点调用的所在进程号
      */
@@ -177,10 +180,6 @@ public abstract class SpanData {
         return isInvalidate;
     }
 
-    public void setBusinessKey(String businessKey) {
-        this.businessKey = businessKey;
-    }
-
     public void setProcessNo(String processNo) {
         this.processNo = processNo;
     }
@@ -209,8 +208,12 @@ public abstract class SpanData {
         this.exceptionStack = exceptionStack;
     }
 
-    public String getBusinessKey() {
-        return businessKey;
+    public Map<String, String> getParameters() {
+        return parameters;
+    }
+
+    public void setParameters(Map<String, String> parameters) {
+        this.parameters = parameters;
     }
 
     public String getProcessNo() {
@@ -232,4 +235,6 @@ public abstract class SpanData {
     public String getCallType() {
         return callType;
     }
+
+
 }

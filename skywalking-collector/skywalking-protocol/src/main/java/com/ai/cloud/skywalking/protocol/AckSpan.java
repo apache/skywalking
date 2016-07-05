@@ -37,6 +37,15 @@ public class AckSpan extends AbstractDataSerializable {
      */
     private String exceptionStack;
 
+    public AckSpan(Span spanData) {
+        this.traceId = spanData.getTraceId();
+        this.parentLevel = spanData.getParentLevel();
+        this.levelId = spanData.getLevelId();
+        this.cost = System.currentTimeMillis() - spanData.getStartDate();
+        this.statusCode = spanData.getStatusCode();
+        this.exceptionStack = spanData.getExceptionStack();
+    }
+
     public String getTraceId() {
         return traceId;
     }

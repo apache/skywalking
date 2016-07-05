@@ -1,31 +1,20 @@
 package com.ai.cloud.skywalking.util;
 
+import com.ai.cloud.skywalking.protocol.SerializableDataTypeRegister;
 import com.ai.cloud.skywalking.protocol.common.ISerializable;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class TransportPackager {
-    public static byte[] pack(List<ISerializable> packageData) {
+    public static byte[] pack(List<ISerializable> beSendingData) {
         // 对协议格式进行修改
         // | check sum(4 byte) |  data
-        byte[] dataPackage = new byte[data.length + 4];
-
-        packDataText(data, dataPackage);
-        packCheckSum(data, dataPackage);
-
+        byte[] dataText = packDataText(beSendingData);
+        byte[] dataPackage = packCheckSum(dataText);
         return dataPackage;
     }
-
-    private static void packCheckSum(byte[] data, byte[] dataPackage) {
-        byte[] checkSumArray = generateChecksum(data, 0);
-        System.arraycopy(checkSumArray, 0, dataPackage, 0, 4);
-    }
-
-    private static void packDataText(byte[] data, byte[] dataPackage) {
-        System.arraycopy(data, 0, dataPackage, 4, data.length);
-    }
-
 
     public static List<ISerializable> unpack(byte[] dataPackage) {
         if (validateCheckSum(dataPackage)) {
@@ -33,16 +22,31 @@ public class TransportPackager {
         } else {
             return null;
         }
-
     }
 
-    private static byte[] unpackDataText(byte[] dataPackage) {
-        byte[] data = new byte[dataPackage.length - 4];
-        System.arraycopy(dataPackage, 4, data, 0, data.length);
-        return data;
+    private static List<ISerializable> unpackDataText(byte[] dataPackage) {
+        List<ISerializable> serializeData = new ArrayList<ISerializable>();
+        int currentLength = 0;
+        while (true) {
+            //读取长度
+            int dataLength = IntegerAssist.bytesToInt(dataPackage, 0);
+            // 反序列化
+            byte[] data = new byte[dataLength];
+            System.arraycopy(dataPackage, currentLength + 4, data, 0, dataLength);
+            //
+            ISerializable data1 = SerializableDataTypeRegister.findSerializableClassAndSerialize(data);
+            if (data1 != null) {
+                serializeData.add(data1);
+            }
+            currentLength = 4 + dataLength;
+            if (currentLength >= dataPackage.length) {
+                break;
+            }
+        }
+        return serializeData;
     }
 
-    private static boolean validateCheckSum(byte[] dataPackage){
+    private static boolean validateCheckSum(byte[] dataPackage) {
         byte[] checkSum = generateChecksum(dataPackage, 4);
         byte[] originCheckSum = new byte[4];
         System.arraycopy(dataPackage, 0, originCheckSum, 0, 4);
@@ -62,5 +66,47 @@ public class TransportPackager {
         }
 
         return IntegerAssist.intToBytes(result);
+    }
+
+    private static byte[] packCheckSum(byte[] dataText) {
+        byte[] dataPackage = new byte[dataText.length + 4];
+        byte[] checkSum = generateChecksum(dataText, 0);
+        System.arraycopy(checkSum, 0, dataPackage, 0, 4);
+        System.arraycopy(dataText, 0, dataPackage, 4, dataText.length);
+        return dataPackage;
+    }
+
+    private static byte[] packDataText(List<ISerializable> beSendingData) {
+        byte[] dataText = new byte[1024 * 30];
+        int currentIndex = 0;
+        for (ISerializable sendingData : beSendingData) {
+            byte[] dataElementText = appendingLength(sendingData.convert2Bytes());
+            dataText = expansionCapacityIfNecessary(dataText, currentIndex, dataElementText);
+            appendBeSendingDataText(dataElementText, dataText, currentIndex);
+            currentIndex += dataElementText.length;
+        }
+
+        return dataText;
+    }
+
+    private static void appendBeSendingDataText(byte[] beSendingDataText, byte[] dataText, int currentIndex) {
+        System.arraycopy(beSendingDataText, 0, dataText, currentIndex, beSendingDataText.length);
+    }
+
+    private static byte[] expansionCapacityIfNecessary(byte[] dataText, int currentLength, byte[] beSendingDataText) {
+        if (beSendingDataText.length + currentLength > 1024 * 30) {
+            byte[] newDataText = new byte[dataText.length + 1024 * 30];
+            System.arraycopy(dataText, 0, newDataText, 0, dataText.length);
+            return newDataText;
+        }
+        return dataText;
+    }
+
+    private static byte[] appendingLength(byte[] dataByte) {
+        byte[] dataText = new byte[dataByte.length + 4];
+        System.arraycopy(dataByte, 0, dataText, 4, dataByte.length);
+        byte[] length = IntegerAssist.intToBytes(dataByte.length);
+        System.arraycopy(length, 0, dataText, 0, 4);
+        return dataText;
     }
 }

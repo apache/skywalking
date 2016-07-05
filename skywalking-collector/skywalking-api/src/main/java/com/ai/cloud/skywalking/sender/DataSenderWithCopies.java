@@ -53,7 +53,7 @@ public class DataSenderWithCopies implements IDataSender {
 	public boolean send(List<ISerializable> packageData) {
 		int successNum = 0;
 		for (IDataSender sender : senders) {
-			if (sender.send(data)) {
+			if (sender.send(packageData)) {
 				successNum++;
 			}
 		}

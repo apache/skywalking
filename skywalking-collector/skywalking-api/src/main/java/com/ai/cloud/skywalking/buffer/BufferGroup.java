@@ -1,10 +1,8 @@
 package com.ai.cloud.skywalking.buffer;
 
 import com.ai.cloud.skywalking.conf.Config;
-import com.ai.cloud.skywalking.conf.Constants;
 import com.ai.cloud.skywalking.logging.LogManager;
 import com.ai.cloud.skywalking.logging.Logger;
-import com.ai.cloud.skywalking.protocol.Span;
 import com.ai.cloud.skywalking.protocol.common.ISerializable;
 import com.ai.cloud.skywalking.selfexamination.HeathReading;
 import com.ai.cloud.skywalking.selfexamination.SDKHealthCollector;
@@ -45,7 +43,7 @@ public class BufferGroup {
         }
     }
 
-    public void save(Span span) {
+    public void save(ISerializable data) {
         int i = index.getAndIncrement();
         if (dataBuffer[i] != null) {
             logger.warn(
@@ -53,7 +51,7 @@ public class BufferGroup {
                     groupName, i);
             SDKHealthCollector.getCurrentHeathReading("BufferGroup").updateData(HeathReading.WARNING, "BufferGroup index[" + i + "] data collision, data been coverd.");
         }
-        dataBuffer[i] = span;
+        dataBuffer[i] = data;
         SDKHealthCollector.getCurrentHeathReading("BufferGroup").updateData(HeathReading.INFO, "save span");
     }
 
@@ -69,7 +67,6 @@ public class BufferGroup {
 
         @Override
         public void run() {
-            //TODO: 根据list长度进行限制
             List<ISerializable> packageData = new ArrayList<ISerializable>();
             while (true) {
                 boolean bool = false;
@@ -79,33 +76,33 @@ public class BufferGroup {
                             continue;
                         }
                         bool = true;
-                        if (data.length() + dataBuffer[i].toString().length() >= Config.Sender.MAX_SEND_LENGTH) {
+                        if (packageData.size() >= Config.Sender.MAX_SEND_DATA_SIZE) {
                             while (!DataSenderFactoryWithBalance.getSender()
-                                    .send(data.toString())) {
+                                    .send(packageData)) {
                                 try {
                                     Thread.sleep(CONSUMER_FAIL_RETRY_WAIT_INTERVAL);
                                 } catch (InterruptedException e) {
                                     logger.error("Sleep Failure");
                                 }
                             }
-                            logger.debug("send buried-point data, size:{}", data.length());
-                            data = new StringBuilder();
+                            logger.debug("send buried-point data, size:{}", packageData.size());
+                            packageData = new ArrayList<ISerializable>();
                         }
 
-                        data.append(dataBuffer[i] + Constants.DATA_SPILT);
+                        packageData.add(dataBuffer[i]);
                         dataBuffer[i] = null;
                     }
 
-                    if (data != null && data.length() > 0) {
+                    if (packageData != null && packageData.size() > 0) {
                         while (!DataSenderFactoryWithBalance.getSender().send(
-                                data.toString())) {
+                                packageData)) {
                             try {
                                 Thread.sleep(CONSUMER_FAIL_RETRY_WAIT_INTERVAL);
                             } catch (InterruptedException e) {
                                 logger.error("Sleep Failure");
                             }
                         }
-                        data = new StringBuilder();
+                        packageData = new ArrayList<ISerializable>();
                     }
                 } catch (Throwable e) {
                     logger.error("buffer group running failed", e);

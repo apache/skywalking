@@ -78,6 +78,25 @@ public class RequestSpan extends AbstractDataSerializable {
 
     private Map<String, String> paramters = new HashMap<String, String>();
 
+    public RequestSpan(Span spanData) {
+        this.traceId = spanData.getTraceId();
+        this.parentLevel = spanData.getParentLevel();
+        this.levelId = spanData.getLevelId();
+        this.address = spanData.getAddress();
+        this.applicationId = spanData.getApplicationId();
+        this.callType = spanData.getCallType();
+        this.spanType = spanData.getSpanType();
+        this.spanTypeDesc = spanData.getSpanTypeDesc();
+        this.userId = spanData.getUserId();
+        if (isEntrySpan(spanData)) {
+            this.paramters.putAll(spanData.getParamters());
+        }
+    }
+
+    private boolean isEntrySpan(Span spanData) {
+        return "0".equals(spanData.getParentLevel() + spanData.getLevelId());
+    }
+
     public String getTraceId() {
         return traceId;
     }

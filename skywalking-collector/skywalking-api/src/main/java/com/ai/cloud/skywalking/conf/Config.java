@@ -46,6 +46,8 @@ public class Config {
     }
 
     public static class Sender {
+        // 最大发送数据个数
+        public static final int MAX_SEND_DATA_SIZE = 10;
         // 最大发送者的连接数阀比例
         public static int CONNECT_PERCENT = 50;
 

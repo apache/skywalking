@@ -37,7 +37,7 @@ public abstract class AbstractDataSerializable implements ISerializable, Nullabl
     }
 
     @Override
-    public Object convert2Object(byte[] data) {
+    public NullableClass convert2Object(byte[] data) {
         // TODO:data的前4位转成type;
         int dataType =  1;
         if(!SerializableDataTypeRegister.isTypeAndClassMatch(dataType, this.getClass())){
