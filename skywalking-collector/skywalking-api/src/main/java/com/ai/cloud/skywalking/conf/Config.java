@@ -83,7 +83,7 @@ public class Config {
         // log文件名
         public static String LOG_FILE_NAME = "skywalking-api.log";
         // log文件路径
-        public static String LOG_FILE_PATH = "/home/xin/tmp";
+        public static String LOG_FILE_PATH = "/tmp/skywalking";
         // 最大文件大小
         public static int MAX_LOG_FILE_LENGTH = 3 * 1024 * 1024;
         // skywalking 系统错误文件日志
