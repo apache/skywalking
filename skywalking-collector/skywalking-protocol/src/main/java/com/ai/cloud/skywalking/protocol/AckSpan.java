@@ -149,21 +149,4 @@ public class AckSpan extends AbstractDataSerializable {
     public boolean isNull() {
         return false;
     }
-
-    public static class AckSpanBuilder {
-        private AckSpan ackSpan;
-
-        private AckSpanBuilder(Span span) {
-            ackSpan = new AckSpan(span);
-        }
-
-        public static AckSpanBuilder newBuilder(Span span) {
-            return new AckSpanBuilder(span);
-        }
-
-        public AckSpanBuilder countCost(long startTime) {
-            ackSpan.cost = System.currentTimeMillis() - startTime;
-            return this;
-        }
-    }
 }
