@@ -9,18 +9,18 @@ import java.util.ServiceLoader;
 
 public class ProcessorFactory {
     private static Logger                              logger                 = LogManager.getLogger(ProcessorFactory.class);
-    private static Map<Integer, AbstractSpanProcessor> type_processor_mapping = new HashMap<Integer, AbstractSpanProcessor>();
+    private static Map<Integer, IProcessor> type_processor_mapping = new HashMap<Integer, IProcessor>();
 
     static {
-        ServiceLoader<AbstractSpanProcessor> processors = ServiceLoader.load(AbstractSpanProcessor.class);
+        ServiceLoader<IProcessor> processors = ServiceLoader.load(IProcessor.class);
 
-        for (AbstractSpanProcessor processor : processors) {
-            logger.info("Init protocol type and processor mapping : {} --> {}.", processor.getType(), processor.getClass().getName());
-            type_processor_mapping.put(processor.getType(), processor);
+        for (IProcessor processor : processors) {
+            logger.info("Init protocol type and processor mapping : {} --> {}.", processor.getProtocolType(), processor.getClass().getName());
+            type_processor_mapping.put(processor.getProtocolType(), processor);
         }
     }
 
-    public static AbstractSpanProcessor chooseProcessor(int dataType) {
+    public static IProcessor chooseProcessor(int dataType) {
         return type_processor_mapping.get(dataType);
     }
 }

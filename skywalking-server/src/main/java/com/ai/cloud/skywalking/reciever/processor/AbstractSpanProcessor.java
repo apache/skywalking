@@ -48,6 +48,4 @@ public abstract class AbstractSpanProcessor implements IProcessor {
 
     public abstract void doSaveHBase(Connection connection, List<AbstractDataSerializable> serializedObjects);
 
-    public abstract int getType();
-
 }

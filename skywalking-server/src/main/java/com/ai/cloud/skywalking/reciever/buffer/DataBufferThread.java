@@ -3,6 +3,7 @@ package com.ai.cloud.skywalking.reciever.buffer;
 import com.ai.cloud.skywalking.protocol.common.AbstractDataSerializable;
 import com.ai.cloud.skywalking.reciever.conf.Config;
 import com.ai.cloud.skywalking.reciever.processor.AbstractSpanProcessor;
+import com.ai.cloud.skywalking.reciever.processor.IProcessor;
 import com.ai.cloud.skywalking.reciever.processor.ProcessorFactory;
 import com.ai.cloud.skywalking.reciever.selfexamination.ServerHealthCollector;
 import com.ai.cloud.skywalking.reciever.selfexamination.ServerHeathReading;
@@ -50,7 +51,7 @@ public class DataBufferThread extends Thread {
             }
 
             for (Map.Entry<Integer, List<AbstractDataSerializable>> entry : serializeObjects.entrySet()) {
-                AbstractSpanProcessor processor = ProcessorFactory.chooseProcessor(entry.getKey());
+                IProcessor processor = ProcessorFactory.chooseProcessor(entry.getKey());
                 if (processor != null) {
                     processor.process(entry.getValue());
                 }

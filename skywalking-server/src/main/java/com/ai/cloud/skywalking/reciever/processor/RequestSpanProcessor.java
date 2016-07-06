@@ -44,7 +44,7 @@ public class RequestSpanProcessor extends AbstractSpanProcessor {
     }
 
     @Override
-    public int getType() {
+    public int getProtocolType() {
         return 1;
     }
 

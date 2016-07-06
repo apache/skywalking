@@ -45,7 +45,7 @@ public class AckSpanProcessor extends AbstractSpanProcessor {
     }
 
     @Override
-    public int getType() {
+    public int getProtocolType() {
         return 2;
     }
 }
