@@ -7,26 +7,31 @@ import com.ai.cloud.skywalking.protocol.exception.SpanTypeCannotConvertException
  */
 public enum SpanType {
 
-    LOCAL((byte) 1), RPC_CLIENT((byte) 2), RPC_SERVER((byte) 4);
+    LOCAL(1),
+    RPC_CLIENT(2),
+    RPC_SERVER(4);
 
-    private byte value;
+    private int value;
 
-    SpanType(byte value) {
+    SpanType(int value) {
         this.value = value;
     }
 
-   public static SpanType convert(String spanTypeValue) {
-        switch (Byte.valueOf(spanTypeValue)){
-            case 1 : return LOCAL;
-            case 2 : return RPC_CLIENT;
-            case 3 : return RPC_SERVER;
+    public static SpanType convert(int spanTypeValue) {
+        switch (spanTypeValue) {
+            case 1:
+                return LOCAL;
+            case 2:
+                return RPC_CLIENT;
+            case 3:
+                return RPC_SERVER;
             default:
-                throw new SpanTypeCannotConvertException(spanTypeValue);
+                throw new SpanTypeCannotConvertException(spanTypeValue + "");
         }
     }
 
 
-    public byte getValue() {
+    public int getValue() {
         return value;
     }
 }

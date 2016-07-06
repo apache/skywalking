@@ -86,7 +86,7 @@ public class CurrentThreadSpanStack {
 
         public void invalidatePresentSpans() {
             for (SpanNode spanNode : spans) {
-                spanNode.getData().setIsInvalidate(true);
+                spanNode.getData().setInvalidate(true);
             }
         }
     }

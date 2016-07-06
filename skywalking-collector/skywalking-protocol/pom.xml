@@ -87,11 +87,12 @@
 								<mkdir dir="src/main/gen-java" />
 								<path id="proto.path">
 									<fileset dir="src/main/proto">
-										<include name="**/*.proto" />
+										<include name="*.proto" />
 									</fileset>
 								</path>
 								<pathconvert pathsep=" " property="proto.files"
 											 refid="proto.path" />
+
 								<exec executable="protoc">
 									<arg value="--java_out=src/main/gen-java" />
 									<arg value="-I${project.basedir}/src/main/proto" />

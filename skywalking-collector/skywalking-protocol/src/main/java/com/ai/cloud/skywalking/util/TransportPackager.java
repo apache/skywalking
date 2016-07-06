@@ -1,6 +1,5 @@
 package com.ai.cloud.skywalking.util;
 
-import com.ai.cloud.skywalking.protocol.SerializableDataTypeRegister;
 import com.ai.cloud.skywalking.protocol.common.ISerializable;
 
 import java.util.ArrayList;
@@ -16,16 +15,16 @@ public class TransportPackager {
         return dataPackage;
     }
 
-    public static List<ISerializable> unpack(byte[] dataPackage) {
+    public static List<byte[]> unpack(byte[] dataPackage) {
         if (validateCheckSum(dataPackage)) {
             return unpackDataText(dataPackage);
         } else {
-            return null;
+            return new ArrayList<byte[]>();
         }
     }
 
-    private static List<ISerializable> unpackDataText(byte[] dataPackage) {
-        List<ISerializable> serializeData = new ArrayList<ISerializable>();
+    private static List<byte[]> unpackDataText(byte[] dataPackage) {
+        List<byte[]> serializeData = new ArrayList<byte[]>();
         int currentLength = 0;
         while (true) {
             //读取长度
@@ -34,10 +33,7 @@ public class TransportPackager {
             byte[] data = new byte[dataLength];
             System.arraycopy(dataPackage, currentLength + 4, data, 0, dataLength);
             //
-            ISerializable data1 = SerializableDataTypeRegister.findSerializableClassAndSerialize(data);
-            if (data1 != null) {
-                serializeData.add(data1);
-            }
+            serializeData.add(data);
             currentLength = 4 + dataLength;
             if (currentLength >= dataPackage.length) {
                 break;

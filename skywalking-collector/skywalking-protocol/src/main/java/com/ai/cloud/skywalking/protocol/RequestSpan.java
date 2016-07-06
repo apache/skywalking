@@ -3,6 +3,8 @@ package com.ai.cloud.skywalking.protocol;
 import com.ai.cloud.skywalking.protocol.common.AbstractDataSerializable;
 import com.ai.cloud.skywalking.protocol.common.CallType;
 import com.ai.cloud.skywalking.protocol.common.SpanType;
+import com.ai.cloud.skywalking.protocol.proto.TraceProtocol;
+import com.google.protobuf.InvalidProtocolBufferException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,7 +26,7 @@ public class RequestSpan extends AbstractDataSerializable {
      * 当前调用链的本机描述<br/>
      * 如当前序号为：0.1.0时，levelId=0
      */
-    private int levelId = 0;
+    private int    levelId     = 0;
     /**
      * 调用链中单个节点的入口描述<br/>
      * 如：java方法名，调用的RPC地址等等
@@ -33,12 +35,7 @@ public class RequestSpan extends AbstractDataSerializable {
     /**
      * 节点调用开始时间
      */
-    private long startDate = System.currentTimeMillis();
-    /**
-     * 节点调用的发生机器描述<br/>
-     * 包含机器名 + IP地址
-     */
-    private String address = "";
+    private long   startDate   = System.currentTimeMillis();
 
     /**
      * 节点类型描述<br/>
@@ -61,10 +58,6 @@ public class RequestSpan extends AbstractDataSerializable {
     private SpanType spanType = SpanType.LOCAL;
 
     /**
-     * 节点调用的所在进程号
-     */
-    private String processNo = "";
-    /**
      * 节点调用所在的系统逻辑名称<br/>
      * 由授权文件指定
      */
@@ -85,15 +78,14 @@ public class RequestSpan extends AbstractDataSerializable {
         this.traceId = spanData.getTraceId();
         this.parentLevel = spanData.getParentLevel();
         this.levelId = spanData.getLevelId();
-        this.address = spanData.getAddress();
-        this.applicationId = spanData.getApplicationId();
-        this.callType = spanData.getCallType();
         this.spanType = spanData.getSpanType();
-        this.spanTypeDesc = spanData.getSpanTypeDesc();
-        this.userId = spanData.getUserId();
         if (isEntrySpan(spanData)) {
-            this.paramters.putAll(spanData.getParamters());
+            this.paramters.putAll(spanData.getParameters());
         }
+    }
+
+    public RequestSpan() {
+
     }
 
     private boolean isEntrySpan(Span spanData) {
@@ -140,14 +132,6 @@ public class RequestSpan extends AbstractDataSerializable {
         this.startDate = startDate;
     }
 
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
     public String getSpanTypeDesc() {
         return spanTypeDesc;
     }
@@ -170,14 +154,6 @@ public class RequestSpan extends AbstractDataSerializable {
 
     public void setSpanType(SpanType spanType) {
         this.spanType = spanType;
-    }
-
-    public String getProcessNo() {
-        return processNo;
-    }
-
-    public void setProcessNo(String processNo) {
-        this.processNo = processNo;
     }
 
     public String getApplicationId() {
@@ -211,11 +187,76 @@ public class RequestSpan extends AbstractDataSerializable {
 
     @Override
     public byte[] getData() {
-        return new byte[0];
+        return TraceProtocol.RequestSpan.newBuilder().setTraceId(traceId).setParentLevel(parentLevel).setLevelId(levelId).setViewPointId(viewPointId).setStartDate(startDate)
+                .setSpanType(spanType.getValue()).setSpanTypeDesc(spanTypeDesc).setCallType(callType).setApplicationId(applicationId).setUserId(userId).build().toByteArray();
+    }
+
+    @Override
+    public AbstractDataSerializable convertData(byte[] data) {
+        RequestSpan requestSpan = new RequestSpan();
+        try {
+            TraceProtocol.RequestSpan requestSpanByte = TraceProtocol.RequestSpan.parseFrom(data);
+            requestSpan.setTraceId(requestSpanByte.getTraceId());
+            requestSpan.setParentLevel(requestSpanByte.getParentLevel());
+            requestSpan.setLevelId(requestSpanByte.getLevelId());
+            requestSpan.setApplicationId(requestSpanByte.getApplicationId());
+            requestSpan.setCallType(requestSpanByte.getCallType());
+            requestSpan.setSpanType(SpanType.convert(requestSpanByte.getSpanType()));
+            requestSpan.setSpanTypeDesc(requestSpanByte.getSpanTypeDesc());
+            requestSpan.setStartDate(requestSpanByte.getStartDate());
+            requestSpan.setUserId(requestSpanByte.getUserId());
+            requestSpan.setViewPointId(requestSpanByte.getViewPointId());
+        } catch (InvalidProtocolBufferException e) {
+            return null;
+        }
+
+        return requestSpan;
     }
 
     @Override
     public boolean isNull() {
         return false;
+    }
+
+
+    public static class RequestSpanBuilder {
+        private RequestSpan ackSpan;
+
+        private RequestSpanBuilder(Span span) {
+            ackSpan = new RequestSpan(span);
+        }
+
+        public static RequestSpanBuilder newBuilder(Span span) {
+            return new RequestSpanBuilder(span);
+        }
+
+        public RequestSpanBuilder applicationId(String applicationId) {
+            ackSpan.applicationId = applicationId;
+            return this;
+        }
+
+        public RequestSpanBuilder callType(String callType) {
+            ackSpan.callType = callType;
+            return this;
+        }
+
+        public RequestSpanBuilder spanTypeDesc(String spanTypeDesc) {
+            ackSpan.spanTypeDesc = spanTypeDesc;
+            return this;
+        }
+
+        public RequestSpanBuilder userId(String userId) {
+            ackSpan.userId = userId;
+            return this;
+        }
+
+        public RequestSpan build() {
+            return ackSpan;
+        }
+
+        public RequestSpanBuilder viewPoint(String viewPoint) {
+            ackSpan.viewPointId = viewPoint;
+            return this;
+        }
     }
 }

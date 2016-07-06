@@ -9,6 +9,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import redis.clients.jedis.Jedis;
 
 import java.net.InetSocketAddress;
+import java.util.List;
 
 public class CollectionServerDataHandler extends SimpleChannelInboundHandler<byte[]> {
 
@@ -16,16 +17,22 @@ public class CollectionServerDataHandler extends SimpleChannelInboundHandler<byt
     protected void channelRead0(ChannelHandlerContext ctx, byte[] msg) throws Exception {
         Thread.currentThread().setName("ServerReceiver");
         // 当接受到这条消息的是空，则忽略
-        if (msg != null && msg.length >= 0 && msg.length < Config.DataPackage.MAX_DATA_PACKAGE) {
+        if (msg != null && msg.length >= 0) {
 
-            byte[] data = TransportPackager.unpack(msg);
+            List<byte[]> byteSerializeObjects = TransportPackager.unpack(msg);
 
-            if (data != null) {
-                DataBufferThreadContainer.getDataBufferThread().saveTemporarily(data);
+            if (byteSerializeObjects.size() > 0) {
+                cacheSerializeObjects(byteSerializeObjects);
             } else {
                 // 处理错误包
                 dealFailedPackage(ctx);
             }
+        }
+    }
+
+    private void cacheSerializeObjects(List<byte[]> byteSerializeObjects) {
+        for (byte[] byteSerializeObject : byteSerializeObjects) {
+            DataBufferThreadContainer.getDataBufferThread().saveTemporarily(byteSerializeObject);
         }
     }
 

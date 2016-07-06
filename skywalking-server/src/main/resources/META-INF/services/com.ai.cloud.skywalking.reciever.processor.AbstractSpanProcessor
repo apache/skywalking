@@ -1,0 +1,2 @@
+com.ai.cloud.skywalking.reciever.processor.RequestSpanProcessor
+com.ai.cloud.skywalking.reciever.processor.AckSpanProcessor

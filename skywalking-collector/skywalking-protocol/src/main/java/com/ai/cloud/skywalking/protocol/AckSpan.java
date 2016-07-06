@@ -1,6 +1,8 @@
 package com.ai.cloud.skywalking.protocol;
 
 import com.ai.cloud.skywalking.protocol.common.AbstractDataSerializable;
+import com.ai.cloud.skywalking.protocol.proto.TraceProtocol;
+import com.google.protobuf.InvalidProtocolBufferException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -54,6 +56,10 @@ public class AckSpan extends AbstractDataSerializable {
      * 埋点入参列表,补充时触发
      */
     private Map<String, String> paramters = new HashMap<String, String>();
+
+    public AckSpan() {
+
+    }
 
     public String getTraceId() {
         return traceId;
@@ -122,7 +128,42 @@ public class AckSpan extends AbstractDataSerializable {
     }
 
     @Override
+    public AbstractDataSerializable convertData(byte[] data) {
+        AckSpan ackSpan = new AckSpan();
+        try {
+            TraceProtocol.AckSpan ackSpanProtocol = TraceProtocol.AckSpan.parseFrom(data);
+            ackSpan.setTraceId(ackSpanProtocol.getTraceId());
+            ackSpan.setParentLevel(ackSpanProtocol.getParentLevel());
+            ackSpan.setLevelId(ackSpanProtocol.getLevelId());
+            ackSpan.setCost(ackSpanProtocol.getCost());
+            ackSpan.setExceptionStack(ackSpanProtocol.getExceptionStack());
+            ackSpan.setStatusCode((byte) ackSpanProtocol.getStatusCode());
+        } catch (InvalidProtocolBufferException e) {
+            return null;
+        }
+
+        return ackSpan;
+    }
+
+    @Override
     public boolean isNull() {
         return false;
+    }
+
+    public static class AckSpanBuilder {
+        private AckSpan ackSpan;
+
+        private AckSpanBuilder(Span span) {
+            ackSpan = new AckSpan(span);
+        }
+
+        public static AckSpanBuilder newBuilder(Span span) {
+            return new AckSpanBuilder(span);
+        }
+
+        public AckSpanBuilder countCost(long startTime) {
+            ackSpan.cost = System.currentTimeMillis() - startTime;
+            return this;
+        }
     }
 }

@@ -1,9 +1,10 @@
 package com.ai.cloud.skywalking.protocol.common;
 
 import com.ai.cloud.skywalking.protocol.NullClass;
-import com.ai.cloud.skywalking.protocol.SerializableDataTypeRegister;
+import com.ai.cloud.skywalking.serialize.SerializedFactory;
 import com.ai.cloud.skywalking.util.IntegerAssist;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -13,13 +14,11 @@ import java.util.Set;
 public abstract class AbstractDataSerializable implements ISerializable, NullableClass {
     private static Set<Integer> DATA_TYPE_SCOPE = new HashSet<Integer>();
 
-    public AbstractDataSerializable(){
-        SerializableDataTypeRegister.init(getDataType(), this.getClass());
-    }
-
     public abstract int getDataType();
 
     public abstract byte[] getData();
+
+    public abstract AbstractDataSerializable convertData(byte[] data);
 
     /**
      * 消息包结构:
@@ -30,21 +29,31 @@ public abstract class AbstractDataSerializable implements ISerializable, Nullabl
      */
     @Override
     public byte[] convert2Bytes() {
-        byte[] type = IntegerAssist.intToBytes(SerializableDataTypeRegister.getType(this.getClass()));
+        byte[] messagePackage = new byte[4 + getData().length];
+        appendingDataText(messagePackage);
+        appendingDataLength(messagePackage);
+        return messagePackage;
+    }
 
-        //TODO:消息包 = 4位
-        return getData();
+    private void appendingDataLength(byte[] dataByte) {
+        byte[] type = IntegerAssist.intToBytes(this.getDataType());
+        System.arraycopy(type, 0, dataByte, 0, type.length);
+    }
+
+    private byte[] appendingDataText(byte[] dataByte) {
+        System.arraycopy(getData(), 0, dataByte, 4, dataByte.length);
+        return dataByte;
     }
 
     @Override
     public NullableClass convert2Object(byte[] data) {
-        // TODO:data的前4位转成type;
-        int dataType =  1;
-        if(!SerializableDataTypeRegister.isTypeAndClassMatch(dataType, this.getClass())){
+        int dataType = IntegerAssist.bytesToInt(data, 0);
+
+        if (!SerializedFactory.isCanSerialized(dataType)) {
             return new NullClass();
         }
-        // TODO: 反序列化
-        return null;
+
+        return this.convertData(Arrays.copyOfRange(data,4, data.length));
     }
 
 

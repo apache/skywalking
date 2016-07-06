@@ -2,7 +2,6 @@ package com.ai.cloud.skywalking.buffer;
 
 import com.ai.cloud.skywalking.logging.LogManager;
 import com.ai.cloud.skywalking.logging.Logger;
-import com.ai.cloud.skywalking.protocol.Span;
 import com.ai.cloud.skywalking.protocol.common.ISerializable;
 
 import java.util.concurrent.ThreadLocalRandom;

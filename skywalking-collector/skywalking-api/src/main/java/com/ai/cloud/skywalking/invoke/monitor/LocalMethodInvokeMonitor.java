@@ -21,7 +21,7 @@ public class LocalMethodInvokeMonitor extends BaseInvokeMonitor {
 
             Span spanData = ContextGenerator.generateSpanFromThreadLocal(id);
 
-            return super.beforeInvoke(spanData);
+            return super.beforeInvoke(spanData,id);
         } catch (Throwable t) {
             logger.error(t.getMessage(), t);
             return new EmptyContextData();
