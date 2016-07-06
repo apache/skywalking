@@ -43,7 +43,7 @@ public class Span {
      * 节点调用的错误堆栈<br/>
      * 堆栈以JAVA的exception为主要判断依据
      */
-    protected String exceptionStack;
+    protected String exceptionStack = "";
 
     /**
      * 节点的状态<br/>
@@ -60,7 +60,7 @@ public class Span {
      * 节点类型<br/>
      * 如：RPC Client,RPC Server,Local
      */
-    private   SpanType            spanType   = SpanType.LOCAL;
+    private SpanType spanType = SpanType.LOCAL;
 
     public Span(String traceId) {
         this.traceId = traceId;

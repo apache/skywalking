@@ -24,11 +24,11 @@ public class AckSpan extends AbstractDataSerializable {
      * 当前调用链的本机描述<br/>
      * 如当前序号为：0.1.0时，levelId=0
      */
-    private int  levelId    = 0;
+    private int levelId = 0;
     /**
      * 节点调用花费时间
      */
-    private long cost       = 0L;
+    private long cost = 0L;
     /**
      * 节点调用的状态<br/>
      * 0：成功<br/>
@@ -40,7 +40,7 @@ public class AckSpan extends AbstractDataSerializable {
      * 节点调用的错误堆栈<br/>
      * 堆栈以JAVA的exception为主要判断依据
      */
-    private String exceptionStack;
+    private String exceptionStack = "";
 
 
     public AckSpan(Span spanData) {
@@ -124,7 +124,8 @@ public class AckSpan extends AbstractDataSerializable {
 
     @Override
     public byte[] getData() {
-        return new byte[0];
+        return TraceProtocol.AckSpan.newBuilder().setTraceId(traceId).setParentLevel(parentLevel).
+                setLevelId(levelId).setCost(cost).setStatusCode(statusCode).setExceptionStack(exceptionStack).build().toByteArray();
     }
 
     @Override

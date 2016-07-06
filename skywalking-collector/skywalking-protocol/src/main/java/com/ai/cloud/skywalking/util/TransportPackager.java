@@ -17,10 +17,14 @@ public class TransportPackager {
 
     public static List<byte[]> unpack(byte[] dataPackage) {
         if (validateCheckSum(dataPackage)) {
-            return unpackDataText(dataPackage);
+            return unpackDataText(unpackCheckSum(dataPackage));
         } else {
             return new ArrayList<byte[]>();
         }
+    }
+
+    private static byte[] unpackCheckSum(byte[] dataPackage) {
+        return Arrays.copyOfRange(dataPackage, 4, dataPackage.length);
     }
 
     private static List<byte[]> unpackDataText(byte[] dataPackage) {
@@ -28,7 +32,7 @@ public class TransportPackager {
         int currentLength = 0;
         while (true) {
             //读取长度
-            int dataLength = IntegerAssist.bytesToInt(dataPackage, 0);
+            int dataLength = IntegerAssist.bytesToInt(dataPackage, currentLength);
             // 反序列化
             byte[] data = new byte[dataLength];
             System.arraycopy(dataPackage, currentLength + 4, data, 0, dataLength);
@@ -56,8 +60,8 @@ public class TransportPackager {
      * @return
      */
     private static byte[] generateChecksum(byte[] data, int offset) {
-        int result = data[0];
-        for (int i = offset; i < data.length; i++) {
+        int result = data[offset];
+        for (int i = offset + 1; i < data.length; i++) {
             result ^= data[i];
         }
 
@@ -73,12 +77,16 @@ public class TransportPackager {
     }
 
     private static byte[] packDataText(List<ISerializable> beSendingData) {
-        byte[] dataText = new byte[1024 * 30];
+        byte[] dataText = null;
         int currentIndex = 0;
         for (ISerializable sendingData : beSendingData) {
             byte[] dataElementText = appendingLength(sendingData.convert2Bytes());
-            dataText = expansionCapacityIfNecessary(dataText, currentIndex, dataElementText);
-            appendBeSendingDataText(dataElementText, dataText, currentIndex);
+            if (dataText == null) {
+                dataText = new byte[dataElementText.length];
+            } else {
+                dataText = Arrays.copyOf(dataText, dataText.length + dataElementText.length);
+            }
+            System.arraycopy(dataElementText, 0, dataText, currentIndex, dataElementText.length);
             currentIndex += dataElementText.length;
         }
 

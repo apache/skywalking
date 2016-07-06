@@ -30,7 +30,7 @@ public class RPCClientInvokeMonitor extends BaseInvokeMonitor {
             ContextBuffer.save(new RequestSpan(spanData));
             CurrentThreadSpanStack.push(spanData);
 
-            return new ContextData(spanData.getTraceId(), generateSubParentLevelId(spanData), spanData.getCallType());
+            return new ContextData(spanData.getTraceId(), generateSubParentLevelId(spanData));
         } catch (Throwable t) {
             logger.error(t.getMessage(), t);
             return new EmptyContextData();

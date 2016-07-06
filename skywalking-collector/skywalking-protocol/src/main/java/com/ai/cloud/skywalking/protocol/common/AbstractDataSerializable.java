@@ -28,13 +28,12 @@ public abstract class AbstractDataSerializable implements ISerializable, Nullabl
         byte[] messageByteData = getData();
         byte[] messagePackage = new byte[4 + messageByteData.length];
         packData(messageByteData, messagePackage);
-        setPackageLength(messagePackage);
+        setProtocolType(messageByteData, messagePackage);
         return messagePackage;
     }
 
-    private void setPackageLength(byte[] messagePackage) {
-        byte[] type = IntegerAssist.intToBytes(this.getDataType());
-        System.arraycopy(type, 0, messagePackage, 0, type.length);
+    private void setProtocolType(byte[] messageByteData, byte[] messagePackage) {
+        System.arraycopy(IntegerAssist.intToBytes(getDataType()), 0, messagePackage, 0, 4);
     }
 
     private void packData(byte[] messageByteData, byte[] messagePackage) {
@@ -49,7 +48,7 @@ public abstract class AbstractDataSerializable implements ISerializable, Nullabl
             return new NullClass();
         }
 
-        return this.convertData(Arrays.copyOfRange(data,4, data.length));
+        return this.convertData(Arrays.copyOfRange(data, 4, data.length));
     }
 
 

@@ -29,7 +29,7 @@ public class SerializedFactory {
         if (abstractDataSerializable != null) {
             NullableClass nullableClass = abstractDataSerializable.convert2Object(bytes);
             if (!nullableClass.isNull()) {
-                return abstractDataSerializable;
+                return (AbstractDataSerializable) nullableClass;
             }
         }
         return null;

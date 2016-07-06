@@ -27,18 +27,18 @@ public class RPCServerInvokeMonitor extends BaseInvokeMonitor {
 
             invalidateAllSpanIfIsNotFirstSpan(spanData);
 
-            super.beforeInvoke(spanData);
+            super.beforeInvoke(spanData, id);
         } catch (Throwable t) {
             logger.error(t.getMessage(), t);
         }
     }
 
-    public void afterInvoke(){
+    public void afterInvoke() {
         super.afterInvoke();
     }
 
 
-    public void occurException(Throwable th){
+    public void occurException(Throwable th) {
         super.occurException(th);
     }
 

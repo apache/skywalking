@@ -7,23 +7,20 @@ public class ContextData {
     private String traceId;
     private String parentLevel;
     private int levelId;
-    private String spanType;
 
     ContextData() {
 
     }
 
-    public ContextData(String traceId, String parentLevel, String spanType) {
+    public ContextData(String traceId, String parentLevel) {
         this.traceId = traceId;
         this.parentLevel = parentLevel;
-        this.spanType = spanType;
     }
 
     public ContextData(Span span) {
         this.traceId = span.getTraceId();
         this.parentLevel = span.getParentLevel();
         this.levelId = span.getLevelId();
-        this.spanType = span.getSpanTypeDesc();
     }
 
     public ContextData(String contextDataStr) {
@@ -35,7 +32,6 @@ public class ContextData {
         this.traceId = value[0];
         this.parentLevel = value[1].trim();
         this.levelId = Integer.valueOf(value[2]);
-        this.spanType = value[3];
 
     }
 
@@ -51,10 +47,6 @@ public class ContextData {
         return levelId;
     }
 
-    public String getSpanType() {
-        return spanType;
-    }
-
     @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
@@ -67,8 +59,6 @@ public class ContextData {
         }
         stringBuilder.append("-");
         stringBuilder.append(levelId);
-        stringBuilder.append("-");
-        stringBuilder.append(spanType);
         return stringBuilder.toString();
     }
 }
