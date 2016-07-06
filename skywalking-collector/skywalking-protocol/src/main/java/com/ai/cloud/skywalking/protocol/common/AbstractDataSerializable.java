@@ -5,15 +5,11 @@ import com.ai.cloud.skywalking.serialize.SerializedFactory;
 import com.ai.cloud.skywalking.util.IntegerAssist;
 
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Created by wusheng on 16/7/4.
  */
 public abstract class AbstractDataSerializable implements ISerializable, NullableClass {
-    private static Set<Integer> DATA_TYPE_SCOPE = new HashSet<Integer>();
-
     public abstract int getDataType();
 
     public abstract byte[] getData();
@@ -29,20 +25,20 @@ public abstract class AbstractDataSerializable implements ISerializable, Nullabl
      */
     @Override
     public byte[] convert2Bytes() {
-        byte[] messagePackage = new byte[4 + getData().length];
-        appendingDataText(messagePackage);
-        appendingDataLength(messagePackage);
+        byte[] messageByteData = getData();
+        byte[] messagePackage = new byte[4 + messageByteData.length];
+        packData(messageByteData, messagePackage);
+        setPackageLength(messagePackage);
         return messagePackage;
     }
 
-    private void appendingDataLength(byte[] dataByte) {
+    private void setPackageLength(byte[] messagePackage) {
         byte[] type = IntegerAssist.intToBytes(this.getDataType());
-        System.arraycopy(type, 0, dataByte, 0, type.length);
+        System.arraycopy(type, 0, messagePackage, 0, type.length);
     }
 
-    private byte[] appendingDataText(byte[] dataByte) {
-        System.arraycopy(getData(), 0, dataByte, 4, dataByte.length);
-        return dataByte;
+    private void packData(byte[] messageByteData, byte[] messagePackage) {
+        System.arraycopy(messageByteData, 0, messagePackage, 4, messageByteData.length);
     }
 
     @Override
