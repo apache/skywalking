@@ -26,13 +26,12 @@ public class ContextData {
     public ContextData(String contextDataStr) {
         // 反序列化参数
         String[] value = contextDataStr.split("-");
-        if (value == null || value.length != 4) {
+        if (value == null || value.length != 3) {
             throw new IllegalArgumentException("illegal context data.");
         }
         this.traceId = value[0];
         this.parentLevel = value[1].trim();
         this.levelId = Integer.valueOf(value[2]);
-
     }
 
     public String getTraceId() {

@@ -1,6 +1,7 @@
 package com.ai.skywalking.testframework.api;
 
-import com.ai.cloud.skywalking.protocol.Span;
+import com.ai.cloud.skywalking.protocol.RequestSpan;
+import com.ai.cloud.skywalking.protocol.common.ISerializable;
 import com.ai.skywalking.testframework.api.exception.SpanDataFormatException;
 import com.ai.skywalking.testframework.api.exception.SpanDataNotEqualsException;
 import com.ai.skywalking.testframework.api.exception.TraceIdNotSameException;
@@ -9,40 +10,53 @@ import com.ai.skywalking.testframework.api.exception.TraceNodeSizeNotEqualExcept
 import java.util.ArrayList;
 import java.util.List;
 
-public class TraceTreeAssert {
+public class RequestSpanAssert {
 
-    public static void assertEquals(String[][] expectedTraceTree) {
-        assertEquals(expectedTraceTree, false);
+    public static void assertEquals(String[][] expectedRequestSpan) {
+        assertEquals(expectedRequestSpan, false);
     }
 
-    public static void assertEquals(String[][] expectedTraceTree, boolean skipValidateTraceId) {
-        List<Span> spanDataInBuffer = ContextPoolOperator.acquireSpanData();
+    public static void assertEquals(String[][] expectedRequestSpan, boolean skipValidateTraceId) {
+        List<RequestSpan> requestSpan = acquiredRequestSpanFromBuffer();
 
         if (!skipValidateTraceId) {
-            validateTraceId(spanDataInBuffer);
+            validateTraceId(requestSpan);
         }
 
-        List<String> assertSpanData = convertSpanDataToCompareStr(spanDataInBuffer);
+        List<String> assertSpanData = convertSpanDataToCompareStr(requestSpan);
 
-        List<String> expectedSpanData = convertSpanDataToCompareStr(expectedTraceTree);
+        List<String> expectedSpanData = convertSpanDataToCompareStr(expectedRequestSpan);
 
         validateTraceSpanSize(expectedSpanData.size(), assertSpanData.size());
 
         validateSpanData(expectedSpanData, assertSpanData);
+
+    }
+
+    private static List<RequestSpan> acquiredRequestSpanFromBuffer() {
+        List<ISerializable> spans = ContextPoolOperator.acquireBufferData();
+
+        List<RequestSpan> result = new ArrayList<RequestSpan>();
+        for (ISerializable span : spans) {
+            if (span instanceof RequestSpan) {
+                result.add((RequestSpan) span);
+            }
+        }
+        return result;
     }
 
     public static void clearTraceData() {
         ContextPoolOperator.clearSpanData();
     }
 
-    private static List<String> convertSpanDataToCompareStr(List<Span> assertSpanData) {
+    private static List<String> convertSpanDataToCompareStr(List<RequestSpan> assertSpanData) {
         List<String> resultSpanData = new ArrayList<String>();
-        for (Span span : assertSpanData) {
+        for (RequestSpan span : assertSpanData) {
             StringBuffer tmpSpanDataStr = new StringBuffer(jointTraceLevelId(span.getParentLevel(), span.getLevelId() + " "));
-            tmpSpanDataStr.append(span.getViewPointId().trim() + " ")
-                    .append(span.getBusinessKey().trim() + " ");
+            tmpSpanDataStr.append(span.getViewPointId().trim() + " ");
+            tmpSpanDataStr.append(span.getBusinessKey() == null ? " " : span.getBusinessKey() + " ");
 
-            resultSpanData.add(tmpSpanDataStr.toString());
+            resultSpanData.add(tmpSpanDataStr.toString().trim());
         }
         return resultSpanData;
     }
@@ -60,15 +74,13 @@ public class TraceTreeAssert {
         List<String> resultSpanData = new ArrayList<String>();
         for (String[] spanDataArray : assertTraceTree) {
             if (spanDataArray.length != 3) {
-                throw new SpanDataFormatException("assert trace tree is illegal, " +
-                        "Format :\ttraceLevelId\t|\tviewPoint\t|\tbusinesskey");
+                throw new SpanDataFormatException("assert trace tree is illegal, " + "Format :\ttraceLevelId\t|\tviewPoint\t|\tbusinesskey");
             }
 
             StringBuffer tmpSpanDataStr = new StringBuffer(spanDataArray[0] + " ");
-            tmpSpanDataStr.append(spanDataArray[1] == null ? " " : spanDataArray[1].trim() + " ")
-                    .append(spanDataArray[2] == null ? " " : spanDataArray[2].trim() + " ");
+            tmpSpanDataStr.append(spanDataArray[1] == null ? " " : spanDataArray[1].trim() + " ").append(spanDataArray[2] == null ? " " : spanDataArray[2].trim() + " ");
 
-            resultSpanData.add(tmpSpanDataStr.toString());
+            resultSpanData.add(tmpSpanDataStr.toString().trim());
         }
 
         return resultSpanData;
@@ -100,9 +112,9 @@ public class TraceTreeAssert {
 
     }
 
-    private static void validateTraceId(List<Span> traceSpanList) {
+    private static void validateTraceId(List<RequestSpan> traceSpanList) {
         String traceId = null;
-        for (Span span : traceSpanList) {
+        for (RequestSpan span : traceSpanList) {
             if (traceId == null) {
                 traceId = span.getTraceId();
             }

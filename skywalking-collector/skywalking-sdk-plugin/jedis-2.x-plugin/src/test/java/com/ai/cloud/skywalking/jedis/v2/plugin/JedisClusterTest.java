@@ -1,7 +1,7 @@
 package com.ai.cloud.skywalking.jedis.v2.plugin;
 
 import com.ai.cloud.skywalking.plugin.TracingBootstrap;
-import com.ai.skywalking.testframework.api.TraceTreeAssert;
+import com.ai.skywalking.testframework.api.RequestSpanAssert;
 import org.junit.Test;
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisCluster;
@@ -13,22 +13,16 @@ import java.util.Set;
 
 public class JedisClusterTest {
     @Test
-    public void test() throws IllegalAccessException, IllegalArgumentException,
-            InvocationTargetException, NoSuchMethodException,
-            SecurityException, ClassNotFoundException {
-        TracingBootstrap
-                .main(new String[]{"com.ai.cloud.skywalking.jedis.v2.plugin.JedisClusterTest"});
+    public void test() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException, ClassNotFoundException {
+        TracingBootstrap.main(new String[] {"com.ai.cloud.skywalking.jedis.v2.plugin.JedisClusterTest"});
     }
 
-    public static void main(String[] args) throws ClassNotFoundException,
-            SQLException, InterruptedException {
+    public static void main(String[] args) throws ClassNotFoundException, SQLException, InterruptedException {
         JedisCluster jedisCluster = new JedisCluster(getHostAndPorts());
         jedisCluster.set("11111", "111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
-        TraceTreeAssert.assertEquals(new String[][]{
+        RequestSpanAssert.assertEquals(new String[][] {
                 // 根据实际情况进行修改
-                {"0.0", "127.0.0.1:7001 set", "key=11111"},
-                {"0", "127.0.0.1:7002;127.0.0.1:7001;127.0.0.1:7000;127.0.0.1:7005;127.0.0.1:7004;127.0.0.1:7003; set", "key=11111"},
-        });
+                {"0.0", "127.0.0.1:7001 set", "key=11111"}, {"0", "127.0.0.1:7002;127.0.0.1:7001;127.0.0.1:7000;127.0.0.1:7005;127.0.0.1:7004;127.0.0.1:7003; set", "key=11111"},});
 
     }
 

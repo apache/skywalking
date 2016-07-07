@@ -1,7 +1,7 @@
 package test.ai.cloud.skywalking.plugin.oracle;
 
 import com.ai.cloud.skywalking.plugin.TracingBootstrap;
-import com.ai.skywalking.testframework.api.TraceTreeAssert;
+import com.ai.skywalking.testframework.api.RequestSpanAssert;
 import org.junit.Test;
 
 import java.lang.reflect.InvocationTargetException;
@@ -35,7 +35,7 @@ public class OracleJDBCTest {
         p0.execute();
         con.commit();
         con.close();
-        TraceTreeAssert.assertEquals(new String[][]{
+        RequestSpanAssert.assertEquals(new String[][]{
                 {"0", "jdbc:oracle:thin:@10.1.130.239:1521:ora(edc_export)", "preaparedStatement.executeUpdate:select 1 from dual where 1=?"},
                 {"0", "jdbc:oracle:thin:@10.1.130.239:1521:ora(edc_export)", "connection.commit"},
                 {"0", "jdbc:oracle:thin:@10.1.130.239:1521:ora(edc_export)", "connection.close"},

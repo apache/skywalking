@@ -2,7 +2,7 @@ package com.ai.cloud.skywalking.plugin.test.dubbo.consumer;
 
 import com.ai.cloud.skywalking.plugin.TracingBootstrap;
 import com.ai.cloud.skywalking.plugin.test.dubbo.interfaces.IDubboInterA;
-import com.ai.skywalking.testframework.api.TraceTreeAssert;
+import com.ai.skywalking.testframework.api.RequestSpanAssert;
 import org.junit.Test;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -22,7 +22,7 @@ public class DubboConsumer {
         ApplicationContext context = new ClassPathXmlApplicationContext("classpath*:consumer/dubbo-consumer.xml");
         IDubboInterA dubboInterA = context.getBean(IDubboInterA.class);
         dubboInterA.doBusiness("AAAAA");
-        TraceTreeAssert.assertEquals(new String[][]{
+        RequestSpanAssert.assertEquals(new String[][]{
                 {"0", "dubbo://127.0.0.1:20880/com.ai.cloud.skywalking.plugin.test.dubbo.interfaces.IDubboInterA.doBusiness(String)", ""}
         });
     }

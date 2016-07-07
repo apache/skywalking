@@ -27,7 +27,14 @@ public class RPCClientInvokeMonitor extends BaseInvokeMonitor {
             //设置SpanType的类型
             spanData.setSpanType(SpanType.RPC_CLIENT);
 
-            ContextBuffer.save(new RequestSpan(spanData));
+            RequestSpan requestSpan = RequestSpan.RequestSpanBuilder.newBuilder(spanData)
+                    .viewPoint(id.getViewPoint())
+                    .spanTypeDesc(id.getSpanTypeDesc())
+                    .bussinessKey(id.getBusinessKey())
+                    .callType(id.getCallType())
+                    .parameters(id.getParameters()).build();
+
+            ContextBuffer.save(requestSpan);
             CurrentThreadSpanStack.push(spanData);
 
             return new ContextData(spanData.getTraceId(), generateSubParentLevelId(spanData));

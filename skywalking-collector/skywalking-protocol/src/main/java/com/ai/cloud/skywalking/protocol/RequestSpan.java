@@ -67,29 +67,33 @@ public class RequestSpan extends AbstractDataSerializable {
      * 用户id<br/>
      * 由授权文件指定
      */
-    private String userId;
+    private String userId = "";
 
     /**
      * 埋点入参列表
      */
-    private Map<String, String> paramters = new HashMap<String, String>();
+    private Map<String, String> parameters = new HashMap<String, String>();
+
+    /**
+     * 业务字段
+     */
+    private String businessKey = "";
 
     public RequestSpan(Span spanData) {
         this.traceId = spanData.getTraceId();
         this.parentLevel = spanData.getParentLevel();
         this.levelId = spanData.getLevelId();
         this.spanType = spanData.getSpanType();
-        if (isEntrySpan(spanData)) {
-            this.paramters.putAll(spanData.getParameters());
-        }
+        this.applicationId = spanData.getApplicationId();
+        this.userId = spanData.getUserId();
     }
 
     public RequestSpan() {
 
     }
 
-    private boolean isEntrySpan(Span spanData) {
-        return "0".equals(spanData.getParentLevel() + spanData.getLevelId());
+    private boolean isEntrySpan() {
+        return "0".equals(this.getParentLevel() + this.getLevelId());
     }
 
     public String getTraceId() {
@@ -172,12 +176,12 @@ public class RequestSpan extends AbstractDataSerializable {
         this.userId = userId;
     }
 
-    public Map<String, String> getParamters() {
-        return paramters;
+    public Map<String, String> getParameters() {
+        return parameters;
     }
 
-    public void setParamters(Map<String, String> paramters) {
-        this.paramters = paramters;
+    public void setParameters(Map<String, String> parameters) {
+        this.parameters = parameters;
     }
 
     @Override
@@ -188,7 +192,8 @@ public class RequestSpan extends AbstractDataSerializable {
     @Override
     public byte[] getData() {
         return TraceProtocol.RequestSpan.newBuilder().setTraceId(traceId).setParentLevel(parentLevel).setLevelId(levelId).setViewPointId(viewPointId).setStartDate(startDate)
-                .setSpanType(spanType.getValue()).setSpanTypeDesc(spanTypeDesc).setCallType(callType).setApplicationId(applicationId).setUserId(userId).build().toByteArray();
+                .setSpanType(spanType.getValue()).setSpanTypeDesc(spanTypeDesc).setBussinessKey(businessKey).setCallType(callType).setApplicationId(applicationId).setUserId(userId)
+                .build().toByteArray();
     }
 
     @Override
@@ -250,6 +255,19 @@ public class RequestSpan extends AbstractDataSerializable {
             return this;
         }
 
+        public RequestSpanBuilder bussinessKey(String bussinessKey) {
+            ackSpan.businessKey = bussinessKey;
+            return this;
+        }
+
+        public RequestSpanBuilder parameters(Map<String, String> parameters) {
+            if (ackSpan.isEntrySpan()) {
+                ackSpan.parameters = parameters;
+            }
+
+            return this;
+        }
+
         public RequestSpan build() {
             return ackSpan;
         }
@@ -259,4 +277,9 @@ public class RequestSpan extends AbstractDataSerializable {
             return this;
         }
     }
+
+    public String getBusinessKey() {
+        return businessKey;
+    }
+
 }

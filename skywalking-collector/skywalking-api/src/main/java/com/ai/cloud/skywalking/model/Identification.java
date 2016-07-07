@@ -3,22 +3,27 @@ package com.ai.cloud.skywalking.model;
 import com.ai.cloud.skywalking.api.IBuriedPointType;
 import com.ai.cloud.skywalking.protocol.util.StringUtil;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class Identification {
-    private String viewPoint;
-    private String businessKey;
-    private String spanTypeDesc;
-    private String callType;
+    private String              viewPoint;
+    private Map<String, String> parameters;
+    private String              businessKey;
+    private String              spanTypeDesc;
+    private String              callType;
 
     public Identification() {
         //Non
+        parameters = new HashMap<String, String>();
     }
 
     public String getViewPoint() {
         return viewPoint;
     }
 
-    public String getBusinessKey() {
-        return businessKey;
+    public Map<String, String> getParameters() {
+        return parameters;
     }
 
     public String getSpanTypeDesc() {
@@ -28,6 +33,11 @@ public class Identification {
     public String getCallType() {
         return callType;
     }
+
+    public String getBusinessKey() {
+        return businessKey;
+    }
+
 
     public static IdentificationBuilder newBuilder() {
         return new IdentificationBuilder();
@@ -46,6 +56,11 @@ public class Identification {
 
         public IdentificationBuilder viewPoint(String viewPoint) {
             sendData.viewPoint = viewPoint;
+            return this;
+        }
+
+        public IdentificationBuilder appendParameter(String key, String value) {
+            sendData.parameters.put(key, value);
             return this;
         }
 

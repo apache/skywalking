@@ -1,7 +1,8 @@
 package com.ai.cloud.skywalking.plugin.jdbc;
 
 import com.ai.cloud.skywalking.conf.AuthDesc;
-import org.apache.logging.log4j.LogManager;
+import com.ai.cloud.skywalking.logging.LogManager;
+import com.ai.cloud.skywalking.logging.Logger;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,10 +12,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
-import java.util.logging.Logger;
 
 public class TracingDriver implements Driver {
-    private static org.apache.logging.log4j.Logger logger = LogManager.getLogger(TracingDriver.class);
+    private static Logger logger = LogManager.getLogger(TracingDriver.class);
 
     private static final String TRACING_SIGN = "tracing:";
 
@@ -34,8 +34,7 @@ public class TracingDriver implements Driver {
         }
     }
 
-    public java.sql.Connection connect(String url, Properties info)
-            throws SQLException {
+    public java.sql.Connection connect(String url, Properties info) throws SQLException {
         Driver driver = DriverChooser.choose(convertConnectURLIfNecessary(url));
         if (driver == null) {
             throw new SQLException("Failed to choose driver by url[{}].", convertConnectURLIfNecessary(url));
@@ -60,8 +59,7 @@ public class TracingDriver implements Driver {
         return driver.acceptsURL(convertConnectURLIfNecessary(url));
     }
 
-    public DriverPropertyInfo[] getPropertyInfo(String url, Properties info)
-            throws SQLException {
+    public DriverPropertyInfo[] getPropertyInfo(String url, Properties info) throws SQLException {
         return DriverChooser.choose(convertConnectURLIfNecessary(url)).
                 getPropertyInfo(convertConnectURLIfNecessary(url), info);
     }
@@ -78,12 +76,12 @@ public class TracingDriver implements Driver {
         return false;
     }
 
-    public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+    public java.util.logging.Logger getParentLogger() throws SQLFeatureNotSupportedException {
         return null;
     }
 
     static class DriverChooser {
-        private static org.apache.logging.log4j.Logger logger = LogManager.getLogger(DriverChooser.class);
+        private static Logger logger = LogManager.getLogger(DriverChooser.class);
 
         private static Map<String, String> urlDriverMapping = new HashMap<String, String>();
 
@@ -98,7 +96,7 @@ public class TracingDriver implements Driver {
                 Class<?> driverClass = Class.forName(driverClassStr);
                 driver = (Driver) driverClass.newInstance();
             } catch (Exception e) {
-                logger.error("Failed to initial Driver class {}.", driverClassStr, e);
+                logger.error("Failed to initial Driver class {}.", new Object[] {driverClassStr}, e);
             }
 
             return driver;

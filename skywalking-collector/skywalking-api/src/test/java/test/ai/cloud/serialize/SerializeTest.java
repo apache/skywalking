@@ -9,7 +9,7 @@ import com.ai.cloud.skywalking.protocol.common.SpanType;
 
 public class SerializeTest {
     public static void main(String[] args) throws InterruptedException {
-        Span spandata = new Span("1.0b.1461060884539.7d6d06e.22489.1271.103", "", 0);
+        Span spandata = new Span("1.0b.1461060884539.7d6d06e.22489.1271.103", "", 0, "test-application", "test");
         spandata.setSpanType(SpanType.LOCAL);
         spandata.setStartDate(System.currentTimeMillis() - 1000 * 60);
         AckSpan requestSpan = new AckSpan(spandata);

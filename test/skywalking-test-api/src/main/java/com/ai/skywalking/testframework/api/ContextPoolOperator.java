@@ -1,6 +1,6 @@
 package com.ai.skywalking.testframework.api;
 
-import com.ai.cloud.skywalking.protocol.Span;
+import com.ai.cloud.skywalking.protocol.common.ISerializable;
 import com.ai.skywalking.testframework.api.config.Config;
 
 import java.lang.reflect.Field;
@@ -8,13 +8,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ContextPoolOperator {
-    public static List<Span> acquireSpanData() {
-        List<Span> resultSpan = new ArrayList<Span>();
+    public static List<ISerializable> acquireBufferData() {
+        List<ISerializable> resultSpan = new ArrayList<ISerializable>();
         Object[] bufferGroupObjectArray = acquireBufferGroupObjectArrayByClassLoader();
 
         for (Object bufferGroup : bufferGroupObjectArray) {
-            Span[] spanList = acquireSpanData(bufferGroup);
-            for (Span span : spanList) {
+            ISerializable[] spanList = acquireBufferData(bufferGroup);
+            for (ISerializable span : spanList) {
                 if (span != null) {
                     resultSpan.add(span);
                 }
@@ -28,20 +28,19 @@ public class ContextPoolOperator {
         Object[] bufferGroupObjectArray = acquireBufferGroupObjectArrayByClassLoader();
 
         for (Object bufferGroup : bufferGroupObjectArray) {
-            Span[] spanList = acquireSpanData(bufferGroup);
+            ISerializable[] spanList = acquireBufferData(bufferGroup);
             for (int i = 0; i < spanList.length; i++) {
                 spanList[i] = null;
             }
         }
     }
 
-    private static Span[] acquireSpanData(Object bufferGroup) {
+    private static ISerializable[] acquireBufferData(Object bufferGroup) {
         try {
-            Class bufferGroupClass = Thread.currentThread().getContextClassLoader()
-                    .loadClass(Config.BUFFER_GROUP_CLASS_NAME);
+            Class bufferGroupClass = Thread.currentThread().getContextClassLoader().loadClass(Config.BUFFER_GROUP_CLASS_NAME);
             Field spanArrayField = bufferGroupClass.getDeclaredField(Config.SPAN_ARRAY_FIELD_NAME);
             spanArrayField.setAccessible(true);
-            return (Span[]) spanArrayField.get(bufferGroup);
+            return (ISerializable[]) spanArrayField.get(bufferGroup);
         } catch (Exception e) {
             throw new RuntimeException("Failed to acquire span array", e);
         }

@@ -38,7 +38,7 @@ public class Span {
      * 1：异常<br/>
      * 异常判断原则：代码产生exception，并且此exception不在忽略列表中
      */
-    protected byte statusCode = 0;
+    protected byte   statusCode     = 0;
     /**
      * 节点调用的错误堆栈<br/>
      * 堆栈以JAVA的exception为主要判断依据
@@ -60,16 +60,27 @@ public class Span {
      * 节点类型<br/>
      * 如：RPC Client,RPC Server,Local
      */
-    private SpanType spanType = SpanType.LOCAL;
+    private   SpanType            spanType   = SpanType.LOCAL;
 
-    public Span(String traceId) {
+    /**
+     * 业务字段<br/>
+     */
+    private String businessKey = "";
+    private String applicationId;
+    private String userId;
+
+    public Span(String traceId, String applicationId, String userId) {
         this.traceId = traceId;
+        this.applicationId = applicationId;
+        this.userId = userId;
     }
 
-    public Span(String traceId, String parentLevel, int levelId) {
+    public Span(String traceId, String parentLevel, int levelId, String applicationId, String userId) {
         this.traceId = traceId;
         this.parentLevel = parentLevel;
         this.levelId = levelId;
+        this.applicationId = applicationId;
+        this.userId = userId;
     }
 
     public String getTraceId() {
@@ -179,5 +190,31 @@ public class Span {
         }
     }
 
+    public String getBusinessKey() {
+        return businessKey;
+    }
 
+    public void setBusinessKey(String businessKey) {
+        this.businessKey = businessKey;
+    }
+
+    public void appendParameters(Map<String, String> parameters) {
+        this.parameters.putAll(parameters);
+    }
+
+    public String getApplicationId() {
+        return applicationId;
+    }
+
+    public void setApplicationId(String applicationId) {
+        this.applicationId = applicationId;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
 }

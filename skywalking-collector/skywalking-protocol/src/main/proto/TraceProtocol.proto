@@ -23,4 +23,5 @@ message RequestSpan {
     required uint32 spanType = 8;
     required string applicationId = 9;
     required string userId = 10;
+    optional string bussinessKey = 11;
 }

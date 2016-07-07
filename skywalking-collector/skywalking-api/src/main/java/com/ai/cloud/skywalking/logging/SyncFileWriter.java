@@ -16,15 +16,18 @@ import static com.ai.cloud.skywalking.conf.Config.Logging.LOG_FILE_PATH;
 
 public class SyncFileWriter implements IFileWriter {
 
-    private static SyncFileWriter writer;
-    private FileOutputStream os;
-    private int bufferSize;
+    private static SyncFileWriter   writer;
+    private        FileOutputStream os;
+    private        int              bufferSize;
     private static final Object lock = new Object();
 
     private SyncFileWriter() {
         try {
-            os = new FileOutputStream(new File(LOG_FILE_PATH,
-                    LOG_FILE_NAME), true);
+            File logFilePath = new File(LOG_FILE_PATH);
+            if (!logFilePath.exists()) {
+                logFilePath.mkdirs();
+            }
+            os = new FileOutputStream(new File(LOG_FILE_PATH, LOG_FILE_NAME), true);
             bufferSize = Long.valueOf(new File(LOG_FILE_PATH, LOG_FILE_NAME).length()).intValue();
         } catch (IOException e) {
             writeErrorLog(e);
@@ -73,15 +76,12 @@ public class SyncFileWriter implements IFileWriter {
     }
 
     private void revertInputStream() throws FileNotFoundException {
-        os = new FileOutputStream(new File(Config.Logging.LOG_FILE_PATH,
-                Config.Logging.LOG_FILE_NAME), true);
+        os = new FileOutputStream(new File(Config.Logging.LOG_FILE_PATH, Config.Logging.LOG_FILE_NAME), true);
     }
 
     private void renameLogFile() {
         new File(Config.Logging.LOG_FILE_PATH, Config.Logging.LOG_FILE_NAME)
-                .renameTo(new File(Config.Logging.LOG_FILE_PATH,
-                        Config.Logging.LOG_FILE_NAME +
-                                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())));
+                .renameTo(new File(Config.Logging.LOG_FILE_PATH, Config.Logging.LOG_FILE_NAME + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())));
     }
 
     private void closeInputStream() throws IOException {

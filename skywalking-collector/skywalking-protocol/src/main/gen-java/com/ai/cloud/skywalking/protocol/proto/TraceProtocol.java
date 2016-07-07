@@ -1192,6 +1192,20 @@ public final class TraceProtocol {
      */
     com.google.protobuf.ByteString
         getUserIdBytes();
+
+    /**
+     * <code>optional string bussinessKey = 11;</code>
+     */
+    boolean hasBussinessKey();
+    /**
+     * <code>optional string bussinessKey = 11;</code>
+     */
+    java.lang.String getBussinessKey();
+    /**
+     * <code>optional string bussinessKey = 11;</code>
+     */
+    com.google.protobuf.ByteString
+        getBussinessKeyBytes();
   }
   /**
    * Protobuf type {@code RequestSpan}
@@ -1300,6 +1314,12 @@ public final class TraceProtocol {
               com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000200;
               userId_ = bs;
+              break;
+            }
+            case 90: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x00000400;
+              bussinessKey_ = bs;
               break;
             }
           }
@@ -1681,6 +1701,48 @@ public final class TraceProtocol {
       }
     }
 
+    public static final int BUSSINESSKEY_FIELD_NUMBER = 11;
+    private java.lang.Object bussinessKey_;
+    /**
+     * <code>optional string bussinessKey = 11;</code>
+     */
+    public boolean hasBussinessKey() {
+      return ((bitField0_ & 0x00000400) == 0x00000400);
+    }
+    /**
+     * <code>optional string bussinessKey = 11;</code>
+     */
+    public java.lang.String getBussinessKey() {
+      java.lang.Object ref = bussinessKey_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          bussinessKey_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>optional string bussinessKey = 11;</code>
+     */
+    public com.google.protobuf.ByteString
+        getBussinessKeyBytes() {
+      java.lang.Object ref = bussinessKey_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        bussinessKey_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
     private void initFields() {
       traceId_ = "";
       parentLevel_ = "";
@@ -1692,6 +1754,7 @@ public final class TraceProtocol {
       spanType_ = 0;
       applicationId_ = "";
       userId_ = "";
+      bussinessKey_ = "";
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -1772,6 +1835,9 @@ public final class TraceProtocol {
       if (((bitField0_ & 0x00000200) == 0x00000200)) {
         output.writeBytes(10, getUserIdBytes());
       }
+      if (((bitField0_ & 0x00000400) == 0x00000400)) {
+        output.writeBytes(11, getBussinessKeyBytes());
+      }
       getUnknownFields().writeTo(output);
     }
 
@@ -1820,6 +1886,10 @@ public final class TraceProtocol {
       if (((bitField0_ & 0x00000200) == 0x00000200)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBytesSize(10, getUserIdBytes());
+      }
+      if (((bitField0_ & 0x00000400) == 0x00000400)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(11, getBussinessKeyBytes());
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -1958,6 +2028,8 @@ public final class TraceProtocol {
         bitField0_ = (bitField0_ & ~0x00000100);
         userId_ = "";
         bitField0_ = (bitField0_ & ~0x00000200);
+        bussinessKey_ = "";
+        bitField0_ = (bitField0_ & ~0x00000400);
         return this;
       }
 
@@ -2026,6 +2098,10 @@ public final class TraceProtocol {
           to_bitField0_ |= 0x00000200;
         }
         result.userId_ = userId_;
+        if (((from_bitField0_ & 0x00000400) == 0x00000400)) {
+          to_bitField0_ |= 0x00000400;
+        }
+        result.bussinessKey_ = bussinessKey_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -2084,6 +2160,11 @@ public final class TraceProtocol {
         if (other.hasUserId()) {
           bitField0_ |= 0x00000200;
           userId_ = other.userId_;
+          onChanged();
+        }
+        if (other.hasBussinessKey()) {
+          bitField0_ |= 0x00000400;
+          bussinessKey_ = other.bussinessKey_;
           onChanged();
         }
         this.mergeUnknownFields(other.getUnknownFields());
@@ -2777,6 +2858,82 @@ public final class TraceProtocol {
         return this;
       }
 
+      private java.lang.Object bussinessKey_ = "";
+      /**
+       * <code>optional string bussinessKey = 11;</code>
+       */
+      public boolean hasBussinessKey() {
+        return ((bitField0_ & 0x00000400) == 0x00000400);
+      }
+      /**
+       * <code>optional string bussinessKey = 11;</code>
+       */
+      public java.lang.String getBussinessKey() {
+        java.lang.Object ref = bussinessKey_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            bussinessKey_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string bussinessKey = 11;</code>
+       */
+      public com.google.protobuf.ByteString
+          getBussinessKeyBytes() {
+        java.lang.Object ref = bussinessKey_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          bussinessKey_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string bussinessKey = 11;</code>
+       */
+      public Builder setBussinessKey(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000400;
+        bussinessKey_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string bussinessKey = 11;</code>
+       */
+      public Builder clearBussinessKey() {
+        bitField0_ = (bitField0_ & ~0x00000400);
+        bussinessKey_ = getDefaultInstance().getBussinessKey();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string bussinessKey = 11;</code>
+       */
+      public Builder setBussinessKeyBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000400;
+        bussinessKey_ = value;
+        onChanged();
+        return this;
+      }
+
       // @@protoc_insertion_point(builder_scope:RequestSpan)
     }
 
@@ -2810,13 +2967,14 @@ public final class TraceProtocol {
       "\n\023TraceProtocol.proto\"z\n\007AckSpan\022\017\n\007trac" +
       "eId\030\001 \002(\t\022\023\n\013parentLevel\030\002 \001(\t\022\017\n\007levelI" +
       "d\030\003 \002(\005\022\014\n\004cost\030\004 \002(\003\022\022\n\nstatusCode\030\005 \002(" +
-      "\005\022\026\n\016exceptionStack\030\006 \001(\t\"\315\001\n\013RequestSpa" +
+      "\005\022\026\n\016exceptionStack\030\006 \001(\t\"\343\001\n\013RequestSpa" +
       "n\022\017\n\007traceId\030\001 \002(\t\022\023\n\013parentLevel\030\002 \001(\t\022" +
       "\017\n\007levelId\030\003 \002(\005\022\023\n\013viewPointId\030\004 \002(\t\022\021\n" +
       "\tstartDate\030\005 \002(\003\022\024\n\014spanTypeDesc\030\006 \002(\t\022\020" +
       "\n\010callType\030\007 \002(\t\022\020\n\010spanType\030\010 \002(\r\022\025\n\rap" +
-      "plicationId\030\t \002(\t\022\016\n\006userId\030\n \002(\tB(\n&com" +
-      ".ai.cloud.skywalking.protocol.proto"
+      "plicationId\030\t \002(\t\022\016\n\006userId\030\n \002(\t\022\024\n\014bus" +
+      "sinessKey\030\013 \001(\tB(\n&com.ai.cloud.skywalki",
+      "ng.protocol.proto"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -2841,7 +2999,7 @@ public final class TraceProtocol {
     internal_static_RequestSpan_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_RequestSpan_descriptor,
-        new java.lang.String[] { "TraceId", "ParentLevel", "LevelId", "ViewPointId", "StartDate", "SpanTypeDesc", "CallType", "SpanType", "ApplicationId", "UserId", });
+        new java.lang.String[] { "TraceId", "ParentLevel", "LevelId", "ViewPointId", "StartDate", "SpanTypeDesc", "CallType", "SpanType", "ApplicationId", "UserId", "BussinessKey", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

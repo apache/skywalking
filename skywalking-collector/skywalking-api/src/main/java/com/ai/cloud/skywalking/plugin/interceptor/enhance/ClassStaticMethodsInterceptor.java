@@ -1,69 +1,59 @@
 package com.ai.cloud.skywalking.plugin.interceptor.enhance;
 
-import java.lang.reflect.Method;
-import java.util.concurrent.Callable;
-
+import com.ai.cloud.skywalking.logging.LogManager;
+import com.ai.cloud.skywalking.logging.Logger;
 import net.bytebuddy.implementation.bind.annotation.AllArguments;
 import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import net.bytebuddy.implementation.bind.annotation.SuperCall;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.lang.reflect.Method;
+import java.util.concurrent.Callable;
 
 /**
  * 类静态方法拦截、控制器
- * 
- * @author wusheng
  *
+ * @author wusheng
  */
 public class ClassStaticMethodsInterceptor {
-	private static Logger logger = LogManager
-			.getLogger(ClassStaticMethodsInterceptor.class);
+    private static Logger logger = LogManager.getLogger(ClassStaticMethodsInterceptor.class);
 
-	private StaticMethodsAroundInterceptor interceptor;
+    private StaticMethodsAroundInterceptor interceptor;
 
-	public ClassStaticMethodsInterceptor(
-			StaticMethodsAroundInterceptor interceptor) {
-		this.interceptor = interceptor;
-	}
+    public ClassStaticMethodsInterceptor(StaticMethodsAroundInterceptor interceptor) {
+        this.interceptor = interceptor;
+    }
 
-	@RuntimeType
-	public Object intercept(@Origin Class<?> clazz,
-			@AllArguments Object[] allArguments, @Origin Method method,
-			@SuperCall Callable<?> zuper) throws Exception {
-		MethodInvokeContext interceptorContext = new MethodInvokeContext(
-				method.getName(), allArguments);
-		MethodInterceptResult result = new MethodInterceptResult();
-		try {
-			interceptor.beforeMethod(interceptorContext, result);
-		} catch (Throwable t) {
-			logger.error("class[{}] before static method[{}] intercept failue:{}",
-					clazz, method.getName(), t.getMessage(), t);
-		}
-		if(!result.isContinue()){
-			return result._ret();
-		}
-		
-		Object ret = null;
-		try {
-			ret = zuper.call();
-		} catch (Throwable t) {
-			try {
-				interceptor.handleMethodException(t, interceptorContext, ret);
-			} catch (Throwable t2) {
-				logger.error("class[{}] handle static method[{}] exception failue:{}",
-						clazz, method.getName(), t2.getMessage(), t2);
-			}
-			throw t;
-		} finally {
-			try {
-				ret = interceptor.afterMethod(interceptorContext, ret);
-			} catch (Throwable t) {
-				logger.error("class[{}] after static method[{}] intercept failue:{}",
-						clazz, method.getName(), t.getMessage(), t);
-			}
-		}
-		return ret;
-	}
+    @RuntimeType
+    public Object intercept(@Origin Class<?> clazz, @AllArguments Object[] allArguments, @Origin Method method, @SuperCall Callable<?> zuper) throws Exception {
+        MethodInvokeContext interceptorContext = new MethodInvokeContext(method.getName(), allArguments);
+        MethodInterceptResult result = new MethodInterceptResult();
+        try {
+            interceptor.beforeMethod(interceptorContext, result);
+        } catch (Throwable t) {
+            logger.error("class[{}] before static method[{}] intercept failue:{}", new Object[] {clazz, method.getName(), t.getMessage()}, t);
+        }
+        if (!result.isContinue()) {
+            return result._ret();
+        }
+
+        Object ret = null;
+        try {
+            ret = zuper.call();
+        } catch (Throwable t) {
+            try {
+                interceptor.handleMethodException(t, interceptorContext, ret);
+            } catch (Throwable t2) {
+                logger.error("class[{}] handle static method[{}] exception failue:{}", new Object[] {clazz, method.getName(), t2.getMessage()}, t2);
+            }
+            throw t;
+        } finally {
+            try {
+                ret = interceptor.afterMethod(interceptorContext, ret);
+            } catch (Throwable t) {
+                logger.error("class[{}] after static method[{}] intercept failue:{}", new Object[] {clazz, method.getName(), t.getMessage()}, t);
+            }
+        }
+        return ret;
+    }
 }

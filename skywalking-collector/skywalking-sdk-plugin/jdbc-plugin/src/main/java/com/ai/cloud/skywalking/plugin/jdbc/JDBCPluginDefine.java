@@ -6,9 +6,8 @@ import java.sql.Driver;
 import java.sql.DriverManager;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
+import com.ai.cloud.skywalking.logging.LogManager;
+import com.ai.cloud.skywalking.logging.Logger;
 import com.ai.cloud.skywalking.plugin.boot.BootException;
 import com.ai.cloud.skywalking.plugin.boot.BootPluginDefine;
 
