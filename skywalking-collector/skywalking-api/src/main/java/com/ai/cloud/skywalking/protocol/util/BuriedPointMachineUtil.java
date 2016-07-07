@@ -1,4 +1,4 @@
-package com.ai.cloud.skywalking.util;
+package com.ai.cloud.skywalking.protocol.util;
 
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;

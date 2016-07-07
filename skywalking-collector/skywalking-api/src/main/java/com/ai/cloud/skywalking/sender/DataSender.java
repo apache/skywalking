@@ -23,7 +23,7 @@ import java.util.List;
 
 import com.ai.cloud.skywalking.selfexamination.HeathReading;
 import com.ai.cloud.skywalking.selfexamination.SDKHealthCollector;
-import com.ai.cloud.skywalking.util.TransportPackager;
+import com.ai.cloud.skywalking.protocol.TransportPackager;
 
 public class DataSender implements IDataSender {
     private EventLoopGroup group;

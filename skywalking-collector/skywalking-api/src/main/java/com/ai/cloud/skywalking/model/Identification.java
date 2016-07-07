@@ -1,7 +1,7 @@
 package com.ai.cloud.skywalking.model;
 
 import com.ai.cloud.skywalking.api.IBuriedPointType;
-import com.ai.cloud.skywalking.util.StringUtil;
+import com.ai.cloud.skywalking.protocol.util.StringUtil;
 
 public class Identification {
     private String viewPoint;

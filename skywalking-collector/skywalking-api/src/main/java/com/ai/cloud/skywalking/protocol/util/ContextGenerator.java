@@ -1,4 +1,4 @@
-package com.ai.cloud.skywalking.util;
+package com.ai.cloud.skywalking.protocol.util;
 
 import com.ai.cloud.skywalking.context.CurrentThreadSpanStack;
 import com.ai.cloud.skywalking.model.ContextData;

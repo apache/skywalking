@@ -4,7 +4,7 @@ import com.ai.cloud.skywalking.logging.LogManager;
 import com.ai.cloud.skywalking.logging.Logger;
 import com.ai.cloud.skywalking.plugin.IPlugin;
 import com.ai.cloud.skywalking.plugin.PluginException;
-import com.ai.cloud.skywalking.util.StringUtil;
+import com.ai.cloud.skywalking.protocol.util.StringUtil;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.dynamic.ClassFileLocator;
 import net.bytebuddy.dynamic.DynamicType;

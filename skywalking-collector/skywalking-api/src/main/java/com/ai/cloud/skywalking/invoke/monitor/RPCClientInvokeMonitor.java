@@ -11,7 +11,7 @@ import com.ai.cloud.skywalking.model.Identification;
 import com.ai.cloud.skywalking.protocol.RequestSpan;
 import com.ai.cloud.skywalking.protocol.Span;
 import com.ai.cloud.skywalking.protocol.common.SpanType;
-import com.ai.cloud.skywalking.util.ContextGenerator;
+import com.ai.cloud.skywalking.protocol.util.ContextGenerator;
 
 public class RPCClientInvokeMonitor extends BaseInvokeMonitor {
 

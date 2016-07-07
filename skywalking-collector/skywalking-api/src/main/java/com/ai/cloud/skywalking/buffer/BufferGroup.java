@@ -7,7 +7,7 @@ import com.ai.cloud.skywalking.protocol.common.ISerializable;
 import com.ai.cloud.skywalking.selfexamination.HeathReading;
 import com.ai.cloud.skywalking.selfexamination.SDKHealthCollector;
 import com.ai.cloud.skywalking.sender.DataSenderFactoryWithBalance;
-import com.ai.cloud.skywalking.util.AtomicRangeInteger;
+import com.ai.cloud.skywalking.protocol.util.AtomicRangeInteger;
 
 import java.util.ArrayList;
 import java.util.List;

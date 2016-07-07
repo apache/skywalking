@@ -3,7 +3,7 @@ package com.ai.cloud.skywalking.reciever.handler;
 import com.ai.cloud.skywalking.reciever.buffer.DataBufferThreadContainer;
 import com.ai.cloud.skywalking.reciever.conf.Config;
 import com.ai.cloud.skywalking.reciever.util.RedisConnector;
-import com.ai.cloud.skywalking.util.TransportPackager;
+import com.ai.cloud.skywalking.protocol.TransportPackager;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import redis.clients.jedis.Jedis;

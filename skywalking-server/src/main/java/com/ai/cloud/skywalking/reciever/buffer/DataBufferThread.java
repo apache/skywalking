@@ -2,13 +2,12 @@ package com.ai.cloud.skywalking.reciever.buffer;
 
 import com.ai.cloud.skywalking.protocol.common.AbstractDataSerializable;
 import com.ai.cloud.skywalking.reciever.conf.Config;
-import com.ai.cloud.skywalking.reciever.processor.AbstractSpanProcessor;
 import com.ai.cloud.skywalking.reciever.processor.IProcessor;
 import com.ai.cloud.skywalking.reciever.processor.ProcessorFactory;
 import com.ai.cloud.skywalking.reciever.selfexamination.ServerHealthCollector;
 import com.ai.cloud.skywalking.reciever.selfexamination.ServerHeathReading;
-import com.ai.cloud.skywalking.serialize.SerializedFactory;
-import com.ai.cloud.skywalking.util.AtomicRangeInteger;
+import com.ai.cloud.skywalking.protocol.SerializedFactory;
+import com.ai.cloud.skywalking.protocol.util.AtomicRangeInteger;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

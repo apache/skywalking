@@ -30,7 +30,7 @@ import com.ai.cloud.skywalking.analysis.chainbuild.util.TokenGenerator;
 import com.ai.cloud.skywalking.analysis.chainbuild.util.VersionIdentifier;
 import com.ai.cloud.skywalking.analysis.config.ConfigInitializer;
 import com.ai.cloud.skywalking.protocol.Span;
-import com.ai.cloud.skywalking.util.SpanLevelIdComparators;
+import com.ai.cloud.skywalking.protocol.util.SpanLevelIdComparators;
 import com.google.gson.Gson;
 
 public class ChainBuildMapper extends TableMapper<Text, Text> {

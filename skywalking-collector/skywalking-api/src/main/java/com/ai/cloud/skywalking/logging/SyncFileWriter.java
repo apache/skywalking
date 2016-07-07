@@ -2,7 +2,7 @@ package com.ai.cloud.skywalking.logging;
 
 
 import com.ai.cloud.skywalking.conf.Config;
-import com.ai.cloud.skywalking.util.LoggingUtil;
+import com.ai.cloud.skywalking.protocol.util.LoggingUtil;
 
 import java.io.File;
 import java.io.FileNotFoundException;

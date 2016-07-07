@@ -1,18 +1,14 @@
-package com.ai.cloud.skywalking.serialize;
+package com.ai.cloud.skywalking.protocol;
 
 import com.ai.cloud.skywalking.protocol.common.AbstractDataSerializable;
 import com.ai.cloud.skywalking.protocol.common.NullableClass;
-import com.ai.cloud.skywalking.util.IntegerAssist;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import com.ai.cloud.skywalking.protocol.util.IntegerAssist;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ServiceLoader;
 
 public class SerializedFactory {
-    private static Logger logger = LogManager.getLogger(SerializedFactory.class);
-
     public static Map<Integer, AbstractDataSerializable> serializableMap = new HashMap<Integer, AbstractDataSerializable>();
 
 

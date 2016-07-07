@@ -1,6 +1,6 @@
 package com.ai.cloud.skywalking.web.service.impl;
 
-import com.ai.cloud.skywalking.util.SpanLevelIdComparators;
+import com.ai.cloud.skywalking.protocol.util.SpanLevelIdComparators;
 import com.ai.cloud.skywalking.web.dao.inter.ICallChainTreeDao;
 import com.ai.cloud.skywalking.web.dao.inter.ITypicalCallTreeDao;
 import com.ai.cloud.skywalking.web.dto.CallChainTree;

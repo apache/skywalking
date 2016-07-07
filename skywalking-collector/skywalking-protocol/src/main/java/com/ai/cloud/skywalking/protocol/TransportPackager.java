@@ -1,6 +1,7 @@
-package com.ai.cloud.skywalking.util;
+package com.ai.cloud.skywalking.protocol;
 
 import com.ai.cloud.skywalking.protocol.common.ISerializable;
+import com.ai.cloud.skywalking.protocol.util.IntegerAssist;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,14 +11,14 @@ public class TransportPackager {
     public static byte[] pack(List<ISerializable> beSendingData) {
         // 对协议格式进行修改
         // | check sum(4 byte) |  data
-        byte[] dataText = packDataText(beSendingData);
+        byte[] dataText = packDataBody(beSendingData);
         byte[] dataPackage = packCheckSum(dataText);
         return dataPackage;
     }
 
     public static List<byte[]> unpack(byte[] dataPackage) {
         if (validateCheckSum(dataPackage)) {
-            return unpackDataText(unpackCheckSum(dataPackage));
+            return unpackDataBody(unpackCheckSum(dataPackage));
         } else {
             return new ArrayList<byte[]>();
         }
@@ -27,7 +28,7 @@ public class TransportPackager {
         return Arrays.copyOfRange(dataPackage, 4, dataPackage.length);
     }
 
-    private static List<byte[]> unpackDataText(byte[] dataPackage) {
+    private static List<byte[]> unpackDataBody(byte[] dataPackage) {
         List<byte[]> serializeData = new ArrayList<byte[]>();
         int currentLength = 0;
         while (true) {
@@ -76,11 +77,11 @@ public class TransportPackager {
         return dataPackage;
     }
 
-    private static byte[] packDataText(List<ISerializable> beSendingData) {
+    private static byte[] packDataBody(List<ISerializable> beSendingData) {
         byte[] dataText = null;
         int currentIndex = 0;
         for (ISerializable sendingData : beSendingData) {
-            byte[] dataElementText = appendingLength(sendingData.convert2Bytes());
+            byte[] dataElementText = setElementPackageLength(sendingData.convert2Bytes());
             if (dataText == null) {
                 dataText = new byte[dataElementText.length];
             } else {
@@ -93,20 +94,7 @@ public class TransportPackager {
         return dataText;
     }
 
-    private static void appendBeSendingDataText(byte[] beSendingDataText, byte[] dataText, int currentIndex) {
-        System.arraycopy(beSendingDataText, 0, dataText, currentIndex, beSendingDataText.length);
-    }
-
-    private static byte[] expansionCapacityIfNecessary(byte[] dataText, int currentLength, byte[] beSendingDataText) {
-        if (beSendingDataText.length + currentLength > 1024 * 30) {
-            byte[] newDataText = new byte[dataText.length + 1024 * 30];
-            System.arraycopy(dataText, 0, newDataText, 0, dataText.length);
-            return newDataText;
-        }
-        return dataText;
-    }
-
-    private static byte[] appendingLength(byte[] dataByte) {
+    private static byte[] setElementPackageLength(byte[] dataByte) {
         byte[] dataText = new byte[dataByte.length + 4];
         System.arraycopy(dataByte, 0, dataText, 4, dataByte.length);
         byte[] length = IntegerAssist.intToBytes(dataByte.length);

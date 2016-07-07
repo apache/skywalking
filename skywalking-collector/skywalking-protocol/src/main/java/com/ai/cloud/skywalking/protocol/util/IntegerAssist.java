@@ -1,4 +1,4 @@
-package com.ai.cloud.skywalking.util;
+package com.ai.cloud.skywalking.protocol.util;
 
 /**
  * Created by wusheng on 16/7/4.

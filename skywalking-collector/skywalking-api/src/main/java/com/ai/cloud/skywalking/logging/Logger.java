@@ -1,7 +1,7 @@
 package com.ai.cloud.skywalking.logging;
 
 
-import com.ai.cloud.skywalking.util.LoggingUtil;
+import com.ai.cloud.skywalking.protocol.util.LoggingUtil;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

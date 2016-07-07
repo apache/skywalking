@@ -1,8 +1,8 @@
 package com.ai.cloud.skywalking.protocol.common;
 
 import com.ai.cloud.skywalking.protocol.NullClass;
-import com.ai.cloud.skywalking.serialize.SerializedFactory;
-import com.ai.cloud.skywalking.util.IntegerAssist;
+import com.ai.cloud.skywalking.protocol.SerializedFactory;
+import com.ai.cloud.skywalking.protocol.util.IntegerAssist;
 
 import java.util.Arrays;
 

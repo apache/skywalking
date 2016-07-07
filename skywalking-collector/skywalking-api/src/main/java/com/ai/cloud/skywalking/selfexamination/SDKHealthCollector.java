@@ -8,7 +8,7 @@ import com.ai.cloud.skywalking.conf.AuthDesc;
 import com.ai.cloud.skywalking.conf.Config;
 import com.ai.cloud.skywalking.logging.LogManager;
 import com.ai.cloud.skywalking.logging.Logger;
-import com.ai.cloud.skywalking.util.BuriedPointMachineUtil;
+import com.ai.cloud.skywalking.protocol.util.BuriedPointMachineUtil;
 
 public class SDKHealthCollector extends Thread {
 	private static Logger logger = LogManager

@@ -7,7 +7,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.ai.cloud.skywalking.util.StringUtil;
+import com.ai.cloud.skywalking.protocol.util.StringUtil;
 
 public class PluginCfg {
 	public final static PluginCfg CFG = new PluginCfg();

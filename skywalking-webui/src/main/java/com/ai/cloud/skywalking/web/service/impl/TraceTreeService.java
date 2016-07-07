@@ -1,6 +1,6 @@
 package com.ai.cloud.skywalking.web.service.impl;
 
-import com.ai.cloud.skywalking.util.SpanLevelIdComparators;
+import com.ai.cloud.skywalking.protocol.util.SpanLevelIdComparators;
 import com.ai.cloud.skywalking.web.dao.inter.ITraceNodeDao;
 import com.ai.cloud.skywalking.web.dto.TraceNodeInfo;
 import com.ai.cloud.skywalking.web.dto.TraceNodesResult;

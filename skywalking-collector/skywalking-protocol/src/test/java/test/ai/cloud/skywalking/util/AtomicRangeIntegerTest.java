@@ -3,10 +3,9 @@ package test.ai.cloud.skywalking.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.Assert;
 import junit.framework.TestCase;
 
-import com.ai.cloud.skywalking.util.AtomicRangeInteger;
+import com.ai.cloud.skywalking.protocol.util.AtomicRangeInteger;
 
 public class AtomicRangeIntegerTest extends TestCase{
 	static String[] buffer = new String[5000];

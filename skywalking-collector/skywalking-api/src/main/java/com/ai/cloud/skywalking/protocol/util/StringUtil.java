@@ -1,4 +1,4 @@
-package com.ai.cloud.skywalking.util;
+package com.ai.cloud.skywalking.protocol.util;
 
 public final class StringUtil {
     public static boolean isEmpty(String str) {

@@ -7,7 +7,7 @@ import com.ai.cloud.skywalking.model.ContextData;
 import com.ai.cloud.skywalking.model.EmptyContextData;
 import com.ai.cloud.skywalking.model.Identification;
 import com.ai.cloud.skywalking.protocol.Span;
-import com.ai.cloud.skywalking.util.ContextGenerator;
+import com.ai.cloud.skywalking.protocol.util.ContextGenerator;
 
 public class LocalMethodInvokeMonitor extends BaseInvokeMonitor {
 
