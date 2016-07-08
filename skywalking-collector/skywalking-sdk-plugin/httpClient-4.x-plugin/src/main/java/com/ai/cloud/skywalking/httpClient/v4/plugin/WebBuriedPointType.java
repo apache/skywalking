@@ -1,4 +1,4 @@
-package org.skywalking.httpClient.v4.plugin;
+package com.ai.cloud.skywalking.httpClient.v4.plugin;
 
 import com.ai.cloud.skywalking.api.IBuriedPointType;
 import com.ai.cloud.skywalking.protocol.common.CallType;

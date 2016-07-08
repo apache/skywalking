@@ -1,4 +1,4 @@
-package org.skywalking.httpClient.v4.plugin;
+package com.ai.cloud.skywalking.httpClient.v4.plugin;
 
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;

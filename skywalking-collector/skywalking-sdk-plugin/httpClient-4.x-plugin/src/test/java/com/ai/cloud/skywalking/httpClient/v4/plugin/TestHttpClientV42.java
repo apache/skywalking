@@ -1,4 +1,4 @@
-package org.skywalking.httpClient.v4.plugin;
+package com.ai.cloud.skywalking.httpClient.v4.plugin;
 
 import com.ai.cloud.skywalking.plugin.TracingBootstrap;
 import com.ai.skywalking.testframework.api.RequestSpanAssert;
@@ -20,7 +20,7 @@ import java.sql.SQLException;
 public class TestHttpClientV42 {
     @Test
     public void testsql() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException, ClassNotFoundException {
-        TracingBootstrap.main(new String[] {"org.skywalking.httpClient.v4.plugin.TestHttpClientV42"});
+        TracingBootstrap.main(new String[] {"TestHttpClientV42"});
     }
 
     public static void main(String[] args) throws ClassNotFoundException, SQLException, InterruptedException, ClientProtocolException, IOException {

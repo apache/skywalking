@@ -13,6 +13,7 @@
         <module>log4j-1.x-plugin</module>
         <module>log4j-2.x-plugin</module>
         <module>example</module>
+        <module>logback-plugin</module>
     </modules>
     <packaging>pom</packaging>
 

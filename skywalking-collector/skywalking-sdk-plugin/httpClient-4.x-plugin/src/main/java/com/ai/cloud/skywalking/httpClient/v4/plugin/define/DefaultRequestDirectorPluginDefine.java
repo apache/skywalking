@@ -1,4 +1,4 @@
-package org.skywalking.httpClient.v4.plugin.define;
+package com.ai.cloud.skywalking.httpClient.v4.plugin.define;
 
 import com.ai.cloud.skywalking.plugin.interceptor.MethodMatcher;
 import com.ai.cloud.skywalking.plugin.interceptor.matcher.SimpleMethodMatcher;
