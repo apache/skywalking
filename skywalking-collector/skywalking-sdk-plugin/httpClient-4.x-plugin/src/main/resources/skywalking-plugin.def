@@ -1,4 +1,4 @@
-AbstractHttpClientPluginDefine
-InternalHttpClientPluginDefine
-MinimalHttpClientPluginDefine
-DefaultRequestDirectorPluginDefine
+com.ai.cloud.skywalking.httpClient.v4.plugin.define.AbstractHttpClientPluginDefine
+com.ai.cloud.skywalking.httpClient.v4.plugin.define.InternalHttpClientPluginDefine
+com.ai.cloud.skywalking.httpClient.v4.plugin.define.MinimalHttpClientPluginDefine
+com.ai.cloud.skywalking.httpClient.v4.plugin.define.DefaultRequestDirectorPluginDefine

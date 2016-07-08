@@ -1,6 +1,6 @@
 package com.ai.cloud.skywalking.agent.test.mysql;
 
-import com.ai.skywalking.testframework.api.TraceTreeAssert;
+import com.ai.skywalking.testframework.api.RequestSpanAssert;
 import org.junit.Test;
 
 import java.sql.Connection;
@@ -25,13 +25,12 @@ public class JDBCPluginTest {
         p0.execute();
         con.commit();
         con.close();
-        TraceTreeAssert.assertEquals(new String[][]{
-                {"0", "jdbc:mysql://127.0.0.1:3306/test?user=root&password=root(null)", "preaparedStatement.executeUpdate:select 1 from dual where 1=?"},
-                {"0", "jdbc:mysql://127.0.0.1:3306/test?user=root&password=root(null)", "connection.commit"},
-                {"0", "jdbc:mysql://127.0.0.1:3306/test?user=root&password=root(null)", "connection.close"},
-        }, true);
+        RequestSpanAssert.assertEquals(
+                new String[][] {{"0", "jdbc:mysql://127.0.0.1:3306/test?user=root&password=root(null)", "preaparedStatement.executeUpdate:select 1 from dual where 1=?"},
+                        {"0", "jdbc:mysql://127.0.0.1:3306/test?user=root&password=root(null)", "connection.commit"},
+                        {"0", "jdbc:mysql://127.0.0.1:3306/test?user=root&password=root(null)", "connection.close"},}, true);
 
-        TraceTreeAssert.clearTraceData();
+        RequestSpanAssert.clearTraceData();
     }
 
     @Test
@@ -46,12 +45,11 @@ public class JDBCPluginTest {
         p0.execute();
         con.commit();
         con.close();
-        TraceTreeAssert.assertEquals(new String[][]{
-                {"0", "jdbc:oracle:thin:@10.1.130.239:1521:ora(edc_export)", "preaparedStatement.executeUpdate:select 1 from dual where 1=?"},
-                {"0", "jdbc:oracle:thin:@10.1.130.239:1521:ora(edc_export)", "connection.commit"},
-                {"0", "jdbc:oracle:thin:@10.1.130.239:1521:ora(edc_export)", "connection.close"},
-        }, true);
+        RequestSpanAssert.assertEquals(
+                new String[][] {{"0", "jdbc:oracle:thin:@10.1.130.239:1521:ora(edc_export)", "preaparedStatement.executeUpdate:select 1 from dual where 1=?"},
+                        {"0", "jdbc:oracle:thin:@10.1.130.239:1521:ora(edc_export)", "connection.commit"},
+                        {"0", "jdbc:oracle:thin:@10.1.130.239:1521:ora(edc_export)", "connection.close"},}, true);
 
-        TraceTreeAssert.clearTraceData();
+        RequestSpanAssert.clearTraceData();
     }
 }
