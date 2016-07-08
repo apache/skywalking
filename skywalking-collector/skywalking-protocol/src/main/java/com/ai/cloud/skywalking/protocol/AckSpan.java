@@ -42,6 +42,10 @@ public class AckSpan extends AbstractDataSerializable {
      */
     private String exceptionStack = "";
 
+    /**
+     * 埋点入参列表,补充时触发
+     */
+    private Map<String, String> paramters = new HashMap<String, String>();
 
     public AckSpan(Span spanData) {
         this.traceId = spanData.getTraceId();
@@ -51,11 +55,6 @@ public class AckSpan extends AbstractDataSerializable {
         this.statusCode = spanData.getStatusCode();
         this.exceptionStack = spanData.getExceptionStack();
     }
-
-    /**
-     * 埋点入参列表,补充时触发
-     */
-    private Map<String, String> paramters = new HashMap<String, String>();
 
     public AckSpan() {
 
