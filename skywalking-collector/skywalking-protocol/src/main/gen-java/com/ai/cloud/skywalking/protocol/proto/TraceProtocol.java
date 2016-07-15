@@ -1206,6 +1206,20 @@ public final class TraceProtocol {
      */
     com.google.protobuf.ByteString
         getBussinessKeyBytes();
+
+    /**
+     * <code>required string agentId = 12;</code>
+     */
+    boolean hasAgentId();
+    /**
+     * <code>required string agentId = 12;</code>
+     */
+    java.lang.String getAgentId();
+    /**
+     * <code>required string agentId = 12;</code>
+     */
+    com.google.protobuf.ByteString
+        getAgentIdBytes();
   }
   /**
    * Protobuf type {@code RequestSpan}
@@ -1320,6 +1334,12 @@ public final class TraceProtocol {
               com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000400;
               bussinessKey_ = bs;
+              break;
+            }
+            case 98: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x00000800;
+              agentId_ = bs;
               break;
             }
           }
@@ -1743,6 +1763,48 @@ public final class TraceProtocol {
       }
     }
 
+    public static final int AGENTID_FIELD_NUMBER = 12;
+    private java.lang.Object agentId_;
+    /**
+     * <code>required string agentId = 12;</code>
+     */
+    public boolean hasAgentId() {
+      return ((bitField0_ & 0x00000800) == 0x00000800);
+    }
+    /**
+     * <code>required string agentId = 12;</code>
+     */
+    public java.lang.String getAgentId() {
+      java.lang.Object ref = agentId_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          agentId_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>required string agentId = 12;</code>
+     */
+    public com.google.protobuf.ByteString
+        getAgentIdBytes() {
+      java.lang.Object ref = agentId_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        agentId_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
     private void initFields() {
       traceId_ = "";
       parentLevel_ = "";
@@ -1755,6 +1817,7 @@ public final class TraceProtocol {
       applicationId_ = "";
       userId_ = "";
       bussinessKey_ = "";
+      agentId_ = "";
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -1798,6 +1861,10 @@ public final class TraceProtocol {
         memoizedIsInitialized = 0;
         return false;
       }
+      if (!hasAgentId()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
       memoizedIsInitialized = 1;
       return true;
     }
@@ -1837,6 +1904,9 @@ public final class TraceProtocol {
       }
       if (((bitField0_ & 0x00000400) == 0x00000400)) {
         output.writeBytes(11, getBussinessKeyBytes());
+      }
+      if (((bitField0_ & 0x00000800) == 0x00000800)) {
+        output.writeBytes(12, getAgentIdBytes());
       }
       getUnknownFields().writeTo(output);
     }
@@ -1890,6 +1960,10 @@ public final class TraceProtocol {
       if (((bitField0_ & 0x00000400) == 0x00000400)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBytesSize(11, getBussinessKeyBytes());
+      }
+      if (((bitField0_ & 0x00000800) == 0x00000800)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(12, getAgentIdBytes());
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -2030,6 +2104,8 @@ public final class TraceProtocol {
         bitField0_ = (bitField0_ & ~0x00000200);
         bussinessKey_ = "";
         bitField0_ = (bitField0_ & ~0x00000400);
+        agentId_ = "";
+        bitField0_ = (bitField0_ & ~0x00000800);
         return this;
       }
 
@@ -2102,6 +2178,10 @@ public final class TraceProtocol {
           to_bitField0_ |= 0x00000400;
         }
         result.bussinessKey_ = bussinessKey_;
+        if (((from_bitField0_ & 0x00000800) == 0x00000800)) {
+          to_bitField0_ |= 0x00000800;
+        }
+        result.agentId_ = agentId_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -2167,6 +2247,11 @@ public final class TraceProtocol {
           bussinessKey_ = other.bussinessKey_;
           onChanged();
         }
+        if (other.hasAgentId()) {
+          bitField0_ |= 0x00000800;
+          agentId_ = other.agentId_;
+          onChanged();
+        }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
       }
@@ -2205,6 +2290,10 @@ public final class TraceProtocol {
           return false;
         }
         if (!hasUserId()) {
+          
+          return false;
+        }
+        if (!hasAgentId()) {
           
           return false;
         }
@@ -2934,6 +3023,82 @@ public final class TraceProtocol {
         return this;
       }
 
+      private java.lang.Object agentId_ = "";
+      /**
+       * <code>required string agentId = 12;</code>
+       */
+      public boolean hasAgentId() {
+        return ((bitField0_ & 0x00000800) == 0x00000800);
+      }
+      /**
+       * <code>required string agentId = 12;</code>
+       */
+      public java.lang.String getAgentId() {
+        java.lang.Object ref = agentId_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            agentId_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>required string agentId = 12;</code>
+       */
+      public com.google.protobuf.ByteString
+          getAgentIdBytes() {
+        java.lang.Object ref = agentId_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          agentId_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>required string agentId = 12;</code>
+       */
+      public Builder setAgentId(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000800;
+        agentId_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required string agentId = 12;</code>
+       */
+      public Builder clearAgentId() {
+        bitField0_ = (bitField0_ & ~0x00000800);
+        agentId_ = getDefaultInstance().getAgentId();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required string agentId = 12;</code>
+       */
+      public Builder setAgentIdBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000800;
+        agentId_ = value;
+        onChanged();
+        return this;
+      }
+
       // @@protoc_insertion_point(builder_scope:RequestSpan)
     }
 
@@ -2967,14 +3132,14 @@ public final class TraceProtocol {
       "\n\023TraceProtocol.proto\"z\n\007AckSpan\022\017\n\007trac" +
       "eId\030\001 \002(\t\022\023\n\013parentLevel\030\002 \001(\t\022\017\n\007levelI" +
       "d\030\003 \002(\005\022\014\n\004cost\030\004 \002(\003\022\022\n\nstatusCode\030\005 \002(" +
-      "\005\022\026\n\016exceptionStack\030\006 \001(\t\"\343\001\n\013RequestSpa" +
+      "\005\022\026\n\016exceptionStack\030\006 \001(\t\"\364\001\n\013RequestSpa" +
       "n\022\017\n\007traceId\030\001 \002(\t\022\023\n\013parentLevel\030\002 \001(\t\022" +
       "\017\n\007levelId\030\003 \002(\005\022\023\n\013viewPointId\030\004 \002(\t\022\021\n" +
       "\tstartDate\030\005 \002(\003\022\024\n\014spanTypeDesc\030\006 \002(\t\022\020" +
       "\n\010callType\030\007 \002(\t\022\020\n\010spanType\030\010 \002(\r\022\025\n\rap" +
       "plicationId\030\t \002(\t\022\016\n\006userId\030\n \002(\t\022\024\n\014bus" +
-      "sinessKey\030\013 \001(\tB(\n&com.ai.cloud.skywalki",
-      "ng.protocol.proto"
+      "sinessKey\030\013 \001(\t\022\017\n\007agentId\030\014 \002(\tB(\n&com.",
+      "ai.cloud.skywalking.protocol.proto"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -2999,7 +3164,7 @@ public final class TraceProtocol {
     internal_static_RequestSpan_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_RequestSpan_descriptor,
-        new java.lang.String[] { "TraceId", "ParentLevel", "LevelId", "ViewPointId", "StartDate", "SpanTypeDesc", "CallType", "SpanType", "ApplicationId", "UserId", "BussinessKey", });
+        new java.lang.String[] { "TraceId", "ParentLevel", "LevelId", "ViewPointId", "StartDate", "SpanTypeDesc", "CallType", "SpanType", "ApplicationId", "UserId", "BussinessKey", "AgentId", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

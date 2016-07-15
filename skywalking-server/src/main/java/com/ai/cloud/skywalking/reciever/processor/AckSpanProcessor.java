@@ -14,6 +14,7 @@ import java.util.List;
 
 import static com.ai.cloud.skywalking.reciever.util.SpanUtil.getTSBySpanTraceId;
 
+@DefaultProcessor
 public class AckSpanProcessor extends AbstractSpanProcessor {
 
     @Override

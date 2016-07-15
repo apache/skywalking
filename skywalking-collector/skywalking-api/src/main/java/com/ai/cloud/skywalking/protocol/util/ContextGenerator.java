@@ -63,7 +63,7 @@ public final class ContextGenerator {
             // if true, current span is invalidate and current span also belong to RPC span
             if (parentSpan.isRPCClientSpan()) {
                 span.setSpanType(SpanType.RPC_CLIENT);
-                span.setIsInvalidate(true);
+                span.setValidate(false);
             }
 
             if (!StringUtil.isEmpty(parentSpan.getParentLevel())) {

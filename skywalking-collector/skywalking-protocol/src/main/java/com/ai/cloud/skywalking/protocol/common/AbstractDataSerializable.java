@@ -2,6 +2,7 @@ package com.ai.cloud.skywalking.protocol.common;
 
 import com.ai.cloud.skywalking.protocol.NullClass;
 import com.ai.cloud.skywalking.protocol.SerializedFactory;
+import com.ai.cloud.skywalking.protocol.exception.ConvertFailedException;
 import com.ai.cloud.skywalking.protocol.util.IntegerAssist;
 
 import java.util.Arrays;
@@ -14,7 +15,7 @@ public abstract class AbstractDataSerializable implements ISerializable, Nullabl
 
     public abstract byte[] getData();
 
-    public abstract AbstractDataSerializable convertData(byte[] data);
+    public abstract AbstractDataSerializable convertData(byte[] data) throws ConvertFailedException;
 
     /**
      * 消息包结构:
@@ -41,7 +42,7 @@ public abstract class AbstractDataSerializable implements ISerializable, Nullabl
     }
 
     @Override
-    public NullableClass convert2Object(byte[] data) {
+    public NullableClass convert2Object(byte[] data) throws ConvertFailedException {
         int dataType = IntegerAssist.bytesToInt(data, 0);
 
         if (!SerializedFactory.isCanSerialized(dataType)) {

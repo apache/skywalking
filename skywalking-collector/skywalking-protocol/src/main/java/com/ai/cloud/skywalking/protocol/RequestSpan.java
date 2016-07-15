@@ -3,6 +3,7 @@ package com.ai.cloud.skywalking.protocol;
 import com.ai.cloud.skywalking.protocol.common.AbstractDataSerializable;
 import com.ai.cloud.skywalking.protocol.common.CallType;
 import com.ai.cloud.skywalking.protocol.common.SpanType;
+import com.ai.cloud.skywalking.protocol.exception.ConvertFailedException;
 import com.ai.cloud.skywalking.protocol.proto.TraceProtocol;
 import com.google.protobuf.InvalidProtocolBufferException;
 
@@ -78,6 +79,11 @@ public class RequestSpan extends AbstractDataSerializable {
      * 业务字段
      */
     private String businessKey = "";
+
+    /**
+     * 实例ID
+     */
+    private String agentId = "";
 
     public RequestSpan(Span spanData) {
         this.traceId = spanData.getTraceId();
@@ -191,13 +197,15 @@ public class RequestSpan extends AbstractDataSerializable {
 
     @Override
     public byte[] getData() {
-        return TraceProtocol.RequestSpan.newBuilder().setTraceId(traceId).setParentLevel(parentLevel).setLevelId(levelId).setViewPointId(viewPointId).setStartDate(startDate)
-                .setSpanType(spanType.getValue()).setSpanTypeDesc(spanTypeDesc).setBussinessKey(businessKey).setCallType(callType).setApplicationId(applicationId).setUserId(userId)
-                .build().toByteArray();
+        return TraceProtocol.RequestSpan.newBuilder().setTraceId(traceId).setParentLevel(parentLevel)
+                .setLevelId(levelId).setViewPointId(viewPointId).setStartDate(startDate)
+                .setSpanType(spanType.getValue()).setSpanTypeDesc(spanTypeDesc).setBussinessKey(businessKey)
+                .setCallType(callType).setApplicationId(applicationId).setUserId(userId).setBussinessKey(businessKey)
+                .setAgentId(agentId).build().toByteArray();
     }
 
     @Override
-    public AbstractDataSerializable convertData(byte[] data) {
+    public AbstractDataSerializable convertData(byte[] data) throws ConvertFailedException {
         RequestSpan requestSpan = new RequestSpan();
         try {
             TraceProtocol.RequestSpan requestSpanByte = TraceProtocol.RequestSpan.parseFrom(data);
@@ -211,8 +219,10 @@ public class RequestSpan extends AbstractDataSerializable {
             requestSpan.setStartDate(requestSpanByte.getStartDate());
             requestSpan.setUserId(requestSpanByte.getUserId());
             requestSpan.setViewPointId(requestSpanByte.getViewPointId());
+            requestSpan.setBusinessKey(requestSpanByte.getBussinessKey());
+            requestSpan.setAgentId(requestSpanByte.getAgentId());
         } catch (InvalidProtocolBufferException e) {
-            return null;
+            throw new ConvertFailedException();
         }
 
         return requestSpan;
@@ -223,6 +233,17 @@ public class RequestSpan extends AbstractDataSerializable {
         return false;
     }
 
+    public void setBusinessKey(String businessKey) {
+        this.businessKey = businessKey;
+    }
+
+    public String getAgentId() {
+        return agentId;
+    }
+
+    public void setAgentId(String agentId) {
+        this.agentId = agentId;
+    }
 
     public static class RequestSpanBuilder {
         private RequestSpan ackSpan;

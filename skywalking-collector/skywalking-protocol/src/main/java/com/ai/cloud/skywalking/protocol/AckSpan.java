@@ -1,6 +1,7 @@
 package com.ai.cloud.skywalking.protocol;
 
 import com.ai.cloud.skywalking.protocol.common.AbstractDataSerializable;
+import com.ai.cloud.skywalking.protocol.exception.ConvertFailedException;
 import com.ai.cloud.skywalking.protocol.proto.TraceProtocol;
 import com.google.protobuf.InvalidProtocolBufferException;
 
@@ -24,18 +25,18 @@ public class AckSpan extends AbstractDataSerializable {
      * 当前调用链的本机描述<br/>
      * 如当前序号为：0.1.0时，levelId=0
      */
-    private int levelId = 0;
+    private int    levelId        = 0;
     /**
      * 节点调用花费时间
      */
-    private long cost = 0L;
+    private long   cost           = 0L;
     /**
      * 节点调用的状态<br/>
      * 0：成功<br/>
      * 1：异常<br/>
      * 异常判断原则：代码产生exception，并且此exception不在忽略列表中
      */
-    private byte statusCode = 0;
+    private byte   statusCode     = 0;
     /**
      * 节点调用的错误堆栈<br/>
      * 堆栈以JAVA的exception为主要判断依据
@@ -124,11 +125,12 @@ public class AckSpan extends AbstractDataSerializable {
     @Override
     public byte[] getData() {
         return TraceProtocol.AckSpan.newBuilder().setTraceId(traceId).setParentLevel(parentLevel).
-                setLevelId(levelId).setCost(cost).setStatusCode(statusCode).setExceptionStack(exceptionStack).build().toByteArray();
+                setLevelId(levelId).setCost(cost).setStatusCode(statusCode).setExceptionStack(exceptionStack).build()
+                .toByteArray();
     }
 
     @Override
-    public AbstractDataSerializable convertData(byte[] data) {
+    public AbstractDataSerializable convertData(byte[] data) throws ConvertFailedException {
         AckSpan ackSpan = new AckSpan();
         try {
             TraceProtocol.AckSpan ackSpanProtocol = TraceProtocol.AckSpan.parseFrom(data);
@@ -139,7 +141,7 @@ public class AckSpan extends AbstractDataSerializable {
             ackSpan.setExceptionStack(ackSpanProtocol.getExceptionStack());
             ackSpan.setStatusCode((byte) ackSpanProtocol.getStatusCode());
         } catch (InvalidProtocolBufferException e) {
-            return null;
+            throw new ConvertFailedException();
         }
 
         return ackSpan;

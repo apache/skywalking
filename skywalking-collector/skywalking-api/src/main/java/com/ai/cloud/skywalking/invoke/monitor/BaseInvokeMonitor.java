@@ -31,12 +31,13 @@ public abstract class BaseInvokeMonitor {
             logger.debug("TraceId:" + spanData.getTraceId() + "\tviewpointId:" + id.getViewPoint() + "\tParentLevelId:" + spanData.getParentLevel() + "\tLevelId:" + spanData
                     .getLevelId());
         }
-        // 根据SpanData生成RequestSpan，并保存
-        ContextBuffer.save(RequestSpan.RequestSpanBuilder.
-                newBuilder(spanData).callType(id.getCallType())
-                .viewPoint(id.getViewPoint())
-                .spanTypeDesc(id.getSpanTypeDesc())
-                .build());
+
+
+        if (!spanData.isValidate()) {
+            // 根据SpanData生成RequestSpan，并保存
+            ContextBuffer.save(RequestSpan.RequestSpanBuilder.
+                    newBuilder(spanData).callType(id.getCallType()).viewPoint(id.getViewPoint()).spanTypeDesc(id.getSpanTypeDesc()).build());
+        }
 
         // 将新创建的Context存放到ThreadLocal栈中。
         CurrentThreadSpanStack.push(spanData);
@@ -51,7 +52,7 @@ public abstract class BaseInvokeMonitor {
 
             // 弹出上下文的栈顶中的元素
             Span spanData = CurrentThreadSpanStack.pop();
-            if (spanData == null || spanData.isInvalidate()) {
+            if (spanData == null || spanData.isValidate()) {
                 return;
             }
 

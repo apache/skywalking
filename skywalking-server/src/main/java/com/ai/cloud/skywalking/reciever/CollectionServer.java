@@ -4,6 +4,7 @@ import com.ai.cloud.skywalking.reciever.buffer.DataBufferThreadContainer;
 import com.ai.cloud.skywalking.reciever.conf.Config;
 import com.ai.cloud.skywalking.reciever.conf.ConfigInitializer;
 import com.ai.cloud.skywalking.reciever.handler.CollectionServerDataHandler;
+import com.ai.cloud.skywalking.reciever.peresistent.PersistenceThreadLauncher;
 import com.ai.cloud.skywalking.reciever.selfexamination.ServerHealthCollector;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
@@ -35,7 +36,8 @@ public class CollectionServer {
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         try {
             ServerBootstrap b = new ServerBootstrap();
-            b.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class).option(ChannelOption.SO_BACKLOG, 100).handler(new LoggingHandler(LogLevel.INFO))
+            b.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class).option(ChannelOption.SO_BACKLOG, 100)
+                    .handler(new LoggingHandler(LogLevel.INFO))
                     .childHandler(new ChannelInitializer<io.netty.channel.socket.SocketChannel>() {
                         @Override
                         public void initChannel(io.netty.channel.socket.SocketChannel ch) throws Exception {
@@ -61,6 +63,8 @@ public class CollectionServer {
         initializeParam();
         logger.info("To init server health collector...");
         ServerHealthCollector.init();
+        logger.info("To launch register persistence thread....");
+        PersistenceThreadLauncher.doLaunch();
         logger.info("To init data buffer thread container...");
         DataBufferThreadContainer.init();
         logger.info("Starting collection server.....");

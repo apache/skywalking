@@ -2,6 +2,7 @@ package com.ai.cloud.skywalking.protocol;
 
 import com.ai.cloud.skywalking.protocol.common.AbstractDataSerializable;
 import com.ai.cloud.skywalking.protocol.common.NullableClass;
+import com.ai.cloud.skywalking.protocol.exception.ConvertFailedException;
 import com.ai.cloud.skywalking.protocol.util.IntegerAssist;
 
 import java.util.HashMap;
@@ -9,7 +10,8 @@ import java.util.Map;
 import java.util.ServiceLoader;
 
 public class SerializedFactory {
-    public static Map<Integer, AbstractDataSerializable> serializableMap = new HashMap<Integer, AbstractDataSerializable>();
+    public static Map<Integer, AbstractDataSerializable> serializableMap =
+            new HashMap<Integer, AbstractDataSerializable>();
 
 
     static {
@@ -20,13 +22,17 @@ public class SerializedFactory {
         }
     }
 
-    public static AbstractDataSerializable unSerialize(byte[] bytes) {
-        AbstractDataSerializable abstractDataSerializable = serializableMap.get(IntegerAssist.bytesToInt(bytes, 0));
-        if (abstractDataSerializable != null) {
-            NullableClass nullableClass = abstractDataSerializable.convert2Object(bytes);
-            if (!nullableClass.isNull()) {
-                return (AbstractDataSerializable) nullableClass;
+    public static AbstractDataSerializable unSerialize(byte[] bytes) throws ConvertFailedException {
+        try {
+            AbstractDataSerializable abstractDataSerializable = serializableMap.get(IntegerAssist.bytesToInt(bytes, 0));
+            if (abstractDataSerializable != null) {
+                NullableClass nullableClass = abstractDataSerializable.convert2Object(bytes);
+                if (!nullableClass.isNull()) {
+                    return (AbstractDataSerializable) nullableClass;
+                }
             }
+        } catch (Exception e) {
+            throw new ConvertFailedException();
         }
         return null;
     }

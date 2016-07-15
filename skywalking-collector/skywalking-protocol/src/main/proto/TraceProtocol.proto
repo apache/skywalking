@@ -1,8 +1,8 @@
-syntax="proto2";
+syntax = "proto2";
 
 option java_package = "com.ai.cloud.skywalking.protocol.proto";
 
-message AckSpan{
+message AckSpan {
     required string traceId = 1;
     optional string parentLevel = 2;
     required int32 levelId = 3;
@@ -24,4 +24,5 @@ message RequestSpan {
     required string applicationId = 9;
     required string userId = 10;
     optional string bussinessKey = 11;
+    required string agentId = 12;
 }

@@ -49,7 +49,7 @@ public class Span {
      * 节点的状态<br/>
      * 不参与序列化
      */
-    protected boolean isInvalidate = false;
+    protected boolean isValidate = true;
 
     /**
      * 节点调用过程中的业务字段<br/>
@@ -111,8 +111,8 @@ public class Span {
         this.startDate = startDate;
     }
 
-    public boolean isInvalidate() {
-        return isInvalidate;
+    public boolean isValidate() {
+        return isValidate;
     }
 
     public byte getStatusCode() {
@@ -135,8 +135,8 @@ public class Span {
         this.parameters = parameters;
     }
 
-    public void setInvalidate(boolean invalidate) {
-        isInvalidate = invalidate;
+    public void setValidate(boolean validate) {
+        isValidate = validate;
     }
 
     public boolean isRPCClientSpan() {
@@ -152,10 +152,6 @@ public class Span {
 
     public SpanType getSpanType() {
         return spanType;
-    }
-
-    public void setIsInvalidate(boolean isInvalidate) {
-        this.isInvalidate = isInvalidate;
     }
 
     public void handleException(Throwable e, Set<String> exclusiveExceptionSet, int maxExceptionStackLength) {
@@ -217,4 +213,6 @@ public class Span {
     public void setUserId(String userId) {
         this.userId = userId;
     }
+
+
 }

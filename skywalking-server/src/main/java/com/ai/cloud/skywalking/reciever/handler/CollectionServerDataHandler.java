@@ -1,15 +1,15 @@
 package com.ai.cloud.skywalking.reciever.handler;
 
+import com.ai.cloud.skywalking.protocol.util.IntegerAssist;
 import com.ai.cloud.skywalking.reciever.buffer.DataBufferThreadContainer;
 import com.ai.cloud.skywalking.reciever.conf.Config;
 import com.ai.cloud.skywalking.reciever.util.RedisConnector;
-import com.ai.cloud.skywalking.protocol.TransportPackager;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import redis.clients.jedis.Jedis;
 
 import java.net.InetSocketAddress;
-import java.util.List;
+import java.util.Arrays;
 
 public class CollectionServerDataHandler extends SimpleChannelInboundHandler<byte[]> {
 
@@ -18,11 +18,8 @@ public class CollectionServerDataHandler extends SimpleChannelInboundHandler<byt
         Thread.currentThread().setName("ServerReceiver");
         // 当接受到这条消息的是空，则忽略
         if (msg != null && msg.length >= 0) {
-
-            List<byte[]> byteSerializeObjects = TransportPackager.unpack(msg);
-
-            if (byteSerializeObjects.size() > 0) {
-                cacheSerializeObjects(byteSerializeObjects);
+            if (validateCheckSum(msg)) {
+                DataBufferThreadContainer.getDataBufferThread().saveTemporarily(unpackCheckSum(msg));
             } else {
                 // 处理错误包
                 dealFailedPackage(ctx);
@@ -30,11 +27,26 @@ public class CollectionServerDataHandler extends SimpleChannelInboundHandler<byt
         }
     }
 
-    private void cacheSerializeObjects(List<byte[]> byteSerializeObjects) {
-        for (byte[] byteSerializeObject : byteSerializeObjects) {
-            DataBufferThreadContainer.getDataBufferThread().saveTemporarily(byteSerializeObject);
-        }
+    private byte[] unpackCheckSum(byte[] msg) {
+        return Arrays.copyOfRange(msg, 4, msg.length);
     }
+
+    private boolean validateCheckSum(byte[] dataPackage) {
+        byte[] checkSum = generateChecksum(dataPackage, 4);
+        byte[] originCheckSum = new byte[4];
+        System.arraycopy(dataPackage, 0, originCheckSum, 0, 4);
+        return Arrays.equals(checkSum, originCheckSum);
+    }
+
+    private static byte[] generateChecksum(byte[] data, int offset) {
+        int result = data[offset];
+        for (int i = offset + 1; i < data.length; i++) {
+            result ^= data[i];
+        }
+
+        return IntegerAssist.intToBytes(result);
+    }
+
 
     private void dealFailedPackage(ChannelHandlerContext ctx) {
         InetSocketAddress socketAddress = (InetSocketAddress) ctx.channel().localAddress();

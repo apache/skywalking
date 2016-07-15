@@ -14,6 +14,7 @@ import java.util.List;
 
 import static com.ai.cloud.skywalking.reciever.util.SpanUtil.getTSBySpanTraceId;
 
+@DefaultProcessor
 public class RequestSpanProcessor extends AbstractSpanProcessor {
 
 
@@ -35,7 +36,8 @@ public class RequestSpanProcessor extends AbstractSpanProcessor {
             } else {
                 columnName = requestSpan.getParentLevel() + "." + requestSpan.getLevelId();
             }
-            put.addColumn(Bytes.toBytes(Config.HBaseConfig.FAMILY_COLUMN_NAME), Bytes.toBytes(columnName), requestSpan.getData());
+            put.addColumn(Bytes.toBytes(Config.HBaseConfig.FAMILY_COLUMN_NAME), Bytes.toBytes(columnName),
+                    requestSpan.getData());
 
             puts.add(put);
         }

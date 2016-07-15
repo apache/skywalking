@@ -16,42 +16,28 @@ public class TransportPackager {
         return dataPackage;
     }
 
-    public static List<byte[]> unpack(byte[] dataPackage) {
-        if (validateCheckSum(dataPackage)) {
-            return unpackDataBody(unpackCheckSum(dataPackage));
-        } else {
-            return new ArrayList<byte[]>();
-        }
-    }
-
-    private static byte[] unpackCheckSum(byte[] dataPackage) {
-        return Arrays.copyOfRange(dataPackage, 4, dataPackage.length);
-    }
-
-    private static List<byte[]> unpackDataBody(byte[] dataPackage) {
-        List<byte[]> serializeData = new ArrayList<byte[]>();
-        int currentLength = 0;
-        while (true) {
-            //读取长度
-            int dataLength = IntegerAssist.bytesToInt(dataPackage, currentLength);
-            // 反序列化
-            byte[] data = new byte[dataLength];
-            System.arraycopy(dataPackage, currentLength + 4, data, 0, dataLength);
-            //
-            serializeData.add(data);
-            currentLength = 4 + dataLength;
-            if (currentLength >= dataPackage.length) {
-                break;
+    public static List<byte[]> unpackDataBody(byte[] dataPackage) {
+        List<byte[]> serializeData = null;
+        try {
+            serializeData = new ArrayList<byte[]>();
+            int currentLength = 0;
+            while (true) {
+                //读取长度
+                int dataLength = IntegerAssist.bytesToInt(dataPackage, currentLength);
+                // 反序列化
+                byte[] data = new byte[dataLength];
+                System.arraycopy(dataPackage, currentLength + 4, data, 0, dataLength);
+                //
+                serializeData.add(data);
+                currentLength += 4 + dataLength;
+                if (currentLength >= dataPackage.length) {
+                    break;
+                }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return serializeData;
-    }
-
-    private static boolean validateCheckSum(byte[] dataPackage) {
-        byte[] checkSum = generateChecksum(dataPackage, 4);
-        byte[] originCheckSum = new byte[4];
-        System.arraycopy(dataPackage, 0, originCheckSum, 0, 4);
-        return Arrays.equals(checkSum, originCheckSum);
     }
 
     /**
