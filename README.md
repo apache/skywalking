@@ -39,10 +39,19 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 * 张鑫 [zhangxin](https://github.com/ascrutae) &nbsp;&nbsp;
 
 # 交流
+<img src="http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/chatapp/toutiao.JPG" alt="Sky Walking TouTiao" height="280px" align="left" />
 * Mail to：wu.sheng@foxmail.com
 * QQ群：392443393，请注明“Sky Walking交流”
 * 谁在使用Sky Walking?[点击进入](https://github.com/wu-sheng/sky-walking/issues/34)。同时请各位使用者反馈下，都在哪些项目中使用。
 * if you are using SkyWalking，[Report to us](https://github.com/wu-sheng/sky-walking/issues/34) please.
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
 
 # 整体架构图
 ![整体架构图](http://wu-sheng.github.io/sky-walking/sample-code/images/skywalkingClusterDeploy.jpeg)
