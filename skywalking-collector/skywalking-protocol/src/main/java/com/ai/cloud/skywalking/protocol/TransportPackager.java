@@ -16,7 +16,7 @@ public class TransportPackager {
         return dataPackage;
     }
 
-    public static List<byte[]> unpackDataBody(byte[] dataPackage) {
+    public static List<ISerializable> unpackDataBody(byte[] dataPackage) {
         List<byte[]> serializeData = null;
         try {
             serializeData = new ArrayList<byte[]>();

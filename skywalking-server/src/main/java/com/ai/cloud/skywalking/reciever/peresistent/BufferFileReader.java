@@ -1,5 +1,6 @@
 package com.ai.cloud.skywalking.reciever.peresistent;
 
+import com.ai.cloud.skywalking.protocol.common.AbstractDataSerializable;
 import com.ai.cloud.skywalking.protocol.util.IntegerAssist;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
@@ -9,8 +10,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 
-public class BufferBalePlucker {
+public class BufferFileReader {
     private File            bufferFile;
     private FileInputStream bufferInputStream;
     private int             currentOffset;
@@ -19,10 +21,10 @@ public class BufferBalePlucker {
     private static final byte[]        EOF_BALE_ARRAY    = "EOF".getBytes();
     private              int           remainderLength   = 0;
     private              byte[]        remainderByte     = null;
-    private              Logger        logger            = LogManager.getLogger(BufferBalePlucker.class);
+    private              Logger        logger            = LogManager.getLogger(BufferFileReader.class);
     private              PluckerStatus status            = PluckerStatus.INITIAL;
 
-    public BufferBalePlucker(File bufferFile, int currentOffset) {
+    public BufferFileReader(File bufferFile, int currentOffset) {
         this.bufferFile = bufferFile;
         this.currentOffset = currentOffset;
 
@@ -39,7 +41,25 @@ public class BufferBalePlucker {
 
     }
 
-    public boolean hasNextBufferBale() {
+    /**
+     * TODO: 确保读到下一个List<ISerializable>,并进行缓存
+     *
+     * 按照如下格式读取:
+     * 1.头4位长度
+     * 2.根据长度读取正文
+     * 2.1. 正文包含多个ISerializable。每个块包含每个ISerializable的长度和ISerializable的正文
+     * 3.长度外,读取4位,为分隔符(不可见字符)
+     *
+     * 封装方法要求:
+     * 1.封装读取指定长度块的方法,读取完成则返回。读取长度不足,则缓存并等待。
+     *
+     * 异常处理:
+     * 1.长度外,读取4位,不是分隔符: 则启动异常跳位处理,直到读取到分隔符位置
+     *
+     *
+     * @return
+     */
+    public boolean hasNext() {
 
         if (status == PluckerStatus.SUSPEND) {
             try {
@@ -70,7 +90,7 @@ public class BufferBalePlucker {
         return hasNextBufferBale;
     }
 
-    public byte[] pluck() throws IOException {
+    public List<AbstractDataSerializable> next() throws IOException {
         int packageLength = unpackBaleLength();
         byte[] dataPackage = unpackDataContext(packageLength);
 

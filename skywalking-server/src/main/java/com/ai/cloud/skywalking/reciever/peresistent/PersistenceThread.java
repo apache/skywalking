@@ -45,14 +45,14 @@ public class PersistenceThread extends Thread {
 
             int offset = acquireOffset();
 
-            BufferBalePlucker bufferBalePlucker = new BufferBalePlucker(bufferFile, offset);
-            while (bufferBalePlucker.hasNextBufferBale()) {
+            BufferFileReader bufferReader = new BufferFileReader(bufferFile, offset);
+            while (bufferReader.hasNext()) {
                 try {
-                    Map<Integer, List<AbstractDataSerializable>> spans = unSerializeSpans(bufferBalePlucker.pluck());
-                    System.out.println(spans.size());
+                    List<AbstractDataSerializable> serializableDataList = bufferReader.next();
+                    System.out.println(serializableDataList.size());
                     //handleSpans(spans);
                 } catch (ConvertFailedException e) {
-                    bufferBalePlucker.skipToNextBufferBale();
+                    bufferReader.skipToNextBufferBale();
                 } catch (IOException e) {
                     logger.error("The data file I/O exception.", e);
                     ServerHealthCollector.getCurrentHeathReading(null)
@@ -61,7 +61,7 @@ public class PersistenceThread extends Thread {
             }
 
             try {
-                bufferBalePlucker.close();
+                bufferReader.close();
             } catch (IOException e) {
                 logger.error("The data file I/O exception.", e);
                 ServerHealthCollector.getCurrentHeathReading(null).updateData(ServerHeathReading.ERROR, e.getMessage());
@@ -91,24 +91,6 @@ public class PersistenceThread extends Thread {
                 processor.process(entry.getValue());
             }
         }
-    }
-
-    private Map<Integer, List<AbstractDataSerializable>> unSerializeSpans(byte[] byteData)
-            throws ConvertFailedException {
-        Map<Integer, List<AbstractDataSerializable>> spans = new HashMap<Integer, List<AbstractDataSerializable>>();
-        if (byteData == null || byteData.length == 0) {
-            return spans;
-        }
-        List<byte[]> serializeData = TransportPackager.unpackDataBody(byteData);
-        for (byte[] dataBytes : serializeData) {
-            AbstractDataSerializable abstractDataSerializable = SerializedFactory.unSerialize(dataBytes);
-            if (spans.get(abstractDataSerializable.getDataType()) == null) {
-                spans.put(abstractDataSerializable.getDataType(), new ArrayList<AbstractDataSerializable>());
-            }
-            spans.get(abstractDataSerializable.getDataType()).add(abstractDataSerializable);
-        }
-
-        return spans;
     }
 
     private File chooseDealBufferFile() {
