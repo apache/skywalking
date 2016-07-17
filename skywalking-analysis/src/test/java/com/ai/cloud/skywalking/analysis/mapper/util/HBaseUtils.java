@@ -45,16 +45,4 @@ public class HBaseUtils {
     public static Connection getConnection() {
         return connection;
     }
-
-    public static List<Span> selectByTraceId(String traceId) throws IOException {
-        List<Span> entries = new ArrayList<Span>();
-        Table table = connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_CALL_CHAIN.TABLE_NAME));
-        Get g = new Get(Bytes.toBytes(traceId));
-        Result r = table.get(g);
-        for (Cell cell : r.rawCells()) {
-            if (cell.getValueArray().length > 0)
-                entries.add(new Span(Bytes.toString(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength())));
-        }
-        return entries;
-    }
 }

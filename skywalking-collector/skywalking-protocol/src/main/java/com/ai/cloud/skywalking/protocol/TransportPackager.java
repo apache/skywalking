@@ -1,6 +1,8 @@
 package com.ai.cloud.skywalking.protocol;
 
+import com.ai.cloud.skywalking.protocol.common.AbstractDataSerializable;
 import com.ai.cloud.skywalking.protocol.common.ISerializable;
+import com.ai.cloud.skywalking.protocol.exception.ConvertFailedException;
 import com.ai.cloud.skywalking.protocol.util.IntegerAssist;
 
 import java.util.ArrayList;
@@ -8,35 +10,38 @@ import java.util.Arrays;
 import java.util.List;
 
 public class TransportPackager {
+
     public static byte[] pack(List<ISerializable> beSendingData) {
         // 对协议格式进行修改
         // | check sum(4 byte) |  data
-        byte[] dataText = packDataBody(beSendingData);
+        byte[] dataText = packSerializableObjects(beSendingData);
         byte[] dataPackage = packCheckSum(dataText);
         return dataPackage;
     }
 
-    public static List<ISerializable> unpackDataBody(byte[] dataPackage) {
-        List<byte[]> serializeData = null;
-        try {
-            serializeData = new ArrayList<byte[]>();
-            int currentLength = 0;
-            while (true) {
-                //读取长度
-                int dataLength = IntegerAssist.bytesToInt(dataPackage, currentLength);
-                // 反序列化
-                byte[] data = new byte[dataLength];
-                System.arraycopy(dataPackage, currentLength + 4, data, 0, dataLength);
-                //
-                serializeData.add(data);
-                currentLength += 4 + dataLength;
-                if (currentLength >= dataPackage.length) {
-                    break;
-                }
+    public static List<AbstractDataSerializable> unpackSerializableObjects(byte[] dataPackage) {
+        List<AbstractDataSerializable> serializeData = new ArrayList<AbstractDataSerializable>();
+        int currentLength = 0;
+        while (true) {
+            //读取长度
+            int dataLength = IntegerAssist.bytesToInt(dataPackage, currentLength);
+            // 反序列化
+            byte[] data = new byte[dataLength];
+            System.arraycopy(dataPackage, currentLength + 4, data, 0, dataLength);
+
+            try {
+                AbstractDataSerializable abstractDataSerializable = SerializedFactory.unSerialize(data);
+                serializeData.add(abstractDataSerializable);
+            } catch (ConvertFailedException e) {
+                e.printStackTrace();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+
+            currentLength += 4 + dataLength;
+            if (currentLength >= dataPackage.length) {
+                break;
+            }
         }
+
         return serializeData;
     }
 
@@ -63,27 +68,33 @@ public class TransportPackager {
         return dataPackage;
     }
 
-    private static byte[] packDataBody(List<ISerializable> beSendingData) {
+    private static byte[] packSerializableObjects(List<ISerializable> beSendingData) {
         byte[] dataText = null;
         int currentIndex = 0;
         for (ISerializable sendingData : beSendingData) {
-            byte[] dataElementText = setElementPackageLength(sendingData.convert2Bytes());
-            if (dataText == null) {
-                dataText = new byte[dataElementText.length];
-            } else {
-                dataText = Arrays.copyOf(dataText, dataText.length + dataElementText.length);
-            }
-            System.arraycopy(dataElementText, 0, dataText, currentIndex, dataElementText.length);
+            byte[] dataElementText = packSerializableObject(sendingData);
+            dataText = appendingDataBytes(dataText, currentIndex, dataElementText);
             currentIndex += dataElementText.length;
         }
 
         return dataText;
     }
 
-    private static byte[] setElementPackageLength(byte[] dataByte) {
-        byte[] dataText = new byte[dataByte.length + 4];
-        System.arraycopy(dataByte, 0, dataText, 4, dataByte.length);
-        byte[] length = IntegerAssist.intToBytes(dataByte.length);
+    private static byte[] appendingDataBytes(byte[] dataText, int currentIndex, byte[] dataElementText) {
+        if (dataText == null) {
+            dataText = new byte[dataElementText.length];
+        } else {
+            dataText = Arrays.copyOf(dataText, dataText.length + dataElementText.length);
+        }
+        System.arraycopy(dataElementText, 0, dataText, currentIndex, dataElementText.length);
+        return dataText;
+    }
+
+
+    public static byte[] packSerializableObject(ISerializable serializable) {
+        byte[] serializableBytes = serializable.convert2Bytes();
+        byte[] dataText = Arrays.copyOf(serializableBytes, serializableBytes.length + 4);
+        byte[] length = IntegerAssist.intToBytes(serializableBytes.length);
         System.arraycopy(length, 0, dataText, 0, 4);
         return dataText;
     }

@@ -1,13 +1,14 @@
 package com.ai.cloud.skywalking.analysis.chainbuild;
 
 import com.ai.cloud.skywalking.analysis.chainbuild.po.ChainNode;
+import com.ai.cloud.skywalking.protocol.FullSpan;
 import com.ai.cloud.skywalking.protocol.common.CallType;
 import com.ai.cloud.skywalking.protocol.Span;
 
 public class SpanEntry {
 
-    private Span clientSpan;
-    private Span serverSpan;
+    private FullSpan clientSpan;
+    private FullSpan     serverSpan;
 
     public SpanEntry() {
 
@@ -142,15 +143,15 @@ public class SpanEntry {
         return serverSpan.getApplicationId();
     }
 
-    public Span getClientSpan() {
+    public FullSpan getClientSpan() {
         return clientSpan;
     }
 
-    public Span getServerSpan() {
+    public FullSpan getServerSpan() {
         return serverSpan;
     }
 
-    public void setSpan(Span span) {
+    public void setSpan(FullSpan span) {
         this.clientSpan = span;
     }
 

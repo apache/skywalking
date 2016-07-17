@@ -13,7 +13,7 @@ public class SerializeTest {
             spandata.setStartDate(System.currentTimeMillis() - 1000 * 60);
             AckSpan requestSpan = new AckSpan(spandata);
             ContextBuffer.save(requestSpan);
-            Thread.sleep(2 * 1000);
+            Thread.sleep(500);
         }
 
     }

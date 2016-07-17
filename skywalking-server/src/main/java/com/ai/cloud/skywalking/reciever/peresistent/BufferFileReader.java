@@ -1,7 +1,10 @@
 package com.ai.cloud.skywalking.reciever.peresistent;
 
+import com.ai.cloud.skywalking.protocol.TransportPackager;
 import com.ai.cloud.skywalking.protocol.common.AbstractDataSerializable;
 import com.ai.cloud.skywalking.protocol.util.IntegerAssist;
+import com.ai.cloud.skywalking.reciever.selfexamination.ServerHealthCollector;
+import com.ai.cloud.skywalking.reciever.selfexamination.ServerHeathReading;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -9,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -16,140 +20,93 @@ public class BufferFileReader {
     private File            bufferFile;
     private FileInputStream bufferInputStream;
     private int             currentOffset;
-    private              boolean       hasNextBufferBale = false;
-    private static final byte[]        SPILT_BALE_ARRAY  = new byte[] {127, 127, 127, 127};
-    private static final byte[]        EOF_BALE_ARRAY    = "EOF".getBytes();
-    private              int           remainderLength   = 0;
-    private              byte[]        remainderByte     = null;
-    private              Logger        logger            = LogManager.getLogger(BufferFileReader.class);
-    private              PluckerStatus status            = PluckerStatus.INITIAL;
+    private static final byte[] SPILT_BALE_ARRAY = new byte[] {127, 127, 127, 127};
+    private              int    remainderLength  = 0;
+    private              byte[] remainderByte    = null;
+    private              Logger logger           = LogManager.getLogger(BufferFileReader.class);
+    private List<AbstractDataSerializable> serializables;
 
     public BufferFileReader(File bufferFile, int currentOffset) {
         this.bufferFile = bufferFile;
         this.currentOffset = currentOffset;
-
-        if (bufferFile.length() >= currentOffset) {
-            hasNextBufferBale = true;
-        }
-
         try {
             this.bufferInputStream = new FileInputStream(bufferFile);
             bufferInputStream.skip(currentOffset);
         } catch (IOException e) {
-            hasNextBufferBale = false;
         }
 
     }
 
     /**
-     * TODO: 确保读到下一个List<ISerializable>,并进行缓存
-     *
+     * <p>
      * 按照如下格式读取:
      * 1.头4位长度
      * 2.根据长度读取正文
      * 2.1. 正文包含多个ISerializable。每个块包含每个ISerializable的长度和ISerializable的正文
      * 3.长度外,读取4位,为分隔符(不可见字符)
-     *
+     * <p>
      * 封装方法要求:
      * 1.封装读取指定长度块的方法,读取完成则返回。读取长度不足,则缓存并等待。
-     *
+     * <p>
      * 异常处理:
      * 1.长度外,读取4位,不是分隔符: 则启动异常跳位处理,直到读取到分隔符位置
-     *
      *
      * @return
      */
     public boolean hasNext() {
+        try {
+            int length = unpackLength();
+            byte[] dataContext = readByte(length);
+            // 转换对象
+            serializables = new ArrayList<>();
+            serializables = TransportPackager.unpackSerializableObjects(dataContext);
 
-        if (status == PluckerStatus.SUSPEND) {
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                logger.error("Failed to sleep ", e);
+            byte[] skip = new byte[4];
+            bufferInputStream.read(skip);
+            if (!Arrays.equals(SPILT_BALE_ARRAY, skip)) {
+                skipToNextBufferBale();
             }
+            MemoryRegister.instance().updateOffSet(bufferFile.getName(), currentOffset);
+        } catch (IOException e) {
+            logger.error("The data file I/O exception.", e);
+            ServerHealthCollector.getCurrentHeathReading(null).updateData(ServerHeathReading.ERROR, e.getMessage());
+            return false;
         }
 
-        if (status == PluckerStatus.INITIAL) {
-            status = PluckerStatus.RUNNING;
-            return hasNextBufferBale;
-        }
-
-        if (status == PluckerStatus.RUNNING) {
-            byte[] spiltArray = new byte[4];
-            try {
-                bufferInputStream.read(spiltArray);
-                if (!Arrays.equals(spiltArray, SPILT_BALE_ARRAY)) {
-                    skipToNextBufferBale();
-                }
-            } catch (IOException e) {
-                return false;
-            }
-            currentOffset += 4;
-        }
-        MemoryRegister.instance().updateOffSet(bufferFile.getName(), currentOffset);
-        return hasNextBufferBale;
+        return serializables.get(0).getDataType() != -1;
     }
 
-    public List<AbstractDataSerializable> next() throws IOException {
-        int packageLength = unpackBaleLength();
-        byte[] dataPackage = unpackDataContext(packageLength);
-
-        if (dataPackage == null || dataPackage.length == 0) {
-            // 文件没有完结,但是已经被处理完成了
-            return null;
-        }
-
-        if (checkDataPackageIsEOF(dataPackage)) {
-            hasNextBufferBale = false;
-            return null;
-        }
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("Pluck bale size : " + dataPackage.length);
-        }
-
-        return dataPackage;
-    }
-
-    private boolean checkDataPackageIsEOF(byte[] dataPackage) {
-        if (dataPackage.length == EOF_BALE_ARRAY.length) {
-            return Arrays.equals(dataPackage, EOF_BALE_ARRAY);
-        }
-        return false;
-    }
-
-    private byte[] unpackDataContext(int length) throws IOException {
-        if (currentOffset >= bufferFile.length()) {
-            status = PluckerStatus.SUSPEND;
-            return null;
-        }
+    private byte[] readByte(int length) throws IOException {
         byte[] dataContext = new byte[length];
-        bufferInputStream.read(dataContext);
-        currentOffset += length;
+        int realLength = bufferInputStream.read(dataContext);
+        currentOffset += realLength;
+        int remainderLength = length - (realLength == -1 ? 0 : realLength);
+        while (remainderLength > 0) {
+            try {
+                Thread.sleep(500L);
+            } catch (InterruptedException e) {
+                logger.error("Failed to sleep.", e);
+            }
+
+            byte[] remainderByte = new byte[remainderLength];
+            int readLength = bufferInputStream.read(remainderByte, 0, remainderLength);
+            if (readLength == -1) {
+                continue;
+            }
+
+            currentOffset += realLength;
+            System.arraycopy(remainderByte, 0, dataContext, length - remainderLength, readLength);
+            remainderLength -= readLength;
+        }
         return dataContext;
     }
 
-    private int unpackBaleLength() {
-        int length;
-
-        while (true) {
-            try {
-                length = calculateCurrentPackageLength();
-                if (length > 0 && length < 90000) {
-                    break;
-                }
-                skipToNextBufferBale();
-            } catch (IOException e) {
-                skipToNextBufferBale();
-            }
-        }
-
-        return length;
+    public List<AbstractDataSerializable> next() {
+        return serializables;
     }
 
-    private int calculateCurrentPackageLength() throws IOException {
-        byte[] lengthByte = new byte[4 - remainderLength];
-        bufferInputStream.read(lengthByte);
+    private int unpackLength() throws IOException {
+        byte[] lengthByte = readByte(4 - remainderLength);
         currentOffset += 4 - remainderLength;
         lengthByte = spliceRemainderByteOfPreviousSkipIfNecessary(lengthByte);
         return IntegerAssist.bytesToInt(lengthByte, 0);
@@ -165,25 +122,15 @@ public class BufferFileReader {
         return lengthByte;
     }
 
-    public void skipToNextBufferBale() {
+    public void skipToNextBufferBale() throws IOException {
         byte[] previousDataByte = new byte[4];
         byte[] currentDataByte = new byte[4];
         byte[] compactDataByte = new byte[8];
         while (true) {
-            try {
-                currentOffset += bufferInputStream.read(currentDataByte);
-            } catch (IOException e) {
-                hasNextBufferBale = false;
-            }
+            currentDataByte = readByte(4);
 
             if (Arrays.equals(currentDataByte, SPILT_BALE_ARRAY)) {
                 remainderLength = 0;
-                break;
-            }
-
-            //
-            if (currentOffset + 8000 >= bufferFile.length()) {
-                status = PluckerStatus.SUSPEND;
                 break;
             }
 
@@ -236,12 +183,6 @@ public class BufferFileReader {
         logger.info("Delete file[{}] {}", bufferFile.getName(), (deleteSuccess ? "success" : "failed"));
         MemoryRegister.instance().removeEntry(bufferFile.getName());
         bufferFile = null;
-    }
-
-    enum PluckerStatus {
-        INITIAL,
-        RUNNING,
-        SUSPEND
     }
 
 }

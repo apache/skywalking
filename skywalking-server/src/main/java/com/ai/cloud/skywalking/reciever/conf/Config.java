@@ -58,6 +58,30 @@ public class Config {
 
     }
 
+    public static class Alarm {
+
+        public static int ALARM_EXPIRE_SECONDS = 1000 * 60 * 90;
+
+        public static int ALARM_EXCEPTION_STACK_LENGTH = 300;
+
+        public static String REDIS_SERVER = "127.0.0.1:6379";
+
+        public static int REDIS_MAX_IDLE = 10;
+
+        public static int REDIS_MIN_IDLE = 1;
+
+        public static int REDIS_MAX_TOTAL = 20;
+
+        public static boolean ALARM_OFF_FLAG = false;
+
+        public static long ALARM_REDIS_INSPECTOR_INTERVAL = 5 * 1000L;
+
+        public static class Checker {
+            public static boolean TURN_ON_EXCEPTION_CHECKER = true;
+
+            public static boolean TURN_ON_EXECUTE_TIME_CHECKER = true;
+        }
+    }
 
     public static class HBaseConfig {
 
@@ -70,12 +94,6 @@ public class Config {
         public static String CLIENT_PORT;
     }
 
-
-    public static class StorageChain {
-        public static String STORAGE_TYPE = "hbase";
-    }
-
-
     public static class Redis {
 
         public static String REDIS_SERVER = "10.1.241.18:16379";
@@ -86,26 +104,6 @@ public class Config {
 
         public static int REDIS_MAX_TOTAL = 20;
     }
-
-
-    public static class Alarm {
-
-        public static int ALARM_EXPIRE_SECONDS = 1000 * 60 * 90;
-
-        public static int ALARM_EXCEPTION_STACK_LENGTH = 300;
-
-        public static boolean ALARM_OFF_FLAG = false;
-
-        public static long ALARM_REDIS_INSPECTOR_INTERVAL = 5 * 1000L;
-
-
-        public static class Checker {
-            public static boolean TURN_ON_EXCEPTION_CHECKER = true;
-
-            public static boolean TURN_ON_EXECUTE_TIME_CHECKER = true;
-        }
-    }
-
 
     public static class HealthCollector {
         // 默认健康检查上报时间

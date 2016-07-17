@@ -1,9 +1,6 @@
 package com.ai.cloud.skywalking.reciever.peresistent;
 
-import com.ai.cloud.skywalking.protocol.SerializedFactory;
-import com.ai.cloud.skywalking.protocol.TransportPackager;
 import com.ai.cloud.skywalking.protocol.common.AbstractDataSerializable;
-import com.ai.cloud.skywalking.protocol.exception.ConvertFailedException;
 import com.ai.cloud.skywalking.reciever.conf.Config;
 import com.ai.cloud.skywalking.reciever.processor.IProcessor;
 import com.ai.cloud.skywalking.reciever.processor.ProcessorFactory;
@@ -15,8 +12,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -47,17 +42,9 @@ public class PersistenceThread extends Thread {
 
             BufferFileReader bufferReader = new BufferFileReader(bufferFile, offset);
             while (bufferReader.hasNext()) {
-                try {
-                    List<AbstractDataSerializable> serializableDataList = bufferReader.next();
-                    System.out.println(serializableDataList.size());
-                    //handleSpans(spans);
-                } catch (ConvertFailedException e) {
-                    bufferReader.skipToNextBufferBale();
-                } catch (IOException e) {
-                    logger.error("The data file I/O exception.", e);
-                    ServerHealthCollector.getCurrentHeathReading(null)
-                            .updateData(ServerHeathReading.ERROR, e.getMessage());
-                }
+                List<AbstractDataSerializable> serializableDataList = bufferReader.next();
+                System.out.println(serializableDataList.size());
+                //handleSpans(spans);
             }
 
             try {

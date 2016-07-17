@@ -1,15 +1,17 @@
 package com.ai.cloud.skywalking.web.dto;
 
-import com.ai.cloud.skywalking.protocol.Span;
+import com.ai.cloud.skywalking.protocol.FullSpan;
+import com.ai.cloud.skywalking.protocol.RequestSpan;
 import com.ai.cloud.skywalking.web.util.Constants;
 import com.ai.cloud.skywalking.web.util.StringUtil;
+import com.google.protobuf.InvalidProtocolBufferException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class TraceNodeInfo extends Span {
+public class TraceNodeInfo extends FullSpan {
 
     private String colId;
 
@@ -41,11 +43,11 @@ public class TraceNodeInfo extends Span {
 
     private String serverExceptionStr;
 
-    private TraceNodeInfo() {
+    private TraceNodeInfo(){
     }
 
-    private TraceNodeInfo(String str) {
-        super(str);
+    private TraceNodeInfo(RequestSpan requestSpan) {
+        super(requestSpan);
     }
 
     public String getColId() {
@@ -80,9 +82,10 @@ public class TraceNodeInfo extends Span {
         this.viewPointIdSub = viewPointIdSub;
     }
 
-    private static TraceNodeInfo convert(String str)
-            throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
-        TraceNodeInfo result = new TraceNodeInfo(str);
+    private static TraceNodeInfo convert(byte[] originData)
+            throws IllegalAccessException, InvocationTargetException, NoSuchMethodException,
+            InvalidProtocolBufferException {
+        TraceNodeInfo result = new TraceNodeInfo(new RequestSpan(originData));
 
         // 处理类型key-value
         String spanTypeStr = String.valueOf(result.getSpanType());
@@ -107,16 +110,16 @@ public class TraceNodeInfo extends Span {
         result.statusCodeStr = statusCodeStr;
         result.statusCodeName = statusCodeName;
 
-        result.applicationIdStr = result.applicationId;
-        if (!StringUtil.isBlank(result.viewPointId) && result.viewPointId.length() > 60) {
-            result.viewPointIdSub = result.viewPointId.substring(0, 30) + "..."
-                    + result.viewPointId.substring(result.viewPointId.length() - 30);
+        result.applicationIdStr = result.getApplicationId();
+        if (!StringUtil.isBlank(result.getViewPointId()) && result.getViewPointId().length() > 60) {
+            result.viewPointIdSub = result.getViewPointId().substring(0, 30) + "..." + result.getViewPointId()
+                    .substring(result.getViewPointId().length() - 30);
         } else {
-            result.viewPointIdSub = result.viewPointId;
+            result.viewPointIdSub = result.getViewPointId();
         }
 
-        result.addTimeLine(result.startDate, result.cost);
-        result.endDate = result.startDate + result.cost;
+        result.addTimeLine(result.getStartDate(), result.getCost());
+        result.endDate = result.getStartDate() + result.getCost();
         return result;
     }
 
@@ -130,9 +133,10 @@ public class TraceNodeInfo extends Span {
         timeLineList.add(new TimeLineEntry(startDate, cost));
     }
 
-    public static TraceNodeInfo convert(String str, String colId)
-            throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
-        TraceNodeInfo result = convert(str);
+    public static TraceNodeInfo convert(byte[] requestSpanBytes, String colId)
+            throws IllegalAccessException, InvocationTargetException, NoSuchMethodException,
+            InvalidProtocolBufferException {
+        TraceNodeInfo result = convert(requestSpanBytes);
         result.colId = colId;
         return result;
     }
@@ -147,10 +151,9 @@ public class TraceNodeInfo extends Span {
         TraceNodeInfo result = new TraceNodeInfo();
         result.colId = colId;
         if (colId.indexOf(Constants.VAL_SPLIT_CHAR) > -1) {
-            result.parentLevel = colId.substring(0, colId.lastIndexOf(Constants.VAL_SPLIT_CHAR));
-        } else {
-            result.parentLevel = "";
+            result.setParentLevel(colId.substring(0, colId.lastIndexOf(Constants.VAL_SPLIT_CHAR)));
         }
+
         result.timeLineList.add(new TimeLineEntry());
 
         // 其它默认值
@@ -162,11 +165,11 @@ public class TraceNodeInfo extends Span {
         return "TraceNodeInfo [colId=" + colId + ", endDate=" + endDate + ", timeLineList=" + timeLineList
                 + ", spanTypeStr=" + spanTypeStr + ", spanTypeName=" + spanTypeName + ", statusCodeStr=" + statusCodeStr
                 + ", statusCodeName=" + statusCodeName + ", applicationIdStr=" + applicationIdStr + ", viewPointIdSub="
-                + viewPointIdSub + ", traceId=" + traceId + ", parentLevel=" + parentLevel + ", levelId=" + levelId
-                + ", viewPointId=" + viewPointId + ", startDate=" + startDate + ", cost=" + cost + ", address="
-                + address + ", statusCode=" + statusCode + ", exceptionStack=" + exceptionStack + ", spanType="
-                + spanType + ",  businessKey=" + businessKey + ", processNo=" + processNo
-                + ", applicationId=" + applicationId + ", originData=" + originData + "]";
+                + viewPointIdSub + ", traceId=" + getTraceId() + ", parentLevel=" + getParentLevel() + ", levelId=" +
+                getLevelId() + ", viewPointId=" + getViewPointId() + ", startDate=" + getStartDate() + ", cost="
+                + getCost() + ", statusCode=" + getStatusCode() + ", exceptionStack=" + getExceptionStack()
+                + ", spanType=" + getSpanType() + ",  businessKey=" + getBusinessKey() + ", applicationId="
+                + getApplicationId() + "]";
     }
 
     public List<TimeLineEntry> getTimeLineList() {
@@ -192,4 +195,5 @@ public class TraceNodeInfo extends Span {
     public void setServerExceptionStr(String serverExceptionStr) {
         this.serverExceptionStr = serverExceptionStr;
     }
+
 }

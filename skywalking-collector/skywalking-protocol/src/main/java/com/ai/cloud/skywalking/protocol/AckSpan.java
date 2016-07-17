@@ -48,6 +48,13 @@ public class AckSpan extends AbstractDataSerializable {
      */
     private Map<String, String> paramters = new HashMap<String, String>();
 
+
+    private String viewPointId;
+
+    private String userId;
+
+    private String applicationId;
+
     public AckSpan(Span spanData) {
         this.traceId = spanData.getTraceId();
         this.parentLevel = spanData.getParentLevel();
@@ -55,10 +62,23 @@ public class AckSpan extends AbstractDataSerializable {
         this.cost = System.currentTimeMillis() - spanData.getStartDate();
         this.statusCode = spanData.getStatusCode();
         this.exceptionStack = spanData.getExceptionStack();
+        this.userId = spanData.getUserId();
+        this.applicationId = spanData.getApplicationId();
+
     }
 
     public AckSpan() {
 
+    }
+
+    public AckSpan(byte[] originData) throws InvalidProtocolBufferException {
+        TraceProtocol.AckSpan ackSpanProtocol = TraceProtocol.AckSpan.parseFrom(originData);
+        this.setTraceId(ackSpanProtocol.getTraceId());
+        this.setParentLevel(ackSpanProtocol.getParentLevel());
+        this.setLevelId(ackSpanProtocol.getLevelId());
+        this.setCost(ackSpanProtocol.getCost());
+        this.setExceptionStack(ackSpanProtocol.getExceptionStack());
+        this.setStatusCode((byte) ackSpanProtocol.getStatusCode());
     }
 
     public String getTraceId() {
@@ -150,5 +170,17 @@ public class AckSpan extends AbstractDataSerializable {
     @Override
     public boolean isNull() {
         return false;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public String getApplicationId() {
+        return applicationId;
+    }
+
+    public String getViewPointId() {
+        return viewPointId;
     }
 }

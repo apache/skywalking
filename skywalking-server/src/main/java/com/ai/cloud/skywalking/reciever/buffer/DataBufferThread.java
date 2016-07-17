@@ -1,5 +1,7 @@
 package com.ai.cloud.skywalking.reciever.buffer;
 
+import com.ai.cloud.skywalking.protocol.BufferFileEOFProtocol;
+import com.ai.cloud.skywalking.protocol.TransportPackager;
 import com.ai.cloud.skywalking.protocol.util.AtomicRangeInteger;
 import com.ai.cloud.skywalking.reciever.conf.Config;
 import com.ai.cloud.skywalking.reciever.model.BufferDataPackagerGenerator;
@@ -49,7 +51,6 @@ public class DataBufferThread extends Thread {
                     logger.error("Failed to write msg.", e);
                 }
 
-
                 if (length > Config.Buffer.BUFFER_FILE_MAX_LENGTH) {
                     closeCurrentBufferFile(fileOutputStream);
                     fileOutputStream = null;
@@ -68,7 +69,8 @@ public class DataBufferThread extends Thread {
     private void closeCurrentBufferFile(FileOutputStream fileOutputStream) {
         try {
             fileOutputStream.flush();
-            fileOutputStream.write(BufferDataPackagerGenerator.generateEOFPackage());
+            fileOutputStream.write(BufferDataPackagerGenerator
+                    .pack(TransportPackager.packSerializableObject(new BufferFileEOFProtocol())));
         } catch (IOException e) {
             logger.error("Failed to write msg.", e);
         } finally {

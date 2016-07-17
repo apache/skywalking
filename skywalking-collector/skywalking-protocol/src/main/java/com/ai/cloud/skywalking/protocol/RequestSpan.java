@@ -98,6 +98,22 @@ public class RequestSpan extends AbstractDataSerializable {
 
     }
 
+    public RequestSpan(byte[] originData) throws InvalidProtocolBufferException {
+        TraceProtocol.RequestSpan requestSpanByte = TraceProtocol.RequestSpan.parseFrom(originData);
+        this.setTraceId(requestSpanByte.getTraceId());
+        this.setParentLevel(requestSpanByte.getParentLevel());
+        this.setLevelId(requestSpanByte.getLevelId());
+        this.setApplicationId(requestSpanByte.getApplicationId());
+        this.setCallType(requestSpanByte.getCallType());
+        this.setSpanType(SpanType.convert(requestSpanByte.getSpanType()));
+        this.setSpanTypeDesc(requestSpanByte.getSpanTypeDesc());
+        this.setStartDate(requestSpanByte.getStartDate());
+        this.setUserId(requestSpanByte.getUserId());
+        this.setViewPointId(requestSpanByte.getViewPointId());
+        this.setBusinessKey(requestSpanByte.getBussinessKey());
+        this.setAgentId(requestSpanByte.getAgentId());
+    }
+
     private boolean isEntrySpan() {
         return "0".equals(this.getParentLevel() + this.getLevelId());
     }

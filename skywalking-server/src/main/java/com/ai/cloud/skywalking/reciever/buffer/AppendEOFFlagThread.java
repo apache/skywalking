@@ -1,5 +1,7 @@
 package com.ai.cloud.skywalking.reciever.buffer;
 
+import com.ai.cloud.skywalking.protocol.BufferFileEOFProtocol;
+import com.ai.cloud.skywalking.protocol.TransportPackager;
 import com.ai.cloud.skywalking.reciever.model.BufferDataPackagerGenerator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,7 +29,8 @@ class AppendEOFFlagThread extends Thread {
             try {
                 logger.info("Add EOF flags to unprocessed data file[{}]", file.getName());
                 fileOutputStream = new FileOutputStream(new File(file.getParent(), file.getName()), true);
-                fileOutputStream.write(BufferDataPackagerGenerator.generateEOFPackage());
+                fileOutputStream.write(BufferDataPackagerGenerator
+                        .pack(TransportPackager.packSerializableObject(new BufferFileEOFProtocol())));
             } catch (IOException e) {
                 logger.info("Add EOF flags to the unprocessed data file failed.", e);
             } finally {

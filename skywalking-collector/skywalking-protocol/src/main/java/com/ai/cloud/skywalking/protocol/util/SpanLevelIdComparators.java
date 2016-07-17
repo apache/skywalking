@@ -1,31 +1,23 @@
 package com.ai.cloud.skywalking.protocol.util;
 
 
+import com.ai.cloud.skywalking.protocol.FullSpan;
 import com.ai.cloud.skywalking.protocol.Span;
 
 import java.util.Comparator;
 
 public class SpanLevelIdComparators {
 
-    public static class SpanDESCComparator implements Comparator<Span> {
+    public static class SpanASCComparator implements Comparator<FullSpan> {
         @Override
-        public int compare(Span span1, Span span2) {
-            String span1TraceLevel = getTraceLevelId(span1);
-            String span2TraceLevel = getTraceLevelId(span2);
-            return descComparator(span1TraceLevel, span2TraceLevel);
-        }
-    }
-
-    public static class SpanASCComparator implements Comparator<Span> {
-        @Override
-        public int compare(Span span1, Span span2) {
+        public int compare(FullSpan span1, FullSpan span2) {
             String span1TraceLevel = getTraceLevelId(span1);
             String span2TraceLevel = getTraceLevelId(span2);
             return ascCompare(span1TraceLevel, span2TraceLevel);
         }
     }
 
-    private static String getTraceLevelId(Span span) {
+    private static String getTraceLevelId(FullSpan span) {
         String spanTraceLevelId = null;
         if (span.getParentLevel() == null || span.getParentLevel().length() == 0) {
             spanTraceLevelId = span.getLevelId() + "";

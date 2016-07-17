@@ -17,6 +17,7 @@ public final class ContextGenerator {
     public static Span generateSpanFromThreadLocal(Identification id) {
         Span spanData = getSpanFromThreadLocal();
         spanData.setStartDate(System.currentTimeMillis());
+        spanData.setViewPointId(id.getViewPoint());
         spanData.appendParameters(id.getParameters());
         return spanData;
     }
@@ -40,7 +41,7 @@ public final class ContextGenerator {
         }
 
         spanData.setStartDate(System.currentTimeMillis());
-
+        spanData.setViewPointId(id.getViewPoint());
         return spanData;
     }
 

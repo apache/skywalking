@@ -66,8 +66,15 @@ public class Span {
      * 业务字段<br/>
      */
     private String businessKey = "";
+    /**
+     * 应用编码
+     */
     private String applicationId;
+    /**
+     * 归属用户
+     */
     private String userId;
+    private String viewPointId;
 
     public Span(String traceId, String applicationId, String userId) {
         this.traceId = traceId;
@@ -215,4 +222,7 @@ public class Span {
     }
 
 
+    public void setViewPointId(String viewPointId) {
+        this.viewPointId = viewPointId;
+    }
 }

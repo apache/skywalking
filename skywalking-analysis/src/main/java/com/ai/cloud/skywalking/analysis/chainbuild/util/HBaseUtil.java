@@ -6,8 +6,12 @@ import com.ai.cloud.skywalking.analysis.chainbuild.entity.ChainNodeSpecificMinSu
 import com.ai.cloud.skywalking.analysis.chainbuild.entity.ChainNodeSpecificMonthSummary;
 import com.ai.cloud.skywalking.analysis.config.Config;
 import com.ai.cloud.skywalking.analysis.config.HBaseTableMetaData;
+import com.ai.cloud.skywalking.protocol.AckSpan;
+import com.ai.cloud.skywalking.protocol.FullSpan;
+import com.ai.cloud.skywalking.protocol.RequestSpan;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.google.protobuf.InvalidProtocolBufferException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.*;
 import org.apache.hadoop.hbase.client.*;
@@ -17,7 +21,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class HBaseUtil {
     private static Logger logger = LoggerFactory.getLogger(HBaseUtil.class.getName());
@@ -241,5 +247,27 @@ public class HBaseUtil {
                 cid.getBytes());
         Table table = connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_TRACE_ID_AND_CID_MAPPING.TABLE_NAME));
         table.put(put);
+    }
+
+    public static List<FullSpan> fetchTraceSpansFromHBase(Result value) throws InvalidProtocolBufferException {
+        List<FullSpan> spanList = new ArrayList<FullSpan>();
+        Map<String, AckSpan> ackSpans = new HashMap<String, AckSpan>();
+        for (Cell cell : value.rawCells()) {
+            String traceLevelId =
+                    Bytes.toString(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
+            String[] traceLevelIdArray = traceLevelId.split("-");
+            if (traceLevelIdArray.length == 2 && "ACK".equals(traceLevelIdArray[1])) {
+                ackSpans.put(traceLevelIdArray[0], new AckSpan(cell.getValueArray()));
+            } else {
+                spanList.add(new FullSpan(new RequestSpan(cell.getValueArray())));
+            }
+
+        }
+
+        for (FullSpan fullSpan : spanList) {
+            fullSpan.addAckSpan(ackSpans.get(fullSpan.getTraceLevelId()));
+        }
+
+        return spanList;
     }
 }
