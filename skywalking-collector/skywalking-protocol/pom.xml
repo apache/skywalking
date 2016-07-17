@@ -76,37 +76,37 @@
 				</executions>
 				<version>2.4</version>
 			</plugin>
-			<plugin>
-				<artifactId>maven-antrun-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>compile-protoc</id>
-						<phase>generate-sources</phase>
-						<configuration>
-							<tasks>
-								<mkdir dir="src/main/gen-java" />
-								<path id="proto.path">
-									<fileset dir="src/main/proto">
-										<include name="*.proto" />
-									</fileset>
-								</path>
-								<pathconvert pathsep=" " property="proto.files"
-											 refid="proto.path" />
+			<!--<plugin>-->
+				<!--<artifactId>maven-antrun-plugin</artifactId>-->
+				<!--<executions>-->
+					<!--<execution>-->
+						<!--<id>compile-protoc</id>-->
+						<!--<phase>generate-sources</phase>-->
+						<!--<configuration>-->
+							<!--<tasks>-->
+								<!--<mkdir dir="src/main/gen-java" />-->
+								<!--<path id="proto.path">-->
+									<!--<fileset dir="src/main/proto">-->
+										<!--<include name="*.proto" />-->
+									<!--</fileset>-->
+								<!--</path>-->
+								<!--<pathconvert pathsep=" " property="proto.files"-->
+											 <!--refid="proto.path" />-->
 
-								<exec executable="protoc">
-									<arg value="--java_out=src/main/gen-java" />
-									<arg value="-I${project.basedir}/src/main/proto" />
-									<arg line="${proto.files}" />
-								</exec>
-							</tasks>
-							<sourceRoot>src/main/gen-java</sourceRoot>
-						</configuration>
-						<goals>
-							<goal>run</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
+								<!--<exec executable="protoc">-->
+									<!--<arg value="&#45;&#45;java_out=src/main/gen-java" />-->
+									<!--<arg value="-I${project.basedir}/src/main/proto" />-->
+									<!--<arg line="${proto.files}" />-->
+								<!--</exec>-->
+							<!--</tasks>-->
+							<!--<sourceRoot>src/main/gen-java</sourceRoot>-->
+						<!--</configuration>-->
+						<!--<goals>-->
+							<!--<goal>run</goal>-->
+						<!--</goals>-->
+					<!--</execution>-->
+				<!--</executions>-->
+			<!--</plugin>-->
 		</plugins>
 	</build>
 
