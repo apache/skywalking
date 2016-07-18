@@ -11,6 +11,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -21,6 +22,7 @@ import java.util.*;
  * Created by xin on 16-4-25.
  */
 @Service
+@Transactional
 public class AnalysisResultService implements IAnalysisResultService {
 
     private Logger logger = LogManager.getLogger(AnalysisResultService.class);

@@ -10,6 +10,7 @@ import com.ai.cloud.skywalking.web.util.Constants;
 import com.ai.cloud.skywalking.web.util.ReplaceAddressUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -22,6 +23,7 @@ import java.util.List;
  * Created by xin on 16-3-30.
  */
 @Service
+@Transactional
 public class TraceTreeService implements ITraceTreeService {
 
     @Autowired
