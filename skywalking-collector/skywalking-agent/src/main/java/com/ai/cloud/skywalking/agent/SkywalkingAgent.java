@@ -11,8 +11,10 @@ public class SkywalkingAgent {
 
     public static void premain(String agentArgs, Instrumentation inst) {
         ConfigInitializer.initialize();
-        if (Config.SkyWalking.ALL_METHOD_MONITOR){
-            inst.addTransformer(new ClassTransformer());
+
+        if (Config.SkyWalking.ALL_METHOD_MONITOR) {
+            String interceptorPackage = System.getProperty("interceptor.package", "");
+            inst.addTransformer(new ClassTransformer(interceptorPackage));
         }
 
         PluginBootstrap bootstrap = new PluginBootstrap();

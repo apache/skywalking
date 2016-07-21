@@ -9,7 +9,8 @@ import com.google.gson.Gson;
 public class MethodInterceptor {
 
 
-    public void before(Class originClass, Class[] parametersType, Object[] allArgument, Object superCall, String methodName) {
+    public void before(Class originClass, Class[] parametersType, Object[] allArgument, Object superCall,
+            String methodName) {
         LocalMethodInvokeMonitor localMethodInvokeMonitor = new LocalMethodInvokeMonitor();
         Identification.IdentificationBuilder identificationBuilder = Identification.newBuilder();
         identificationBuilder.viewPoint(generateViewPoint(originClass, parametersType, methodName));
@@ -35,8 +36,6 @@ public class MethodInterceptor {
             try {
                 identificationBuilder.appendParameter("P" + i, new Gson().toJson(allArgument[i]));
             } catch (Exception e) {
-                // Do nothing
-            } finally {
                 identificationBuilder.appendParameter("P" + i, "Cannot convert parameter");
             }
         }
@@ -58,8 +57,16 @@ public class MethodInterceptor {
 
 
     public void after(Class originClass, Class resultType, Object result) {
-        //TODO  需要把参数累加上去
-        new LocalMethodInvokeMonitor().afterInvoke();
+        String resultJson = null;
+        if (!void.class.getName().equals(resultType.getName())) {
+            try {
+                resultJson = new Gson().toJson(result);
+            } catch (Exception e) {
+                resultJson = "Can not convert result";
+            }
+        }
+
+        new LocalMethodInvokeMonitor().afterInvoke(resultJson);
     }
 
 

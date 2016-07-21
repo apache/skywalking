@@ -225,4 +225,8 @@ public class Span {
     public void setViewPointId(String viewPointId) {
         this.viewPointId = viewPointId;
     }
+
+    public void appendParameter(String key, String value) {
+        this.parameters.put(key, value);
+    }
 }

@@ -32,6 +32,10 @@ public class LocalMethodInvokeMonitor extends BaseInvokeMonitor {
         super.afterInvoke();
     }
 
+    public void afterInvoke(String resultJsonStr){
+        super.afterInvoke(resultJsonStr);
+    }
+
 
     public void occurException(Throwable th){
         super.occurException(th);

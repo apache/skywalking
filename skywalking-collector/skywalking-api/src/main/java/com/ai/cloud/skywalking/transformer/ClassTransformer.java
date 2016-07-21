@@ -15,9 +15,15 @@ public class ClassTransformer implements ClassFileTransformer {
 
     private Logger logger = LogManager.getLogger(ClassTransformer.class);
 
+    private String interceptorPackage;
+
+    public ClassTransformer(String interceptorPackage){
+        this.interceptorPackage = interceptorPackage;
+    }
+
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-        String interceptorPackage = System.getProperty("interceptor.package", "");
+
         if (interceptorPackage == null || interceptorPackage.length() == 0) {
             return classfileBuffer;
         }

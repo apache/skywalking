@@ -64,7 +64,7 @@ public class AckSpan extends AbstractDataSerializable {
         this.exceptionStack = spanData.getExceptionStack();
         this.userId = spanData.getUserId();
         this.applicationId = spanData.getApplicationId();
-
+        this.paramters.putAll(spanData.getParameters());
     }
 
     public AckSpan() {

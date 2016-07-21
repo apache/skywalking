@@ -46,6 +46,10 @@ public abstract class BaseInvokeMonitor {
     }
 
     protected void afterInvoke() {
+       afterInvoke(null);
+    }
+
+    protected void afterInvoke(String  resultJson) {
         try {
             if (!AuthDesc.isAuth())
                 return;
@@ -54,6 +58,11 @@ public abstract class BaseInvokeMonitor {
             Span spanData = CurrentThreadSpanStack.pop();
             if (spanData == null || spanData.isValidate()) {
                 return;
+            }
+
+            // 追加Result JSon
+            if (resultJson != null){
+                spanData.appendParameter("Result", resultJson);
             }
 
             if (Config.BuriedPoint.PRINTF) {
