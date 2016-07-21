@@ -12,6 +12,8 @@ public class Config {
         public static boolean AUTH_OVERRIDE = false;
 
         public static String CHARSET = "UTF-8";
+
+        public static boolean ALL_METHOD_MONITOR = false;
     }
 
     public static class BuriedPoint {
