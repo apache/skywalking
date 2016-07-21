@@ -30,7 +30,7 @@ public abstract class JedisBaseInterceptor extends SimpleObjectFirstInvokeInterc
                 builder.businessKey("key="
                         + interceptorContext.allArguments()[0]);
             }
-            rpcClientInvokeMonitor.traceBeforeInvoke(builder.build());
+            rpcClientInvokeMonitor.beforeInvoke(builder.build());
         }
     }
 

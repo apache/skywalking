@@ -52,7 +52,7 @@ public class SkyWalkingFilter implements Filter {
                 }
             }
             rpcServerInvokeMonitor = new RPCServerInvokeMonitor();
-            rpcServerInvokeMonitor.traceBeforeInvoke(contextData, generateIdentification(request));
+            rpcServerInvokeMonitor.beforeInvoke(contextData, generateIdentification(request));
             filterChain.doFilter(servletRequest, servletResponse);
 
             HttpServletResponse httpServletResponse = (HttpServletResponse) servletResponse;

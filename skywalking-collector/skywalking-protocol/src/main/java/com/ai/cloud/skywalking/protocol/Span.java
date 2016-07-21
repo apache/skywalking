@@ -11,6 +11,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Span {
+    private final static String INVOKE_RESULT_PARAMETER_KEY = "_ret";
+
     private Logger logger = Logger.getLogger(Span.class.getName());
     /**
      * tid，调用链的全局唯一标识
@@ -228,5 +230,9 @@ public class Span {
 
     public void appendParameter(String key, String value) {
         this.parameters.put(key, value);
+    }
+
+    public void setInvokeResult(String result){
+        this.parameters.put(INVOKE_RESULT_PARAMETER_KEY, result);
     }
 }

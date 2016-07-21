@@ -45,6 +45,7 @@ public class Identification {
 
     public static class IdentificationBuilder {
         private Identification sendData;
+        private int parameterIdx = 0;
 
         IdentificationBuilder() {
             sendData = new Identification();
@@ -59,10 +60,17 @@ public class Identification {
             return this;
         }
 
-        public IdentificationBuilder appendParameter(String key, String value) {
+        public IdentificationBuilder setParameter(String key, String value) {
             sendData.parameters.put(key, value);
             return this;
         }
+
+        public IdentificationBuilder addParameter(String value){
+            parameterIdx++;
+            sendData.parameters.put("_" + parameterIdx, value);
+            return this;
+        }
+
 
         public IdentificationBuilder businessKey(String businessKey) {
             sendData.businessKey = businessKey;

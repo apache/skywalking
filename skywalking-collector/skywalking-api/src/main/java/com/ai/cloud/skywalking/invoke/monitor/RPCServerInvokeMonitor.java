@@ -15,7 +15,7 @@ public class RPCServerInvokeMonitor extends BaseInvokeMonitor {
     private static Logger logger = LogManager
             .getLogger(RPCServerInvokeMonitor.class);
 
-    public void traceBeforeInvoke(ContextData context, Identification id) {
+    public void beforeInvoke(ContextData context, Identification id) {
         try {
             if (!AuthDesc.isAuth())
                 return;

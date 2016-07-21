@@ -38,7 +38,7 @@ public class HttpClientExecuteInterceptor implements IntanceMethodsAroundInterce
 				.setHeader(
 						TRACE_HEAD_NAME,
 						"ContextData="
-								+ rpcClientInvokeMonitor.traceBeforeInvoke(
+								+ rpcClientInvokeMonitor.beforeInvoke(
 										Identification
 												.newBuilder()
 												.viewPoint(

@@ -15,7 +15,7 @@ public class TimeTest {
 			IdentificationBuilder builder = Identification
 					.newBuilder()
 					.viewPoint("1111");
-			sender.traceBeforeInvoke(builder.build());
+			sender.beforeInvoke(builder.build());
 			sender.afterInvoke();
 		}
 		long end = System.currentTimeMillis();

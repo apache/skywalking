@@ -18,7 +18,7 @@ public class RPCClientInvokeMonitor extends BaseInvokeMonitor {
     private static Logger logger = LogManager
             .getLogger(RPCClientInvokeMonitor.class);
 
-    public ContextData traceBeforeInvoke(Identification id) {
+    public ContextData beforeInvoke(Identification id) {
         try {
             if (!AuthDesc.isAuth())
                 return new EmptyContextData();

@@ -13,7 +13,7 @@ import java.security.ProtectionDomain;
 
 public class ClassTransformer implements ClassFileTransformer {
 
-    private Logger logger = LogManager.getLogger(ClassTransformer.class);
+    private static Logger logger = LogManager.getLogger(ClassTransformer.class);
 
     private String interceptorPackage;
 
@@ -62,7 +62,7 @@ public class ClassTransformer implements ClassFileTransformer {
             }
             return ctClass.toBytecode();
         } catch (Exception e) {
-            logger.error("Failed to transform class" + className, e);
+            logger.error("Failed to transform class " + className, e);
             return classfileBuffer;
         }
 

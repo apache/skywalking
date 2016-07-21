@@ -24,7 +24,7 @@ public class SWDubboEnhanceFilter implements Filter {
         if (isConsumer) {
             RPCClientInvokeMonitor rpcClientInvokeMonitor = new RPCClientInvokeMonitor();
 
-            ContextData contextData = rpcClientInvokeMonitor.traceBeforeInvoke(createIdentification(invoker, invocation));
+            ContextData contextData = rpcClientInvokeMonitor.beforeInvoke(createIdentification(invoker, invocation));
             String contextDataStr = contextData.toString();
 
             //追加参数
@@ -78,7 +78,7 @@ public class SWDubboEnhanceFilter implements Filter {
                 contextData = new ContextData(contextDataStr);
             }
 
-            rpcServerInvokeMonitor.traceBeforeInvoke(contextData, createIdentification(invoker, invocation));
+            rpcServerInvokeMonitor.beforeInvoke(contextData, createIdentification(invoker, invocation));
 
             try {
                 //执行结果

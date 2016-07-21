@@ -17,7 +17,7 @@ public class CallableStatementTracing {
                                 String connectInfo, String method, String sql, Executable<R> exec)
             throws SQLException {
         try {
-            rpcClientInvokeMonitor.traceBeforeInvoke(Identification
+            rpcClientInvokeMonitor.beforeInvoke(Identification
                     .newBuilder()
                     .viewPoint(connectInfo)
                     .businessKey(

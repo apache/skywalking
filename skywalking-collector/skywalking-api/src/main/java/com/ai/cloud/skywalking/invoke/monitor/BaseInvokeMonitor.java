@@ -25,18 +25,18 @@ public abstract class BaseInvokeMonitor {
 
     private static Set<String> exclusiveExceptionSet = null;
 
-
     protected ContextData beforeInvoke(Span spanData, Identification id) {
         if (Config.BuriedPoint.PRINTF) {
-            logger.debug("TraceId:" + spanData.getTraceId() + "\tviewpointId:" + id.getViewPoint() + "\tParentLevelId:" + spanData.getParentLevel() + "\tLevelId:" + spanData
-                    .getLevelId());
+            logger.debug("TraceId:" + spanData.getTraceId() + "\tviewpointId:" + id.getViewPoint() + "\tParentLevelId:"
+                    + spanData.getParentLevel() + "\tLevelId:" + spanData.getLevelId());
         }
 
 
         if (!spanData.isValidate()) {
             // 根据SpanData生成RequestSpan，并保存
             ContextBuffer.save(RequestSpan.RequestSpanBuilder.
-                    newBuilder(spanData).callType(id.getCallType()).viewPoint(id.getViewPoint()).spanTypeDesc(id.getSpanTypeDesc()).build());
+                    newBuilder(spanData).callType(id.getCallType()).viewPoint(id.getViewPoint())
+                    .spanTypeDesc(id.getSpanTypeDesc()).build());
         }
 
         // 将新创建的Context存放到ThreadLocal栈中。
@@ -46,10 +46,10 @@ public abstract class BaseInvokeMonitor {
     }
 
     protected void afterInvoke() {
-       afterInvoke(null);
+        afterInvoke(null);
     }
 
-    protected void afterInvoke(String  resultJson) {
+    protected void afterInvoke(String invokeResult) {
         try {
             if (!AuthDesc.isAuth())
                 return;
@@ -60,15 +60,11 @@ public abstract class BaseInvokeMonitor {
                 return;
             }
 
-            // 追加Result JSon
-            if (resultJson != null){
-                spanData.appendParameter("Result", resultJson);
-            }
+            spanData.setInvokeResult(invokeResult);
 
             if (Config.BuriedPoint.PRINTF) {
-                logger.debug(
-                        "TraceId-ACK:" + spanData.getTraceId()  + "\tParentLevelId:" + spanData.getParentLevel() + "\tLevelId:" + spanData
-                                .getLevelId() + "\tbusinessKey:" + spanData.getParameters());
+                logger.debug("TraceId-ACK:" + spanData.getTraceId() + "\tParentLevelId:" + spanData.getParentLevel()
+                        + "\tLevelId:" + spanData.getLevelId() + "\tbusinessKey:" + spanData.getParameters());
             }
             // 生成并保存到缓存
             ContextBuffer.save(new AckSpan(spanData));
