@@ -25,22 +25,6 @@ public class ContextBuffer {
     		logger.error("save span error.", t);
     	}
     }
-
-
-    static class BufferPool {
-        // 注意： 这个变量名如果改变需要改变test-api工程中的Config变量
-        private static BufferGroup[] bufferGroups = new BufferGroup[POOL_SIZE];
-        static {
-            for (int i = 0; i < POOL_SIZE; i++) {
-                bufferGroups[i] = new BufferGroup("buffer_group-" + i);
-            }
-        }
-
-        public void save(ISerializable data) {
-            bufferGroups[ThreadLocalRandom.current().nextInt(0, POOL_SIZE)].save(data);
-        }
-
-    }
 }
 
 

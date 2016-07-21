@@ -19,9 +19,9 @@ public class AtomicRangeInteger extends Number implements java.io.Serializable {
 	/**
 	 * Creates a new AtomicInteger with the given initial value and max value
 	 *
-	 * @param initialValue
+	 * @param startValue
 	 *            the initial value
-	 * @param endValue
+	 * @param maxValue
 	 * 
 	 * AtomicRangeInteger在startValue和maxValue循环取值（ startValue <= value <  maxValue）
 	 */
