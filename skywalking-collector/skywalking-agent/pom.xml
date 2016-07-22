@@ -112,4 +112,12 @@
             </plugin>
         </plugins>
     </build>
+
+    <distributionManagement>
+        <repository>
+            <id>bintray-wu-sheng-sky-walking-repository</id>
+            <name>wu-sheng-sky-walking-repository</name>
+            <url>https://api.bintray.com/maven/wu-sheng/skywalking/com.ai.cloud.skywalking-agent/;publish=1</url>
+        </repository>
+    </distributionManagement>
 </project>

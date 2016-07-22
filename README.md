@@ -24,12 +24,11 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 |plugins|using config file|using dynamic byte code| coding |remarks|
 | ----------- |---------| ----------|----------|----------|
 |web-plugin|web.xml| - | - | - |
-|dubbo-plugin| dubbo/dubbox config file | - | - | - |
 |spring-plugin| spring config file | - | - | - |
-|jdbc-plugin| jdbc config file | - | - | - |
-|mysql-plugin| - | YES | - | - |
+|tomcat8-plugin| - | YES | - | - |
+|dubbo-plugin| - | YES | - | - |
+|jdbc-plugin| - | YES | - | support mysql, oracle, sybase, sqlserver, jtds, db2, informix |
 |httpClient-4.x-plugin| - | YES | - | - |
-|httpClient-4.x-plugin-dubbox-rest-attachment| - | YES | - | required client-4.x-plugin |
 |jedis-2.x-plugin| - | YES | - | - |
 
 
@@ -82,7 +81,7 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 ![应用列表展现](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/1.0b/typicalAnalysisResult.png)
 
 # Quick Start
-- master分支正在进行1.0-Final迭代。1.0b的完整代码，请参见 [1.0-beta-tag](https://github.com/wu-sheng/sky-walking/tree/1.0-beta)
+- master用于迭代开发，需要稳定版本请参见[Releases](releases)。1.0b的完整代码，请参见 [1.0-beta-tag](https://github.com/wu-sheng/sky-walking/tree/1.0-beta)
 - Developing of version 1.0-Final on branch Master. The source code of version [1.0-beta-tag](https://github.com/wu-sheng/sky-walking/tree/1.0-beta)
 
 ## 部署第三方软件 / Required of third party softwares
@@ -94,7 +93,7 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 - redis-3.0.5
 
 ## 插件支持的JDK / Supported jdk version
-- 1.6以上版本 / support 1.6+
+- 1.7以上版本 / support 1.7+
 
 ## 编译与部署 / Build and deploy
 - 服务端发布版本[下载](https://github.com/wu-sheng/sky-walking/releases)  (.tar.gz)
@@ -105,66 +104,18 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 - [Code compilation instructions](BUILD_DOC.md)
 
 
-## 引入核心SDK / Import SDK
-[ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/com.ai.cloud.skywalking-api/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/com.ai.cloud.skywalking-api/_latestVersion) 
+## 下载官方的agent / Download offical agent
+[ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/com.ai.cloud.skywalking-agent/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/com.ai.cloud.skywalking-agent/_latestVersion)
 
-- 核心SDK通过[skywalking bintray官网](https://bintray.com/wu-sheng/skywalking/)托管，可使用公网仓库[https://jcenter.bintray.com/](https://jcenter.bintray.com/)下载。
+- 官方agent通过[skywalking bintray官网](https://bintray.com/wu-sheng/skywalking/)托管，可使用公网仓库[https://jcenter.bintray.com/](https://jcenter.bintray.com/)下载。
 - use public repository  [https://jcenter.bintray.com/](https://jcenter.bintray.com/) to download sdk
-- 无论试用哪种插件，都必须引入
-- add dependencies to pom.xml
-```xml
-<!-- API日志输出，客户端可指定所需的log4j2版本 -->
-<!-- 2.4.1为开发过程所选用版本 -->
-<dependency>
-    <groupId>org.apache.logging.log4j</groupId>
-    <artifactId>log4j-core</artifactId>
-    <version>2.4.1</version>
-</dependency>
-<!-- 监控api，可监控插件不支持的调用 -->
-<dependency>
-    <groupId>com.ai.cloud</groupId>
-    <artifactId>skywalking-api</artifactId>
-    <version>{lastest-version}</version>
-</dependency>
-```
 
-## 使用-javaagent 或 全新的main class
-- start application with -javaagent. 
 
-- Or using new main class, instead of the original main class.
+## 使用-javaagent 启动应用程序 / start application with -javaagent
+- 为应用程序添加启动参数
 ```shell
-#原进程启动命令：
-#original starup command
-java com.company.product.Startup arg0 arg1
-
-#全新的进程启动命令：
-#new starup command
-java com.ai.cloud.skywalking.plugin.TracingBootstrap com.company.product.Startup arg0 arg1
+java -jar ...  -javaagent:/..ospath../skywalking-agent-x.x-Final.jar
 ```
-
-- 如果应用为Tomcat，需要修改tomcat相关启动文件:catalina.sh。推荐将项目转为tomcat-embeded模式。以下修改，仅作为参考。
-- If you want to trace a tomcat application, you need to modify 'catalina.sh'
-```
-# add skywalking jar into CLASSPATH
-CLASSPATH=$CLASSPATH:$CATALINA_HOME/lib/skywalking-api-{lastest-version}.jar:$CATALINA_HOME/lib/log4j-api.jar:$CATALINA_HOME/lib/log4j-core.jar
-
-# use new main, samples in Tomcat8
-exec "$_RUNJDB" "$LOGGING_CONFIG" $LOGGING_MANAGER $JAVA_OPTS $CATALINA_OPTS \
-  -Djava.endorsed.dirs="$JAVA_ENDORSED_DIRS" -classpath "$CLASSPATH" \
-  -sourcepath "$CATALINA_HOME"/../../java \
-  -Djava.security.manager \
-  -Djava.security.policy=="$CATALINA_BASE"/conf/catalina.policy \
-  -Dcatalina.base="$CATALINA_BASE" \
-  -Dcatalina.home="$CATALINA_HOME" \
-  -Djava.io.tmpdir="$CATALINA_TMPDIR" \
-  com.ai.cloud.skywalking.plugin.TracingBootstrap org.apache.catalina.startup.Bootstrap "$@" start
-```
-
-## 根据所需插件，配置应用程序 / Config application
-- Ref 《[SDK Guides](skywalking-sdk-plugin)》
-- 所有插件，已经通过[skywalking bintray官网](https://bintray.com/wu-sheng/skywalking/)托管，可使用公网仓库[https://jcenter.bintray.com/](https://jcenter.bintray.com/)下载。
-- 注意：插件不会引用所需的第三方组件（如Spring、dubbo、dubbox等），请自行引入所需的版本。
-
 
 ## 下载并设置授权文件 / Download auth file
 - 注册并登陆过skywalking-webui，创建应用。（一个用户代表一个逻辑集群，一个应用代表一个服务集群。如前后端应用应该设置两个应用，但归属一个用户）
