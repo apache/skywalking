@@ -27,7 +27,7 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 |spring-plugin| spring config file | - | - | - |
 |tomcat8-plugin| - | YES | - | - |
 |dubbo-plugin| - | YES | - | - |
-|jdbc-plugin| - | YES | - | support mysql, oracle, sybase, sqlserver, jtds, db2, informix |
+|jdbc-plugin| - | YES | - | support mysql, oracle, sybase, sqlserver, jtds, db2, informix, h2 |
 |httpClient-4.x-plugin| - | YES | - | - |
 |jedis-2.x-plugin| - | YES | - | - |
 
