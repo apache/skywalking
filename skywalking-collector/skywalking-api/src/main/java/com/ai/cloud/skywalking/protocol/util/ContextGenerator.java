@@ -59,14 +59,6 @@ public final class ContextGenerator {
             // LevelId是由SpanNode类的nextSubSpanLevelId字段进行初始化的.
             // 所以在这里不需要初始化
             span = new Span(parentSpan.getTraceId(), Config.SkyWalking.APPLICATION_CODE, Config.SkyWalking.USER_ID);
-
-            // check parent span is RPC span
-            // if true, current span is invalidate and current span also belong to RPC span
-            if (parentSpan.isRPCClientSpan()) {
-                span.setSpanType(SpanType.RPC_CLIENT);
-                span.setValidate(false);
-            }
-
             if (!StringUtil.isEmpty(parentSpan.getParentLevel())) {
                 span.setParentLevel(parentSpan.getParentLevel() + "." + parentSpan.getLevelId());
             } else {

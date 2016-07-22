@@ -3,10 +3,10 @@ package test.ai.cloud.plugin;
 import com.ai.cloud.skywalking.plugin.interceptor.EnhancedClassInstanceContext;
 import com.ai.cloud.skywalking.plugin.interceptor.enhance.ConstructorInvokeContext;
 import com.ai.cloud.skywalking.plugin.interceptor.enhance.InstanceMethodInvokeContext;
-import com.ai.cloud.skywalking.plugin.interceptor.enhance.IntanceMethodsAroundInterceptor;
+import com.ai.cloud.skywalking.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import com.ai.cloud.skywalking.plugin.interceptor.enhance.MethodInterceptResult;
 
-public class TestAroundInterceptor implements IntanceMethodsAroundInterceptor {
+public class TestAroundInterceptor implements InstanceMethodsAroundInterceptor {
 
 	@Override
 	public void onConstruct(EnhancedClassInstanceContext context, ConstructorInvokeContext interceptorContext) {

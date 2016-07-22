@@ -13,9 +13,9 @@ public class ClassConstructorInterceptor {
 	private static Logger logger = LogManager
 			.getLogger(ClassConstructorInterceptor.class);
 
-	private IntanceMethodsAroundInterceptor interceptor;
+	private InstanceMethodsAroundInterceptor interceptor;
 
-	public ClassConstructorInterceptor(IntanceMethodsAroundInterceptor interceptor) {
+	public ClassConstructorInterceptor(InstanceMethodsAroundInterceptor interceptor) {
 		this.interceptor = interceptor;
 	}
 

@@ -2,7 +2,7 @@ package com.ai.skywalking.testframework.api.config;
 
 public class Config {
 
-    public static String BUFFER_POOL_CLASS_NAME = "com.ai.cloud.skywalking.buffer.ContextBuffer$BufferPool";
+    public static String BUFFER_POOL_CLASS_NAME = "com.ai.cloud.skywalking.buffer.BufferPool";
 
     public static String BUFFER_GROUP_FIELD_NAME = "bufferGroups";
 

@@ -32,12 +32,10 @@ public abstract class BaseInvokeMonitor {
         }
 
 
-        if (!spanData.isValidate()) {
-            // 根据SpanData生成RequestSpan，并保存
-            ContextBuffer.save(RequestSpan.RequestSpanBuilder.
-                    newBuilder(spanData).callType(id.getCallType()).viewPoint(id.getViewPoint())
-                    .spanTypeDesc(id.getSpanTypeDesc()).build());
-        }
+        // 根据SpanData生成RequestSpan，并保存
+        ContextBuffer.save(RequestSpan.RequestSpanBuilder.
+                newBuilder(spanData).callType(id.getCallType()).viewPoint(id.getViewPoint())
+                .spanTypeDesc(id.getSpanTypeDesc()).build());
 
         // 将新创建的Context存放到ThreadLocal栈中。
         CurrentThreadSpanStack.push(spanData);
@@ -56,10 +54,6 @@ public abstract class BaseInvokeMonitor {
 
             // 弹出上下文的栈顶中的元素
             Span spanData = CurrentThreadSpanStack.pop();
-            if (spanData == null || spanData.isValidate()) {
-                return;
-            }
-
             spanData.setInvokeResult(invokeResult);
 
             if (Config.BuriedPoint.PRINTF) {

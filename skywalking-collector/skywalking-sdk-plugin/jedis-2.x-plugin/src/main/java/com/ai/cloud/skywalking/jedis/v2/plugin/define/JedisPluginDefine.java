@@ -3,7 +3,7 @@ package com.ai.cloud.skywalking.jedis.v2.plugin.define;
 import com.ai.cloud.skywalking.jedis.v2.plugin.JedisInterceptor;
 import com.ai.cloud.skywalking.plugin.interceptor.MethodMatcher;
 import com.ai.cloud.skywalking.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
-import com.ai.cloud.skywalking.plugin.interceptor.enhance.IntanceMethodsAroundInterceptor;
+import com.ai.cloud.skywalking.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import com.ai.cloud.skywalking.plugin.interceptor.matcher.MethodsExclusiveMatcher;
 import com.ai.cloud.skywalking.plugin.interceptor.matcher.PrivateMethodMatcher;
 import com.ai.cloud.skywalking.plugin.interceptor.matcher.SimpleMethodMatcher;
@@ -32,7 +32,7 @@ public class JedisPluginDefine extends ClassInstanceMethodsEnhancePluginDefine {
     }
 
     @Override
-    public IntanceMethodsAroundInterceptor getInstanceMethodsInterceptor() {
+    public InstanceMethodsAroundInterceptor getInstanceMethodsInterceptor() {
         return new JedisInterceptor();
     }
 

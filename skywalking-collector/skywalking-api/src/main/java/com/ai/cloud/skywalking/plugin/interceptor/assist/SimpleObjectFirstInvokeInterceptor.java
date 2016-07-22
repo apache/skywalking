@@ -4,7 +4,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.ai.cloud.skywalking.plugin.interceptor.EnhancedClassInstanceContext;
 import com.ai.cloud.skywalking.plugin.interceptor.InterceptorException;
-import com.ai.cloud.skywalking.plugin.interceptor.enhance.IntanceMethodsAroundInterceptor;
+import com.ai.cloud.skywalking.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 
 /**
  * 用于首次拦截方法调用，避免方法内部的方法调用被多次拦截。
@@ -12,7 +12,7 @@ import com.ai.cloud.skywalking.plugin.interceptor.enhance.IntanceMethodsAroundIn
  * @author wusheng
  *
  */
-public abstract class SimpleObjectFirstInvokeInterceptor implements IntanceMethodsAroundInterceptor {
+public abstract class SimpleObjectFirstInvokeInterceptor implements InstanceMethodsAroundInterceptor {
 	protected String invokeCounterKey = "__$invokeCounterKey";
 
 	protected Object invokeCounterInstLock = new Object();

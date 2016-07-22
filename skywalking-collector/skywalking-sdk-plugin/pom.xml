@@ -17,6 +17,7 @@
 		<module>web-plugin</module>
 		<module>httpClient-4.x-plugin</module>
 		<module>jedis-2.x-plugin</module>
+		<module>tomcat-7.x-8.x-plugin</module>
 	</modules>
 	<packaging>pom</packaging>
 
@@ -35,6 +36,11 @@
             <version>1.0-Final</version>
             <scope>test</scope>
         </dependency>
+		<dependency>
+			<groupId>com.ai.cloud</groupId>
+			<artifactId>skywalking-api</artifactId>
+			<version>1.0-Final</version>
+		</dependency>
 	</dependencies>
 
 	<build>

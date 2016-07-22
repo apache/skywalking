@@ -2,7 +2,7 @@ package test.ai.cloud.plugin;
 
 import com.ai.cloud.skywalking.plugin.interceptor.MethodMatcher;
 import com.ai.cloud.skywalking.plugin.interceptor.enhance.ClassEnhancePluginDefine;
-import com.ai.cloud.skywalking.plugin.interceptor.enhance.IntanceMethodsAroundInterceptor;
+import com.ai.cloud.skywalking.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import com.ai.cloud.skywalking.plugin.interceptor.enhance.StaticMethodsAroundInterceptor;
 import com.ai.cloud.skywalking.plugin.interceptor.matcher.SimpleMethodMatcher;
 
@@ -19,7 +19,7 @@ public class TestInterceptorDefine extends ClassEnhancePluginDefine {
 	}
 
 	@Override
-	public IntanceMethodsAroundInterceptor getInstanceMethodsInterceptor() {
+	public InstanceMethodsAroundInterceptor getInstanceMethodsInterceptor() {
 		return new TestAroundInterceptor();
 	}
 

@@ -52,9 +52,9 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
 		 * 2.intercept constructor by default, and intercept method which it's
 		 * required by interceptorDefineClass. <br/>
 		 */
-		IntanceMethodsAroundInterceptor interceptor = getInstanceMethodsInterceptor();
+		InstanceMethodsAroundInterceptor interceptor = getInstanceMethodsInterceptor();
 		if (interceptor == null) {
-			throw new EnhanceException("no IntanceMethodsAroundInterceptor instance. ");
+			throw new EnhanceException("no InstanceMethodsAroundInterceptor instance. ");
 		}
 
 		newClassBuilder = newClassBuilder
@@ -116,7 +116,7 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
 	 * 
 	 * @return
 	 */
-	protected abstract IntanceMethodsAroundInterceptor getInstanceMethodsInterceptor();
+	protected abstract InstanceMethodsAroundInterceptor getInstanceMethodsInterceptor();
 	
 	private DynamicType.Builder<?> enhanceClass(String enhanceOriginClassName,
 			DynamicType.Builder<?> newClassBuilder) throws PluginException {

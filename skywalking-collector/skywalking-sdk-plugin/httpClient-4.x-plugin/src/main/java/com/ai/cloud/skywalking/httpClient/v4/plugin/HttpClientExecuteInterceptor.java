@@ -8,10 +8,10 @@ import com.ai.cloud.skywalking.model.Identification;
 import com.ai.cloud.skywalking.plugin.interceptor.EnhancedClassInstanceContext;
 import com.ai.cloud.skywalking.plugin.interceptor.enhance.ConstructorInvokeContext;
 import com.ai.cloud.skywalking.plugin.interceptor.enhance.InstanceMethodInvokeContext;
-import com.ai.cloud.skywalking.plugin.interceptor.enhance.IntanceMethodsAroundInterceptor;
+import com.ai.cloud.skywalking.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import com.ai.cloud.skywalking.plugin.interceptor.enhance.MethodInterceptResult;
 
-public class HttpClientExecuteInterceptor implements IntanceMethodsAroundInterceptor {
+public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterceptor {
 	/**
 	 * default headname of sky walking context<br/>
 	 */

@@ -25,8 +25,6 @@ public class RPCServerInvokeMonitor extends BaseInvokeMonitor {
             // 设置是否为接收端
             spanData.setSpanType(SpanType.RPC_SERVER);
 
-            invalidateAllSpanIfIsNotFirstSpan(spanData);
-
             super.beforeInvoke(spanData, id);
         } catch (Throwable t) {
             logger.error(t.getMessage(), t);
@@ -42,9 +40,4 @@ public class RPCServerInvokeMonitor extends BaseInvokeMonitor {
         super.occurException(th);
     }
 
-    private void invalidateAllSpanIfIsNotFirstSpan(Span spanData) {
-        if (!CurrentThreadSpanStack.peek().getTraceId().equals(spanData.getTraceId())) {
-            CurrentThreadSpanStack.invalidatePresentSpans();
-        }
-    }
 }
