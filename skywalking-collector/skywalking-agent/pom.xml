@@ -52,7 +52,7 @@
         </dependency>
         <dependency>
             <groupId>com.ai.cloud</groupId>
-            <artifactId>tomcat-8.x-plugin</artifactId>
+            <artifactId>tomcat-7.x-8.x-plugin</artifactId>
             <version>1.0-Final</version>
         </dependency>
     </dependencies>
