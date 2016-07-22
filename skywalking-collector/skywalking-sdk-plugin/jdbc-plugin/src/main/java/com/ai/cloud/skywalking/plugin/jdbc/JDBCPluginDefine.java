@@ -18,9 +18,7 @@ public class JDBCPluginDefine extends BootPluginDefine {
     protected void boot() throws BootException {
         try {
             Class<?> classes = Class.forName("java.sql.DriverInfo");
-            Constructor<?> constructor = classes.getDeclaredConstructor(Driver.class);
-            constructor.setAccessible(true);
-            Object traceDriverInfo = constructor.newInstance(new TracingDriver());
+            Object traceDriverInfo = newDriverInfoInstance(classes);
             Field field = DriverManager.class.getDeclaredField("registeredDrivers");
             field.setAccessible(true);
             @SuppressWarnings("unchecked")
@@ -34,4 +32,16 @@ public class JDBCPluginDefine extends BootPluginDefine {
 			TracingDriver.registerDriver();
 		}
 	}
+
+    private Object newDriverInfoInstance(Class<?> classes) throws NoSuchMethodException, InstantiationException, IllegalAccessException, java.lang.reflect.InvocationTargetException {
+        //DriverInfo 只有一个构造函数
+        Constructor constructor = classes.getDeclaredConstructors()[0];
+        constructor.setAccessible(true);
+        // JDK 1.7 DriverInfo 只有一个Driver入参构造函数
+        if (constructor.getParameterTypes().length == 1){
+            return constructor.newInstance(new TracingDriver());
+        }
+        // JDK1.8 DriverInfo 有两个入参的构造函数(Driver, DriverAction)
+        return constructor.newInstance(new TracingDriver(), null);
+    }
 }

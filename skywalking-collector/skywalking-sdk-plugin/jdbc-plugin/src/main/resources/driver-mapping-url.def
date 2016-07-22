@@ -6,3 +6,4 @@ jdbc:sqlserver=com.microsoft.sqlserver.jdbc.SQLServerDriver
 jdbc:jtds:sqlserver=net.sourceforge.jtds.jdbc.Driver
 jdbc:db2=com.ibm.db2.jcc.DB2Driver
 jdbc:informix-sqli=com.informix.jdbc.IfxDriver
+jdbc:h2=org.h2.Driver
