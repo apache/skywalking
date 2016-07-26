@@ -1,7 +1,12 @@
 package com.ai.cloud.skywalking.plugin.exception;
 
-/**
- * Created by xin on 16/7/25.
- */
-public class EnhanceClassEmptyException {
+public class EnhanceClassEmptyException extends PluginException{
+
+    public EnhanceClassEmptyException(String message) {
+        super(message);
+    }
+
+    public EnhanceClassEmptyException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

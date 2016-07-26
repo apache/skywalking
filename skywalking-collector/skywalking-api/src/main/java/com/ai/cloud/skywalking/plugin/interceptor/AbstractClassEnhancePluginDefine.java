@@ -3,13 +3,13 @@ package com.ai.cloud.skywalking.plugin.interceptor;
 import com.ai.cloud.skywalking.logging.LogManager;
 import com.ai.cloud.skywalking.logging.Logger;
 import com.ai.cloud.skywalking.plugin.IPlugin;
-import com.ai.cloud.skywalking.plugin.PluginException;
+import com.ai.cloud.skywalking.plugin.exception.EnhanceClassEmptyException;
+import com.ai.cloud.skywalking.plugin.exception.EnhanceClassNotFoundException;
+import com.ai.cloud.skywalking.plugin.exception.PluginException;
+import com.ai.cloud.skywalking.plugin.exception.WitnessClassesCannotFound;
 import com.ai.cloud.skywalking.protocol.util.StringUtil;
-import net.bytebuddy.ByteBuddy;
-import net.bytebuddy.dynamic.ClassFileLocator;
-import net.bytebuddy.dynamic.DynamicType;
-import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
-import net.bytebuddy.pool.TypePool.Resolution;
+import javassist.ClassPool;
+import javassist.CtClass;
 
 import static com.ai.cloud.skywalking.plugin.PluginBootstrap.CLASS_TYPE_POOL;
 
@@ -17,64 +17,58 @@ public abstract class AbstractClassEnhancePluginDefine implements IPlugin {
     private static Logger logger = LogManager.getLogger(AbstractClassEnhancePluginDefine.class);
 
     @Override
-    public void define() throws PluginException {
+    public byte[] define() throws PluginException {
         String interceptorDefineClassName = this.getClass().getName();
 
         String enhanceOriginClassName = enhanceClassName();
         if (StringUtil.isEmpty(enhanceOriginClassName)) {
-            logger.warn("classname of being intercepted is not defined by {}.",
-                    interceptorDefineClassName);
-            return;
+            logger.warn("classname of being intercepted is not defined by {}.", interceptorDefineClassName);
+            throw new EnhanceClassEmptyException("class name of being is not deined by " + interceptorDefineClassName);
         }
 
-        logger.debug("prepare to enhance class {} by {}.",
-                enhanceOriginClassName, interceptorDefineClassName);
+        logger.debug("prepare to enhance class {} by {}.", enhanceOriginClassName, interceptorDefineClassName);
 
-        Resolution resolution = CLASS_TYPE_POOL.describe(enhanceOriginClassName);
-        if (!resolution.isResolved()) {
-            logger.warn("class {} can't be resolved, enhance by {} failue.",
-                    enhanceOriginClassName, interceptorDefineClassName);
-            return;
+        CtClass ctClass = findEnhanceClasses(interceptorDefineClassName, enhanceOriginClassName);
+
+        if (ctClass == null) {
+            logger.warn("class {} can't be resolved, enhance by {} failue.", enhanceOriginClassName, interceptorDefineClassName);
+            throw new EnhanceClassNotFoundException("class " + enhanceOriginClassName + " can't be resolved, enhance by " + interceptorDefineClassName + " failue.");
         }
 
         /**
          * find witness classes for enhance class
          */
         String[] witnessClasses = witnessClasses();
-        if(witnessClasses != null) {
-            for (String witnessClass : witnessClasses) {
-                Resolution witnessClassResolution = CLASS_TYPE_POOL.describe(witnessClass);
-                if (!witnessClassResolution.isResolved()) {
-                    logger.warn("enhance class {} by plugin {} is not working. Because witness class {} is not existed.", enhanceOriginClassName, interceptorDefineClassName, witnessClass);
-                    return;
+        if (witnessClasses != null) {
+            for (String witnessClassName : witnessClasses) {
+                try {
+                    CtClass witnessClass = CLASS_TYPE_POOL.get(witnessClassName);
+                    if (witnessClass != null) {
+                        logger.warn("enhance class {} by plugin {} is not working. Because witness class {} is not existed.", enhanceOriginClassName, interceptorDefineClassName,
+                                witnessClass);
+                        throw new WitnessClassesCannotFound(
+                                "enhance class " + enhanceOriginClassName + " by plugin " + interceptorDefineClassName + " is not working. Because witness class " + witnessClass
+                                        + " is not existed.");
+                    }
+                } catch (Exception e) {
+
                 }
             }
         }
 
-        /**
-         * find origin class source code for interceptor
-         */
-        DynamicType.Builder<?> newClassBuilder = new ByteBuddy()
-                .rebase(resolution.resolve(),
-                        ClassFileLocator.ForClassLoader.ofClassPath());
-
-        newClassBuilder = this.enhance(enhanceOriginClassName, newClassBuilder);
-
-        /**
-         * naming class as origin class name, make and load class to
-         * classloader.
-         */
-        newClassBuilder
-                .name(enhanceOriginClassName)
-                .make()
-                .load(ClassLoader.getSystemClassLoader(),
-                        ClassLoadingStrategy.Default.INJECTION).getLoaded();
-
-        logger.debug("enhance class {} by {} completely.",
-                enhanceOriginClassName, interceptorDefineClassName);
+        return enhance(ctClass);
     }
 
-    protected abstract DynamicType.Builder<?> enhance(String enhanceOriginClassName, DynamicType.Builder<?> newClassBuilder) throws PluginException;
+    private CtClass findEnhanceClasses(String interceptorDefineClassName, String enhanceOriginClassName) throws EnhanceClassNotFoundException {
+        try {
+            ClassPool classPool = ClassPool.getDefault();
+            return classPool.get(enhanceOriginClassName);
+        } catch (Exception e) {
+            throw new EnhanceClassNotFoundException("class " + enhanceOriginClassName + " can't be resolved, enhance by " + interceptorDefineClassName + " failue.");
+        }
+    }
+
+    protected abstract byte[] enhance(CtClass ctClass) throws PluginException;
 
     /**
      * 返回要被增强的类，应当返回类全名
@@ -89,7 +83,7 @@ public abstract class AbstractClassEnhancePluginDefine implements IPlugin {
      *
      * @return
      */
-    protected String[] witnessClasses(){
-        return new String[]{};
+    protected String[] witnessClasses() {
+        return new String[] {};
     }
 }

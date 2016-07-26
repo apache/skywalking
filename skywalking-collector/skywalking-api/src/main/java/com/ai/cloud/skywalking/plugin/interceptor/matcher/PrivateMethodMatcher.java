@@ -1,11 +1,7 @@
 package com.ai.cloud.skywalking.plugin.interceptor.matcher;
 
 import com.ai.cloud.skywalking.plugin.interceptor.MethodMatcher;
-import net.bytebuddy.description.method.MethodDescription;
-import net.bytebuddy.matcher.ElementMatcher;
-import net.bytebuddy.matcher.ElementMatchers;
-
-import static net.bytebuddy.matcher.ElementMatchers.any;
+import javassist.CtMethod;
 
 public class PrivateMethodMatcher extends MethodMatcher {
     public PrivateMethodMatcher() {
@@ -13,8 +9,8 @@ public class PrivateMethodMatcher extends MethodMatcher {
     }
 
     @Override
-    public ElementMatcher.Junction<MethodDescription> buildMatcher() {
-        return any().and(ElementMatchers.<MethodDescription>isPrivate());
+    public boolean match(CtMethod ctMethod) {
+        return java.lang.reflect.Modifier.isPrivate(ctMethod.getModifiers());
     }
 
     @Override

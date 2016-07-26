@@ -1,7 +1,8 @@
 package com.ai.cloud.skywalking.plugin.exception;
 
-/**
- * Created by xin on 16/7/25.
- */
-public class EnhanceClassNotFoundException {
+public class EnhanceClassNotFoundException extends PluginException{
+
+    public EnhanceClassNotFoundException(String message) {
+        super(message);
+    }
 }

@@ -1,10 +1,8 @@
 package com.ai.cloud.skywalking.plugin.interceptor.matcher;
 
-import static net.bytebuddy.matcher.ElementMatchers.named;
-import net.bytebuddy.description.method.MethodDescription;
-import net.bytebuddy.matcher.ElementMatcher;
-
 import com.ai.cloud.skywalking.plugin.interceptor.MethodMatcher;
+import javassist.CtMethod;
+import javassist.NotFoundException;
 
 public class SimpleMethodMatcher extends MethodMatcher {
 
@@ -33,10 +31,42 @@ public class SimpleMethodMatcher extends MethodMatcher {
         super(modifier, methodMatchDescribe, argTypeArray);
     }
 
-
     @Override
-    public ElementMatcher.Junction<MethodDescription> buildMatcher() {
-        ElementMatcher.Junction<MethodDescription> matcher = named(getMethodMatchDescribe());
-        return mergeArgumentsIfNecessary(matcher);
+    public boolean match(CtMethod ctMethod) {
+        int result = 1;
+        try {
+            result <<= matchArgTypeArrayIfNecessary(ctMethod);
+            result <<= matchArgNumIfNecessary(ctMethod);
+            result <<= matchModifierIfNecessary(ctMethod);
+            return result == 1 ? true : false;
+        } catch (Exception e) {
+            return false;
+        }
     }
+
+    private int matchModifierIfNecessary(CtMethod ctMethod) {
+        if (getModifier() != null) {
+            return getModifier().getValue() == ctMethod.getModifiers() ? 0 : 1;
+        }
+        return 0;
+    }
+
+    private int matchArgNumIfNecessary(CtMethod ctMethod) throws NotFoundException {
+        if (getArgNum() > -1) {
+            return getArgNum() == ctMethod.getParameterTypes().length ? 0 : 1;
+        }
+        return 0;
+    }
+
+    private int matchArgTypeArrayIfNecessary(CtMethod ctMethod) throws NotFoundException {
+        if (getArgTypeArray() != null) {
+            for (int i = 0; i < getArgTypeArray().length; i++) {
+                if (!getArgTypeArray()[i].getName().equals(ctMethod.getParameterTypes()[i].getName())) {
+                    return 1;
+                }
+            }
+        }
+        return 0;
+    }
+
 }

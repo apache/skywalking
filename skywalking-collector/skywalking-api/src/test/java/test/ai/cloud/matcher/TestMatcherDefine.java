@@ -11,7 +11,7 @@ import com.ai.cloud.skywalking.plugin.interceptor.matcher.PrivateMethodMatcher;
 public class TestMatcherDefine extends ClassInstanceMethodsEnhancePluginDefine {
     @Override
     public String enhanceClassName() {
-        return "test.ai.cloud.matcher.TestMatcherClass";
+        return "sample.ai.cloud.matcher.TestMatcherClass";
     }
 
     @Override

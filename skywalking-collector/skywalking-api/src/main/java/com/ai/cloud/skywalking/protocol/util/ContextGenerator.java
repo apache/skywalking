@@ -37,7 +37,13 @@ public final class ContextGenerator {
             spanData = new Span(TraceIdGenerator.generate(), Config.SkyWalking.APPLICATION_CODE, Config.SkyWalking.USER_ID);
         } else {
             // 如果不为空，则将当前的Context存放到上下文
-            spanData = new Span(context.getTraceId(), context.getParentLevel(), context.getLevelId(), Config.SkyWalking.APPLICATION_CODE, Config.SkyWalking.USER_ID);
+            Span previousSpanData = CurrentThreadSpanStack.peek();
+            if (previousSpanData == null){
+                spanData = new Span(context.getTraceId(), context.getParentLevel(), context.getLevelId(), Config.SkyWalking.APPLICATION_CODE, Config.SkyWalking.USER_ID);
+            }else{
+                spanData = new Span(previousSpanData.getTraceId(), Config.SkyWalking.APPLICATION_CODE, Config.SkyWalking.USER_ID);
+                spanData.setParentLevel(previousSpanData.getParentLevel() + "." + previousSpanData.getLevelId());
+            }
         }
 
         spanData.setStartDate(System.currentTimeMillis());

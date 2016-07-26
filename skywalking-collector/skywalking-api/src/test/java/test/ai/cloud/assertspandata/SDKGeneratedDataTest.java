@@ -15,7 +15,7 @@ public class SDKGeneratedDataTest {
     @Test
     public void traceTreeAssertTest() {
         Config.Consumer.MAX_CONSUMER = 0;
-        Span testSpan = new Span("1.0b.1465224457414.7e57f54.22905.61.2691", "", 0, "test-application", "5");
+        Span testSpan = new Span("1.0b.1465224457414.7e57f54.22905.61.2691", "", 0, "sample-application", "5");
         RequestSpan requestSpan =
                 RequestSpan.RequestSpanBuilder.newBuilder(testSpan).viewPoint("http://hire.asiainfo.com/Aisse-Mobile-Web/aisseWorkPage/submitReimbursement").build();
         ContextBuffer.save(requestSpan);

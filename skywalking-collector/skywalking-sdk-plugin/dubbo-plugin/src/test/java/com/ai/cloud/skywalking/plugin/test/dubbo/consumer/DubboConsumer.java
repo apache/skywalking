@@ -15,7 +15,7 @@ public class DubboConsumer {
     @Test
     public void test() throws InvocationTargetException, NoSuchMethodException, ClassNotFoundException, IllegalAccessException {
         TracingBootstrap
-                .main(new String[]{"com.ai.cloud.skywalking.plugin.test.dubbo.consumer.DubboConsumer"});
+                .main(new String[]{"com.ai.cloud.skywalking.plugin.sample.dubbo.consumer.DubboConsumer"});
     }
 
     public static void main(String[] args) throws InterruptedException {
@@ -23,7 +23,7 @@ public class DubboConsumer {
         IDubboInterA dubboInterA = context.getBean(IDubboInterA.class);
         dubboInterA.doBusiness("AAAAA");
         RequestSpanAssert.assertEquals(new String[][]{
-                {"0", "dubbo://127.0.0.1:20880/com.ai.cloud.skywalking.plugin.test.dubbo.interfaces.IDubboInterA.doBusiness(String)", ""}
+                {"0", "dubbo://127.0.0.1:20880/com.ai.cloud.skywalking.plugin.sample.dubbo.interfaces.IDubboInterA.doBusiness(String)", ""}
         });
     }
 }

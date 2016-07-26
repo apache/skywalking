@@ -12,13 +12,13 @@ public class PluginMainTest {
 			IllegalArgumentException, InvocationTargetException,
 			NoSuchMethodException, SecurityException, ClassNotFoundException {
 		TracingBootstrap
-				.main(new String[] { "test.ai.cloud.plugin.PluginMainTest" });
+				.main(new String[] { "sample.ai.cloud.plugin.PluginMainTest" });
 	}
 
 	public static void main(String[] args) throws InstantiationException, IllegalAccessException, ClassNotFoundException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
 		long start = System.currentTimeMillis();
 
-		BeInterceptedClass inst = (BeInterceptedClass) Class.forName("test.ai.cloud.plugin.BeInterceptedClass").newInstance();
+		BeInterceptedClass inst = (BeInterceptedClass) Class.forName("sample.ai.cloud.plugin.BeInterceptedClass").newInstance();
 		inst.printabc();
 		long end = System.currentTimeMillis();
 		System.out.println(end - start + "ms");

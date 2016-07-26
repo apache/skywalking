@@ -1,15 +1,15 @@
 package com.ai.cloud.skywalking.plugin.boot;
 
 import com.ai.cloud.skywalking.plugin.IPlugin;
-import com.ai.cloud.skywalking.plugin.PluginException;
+import com.ai.cloud.skywalking.plugin.exception.PluginException;
 
 public abstract class BootPluginDefine implements IPlugin {
 
 	@Override
-	public void define() throws PluginException {
-		this.boot();
+	public byte[] define() throws PluginException {
+		return this.boot();
 	}
 	
-	protected abstract void boot() throws BootException;
+	protected abstract byte[] boot() throws BootException;
 
 }

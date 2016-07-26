@@ -10,7 +10,7 @@ public class TestInterceptorDefine extends ClassEnhancePluginDefine {
 
 	@Override
 	public String enhanceClassName() {
-		return "test.ai.cloud.plugin.BeInterceptedClass";
+		return "sample.ai.cloud.plugin.BeInterceptedClass";
 	}
 
 	@Override

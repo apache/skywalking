@@ -15,7 +15,7 @@ public class JDBCPluginDefine extends BootPluginDefine {
     private static Logger logger = LogManager.getLogger(JDBCPluginDefine.class);
 
     @Override
-    protected void boot() throws BootException {
+    protected byte[] boot() throws BootException {
         try {
             Class<?> classes = Class.forName("java.sql.DriverInfo");
             Object traceDriverInfo = newDriverInfoInstance(classes);
@@ -31,6 +31,8 @@ public class JDBCPluginDefine extends BootPluginDefine {
 					e);
 			TracingDriver.registerDriver();
 		}
+
+        return null;
 	}
 
     private Object newDriverInfoInstance(Class<?> classes) throws NoSuchMethodException, InstantiationException, IllegalAccessException, java.lang.reflect.InvocationTargetException {

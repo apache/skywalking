@@ -1,6 +1,8 @@
 package com.ai.cloud.skywalking.plugin;
 
 
+import com.ai.cloud.skywalking.plugin.exception.PluginException;
+
 public interface IPlugin {
-	public void define() throws PluginException;
+    byte[] define() throws PluginException;
 }

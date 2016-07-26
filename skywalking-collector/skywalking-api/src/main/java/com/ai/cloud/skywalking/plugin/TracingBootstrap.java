@@ -29,7 +29,7 @@ public class TracingBootstrap {
 
 		try {
 			PluginBootstrap bootstrap = new PluginBootstrap();
-			bootstrap.start();
+			bootstrap.loadPlugins();
 		} catch (Throwable t) {
 			logger.error("PluginBootstrap start failure.", t);
 		}
