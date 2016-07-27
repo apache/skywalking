@@ -1,5 +1,6 @@
 package com.ai.cloud.skywalking.plugin.test.dubbo.consumer;
 
+import com.ai.cloud.skywalking.plugin.PluginException;
 import com.ai.cloud.skywalking.plugin.TracingBootstrap;
 import com.ai.cloud.skywalking.plugin.test.dubbo.interfaces.IDubboInterA;
 import com.ai.skywalking.testframework.api.RequestSpanAssert;
@@ -13,17 +14,14 @@ public class DubboConsumer {
 
 
     @Test
-    public void test() throws InvocationTargetException, NoSuchMethodException, ClassNotFoundException, IllegalAccessException {
-        TracingBootstrap
-                .main(new String[]{"com.ai.cloud.skywalking.plugin.test.dubbo.consumer.DubboConsumer"});
+    public void test() throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, PluginException {
+        TracingBootstrap.main(new String[] {"com.ai.cloud.skywalking.plugin.test.dubbo.consumer.DubboConsumer"});
     }
 
     public static void main(String[] args) throws InterruptedException {
         ApplicationContext context = new ClassPathXmlApplicationContext("classpath*:consumer/dubbo-consumer.xml");
         IDubboInterA dubboInterA = context.getBean(IDubboInterA.class);
         dubboInterA.doBusiness("AAAAA");
-        RequestSpanAssert.assertEquals(new String[][]{
-                {"0", "dubbo://127.0.0.1:20880/com.ai.cloud.skywalking.plugin.test.dubbo.interfaces.IDubboInterA.doBusiness(String)", ""}
-        });
+        RequestSpanAssert.assertEquals(new String[][] {{"0", "dubbo://127.0.0.1:20880/com.ai.cloud.skywalking.plugin.test.dubbo.interfaces.IDubboInterA.doBusiness(String)", ""}});
     }
 }

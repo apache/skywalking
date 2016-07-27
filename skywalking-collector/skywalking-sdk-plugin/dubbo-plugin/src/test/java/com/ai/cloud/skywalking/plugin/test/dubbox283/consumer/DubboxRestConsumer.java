@@ -1,5 +1,6 @@
 package com.ai.cloud.skywalking.plugin.test.dubbox283.consumer;
 
+import com.ai.cloud.skywalking.plugin.PluginException;
 import com.ai.cloud.skywalking.plugin.TracingBootstrap;
 import com.ai.cloud.skywalking.plugin.dubbox.bugfix.below283.BugFixAcitve;
 import com.ai.cloud.skywalking.plugin.test.dubbox283.interfaces.IDubboxRestInterA;
@@ -19,7 +20,7 @@ public class DubboxRestConsumer {
     private static final Log logger = LogFactory.getLog(DubboxRestConsumer.class);
 
     @Test
-    public void test() throws InvocationTargetException, NoSuchMethodException, ClassNotFoundException, IllegalAccessException {
+    public void test() throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, PluginException {
         TracingBootstrap.main(new String[] {"com.ai.cloud.skywalking.plugin.test.dubbox283.consumer.DubboxRestConsumer"});
     }
 

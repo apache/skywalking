@@ -14,7 +14,7 @@ import net.bytebuddy.matcher.ElementMatcher;
 import net.bytebuddy.matcher.ElementMatchers;
 
 import com.ai.cloud.skywalking.plugin.PluginException;
-import com.ai.cloud.skywalking.plugin.interceptor.AbstractClassEnhancePluginDefine;
+import com.ai.cloud.skywalking.plugin.AbstractClassEnhancePluginDefine;
 import com.ai.cloud.skywalking.plugin.interceptor.EnhanceException;
 import com.ai.cloud.skywalking.plugin.interceptor.EnhancedClassInstanceContext;
 import com.ai.cloud.skywalking.plugin.interceptor.MethodMatcher;

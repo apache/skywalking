@@ -1,5 +1,6 @@
 package test.ai.cloud.skywalking.plugin.mysql;
 
+import com.ai.cloud.skywalking.plugin.PluginException;
 import com.ai.cloud.skywalking.plugin.TracingBootstrap;
 import com.ai.skywalking.testframework.api.RequestSpanAssert;
 import org.junit.Test;
@@ -13,7 +14,7 @@ import java.sql.SQLException;
 public class MysqlJDBCTest {
 
     @Test
-    public void testMySqlJDBC() throws InvocationTargetException, NoSuchMethodException, ClassNotFoundException, IllegalAccessException {
+    public void testMySqlJDBC() throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, PluginException {
         TracingBootstrap.main(new String[] {"test.ai.cloud.skywalking.plugin.mysql.MysqlJDBCTest"});
     }
 

@@ -1,6 +1,8 @@
 package com.ai.cloud.skywalking.plugin;
 
 
+import net.bytebuddy.dynamic.DynamicType;
+
 public interface IPlugin {
-	public void define() throws PluginException;
+    void define(DynamicType.Builder<?> builder) throws PluginException;
 }

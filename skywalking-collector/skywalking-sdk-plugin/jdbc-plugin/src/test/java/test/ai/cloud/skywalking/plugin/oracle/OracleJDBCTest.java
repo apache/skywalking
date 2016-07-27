@@ -1,5 +1,6 @@
 package test.ai.cloud.skywalking.plugin.oracle;
 
+import com.ai.cloud.skywalking.plugin.PluginException;
 import com.ai.cloud.skywalking.plugin.TracingBootstrap;
 import com.ai.skywalking.testframework.api.RequestSpanAssert;
 import org.junit.Test;
@@ -16,15 +17,11 @@ import java.sql.SQLException;
 public class OracleJDBCTest {
 
     @Test
-    public void testOracleJDBC() throws InvocationTargetException,
-            NoSuchMethodException, ClassNotFoundException,
-            IllegalAccessException {
-        TracingBootstrap
-                .main(new String[]{"test.ai.cloud.skywalking.plugin.oracle.OracleJDBCTest"});
+    public void testOracleJDBC() throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, PluginException {
+        TracingBootstrap.main(new String[] {"test.ai.cloud.skywalking.plugin.oracle.OracleJDBCTest"});
     }
 
-    public static void main(String[] args) throws ClassNotFoundException,
-            SQLException, InterruptedException {
+    public static void main(String[] args) throws ClassNotFoundException, SQLException, InterruptedException {
         Class.forName("oracle.jdbc.driver.OracleDriver");
         String url = "jdbc:oracle:thin:@10.1.130.239:1521:ora";
         Connection con = DriverManager.getConnection(url, "edc_export", "edc_export");
@@ -35,11 +32,10 @@ public class OracleJDBCTest {
         p0.execute();
         con.commit();
         con.close();
-        RequestSpanAssert.assertEquals(new String[][]{
-                {"0", "jdbc:oracle:thin:@10.1.130.239:1521:ora(edc_export)", "preaparedStatement.executeUpdate:select 1 from dual where 1=?"},
-                {"0", "jdbc:oracle:thin:@10.1.130.239:1521:ora(edc_export)", "connection.commit"},
-                {"0", "jdbc:oracle:thin:@10.1.130.239:1521:ora(edc_export)", "connection.close"},
-        }, true);
+        RequestSpanAssert.assertEquals(
+                new String[][] {{"0", "jdbc:oracle:thin:@10.1.130.239:1521:ora(edc_export)", "preaparedStatement.executeUpdate:select 1 from dual where 1=?"},
+                        {"0", "jdbc:oracle:thin:@10.1.130.239:1521:ora(edc_export)", "connection.commit"},
+                        {"0", "jdbc:oracle:thin:@10.1.130.239:1521:ora(edc_export)", "connection.close"},}, true);
 
     }
 }

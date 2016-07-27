@@ -1,5 +1,6 @@
 package com.ai.cloud.skywalking.jedis.v2.plugin;
 
+import com.ai.cloud.skywalking.plugin.PluginException;
 import com.ai.cloud.skywalking.plugin.TracingBootstrap;
 import com.ai.skywalking.testframework.api.RequestSpanAssert;
 import org.junit.Test;
@@ -10,7 +11,7 @@ import java.sql.SQLException;
 
 public class JedisTest {
     @Test
-    public void test() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException, ClassNotFoundException {
+    public void test() throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, PluginException {
         TracingBootstrap.main(new String[] {"com.ai.cloud.skywalking.jedis.v2.plugin.JedisTest"});
     }
 

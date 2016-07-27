@@ -68,7 +68,8 @@ public abstract class MethodMatcher {
     }
 
     public enum Modifier {
-        Public, Default, Private, Protected;
+        Public, Default, Private, Protected,
+        ClassLoadingStrategy;
 
         private ElementMatcher.Junction<MethodDescription> elementMatcher() {
             switch (this) {
