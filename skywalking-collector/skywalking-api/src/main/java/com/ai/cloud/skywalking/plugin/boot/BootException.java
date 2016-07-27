@@ -1,6 +1,6 @@
 package com.ai.cloud.skywalking.plugin.boot;
 
-import com.ai.cloud.skywalking.plugin.exception.PluginException;
+import com.ai.cloud.skywalking.plugin.PluginException;
 
 public class BootException extends PluginException {
 	private static final long serialVersionUID = 8618884011525098003L;

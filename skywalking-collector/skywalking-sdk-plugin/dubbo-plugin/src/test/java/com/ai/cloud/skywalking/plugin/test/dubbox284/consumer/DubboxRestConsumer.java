@@ -19,7 +19,7 @@ public class DubboxRestConsumer {
 
     @Test
     public void test() throws InvocationTargetException, NoSuchMethodException, ClassNotFoundException, IllegalAccessException {
-        TracingBootstrap.main(new String[] {"com.ai.cloud.skywalking.plugin.sample.dubbox284.consumer.DubboxRestConsumer"});
+        TracingBootstrap.main(new String[] {"com.ai.cloud.skywalking.plugin.test.dubbox284.consumer.DubboxRestConsumer"});
     }
 
     public static void main(String[] args) throws IOException, URISyntaxException, InterruptedException {
@@ -27,6 +27,6 @@ public class DubboxRestConsumer {
         IDubboxRestInterA dubboxRestInterA = context.getBean(IDubboxRestInterA.class);
         dubboxRestInterA.doBusiness(new DubboxRestInterAParameter("AAAAA"));
         RequestSpanAssert.assertEquals(new String[][] {
-                {"0", "rest://127.0.0.1:20880/com.ai.cloud.skywalking.plugin.sample.dubbox284.interfaces.IDubboxRestInterA.doBusiness(DubboxRestInterAParameter)", ""}});
+                {"0", "rest://127.0.0.1:20880/com.ai.cloud.skywalking.plugin.test.dubbox284.interfaces.IDubboxRestInterA.doBusiness(DubboxRestInterAParameter)", ""}});
     }
 }

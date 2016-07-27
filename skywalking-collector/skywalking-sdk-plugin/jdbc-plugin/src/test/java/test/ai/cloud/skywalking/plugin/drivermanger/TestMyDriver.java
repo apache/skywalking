@@ -10,7 +10,7 @@ import java.sql.SQLException;
  */
 public class TestMyDriver {
     public static void main(String[] args) throws ClassNotFoundException, SQLException {
-        Class.forName("sample.ai.cloud.skywalking.plugin.drivermanger.MyDriver");
+        Class.forName("test.ai.cloud.skywalking.plugin.drivermanger.MyDriver");
         String url = "jdbc:oracle:thin:@10.1.130.239:1521:ora";
         Connection con = DriverManager.getConnection(url, "edc_export", "edc_export");
         con.setAutoCommit(false);

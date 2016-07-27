@@ -10,18 +10,18 @@ public class TestAroundInterceptor implements InstanceMethodsAroundInterceptor {
 
 	@Override
 	public void onConstruct(EnhancedClassInstanceContext context, ConstructorInvokeContext interceptorContext) {
-		context.set("sample.key", "123");
+		context.set("test.key", "123");
 		System.out.println("onConstruct, args size=" + interceptorContext.allArguments().length);
 	}
 
 	@Override
 	public void beforeMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext, MethodInterceptResult result) {
-		System.out.println("beforeMethod : " + context.get("sample.key", String.class));
+		System.out.println("beforeMethod : " + context.get("test.key", String.class));
 	}
 
 	@Override
 	public Object afterMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext, Object ret) {
-		System.out.println("afterMethod: " + context.get("sample.key", String.class));
+		System.out.println("afterMethod: " + context.get("test.key", String.class));
 		return ret;
 	}
 

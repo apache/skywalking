@@ -1,129 +1,182 @@
 package com.ai.cloud.skywalking.plugin.interceptor.enhance;
 
+import static net.bytebuddy.matcher.ElementMatchers.any;
+import static net.bytebuddy.matcher.ElementMatchers.not;
+
 import com.ai.cloud.skywalking.logging.LogManager;
 import com.ai.cloud.skywalking.logging.Logger;
-import com.ai.cloud.skywalking.plugin.exception.PluginException;
+import net.bytebuddy.description.method.MethodDescription;
+import net.bytebuddy.dynamic.DynamicType;
+import net.bytebuddy.implementation.MethodDelegation;
+import net.bytebuddy.implementation.SuperMethodCall;
+import net.bytebuddy.implementation.bind.annotation.FieldProxy;
+import net.bytebuddy.matcher.ElementMatcher;
+import net.bytebuddy.matcher.ElementMatchers;
+
+import com.ai.cloud.skywalking.plugin.PluginException;
 import com.ai.cloud.skywalking.plugin.interceptor.AbstractClassEnhancePluginDefine;
+import com.ai.cloud.skywalking.plugin.interceptor.EnhanceException;
 import com.ai.cloud.skywalking.plugin.interceptor.EnhancedClassInstanceContext;
 import com.ai.cloud.skywalking.plugin.interceptor.MethodMatcher;
-import javassist.*;
-
-import java.lang.reflect.Modifier;
 
 public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePluginDefine {
-    private static Logger logger = LogManager.getLogger(ClassEnhancePluginDefine.class);
+	private static Logger logger = LogManager
+			.getLogger(ClassEnhancePluginDefine.class);
 
-    public static final String contextAttrName = "_$EnhancedClassInstanceContext";
+	public static final String contextAttrName = "_$EnhancedClassInstanceContext";
 
-    public byte[] enhance(CtClass ctClass) throws PluginException {
-        try {
-            CtMethod[] ctMethod = ctClass.getDeclaredMethods();
-            for (CtMethod method : ctMethod) {
-                if (Modifier.isStatic(method.getModifiers())) {
-                    this.enhanceClass(ctClass, method);
-                } else {
-                    this.enhanceInstance(ctClass, method);
-                }
-            }
+	protected DynamicType.Builder<?> enhance(String enhanceOriginClassName,
+			DynamicType.Builder<?> newClassBuilder) throws PluginException {
+		newClassBuilder = this.enhanceClass(enhanceOriginClassName, newClassBuilder);
+		
+		newClassBuilder = this.enhanceInstance(enhanceOriginClassName, newClassBuilder);
+		
+		return newClassBuilder;
+	}
 
-            return ctClass.toBytecode();
-        } catch (Exception e) {
-            throw new PluginException("Can not compile the class", e);
-        }
-    }
+	private DynamicType.Builder<?> enhanceInstance(String enhanceOriginClassName,
+			DynamicType.Builder<?> newClassBuilder) throws PluginException {
+		MethodMatcher[] methodMatchers = getInstanceMethodsMatchers();
+		if(methodMatchers == null){
+			return newClassBuilder;
+		}
+		
+		
+		/**
+		 * alter class source code.<br/>
+		 *
+		 * new class need:<br/>
+		 * 1.add field '_$EnhancedClassInstanceContext' of type
+		 * EnhancedClassInstanceContext <br/>
+		 *
+		 * 2.intercept constructor by default, and intercept method which it's
+		 * required by interceptorDefineClass. <br/>
+		 */
+		InstanceMethodsAroundInterceptor interceptor = getInstanceMethodsInterceptor();
+		if (interceptor == null) {
+			throw new EnhanceException("no InstanceMethodsAroundInterceptor instance. ");
+		}
 
-    private void enhanceClass(CtClass ctClass, CtMethod method) throws CannotCompileException, NotFoundException {
-        boolean isMatch = false;
-        for (MethodMatcher methodMatcher : getStaticMethodsMatchers()) {
-            if (methodMatcher.match(method)) {
-                isMatch = true;
-                break;
-            }
-        }
+		newClassBuilder = newClassBuilder
+				.defineField(contextAttrName,
+						EnhancedClassInstanceContext.class)
+				.constructor(any())
+				.intercept(
+						SuperMethodCall.INSTANCE.andThen(MethodDelegation.to(
+								new ClassConstructorInterceptor(interceptor))
+								.appendParameterBinder(
+										FieldProxy.Binder.install(
+												FieldGetter.class,
+												FieldSetter.class))));
 
-        if (isMatch) {
-            // 修改方法名,
-            String methodName = method.getName();
-            String newMethodName = methodName + "_$SkywalkingEnhance";
-            method.setName(newMethodName);
+		ClassInstanceMethodsInterceptor classMethodInterceptor = new ClassInstanceMethodsInterceptor(
+				interceptor);
 
-            CtMethod newMethod = new CtMethod(method.getReturnType(), methodName, method.getParameterTypes(), method.getDeclaringClass());
-            newMethod.setBody(
-                    "{ new " + ClassStaticMethodsInterceptor.class.getName() + "(new " + getStaticMethodsInterceptor().getClass().getName() + ").intercept($class,$args,\""
-                            + methodName + "\"," + OriginCallCodeGenerator.generateStaticMethodOriginCallCode(ctClass.getName(), newMethodName) + ");}");
+		StringBuilder enhanceRules = new StringBuilder(
+				"\nprepare to enhance class [" + enhanceOriginClassName
+						+ "] instance methods as following rules:\n");
+		int ruleIdx = 1;
+		for (MethodMatcher methodMatcher : methodMatchers) {
+			enhanceRules.append("\t" + ruleIdx++ + ". " + methodMatcher + "\n");
+		}
+		logger.debug(enhanceRules);
+		ElementMatcher.Junction<MethodDescription> matcher = null;
+		for (MethodMatcher methodMatcher : methodMatchers) {
+			logger.debug("enhance class {} instance methods by rule: {}",
+					enhanceOriginClassName, methodMatcher);
+			if (matcher == null) {
+				matcher = methodMatcher.buildMatcher();
+				continue;
+			}
 
-            ctClass.addMethod(newMethod);
-        }
+			matcher = matcher.or(methodMatcher.buildMatcher());
 
-    }
+		}
 
-    private void enhanceInstance(CtClass ctClass, CtMethod method) throws CannotCompileException, NotFoundException {
-        // 添加一个字段,并且带上get/set方法
-        CtField ctField = CtField.make("{public " + EnhancedClassInstanceContext.class.getName() + " " + contextAttrName + ";}", ctClass);
-        ctClass.addMethod(
-                CtMethod.make("public " + EnhancedClassInstanceContext.class.getName() + " get" + contextAttrName + "(){ return this." + contextAttrName + ";}", ctClass));
-        ctClass.addMethod(CtMethod.make(
-                "public void set" + contextAttrName + "(" + EnhancedClassInstanceContext.class.getName() + " " + contextAttrName + "){this." + contextAttrName + "="
-                        + contextAttrName + ";}", ctClass));
+		/**
+		 * exclude static methods.
+		 */
+		matcher = matcher.and(not(ElementMatchers.isStatic()));
+		newClassBuilder = newClassBuilder.method(matcher).intercept(
+				MethodDelegation.to(classMethodInterceptor));
 
+		return newClassBuilder;
+	}
+	
+	/**
+	 * 返回需要被增强的方法列表
+	 * 
+	 * @return
+	 */
+	protected abstract MethodMatcher[] getInstanceMethodsMatchers();
 
-        // 初始化构造函数
-        CtConstructor[] constructors = ctClass.getDeclaredConstructors();
-        for (CtConstructor constructor : constructors) {
-            constructor.insertAfter(" new " + ClassConstructorInterceptor.class.getName() + "(new " + getInstanceMethodsInterceptor().getClass().getName() + "()).intercept($0,$0."
-                    + contextAttrName + ",$args);");
-        }
+	/**
+	 * 返回增强拦截器的实现<br/>
+	 * 每个拦截器在同一个被增强类的内部，保持单例
+	 * 
+	 * @return
+	 */
+	protected abstract InstanceMethodsAroundInterceptor getInstanceMethodsInterceptor();
+	
+	private DynamicType.Builder<?> enhanceClass(String enhanceOriginClassName,
+			DynamicType.Builder<?> newClassBuilder) throws PluginException {
+		MethodMatcher[] methodMatchers = getStaticMethodsMatchers();
+		if(methodMatchers == null){
+			return newClassBuilder;
+		}
+		
+		StaticMethodsAroundInterceptor interceptor = getStaticMethodsInterceptor();
+		if (interceptor == null) {
+			throw new EnhanceException("no StaticMethodsAroundInterceptor instance. ");
+		}
+		
+		
+		ClassStaticMethodsInterceptor classMethodInterceptor = new ClassStaticMethodsInterceptor(
+				interceptor);
 
-        boolean isMatch = false;
-        for (MethodMatcher methodMatcher : getInstanceMethodsMatchers()) {
-            if (methodMatcher.match(method)) {
-                isMatch = true;
-                break;
-            }
-        }
+		StringBuilder enhanceRules = new StringBuilder(
+				"\nprepare to enhance class [" + enhanceOriginClassName
+						+ "] static methods as following rules:\n");
+		int ruleIdx = 1;
+		for (MethodMatcher methodMatcher : methodMatchers) {
+			enhanceRules.append("\t" + ruleIdx++ + ". " + methodMatcher + "\n");
+		}
+		logger.debug(enhanceRules);
+		ElementMatcher.Junction<MethodDescription> matcher = null;
+		for (MethodMatcher methodMatcher : methodMatchers) {
+			logger.debug("enhance class {} static methods by rule: {}",
+					enhanceOriginClassName, methodMatcher);
+			if (matcher == null) {
+				matcher = methodMatcher.buildMatcher();
+				continue;
+			}
 
-        if (isMatch) {
-            // 修改方法名,
-            String methodName = method.getName();
-            String newMethodName = methodName + "_$SkywalkingEnhance";
-            method.setName(newMethodName);
-            CtMethod newMethod = new CtMethod(method.getReturnType(), methodName, method.getParameterTypes(), method.getDeclaringClass());
+			matcher = matcher.or(methodMatcher.buildMatcher());
 
-            newMethod.setBody(
-                    "{ new " + ClassInstanceMethodsInterceptor.class.getName() + "(new " + getInstanceMethodsInterceptor().getClass().getName() + "()).intercept($0,$args,\""
-                            + methodName + "\"," + OriginCallCodeGenerator.generateInstanceMethodOriginCallCode("$0", methodName) + ",$0." + contextAttrName + ");}");
+		}
 
-            ctClass.addMethod(newMethod);
-        }
-    }
+		/**
+		 * restrict static methods.
+		 */
+		matcher = matcher.and(ElementMatchers.isStatic());
+		newClassBuilder = newClassBuilder.method(matcher).intercept(
+				MethodDelegation.to(classMethodInterceptor));
 
-    /**
-     * 返回需要被增强的方法列表
-     *
-     * @return
-     */
-    protected abstract MethodMatcher[] getInstanceMethodsMatchers();
+		return newClassBuilder;
+	}
+	
+	/**
+	 * 返回需要被增强的方法列表
+	 * 
+	 * @return
+	 */
+	protected abstract MethodMatcher[] getStaticMethodsMatchers();
 
-    /**
-     * 返回增强拦截器的实现<br/>
-     * 每个拦截器在同一个被增强类的内部，保持单例
-     *
-     * @return
-     */
-    protected abstract InstanceMethodsAroundInterceptor getInstanceMethodsInterceptor();
-
-    /**
-     * 返回需要被增强的方法列表
-     *
-     * @return
-     */
-    protected abstract MethodMatcher[] getStaticMethodsMatchers();
-
-    /**
-     * 返回增强拦截器的实现<br/>
-     * 每个拦截器在同一个被增强类的内部，保持单例
-     *
-     * @return
-     */
-    protected abstract StaticMethodsAroundInterceptor getStaticMethodsInterceptor();
+	/**
+	 * 返回增强拦截器的实现<br/>
+	 * 每个拦截器在同一个被增强类的内部，保持单例
+	 * 
+	 * @return
+	 */
+	protected abstract StaticMethodsAroundInterceptor getStaticMethodsInterceptor();
 }

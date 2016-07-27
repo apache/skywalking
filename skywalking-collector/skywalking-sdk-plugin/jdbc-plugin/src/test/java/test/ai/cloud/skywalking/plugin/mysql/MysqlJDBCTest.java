@@ -14,12 +14,12 @@ public class MysqlJDBCTest {
 
     @Test
     public void testMySqlJDBC() throws InvocationTargetException, NoSuchMethodException, ClassNotFoundException, IllegalAccessException {
-        TracingBootstrap.main(new String[] {"sample.ai.cloud.skywalking.plugin.mysql.MysqlJDBCTest"});
+        TracingBootstrap.main(new String[] {"test.ai.cloud.skywalking.plugin.mysql.MysqlJDBCTest"});
     }
 
     public static void main(String[] args) throws ClassNotFoundException, SQLException, InterruptedException {
         Class.forName("com.mysql.jdbc.Driver");
-        String url = "tracing:jdbc:mysql://127.0.0.1:3306/sample?user=root&password=root";
+        String url = "tracing:jdbc:mysql://127.0.0.1:3306/test?user=root&password=root";
         Connection con = DriverManager.getConnection(url);
         con.setAutoCommit(false);
 
@@ -29,9 +29,9 @@ public class MysqlJDBCTest {
         con.commit();
         con.close();
         RequestSpanAssert.assertEquals(
-                new String[][] {{"0", "jdbc:mysql://127.0.0.1:3306/sample?user=root&password=root(null)", "preaparedStatement.executeUpdate:select 1 from dual where 1=?"},
-                        {"0", "jdbc:mysql://127.0.0.1:3306/sample?user=root&password=root(null)", "connection.commit"},
-                        {"0", "jdbc:mysql://127.0.0.1:3306/sample?user=root&password=root(null)", "connection.close"},}, true);
+                new String[][] {{"0", "jdbc:mysql://127.0.0.1:3306/test?user=root&password=root(null)", "preaparedStatement.executeUpdate:select 1 from dual where 1=?"},
+                        {"0", "jdbc:mysql://127.0.0.1:3306/test?user=root&password=root(null)", "connection.commit"},
+                        {"0", "jdbc:mysql://127.0.0.1:3306/test?user=root&password=root(null)", "connection.close"},}, true);
 
     }
 

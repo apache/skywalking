@@ -12,7 +12,7 @@ public class DubboxRestStart {
     @Test
     public void test() throws InvocationTargetException, NoSuchMethodException, ClassNotFoundException, IllegalAccessException {
         TracingBootstrap
-                .main(new String[]{"com.ai.cloud.skywalking.plugin.sample.dubbox283.consumer.DubboxRestStart"});
+                .main(new String[]{"com.ai.cloud.skywalking.plugin.test.dubbox283.consumer.DubboxRestStart"});
     }
 
     public static void main(String[] args) throws InterruptedException {

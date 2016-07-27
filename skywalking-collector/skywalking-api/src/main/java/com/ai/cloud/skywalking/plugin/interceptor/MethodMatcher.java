@@ -1,6 +1,9 @@
 package com.ai.cloud.skywalking.plugin.interceptor;
 
-import javassist.CtMethod;
+import net.bytebuddy.description.method.MethodDescription;
+import net.bytebuddy.matcher.ElementMatcher;
+
+import static net.bytebuddy.matcher.ElementMatchers.*;
 
 public abstract class MethodMatcher {
 
@@ -42,29 +45,48 @@ public abstract class MethodMatcher {
         this.modifier = modifier;
     }
 
+    public abstract ElementMatcher.Junction<MethodDescription> buildMatcher();
+
     protected String getMethodMatchDescribe() {
         return methodMatchDescribe;
     }
 
-
-    public abstract boolean match(CtMethod ctMethod);
-
-    public enum Modifier {
-        Public(0x00000001),
-        Default(0x00000000),
-        Private(0x00000002),
-        Protected(0x00000004);
-
-        private int value;
-
-
-        Modifier(int value) {
-            this.value = value;
+    protected ElementMatcher.Junction<MethodDescription> mergeArgumentsIfNecessary(ElementMatcher.Junction<MethodDescription> matcher) {
+        if (argTypeArray != null) {
+            matcher = matcher.and(takesArguments(argTypeArray));
         }
 
+        if (argNum > -1) {
+            matcher = matcher.and(takesArguments(argNum));
+        }
 
-        public int getValue() {
-            return value;
+        if (modifier != null) {
+            matcher = matcher.and(modifier.elementMatcher());
+        }
+
+        return matcher;
+    }
+
+    public enum Modifier {
+        Public, Default, Private, Protected;
+
+        private ElementMatcher.Junction<MethodDescription> elementMatcher() {
+            switch (this) {
+                case Private: {
+                    return isPrivate();
+                }
+                case Default: {
+                    return isPackagePrivate();
+                }
+                case Public: {
+                    return isPublic();
+                }
+                case Protected: {
+                    return isProtected();
+                }
+                default:
+                    return isPublic();
+            }
         }
     }
 
@@ -72,7 +94,7 @@ public abstract class MethodMatcher {
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder("method name=" + getMethodMatchDescribe());
         if (getModifier() != null) {
-            stringBuilder.insert(0, getModifier() + " ");
+        	stringBuilder.insert(0, getModifier() + " ");
         }
 
         if (getArgNum() > -1) {
@@ -83,11 +105,11 @@ public abstract class MethodMatcher {
             stringBuilder.append(",  types of arguments are ");
             boolean isFirst = true;
             for (Class<?> argType : getArgTypeArray()) {
-                if (isFirst) {
-                    isFirst = false;
-                } else {
-                    stringBuilder.append(",");
-                }
+            	if(isFirst){
+            		isFirst = false;
+            	}else{
+            		stringBuilder.append(",");
+            	}
                 stringBuilder.append(argType.getName());
             }
         }

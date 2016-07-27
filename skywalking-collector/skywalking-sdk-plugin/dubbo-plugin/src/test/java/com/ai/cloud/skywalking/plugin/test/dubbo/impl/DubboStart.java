@@ -11,7 +11,7 @@ public class DubboStart {
     @Test
     public void test() throws InvocationTargetException, NoSuchMethodException, ClassNotFoundException, IllegalAccessException {
         TracingBootstrap
-                .main(new String[]{"com.ai.cloud.skywalking.plugin.sample.dubbo.impl.DubboStart"});
+                .main(new String[]{"com.ai.cloud.skywalking.plugin.test.dubbo.impl.DubboStart"});
     }
 
     public static void main(String[] args) throws InterruptedException {

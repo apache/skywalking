@@ -1,6 +1,9 @@
 package com.ai.cloud.skywalking.plugin.interceptor.matcher;
 
-import javassist.CtMethod;
+import net.bytebuddy.description.method.MethodDescription;
+import net.bytebuddy.matcher.ElementMatcher;
+
+import static net.bytebuddy.matcher.ElementMatchers.any;
 
 public class AnyMethodsMatcher extends ExclusiveObjectDefaultMethodsMatcher {
 
@@ -8,14 +11,13 @@ public class AnyMethodsMatcher extends ExclusiveObjectDefaultMethodsMatcher {
         super("any method");
     }
 
+    @Override
+    public ElementMatcher.Junction<MethodDescription> match() {
+        return any();
+    }
 
     @Override
     public String toString() {
         return getMethodMatchDescribe();
-    }
-
-    @Override
-    public boolean matchMethod(CtMethod ctMethod) {
-        return true;
     }
 }

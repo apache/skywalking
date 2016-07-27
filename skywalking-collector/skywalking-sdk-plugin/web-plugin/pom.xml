@@ -28,7 +28,7 @@
 			<groupId>com.ai.cloud</groupId>
 			<artifactId>skywalking-auth</artifactId>
 			<version>${project.version}</version>
-			<scope>sample</scope>
+			<scope>test</scope>
 		</dependency>
 		 -->
 		<dependency>

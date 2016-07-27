@@ -20,7 +20,7 @@ public class OracleJDBCTest {
             NoSuchMethodException, ClassNotFoundException,
             IllegalAccessException {
         TracingBootstrap
-                .main(new String[]{"sample.ai.cloud.skywalking.plugin.oracle.OracleJDBCTest"});
+                .main(new String[]{"test.ai.cloud.skywalking.plugin.oracle.OracleJDBCTest"});
     }
 
     public static void main(String[] args) throws ClassNotFoundException,
