@@ -23,8 +23,6 @@
         <shade.io.netty.target>com.ai.cloud.skywalking.api.dependencies.io.netty</shade.io.netty.target>
         <shade.com.google.protobuf.source>com.google.protobuf</shade.com.google.protobuf.source>
         <shade.com.google.protobuf.target>com.ai.cloud.skywalking.api.dependencies.google.protobuf</shade.com.google.protobuf.target>
-        <shade.javassist.source>javassist</shade.javassist.source>
-        <shade.javassist.target>com.ai.cloud.skywalking.api.dependencies.javassist</shade.javassist.target>
         <shade.com.google.gson.source>com.google.gson</shade.com.google.gson.source>
         <shade.com.google.gson.target>com.ai.cloud.skywalking.api.dependencies.com.google.gson</shade.com.google.gson.target>
     </properties>
@@ -96,10 +94,6 @@
                                 <relocation>
                                     <pattern>${shade.com.google.protobuf.source}</pattern>
                                     <shadedPattern>${shade.com.google.protobuf.target}</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>${shade.javassist.source}</pattern>
-                                    <shadedPattern>${shade.javassist.target}</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>${shade.com.google.gson.source}</pattern>
