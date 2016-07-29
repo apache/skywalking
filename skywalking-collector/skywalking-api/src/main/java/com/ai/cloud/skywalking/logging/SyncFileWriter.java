@@ -14,7 +14,7 @@ import java.util.Date;
 import static com.ai.cloud.skywalking.conf.Config.Logging.LOG_FILE_NAME;
 import static com.ai.cloud.skywalking.conf.Config.Logging.LOG_FILE_PATH;
 
-public class SyncFileWriter implements IFileWriter {
+public class SyncFileWriter implements IWriter {
 
     private static SyncFileWriter   writer;
     private        FileOutputStream os;
@@ -35,7 +35,7 @@ public class SyncFileWriter implements IFileWriter {
     }
 
 
-    public static IFileWriter instance() {
+    public static IWriter instance() {
         if (writer == null) {
             writer = new SyncFileWriter();
         }
