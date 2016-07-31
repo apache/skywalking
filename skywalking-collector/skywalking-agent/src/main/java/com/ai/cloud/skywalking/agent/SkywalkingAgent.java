@@ -1,5 +1,6 @@
 package com.ai.cloud.skywalking.agent;
 
+import com.ai.cloud.skywalking.agent.junction.SkyWalkingEnhanceMatcher;
 import com.ai.cloud.skywalking.conf.AuthDesc;
 import com.ai.cloud.skywalking.conf.Config;
 import com.ai.cloud.skywalking.logging.LogManager;
@@ -10,6 +11,7 @@ import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.description.NamedElement;
 import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.dynamic.DynamicType;
+import net.bytebuddy.matcher.BooleanMatcher;
 import net.bytebuddy.matcher.ElementMatcher;
 import net.bytebuddy.matcher.ElementMatchers;
 
@@ -19,6 +21,7 @@ import java.net.URL;
 import java.util.List;
 
 import static net.bytebuddy.matcher.ElementMatchers.any;
+import static net.bytebuddy.matcher.ElementMatchers.named;
 
 public class SkywalkingAgent {
 
@@ -56,7 +59,11 @@ public class SkywalkingAgent {
     }
 
     private static ElementMatcher.Junction<NamedElement> exclusivePackageClass() {
-        return any();
+        return myMatcher();
+    }
+
+    private static <T extends NamedElement> ElementMatcher.Junction<T> myMatcher() {
+        return new SkyWalkingEnhanceMatcher<T>();
     }
 
 
