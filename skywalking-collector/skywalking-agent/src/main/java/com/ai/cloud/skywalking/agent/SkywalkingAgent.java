@@ -38,7 +38,7 @@ public class SkywalkingAgent {
 
             startBootPluginDefines(pluginDefineCategory.getBootPluginsDefines());
 
-            new AgentBuilder.Default().type(exclusivePackageClass()).transform(new AgentBuilder.Transformer() {
+            new AgentBuilder.Default().type(myMatcher()).transform(new AgentBuilder.Transformer() {
                 public DynamicType.Builder<?> transform(DynamicType.Builder<?> builder, TypeDescription typeDescription, ClassLoader classLoader) {
                     AbstractClassEnhancePluginDefine pluginDefine = pluginDefineCategory.getClassEnhancePluginDefines().get(typeDescription.getTypeName());
                     if (pluginDefine == null) {
@@ -56,10 +56,6 @@ public class SkywalkingAgent {
             }).installOn(instrumentation);
 
         }
-    }
-
-    private static ElementMatcher.Junction<NamedElement> exclusivePackageClass() {
-        return myMatcher();
     }
 
     private static <T extends NamedElement> ElementMatcher.Junction<T> myMatcher() {
