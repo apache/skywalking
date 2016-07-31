@@ -12,10 +12,12 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class PersistenceThread extends Thread {
+public class    PersistenceThread extends Thread {
 
     private Logger logger     = LogManager.getLogger(PersistenceThread.class);
     private File   bufferFile = null;
@@ -43,7 +45,7 @@ public class PersistenceThread extends Thread {
             BufferFileReader bufferReader = new BufferFileReader(bufferFile, offset);
             while (bufferReader.hasNext()) {
                 List<AbstractDataSerializable> serializableDataList = bufferReader.next();
-                //handleSpans(spans);
+                handleSpans(categorySerializableData(serializableDataList));
             }
 
             try {
@@ -59,6 +61,21 @@ public class PersistenceThread extends Thread {
                 logger.error("Failure sleep.", e);
             }
         }
+    }
+
+    private Map<Integer, List<AbstractDataSerializable>> categorySerializableData(List<AbstractDataSerializable> serializableDataList) {
+        Map<Integer, List<AbstractDataSerializable>> result = new HashMap<Integer, List<AbstractDataSerializable>>();
+        for (AbstractDataSerializable serializableData : serializableDataList){
+            List<AbstractDataSerializable> specialTypeSerializableData = result.get(serializableData.getDataType());
+            if (specialTypeSerializableData == null){
+                specialTypeSerializableData = new ArrayList<AbstractDataSerializable>();
+                result.put(serializableData.getDataType(), specialTypeSerializableData);
+            }
+
+            specialTypeSerializableData.add(serializableData);
+        }
+
+        return result;
     }
 
     private int acquireOffset() {
