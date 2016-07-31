@@ -18,6 +18,8 @@ import java.lang.instrument.Instrumentation;
 import java.net.URL;
 import java.util.List;
 
+import static net.bytebuddy.matcher.ElementMatchers.any;
+
 public class SkywalkingAgent {
 
     private static Logger logger = LogManager.getLogger(SkywalkingAgent.class);
@@ -54,7 +56,7 @@ public class SkywalkingAgent {
     }
 
     private static ElementMatcher.Junction<NamedElement> exclusivePackageClass() {
-        return ElementMatchers.nameStartsWith("com.alibaba");
+        return any();
     }
 
 
