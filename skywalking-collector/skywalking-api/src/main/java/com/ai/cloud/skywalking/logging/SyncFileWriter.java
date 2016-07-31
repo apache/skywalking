@@ -48,6 +48,11 @@ public class SyncFileWriter implements IWriter {
         switchLogFileIfNecessary();
     }
 
+    @Override
+    public void writeError(String message) {
+        this.write(message);
+    }
+
     private void writeLogRecord(String message) {
         try {
             os.write(message.getBytes());

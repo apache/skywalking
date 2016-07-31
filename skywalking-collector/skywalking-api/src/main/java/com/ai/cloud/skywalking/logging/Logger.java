@@ -23,11 +23,15 @@ public class Logger {
         StackTraceElement locations[] = dummyException.getStackTrace();
 
         if (locations != null && locations.length > 2) {
-            WriterFactory.getLogWriter().write(formatMessage(level, message, locations[2]));
+            if(ERROR.equals(level) || WARN.equals(level)){
+                WriterFactory.getLogWriter().writeError(formatMessage(level, message, locations[2]));
+            }else {
+                WriterFactory.getLogWriter().write(formatMessage(level, message, locations[2]));
+            }
         }
 
         if (e != null) {
-            WriterFactory.getLogWriter().write(LoggingUtil.fetchThrowableStack(e));
+            WriterFactory.getLogWriter().writeError(LoggingUtil.fetchThrowableStack(e));
         }
     }
 
