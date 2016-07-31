@@ -16,6 +16,8 @@ public class Config {
         public static boolean ALL_METHOD_MONITOR = false;
 
         public static boolean IS_PREMAIN_MODE = false;
+
+        public static String AGENT_BASE_PATH = "";
     }
 
     public static class BuriedPoint {

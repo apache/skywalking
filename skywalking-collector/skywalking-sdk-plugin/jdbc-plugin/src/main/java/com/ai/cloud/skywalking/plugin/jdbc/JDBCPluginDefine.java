@@ -10,8 +10,8 @@ import com.ai.cloud.skywalking.logging.Logger;
 import com.ai.cloud.skywalking.plugin.boot.BootException;
 import com.ai.cloud.skywalking.plugin.boot.IBootPluginDefine;
 
-public class JDBCPluginDefineI implements IBootPluginDefine {
-    private static Logger logger = LogManager.getLogger(JDBCPluginDefineI.class);
+public class JDBCPluginDefine implements IBootPluginDefine {
+    private static Logger logger = LogManager.getLogger(JDBCPluginDefine.class);
 
     @Override
     public void boot() throws BootException {

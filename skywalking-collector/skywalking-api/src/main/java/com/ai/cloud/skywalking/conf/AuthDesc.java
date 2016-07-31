@@ -7,7 +7,6 @@ import com.ai.cloud.skywalking.selfexamination.SDKHealthCollector;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.net.URL;
 
 public class AuthDesc {
     private static Logger  logger = LogManager.getLogger(AuthDesc.class);
@@ -28,21 +27,11 @@ public class AuthDesc {
 
     private static InputStream fetchAuthFileInputStream() {
         try {
-            InputStream authFileInputStream;
-            String urlString = ClassLoader.getSystemClassLoader().getResource(generateLocationPath()).toString();
-            urlString = urlString.substring(urlString.indexOf("file:"), urlString.indexOf('!'));
-            URL url = new URL(urlString);
-            File file = new File(url.toURI());
-            authFileInputStream = new FileInputStream(file.getParentFile().getName() + File.separator + "/sky-walking.auth");
-            return authFileInputStream;
+            return new FileInputStream(Config.SkyWalking.AGENT_BASE_PATH + File.separator + "/sky-walking.auth");
         } catch (Exception e) {
             logger.error("Error to fetch auth file input stream.", e);
             return null;
         }
-    }
-
-    private static String generateLocationPath() {
-        return AuthDesc.class.getName().replaceAll(".", "/") + ".class";
     }
 
     public static boolean isAuth() {
