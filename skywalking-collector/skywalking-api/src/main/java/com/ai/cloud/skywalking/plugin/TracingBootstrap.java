@@ -2,9 +2,11 @@ package com.ai.cloud.skywalking.plugin;
 
 import com.ai.cloud.skywalking.logging.LogManager;
 import com.ai.cloud.skywalking.logging.Logger;
+import com.ai.cloud.skywalking.plugin.boot.IBootPluginDefine;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.dynamic.ClassFileLocator;
 import net.bytebuddy.dynamic.DynamicType;
+import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
 import net.bytebuddy.pool.TypePool;
 
 import java.lang.reflect.InvocationTargetException;
@@ -38,8 +40,6 @@ public class TracingBootstrap {
         }
 
         for (IPlugin plugin : plugins) {
-            DynamicType.Builder<?> newClassBuilder = null;
-
             if (plugin instanceof AbstractClassEnhancePluginDefine) {
                 String enhanceClassName = ((AbstractClassEnhancePluginDefine) plugin).enhanceClassName();
                 TypePool.Resolution resolution = TypePool.Default.ofClassPath().describe(enhanceClassName);
@@ -47,10 +47,15 @@ public class TracingBootstrap {
                     logger.error("Failed to resolve the class " + enhanceClassName);
                     continue;
                 }
-                newClassBuilder = new ByteBuddy().rebase(resolution.resolve(), ClassFileLocator.ForClassLoader.ofClassPath());
+                DynamicType.Builder<?> newClassBuilder = new ByteBuddy().rebase(resolution.resolve(), ClassFileLocator.ForClassLoader.ofClassPath());
+                newClassBuilder = ((AbstractClassEnhancePluginDefine)plugin).define(newClassBuilder);
+                newClassBuilder.make().load(ClassLoader.getSystemClassLoader(), ClassLoadingStrategy.Default.INJECTION).getLoaded();
             }
 
-            plugin.define(newClassBuilder);
+            if(plugin instanceof IBootPluginDefine){
+                ((IBootPluginDefine)plugin).boot();
+            }
+
 
         }
 

@@ -43,7 +43,6 @@ public class PersistenceThread extends Thread {
             BufferFileReader bufferReader = new BufferFileReader(bufferFile, offset);
             while (bufferReader.hasNext()) {
                 List<AbstractDataSerializable> serializableDataList = bufferReader.next();
-                System.out.println(serializableDataList.size());
                 //handleSpans(spans);
             }
 

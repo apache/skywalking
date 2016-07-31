@@ -5,6 +5,7 @@ import junit.framework.TestCase;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.dynamic.ClassFileLocator;
 import net.bytebuddy.dynamic.DynamicType;
+import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
 import net.bytebuddy.pool.TypePool;
 import org.junit.Test;
 
@@ -23,7 +24,8 @@ public class ExclusionMatcherTest extends TestCase {
             DynamicType.Builder<?> newClassBuilder =
                     new ByteBuddy().rebase(TypePool.Default.ofClassPath().describe(entry.getKey()).resolve(), ClassFileLocator.ForClassLoader.ofClassPath());
 
-            entry.getValue().define(newClassBuilder);
+            newClassBuilder = entry.getValue().define(newClassBuilder);
+            newClassBuilder.make().load(ClassLoader.getSystemClassLoader(), ClassLoadingStrategy.Default.INJECTION).getLoaded();
         }
 
         TestMatcherClass testMatcherClass = (TestMatcherClass) Class.forName("test.ai.cloud.matcher.TestMatcherClass").newInstance();

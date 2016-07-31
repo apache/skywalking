@@ -5,7 +5,7 @@ import com.ai.cloud.skywalking.conf.ConfigInitializer;
 import com.ai.cloud.skywalking.logging.LogManager;
 import com.ai.cloud.skywalking.logging.Logger;
 import com.ai.cloud.skywalking.plugin.*;
-import com.ai.cloud.skywalking.plugin.boot.BootPluginDefine;
+import com.ai.cloud.skywalking.plugin.boot.IBootPluginDefine;
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.dynamic.DynamicType;
@@ -35,7 +35,7 @@ public class SkywalkingAgent {
                     }
 
                     try {
-                        return pluginDefine.define0(builder);
+                        return pluginDefine.define(builder);
                     } catch (PluginException e) {
                         logger.error("Failed to enhance plugin " + pluginDefine.getClass().getName(), e);
                         return builder;
@@ -47,9 +47,9 @@ public class SkywalkingAgent {
     }
 
 
-    public static void startBootPluginDefines(List<BootPluginDefine> bootPluginDefines) throws PluginException {
-        for (BootPluginDefine bootPluginDefine : bootPluginDefines) {
-            bootPluginDefine.define(null);
+    public static void startBootPluginDefines(List<IBootPluginDefine> IBootPluginDefines) throws PluginException {
+        for (IBootPluginDefine bootPluginDefine : IBootPluginDefines) {
+            bootPluginDefine.boot();
         }
     }
 }

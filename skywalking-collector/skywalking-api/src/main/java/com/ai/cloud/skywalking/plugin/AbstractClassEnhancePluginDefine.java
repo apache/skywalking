@@ -14,13 +14,7 @@ import static com.ai.cloud.skywalking.plugin.PluginBootstrap.CLASS_TYPE_POOL;
 public abstract class AbstractClassEnhancePluginDefine implements IPlugin {
     private static Logger logger = LogManager.getLogger(AbstractClassEnhancePluginDefine.class);
 
-    @Override
-    public void define(DynamicType.Builder<?> builder) throws PluginException {
-        builder = define0(builder);
-        builder.name(enhanceClassName()).make().load(ClassLoader.getSystemClassLoader(), ClassLoadingStrategy.Default.INJECTION).getLoaded();
-    }
-
-    public DynamicType.Builder<?> define0(DynamicType.Builder<?> builder) throws PluginException {
+    public DynamicType.Builder<?> define(DynamicType.Builder<?> builder) throws PluginException {
         String interceptorDefineClassName = this.getClass().getName();
 
         String enhanceOriginClassName = enhanceClassName();

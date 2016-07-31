@@ -2,20 +2,19 @@ package com.ai.cloud.skywalking.plugin.jdbc;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.sql.Driver;
 import java.sql.DriverManager;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.ai.cloud.skywalking.logging.LogManager;
 import com.ai.cloud.skywalking.logging.Logger;
 import com.ai.cloud.skywalking.plugin.boot.BootException;
-import com.ai.cloud.skywalking.plugin.boot.BootPluginDefine;
+import com.ai.cloud.skywalking.plugin.boot.IBootPluginDefine;
 
-public class JDBCPluginDefine extends BootPluginDefine {
-    private static Logger logger = LogManager.getLogger(JDBCPluginDefine.class);
+public class JDBCPluginDefineI implements IBootPluginDefine {
+    private static Logger logger = LogManager.getLogger(JDBCPluginDefineI.class);
 
     @Override
-    protected void boot() throws BootException {
+    public void boot() throws BootException {
         try {
             Class<?> classes = Class.forName("java.sql.DriverInfo");
             Object traceDriverInfo = newDriverInfoInstance(classes);
