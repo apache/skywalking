@@ -12,7 +12,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import static com.ai.cloud.skywalking.conf.Config.Logging.LOG_FILE_NAME;
-import static com.ai.cloud.skywalking.conf.Config.Logging.LOG_FILE_PATH;
+import static com.ai.cloud.skywalking.conf.Config.Logging.LOG_DIR_NAME;
+import static com.ai.cloud.skywalking.conf.Config.SkyWalking.AGENT_BASE_PATH;
 
 public class SyncFileWriter implements IWriter {
 
@@ -23,12 +24,12 @@ public class SyncFileWriter implements IWriter {
 
     private SyncFileWriter() {
         try {
-            File logFilePath = new File(LOG_FILE_PATH);
+            File logFilePath = new File(AGENT_BASE_PATH,LOG_DIR_NAME);
             if (!logFilePath.exists()) {
                 logFilePath.mkdirs();
             }
-            os = new FileOutputStream(new File(LOG_FILE_PATH, LOG_FILE_NAME), true);
-            bufferSize = Long.valueOf(new File(LOG_FILE_PATH, LOG_FILE_NAME).length()).intValue();
+            os = new FileOutputStream(new File(logFilePath, LOG_FILE_NAME), true);
+            bufferSize = Long.valueOf(new File(logFilePath, LOG_FILE_NAME).length()).intValue();
         } catch (IOException e) {
             writeErrorLog(e);
         }
@@ -81,12 +82,12 @@ public class SyncFileWriter implements IWriter {
     }
 
     private void revertInputStream() throws FileNotFoundException {
-        os = new FileOutputStream(new File(Config.Logging.LOG_FILE_PATH, Config.Logging.LOG_FILE_NAME), true);
+        os = new FileOutputStream(new File(Config.Logging.LOG_DIR_NAME, Config.Logging.LOG_FILE_NAME), true);
     }
 
     private void renameLogFile() {
-        new File(Config.Logging.LOG_FILE_PATH, Config.Logging.LOG_FILE_NAME)
-                .renameTo(new File(Config.Logging.LOG_FILE_PATH, Config.Logging.LOG_FILE_NAME + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())));
+        new File(Config.Logging.LOG_DIR_NAME, Config.Logging.LOG_FILE_NAME)
+                .renameTo(new File(Config.Logging.LOG_DIR_NAME, Config.Logging.LOG_FILE_NAME + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())));
     }
 
     private void closeInputStream() throws IOException {
@@ -98,7 +99,7 @@ public class SyncFileWriter implements IWriter {
     private void writeErrorLog(Throwable e) {
         FileOutputStream fileOutputStream = null;
         try {
-            File file = new File(Config.Logging.LOG_FILE_PATH, Config.Logging.SYSTEM_ERROR_LOG_FILE_NAME);
+            File file = new File(Config.Logging.LOG_DIR_NAME, Config.Logging.SYSTEM_ERROR_LOG_FILE_NAME);
             fileOutputStream = new FileOutputStream(file, true);
             fileOutputStream.write(("Failed to init sync File Writer.\n" + LoggingUtil.fetchThrowableStack(e)).getBytes());
         } catch (Exception e1) {

@@ -20,7 +20,7 @@ public class ExclusionMatcherTest extends TestCase {
        PluginDefineCategory category = PluginDefineCategory.category(pluginDefines);
 
 
-        for (Map.Entry<String, AbstractClassEnhancePluginDefine> entry : category.getClassEnhancePluginDefines().entrySet()) {
+        for (Map.Entry<String, AbstractClassEnhancePluginDefine> entry : category.getExactClassEnhancePluginDefineMapping().entrySet()) {
             DynamicType.Builder<?> newClassBuilder =
                     new ByteBuddy().rebase(TypePool.Default.ofClassPath().describe(entry.getKey()).resolve(), ClassFileLocator.ForClassLoader.ofClassPath());
 

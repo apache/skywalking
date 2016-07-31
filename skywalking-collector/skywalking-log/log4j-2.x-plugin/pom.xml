@@ -28,6 +28,7 @@
             <groupId>com.ai.cloud</groupId>
             <artifactId>skywalking-api</artifactId>
             <version>1.0-Final</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>

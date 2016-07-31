@@ -20,6 +20,7 @@ public class Config {
         public static String AGENT_BASE_PATH = "";
     }
 
+
     public static class BuriedPoint {
         // 是否打印埋点信息
         public static boolean PRINTF = false;
@@ -33,15 +34,17 @@ public class Config {
         public static String EXCLUSIVE_EXCEPTIONS = "";
     }
 
+
     public static class Consumer {
         // 最大消费线程数
-        public static int MAX_CONSUMER = 2;
+        public static int  MAX_CONSUMER  = 2;
         // 消费者最大等待时间
         public static long MAX_WAIT_TIME = 5L;
 
         //
         public static long CONSUMER_FAIL_RETRY_WAIT_INTERVAL = 50L;
     }
+
 
     public static class Buffer {
         // 每个Buffer的最大个数
@@ -51,11 +54,12 @@ public class Config {
         public static int POOL_SIZE = 5;
     }
 
+
     public static class Sender {
         // 最大发送数据个数
         public static final int MAX_SEND_DATA_SIZE = 10;
         // 最大发送者的连接数阀比例
-        public static int CONNECT_PERCENT = 50;
+        public static       int CONNECT_PERCENT    = 50;
 
         // 发送服务端配置
         public static String SERVERS_ADDR = "127.0.0.1:34000";
@@ -80,18 +84,20 @@ public class Config {
         public static long RETRY_FIND_CONNECTION_SENDER = 1000;
     }
 
+
     public static class HealthCollector {
         // 默认健康检查上报时间
         public static long REPORT_INTERVAL = 5 * 60 * 1000L;
     }
 
+
     public static class Logging {
         // log文件名
-        public static String LOG_FILE_NAME = "skywalking-api.log";
-        // log文件路径
-        public static String LOG_FILE_PATH = "/tmp/skywalking";
+        public static String LOG_FILE_NAME              = "skywalking-api.log";
+        // log文件文件夹名字
+        public static String LOG_DIR_NAME               = "logs";
         // 最大文件大小
-        public static int MAX_LOG_FILE_LENGTH = 3 * 1024 * 1024;
+        public static int    MAX_LOG_FILE_LENGTH        = 3 * 1024 * 1024;
         // skywalking 系统错误文件日志
         public static String SYSTEM_ERROR_LOG_FILE_NAME = "skywalking-api-error.log";
     }

@@ -11,44 +11,29 @@ import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.description.NamedElement;
 import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.dynamic.DynamicType;
-import net.bytebuddy.matcher.BooleanMatcher;
 import net.bytebuddy.matcher.ElementMatcher;
-import net.bytebuddy.matcher.ElementMatchers;
 
 import java.io.File;
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
 import java.util.List;
 
-import static net.bytebuddy.matcher.ElementMatchers.any;
-import static net.bytebuddy.matcher.ElementMatchers.named;
-
 public class SkywalkingAgent {
 
-    private static Logger logger = LogManager.getLogger(SkywalkingAgent.class);
-
-
+    private static       Logger               logger               = LogManager.getLogger(SkywalkingAgent.class);
+    private static final PluginDefineCategory pluginDefineCategory = PluginDefineCategory.category(new PluginBootstrap().loadPlugins());
 
     public static void premain(String agentArgs, Instrumentation instrumentation) throws PluginException {
         initConfig();
         if (AuthDesc.isAuth()) {
-            List<IPlugin> plugins = new PluginBootstrap().loadPlugins();
-            logger.info("Loaded " + plugins.size() + " plugin");
-            final PluginDefineCategory pluginDefineCategory = PluginDefineCategory.category(plugins);
-
             startBootPluginDefines(pluginDefineCategory.getBootPluginsDefines());
 
             new AgentBuilder.Default().type(exclusivePackageClass()).transform(new AgentBuilder.Transformer() {
                 public DynamicType.Builder<?> transform(DynamicType.Builder<?> builder, TypeDescription typeDescription, ClassLoader classLoader) {
-                    AbstractClassEnhancePluginDefine pluginDefine = pluginDefineCategory.getClassEnhancePluginDefines().get(typeDescription.getTypeName());
-                    if (pluginDefine == null) {
-                        return builder;
-                    }
-
+                    AbstractClassEnhancePluginDefine pluginDefine = pluginDefineCategory.findPluginDefine(typeDescription.getTypeName());
                     try {
                         return pluginDefine.define(builder);
                     } catch (Throwable e) {
-                        e.printStackTrace();
                         logger.error("Failed to enhance plugin " + pluginDefine.getClass().getName(), e);
                         return builder;
                     }
@@ -59,11 +44,11 @@ public class SkywalkingAgent {
     }
 
     private static ElementMatcher.Junction<NamedElement> exclusivePackageClass() {
-        return myMatcher();
+        return enhanceClassMatcher();
     }
 
-    private static <T extends NamedElement> ElementMatcher.Junction<T> myMatcher() {
-        return new SkyWalkingEnhanceMatcher<T>();
+    private static <T extends NamedElement> ElementMatcher.Junction<T> enhanceClassMatcher() {
+        return new SkyWalkingEnhanceMatcher<T>(pluginDefineCategory);
     }
 
 
