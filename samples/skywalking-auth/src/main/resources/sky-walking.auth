@@ -7,6 +7,8 @@ skywalking.auth_system_env_name=SKYWALKING_RUN
 #skywalking数据编码
 skywalking.charset=UTF-8
 skywalking.auth_override=true
+#是否使用STD替换日志输出
+skywalking.logger_std_out_override=false;
 
 #是否打印数据
 buriedpoint.printf=true
