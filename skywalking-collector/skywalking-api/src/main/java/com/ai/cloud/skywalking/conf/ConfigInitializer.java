@@ -16,8 +16,7 @@ import java.util.Properties;
 public class ConfigInitializer {
 	private static Logger logger = LogManager.getLogger(ConfigInitializer.class);
 
-    public static void initialize() {
-        InputStream inputStream = ConfigInitializer.class.getResourceAsStream("/sky-walking.auth");
+    static void initialize(InputStream inputStream) {
         if (inputStream == null) {
             logger.info("No provider sky-walking certification documents, sky-walking api auto shutdown.");
         } else {

@@ -14,6 +14,8 @@ public class Config {
         public static String CHARSET = "UTF-8";
 
         public static boolean ALL_METHOD_MONITOR = false;
+
+        public static boolean IS_PREMAIN_MODE = false;
     }
 
     public static class BuriedPoint {

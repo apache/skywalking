@@ -1,14 +1,15 @@
 #skyWalking用户ID
 skywalking.user_id=123
 #skyWalking应用编码
-skywalking.application_code=test
+skywalking.application_code=skywalking-sample-dubbo
 #skywalking auth的环境变量名字
 skywalking.auth_system_env_name=SKYWALKING_RUN
 #skywalking数据编码
 skywalking.charset=UTF-8
+skywalking.auth_override=true
 
 #是否打印数据
-buriedpoint.printf=false
+buriedpoint.printf=true
 #埋点异常的最大长度
 buriedpoint.max_exception_stack_length=4000
 #业务字段的最大长度
@@ -27,11 +28,8 @@ sender.max_send_length=20000
 #当没有Sender时,尝试获取sender的等待周期
 sender.retry_get_sender_wait_interval=2000
 
-
-
-
 #最大消费线程数
-consumer.max_consumer=2
+consumer.max_consumer=0
 #消费者最大等待时间
 consumer.max_wait_time=5
 #发送失败等待时间  

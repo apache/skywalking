@@ -1,5 +1,5 @@
 package com.ai.cloud.skywalking.logging;
 
-public interface IFileWriter {
+public interface IWriter {
     void write(String message);
 }

@@ -13,6 +13,7 @@ public class Logger {
 
     private Class toBeLoggerClass;
 
+
     public Logger(Class toBeLoggerClass) {
         this.toBeLoggerClass = toBeLoggerClass;
     }
@@ -22,11 +23,11 @@ public class Logger {
         StackTraceElement locations[] = dummyException.getStackTrace();
 
         if (locations != null && locations.length > 2) {
-            SyncFileWriter.instance().write(formatMessage(level, message, locations[2]));
+            WriterFactory.getLogWriter().write(formatMessage(level, message, locations[2]));
         }
 
         if (e != null) {
-            SyncFileWriter.instance().write(LoggingUtil.fetchThrowableStack(e));
+            WriterFactory.getLogWriter().write(LoggingUtil.fetchThrowableStack(e));
         }
     }
 

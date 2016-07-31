@@ -1,6 +1,7 @@
 package com.ai.cloud.skywalking.agent;
 
 import com.ai.cloud.skywalking.conf.AuthDesc;
+import com.ai.cloud.skywalking.conf.Config;
 import com.ai.cloud.skywalking.conf.ConfigInitializer;
 import com.ai.cloud.skywalking.logging.LogManager;
 import com.ai.cloud.skywalking.logging.Logger;
@@ -19,9 +20,8 @@ public class SkywalkingAgent {
     private static Logger logger = LogManager.getLogger(SkywalkingAgent.class);
 
     public static void premain(String agentArgs, Instrumentation instrumentation) throws PluginException {
-        ConfigInitializer.initialize();
+        Config.SkyWalking.IS_PREMAIN_MODE = true;
         if (!AuthDesc.isAuth()) {
-
             List<IPlugin> plugins = new PluginBootstrap().loadPlugins();
             final PluginDefineCategory pluginDefineCategory = PluginDefineCategory.category(plugins);
 
