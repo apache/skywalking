@@ -16,6 +16,6 @@ public class SkyWalkingEnhanceMatcher<T extends NamedElement> extends AbstractJu
 
     @Override
     public boolean matches(T target) {
-        return pluginDefineCategory.findPluginDefine(target.getSourceCodeName()) != null ? true : false;
+        return pluginDefineCategory.findPluginDefine(target.getActualName()) != null ? true : false;
     }
 }
