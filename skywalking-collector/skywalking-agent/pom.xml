@@ -16,7 +16,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <premain.class>com.ai.cloud.skywalking.agent.SkywalkingAgent</premain.class>
+        <premain.class>com.ai.cloud.skywalking.agent.SkyWalkingAgent</premain.class>
         <shade.net.bytebuddy.source>net.bytebuddy</shade.net.bytebuddy.source>
         <shade.net.bytebuddy.target>com.ai.cloud.skywalking.api.dependencies.net.bytebuddy</shade.net.bytebuddy.target>
         <shade.io.netty.source>io.netty</shade.io.netty.source>

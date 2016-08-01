@@ -14,16 +14,15 @@ import static com.ai.cloud.skywalking.plugin.PluginBootstrap.CLASS_TYPE_POOL;
 public abstract class AbstractClassEnhancePluginDefine implements IPlugin {
     private static Logger logger = LogManager.getLogger(AbstractClassEnhancePluginDefine.class);
 
-    public DynamicType.Builder<?> define(DynamicType.Builder<?> builder) throws PluginException {
+    public DynamicType.Builder<?> define(String transformClassName, DynamicType.Builder<?> builder) throws PluginException {
         String interceptorDefineClassName = this.getClass().getName();
 
-        String enhanceOriginClassName = enhanceClassName();
-        if (StringUtil.isEmpty(enhanceOriginClassName)) {
+        if (StringUtil.isEmpty(transformClassName)) {
             logger.warn("classname of being intercepted is not defined by {}.", interceptorDefineClassName);
             return builder;
         }
 
-        logger.debug("prepare to enhance class {} by {}.", enhanceOriginClassName, interceptorDefineClassName);
+        logger.debug("prepare to enhance class {} by {}.", transformClassName, interceptorDefineClassName);
 
         /**
          * find witness classes for enhance class
@@ -33,7 +32,7 @@ public abstract class AbstractClassEnhancePluginDefine implements IPlugin {
             for (String witnessClass : witnessClasses) {
                 Resolution witnessClassResolution = CLASS_TYPE_POOL.describe(witnessClass);
                 if (!witnessClassResolution.isResolved()) {
-                    logger.warn("enhance class {} by plugin {} is not working. Because witness class {} is not existed.", enhanceOriginClassName, interceptorDefineClassName,
+                    logger.warn("enhance class {} by plugin {} is not working. Because witness class {} is not existed.", transformClassName, interceptorDefineClassName,
                             witnessClass);
                     return builder;
                 }
@@ -43,10 +42,10 @@ public abstract class AbstractClassEnhancePluginDefine implements IPlugin {
         /**
          * find origin class source code for interceptor
          */
-        DynamicType.Builder<?> newClassBuilder = this.enhance(enhanceOriginClassName, builder);
+        DynamicType.Builder<?> newClassBuilder = this.enhance(transformClassName, builder);
 
 
-        logger.debug("enhance class {} by {} completely.", enhanceOriginClassName, interceptorDefineClassName);
+        logger.debug("enhance class {} by {} completely.", transformClassName, interceptorDefineClassName);
 
         return newClassBuilder;
     }
@@ -54,7 +53,7 @@ public abstract class AbstractClassEnhancePluginDefine implements IPlugin {
     protected abstract DynamicType.Builder<?> enhance(String enhanceOriginClassName, DynamicType.Builder<?> newClassBuilder) throws PluginException;
 
     /**
-     * 返回要被增强的类，应当返回类全名
+     * 返回要被增强的类，应当返回类全名或前匹配(返回*号结尾)
      *
      * @return
      */

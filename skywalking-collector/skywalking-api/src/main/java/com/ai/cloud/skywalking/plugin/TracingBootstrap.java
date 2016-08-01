@@ -48,7 +48,7 @@ public class TracingBootstrap {
                     continue;
                 }
                 DynamicType.Builder<?> newClassBuilder = new ByteBuddy().rebase(resolution.resolve(), ClassFileLocator.ForClassLoader.ofClassPath());
-                newClassBuilder = ((AbstractClassEnhancePluginDefine)plugin).define(newClassBuilder);
+                newClassBuilder = ((AbstractClassEnhancePluginDefine)plugin).define(enhanceClassName, newClassBuilder);
                 newClassBuilder.make().load(ClassLoader.getSystemClassLoader(), ClassLoadingStrategy.Default.INJECTION).getLoaded();
             }
 

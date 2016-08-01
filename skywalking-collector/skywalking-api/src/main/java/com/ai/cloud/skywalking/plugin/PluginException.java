@@ -1,6 +1,6 @@
 package com.ai.cloud.skywalking.plugin;
 
-public class PluginException extends Exception {
+public class PluginException extends RuntimeException {
 	private static final long serialVersionUID = -6020188711867490724L;
 
 	public PluginException(String message) {
