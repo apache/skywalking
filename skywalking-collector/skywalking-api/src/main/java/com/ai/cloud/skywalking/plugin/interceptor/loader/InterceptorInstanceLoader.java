@@ -25,15 +25,16 @@ public class InterceptorInstanceLoader {
 
     public static <T> T load(String className, ClassLoader targetClassLoader)
             throws InvocationTargetException, IllegalAccessException, InstantiationException, ClassNotFoundException {
-        if (InterceptorInstanceLoader.class.getClassLoader().equals(targetClassLoader)) {
-            return (T) targetClassLoader.loadClass(className).newInstance();
-        }
-
         String instanceKey = className + "_OF_" + targetClassLoader.getClass().getName() + "@" + Integer.toHexString(targetClassLoader.hashCode());
         Object inst = INSTANCE_CACHE.get(instanceKey);
         if (inst != null) {
             return (T) inst;
         }
+
+        if (InterceptorInstanceLoader.class.getClassLoader().equals(targetClassLoader)) {
+            return (T) targetClassLoader.loadClass(className).newInstance();
+        }
+
         instanceLoadLock.lock();
         try {
             try {
