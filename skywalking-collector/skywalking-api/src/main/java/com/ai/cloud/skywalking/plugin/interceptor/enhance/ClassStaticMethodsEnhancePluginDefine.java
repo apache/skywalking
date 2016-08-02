@@ -17,7 +17,7 @@ public abstract class ClassStaticMethodsEnhancePluginDefine extends
 	}
 
 	@Override
-	protected InstanceMethodsAroundInterceptor getInstanceMethodsInterceptor() {
+	protected String getInstanceMethodsInterceptor() {
 		return null;
 	}
 }

@@ -5,6 +5,7 @@ import static net.bytebuddy.matcher.ElementMatchers.not;
 
 import com.ai.cloud.skywalking.logging.LogManager;
 import com.ai.cloud.skywalking.logging.Logger;
+import com.ai.cloud.skywalking.protocol.util.StringUtil;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.dynamic.DynamicType;
 import net.bytebuddy.implementation.MethodDelegation;
@@ -25,6 +26,7 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
 
 	public static final String contextAttrName = "_$EnhancedClassInstanceContext";
 
+	@Override
 	protected DynamicType.Builder<?> enhance(String enhanceOriginClassName,
 			DynamicType.Builder<?> newClassBuilder) throws PluginException {
 		newClassBuilder = this.enhanceClass(enhanceOriginClassName, newClassBuilder);
@@ -52,9 +54,9 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
 		 * 2.intercept constructor by default, and intercept method which it's
 		 * required by interceptorDefineClass. <br/>
 		 */
-		InstanceMethodsAroundInterceptor interceptor = getInstanceMethodsInterceptor();
-		if (interceptor == null) {
-			throw new EnhanceException("no InstanceMethodsAroundInterceptor instance. ");
+		String interceptor = getInstanceMethodsInterceptor();
+		if (StringUtil.isEmpty(interceptor)) {
+			throw new EnhanceException("no InstanceMethodsAroundInterceptor define. ");
 		}
 
 		newClassBuilder = newClassBuilder
@@ -116,7 +118,7 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
 	 * 
 	 * @return
 	 */
-	protected abstract InstanceMethodsAroundInterceptor getInstanceMethodsInterceptor();
+	protected abstract String getInstanceMethodsInterceptor();
 	
 	private DynamicType.Builder<?> enhanceClass(String enhanceOriginClassName,
 			DynamicType.Builder<?> newClassBuilder) throws PluginException {
@@ -124,10 +126,10 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
 		if(methodMatchers == null){
 			return newClassBuilder;
 		}
-		
-		StaticMethodsAroundInterceptor interceptor = getStaticMethodsInterceptor();
-		if (interceptor == null) {
-			throw new EnhanceException("no StaticMethodsAroundInterceptor instance. ");
+
+		String interceptor = getStaticMethodsInterceptor();
+		if (StringUtil.isEmpty(interceptor)) {
+			throw new EnhanceException("no StaticMethodsAroundInterceptor define. ");
 		}
 		
 		
@@ -178,5 +180,5 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
 	 * 
 	 * @return
 	 */
-	protected abstract StaticMethodsAroundInterceptor getStaticMethodsInterceptor();
+	protected abstract String getStaticMethodsInterceptor();
 }

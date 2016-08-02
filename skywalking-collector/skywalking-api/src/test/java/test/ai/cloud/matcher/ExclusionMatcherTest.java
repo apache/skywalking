@@ -24,7 +24,7 @@ public class ExclusionMatcherTest extends TestCase {
             DynamicType.Builder<?> newClassBuilder =
                     new ByteBuddy().rebase(TypePool.Default.ofClassPath().describe(entry.getKey()).resolve(), ClassFileLocator.ForClassLoader.ofClassPath());
 
-            newClassBuilder = entry.getValue().define(newClassBuilder);
+            newClassBuilder = entry.getValue().define(entry.getKey(), newClassBuilder);
             newClassBuilder.make().load(ClassLoader.getSystemClassLoader(), ClassLoadingStrategy.Default.INJECTION).getLoaded();
         }
 

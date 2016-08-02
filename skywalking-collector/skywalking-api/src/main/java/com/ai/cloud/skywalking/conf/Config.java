@@ -97,7 +97,7 @@ public class Config {
         // log文件文件夹名字
         public static String LOG_DIR_NAME               = "logs";
         // 最大文件大小
-        public static int    MAX_LOG_FILE_LENGTH        = 3 * 1024 * 1024;
+        public static int    MAX_LOG_FILE_LENGTH        = 300 * 1024 * 1024;
         // skywalking 系统错误文件日志
         public static String SYSTEM_ERROR_LOG_FILE_NAME = "skywalking-api-error.log";
     }

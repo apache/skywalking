@@ -18,7 +18,7 @@ public class ConfigInitializer {
 
     static void initialize(InputStream inputStream) {
         if (inputStream == null) {
-            logger.info("No provider sky-walking certification documents, sky-walking api auto shutdown.");
+            logger.info("Not provide sky-walking certification documents, sky-walking api auto shutdown.");
         } else {
             try {
                 Properties properties = new Properties();

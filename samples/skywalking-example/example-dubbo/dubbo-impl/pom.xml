@@ -79,22 +79,6 @@
             <version>1.4.192</version>
         </dependency>
         <dependency>
-            <groupId>com.ai.cloud</groupId>
-            <artifactId>skywalking-log4j-1.x-plugin</artifactId>
-            <version>1.0-Final</version>
-        </dependency>
-        <dependency>
-            <groupId>com.ai.cloud</groupId>
-            <artifactId>skywalking-log4j-2.x-plugin</artifactId>
-            <version>1.0-Final</version>
-        </dependency>
-        <dependency>
-            <groupId>com.ai.cloud</groupId>
-            <artifactId>skywalking-api</artifactId>
-            <version>1.0-Final</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.mybatis</groupId>
             <artifactId>mybatis</artifactId>
             <version>3.4.1</version>

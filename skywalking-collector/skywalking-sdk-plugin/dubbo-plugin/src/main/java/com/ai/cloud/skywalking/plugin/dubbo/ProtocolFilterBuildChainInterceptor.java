@@ -23,7 +23,7 @@ public class ProtocolFilterBuildChainInterceptor implements StaticMethodsAroundI
 		final Invoker<?> invoker = (Invoker<?>)args[0];
 		String key = (String)args[1];
 		String group = (String)args[2];
-		
+
 		final URL newURL = invoker.getUrl().addParameter(key, "skywalking$enhanceFilter");
         Invoker<?> last = invoker;
         List<Filter> filters = ExtensionLoader.getExtensionLoader(Filter.class).getActivateExtension(newURL, key, group);

@@ -42,7 +42,6 @@ public class SkyWalkingAgent {
 
                 @Override
                 public void onIgnored(TypeDescription typeDescription, ClassLoader classLoader, JavaModule module) {
-                    logger.info("ignore to enhance class " + typeDescription.getTypeName());
                 }
 
                 @Override
@@ -52,7 +51,6 @@ public class SkyWalkingAgent {
 
                 @Override
                 public void onComplete(String typeName, ClassLoader classLoader, JavaModule module) {
-                    logger.info("enhance class " + typeName + " complete.");
                 }
             }).installOn(instrumentation);
 

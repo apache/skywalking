@@ -12,8 +12,8 @@ public class DubboPluginDefine extends ClassStaticMethodsEnhancePluginDefine {
     }
 
     @Override
-    protected StaticMethodsAroundInterceptor getStaticMethodsInterceptor() {
-        return new ProtocolFilterBuildChainInterceptor();
+    protected String getStaticMethodsInterceptor() {
+        return "com.ai.cloud.skywalking.plugin.dubbo.ProtocolFilterBuildChainInterceptor";
     }
 
     @Override
