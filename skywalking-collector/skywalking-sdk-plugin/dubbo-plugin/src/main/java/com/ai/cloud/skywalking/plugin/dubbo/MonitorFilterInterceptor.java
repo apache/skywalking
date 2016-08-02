@@ -1,29 +1,40 @@
 package com.ai.cloud.skywalking.plugin.dubbo;
 
-import com.ai.cloud.skywalking.invoke.monitor.RPCServerInvokeMonitor;
 import com.ai.cloud.skywalking.invoke.monitor.RPCClientInvokeMonitor;
-import com.ai.cloud.skywalking.conf.AuthDesc;
+import com.ai.cloud.skywalking.invoke.monitor.RPCServerInvokeMonitor;
 import com.ai.cloud.skywalking.model.ContextData;
 import com.ai.cloud.skywalking.model.Identification;
 import com.ai.cloud.skywalking.plugin.dubbox.bugfix.below283.BugFixAcitve;
 import com.ai.cloud.skywalking.plugin.dubbox.bugfix.below283.SWBaseBean;
-import com.alibaba.dubbo.common.extension.Activate;
-import com.alibaba.dubbo.rpc.*;
+import com.ai.cloud.skywalking.plugin.interceptor.EnhancedClassInstanceContext;
+import com.ai.cloud.skywalking.plugin.interceptor.enhance.ConstructorInvokeContext;
+import com.ai.cloud.skywalking.plugin.interceptor.enhance.InstanceMethodInvokeContext;
+import com.ai.cloud.skywalking.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
+import com.ai.cloud.skywalking.plugin.interceptor.enhance.MethodInterceptResult;
+import com.alibaba.dubbo.rpc.Invocation;
+import com.alibaba.dubbo.rpc.Invoker;
+import com.alibaba.dubbo.rpc.Result;
+import com.alibaba.dubbo.rpc.RpcContext;
 
-@Activate
-public class SWDubboEnhanceFilter implements Filter {
+public class MonitorFilterInterceptor implements InstanceMethodsAroundInterceptor {
+    @Override
+    public void onConstruct(EnhancedClassInstanceContext context, ConstructorInvokeContext interceptorContext) {
+        // do nothing
+    }
 
-    public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
-        if (!AuthDesc.isAuth()) {
-            return invoker.invoke(invocation);
-        }
+    @Override
+    public void beforeMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
+            MethodInterceptResult result) {
+        Object[] arguments = interceptorContext.allArguments();
+        Invoker invoker = (Invoker) arguments[0];
+        Invocation invocation = (Invocation) arguments[1];
 
-        RpcContext context = RpcContext.getContext();
-        boolean isConsumer = context.isConsumerSide();
-        Result result = null;
+        RpcContext rpcContext = RpcContext.getContext();
+        boolean isConsumer = rpcContext.isConsumerSide();
+        context.set("isConsumer", isConsumer);
         if (isConsumer) {
             RPCClientInvokeMonitor rpcClientInvokeMonitor = new RPCClientInvokeMonitor();
-
+            context.set("rpcClientInvokeMonitor", rpcClientInvokeMonitor);
             ContextData contextData = rpcClientInvokeMonitor.beforeInvoke(createIdentification(invoker, invocation));
             String contextDataStr = contextData.toString();
 
@@ -43,32 +54,18 @@ public class SWDubboEnhanceFilter implements Filter {
                 // 在Rest模式中attachment会被抹除，不会传入到服务端
                 // Rest模式会将attachment存放到header里面，具体见com.alibaba.dubbo.rpc.protocol.rest.RpcContextFilter
                 //invocation.getAttachments().put("contextData", contextDataStr);
-                context.getAttachments().put("contextData", contextDataStr);
+                rpcContext.getAttachments().put("contextData", contextDataStr);
             } else {
                 fix283SendNoAttachmentIssue(invocation, contextDataStr);
-            }
-
-            try {
-                //执行结果
-                result = invoker.invoke(invocation);
-                //结果是否包含异常
-                if (result.getException() != null) {
-                    rpcClientInvokeMonitor.occurException(result.getException());
-                }
-            } catch (RpcException e) {
-                // 自身异常
-                rpcClientInvokeMonitor.occurException(e);
-                throw e;
-            } finally {
-                rpcClientInvokeMonitor.afterInvoke();
             }
         } else {
             // 读取参数
             RPCServerInvokeMonitor rpcServerInvokeMonitor = new RPCServerInvokeMonitor();
+            context.set("rpcServerInvokeMonitor", rpcServerInvokeMonitor);
             String contextDataStr;
 
             if (!BugFixAcitve.isActive) {
-                contextDataStr = context.getAttachment("contextData");
+                contextDataStr = rpcContext.getAttachment("contextData");
             } else {
                 contextDataStr = fix283RecvNoAttachmentIssue(invocation);
             }
@@ -79,24 +76,34 @@ public class SWDubboEnhanceFilter implements Filter {
             }
 
             rpcServerInvokeMonitor.beforeInvoke(contextData, createIdentification(invoker, invocation));
-
-            try {
-                //执行结果
-                result = invoker.invoke(invocation);
-                //结果是否包含异常
-                if (result.getException() != null) {
-                    rpcServerInvokeMonitor.occurException(result.getException());
-                }
-            } catch (RpcException e) {
-                // 自身异常
-                rpcServerInvokeMonitor.occurException(e);
-                throw e;
-            } finally {
-                rpcServerInvokeMonitor.afterInvoke();
-            }
         }
 
-        return result;
+    }
+
+    @Override
+    public Object afterMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
+            Object ret) {
+        Result result = (Result) ret;
+        if (result.getException() != null) {
+            dealException(result.getException(), context);
+        }
+
+        return ret;
+    }
+
+    @Override
+    public void handleMethodException(Throwable t, EnhancedClassInstanceContext context,
+            InstanceMethodInvokeContext interceptorContext, Object ret) {
+        dealException(t, context);
+    }
+
+    private void dealException(Throwable t, EnhancedClassInstanceContext context) {
+        boolean isConsumer = (boolean) context.get("isConsumer");
+        if (isConsumer) {
+            ((RPCClientInvokeMonitor) context.get("rpcClientInvokeMonitor")).occurException(t);
+        } else {
+            ((RPCServerInvokeMonitor) context.get("rpcServerInvokeMonitor")).occurException(t);
+        }
     }
 
     private static Identification createIdentification(Invoker<?> invoker, Invocation invocation) {
@@ -115,7 +122,8 @@ public class SWDubboEnhanceFilter implements Filter {
         }
 
         viewPoint.append(")");
-        return Identification.newBuilder().viewPoint(viewPoint.toString()).spanType(DubboBuriedPointType.instance()).build();
+        return Identification.newBuilder().viewPoint(viewPoint.toString()).spanType(DubboBuriedPointType.instance())
+                .build();
     }
 
 
