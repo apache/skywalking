@@ -4,13 +4,8 @@ import com.ai.cloud.skywalking.conf.AuthDesc;
 import com.ai.cloud.skywalking.logging.LogManager;
 import com.ai.cloud.skywalking.logging.Logger;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.sql.*;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.Enumeration;
 import java.util.Properties;
 
 public class TracingDriver implements Driver {
@@ -35,9 +30,9 @@ public class TracingDriver implements Driver {
     }
 
     public java.sql.Connection connect(String url, Properties info) throws SQLException {
-        Driver driver = DriverChooser.choose(convertConnectURLIfNecessary(url));
+        Driver driver = chooseActualDriver(convertConnectURLIfNecessary(url));
         if (driver == null) {
-            throw new SQLException("Failed to choose driver by url[{}].", convertConnectURLIfNecessary(url));
+            throw new SQLException("Failed to chooseActualDriver driver by url[{}].", convertConnectURLIfNecessary(url));
         }
 
         java.sql.Connection conn = driver.
@@ -51,7 +46,7 @@ public class TracingDriver implements Driver {
     }
 
     public boolean acceptsURL(String url) throws SQLException {
-        Driver driver = DriverChooser.choose(convertConnectURLIfNecessary(url));
+        Driver driver = chooseActualDriver(convertConnectURLIfNecessary(url));
         if (driver == null) {
             return false;
         }
@@ -60,7 +55,7 @@ public class TracingDriver implements Driver {
     }
 
     public DriverPropertyInfo[] getPropertyInfo(String url, Properties info) throws SQLException {
-        return DriverChooser.choose(convertConnectURLIfNecessary(url)).
+        return chooseActualDriver(convertConnectURLIfNecessary(url)).
                 getPropertyInfo(convertConnectURLIfNecessary(url), info);
     }
 
@@ -80,70 +75,26 @@ public class TracingDriver implements Driver {
         return null;
     }
 
-    static class DriverChooser {
-        private static Logger logger = LogManager.getLogger(DriverChooser.class);
-
-        private static Map<String, String> urlDriverMapping = new HashMap<String, String>();
-
-        static {
-            fetchUrlDriverMapping();
-        }
-
-        public static Driver choose(String url) {
-            String driverClassStr = chooseDriverClass(url);
-            Driver driver = null;
-            try {
-                Class<?> driverClass = Class.forName(driverClassStr);
-                driver = (Driver) driverClass.newInstance();
-            } catch (Exception e) {
-                logger.error("Failed to initial Driver class {}.", new Object[] {driverClassStr}, e);
-            }
-
-            return driver;
-        }
-
-        private static String chooseDriverClass(String url) {
-            Iterator<String> mapping = urlDriverMapping.keySet().iterator();
-            while (mapping.hasNext()) {
-                String urlPrefix = mapping.next();
-                if (url.startsWith(urlPrefix)) {
-                    String driverClassStr = urlDriverMapping.get(urlPrefix);
-                    logger.debug("Success choose the driver class [{}] by connection url[{}]", driverClassStr, url);
-                    return driverClassStr;
+    private static Driver chooseActualDriver(String url) throws SQLException {
+        try {
+            Driver result = null;
+            for (Enumeration<Driver> drivers = DriverManager.getDrivers(); drivers.hasMoreElements(); ) {
+                Driver driver = drivers.nextElement();
+                if (driver instanceof TracingDriver) {
+                    continue;
                 }
-            }
 
-            logger.warn("Cannot match the driver class by connection url [{}].", url);
-            return null;
-        }
-
-        private static void fetchUrlDriverMapping() {
-            BufferedReader bufferedReader = null;
-            try {
-                bufferedReader = new BufferedReader(new InputStreamReader(DriverChooser.class.
-                        getResourceAsStream("/driver-mapping-url.def")));
-                String mappingString = null;
-                while ((mappingString = bufferedReader.readLine()) != null) {
-                    fillMapping(mappingString);
+                if (driver.acceptsURL(url)) {
+                    result = driver;
                 }
-            } catch (Exception e) {
-                logger.error("Failed to load driver-mapping-url.def.");
-            } finally {
-                if (bufferedReader != null) {
-                    try {
-                        bufferedReader.close();
-                    } catch (IOException e) {
-                        logger.error("Failed to close driver-mapping-url.def.", e);
-                    }
-                }
+
             }
+            return result;
+        } catch (Exception e) {
+            logger.error("Failed to chooseActualDriver sql driver with url[" + url + "]", e);
+            throw new SQLException("Failed to chooseActualDriver sql driver with url[" + url + "]", e);
         }
 
-        private static void fillMapping(String mappingString) {
-            String[] tmpMapping = mappingString.split("=");
-            if (tmpMapping.length == 2) {
-                urlDriverMapping.put(tmpMapping[0], tmpMapping[1]);
-            }
-        }
     }
+
 }
