@@ -50,9 +50,7 @@ public class InterceptorInstanceLoader {
             } catch (Exception e) {
                 throw new ClassNotFoundException(targetClassLoader.toString() + " load interceptor class:" + className + " failure.", e);
             }
-        } finally
-
-        {
+        } finally {
             instanceLoadLock.unlock();
         }
 
