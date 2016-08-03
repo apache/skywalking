@@ -43,7 +43,7 @@ public abstract class JedisBaseInterceptor extends SimpleObjectFirstInvokeInterc
     }
 
     @Override
-    public void handleMethodException(Throwable t, EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext, Object ret) {
+    public void handleMethodException(Throwable t, EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext) {
         rpcClientInvokeMonitor.occurException(t);
     }
 }

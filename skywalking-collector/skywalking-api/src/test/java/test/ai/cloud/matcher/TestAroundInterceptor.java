@@ -27,7 +27,7 @@ public class TestAroundInterceptor implements InstanceMethodsAroundInterceptor {
     }
 
     @Override
-    public void handleMethodException(Throwable t, EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext, Object ret) {
+    public void handleMethodException(Throwable t, EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext) {
 
     }
 }

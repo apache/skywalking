@@ -92,8 +92,7 @@ public class MonitorFilterInterceptor implements InstanceMethodsAroundIntercepto
     }
 
     @Override
-    public void handleMethodException(Throwable t, EnhancedClassInstanceContext context,
-            InstanceMethodInvokeContext interceptorContext, Object ret) {
+    public void handleMethodException(Throwable t, EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext) {
         dealException(t, context);
     }
 

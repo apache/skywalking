@@ -4,16 +4,9 @@ import com.ai.cloud.skywalking.logging.LogManager;
 import com.ai.cloud.skywalking.logging.Logger;
 import com.ai.cloud.skywalking.plugin.interceptor.EnhancedClassInstanceContext;
 import com.ai.cloud.skywalking.plugin.interceptor.loader.InterceptorInstanceLoader;
-import net.bytebuddy.ByteBuddy;
-import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
 import net.bytebuddy.implementation.bind.annotation.*;
-import sun.tools.jar.resources.jar;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.lang.reflect.Method;
-import java.security.ProtectionDomain;
 import java.util.concurrent.Callable;
 
 /**
@@ -42,16 +35,17 @@ public class ClassInstanceMethodsInterceptor {
         } catch (Throwable t) {
             logger.error("class[{}] before method[{}] intercept failue:{}", new Object[] {obj.getClass(), method.getName(), t.getMessage()}, t);
         }
-        if (!result.isContinue()) {
-            return result._ret();
-        }
 
         Object ret = null;
         try {
-            ret = zuper.call();
+            if (!result.isContinue()) {
+                ret = result._ret();
+            }else {
+                ret = zuper.call();
+            }
         } catch (Throwable t) {
             try {
-                interceptor.handleMethodException(t, instanceContext, interceptorContext, ret);
+                interceptor.handleMethodException(t, instanceContext, interceptorContext);
             } catch (Throwable t2) {
                 logger.error("class[{}] handle method[{}] exception failue:{}", new Object[] {obj.getClass(), method.getName(), t2.getMessage()}, t2);
             }

@@ -18,8 +18,7 @@ public class TestStaticAroundInterceptor implements StaticMethodsAroundIntercept
 	}
 
 	@Override
-	public void handleMethodException(Throwable t, 
-			MethodInvokeContext interceptorContext, Object ret) {
+	public void handleMethodException(Throwable t, MethodInvokeContext interceptorContext) {
 		// TODO Auto-generated method stub
 		
 	}
