@@ -1,5 +1,8 @@
 package com.ai.cloud.skywalking.plugin.interceptor.enhance;
 
+/**
+ * 通过拦截器的before方法,指定被拦截方法的返回值,不再调用原始方法取得返回值
+ */
 public class MethodInterceptResult {
 	private boolean isContinue = true;
 	

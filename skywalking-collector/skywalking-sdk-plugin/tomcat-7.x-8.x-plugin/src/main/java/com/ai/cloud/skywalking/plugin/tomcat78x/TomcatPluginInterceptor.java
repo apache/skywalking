@@ -68,6 +68,6 @@ public class TomcatPluginInterceptor implements InstanceMethodsAroundInterceptor
 
     @Override
     public void handleMethodException(Throwable t, EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext, Object ret) {
-        new RPCServerInvokeMonitor().occurException(t);
+        // DO Nothing
     }
 }

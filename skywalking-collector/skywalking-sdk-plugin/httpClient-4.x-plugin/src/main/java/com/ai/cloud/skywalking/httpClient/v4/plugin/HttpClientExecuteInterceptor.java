@@ -63,9 +63,7 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
 	}
 
 	@Override
-	public void handleMethodException(Throwable t,
-			EnhancedClassInstanceContext context,
-			InstanceMethodInvokeContext interceptorContext, Object ret) {
+	public void handleMethodException(Throwable t, EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext) {
 		Object[] allArguments = interceptorContext.allArguments();
 		if (allArguments[0] == null || allArguments[1] == null) {
 			// illegal args, can't trace. ignore.

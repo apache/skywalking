@@ -36,16 +36,18 @@ public class ClassStaticMethodsInterceptor {
         } catch (Throwable t) {
             logger.error("class[{}] before static method[{}] intercept failue:{}", new Object[] {clazz, method.getName(), t.getMessage()}, t);
         }
-        if (!result.isContinue()) {
-            return result._ret();
-        }
+
 
         Object ret = null;
         try {
-            ret = zuper.call();
+            if (!result.isContinue()) {
+                ret = result._ret();
+            }else {
+                ret = zuper.call();
+            }
         } catch (Throwable t) {
             try {
-                interceptor.handleMethodException(t, interceptorContext, ret);
+                interceptor.handleMethodException(t, interceptorContext);
             } catch (Throwable t2) {
                 logger.error("class[{}] handle static method[{}] exception failue:{}", new Object[] {clazz, method.getName(), t2.getMessage()}, t2);
             }

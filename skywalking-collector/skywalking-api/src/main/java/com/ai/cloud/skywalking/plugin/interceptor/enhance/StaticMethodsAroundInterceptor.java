@@ -6,5 +6,5 @@ public interface StaticMethodsAroundInterceptor {
 	
 	public Object afterMethod(MethodInvokeContext interceptorContext, Object ret);
 	
-	public void handleMethodException(Throwable t, MethodInvokeContext interceptorContext, Object ret);
+	public void handleMethodException(Throwable t, MethodInvokeContext interceptorContext);
 }
