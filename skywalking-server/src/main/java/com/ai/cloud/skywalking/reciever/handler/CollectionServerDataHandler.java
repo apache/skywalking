@@ -1,6 +1,5 @@
 package com.ai.cloud.skywalking.reciever.handler;
 
-import com.ai.cloud.skywalking.protocol.util.IntegerAssist;
 import com.ai.cloud.skywalking.reciever.buffer.DataBufferThreadContainer;
 import com.ai.cloud.skywalking.reciever.conf.Config;
 import com.ai.cloud.skywalking.reciever.util.RedisConnector;
@@ -9,7 +8,9 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import redis.clients.jedis.Jedis;
 
 import java.net.InetSocketAddress;
-import java.util.Arrays;
+
+import static com.ai.cloud.skywalking.protocol.util.ByteDataUtil.unpackCheckSum;
+import static com.ai.cloud.skywalking.protocol.util.ByteDataUtil.validateCheckSum;
 
 public class CollectionServerDataHandler extends SimpleChannelInboundHandler<byte[]> {
 
@@ -25,26 +26,6 @@ public class CollectionServerDataHandler extends SimpleChannelInboundHandler<byt
                 dealFailedPackage(ctx);
             }
         }
-    }
-
-    private byte[] unpackCheckSum(byte[] msg) {
-        return Arrays.copyOfRange(msg, 4, msg.length);
-    }
-
-    private boolean validateCheckSum(byte[] dataPackage) {
-        byte[] checkSum = generateChecksum(dataPackage, 4);
-        byte[] originCheckSum = new byte[4];
-        System.arraycopy(dataPackage, 0, originCheckSum, 0, 4);
-        return Arrays.equals(checkSum, originCheckSum);
-    }
-
-    private static byte[] generateChecksum(byte[] data, int offset) {
-        int result = data[offset];
-        for (int i = offset + 1; i < data.length; i++) {
-            result ^= data[i];
-        }
-
-        return IntegerAssist.intToBytes(result);
     }
 
 

@@ -6,7 +6,13 @@ package com.ai.cloud.skywalking.protocol.proto;
 public final class TraceProtocol {
   private TraceProtocol() {}
   public static void registerAllExtensions(
+      com.google.protobuf.ExtensionRegistryLite registry) {
+  }
+
+  public static void registerAllExtensions(
       com.google.protobuf.ExtensionRegistry registry) {
+    registerAllExtensions(
+        (com.google.protobuf.ExtensionRegistryLite) registry);
   }
   public interface AckSpanOrBuilder extends
       // @@protoc_insertion_point(interface_extends:AckSpan)
@@ -84,37 +90,33 @@ public final class TraceProtocol {
   /**
    * Protobuf type {@code AckSpan}
    */
-  public static final class AckSpan extends
-      com.google.protobuf.GeneratedMessage implements
+  public  static final class AckSpan extends
+      com.google.protobuf.GeneratedMessageV3 implements
       // @@protoc_insertion_point(message_implements:AckSpan)
       AckSpanOrBuilder {
     // Use AckSpan.newBuilder() to construct.
-    private AckSpan(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+    private AckSpan(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private AckSpan(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final AckSpan defaultInstance;
-    public static AckSpan getDefaultInstance() {
-      return defaultInstance;
-    }
-
-    public AckSpan getDefaultInstanceForType() {
-      return defaultInstance;
+    private AckSpan() {
+      traceId_ = "";
+      parentLevel_ = "";
+      levelId_ = 0;
+      cost_ = 0L;
+      statusCode_ = 0;
+      exceptionStack_ = "";
     }
 
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private AckSpan(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+      this();
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -172,7 +174,7 @@ public final class TraceProtocol {
         throw e.setUnfinishedMessage(this);
       } catch (java.io.IOException e) {
         throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+            e).setUnfinishedMessage(this);
       } finally {
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -183,31 +185,16 @@ public final class TraceProtocol {
       return com.ai.cloud.skywalking.protocol.proto.TraceProtocol.internal_static_AckSpan_descriptor;
     }
 
-    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
       return com.ai.cloud.skywalking.protocol.proto.TraceProtocol.internal_static_AckSpan_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               com.ai.cloud.skywalking.protocol.proto.TraceProtocol.AckSpan.class, com.ai.cloud.skywalking.protocol.proto.TraceProtocol.AckSpan.Builder.class);
     }
 
-    public static com.google.protobuf.Parser<AckSpan> PARSER =
-        new com.google.protobuf.AbstractParser<AckSpan>() {
-      public AckSpan parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new AckSpan(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<AckSpan> getParserForType() {
-      return PARSER;
-    }
-
     private int bitField0_;
     public static final int TRACEID_FIELD_NUMBER = 1;
-    private java.lang.Object traceId_;
+    private volatile java.lang.Object traceId_;
     /**
      * <code>required string traceId = 1;</code>
      */
@@ -249,7 +236,7 @@ public final class TraceProtocol {
     }
 
     public static final int PARENTLEVEL_FIELD_NUMBER = 2;
-    private java.lang.Object parentLevel_;
+    private volatile java.lang.Object parentLevel_;
     /**
      * <code>optional string parentLevel = 2;</code>
      */
@@ -336,7 +323,7 @@ public final class TraceProtocol {
     }
 
     public static final int EXCEPTIONSTACK_FIELD_NUMBER = 6;
-    private java.lang.Object exceptionStack_;
+    private volatile java.lang.Object exceptionStack_;
     /**
      * <code>optional string exceptionStack = 6;</code>
      */
@@ -377,14 +364,6 @@ public final class TraceProtocol {
       }
     }
 
-    private void initFields() {
-      traceId_ = "";
-      parentLevel_ = "";
-      levelId_ = 0;
-      cost_ = 0L;
-      statusCode_ = 0;
-      exceptionStack_ = "";
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -413,12 +392,11 @@ public final class TraceProtocol {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeBytes(1, getTraceIdBytes());
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, traceId_);
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        output.writeBytes(2, getParentLevelBytes());
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 2, parentLevel_);
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
         output.writeInt32(3, levelId_);
@@ -430,24 +408,21 @@ public final class TraceProtocol {
         output.writeInt32(5, statusCode_);
       }
       if (((bitField0_ & 0x00000020) == 0x00000020)) {
-        output.writeBytes(6, getExceptionStackBytes());
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 6, exceptionStack_);
       }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
-    private int memoizedSerializedSize = -1;
     public int getSerializedSize() {
-      int size = memoizedSerializedSize;
+      int size = memoizedSize;
       if (size != -1) return size;
 
       size = 0;
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(1, getTraceIdBytes());
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, traceId_);
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(2, getParentLevelBytes());
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, parentLevel_);
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
         size += com.google.protobuf.CodedOutputStream
@@ -462,19 +437,94 @@ public final class TraceProtocol {
           .computeInt32Size(5, statusCode_);
       }
       if (((bitField0_ & 0x00000020) == 0x00000020)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(6, getExceptionStackBytes());
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(6, exceptionStack_);
       }
-      size += getUnknownFields().getSerializedSize();
-      memoizedSerializedSize = size;
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
     @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof com.ai.cloud.skywalking.protocol.proto.TraceProtocol.AckSpan)) {
+        return super.equals(obj);
+      }
+      com.ai.cloud.skywalking.protocol.proto.TraceProtocol.AckSpan other = (com.ai.cloud.skywalking.protocol.proto.TraceProtocol.AckSpan) obj;
+
+      boolean result = true;
+      result = result && (hasTraceId() == other.hasTraceId());
+      if (hasTraceId()) {
+        result = result && getTraceId()
+            .equals(other.getTraceId());
+      }
+      result = result && (hasParentLevel() == other.hasParentLevel());
+      if (hasParentLevel()) {
+        result = result && getParentLevel()
+            .equals(other.getParentLevel());
+      }
+      result = result && (hasLevelId() == other.hasLevelId());
+      if (hasLevelId()) {
+        result = result && (getLevelId()
+            == other.getLevelId());
+      }
+      result = result && (hasCost() == other.hasCost());
+      if (hasCost()) {
+        result = result && (getCost()
+            == other.getCost());
+      }
+      result = result && (hasStatusCode() == other.hasStatusCode());
+      if (hasStatusCode()) {
+        result = result && (getStatusCode()
+            == other.getStatusCode());
+      }
+      result = result && (hasExceptionStack() == other.hasExceptionStack());
+      if (hasExceptionStack()) {
+        result = result && getExceptionStack()
+            .equals(other.getExceptionStack());
+      }
+      result = result && unknownFields.equals(other.unknownFields);
+      return result;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptorForType().hashCode();
+      if (hasTraceId()) {
+        hash = (37 * hash) + TRACEID_FIELD_NUMBER;
+        hash = (53 * hash) + getTraceId().hashCode();
+      }
+      if (hasParentLevel()) {
+        hash = (37 * hash) + PARENTLEVEL_FIELD_NUMBER;
+        hash = (53 * hash) + getParentLevel().hashCode();
+      }
+      if (hasLevelId()) {
+        hash = (37 * hash) + LEVELID_FIELD_NUMBER;
+        hash = (53 * hash) + getLevelId();
+      }
+      if (hasCost()) {
+        hash = (37 * hash) + COST_FIELD_NUMBER;
+        hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+            getCost());
+      }
+      if (hasStatusCode()) {
+        hash = (37 * hash) + STATUSCODE_FIELD_NUMBER;
+        hash = (53 * hash) + getStatusCode();
+      }
+      if (hasExceptionStack()) {
+        hash = (37 * hash) + EXCEPTIONSTACK_FIELD_NUMBER;
+        hash = (53 * hash) + getExceptionStack().hashCode();
+      }
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
     }
 
     public static com.ai.cloud.skywalking.protocol.proto.TraceProtocol.AckSpan parseFrom(
@@ -500,46 +550,57 @@ public final class TraceProtocol {
     }
     public static com.ai.cloud.skywalking.protocol.proto.TraceProtocol.AckSpan parseFrom(java.io.InputStream input)
         throws java.io.IOException {
-      return PARSER.parseFrom(input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
     }
     public static com.ai.cloud.skywalking.protocol.proto.TraceProtocol.AckSpan parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return PARSER.parseFrom(input, extensionRegistry);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
     }
     public static com.ai.cloud.skywalking.protocol.proto.TraceProtocol.AckSpan parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
-      return PARSER.parseDelimitedFrom(input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
     }
     public static com.ai.cloud.skywalking.protocol.proto.TraceProtocol.AckSpan parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
     }
     public static com.ai.cloud.skywalking.protocol.proto.TraceProtocol.AckSpan parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
-      return PARSER.parseFrom(input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
     }
     public static com.ai.cloud.skywalking.protocol.proto.TraceProtocol.AckSpan parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return PARSER.parseFrom(input, extensionRegistry);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(com.ai.cloud.skywalking.protocol.proto.TraceProtocol.AckSpan prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(com.ai.cloud.skywalking.protocol.proto.TraceProtocol.AckSpan prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
       Builder builder = new Builder(parent);
       return builder;
     }
@@ -547,7 +608,7 @@ public final class TraceProtocol {
      * Protobuf type {@code AckSpan}
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
         // @@protoc_insertion_point(builder_implements:AckSpan)
         com.ai.cloud.skywalking.protocol.proto.TraceProtocol.AckSpanOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
@@ -555,7 +616,7 @@ public final class TraceProtocol {
         return com.ai.cloud.skywalking.protocol.proto.TraceProtocol.internal_static_AckSpan_descriptor;
       }
 
-      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
         return com.ai.cloud.skywalking.protocol.proto.TraceProtocol.internal_static_AckSpan_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
@@ -568,18 +629,15 @@ public final class TraceProtocol {
       }
 
       private Builder(
-          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
         super(parent);
         maybeForceBuilderInitialization();
       }
       private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         traceId_ = "";
@@ -595,10 +653,6 @@ public final class TraceProtocol {
         exceptionStack_ = "";
         bitField0_ = (bitField0_ & ~0x00000020);
         return this;
-      }
-
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -651,6 +705,32 @@ public final class TraceProtocol {
         return result;
       }
 
+      public Builder clone() {
+        return (Builder) super.clone();
+      }
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return (Builder) super.setField(field, value);
+      }
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return (Builder) super.clearField(field);
+      }
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return (Builder) super.clearOneof(oneof);
+      }
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, Object value) {
+        return (Builder) super.setRepeatedField(field, index, value);
+      }
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return (Builder) super.addRepeatedField(field, value);
+      }
       public Builder mergeFrom(com.google.protobuf.Message other) {
         if (other instanceof com.ai.cloud.skywalking.protocol.proto.TraceProtocol.AckSpan) {
           return mergeFrom((com.ai.cloud.skywalking.protocol.proto.TraceProtocol.AckSpan)other);
@@ -686,25 +766,22 @@ public final class TraceProtocol {
           exceptionStack_ = other.exceptionStack_;
           onChanged();
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
       public final boolean isInitialized() {
         if (!hasTraceId()) {
-          
           return false;
         }
         if (!hasLevelId()) {
-          
           return false;
         }
         if (!hasCost()) {
-          
           return false;
         }
         if (!hasStatusCode()) {
-          
           return false;
         }
         return true;
@@ -719,7 +796,7 @@ public final class TraceProtocol {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
           parsedMessage = (com.ai.cloud.skywalking.protocol.proto.TraceProtocol.AckSpan) e.getUnfinishedMessage();
-          throw e;
+          throw e.unwrapIOException();
         } finally {
           if (parsedMessage != null) {
             mergeFrom(parsedMessage);
@@ -1052,16 +1129,53 @@ public final class TraceProtocol {
         onChanged();
         return this;
       }
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.setUnknownFields(unknownFields);
+      }
+
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.mergeUnknownFields(unknownFields);
+      }
+
 
       // @@protoc_insertion_point(builder_scope:AckSpan)
     }
 
+    // @@protoc_insertion_point(class_scope:AckSpan)
+    private static final com.ai.cloud.skywalking.protocol.proto.TraceProtocol.AckSpan DEFAULT_INSTANCE;
     static {
-      defaultInstance = new AckSpan(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new com.ai.cloud.skywalking.protocol.proto.TraceProtocol.AckSpan();
     }
 
-    // @@protoc_insertion_point(class_scope:AckSpan)
+    public static com.ai.cloud.skywalking.protocol.proto.TraceProtocol.AckSpan getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    @java.lang.Deprecated public static final com.google.protobuf.Parser<AckSpan>
+        PARSER = new com.google.protobuf.AbstractParser<AckSpan>() {
+      public AckSpan parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+          return new AckSpan(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<AckSpan> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<AckSpan> getParserForType() {
+      return PARSER;
+    }
+
+    public com.ai.cloud.skywalking.protocol.proto.TraceProtocol.AckSpan getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
   public interface RequestSpanOrBuilder extends
@@ -1220,41 +1334,77 @@ public final class TraceProtocol {
      */
     com.google.protobuf.ByteString
         getAgentIdBytes();
+
+    /**
+     * <code>map&lt;string, string&gt; parameters = 13;</code>
+     */
+    int getParametersCount();
+    /**
+     * <code>map&lt;string, string&gt; parameters = 13;</code>
+     */
+    boolean containsParameters(
+        java.lang.String key);
+    /**
+     * Use {@link #getParametersMap()} instead.
+     */
+    @java.lang.Deprecated
+    java.util.Map<java.lang.String, java.lang.String>
+    getParameters();
+    /**
+     * <code>map&lt;string, string&gt; parameters = 13;</code>
+     */
+    java.util.Map<java.lang.String, java.lang.String>
+    getParametersMap();
+    /**
+     * <code>map&lt;string, string&gt; parameters = 13;</code>
+     */
+
+    java.lang.String getParametersOrDefault(
+        java.lang.String key,
+        java.lang.String defaultValue);
+    /**
+     * <code>map&lt;string, string&gt; parameters = 13;</code>
+     */
+
+    java.lang.String getParametersOrThrow(
+        java.lang.String key);
   }
   /**
    * Protobuf type {@code RequestSpan}
    */
-  public static final class RequestSpan extends
-      com.google.protobuf.GeneratedMessage implements
+  public  static final class RequestSpan extends
+      com.google.protobuf.GeneratedMessageV3 implements
       // @@protoc_insertion_point(message_implements:RequestSpan)
       RequestSpanOrBuilder {
     // Use RequestSpan.newBuilder() to construct.
-    private RequestSpan(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+    private RequestSpan(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private RequestSpan(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final RequestSpan defaultInstance;
-    public static RequestSpan getDefaultInstance() {
-      return defaultInstance;
+    private RequestSpan() {
+      traceId_ = "";
+      parentLevel_ = "";
+      levelId_ = 0;
+      viewPointId_ = "";
+      startDate_ = 0L;
+      spanTypeDesc_ = "";
+      callType_ = "";
+      spanType_ = 0;
+      applicationId_ = "";
+      userId_ = "";
+      bussinessKey_ = "";
+      agentId_ = "";
     }
 
-    public RequestSpan getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private RequestSpan(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+      this();
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -1342,13 +1492,25 @@ public final class TraceProtocol {
               agentId_ = bs;
               break;
             }
+            case 106: {
+              if (!((mutable_bitField0_ & 0x00001000) == 0x00001000)) {
+                parameters_ = com.google.protobuf.MapField.newMapField(
+                    ParametersDefaultEntryHolder.defaultEntry);
+                mutable_bitField0_ |= 0x00001000;
+              }
+              com.google.protobuf.MapEntry<java.lang.String, java.lang.String>
+              parameters = input.readMessage(
+                  ParametersDefaultEntryHolder.defaultEntry.getParserForType(), extensionRegistry);
+              parameters_.getMutableMap().put(parameters.getKey(), parameters.getValue());
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
         throw e.setUnfinishedMessage(this);
       } catch (java.io.IOException e) {
         throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+            e).setUnfinishedMessage(this);
       } finally {
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -1359,31 +1521,27 @@ public final class TraceProtocol {
       return com.ai.cloud.skywalking.protocol.proto.TraceProtocol.internal_static_RequestSpan_descriptor;
     }
 
-    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+    @SuppressWarnings({"rawtypes"})
+    protected com.google.protobuf.MapField internalGetMapField(
+        int number) {
+      switch (number) {
+        case 13:
+          return internalGetParameters();
+        default:
+          throw new RuntimeException(
+              "Invalid map field number: " + number);
+      }
+    }
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
       return com.ai.cloud.skywalking.protocol.proto.TraceProtocol.internal_static_RequestSpan_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               com.ai.cloud.skywalking.protocol.proto.TraceProtocol.RequestSpan.class, com.ai.cloud.skywalking.protocol.proto.TraceProtocol.RequestSpan.Builder.class);
     }
 
-    public static com.google.protobuf.Parser<RequestSpan> PARSER =
-        new com.google.protobuf.AbstractParser<RequestSpan>() {
-      public RequestSpan parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new RequestSpan(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<RequestSpan> getParserForType() {
-      return PARSER;
-    }
-
     private int bitField0_;
     public static final int TRACEID_FIELD_NUMBER = 1;
-    private java.lang.Object traceId_;
+    private volatile java.lang.Object traceId_;
     /**
      * <code>required string traceId = 1;</code>
      */
@@ -1425,7 +1583,7 @@ public final class TraceProtocol {
     }
 
     public static final int PARENTLEVEL_FIELD_NUMBER = 2;
-    private java.lang.Object parentLevel_;
+    private volatile java.lang.Object parentLevel_;
     /**
      * <code>optional string parentLevel = 2;</code>
      */
@@ -1482,7 +1640,7 @@ public final class TraceProtocol {
     }
 
     public static final int VIEWPOINTID_FIELD_NUMBER = 4;
-    private java.lang.Object viewPointId_;
+    private volatile java.lang.Object viewPointId_;
     /**
      * <code>required string viewPointId = 4;</code>
      */
@@ -1539,7 +1697,7 @@ public final class TraceProtocol {
     }
 
     public static final int SPANTYPEDESC_FIELD_NUMBER = 6;
-    private java.lang.Object spanTypeDesc_;
+    private volatile java.lang.Object spanTypeDesc_;
     /**
      * <code>required string spanTypeDesc = 6;</code>
      */
@@ -1581,7 +1739,7 @@ public final class TraceProtocol {
     }
 
     public static final int CALLTYPE_FIELD_NUMBER = 7;
-    private java.lang.Object callType_;
+    private volatile java.lang.Object callType_;
     /**
      * <code>required string callType = 7;</code>
      */
@@ -1638,7 +1796,7 @@ public final class TraceProtocol {
     }
 
     public static final int APPLICATIONID_FIELD_NUMBER = 9;
-    private java.lang.Object applicationId_;
+    private volatile java.lang.Object applicationId_;
     /**
      * <code>required string applicationId = 9;</code>
      */
@@ -1680,7 +1838,7 @@ public final class TraceProtocol {
     }
 
     public static final int USERID_FIELD_NUMBER = 10;
-    private java.lang.Object userId_;
+    private volatile java.lang.Object userId_;
     /**
      * <code>required string userId = 10;</code>
      */
@@ -1722,7 +1880,7 @@ public final class TraceProtocol {
     }
 
     public static final int BUSSINESSKEY_FIELD_NUMBER = 11;
-    private java.lang.Object bussinessKey_;
+    private volatile java.lang.Object bussinessKey_;
     /**
      * <code>optional string bussinessKey = 11;</code>
      */
@@ -1764,7 +1922,7 @@ public final class TraceProtocol {
     }
 
     public static final int AGENTID_FIELD_NUMBER = 12;
-    private java.lang.Object agentId_;
+    private volatile java.lang.Object agentId_;
     /**
      * <code>required string agentId = 12;</code>
      */
@@ -1805,20 +1963,82 @@ public final class TraceProtocol {
       }
     }
 
-    private void initFields() {
-      traceId_ = "";
-      parentLevel_ = "";
-      levelId_ = 0;
-      viewPointId_ = "";
-      startDate_ = 0L;
-      spanTypeDesc_ = "";
-      callType_ = "";
-      spanType_ = 0;
-      applicationId_ = "";
-      userId_ = "";
-      bussinessKey_ = "";
-      agentId_ = "";
+    public static final int PARAMETERS_FIELD_NUMBER = 13;
+    private static final class ParametersDefaultEntryHolder {
+      static final com.google.protobuf.MapEntry<
+          java.lang.String, java.lang.String> defaultEntry =
+              com.google.protobuf.MapEntry
+              .<java.lang.String, java.lang.String>newDefaultInstance(
+                  com.ai.cloud.skywalking.protocol.proto.TraceProtocol.internal_static_RequestSpan_ParametersEntry_descriptor, 
+                  com.google.protobuf.WireFormat.FieldType.STRING,
+                  "",
+                  com.google.protobuf.WireFormat.FieldType.STRING,
+                  "");
     }
+    private com.google.protobuf.MapField<
+        java.lang.String, java.lang.String> parameters_;
+    private com.google.protobuf.MapField<java.lang.String, java.lang.String>
+    internalGetParameters() {
+      if (parameters_ == null) {
+        return com.google.protobuf.MapField.emptyMapField(
+            ParametersDefaultEntryHolder.defaultEntry);
+      }
+      return parameters_;
+    }
+
+    public int getParametersCount() {
+      return internalGetParameters().getMap().size();
+    }
+    /**
+     * <code>map&lt;string, string&gt; parameters = 13;</code>
+     */
+
+    public boolean containsParameters(
+        java.lang.String key) {
+      if (key == null) { throw new java.lang.NullPointerException(); }
+      return internalGetParameters().getMap().containsKey(key);
+    }
+    /**
+     * Use {@link #getParametersMap()} instead.
+     */
+    @java.lang.Deprecated
+    public java.util.Map<java.lang.String, java.lang.String> getParameters() {
+      return getParametersMap();
+    }
+    /**
+     * <code>map&lt;string, string&gt; parameters = 13;</code>
+     */
+
+    public java.util.Map<java.lang.String, java.lang.String> getParametersMap() {
+      return internalGetParameters().getMap();
+    }
+    /**
+     * <code>map&lt;string, string&gt; parameters = 13;</code>
+     */
+
+    public java.lang.String getParametersOrDefault(
+        java.lang.String key,
+        java.lang.String defaultValue) {
+      if (key == null) { throw new java.lang.NullPointerException(); }
+      java.util.Map<java.lang.String, java.lang.String> map =
+          internalGetParameters().getMap();
+      return map.containsKey(key) ? map.get(key) : defaultValue;
+    }
+    /**
+     * <code>map&lt;string, string&gt; parameters = 13;</code>
+     */
+
+    public java.lang.String getParametersOrThrow(
+        java.lang.String key) {
+      if (key == null) { throw new java.lang.NullPointerException(); }
+      java.util.Map<java.lang.String, java.lang.String> map =
+          internalGetParameters().getMap();
+      if (!map.containsKey(key)) {
+        throw new java.lang.IllegalArgumentException();
+      }
+      return map.get(key);
+    }
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -1871,110 +2091,254 @@ public final class TraceProtocol {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeBytes(1, getTraceIdBytes());
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, traceId_);
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        output.writeBytes(2, getParentLevelBytes());
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 2, parentLevel_);
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
         output.writeInt32(3, levelId_);
       }
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
-        output.writeBytes(4, getViewPointIdBytes());
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 4, viewPointId_);
       }
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
         output.writeInt64(5, startDate_);
       }
       if (((bitField0_ & 0x00000020) == 0x00000020)) {
-        output.writeBytes(6, getSpanTypeDescBytes());
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 6, spanTypeDesc_);
       }
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
-        output.writeBytes(7, getCallTypeBytes());
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 7, callType_);
       }
       if (((bitField0_ & 0x00000080) == 0x00000080)) {
         output.writeUInt32(8, spanType_);
       }
       if (((bitField0_ & 0x00000100) == 0x00000100)) {
-        output.writeBytes(9, getApplicationIdBytes());
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 9, applicationId_);
       }
       if (((bitField0_ & 0x00000200) == 0x00000200)) {
-        output.writeBytes(10, getUserIdBytes());
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 10, userId_);
       }
       if (((bitField0_ & 0x00000400) == 0x00000400)) {
-        output.writeBytes(11, getBussinessKeyBytes());
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 11, bussinessKey_);
       }
       if (((bitField0_ & 0x00000800) == 0x00000800)) {
-        output.writeBytes(12, getAgentIdBytes());
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 12, agentId_);
       }
-      getUnknownFields().writeTo(output);
+      for (java.util.Map.Entry<java.lang.String, java.lang.String> entry
+           : internalGetParameters().getMap().entrySet()) {
+        com.google.protobuf.MapEntry<java.lang.String, java.lang.String>
+        parameters = ParametersDefaultEntryHolder.defaultEntry.newBuilderForType()
+            .setKey(entry.getKey())
+            .setValue(entry.getValue())
+            .build();
+        output.writeMessage(13, parameters);
+      }
+      unknownFields.writeTo(output);
     }
 
-    private int memoizedSerializedSize = -1;
     public int getSerializedSize() {
-      int size = memoizedSerializedSize;
+      int size = memoizedSize;
       if (size != -1) return size;
 
       size = 0;
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(1, getTraceIdBytes());
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, traceId_);
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(2, getParentLevelBytes());
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, parentLevel_);
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(3, levelId_);
       }
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(4, getViewPointIdBytes());
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(4, viewPointId_);
       }
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt64Size(5, startDate_);
       }
       if (((bitField0_ & 0x00000020) == 0x00000020)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(6, getSpanTypeDescBytes());
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(6, spanTypeDesc_);
       }
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(7, getCallTypeBytes());
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(7, callType_);
       }
       if (((bitField0_ & 0x00000080) == 0x00000080)) {
         size += com.google.protobuf.CodedOutputStream
           .computeUInt32Size(8, spanType_);
       }
       if (((bitField0_ & 0x00000100) == 0x00000100)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(9, getApplicationIdBytes());
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(9, applicationId_);
       }
       if (((bitField0_ & 0x00000200) == 0x00000200)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(10, getUserIdBytes());
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(10, userId_);
       }
       if (((bitField0_ & 0x00000400) == 0x00000400)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(11, getBussinessKeyBytes());
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(11, bussinessKey_);
       }
       if (((bitField0_ & 0x00000800) == 0x00000800)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(12, getAgentIdBytes());
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(12, agentId_);
       }
-      size += getUnknownFields().getSerializedSize();
-      memoizedSerializedSize = size;
+      for (java.util.Map.Entry<java.lang.String, java.lang.String> entry
+           : internalGetParameters().getMap().entrySet()) {
+        com.google.protobuf.MapEntry<java.lang.String, java.lang.String>
+        parameters = ParametersDefaultEntryHolder.defaultEntry.newBuilderForType()
+            .setKey(entry.getKey())
+            .setValue(entry.getValue())
+            .build();
+        size += com.google.protobuf.CodedOutputStream
+            .computeMessageSize(13, parameters);
+      }
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
     @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof com.ai.cloud.skywalking.protocol.proto.TraceProtocol.RequestSpan)) {
+        return super.equals(obj);
+      }
+      com.ai.cloud.skywalking.protocol.proto.TraceProtocol.RequestSpan other = (com.ai.cloud.skywalking.protocol.proto.TraceProtocol.RequestSpan) obj;
+
+      boolean result = true;
+      result = result && (hasTraceId() == other.hasTraceId());
+      if (hasTraceId()) {
+        result = result && getTraceId()
+            .equals(other.getTraceId());
+      }
+      result = result && (hasParentLevel() == other.hasParentLevel());
+      if (hasParentLevel()) {
+        result = result && getParentLevel()
+            .equals(other.getParentLevel());
+      }
+      result = result && (hasLevelId() == other.hasLevelId());
+      if (hasLevelId()) {
+        result = result && (getLevelId()
+            == other.getLevelId());
+      }
+      result = result && (hasViewPointId() == other.hasViewPointId());
+      if (hasViewPointId()) {
+        result = result && getViewPointId()
+            .equals(other.getViewPointId());
+      }
+      result = result && (hasStartDate() == other.hasStartDate());
+      if (hasStartDate()) {
+        result = result && (getStartDate()
+            == other.getStartDate());
+      }
+      result = result && (hasSpanTypeDesc() == other.hasSpanTypeDesc());
+      if (hasSpanTypeDesc()) {
+        result = result && getSpanTypeDesc()
+            .equals(other.getSpanTypeDesc());
+      }
+      result = result && (hasCallType() == other.hasCallType());
+      if (hasCallType()) {
+        result = result && getCallType()
+            .equals(other.getCallType());
+      }
+      result = result && (hasSpanType() == other.hasSpanType());
+      if (hasSpanType()) {
+        result = result && (getSpanType()
+            == other.getSpanType());
+      }
+      result = result && (hasApplicationId() == other.hasApplicationId());
+      if (hasApplicationId()) {
+        result = result && getApplicationId()
+            .equals(other.getApplicationId());
+      }
+      result = result && (hasUserId() == other.hasUserId());
+      if (hasUserId()) {
+        result = result && getUserId()
+            .equals(other.getUserId());
+      }
+      result = result && (hasBussinessKey() == other.hasBussinessKey());
+      if (hasBussinessKey()) {
+        result = result && getBussinessKey()
+            .equals(other.getBussinessKey());
+      }
+      result = result && (hasAgentId() == other.hasAgentId());
+      if (hasAgentId()) {
+        result = result && getAgentId()
+            .equals(other.getAgentId());
+      }
+      result = result && internalGetParameters().equals(
+          other.internalGetParameters());
+      result = result && unknownFields.equals(other.unknownFields);
+      return result;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptorForType().hashCode();
+      if (hasTraceId()) {
+        hash = (37 * hash) + TRACEID_FIELD_NUMBER;
+        hash = (53 * hash) + getTraceId().hashCode();
+      }
+      if (hasParentLevel()) {
+        hash = (37 * hash) + PARENTLEVEL_FIELD_NUMBER;
+        hash = (53 * hash) + getParentLevel().hashCode();
+      }
+      if (hasLevelId()) {
+        hash = (37 * hash) + LEVELID_FIELD_NUMBER;
+        hash = (53 * hash) + getLevelId();
+      }
+      if (hasViewPointId()) {
+        hash = (37 * hash) + VIEWPOINTID_FIELD_NUMBER;
+        hash = (53 * hash) + getViewPointId().hashCode();
+      }
+      if (hasStartDate()) {
+        hash = (37 * hash) + STARTDATE_FIELD_NUMBER;
+        hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+            getStartDate());
+      }
+      if (hasSpanTypeDesc()) {
+        hash = (37 * hash) + SPANTYPEDESC_FIELD_NUMBER;
+        hash = (53 * hash) + getSpanTypeDesc().hashCode();
+      }
+      if (hasCallType()) {
+        hash = (37 * hash) + CALLTYPE_FIELD_NUMBER;
+        hash = (53 * hash) + getCallType().hashCode();
+      }
+      if (hasSpanType()) {
+        hash = (37 * hash) + SPANTYPE_FIELD_NUMBER;
+        hash = (53 * hash) + getSpanType();
+      }
+      if (hasApplicationId()) {
+        hash = (37 * hash) + APPLICATIONID_FIELD_NUMBER;
+        hash = (53 * hash) + getApplicationId().hashCode();
+      }
+      if (hasUserId()) {
+        hash = (37 * hash) + USERID_FIELD_NUMBER;
+        hash = (53 * hash) + getUserId().hashCode();
+      }
+      if (hasBussinessKey()) {
+        hash = (37 * hash) + BUSSINESSKEY_FIELD_NUMBER;
+        hash = (53 * hash) + getBussinessKey().hashCode();
+      }
+      if (hasAgentId()) {
+        hash = (37 * hash) + AGENTID_FIELD_NUMBER;
+        hash = (53 * hash) + getAgentId().hashCode();
+      }
+      if (!internalGetParameters().getMap().isEmpty()) {
+        hash = (37 * hash) + PARAMETERS_FIELD_NUMBER;
+        hash = (53 * hash) + internalGetParameters().hashCode();
+      }
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
     }
 
     public static com.ai.cloud.skywalking.protocol.proto.TraceProtocol.RequestSpan parseFrom(
@@ -2000,46 +2364,57 @@ public final class TraceProtocol {
     }
     public static com.ai.cloud.skywalking.protocol.proto.TraceProtocol.RequestSpan parseFrom(java.io.InputStream input)
         throws java.io.IOException {
-      return PARSER.parseFrom(input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
     }
     public static com.ai.cloud.skywalking.protocol.proto.TraceProtocol.RequestSpan parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return PARSER.parseFrom(input, extensionRegistry);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
     }
     public static com.ai.cloud.skywalking.protocol.proto.TraceProtocol.RequestSpan parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
-      return PARSER.parseDelimitedFrom(input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
     }
     public static com.ai.cloud.skywalking.protocol.proto.TraceProtocol.RequestSpan parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
     }
     public static com.ai.cloud.skywalking.protocol.proto.TraceProtocol.RequestSpan parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
-      return PARSER.parseFrom(input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
     }
     public static com.ai.cloud.skywalking.protocol.proto.TraceProtocol.RequestSpan parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return PARSER.parseFrom(input, extensionRegistry);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(com.ai.cloud.skywalking.protocol.proto.TraceProtocol.RequestSpan prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(com.ai.cloud.skywalking.protocol.proto.TraceProtocol.RequestSpan prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
       Builder builder = new Builder(parent);
       return builder;
     }
@@ -2047,7 +2422,7 @@ public final class TraceProtocol {
      * Protobuf type {@code RequestSpan}
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
         // @@protoc_insertion_point(builder_implements:RequestSpan)
         com.ai.cloud.skywalking.protocol.proto.TraceProtocol.RequestSpanOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
@@ -2055,7 +2430,29 @@ public final class TraceProtocol {
         return com.ai.cloud.skywalking.protocol.proto.TraceProtocol.internal_static_RequestSpan_descriptor;
       }
 
-      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      @SuppressWarnings({"rawtypes"})
+      protected com.google.protobuf.MapField internalGetMapField(
+          int number) {
+        switch (number) {
+          case 13:
+            return internalGetParameters();
+          default:
+            throw new RuntimeException(
+                "Invalid map field number: " + number);
+        }
+      }
+      @SuppressWarnings({"rawtypes"})
+      protected com.google.protobuf.MapField internalGetMutableMapField(
+          int number) {
+        switch (number) {
+          case 13:
+            return internalGetMutableParameters();
+          default:
+            throw new RuntimeException(
+                "Invalid map field number: " + number);
+        }
+      }
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
         return com.ai.cloud.skywalking.protocol.proto.TraceProtocol.internal_static_RequestSpan_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
@@ -2068,18 +2465,15 @@ public final class TraceProtocol {
       }
 
       private Builder(
-          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
         super(parent);
         maybeForceBuilderInitialization();
       }
       private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         traceId_ = "";
@@ -2106,11 +2500,8 @@ public final class TraceProtocol {
         bitField0_ = (bitField0_ & ~0x00000400);
         agentId_ = "";
         bitField0_ = (bitField0_ & ~0x00000800);
+        internalGetMutableParameters().clear();
         return this;
-      }
-
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -2182,11 +2573,39 @@ public final class TraceProtocol {
           to_bitField0_ |= 0x00000800;
         }
         result.agentId_ = agentId_;
+        result.parameters_ = internalGetParameters();
+        result.parameters_.makeImmutable();
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
       }
 
+      public Builder clone() {
+        return (Builder) super.clone();
+      }
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return (Builder) super.setField(field, value);
+      }
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return (Builder) super.clearField(field);
+      }
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return (Builder) super.clearOneof(oneof);
+      }
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, Object value) {
+        return (Builder) super.setRepeatedField(field, index, value);
+      }
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return (Builder) super.addRepeatedField(field, value);
+      }
       public Builder mergeFrom(com.google.protobuf.Message other) {
         if (other instanceof com.ai.cloud.skywalking.protocol.proto.TraceProtocol.RequestSpan) {
           return mergeFrom((com.ai.cloud.skywalking.protocol.proto.TraceProtocol.RequestSpan)other);
@@ -2252,49 +2671,42 @@ public final class TraceProtocol {
           agentId_ = other.agentId_;
           onChanged();
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        internalGetMutableParameters().mergeFrom(
+            other.internalGetParameters());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
       public final boolean isInitialized() {
         if (!hasTraceId()) {
-          
           return false;
         }
         if (!hasLevelId()) {
-          
           return false;
         }
         if (!hasViewPointId()) {
-          
           return false;
         }
         if (!hasStartDate()) {
-          
           return false;
         }
         if (!hasSpanTypeDesc()) {
-          
           return false;
         }
         if (!hasCallType()) {
-          
           return false;
         }
         if (!hasSpanType()) {
-          
           return false;
         }
         if (!hasApplicationId()) {
-          
           return false;
         }
         if (!hasUserId()) {
-          
           return false;
         }
         if (!hasAgentId()) {
-          
           return false;
         }
         return true;
@@ -2309,7 +2721,7 @@ public final class TraceProtocol {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
           parsedMessage = (com.ai.cloud.skywalking.protocol.proto.TraceProtocol.RequestSpan) e.getUnfinishedMessage();
-          throw e;
+          throw e.unwrapIOException();
         } finally {
           if (parsedMessage != null) {
             mergeFrom(parsedMessage);
@@ -3099,47 +3511,211 @@ public final class TraceProtocol {
         return this;
       }
 
+      private com.google.protobuf.MapField<
+          java.lang.String, java.lang.String> parameters_;
+      private com.google.protobuf.MapField<java.lang.String, java.lang.String>
+      internalGetParameters() {
+        if (parameters_ == null) {
+          return com.google.protobuf.MapField.emptyMapField(
+              ParametersDefaultEntryHolder.defaultEntry);
+        }
+        return parameters_;
+      }
+      private com.google.protobuf.MapField<java.lang.String, java.lang.String>
+      internalGetMutableParameters() {
+        onChanged();;
+        if (parameters_ == null) {
+          parameters_ = com.google.protobuf.MapField.newMapField(
+              ParametersDefaultEntryHolder.defaultEntry);
+        }
+        if (!parameters_.isMutable()) {
+          parameters_ = parameters_.copy();
+        }
+        return parameters_;
+      }
+
+      public int getParametersCount() {
+        return internalGetParameters().getMap().size();
+      }
+      /**
+       * <code>map&lt;string, string&gt; parameters = 13;</code>
+       */
+
+      public boolean containsParameters(
+          java.lang.String key) {
+        if (key == null) { throw new java.lang.NullPointerException(); }
+        return internalGetParameters().getMap().containsKey(key);
+      }
+      /**
+       * Use {@link #getParametersMap()} instead.
+       */
+      @java.lang.Deprecated
+      public java.util.Map<java.lang.String, java.lang.String> getParameters() {
+        return getParametersMap();
+      }
+      /**
+       * <code>map&lt;string, string&gt; parameters = 13;</code>
+       */
+
+      public java.util.Map<java.lang.String, java.lang.String> getParametersMap() {
+        return internalGetParameters().getMap();
+      }
+      /**
+       * <code>map&lt;string, string&gt; parameters = 13;</code>
+       */
+
+      public java.lang.String getParametersOrDefault(
+          java.lang.String key,
+          java.lang.String defaultValue) {
+        if (key == null) { throw new java.lang.NullPointerException(); }
+        java.util.Map<java.lang.String, java.lang.String> map =
+            internalGetParameters().getMap();
+        return map.containsKey(key) ? map.get(key) : defaultValue;
+      }
+      /**
+       * <code>map&lt;string, string&gt; parameters = 13;</code>
+       */
+
+      public java.lang.String getParametersOrThrow(
+          java.lang.String key) {
+        if (key == null) { throw new java.lang.NullPointerException(); }
+        java.util.Map<java.lang.String, java.lang.String> map =
+            internalGetParameters().getMap();
+        if (!map.containsKey(key)) {
+          throw new java.lang.IllegalArgumentException();
+        }
+        return map.get(key);
+      }
+
+      public Builder clearParameters() {
+        getMutableParameters().clear();
+        return this;
+      }
+      /**
+       * <code>map&lt;string, string&gt; parameters = 13;</code>
+       */
+
+      public Builder removeParameters(
+          java.lang.String key) {
+        if (key == null) { throw new java.lang.NullPointerException(); }
+        getMutableParameters().remove(key);
+        return this;
+      }
+      /**
+       * Use alternate mutation accessors instead.
+       */
+      @java.lang.Deprecated
+      public java.util.Map<java.lang.String, java.lang.String>
+      getMutableParameters() {
+        return internalGetMutableParameters().getMutableMap();
+      }
+      /**
+       * <code>map&lt;string, string&gt; parameters = 13;</code>
+       */
+      public Builder putParameters(
+          java.lang.String key,
+          java.lang.String value) {
+        if (key == null) { throw new java.lang.NullPointerException(); }
+        if (value == null) { throw new java.lang.NullPointerException(); }
+        getMutableParameters().put(key, value);
+        return this;
+      }
+      /**
+       * <code>map&lt;string, string&gt; parameters = 13;</code>
+       */
+
+      public Builder putAllParameters(
+          java.util.Map<java.lang.String, java.lang.String> values) {
+        getMutableParameters().putAll(values);
+        return this;
+      }
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.setUnknownFields(unknownFields);
+      }
+
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.mergeUnknownFields(unknownFields);
+      }
+
+
       // @@protoc_insertion_point(builder_scope:RequestSpan)
     }
 
+    // @@protoc_insertion_point(class_scope:RequestSpan)
+    private static final com.ai.cloud.skywalking.protocol.proto.TraceProtocol.RequestSpan DEFAULT_INSTANCE;
     static {
-      defaultInstance = new RequestSpan(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new com.ai.cloud.skywalking.protocol.proto.TraceProtocol.RequestSpan();
     }
 
-    // @@protoc_insertion_point(class_scope:RequestSpan)
+    public static com.ai.cloud.skywalking.protocol.proto.TraceProtocol.RequestSpan getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    @java.lang.Deprecated public static final com.google.protobuf.Parser<RequestSpan>
+        PARSER = new com.google.protobuf.AbstractParser<RequestSpan>() {
+      public RequestSpan parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+          return new RequestSpan(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<RequestSpan> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<RequestSpan> getParserForType() {
+      return PARSER;
+    }
+
+    public com.ai.cloud.skywalking.protocol.proto.TraceProtocol.RequestSpan getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
   private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_AckSpan_descriptor;
-  private static
-    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_AckSpan_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_RequestSpan_descriptor;
-  private static
-    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_RequestSpan_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_RequestSpan_ParametersEntry_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_RequestSpan_ParametersEntry_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
     return descriptor;
   }
-  private static com.google.protobuf.Descriptors.FileDescriptor
+  private static  com.google.protobuf.Descriptors.FileDescriptor
       descriptor;
   static {
     java.lang.String[] descriptorData = {
       "\n\023TraceProtocol.proto\"z\n\007AckSpan\022\017\n\007trac" +
       "eId\030\001 \002(\t\022\023\n\013parentLevel\030\002 \001(\t\022\017\n\007levelI" +
       "d\030\003 \002(\005\022\014\n\004cost\030\004 \002(\003\022\022\n\nstatusCode\030\005 \002(" +
-      "\005\022\026\n\016exceptionStack\030\006 \001(\t\"\364\001\n\013RequestSpa" +
+      "\005\022\026\n\016exceptionStack\030\006 \001(\t\"\331\002\n\013RequestSpa" +
       "n\022\017\n\007traceId\030\001 \002(\t\022\023\n\013parentLevel\030\002 \001(\t\022" +
       "\017\n\007levelId\030\003 \002(\005\022\023\n\013viewPointId\030\004 \002(\t\022\021\n" +
       "\tstartDate\030\005 \002(\003\022\024\n\014spanTypeDesc\030\006 \002(\t\022\020" +
       "\n\010callType\030\007 \002(\t\022\020\n\010spanType\030\010 \002(\r\022\025\n\rap" +
       "plicationId\030\t \002(\t\022\016\n\006userId\030\n \002(\t\022\024\n\014bus" +
-      "sinessKey\030\013 \001(\t\022\017\n\007agentId\030\014 \002(\tB(\n&com.",
-      "ai.cloud.skywalking.protocol.proto"
+      "sinessKey\030\013 \001(\t\022\017\n\007agentId\030\014 \002(\t\0220\n\npara",
+      "meters\030\r \003(\0132\034.RequestSpan.ParametersEnt" +
+      "ry\0321\n\017ParametersEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005va" +
+      "lue\030\002 \001(\t:\0028\001B(\n&com.ai.cloud.skywalking" +
+      ".protocol.proto"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -3156,15 +3732,21 @@ public final class TraceProtocol {
     internal_static_AckSpan_descriptor =
       getDescriptor().getMessageTypes().get(0);
     internal_static_AckSpan_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_AckSpan_descriptor,
         new java.lang.String[] { "TraceId", "ParentLevel", "LevelId", "Cost", "StatusCode", "ExceptionStack", });
     internal_static_RequestSpan_descriptor =
       getDescriptor().getMessageTypes().get(1);
     internal_static_RequestSpan_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_RequestSpan_descriptor,
-        new java.lang.String[] { "TraceId", "ParentLevel", "LevelId", "ViewPointId", "StartDate", "SpanTypeDesc", "CallType", "SpanType", "ApplicationId", "UserId", "BussinessKey", "AgentId", });
+        new java.lang.String[] { "TraceId", "ParentLevel", "LevelId", "ViewPointId", "StartDate", "SpanTypeDesc", "CallType", "SpanType", "ApplicationId", "UserId", "BussinessKey", "AgentId", "Parameters", });
+    internal_static_RequestSpan_ParametersEntry_descriptor =
+      internal_static_RequestSpan_descriptor.getNestedTypes().get(0);
+    internal_static_RequestSpan_ParametersEntry_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_RequestSpan_ParametersEntry_descriptor,
+        new java.lang.String[] { "Key", "Value", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

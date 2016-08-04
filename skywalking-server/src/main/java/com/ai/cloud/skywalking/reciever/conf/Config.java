@@ -6,8 +6,7 @@ public class Config {
     public static class Server {
         // 采集服务器的端口
         public static int PORT                                = 34000;
-        // 最大数据处理线程数量
-        public static int MAX_DEAL_DATA_THREAD_NUMBER         = 3;
+
         // 异常数据的时间间隔
         public static int FAILED_PACKAGE_WATCHING_TIME_WINDOW = 5 * 60;
         // 时间间隔内最大异常数据次数
@@ -31,6 +30,8 @@ public class Config {
 
         public static long BUFFER_FILE_MAX_LENGTH = 30 * 1024 * 1024;
 
+        public static int  BUFFER_DEAL_THREAD_NUMBER = 0;
+
     }
 
 
@@ -50,6 +51,9 @@ public class Config {
 
 
     public static class Persistence {
+        // 最大数据处理线程数量
+        public static int MAX_DEAL_DATA_THREAD_NUMBER         = 3;
+
         // 切换文件，等待时间
         public static long SWITCH_FILE_WAIT_TIME = 5000L;
 

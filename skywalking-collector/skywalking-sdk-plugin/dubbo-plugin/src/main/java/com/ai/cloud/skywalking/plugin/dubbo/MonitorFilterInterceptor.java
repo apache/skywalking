@@ -33,9 +33,7 @@ public class MonitorFilterInterceptor implements InstanceMethodsAroundIntercepto
         boolean isConsumer = rpcContext.isConsumerSide();
         context.set("isConsumer", isConsumer);
         if (isConsumer) {
-            RPCClientInvokeMonitor rpcClientInvokeMonitor = new RPCClientInvokeMonitor();
-            context.set("rpcClientInvokeMonitor", rpcClientInvokeMonitor);
-            ContextData contextData = rpcClientInvokeMonitor.beforeInvoke(createIdentification(invoker, invocation));
+            ContextData contextData =  new RPCClientInvokeMonitor().beforeInvoke(createIdentification(invoker, invocation));
             String contextDataStr = contextData.toString();
 
             //追加参数
@@ -60,8 +58,6 @@ public class MonitorFilterInterceptor implements InstanceMethodsAroundIntercepto
             }
         } else {
             // 读取参数
-            RPCServerInvokeMonitor rpcServerInvokeMonitor = new RPCServerInvokeMonitor();
-            context.set("rpcServerInvokeMonitor", rpcServerInvokeMonitor);
             String contextDataStr;
 
             if (!BugFixAcitve.isActive) {
@@ -75,7 +71,7 @@ public class MonitorFilterInterceptor implements InstanceMethodsAroundIntercepto
                 contextData = new ContextData(contextDataStr);
             }
 
-            rpcServerInvokeMonitor.beforeInvoke(contextData, createIdentification(invoker, invocation));
+            new RPCServerInvokeMonitor().beforeInvoke(contextData, createIdentification(invoker, invocation));
         }
 
     }
@@ -88,6 +84,12 @@ public class MonitorFilterInterceptor implements InstanceMethodsAroundIntercepto
             dealException(result.getException(), context);
         }
 
+        if (isConsumer(context)){
+            new RPCClientInvokeMonitor().afterInvoke();
+        }else{
+            new RPCServerInvokeMonitor().afterInvoke();
+        }
+
         return ret;
     }
 
@@ -97,12 +99,16 @@ public class MonitorFilterInterceptor implements InstanceMethodsAroundIntercepto
         dealException(t, context);
     }
 
+
+    private boolean isConsumer(EnhancedClassInstanceContext context){
+        return (boolean) context.get("isConsumer");
+    }
+
     private void dealException(Throwable t, EnhancedClassInstanceContext context) {
-        boolean isConsumer = (boolean) context.get("isConsumer");
-        if (isConsumer) {
-            ((RPCClientInvokeMonitor) context.get("rpcClientInvokeMonitor")).occurException(t);
+        if (isConsumer(context)) {
+           new RPCClientInvokeMonitor().occurException(t);
         } else {
-            ((RPCServerInvokeMonitor) context.get("rpcServerInvokeMonitor")).occurException(t);
+            new RPCServerInvokeMonitor().occurException(t);
         }
     }
 

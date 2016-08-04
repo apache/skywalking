@@ -1,5 +1,6 @@
 package com.ai.cloud.skywalking.plugin.interceptor.enhance;
 
+import static net.bytebuddy.jar.asm.Opcodes.ACC_PRIVATE;
 import static net.bytebuddy.matcher.ElementMatchers.any;
 import static net.bytebuddy.matcher.ElementMatchers.not;
 
@@ -19,6 +20,8 @@ import com.ai.cloud.skywalking.plugin.AbstractClassEnhancePluginDefine;
 import com.ai.cloud.skywalking.plugin.interceptor.EnhanceException;
 import com.ai.cloud.skywalking.plugin.interceptor.EnhancedClassInstanceContext;
 import com.ai.cloud.skywalking.plugin.interceptor.MethodMatcher;
+
+import java.lang.reflect.Modifier;
 
 public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePluginDefine {
 	private static Logger logger = LogManager
@@ -61,7 +64,7 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
 
 		newClassBuilder = newClassBuilder
 				.defineField(contextAttrName,
-						EnhancedClassInstanceContext.class)
+						EnhancedClassInstanceContext.class, ACC_PRIVATE)
 				.constructor(any())
 				.intercept(
 						SuperMethodCall.INSTANCE.andThen(MethodDelegation.to(

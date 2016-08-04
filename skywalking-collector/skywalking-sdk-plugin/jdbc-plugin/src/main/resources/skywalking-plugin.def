@@ -1,1 +1,1 @@
-com.ai.cloud.skywalking.plugin.jdbc.JDBCPluginDefine
+com.ai.cloud.skywalking.plugin.jdbc.plugin.H2DatabasePluginDefine

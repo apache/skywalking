@@ -48,12 +48,6 @@ public class Span {
     protected String exceptionStack = "";
 
     /**
-     * 节点的状态<br/>
-     * 不参与序列化
-     */
-    protected boolean isValidate = true;
-
-    /**
      * 节点调用过程中的业务字段<br/>
      * 如：业务系统设置的订单号，SQL语句等
      */
@@ -82,6 +76,7 @@ public class Span {
         this.traceId = traceId;
         this.applicationId = applicationId;
         this.userId = userId;
+        this.parentLevel = "";
     }
 
     public Span(String traceId, String parentLevel, int levelId, String applicationId, String userId) {
@@ -120,10 +115,6 @@ public class Span {
         this.startDate = startDate;
     }
 
-    public boolean isValidate() {
-        return isValidate;
-    }
-
     public byte getStatusCode() {
         return statusCode;
     }
@@ -142,17 +133,6 @@ public class Span {
 
     public void setParameters(Map<String, String> parameters) {
         this.parameters = parameters;
-    }
-
-    public void setValidate(boolean validate) {
-        isValidate = validate;
-    }
-
-    public boolean isRPCClientSpan() {
-        if (spanType == SpanType.RPC_CLIENT) {
-            return true;
-        }
-        return false;
     }
 
     public void setSpanType(SpanType spanType) {
@@ -226,10 +206,6 @@ public class Span {
 
     public void setViewPointId(String viewPointId) {
         this.viewPointId = viewPointId;
-    }
-
-    public void appendParameter(String key, String value) {
-        this.parameters.put(key, value);
     }
 
     public void setInvokeResult(String result){

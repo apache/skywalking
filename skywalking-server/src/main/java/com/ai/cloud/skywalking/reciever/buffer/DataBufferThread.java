@@ -4,7 +4,6 @@ import com.ai.cloud.skywalking.protocol.BufferFileEOFProtocol;
 import com.ai.cloud.skywalking.protocol.TransportPackager;
 import com.ai.cloud.skywalking.protocol.util.AtomicRangeInteger;
 import com.ai.cloud.skywalking.reciever.conf.Config;
-import com.ai.cloud.skywalking.reciever.model.BufferDataPackagerGenerator;
 import com.ai.cloud.skywalking.reciever.selfexamination.ServerHealthCollector;
 import com.ai.cloud.skywalking.reciever.selfexamination.ServerHeathReading;
 import org.apache.logging.log4j.LogManager;
@@ -44,7 +43,7 @@ public class DataBufferThread extends Thread {
                 }
 
                 try {
-                    fileOutputStream.write(BufferDataPackagerGenerator.pack(data[i]));
+                    fileOutputStream.write(BufferDataAssist.appendLengthAndSplit(data[i]));
                     length += data[i].length;
                     data[i] = null;
                 } catch (IOException e) {
@@ -69,8 +68,8 @@ public class DataBufferThread extends Thread {
     private void closeCurrentBufferFile(FileOutputStream fileOutputStream) {
         try {
             fileOutputStream.flush();
-            fileOutputStream.write(BufferDataPackagerGenerator
-                    .pack(TransportPackager.packSerializableObject(new BufferFileEOFProtocol())));
+            fileOutputStream.write(BufferDataAssist
+                    .appendLengthAndSplit(TransportPackager.serialize(new BufferFileEOFProtocol())));
         } catch (IOException e) {
             logger.error("Failed to write msg.", e);
         } finally {

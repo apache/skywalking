@@ -4,9 +4,11 @@ import com.ai.cloud.skywalking.reciever.conf.Config;
 
 public class PersistenceThreadLauncher {
     public static void doLaunch() {
-        new RegisterPersistenceThread().start();
-        for (int i = 0; i < Config.Server.MAX_DEAL_DATA_THREAD_NUMBER; i++) {
-            new PersistenceThread(i).start();
+        if (Config.Persistence.MAX_DEAL_DATA_THREAD_NUMBER > 0) {
+            new RegisterPersistenceThread().start();
+            for (int i = 0; i < Config.Persistence.MAX_DEAL_DATA_THREAD_NUMBER; i++) {
+                new PersistenceThread(i).start();
+            }
         }
     }
 }

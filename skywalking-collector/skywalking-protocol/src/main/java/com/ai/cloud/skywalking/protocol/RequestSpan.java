@@ -213,11 +213,20 @@ public class RequestSpan extends AbstractDataSerializable {
 
     @Override
     public byte[] getData() {
-        return TraceProtocol.RequestSpan.newBuilder().setTraceId(traceId).setParentLevel(parentLevel)
-                .setLevelId(levelId).setViewPointId(viewPointId).setStartDate(startDate)
-                .setSpanType(spanType.getValue()).setSpanTypeDesc(spanTypeDesc).setBussinessKey(businessKey)
-                .setCallType(callType).setApplicationId(applicationId).setUserId(userId).setBussinessKey(businessKey)
-                .setAgentId(agentId).build().toByteArray();
+        TraceProtocol.RequestSpan.Builder builder =
+                TraceProtocol.RequestSpan.newBuilder().setTraceId(traceId).setParentLevel(parentLevel)
+                        .setLevelId(levelId).setViewPointId(viewPointId).setStartDate(startDate)
+                        .setSpanType(spanType.getValue()).setSpanTypeDesc(spanTypeDesc);
+        if (businessKey != null && businessKey.length() > 0) {
+            builder.setBussinessKey(businessKey);
+        }
+
+        if (parameters != null && parameters.size() > 0) {
+            builder.getParametersMap().putAll(parameters);
+        }
+
+        return builder.setCallType(callType).setApplicationId(applicationId).setUserId(userId).setAgentId(agentId)
+                .build().toByteArray();
     }
 
     @Override

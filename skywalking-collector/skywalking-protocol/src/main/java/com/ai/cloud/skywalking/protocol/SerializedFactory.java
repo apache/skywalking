@@ -22,7 +22,7 @@ public class SerializedFactory {
         }
     }
 
-    public static AbstractDataSerializable unSerialize(byte[] bytes) throws ConvertFailedException {
+    public static AbstractDataSerializable deserialize(byte[] bytes) throws ConvertFailedException {
         try {
             AbstractDataSerializable abstractDataSerializable = serializableMap.get(IntegerAssist.bytesToInt(bytes, 0));
             if (abstractDataSerializable != null) {

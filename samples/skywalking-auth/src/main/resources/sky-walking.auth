@@ -31,7 +31,7 @@ sender.max_send_length=20000
 sender.retry_get_sender_wait_interval=2000
 
 #最大消费线程数
-consumer.max_consumer=0
+consumer.max_consumer=1
 #消费者最大等待时间
 consumer.max_wait_time=5
 #发送失败等待时间  

@@ -1,7 +1,8 @@
 package com.ai.cloud.skywalking.reciever.peresistent;
 
-import com.ai.cloud.skywalking.protocol.TransportPackager;
+import com.ai.cloud.skywalking.protocol.SerializedFactory;
 import com.ai.cloud.skywalking.protocol.common.AbstractDataSerializable;
+import com.ai.cloud.skywalking.protocol.exception.ConvertFailedException;
 import com.ai.cloud.skywalking.protocol.util.IntegerAssist;
 import com.ai.cloud.skywalking.reciever.selfexamination.ServerHealthCollector;
 import com.ai.cloud.skywalking.reciever.selfexamination.ServerHeathReading;
@@ -20,10 +21,10 @@ public class BufferFileReader {
     private File            bufferFile;
     private FileInputStream bufferInputStream;
     private int             currentOffset;
-    private static final byte[] SPILT_BALE_ARRAY = new byte[] {127, 127, 127, 127};
-    private              int    remainderLength  = 0;
-    private              byte[] remainderByte    = null;
-    private              Logger logger           = LogManager.getLogger(BufferFileReader.class);
+    private static final byte[] DATA_SPILT      = new byte[] {127, 127, 127, 127};
+    private              int    remainderLength = 0;
+    private              byte[] remainderByte   = null;
+    private              Logger logger          = LogManager.getLogger(BufferFileReader.class);
     private List<AbstractDataSerializable> serializables;
 
     public BufferFileReader(File bufferFile, int currentOffset) {
@@ -58,13 +59,12 @@ public class BufferFileReader {
             int length = unpackLength();
             byte[] dataContext = readByte(length);
             // 转换对象
-            serializables = new ArrayList<>();
-            serializables = TransportPackager.unpackSerializableObjects(dataContext);
+            serializables = deserializableObjects(dataContext);
 
             byte[] skip = new byte[4];
             bufferInputStream.read(skip);
-            if (!Arrays.equals(SPILT_BALE_ARRAY, skip)) {
-                skipToNextBufferBale();
+            if (!Arrays.equals(DATA_SPILT, skip)) {
+                skipToNext();
             }
             MemoryRegister.instance().updateOffSet(bufferFile.getName(), currentOffset);
         } catch (IOException e) {
@@ -122,14 +122,14 @@ public class BufferFileReader {
         return lengthByte;
     }
 
-    public void skipToNextBufferBale() throws IOException {
+    public void skipToNext() throws IOException {
         byte[] previousDataByte = new byte[4];
         byte[] currentDataByte = new byte[4];
         byte[] compactDataByte = new byte[8];
         while (true) {
             currentDataByte = readByte(4);
 
-            if (Arrays.equals(currentDataByte, SPILT_BALE_ARRAY)) {
+            if (Arrays.equals(currentDataByte, DATA_SPILT)) {
                 remainderLength = 0;
                 break;
             }
@@ -137,7 +137,7 @@ public class BufferFileReader {
             System.arraycopy(previousDataByte, 0, compactDataByte, 0, 4);
             System.arraycopy(currentDataByte, 0, compactDataByte, 4, 4);
 
-            int index = bytesIndexOf(compactDataByte, SPILT_BALE_ARRAY, 0, 8);
+            int index = bytesIndexOf(compactDataByte, DATA_SPILT, 0, 8);
             if (index != -1) {
                 recodeRemainderByteAndLength(compactDataByte, index);
                 break;
@@ -185,4 +185,31 @@ public class BufferFileReader {
         bufferFile = null;
     }
 
+
+    public static List<AbstractDataSerializable> deserializableObjects(byte[] dataPackage) {
+        List<AbstractDataSerializable> serializeData = new ArrayList<AbstractDataSerializable>();
+        int currentLength = 0;
+        while (true) {
+            //读取长度
+            int dataLength = IntegerAssist.bytesToInt(dataPackage, currentLength);
+            // 反序列化
+            byte[] data = new byte[dataLength];
+            System.arraycopy(dataPackage, currentLength + 4, data, 0, dataLength);
+
+            try {
+                AbstractDataSerializable abstractDataSerializable = SerializedFactory.deserialize(data);
+                serializeData.add(abstractDataSerializable);
+            } catch (ConvertFailedException e) {
+                // FIXME: 16/8/4 logger日志输出
+                e.printStackTrace();
+            }
+
+            currentLength += 4 + dataLength;
+            if (currentLength >= dataPackage.length) {
+                break;
+            }
+        }
+
+        return serializeData;
+    }
 }

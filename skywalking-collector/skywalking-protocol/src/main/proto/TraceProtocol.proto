@@ -25,4 +25,5 @@ message RequestSpan {
     required string userId = 10;
     optional string bussinessKey = 11;
     required string agentId = 12;
+    map<string,string> parameters = 13;
 }

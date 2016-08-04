@@ -23,7 +23,7 @@ public enum SpanType {
                 return LOCAL;
             case 2:
                 return RPC_CLIENT;
-            case 3:
+            case 4:
                 return RPC_SERVER;
             default:
                 throw new SpanTypeCannotConvertException(spanTypeValue + "");

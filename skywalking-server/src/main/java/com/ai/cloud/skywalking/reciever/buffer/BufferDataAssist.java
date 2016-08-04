@@ -1,31 +1,23 @@
-package com.ai.cloud.skywalking.reciever.model;
+package com.ai.cloud.skywalking.reciever.buffer;
 
+import com.ai.cloud.skywalking.protocol.SerializedFactory;
+import com.ai.cloud.skywalking.protocol.common.AbstractDataSerializable;
+import com.ai.cloud.skywalking.protocol.exception.ConvertFailedException;
 import com.ai.cloud.skywalking.protocol.util.IntegerAssist;
 
-public class BufferDataPackagerGenerator {
+import java.util.ArrayList;
+import java.util.List;
+
+public class BufferDataAssist {
 
     private static byte[] SPILT = new byte[] {127, 127, 127, 127};
     private static byte[] EOF   = null;
 
-    private BufferDataPackagerGenerator() {
+    private BufferDataAssist() {
         //DO Nothing
     }
 
-    public static byte[] generateEOFPackage() {
-        if (EOF != null) {
-            return EOF;
-        }
-
-        EOF = generatePackage("EOF".getBytes());
-        return EOF;
-    }
-
-    public static byte[] pack(byte[] msg) {
-        return generatePackage(msg);
-    }
-
-
-    private static byte[] generatePackage(byte[] msg) {
+    public static byte[] appendLengthAndSplit(byte[] msg) {
         byte[] dataPackage = new byte[msg.length + 8];
         // 前四位长度
         System.arraycopy(IntegerAssist.intToBytes(msg.length), 0, dataPackage, 0, 4);

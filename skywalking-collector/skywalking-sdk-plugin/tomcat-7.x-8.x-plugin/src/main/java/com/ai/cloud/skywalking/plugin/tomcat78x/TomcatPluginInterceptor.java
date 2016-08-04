@@ -62,11 +62,12 @@ public class TomcatPluginInterceptor implements InstanceMethodsAroundInterceptor
         Object[] args = interceptorContext.allArguments();
         HttpServletResponse httpServletResponse = (HttpServletResponse) args[1];
         httpServletResponse.addHeader(TRACE_ID_HEADER_NAME, Tracing.getTraceId());
+        new RPCServerInvokeMonitor().afterInvoke();
         return ret;
     }
 
     @Override
     public void handleMethodException(Throwable t, EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext, Object ret) {
-        // DO Nothing
+        new RPCServerInvokeMonitor().occurException(t);
     }
 }

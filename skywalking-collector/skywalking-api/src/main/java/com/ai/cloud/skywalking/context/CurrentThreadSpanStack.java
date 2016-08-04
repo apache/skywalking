@@ -33,14 +33,6 @@ public class CurrentThreadSpanStack {
         return nodes.get().pop();
     }
 
-    public static void invalidatePresentSpans() {
-        if (nodes.get() == null) {
-            nodes.set(new SpanNodeStack());
-        }
-
-        nodes.get().invalidatePresentSpans();
-    }
-
     static class SpanNodeStack {
         /**
          * 单JVM的单线程,埋点数量一般不会超过20.
@@ -84,11 +76,6 @@ public class CurrentThreadSpanStack {
             spans.add(spans.size(), spanNode);
         }
 
-        public void invalidatePresentSpans() {
-            for (SpanNode spanNode : spans) {
-                spanNode.getData().setValidate(true);
-            }
-        }
     }
 
     static class SpanNode {

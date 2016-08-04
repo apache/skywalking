@@ -58,10 +58,9 @@ public class DataBufferThreadContainer {
 
             countDownLatch.await();
         }
-        logger.info("Data buffer thread size {} begin to init ", Config.Server.
-                MAX_DEAL_DATA_THREAD_NUMBER);
+        logger.info("Data buffer thread size {} begin to init ", Config.Buffer.BUFFER_DEAL_THREAD_NUMBER);
 
-        for (int i = 0; i < Config.Server.MAX_DEAL_DATA_THREAD_NUMBER; i++) {
+        for (int i = 0; i < Config.Buffer.BUFFER_DEAL_THREAD_NUMBER; i++) {
             DataBufferThread dataBufferThread = new DataBufferThread(i);
             dataBufferThread.start();
             buffers.add(dataBufferThread);
