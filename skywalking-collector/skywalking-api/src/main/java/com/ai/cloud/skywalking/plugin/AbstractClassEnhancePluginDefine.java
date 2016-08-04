@@ -11,7 +11,7 @@ import net.bytebuddy.pool.TypePool.Resolution;
 
 import static com.ai.cloud.skywalking.plugin.PluginBootstrap.CLASS_TYPE_POOL;
 
-public abstract class AbstractClassEnhancePluginDefine implements IPlugin {
+public abstract class AbstractClassEnhancePluginDefine{
     private static Logger logger = LogManager.getLogger(AbstractClassEnhancePluginDefine.class);
 
     public DynamicType.Builder<?> define(String transformClassName, DynamicType.Builder<?> builder) throws PluginException {

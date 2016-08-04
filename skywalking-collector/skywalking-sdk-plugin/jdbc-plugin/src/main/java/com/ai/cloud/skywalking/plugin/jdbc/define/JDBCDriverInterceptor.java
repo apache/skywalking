@@ -10,7 +10,7 @@ import com.ai.cloud.skywalking.plugin.jdbc.SWConnection;
 import java.sql.Connection;
 import java.util.Properties;
 
-public class DatabasePluginInterceptor implements InstanceMethodsAroundInterceptor {
+public class JDBCDriverInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void onConstruct(EnhancedClassInstanceContext context, ConstructorInvokeContext interceptorContext) {
     }
@@ -18,7 +18,7 @@ public class DatabasePluginInterceptor implements InstanceMethodsAroundIntercept
     @Override
     public void beforeMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
             MethodInterceptResult result) {
-
+        System.out.println("Data/////");
     }
 
     @Override
@@ -30,7 +30,8 @@ public class DatabasePluginInterceptor implements InstanceMethodsAroundIntercept
 
     @Override
     public void handleMethodException(Throwable t, EnhancedClassInstanceContext context,
-            InstanceMethodInvokeContext interceptorContext, Object ret) {
+            InstanceMethodInvokeContext interceptorContext) {
 
     }
+
 }

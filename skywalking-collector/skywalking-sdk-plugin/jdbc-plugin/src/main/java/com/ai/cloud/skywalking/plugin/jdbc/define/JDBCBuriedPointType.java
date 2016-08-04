@@ -1,4 +1,4 @@
-package com.ai.cloud.skywalking.plugin.jdbc;
+package com.ai.cloud.skywalking.plugin.jdbc.define;
 
 import com.ai.cloud.skywalking.api.IBuriedPointType;
 import com.ai.cloud.skywalking.protocol.common.CallType;

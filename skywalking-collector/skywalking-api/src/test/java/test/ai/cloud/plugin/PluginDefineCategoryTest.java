@@ -1,7 +1,6 @@
 package test.ai.cloud.plugin;
 
 import com.ai.cloud.skywalking.plugin.AbstractClassEnhancePluginDefine;
-import com.ai.cloud.skywalking.plugin.IPlugin;
 import com.ai.cloud.skywalking.plugin.PluginDefineCategory;
 import com.ai.cloud.skywalking.plugin.PluginException;
 import net.bytebuddy.dynamic.DynamicType;
@@ -41,7 +40,7 @@ public class PluginDefineCategoryTest {
                 return "com.ai.test.*";
             }
         });
-        List<IPlugin> plugins = new ArrayList<IPlugin>();
+        List<AbstractClassEnhancePluginDefine> plugins = new ArrayList<AbstractClassEnhancePluginDefine>();
         plugins.add(define1);
 
         pluginDefineCategory = PluginDefineCategory.category(plugins);

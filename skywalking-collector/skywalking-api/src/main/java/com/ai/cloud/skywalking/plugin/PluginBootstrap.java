@@ -13,7 +13,7 @@ public class PluginBootstrap {
 
     public static TypePool CLASS_TYPE_POOL = null;
 
-    public List<IPlugin> loadPlugins() {
+    public List<AbstractClassEnhancePluginDefine> loadPlugins() {
         CLASS_TYPE_POOL = TypePool.Default.ofClassPath();
 
         PluginResourcesResolver resolver = new PluginResourcesResolver();
@@ -21,7 +21,7 @@ public class PluginBootstrap {
 
         if (resources == null || resources.size() == 0) {
             logger.info("no plugin files (skywalking-plugin.properties) found, continue to start application.");
-            return new ArrayList<IPlugin>();
+            return new ArrayList<AbstractClassEnhancePluginDefine>();
         }
 
         for (URL pluginUrl : resources) {
@@ -34,11 +34,12 @@ public class PluginBootstrap {
 
         List<String> pluginClassList = PluginCfg.CFG.getPluginClassList();
 
-        List<IPlugin> plugins = new ArrayList<IPlugin>();
+        List<AbstractClassEnhancePluginDefine> plugins = new ArrayList<AbstractClassEnhancePluginDefine>();
         for (String pluginClassName : pluginClassList) {
             try {
                 logger.debug("prepare to enhance class by plugin {}.", pluginClassName);
-                IPlugin plugin = (IPlugin) Class.forName(pluginClassName).newInstance();
+                AbstractClassEnhancePluginDefine plugin =
+                        (AbstractClassEnhancePluginDefine) Class.forName(pluginClassName).newInstance();
                 plugins.add(plugin);
             } catch (Throwable t) {
                 logger.error("prepare to enhance class by plugin [{}] failure.", new Object[] {pluginClassName}, t);

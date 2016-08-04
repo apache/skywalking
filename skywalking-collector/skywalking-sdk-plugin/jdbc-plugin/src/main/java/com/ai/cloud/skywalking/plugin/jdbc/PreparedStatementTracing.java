@@ -2,6 +2,7 @@ package com.ai.cloud.skywalking.plugin.jdbc;
 
 import com.ai.cloud.skywalking.invoke.monitor.RPCClientInvokeMonitor;
 import com.ai.cloud.skywalking.model.Identification;
+import com.ai.cloud.skywalking.plugin.jdbc.define.JDBCBuriedPointType;
 
 import java.sql.SQLException;
 

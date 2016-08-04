@@ -2,7 +2,6 @@ package com.ai.cloud.skywalking.plugin;
 
 import com.ai.cloud.skywalking.logging.LogManager;
 import com.ai.cloud.skywalking.logging.Logger;
-import com.ai.cloud.skywalking.plugin.boot.IBootPluginDefine;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.dynamic.ClassFileLocator;
 import net.bytebuddy.dynamic.DynamicType;
@@ -25,12 +24,14 @@ public class TracingBootstrap {
     private TracingBootstrap() {
     }
 
-    public static void main(String[] args) throws PluginException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    public static void main(String[] args)
+            throws PluginException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException,
+            IllegalAccessException {
         if (args.length == 0) {
             throw new RuntimeException("bootstrap failure. need args[0] to be main class.");
         }
 
-        List<IPlugin> plugins = null;
+        List<AbstractClassEnhancePluginDefine> plugins = null;
 
         try {
             PluginBootstrap bootstrap = new PluginBootstrap();
@@ -39,24 +40,18 @@ public class TracingBootstrap {
             logger.error("PluginBootstrap start failure.", t);
         }
 
-        for (IPlugin plugin : plugins) {
-            if (plugin instanceof AbstractClassEnhancePluginDefine) {
-                String enhanceClassName = ((AbstractClassEnhancePluginDefine) plugin).enhanceClassName();
-                TypePool.Resolution resolution = TypePool.Default.ofClassPath().describe(enhanceClassName);
-                if (!resolution.isResolved()) {
-                    logger.error("Failed to resolve the class " + enhanceClassName);
-                    continue;
-                }
-                DynamicType.Builder<?> newClassBuilder = new ByteBuddy().rebase(resolution.resolve(), ClassFileLocator.ForClassLoader.ofClassPath());
-                newClassBuilder = ((AbstractClassEnhancePluginDefine)plugin).define(enhanceClassName, newClassBuilder);
-                newClassBuilder.make().load(ClassLoader.getSystemClassLoader(), ClassLoadingStrategy.Default.INJECTION).getLoaded();
+        for (AbstractClassEnhancePluginDefine plugin : plugins) {
+            String enhanceClassName = plugin.enhanceClassName();
+            TypePool.Resolution resolution = TypePool.Default.ofClassPath().describe(enhanceClassName);
+            if (!resolution.isResolved()) {
+                logger.error("Failed to resolve the class " + enhanceClassName);
+                continue;
             }
-
-            if(plugin instanceof IBootPluginDefine){
-                ((IBootPluginDefine)plugin).boot();
-            }
-
-
+            DynamicType.Builder<?> newClassBuilder =
+                    new ByteBuddy().rebase(resolution.resolve(), ClassFileLocator.ForClassLoader.ofClassPath());
+            newClassBuilder = ((AbstractClassEnhancePluginDefine) plugin).define(enhanceClassName, newClassBuilder);
+            newClassBuilder.make().load(ClassLoader.getSystemClassLoader(), ClassLoadingStrategy.Default.INJECTION)
+                    .getLoaded();
         }
 
         String[] newArgs = Arrays.copyOfRange(args, 1, args.length);

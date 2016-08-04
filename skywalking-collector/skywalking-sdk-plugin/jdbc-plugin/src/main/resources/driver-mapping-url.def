@@ -1,9 +1,0 @@
-jdbc:mysql=com.mysql.jdbc.Driver
-jdbc:oracle=oracle.jdbc.driver.OracleDriver
-jdbc:sybase=com.sybase.jdbc2.jdbc.SybDriver
-jdbc:microsoft:sqlserver=com.microsoft.jdbc.sqlserver.SQLServerDriver
-jdbc:sqlserver=com.microsoft.sqlserver.jdbc.SQLServerDriver
-jdbc:jtds:sqlserver=net.sourceforge.jtds.jdbc.Driver
-jdbc:db2=com.ibm.db2.jcc.DB2Driver
-jdbc:informix-sqli=com.informix.jdbc.IfxDriver
-jdbc:h2=org.h2.Driver
