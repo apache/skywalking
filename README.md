@@ -140,4 +140,5 @@ export SKYWALKING_RUN=true
 - [SkyWalking Analysis部署运行常见问题. The FAQ of SkyWalking Analysis deployment](QA/deploy-sw_analysis-problem.md)
 
 # 源代码说明
+* [网络传输协议、缓存文件协议说明. the protocols of transform between agent and collector, collector buffer file](doc/protocol.md)
 * [追踪日志明细存储结构说明. the storage structure of tracking logs](skywalking-server/doc/hbase_table_desc.md)
