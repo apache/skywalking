@@ -86,6 +86,20 @@ public final class TraceProtocol {
      */
     com.google.protobuf.ByteString
         getExceptionStackBytes();
+
+    /**
+     * <code>required string viewpointId = 7;</code>
+     */
+    boolean hasViewpointId();
+    /**
+     * <code>required string viewpointId = 7;</code>
+     */
+    java.lang.String getViewpointId();
+    /**
+     * <code>required string viewpointId = 7;</code>
+     */
+    com.google.protobuf.ByteString
+        getViewpointIdBytes();
   }
   /**
    * Protobuf type {@code AckSpan}
@@ -105,6 +119,7 @@ public final class TraceProtocol {
       cost_ = 0L;
       statusCode_ = 0;
       exceptionStack_ = "";
+      viewpointId_ = "";
     }
 
     @java.lang.Override
@@ -166,6 +181,12 @@ public final class TraceProtocol {
               com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000020;
               exceptionStack_ = bs;
+              break;
+            }
+            case 58: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x00000040;
+              viewpointId_ = bs;
               break;
             }
           }
@@ -364,6 +385,48 @@ public final class TraceProtocol {
       }
     }
 
+    public static final int VIEWPOINTID_FIELD_NUMBER = 7;
+    private volatile java.lang.Object viewpointId_;
+    /**
+     * <code>required string viewpointId = 7;</code>
+     */
+    public boolean hasViewpointId() {
+      return ((bitField0_ & 0x00000040) == 0x00000040);
+    }
+    /**
+     * <code>required string viewpointId = 7;</code>
+     */
+    public java.lang.String getViewpointId() {
+      java.lang.Object ref = viewpointId_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          viewpointId_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>required string viewpointId = 7;</code>
+     */
+    public com.google.protobuf.ByteString
+        getViewpointIdBytes() {
+      java.lang.Object ref = viewpointId_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        viewpointId_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -383,6 +446,10 @@ public final class TraceProtocol {
         return false;
       }
       if (!hasStatusCode()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      if (!hasViewpointId()) {
         memoizedIsInitialized = 0;
         return false;
       }
@@ -409,6 +476,9 @@ public final class TraceProtocol {
       }
       if (((bitField0_ & 0x00000020) == 0x00000020)) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 6, exceptionStack_);
+      }
+      if (((bitField0_ & 0x00000040) == 0x00000040)) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 7, viewpointId_);
       }
       unknownFields.writeTo(output);
     }
@@ -438,6 +508,9 @@ public final class TraceProtocol {
       }
       if (((bitField0_ & 0x00000020) == 0x00000020)) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(6, exceptionStack_);
+      }
+      if (((bitField0_ & 0x00000040) == 0x00000040)) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(7, viewpointId_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -486,6 +559,11 @@ public final class TraceProtocol {
         result = result && getExceptionStack()
             .equals(other.getExceptionStack());
       }
+      result = result && (hasViewpointId() == other.hasViewpointId());
+      if (hasViewpointId()) {
+        result = result && getViewpointId()
+            .equals(other.getViewpointId());
+      }
       result = result && unknownFields.equals(other.unknownFields);
       return result;
     }
@@ -521,6 +599,10 @@ public final class TraceProtocol {
       if (hasExceptionStack()) {
         hash = (37 * hash) + EXCEPTIONSTACK_FIELD_NUMBER;
         hash = (53 * hash) + getExceptionStack().hashCode();
+      }
+      if (hasViewpointId()) {
+        hash = (37 * hash) + VIEWPOINTID_FIELD_NUMBER;
+        hash = (53 * hash) + getViewpointId().hashCode();
       }
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
@@ -652,6 +734,8 @@ public final class TraceProtocol {
         bitField0_ = (bitField0_ & ~0x00000010);
         exceptionStack_ = "";
         bitField0_ = (bitField0_ & ~0x00000020);
+        viewpointId_ = "";
+        bitField0_ = (bitField0_ & ~0x00000040);
         return this;
       }
 
@@ -700,6 +784,10 @@ public final class TraceProtocol {
           to_bitField0_ |= 0x00000020;
         }
         result.exceptionStack_ = exceptionStack_;
+        if (((from_bitField0_ & 0x00000040) == 0x00000040)) {
+          to_bitField0_ |= 0x00000040;
+        }
+        result.viewpointId_ = viewpointId_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -766,6 +854,11 @@ public final class TraceProtocol {
           exceptionStack_ = other.exceptionStack_;
           onChanged();
         }
+        if (other.hasViewpointId()) {
+          bitField0_ |= 0x00000040;
+          viewpointId_ = other.viewpointId_;
+          onChanged();
+        }
         this.mergeUnknownFields(other.unknownFields);
         onChanged();
         return this;
@@ -782,6 +875,9 @@ public final class TraceProtocol {
           return false;
         }
         if (!hasStatusCode()) {
+          return false;
+        }
+        if (!hasViewpointId()) {
           return false;
         }
         return true;
@@ -1126,6 +1222,82 @@ public final class TraceProtocol {
   }
   bitField0_ |= 0x00000020;
         exceptionStack_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object viewpointId_ = "";
+      /**
+       * <code>required string viewpointId = 7;</code>
+       */
+      public boolean hasViewpointId() {
+        return ((bitField0_ & 0x00000040) == 0x00000040);
+      }
+      /**
+       * <code>required string viewpointId = 7;</code>
+       */
+      public java.lang.String getViewpointId() {
+        java.lang.Object ref = viewpointId_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            viewpointId_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>required string viewpointId = 7;</code>
+       */
+      public com.google.protobuf.ByteString
+          getViewpointIdBytes() {
+        java.lang.Object ref = viewpointId_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          viewpointId_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>required string viewpointId = 7;</code>
+       */
+      public Builder setViewpointId(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000040;
+        viewpointId_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required string viewpointId = 7;</code>
+       */
+      public Builder clearViewpointId() {
+        bitField0_ = (bitField0_ & ~0x00000040);
+        viewpointId_ = getDefaultInstance().getViewpointId();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required string viewpointId = 7;</code>
+       */
+      public Builder setViewpointIdBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000040;
+        viewpointId_ = value;
         onChanged();
         return this;
       }
@@ -3702,20 +3874,20 @@ public final class TraceProtocol {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\023TraceProtocol.proto\"z\n\007AckSpan\022\017\n\007trac" +
-      "eId\030\001 \002(\t\022\023\n\013parentLevel\030\002 \001(\t\022\017\n\007levelI" +
-      "d\030\003 \002(\005\022\014\n\004cost\030\004 \002(\003\022\022\n\nstatusCode\030\005 \002(" +
-      "\005\022\026\n\016exceptionStack\030\006 \001(\t\"\331\002\n\013RequestSpa" +
-      "n\022\017\n\007traceId\030\001 \002(\t\022\023\n\013parentLevel\030\002 \001(\t\022" +
-      "\017\n\007levelId\030\003 \002(\005\022\023\n\013viewPointId\030\004 \002(\t\022\021\n" +
-      "\tstartDate\030\005 \002(\003\022\024\n\014spanTypeDesc\030\006 \002(\t\022\020" +
-      "\n\010callType\030\007 \002(\t\022\020\n\010spanType\030\010 \002(\r\022\025\n\rap" +
-      "plicationId\030\t \002(\t\022\016\n\006userId\030\n \002(\t\022\024\n\014bus" +
-      "sinessKey\030\013 \001(\t\022\017\n\007agentId\030\014 \002(\t\0220\n\npara",
-      "meters\030\r \003(\0132\034.RequestSpan.ParametersEnt" +
-      "ry\0321\n\017ParametersEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005va" +
-      "lue\030\002 \001(\t:\0028\001B(\n&com.ai.cloud.skywalking" +
-      ".protocol.proto"
+      "\n\023TraceProtocol.proto\"\217\001\n\007AckSpan\022\017\n\007tra" +
+      "ceId\030\001 \002(\t\022\023\n\013parentLevel\030\002 \001(\t\022\017\n\007level" +
+      "Id\030\003 \002(\005\022\014\n\004cost\030\004 \002(\003\022\022\n\nstatusCode\030\005 \002" +
+      "(\005\022\026\n\016exceptionStack\030\006 \001(\t\022\023\n\013viewpointI" +
+      "d\030\007 \002(\t\"\331\002\n\013RequestSpan\022\017\n\007traceId\030\001 \002(\t" +
+      "\022\023\n\013parentLevel\030\002 \001(\t\022\017\n\007levelId\030\003 \002(\005\022\023" +
+      "\n\013viewPointId\030\004 \002(\t\022\021\n\tstartDate\030\005 \002(\003\022\024" +
+      "\n\014spanTypeDesc\030\006 \002(\t\022\020\n\010callType\030\007 \002(\t\022\020" +
+      "\n\010spanType\030\010 \002(\r\022\025\n\rapplicationId\030\t \002(\t\022" +
+      "\016\n\006userId\030\n \002(\t\022\024\n\014bussinessKey\030\013 \001(\t\022\017\n",
+      "\007agentId\030\014 \002(\t\0220\n\nparameters\030\r \003(\0132\034.Req" +
+      "uestSpan.ParametersEntry\0321\n\017ParametersEn" +
+      "try\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t:\0028\001B(\n&c" +
+      "om.ai.cloud.skywalking.protocol.proto"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -3734,7 +3906,7 @@ public final class TraceProtocol {
     internal_static_AckSpan_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_AckSpan_descriptor,
-        new java.lang.String[] { "TraceId", "ParentLevel", "LevelId", "Cost", "StatusCode", "ExceptionStack", });
+        new java.lang.String[] { "TraceId", "ParentLevel", "LevelId", "Cost", "StatusCode", "ExceptionStack", "ViewpointId", });
     internal_static_RequestSpan_descriptor =
       getDescriptor().getMessageTypes().get(1);
     internal_static_RequestSpan_fieldAccessorTable = new

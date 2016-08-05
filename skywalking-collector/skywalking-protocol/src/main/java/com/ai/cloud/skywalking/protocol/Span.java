@@ -211,4 +211,8 @@ public class Span {
     public void setInvokeResult(String result){
         this.parameters.put(INVOKE_RESULT_PARAMETER_KEY, result);
     }
+
+    public String getViewPointId() {
+        return viewPointId;
+    }
 }

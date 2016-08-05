@@ -1,11 +1,8 @@
 package com.ai.cloud.skywalking.protocol;
 
-import com.ai.cloud.skywalking.protocol.common.AbstractDataSerializable;
 import com.ai.cloud.skywalking.protocol.common.ISerializable;
-import com.ai.cloud.skywalking.protocol.exception.ConvertFailedException;
 import com.ai.cloud.skywalking.protocol.util.IntegerAssist;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 

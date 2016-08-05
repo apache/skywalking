@@ -65,18 +65,25 @@ public class AckSpan extends AbstractDataSerializable {
         this.userId = spanData.getUserId();
         this.applicationId = spanData.getApplicationId();
         this.paramters.putAll(spanData.getParameters());
+        this.viewPointId = spanData.getViewPointId();
     }
 
     public AckSpan() {
 
     }
 
-    public AckSpan(byte[] originData) throws InvalidProtocolBufferException {
-        TraceProtocol.AckSpan ackSpanProtocol = TraceProtocol.AckSpan.parseFrom(originData);
+    public AckSpan(byte[] originData) throws ConvertFailedException {
+        TraceProtocol.AckSpan ackSpanProtocol = null;
+        try {
+            ackSpanProtocol = TraceProtocol.AckSpan.parseFrom(originData);
+        } catch (InvalidProtocolBufferException e) {
+            throw new ConvertFailedException(e.getMessage(), e);
+        }
         this.setTraceId(ackSpanProtocol.getTraceId());
         this.setParentLevel(ackSpanProtocol.getParentLevel());
         this.setLevelId(ackSpanProtocol.getLevelId());
         this.setCost(ackSpanProtocol.getCost());
+        this.viewPointId = ackSpanProtocol.getViewpointId();
         this.setExceptionStack(ackSpanProtocol.getExceptionStack());
         this.setStatusCode((byte) ackSpanProtocol.getStatusCode());
     }
@@ -145,8 +152,8 @@ public class AckSpan extends AbstractDataSerializable {
     @Override
     public byte[] getData() {
         return TraceProtocol.AckSpan.newBuilder().setTraceId(traceId).setParentLevel(parentLevel).
-                setLevelId(levelId).setCost(cost).setStatusCode(statusCode).setExceptionStack(exceptionStack).build()
-                .toByteArray();
+                setLevelId(levelId).setCost(cost).setViewpointId(viewPointId).setStatusCode(statusCode)
+                .setExceptionStack(exceptionStack).build().toByteArray();
     }
 
     @Override
@@ -160,8 +167,9 @@ public class AckSpan extends AbstractDataSerializable {
             ackSpan.setCost(ackSpanProtocol.getCost());
             ackSpan.setExceptionStack(ackSpanProtocol.getExceptionStack());
             ackSpan.setStatusCode((byte) ackSpanProtocol.getStatusCode());
+            ackSpan.viewPointId = ackSpanProtocol.getViewpointId();
         } catch (InvalidProtocolBufferException e) {
-            throw new ConvertFailedException();
+            throw new ConvertFailedException(e.getMessage(),e);
         }
 
         return ackSpan;

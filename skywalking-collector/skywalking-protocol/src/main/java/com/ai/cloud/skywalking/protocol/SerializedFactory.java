@@ -32,7 +32,7 @@ public class SerializedFactory {
                 }
             }
         } catch (Exception e) {
-            throw new ConvertFailedException();
+            throw new ConvertFailedException(e.getMessage(), e);
         }
         return null;
     }

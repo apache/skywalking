@@ -9,7 +9,7 @@ message AckSpan {
     required int64 cost = 4;
     required int32 statusCode = 5;
     optional string exceptionStack = 6;
-
+    required string viewpointId = 7;
 }
 
 message RequestSpan {

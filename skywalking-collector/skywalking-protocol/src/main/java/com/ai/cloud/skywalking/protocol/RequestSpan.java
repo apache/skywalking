@@ -98,8 +98,13 @@ public class RequestSpan extends AbstractDataSerializable {
 
     }
 
-    public RequestSpan(byte[] originData) throws InvalidProtocolBufferException {
-        TraceProtocol.RequestSpan requestSpanByte = TraceProtocol.RequestSpan.parseFrom(originData);
+    public RequestSpan(byte[] originData) throws ConvertFailedException {
+        TraceProtocol.RequestSpan requestSpanByte = null;
+        try {
+            requestSpanByte = TraceProtocol.RequestSpan.parseFrom(originData);
+        } catch (InvalidProtocolBufferException e) {
+            throw new ConvertFailedException(e.getMessage(), e);
+        }
         this.setTraceId(requestSpanByte.getTraceId());
         this.setParentLevel(requestSpanByte.getParentLevel());
         this.setLevelId(requestSpanByte.getLevelId());
@@ -247,7 +252,7 @@ public class RequestSpan extends AbstractDataSerializable {
             requestSpan.setBusinessKey(requestSpanByte.getBussinessKey());
             requestSpan.setAgentId(requestSpanByte.getAgentId());
         } catch (InvalidProtocolBufferException e) {
-            throw new ConvertFailedException();
+            throw new ConvertFailedException(e.getMessage(), e);
         }
 
         return requestSpan;
