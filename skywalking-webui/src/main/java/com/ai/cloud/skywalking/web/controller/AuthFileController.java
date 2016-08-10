@@ -50,7 +50,7 @@ public class AuthFileController extends BaseController {
             return;
         }
         LoginUserInfo loginUserInfo = fetchLoginUserInfoFromSession(request);
-        String filepath = loginUserInfo.getUserName() + "-" + applicationCode + ".jar";
+        String filepath = "sky-walking.auth";
         response.reset();
         response.setContentType("application/octet-stream");
         String fileName = URLDecoder.decode(filepath, "utf-8");
@@ -79,10 +79,7 @@ public class AuthFileController extends BaseController {
 
         File file = new File(request.getServletContext().getRealPath("/") + File.separator + "download" + File.separator + fileName);
         file.delete();
-        // 生成JarFile
-        JarOutputStream stream = new JarOutputStream(new FileOutputStream(file));
-        JarEntry entry = new JarEntry("sky-walking.auth");
-        stream.putNextEntry(entry);
+        FileOutputStream stream = new FileOutputStream(file);
         properties.store(stream, "");
         stream.flush();
         stream.close();

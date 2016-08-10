@@ -214,14 +214,14 @@
                             <label for="inputPassword3" class="col-sm-3 control-label">收件人地址:</label>
                             <div class="col-sm-9">
                                 <input type="text-are" class="form-control" id="mailTo" name="mailTo"
-                                       placeholder="Application Description">
+                                       placeholder="test@test.com,test@test.com">
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="inputPassword3" class="col-sm-3 control-label">抄送人地址:</label>
                             <div class="col-sm-9">
                                 <input type="text" class="form-control" id="mailCc" name="mailCc"
-                                       placeholder="Application Description">
+                                       placeholder="test@test.com,test@test.com">
                             </div>
                         </div>
                     </div>
