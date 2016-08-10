@@ -55,6 +55,8 @@ public class AckSpan extends AbstractDataSerializable {
 
     private String applicationId;
 
+    private static final AckSpan INSTANCE = new AckSpan();
+
     public AckSpan(Span spanData) {
         this.traceId = spanData.getTraceId();
         this.parentLevel = spanData.getParentLevel();
@@ -68,24 +70,8 @@ public class AckSpan extends AbstractDataSerializable {
         this.viewPointId = spanData.getViewPointId();
     }
 
-    public AckSpan() {
+    private AckSpan() {
 
-    }
-
-    public AckSpan(byte[] originData) throws ConvertFailedException {
-        TraceProtocol.AckSpan ackSpanProtocol = null;
-        try {
-            ackSpanProtocol = TraceProtocol.AckSpan.parseFrom(originData);
-        } catch (InvalidProtocolBufferException e) {
-            throw new ConvertFailedException(e.getMessage(), e);
-        }
-        this.setTraceId(ackSpanProtocol.getTraceId());
-        this.setParentLevel(ackSpanProtocol.getParentLevel());
-        this.setLevelId(ackSpanProtocol.getLevelId());
-        this.setCost(ackSpanProtocol.getCost());
-        this.viewPointId = ackSpanProtocol.getViewpointId();
-        this.setExceptionStack(ackSpanProtocol.getExceptionStack());
-        this.setStatusCode((byte) ackSpanProtocol.getStatusCode());
     }
 
     public String getTraceId() {
@@ -173,6 +159,10 @@ public class AckSpan extends AbstractDataSerializable {
         }
 
         return ackSpan;
+    }
+
+    public static AckSpan convert(byte[] data) throws ConvertFailedException {
+        return (AckSpan) INSTANCE.convertData(data);
     }
 
     public boolean isNull() {

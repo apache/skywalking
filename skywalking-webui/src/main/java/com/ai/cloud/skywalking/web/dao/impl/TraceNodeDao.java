@@ -1,5 +1,6 @@
 package com.ai.cloud.skywalking.web.dao.impl;
 
+import com.ai.cloud.skywalking.protocol.RequestSpan;
 import com.ai.cloud.skywalking.protocol.exception.ConvertFailedException;
 import com.ai.cloud.skywalking.web.dto.TraceNodeInfo;
 import com.ai.cloud.skywalking.web.dto.TraceNodesResult;
@@ -48,12 +49,12 @@ public class TraceNodeDao implements ITraceNodeDao {
         Map<String, TraceNodeInfo> rpcMap = new HashMap<String, TraceNodeInfo>();
         TraceNodesResult result = new TraceNodesResult();
         if (r.rawCells().length < Constants.MAX_SEARCH_SPAN_SIZE) {
-            SpanDataHandler spanDataHandler = new SpanDataHandler();
+            CellToSpanHandler cellToSpanHandler = new CellToSpanHandler();
             for (Cell cell : r.rawCells()) {
-                spanDataHandler.addSpan(cell);
+                cellToSpanHandler.addSpan(cell);
             }
 
-            for (Map.Entry<String, TraceNodeInfo> entry : spanDataHandler.merge().entrySet()){
+            for (Map.Entry<String, TraceNodeInfo> entry : cellToSpanHandler.handle().entrySet()){
                 SortUtil.addCurNodeTreeMapKey(traceLogMap, entry.getKey(), entry.getValue());
             }
             computeRPCInfo(rpcMap, traceLogMap);
@@ -64,6 +65,8 @@ public class TraceNodeDao implements ITraceNodeDao {
         }
         return result;
     }
+
+
 
     private static final String[] NODES = new String[] {"0","0-ACK","0.0","0.0-ACK"};
 
@@ -81,13 +84,13 @@ public class TraceNodeDao implements ITraceNodeDao {
 
         Map<String, TraceNodeInfo> traceLogMap = new HashMap<String, TraceNodeInfo>();
         Map<String, TraceNodeInfo> rpcMap = new HashMap<String, TraceNodeInfo>();
-        SpanDataHandler spanDataHandler = new SpanDataHandler();
+        CellToSpanHandler cellToSpanHandler = new CellToSpanHandler();
         for (String node : NODES) {
             Cell cell = r.getColumnLatestCell("call-chain".getBytes(), node.getBytes());
-            spanDataHandler.addSpan(cell);
+            cellToSpanHandler.addSpan(cell);
         }
 
-        for (Map.Entry<String, TraceNodeInfo> entry : spanDataHandler.merge().entrySet()){
+        for (Map.Entry<String, TraceNodeInfo> entry : cellToSpanHandler.handle().entrySet()){
             SortUtil.addCurNodeTreeMapKey(traceLogMap, entry.getKey(), entry.getValue());
         }
 

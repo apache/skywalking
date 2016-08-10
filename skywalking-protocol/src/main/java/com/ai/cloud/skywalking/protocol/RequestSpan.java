@@ -96,6 +96,9 @@ public class RequestSpan extends AbstractDataSerializable {
      */
     protected String address = "";
 
+
+    private static final RequestSpan INSTANCE = new RequestSpan();
+
     public RequestSpan(Span spanData) {
         this.traceId = spanData.getTraceId();
         this.parentLevel = spanData.getParentLevel();
@@ -105,33 +108,9 @@ public class RequestSpan extends AbstractDataSerializable {
         this.userId = spanData.getUserId();
     }
 
-    public RequestSpan() {
+    private RequestSpan() {
 
     }
-
-    public RequestSpan(byte[] originData) throws ConvertFailedException {
-        TraceProtocol.RequestSpan requestSpanByte = null;
-        try {
-            requestSpanByte = TraceProtocol.RequestSpan.parseFrom(originData);
-        } catch (InvalidProtocolBufferException e) {
-            throw new ConvertFailedException(e.getMessage(), e);
-        }
-        this.setTraceId(requestSpanByte.getTraceId());
-        this.setParentLevel(requestSpanByte.getParentLevel());
-        this.setLevelId(requestSpanByte.getLevelId());
-        this.setApplicationId(requestSpanByte.getApplicationId());
-        this.setCallType(requestSpanByte.getCallType());
-        this.setSpanType(SpanType.convert(requestSpanByte.getSpanType()));
-        this.setSpanTypeDesc(requestSpanByte.getSpanTypeDesc());
-        this.setStartDate(requestSpanByte.getStartDate());
-        this.setUserId(requestSpanByte.getUserId());
-        this.setViewPointId(requestSpanByte.getViewPointId());
-        this.setBusinessKey(requestSpanByte.getBussinessKey());
-        this.setAgentId(requestSpanByte.getAgentId());
-        this.setProcessNo(requestSpanByte.getProcessNo());
-        this.setAddress(requestSpanByte.getAddress());
-    }
-
     private boolean isEntrySpan() {
         return "0".equals(this.getParentLevel() + this.getLevelId());
     }
@@ -272,6 +251,10 @@ public class RequestSpan extends AbstractDataSerializable {
         }
 
         return requestSpan;
+    }
+
+    public static RequestSpan convert(byte[] data) throws ConvertFailedException {
+        return (RequestSpan)INSTANCE.convertData(data);
     }
 
     public void setBusinessKey(String businessKey) {

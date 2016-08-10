@@ -1,20 +1,21 @@
-package com.ai.cloud.skywalking.web.dao.impl;
+package com.ai.cloud.skywalking.analysis.chainbuild.util;
 
 import com.ai.cloud.skywalking.protocol.AckSpan;
+import com.ai.cloud.skywalking.protocol.FullSpan;
 import com.ai.cloud.skywalking.protocol.RequestSpan;
 import com.ai.cloud.skywalking.protocol.exception.ConvertFailedException;
-import com.ai.cloud.skywalking.web.dto.TraceNodeInfo;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.util.Bytes;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
-public class SpanDataHandler {
+public class CellToSpanHandler {
     private Map<String, RequestSpan> levelIdToRequestSpans;
     private Map<String, AckSpan>     levelIdToAckSpans;
 
-    public SpanDataHandler() {
+    public CellToSpanHandler() {
         levelIdToRequestSpans = new HashMap<String, RequestSpan>();
         levelIdToAckSpans = new HashMap<String, AckSpan>();
     }
@@ -33,21 +34,32 @@ public class SpanDataHandler {
     }
 
     private RequestSpan convertRequestSpan(byte[] originData) throws ConvertFailedException {
-        return new RequestSpan(originData);
+        return RequestSpan.convert(originData);
     }
 
     private AckSpan convertACKSpan(byte[] originData) throws ConvertFailedException {
-        return new AckSpan(originData);
+        return AckSpan.convert(originData);
     }
 
-    public Map<String, TraceNodeInfo> merge() {
-        Map<String,TraceNodeInfo> traceNodeInfos = new HashMap<String,TraceNodeInfo>();
+    public Map<String, FullSpan> handle() {
+        Map<String,FullSpan> fullSpans = new HashMap<String,FullSpan>();
         for (Map.Entry<String, RequestSpan> entry : levelIdToRequestSpans.entrySet()){
-            TraceNodeInfo traceNodeInfo = new TraceNodeInfo(entry.getValue(), levelIdToAckSpans.get(entry.getKey()));
-            traceNodeInfos.put(entry.getKey(),traceNodeInfo);
+            FullSpan traceNodeInfo = new FullSpan(entry.getValue(), levelIdToAckSpans.get(entry.getKey()));
+            fullSpans.put(entry.getKey(),traceNodeInfo);
         }
 
-        return traceNodeInfos;
+        return fullSpans;
     }
+
+
+    public Map<String, RequestSpan> getRequestSpans() {
+        return levelIdToRequestSpans;
+    }
+
+    public Map<String, AckSpan> getAckSpans() {
+        return levelIdToAckSpans;
+    }
+
+
 
 }
