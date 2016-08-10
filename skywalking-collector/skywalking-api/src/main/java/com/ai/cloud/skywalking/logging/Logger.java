@@ -89,7 +89,7 @@ public class Logger {
                 break;
             }
 
-            tmpMessage = tmpMessage.replaceFirst("\\{\\}", parameters[parametersIndex++].toString());
+            tmpMessage = tmpMessage.replaceFirst("\\{\\}", String.valueOf(parameters[parametersIndex++]));
             startSize = index + 2;
         }
         return tmpMessage;

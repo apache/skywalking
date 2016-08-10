@@ -1,6 +1,7 @@
 package com.ai.cloud.skywalking.reciever.peresistent;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
@@ -13,13 +14,20 @@ public class OffsetFile {
     private long lastModifyTime;
 
     public OffsetFile(String offsetFileName, List<String> bufferFileNameList) throws IOException {
-        BufferedReader reader = new BufferedReader(new FileReader(offsetFileName));
+        File offsetFile = new File(offsetFileName);
+        if (offsetFile.exists()){
+            isComplete = false;
+            return;
+        }
+
+        BufferedReader reader = new BufferedReader(new FileReader(offsetFile));
         String offsetData;
         String lastModifyTimeStr = reader.readLine();
         if (lastModifyTimeStr == null || lastModifyTimeStr.length() == 0) {
             isComplete = false;
             return;
         }
+        
         lastModifyTime = Long.parseLong(lastModifyTimeStr);
         while ((offsetData = reader.readLine()) != null && !"EOF".equals(offsetData)) {
             String[] ss = offsetData.split("\t");

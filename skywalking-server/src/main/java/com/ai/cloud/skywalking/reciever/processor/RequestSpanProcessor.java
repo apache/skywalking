@@ -2,6 +2,7 @@ package com.ai.cloud.skywalking.reciever.processor;
 
 import com.ai.cloud.skywalking.protocol.RequestSpan;
 import com.ai.cloud.skywalking.protocol.common.AbstractDataSerializable;
+import com.ai.cloud.skywalking.protocol.exception.ConvertFailedException;
 import com.ai.cloud.skywalking.reciever.conf.Config;
 import com.ai.cloud.skywalking.reciever.util.HBaseUtil;
 import org.apache.commons.lang.StringUtils;
@@ -30,6 +31,9 @@ public class RequestSpanProcessor extends AbstractSpanProcessor {
         String columnName;
         for (AbstractDataSerializable serializedObject : serializedObjects) {
             RequestSpan requestSpan = (RequestSpan) serializedObject;
+            System.out.println(
+                    requestSpan.getTraceId() + ":" + requestSpan.getParentLevel() + "." + requestSpan.getLevelId() + ":"
+                            + requestSpan.getViewPointId());
             Put put = new Put(Bytes.toBytes(requestSpan.getTraceId()), getTSBySpanTraceId(requestSpan.getTraceId()));
             if (StringUtils.isEmpty(requestSpan.getParentLevel().trim())) {
                 columnName = requestSpan.getLevelId() + "";
@@ -38,7 +42,6 @@ public class RequestSpanProcessor extends AbstractSpanProcessor {
             }
             put.addColumn(Bytes.toBytes(Config.HBaseConfig.FAMILY_COLUMN_NAME), Bytes.toBytes(columnName),
                     requestSpan.getData());
-
             puts.add(put);
         }
         // save

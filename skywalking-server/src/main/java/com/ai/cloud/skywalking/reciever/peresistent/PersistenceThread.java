@@ -1,5 +1,7 @@
 package com.ai.cloud.skywalking.reciever.peresistent;
 
+import com.ai.cloud.skywalking.protocol.AckSpan;
+import com.ai.cloud.skywalking.protocol.RequestSpan;
 import com.ai.cloud.skywalking.protocol.common.AbstractDataSerializable;
 import com.ai.cloud.skywalking.reciever.conf.Config;
 import com.ai.cloud.skywalking.reciever.processor.IProcessor;

@@ -127,30 +127,4 @@ public class SearchController extends BaseController {
         }
         return jsonObject.toJSONString();
     }
-
-    private List<BreviaryChainTree> generateCallChainTree() {
-        List<BreviaryChainTree> acronymousChainTreeWithGuessNodes = new ArrayList<BreviaryChainTree>();
-        BreviaryChainTree chainTree = new BreviaryChainTree("test");
-        chainTree.setEntranceViewpoint("test");
-        chainTree.setTreeId("test tree id");
-        List<BreviaryChainNode> breviaryChainNodes = new ArrayList<>();
-        BreviaryChainNode breviaryChainNode = new BreviaryChainNode("0.0", "test view point id", true);
-        BreviaryChainNode breviaryChainNode1 = new BreviaryChainNode("0.0.0", "test view point id", true);
-        BreviaryChainNode breviaryChainNode2 = new BreviaryChainNode("0.1", "test view point id", true);
-        BreviaryChainNode breviaryChainNode3 = new BreviaryChainNode("0.2", "test view point id", true);
-        breviaryChainNodes.add(breviaryChainNode);
-        breviaryChainNodes.add(breviaryChainNode1);
-        breviaryChainNodes.add(breviaryChainNode2);
-        breviaryChainNodes.add(breviaryChainNode3);
-        chainTree.setNodes(breviaryChainNodes);
-        acronymousChainTreeWithGuessNodes.add(chainTree);
-        AnlyResult anlyResult = new AnlyResult();
-        anlyResult.setTotalCostTime(1000);
-        anlyResult.setTotalCall(20);
-        anlyResult.setHumanInterruptionNumber(10);
-        anlyResult.setCorrectNumber(10);
-        chainTree.setEntranceAnlyResult(anlyResult);
-        return acronymousChainTreeWithGuessNodes;
-    }
-
 }

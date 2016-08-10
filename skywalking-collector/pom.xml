@@ -12,7 +12,6 @@
 	<artifactId>skywalking-collector</artifactId>
 
 	<modules>
-		<module>skywalking-protocol</module>
 		<module>skywalking-api</module>
 		<module>skywalking-sdk-plugin</module>
 		<module>skywalking-log</module>

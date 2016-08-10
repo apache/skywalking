@@ -12,6 +12,6 @@ public abstract class AbstractDatabasePluginDefine extends ClassInstanceMethodsE
 
     @Override
     protected String getInstanceMethodsInterceptor() {
-        return "com.ai.cloud.skywalking.plugin.jdbc.define.DatabasePluginInterceptor";
+        return "com.ai.cloud.skywalking.plugin.jdbc.define.JDBCDriverInterceptor";
     }
 }

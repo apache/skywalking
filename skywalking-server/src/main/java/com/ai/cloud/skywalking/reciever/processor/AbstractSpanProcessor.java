@@ -7,6 +7,10 @@ import com.ai.cloud.skywalking.reciever.selfexamination.ServerHealthCollector;
 import com.ai.cloud.skywalking.reciever.selfexamination.ServerHeathReading;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
+import org.apache.hadoop.hbase.HColumnDescriptor;
+import org.apache.hadoop.hbase.HTableDescriptor;
+import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.logging.log4j.LogManager;
@@ -14,6 +18,8 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.List;
+
+import static org.apache.hadoop.hbase.util.Bytes.toBytes;
 
 public abstract class AbstractSpanProcessor implements IProcessor {
     private static Logger        logger        = LogManager.getLogger(AbstractSpanProcessor.class);
@@ -30,17 +36,27 @@ public abstract class AbstractSpanProcessor implements IProcessor {
             configuration.set("hbase.zookeeper.quorum", Config.HBaseConfig.ZK_HOSTNAME);
             configuration.set("hbase.zookeeper.property.clientPort", Config.HBaseConfig.CLIENT_PORT);
         }
+
         try {
             connection = ConnectionFactory.createConnection(configuration);
+            Admin admin = connection.getAdmin();
+            if (!admin.tableExists(TableName.valueOf(Config.HBaseConfig.TABLE_NAME))){
+                HTableDescriptor descriptor = new HTableDescriptor(TableName.valueOf(Config.HBaseConfig.TABLE_NAME));
+                HColumnDescriptor family = new HColumnDescriptor(toBytes(Config.HBaseConfig.FAMILY_COLUMN_NAME));
+                descriptor.addFamily(family);
+                admin.createTable(descriptor);
+            }
         } catch (IOException e) {
             ServerHealthCollector.getCurrentHeathReading("hbase").updateData(ServerHeathReading.ERROR, "connect to hbase failure.");
             throw new HBaseInitFailedException("initHBaseClient failure", e);
         }
+
+
     }
 
     @Override
     public void process(List<AbstractDataSerializable> serializedObjects) {
-        doAlarm(serializedObjects);
+        //doAlarm(serializedObjects);
         doSaveHBase(connection, serializedObjects);
     }
 

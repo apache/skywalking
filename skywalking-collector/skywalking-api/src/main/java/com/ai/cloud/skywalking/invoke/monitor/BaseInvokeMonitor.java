@@ -11,6 +11,7 @@ import com.ai.cloud.skywalking.model.Identification;
 import com.ai.cloud.skywalking.protocol.AckSpan;
 import com.ai.cloud.skywalking.protocol.RequestSpan;
 import com.ai.cloud.skywalking.protocol.Span;
+import com.ai.cloud.skywalking.protocol.util.BuriedPointMachineUtil;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -31,14 +32,15 @@ public abstract class BaseInvokeMonitor {
                     + spanData.getParentLevel() + "\tLevelId:" + spanData.getLevelId());
         }
 
+        // 将新创建的Context存放到ThreadLocal栈中。
+        CurrentThreadSpanStack.push(spanData);
 
         // 根据SpanData生成RequestSpan，并保存
         ContextBuffer.save(RequestSpan.RequestSpanBuilder.
-                newBuilder(spanData).callType(id.getCallType()).viewPoint(id.getViewPoint())
-                .spanTypeDesc(id.getSpanTypeDesc()).build());
+                newBuilder(CurrentThreadSpanStack.peek()).callType(id.getCallType()).viewPoint(id.getViewPoint())
+                .spanTypeDesc(id.getSpanTypeDesc()).processNo(BuriedPointMachineUtil.getProcessNo())
+                .address(BuriedPointMachineUtil.getHostDesc()).build());
 
-        // 将新创建的Context存放到ThreadLocal栈中。
-        CurrentThreadSpanStack.push(spanData);
         // 并将当前的Context返回回去
         return new ContextData(spanData);
     }

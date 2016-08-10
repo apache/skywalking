@@ -1,0 +1,31 @@
+syntax = "proto2";
+
+option java_package = "com.ai.cloud.skywalking.protocol.proto";
+
+message AckSpan {
+    required string traceId = 1;
+    optional string parentLevel = 2;
+    required int32 levelId = 3;
+    required int64 cost = 4;
+    required int32 statusCode = 5;
+    optional string exceptionStack = 6;
+    required string viewpointId = 7;
+}
+
+message RequestSpan {
+    required string traceId = 1;
+    optional string parentLevel = 2;
+    required int32 levelId = 3;
+    required string viewPointId = 4;
+    required int64 startDate = 5;
+    required string spanTypeDesc = 6;
+    required string callType = 7;
+    required uint32 spanType = 8;
+    required string applicationId = 9;
+    required string userId = 10;
+    optional string bussinessKey = 11;
+    required string agentId = 12;
+    map<string,string> parameters = 13;
+    required string processNo = 14;
+    required string address = 15;
+}

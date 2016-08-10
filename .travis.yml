@@ -6,6 +6,9 @@ install:
   - mvn install:install-file  -Dfile=dubbox-2.8.4.jar  -DgroupId=com.alibaba  -DartifactId=dubbox -Dversion=2.8.4 -Dpackaging=jar
   - mvn install:install-file  -Dfile=ojdbc14-10.2.0.4.0.jar  -DgroupId=com.oracle  -DartifactId=ojdbc14 -Dversion=10.2.0.4.0 -Dpackaging=jar
   - cd ..
-  
+
 script:
+  - cd skywalking-protocal
+  - mvn clean install -Dmaven.test.skip=true
+  - cd ..
   - mvn clean install -Dmaven.test.skip=true

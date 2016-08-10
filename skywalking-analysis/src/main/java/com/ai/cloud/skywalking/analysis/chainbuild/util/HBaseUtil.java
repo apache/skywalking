@@ -9,6 +9,7 @@ import com.ai.cloud.skywalking.analysis.config.HBaseTableMetaData;
 import com.ai.cloud.skywalking.protocol.AckSpan;
 import com.ai.cloud.skywalking.protocol.FullSpan;
 import com.ai.cloud.skywalking.protocol.RequestSpan;
+import com.ai.cloud.skywalking.protocol.exception.ConvertFailedException;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -75,7 +76,8 @@ public class HBaseUtil {
         if (configuration == null) {
             configuration = HBaseConfiguration.create();
             if (Config.HBase.ZK_QUORUM == null || "".equals(Config.HBase.ZK_QUORUM)) {
-                logger.error("Miss HBase ZK quorum Configuration", new IllegalArgumentException("Miss HBase ZK quorum Configuration"));
+                logger.error("Miss HBase ZK quorum Configuration",
+                        new IllegalArgumentException("Miss HBase ZK quorum Configuration"));
                 System.exit(-1);
             }
             configuration.set("hbase.zookeeper.quorum", Config.HBase.ZK_QUORUM);
@@ -86,7 +88,8 @@ public class HBaseUtil {
 
     public static ChainNodeSpecificMinSummary loadSpecificMinSummary(String key, String qualifier) throws IOException {
         ChainNodeSpecificMinSummary result = null;
-        Table table = connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_CHAIN_ONE_MINUTE_SUMMARY.TABLE_NAME));
+        Table table =
+                connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_CHAIN_ONE_MINUTE_SUMMARY.TABLE_NAME));
         Get g = new Get(Bytes.toBytes(key));
         Result r = table.get(g);
 
@@ -94,12 +97,13 @@ public class HBaseUtil {
             return new ChainNodeSpecificMinSummary();
         }
 
-        Cell cell = r.getColumnLatestCell(HBaseTableMetaData.TABLE_CHAIN_ONE_MINUTE_SUMMARY.COLUMN_FAMILY_NAME.getBytes(),
-                qualifier.getBytes());
+        Cell cell =
+                r.getColumnLatestCell(HBaseTableMetaData.TABLE_CHAIN_ONE_MINUTE_SUMMARY.COLUMN_FAMILY_NAME.getBytes(),
+                        qualifier.getBytes());
 
         if (cell != null && cell.getValueArray().length > 0) {
-            result = new ChainNodeSpecificMinSummary(Bytes.toString(cell.getValueArray(),
-                    cell.getValueOffset(), cell.getValueLength()));
+            result = new ChainNodeSpecificMinSummary(
+                    Bytes.toString(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength()));
         } else {
             result = new ChainNodeSpecificMinSummary();
         }
@@ -107,9 +111,11 @@ public class HBaseUtil {
         return result;
     }
 
-    public static ChainNodeSpecificHourSummary loadSpecificHourSummary(String keyOfHourSummaryTable, String treeNodeId) throws IOException {
+    public static ChainNodeSpecificHourSummary loadSpecificHourSummary(String keyOfHourSummaryTable, String treeNodeId)
+            throws IOException {
         ChainNodeSpecificHourSummary result = null;
-        Table table = connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_CHAIN_ONE_HOUR_SUMMARY.TABLE_NAME));
+        Table table =
+                connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_CHAIN_ONE_HOUR_SUMMARY.TABLE_NAME));
         Get g = new Get(Bytes.toBytes(keyOfHourSummaryTable));
         Result r = table.get(g);
 
@@ -121,8 +127,8 @@ public class HBaseUtil {
                 treeNodeId.getBytes());
 
         if (cell != null && cell.getValueArray().length > 0) {
-            result = new ChainNodeSpecificHourSummary(Bytes.toString(cell.getValueArray(),
-                    cell.getValueOffset(), cell.getValueLength()));
+            result = new ChainNodeSpecificHourSummary(
+                    Bytes.toString(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength()));
         } else {
             result = new ChainNodeSpecificHourSummary();
         }
@@ -130,7 +136,8 @@ public class HBaseUtil {
         return result;
     }
 
-    public static ChainNodeSpecificDaySummary loadSpecificDaySummary(String keyOfDaySummaryTable, String treeNodeId) throws IOException {
+    public static ChainNodeSpecificDaySummary loadSpecificDaySummary(String keyOfDaySummaryTable, String treeNodeId)
+            throws IOException {
         ChainNodeSpecificDaySummary result = null;
         Table table = connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_CHAIN_ONE_DAY_SUMMARY.TABLE_NAME));
         Get g = new Get(Bytes.toBytes(keyOfDaySummaryTable));
@@ -144,8 +151,8 @@ public class HBaseUtil {
                 treeNodeId.getBytes());
 
         if (cell != null && cell.getValueArray().length > 0) {
-            result = new ChainNodeSpecificDaySummary(Bytes.toString(cell.getValueArray(),
-                    cell.getValueOffset(), cell.getValueLength()));
+            result = new ChainNodeSpecificDaySummary(
+                    Bytes.toString(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength()));
         } else {
             result = new ChainNodeSpecificDaySummary();
         }
@@ -153,9 +160,11 @@ public class HBaseUtil {
         return result;
     }
 
-    public static ChainNodeSpecificMonthSummary loadSpecificMonthSummary(String keyOfMonthSummaryTable, String treeNodeId) throws IOException {
+    public static ChainNodeSpecificMonthSummary loadSpecificMonthSummary(String keyOfMonthSummaryTable,
+            String treeNodeId) throws IOException {
         ChainNodeSpecificMonthSummary result = null;
-        Table table = connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_CHAIN_ONE_MONTH_SUMMARY.TABLE_NAME));
+        Table table =
+                connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_CHAIN_ONE_MONTH_SUMMARY.TABLE_NAME));
         Get g = new Get(Bytes.toBytes(keyOfMonthSummaryTable));
         Result r = table.get(g);
 
@@ -163,12 +172,13 @@ public class HBaseUtil {
             return new ChainNodeSpecificMonthSummary();
         }
 
-        Cell cell = r.getColumnLatestCell(HBaseTableMetaData.TABLE_CHAIN_ONE_MONTH_SUMMARY.COLUMN_FAMILY_NAME.getBytes(),
-                treeNodeId.getBytes());
+        Cell cell =
+                r.getColumnLatestCell(HBaseTableMetaData.TABLE_CHAIN_ONE_MONTH_SUMMARY.COLUMN_FAMILY_NAME.getBytes(),
+                        treeNodeId.getBytes());
 
         if (cell != null && cell.getValueArray().length > 0) {
-            result = new ChainNodeSpecificMonthSummary(Bytes.toString(cell.getValueArray(),
-                    cell.getValueOffset(), cell.getValueLength()));
+            result = new ChainNodeSpecificMonthSummary(
+                    Bytes.toString(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength()));
         } else {
             result = new ChainNodeSpecificMonthSummary();
         }
@@ -178,7 +188,8 @@ public class HBaseUtil {
 
     public static List<String> loadHasBeenMergeChainIds(String treeId) throws IOException {
         List<String> result = new ArrayList<String>();
-        Table table = connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_CALL_CHAIN_TREE_ID_AND_CID_MAPPING.TABLE_NAME));
+        Table table = connection
+                .getTable(TableName.valueOf(HBaseTableMetaData.TABLE_CALL_CHAIN_TREE_ID_AND_CID_MAPPING.TABLE_NAME));
         Get g = new Get(Bytes.toBytes(treeId));
         Result r = table.get(g);
         if (r.rawCells().length == 0) {
@@ -186,10 +197,10 @@ public class HBaseUtil {
         }
         for (Cell cell : r.rawCells()) {
             if (cell.getValueArray().length > 0) {
-                List<String> hasBeenMergedCIds = new Gson().fromJson(Bytes.toString(cell.getValueArray(),
-                        cell.getValueOffset(), cell.getValueLength()),
-                        new TypeToken<List<String>>() {
-                        }.getType());
+                List<String> hasBeenMergedCIds = new Gson()
+                        .fromJson(Bytes.toString(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength()),
+                                new TypeToken<List<String>>() {
+                                }.getType());
                 result.addAll(hasBeenMergedCIds);
             }
 
@@ -198,12 +209,14 @@ public class HBaseUtil {
     }
 
     public static void batchSaveMinSummaryResult(List<Put> puts) throws IOException, InterruptedException {
-        Table table = connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_CHAIN_ONE_MINUTE_SUMMARY.TABLE_NAME));
+        Table table =
+                connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_CHAIN_ONE_MINUTE_SUMMARY.TABLE_NAME));
         batchSaveData(puts, table);
     }
 
     public static void batchSaveMonthSummaryResult(List<Put> puts) throws IOException, InterruptedException {
-        Table table = connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_CHAIN_ONE_MONTH_SUMMARY.TABLE_NAME));
+        Table table =
+                connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_CHAIN_ONE_MONTH_SUMMARY.TABLE_NAME));
         batchSaveData(puts, table);
     }
 
@@ -213,7 +226,8 @@ public class HBaseUtil {
     }
 
     public static void batchSaveHourSummaryResult(List<Put> puts) throws IOException, InterruptedException {
-        Table table = connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_CHAIN_ONE_HOUR_SUMMARY.TABLE_NAME));
+        Table table =
+                connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_CHAIN_ONE_HOUR_SUMMARY.TABLE_NAME));
         batchSaveData(puts, table);
     }
 
@@ -235,7 +249,8 @@ public class HBaseUtil {
     }
 
     public static void batchSaveHasBeenMergedCID(List<Put> chainIdPuts) throws IOException, InterruptedException {
-        Table table = connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_CALL_CHAIN_TREE_ID_AND_CID_MAPPING.TABLE_NAME));
+        Table table = connection
+                .getTable(TableName.valueOf(HBaseTableMetaData.TABLE_CALL_CHAIN_TREE_ID_AND_CID_MAPPING.TABLE_NAME));
         batchSaveData(chainIdPuts, table);
     }
 
@@ -243,13 +258,13 @@ public class HBaseUtil {
     public static void saveTraceIdAndTreeIdMapping(String traceId, String cid) throws IOException {
         Put put = new Put(traceId.getBytes());
         put.addColumn(HBaseTableMetaData.TABLE_TRACE_ID_AND_CID_MAPPING.COLUMN_FAMILY_NAME.getBytes(),
-                HBaseTableMetaData.TABLE_TRACE_ID_AND_CID_MAPPING.COLUMN_NAME.getBytes(),
-                cid.getBytes());
-        Table table = connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_TRACE_ID_AND_CID_MAPPING.TABLE_NAME));
+                HBaseTableMetaData.TABLE_TRACE_ID_AND_CID_MAPPING.COLUMN_NAME.getBytes(), cid.getBytes());
+        Table table =
+                connection.getTable(TableName.valueOf(HBaseTableMetaData.TABLE_TRACE_ID_AND_CID_MAPPING.TABLE_NAME));
         table.put(put);
     }
 
-    public static List<FullSpan> fetchTraceSpansFromHBase(Result value) throws InvalidProtocolBufferException {
+    public static List<FullSpan> fetchTraceSpansFromHBase(Result value) throws ConvertFailedException {
         List<FullSpan> spanList = new ArrayList<FullSpan>();
         Map<String, AckSpan> ackSpans = new HashMap<String, AckSpan>();
         for (Cell cell : value.rawCells()) {

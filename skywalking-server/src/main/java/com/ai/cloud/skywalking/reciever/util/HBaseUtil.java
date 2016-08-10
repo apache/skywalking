@@ -8,6 +8,7 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Table;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.message.ObjectArrayMessage;
 
 import java.io.IOException;
 import java.util.List;
@@ -20,7 +21,6 @@ public class HBaseUtil {
         try {
             Table table = connection.getTable(TableName.valueOf(tableName));
             table.batch(puts, resultArrays);
-            // ignore failed data
         } catch (IOException e) {
             logger.error("batchSavePuts failure.", e);
         } catch (InterruptedException e) {

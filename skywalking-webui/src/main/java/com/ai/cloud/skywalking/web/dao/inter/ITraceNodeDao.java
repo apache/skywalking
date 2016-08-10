@@ -1,5 +1,6 @@
 package com.ai.cloud.skywalking.web.dao.inter;
 
+import com.ai.cloud.skywalking.protocol.exception.ConvertFailedException;
 import com.ai.cloud.skywalking.web.dto.TraceNodeInfo;
 import com.ai.cloud.skywalking.web.dto.TraceNodesResult;
 
@@ -12,7 +13,11 @@ import java.util.Collection;
  */
 public interface ITraceNodeDao {
 
-    TraceNodesResult queryTraceNodesByTraceId(String traceId) throws IOException, IllegalAccessException, NoSuchMethodException, InvocationTargetException;
+    TraceNodesResult queryTraceNodesByTraceId(String traceId)
+            throws IOException, IllegalAccessException, NoSuchMethodException, InvocationTargetException,
+            ConvertFailedException;
 
-    Collection<TraceNodeInfo> queryEntranceNodeByTraceId(String traceId) throws IOException, IllegalAccessException, NoSuchMethodException, InvocationTargetException;
+    Collection<TraceNodeInfo> queryEntranceNodeByTraceId(String traceId)
+            throws IOException, IllegalAccessException, NoSuchMethodException, InvocationTargetException,
+            ConvertFailedException;
 }

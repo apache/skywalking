@@ -1,10 +1,10 @@
 package com.ai.cloud.skywalking.web.dto;
 
+import com.ai.cloud.skywalking.protocol.AckSpan;
 import com.ai.cloud.skywalking.protocol.FullSpan;
 import com.ai.cloud.skywalking.protocol.RequestSpan;
 import com.ai.cloud.skywalking.web.util.Constants;
 import com.ai.cloud.skywalking.web.util.StringUtil;
-import com.google.protobuf.InvalidProtocolBufferException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -43,11 +43,48 @@ public class TraceNodeInfo extends FullSpan {
 
     private String serverExceptionStr;
 
-    private TraceNodeInfo(){
+    private TraceNodeInfo() {
+
     }
 
-    private TraceNodeInfo(RequestSpan requestSpan) {
-        super(requestSpan);
+    public TraceNodeInfo(RequestSpan requestSpan, AckSpan ackSpan) {
+        super(requestSpan, ackSpan);
+        this.colId = requestSpan.getParentLevel() == null || requestSpan.getParentLevel().length() == 0 ?
+                getLevelId() + "" :
+                getParentLevel() + "." + getLevelId();
+
+        // 处理类型key-value
+        String spanTypeStr = String.valueOf(requestSpan.getSpanTypeDesc());
+        if (StringUtil.isBlank(spanTypeStr) || Constants.SPAN_TYPE_MAP.containsKey(spanTypeStr)) {
+            this.spanTypeStr = Constants.SPAN_TYPE_U;
+        }
+        this.spanTypeStr = spanTypeStr;
+        if (Constants.SPAN_TYPE_MAP.containsKey(spanTypeStr)) {
+            this.spanTypeName = Constants.SPAN_TYPE_MAP.get(spanTypeStr);
+        } else {
+            //非默认支持的类型，使用原文中的类型，不需要解析
+            this.spanTypeName = this.spanTypeStr;
+        }
+
+        // 处理状态key-value
+        String statusCodeStr = String.valueOf(getStatusCode());
+        if (StringUtil.isBlank(statusCodeStr) || Constants.STATUS_CODE_MAP.containsKey(statusCodeStr)) {
+            this.statusCodeStr = Constants.STATUS_CODE_9;
+        }
+        String statusCodeName = Constants.STATUS_CODE_MAP.get(statusCodeStr);
+        this.statusCodeStr = statusCodeStr;
+        this.statusCodeName = statusCodeName;
+
+        this.applicationIdStr = this.applicationId;
+        if (!StringUtil.isBlank(this.viewPointId) && this.viewPointId.length() > 60) {
+            this.viewPointIdSub = this.viewPointId.substring(0, 30) + "..." + this.viewPointId
+                    .substring(this.viewPointId.length() - 30);
+        } else {
+            this.viewPointIdSub = this.viewPointId;
+        }
+
+        this.addTimeLine(this.startDate, this.cost);
+        this.endDate = this.startDate + this.cost;
     }
 
     public String getColId() {
@@ -81,48 +118,6 @@ public class TraceNodeInfo extends FullSpan {
     public void setViewPointIdSub(String viewPointIdSub) {
         this.viewPointIdSub = viewPointIdSub;
     }
-
-    private static TraceNodeInfo convert(byte[] originData)
-            throws IllegalAccessException, InvocationTargetException, NoSuchMethodException,
-            InvalidProtocolBufferException {
-        TraceNodeInfo result = new TraceNodeInfo(new RequestSpan(originData));
-
-        // 处理类型key-value
-        String spanTypeStr = String.valueOf(result.getSpanType());
-        if (StringUtil.isBlank(spanTypeStr) || Constants.SPAN_TYPE_MAP.containsKey(spanTypeStr)) {
-            result.spanTypeStr = Constants.SPAN_TYPE_U;
-        }
-        result.spanTypeStr = spanTypeStr;
-        if (Constants.SPAN_TYPE_MAP.containsKey(spanTypeStr)) {
-            result.spanTypeName = Constants.SPAN_TYPE_MAP.get(spanTypeStr);
-            ;
-        } else {
-            //非默认支持的类型，使用原文中的类型，不需要解析
-            result.spanTypeName = result.spanTypeStr;
-        }
-
-        // 处理状态key-value
-        String statusCodeStr = String.valueOf(result.getStatusCode());
-        if (StringUtil.isBlank(statusCodeStr) || Constants.STATUS_CODE_MAP.containsKey(statusCodeStr)) {
-            result.statusCodeStr = Constants.STATUS_CODE_9;
-        }
-        String statusCodeName = Constants.STATUS_CODE_MAP.get(statusCodeStr);
-        result.statusCodeStr = statusCodeStr;
-        result.statusCodeName = statusCodeName;
-
-        result.applicationIdStr = result.getApplicationId();
-        if (!StringUtil.isBlank(result.getViewPointId()) && result.getViewPointId().length() > 60) {
-            result.viewPointIdSub = result.getViewPointId().substring(0, 30) + "..." + result.getViewPointId()
-                    .substring(result.getViewPointId().length() - 30);
-        } else {
-            result.viewPointIdSub = result.getViewPointId();
-        }
-
-        result.addTimeLine(result.getStartDate(), result.getCost());
-        result.endDate = result.getStartDate() + result.getCost();
-        return result;
-    }
-
     /***
      * 增加时间轴信息
      *
@@ -133,13 +128,6 @@ public class TraceNodeInfo extends FullSpan {
         timeLineList.add(new TimeLineEntry(startDate, cost));
     }
 
-    public static TraceNodeInfo convert(byte[] requestSpanBytes, String colId)
-            throws IllegalAccessException, InvocationTargetException, NoSuchMethodException,
-            InvalidProtocolBufferException {
-        TraceNodeInfo result = convert(requestSpanBytes);
-        result.colId = colId;
-        return result;
-    }
 
     /***
      * 补充丢失的链路信息
@@ -151,9 +139,10 @@ public class TraceNodeInfo extends FullSpan {
         TraceNodeInfo result = new TraceNodeInfo();
         result.colId = colId;
         if (colId.indexOf(Constants.VAL_SPLIT_CHAR) > -1) {
-            result.setParentLevel(colId.substring(0, colId.lastIndexOf(Constants.VAL_SPLIT_CHAR)));
+            result.parentLevel = colId.substring(0, colId.lastIndexOf(Constants.VAL_SPLIT_CHAR));
+        } else {
+            result.parentLevel = "";
         }
-
         result.timeLineList.add(new TimeLineEntry());
 
         // 其它默认值
@@ -165,11 +154,11 @@ public class TraceNodeInfo extends FullSpan {
         return "TraceNodeInfo [colId=" + colId + ", endDate=" + endDate + ", timeLineList=" + timeLineList
                 + ", spanTypeStr=" + spanTypeStr + ", spanTypeName=" + spanTypeName + ", statusCodeStr=" + statusCodeStr
                 + ", statusCodeName=" + statusCodeName + ", applicationIdStr=" + applicationIdStr + ", viewPointIdSub="
-                + viewPointIdSub + ", traceId=" + getTraceId() + ", parentLevel=" + getParentLevel() + ", levelId=" +
-                getLevelId() + ", viewPointId=" + getViewPointId() + ", startDate=" + getStartDate() + ", cost="
-                + getCost() + ", statusCode=" + getStatusCode() + ", exceptionStack=" + getExceptionStack()
-                + ", spanType=" + getSpanType() + ",  businessKey=" + getBusinessKey() + ", applicationId="
-                + getApplicationId() + "]";
+                + viewPointIdSub + ", traceId=" + traceId + ", parentLevel=" + parentLevel + ", levelId=" + levelId
+                + ", viewPointId=" + viewPointId + ", startDate=" + startDate + ", cost=" + cost + ", address="
+                + address + ", statusCode=" + statusCode + ", exceptionStack=" + exceptionStack + ", spanType="
+                + spanType + ", businessKey=" + businessKey + ", processNo=" + processNo + ", applicationId="
+                + applicationId + "]";
     }
 
     public List<TimeLineEntry> getTimeLineList() {
@@ -196,4 +185,11 @@ public class TraceNodeInfo extends FullSpan {
         this.serverExceptionStr = serverExceptionStr;
     }
 
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public void setExceptionStack(String exceptionStack) {
+        this.exceptionStack = exceptionStack;
+    }
 }

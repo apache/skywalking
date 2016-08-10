@@ -8,7 +8,7 @@ import java.util.List;
  * Created by xin on 16-4-13.
  */
 public class TraceNodesResult {
-    private boolean isOverMaxQueryNodeNumber;
+    private boolean isOverMaxQueryNodeNumber = true;
 
     private List<TraceNodeInfo> result;
 

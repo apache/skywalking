@@ -1,5 +1,6 @@
 package com.ai.cloud.skywalking.web.service.impl;
 
+import com.ai.cloud.skywalking.protocol.exception.ConvertFailedException;
 import com.ai.cloud.skywalking.protocol.util.SpanLevelIdComparators;
 import com.ai.cloud.skywalking.web.dao.inter.ITraceNodeDao;
 import com.ai.cloud.skywalking.web.dto.TraceNodeInfo;
@@ -30,7 +31,9 @@ public class TraceTreeService implements ITraceTreeService {
     private ITraceNodeDao traceTreeDao;
 
     @Override
-    public TraceTreeInfo queryTraceTreeByTraceId(String traceId) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, IOException {
+    public TraceTreeInfo queryTraceTreeByTraceId(String traceId)
+            throws InvocationTargetException, NoSuchMethodException, ConvertFailedException, IllegalAccessException,
+            IOException {
         TraceTreeInfo traceTreeInfo = new TraceTreeInfo(traceId);
         TraceNodesResult traceNodesResult = traceTreeDao.queryTraceNodesByTraceId(traceId);
         List<TraceNodeInfo> traceNodeInfoList = traceNodesResult.getResult();

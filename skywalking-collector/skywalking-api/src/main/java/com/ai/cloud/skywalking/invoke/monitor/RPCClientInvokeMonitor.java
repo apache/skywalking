@@ -11,6 +11,7 @@ import com.ai.cloud.skywalking.model.Identification;
 import com.ai.cloud.skywalking.protocol.RequestSpan;
 import com.ai.cloud.skywalking.protocol.Span;
 import com.ai.cloud.skywalking.protocol.common.SpanType;
+import com.ai.cloud.skywalking.protocol.util.BuriedPointMachineUtil;
 import com.ai.cloud.skywalking.protocol.util.ContextGenerator;
 
 public class RPCClientInvokeMonitor extends BaseInvokeMonitor {
@@ -27,15 +28,18 @@ public class RPCClientInvokeMonitor extends BaseInvokeMonitor {
             //设置SpanType的类型
             spanData.setSpanType(SpanType.RPC_CLIENT);
 
-            RequestSpan requestSpan = RequestSpan.RequestSpanBuilder.newBuilder(spanData)
+
+            CurrentThreadSpanStack.push(spanData);
+
+            RequestSpan requestSpan = RequestSpan.RequestSpanBuilder.newBuilder(CurrentThreadSpanStack.peek())
                     .viewPoint(id.getViewPoint())
                     .spanTypeDesc(id.getSpanTypeDesc())
                     .bussinessKey(id.getBusinessKey())
-                    .callType(id.getCallType())
+                    .callType(id.getCallType()).processNo(BuriedPointMachineUtil.getProcessNo())
+                    .address(BuriedPointMachineUtil.getHostDesc())
                     .parameters(id.getParameters()).build();
 
             ContextBuffer.save(requestSpan);
-            CurrentThreadSpanStack.push(spanData);
 
             return new ContextData(spanData.getTraceId(), generateSubParentLevelId(spanData));
         } catch (Throwable t) {

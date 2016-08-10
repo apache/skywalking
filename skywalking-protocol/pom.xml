@@ -1,0 +1,145 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.ai.cloud</groupId>
+    <version>1.0-Final</version>
+
+    <name>skywalking-protocol</name>
+    <url>http://maven.apache.org</url>
+    <artifactId>skywalking-protocol</artifactId>
+    <packaging>jar</packaging>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <shade.com.google.protobuf.source>com.google.protobuf</shade.com.google.protobuf.source>
+        <shade.com.google.protobuf.target>com.ai.cloud.skywalking.protocol.dependencies.com.google.protobuf</shade.com.google.protobuf.target>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.4.1</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <shadedArtifactAttached>false</shadedArtifactAttached>
+                            <createDependencyReducedPom>true</createDependencyReducedPom>
+                            <createSourcesJar>true</createSourcesJar>
+                            <shadeSourcesContent>true</shadeSourcesContent>
+                            <relocations>
+                                <relocation>
+                                    <pattern>${shade.com.google.protobuf.source}</pattern>
+                                    <shadedPattern>${shade.com.google.protobuf.target}</shadedPattern>
+                                </relocation>
+                            </relocations>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.9.1</version>
+                <executions>
+                    <execution>
+                        <id>add-source</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.basedir}/src/main/gen-java</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.4.3</version>
+                <configuration>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <!-- 源码插件 -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <!-- 发布时自动将源码同时发布的配置 -->
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <version>2.4</version>
+            </plugin>
+            <!--<plugin>-->
+            <!--<artifactId>maven-antrun-plugin</artifactId>-->
+            <!--<executions>-->
+            <!--<execution>-->
+            <!--<id>compile-protoc</id>-->
+            <!--<phase>generate-sources</phase>-->
+            <!--<configuration>-->
+            <!--<tasks>-->
+            <!--<mkdir dir="src/main/gen-java" />-->
+            <!--<path id="proto.path">-->
+            <!--<fileset dir="src/main/proto">-->
+            <!--<include name="*.proto" />-->
+            <!--</fileset>-->
+            <!--</path>-->
+            <!--<pathconvert pathsep=" " property="proto.files"-->
+            <!--refid="proto.path" />-->
+
+            <!--<exec executable="protoc">-->
+            <!--<arg value="&#45;&#45;java_out=src/main/gen-java" />-->
+            <!--<arg value="-I${project.basedir}/src/main/proto" />-->
+            <!--<arg line="${proto.files}" />-->
+            <!--</exec>-->
+            <!--</tasks>-->
+            <!--<sourceRoot>src/main/gen-java</sourceRoot>-->
+            <!--</configuration>-->
+            <!--<goals>-->
+            <!--<goal>run</goal>-->
+            <!--</goals>-->
+            <!--</execution>-->
+            <!--</executions>-->
+            <!--</plugin>-->
+        </plugins>
+    </build>
+
+    <distributionManagement>
+        <repository>
+            <id>bintray-wu-sheng-sky-walking-repository</id>
+            <name>wu-sheng-sky-walking-repository</name>
+            <url>https://api.bintray.com/maven/wu-sheng/skywalking/com.ai.cloud.skywalking-protocol/;publish=1</url>
+        </repository>
+    </distributionManagement>
+</project>

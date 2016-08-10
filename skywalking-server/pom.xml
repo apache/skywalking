@@ -56,11 +56,6 @@
             <artifactId>gson</artifactId>
             <version>2.2.2</version>
         </dependency>
-        <dependency>
-            <groupId>com.google.protobuf</groupId>
-            <artifactId>protobuf-java</artifactId>
-            <version>3.0.0</version>
-        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -127,7 +122,6 @@
                         <exclude>*.properties</exclude>
                         <exclude>*.xml</exclude>
                     </excludes>
-                    <finalName>sky-walking-server</finalName>
                     <outputDirectory>${project.build.directory}/installer/lib</outputDirectory>
                 </configuration>
             </plugin>

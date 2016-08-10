@@ -1,0 +1,3 @@
+com.ai.cloud.skywalking.protocol.AckSpan
+com.ai.cloud.skywalking.protocol.RequestSpan
+com.ai.cloud.skywalking.protocol.BufferFileEOFProtocol

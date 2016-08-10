@@ -18,7 +18,6 @@ public class JDBCDriverInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
             MethodInterceptResult result) {
-        System.out.println("Data/////");
     }
 
     @Override
