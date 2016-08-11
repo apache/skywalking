@@ -12,9 +12,7 @@
 	<artifactId>skywalking-sdk-plugin</artifactId>
 	<modules>
 		<module>dubbo-plugin</module>
-		<module>spring-plugin</module>
 		<module>jdbc-plugin</module>
-		<module>web-plugin</module>
 		<module>httpClient-4.x-plugin</module>
 		<module>jedis-2.x-plugin</module>
 		<module>tomcat-7.x-8.x-plugin</module>
