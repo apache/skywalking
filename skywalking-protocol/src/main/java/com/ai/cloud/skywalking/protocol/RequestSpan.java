@@ -108,7 +108,7 @@ public class RequestSpan extends AbstractDataSerializable {
         this.userId = spanData.getUserId();
     }
 
-    private RequestSpan() {
+    public RequestSpan() {
 
     }
     private boolean isEntrySpan() {

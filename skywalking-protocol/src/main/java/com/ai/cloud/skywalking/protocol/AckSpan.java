@@ -70,7 +70,7 @@ public class AckSpan extends AbstractDataSerializable {
         this.viewPointId = spanData.getViewPointId();
     }
 
-    private AckSpan() {
+    public AckSpan() {
 
     }
 

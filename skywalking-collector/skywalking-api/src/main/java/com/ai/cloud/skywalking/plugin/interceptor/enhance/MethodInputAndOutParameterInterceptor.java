@@ -11,6 +11,7 @@ import java.lang.reflect.Method;
 import java.util.concurrent.Callable;
 
 public class MethodInputAndOutParameterInterceptor {
+
     public static IBuriedPointType METHOD_INVOKE_BURIEDPOINT = new IBuriedPointType() {
         @Override
         public String getTypeName() {
@@ -22,8 +23,10 @@ public class MethodInputAndOutParameterInterceptor {
             return CallType.SYNC;
         }
     };
+
     @RuntimeType
-    public Object interceptor(@AllArguments Object[] allArgument, @Origin Method method, @Origin Class<?> clazz, @SuperCall Callable<?> zuper) throws Exception {
+    public Object interceptor(@AllArguments Object[] allArgument, @Origin Method method, @Origin Class<?> clazz,
+            @SuperCall Callable<?> zuper) throws Exception {
 
 
 
@@ -31,7 +34,6 @@ public class MethodInputAndOutParameterInterceptor {
         try {
             ret = zuper.call();
         } catch (Throwable e) {
-
             throw e;
         } finally {
 

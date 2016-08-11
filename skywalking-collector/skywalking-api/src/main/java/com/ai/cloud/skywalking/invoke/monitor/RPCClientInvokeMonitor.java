@@ -58,7 +58,7 @@ public class RPCClientInvokeMonitor extends BaseInvokeMonitor {
     }
 
     private String generateSubParentLevelId(Span spanData) {
-        if (spanData.getParentLevel() == null) {
+        if (spanData.getParentLevel() == null || spanData.getParentLevel().length() == 0) {
             return spanData.getLevelId() + "";
         }
 

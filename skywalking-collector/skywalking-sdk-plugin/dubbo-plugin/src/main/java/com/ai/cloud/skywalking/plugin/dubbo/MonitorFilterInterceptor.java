@@ -80,7 +80,7 @@ public class MonitorFilterInterceptor implements InstanceMethodsAroundIntercepto
     public Object afterMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
             Object ret) {
         Result result = (Result) ret;
-        if (result.getException() != null) {
+        if (result != null && result.getException() != null) {
             dealException(result.getException(), context);
         }
 

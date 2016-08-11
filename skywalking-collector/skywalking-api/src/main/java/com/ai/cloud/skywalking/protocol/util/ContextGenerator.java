@@ -30,16 +30,12 @@ public final class ContextGenerator {
      * @return
      */
     public static Span generateSpanFromContextData(ContextData context, Identification id) {
-        Span spanData;
-        // 校验传入的参数是否为空，如果为空，则新创建一个
-        if (context == null || StringUtil.isEmpty(context.getTraceId())) {
-            // 不存在，新创建一个Context
-            spanData = new Span(TraceIdGenerator.generate(), Config.SkyWalking.APPLICATION_CODE, Config.SkyWalking.USER_ID);
-        } else {
-            // 如果不为空，则将当前的Context存放到上下文
+        Span spanData = CurrentThreadSpanStack.peek();
+        if (context != null && !StringUtil.isEmpty(context.getTraceId()) && spanData == null){
             spanData = new Span(context.getTraceId(), context.getParentLevel(), context.getLevelId(), Config.SkyWalking.APPLICATION_CODE, Config.SkyWalking.USER_ID);
+        }else{
+            spanData = getSpanFromThreadLocal();
         }
-
         spanData.setStartDate(System.currentTimeMillis());
         spanData.setViewPointId(id.getViewPoint());
         return spanData;

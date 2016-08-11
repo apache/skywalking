@@ -9,6 +9,7 @@
     <modules>
         <module>example-web</module>
         <module>example-dubbo</module>
+        <module>example-dubbox-rest</module>
     </modules>
     <packaging>pom</packaging>
 
