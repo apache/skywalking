@@ -60,11 +60,6 @@ public class Identification {
             return this;
         }
 
-        public IdentificationBuilder setParameter(String key, String value) {
-            sendData.parameters.put(key, value);
-            return this;
-        }
-
         public IdentificationBuilder addParameter(String value){
             parameterIdx++;
             sendData.parameters.put("_" + parameterIdx, value);

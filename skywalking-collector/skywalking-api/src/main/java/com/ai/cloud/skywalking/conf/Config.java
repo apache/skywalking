@@ -18,6 +18,12 @@ public class Config {
         public static boolean IS_PREMAIN_MODE = false;
 
         public static String AGENT_BASE_PATH = "";
+
+        public static boolean SELF_DEFINE_METHOD_INTERCEPTOR = false;
+
+        public static String SELF_DEFINE_METHOD_PACKAGE = "";
+
+        public static boolean RECORD_PARAM = false;
     }
 
 

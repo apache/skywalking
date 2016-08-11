@@ -29,7 +29,7 @@ public class ClassStaticMethodsInterceptor {
     public Object intercept(@Origin Class<?> clazz, @AllArguments Object[] allArguments, @Origin Method method, @SuperCall Callable<?> zuper) throws Exception {
         StaticMethodsAroundInterceptor interceptor = InterceptorInstanceLoader.load(staticMethodsAroundInterceptorClassName, clazz.getClassLoader());
 
-        MethodInvokeContext interceptorContext = new MethodInvokeContext(method.getName(), allArguments);
+        MethodInvokeContext interceptorContext = new MethodInvokeContext(clazz,method.getName(), allArguments);
         MethodInterceptResult result = new MethodInterceptResult();
         try {
             interceptor.beforeMethod(interceptorContext, result);
