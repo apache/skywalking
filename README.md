@@ -21,16 +21,21 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 * By using [byte-buddy](https://github.com/raphw/byte-buddy) (Thanks to [raphw](https://github.com/raphw)), plugins use dynamic byte code generation to avoid invasive codes. plugins API, execution time of blocking saving span must between 200μs and 300μs, including execution time of dynamic byte code.
 * Provide trace log analysis and presentation capabilities, Reduce or avoid add-on functions development.
 
-|plugins|using config file|using dynamic byte code| coding |remarks|
-| ----------- |---------| ----------|----------|----------|
-|web-plugin|web.xml| - | - | - |
-|spring-plugin| spring config file | - | - | - |
-|tomcat8-plugin| - | YES | - | - |
-|dubbo-plugin| - | YES | - | - |
-|jdbc-plugin| - | YES | - | support mysql, oracle, h2, easily extend to support sybase, sqlserver, jtds, db2, informix |
-|httpClient-4.x-plugin| - | YES | - | - |
-|jedis-2.x-plugin| - | YES | - | - |
-
+# Supported components
+* web container
+  * Tomcat7
+  * Tomcat8
+* database
+  * mysql
+  * oracle
+  * h2
+  * easily extend to support sybase, sqlserver, jtds, db2, informix
+* rpc framework
+  * dubbo (tested 2.5.3)
+  * dubbox (tested 2.8.4-dubbo protocol, 2.8.4-rest protocol)
+  * httpClient 4.x
+* cache
+  * jedix 2.x
 
 
 # 主要贡献者 / Contributors
