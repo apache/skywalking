@@ -39,7 +39,7 @@ public abstract class BaseInvokeMonitor {
         ContextBuffer.save(RequestSpan.RequestSpanBuilder.
                 newBuilder(CurrentThreadSpanStack.peek()).callType(id.getCallType()).viewPoint(id.getViewPoint())
                 .spanTypeDesc(id.getSpanTypeDesc()).processNo(BuriedPointMachineUtil.getProcessNo())
-                .address(BuriedPointMachineUtil.getHostDesc()).build());
+                .address(BuriedPointMachineUtil.getHostDesc()).parameters(id.getParameters()).build());
 
         // 并将当前的Context返回回去
         return new ContextData(spanData);

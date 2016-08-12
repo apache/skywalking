@@ -15,9 +15,12 @@ public class MethodInvokeContext {
      */
     private Object[] allArguments;
 
-    MethodInvokeContext(Class clazz, String methodName, Object[] allArguments) {
-        this.methodName = appendMethodName(clazz, methodName, allArguments);
+    private Class<?>[] argumentTypes;
+
+    MethodInvokeContext(String methodName, Object[] allArguments,Class<?>[] argumentTypes) {
+        this.methodName = methodName;
         this.allArguments = allArguments;
+        this.argumentTypes = argumentTypes;
     }
 
     public Object[] allArguments() {
@@ -28,17 +31,8 @@ public class MethodInvokeContext {
         return methodName;
     }
 
-    private String appendMethodName(Class clazz, String simpleMethodName, Object[] allArguments) {
-        StringBuilder methodName = new StringBuilder(clazz.getName() + "." + simpleMethodName + "(");
-        for (Object argument : allArguments) {
-            methodName.append(argument.getClass() + ",");
-        }
-
-        if (allArguments.length > 0){
-            methodName.deleteCharAt(methodName.length() - 1);
-        }
-
-        methodName.append(")");
-        return methodName.toString();
+    public Class<?>[] argumentTypes(){
+        return argumentTypes;
     }
+
 }

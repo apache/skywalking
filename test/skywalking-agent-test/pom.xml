@@ -13,7 +13,7 @@
     <modules>
         <module>redis-test</module>
         <module>jdbc-test</module>
-        <module>dubbo-test</module>
+        <module>custom-local-method-test</module>
     </modules>
 
     <properties>
@@ -36,7 +36,6 @@
             <groupId>com.ai.cloud</groupId>
             <artifactId>skywalking-test-api</artifactId>
             <version>1.0-Final</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 

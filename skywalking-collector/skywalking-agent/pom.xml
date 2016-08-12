@@ -51,6 +51,11 @@
             <artifactId>tomcat-7.x-8.x-plugin</artifactId>
             <version>1.0-Final</version>
         </dependency>
+        <dependency>
+            <groupId>com.ai.cloud</groupId>
+            <artifactId>custom-local-method-interceptor-plugin</artifactId>
+            <version>1.0-Final</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

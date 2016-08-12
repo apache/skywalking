@@ -6,8 +6,8 @@ public class InstanceMethodInvokeContext extends MethodInvokeContext {
      */
     private Object objInst;
 
-    InstanceMethodInvokeContext(Object objInst, String methodName, Object[] allArguments) {
-        super(objInst.getClass(), methodName, allArguments);
+    InstanceMethodInvokeContext(Object objInst, String methodName, Object[] allArguments, Class<?>[] argumentsTypes) {
+        super(methodName, allArguments,argumentsTypes);
         this.objInst = objInst;
     }
 

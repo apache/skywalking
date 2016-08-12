@@ -1,5 +1,6 @@
 package com.ai.cloud.skywalking.plugin;
 
+import com.ai.cloud.skywalking.conf.AuthDesc;
 import com.ai.cloud.skywalking.logging.LogManager;
 import com.ai.cloud.skywalking.logging.Logger;
 import net.bytebuddy.ByteBuddy;
@@ -29,6 +30,10 @@ public class TracingBootstrap {
             IllegalAccessException {
         if (args.length == 0) {
             throw new RuntimeException("bootstrap failure. need args[0] to be main class.");
+        }
+
+        if (!AuthDesc.isAuth()){
+            return;
         }
 
         List<AbstractClassEnhancePluginDefine> plugins = null;

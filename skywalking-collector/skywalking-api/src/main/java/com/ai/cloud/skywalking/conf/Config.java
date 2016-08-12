@@ -19,13 +19,21 @@ public class Config {
 
         public static String AGENT_BASE_PATH = "";
 
-        public static boolean SELF_DEFINE_METHOD_INTERCEPTOR = false;
-
-        public static String SELF_DEFINE_METHOD_PACKAGE = "";
-
-        public static boolean RECORD_PARAM = false;
     }
 
+
+    public static class Plugin{
+
+        public static class CustomLocalMethodInterceptorPlugin{
+
+            public static boolean IS_ENABLE = false;
+
+            public static String PACKAGE_PREFIX = "";
+
+            public static boolean RECORD_PARAM_ENABLE = false;
+        }
+
+    }
 
     public static class BuriedPoint {
         // 是否打印埋点信息

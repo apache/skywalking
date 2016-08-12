@@ -16,6 +16,11 @@ public class PluginDefineCategory {
     private PluginDefineCategory(List<AbstractClassEnhancePluginDefine> plugins) {
         for (AbstractClassEnhancePluginDefine plugin : plugins) {
             String enhanceClassName = plugin.enhanceClassName();
+
+            if (enhanceClassName == null){
+                continue;
+            }
+
             if (enhanceClassName.endsWith("*")) {
                 // 加上. 为了区分 com.ai.test  com.ai.test1
                 blurryClassEnhancePluginDefineMapping

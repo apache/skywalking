@@ -111,6 +111,7 @@ public class RequestSpan extends AbstractDataSerializable {
     public RequestSpan() {
 
     }
+
     private boolean isEntrySpan() {
         return "0".equals(this.getParentLevel() + this.getLevelId());
     }
@@ -214,7 +215,7 @@ public class RequestSpan extends AbstractDataSerializable {
                 TraceProtocol.RequestSpan.newBuilder().setTraceId(traceId).setParentLevel(parentLevel)
                         .setLevelId(levelId).setViewPointId(viewPointId).setStartDate(startDate)
                         .setSpanType(spanType.getValue()).setSpanTypeDesc(spanTypeDesc).setAddress(address)
-                .setProcessNo(processNo);
+                        .setProcessNo(processNo);
         if (businessKey != null && businessKey.length() > 0) {
             builder.setBussinessKey(businessKey);
         }
@@ -246,6 +247,7 @@ public class RequestSpan extends AbstractDataSerializable {
             requestSpan.setAgentId(requestSpanByte.getAgentId());
             requestSpan.setProcessNo(requestSpanByte.getProcessNo());
             requestSpan.setAddress(requestSpanByte.getAddress());
+            requestSpan.setParameters(requestSpanByte.getParametersMap());
         } catch (InvalidProtocolBufferException e) {
             throw new ConvertFailedException(e.getMessage(), e);
         }
@@ -254,7 +256,7 @@ public class RequestSpan extends AbstractDataSerializable {
     }
 
     public static RequestSpan convert(byte[] data) throws ConvertFailedException {
-        return (RequestSpan)INSTANCE.convertData(data);
+        return (RequestSpan) INSTANCE.convertData(data);
     }
 
     public void setBusinessKey(String businessKey) {
@@ -310,10 +312,7 @@ public class RequestSpan extends AbstractDataSerializable {
         }
 
         public RequestSpanBuilder parameters(Map<String, String> parameters) {
-            if (requestSpan.isEntrySpan()) {
-                requestSpan.parameters = parameters;
-            }
-
+            requestSpan.parameters = parameters;
             return this;
         }
 
@@ -326,12 +325,12 @@ public class RequestSpan extends AbstractDataSerializable {
             return this;
         }
 
-        public RequestSpanBuilder processNo(String processNo){
+        public RequestSpanBuilder processNo(String processNo) {
             requestSpan.processNo = processNo;
             return this;
         }
 
-        public RequestSpanBuilder address(String address){
+        public RequestSpanBuilder address(String address) {
             requestSpan.address = address;
             return this;
         }

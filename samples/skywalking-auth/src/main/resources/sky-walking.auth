@@ -45,3 +45,10 @@ buffer.pool_size=5
 #发送检查线程检查周期 
 senderchecker.check_polling_time=200
 
+#自定义本地方法插件是否开启
+plugin.customlocalmethodinterceptorplugin.is_enable=false
+#自定义插件拦截的包前缀
+plugin.customlocalmethodinterceptorplugin.package_prefix=
+#自定义插件是否记录入参
+plugin.customlocalmethodinterceptorplugin.record_param_enable=false
+

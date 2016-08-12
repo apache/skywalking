@@ -28,7 +28,7 @@ public class ClassInstanceMethodsInterceptor {
             @FieldValue(ClassEnhancePluginDefine.contextAttrName) EnhancedClassInstanceContext instanceContext) throws Exception {
         InstanceMethodsAroundInterceptor interceptor = InterceptorInstanceLoader.load(instanceMethodsAroundInterceptorClassName, obj.getClass().getClassLoader());
 
-        InstanceMethodInvokeContext interceptorContext = new InstanceMethodInvokeContext(obj, method.getName(), allArguments);
+        InstanceMethodInvokeContext interceptorContext = new InstanceMethodInvokeContext(obj, method.getName(), allArguments, method.getParameterTypes());
         MethodInterceptResult result = new MethodInterceptResult();
         try {
             interceptor.beforeMethod(instanceContext, interceptorContext, result);
