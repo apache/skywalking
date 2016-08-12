@@ -29,10 +29,9 @@ public class CustomLocalMethodPluginDefine extends ClassEnhancePluginDefine {
 
     @Override
     protected String enhanceClassName() {
-        return "test.com.ai.test.TestObject";
-//        if (!Config.Plugin.CustomLocalMethodInterceptorPlugin.IS_ENABLE){
-//            return null;
-//        }
-//        return Config.Plugin.CustomLocalMethodInterceptorPlugin.PACKAGE_PREFIX;
+        if (!Config.Plugin.CustomLocalMethodInterceptorPlugin.IS_ENABLE){
+            return null;
+        }
+        return Config.Plugin.CustomLocalMethodInterceptorPlugin.PACKAGE_PREFIX;
     }
 }
