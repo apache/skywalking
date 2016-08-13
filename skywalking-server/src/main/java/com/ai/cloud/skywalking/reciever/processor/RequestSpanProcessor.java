@@ -31,9 +31,6 @@ public class RequestSpanProcessor extends AbstractSpanProcessor {
         String columnName;
         for (AbstractDataSerializable serializedObject : serializedObjects) {
             RequestSpan requestSpan = (RequestSpan) serializedObject;
-            System.out.println(
-                    requestSpan.getTraceId() + ":" + requestSpan.getParentLevel() + "." + requestSpan.getLevelId() + ":"
-                            + requestSpan.getViewPointId());
             Put put = new Put(Bytes.toBytes(requestSpan.getTraceId()), getTSBySpanTraceId(requestSpan.getTraceId()));
             if (StringUtils.isEmpty(requestSpan.getParentLevel().trim())) {
                 columnName = requestSpan.getLevelId() + "";

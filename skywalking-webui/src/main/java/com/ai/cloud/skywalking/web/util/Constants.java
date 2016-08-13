@@ -27,6 +27,7 @@ public class Constants {
             put("J", "JDBC");
             put("W", "WEB");
             put("D", "DUBBO");
+            put("L", "LOCAL");
             put("U", "UNKNOWN");
         }
     };

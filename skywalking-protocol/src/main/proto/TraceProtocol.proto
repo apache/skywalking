@@ -10,6 +10,7 @@ message AckSpan {
     required int32 statusCode = 5;
     optional string exceptionStack = 6;
     required string viewpointId = 7;
+    map<string,string> parameters = 8;
 }
 
 message RequestSpan {

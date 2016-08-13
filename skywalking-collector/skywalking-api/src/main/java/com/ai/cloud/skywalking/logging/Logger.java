@@ -3,6 +3,7 @@ package com.ai.cloud.skywalking.logging;
 
 import com.ai.cloud.skywalking.protocol.util.LoggingUtil;
 
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -89,7 +90,7 @@ public class Logger {
                 break;
             }
 
-            tmpMessage = tmpMessage.replaceFirst("\\{\\}", String.valueOf(parameters[parametersIndex++]));
+            tmpMessage = tmpMessage.replaceFirst("\\{\\}", URLEncoder.encode(String.valueOf(parameters[parametersIndex++])));
             startSize = index + 2;
         }
         return tmpMessage;

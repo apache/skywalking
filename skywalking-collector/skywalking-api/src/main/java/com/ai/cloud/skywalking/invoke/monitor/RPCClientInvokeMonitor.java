@@ -2,6 +2,7 @@ package com.ai.cloud.skywalking.invoke.monitor;
 
 import com.ai.cloud.skywalking.buffer.ContextBuffer;
 import com.ai.cloud.skywalking.conf.AuthDesc;
+import com.ai.cloud.skywalking.conf.Config;
 import com.ai.cloud.skywalking.context.CurrentThreadSpanStack;
 import com.ai.cloud.skywalking.logging.LogManager;
 import com.ai.cloud.skywalking.logging.Logger;
@@ -28,6 +29,10 @@ public class RPCClientInvokeMonitor extends BaseInvokeMonitor {
             //设置SpanType的类型
             spanData.setSpanType(SpanType.RPC_CLIENT);
 
+            if (Config.BuriedPoint.PRINTF) {
+                logger.debug("TraceId:" + spanData.getTraceId() + "\tParentLevelId:" + spanData.getParentLevel()
+                        + "\tLevelId:" + spanData.getLevelId() + "\tbusinessKey:" + spanData.getParameters());
+            }
 
             CurrentThreadSpanStack.push(spanData);
 

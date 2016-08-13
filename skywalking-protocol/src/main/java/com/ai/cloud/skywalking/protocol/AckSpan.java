@@ -122,14 +122,6 @@ public class AckSpan extends AbstractDataSerializable {
         this.exceptionStack = exceptionStack;
     }
 
-    public Map<String, String> getParamters() {
-        return paramters;
-    }
-
-    public void setParamters(Map<String, String> paramters) {
-        this.paramters = paramters;
-    }
-
     @Override
     public int getDataType() {
         return 2;
@@ -137,9 +129,15 @@ public class AckSpan extends AbstractDataSerializable {
 
     @Override
     public byte[] getData() {
-        return TraceProtocol.AckSpan.newBuilder().setTraceId(traceId).setParentLevel(parentLevel).
+        TraceProtocol.AckSpan.Builder builder = TraceProtocol.AckSpan.newBuilder().setTraceId(traceId).setParentLevel(parentLevel).
                 setLevelId(levelId).setCost(cost).setViewpointId(viewPointId).setStatusCode(statusCode)
-                .setExceptionStack(exceptionStack).build().toByteArray();
+                .setExceptionStack(exceptionStack);
+
+        if (paramters != null && paramters.size() > 0){
+            builder.putAllParameters(paramters);
+        }
+
+        return builder.build().toByteArray();
     }
 
     @Override
@@ -154,6 +152,7 @@ public class AckSpan extends AbstractDataSerializable {
             ackSpan.setExceptionStack(ackSpanProtocol.getExceptionStack());
             ackSpan.setStatusCode((byte) ackSpanProtocol.getStatusCode());
             ackSpan.viewPointId = ackSpanProtocol.getViewpointId();
+            ackSpan.paramters = ackSpanProtocol.getParametersMap();
         } catch (InvalidProtocolBufferException e) {
             throw new ConvertFailedException(e.getMessage(),e);
         }

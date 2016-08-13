@@ -221,7 +221,7 @@ public class RequestSpan extends AbstractDataSerializable {
         }
 
         if (parameters != null && parameters.size() > 0) {
-            builder.getParametersMap().putAll(parameters);
+            builder.putAllParameters(parameters);
         }
 
         return builder.setCallType(callType).setApplicationId(applicationId).setUserId(userId).setAgentId(agentId)

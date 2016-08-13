@@ -209,6 +209,9 @@ public class Span {
     }
 
     public void setInvokeResult(String result){
+        if (result == null){
+            result = "";
+        }
         this.parameters.put(INVOKE_RESULT_PARAMETER_KEY, result);
     }
 

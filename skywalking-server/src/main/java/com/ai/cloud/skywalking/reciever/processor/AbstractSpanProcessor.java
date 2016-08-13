@@ -56,7 +56,7 @@ public abstract class AbstractSpanProcessor implements IProcessor {
 
     @Override
     public void process(List<AbstractDataSerializable> serializedObjects) {
-        //doAlarm(serializedObjects);
+        doAlarm(serializedObjects);
         doSaveHBase(connection, serializedObjects);
     }
 

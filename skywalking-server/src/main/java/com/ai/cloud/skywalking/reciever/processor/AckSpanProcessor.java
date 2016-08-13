@@ -47,7 +47,6 @@ public class AckSpanProcessor extends AbstractSpanProcessor {
         String columnName;
         for (AbstractDataSerializable serializedObject : serializedObjects) {
             AckSpan ackSpan = (AckSpan) serializedObject;
-            System.out.println(ackSpan.getTraceId() + "-ACK:" + ackSpan.getViewPointId());
             Put put = new Put(Bytes.toBytes(ackSpan.getTraceId()), getTSBySpanTraceId(ackSpan.getTraceId()));
             if (StringUtils.isEmpty(ackSpan.getParentLevel().trim())) {
                 columnName = ackSpan.getLevelId() + "";

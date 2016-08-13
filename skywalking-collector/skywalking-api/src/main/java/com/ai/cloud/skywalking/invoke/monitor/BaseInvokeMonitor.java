@@ -28,8 +28,8 @@ public abstract class BaseInvokeMonitor {
 
     protected ContextData beforeInvoke(Span spanData, Identification id) {
         if (Config.BuriedPoint.PRINTF) {
-            logger.debug("TraceId:" + spanData.getTraceId() + "\tviewpointId:" + id.getViewPoint() + "\tParentLevelId:"
-                    + spanData.getParentLevel() + "\tLevelId:" + spanData.getLevelId());
+            logger.debug("TraceId:" + spanData.getTraceId() + "\tParentLevelId:" + spanData.getParentLevel()
+                    + "\tLevelId:" + spanData.getLevelId() + "\tbusinessKey:" + spanData.getParameters());
         }
 
         // 将新创建的Context存放到ThreadLocal栈中。

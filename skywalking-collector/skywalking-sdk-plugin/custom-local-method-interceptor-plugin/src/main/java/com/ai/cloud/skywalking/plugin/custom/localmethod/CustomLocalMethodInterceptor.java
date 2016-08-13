@@ -43,7 +43,7 @@ public class CustomLocalMethodInterceptor implements InstanceMethodsAroundInterc
     @Override
     public Object afterMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
             Object ret) {
-        new LocalMethodInvokeMonitor().afterInvoke();
+        recordResultIfNecessary(ret);
         return ret;
     }
 
@@ -65,8 +65,22 @@ public class CustomLocalMethodInterceptor implements InstanceMethodsAroundInterc
 
     @Override
     public Object afterMethod(StaticMethodInvokeContext interceptorContext, Object ret) {
-        new LocalMethodInvokeMonitor().afterInvoke();
+        recordResultIfNecessary(ret);
         return ret;
+    }
+
+    private void recordResultIfNecessary(Object ret) {
+        if (Config.Plugin.CustomLocalMethodInterceptorPlugin.RECORD_PARAM_ENABLE){
+            String retStr;
+            try{
+                retStr = new Gson().toJson(ret);
+            }catch (Exception e){
+                retStr = "N/A";
+            }
+            new LocalMethodInvokeMonitor().afterInvoke(retStr);
+        }else {
+            new LocalMethodInvokeMonitor().afterInvoke();
+        }
     }
 
     @Override

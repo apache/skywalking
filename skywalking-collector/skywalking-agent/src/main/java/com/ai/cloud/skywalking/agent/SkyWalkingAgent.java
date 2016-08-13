@@ -20,6 +20,9 @@ import java.io.File;
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
 
+import static net.bytebuddy.matcher.ElementMatchers.isInterface;
+import static net.bytebuddy.matcher.ElementMatchers.not;
+
 public class SkyWalkingAgent {
     private static Logger logger = LogManager.getLogger(SkyWalkingAgent.class);
 
@@ -29,7 +32,7 @@ public class SkyWalkingAgent {
             final PluginDefineCategory pluginDefineCategory =
                     PluginDefineCategory.category(new PluginBootstrap().loadPlugins());
 
-            new AgentBuilder.Default().type(enhanceClassMatcher(pluginDefineCategory))
+            new AgentBuilder.Default().type(enhanceClassMatcher(pluginDefineCategory).and(not(isInterface())))
                     .transform(new AgentBuilder.Transformer() {
                         public DynamicType.Builder<?> transform(DynamicType.Builder<?> builder,
                                 TypeDescription typeDescription, ClassLoader classLoader) {
