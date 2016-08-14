@@ -1,8 +1,8 @@
 package test.json;
 
-import com.ai.cloud.skywalking.web.dto.AnlyResult;
-import com.ai.cloud.skywalking.web.entity.BreviaryChainTree;
-import com.ai.cloud.skywalking.web.util.Constants;
+import com.a.eye.skywalking.web.dto.AnlyResult;
+import com.a.eye.skywalking.web.entity.BreviaryChainTree;
+import com.a.eye.skywalking.web.util.Constants;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;

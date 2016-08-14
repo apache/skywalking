@@ -6,7 +6,7 @@
 
     <filter>
         <filter-name>AccessControllerFilter</filter-name>
-        <filter-class>com.ai.cloud.skywalking.web.filter.AccessControllerFilter</filter-class>
+        <filter-class>com.a.eye.skywalking.web.filter.AccessControllerFilter</filter-class>
     </filter>
 
     <filter-mapping>

@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>com.ai.cloud</groupId>
+		<groupId>com.a.eye</groupId>
 		<artifactId>skywalking-collector</artifactId>
 		<version>1.0-Final</version>
 	</parent>
@@ -21,7 +21,7 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>com.ai.cloud</groupId>
+			<groupId>com.a.eye</groupId>
 			<artifactId>skywalking-protocol</artifactId>
 			<version>1.0-Final</version>
 		</dependency>
@@ -39,7 +39,7 @@
 		</dependency>
 
 		<dependency>
-			<groupId>com.ai.cloud</groupId>
+			<groupId>com.a.eye</groupId>
 			<artifactId>skywalking-test-api</artifactId>
 			<version>1.0-Final</version>
 			<scope>test</scope>
@@ -109,7 +109,7 @@
 		<repository>
 			<id>bintray-wu-sheng-sky-walking-repository</id>
 			<name>wu-sheng-sky-walking-repository</name>
-			<url>https://api.bintray.com/maven/wu-sheng/skywalking/com.ai.cloud.skywalking-api/;publish=1</url>
+			<url>https://api.bintray.com/maven/wu-sheng/skywalking/com.a.eye.skywalking-api/;publish=1</url>
 		</repository>
 	</distributionManagement>
 </project>

@@ -1,4 +1,4 @@
-package com.ai.cloud.skywalking.agent.test.mysql;
+package com.a.eye.skywalking.agent.test.mysql;
 
 import com.ai.skywalking.testframework.api.RequestSpanAssert;
 import org.junit.Test;

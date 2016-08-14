@@ -2,7 +2,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>example-dubbo</artifactId>
-        <groupId>com.ai.cloud</groupId>
+        <groupId>com.a.eye</groupId>
         <version>1.0-Final</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -19,14 +19,20 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.ai.cloud</groupId>
+            <groupId>com.a.eye</groupId>
             <artifactId>dubbo-interfaces</artifactId>
             <version>1.0-Final</version>
         </dependency>
         <dependency>
             <groupId>com.alibaba</groupId>
-            <artifactId>dubbox</artifactId>
-            <version>2.8.4</version>
+            <artifactId>dubbo</artifactId>
+            <version>2.5.3</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.javassist</groupId>

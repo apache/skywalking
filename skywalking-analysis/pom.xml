@@ -2,7 +2,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.ai.cloud</groupId>
+    <groupId>com.a.eye</groupId>
     <artifactId>skywalking-analysis</artifactId>
     <version>1.0-Final</version>
     <packaging>jar</packaging>
@@ -34,7 +34,7 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.ai.cloud</groupId>
+            <groupId>com.a.eye</groupId>
             <artifactId>skywalking-protocol</artifactId>
             <version>1.0-Final</version>
         </dependency>
@@ -105,7 +105,7 @@
                             <transformers>
                                     <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                        <mainClass>com.ai.cloud.skywalking.analysis.AnalysisServerDriver</mainClass>
+                                        <mainClass>com.a.eye.skywalking.analysis.AnalysisServerDriver</mainClass>
                                     </transformer>
                             </transformers>
                         </configuration>

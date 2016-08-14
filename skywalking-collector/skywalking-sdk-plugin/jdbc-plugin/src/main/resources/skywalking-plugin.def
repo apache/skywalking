@@ -1,3 +1,3 @@
-com.ai.cloud.skywalking.plugin.jdbc.define.H2PluginDefine
-com.ai.cloud.skywalking.plugin.jdbc.define.MysqlPluginDefine
-com.ai.cloud.skywalking.plugin.jdbc.define.OraclePluginDefine
+com.a.eye.skywalking.plugin.jdbc.define.H2PluginDefine
+com.a.eye.skywalking.plugin.jdbc.define.MysqlPluginDefine
+com.a.eye.skywalking.plugin.jdbc.define.OraclePluginDefine

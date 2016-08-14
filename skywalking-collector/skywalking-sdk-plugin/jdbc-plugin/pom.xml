@@ -2,7 +2,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<parent>
 		<artifactId>skywalking-sdk-plugin</artifactId>
-		<groupId>com.ai.cloud</groupId>
+		<groupId>com.a.eye</groupId>
 		<version>1.0-Final</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
@@ -19,7 +19,7 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>com.ai.cloud</groupId>
+			<groupId>com.a.eye</groupId>
 			<artifactId>skywalking-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
@@ -70,7 +70,7 @@
 		<repository>
 			<id>bintray-wu-sheng-sky-walking-repository</id>
 			<name>wu-sheng-sky-walking-repository</name>
-			<url>https://api.bintray.com/maven/wu-sheng/skywalking/com.ai.cloud.skywalking-jdbc-plugin/;publish=1</url>
+			<url>https://api.bintray.com/maven/wu-sheng/skywalking/com.a.eye.skywalking-jdbc-plugin/;publish=1</url>
 		</repository>
 	</distributionManagement>
 </project>

@@ -8,8 +8,8 @@
     <dubbo:application name="skywalking-dubbo-rest-provider"/>
     <dubbo:registry address="zookeeper://127.0.0.1:2181"/>
     <dubbo:protocol name="rest" port="20880" server="tomcat"/>
-    <bean id="dubboxRestInterA" class="com.ai.cloud.skywalking.sample.dubboxrest.impl.DubboxRestInterAImpl"/>
-    <dubbo:service interface="com.ai.cloud.skywalking.sample.dubboxrest.interfaces.IDubboxRestInterA"
+    <bean id="dubboxRestInterA" class="com.a.eye.skywalking.sample.dubboxrest.impl.DubboxRestInterAImpl"/>
+    <dubbo:service interface="com.a.eye.skywalking.sample.dubboxrest.interfaces.IDubboxRestInterA"
                    ref="dubboxRestInterA"/>
 
 </beans>

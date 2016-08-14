@@ -1,4 +1,4 @@
-com.ai.cloud.skywalking.httpClient.v4.plugin.define.AbstractHttpClientPluginDefine
-com.ai.cloud.skywalking.httpClient.v4.plugin.define.InternalHttpClientPluginDefine
-com.ai.cloud.skywalking.httpClient.v4.plugin.define.MinimalHttpClientPluginDefine
-com.ai.cloud.skywalking.httpClient.v4.plugin.define.DefaultRequestDirectorPluginDefine
+com.a.eye.skywalking.plugin.httpClient.v4.define.AbstractHttpClientPluginDefine
+com.a.eye.skywalking.plugin.httpClient.v4.define.InternalHttpClientPluginDefine
+com.a.eye.skywalking.plugin.httpClient.v4.define.MinimalHttpClientPluginDefine
+com.a.eye.skywalking.plugin.httpClient.v4.define.DefaultRequestDirectorPluginDefine

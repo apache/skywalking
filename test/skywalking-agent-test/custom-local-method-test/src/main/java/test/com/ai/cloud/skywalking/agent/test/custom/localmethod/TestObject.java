@@ -1,4 +1,4 @@
-package test.com.ai.cloud.skywalking.agent.test.custom.localmethod;
+package test.com.a.eye.skywalking.agent.test.custom.localmethod;
 
 public class TestObject {
 

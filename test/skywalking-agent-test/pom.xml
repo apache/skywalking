@@ -2,7 +2,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.ai.cloud</groupId>
+    <groupId>com.a.eye</groupId>
     <artifactId>skywalking-agent-test</artifactId>
     <packaging>pom</packaging>
     <version>1.0-Final</version>
@@ -33,7 +33,7 @@
             <version>2.4.1</version>
         </dependency>
         <dependency>
-            <groupId>com.ai.cloud</groupId>
+            <groupId>com.a.eye</groupId>
             <artifactId>skywalking-test-api</artifactId>
             <version>1.0-Final</version>
         </dependency>

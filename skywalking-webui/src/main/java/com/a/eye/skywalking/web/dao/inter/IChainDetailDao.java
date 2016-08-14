@@ -1,0 +1,15 @@
+package com.a.eye.skywalking.web.dao.inter;
+
+import com.a.eye.skywalking.web.dto.HitTreeInfo;
+
+import java.sql.SQLException;
+import java.util.List;
+
+/**
+ * Created by xin on 16-4-6.
+ */
+public interface IChainDetailDao {
+    List<HitTreeInfo> queryChainTreeIds(String uid, String viewpoint, int pageSize) throws SQLException;
+
+    String queryChainViewPoint(String traceLevelId, String treeId, String uid) throws SQLException;
+}

@@ -1,4 +1,4 @@
-package com.ai.cloud.skywalking.agent.test;
+package com.a.eye.skywalking.agent.test;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

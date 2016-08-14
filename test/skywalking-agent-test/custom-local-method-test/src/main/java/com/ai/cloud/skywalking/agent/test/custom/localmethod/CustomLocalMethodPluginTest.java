@@ -1,8 +1,8 @@
-package com.ai.cloud.skywalking.agent.test.custom.localmethod;
+package com.a.eye.skywalking.agent.test.custom.localmethod;
 
 import com.ai.skywalking.testframework.api.RequestSpanAssert;
-import test.com.ai.cloud.skywalking.agent.test.custom.localmethod.TestObject;
-import test.com.ai.cloud.skywalking.agent.test.custom.localmethod.TestParam;
+import test.com.a.eye.skywalking.agent.test.custom.localmethod.TestObject;
+import test.com.a.eye.skywalking.agent.test.custom.localmethod.TestParam;
 
 public class CustomLocalMethodPluginTest {
 
@@ -12,8 +12,8 @@ public class CustomLocalMethodPluginTest {
         testObject.printlnHelloWorld(new TestParam("B", "C"));
 
         RequestSpanAssert.assertEquals(new String[][] {
-                {"0", "test.com.ai.cloud.skywalking.agent.test.custom.localmethod.TestObject.printlnHelloWorld()", ""},
-                {"0", "test.com.ai.cloud.skywalking.agent.test.custom.localmethod.TestObject.staticPrintlnHelloWorld()", ""}
+                {"0", "test.com.a.eye.skywalking.agent.test.custom.localmethod.TestObject.printlnHelloWorld()", ""},
+                {"0", "test.com.a.eye.skywalking.agent.test.custom.localmethod.TestObject.staticPrintlnHelloWorld()", ""}
         },true);
     }
 }

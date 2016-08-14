@@ -1,7 +1,7 @@
 #skyWalking用户ID
-skywalking.user_id=123
+skywalking.user_id=18
 #skyWalking应用编码
-skywalking.application_code=skywalking-sample-dubbo
+skywalking.application_code=meet-web
 #skywalking auth的环境变量名字
 skywalking.auth_system_env_name=SKYWALKING_RUN
 #skywalking数据编码

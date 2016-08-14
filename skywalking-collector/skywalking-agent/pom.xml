@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.ai.cloud</groupId>
+        <groupId>com.a.eye</groupId>
         <artifactId>skywalking-collector</artifactId>
         <version>1.0-Final</version>
     </parent>
@@ -16,43 +16,43 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <premain.class>com.ai.cloud.skywalking.agent.SkyWalkingAgent</premain.class>
+        <premain.class>com.a.eye.skywalking.agent.SkyWalkingAgent</premain.class>
         <shade.net.bytebuddy.source>net.bytebuddy</shade.net.bytebuddy.source>
-        <shade.net.bytebuddy.target>com.ai.cloud.skywalking.api.dependencies.net.bytebuddy</shade.net.bytebuddy.target>
+        <shade.net.bytebuddy.target>com.a.eye.skywalking.api.dependencies.net.bytebuddy</shade.net.bytebuddy.target>
         <shade.io.netty.source>io.netty</shade.io.netty.source>
-        <shade.io.netty.target>com.ai.cloud.skywalking.api.dependencies.io.netty</shade.io.netty.target>
+        <shade.io.netty.target>com.a.eye.skywalking.api.dependencies.io.netty</shade.io.netty.target>
         <shade.com.google.gson.source>com.google.gson</shade.com.google.gson.source>
-        <shade.com.google.gson.target>com.ai.cloud.skywalking.api.dependencies.com.google.gson</shade.com.google.gson.target>
+        <shade.com.google.gson.target>com.a.eye.skywalking.api.dependencies.com.google.gson</shade.com.google.gson.target>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>com.ai.cloud</groupId>
+            <groupId>com.a.eye</groupId>
             <artifactId>skywalking-jedis-2.x-plugin</artifactId>
             <version>1.0-Final</version>
         </dependency>
         <dependency>
-            <groupId>com.ai.cloud</groupId>
+            <groupId>com.a.eye</groupId>
             <artifactId>skywalking-jdbc-plugin</artifactId>
             <version>1.0-Final</version>
         </dependency>
         <dependency>
-            <groupId>com.ai.cloud</groupId>
+            <groupId>com.a.eye</groupId>
             <artifactId>skywalking-httpClient-4.x-plugin</artifactId>
             <version>1.0-Final</version>
         </dependency>
         <dependency>
-            <groupId>com.ai.cloud</groupId>
+            <groupId>com.a.eye</groupId>
             <artifactId>skywalking-dubbo-plugin</artifactId>
             <version>1.0-Final</version>
         </dependency>
         <dependency>
-            <groupId>com.ai.cloud</groupId>
+            <groupId>com.a.eye</groupId>
             <artifactId>tomcat-7.x-8.x-plugin</artifactId>
             <version>1.0-Final</version>
         </dependency>
         <dependency>
-            <groupId>com.ai.cloud</groupId>
+            <groupId>com.a.eye</groupId>
             <artifactId>custom-local-method-interceptor-plugin</artifactId>
             <version>1.0-Final</version>
         </dependency>
@@ -110,7 +110,7 @@
         <repository>
             <id>bintray-wu-sheng-sky-walking-repository</id>
             <name>wu-sheng-sky-walking-repository</name>
-            <url>https://api.bintray.com/maven/wu-sheng/skywalking/com.ai.cloud.skywalking-agent/;publish=1</url>
+            <url>https://api.bintray.com/maven/wu-sheng/skywalking/com.a.eye.skywalking-agent/;publish=1</url>
         </repository>
     </distributionManagement>
 </project>

@@ -1,2 +1,2 @@
-com.ai.cloud.skywalking.jedis.v2.plugin.define.JedisPluginDefine
-com.ai.cloud.skywalking.jedis.v2.plugin.define.JedisClusterPluginDefine
+com.a.eye.skywalking.plugin.jedis.v2.define.JedisPluginDefine
+com.a.eye.skywalking.plugin.jedis.v2.define.JedisClusterPluginDefine

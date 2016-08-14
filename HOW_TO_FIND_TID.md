@@ -11,7 +11,7 @@
 ```
 - 配置log4j配置文件
 ```properties
-log4j.appender.A1.layout=com.ai.cloud.skywalking.plugin.log.log4j.v1.x.TraceIdPatternLayout
+log4j.appender.A1.layout=TraceIdPatternLayout
 #%x为traceid的转义符
 log4j.appender.A1.layout.ConversionPattern=[%x] %-d{yyyy-MM-dd HH:mm:ss.SSS} %c %n[%p] %n%m%n
 ```

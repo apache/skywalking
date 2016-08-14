@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>com.ai.cloud</groupId>
+		<groupId>com.a.eye</groupId>
 		<artifactId>skywalking</artifactId>
 		<version>1.0-Final</version>
 	</parent>
@@ -14,7 +14,6 @@
 	<modules>
 		<module>skywalking-api</module>
 		<module>skywalking-sdk-plugin</module>
-		<module>skywalking-log</module>
 		<module>skywalking-agent</module>
 	</modules>
 	<packaging>pom</packaging>
@@ -47,7 +46,7 @@
 		<repository>
 			<id>bintray-wu-sheng-sky-walking-repository</id>
 			<name>wu-sheng-sky-walking-repository</name>
-			<url>https://api.bintray.com/maven/wu-sheng/skywalking/com.ai.cloud.skywalking-collector/;publish=1</url>
+			<url>https://api.bintray.com/maven/wu-sheng/skywalking/com.a.eye.skywalking-collector/;publish=1</url>
 		</repository>
 	</distributionManagement>
 </project>

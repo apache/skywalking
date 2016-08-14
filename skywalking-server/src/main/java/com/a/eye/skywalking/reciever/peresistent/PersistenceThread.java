@@ -1,0 +1,127 @@
+package com.a.eye.skywalking.reciever.peresistent;
+
+import com.a.eye.skywalking.reciever.conf.Config;
+import com.a.eye.skywalking.reciever.processor.IProcessor;
+import com.a.eye.skywalking.reciever.processor.ProcessorFactory;
+import com.a.eye.skywalking.reciever.selfexamination.ServerHealthCollector;
+import com.a.eye.skywalking.reciever.selfexamination.ServerHeathReading;
+import com.a.eye.skywalking.protocol.common.AbstractDataSerializable;
+import org.apache.commons.io.comparator.NameFileComparator;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class    PersistenceThread extends Thread {
+
+    private Logger logger     = LogManager.getLogger(PersistenceThread.class);
+    private File   bufferFile = null;
+
+    public PersistenceThread(int trdIndex) {
+        super("PersistentThread" + trdIndex);
+    }
+
+    @Override
+    public void run() {
+        while (true) {
+            bufferFile = chooseDealBufferFile();
+
+            if (bufferFile == null) {
+                try {
+                    Thread.sleep(Config.Persistence.SWITCH_FILE_WAIT_TIME);
+                } catch (InterruptedException e) {
+                    logger.error("Failure sleep.", e);
+                }
+                continue;
+            }
+
+            int offset = acquireOffset();
+
+            BufferFileReader bufferReader = new BufferFileReader(bufferFile, offset);
+            while (bufferReader.hasNext()) {
+                List<AbstractDataSerializable> serializableDataList = bufferReader.next();
+                handleSpans(categorySerializableData(serializableDataList));
+            }
+
+            try {
+                bufferReader.close();
+            } catch (IOException e) {
+                logger.error("The data file I/O exception.", e);
+                ServerHealthCollector.getCurrentHeathReading(null).updateData(ServerHeathReading.ERROR, e.getMessage());
+            }
+
+            try {
+                Thread.sleep(Config.Persistence.SWITCH_FILE_WAIT_TIME);
+            } catch (InterruptedException e) {
+                logger.error("Failure sleep.", e);
+            }
+        }
+    }
+
+    private Map<Integer, List<AbstractDataSerializable>> categorySerializableData(List<AbstractDataSerializable> serializableDataList) {
+        Map<Integer, List<AbstractDataSerializable>> result = new HashMap<Integer, List<AbstractDataSerializable>>();
+        for (AbstractDataSerializable serializableData : serializableDataList){
+            List<AbstractDataSerializable> specialTypeSerializableData = result.get(serializableData.getDataType());
+            if (specialTypeSerializableData == null){
+                specialTypeSerializableData = new ArrayList<AbstractDataSerializable>();
+                result.put(serializableData.getDataType(), specialTypeSerializableData);
+            }
+
+            specialTypeSerializableData.add(serializableData);
+        }
+
+        return result;
+    }
+
+    private int acquireOffset() {
+        int offset;
+        offset = MemoryRegister.instance().getOffSet(bufferFile.getName());
+        if (offset == -1 || offset == 0) {
+            offset = 0;
+        }
+        return offset;
+    }
+
+    private void handleSpans(Map<Integer, List<AbstractDataSerializable>> spans) {
+        for (Map.Entry<Integer, List<AbstractDataSerializable>> entry : spans.entrySet()) {
+            IProcessor processor = ProcessorFactory.chooseProcessor(entry.getKey());
+            if (processor != null) {
+                processor.process(entry.getValue());
+            }
+        }
+    }
+
+    private File chooseDealBufferFile() {
+        File file1 = null;
+        File parentDir = new File(Config.Buffer.DATA_BUFFER_FILE_PARENT_DIR);
+        NameFileComparator sizeComparator = new NameFileComparator();
+        File[] dataFileList = sizeComparator.sort(parentDir.listFiles());
+
+        if (dataFileList == null) {
+            return null;
+        }
+
+        for (File file : dataFileList) {
+            if (file.getName().startsWith(".")) {
+                continue;
+            }
+            if (MemoryRegister.instance().doRegister(file.getName()) == null) {
+                if (logger.isDebugEnabled())
+                    logger.debug("The file [{}] is being used by another thread ", file);
+                continue;
+            }
+            if (logger.isDebugEnabled()) {
+                logger.debug("Begin to deal data file [{}]", file.getName());
+            }
+            file1 = file;
+            break;
+        }
+
+        return file1;
+    }
+}

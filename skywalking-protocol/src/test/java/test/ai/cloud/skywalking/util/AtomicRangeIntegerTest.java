@@ -5,7 +5,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import com.ai.cloud.skywalking.protocol.util.AtomicRangeInteger;
+import com.a.eye.skywalking.protocol.util.AtomicRangeInteger;
 
 public class AtomicRangeIntegerTest extends TestCase{
 	static String[] buffer = new String[5000];

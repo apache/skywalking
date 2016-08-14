@@ -1,4 +1,4 @@
-package com.ai.cloud.skywalking.agent.test;
+package com.a.eye.skywalking.agent.test;
 
 import com.ai.skywalking.testframework.api.RequestSpanAssert;
 import org.junit.After;
