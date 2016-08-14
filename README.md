@@ -86,8 +86,6 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 ![应用列表展现](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/1.0b/typicalAnalysisResult.png)
 
 # Quick Start
-- master用于迭代开发，需要稳定版本请参见[Releases](releases)。1.0b的完整代码，请参见 [1.0-beta-tag](https://github.com/wu-sheng/sky-walking/tree/1.0-beta)
-- Developing of version 1.0-Final on branch Master. The source code of version [1.0-beta-tag](https://github.com/wu-sheng/sky-walking/tree/1.0-beta)
 
 ## 部署第三方软件 / Required of third party softwares
 - JDK 1.7
@@ -116,17 +114,11 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 - use public repository  [https://jcenter.bintray.com/](https://jcenter.bintray.com/) to download sdk
 
 
-## 使用-javaagent 启动应用程序 / start application with -javaagent
-- 为应用程序添加启动参数
-```shell
-java -jar ...  -javaagent:/..ospath../skywalking-agent-x.x-Final.jar
-```
-
 ## 下载并设置授权文件 / Download auth file
 - 注册并登陆过skywalking-webui，创建应用。（一个用户代表一个逻辑集群，一个应用代表一个服务集群。如前后端应用应该设置两个应用，但归属一个用户）
 - Sign up and login in skywalking-webui. Create application as needed.
-- 下载授权文件，并在运行时环境中，将授权文件加入到CLASSPATH或LIB中
-- download auth file(*.jar), and add the jar file to the CLASSPATH or lib.
+- 下载授权文件，放在在agent jar所在目录中
+- download auth file(*.auth), and copy the auth file to directory of the agent jar
 
 ## 在运行时环境中设置环境变量 / set environment variables 
 ```
@@ -134,6 +126,14 @@ export SKYWALKING_RUN=true
 ```
 - 设置完成后，SkyWalking将随应用启动运行
 - After set env, SkyWalking will be working, when application startup.
+
+
+## 使用-javaagent 并启动应用程序 / start application with -javaagent
+- 为应用程序添加启动参数
+```shell
+java -jar ...  -javaagent:/..ospath../skywalking-agent-x.x-Final.jar
+```
+- Tomcat可以使用修改启动文件，配置-javaagent参数
 
 # 在应用程序中显示traceid / How to find tid
 - [Find TID](HOW_TO_FIND_TID.md)
