@@ -1,5 +1,0 @@
-CREATE TABLE PUBLIC.sampletable1
-(
-  key1   VARCHAR2(36) PRIMARY KEY,
-  value1 VARCHAR2(36) NOT NULL
-);
