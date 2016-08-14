@@ -86,8 +86,6 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 ![应用列表展现](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/1.0b/typicalAnalysisResult.png)
 
 # Quick Start
-- master用于迭代开发，需要稳定版本请参见[Releases](releases)。1.0b的完整代码，请参见 [1.0-beta-tag](https://github.com/wu-sheng/sky-walking/tree/1.0-beta)
-- Developing of version 1.0-Final on branch Master. The source code of version [1.0-beta-tag](https://github.com/wu-sheng/sky-walking/tree/1.0-beta)
 
 ## 部署第三方软件 / Required of third party softwares
 - JDK 1.7
