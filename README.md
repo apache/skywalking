@@ -36,6 +36,8 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
   * httpClient 4.x
 * cache
   * jedix 2.x
+* java local method
+	* config package name or class name (Recommend to use in dev or test enviroment. Will cost too many in product enviroment.)
 
 
 # 主要贡献者 / Contributors
