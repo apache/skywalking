@@ -43,10 +43,6 @@ public class AckSpan extends AbstractDataSerializable {
      */
     private String exceptionStack = "";
 
-    /**
-     * 埋点入参列表,补充时触发
-     */
-    private Map<String, String> paramters = new HashMap<String, String>();
 
 
     private String viewPointId;
@@ -66,7 +62,6 @@ public class AckSpan extends AbstractDataSerializable {
         this.exceptionStack = spanData.getExceptionStack();
         this.userId = spanData.getUserId();
         this.applicationId = spanData.getApplicationId();
-        this.paramters.putAll(spanData.getParameters());
         this.viewPointId = spanData.getViewPointId();
     }
 
@@ -133,11 +128,6 @@ public class AckSpan extends AbstractDataSerializable {
                 builder = TraceProtocol.AckSpan.newBuilder().setTraceId(traceId).setParentLevel(parentLevel).
                 setLevelId(levelId).setCost(cost).setViewpointId(viewPointId).setStatusCode(statusCode)
                 .setExceptionStack(exceptionStack);
-
-        if (paramters != null && paramters.size() > 0){
-            builder.putAllParameters(paramters);
-        }
-
         return builder.build().toByteArray();
     }
 
@@ -153,7 +143,6 @@ public class AckSpan extends AbstractDataSerializable {
             ackSpan.setExceptionStack(ackSpanProtocol.getExceptionStack());
             ackSpan.setStatusCode((byte) ackSpanProtocol.getStatusCode());
             ackSpan.viewPointId = ackSpanProtocol.getViewpointId();
-            ackSpan.paramters = ackSpanProtocol.getParametersMap();
         } catch (InvalidProtocolBufferException e) {
             throw new ConvertFailedException(e.getMessage(),e);
         }

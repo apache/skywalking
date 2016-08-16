@@ -1,2 +1,4 @@
 com.a.eye.skywalking.reciever.processor.RequestSpanProcessor
 com.a.eye.skywalking.reciever.processor.AckSpanProcessor
+com.a.eye.skywalking.reciever.processor.InputParameterSpanProcessor
+com.a.eye.skywalking.reciever.processor.OutputParameterSpanProcessor

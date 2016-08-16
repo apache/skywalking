@@ -23,16 +23,30 @@ public class Tracing {
         return spanData.getTraceId();
     }
 
-   public static String generateNextContextData(){
-       if (!AuthDesc.isAuth())
-           return null;
+    public static String getTracelevelId() {
+        if (!AuthDesc.isAuth())
+            return "";
 
-       Span spanData = CurrentThreadSpanStack.peek();
-       if (spanData == null) {
-           return null;
-       }
+        Span spanData = CurrentThreadSpanStack.peek();
+        if (spanData == null) {
+            return "";
+        }
 
-       ContextData contextData = new ContextData(spanData);
-       return contextData.toString();
-   }
+        return (spanData.getParentLevel() == null || spanData.getParentLevel().length() == 0) ?
+                Integer.toString(spanData.getLevelId()) :
+                spanData.getParentLevel() + "." + spanData.getLevelId();
+    }
+
+    public static String generateNextContextData() {
+        if (!AuthDesc.isAuth())
+            return null;
+
+        Span spanData = CurrentThreadSpanStack.peek();
+        if (spanData == null) {
+            return null;
+        }
+
+        ContextData contextData = new ContextData(spanData);
+        return contextData.toString();
+    }
 }

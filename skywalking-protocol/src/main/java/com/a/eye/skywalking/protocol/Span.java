@@ -48,11 +48,6 @@ public class Span {
     protected String exceptionStack = "";
 
     /**
-     * 节点调用过程中的业务字段<br/>
-     * 如：业务系统设置的订单号，SQL语句等
-     */
-    protected Map<String, String> parameters = new HashMap<String, String>();
-    /**
      * 节点类型<br/>
      * 如：RPC Client,RPC Server,Local
      */
@@ -127,14 +122,6 @@ public class Span {
         this.exceptionStack = exceptionStack;
     }
 
-    public Map<String, String> getParameters() {
-        return parameters;
-    }
-
-    public void setParameters(Map<String, String> parameters) {
-        this.parameters = parameters;
-    }
-
     public void setSpanType(SpanType spanType) {
         this.spanType = spanType;
     }
@@ -183,10 +170,6 @@ public class Span {
         this.businessKey = businessKey;
     }
 
-    public void appendParameters(Map<String, String> parameters) {
-        this.parameters.putAll(parameters);
-    }
-
     public String getApplicationId() {
         return applicationId;
     }
@@ -208,12 +191,7 @@ public class Span {
         this.viewPointId = viewPointId;
     }
 
-    public void setInvokeResult(String result){
-        if (result == null){
-            result = "null";
-        }
-        this.parameters.put(INVOKE_RESULT_PARAMETER_KEY, result);
-    }
+
 
     public String getViewPointId() {
         return viewPointId;

@@ -32,10 +32,6 @@ public class LocalMethodInvokeMonitor extends BaseInvokeMonitor {
         super.afterInvoke();
     }
 
-    public void afterInvoke(String invokeResult){
-        super.afterInvoke(invokeResult);
-    }
-
 
     public void occurException(Throwable th){
         super.occurException(th);

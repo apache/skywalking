@@ -27,7 +27,7 @@ public abstract class BaseInvokeMonitor {
     protected ContextData beforeInvoke(Span spanData, Identification id) {
         if (Config.BuriedPoint.PRINTF) {
             logger.debug("TraceId:" + spanData.getTraceId() + "\tParentLevelId:" + spanData.getParentLevel()
-                    + "\tLevelId:" + spanData.getLevelId() + "\tbusinessKey:" + spanData.getParameters());
+                    + "\tLevelId:" + spanData.getLevelId() + "\tbusinessKey:" + spanData.getBusinessKey());
         }
 
         // 将新创建的Context存放到ThreadLocal栈中。
@@ -37,28 +37,23 @@ public abstract class BaseInvokeMonitor {
         ContextBuffer.save(RequestSpan.RequestSpanBuilder.
                 newBuilder(CurrentThreadSpanStack.peek()).callType(id.getCallType()).viewPoint(id.getViewPoint())
                 .spanTypeDesc(id.getSpanTypeDesc()).processNo(BuriedPointMachineUtil.getProcessNo())
-                .address(BuriedPointMachineUtil.getHostDesc()).parameters(id.getParameters()).build());
+                .address(BuriedPointMachineUtil.getHostDesc()).build());
 
         // 并将当前的Context返回回去
         return new ContextData(spanData);
     }
 
     protected void afterInvoke() {
-        afterInvoke(null);
-    }
-
-    protected void afterInvoke(String invokeResult) {
         try {
             if (!AuthDesc.isAuth())
                 return;
 
             // 弹出上下文的栈顶中的元素
             Span spanData = CurrentThreadSpanStack.pop();
-            spanData.setInvokeResult(invokeResult);
 
             if (Config.BuriedPoint.PRINTF) {
                 logger.debug("TraceId-ACK:" + spanData.getTraceId() + "\tParentLevelId:" + spanData.getParentLevel()
-                        + "\tLevelId:" + spanData.getLevelId() + "\tbusinessKey:" + spanData.getParameters());
+                        + "\tLevelId:" + spanData.getLevelId() + "\tbusinessKey:" + spanData.getBusinessKey());
             }
             // 生成并保存到缓存
             ContextBuffer.save(new AckSpan(spanData));

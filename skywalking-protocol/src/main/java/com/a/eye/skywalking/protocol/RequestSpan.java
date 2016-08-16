@@ -71,11 +71,6 @@ public class RequestSpan extends AbstractDataSerializable {
     private String userId = "";
 
     /**
-     * 埋点入参列表
-     */
-    private Map<String, String> parameters = new HashMap<String, String>();
-
-    /**
      * 业务字段
      */
     private String businessKey = "";
@@ -196,14 +191,6 @@ public class RequestSpan extends AbstractDataSerializable {
         this.userId = userId;
     }
 
-    public Map<String, String> getParameters() {
-        return parameters;
-    }
-
-    public void setParameters(Map<String, String> parameters) {
-        this.parameters = parameters;
-    }
-
     @Override
     public int getDataType() {
         return 1;
@@ -218,10 +205,6 @@ public class RequestSpan extends AbstractDataSerializable {
                         .setProcessNo(processNo);
         if (businessKey != null && businessKey.length() > 0) {
             builder.setBussinessKey(businessKey);
-        }
-
-        if (parameters != null && parameters.size() > 0) {
-            builder.putAllParameters(parameters);
         }
 
         return builder.setCallType(callType).setApplicationId(applicationId).setUserId(userId).setAgentId(agentId)
@@ -247,7 +230,6 @@ public class RequestSpan extends AbstractDataSerializable {
             requestSpan.setAgentId(requestSpanByte.getAgentId());
             requestSpan.setProcessNo(requestSpanByte.getProcessNo());
             requestSpan.setAddress(requestSpanByte.getAddress());
-            requestSpan.setParameters(requestSpanByte.getParametersMap());
         } catch (InvalidProtocolBufferException e) {
             throw new ConvertFailedException(e.getMessage(), e);
         }
@@ -308,11 +290,6 @@ public class RequestSpan extends AbstractDataSerializable {
 
         public RequestSpanBuilder bussinessKey(String bussinessKey) {
             requestSpan.businessKey = bussinessKey;
-            return this;
-        }
-
-        public RequestSpanBuilder parameters(Map<String, String> parameters) {
-            requestSpan.parameters = parameters;
             return this;
         }
 

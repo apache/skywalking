@@ -89,9 +89,20 @@ public class Config {
 
     public static class HBaseConfig {
 
-        public static String TABLE_NAME = "sw-call-chain";
+        public static class TraceDataTable {
 
-        public static String FAMILY_COLUMN_NAME = "call-chain";
+            public static String TABLE_NAME = "trace-data";
+
+            public static String FAMILY_COLUMN_NAME = "call-chain";
+
+        }
+
+        public static class TraceParamTable {
+
+            public static String TABLE_NAME = "trace-param";
+
+            public static String FAMILY_COLUMN_NAME = "param-data";
+        }
 
         public static String ZK_HOSTNAME;
 

@@ -100,40 +100,6 @@ public final class TraceProtocol {
      */
     com.google.protobuf.ByteString
         getViewpointIdBytes();
-
-    /**
-     * <code>map&lt;string, string&gt; parameters = 8;</code>
-     */
-    int getParametersCount();
-    /**
-     * <code>map&lt;string, string&gt; parameters = 8;</code>
-     */
-    boolean containsParameters(
-        java.lang.String key);
-    /**
-     * Use {@link #getParametersMap()} instead.
-     */
-    @java.lang.Deprecated
-    java.util.Map<java.lang.String, java.lang.String>
-    getParameters();
-    /**
-     * <code>map&lt;string, string&gt; parameters = 8;</code>
-     */
-    java.util.Map<java.lang.String, java.lang.String>
-    getParametersMap();
-    /**
-     * <code>map&lt;string, string&gt; parameters = 8;</code>
-     */
-
-    java.lang.String getParametersOrDefault(
-        java.lang.String key,
-        java.lang.String defaultValue);
-    /**
-     * <code>map&lt;string, string&gt; parameters = 8;</code>
-     */
-
-    java.lang.String getParametersOrThrow(
-        java.lang.String key);
   }
   /**
    * Protobuf type {@code AckSpan}
@@ -223,18 +189,6 @@ public final class TraceProtocol {
               viewpointId_ = bs;
               break;
             }
-            case 66: {
-              if (!((mutable_bitField0_ & 0x00000080) == 0x00000080)) {
-                parameters_ = com.google.protobuf.MapField.newMapField(
-                    ParametersDefaultEntryHolder.defaultEntry);
-                mutable_bitField0_ |= 0x00000080;
-              }
-              com.google.protobuf.MapEntry<java.lang.String, java.lang.String>
-              parameters = input.readMessage(
-                  ParametersDefaultEntryHolder.defaultEntry.getParserForType(), extensionRegistry);
-              parameters_.getMutableMap().put(parameters.getKey(), parameters.getValue());
-              break;
-            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -249,25 +203,14 @@ public final class TraceProtocol {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return TraceProtocol.internal_static_AckSpan_descriptor;
+      return com.a.eye.skywalking.protocol.proto.TraceProtocol.internal_static_AckSpan_descriptor;
     }
 
-    @SuppressWarnings({"rawtypes"})
-    protected com.google.protobuf.MapField internalGetMapField(
-        int number) {
-      switch (number) {
-        case 8:
-          return internalGetParameters();
-        default:
-          throw new RuntimeException(
-              "Invalid map field number: " + number);
-      }
-    }
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return TraceProtocol.internal_static_AckSpan_fieldAccessorTable
+      return com.a.eye.skywalking.protocol.proto.TraceProtocol.internal_static_AckSpan_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              TraceProtocol.AckSpan.class, TraceProtocol.AckSpan.Builder.class);
+              com.a.eye.skywalking.protocol.proto.TraceProtocol.AckSpan.class, com.a.eye.skywalking.protocol.proto.TraceProtocol.AckSpan.Builder.class);
     }
 
     private int bitField0_;
@@ -484,82 +427,6 @@ public final class TraceProtocol {
       }
     }
 
-    public static final int PARAMETERS_FIELD_NUMBER = 8;
-    private static final class ParametersDefaultEntryHolder {
-      static final com.google.protobuf.MapEntry<
-          java.lang.String, java.lang.String> defaultEntry =
-              com.google.protobuf.MapEntry
-              .<java.lang.String, java.lang.String>newDefaultInstance(
-                  TraceProtocol.internal_static_AckSpan_ParametersEntry_descriptor,
-                  com.google.protobuf.WireFormat.FieldType.STRING,
-                  "",
-                  com.google.protobuf.WireFormat.FieldType.STRING,
-                  "");
-    }
-    private com.google.protobuf.MapField<
-        java.lang.String, java.lang.String> parameters_;
-    private com.google.protobuf.MapField<java.lang.String, java.lang.String>
-    internalGetParameters() {
-      if (parameters_ == null) {
-        return com.google.protobuf.MapField.emptyMapField(
-            ParametersDefaultEntryHolder.defaultEntry);
-      }
-      return parameters_;
-    }
-
-    public int getParametersCount() {
-      return internalGetParameters().getMap().size();
-    }
-    /**
-     * <code>map&lt;string, string&gt; parameters = 8;</code>
-     */
-
-    public boolean containsParameters(
-        java.lang.String key) {
-      if (key == null) { throw new java.lang.NullPointerException(); }
-      return internalGetParameters().getMap().containsKey(key);
-    }
-    /**
-     * Use {@link #getParametersMap()} instead.
-     */
-    @java.lang.Deprecated
-    public java.util.Map<java.lang.String, java.lang.String> getParameters() {
-      return getParametersMap();
-    }
-    /**
-     * <code>map&lt;string, string&gt; parameters = 8;</code>
-     */
-
-    public java.util.Map<java.lang.String, java.lang.String> getParametersMap() {
-      return internalGetParameters().getMap();
-    }
-    /**
-     * <code>map&lt;string, string&gt; parameters = 8;</code>
-     */
-
-    public java.lang.String getParametersOrDefault(
-        java.lang.String key,
-        java.lang.String defaultValue) {
-      if (key == null) { throw new java.lang.NullPointerException(); }
-      java.util.Map<java.lang.String, java.lang.String> map =
-          internalGetParameters().getMap();
-      return map.containsKey(key) ? map.get(key) : defaultValue;
-    }
-    /**
-     * <code>map&lt;string, string&gt; parameters = 8;</code>
-     */
-
-    public java.lang.String getParametersOrThrow(
-        java.lang.String key) {
-      if (key == null) { throw new java.lang.NullPointerException(); }
-      java.util.Map<java.lang.String, java.lang.String> map =
-          internalGetParameters().getMap();
-      if (!map.containsKey(key)) {
-        throw new java.lang.IllegalArgumentException();
-      }
-      return map.get(key);
-    }
-
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -613,15 +480,6 @@ public final class TraceProtocol {
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 7, viewpointId_);
       }
-      for (java.util.Map.Entry<java.lang.String, java.lang.String> entry
-           : internalGetParameters().getMap().entrySet()) {
-        com.google.protobuf.MapEntry<java.lang.String, java.lang.String>
-        parameters = ParametersDefaultEntryHolder.defaultEntry.newBuilderForType()
-            .setKey(entry.getKey())
-            .setValue(entry.getValue())
-            .build();
-        output.writeMessage(8, parameters);
-      }
       unknownFields.writeTo(output);
     }
 
@@ -654,16 +512,6 @@ public final class TraceProtocol {
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(7, viewpointId_);
       }
-      for (java.util.Map.Entry<java.lang.String, java.lang.String> entry
-           : internalGetParameters().getMap().entrySet()) {
-        com.google.protobuf.MapEntry<java.lang.String, java.lang.String>
-        parameters = ParametersDefaultEntryHolder.defaultEntry.newBuilderForType()
-            .setKey(entry.getKey())
-            .setValue(entry.getValue())
-            .build();
-        size += com.google.protobuf.CodedOutputStream
-            .computeMessageSize(8, parameters);
-      }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
       return size;
@@ -675,10 +523,10 @@ public final class TraceProtocol {
       if (obj == this) {
        return true;
       }
-      if (!(obj instanceof TraceProtocol.AckSpan)) {
+      if (!(obj instanceof com.a.eye.skywalking.protocol.proto.TraceProtocol.AckSpan)) {
         return super.equals(obj);
       }
-      TraceProtocol.AckSpan other = (TraceProtocol.AckSpan) obj;
+      com.a.eye.skywalking.protocol.proto.TraceProtocol.AckSpan other = (com.a.eye.skywalking.protocol.proto.TraceProtocol.AckSpan) obj;
 
       boolean result = true;
       result = result && (hasTraceId() == other.hasTraceId());
@@ -716,8 +564,6 @@ public final class TraceProtocol {
         result = result && getViewpointId()
             .equals(other.getViewpointId());
       }
-      result = result && internalGetParameters().equals(
-          other.internalGetParameters());
       result = result && unknownFields.equals(other.unknownFields);
       return result;
     }
@@ -758,67 +604,63 @@ public final class TraceProtocol {
         hash = (37 * hash) + VIEWPOINTID_FIELD_NUMBER;
         hash = (53 * hash) + getViewpointId().hashCode();
       }
-      if (!internalGetParameters().getMap().isEmpty()) {
-        hash = (37 * hash) + PARAMETERS_FIELD_NUMBER;
-        hash = (53 * hash) + internalGetParameters().hashCode();
-      }
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
     }
 
-    public static TraceProtocol.AckSpan parseFrom(
+    public static com.a.eye.skywalking.protocol.proto.TraceProtocol.AckSpan parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static TraceProtocol.AckSpan parseFrom(
+    public static com.a.eye.skywalking.protocol.proto.TraceProtocol.AckSpan parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static TraceProtocol.AckSpan parseFrom(byte[] data)
+    public static com.a.eye.skywalking.protocol.proto.TraceProtocol.AckSpan parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static TraceProtocol.AckSpan parseFrom(
+    public static com.a.eye.skywalking.protocol.proto.TraceProtocol.AckSpan parseFrom(
         byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static TraceProtocol.AckSpan parseFrom(java.io.InputStream input)
+    public static com.a.eye.skywalking.protocol.proto.TraceProtocol.AckSpan parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
-    public static TraceProtocol.AckSpan parseFrom(
+    public static com.a.eye.skywalking.protocol.proto.TraceProtocol.AckSpan parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input, extensionRegistry);
     }
-    public static TraceProtocol.AckSpan parseDelimitedFrom(java.io.InputStream input)
+    public static com.a.eye.skywalking.protocol.proto.TraceProtocol.AckSpan parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input);
     }
-    public static TraceProtocol.AckSpan parseDelimitedFrom(
+    public static com.a.eye.skywalking.protocol.proto.TraceProtocol.AckSpan parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
     }
-    public static TraceProtocol.AckSpan parseFrom(
+    public static com.a.eye.skywalking.protocol.proto.TraceProtocol.AckSpan parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
-    public static TraceProtocol.AckSpan parseFrom(
+    public static com.a.eye.skywalking.protocol.proto.TraceProtocol.AckSpan parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -830,7 +672,7 @@ public final class TraceProtocol {
     public static Builder newBuilder() {
       return DEFAULT_INSTANCE.toBuilder();
     }
-    public static Builder newBuilder(TraceProtocol.AckSpan prototype) {
+    public static Builder newBuilder(com.a.eye.skywalking.protocol.proto.TraceProtocol.AckSpan prototype) {
       return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
     }
     public Builder toBuilder() {
@@ -850,42 +692,20 @@ public final class TraceProtocol {
     public static final class Builder extends
         com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
         // @@protoc_insertion_point(builder_implements:AckSpan)
-        TraceProtocol.AckSpanOrBuilder {
+        com.a.eye.skywalking.protocol.proto.TraceProtocol.AckSpanOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return TraceProtocol.internal_static_AckSpan_descriptor;
+        return com.a.eye.skywalking.protocol.proto.TraceProtocol.internal_static_AckSpan_descriptor;
       }
 
-      @SuppressWarnings({"rawtypes"})
-      protected com.google.protobuf.MapField internalGetMapField(
-          int number) {
-        switch (number) {
-          case 8:
-            return internalGetParameters();
-          default:
-            throw new RuntimeException(
-                "Invalid map field number: " + number);
-        }
-      }
-      @SuppressWarnings({"rawtypes"})
-      protected com.google.protobuf.MapField internalGetMutableMapField(
-          int number) {
-        switch (number) {
-          case 8:
-            return internalGetMutableParameters();
-          default:
-            throw new RuntimeException(
-                "Invalid map field number: " + number);
-        }
-      }
       protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return TraceProtocol.internal_static_AckSpan_fieldAccessorTable
+        return com.a.eye.skywalking.protocol.proto.TraceProtocol.internal_static_AckSpan_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
-                TraceProtocol.AckSpan.class, TraceProtocol.AckSpan.Builder.class);
+                com.a.eye.skywalking.protocol.proto.TraceProtocol.AckSpan.class, com.a.eye.skywalking.protocol.proto.TraceProtocol.AckSpan.Builder.class);
       }
 
-      // Construct using TraceProtocol.AckSpan.newBuilder()
+      // Construct using com.a.eye.skywalking.protocol.proto.TraceProtocol.AckSpan.newBuilder()
       private Builder() {
         maybeForceBuilderInitialization();
       }
@@ -916,29 +736,28 @@ public final class TraceProtocol {
         bitField0_ = (bitField0_ & ~0x00000020);
         viewpointId_ = "";
         bitField0_ = (bitField0_ & ~0x00000040);
-        internalGetMutableParameters().clear();
         return this;
       }
 
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return TraceProtocol.internal_static_AckSpan_descriptor;
+        return com.a.eye.skywalking.protocol.proto.TraceProtocol.internal_static_AckSpan_descriptor;
       }
 
-      public TraceProtocol.AckSpan getDefaultInstanceForType() {
-        return TraceProtocol.AckSpan.getDefaultInstance();
+      public com.a.eye.skywalking.protocol.proto.TraceProtocol.AckSpan getDefaultInstanceForType() {
+        return com.a.eye.skywalking.protocol.proto.TraceProtocol.AckSpan.getDefaultInstance();
       }
 
-      public TraceProtocol.AckSpan build() {
-        TraceProtocol.AckSpan result = buildPartial();
+      public com.a.eye.skywalking.protocol.proto.TraceProtocol.AckSpan build() {
+        com.a.eye.skywalking.protocol.proto.TraceProtocol.AckSpan result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(result);
         }
         return result;
       }
 
-      public TraceProtocol.AckSpan buildPartial() {
-        TraceProtocol.AckSpan result = new TraceProtocol.AckSpan(this);
+      public com.a.eye.skywalking.protocol.proto.TraceProtocol.AckSpan buildPartial() {
+        com.a.eye.skywalking.protocol.proto.TraceProtocol.AckSpan result = new com.a.eye.skywalking.protocol.proto.TraceProtocol.AckSpan(this);
         int from_bitField0_ = bitField0_;
         int to_bitField0_ = 0;
         if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
@@ -969,8 +788,6 @@ public final class TraceProtocol {
           to_bitField0_ |= 0x00000040;
         }
         result.viewpointId_ = viewpointId_;
-        result.parameters_ = internalGetParameters();
-        result.parameters_.makeImmutable();
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -1003,16 +820,16 @@ public final class TraceProtocol {
         return (Builder) super.addRepeatedField(field, value);
       }
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof TraceProtocol.AckSpan) {
-          return mergeFrom((TraceProtocol.AckSpan)other);
+        if (other instanceof com.a.eye.skywalking.protocol.proto.TraceProtocol.AckSpan) {
+          return mergeFrom((com.a.eye.skywalking.protocol.proto.TraceProtocol.AckSpan)other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
 
-      public Builder mergeFrom(TraceProtocol.AckSpan other) {
-        if (other == TraceProtocol.AckSpan.getDefaultInstance()) return this;
+      public Builder mergeFrom(com.a.eye.skywalking.protocol.proto.TraceProtocol.AckSpan other) {
+        if (other == com.a.eye.skywalking.protocol.proto.TraceProtocol.AckSpan.getDefaultInstance()) return this;
         if (other.hasTraceId()) {
           bitField0_ |= 0x00000001;
           traceId_ = other.traceId_;
@@ -1042,8 +859,6 @@ public final class TraceProtocol {
           viewpointId_ = other.viewpointId_;
           onChanged();
         }
-        internalGetMutableParameters().mergeFrom(
-            other.internalGetParameters());
         this.mergeUnknownFields(other.unknownFields);
         onChanged();
         return this;
@@ -1072,11 +887,11 @@ public final class TraceProtocol {
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        TraceProtocol.AckSpan parsedMessage = null;
+        com.a.eye.skywalking.protocol.proto.TraceProtocol.AckSpan parsedMessage = null;
         try {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (TraceProtocol.AckSpan) e.getUnfinishedMessage();
+          parsedMessage = (com.a.eye.skywalking.protocol.proto.TraceProtocol.AckSpan) e.getUnfinishedMessage();
           throw e.unwrapIOException();
         } finally {
           if (parsedMessage != null) {
@@ -1486,125 +1301,6 @@ public final class TraceProtocol {
         onChanged();
         return this;
       }
-
-      private com.google.protobuf.MapField<
-          java.lang.String, java.lang.String> parameters_;
-      private com.google.protobuf.MapField<java.lang.String, java.lang.String>
-      internalGetParameters() {
-        if (parameters_ == null) {
-          return com.google.protobuf.MapField.emptyMapField(
-              ParametersDefaultEntryHolder.defaultEntry);
-        }
-        return parameters_;
-      }
-      private com.google.protobuf.MapField<java.lang.String, java.lang.String>
-      internalGetMutableParameters() {
-        onChanged();;
-        if (parameters_ == null) {
-          parameters_ = com.google.protobuf.MapField.newMapField(
-              ParametersDefaultEntryHolder.defaultEntry);
-        }
-        if (!parameters_.isMutable()) {
-          parameters_ = parameters_.copy();
-        }
-        return parameters_;
-      }
-
-      public int getParametersCount() {
-        return internalGetParameters().getMap().size();
-      }
-      /**
-       * <code>map&lt;string, string&gt; parameters = 8;</code>
-       */
-
-      public boolean containsParameters(
-          java.lang.String key) {
-        if (key == null) { throw new java.lang.NullPointerException(); }
-        return internalGetParameters().getMap().containsKey(key);
-      }
-      /**
-       * Use {@link #getParametersMap()} instead.
-       */
-      @java.lang.Deprecated
-      public java.util.Map<java.lang.String, java.lang.String> getParameters() {
-        return getParametersMap();
-      }
-      /**
-       * <code>map&lt;string, string&gt; parameters = 8;</code>
-       */
-
-      public java.util.Map<java.lang.String, java.lang.String> getParametersMap() {
-        return internalGetParameters().getMap();
-      }
-      /**
-       * <code>map&lt;string, string&gt; parameters = 8;</code>
-       */
-
-      public java.lang.String getParametersOrDefault(
-          java.lang.String key,
-          java.lang.String defaultValue) {
-        if (key == null) { throw new java.lang.NullPointerException(); }
-        java.util.Map<java.lang.String, java.lang.String> map =
-            internalGetParameters().getMap();
-        return map.containsKey(key) ? map.get(key) : defaultValue;
-      }
-      /**
-       * <code>map&lt;string, string&gt; parameters = 8;</code>
-       */
-
-      public java.lang.String getParametersOrThrow(
-          java.lang.String key) {
-        if (key == null) { throw new java.lang.NullPointerException(); }
-        java.util.Map<java.lang.String, java.lang.String> map =
-            internalGetParameters().getMap();
-        if (!map.containsKey(key)) {
-          throw new java.lang.IllegalArgumentException();
-        }
-        return map.get(key);
-      }
-
-      public Builder clearParameters() {
-        getMutableParameters().clear();
-        return this;
-      }
-      /**
-       * <code>map&lt;string, string&gt; parameters = 8;</code>
-       */
-
-      public Builder removeParameters(
-          java.lang.String key) {
-        if (key == null) { throw new java.lang.NullPointerException(); }
-        getMutableParameters().remove(key);
-        return this;
-      }
-      /**
-       * Use alternate mutation accessors instead.
-       */
-      @java.lang.Deprecated
-      public java.util.Map<java.lang.String, java.lang.String>
-      getMutableParameters() {
-        return internalGetMutableParameters().getMutableMap();
-      }
-      /**
-       * <code>map&lt;string, string&gt; parameters = 8;</code>
-       */
-      public Builder putParameters(
-          java.lang.String key,
-          java.lang.String value) {
-        if (key == null) { throw new java.lang.NullPointerException(); }
-        if (value == null) { throw new java.lang.NullPointerException(); }
-        getMutableParameters().put(key, value);
-        return this;
-      }
-      /**
-       * <code>map&lt;string, string&gt; parameters = 8;</code>
-       */
-
-      public Builder putAllParameters(
-          java.util.Map<java.lang.String, java.lang.String> values) {
-        getMutableParameters().putAll(values);
-        return this;
-      }
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
         return super.setUnknownFields(unknownFields);
@@ -1620,12 +1316,12 @@ public final class TraceProtocol {
     }
 
     // @@protoc_insertion_point(class_scope:AckSpan)
-    private static final TraceProtocol.AckSpan DEFAULT_INSTANCE;
+    private static final com.a.eye.skywalking.protocol.proto.TraceProtocol.AckSpan DEFAULT_INSTANCE;
     static {
-      DEFAULT_INSTANCE = new TraceProtocol.AckSpan();
+      DEFAULT_INSTANCE = new com.a.eye.skywalking.protocol.proto.TraceProtocol.AckSpan();
     }
 
-    public static TraceProtocol.AckSpan getDefaultInstance() {
+    public static com.a.eye.skywalking.protocol.proto.TraceProtocol.AckSpan getDefaultInstance() {
       return DEFAULT_INSTANCE;
     }
 
@@ -1648,7 +1344,7 @@ public final class TraceProtocol {
       return PARSER;
     }
 
-    public TraceProtocol.AckSpan getDefaultInstanceForType() {
+    public com.a.eye.skywalking.protocol.proto.TraceProtocol.AckSpan getDefaultInstanceForType() {
       return DEFAULT_INSTANCE;
     }
 
@@ -1812,63 +1508,29 @@ public final class TraceProtocol {
         getAgentIdBytes();
 
     /**
-     * <code>map&lt;string, string&gt; parameters = 13;</code>
-     */
-    int getParametersCount();
-    /**
-     * <code>map&lt;string, string&gt; parameters = 13;</code>
-     */
-    boolean containsParameters(
-        java.lang.String key);
-    /**
-     * Use {@link #getParametersMap()} instead.
-     */
-    @java.lang.Deprecated
-    java.util.Map<java.lang.String, java.lang.String>
-    getParameters();
-    /**
-     * <code>map&lt;string, string&gt; parameters = 13;</code>
-     */
-    java.util.Map<java.lang.String, java.lang.String>
-    getParametersMap();
-    /**
-     * <code>map&lt;string, string&gt; parameters = 13;</code>
-     */
-
-    java.lang.String getParametersOrDefault(
-        java.lang.String key,
-        java.lang.String defaultValue);
-    /**
-     * <code>map&lt;string, string&gt; parameters = 13;</code>
-     */
-
-    java.lang.String getParametersOrThrow(
-        java.lang.String key);
-
-    /**
-     * <code>required string processNo = 14;</code>
+     * <code>required string processNo = 13;</code>
      */
     boolean hasProcessNo();
     /**
-     * <code>required string processNo = 14;</code>
+     * <code>required string processNo = 13;</code>
      */
     java.lang.String getProcessNo();
     /**
-     * <code>required string processNo = 14;</code>
+     * <code>required string processNo = 13;</code>
      */
     com.google.protobuf.ByteString
         getProcessNoBytes();
 
     /**
-     * <code>required string address = 15;</code>
+     * <code>required string address = 14;</code>
      */
     boolean hasAddress();
     /**
-     * <code>required string address = 15;</code>
+     * <code>required string address = 14;</code>
      */
     java.lang.String getAddress();
     /**
-     * <code>required string address = 15;</code>
+     * <code>required string address = 14;</code>
      */
     com.google.protobuf.ByteString
         getAddressBytes();
@@ -1999,24 +1661,12 @@ public final class TraceProtocol {
               break;
             }
             case 106: {
-              if (!((mutable_bitField0_ & 0x00001000) == 0x00001000)) {
-                parameters_ = com.google.protobuf.MapField.newMapField(
-                    ParametersDefaultEntryHolder.defaultEntry);
-                mutable_bitField0_ |= 0x00001000;
-              }
-              com.google.protobuf.MapEntry<java.lang.String, java.lang.String>
-              parameters = input.readMessage(
-                  ParametersDefaultEntryHolder.defaultEntry.getParserForType(), extensionRegistry);
-              parameters_.getMutableMap().put(parameters.getKey(), parameters.getValue());
-              break;
-            }
-            case 114: {
               com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00001000;
               processNo_ = bs;
               break;
             }
-            case 122: {
+            case 114: {
               com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00002000;
               address_ = bs;
@@ -2036,25 +1686,14 @@ public final class TraceProtocol {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return TraceProtocol.internal_static_RequestSpan_descriptor;
+      return com.a.eye.skywalking.protocol.proto.TraceProtocol.internal_static_RequestSpan_descriptor;
     }
 
-    @SuppressWarnings({"rawtypes"})
-    protected com.google.protobuf.MapField internalGetMapField(
-        int number) {
-      switch (number) {
-        case 13:
-          return internalGetParameters();
-        default:
-          throw new RuntimeException(
-              "Invalid map field number: " + number);
-      }
-    }
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return TraceProtocol.internal_static_RequestSpan_fieldAccessorTable
+      return com.a.eye.skywalking.protocol.proto.TraceProtocol.internal_static_RequestSpan_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              TraceProtocol.RequestSpan.class, TraceProtocol.RequestSpan.Builder.class);
+              com.a.eye.skywalking.protocol.proto.TraceProtocol.RequestSpan.class, com.a.eye.skywalking.protocol.proto.TraceProtocol.RequestSpan.Builder.class);
     }
 
     private int bitField0_;
@@ -2481,92 +2120,16 @@ public final class TraceProtocol {
       }
     }
 
-    public static final int PARAMETERS_FIELD_NUMBER = 13;
-    private static final class ParametersDefaultEntryHolder {
-      static final com.google.protobuf.MapEntry<
-          java.lang.String, java.lang.String> defaultEntry =
-              com.google.protobuf.MapEntry
-              .<java.lang.String, java.lang.String>newDefaultInstance(
-                  TraceProtocol.internal_static_RequestSpan_ParametersEntry_descriptor,
-                  com.google.protobuf.WireFormat.FieldType.STRING,
-                  "",
-                  com.google.protobuf.WireFormat.FieldType.STRING,
-                  "");
-    }
-    private com.google.protobuf.MapField<
-        java.lang.String, java.lang.String> parameters_;
-    private com.google.protobuf.MapField<java.lang.String, java.lang.String>
-    internalGetParameters() {
-      if (parameters_ == null) {
-        return com.google.protobuf.MapField.emptyMapField(
-            ParametersDefaultEntryHolder.defaultEntry);
-      }
-      return parameters_;
-    }
-
-    public int getParametersCount() {
-      return internalGetParameters().getMap().size();
-    }
-    /**
-     * <code>map&lt;string, string&gt; parameters = 13;</code>
-     */
-
-    public boolean containsParameters(
-        java.lang.String key) {
-      if (key == null) { throw new java.lang.NullPointerException(); }
-      return internalGetParameters().getMap().containsKey(key);
-    }
-    /**
-     * Use {@link #getParametersMap()} instead.
-     */
-    @java.lang.Deprecated
-    public java.util.Map<java.lang.String, java.lang.String> getParameters() {
-      return getParametersMap();
-    }
-    /**
-     * <code>map&lt;string, string&gt; parameters = 13;</code>
-     */
-
-    public java.util.Map<java.lang.String, java.lang.String> getParametersMap() {
-      return internalGetParameters().getMap();
-    }
-    /**
-     * <code>map&lt;string, string&gt; parameters = 13;</code>
-     */
-
-    public java.lang.String getParametersOrDefault(
-        java.lang.String key,
-        java.lang.String defaultValue) {
-      if (key == null) { throw new java.lang.NullPointerException(); }
-      java.util.Map<java.lang.String, java.lang.String> map =
-          internalGetParameters().getMap();
-      return map.containsKey(key) ? map.get(key) : defaultValue;
-    }
-    /**
-     * <code>map&lt;string, string&gt; parameters = 13;</code>
-     */
-
-    public java.lang.String getParametersOrThrow(
-        java.lang.String key) {
-      if (key == null) { throw new java.lang.NullPointerException(); }
-      java.util.Map<java.lang.String, java.lang.String> map =
-          internalGetParameters().getMap();
-      if (!map.containsKey(key)) {
-        throw new java.lang.IllegalArgumentException();
-      }
-      return map.get(key);
-    }
-
-    public static final int PROCESSNO_FIELD_NUMBER = 14;
+    public static final int PROCESSNO_FIELD_NUMBER = 13;
     private volatile java.lang.Object processNo_;
     /**
-     * <code>required string processNo = 14;</code>
+     * <code>required string processNo = 13;</code>
      */
     public boolean hasProcessNo() {
       return ((bitField0_ & 0x00001000) == 0x00001000);
     }
     /**
-     * <code>required string processNo = 14;</code>
+     * <code>required string processNo = 13;</code>
      */
     public java.lang.String getProcessNo() {
       java.lang.Object ref = processNo_;
@@ -2583,7 +2146,7 @@ public final class TraceProtocol {
       }
     }
     /**
-     * <code>required string processNo = 14;</code>
+     * <code>required string processNo = 13;</code>
      */
     public com.google.protobuf.ByteString
         getProcessNoBytes() {
@@ -2599,16 +2162,16 @@ public final class TraceProtocol {
       }
     }
 
-    public static final int ADDRESS_FIELD_NUMBER = 15;
+    public static final int ADDRESS_FIELD_NUMBER = 14;
     private volatile java.lang.Object address_;
     /**
-     * <code>required string address = 15;</code>
+     * <code>required string address = 14;</code>
      */
     public boolean hasAddress() {
       return ((bitField0_ & 0x00002000) == 0x00002000);
     }
     /**
-     * <code>required string address = 15;</code>
+     * <code>required string address = 14;</code>
      */
     public java.lang.String getAddress() {
       java.lang.Object ref = address_;
@@ -2625,7 +2188,7 @@ public final class TraceProtocol {
       }
     }
     /**
-     * <code>required string address = 15;</code>
+     * <code>required string address = 14;</code>
      */
     public com.google.protobuf.ByteString
         getAddressBytes() {
@@ -2737,20 +2300,11 @@ public final class TraceProtocol {
       if (((bitField0_ & 0x00000800) == 0x00000800)) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 12, agentId_);
       }
-      for (java.util.Map.Entry<java.lang.String, java.lang.String> entry
-           : internalGetParameters().getMap().entrySet()) {
-        com.google.protobuf.MapEntry<java.lang.String, java.lang.String>
-        parameters = ParametersDefaultEntryHolder.defaultEntry.newBuilderForType()
-            .setKey(entry.getKey())
-            .setValue(entry.getValue())
-            .build();
-        output.writeMessage(13, parameters);
-      }
       if (((bitField0_ & 0x00001000) == 0x00001000)) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 14, processNo_);
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 13, processNo_);
       }
       if (((bitField0_ & 0x00002000) == 0x00002000)) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 15, address_);
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 14, address_);
       }
       unknownFields.writeTo(output);
     }
@@ -2799,21 +2353,11 @@ public final class TraceProtocol {
       if (((bitField0_ & 0x00000800) == 0x00000800)) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(12, agentId_);
       }
-      for (java.util.Map.Entry<java.lang.String, java.lang.String> entry
-           : internalGetParameters().getMap().entrySet()) {
-        com.google.protobuf.MapEntry<java.lang.String, java.lang.String>
-        parameters = ParametersDefaultEntryHolder.defaultEntry.newBuilderForType()
-            .setKey(entry.getKey())
-            .setValue(entry.getValue())
-            .build();
-        size += com.google.protobuf.CodedOutputStream
-            .computeMessageSize(13, parameters);
-      }
       if (((bitField0_ & 0x00001000) == 0x00001000)) {
-        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(14, processNo_);
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(13, processNo_);
       }
       if (((bitField0_ & 0x00002000) == 0x00002000)) {
-        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(15, address_);
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(14, address_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -2826,10 +2370,10 @@ public final class TraceProtocol {
       if (obj == this) {
        return true;
       }
-      if (!(obj instanceof TraceProtocol.RequestSpan)) {
+      if (!(obj instanceof com.a.eye.skywalking.protocol.proto.TraceProtocol.RequestSpan)) {
         return super.equals(obj);
       }
-      TraceProtocol.RequestSpan other = (TraceProtocol.RequestSpan) obj;
+      com.a.eye.skywalking.protocol.proto.TraceProtocol.RequestSpan other = (com.a.eye.skywalking.protocol.proto.TraceProtocol.RequestSpan) obj;
 
       boolean result = true;
       result = result && (hasTraceId() == other.hasTraceId());
@@ -2892,8 +2436,6 @@ public final class TraceProtocol {
         result = result && getAgentId()
             .equals(other.getAgentId());
       }
-      result = result && internalGetParameters().equals(
-          other.internalGetParameters());
       result = result && (hasProcessNo() == other.hasProcessNo());
       if (hasProcessNo()) {
         result = result && getProcessNo()
@@ -2964,10 +2506,6 @@ public final class TraceProtocol {
         hash = (37 * hash) + AGENTID_FIELD_NUMBER;
         hash = (53 * hash) + getAgentId().hashCode();
       }
-      if (!internalGetParameters().getMap().isEmpty()) {
-        hash = (37 * hash) + PARAMETERS_FIELD_NUMBER;
-        hash = (53 * hash) + internalGetParameters().hashCode();
-      }
       if (hasProcessNo()) {
         hash = (37 * hash) + PROCESSNO_FIELD_NUMBER;
         hash = (53 * hash) + getProcessNo().hashCode();
@@ -2981,58 +2519,58 @@ public final class TraceProtocol {
       return hash;
     }
 
-    public static TraceProtocol.RequestSpan parseFrom(
+    public static com.a.eye.skywalking.protocol.proto.TraceProtocol.RequestSpan parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static TraceProtocol.RequestSpan parseFrom(
+    public static com.a.eye.skywalking.protocol.proto.TraceProtocol.RequestSpan parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static TraceProtocol.RequestSpan parseFrom(byte[] data)
+    public static com.a.eye.skywalking.protocol.proto.TraceProtocol.RequestSpan parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static TraceProtocol.RequestSpan parseFrom(
+    public static com.a.eye.skywalking.protocol.proto.TraceProtocol.RequestSpan parseFrom(
         byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static TraceProtocol.RequestSpan parseFrom(java.io.InputStream input)
+    public static com.a.eye.skywalking.protocol.proto.TraceProtocol.RequestSpan parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
-    public static TraceProtocol.RequestSpan parseFrom(
+    public static com.a.eye.skywalking.protocol.proto.TraceProtocol.RequestSpan parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input, extensionRegistry);
     }
-    public static TraceProtocol.RequestSpan parseDelimitedFrom(java.io.InputStream input)
+    public static com.a.eye.skywalking.protocol.proto.TraceProtocol.RequestSpan parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input);
     }
-    public static TraceProtocol.RequestSpan parseDelimitedFrom(
+    public static com.a.eye.skywalking.protocol.proto.TraceProtocol.RequestSpan parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
     }
-    public static TraceProtocol.RequestSpan parseFrom(
+    public static com.a.eye.skywalking.protocol.proto.TraceProtocol.RequestSpan parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
-    public static TraceProtocol.RequestSpan parseFrom(
+    public static com.a.eye.skywalking.protocol.proto.TraceProtocol.RequestSpan parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -3044,7 +2582,7 @@ public final class TraceProtocol {
     public static Builder newBuilder() {
       return DEFAULT_INSTANCE.toBuilder();
     }
-    public static Builder newBuilder(TraceProtocol.RequestSpan prototype) {
+    public static Builder newBuilder(com.a.eye.skywalking.protocol.proto.TraceProtocol.RequestSpan prototype) {
       return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
     }
     public Builder toBuilder() {
@@ -3064,42 +2602,20 @@ public final class TraceProtocol {
     public static final class Builder extends
         com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
         // @@protoc_insertion_point(builder_implements:RequestSpan)
-        TraceProtocol.RequestSpanOrBuilder {
+        com.a.eye.skywalking.protocol.proto.TraceProtocol.RequestSpanOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return TraceProtocol.internal_static_RequestSpan_descriptor;
+        return com.a.eye.skywalking.protocol.proto.TraceProtocol.internal_static_RequestSpan_descriptor;
       }
 
-      @SuppressWarnings({"rawtypes"})
-      protected com.google.protobuf.MapField internalGetMapField(
-          int number) {
-        switch (number) {
-          case 13:
-            return internalGetParameters();
-          default:
-            throw new RuntimeException(
-                "Invalid map field number: " + number);
-        }
-      }
-      @SuppressWarnings({"rawtypes"})
-      protected com.google.protobuf.MapField internalGetMutableMapField(
-          int number) {
-        switch (number) {
-          case 13:
-            return internalGetMutableParameters();
-          default:
-            throw new RuntimeException(
-                "Invalid map field number: " + number);
-        }
-      }
       protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return TraceProtocol.internal_static_RequestSpan_fieldAccessorTable
+        return com.a.eye.skywalking.protocol.proto.TraceProtocol.internal_static_RequestSpan_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
-                TraceProtocol.RequestSpan.class, TraceProtocol.RequestSpan.Builder.class);
+                com.a.eye.skywalking.protocol.proto.TraceProtocol.RequestSpan.class, com.a.eye.skywalking.protocol.proto.TraceProtocol.RequestSpan.Builder.class);
       }
 
-      // Construct using TraceProtocol.RequestSpan.newBuilder()
+      // Construct using com.a.eye.skywalking.protocol.proto.TraceProtocol.RequestSpan.newBuilder()
       private Builder() {
         maybeForceBuilderInitialization();
       }
@@ -3140,33 +2656,32 @@ public final class TraceProtocol {
         bitField0_ = (bitField0_ & ~0x00000400);
         agentId_ = "";
         bitField0_ = (bitField0_ & ~0x00000800);
-        internalGetMutableParameters().clear();
         processNo_ = "";
-        bitField0_ = (bitField0_ & ~0x00002000);
+        bitField0_ = (bitField0_ & ~0x00001000);
         address_ = "";
-        bitField0_ = (bitField0_ & ~0x00004000);
+        bitField0_ = (bitField0_ & ~0x00002000);
         return this;
       }
 
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return TraceProtocol.internal_static_RequestSpan_descriptor;
+        return com.a.eye.skywalking.protocol.proto.TraceProtocol.internal_static_RequestSpan_descriptor;
       }
 
-      public TraceProtocol.RequestSpan getDefaultInstanceForType() {
-        return TraceProtocol.RequestSpan.getDefaultInstance();
+      public com.a.eye.skywalking.protocol.proto.TraceProtocol.RequestSpan getDefaultInstanceForType() {
+        return com.a.eye.skywalking.protocol.proto.TraceProtocol.RequestSpan.getDefaultInstance();
       }
 
-      public TraceProtocol.RequestSpan build() {
-        TraceProtocol.RequestSpan result = buildPartial();
+      public com.a.eye.skywalking.protocol.proto.TraceProtocol.RequestSpan build() {
+        com.a.eye.skywalking.protocol.proto.TraceProtocol.RequestSpan result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(result);
         }
         return result;
       }
 
-      public TraceProtocol.RequestSpan buildPartial() {
-        TraceProtocol.RequestSpan result = new TraceProtocol.RequestSpan(this);
+      public com.a.eye.skywalking.protocol.proto.TraceProtocol.RequestSpan buildPartial() {
+        com.a.eye.skywalking.protocol.proto.TraceProtocol.RequestSpan result = new com.a.eye.skywalking.protocol.proto.TraceProtocol.RequestSpan(this);
         int from_bitField0_ = bitField0_;
         int to_bitField0_ = 0;
         if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
@@ -3217,13 +2732,11 @@ public final class TraceProtocol {
           to_bitField0_ |= 0x00000800;
         }
         result.agentId_ = agentId_;
-        result.parameters_ = internalGetParameters();
-        result.parameters_.makeImmutable();
-        if (((from_bitField0_ & 0x00002000) == 0x00002000)) {
+        if (((from_bitField0_ & 0x00001000) == 0x00001000)) {
           to_bitField0_ |= 0x00001000;
         }
         result.processNo_ = processNo_;
-        if (((from_bitField0_ & 0x00004000) == 0x00004000)) {
+        if (((from_bitField0_ & 0x00002000) == 0x00002000)) {
           to_bitField0_ |= 0x00002000;
         }
         result.address_ = address_;
@@ -3259,16 +2772,16 @@ public final class TraceProtocol {
         return (Builder) super.addRepeatedField(field, value);
       }
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof TraceProtocol.RequestSpan) {
-          return mergeFrom((TraceProtocol.RequestSpan)other);
+        if (other instanceof com.a.eye.skywalking.protocol.proto.TraceProtocol.RequestSpan) {
+          return mergeFrom((com.a.eye.skywalking.protocol.proto.TraceProtocol.RequestSpan)other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
 
-      public Builder mergeFrom(TraceProtocol.RequestSpan other) {
-        if (other == TraceProtocol.RequestSpan.getDefaultInstance()) return this;
+      public Builder mergeFrom(com.a.eye.skywalking.protocol.proto.TraceProtocol.RequestSpan other) {
+        if (other == com.a.eye.skywalking.protocol.proto.TraceProtocol.RequestSpan.getDefaultInstance()) return this;
         if (other.hasTraceId()) {
           bitField0_ |= 0x00000001;
           traceId_ = other.traceId_;
@@ -3323,15 +2836,13 @@ public final class TraceProtocol {
           agentId_ = other.agentId_;
           onChanged();
         }
-        internalGetMutableParameters().mergeFrom(
-            other.internalGetParameters());
         if (other.hasProcessNo()) {
-          bitField0_ |= 0x00002000;
+          bitField0_ |= 0x00001000;
           processNo_ = other.processNo_;
           onChanged();
         }
         if (other.hasAddress()) {
-          bitField0_ |= 0x00004000;
+          bitField0_ |= 0x00002000;
           address_ = other.address_;
           onChanged();
         }
@@ -3384,11 +2895,11 @@ public final class TraceProtocol {
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        TraceProtocol.RequestSpan parsedMessage = null;
+        com.a.eye.skywalking.protocol.proto.TraceProtocol.RequestSpan parsedMessage = null;
         try {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (TraceProtocol.RequestSpan) e.getUnfinishedMessage();
+          parsedMessage = (com.a.eye.skywalking.protocol.proto.TraceProtocol.RequestSpan) e.getUnfinishedMessage();
           throw e.unwrapIOException();
         } finally {
           if (parsedMessage != null) {
@@ -4179,6 +3690,1059 @@ public final class TraceProtocol {
         return this;
       }
 
+      private java.lang.Object processNo_ = "";
+      /**
+       * <code>required string processNo = 13;</code>
+       */
+      public boolean hasProcessNo() {
+        return ((bitField0_ & 0x00001000) == 0x00001000);
+      }
+      /**
+       * <code>required string processNo = 13;</code>
+       */
+      public java.lang.String getProcessNo() {
+        java.lang.Object ref = processNo_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            processNo_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>required string processNo = 13;</code>
+       */
+      public com.google.protobuf.ByteString
+          getProcessNoBytes() {
+        java.lang.Object ref = processNo_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          processNo_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>required string processNo = 13;</code>
+       */
+      public Builder setProcessNo(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00001000;
+        processNo_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required string processNo = 13;</code>
+       */
+      public Builder clearProcessNo() {
+        bitField0_ = (bitField0_ & ~0x00001000);
+        processNo_ = getDefaultInstance().getProcessNo();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required string processNo = 13;</code>
+       */
+      public Builder setProcessNoBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00001000;
+        processNo_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object address_ = "";
+      /**
+       * <code>required string address = 14;</code>
+       */
+      public boolean hasAddress() {
+        return ((bitField0_ & 0x00002000) == 0x00002000);
+      }
+      /**
+       * <code>required string address = 14;</code>
+       */
+      public java.lang.String getAddress() {
+        java.lang.Object ref = address_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            address_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>required string address = 14;</code>
+       */
+      public com.google.protobuf.ByteString
+          getAddressBytes() {
+        java.lang.Object ref = address_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          address_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>required string address = 14;</code>
+       */
+      public Builder setAddress(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00002000;
+        address_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required string address = 14;</code>
+       */
+      public Builder clearAddress() {
+        bitField0_ = (bitField0_ & ~0x00002000);
+        address_ = getDefaultInstance().getAddress();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required string address = 14;</code>
+       */
+      public Builder setAddressBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00002000;
+        address_ = value;
+        onChanged();
+        return this;
+      }
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.setUnknownFields(unknownFields);
+      }
+
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.mergeUnknownFields(unknownFields);
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:RequestSpan)
+    }
+
+    // @@protoc_insertion_point(class_scope:RequestSpan)
+    private static final com.a.eye.skywalking.protocol.proto.TraceProtocol.RequestSpan DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new com.a.eye.skywalking.protocol.proto.TraceProtocol.RequestSpan();
+    }
+
+    public static com.a.eye.skywalking.protocol.proto.TraceProtocol.RequestSpan getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    @java.lang.Deprecated public static final com.google.protobuf.Parser<RequestSpan>
+        PARSER = new com.google.protobuf.AbstractParser<RequestSpan>() {
+      public RequestSpan parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+          return new RequestSpan(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<RequestSpan> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<RequestSpan> getParserForType() {
+      return PARSER;
+    }
+
+    public com.a.eye.skywalking.protocol.proto.TraceProtocol.RequestSpan getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
+  public interface InputParametersSpanOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:InputParametersSpan)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>required string traceId = 1;</code>
+     */
+    boolean hasTraceId();
+    /**
+     * <code>required string traceId = 1;</code>
+     */
+    java.lang.String getTraceId();
+    /**
+     * <code>required string traceId = 1;</code>
+     */
+    com.google.protobuf.ByteString
+        getTraceIdBytes();
+
+    /**
+     * <code>optional string traceLevelId = 2;</code>
+     */
+    boolean hasTraceLevelId();
+    /**
+     * <code>optional string traceLevelId = 2;</code>
+     */
+    java.lang.String getTraceLevelId();
+    /**
+     * <code>optional string traceLevelId = 2;</code>
+     */
+    com.google.protobuf.ByteString
+        getTraceLevelIdBytes();
+
+    /**
+     * <code>map&lt;string, string&gt; parameters = 3;</code>
+     */
+    int getParametersCount();
+    /**
+     * <code>map&lt;string, string&gt; parameters = 3;</code>
+     */
+    boolean containsParameters(
+        java.lang.String key);
+    /**
+     * Use {@link #getParametersMap()} instead.
+     */
+    @java.lang.Deprecated
+    java.util.Map<java.lang.String, java.lang.String>
+    getParameters();
+    /**
+     * <code>map&lt;string, string&gt; parameters = 3;</code>
+     */
+    java.util.Map<java.lang.String, java.lang.String>
+    getParametersMap();
+    /**
+     * <code>map&lt;string, string&gt; parameters = 3;</code>
+     */
+
+    java.lang.String getParametersOrDefault(
+        java.lang.String key,
+        java.lang.String defaultValue);
+    /**
+     * <code>map&lt;string, string&gt; parameters = 3;</code>
+     */
+
+    java.lang.String getParametersOrThrow(
+        java.lang.String key);
+  }
+  /**
+   * Protobuf type {@code InputParametersSpan}
+   */
+  public  static final class InputParametersSpan extends
+      com.google.protobuf.GeneratedMessageV3 implements
+      // @@protoc_insertion_point(message_implements:InputParametersSpan)
+      InputParametersSpanOrBuilder {
+    // Use InputParametersSpan.newBuilder() to construct.
+    private InputParametersSpan(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      super(builder);
+    }
+    private InputParametersSpan() {
+      traceId_ = "";
+      traceLevelId_ = "";
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return this.unknownFields;
+    }
+    private InputParametersSpan(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      this();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 10: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x00000001;
+              traceId_ = bs;
+              break;
+            }
+            case 18: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x00000002;
+              traceLevelId_ = bs;
+              break;
+            }
+            case 26: {
+              if (!((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
+                parameters_ = com.google.protobuf.MapField.newMapField(
+                    ParametersDefaultEntryHolder.defaultEntry);
+                mutable_bitField0_ |= 0x00000004;
+              }
+              com.google.protobuf.MapEntry<java.lang.String, java.lang.String>
+              parameters = input.readMessage(
+                  ParametersDefaultEntryHolder.defaultEntry.getParserForType(), extensionRegistry);
+              parameters_.getMutableMap().put(parameters.getKey(), parameters.getValue());
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return com.a.eye.skywalking.protocol.proto.TraceProtocol.internal_static_InputParametersSpan_descriptor;
+    }
+
+    @SuppressWarnings({"rawtypes"})
+    protected com.google.protobuf.MapField internalGetMapField(
+        int number) {
+      switch (number) {
+        case 3:
+          return internalGetParameters();
+        default:
+          throw new RuntimeException(
+              "Invalid map field number: " + number);
+      }
+    }
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return com.a.eye.skywalking.protocol.proto.TraceProtocol.internal_static_InputParametersSpan_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              com.a.eye.skywalking.protocol.proto.TraceProtocol.InputParametersSpan.class, com.a.eye.skywalking.protocol.proto.TraceProtocol.InputParametersSpan.Builder.class);
+    }
+
+    private int bitField0_;
+    public static final int TRACEID_FIELD_NUMBER = 1;
+    private volatile java.lang.Object traceId_;
+    /**
+     * <code>required string traceId = 1;</code>
+     */
+    public boolean hasTraceId() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>required string traceId = 1;</code>
+     */
+    public java.lang.String getTraceId() {
+      java.lang.Object ref = traceId_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          traceId_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>required string traceId = 1;</code>
+     */
+    public com.google.protobuf.ByteString
+        getTraceIdBytes() {
+      java.lang.Object ref = traceId_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        traceId_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int TRACELEVELID_FIELD_NUMBER = 2;
+    private volatile java.lang.Object traceLevelId_;
+    /**
+     * <code>optional string traceLevelId = 2;</code>
+     */
+    public boolean hasTraceLevelId() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    /**
+     * <code>optional string traceLevelId = 2;</code>
+     */
+    public java.lang.String getTraceLevelId() {
+      java.lang.Object ref = traceLevelId_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          traceLevelId_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>optional string traceLevelId = 2;</code>
+     */
+    public com.google.protobuf.ByteString
+        getTraceLevelIdBytes() {
+      java.lang.Object ref = traceLevelId_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        traceLevelId_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int PARAMETERS_FIELD_NUMBER = 3;
+    private static final class ParametersDefaultEntryHolder {
+      static final com.google.protobuf.MapEntry<
+          java.lang.String, java.lang.String> defaultEntry =
+              com.google.protobuf.MapEntry
+              .<java.lang.String, java.lang.String>newDefaultInstance(
+                  com.a.eye.skywalking.protocol.proto.TraceProtocol.internal_static_InputParametersSpan_ParametersEntry_descriptor, 
+                  com.google.protobuf.WireFormat.FieldType.STRING,
+                  "",
+                  com.google.protobuf.WireFormat.FieldType.STRING,
+                  "");
+    }
+    private com.google.protobuf.MapField<
+        java.lang.String, java.lang.String> parameters_;
+    private com.google.protobuf.MapField<java.lang.String, java.lang.String>
+    internalGetParameters() {
+      if (parameters_ == null) {
+        return com.google.protobuf.MapField.emptyMapField(
+            ParametersDefaultEntryHolder.defaultEntry);
+      }
+      return parameters_;
+    }
+
+    public int getParametersCount() {
+      return internalGetParameters().getMap().size();
+    }
+    /**
+     * <code>map&lt;string, string&gt; parameters = 3;</code>
+     */
+
+    public boolean containsParameters(
+        java.lang.String key) {
+      if (key == null) { throw new java.lang.NullPointerException(); }
+      return internalGetParameters().getMap().containsKey(key);
+    }
+    /**
+     * Use {@link #getParametersMap()} instead.
+     */
+    @java.lang.Deprecated
+    public java.util.Map<java.lang.String, java.lang.String> getParameters() {
+      return getParametersMap();
+    }
+    /**
+     * <code>map&lt;string, string&gt; parameters = 3;</code>
+     */
+
+    public java.util.Map<java.lang.String, java.lang.String> getParametersMap() {
+      return internalGetParameters().getMap();
+    }
+    /**
+     * <code>map&lt;string, string&gt; parameters = 3;</code>
+     */
+
+    public java.lang.String getParametersOrDefault(
+        java.lang.String key,
+        java.lang.String defaultValue) {
+      if (key == null) { throw new java.lang.NullPointerException(); }
+      java.util.Map<java.lang.String, java.lang.String> map =
+          internalGetParameters().getMap();
+      return map.containsKey(key) ? map.get(key) : defaultValue;
+    }
+    /**
+     * <code>map&lt;string, string&gt; parameters = 3;</code>
+     */
+
+    public java.lang.String getParametersOrThrow(
+        java.lang.String key) {
+      if (key == null) { throw new java.lang.NullPointerException(); }
+      java.util.Map<java.lang.String, java.lang.String> map =
+          internalGetParameters().getMap();
+      if (!map.containsKey(key)) {
+        throw new java.lang.IllegalArgumentException();
+      }
+      return map.get(key);
+    }
+
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      if (!hasTraceId()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, traceId_);
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 2, traceLevelId_);
+      }
+      for (java.util.Map.Entry<java.lang.String, java.lang.String> entry
+           : internalGetParameters().getMap().entrySet()) {
+        com.google.protobuf.MapEntry<java.lang.String, java.lang.String>
+        parameters = ParametersDefaultEntryHolder.defaultEntry.newBuilderForType()
+            .setKey(entry.getKey())
+            .setValue(entry.getValue())
+            .build();
+        output.writeMessage(3, parameters);
+      }
+      unknownFields.writeTo(output);
+    }
+
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, traceId_);
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, traceLevelId_);
+      }
+      for (java.util.Map.Entry<java.lang.String, java.lang.String> entry
+           : internalGetParameters().getMap().entrySet()) {
+        com.google.protobuf.MapEntry<java.lang.String, java.lang.String>
+        parameters = ParametersDefaultEntryHolder.defaultEntry.newBuilderForType()
+            .setKey(entry.getKey())
+            .setValue(entry.getValue())
+            .build();
+        size += com.google.protobuf.CodedOutputStream
+            .computeMessageSize(3, parameters);
+      }
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof com.a.eye.skywalking.protocol.proto.TraceProtocol.InputParametersSpan)) {
+        return super.equals(obj);
+      }
+      com.a.eye.skywalking.protocol.proto.TraceProtocol.InputParametersSpan other = (com.a.eye.skywalking.protocol.proto.TraceProtocol.InputParametersSpan) obj;
+
+      boolean result = true;
+      result = result && (hasTraceId() == other.hasTraceId());
+      if (hasTraceId()) {
+        result = result && getTraceId()
+            .equals(other.getTraceId());
+      }
+      result = result && (hasTraceLevelId() == other.hasTraceLevelId());
+      if (hasTraceLevelId()) {
+        result = result && getTraceLevelId()
+            .equals(other.getTraceLevelId());
+      }
+      result = result && internalGetParameters().equals(
+          other.internalGetParameters());
+      result = result && unknownFields.equals(other.unknownFields);
+      return result;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptorForType().hashCode();
+      if (hasTraceId()) {
+        hash = (37 * hash) + TRACEID_FIELD_NUMBER;
+        hash = (53 * hash) + getTraceId().hashCode();
+      }
+      if (hasTraceLevelId()) {
+        hash = (37 * hash) + TRACELEVELID_FIELD_NUMBER;
+        hash = (53 * hash) + getTraceLevelId().hashCode();
+      }
+      if (!internalGetParameters().getMap().isEmpty()) {
+        hash = (37 * hash) + PARAMETERS_FIELD_NUMBER;
+        hash = (53 * hash) + internalGetParameters().hashCode();
+      }
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static com.a.eye.skywalking.protocol.proto.TraceProtocol.InputParametersSpan parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.a.eye.skywalking.protocol.proto.TraceProtocol.InputParametersSpan parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.a.eye.skywalking.protocol.proto.TraceProtocol.InputParametersSpan parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.a.eye.skywalking.protocol.proto.TraceProtocol.InputParametersSpan parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.a.eye.skywalking.protocol.proto.TraceProtocol.InputParametersSpan parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static com.a.eye.skywalking.protocol.proto.TraceProtocol.InputParametersSpan parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static com.a.eye.skywalking.protocol.proto.TraceProtocol.InputParametersSpan parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+    public static com.a.eye.skywalking.protocol.proto.TraceProtocol.InputParametersSpan parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static com.a.eye.skywalking.protocol.proto.TraceProtocol.InputParametersSpan parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static com.a.eye.skywalking.protocol.proto.TraceProtocol.InputParametersSpan parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(com.a.eye.skywalking.protocol.proto.TraceProtocol.InputParametersSpan prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code InputParametersSpan}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:InputParametersSpan)
+        com.a.eye.skywalking.protocol.proto.TraceProtocol.InputParametersSpanOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return com.a.eye.skywalking.protocol.proto.TraceProtocol.internal_static_InputParametersSpan_descriptor;
+      }
+
+      @SuppressWarnings({"rawtypes"})
+      protected com.google.protobuf.MapField internalGetMapField(
+          int number) {
+        switch (number) {
+          case 3:
+            return internalGetParameters();
+          default:
+            throw new RuntimeException(
+                "Invalid map field number: " + number);
+        }
+      }
+      @SuppressWarnings({"rawtypes"})
+      protected com.google.protobuf.MapField internalGetMutableMapField(
+          int number) {
+        switch (number) {
+          case 3:
+            return internalGetMutableParameters();
+          default:
+            throw new RuntimeException(
+                "Invalid map field number: " + number);
+        }
+      }
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return com.a.eye.skywalking.protocol.proto.TraceProtocol.internal_static_InputParametersSpan_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                com.a.eye.skywalking.protocol.proto.TraceProtocol.InputParametersSpan.class, com.a.eye.skywalking.protocol.proto.TraceProtocol.InputParametersSpan.Builder.class);
+      }
+
+      // Construct using com.a.eye.skywalking.protocol.proto.TraceProtocol.InputParametersSpan.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
+        }
+      }
+      public Builder clear() {
+        super.clear();
+        traceId_ = "";
+        bitField0_ = (bitField0_ & ~0x00000001);
+        traceLevelId_ = "";
+        bitField0_ = (bitField0_ & ~0x00000002);
+        internalGetMutableParameters().clear();
+        return this;
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return com.a.eye.skywalking.protocol.proto.TraceProtocol.internal_static_InputParametersSpan_descriptor;
+      }
+
+      public com.a.eye.skywalking.protocol.proto.TraceProtocol.InputParametersSpan getDefaultInstanceForType() {
+        return com.a.eye.skywalking.protocol.proto.TraceProtocol.InputParametersSpan.getDefaultInstance();
+      }
+
+      public com.a.eye.skywalking.protocol.proto.TraceProtocol.InputParametersSpan build() {
+        com.a.eye.skywalking.protocol.proto.TraceProtocol.InputParametersSpan result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public com.a.eye.skywalking.protocol.proto.TraceProtocol.InputParametersSpan buildPartial() {
+        com.a.eye.skywalking.protocol.proto.TraceProtocol.InputParametersSpan result = new com.a.eye.skywalking.protocol.proto.TraceProtocol.InputParametersSpan(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        result.traceId_ = traceId_;
+        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+          to_bitField0_ |= 0x00000002;
+        }
+        result.traceLevelId_ = traceLevelId_;
+        result.parameters_ = internalGetParameters();
+        result.parameters_.makeImmutable();
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder clone() {
+        return (Builder) super.clone();
+      }
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return (Builder) super.setField(field, value);
+      }
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return (Builder) super.clearField(field);
+      }
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return (Builder) super.clearOneof(oneof);
+      }
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, Object value) {
+        return (Builder) super.setRepeatedField(field, index, value);
+      }
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return (Builder) super.addRepeatedField(field, value);
+      }
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof com.a.eye.skywalking.protocol.proto.TraceProtocol.InputParametersSpan) {
+          return mergeFrom((com.a.eye.skywalking.protocol.proto.TraceProtocol.InputParametersSpan)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(com.a.eye.skywalking.protocol.proto.TraceProtocol.InputParametersSpan other) {
+        if (other == com.a.eye.skywalking.protocol.proto.TraceProtocol.InputParametersSpan.getDefaultInstance()) return this;
+        if (other.hasTraceId()) {
+          bitField0_ |= 0x00000001;
+          traceId_ = other.traceId_;
+          onChanged();
+        }
+        if (other.hasTraceLevelId()) {
+          bitField0_ |= 0x00000002;
+          traceLevelId_ = other.traceLevelId_;
+          onChanged();
+        }
+        internalGetMutableParameters().mergeFrom(
+            other.internalGetParameters());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        if (!hasTraceId()) {
+          return false;
+        }
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        com.a.eye.skywalking.protocol.proto.TraceProtocol.InputParametersSpan parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (com.a.eye.skywalking.protocol.proto.TraceProtocol.InputParametersSpan) e.getUnfinishedMessage();
+          throw e.unwrapIOException();
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private java.lang.Object traceId_ = "";
+      /**
+       * <code>required string traceId = 1;</code>
+       */
+      public boolean hasTraceId() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>required string traceId = 1;</code>
+       */
+      public java.lang.String getTraceId() {
+        java.lang.Object ref = traceId_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            traceId_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>required string traceId = 1;</code>
+       */
+      public com.google.protobuf.ByteString
+          getTraceIdBytes() {
+        java.lang.Object ref = traceId_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          traceId_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>required string traceId = 1;</code>
+       */
+      public Builder setTraceId(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000001;
+        traceId_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required string traceId = 1;</code>
+       */
+      public Builder clearTraceId() {
+        bitField0_ = (bitField0_ & ~0x00000001);
+        traceId_ = getDefaultInstance().getTraceId();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required string traceId = 1;</code>
+       */
+      public Builder setTraceIdBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000001;
+        traceId_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object traceLevelId_ = "";
+      /**
+       * <code>optional string traceLevelId = 2;</code>
+       */
+      public boolean hasTraceLevelId() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      /**
+       * <code>optional string traceLevelId = 2;</code>
+       */
+      public java.lang.String getTraceLevelId() {
+        java.lang.Object ref = traceLevelId_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            traceLevelId_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string traceLevelId = 2;</code>
+       */
+      public com.google.protobuf.ByteString
+          getTraceLevelIdBytes() {
+        java.lang.Object ref = traceLevelId_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          traceLevelId_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string traceLevelId = 2;</code>
+       */
+      public Builder setTraceLevelId(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000002;
+        traceLevelId_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string traceLevelId = 2;</code>
+       */
+      public Builder clearTraceLevelId() {
+        bitField0_ = (bitField0_ & ~0x00000002);
+        traceLevelId_ = getDefaultInstance().getTraceLevelId();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string traceLevelId = 2;</code>
+       */
+      public Builder setTraceLevelIdBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000002;
+        traceLevelId_ = value;
+        onChanged();
+        return this;
+      }
+
       private com.google.protobuf.MapField<
           java.lang.String, java.lang.String> parameters_;
       private com.google.protobuf.MapField<java.lang.String, java.lang.String>
@@ -4206,7 +4770,7 @@ public final class TraceProtocol {
         return internalGetParameters().getMap().size();
       }
       /**
-       * <code>map&lt;string, string&gt; parameters = 13;</code>
+       * <code>map&lt;string, string&gt; parameters = 3;</code>
        */
 
       public boolean containsParameters(
@@ -4222,14 +4786,14 @@ public final class TraceProtocol {
         return getParametersMap();
       }
       /**
-       * <code>map&lt;string, string&gt; parameters = 13;</code>
+       * <code>map&lt;string, string&gt; parameters = 3;</code>
        */
 
       public java.util.Map<java.lang.String, java.lang.String> getParametersMap() {
         return internalGetParameters().getMap();
       }
       /**
-       * <code>map&lt;string, string&gt; parameters = 13;</code>
+       * <code>map&lt;string, string&gt; parameters = 3;</code>
        */
 
       public java.lang.String getParametersOrDefault(
@@ -4241,7 +4805,7 @@ public final class TraceProtocol {
         return map.containsKey(key) ? map.get(key) : defaultValue;
       }
       /**
-       * <code>map&lt;string, string&gt; parameters = 13;</code>
+       * <code>map&lt;string, string&gt; parameters = 3;</code>
        */
 
       public java.lang.String getParametersOrThrow(
@@ -4260,7 +4824,7 @@ public final class TraceProtocol {
         return this;
       }
       /**
-       * <code>map&lt;string, string&gt; parameters = 13;</code>
+       * <code>map&lt;string, string&gt; parameters = 3;</code>
        */
 
       public Builder removeParameters(
@@ -4278,7 +4842,7 @@ public final class TraceProtocol {
         return internalGetMutableParameters().getMutableMap();
       }
       /**
-       * <code>map&lt;string, string&gt; parameters = 13;</code>
+       * <code>map&lt;string, string&gt; parameters = 3;</code>
        */
       public Builder putParameters(
           java.lang.String key,
@@ -4289,7 +4853,7 @@ public final class TraceProtocol {
         return this;
       }
       /**
-       * <code>map&lt;string, string&gt; parameters = 13;</code>
+       * <code>map&lt;string, string&gt; parameters = 3;</code>
        */
 
       public Builder putAllParameters(
@@ -4297,25 +4861,685 @@ public final class TraceProtocol {
         getMutableParameters().putAll(values);
         return this;
       }
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.setUnknownFields(unknownFields);
+      }
 
-      private java.lang.Object processNo_ = "";
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.mergeUnknownFields(unknownFields);
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:InputParametersSpan)
+    }
+
+    // @@protoc_insertion_point(class_scope:InputParametersSpan)
+    private static final com.a.eye.skywalking.protocol.proto.TraceProtocol.InputParametersSpan DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new com.a.eye.skywalking.protocol.proto.TraceProtocol.InputParametersSpan();
+    }
+
+    public static com.a.eye.skywalking.protocol.proto.TraceProtocol.InputParametersSpan getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    @java.lang.Deprecated public static final com.google.protobuf.Parser<InputParametersSpan>
+        PARSER = new com.google.protobuf.AbstractParser<InputParametersSpan>() {
+      public InputParametersSpan parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+          return new InputParametersSpan(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<InputParametersSpan> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<InputParametersSpan> getParserForType() {
+      return PARSER;
+    }
+
+    public com.a.eye.skywalking.protocol.proto.TraceProtocol.InputParametersSpan getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
+  public interface OutputParametersSpanOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:OutputParametersSpan)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>required string traceId = 1;</code>
+     */
+    boolean hasTraceId();
+    /**
+     * <code>required string traceId = 1;</code>
+     */
+    java.lang.String getTraceId();
+    /**
+     * <code>required string traceId = 1;</code>
+     */
+    com.google.protobuf.ByteString
+        getTraceIdBytes();
+
+    /**
+     * <code>optional string traceLevelId = 2;</code>
+     */
+    boolean hasTraceLevelId();
+    /**
+     * <code>optional string traceLevelId = 2;</code>
+     */
+    java.lang.String getTraceLevelId();
+    /**
+     * <code>optional string traceLevelId = 2;</code>
+     */
+    com.google.protobuf.ByteString
+        getTraceLevelIdBytes();
+
+    /**
+     * <code>required string outputParameter = 3;</code>
+     */
+    boolean hasOutputParameter();
+    /**
+     * <code>required string outputParameter = 3;</code>
+     */
+    java.lang.String getOutputParameter();
+    /**
+     * <code>required string outputParameter = 3;</code>
+     */
+    com.google.protobuf.ByteString
+        getOutputParameterBytes();
+  }
+  /**
+   * Protobuf type {@code OutputParametersSpan}
+   */
+  public  static final class OutputParametersSpan extends
+      com.google.protobuf.GeneratedMessageV3 implements
+      // @@protoc_insertion_point(message_implements:OutputParametersSpan)
+      OutputParametersSpanOrBuilder {
+    // Use OutputParametersSpan.newBuilder() to construct.
+    private OutputParametersSpan(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      super(builder);
+    }
+    private OutputParametersSpan() {
+      traceId_ = "";
+      traceLevelId_ = "";
+      outputParameter_ = "";
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return this.unknownFields;
+    }
+    private OutputParametersSpan(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      this();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 10: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x00000001;
+              traceId_ = bs;
+              break;
+            }
+            case 18: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x00000002;
+              traceLevelId_ = bs;
+              break;
+            }
+            case 26: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x00000004;
+              outputParameter_ = bs;
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return com.a.eye.skywalking.protocol.proto.TraceProtocol.internal_static_OutputParametersSpan_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return com.a.eye.skywalking.protocol.proto.TraceProtocol.internal_static_OutputParametersSpan_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              com.a.eye.skywalking.protocol.proto.TraceProtocol.OutputParametersSpan.class, com.a.eye.skywalking.protocol.proto.TraceProtocol.OutputParametersSpan.Builder.class);
+    }
+
+    private int bitField0_;
+    public static final int TRACEID_FIELD_NUMBER = 1;
+    private volatile java.lang.Object traceId_;
+    /**
+     * <code>required string traceId = 1;</code>
+     */
+    public boolean hasTraceId() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>required string traceId = 1;</code>
+     */
+    public java.lang.String getTraceId() {
+      java.lang.Object ref = traceId_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          traceId_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>required string traceId = 1;</code>
+     */
+    public com.google.protobuf.ByteString
+        getTraceIdBytes() {
+      java.lang.Object ref = traceId_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        traceId_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int TRACELEVELID_FIELD_NUMBER = 2;
+    private volatile java.lang.Object traceLevelId_;
+    /**
+     * <code>optional string traceLevelId = 2;</code>
+     */
+    public boolean hasTraceLevelId() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    /**
+     * <code>optional string traceLevelId = 2;</code>
+     */
+    public java.lang.String getTraceLevelId() {
+      java.lang.Object ref = traceLevelId_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          traceLevelId_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>optional string traceLevelId = 2;</code>
+     */
+    public com.google.protobuf.ByteString
+        getTraceLevelIdBytes() {
+      java.lang.Object ref = traceLevelId_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        traceLevelId_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int OUTPUTPARAMETER_FIELD_NUMBER = 3;
+    private volatile java.lang.Object outputParameter_;
+    /**
+     * <code>required string outputParameter = 3;</code>
+     */
+    public boolean hasOutputParameter() {
+      return ((bitField0_ & 0x00000004) == 0x00000004);
+    }
+    /**
+     * <code>required string outputParameter = 3;</code>
+     */
+    public java.lang.String getOutputParameter() {
+      java.lang.Object ref = outputParameter_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          outputParameter_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>required string outputParameter = 3;</code>
+     */
+    public com.google.protobuf.ByteString
+        getOutputParameterBytes() {
+      java.lang.Object ref = outputParameter_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        outputParameter_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      if (!hasTraceId()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      if (!hasOutputParameter()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, traceId_);
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 2, traceLevelId_);
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 3, outputParameter_);
+      }
+      unknownFields.writeTo(output);
+    }
+
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, traceId_);
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, traceLevelId_);
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, outputParameter_);
+      }
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof com.a.eye.skywalking.protocol.proto.TraceProtocol.OutputParametersSpan)) {
+        return super.equals(obj);
+      }
+      com.a.eye.skywalking.protocol.proto.TraceProtocol.OutputParametersSpan other = (com.a.eye.skywalking.protocol.proto.TraceProtocol.OutputParametersSpan) obj;
+
+      boolean result = true;
+      result = result && (hasTraceId() == other.hasTraceId());
+      if (hasTraceId()) {
+        result = result && getTraceId()
+            .equals(other.getTraceId());
+      }
+      result = result && (hasTraceLevelId() == other.hasTraceLevelId());
+      if (hasTraceLevelId()) {
+        result = result && getTraceLevelId()
+            .equals(other.getTraceLevelId());
+      }
+      result = result && (hasOutputParameter() == other.hasOutputParameter());
+      if (hasOutputParameter()) {
+        result = result && getOutputParameter()
+            .equals(other.getOutputParameter());
+      }
+      result = result && unknownFields.equals(other.unknownFields);
+      return result;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptorForType().hashCode();
+      if (hasTraceId()) {
+        hash = (37 * hash) + TRACEID_FIELD_NUMBER;
+        hash = (53 * hash) + getTraceId().hashCode();
+      }
+      if (hasTraceLevelId()) {
+        hash = (37 * hash) + TRACELEVELID_FIELD_NUMBER;
+        hash = (53 * hash) + getTraceLevelId().hashCode();
+      }
+      if (hasOutputParameter()) {
+        hash = (37 * hash) + OUTPUTPARAMETER_FIELD_NUMBER;
+        hash = (53 * hash) + getOutputParameter().hashCode();
+      }
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static com.a.eye.skywalking.protocol.proto.TraceProtocol.OutputParametersSpan parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.a.eye.skywalking.protocol.proto.TraceProtocol.OutputParametersSpan parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.a.eye.skywalking.protocol.proto.TraceProtocol.OutputParametersSpan parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.a.eye.skywalking.protocol.proto.TraceProtocol.OutputParametersSpan parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.a.eye.skywalking.protocol.proto.TraceProtocol.OutputParametersSpan parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static com.a.eye.skywalking.protocol.proto.TraceProtocol.OutputParametersSpan parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static com.a.eye.skywalking.protocol.proto.TraceProtocol.OutputParametersSpan parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+    public static com.a.eye.skywalking.protocol.proto.TraceProtocol.OutputParametersSpan parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static com.a.eye.skywalking.protocol.proto.TraceProtocol.OutputParametersSpan parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static com.a.eye.skywalking.protocol.proto.TraceProtocol.OutputParametersSpan parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(com.a.eye.skywalking.protocol.proto.TraceProtocol.OutputParametersSpan prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code OutputParametersSpan}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:OutputParametersSpan)
+        com.a.eye.skywalking.protocol.proto.TraceProtocol.OutputParametersSpanOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return com.a.eye.skywalking.protocol.proto.TraceProtocol.internal_static_OutputParametersSpan_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return com.a.eye.skywalking.protocol.proto.TraceProtocol.internal_static_OutputParametersSpan_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                com.a.eye.skywalking.protocol.proto.TraceProtocol.OutputParametersSpan.class, com.a.eye.skywalking.protocol.proto.TraceProtocol.OutputParametersSpan.Builder.class);
+      }
+
+      // Construct using com.a.eye.skywalking.protocol.proto.TraceProtocol.OutputParametersSpan.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
+        }
+      }
+      public Builder clear() {
+        super.clear();
+        traceId_ = "";
+        bitField0_ = (bitField0_ & ~0x00000001);
+        traceLevelId_ = "";
+        bitField0_ = (bitField0_ & ~0x00000002);
+        outputParameter_ = "";
+        bitField0_ = (bitField0_ & ~0x00000004);
+        return this;
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return com.a.eye.skywalking.protocol.proto.TraceProtocol.internal_static_OutputParametersSpan_descriptor;
+      }
+
+      public com.a.eye.skywalking.protocol.proto.TraceProtocol.OutputParametersSpan getDefaultInstanceForType() {
+        return com.a.eye.skywalking.protocol.proto.TraceProtocol.OutputParametersSpan.getDefaultInstance();
+      }
+
+      public com.a.eye.skywalking.protocol.proto.TraceProtocol.OutputParametersSpan build() {
+        com.a.eye.skywalking.protocol.proto.TraceProtocol.OutputParametersSpan result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public com.a.eye.skywalking.protocol.proto.TraceProtocol.OutputParametersSpan buildPartial() {
+        com.a.eye.skywalking.protocol.proto.TraceProtocol.OutputParametersSpan result = new com.a.eye.skywalking.protocol.proto.TraceProtocol.OutputParametersSpan(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        result.traceId_ = traceId_;
+        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+          to_bitField0_ |= 0x00000002;
+        }
+        result.traceLevelId_ = traceLevelId_;
+        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+          to_bitField0_ |= 0x00000004;
+        }
+        result.outputParameter_ = outputParameter_;
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder clone() {
+        return (Builder) super.clone();
+      }
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return (Builder) super.setField(field, value);
+      }
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return (Builder) super.clearField(field);
+      }
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return (Builder) super.clearOneof(oneof);
+      }
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, Object value) {
+        return (Builder) super.setRepeatedField(field, index, value);
+      }
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return (Builder) super.addRepeatedField(field, value);
+      }
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof com.a.eye.skywalking.protocol.proto.TraceProtocol.OutputParametersSpan) {
+          return mergeFrom((com.a.eye.skywalking.protocol.proto.TraceProtocol.OutputParametersSpan)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(com.a.eye.skywalking.protocol.proto.TraceProtocol.OutputParametersSpan other) {
+        if (other == com.a.eye.skywalking.protocol.proto.TraceProtocol.OutputParametersSpan.getDefaultInstance()) return this;
+        if (other.hasTraceId()) {
+          bitField0_ |= 0x00000001;
+          traceId_ = other.traceId_;
+          onChanged();
+        }
+        if (other.hasTraceLevelId()) {
+          bitField0_ |= 0x00000002;
+          traceLevelId_ = other.traceLevelId_;
+          onChanged();
+        }
+        if (other.hasOutputParameter()) {
+          bitField0_ |= 0x00000004;
+          outputParameter_ = other.outputParameter_;
+          onChanged();
+        }
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        if (!hasTraceId()) {
+          return false;
+        }
+        if (!hasOutputParameter()) {
+          return false;
+        }
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        com.a.eye.skywalking.protocol.proto.TraceProtocol.OutputParametersSpan parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (com.a.eye.skywalking.protocol.proto.TraceProtocol.OutputParametersSpan) e.getUnfinishedMessage();
+          throw e.unwrapIOException();
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private java.lang.Object traceId_ = "";
       /**
-       * <code>required string processNo = 14;</code>
+       * <code>required string traceId = 1;</code>
        */
-      public boolean hasProcessNo() {
-        return ((bitField0_ & 0x00002000) == 0x00002000);
+      public boolean hasTraceId() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
       }
       /**
-       * <code>required string processNo = 14;</code>
+       * <code>required string traceId = 1;</code>
        */
-      public java.lang.String getProcessNo() {
-        java.lang.Object ref = processNo_;
+      public java.lang.String getTraceId() {
+        java.lang.Object ref = traceId_;
         if (!(ref instanceof java.lang.String)) {
           com.google.protobuf.ByteString bs =
               (com.google.protobuf.ByteString) ref;
           java.lang.String s = bs.toStringUtf8();
           if (bs.isValidUtf8()) {
-            processNo_ = s;
+            traceId_ = s;
           }
           return s;
         } else {
@@ -4323,75 +5547,75 @@ public final class TraceProtocol {
         }
       }
       /**
-       * <code>required string processNo = 14;</code>
+       * <code>required string traceId = 1;</code>
        */
       public com.google.protobuf.ByteString
-          getProcessNoBytes() {
-        java.lang.Object ref = processNo_;
+          getTraceIdBytes() {
+        java.lang.Object ref = traceId_;
         if (ref instanceof String) {
           com.google.protobuf.ByteString b = 
               com.google.protobuf.ByteString.copyFromUtf8(
                   (java.lang.String) ref);
-          processNo_ = b;
+          traceId_ = b;
           return b;
         } else {
           return (com.google.protobuf.ByteString) ref;
         }
       }
       /**
-       * <code>required string processNo = 14;</code>
+       * <code>required string traceId = 1;</code>
        */
-      public Builder setProcessNo(
+      public Builder setTraceId(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00002000;
-        processNo_ = value;
+  bitField0_ |= 0x00000001;
+        traceId_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>required string processNo = 14;</code>
+       * <code>required string traceId = 1;</code>
        */
-      public Builder clearProcessNo() {
-        bitField0_ = (bitField0_ & ~0x00002000);
-        processNo_ = getDefaultInstance().getProcessNo();
+      public Builder clearTraceId() {
+        bitField0_ = (bitField0_ & ~0x00000001);
+        traceId_ = getDefaultInstance().getTraceId();
         onChanged();
         return this;
       }
       /**
-       * <code>required string processNo = 14;</code>
+       * <code>required string traceId = 1;</code>
        */
-      public Builder setProcessNoBytes(
+      public Builder setTraceIdBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00002000;
-        processNo_ = value;
+  bitField0_ |= 0x00000001;
+        traceId_ = value;
         onChanged();
         return this;
       }
 
-      private java.lang.Object address_ = "";
+      private java.lang.Object traceLevelId_ = "";
       /**
-       * <code>required string address = 15;</code>
+       * <code>optional string traceLevelId = 2;</code>
        */
-      public boolean hasAddress() {
-        return ((bitField0_ & 0x00004000) == 0x00004000);
+      public boolean hasTraceLevelId() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
       }
       /**
-       * <code>required string address = 15;</code>
+       * <code>optional string traceLevelId = 2;</code>
        */
-      public java.lang.String getAddress() {
-        java.lang.Object ref = address_;
+      public java.lang.String getTraceLevelId() {
+        java.lang.Object ref = traceLevelId_;
         if (!(ref instanceof java.lang.String)) {
           com.google.protobuf.ByteString bs =
               (com.google.protobuf.ByteString) ref;
           java.lang.String s = bs.toStringUtf8();
           if (bs.isValidUtf8()) {
-            address_ = s;
+            traceLevelId_ = s;
           }
           return s;
         } else {
@@ -4399,53 +5623,129 @@ public final class TraceProtocol {
         }
       }
       /**
-       * <code>required string address = 15;</code>
+       * <code>optional string traceLevelId = 2;</code>
        */
       public com.google.protobuf.ByteString
-          getAddressBytes() {
-        java.lang.Object ref = address_;
+          getTraceLevelIdBytes() {
+        java.lang.Object ref = traceLevelId_;
         if (ref instanceof String) {
           com.google.protobuf.ByteString b = 
               com.google.protobuf.ByteString.copyFromUtf8(
                   (java.lang.String) ref);
-          address_ = b;
+          traceLevelId_ = b;
           return b;
         } else {
           return (com.google.protobuf.ByteString) ref;
         }
       }
       /**
-       * <code>required string address = 15;</code>
+       * <code>optional string traceLevelId = 2;</code>
        */
-      public Builder setAddress(
+      public Builder setTraceLevelId(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00004000;
-        address_ = value;
+  bitField0_ |= 0x00000002;
+        traceLevelId_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>required string address = 15;</code>
+       * <code>optional string traceLevelId = 2;</code>
        */
-      public Builder clearAddress() {
-        bitField0_ = (bitField0_ & ~0x00004000);
-        address_ = getDefaultInstance().getAddress();
+      public Builder clearTraceLevelId() {
+        bitField0_ = (bitField0_ & ~0x00000002);
+        traceLevelId_ = getDefaultInstance().getTraceLevelId();
         onChanged();
         return this;
       }
       /**
-       * <code>required string address = 15;</code>
+       * <code>optional string traceLevelId = 2;</code>
        */
-      public Builder setAddressBytes(
+      public Builder setTraceLevelIdBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00004000;
-        address_ = value;
+  bitField0_ |= 0x00000002;
+        traceLevelId_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object outputParameter_ = "";
+      /**
+       * <code>required string outputParameter = 3;</code>
+       */
+      public boolean hasOutputParameter() {
+        return ((bitField0_ & 0x00000004) == 0x00000004);
+      }
+      /**
+       * <code>required string outputParameter = 3;</code>
+       */
+      public java.lang.String getOutputParameter() {
+        java.lang.Object ref = outputParameter_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            outputParameter_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>required string outputParameter = 3;</code>
+       */
+      public com.google.protobuf.ByteString
+          getOutputParameterBytes() {
+        java.lang.Object ref = outputParameter_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          outputParameter_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>required string outputParameter = 3;</code>
+       */
+      public Builder setOutputParameter(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000004;
+        outputParameter_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required string outputParameter = 3;</code>
+       */
+      public Builder clearOutputParameter() {
+        bitField0_ = (bitField0_ & ~0x00000004);
+        outputParameter_ = getDefaultInstance().getOutputParameter();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required string outputParameter = 3;</code>
+       */
+      public Builder setOutputParameterBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000004;
+        outputParameter_ = value;
         onChanged();
         return this;
       }
@@ -4460,39 +5760,39 @@ public final class TraceProtocol {
       }
 
 
-      // @@protoc_insertion_point(builder_scope:RequestSpan)
+      // @@protoc_insertion_point(builder_scope:OutputParametersSpan)
     }
 
-    // @@protoc_insertion_point(class_scope:RequestSpan)
-    private static final TraceProtocol.RequestSpan DEFAULT_INSTANCE;
+    // @@protoc_insertion_point(class_scope:OutputParametersSpan)
+    private static final com.a.eye.skywalking.protocol.proto.TraceProtocol.OutputParametersSpan DEFAULT_INSTANCE;
     static {
-      DEFAULT_INSTANCE = new TraceProtocol.RequestSpan();
+      DEFAULT_INSTANCE = new com.a.eye.skywalking.protocol.proto.TraceProtocol.OutputParametersSpan();
     }
 
-    public static TraceProtocol.RequestSpan getDefaultInstance() {
+    public static com.a.eye.skywalking.protocol.proto.TraceProtocol.OutputParametersSpan getDefaultInstance() {
       return DEFAULT_INSTANCE;
     }
 
-    @java.lang.Deprecated public static final com.google.protobuf.Parser<RequestSpan>
-        PARSER = new com.google.protobuf.AbstractParser<RequestSpan>() {
-      public RequestSpan parsePartialFrom(
+    @java.lang.Deprecated public static final com.google.protobuf.Parser<OutputParametersSpan>
+        PARSER = new com.google.protobuf.AbstractParser<OutputParametersSpan>() {
+      public OutputParametersSpan parsePartialFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws com.google.protobuf.InvalidProtocolBufferException {
-          return new RequestSpan(input, extensionRegistry);
+          return new OutputParametersSpan(input, extensionRegistry);
       }
     };
 
-    public static com.google.protobuf.Parser<RequestSpan> parser() {
+    public static com.google.protobuf.Parser<OutputParametersSpan> parser() {
       return PARSER;
     }
 
     @java.lang.Override
-    public com.google.protobuf.Parser<RequestSpan> getParserForType() {
+    public com.google.protobuf.Parser<OutputParametersSpan> getParserForType() {
       return PARSER;
     }
 
-    public TraceProtocol.RequestSpan getDefaultInstanceForType() {
+    public com.a.eye.skywalking.protocol.proto.TraceProtocol.OutputParametersSpan getDefaultInstanceForType() {
       return DEFAULT_INSTANCE;
     }
 
@@ -4504,20 +5804,25 @@ public final class TraceProtocol {
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_AckSpan_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_AckSpan_ParametersEntry_descriptor;
-  private static final 
-    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_AckSpan_ParametersEntry_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_RequestSpan_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_RequestSpan_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_RequestSpan_ParametersEntry_descriptor;
+    internal_static_InputParametersSpan_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_RequestSpan_ParametersEntry_fieldAccessorTable;
+      internal_static_InputParametersSpan_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_InputParametersSpan_ParametersEntry_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_InputParametersSpan_ParametersEntry_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_OutputParametersSpan_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_OutputParametersSpan_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -4527,24 +5832,25 @@ public final class TraceProtocol {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\023TraceProtocol.proto\"\360\001\n\007AckSpan\022\017\n\007tra" +
+      "\n\023TraceProtocol.proto\"\217\001\n\007AckSpan\022\017\n\007tra" +
       "ceId\030\001 \002(\t\022\023\n\013parentLevel\030\002 \001(\t\022\017\n\007level" +
       "Id\030\003 \002(\005\022\014\n\004cost\030\004 \002(\003\022\022\n\nstatusCode\030\005 \002" +
       "(\005\022\026\n\016exceptionStack\030\006 \001(\t\022\023\n\013viewpointI" +
-      "d\030\007 \002(\t\022,\n\nparameters\030\010 \003(\0132\030.AckSpan.Pa" +
-      "rametersEntry\0321\n\017ParametersEntry\022\013\n\003key\030" +
-      "\001 \001(\t\022\r\n\005value\030\002 \001(\t:\0028\001\"\375\002\n\013RequestSpan" +
-      "\022\017\n\007traceId\030\001 \002(\t\022\023\n\013parentLevel\030\002 \001(\t\022\017" +
-      "\n\007levelId\030\003 \002(\005\022\023\n\013viewPointId\030\004 \002(\t\022\021\n\t" +
-      "startDate\030\005 \002(\003\022\024\n\014spanTypeDesc\030\006 \002(\t\022\020\n",
-      "\010callType\030\007 \002(\t\022\020\n\010spanType\030\010 \002(\r\022\025\n\rapp" +
-      "licationId\030\t \002(\t\022\016\n\006userId\030\n \002(\t\022\024\n\014buss" +
-      "inessKey\030\013 \001(\t\022\017\n\007agentId\030\014 \002(\t\0220\n\nparam" +
-      "eters\030\r \003(\0132\034.RequestSpan.ParametersEntr" +
-      "y\022\021\n\tprocessNo\030\016 \002(\t\022\017\n\007address\030\017 \002(\t\0321\n" +
-      "\017ParametersEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002" +
-      " \001(\t:\0028\001B(\n&com.a.eye.skywalking.prot" +
-      "ocol.proto"
+      "d\030\007 \002(\t\"\230\002\n\013RequestSpan\022\017\n\007traceId\030\001 \002(\t" +
+      "\022\023\n\013parentLevel\030\002 \001(\t\022\017\n\007levelId\030\003 \002(\005\022\023" +
+      "\n\013viewPointId\030\004 \002(\t\022\021\n\tstartDate\030\005 \002(\003\022\024" +
+      "\n\014spanTypeDesc\030\006 \002(\t\022\020\n\010callType\030\007 \002(\t\022\020" +
+      "\n\010spanType\030\010 \002(\r\022\025\n\rapplicationId\030\t \002(\t\022" +
+      "\016\n\006userId\030\n \002(\t\022\024\n\014bussinessKey\030\013 \001(\t\022\017\n",
+      "\007agentId\030\014 \002(\t\022\021\n\tprocessNo\030\r \002(\t\022\017\n\007add" +
+      "ress\030\016 \002(\t\"\251\001\n\023InputParametersSpan\022\017\n\007tr" +
+      "aceId\030\001 \002(\t\022\024\n\014traceLevelId\030\002 \001(\t\0228\n\npar" +
+      "ameters\030\003 \003(\0132$.InputParametersSpan.Para" +
+      "metersEntry\0321\n\017ParametersEntry\022\013\n\003key\030\001 " +
+      "\001(\t\022\r\n\005value\030\002 \001(\t:\0028\001\"V\n\024OutputParamete" +
+      "rsSpan\022\017\n\007traceId\030\001 \002(\t\022\024\n\014traceLevelId\030" +
+      "\002 \001(\t\022\027\n\017outputParameter\030\003 \002(\tB%\n#com.a." +
+      "eye.skywalking.protocol.proto"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -4563,25 +5869,31 @@ public final class TraceProtocol {
     internal_static_AckSpan_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_AckSpan_descriptor,
-        new java.lang.String[] { "TraceId", "ParentLevel", "LevelId", "Cost", "StatusCode", "ExceptionStack", "ViewpointId", "Parameters", });
-    internal_static_AckSpan_ParametersEntry_descriptor =
-      internal_static_AckSpan_descriptor.getNestedTypes().get(0);
-    internal_static_AckSpan_ParametersEntry_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_AckSpan_ParametersEntry_descriptor,
-        new java.lang.String[] { "Key", "Value", });
+        new java.lang.String[] { "TraceId", "ParentLevel", "LevelId", "Cost", "StatusCode", "ExceptionStack", "ViewpointId", });
     internal_static_RequestSpan_descriptor =
       getDescriptor().getMessageTypes().get(1);
     internal_static_RequestSpan_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_RequestSpan_descriptor,
-        new java.lang.String[] { "TraceId", "ParentLevel", "LevelId", "ViewPointId", "StartDate", "SpanTypeDesc", "CallType", "SpanType", "ApplicationId", "UserId", "BussinessKey", "AgentId", "Parameters", "ProcessNo", "Address", });
-    internal_static_RequestSpan_ParametersEntry_descriptor =
-      internal_static_RequestSpan_descriptor.getNestedTypes().get(0);
-    internal_static_RequestSpan_ParametersEntry_fieldAccessorTable = new
+        new java.lang.String[] { "TraceId", "ParentLevel", "LevelId", "ViewPointId", "StartDate", "SpanTypeDesc", "CallType", "SpanType", "ApplicationId", "UserId", "BussinessKey", "AgentId", "ProcessNo", "Address", });
+    internal_static_InputParametersSpan_descriptor =
+      getDescriptor().getMessageTypes().get(2);
+    internal_static_InputParametersSpan_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_RequestSpan_ParametersEntry_descriptor,
+        internal_static_InputParametersSpan_descriptor,
+        new java.lang.String[] { "TraceId", "TraceLevelId", "Parameters", });
+    internal_static_InputParametersSpan_ParametersEntry_descriptor =
+      internal_static_InputParametersSpan_descriptor.getNestedTypes().get(0);
+    internal_static_InputParametersSpan_ParametersEntry_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_InputParametersSpan_ParametersEntry_descriptor,
         new java.lang.String[] { "Key", "Value", });
+    internal_static_OutputParametersSpan_descriptor =
+      getDescriptor().getMessageTypes().get(3);
+    internal_static_OutputParametersSpan_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_OutputParametersSpan_descriptor,
+        new java.lang.String[] { "TraceId", "TraceLevelId", "OutputParameter", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

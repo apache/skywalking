@@ -31,7 +31,7 @@ public class RPCClientInvokeMonitor extends BaseInvokeMonitor {
 
             if (Config.BuriedPoint.PRINTF) {
                 logger.debug("TraceId:" + spanData.getTraceId() + "\tParentLevelId:" + spanData.getParentLevel()
-                        + "\tLevelId:" + spanData.getLevelId() + "\tbusinessKey:" + spanData.getParameters());
+                        + "\tLevelId:" + spanData.getLevelId() + "\tbusinessKey:" + spanData.getBusinessKey());
             }
 
             CurrentThreadSpanStack.push(spanData);
@@ -41,8 +41,7 @@ public class RPCClientInvokeMonitor extends BaseInvokeMonitor {
                     .spanTypeDesc(id.getSpanTypeDesc())
                     .bussinessKey(id.getBusinessKey())
                     .callType(id.getCallType()).processNo(BuriedPointMachineUtil.getProcessNo())
-                    .address(BuriedPointMachineUtil.getHostDesc())
-                    .parameters(id.getParameters()).build();
+                    .address(BuriedPointMachineUtil.getHostDesc()).build();
 
             ContextBuffer.save(requestSpan);
 

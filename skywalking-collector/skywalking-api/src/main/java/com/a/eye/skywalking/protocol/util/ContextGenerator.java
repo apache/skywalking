@@ -17,7 +17,6 @@ public final class ContextGenerator {
         Span spanData = getSpanFromThreadLocal();
         spanData.setStartDate(System.currentTimeMillis());
         spanData.setViewPointId(id.getViewPoint());
-        spanData.appendParameters(id.getParameters());
         return spanData;
     }
 

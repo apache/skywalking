@@ -35,12 +35,12 @@ public class RequestSpanProcessor extends AbstractSpanProcessor {
             } else {
                 columnName = requestSpan.getParentLevel() + "." + requestSpan.getLevelId();
             }
-            put.addColumn(Bytes.toBytes(Config.HBaseConfig.FAMILY_COLUMN_NAME), Bytes.toBytes(columnName),
+            put.addColumn(Bytes.toBytes(Config.HBaseConfig.TraceDataTable.FAMILY_COLUMN_NAME), Bytes.toBytes(columnName),
                     requestSpan.getData());
             puts.add(put);
         }
         // save
-        HBaseUtil.batchSavePuts(connection, Config.HBaseConfig.TABLE_NAME, puts);
+        HBaseUtil.batchSavePuts(connection, Config.HBaseConfig.TraceDataTable.TABLE_NAME, puts);
     }
 
     @Override

@@ -4,6 +4,7 @@ import com.a.eye.skywalking.protocol.SerializedFactory;
 import com.a.eye.skywalking.protocol.common.AbstractDataSerializable;
 import com.a.eye.skywalking.protocol.exception.ConvertFailedException;
 import com.a.eye.skywalking.protocol.util.IntegerAssist;
+import com.a.eye.skywalking.reciever.conf.Config;
 import com.a.eye.skywalking.reciever.selfexamination.ServerHealthCollector;
 import com.a.eye.skywalking.reciever.selfexamination.ServerHeathReading;
 import org.apache.commons.io.FileUtils;
@@ -24,7 +25,7 @@ public class BufferFileReader {
     private static final byte[] DATA_SPILT      = new byte[] {127, 127, 127, 127};
     private              int    remainderLength = 0;
     private              byte[] remainderByte   = null;
-    private              Logger logger          = LogManager.getLogger(BufferFileReader.class);
+    private static       Logger logger          = LogManager.getLogger(BufferFileReader.class);
     private List<AbstractDataSerializable> serializables;
 
     public BufferFileReader(File bufferFile, int currentOffset) {
@@ -200,8 +201,7 @@ public class BufferFileReader {
                 AbstractDataSerializable abstractDataSerializable = SerializedFactory.deserialize(data);
                 serializeData.add(abstractDataSerializable);
             } catch (ConvertFailedException e) {
-                // FIXME: 16/8/4 logger日志输出
-                e.printStackTrace();
+                logger.error("Failed to convert span.", e);
             }
 
             currentLength += 4 + dataLength;

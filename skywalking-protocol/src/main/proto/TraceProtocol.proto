@@ -10,7 +10,6 @@ message AckSpan {
     required int32 statusCode = 5;
     optional string exceptionStack = 6;
     required string viewpointId = 7;
-    map<string,string> parameters = 8;
 }
 
 message RequestSpan {
@@ -26,7 +25,18 @@ message RequestSpan {
     required string userId = 10;
     optional string bussinessKey = 11;
     required string agentId = 12;
-    map<string,string> parameters = 13;
-    required string processNo = 14;
-    required string address = 15;
+    required string processNo = 13;
+    required string address = 14;
+}
+
+message InputParametersSpan{
+    required string traceId = 1;
+    optional string traceLevelId = 2;
+    map<string,string> parameters = 3;
+}
+
+message OutputParametersSpan{
+    required string traceId = 1;
+    optional string traceLevelId = 2;
+    required string outputParameter = 3;
 }

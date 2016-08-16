@@ -8,22 +8,16 @@ import java.util.Map;
 
 public class Identification {
     private String              viewPoint;
-    private Map<String, String> parameters;
     private String              businessKey;
     private String              spanTypeDesc;
     private String              callType;
 
     public Identification() {
         //Non
-        parameters = new HashMap<String, String>();
     }
 
     public String getViewPoint() {
         return viewPoint;
-    }
-
-    public Map<String, String> getParameters() {
-        return parameters;
     }
 
     public String getSpanTypeDesc() {
@@ -45,7 +39,6 @@ public class Identification {
 
     public static class IdentificationBuilder {
         private Identification sendData;
-        private int parameterIdx = 0;
 
         IdentificationBuilder() {
             sendData = new Identification();
@@ -59,13 +52,6 @@ public class Identification {
             sendData.viewPoint = viewPoint;
             return this;
         }
-
-        public IdentificationBuilder addParameter(String value){
-            parameterIdx++;
-            sendData.parameters.put("_" + parameterIdx, value);
-            return this;
-        }
-
 
         public IdentificationBuilder businessKey(String businessKey) {
             sendData.businessKey = businessKey;

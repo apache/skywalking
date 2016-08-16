@@ -1,10 +1,14 @@
 package com.a.eye.skywalking.plugin.custom.localmethod;
 
+import com.a.eye.skywalking.api.Tracing;
+import com.a.eye.skywalking.buffer.ContextBuffer;
 import com.a.eye.skywalking.conf.Config;
 import com.a.eye.skywalking.invoke.monitor.LocalMethodInvokeMonitor;
 import com.a.eye.skywalking.model.Identification;
 import com.a.eye.skywalking.plugin.interceptor.EnhancedClassInstanceContext;
 import com.a.eye.skywalking.plugin.interceptor.enhance.*;
+import com.a.eye.skywalking.protocol.InputParametersSpan;
+import com.a.eye.skywalking.protocol.OutputParameterSpan;
 import com.google.gson.Gson;
 
 public class CustomLocalMethodInterceptor implements InstanceMethodsAroundInterceptor, StaticMethodsAroundInterceptor {
@@ -16,34 +20,38 @@ public class CustomLocalMethodInterceptor implements InstanceMethodsAroundInterc
     @Override
     public void beforeMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
             MethodInterceptResult result) {
-        Identification.IdentificationBuilder identificationBuilder = buildIdentificationBuilder(interceptorContext);
+        Identification.IdentificationBuilder identificationBuilder = Identification.newBuilder();
         identificationBuilder.spanType(new CustomLocalSpanType()).viewPoint(
                 fullMethodName(interceptorContext.inst().getClass(), interceptorContext.methodName(),
                         interceptorContext.argumentTypes()));
+
         new LocalMethodInvokeMonitor().beforeInvoke(identificationBuilder.build());
+
+        recordParametersAndSave2BufferIfNecessary(interceptorContext.allArguments());
     }
 
-    private Identification.IdentificationBuilder buildIdentificationBuilder(MethodInvokeContext interceptorContext) {
-        Identification.IdentificationBuilder identificationBuilder = Identification.newBuilder();
+    private void recordParametersAndSave2BufferIfNecessary(Object[] arguments) {
         if (Config.Plugin.CustomLocalMethodInterceptorPlugin.RECORD_PARAM_ENABLE) {
-            for (Object param : interceptorContext.allArguments()) {
+            InputParametersSpan inputParametersSpan = new InputParametersSpan(Tracing.getTraceId(), Tracing.getTracelevelId());
+            for (Object param : arguments) {
                 String paramStr;
                 try {
                     paramStr = new Gson().toJson(param);
                 } catch (Throwable e) {
                     paramStr = "N/A";
                 }
-                identificationBuilder.addParameter(paramStr);
+                inputParametersSpan.addParameter(paramStr);
             }
-        }
 
-        return identificationBuilder;
+            ContextBuffer.save(inputParametersSpan);
+        }
     }
 
     @Override
     public Object afterMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
             Object ret) {
-        recordResultIfNecessary(ret);
+        recordResultAndSave2BufferIfNecessary(ret);
+        new LocalMethodInvokeMonitor().afterInvoke();
         return ret;
     }
 
@@ -56,30 +64,34 @@ public class CustomLocalMethodInterceptor implements InstanceMethodsAroundInterc
 
     @Override
     public void beforeMethod(StaticMethodInvokeContext interceptorContext, MethodInterceptResult result) {
-        Identification.IdentificationBuilder identificationBuilder = buildIdentificationBuilder(interceptorContext);
+        Identification.IdentificationBuilder identificationBuilder = Identification.newBuilder();
         identificationBuilder.spanType(new CustomLocalSpanType()).viewPoint(
                 fullMethodName(interceptorContext.claszz(), interceptorContext.methodName(),
                         interceptorContext.argumentTypes()));
+
         new LocalMethodInvokeMonitor().beforeInvoke(identificationBuilder.build());
+
+        recordParametersAndSave2BufferIfNecessary(interceptorContext.allArguments());
     }
 
     @Override
     public Object afterMethod(StaticMethodInvokeContext interceptorContext, Object ret) {
-        recordResultIfNecessary(ret);
+        recordResultAndSave2BufferIfNecessary(ret);
+        new LocalMethodInvokeMonitor().afterInvoke();
         return ret;
     }
 
-    private void recordResultIfNecessary(Object ret) {
+    private void recordResultAndSave2BufferIfNecessary(Object ret) {
         if (Config.Plugin.CustomLocalMethodInterceptorPlugin.RECORD_PARAM_ENABLE){
+            OutputParameterSpan outputParameterSpan = new OutputParameterSpan(Tracing.getTraceId(), Tracing.getTracelevelId());
             String retStr;
             try{
                 retStr = new Gson().toJson(ret);
             }catch (Throwable e){
                 retStr = "N/A";
             }
-            new LocalMethodInvokeMonitor().afterInvoke(retStr);
-        }else {
-            new LocalMethodInvokeMonitor().afterInvoke();
+            outputParameterSpan.setOutputParameter(retStr);
+            ContextBuffer.save(outputParameterSpan);
         }
     }
 
