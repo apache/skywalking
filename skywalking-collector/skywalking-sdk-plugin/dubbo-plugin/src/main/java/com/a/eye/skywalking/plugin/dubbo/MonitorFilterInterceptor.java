@@ -33,8 +33,8 @@ public class MonitorFilterInterceptor implements InstanceMethodsAroundIntercepto
         boolean isConsumer = rpcContext.isConsumerSide();
         context.set("isConsumer", isConsumer);
         if (isConsumer) {
-            ContextData
-                    contextData =  new RPCClientInvokeMonitor().beforeInvoke(createIdentification(invoker, invocation));
+            ContextData contextData =
+                    new RPCClientInvokeMonitor().beforeInvoke(createIdentification(invoker, invocation, true));
             String contextDataStr = contextData.toString();
 
             //追加参数
@@ -72,7 +72,7 @@ public class MonitorFilterInterceptor implements InstanceMethodsAroundIntercepto
                 contextData = new ContextData(contextDataStr);
             }
 
-            new RPCServerInvokeMonitor().beforeInvoke(contextData, createIdentification(invoker, invocation));
+            new RPCServerInvokeMonitor().beforeInvoke(contextData, createIdentification(invoker, invocation, false));
         }
 
     }
@@ -85,9 +85,9 @@ public class MonitorFilterInterceptor implements InstanceMethodsAroundIntercepto
             dealException(result.getException(), context);
         }
 
-        if (isConsumer(context)){
+        if (isConsumer(context)) {
             new RPCClientInvokeMonitor().afterInvoke();
-        }else{
+        } else {
             new RPCServerInvokeMonitor().afterInvoke();
         }
 
@@ -95,25 +95,31 @@ public class MonitorFilterInterceptor implements InstanceMethodsAroundIntercepto
     }
 
     @Override
-    public void handleMethodException(Throwable t, EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext) {
+    public void handleMethodException(Throwable t, EnhancedClassInstanceContext context,
+            InstanceMethodInvokeContext interceptorContext) {
         dealException(t, context);
     }
 
 
-    private boolean isConsumer(EnhancedClassInstanceContext context){
+    private boolean isConsumer(EnhancedClassInstanceContext context) {
         return (boolean) context.get("isConsumer");
     }
 
     private void dealException(Throwable t, EnhancedClassInstanceContext context) {
         if (isConsumer(context)) {
-           new RPCClientInvokeMonitor().occurException(t);
+            new RPCClientInvokeMonitor().occurException(t);
         } else {
             new RPCServerInvokeMonitor().occurException(t);
         }
     }
 
-    private static Identification createIdentification(Invoker<?> invoker, Invocation invocation) {
+    private static Identification createIdentification(Invoker<?> invoker, Invocation invocation, boolean isConsumer) {
         StringBuilder viewPoint = new StringBuilder();
+        if (isConsumer) {
+            viewPoint.append("comsumer:");
+        } else {
+            viewPoint.append("provider:");
+        }
         viewPoint.append(invoker.getUrl().getProtocol() + "://");
         viewPoint.append(invoker.getUrl().getHost());
         viewPoint.append(":" + invoker.getUrl().getPort());

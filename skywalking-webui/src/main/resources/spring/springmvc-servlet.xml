@@ -12,7 +12,7 @@
     <!-- 添加注解驱动 -->
     <mvc:annotation-driven/>
     <!-- 默认扫描的包路径 -->
-    <context:component-scan base-package="com.ai.cloud.skywalking.web"/>
+    <context:component-scan base-package="com.a.eye.skywalking.web"/>
 
     <mvc:resources mapping="/bower_components/**" location="/bower_components/"/>
 

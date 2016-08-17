@@ -7,7 +7,7 @@ public class HBaseTableMetaData {
      * @author wusheng
      */
     public final static class TABLE_CALL_CHAIN {
-        public static final String TABLE_NAME = "sw-call-chain";
+        public static final String TABLE_NAME = "trace-data";
 
         public static final String  FAMILY_NAME = "call-chain";
     }
