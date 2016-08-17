@@ -31,6 +31,7 @@ public class UserInfoCoordinator extends Thread {
     private boolean isCoordinator = false;
 
     public UserInfoCoordinator() {
+        this.setDaemon(true);
     }
 
     @Override

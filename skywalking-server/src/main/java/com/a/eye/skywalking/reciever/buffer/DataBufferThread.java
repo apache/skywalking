@@ -26,6 +26,7 @@ public class DataBufferThread extends Thread {
 
     public DataBufferThread(int threadIdx) {
         super("DataBufferThread_" + threadIdx);
+        this.setDaemon(true);
     }
 
     @Override

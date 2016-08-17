@@ -61,6 +61,7 @@ public class BufferGroup {
             super("ConsumerWorker");
             this.start = start;
             this.end = end;
+            this.setDaemon(true);
         }
 
         @Override

@@ -24,6 +24,7 @@ public class    PersistenceThread extends Thread {
 
     public PersistenceThread(int trdIndex) {
         super("PersistentThread" + trdIndex);
+        this.setDaemon(true);
     }
 
     @Override

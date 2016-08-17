@@ -19,6 +19,7 @@ class AppendEOFFlagThread extends Thread {
         super("AppendEOFFlagThread");
         this.dataBufferFiles = dataBufferFiles;
         this.countDownLatch = countDownLatch;
+        this.setDaemon(true);
     }
 
     @Override
