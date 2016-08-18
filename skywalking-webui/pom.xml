@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.a.eye</groupId>
     <artifactId>skywalking-webui</artifactId>
-    <version>1.0-Final</version>
+    <version>2.0-2016</version>
     <url>http://maven.apache.org</url>
     <packaging>war</packaging>
 
@@ -37,7 +37,7 @@
         <dependency>
             <groupId>com.a.eye</groupId>
             <artifactId>skywalking-protocol</artifactId>
-            <version>1.0-Final</version>
+            <version>2.0-2016</version>
         </dependency>
 
         <dependency>

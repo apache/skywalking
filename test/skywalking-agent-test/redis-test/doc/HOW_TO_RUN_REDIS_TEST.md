@@ -48,5 +48,5 @@ redis-trib.rb create --replicas 1 127.0.0.1:7000 127.0.0.1:7001 127.0.0.1:7002 1
 启动测试用例时，VM参数中需要添加以下的vm参数。**注意**:测试中的环境参数可能跟随机器变化，所以可能需要进行修改。
 When you start the test case, VM parameters need to add the following parameters vm. **Notice** :The test environment parameters may change following the machine, it may need to be modified.
 ```
--javaagent:${SKYWALKING_AGENT_TEST_PROJECT_PATH}/lib/skywalking-agent-1.0-Final.jar
+-javaagent:${SKYWALKING_AGENT_TEST_PROJECT_PATH}/lib/skywalking-agent-2.0-2016.jar
 ```

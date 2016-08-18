@@ -4,7 +4,7 @@
 
     <groupId>com.a.eye</groupId>
     <artifactId>skywalking-analysis</artifactId>
-    <version>1.0-Final</version>
+    <version>2.0-2016</version>
     <packaging>jar</packaging>
 
     <name>skywalking-analysis</name>
@@ -36,7 +36,7 @@
         <dependency>
             <groupId>com.a.eye</groupId>
             <artifactId>skywalking-protocol</artifactId>
-            <version>1.0-Final</version>
+            <version>2.0-2016</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>

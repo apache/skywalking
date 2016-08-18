@@ -152,4 +152,26 @@ java -jar ...  -javaagent:/..ospath../skywalking-agent-x.x-Final.jar
 * [追踪日志明细存储结构说明. the storage structure of tracking logs](skywalking-server/doc/hbase_table_desc.md)
 
 # RoadMap
-* ref [Roadmap and Release notes](https://github.com/wu-sheng/sky-walking/releases)
+* [Dev] v2.0-2016
+	* 移除对于Hadoop，HBase的依赖，降低部署和运维难度
+	* 使用内嵌式数据库，和分布式集群
+	* 移除副本发送机制
+	* 支持数据文件的时间分片，支持集群TB级别日志文件存储
+	* 支持统计和高效的准实时统计汇总
+	
+* [Release] v1.0-Final
+	- 客户端与服务端间使用扩展后的网络协议，前置的测试版本无法兼容，以提高服务端的稳定性和健壮性。（在内部使用过程中，发生因为安全扫描，导致服务端宕机）
+	- 引入javaagent模式，<b>无需修改任何代码</b>，完成监控。
+	- 所有插件将基于字节码技术实现，原有的配置文件模式将被移除。
+	
+* [Release] v1.0 beta
+	* 修复大量前置版本的BUG
+	* 提供基于MR的分析能力，能够对调用链进行分析汇总，并形成调用链统计视图
+
+* [Release] v1.0 alpha2
+	* 基于v1.0-alpha1的较稳定版本，在内部环境进行数月运行，修复大量影响服务端运行稳定性的问题。
+	* v1.0-beta，将提供定时分析任务，部分分析页面展现功能。
+	* 预计：后续版本将在插件模式上有较大改变，计划针对java api的拦截和第三方拦截提供更小侵入性的方法。配置和拦截模式会发生相应变化。具体模式，参考v1.0-beta发布时的说明。
+
+* [Release] v1.0-alpha1
+	* 第一个较稳定版本，正在进行内部测试，可测试使用。

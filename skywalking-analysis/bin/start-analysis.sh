@@ -97,7 +97,7 @@ END_TIME=`date --date='10 minute ago' "+%Y-%m-%d/%H:%M:%S"`
 ## execute command
 echo "Begin to analysis the buried point data between ${START_TIME} to ${END_TIME}."
 export HADOOP_CLASSPATH=`${HBASE_HOME}/bin/hbase classpath`
-nohup ${HADOOP_HOME}/bin/hadoop jar skywalking-analysis-1.0-Final.jar -Dskywalking.analysis.mode=${SW_ANALYSIS_MODE} ${START_TIME} ${END_TIME} > ${SW_RT_LOG_DIR}/map-reduce.log 2>&1 &
+nohup ${HADOOP_HOME}/bin/hadoop jar skywalking-analysis-2.0-2016.jar -Dskywalking.analysis.mode=${SW_ANALYSIS_MODE} ${START_TIME} ${END_TIME} > ${SW_RT_LOG_DIR}/map-reduce.log 2>&1 &
 
 CURRENT_PID=`echo $!`
 

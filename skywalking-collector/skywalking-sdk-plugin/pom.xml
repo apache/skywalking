@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>com.a.eye</groupId>
 		<artifactId>skywalking-collector</artifactId>
-		<version>1.0-Final</version>
+		<version>2.0-2016</version>
 	</parent>
 
 	<artifactId>skywalking-sdk-plugin</artifactId>
@@ -32,13 +32,13 @@
 		<dependency>
             <groupId>com.a.eye</groupId>
             <artifactId>skywalking-test-api</artifactId>
-            <version>1.0-Final</version>
+            <version>2.0-2016</version>
             <scope>test</scope>
         </dependency>
 		<dependency>
 			<groupId>com.a.eye</groupId>
 			<artifactId>skywalking-api</artifactId>
-			<version>1.0-Final</version>
+			<version>2.0-2016</version>
 		</dependency>
 	</dependencies>
 

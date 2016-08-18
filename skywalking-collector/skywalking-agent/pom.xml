@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.a.eye</groupId>
         <artifactId>skywalking-collector</artifactId>
-        <version>1.0-Final</version>
+        <version>2.0-2016</version>
     </parent>
 
     <artifactId>skywalking-agent</artifactId>
@@ -29,32 +29,32 @@
         <dependency>
             <groupId>com.a.eye</groupId>
             <artifactId>skywalking-jedis-2.x-plugin</artifactId>
-            <version>1.0-Final</version>
+            <version>2.0-2016</version>
         </dependency>
         <dependency>
             <groupId>com.a.eye</groupId>
             <artifactId>skywalking-jdbc-plugin</artifactId>
-            <version>1.0-Final</version>
+            <version>2.0-2016</version>
         </dependency>
         <dependency>
             <groupId>com.a.eye</groupId>
             <artifactId>skywalking-httpClient-4.x-plugin</artifactId>
-            <version>1.0-Final</version>
+            <version>2.0-2016</version>
         </dependency>
         <dependency>
             <groupId>com.a.eye</groupId>
             <artifactId>skywalking-dubbo-plugin</artifactId>
-            <version>1.0-Final</version>
+            <version>2.0-2016</version>
         </dependency>
         <dependency>
             <groupId>com.a.eye</groupId>
             <artifactId>tomcat-7.x-8.x-plugin</artifactId>
-            <version>1.0-Final</version>
+            <version>2.0-2016</version>
         </dependency>
         <dependency>
             <groupId>com.a.eye</groupId>
             <artifactId>custom-local-method-interceptor-plugin</artifactId>
-            <version>1.0-Final</version>
+            <version>2.0-2016</version>
         </dependency>
     </dependencies>
     <build>

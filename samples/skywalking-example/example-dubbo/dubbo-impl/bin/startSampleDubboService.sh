@@ -23,4 +23,4 @@ done
 
 echo "CLASSPATH=$CLASSPATH"
 
-$JAVA -javaagent:${SAMPLE_DUBBO_BIN_PATH}/../agent/skywalking-agent-1.0-Final.jar -classpath $CLASSPATH com.ai.cloud.skywalking.sample.util.DubboStart
+$JAVA -javaagent:${SAMPLE_DUBBO_BIN_PATH}/../agent/skywalking-agent-2.0-2016.jar -classpath $CLASSPATH com.ai.cloud.skywalking.sample.util.DubboStart

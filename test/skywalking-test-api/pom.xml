@@ -6,7 +6,7 @@
     	<relativePath>../../pom.xml</relativePath>
         <groupId>com.a.eye</groupId>
         <artifactId>skywalking</artifactId>
-        <version>1.0-Final</version>
+        <version>2.0-2016</version>
     </parent>
 
     <artifactId>skywalking-test-api</artifactId>

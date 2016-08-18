@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>com.a.eye</groupId>
 		<artifactId>skywalking-sdk-plugin</artifactId>
-		<version>1.0-Final</version>
+		<version>2.0-2016</version>
 	</parent>
 	
 	<artifactId>skywalking-httpClient-4.x-plugin</artifactId>
@@ -23,7 +23,7 @@
 		<dependency>
 			<groupId>com.a.eye</groupId>
 			<artifactId>skywalking-api</artifactId>
-			<version>1.0-Final</version>
+			<version>2.0-2016</version>
 		</dependency>
 		
 

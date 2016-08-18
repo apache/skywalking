@@ -13,11 +13,11 @@ $mvn clean install -Dmaven.test.skip=true
 ```
 
 - 从各工程目录中获取安装包
-	- SkyWalking Agent: github/sky-walking/skywalking-collector/skywalking-agent/target/skywalking-agent-1.0-Final.jar
+	- SkyWalking Agent: github/sky-walking/skywalking-collector/skywalking-agent/target/skywalking-agent-2.0-2016.jar
 	- SkyWalking Server: github/sky-walking/skywalking-server/target/installer
 	- SkyWalking Alarm:  github/sky-walking/skywalking-alarm/target/installer
 	- SkyWalking WebUI: github/sky-walking/skywalking-webui/skywalking.war
-	- SkyWalking Analysis: github/sky-walking/skywalking-analysis/skywalking-analysis-1.0-Final.jar
-		- 上传skywalking-analysis-1.0-Final.jar. Upload the skywalking-analysis-1.0-Final.jar
+	- SkyWalking Analysis: github/sky-walking/skywalking-analysis/skywalking-analysis-2.0-2016.jar
+		- 上传skywalking-analysis-2.0-2016.jar. Upload the skywalking-analysis-2.0-2016.jar
 		- 上传start-analysis.sh到同一目录. Upload the start-analysis.sh to the same directory
 		- 为start-analysis.sh创建crontable定时任务，30分钟执行一次。create crontable for shell, set cycle=30min.
