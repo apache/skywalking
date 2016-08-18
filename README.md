@@ -112,7 +112,8 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 ## 下载官方的agent / Download offical agent
 [ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/com.ai.cloud.skywalking-agent/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/com.ai.cloud.skywalking-agent/_latestVersion)
 
-- 官方agent通过[skywalking bintray官网](https://bintray.com/wu-sheng/skywalking/)托管，可使用公网仓库[https://jcenter.bintray.com/](https://jcenter.bintray.com/)下载。
+- 通过github-release[下载](https://github.com/wu-sheng/sky-walking/releases)
+- 通过[skywalking bintray官网](https://bintray.com/wu-sheng/skywalking/)托管，可使用公网仓库[https://jcenter.bintray.com/](https://jcenter.bintray.com/)下载。
 - use public repository  [https://jcenter.bintray.com/](https://jcenter.bintray.com/) to download sdk
 
 
