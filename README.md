@@ -139,7 +139,7 @@ java -jar ...  -javaagent:/..ospath../skywalking-agent-x.x-Final.jar
 - Tomcat可以使用修改启动文件，配置-javaagent参数
 
 # 在应用程序中显示traceid / How to find tid
-- [Find TID](HOW_TO_FIND_TID.md)
+- 通过web应用的http调用入口，通过返回的header信息，找到此次调用的traceid。前提：此web应用的url，已经使用skywalking进行监控。
 
 # QA
 - [SkyWalking SDK是否已经工作？ Is SkyWalking SDK Running?](QA/IS_RUNNING.md)
