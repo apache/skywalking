@@ -18,6 +18,7 @@ public class SDKHealthCollector extends Thread {
 
 	private SDKHealthCollector() {
 		super("HealthCollector");
+		this.setDaemon(true);
 	}
 
 	public static void init() {

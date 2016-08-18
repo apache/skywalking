@@ -102,6 +102,7 @@ public class DataSenderFactoryWithBalance {
     public static class DataSenderChecker extends Thread {
         public DataSenderChecker() {
             super("Data-Sender-Checker");
+            this.setDaemon(true);
         }
 
         @Override

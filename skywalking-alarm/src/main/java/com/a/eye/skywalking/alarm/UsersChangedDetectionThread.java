@@ -19,6 +19,10 @@ public class UsersChangedDetectionThread extends Thread {
     private String userIdsEncryptedStr;
     private Logger logger = LogManager.getLogger(UsersChangedDetectionThread.class);
 
+    public UsersChangedDetectionThread() {
+        this.setDaemon(true);
+    }
+
     public void run() {
         while (true) {
             try {

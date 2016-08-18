@@ -37,6 +37,7 @@ public class AlarmMessageProcessThread extends Thread {
     public AlarmMessageProcessThread() {
         // 初始化生成ThreadId
         threadId = UUID.randomUUID().toString();
+        this.setDaemon(true);
     }
 
     @Override

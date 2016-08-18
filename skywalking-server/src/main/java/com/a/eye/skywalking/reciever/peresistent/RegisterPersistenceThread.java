@@ -30,6 +30,7 @@ public class RegisterPersistenceThread extends Thread {
                 Config.RegisterPersistence.REGISTER_FILE_PARENT_DIRECTORY, Config.RegisterPersistence.REGISTER_FILE_NAME);
         bakOffsetFile = new File(
                 Config.RegisterPersistence.REGISTER_FILE_PARENT_DIRECTORY, Config.RegisterPersistence.REGISTER_BAK_FILE_NAME);
+        this.setDaemon(true);
     }
 
     @Override

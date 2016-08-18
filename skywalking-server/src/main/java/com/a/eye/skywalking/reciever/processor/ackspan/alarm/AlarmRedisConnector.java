@@ -57,6 +57,7 @@ public class AlarmRedisConnector {
                     Config.Alarm.ALARM_OFF_FLAG = true;
                 }
             }
+            this.setDaemon(true);
         }
 
         private RedisInspector connect() {
