@@ -243,6 +243,10 @@ INSERT INTO `auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_des
 INSERT INTO `auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_desc`, `sts`) VALUES ('14', 'buffer.pool_size', '5', '5', 'Buffer池的最大长度', 'A');
 INSERT INTO `auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_desc`, `sts`) VALUES ('15', 'senderchecker.check_polling_time', '200', '200', '发送检查线程检查周期', 'A');
 INSERT INTO `auth_file_config` (`config_id`, `key`, `value0`, `value1`, `key_desc`, `sts`) VALUES ('16', 'skywalking.charset', 'UTF-8', 'UTF-8', 'skywalking数据编码', 'A');
+INSERT INTO `auth_file_config` (`config_id`,`key`,`value0`,`value1`,`value2`,`value3`,`value4`,`key_desc`,`sts`) VALUES ('17','plugin.customlocalmethodinterceptorplugin.is_enable','false','false',NULL,NULL,NULL,'自定义本地方法插件是否开启','A');
+INSERT INTO `auth_file_config` (`config_id`,`key`,`value0`,`value1`,`value2`,`value3`,`value4`,`key_desc`,`sts`) VALUES ('18','plugin.customlocalmethodinterceptorplugin.package_prefix','','',NULL,NULL,NULL,'自定义插件拦截的包前缀','A');
+INSERT INTO `auth_file_config` (`config_id`,`key`,`value0`,`value1`,`value2`,`value3`,`value4`,`key_desc`,`sts`) VALUES ('19','plugin.customlocalmethodinterceptorplugin.record_param_enable','false','false',NULL,NULL,NULL,'自定义插件是否记录入参',NULL);
+
 
 # alter table since 2016-4-8
 ALTER TABLE `application_info` 
