@@ -11,12 +11,12 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 # 简介 / abstract
 * 核心理论为[Google Dapper论文：Dapper, a Large-Scale Distributed Systems Tracing Infrastructure](http://research.google.com/pubs/pub36356.html),英语有困难的同学可参考[国内翻译](http://duanple.blog.163.com/blog/static/70971767201329113141336/)
 * 本分析系统能通过动态字节码技术，对现有的JAVA应用或J2EE应用进行监控和数据收集，并针对应用进场进行准实时告警。此外提供大量的调用性能分析功能，解决目前的监控系统主要监控进程、端口而非应用实际性能的问题。
-* 支持国内常用的dubbo以及dubbox等常见RPC框架，支持应用异常的邮件告警
+* 支持国内常用的dubbo、dubbox、motan、httpclient等常见RPC框架，支持应用异常的邮件告警
 * skywalking-sdk层面提供的埋点API，同步阻塞访问时间小于100μs
 * 通过[byte-buddy](https://github.com/raphw/byte-buddy)，插件将通过动态字节码机制，避免代码侵入性，完成监控。动态代码模式埋点，同步阻塞访问时间应在200-300μs
 * 提供一定的日志数据分析和展现能力，减少或者避免使用团队的二次开发
 * SkyWalking is an open source Large-Scale Distributed Systems Tracing Infrastructure, also been known as APM(Application Performance Management) tool. SkyWalking provides a solution to help monitor and analysis a Large-Scale Distributed Systems.
-* SkyWalking supports popular rpc frameworks, such as [dubbo](https://github.com/alibaba/dubbo), [dubbox](https://github.com/dangdangdotcom/dubbox), etc., supports email-alert when application occurs unexpected exception。
+* SkyWalking supports popular rpc frameworks, such as [dubbo](https://github.com/alibaba/dubbo), [dubbox](https://github.com/dangdangdotcom/dubbox), [motan](https://github.com/weibocom/motan) etc., supports email-alert when application occurs unexpected exception。
 * SkyWalking's basic API, execution time of blocking saving span must less than 100μs.
 * By using [byte-buddy](https://github.com/raphw/byte-buddy) (Thanks to [raphw](https://github.com/raphw)), plugins use dynamic byte code generation to avoid invasive codes. plugins API, execution time of blocking saving span must between 200μs and 300μs, including execution time of dynamic byte code.
 * Provide trace log analysis and presentation capabilities, Reduce or avoid add-on functions development.
@@ -34,6 +34,7 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
   * dubbo (tested 2.5.3)
   * dubbox (tested 2.8.4-dubbo protocol, 2.8.4-rest protocol)
   * httpClient 4.x
+  * motan (tested 0.1.2)
 * cache
   * jedix 2.x
 * java local method
@@ -158,11 +159,13 @@ java -jar ...  -javaagent:/..ospath../skywalking-agent-x.x-Final.jar
 	* 移除副本发送机制
 	* 支持数据文件的时间分片，支持集群TB级别日志文件存储
 	* 支持统计和高效的准实时统计汇总
+	* 更多插件的支持
+		* motan rpc framework (provided)
 	
 * [Release] v1.0-Final
-	- 客户端与服务端间使用扩展后的网络协议，前置的测试版本无法兼容，以提高服务端的稳定性和健壮性。（在内部使用过程中，发生因为安全扫描，导致服务端宕机）
-	- 引入javaagent模式，<b>无需修改任何代码</b>，完成监控。
-	- 所有插件将基于字节码技术实现，原有的配置文件模式将被移除。
+	* 客户端与服务端间使用扩展后的网络协议，前置的测试版本无法兼容，以提高服务端的稳定性和健壮性。（在内部使用过程中，发生因为安全扫描，导致服务端宕机）
+	* 引入javaagent模式，<b>无需修改任何代码</b>，完成监控。
+	* 所有插件将基于字节码技术实现，原有的配置文件模式将被移除。
 	
 * [Release] v1.0 beta
 	* 修复大量前置版本的BUG
