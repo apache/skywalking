@@ -17,7 +17,8 @@
 		<module>jedis-2.x-plugin</module>
 		<module>tomcat-7.x-8.x-plugin</module>
 		<module>custom-local-method-interceptor-plugin</module>
-	</modules>
+        <module>motan-plugin</module>
+    </modules>
 	<packaging>pom</packaging>
 
 	<name>skywalking-sdk-plugin</name>
