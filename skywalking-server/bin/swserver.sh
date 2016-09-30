@@ -49,4 +49,4 @@ echo "CLASSPATH=$CLASSPATH"
 JAVA_OPTS="$JAVA_OPTS -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false"
 
 $JAVA ${JAVA_OPTS} -classpath $CLASSPATH com.a.eye.skywalking.reciever.CollectionServer >> ${SW_SERVER_BIN_DIR}/.
-./log/sw-server.log & 2>&1&
+./log/sw-server.log 2>&1 &
