@@ -61,7 +61,7 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 <br/>
 
 # 整体架构图
-![整体架构图](http://wu-sheng.github.io/sky-walking/sample-code/images/skywalkingClusterDeploy.jpeg)
+![2.0 架构图](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/2.0-2016/SkyWalkingArch.jpg)
 
 # 典型页面展现 / Typical UI show
 * 支持浏览器：Firefox/Chrome
