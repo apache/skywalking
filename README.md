@@ -150,9 +150,8 @@ java -jar ...  -javaagent:/..ospath../skywalking-agent-x.x-Final.jar
 
 # 源代码说明
 * [网络传输协议、缓存文件协议说明. the protocols of transform between agent and collector, collector buffer file](doc/protocol.md)
-* [追踪日志明细存储结构说明. the storage structure of tracking logs](skywalking-server/doc/hbase_table_desc.md)
 
-# RoadMap
+# Recent RoadMap
 * [Dev] v2.0-2016
 	* 移除对于Hadoop，HBase的依赖，降低部署和运维难度
 	* 使用内嵌式数据库，和分布式集群
@@ -176,5 +175,4 @@ java -jar ...  -javaagent:/..ospath../skywalking-agent-x.x-Final.jar
 	* v1.0-beta，将提供定时分析任务，部分分析页面展现功能。
 	* 预计：后续版本将在插件模式上有较大改变，计划针对java api的拦截和第三方拦截提供更小侵入性的方法。配置和拦截模式会发生相应变化。具体模式，参考v1.0-beta发布时的说明。
 
-* [Release] v1.0-alpha1
-	* 第一个较稳定版本，正在进行内部测试，可测试使用。
+ [More...](https://github.com/wu-sheng/sky-walking/releases)
