@@ -88,14 +88,12 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 * 分析典型调用链展现
 ![应用列表展现](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/1.0b/typicalAnalysisResult.png)
 
-# Quick Start
+# v2.0-2016 Quick Start
 
 ## 部署第三方软件 / Required of third party softwares
 - JDK 1.7
 - zookeeper 3.4.6
-- apache hbase 1.1.2
 - mysql
-- tomcat 7
 - redis-3.0.5
 
 ## 插件支持的JDK / Supported jdk version
