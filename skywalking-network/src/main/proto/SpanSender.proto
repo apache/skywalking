@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.a.eye.skywalking.network.grpc";
+
+import "Spans.proto";
+
+service SpanSender {
+    rpc send (stream SendingSpans) returns (SendResult) {
+    };
+}
+
+
+message SendResult {
+    // 0 成功  1 失败
+    int32 result = 1;
+}
+
+message SendingSpans {
+    repeated AckSpan ackSpans = 1;
+    repeated RequestSpan requestSpans = 2;
+    repeated InputParametersSpan inputParamSpans = 3;
+    repeated OutputParametersSpan outputParamSpans = 4;
+}
+

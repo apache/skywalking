@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.a.eye.skywalking.network.grpc";
+
+message AckSpan {
+    string traceId = 1;
+    string parentLevel = 2;
+    int32 levelId = 3;
+    int64 cost = 4;
+    int32 statusCode = 5;
+    string exceptionStack = 6;
+    string viewpointId = 7;
+}
+
+message RequestSpan {
+    string traceId = 1;
+    string parentLevel = 2;
+    int32 levelId = 3;
+    string viewPointId = 4;
+    int64 startDate = 5;
+    string spanTypeDesc = 6;
+    string callType = 7;
+    uint32 spanType = 8;
+    string applicationId = 9;
+    string userId = 10;
+    string bussinessKey = 11;
+    string agentId = 12;
+    string processNo = 13;
+    string address = 14;
+}
+
+message InputParametersSpan {
+    string traceId = 1;
+    string traceLevelId = 2;
+    map<string, string> parameters = 3;
+}
+
+message OutputParametersSpan {
+    string traceId = 1;
+    string traceLevelId = 2;
+    string outputParameter = 3;
+}
