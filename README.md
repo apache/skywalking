@@ -140,6 +140,9 @@ java -jar ...  -javaagent:/..ospath../skywalking-agent-x.x-Final.jar
 # 在应用程序中显示traceid / How to find tid
 - 通过web应用的http调用入口，通过返回的header信息，找到此次调用的traceid。前提：此web应用的url，已经使用skywalking进行监控。
 
+# Development Documents
+- [Development Guide of Plugin](https://github.com/wu-sheng/sky-walking/wiki/Development-Guide-of-Plugin)
+
 # QA
 - [SkyWalking SDK是否已经工作？ Is SkyWalking SDK Running?](QA/IS_RUNNING.md)
 - [tid在web-ui上无法查询. tid can't be search on web-ui](QA/TID_CANNOT_BE_SEARCH.md)
