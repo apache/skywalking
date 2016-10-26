@@ -45,6 +45,18 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 * 吴晟 [wusheng](https://github.com/wu-sheng) &nbsp;&nbsp;wu.sheng@foxmail.com
 * 张鑫 [zhangxin](https://github.com/ascrutae) &nbsp;&nbsp;
 
+
+___
+
+<a href="https://github.com/wu-sheng/sky-walking">
+<img src="http://wu-sheng.github.io/sky-walking/sample-code/award/oneapm-award.png" alt="OneAPM Open Source Achievement Award" height="110px" align="left" />
+</a>
+
+In October 2016, Sky Walking won `OneAPM Open Source Achievement Award`. The award appreciates sky walking for its "*contribution to popularization of APM technology*". <br/>
+OneAPM will provide financial support for the project 2016-2017.<br/><br/> 
+Thanks all users of sky walking project.
+___
+
 # 交流
 <img src="http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/chatapp/toutiao.JPG" alt="Sky Walking TouTiao" height="280px" align="left" />
 * Mail to：wu.sheng@foxmail.com
