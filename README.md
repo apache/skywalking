@@ -14,11 +14,13 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 * 支持国内常用的dubbo、dubbox、motan、httpclient等常见RPC框架，支持应用异常的邮件告警
 * skywalking-sdk层面提供的埋点API，同步阻塞访问时间小于100μs
 * 通过[byte-buddy](https://github.com/raphw/byte-buddy)，插件将通过动态字节码机制，避免代码侵入性，完成监控。动态代码模式埋点，同步阻塞访问时间应在200-300μs
+* 通过[DataCarrier](https://github.com/wu-sheng/DataCarrier)，提供高效的并行处理能力
 * 提供一定的日志数据分析和展现能力，减少或者避免使用团队的二次开发
 * SkyWalking is an open source Large-Scale Distributed Systems Tracing Infrastructure, also been known as APM(Application Performance Management) tool. SkyWalking provides a solution to help monitor and analysis a Large-Scale Distributed Systems.
 * SkyWalking supports popular rpc frameworks, such as [dubbo](https://github.com/alibaba/dubbo), [dubbox](https://github.com/dangdangdotcom/dubbox), [motan](https://github.com/weibocom/motan) etc., supports email-alert when application occurs unexpected exception。
 * SkyWalking's basic API, execution time of blocking saving span must less than 100μs.
 * By using [byte-buddy](https://github.com/raphw/byte-buddy) (Thanks to [raphw](https://github.com/raphw)), plugins use dynamic byte code generation to avoid invasive codes. plugins API, execution time of blocking saving span must between 200μs and 300μs, including execution time of dynamic byte code.
+* By using [DataCarrier](https://github.com/wu-sheng/DataCarrier), provide parallel high-throughput processing capability.
 * Provide trace log analysis and presentation capabilities, Reduce or avoid add-on functions development.
 
 # Supported components
@@ -44,6 +46,18 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 # 主要贡献者 / Contributors
 * 吴晟 [wusheng](https://github.com/wu-sheng) &nbsp;&nbsp;wu.sheng@foxmail.com
 * 张鑫 [zhangxin](https://github.com/ascrutae) &nbsp;&nbsp;
+
+
+___
+
+<a href="https://github.com/wu-sheng/sky-walking">
+<img src="http://wu-sheng.github.io/sky-walking/sample-code/award/oneapm-award.png" alt="OneAPM Open Source Achievement Award" height="110px" align="left" />
+</a>
+
+In October 2016, Sky Walking won `OneAPM Open Source Achievement Award`. The award appreciates sky walking for its "*contribution to popularization of APM technology*". <br/>
+[OneAPM](http://www.oneapm.com/) will provide financial support for the project in 2016-2017.<br/><br/> 
+Thanks all users of sky walking project.
+___
 
 # 交流
 <img src="http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/chatapp/toutiao.JPG" alt="Sky Walking TouTiao" height="280px" align="left" />
@@ -139,6 +153,9 @@ java -jar ...  -javaagent:/..ospath../skywalking-agent-x.x-Final.jar
 
 # 在应用程序中显示traceid / How to find tid
 - 通过web应用的http调用入口，通过返回的header信息，找到此次调用的traceid。前提：此web应用的url，已经使用skywalking进行监控。
+
+# Development Documents
+- [Development Guide of Plugin](https://github.com/wu-sheng/sky-walking/wiki/Development-Guide-of-Plugin)
 
 # QA
 - [SkyWalking SDK是否已经工作？ Is SkyWalking SDK Running?](QA/IS_RUNNING.md)
