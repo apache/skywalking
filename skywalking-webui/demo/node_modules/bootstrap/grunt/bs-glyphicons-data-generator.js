@@ -11,7 +11,7 @@ var fs = require('fs');
 
 module.exports = function generateGlyphiconsData(grunt) {
   // Pass encoding, utf8, so `readFileSync` will return a string instead of a
-  // buffer
+  // data
   var glyphiconsFile = fs.readFileSync('less/glyphicons.less', 'utf8');
   var glyphiconsLines = glyphiconsFile.split('\n');
 

@@ -9,12 +9,12 @@
 	<modules>
 		<module>samples/skywalking-auth</module>
 		<module>samples/skywalking-example</module>
-		<module>skywalking-collector</module>
-		<module>skywalking-server</module>
 		<module>skywalking-alarm</module>
-		<module>skywalking-analysis</module>
 		<module>skywalking-webui</module>
 		<module>test/skywalking-test-api</module>
+        <module>skywalking-sniffer</module>
+		<module>skywalking-storage-center</module>
+		<module>skywalking-sniffer</module>
 	</modules>
 	<packaging>pom</packaging>
 

@@ -54,7 +54,7 @@ public class ContextPoolOperator {
             Field field = fetchBufferPoolObject(bufferPoolClass);
             return (Object[]) field.get(bufferPoolClass);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to acquire buffer group object array", e);
+            throw new RuntimeException("Failed to acquire data group object array", e);
         }
     }
 

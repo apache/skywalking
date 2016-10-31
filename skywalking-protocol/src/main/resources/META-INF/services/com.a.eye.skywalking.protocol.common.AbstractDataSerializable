@@ -1,5 +1,0 @@
-com.a.eye.skywalking.protocol.AckSpan
-com.a.eye.skywalking.protocol.RequestSpan
-com.a.eye.skywalking.protocol.InputParametersSpan
-com.a.eye.skywalking.protocol.OutputParameterSpan
-com.a.eye.skywalking.protocol.BufferFileEOFProtocol
