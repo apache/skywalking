@@ -1,4 +1,4 @@
-package com.a.eye.skywalking.storage.index;
+package com.a.eye.skywalking.storage.block.index;
 
 import java.util.List;
 import java.util.TreeSet;
@@ -6,12 +6,15 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class IndexL2Cache {
+/**
+ * 块索引的二级缓存
+ */
+public class L2Cache {
 
     private TreeSet<Long> cacheData  = new TreeSet<Long>();
     private ReadWriteLock updateLock = new ReentrantReadWriteLock();
 
-    void initData(List<Long> data) {
+    void init(List<Long> data) {
         this.cacheData.addAll(cacheData);
     }
 
@@ -25,7 +28,7 @@ public class IndexL2Cache {
         }
     }
 
-    public void update(long timestamp) {
+    public void add2Rebuild(long timestamp) {
         TreeSet<Long> newCacheData = new TreeSet<>(cacheData);
         newCacheData.add(timestamp);
         Lock lock = updateLock.writeLock();

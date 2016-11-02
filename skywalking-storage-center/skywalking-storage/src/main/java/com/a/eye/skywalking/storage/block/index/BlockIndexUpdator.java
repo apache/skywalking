@@ -1,6 +1,6 @@
-package com.a.eye.skywalking.storage.index;
+package com.a.eye.skywalking.storage.block.index;
 
-import com.a.eye.skywalking.storage.index.exception.DataFileIndexSaveFailedException;
+import com.a.eye.skywalking.storage.block.index.exception.BlockIndexPersistenceFailedException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -12,13 +12,13 @@ import java.util.List;
 import static com.a.eye.skywalking.storage.config.Config.DataFileIndex.DATA_FILE_INDEX_FILE_NAME;
 import static com.a.eye.skywalking.storage.config.Config.DataFileIndex.STORAGE_BASE_PATH;
 
-public class DataFileIndexUpdator {
+public class BlockIndexUpdator {
 
-    private static Logger logger = LogManager.getLogger(DataFileIndexUpdator.class);
-    private IndexL1Cache l1Cache;
-    private IndexL2Cache l2Cache;
+    private static Logger logger = LogManager.getLogger(BlockIndexUpdator.class);
+    private L1Cache l1Cache;
+    private L2Cache l2Cache;
 
-    public DataFileIndexUpdator(IndexL1Cache l1Cache, IndexL2Cache l2Cache) {
+    public BlockIndexUpdator(L1Cache l1Cache, L2Cache l2Cache) {
         this.l1Cache = l1Cache;
         this.l2Cache = l2Cache;
     }
@@ -34,12 +34,12 @@ public class DataFileIndexUpdator {
     }
 
     private void updateCache(long timestamp) {
-        l1Cache.update(timestamp);
-        l2Cache.update(timestamp);
+        l1Cache.add2Rebuild(timestamp);
+        l2Cache.add2Rebuild(timestamp);
     }
 
 
-    private void updateFile(long timestamp) throws DataFileIndexSaveFailedException {
+    private void updateFile(long timestamp) throws BlockIndexPersistenceFailedException {
         BufferedWriter writer = null;
         try {
             writer = new BufferedWriter(new FileWriter(new File(STORAGE_BASE_PATH, DATA_FILE_INDEX_FILE_NAME)));
@@ -47,7 +47,7 @@ public class DataFileIndexUpdator {
             writer.newLine();
             writer.close();
         } catch (IOException e) {
-            throw new DataFileIndexSaveFailedException("Failed to save index[" + timestamp + "]", e);
+            throw new BlockIndexPersistenceFailedException("Failed to save index[" + timestamp + "]", e);
         } finally {
             if (writer != null) {
                 try {
@@ -83,7 +83,7 @@ public class DataFileIndexUpdator {
         }
 
         Collections.reverse(indexData);
-        l1Cache.initData(indexData);
-        l2Cache.initData(indexData);
+        l1Cache.init(indexData);
+        l2Cache.init(indexData);
     }
 }

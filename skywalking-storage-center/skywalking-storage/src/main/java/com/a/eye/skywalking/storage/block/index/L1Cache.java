@@ -1,4 +1,4 @@
-package com.a.eye.skywalking.storage.index;
+package com.a.eye.skywalking.storage.block.index;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -10,16 +10,18 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
+ * 块索引的一级缓存
+ *
  * Created by xin on 2016/11/2.
  */
-public class IndexL1Cache {
+public class L1Cache {
 
     private static final int           MAX_DATA_KEEP_SIZE = 30;
-    private static       Logger        logger             = LogManager.getLogger(IndexL1Cache.class);
+    private static       Logger        logger             = LogManager.getLogger(L1Cache.class);
     private              TreeSet<Long> cacheData          = new TreeSet<Long>();
     private final        ReadWriteLock updateLock         = new ReentrantReadWriteLock();
 
-    void initData(List<Long> data) {
+    void init(List<Long> data) {
         for (int i = 0; i < MAX_DATA_KEEP_SIZE; i++) {
             this.cacheData.add(data.get(i));
         }
@@ -35,7 +37,7 @@ public class IndexL1Cache {
         }
     }
 
-    public void update(long timestamp) {
+    public void add2Rebuild(long timestamp) {
         TreeSet<Long> newCacheData = new TreeSet<>(cacheData);
         newCacheData.add(timestamp);
 

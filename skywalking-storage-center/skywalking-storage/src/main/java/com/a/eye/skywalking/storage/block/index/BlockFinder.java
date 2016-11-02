@@ -1,14 +1,14 @@
-package com.a.eye.skywalking.storage.index;
+package com.a.eye.skywalking.storage.block.index;
 
 /**
  * Created by xin on 2016/11/2.
  */
-public class DataFileFinder {
+public class BlockFinder {
 
-    private IndexL1Cache l1Cache;
-    private IndexL2Cache l2Cache;
+    private L1Cache l1Cache;
+    private L2Cache l2Cache;
 
-    public DataFileFinder(IndexL1Cache l1Cache, IndexL2Cache l2Cache) {
+    public BlockFinder(L1Cache l1Cache, L2Cache l2Cache) {
         this.l1Cache = l1Cache;
         this.l2Cache = l2Cache;
     }
