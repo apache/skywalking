@@ -1,28 +1,24 @@
 package com.a.eye.skywalking.storage.index;
 
-import com.a.eye.skywalking.storage.index.cache.DataFileIndexCache;
 
-/**
- * 用于初始化DataFileIndex的数据，并且提供操作Index的所有类
- */
 public class DataFileIndexEngine {
 
-    private static final DataFileIndexCache indexCache;
+    private static IndexL1Cache l1Cache;
+    private static IndexL2Cache l2Cache;
 
-    static {
 
-        indexCache = new DataFileIndexCache();
+    public static void start(){
+        l1Cache = new IndexL1Cache();
+        l2Cache = new IndexL2Cache();
+        newUpdator().init();
     }
 
-    private DataFileIndexEngine() {
-        //DO Nothing
+    public static DataFileFinder newFinder() {
+        return new DataFileFinder(l1Cache, l2Cache);
     }
 
-    public static DataFileIndexFinder newFinder() {
-        return indexCache;
-    }
 
     public static DataFileIndexUpdator newUpdator() {
-        return indexCache;
+        return new DataFileIndexUpdator(l1Cache, l2Cache);
     }
 }
