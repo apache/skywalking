@@ -6,21 +6,21 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class IndexOperatorCache {
+public class IndexDBConnectorCache {
 
     private static final int MAX_CACHE_SIZE = 5;
 
-    private LRUCache<Long, IndexOperator> cachedOperators;
+    private LRUCache<Long, IndexDBConnector> cachedOperators;
 
-    public IndexOperatorCache() {
-        cachedOperators = new LRUCache<Long, IndexOperator>(MAX_CACHE_SIZE);
+    public IndexDBConnectorCache() {
+        cachedOperators = new LRUCache<Long, IndexDBConnector>(MAX_CACHE_SIZE);
     }
 
-    public IndexOperator get(long timestamp) {
+    public IndexDBConnector get(long timestamp) {
         return cachedOperators.get(timestamp);
     }
 
-    public void updateCache(long timestamp, IndexOperator operator) {
+    public void updateCache(long timestamp, IndexDBConnector operator) {
         cachedOperators.put(timestamp, operator);
     }
 

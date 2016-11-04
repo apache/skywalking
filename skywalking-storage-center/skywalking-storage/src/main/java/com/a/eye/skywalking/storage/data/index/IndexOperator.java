@@ -1,18 +1,16 @@
 package com.a.eye.skywalking.storage.data.index;
 
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.a.eye.skywalking.storage.config.Config.DataIndex.TABLE_NAME;
-
 public class IndexOperator {
 
-    private Connection connection;
-    private long       timestamp;
+    private IndexDBConnector connector;
+    private long             timestamp;
 
-    private IndexOperator(long timestamp) {
-
+    private IndexOperator(IndexDBConnector connector) {
+        this.connector = connector;
+        timestamp = connector.getTimestamp();
     }
 
     public List<IndexMetaInfo> find(String taceId) {
@@ -24,31 +22,16 @@ public class IndexOperator {
 
     }
 
-    private Connection getConnection() {
-        return connection;
+    private IndexDBConnector getConnector() {
+        return connector;
     }
 
-    public static class Builder {
-        private IndexOperator       operator;
-        private IndexOperatorHelper indexOperatorHelper;
 
-        private Builder(long timestamp) {
-            operator = new IndexOperator(timestamp);
-            indexOperatorHelper = new IndexOperatorHelper(operator.getConnection());
-        }
-
-        public static Builder newBuilder(long timestamp) {
-            return new Builder(timestamp);
-        }
-
-        public IndexOperator build() {
-            if (indexOperatorHelper.validateIsReady(TABLE_NAME)) {
-                indexOperatorHelper.maintain();
-            }
-
-            return operator;
-        }
-
+    public static IndexOperator newOperator(long timestamp) {
+        return newOperator(new IndexDBConnector(timestamp));
     }
 
+    public static IndexOperator newOperator(IndexDBConnector indexDBConnector) {
+        return new IndexOperator(indexDBConnector);
+    }
 }

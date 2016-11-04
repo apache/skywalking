@@ -1,30 +1,28 @@
 package com.a.eye.skywalking.storage.data;
 
 import com.a.eye.datacarrier.consumer.IConsumer;
-import com.a.eye.skywalking.storage.block.index.BlockIndexEngine;
 import com.a.eye.skywalking.storage.data.file.DataFileWriter;
-import com.a.eye.skywalking.storage.data.index.IndexMetaInfo;
+import com.a.eye.skywalking.storage.data.index.IndexMetaGroup;
 import com.a.eye.skywalking.storage.data.index.IndexOperator;
-import com.a.eye.skywalking.storage.data.index.IndexOperatorCache;
+import com.a.eye.skywalking.storage.data.index.IndexDBConnectorCache;
 
+import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 public class SpanDataConsumer implements IConsumer<SpanData> {
 
-    private IndexOperatorCache cache;
-    private DataFileWriter     fileWriter;
+    private IndexDBConnectorCache cache;
+    private DataFileWriter        fileWriter;
 
     @Override
     public void consume(List<SpanData> data) {
-        List<IndexMetaInfo> indexMetaInfo = fileWriter.write(data);
 
-        Map<Long, List<IndexMetaInfo>> categorizedMetaInfo =
-                IndexMetaInfoCategory.categorizeByDataIndexTime(indexMetaInfo, BlockIndexEngine.newFinder());
+        Iterator<IndexMetaGroup> iterator = fileWriter.write(data).group().iterator();
 
-        for (Map.Entry<Long, List<IndexMetaInfo>> indexEntry : categorizedMetaInfo.entrySet()) {
-            IndexOperator indexOperator = cache.get(indexEntry.getKey());
-            indexOperator.update(indexEntry.getValue());
+        while (iterator.hasNext()) {
+            IndexMetaGroup metaGroup = iterator.next();
+            IndexOperator indexOperator = IndexOperator.newOperator(cache.get(metaGroup.getTimestamp()));
+            indexOperator.update(metaGroup.getMetaInfo());
         }
 
     }
