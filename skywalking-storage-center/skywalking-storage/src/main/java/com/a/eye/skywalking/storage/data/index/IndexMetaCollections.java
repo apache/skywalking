@@ -5,6 +5,7 @@ import com.a.eye.skywalking.storage.block.index.BlockFinder;
 import com.a.eye.skywalking.storage.block.index.BlockIndexEngine;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class IndexMetaCollections {
@@ -12,7 +13,7 @@ public class IndexMetaCollections {
     private List<IndexMetaInfo> metaInfo;
     private BlockFinder finder = BlockIndexEngine.newFinder();
 
-    public List<IndexMetaGroup> group() {
+    public Iterator<IndexMetaGroup> group() {
         List<IndexMetaGroup> indexMetaGroups = new ArrayList<IndexMetaGroup>();
         for (IndexMetaInfo info : metaInfo) {
             long timestamp = finder.find(info.getStartTime());
@@ -30,7 +31,7 @@ public class IndexMetaCollections {
             metaGroup.addIndexMetaInfo(info);
         }
 
-        return indexMetaGroups;
+        return indexMetaGroups.iterator();
     }
 
 

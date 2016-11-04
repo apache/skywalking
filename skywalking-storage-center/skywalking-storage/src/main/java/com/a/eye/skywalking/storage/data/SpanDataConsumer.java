@@ -2,6 +2,7 @@ package com.a.eye.skywalking.storage.data;
 
 import com.a.eye.datacarrier.consumer.IConsumer;
 import com.a.eye.skywalking.storage.data.file.DataFileWriter;
+import com.a.eye.skywalking.storage.data.index.IndexDBConnector;
 import com.a.eye.skywalking.storage.data.index.IndexMetaGroup;
 import com.a.eye.skywalking.storage.data.index.IndexOperator;
 import com.a.eye.skywalking.storage.data.index.IndexDBConnectorCache;
@@ -17,14 +18,18 @@ public class SpanDataConsumer implements IConsumer<SpanData> {
     @Override
     public void consume(List<SpanData> data) {
 
-        Iterator<IndexMetaGroup> iterator = fileWriter.write(data).group().iterator();
+        Iterator<IndexMetaGroup> iterator = fileWriter.write(data).group();
 
         while (iterator.hasNext()) {
             IndexMetaGroup metaGroup = iterator.next();
-            IndexOperator indexOperator = IndexOperator.newOperator(cache.get(metaGroup.getTimestamp()));
-            indexOperator.update(metaGroup.getMetaInfo());
+            IndexOperator indexOperator = IndexOperator.newOperator(getDBConnector(metaGroup));
+            indexOperator.batchUpdate(metaGroup);
         }
 
+    }
+
+    private IndexDBConnector getDBConnector(IndexMetaGroup metaGroup){
+        return cache.get(metaGroup.getTimestamp());
     }
 
     @Override

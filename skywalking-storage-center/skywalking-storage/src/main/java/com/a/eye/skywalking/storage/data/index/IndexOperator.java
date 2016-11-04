@@ -18,17 +18,8 @@ public class IndexOperator {
     }
 
 
-    public void update(List<IndexMetaInfo> metaInfo) {
+    public void batchUpdate(IndexMetaGroup metaGroup) {
 
-    }
-
-    private IndexDBConnector getConnector() {
-        return connector;
-    }
-
-
-    public static IndexOperator newOperator(long timestamp) {
-        return newOperator(new IndexDBConnector(timestamp));
     }
 
     public static IndexOperator newOperator(IndexDBConnector indexDBConnector) {
