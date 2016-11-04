@@ -1,27 +1,24 @@
 package com.a.eye.skywalking.storage.data.file;
 
+import com.a.eye.skywalking.storage.data.SpanData;
 import com.a.eye.skywalking.storage.data.index.IndexMetaInfo;
+
+import java.util.List;
 
 public class DataFileWriter {
 
     private DataFile dataFile;
 
     public DataFileWriter() {
-
+        dataFile = DataFilesManager.createNewDataFile();
     }
 
-    public IndexMetaInfo write(byte[] data) {
+    public List<IndexMetaInfo> write(List<SpanData> spanData) {
+
         if (dataFile.overLimitLength()) {
-            convertDataFile();
+            dataFile = DataFilesManager.createNewDataFile();
         }
 
-        long offset = dataFile.writeAndFlush(data);
-        return new IndexMetaInfo(dataFile.getName(), offset, data.length);
+        return null;
     }
-
-    private void convertDataFile() {
-        dataFile.close();
-        dataFile = new DataFile();
-    }
-
 }

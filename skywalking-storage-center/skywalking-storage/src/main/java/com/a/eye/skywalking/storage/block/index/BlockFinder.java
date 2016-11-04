@@ -18,6 +18,11 @@ public class BlockFinder {
         if (index == null) {
             index = l2Cache.find(timestamp);
         }
+
+        if (index == null) {
+            index = System.currentTimeMillis();
+        }
+
         return index;
     }
 

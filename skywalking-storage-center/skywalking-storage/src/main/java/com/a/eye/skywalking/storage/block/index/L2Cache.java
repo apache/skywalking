@@ -18,7 +18,7 @@ public class L2Cache {
         this.cacheData.addAll(cacheData);
     }
 
-    public long find(long timestamp) {
+    public Long find(long timestamp) {
         Lock lock = updateLock.readLock();
         try {
             lock.lock();

@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static com.a.eye.skywalking.storage.config.Config.DataFileIndex.DATA_FILE_INDEX_FILE_NAME;
-import static com.a.eye.skywalking.storage.config.Config.DataFileIndex.STORAGE_BASE_PATH;
+import static com.a.eye.skywalking.storage.config.Config.BlockIndex.DATA_FILE_INDEX_FILE_NAME;
+import static com.a.eye.skywalking.storage.config.Config.BlockIndex.STORAGE_BASE_PATH;
 
 public class BlockIndexUpdator {
 

@@ -1,9 +1,7 @@
 package com.a.eye.skywalking.storage.data.index;
 
-/**
- * Created by xin on 2016/11/3.
- */
 public class IndexMetaInfo {
+    private String traceId;
 
     private String fileName;
 
@@ -11,12 +9,7 @@ public class IndexMetaInfo {
 
     private int length;
 
-    public IndexMetaInfo(String name, long offset, int length) {
-        this.fileName = name;
-        this.offset = offset;
-        this.length = length;
-    }
-
+    private long startTime;
 
     public String getFileName() {
         return fileName;
@@ -28,5 +21,9 @@ public class IndexMetaInfo {
 
     public int getLength() {
         return length;
+    }
+
+    public long getStartTime() {
+        return startTime;
     }
 }
