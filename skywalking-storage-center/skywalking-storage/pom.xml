@@ -67,6 +67,11 @@
             <version>2.3.4</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.a.eye</groupId>
+            <artifactId>data-carrier</artifactId>
+            <version>1.0</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -159,5 +164,14 @@
         </plugins>
     </build>
 
-
+    <repositories>
+        <repository>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>bintray-wu-sheng-DataCarrier</id>
+            <name>bintray</name>
+            <url>http://dl.bintray.com/wu-sheng/DataCarrier</url>
+        </repository>
+    </repositories>
 </project>

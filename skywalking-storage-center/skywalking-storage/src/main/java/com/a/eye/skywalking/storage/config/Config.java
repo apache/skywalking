@@ -10,4 +10,9 @@ public class Config {
 
         public static String DATA_FILE_INDEX_FILE_NAME = "data_file.index";
     }
+
+
+    public static class DataFile {
+        public static String BASE_PATH = "";
+    }
 }
