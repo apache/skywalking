@@ -11,7 +11,12 @@ import java.util.List;
 public class IndexMetaCollections {
 
     private List<IndexMetaInfo> metaInfo;
-    private BlockFinder finder = BlockIndexEngine.newFinder();
+    private BlockFinder         finder;
+
+    public IndexMetaCollections() {
+        metaInfo = new ArrayList<>();
+        finder = BlockIndexEngine.newFinder();
+    }
 
     public Iterator<IndexMetaGroup> group() {
         List<IndexMetaGroup> indexMetaGroups = new ArrayList<IndexMetaGroup>();
@@ -35,4 +40,7 @@ public class IndexMetaCollections {
     }
 
 
+    public void add(IndexMetaInfo info) {
+        metaInfo.add(info);
+    }
 }

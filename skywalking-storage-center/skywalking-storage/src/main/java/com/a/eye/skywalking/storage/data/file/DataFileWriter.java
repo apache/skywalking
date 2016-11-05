@@ -14,11 +14,16 @@ public class DataFileWriter {
     }
 
     public IndexMetaCollections write(List<SpanData> spanData) {
-
         if (dataFile.overLimitLength()) {
             dataFile = DataFilesManager.createNewDataFile();
         }
 
-        return null;
+        IndexMetaCollections collections = new IndexMetaCollections();
+        for (SpanData data : spanData) {
+            collections.add(dataFile.write(data));
+        }
+        dataFile.flush();
+
+        return collections;
     }
 }

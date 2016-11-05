@@ -11,6 +11,12 @@ public class IndexMetaInfo {
 
     private long startTime;
 
+    public IndexMetaInfo(String fileName, long offset, int length) {
+        this.fileName = fileName;
+        this.offset = offset;
+        this.length = length;
+    }
+
     public String getFileName() {
         return fileName;
     }
@@ -25,5 +31,17 @@ public class IndexMetaInfo {
 
     public long getStartTime() {
         return startTime;
+    }
+
+    public String getTraceId() {
+        return null;
+    }
+
+    public String getParentLevelId() {
+        return null;
+    }
+
+    public int getLevelId() {
+        return 0;
     }
 }

@@ -20,6 +20,11 @@ public class Config {
 
 
     public static class DataIndex {
+
         public static String TABLE_NAME = "data_index";
+
+        public static String BASE_PATH = "";
+
+        public static String STORAGE_INDEX_FILE_NAME = "";
     }
 }

@@ -11,10 +11,16 @@ public class UnFinishedDataFilePicker {
     private List<DataFile> dataFiles;
 
     public UnFinishedDataFilePicker(List<DataFile> dataFiles) {
-
+        this.dataFiles = dataFiles;
     }
 
     public List<DataFile> pickUp() {
-        return new ArrayList<DataFile>();
+        List<DataFile> result = new ArrayList<DataFile>();
+        for (DataFile file : dataFiles) {
+            if (file.overLimitLength()){
+                result.add(file);
+            }
+        }
+        return result;
     }
 }

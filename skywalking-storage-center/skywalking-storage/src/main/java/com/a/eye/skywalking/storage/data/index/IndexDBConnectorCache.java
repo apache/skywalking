@@ -17,10 +17,15 @@ public class IndexDBConnectorCache {
     }
 
     public IndexDBConnector get(long timestamp) {
-        return cachedOperators.get(timestamp);
+        IndexDBConnector connector = cachedOperators.get(timestamp);
+        if (connector == null) {
+            connector = new IndexDBConnector(timestamp);
+            updateCache(timestamp, connector);
+        }
+        return connector;
     }
 
-    public void updateCache(long timestamp, IndexDBConnector operator) {
+    private void updateCache(long timestamp, IndexDBConnector operator) {
         cachedOperators.put(timestamp, operator);
     }
 
