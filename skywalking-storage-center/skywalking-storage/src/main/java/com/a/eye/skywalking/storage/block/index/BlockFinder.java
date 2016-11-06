@@ -26,4 +26,9 @@ public class BlockFinder {
         return index;
     }
 
+
+    public long findLastBlockIndex(){
+        return l2Cache.getLastBlockIndex();
+    }
+
 }

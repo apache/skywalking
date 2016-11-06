@@ -1,7 +1,6 @@
 package com.a.eye.skywalking.storage.data.index;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -46,5 +45,9 @@ public class IndexMetaGroup {
     @Override
     public int hashCode() {
         return (int) (timestamp ^ (timestamp >>> 32));
+    }
+
+    public int size() {
+        return metaInfo.size();
     }
 }

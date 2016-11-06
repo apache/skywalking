@@ -63,7 +63,7 @@ public class IndexDBConnector {
         ResultSet rs = ps.executeQuery();
         rs.next();
 
-        boolean exists =  rs.getInt("TABLE_COUNT") == 1;
+        boolean exists = rs.getInt("TABLE_COUNT") == 1;
         rs.close();
         ps.close();
 
@@ -103,6 +103,18 @@ public class IndexDBConnector {
         }
         ps.executeBatch();
         ps.close();
+    }
+
+    public long fetchIndexSize() throws SQLException {
+        PreparedStatement ps = connection.prepareStatement(QUERY_INDEX_SIZE);
+        ResultSet rs = ps.executeQuery();
+        rs.next();
+
+        long indexSize = rs.getLong("INDEX_SIZE");
+        rs.close();
+        ps.close();
+
+        return indexSize;
     }
 
     class ConnectURLGenerator {

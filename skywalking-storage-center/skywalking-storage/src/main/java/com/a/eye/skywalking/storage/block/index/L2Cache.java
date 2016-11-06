@@ -40,4 +40,8 @@ public class L2Cache {
             lock.unlock();
         }
     }
+
+    public long getLastBlockIndex() {
+        return cacheData.last();
+    }
 }

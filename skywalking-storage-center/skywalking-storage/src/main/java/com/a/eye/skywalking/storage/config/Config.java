@@ -26,5 +26,7 @@ public class Config {
         public static String BASE_PATH = "";
 
         public static String STORAGE_INDEX_FILE_NAME = "";
+
+        public static long MAX_CAPACITY_PER_INDEX = 1000 * 1000 * 1000 * 1000;
     }
 }

@@ -1,5 +1,6 @@
 package com.a.eye.skywalking.storage.data.index;
 
+import com.a.eye.skywalking.storage.data.IndexDataCapacityMonitor;
 import com.a.eye.skywalking.storage.data.exception.IndexMetaPersistenceFailedException;
 
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ public class IndexOperator {
     public void batchUpdate(IndexMetaGroup metaGroup) {
         try {
             connector.batchUpdate(metaGroup);
+            IndexDataCapacityMonitor.addIndexData(timestamp, metaGroup.size());
         } catch (Exception e) {
             throw new IndexMetaPersistenceFailedException("Failed to batch save index meta", e);
         }

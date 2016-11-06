@@ -21,5 +21,8 @@ public class Constants {
 
         public static final String QUERY_TABLES = "SELECT count(1) AS TABLE_COUNT FROM   INFORMATION_SCHEMA.TABLES "
                 + "WHERE TABLE_NAME= '" + TABLE_NAME + "';";
+
+        public static final String QUERY_INDEX_SIZE = "SELECT count(1) AS INDEX_SIZE FROM " + TABLE_NAME;
     }
+
 }
