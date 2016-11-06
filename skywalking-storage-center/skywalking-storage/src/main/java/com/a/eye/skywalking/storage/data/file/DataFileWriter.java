@@ -1,7 +1,7 @@
 package com.a.eye.skywalking.storage.data.file;
 
 import com.a.eye.skywalking.storage.data.SpanData;
-import com.a.eye.skywalking.storage.data.index.IndexMetaCollections;
+import com.a.eye.skywalking.storage.data.index.IndexMetaCollection;
 
 import java.util.List;
 
@@ -13,12 +13,12 @@ public class DataFileWriter {
         dataFile = DataFilesManager.createNewDataFile();
     }
 
-    public IndexMetaCollections write(List<SpanData> spanData) {
+    public IndexMetaCollection write(List<SpanData> spanData) {
         if (dataFile.overLimitLength()) {
             dataFile = DataFilesManager.createNewDataFile();
         }
 
-        IndexMetaCollections collections = new IndexMetaCollections();
+        IndexMetaCollection collections = new IndexMetaCollection();
         for (SpanData data : spanData) {
             collections.add(dataFile.write(data));
         }

@@ -1,24 +1,25 @@
 package com.a.eye.skywalking.storage.data.index;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
  * Created by xin on 2016/11/4.
  */
-public class IndexMetaGroup {
+public class IndexMetaGroup<V>{
 
-    private long timestamp;
+    private V key;
 
     private List<IndexMetaInfo> metaInfo;
 
-    public IndexMetaGroup(long timestamp) {
-        this.timestamp = timestamp;
+    public IndexMetaGroup(V key) {
+        this.key = key;
         metaInfo = new ArrayList<IndexMetaInfo>();
     }
 
-    public long getTimestamp() {
-        return timestamp;
+    public V getKey() {
+        return key;
     }
 
     public List<IndexMetaInfo> getMetaInfo() {
@@ -36,18 +37,19 @@ public class IndexMetaGroup {
         if (o == null || getClass() != o.getClass())
             return false;
 
-        IndexMetaGroup that = (IndexMetaGroup) o;
+        IndexMetaGroup<?> that = (IndexMetaGroup<?>) o;
 
-        return timestamp == that.timestamp;
+        return key.equals(that.key);
 
     }
 
     @Override
     public int hashCode() {
-        return (int) (timestamp ^ (timestamp >>> 32));
+        return key.hashCode();
     }
 
     public int size() {
         return metaInfo.size();
     }
+
 }

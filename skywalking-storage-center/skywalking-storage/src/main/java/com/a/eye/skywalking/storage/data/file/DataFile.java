@@ -4,6 +4,7 @@ import com.a.eye.skywalking.storage.config.Config;
 import com.a.eye.skywalking.storage.data.SpanData;
 import com.a.eye.skywalking.storage.data.exception.DataFileOperatorCreateFailedException;
 import com.a.eye.skywalking.storage.data.exception.SpanDataPersistenceFailedException;
+import com.a.eye.skywalking.storage.data.exception.SpanDataReadFailedException;
 import com.a.eye.skywalking.storage.data.index.IndexMetaInfo;
 
 import java.io.File;
@@ -26,9 +27,8 @@ public class DataFile {
         operator = new DataFileOperator();
     }
 
-    public DataFile(String fileName, long offset) {
+    public DataFile(String fileName) {
         this.fileName = fileName;
-        this.currentOffset = offset;
         operator = new DataFileOperator();
     }
 
@@ -59,6 +59,18 @@ public class DataFile {
             operator.getWriter().flush();
         } catch (IOException e) {
             throw new SpanDataPersistenceFailedException(e);
+        }
+    }
+
+    public byte[] read(long offset, int length) {
+        byte[] data = new byte[length];
+        try {
+            operator.getReader().getChannel().position(offset);
+            operator.getReader().read(data, 0, length);
+            return data;
+        } catch (IOException e) {
+            throw new SpanDataReadFailedException(
+                    "Failed to read dataFile[" + fileName + "], offset: " + offset + " " + "lenght: " + length, e);
         }
     }
 

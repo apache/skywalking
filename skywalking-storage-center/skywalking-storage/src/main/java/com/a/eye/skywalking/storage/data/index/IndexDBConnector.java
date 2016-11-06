@@ -86,7 +86,7 @@ public class IndexDBConnector {
         return timestamp;
     }
 
-    public void batchUpdate(IndexMetaGroup metaGroup) throws SQLException {
+    public void batchUpdate(IndexMetaGroup<Long> metaGroup) throws SQLException {
         int currentIndex = 0;
         PreparedStatement ps = connection.prepareStatement(INSERT_INDEX);
         for (IndexMetaInfo metaInfo : metaGroup.getMetaInfo()) {
@@ -115,6 +115,10 @@ public class IndexDBConnector {
         ps.close();
 
         return indexSize;
+    }
+
+    public IndexMetaCollection queryByTraceId(String traceId) {
+        return null;
     }
 
     class ConnectURLGenerator {

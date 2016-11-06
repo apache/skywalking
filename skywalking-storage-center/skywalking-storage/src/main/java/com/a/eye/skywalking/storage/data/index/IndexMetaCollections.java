@@ -1,46 +1,33 @@
 package com.a.eye.skywalking.storage.data.index;
 
-
-import com.a.eye.skywalking.storage.block.index.BlockFinder;
-import com.a.eye.skywalking.storage.block.index.BlockIndexEngine;
-
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
+/**
+ * Created by xin on 2016/11/6.
+ */
 public class IndexMetaCollections {
 
-    private List<IndexMetaInfo> metaInfo;
-    private BlockFinder         finder;
+    public static <T> List<IndexMetaGroup<T>> group(IndexMetaCollection indexMetaCollection,
+            GroupKeyBuilder<T> builder) {
+        List<IndexMetaGroup<T>> indexMetaGroups = new ArrayList<IndexMetaGroup<T>>();
 
-    public IndexMetaCollections() {
-        metaInfo = new ArrayList<>();
-        finder = BlockIndexEngine.newFinder();
-    }
+        for (IndexMetaInfo metaInfo : indexMetaCollection) {
+            T key = builder.buildKey(metaInfo);
 
-    public Iterator<IndexMetaGroup> group() {
-        List<IndexMetaGroup> indexMetaGroups = new ArrayList<IndexMetaGroup>();
-        for (IndexMetaInfo info : metaInfo) {
-            long timestamp = finder.find(info.getStartTime());
-
-            int index = indexMetaGroups.indexOf(new IndexMetaGroup(timestamp));
+            int index = indexMetaGroups.indexOf(new IndexMetaGroup(key));
             IndexMetaGroup metaGroup;
 
             if (index == -1) {
-                metaGroup = new IndexMetaGroup(timestamp);
+                metaGroup = new IndexMetaGroup(key);
                 indexMetaGroups.add(metaGroup);
             } else {
                 metaGroup = indexMetaGroups.get(index);
             }
 
-            metaGroup.addIndexMetaInfo(info);
+            metaGroup.addIndexMetaInfo(metaInfo);
         }
 
-        return indexMetaGroups.iterator();
-    }
-
-
-    public void add(IndexMetaInfo info) {
-        metaInfo.add(info);
+        return indexMetaGroups;
     }
 }

@@ -2,10 +2,7 @@ package com.a.eye.skywalking.storage.data;
 
 import com.a.eye.datacarrier.consumer.IConsumer;
 import com.a.eye.skywalking.storage.data.file.DataFileWriter;
-import com.a.eye.skywalking.storage.data.index.IndexDBConnector;
-import com.a.eye.skywalking.storage.data.index.IndexMetaGroup;
-import com.a.eye.skywalking.storage.data.index.IndexOperator;
-import com.a.eye.skywalking.storage.data.index.IndexDBConnectorCache;
+import com.a.eye.skywalking.storage.data.index.*;
 
 import java.util.Iterator;
 import java.util.List;
@@ -15,7 +12,7 @@ public class SpanDataConsumer implements IConsumer<SpanData> {
     private IndexDBConnectorCache cache;
     private DataFileWriter        fileWriter;
 
-    public SpanDataConsumer(){
+    public SpanDataConsumer() {
         cache = new IndexDBConnectorCache();
         fileWriter = new DataFileWriter();
     }
@@ -23,18 +20,24 @@ public class SpanDataConsumer implements IConsumer<SpanData> {
     @Override
     public void consume(List<SpanData> data) {
 
-        Iterator<IndexMetaGroup> iterator = fileWriter.write(data).group();
+        Iterator<IndexMetaGroup<Long>> iterator =
+                IndexMetaCollections.group(fileWriter.write(data), new GroupKeyBuilder<Long>() {
+                    @Override
+                    public Long buildKey(IndexMetaInfo metaInfo) {
+                        return metaInfo.getStartTime();
+                    }
+                }).iterator();
 
         while (iterator.hasNext()) {
-            IndexMetaGroup metaGroup = iterator.next();
+            IndexMetaGroup<Long> metaGroup = iterator.next();
             IndexOperator indexOperator = IndexOperator.newOperator(getDBConnector(metaGroup));
             indexOperator.batchUpdate(metaGroup);
         }
 
     }
 
-    private IndexDBConnector getDBConnector(IndexMetaGroup metaGroup){
-        return cache.get(metaGroup.getTimestamp());
+    private IndexDBConnector getDBConnector(IndexMetaGroup<Long> metaGroup) {
+        return cache.get(metaGroup.getKey());
     }
 
     @Override
