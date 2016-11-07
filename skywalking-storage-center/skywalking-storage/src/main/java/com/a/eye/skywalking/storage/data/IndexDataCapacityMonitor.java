@@ -60,14 +60,21 @@ public class IndexDataCapacityMonitor {
     public static void start() {
         long timestamp = BlockIndexEngine.newFinder().findLastBlockIndex();
 
-        IndexDBConnector dbConnector = new IndexDBConnector(timestamp);
-        long count = 0;
+        //TODO: 为IndexDBConnector增加闭包执行函数
+        IndexDBConnector dbConnector = null;
         try {
-            count = dbConnector.fetchIndexSize();
-        } catch (SQLException e) {
-            logger.error("Failed to to fetch index size from DB:{}", timestamp, e);
+            dbConnector = new IndexDBConnector(timestamp);
+            long count = 0;
+            try {
+                count = dbConnector.fetchIndexSize();
+            } catch (SQLException e) {
+                logger.error("Failed to to fetch index size from DB:{}", timestamp, e);
+            }
+            detector = new Detector(timestamp, count);
+        } finally {
+            if(dbConnector != null){
+                dbConnector.close();
+            }
         }
-        detector = new Detector(timestamp, count);
-
     }
 }

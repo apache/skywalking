@@ -136,4 +136,8 @@ public class IndexDBConnector {
             return "jdbc:hsqldb:file:" + basePath + "/" + timestamp + "/" + dbFileName;
         }
     }
+
+    public void close(){
+        //TODO:
+    }
 }
