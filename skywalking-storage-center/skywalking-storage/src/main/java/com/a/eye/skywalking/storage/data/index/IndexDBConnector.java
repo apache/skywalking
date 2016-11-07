@@ -137,7 +137,11 @@ public class IndexDBConnector {
         }
     }
 
-    public void close(){
-        //TODO:
+    public void close() {
+        try {
+            connection.close();
+        } catch (SQLException e) {
+            logger.error("Failed to close index db connector", e);
+        }
     }
 }
