@@ -16,4 +16,12 @@ public enum CenterType {
     public String getType() {
         return type;
     }
+
+    public static CenterType convert(String type) {
+        if (zookeeper.type.equals(type)) {
+            return zookeeper;
+        }
+
+        throw new IllegalArgumentException("Failed to find center type[" + type + "]");
+    }
 }
