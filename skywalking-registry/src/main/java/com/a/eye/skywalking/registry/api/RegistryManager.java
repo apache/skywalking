@@ -31,7 +31,7 @@ public interface RegistryManager {
     void subscribe(RegistryData data, NotifyListener listener);
 
     /**
-     * 移除storage节点之后
+     * 移除storage节点监听
      *
      * @param data
      */
