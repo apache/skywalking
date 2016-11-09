@@ -9,4 +9,5 @@ public interface Register {
 
     void unSubscribe();
 
+    void registry();
 }
