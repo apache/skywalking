@@ -1,15 +1,12 @@
 package com.a.eye.skywalking.registry.api;
 
 /**
- * Created by xin on 2016/11/9.
+ * 存储注册项的数据
+ * 注册项包括：注册的目录（支持多级，以"/"分割）以及注册值
  */
-public class RegistryData {
+public interface RegistryData {
 
-    public String key() {
-        return null;
-    }
+    String getPath();
 
-    public String data() {
-        return null;
-    }
+    String getValue();
 }
