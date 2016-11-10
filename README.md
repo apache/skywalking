@@ -170,7 +170,7 @@ java -jar ...  -javaagent:/..ospath../skywalking-agent-x.x-Final.jar
 * [In the schedule] v2.1-2017
 	* release a version following OpenTracing.io
 	* provide bridge mode lib to integrate data of system and tracer
-	* provide English doc as default. Almost provide Chinese version on Gitbook or Wiki
+	* provide English doc as default. Also provide Chinese version on Gitbook or Wiki
 	* support log framework(log4j, log4j2, logback) to output traceid in system log.
 	
 * [Dev] v2.0-2016
