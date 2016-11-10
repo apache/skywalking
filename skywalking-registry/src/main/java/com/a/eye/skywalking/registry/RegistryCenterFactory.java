@@ -1,4 +1,7 @@
-package com.a.eye.skywalking.registry.api;
+package com.a.eye.skywalking.registry;
+
+import com.a.eye.skywalking.registry.api.Center;
+import com.a.eye.skywalking.registry.api.RegistryCenter;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -10,7 +13,7 @@ import java.util.ServiceLoader;
  */
 public class RegistryCenterFactory {
 
-    private Map<CenterType, RegistryCenter> registryCenter = new HashMap<CenterType, RegistryCenter>();
+    private Map<String, RegistryCenter> registryCenter = new HashMap<String, RegistryCenter>();
 
     private RegistryCenterFactory() {
         ServiceLoader<RegistryCenter> loaders = ServiceLoader.load(RegistryCenter.class);
@@ -27,7 +30,7 @@ public class RegistryCenterFactory {
         }
     }
 
-    public RegistryCenter getRegistryCenter(CenterType type) {
+    public RegistryCenter getRegistryCenter(String type) {
         return registryCenter.get(type);
     }
 }

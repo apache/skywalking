@@ -5,5 +5,5 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE})
 public @interface Center {
-    CenterType type() default CenterType.zookeeper;
+    String type() default CenterType.DEFAULT_CENTER_TYPE;
 }
