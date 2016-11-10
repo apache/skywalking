@@ -167,6 +167,12 @@ java -jar ...  -javaagent:/..ospath../skywalking-agent-x.x-Final.jar
 * [网络传输协议、缓存文件协议说明. the protocols of transform between agent and collector, collector buffer file](doc/protocol.md)
 
 # Recent RoadMap
+* [In the schedule] v2.1-2017
+	* release a version following OpenTracing.io
+	* provide bridge mode lib to integrate data of system and tracer
+	* provide English doc as default. Almost provide Chinese version on Gitbook or Wiki
+	* support log framework(log4j, log4j2, logback) to output traceid in system log.
+	
 * [Dev] v2.0-2016
 	* 移除对于Hadoop，HBase的依赖，降低部署和运维难度
 	* 使用内嵌式数据库，和分布式集群
