@@ -1,8 +1,8 @@
 package com.a.eye.skywalking.storage.block.index;
 
+import com.a.eye.skywalking.logging.api.ILog;
+import com.a.eye.skywalking.logging.api.LogManager;
 import com.a.eye.skywalking.storage.block.index.exception.BlockIndexPersistenceFailedException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -14,7 +14,7 @@ import static com.a.eye.skywalking.storage.config.Config.BlockIndex.STORAGE_BASE
 
 public class BlockIndexUpdator {
 
-    private static Logger logger = LogManager.getLogger(BlockIndexUpdator.class);
+    private static ILog logger = LogManager.getLogger(BlockIndexUpdator.class);
     private L1Cache l1Cache;
     private L2Cache l2Cache;
 
@@ -64,8 +64,7 @@ public class BlockIndexUpdator {
         List<Long> indexData = new ArrayList<>();
         BufferedReader indexFileReader = null;
         try {
-            indexFileReader =
-                    new BufferedReader(new FileReader(new File(STORAGE_BASE_PATH, DATA_FILE_INDEX_FILE_NAME)));
+            indexFileReader = new BufferedReader(new FileReader(new File(STORAGE_BASE_PATH, DATA_FILE_INDEX_FILE_NAME)));
             String indexDataStr = null;
             while ((indexDataStr = indexFileReader.readLine()) != null) {
                 indexData.add(Long.parseLong(indexDataStr));

@@ -25,7 +25,7 @@
         </dependency>
         <dependency>
             <groupId>com.a.eye</groupId>
-            <artifactId>skywalking-logging</artifactId>
+            <artifactId>skywalking-logging-api</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

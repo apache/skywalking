@@ -1,4 +1,4 @@
-package com.a.eye.skywalking.logging;
+package com.a.eye.skywalking.logging.api;
 
 
 /**
