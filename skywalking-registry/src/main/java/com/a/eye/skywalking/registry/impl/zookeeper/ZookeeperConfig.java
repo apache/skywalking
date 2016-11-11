@@ -1,4 +1,4 @@
-package com.a.eye.skywalking.registry.logging.impl.zookeeper;
+package com.a.eye.skywalking.registry.impl.zookeeper;
 
 import com.a.eye.skywalking.logging.ILog;
 import com.a.eye.skywalking.logging.LogManager;

@@ -1,8 +1,8 @@
-package com.a.eye.skywalking.registry.logging.impl.zookeeper;
+package com.a.eye.skywalking.registry.impl.zookeeper;
 
 import com.a.eye.skywalking.logging.ILog;
 import com.a.eye.skywalking.logging.LogManager;
-import com.a.eye.skywalking.registry.logging.api.*;
+import com.a.eye.skywalking.registry.api.*;
 import org.apache.zookeeper.*;
 
 import java.io.IOException;
@@ -23,32 +23,32 @@ public class ZookeeperRegistryCenter implements RegistryCenter {
             createPath = "/" + createPath;
         }
 
-        recursionCreatePath(createPath, 0);
+        mkdirs(createPath, 0);
     }
 
     /**
-     * @param createPath
+     * @param path
      * @param index
      */
-    private void recursionCreatePath(String createPath, int index) {
+    private void mkdirs(String path, int index) {
+        //TODO: 修改成循环创建
         try {
-            int next = createPath.indexOf("/", index + 1);
-            String path = createPath;
+            int next = path.indexOf("/", index + 1);
             CreateMode createMode = CreateMode.EPHEMERAL;
 
             if (next != -1) {
                 createMode = CreateMode.PERSISTENT;
-                path = createPath.substring(0, next);
+                path = path.substring(0, next);
             }
 
             if (client.exists(path, false) == null)
                 client.create(path, null, ZooDefs.Ids.OPEN_ACL_UNSAFE, createMode);
 
             if (next != -1) {
-                recursionCreatePath(createPath, next);
+                mkdirs(path, next);
             }
         } catch (Exception e) {
-            logger.error("Failed to create path[{}]", createPath, e);
+            logger.error("Failed to create path[{}]", path, e);
         }
     }
 
@@ -91,11 +91,11 @@ public class ZookeeperRegistryCenter implements RegistryCenter {
 
         @Override
         public void process(WatchedEvent event) {
+            retryWatch();
+
             if (event.getType() == Event.EventType.NodeChildrenChanged) {
                 notifyListener(event);
             }
-
-            retryWatch();
         }
 
         private void notifyListener(WatchedEvent event) {

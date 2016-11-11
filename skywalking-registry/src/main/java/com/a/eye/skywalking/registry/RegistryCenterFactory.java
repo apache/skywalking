@@ -1,7 +1,7 @@
-package com.a.eye.skywalking.registry.logging;
+package com.a.eye.skywalking.registry;
 
-import com.a.eye.skywalking.registry.logging.api.Center;
-import com.a.eye.skywalking.registry.logging.api.RegistryCenter;
+import com.a.eye.skywalking.registry.api.Center;
+import com.a.eye.skywalking.registry.api.RegistryCenter;
 
 import java.util.HashMap;
 import java.util.Iterator;
