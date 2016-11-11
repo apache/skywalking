@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>skywalking-logging-log4j-impl</artifactId>
+    <artifactId>skywalking-logging-impl-log4j2</artifactId>
 
     <dependencies>
         <dependency>

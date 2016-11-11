@@ -1,9 +1,9 @@
 package com.a.eye.skywalking.storage.data.index;
 
+import com.a.eye.skywalking.logging.api.ILog;
+import com.a.eye.skywalking.logging.api.LogManager;
 import com.a.eye.skywalking.storage.config.Config;
 import com.a.eye.skywalking.storage.data.exception.ConnectorInitializeFailedException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.sql.*;
 
@@ -16,7 +16,7 @@ public class IndexDBConnector {
 
     private static final int MAX_BATCH_SIZE = 20;
 
-    private static Logger logger = LogManager.getLogger(IndexDBConnector.class);
+    private static ILog logger = LogManager.getLogger(IndexDBConnector.class);
 
     static {
         try {
