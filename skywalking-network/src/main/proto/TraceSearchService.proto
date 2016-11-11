@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.a.eye.skywalking.network.grpc";
+
+import "Spans.proto";
+
+service TraceSearchService{
+    rpc search(string) returns (SearchResult){};
+}
+
+
+message SearchResult{
+    repeated Span spans= 1;
+}

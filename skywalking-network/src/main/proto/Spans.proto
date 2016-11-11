@@ -25,19 +25,24 @@ message RequestSpan {
     string applicationId = 9;
     string userId = 10;
     string bussinessKey = 11;
-    string agentId = 12;
     string processNo = 13;
     string address = 14;
 }
 
-message InputParametersSpan {
+message Span{
     string traceId = 1;
-    string traceLevelId = 2;
-    map<string, string> parameters = 3;
-}
-
-message OutputParametersSpan {
-    string traceId = 1;
-    string traceLevelId = 2;
-    string outputParameter = 3;
+    string levelId = 2; // parentLevelId + "." + levelId
+    string viewpoint = 3;
+    int64 starttime = 4;
+    int64 cost = 5;
+    int32 statusCode = 6;
+    string exceptionStack = 7;
+    string spanTypeDesc = 8;
+    string callType = 9;
+    uint32 spanType = 10;
+    string applicationId = 11;
+    string userId = 12;
+    string businessKey = 13;
+    string processNo = 14;
+    string address = 15;
 }
