@@ -8,7 +8,7 @@ install:
   - cd ..
 
 script:
-  - cd skywalking-protocol
+  - cd skywalking-network
   - mvn clean install -Dmaven.test.skip=true
   - cd ..
   - mvn clean install -Dmaven.test.skip=true
