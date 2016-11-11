@@ -1,4 +1,6 @@
-package com.a.eye.skywalking.registry.api;
+package com.a.eye.skywalking.registry.logging.api;
+
+import java.util.Properties;
 
 /**
  * 主要用于注册中心的维护
@@ -23,4 +25,11 @@ public interface RegistryCenter {
      */
     void subscribe(String path, NotifyListener listener);
 
+
+    /**
+     * 在注册和订阅之前，需要先启动注册中心
+     *
+     * @param centerConfig 配置参数
+     */
+    void start(Properties centerConfig);
 }

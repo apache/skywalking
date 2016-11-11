@@ -20,11 +20,6 @@
 	</properties>
 
 	<dependencies>
-		<dependency>
-			<groupId>com.a.eye</groupId>
-			<artifactId>skywalking-protocol</artifactId>
-			<version>2.0-2016</version>
-		</dependency>
 
 		<dependency>
 			<groupId>net.bytebuddy</groupId>

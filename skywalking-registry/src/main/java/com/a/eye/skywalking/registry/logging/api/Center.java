@@ -1,4 +1,4 @@
-package com.a.eye.skywalking.registry.api;
+package com.a.eye.skywalking.registry.logging.api;
 
 import java.lang.annotation.*;
 

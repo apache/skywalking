@@ -1,4 +1,4 @@
-package com.a.eye.skywalking.registry.api;
+package com.a.eye.skywalking.registry.logging.api;
 
 /**
  * Created by wusheng on 2016/11/10.

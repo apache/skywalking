@@ -1,7 +1,7 @@
-package com.a.eye.skywalking.registry;
+package com.a.eye.skywalking.registry.logging;
 
-import com.a.eye.skywalking.registry.api.Center;
-import com.a.eye.skywalking.registry.api.RegistryCenter;
+import com.a.eye.skywalking.registry.logging.api.Center;
+import com.a.eye.skywalking.registry.logging.api.RegistryCenter;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -12,6 +12,8 @@ import java.util.ServiceLoader;
  * Created by xin on 2016/11/10.
  */
 public class RegistryCenterFactory {
+
+    public static RegistryCenterFactory INSTANCE = new RegistryCenterFactory();
 
     private Map<String, RegistryCenter> registryCenter = new HashMap<String, RegistryCenter>();
 
@@ -33,4 +35,6 @@ public class RegistryCenterFactory {
     public RegistryCenter getRegistryCenter(String type) {
         return registryCenter.get(type);
     }
+
+
 }
