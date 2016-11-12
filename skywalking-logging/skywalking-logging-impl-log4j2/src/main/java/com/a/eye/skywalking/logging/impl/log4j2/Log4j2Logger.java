@@ -24,6 +24,16 @@ public class Log4j2Logger implements ILog {
     }
 
     @Override
+    public void warn(String format, Object... arguments) {
+        logger.warn(format, arguments);
+    }
+
+    @Override
+    public void warn(String format, Object arguments, Throwable e) {
+        logger.warn(format, arguments, e);
+    }
+
+    @Override
     public void error(String message, Throwable e) {
         logger.error(message, e);
     }

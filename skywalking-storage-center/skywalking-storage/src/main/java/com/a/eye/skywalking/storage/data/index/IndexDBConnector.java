@@ -4,6 +4,10 @@ import com.a.eye.skywalking.logging.api.ILog;
 import com.a.eye.skywalking.logging.api.LogManager;
 import com.a.eye.skywalking.storage.config.Config;
 import com.a.eye.skywalking.storage.data.exception.ConnectorInitializeFailedException;
+import com.a.eye.skywalking.storage.data.spandata.AckSpanData;
+import com.a.eye.skywalking.storage.data.spandata.RequestSpanData;
+import com.a.eye.skywalking.storage.data.spandata.SpanData;
+import com.a.eye.skywalking.storage.data.spandata.SpanType;
 
 import java.sql.*;
 
@@ -91,8 +95,8 @@ public class IndexDBConnector {
         PreparedStatement ps = connection.prepareStatement(INSERT_INDEX);
         for (IndexMetaInfo metaInfo : metaGroup.getMetaInfo()) {
             ps.setString(1, metaInfo.getTraceId());
-            ps.setString(2, metaInfo.getParentLevelId());
-            ps.setInt(3, metaInfo.getLevelId());
+            ps.setString(2, metaInfo.getLevelId());
+            ps.setInt(3, metaInfo.getSpanType().getValue());
             ps.setString(4, metaInfo.getFileName());
             ps.setLong(5, metaInfo.getOffset());
             ps.setInt(6, metaInfo.getLength());
@@ -117,8 +121,29 @@ public class IndexDBConnector {
         return indexSize;
     }
 
-    public IndexMetaCollection queryByTraceId(String traceId) {
-        return null;
+    public IndexMetaCollection queryByTraceId(String traceId){
+        try {
+            PreparedStatement ps = connection.prepareStatement(QUERY_TRACE_ID);
+            ps.setString(1, traceId);
+            ResultSet rs = ps.executeQuery();
+
+            IndexMetaCollection collection = new IndexMetaCollection();
+            while (rs.next()) {
+                SpanType spanType = SpanType.convert(rs.getInt("span_type"));
+                SpanData spanData = null;
+
+                if (SpanType.ACKSpan == spanType) {
+                    spanData = new AckSpanData();
+                } else if (SpanType.RequestSpan == spanType) {
+                    spanData = new RequestSpanData();
+                }
+
+                collection.add(new IndexMetaInfo(spanData, rs.getString("file_name"), rs.getLong("offset"), rs.getInt("length")));
+            }
+            return collection;
+        }catch(SQLException e){
+            return new IndexMetaCollection();
+        }
     }
 
     class ConnectURLGenerator {

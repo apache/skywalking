@@ -14,7 +14,7 @@
     <url>http://maven.apache.org</url>
     <modules>
         <module>skywalking-logging-api</module>
-        <module>skywalking-logging-log4j-impl</module>
+        <module>skywalking-logging-impl-log4j2</module>
     </modules>
 
 </project>

@@ -1,7 +1,7 @@
 package com.a.eye.skywalking.storage.data.file;
 
 import com.a.eye.skywalking.storage.config.Config;
-import com.a.eye.skywalking.storage.data.SpanData;
+import com.a.eye.skywalking.storage.data.spandata.SpanData;
 import com.a.eye.skywalking.storage.data.exception.DataFileOperatorCreateFailedException;
 import com.a.eye.skywalking.storage.data.exception.SpanDataPersistenceFailedException;
 import com.a.eye.skywalking.storage.data.exception.SpanDataReadFailedException;
@@ -46,7 +46,7 @@ public class DataFile {
         byte[] bytes = data.toByteArray();
         try {
             operator.getWriter().write(bytes);
-            IndexMetaInfo metaInfo = new IndexMetaInfo(fileName, currentOffset, bytes.length);
+            IndexMetaInfo metaInfo = new IndexMetaInfo(data,fileName, currentOffset, bytes.length);
             currentOffset += bytes.length;
             return metaInfo;
         } catch (IOException e) {

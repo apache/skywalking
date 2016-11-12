@@ -8,7 +8,13 @@ public interface ILog {
 
     void info(String format, Object... arguments);
 
+    void warn(String format, Object... arguments);
+
+    void warn(String format, Object arguments, Throwable e);
+
     void error(String format, Throwable e);
 
     void error(String format, Object argument, Throwable e);
+
+
 }

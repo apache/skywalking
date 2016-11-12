@@ -1,7 +1,11 @@
 package com.a.eye.skywalking.storage.data.index;
 
+import com.a.eye.skywalking.storage.data.spandata.SpanData;
+import com.a.eye.skywalking.storage.data.spandata.SpanType;
+
 public class IndexMetaInfo {
-    private String traceId;
+
+    private SpanData spanData;
 
     private String fileName;
 
@@ -9,9 +13,8 @@ public class IndexMetaInfo {
 
     private int length;
 
-    private long startTime;
-
-    public IndexMetaInfo(String fileName, long offset, int length) {
+    public IndexMetaInfo(SpanData data, String fileName, long offset, int length) {
+        this.spanData = data;
         this.fileName = fileName;
         this.offset = offset;
         this.length = length;
@@ -29,19 +32,19 @@ public class IndexMetaInfo {
         return length;
     }
 
-    public long getStartTime() {
-        return startTime;
+    public long getTraceStartTime() {
+        return spanData.getTraceStartTime();
     }
 
     public String getTraceId() {
-        return null;
+        return spanData.getTraceId();
     }
 
-    public String getParentLevelId() {
-        return null;
+    public String getLevelId() {
+        return spanData.getLevelId();
     }
 
-    public int getLevelId() {
-        return 0;
+    public SpanType getSpanType() {
+        return spanData.getSpanType();
     }
 }

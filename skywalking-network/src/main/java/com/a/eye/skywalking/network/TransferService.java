@@ -30,7 +30,7 @@ public class TransferService {
         blockUntilShutdown();
     }
 
-    private void stop() {
+    public void stop() {
         if (server != null) {
             server.shutdown();
         }

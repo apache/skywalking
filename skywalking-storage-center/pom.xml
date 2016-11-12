@@ -17,4 +17,18 @@
         <module>skywalking-storage</module>
         <module>skywalking-routing</module>
     </modules>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.a.eye</groupId>
+            <artifactId>skywalking-logging</artifactId>
+            <version>${parent.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.a.eye</groupId>
+            <artifactId>skywalking-network</artifactId>
+            <version>${parent.version}</version>
+        </dependency>
+    </dependencies>
 </project>

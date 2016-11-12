@@ -142,7 +142,6 @@
 						<exclude>*.properties</exclude>
 						<exclude>*.xml</exclude>
 					</excludes>
-					<finalName>sky-alarm-server</finalName>
 					<outputDirectory>${project.build.directory}/installer/lib</outputDirectory>
 				</configuration>
 			</plugin>

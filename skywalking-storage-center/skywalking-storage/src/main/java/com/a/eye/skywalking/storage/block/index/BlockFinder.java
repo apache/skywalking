@@ -19,10 +19,6 @@ public class BlockFinder {
             index = l2Cache.find(timestamp);
         }
 
-        if (index == null) {
-            index = System.currentTimeMillis();
-        }
-
         return index;
     }
 

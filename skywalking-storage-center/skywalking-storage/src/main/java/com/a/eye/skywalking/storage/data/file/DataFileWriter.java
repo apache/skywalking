@@ -1,6 +1,6 @@
 package com.a.eye.skywalking.storage.data.file;
 
-import com.a.eye.skywalking.storage.data.SpanData;
+import com.a.eye.skywalking.storage.data.spandata.SpanData;
 import com.a.eye.skywalking.storage.data.index.IndexMetaCollection;
 
 import java.util.List;

@@ -13,7 +13,7 @@ import static com.a.eye.skywalking.storage.config.Config.DataIndex.MAX_CAPACITY_
 /**
  * Created by xin on 2016/11/6.
  */
-public class IndexDataCapacityMonitor extends Thread {
+public class IndexDataCapacityMonitor implements Runnable {
 
     private static ILog logger = LogManager.getLogger(IndexDataCapacityMonitor.class);
     private static Detector detector;
@@ -76,6 +76,7 @@ public class IndexDataCapacityMonitor extends Thread {
                 logger.error("Failed to to fetch index size from DB:{}", timestamp, e);
             }
             detector = new Detector(timestamp, count);
+            logger.info("Index data capacity monitor started successfully!");
         } finally {
             if (dbConnector != null) {
                 dbConnector.close();
