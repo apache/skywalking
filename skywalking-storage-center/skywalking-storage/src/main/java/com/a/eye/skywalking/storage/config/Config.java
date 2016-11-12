@@ -8,6 +8,7 @@ public class Config {
         public static int PORT = 34000;
     }
 
+
     public static class BlockIndex {
 
         public static String STORAGE_BASE_PATH = "/tmp/skywalking/block_index";
@@ -32,5 +33,10 @@ public class Config {
         public static String STORAGE_INDEX_FILE_NAME = "dataIndex";
 
         public static long MAX_CAPACITY_PER_INDEX = 1000 * 1000 * 1000 * 1000;
+    }
+
+
+    public static class RegistryCenter {
+        public static String CONNECT_URL = "127.0.0.1:2181";
     }
 }

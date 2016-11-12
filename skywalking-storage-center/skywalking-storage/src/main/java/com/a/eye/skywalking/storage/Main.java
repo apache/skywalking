@@ -5,6 +5,10 @@ import com.a.eye.skywalking.logging.api.LogManager;
 import com.a.eye.skywalking.logging.impl.log4j2.Log4j2Resolver;
 import com.a.eye.skywalking.network.TransferService;
 import com.a.eye.skywalking.network.TransferService.TransferServiceBuilder;
+import com.a.eye.skywalking.registry.RegistryCenterFactory;
+import com.a.eye.skywalking.registry.api.CenterType;
+import com.a.eye.skywalking.registry.api.RegistryCenter;
+import com.a.eye.skywalking.registry.impl.zookeeper.ZookeeperConfig;
 import com.a.eye.skywalking.storage.config.Config;
 import com.a.eye.skywalking.storage.config.ConfigInitializer;
 import com.a.eye.skywalking.storage.data.IndexDataCapacityMonitor;
@@ -37,6 +41,7 @@ public class Main {
             transferService.start();
             logger.info("transfer service started successfully!");
             new Thread(new IndexDataCapacityMonitor()).start();
+            registryNode();
             logger.info("storage service started successfully!");
             Thread.currentThread().join();
         } catch (Throwable e) {
@@ -44,6 +49,15 @@ public class Main {
         } finally {
             transferService.stop();
         }
+    }
+
+    private static void registryNode() {
+        //TODO auth info  auth schema
+        RegistryCenter registryCenter =
+                RegistryCenterFactory.INSTANCE.getRegistryCenter(CenterType.DEFAULT_CENTER_TYPE);
+        Properties registerConfig = new Properties();
+        registerConfig.setProperty(ZookeeperConfig.CONNECT_URL, Config.RegistryCenter.CONNECT_URL);
+        registryCenter.start(registerConfig);
     }
 
     private static void initializeParam() throws IllegalAccessException, IOException {
