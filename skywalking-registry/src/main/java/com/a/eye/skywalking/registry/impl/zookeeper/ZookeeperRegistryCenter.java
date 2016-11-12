@@ -1,7 +1,7 @@
 package com.a.eye.skywalking.registry.impl.zookeeper;
 
-import com.a.eye.skywalking.logging.ILog;
-import com.a.eye.skywalking.logging.LogManager;
+import com.a.eye.skywalking.logging.api.ILog;
+import com.a.eye.skywalking.logging.api.LogManager;
 import com.a.eye.skywalking.registry.api.*;
 import org.apache.zookeeper.*;
 

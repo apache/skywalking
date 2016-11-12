@@ -1,10 +1,9 @@
 package com.a.eye.skywalking.storage.data;
 
+import com.a.eye.skywalking.logging.api.ILog;
+import com.a.eye.skywalking.logging.api.LogManager;
 import com.a.eye.skywalking.storage.block.index.BlockIndexEngine;
 import com.a.eye.skywalking.storage.data.index.IndexDBConnector;
-import org.apache.jute.Index;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.sql.SQLException;
 import java.util.concurrent.atomic.AtomicLong;
@@ -16,7 +15,7 @@ import static com.a.eye.skywalking.storage.config.Config.DataIndex.MAX_CAPACITY_
  */
 public class IndexDataCapacityMonitor extends Thread {
 
-    private static Logger logger = LogManager.getLogger(IndexDataCapacityMonitor.class);
+    private static ILog logger = LogManager.getLogger(IndexDataCapacityMonitor.class);
     private static Detector detector;
 
     public static void addIndexData(long timestamp, int size) {

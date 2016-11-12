@@ -16,15 +16,19 @@
 
     <dependencies>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
-            <scope>test</scope>
+            <groupId>com.a.eye</groupId>
+            <artifactId>skywalking-network</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>2.4.1</version>
+            <groupId>com.a.eye</groupId>
+            <artifactId>skywalking-registry</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.a.eye</groupId>
+            <artifactId>skywalking-logging-impl-log4j2</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.hsqldb</groupId>
@@ -35,6 +39,13 @@
             <groupId>com.a.eye</groupId>
             <artifactId>data-carrier</artifactId>
             <version>1.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
     <build>

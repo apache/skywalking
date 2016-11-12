@@ -25,32 +25,8 @@
         </dependency>
         <dependency>
             <groupId>com.a.eye</groupId>
-            <artifactId>skywalking-logging</artifactId>
+            <artifactId>skywalking-logging-api</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
-
-    <repositories>
-        <repository>
-            <id>local-central</id>
-            <url>http://10.128.7.197:8081/nexus/content/groups/public/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>apmparty</id>
-            <url>http://10.128.7.197:8081/nexus/content/repositories/apmparty/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-
 </project>

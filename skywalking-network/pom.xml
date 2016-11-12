@@ -77,7 +77,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>2.4.1</version>
+                <version>2.4.3</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -103,6 +103,18 @@
                                     <shadedPattern>${shade.io.netty.target}</shadedPattern>
                                 </relocation>
                             </relocations>
+                            <artifactSet>
+                                <includes>
+                                    <include>io.grpc:grpc-*:jar:*</include>
+                                    <inclued>io.netty:netty-*:jar:*</inclued>
+                                    <inclued>com.google.protobuf:*:jar:*</inclued>
+                                    <inclued>com.google.code.gson:gson:jar:*</inclued>
+                                    <include>com.google.guava:guava:jar:*</include>
+                                </includes>
+                            </artifactSet>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                            </transformers>
                         </configuration>
                     </execution>
                 </executions>
