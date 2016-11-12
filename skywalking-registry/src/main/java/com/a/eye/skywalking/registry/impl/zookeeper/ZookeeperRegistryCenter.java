@@ -23,35 +23,31 @@ public class ZookeeperRegistryCenter implements RegistryCenter {
             createPath = "/" + createPath;
         }
 
-        mkdirs(createPath, 0);
+        mkdirs(createPath);
     }
 
-    /**
-     * @param path
-     * @param index
-     */
-    private void mkdirs(String path, int index) {
-        //TODO: 修改成循环创建
+    private void mkdirs(String path) {
         try {
-            int next = path.indexOf("/", index + 1);
-            CreateMode createMode = CreateMode.EPHEMERAL;
 
-            if (next != -1) {
-                createMode = CreateMode.PERSISTENT;
-                path = path.substring(0, next);
+            String[] pathArray = path.split("/");
+            if (pathArray.length == 0) {
+                return;
             }
 
-            if (client.exists(path, false) == null)
-                client.create(path, null, ZooDefs.Ids.OPEN_ACL_UNSAFE, createMode);
-
-            if (next != -1) {
-                mkdirs(path, next);
+            for (int i = 0; i < pathArray.length - 1; i++) {
+                String pathSegment = pathArray[i];
+                if (pathSegment.length() == 0) {
+                    continue;
+                }
+                client.create(path, null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
             }
+
+            client.create(pathArray[pathArray.length - 1], null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
+            logger.info("register path[{}] success", path);
         } catch (Exception e) {
             logger.error("Failed to create path[{}]", path, e);
         }
     }
-
 
     @Override
     public void subscribe(final String path, final NotifyListener listener) {
