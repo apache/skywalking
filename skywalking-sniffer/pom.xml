@@ -16,6 +16,7 @@
         <module>skywalking-agent</module>
         <module>skywalking-api</module>
         <module>skywalking-sdk-plugin</module>
+        <module>skywalking-test-api</module>
     </modules>
 
 </project>
