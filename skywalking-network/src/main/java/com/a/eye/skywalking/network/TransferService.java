@@ -24,8 +24,6 @@ public class TransferService {
                 TransferService.this.stop();
             }
         });
-
-        blockUntilShutdown();
     }
 
     public void stop() {
