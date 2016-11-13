@@ -14,9 +14,12 @@ import com.a.eye.skywalking.storage.config.ConfigInitializer;
 import com.a.eye.skywalking.storage.data.IndexDataCapacityMonitor;
 import com.a.eye.skywalking.storage.notifier.SearchNotifier;
 import com.a.eye.skywalking.storage.notifier.StorageNotifier;
+import com.a.eye.skywalking.storage.util.NetUtils;
 
 import java.io.IOException;
 import java.util.Properties;
+
+import static com.a.eye.skywalking.storage.config.Config.RegistryCenter.REGISTRY_PATH_PREFIX;
 
 /**
  * Created by xin on 2016/11/12.
@@ -34,13 +37,14 @@ public class Main {
     public static void main(String[] args) {
         try {
             initializeParam();
+            new Thread(new IndexDataCapacityMonitor()).start();
 
             transferService =
                     TransferServiceBuilder.newBuilder(Config.Server.PORT).startSpanStorageService(new StorageNotifier())
                             .startTraceSearchService(new SearchNotifier()).build();
             transferService.start();
             logger.info("transfer service started successfully!");
-            new Thread(new IndexDataCapacityMonitor()).start();
+
             registryNode();
             logger.info("storage service started successfully!");
             Thread.currentThread().join();
@@ -52,12 +56,15 @@ public class Main {
     }
 
     private static void registryNode() {
-        //TODO auth info  auth schema
         RegistryCenter registryCenter =
                 RegistryCenterFactory.INSTANCE.getRegistryCenter(CenterType.DEFAULT_CENTER_TYPE);
         Properties registerConfig = new Properties();
         registerConfig.setProperty(ZookeeperConfig.CONNECT_URL, Config.RegistryCenter.CONNECT_URL);
+        registerConfig.setProperty(ZookeeperConfig.AUTH_SCHEMA, Config.RegistryCenter.AUTH_SCHEMA);
+        registerConfig.setProperty(ZookeeperConfig.AUTH_INFO, Config.RegistryCenter.AUTH_INFO);
         registryCenter.start(registerConfig);
+        registryCenter.register(
+                REGISTRY_PATH_PREFIX + NetUtils.getLocalAddress().getHostAddress() + ":" + Config.Server.PORT);
     }
 
     private static void initializeParam() throws IllegalAccessException, IOException {

@@ -1,22 +1,31 @@
 package com.a.eye.skywalking.storage.data;
 
+import com.a.eye.skywalking.logging.api.ILog;
+import com.a.eye.skywalking.logging.api.LogManager;
 import com.a.eye.skywalking.storage.block.index.BlockIndexEngine;
+import com.a.eye.skywalking.storage.config.Config;
 import com.a.eye.skywalking.storage.data.file.DataFileReader;
 import com.a.eye.skywalking.storage.data.index.*;
 import com.a.eye.skywalking.storage.data.spandata.SpanData;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.sql.SQLException;
+import java.util.*;
 
 public class SpanDataFinder {
+    private static ILog                 logger          = LogManager.getLogger(SpanDataFinder.class);
+    private static IndexDataSourceCache datasourceCache = new IndexDataSourceCache(Config.SpanFinder.MAX_CACHE_SIZE);
+
     public static List<SpanData> find(String traceId) {
         long blockIndex = BlockIndexEngine.newFinder().find(fetchStartTimeFromTraceId(traceId));
         if (blockIndex == 0) {
             return new ArrayList<SpanData>();
         }
-        IndexDBConnector indexDBConnector = new IndexDBConnector(blockIndex);
+
+        IndexDBConnector indexDBConnector = fetchIndexDBConnector(blockIndex);
         IndexMetaCollection indexMetaCollection = indexDBConnector.queryByTraceId(traceId);
+        indexDBConnector.close();
 
         Iterator<IndexMetaGroup<String>> iterator =
                 IndexMetaCollections.group(indexMetaCollection, new GroupKeyBuilder<String>() {
@@ -35,8 +44,59 @@ public class SpanDataFinder {
         return result;
     }
 
+    private static IndexDBConnector fetchIndexDBConnector(long blockIndex) {
+        HikariDataSource datasource = getOrCreate(blockIndex);
+        IndexDBConnector indexDBConnector = null;
+        try {
+            indexDBConnector = new IndexDBConnector(datasource.getConnection());
+        } catch (SQLException e) {
+            logger.warn("Failed to get connection from datasource,", e);
+            indexDBConnector = new IndexDBConnector(blockIndex);
+        }
+        return indexDBConnector;
+    }
+
+    private static HikariDataSource getOrCreate(long blockIndex) {
+        HikariDataSource datasource = datasourceCache.get(blockIndex);
+        if (datasource == null) {
+            HikariConfig dataSourceConfig = generateDatasourceConfig(blockIndex);
+            datasource = new HikariDataSource(dataSourceConfig);
+            datasourceCache.put(blockIndex, datasource);
+        }
+        return datasource;
+    }
+
+    private static HikariConfig generateDatasourceConfig(long blockIndex) {
+        HikariConfig config = new HikariConfig();
+        config.setJdbcUrl(new ConnectURLGenerator(Config.DataIndex.BASE_PATH, Config.DataIndex.STORAGE_INDEX_FILE_NAME)
+                .generate(blockIndex));
+        config.setDriverClassName("org.hsqldb.jdbc.JDBCDriver");
+        config.setMaximumPoolSize(20);
+        config.setMinimumIdle(5);
+        return config;
+    }
+
     private static long fetchStartTimeFromTraceId(String traceId) {
         String[] traceIdSegment = traceId.split("\\.");
         return Long.parseLong(traceIdSegment[traceIdSegment.length - 5]);
+    }
+
+    private static class IndexDataSourceCache extends LinkedHashMap<Long, HikariDataSource> {
+
+        private int cacheSize;
+
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<Long, HikariDataSource> eldest) {
+            boolean removed = size() > cacheSize;
+            if (removed) {
+                eldest.getValue().close();
+            }
+            return removed;
+        }
+
+        public IndexDataSourceCache(int cacheSize) {
+            super((int) Math.ceil(cacheSize / 0.75) + 1, 0.75f, true);
+            this.cacheSize = cacheSize;
+        }
     }
 }

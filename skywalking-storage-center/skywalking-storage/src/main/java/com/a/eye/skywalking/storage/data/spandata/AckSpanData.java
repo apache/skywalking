@@ -40,4 +40,15 @@ public class AckSpanData extends AbstractSpanData {
         return buildLevelId(ackSpan.getParentLevel(), ackSpan.getLevelId());
     }
 
+    public long getCost() {
+        return ackSpan.getCost();
+    }
+
+    public String getExceptionStack() {
+        return ackSpan.getExceptionStack();
+    }
+
+    public int getStatusCode() {
+        return ackSpan.getStatusCode();
+    }
 }

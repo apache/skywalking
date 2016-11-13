@@ -46,6 +46,11 @@
             <artifactId>skywalking-registry</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <version>2.4.3</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

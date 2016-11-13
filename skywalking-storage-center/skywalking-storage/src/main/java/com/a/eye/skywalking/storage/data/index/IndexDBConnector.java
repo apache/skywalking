@@ -41,6 +41,11 @@ public class IndexDBConnector {
         createTableAndIndexIfNecessary();
     }
 
+    public IndexDBConnector(Connection connection){
+        this.connection = connection;
+        createTableAndIndexIfNecessary();
+    }
+
     private void createTableAndIndexIfNecessary() {
         try {
             if (validateTableIsExists()) {
@@ -143,22 +148,6 @@ public class IndexDBConnector {
             return collection;
         }catch(SQLException e){
             return new IndexMetaCollection();
-        }
-    }
-
-    class ConnectURLGenerator {
-
-        private String basePath;
-        private String dbFileName;
-
-        private ConnectURLGenerator(String basePath, String dbFileName) {
-            this.basePath = basePath;
-            this.dbFileName = dbFileName;
-        }
-
-
-        public String generate(long timestamp) {
-            return "jdbc:hsqldb:file:" + basePath + "/" + timestamp + "/" + dbFileName;
         }
     }
 

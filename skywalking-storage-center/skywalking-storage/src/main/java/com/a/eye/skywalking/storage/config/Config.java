@@ -33,10 +33,23 @@ public class Config {
         public static String STORAGE_INDEX_FILE_NAME = "dataIndex";
 
         public static long MAX_CAPACITY_PER_INDEX = 1000 * 1000 * 1000 * 1000;
+
     }
 
 
     public static class RegistryCenter {
+
+        public static String AUTH_INFO = "";
+
+        public static String AUTH_SCHEMA = "";
+
         public static String CONNECT_URL = "127.0.0.1:2181";
+
+        public static String REGISTRY_PATH_PREFIX = "/storage_list/";
+    }
+
+
+    public static class SpanFinder {
+        public static int MAX_CACHE_SIZE = 10;
     }
 }

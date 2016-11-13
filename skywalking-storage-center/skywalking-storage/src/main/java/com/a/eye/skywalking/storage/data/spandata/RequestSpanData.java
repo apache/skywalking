@@ -39,4 +39,32 @@ public class RequestSpanData extends AbstractSpanData {
     public String getLevelId() {
         return buildLevelId(requestSpan.getParentLevel(), requestSpan.getLevelId());
     }
+
+    public String getAddress(){
+        return requestSpan.getAddress();
+    }
+
+    public String getApplicationId(){
+        return requestSpan.getApplicationId();
+    }
+
+    public String getProcessNo(){
+        return requestSpan.getProcessNo();
+    }
+
+    public long getStartTime(){
+        return requestSpan.getStartDate();
+    }
+
+    public String getBusinessKey() {
+        return requestSpan.getBussinessKey();
+    }
+
+    public String getCallType() {
+        return requestSpan.getCallType();
+    }
+
+    public int getType() {
+        return requestSpan.getSpanType();
+    }
 }

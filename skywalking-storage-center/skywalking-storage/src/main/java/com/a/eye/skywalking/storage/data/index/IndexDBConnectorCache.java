@@ -41,7 +41,7 @@ public class IndexDBConnectorCache {
         }
 
         public LRUCache(int cacheSize) {
-            super((int) Math.ceil(MAX_CACHE_SIZE / 0.75) + 1, 0.75f, true);
+            super((int) Math.ceil(cacheSize / 0.75) + 1, 0.75f, true);
         }
     }
 }
