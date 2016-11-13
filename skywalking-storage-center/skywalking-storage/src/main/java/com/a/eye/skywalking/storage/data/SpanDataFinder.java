@@ -13,6 +13,9 @@ import com.zaxxer.hikari.HikariDataSource;
 import java.sql.SQLException;
 import java.util.*;
 
+import static com.a.eye.skywalking.storage.config.Constants.SQL.DEFAULT_PASSWORD;
+import static com.a.eye.skywalking.storage.config.Constants.SQL.DEFAULT_USER;
+
 public class SpanDataFinder {
     private static ILog                 logger          = LogManager.getLogger(SpanDataFinder.class);
     private static IndexDataSourceCache datasourceCache = new IndexDataSourceCache(Config.SpanFinder.MAX_CACHE_SIZE);
@@ -71,6 +74,8 @@ public class SpanDataFinder {
         config.setJdbcUrl(new ConnectURLGenerator(Config.DataIndex.BASE_PATH, Config.DataIndex.STORAGE_INDEX_FILE_NAME)
                 .generate(blockIndex));
         config.setDriverClassName("org.hsqldb.jdbc.JDBCDriver");
+        config.setUsername(DEFAULT_USER);
+        config.setPassword(DEFAULT_PASSWORD);
         config.setMaximumPoolSize(20);
         config.setMinimumIdle(5);
         return config;

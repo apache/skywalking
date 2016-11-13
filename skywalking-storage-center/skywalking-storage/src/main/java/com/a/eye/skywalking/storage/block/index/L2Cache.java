@@ -15,7 +15,7 @@ public class L2Cache {
     private ReadWriteLock updateLock = new ReentrantReadWriteLock();
 
     void init(List<Long> data) {
-        this.cacheData.addAll(cacheData);
+        this.cacheData.addAll(data);
     }
 
     public Long find(long timestamp) {

@@ -1,11 +1,13 @@
 package com.a.eye.skywalking.storage.data.file;
 
+import com.a.eye.skywalking.logging.api.ILog;
+import com.a.eye.skywalking.logging.api.LogManager;
 import com.a.eye.skywalking.storage.config.Config;
-import com.a.eye.skywalking.storage.data.spandata.SpanData;
 import com.a.eye.skywalking.storage.data.exception.DataFileOperatorCreateFailedException;
 import com.a.eye.skywalking.storage.data.exception.SpanDataPersistenceFailedException;
 import com.a.eye.skywalking.storage.data.exception.SpanDataReadFailedException;
 import com.a.eye.skywalking.storage.data.index.IndexMetaInfo;
+import com.a.eye.skywalking.storage.data.spandata.SpanData;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,25 +19,48 @@ import java.io.IOException;
  */
 public class DataFile {
 
+    private static ILog logger = LogManager.getLogger(DataFile.class);
     private String           fileName;
     private long             currentOffset;
     private DataFileOperator operator;
+
+    static {
+        File dataFileDir = new File(Config.DataFile.BASE_PATH);
+        if (!dataFileDir.exists()) {
+            dataFileDir.mkdirs();
+        }
+    }
 
     public DataFile() {
         this.fileName = System.currentTimeMillis() + "";
         this.currentOffset = 0;
         operator = new DataFileOperator();
+        createFile();
     }
 
     public DataFile(String fileName) {
         this.fileName = fileName;
         operator = new DataFileOperator();
+        createFile();
     }
 
     public DataFile(File file) {
         this.fileName = file.getName();
         this.currentOffset = file.length();
         operator = new DataFileOperator();
+        createFile();
+    }
+
+    private void createFile() {
+        File dataFile = new File(Config.DataFile.BASE_PATH, fileName);
+        if (!dataFile.exists()) {
+            try {
+                dataFile.createNewFile();
+            } catch (IOException e) {
+                logger.error("Failed to create data file.", e);
+                throw new DataFileOperatorCreateFailedException("Failed to create data file", e);
+            }
+        }
     }
 
     public boolean overLimitLength() {
@@ -46,7 +71,7 @@ public class DataFile {
         byte[] bytes = data.toByteArray();
         try {
             operator.getWriter().write(bytes);
-            IndexMetaInfo metaInfo = new IndexMetaInfo(data,fileName, currentOffset, bytes.length);
+            IndexMetaInfo metaInfo = new IndexMetaInfo(data, fileName, currentOffset, bytes.length);
             currentOffset += bytes.length;
             return metaInfo;
         } catch (IOException e) {
@@ -82,7 +107,7 @@ public class DataFile {
 
             if (writer == null) {
                 try {
-                    writer = new FileOutputStream(new File(fileName));
+                    writer = new FileOutputStream(new File(Config.DataFile.BASE_PATH, fileName), true);
                 } catch (IOException e) {
                     throw new DataFileOperatorCreateFailedException("Failed to create datafile output stream", e);
                 }
@@ -94,7 +119,7 @@ public class DataFile {
         public FileInputStream getReader() {
             if (reader == null) {
                 try {
-                    reader = new FileInputStream(new File(fileName));
+                    reader = new FileInputStream(new File(Config.DataFile.BASE_PATH, fileName));
                 } catch (IOException e) {
                     throw new DataFileOperatorCreateFailedException("Failed to create datafile input stream", e);
                 }

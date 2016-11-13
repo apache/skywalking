@@ -22,7 +22,8 @@ public class L1Cache {
     private final        ReadWriteLock updateLock         = new ReentrantReadWriteLock();
 
     void init(List<Long> data) {
-        for (int i = 0; i < MAX_DATA_KEEP_SIZE; i++) {
+        int size = data.size() > MAX_DATA_KEEP_SIZE ? MAX_DATA_KEEP_SIZE : data.size();
+        for (int i = 0; i < size; i++) {
             this.cacheData.add(data.get(i));
         }
     }

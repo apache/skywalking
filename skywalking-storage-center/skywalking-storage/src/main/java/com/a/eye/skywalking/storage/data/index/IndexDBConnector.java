@@ -48,7 +48,7 @@ public class IndexDBConnector {
 
     private void createTableAndIndexIfNecessary() {
         try {
-            if (validateTableIsExists()) {
+            if (!tableExists()) {
                 createTable();
                 createIndex();
             }
@@ -60,14 +60,14 @@ public class IndexDBConnector {
 
     private void createConnection() {
         try {
-            connection = DriverManager.getConnection(generator.generate(timestamp));
+            connection = DriverManager.getConnection(generator.generate(timestamp), DEFAULT_USER, DEFAULT_PASSWORD);
             connection.setAutoCommit(true);
         } catch (SQLException e) {
             throw new ConnectorInitializeFailedException("Failed to create connection.", e);
         }
     }
 
-    private boolean validateTableIsExists() throws SQLException {
+    private boolean tableExists() throws SQLException {
         PreparedStatement ps = connection.prepareStatement(QUERY_TABLES);
         ResultSet rs = ps.executeQuery();
         rs.next();

@@ -42,7 +42,8 @@ public class BlockIndexUpdator {
     private void updateFile(long timestamp) throws BlockIndexPersistenceFailedException {
         BufferedWriter writer = null;
         try {
-            writer = new BufferedWriter(new FileWriter(new File(STORAGE_BASE_PATH, DATA_FILE_INDEX_FILE_NAME)));
+            File blockIndexFile = getOrCreateBlockIndexFile();
+            writer = new BufferedWriter(new FileWriter(blockIndexFile));
             writer.write(String.valueOf(timestamp));
             writer.newLine();
             writer.close();
@@ -64,7 +65,8 @@ public class BlockIndexUpdator {
         List<Long> indexData = new ArrayList<>();
         BufferedReader indexFileReader = null;
         try {
-            indexFileReader = new BufferedReader(new FileReader(new File(STORAGE_BASE_PATH, DATA_FILE_INDEX_FILE_NAME)));
+            File blockIndexFile = getOrCreateBlockIndexFile();
+            indexFileReader = new BufferedReader(new FileReader(blockIndexFile));
             String indexDataStr = null;
             while ((indexDataStr = indexFileReader.readLine()) != null) {
                 indexData.add(Long.parseLong(indexDataStr));
@@ -81,8 +83,27 @@ public class BlockIndexUpdator {
             }
         }
 
+        if (indexData.size() == 0) {
+            //如果此前没有记录，则取之前五分钟到目前的数据
+            addRecord(System.currentTimeMillis() - 5 * 60 * 1000);
+            return;
+        }
+
         Collections.reverse(indexData);
         l1Cache.init(indexData);
         l2Cache.init(indexData);
+    }
+
+    public File getOrCreateBlockIndexFile() throws IOException {
+        File blockIndexFile = new File(STORAGE_BASE_PATH, DATA_FILE_INDEX_FILE_NAME);
+
+        if (!blockIndexFile.getParentFile().exists()) {
+            blockIndexFile.getParentFile().mkdirs();
+        }
+
+        if (!blockIndexFile.exists()) {
+            blockIndexFile.createNewFile();
+        }
+        return blockIndexFile;
     }
 }

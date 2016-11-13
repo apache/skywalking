@@ -9,6 +9,7 @@ import com.a.eye.skywalking.registry.RegistryCenterFactory;
 import com.a.eye.skywalking.registry.api.CenterType;
 import com.a.eye.skywalking.registry.api.RegistryCenter;
 import com.a.eye.skywalking.registry.impl.zookeeper.ZookeeperConfig;
+import com.a.eye.skywalking.storage.block.index.BlockIndexEngine;
 import com.a.eye.skywalking.storage.config.Config;
 import com.a.eye.skywalking.storage.config.ConfigInitializer;
 import com.a.eye.skywalking.storage.data.IndexDataCapacityMonitor;
@@ -37,21 +38,24 @@ public class Main {
     public static void main(String[] args) {
         try {
             initializeParam();
-            new Thread(new IndexDataCapacityMonitor()).start();
 
+            BlockIndexEngine.start();
+            IndexDataCapacityMonitor.start();
             transferService =
                     TransferServiceBuilder.newBuilder(Config.Server.PORT).startSpanStorageService(new StorageNotifier())
                             .startTraceSearchService(new SearchNotifier()).build();
             transferService.start();
-            logger.info("transfer service started successfully!");
+            logger.info("transfer service started successfully.");
 
             registryNode();
-            logger.info("storage service started successfully!");
+            logger.info("storage service started successfully.");
             Thread.currentThread().join();
         } catch (Throwable e) {
+            e.printStackTrace();
             logger.error("Failed to start service.", e);
         } finally {
             transferService.stop();
+            IndexDataCapacityMonitor.stop();
         }
     }
 
