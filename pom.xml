@@ -15,7 +15,6 @@
         <module>skywalking-registry</module>
         <module>samples/skywalking-auth</module>
         <module>samples/skywalking-example</module>
-        <module>test/skywalking-test-api</module>
         <module>skywalking-logging</module>
     </modules>
     <packaging>pom</packaging>
