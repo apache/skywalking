@@ -10,8 +10,6 @@ import io.grpc.ServerBuilder;
 import java.io.IOException;
 
 public class TransferService {
-    private static final int DEFAULT_SERVICE_PORT = 34000;
-
     private Server server;
 
     private TransferService(Server server) {
@@ -44,10 +42,6 @@ public class TransferService {
 
     public static class TransferServiceBuilder {
         private TransferServiceBuilder(int port) {
-            if (port < 0 && port > 65535) {
-                port = DEFAULT_SERVICE_PORT;
-            }
-
             serverBuilder = ServerBuilder.forPort(port);
         }
 
