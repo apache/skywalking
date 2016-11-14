@@ -1,6 +1,8 @@
 package com.a.eye.skywalking.storage.listener;
 
 import com.a.eye.datacarrier.DataCarrier;
+import com.a.eye.skywalking.health.report.HealthCollector;
+import com.a.eye.skywalking.health.report.HeathReading;
 import com.a.eye.skywalking.logging.api.ILog;
 import com.a.eye.skywalking.logging.api.LogManager;
 import com.a.eye.skywalking.network.grpc.AckSpan;
@@ -26,9 +28,13 @@ public class StorageListener implements SpanStorageListener {
     public boolean storage(RequestSpan requestSpan) {
         try {
             spanDataDataCarrier.produce(SpanDataBuilder.build(requestSpan));
+            HealthCollector.getCurrentHeathReading("StorageListener").updateData(HeathReading.INFO,"Request span "
+                    + "consume successfully");
             return true;
         } catch (Exception e) {
             logger.error("Failed to storage request span. Span Data:\n {}.", requestSpan.toByteString(), e);
+            HealthCollector.getCurrentHeathReading("StorageListener").updateData(HeathReading.ERROR,"Request span "
+                    + "consume failed");
             return false;
         }
     }

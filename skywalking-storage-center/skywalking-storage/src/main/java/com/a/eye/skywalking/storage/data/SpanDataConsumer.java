@@ -3,6 +3,8 @@ package com.a.eye.skywalking.storage.data;
 import com.a.eye.datacarrier.consumer.IConsumer;
 import com.a.eye.skywalking.health.report.HealthCollector;
 import com.a.eye.skywalking.health.report.HeathReading;
+import com.a.eye.skywalking.logging.api.ILog;
+import com.a.eye.skywalking.logging.api.LogManager;
 import com.a.eye.skywalking.storage.block.index.BlockIndexEngine;
 import com.a.eye.skywalking.storage.data.file.DataFileWriter;
 import com.a.eye.skywalking.storage.data.index.*;
@@ -13,6 +15,7 @@ import java.util.List;
 
 public class SpanDataConsumer implements IConsumer<SpanData> {
 
+    private static ILog logger = LogManager.getLogger(SpanDataConsumer.class);
     private IndexDBConnectorCache cache;
     private DataFileWriter        fileWriter;
 
@@ -23,7 +26,6 @@ public class SpanDataConsumer implements IConsumer<SpanData> {
 
     @Override
     public void consume(List<SpanData> data) {
-
         Iterator<IndexMetaGroup<Long>> iterator =
                 IndexMetaCollections.group(fileWriter.write(data), new GroupKeyBuilder<Long>() {
                     @Override
@@ -39,7 +41,6 @@ public class SpanDataConsumer implements IConsumer<SpanData> {
             HealthCollector.getCurrentHeathReading("SpanDataConsumer")
                     .updateData(HeathReading.INFO, "%s messages were successful consumed .", data.size());
         }
-
     }
 
     private IndexDBConnector getDBConnector(IndexMetaGroup<Long> metaGroup) {
@@ -47,7 +48,9 @@ public class SpanDataConsumer implements IConsumer<SpanData> {
     }
 
     @Override
-    public void onError(List<SpanData> list, Throwable throwable) {
-
+    public void onError(List<SpanData> span, Throwable throwable) {
+        logger.error("Failed to consumer span data.", throwable);
+        HealthCollector.getCurrentHeathReading("SpanDataConsumer").updateData(HeathReading.ERROR,
+                "Failed to consume span data. error message : " + throwable.getMessage());
     }
 }

@@ -24,7 +24,7 @@ public class IndexDBConnector {
 
     static {
         try {
-            Class.forName("org.hsqldb.jdbc.JDBCDriver");
+            Class.forName(Constants.DRIVER_CLASS_NAME);
         } catch (ClassNotFoundException e) {
             //never
         }
@@ -32,8 +32,8 @@ public class IndexDBConnector {
 
     private long       timestamp;
     private Connection connection;
-    private ConnectURLGenerator generator = new ConnectURLGenerator(getAbsolutePath(Config.DataIndex.PATH),
-            Config.DataIndex.FILE_NAME);
+    private ConnectURLGenerator generator =
+            new ConnectURLGenerator(getAbsolutePath(Config.DataIndex.PATH), Config.DataIndex.FILE_NAME);
 
     public IndexDBConnector(long timestamp) {
         this.timestamp = timestamp;

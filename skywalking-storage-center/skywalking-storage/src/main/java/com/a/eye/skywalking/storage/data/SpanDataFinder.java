@@ -4,6 +4,7 @@ import com.a.eye.skywalking.logging.api.ILog;
 import com.a.eye.skywalking.logging.api.LogManager;
 import com.a.eye.skywalking.storage.block.index.BlockIndexEngine;
 import com.a.eye.skywalking.storage.config.Config;
+import com.a.eye.skywalking.storage.config.Constants;
 import com.a.eye.skywalking.storage.data.file.DataFileReader;
 import com.a.eye.skywalking.storage.data.index.*;
 import com.a.eye.skywalking.storage.data.spandata.SpanData;
@@ -18,8 +19,8 @@ import static com.a.eye.skywalking.storage.config.Constants.SQL.DEFAULT_USER;
 import static com.a.eye.skywalking.storage.util.PathResolver.getAbsolutePath;
 
 public class SpanDataFinder {
-    private static      ILog                 logger          = LogManager.getLogger(SpanDataFinder.class);
-    private static      IndexDataSourceCache datasourceCache =
+    private static ILog logger = LogManager.getLogger(SpanDataFinder.class);
+    private static IndexDataSourceCache datasourceCache =
             new IndexDataSourceCache(Config.Finder.CACHED_SIZE);
 
     public static List<SpanData> find(String traceId) {
@@ -75,7 +76,7 @@ public class SpanDataFinder {
         HikariConfig config = new HikariConfig();
         config.setJdbcUrl(new ConnectURLGenerator(getAbsolutePath(Config.DataIndex.PATH),
                 Config.DataIndex.FILE_NAME).generate(blockIndex));
-        config.setDriverClassName("org.hsqldb.jdbc.JDBCDriver");
+        config.setDriverClassName(Constants.DRIVER_CLASS_NAME);
         config.setUsername(DEFAULT_USER);
         config.setPassword(DEFAULT_PASSWORD);
         config.setMaximumPoolSize(Config.Finder.DataSource.MAX_POOL_SIZE);

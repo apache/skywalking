@@ -2,7 +2,8 @@ package com.a.eye.skywalking.storage.config;
 
 public class Constants {
 
-    public final static String TABLE_NAME = "data_index";
+    public final static String TABLE_NAME        = "data_index";
+    public static final String DRIVER_CLASS_NAME = "org.hsqldb.jdbc.JDBCDriver";
 
     public static int MAX_BATCH_SIZE = 50;
 
