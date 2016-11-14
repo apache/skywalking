@@ -15,6 +15,7 @@ public class DataFileWriter {
 
     public IndexMetaCollection write(List<SpanData> spanData) {
         if (dataFile.overLimitLength()) {
+            this.close();
             dataFile = DataFilesManager.createNewDataFile();
         }
 
@@ -25,5 +26,9 @@ public class DataFileWriter {
         dataFile.flush();
 
         return collections;
+    }
+
+    public void close(){
+        dataFile.close();
     }
 }

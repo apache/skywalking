@@ -8,13 +8,13 @@
     <version>2.0-2016</version>
 
     <modules>
+        <module>skywalking-commons</module>
         <module>skywalking-alarm</module>
         <module>skywalking-webui</module>
         <module>skywalking-sniffer</module>
         <module>skywalking-storage-center</module>
         <module>samples/skywalking-auth</module>
         <module>samples/skywalking-example</module>
-        <module>skywalking-commons</module>
     </modules>
     <packaging>pom</packaging>
 
@@ -23,7 +23,6 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.version>2.0-2016</project.version>
     </properties>
 
     <dependencies>

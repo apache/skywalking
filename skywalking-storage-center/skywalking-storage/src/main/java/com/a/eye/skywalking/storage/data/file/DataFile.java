@@ -4,7 +4,7 @@ import com.a.eye.skywalking.logging.api.ILog;
 import com.a.eye.skywalking.logging.api.LogManager;
 import com.a.eye.skywalking.storage.config.Config;
 import com.a.eye.skywalking.storage.data.exception.DataFileOperatorCreateFailedException;
-import com.a.eye.skywalking.storage.data.exception.SpanDataPersistenceFailedException;
+import com.a.eye.skywalking.storage.data.exception.SpanDataStoredFailedException;
 import com.a.eye.skywalking.storage.data.exception.SpanDataReadFailedException;
 import com.a.eye.skywalking.storage.data.index.IndexMetaInfo;
 import com.a.eye.skywalking.storage.data.spandata.SpanData;
@@ -84,7 +84,7 @@ public class DataFile {
             currentOffset += bytes.length;
             return metaInfo;
         } catch (IOException e) {
-            throw new SpanDataPersistenceFailedException(e);
+            throw new SpanDataStoredFailedException(e);
         }
     }
 
@@ -92,8 +92,12 @@ public class DataFile {
         try {
             operator.getWriter().flush();
         } catch (IOException e) {
-            throw new SpanDataPersistenceFailedException(e);
+            throw new SpanDataStoredFailedException(e);
         }
+    }
+
+    public void close(){
+        operator.close();
     }
 
     public byte[] read(long offset, int length) {
@@ -103,8 +107,7 @@ public class DataFile {
             operator.getReader().read(data, 0, length);
             return data;
         } catch (IOException e) {
-            throw new SpanDataReadFailedException(
-                    "Failed to read dataFile[" + fileName + "], offset: " + offset + " " + "lenght: " + length, e);
+            throw new SpanDataReadFailedException("Failed to read dataFile[" + fileName + "], offset: " + offset + " " + "lenght: " + length, e);
         }
     }
 
@@ -135,6 +138,23 @@ public class DataFile {
             }
 
             return reader;
+        }
+
+        public void close() {
+            if (writer != null) {
+                try {
+                    writer.close();
+                } catch (IOException e) {
+
+                }
+            }
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+
+                }
+            }
         }
     }
 

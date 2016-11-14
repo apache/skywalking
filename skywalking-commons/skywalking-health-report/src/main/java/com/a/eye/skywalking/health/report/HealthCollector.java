@@ -1,7 +1,6 @@
 package com.a.eye.skywalking.health.report;
 
 
-import com.a.eye.skywalking.health.report.util.MachineUtil;
 import com.a.eye.skywalking.logging.api.ILog;
 import com.a.eye.skywalking.logging.api.LogManager;
 
@@ -10,15 +9,15 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class HealthCollector extends Thread {
-    private static       ILog                      logger                  =
-            LogManager.getLogger(HealthCollector.class);
-    private static       Map<String, HeathReading> heathReadings           =
-            new ConcurrentHashMap<String, HeathReading>();
+    private static       ILog                      logger                  = LogManager.getLogger(HealthCollector.class);
+    private static       Map<String, HeathReading> heathReadings           = new ConcurrentHashMap<String, HeathReading>();
     private static final long                      DEFAULT_REPORT_INTERVAL = 60 * 1000;
-    private final long reportInterval;
+    private final long   reportInterval;
+    private       String reporterName;
 
-    private HealthCollector() {
+    private HealthCollector(String reporterName) {
         this(DEFAULT_REPORT_INTERVAL);
+        this.reporterName = reporterName;
     }
 
     private HealthCollector(long reportInterval) {
@@ -27,8 +26,8 @@ public class HealthCollector extends Thread {
         this.reportInterval = reportInterval;
     }
 
-    public static void init() {
-        new HealthCollector().start();
+    public static void init(String reporterName) {
+        new HealthCollector(reporterName).start();
     }
 
     public static HeathReading getCurrentHeathReading(String extraId) {
@@ -37,8 +36,7 @@ public class HealthCollector extends Thread {
             synchronized (heathReadings) {
                 if (!heathReadings.containsKey(id)) {
                     if (heathReadings.keySet().size() > 5000) {
-                        throw new RuntimeException(
-                                "use HealthCollector illegal. There is an overflow trend of Server Health Collector Report Data.");
+                        throw new RuntimeException("use HealthCollector illegal. There is an overflow trend of Server Health Collector Report Data.");
                     }
                     heathReadings.put(id, new HeathReading(id));
                 }
@@ -48,8 +46,7 @@ public class HealthCollector extends Thread {
     }
 
     private static String getId(String extraId) {
-        return "SkyWalking Health Report,P:" + MachineUtil.getProcessNo() + ",T:" + Thread.currentThread().getName()
-                + "(" + Thread.currentThread().getId() + ")" + (extraId == null ? "" : ",extra:" + extraId);
+        return "T:" + Thread.currentThread().getName() + "(" + Thread.currentThread().getId() + ")" + (extraId == null ? "" : ",extra:" + extraId);
     }
 
     @Override
@@ -61,7 +58,7 @@ public class HealthCollector extends Thread {
                 String[] keyList = heathReadingsSnapshot.keySet().toArray(new String[0]);
                 Arrays.sort(keyList);
                 StringBuilder log = new StringBuilder();
-                log.append("\n---------Server Health Collector Report---------\n");
+                log.append("\n---------" + reporterName + " Health Report---------\n");
                 for (String key : keyList) {
                     log.append(heathReadingsSnapshot.get(key)).append("\n");
                 }

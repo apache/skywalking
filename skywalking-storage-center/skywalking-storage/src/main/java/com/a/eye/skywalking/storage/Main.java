@@ -29,7 +29,8 @@ import static com.a.eye.skywalking.storage.config.Config.RegistryCenter.PATH_PRE
  */
 public class Main {
 
-    private static ILog logger = LogManager.getLogger(Main.class);
+    private static final ILog logger = LogManager.getLogger(Main.class);
+    private static final String SERVER_REPORTER_NAME = "Storage Server";
 
     static {
         LogManager.setLogResolver(new Log4j2Resolver());
@@ -41,7 +42,7 @@ public class Main {
         try {
             initializeParam();
 
-            HealthCollector.init();
+            HealthCollector.init(SERVER_REPORTER_NAME);
 
             DataFilesManager.init();
 
@@ -54,15 +55,15 @@ public class Main {
             provider.start();
 
             if (logger.isDebugEnable()) {
-                logger.debug("Service provider started successfully.");
+                logger.debug("Service provider started.");
             }
 
             registryNode();
 
-            logger.info("Storage service started successfully.");
+            logger.info("SkyWalking storage server started.");
             Thread.currentThread().join();
         } catch (Throwable e) {
-            logger.error("Failed to start service.", e);
+            logger.error("SkyWalking storage server start failure.", e);
         } finally {
             provider.stop();
             IndexDataCapacityMonitor.stop();
@@ -88,10 +89,10 @@ public class Main {
             printStorageConfig(properties);
             ConfigInitializer.initialize(properties, Config.class);
         } catch (IllegalAccessException e) {
-            logger.error("Initialize the collect server configuration failed", e);
+            logger.error("Initialize server configuration failure.", e);
             throw e;
         } catch (IOException e) {
-            logger.error("Initialize the collect server configuration failed", e);
+            logger.error("Initialize server configuration failure.", e);
             throw e;
         }
     }

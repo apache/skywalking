@@ -47,4 +47,8 @@ public class DataFileReader {
 
         return metaData;
     }
+
+    public void close(){
+        dataFile.close();
+    }
 }

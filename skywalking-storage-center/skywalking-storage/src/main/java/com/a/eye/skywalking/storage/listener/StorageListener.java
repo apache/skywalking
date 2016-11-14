@@ -28,13 +28,11 @@ public class StorageListener implements SpanStorageListener {
     public boolean storage(RequestSpan requestSpan) {
         try {
             spanDataDataCarrier.produce(SpanDataBuilder.build(requestSpan));
-            HealthCollector.getCurrentHeathReading("StorageListener").updateData(HeathReading.INFO,"Request span "
-                    + "consume successfully");
+            HealthCollector.getCurrentHeathReading("StorageListener").updateData(HeathReading.INFO,"RequestSpan stored.");
             return true;
         } catch (Exception e) {
-            logger.error("Failed to storage request span. Span Data:\n {}.", requestSpan.toByteString(), e);
-            HealthCollector.getCurrentHeathReading("StorageListener").updateData(HeathReading.ERROR,"Request span "
-                    + "consume failed");
+            logger.error("RequestSpan trace-id[{}] store failure..", requestSpan.getTraceId(), e);
+            HealthCollector.getCurrentHeathReading("StorageListener").updateData(HeathReading.ERROR,"RequestSpan store failure.");
             return false;
         }
     }
@@ -43,9 +41,11 @@ public class StorageListener implements SpanStorageListener {
     public boolean storage(AckSpan ackSpan) {
         try {
             spanDataDataCarrier.produce(SpanDataBuilder.build(ackSpan));
+            HealthCollector.getCurrentHeathReading("StorageListener").updateData(HeathReading.INFO,"AckSpan stored.");
             return true;
         } catch (Exception e) {
-            logger.error("Failed to storage ack span. ack Data:\n {}.", ackSpan.toByteString(), e);
+            logger.error("AckSpan trace-id[{}] store failure..", ackSpan.getTraceId(), e);
+            HealthCollector.getCurrentHeathReading("StorageListener").updateData(HeathReading.ERROR,"AckSpan store failure.");
             return false;
         }
     }

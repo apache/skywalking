@@ -53,4 +53,10 @@ public class SpanDataConsumer implements IConsumer<SpanData> {
         HealthCollector.getCurrentHeathReading("SpanDataConsumer").updateData(HeathReading.ERROR,
                 "Failed to consume span data. error message : " + throwable.getMessage());
     }
+
+    @Override
+    public void onExit() {
+        cache.close();
+        fileWriter.close();
+    }
 }

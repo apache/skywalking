@@ -22,6 +22,10 @@ public class IndexDBConnectorCache {
         return connector;
     }
 
+    public void close(){
+        cachedOperators.close();
+    }
+
     private void updateCache(long timestamp, IndexDBConnector operator) {
         cachedOperators.put(timestamp, operator);
     }
@@ -42,6 +46,12 @@ public class IndexDBConnectorCache {
 
         public LRUCache(int cacheSize) {
             super((int) Math.ceil(cacheSize / 0.75) + 1, 0.75f, true);
+        }
+
+        public void close(){
+            for(Map.Entry<Long, IndexDBConnector> entry : this.entrySet()){
+                entry.getValue().close();
+            }
         }
     }
 }
