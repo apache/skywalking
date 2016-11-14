@@ -9,6 +9,8 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import static com.a.eye.skywalking.storage.config.Config.BlockIndexEngine.L1_CACHE_SIZE;
+
 /**
  * 块索引的一级缓存
  * <p>
@@ -16,15 +18,20 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 public class L1Cache {
 
-    private static final int           MAX_DATA_KEEP_SIZE = 30;
-    private static       ILog          logger             = LogManager.getLogger(L1Cache.class);
-    private              TreeSet<Long> cacheData          = new TreeSet<Long>();
-    private final        ReadWriteLock updateLock         = new ReentrantReadWriteLock();
+    private static ILog          logger     = LogManager.getLogger(L1Cache.class);
+    private        TreeSet<Long> cacheData  = new TreeSet<Long>();
+    private final  ReadWriteLock updateLock = new ReentrantReadWriteLock();
 
     void init(List<Long> data) {
-        int size = data.size() > MAX_DATA_KEEP_SIZE ? MAX_DATA_KEEP_SIZE : data.size();
+        StringBuilder initData = new StringBuilder();
+        int size = data.size() > L1_CACHE_SIZE ? L1_CACHE_SIZE : data.size();
         for (int i = 0; i < size; i++) {
             this.cacheData.add(data.get(i));
+            initData.append(data.get(i)).append(",");
+        }
+
+        if (logger.isDebugEnable()) {
+            logger.info("L1 cache init data : [{}]", initData.deleteCharAt(initData.length() - 1));
         }
     }
 
@@ -42,7 +49,7 @@ public class L1Cache {
         TreeSet<Long> newCacheData = new TreeSet<>(cacheData);
         newCacheData.add(timestamp);
 
-        if (newCacheData.size() >= MAX_DATA_KEEP_SIZE + 1) {
+        if (newCacheData.size() >= L1_CACHE_SIZE + 1) {
             long removedData = newCacheData.pollFirst();
             logger.info("Add cache data : {}, removed cache Data:{}", timestamp, removedData);
         }

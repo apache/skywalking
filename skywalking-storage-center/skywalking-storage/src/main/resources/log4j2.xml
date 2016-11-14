@@ -1,13 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="debug">
-	<Appenders>
-		<Console name="Console" target="SYSTEM_OUT">
-			<PatternLayout pattern="%d - %c -%-4r [%t] %-5p %x - %m%n"/>
-		</Console>
-	</Appenders>
-	<Loggers>
-		<Root level="debug">
-			<AppenderRef ref="Console"/>
-		</Root>
-	</Loggers>
+<Configuration status="WARN" name="storage-server" packages="">
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d %-5p %c{1}:%L - %m%n"/>
+        </Console>
+        <RollingFile name="RollingFile" fileName="logs/storage-server.log"
+                     filePattern="logs/storage-server-%d{MM-dd-yyyy}.log.gz"
+                     ignoreExceptions="false">
+            <PatternLayout>
+                <Pattern>%d %-5p %c{1}:%L - %m%n</Pattern>
+            </PatternLayout>
+            <SizeBasedTriggeringPolicy size="200MB"/>
+            <DefaultRolloverStrategy max="5"/>
+        </RollingFile>
+    </Appenders>
+    <Loggers>
+        <Root level="DEBUG">
+            <AppenderRef ref="RollingFile" level="INFO"/>
+            <appender-ref ref="Console" level="DEBUG"/>
+        </Root>
+    </Loggers>
 </Configuration>

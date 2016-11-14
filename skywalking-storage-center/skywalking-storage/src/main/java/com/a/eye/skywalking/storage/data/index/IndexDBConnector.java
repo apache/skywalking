@@ -3,6 +3,7 @@ package com.a.eye.skywalking.storage.data.index;
 import com.a.eye.skywalking.logging.api.ILog;
 import com.a.eye.skywalking.logging.api.LogManager;
 import com.a.eye.skywalking.storage.config.Config;
+import com.a.eye.skywalking.storage.config.Constants;
 import com.a.eye.skywalking.storage.data.exception.ConnectorInitializeFailedException;
 import com.a.eye.skywalking.storage.data.spandata.AckSpanData;
 import com.a.eye.skywalking.storage.data.spandata.RequestSpanData;
@@ -12,13 +13,12 @@ import com.a.eye.skywalking.storage.data.spandata.SpanType;
 import java.sql.*;
 
 import static com.a.eye.skywalking.storage.config.Constants.SQL.*;
+import static com.a.eye.skywalking.storage.util.PathResolver.getAbsolutePath;
 
 /**
  * Created by xin on 2016/11/4.
  */
 public class IndexDBConnector {
-
-    private static final int MAX_BATCH_SIZE = 20;
 
     private static ILog logger = LogManager.getLogger(IndexDBConnector.class);
 
@@ -32,8 +32,8 @@ public class IndexDBConnector {
 
     private long       timestamp;
     private Connection connection;
-    private ConnectURLGenerator generator =
-            new ConnectURLGenerator(Config.DataIndex.BASE_PATH, Config.DataIndex.STORAGE_INDEX_FILE_NAME);
+    private ConnectURLGenerator generator = new ConnectURLGenerator(getAbsolutePath(Config.DataIndex.PATH),
+            Config.DataIndex.FILE_NAME);
 
     public IndexDBConnector(long timestamp) {
         this.timestamp = timestamp;
@@ -41,7 +41,7 @@ public class IndexDBConnector {
         createTableAndIndexIfNecessary();
     }
 
-    public IndexDBConnector(Connection connection){
+    public IndexDBConnector(Connection connection) {
         this.connection = connection;
         createTableAndIndexIfNecessary();
     }
@@ -100,13 +100,12 @@ public class IndexDBConnector {
         PreparedStatement ps = connection.prepareStatement(INSERT_INDEX);
         for (IndexMetaInfo metaInfo : metaGroup.getMetaInfo()) {
             ps.setString(1, metaInfo.getTraceId());
-            ps.setString(2, metaInfo.getLevelId());
-            ps.setInt(3, metaInfo.getSpanType().getValue());
-            ps.setString(4, metaInfo.getFileName());
-            ps.setLong(5, metaInfo.getOffset());
-            ps.setInt(6, metaInfo.getLength());
+            ps.setInt(2, metaInfo.getSpanType().getValue());
+            ps.setString(3, metaInfo.getFileName());
+            ps.setLong(4, metaInfo.getOffset());
+            ps.setInt(5, metaInfo.getLength());
             ps.addBatch();
-            if (++currentIndex > MAX_BATCH_SIZE) {
+            if (++currentIndex > Constants.MAX_BATCH_SIZE) {
                 ps.executeBatch();
             }
         }
@@ -126,7 +125,7 @@ public class IndexDBConnector {
         return indexSize;
     }
 
-    public IndexMetaCollection queryByTraceId(String traceId){
+    public IndexMetaCollection queryByTraceId(String traceId) {
         try {
             PreparedStatement ps = connection.prepareStatement(QUERY_TRACE_ID);
             ps.setString(1, traceId);
@@ -143,10 +142,12 @@ public class IndexDBConnector {
                     spanData = new RequestSpanData();
                 }
 
-                collection.add(new IndexMetaInfo(spanData, rs.getString("file_name"), rs.getLong("offset"), rs.getInt("length")));
+                collection.add(new IndexMetaInfo(spanData, rs.getString("file_name"), rs.getLong("offset"),
+                        rs.getInt("length")));
             }
             return collection;
-        }catch(SQLException e){
+        } catch (SQLException e) {
+            logger.error("Failed to query trace Id [{}]", traceId, e);
             return new IndexMetaCollection();
         }
     }

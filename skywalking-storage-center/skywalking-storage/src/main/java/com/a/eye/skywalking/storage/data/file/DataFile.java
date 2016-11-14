@@ -14,6 +14,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import static com.a.eye.skywalking.storage.util.PathResolver.getAbsolutePath;
+
 /**
  * 数据文件
  */
@@ -25,7 +27,7 @@ public class DataFile {
     private DataFileOperator operator;
 
     static {
-        File dataFileDir = new File(Config.DataFile.BASE_PATH);
+        File dataFileDir = new File(getAbsolutePath(Config.DataFile.PATH));
         if (!dataFileDir.exists()) {
             dataFileDir.mkdirs();
         }
@@ -52,10 +54,13 @@ public class DataFile {
     }
 
     private void createFile() {
-        File dataFile = new File(Config.DataFile.BASE_PATH, fileName);
+        File dataFile = getDataFile();
         if (!dataFile.exists()) {
             try {
                 dataFile.createNewFile();
+                if (logger.isDebugEnable()) {
+                    logger.debug("Create an new data file[{}].", fileName);
+                }
             } catch (IOException e) {
                 logger.error("Failed to create data file.", e);
                 throw new DataFileOperatorCreateFailedException("Failed to create data file", e);
@@ -64,7 +69,11 @@ public class DataFile {
     }
 
     public boolean overLimitLength() {
-        return currentOffset >= Config.DataFile.MAX_LENGTH;
+        boolean isOverLimitLength = currentOffset >= Config.DataFile.SIZE;
+        if (isOverLimitLength) {
+            logger.info("Data File[{}] is over limit length.", fileName);
+        }
+        return isOverLimitLength;
     }
 
     public IndexMetaInfo write(SpanData data) {
@@ -107,7 +116,7 @@ public class DataFile {
 
             if (writer == null) {
                 try {
-                    writer = new FileOutputStream(new File(Config.DataFile.BASE_PATH, fileName), true);
+                    writer = new FileOutputStream(getDataFile(), true);
                 } catch (IOException e) {
                     throw new DataFileOperatorCreateFailedException("Failed to create datafile output stream", e);
                 }
@@ -119,7 +128,7 @@ public class DataFile {
         public FileInputStream getReader() {
             if (reader == null) {
                 try {
-                    reader = new FileInputStream(new File(Config.DataFile.BASE_PATH, fileName));
+                    reader = new FileInputStream(getDataFile());
                 } catch (IOException e) {
                     throw new DataFileOperatorCreateFailedException("Failed to create datafile input stream", e);
                 }
@@ -127,5 +136,14 @@ public class DataFile {
 
             return reader;
         }
+    }
+
+    private File getDataFile() {
+        return new File(getAbsolutePath(Config.DataFile.PATH), fileName);
+    }
+
+    @Override
+    public String toString() {
+        return "DataFile{" + "fileName='" + fileName + '\'' + '}';
     }
 }

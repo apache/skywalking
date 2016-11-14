@@ -1,5 +1,7 @@
 package com.a.eye.skywalking.storage.data.file;
 
+import com.a.eye.skywalking.health.report.HealthCollector;
+import com.a.eye.skywalking.health.report.HeathReading;
 import com.a.eye.skywalking.logging.api.ILog;
 import com.a.eye.skywalking.logging.api.LogManager;
 import com.a.eye.skywalking.network.grpc.AckSpan;
@@ -12,6 +14,9 @@ import com.a.eye.skywalking.storage.data.spandata.SpanType;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.a.eye.skywalking.storage.data.spandata.SpanDataBuilder.buildAckSpan;
+import static com.a.eye.skywalking.storage.data.spandata.SpanDataBuilder.buildRequestSpan;
 
 /**
  * Created by xin on 2016/11/6.
@@ -31,12 +36,12 @@ public class DataFileReader {
             byte[] dataByte = dataFile.read(indexMetaInfo.getOffset(), indexMetaInfo.getLength());
             try {
                 if (indexMetaInfo.getSpanType() == SpanType.RequestSpan) {
-                    metaData.add(new RequestSpanData(RequestSpan.parseFrom(dataByte)));
+                    metaData.add(new RequestSpanData(buildRequestSpan(dataByte)));
                 } else {
-                    metaData.add(new AckSpanData(AckSpan.parseFrom(dataByte)));
+                    metaData.add(new AckSpanData(buildAckSpan(dataByte)));
                 }
             } catch (Exception e) {
-                logger.error("Failed to conver to data", e);
+                logger.error("Failed to convert to data", e);
             }
         }
 

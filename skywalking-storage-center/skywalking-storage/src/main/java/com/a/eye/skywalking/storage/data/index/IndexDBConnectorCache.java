@@ -1,16 +1,16 @@
 package com.a.eye.skywalking.storage.data.index;
 
+import com.a.eye.skywalking.storage.config.Config;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class IndexDBConnectorCache {
 
-    private static final int MAX_CACHE_SIZE = 5;
-
     private LRUCache cachedOperators;
 
     public IndexDBConnectorCache() {
-        cachedOperators = new LRUCache(MAX_CACHE_SIZE);
+        cachedOperators = new LRUCache(Config.DataIndex.Operator.CACHE_SIZE);
     }
 
     public IndexDBConnector get(long timestamp) {
@@ -33,7 +33,7 @@ public class IndexDBConnectorCache {
     private class LRUCache extends LinkedHashMap<Long, IndexDBConnector> {
         @Override
         protected boolean removeEldestEntry(Map.Entry<Long, IndexDBConnector> eldest) {
-            boolean isNeedRemove = size() > MAX_CACHE_SIZE;
+            boolean isNeedRemove = size() > Config.DataIndex.Operator.CACHE_SIZE;
             if (isNeedRemove) {
                 removedCache(eldest.getValue());
             }

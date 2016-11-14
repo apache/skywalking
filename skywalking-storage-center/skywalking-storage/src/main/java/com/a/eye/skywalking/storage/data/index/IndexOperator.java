@@ -16,11 +16,6 @@ public class IndexOperator {
         timestamp = connector.getTimestamp();
     }
 
-    public List<IndexMetaInfo> find(String taceId) {
-        return new ArrayList<IndexMetaInfo>();
-    }
-
-
     public void batchUpdate(IndexMetaGroup metaGroup) {
         try {
             connector.batchUpdate(metaGroup);

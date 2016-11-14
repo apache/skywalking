@@ -12,10 +12,9 @@
         <module>skywalking-webui</module>
         <module>skywalking-sniffer</module>
         <module>skywalking-storage-center</module>
-        <module>skywalking-registry</module>
         <module>samples/skywalking-auth</module>
         <module>samples/skywalking-example</module>
-        <module>skywalking-logging</module>
+        <module>skywalking-commons</module>
     </modules>
     <packaging>pom</packaging>
 

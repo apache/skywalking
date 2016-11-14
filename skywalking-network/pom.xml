@@ -120,7 +120,7 @@
                     </execution>
                 </executions>
             </plugin>
-            <!-- add this plugin to fix shade-plugin bug: not rename services file name. -->
+            <!-- add this plugin to fix shade-plugin bug: not rename provider file name. -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>

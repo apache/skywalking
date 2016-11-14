@@ -6,34 +6,44 @@ package com.a.eye.skywalking.storage.config;
 public class Config {
     public static class Server {
         public static int PORT = 34000;
+
+        public static int CHANNEL_SIZE = 10;
+
+        public static int BUFFER_SIZE = 1000;
     }
 
 
     public static class BlockIndex {
+        public static String PATH = "/block_index";
 
-        public static String STORAGE_BASE_PATH = "/tmp/skywalking/block_index";
-
-        public static String DATA_FILE_INDEX_FILE_NAME = "data_file.index";
+        public static String FILE_NAME = "data_file.index";
     }
 
 
     public static class DataFile {
-        public static String BASE_PATH = "/tmp/skywalking/data/file";
+        public static String PATH = "/data/file";
 
-        public static long MAX_LENGTH = 3 * 1024 * 1024 * 1024;
+        public static long SIZE = 3 * 1024 * 1024 * 1024L;
     }
 
 
     public static class DataIndex {
 
-        public static String TABLE_NAME = "data_index";
+        public static String PATH = "/data/index";
 
-        public static String BASE_PATH = "/tmp/skywalking/data/index";
+        public static String FILE_NAME = "dataIndex";
 
-        public static String STORAGE_INDEX_FILE_NAME = "dataIndex";
+        public static long SIZE = 1000 * 1000 * 1000;
 
-        public static long MAX_CAPACITY_PER_INDEX = 1000 * 1000 * 1000 * 1000;
 
+        public static class Operator {
+            public static int CACHE_SIZE = 5;
+        }
+    }
+
+
+    public static class BlockIndexEngine {
+        public static int L1_CACHE_SIZE = 10;
     }
 
 
@@ -45,11 +55,17 @@ public class Config {
 
         public static String CONNECT_URL = "127.0.0.1:2181";
 
-        public static String REGISTRY_PATH_PREFIX = "/storage_list/";
+        public static String PATH_PREFIX = "/skywalking/storage_list/";
     }
 
 
-    public static class SpanFinder {
-        public static int MAX_CACHE_SIZE = 10;
+    public static class Finder {
+        public static int CACHED_SIZE = 10;
+
+
+        public static class DataSource {
+            public static int MAX_POOL_SIZE = 20;
+            public static int MIN_IDLE      = 5;
+        }
     }
 }

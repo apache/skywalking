@@ -9,8 +9,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static com.a.eye.skywalking.storage.config.Config.BlockIndex.DATA_FILE_INDEX_FILE_NAME;
-import static com.a.eye.skywalking.storage.config.Config.BlockIndex.STORAGE_BASE_PATH;
+import static com.a.eye.skywalking.storage.config.Config.BlockIndex.FILE_NAME;
+import static com.a.eye.skywalking.storage.config.Config.BlockIndex.PATH;
+import static com.a.eye.skywalking.storage.util.PathResolver.getAbsolutePath;
 
 public class BlockIndexUpdator {
 
@@ -24,12 +25,12 @@ public class BlockIndexUpdator {
     }
 
     public void addRecord(long timestamp) {
-        logger.info("Updating index. timestamp:{}", timestamp);
+        logger.info("Updating block index. index key:{}", timestamp);
         try {
             updateFile(timestamp);
             updateCache(timestamp);
         } catch (Exception e) {
-            logger.error("Failed to add index record", e);
+            logger.error("Failed to add block index record", e);
         }
     }
 
@@ -83,10 +84,18 @@ public class BlockIndexUpdator {
             }
         }
 
+
         if (indexData.size() == 0) {
+            if (logger.isDebugEnable()) {
+                logger.debug("Any block index was not founded. will add new block index.", indexData.size());
+            }
             //如果此前没有记录，则取之前五分钟到目前的数据
             addRecord(System.currentTimeMillis() - 5 * 60 * 1000);
             return;
+        }
+
+        if (logger.isDebugEnable()) {
+            logger.debug("There are {} block index was founded. Begin to init L1Cache and L2Cache", indexData.size());
         }
 
         Collections.reverse(indexData);
@@ -95,7 +104,10 @@ public class BlockIndexUpdator {
     }
 
     public File getOrCreateBlockIndexFile() throws IOException {
-        File blockIndexFile = new File(STORAGE_BASE_PATH, DATA_FILE_INDEX_FILE_NAME);
+        if (logger.isDebugEnable()) {
+
+        }
+        File blockIndexFile = new File(getAbsolutePath(PATH), FILE_NAME);
 
         if (!blockIndexFile.getParentFile().exists()) {
             blockIndexFile.getParentFile().mkdirs();

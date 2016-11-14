@@ -14,6 +14,11 @@ public class DataFileLoader {
 
     public List<DataFile> load() {
         File dataFileDir = new File(basePath);
+
+        if (!dataFileDir.exists()) {
+            dataFileDir.mkdirs();
+        }
+
         List<DataFile> allDataFile = new ArrayList<DataFile>();
         for (File fileEntry : dataFileDir.listFiles()) {
             allDataFile.add(new DataFile(fileEntry));

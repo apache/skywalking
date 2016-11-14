@@ -1,6 +1,8 @@
 package com.a.eye.skywalking.storage.data;
 
 import com.a.eye.datacarrier.consumer.IConsumer;
+import com.a.eye.skywalking.health.report.HealthCollector;
+import com.a.eye.skywalking.health.report.HeathReading;
 import com.a.eye.skywalking.storage.block.index.BlockIndexEngine;
 import com.a.eye.skywalking.storage.data.file.DataFileWriter;
 import com.a.eye.skywalking.storage.data.index.*;
@@ -34,6 +36,8 @@ public class SpanDataConsumer implements IConsumer<SpanData> {
             IndexMetaGroup<Long> metaGroup = iterator.next();
             IndexOperator indexOperator = IndexOperator.newOperator(getDBConnector(metaGroup));
             indexOperator.batchUpdate(metaGroup);
+            HealthCollector.getCurrentHeathReading("SpanDataConsumer")
+                    .updateData(HeathReading.INFO, "%s messages were successful consumed .", data.size());
         }
 
     }

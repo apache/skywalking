@@ -1,9 +1,14 @@
 package com.a.eye.skywalking.storage.block.index;
 
+import com.a.eye.skywalking.logging.api.ILog;
+import com.a.eye.skywalking.logging.api.LogManager;
+
 /**
  * Created by xin on 2016/11/2.
  */
 public class BlockFinder {
+
+    private static ILog logger = LogManager.getLogger(BlockFinder.class);
 
     private L1Cache l1Cache;
     private L2Cache l2Cache;
@@ -19,11 +24,15 @@ public class BlockFinder {
             index = l2Cache.find(timestamp);
         }
 
+        if (logger.isDebugEnable()) {
+            logger.debug("Time stamp : {} is mapping with block Index {}.", timestamp, index);
+        }
+
         return index;
     }
 
 
-    public long findLastBlockIndex(){
+    public long findLastBlockIndex() {
         return l2Cache.getLastBlockIndex();
     }
 

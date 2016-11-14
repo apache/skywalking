@@ -1,5 +1,8 @@
 package com.a.eye.skywalking.storage.block.index;
 
+import com.a.eye.skywalking.logging.api.ILog;
+import com.a.eye.skywalking.logging.api.LogManager;
+
 import java.util.List;
 import java.util.TreeSet;
 import java.util.concurrent.locks.Lock;
@@ -11,11 +14,16 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 public class L2Cache {
 
+    private ILog logger = LogManager.getLogger(L2Cache.class);
+
     private TreeSet<Long> cacheData  = new TreeSet<Long>();
     private ReadWriteLock updateLock = new ReentrantReadWriteLock();
 
     void init(List<Long> data) {
         this.cacheData.addAll(data);
+        if (logger.isDebugEnable()) {
+            logger.info("L2 cache init data : {}", data);
+        }
     }
 
     public Long find(long timestamp) {

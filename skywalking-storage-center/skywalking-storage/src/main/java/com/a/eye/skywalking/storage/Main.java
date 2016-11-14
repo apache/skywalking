@@ -1,10 +1,10 @@
 package com.a.eye.skywalking.storage;
 
+import com.a.eye.skywalking.health.report.HealthCollector;
 import com.a.eye.skywalking.logging.api.ILog;
 import com.a.eye.skywalking.logging.api.LogManager;
 import com.a.eye.skywalking.logging.impl.log4j2.Log4j2Resolver;
-import com.a.eye.skywalking.network.TransferService;
-import com.a.eye.skywalking.network.TransferService.TransferServiceBuilder;
+import com.a.eye.skywalking.network.ServiceProvider;
 import com.a.eye.skywalking.registry.RegistryCenterFactory;
 import com.a.eye.skywalking.registry.api.CenterType;
 import com.a.eye.skywalking.registry.api.RegistryCenter;
@@ -13,14 +13,16 @@ import com.a.eye.skywalking.storage.block.index.BlockIndexEngine;
 import com.a.eye.skywalking.storage.config.Config;
 import com.a.eye.skywalking.storage.config.ConfigInitializer;
 import com.a.eye.skywalking.storage.data.IndexDataCapacityMonitor;
-import com.a.eye.skywalking.storage.notifier.SearchNotifier;
-import com.a.eye.skywalking.storage.notifier.StorageNotifier;
+import com.a.eye.skywalking.storage.data.file.DataFilesManager;
+import com.a.eye.skywalking.storage.listener.SearchListener;
+import com.a.eye.skywalking.storage.listener.StorageListener;
 import com.a.eye.skywalking.storage.util.NetUtils;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.Properties;
 
-import static com.a.eye.skywalking.storage.config.Config.RegistryCenter.REGISTRY_PATH_PREFIX;
+import static com.a.eye.skywalking.storage.config.Config.RegistryCenter.PATH_PREFIX;
 
 /**
  * Created by xin on 2016/11/12.
@@ -33,28 +35,36 @@ public class Main {
         LogManager.setLogResolver(new Log4j2Resolver());
     }
 
-    private static TransferService transferService;
+    private static ServiceProvider provider;
 
     public static void main(String[] args) {
         try {
             initializeParam();
 
+            HealthCollector.init();
+
+            DataFilesManager.init();
+
             BlockIndexEngine.start();
+
             IndexDataCapacityMonitor.start();
-            transferService =
-                    TransferServiceBuilder.newBuilder(Config.Server.PORT).startSpanStorageService(new StorageNotifier())
-                            .startTraceSearchService(new SearchNotifier()).build();
-            transferService.start();
-            logger.info("transfer service started successfully.");
+
+            provider = ServiceProvider.newBuilder(Config.Server.PORT).addSpanStorageService(new StorageListener())
+                    .addTraceSearchService(new SearchListener()).build();
+            provider.start();
+
+            if (logger.isDebugEnable()) {
+                logger.debug("Service provider started successfully.");
+            }
 
             registryNode();
-            logger.info("storage service started successfully.");
+
+            logger.info("Storage service started successfully.");
             Thread.currentThread().join();
         } catch (Throwable e) {
-            e.printStackTrace();
             logger.error("Failed to start service.", e);
         } finally {
-            transferService.stop();
+            provider.stop();
             IndexDataCapacityMonitor.stop();
         }
     }
@@ -68,13 +78,14 @@ public class Main {
         registerConfig.setProperty(ZookeeperConfig.AUTH_INFO, Config.RegistryCenter.AUTH_INFO);
         registryCenter.start(registerConfig);
         registryCenter.register(
-                REGISTRY_PATH_PREFIX + NetUtils.getLocalAddress().getHostAddress() + ":" + Config.Server.PORT);
+                PATH_PREFIX + NetUtils.getLocalAddress().getHostAddress() + ":" + Config.Server.PORT);
     }
 
     private static void initializeParam() throws IllegalAccessException, IOException {
         Properties properties = new Properties();
         try {
             properties.load(Main.class.getResourceAsStream("/config.properties"));
+            printStorageConfig(properties);
             ConfigInitializer.initialize(properties, Config.class);
         } catch (IllegalAccessException e) {
             logger.error("Initialize the collect server configuration failed", e);
@@ -82,6 +93,13 @@ public class Main {
         } catch (IOException e) {
             logger.error("Initialize the collect server configuration failed", e);
             throw e;
+        }
+    }
+
+
+    private static void printStorageConfig(Properties config) {
+        for (Map.Entry<Object, Object> entry : config.entrySet()) {
+            logger.info("{} = {}", entry.getKey(), entry.getValue());
         }
     }
 }

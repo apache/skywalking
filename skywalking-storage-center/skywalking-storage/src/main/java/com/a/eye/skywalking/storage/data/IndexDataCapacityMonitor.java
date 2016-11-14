@@ -1,5 +1,7 @@
 package com.a.eye.skywalking.storage.data;
 
+import com.a.eye.skywalking.health.report.HealthCollector;
+import com.a.eye.skywalking.health.report.HeathReading;
 import com.a.eye.skywalking.logging.api.ILog;
 import com.a.eye.skywalking.logging.api.LogManager;
 import com.a.eye.skywalking.storage.block.index.BlockIndexEngine;
@@ -11,7 +13,7 @@ import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static com.a.eye.skywalking.storage.config.Config.DataIndex.MAX_CAPACITY_PER_INDEX;
+import static com.a.eye.skywalking.storage.config.Config.DataIndex.SIZE;
 
 /**
  * Created by xin on 2016/11/6.
@@ -63,9 +65,12 @@ public class IndexDataCapacityMonitor {
 
         @Override
         public void run() {
-            if (currentSize.get() > MAX_CAPACITY_PER_INDEX * 0.8) {
+            if (currentSize.get() > SIZE * 0.8) {
                 notificationAddNewBlockIndexAndCreateNewIndexDB();
                 stopTimer();
+                HealthCollector.getCurrentHeathReading("Index Data Capacity Detector").updateData(HeathReading.INFO,
+                        "Detector is detecting the index [%d]. and the capacity of  {}  is %d", timestamp,
+                        currentSize.get());
             }
         }
     }
@@ -73,6 +78,7 @@ public class IndexDataCapacityMonitor {
     private static void notificationAddNewBlockIndexAndCreateNewIndexDB() {
         long timestamp = System.currentTimeMillis() + 5 * 60 * 1000;
         BlockIndexEngine.newUpdator().addRecord(timestamp);
+        logger.info("Create a new Index DB [{}]", timestamp);
         createNewIndexDB(timestamp);
         detector = new Detector(timestamp);
     }

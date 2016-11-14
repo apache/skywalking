@@ -23,7 +23,7 @@
         <dependency>
             <groupId>com.a.eye</groupId>
             <artifactId>skywalking-registry</artifactId>
-            <version>${project.version}</version>
+            <version>2.0-2016</version>
         </dependency>
         <dependency>
             <groupId>com.a.eye</groupId>
@@ -50,6 +50,11 @@
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
             <version>2.4.3</version>
+        </dependency>
+        <dependency>
+            <groupId>com.a.eye</groupId>
+            <artifactId>skywalking-health-report</artifactId>
+            <version>2.0-2016</version>
         </dependency>
     </dependencies>
     <build>
