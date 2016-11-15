@@ -28,7 +28,7 @@ public class HeathReading {
         if (datas.containsKey(key)) {
             datas.get(key).updateData(newData, arguments);
         } else {
-            datas.put(key, new HeathDetailData(newData));
+            datas.put(key, new HeathDetailData(newData, arguments));
         }
     }
 
@@ -50,7 +50,13 @@ public class HeathReading {
         private long statusTime;
 
         HeathDetailData(String initialData) {
+            this(initialData, new Object[0]);
+        }
+
+        HeathDetailData(String initialData, Object[] arguments) {
             data = initialData;
+            if (arguments.length > 0)
+                data = String.format(initialData, arguments);
             statusTime = System.currentTimeMillis();
         }
 

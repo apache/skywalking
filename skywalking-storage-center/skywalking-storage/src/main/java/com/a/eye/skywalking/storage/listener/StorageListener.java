@@ -21,18 +21,20 @@ public class StorageListener implements SpanStorageListener {
 
     public StorageListener() {
         spanDataDataCarrier = new DataCarrier<>(Config.DataConsumer.CHANNEL_SIZE, Config.DataConsumer.BUFFER_SIZE);
-        spanDataDataCarrier.consume(new SpanDataConsumer(), Config.DataConsumer.CONSUMER_SIZE, true);
+        spanDataDataCarrier.consume(SpanDataConsumer.class, Config.DataConsumer.CONSUMER_SIZE);
     }
 
     @Override
     public boolean storage(RequestSpan requestSpan) {
         try {
             spanDataDataCarrier.produce(SpanDataBuilder.build(requestSpan));
-            HealthCollector.getCurrentHeathReading("StorageListener").updateData(HeathReading.INFO,"RequestSpan stored.");
+            HealthCollector.getCurrentHeathReading("StorageListener")
+                    .updateData(HeathReading.INFO, "RequestSpan stored.");
             return true;
         } catch (Exception e) {
             logger.error("RequestSpan trace-id[{}] store failure..", requestSpan.getTraceId(), e);
-            HealthCollector.getCurrentHeathReading("StorageListener").updateData(HeathReading.ERROR,"RequestSpan store failure.");
+            HealthCollector.getCurrentHeathReading("StorageListener")
+                    .updateData(HeathReading.ERROR, "RequestSpan store failure.");
             return false;
         }
     }
@@ -41,11 +43,12 @@ public class StorageListener implements SpanStorageListener {
     public boolean storage(AckSpan ackSpan) {
         try {
             spanDataDataCarrier.produce(SpanDataBuilder.build(ackSpan));
-            HealthCollector.getCurrentHeathReading("StorageListener").updateData(HeathReading.INFO,"AckSpan stored.");
+            HealthCollector.getCurrentHeathReading("StorageListener").updateData(HeathReading.INFO, "AckSpan stored.");
             return true;
         } catch (Exception e) {
             logger.error("AckSpan trace-id[{}] store failure..", ackSpan.getTraceId(), e);
-            HealthCollector.getCurrentHeathReading("StorageListener").updateData(HeathReading.ERROR,"AckSpan store failure.");
+            HealthCollector.getCurrentHeathReading("StorageListener")
+                    .updateData(HeathReading.ERROR, "AckSpan store failure.");
             return false;
         }
     }

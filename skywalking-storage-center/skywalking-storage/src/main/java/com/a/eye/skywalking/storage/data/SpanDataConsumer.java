@@ -19,7 +19,8 @@ public class SpanDataConsumer implements IConsumer<SpanData> {
     private IndexDBConnectorCache cache;
     private DataFileWriter        fileWriter;
 
-    public SpanDataConsumer() {
+    @Override
+    public void init() {
         cache = new IndexDBConnectorCache();
         fileWriter = new DataFileWriter();
     }

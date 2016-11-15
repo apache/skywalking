@@ -132,15 +132,4 @@
             </plugin>
         </plugins>
     </build>
-
-    <repositories>
-        <repository>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <id>bintray-wu-sheng-DataCarrier</id>
-            <name>bintray</name>
-            <url>http://dl.bintray.com/wu-sheng/DataCarrier</url>
-        </repository>
-    </repositories>
 </project>
