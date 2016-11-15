@@ -30,7 +30,7 @@ import static com.a.eye.skywalking.storage.config.Config.RegistryCenter.PATH_PRE
 public class Main {
 
     private static final ILog logger = LogManager.getLogger(Main.class);
-    private static final String SERVER_REPORTER_NAME = "Storage Server";
+    private static final String SERVER_REPORTER_NAME = "DataConsumer Server";
 
     static {
         LogManager.setLogResolver(new Log4j2Resolver());

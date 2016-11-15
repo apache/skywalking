@@ -24,10 +24,6 @@ public class BlockFinder {
             index = l2Cache.find(timestamp);
         }
 
-        if (logger.isDebugEnable()) {
-            logger.debug("Time stamp : {} is mapping with block Index {}.", timestamp, index);
-        }
-
         return index;
     }
 

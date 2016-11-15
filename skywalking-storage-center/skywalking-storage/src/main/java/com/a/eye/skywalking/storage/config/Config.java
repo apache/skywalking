@@ -6,10 +6,16 @@ package com.a.eye.skywalking.storage.config;
 public class Config {
     public static class Server {
         public static int PORT = 34000;
+    }
 
-        public static int CHANNEL_SIZE = 10;
 
-        public static int BUFFER_SIZE = 1000;
+    public static class DataConsumer {
+
+        public static int CHANNEL_SIZE  = 10;
+
+        public static int BUFFER_SIZE   = 1000;
+
+        public static int CONSUMER_SIZE = 5;
     }
 
 

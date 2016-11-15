@@ -1,5 +1,8 @@
 package com.a.eye.skywalking.storage.data.file;
 
+import com.a.eye.datacarrier.common.AtomicRangeInteger;
+import com.a.eye.skywalking.health.report.HealthCollector;
+import com.a.eye.skywalking.health.report.HeathReading;
 import com.a.eye.skywalking.logging.api.ILog;
 import com.a.eye.skywalking.logging.api.LogManager;
 import com.a.eye.skywalking.storage.config.Config;
@@ -13,6 +16,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.a.eye.skywalking.storage.util.PathResolver.getAbsolutePath;
 
@@ -25,6 +31,7 @@ public class DataFile {
     private String           fileName;
     private long             currentOffset;
     private DataFileOperator operator;
+    private static final AtomicRangeInteger DATA_FILE_NAME_SUFFIX = new AtomicRangeInteger(1000, 9999);
 
     static {
         File dataFileDir = new File(getAbsolutePath(Config.DataFile.PATH));
@@ -34,7 +41,8 @@ public class DataFile {
     }
 
     public DataFile() {
-        this.fileName = System.currentTimeMillis() + "";
+        this.fileName = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SS").format(new Date()) + "_" + DATA_FILE_NAME_SUFFIX
+                .getAndIncrement();
         this.currentOffset = 0;
         operator = new DataFileOperator();
         createFile();
@@ -61,6 +69,8 @@ public class DataFile {
                 if (logger.isDebugEnable()) {
                     logger.debug("Create an new data file[{}].", fileName);
                 }
+                HealthCollector.getCurrentHeathReading("DataFile")
+                        .updateData(HeathReading.INFO, "Create an new data " + "file.");
             } catch (IOException e) {
                 logger.error("Failed to create data file.", e);
                 throw new DataFileOperatorCreateFailedException("Failed to create data file", e);
@@ -96,7 +106,7 @@ public class DataFile {
         }
     }
 
-    public void close(){
+    public void close() {
         operator.close();
     }
 
@@ -107,7 +117,8 @@ public class DataFile {
             operator.getReader().read(data, 0, length);
             return data;
         } catch (IOException e) {
-            throw new SpanDataReadFailedException("Failed to read dataFile[" + fileName + "], offset: " + offset + " " + "lenght: " + length, e);
+            throw new SpanDataReadFailedException(
+                    "Failed to read dataFile[" + fileName + "], offset: " + offset + " " + "lenght: " + length, e);
         }
     }
 

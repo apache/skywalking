@@ -20,8 +20,8 @@ public class StorageListener implements SpanStorageListener {
     private DataCarrier<SpanData> spanDataDataCarrier;
 
     public StorageListener() {
-        spanDataDataCarrier = new DataCarrier<>(Config.Server.CHANNEL_SIZE, Config.Server.BUFFER_SIZE);
-        spanDataDataCarrier.consume(new SpanDataConsumer(), 5, true);
+        spanDataDataCarrier = new DataCarrier<>(Config.DataConsumer.CHANNEL_SIZE, Config.DataConsumer.BUFFER_SIZE);
+        spanDataDataCarrier.consume(new SpanDataConsumer(), Config.DataConsumer.CONSUMER_SIZE, true);
     }
 
     @Override
