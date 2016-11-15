@@ -1,5 +1,7 @@
 import com.a.eye.skywalking.network.dependencies.io.grpc.ManagedChannel;
 import com.a.eye.skywalking.network.dependencies.io.grpc.ManagedChannelBuilder;
+import com.a.eye.skywalking.network.dependencies.io.grpc.stub.ClientCallStreamObserver;
+import com.a.eye.skywalking.network.dependencies.io.grpc.stub.ServerCallStreamObserver;
 import com.a.eye.skywalking.network.dependencies.io.grpc.stub.StreamObserver;
 import com.a.eye.skywalking.network.grpc.AckSpan;
 import com.a.eye.skywalking.network.grpc.RequestSpan;
@@ -10,46 +12,13 @@ import static com.a.eye.skywalking.network.grpc.SpanStorageServiceGrpc.newStub;
 
 public class StorageClient {
     private static ManagedChannel channel =
-            ManagedChannelBuilder.forAddress("127.0.0.1", 34000).usePlaintext(true).build();
+            ManagedChannelBuilder.forAddress("10.128.35.79", 34000).usePlaintext(true).build();
 
     private static SpanStorageServiceGrpc.SpanStorageServiceStub spanStorageServiceStub = newStub(channel);
 
-    private static StreamObserver<AckSpan> ackSpanStreamObserver =
-            spanStorageServiceStub.storageACKSpan(new StreamObserver<SendResult>() {
-                @Override
-                public void onNext(SendResult sendResult) {
-                    System.out.println(sendResult.getResult());
-                }
+    private static long endTime1 = 0;
 
-                @Override
-                public void onError(Throwable throwable) {
-                    throwable.printStackTrace();
-                }
-
-                @Override
-                public void onCompleted() {
-                    System.out.println("Success!!");
-                }
-            });
-
-
-    private static StreamObserver<RequestSpan> requestSpanStreamObserver =
-            spanStorageServiceStub.storageRequestSpan(new StreamObserver<SendResult>() {
-                @Override
-                public void onNext(SendResult sendResult) {
-                    System.out.println(sendResult.getResult());
-                }
-
-                @Override
-                public void onError(Throwable throwable) {
-                    throwable.printStackTrace();
-                }
-
-                @Override
-                public void onCompleted() {
-                    System.out.println("Success!!");
-                }
-            });
+    private static long endTime2 = 0;
 
 
     public static void main(String[] args) throws InterruptedException {
@@ -62,15 +31,65 @@ public class StorageClient {
                 AckSpan.newBuilder().setLevelId(0).setCost(10).setTraceId("1.0Final.1478661327960.8504828.2277.53.3")
                         .setStatusCode(0).setViewpointId("http://localhost:8080/wwww/test/helloWorld").build();
 
-        for (int i = 0; i < 100000; i++) {
-            requestSpanStreamObserver.onNext(requestSpan);
-            ackSpanStreamObserver.onNext(ackSpan);
-            Thread.sleep(100);
+        long startTime = System.currentTimeMillis();
+
+
+        for(int i = 0; i < 1000; i++){
+            StreamObserver<AckSpan> ackSpanStreamObserver =
+                    spanStorageServiceStub.storageACKSpan(new StreamObserver<SendResult>() {
+                        @Override
+                        public void onNext(SendResult sendResult) {
+
+                        }
+
+                        @Override
+                        public void onError(Throwable throwable) {
+                            throwable.printStackTrace();
+                        }
+
+                        @Override
+                        public void onCompleted() {
+                            endTime1 = System.currentTimeMillis();
+                        }
+                    });
+            StreamObserver<RequestSpan> requestSpanStreamObserver =
+                    spanStorageServiceStub.storageRequestSpan(new StreamObserver<SendResult>() {
+                        @Override
+                        public void onNext(SendResult sendResult) {
+
+                        }
+
+                        @Override
+                        public void onError(Throwable throwable) {
+                            throwable.printStackTrace();
+                        }
+
+                        @Override
+                        public void onCompleted() {
+                            endTime2 = System.currentTimeMillis();
+                        }
+                    });
+            for(int j = 0; j < 10000; j++){
+                requestSpanStreamObserver.onNext(requestSpan);
+                ackSpanStreamObserver.onNext(ackSpan);
+
+                ClientCallStreamObserver<RequestSpan> newRequestSpanStreamObserver =  (ClientCallStreamObserver<RequestSpan>)requestSpanStreamObserver;
+                while(!newRequestSpanStreamObserver.isReady()){
+                    Thread.sleep(1);
+                }
+            }
+
+            ackSpanStreamObserver.onCompleted();
+            requestSpanStreamObserver.onCompleted();
+
+
         }
 
+        Thread.sleep(1000L);
 
-        ackSpanStreamObserver.onCompleted();
-        requestSpanStreamObserver.onCompleted();
+        System.out.println("save execute in " + (endTime1 - startTime) + "ms");
+        System.out.println("save execute2 in " + (endTime2 - startTime) + "ms");
+
 
         Thread.sleep(10000);
 
