@@ -36,8 +36,8 @@ public class IndexMetaInfo {
         return spanData.getTraceStartTime();
     }
 
-    public String getTraceId() {
-        return spanData.getTraceId();
+    public Long[] getTraceId() {
+        return spanData.getTraceIdSegments();
     }
 
     public String getLevelId() {

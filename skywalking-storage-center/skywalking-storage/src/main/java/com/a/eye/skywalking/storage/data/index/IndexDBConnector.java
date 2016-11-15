@@ -97,20 +97,39 @@ public class IndexDBConnector {
 
     public void batchUpdate(IndexMetaGroup<Long> metaGroup) throws SQLException {
         int currentIndex = 0;
-        PreparedStatement ps = connection.prepareStatement(INSERT_INDEX);
-        for (IndexMetaInfo metaInfo : metaGroup.getMetaInfo()) {
-            ps.setString(1, metaInfo.getTraceId());
-            ps.setInt(2, metaInfo.getSpanType().getValue());
-            ps.setString(3, metaInfo.getFileName());
-            ps.setLong(4, metaInfo.getOffset());
-            ps.setInt(5, metaInfo.getLength());
-            ps.addBatch();
-            if (++currentIndex > Constants.MAX_BATCH_SIZE) {
+        PreparedStatement ps = null;
+        try {
+            ps = connection.prepareStatement(INSERT_INDEX);
+            boolean isCommitted = false;
+            for (IndexMetaInfo metaInfo : metaGroup.getMetaInfo()) {
+                ps.setInt(1, metaInfo.getTraceId()[0].intValue());
+                ps.setLong(2, metaInfo.getTraceId()[1]);
+                ps.setInt(3, metaInfo.getTraceId()[2].intValue());
+                ps.setInt(4, metaInfo.getTraceId()[3].intValue());
+                ps.setInt(5, metaInfo.getTraceId()[4].intValue());
+                ps.setInt(6, metaInfo.getTraceId()[5].intValue());
+                ps.setInt(7, metaInfo.getSpanType().getValue());
+                ps.setString(8, metaInfo.getFileName());
+                ps.setLong(9, metaInfo.getOffset());
+                ps.setInt(10, metaInfo.getLength());
+                ps.addBatch();
+                if (++currentIndex > Constants.MAX_BATCH_SIZE) {
+                    ps.executeBatch();
+                    isCommitted = true;
+                } else {
+                    isCommitted = false;
+                }
+            }
+
+            if (!isCommitted) {
                 ps.executeBatch();
             }
+
+        } finally {
+            if (ps != null)
+                ps.close();
         }
-        ps.executeBatch();
-        ps.close();
+
     }
 
     public long fetchIndexSize() throws SQLException {
@@ -125,10 +144,15 @@ public class IndexDBConnector {
         return indexSize;
     }
 
-    public IndexMetaCollection queryByTraceId(String traceId) {
+    public IndexMetaCollection queryByTraceId(long[] traceId) {
         try {
             PreparedStatement ps = connection.prepareStatement(QUERY_TRACE_ID);
-            ps.setString(1, traceId);
+            ps.setInt(1, (int) traceId[0]);
+            ps.setLong(2, (int) traceId[1]);
+            ps.setInt(3, (int) traceId[2]);
+            ps.setInt(4, (int) traceId[3]);
+            ps.setInt(5, (int) traceId[4]);
+            ps.setInt(6, (int) traceId[5]);
             ResultSet rs = ps.executeQuery();
 
             IndexMetaCollection collection = new IndexMetaCollection();

@@ -1,11 +1,15 @@
 package com.a.eye.skywalking.network;
 
+import com.a.eye.skywalking.network.grpc.provider.AsyncTraceSearchService;
 import com.a.eye.skywalking.network.grpc.provider.SpanStorageService;
 import com.a.eye.skywalking.network.grpc.provider.TraceSearchService;
+import com.a.eye.skywalking.network.listener.AsyncTraceSearchListener;
 import com.a.eye.skywalking.network.listener.SpanStorageListener;
 import com.a.eye.skywalking.network.listener.TraceSearchListener;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
+import io.grpc.netty.NettyServerBuilder;
+import io.netty.channel.nio.NioEventLoopGroup;
 
 import java.io.IOException;
 
@@ -38,13 +42,14 @@ public class ServiceProvider {
 
     public static class TransferServiceBuilder {
         private TransferServiceBuilder(int port) {
-            serverBuilder = ServerBuilder.forPort(port);
+            serverBuilder = NettyServerBuilder.forPort(port);
         }
 
-        private ServerBuilder serverBuilder;
+        private NettyServerBuilder serverBuilder;
 
         public ServiceProvider build() {
-            return new ServiceProvider(serverBuilder.build());
+            return new ServiceProvider(serverBuilder.bossEventLoopGroup(new NioEventLoopGroup(1))
+                    .workerEventLoopGroup(new NioEventLoopGroup()).build());
         }
 
         public TransferServiceBuilder addSpanStorageService(SpanStorageListener spanStorageListener) {
@@ -54,6 +59,11 @@ public class ServiceProvider {
 
         public TransferServiceBuilder addTraceSearchService(TraceSearchListener traceSearchListener) {
             serverBuilder.addService(new TraceSearchService(traceSearchListener));
+            return this;
+        }
+
+        public TransferServiceBuilder addAsyncTraceSearchService(AsyncTraceSearchListener asyncTraceSearchListener){
+            serverBuilder.addService(new AsyncTraceSearchService(asyncTraceSearchListener));
             return this;
         }
     }

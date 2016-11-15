@@ -35,7 +35,7 @@ public class DataFileWriterTest {
     public void testConvertFile() throws Exception {
         List<SpanData> spanData = new ArrayList<>();
         spanData.add(new RequestSpanData(
-                RequestSpan.newBuilder().setTraceId("test-traceId").setStartDate(System.currentTimeMillis())
+                RequestSpan.newBuilder()/*.setTraceId("test-traceId")*/.setStartDate(System.currentTimeMillis())
                         .setProcessNo("7777").setLevelId(10).setParentLevel("0.0.0").setAddress("127.0.0.1").build()));
         writer.write(spanData);
 

@@ -4,7 +4,7 @@ option java_multiple_files = true;
 option java_package = "com.a.eye.skywalking.network.grpc";
 
 message AckSpan {
-    string traceId = 1;
+    TraceId traceId = 1;
     string parentLevel = 2;
     int32 levelId = 3;
     int64 cost = 4;
@@ -14,7 +14,7 @@ message AckSpan {
 }
 
 message RequestSpan {
-    string traceId = 1;
+    TraceId traceId = 1;
     string parentLevel = 2;
     int32 levelId = 3;
     string viewPointId = 4;
@@ -29,8 +29,12 @@ message RequestSpan {
     string address = 14;
 }
 
+message TraceId{
+    repeated int64 segments = 1;
+}
+
 message Span{
-    string traceId = 1;
+    TraceId traceId = 1;
     string levelId = 2; // parentLevelId + "." + levelId
     string viewpoint = 3;
     int64 starttime = 4;

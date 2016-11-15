@@ -1,6 +1,7 @@
 package com.a.eye.skywalking.storage.data.spandata;
 
 import com.a.eye.skywalking.network.grpc.AckSpan;
+import com.a.eye.skywalking.network.grpc.TraceId;
 
 /**
  * Created by xin on 2016/11/12.
@@ -22,7 +23,7 @@ public class AckSpanData extends AbstractSpanData {
 
     @Override
     public long getTraceStartTime() {
-        return buildTraceStartTime(ackSpan.getTraceId());
+        return ackSpan.getTraceId().getSegments(1);
     }
 
     @Override
@@ -31,8 +32,8 @@ public class AckSpanData extends AbstractSpanData {
     }
 
     @Override
-    public String getTraceId() {
-        return ackSpan.getTraceId();
+    public Long[] getTraceIdSegments() {
+        return traceIdToArrays(ackSpan.getTraceId());
     }
 
     @Override

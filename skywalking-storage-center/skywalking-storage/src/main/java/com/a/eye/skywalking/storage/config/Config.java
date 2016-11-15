@@ -8,7 +8,6 @@ public class Config {
         public static int PORT = 34000;
     }
 
-
     public static class DataConsumer {
 
         public static int CHANNEL_SIZE  = 10;

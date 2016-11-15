@@ -19,7 +19,6 @@ public class SpanStorageService extends SpanStorageServiceGrpc.SpanStorageServic
         return new StreamObserver<AckSpan>() {
             @Override
             public void onNext(AckSpan value) {
-
                 listener.storage(value);
             }
 

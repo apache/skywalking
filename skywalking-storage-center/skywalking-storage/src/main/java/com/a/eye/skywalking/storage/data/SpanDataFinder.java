@@ -35,7 +35,7 @@ public class SpanDataFinder {
         IndexMetaCollection indexMetaCollection = null;
         try {
             indexDBConnector = fetchIndexDBConnector(blockIndex);
-            indexMetaCollection = indexDBConnector.queryByTraceId(traceId);
+            indexMetaCollection = indexDBConnector.queryByTraceId(spiltTraceId(traceId));
         } finally {
             if (indexDBConnector != null) {
                 indexDBConnector.close();
@@ -68,6 +68,10 @@ public class SpanDataFinder {
         }
 
         return result;
+    }
+
+    private static long[] spiltTraceId(String traceId){
+        return null;
     }
 
     private static IndexDBConnector fetchIndexDBConnector(long blockIndex) {

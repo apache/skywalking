@@ -1,6 +1,7 @@
 package com.a.eye.skywalking.storage.data.spandata;
 
 import com.a.eye.skywalking.network.grpc.RequestSpan;
+import com.a.eye.skywalking.network.grpc.TraceId;
 
 /**
  * Created by xin on 2016/11/12.
@@ -22,7 +23,7 @@ public class RequestSpanData extends AbstractSpanData {
 
     @Override
     public long getTraceStartTime() {
-        return buildTraceStartTime(requestSpan.getTraceId());
+        return requestSpan.getTraceId().getSegments(1);
     }
 
     @Override
@@ -31,8 +32,8 @@ public class RequestSpanData extends AbstractSpanData {
     }
 
     @Override
-    public String getTraceId() {
-        return requestSpan.getTraceId();
+    public Long[] getTraceIdSegments() {
+        return traceIdToArrays(requestSpan.getTraceId());
     }
 
     @Override
@@ -40,19 +41,19 @@ public class RequestSpanData extends AbstractSpanData {
         return buildLevelId(requestSpan.getParentLevel(), requestSpan.getLevelId());
     }
 
-    public String getAddress(){
+    public String getAddress() {
         return requestSpan.getAddress();
     }
 
-    public String getApplicationId(){
+    public String getApplicationId() {
         return requestSpan.getApplicationId();
     }
 
-    public String getProcessNo(){
+    public String getProcessNo() {
         return requestSpan.getProcessNo();
     }
 
-    public long getStartTime(){
+    public long getStartTime() {
         return requestSpan.getStartDate();
     }
 

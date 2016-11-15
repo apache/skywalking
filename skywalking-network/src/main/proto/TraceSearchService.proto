@@ -5,14 +5,22 @@ option java_package = "com.a.eye.skywalking.network.grpc";
 
 import "Spans.proto";
 
-service TraceSearchService{
-    rpc search(TraceSearchCondition) returns (SearchResult){};
+service AsyncTraceSearchService {
+    rpc search (stream QueryTask) returns (stream SearchResult) {
+    };
 }
 
-message TraceSearchCondition{
+service TraceSearchService {
+    rpc search (TraceId) returns (SearchResult) {
+    };
+}
+
+message QueryTask {
+    int32 taskId = 1;
+    TraceId traceId = 2;
+}
+
+message SearchResult {
     string traceid = 1;
-}
-
-message SearchResult{
-    repeated Span spans= 1;
+    repeated Span spans = 2;
 }

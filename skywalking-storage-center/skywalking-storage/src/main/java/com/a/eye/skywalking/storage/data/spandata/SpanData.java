@@ -8,7 +8,7 @@ public interface SpanData {
 
     byte[] toByteArray();
 
-    String getTraceId();
+    Long[] getTraceIdSegments();
 
     String getLevelId();
 }

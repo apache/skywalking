@@ -1,11 +1,9 @@
 package com.a.eye.skywalking.storage.data.spandata;
 
 import com.a.eye.skywalking.network.grpc.Span;
+import com.a.eye.skywalking.network.grpc.TraceId;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by xin on 2016/11/12.
@@ -54,7 +52,8 @@ public class SpanDataHelper {
 
         builder = builder.setLevelId(requestSpanData.getLevelId()).setProcessNo(requestSpanData.getProcessNo())
                 .setSpanType(requestSpanData.getType()).setStarttime(requestSpanData.getStartTime())
-                .setStatusCode(ackSpanData.getStatusCode()).setTraceId(requestSpanData.getTraceId());
+                .setStatusCode(ackSpanData.getStatusCode())
+                .setTraceId(TraceId.newBuilder().addAllSegments(Arrays.asList(requestSpanData.getTraceIdSegments())));
         return builder.build();
     }
 
