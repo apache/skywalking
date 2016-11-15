@@ -38,20 +38,20 @@ public class IndexDataCapacityMonitor {
         public Detector(long timestamp) {
             this.timestamp = timestamp;
             currentSize = new AtomicLong();
-            startTimer();
+            start();
         }
 
         public Detector(long timestamp, long currentSize) {
             this.currentSize = new AtomicLong(currentSize);
             this.timestamp = timestamp;
-            startTimer();
+            start();
         }
 
-        public void startTimer() {
-            timer.scheduleAtFixedRate(this, 0, TimeUnit.SECONDS.toMillis(30));
+        public void start() {
+            timer.schedule(this, 0, TimeUnit.SECONDS.toMillis(30));
         }
 
-        public void stopTimer() {
+        public void stop() {
             timer.cancel();
         }
 
@@ -66,8 +66,8 @@ public class IndexDataCapacityMonitor {
         @Override
         public void run() {
             if (currentSize.get() > SIZE * 0.8) {
+                stop();
                 notificationAddNewBlockIndexAndCreateNewIndexDB();
-                stopTimer();
                 HealthCollector.getCurrentHeathReading("Index Data Capacity Detector").updateData(HeathReading.INFO,
                         "Detector is detecting the index [%d]. and the capacity of  {}  is %d", timestamp,
                         currentSize.get());
@@ -111,6 +111,6 @@ public class IndexDataCapacityMonitor {
 
 
     public static void stop() {
-        detector.stopTimer();
+        detector.stop();
     }
 }
