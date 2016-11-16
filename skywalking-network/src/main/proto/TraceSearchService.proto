@@ -21,6 +21,6 @@ message QueryTask {
 }
 
 message SearchResult {
-    string traceid = 1;
+    int32 taskId = 1;
     repeated Span spans = 2;
 }

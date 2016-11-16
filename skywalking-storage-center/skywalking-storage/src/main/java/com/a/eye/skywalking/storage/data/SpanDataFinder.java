@@ -2,6 +2,7 @@ package com.a.eye.skywalking.storage.data;
 
 import com.a.eye.skywalking.logging.api.ILog;
 import com.a.eye.skywalking.logging.api.LogManager;
+import com.a.eye.skywalking.network.grpc.TraceId;
 import com.a.eye.skywalking.storage.block.index.BlockIndexEngine;
 import com.a.eye.skywalking.storage.config.Config;
 import com.a.eye.skywalking.storage.config.Constants;
@@ -21,12 +22,11 @@ import static com.a.eye.skywalking.storage.config.Constants.SQL.DEFAULT_USER;
 import static com.a.eye.skywalking.storage.util.PathResolver.getAbsolutePath;
 
 public class SpanDataFinder {
-    private static ILog                 logger               = LogManager.getLogger(SpanDataFinder.class);
     private static IndexDataSourceCache datasourceCache      = new IndexDataSourceCache(Config.Finder.CACHED_SIZE);
     private static ReentrantLock        createDatasourceLock = new ReentrantLock();
 
-    public static List<SpanData> find(String traceId) {
-        long blockIndex = BlockIndexEngine.newFinder().find(fetchStartTimeFromTraceId(traceId));
+    public static List<SpanData> find(TraceId traceId) {
+        long blockIndex = BlockIndexEngine.newFinder().find(traceId.getSegments(1));
         if (blockIndex == 0) {
             return new ArrayList<SpanData>();
         }
@@ -35,7 +35,8 @@ public class SpanDataFinder {
         IndexMetaCollection indexMetaCollection = null;
         try {
             indexDBConnector = fetchIndexDBConnector(blockIndex);
-            indexMetaCollection = indexDBConnector.queryByTraceId(spiltTraceId(traceId));
+            indexMetaCollection = indexDBConnector.queryByTraceId(traceId.getSegmentsList().toArray(new Long[traceId
+                    .getSegmentsCount()]));
         } finally {
             if (indexDBConnector != null) {
                 indexDBConnector.close();
@@ -49,7 +50,7 @@ public class SpanDataFinder {
         Iterator<IndexMetaGroup<String>> iterator = IndexMetaCollections.group(indexMetaCollection, new GroupKeyBuilder<String>() {
             @Override
             public String buildKey(IndexMetaInfo metaInfo) {
-                return metaInfo.getFileName();
+                return metaInfo.getFileName().fileName();
             }
         }).iterator();
 

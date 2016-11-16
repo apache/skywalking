@@ -1,5 +1,6 @@
 package com.a.eye.skywalking.storage.data.index;
 
+import com.a.eye.skywalking.storage.data.file.DataFileNameDesc;
 import com.a.eye.skywalking.storage.data.spandata.SpanData;
 import com.a.eye.skywalking.storage.data.spandata.SpanType;
 
@@ -7,21 +8,21 @@ public class IndexMetaInfo {
 
     private SpanData spanData;
 
-    private String fileName;
+    private DataFileNameDesc nameDesc;
 
     private long offset;
 
     private int length;
 
-    public IndexMetaInfo(SpanData data, String fileName, long offset, int length) {
+    public IndexMetaInfo(SpanData data, DataFileNameDesc fileNameDesc, long offset, int length) {
         this.spanData = data;
-        this.fileName = fileName;
+        this.nameDesc = fileNameDesc;
         this.offset = offset;
         this.length = length;
     }
 
-    public String getFileName() {
-        return fileName;
+    public DataFileNameDesc getFileName() {
+        return nameDesc;
     }
 
     public long getOffset() {

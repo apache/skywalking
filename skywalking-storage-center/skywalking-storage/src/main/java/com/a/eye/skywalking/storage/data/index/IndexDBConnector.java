@@ -5,6 +5,7 @@ import com.a.eye.skywalking.logging.api.LogManager;
 import com.a.eye.skywalking.storage.config.Config;
 import com.a.eye.skywalking.storage.config.Constants;
 import com.a.eye.skywalking.storage.data.exception.ConnectorInitializeFailedException;
+import com.a.eye.skywalking.storage.data.file.DataFileNameDesc;
 import com.a.eye.skywalking.storage.data.spandata.AckSpanData;
 import com.a.eye.skywalking.storage.data.spandata.RequestSpanData;
 import com.a.eye.skywalking.storage.data.spandata.SpanData;
@@ -109,9 +110,10 @@ public class IndexDBConnector {
                 ps.setInt(5, metaInfo.getTraceId()[4].intValue());
                 ps.setInt(6, metaInfo.getTraceId()[5].intValue());
                 ps.setInt(7, metaInfo.getSpanType().getValue());
-                ps.setString(8, metaInfo.getFileName());
-                ps.setLong(9, metaInfo.getOffset());
-                ps.setInt(10, metaInfo.getLength());
+                ps.setLong(8, metaInfo.getFileName().getName());
+                ps.setInt(9, metaInfo.getFileName().getSuffix());
+                ps.setLong(10, metaInfo.getOffset());
+                ps.setInt(11, metaInfo.getLength());
                 ps.addBatch();
                 if (++currentIndex > Constants.MAX_BATCH_SIZE) {
                     ps.executeBatch();
@@ -144,15 +146,15 @@ public class IndexDBConnector {
         return indexSize;
     }
 
-    public IndexMetaCollection queryByTraceId(long[] traceId) {
+    public IndexMetaCollection queryByTraceId(Long[] traceId) {
         try {
             PreparedStatement ps = connection.prepareStatement(QUERY_TRACE_ID);
-            ps.setInt(1, (int) traceId[0]);
-            ps.setLong(2, (int) traceId[1]);
-            ps.setInt(3, (int) traceId[2]);
-            ps.setInt(4, (int) traceId[3]);
-            ps.setInt(5, (int) traceId[4]);
-            ps.setInt(6, (int) traceId[5]);
+            ps.setInt(1, traceId[0].intValue());
+            ps.setLong(2, traceId[1]);
+            ps.setInt(3, traceId[2].intValue());
+            ps.setInt(4, traceId[3].intValue());
+            ps.setInt(5, traceId[4].intValue());
+            ps.setInt(6, traceId[5].intValue());
             ResultSet rs = ps.executeQuery();
 
             IndexMetaCollection collection = new IndexMetaCollection();
@@ -166,8 +168,9 @@ public class IndexDBConnector {
                     spanData = new RequestSpanData();
                 }
 
-                collection.add(new IndexMetaInfo(spanData, rs.getString("file_name"), rs.getLong("offset"),
-                        rs.getInt("length")));
+                collection.add(new IndexMetaInfo(spanData,
+                        new DataFileNameDesc(rs.getLong("file_name"), rs.getInt("file_name_suffix")),
+                        rs.getLong("offset"), rs.getInt("length")));
             }
             return collection;
         } catch (SQLException e) {
@@ -183,4 +186,6 @@ public class IndexDBConnector {
             logger.error("Failed to close index db connector", e);
         }
     }
+
+
 }

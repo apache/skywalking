@@ -5,6 +5,8 @@ import com.a.eye.skywalking.health.report.HeathReading;
 import com.a.eye.skywalking.logging.api.ILog;
 import com.a.eye.skywalking.logging.api.LogManager;
 import com.a.eye.skywalking.network.grpc.Span;
+import com.a.eye.skywalking.network.grpc.TraceId;
+import com.a.eye.skywalking.network.listener.AsyncTraceSearchListener;
 import com.a.eye.skywalking.network.listener.TraceSearchListener;
 import com.a.eye.skywalking.storage.data.SpanDataFinder;
 import com.a.eye.skywalking.storage.data.spandata.SpanData;
@@ -13,12 +15,12 @@ import com.a.eye.skywalking.storage.data.spandata.SpanDataHelper;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SearchListener implements TraceSearchListener {
+public class SearchListener implements AsyncTraceSearchListener {
 
     private static ILog logger = LogManager.getLogger(SearchListener.class);
 
     @Override
-    public List<Span> search(String traceId) {
+    public List<Span> search(TraceId traceId) {
         try {
             List<SpanData> data = SpanDataFinder.find(traceId);
             SpanDataHelper helper = new SpanDataHelper(data);

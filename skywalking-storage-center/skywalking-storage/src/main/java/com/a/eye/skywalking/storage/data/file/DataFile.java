@@ -1,6 +1,5 @@
 package com.a.eye.skywalking.storage.data.file;
 
-import com.a.eye.datacarrier.common.AtomicRangeInteger;
 import com.a.eye.skywalking.health.report.HealthCollector;
 import com.a.eye.skywalking.health.report.HeathReading;
 import com.a.eye.skywalking.logging.api.ILog;
@@ -16,9 +15,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.a.eye.skywalking.storage.util.PathResolver.getAbsolutePath;
 
@@ -28,10 +24,10 @@ import static com.a.eye.skywalking.storage.util.PathResolver.getAbsolutePath;
 public class DataFile {
 
     private static ILog logger = LogManager.getLogger(DataFile.class);
-    private String           fileName;
+    private DataFileNameDesc           nameDesc;
     private long             currentOffset;
     private DataFileOperator operator;
-    private static final AtomicRangeInteger DATA_FILE_NAME_SUFFIX = new AtomicRangeInteger(1000, 9999);
+
 
     static {
         File dataFileDir = new File(getAbsolutePath(Config.DataFile.PATH));
@@ -41,21 +37,27 @@ public class DataFile {
     }
 
     public DataFile() {
-        this.fileName = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SS").format(new Date()) + "_" + DATA_FILE_NAME_SUFFIX
-                .getAndIncrement();
+        this.nameDesc = new DataFileNameDesc();
         this.currentOffset = 0;
         operator = new DataFileOperator();
         createFile();
     }
 
-    public DataFile(String fileName) {
-        this.fileName = fileName;
+    public DataFile(String fileName){
+        this.nameDesc = new DataFileNameDesc(fileName);
+        this.currentOffset = 0;
+        operator = new DataFileOperator();
+        createFile();
+    }
+
+    public DataFile(DataFileNameDesc nameDesc) {
+        this.nameDesc = nameDesc;
         operator = new DataFileOperator();
         createFile();
     }
 
     public DataFile(File file) {
-        this.fileName = file.getName();
+        this.nameDesc = new DataFileNameDesc(file.getName());
         this.currentOffset = file.length();
         operator = new DataFileOperator();
         createFile();
@@ -67,7 +69,7 @@ public class DataFile {
             try {
                 dataFile.createNewFile();
                 if (logger.isDebugEnable()) {
-                    logger.debug("Create an new data file[{}].", fileName);
+                    logger.debug("Create an new data file[{}].", nameDesc.fileName());
                 }
                 HealthCollector.getCurrentHeathReading("DataFile")
                         .updateData(HeathReading.INFO, "Create an new data " + "file.");
@@ -81,7 +83,7 @@ public class DataFile {
     public boolean overLimitLength() {
         boolean isOverLimitLength = currentOffset >= Config.DataFile.SIZE;
         if (isOverLimitLength) {
-            logger.info("Data File[{}] is over limit length.", fileName);
+            logger.info("Data File[{}] is over limit length.", nameDesc.fileName());
         }
         return isOverLimitLength;
     }
@@ -90,7 +92,7 @@ public class DataFile {
         byte[] bytes = data.toByteArray();
         try {
             operator.getWriter().write(bytes);
-            IndexMetaInfo metaInfo = new IndexMetaInfo(data, fileName, currentOffset, bytes.length);
+            IndexMetaInfo metaInfo = new IndexMetaInfo(data, nameDesc, currentOffset, bytes.length);
             currentOffset += bytes.length;
             return metaInfo;
         } catch (IOException e) {
@@ -118,7 +120,7 @@ public class DataFile {
             return data;
         } catch (IOException e) {
             throw new SpanDataReadFailedException(
-                    "Failed to read dataFile[" + fileName + "], offset: " + offset + " " + "lenght: " + length, e);
+                    "Failed to read dataFile[" + nameDesc.fileName() + "], offset: " + offset + " " + "lenght: " + length, e);
         }
     }
 
@@ -169,12 +171,13 @@ public class DataFile {
         }
     }
 
+
     private File getDataFile() {
-        return new File(getAbsolutePath(Config.DataFile.PATH), fileName);
+        return new File(getAbsolutePath(Config.DataFile.PATH), nameDesc.fileName());
     }
 
     @Override
     public String toString() {
-        return "DataFile{" + "fileName='" + fileName + '\'' + '}';
+        return "DataFile{" + "fileName='" + nameDesc.fileName() + '\'' + '}';
     }
 }
