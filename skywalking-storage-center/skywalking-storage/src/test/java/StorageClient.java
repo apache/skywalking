@@ -9,7 +9,7 @@ import static com.a.eye.skywalking.network.grpc.SpanStorageServiceGrpc.newStub;
 
 public class StorageClient {
     private static ManagedChannel channel =
-            ManagedChannelBuilder.forAddress("127.0.0.1", 34000).usePlaintext(true).build();
+            ManagedChannelBuilder.forAddress("10.128.35.79", 34000).usePlaintext(true).build();
 
     private static SpanStorageServiceGrpc.SpanStorageServiceStub spanStorageServiceStub = newStub(channel);
 
@@ -34,7 +34,7 @@ public class StorageClient {
         long startTime = System.currentTimeMillis();
 
 
-        for (int i = 0; i < 1; i++) {
+        for (int i = 0; i < 1000000; i++) {
             StreamObserver<AckSpan> ackSpanStreamObserver =
                     spanStorageServiceStub.storageACKSpan(new StreamObserver<SendResult>() {
                         @Override
@@ -69,20 +69,26 @@ public class StorageClient {
                             endTime2 = System.currentTimeMillis();
                         }
                     });
-            for (int j = 0; j < 1; j++) {
+            for (int j = 0; j < 10; j++) {
                 requestSpanStreamObserver.onNext(requestSpan);
                 ackSpanStreamObserver.onNext(ackSpan);
 
-                ClientCallStreamObserver<RequestSpan> newRequestSpanStreamObserver =
-                        (ClientCallStreamObserver<RequestSpan>) requestSpanStreamObserver;
-                while (!newRequestSpanStreamObserver.isReady()) {
-                    Thread.sleep(1);
-                }
+            }
+
+            ClientCallStreamObserver<RequestSpan> newRequestSpanStreamObserver =
+                    (ClientCallStreamObserver<RequestSpan>) requestSpanStreamObserver;
+
+            while (!newRequestSpanStreamObserver.isReady()) {
+                Thread.sleep(1);
             }
 
             ackSpanStreamObserver.onCompleted();
             requestSpanStreamObserver.onCompleted();
 
+
+            if(i % 500_000 == 0){
+                System.out.println(i);
+            }
 
         }
 
