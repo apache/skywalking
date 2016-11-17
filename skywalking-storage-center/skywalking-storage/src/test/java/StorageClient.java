@@ -19,22 +19,23 @@ public class StorageClient {
 
 
     public static void main(String[] args) throws InterruptedException {
-        RequestSpan requestSpan =
-                RequestSpan.newBuilder().setSpanType(1).setAddress("127.0.0.1").setApplicationId("1").setCallType("1")
-                        .setLevelId(0).setProcessNo("19287").setStartDate(System.currentTimeMillis()).setTraceId(
-                        TraceId.newBuilder().addSegments(201611).addSegments(1478661327960L).addSegments(8504828)
-                                .addSegments(2277).addSegments(53).addSegments(3).build()).setUserId("1")
-                        .setViewPointId("http://localhost:8080/wwww/test/helloWorld").build();
-
-        AckSpan ackSpan = AckSpan.newBuilder().setLevelId(0).setCost(10).setTraceId(
-                TraceId.newBuilder().addSegments(201611).addSegments(1478661327960L).addSegments(8504828)
-                        .addSegments(2277).addSegments(53).addSegments(3).build()).setStatusCode(0)
-                .setViewpointId("http://localhost:8080/wwww/test/helloWorld").build();
 
         long startTime = System.currentTimeMillis();
 
 
         for (int i = 0; i < 1000000; i++) {
+            RequestSpan requestSpan =
+                    RequestSpan.newBuilder().setSpanType(1).setAddress("127.0.0.1").setApplicationId("1").setCallType("1")
+                            .setLevelId(0).setProcessNo("19287").setStartDate(System.currentTimeMillis()).setTraceId(
+                            TraceId.newBuilder().addSegments(201611).addSegments(System.currentTimeMillis()).addSegments(8504828)
+                                    .addSegments(2277).addSegments(53).addSegments(3).build()).setUserId("1")
+                            .setViewPointId("http://localhost:8080/wwww/test/helloWorld").build();
+
+            AckSpan ackSpan = AckSpan.newBuilder().setLevelId(0).setCost(10).setTraceId(
+                    TraceId.newBuilder().addSegments(201611).addSegments(System.currentTimeMillis()).addSegments(8504828)
+                            .addSegments(2277).addSegments(53).addSegments(3).build()).setStatusCode(0)
+                    .setViewpointId("http://localhost:8080/wwww/test/helloWorld").build();
+
             StreamObserver<AckSpan> ackSpanStreamObserver =
                     spanStorageServiceStub.storageACKSpan(new StreamObserver<SendResult>() {
                         @Override
@@ -86,7 +87,7 @@ public class StorageClient {
             requestSpanStreamObserver.onCompleted();
 
 
-            if(i % 500_000 == 0){
+            if(i % 1_000 == 0){
                 System.out.println(i);
             }
 
