@@ -8,17 +8,11 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 [![Build Status](https://travis-ci.org/wu-sheng/sky-walking.svg?branch=master)](https://travis-ci.org/wu-sheng/sky-walking)
 ![license](https://img.shields.io/aur/license/yaourt.svg)
 
-# 简介 / abstract
-* 核心理论为[Google Dapper论文：Dapper, a Large-Scale Distributed Systems Tracing Infrastructure](http://research.google.com/pubs/pub36356.html),英语有困难的同学可参考[国内翻译](http://duanple.blog.163.com/blog/static/70971767201329113141336/)
-* 本分析系统能通过动态字节码技术，对现有的JAVA应用或J2EE应用进行监控和数据收集，并针对应用进场进行准实时告警。此外提供大量的调用性能分析功能，解决目前的监控系统主要监控进程、端口而非应用实际性能的问题。
-* 支持国内常用的dubbo、dubbox、motan、httpclient等常见RPC框架，支持应用异常的邮件告警
-* skywalking-sdk层面提供的埋点API，同步阻塞访问时间小于100μs
-* 通过[byte-buddy](https://github.com/raphw/byte-buddy)，插件将通过动态字节码机制，避免代码侵入性，完成监控。动态代码模式埋点，同步阻塞访问时间应在200-300μs
-* 通过[DataCarrier](https://github.com/wu-sheng/DataCarrier)，提供高效的并行处理能力
-* 提供一定的日志数据分析和展现能力，减少或者避免使用团队的二次开发
-* SkyWalking is an open source Large-Scale Distributed Systems Tracing Infrastructure, also been known as APM(Application Performance Management) tool. SkyWalking provides a solution to help monitor and analysis a Large-Scale Distributed Systems.
-* SkyWalking supports popular rpc frameworks, such as [dubbo](https://github.com/alibaba/dubbo), [dubbox](https://github.com/dangdangdotcom/dubbox), [motan](https://github.com/weibocom/motan) etc., supports email-alert when application occurs unexpected exception。
-* SkyWalking's basic API, execution time of blocking saving span must less than 100μs.
+# Abstract
+* An open source Large-Scale Distributed Systems Tracing Infrastructure, also known a ditributed tracer.
+* Based on [Google Dapper Paper: Dapper, a Large-Scale Distributed Systems Tracing Infrastructure](http://research.google.com/pubs/pub36356.html), [Simplified Chines](http://duanple.blog.163.com/blog/static/70971767201329113141336/)
+* Supports popular rpc frameworks, such as [dubbo](https://github.com/alibaba/dubbo), [dubbox](https://github.com/dangdangdotcom/dubbox), [motan](https://github.com/weibocom/motan) etc., supports email-alert when application occurs unexpected exception。
+* Execution time of creating span than 100μs.
 * By using [byte-buddy](https://github.com/raphw/byte-buddy) (Thanks to [raphw](https://github.com/raphw)), plugins use dynamic byte code generation to avoid invasive codes. plugins API, execution time of blocking saving span must between 200μs and 300μs, including execution time of dynamic byte code.
 * By using [DataCarrier](https://github.com/wu-sheng/DataCarrier), provide parallel high-throughput processing capability.
 * Provide trace log analysis and presentation capabilities, Reduce or avoid add-on functions development.
@@ -43,7 +37,7 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对
 	* config package name or class name (Recommend to use in dev or test enviroment. Will cost too many in product enviroment.)
 
 
-# 主要贡献者 / Contributors
+# Contributors
 * 吴晟 [wusheng](https://github.com/wu-sheng) &nbsp;&nbsp;wu.sheng@foxmail.com
 * 张鑫 [zhangxin](https://github.com/ascrutae) &nbsp;&nbsp;
 
@@ -59,13 +53,12 @@ In October 2016, Sky Walking won `OneAPM Open Source Achievement Award`. The awa
 Thanks all users of sky walking project.
 ___
 
-# 交流
+# Discussion
 <img src="http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/chatapp/toutiao.JPG" alt="Sky Walking TouTiao" height="280px" align="left" />
 * Mail to：wu.sheng@foxmail.com
-* QQ群：392443393，请注明“Sky Walking交流”
-* 谁在使用Sky Walking?[点击进入](https://github.com/wu-sheng/sky-walking/issues/34)。同时请各位使用者反馈下，都在哪些项目中使用。
-* if you are using SkyWalking，[Report to us](https://github.com/wu-sheng/sky-walking/issues/34) please.
-<br/>
+* QQ Group：392443393
+* If you are using SkyWalking，[Report to us](https://github.com/wu-sheng/sky-walking/issues/34) please.
+* **Developer Org of sky-walking** is https://github.com/skywalking-developer
 <br/>
 <br/>
 <br/>
