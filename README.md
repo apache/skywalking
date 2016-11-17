@@ -66,6 +66,7 @@ ___
 <br/>
 <br/>
 <br/>
+<br/>
 
 # 整体架构图
 ![2.0 架构图](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/2.0-2016/SkyWalkingArch.jpg)
