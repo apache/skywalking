@@ -3,7 +3,7 @@ Sky Walking
 
 <img src="http://wu-sheng.github.io/sky-walking/images/skywalking.png" alt="Sky Walking logo" height="90px" align="right" />
 
-SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, 是一个对JAVA分布式应用程序集群的业务运行情况进行追踪、告警和分析的系统。
+SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, also known Distributed Tracer。
 
 [![Build Status](https://travis-ci.org/wu-sheng/sky-walking.svg?branch=master)](https://travis-ci.org/wu-sheng/sky-walking)
 ![license](https://img.shields.io/aur/license/yaourt.svg)
@@ -98,14 +98,14 @@ ___
 
 # v2.0-2016 Quick Start
 
-## 部署第三方软件 / Required of third party softwares
-- JDK 1.7
+## Required of third party softwares
+- JDK 1.8
 - zookeeper 3.4.6
 - mysql
 - redis-3.0.5
 
-## 插件支持的JDK / Supported jdk version
-- 1.7以上版本 / support 1.7+
+## instrument javaagent jdk version
+- support 1.6+ , instruments applications can run in jdk6
 
 ## 编译与部署 / Build and deploy
 - 服务端发布版本[下载](https://github.com/wu-sheng/sky-walking/releases)  (.tar.gz)
@@ -116,7 +116,7 @@ ___
 - [Code compilation instructions](BUILD_DOC.md)
 
 
-## 下载官方的agent / Download offical agent
+## Download offical agent
 [ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/com.a.eye.skywalking-agent/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/com.a.eye.skywalking-agent/_latestVersion)
 
 - 通过github-release[下载](https://github.com/wu-sheng/sky-walking/releases)
