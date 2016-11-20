@@ -36,14 +36,4 @@
         </dependency>
     </dependencies>
 
-    <repositories>
-        <repository>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <id>DataCarrier</id>
-            <name>bintray</name>
-            <url>https://jcenter.bintray.com</url>
-        </repository>
-    </repositories>
 </project>
