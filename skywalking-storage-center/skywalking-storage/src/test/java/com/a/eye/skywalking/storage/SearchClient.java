@@ -36,7 +36,7 @@ public class SearchClient {
        StreamObserver<QueryTask> searchResult = searchServiceStub.search(serverStreamObserver);
 
         searchResult.onNext(QueryTask.newBuilder().setTraceId(
-                TraceId.newBuilder().addSegments(201611).addSegments(1478661327960L).addSegments(8504828)
+                TraceId.newBuilder().addSegments(201611).addSegments(1479267274243L).addSegments(8504828)
                         .addSegments(2277).addSegments(53).addSegments(3).build()).setTaskId(1).build());
         searchResult.onCompleted();
 

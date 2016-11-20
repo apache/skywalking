@@ -8,20 +8,14 @@ public class Config {
         public static int PORT = 34000;
     }
 
+
     public static class DataConsumer {
 
-        public static int CHANNEL_SIZE  = 10;
+        public static int CHANNEL_SIZE = 10;
 
-        public static int BUFFER_SIZE   = 1000;
+        public static int BUFFER_SIZE = 1000;
 
         public static int CONSUMER_SIZE = 5;
-    }
-
-
-    public static class BlockIndex {
-        public static String PATH = "/block_index";
-
-        public static String FILE_NAME = "data_file.index";
     }
 
 
@@ -34,21 +28,19 @@ public class Config {
 
     public static class DataIndex {
 
-        public static String PATH = "/data/index";
+        public static final int INDEX_LISTEN_PORT = 9300;
 
-        public static String FILE_NAME = "dataIndex";
-
-        public static long SIZE = 1000 * 1000 * 1000;
-
-
-        public static class Operator {
-            public static int CACHE_SIZE = 5;
-        }
     }
 
 
-    public static class BlockIndexEngine {
-        public static int L1_CACHE_SIZE = 10;
+    public static class IndexOperator {
+
+        public static class Finder {
+
+            public static int TOTAL = 50;
+
+            public static int IDEL = 20;
+        }
     }
 
 
@@ -63,14 +55,4 @@ public class Config {
         public static String PATH_PREFIX = "/skywalking/storage_list/";
     }
 
-
-    public static class Finder {
-        public static int CACHED_SIZE = 10;
-
-
-        public static class DataSource {
-            public static int MAX_POOL_SIZE = 20;
-            public static int MIN_IDLE      = 5;
-        }
-    }
 }

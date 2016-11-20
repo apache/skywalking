@@ -5,47 +5,33 @@ import com.a.eye.skywalking.health.report.HealthCollector;
 import com.a.eye.skywalking.health.report.HeathReading;
 import com.a.eye.skywalking.logging.api.ILog;
 import com.a.eye.skywalking.logging.api.LogManager;
-import com.a.eye.skywalking.storage.block.index.BlockIndexEngine;
 import com.a.eye.skywalking.storage.data.file.DataFileWriter;
-import com.a.eye.skywalking.storage.data.index.*;
+import com.a.eye.skywalking.storage.data.index.IndexMetaCollection;
+import com.a.eye.skywalking.storage.data.index.operator.IndexOperator;
+import com.a.eye.skywalking.storage.data.index.operator.OperatorFactory;
 import com.a.eye.skywalking.storage.data.spandata.SpanData;
 
-import java.util.Iterator;
 import java.util.List;
 
 public class SpanDataConsumer implements IConsumer<SpanData> {
 
     private static ILog logger = LogManager.getLogger(SpanDataConsumer.class);
-    private IndexDBConnectorCache cache;
-    private DataFileWriter        fileWriter;
+    private DataFileWriter fileWriter;
 
     @Override
     public void init() {
-        cache = new IndexDBConnectorCache();
         fileWriter = new DataFileWriter();
     }
 
     @Override
     public void consume(List<SpanData> data) {
-        Iterator<IndexMetaGroup<Long>> iterator =
-                IndexMetaCollections.group(fileWriter.write(data), new GroupKeyBuilder<Long>() {
-                    @Override
-                    public Long buildKey(IndexMetaInfo metaInfo) {
-                        return BlockIndexEngine.newFinder().find(metaInfo.getTraceStartTime());
-                    }
-                }).iterator();
+        IndexMetaCollection collection = fileWriter.write(data);
 
-        while (iterator.hasNext()) {
-            IndexMetaGroup<Long> metaGroup = iterator.next();
-            IndexOperator indexOperator = IndexOperator.newOperator(getDBConnector(metaGroup));
-            indexOperator.batchUpdate(metaGroup);
-            HealthCollector.getCurrentHeathReading("SpanDataConsumer")
-                    .updateData(HeathReading.INFO, "%s messages were successful consumed .", data.size());
-        }
-    }
+        IndexOperator operator = OperatorFactory.createIndexOperator();
+        operator.batchUpdate(collection);
 
-    private IndexDBConnector getDBConnector(IndexMetaGroup<Long> metaGroup) {
-        return cache.get(metaGroup.getKey());
+        HealthCollector.getCurrentHeathReading("SpanDataConsumer")
+                .updateData(HeathReading.INFO, "%s messages were successful consumed .", data.size());
     }
 
     @Override
@@ -57,7 +43,6 @@ public class SpanDataConsumer implements IConsumer<SpanData> {
 
     @Override
     public void onExit() {
-        cache.close();
         fileWriter.close();
     }
 }

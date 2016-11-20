@@ -8,19 +8,19 @@ public class Constants {
     public static int MAX_BATCH_SIZE = 50;
 
     public static class SQL {
-        public static final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + "\n" + "(\n"
-                + "    id INT PRIMARY KEY NOT NULL IDENTITY,\n"
-                + "    tid_s0 INT NOT NULL,\n"
-                + "    tid_s1 BIGINT NOT NULL,\n"
-                + "    tid_s2 INT NOT NULL,\n"
-                + "    tid_s3 INT NOT NULL,\n"
-                + "    tid_s4 INT NOT NULL,\n"
-                + "    tid_s5 INT NOT NULL,\n"
-                + "    span_type INT NOT NULL, \n"
-                + "    file_name BIGINT NOT NULL,\n"
-                + "    file_name_suffix INT NOT NULL,\n"
-                + "    offset BIGINT NOT NULL,\n"
-                + "    length INT NOT NULL\n" + ");\n";
+        public static final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + "( "
+                + "    id INT PRIMARY KEY NOT NULL IDENTITY, "
+                + "    tid_s0 INT NOT NULL, "
+                + "    tid_s1 BIGINT NOT NULL, "
+                + "    tid_s2 INT NOT NULL, "
+                + "    tid_s3 INT NOT NULL, "
+                + "    tid_s4 INT NOT NULL, "
+                + "    tid_s5 INT NOT NULL, "
+                + "    span_type INT NOT NULL,  "
+                + "    file_name BIGINT NOT NULL, "
+                + "    file_name_suffix INT NOT NULL, "
+                + "    offset BIGINT NOT NULL, "
+                + "    length INT NOT NULL " + "); ";
 
         public static final String CREATE_INDEX = "CREATE INDEX \"index_data_trace_id_index\" ON " + TABLE_NAME + " "
                 + "(tid_s0,tid_s1,tid_s2,tid_s3,tid_s4,tid_s5);";

@@ -9,10 +9,8 @@ import com.a.eye.skywalking.registry.RegistryCenterFactory;
 import com.a.eye.skywalking.registry.api.CenterType;
 import com.a.eye.skywalking.registry.api.RegistryCenter;
 import com.a.eye.skywalking.registry.impl.zookeeper.ZookeeperConfig;
-import com.a.eye.skywalking.storage.block.index.BlockIndexEngine;
 import com.a.eye.skywalking.storage.config.Config;
 import com.a.eye.skywalking.storage.config.ConfigInitializer;
-import com.a.eye.skywalking.storage.data.IndexDataCapacityMonitor;
 import com.a.eye.skywalking.storage.data.file.DataFilesManager;
 import com.a.eye.skywalking.storage.listener.SearchListener;
 import com.a.eye.skywalking.storage.listener.StorageListener;
@@ -46,9 +44,6 @@ public class Main {
 
             DataFilesManager.init();
 
-            BlockIndexEngine.start();
-
-            IndexDataCapacityMonitor.start();
 
             provider = ServiceProvider.newBuilder(Config.Server.PORT).addSpanStorageService(new StorageListener())
                     .addAsyncTraceSearchService(new SearchListener()).build();
@@ -67,7 +62,6 @@ public class Main {
             logger.error("SkyWalking storage server start failure.", e);
         } finally {
             provider.stop();
-            IndexDataCapacityMonitor.stop();
         }
     }
 
