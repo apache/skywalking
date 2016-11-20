@@ -34,6 +34,21 @@
             <artifactId>data-carrier</artifactId>
             <version>1.2</version>
         </dependency>
+        <dependency>
+            <groupId>com.a.eye</groupId>
+            <artifactId>skywalking-health-report</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.a.eye</groupId>
+            <artifactId>skywalking-logging-impl-log4j2</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.a.eye</groupId>
+            <artifactId>skywalking-registry</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
 </project>

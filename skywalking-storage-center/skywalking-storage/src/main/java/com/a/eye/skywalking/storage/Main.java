@@ -44,7 +44,6 @@ public class Main {
 
             DataFilesManager.init();
 
-
             provider = ServiceProvider.newBuilder(Config.Server.PORT).addSpanStorageService(new StorageListener())
                     .addAsyncTraceSearchService(new SearchListener()).build();
             provider.start();
@@ -58,7 +57,6 @@ public class Main {
             logger.info("SkyWalking storage server started.");
             Thread.currentThread().join();
         } catch (Throwable e) {
-            e.printStackTrace();
             logger.error("SkyWalking storage server start failure.", e);
         } finally {
             provider.stop();

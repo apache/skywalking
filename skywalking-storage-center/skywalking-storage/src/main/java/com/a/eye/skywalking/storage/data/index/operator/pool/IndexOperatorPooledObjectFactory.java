@@ -20,7 +20,7 @@ public class IndexOperatorPooledObjectFactory extends BasePooledObjectFactory<Tr
     }
 
     @Override
-    public PooledObject<TransportClient> wrap(org.elasticsearch.client.transport.TransportClient client) {
+    public PooledObject<TransportClient> wrap(TransportClient client) {
         return new DefaultPooledObject<>(client);
     }
 

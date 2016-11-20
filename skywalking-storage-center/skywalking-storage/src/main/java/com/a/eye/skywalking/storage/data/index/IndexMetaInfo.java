@@ -8,6 +8,8 @@ public class IndexMetaInfo {
 
     private SpanData spanData;
 
+    private SpanType spanType;
+
     private DataFileNameDesc nameDesc;
 
     private long offset;
@@ -17,8 +19,16 @@ public class IndexMetaInfo {
     public IndexMetaInfo(SpanData data, DataFileNameDesc fileNameDesc, long offset, int length) {
         this.spanData = data;
         this.nameDesc = fileNameDesc;
+        this.spanType = data.getSpanType();
         this.offset = offset;
         this.length = length;
+    }
+
+    public IndexMetaInfo(DataFileNameDesc fileNameDesc, long offset, int length, SpanType spanType) {
+        this.nameDesc = fileNameDesc;
+        this.offset = offset;
+        this.length = length;
+        this.spanType = spanType;
     }
 
     public DataFileNameDesc getFileName() {
@@ -46,6 +56,6 @@ public class IndexMetaInfo {
     }
 
     public SpanType getSpanType() {
-        return spanData.getSpanType();
+        return spanType;
     }
 }

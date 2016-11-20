@@ -21,4 +21,8 @@ public class IndexMetaCollection implements Iterable<IndexMetaInfo> {
     public Iterator<IndexMetaInfo> iterator() {
         return metaInfo.iterator();
     }
+
+    public int size() {
+        return metaInfo.size();
+    }
 }

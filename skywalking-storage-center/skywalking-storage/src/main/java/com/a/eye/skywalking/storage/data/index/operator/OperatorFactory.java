@@ -15,7 +15,7 @@ public class OperatorFactory {
             return new IndexOperatorImpl(new PreBuiltTransportClient(Settings.EMPTY).addTransportAddress(
                     new InetSocketTransportAddress(InetAddress.getLocalHost(), Config.DataIndex.INDEX_LISTEN_PORT)));
         } catch (Exception e) {
-            throw new IndexOperatorInitializeFailedException("Failed to initialze operator.", e);
+            throw new IndexOperatorInitializeFailedException("Failed to initialize operator.", e);
         }
     }
 
