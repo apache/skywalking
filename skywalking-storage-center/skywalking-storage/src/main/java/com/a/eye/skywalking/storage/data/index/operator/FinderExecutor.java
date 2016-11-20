@@ -15,7 +15,7 @@ public class FinderExecutor implements Executor<IndexMetaCollection> {
     }
 
     @Override
-    public com.a.eye.skywalking.storage.data.index.IndexMetaCollection execute(IndexOperator indexOperator) {
+    public IndexMetaCollection execute(IndexOperator indexOperator) {
         return indexOperator.findIndex(traceIdSegment);
     }
 }

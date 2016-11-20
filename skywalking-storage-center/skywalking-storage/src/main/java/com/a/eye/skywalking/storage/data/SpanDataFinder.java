@@ -14,7 +14,7 @@ import java.util.List;
 public class SpanDataFinder {
 
     public static List<SpanData> find(TraceId traceId) {
-        IndexMetaCollection indexMetaCollection = IndexOperateExecutor.execute(new FinderExecutor<IndexMetaCollection>(
+        IndexMetaCollection indexMetaCollection = IndexOperateExecutor.execute(new FinderExecutor(
                 traceId.getSegmentsList().toArray(new Long[traceId.getSegmentsCount()])));
 
         if (indexMetaCollection == null) {
