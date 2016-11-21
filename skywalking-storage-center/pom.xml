@@ -21,11 +21,6 @@
     <dependencies>
         <dependency>
             <groupId>com.a.eye</groupId>
-            <artifactId>skywalking-logging-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.a.eye</groupId>
             <artifactId>skywalking-network</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -36,18 +31,18 @@
         </dependency>
         <dependency>
             <groupId>com.a.eye</groupId>
-            <artifactId>skywalking-health-report</artifactId>
-            <version>${project.version}</version>
+            <artifactId>skywalking-registry</artifactId>
+            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>com.a.eye</groupId>
             <artifactId>skywalking-logging-impl-log4j2</artifactId>
-            <version>${project.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>com.a.eye</groupId>
-            <artifactId>skywalking-registry</artifactId>
-            <version>${project.version}</version>
+            <artifactId>skywalking-health-report</artifactId>
+            <version>${project.parent.version}</version>
         </dependency>
     </dependencies>
 

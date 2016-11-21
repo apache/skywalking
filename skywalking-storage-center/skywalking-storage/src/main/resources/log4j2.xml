@@ -4,7 +4,7 @@
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout pattern="%d %-5p %c{1}:%L - %m%n"/>
         </Console>
-        <RollingFile name="RollingFile" fileName="logs/storage-server.log"
+        <RollingFile name="RollingFile" fileName="../logs/storage-server.log"
                      filePattern="logs/storage-server-%d{MM-dd-yyyy}.log.gz"
                      ignoreExceptions="false">
             <PatternLayout>
@@ -17,7 +17,6 @@
     <Loggers>
         <Root level="DEBUG">
             <AppenderRef ref="RollingFile" level="INFO"/>
-            <appender-ref ref="Console" level="DEBUG"/>
         </Root>
     </Loggers>
 </Configuration>

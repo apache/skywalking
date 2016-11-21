@@ -9,6 +9,7 @@ import com.a.eye.skywalking.registry.RegistryCenterFactory;
 import com.a.eye.skywalking.registry.api.CenterType;
 import com.a.eye.skywalking.registry.api.RegistryCenter;
 import com.a.eye.skywalking.registry.impl.zookeeper.ZookeeperConfig;
+import com.a.eye.skywalking.storage.boot.ElasticBooter;
 import com.a.eye.skywalking.storage.config.Config;
 import com.a.eye.skywalking.storage.config.ConfigInitializer;
 import com.a.eye.skywalking.storage.data.file.DataFilesManager;
@@ -28,7 +29,7 @@ import static com.a.eye.skywalking.storage.config.Config.RegistryCenter.PATH_PRE
  */
 public class Main {
 
-    private static final ILog logger = LogManager.getLogger(Main.class);
+    private static final ILog   logger               = LogManager.getLogger(Main.class);
     private static final String SERVER_REPORTER_NAME = "DataConsumer Server";
 
     static {
@@ -42,6 +43,7 @@ public class Main {
             initializeParam();
             HealthCollector.init(SERVER_REPORTER_NAME);
 
+            new ElasticBooter().boot(NetUtils.getIndexServerPort());
             IndexOperatorFactory.initOperatorPool();
 
             DataFilesManager.init();
@@ -59,6 +61,7 @@ public class Main {
             logger.info("SkyWalking storage server started.");
             Thread.currentThread().join();
         } catch (Throwable e) {
+            e.printStackTrace();
             logger.error("SkyWalking storage server start failure.", e);
         } finally {
             provider.stop();
@@ -73,8 +76,7 @@ public class Main {
         registerConfig.setProperty(ZookeeperConfig.AUTH_SCHEMA, Config.RegistryCenter.AUTH_SCHEMA);
         registerConfig.setProperty(ZookeeperConfig.AUTH_INFO, Config.RegistryCenter.AUTH_INFO);
         registryCenter.start(registerConfig);
-        registryCenter.register(
-                PATH_PREFIX + NetUtils.getLocalAddress().getHostAddress() + ":" + Config.Server.PORT);
+        registryCenter.register(PATH_PREFIX + NetUtils.getLocalAddress().getHostAddress() + ":" + Config.Server.PORT);
     }
 
     private static void initializeParam() throws IllegalAccessException, IOException {

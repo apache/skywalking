@@ -1,21 +1,30 @@
 package com.a.eye.skywalking.storage.boot;
 
+import com.a.eye.skywalking.logging.api.ILog;
+import com.a.eye.skywalking.logging.api.LogManager;
+
 import java.io.File;
+import java.io.IOException;
 
 /**
  * Created by xin on 2016/11/20.
  */
 public class ElasticBooter {
 
+    private static       ILog   logger                       = LogManager.getLogger(ElasticBooter.class);
+    public static final  String DATA_INDEX_HOME              = "DATA_INDEX_HOME";
+    private static final String DEVELOP_RUNTIME_ELASTIC_HOME =
+            ElasticBooter.class.getResource("/").getPath() + ".." + File.separator + "install" + File.separator + "data"
+                    + File.separator + "index";
     private String elasticHome;
 
-    public ElasticBooter(String elasticHome) {
-        this.elasticHome = elasticHome;
+    public ElasticBooter() {
+        this.elasticHome = fetchElasticHome();
     }
 
-    public void boot(int port) {
+    public void boot(int port) throws IOException {
         ElasticConfigModifier modifier = new ElasticConfigModifier(elasticHome);
-        modifier.append(port).replaceConfig();
+        modifier.replaceConfig(port);
 
         ElasticServer elasticServer = new ElasticServer(elasticHome);
 
@@ -26,8 +35,17 @@ public class ElasticBooter {
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
-                elasticServer.stop();
+                try {
+                    elasticServer.stop();
+                } catch (IOException e) {
+                    logger.error("Failed to stop elastic server.", e);
+                }
             }
         });
+    }
+
+
+    public String fetchElasticHome() {
+        return System.getProperty(DATA_INDEX_HOME, DEVELOP_RUNTIME_ELASTIC_HOME);
     }
 }
