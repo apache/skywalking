@@ -28,7 +28,7 @@ public class Config {
 
     public static class DataIndex {
 
-        public static final int INDEX_LISTEN_PORT = 9300;
+        public static  int INDEX_LISTEN_PORT = 9300;
 
     }
 

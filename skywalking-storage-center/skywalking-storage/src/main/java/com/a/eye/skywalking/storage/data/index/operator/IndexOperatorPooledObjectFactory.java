@@ -1,4 +1,4 @@
-package com.a.eye.skywalking.storage.data.index.operator.pool;
+package com.a.eye.skywalking.storage.data.index.operator;
 
 import com.a.eye.skywalking.storage.config.Config;
 import org.apache.commons.pool2.BasePooledObjectFactory;
@@ -11,21 +11,20 @@ import org.elasticsearch.transport.client.PreBuiltTransportClient;
 
 import java.net.InetAddress;
 
-public class IndexOperatorPooledObjectFactory extends BasePooledObjectFactory<TransportClient> {
+public class IndexOperatorPooledObjectFactory extends BasePooledObjectFactory<IndexOperator> {
 
     @Override
-    public TransportClient create() throws Exception {
-        return new PreBuiltTransportClient(Settings.EMPTY).addTransportAddress(
-                        new InetSocketTransportAddress(InetAddress.getLocalHost(), Config.DataIndex.INDEX_LISTEN_PORT));
+    public IndexOperator create() throws Exception {
+        return OperatorFactory.createIndexOperator();
     }
 
     @Override
-    public PooledObject<TransportClient> wrap(TransportClient client) {
+    public PooledObject<IndexOperator> wrap(IndexOperator client) {
         return new DefaultPooledObject<>(client);
     }
 
     @Override
-    public void destroyObject(PooledObject<TransportClient> p) throws Exception {
-        super.destroyObject(p);
+    public void destroyObject(PooledObject<IndexOperator> p) throws Exception {
+        p.getObject().close();
     }
 }

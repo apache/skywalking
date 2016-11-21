@@ -17,19 +17,19 @@ public class DataFileNameDesc {
     public DataFileNameDesc() {
         name = System.currentTimeMillis();
         suffix = DATA_FILE_NAME_SUFFIX.getAndIncrement();
-        fileNameStr = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SS").format(name) + "_" + suffix;
+        fileNameStr = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SSS").format(name) + "_" + suffix;
     }
 
     public DataFileNameDesc(long name, int suffix) {
         this.name = name;
         this.suffix = suffix;
-        fileNameStr = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SS").format(name) + "_" + suffix;
+        fileNameStr = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SSS").format(name) + "_" + suffix;
     }
 
     public DataFileNameDesc(String fileName) {
         int lastIndex = fileName.lastIndexOf('_');
         try {
-            this.name = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SS").parse(fileName.substring(0, lastIndex - 1))
+            this.name = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SSS").parse(fileName.substring(0, lastIndex - 1))
                     .getTime();
         } catch (ParseException e) {
         }

@@ -3,8 +3,8 @@ package com.a.eye.skywalking.storage.data;
 import com.a.eye.skywalking.network.grpc.TraceId;
 import com.a.eye.skywalking.storage.data.file.DataFileReader;
 import com.a.eye.skywalking.storage.data.index.*;
-import com.a.eye.skywalking.storage.data.index.operator.FinderExecutor;
-import com.a.eye.skywalking.storage.data.index.operator.IndexOperateExecutor;
+import com.a.eye.skywalking.storage.data.index.operator.IndexOperator;
+import com.a.eye.skywalking.storage.data.index.operator.OperatorFactory;
 import com.a.eye.skywalking.storage.data.spandata.SpanData;
 
 import java.util.ArrayList;
@@ -14,8 +14,7 @@ import java.util.List;
 public class SpanDataFinder {
 
     public static List<SpanData> find(TraceId traceId) {
-        IndexMetaCollection indexMetaCollection = IndexOperateExecutor.execute(new FinderExecutor(
-                traceId.getSegmentsList().toArray(new Long[traceId.getSegmentsCount()])));
+        IndexMetaCollection indexMetaCollection = fetchIndexMetaInfos(traceId);
 
         if (indexMetaCollection == null) {
             return new ArrayList<SpanData>();
@@ -44,5 +43,19 @@ public class SpanDataFinder {
         }
 
         return result;
+    }
+
+    private static IndexMetaCollection fetchIndexMetaInfos(TraceId traceId) {
+        IndexMetaCollection indexMetaCollection = new IndexMetaCollection();
+        IndexOperator indexOperator = null;
+        try {
+            indexOperator = OperatorFactory.getIndexOperatorFromPool();
+            indexMetaCollection =
+                    indexOperator.findIndex(traceId.getSegmentsList().toArray(new Long[traceId.getSegmentsCount()]));
+        } finally {
+            if (indexOperator != null)
+                OperatorFactory.returnIndexOperator(indexOperator);
+        }
+        return indexMetaCollection;
     }
 }
