@@ -7,8 +7,8 @@ import com.a.eye.skywalking.logging.api.ILog;
 import com.a.eye.skywalking.logging.api.LogManager;
 import com.a.eye.skywalking.storage.data.file.DataFileWriter;
 import com.a.eye.skywalking.storage.data.index.IndexMetaCollection;
-import com.a.eye.skywalking.storage.data.index.operator.IndexOperator;
-import com.a.eye.skywalking.storage.data.index.operator.OperatorFactory;
+import com.a.eye.skywalking.storage.data.index.IndexOperator;
+import com.a.eye.skywalking.storage.data.index.IndexOperatorFactory;
 import com.a.eye.skywalking.storage.data.spandata.SpanData;
 
 import java.util.List;
@@ -27,7 +27,7 @@ public class SpanDataConsumer implements IConsumer<SpanData> {
     public void consume(List<SpanData> data) {
         IndexMetaCollection collection = fileWriter.write(data);
 
-        IndexOperator operator = OperatorFactory.createIndexOperator();
+        IndexOperator operator = IndexOperatorFactory.createIndexOperator();
         operator.batchUpdate(collection);
 
         HealthCollector.getCurrentHeathReading("SpanDataConsumer")

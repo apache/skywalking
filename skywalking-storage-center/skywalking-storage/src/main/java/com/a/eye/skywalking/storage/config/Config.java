@@ -25,14 +25,6 @@ public class Config {
         public static long SIZE = 3 * 1024 * 1024 * 1024L;
     }
 
-
-    public static class DataIndex {
-
-        public static  int INDEX_LISTEN_PORT = 9300;
-
-    }
-
-
     public static class IndexOperator {
 
         public static class Finder {

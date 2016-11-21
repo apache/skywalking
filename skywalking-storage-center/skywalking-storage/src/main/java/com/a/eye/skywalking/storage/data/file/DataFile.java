@@ -5,9 +5,9 @@ import com.a.eye.skywalking.health.report.HeathReading;
 import com.a.eye.skywalking.logging.api.ILog;
 import com.a.eye.skywalking.logging.api.LogManager;
 import com.a.eye.skywalking.storage.config.Config;
-import com.a.eye.skywalking.storage.data.exception.DataFileOperatorCreateFailedException;
-import com.a.eye.skywalking.storage.data.exception.SpanDataStoredFailedException;
-import com.a.eye.skywalking.storage.data.exception.SpanDataReadFailedException;
+import com.a.eye.skywalking.storage.data.exception.CreateDataFileOperatorFailedException;
+import com.a.eye.skywalking.storage.data.exception.StoreSpanDataFailedException;
+import com.a.eye.skywalking.storage.data.exception.ReadSpanDataFailedException;
 import com.a.eye.skywalking.storage.data.index.IndexMetaInfo;
 import com.a.eye.skywalking.storage.data.spandata.SpanData;
 
@@ -75,7 +75,7 @@ public class DataFile {
                         .updateData(HeathReading.INFO, "Create an new data " + "file.");
             } catch (IOException e) {
                 logger.error("Failed to create data file.", e);
-                throw new DataFileOperatorCreateFailedException("Failed to create data file", e);
+                throw new CreateDataFileOperatorFailedException("Failed to create data file", e);
             }
         }
     }
@@ -96,7 +96,7 @@ public class DataFile {
             currentOffset += bytes.length;
             return metaInfo;
         } catch (IOException e) {
-            throw new SpanDataStoredFailedException(e);
+            throw new StoreSpanDataFailedException(e);
         }
     }
 
@@ -104,7 +104,7 @@ public class DataFile {
         try {
             operator.getWriter().flush();
         } catch (IOException e) {
-            throw new SpanDataStoredFailedException(e);
+            throw new StoreSpanDataFailedException(e);
         }
     }
 
@@ -119,7 +119,7 @@ public class DataFile {
             operator.getReader().read(data, 0, length);
             return data;
         } catch (IOException e) {
-            throw new SpanDataReadFailedException(
+            throw new ReadSpanDataFailedException(
                     "Failed to read dataFile[" + nameDesc.fileName() + "], offset: " + offset + " " + "lenght: " + length, e);
         }
     }
@@ -134,7 +134,7 @@ public class DataFile {
                 try {
                     writer = new FileOutputStream(getDataFile(), true);
                 } catch (IOException e) {
-                    throw new DataFileOperatorCreateFailedException("Failed to create datafile output stream", e);
+                    throw new CreateDataFileOperatorFailedException("Failed to create datafile output stream", e);
                 }
             }
 
@@ -146,7 +146,7 @@ public class DataFile {
                 try {
                     reader = new FileInputStream(getDataFile());
                 } catch (IOException e) {
-                    throw new DataFileOperatorCreateFailedException("Failed to create datafile input stream", e);
+                    throw new CreateDataFileOperatorFailedException("Failed to create datafile input stream", e);
                 }
             }
 

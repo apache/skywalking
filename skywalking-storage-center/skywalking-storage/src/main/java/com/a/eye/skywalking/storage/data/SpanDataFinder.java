@@ -3,8 +3,8 @@ package com.a.eye.skywalking.storage.data;
 import com.a.eye.skywalking.network.grpc.TraceId;
 import com.a.eye.skywalking.storage.data.file.DataFileReader;
 import com.a.eye.skywalking.storage.data.index.*;
-import com.a.eye.skywalking.storage.data.index.operator.IndexOperator;
-import com.a.eye.skywalking.storage.data.index.operator.OperatorFactory;
+import com.a.eye.skywalking.storage.data.index.IndexOperator;
+import com.a.eye.skywalking.storage.data.index.IndexOperatorFactory;
 import com.a.eye.skywalking.storage.data.spandata.SpanData;
 
 import java.util.ArrayList;
@@ -49,12 +49,12 @@ public class SpanDataFinder {
         IndexMetaCollection indexMetaCollection = new IndexMetaCollection();
         IndexOperator indexOperator = null;
         try {
-            indexOperator = OperatorFactory.getIndexOperatorFromPool();
+            indexOperator = IndexOperatorFactory.getIndexOperatorFromPool();
             indexMetaCollection =
                     indexOperator.findIndex(traceId.getSegmentsList().toArray(new Long[traceId.getSegmentsCount()]));
         } finally {
             if (indexOperator != null)
-                OperatorFactory.returnIndexOperator(indexOperator);
+                IndexOperatorFactory.returnIndexOperator(indexOperator);
         }
         return indexMetaCollection;
     }

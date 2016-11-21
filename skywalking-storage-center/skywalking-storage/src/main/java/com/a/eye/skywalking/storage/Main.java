@@ -12,7 +12,7 @@ import com.a.eye.skywalking.registry.impl.zookeeper.ZookeeperConfig;
 import com.a.eye.skywalking.storage.config.Config;
 import com.a.eye.skywalking.storage.config.ConfigInitializer;
 import com.a.eye.skywalking.storage.data.file.DataFilesManager;
-import com.a.eye.skywalking.storage.data.index.operator.OperatorFactory;
+import com.a.eye.skywalking.storage.data.index.IndexOperatorFactory;
 import com.a.eye.skywalking.storage.listener.SearchListener;
 import com.a.eye.skywalking.storage.listener.StorageListener;
 import com.a.eye.skywalking.storage.util.NetUtils;
@@ -42,7 +42,7 @@ public class Main {
             initializeParam();
             HealthCollector.init(SERVER_REPORTER_NAME);
 
-            OperatorFactory.initOperatorPool();
+            IndexOperatorFactory.initOperatorPool();
 
             DataFilesManager.init();
 

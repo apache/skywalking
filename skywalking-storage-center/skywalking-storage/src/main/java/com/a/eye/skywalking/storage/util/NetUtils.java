@@ -2,6 +2,7 @@ package com.a.eye.skywalking.storage.util;
 
 import com.a.eye.skywalking.logging.api.ILog;
 import com.a.eye.skywalking.logging.api.LogManager;
+import com.a.eye.skywalking.storage.config.Config;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -71,4 +72,7 @@ public class NetUtils {
         return (name != null && !ANYHOST.equals(name) && !LOCALHOST.equals(name) && IP_PATTERN.matcher(name).matches());
     }
 
+    public static int getIndexServerPort(){
+        return Config.Server.PORT + 1000;
+    }
 }

@@ -1,12 +1,10 @@
-package com.a.eye.skywalking.storage.data.index.operator;
+package com.a.eye.skywalking.storage.data.index;
 
 import com.a.eye.skywalking.health.report.HealthCollector;
 import com.a.eye.skywalking.health.report.HeathReading;
 import com.a.eye.skywalking.logging.api.ILog;
 import com.a.eye.skywalking.logging.api.LogManager;
 import com.a.eye.skywalking.storage.data.file.DataFileNameDesc;
-import com.a.eye.skywalking.storage.data.index.IndexMetaCollection;
-import com.a.eye.skywalking.storage.data.index.IndexMetaInfo;
 import com.a.eye.skywalking.storage.data.spandata.SpanType;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
