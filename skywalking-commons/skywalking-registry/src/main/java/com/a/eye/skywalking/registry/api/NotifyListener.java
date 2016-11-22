@@ -1,5 +1,7 @@
 package com.a.eye.skywalking.registry.api;
 
+import java.util.List;
+
 public interface NotifyListener {
-    void notify(EventType type, String url);
+    void notify(List<String> currentUrls);
 }
