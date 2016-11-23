@@ -9,7 +9,7 @@ import com.a.eye.skywalking.registry.RegistryCenterFactory;
 import com.a.eye.skywalking.registry.api.CenterType;
 import com.a.eye.skywalking.registry.api.RegistryCenter;
 import com.a.eye.skywalking.registry.impl.zookeeper.ZookeeperConfig;
-import com.a.eye.skywalking.storage.boot.ElasticBooter;
+import com.a.eye.skywalking.storage.boot.ElasticBootstrap;
 import com.a.eye.skywalking.storage.config.Config;
 import com.a.eye.skywalking.storage.config.ConfigInitializer;
 import com.a.eye.skywalking.storage.data.file.DataFilesManager;
@@ -43,7 +43,7 @@ public class Main {
             initializeParam();
             HealthCollector.init(SERVER_REPORTER_NAME);
 
-            new ElasticBooter().boot(NetUtils.getIndexServerPort());
+            new ElasticBootstrap().boot(NetUtils.getIndexServerPort());
             IndexOperatorFactory.initOperatorPool();
 
             DataFilesManager.init();

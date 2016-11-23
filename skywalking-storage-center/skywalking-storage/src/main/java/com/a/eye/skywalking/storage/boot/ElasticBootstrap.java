@@ -9,16 +9,16 @@ import java.io.IOException;
 /**
  * Created by xin on 2016/11/20.
  */
-public class ElasticBooter {
+public class ElasticBootstrap {
 
-    private static       ILog   logger                       = LogManager.getLogger(ElasticBooter.class);
+    private static       ILog   logger                       = LogManager.getLogger(ElasticBootstrap.class);
     public static final  String DATA_INDEX_HOME              = "DATA_INDEX_HOME";
     private static final String DEVELOP_RUNTIME_ELASTIC_HOME =
-            ElasticBooter.class.getResource("/").getPath() + ".." + File.separator + "install" + File.separator + "data"
+            ElasticBootstrap.class.getResource("/").getPath() + ".." + File.separator + "install" + File.separator + "data"
                     + File.separator + "index";
     private String elasticHome;
 
-    public ElasticBooter() {
+    public ElasticBootstrap() {
         this.elasticHome = fetchElasticHome();
     }
 
