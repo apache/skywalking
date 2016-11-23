@@ -16,7 +16,7 @@ public class SpanStorageClient {
         this.spanStorageStub = spanStorageStub;
     }
 
-    public void consumeRequestSpan(RequestSpan... requestSpan) {
+    public void sendRequestSpan(RequestSpan... requestSpan) {
         StreamObserver<RequestSpan> requestSpanStreamObserver =
                 spanStorageStub.storageRequestSpan(new StreamObserver<SendResult>() {
                     @Override
@@ -36,19 +36,19 @@ public class SpanStorageClient {
 
         for (RequestSpan span : requestSpan) {
             requestSpanStreamObserver.onNext(span);
-            while (!((CallStreamObserver<RequestSpan>) requestSpanStreamObserver).isReady()) {
-                try {
-                    Thread.currentThread().sleep(1);
-                } catch (InterruptedException e) {
-                    throw new ConsumeSpanDataFailedException(e);
-                }
+        }
+        while (!((CallStreamObserver<RequestSpan>) requestSpanStreamObserver).isReady()) {
+            try {
+                Thread.currentThread().sleep(1);
+            } catch (InterruptedException e) {
+                throw new ConsumeSpanDataFailedException(e);
             }
         }
 
         requestSpanStreamObserver.onCompleted();
     }
 
-    public void consumeACKSpan(AckSpan... ackSpan) {
+    public void sendACKSpan(AckSpan... ackSpan) {
         StreamObserver<AckSpan> ackSpanStreamObserver =
                 spanStorageStub.storageACKSpan(new StreamObserver<SendResult>() {
                     @Override
@@ -68,12 +68,12 @@ public class SpanStorageClient {
 
         for (AckSpan span : ackSpan) {
             ackSpanStreamObserver.onNext(span);
-            while (!((CallStreamObserver<AckSpan>) ackSpanStreamObserver).isReady()) {
-                try {
-                    Thread.currentThread().sleep(1);
-                } catch (InterruptedException e) {
-                    throw new ConsumeSpanDataFailedException(e);
-                }
+        }
+        while (!((CallStreamObserver<AckSpan>) ackSpanStreamObserver).isReady()) {
+            try {
+                Thread.currentThread().sleep(1);
+            } catch (InterruptedException e) {
+                throw new ConsumeSpanDataFailedException(e);
             }
         }
 

@@ -17,7 +17,7 @@ public class Client {
     }
 
 
-    public SpanStorageClient newSpanStorageConsumer() {
+    public SpanStorageClient newSpanStorageClient() {
         return new SpanStorageClient(spanStorageStub);
     }
 
