@@ -42,11 +42,11 @@ public class StorageThread extends Thread {
                 client.sendACKSpan(ackSpanList);
                 client.sendRequestSpan(requestSpanList);
                 cycle = 0;
-            } else {
-                requestSpanList[cycle] = requestSpan;
-                ackSpanList[cycle] = ackSpan;
-                cycle++;
             }
+
+            requestSpanList[cycle] = requestSpan;
+            ackSpanList[cycle] = ackSpan;
+            cycle++;
 
             if (i % 10_000 == 0) {
                 System.out.println(i + " " + value);
