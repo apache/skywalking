@@ -1,4 +1,4 @@
-package com.a.eye.skywalking.network.grpc.consumer;
+package com.a.eye.skywalking.network.grpc.client;
 
 import com.a.eye.skywalking.network.exception.ConsumeSpanDataFailedException;
 import com.a.eye.skywalking.network.grpc.AckSpan;
@@ -8,11 +8,11 @@ import com.a.eye.skywalking.network.grpc.SpanStorageServiceGrpc;
 import io.grpc.stub.CallStreamObserver;
 import io.grpc.stub.StreamObserver;
 
-public class SpanStorageConsumer {
+public class SpanStorageClient {
 
     private final SpanStorageServiceGrpc.SpanStorageServiceStub spanStorageStub;
 
-    public SpanStorageConsumer(SpanStorageServiceGrpc.SpanStorageServiceStub spanStorageStub) {
+    public SpanStorageClient(SpanStorageServiceGrpc.SpanStorageServiceStub spanStorageStub) {
         this.spanStorageStub = spanStorageStub;
     }
 

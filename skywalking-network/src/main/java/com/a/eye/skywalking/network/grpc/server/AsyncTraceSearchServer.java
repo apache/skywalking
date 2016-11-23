@@ -1,4 +1,4 @@
-package com.a.eye.skywalking.network.grpc.provider;
+package com.a.eye.skywalking.network.grpc.server;
 
 import com.a.eye.skywalking.network.grpc.AsyncTraceSearchServiceGrpc;
 import com.a.eye.skywalking.network.grpc.QueryTask;
@@ -12,11 +12,11 @@ import java.util.List;
 /**
  * Created by xin on 2016/11/15.
  */
-public class AsyncTraceSearchService extends AsyncTraceSearchServiceGrpc.AsyncTraceSearchServiceImplBase {
+public class AsyncTraceSearchServer extends AsyncTraceSearchServiceGrpc.AsyncTraceSearchServiceImplBase {
 
     private AsyncTraceSearchListener searchListener;
 
-    public AsyncTraceSearchService(AsyncTraceSearchListener searchListener) {
+    public AsyncTraceSearchServer(AsyncTraceSearchListener searchListener) {
         this.searchListener = searchListener;
     }
 

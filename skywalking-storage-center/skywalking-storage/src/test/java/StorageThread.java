@@ -1,20 +1,20 @@
-import com.a.eye.skywalking.network.ConsumerProvider;
+import com.a.eye.skywalking.network.Client;
 import com.a.eye.skywalking.network.grpc.AckSpan;
 import com.a.eye.skywalking.network.grpc.RequestSpan;
 import com.a.eye.skywalking.network.grpc.TraceId;
-import com.a.eye.skywalking.network.grpc.consumer.SpanStorageConsumer;
+import com.a.eye.skywalking.network.grpc.client.SpanStorageClient;
 import com.a.eye.skywalking.storage.util.NetUtils;
 
 import java.util.concurrent.CountDownLatch;
 
 public class StorageThread extends Thread {
 
-    private SpanStorageConsumer consumer;
-    private long                count;
-    private CountDownLatch      countDownLatch;
+    private SpanStorageClient consumer;
+    private long              count;
+    private CountDownLatch    countDownLatch;
 
-    StorageThread(ConsumerProvider consumerProvider, long count, CountDownLatch countDownLatch) {
-        consumer = consumerProvider.newSpanStorageConsumer();
+    StorageThread(long count, CountDownLatch countDownLatch) {
+        consumer = new Client("10.128.7.241", 34000).newSpanStorageConsumer();
         this.count = count;
         this.countDownLatch = countDownLatch;
     }

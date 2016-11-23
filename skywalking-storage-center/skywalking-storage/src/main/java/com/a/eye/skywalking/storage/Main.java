@@ -4,7 +4,7 @@ import com.a.eye.skywalking.health.report.HealthCollector;
 import com.a.eye.skywalking.logging.api.ILog;
 import com.a.eye.skywalking.logging.api.LogManager;
 import com.a.eye.skywalking.logging.impl.log4j2.Log4j2Resolver;
-import com.a.eye.skywalking.network.ServiceProvider;
+import com.a.eye.skywalking.network.Server;
 import com.a.eye.skywalking.registry.RegistryCenterFactory;
 import com.a.eye.skywalking.registry.api.CenterType;
 import com.a.eye.skywalking.registry.api.RegistryCenter;
@@ -36,7 +36,7 @@ public class Main {
         LogManager.setLogResolver(new Log4j2Resolver());
     }
 
-    private static ServiceProvider provider;
+    private static Server server;
 
     public static void main(String[] args) {
         try {
@@ -48,9 +48,9 @@ public class Main {
 
             DataFilesManager.init();
 
-            provider = ServiceProvider.newBuilder(Config.Server.PORT).addSpanStorageService(new StorageListener())
+            server = Server.newBuilder(Config.Server.PORT).addSpanStorageService(new StorageListener())
                     .addAsyncTraceSearchService(new SearchListener()).build();
-            provider.start();
+            server.start();
 
             if (logger.isDebugEnable()) {
                 logger.debug("Service provider started.");
@@ -64,7 +64,7 @@ public class Main {
             e.printStackTrace();
             logger.error("SkyWalking storage server start failure.", e);
         } finally {
-            provider.stop();
+            server.stop();
         }
     }
 

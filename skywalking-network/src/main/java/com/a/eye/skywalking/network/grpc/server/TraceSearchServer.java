@@ -1,4 +1,4 @@
-package com.a.eye.skywalking.network.grpc.provider;
+package com.a.eye.skywalking.network.grpc.server;
 
 import com.a.eye.skywalking.network.grpc.SearchResult;
 import com.a.eye.skywalking.network.grpc.TraceId;
@@ -9,11 +9,11 @@ import io.grpc.stub.StreamObserver;
 /**
  * Created by xin on 2016/11/12.
  */
-public class TraceSearchService extends TraceSearchServiceGrpc.TraceSearchServiceImplBase {
+public class TraceSearchServer extends TraceSearchServiceGrpc.TraceSearchServiceImplBase {
 
     private TraceSearchListener traceSearchListener;
 
-    public TraceSearchService(TraceSearchListener traceSearchListener) {
+    public TraceSearchServer(TraceSearchListener traceSearchListener) {
         this.traceSearchListener = traceSearchListener;
     }
 
