@@ -39,7 +39,7 @@ public class SpanStorageClient {
         }
         while (!((CallStreamObserver<RequestSpan>) requestSpanStreamObserver).isReady()) {
             try {
-                Thread.currentThread().sleep(1);
+                Thread.sleep(1);
             } catch (InterruptedException e) {
                 throw new ConsumeSpanDataFailedException(e);
             }
@@ -71,7 +71,7 @@ public class SpanStorageClient {
         }
         while (!((CallStreamObserver<AckSpan>) ackSpanStreamObserver).isReady()) {
             try {
-                Thread.currentThread().sleep(1);
+                Thread.sleep(1);
             } catch (InterruptedException e) {
                 throw new ConsumeSpanDataFailedException(e);
             }
