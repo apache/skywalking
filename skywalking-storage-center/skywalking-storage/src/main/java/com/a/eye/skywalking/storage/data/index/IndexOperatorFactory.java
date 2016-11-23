@@ -18,7 +18,7 @@ public class IndexOperatorFactory {
     public static IndexOperator createIndexOperator() {
         try {
             return new IndexOperator(new PreBuiltTransportClient(Settings.EMPTY).addTransportAddress(
-                    new InetSocketTransportAddress(InetAddress.getLocalHost(), NetUtils.getIndexServerPort()
+                    new InetSocketTransportAddress(InetAddress.getLoopbackAddress(), NetUtils.getIndexServerPort()
                     )));
         } catch (Exception e) {
             throw new IndexOperatorInitializeFailedException("Failed to initialize operator.", e);

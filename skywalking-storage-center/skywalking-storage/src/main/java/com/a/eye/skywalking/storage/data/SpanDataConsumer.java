@@ -17,17 +17,18 @@ public class SpanDataConsumer implements IConsumer<SpanData> {
 
     private static ILog logger = LogManager.getLogger(SpanDataConsumer.class);
     private DataFileWriter fileWriter;
+    private IndexOperator  operator;
 
     @Override
     public void init() {
         fileWriter = new DataFileWriter();
+        operator = IndexOperatorFactory.createIndexOperator();
     }
 
     @Override
     public void consume(List<SpanData> data) {
         IndexMetaCollection collection = fileWriter.write(data);
 
-        IndexOperator operator = IndexOperatorFactory.createIndexOperator();
         operator.batchUpdate(collection);
 
         HealthCollector.getCurrentHeathReading("SpanDataConsumer")

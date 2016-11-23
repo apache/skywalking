@@ -43,6 +43,7 @@ public class ServiceProvider {
     public static class TransferServiceBuilder {
         private TransferServiceBuilder(int port) {
             serverBuilder = NettyServerBuilder.forPort(port);
+            serverBuilder.maxConcurrentCallsPerConnection(4);
         }
 
         private NettyServerBuilder serverBuilder;

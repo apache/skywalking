@@ -132,7 +132,7 @@
                                 <unzip src="${project.basedir}/lib/dataindex-es-5.0.1.zip"
                                        dest="${project.build.directory}/install/data/index"/>
                                 <chmod dir="${project.build.directory}/install/data/index/bin" perm="ugo+rx"
-                                       includes="**"/>
+                                       includes="*"/>
                             </target>
                         </configuration>
                         <goals>
@@ -157,7 +157,7 @@
                         <configuration>
                             <target>
                                 <chmod dir="${project.build.directory}/install/bin" perm="ugo+rx"
-                                       includes="**"/>
+                                       includes="*"/>
                                 <tar destfile="${project.build.directory}/install.tar" basedir="${project.build.directory}/install">
                                 </tar>
                             </target>

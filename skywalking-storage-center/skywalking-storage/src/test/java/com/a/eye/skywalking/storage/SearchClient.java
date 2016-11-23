@@ -10,7 +10,7 @@ import static com.a.eye.skywalking.network.grpc.AsyncTraceSearchServiceGrpc.newS
 
 public class SearchClient {
     private static ManagedChannel channel =
-            ManagedChannelBuilder.forAddress("127.0.0.1", 34000).usePlaintext(true).build();
+            ManagedChannelBuilder.forAddress("10.128.7.241", 34000).usePlaintext(true).build();
 
     private static AsyncTraceSearchServiceGrpc.AsyncTraceSearchServiceStub searchServiceStub = newStub(channel);
 
@@ -33,11 +33,11 @@ public class SearchClient {
 
             }
         };
-       StreamObserver<QueryTask> searchResult = searchServiceStub.search(serverStreamObserver);
+        StreamObserver<QueryTask> searchResult = searchServiceStub.search(serverStreamObserver);
 
         searchResult.onNext(QueryTask.newBuilder().setTraceId(
-                TraceId.newBuilder().addSegments(201611).addSegments(1479717228982L).addSegments(8504828)
-                        .addSegments(2277).addSegments(53).addSegments(3).build()).setTaskId(1).build());
+                TraceId.newBuilder().addSegments(201611).addSegments(1479803629139L).addSegments(8504828)
+                        .addSegments(2277).addSegments(53).addSegments(3).build()).build());
         searchResult.onCompleted();
 
         Thread.sleep(10000);
