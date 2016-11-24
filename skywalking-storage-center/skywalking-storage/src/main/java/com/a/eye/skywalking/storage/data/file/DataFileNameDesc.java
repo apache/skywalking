@@ -1,6 +1,7 @@
 package com.a.eye.skywalking.storage.data.file;
 
-import com.a.eye.datacarrier.common.AtomicRangeInteger;
+
+import com.a.eye.skywalking.storage.util.AtomicRangeInteger;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

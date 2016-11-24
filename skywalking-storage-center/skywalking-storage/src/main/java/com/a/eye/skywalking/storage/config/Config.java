@@ -8,6 +8,10 @@ public class Config {
         public static int PORT = 34000;
     }
 
+    public static class Disruptor{
+        public static int BUFFER_SIZE = 1024 * 128;
+    }
+
 
     public static class DataConsumer {
 

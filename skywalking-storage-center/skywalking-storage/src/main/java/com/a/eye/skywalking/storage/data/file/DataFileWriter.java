@@ -23,9 +23,12 @@ public class DataFileWriter {
         for (SpanData data : spanData) {
             collections.add(dataFile.write(data));
         }
-        dataFile.flush();
 
         return collections;
+    }
+
+    public void flush(){
+        dataFile.flush();
     }
 
     public void close(){
