@@ -40,8 +40,8 @@ public class StorageListener implements SpanStorageListener {
 
     @Override
     public boolean storage(RequestSpan requestSpan) {
+        long sequence = requestSpanRingBuffer.next();  // Grab the next sequence
         try {
-            long sequence = requestSpanRingBuffer.next();  // Grab the next sequence
             RequestSpanData data = requestSpanRingBuffer.get(sequence);
             data.setRequestSpan(requestSpan);
 
@@ -51,13 +51,15 @@ public class StorageListener implements SpanStorageListener {
             logger.error("RequestSpan trace-id[{}] store failure..", requestSpan.getTraceId(), e);
             HealthCollector.getCurrentHeathReading("StorageListener").updateData(HeathReading.ERROR, "RequestSpan store failure.");
             return false;
+        } finally{
+            requestSpanRingBuffer.publish(sequence);
         }
     }
 
     @Override
     public boolean storage(AckSpan ackSpan) {
+        long sequence = ackSpanRingBuffer.next();  // Grab the next sequence
         try {
-            long sequence = ackSpanRingBuffer.next();  // Grab the next sequence
             AckSpanData data = ackSpanRingBuffer.get(sequence);
             data.setAckSpan(ackSpan);
 
@@ -67,6 +69,8 @@ public class StorageListener implements SpanStorageListener {
             logger.error("AckSpan trace-id[{}] store failure..", ackSpan.getTraceId(), e);
             HealthCollector.getCurrentHeathReading("StorageListener").updateData(HeathReading.ERROR, "AckSpan store failure.");
             return false;
+        } finally{
+            requestSpanRingBuffer.publish(sequence);
         }
     }
 }
