@@ -31,10 +31,12 @@ public class StorageListener implements SpanStorageListener {
     public StorageListener() {
         requestSpanDisruptor = new Disruptor<RequestSpanData>(new RequestSpanFactory(), Config.Disruptor.BUFFER_SIZE, DaemonThreadFactory.INSTANCE);
         requestSpanDisruptor.handleEventsWith(new StoreRequestSpanEventHandler());
+        requestSpanDisruptor.start();
         requestSpanRingBuffer = requestSpanDisruptor.getRingBuffer();
 
         ackSpanDisruptor = new Disruptor<AckSpanData>(new AckSpanFactory(), Config.Disruptor.BUFFER_SIZE, DaemonThreadFactory.INSTANCE);
         ackSpanDisruptor.handleEventsWith(new StoreAckSpanEventHandler());
+        ackSpanDisruptor.start();
         ackSpanRingBuffer = ackSpanDisruptor.getRingBuffer();
     }
 
@@ -51,7 +53,7 @@ public class StorageListener implements SpanStorageListener {
             logger.error("RequestSpan trace-id[{}] store failure..", requestSpan.getTraceId(), e);
             HealthCollector.getCurrentHeathReading("StorageListener").updateData(HeathReading.ERROR, "RequestSpan store failure.");
             return false;
-        } finally{
+        } finally {
             requestSpanRingBuffer.publish(sequence);
         }
     }
@@ -69,8 +71,8 @@ public class StorageListener implements SpanStorageListener {
             logger.error("AckSpan trace-id[{}] store failure..", ackSpan.getTraceId(), e);
             HealthCollector.getCurrentHeathReading("StorageListener").updateData(HeathReading.ERROR, "AckSpan store failure.");
             return false;
-        } finally{
-            requestSpanRingBuffer.publish(sequence);
+        } finally {
+            ackSpanRingBuffer.publish(sequence);
         }
     }
 }
