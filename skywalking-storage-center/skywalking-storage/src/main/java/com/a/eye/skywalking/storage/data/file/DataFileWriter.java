@@ -24,11 +24,9 @@ public class DataFileWriter {
             collections.add(dataFile.write(data));
         }
 
-        return collections;
-    }
-
-    public void flush(){
         dataFile.flush();
+
+        return collections;
     }
 
     public void close(){
