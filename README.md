@@ -14,9 +14,6 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, also known D
 * Based on [Google Dapper Paper: Dapper, a Large-Scale Distributed Systems Tracing Infrastructure](http://research.google.com/pubs/pub36356.html), [Simplified Chines](http://duanple.blog.163.com/blog/static/70971767201329113141336/)
 * Supports popular rpc frameworks, such as [dubbo](https://github.com/alibaba/dubbo), [dubbox](https://github.com/dangdangdotcom/dubbox), [motan](https://github.com/weibocom/motan) etc., supports email-alert when application occurs unexpected exception。
 * Execution time of creating span than 100μs.
-* By using [byte-buddy](https://github.com/raphw/byte-buddy) (Thanks to [raphw](https://github.com/raphw)), plugins use dynamic byte code generation to avoid invasive codes. plugins API, execution time of blocking saving span must between 200μs and 300μs, including execution time of dynamic byte code.
-* By using [DataCarrier](https://github.com/wu-sheng/DataCarrier), provide parallel high-throughput processing capability.
-* Provide trace log analysis and presentation capabilities, Reduce or avoid add-on functions development.
 
 # Supported components
 * web container
@@ -34,8 +31,6 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, also known D
   * motan (tested 0.1.2)
 * cache
   * jedix 2.x
-* java local method
-	* config package name or class name (Recommend to use in dev or test enviroment. Will cost too many in product enviroment.)
 
 
 # Contributors
