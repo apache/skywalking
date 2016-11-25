@@ -14,7 +14,7 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, also known D
 * Based on [Google Dapper Paper: Dapper, a Large-Scale Distributed Systems Tracing Infrastructure](http://research.google.com/pubs/pub36356.html), [Simplified Chines](http://duanple.blog.163.com/blog/static/70971767201329113141336/)
 * Supports popular rpc frameworks, such as [dubbo](https://github.com/alibaba/dubbo), [dubbox](https://github.com/dangdangdotcom/dubbox), [motan](https://github.com/weibocom/motan) etc., supports email-alert when application occurs unexpected exception。
 * Execution time of creating span than 100μs.
-* Easy to deploy, **even in product mode**. No need of Hadoop, HBase, or Cassandra Cluster.
+* Easy to deploy, **even in product mode** ( since 2.x ) . No need of Hadoop, HBase, or Cassandra Cluster.
 
 # Supported components
 * web container
