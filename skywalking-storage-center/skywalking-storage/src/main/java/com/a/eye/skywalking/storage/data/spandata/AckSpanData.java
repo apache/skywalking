@@ -16,6 +16,10 @@ public class AckSpanData extends AbstractSpanData {
     public AckSpanData() {
     }
 
+    public void setAckSpan(AckSpan ackSpan) {
+        this.ackSpan = ackSpan;
+    }
+
     @Override
     public SpanType getSpanType() {
         return SpanType.ACKSpan;

@@ -21,7 +21,8 @@ public class DataFileLoader {
 
         List<DataFile> allDataFile = new ArrayList<DataFile>();
         for (File fileEntry : dataFileDir.listFiles()) {
-            allDataFile.add(new DataFile(fileEntry));
+            if (fileEntry.getName().split("_").length == 8)
+                allDataFile.add(new DataFile(fileEntry));
         }
         return allDataFile;
     }

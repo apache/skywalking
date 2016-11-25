@@ -25,9 +25,9 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.a.eye</groupId>
-            <artifactId>data-carrier</artifactId>
-            <version>1.2</version>
+            <groupId>com.lmax</groupId>
+            <artifactId>disruptor</artifactId>
+            <version>3.3.6</version>
         </dependency>
         <dependency>
             <groupId>com.a.eye</groupId>

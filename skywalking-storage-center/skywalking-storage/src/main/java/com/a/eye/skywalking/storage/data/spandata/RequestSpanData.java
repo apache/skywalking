@@ -16,6 +16,10 @@ public class RequestSpanData extends AbstractSpanData {
     public RequestSpanData() {
     }
 
+    public void setRequestSpan(RequestSpan requestSpan) {
+        this.requestSpan = requestSpan;
+    }
+
     @Override
     public SpanType getSpanType() {
         return SpanType.RequestSpan;
