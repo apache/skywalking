@@ -35,11 +35,15 @@ public class StoreRequestSpanEventHandler implements EventHandler<RequestSpanDat
         buffer.add(event);
 
         if (endOfBatch || buffer.size() == bufferSize) {
-            IndexMetaCollection collection = fileWriter.write(buffer);
+            try {
+                IndexMetaCollection collection = fileWriter.write(buffer);
 
-            operator.batchUpdate(collection);
+                operator.batchUpdate(collection);
 
-            HealthCollector.getCurrentHeathReading("StoreRequestSpanEventHandler").updateData(HeathReading.INFO, "%s messages were successful consumed .", buffer.size());
+                HealthCollector.getCurrentHeathReading("StoreRequestSpanEventHandler").updateData(HeathReading.INFO, "%s messages were successful consumed .", buffer.size());
+            } finally {
+                buffer.clear();
+            }
         }
     }
 }
