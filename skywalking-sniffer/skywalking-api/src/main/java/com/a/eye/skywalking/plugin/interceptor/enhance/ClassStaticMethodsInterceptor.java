@@ -1,7 +1,7 @@
 package com.a.eye.skywalking.plugin.interceptor.enhance;
 
 import com.a.eye.skywalking.logging.LogManager;
-import com.a.eye.skywalking.logging.Logger;
+import com.a.eye.skywalking.logging.EasyLogger;
 import com.a.eye.skywalking.plugin.interceptor.loader.InterceptorInstanceLoader;
 import net.bytebuddy.implementation.bind.annotation.AllArguments;
 import net.bytebuddy.implementation.bind.annotation.Origin;
@@ -17,7 +17,7 @@ import java.util.concurrent.Callable;
  * @author wusheng
  */
 public class ClassStaticMethodsInterceptor {
-    private static Logger logger = LogManager.getLogger(ClassStaticMethodsInterceptor.class);
+    private static EasyLogger easyLogger = LogManager.getLogger(ClassStaticMethodsInterceptor.class);
 
     private String staticMethodsAroundInterceptorClassName;
 
@@ -35,7 +35,7 @@ public class ClassStaticMethodsInterceptor {
         try {
             interceptor.beforeMethod(interceptorContext, result);
         } catch (Throwable t) {
-            logger.error("class[{}] before static method[{}] intercept failue:{}", new Object[] {clazz, method.getName(), t.getMessage()}, t);
+            easyLogger.error("class[{}] before static method[{}] intercept failue:{}", new Object[] {clazz, method.getName(), t.getMessage()}, t);
         }
 
 
@@ -50,14 +50,14 @@ public class ClassStaticMethodsInterceptor {
             try {
                 interceptor.handleMethodException(t, interceptorContext);
             } catch (Throwable t2) {
-                logger.error("class[{}] handle static method[{}] exception failue:{}", new Object[] {clazz, method.getName(), t2.getMessage()}, t2);
+                easyLogger.error("class[{}] handle static method[{}] exception failue:{}", new Object[] {clazz, method.getName(), t2.getMessage()}, t2);
             }
             throw t;
         } finally {
             try {
                 ret = interceptor.afterMethod(interceptorContext, ret);
             } catch (Throwable t) {
-                logger.error("class[{}] after static method[{}] intercept failue:{}", new Object[] {clazz, method.getName(), t.getMessage()}, t);
+                easyLogger.error("class[{}] after static method[{}] intercept failue:{}", new Object[] {clazz, method.getName(), t.getMessage()}, t);
             }
         }
         return ret;

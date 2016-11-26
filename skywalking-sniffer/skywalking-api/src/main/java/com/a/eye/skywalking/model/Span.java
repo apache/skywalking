@@ -1,11 +1,12 @@
 package com.a.eye.skywalking.model;
 
-import com.a.eye.skywalking.protocol.common.SpanType;
+
+import com.a.eye.skywalking.network.grpc.AckSpan;
+import com.a.eye.skywalking.network.grpc.RequestSpan;
+import com.a.eye.skywalking.network.grpc.TraceId;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -17,12 +18,12 @@ public class Span {
     /**
      * tid，调用链的全局唯一标识
      */
-    protected String traceId;
+    protected TraceId traceId;
     /**
      * 当前调用链的上级描述<br/>
      * 如当前序号为：0.1.0时，parentLevel=0.1
      */
-    protected String parentLevel;
+    protected String  parentLevel;
     /**
      * 当前调用链的本机描述<br/>
      * 如当前序号为：0.1.0时，levelId=0
@@ -51,7 +52,7 @@ public class Span {
      * 节点类型<br/>
      * 如：RPC Client,RPC Server,Local
      */
-    private   SpanType            spanType   = SpanType.LOCAL;
+    private int spanType = SpanType.LOCAL;
 
     /**
      * 业务字段<br/>
@@ -67,14 +68,14 @@ public class Span {
     private String userId;
     private String viewPointId;
 
-    public Span(String traceId, String applicationId, String userId) {
+    public Span(TraceId traceId, String applicationId, String userId) {
         this.traceId = traceId;
         this.applicationId = applicationId;
         this.userId = userId;
         this.parentLevel = "";
     }
 
-    public Span(String traceId, String parentLevel, int levelId, String applicationId, String userId) {
+    public Span(TraceId traceId, String parentLevel, int levelId, String applicationId, String userId) {
         this.traceId = traceId;
         this.parentLevel = parentLevel;
         this.levelId = levelId;
@@ -82,7 +83,7 @@ public class Span {
         this.userId = userId;
     }
 
-    public String getTraceId() {
+    public TraceId getTraceId() {
         return traceId;
     }
 
@@ -122,11 +123,11 @@ public class Span {
         this.exceptionStack = exceptionStack;
     }
 
-    public void setSpanType(SpanType spanType) {
+    public void setSpanType(int spanType) {
         this.spanType = spanType;
     }
 
-    public SpanType getSpanType() {
+    public int getSpanType() {
         return spanType;
     }
 
@@ -186,14 +187,26 @@ public class Span {
         this.userId = userId;
     }
 
-
     public void setViewPointId(String viewPointId) {
         this.viewPointId = viewPointId;
     }
 
-
-
     public String getViewPointId() {
         return viewPointId;
     }
+
+    public RequestSpan.Builder buildRequestSpan(RequestSpan.Builder builder) {
+        builder.setTraceId(this.traceId).setParentLevel(this.parentLevel).setLevelId(this.levelId).setSpanType(this.spanType).setApplicationId(this.applicationId)
+                .setUserId(this.userId);
+        return builder;
+    }
+
+    public AckSpan.Builder buildAckSpan(AckSpan.Builder builder){
+        builder.setTraceId(this.traceId).setParentLevel(this.parentLevel).setLevelId(this.levelId)
+                .setCost(System.currentTimeMillis() - this.startDate).setStatusCode(this.statusCode)
+                .setExceptionStack(this.exceptionStack).setUserId(this.userId).setApplicationId(this.applicationId)
+                .setViewpointId(this.viewPointId);
+        return builder;
+    }
+
 }

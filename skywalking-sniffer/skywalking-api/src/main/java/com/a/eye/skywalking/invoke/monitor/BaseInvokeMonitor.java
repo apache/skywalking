@@ -2,15 +2,15 @@ package com.a.eye.skywalking.invoke.monitor;
 
 import com.a.eye.skywalking.buffer.ContextBuffer;
 import com.a.eye.skywalking.conf.Config;
-import com.a.eye.skywalking.logging.LogManager;
-import com.a.eye.skywalking.logging.Logger;
+import com.a.eye.skywalking.logging.EasyLogger;
 import com.a.eye.skywalking.conf.AuthDesc;
 import com.a.eye.skywalking.context.CurrentThreadSpanStack;
+import com.a.eye.skywalking.logging.api.ILog;
+import com.a.eye.skywalking.logging.api.LogManager;
 import com.a.eye.skywalking.model.ContextData;
 import com.a.eye.skywalking.model.Identification;
-import com.a.eye.skywalking.protocol.AckSpan;
-import com.a.eye.skywalking.protocol.RequestSpan;
 import com.a.eye.skywalking.model.Span;
+import com.a.eye.skywalking.network.grpc.AckSpan;
 import com.a.eye.skywalking.protocol.util.BuriedPointMachineUtil;
 
 import java.util.HashSet;
@@ -18,7 +18,7 @@ import java.util.Set;
 
 public abstract class BaseInvokeMonitor {
 
-    private static Logger logger = LogManager.getLogger(BaseInvokeMonitor.class);
+    private static ILog easyLogger = LogManager.getLogger(BaseInvokeMonitor.class);
 
     private static String EXCEPTION_SPLIT = ",";
 
@@ -26,7 +26,7 @@ public abstract class BaseInvokeMonitor {
 
     protected ContextData beforeInvoke(Span spanData, Identification id) {
         if (Config.BuriedPoint.PRINTF) {
-            logger.debug("TraceId:" + spanData.getTraceId() + "\tParentLevelId:" + spanData.getParentLevel()
+            easyLogger.debug("TraceId:" + spanData.getTraceId() + "\tParentLevelId:" + spanData.getParentLevel()
                     + "\tLevelId:" + spanData.getLevelId() + "\tbusinessKey:" + spanData.getBusinessKey());
         }
 
@@ -52,13 +52,15 @@ public abstract class BaseInvokeMonitor {
             Span spanData = CurrentThreadSpanStack.pop();
 
             if (Config.BuriedPoint.PRINTF) {
-                logger.debug("TraceId-ACK:" + spanData.getTraceId() + "\tParentLevelId:" + spanData.getParentLevel()
+                easyLogger.debug("TraceId-ACK:" + spanData.getTraceId() + "\tParentLevelId:" + spanData.getParentLevel()
                         + "\tLevelId:" + spanData.getLevelId() + "\tbusinessKey:" + spanData.getBusinessKey());
             }
             // 生成并保存到缓存
+            AckSpan.Builder ackSpanBuilder = spanData.buildAckSpan(AckSpan.newBuilder());
+
             ContextBuffer.save(new AckSpan(spanData));
         } catch (Throwable t) {
-            logger.error(t.getMessage(), t);
+            easyLogger.error(t.getMessage(), t);
         }
     }
 
@@ -77,7 +79,7 @@ public abstract class BaseInvokeMonitor {
             Span span = CurrentThreadSpanStack.peek();
             span.handleException(th, exclusiveExceptionSet, Config.BuriedPoint.MAX_EXCEPTION_STACK_LENGTH);
         } catch (Throwable t) {
-            logger.error(t.getMessage(), t);
+            easyLogger.error(t.getMessage(), t);
         }
     }
 }

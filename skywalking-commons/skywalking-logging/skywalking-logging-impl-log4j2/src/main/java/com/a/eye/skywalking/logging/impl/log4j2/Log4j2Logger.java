@@ -49,6 +49,21 @@ public class Log4j2Logger implements ILog {
     }
 
     @Override
+    public boolean isInfoEnable() {
+        return logger.isInfoEnabled();
+    }
+
+    @Override
+    public boolean isWarnEnable() {
+        return logger.isWarnEnabled();
+    }
+
+    @Override
+    public boolean isErrorEnable() {
+        return logger.isErrorEnabled();
+    }
+
+    @Override
     public void debug(String format) {
         logger.debug(format);
     }

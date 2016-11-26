@@ -5,7 +5,7 @@ import static net.bytebuddy.matcher.ElementMatchers.any;
 import static net.bytebuddy.matcher.ElementMatchers.not;
 
 import com.a.eye.skywalking.logging.LogManager;
-import com.a.eye.skywalking.logging.Logger;
+import com.a.eye.skywalking.logging.EasyLogger;
 import com.a.eye.skywalking.plugin.AbstractClassEnhancePluginDefine;
 import com.a.eye.skywalking.plugin.PluginException;
 import com.a.eye.skywalking.plugin.interceptor.EnhancedClassInstanceContext;
@@ -22,7 +22,7 @@ import com.a.eye.skywalking.plugin.interceptor.EnhanceException;
 import com.a.eye.skywalking.plugin.interceptor.MethodMatcher;
 
 public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePluginDefine {
-	private static Logger logger = LogManager
+	private static EasyLogger easyLogger = LogManager
 			.getLogger(ClassEnhancePluginDefine.class);
 
 	public static final String contextAttrName = "_$EnhancedClassInstanceContext";
@@ -82,10 +82,10 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
 		for (MethodMatcher methodMatcher : methodMatchers) {
 			enhanceRules.append("\t" + ruleIdx++ + ". " + methodMatcher + "\n");
 		}
-		logger.debug(enhanceRules);
+		easyLogger.debug(enhanceRules);
 		ElementMatcher.Junction<MethodDescription> matcher = null;
 		for (MethodMatcher methodMatcher : methodMatchers) {
-			logger.debug("enhance class {} instance methods by rule: {}",
+			easyLogger.debug("enhance class {} instance methods by rule: {}",
 					enhanceOriginClassName, methodMatcher);
 			if (matcher == null) {
 				matcher = methodMatcher.buildMatcher();
@@ -144,10 +144,10 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
 		for (MethodMatcher methodMatcher : methodMatchers) {
 			enhanceRules.append("\t" + ruleIdx++ + ". " + methodMatcher + "\n");
 		}
-		logger.debug(enhanceRules);
+		easyLogger.debug(enhanceRules);
 		ElementMatcher.Junction<MethodDescription> matcher = null;
 		for (MethodMatcher methodMatcher : methodMatchers) {
-			logger.debug("enhance class {} static methods by rule: {}",
+			easyLogger.debug("enhance class {} static methods by rule: {}",
 					enhanceOriginClassName, methodMatcher);
 			if (matcher == null) {
 				matcher = methodMatcher.buildMatcher();

@@ -11,6 +11,8 @@ message AckSpan {
     int32 statusCode = 5;
     string exceptionStack = 6;
     string viewpointId = 7;
+    string userId = 8;
+    string applicationId = 9;
 }
 
 message RequestSpan {
@@ -25,7 +27,7 @@ message RequestSpan {
     string applicationId = 9;
     string userId = 10;
     string bussinessKey = 11;
-    string processNo = 13;
+    int32 processNo = 13;
     string address = 14;
 }
 
@@ -43,10 +45,10 @@ message Span{
     string exceptionStack = 7;
     string spanTypeDesc = 8;
     string callType = 9;
-    uint32 spanType = 10;
+    int32 spanType = 10;
     string applicationId = 11;
     string userId = 12;
     string businessKey = 13;
-    string processNo = 14;
+    int32 processNo = 14;
     string address = 15;
 }

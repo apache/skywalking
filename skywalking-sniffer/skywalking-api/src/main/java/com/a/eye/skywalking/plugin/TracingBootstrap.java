@@ -2,7 +2,7 @@ package com.a.eye.skywalking.plugin;
 
 import com.a.eye.skywalking.conf.AuthDesc;
 import com.a.eye.skywalking.logging.LogManager;
-import com.a.eye.skywalking.logging.Logger;
+import com.a.eye.skywalking.logging.EasyLogger;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.dynamic.ClassFileLocator;
 import net.bytebuddy.dynamic.DynamicType;
@@ -21,7 +21,7 @@ import java.util.List;
  * @author wusheng
  */
 public class TracingBootstrap {
-    private static Logger logger = LogManager.getLogger(TracingBootstrap.class);
+    private static EasyLogger easyLogger = LogManager.getLogger(TracingBootstrap.class);
 
     private TracingBootstrap() {
     }
@@ -43,14 +43,14 @@ public class TracingBootstrap {
             PluginBootstrap bootstrap = new PluginBootstrap();
             plugins = bootstrap.loadPlugins();
         } catch (Throwable t) {
-            logger.error("PluginBootstrap start failure.", t);
+            easyLogger.error("PluginBootstrap start failure.", t);
         }
 
         for (AbstractClassEnhancePluginDefine plugin : plugins) {
             String enhanceClassName = plugin.enhanceClassName();
             TypePool.Resolution resolution = TypePool.Default.ofClassPath().describe(enhanceClassName);
             if (!resolution.isResolved()) {
-                logger.error("Failed to resolve the class " + enhanceClassName);
+                easyLogger.error("Failed to resolve the class " + enhanceClassName);
                 continue;
             }
             DynamicType.Builder<?> newClassBuilder =

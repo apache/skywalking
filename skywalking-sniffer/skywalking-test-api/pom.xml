@@ -19,5 +19,11 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>com.a.eye</groupId>
+            <artifactId>skywalking-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
     </dependencies>
 </project>

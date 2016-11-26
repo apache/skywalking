@@ -1,7 +1,7 @@
 package com.a.eye.skywalking.plugin;
 
 import com.a.eye.skywalking.logging.LogManager;
-import com.a.eye.skywalking.logging.Logger;
+import com.a.eye.skywalking.logging.EasyLogger;
 
 import java.io.IOException;
 import java.net.URL;
@@ -10,7 +10,7 @@ import java.util.Enumeration;
 import java.util.List;
 
 public class PluginResourcesResolver {
-	private static Logger logger = LogManager.getLogger(PluginResourcesResolver.class);
+	private static EasyLogger easyLogger = LogManager.getLogger(PluginResourcesResolver.class);
 	
 	public List<URL> getResources(){
 		List<URL> cfgUrlPaths = new ArrayList<URL>();
@@ -19,18 +19,18 @@ public class PluginResourcesResolver {
 			urls = getDefaultClassLoader().getResources("skywalking-plugin.def");
 			
 			if(!urls.hasMoreElements()){
-				logger.info("no plugin files (skywalking-plugin.properties) found");
+				easyLogger.info("no plugin files (skywalking-plugin.properties) found");
 			}
 			
 			while(urls.hasMoreElements()){
 				URL pluginUrl = urls.nextElement();
 				cfgUrlPaths.add(pluginUrl);
-				logger.info("find skywalking plugin define in {}", pluginUrl);
+				easyLogger.info("find skywalking plugin define in {}", pluginUrl);
 			}
 			
 			return cfgUrlPaths;
 		} catch (IOException e) {
-			logger.error("read resources failure.", e);
+			easyLogger.error("read resources failure.", e);
 		}
 		return null;
 	}

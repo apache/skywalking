@@ -53,7 +53,7 @@ public class RequestSpanData extends AbstractSpanData {
         return requestSpan.getApplicationId();
     }
 
-    public String getProcessNo() {
+    public int getProcessNo() {
         return requestSpan.getProcessNo();
     }
 

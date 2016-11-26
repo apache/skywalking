@@ -4,20 +4,16 @@ import com.a.eye.skywalking.buffer.ContextBuffer;
 import com.a.eye.skywalking.conf.AuthDesc;
 import com.a.eye.skywalking.conf.Config;
 import com.a.eye.skywalking.context.CurrentThreadSpanStack;
-import com.a.eye.skywalking.logging.LogManager;
-import com.a.eye.skywalking.logging.Logger;
-import com.a.eye.skywalking.model.ContextData;
-import com.a.eye.skywalking.model.EmptyContextData;
-import com.a.eye.skywalking.model.Identification;
+import com.a.eye.skywalking.logging.api.ILog;
+import com.a.eye.skywalking.logging.api.LogManager;
+import com.a.eye.skywalking.model.*;
+import com.a.eye.skywalking.network.grpc.RequestSpan;
 import com.a.eye.skywalking.protocol.util.BuriedPointMachineUtil;
 import com.a.eye.skywalking.protocol.util.ContextGenerator;
-import com.a.eye.skywalking.protocol.RequestSpan;
-import com.a.eye.skywalking.model.Span;
-import com.a.eye.skywalking.protocol.common.SpanType;
 
 public class RPCClientInvokeMonitor extends BaseInvokeMonitor {
 
-    private static Logger logger = LogManager
+    private static ILog logger = LogManager
             .getLogger(RPCClientInvokeMonitor.class);
 
     public ContextData beforeInvoke(Identification id) {
@@ -36,12 +32,14 @@ public class RPCClientInvokeMonitor extends BaseInvokeMonitor {
 
             CurrentThreadSpanStack.push(spanData);
 
-            RequestSpan requestSpan = RequestSpan.RequestSpanBuilder.newBuilder(CurrentThreadSpanStack.peek())
-                    .viewPoint(id.getViewPoint())
-                    .spanTypeDesc(id.getSpanTypeDesc())
-                    .bussinessKey(id.getBusinessKey())
-                    .callType(id.getCallType()).processNo(BuriedPointMachineUtil.getProcessNo())
-                    .address(BuriedPointMachineUtil.getHostDesc()).build();
+            Span span = CurrentThreadSpanStack.peek();
+            RequestSpan.Builder requestSpanBuilder = span.buildRequestSpan(RequestSpan.newBuilder());
+            RequestSpan requestSpan = requestSpanBuilder
+                    .setViewPointId(id.getViewPoint())
+                    .setSpanTypeDesc(id.getSpanTypeDesc())
+                    .setBussinessKey(id.getBusinessKey())
+                    .setCallType(id.getCallType()).setProcessNo(BuriedPointMachineUtil.getProcessNo())
+                    .setAddress(BuriedPointMachineUtil.getHostDesc()).build();
 
             ContextBuffer.save(requestSpan);
 

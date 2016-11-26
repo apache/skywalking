@@ -1,13 +1,13 @@
 package com.a.eye.skywalking.plugin;
 
-import com.a.eye.skywalking.logging.LogManager;
-import com.a.eye.skywalking.logging.Logger;
+import com.a.eye.skywalking.logging.api.ILog;
+import com.a.eye.skywalking.logging.api.LogManager;
 import com.a.eye.skywalking.protocol.util.StringUtil;
 import net.bytebuddy.dynamic.DynamicType;
 import net.bytebuddy.pool.TypePool.Resolution;
 
 public abstract class AbstractClassEnhancePluginDefine{
-    private static Logger logger = LogManager.getLogger(AbstractClassEnhancePluginDefine.class);
+    private static ILog logger = LogManager.getLogger(AbstractClassEnhancePluginDefine.class);
 
     public DynamicType.Builder<?> define(String transformClassName, DynamicType.Builder<?> builder) throws PluginException {
         String interceptorDefineClassName = this.getClass().getName();

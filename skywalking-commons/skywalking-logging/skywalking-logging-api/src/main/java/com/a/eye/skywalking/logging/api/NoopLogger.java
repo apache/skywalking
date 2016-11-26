@@ -42,6 +42,21 @@ public class NoopLogger implements ILog{
     }
 
     @Override
+    public boolean isInfoEnable() {
+        return false;
+    }
+
+    @Override
+    public boolean isWarnEnable() {
+        return false;
+    }
+
+    @Override
+    public boolean isErrorEnable() {
+        return false;
+    }
+
+    @Override
     public void debug(String format) {
 
     }

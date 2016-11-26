@@ -19,4 +19,9 @@
         <module>skywalking-test-api</module>
     </modules>
 
+    <properties>
+        <compiler.version>1.6</compiler.version>
+    </properties>
+
+
 </project>

@@ -1,7 +1,7 @@
 package com.a.eye.skywalking.plugin.interceptor.enhance;
 
 import com.a.eye.skywalking.logging.LogManager;
-import com.a.eye.skywalking.logging.Logger;
+import com.a.eye.skywalking.logging.EasyLogger;
 import com.a.eye.skywalking.plugin.interceptor.EnhancedClassInstanceContext;
 import com.a.eye.skywalking.plugin.interceptor.loader.InterceptorInstanceLoader;
 import net.bytebuddy.implementation.bind.annotation.*;
@@ -15,7 +15,7 @@ import java.util.concurrent.Callable;
  * @author wusheng
  */
 public class ClassInstanceMethodsInterceptor {
-    private static Logger logger = LogManager.getLogger(ClassInstanceMethodsInterceptor.class);
+    private static EasyLogger easyLogger = LogManager.getLogger(ClassInstanceMethodsInterceptor.class);
 
     private String instanceMethodsAroundInterceptorClassName;
 
@@ -34,7 +34,7 @@ public class ClassInstanceMethodsInterceptor {
         try {
             interceptor.beforeMethod(instanceContext, interceptorContext, result);
         } catch (Throwable t) {
-            logger.error("class[{}] before method[{}] intercept failue:{}", new Object[] {obj.getClass(), method.getName(), t.getMessage()}, t);
+            easyLogger.error("class[{}] before method[{}] intercept failue:{}", new Object[] {obj.getClass(), method.getName(), t.getMessage()}, t);
         }
 
         Object ret = null;
@@ -48,14 +48,14 @@ public class ClassInstanceMethodsInterceptor {
             try {
                 interceptor.handleMethodException(t, instanceContext, interceptorContext);
             } catch (Throwable t2) {
-                logger.error("class[{}] handle method[{}] exception failue:{}", new Object[] {obj.getClass(), method.getName(), t2.getMessage()}, t2);
+                easyLogger.error("class[{}] handle method[{}] exception failue:{}", new Object[] {obj.getClass(), method.getName(), t2.getMessage()}, t2);
             }
             throw t;
         } finally {
             try {
                 ret = interceptor.afterMethod(instanceContext, interceptorContext, ret);
             } catch (Throwable t) {
-                logger.error("class[{}] after method[{}] intercept failue:{}", new Object[] {obj.getClass(), method.getName(), t.getMessage()}, t);
+                easyLogger.error("class[{}] after method[{}] intercept failue:{}", new Object[] {obj.getClass(), method.getName(), t.getMessage()}, t);
             }
         }
         return ret;

@@ -5,7 +5,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 public final class BuriedPointMachineUtil {
-    private static String processNo;
+    private static int processNo = -1;
     private static String IP;
     private static String hostName;
 
@@ -13,10 +13,14 @@ public final class BuriedPointMachineUtil {
         processNo = getProcessNo();
     }
 
-    public static String getProcessNo() {
-        if (StringUtil.isEmpty(processNo)) {
+    public static int getProcessNo() {
+        if (processNo != -1) {
             String name = ManagementFactory.getRuntimeMXBean().getName();
-            processNo = name.split("@")[0];
+            try {
+                processNo = Integer.parseInt(name.split("@")[0]);
+            }catch(Throwable t){
+                processNo = 0;
+            }
         }
         return processNo;
     }

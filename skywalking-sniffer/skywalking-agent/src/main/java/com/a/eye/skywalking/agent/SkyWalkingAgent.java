@@ -3,8 +3,9 @@ package com.a.eye.skywalking.agent;
 import com.a.eye.skywalking.agent.junction.SkyWalkingEnhanceMatcher;
 import com.a.eye.skywalking.conf.AuthDesc;
 import com.a.eye.skywalking.conf.Config;
-import com.a.eye.skywalking.logging.LogManager;
-import com.a.eye.skywalking.logging.Logger;
+import com.a.eye.skywalking.logging.EasyLogResolver;
+import com.a.eye.skywalking.logging.api.ILog;
+import com.a.eye.skywalking.logging.api.LogManager;
 import com.a.eye.skywalking.plugin.AbstractClassEnhancePluginDefine;
 import com.a.eye.skywalking.plugin.PluginBootstrap;
 import com.a.eye.skywalking.plugin.PluginDefineCategory;
@@ -24,9 +25,15 @@ import static net.bytebuddy.matcher.ElementMatchers.isInterface;
 import static net.bytebuddy.matcher.ElementMatchers.not;
 
 public class SkyWalkingAgent {
-    private static Logger logger = LogManager.getLogger(SkyWalkingAgent.class);
+    static{
+        LogManager.setLogResolver(new EasyLogResolver());
+    }
+
+    private static ILog easyLogger;
 
     public static void premain(String agentArgs, Instrumentation instrumentation) throws PluginException {
+        easyLogger = LogManager.getLogger(SkyWalkingAgent.class);
+
         initConfig();
         if (AuthDesc.isAuth()) {
             final PluginDefineCategory pluginDefineCategory =
@@ -53,7 +60,7 @@ public class SkyWalkingAgent {
 
                 @Override
                 public void onError(String typeName, ClassLoader classLoader, JavaModule module, Throwable throwable) {
-                    logger.error("Failed to enhance class " + typeName, throwable);
+                    easyLogger.error("Failed to enhance class " + typeName, throwable);
                 }
 
                 @Override
@@ -88,7 +95,7 @@ public class SkyWalkingAgent {
             urlString = urlString.substring(urlString.indexOf("file:"), urlString.indexOf('!'));
             return new File(new URL(urlString).getFile()).getParentFile().getAbsolutePath();
         } catch (Exception e) {
-            logger.error("Failed to init config .", e);
+            easyLogger.error("Failed to init config .", e);
             return "";
         }
     }

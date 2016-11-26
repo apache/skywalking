@@ -1,13 +1,13 @@
 package com.a.eye.skywalking.plugin.tomcat78x.define;
 
 import com.a.eye.skywalking.logging.LogManager;
-import com.a.eye.skywalking.logging.Logger;
+import com.a.eye.skywalking.logging.EasyLogger;
 import com.a.eye.skywalking.plugin.interceptor.matcher.SimpleMethodMatcher;
 import com.a.eye.skywalking.plugin.interceptor.MethodMatcher;
 import com.a.eye.skywalking.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 
 public class TomcatPluginDefine extends ClassInstanceMethodsEnhancePluginDefine {
-    private static Logger logger = LogManager.getLogger(TomcatPluginDefine.class);
+    private static EasyLogger easyLogger = LogManager.getLogger(TomcatPluginDefine.class);
 
     @Override
     protected MethodMatcher[] getInstanceMethodsMatchers() {

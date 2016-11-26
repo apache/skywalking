@@ -16,13 +16,13 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <shade.package>com.a.eye.skywalking.api.dependencies</shade.package>
         <premain.class>com.a.eye.skywalking.agent.SkyWalkingAgent</premain.class>
         <shade.net.bytebuddy.source>net.bytebuddy</shade.net.bytebuddy.source>
-        <shade.net.bytebuddy.target>com.a.eye.skywalking.api.dependencies.net.bytebuddy</shade.net.bytebuddy.target>
-        <shade.io.netty.source>io.netty</shade.io.netty.source>
-        <shade.io.netty.target>com.a.eye.skywalking.api.dependencies.io.netty</shade.io.netty.target>
-        <shade.com.google.gson.source>com.google.gson</shade.com.google.gson.source>
-        <shade.com.google.gson.target>com.a.eye.skywalking.api.dependencies.com.google.gson</shade.com.google.gson.target>
+        <shade.net.bytebuddy.target>${shade.package}.${shade.net.bytebuddy.source}}</shade.net.bytebuddy.target>
+        <!-- disruptor -->
+        <shade.com.lmax.disruptor.source>com.lmax.disruptor</shade.com.lmax.disruptor.source>
+        <shade.com.lmax.disruptor.target>${shade.package}.${shade.com.lmax.disruptor.source}</shade.com.lmax.disruptor.target>
     </properties>
 
     <dependencies>
@@ -49,11 +49,6 @@
         <dependency>
             <groupId>com.a.eye</groupId>
             <artifactId>tomcat-7.x-8.x-plugin</artifactId>
-            <version>2.0-2016</version>
-        </dependency>
-        <dependency>
-            <groupId>com.a.eye</groupId>
-            <artifactId>custom-local-method-interceptor-plugin</artifactId>
             <version>2.0-2016</version>
         </dependency>
     </dependencies>
@@ -91,12 +86,8 @@
                                     <shadedPattern>${shade.net.bytebuddy.target}</shadedPattern>
                                 </relocation>
                                 <relocation>
-                                    <pattern>${shade.io.netty.source}</pattern>
-                                    <shadedPattern>${shade.io.netty.target}</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>${shade.com.google.gson.source}</pattern>
-                                    <shadedPattern>${shade.com.google.gson.target}</shadedPattern>
+                                    <pattern>${shade.com.lmax.disruptor.source}</pattern>
+                                    <shadedPattern>${shade.com.lmax.disruptor.target}</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>

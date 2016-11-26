@@ -1,17 +1,17 @@
 package com.a.eye.skywalking.invoke.monitor;
 
-import com.a.eye.skywalking.logging.LogManager;
-import com.a.eye.skywalking.logging.Logger;
+import com.a.eye.skywalking.logging.api.ILog;
+import com.a.eye.skywalking.logging.api.LogManager;
 import com.a.eye.skywalking.model.ContextData;
 import com.a.eye.skywalking.model.Identification;
+import com.a.eye.skywalking.model.SpanType;
 import com.a.eye.skywalking.protocol.util.ContextGenerator;
 import com.a.eye.skywalking.conf.AuthDesc;
 import com.a.eye.skywalking.model.Span;
-import com.a.eye.skywalking.protocol.common.SpanType;
 
 public class RPCServerInvokeMonitor extends BaseInvokeMonitor {
 
-    private static Logger logger = LogManager
+    private static ILog logger = LogManager
             .getLogger(RPCServerInvokeMonitor.class);
 
     public void beforeInvoke(ContextData context, Identification id) {

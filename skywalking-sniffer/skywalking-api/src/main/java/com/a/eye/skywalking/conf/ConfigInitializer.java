@@ -1,7 +1,7 @@
 package com.a.eye.skywalking.conf;
 
 import com.a.eye.skywalking.logging.LogManager;
-import com.a.eye.skywalking.logging.Logger;
+import com.a.eye.skywalking.logging.EasyLogger;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,26 +11,26 @@ import java.util.LinkedList;
 import java.util.Properties;
 
 public class ConfigInitializer {
-	private static Logger logger = LogManager.getLogger(ConfigInitializer.class);
+	private static EasyLogger easyLogger = LogManager.getLogger(ConfigInitializer.class);
 
     static void initialize(InputStream inputStream) {
         if (inputStream == null) {
-            logger.info("Not provide sky-walking certification documents, sky-walking api auto shutdown.");
+            easyLogger.info("Not provide sky-walking certification documents, sky-walking api auto shutdown.");
         } else {
             try {
                 Properties properties = new Properties();
                 properties.load(inputStream);
                 initNextLevel(properties, Config.class, new ConfigDesc());
                 AuthDesc.isAuth = Boolean.valueOf(System.getenv(Config.SkyWalking.AUTH_SYSTEM_ENV_NAME));
-                logger.info("sky-walking system-env auth : " + AuthDesc.isAuth);
+                easyLogger.info("sky-walking system-env auth : " + AuthDesc.isAuth);
                 if(!AuthDesc.isAuth && Config.SkyWalking.AUTH_OVERRIDE){
                 	AuthDesc.isAuth = Config.SkyWalking.AUTH_OVERRIDE;
-                	logger.info("sky-walking auth override: " + AuthDesc.isAuth);
+                	easyLogger.info("sky-walking auth override: " + AuthDesc.isAuth);
                 }
             } catch (IllegalAccessException e) {
-                logger.error("Parsing certification file failed, sky-walking api auto shutdown.", e);
+                easyLogger.error("Parsing certification file failed, sky-walking api auto shutdown.", e);
             } catch (IOException e) {
-                logger.error("Failed to read the certification file, sky-walking api auto shutdown.", e);
+                easyLogger.error("Failed to read the certification file, sky-walking api auto shutdown.", e);
             }
         }
     }

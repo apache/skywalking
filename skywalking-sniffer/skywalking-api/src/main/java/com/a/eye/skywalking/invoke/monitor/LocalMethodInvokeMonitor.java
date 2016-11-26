@@ -1,7 +1,7 @@
 package com.a.eye.skywalking.invoke.monitor;
 
-import com.a.eye.skywalking.logging.LogManager;
-import com.a.eye.skywalking.logging.Logger;
+import com.a.eye.skywalking.logging.api.ILog;
+import com.a.eye.skywalking.logging.api.LogManager;
 import com.a.eye.skywalking.model.ContextData;
 import com.a.eye.skywalking.model.EmptyContextData;
 import com.a.eye.skywalking.model.Identification;
@@ -11,7 +11,7 @@ import com.a.eye.skywalking.model.Span;
 
 public class LocalMethodInvokeMonitor extends BaseInvokeMonitor {
 
-    private static Logger logger = LogManager
+    private static ILog logger = LogManager
             .getLogger(LocalMethodInvokeMonitor.class);
 
     public ContextData beforeInvoke(Identification id) {
