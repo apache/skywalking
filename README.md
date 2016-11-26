@@ -104,58 +104,23 @@ ___
 ## instrument javaagent jdk version
 - support 1.6+ , instruments applications can run in jdk6
 
-## 编译与部署 / Build and deploy
-- 服务端发布版本[下载](https://github.com/wu-sheng/sky-walking/releases)  (.tar.gz)
+## Download and deploy servers
 - Download Server release version. [Download](https://github.com/wu-sheng/sky-walking/releases)  (.tar.gz)
-- [配置应用服务器](CONFIG_DOC.md)
-- [config servers](CONFIG_DOC.md)
-- 如果您想自己编译最新版本，可参考《[代码编译说明](BUILD_DOC.md)》
-- [Code compilation instructions](BUILD_DOC.md)
+
+### run all servers in a Docker
+- Docker version is good quick-test.
+
+### deploy your own cluster
 
 
-## Download offical agent
+## Download agent
 [ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/com.a.eye.skywalking-agent/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/com.a.eye.skywalking-agent/_latestVersion)
 
-- 通过github-release[下载](https://github.com/wu-sheng/sky-walking/releases)
-- 通过[skywalking bintray官网](https://bintray.com/wu-sheng/skywalking/)托管，可使用公网仓库[https://jcenter.bintray.com/](https://jcenter.bintray.com/)下载。
-- use public repository  [https://jcenter.bintray.com/](https://jcenter.bintray.com/) to download sdk
 
-
-## 下载并设置授权文件 / Download auth file
-- 注册并登陆过skywalking-webui，创建应用。（一个用户代表一个逻辑集群，一个应用代表一个服务集群。如前后端应用应该设置两个应用，但归属一个用户）
-- Sign up and login in skywalking-webui. Create application as needed.
-- 下载授权文件，放在在agent jar所在目录中
-- download auth file(*.auth), and copy the auth file to directory of the agent jar
-
-## 在运行时环境中设置环境变量 / set environment variables 
-```
-export SKYWALKING_RUN=true
-```
-- 设置完成后，SkyWalking将随应用启动运行
-- After set env, SkyWalking will be working, when application startup.
-
-
-## 使用-javaagent 并启动应用程序 / start application with -javaagent
-- 为应用程序添加启动参数
+## start application with -javaagent
 ```shell
-java -jar ...  -javaagent:/..ospath../skywalking-agent-x.x-Final.jar
+java -jar ...  -javaagent:/..ospath../skywalking-agent-x.x.jar
 ```
-- Tomcat可以使用修改启动文件，配置-javaagent参数
-
-# 在应用程序中显示traceid / How to find tid
-- 通过web应用的http调用入口，通过返回的header信息，找到此次调用的traceid。前提：此web应用的url，已经使用skywalking进行监控。
-
-# Development Documents
-- [Development Guide of Plugin](https://github.com/wu-sheng/sky-walking/wiki/Development-Guide-of-Plugin)
-
-# QA
-- [SkyWalking SDK是否已经工作？ Is SkyWalking SDK Running?](QA/IS_RUNNING.md)
-- [tid在web-ui上无法查询. tid can't be search on web-ui](QA/TID_CANNOT_BE_SEARCH.md)
-- [SkyWalking Server的运行情况. The status of SkyWalking Server](QA/SERVER_RUNNING_STAUTS.md)
-- [SkyWalking Analysis部署运行常见问题. The FAQ of SkyWalking Analysis deployment](QA/deploy-sw_analysis-problem.md)
-
-# 源代码说明
-* [网络传输协议、缓存文件协议说明. the protocols of transform between agent and collector, collector buffer file](doc/protocol.md)
 
 # Recent RoadMap
 * [In the schedule] v2.1-2017
@@ -165,26 +130,9 @@ java -jar ...  -javaagent:/..ospath../skywalking-agent-x.x-Final.jar
 	* support log framework(log4j, log4j2, logback) to output traceid in system log.
 	
 * [Dev] v2.0-2016
-	* 移除对于Hadoop，HBase的依赖，降低部署和运维难度
-	* 使用内嵌式数据库，和分布式集群
-	* 移除副本发送机制
-	* 支持数据文件的时间分片，支持集群TB级别日志文件存储
-	* 支持统计和高效的准实时统计汇总
-	* 更多插件的支持
+	* not dependency on Hadoop or HBase, easy to deploy or maintenance
+	* support simple-cluster mode
+	* support docker mode in single-server-instance
+	* support more plugins
 		* motan rpc framework (provided)
 	
-* [Release] v1.0-Final
-	* 客户端与服务端间使用扩展后的网络协议，前置的测试版本无法兼容，以提高服务端的稳定性和健壮性。（在内部使用过程中，发生因为安全扫描，导致服务端宕机）
-	* 引入javaagent模式，<b>无需修改任何代码</b>，完成监控。
-	* 所有插件将基于字节码技术实现，原有的配置文件模式将被移除。
-	
-* [Release] v1.0 beta
-	* 修复大量前置版本的BUG
-	* 提供基于MR的分析能力，能够对调用链进行分析汇总，并形成调用链统计视图
-
-* [Release] v1.0 alpha2
-	* 基于v1.0-alpha1的较稳定版本，在内部环境进行数月运行，修复大量影响服务端运行稳定性的问题。
-	* v1.0-beta，将提供定时分析任务，部分分析页面展现功能。
-	* 预计：后续版本将在插件模式上有较大改变，计划针对java api的拦截和第三方拦截提供更小侵入性的方法。配置和拦截模式会发生相应变化。具体模式，参考v1.0-beta发布时的说明。
-
- [More...](https://github.com/wu-sheng/sky-walking/releases)

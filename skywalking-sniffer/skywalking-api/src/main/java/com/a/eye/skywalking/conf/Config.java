@@ -11,6 +11,8 @@ public class Config {
 
         public static String AGENT_BASE_PATH = "";
 
+        public static String SERVERS = "";
+
     }
 
     public static class Disruptor{

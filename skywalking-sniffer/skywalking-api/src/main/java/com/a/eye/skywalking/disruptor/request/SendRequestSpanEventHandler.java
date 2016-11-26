@@ -27,7 +27,7 @@ public class SendRequestSpanEventHandler implements EventHandler<RequestSpanHold
 
         if (endOfBatch || buffer.size() == bufferSize) {
             try {
-
+                //TODO， use GRPC to send
 
                 HealthCollector.getCurrentHeathReading("SendRequestSpanEventHandler").updateData(HeathReading.INFO, "%s messages were successful consumed .", buffer.size());
             } finally {

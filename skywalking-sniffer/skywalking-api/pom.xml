@@ -26,7 +26,6 @@
             <artifactId>byte-buddy</artifactId>
             <version>1.5.7</version>
         </dependency>
-
         <dependency>
             <groupId>com.a.eye</groupId>
             <artifactId>skywalking-network</artifactId>
@@ -36,11 +35,6 @@
             <groupId>com.lmax</groupId>
             <artifactId>disruptor</artifactId>
             <version>3.3.6</version>
-        </dependency>
-        <dependency>
-            <groupId>com.a.eye</groupId>
-            <artifactId>skywalking-registry</artifactId>
-            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>com.a.eye</groupId>
