@@ -1,16 +1,16 @@
 package com.a.eye.skywalking.invoke.monitor;
 
-import com.a.eye.skywalking.buffer.ContextBuffer;
 import com.a.eye.skywalking.conf.Config;
-import com.a.eye.skywalking.logging.EasyLogger;
-import com.a.eye.skywalking.conf.AuthDesc;
 import com.a.eye.skywalking.context.CurrentThreadSpanStack;
+import com.a.eye.skywalking.disruptor.AckSpanDisruptor;
+import com.a.eye.skywalking.disruptor.RequestSpanDisruptor;
 import com.a.eye.skywalking.logging.api.ILog;
 import com.a.eye.skywalking.logging.api.LogManager;
 import com.a.eye.skywalking.model.ContextData;
 import com.a.eye.skywalking.model.Identification;
 import com.a.eye.skywalking.model.Span;
 import com.a.eye.skywalking.network.grpc.AckSpan;
+import com.a.eye.skywalking.network.grpc.RequestSpan;
 import com.a.eye.skywalking.protocol.util.BuriedPointMachineUtil;
 
 import java.util.HashSet;
@@ -34,19 +34,35 @@ public abstract class BaseInvokeMonitor {
         CurrentThreadSpanStack.push(spanData);
 
         // 根据SpanData生成RequestSpan，并保存
-        ContextBuffer.save(RequestSpan.RequestSpanBuilder.
-                newBuilder(CurrentThreadSpanStack.peek()).callType(id.getCallType()).viewPoint(id.getViewPoint())
-                .spanTypeDesc(id.getSpanTypeDesc()).processNo(BuriedPointMachineUtil.getProcessNo())
-                .address(BuriedPointMachineUtil.getHostDesc()).build());
+
+        CurrentThreadSpanStack.push(spanData);
+
+        sendRequestSpan(spanData, id);
 
         // 并将当前的Context返回回去
         return new ContextData(spanData);
     }
 
+    protected void sendRequestSpan(Span span, Identification id){
+        RequestSpan.Builder requestSpanBuilder = span.buildRequestSpan(RequestSpan.newBuilder());
+        RequestSpan requestSpan = requestSpanBuilder
+                .setViewPointId(id.getViewPoint())
+                .setSpanTypeDesc(id.getSpanTypeDesc())
+                .setBusinessKey(id.getBusinessKey())
+                .setCallType(id.getCallType()).setProcessNo(BuriedPointMachineUtil.getProcessNo())
+                .setAddress(BuriedPointMachineUtil.getHostDesc()).build();
+
+        RequestSpanDisruptor.INSTANCE.ready2Send(requestSpan);
+    }
+
+    protected void sendAckSpan(Span span){
+        AckSpan ackSpan = span.buildAckSpan(AckSpan.newBuilder()).build();
+
+        AckSpanDisruptor.INSTANCE.ready2Send(ackSpan);
+    }
+
     protected void afterInvoke() {
         try {
-            if (!AuthDesc.isAuth())
-                return;
 
             // 弹出上下文的栈顶中的元素
             Span spanData = CurrentThreadSpanStack.pop();
@@ -55,10 +71,8 @@ public abstract class BaseInvokeMonitor {
                 easyLogger.debug("TraceId-ACK:" + spanData.getTraceId() + "\tParentLevelId:" + spanData.getParentLevel()
                         + "\tLevelId:" + spanData.getLevelId() + "\tbusinessKey:" + spanData.getBusinessKey());
             }
-            // 生成并保存到缓存
-            AckSpan.Builder ackSpanBuilder = spanData.buildAckSpan(AckSpan.newBuilder());
 
-            ContextBuffer.save(new AckSpan(spanData));
+            sendAckSpan(spanData);
         } catch (Throwable t) {
             easyLogger.error(t.getMessage(), t);
         }

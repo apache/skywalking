@@ -1,7 +1,6 @@
 package com.a.eye.skywalking.plugin.jedis.v2;
 
 import com.a.eye.skywalking.api.IBuriedPointType;
-import com.a.eye.skywalking.protocol.common.CallType;
 
 public class RedisBuriedPointType implements IBuriedPointType {
 	 private static RedisBuriedPointType redisBuriedPointType;

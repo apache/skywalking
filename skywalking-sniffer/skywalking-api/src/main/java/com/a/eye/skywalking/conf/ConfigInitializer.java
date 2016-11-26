@@ -1,9 +1,11 @@
 package com.a.eye.skywalking.conf;
 
-import com.a.eye.skywalking.logging.LogManager;
-import com.a.eye.skywalking.logging.EasyLogger;
+import com.a.eye.skywalking.logging.api.ILog;
+import com.a.eye.skywalking.logging.api.LogManager;
+import com.a.eye.skywalking.protocol.util.StringUtil;
 
-import java.io.IOException;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -11,27 +13,33 @@ import java.util.LinkedList;
 import java.util.Properties;
 
 public class ConfigInitializer {
-	private static EasyLogger easyLogger = LogManager.getLogger(ConfigInitializer.class);
+	private static ILog logger = LogManager.getLogger(ConfigInitializer.class);
 
-    static void initialize(InputStream inputStream) {
-        if (inputStream == null) {
-            easyLogger.info("Not provide sky-walking certification documents, sky-walking api auto shutdown.");
+    public static void initialize() {
+        InputStream configFileStream;
+        if (Config.SkyWalking.IS_PREMAIN_MODE) {
+            configFileStream = fetchAuthFileInputStream();
+        } else {
+            configFileStream = ConfigInitializer.class.getResourceAsStream("/sky-walking.auth");
+        }
+
+        Config.SkyWalking.USER_ID = System.getProperty("userId");
+        Config.SkyWalking.APPLICATION_CODE = System.getProperty("applicationCode");
+
+        if (configFileStream == null) {
+            logger.info("Not provide sky-walking certification documents, sky-walking api run in default config.");
         } else {
             try {
                 Properties properties = new Properties();
-                properties.load(inputStream);
+                properties.load(configFileStream);
                 initNextLevel(properties, Config.class, new ConfigDesc());
-                AuthDesc.isAuth = Boolean.valueOf(System.getenv(Config.SkyWalking.AUTH_SYSTEM_ENV_NAME));
-                easyLogger.info("sky-walking system-env auth : " + AuthDesc.isAuth);
-                if(!AuthDesc.isAuth && Config.SkyWalking.AUTH_OVERRIDE){
-                	AuthDesc.isAuth = Config.SkyWalking.AUTH_OVERRIDE;
-                	easyLogger.info("sky-walking auth override: " + AuthDesc.isAuth);
-                }
-            } catch (IllegalAccessException e) {
-                easyLogger.error("Parsing certification file failed, sky-walking api auto shutdown.", e);
-            } catch (IOException e) {
-                easyLogger.error("Failed to read the certification file, sky-walking api auto shutdown.", e);
+            } catch (Exception e) {
+                logger.error("Failed to read the config file, sky-walking api run in default config.", e);
             }
+        }
+
+        if(StringUtil.isEmpty(Config.SkyWalking.USER_ID)){
+
         }
     }
 
@@ -57,6 +65,15 @@ public class ConfigInitializer {
             parentDesc.append(innerConfiguration.getSimpleName());
             initNextLevel(properties, innerConfiguration, parentDesc);
             parentDesc.removeLastDesc();
+        }
+    }
+
+    private static InputStream fetchAuthFileInputStream() {
+        try {
+            return new FileInputStream(Config.SkyWalking.AGENT_BASE_PATH + File.separator + "/sky-walking.auth");
+        } catch (Exception e) {
+            logger.error("Error to fetch auth file input stream.", e);
+            return null;
         }
     }
 }

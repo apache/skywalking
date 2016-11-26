@@ -1,7 +1,7 @@
 package com.a.eye.skywalking.plugin.interceptor.enhance;
 
-import com.a.eye.skywalking.logging.LogManager;
-import com.a.eye.skywalking.logging.EasyLogger;
+import com.a.eye.skywalking.logging.api.ILog;
+import com.a.eye.skywalking.logging.api.LogManager;
 import com.a.eye.skywalking.plugin.interceptor.EnhancedClassInstanceContext;
 import com.a.eye.skywalking.plugin.interceptor.loader.InterceptorInstanceLoader;
 import net.bytebuddy.implementation.bind.annotation.AllArguments;
@@ -10,7 +10,7 @@ import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import net.bytebuddy.implementation.bind.annotation.This;
 
 public class ClassConstructorInterceptor {
-	private static EasyLogger easyLogger = LogManager
+	private static ILog logger = LogManager
 			.getLogger(ClassConstructorInterceptor.class);
 
 	private String instanceMethodsAroundInterceptorClassName;
@@ -34,7 +34,7 @@ public class ClassConstructorInterceptor {
 					allArguments);
 			interceptor.onConstruct(context, interceptorContext);
 		} catch (Throwable t) {
-			easyLogger.error("ClassConstructorInterceptor failue.", t);
+			logger.error("ClassConstructorInterceptor failue.", t);
 		}
 
 	}

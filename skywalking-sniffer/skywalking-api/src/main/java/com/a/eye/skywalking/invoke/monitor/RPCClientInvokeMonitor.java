@@ -1,14 +1,11 @@
 package com.a.eye.skywalking.invoke.monitor;
 
-import com.a.eye.skywalking.buffer.ContextBuffer;
-import com.a.eye.skywalking.conf.AuthDesc;
 import com.a.eye.skywalking.conf.Config;
 import com.a.eye.skywalking.context.CurrentThreadSpanStack;
 import com.a.eye.skywalking.logging.api.ILog;
 import com.a.eye.skywalking.logging.api.LogManager;
 import com.a.eye.skywalking.model.*;
 import com.a.eye.skywalking.network.grpc.RequestSpan;
-import com.a.eye.skywalking.protocol.util.BuriedPointMachineUtil;
 import com.a.eye.skywalking.protocol.util.ContextGenerator;
 
 public class RPCClientInvokeMonitor extends BaseInvokeMonitor {
@@ -18,9 +15,6 @@ public class RPCClientInvokeMonitor extends BaseInvokeMonitor {
 
     public ContextData beforeInvoke(Identification id) {
         try {
-            if (!AuthDesc.isAuth())
-                return new EmptyContextData();
-
             Span spanData = ContextGenerator.generateSpanFromThreadLocal(id);
             //设置SpanType的类型
             spanData.setSpanType(SpanType.RPC_CLIENT);
@@ -32,16 +26,7 @@ public class RPCClientInvokeMonitor extends BaseInvokeMonitor {
 
             CurrentThreadSpanStack.push(spanData);
 
-            Span span = CurrentThreadSpanStack.peek();
-            RequestSpan.Builder requestSpanBuilder = span.buildRequestSpan(RequestSpan.newBuilder());
-            RequestSpan requestSpan = requestSpanBuilder
-                    .setViewPointId(id.getViewPoint())
-                    .setSpanTypeDesc(id.getSpanTypeDesc())
-                    .setBussinessKey(id.getBusinessKey())
-                    .setCallType(id.getCallType()).setProcessNo(BuriedPointMachineUtil.getProcessNo())
-                    .setAddress(BuriedPointMachineUtil.getHostDesc()).build();
-
-            ContextBuffer.save(requestSpan);
+            sendRequestSpan(spanData, id);
 
             return new ContextData(spanData.getTraceId(), generateSubParentLevelId(spanData));
         } catch (Throwable t) {

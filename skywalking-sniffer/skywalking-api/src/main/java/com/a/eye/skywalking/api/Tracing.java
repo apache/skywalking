@@ -1,9 +1,9 @@
 package com.a.eye.skywalking.api;
 
-import com.a.eye.skywalking.conf.AuthDesc;
 import com.a.eye.skywalking.context.CurrentThreadSpanStack;
 import com.a.eye.skywalking.model.ContextData;
 import com.a.eye.skywalking.model.Span;
+import com.a.eye.skywalking.network.grpc.TraceId;
 
 public class Tracing {
     /**
@@ -12,21 +12,24 @@ public class Tracing {
      * @return
      */
     public static String getTraceId() {
-        if (!AuthDesc.isAuth())
-            return "";
-
         Span spanData = CurrentThreadSpanStack.peek();
         if (spanData == null) {
             return "";
         }
 
-        return spanData.getTraceId();
+        return formatTraceId(spanData.getTraceId());
+    }
+
+    public static String formatTraceId(TraceId traceId){
+        StringBuilder traceIdBuilder = new StringBuilder();
+        for (Long segment : traceId.getSegmentsList()) {
+            traceIdBuilder.append(segment).append(".");
+        }
+
+        return traceIdBuilder.substring(0, traceIdBuilder.length() - 1).toString();
     }
 
     public static String getTracelevelId() {
-        if (!AuthDesc.isAuth())
-            return "";
-
         Span spanData = CurrentThreadSpanStack.peek();
         if (spanData == null) {
             return "";
@@ -38,9 +41,6 @@ public class Tracing {
     }
 
     public static String generateNextContextData() {
-        if (!AuthDesc.isAuth())
-            return null;
-
         Span spanData = CurrentThreadSpanStack.peek();
         if (spanData == null) {
             return null;

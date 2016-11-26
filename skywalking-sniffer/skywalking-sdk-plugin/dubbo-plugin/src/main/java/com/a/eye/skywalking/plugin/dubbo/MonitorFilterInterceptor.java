@@ -102,7 +102,7 @@ public class MonitorFilterInterceptor implements InstanceMethodsAroundIntercepto
 
 
     private boolean isConsumer(EnhancedClassInstanceContext context) {
-        return (boolean) context.get("isConsumer");
+        return (Boolean) context.get("isConsumer");
     }
 
     private void dealException(Throwable t, EnhancedClassInstanceContext context) {

@@ -1,7 +1,6 @@
 package com.a.eye.skywalking.plugin.interceptor.enhance;
 
 import com.a.eye.skywalking.api.IBuriedPointType;
-import com.a.eye.skywalking.protocol.common.CallType;
 import net.bytebuddy.implementation.bind.annotation.AllArguments;
 import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;

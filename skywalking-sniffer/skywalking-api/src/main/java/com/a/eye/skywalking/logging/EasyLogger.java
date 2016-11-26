@@ -11,7 +11,7 @@ import java.util.Date;
 /**
  * Created by xin on 16-6-23.
  */
-public class EasyLogger implements ILog {
+public class EasyLogger implements com.a.eye.skywalking.logging.api.ILog {
 
     private Class toBeLoggerClass;
 

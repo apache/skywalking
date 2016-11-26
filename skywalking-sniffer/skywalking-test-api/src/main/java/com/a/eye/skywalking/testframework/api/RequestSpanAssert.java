@@ -1,7 +1,7 @@
 package com.a.eye.skywalking.testframework.api;
 
-import com.a.eye.skywalking.protocol.RequestSpan;
-import com.a.eye.skywalking.protocol.common.ISerializable;
+import com.a.eye.skywalking.network.grpc.RequestSpan;
+import com.a.eye.skywalking.network.grpc.TraceId;
 import com.a.eye.skywalking.testframework.api.exception.SpanDataNotEqualsException;
 import com.a.eye.skywalking.testframework.api.exception.SpanDataFormatException;
 import com.a.eye.skywalking.testframework.api.exception.TraceIdNotSameException;
@@ -34,10 +34,10 @@ public class RequestSpanAssert {
     }
 
     private static List<RequestSpan> acquiredRequestSpanFromBuffer() {
-        List<ISerializable> spans = ContextPoolOperator.acquireBufferData();
+        List<Object> spans = ContextPoolOperator.acquireBufferData();
 
         List<RequestSpan> result = new ArrayList<RequestSpan>();
-        for (ISerializable span : spans) {
+        for (Object span : spans) {
             if (span instanceof RequestSpan) {
                 result.add((RequestSpan) span);
             }
@@ -116,14 +116,22 @@ public class RequestSpanAssert {
         String traceId = null;
         for (RequestSpan span : traceSpanList) {
             if (traceId == null) {
-                traceId = span.getTraceId();
+                traceId = toLiteralLTraceId(span.getTraceId());
             }
 
-            if (!traceId.equals(span.getTraceId())) {
+            if (!traceId.equals(toLiteralLTraceId(span.getTraceId()))) {
                 throw new TraceIdNotSameException("trace id is not all the same.trace id :" +
                         traceId + ",Error trace id :" + span.getTraceId());
             }
 
         }
+    }
+
+    private static String toLiteralLTraceId(TraceId traceId){
+        StringBuilder tid = new StringBuilder();
+        for (Long segment : traceId.getSegmentsList()) {
+            tid.append(segment).append(".");
+        }
+        return tid.substring(0, tid.length() - 1);
     }
 }

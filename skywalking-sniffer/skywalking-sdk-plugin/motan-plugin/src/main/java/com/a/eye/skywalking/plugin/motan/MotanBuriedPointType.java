@@ -1,7 +1,6 @@
 package com.a.eye.skywalking.plugin.motan;
 
 import com.a.eye.skywalking.api.IBuriedPointType;
-import com.a.eye.skywalking.protocol.common.CallType;
 
 public class MotanBuriedPointType implements IBuriedPointType {
 

@@ -5,9 +5,8 @@ import com.a.eye.skywalking.logging.api.LogManager;
 import com.a.eye.skywalking.model.ContextData;
 import com.a.eye.skywalking.model.EmptyContextData;
 import com.a.eye.skywalking.model.Identification;
-import com.a.eye.skywalking.protocol.util.ContextGenerator;
-import com.a.eye.skywalking.conf.AuthDesc;
 import com.a.eye.skywalking.model.Span;
+import com.a.eye.skywalking.protocol.util.ContextGenerator;
 
 public class LocalMethodInvokeMonitor extends BaseInvokeMonitor {
 
@@ -16,9 +15,6 @@ public class LocalMethodInvokeMonitor extends BaseInvokeMonitor {
 
     public ContextData beforeInvoke(Identification id) {
         try {
-            if (!AuthDesc.isAuth())
-                return new EmptyContextData();
-
             Span spanData = ContextGenerator.generateSpanFromThreadLocal(id);
 
             return super.beforeInvoke(spanData,id);

@@ -1,7 +1,7 @@
 package com.a.eye.skywalking.plugin;
 
-import com.a.eye.skywalking.logging.LogManager;
-import com.a.eye.skywalking.logging.EasyLogger;
+import com.a.eye.skywalking.logging.api.ILog;
+import com.a.eye.skywalking.logging.api.LogManager;
 import net.bytebuddy.pool.TypePool;
 
 import java.net.URL;
@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PluginBootstrap {
-    private static EasyLogger easyLogger = LogManager.getLogger(PluginBootstrap.class);
+    private static ILog logger = LogManager.getLogger(PluginBootstrap.class);
 
     public static TypePool CLASS_TYPE_POOL = null;
 
@@ -20,7 +20,7 @@ public class PluginBootstrap {
         List<URL> resources = resolver.getResources();
 
         if (resources == null || resources.size() == 0) {
-            easyLogger.info("no plugin files (skywalking-plugin.properties) found, continue to start application.");
+            logger.info("no plugin files (skywalking-plugin.properties) found, continue to start application.");
             return new ArrayList<AbstractClassEnhancePluginDefine>();
         }
 
@@ -28,7 +28,7 @@ public class PluginBootstrap {
             try {
                 PluginCfg.CFG.load(pluginUrl.openStream());
             } catch (Throwable t) {
-                easyLogger.error("plugin [{}] init failure.", new Object[] {pluginUrl}, t);
+                logger.error("plugin [{}] init failure.", new Object[] {pluginUrl}, t);
             }
         }
 
@@ -37,12 +37,12 @@ public class PluginBootstrap {
         List<AbstractClassEnhancePluginDefine> plugins = new ArrayList<AbstractClassEnhancePluginDefine>();
         for (String pluginClassName : pluginClassList) {
             try {
-                easyLogger.debug("loading plugin class {}.", pluginClassName);
+                logger.debug("loading plugin class {}.", pluginClassName);
                 AbstractClassEnhancePluginDefine plugin =
                         (AbstractClassEnhancePluginDefine) Class.forName(pluginClassName).newInstance();
                 plugins.add(plugin);
             } catch (Throwable t) {
-                easyLogger.error("loade plugin [{}] failure.", new Object[] {pluginClassName}, t);
+                logger.error("loade plugin [{}] failure.", new Object[] {pluginClassName}, t);
             }
         }
 

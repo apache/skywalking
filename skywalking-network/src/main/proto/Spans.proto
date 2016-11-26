@@ -26,7 +26,7 @@ message RequestSpan {
     uint32 spanType = 8;
     string applicationId = 9;
     string userId = 10;
-    string bussinessKey = 11;
+    string businessKey = 11;
     int32 processNo = 13;
     string address = 14;
 }

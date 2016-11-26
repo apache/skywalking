@@ -1,7 +1,6 @@
 package com.a.eye.skywalking.api;
 
 import com.a.eye.skywalking.conf.Config;
-import com.a.eye.skywalking.conf.AuthDesc;
 import com.a.eye.skywalking.context.CurrentThreadSpanStack;
 import com.a.eye.skywalking.model.Span;
 
@@ -17,8 +16,6 @@ public final class BusinessKeyAppender {
      * @param businessKey
      */
     public static void setBusinessKey2Trace(String businessKey) {
-        if (!AuthDesc.isAuth())
-            return;
 
         Span spanData = CurrentThreadSpanStack.peek();
         if (spanData == null) {

@@ -1,8 +1,7 @@
 package com.a.eye.skywalking.plugin;
 
-import com.a.eye.skywalking.conf.AuthDesc;
-import com.a.eye.skywalking.logging.LogManager;
-import com.a.eye.skywalking.logging.EasyLogger;
+import com.a.eye.skywalking.logging.api.ILog;
+import com.a.eye.skywalking.logging.api.LogManager;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.dynamic.ClassFileLocator;
 import net.bytebuddy.dynamic.DynamicType;
@@ -21,7 +20,7 @@ import java.util.List;
  * @author wusheng
  */
 public class TracingBootstrap {
-    private static EasyLogger easyLogger = LogManager.getLogger(TracingBootstrap.class);
+    private static ILog logger = LogManager.getLogger(TracingBootstrap.class);
 
     private TracingBootstrap() {
     }
@@ -33,30 +32,26 @@ public class TracingBootstrap {
             throw new RuntimeException("bootstrap failure. need args[0] to be main class.");
         }
 
-        if (!AuthDesc.isAuth()){
-            return;
-        }
-
         List<AbstractClassEnhancePluginDefine> plugins = null;
 
         try {
             PluginBootstrap bootstrap = new PluginBootstrap();
             plugins = bootstrap.loadPlugins();
         } catch (Throwable t) {
-            easyLogger.error("PluginBootstrap start failure.", t);
+            logger.error("PluginBootstrap start failure.", t);
         }
 
         for (AbstractClassEnhancePluginDefine plugin : plugins) {
             String enhanceClassName = plugin.enhanceClassName();
             TypePool.Resolution resolution = TypePool.Default.ofClassPath().describe(enhanceClassName);
             if (!resolution.isResolved()) {
-                easyLogger.error("Failed to resolve the class " + enhanceClassName);
+                logger.error("Failed to resolve the class " + enhanceClassName, null);
                 continue;
             }
             DynamicType.Builder<?> newClassBuilder =
                     new ByteBuddy().rebase(resolution.resolve(), ClassFileLocator.ForClassLoader.ofClassPath());
             newClassBuilder = ((AbstractClassEnhancePluginDefine) plugin).define(enhanceClassName, newClassBuilder);
-            newClassBuilder.make(TypeResolutionStrategy.Active.INSTANCE).load(ClassLoader.getSystemClassLoader(), ClassLoadingStrategy.Default.INJECTION)
+            newClassBuilder.make(new TypeResolutionStrategy.Active()).load(ClassLoader.getSystemClassLoader(), ClassLoadingStrategy.Default.INJECTION)
                     .getLoaded();
         }
 

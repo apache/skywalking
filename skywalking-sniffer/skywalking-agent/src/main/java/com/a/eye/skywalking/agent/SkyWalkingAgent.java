@@ -1,8 +1,8 @@
 package com.a.eye.skywalking.agent;
 
 import com.a.eye.skywalking.agent.junction.SkyWalkingEnhanceMatcher;
-import com.a.eye.skywalking.conf.AuthDesc;
 import com.a.eye.skywalking.conf.Config;
+import com.a.eye.skywalking.conf.ConfigInitializer;
 import com.a.eye.skywalking.logging.EasyLogResolver;
 import com.a.eye.skywalking.logging.api.ILog;
 import com.a.eye.skywalking.logging.api.LogManager;
@@ -25,7 +25,7 @@ import static net.bytebuddy.matcher.ElementMatchers.isInterface;
 import static net.bytebuddy.matcher.ElementMatchers.not;
 
 public class SkyWalkingAgent {
-    static{
+    static {
         LogManager.setLogResolver(new EasyLogResolver());
     }
 
@@ -35,45 +35,36 @@ public class SkyWalkingAgent {
         easyLogger = LogManager.getLogger(SkyWalkingAgent.class);
 
         initConfig();
-        if (AuthDesc.isAuth()) {
-            final PluginDefineCategory pluginDefineCategory =
-                    PluginDefineCategory.category(new PluginBootstrap().loadPlugins());
+        final PluginDefineCategory pluginDefineCategory = PluginDefineCategory.category(new PluginBootstrap().loadPlugins());
 
-            new AgentBuilder.Default().type(enhanceClassMatcher(pluginDefineCategory).and(not(isInterface())))
-                    .transform(new AgentBuilder.Transformer() {
-                        public DynamicType.Builder<?> transform(DynamicType.Builder<?> builder,
-                                TypeDescription typeDescription, ClassLoader classLoader) {
-                            AbstractClassEnhancePluginDefine pluginDefine =
-                                    pluginDefineCategory.findPluginDefine(typeDescription.getTypeName());
-                            return pluginDefine.define(typeDescription.getTypeName(), builder);
-                        }
-                    }).with(new AgentBuilder.Listener() {
-                @Override
-                public void onTransformation(TypeDescription typeDescription, ClassLoader classLoader,
-                        JavaModule module, DynamicType dynamicType) {
+        new AgentBuilder.Default().type(enhanceClassMatcher(pluginDefineCategory).and(not(isInterface()))).transform(new AgentBuilder.Transformer() {
+            public DynamicType.Builder<?> transform(DynamicType.Builder<?> builder, TypeDescription typeDescription, ClassLoader classLoader) {
+                AbstractClassEnhancePluginDefine pluginDefine = pluginDefineCategory.findPluginDefine(typeDescription.getTypeName());
+                return pluginDefine.define(typeDescription.getTypeName(), builder);
+            }
+        }).with(new AgentBuilder.Listener() {
+            @Override
+            public void onTransformation(TypeDescription typeDescription, ClassLoader classLoader, JavaModule module, DynamicType dynamicType) {
 
-                }
+            }
 
-                @Override
-                public void onIgnored(TypeDescription typeDescription, ClassLoader classLoader, JavaModule module) {
-                }
+            @Override
+            public void onIgnored(TypeDescription typeDescription, ClassLoader classLoader, JavaModule module) {
+            }
 
-                @Override
-                public void onError(String typeName, ClassLoader classLoader, JavaModule module, Throwable throwable) {
-                    easyLogger.error("Failed to enhance class " + typeName, throwable);
-                }
+            @Override
+            public void onError(String typeName, ClassLoader classLoader, JavaModule module, Throwable throwable) {
+                easyLogger.error("Failed to enhance class " + typeName, throwable);
+            }
 
-                @Override
-                public void onComplete(String typeName, ClassLoader classLoader, JavaModule module) {
-                }
-            }).installOn(instrumentation);
-
-        }
+            @Override
+            public void onComplete(String typeName, ClassLoader classLoader, JavaModule module) {
+            }
+        }).installOn(instrumentation);
     }
 
 
-    private static <T extends NamedElement> ElementMatcher.Junction<T> enhanceClassMatcher(
-            PluginDefineCategory pluginDefineCategory) {
+    private static <T extends NamedElement> ElementMatcher.Junction<T> enhanceClassMatcher(PluginDefineCategory pluginDefineCategory) {
         return new SkyWalkingEnhanceMatcher<T>(pluginDefineCategory);
     }
 
@@ -85,13 +76,13 @@ public class SkyWalkingAgent {
     private static void initConfig() {
         Config.SkyWalking.IS_PREMAIN_MODE = true;
         Config.SkyWalking.AGENT_BASE_PATH = initAgentBasePath();
+
+        ConfigInitializer.initialize();
     }
 
     private static String initAgentBasePath() {
         try {
-            String urlString =
-                    SkyWalkingAgent.class.getClassLoader().getSystemClassLoader().getResource(generateLocationPath())
-                            .toString();
+            String urlString = SkyWalkingAgent.class.getClassLoader().getSystemClassLoader().getResource(generateLocationPath()).toString();
             urlString = urlString.substring(urlString.indexOf("file:"), urlString.indexOf('!'));
             return new File(new URL(urlString).getFile()).getParentFile().getAbsolutePath();
         } catch (Exception e) {

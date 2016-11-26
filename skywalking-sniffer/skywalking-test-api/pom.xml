@@ -21,7 +21,7 @@
     <dependencies>
         <dependency>
             <groupId>com.a.eye</groupId>
-            <artifactId>skywalking-api</artifactId>
+            <artifactId>skywalking-network</artifactId>
             <version>${project.version}</version>
         </dependency>
 

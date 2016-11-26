@@ -1,6 +1,7 @@
 package com.a.eye.skywalking.model;
 
 
+import com.a.eye.skywalking.api.Tracing;
 import com.a.eye.skywalking.network.grpc.TraceId;
 
 public class ContextData {
@@ -64,11 +65,8 @@ public class ContextData {
     @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
-        StringBuilder traceIdBuilder = new StringBuilder();
-        for (Long segment : traceId.getSegmentsList()) {
-            traceIdBuilder.append(segment).append(".");
-        }
-        stringBuilder.append(traceIdBuilder.substring(0, traceIdBuilder.length() - 1));
+
+        stringBuilder.append(Tracing.formatTraceId(traceId));
         stringBuilder.append("-");
         if (parentLevel == null || parentLevel.length() == 0) {
             stringBuilder.append(" ");

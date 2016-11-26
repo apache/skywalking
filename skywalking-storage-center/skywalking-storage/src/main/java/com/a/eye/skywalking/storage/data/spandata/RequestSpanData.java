@@ -62,7 +62,7 @@ public class RequestSpanData extends AbstractSpanData {
     }
 
     public String getBusinessKey() {
-        return requestSpan.getBussinessKey();
+        return requestSpan.getBusinessKey();
     }
 
     public String getCallType() {

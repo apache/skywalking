@@ -4,10 +4,9 @@ import com.a.eye.skywalking.logging.api.ILog;
 import com.a.eye.skywalking.logging.api.LogManager;
 import com.a.eye.skywalking.model.ContextData;
 import com.a.eye.skywalking.model.Identification;
+import com.a.eye.skywalking.model.Span;
 import com.a.eye.skywalking.model.SpanType;
 import com.a.eye.skywalking.protocol.util.ContextGenerator;
-import com.a.eye.skywalking.conf.AuthDesc;
-import com.a.eye.skywalking.model.Span;
 
 public class RPCServerInvokeMonitor extends BaseInvokeMonitor {
 
@@ -16,9 +15,6 @@ public class RPCServerInvokeMonitor extends BaseInvokeMonitor {
 
     public void beforeInvoke(ContextData context, Identification id) {
         try {
-            if (!AuthDesc.isAuth())
-                return;
-
             Span spanData = ContextGenerator.generateSpanFromContextData(
                     context, id);
             // 设置是否为接收端
