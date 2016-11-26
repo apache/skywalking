@@ -30,7 +30,7 @@ public class StorageThread extends Thread {
 
             long value = System.currentTimeMillis();
             RequestSpan requestSpan = RequestSpan.newBuilder().setSpanType(1).setAddress(NetUtils.getLocalAddress().toString()).setApplicationId("1").setCallType("1").setLevelId(0)
-                    .setProcessNo("19287").setStartDate(System.currentTimeMillis())
+                    .setProcessNo(19287).setStartDate(System.currentTimeMillis())
                     .setTraceId(TraceId.newBuilder().addSegments(201611).addSegments(value).addSegments(8504828).addSegments(2277).addSegments(53).addSegments(3).build())
                     .setUserId("1").setViewPointId("http://localhost:8080/wwww/test/helloWorld").build();
 
