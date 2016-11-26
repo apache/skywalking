@@ -1,19 +1,21 @@
 package com.a.eye.skywalking.network;
 
 import com.a.eye.skywalking.network.grpc.SpanStorageServiceGrpc;
+import com.a.eye.skywalking.network.grpc.TraceSearchServiceGrpc;
 import com.a.eye.skywalking.network.grpc.client.SpanStorageClient;
+import com.a.eye.skywalking.network.grpc.client.TraceSearchClient;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-
-import static com.a.eye.skywalking.network.grpc.SpanStorageServiceGrpc.newStub;
 
 public class Client {
     private ManagedChannel                                channel;
     private SpanStorageServiceGrpc.SpanStorageServiceStub spanStorageStub;
+    private TraceSearchServiceGrpc.TraceSearchServiceStub traceSearchServiceStub;
 
     public Client(String ip, int address) {
         channel = ManagedChannelBuilder.forAddress(ip, address).usePlaintext(true).build();
-        spanStorageStub = newStub(channel);
+        spanStorageStub = SpanStorageServiceGrpc.newStub(channel);
+        traceSearchServiceStub = TraceSearchServiceGrpc.newStub(channel);
     }
 
 
@@ -22,4 +24,7 @@ public class Client {
     }
 
 
+    public TraceSearchClient newTraceSearchClient(){
+        return new TraceSearchClient(traceSearchServiceStub);
+    }
 }
