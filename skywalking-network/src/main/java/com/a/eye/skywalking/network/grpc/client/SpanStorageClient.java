@@ -27,6 +27,7 @@ public class SpanStorageClient {
         StreamObserver<RequestSpan> requestSpanStreamObserver = spanStorageStub.storageRequestSpan(new StreamObserver<SendResult>() {
             @Override
             public void onNext(SendResult sendResult) {
+                listener.onBatchFinished();
             }
 
             @Override
@@ -36,16 +37,11 @@ public class SpanStorageClient {
 
             @Override
             public void onCompleted() {
-                listener.onBatchFinished();
             }
         });
 
         for (RequestSpan span : requestSpan) {
             requestSpanStreamObserver.onNext(span);
-        }
-
-        while (!((CallStreamObserver<RequestSpan>) requestSpanStreamObserver).isReady()) {
-            LockSupport.parkNanos(1);
         }
 
         requestSpanStreamObserver.onCompleted();
@@ -55,7 +51,7 @@ public class SpanStorageClient {
         StreamObserver<AckSpan> ackSpanStreamObserver = spanStorageStub.storageACKSpan(new StreamObserver<SendResult>() {
             @Override
             public void onNext(SendResult sendResult) {
-
+                listener.onBatchFinished();
             }
 
             @Override
@@ -65,16 +61,11 @@ public class SpanStorageClient {
 
             @Override
             public void onCompleted() {
-                listener.onBatchFinished();
             }
         });
 
         for (AckSpan span : ackSpan) {
             ackSpanStreamObserver.onNext(span);
-        }
-
-        while (!((CallStreamObserver<AckSpan>) ackSpanStreamObserver).isReady()) {
-            LockSupport.parkNanos(1);
         }
 
         ackSpanStreamObserver.onCompleted();

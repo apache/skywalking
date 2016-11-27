@@ -18,13 +18,15 @@ public class StorageThread extends Thread {
     private long              count;
     private CountDownLatch    countDownLatch;
     private MyStorageClientListener listener;
+    private int index;
 
 
-    StorageThread(long count, CountDownLatch countDownLatch) {
+    StorageThread(long count, CountDownLatch countDownLatch, int index) {
         listener = new MyStorageClientListener();
         client = new Client("127.0.0.1", 34000).newSpanStorageClient(listener);
         this.count = count;
         this.countDownLatch = countDownLatch;
+        this.index = index;
     }
 
     @Override
@@ -44,7 +46,7 @@ public class StorageThread extends Thread {
                     TraceId.newBuilder().addSegments(201611).addSegments(value).addSegments(8504828).addSegments(2277).addSegments(Thread.currentThread().getId()).addSegments(3)
                             .build()).setStatusCode(0).setViewpointId("http://localhost:8080/wwww/test/helloWorld").build();
 
-            if (cycle == 10) {
+            if (cycle == 100) {
                 client.sendACKSpan(ackSpanList);
                 client.sendRequestSpan(requestSpanList);
                 cycle = 0;
@@ -62,7 +64,7 @@ public class StorageThread extends Thread {
             cycle++;
 
             if (i % 10_000 == 0) {
-                System.out.println(i + " " + value);
+                System.out.println("index-" + index + " num=" + i + " " + value);
             }
         }
 

@@ -11,7 +11,7 @@ public class StorageClient {
         CountDownLatch countDownLatch = new CountDownLatch(THREAD_COUNT);
 
         for (int i = 0; i < THREAD_COUNT; i++) {
-            new StorageThread(COUNT, countDownLatch).start();
+            new StorageThread(COUNT, countDownLatch, i).start();
         }
 
         countDownLatch.await();
