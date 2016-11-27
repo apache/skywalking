@@ -9,6 +9,8 @@ import io.grpc.ManagedChannel;
 import io.grpc.stub.CallStreamObserver;
 import io.grpc.stub.StreamObserver;
 
+import java.util.List;
+
 public class SpanStorageClient {
 
     private final SpanStorageServiceGrpc.SpanStorageServiceStub spanStorageStub;
@@ -20,7 +22,7 @@ public class SpanStorageClient {
         this.listener = listener;
     }
 
-    public void sendRequestSpan(RequestSpan... requestSpan) {
+    public void sendRequestSpan(List<RequestSpan> requestSpan) {
         StreamObserver<RequestSpan> requestSpanStreamObserver =
                 spanStorageStub.storageRequestSpan(new StreamObserver<SendResult>() {
                     @Override
@@ -46,7 +48,7 @@ public class SpanStorageClient {
         requestSpanStreamObserver.onCompleted();
     }
 
-    public void sendACKSpan(AckSpan... ackSpan) {
+    public void sendACKSpan(List<AckSpan> ackSpan) {
         StreamObserver<AckSpan> ackSpanStreamObserver =
                 spanStorageStub.storageACKSpan(new StreamObserver<SendResult>() {
                     @Override

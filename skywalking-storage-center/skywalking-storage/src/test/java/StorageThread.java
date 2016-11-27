@@ -29,8 +29,8 @@ public class StorageThread extends Thread {
 
     @Override
     public void run() {
-        RequestSpan[] requestSpanList = new RequestSpan[10];
-        AckSpan[] ackSpanList = new AckSpan[10];
+        List<RequestSpan> requestSpanList = new ArrayList<RequestSpan>();
+        List<AckSpan> ackSpanList = new ArrayList<AckSpan>();
         int cycle = 0;
         for (int i = 0; i < count; i++) {
 
@@ -55,8 +55,8 @@ public class StorageThread extends Thread {
                 listener.begin();
             }
 
-            requestSpanList[cycle] = requestSpan;
-            ackSpanList[cycle] = ackSpan;
+            requestSpanList.add(requestSpan);
+            ackSpanList.add(ackSpan);
             cycle++;
 
             if (i % 10_000 == 0) {

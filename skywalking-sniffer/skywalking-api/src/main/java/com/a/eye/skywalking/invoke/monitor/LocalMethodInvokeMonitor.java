@@ -6,7 +6,7 @@ import com.a.eye.skywalking.model.ContextData;
 import com.a.eye.skywalking.model.EmptyContextData;
 import com.a.eye.skywalking.model.Identification;
 import com.a.eye.skywalking.model.Span;
-import com.a.eye.skywalking.protocol.util.ContextGenerator;
+import com.a.eye.skywalking.util.ContextGenerator;
 
 public class LocalMethodInvokeMonitor extends BaseInvokeMonitor {
 

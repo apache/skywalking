@@ -5,8 +5,7 @@ import com.a.eye.skywalking.context.CurrentThreadSpanStack;
 import com.a.eye.skywalking.logging.api.ILog;
 import com.a.eye.skywalking.logging.api.LogManager;
 import com.a.eye.skywalking.model.*;
-import com.a.eye.skywalking.network.grpc.RequestSpan;
-import com.a.eye.skywalking.protocol.util.ContextGenerator;
+import com.a.eye.skywalking.util.ContextGenerator;
 
 public class RPCClientInvokeMonitor extends BaseInvokeMonitor {
 

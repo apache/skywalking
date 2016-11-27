@@ -1,4 +1,4 @@
-package com.a.eye.skywalking.protocol.util;
+package com.a.eye.skywalking.util;
 
 import java.util.UUID;
 

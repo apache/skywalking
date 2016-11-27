@@ -1,6 +1,7 @@
 package com.a.eye.skywalking.agent;
 
 import com.a.eye.skywalking.agent.junction.SkyWalkingEnhanceMatcher;
+import com.a.eye.skywalking.client.Agent2RoutingClient;
 import com.a.eye.skywalking.conf.Config;
 import com.a.eye.skywalking.conf.ConfigInitializer;
 import com.a.eye.skywalking.logging.EasyLogResolver;
@@ -35,6 +36,8 @@ public class SkyWalkingAgent {
         logger = LogManager.getLogger(SkyWalkingAgent.class);
 
         initConfig();
+
+        Agent2RoutingClient.INSTANCE.onReady();
         final PluginDefineCategory pluginDefineCategory = PluginDefineCategory.category(new PluginBootstrap().loadPlugins());
 
         new AgentBuilder.Default().type(enhanceClassMatcher(pluginDefineCategory).and(not(isInterface()))).transform(new AgentBuilder.Transformer() {

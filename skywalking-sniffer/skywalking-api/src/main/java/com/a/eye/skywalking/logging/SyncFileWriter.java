@@ -2,7 +2,7 @@ package com.a.eye.skywalking.logging;
 
 
 import com.a.eye.skywalking.conf.Config;
-import com.a.eye.skywalking.protocol.util.LoggingUtil;
+import com.a.eye.skywalking.util.LoggingUtil;
 
 import java.io.File;
 import java.io.FileNotFoundException;

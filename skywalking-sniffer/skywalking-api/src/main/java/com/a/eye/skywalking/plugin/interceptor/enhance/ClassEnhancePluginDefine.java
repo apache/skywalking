@@ -4,13 +4,12 @@ import static net.bytebuddy.jar.asm.Opcodes.ACC_PRIVATE;
 import static net.bytebuddy.matcher.ElementMatchers.any;
 import static net.bytebuddy.matcher.ElementMatchers.not;
 
-import com.a.eye.skywalking.logging.EasyLogger;
 import com.a.eye.skywalking.logging.api.ILog;
 import com.a.eye.skywalking.logging.api.LogManager;
 import com.a.eye.skywalking.plugin.AbstractClassEnhancePluginDefine;
 import com.a.eye.skywalking.plugin.PluginException;
 import com.a.eye.skywalking.plugin.interceptor.EnhancedClassInstanceContext;
-import com.a.eye.skywalking.protocol.util.StringUtil;
+import com.a.eye.skywalking.util.StringUtil;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.dynamic.DynamicType;
 import net.bytebuddy.implementation.MethodDelegation;

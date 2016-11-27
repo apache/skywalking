@@ -1,10 +1,7 @@
 package com.a.eye.skywalking.model;
 
 import com.a.eye.skywalking.api.IBuriedPointType;
-import com.a.eye.skywalking.protocol.util.StringUtil;
-
-import java.util.HashMap;
-import java.util.Map;
+import com.a.eye.skywalking.util.StringUtil;
 
 public class Identification {
     private String              viewPoint;

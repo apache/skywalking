@@ -1,5 +1,6 @@
 package com.a.eye.skywalking.disruptor.request;
 
+import com.a.eye.skywalking.client.Agent2RoutingClient;
 import com.a.eye.skywalking.health.report.HealthCollector;
 import com.a.eye.skywalking.health.report.HeathReading;
 import com.a.eye.skywalking.logging.api.ILog;
@@ -14,25 +15,39 @@ import java.util.List;
  * Created by wusheng on 2016/11/24.
  */
 public class SendRequestSpanEventHandler implements EventHandler<RequestSpanHolder> {
-    private static       ILog              logger     = LogManager.getLogger(SendRequestSpanEventHandler.class);
-    private static final int               bufferSize = 100;
-    private              List<RequestSpan> buffer     = new ArrayList<>(bufferSize);
+    private static       ILog          logger     = LogManager.getLogger(SendRequestSpanEventHandler.class);
+    private static final int           bufferSize = 100;
+    private              RequestSpan[] buffer     = new RequestSpan[bufferSize];
+    private              int           bufferIdx  = 0;
 
     public SendRequestSpanEventHandler() {
+        Agent2RoutingClient.INSTANCE.setRequestSpanDataSupplier(this);
     }
 
     @Override
     public void onEvent(RequestSpanHolder event, long sequence, boolean endOfBatch) throws Exception {
-        buffer.add(event.getData());
-
-        if (endOfBatch || buffer.size() == bufferSize) {
-            try {
-                //TODO， use GRPC to send
-
-                HealthCollector.getCurrentHeathReading("SendRequestSpanEventHandler").updateData(HeathReading.INFO, "%s messages were successful consumed .", buffer.size());
-            } finally {
-                buffer.clear();
-            }
+        if(buffer[bufferIdx]  != null){
+            return;
         }
+
+        buffer[bufferIdx] = event.getData();
+        bufferIdx++;
+
+        if(bufferIdx == buffer.length){
+            bufferIdx = 0;
+        }
+
+        if (endOfBatch) {
+            HealthCollector.getCurrentHeathReading("SendRequestSpanEventHandler").updateData(HeathReading.INFO, "Request Span messages were successful consumed .");
+        }
+    }
+
+    public List<RequestSpan> getBufferData(){
+        List<RequestSpan> data = new ArrayList<RequestSpan>(bufferSize);
+        for (int i = 0; i < buffer.length; i++) {
+            data.add(buffer[i]);
+            buffer[i] = null;
+        }
+        return data;
     }
 }

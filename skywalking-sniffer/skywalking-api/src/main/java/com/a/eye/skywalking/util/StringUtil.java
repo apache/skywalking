@@ -1,4 +1,4 @@
-package com.a.eye.skywalking.protocol.util;
+package com.a.eye.skywalking.util;
 
 public final class StringUtil {
     public static boolean isEmpty(String str) {

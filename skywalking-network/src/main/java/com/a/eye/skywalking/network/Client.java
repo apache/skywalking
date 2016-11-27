@@ -21,4 +21,12 @@ public class Client {
     public TraceSearchClient newTraceSearchClient(StorageClientListener listener){
         return new TraceSearchClient(channel, listener);
     }
+
+    public void shutdown(){
+        channel.shutdownNow();
+    }
+
+    public boolean isShutdown(){
+        return channel.isShutdown() || channel.isTerminated();
+    }
 }

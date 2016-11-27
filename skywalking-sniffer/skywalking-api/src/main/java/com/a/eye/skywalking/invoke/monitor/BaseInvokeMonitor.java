@@ -11,7 +11,7 @@ import com.a.eye.skywalking.model.Identification;
 import com.a.eye.skywalking.model.Span;
 import com.a.eye.skywalking.network.grpc.AckSpan;
 import com.a.eye.skywalking.network.grpc.RequestSpan;
-import com.a.eye.skywalking.protocol.util.BuriedPointMachineUtil;
+import com.a.eye.skywalking.util.BuriedPointMachineUtil;
 
 import java.util.HashSet;
 import java.util.Set;

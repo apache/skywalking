@@ -1,4 +1,4 @@
-package com.a.eye.skywalking.protocol.util;
+package com.a.eye.skywalking.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

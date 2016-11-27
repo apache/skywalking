@@ -2,7 +2,7 @@ package com.a.eye.skywalking.plugin;
 
 import com.a.eye.skywalking.logging.api.ILog;
 import com.a.eye.skywalking.logging.api.LogManager;
-import com.a.eye.skywalking.protocol.util.StringUtil;
+import com.a.eye.skywalking.util.StringUtil;
 import net.bytebuddy.dynamic.DynamicType;
 import net.bytebuddy.pool.TypePool.Resolution;
 

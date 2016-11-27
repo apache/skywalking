@@ -1,4 +1,4 @@
-package com.a.eye.skywalking.protocol.util;
+package com.a.eye.skywalking.util;
 
 import com.a.eye.skywalking.conf.Config;
 import com.a.eye.skywalking.model.ContextData;
