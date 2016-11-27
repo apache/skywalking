@@ -36,9 +36,10 @@ public class HealthCollector extends Thread {
             synchronized (heathReadings) {
                 if (!heathReadings.containsKey(id)) {
                     if (heathReadings.keySet().size() > 5000) {
-                        throw new RuntimeException("use HealthCollector illegal. There is an overflow trend of Server Health Collector Report Data.");
+                        logger.warn("use HealthCollector illegal. There is an overflow trend of Server Health Collector Report Data.");
+                    }else {
+                        heathReadings.put(id, new HeathReading(id));
                     }
-                    heathReadings.put(id, new HeathReading(id));
                 }
             }
         }
@@ -69,7 +70,6 @@ public class HealthCollector extends Thread {
                 try {
                     Thread.sleep(reportInterval);
                 } catch (InterruptedException e) {
-                    logger.warn("sleep error.", e);
                 }
             } catch (Throwable t) {
                 logger.error("HealthCollector report error.", t);
