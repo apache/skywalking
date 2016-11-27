@@ -25,7 +25,7 @@ public class ConfigInitializer {
 
         Config.SkyWalking.USER_ID = System.getProperty("userId");
         Config.SkyWalking.APPLICATION_CODE = System.getProperty("applicationCode");
-        Config.SkyWalking.SERVERS = System.getProperty("server");
+        Config.SkyWalking.SERVERS = System.getProperty("servers");
 
         if (configFileStream == null) {
             logger.info("Not provide sky-walking certification documents, sky-walking api run in default config.");
@@ -46,7 +46,7 @@ public class ConfigInitializer {
             throw new ExceptionInInitializerError("'-DapplicationCode=' is missing.");
         }
         if(StringUtil.isEmpty(Config.SkyWalking.SERVERS)){
-            throw new ExceptionInInitializerError("'-Dserver=' is missing.");
+            throw new ExceptionInInitializerError("'-Dservers=' is missing.");
         }
     }
 

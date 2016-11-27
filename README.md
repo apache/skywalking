@@ -65,62 +65,54 @@ ___
 <br/>
 <br/>
 
-# 整体架构图
+# Arch
 ![2.0 架构图](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/2.0-2016/SkyWalkingArch.jpg)
 
-# 典型页面展现 / Typical UI show
-* 支持浏览器：Firefox/Chrome
-
-## 实时调用链路
-* 实时链路追踪展现
+# Quick View
+* distributed tracer
 ![追踪连路图1](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/1.0b/callChain.png)
-* 实时链路追踪详细信息查看
-![追踪连路图2](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/1.0b/callChainDetail.png)
-* 实时链路追踪日志查看
-![追踪连路图3](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/1.0b/callChainLog.png)
-* 实时链路异常告警邮件
-![告警邮件](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/1.0b/alarmMail.png)
-* 添加应用
-![添加应用](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/1.0b/addApp.png)
-* 应用列表展现
-![应用列表展现](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/1.0b/appList.png)
 
-## 分析汇总
-* 分析结果查询，根据viewpoint模糊匹配查询。查询方式为viewpoint: + 关键字
-![应用列表展现](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/1.0b/searchAnalysisResult.png)
-* 分析结果展现，通过分析结果查询页面点击进入
-![应用列表展现](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/1.0b/analysisResult.png)
-* 分析典型调用链展现
-![应用列表展现](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/1.0b/typicalAnalysisResult.png)
+![追踪连路图2](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/1.0b/callChainDetail.png)
+
+![追踪连路图3](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/1.0b/callChainLog.png)
+
+* alarm mail
+![告警邮件](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/1.0b/alarmMail.png)
+
 
 # v2.0-2016 Quick Start
 
-## Required of third party softwares
-- JDK 1.8
+## 1. Required of third party softwares
+- JDK 1.6+ ( instruments applications can run in jdk6 )
+- JDK 1.8 ( skywalking servers )
 - zookeeper 3.4.6
 - mysql
 - redis-3.0.5
 
-## instrument javaagent jdk version
-- support 1.6+ , instruments applications can run in jdk6
-
-## Download and deploy servers
+## 2. Download and deploy servers
 - Download Server release version. [Download](https://github.com/wu-sheng/sky-walking/releases)  (.tar.gz)
 
-### run all servers in a Docker
-- Docker version is good quick-test.
+### 2.1 Run all servers in a Docker
+- Docker version include all-in-one servers.
+- Suitable for quick-look or test env. High performance and Scalable are not your requirements.
 
-### deploy your own cluster
+### 2.2 Deploy your own cluster
+- waiting for release.
 
-
-## Download agent
+## 3. Download agent
 [ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/com.a.eye.skywalking-agent/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/com.a.eye.skywalking-agent/_latestVersion)
 
+## 4. Create users, applications and alarm rules in webui
+- create user, remember your user id.
+- create applications under the user, remember your application code.
+- create alarm rules for each applications.
 
-## start application with -javaagent
+## 4. Start application with -javaagent
 ```shell
-java -jar ...  -javaagent:/..ospath../skywalking-agent-x.x.jar
+java -jar ...  -javaagent:/..ospath../skywalking-agent-x.x.jar -DuserId=x -DapplicationCode=y -Dservers=192.168.1.16:3300,192.168.1.17:3300
 ```
+
+## 5. Aha, your applications are being instrumented
 
 # Recent RoadMap
 * [In the schedule] v2.1-2017
