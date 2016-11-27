@@ -22,7 +22,7 @@ public class StorageThread extends Thread {
 
     StorageThread(long count, CountDownLatch countDownLatch) {
         listener = new MyStorageClientListener();
-        client = new Client("10.128.7.241", 34000).newSpanStorageClient(listener);
+        client = new Client("127.0.0.1", 34000).newSpanStorageClient(listener);
         this.count = count;
         this.countDownLatch = countDownLatch;
     }
@@ -53,6 +53,8 @@ public class StorageThread extends Thread {
                     LockSupport.parkNanos(1);
                 }
                 listener.begin();
+                ackSpanList.clear();
+                requestSpanList.clear();
             }
 
             requestSpanList.add(requestSpan);
