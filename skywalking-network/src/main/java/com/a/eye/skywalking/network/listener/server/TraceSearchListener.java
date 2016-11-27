@@ -1,4 +1,4 @@
-package com.a.eye.skywalking.network.listener;
+package com.a.eye.skywalking.network.listener.server;
 
 import com.a.eye.skywalking.network.grpc.Span;
 

@@ -3,9 +3,9 @@ package com.a.eye.skywalking.network;
 import com.a.eye.skywalking.network.grpc.server.AsyncTraceSearchServer;
 import com.a.eye.skywalking.network.grpc.server.SpanStorageServer;
 import com.a.eye.skywalking.network.grpc.server.TraceSearchServer;
-import com.a.eye.skywalking.network.listener.AsyncTraceSearchListener;
-import com.a.eye.skywalking.network.listener.SpanStorageListener;
-import com.a.eye.skywalking.network.listener.TraceSearchListener;
+import com.a.eye.skywalking.network.listener.server.AsyncTraceSearchServerListener;
+import com.a.eye.skywalking.network.listener.server.SpanStorageServerListener;
+import com.a.eye.skywalking.network.listener.server.TraceSearchListener;
 import io.grpc.netty.NettyServerBuilder;
 import io.netty.channel.nio.NioEventLoopGroup;
 
@@ -51,8 +51,8 @@ public class Server {
                     .workerEventLoopGroup(new NioEventLoopGroup()).build());
         }
 
-        public TransferServiceBuilder addSpanStorageService(SpanStorageListener spanStorageListener) {
-            serverBuilder.addService(new SpanStorageServer(spanStorageListener));
+        public TransferServiceBuilder addSpanStorageService(SpanStorageServerListener spanStorageServerListener) {
+            serverBuilder.addService(new SpanStorageServer(spanStorageServerListener));
             return this;
         }
 
@@ -61,8 +61,8 @@ public class Server {
             return this;
         }
 
-        public TransferServiceBuilder addAsyncTraceSearchService(AsyncTraceSearchListener asyncTraceSearchListener){
-            serverBuilder.addService(new AsyncTraceSearchServer(asyncTraceSearchListener));
+        public TransferServiceBuilder addAsyncTraceSearchService(AsyncTraceSearchServerListener asyncTraceSearchServerListener){
+            serverBuilder.addService(new AsyncTraceSearchServer(asyncTraceSearchServerListener));
             return this;
         }
     }

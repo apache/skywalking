@@ -3,7 +3,7 @@ package com.a.eye.skywalking.network.grpc.server;
 import com.a.eye.skywalking.network.grpc.SearchResult;
 import com.a.eye.skywalking.network.grpc.TraceId;
 import com.a.eye.skywalking.network.grpc.TraceSearchServiceGrpc;
-import com.a.eye.skywalking.network.listener.TraceSearchListener;
+import com.a.eye.skywalking.network.listener.server.TraceSearchListener;
 import io.grpc.stub.StreamObserver;
 
 /**

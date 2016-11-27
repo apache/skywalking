@@ -4,13 +4,13 @@ import com.a.eye.skywalking.network.grpc.AckSpan;
 import com.a.eye.skywalking.network.grpc.RequestSpan;
 import com.a.eye.skywalking.network.grpc.SendResult;
 import com.a.eye.skywalking.network.grpc.SpanStorageServiceGrpc;
-import com.a.eye.skywalking.network.listener.SpanStorageListener;
+import com.a.eye.skywalking.network.listener.server.SpanStorageServerListener;
 import io.grpc.stub.StreamObserver;
 
 public class SpanStorageServer extends SpanStorageServiceGrpc.SpanStorageServiceImplBase {
 
-    private SpanStorageListener listener;
-    public SpanStorageServer(SpanStorageListener listener) {
+    private SpanStorageServerListener listener;
+    public SpanStorageServer(SpanStorageServerListener listener) {
         this.listener = listener;
     }
 

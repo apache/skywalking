@@ -1,10 +1,11 @@
 package com.a.eye.skywalking.network.grpc.client;
 
-import com.a.eye.skywalking.network.exception.ConsumeSpanDataFailedException;
 import com.a.eye.skywalking.network.grpc.AckSpan;
 import com.a.eye.skywalking.network.grpc.RequestSpan;
 import com.a.eye.skywalking.network.grpc.SendResult;
 import com.a.eye.skywalking.network.grpc.SpanStorageServiceGrpc;
+import com.a.eye.skywalking.network.listener.client.StorageClientListener;
+import io.grpc.ManagedChannel;
 import io.grpc.stub.CallStreamObserver;
 import io.grpc.stub.StreamObserver;
 
@@ -12,8 +13,11 @@ public class SpanStorageClient {
 
     private final SpanStorageServiceGrpc.SpanStorageServiceStub spanStorageStub;
 
-    public SpanStorageClient(SpanStorageServiceGrpc.SpanStorageServiceStub spanStorageStub) {
-        this.spanStorageStub = spanStorageStub;
+    private final StorageClientListener listener;
+
+    public SpanStorageClient(ManagedChannel channel, StorageClientListener listener) {
+        this.spanStorageStub = SpanStorageServiceGrpc.newStub(channel);
+        this.listener = listener;
     }
 
     public void sendRequestSpan(RequestSpan... requestSpan) {
@@ -21,11 +25,12 @@ public class SpanStorageClient {
                 spanStorageStub.storageRequestSpan(new StreamObserver<SendResult>() {
                     @Override
                     public void onNext(SendResult sendResult) {
+                        listener.onBatchFinished(sendResult);
                     }
 
                     @Override
                     public void onError(Throwable throwable) {
-                        throwable.printStackTrace();
+                        listener.onError(throwable);
                     }
 
                     @Override
@@ -37,13 +42,6 @@ public class SpanStorageClient {
         for (RequestSpan span : requestSpan) {
             requestSpanStreamObserver.onNext(span);
         }
-        while (!((CallStreamObserver<RequestSpan>) requestSpanStreamObserver).isReady()) {
-            try {
-                Thread.sleep(1);
-            } catch (InterruptedException e) {
-                throw new ConsumeSpanDataFailedException(e);
-            }
-        }
 
         requestSpanStreamObserver.onCompleted();
     }
@@ -53,11 +51,12 @@ public class SpanStorageClient {
                 spanStorageStub.storageACKSpan(new StreamObserver<SendResult>() {
                     @Override
                     public void onNext(SendResult sendResult) {
+                        listener.onBatchFinished(sendResult);
                     }
 
                     @Override
                     public void onError(Throwable throwable) {
-                        throwable.printStackTrace();
+                        listener.onError(throwable);
                     }
 
                     @Override
@@ -68,13 +67,6 @@ public class SpanStorageClient {
 
         for (AckSpan span : ackSpan) {
             ackSpanStreamObserver.onNext(span);
-        }
-        while (!((CallStreamObserver<AckSpan>) ackSpanStreamObserver).isReady()) {
-            try {
-                Thread.sleep(1);
-            } catch (InterruptedException e) {
-                throw new ConsumeSpanDataFailedException(e);
-            }
         }
 
         ackSpanStreamObserver.onCompleted();

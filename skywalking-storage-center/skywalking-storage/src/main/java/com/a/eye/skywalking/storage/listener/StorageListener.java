@@ -6,7 +6,7 @@ import com.a.eye.skywalking.logging.api.ILog;
 import com.a.eye.skywalking.logging.api.LogManager;
 import com.a.eye.skywalking.network.grpc.AckSpan;
 import com.a.eye.skywalking.network.grpc.RequestSpan;
-import com.a.eye.skywalking.network.listener.SpanStorageListener;
+import com.a.eye.skywalking.network.listener.server.SpanStorageServerListener;
 import com.a.eye.skywalking.storage.config.Config;
 import com.a.eye.skywalking.storage.data.spandata.AckSpanData;
 import com.a.eye.skywalking.storage.data.spandata.RequestSpanData;
@@ -18,7 +18,7 @@ import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.util.DaemonThreadFactory;
 
-public class StorageListener implements SpanStorageListener {
+public class StorageListener implements SpanStorageServerListener {
 
     private ILog logger = LogManager.getLogger(StorageListener.class);
 

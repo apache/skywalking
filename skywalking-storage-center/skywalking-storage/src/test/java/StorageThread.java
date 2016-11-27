@@ -1,22 +1,28 @@
 import com.a.eye.skywalking.network.Client;
 import com.a.eye.skywalking.network.grpc.AckSpan;
 import com.a.eye.skywalking.network.grpc.RequestSpan;
+import com.a.eye.skywalking.network.grpc.SendResult;
 import com.a.eye.skywalking.network.grpc.TraceId;
 import com.a.eye.skywalking.network.grpc.client.SpanStorageClient;
+import com.a.eye.skywalking.network.listener.client.StorageClientListener;
 import com.a.eye.skywalking.storage.util.NetUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.locks.LockSupport;
 
 public class StorageThread extends Thread {
 
     private SpanStorageClient client;
     private long              count;
     private CountDownLatch    countDownLatch;
+    private MyStorageClientListener listener;
+
 
     StorageThread(long count, CountDownLatch countDownLatch) {
-        client = new Client("10.128.7.241", 34000).newSpanStorageClient();
+        listener = new MyStorageClientListener();
+        client = new Client("10.128.7.241", 34000).newSpanStorageClient(listener);
         this.count = count;
         this.countDownLatch = countDownLatch;
     }
@@ -42,6 +48,11 @@ public class StorageThread extends Thread {
                 client.sendACKSpan(ackSpanList);
                 client.sendRequestSpan(requestSpanList);
                 cycle = 0;
+
+                while(!listener.isCompleted){
+                    LockSupport.parkNanos(1);
+                }
+                listener.begin();
             }
 
             requestSpanList[cycle] = requestSpan;
@@ -54,5 +65,23 @@ public class StorageThread extends Thread {
         }
 
         countDownLatch.countDown();
+    }
+
+    public class MyStorageClientListener implements StorageClientListener{
+        volatile boolean isCompleted = false;
+
+        @Override
+        public void onError(Throwable throwable) {
+
+        }
+
+        @Override
+        public void onBatchFinished(SendResult sendResult) {
+            isCompleted = true;
+        }
+
+        public void begin(){
+            isCompleted = false;
+        }
     }
 }
