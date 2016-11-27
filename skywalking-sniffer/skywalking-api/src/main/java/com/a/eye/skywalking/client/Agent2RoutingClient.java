@@ -134,7 +134,7 @@ public class Agent2RoutingClient extends Thread {
         }
 
         @Override
-        public void onBatchFinished(SendResult sendResult) {
+        public void onBatchFinished() {
             batchFinished = true;
             HealthCollector.getCurrentHeathReading("Agent2RoutingClient").updateData(HeathReading.INFO, "batch send data to routing node.");
         }

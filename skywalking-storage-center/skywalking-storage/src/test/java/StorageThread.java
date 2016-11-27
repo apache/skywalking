@@ -76,7 +76,7 @@ public class StorageThread extends Thread {
         }
 
         @Override
-        public void onBatchFinished(SendResult sendResult) {
+        public void onBatchFinished() {
             isCompleted = true;
         }
 

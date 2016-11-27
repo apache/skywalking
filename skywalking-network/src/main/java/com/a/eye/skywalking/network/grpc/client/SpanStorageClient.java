@@ -10,6 +10,7 @@ import io.grpc.stub.CallStreamObserver;
 import io.grpc.stub.StreamObserver;
 
 import java.util.List;
+import java.util.concurrent.locks.LockSupport;
 
 public class SpanStorageClient {
 
@@ -23,52 +24,57 @@ public class SpanStorageClient {
     }
 
     public void sendRequestSpan(List<RequestSpan> requestSpan) {
-        StreamObserver<RequestSpan> requestSpanStreamObserver =
-                spanStorageStub.storageRequestSpan(new StreamObserver<SendResult>() {
-                    @Override
-                    public void onNext(SendResult sendResult) {
-                        listener.onBatchFinished(sendResult);
-                    }
+        StreamObserver<RequestSpan> requestSpanStreamObserver = spanStorageStub.storageRequestSpan(new StreamObserver<SendResult>() {
+            @Override
+            public void onNext(SendResult sendResult) {
+            }
 
-                    @Override
-                    public void onError(Throwable throwable) {
-                        listener.onError(throwable);
-                    }
+            @Override
+            public void onError(Throwable throwable) {
+                listener.onError(throwable);
+            }
 
-                    @Override
-                    public void onCompleted() {
-
-                    }
-                });
+            @Override
+            public void onCompleted() {
+                listener.onBatchFinished();
+            }
+        });
 
         for (RequestSpan span : requestSpan) {
             requestSpanStreamObserver.onNext(span);
+        }
+
+        while (!((CallStreamObserver<RequestSpan>) requestSpanStreamObserver).isReady()) {
+            LockSupport.parkNanos(1);
         }
 
         requestSpanStreamObserver.onCompleted();
     }
 
     public void sendACKSpan(List<AckSpan> ackSpan) {
-        StreamObserver<AckSpan> ackSpanStreamObserver =
-                spanStorageStub.storageACKSpan(new StreamObserver<SendResult>() {
-                    @Override
-                    public void onNext(SendResult sendResult) {
-                        listener.onBatchFinished(sendResult);
-                    }
+        StreamObserver<AckSpan> ackSpanStreamObserver = spanStorageStub.storageACKSpan(new StreamObserver<SendResult>() {
+            @Override
+            public void onNext(SendResult sendResult) {
 
-                    @Override
-                    public void onError(Throwable throwable) {
-                        listener.onError(throwable);
-                    }
+            }
 
-                    @Override
-                    public void onCompleted() {
+            @Override
+            public void onError(Throwable throwable) {
+                listener.onError(throwable);
+            }
 
-                    }
-                });
+            @Override
+            public void onCompleted() {
+                listener.onBatchFinished();
+            }
+        });
 
         for (AckSpan span : ackSpan) {
             ackSpanStreamObserver.onNext(span);
+        }
+
+        while (!((CallStreamObserver<AckSpan>) ackSpanStreamObserver).isReady()) {
+            LockSupport.parkNanos(1);
         }
 
         ackSpanStreamObserver.onCompleted();

@@ -8,5 +8,5 @@ import com.a.eye.skywalking.network.grpc.SendResult;
 public interface StorageClientListener {
     void onError(Throwable throwable);
 
-    void onBatchFinished(SendResult sendResult);
+    void onBatchFinished();
 }
