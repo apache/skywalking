@@ -5,16 +5,19 @@ Sky Walking
 
 SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, also known Distributed Tracer。
 
-[![Join the chat at https://gitter.im/sky-walking/Lobby](https://badges.gitter.im/sky-walking/Lobby.svg)](https://gitter.im/sky-walking/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Build Status](https://travis-ci.org/wu-sheng/sky-walking.svg?branch=master)](https://travis-ci.org/wu-sheng/sky-walking)
 ![license](https://img.shields.io/aur/license/yaourt.svg)
+[![codebeat badge](https://codebeat.co/badges/579e4dce-1dc7-4f32-a163-c164eafa1335)](https://codebeat.co/projects/github-com-wu-sheng-sky-walking)
+[![Join the chat at https://gitter.im/sky-walking/Lobby](https://badges.gitter.im/sky-walking/Lobby.svg)](https://gitter.im/sky-walking/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 # Abstract
 * An open source Large-Scale Distributed Systems Tracing Infrastructure, also known a ditributed tracer.
 * Based on [Google Dapper Paper: Dapper, a Large-Scale Distributed Systems Tracing Infrastructure](http://research.google.com/pubs/pub36356.html), [Simplified Chines](http://duanple.blog.163.com/blog/static/70971767201329113141336/)
 * Supports popular rpc frameworks, such as [dubbo](https://github.com/alibaba/dubbo), [dubbox](https://github.com/dangdangdotcom/dubbox), [motan](https://github.com/weibocom/motan) etc., supports email-alert when application occurs unexpected exception。
 * Execution time of creating span than 100μs.
-* Easy to deploy, **even in product mode** ( since 2.x ) . No need of Hadoop, HBase, or Cassandra Cluster.
+* Easy to deploy, **even in product mode** (since 2.0) . No need of Hadoop, HBase, or Cassandra Cluster.
+* Pure Java server implements. provide gRPC (since 2.0)  and HTTP (since 2.1) cross-platform spans collecting service.
+
 
 # Supported components
 * web container
