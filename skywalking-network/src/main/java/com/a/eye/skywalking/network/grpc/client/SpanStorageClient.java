@@ -27,7 +27,6 @@ public class SpanStorageClient {
         StreamObserver<RequestSpan> requestSpanStreamObserver = spanStorageStub.storageRequestSpan(new StreamObserver<SendResult>() {
             @Override
             public void onNext(SendResult sendResult) {
-                listener.onBatchFinished();
             }
 
             @Override
@@ -37,6 +36,7 @@ public class SpanStorageClient {
 
             @Override
             public void onCompleted() {
+                listener.onBatchFinished();
             }
         });
 
@@ -51,7 +51,6 @@ public class SpanStorageClient {
         StreamObserver<AckSpan> ackSpanStreamObserver = spanStorageStub.storageACKSpan(new StreamObserver<SendResult>() {
             @Override
             public void onNext(SendResult sendResult) {
-                listener.onBatchFinished();
             }
 
             @Override
@@ -61,6 +60,7 @@ public class SpanStorageClient {
 
             @Override
             public void onCompleted() {
+                listener.onBatchFinished();
             }
         });
 
