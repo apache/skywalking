@@ -14,7 +14,6 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, also known D
 * An open source Large-Scale Distributed Systems Tracing Infrastructure, also known a ditributed tracer.
 * Based on [Google Dapper Paper: Dapper, a Large-Scale Distributed Systems Tracing Infrastructure](http://research.google.com/pubs/pub36356.html), [read Simplified Chinese Version](http://duanple.blog.163.com/blog/static/70971767201329113141336/)
 * Support popular rpc frameworks, such as [dubbo](https://github.com/alibaba/dubbo), [dubbox](https://github.com/dangdangdotcom/dubbox), [motan](https://github.com/weibocom/motan) etc., trigger email-alert when application occurs unexpected exception。
-* Execution time of creating span than 100μs.
 * Easy to deploy, **even in product mode** (since 2.0) . No need of Hadoop, HBase, or Cassandra Cluster.
 * Pure Java server implements. provide gRPC (since 2.0)  and HTTP (since 2.1) cross-platform spans collecting service.
 
