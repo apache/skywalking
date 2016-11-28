@@ -65,6 +65,7 @@ public class Main {
             logger.error("SkyWalking storage server start failure.", e);
         } finally {
             server.stop();
+            System.exit(-1);
         }
     }
 
