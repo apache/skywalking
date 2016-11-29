@@ -3,14 +3,11 @@ package com.a.eye.skywalking.plugin.motan;
 import com.a.eye.skywalking.invoke.monitor.RPCServerInvokeMonitor;
 import com.a.eye.skywalking.model.ContextData;
 import com.a.eye.skywalking.plugin.interceptor.EnhancedClassInstanceContext;
-import com.a.eye.skywalking.plugin.interceptor.enhance.ConstructorInvokeContext;
-import com.a.eye.skywalking.plugin.interceptor.enhance.InstanceMethodInvokeContext;
-import com.a.eye.skywalking.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
-import com.a.eye.skywalking.plugin.interceptor.enhance.MethodInterceptResult;
+import com.a.eye.skywalking.plugin.interceptor.enhance.*;
 import com.weibo.api.motan.rpc.Request;
 import com.weibo.api.motan.rpc.URL;
 
-public class MotanServerInterceptor implements InstanceMethodsAroundInterceptor {
+public class MotanServerInterceptor implements InstanceConstructorInterceptor, InstanceMethodsAroundInterceptor {
     @Override
     public void onConstruct(EnhancedClassInstanceContext context, ConstructorInvokeContext interceptorContext) {
         context.set("serviceURI", interceptorContext.allArguments()[0]);

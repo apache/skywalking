@@ -18,11 +18,6 @@ import com.alibaba.dubbo.rpc.RpcContext;
 
 public class MonitorFilterInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
-    public void onConstruct(EnhancedClassInstanceContext context, ConstructorInvokeContext interceptorContext) {
-        // do nothing
-    }
-
-    @Override
     public void beforeMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
             MethodInterceptResult result) {
         Object[] arguments = interceptorContext.allArguments();

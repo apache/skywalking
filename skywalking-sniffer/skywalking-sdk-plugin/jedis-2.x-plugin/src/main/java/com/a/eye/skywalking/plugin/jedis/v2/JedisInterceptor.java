@@ -1,12 +1,13 @@
 package com.a.eye.skywalking.plugin.jedis.v2;
 
-import java.net.URI;
-
 import com.a.eye.skywalking.plugin.interceptor.EnhancedClassInstanceContext;
 import com.a.eye.skywalking.plugin.interceptor.enhance.ConstructorInvokeContext;
+import com.a.eye.skywalking.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 import redis.clients.jedis.JedisShardInfo;
 
-public class JedisInterceptor extends JedisBaseInterceptor {
+import java.net.URI;
+
+public class JedisInterceptor extends JedisBaseInterceptor implements InstanceConstructorInterceptor {
 
     @Override
     public void onConstruct(EnhancedClassInstanceContext context,

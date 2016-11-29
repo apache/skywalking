@@ -1,5 +1,7 @@
 package com.a.eye.skywalking.plugin.jedis.v2.define;
 
+import com.a.eye.skywalking.plugin.interceptor.ConstructorInterceptPoint;
+import com.a.eye.skywalking.plugin.interceptor.InstanceMethodsInterceptPoint;
 import com.a.eye.skywalking.plugin.interceptor.matcher.MethodsExclusiveMatcher;
 import com.a.eye.skywalking.plugin.interceptor.matcher.SimpleMethodMatcher;
 import com.a.eye.skywalking.plugin.interceptor.MethodMatcher;
@@ -14,24 +16,38 @@ public class JedisPluginDefine extends ClassInstanceMethodsEnhancePluginDefine {
     }
 
     @Override
-    public MethodMatcher[] getInstanceMethodsMatchers() {
-        return new MethodMatcher[]{
-                new MethodsExclusiveMatcher(
-                        new PrivateMethodMatcher(),
-                        new SimpleMethodMatcher("close"),
-                        new SimpleMethodMatcher("getDB"),
-                        new SimpleMethodMatcher("connect"),
-                        new SimpleMethodMatcher("setDataSource"),
-                        new SimpleMethodMatcher("resetState"),
-                        new SimpleMethodMatcher("clusterSlots"),
-                        new SimpleMethodMatcher("checkIsInMultiOrPipeline")
-                )
+    protected ConstructorInterceptPoint getConstructorsInterceptPoint() {
+        return new ConstructorInterceptPoint() {
+            @Override
+            public String getConstructorInterceptor() {
+                return "com.a.eye.skywalking.plugin.jedis.v2.JedisInterceptor";
+            }
         };
     }
 
     @Override
-    public String getInstanceMethodsInterceptor() {
-        return "com.a.eye.skywalking.plugin.jedis.v2.JedisInterceptor";
-    }
+    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+        return new InstanceMethodsInterceptPoint[]{new InstanceMethodsInterceptPoint() {
+            @Override
+            public MethodMatcher[] getMethodsMatchers() {
+                return new MethodMatcher[]{
+                        new MethodsExclusiveMatcher(
+                                new PrivateMethodMatcher(),
+                                new SimpleMethodMatcher("close"),
+                                new SimpleMethodMatcher("getDB"),
+                                new SimpleMethodMatcher("connect"),
+                                new SimpleMethodMatcher("setDataSource"),
+                                new SimpleMethodMatcher("resetState"),
+                                new SimpleMethodMatcher("clusterSlots"),
+                                new SimpleMethodMatcher("checkIsInMultiOrPipeline")
+                        )
+                };
+            }
 
+            @Override
+            public String getMethodsInterceptor() {
+                return "com.a.eye.skywalking.plugin.jedis.v2.JedisInterceptor";
+            }
+        }};
+    }
 }

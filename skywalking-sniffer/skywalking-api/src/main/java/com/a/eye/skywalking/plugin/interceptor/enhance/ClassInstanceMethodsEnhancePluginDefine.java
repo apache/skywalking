@@ -1,6 +1,6 @@
 package com.a.eye.skywalking.plugin.interceptor.enhance;
 
-import com.a.eye.skywalking.plugin.interceptor.MethodMatcher;
+import com.a.eye.skywalking.plugin.interceptor.StaticMethodsInterceptPoint;
 
 /**
  * 仅增强拦截实例方法
@@ -12,12 +12,7 @@ public abstract class ClassInstanceMethodsEnhancePluginDefine extends
 		ClassEnhancePluginDefine {
 
 	@Override
-	protected MethodMatcher[] getStaticMethodsMatchers() {
-		return null;
-	}
-
-	@Override
-	protected String getStaticMethodsInterceptor() {
+	protected StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints(){
 		return null;
 	}
 

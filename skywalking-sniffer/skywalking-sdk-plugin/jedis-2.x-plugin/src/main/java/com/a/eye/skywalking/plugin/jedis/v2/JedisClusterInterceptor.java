@@ -3,6 +3,7 @@ package com.a.eye.skywalking.plugin.jedis.v2;
 import com.a.eye.skywalking.plugin.interceptor.EnhancedClassInstanceContext;
 import com.a.eye.skywalking.plugin.interceptor.enhance.ConstructorInvokeContext;
 
+import com.a.eye.skywalking.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 import redis.clients.jedis.HostAndPort;
 
 import java.util.Set;
@@ -10,7 +11,7 @@ import java.util.Set;
 /**
  * Created by xin on 16-6-12.
  */
-public class JedisClusterInterceptor extends JedisBaseInterceptor {
+public class JedisClusterInterceptor extends JedisBaseInterceptor implements InstanceConstructorInterceptor {
     @Override
     public void onConstruct(EnhancedClassInstanceContext context, ConstructorInvokeContext interceptorContext) {
         StringBuilder redisConnInfo = new StringBuilder();
