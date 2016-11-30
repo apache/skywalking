@@ -8,7 +8,7 @@ import com.a.eye.skywalking.logging.api.ILog;
 import com.a.eye.skywalking.logging.api.LogManager;
 import com.a.eye.skywalking.plugin.AbstractClassEnhancePluginDefine;
 import com.a.eye.skywalking.plugin.PluginException;
-import com.a.eye.skywalking.plugin.interceptor.EnhancedClassInstanceContext;
+import com.a.eye.skywalking.plugin.interceptor.*;
 import com.a.eye.skywalking.util.StringUtil;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.dynamic.DynamicType;
@@ -17,9 +17,6 @@ import net.bytebuddy.implementation.SuperMethodCall;
 import net.bytebuddy.implementation.bind.annotation.FieldProxy;
 import net.bytebuddy.matcher.ElementMatcher;
 import net.bytebuddy.matcher.ElementMatchers;
-
-import com.a.eye.skywalking.plugin.interceptor.EnhanceException;
-import com.a.eye.skywalking.plugin.interceptor.MethodMatcher;
 
 public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePluginDefine {
     private static ILog logger = LogManager.getLogger(ClassEnhancePluginDefine.class);
@@ -36,8 +33,22 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
     }
 
     private DynamicType.Builder<?> enhanceInstance(String enhanceOriginClassName, DynamicType.Builder<?> newClassBuilder) throws PluginException {
-        MethodMatcher[] methodMatchers = getInstanceMethodsMatchers();
-        if (methodMatchers == null) {
+        ConstructorInterceptPoint constructorInterceptPoint = getConstructorsInterceptPoint();
+        InstanceMethodsInterceptPoint[] instanceMethodsInterceptPoints = getInstanceMethodsInterceptPoints();
+
+        boolean existedConstructorInterceptPoint = false;
+        if (constructorInterceptPoint != null) {
+            existedConstructorInterceptPoint = true;
+        }
+        boolean existedMethodsInterceptPoints = false;
+        if (instanceMethodsInterceptPoints != null && instanceMethodsInterceptPoints.length > 0) {
+            existedMethodsInterceptPoints = true;
+        }
+
+        /**
+         * nothing need to be enhanced in class instance, maybe need enhance static methods.
+         */
+        if (!existedConstructorInterceptPoint && !existedMethodsInterceptPoints) {
             return newClassBuilder;
         }
 
@@ -49,98 +60,103 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
          * 1.add field '_$EnhancedClassInstanceContext' of type
          * EnhancedClassInstanceContext <br/>
          *
-         * 2.intercept constructor by default, and intercept method which it's
-         * required by interceptorDefineClass. <br/>
          */
-        String interceptor = getInstanceMethodsInterceptor();
-        if (StringUtil.isEmpty(interceptor)) {
-            throw new EnhanceException("no InstanceMethodsAroundInterceptor define. ");
+        String constructorInterceptor;
+        if (existedConstructorInterceptPoint) {
+            constructorInterceptor = constructorInterceptPoint.getConstructorInterceptor();
+        } else {
+            constructorInterceptor = "com.a.eye.skywalking.plugin.interceptor.assist.DefaultConstructorInterceptor";
         }
 
         newClassBuilder = newClassBuilder.defineField(contextAttrName, EnhancedClassInstanceContext.class, ACC_PRIVATE).constructor(any()).intercept(SuperMethodCall.INSTANCE
-                .andThen(MethodDelegation.to(new ClassConstructorInterceptor(interceptor)).appendParameterBinder(FieldProxy.Binder.install(FieldGetter.class, FieldSetter.class))));
+                .andThen(MethodDelegation.to(new ClassConstructorInterceptor(constructorInterceptor)).appendParameterBinder(FieldProxy.Binder.install(FieldGetter.class, FieldSetter.class))));
 
-        ClassInstanceMethodsInterceptor classMethodInterceptor = new ClassInstanceMethodsInterceptor(interceptor);
+        if(existedMethodsInterceptPoints) {
+            for (InstanceMethodsInterceptPoint instanceMethodsInterceptPoint : instanceMethodsInterceptPoints) {
 
-        StringBuilder enhanceRules = new StringBuilder("\nprepare to enhance class [" + enhanceOriginClassName + "] instance methods as following rules:\n");
-        int ruleIdx = 1;
-        for (MethodMatcher methodMatcher : methodMatchers) {
-            enhanceRules.append("\t" + ruleIdx++ + ". " + methodMatcher + "\n");
-        }
-        logger.debug(enhanceRules.toString());
-        ElementMatcher.Junction<MethodDescription> matcher = null;
-        for (MethodMatcher methodMatcher : methodMatchers) {
-            logger.debug("enhance class {} instance methods by rule: {}", enhanceOriginClassName, methodMatcher);
-            if (matcher == null) {
-                matcher = methodMatcher.buildMatcher();
-                continue;
+                String interceptor = instanceMethodsInterceptPoint.getMethodsInterceptor();
+                if (StringUtil.isEmpty(interceptor)) {
+                    throw new EnhanceException("no InstanceMethodsAroundInterceptor define. ");
+                }
+                ClassInstanceMethodsInterceptor classMethodInterceptor = new ClassInstanceMethodsInterceptor(interceptor);
+
+                MethodMatcher[] methodMatchers = instanceMethodsInterceptPoint.getMethodsMatchers();
+
+                StringBuilder enhanceRules = new StringBuilder("\nprepare to enhance class [" + enhanceOriginClassName + "] instance methods as following rules:\n");
+                int ruleIdx = 1;
+                for (MethodMatcher methodMatcher : methodMatchers) {
+                    enhanceRules.append("\t" + ruleIdx++ + ". " + methodMatcher + "\n");
+                }
+                logger.debug(enhanceRules.toString());
+                ElementMatcher.Junction<MethodDescription> matcher = null;
+                for (MethodMatcher methodMatcher : methodMatchers) {
+                    logger.debug("enhance class {} instance methods by rule: {}", enhanceOriginClassName, methodMatcher);
+                    if (matcher == null) {
+                        matcher = methodMatcher.buildMatcher();
+                        continue;
+                    }
+
+                    matcher = matcher.or(methodMatcher.buildMatcher());
+
+                }
+
+                /**
+                 * exclude static methods.
+                 */
+                matcher = matcher.and(not(ElementMatchers.isStatic()));
+                newClassBuilder = newClassBuilder.method(matcher).intercept(MethodDelegation.to(classMethodInterceptor));
             }
-
-            matcher = matcher.or(methodMatcher.buildMatcher());
-
         }
-
-        /**
-         * exclude static methods.
-         */
-        matcher = matcher.and(not(ElementMatchers.isStatic()));
-        newClassBuilder = newClassBuilder.method(matcher).intercept(MethodDelegation.to(classMethodInterceptor));
 
         return newClassBuilder;
     }
 
-    /**
-     * 返回需要被增强的方法列表
-     *
-     * @return
-     */
-    protected abstract MethodMatcher[] getInstanceMethodsMatchers();
+    protected abstract ConstructorInterceptPoint getConstructorsInterceptPoint();
 
-    /**
-     * 返回增强拦截器的实现<br/>
-     * 每个拦截器在同一个被增强类的内部，保持单例
-     *
-     * @return
-     */
-    protected abstract String getInstanceMethodsInterceptor();
+    protected abstract InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints();
+
 
     private DynamicType.Builder<?> enhanceClass(String enhanceOriginClassName, DynamicType.Builder<?> newClassBuilder) throws PluginException {
-        MethodMatcher[] methodMatchers = getStaticMethodsMatchers();
-        if (methodMatchers == null) {
+        StaticMethodsInterceptPoint[] staticMethodsInterceptPoints = getStaticMethodsInterceptPoints();
+
+        if(staticMethodsInterceptPoints == null || staticMethodsInterceptPoints.length == 0){
             return newClassBuilder;
         }
 
-        String interceptor = getStaticMethodsInterceptor();
-        if (StringUtil.isEmpty(interceptor)) {
-            throw new EnhanceException("no StaticMethodsAroundInterceptor define. ");
-        }
+        for (StaticMethodsInterceptPoint staticMethodsInterceptPoint : staticMethodsInterceptPoints) {
+            MethodMatcher[] methodMatchers = staticMethodsInterceptPoint.getMethodsMatchers();
 
-
-        ClassStaticMethodsInterceptor classMethodInterceptor = new ClassStaticMethodsInterceptor(interceptor);
-
-        StringBuilder enhanceRules = new StringBuilder("\nprepare to enhance class [" + enhanceOriginClassName + "] static methods as following rules:\n");
-        int ruleIdx = 1;
-        for (MethodMatcher methodMatcher : methodMatchers) {
-            enhanceRules.append("\t" + ruleIdx++ + ". " + methodMatcher + "\n");
-        }
-        logger.debug(enhanceRules.toString());
-        ElementMatcher.Junction<MethodDescription> matcher = null;
-        for (MethodMatcher methodMatcher : methodMatchers) {
-            logger.debug("enhance class {} static methods by rule: {}", enhanceOriginClassName, methodMatcher);
-            if (matcher == null) {
-                matcher = methodMatcher.buildMatcher();
-                continue;
+            String interceptor = staticMethodsInterceptPoint.getMethodsInterceptor();
+            if (StringUtil.isEmpty(interceptor)) {
+                throw new EnhanceException("no StaticMethodsAroundInterceptor define. ");
             }
 
-            matcher = matcher.or(methodMatcher.buildMatcher());
+            ClassStaticMethodsInterceptor classMethodInterceptor = new ClassStaticMethodsInterceptor(interceptor);
 
+            StringBuilder enhanceRules = new StringBuilder("\nprepare to enhance class [" + enhanceOriginClassName + "] static methods as following rules:\n");
+            int ruleIdx = 1;
+            for (MethodMatcher methodMatcher : methodMatchers) {
+                enhanceRules.append("\t" + ruleIdx++ + ". " + methodMatcher + "\n");
+            }
+            logger.debug(enhanceRules.toString());
+            ElementMatcher.Junction<MethodDescription> matcher = null;
+            for (MethodMatcher methodMatcher : methodMatchers) {
+                logger.debug("enhance class {} static methods by rule: {}", enhanceOriginClassName, methodMatcher);
+                if (matcher == null) {
+                    matcher = methodMatcher.buildMatcher();
+                    continue;
+                }
+
+                matcher = matcher.or(methodMatcher.buildMatcher());
+
+            }
+
+            /**
+             * restrict static methods.
+             */
+            matcher = matcher.and(ElementMatchers.isStatic());
+            newClassBuilder = newClassBuilder.method(matcher).intercept(MethodDelegation.to(classMethodInterceptor));
         }
-
-        /**
-         * restrict static methods.
-         */
-        matcher = matcher.and(ElementMatchers.isStatic());
-        newClassBuilder = newClassBuilder.method(matcher).intercept(MethodDelegation.to(classMethodInterceptor));
 
         return newClassBuilder;
     }
@@ -150,13 +166,5 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
      *
      * @return
      */
-    protected abstract MethodMatcher[] getStaticMethodsMatchers();
-
-    /**
-     * 返回增强拦截器的实现<br/>
-     * 每个拦截器在同一个被增强类的内部，保持单例
-     *
-     * @return
-     */
-    protected abstract String getStaticMethodsInterceptor();
+    protected abstract StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints();
 }

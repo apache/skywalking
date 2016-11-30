@@ -20,11 +20,6 @@ public class TomcatPluginInterceptor implements InstanceMethodsAroundInterceptor
     private static final String TRACE_ID_HEADER_NAME = "SW-TraceId";
 
     @Override
-    public void onConstruct(EnhancedClassInstanceContext context, ConstructorInvokeContext interceptorContext) {
-        //DO Nothing
-    }
-
-    @Override
     public void beforeMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext, MethodInterceptResult result) {
         Object[] args = interceptorContext.allArguments();
         HttpServletRequest requests = (HttpServletRequest) args[0];

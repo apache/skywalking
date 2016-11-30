@@ -20,11 +20,13 @@ public class DataFileWriter {
         }
 
         IndexMetaCollection collections = new IndexMetaCollection();
-        for (SpanData data : spanData) {
-            collections.add(dataFile.write(data));
+        try {
+            for (SpanData data : spanData) {
+                collections.add(dataFile.write(data));
+            }
+        }finally {
+            dataFile.flush();
         }
-
-        dataFile.flush();
 
         return collections;
     }

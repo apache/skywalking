@@ -11,11 +11,6 @@ import com.a.eye.skywalking.plugin.interceptor.enhance.MethodInterceptResult;
  */
 public class TestAroundInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
-    public void onConstruct(EnhancedClassInstanceContext context, ConstructorInvokeContext interceptorContext) {
-
-    }
-
-    @Override
     public void beforeMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext, MethodInterceptResult result) {
         System.out.println("before method");
     }

@@ -20,11 +20,6 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
 	private static RPCClientInvokeMonitor rpcClientInvokeMonitor = new RPCClientInvokeMonitor();
 
 	@Override
-	public void onConstruct(EnhancedClassInstanceContext context,
-			ConstructorInvokeContext interceptorContext) {
-	}
-
-	@Override
 	public void beforeMethod(EnhancedClassInstanceContext context,
 			InstanceMethodInvokeContext interceptorContext, MethodInterceptResult result) {
 		Object[] allArguments = interceptorContext.allArguments();

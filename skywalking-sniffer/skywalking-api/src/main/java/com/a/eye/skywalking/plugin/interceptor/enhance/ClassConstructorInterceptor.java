@@ -25,7 +25,7 @@ public class ClassConstructorInterceptor {
 			@FieldProxy(ClassEnhancePluginDefine.contextAttrName) FieldSetter accessor,
 			@AllArguments Object[] allArguments) {
 		try {
-			InstanceMethodsAroundInterceptor interceptor = InterceptorInstanceLoader
+			InstanceConstructorInterceptor interceptor = InterceptorInstanceLoader
 					.load(instanceMethodsAroundInterceptorClassName, obj.getClass().getClassLoader());
 
 			EnhancedClassInstanceContext context = new EnhancedClassInstanceContext();
@@ -34,7 +34,7 @@ public class ClassConstructorInterceptor {
 					allArguments);
 			interceptor.onConstruct(context, interceptorContext);
 		} catch (Throwable t) {
-			logger.error("ClassConstructorInterceptor failue.", t);
+			logger.error("ClassConstructorInterceptor failure.", t);
 		}
 
 	}
