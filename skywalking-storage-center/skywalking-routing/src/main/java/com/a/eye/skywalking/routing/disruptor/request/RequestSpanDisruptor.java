@@ -15,13 +15,13 @@ import com.lmax.disruptor.util.DaemonThreadFactory;
  */
 public class RequestSpanDisruptor {
     private static ILog logger = LogManager.getLogger(RequestSpanDisruptor.class);
-    private Disruptor<RequestSpanHolder> requestSpanDisruptor;
-    private RingBuffer<RequestSpanHolder> requestSpanRingBuffer;
-    private SendRequestSpanEventHandler eventHandler;
+    private Disruptor<RequestSpanHolder>     requestSpanDisruptor;
+    private RingBuffer<RequestSpanHolder>    requestSpanRingBuffer;
+    private RouteSendRequestSpanEventHandler eventHandler;
 
     public RequestSpanDisruptor(String connectionURL) {
         requestSpanDisruptor = new Disruptor<RequestSpanHolder>(new RequestSpanFactory(), Config.Disruptor.BUFFER_SIZE, DaemonThreadFactory.INSTANCE);
-        eventHandler = new SendRequestSpanEventHandler(connectionURL);
+        eventHandler = new RouteSendRequestSpanEventHandler(connectionURL);
         requestSpanDisruptor.handleEventsWith(eventHandler);
         requestSpanDisruptor.start();
         requestSpanRingBuffer = requestSpanDisruptor.getRingBuffer();

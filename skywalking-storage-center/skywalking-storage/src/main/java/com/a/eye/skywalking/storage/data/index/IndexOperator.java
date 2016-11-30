@@ -40,14 +40,14 @@ public class IndexOperator {
             } catch (Exception e) {
                 logger.error("Failed to update index.", e);
                 HealthCollector.getCurrentHeathReading("IndexOperator")
-                        .updateData(HeathReading.ERROR, "Failed to " + "update index.");
+                        .updateData(HeathReading.ERROR, "Failed to update index.");
             }
         }
 
         BulkResponse bulkRequest = requestBuilder.get();
         if (bulkRequest.hasFailures()) {
             HealthCollector.getCurrentHeathReading("IndexOperator").updateData(HeathReading.ERROR,
-                    "Failed to " + "update index. Error message : " + bulkRequest.buildFailureMessage());
+                    "Failed to update index. Error message : " + bulkRequest.buildFailureMessage());
         }
 
         return metaInfos.size();

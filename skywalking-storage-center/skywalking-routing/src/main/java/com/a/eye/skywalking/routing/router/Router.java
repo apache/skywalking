@@ -76,6 +76,7 @@ public class Router implements NodeChangesListener {
                 }
             }
         });
+        //TODO: BUG, no data release.
 
         disruptors = newDisruptors.toArray(new SpanDisruptor[newDisruptors.size()]);
     }

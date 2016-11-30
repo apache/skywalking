@@ -4,6 +4,7 @@ import com.a.eye.skywalking.health.report.HealthCollector;
 import com.a.eye.skywalking.health.report.HeathReading;
 import com.a.eye.skywalking.logging.api.ILog;
 import com.a.eye.skywalking.logging.api.LogManager;
+import com.a.eye.skywalking.storage.config.Config;
 import com.a.eye.skywalking.storage.data.file.DataFileWriter;
 import com.a.eye.skywalking.storage.data.index.IndexMetaCollection;
 import com.a.eye.skywalking.storage.data.index.IndexOperator;
@@ -22,10 +23,12 @@ public class StoreRequestSpanEventHandler implements EventHandler<RequestSpanDat
     private static ILog logger = LogManager.getLogger(StoreRequestSpanEventHandler.class);
     private DataFileWriter fileWriter;
     private IndexOperator  operator;
-    private int            bufferSize = 100;
-    private List<SpanData> buffer     = new ArrayList<>(bufferSize);
+    private int            bufferSize;
+    private List<SpanData> buffer;
 
     public StoreRequestSpanEventHandler() {
+        bufferSize = Config.Disruptor.FLUSH_SIZE;
+        buffer = new ArrayList<>(bufferSize);
         fileWriter = new DataFileWriter();
         operator = IndexOperatorFactory.createIndexOperator();
     }
@@ -40,7 +43,10 @@ public class StoreRequestSpanEventHandler implements EventHandler<RequestSpanDat
 
                 operator.batchUpdate(collection);
 
-                HealthCollector.getCurrentHeathReading("StoreRequestSpanEventHandler").updateData(HeathReading.INFO, "%s messages were successful consumed .", buffer.size());
+                HealthCollector.getCurrentHeathReading("StoreRequestSpanEventHandler").updateData(HeathReading.INFO, "Batch consume %s messages successfully.", buffer.size());
+            } catch (Throwable e) {
+                logger.error("Ack messages consume failure.", e);
+                HealthCollector.getCurrentHeathReading("StoreRequestSpanEventHandler").updateData(HeathReading.ERROR, "Batch consume %s messages failure.", buffer.size());
             } finally {
                 buffer.clear();
             }

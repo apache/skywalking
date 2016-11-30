@@ -39,6 +39,7 @@ public class NotifyListenerImpl implements NotifyListener {
     public void notify(List<String> currentUrls) {
         lock.lock();
         try {
+            //TODO: bug, logic error.
             List<String> URL = new ArrayList<>(currentUrls);
             if (childrenConnectionURLOfPreviousChanged.size() > URL.size()) {
                 childrenConnectionURLOfPreviousChanged.removeAll(URL);

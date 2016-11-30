@@ -3,20 +3,26 @@ package com.a.eye.skywalking.routing.disruptor;
 import com.a.eye.skywalking.health.report.HealthCollector;
 import com.a.eye.skywalking.health.report.HeathReading;
 import com.a.eye.skywalking.network.Client;
+import com.a.eye.skywalking.network.grpc.RequestSpan;
 import com.a.eye.skywalking.network.grpc.client.SpanStorageClient;
 import com.a.eye.skywalking.network.listener.client.StorageClientListener;
+import com.a.eye.skywalking.routing.config.Config;
 import com.lmax.disruptor.EventHandler;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by xin on 2016/11/29.
  */
-public abstract class AbstractSpanEventHandler<T> implements EventHandler<T> {
-    protected Client client;
-    protected int bufferSize = 100;
-    protected boolean stop;
-    protected volatile boolean previousSendResult = true;
+public abstract class AbstractRouteSpanEventHandler<T> implements EventHandler<T> {
+    protected       Client  client;
+    protected final int     bufferSize;
+    protected       boolean stop;
+    private volatile boolean previousSendFinish = true;
 
-    public AbstractSpanEventHandler(String connectionURL) {
+    public AbstractRouteSpanEventHandler(String connectionURL) {
+        bufferSize = Config.Disruptor.FLUSH_SIZE;
         String[] urlSegment = connectionURL.split(":");
         if (urlSegment.length != 2) {
             throw new IllegalArgumentException();
@@ -28,18 +34,16 @@ public abstract class AbstractSpanEventHandler<T> implements EventHandler<T> {
         SpanStorageClient spanStorageClient = client.newSpanStorageClient(new StorageClientListener() {
             @Override
             public void onError(Throwable throwable) {
-                HealthCollector.getCurrentHeathReading(getExtraId()).updateData(HeathReading.ERROR,
-                        "Failed to send  span. error message :" + throwable.getMessage());
+                HealthCollector.getCurrentHeathReading(getExtraId()).updateData(HeathReading.ERROR, "Failed to send  span. error message :" + throwable.getMessage());
             }
 
             @Override
             public void onBatchFinished() {
-                previousSendResult = true;
-                HealthCollector.getCurrentHeathReading(getExtraId()).updateData(HeathReading.INFO,
-                        " consumed Successfully");
+                previousSendFinish = true;
+                HealthCollector.getCurrentHeathReading(getExtraId()).updateData(HeathReading.INFO, " consumed Successfully");
             }
         });
-        previousSendResult = false;
+        previousSendFinish = false;
         return spanStorageClient;
     }
 
@@ -48,5 +52,14 @@ public abstract class AbstractSpanEventHandler<T> implements EventHandler<T> {
 
     public void stop() {
         stop = true;
+    }
+
+    public void wait2Finish() {
+        while (!previousSendFinish) {
+            try {
+                Thread.sleep(1L);
+            } catch (InterruptedException e) {
+            }
+        }
     }
 }

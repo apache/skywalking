@@ -18,11 +18,11 @@ public class AckSpanDisruptor {
     private Disruptor<AckSpanHolder> ackSpanDisruptor;
     private RingBuffer<AckSpanHolder> ackSpanRingBuffer;
 
-    private AckSpanBufferEventHandler ackSpanEventHandler;
+    private RouteAckSpanBufferEventHandler ackSpanEventHandler;
 
     public AckSpanDisruptor(String connectionURL) {
         ackSpanDisruptor = new Disruptor<AckSpanHolder>(new AckSpanFactory(), Config.Disruptor.BUFFER_SIZE, DaemonThreadFactory.INSTANCE);
-        ackSpanEventHandler = new AckSpanBufferEventHandler(connectionURL);
+        ackSpanEventHandler = new RouteAckSpanBufferEventHandler(connectionURL);
         ackSpanDisruptor.handleEventsWith(ackSpanEventHandler);
         ackSpanDisruptor.start();
         ackSpanRingBuffer = ackSpanDisruptor.getRingBuffer();
