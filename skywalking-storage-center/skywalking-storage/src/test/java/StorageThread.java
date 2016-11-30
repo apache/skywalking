@@ -23,7 +23,7 @@ public class StorageThread extends Thread {
 
     StorageThread(long count, CountDownLatch countDownLatch, int index) {
         listener = new MyStorageClientListener();
-        client = new Client("127.0.0.1", 23000).newSpanStorageClient(listener);
+        client = new Client("10.128.7.241", 34000).newSpanStorageClient(listener);
         this.count = count;
         this.countDownLatch = countDownLatch;
         this.index = index;
@@ -40,22 +40,25 @@ public class StorageThread extends Thread {
             RequestSpan requestSpan = RequestSpan.newBuilder().setSpanType(1).setAddress(NetUtils.getLocalAddress().toString()).setApplicationId("1").setCallType("1").setLevelId(0)
                     .setProcessNo(19287).setStartDate(System.currentTimeMillis())
                     .setTraceId(TraceId.newBuilder().addSegments(201611).addSegments(value).addSegments(8504828).addSegments(2277).addSegments(53).addSegments(3).build())
-                    .setUserId("1").setViewPointId("http://localhost:8080/wwww/test/helloWorld").build();
+                    .setUserId("1").setViewPointId("http://localhost:8080/wwww/test/helloWorld").setRouteKey(i).build();
 
             AckSpan ackSpan = AckSpan.newBuilder().setLevelId(0).setCost(10).setTraceId(
                     TraceId.newBuilder().addSegments(201611).addSegments(value).addSegments(8504828).addSegments(2277).addSegments(53).addSegments(3)
-                            .build()).setStatusCode(0).setViewpointId("http://localhost:8080/wwww/test/helloWorld").build();
+                            .build()).setStatusCode(0).setViewpointId("http://localhost:8080/wwww/test/helloWorld").setRouteKey(i).build();
             requestSpanList.add(requestSpan);
             ackSpanList.add(ackSpan);
             cycle++;
 
-            if (cycle == 1) {
+            if (cycle == 10) {
                 client.sendACKSpan(ackSpanList);
                 client.sendRequestSpan(requestSpanList);
                 cycle = 0;
 
                 while (!listener.isCompleted) {
-                    LockSupport.parkNanos(1);
+                    try {
+                        Thread.sleep(1L);
+                    } catch (InterruptedException e) {
+                    }
                 }
                 listener.begin();
                 ackSpanList.clear();

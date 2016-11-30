@@ -68,7 +68,9 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
             constructorInterceptor = "com.a.eye.skywalking.plugin.interceptor.assist.DefaultConstructorInterceptor";
         }
 
-        newClassBuilder = newClassBuilder.defineField(contextAttrName, EnhancedClassInstanceContext.class, ACC_PRIVATE).constructor(any()).intercept(SuperMethodCall.INSTANCE
+        newClassBuilder = newClassBuilder.defineField(contextAttrName, EnhancedClassInstanceContext.class, ACC_PRIVATE);
+
+        newClassBuilder = newClassBuilder.constructor(any()).intercept(SuperMethodCall.INSTANCE
                 .andThen(MethodDelegation.to(new ClassConstructorInterceptor(constructorInterceptor)).appendParameterBinder(FieldProxy.Binder.install(FieldGetter.class, FieldSetter.class))));
 
         if(existedMethodsInterceptPoints) {

@@ -71,11 +71,6 @@
 			<artifactId>HikariCP</artifactId>
 			<version>2.4.3</version>
 		</dependency>
-		<dependency>
-			<groupId>com.a.eye</groupId>
-			<artifactId>data-carrier</artifactId>
-			<version>1.0</version>
-		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
