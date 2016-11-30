@@ -59,6 +59,22 @@ public class ZookeeperRegistryCenterTest extends TestSuite {
     }
 
     @Test
+    public void subscribeNodeAfterNodeRegistryTest() throws InterruptedException {
+        registryCenter.register("/skywalking/storage/127.0.0.1:9400");
+        final StringBuilder addUrl = new StringBuilder();
+        registryCenter.subscribe("/skywalking/storage", new NotifyListener() {
+            @Override
+            public void notify(List<String> currentUrls) {
+                for (String url : currentUrls) {
+                    addUrl.append(url + ",");
+                }
+            }
+        });
+        Thread.sleep(100L);
+        assertEquals(addUrl.deleteCharAt(addUrl.length() - 1).toString(), "127.0.0.1:9400");
+    }
+
+    @Test
     public void registryNodeTest() throws IOException, InterruptedException, KeeperException {
         registryCenter.register("/skywalking/storage/test");
         assertTrue(zkClient.exists("/skywalking/storage/test"));

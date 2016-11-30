@@ -13,6 +13,8 @@ message AckSpan {
     string viewpointId = 7;
     string userId = 8;
     string applicationId = 9;
+
+    int32 routeKey = 10;
 }
 
 message RequestSpan {
@@ -29,6 +31,8 @@ message RequestSpan {
     string businessKey = 11;
     int32 processNo = 13;
     string address = 14;
+
+    int32 routeKey = 15;
 }
 
 message TraceId{

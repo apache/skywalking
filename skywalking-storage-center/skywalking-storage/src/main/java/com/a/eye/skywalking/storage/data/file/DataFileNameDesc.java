@@ -30,7 +30,7 @@ public class DataFileNameDesc {
     public DataFileNameDesc(String fileName) {
         int lastIndex = fileName.lastIndexOf('_');
         try {
-            this.name = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SSS").parse(fileName.substring(0, lastIndex - 1))
+            this.name = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SSS").parse(fileName.substring(0, lastIndex))
                     .getTime();
         } catch (ParseException e) {
         }
@@ -71,5 +71,12 @@ public class DataFileNameDesc {
 
     public int getSuffix() {
         return suffix;
+    }
+
+    @Override
+    public String toString() {
+        return "DataFileNameDesc{" +
+                "fileNameStr='" + fileNameStr + '\'' +
+                '}';
     }
 }

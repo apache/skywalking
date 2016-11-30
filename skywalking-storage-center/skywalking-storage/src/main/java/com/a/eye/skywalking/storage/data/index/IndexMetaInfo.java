@@ -58,4 +58,14 @@ public class IndexMetaInfo {
     public SpanType getSpanType() {
         return spanType;
     }
+
+    @Override
+    public String toString() {
+        return "IndexMetaInfo{" +
+                "spanType=" + spanType +
+                ", nameDesc=" + nameDesc +
+                ", offset=" + offset +
+                ", length=" + length +
+                '}';
+    }
 }

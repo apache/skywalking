@@ -34,12 +34,14 @@ public class ZookeeperRegistryCenter implements RegistryCenter {
 
     @Override
     public void subscribe(String path, final NotifyListener listener) {
-        client.subscribeChildChanges(path, new IZkChildListener() {
+        List<String> children = client.subscribeChildChanges(path, new IZkChildListener() {
             @Override
             public void handleChildChange(String parentPath, List<String> children) throws Exception {
                 listener.notify(children);
             }
         });
+        if (children != null && children.size() > 0)
+            listener.notify(children);
     }
 
     private boolean exists(String path) {

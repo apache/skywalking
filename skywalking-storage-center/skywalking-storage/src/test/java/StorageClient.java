@@ -2,8 +2,8 @@ import java.util.concurrent.CountDownLatch;
 
 public class StorageClient {
 
-    private static       int  THREAD_COUNT = 4;
-    private static final long COUNT        = 1_000_000_000;
+    private static       int  THREAD_COUNT = 1;
+    private static final long COUNT        = 1;
 
 
     public static void main(String[] args) throws InterruptedException {

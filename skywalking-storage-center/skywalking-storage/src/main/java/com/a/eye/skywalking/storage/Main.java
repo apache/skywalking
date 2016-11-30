@@ -40,7 +40,7 @@ public class Main {
 
     public static void main(String[] args) {
         try {
-            initializeParam();
+            initConfig();
             HealthCollector.init(SERVER_REPORTER_NAME);
 
             new ElasticBootstrap().boot(NetUtils.getIndexServerPort());
@@ -65,6 +65,7 @@ public class Main {
             logger.error("SkyWalking storage server start failure.", e);
         } finally {
             server.stop();
+            System.exit(-1);
         }
     }
 
@@ -79,7 +80,7 @@ public class Main {
         registryCenter.register(PATH_PREFIX + NetUtils.getLocalAddress().getHostAddress() + ":" + Config.Server.PORT);
     }
 
-    private static void initializeParam() throws IllegalAccessException, IOException {
+    private static void initConfig() throws IllegalAccessException, IOException {
         Properties properties = new Properties();
         try {
             properties.load(Main.class.getResourceAsStream("/config.properties"));
