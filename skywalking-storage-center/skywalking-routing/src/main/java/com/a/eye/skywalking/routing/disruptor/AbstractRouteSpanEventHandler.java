@@ -34,6 +34,7 @@ public abstract class AbstractRouteSpanEventHandler<T> implements EventHandler<T
         SpanStorageClient spanStorageClient = client.newSpanStorageClient(new StorageClientListener() {
             @Override
             public void onError(Throwable throwable) {
+                previousSendFinish = true;
                 HealthCollector.getCurrentHeathReading(getExtraId()).updateData(HeathReading.ERROR, "Failed to send  span. error message :" + throwable.getMessage());
             }
 

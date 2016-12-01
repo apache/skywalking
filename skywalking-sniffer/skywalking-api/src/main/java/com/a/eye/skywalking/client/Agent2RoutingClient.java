@@ -91,7 +91,11 @@ public class Agent2RoutingClient extends Thread {
                         spanStorageClient.sendACKSpan(ackData);
 
                         while (!listener.isBatchFinished()) {
-                            LockSupport.parkNanos(1);
+                            try {
+                            Thread.sleep(10L);
+                            } catch (InterruptedException e) {
+
+                            }
                         }
                     } else {
                         try {
