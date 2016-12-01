@@ -3,6 +3,7 @@ package com.a.eye.skywalking.routing.storage.listener;
 import com.a.eye.skywalking.registry.RegistryCenterFactory;
 import com.a.eye.skywalking.registry.api.NotifyListener;
 import com.a.eye.skywalking.registry.api.RegistryCenter;
+import com.a.eye.skywalking.registry.api.RegistryNode;
 import com.a.eye.skywalking.registry.impl.zookeeper.ZookeeperConfig;
 import com.a.eye.skywalking.routing.config.Config;
 
@@ -36,24 +37,13 @@ public class NotifyListenerImpl implements NotifyListener {
     }
 
     @Override
-    public void notify(List<String> currentUrls) {
-        lock.lock();
-        try {
-            //TODO: bug, logic error.
-            List<String> URL = new ArrayList<>(currentUrls);
-            if (childrenConnectionURLOfPreviousChanged.size() > URL.size()) {
-                childrenConnectionURLOfPreviousChanged.removeAll(URL);
-                listener.notify(childrenConnectionURLOfPreviousChanged, Removed);
-            } else {
-                URL.removeAll(childrenConnectionURLOfPreviousChanged);
-                listener.notify(URL, Add);
-            }
-
-            childrenConnectionURLOfPreviousChanged = new ArrayList<>(URL);
-        } finally {
+    public void notify(List<RegistryNode> registryNodes) {
+        try{
+            lock.lock();
+            listener.notify(registryNodes);
+        }finally {
             lock.unlock();
         }
-
     }
 
     public enum ChangeType {

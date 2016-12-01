@@ -4,6 +4,7 @@ import com.a.eye.skywalking.registry.RegistryCenterFactory;
 import com.a.eye.skywalking.registry.api.CenterType;
 import com.a.eye.skywalking.registry.api.NotifyListener;
 import com.a.eye.skywalking.registry.api.RegistryCenter;
+import com.a.eye.skywalking.registry.api.RegistryNode;
 import junit.framework.TestSuite;
 import org.I0Itec.zkclient.ZkClient;
 import org.apache.curator.test.TestingServer;
@@ -20,8 +21,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class ZookeeperRegistryCenterTest extends TestSuite {
-    private TestingServer  zkTestServer;
-    private ZkClient       zkClient;
+    private TestingServer zkTestServer;
+    private ZkClient zkClient;
     private RegistryCenter registryCenter;
 
     @Before
@@ -41,22 +42,6 @@ public class ZookeeperRegistryCenterTest extends TestSuite {
         zkTestServer.stop();
     }
 
-    @Test
-    public void subscribeNodeTest() throws InterruptedException {
-        final StringBuilder addUrl = new StringBuilder();
-        registryCenter.subscribe("/skywalking/storage", new NotifyListener() {
-            @Override
-            public void notify(List<String> currentUrls) {
-                for (String url : currentUrls) {
-                    addUrl.append(url + ",");
-                }
-            }
-        });
-
-        registryCenter.register("/skywalking/storage/127.0.0.1:9400");
-        Thread.sleep(100L);
-        assertEquals(addUrl.deleteCharAt(addUrl.length() - 1).toString(), "127.0.0.1:9400");
-    }
 
     @Test
     public void subscribeNodeAfterNodeRegistryTest() throws InterruptedException {
@@ -64,9 +49,9 @@ public class ZookeeperRegistryCenterTest extends TestSuite {
         final StringBuilder addUrl = new StringBuilder();
         registryCenter.subscribe("/skywalking/storage", new NotifyListener() {
             @Override
-            public void notify(List<String> currentUrls) {
-                for (String url : currentUrls) {
-                    addUrl.append(url + ",");
+            public void notify(List<RegistryNode> registryNodes) {
+                for (RegistryNode url : registryNodes) {
+                    addUrl.append(url.getNode() + ",");
                 }
             }
         });

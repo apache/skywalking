@@ -1,5 +1,6 @@
 package com.a.eye.skywalking.registry.impl.zookeeper;
 
+import com.a.eye.skywalking.registry.RegistryNodeManager;
 import com.a.eye.skywalking.registry.api.Center;
 import com.a.eye.skywalking.registry.api.CenterType;
 import com.a.eye.skywalking.registry.api.NotifyListener;
@@ -14,6 +15,7 @@ import java.util.Properties;
 public class ZookeeperRegistryCenter implements RegistryCenter {
 
     private ZkClient client;
+    private RegistryNodeManager nodeManager = new RegistryNodeManager();
 
     @Override
     public void register(String path) {
@@ -37,11 +39,11 @@ public class ZookeeperRegistryCenter implements RegistryCenter {
         List<String> children = client.subscribeChildChanges(path, new IZkChildListener() {
             @Override
             public void handleChildChange(String parentPath, List<String> children) throws Exception {
-                listener.notify(children);
+                listener.notify(nodeManager.calculateChangeOfConnectionURL(children));
             }
         });
         if (children != null && children.size() > 0)
-            listener.notify(children);
+            listener.notify(nodeManager.calculateChangeOfConnectionURL(children));
     }
 
     private boolean exists(String path) {
@@ -56,4 +58,7 @@ public class ZookeeperRegistryCenter implements RegistryCenter {
             client.addAuthInfo(config.getAutSchema(), config.getAuth());
         }
     }
+
+
+
 }

@@ -4,15 +4,12 @@ import com.a.eye.skywalking.logging.api.ILog;
 import com.a.eye.skywalking.logging.api.LogManager;
 import com.a.eye.skywalking.network.grpc.AckSpan;
 import com.a.eye.skywalking.network.grpc.RequestSpan;
+import com.a.eye.skywalking.registry.api.RegistryNode;
 import com.a.eye.skywalking.routing.disruptor.NoopSpanDisruptor;
 import com.a.eye.skywalking.routing.disruptor.SpanDisruptor;
 import com.a.eye.skywalking.routing.storage.listener.NodeChangesListener;
-import com.a.eye.skywalking.routing.storage.listener.NotifyListenerImpl;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 public class Router implements NodeChangesListener {
     private static ILog logger = LogManager.getLogger(Router.class);
@@ -33,31 +30,25 @@ public class Router implements NodeChangesListener {
             return noopSpanPool;
         }
 
-        while(true){
+        while (true) {
             int index = routKey % disruptors.length;
             try {
                 return disruptors[index];
-            }catch (ArrayIndexOutOfBoundsException e){
+            } catch (ArrayIndexOutOfBoundsException e) {
             }
         }
     }
 
     @Override
-    public void notify(List<String> connectionURL, NotifyListenerImpl.ChangeType changeType) {
-        List<SpanDisruptor> newDisruptors = null;
-        if (changeType == NotifyListenerImpl.ChangeType.Add) {
-            newDisruptors = new ArrayList<>(this.disruptors.length + connectionURL.size());
-            for (String url : connectionURL) {
-                newDisruptors.add(new SpanDisruptor(url));
-            }
-        }
+    public void notify(List<RegistryNode> registryNodes) {
+        List<SpanDisruptor> newDisruptors = new ArrayList<SpanDisruptor>(Arrays.asList(disruptors));
+        List<SpanDisruptor> removedDisruptors = new ArrayList<SpanDisruptor>();
 
-        if (changeType == NotifyListenerImpl.ChangeType.Removed) {
-            newDisruptors = new ArrayList<SpanDisruptor>(disruptors.length - connectionURL.size());
-            for (SpanDisruptor disruptor : disruptors) {
-                if (!connectionURL.contains(disruptor.getConnectionURL())) {
-                    newDisruptors.add(disruptor);
-                }
+        for (RegistryNode node : registryNodes) {
+            if (node.getChangeType() == RegistryNode.ChangeType.ADDED) {
+                newDisruptors.add(new SpanDisruptor(node.getNode()));
+            } else {
+                removedDisruptors.add(getAndRemoveSpanDistruptor(newDisruptors, node.getNode()));
             }
         }
 
@@ -76,9 +67,18 @@ public class Router implements NodeChangesListener {
                 }
             }
         });
-        //TODO: BUG, no data release.
 
+        //先停止往里面存放数据
         disruptors = newDisruptors.toArray(new SpanDisruptor[newDisruptors.size()]);
+
+        // 而后stop
+        for (SpanDisruptor removedDisruptor : removedDisruptors) {
+            removedDisruptor.shutdown();
+        }
+    }
+
+    private SpanDisruptor getAndRemoveSpanDistruptor(List<SpanDisruptor> newDisruptors, String connectionURL) {
+        return newDisruptors.remove(newDisruptors.indexOf(new SpanDisruptor(connectionURL)));
     }
 
     public void stop() {

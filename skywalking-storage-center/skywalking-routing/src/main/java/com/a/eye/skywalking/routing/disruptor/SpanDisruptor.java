@@ -51,4 +51,9 @@ public class SpanDisruptor {
     public int hashCode() {
         return connectionURL != null ? connectionURL.hashCode() : 0;
     }
+
+    public void shutdown() {
+        ackSpanDisruptor.shutdown();
+        ackSpanDisruptor.shutdown();
+    }
 }

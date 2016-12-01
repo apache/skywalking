@@ -46,6 +46,7 @@ public class AckSpanDisruptor {
 
     public void shutdown() {
         ackSpanEventHandler.stop();
+
         ackSpanDisruptor.shutdown();
     }
 }
