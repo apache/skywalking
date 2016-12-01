@@ -1,5 +1,6 @@
 package com.a.eye.skywalking.plugin.jedis.v2.define;
 
+import com.a.eye.skywalking.plugin.bytebuddy.ArgumentTypeNameMatch;
 import com.a.eye.skywalking.plugin.interceptor.ConstructorInterceptPoint;
 import com.a.eye.skywalking.plugin.interceptor.InstanceMethodsInterceptPoint;
 import com.a.eye.skywalking.plugin.interceptor.MethodMatcher;
@@ -24,7 +25,7 @@ public class JedisPluginDefine extends ClassInstanceMethodsEnhancePluginDefine {
     protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {new ConstructorInterceptPoint() {
             @Override
-            public ElementMatcher.Junction<MethodDescription> getConstructorMatcher() {
+            public ElementMatcher<MethodDescription> getConstructorMatcher() {
                 return takesArgument(0, String.class);
             }
 
@@ -34,8 +35,8 @@ public class JedisPluginDefine extends ClassInstanceMethodsEnhancePluginDefine {
             }
         }, new ConstructorInterceptPoint() {
             @Override
-            public ElementMatcher.Junction<MethodDescription> getConstructorMatcher() {
-                return not(takesArgument(0, String.class).or(takesArgument(0, String.class)));
+            public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                return new ArgumentTypeNameMatch(0, "redis.clients.jedis.HostAndPort");
             }
 
             @Override
@@ -44,7 +45,7 @@ public class JedisPluginDefine extends ClassInstanceMethodsEnhancePluginDefine {
             }
         }, new ConstructorInterceptPoint() {
             @Override
-            public ElementMatcher.Junction<MethodDescription> getConstructorMatcher() {
+            public ElementMatcher<MethodDescription> getConstructorMatcher() {
                 return takesArgument(0, String.class);
             }
 

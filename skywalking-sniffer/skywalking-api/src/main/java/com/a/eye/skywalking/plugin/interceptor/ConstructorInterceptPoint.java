@@ -7,7 +7,7 @@ import net.bytebuddy.matcher.ElementMatcher;
  * Created by wusheng on 2016/11/29.
  */
 public interface ConstructorInterceptPoint{
-    ElementMatcher.Junction<MethodDescription> getConstructorMatcher();
+    ElementMatcher<MethodDescription> getConstructorMatcher();
 
     /**
      *

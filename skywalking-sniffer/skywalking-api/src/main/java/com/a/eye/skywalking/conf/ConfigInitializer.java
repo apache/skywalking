@@ -20,12 +20,8 @@ public class ConfigInitializer {
         if (Config.SkyWalking.IS_PREMAIN_MODE) {
             configFileStream = fetchAuthFileInputStream();
         } else {
-            configFileStream = ConfigInitializer.class.getResourceAsStream("/sky-walking.auth");
+            configFileStream = ConfigInitializer.class.getResourceAsStream("/sky-walking.config");
         }
-
-        Config.SkyWalking.USER_ID = System.getProperty("userId");
-        Config.SkyWalking.APPLICATION_CODE = System.getProperty("applicationCode");
-        Config.SkyWalking.SERVERS = System.getProperty("servers");
 
         if (configFileStream == null) {
             logger.info("Not provide sky-walking certification documents, sky-walking api run in default config.");
@@ -38,6 +34,9 @@ public class ConfigInitializer {
                 logger.error("Failed to read the config file, sky-walking api run in default config.", e);
             }
         }
+        Config.SkyWalking.USER_ID = System.getProperty("userId");
+        Config.SkyWalking.APPLICATION_CODE = System.getProperty("applicationCode");
+        Config.SkyWalking.SERVERS = System.getProperty("servers");
 
         if(StringUtil.isEmpty(Config.SkyWalking.USER_ID)){
             throw new ExceptionInInitializerError("'-DuserId=' is missing.");

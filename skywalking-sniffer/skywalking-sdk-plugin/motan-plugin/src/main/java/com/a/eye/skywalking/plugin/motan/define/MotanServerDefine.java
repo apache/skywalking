@@ -21,7 +21,7 @@ public class MotanServerDefine extends ClassInstanceMethodsEnhancePluginDefine {
     protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {new ConstructorInterceptPoint() {
             @Override
-            public ElementMatcher.Junction<MethodDescription> getConstructorMatcher() {
+            public ElementMatcher<MethodDescription> getConstructorMatcher() {
                 return any();
             }
 
