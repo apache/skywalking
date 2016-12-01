@@ -13,10 +13,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class JedisClusterTest {
-    @Test
     public void test() throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException,
             PluginException {
-        TracingBootstrap.main(new String[] {"JedisClusterTest"});
+        TracingBootstrap.main(new String[] {"com.a.eye.skywalking.plugin.jedis.v2.JedisClusterTest"});
     }
 
     public static void main(String[] args) throws ClassNotFoundException, SQLException, InterruptedException {

@@ -7,7 +7,7 @@ import com.a.eye.skywalking.plugin.interceptor.assist.SimpleObjectFirstInvokeInt
 import com.a.eye.skywalking.plugin.interceptor.enhance.InstanceMethodInvokeContext;
 import com.a.eye.skywalking.plugin.interceptor.enhance.MethodInterceptResult;
 
-public abstract class JedisBaseInterceptor extends SimpleObjectFirstInvokeInterceptor {
+public class JedisMethodInterceptor extends SimpleObjectFirstInvokeInterceptor {
     protected static final String REDIS_CONN_INFO_KEY = "redisClusterConnInfo";
 
     private static RPCClientInvokeMonitor rpcClientInvokeMonitor = new RPCClientInvokeMonitor();

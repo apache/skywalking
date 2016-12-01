@@ -10,7 +10,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
 
 public class JedisTest {
-    @Test
     public void test() throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException,
             PluginException {
         TracingBootstrap.main(new String[] {"JedisTest"});
