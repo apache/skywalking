@@ -33,11 +33,11 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
     }
 
     private DynamicType.Builder<?> enhanceInstance(String enhanceOriginClassName, DynamicType.Builder<?> newClassBuilder) throws PluginException {
-        ConstructorInterceptPoint constructorInterceptPoint = getConstructorsInterceptPoint();
+        ConstructorInterceptPoint[] constructorInterceptPoints = getConstructorsInterceptPoints();
         InstanceMethodsInterceptPoint[] instanceMethodsInterceptPoints = getInstanceMethodsInterceptPoints();
 
         boolean existedConstructorInterceptPoint = false;
-        if (constructorInterceptPoint != null) {
+        if (constructorInterceptPoints != null && constructorInterceptPoints.length > 0) {
             existedConstructorInterceptPoint = true;
         }
         boolean existedMethodsInterceptPoints = false;
@@ -61,19 +61,25 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
          * EnhancedClassInstanceContext <br/>
          *
          */
-        String constructorInterceptor;
-        if (existedConstructorInterceptPoint) {
-            constructorInterceptor = constructorInterceptPoint.getConstructorInterceptor();
-        } else {
-            constructorInterceptor = "com.a.eye.skywalking.plugin.interceptor.assist.DefaultConstructorInterceptor";
-        }
-
         newClassBuilder = newClassBuilder.defineField(contextAttrName, EnhancedClassInstanceContext.class, ACC_PRIVATE);
 
-        newClassBuilder = newClassBuilder.constructor(any()).intercept(SuperMethodCall.INSTANCE
-                .andThen(MethodDelegation.to(new ClassConstructorInterceptor(constructorInterceptor)).appendParameterBinder(FieldProxy.Binder.install(FieldGetter.class, FieldSetter.class))));
+        /**
+         * 2. enhance constructors
+         */
+        if (existedConstructorInterceptPoint) {
+            for (ConstructorInterceptPoint constructorInterceptPoint : constructorInterceptPoints) {
+                newClassBuilder = newClassBuilder.constructor(constructorInterceptPoint.getConstructorMatcher())
+                        .intercept(SuperMethodCall.INSTANCE.andThen(
+                        MethodDelegation.to(new ClassConstructorInterceptor(constructorInterceptPoint.getConstructorInterceptor()))
+                                .appendParameterBinder(FieldProxy.Binder.install(FieldGetter.class, FieldSetter.class))));
+            }
+        }
 
-        if(existedMethodsInterceptPoints) {
+
+        /**
+         * 3. enhance instance methods
+         */
+        if (existedMethodsInterceptPoints) {
             for (InstanceMethodsInterceptPoint instanceMethodsInterceptPoint : instanceMethodsInterceptPoints) {
 
                 String interceptor = instanceMethodsInterceptPoint.getMethodsInterceptor();
@@ -113,7 +119,7 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
         return newClassBuilder;
     }
 
-    protected abstract ConstructorInterceptPoint getConstructorsInterceptPoint();
+    protected abstract ConstructorInterceptPoint[] getConstructorsInterceptPoints();
 
     protected abstract InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints();
 
@@ -121,7 +127,7 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
     private DynamicType.Builder<?> enhanceClass(String enhanceOriginClassName, DynamicType.Builder<?> newClassBuilder) throws PluginException {
         StaticMethodsInterceptPoint[] staticMethodsInterceptPoints = getStaticMethodsInterceptPoints();
 
-        if(staticMethodsInterceptPoints == null || staticMethodsInterceptPoints.length == 0){
+        if (staticMethodsInterceptPoints == null || staticMethodsInterceptPoints.length == 0) {
             return newClassBuilder;
         }
 

@@ -13,7 +13,7 @@ public class TomcatPluginDefine extends ClassInstanceMethodsEnhancePluginDefine 
     }
 
     @Override
-    protected ConstructorInterceptPoint getConstructorsInterceptPoint() {
+    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return null;
     }
 

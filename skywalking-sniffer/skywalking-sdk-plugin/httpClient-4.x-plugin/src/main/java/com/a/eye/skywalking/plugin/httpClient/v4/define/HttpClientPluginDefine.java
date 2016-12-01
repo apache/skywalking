@@ -5,7 +5,7 @@ import com.a.eye.skywalking.plugin.interceptor.enhance.ClassInstanceMethodsEnhan
 
 public abstract class HttpClientPluginDefine extends ClassInstanceMethodsEnhancePluginDefine {
 	@Override
-	protected ConstructorInterceptPoint getConstructorsInterceptPoint() {
+	protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
 		return null;
 	}
 

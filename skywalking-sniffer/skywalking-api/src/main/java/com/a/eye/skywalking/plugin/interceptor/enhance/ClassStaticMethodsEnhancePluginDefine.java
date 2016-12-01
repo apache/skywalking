@@ -13,7 +13,7 @@ public abstract class ClassStaticMethodsEnhancePluginDefine extends
 		ClassEnhancePluginDefine {
 
 	@Override
-	protected ConstructorInterceptPoint getConstructorsInterceptPoint(){
+	protected ConstructorInterceptPoint[] getConstructorsInterceptPoints(){
 		return null;
 	}
 
