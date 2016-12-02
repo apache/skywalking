@@ -23,7 +23,7 @@ public class StorageThread extends Thread {
 
     StorageThread(long count, CountDownLatch countDownLatch, int index) {
         listener = new MyStorageClientListener();
-        client = new Client("10.128.7.241", 34000).newSpanStorageClient(listener);
+        client = new Client("10.128.6.79", 23000).newSpanStorageClient(listener);
         this.count = count;
         this.countDownLatch = countDownLatch;
         this.index = index;
@@ -78,7 +78,7 @@ public class StorageThread extends Thread {
 
         @Override
         public void onError(Throwable throwable) {
-
+            isCompleted = true;
         }
 
         @Override
