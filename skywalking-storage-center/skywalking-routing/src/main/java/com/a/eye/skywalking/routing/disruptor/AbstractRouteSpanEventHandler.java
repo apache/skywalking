@@ -56,9 +56,14 @@ public abstract class AbstractRouteSpanEventHandler<T> implements EventHandler<T
     }
 
     public void wait2Finish() {
+        // wait 20s, most
+        int countDown = 1000 * 20;
         while (!previousSendFinish) {
             try {
                 Thread.sleep(1L);
+                if(countDown-- < 0){
+                    previousSendFinish = true;
+                }
             } catch (InterruptedException e) {
             }
         }
