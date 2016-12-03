@@ -18,7 +18,6 @@ import static com.a.eye.skywalking.routing.storage.listener.NotifyListenerImpl.C
 public class NotifyListenerImpl implements NotifyListener {
 
     private NodeChangesListener listener;
-    private List<String> childrenConnectionURLOfPreviousChanged = new ArrayList<>();
     private ReentrantLock lock = new ReentrantLock();
 
     public NotifyListenerImpl(String subscribePath, NodeChangesListener listener) {

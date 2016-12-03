@@ -16,11 +16,9 @@ service TraceSearchService {
 }
 
 message QueryTask {
-    int32 taskId = 1;
     TraceId traceId = 2;
 }
 
 message SearchResult {
-    int32 taskId = 1;
     repeated Span spans = 2;
 }

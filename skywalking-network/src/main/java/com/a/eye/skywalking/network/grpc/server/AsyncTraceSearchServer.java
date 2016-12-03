@@ -24,18 +24,15 @@ public class AsyncTraceSearchServer extends AsyncTraceSearchServiceGrpc.AsyncTra
     public StreamObserver<QueryTask> search(final StreamObserver<SearchResult> responseObserver) {
         return new StreamObserver<QueryTask>() {
             private List<Span> spans;
-            private int taskId;
 
             @Override
             public void onNext(QueryTask value) {
-                taskId = value.getTaskId();
                 spans = searchListener.search(value.getTraceId());
             }
 
             @Override
             public void onError(Throwable t) {
                 SearchResult.Builder builder = SearchResult.newBuilder();
-                builder = builder.setTaskId(taskId);
                 responseObserver.onNext(builder.build());
                 responseObserver.onCompleted();
             }
@@ -46,7 +43,6 @@ public class AsyncTraceSearchServer extends AsyncTraceSearchServiceGrpc.AsyncTra
                 if(spans != null) {
                     builder = builder.addAllSpans(spans);
                 }
-                builder = builder.setTaskId(taskId);
                 responseObserver.onNext(builder.build());
                 responseObserver.onCompleted();
             }

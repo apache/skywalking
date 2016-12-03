@@ -6,6 +6,7 @@ import com.a.eye.skywalking.network.Client;
 import com.a.eye.skywalking.network.grpc.RequestSpan;
 import com.a.eye.skywalking.network.grpc.client.SpanStorageClient;
 import com.a.eye.skywalking.network.listener.client.StorageClientListener;
+import com.a.eye.skywalking.routing.client.StorageClientCachePool;
 import com.a.eye.skywalking.routing.config.Config;
 import com.lmax.disruptor.EventHandler;
 
@@ -16,22 +17,15 @@ import java.util.List;
  * Created by xin on 2016/11/29.
  */
 public abstract class AbstractRouteSpanEventHandler<T> implements EventHandler<T> {
-    protected       Client  client;
+    protected       SpanStorageClient  client;
     protected final int     bufferSize;
     protected       boolean stop;
     private volatile boolean previousSendFinish = true;
+    private StorageClientListener listener;
 
     public AbstractRouteSpanEventHandler(String connectionURL) {
         bufferSize = Config.Disruptor.FLUSH_SIZE;
-        String[] urlSegment = connectionURL.split(":");
-        if (urlSegment.length != 2) {
-            throw new IllegalArgumentException();
-        }
-        client = new Client(urlSegment[0], Integer.valueOf(urlSegment[1]));
-    }
-
-    protected SpanStorageClient getStorageClient() {
-        SpanStorageClient spanStorageClient = client.newSpanStorageClient(new StorageClientListener() {
+        listener = new StorageClientListener() {
             @Override
             public void onError(Throwable throwable) {
                 previousSendFinish = true;
@@ -43,9 +37,13 @@ public abstract class AbstractRouteSpanEventHandler<T> implements EventHandler<T
                 previousSendFinish = true;
                 HealthCollector.getCurrentHeathReading(getExtraId()).updateData(HeathReading.INFO, " consumed Successfully");
             }
-        });
+        };
+        client = StorageClientCachePool.INSTANCE.getSpanStorageClient(connectionURL, listener);
+    }
+
+    protected SpanStorageClient getStorageClient() {
         previousSendFinish = false;
-        return spanStorageClient;
+        return client;
     }
 
     public abstract String getExtraId();
