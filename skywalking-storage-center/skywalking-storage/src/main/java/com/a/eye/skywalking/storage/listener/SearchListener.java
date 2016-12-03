@@ -6,7 +6,7 @@ import com.a.eye.skywalking.logging.api.ILog;
 import com.a.eye.skywalking.logging.api.LogManager;
 import com.a.eye.skywalking.network.grpc.Span;
 import com.a.eye.skywalking.network.grpc.TraceId;
-import com.a.eye.skywalking.network.listener.server.AsyncTraceSearchServerListener;
+import com.a.eye.skywalking.network.listener.server.TraceSearchListener;
 import com.a.eye.skywalking.storage.data.SpanDataFinder;
 import com.a.eye.skywalking.storage.data.spandata.SpanData;
 import com.a.eye.skywalking.storage.data.spandata.SpanDataHelper;
@@ -14,7 +14,7 @@ import com.a.eye.skywalking.storage.data.spandata.SpanDataHelper;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SearchListener implements AsyncTraceSearchServerListener {
+public class SearchListener implements TraceSearchListener {
 
     private static ILog logger = LogManager.getLogger(SearchListener.class);
 
