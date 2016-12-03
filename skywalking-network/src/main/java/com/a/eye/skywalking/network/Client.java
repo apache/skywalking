@@ -7,7 +7,7 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 
 public class Client {
-    private ManagedChannel                                channel;
+    private ManagedChannel channel;
 
     public Client(String ip, int address) {
         channel = ManagedChannelBuilder.forAddress(ip, address).usePlaintext(true).build();
@@ -17,16 +17,15 @@ public class Client {
         return new SpanStorageClient(channel, listener);
     }
 
-
-    public TraceSearchClient newTraceSearchClient(StorageClientListener listener){
-        return new TraceSearchClient(channel, listener);
+    public TraceSearchClient newTraceSearchClient() {
+        return new TraceSearchClient(channel);
     }
 
-    public void shutdown(){
+    public void shutdown() {
         channel.shutdownNow();
     }
 
-    public boolean isShutdown(){
+    public boolean isShutdown() {
         return channel.isShutdown() || channel.isTerminated();
     }
 }

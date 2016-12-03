@@ -4,7 +4,7 @@ import com.a.eye.skywalking.network.grpc.AsyncTraceSearchServiceGrpc;
 import com.a.eye.skywalking.network.grpc.QueryTask;
 import com.a.eye.skywalking.network.grpc.SearchResult;
 import com.a.eye.skywalking.network.grpc.Span;
-import com.a.eye.skywalking.network.listener.server.AsyncTraceSearchServerListener;
+import com.a.eye.skywalking.network.listener.server.TraceSearchListener;
 import io.grpc.stub.StreamObserver;
 
 import java.util.List;
@@ -14,9 +14,9 @@ import java.util.List;
  */
 public class AsyncTraceSearchServer extends AsyncTraceSearchServiceGrpc.AsyncTraceSearchServiceImplBase {
 
-    private AsyncTraceSearchServerListener searchListener;
+    private TraceSearchListener searchListener;
 
-    public AsyncTraceSearchServer(AsyncTraceSearchServerListener searchListener) {
+    public AsyncTraceSearchServer(TraceSearchListener searchListener) {
         this.searchListener = searchListener;
     }
 
@@ -34,11 +34,20 @@ public class AsyncTraceSearchServer extends AsyncTraceSearchServiceGrpc.AsyncTra
 
             @Override
             public void onError(Throwable t) {
+                SearchResult.Builder builder = SearchResult.newBuilder();
+                builder = builder.setTaskId(taskId);
+                responseObserver.onNext(builder.build());
+                responseObserver.onCompleted();
             }
 
             @Override
             public void onCompleted() {
-                responseObserver.onNext(SearchResult.newBuilder().addAllSpans(spans).setTaskId(taskId).build());
+                SearchResult.Builder builder = SearchResult.newBuilder();
+                if(spans != null) {
+                    builder = builder.addAllSpans(spans);
+                }
+                builder = builder.setTaskId(taskId);
+                responseObserver.onNext(builder.build());
                 responseObserver.onCompleted();
             }
         };

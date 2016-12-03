@@ -10,6 +10,7 @@ import io.grpc.stub.StreamObserver;
 public class SpanStorageServer extends SpanStorageServiceGrpc.SpanStorageServiceImplBase {
 
     private SpanStorageServerListener listener;
+
     public SpanStorageServer(SpanStorageServerListener listener) {
         this.listener = listener;
     }
@@ -24,6 +25,8 @@ public class SpanStorageServer extends SpanStorageServiceGrpc.SpanStorageService
 
             @Override
             public void onError(Throwable t) {
+                responseObserver.onNext(SendResult.newBuilder().setResult(false).build());
+                responseObserver.onCompleted();
             }
 
             @Override
@@ -45,6 +48,8 @@ public class SpanStorageServer extends SpanStorageServiceGrpc.SpanStorageService
 
             @Override
             public void onError(Throwable t) {
+                responseObserver.onNext(SendResult.newBuilder().setResult(false).build());
+                responseObserver.onCompleted();
             }
 
             @Override

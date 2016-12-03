@@ -11,7 +11,7 @@ service AsyncTraceSearchService {
 }
 
 service TraceSearchService {
-    rpc search (TraceId) returns (SearchResult) {
+    rpc search (QueryTask) returns (SearchResult) {
     };
 }
 
