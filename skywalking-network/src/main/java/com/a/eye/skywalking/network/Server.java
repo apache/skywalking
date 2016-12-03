@@ -3,7 +3,6 @@ package com.a.eye.skywalking.network;
 import com.a.eye.skywalking.network.grpc.server.AsyncTraceSearchServer;
 import com.a.eye.skywalking.network.grpc.server.SpanStorageServer;
 import com.a.eye.skywalking.network.grpc.server.TraceSearchServer;
-import com.a.eye.skywalking.network.listener.server.AsyncTraceSearchServerListener;
 import com.a.eye.skywalking.network.listener.server.SpanStorageServerListener;
 import com.a.eye.skywalking.network.listener.server.TraceSearchListener;
 import io.grpc.netty.NettyServerBuilder;
@@ -61,8 +60,8 @@ public class Server {
             return this;
         }
 
-        public TransferServiceBuilder addAsyncTraceSearchService(AsyncTraceSearchServerListener asyncTraceSearchServerListener){
-            serverBuilder.addService(new AsyncTraceSearchServer(asyncTraceSearchServerListener));
+        public TransferServiceBuilder addAsyncTraceSearchService(TraceSearchListener traceSearchListener){
+            serverBuilder.addService(new AsyncTraceSearchServer(traceSearchListener));
             return this;
         }
     }
