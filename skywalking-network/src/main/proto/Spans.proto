@@ -14,7 +14,7 @@ message AckSpan {
     string userId = 8;
     string applicationId = 9;
 
-    int64 routeKey = 10;
+    int32 routeKey = 10;
 }
 
 message RequestSpan {
@@ -32,7 +32,7 @@ message RequestSpan {
     int32 processNo = 13;
     string address = 14;
 
-    int64 routeKey = 15;
+    int32 routeKey = 15;
 }
 
 message TraceId{

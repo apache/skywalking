@@ -67,7 +67,7 @@ public class Span {
      */
     private String userId;
     private String viewPointId;
-    private long routeKey;
+    private int routeKey;
 
     public Span(TraceId traceId, String applicationId, String userId) {
         this.traceId = traceId;
@@ -210,11 +210,11 @@ public class Span {
         return builder;
     }
 
-    public void setRouteKey(long routeKey) {
+    public void setRouteKey(int routeKey) {
         this.routeKey = routeKey;
     }
 
-    public long getRouteKey() {
+    public int getRouteKey() {
         return routeKey;
     }
 }

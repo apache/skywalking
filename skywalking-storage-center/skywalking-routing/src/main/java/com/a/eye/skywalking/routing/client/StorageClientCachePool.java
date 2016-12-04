@@ -47,7 +47,7 @@ public class StorageClientCachePool {
                 spanStorageClientPool.put(connectionURL, client.newSpanStorageClient(listener));
                 traceSearchClientPool.put(connectionURL, client.newTraceSearchClient());
             }
-            return spanStorageClient;
+            return spanStorageClientPool.get(connectionURL);
         } finally {
             lock.unlock();
         }

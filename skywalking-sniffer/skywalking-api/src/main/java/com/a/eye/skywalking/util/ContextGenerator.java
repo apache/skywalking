@@ -1,8 +1,8 @@
 package com.a.eye.skywalking.util;
 
 import com.a.eye.skywalking.conf.Config;
-import com.a.eye.skywalking.model.ContextData;
 import com.a.eye.skywalking.context.CurrentThreadSpanStack;
+import com.a.eye.skywalking.model.ContextData;
 import com.a.eye.skywalking.model.Identification;
 import com.a.eye.skywalking.model.Span;
 
@@ -27,9 +27,9 @@ public final class ContextGenerator {
      */
     public static Span generateSpanFromContextData(ContextData context, Identification id) {
         Span spanData = CurrentThreadSpanStack.peek();
-        if (context != null && context.getTraceId() != null && spanData == null){
+        if (context != null && context.getTraceId() != null && spanData == null) {
             spanData = new Span(context.getTraceId(), context.getParentLevel(), context.getLevelId(), Config.SkyWalking.APPLICATION_CODE, Config.SkyWalking.USER_ID);
-        }else{
+        } else {
             spanData = getSpanFromThreadLocal(id);
         }
 
@@ -41,11 +41,11 @@ public final class ContextGenerator {
         // 1.获取Context，从ThreadLocal栈中获取中
         final Span parentSpan = CurrentThreadSpanStack.peek();
         // 2 校验Context，Context是否存在
-        long routeKey = 0;
+        int routeKey;
         if (parentSpan == null) {
             // 不存在，新创建一个Context
             span = new Span(TraceIdGenerator.generate(), Config.SkyWalking.APPLICATION_CODE, Config.SkyWalking.USER_ID);
-            routeKey = TokenGenerator.generate(id.getViewPoint());
+            routeKey = RoutingKeyGenerator.generate(id.getViewPoint());
         } else {
 
             // 根据ParentContextData的TraceId和RPCID

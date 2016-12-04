@@ -37,9 +37,9 @@ public class RouteSendRequestSpanEventHandler extends AbstractRouteSpanEventHand
 
         if (stop) {
             try {
-                for (RequestSpan ackSpan : buffer) {
-                    SpanDisruptor spanDisruptor = RoutingService.getRouter().lookup(ackSpan);
-                    spanDisruptor.saveSpan(ackSpan);
+                for (RequestSpan requestSpan : buffer) {
+                    SpanDisruptor spanDisruptor = RoutingService.getRouter().lookup(requestSpan);
+                    spanDisruptor.saveSpan(requestSpan);
                 }
             } finally {
                 buffer.clear();

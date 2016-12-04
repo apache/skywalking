@@ -9,8 +9,8 @@ import io.grpc.ManagedChannelBuilder;
 public class Client {
     private ManagedChannel channel;
 
-    public Client(String ip, int address) {
-        channel = ManagedChannelBuilder.forAddress(ip, address).usePlaintext(true).build();
+    public Client(String ip, int port) {
+        channel = ManagedChannelBuilder.forAddress(ip, port).usePlaintext(true).build();
     }
 
     public SpanStorageClient newSpanStorageClient(StorageClientListener listener) {
