@@ -10,6 +10,9 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, also known D
 [![codebeat badge](https://codebeat.co/badges/579e4dce-1dc7-4f32-a163-c164eafa1335)](https://codebeat.co/projects/github-com-wu-sheng-sky-walking)
 [![Join the chat at https://gitter.im/sky-walking/Lobby](https://badges.gitter.im/sky-walking/Lobby.svg)](https://gitter.im/sky-walking/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
+[![Release Version](https://img.shields.io/badge/sky--walking-1.0--release-brightgreen.svg)](https://github.com/wu-sheng/sky-walking/releases)
+[![Dev Version](https://img.shields.io/badge/sky--walking-2.0--indev-yellow.svg)](https://github.com/wu-sheng/sky-walking)
+
 # Abstract
 * An open source Large-Scale Distributed Systems Tracing Infrastructure, also known a ditributed tracer.
 * Based on [Google Dapper Paper: Dapper, a Large-Scale Distributed Systems Tracing Infrastructure](http://research.google.com/pubs/pub36356.html), [read Simplified Chinese Version](http://duanple.blog.163.com/blog/static/70971767201329113141336/)
@@ -20,8 +23,10 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, also known D
 
 # Supported components
 * web container
-  * Tomcat7
-  * Tomcat8
+
+  [![Tomcat 7 Test Docker](https://img.shields.io/badge/test--scenario-tomcat--7.0.73-brightgreen.svg)](https://hub.docker.com/r/skywalking/docker-tomcat-scenario/tags/)
+[![Tomcat 8 Test Docker](https://img.shields.io/badge/test--scenario-tomcat--8.0.39-brightgreen.svg)](https://hub.docker.com/r/skywalking/docker-tomcat-scenario/tags/)
+
 * database
   * mysql
   * oracle
@@ -35,6 +40,7 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, also known D
 * cache
   * jedix 2.x
 
+_All test scenarios base on Docker Tech._
 
 # Contributors
 * 吴晟 [wusheng](https://github.com/wu-sheng) &nbsp;&nbsp;wu.sheng@foxmail.com

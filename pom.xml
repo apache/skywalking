@@ -10,7 +10,7 @@
     <modules>
         <module>skywalking-commons</module>
         <module>skywalking-alarm</module>
-        <!--<module>skywalking-webui</module>-->
+        <module>skywalking-webui</module>
         <module>skywalking-sniffer</module>
         <module>skywalking-storage-center</module>
         <module>skywalking-opentracing-kit</module>
