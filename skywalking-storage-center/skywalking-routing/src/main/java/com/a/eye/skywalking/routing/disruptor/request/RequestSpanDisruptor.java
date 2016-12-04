@@ -6,6 +6,8 @@ import com.a.eye.skywalking.logging.api.ILog;
 import com.a.eye.skywalking.logging.api.LogManager;
 import com.a.eye.skywalking.network.grpc.RequestSpan;
 import com.a.eye.skywalking.routing.config.Config;
+import com.a.eye.skywalking.routing.disruptor.AbstractSpanDisruptor;
+import com.lmax.disruptor.InsufficientCapacityException;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.util.DaemonThreadFactory;
@@ -13,7 +15,7 @@ import com.lmax.disruptor.util.DaemonThreadFactory;
 /**
  * Created by xin on 2016/11/29.
  */
-public class RequestSpanDisruptor {
+public class RequestSpanDisruptor extends AbstractSpanDisruptor {
     private static ILog logger = LogManager.getLogger(RequestSpanDisruptor.class);
     private Disruptor<RequestSpanHolder>     requestSpanDisruptor;
     private RingBuffer<RequestSpanHolder>    requestSpanRingBuffer;
@@ -28,8 +30,13 @@ public class RequestSpanDisruptor {
     }
 
     public boolean saveRequestSpan(RequestSpan requestSpan) {
-        long sequence = requestSpanRingBuffer.next();
+        long sequence = this.getRingBufferSequence(requestSpanRingBuffer);
+        if(this.isShutdown()){
+            return false;
+        }
+
         try {
+
             RequestSpanHolder data = requestSpanRingBuffer.get(sequence);
             data.setRequestSpan(requestSpan);
 
@@ -44,7 +51,8 @@ public class RequestSpanDisruptor {
         }
     }
 
-    public void shutDown() {
+    public void shutdown() {
+        super.shutdown();
         eventHandler.stop();
         requestSpanDisruptor.shutdown();
     }

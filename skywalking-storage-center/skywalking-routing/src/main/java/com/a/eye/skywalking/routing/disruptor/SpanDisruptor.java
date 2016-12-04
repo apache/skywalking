@@ -48,7 +48,7 @@ public class SpanDisruptor {
     }
 
     public void shutdown() {
-        ackSpanDisruptor.shutdown();
+        requestSpanDisruptor.shutdown();
         ackSpanDisruptor.shutdown();
     }
 }
