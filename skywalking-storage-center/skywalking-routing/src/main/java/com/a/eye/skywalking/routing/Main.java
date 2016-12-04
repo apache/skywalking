@@ -8,6 +8,7 @@ import com.a.eye.skywalking.network.Server;
 import com.a.eye.skywalking.routing.config.Config;
 import com.a.eye.skywalking.routing.config.ConfigInitializer;
 import com.a.eye.skywalking.routing.listener.SpanStorageListenerImpl;
+import com.a.eye.skywalking.routing.listener.TraceSearchListenerImpl;
 import com.a.eye.skywalking.routing.router.RoutingService;
 import com.a.eye.skywalking.routing.storage.listener.NotifyListenerImpl;
 
@@ -25,12 +26,12 @@ public class Main {
             LogManager.setLogResolver(new Log4j2Resolver());
 
             new NotifyListenerImpl(Config.StorageNode.SUBSCRIBE_PATH, RoutingService.getRouter());
-            Server.newBuilder(Config.Routing.PORT).addSpanStorageService(new SpanStorageListenerImpl()).build().start();
+            Server.newBuilder(Config.Routing.PORT).addSpanStorageService(new SpanStorageListenerImpl()).addTraceSearchService(new TraceSearchListenerImpl()).build().start();
             logger.info("Skywalking routing service was started.");
             Thread.currentThread().join();
         } catch (Exception e) {
             logger.error("Failed to start routing service.", e);
-        }finally {
+        } finally {
             RoutingService.stop();
         }
     }

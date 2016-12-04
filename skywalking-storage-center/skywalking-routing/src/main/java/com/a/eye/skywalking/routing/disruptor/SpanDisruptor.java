@@ -28,11 +28,6 @@ public class SpanDisruptor {
         return ackSpanDisruptor.saveAckSpan(ackSpan);
     }
 
-    public void stop() {
-        requestSpanDisruptor.shutDown();
-        ackSpanDisruptor.shutdown();
-    }
-
     public String getConnectionURL() {
         return connectionURL;
     }

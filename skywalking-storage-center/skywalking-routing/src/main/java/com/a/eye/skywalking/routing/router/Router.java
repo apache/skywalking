@@ -5,6 +5,7 @@ import com.a.eye.skywalking.logging.api.LogManager;
 import com.a.eye.skywalking.network.grpc.AckSpan;
 import com.a.eye.skywalking.network.grpc.RequestSpan;
 import com.a.eye.skywalking.registry.api.RegistryNode;
+import com.a.eye.skywalking.routing.client.StorageClientCachePool;
 import com.a.eye.skywalking.routing.disruptor.NoopSpanDisruptor;
 import com.a.eye.skywalking.routing.disruptor.SpanDisruptor;
 import com.a.eye.skywalking.routing.storage.listener.NodeChangesListener;
@@ -52,19 +53,16 @@ public class Router implements NodeChangesListener {
             }
         }
 
-        Collections.sort(newDisruptors, new Comparator<SpanDisruptor>() {
-            @Override
-            public int compare(SpanDisruptor o1, SpanDisruptor o2) {
-                long o1Key = Long.parseLong(o1.getConnectionURL().replace(".", "").replace(":", ""));
-                long o2Key = Long.parseLong(o2.getConnectionURL().replace(".", "").replace(":", ""));
+        Collections.sort(newDisruptors, (o1, o2) -> {
+            long o1Key = Long.parseLong(o1.getConnectionURL().replace(".", "").replace(":", ""));
+            long o2Key = Long.parseLong(o2.getConnectionURL().replace(".", "").replace(":", ""));
 
-                if (o1Key == o2Key) {
-                    return 0;
-                } else if (o1Key > o2Key) {
-                    return 1;
-                } else {
-                    return -1;
-                }
+            if (o1Key == o2Key) {
+                return 0;
+            } else if (o1Key > o2Key) {
+                return 1;
+            } else {
+                return -1;
             }
         });
 
@@ -74,6 +72,7 @@ public class Router implements NodeChangesListener {
         // 而后stop
         for (SpanDisruptor removedDisruptor : removedDisruptors) {
             removedDisruptor.shutdown();
+            StorageClientCachePool.INSTANCE.shutdown(removedDisruptor.getConnectionURL());
         }
     }
 
