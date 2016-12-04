@@ -19,7 +19,6 @@ public class Router implements NodeChangesListener {
     private static ILog logger = LogManager.getLogger(Router.class);
 
     private SpanDisruptor[] disruptors = new SpanDisruptor[0];
-    private NoopSpanDisruptor noopSpanPool = new NoopSpanDisruptor();
 
     public SpanDisruptor lookup(RequestSpan requestSpan) {
         return getSpanDisruptor(requestSpan.getRouteKey());
@@ -31,7 +30,7 @@ public class Router implements NodeChangesListener {
 
     private SpanDisruptor getSpanDisruptor(long routKey) {
         if (disruptors.length == 0) {
-            return noopSpanPool;
+            return NoopSpanDisruptor.INSTANCE;
         }
 
         while (true) {
