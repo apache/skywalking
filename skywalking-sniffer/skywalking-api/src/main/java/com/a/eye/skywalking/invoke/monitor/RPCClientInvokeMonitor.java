@@ -27,7 +27,7 @@ public class RPCClientInvokeMonitor extends BaseInvokeMonitor {
 
             sendRequestSpan(spanData, id);
 
-            return new ContextData(spanData.getTraceId(), generateSubParentLevelId(spanData));
+            return new ContextData(spanData.getTraceId(), generateSubParentLevelId(spanData), spanData.getRouteKey());
         } catch (Throwable t) {
             logger.error(t.getMessage(), t);
             return new EmptyContextData();

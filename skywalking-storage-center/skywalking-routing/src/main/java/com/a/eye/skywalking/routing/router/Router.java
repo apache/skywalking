@@ -10,7 +10,10 @@ import com.a.eye.skywalking.routing.disruptor.NoopSpanDisruptor;
 import com.a.eye.skywalking.routing.disruptor.SpanDisruptor;
 import com.a.eye.skywalking.routing.storage.listener.NodeChangesListener;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class Router implements NodeChangesListener {
     private static ILog logger = LogManager.getLogger(Router.class);
@@ -26,13 +29,13 @@ public class Router implements NodeChangesListener {
         return getSpanDisruptor(ackSpan.getRouteKey());
     }
 
-    private SpanDisruptor getSpanDisruptor(int routKey) {
+    private SpanDisruptor getSpanDisruptor(long routKey) {
         if (disruptors.length == 0) {
             return noopSpanPool;
         }
 
         while (true) {
-            int index = routKey % disruptors.length;
+            int index = Math.abs((int) (routKey % disruptors.length));
             try {
                 return disruptors[index];
             } catch (ArrayIndexOutOfBoundsException e) {

@@ -14,9 +14,7 @@ public final class ContextGenerator {
      * @return
      */
     public static Span generateSpanFromThreadLocal(Identification id) {
-        Span spanData = getSpanFromThreadLocal();
-        spanData.setStartDate(System.currentTimeMillis());
-        spanData.setViewPointId(id.getViewPoint());
+        Span spanData = getSpanFromThreadLocal(id);
         return spanData;
     }
 
@@ -32,21 +30,22 @@ public final class ContextGenerator {
         if (context != null && context.getTraceId() != null && spanData == null){
             spanData = new Span(context.getTraceId(), context.getParentLevel(), context.getLevelId(), Config.SkyWalking.APPLICATION_CODE, Config.SkyWalking.USER_ID);
         }else{
-            spanData = getSpanFromThreadLocal();
+            spanData = getSpanFromThreadLocal(id);
         }
-        spanData.setStartDate(System.currentTimeMillis());
-        spanData.setViewPointId(id.getViewPoint());
+
         return spanData;
     }
 
-    private static Span getSpanFromThreadLocal() {
+    private static Span getSpanFromThreadLocal(Identification id) {
         Span span;
         // 1.获取Context，从ThreadLocal栈中获取中
         final Span parentSpan = CurrentThreadSpanStack.peek();
         // 2 校验Context，Context是否存在
+        long routeKey = 0;
         if (parentSpan == null) {
             // 不存在，新创建一个Context
             span = new Span(TraceIdGenerator.generate(), Config.SkyWalking.APPLICATION_CODE, Config.SkyWalking.USER_ID);
+            routeKey = TokenGenerator.generate(id.getViewPoint());
         } else {
 
             // 根据ParentContextData的TraceId和RPCID
@@ -58,7 +57,13 @@ public final class ContextGenerator {
             } else {
                 span.setParentLevel(String.valueOf(parentSpan.getLevelId()));
             }
+            routeKey = parentSpan.getRouteKey();
         }
+
+        span.setStartDate(System.currentTimeMillis());
+        span.setViewPointId(id.getViewPoint());
+        span.setRouteKey(routeKey);
+
         return span;
     }
 

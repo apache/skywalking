@@ -8,26 +8,29 @@ public class ContextData {
     private TraceId traceId;
     private String parentLevel;
     private int levelId;
+    private long routeKey;
 
     ContextData() {
 
     }
 
-    public ContextData(TraceId traceId, String parentLevel) {
+    public ContextData(TraceId traceId, String parentLevelId, long routeKey) {
         this.traceId = traceId;
-        this.parentLevel = parentLevel;
+        this.parentLevel = parentLevelId;
+        this.routeKey = routeKey;
     }
 
     public ContextData(Span span) {
         this.traceId = span.getTraceId();
         this.parentLevel = span.getParentLevel();
         this.levelId = span.getLevelId();
+        this.routeKey = span.getRouteKey();
     }
 
     public ContextData(String contextDataStr) {
         // 反序列化参数
         String[] value = contextDataStr.split("-");
-        if (value == null || value.length != 3) {
+        if (value == null || value.length != 4) {
             throw new IllegalArgumentException("illegal context");
         }
         String traceIdStr = value[0];
@@ -48,6 +51,7 @@ public class ContextData {
         this.traceId = traceIdBuilder.build();
         this.parentLevel = value[1].trim();
         this.levelId = Integer.valueOf(value[2]);
+        this.routeKey = Long.parseLong(value[3]);
     }
 
     public TraceId getTraceId() {
@@ -75,6 +79,8 @@ public class ContextData {
         }
         stringBuilder.append("-");
         stringBuilder.append(levelId);
+        stringBuilder.append("-");
+        stringBuilder.append(routeKey);
         return stringBuilder.toString();
     }
 }

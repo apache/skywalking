@@ -67,6 +67,7 @@ public class Span {
      */
     private String userId;
     private String viewPointId;
+    private long routeKey;
 
     public Span(TraceId traceId, String applicationId, String userId) {
         this.traceId = traceId;
@@ -197,7 +198,7 @@ public class Span {
 
     public RequestSpan.Builder buildRequestSpan(RequestSpan.Builder builder) {
         builder.setTraceId(this.traceId).setParentLevel(this.parentLevel).setLevelId(this.levelId).setSpanType(this.spanType).setApplicationId(this.applicationId)
-                .setUserId(this.userId);
+                .setUserId(this.userId).setRouteKey(routeKey);
         return builder;
     }
 
@@ -205,8 +206,15 @@ public class Span {
         builder.setTraceId(this.traceId).setParentLevel(this.parentLevel).setLevelId(this.levelId)
                 .setCost(System.currentTimeMillis() - this.startDate).setStatusCode(this.statusCode)
                 .setExceptionStack(this.exceptionStack).setUserId(this.userId).setApplicationId(this.applicationId)
-                .setViewpointId(this.viewPointId);
+                .setViewpointId(this.viewPointId).setRouteKey(routeKey);
         return builder;
     }
 
+    public void setRouteKey(long routeKey) {
+        this.routeKey = routeKey;
+    }
+
+    public long getRouteKey() {
+        return routeKey;
+    }
 }
