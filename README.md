@@ -23,8 +23,10 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, also known D
 
 # Supported components
 * web container
-  * Tomcat7
-  * Tomcat8
+
+[![Tomcat 7 Test Docker](https://img.shields.io/badge/test--scenario-tomcat--7.0.73-brightgreen.svg)](https://hub.docker.com/r/skywalking/docker-tomcat-scenario/tags/)
+[![Tomcat 8 Test Docker](https://img.shields.io/badge/test--scenario-tomcat--8.0.39-brightgreen.svg)](https://hub.docker.com/r/skywalking/docker-tomcat-scenario/tags/)
+
 * database
   * mysql
   * oracle
