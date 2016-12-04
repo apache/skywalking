@@ -15,10 +15,10 @@ import java.util.List;
  * Created by wusheng on 2016/11/24.
  */
 public class SendRequestSpanEventHandler implements EventHandler<RequestSpanHolder> {
-    private static       ILog          logger     = LogManager.getLogger(SendRequestSpanEventHandler.class);
-    private static final int           bufferSize = 100;
-    private              RequestSpan[] buffer     = new RequestSpan[bufferSize];
-    private              int           bufferIdx  = 0;
+    private static ILog logger = LogManager.getLogger(SendRequestSpanEventHandler.class);
+    private static final int bufferSize = 100;
+    private RequestSpan[] buffer = new RequestSpan[bufferSize];
+    private int bufferIdx = 0;
 
     public SendRequestSpanEventHandler() {
         Agent2RoutingClient.INSTANCE.setRequestSpanDataSupplier(this);
@@ -26,14 +26,14 @@ public class SendRequestSpanEventHandler implements EventHandler<RequestSpanHold
 
     @Override
     public void onEvent(RequestSpanHolder event, long sequence, boolean endOfBatch) throws Exception {
-        if(buffer[bufferIdx]  != null){
+        if (buffer[bufferIdx] != null) {
             return;
         }
 
         buffer[bufferIdx] = event.getData();
         bufferIdx++;
 
-        if(bufferIdx == buffer.length){
+        if (bufferIdx == buffer.length) {
             bufferIdx = 0;
         }
 
@@ -42,11 +42,13 @@ public class SendRequestSpanEventHandler implements EventHandler<RequestSpanHold
         }
     }
 
-    public List<RequestSpan> getBufferData(){
+    public List<RequestSpan> getBufferData() {
         List<RequestSpan> data = new ArrayList<RequestSpan>(bufferSize);
         for (int i = 0; i < buffer.length; i++) {
-            data.add(buffer[i]);
-            buffer[i] = null;
+            if (buffer[i] != null) {
+                data.add(buffer[i]);
+                buffer[i] = null;
+            }
         }
         return data;
     }

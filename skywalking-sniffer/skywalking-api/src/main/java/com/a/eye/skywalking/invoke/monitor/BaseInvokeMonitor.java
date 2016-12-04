@@ -43,19 +43,21 @@ public abstract class BaseInvokeMonitor {
         return new ContextData(spanData);
     }
 
-    protected void sendRequestSpan(Span span, Identification id){
+    protected void sendRequestSpan(Span span, Identification id) {
         RequestSpan.Builder requestSpanBuilder = span.buildRequestSpan(RequestSpan.newBuilder());
+        if (id.getBusinessKey() != null && id.getBusinessKey().length() > 0) {
+            requestSpanBuilder = requestSpanBuilder.setBusinessKey(id.getBusinessKey());
+        }
         RequestSpan requestSpan = requestSpanBuilder
                 .setViewPointId(id.getViewPoint())
                 .setSpanTypeDesc(id.getSpanTypeDesc())
-                .setBusinessKey(id.getBusinessKey())
                 .setCallType(id.getCallType()).setProcessNo(BuriedPointMachineUtil.getProcessNo())
                 .setAddress(BuriedPointMachineUtil.getHostDesc()).build();
 
         RequestSpanDisruptor.INSTANCE.ready2Send(requestSpan);
     }
 
-    protected void sendAckSpan(Span span){
+    protected void sendAckSpan(Span span) {
         AckSpan ackSpan = span.buildAckSpan(AckSpan.newBuilder()).build();
 
         AckSpanDisruptor.INSTANCE.ready2Send(ackSpan);

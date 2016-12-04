@@ -25,13 +25,13 @@ import java.util.concurrent.locks.LockSupport;
 public class Agent2RoutingClient extends Thread {
     private static ILog logger = LogManager.getLogger(Agent2RoutingClient.class);
 
-    private List<ServerAddr>  addrList;
-    private Client            client;
+    private List<ServerAddr> addrList;
+    private Client client;
     private SpanStorageClient spanStorageClient;
-    private NetworkListener   listener;
-    private          SendRequestSpanEventHandler requestSpanDataSupplier = null;
-    private          SendAckSpanEventHandler     ackSpanDataSupplier     = null;
-    private volatile boolean                     connected               = false;
+    private NetworkListener listener;
+    private SendRequestSpanEventHandler requestSpanDataSupplier = null;
+    private SendAckSpanEventHandler ackSpanDataSupplier = null;
+    private volatile boolean connected = false;
 
     public static Agent2RoutingClient INSTANCE = new Agent2RoutingClient();
 
@@ -80,7 +80,7 @@ public class Agent2RoutingClient extends Thread {
     public void run() {
         while (true) {
             try {
-                while (connected && !client.isShutdown()) {
+                while (requestSpanDataSupplier != null && ackSpanDataSupplier != null && connected && !client.isShutdown()) {
                     List<RequestSpan> requestData = this.requestSpanDataSupplier.getBufferData();
                     List<AckSpan> ackData = this.ackSpanDataSupplier.getBufferData();
 
@@ -103,7 +103,7 @@ public class Agent2RoutingClient extends Thread {
                         listener.wait2Confirm();
                     }
 
-                    if(!hasData) {
+                    if (!hasData) {
                         try {
                             Thread.sleep(10 * 1000L);
                         } catch (InterruptedException e) {
@@ -150,13 +150,13 @@ public class Agent2RoutingClient extends Thread {
             HealthCollector.getCurrentHeathReading("Agent2RoutingClient").updateData(HeathReading.INFO, "batch send data to routing node.");
         }
 
-        void wait2Confirm(){
+        void wait2Confirm() {
             // wait 20s, most.
             int countDown = 100 * 20;
             while (!listener.isBatchFinished()) {
                 try {
                     Thread.sleep(10L);
-                    if(countDown-- < 0){
+                    if (countDown-- < 0) {
                         batchFinished = true;
                     }
                 } catch (InterruptedException e) {
@@ -169,7 +169,7 @@ public class Agent2RoutingClient extends Thread {
 
 
     class ServerAddr {
-        String  ip;
+        String ip;
         Integer port;
 
         public ServerAddr(String ip, String port) {
