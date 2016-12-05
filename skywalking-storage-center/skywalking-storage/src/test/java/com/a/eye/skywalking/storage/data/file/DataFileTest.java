@@ -17,7 +17,7 @@ public class DataFileTest {
 
         IndexMetaInfo info = null;
         for (int i = 0; i < 100; i++) {
-            RequestSpan span = RequestSpan.newBuilder().setUserId("1").setApplicationId("app").build();
+            RequestSpan span = RequestSpan.newBuilder().setUsername("1").setApplicationCode("app").build();
 
             try {
                 info = dataFile.write(new RequestSpanData(span));
@@ -27,7 +27,7 @@ public class DataFileTest {
 
             RequestSpan newSpan = SpanDataBuilder.buildRequestSpan(dataFile.read(info.getOffset(), info.getLength()));
 
-            Assert.assertEquals("1", newSpan.getUserId());
+            Assert.assertEquals("1", newSpan.getUsername());
         }
     }
 }
