@@ -3,6 +3,7 @@
  */
 package com.a.eye.skywalking.web.util;
 
+import com.a.eye.skywalking.web.dto.TimeLineEntry;
 import com.a.eye.skywalking.web.dto.TraceNodeInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -30,7 +31,7 @@ public class SortUtil {
             return false;
         } else {
             // 增加虚拟节点
-            reMap.put(colId, TraceNodeInfo.addLostBuriedPointEntry(colId));
+            reMap.put(colId, addLostBuriedPointEntry(colId));
             // 根据当前Id查找上级，如果不存在，插入空，再看上级，如果不存在还插入空，直到根"0"
             while (colId.indexOf(Constants.VAL_SPLIT_CHAR) > -1) {
                 colId = colId.substring(0, colId.lastIndexOf(Constants.VAL_SPLIT_CHAR));
@@ -40,5 +41,21 @@ public class SortUtil {
             }
             return false;
         }
+    }
+
+    /***
+     * 补充丢失的链路信息
+     *
+     * @param colId
+     * @return
+     */
+    public static TraceNodeInfo addLostBuriedPointEntry(String colId) {
+        TraceNodeInfo result = new TraceNodeInfo();
+        result.setColId(colId);
+        result.setLevelId(colId);
+        result.getTimeLineList().add(new TimeLineEntry());
+
+        // 其它默认值
+        return result;
     }
 }

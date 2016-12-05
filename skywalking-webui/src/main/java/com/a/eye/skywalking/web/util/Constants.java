@@ -17,9 +17,7 @@ public class Constants {
     public static final String STATUS_CODE_9 = "9";
 
 
-    public static final String TABLE_NAME_CHAIN = "sw-call-chain";
     public static final char VAL_SPLIT_CHAR = '.';
-    public static final String RPC_END_FLAG = "-S";
 
     public static Map<String, String> SPAN_TYPE_MAP = new HashMap<String, String>() {
         {

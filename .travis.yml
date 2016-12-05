@@ -10,6 +10,6 @@ install:
 script:
   - jdk_switcher use oraclejdk8
   - cd skywalking-network
-  - mvn clean install -Dmaven.test.skip=true
+  - mvn clean install
   - cd ..
-  - mvn clean install -Dmaven.test.skip=true
+  - mvn clean install

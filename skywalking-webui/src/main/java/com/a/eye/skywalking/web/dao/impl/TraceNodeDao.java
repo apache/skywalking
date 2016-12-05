@@ -1,27 +1,19 @@
 package com.a.eye.skywalking.web.dao.impl;
 
-import com.a.eye.skywalking.protocol.exception.ConvertFailedException;
+import com.a.eye.skywalking.network.grpc.Span;
+import com.a.eye.skywalking.web.dao.inter.ITraceNodeDao;
 import com.a.eye.skywalking.web.dto.TraceNodeInfo;
 import com.a.eye.skywalking.web.dto.TraceNodesResult;
-import com.a.eye.skywalking.web.dao.inter.ITraceNodeDao;
 import com.a.eye.skywalking.web.util.Constants;
-import com.a.eye.skywalking.web.util.HBaseUtils;
 import com.a.eye.skywalking.web.util.SortUtil;
 import com.a.eye.skywalking.web.util.StringUtil;
-import org.apache.hadoop.hbase.Cell;
-import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.Get;
-import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.client.Table;
-import org.apache.hadoop.hbase.filter.ColumnCountGetFilter;
-import org.apache.hadoop.hbase.util.Bytes;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -30,71 +22,26 @@ import java.util.Map;
 @Repository
 public class TraceNodeDao implements ITraceNodeDao {
 
-    private String CALL_CHAIN_TABLE_NAME = "trace-data";
-
-    @Autowired
-    private HBaseUtils hBaseUtils;
-
-
     @Override
     public TraceNodesResult queryTraceNodesByTraceId(String traceId)
-            throws ConvertFailedException, IOException, IllegalAccessException, NoSuchMethodException,
+            throws IOException, IllegalAccessException, NoSuchMethodException,
             InvocationTargetException {
-        Table table = hBaseUtils.getConnection().getTable(TableName.valueOf(CALL_CHAIN_TABLE_NAME));
-        Get g = new Get(Bytes.toBytes(traceId));
-        g.setFilter(new ColumnCountGetFilter(Constants.MAX_SEARCH_SPAN_SIZE + 1));
-        Result r = table.get(g);
-        Map<String, TraceNodeInfo> traceLogMap = new HashMap<String, TraceNodeInfo>();
-        Map<String, TraceNodeInfo> rpcMap = new HashMap<String, TraceNodeInfo>();
+        List<Span> searchResult = new ArrayList<>();
+
         TraceNodesResult result = new TraceNodesResult();
-        if (r.rawCells().length < Constants.MAX_SEARCH_SPAN_SIZE) {
-            CellToSpanHandler cellToSpanHandler = new CellToSpanHandler();
-            for (Cell cell : r.rawCells()) {
-                cellToSpanHandler.addSpan(cell);
-            }
-
-            for (Map.Entry<String, TraceNodeInfo> entry : cellToSpanHandler.handle().entrySet()){
-                SortUtil.addCurNodeTreeMapKey(traceLogMap, entry.getKey(), entry.getValue());
-            }
-            computeRPCInfo(rpcMap, traceLogMap);
-            result.setOverMaxQueryNodeNumber(false);
-            result.setResult(traceLogMap.values());
-        }else{
-            result.setOverMaxQueryNodeNumber(true);
-        }
-        return result;
-    }
-
-
-
-    private static final String[] NODES = new String[] {"0","0-ACK","0.0","0.0-ACK"};
-
-    @Override
-    public Collection<TraceNodeInfo> queryEntranceNodeByTraceId(String traceId)
-            throws IOException, IllegalAccessException, NoSuchMethodException, InvocationTargetException,
-            ConvertFailedException {
-        Table table = hBaseUtils.getConnection().getTable(TableName.valueOf(CALL_CHAIN_TABLE_NAME));
-        Get g = new Get(Bytes.toBytes(traceId));
-        g.addColumn("call-chain".getBytes(), "0".getBytes());
-        g.addColumn("call-chain".getBytes(), "0.0".getBytes());
-        g.addColumn("call-chain".getBytes(), "0-ACK".getBytes());
-        g.addColumn("call-chain".getBytes(), "0.0-ACK".getBytes());
-        Result r = table.get(g);
+        Map<String, TraceNodeInfo> traceNodeInfoMap = new HashMap<>();
+        searchResult.forEach((span -> {
+            traceNodeInfoMap.put(span.getLevelId(), new TraceNodeInfo(span));
+        }));
 
         Map<String, TraceNodeInfo> traceLogMap = new HashMap<String, TraceNodeInfo>();
         Map<String, TraceNodeInfo> rpcMap = new HashMap<String, TraceNodeInfo>();
-        CellToSpanHandler cellToSpanHandler = new CellToSpanHandler();
-        for (String node : NODES) {
-            Cell cell = r.getColumnLatestCell("call-chain".getBytes(), node.getBytes());
-            cellToSpanHandler.addSpan(cell);
-        }
-
-        for (Map.Entry<String, TraceNodeInfo> entry : cellToSpanHandler.handle().entrySet()){
+        traceNodeInfoMap.entrySet().forEach((entry -> {
             SortUtil.addCurNodeTreeMapKey(traceLogMap, entry.getKey(), entry.getValue());
-        }
-
+        }));
         computeRPCInfo(rpcMap, traceLogMap);
-        return traceLogMap.values();
+        result.setResult(traceLogMap.values());
+        return result;
     }
 
     private void computeRPCInfo(Map<String, TraceNodeInfo> rpcMap, Map<String, TraceNodeInfo> traceLogMap) {
