@@ -3,7 +3,7 @@ package com.a.eye.skywalking.conf;
 public class Config {
 
     public static class SkyWalking {
-        public static String USER_ID = "";
+        public static String USERNAME = "";
 
         public static String APPLICATION_CODE = "";
 

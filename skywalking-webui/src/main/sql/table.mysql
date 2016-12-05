@@ -29,32 +29,6 @@ CREATE TABLE IF NOT EXISTS `user_info` (
 ENGINE = InnoDB;
 
 
--- -----------------------------------------------------
--- Table `user_info_ext`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `user_info_ext` ;
-
-CREATE TABLE IF NOT EXISTS `user_info_ext` (
-  `eid` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `uid` INT NOT NULL,
-  `email` VARCHAR(200) NULL,
-  `create_time` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`eid`))
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `login_log`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `login_log` ;
-
-CREATE TABLE IF NOT EXISTS `login_log` (
-  `log_id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `uid` INT NOT NULL,
-  `login_time` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`log_id`))
-ENGINE = InnoDB;
-
 
 -- -----------------------------------------------------
 -- Table `application_info`
@@ -67,29 +41,10 @@ CREATE TABLE IF NOT EXISTS `application_info` (
   `app_code` VARCHAR(200) NOT NULL,
   `create_time` DATETIME NULL,
   `sts` VARCHAR(2) NULL,
+  `update_time` DATETIME NULL,
   PRIMARY KEY (`app_id`))
 ENGINE = InnoDB;
 
-
--- -----------------------------------------------------
--- Table `data_info`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `data_info` ;
-
-CREATE TABLE IF NOT EXISTS `data_info` (
-  `did` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `tab_info` VARCHAR(45) NOT NULL,
-  `col_info` VARCHAR(45) NOT NULL,
-  `code` VARCHAR(45) NOT NULL,
-  `word` VARCHAR(45) NOT NULL,
-  `code_desc` VARCHAR(200) NULL,
-  `order_id` INT UNSIGNED NULL,
-  `create_time` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
-  `sts` VARCHAR(2) NULL,
-  `modify_time` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
-  `parent_did` INT UNSIGNED NULL,
-  PRIMARY KEY (`did`))
-ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
@@ -142,21 +97,6 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `email_expression`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `email_expression` ;
-
-CREATE TABLE IF NOT EXISTS `email_expression` (
-  `tid` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `expr_name` VARCHAR(100) NOT NULL,
-  `expr_val` VARCHAR(100) NOT NULL,
-  `create_time` DATETIME NULL,
-  `sts` VARCHAR(2) NULL,
-  PRIMARY KEY (`tid`))
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
 -- Table `system_config`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `system_config` ;
@@ -173,32 +113,5 @@ CREATE TABLE IF NOT EXISTS `system_config` (
   PRIMARY KEY (`config_id`),
   UNIQUE INDEX `conf_key_UNIQUE` (`conf_key` ASC))
 ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `app_auth_info`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `app_auth_info` ;
-
-CREATE TABLE IF NOT EXISTS `app_auth_info` (
-  `info_id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `app_id` VARCHAR(45) NOT NULL,
-  `auth_json` VARCHAR(3000) NOT NULL,
-  `create_time` DATETIME NULL,
-  `sts` VARCHAR(45) NULL,
-  `modify_time` DATETIME NULL,
-  PRIMARY KEY (`info_id`))
-ENGINE = InnoDB;
-
-
-SET SQL_MODE=@OLD_SQL_MODE;
-SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
-SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
-
-
-# alter table since 2016-4-8
-ALTER TABLE `application_info` 
-ADD COLUMN `update_time` DATETIME NULL AFTER `sts`,
-ADD COLUMN `app_desc` VARCHAR(1024) NULL AFTER `update_time`;
 
 

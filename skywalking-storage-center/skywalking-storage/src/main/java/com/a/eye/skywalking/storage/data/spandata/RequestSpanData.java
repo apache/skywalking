@@ -49,8 +49,8 @@ public class RequestSpanData extends AbstractSpanData {
         return requestSpan.getAddress();
     }
 
-    public String getApplicationId() {
-        return requestSpan.getApplicationId();
+    public String getApplicationCode() {
+        return requestSpan.getApplicationCode();
     }
 
     public int getProcessNo() {

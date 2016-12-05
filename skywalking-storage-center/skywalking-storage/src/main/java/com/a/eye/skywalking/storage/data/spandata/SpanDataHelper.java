@@ -44,7 +44,7 @@ public class SpanDataHelper {
 
     private Span mergeSpan(RequestSpanData requestSpanData, AckSpanData ackSpanData) {
         Span.Builder builder = Span.newBuilder().setAddress(requestSpanData.getAddress())
-                .setApplicationId(requestSpanData.getApplicationId()).setBusinessKey(requestSpanData.getBusinessKey())
+                .setApplicationCode(requestSpanData.getApplicationCode()).setBusinessKey(requestSpanData.getBusinessKey())
                 .setCallType(requestSpanData.getCallType()).setCost(ackSpanData.getCost());
         if (ackSpanData.getExceptionStack() != null && ackSpanData.getExceptionStack().length() > 0) {
             builder = builder.setExceptionStack(ackSpanData.getExceptionStack());

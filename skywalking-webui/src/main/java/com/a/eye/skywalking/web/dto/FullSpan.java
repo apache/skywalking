@@ -18,7 +18,7 @@ public class FullSpan {
     protected String exceptionStack;
     protected byte statusCode = 0;
     protected String spanTypeDesc;
-    protected String userId;
+    protected String username;
     protected long   startDate;
     protected String spanType;
     protected String address   = "";
@@ -35,11 +35,11 @@ public class FullSpan {
         }
         this.traceId = traceId.substring(0, traceId.length() - 1);
         this.levelId = span.getLevelId();
-        this.applicationId = span.getApplicationId();
+        this.applicationId = span.getApplicationCode();
         this.callType = span.getCallType();
         this.businessKey = span.getBusinessKey();
         this.spanTypeDesc = span.getSpanTypeDesc();
-        this.userId = span.getUserId();
+        this.username = span.getUsername();
         this.startDate = span.getStarttime();
         this.viewPointId = span.getViewpoint();
         this.spanType = span.getSpanType() + "";
@@ -103,12 +103,12 @@ public class FullSpan {
         this.spanTypeDesc = spanTypeDesc;
     }
 
-    public String getUserId() {
-        return userId;
+    public String getUsername() {
+        return username;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public long getStartDate() {
