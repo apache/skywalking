@@ -1,9 +1,10 @@
 package com.a.eye.skywalking.storage.data.index;
 
+import com.a.eye.skywalking.storage.boot.ElasticBootstrap;
 import com.a.eye.skywalking.storage.config.Config;
 import com.a.eye.skywalking.storage.data.exception.BorrowIndexOperatorFromPoolFailedException;
 import com.a.eye.skywalking.storage.data.exception.IndexOperatorInitializeFailedException;
-import com.a.eye.skywalking.storage.util.NetUtils;
+import com.a.eye.skywalking.registry.assist.NetUtils;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
@@ -18,7 +19,7 @@ public class IndexOperatorFactory {
     public static IndexOperator createIndexOperator() {
         try {
             return new IndexOperator(new PreBuiltTransportClient(Settings.EMPTY).addTransportAddress(
-                    new InetSocketTransportAddress(InetAddress.getLoopbackAddress(), NetUtils.getIndexServerPort()
+                    new InetSocketTransportAddress(InetAddress.getLoopbackAddress(), ElasticBootstrap.getIndexServerPort()
                     )));
         } catch (Exception e) {
             throw new IndexOperatorInitializeFailedException("Failed to initialize operator.", e);

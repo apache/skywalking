@@ -1,8 +1,7 @@
-package com.a.eye.skywalking.storage.util;
+package com.a.eye.skywalking.registry.assist;
 
 import com.a.eye.skywalking.logging.api.ILog;
 import com.a.eye.skywalking.logging.api.LogManager;
-import com.a.eye.skywalking.storage.config.Config;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -70,9 +69,5 @@ public class NetUtils {
         String name = address.getHostAddress();
         // 不能是0.0.0.0 也不能是127.0.0.1 并且还得符合IP的正则
         return (name != null && !ANYHOST.equals(name) && !LOCALHOST.equals(name) && IP_PATTERN.matcher(name).matches());
-    }
-
-    public static int getIndexServerPort(){
-        return Config.Server.PORT + 1000;
     }
 }

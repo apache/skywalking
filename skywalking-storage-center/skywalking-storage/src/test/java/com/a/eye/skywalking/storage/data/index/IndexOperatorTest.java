@@ -4,7 +4,7 @@ import com.a.eye.skywalking.network.grpc.RequestSpan;
 import com.a.eye.skywalking.network.grpc.TraceId;
 import com.a.eye.skywalking.storage.data.file.DataFileNameDesc;
 import com.a.eye.skywalking.storage.data.spandata.RequestSpanData;
-import com.a.eye.skywalking.storage.util.NetUtils;
+import com.a.eye.skywalking.registry.assist.NetUtils;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;

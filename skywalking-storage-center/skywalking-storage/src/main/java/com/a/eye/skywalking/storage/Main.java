@@ -16,7 +16,7 @@ import com.a.eye.skywalking.storage.data.file.DataFilesManager;
 import com.a.eye.skywalking.storage.data.index.IndexOperatorFactory;
 import com.a.eye.skywalking.storage.listener.SearchListener;
 import com.a.eye.skywalking.storage.listener.StorageListener;
-import com.a.eye.skywalking.storage.util.NetUtils;
+import com.a.eye.skywalking.registry.assist.NetUtils;
 
 import java.io.IOException;
 import java.util.Map;
@@ -43,7 +43,7 @@ public class Main {
             initConfig();
             HealthCollector.init(SERVER_REPORTER_NAME);
 
-            new ElasticBootstrap().boot(NetUtils.getIndexServerPort());
+            new ElasticBootstrap().boot();
             IndexOperatorFactory.initOperatorPool();
 
             DataFilesManager.init();

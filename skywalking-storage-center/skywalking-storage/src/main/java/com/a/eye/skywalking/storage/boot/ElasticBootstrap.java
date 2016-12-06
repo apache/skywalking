@@ -2,6 +2,7 @@ package com.a.eye.skywalking.storage.boot;
 
 import com.a.eye.skywalking.logging.api.ILog;
 import com.a.eye.skywalking.logging.api.LogManager;
+import com.a.eye.skywalking.storage.config.Config;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,7 +23,8 @@ public class ElasticBootstrap {
         this.elasticHome = fetchElasticHome();
     }
 
-    public void boot(int port) throws IOException {
+    public void boot() throws IOException {
+        int port = getIndexServerPort();
         ElasticConfigModifier modifier = new ElasticConfigModifier(elasticHome);
         modifier.replaceConfig(port);
 
@@ -48,4 +50,9 @@ public class ElasticBootstrap {
     public String fetchElasticHome() {
         return System.getProperty(DATA_INDEX_HOME, DEVELOP_RUNTIME_ELASTIC_HOME);
     }
+
+    public static int getIndexServerPort(){
+        return Config.Server.PORT + 1000;
+    }
+
 }

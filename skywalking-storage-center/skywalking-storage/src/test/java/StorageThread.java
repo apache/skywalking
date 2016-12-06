@@ -1,16 +1,14 @@
 import com.a.eye.skywalking.network.Client;
 import com.a.eye.skywalking.network.grpc.AckSpan;
 import com.a.eye.skywalking.network.grpc.RequestSpan;
-import com.a.eye.skywalking.network.grpc.SendResult;
 import com.a.eye.skywalking.network.grpc.TraceId;
 import com.a.eye.skywalking.network.grpc.client.SpanStorageClient;
 import com.a.eye.skywalking.network.listener.client.StorageClientListener;
-import com.a.eye.skywalking.storage.util.NetUtils;
+import com.a.eye.skywalking.registry.assist.NetUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.locks.LockSupport;
 
 public class StorageThread extends Thread {
 
