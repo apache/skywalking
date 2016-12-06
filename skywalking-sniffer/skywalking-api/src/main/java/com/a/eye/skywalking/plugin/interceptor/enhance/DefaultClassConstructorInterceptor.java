@@ -15,12 +15,6 @@ public class DefaultClassConstructorInterceptor {
     private static ILog logger = LogManager
             .getLogger(ClassConstructorInterceptor.class);
 
-    private String instanceMethodsAroundInterceptorClassName;
-
-    public DefaultClassConstructorInterceptor(String instanceMethodsAroundInterceptorClassName) {
-        this.instanceMethodsAroundInterceptorClassName = instanceMethodsAroundInterceptorClassName;
-    }
-
     @RuntimeType
     public void intercept(
             @This Object obj,

@@ -65,18 +65,16 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
         /**
          * 2. enhance constructors
          */
+        newClassBuilder = newClassBuilder.constructor(ElementMatchers.<MethodDescription>any())
+                .intercept(SuperMethodCall.INSTANCE.andThen(
+                        MethodDelegation.to(new DefaultClassConstructorInterceptor())
+                                .appendParameterBinder(FieldProxy.Binder.install(FieldGetter.class, FieldSetter.class))));
+
         if (existedConstructorInterceptPoint) {
             for (ConstructorInterceptPoint constructorInterceptPoint : constructorInterceptPoints) {
                 newClassBuilder = newClassBuilder.constructor(constructorInterceptPoint.getConstructorMatcher())
                         .intercept(SuperMethodCall.INSTANCE.andThen(
                                 MethodDelegation.to(new ClassConstructorInterceptor(constructorInterceptPoint.getConstructorInterceptor()))
-                                        .appendParameterBinder(FieldProxy.Binder.install(FieldGetter.class, FieldSetter.class))));
-            }
-        } else {
-            for (ConstructorInterceptPoint constructorInterceptPoint : constructorInterceptPoints) {
-                newClassBuilder = newClassBuilder.constructor(ElementMatchers.<MethodDescription>any())
-                        .intercept(SuperMethodCall.INSTANCE.andThen(
-                                MethodDelegation.to(new DefaultClassConstructorInterceptor(constructorInterceptPoint.getConstructorInterceptor()))
                                         .appendParameterBinder(FieldProxy.Binder.install(FieldGetter.class, FieldSetter.class))));
             }
         }
