@@ -62,22 +62,22 @@ public class Span {
     /**
      * 应用编码
      */
-    private String applicationId;
+    private String applicationCode;
     /**
      * 归属用户
      */
-    private String userId;
+    private String username;
     private String viewPointId;
-    private int routeKey;
+    private int    routeKey;
 
-    public Span(TraceId traceId, String applicationId, String userId) {
+    public Span(TraceId traceId, String applicationCode, String username) {
         this.traceId = traceId;
-        this.applicationId = applicationId;
-        this.userId = userId;
+        this.applicationCode = applicationCode;
+        this.username = username;
         this.parentLevel = "";
     }
 
-    public Span(TraceId traceId, String parentLevel, int levelId, String applicationId, String userId, String viewPointId) {
+    public Span(TraceId traceId, String parentLevel, int levelId, String applicationCode, String username) {
         this.traceId = traceId;
         this.parentLevel = parentLevel;
         this.levelId = levelId;
@@ -175,20 +175,20 @@ public class Span {
         this.businessKey = businessKey;
     }
 
-    public String getApplicationId() {
-        return applicationId;
+    public String getApplicationCode() {
+        return applicationCode;
     }
 
-    public void setApplicationId(String applicationId) {
-        this.applicationId = applicationId;
+    public void setApplicationCode(String applicationCode) {
+        this.applicationCode = applicationCode;
     }
 
-    public String getUserId() {
-        return userId;
+    public String getUsername() {
+        return username;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public void setViewPointId(String viewPointId) {
@@ -200,15 +200,15 @@ public class Span {
     }
 
     public RequestSpan.Builder buildRequestSpan(RequestSpan.Builder builder) {
-        builder.setTraceId(this.traceId).setParentLevel(this.parentLevel).setLevelId(this.levelId).setSpanType(this.spanType).setApplicationId(this.applicationId)
-                .setUserId(this.userId).setRouteKey(routeKey);
+        builder.setTraceId(this.traceId).setParentLevel(this.parentLevel).setLevelId(this.levelId).setSpanType(this.spanType).setApplicationCode(this.applicationCode)
+                .setUsername(this.username).setRouteKey(routeKey);
         return builder;
     }
 
     public AckSpan.Builder buildAckSpan(AckSpan.Builder builder){
         builder.setTraceId(this.traceId).setParentLevel(this.parentLevel).setLevelId(this.levelId)
                 .setCost(System.currentTimeMillis() - this.startDate).setStatusCode(this.statusCode)
-                .setExceptionStack(this.exceptionStack).setUserId(this.userId).setApplicationId(this.applicationId)
+                .setExceptionStack(this.exceptionStack).setUsername(this.username).setApplicationCode(this.applicationCode)
                 .setViewpointId(this.viewPointId).setRouteKey(routeKey);
         return builder;
     }

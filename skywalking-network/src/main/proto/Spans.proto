@@ -11,8 +11,8 @@ message AckSpan {
     int32 statusCode = 5;
     string exceptionStack = 6;
     string viewpointId = 7;
-    string userId = 8;
-    string applicationId = 9;
+    string username = 8;
+    string applicationCode = 9;
 
     int32 routeKey = 10;
 }
@@ -26,8 +26,8 @@ message RequestSpan {
     string spanTypeDesc = 6;
     string callType = 7;
     uint32 spanType = 8;
-    string applicationId = 9;
-    string userId = 10;
+    string applicationCode = 9;
+    string username = 10;
     string businessKey = 11;
     int32 processNo = 13;
     string address = 14;
@@ -35,11 +35,11 @@ message RequestSpan {
     int32 routeKey = 15;
 }
 
-message TraceId{
+message TraceId {
     repeated int64 segments = 1;
 }
 
-message Span{
+message Span {
     TraceId traceId = 1;
     string levelId = 2; // parentLevelId + "." + levelId
     string viewpoint = 3;
@@ -50,8 +50,8 @@ message Span{
     string spanTypeDesc = 8;
     string callType = 9;
     int32 spanType = 10;
-    string applicationId = 11;
-    string userId = 12;
+    string applicationCode = 11;
+    string username = 12;
     string businessKey = 13;
     int32 processNo = 14;
     string address = 15;

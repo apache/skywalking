@@ -34,12 +34,12 @@ public class ConfigInitializer {
                 logger.error("Failed to read the config file, sky-walking api run in default config.", e);
             }
         }
-        Config.SkyWalking.USER_ID = System.getProperty("userId");
+        Config.SkyWalking.USERNAME = System.getProperty("username");
         Config.SkyWalking.APPLICATION_CODE = System.getProperty("applicationCode");
         Config.SkyWalking.SERVERS = System.getProperty("servers");
 
-        if(StringUtil.isEmpty(Config.SkyWalking.USER_ID)){
-            throw new ExceptionInInitializerError("'-DuserId=' is missing.");
+        if(StringUtil.isEmpty(Config.SkyWalking.USERNAME)){
+            throw new ExceptionInInitializerError("'-Dusername=' is missing.");
         }
         if(StringUtil.isEmpty(Config.SkyWalking.APPLICATION_CODE)){
             throw new ExceptionInInitializerError("'-DapplicationCode=' is missing.");

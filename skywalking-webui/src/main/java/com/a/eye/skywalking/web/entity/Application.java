@@ -16,7 +16,6 @@ public class Application {
     private Timestamp createTime;
 
     private ConfigArgs configArgs;
-    private String     appDesc;
 
     public Application(String applicationId) {
         this.appId = applicationId;
@@ -78,13 +77,5 @@ public class Application {
             return new Timestamp(System.currentTimeMillis());
         }
         return updateTime;
-    }
-
-    public String getAppDesc() {
-        return appDesc;
-    }
-
-    public void setAppDesc(String appDesc) {
-        this.appDesc = appDesc;
     }
 }

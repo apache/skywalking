@@ -18,10 +18,10 @@
             <table class="table table-hover">
                 <thead>
                 <tr>
-                    <th>应用编码</th>
-                    <th>创建时间</th>
-                    <th>更新时间</th>
-                    <th>操作</th>
+                    <th>Application Code</th>
+                    <th>Create Time</th>
+                    <th>Update Time</th>
+                    <th>Operation</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -33,7 +33,6 @@
                     <td>
                         <a class="btn btn-xs" href="javascript:void(0);" onclick="loadContent('modifyApplication','{{>appId}}');">Update</a>
                         <a class="btn btn-danger btn-xs" href="javascript:void(0)" onclick="del('{{>appId}}')">Delete</a>
-                        <a class="btn btn-info btn-xs" href="javascript:void(0)" onclick="loadContent('downloadAuthFile','{{>appCode}}')">Download auth File</a>
                     </td>
                 </tr>
                 {{/for}}
@@ -89,19 +88,13 @@
         <div class="row">
             <form class="form-horizontal">
                 <div class="form-group">
-                    <label for="appCode" class="col-sm-3 control-label">应用编码:</label>
+                    <label for="appCode" class="col-sm-3 control-label">Application Code:</label>
                     <div class="col-sm-9">
                         <input type="text" class="form-control" id="appCode" placeholder="Application code">
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="inputPassword3" class="col-sm-3 control-label">应用描述:</label>
-                    <div class="col-sm-9">
-                        <input type="text" class="form-control" id="appDesc" placeholder="Application Description">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="isGlobalConfig" class="col-sm-3 control-label">使用全局配置:</label>
+                    <label for="isGlobalConfig" class="col-sm-3 control-label">Use Global Config:</label>
                     <div class="col-sm-3">
                         <input data-toggle="toggle" type="checkbox" id="isGlobalConfig"/>
                     </div>
@@ -112,31 +105,31 @@
                 <p id="defaultConfigID" value="" style="display: none"></p>
                 <div class="panel panel-default" id="sysConfigParam">
                     <div class="panel-heading">
-                        告警配置
+                        Alarm Config
                     </div>
                     <div class="panel-body">
                         <div class="form-group">
-                            <label for="inputPassword3" class="col-sm-3 control-label">告警周期:</label>
+                            <label for="inputPassword3" class="col-sm-3 control-label">Cycle:</label>
                             <div class="col-sm-9">
                                 <input type="text" class="form-control" id="period" name="period"
-                                       placeholder="10(M)"/>
+                                       placeholder="10(minutes)"/>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="inputPassword3" class="col-sm-3 control-label">告警类型:</label>
+                            <label for="inputPassword3" class="col-sm-3 control-label">Alarm by:</label>
                             <div class="col-sm-9">
-                                <span>发送邮件</span>
+                                <span>E-mail</span>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="inputPassword3" class="col-sm-3 control-label">收件人地址:</label>
+                            <label for="inputPassword3" class="col-sm-3 control-label">Mail to:</label>
                             <div class="col-sm-9">
                                 <input type="text-are" class="form-control" id="mailTo" name="mailTo"
                                        placeholder="Application Description">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="inputPassword3" class="col-sm-3 control-label">抄送人地址:</label>
+                            <label for="inputPassword3" class="col-sm-3 control-label">cc :</label>
                             <div class="col-sm-9">
                                 <input type="text" class="form-control" id="mailCc" name="mailCc"
                                        placeholder="Application Description">
@@ -194,31 +187,31 @@
             <form class="form-horizontal">
                 <div class="panel panel-default" id="sysConfigParam">
                     <div class="panel-heading">
-                        告警配置
+                        Alarm Config
                     </div>
                     <div class="panel-body">
                         <div class="form-group">
-                            <label for="inputPassword3" class="col-sm-3 control-label">告警周期:</label>
+                            <label for="inputPassword3" class="col-sm-3 control-label">Cycle:</label>
                             <div class="col-sm-9">
                                 <input type="text" class="form-control" id="period" name="period"
                                        placeholder="10(M)">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="inputPassword3" class="col-sm-3 control-label">告警类型:</label>
+                            <label for="inputPassword3" class="col-sm-3 control-label">Alarm by:</label>
                             <div class="col-sm-9">
-                                <span>发送邮件</span>
+                                <span>E-mail</span>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="inputPassword3" class="col-sm-3 control-label">收件人地址:</label>
+                            <label for="inputPassword3" class="col-sm-3 control-label">Mail to:</label>
                             <div class="col-sm-9">
                                 <input type="text-are" class="form-control" id="mailTo" name="mailTo"
                                        placeholder="test@test.com,test@test.com">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="inputPassword3" class="col-sm-3 control-label">抄送人地址:</label>
+                            <label for="inputPassword3" class="col-sm-3 control-label">cc:</label>
                             <div class="col-sm-9">
                                 <input type="text" class="form-control" id="mailCc" name="mailCc"
                                        placeholder="test@test.com,test@test.com">
@@ -275,19 +268,13 @@
             <form class="form-horizontal">
                 <div class="form-group">
                     <input type="hidden" id="applicationId" name="applicationId" value="{{:applicationId}}"/>
-                    <label for="appCode" class="col-sm-3 control-label">应用编码:</label>
+                    <label for="appCode" class="col-sm-3 control-label">Application Code:</label>
                     <div class="col-sm-9">
                         <span style="padding-top: 10%"><p id="appCode"></p></span>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="inputPassword3" class="col-sm-3 control-label">应用描述:</label>
-                    <div class="col-sm-9">
-                        <input type="text" class="form-control" id="appDesc" placeholder="Application Description">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="isGlobalConfig" class="col-sm-3 control-label">使用全局配置:</label>
+                    <label for="isGlobalConfig" class="col-sm-3 control-label">Use Global Config:</label>
                     <div class="col-sm-3">
                         <input data-toggle="toggle" type="checkbox" id="isGlobalConfig"/>
                     </div>
@@ -298,31 +285,31 @@
                 <p id="defaultConfigID" value="" style="display: none"></p>
                 <div class="panel panel-default" id="sysConfigParam">
                     <div class="panel-heading">
-                        告警配置
+                        Alarm Config
                     </div>
                     <div class="panel-body">
                         <div class="form-group">
-                            <label for="inputPassword3" class="col-sm-3 control-label">告警周期:</label>
+                            <label for="inputPassword3" class="col-sm-3 control-label">Cycle:</label>
                             <div class="col-sm-9">
                                 <input type="text" class="form-control" id="period" name="period"
                                        placeholder="10(M)"/>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="inputPassword3" class="col-sm-3 control-label">告警类型:</label>
+                            <label for="inputPassword3" class="col-sm-3 control-label">Alarm by:</label>
                             <div class="col-sm-9">
-                                <span>发送邮件</span>
+                                <span>E-mail</span>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="inputPassword3" class="col-sm-3 control-label">收件人地址:</label>
+                            <label for="inputPassword3" class="col-sm-3 control-label">Mail to:</label>
                             <div class="col-sm-9">
                                 <input type="text-are" class="form-control" id="mailTo" name="mailTo"
                                        placeholder="Application Description">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="inputPassword3" class="col-sm-3 control-label">抄送人地址:</label>
+                            <label for="inputPassword3" class="col-sm-3 control-label">cc:</label>
                             <div class="col-sm-9">
                                 <input type="text" class="form-control" id="mailCc" name="mailCc"
                                        placeholder="Application Description">

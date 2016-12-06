@@ -1,10 +1,8 @@
 package com.a.eye.skywalking.web.dto;
 
+import com.a.eye.skywalking.network.grpc.Span;
 import com.a.eye.skywalking.web.util.Constants;
 import com.a.eye.skywalking.web.util.StringUtil;
-import com.a.eye.skywalking.protocol.AckSpan;
-import com.a.eye.skywalking.protocol.FullSpan;
-import com.a.eye.skywalking.protocol.RequestSpan;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -42,18 +40,16 @@ public class TraceNodeInfo extends FullSpan {
 
     private String serverExceptionStr;
 
-    private TraceNodeInfo() {
+    public TraceNodeInfo() {
 
     }
 
-    public TraceNodeInfo(RequestSpan requestSpan, AckSpan ackSpan) {
-        super(requestSpan, ackSpan);
-        this.colId = requestSpan.getParentLevel() == null || requestSpan.getParentLevel().length() == 0 ?
-                getLevelId() + "" :
-                getParentLevel() + "." + getLevelId();
+    public TraceNodeInfo(Span span) {
+        super(span);
+        this.colId = this.levelId;
 
         // 处理类型key-value
-        String spanTypeStr = String.valueOf(requestSpan.getSpanTypeDesc());
+        String spanTypeStr = String.valueOf(span.getSpanTypeDesc());
         if (StringUtil.isBlank(spanTypeStr) || Constants.SPAN_TYPE_MAP.containsKey(spanTypeStr)) {
             this.spanTypeStr = Constants.SPAN_TYPE_U;
         }
@@ -128,32 +124,12 @@ public class TraceNodeInfo extends FullSpan {
     }
 
 
-    /***
-     * 补充丢失的链路信息
-     *
-     * @param colId
-     * @return
-     */
-    public static TraceNodeInfo addLostBuriedPointEntry(String colId) {
-        TraceNodeInfo result = new TraceNodeInfo();
-        result.colId = colId;
-        if (colId.indexOf(Constants.VAL_SPLIT_CHAR) > -1) {
-            result.parentLevel = colId.substring(0, colId.lastIndexOf(Constants.VAL_SPLIT_CHAR));
-        } else {
-            result.parentLevel = "";
-        }
-        result.timeLineList.add(new TimeLineEntry());
-
-        // 其它默认值
-        return result;
-    }
-
     @Override
     public String toString() {
         return "TraceNodeInfo [colId=" + colId + ", endDate=" + endDate + ", timeLineList=" + timeLineList
                 + ", spanTypeStr=" + spanTypeStr + ", spanTypeName=" + spanTypeName + ", statusCodeStr=" + statusCodeStr
                 + ", statusCodeName=" + statusCodeName + ", applicationIdStr=" + applicationIdStr + ", viewPointIdSub="
-                + viewPointIdSub + ", traceId=" + traceId + ", parentLevel=" + parentLevel + ", levelId=" + levelId
+                + viewPointIdSub + ", traceId=" + traceId  + ", levelId=" + levelId
                 + ", viewPointId=" + viewPointId + ", startDate=" + startDate + ", cost=" + cost + ", address="
                 + address + ", statusCode=" + statusCode + ", exceptionStack=" + exceptionStack + ", spanType="
                 + spanType + ", businessKey=" + businessKey + ", processNo=" + processNo + ", applicationId="

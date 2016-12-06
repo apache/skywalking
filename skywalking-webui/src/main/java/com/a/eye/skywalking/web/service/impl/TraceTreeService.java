@@ -3,12 +3,11 @@ package com.a.eye.skywalking.web.service.impl;
 import com.a.eye.skywalking.web.dao.inter.ITraceNodeDao;
 import com.a.eye.skywalking.web.dto.TraceNodeInfo;
 import com.a.eye.skywalking.web.dto.TraceNodesResult;
+import com.a.eye.skywalking.web.dto.TraceTreeInfo;
 import com.a.eye.skywalking.web.service.inter.ITraceTreeService;
 import com.a.eye.skywalking.web.util.Constants;
 import com.a.eye.skywalking.web.util.ReplaceAddressUtil;
-import com.a.eye.skywalking.protocol.exception.ConvertFailedException;
-import com.a.eye.skywalking.protocol.util.SpanLevelIdComparators;
-import com.a.eye.skywalking.web.dto.TraceTreeInfo;
+import com.a.eye.skywalking.web.util.SpanLevelIdComparators;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,18 +31,11 @@ public class TraceTreeService implements ITraceTreeService {
 
     @Override
     public TraceTreeInfo queryTraceTreeByTraceId(String traceId)
-            throws InvocationTargetException, NoSuchMethodException, ConvertFailedException, IllegalAccessException,
+            throws InvocationTargetException, NoSuchMethodException, IllegalAccessException,
             IOException {
         TraceTreeInfo traceTreeInfo = new TraceTreeInfo(traceId);
         TraceNodesResult traceNodesResult = traceTreeDao.queryTraceNodesByTraceId(traceId);
         List<TraceNodeInfo> traceNodeInfoList = traceNodesResult.getResult();
-        if (traceNodesResult.isOverMaxQueryNodeNumber()) {
-            traceNodeInfoList = new ArrayList<TraceNodeInfo>();
-            traceNodeInfoList.addAll(traceTreeDao.queryEntranceNodeByTraceId(traceId));
-            traceTreeInfo.setRealNodeSize(Constants.MAX_SEARCH_SPAN_SIZE + 1);
-        } else {
-            traceTreeInfo.setRealNodeSize(traceNodeInfoList.size());
-        }
 
         if (traceNodeInfoList.size() > 0) {
             final List<Long> endTime = new ArrayList<Long>();

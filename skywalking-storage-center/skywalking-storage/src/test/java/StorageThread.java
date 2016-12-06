@@ -37,10 +37,10 @@ public class StorageThread extends Thread {
         for (int i = 0; i < count; i++) {
 
             long value = System.currentTimeMillis();
-            RequestSpan requestSpan = RequestSpan.newBuilder().setSpanType(1).setAddress(NetUtils.getLocalAddress().toString()).setApplicationId("1").setCallType("1").setLevelId(0)
+            RequestSpan requestSpan = RequestSpan.newBuilder().setSpanType(1).setAddress(NetUtils.getLocalAddress().toString()).setApplicationCode("1").setCallType("1").setLevelId(0)
                     .setProcessNo(19287).setStartDate(System.currentTimeMillis())
                     .setTraceId(TraceId.newBuilder().addSegments(201611).addSegments(value).addSegments(8504828).addSegments(2277).addSegments(53).addSegments(3).build())
-                    .setUserId("1").setViewPointId("http://localhost:8080/wwww/test/helloWorld").setRouteKey(i).build();
+                    .setUsername("1").setViewPointId("http://localhost:8080/wwww/test/helloWorld").setRouteKey(i).build();
 
             AckSpan ackSpan = AckSpan.newBuilder().setLevelId(0).setCost(10).setTraceId(
                     TraceId.newBuilder().addSegments(201611).addSegments(value).addSegments(8504828).addSegments(2277).addSegments(53).addSegments(3)

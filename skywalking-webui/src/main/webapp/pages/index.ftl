@@ -29,11 +29,11 @@
                             <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                            <li><a href="${_base}/mainPage?loadType=applicationList">系统配置</a></li>
+                            <li><a href="${_base}/mainPage?loadType=applicationList">Edit Applications</a></li>
                             <li role="separator" class="divider"></li>
-                            <li><a href="${_base}/mainPage?loadType=addApplication">新增应用</a></li>
+                            <li><a href="${_base}/mainPage?loadType=addApplication">Add Application</a></li>
                             <li role="separator" class="divider"></li>
-                            <li><a href="javascript:void(0);" id="logoutBtn">退出</a></li>
+                            <li><a href="javascript:void(0);" id="logoutBtn">Sign Out</a></li>
                         </ul>
                     </div>
                 </div>
@@ -62,7 +62,7 @@
         </div>
         <div class="input-group col-md-6 col-md-offset-3 col-">
             <input type="text" class="form-control" id="key">
-            <a class="input-group-addon btn" href="javascript:void(0);" id="searchBtn">搜索</a>
+            <a class="input-group-addon btn" href="javascript:void(0);" id="searchBtn">Search</a>
         </div>
     </div>
 </div>

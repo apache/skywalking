@@ -1,9 +1,6 @@
 <#import "./common/commons.ftl" as common>
 <#import "./common/traceInfo.ftl" as traceInfo>
 <#import "./usr/applications/applicationMaintain.ftl" as applicationMaintain>
-<#import "./usr/authfile/auth.ftl" as auth>
-<#import "anls-result/analysisSearchResult.ftl" as anlySearchResult>
-<#import "anls-result/analysisResult.ftl" as anlyResult>
 <!DOCTYPE html>
 <html lang="zh-CN">
 
@@ -39,17 +36,6 @@
 <@applicationMaintain.addApplication/>
 <@applicationMaintain.createglobalConfig/>
 <@applicationMaintain.modifyApplication/>
-<@auth.downloadAuth/>
-<@anlySearchResult.anlyResultTmpl/>
-<@anlySearchResult.anlyResultDisplayTmpl/>
-<@anlySearchResult.pageInfoTmpl/>
-<@anlyResult.analysisResult/>
-<@anlyResult.analysisResultTableTmpl/>
-<@anlyResult.typicalCallChainTrees/>
-<@anlyResult.typicalCallChainTreeTable/>
-<@anlyResult.typicalCallChainCheckBox/>
-<@anlyResult.viewPointPickUp/>
-<@anlyResult.typicalCallTreeViewPointPickUp/>
 <p id="baseUrl" style="display: none">${_base}</p>
 <div class="container" id="mainPanel">
     <p id="searchType" style="display: none">${searchType!''}</p>
@@ -79,31 +65,6 @@
 
         if (loadType == "showTraceInfo") {
             loadTraceTreeData("${_base}");
-            return;
-        }
-
-        if (loadType == "showAnlySearchResult") {
-            var template = $.templates("#anlyResultPanelTmpl");
-            var htmlOutput = template.render({});
-            $("#mainPanel").empty();
-            $("#mainPanel").html(htmlOutput);
-            var searchKey = $("#searchKey").val();
-            var index = searchKey.indexOf(':');
-            if (index != -1) {
-                searchKey = searchKey.substr(index + 1);
-            }
-            toSearchAnlyResult(searchKey);
-            return;
-        }
-
-        if (loadType == "showAnalysisResult") {
-            var searchKey = $("#searchKey").val();
-            var index = searchKey.indexOf(':');
-            if (index != -1) {
-                searchKey = searchKey.substr(index + 1);
-            }
-            viewResolver = new AnalysisResultViewResolver({baseUrl: "${_base}", treeId: searchKey});
-            viewResolver.loadMainPage();
             return;
         }
 
@@ -138,16 +99,6 @@
             modifyApplication();
             return;
         }
-
-        if (loadType == "downloadAuthFile") {
-            var template = $.templates("#downloadAuthFileTmpl");
-            var htmlOutput = template.render({applicationCode: param});
-            $("#mainPanel").empty();
-            $("#mainPanel").html(htmlOutput);
-            toDownloadAuthFile();
-            return;
-        }
-
 
         $("#mainPanel").empty();
     }

@@ -20,7 +20,7 @@
                     <div class="input-group" style="margin-top:3%">
                         <input type="text" class="form-control" value="${key!''}" id="searchKey">
                         <span class="input-group-btn">
-                            <button class="btn btn-default" type="button" id="searchBtn">搜索</button>
+                            <button class="btn btn-default" type="button" id="searchBtn">Search</button>
                         </span>
                     </div>
                 </div>
@@ -33,11 +33,11 @@
                                 <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                                <li><a href="javascript:void(0);" onclick="loadContent('applicationList')">系统配置</a></li>
+                                <li><a href="javascript:void(0);" onclick="loadContent('applicationList')">Edit Applications</a></li>
                                 <li role="separator" class="divider"></li>
-                                <li><a href="javascript:void(0);" onclick="loadContent('addApplication')">新增应用</a></li>
+                                <li><a href="javascript:void(0);" onclick="loadContent('addApplication')">Add Application</a></li>
                                 <li role="separator" class="divider"></li>
-                                <li><a href="javascript:void(0);" id="logoutBtn">退出</a></li>
+                                <li><a href="javascript:void(0);" id="logoutBtn">Sign Out</a></li>
                             </ul>
                         </div>
                     <#else>

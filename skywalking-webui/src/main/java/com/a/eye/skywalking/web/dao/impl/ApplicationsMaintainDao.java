@@ -26,7 +26,7 @@ public class ApplicationsMaintainDao implements IApplicationsMaintainDao {
 
     @Override
     public ApplicationInfo loadApplication(String applicationId, String uid) throws SQLException {
-        String sqlQuery = "select a.app_id,a.uid,a.app_code,a.create_time,a.sts,a.app_desc,a.update_time from application_info a where a.app_id = ? and a.uid = ? and a.sts= 'A'";
+        String sqlQuery = "select a.app_id,a.uid,a.app_code,a.create_time,a.sts,a.update_time from application_info a where a.app_id = ? and a.uid = ? and a.sts= 'A'";
         Connection connection = dbConnectUtil.getConnection();
         ApplicationInfo application = null;
         try {
@@ -41,7 +41,6 @@ public class ApplicationsMaintainDao implements IApplicationsMaintainDao {
                 application.setAppCode(resultSet.getString("app_code"));
                 application.setCreateTime(resultSet.getTimestamp("create_time"));
                 application.setSts(resultSet.getString("sts"));
-                application.setAppDesc(resultSet.getString("app_desc"));
                 application.setUpdateTime(resultSet.getTimestamp("update_time"));
             }
         } catch (Exception e) {
@@ -55,7 +54,7 @@ public class ApplicationsMaintainDao implements IApplicationsMaintainDao {
 
     @Override
     public void saveApplication(ApplicationInfo application) throws SQLException {
-        final String sql = "insert into application_info(uid,app_code,create_time,sts,update_time,app_desc) values(?,?,?,?,?,?)";
+        final String sql = "insert into application_info(uid,app_code,create_time,sts,update_time) values(?,?,?,?,?)";
         Connection connection = dbConnectUtil.getConnection();
         int key = -1;
         try {
@@ -66,7 +65,6 @@ public class ApplicationsMaintainDao implements IApplicationsMaintainDao {
             pstmt.setTimestamp(++i, application.getCreateTime());
             pstmt.setString(++i, application.getSts());
             pstmt.setTimestamp(++i, application.getUpdateTime());
-            pstmt.setString(++i, application.getAppDesc());
 
             pstmt.executeUpdate();
             ResultSet results = pstmt.getGeneratedKeys();
@@ -88,15 +86,14 @@ public class ApplicationsMaintainDao implements IApplicationsMaintainDao {
 
     @Override
     public void modifyApplication(Application application) throws SQLException {
-        String sqlQuery = "update application_info set app_desc=?, update_time=?  where app_id=? and uid = ? and sts= 'A'";
+        String sqlQuery = "update application_info set update_time=?  where app_id=? and uid = ? and sts= 'A'";
         Connection connection = dbConnectUtil.getConnection();
 
         try {
             PreparedStatement pstmt = connection.prepareStatement(sqlQuery);
-            pstmt.setString(1, application.getAppDesc());
-            pstmt.setTimestamp(2, application.getUpdateTime());
-            pstmt.setString(3, application.getAppId());
-            pstmt.setString(4, application.getUId());
+            pstmt.setTimestamp(1, application.getUpdateTime());
+            pstmt.setString(2, application.getAppId());
+            pstmt.setString(3, application.getUId());
 
             pstmt.executeUpdate();
         } catch (Exception e) {

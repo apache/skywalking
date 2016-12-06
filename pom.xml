@@ -14,8 +14,6 @@
         <module>skywalking-sniffer</module>
         <module>skywalking-storage-center</module>
         <module>skywalking-opentracing-kit</module>
-
-        <module>samples/skywalking-example</module>
     </modules>
     <packaging>pom</packaging>
 

@@ -50,7 +50,7 @@ public class UserMaintainController extends BaseController {
                 return result.toJSONString();
             }
 
-            logger.info("The userId[{}] has been login", dbLoginInfo.getUid());
+            logger.info("The username[{}] has been login", dbLoginInfo.getUid());
             result.put("code", "200");
             result.put("message", "Login success");
             //
