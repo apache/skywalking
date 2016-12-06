@@ -38,7 +38,7 @@
     </tx:advice>
 
     <aop:config>
-        <aop:pointcut id="servicePointcut" expression="execution(* com.ai.cloud.skywalking.web.service.inter.*.*(..))"/>
+        <aop:pointcut id="servicePointcut" expression="execution(* com.a.eye.skywalking.web.service.inter.*.*(..))"/>
         <aop:advisor pointcut-ref="servicePointcut" advice-ref="txAdvice"/>
     </aop:config>
 

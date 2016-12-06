@@ -10,6 +10,7 @@
   <name>skywalking-agent</name>
   <url>http://maven.apache.org</url>
   <build>
+    <finalName>${artifactId}</finalName>
     <plugins>
       <plugin>
         <artifactId>maven-shade-plugin</artifactId>

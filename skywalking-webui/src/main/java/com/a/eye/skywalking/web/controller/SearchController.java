@@ -1,6 +1,8 @@
 package com.a.eye.skywalking.web.controller;
 
 import com.a.eye.skywalking.web.common.BaseController;
+import com.a.eye.skywalking.web.config.Config;
+import com.a.eye.skywalking.web.config.ConfigInitializer;
 import com.a.eye.skywalking.web.dto.TraceTreeInfo;
 import com.a.eye.skywalking.web.service.inter.ITraceTreeService;
 import com.a.eye.skywalking.web.util.StringUtil;
@@ -16,7 +18,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.util.Properties;
 
 /**
  * Created by xin on 16-3-29.
@@ -32,6 +37,13 @@ public class SearchController extends BaseController {
     @RequestMapping(value = "")
     public String showDefaultIndexPage(ModelMap root) throws Exception {
         return "index";
+    }
+
+    @PostConstruct
+    public void init() throws IOException, IllegalAccessException {
+        Properties properties = new Properties();
+        properties.load(SearchController.class.getResourceAsStream("/config.properties"));
+        ConfigInitializer.initialize(properties, Config.class);
     }
 
     @RequestMapping(value = "/search/traceId", produces = "application/json; charset=UTF-8")

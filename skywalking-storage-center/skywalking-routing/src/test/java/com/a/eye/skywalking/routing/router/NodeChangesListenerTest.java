@@ -5,7 +5,6 @@ import com.a.eye.skywalking.registry.api.CenterType;
 import com.a.eye.skywalking.registry.api.RegistryCenter;
 import com.a.eye.skywalking.registry.impl.zookeeper.ZookeeperConfig;
 import com.a.eye.skywalking.routing.config.Config;
-import com.a.eye.skywalking.routing.storage.listener.NotifyListenerImpl;
 import org.apache.curator.test.TestingServer;
 import org.junit.After;
 import org.junit.Before;
@@ -19,10 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
 @RunWith(MockitoJUnitRunner.class)
 public class NodeChangesListenerTest {
 
@@ -31,7 +26,6 @@ public class NodeChangesListenerTest {
 
     private TestingServer zkTestServer;
     private RegistryCenter registryCenter;
-    private NotifyListenerImpl notifyListenerImpl;
 
     @Before
     public void setUp() throws Exception {
@@ -45,7 +39,6 @@ public class NodeChangesListenerTest {
 
     @Test
     public void testRoutingStartBeforeStorageNode() throws InterruptedException {
-        notifyListenerImpl = new NotifyListenerImpl(Config.StorageNode.SUBSCRIBE_PATH, router);
         registryCenter.register(Config.StorageNode.SUBSCRIBE_PATH + "/127.0.0.1:34000");
         Thread.sleep(10);
         List<String> nodeURL = new ArrayList<>();
@@ -57,7 +50,6 @@ public class NodeChangesListenerTest {
     @Test
     public void testStorageNodeStartBeforeRoutingStart() throws InterruptedException {
         registryCenter.register(Config.StorageNode.SUBSCRIBE_PATH + "/127.0.0.1:34000");
-        notifyListenerImpl = new NotifyListenerImpl(Config.StorageNode.SUBSCRIBE_PATH, router);
         Thread.sleep(10);
         List<String> nodeURL = new ArrayList<>();
         nodeURL.add("127.0.0.1:34000");
