@@ -4,6 +4,7 @@ package com.a.eye.skywalking.model;
 import com.a.eye.skywalking.network.grpc.AckSpan;
 import com.a.eye.skywalking.network.grpc.RequestSpan;
 import com.a.eye.skywalking.network.grpc.TraceId;
+import com.a.eye.skywalking.util.RoutingKeyGenerator;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -76,12 +77,14 @@ public class Span {
         this.parentLevel = "";
     }
 
-    public Span(TraceId traceId, String parentLevel, int levelId, String applicationId, String userId) {
+    public Span(TraceId traceId, String parentLevel, int levelId, String applicationId, String userId, String viewPointId) {
         this.traceId = traceId;
         this.parentLevel = parentLevel;
         this.levelId = levelId;
         this.applicationId = applicationId;
         this.userId = userId;
+        this.viewPointId = viewPointId;
+        this.routeKey = RoutingKeyGenerator.generate(viewPointId);
     }
 
     public TraceId getTraceId() {

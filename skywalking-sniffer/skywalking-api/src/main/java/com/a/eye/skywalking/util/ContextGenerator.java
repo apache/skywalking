@@ -28,7 +28,8 @@ public final class ContextGenerator {
     public static Span generateSpanFromContextData(ContextData context, Identification id) {
         Span spanData = CurrentThreadSpanStack.peek();
         if (context != null && context.getTraceId() != null && spanData == null) {
-            spanData = new Span(context.getTraceId(), context.getParentLevel(), context.getLevelId(), Config.SkyWalking.APPLICATION_CODE, Config.SkyWalking.USER_ID);
+            spanData = new Span(context.getTraceId(), context.getParentLevel(), context.getLevelId(),
+                    Config.SkyWalking.APPLICATION_CODE, Config.SkyWalking.USER_ID, id.getViewPoint());
         } else {
             spanData = getSpanFromThreadLocal(id);
         }

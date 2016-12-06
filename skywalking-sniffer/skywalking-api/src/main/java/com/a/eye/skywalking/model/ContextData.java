@@ -4,6 +4,8 @@ package com.a.eye.skywalking.model;
 import com.a.eye.skywalking.api.Tracing;
 import com.a.eye.skywalking.network.grpc.TraceId;
 
+import static com.a.eye.skywalking.conf.Constants.CONTEXT_DATA_SEGMENT_SPILT_CHAR;
+
 public class ContextData {
     private TraceId traceId;
     private String parentLevel;
@@ -29,12 +31,12 @@ public class ContextData {
 
     public ContextData(String contextDataStr) {
         // 反序列化参数
-        String[] value = contextDataStr.split("-");
+        String[] value = contextDataStr.split(CONTEXT_DATA_SEGMENT_SPILT_CHAR);
         if (value == null || value.length != 4) {
             throw new IllegalArgumentException("illegal context");
         }
         String traceIdStr = value[0];
-        String[] traceIdSegments = traceIdStr.split(",");
+        String[] traceIdSegments = traceIdStr.split("\\.");
         if(traceIdSegments == null || traceIdSegments.length != 6){
             throw new IllegalArgumentException("illegal traceid in context");
         }
@@ -71,15 +73,15 @@ public class ContextData {
         StringBuilder stringBuilder = new StringBuilder();
 
         stringBuilder.append(Tracing.formatTraceId(traceId));
-        stringBuilder.append("-");
+        stringBuilder.append(CONTEXT_DATA_SEGMENT_SPILT_CHAR);
         if (parentLevel == null || parentLevel.length() == 0) {
             stringBuilder.append(" ");
         } else {
             stringBuilder.append(parentLevel);
         }
-        stringBuilder.append("-");
+        stringBuilder.append(CONTEXT_DATA_SEGMENT_SPILT_CHAR);
         stringBuilder.append(levelId);
-        stringBuilder.append("-");
+        stringBuilder.append(CONTEXT_DATA_SEGMENT_SPILT_CHAR);
         stringBuilder.append(routeKey);
         return stringBuilder.toString();
     }

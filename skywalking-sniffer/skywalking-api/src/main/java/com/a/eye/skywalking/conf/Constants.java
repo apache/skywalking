@@ -6,7 +6,5 @@ public class Constants {
 	 */
 	public static int SDK_VERSION = 202016;
 
-    public static final String HEALTH_DATA_SPILT_PATTERN = "^~";
-
-    public static final String DATA_SPILT = "#&";
+    public static final String CONTEXT_DATA_SEGMENT_SPILT_CHAR = "#&";
 }
