@@ -1,9 +1,5 @@
 package com.a.eye.skywalking.plugin.interceptor.enhance;
 
-import static net.bytebuddy.jar.asm.Opcodes.ACC_PRIVATE;
-import static net.bytebuddy.matcher.ElementMatchers.any;
-import static net.bytebuddy.matcher.ElementMatchers.not;
-
 import com.a.eye.skywalking.logging.api.ILog;
 import com.a.eye.skywalking.logging.api.LogManager;
 import com.a.eye.skywalking.plugin.AbstractClassEnhancePluginDefine;
@@ -17,6 +13,9 @@ import net.bytebuddy.implementation.SuperMethodCall;
 import net.bytebuddy.implementation.bind.annotation.FieldProxy;
 import net.bytebuddy.matcher.ElementMatcher;
 import net.bytebuddy.matcher.ElementMatchers;
+
+import static net.bytebuddy.jar.asm.Opcodes.ACC_PRIVATE;
+import static net.bytebuddy.matcher.ElementMatchers.not;
 
 public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePluginDefine {
     private static ILog logger = LogManager.getLogger(ClassEnhancePluginDefine.class);
@@ -66,12 +65,17 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
         /**
          * 2. enhance constructors
          */
+        newClassBuilder = newClassBuilder.constructor(ElementMatchers.<MethodDescription>any())
+                .intercept(SuperMethodCall.INSTANCE.andThen(
+                        MethodDelegation.to(new DefaultClassConstructorInterceptor())
+                                .appendParameterBinder(FieldProxy.Binder.install(FieldGetter.class, FieldSetter.class))));
+
         if (existedConstructorInterceptPoint) {
             for (ConstructorInterceptPoint constructorInterceptPoint : constructorInterceptPoints) {
                 newClassBuilder = newClassBuilder.constructor(constructorInterceptPoint.getConstructorMatcher())
                         .intercept(SuperMethodCall.INSTANCE.andThen(
-                        MethodDelegation.to(new ClassConstructorInterceptor(constructorInterceptPoint.getConstructorInterceptor()))
-                                .appendParameterBinder(FieldProxy.Binder.install(FieldGetter.class, FieldSetter.class))));
+                                MethodDelegation.to(new ClassConstructorInterceptor(constructorInterceptPoint.getConstructorInterceptor()))
+                                        .appendParameterBinder(FieldProxy.Binder.install(FieldGetter.class, FieldSetter.class))));
             }
         }
 
