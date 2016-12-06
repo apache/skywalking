@@ -1,6 +1,7 @@
 package com.a.eye.skywalking.web.dao.impl;
 
 import com.a.eye.skywalking.network.grpc.Span;
+import com.a.eye.skywalking.web.client.routing.SearchClient;
 import com.a.eye.skywalking.web.dao.inter.ITraceNodeDao;
 import com.a.eye.skywalking.web.dto.TraceNodeInfo;
 import com.a.eye.skywalking.web.dto.TraceNodesResult;
@@ -28,7 +29,8 @@ public class TraceNodeDao implements ITraceNodeDao {
             InvocationTargetException {
         List<Span> searchResult = new ArrayList<>();
 
-        TraceNodesResult result = new TraceNodesResult();
+        SearchClient client = new SearchClient();
+        TraceNodesResult result = client.searchSpan(traceId);
         Map<String, TraceNodeInfo> traceNodeInfoMap = new HashMap<>();
         searchResult.forEach((span -> {
             traceNodeInfoMap.put(span.getLevelId(), new TraceNodeInfo(span));

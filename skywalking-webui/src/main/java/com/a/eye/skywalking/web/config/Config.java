@@ -5,14 +5,13 @@ package com.a.eye.skywalking.web.config;
  */
 public class Config {
     public static class RegistryCenter {
+        public static String TYPE        = "zookeeper";
 
         public static String AUTH_INFO = "";
 
         public static String AUTH_SCHEMA = "";
 
         public static String CONNECT_URL = "127.0.0.1:2181";
-
-        public static String PATH_PREFIX = "/skywalking/storage_list/";
     }
 
     public static class RoutingNode {

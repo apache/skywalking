@@ -6,6 +6,7 @@ import com.a.eye.skywalking.logging.impl.log4j2.Log4j2Resolver;
 import com.a.eye.skywalking.network.Server;
 import com.a.eye.skywalking.registry.RegistryCenterFactory;
 import com.a.eye.skywalking.registry.api.RegistryCenter;
+import com.a.eye.skywalking.registry.assist.NetUtils;
 import com.a.eye.skywalking.registry.impl.zookeeper.ZookeeperConfig;
 import com.a.eye.skywalking.routing.config.Config;
 import com.a.eye.skywalking.routing.config.ConfigInitializer;
@@ -30,7 +31,9 @@ public class Main {
             center.start(fetchRegistryCenterConfig());
             center.subscribe(Config.StorageNode.SUBSCRIBE_PATH, RoutingService.getRouter());
 
-            Server.newBuilder(Config.Routing.PORT).addSpanStorageService(new SpanStorageListenerImpl()).addTraceSearchService(new TraceSearchListenerImpl()).build().start();
+            Server.newBuilder(Config.Server.PORT).addSpanStorageService(new SpanStorageListenerImpl()).addTraceSearchService(new TraceSearchListenerImpl()).build().start();
+
+            center.register(Config.RegistryCenter.PATH_PREFIX + NetUtils.getLocalAddress().getHostAddress() + ":" + Config.Server.PORT);
             logger.info("Skywalking routing service was started.");
             Thread.currentThread().join();
         } catch (Exception e) {

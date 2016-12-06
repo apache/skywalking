@@ -34,6 +34,11 @@
             <artifactId>skywalking-logging-impl-log4j2</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.a.eye</groupId>
+            <artifactId>skywalking-registry</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework</groupId>
@@ -104,7 +109,6 @@
             <version>1.6.5</version>
             <scope>test</scope>
         </dependency>
-
 
     </dependencies>
 </project>

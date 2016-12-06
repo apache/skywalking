@@ -1,7 +1,7 @@
 package com.a.eye.skywalking.routing.config;
 
 public class Config {
-    public static class Routing {
+    public static class Server {
         public static int PORT = 23000;
     }
 

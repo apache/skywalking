@@ -1,5 +1,9 @@
 package com.a.eye.skywalking.web.controller;
 
+import com.a.eye.skywalking.registry.RegistryCenterFactory;
+import com.a.eye.skywalking.registry.api.RegistryCenter;
+import com.a.eye.skywalking.registry.impl.zookeeper.ZookeeperConfig;
+import com.a.eye.skywalking.web.client.routing.RoutingServerWatcher;
 import com.a.eye.skywalking.web.common.BaseController;
 import com.a.eye.skywalking.web.config.Config;
 import com.a.eye.skywalking.web.config.ConfigInitializer;
@@ -44,6 +48,11 @@ public class SearchController extends BaseController {
         Properties properties = new Properties();
         properties.load(SearchController.class.getResourceAsStream("/config.properties"));
         ConfigInitializer.initialize(properties, Config.class);
+
+        RegistryCenter center = RegistryCenterFactory.INSTANCE.getRegistryCenter(Config.RegistryCenter.TYPE);
+
+        center.start(fetchRegistryCenterConfig());
+        center.subscribe(Config.RoutingNode.SUBSCRIBE_PATH, new RoutingServerWatcher());
     }
 
     @RequestMapping(value = "/search/traceId", produces = "application/json; charset=UTF-8")
@@ -88,5 +97,13 @@ public class SearchController extends BaseController {
     public String searchCallChainTree(String key, HttpServletRequest request, int pageSize) {
         //TODO: not provided in this release
         return "";
+    }
+
+    private static Properties fetchRegistryCenterConfig() {
+        Properties centerConfig = new Properties();
+        centerConfig.setProperty(ZookeeperConfig.CONNECT_URL, Config.RegistryCenter.CONNECT_URL);
+        centerConfig.setProperty(ZookeeperConfig.AUTH_SCHEMA, Config.RegistryCenter.AUTH_SCHEMA);
+        centerConfig.setProperty(ZookeeperConfig.AUTH_INFO, Config.RegistryCenter.AUTH_INFO);
+        return centerConfig;
     }
 }
