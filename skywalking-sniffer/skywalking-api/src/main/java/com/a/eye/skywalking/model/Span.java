@@ -77,12 +77,12 @@ public class Span {
         this.parentLevel = "";
     }
 
-    public Span(TraceId traceId, String parentLevel, int levelId, String applicationCode, String username) {
+    public Span(TraceId traceId, String parentLevel, int levelId, String applicationCode, String username, String viewPointId) {
         this.traceId = traceId;
         this.parentLevel = parentLevel;
         this.levelId = levelId;
-        this.applicationId = applicationId;
-        this.userId = userId;
+        this.applicationCode = applicationCode;
+        this.username = username;
         this.viewPointId = viewPointId;
         this.routeKey = RoutingKeyGenerator.generate(viewPointId);
     }
