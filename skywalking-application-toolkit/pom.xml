@@ -15,5 +15,7 @@
 
     <modules>
         <module>skywalking-toolkit-log4j-1.x</module>
+        <module>skywalking-toolkit-log4j-2.x</module>
+        <module>skywalking-toolkit-logback-1.x</module>
     </modules>
 </project>

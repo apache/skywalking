@@ -1,4 +1,4 @@
-package com.a.eye.skywalking.plugin.log.log4j.v1.x;
+package com.a.eye.skywalking.toolkit.log.log4j.v1.x;
 
 
 import org.apache.log4j.PatternLayout;

@@ -64,6 +64,11 @@
             <artifactId>skywalking-toolkit-log4j-1.x-activation</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.a.eye</groupId>
+            <artifactId>skywalking-toolkit-log4j-2.x-activation</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <finalName>${artifactId}</finalName>

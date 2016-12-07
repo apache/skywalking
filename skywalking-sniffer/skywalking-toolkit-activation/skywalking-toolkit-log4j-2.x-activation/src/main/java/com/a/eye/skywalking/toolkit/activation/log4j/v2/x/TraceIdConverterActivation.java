@@ -1,4 +1,4 @@
-package com.a.eye.skywalking.toolkit.activation.log4j.v1.x;
+package com.a.eye.skywalking.toolkit.activation.log4j.v2.x;
 
 import com.a.eye.skywalking.plugin.interceptor.ConstructorInterceptPoint;
 import com.a.eye.skywalking.plugin.interceptor.InstanceMethodsInterceptPoint;
@@ -9,10 +9,10 @@ import com.a.eye.skywalking.plugin.interceptor.matcher.SimpleMethodMatcher;
 /**
  * Created by wusheng on 2016/12/7.
  */
-public class TraceIdPatternConverterActivation extends ClassInstanceMethodsEnhancePluginDefine {
+public class TraceIdConverterActivation extends ClassInstanceMethodsEnhancePluginDefine {
     @Override
     protected String enhanceClassName() {
-        return "com.a.eye.skywalking.toolkit.log.log4j.v1.x.TraceIdPatternConverter";
+        return "com.a.eye.skywalking.toolkit.log4j.v2.x.TraceIdConverter";
     }
 
     @Override
@@ -25,12 +25,12 @@ public class TraceIdPatternConverterActivation extends ClassInstanceMethodsEnhan
         return new InstanceMethodsInterceptPoint[]{new InstanceMethodsInterceptPoint() {
             @Override
             public MethodMatcher[] getMethodsMatchers() {
-                return new MethodMatcher[]{new SimpleMethodMatcher("convert")};
+                return new MethodMatcher[]{new SimpleMethodMatcher("format")};
             }
 
             @Override
             public String getMethodsInterceptor() {
-                return "com.a.eye.skywalking.toolkit.activation.log4j.v1.x.PrintTraceIdInterceptor";
+                return "com.a.eye.skywalking.toolkit.activation.log4j.v2.x.PrintTraceIdInterceptor";
             }
         }};
     }

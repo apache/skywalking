@@ -11,6 +11,8 @@
     <packaging>pom</packaging>
     <modules>
         <module>skywalking-toolkit-log4j-1.x-activation</module>
+        <module>skywalking-toolkit-log4j-2.x-activation</module>
+        <module>skywalking-toolkit-logback-1.x-activation</module>
     </modules>
 
     <artifactId>skywalking-toolkit-activation</artifactId>
