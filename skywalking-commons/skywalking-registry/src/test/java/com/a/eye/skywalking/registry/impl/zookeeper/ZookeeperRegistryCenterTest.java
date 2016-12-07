@@ -40,6 +40,24 @@ public class ZookeeperRegistryCenterTest extends TestSuite {
     public void tearDown() throws Exception {
         zkTestServer.getTempDirectory().delete();
         zkTestServer.stop();
+        registryCenter.stop();
+    }
+
+    @Test
+    public void subscribeNodeTest() throws InterruptedException {
+        final StringBuilder addUrl = new StringBuilder();
+        registryCenter.subscribe("/skywalking/storage",  new NotifyListener() {
+            @Override
+            public void notify(List<RegistryNode> registryNodes) {
+                for (RegistryNode url : registryNodes) {
+                    addUrl.append(url.getNode() + ",");
+                }
+            }
+        });
+
+        registryCenter.register("/skywalking/storage/127.0.0.1:9400");
+        Thread.sleep(100L);
+        assertEquals(addUrl.deleteCharAt(addUrl.length() - 1).toString(), "127.0.0.1:9400");
     }
 
 
@@ -58,6 +76,8 @@ public class ZookeeperRegistryCenterTest extends TestSuite {
         Thread.sleep(100L);
         assertEquals(addUrl.deleteCharAt(addUrl.length() - 1).toString(), "127.0.0.1:9400");
     }
+
+
 
     @Test
     public void registryNodeTest() throws IOException, InterruptedException, KeeperException {

@@ -30,4 +30,7 @@ public interface RegistryCenter {
      * @param centerConfig 配置参数
      */
     void start(Properties centerConfig);
+
+
+    void stop();
 }

@@ -34,4 +34,8 @@ public class RegistryNodeManager {
     public List<String> getConnectionURLOfPreviousChanged() {
         return new ArrayList<String>(connectionURLOfPreviousChanged);
     }
+
+    public void clear() {
+        connectionURLOfPreviousChanged = new ArrayList<String>();
+    }
 }

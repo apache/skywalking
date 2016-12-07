@@ -59,6 +59,10 @@ public class ZookeeperRegistryCenter implements RegistryCenter {
         }
     }
 
+    @Override
+    public void stop() {
+        nodeManager.clear();
+    }
 
 
 }
