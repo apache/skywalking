@@ -10,13 +10,4 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>skywalking-toolkit-log4j-1.x-activation</artifactId>
-
-    <dependencies>
-        <dependency>
-            <groupId>com.a.eye</groupId>
-            <artifactId>skywalking-toolkit-log4j-1.x</artifactId>
-            <version>${project.version}</version>
-            <scope>compile</scope>
-        </dependency>
-    </dependencies>
 </project>

@@ -10,14 +10,12 @@ import com.a.eye.skywalking.logging.api.LogManager;
 import com.a.eye.skywalking.network.Client;
 import com.a.eye.skywalking.network.grpc.AckSpan;
 import com.a.eye.skywalking.network.grpc.RequestSpan;
-import com.a.eye.skywalking.network.grpc.SendResult;
 import com.a.eye.skywalking.network.grpc.client.SpanStorageClient;
 import com.a.eye.skywalking.network.listener.client.StorageClientListener;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.locks.LockSupport;
 
 /**
  * Created by wusheng on 2016/11/27.
@@ -46,6 +44,8 @@ public class Agent2RoutingClient extends Thread {
             addrList.add(new ServerAddr(addrSegments[0], addrSegments[1]));
         }
         listener = new NetworkListener();
+
+        onReady();
     }
 
     public void onReady() {

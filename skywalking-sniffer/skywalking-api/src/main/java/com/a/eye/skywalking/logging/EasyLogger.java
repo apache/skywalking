@@ -7,6 +7,8 @@ import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import static com.a.eye.skywalking.logging.LogLevel.*;
+
 /**
  * Created by xin on 16-6-23.
  */
@@ -18,14 +20,14 @@ public class EasyLogger implements com.a.eye.skywalking.logging.api.ILog {
         this.toBeLoggerClass = toBeLoggerClass;
     }
 
-    public void logger(String level, String message, Throwable e) {
+    public void logger(LogLevel level, String message, Throwable e) {
         Throwable dummyException = new Throwable();
         StackTraceElement locations[] = dummyException.getStackTrace();
 
         if (locations != null && locations.length > 2) {
-            if(ERROR.equals(level) || WARN.equals(level)){
+            if (ERROR.equals(level) || WARN.equals(level)) {
                 WriterFactory.getLogWriter().writeError(formatMessage(level, message, locations[2]));
-            }else {
+            } else {
                 WriterFactory.getLogWriter().write(formatMessage(level, message, locations[2]));
             }
         }
@@ -53,17 +55,10 @@ public class EasyLogger implements com.a.eye.skywalking.logging.api.ILog {
     }
 
 
-    private String formatMessage(String level, String message, StackTraceElement caller) {
+    private String formatMessage(LogLevel level, String message, StackTraceElement caller) {
         return level + " " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()) + " "
                 + caller.getClassName() + "." + caller.getMethodName() + "(" + caller.getFileName() + ":" + caller.getLineNumber() + ") " + message;
     }
-
-
-    private static final String ERROR = "ERROR";
-    private static final String WARN = "WARN";
-    private static final String DEBUG = "DEBUG";
-    private static final String INFO = "INFO";
-
 
     @Override
     public void info(String format) {
@@ -72,17 +67,17 @@ public class EasyLogger implements com.a.eye.skywalking.logging.api.ILog {
 
     @Override
     public void info(String format, Object... arguments) {
-        logger(INFO, replaceParam(INFO, format, arguments), null);
+        logger(INFO, replaceParam(format, arguments), null);
     }
 
     @Override
     public void warn(String format, Object... arguments) {
-        logger(WARN, replaceParam(WARN, format, arguments), null);
+        logger(WARN, replaceParam(format, arguments), null);
     }
 
     @Override
     public void warn(String format, Object arguments, Throwable e) {
-        logger(WARN, replaceParam(WARN, format, arguments), e);
+        logger(WARN, replaceParam(format, arguments), e);
     }
 
     @Override
@@ -92,7 +87,7 @@ public class EasyLogger implements com.a.eye.skywalking.logging.api.ILog {
 
     @Override
     public void error(String format, Object arguments, Throwable e) {
-        logger(ERROR, replaceParam(ERROR, format, arguments), e);
+        logger(ERROR, replaceParam(format, arguments), e);
     }
 
     @Override
@@ -122,6 +117,6 @@ public class EasyLogger implements com.a.eye.skywalking.logging.api.ILog {
 
     @Override
     public void debug(String format, Object... arguments) {
-        logger(DEBUG, replaceParam(DEBUG, format, arguments), null);
+        logger(DEBUG, replaceParam(format, arguments), null);
     }
 }
