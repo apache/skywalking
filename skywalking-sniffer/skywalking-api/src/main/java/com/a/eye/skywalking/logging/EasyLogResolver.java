@@ -1,5 +1,6 @@
 package com.a.eye.skywalking.logging;
 
+import com.a.eye.skywalking.logging.api.ILog;
 import com.a.eye.skywalking.logging.api.LogResolver;
 
 /**
@@ -7,7 +8,7 @@ import com.a.eye.skywalking.logging.api.LogResolver;
  */
 public class EasyLogResolver implements LogResolver {
     @Override
-    public com.a.eye.skywalking.logging.api.ILog getLogger(Class<?> clazz) {
+    public ILog getLogger(Class<?> clazz) {
         return new EasyLogger(clazz);
     }
 }

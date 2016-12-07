@@ -76,9 +76,9 @@ public class ConfigInitializer {
 
     private static InputStream fetchAuthFileInputStream() {
         try {
-            return new FileInputStream(Config.SkyWalking.AGENT_BASE_PATH + File.separator + "/sky-walking.auth");
+            return new FileInputStream(Config.SkyWalking.AGENT_BASE_PATH + File.separator + "/sky-walking.config");
         } catch (Exception e) {
-            logger.error("Error to fetch auth file input stream.", e);
+            logger.warn("sky-walking.config is missing, use default config.");
             return null;
         }
     }
