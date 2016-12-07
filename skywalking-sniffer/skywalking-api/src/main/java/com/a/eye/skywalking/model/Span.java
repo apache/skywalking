@@ -1,10 +1,13 @@
 package com.a.eye.skywalking.model;
 
 
+import com.a.eye.skywalking.conf.Config;
 import com.a.eye.skywalking.network.grpc.AckSpan;
 import com.a.eye.skywalking.network.grpc.RequestSpan;
 import com.a.eye.skywalking.network.grpc.TraceId;
 import com.a.eye.skywalking.util.RoutingKeyGenerator;
+import com.a.eye.skywalking.util.StringUtil;
+import com.a.eye.skywalking.util.TraceIdGenerator;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -24,7 +27,7 @@ public class Span {
      * 当前调用链的上级描述<br/>
      * 如当前序号为：0.1.0时，parentLevel=0.1
      */
-    protected String  parentLevel;
+    protected String parentLevel;
     /**
      * 当前调用链的本机描述<br/>
      * 如当前序号为：0.1.0时，levelId=0
@@ -42,7 +45,7 @@ public class Span {
      * 1：异常<br/>
      * 异常判断原则：代码产生exception，并且此exception不在忽略列表中
      */
-    protected byte   statusCode     = 0;
+    protected byte statusCode = 0;
     /**
      * 节点调用的错误堆栈<br/>
      * 堆栈以JAVA的exception为主要判断依据
@@ -68,23 +71,28 @@ public class Span {
      */
     private String username;
     private String viewPointId;
-    private int    routeKey;
+    private int routeKey;
 
-    public Span(TraceId traceId, String applicationCode, String username) {
-        this.traceId = traceId;
-        this.applicationCode = applicationCode;
-        this.username = username;
-        this.parentLevel = "";
+    public Span(String operationName) {
+        this(TraceIdGenerator.generate(), "", 0, operationName, RoutingKeyGenerator.generate(operationName));
     }
 
-    public Span(TraceId traceId, String parentLevel, int levelId, String applicationCode, String username, String viewPointId) {
+    public Span(Span parentSpan, String operationName) {
+        this(parentSpan.traceId, parentSpan.generateParentLevelId(), 0, operationName,parentSpan.getRouteKey());
+    }
+
+    public Span(ContextData contextData, String operationName) {
+        this(contextData.getTraceId(), contextData.getParentLevel(), contextData.getLevelId(), operationName, contextData.getRouteKey());
+    }
+
+    private Span(TraceId traceId, String parentLevel, int levelId, String operationName, int routeKey) {
         this.traceId = traceId;
         this.parentLevel = parentLevel;
         this.levelId = levelId;
-        this.applicationCode = applicationCode;
-        this.username = username;
-        this.viewPointId = viewPointId;
-        this.routeKey = RoutingKeyGenerator.generate(viewPointId);
+        this.applicationCode = Config.SkyWalking.APPLICATION_CODE;
+        this.username = Config.SkyWalking.USERNAME;
+        this.routeKey = routeKey;
+        this.viewPointId = operationName;
     }
 
     public TraceId getTraceId() {
@@ -205,7 +213,7 @@ public class Span {
         return builder;
     }
 
-    public AckSpan.Builder buildAckSpan(AckSpan.Builder builder){
+    public AckSpan.Builder buildAckSpan(AckSpan.Builder builder) {
         builder.setTraceId(this.traceId).setParentLevel(this.parentLevel).setLevelId(this.levelId)
                 .setCost(System.currentTimeMillis() - this.startDate).setStatusCode(this.statusCode)
                 .setExceptionStack(this.exceptionStack).setUsername(this.username).setApplicationCode(this.applicationCode)
@@ -219,5 +227,13 @@ public class Span {
 
     public int getRouteKey() {
         return routeKey;
+    }
+
+    private String generateParentLevelId() {
+        if (!StringUtil.isEmpty(this.getParentLevel())) {
+            return this.getParentLevel() + "." + this.getLevelId();
+        } else {
+            return String.valueOf(this.getLevelId());
+        }
     }
 }

@@ -10,13 +10,13 @@ public class ContextData {
     private TraceId traceId;
     private String parentLevel;
     private int levelId;
-    private long routeKey;
+    private int routeKey;
 
     ContextData() {
 
     }
 
-    public ContextData(TraceId traceId, String parentLevelId, long routeKey) {
+    public ContextData(TraceId traceId, String parentLevelId, int routeKey) {
         this.traceId = traceId;
         this.parentLevel = parentLevelId;
         this.routeKey = routeKey;
@@ -53,7 +53,7 @@ public class ContextData {
         this.traceId = traceIdBuilder.build();
         this.parentLevel = value[1].trim();
         this.levelId = Integer.valueOf(value[2]);
-        this.routeKey = Long.parseLong(value[3]);
+        this.routeKey = Integer.parseInt(value[3]);
     }
 
     public TraceId getTraceId() {
@@ -66,6 +66,10 @@ public class ContextData {
 
     public int getLevelId() {
         return levelId;
+    }
+
+    public int getRouteKey(){
+        return this.routeKey;
     }
 
     @Override
