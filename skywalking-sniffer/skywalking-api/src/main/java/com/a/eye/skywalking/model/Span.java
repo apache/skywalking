@@ -62,15 +62,9 @@ public class Span {
      * 业务字段<br/>
      */
     private String businessKey = "";
-    /**
-     * 应用编码
-     */
-    private String applicationCode;
-    /**
-     * 归属用户
-     */
-    private String username;
+
     private String viewPointId;
+
     private int routeKey;
 
     public Span(String operationName) {
@@ -89,10 +83,9 @@ public class Span {
         this.traceId = traceId;
         this.parentLevel = parentLevel;
         this.levelId = levelId;
-        this.applicationCode = Config.SkyWalking.APPLICATION_CODE;
-        this.username = Config.SkyWalking.USERNAME;
         this.routeKey = routeKey;
         this.viewPointId = operationName;
+        this.startDate = System.currentTimeMillis();
     }
 
     public TraceId getTraceId() {
@@ -113,26 +106,6 @@ public class Span {
 
     public void setLevelId(int levelId) {
         this.levelId = levelId;
-    }
-
-    public long getStartDate() {
-        return startDate;
-    }
-
-    public void setStartDate(long startDate) {
-        this.startDate = startDate;
-    }
-
-    public byte getStatusCode() {
-        return statusCode;
-    }
-
-    public String getExceptionStack() {
-        return exceptionStack;
-    }
-
-    public void setExceptionStack(String exceptionStack) {
-        this.exceptionStack = exceptionStack;
     }
 
     public void setSpanType(int spanType) {
@@ -183,46 +156,18 @@ public class Span {
         this.businessKey = businessKey;
     }
 
-    public String getApplicationCode() {
-        return applicationCode;
-    }
-
-    public void setApplicationCode(String applicationCode) {
-        this.applicationCode = applicationCode;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public void setViewPointId(String viewPointId) {
-        this.viewPointId = viewPointId;
-    }
-
-    public String getViewPointId() {
-        return viewPointId;
-    }
-
     public RequestSpan.Builder buildRequestSpan(RequestSpan.Builder builder) {
-        builder.setTraceId(this.traceId).setParentLevel(this.parentLevel).setLevelId(this.levelId).setSpanType(this.spanType).setApplicationCode(this.applicationCode)
-                .setUsername(this.username).setRouteKey(routeKey);
+        builder.setTraceId(this.traceId).setParentLevel(this.parentLevel).setLevelId(this.levelId).setSpanType(this.spanType).setApplicationCode(Config.SkyWalking.APPLICATION_CODE)
+                .setUsername(Config.SkyWalking.USERNAME).setRouteKey(routeKey);
         return builder;
     }
 
     public AckSpan.Builder buildAckSpan(AckSpan.Builder builder) {
         builder.setTraceId(this.traceId).setParentLevel(this.parentLevel).setLevelId(this.levelId)
                 .setCost(System.currentTimeMillis() - this.startDate).setStatusCode(this.statusCode)
-                .setExceptionStack(this.exceptionStack).setUsername(this.username).setApplicationCode(this.applicationCode)
+                .setExceptionStack(this.exceptionStack).setUsername(Config.SkyWalking.USERNAME).setApplicationCode(Config.SkyWalking.APPLICATION_CODE)
                 .setViewpointId(this.viewPointId).setRouteKey(routeKey);
         return builder;
-    }
-
-    public void setRouteKey(int routeKey) {
-        this.routeKey = routeKey;
     }
 
     public int getRouteKey() {

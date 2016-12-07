@@ -50,8 +50,6 @@ public final class ContextGenerator {
             span = new Span(parentSpan, id.getViewPoint());
         }
 
-        span.setStartDate(System.currentTimeMillis());
-
         return span;
     }
 
