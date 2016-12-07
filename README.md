@@ -50,7 +50,7 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, also known D
 [![Dubbo Test Docker](https://img.shields.io/badge/test--scenario-dubbo--2.5.3-brightgreen.svg)](https://hub.docker.com/r/skywalking/docker-dubbo-scenario/tags/)  <br/>
 [![Dubbox Test Docker](https://img.shields.io/badge/test--scenario-dubbox--2.8.4.rpc-brightgreen.svg)](https://hub.docker.com/r/skywalking/docker-dubbox-scenario/tags/)  [![Dubbox Test Docker](https://img.shields.io/badge/test--scenario-dubbox--2.8.4.rest-brightgreen.svg)](https://hub.docker.com/r/skywalking/docker-dubbox-scenario/tags/)  <br/>
 [![HttpClient Test Docker](https://img.shields.io/badge/test--scenario-httpclient--4.2-brightgreen.svg)](https://hub.docker.com/r/skywalking/docker-httpclient-scenario/tags/)  [![HttpClient Test Docker](https://img.shields.io/badge/test--scenario-httpclient--4.3-brightgreen.svg)](https://hub.docker.com/r/skywalking/docker-httpclient-scenario/tags/)  <br/>
-[![Motan Test Docker](https://img.shields.io/badge/test--scenario-motan--0.1.2-brightgreen.svg)](https://hub.docker.com/r/skywalking/docker-motan-scenario/tags/)
+[![Motan Test Docker](https://img.shields.io/badge/test--scenario-motan--0.2.1-brightgreen.svg)](https://hub.docker.com/r/skywalking/docker-motan-scenario/tags/)
 
 ### cache
 * jedis
