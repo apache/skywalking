@@ -17,7 +17,7 @@
             <artifactId>log4j</artifactId>
             <version>1.2.17</version>
             <scope>compile</scope>
-        </dependency>s
+        </dependency>
     </dependencies>
 
 </project>
