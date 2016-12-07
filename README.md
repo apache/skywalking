@@ -128,13 +128,13 @@ ___
 [ ![Download](https://api.bintray.com/packages/wu-sheng/skywalking/com.a.eye.skywalking-agent/images/download.svg) ](https://bintray.com/wu-sheng/skywalking/com.a.eye.skywalking-agent/_latestVersion)
 
 ## 4. Create users, applications and alarm rules in webui
-- create user, remember your user id.
+- create user, remember your username.
 - create applications under the user, remember your application code.
 - create alarm rules for each applications.
 
 ## 4. Start application with -javaagent
 ```shell
-java -jar ...  -javaagent:/..ospath../skywalking-agent-x.x.jar -DuserId=x -DapplicationCode=y -Dservers=192.168.1.16:3300,192.168.1.17:3300
+java -jar ...  -javaagent:/..ospath../skywalking-agent-x.x.jar -Dusername=x -DapplicationCode=y -Dservers=192.168.1.16:3300,192.168.1.17:3300
 ```
 
 ## 5. Aha, your applications are being instrumented
