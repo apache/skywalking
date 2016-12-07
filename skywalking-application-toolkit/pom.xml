@@ -7,7 +7,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>skywalking-application-toolkit</artifactId>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
 
     <properties>
         <compiler.version>1.6</compiler.version>
@@ -16,12 +16,4 @@
     <modules>
         <module>skywalking-toolkit-log4j-1.x</module>
     </modules>
-
-    <dependencies>
-        <dependency>
-            <groupId>com.a.eye</groupId>
-            <artifactId>skywalking-toolkit-log4j-1.x</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-    </dependencies>
 </project>
