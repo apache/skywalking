@@ -13,7 +13,7 @@
         <module>skywalking-webui</module>
         <module>skywalking-sniffer</module>
         <module>skywalking-storage-center</module>
-        <module>skywalking-opentracing-kit</module>
+        <module>skywalking-application-toolkit</module>
     </modules>
     <packaging>pom</packaging>
 

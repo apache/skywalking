@@ -26,6 +26,7 @@
     </properties>
 
     <dependencies>
+        <!-- plugin -->
         <dependency>
             <groupId>com.a.eye</groupId>
             <artifactId>skywalking-jedis-2.x-plugin</artifactId>
@@ -54,6 +55,13 @@
         <dependency>
             <groupId>com.a.eye</groupId>
             <artifactId>motan-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- activation -->
+        <dependency>
+            <groupId>com.a.eye</groupId>
+            <artifactId>skywalking-toolkit-log4j-1.x-activation</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

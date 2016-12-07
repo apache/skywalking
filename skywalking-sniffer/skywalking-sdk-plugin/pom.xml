@@ -28,11 +28,10 @@
 	</properties>
 
 	<dependencies>
-
 		<dependency>
 			<groupId>com.a.eye</groupId>
 			<artifactId>skywalking-api</artifactId>
-			<version>2.0-2016</version>
+			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
 

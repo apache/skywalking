@@ -1,0 +1,27 @@
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0">
+    <parent>
+        <artifactId>skywalking</artifactId>
+        <groupId>com.a.eye</groupId>
+        <version>2.0-2016</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>skywalking-application-toolkit</artifactId>
+    <packaging>jar</packaging>
+
+    <properties>
+        <compiler.version>1.6</compiler.version>
+    </properties>
+
+    <modules>
+        <module>skywalking-toolkit-log4j-1.x</module>
+    </modules>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.a.eye</groupId>
+            <artifactId>skywalking-toolkit-log4j-1.x</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+</project>
