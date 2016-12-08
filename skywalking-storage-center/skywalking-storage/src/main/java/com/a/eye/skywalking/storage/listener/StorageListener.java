@@ -7,6 +7,7 @@ import com.a.eye.skywalking.logging.api.LogManager;
 import com.a.eye.skywalking.network.grpc.AckSpan;
 import com.a.eye.skywalking.network.grpc.RequestSpan;
 import com.a.eye.skywalking.network.listener.server.SpanStorageServerListener;
+import com.a.eye.skywalking.storage.alarm.SpanAlarmHandler;
 import com.a.eye.skywalking.storage.config.Config;
 import com.a.eye.skywalking.storage.data.spandata.AckSpanData;
 import com.a.eye.skywalking.storage.data.spandata.RequestSpanData;
@@ -35,7 +36,7 @@ public class StorageListener implements SpanStorageServerListener {
         requestSpanRingBuffer = requestSpanDisruptor.getRingBuffer();
 
         ackSpanDisruptor = new Disruptor<AckSpanData>(new AckSpanFactory(), Config.Disruptor.BUFFER_SIZE, DaemonThreadFactory.INSTANCE);
-        ackSpanDisruptor.handleEventsWith(new StoreAckSpanEventHandler());
+        ackSpanDisruptor.handleEventsWith(new StoreAckSpanEventHandler(), new SpanAlarmHandler());
         ackSpanDisruptor.start();
         ackSpanRingBuffer = ackSpanDisruptor.getRingBuffer();
     }

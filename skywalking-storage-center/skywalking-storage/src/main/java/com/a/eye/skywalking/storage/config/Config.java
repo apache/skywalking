@@ -8,7 +8,7 @@ public class Config {
         public static int PORT = 34000;
     }
 
-    public static class Disruptor{
+    public static class Disruptor {
         public static int BUFFER_SIZE = 1024 * 128;
 
         public static int FLUSH_SIZE = 100;
@@ -43,4 +43,7 @@ public class Config {
         public static String PATH_PREFIX = "/skywalking/storage_list/";
     }
 
+    public static class Alarm {
+        public static int ALARM_EXCEPTION_STACK_LENGTH = 300;
+    }
 }

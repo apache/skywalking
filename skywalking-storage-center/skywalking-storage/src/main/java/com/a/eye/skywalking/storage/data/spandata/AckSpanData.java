@@ -56,4 +56,16 @@ public class AckSpanData extends AbstractSpanData {
     public int getStatusCode() {
         return ackSpan.getStatusCode();
     }
+
+    public String getViewPointId(){
+        return ackSpan.getViewpointId();
+    }
+
+    public String getUserName(){
+        return ackSpan.getUsername();
+    }
+
+    public String getApplicationCode(){
+        return ackSpan.getApplicationCode();
+    }
 }

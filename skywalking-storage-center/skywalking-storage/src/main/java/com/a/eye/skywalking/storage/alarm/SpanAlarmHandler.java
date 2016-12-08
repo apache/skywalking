@@ -3,6 +3,7 @@ package com.a.eye.skywalking.storage.alarm;
 import com.a.eye.skywalking.network.grpc.AckSpan;
 import com.a.eye.skywalking.storage.alarm.checker.*;
 import com.a.eye.skywalking.storage.alarm.sender.AlarmMessageSenderFactory;
+import com.a.eye.skywalking.storage.data.spandata.AckSpanData;
 import com.lmax.disruptor.EventHandler;
 
 import java.util.ArrayList;
@@ -11,7 +12,7 @@ import java.util.List;
 /**
  * Created by xin on 2016/12/8.
  */
-public class SpanAlarmHandler implements EventHandler<AckSpan> {
+public class SpanAlarmHandler implements EventHandler<AckSpanData> {
     private List<ISpanChecker> spanCheckers = new ArrayList<ISpanChecker>();
 
     public SpanAlarmHandler() {
@@ -20,17 +21,17 @@ public class SpanAlarmHandler implements EventHandler<AckSpan> {
         spanCheckers.add(new ExecuteTimePossibleErrorChecker());
     }
 
-    @Override
-    public void onEvent(AckSpan span, long sequence, boolean endOfBatch) throws Exception {
-        for (ISpanChecker spanChecker : spanCheckers) {
-            CheckResult result = spanChecker.check(span);
-            if (!result.isPassed()) {
-                AlarmMessageSenderFactory.getSender().send(generateAlarmMessageKey(span, result.getFatalReason()), result.getMessage());
-            }
-        }
+    private String generateAlarmMessageKey(AckSpanData span, FatalReason reason) {
+        return span.getUserName() + "-" + span.getApplicationCode() + "-" + (System.currentTimeMillis() / (10000 * 6)) + "-" + reason;
     }
 
-    private String generateAlarmMessageKey(AckSpan span, FatalReason reason) {
-        return span.getUsername() + "-" + span.getApplicationCode() + "-" + (System.currentTimeMillis() / (10000 * 6)) + "-" + reason;
+    @Override
+    public void onEvent(AckSpanData spanData, long sequence, boolean endOfBatch) throws Exception {
+        for (ISpanChecker spanChecker : spanCheckers) {
+            CheckResult result = spanChecker.check(spanData);
+            if (!result.isPassed()) {
+                AlarmMessageSenderFactory.getSender().send(generateAlarmMessageKey(spanData, result.getFatalReason()), result.getMessage());
+            }
+        }
     }
 }

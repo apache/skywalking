@@ -4,6 +4,7 @@ import com.a.eye.skywalking.network.grpc.AckSpan;
 import com.a.eye.skywalking.network.grpc.TraceId;
 import com.a.eye.skywalking.storage.alarm.sender.AlarmMessageSender;
 import com.a.eye.skywalking.storage.alarm.sender.AlarmMessageSenderFactory;
+import com.a.eye.skywalking.storage.data.spandata.AckSpanData;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,10 +25,10 @@ public class SpanAlarmHandlerTest {
     private AlarmMessageSender messageHandler;
     @InjectMocks
     private SpanAlarmHandler handler;
-    private AckSpan normalAckSpan;
-    private AckSpan costMuchSpan;
-    private AckSpan costTooMuchSpan;
-    private AckSpan exceptionSpan;
+    private AckSpanData normalAckSpan;
+    private AckSpanData costMuchSpan;
+    private AckSpanData costTooMuchSpan;
+    private AckSpanData exceptionSpan;
 
     @Before
     public void setUp() {
@@ -39,10 +40,10 @@ public class SpanAlarmHandlerTest {
                         .addSegments(2016).addSegments(startTime).addSegments(2).addSegments(100).addSegments(30)
                         .addSegments(1).build());
 
-        normalAckSpan = builder.build();
-        costMuchSpan = builder.setCost(600).build();
-        costTooMuchSpan = builder.setCost(4000).build();
-        exceptionSpan = builder.setCost(20).setStatusCode(1).setExceptionStack("occur exception").build();
+        normalAckSpan = new AckSpanData(builder.build());
+        costMuchSpan = new AckSpanData(builder.setCost(600).build());
+        costTooMuchSpan = new AckSpanData(builder.setCost(4000).build());
+        exceptionSpan = new AckSpanData(builder.setCost(20).setStatusCode(1).setExceptionStack("occur exception").build());
     }
 
     @Test
@@ -65,7 +66,7 @@ public class SpanAlarmHandlerTest {
 
     @Test
     public void testCostTooMuchSpan() throws Exception {
-        handler.onEvent(costTooMuchSpan,1, false);
+        handler.onEvent(costTooMuchSpan, 1, false);
         verify(messageHandler, times(1)).send(any(), anyString());
     }
 }
