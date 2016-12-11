@@ -42,7 +42,7 @@ message TraceId {
 message Span {
     TraceId traceId = 1;
     string parentLevelId=2;
-    int32 levelId = 3; // parentLevelId + "." + levelId
+    int32 levelId = 3; 
     string viewpoint = 4;
     int64 startTime = 5;
     int64 cost = 6;
