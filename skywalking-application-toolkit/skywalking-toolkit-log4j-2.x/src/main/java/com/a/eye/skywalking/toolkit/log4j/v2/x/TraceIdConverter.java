@@ -10,7 +10,7 @@ import org.apache.logging.log4j.core.pattern.LogEventPatternConverter;
  * Created by wusheng on 2016/12/7.
  */
 @Plugin(name = "TraceIdConverter", category = "Converter")
-@ConverterKeys({"tid"})
+@ConverterKeys({"traceId"})
 public class TraceIdConverter extends LogEventPatternConverter {
 
     /**
@@ -24,7 +24,7 @@ public class TraceIdConverter extends LogEventPatternConverter {
     }
 
     public static TraceIdConverter newInstance(String[] options) {
-        return new TraceIdConverter("tid", "tid");
+        return new TraceIdConverter("traceId", "traceId");
     }
 
     @Override

@@ -10,7 +10,7 @@ import com.a.eye.skywalking.plugin.interceptor.enhance.*;
 public class PrintTraceIdInterceptor implements StaticMethodsAroundInterceptor {
     @Override
     public void beforeMethod(StaticMethodInvokeContext interceptorContext, MethodInterceptResult result) {
-        ((StringBuilder)interceptorContext.allArguments()[1]).append("TID:" + Tracing.getTraceId());
+        ((StringBuilder)interceptorContext.allArguments()[0]).append("TID:" + Tracing.getTraceId());
 
         //make sure origin method do not invoke.
         result.defineReturnValue(null);

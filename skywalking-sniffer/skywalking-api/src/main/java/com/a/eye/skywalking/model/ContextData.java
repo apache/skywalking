@@ -5,6 +5,7 @@ import com.a.eye.skywalking.api.Tracing;
 import com.a.eye.skywalking.network.grpc.TraceId;
 
 import static com.a.eye.skywalking.conf.Constants.CONTEXT_DATA_SEGMENT_SPILT_CHAR;
+import static com.a.eye.skywalking.util.TraceIdUtil.formatTraceId;
 
 public class ContextData {
     private TraceId traceId;
@@ -76,7 +77,7 @@ public class ContextData {
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
 
-        stringBuilder.append(Tracing.formatTraceId(traceId));
+        stringBuilder.append(formatTraceId(traceId));
         stringBuilder.append(CONTEXT_DATA_SEGMENT_SPILT_CHAR);
         if (parentLevel == null || parentLevel.length() == 0) {
             stringBuilder.append(" ");
