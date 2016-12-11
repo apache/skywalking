@@ -5,6 +5,8 @@ import com.a.eye.skywalking.model.ContextData;
 import com.a.eye.skywalking.model.Span;
 import com.a.eye.skywalking.network.grpc.TraceId;
 
+import static com.a.eye.skywalking.util.TraceIdUtil.formatTraceId;
+
 public class Tracing {
     /**
      * 获取当前上下文中的TraceId
@@ -18,15 +20,6 @@ public class Tracing {
         }
 
         return formatTraceId(spanData.getTraceId());
-    }
-
-    public static String formatTraceId(TraceId traceId){
-        StringBuilder traceIdBuilder = new StringBuilder();
-        for (Long segment : traceId.getSegmentsList()) {
-            traceIdBuilder.append(segment).append(".");
-        }
-
-        return traceIdBuilder.substring(0, traceIdBuilder.length() - 1).toString();
     }
 
     public static String getTracelevelId() {
