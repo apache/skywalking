@@ -1,9 +1,9 @@
 package com.a.eye.skywalking.storage.alarm;
 
-import com.a.eye.skywalking.network.grpc.AckSpan;
 import com.a.eye.skywalking.storage.alarm.checker.*;
 import com.a.eye.skywalking.storage.alarm.sender.AlarmMessageSenderFactory;
 import com.a.eye.skywalking.storage.data.spandata.AckSpanData;
+import com.a.eye.skywalking.util.TraceIdUtil;
 import com.lmax.disruptor.EventHandler;
 
 import java.util.ArrayList;
@@ -22,7 +22,7 @@ public class SpanAlarmHandler implements EventHandler<AckSpanData> {
     }
 
     private String generateAlarmMessageKey(AckSpanData span, FatalReason reason) {
-        return span.getUserName() + "-" + span.getApplicationCode() + "-" + (System.currentTimeMillis() / (10000 * 6)) + "-" + reason;
+        return span.getUserName() + "-" + span.getApplicationCode() + "-" + (System.currentTimeMillis() / (10000 * 6)) + reason.getDetail();
     }
 
     @Override
@@ -30,7 +30,7 @@ public class SpanAlarmHandler implements EventHandler<AckSpanData> {
         for (ISpanChecker spanChecker : spanCheckers) {
             CheckResult result = spanChecker.check(spanData);
             if (!result.isPassed()) {
-                AlarmMessageSenderFactory.getSender().send(generateAlarmMessageKey(spanData, result.getFatalReason()), result.getMessage());
+                AlarmMessageSenderFactory.getSender().send(generateAlarmMessageKey(spanData, result.getFatalReason()), TraceIdUtil.formatTraceId(spanData.getTraceId()), result.getMessage());
             }
         }
     }

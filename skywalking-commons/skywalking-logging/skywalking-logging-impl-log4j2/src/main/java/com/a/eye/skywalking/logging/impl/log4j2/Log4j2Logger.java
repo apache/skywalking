@@ -72,4 +72,9 @@ public class Log4j2Logger implements ILog {
     public void debug(String format, Object... arguments) {
         logger.debug(format, arguments);
     }
+
+    @Override
+    public void error(String format) {
+        logger.error(format);
+    }
 }

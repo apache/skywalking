@@ -10,5 +10,5 @@ public interface SpanData {
 
     Long[] getTraceIdSegments();
 
-    String getLevelId();
+    String getTraceLevelId();
 }

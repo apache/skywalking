@@ -1,27 +1,27 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>skywalking</artifactId>
+        <artifactId>skywalking-commons</artifactId>
         <groupId>com.a.eye</groupId>
         <version>2.0-2016</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>skywalking-commons</artifactId>
-    <packaging>pom</packaging>
+    <artifactId>skywalking-util</artifactId>
+    <packaging>jar</packaging>
 
-    <modules>
-        <module>skywalking-logging</module>
-        <module>skywalking-registry</module>
-        <module>skywalking-health-report</module>
-        <module>skywalking-util</module>
-    </modules>
-
-    <name>skywalking-commons</name>
+    <name>skywalking-util</name>
     <url>http://maven.apache.org</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <compiler.version>1.6</compiler.version>
     </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.a.eye</groupId>
+            <artifactId>skywalking-network</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>

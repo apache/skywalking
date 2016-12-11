@@ -51,7 +51,7 @@ public class TraceTreeService implements ITraceTreeService {
                     if (endTime.get(0) < arg1.getEndDate()) {
                         endTime.set(0, arg1.getEndDate());
                     }
-                    return SpanLevelIdComparators.ascCompare(arg0.getColId(), arg1.getColId());
+                    return SpanLevelIdComparators.ascCompare(arg0.getTraceLevelId(), arg1.getTraceLevelId());
                 }
             });
 
@@ -63,10 +63,6 @@ public class TraceTreeService implements ITraceTreeService {
             traceTreeInfo.setHasBeenSpiltNodes(traceNodeInfoList.subList(0, subIndex));
             traceTreeInfo.setBeginTime(traceNodeInfoList.get(0).getStartDate());
             traceTreeInfo.setEndTime(endTime.get(0));
-            if (traceNodeInfoList.get(0) != null) {
-                traceTreeInfo.fillCallChainTreeToken(ReplaceAddressUtil.replace(traceNodeInfoList.get(0).getViewPointId(),
-                        traceNodeInfoList.get(0).getApplicationId()));
-            }
         }
 
         return traceTreeInfo;

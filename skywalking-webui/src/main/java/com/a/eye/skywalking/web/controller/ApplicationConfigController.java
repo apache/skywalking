@@ -1,11 +1,11 @@
 package com.a.eye.skywalking.web.controller;
 
+import com.a.eye.skywalking.util.StringUtil;
 import com.a.eye.skywalking.web.common.BaseController;
 import com.a.eye.skywalking.web.dao.inter.IAlarmRuleMaintainDao;
 import com.a.eye.skywalking.web.dao.inter.IApplicationsMaintainDao;
 import com.a.eye.skywalking.web.dto.ApplicationInfo;
 import com.a.eye.skywalking.web.dto.LoginUserInfo;
-import com.a.eye.skywalking.web.util.StringUtil;
 import com.a.eye.skywalking.web.entity.AlarmRule;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
@@ -122,7 +122,7 @@ public class ApplicationConfigController extends BaseController {
     public String updateApplication(@PathVariable("applicationId") String applicationId, String appInfo, HttpServletRequest request) {
         JSONObject jsonObject = new JSONObject();
         try {
-            if (StringUtil.isBlank(applicationId)) {
+            if (StringUtil.isEmpty(applicationId)) {
                 jsonObject.put("code", "500");
                 jsonObject.put("message", "applicationId cannot be null");
                 return jsonObject.toJSONString();
@@ -203,7 +203,7 @@ public class ApplicationConfigController extends BaseController {
     public String loadApplication(@PathVariable("applicationId") String applicationId, HttpServletRequest request) {
         JSONObject jsonObject = new JSONObject();
         try {
-            if (StringUtil.isBlank(applicationId)) {
+            if (StringUtil.isEmpty(applicationId)) {
                 jsonObject.put("code", "500");
                 jsonObject.put("message", "applicationId cannot be null");
                 return jsonObject.toJSONString();
@@ -241,7 +241,7 @@ public class ApplicationConfigController extends BaseController {
     public String delApplication(@PathVariable("applicationId") String applicationId, HttpServletRequest request) {
         JSONObject jsonObject = new JSONObject();
         try {
-            if (StringUtil.isBlank(applicationId)) {
+            if (StringUtil.isEmpty(applicationId)) {
                 jsonObject.put("code", "500");
                 jsonObject.put("message", "applicationId cannot be null");
                 return jsonObject.toJSONString();

@@ -1,21 +1,18 @@
 package com.a.eye.skywalking.web.dao.impl;
 
 import com.a.eye.skywalking.network.grpc.Span;
+import com.a.eye.skywalking.network.grpc.TraceId;
+import com.a.eye.skywalking.util.StringUtil;
 import com.a.eye.skywalking.web.client.routing.SearchClient;
 import com.a.eye.skywalking.web.dao.inter.ITraceNodeDao;
 import com.a.eye.skywalking.web.dto.TraceNodeInfo;
 import com.a.eye.skywalking.web.dto.TraceNodesResult;
 import com.a.eye.skywalking.web.util.Constants;
-import com.a.eye.skywalking.web.util.SortUtil;
-import com.a.eye.skywalking.web.util.StringUtil;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by xin on 16-3-30.
@@ -27,23 +24,36 @@ public class TraceNodeDao implements ITraceNodeDao {
     public TraceNodesResult queryTraceNodesByTraceId(String traceId)
             throws IOException, IllegalAccessException, NoSuchMethodException,
             InvocationTargetException {
-        List<Span> searchResult = new ArrayList<>();
+        return new SearchClient().searchSpan(traceId);
+    }
 
-        SearchClient client = new SearchClient();
-        TraceNodesResult result = client.searchSpan(traceId);
-        Map<String, TraceNodeInfo> traceNodeInfoMap = new HashMap<>();
-        searchResult.forEach((span -> {
-            traceNodeInfoMap.put(span.getLevelId(), new TraceNodeInfo(span));
-        }));
+    // TODO: 2016/12/10
+    private Collection<TraceNodeInfo> generateTestData() {
+        long startTime = System.currentTimeMillis();
+        TraceId traceId = TraceId.newBuilder()
+                .addSegments(202016)
+                .addSegments(startTime)
+                .addSegments(-1)
+                .addSegments(1234)
+                .addSegments(1234)
+                .addSegments(1234).build();
+        Span rootSpan = Span.newBuilder().setSpanType(1).setAddress("127.0.0.1/ascrutae").setApplicationCode("test")
+                .setCallType("S").setCost(200).setLevelId(0).setViewpoint("provider://127.0.0.1:20880/com.a.eye.dubbo.provider.GreetService.sayHello()")
+                .setProcessNo(19872)
+                .setTraceId(traceId).setStartTime(startTime)
+                .setStatusCode(0).setUsername("test").build();
 
-        Map<String, TraceNodeInfo> traceLogMap = new HashMap<String, TraceNodeInfo>();
-        Map<String, TraceNodeInfo> rpcMap = new HashMap<String, TraceNodeInfo>();
-        traceNodeInfoMap.entrySet().forEach((entry -> {
-            SortUtil.addCurNodeTreeMapKey(traceLogMap, entry.getKey(), entry.getValue());
-        }));
-        computeRPCInfo(rpcMap, traceLogMap);
-        result.setResult(traceLogMap.values());
-        return result;
+        Span span = Span.newBuilder().setSpanType(1).setAddress("127.0.0.1/ascrutae").setApplicationCode("test")
+                .setCallType("S").setCost(100).setParentLevelId("0").setLevelId(0).setViewpoint("consumer://127.0.0.1:20880/com.a.eye.dubbo.provider.GreetService.sayHello()")
+                .setProcessNo(19872)
+                .setTraceId(traceId).setStartTime(startTime + 50)
+                .setStatusCode(0).setUsername("test").build();
+
+        List<TraceNodeInfo> nodeInfos = new ArrayList<>();
+        nodeInfos.add(new TraceNodeInfo(rootSpan));
+        nodeInfos.add(new TraceNodeInfo(span));
+
+        return nodeInfos;
     }
 
     private void computeRPCInfo(Map<String, TraceNodeInfo> rpcMap, Map<String, TraceNodeInfo> traceLogMap) {
@@ -54,8 +64,8 @@ public class TraceNodeDao implements ITraceNodeDao {
                 if (traceLogMap.containsKey(colId)) {
                     TraceNodeInfo logVO = traceLogMap.get(colId);
                     TraceNodeInfo serverLog = rpcVO.getValue();
-                    if (StringUtil.isBlank(logVO.getStatusCodeStr()) || Constants.STATUS_CODE_9.equals(logVO.getStatusCodeStr())) {
-                        serverLog.setColId(colId);
+                    if (StringUtil.isEmpty(logVO.getStatusCodeStr()) || Constants.STATUS_CODE_9.equals(logVO.getStatusCodeStr())) {
+                        //serverLog.setColId(colId);
                         traceLogMap.put(colId, serverLog);
                     } else {
                         TraceNodeInfo clientLog = traceLogMap.get(colId);
@@ -63,9 +73,9 @@ public class TraceNodeDao implements ITraceNodeDao {
                         clientLog.setViewPointId(serverLog.getViewPointId());
                         clientLog.setViewPointIdSub(serverLog.getViewPointIdSub());
                         clientLog.setAddress(serverLog.getAddress());
-                        if (StringUtil.isBlank(clientLog.getExceptionStack())) {
+                        if (StringUtil.isEmpty(clientLog.getExceptionStack())) {
                             clientLog.setExceptionStack(serverLog.getExceptionStack());
-                        }else{
+                        } else {
                             clientLog.setServerExceptionStr(serverLog.getServerExceptionStr());
                         }
                     }

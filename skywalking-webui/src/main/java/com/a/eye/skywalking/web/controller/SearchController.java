@@ -3,13 +3,13 @@ package com.a.eye.skywalking.web.controller;
 import com.a.eye.skywalking.registry.RegistryCenterFactory;
 import com.a.eye.skywalking.registry.api.RegistryCenter;
 import com.a.eye.skywalking.registry.impl.zookeeper.ZookeeperConfig;
+import com.a.eye.skywalking.util.StringUtil;
 import com.a.eye.skywalking.web.client.routing.RoutingServerWatcher;
 import com.a.eye.skywalking.web.common.BaseController;
 import com.a.eye.skywalking.web.config.Config;
 import com.a.eye.skywalking.web.config.ConfigInitializer;
 import com.a.eye.skywalking.web.dto.TraceTreeInfo;
 import com.a.eye.skywalking.web.service.inter.ITraceTreeService;
-import com.a.eye.skywalking.web.util.StringUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.logging.log4j.LogManager;
@@ -60,7 +60,7 @@ public class SearchController extends BaseController {
     public String loadTraceTree(@RequestParam("traceId") String traceId) {
         JSONObject jsonObject = new JSONObject();
         try {
-            if (StringUtil.isBlank(traceId)) {
+            if (StringUtil.isEmpty(traceId)) {
                 jsonObject.put("code", "400");
                 jsonObject.put("result", "TraceId cannot be null");
                 return jsonObject.toJSONString();

@@ -49,25 +49,25 @@ public class SpanAlarmHandlerTest {
     @Test
     public void testNormalSpan() throws Exception {
         handler.onEvent(normalAckSpan, 1, false);
-        verify(messageHandler, never()).send(any(), anyString());
+        verify(messageHandler, never()).send(any(), any(), anyString());
     }
 
     @Test
     public void testCostMuchSpan() throws Exception {
         handler.onEvent(costMuchSpan, 1, false);
-        verify(messageHandler, times(1)).send(any(), anyString());
+        verify(messageHandler, times(1)).send(any(), any(), anyString());
     }
 
     @Test
     public void testExceptionSpan() throws Exception {
         handler.onEvent(exceptionSpan, 1, false);
-        verify(messageHandler, times(1)).send(any(), anyString());
+        verify(messageHandler, times(1)).send(any(), any(), anyString());
     }
 
     @Test
     public void testCostTooMuchSpan() throws Exception {
         handler.onEvent(costTooMuchSpan, 1, false);
-        verify(messageHandler, times(1)).send(any(), anyString());
+        verify(messageHandler, times(1)).send(any(), any(), anyString());
     }
 }
 

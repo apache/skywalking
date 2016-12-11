@@ -1,12 +1,12 @@
 package com.a.eye.skywalking.web.controller;
 
+import com.a.eye.skywalking.util.StringUtil;
 import com.a.eye.skywalking.web.common.BaseController;
 import com.a.eye.skywalking.web.dao.inter.IAlarmRuleMaintainDao;
 import com.a.eye.skywalking.web.dto.AlarmRuleInfo;
 import com.a.eye.skywalking.web.dto.ConfigArgs;
 import com.a.eye.skywalking.web.dto.LoginUserInfo;
 import com.a.eye.skywalking.web.entity.AlarmRule;
-import com.a.eye.skywalking.web.util.StringUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import org.apache.logging.log4j.LogManager;
@@ -97,7 +97,7 @@ public class AlarmRuleMaintainController extends BaseController {
     public String loadAlarmRule(@PathVariable("applicationId") String applicationId, HttpServletRequest request) {
         JSONObject jsonObject = new JSONObject();
         try {
-            if (StringUtil.isBlank(applicationId)) {
+            if (StringUtil.isEmpty(applicationId)) {
                 jsonObject.put("code", "500");
                 jsonObject.put("message", "application Id cannot be null");
                 return jsonObject.toJSONString();

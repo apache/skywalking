@@ -14,11 +14,9 @@ public class Config {
 
     public static class ProcessThread {
         public static long THREAD_WAIT_INTERVAL = 60 * 1000L;
-//        public static long THREAD_WAIT_INTERVAL = 5 * 1000L;
     }
 
     public static class ZKPath {
-
 
         public static String CONNECT_STR = "127.0.0.1:2181";
 
@@ -49,13 +47,13 @@ public class Config {
 
     public static class DB {
 
-        public static String PASSWORD = "devrdbusr21";
+        public static String PASSWORD = "root";
 
-        public static String USER_NAME = "devrdbusr21";
+        public static String USER_NAME = "root";
 
         public static String DRIVER_CLASS = "com.mysql.jdbc.Driver";
 
-        public static String URL = "jdbc:mysql://10.1.228.202:31316/test";
+        public static String URL = "jdbc:mysql://127.0.0.1:3316/test";
 
         public static int MAX_IDLE = 1;
 
@@ -83,15 +81,28 @@ public class Config {
         public static int REDIS_MAX_TOTAL = 20;
 
         public static boolean ALARM_OFF_FLAG = false;
-        
-        public static String ALARM_TYPE_CONFIG_ID = "1004";        
+
     }
 
     public static class MailSenderInfo {
-        public static String configId = "1000";
+
+        public static String MAIL_HOST = "mail.com";
+
+        public static String TRANSPORT_PROTOCOL = "smtp";
+
+        public static boolean SMTP_AUTH = true;
+
+        public static boolean SSL_ENABLE = false;
+
+        public static String USERNAME = "username";
+
+        public static String PASSWORD = "password";
+
+        public static String SENDER = "sender@mail.com";
+
     }
 
     public static class TemplateInfo {
-        public static String CONFIG_ID = "1001";
-    }    
+        public static String PORTAL_URL = "http://127.0.0.1:8080/skywalking";
+    }
 }

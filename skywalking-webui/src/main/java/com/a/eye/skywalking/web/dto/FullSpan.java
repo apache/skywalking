@@ -8,20 +8,21 @@ import com.a.eye.skywalking.network.grpc.Span;
 public class FullSpan {
 
 
+    private String parentLevelId;
     protected String traceId;
-    protected String levelId = "";
+    protected int levelId;
     protected String viewPointId;
     protected String applicationId;
     protected String callType;
-    protected long   cost;
+    protected long cost;
     protected String businessKey;
     protected String exceptionStack;
     protected byte statusCode = 0;
     protected String spanTypeDesc;
     protected String username;
-    protected long   startDate;
+    protected long startDate;
     protected String spanType;
-    protected String address   = "";
+    protected String address = "";
     protected String processNo = "";
 
     public FullSpan() {
@@ -35,12 +36,13 @@ public class FullSpan {
         }
         this.traceId = traceId.substring(0, traceId.length() - 1);
         this.levelId = span.getLevelId();
+        this.parentLevelId = span.getParentLevelId();
         this.applicationId = span.getApplicationCode();
         this.callType = span.getCallType();
         this.businessKey = span.getBusinessKey();
         this.spanTypeDesc = span.getSpanTypeDesc();
         this.username = span.getUsername();
-        this.startDate = span.getStarttime();
+        this.startDate = span.getStartTime();
         this.viewPointId = span.getViewpoint();
         this.spanType = span.getSpanType() + "";
         this.address = span.getAddress();
@@ -48,14 +50,14 @@ public class FullSpan {
 
         this.cost = span.getCost();
         this.exceptionStack = span.getExceptionStack();
-        this.statusCode = (byte)span.getStatusCode();
+        this.statusCode = (byte) span.getStatusCode();
     }
 
     public String getTraceId() {
         return traceId;
     }
 
-    public String getLevelId() {
+    public int getLevelId() {
         return levelId;
     }
 
@@ -119,7 +121,7 @@ public class FullSpan {
         return spanType;
     }
 
-    public void setLevelId(String levelId) {
+    public void setLevelId(int levelId) {
         this.levelId = levelId;
     }
 
@@ -128,7 +130,7 @@ public class FullSpan {
     }
 
     public String getTraceLevelId() {
-        return getLevelId();
+        return parentLevelId == null || parentLevelId.length() == 0? levelId + "" : parentLevelId + "." + levelId;
     }
 
     public void setViewPointId(String viewPointId) {
@@ -141,5 +143,9 @@ public class FullSpan {
 
     public String getProcessNo() {
         return processNo;
+    }
+
+    public String getParentLevelId() {
+        return parentLevelId;
     }
 }

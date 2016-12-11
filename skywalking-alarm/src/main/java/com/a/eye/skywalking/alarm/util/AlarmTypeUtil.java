@@ -1,39 +1,35 @@
 package com.a.eye.skywalking.alarm.util;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.a.eye.skywalking.alarm.dao.SystemConfigDao;
 import com.a.eye.skywalking.alarm.model.AlarmType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.a.eye.skywalking.alarm.conf.Config;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AlarmTypeUtil {
 
-	private static Logger logger = LogManager.getLogger(AlarmTypeUtil.class);
-	private static List<AlarmType> alarmTypeList;
+    private static Logger logger = LogManager.getLogger(AlarmTypeUtil.class);
+    private static List<AlarmType> alarmTypeList;
 
-	static {
-		try {
-			String typeInfo = SystemConfigDao.getSystemConfig(Config.Alarm.ALARM_TYPE_CONFIG_ID);
-			alarmTypeList = new Gson().fromJson(typeInfo, new TypeToken<ArrayList<AlarmType>>() {
-			}.getType());
-		} catch (Exception e) {
-			logger.error("Failed to load alarm type info.", e);
-			System.exit(-1);
-		}
-	}
+    static {
+        try {
+            alarmTypeList = new ArrayList<AlarmType>();
+            alarmTypeList.add(new AlarmType("default", "exception", "System Exception"));
+            alarmTypeList.add(new AlarmType("ExecuteTime-PossibleError", "remark", "Excution Time > 5s"));
+            alarmTypeList.add(new AlarmType("ExecuteTime-Warning", "remark", "Excution Time > 500ms"));
+        } catch (Exception e) {
+            logger.error("Failed to load alarm type info.", e);
+            System.exit(-1);
+        }
+    }
 
-	public static List<AlarmType> getAlarmTypeList() {
-		
-		if (alarmTypeList == null || alarmTypeList.isEmpty()) {
-			alarmTypeList = new ArrayList<AlarmType>();
-		} 
-    	
-    	return alarmTypeList;
-	}
+    public static List<AlarmType> getAlarmTypeList() {
+
+        if (alarmTypeList == null || alarmTypeList.isEmpty()) {
+            alarmTypeList = new ArrayList<AlarmType>();
+        }
+
+        return alarmTypeList;
+    }
 }

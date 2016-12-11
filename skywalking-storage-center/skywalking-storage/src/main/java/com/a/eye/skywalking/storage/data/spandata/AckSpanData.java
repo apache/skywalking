@@ -41,7 +41,7 @@ public class AckSpanData extends AbstractSpanData {
     }
 
     @Override
-    public String getLevelId() {
+    public String getTraceLevelId() {
         return buildLevelId(ackSpan.getParentLevel(), ackSpan.getLevelId());
     }
 
@@ -67,5 +67,9 @@ public class AckSpanData extends AbstractSpanData {
 
     public String getApplicationCode(){
         return ackSpan.getApplicationCode();
+    }
+
+    public TraceId getTraceId(){
+        return ackSpan.getTraceId();
     }
 }

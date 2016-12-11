@@ -19,7 +19,7 @@ public class TemplateConfigurationUtil {
         if (cfg == null) {
             cfg = new Configuration(new Version("2.3.23"));
             cfg.setDefaultEncoding("UTF-8");
-            cfg.setSharedVariable("portalAddr", SystemConfigDao.getSystemConfig(Config.TemplateInfo.CONFIG_ID));
+            cfg.setSharedVariable("portalAddr", Config.TemplateInfo.PORTAL_URL);
             
             //获取资源路径
             String classPath = cfg.getClass().getResource("/").getFile().toString();

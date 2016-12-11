@@ -119,4 +119,9 @@ public class EasyLogger implements com.a.eye.skywalking.logging.api.ILog {
     public void debug(String format, Object... arguments) {
         logger(DEBUG, replaceParam(format, arguments), null);
     }
+
+    @Override
+    public void error(String format) {
+        logger(ERROR, format, null);
+    }
 }

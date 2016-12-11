@@ -10,7 +10,7 @@ import java.util.*;
  */
 public class SpanDataHelper {
     public HashMap<String, RequestSpanData> levelIdRequestSpanDataMapping = new HashMap<String, RequestSpanData>();
-    public HashMap<String, AckSpanData>     levelIdAckSpanDataMapping     = new HashMap<String, AckSpanData>();
+    public HashMap<String, AckSpanData> levelIdAckSpanDataMapping = new HashMap<String, AckSpanData>();
 
     private List<SpanData> data;
 
@@ -21,9 +21,9 @@ public class SpanDataHelper {
     public SpanDataHelper category() {
         for (SpanData spanData : data) {
             if (spanData instanceof RequestSpanData) {
-                levelIdRequestSpanDataMapping.put(spanData.getLevelId(), (RequestSpanData) spanData);
+                levelIdRequestSpanDataMapping.put(spanData.getTraceLevelId(), (RequestSpanData) spanData);
             } else {
-                levelIdAckSpanDataMapping.put(spanData.getLevelId(), (AckSpanData) spanData);
+                levelIdAckSpanDataMapping.put(spanData.getTraceLevelId(), (AckSpanData) spanData);
             }
         }
 
@@ -50,9 +50,10 @@ public class SpanDataHelper {
             builder = builder.setExceptionStack(ackSpanData.getExceptionStack());
         }
 
-        builder = builder.setLevelId(requestSpanData.getLevelId()).setProcessNo(requestSpanData.getProcessNo())
-                .setSpanType(requestSpanData.getType()).setStarttime(requestSpanData.getStartTime())
+        builder = builder.setLevelId(requestSpanData.getLevelId()).setParentLevelId(requestSpanData.getParentLevelId()).setProcessNo(requestSpanData.getProcessNo())
+                .setSpanType(requestSpanData.getType()).setStartTime(requestSpanData.getStartTime())
                 .setStatusCode(ackSpanData.getStatusCode())
+                .setViewpoint(requestSpanData.getViewPoint())
                 .setTraceId(TraceId.newBuilder().addAllSegments(Arrays.asList(requestSpanData.getTraceIdSegments())));
         return builder.build();
     }

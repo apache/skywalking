@@ -96,22 +96,3 @@ CREATE TABLE IF NOT EXISTS `exclude_rule` (
 ENGINE = InnoDB;
 
 
--- -----------------------------------------------------
--- Table `system_config`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `system_config` ;
-
-CREATE TABLE IF NOT EXISTS `system_config` (
-  `config_id` INT UNSIGNED NOT NULL,
-  `conf_key` VARCHAR(200) NOT NULL,
-  `conf_value` VARCHAR(500) NOT NULL,
-  `val_type` VARCHAR(45) NOT NULL,
-  `val_desc` VARCHAR(200) NULL,
-  `create_time` DATETIME NULL,
-  `sts` VARCHAR(2) NOT NULL,
-  `modify_time` DATETIME NULL,
-  PRIMARY KEY (`config_id`),
-  UNIQUE INDEX `conf_key_UNIQUE` (`conf_key` ASC))
-ENGINE = InnoDB;
-
-

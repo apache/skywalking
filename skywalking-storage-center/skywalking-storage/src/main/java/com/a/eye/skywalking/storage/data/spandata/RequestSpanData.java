@@ -41,9 +41,19 @@ public class RequestSpanData extends AbstractSpanData {
     }
 
     @Override
-    public String getLevelId() {
+    public String getTraceLevelId() {
         return buildLevelId(requestSpan.getParentLevel(), requestSpan.getLevelId());
     }
+
+    public String getParentLevelId(){
+        return requestSpan.getParentLevel();
+    }
+
+    public  int getLevelId(){
+        return requestSpan.getLevelId();
+    }
+
+
 
     public String getAddress() {
         return requestSpan.getAddress();
@@ -71,5 +81,9 @@ public class RequestSpanData extends AbstractSpanData {
 
     public int getType() {
         return requestSpan.getSpanType();
+    }
+
+    public String getViewPoint(){
+        return requestSpan.getViewPointId();
     }
 }

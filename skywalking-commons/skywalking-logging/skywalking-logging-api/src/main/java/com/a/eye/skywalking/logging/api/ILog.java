@@ -27,4 +27,6 @@ public interface ILog {
     void debug(String format);
 
     void debug(String format, Object... arguments);
+
+    void error(String format);
 }

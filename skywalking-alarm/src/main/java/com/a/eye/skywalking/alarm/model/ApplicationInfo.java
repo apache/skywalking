@@ -2,7 +2,6 @@ package com.a.eye.skywalking.alarm.model;
 
 public class ApplicationInfo {
     private String appId;
-    private String configArgs;
     private String UId;
     private String toDoType;
     private String appCode;
@@ -19,9 +18,6 @@ public class ApplicationInfo {
         this.appId = appId;
     }
 
-    public String getConfigArgs() {
-        return configArgs;
-    }
 
     public void setUId(String UId) {
         this.UId = UId;
@@ -29,14 +25,6 @@ public class ApplicationInfo {
 
     public String getUId() {
         return UId;
-    }
-
-    public void setToDoType(String toDoType) {
-        this.toDoType = toDoType;
-    }
-
-    public String getToDoType() {
-        return toDoType;
     }
 
     @Override

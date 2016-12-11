@@ -1,8 +1,8 @@
 package com.a.eye.skywalking.web.dto;
 
 import com.a.eye.skywalking.network.grpc.Span;
+import com.a.eye.skywalking.util.StringUtil;
 import com.a.eye.skywalking.web.util.Constants;
-import com.a.eye.skywalking.web.util.StringUtil;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -40,17 +40,19 @@ public class TraceNodeInfo extends FullSpan {
 
     private String serverExceptionStr;
 
+    private String parentLevel;
+
     public TraceNodeInfo() {
 
     }
 
     public TraceNodeInfo(Span span) {
         super(span);
-        this.colId = this.levelId;
+        this.colId = getTraceLevelId();
 
         // 处理类型key-value
         String spanTypeStr = String.valueOf(span.getSpanTypeDesc());
-        if (StringUtil.isBlank(spanTypeStr) || Constants.SPAN_TYPE_MAP.containsKey(spanTypeStr)) {
+        if (StringUtil.isEmpty(spanTypeStr) || Constants.SPAN_TYPE_MAP.containsKey(spanTypeStr)) {
             this.spanTypeStr = Constants.SPAN_TYPE_U;
         }
         this.spanTypeStr = spanTypeStr;
@@ -63,7 +65,7 @@ public class TraceNodeInfo extends FullSpan {
 
         // 处理状态key-value
         String statusCodeStr = String.valueOf(getStatusCode());
-        if (StringUtil.isBlank(statusCodeStr) || Constants.STATUS_CODE_MAP.containsKey(statusCodeStr)) {
+        if (StringUtil.isEmpty(statusCodeStr) || Constants.STATUS_CODE_MAP.containsKey(statusCodeStr)) {
             this.statusCodeStr = Constants.STATUS_CODE_9;
         }
         String statusCodeName = Constants.STATUS_CODE_MAP.get(statusCodeStr);
@@ -71,7 +73,7 @@ public class TraceNodeInfo extends FullSpan {
         this.statusCodeName = statusCodeName;
 
         this.applicationIdStr = this.applicationId;
-        if (!StringUtil.isBlank(this.viewPointId) && this.viewPointId.length() > 60) {
+        if (!StringUtil.isEmpty(this.viewPointId) && this.viewPointId.length() > 60) {
             this.viewPointIdSub = this.viewPointId.substring(0, 30) + "..." + this.viewPointId
                     .substring(this.viewPointId.length() - 30);
         } else {
@@ -80,6 +82,8 @@ public class TraceNodeInfo extends FullSpan {
 
         this.addTimeLine(this.startDate, this.cost);
         this.endDate = this.startDate + this.cost;
+
+        this.parentLevel = getParentLevelId();
     }
 
     public String getColId() {
@@ -166,5 +170,9 @@ public class TraceNodeInfo extends FullSpan {
 
     public void setExceptionStack(String exceptionStack) {
         this.exceptionStack = exceptionStack;
+    }
+
+    public String getParentLevel() {
+        return parentLevel;
     }
 }

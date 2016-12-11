@@ -1,50 +1,55 @@
 package com.a.eye.skywalking.alarm.util;
 
-import java.util.Properties;
-
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.NoSuchProviderException;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-
 import com.a.eye.skywalking.alarm.conf.Config;
-import com.a.eye.skywalking.alarm.dao.SystemConfigDao;
+import com.sun.mail.util.MailSSLSocketFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.google.gson.Gson;
+import javax.mail.*;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+import java.util.Properties;
 
-public class MailUtil {
+public class MailSender {
 
-    private static Logger logger = LogManager.getLogger(MailUtil.class);
+    private static Logger logger = LogManager.getLogger(MailSender.class);
+    private static MailSender sender = new MailSender();
+    private String mailSender;
+    private Properties config;
 
-    private static String mailSender;
-    private static Properties config;
-
-    static {
+    private MailSender() {
         try {
-            String senderInfo = SystemConfigDao.getSystemConfig(Config.MailSenderInfo.configId);
-            config = new Gson().fromJson(senderInfo, Properties.class);
-            mailSender = config.getProperty("mail.sender");
+            config = new Properties();
+
+            config.setProperty("mail.transport.protocol", Config.MailSenderInfo.TRANSPORT_PROTOCOL);
+            config.setProperty("mail.smtp.auth", String.valueOf(Config.MailSenderInfo.SMTP_AUTH));
+            config.setProperty("mail.smtp.socketFactory.port", "465");
+            config.setProperty("mail.debug", "true");
+            //config.setProperty("mail.smtp.ssl.enable", "true");
+            if (Config.MailSenderInfo.SSL_ENABLE) {
+                MailSSLSocketFactory sf = new MailSSLSocketFactory();
+                sf.setTrustAllHosts(true);
+                config.put("mail.smtp.ssl.enable", "true");
+                config.put("mail.smtp.ssl.socketFactory", sf);
+            }
         } catch (Exception e) {
             logger.error("Failed to load mail sender info.", e);
             System.exit(-1);
         }
+
+        mailSender = Config.MailSenderInfo.SENDER;
     }
 
 
-    public static void sendMail(String[] recipientAccounts, String[] ccList, String content, String title) {
-        Session session = Session.getInstance(config);
+    public static void send(String[] recipientAccounts, String[] ccList, String content, String title) {
+        Session session = Session.getInstance(sender.config);
         Transport ts = null;
         try {
             ts = session.getTransport();
-            ts.connect(config.getProperty("mail.host"), config.getProperty("mail.username"), config.getProperty("mail.password"));
+            ts.connect(Config.MailSenderInfo.MAIL_HOST, Config.MailSenderInfo.USERNAME, Config.MailSenderInfo.PASSWORD);
             MimeMessage message = new MimeMessage(session);
-            message.setFrom(new InternetAddress(mailSender));
+            message.setFrom(new InternetAddress(sender.mailSender));
             InternetAddress[] recipientAccountArray = new InternetAddress[recipientAccounts.length];
             for (int i = 0; i < recipientAccounts.length; i++) {
                 recipientAccountArray[i] = new InternetAddress(recipientAccounts[i]);
@@ -59,7 +64,6 @@ public class MailUtil {
             }
             message.setSubject(title);
             message.setContent(content, "text/html;charset=UTF-8");
-
             ts.sendMessage(message, message.getAllRecipients());
 
         } catch (AddressException e) {

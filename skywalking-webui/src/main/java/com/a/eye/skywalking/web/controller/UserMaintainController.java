@@ -1,12 +1,12 @@
 package com.a.eye.skywalking.web.controller;
 
+import com.a.eye.skywalking.util.StringUtil;
 import com.a.eye.skywalking.web.dao.inter.IUserMaintainDao;
 import com.a.eye.skywalking.web.dto.LoginUserInfo;
 import com.a.eye.skywalking.web.entity.UserInfo;
 import com.a.eye.skywalking.web.dto.SignInUserInfo;
 import com.a.eye.skywalking.web.common.BaseController;
 import com.a.eye.skywalking.web.util.Constants;
-import com.a.eye.skywalking.web.util.StringUtil;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -65,7 +65,7 @@ public class UserMaintainController extends BaseController {
     }
 
     private boolean validateUserInfo(UserInfo loginInfo, JSONObject result) {
-        if (StringUtil.isBlank(loginInfo.getUserName()) || StringUtil.isBlank(loginInfo.getPassword())) {
+        if (StringUtil.isEmpty(loginInfo.getUserName()) || StringUtil.isEmpty(loginInfo.getPassword())) {
             result.put("code", "400");
             result.put("message", "Username or password is null");
             return true;
@@ -90,7 +90,7 @@ public class UserMaintainController extends BaseController {
             signInUserInfo.setRoleType(Constants.USR.ROLE_TYPE_USER);
             signInUserInfo.setSts(Constants.USR.STR_VAL_A);
             iUserMaintainDao.addUser(signInUserInfo);
-            if (StringUtil.isBlank(signInUserInfo.getUid())) {
+            if (StringUtil.isEmpty(signInUserInfo.getUid())) {
                 result.put("code", "500");
                 result.put("message", "Failed to register user" + signInUserInfo.getUserName());
                 return result.toJSONString();

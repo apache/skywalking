@@ -65,4 +65,9 @@ public class NoopLogger implements ILog{
     public void debug(String format, Object... arguments) {
 
     }
+
+    @Override
+    public void error(String format) {
+
+    }
 }

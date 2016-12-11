@@ -23,5 +23,11 @@
         <compiler.version>1.6</compiler.version>
     </properties>
 
-
+    <dependencies>
+        <dependency>
+            <groupId>com.a.eye</groupId>
+            <artifactId>skywalking-util</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>

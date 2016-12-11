@@ -52,7 +52,7 @@ public class IndexMetaInfo {
     }
 
     public String getLevelId() {
-        return spanData.getLevelId();
+        return spanData.getTraceLevelId();
     }
 
     public SpanType getSpanType() {

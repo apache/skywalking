@@ -25,7 +25,7 @@ public class SearchClient {
     }
 
     public TraceNodesResult searchSpan(String traceId){
-        String[] traceIdSegments = traceId.split(".");
+        String[] traceIdSegments = traceId.split("\\.");
         TraceNodesResult traceNodesResult = new TraceNodesResult();
         if(traceIdSegments.length != 6){
             return traceNodesResult;
