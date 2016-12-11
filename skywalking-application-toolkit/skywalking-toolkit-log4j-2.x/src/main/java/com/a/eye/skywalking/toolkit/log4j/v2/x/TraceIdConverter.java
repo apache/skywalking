@@ -29,6 +29,6 @@ public class TraceIdConverter extends LogEventPatternConverter {
 
     @Override
     public void format(LogEvent event, StringBuilder toAppendTo) {
-        toAppendTo.append("TID: N/A");
+        Log4j2OutputAppender.append(toAppendTo);
     }
 }

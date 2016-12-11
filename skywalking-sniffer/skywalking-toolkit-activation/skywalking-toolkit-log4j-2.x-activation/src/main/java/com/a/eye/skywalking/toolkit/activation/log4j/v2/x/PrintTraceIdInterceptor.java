@@ -2,16 +2,14 @@ package com.a.eye.skywalking.toolkit.activation.log4j.v2.x;
 
 import com.a.eye.skywalking.api.Tracing;
 import com.a.eye.skywalking.plugin.interceptor.EnhancedClassInstanceContext;
-import com.a.eye.skywalking.plugin.interceptor.enhance.InstanceMethodInvokeContext;
-import com.a.eye.skywalking.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
-import com.a.eye.skywalking.plugin.interceptor.enhance.MethodInterceptResult;
+import com.a.eye.skywalking.plugin.interceptor.enhance.*;
 
 /**
  * Created by wusheng on 2016/12/7.
  */
-public class PrintTraceIdInterceptor implements InstanceMethodsAroundInterceptor {
+public class PrintTraceIdInterceptor implements StaticMethodsAroundInterceptor {
     @Override
-    public void beforeMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext, MethodInterceptResult result) {
+    public void beforeMethod(StaticMethodInvokeContext interceptorContext, MethodInterceptResult result) {
         ((StringBuilder)interceptorContext.allArguments()[1]).append("TID:" + Tracing.getTraceId());
 
         //make sure origin method do not invoke.
@@ -19,12 +17,12 @@ public class PrintTraceIdInterceptor implements InstanceMethodsAroundInterceptor
     }
 
     @Override
-    public Object afterMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext, Object ret) {
-        return ret;
+    public Object afterMethod(StaticMethodInvokeContext interceptorContext, Object ret) {
+        return null;
     }
 
     @Override
-    public void handleMethodException(Throwable t, EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext) {
+    public void handleMethodException(Throwable t, MethodInvokeContext interceptorContext) {
 
     }
 }

@@ -10,8 +10,6 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  */
 public class EnhancedClassInstanceContext {
-	public static final String FIELD_NAME = "_$EnhancedClassInstanceContext";
-	
 	private Map<Object, Object> context = new ConcurrentHashMap<Object, Object>();
 	
 	public void set(Object key, Object value){
@@ -21,12 +19,11 @@ public class EnhancedClassInstanceContext {
 	public Object get(Object key){
 		return context.get(key);
 	}
-	
+
 	public boolean isContain(Object key){
 		return context.containsKey(key);
 	}
 	
-	@SuppressWarnings("unchecked")
 	public <T> T get(Object key, Class<T> type){
 		return (T)this.get(key);
 	}
