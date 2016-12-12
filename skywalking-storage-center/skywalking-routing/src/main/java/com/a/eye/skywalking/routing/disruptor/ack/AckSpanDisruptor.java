@@ -5,6 +5,7 @@ import com.a.eye.skywalking.health.report.HeathReading;
 import com.a.eye.skywalking.logging.api.ILog;
 import com.a.eye.skywalking.logging.api.LogManager;
 import com.a.eye.skywalking.network.grpc.AckSpan;
+import com.a.eye.skywalking.routing.alarm.SpanAlarmHandler;
 import com.a.eye.skywalking.routing.config.Config;
 import com.a.eye.skywalking.routing.disruptor.AbstractSpanDisruptor;
 import com.lmax.disruptor.InsufficientCapacityException;
@@ -25,7 +26,7 @@ public class AckSpanDisruptor extends AbstractSpanDisruptor {
     public AckSpanDisruptor(String connectionURL) {
         ackSpanDisruptor = new Disruptor<AckSpanHolder>(new AckSpanFactory(), Config.Disruptor.BUFFER_SIZE, DaemonThreadFactory.INSTANCE);
         ackSpanEventHandler = new RouteAckSpanBufferEventHandler(connectionURL);
-        ackSpanDisruptor.handleEventsWith(ackSpanEventHandler);
+        ackSpanDisruptor.handleEventsWith(ackSpanEventHandler, new SpanAlarmHandler());
         ackSpanDisruptor.start();
         ackSpanRingBuffer = ackSpanDisruptor.getRingBuffer();
     }

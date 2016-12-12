@@ -86,4 +86,8 @@ public class RequestSpanData extends AbstractSpanData {
     public String getViewPoint(){
         return requestSpan.getViewPointId();
     }
+
+    public String getSpanTypeDesc() {
+        return requestSpan.getSpanTypeDesc();
+    }
 }

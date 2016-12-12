@@ -9,6 +9,8 @@ import javax.mail.*;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 public class MailSender {
@@ -24,7 +26,7 @@ public class MailSender {
 
             config.setProperty("mail.transport.protocol", Config.MailSenderInfo.TRANSPORT_PROTOCOL);
             config.setProperty("mail.smtp.auth", String.valueOf(Config.MailSenderInfo.SMTP_AUTH));
-            config.setProperty("mail.smtp.socketFactory.port", "465");
+            config.setProperty("mail.smtp.socketFactory.port", "587");
             config.setProperty("mail.debug", "true");
             //config.setProperty("mail.smtp.ssl.enable", "true");
             if (Config.MailSenderInfo.SSL_ENABLE) {
@@ -56,11 +58,14 @@ public class MailSender {
             }
             message.addRecipients(Message.RecipientType.TO, recipientAccountArray);
             if (ccList != null && ccList.length > 0) {
-                InternetAddress[] ccAccountArray = new InternetAddress[ccList.length];
+               List<InternetAddress> ccAccountArray = new ArrayList<InternetAddress>();
                 for (int i = 0; i < ccList.length; i++) {
-                    ccAccountArray[i] = new InternetAddress(ccList[i]);
+                    if (ccList[i] != null && ccList[i].length() > 0)
+                        ccAccountArray.add(new InternetAddress(ccList[i]));
                 }
-                message.addRecipients(Message.RecipientType.CC, ccAccountArray);
+                if (ccAccountArray.size() > 0) {
+                    message.addRecipients(Message.RecipientType.CC, ccAccountArray.toArray(new InternetAddress[ccAccountArray.size()]));
+                }
             }
             message.setSubject(title);
             message.setContent(content, "text/html;charset=UTF-8");

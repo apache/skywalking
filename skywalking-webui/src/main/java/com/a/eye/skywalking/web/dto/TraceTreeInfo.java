@@ -55,6 +55,7 @@ public class TraceTreeInfo {
 
     public void setHasBeenSpiltNodes(List<TraceNodeInfo> nodes) {
         this.nodes = nodes;
+        this.nodeSize = nodes.size();
     }
 
     public void setRealNodeSize(int nodeSize) {

@@ -1,8 +1,8 @@
-package com.a.eye.skywalking.storage.alarm.sender;
+package com.a.eye.skywalking.routing.alarm.sender;
 
 import com.a.eye.skywalking.logging.api.ILog;
 import com.a.eye.skywalking.logging.api.LogManager;
-import com.a.eye.skywalking.storage.config.Config;
+import com.a.eye.skywalking.routing.config.Config;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;

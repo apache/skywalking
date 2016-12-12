@@ -1,4 +1,4 @@
-package com.a.eye.skywalking.storage.alarm.checker;
+package com.a.eye.skywalking.routing.alarm.checker;
 
 /**
  * Created by xin on 2016/12/8.

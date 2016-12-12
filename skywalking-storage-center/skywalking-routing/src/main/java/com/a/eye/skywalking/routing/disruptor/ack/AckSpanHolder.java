@@ -8,6 +8,13 @@ import com.a.eye.skywalking.network.grpc.AckSpan;
 public class AckSpanHolder {
     private AckSpan ackSpan;
 
+    public AckSpanHolder() {
+    }
+
+    public AckSpanHolder(AckSpan ackSpan) {
+        this.ackSpan = ackSpan;
+    }
+
     public void setAckSpan(AckSpan ackSpan) {
         this.ackSpan = ackSpan;
     }

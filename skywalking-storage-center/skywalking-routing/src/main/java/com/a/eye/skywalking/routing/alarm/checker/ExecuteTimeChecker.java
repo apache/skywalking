@@ -1,7 +1,6 @@
-package com.a.eye.skywalking.storage.alarm.checker;
+package com.a.eye.skywalking.routing.alarm.checker;
 
-import com.a.eye.skywalking.network.grpc.AckSpan;
-import com.a.eye.skywalking.storage.data.spandata.AckSpanData;
+import com.a.eye.skywalking.routing.disruptor.ack.AckSpanHolder;
 
 /**
  * Created by xin on 2016/12/8.
@@ -9,8 +8,8 @@ import com.a.eye.skywalking.storage.data.spandata.AckSpanData;
 public abstract class ExecuteTimeChecker implements ISpanChecker {
 
     @Override
-    public CheckResult check(AckSpanData span) {
-        long cost = span.getCost();
+    public CheckResult check(AckSpanHolder span) {
+        long cost = span.getAckSpan().getCost();
         if (isOverThreshold(cost)) {
             return new CheckResult(getFatalLevel(), generateAlarmMessage(span));
         }
@@ -22,8 +21,8 @@ public abstract class ExecuteTimeChecker implements ISpanChecker {
 
     protected abstract FatalReason getFatalLevel();
 
-    protected String generateAlarmMessage(AckSpanData span) {
-        return span.getViewPointId() + " cost " + span.getCost() + " ms.";
+    protected String generateAlarmMessage(AckSpanHolder span) {
+        return span.getAckSpan().getViewpointId() + " cost " + span.getAckSpan().getCost() + " ms.";
     }
 
 

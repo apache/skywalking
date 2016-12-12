@@ -158,7 +158,7 @@ public class Span {
 
     public RequestSpan.Builder buildRequestSpan(RequestSpan.Builder builder) {
         builder.setTraceId(this.traceId).setParentLevel(this.parentLevel).setLevelId(this.levelId).setSpanType(this.spanType).setApplicationCode(Config.SkyWalking.APPLICATION_CODE)
-                .setUsername(Config.SkyWalking.USERNAME).setRouteKey(routeKey);
+                .setStartDate(this.startDate).setUsername(Config.SkyWalking.USERNAME).setRouteKey(routeKey);
         return builder;
     }
 

@@ -1,4 +1,4 @@
-package com.a.eye.skywalking.storage.alarm.sender;
+package com.a.eye.skywalking.routing.alarm.sender;
 
 /**
  * Created by xin on 2016/12/8.

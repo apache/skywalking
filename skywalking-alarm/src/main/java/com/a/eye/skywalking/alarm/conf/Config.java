@@ -53,7 +53,7 @@ public class Config {
 
         public static String DRIVER_CLASS = "com.mysql.jdbc.Driver";
 
-        public static String URL = "jdbc:mysql://127.0.0.1:3316/test";
+        public static String URL = "jdbc:mysql://127.0.0.1:3307/test";
 
         public static int MAX_IDLE = 1;
 
@@ -86,7 +86,7 @@ public class Config {
 
     public static class MailSenderInfo {
 
-        public static String MAIL_HOST = "mail.com";
+        public static String MAIL_HOST = "mail.qq.com";
 
         public static String TRANSPORT_PROTOCOL = "smtp";
 
@@ -94,11 +94,11 @@ public class Config {
 
         public static boolean SSL_ENABLE = false;
 
-        public static String USERNAME = "username";
+        public static String USERNAME = "skywalking@foxmail.com";
 
-        public static String PASSWORD = "password";
+        public static String PASSWORD = "tcaeuhuslkjlebjg";
 
-        public static String SENDER = "sender@mail.com";
+        public static String SENDER = "skywalking@foxmail.com";
 
     }
 

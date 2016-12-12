@@ -35,4 +35,24 @@ public class Config {
 
         public static int FLUSH_SIZE = 100;
     }
+
+
+    public static class Alarm {
+
+        public static String REDIS_SERVER = "127.0.0.1:6379";
+
+        public static boolean ALARM_OFF_FLAG = false;
+
+        public static int ALARM_EXCEPTION_STACK_LENGTH = 300;
+
+        public static long ALARM_REDIS_INSPECTOR_INTERVAL = 100;
+
+        public static int REDIS_MAX_IDLE = 10;
+
+        public static int REDIS_MIN_IDLE = 1;
+
+        public static int REDIS_MAX_TOTAL = 30;
+
+        public static int ALARM_EXPIRE_SECONDS = 1000 * 60 * 90;
+    }
 }

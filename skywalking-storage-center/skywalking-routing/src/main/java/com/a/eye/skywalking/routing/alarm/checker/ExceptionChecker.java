@@ -1,15 +1,15 @@
-package com.a.eye.skywalking.storage.alarm.checker;
+package com.a.eye.skywalking.routing.alarm.checker;
 
-import com.a.eye.skywalking.storage.config.Config;
-import com.a.eye.skywalking.storage.data.spandata.AckSpanData;
+import com.a.eye.skywalking.routing.config.Config;
+import com.a.eye.skywalking.routing.disruptor.ack.AckSpanHolder;
 
 public class ExceptionChecker implements ISpanChecker {
 
     @Override
-    public CheckResult check(AckSpanData span) {
-        if (span.getStatusCode() != 1)
+    public CheckResult check(AckSpanHolder span) {
+        if (span.getAckSpan().getStatusCode() != 1)
             return new CheckResult();
-        String exceptionStack = span.getExceptionStack();
+        String exceptionStack = span.getAckSpan().getExceptionStack();
         if (exceptionStack == null) {
             exceptionStack = "";
         } else if (exceptionStack.length() > Config.Alarm.ALARM_EXCEPTION_STACK_LENGTH) {
