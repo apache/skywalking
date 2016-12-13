@@ -1,4 +1,4 @@
-package com.a.eye.skywalking.toolkit.log4j.v2.x;
+package com.a.eye.skywalking.toolkit.log.log4j.v2.x;
 
 
 import org.apache.logging.log4j.core.LogEvent;

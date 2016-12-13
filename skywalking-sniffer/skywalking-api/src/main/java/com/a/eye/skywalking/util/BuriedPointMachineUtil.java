@@ -14,11 +14,11 @@ public final class BuriedPointMachineUtil {
     }
 
     public static int getProcessNo() {
-        if (processNo != -1) {
+        if (processNo == -1) {
             String name = ManagementFactory.getRuntimeMXBean().getName();
             try {
                 processNo = Integer.parseInt(name.split("@")[0]);
-            }catch(Throwable t){
+            } catch (Throwable t) {
                 processNo = 0;
             }
         }
@@ -39,9 +39,9 @@ public final class BuriedPointMachineUtil {
         if (StringUtil.isEmpty(IP)) {
             InetAddress netAddress = getInetAddress();
             if (null == netAddress) {
-            	IP = "N/A";
-            }else{
-            	IP = netAddress.getHostAddress(); //get the ip address
+                IP = "N/A";
+            } else {
+                IP = netAddress.getHostAddress(); //get the ip address
             }
         }
         return IP;
@@ -51,16 +51,16 @@ public final class BuriedPointMachineUtil {
         if (StringUtil.isEmpty(hostName)) {
             InetAddress netAddress = getInetAddress();
             if (null == netAddress) {
-            	hostName = "N/A";
-            }else{
-            	hostName = netAddress.getHostName(); //get the host address
+                hostName = "N/A";
+            } else {
+                hostName = netAddress.getHostName(); //get the host address
             }
         }
         return hostName;
     }
-    
-    public static String getHostDesc(){
-    	return getHostName() + "/" + getHostIp();
+
+    public static String getHostDesc() {
+        return getHostName() + "/" + getHostIp();
     }
 
     private BuriedPointMachineUtil() {

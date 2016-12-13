@@ -153,9 +153,6 @@
                 {{else}}
                     {{>totalSize}}个调用节点，
                 {{/if}}消耗总时长：{{>totalTime}}ms。
-                {{if hasCallChainTree}}
-                    <button class="btn btn-primary" onclick="javascript:gotoCallChainTree(this);" value="{{>callChainTreeToken}}">查看调用树</button>
-                {{/if}}
             </h5>
         </div>
         <ul id="myTab" class="nav nav-tabs">

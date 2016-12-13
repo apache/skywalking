@@ -1,4 +1,4 @@
-package com.a.eye.skywalking.storage.alarm;
+package com.a.eye.skywalking.routing.alarm;
 
 import com.a.eye.skywalking.network.grpc.AckSpan;
 import com.a.eye.skywalking.network.grpc.TraceId;

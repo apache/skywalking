@@ -1,4 +1,4 @@
-package com.a.eye.skywalking.toolkit.logback.v1.x;
+package com.a.eye.skywalking.toolkit.log.logback.v1.x;
 
 import ch.qos.logback.classic.PatternLayout;
 
