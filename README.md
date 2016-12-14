@@ -9,9 +9,10 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, also known D
 ![license](https://img.shields.io/aur/license/yaourt.svg)
 [![codebeat badge](https://codebeat.co/badges/579e4dce-1dc7-4f32-a163-c164eafa1335)](https://codebeat.co/projects/github-com-wu-sheng-sky-walking)
 [![Join the chat at https://gitter.im/sky-walking/Lobby](https://badges.gitter.im/sky-walking/Lobby.svg)](https://gitter.im/sky-walking/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![sky-walking-org](https://img.shields.io/badge/organization-sky--walking--ecosystem-brightgreen.svg)](https://github.com/skywalking-developer)
 
 [![Release Version](https://img.shields.io/badge/sky--walking-1.0--release-brightgreen.svg)](https://github.com/wu-sheng/sky-walking/releases)
-[![Dev Version](https://img.shields.io/badge/sky--walking-2.0--indev-yellow.svg)](https://github.com/wu-sheng/sky-walking)
+[![Dev Version](https://img.shields.io/badge/sky--walking-2.0--ontesting-yellow.svg)](https://github.com/wu-sheng/sky-walking)
 
 # Abstract
 * An open source Large-Scale Distributed Systems Tracing Infrastructure, also known a ditributed tracer.
@@ -64,6 +65,10 @@ _All test scenarios base on Docker Tech._
 * 张鑫 [zhangxin](https://github.com/ascrutae) &nbsp;&nbsp;
 
 
+_Chinese Articles about sky-walking and distributed tracer_
+
+<img src="http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/chatapp/toutiao.JPG" alt="Sky Walking TouTiao" height="280px" />
+
 ___
 
 <a href="https://github.com/wu-sheng/sky-walking">
@@ -75,20 +80,6 @@ In October 2016, Sky Walking won `OneAPM Open Source Achievement Award`. The awa
 Thanks all users of sky walking project.
 ___
 
-# Discussion
-<img src="http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/chatapp/toutiao.JPG" alt="Sky Walking TouTiao" height="280px" align="left" />
-* Mail to：wu.sheng@foxmail.com
-* QQ Group：392443393
-* If you are using SkyWalking，[Report to us](https://github.com/wu-sheng/sky-walking/issues/34) please.
-* **Developer Org of sky-walking** is https://github.com/skywalking-developer
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
 
 # Arch
 ![2.0 架构图](http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/2.0-2016/SkyWalkingArch.jpg)
