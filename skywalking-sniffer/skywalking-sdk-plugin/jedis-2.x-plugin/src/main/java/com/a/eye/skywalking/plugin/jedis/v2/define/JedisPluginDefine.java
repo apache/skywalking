@@ -11,6 +11,8 @@ import com.a.eye.skywalking.plugin.interceptor.matcher.SimpleMethodMatcher;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 
+import java.net.URI;
+
 import static net.bytebuddy.matcher.ElementMatchers.not;
 import static net.bytebuddy.matcher.ElementMatchers.takesArgument;
 
@@ -46,7 +48,7 @@ public class JedisPluginDefine extends ClassInstanceMethodsEnhancePluginDefine {
         }, new ConstructorInterceptPoint() {
             @Override
             public ElementMatcher<MethodDescription> getConstructorMatcher() {
-                return takesArgument(0, String.class);
+                return takesArgument(0, URI.class);
             }
 
             @Override

@@ -18,6 +18,10 @@ public class ArgumentTypeNameMatch implements ElementMatcher<MethodDescription> 
 
     @Override
     public boolean matches(MethodDescription target) {
-        return target.getParameters().get(index).getType().asErasure().getName().equals(argumentTypeName);
+        if (target.getParameters().size() > index) {
+            return target.getParameters().get(index).getType().asErasure().getName().equals(argumentTypeName);
+        }
+
+        return false;
     }
 }
