@@ -27,12 +27,12 @@ public class ZookeeperRegistryCenterTest extends TestSuite {
 
     @Before
     public void setUp() throws Exception {
-        zkTestServer = new TestingServer(2181, true);
-        zkClient = new ZkClient("127.0.0.1:2181", 2000);
+        zkTestServer = new TestingServer(42181, true);
+        zkClient = new ZkClient("127.0.0.1:42181", 2000);
 
         registryCenter = RegistryCenterFactory.INSTANCE.getRegistryCenter(CenterType.DEFAULT_CENTER_TYPE);
         Properties config = new Properties();
-        config.put(ZookeeperConfig.CONNECT_URL, "127.0.0.1:2181");
+        config.put(ZookeeperConfig.CONNECT_URL, "127.0.0.1:42181");
         registryCenter.start(config);
     }
 

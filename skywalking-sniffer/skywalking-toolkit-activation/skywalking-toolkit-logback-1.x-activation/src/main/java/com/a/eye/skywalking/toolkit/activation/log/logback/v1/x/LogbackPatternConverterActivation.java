@@ -1,4 +1,4 @@
-package com.a.eye.skywalking.toolkit.activation.logback.v1.x;
+package com.a.eye.skywalking.toolkit.activation.log.logback.v1.x;
 
 import com.a.eye.skywalking.plugin.interceptor.ConstructorInterceptPoint;
 import com.a.eye.skywalking.plugin.interceptor.InstanceMethodsInterceptPoint;
@@ -12,7 +12,7 @@ import com.a.eye.skywalking.plugin.interceptor.matcher.SimpleMethodMatcher;
 public class LogbackPatternConverterActivation extends ClassInstanceMethodsEnhancePluginDefine {
     @Override
     protected String enhanceClassName() {
-        return "com.a.eye.skywalking.toolkit.logback.v1.x.LogbackPatternConverter";
+        return "com.a.eye.skywalking.toolkit.log.logback.v1.x.LogbackPatternConverter";
     }
 
     @Override
@@ -30,7 +30,7 @@ public class LogbackPatternConverterActivation extends ClassInstanceMethodsEnhan
 
             @Override
             public String getMethodsInterceptor() {
-                return "com.a.eye.skywalking.toolkit.activation.logback.v1.x.PrintTraceIdInterceptor";
+                return "PrintTraceIdInterceptor";
             }
         }};
     }

@@ -1,4 +1,4 @@
-package com.a.eye.skywalking.toolkit.activation.log4j.v1.x;
+package com.a.eye.skywalking.toolkit.activation.log.log4j.v1.x;
 
 import com.a.eye.skywalking.plugin.interceptor.ConstructorInterceptPoint;
 import com.a.eye.skywalking.plugin.interceptor.InstanceMethodsInterceptPoint;
@@ -30,7 +30,7 @@ public class TraceIdPatternConverterActivation extends ClassInstanceMethodsEnhan
 
             @Override
             public String getMethodsInterceptor() {
-                return "com.a.eye.skywalking.toolkit.activation.log4j.v1.x.PrintTraceIdInterceptor";
+                return "PrintTraceIdInterceptor";
             }
         }};
     }
