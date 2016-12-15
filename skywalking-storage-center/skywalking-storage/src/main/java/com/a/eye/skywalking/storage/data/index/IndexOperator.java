@@ -74,7 +74,7 @@ public class IndexOperator {
 
         IndexMetaCollection collection = new IndexMetaCollection();
         SearchResponse response =
-                client.prepareSearch(INDEX_NAME).setTypes(INDEX_TYPE).setQuery(queryBuilder).execute().actionGet();
+                client.prepareSearch(INDEX_NAME).setTypes(INDEX_TYPE).setFrom(0).setSize(10000).setQuery(queryBuilder).execute().actionGet();
         for (SearchHit hit : response.getHits()) {
             DataFileNameDesc desc = new DataFileNameDesc(Long.parseLong(hit.getSource().get("fileName").toString()),
                     Integer.parseInt(hit.getSource().get("fileName_suffix").toString()));

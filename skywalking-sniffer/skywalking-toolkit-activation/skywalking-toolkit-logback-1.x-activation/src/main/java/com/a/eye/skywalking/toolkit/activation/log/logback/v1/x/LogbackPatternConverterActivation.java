@@ -30,7 +30,7 @@ public class LogbackPatternConverterActivation extends ClassInstanceMethodsEnhan
 
             @Override
             public String getMethodsInterceptor() {
-                return "PrintTraceIdInterceptor";
+                return "com.a.eye.skywalking.toolkit.log.logback.v1.x.PrintTraceIdInterceptor";
             }
         }};
     }

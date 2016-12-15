@@ -30,7 +30,7 @@ public class TraceIdPatternConverterActivation extends ClassInstanceMethodsEnhan
 
             @Override
             public String getMethodsInterceptor() {
-                return "PrintTraceIdInterceptor";
+                return "com.a.eye.skywalking.toolkit.activation.log.log4j.v1.x.PrintTraceIdInterceptor";
             }
         }};
     }

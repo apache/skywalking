@@ -33,10 +33,6 @@ public abstract class BaseInvokeMonitor {
         // 将新创建的Context存放到ThreadLocal栈中。
         CurrentThreadSpanStack.push(spanData);
 
-        // 根据SpanData生成RequestSpan，并保存
-
-        CurrentThreadSpanStack.push(spanData);
-
         sendRequestSpan(spanData, id);
 
         // 并将当前的Context返回回去
