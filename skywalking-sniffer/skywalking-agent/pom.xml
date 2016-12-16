@@ -75,6 +75,12 @@
             <artifactId>skywalking-toolkit-logback-1.x-activation</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.a.eye</groupId>
+            <artifactId>skywalking-toolkit-trace-context-activation</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <finalName>${artifactId}</finalName>

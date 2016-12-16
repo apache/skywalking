@@ -15,7 +15,7 @@ public class ElasticBootstrapTest {
     @Test
     public void fetchElasticHomeWithoutProperty() {
         ElasticBootstrap booter = new ElasticBootstrap();
-        assertEquals("Elastic Home :", booter.fetchElasticHome(), bastPath + "install/data/index");
+        assertEquals("Elastic Home :", booter.fetchElasticHome(), bastPath + "skywalking-storage/data/index");
     }
 
     @Test
