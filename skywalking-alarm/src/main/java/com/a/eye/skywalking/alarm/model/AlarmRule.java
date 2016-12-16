@@ -81,7 +81,6 @@ public class AlarmRule {
 
     private static long getPreviousFireTime(final String userId, final String ruleId) {
     	return RedisUtil.execute(new RedisUtil.Executable<Long>() {
-			@Override
 			public Long exe(Jedis client) {
 				String previousTime = client.get(userId + "-" + ruleId);
 	            if (previousTime == null || previousTime.length() <= 0) {

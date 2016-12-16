@@ -58,6 +58,6 @@ public class RedisUtil {
 	}
 
 	public interface Executable<R> {
-		public R exe(Jedis client);
+		 R exe(Jedis client);
 	}
 }

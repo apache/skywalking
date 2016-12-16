@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
@@ -40,74 +41,25 @@
     </dependencies>
 
     <build>
+        <finalName>skywalking-storage</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.6.0</version>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                    <encoding>${project.build.sourceEncoding}</encoding>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>2.6</version>
+                <artifactId>maven-assembly-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>copy-resources</id>
+                        <id>make-zip</id>
                         <phase>package</phase>
                         <goals>
-                            <goal>copy-resources</goal>
+                            <goal>single</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${project.build.directory}/install/config</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>src/main/resources</directory>
-                                    <filtering>false</filtering>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>copy-start-script</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/install/bin</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>bin</directory>
-                                    <filtering>false</filtering>
-                                </resource>
-                            </resources>
+                            <descriptors>
+                                <descriptor>src/main/assembly/assembly.xml</descriptor>
+                            </descriptors>
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>copy-dependencies</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>copy-dependencies</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <outputDirectory>${project.build.directory}/install/lib</outputDirectory>
-                    <excludeTransitive>false</excludeTransitive>
-                    <stripVersion>true</stripVersion>
-                    <includeScope>runtime</includeScope>
-                    <includeScope>compile</includeScope>
-                </configuration>
             </plugin>
             <plugin>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -116,7 +68,6 @@
                         <exclude>*.properties</exclude>
                         <exclude>*.xml</exclude>
                     </excludes>
-                    <outputDirectory>${project.build.directory}/install/lib</outputDirectory>
                 </configuration>
             </plugin>
             <plugin>
@@ -129,15 +80,11 @@
                         <phase>compile</phase>
                         <configuration>
                             <target>
-                                <mkdir dir="${project.build.directory}/install/bin"/>
-                                <mkdir dir="${project.build.directory}/install/lib"/>
-                                <mkdir dir="${project.build.directory}/install/logs"/>
-                                <mkdir dir="${project.build.directory}/install/bin"/>
-                                <mkdir dir="${project.build.directory}/install/data/index"/>
                                 <echo message="unzip elastic"/>
                                 <unzip src="${project.basedir}/lib/dataindex-es-5.0.1.zip"
-                                       dest="${project.build.directory}/install/data/index"/>
-                                <chmod dir="${project.build.directory}/install/data/index/bin" perm="ugo+rx"
+                                       dest="${project.build.directory}/${build.finalName}/data/index"/>
+                                <chmod dir="${project.build.directory}/${build.finalName}/data/index/bin"
+                                       perm="ugo+rx"
                                        includes="*"/>
                             </target>
                         </configuration>
@@ -150,22 +97,7 @@
                         <phase>pre-clean</phase>
                         <configuration>
                             <target>
-                                <delete dir="${project.build.directory}/install/data/index"/>
-                            </target>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>tar</id>
-                        <phase>package</phase>
-                        <configuration>
-                            <target>
-                                <chmod dir="${project.build.directory}/install/bin" perm="ugo+rx"
-                                       includes="*"/>
-                                <tar destfile="${project.build.directory}/install.tar" basedir="${project.build.directory}/install">
-                                </tar>
+                                <delete dir="${project.build.directory}/${build.finalName}/data/index"/>
                             </target>
                         </configuration>
                         <goals>

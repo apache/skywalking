@@ -41,7 +41,7 @@ public class Config {
 
         public static String REDIS_SERVER = "127.0.0.1:6379";
 
-        public static boolean ALARM_OFF_FLAG = false;
+        public static boolean ALARM_OFF_FLAG = true;
 
         public static int ALARM_EXCEPTION_STACK_LENGTH = 300;
 

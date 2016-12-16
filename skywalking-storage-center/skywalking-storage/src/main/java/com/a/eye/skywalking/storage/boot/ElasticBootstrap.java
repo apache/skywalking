@@ -15,7 +15,7 @@ public class ElasticBootstrap {
     private static       ILog   logger                       = LogManager.getLogger(ElasticBootstrap.class);
     public static final  String DATA_INDEX_HOME              = "DATA_INDEX_HOME";
     private static final String DEVELOP_RUNTIME_ELASTIC_HOME =
-            ElasticBootstrap.class.getResource("/").getPath() + ".." + File.separator + "install" + File.separator + "data"
+            ElasticBootstrap.class.getResource("/").getPath() + ".." + File.separator + "skywalking-storage" + File.separator + "data"
                     + File.separator + "index";
     private String elasticHome;
 

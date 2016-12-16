@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.sql.SQLException;
 
 import com.a.eye.skywalking.alarm.conf.Config;
-import com.a.eye.skywalking.alarm.dao.SystemConfigDao;
 
 import freemarker.template.Configuration;
 import freemarker.template.TemplateModelException;

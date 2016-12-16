@@ -156,7 +156,6 @@ public class AlarmMessageProcessor {
 
     private void expiredAlarmMessage(final String key) {
         RedisUtil.execute(new RedisUtil.Executable<Long>() {
-            @Override
             public Long exe(Jedis client) {
                 return client.expire(key, 0);
             }
@@ -166,7 +165,6 @@ public class AlarmMessageProcessor {
     private void savePreviousFireTime(final String userId, final String ruleId,
                                       final long currentFireMinuteTime) {
         RedisUtil.execute(new RedisUtil.Executable<Long>() {
-            @Override
             public Long exe(Jedis client) {
                 return client.hset(userId, ruleId,
                         String.valueOf(currentFireMinuteTime));
@@ -177,7 +175,6 @@ public class AlarmMessageProcessor {
     private void setAlarmMessages(final String key,
                                   final Collection<AlarmMessage> warningTracingIds) {
         RedisUtil.execute(new RedisUtil.Executable<Object>() {
-            @Override
             public Collection<String> exe(Jedis client) {
                 Map<String, String> result = client.hgetAll(key);
                 if (result != null) {

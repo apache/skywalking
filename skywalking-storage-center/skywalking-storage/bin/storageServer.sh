@@ -4,7 +4,7 @@ STORAGE_SERVER_BIN="$0"
 # Get standard environment variables
 STORAGE_SERVER_BIN_DIR=`dirname "$STORAGE_SERVER_BIN"`
 STORAGE_PREFIX="${STORAGE_SERVER_BIN_DIR}/.."
-STORAGE_LOG_DIR="${STORAGE_SERVER_BIN_DIR}/../log"
+STORAGE_LOG_DIR="${STORAGE_SERVER_BIN_DIR}/../logs"
 STORAGE_CFG_DIR="${STORAGE_SERVER_BIN_DIR}/../config"
 
 #echo $STORAGE_SERVER_BIN_DIR
@@ -13,6 +13,10 @@ if [ "$JAVA_HOME" != "" ]; then
   JAVA="$JAVA_HOME/bin/java"
 else
   JAVA=java
+fi
+
+if [ ! -d "${STORAGE_LOG_DIR}" ]; then
+    mkdir -p "${STORAGE_LOG_DIR}"
 fi
 
 CLASSPATH="$STORAGE_CFG_DIR:$CLASSPATH"

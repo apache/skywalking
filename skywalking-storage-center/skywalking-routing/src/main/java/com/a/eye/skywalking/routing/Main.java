@@ -47,7 +47,7 @@ public class Main {
         Properties properties = new Properties();
         try {
             properties.load(Main.class.getResourceAsStream("/config.properties"));
-            printStorageConfig(properties);
+            printRoutingConfig(properties);
             ConfigInitializer.initialize(properties, Config.class);
         } catch (IllegalAccessException e) {
             logger.error("Initialize server configuration failure.", e);
@@ -58,7 +58,7 @@ public class Main {
         }
     }
 
-    private static void printStorageConfig(Properties config) {
+    private static void printRoutingConfig(Properties config) {
         for (Map.Entry<Object, Object> entry : config.entrySet()) {
             logger.info("{} = {}", entry.getKey(), entry.getValue());
         }

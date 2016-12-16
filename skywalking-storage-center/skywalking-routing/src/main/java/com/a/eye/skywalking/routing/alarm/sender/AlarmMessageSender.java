@@ -3,6 +3,7 @@ package com.a.eye.skywalking.routing.alarm.sender;
 import com.a.eye.skywalking.logging.api.ILog;
 import com.a.eye.skywalking.logging.api.LogManager;
 import com.a.eye.skywalking.routing.config.Config;
+
 import redis.clients.jedis.Jedis;
 
 /**
@@ -16,6 +17,8 @@ public class AlarmMessageSender {
         Jedis jedis = null;
         try {
             jedis = AlarmRedisConnector.getJedis();
+            if (jedis != null)
+                return;
             jedis.hsetnx(alarmKey, traceId, message);
             jedis.expire(alarmKey, Config.Alarm.ALARM_EXPIRE_SECONDS);
         } catch (Exception e) {

@@ -147,7 +147,6 @@ public class AlarmMessageProcessThread extends Thread {
 
     private class CoordinatorStatusWatcher implements CuratorWatcher {
 
-        @Override
         public void process(WatchedEvent watchedEvent) throws Exception {
             if (watchedEvent.getType() == Watcher.Event.EventType.NodeDataChanged) {
                 String value = ZKUtil.getPathData(Config.ZKPath.REGISTER_SERVER_PATH + "/" + threadId);

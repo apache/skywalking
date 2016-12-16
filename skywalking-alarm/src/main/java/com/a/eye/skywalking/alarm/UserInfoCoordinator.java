@@ -223,8 +223,6 @@ public class UserInfoCoordinator extends Thread {
     }
 
     public class RegisterServerWatcher implements CuratorWatcher {
-
-        @Override
         public void process(WatchedEvent watchedEvent) {
             if (watchedEvent.getType() == Watcher.Event.EventType.NodeChildrenChanged) {
                 redistributing = true;
