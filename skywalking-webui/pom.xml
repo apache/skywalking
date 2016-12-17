@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -14,9 +15,6 @@
     <properties>
         <project.spring.version>4.1.6.RELEASE</project.spring.version>
     </properties>
-    <build>
-        <finalName>skywalking</finalName>
-    </build>
 
     <dependencies>
         <dependency>
@@ -117,4 +115,33 @@
         </dependency>
 
     </dependencies>
+
+    <build>
+        <finalName>skywalking</finalName>
+        <plugins>
+            <plugin>
+                <groupId>com.spotify</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>${docker.plugin.version}</version>
+                <configuration>
+                    <skipDocker>false</skipDocker>
+                    <dockerDirectory>${project.basedir}/docker</dockerDirectory>
+                    <imageName>skywalking/skywalking-webui</imageName>
+                    <imageTags>
+                        <imageTag>${project.version}</imageTag>
+                    </imageTags>
+                    <resources>
+                        <resource>
+                            <targetPath>/skywalking</targetPath>
+                            <directory>${project.build.directory}/${project.build.finalName}</directory>
+                        </resource>
+                        <resource>
+                            <targetPath>/classes</targetPath>
+                            <directory>${project.build.directory}/classes</directory>
+                        </resource>
+                    </resources>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

@@ -24,6 +24,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <compiler.version>1.8</compiler.version>
         <powermock.version>1.6.4</powermock.version>
+        <docker.plugin.version>0.4.13</docker.plugin.version>
     </properties>
 
     <dependencies>
@@ -69,6 +70,14 @@
                 <version>2.4.3</version>
                 <configuration>
                     <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.spotify</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>${docker.plugin.version}</version>
+                <configuration>
+                    <skipDocker>true</skipDocker>
                 </configuration>
             </plugin>
         </plugins>

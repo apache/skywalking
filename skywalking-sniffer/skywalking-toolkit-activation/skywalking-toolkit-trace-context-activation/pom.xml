@@ -2,7 +2,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>skywalking-application-toolkit</artifactId>
+        <artifactId>skywalking-toolkit-activation</artifactId>
         <groupId>com.a.eye</groupId>
         <version>2.0-2016</version>
     </parent>
@@ -12,12 +12,6 @@
     <packaging>jar</packaging>
 
     <name>skywalking-toolkit-trace-context-activation</name>
-    <url>http://maven.apache.org</url>
-
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>com.a.eye</groupId>

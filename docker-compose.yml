@@ -1,0 +1,32 @@
+version: '2'
+services:
+  skywalking-webui:
+    image: skywalking/skywalking-webui:2.0-2016
+    expose:
+      - "8080"
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql-server
+      - registry-center-server
+    links:
+      - mysql-server
+      - registry-center-server
+    environment:
+      - MYSQL_URL=mysql-server:3306
+      - REGISTRY_CENTER_URL=registry-center-server:2181
+
+
+  mysql-server:
+    image: mysql:5.6
+    expose:
+      - "3306"
+    environment:
+      MYSQL_DATABASE: test
+      MYSQL_ROOT_PASSWORD: root
+      STARTUP_SQL: /Users/xin/workbench/sky-walking/skywalking-webui/src/main/sql/table.mysql
+
+  registry-center-server:
+    image: zookeeper:3.4.9
+    expose:
+      - "2181"
