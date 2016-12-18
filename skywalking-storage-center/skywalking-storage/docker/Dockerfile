@@ -11,5 +11,7 @@ RUN chmod +x /docker-entrypoint.sh
 
 VOLUME ["/usr/local/skywalking-storage/data/file", "/usr/local/skywalking-storage/data/index/data"]
 
+EXPOSE 34000
+
 ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["/usr/local/skywalking-storage/bin/storageServer.sh"]

@@ -9,5 +9,7 @@ COPY config.properties /usr/local/skywalking-routing/config/
 COPY docker-entrypoint.sh /
 RUN chmod +x /docker-entrypoint.sh
 
+EXPOSE 23000
+
 ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["/usr/local/skywalking-routing/bin/routingServer.sh"]
