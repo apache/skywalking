@@ -10,6 +10,9 @@ eval sed -i -e 's/\{mysql-username\}/$MYSQL_USER/' /usr/local/tomcat/webapps/sky
 echo "replace mysql-password with $MYSQL_PASSWORD"
 eval sed -i -e 's/\{mysql-password\}/$MYSQL_PASSWORD/' /usr/local/tomcat/webapps/skywalking/WEB-INF/classes/jdbc.properties
 
+echo "replace jdbc_init_db with $JDBC_INIT_DB"
+eval sed -i -e 's/\{init_db\}/$JDBC_INIT_DB/' /usr/local/tomcat/webapps/skywalking/WEB-INF/classes/jdbc.properties
+
 echo "replace registry_center_url with $REGISTRY_CENTER_URL"
 eval sed -i -e 's/\{registry_center_url\}/$REGISTRY_CENTER_URL/' /usr/local/tomcat/webapps/skywalking/WEB-INF/classes/config.properties
 

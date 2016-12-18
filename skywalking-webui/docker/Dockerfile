@@ -5,7 +5,8 @@ ENV JPDA_ADDRESS="8000" \
     MYSQL_URL=localhost:3306 \
     MYSQL_USER=root \
     MYSQL_PASSWORD=root \
-    REGISTRY_CENTER_URL=localhost:2181
+    REGISTRY_CENTER_URL=localhost:2181 \
+    JDBC_INIT_DB=true
 
 COPY skywalking /usr/local/tomcat/webapps/skywalking
 COPY classes /usr/local/tomcat/webapps/skywalking/WEB-INF/classes/

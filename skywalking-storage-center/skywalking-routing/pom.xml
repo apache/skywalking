@@ -58,11 +58,32 @@
                         </goals>
                         <configuration>
                             <descriptors>
-                            <descriptor>src/main/assembly/assembly.xml</descriptor>
+                                <descriptor>src/main/assembly/assembly.xml</descriptor>
                             </descriptors>
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>com.spotify</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>${docker.plugin.version}</version>
+                <configuration>
+                    <skipDocker>false</skipDocker>
+                    <dockerDirectory>${project.basedir}/docker</dockerDirectory>
+                    <imageName>skywalking/skywalking-routing</imageName>
+                    <imageTags>
+                        <imageTag>${project.version}</imageTag>
+                    </imageTags>
+                    <resources>
+                        <resource>
+                            <targetPath>/</targetPath>
+                            <directory>${project.build.directory}</directory>
+                            <include>${build.finalName}.tar</include>
+                        </resource>
+                    </resources>
+                </configuration>
             </plugin>
         </plugins>
     </build>

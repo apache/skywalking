@@ -33,7 +33,7 @@
         <property name="dataSource" ref="dataSource"/>
     </bean>
 
-    <jdbc:initialize-database data-source="dataSource" enabled="true">
+    <jdbc:initialize-database data-source="dataSource" enabled="${jdbc.init_db}">
         <jdbc:script location="classpath:table.mysql"/>
     </jdbc:initialize-database>
 
