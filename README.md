@@ -43,8 +43,6 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, also known D
 ### cache
 * jedis
 
-_All test scenarios base on Docker Tech._
-
 # Contributors
 * 吴晟 [wusheng](https://github.com/wu-sheng) &nbsp;&nbsp;wu.sheng@foxmail.com
 * 张鑫 [zhangxin](https://github.com/ascrutae) &nbsp;&nbsp;
