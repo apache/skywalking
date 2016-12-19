@@ -27,7 +27,7 @@ services:
       - MYSQL_SERVER=mysql-server:3306
       - REDIS_SERVER=redis-server:6379
       - WEBUI_DEPLOY_ADDRESS=192.168.1.104:8080
-      - WEBUI_CONTEXT_NAME=skywalking
+      - WEBUI_APPLICATION_CONTEXT=skywalking
       - ALARM_MAIL_HOST=smtp.mail.com
       - MAIL_USER_NAME=skywalking
       - MAIL_PASSWORD=skywalking

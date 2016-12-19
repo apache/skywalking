@@ -38,6 +38,7 @@ public class Main {
             Thread.currentThread().join();
         } catch (Exception e) {
             logger.error("Failed to start routing service.", e);
+            System.exit(-1);
         } finally {
             RoutingService.stop();
         }
