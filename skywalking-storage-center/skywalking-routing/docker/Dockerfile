@@ -6,8 +6,9 @@ ENV SERVER_PORT=23000 \
 
 ADD skywalking-routing.tar /usr/local/
 COPY config.properties /usr/local/skywalking-routing/config/
+COPY routingServer.sh /usr/local/skywalking-routing/bin
 COPY docker-entrypoint.sh /
-RUN chmod +x /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh && chmod +x /usr/local/skywalking-routing/bin/routingServer.sh
 
 EXPOSE 23000
 

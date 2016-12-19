@@ -37,6 +37,8 @@ services:
     image: skywalking/skywalking-routing:2.0-2016
     expose:
       - "23000"
+    ports:
+      - "23000:23000"
     depends_on:
       - registry-center-server
     links:
@@ -68,7 +70,6 @@ services:
     environment:
       MYSQL_DATABASE: test
       MYSQL_ROOT_PASSWORD: root
-      STARTUP_SQL: /Users/xin/workbench/sky-walking/skywalking-webui/src/main/sql/table.mysql
 
   registry-center-server:
     image: zookeeper:3.4.9

@@ -26,7 +26,7 @@
             <outputDirectory>/config</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>${project.build.directory}/${build.finalName}</directory>
+            <directory>${project.build.directory}</directory>
             <outputDirectory>/libs</outputDirectory>
             <includes>
                 <include>${build.finalName}.jar</include>

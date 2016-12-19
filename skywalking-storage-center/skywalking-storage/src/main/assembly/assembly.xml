@@ -26,6 +26,13 @@
             <outputDirectory>/config</outputDirectory>
         </fileSet>
         <fileSet>
+            <directory>${project.build.directory}</directory>
+            <outputDirectory>/libs</outputDirectory>
+            <includes>
+                <include>${build.finalName}.jar</include>
+            </includes>
+        </fileSet>
+        <fileSet>
             <directory>${project.build.directory}/${build.finalName}/data/index</directory>
             <outputDirectory>/data/index</outputDirectory>
             <fileMode>0755</fileMode>

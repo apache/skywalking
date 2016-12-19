@@ -16,9 +16,10 @@ ENV ALARM_COORDINATE_ZK_ADDRESS=localhost:2181 \
 
 ADD skywalking-alarm.tar /usr/local/
 COPY config.properties /usr/local/skywalking-alarm/config
+COPY sw-alarm-server.sh /usr/local/skywalking-alarm/bin
 COPY docker-entrypoint.sh /
 
-RUN chmod +x /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh && chmod +x /usr/local/skywalking-alarm/bin/sw-alarm-server.sh
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["/usr/local/skywalking-alarm/bin/sw-alarm-server.sh"]

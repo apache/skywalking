@@ -37,4 +37,6 @@ eval sed -i -e 's/\{WEBUI_DEPLOY_ADDRESS\}/$WEBUI_DEPLOY_ADDRESS/' /usr/local/sk
 echo "replace WEBUI_CONTEXT_NAME with $WEBUI_CONTEXT_NAME"
 eval sed -i -e 's/\{WEBUI_CONTEXT_NAME\}/$WEBUI_CONTEXT_NAME/' /usr/local/skywalking-alarm/config/config.properties
 
+mkdir -p /usr/local/skywalking-alarm/logs
+
 exec "$@"

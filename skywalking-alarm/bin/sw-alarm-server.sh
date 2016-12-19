@@ -30,6 +30,7 @@ SW_ALARM_ALARM_LOG_DIR="${SW_ALARM_ALARM_SERVER_BIN_DIR}/../logs"
 SW_ALARM_ALARM_CFG_DIR="${SW_ALARM_ALARM_SERVER_BIN_DIR}/../config"
 
 if [ ! -d "${SW_ALARM_ALARM_LOG_DIR}" ]; then
+    echo "create directory $SW_ALARM_ALARM_LOG_DIR"
     mkdir -p ${SW_ALARM_ALARM_LOG_DIR}
 fi
 
@@ -43,7 +44,7 @@ fi
 
 CLASSPATH="$SW_ALARM_ALARM_CFG_DIR:$CLASSPATH"
 
-for i in "${SW_ALARM_ALARM_SERVER_BIN_DIR}"/../lib/*.jar
+for i in "${SW_ALARM_ALARM_SERVER_BIN_DIR}"/../libs/*.jar
 do
     CLASSPATH="$i:$CLASSPATH"
 done
@@ -52,4 +53,5 @@ echo "CLASSPATH=$CLASSPATH"
 
 JAVA_OPTS="$JAVA_OPTS -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false"
 
-$JAVA ${JAVA_OPTS} -classpath $CLASSPATH com.ai.cloud.skywalking.alarm.AlarmProcessServer >> ${SW_ALARM_ALARM_SERVER_BIN_DIR}/../log/sw-alarm-server.log & 2>&1&
+$JAVA ${JAVA_OPTS} -classpath $CLASSPATH com.a.eye.skywalking.alarm.AlarmProcessServer >> ${SW_ALARM_ALARM_LOG_DIR}/sw-alarm-server.log & 2>&1&
+

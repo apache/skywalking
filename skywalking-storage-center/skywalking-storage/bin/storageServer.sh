@@ -21,7 +21,7 @@ fi
 
 CLASSPATH="$STORAGE_CFG_DIR:$CLASSPATH"
 
-for i in "${STORAGE_SERVER_BIN_DIR}"/../lib/*.jar
+for i in "${STORAGE_SERVER_BIN_DIR}"/../libs/*.jar
 do
     CLASSPATH="$i:$CLASSPATH"
 done
@@ -29,4 +29,4 @@ done
 echo "CLASSPATH=$CLASSPATH"
 
 
-$JAVA ${JAVA_OPTS} -DDATA_INDEX_HOME=${STORAGE_SERVER_BIN_DIR}/../data/index -classpath $CLASSPATH com.a.eye.skywalking.storage.Main >> ${STORAGE_SERVER_BIN_DIR}/../logs/storage-server.log & 2>&1&
+$JAVA ${JAVA_OPTS} -DSTORAGE_HOME=${STORAGE_SERVER_BIN_DIR}/.. -DDATA_INDEX_HOME=${STORAGE_SERVER_BIN_DIR}/../data/index -classpath $CLASSPATH com.a.eye.skywalking.storage.Main >> ${STORAGE_SERVER_BIN_DIR}/../logs/storage-server.log & 2>&1&

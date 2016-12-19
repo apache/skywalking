@@ -18,6 +18,7 @@ import com.a.eye.skywalking.storage.listener.SearchListener;
 import com.a.eye.skywalking.storage.listener.StorageListener;
 import com.a.eye.skywalking.registry.assist.NetUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
@@ -40,6 +41,7 @@ public class Main {
 
     public static void main(String[] args) {
         try {
+            System.out.println(" =========== ::::::::::: {} " +  System.getProperty("STORAGE_HOME")  + File.separator );
             initConfig();
             HealthCollector.init(SERVER_REPORTER_NAME);
 

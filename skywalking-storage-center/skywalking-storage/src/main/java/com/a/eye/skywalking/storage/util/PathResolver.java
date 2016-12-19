@@ -7,7 +7,7 @@ public class PathResolver {
     private final static String STORAGE_HOME;
 
     static {
-        STORAGE_HOME = System.getProperty("user.dir") + File.separator + "..";
+        STORAGE_HOME = System.getProperty("STORAGE_HOME") + File.separator;
     }
 
     public static String getAbsolutePath(String path) {
