@@ -27,19 +27,11 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, also known D
 * Tomcat 7
 * Tomcat 8
 
-[![Tomcat 7 Test Docker](https://img.shields.io/badge/test--scenario-tomcat--7.0.73-brightgreen.svg)](https://hub.docker.com/r/skywalking/docker-tomcat-scenario/tags/)  [![Tomcat 8 Test Docker](https://img.shields.io/badge/test--scenario-tomcat--8.0.39-brightgreen.svg)](https://hub.docker.com/r/skywalking/docker-tomcat-scenario/tags/)
-
-
 ### database
-
 * mysql
 * oracle
 * h2
 * easily extend to support sybase, sqlserver, jtds, db2, informix
-
-[![MySQL Test Docker](https://img.shields.io/badge/test--scenario-mysql--5.7-brightgreen.svg)](https://hub.docker.com/r/skywalking/docker-mysql-scenario/tags/)  <br/>
-[![Oracle Test Docker](https://img.shields.io/badge/test--scenario-oracle--12.1.0.2-brightgreen.svg)](https://hub.docker.com/r/skywalking/docker-oracle-scenario/tags/)  <br/>
-[![H2 Test Docker](https://img.shields.io/badge/test--scenario-h2--1.3.176-brightgreen.svg)](https://hub.docker.com/r/skywalking/docker-h2-scenario/tags/)
 
 
 ### rpc framework
@@ -48,17 +40,8 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, also known D
 * httpClient
 * motan
 
-[![Dubbo Test Docker](https://img.shields.io/badge/test--scenario-dubbo--2.5.3-brightgreen.svg)](https://hub.docker.com/r/skywalking/docker-dubbo-scenario/tags/)  <br/>
-[![Dubbox Test Docker](https://img.shields.io/badge/test--scenario-dubbox--2.8.4.rpc-brightgreen.svg)](https://hub.docker.com/r/skywalking/docker-dubbox-scenario/tags/)  [![Dubbox Test Docker](https://img.shields.io/badge/test--scenario-dubbox--2.8.4.rest-brightgreen.svg)](https://hub.docker.com/r/skywalking/docker-dubbox-scenario/tags/)  <br/>
-[![HttpClient Test Docker](https://img.shields.io/badge/test--scenario-httpclient--4.2-brightgreen.svg)](https://hub.docker.com/r/skywalking/docker-httpclient-scenario/tags/)  [![HttpClient Test Docker](https://img.shields.io/badge/test--scenario-httpclient--4.3-brightgreen.svg)](https://hub.docker.com/r/skywalking/docker-httpclient-scenario/tags/)  <br/>
-[![Motan Test Docker](https://img.shields.io/badge/test--scenario-motan--0.2.1-brightgreen.svg)](https://hub.docker.com/r/skywalking/docker-motan-scenario/tags/)
-
 ### cache
 * jedis
-
-[![Jedis Test Docker](https://img.shields.io/badge/test--scenario-jedis--2.8.1-brightgreen.svg)](https://hub.docker.com/r/skywalking/docker-jedis-scenario/tags/)  
-
-_All test scenarios base on Docker Tech._
 
 # Contributors
 * 吴晟 [wusheng](https://github.com/wu-sheng) &nbsp;&nbsp;wu.sheng@foxmail.com
@@ -69,6 +52,7 @@ _Chinese Articles about sky-walking and distributed tracer_
 
 <img src="http://wu-sheng.github.io/sky-walking/sample-code/screenshoot/chatapp/toutiao.JPG" alt="Sky Walking TouTiao" height="280px" />
 
+_If you are Chinese Developer, you can join QQ Group: 392443393, and **Tagged** Sky-Walking._
 ___
 
 <a href="https://github.com/wu-sheng/sky-walking">
