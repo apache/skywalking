@@ -11,8 +11,8 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, also known D
 [![Join the chat at https://gitter.im/sky-walking/Lobby](https://badges.gitter.im/sky-walking/Lobby.svg)](https://gitter.im/sky-walking/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![sky-walking-org](https://img.shields.io/badge/organization-sky--walking--ecosystem-brightgreen.svg)](https://github.com/skywalking-developer)
 
-[![Release Version](https://img.shields.io/badge/sky--walking-1.0--release-brightgreen.svg)](https://github.com/wu-sheng/sky-walking/releases)
-[![Dev Version](https://img.shields.io/badge/sky--walking-2.0--ontesting-yellow.svg)](https://github.com/wu-sheng/sky-walking)
+[![Release Version](https://img.shields.io/badge/sky--walking-2.0--release-brightgreen.svg)](https://github.com/wu-sheng/sky-walking/releases)
+[![Dev Version](https://img.shields.io/badge/sky--walking-2.1--ondev-yellow.svg)](https://github.com/wu-sheng/sky-walking)
 
 # Abstract
 * An open source Large-Scale Distributed Systems Tracing Infrastructure, also known a ditributed tracer.
