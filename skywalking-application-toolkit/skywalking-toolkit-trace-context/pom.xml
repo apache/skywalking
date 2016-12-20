@@ -11,6 +11,13 @@
     <artifactId>skywalking-toolkit-trace-context</artifactId>
     <packaging>jar</packaging>
 
-    <name>skywalking-toolkit-trace-context</name>
     <url>http://maven.apache.org</url>
+
+    <distributionManagement>
+        <repository>
+            <id>bintray-wu-sheng-sky-walking-repository</id>
+            <name>wu-sheng-sky-walking-repository</name>
+            <url>https://api.bintray.com/maven/wu-sheng/skywalking/com.a.eye.skywalking-toolkit-trace-context/;publish=1</url>
+        </repository>
+    </distributionManagement>
 </project>
