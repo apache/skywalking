@@ -10,9 +10,18 @@ import java.util.Map;
  * Created by wusheng on 2016/12/20.
  */
 public class SkyWalkingSpan implements Span, SpanContext {
+    private String operationName;
+
+    private long startTime;
+
+    private Map<String, String> tags;
+
     private final Map<String, String> baggageItems;
 
-    SkyWalkingSpan(){
+    SkyWalkingSpan(String operationName, long startTime, Map<String, String> tags){
+        this.operationName = operationName;
+        this.startTime = startTime;
+        this.tags = tags;
         baggageItems = new HashMap<String, String>();
     }
 

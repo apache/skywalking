@@ -5,6 +5,10 @@ import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
 
 /**
+ * All source code in SkyWalkingTracer acts like an NoopTracer.
+ * Actually, it is NOT.
+ * The whole logic will be added after toolkit-activation.
+ *
  * Created by wusheng on 2016/12/20.
  */
 public class SkyWalkingTracer implements Tracer{

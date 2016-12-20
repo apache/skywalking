@@ -5,6 +5,8 @@ import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -17,18 +19,38 @@ import java.util.Map;
 public class SkyWalkingSpanBuilder implements Tracer.SpanBuilder {
     private String operationName;
 
+    private long startTime = 0L;
+
+    private final Map<String, String> tags;
+
+    private SpanContext parentContext;
+
     SkyWalkingSpanBuilder(String operationName){
         this.operationName = operationName;
+        this.tags = new HashMap<String, String>();
     }
 
+    /**
+     * In SkyWalkingTracer, SpanContext will not be used. Tracer will build reference by itself.
+     *
+     * @param spanContext
+     * @return
+     */
     @Override
     public Tracer.SpanBuilder asChildOf(SpanContext spanContext) {
-        return null;
+        this.parentContext = spanContext;
+        return this;
     }
 
+    /**
+     * In SkyWalkingTracer, Parent Span will not be used. Tracer will build reference by itself.
+     * @param span
+     * @return
+     */
     @Override
     public Tracer.SpanBuilder asChildOf(Span span) {
-        return null;
+        asChildOf(span.context());
+        return this;
     }
 
     @Override
@@ -42,31 +64,43 @@ public class SkyWalkingSpanBuilder implements Tracer.SpanBuilder {
 
     @Override
     public Tracer.SpanBuilder withTag(String key, String value) {
+        if (key != null && value != null) {
+            tags.put(key, value);
+        }
         return this;
     }
 
     @Override
     public Tracer.SpanBuilder withTag(String key, boolean value) {
+        if (key != null) {
+            tags.put(key, Boolean.toString(value));
+        }
         return this;
     }
 
     @Override
     public Tracer.SpanBuilder withTag(String key, Number value) {
+        if (key != null && value != null) {
+            tags.put(key, value.toString());
+        }
         return this;
     }
 
     @Override
-    public Tracer.SpanBuilder withStartTimestamp(long microseconds) {
+    public Tracer.SpanBuilder withStartTimestamp(long startTime) {
+        this.startTime = startTime;
         return this;
     }
 
     @Override
     public Span start() {
-        return new SkyWalkingSpan();
+        return new SkyWalkingSpan(this.operationName, this.startTime, this.tags);
     }
 
     @Override
     public Iterable<Map.Entry<String, String>> baggageItems() {
-        return null;
+        return parentContext == null
+                ? Collections.<String, String>emptyMap().entrySet()
+                : parentContext.baggageItems();
     }
 }
