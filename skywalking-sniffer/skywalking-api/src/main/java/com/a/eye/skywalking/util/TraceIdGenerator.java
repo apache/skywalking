@@ -6,7 +6,12 @@ import com.a.eye.skywalking.conf.Constants;
 import com.a.eye.skywalking.network.grpc.TraceId;
 
 public final class TraceIdGenerator {
-    private static final ThreadLocal<Integer> ThreadTraceIdSequence = new ThreadLocal<Integer>();
+    private static final ThreadLocal<Integer> ThreadTraceIdSequence = new ThreadLocal<Integer>(){
+        @Override
+        protected Integer initialValue() {
+            return 0;
+        }
+    };
 
     private static final int PROCESS_UUID;
 
@@ -29,9 +34,6 @@ public final class TraceIdGenerator {
      */
     public static TraceId generate() {
         Integer seq = ThreadTraceIdSequence.get();
-        if (seq == null || seq == 10000 || seq > 10000) {
-            seq = 0;
-        }
         seq++;
         ThreadTraceIdSequence.set(seq);
 
