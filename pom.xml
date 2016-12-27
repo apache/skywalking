@@ -105,9 +105,11 @@
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
-            <id>DataCarrier</id>
+            <id>bintray</id>
             <name>bintray</name>
             <url>https://jcenter.bintray.com</url>
         </repository>
     </repositories>
+
+
 </project>
