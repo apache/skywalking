@@ -17,7 +17,6 @@
 		<module>jedis-2.x-plugin</module>
 		<module>tomcat-7.x-8.x-plugin</module>
         <module>motan-plugin</module>
-		<module>rmi-oracle-1.8-plugin</module>
     </modules>
 	<packaging>pom</packaging>
 
