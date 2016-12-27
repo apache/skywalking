@@ -5,18 +5,20 @@ import com.a.eye.skywalking.conf.Config;
 import com.a.eye.skywalking.network.grpc.AckSpan;
 import com.a.eye.skywalking.network.grpc.RequestSpan;
 import com.a.eye.skywalking.network.grpc.TraceId;
+import com.a.eye.skywalking.network.model.Tag;
 import com.a.eye.skywalking.util.RoutingKeyGenerator;
 import com.a.eye.skywalking.util.StringUtil;
 import com.a.eye.skywalking.util.TraceIdGenerator;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Span {
-    private final static String INVOKE_RESULT_PARAMETER_KEY = "_ret";
 
     private Logger logger = Logger.getLogger(Span.class.getName());
     /**
@@ -56,23 +58,24 @@ public class Span {
      * 节点类型<br/>
      * 如：RPC Client,RPC Server,Local
      */
-    private int spanType = SpanType.LOCAL;
+    private String spanType = SpanType.LOCAL;
 
     /**
      * 业务字段<br/>
      */
     private String businessKey = "";
 
-    private String viewPointId;
-
     private int routeKey;
+
+    private Map<String, String> tags = new HashMap<String, String>();
+    private String viewPoint;
 
     public Span(String operationName) {
         this(TraceIdGenerator.generate(), "", 0, operationName, RoutingKeyGenerator.generate(operationName));
     }
 
     public Span(Span parentSpan, String operationName) {
-        this(parentSpan.traceId, parentSpan.generateParentLevelId(), 0, operationName,parentSpan.getRouteKey());
+        this(parentSpan.traceId, parentSpan.generateParentLevelId(), 0, operationName, parentSpan.getRouteKey());
     }
 
     public Span(ContextData contextData, String operationName) {
@@ -84,8 +87,11 @@ public class Span {
         this.parentLevel = parentLevel;
         this.levelId = levelId;
         this.routeKey = routeKey;
-        this.viewPointId = operationName;
         this.startDate = System.currentTimeMillis();
+
+        this.setTag(Tag.USER_NAME, Config.SkyWalking.USERNAME);
+        this.setTag(Tag.APPLICATION_CODE, Config.SkyWalking.APPLICATION_CODE);
+        this.setTag(Tag.VIEW_POINT, operationName);
     }
 
     public TraceId getTraceId() {
@@ -108,13 +114,15 @@ public class Span {
         this.levelId = levelId;
     }
 
-    public void setSpanType(int spanType) {
-        this.spanType = spanType;
-    }
-
-    public int getSpanType() {
+    public String getSpanType() {
         return spanType;
     }
+
+    public void setTag(Tag key, String value) {
+        if (value != null)
+            this.tags.put(key.toString(), value);
+    }
+
 
     public void handleException(Throwable e, Set<String> exclusiveExceptionSet, int maxExceptionStackLength) {
         ByteArrayOutputStream buf = null;
@@ -157,17 +165,13 @@ public class Span {
     }
 
     public RequestSpan.Builder buildRequestSpan(RequestSpan.Builder builder) {
-        builder.setTraceId(this.traceId).setParentLevel(this.parentLevel).setLevelId(this.levelId).setSpanType(this.spanType).setApplicationCode(Config.SkyWalking.APPLICATION_CODE)
-                .setStartDate(this.startDate).setUsername(Config.SkyWalking.USERNAME).setRouteKey(routeKey);
-        return builder;
+        return builder.setTraceId(this.traceId).setParentLevel(this.parentLevel).setLevelId(this.levelId)
+                .setStartDate(this.startDate).setRouteKey(routeKey).putAllTags(tags);
     }
 
     public AckSpan.Builder buildAckSpan(AckSpan.Builder builder) {
-        builder.setTraceId(this.traceId).setParentLevel(this.parentLevel).setLevelId(this.levelId)
-                .setCost(System.currentTimeMillis() - this.startDate).setStatusCode(this.statusCode)
-                .setExceptionStack(this.exceptionStack).setUsername(Config.SkyWalking.USERNAME).setApplicationCode(Config.SkyWalking.APPLICATION_CODE)
-                .setViewpointId(this.viewPointId).setRouteKey(routeKey);
-        return builder;
+        return builder.setTraceId(this.traceId).setParentLevel(this.parentLevel).setLevelId(this.levelId)
+                .setCost(System.currentTimeMillis() - this.startDate).setRouteKey(routeKey).putAllTags(tags);
     }
 
     public int getRouteKey() {
@@ -180,5 +184,17 @@ public class Span {
         } else {
             return String.valueOf(this.getLevelId());
         }
+    }
+
+    public String getViewPoint() {
+        return viewPoint;
+    }
+
+    public byte getStatusCode() {
+        return statusCode;
+    }
+
+    public String getExceptionStack() {
+        return exceptionStack;
     }
 }

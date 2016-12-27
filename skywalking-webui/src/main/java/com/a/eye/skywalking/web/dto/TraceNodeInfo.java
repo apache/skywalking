@@ -72,7 +72,7 @@ public class TraceNodeInfo extends FullSpan {
         this.statusCodeStr = statusCodeStr;
         this.statusCodeName = statusCodeName;
 
-        this.applicationIdStr = this.applicationId;
+        this.applicationIdStr = this.applicationCode;
         if (!StringUtil.isEmpty(this.viewPointId) && this.viewPointId.length() > 60) {
             this.viewPointIdSub = this.viewPointId.substring(0, 30) + "..." + this.viewPointId
                     .substring(this.viewPointId.length() - 30);
@@ -137,7 +137,7 @@ public class TraceNodeInfo extends FullSpan {
                 + ", viewPointId=" + viewPointId + ", startDate=" + startDate + ", cost=" + cost + ", address="
                 + address + ", statusCode=" + statusCode + ", exceptionStack=" + exceptionStack + ", spanType="
                 + spanType + ", businessKey=" + businessKey + ", processNo=" + processNo + ", applicationId="
-                + applicationId + "]";
+                + applicationCode + "]";
     }
 
     public List<TimeLineEntry> getTimeLineList() {

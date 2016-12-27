@@ -41,7 +41,6 @@ public class Main {
 
     public static void main(String[] args) {
         try {
-            System.out.println(" =========== ::::::::::: {} " +  System.getProperty("STORAGE_HOME")  + File.separator );
             initConfig();
             HealthCollector.init(SERVER_REPORTER_NAME);
 

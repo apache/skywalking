@@ -6,7 +6,7 @@
     <parent>
         <artifactId>skywalking</artifactId>
         <groupId>com.a.eye</groupId>
-        <version>2.1-2017</version>
+        <version>${skywalking.version}</version>
     </parent>
 
     <artifactId>skywalking-webui</artifactId>
@@ -20,7 +20,7 @@
         <dependency>
             <groupId>com.a.eye</groupId>
             <artifactId>skywalking-network</artifactId>
-            <version>${project.version}</version>
+            <version>${skywalking.version}</version>
         </dependency>
         <dependency>
             <groupId>com.a.eye</groupId>
@@ -111,7 +111,7 @@
         <dependency>
             <groupId>com.a.eye</groupId>
             <artifactId>skywalking-util</artifactId>
-            <version>${project.version}</version>
+            <version>${skywalking.version}</version>
         </dependency>
 
     </dependencies>
@@ -128,7 +128,7 @@
                     <dockerDirectory>${project.basedir}/docker</dockerDirectory>
                     <imageName>skywalking/skywalking-webui</imageName>
                     <imageTags>
-                        <imageTag>${project.version}</imageTag>
+                        <imageTag>${skywalking.version}</imageTag>
                     </imageTags>
                     <resources>
                         <resource>

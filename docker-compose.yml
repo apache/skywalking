@@ -2,7 +2,7 @@ version: '2'
 services:
 
   skywalking-storage:
-    image: skywalking/skywalking-storage:2.0-2016
+    image: skywalking/skywalking-storage:2.1-2017
     expose:
       - "34000"
     depends_on:
@@ -13,7 +13,7 @@ services:
       - REGISTRY_CENTER_URL=registry-center-server:2181
 
   skywalking-alarm:
-    image: skywalking/skywalking-alarm:2.0-2016
+    image: skywalking/skywalking-alarm:2.1-2017
     depends_on:
       - alarm-coordinate-zk
       - mysql-server
@@ -34,7 +34,7 @@ services:
       - MAIL_SENDER_MAIL=skywalking@mail.com
 
   skywalking-routing:
-    image: skywalking/skywalking-routing:2.0-2016
+    image: skywalking/skywalking-routing:2.1-2017
     expose:
       - "23000"
     ports:
@@ -48,7 +48,7 @@ services:
       - ALARM_REDIS_SERVER=redis-server:6379
 
   skywalking-webui:
-    image: skywalking/skywalking-webui:2.0-2016
+    image: skywalking/skywalking-webui:2.1-2017
     expose:
       - "8080"
     ports:

@@ -7,6 +7,7 @@ import com.a.eye.skywalking.registry.api.RegistryCenter;
 import com.a.eye.skywalking.registry.api.RegistryNode;
 import junit.framework.TestSuite;
 import org.I0Itec.zkclient.ZkClient;
+import org.I0Itec.zkclient.exception.ZkNodeExistsException;
 import org.apache.curator.test.TestingServer;
 import org.apache.zookeeper.KeeperException;
 import org.junit.After;
@@ -83,5 +84,12 @@ public class ZookeeperRegistryCenterTest extends TestSuite {
     public void registryNodeTest() throws IOException, InterruptedException, KeeperException {
         registryCenter.register("/skywalking/storage/test");
         assertTrue(zkClient.exists("/skywalking/storage/test"));
+    }
+
+
+    @Test(expected =ZkNodeExistsException.class)
+    public void registryTwoTmpPath(){
+        zkClient.createEphemeral("/testa");
+        zkClient.createEphemeral("/testa");
     }
 }

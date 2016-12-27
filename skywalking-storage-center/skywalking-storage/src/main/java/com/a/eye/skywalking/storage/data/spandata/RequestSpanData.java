@@ -1,7 +1,7 @@
 package com.a.eye.skywalking.storage.data.spandata;
 
 import com.a.eye.skywalking.network.grpc.RequestSpan;
-import com.a.eye.skywalking.network.grpc.TraceId;
+import com.a.eye.skywalking.network.model.Tag;
 
 /**
  * Created by xin on 2016/11/12.
@@ -45,26 +45,25 @@ public class RequestSpanData extends AbstractSpanData {
         return buildLevelId(requestSpan.getParentLevel(), requestSpan.getLevelId());
     }
 
-    public String getParentLevelId(){
+    public String getParentLevelId() {
         return requestSpan.getParentLevel();
     }
 
-    public  int getLevelId(){
+    public int getLevelId() {
         return requestSpan.getLevelId();
     }
 
 
-
     public String getAddress() {
-        return requestSpan.getAddress();
+        return requestSpan.getTagsMap().get(Tag.ADDRESS.key());
     }
 
     public String getApplicationCode() {
-        return requestSpan.getApplicationCode();
+        return requestSpan.getTagsMap().get(Tag.APPLICATION_CODE.key());
     }
 
     public int getProcessNo() {
-        return requestSpan.getProcessNo();
+        return Integer.parseInt((requestSpan.getTagsMap().get(Tag.PROCESS_NO.key())));
     }
 
     public long getStartTime() {
@@ -72,22 +71,27 @@ public class RequestSpanData extends AbstractSpanData {
     }
 
     public String getBusinessKey() {
-        return requestSpan.getBusinessKey();
+        String businessKey = requestSpan.getTagsMap().get(Tag.BUSINESS_KEY.key());
+        if (businessKey == null) {
+            return "";
+        }
+
+        return businessKey;
     }
 
     public String getCallType() {
-        return requestSpan.getCallType();
+        return requestSpan.getTagsMap().get(Tag.CALL_TYPE.key());
     }
 
     public int getType() {
-        return requestSpan.getSpanType();
+        return Integer.parseInt(requestSpan.getTagsMap().get(Tag.SPAN_TYPE.key()));
     }
 
-    public String getViewPoint(){
-        return requestSpan.getViewPointId();
+    public String getViewPoint() {
+        return requestSpan.getTagsMap().get(Tag.VIEW_POINT.key());
     }
 
     public String getSpanTypeDesc() {
-        return requestSpan.getSpanTypeDesc();
+        return requestSpan.getTagsMap().get(Tag.CALL_DESC.key());
     }
 }

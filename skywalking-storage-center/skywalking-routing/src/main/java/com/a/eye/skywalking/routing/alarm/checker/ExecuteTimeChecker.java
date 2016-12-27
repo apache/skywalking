@@ -1,5 +1,6 @@
 package com.a.eye.skywalking.routing.alarm.checker;
 
+import com.a.eye.skywalking.network.model.Tag;
 import com.a.eye.skywalking.routing.disruptor.ack.AckSpanHolder;
 
 /**
@@ -22,7 +23,7 @@ public abstract class ExecuteTimeChecker implements ISpanChecker {
     protected abstract FatalReason getFatalLevel();
 
     protected String generateAlarmMessage(AckSpanHolder span) {
-        return span.getAckSpan().getViewpointId() + " cost " + span.getAckSpan().getCost() + " ms.";
+        return span.getViewPoint() + span.getAckSpan().getCost() + " ms.";
     }
 
 

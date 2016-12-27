@@ -12,7 +12,7 @@ public class FullSpan {
     protected String traceId;
     protected int levelId;
     protected String viewPointId;
-    protected String applicationId;
+    protected String applicationCode;
     protected String callType;
     protected long cost;
     protected String businessKey;
@@ -37,7 +37,7 @@ public class FullSpan {
         this.traceId = traceId.substring(0, traceId.length() - 1);
         this.levelId = span.getLevelId();
         this.parentLevelId = span.getParentLevelId();
-        this.applicationId = span.getApplicationCode();
+        this.applicationCode = span.getApplicationCode();
         this.callType = span.getCallType();
         this.businessKey = span.getBusinessKey();
         this.spanTypeDesc = span.getSpanTypeDesc();
@@ -65,8 +65,8 @@ public class FullSpan {
         return viewPointId;
     }
 
-    public String getApplicationId() {
-        return applicationId;
+    public String getApplicationCode() {
+        return applicationCode;
     }
 
     public String getCallType() {

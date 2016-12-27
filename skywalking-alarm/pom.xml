@@ -4,7 +4,7 @@
     <parent>
         <artifactId>skywalking</artifactId>
         <groupId>com.a.eye</groupId>
-        <version>2.1-2017</version>
+        <version>${skywalking.version}</version>
     </parent>
 
 	<artifactId>skywalking-alarm</artifactId>
@@ -110,7 +110,7 @@
 					<dockerDirectory>${project.basedir}/docker</dockerDirectory>
 					<imageName>skywalking/skywalking-alarm</imageName>
 					<imageTags>
-						<imageTag>${project.version}</imageTag>
+						<imageTag>${skywalking.version}</imageTag>
 					</imageTags>
 					<resources>
 						<resource>

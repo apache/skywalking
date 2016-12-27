@@ -8,31 +8,18 @@ message AckSpan {
     string parentLevel = 2;
     int32 levelId = 3;
     int64 cost = 4;
-    int32 statusCode = 5;
-    string exceptionStack = 6;
-    string viewpointId = 7;
-    string username = 8;
-    string applicationCode = 9;
 
-    int32 routeKey = 10;
+    int32 routeKey = 5;
+    map<string, string> tags = 6;
 }
 
 message RequestSpan {
     TraceId traceId = 1;
     string parentLevel = 2;
     int32 levelId = 3;
-    string viewPointId = 4;
-    int64 startDate = 5;
-    string spanTypeDesc = 6;
-    string callType = 7;
-    uint32 spanType = 8;
-    string applicationCode = 9;
-    string username = 10;
-    string businessKey = 11;
-    int32 processNo = 13;
-    string address = 14;
-
-    int32 routeKey = 15;
+    int64 startDate = 4;
+    int32 routeKey = 5;
+    map<string, string> tags = 6;
 }
 
 message TraceId {

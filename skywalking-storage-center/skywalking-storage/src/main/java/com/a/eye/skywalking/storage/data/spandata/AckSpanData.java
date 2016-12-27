@@ -1,7 +1,7 @@
 package com.a.eye.skywalking.storage.data.spandata;
 
 import com.a.eye.skywalking.network.grpc.AckSpan;
-import com.a.eye.skywalking.network.grpc.TraceId;
+import com.a.eye.skywalking.network.model.Tag;
 
 /**
  * Created by xin on 2016/11/12.
@@ -50,26 +50,16 @@ public class AckSpanData extends AbstractSpanData {
     }
 
     public String getExceptionStack() {
-        return ackSpan.getExceptionStack();
+        String exceptionStack =  ackSpan.getTagsMap().get(Tag.EXCEPTION_STACK.key());
+        if (exceptionStack == null){
+            return "";
+        }
+
+        return exceptionStack;
     }
 
     public int getStatusCode() {
-        return ackSpan.getStatusCode();
+        return Integer.parseInt(ackSpan.getTagsMap().get(Tag.STATUS.key()));
     }
 
-    public String getViewPointId(){
-        return ackSpan.getViewpointId();
-    }
-
-    public String getUserName(){
-        return ackSpan.getUsername();
-    }
-
-    public String getApplicationCode(){
-        return ackSpan.getApplicationCode();
-    }
-
-    public TraceId getTraceId(){
-        return ackSpan.getTraceId();
-    }
 }

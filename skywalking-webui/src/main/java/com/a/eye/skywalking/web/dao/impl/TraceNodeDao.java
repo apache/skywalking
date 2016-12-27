@@ -27,35 +27,6 @@ public class TraceNodeDao implements ITraceNodeDao {
         return new SearchClient().searchSpan(traceId);
     }
 
-    // TODO: 2016/12/10
-    private Collection<TraceNodeInfo> generateTestData() {
-        long startTime = System.currentTimeMillis();
-        TraceId traceId = TraceId.newBuilder()
-                .addSegments(202016)
-                .addSegments(startTime)
-                .addSegments(-1)
-                .addSegments(1234)
-                .addSegments(1234)
-                .addSegments(1234).build();
-        Span rootSpan = Span.newBuilder().setSpanType(1).setAddress("127.0.0.1/ascrutae").setApplicationCode("test")
-                .setCallType("S").setCost(200).setLevelId(0).setViewpoint("provider://127.0.0.1:20880/com.a.eye.dubbo.provider.GreetService.sayHello()")
-                .setProcessNo(19872)
-                .setTraceId(traceId).setStartTime(startTime)
-                .setStatusCode(0).setUsername("test").build();
-
-        Span span = Span.newBuilder().setSpanType(1).setAddress("127.0.0.1/ascrutae").setApplicationCode("test")
-                .setCallType("S").setCost(100).setParentLevelId("0").setLevelId(0).setViewpoint("consumer://127.0.0.1:20880/com.a.eye.dubbo.provider.GreetService.sayHello()")
-                .setProcessNo(19872)
-                .setTraceId(traceId).setStartTime(startTime + 50)
-                .setStatusCode(0).setUsername("test").build();
-
-        List<TraceNodeInfo> nodeInfos = new ArrayList<>();
-        nodeInfos.add(new TraceNodeInfo(rootSpan));
-        nodeInfos.add(new TraceNodeInfo(span));
-
-        return nodeInfos;
-    }
-
     private void computeRPCInfo(Map<String, TraceNodeInfo> rpcMap, Map<String, TraceNodeInfo> traceLogMap) {
         // 合并处理
         if (rpcMap.size() > 0) {

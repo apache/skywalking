@@ -22,7 +22,7 @@ public class SpanAlarmHandler implements EventHandler<AckSpanHolder> {
     }
 
     private String generateAlarmMessageKey(AckSpanHolder span, FatalReason reason) {
-        return span.getAckSpan().getUsername() + "-" + span.getAckSpan().getApplicationCode() + "-" + (System.currentTimeMillis() / (10000 * 6)) + reason.getDetail();
+        return span.getUserName() + "-" + span.getApplicationCode() + "-" + (System.currentTimeMillis() / (10000 * 6)) + reason.getDetail();
     }
 
     @Override

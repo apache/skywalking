@@ -5,6 +5,7 @@ import com.a.eye.skywalking.context.CurrentThreadSpanStack;
 import com.a.eye.skywalking.logging.api.ILog;
 import com.a.eye.skywalking.logging.api.LogManager;
 import com.a.eye.skywalking.model.*;
+import com.a.eye.skywalking.network.model.Tag;
 import com.a.eye.skywalking.util.ContextGenerator;
 
 public class RPCClientInvokeMonitor extends BaseInvokeMonitor {
@@ -16,7 +17,7 @@ public class RPCClientInvokeMonitor extends BaseInvokeMonitor {
         try {
             Span spanData = ContextGenerator.generateSpanFromThreadLocal(id);
             //设置SpanType的类型
-            spanData.setSpanType(SpanType.RPC_CLIENT);
+            spanData.setTag(Tag.SPAN_TYPE, SpanType.RPC_CLIENT);
 
             if (Config.BuriedPoint.PRINTF) {
                 logger.debug("TraceId:" + spanData.getTraceId() + "\tParentLevelId:" + spanData.getParentLevel()
@@ -34,12 +35,12 @@ public class RPCClientInvokeMonitor extends BaseInvokeMonitor {
         }
     }
 
-    public void afterInvoke(){
+    public void afterInvoke() {
         super.afterInvoke();
     }
 
 
-    public void occurException(Throwable th){
+    public void occurException(Throwable th) {
         super.occurException(th);
     }
 

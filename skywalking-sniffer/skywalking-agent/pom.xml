@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.a.eye</groupId>
         <artifactId>skywalking-sniffer</artifactId>
-        <version>2.1-2017</version>
+        <version>${skywalking.version}</version>
     </parent>
 
     <artifactId>skywalking-agent</artifactId>
@@ -30,57 +30,58 @@
         <dependency>
             <groupId>com.a.eye</groupId>
             <artifactId>skywalking-jedis-2.x-plugin</artifactId>
-            <version>${project.version}</version>
+            <version>${skywalking.version}</version>
         </dependency>
         <dependency>
             <groupId>com.a.eye</groupId>
             <artifactId>skywalking-jdbc-plugin</artifactId>
-            <version>${project.version}</version>
+            <version>${skywalking.version}</version>
         </dependency>
         <dependency>
             <groupId>com.a.eye</groupId>
             <artifactId>skywalking-httpClient-4.x-plugin</artifactId>
-            <version>${project.version}</version>
+            <version>${skywalking.version}</version>
         </dependency>
         <dependency>
             <groupId>com.a.eye</groupId>
             <artifactId>skywalking-dubbo-plugin</artifactId>
-            <version>${project.version}</version>
+            <version>${skywalking.version}</version>
         </dependency>
         <dependency>
             <groupId>com.a.eye</groupId>
             <artifactId>tomcat-7.x-8.x-plugin</artifactId>
-            <version>${project.version}</version>
+            <version>${skywalking.version}</version>
         </dependency>
         <dependency>
             <groupId>com.a.eye</groupId>
             <artifactId>motan-plugin</artifactId>
-            <version>${project.version}</version>
+            <version>${skywalking.version}</version>
         </dependency>
 
         <!-- activation -->
         <dependency>
             <groupId>com.a.eye</groupId>
             <artifactId>skywalking-toolkit-log4j-1.x-activation</artifactId>
-            <version>${project.version}</version>
+            <version>${skywalking.version}</version>
         </dependency>
         <dependency>
             <groupId>com.a.eye</groupId>
             <artifactId>skywalking-toolkit-log4j-2.x-activation</artifactId>
-            <version>${project.version}</version>
+            <version>${skywalking.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.a.eye</groupId>
             <artifactId>skywalking-toolkit-logback-1.x-activation</artifactId>
-            <version>${project.version}</version>
+            <version>${skywalking.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.a.eye</groupId>
             <artifactId>skywalking-toolkit-trace-context-activation</artifactId>
-            <version>${project.version}</version>
+            <version>${skywalking.version}</version>
         </dependency>
+
     </dependencies>
     <build>
         <finalName>${artifactId}</finalName>

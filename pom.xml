@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.a.eye</groupId>
     <artifactId>skywalking</artifactId>
-    <version>2.1-2017</version>
+    <version>${skywalking.version}</version>
 
     <modules>
         <module>skywalking-commons</module>
@@ -25,6 +26,7 @@
         <compiler.version>1.8</compiler.version>
         <powermock.version>1.6.4</powermock.version>
         <docker.plugin.version>0.4.13</docker.plugin.version>
+        <skywalking.version>2.1-2017</skywalking.version>
     </properties>
 
     <dependencies>
@@ -79,6 +81,21 @@
                 <configuration>
                     <skipDocker>true</skipDocker>
                 </configuration>
+            </plugin>
+            <plugin>
+                <!-- 源码插件 -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <!-- 发布时自动将源码同时发布的配置 -->
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <version>2.4</version>
             </plugin>
         </plugins>
     </build>

@@ -4,7 +4,7 @@
     <parent>
         <artifactId>skywalking-toolkit-activation</artifactId>
         <groupId>com.a.eye</groupId>
-        <version>2.1-2017</version>
+        <version>${skywalking.version}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -16,7 +16,7 @@
         <dependency>
             <groupId>com.a.eye</groupId>
             <artifactId>skywalking-api</artifactId>
-            <version>${project.version}</version>
+            <version>${skywalking.version}</version>
         </dependency>
     </dependencies>
 </project>

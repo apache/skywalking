@@ -6,6 +6,7 @@ import com.a.eye.skywalking.model.ContextData;
 import com.a.eye.skywalking.model.Identification;
 import com.a.eye.skywalking.model.Span;
 import com.a.eye.skywalking.model.SpanType;
+import com.a.eye.skywalking.network.model.Tag;
 import com.a.eye.skywalking.util.ContextGenerator;
 
 public class RPCServerInvokeMonitor extends BaseInvokeMonitor {
@@ -18,7 +19,7 @@ public class RPCServerInvokeMonitor extends BaseInvokeMonitor {
             Span spanData = ContextGenerator.generateSpanFromContextData(
                     context, id);
             // 设置是否为接收端
-            spanData.setSpanType(SpanType.RPC_SERVER);
+            spanData.setTag(Tag.SPAN_TYPE, SpanType.RPC_SERVER);
 
             super.beforeInvoke(spanData, id);
         } catch (Throwable t) {

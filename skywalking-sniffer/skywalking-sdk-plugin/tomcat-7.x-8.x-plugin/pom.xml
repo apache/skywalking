@@ -3,7 +3,7 @@
     <parent>
         <artifactId>skywalking-sdk-plugin</artifactId>
         <groupId>com.a.eye</groupId>
-        <version>2.1-2017</version>
+        <version>${skywalking.version}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -14,7 +14,6 @@
     <url>http://maven.apache.org</url>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <tomcat.version>8.0.36</tomcat.version>
     </properties>
 

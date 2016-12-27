@@ -37,6 +37,7 @@ public class Main {
             logger.info("Skywalking routing service was started.");
             Thread.currentThread().join();
         } catch (Exception e) {
+            e.printStackTrace();
             logger.error("Failed to start routing service.", e);
             System.exit(-1);
         } finally {

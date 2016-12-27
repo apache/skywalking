@@ -1,9 +1,11 @@
 package com.a.eye.skywalking.storage.data.file;
 
 import com.a.eye.skywalking.network.grpc.RequestSpan;
+import com.a.eye.skywalking.network.model.Tag;
 import com.a.eye.skywalking.storage.data.index.IndexMetaInfo;
 import com.a.eye.skywalking.storage.data.spandata.RequestSpanData;
 import com.a.eye.skywalking.storage.data.spandata.SpanDataBuilder;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -12,22 +14,20 @@ import org.junit.Test;
  */
 public class DataFileTest {
     @Test
-    public void testWriteFile(){
+    public void testWriteFile() {
         DataFile dataFile = new DataFile();
 
         IndexMetaInfo info = null;
-        for (int i = 0; i < 100; i++) {
-            RequestSpan span = RequestSpan.newBuilder().setUsername("1").setApplicationCode("app").build();
+        RequestSpan span = RequestSpan.newBuilder().putTags(Tag.USER_NAME.toString(), "1").putTags(Tag.APPLICATION_CODE.toString(), "app").build();
 
-            try {
-                info = dataFile.write(new RequestSpanData(span));
-            } finally {
-                dataFile.flush();
-            }
-
-            RequestSpan newSpan = SpanDataBuilder.buildRequestSpan(dataFile.read(info.getOffset(), info.getLength()));
-
-            Assert.assertEquals("1", newSpan.getUsername());
+        try {
+            info = dataFile.write(new RequestSpanData(span));
+        } finally {
+            dataFile.flush();
         }
+
+        RequestSpan newSpan = SpanDataBuilder.buildRequestSpan(dataFile.read(info.getOffset(), info.getLength()));
+
+        Assert.assertEquals("1", newSpan.getTagsMap().get(Tag.USER_NAME.key()));
     }
 }

@@ -7,9 +7,9 @@ public class ExceptionChecker implements ISpanChecker {
 
     @Override
     public CheckResult check(AckSpanHolder span) {
-        if (span.getAckSpan().getStatusCode() != 1)
+        if (span.getStatusCode() != 1)
             return new CheckResult();
-        String exceptionStack = span.getAckSpan().getExceptionStack();
+        String exceptionStack = span.getExceptionStack();
         if (exceptionStack == null) {
             exceptionStack = "";
         } else if (exceptionStack.length() > Config.Alarm.ALARM_EXCEPTION_STACK_LENGTH) {

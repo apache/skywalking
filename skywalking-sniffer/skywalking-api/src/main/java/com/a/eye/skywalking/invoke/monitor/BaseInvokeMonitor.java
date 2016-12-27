@@ -9,8 +9,11 @@ import com.a.eye.skywalking.logging.api.LogManager;
 import com.a.eye.skywalking.model.ContextData;
 import com.a.eye.skywalking.model.Identification;
 import com.a.eye.skywalking.model.Span;
+import com.a.eye.skywalking.model.SpanTagBuilder;
+import com.a.eye.skywalking.network.dependencies.com.google.protobuf.ByteString;
 import com.a.eye.skywalking.network.grpc.AckSpan;
 import com.a.eye.skywalking.network.grpc.RequestSpan;
+import com.a.eye.skywalking.network.model.Tag;
 import com.a.eye.skywalking.util.BuriedPointMachineUtil;
 
 import java.util.HashSet;
@@ -40,21 +43,19 @@ public abstract class BaseInvokeMonitor {
     }
 
     protected void sendRequestSpan(Span span, Identification id) {
-        RequestSpan.Builder requestSpanBuilder = span.buildRequestSpan(RequestSpan.newBuilder());
-        if (id.getBusinessKey() != null && id.getBusinessKey().length() > 0) {
-            requestSpanBuilder = requestSpanBuilder.setBusinessKey(id.getBusinessKey());
-        }
-        RequestSpan requestSpan = requestSpanBuilder
-                .setViewPointId(id.getViewPoint())
-                .setSpanTypeDesc(id.getSpanTypeDesc())
-                .setCallType(id.getCallType()).setProcessNo(BuriedPointMachineUtil.getProcessNo())
-                .setAddress(BuriedPointMachineUtil.getHostDesc()).build();
+        RequestSpan requestSpan= SpanTagBuilder.newBuilder(span)
+                .setBusinessKey(id.getBusinessKey())
+                .setSpanTypeDesc(id.getSpanTypeDesc()).setCallType(id.getCallType())
+                .setProcessNo(BuriedPointMachineUtil.getProcessNo())
+                .setAddress(BuriedPointMachineUtil.getHostDesc()).buildRequestSpan(RequestSpan.newBuilder());
 
         RequestSpanDisruptor.INSTANCE.ready2Send(requestSpan);
     }
 
     protected void sendAckSpan(Span span) {
-        AckSpan ackSpan = span.buildAckSpan(AckSpan.newBuilder()).build();
+        AckSpan ackSpan = SpanTagBuilder.newBuilder(span)
+                .setStatusCode(span.getStatusCode())
+                .setExceptionStack(span.getExceptionStack()).buildAckSpan(AckSpan.newBuilder());
 
         AckSpanDisruptor.INSTANCE.ready2Send(ackSpan);
     }
