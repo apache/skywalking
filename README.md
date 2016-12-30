@@ -51,13 +51,13 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, also known D
 
 _Chinese Articles about sky-walking and distributed tracer_
 
-<img src="_docs/resources/toutiao.JPG" alt="Sky Walking TouTiao" height="280px" />
+<img src="docs/resources/toutiao.JPG" alt="Sky Walking TouTiao" height="280px" />
 
 _If you are Chinese Developer, you can join QQ Group: 392443393, and **Tagged** Sky-Walking._
 ___
 
 <a href="https://github.com/wu-sheng/sky-walking">
-<img src="_docs/resources/oneapm-award.png" alt="OneAPM Open Source Achievement Award" height="110px" align="left" />
+<img src="docs/resources/oneapm-award.png" alt="OneAPM Open Source Achievement Award" height="110px" align="left" />
 </a>
 
 In October 2016, Sky Walking won `OneAPM Open Source Achievement Award`. The award appreciates sky walking for its "*contribution to popularization of APM technology*". <br/>
@@ -68,14 +68,14 @@ ___
 
 # Quick View
 * distributed tracer
-![追踪连路图1](_docs/resources/callChain.png)
+![追踪连路图1](docs/resources/callChain.png)
 
-![追踪连路图2](_docs/resources/callChainDetail.png)
+![追踪连路图2](docs/resources/callChainDetail.png)
 
-![追踪连路图3](_docs/resources/callChainLog.png)
+![追踪连路图3](docs/resources/callChainLog.png)
 
 * alarm mail
-![告警邮件](_docs/resources/alarmMail.png)
+![告警邮件](docs/resources/alarmMail.png)
 
 # Document
 * [WIKI](https://github.com/wu-sheng/sky-walking/wiki)
