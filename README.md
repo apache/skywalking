@@ -55,6 +55,7 @@ _Chinese Articles about sky-walking and distributed tracer_
 <img src="docs/resources/toutiao.JPG" alt="Sky Walking TouTiao" height="280px" />
 
 _If you are Chinese Developer, you can join QQ Group: 392443393, and **Tagged** Sky-Walking._
+
 ___
 
 <a href="https://github.com/wu-sheng/sky-walking">
@@ -64,6 +65,7 @@ ___
 In October 2016, Sky Walking won `OneAPM Open Source Achievement Award`. The award appreciates sky walking for its "*contribution to popularization of APM technology*". <br/>
 [OneAPM](http://www.oneapm.com/) will provide financial support for the project in 2016-2017.<br/><br/> 
 Thanks all users of sky walking project.
+
 ___
 
 
