@@ -1,7 +1,7 @@
 Sky Walking
 ==========
 
-<img src="_docs/resources/skywalking.png" alt="Sky Walking logo" height="90px" align="right" />
+<img src="docs/resources/skywalking.png" alt="Sky Walking logo" height="90px" align="right" />
 
 SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, also known Distributed Tracer。
 
