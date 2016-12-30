@@ -13,7 +13,7 @@ public class TraceIdPatternParser extends PatternParser {
 
     @Override
     protected void finalizeConverter(char c) {
-        if ('x' == c) {
+        if ('T' == c) {
             addConverter(new TraceIdPatternConverter());
         } else {
             super.finalizeConverter(c);
