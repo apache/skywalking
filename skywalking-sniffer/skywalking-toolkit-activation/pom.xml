@@ -14,6 +14,7 @@
         <module>skywalking-toolkit-log4j-2.x-activation</module>
         <module>skywalking-toolkit-logback-1.x-activation</module>
         <module>skywalking-toolkit-trace-context-activation</module>
+        <module>skywalking-toolkit-opentracing-activation</module>
     </modules>
 
     <artifactId>skywalking-toolkit-activation</artifactId>

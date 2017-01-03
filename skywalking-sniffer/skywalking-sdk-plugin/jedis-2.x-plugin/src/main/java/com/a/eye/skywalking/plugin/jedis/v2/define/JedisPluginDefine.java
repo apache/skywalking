@@ -1,20 +1,18 @@
 package com.a.eye.skywalking.plugin.jedis.v2.define;
 
+import com.a.eye.skywalking.plugin.bytebuddy.AllObjectDefaultMethodsMatch;
 import com.a.eye.skywalking.plugin.bytebuddy.ArgumentTypeNameMatch;
 import com.a.eye.skywalking.plugin.interceptor.ConstructorInterceptPoint;
 import com.a.eye.skywalking.plugin.interceptor.InstanceMethodsInterceptPoint;
-import com.a.eye.skywalking.plugin.interceptor.MethodMatcher;
 import com.a.eye.skywalking.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
-import com.a.eye.skywalking.plugin.interceptor.matcher.MethodsExclusiveMatcher;
-import com.a.eye.skywalking.plugin.interceptor.matcher.PrivateMethodMatcher;
-import com.a.eye.skywalking.plugin.interceptor.matcher.SimpleMethodMatcher;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
+import net.bytebuddy.matcher.ElementMatchers;
 
 import java.net.URI;
 
-import static net.bytebuddy.matcher.ElementMatchers.not;
-import static net.bytebuddy.matcher.ElementMatchers.takesArgument;
+import static com.a.eye.skywalking.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
+import static net.bytebuddy.matcher.ElementMatchers.*;
 
 public class JedisPluginDefine extends ClassInstanceMethodsEnhancePluginDefine {
 
@@ -38,7 +36,7 @@ public class JedisPluginDefine extends ClassInstanceMethodsEnhancePluginDefine {
         }, new ConstructorInterceptPoint() {
             @Override
             public ElementMatcher<MethodDescription> getConstructorMatcher() {
-                return new ArgumentTypeNameMatch(0, "redis.clients.jedis.HostAndPort");
+                return takesArgumentWithType(0, "redis.clients.jedis.HostAndPort");
             }
 
             @Override
@@ -62,10 +60,16 @@ public class JedisPluginDefine extends ClassInstanceMethodsEnhancePluginDefine {
     protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {new InstanceMethodsInterceptPoint() {
             @Override
-            public MethodMatcher[] getMethodsMatchers() {
-                return new MethodMatcher[] {new MethodsExclusiveMatcher(new PrivateMethodMatcher(), new SimpleMethodMatcher("close"), new SimpleMethodMatcher("getDB"),
-                        new SimpleMethodMatcher("connect"), new SimpleMethodMatcher("setDataSource"), new SimpleMethodMatcher("resetState"),
-                        new SimpleMethodMatcher("clusterSlots"), new SimpleMethodMatcher("checkIsInMultiOrPipeline"))};
+            public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                return not(ElementMatchers.<MethodDescription>isPrivate()
+                        .or(AllObjectDefaultMethodsMatch.INSTANCE)
+                        .or(named("close"))
+                        .or(named("getDB"))
+                        .or(named("connect"))
+                        .or(named("setDataSource"))
+                        .or(named("resetState"))
+                        .or(named("clusterSlots"))
+                        .or(named("checkIsInMultiOrPipeline")));
             }
 
             @Override

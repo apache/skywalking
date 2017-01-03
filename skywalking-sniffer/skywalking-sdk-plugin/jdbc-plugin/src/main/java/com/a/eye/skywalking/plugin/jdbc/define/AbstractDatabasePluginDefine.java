@@ -2,9 +2,11 @@ package com.a.eye.skywalking.plugin.jdbc.define;
 
 import com.a.eye.skywalking.plugin.interceptor.ConstructorInterceptPoint;
 import com.a.eye.skywalking.plugin.interceptor.InstanceMethodsInterceptPoint;
-import com.a.eye.skywalking.plugin.interceptor.matcher.SimpleMethodMatcher;
-import com.a.eye.skywalking.plugin.interceptor.MethodMatcher;
 import com.a.eye.skywalking.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
+import net.bytebuddy.description.method.MethodDescription;
+import net.bytebuddy.matcher.ElementMatcher;
+
+import static net.bytebuddy.matcher.ElementMatchers.named;
 
 public abstract class AbstractDatabasePluginDefine extends ClassInstanceMethodsEnhancePluginDefine {
     @Override
@@ -16,8 +18,8 @@ public abstract class AbstractDatabasePluginDefine extends ClassInstanceMethodsE
     protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[]{new InstanceMethodsInterceptPoint() {
             @Override
-            public MethodMatcher[] getMethodsMatchers() {
-                return new MethodMatcher[]{new SimpleMethodMatcher("connect")};
+            public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                return named("connect");
             }
 
             @Override

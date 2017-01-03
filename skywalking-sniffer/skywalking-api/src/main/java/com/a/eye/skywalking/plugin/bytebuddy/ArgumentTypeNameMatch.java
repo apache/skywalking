@@ -11,7 +11,7 @@ public class ArgumentTypeNameMatch implements ElementMatcher<MethodDescription> 
 
     private String argumentTypeName;
 
-    public ArgumentTypeNameMatch(int index, String argumentTypeName) {
+    private ArgumentTypeNameMatch(int index, String argumentTypeName) {
         this.index = index;
         this.argumentTypeName = argumentTypeName;
     }
@@ -23,5 +23,9 @@ public class ArgumentTypeNameMatch implements ElementMatcher<MethodDescription> 
         }
 
         return false;
+    }
+
+    public static ElementMatcher<MethodDescription> takesArgumentWithType(int index, String argumentTypeName){
+        return new ArgumentTypeNameMatch(index, argumentTypeName);
     }
 }

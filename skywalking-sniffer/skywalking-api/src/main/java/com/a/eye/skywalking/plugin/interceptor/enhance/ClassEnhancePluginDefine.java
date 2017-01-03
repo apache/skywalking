@@ -11,10 +11,10 @@ import net.bytebuddy.dynamic.DynamicType;
 import net.bytebuddy.implementation.MethodDelegation;
 import net.bytebuddy.implementation.SuperMethodCall;
 import net.bytebuddy.implementation.bind.annotation.FieldProxy;
-import net.bytebuddy.matcher.ElementMatcher;
 import net.bytebuddy.matcher.ElementMatchers;
 
 import static net.bytebuddy.jar.asm.Opcodes.ACC_PRIVATE;
+import static net.bytebuddy.matcher.ElementMatchers.isStatic;
 import static net.bytebuddy.matcher.ElementMatchers.not;
 
 public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePluginDefine {
@@ -88,35 +88,13 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
 
                 String interceptor = instanceMethodsInterceptPoint.getMethodsInterceptor();
                 if (StringUtil.isEmpty(interceptor)) {
-                    throw new EnhanceException("no InstanceMethodsAroundInterceptor define. ");
+                    throw new EnhanceException("no InstanceMethodsAroundInterceptor define to enhance class " + enhanceOriginClassName);
                 }
                 ClassInstanceMethodsInterceptor classMethodInterceptor = new ClassInstanceMethodsInterceptor(interceptor);
 
-                MethodMatcher[] methodMatchers = instanceMethodsInterceptPoint.getMethodsMatchers();
-
-                StringBuilder enhanceRules = new StringBuilder("\nprepare to enhance class [" + enhanceOriginClassName + "] instance methods as following rules:\n");
-                int ruleIdx = 1;
-                for (MethodMatcher methodMatcher : methodMatchers) {
-                    enhanceRules.append("\t" + ruleIdx++ + ". " + methodMatcher + "\n");
-                }
-                logger.debug(enhanceRules.toString());
-                ElementMatcher.Junction<MethodDescription> matcher = null;
-                for (MethodMatcher methodMatcher : methodMatchers) {
-                    logger.debug("enhance class {} instance methods by rule: {}", enhanceOriginClassName, methodMatcher);
-                    if (matcher == null) {
-                        matcher = methodMatcher.buildMatcher();
-                        continue;
-                    }
-
-                    matcher = matcher.or(methodMatcher.buildMatcher());
-
-                }
-
-                /**
-                 * exclude static methods.
-                 */
-                matcher = matcher.and(not(ElementMatchers.isStatic()));
-                newClassBuilder = newClassBuilder.method(matcher).intercept(MethodDelegation.to(classMethodInterceptor));
+                newClassBuilder = newClassBuilder
+                        .method(not(isStatic()).and(instanceMethodsInterceptPoint.getMethodsMatcher()))
+                        .intercept(MethodDelegation.to(classMethodInterceptor));
             }
         }
 
@@ -136,38 +114,16 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
         }
 
         for (StaticMethodsInterceptPoint staticMethodsInterceptPoint : staticMethodsInterceptPoints) {
-            MethodMatcher[] methodMatchers = staticMethodsInterceptPoint.getMethodsMatchers();
-
             String interceptor = staticMethodsInterceptPoint.getMethodsInterceptor();
             if (StringUtil.isEmpty(interceptor)) {
-                throw new EnhanceException("no StaticMethodsAroundInterceptor define. ");
+                throw new EnhanceException("no StaticMethodsAroundInterceptor define to enhance class " + enhanceOriginClassName);
             }
 
             ClassStaticMethodsInterceptor classMethodInterceptor = new ClassStaticMethodsInterceptor(interceptor);
 
-            StringBuilder enhanceRules = new StringBuilder("\nprepare to enhance class [" + enhanceOriginClassName + "] static methods as following rules:\n");
-            int ruleIdx = 1;
-            for (MethodMatcher methodMatcher : methodMatchers) {
-                enhanceRules.append("\t" + ruleIdx++ + ". " + methodMatcher + "\n");
-            }
-            logger.debug(enhanceRules.toString());
-            ElementMatcher.Junction<MethodDescription> matcher = null;
-            for (MethodMatcher methodMatcher : methodMatchers) {
-                logger.debug("enhance class {} static methods by rule: {}", enhanceOriginClassName, methodMatcher);
-                if (matcher == null) {
-                    matcher = methodMatcher.buildMatcher();
-                    continue;
-                }
-
-                matcher = matcher.or(methodMatcher.buildMatcher());
-
-            }
-
-            /**
-             * restrict static methods.
-             */
-            matcher = matcher.and(ElementMatchers.isStatic());
-            newClassBuilder = newClassBuilder.method(matcher).intercept(MethodDelegation.to(classMethodInterceptor));
+            newClassBuilder = newClassBuilder
+                    .method(isStatic().and(staticMethodsInterceptPoint.getMethodsMatcher()))
+                    .intercept(MethodDelegation.to(classMethodInterceptor));
         }
 
         return newClassBuilder;
