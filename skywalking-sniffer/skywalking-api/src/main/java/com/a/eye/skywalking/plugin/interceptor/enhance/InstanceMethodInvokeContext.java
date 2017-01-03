@@ -1,9 +1,12 @@
 package com.a.eye.skywalking.plugin.interceptor.enhance;
 
+/**
+ * Instance method invoke context.
+ * Beside all in {@link MethodInvokeContext}, plus Object instance ref.
+ *
+ * @author wusheng
+ */
 public class InstanceMethodInvokeContext extends MethodInvokeContext {
-    /**
-     * 代理类实例
-     */
     private Object objInst;
 
     InstanceMethodInvokeContext(Object objInst, String methodName, Object[] allArguments, Class<?>[] argumentsTypes) {
@@ -11,6 +14,10 @@ public class InstanceMethodInvokeContext extends MethodInvokeContext {
         this.objInst = objInst;
     }
 
+    /**
+     *
+     * @return the target instance's ref.
+     */
     public Object inst() {
         return objInst;
     }

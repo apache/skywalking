@@ -14,8 +14,9 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * 替代应用函数的main函数入口，确保在程序入口处运行 <br/>
- * 用于替代-javaagent的另一种模式 <br/>
+ * A test entrance for enhancing class.
+ * This should be used only in bytecode-manipulate test.
+ * And make sure, all classes which need to be enhanced, must not be loaded.
  *
  * @author wusheng
  */
@@ -25,6 +26,15 @@ public class TracingBootstrap {
     private TracingBootstrap() {
     }
 
+    /**
+     * Main entrance for testing.
+     * @param args includes target classname ( which exists "public static void main(String[] args)" ) and arguments list.
+     * @throws PluginException
+     * @throws ClassNotFoundException
+     * @throws NoSuchMethodException
+     * @throws InvocationTargetException
+     * @throws IllegalAccessException
+     */
     public static void main(String[] args)
             throws PluginException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException,
             IllegalAccessException {

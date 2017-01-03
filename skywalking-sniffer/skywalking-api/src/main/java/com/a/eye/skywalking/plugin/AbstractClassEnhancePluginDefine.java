@@ -6,9 +6,23 @@ import com.a.eye.skywalking.util.StringUtil;
 import net.bytebuddy.dynamic.DynamicType;
 import net.bytebuddy.pool.TypePool.Resolution;
 
-public abstract class AbstractClassEnhancePluginDefine{
+/**
+ * Basic abstract class of all sky-walking auto-instrumentation plugins.
+ * <p>
+ * It provides the outline of enhancing the target class.
+ * If you want to know more about enhancing, you should go to see {@link com.a.eye.skywalking.plugin.interceptor.enhance.ClassEnhancePluginDefine}
+ */
+public abstract class AbstractClassEnhancePluginDefine {
     private static ILog logger = LogManager.getLogger(AbstractClassEnhancePluginDefine.class);
 
+    /**
+     * Main entrance of enhancing the class.
+     *
+     * @param transformClassName target class.
+     * @param builder            byte-buddy's builder to manipulate target class's bytecode.
+     * @return be defined builder.
+     * @throws PluginException, when set builder failure.
+     */
     public DynamicType.Builder<?> define(String transformClassName, DynamicType.Builder<?> builder) throws PluginException {
         String interceptorDefineClassName = this.getClass().getName();
 
@@ -48,15 +62,22 @@ public abstract class AbstractClassEnhancePluginDefine{
     protected abstract DynamicType.Builder<?> enhance(String enhanceOriginClassName, DynamicType.Builder<?> newClassBuilder) throws PluginException;
 
     /**
-     * 返回要被增强的类，应当返回类全名或前匹配(返回*号结尾)
+     * Define the classname of target class.
      *
-     * @return
+     * @return class full name.
      */
     protected abstract String enhanceClassName();
 
     /**
-     * 返回一个类名的列表
-     * 如果列表中的类在JVM中存在,则enhance可以会尝试生效
+     * Witness classname list.
+     * Why need witness classname? Let's see like this:
+     * A library existed two released versions (like 1.0, 2.0), which include the same target classes,
+     * but because of version iterator, they may have the same name, but different methods, or different method arguments list.
+     * So,
+     * if I want to target the particular version (let's say 1.0 for example), version number is obvious not an option，
+     * this is the moment you need "Witness classes".
+     * You can add any classes only in this particular release version ( something like class com.company.1.x.A, only in 1.0 ),
+     * and you can achieve the goal.
      *
      * @return
      */

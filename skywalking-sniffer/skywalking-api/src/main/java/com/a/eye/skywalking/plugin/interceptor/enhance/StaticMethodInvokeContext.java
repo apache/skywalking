@@ -1,5 +1,11 @@
 package com.a.eye.skywalking.plugin.interceptor.enhance;
 
+/**
+ * Static method invoke context.
+ * Beside all in {@link MethodInvokeContext}, plus the class type.
+ *
+ * @author wusheng
+ */
 public class StaticMethodInvokeContext extends MethodInvokeContext {
     /**
      * 代理类名
@@ -11,6 +17,10 @@ public class StaticMethodInvokeContext extends MethodInvokeContext {
         this.clazz = clazz;
     }
 
+    /**
+     *
+     * @return the target class
+     */
     public Class claszz() {
         return clazz;
     }
