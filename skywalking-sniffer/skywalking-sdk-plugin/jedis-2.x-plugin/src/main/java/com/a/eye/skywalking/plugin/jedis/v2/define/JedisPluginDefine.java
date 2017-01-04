@@ -1,7 +1,6 @@
 package com.a.eye.skywalking.plugin.jedis.v2.define;
 
 import com.a.eye.skywalking.plugin.bytebuddy.AllObjectDefaultMethodsMatch;
-import com.a.eye.skywalking.plugin.bytebuddy.ArgumentTypeNameMatch;
 import com.a.eye.skywalking.plugin.interceptor.ConstructorInterceptPoint;
 import com.a.eye.skywalking.plugin.interceptor.InstanceMethodsInterceptPoint;
 import com.a.eye.skywalking.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;

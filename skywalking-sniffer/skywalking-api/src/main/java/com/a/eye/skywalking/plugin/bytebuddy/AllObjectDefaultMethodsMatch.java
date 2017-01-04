@@ -13,9 +13,15 @@ import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
  * Created by wusheng on 2017/1/3.
  */
 public enum AllObjectDefaultMethodsMatch implements ElementMatcher<MethodDescription> {
+    /**
+     * Stay in singleton.
+     */
     INSTANCE;
 
-    private ElementMatcher.Junction<MethodDescription> matcher;
+    /**
+     * The matcher will be init in constructor and stay permanent.
+     */
+    private final ElementMatcher.Junction<MethodDescription> matcher;
 
     AllObjectDefaultMethodsMatch() {
         ElementMatcher.Junction<MethodDescription>[] allDefaultMethods = new ElementMatcher.Junction[] {named("finalize").and(takesArguments(0)).and(ElementMatchers.<MethodDescription>isPublic()),
@@ -30,13 +36,16 @@ public enum AllObjectDefaultMethodsMatch implements ElementMatcher<MethodDescrip
                 named("notify").and(takesArguments(0)).and(ElementMatchers.<MethodDescription>isPublic()),
                 named("notifyAll").and(takesArguments(0)).and(ElementMatchers.<MethodDescription>isPublic())};
 
+        ElementMatcher.Junction<MethodDescription> newMatcher = null;
         for (int i = 0; i < allDefaultMethods.length; i++) {
             if(i == 0){
-                matcher = allDefaultMethods[i];
+                newMatcher = allDefaultMethods[i];
             }else{
-                matcher.or(allDefaultMethods[i]);
+                newMatcher = newMatcher.or(allDefaultMethods[i]);
             }
         }
+
+        matcher = newMatcher;
     }
 
     @Override
