@@ -1,12 +1,17 @@
 package com.a.eye.skywalking.plugin.interceptor.enhance;
 
+/**
+ * Constructor context.
+ *
+ * @author wusheng
+ */
 public class ConstructorInvokeContext {
 	/**
-	 * 代理对象实例
+	 * object instance
 	 */
 	private Object objInst;
 	/**
-	 * 构造函数参数
+	 * constructor's arguments list.
 	 */
 	private Object[] allArguments;
 	
@@ -14,11 +19,17 @@ public class ConstructorInvokeContext {
 		this.objInst = objInst;
 		this.allArguments = allArguments;
 	}
-	
+
+	/**
+	 * @return object instance
+	 */
 	public Object inst(){
 		return objInst;
 	}
 
+	/**
+	 * @return arguments list.
+	 */
 	public Object[] allArguments(){
 		return this.allArguments;
 	}

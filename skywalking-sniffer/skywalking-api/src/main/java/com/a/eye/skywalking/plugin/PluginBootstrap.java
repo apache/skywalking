@@ -8,11 +8,22 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Plugins finder.
+ * Use {@link PluginResourcesResolver} to find all plugins,
+ * and ask {@link PluginCfg} to load all plugin definitions.
+ *
+ * @author wusheng
+ */
 public class PluginBootstrap {
     private static ILog logger = LogManager.getLogger(PluginBootstrap.class);
 
     public static TypePool CLASS_TYPE_POOL = null;
 
+    /**
+     * load all plugins.
+     * @return plugin definition list.
+     */
     public List<AbstractClassEnhancePluginDefine> loadPlugins() {
         CLASS_TYPE_POOL = TypePool.Default.ofClassPath();
 

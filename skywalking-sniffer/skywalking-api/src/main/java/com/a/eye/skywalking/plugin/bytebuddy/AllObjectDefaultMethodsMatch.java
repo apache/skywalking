@@ -23,6 +23,9 @@ public enum AllObjectDefaultMethodsMatch implements ElementMatcher<MethodDescrip
      */
     private final ElementMatcher.Junction<MethodDescription> matcher;
 
+    /**
+     * Init the match, include {@link Object}'s methods.
+     */
     AllObjectDefaultMethodsMatch() {
         ElementMatcher.Junction<MethodDescription>[] allDefaultMethods = new ElementMatcher.Junction[] {named("finalize").and(takesArguments(0)).and(ElementMatchers.<MethodDescription>isPublic()),
                 named("wait").and(takesArguments(0)).and(ElementMatchers.<MethodDescription>isPublic()),
@@ -48,6 +51,10 @@ public enum AllObjectDefaultMethodsMatch implements ElementMatcher<MethodDescrip
         matcher = newMatcher;
     }
 
+    /**
+     * @param target method description.
+     * @return true, if the method inherit from {@link Object}'s methods.
+     */
     @Override
     public boolean matches(MethodDescription target) {
         return matcher.matches(target);

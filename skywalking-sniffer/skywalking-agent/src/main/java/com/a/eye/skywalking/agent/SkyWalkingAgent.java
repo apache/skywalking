@@ -24,6 +24,12 @@ import java.net.URL;
 import static net.bytebuddy.matcher.ElementMatchers.isInterface;
 import static net.bytebuddy.matcher.ElementMatchers.not;
 
+/**
+ * The main entrance of sky-waking agent.
+ * It bases on javaagent mechanism.
+ *
+ * @author wusheng
+ */
 public class SkyWalkingAgent {
     static {
         LogManager.setLogResolver(new EasyLogResolver());
@@ -31,6 +37,14 @@ public class SkyWalkingAgent {
 
     private static ILog logger;
 
+    /**
+     * Main entrance.
+     * Use byte-buddy transform to enhance all classes, which define in plugins.
+     *
+     * @param agentArgs
+     * @param instrumentation
+     * @throws PluginException
+     */
     public static void premain(String agentArgs, Instrumentation instrumentation) throws PluginException {
         logger = LogManager.getLogger(SkyWalkingAgent.class);
 
@@ -64,7 +78,13 @@ public class SkyWalkingAgent {
         }).installOn(instrumentation);
     }
 
-
+    /**
+     * Get the enhance target classes matcher.
+     *
+     * @param pluginDefineCategory
+     * @param <T>
+     * @return class matcher.
+     */
     private static <T extends NamedElement> ElementMatcher.Junction<T> enhanceClassMatcher(PluginDefineCategory pluginDefineCategory) {
         return new SkyWalkingEnhanceMatcher<T>(pluginDefineCategory);
     }
@@ -81,6 +101,12 @@ public class SkyWalkingAgent {
         ConfigInitializer.initialize();
     }
 
+    /**
+     * Try to allocate the skywalking-agent.jar
+     * Some config files or output resources are from this path.
+     *
+     * @return the path, where the skywalking-agent.jar is.
+     */
     private static String initAgentBasePath() {
         try {
             String urlString = SkyWalkingAgent.class.getClassLoader().getSystemClassLoader().getResource(generateLocationPath()).toString();

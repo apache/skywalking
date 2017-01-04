@@ -13,6 +13,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
+ * The Classloader controller.
+ * This is a very important class in sky-walking's auto-instrumentation mechanism.
+ * If you want to fully understand why need this, and how it works, you need have knowledge about Classloader appointment mechanism.
+ * <p>
+ * The loader will load a class, and focus the target class loader (be intercepted class's classloader) loads it.
+ * <p>
  * Created by wusheng on 16/8/2.
  */
 public class InterceptorInstanceLoader {
@@ -56,12 +62,13 @@ public class InterceptorInstanceLoader {
     }
 
     /**
-     * 通过二进制读取,直接加载类文件,然后通过上下文所需的classLoader强制加载
+     * load class from class binary files.
+     * Most likely all the interceptor implementations should be loaded by this.
      *
-     * @param className
-     * @param targetClassLoader
+     * @param className         interceptor class name.
+     * @param targetClassLoader the classloader, which should load the interceptor.
      * @param <T>
-     * @return
+     * @return interceptor instance.
      * @throws InvocationTargetException
      * @throws IllegalAccessException
      * @throws InstantiationException
@@ -111,12 +118,13 @@ public class InterceptorInstanceLoader {
     }
 
     /**
-     * 在当前classloader中查找是否已经加载此类。
+     * Find loaded class in the current classloader.
+     * Just in case some classes have already been loaded for some reasons.s
      *
-     * @param className
-     * @param targetClassLoader
+     * @param className         interceptor class name.
+     * @param targetClassLoader the classloader, which should load the interceptor.
      * @param <T>
-     * @return
+     * @return interceptor instance.
      */
     private static <T> T findLoadedClass(String className, ClassLoader targetClassLoader) throws InvocationTargetException, IllegalAccessException, InstantiationException {
         Method defineClassMethod = null;

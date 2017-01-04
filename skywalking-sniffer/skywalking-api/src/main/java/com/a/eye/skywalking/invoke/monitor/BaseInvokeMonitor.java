@@ -10,15 +10,18 @@ import com.a.eye.skywalking.model.ContextData;
 import com.a.eye.skywalking.model.Identification;
 import com.a.eye.skywalking.model.Span;
 import com.a.eye.skywalking.model.SpanTagBuilder;
-import com.a.eye.skywalking.network.dependencies.com.google.protobuf.ByteString;
 import com.a.eye.skywalking.network.grpc.AckSpan;
 import com.a.eye.skywalking.network.grpc.RequestSpan;
-import com.a.eye.skywalking.network.model.Tag;
 import com.a.eye.skywalking.util.BuriedPointMachineUtil;
 
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Basic invoke monitor.
+ *
+ * @author wusheng
+ */
 public abstract class BaseInvokeMonitor {
 
     private static ILog easyLogger = LogManager.getLogger(BaseInvokeMonitor.class);
@@ -27,10 +30,18 @@ public abstract class BaseInvokeMonitor {
 
     private static Set<String> exclusiveExceptionSet = null;
 
+    /**
+     * Create the request span before invoke method.
+     *
+     * @param spanData {@link Span} represents the before invoke.
+     * @param id
+     * @return
+     */
     protected ContextData beforeInvoke(Span spanData, Identification id) {
         if (Config.BuriedPoint.PRINTF) {
-            easyLogger.debug("TraceId:" + spanData.getTraceId() + "\tParentLevelId:" + spanData.getParentLevel()
-                    + "\tLevelId:" + spanData.getLevelId() + "\tbusinessKey:" + spanData.getBusinessKey());
+            easyLogger
+                    .debug("TraceId:" + spanData.getTraceId() + "\tParentLevelId:" + spanData.getParentLevel() + "\tLevelId:" + spanData.getLevelId() + "\tbusinessKey:" + spanData
+                            .getBusinessKey());
         }
 
         // 将新创建的Context存放到ThreadLocal栈中。
@@ -42,24 +53,33 @@ public abstract class BaseInvokeMonitor {
         return new ContextData(spanData);
     }
 
+    /**
+     * Change the {@link Span} to {@link RequestSpan}, and prepare to send to routing server.
+     *
+     * @param span
+     * @param id
+     */
     protected void sendRequestSpan(Span span, Identification id) {
-        RequestSpan requestSpan= SpanTagBuilder.newBuilder(span)
-                .setBusinessKey(id.getBusinessKey())
-                .setSpanTypeDesc(id.getSpanTypeDesc()).setCallType(id.getCallType())
-                .setProcessNo(BuriedPointMachineUtil.getProcessNo())
-                .setAddress(BuriedPointMachineUtil.getHostDesc()).buildRequestSpan(RequestSpan.newBuilder());
+        RequestSpan requestSpan = SpanTagBuilder.newBuilder(span).setBusinessKey(id.getBusinessKey()).setSpanTypeDesc(id.getSpanTypeDesc()).setCallType(id.getCallType())
+                .setProcessNo(BuriedPointMachineUtil.getProcessNo()).setAddress(BuriedPointMachineUtil.getHostDesc()).buildRequestSpan(RequestSpan.newBuilder());
 
         RequestSpanDisruptor.INSTANCE.ready2Send(requestSpan);
     }
 
+    /**
+     * Change the {@link Span} to {@link AckSpan}, and prepare to send to routing server.
+     *
+     * @param span
+     */
     protected void sendAckSpan(Span span) {
-        AckSpan ackSpan = SpanTagBuilder.newBuilder(span)
-                .setStatusCode(span.getStatusCode())
-                .setExceptionStack(span.getExceptionStack()).buildAckSpan(AckSpan.newBuilder());
+        AckSpan ackSpan = SpanTagBuilder.newBuilder(span).setStatusCode(span.getStatusCode()).setExceptionStack(span.getExceptionStack()).buildAckSpan(AckSpan.newBuilder());
 
         AckSpanDisruptor.INSTANCE.ready2Send(ackSpan);
     }
 
+    /**
+     * Create the ack span before invoke method.
+     */
     protected void afterInvoke() {
         try {
 
@@ -67,8 +87,8 @@ public abstract class BaseInvokeMonitor {
             Span spanData = CurrentThreadSpanStack.pop();
 
             if (Config.BuriedPoint.PRINTF) {
-                easyLogger.debug("TraceId-ACK:" + spanData.getTraceId() + "\tParentLevelId:" + spanData.getParentLevel()
-                        + "\tLevelId:" + spanData.getLevelId() + "\tbusinessKey:" + spanData.getBusinessKey());
+                easyLogger.debug("TraceId-ACK:" + spanData.getTraceId() + "\tParentLevelId:" + spanData.getParentLevel() + "\tLevelId:" + spanData.getLevelId() + "\tbusinessKey:"
+                        + spanData.getBusinessKey());
             }
 
             sendAckSpan(spanData);
@@ -77,6 +97,11 @@ public abstract class BaseInvokeMonitor {
         }
     }
 
+    /**
+     * Process when method invocation occurs exception.
+     *
+     * @param th
+     */
     protected void occurException(Throwable th) {
         try {
             if (exclusiveExceptionSet == null) {

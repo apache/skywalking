@@ -4,13 +4,19 @@ import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 
 /**
+ * One of the three "Intercept Point".
+ * "Intercept Point" is a definition about where and how intercept happens.
+ * In this "Intercept Point", the definition targets class's instance methods, and the interceptor.
+ *
+ * ref to two others: {@link ConstructorInterceptPoint} and {@link StaticMethodsInterceptPoint}
+ *
  * Created by wusheng on 2016/11/29.
  */
 public interface InstanceMethodsInterceptPoint {
     /**
-     * 返回需要被增强的方法列表
+     * class instance methods matcher.
      *
-     * @return
+     * @return methods matcher
      */
     ElementMatcher<MethodDescription> getMethodsMatcher();
 

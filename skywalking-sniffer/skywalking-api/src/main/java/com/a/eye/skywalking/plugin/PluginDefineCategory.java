@@ -4,22 +4,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Just category the plugins.
+ * Change the store structure from {@link List} to {@link Map}
+ */
 public class PluginDefineCategory {
 
     private static PluginDefineCategory pluginDefineCategory;
 
-    private final Map<String, AbstractClassEnhancePluginDefine> exactClassEnhancePluginDefineMapping  =
-            new HashMap<String, AbstractClassEnhancePluginDefine>();
+    private final Map<String, AbstractClassEnhancePluginDefine> exactClassEnhancePluginDefineMapping = new HashMap<String, AbstractClassEnhancePluginDefine>();
 
     private PluginDefineCategory(List<AbstractClassEnhancePluginDefine> plugins) {
         for (AbstractClassEnhancePluginDefine plugin : plugins) {
             String enhanceClassName = plugin.enhanceClassName();
 
-            if (enhanceClassName == null){
+            if (enhanceClassName == null) {
                 continue;
             }
 
-                exactClassEnhancePluginDefineMapping.put(enhanceClassName, plugin);
+            exactClassEnhancePluginDefineMapping.put(enhanceClassName, plugin);
         }
     }
 

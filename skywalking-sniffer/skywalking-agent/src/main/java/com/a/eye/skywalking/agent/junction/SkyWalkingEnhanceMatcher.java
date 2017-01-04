@@ -4,6 +4,9 @@ import com.a.eye.skywalking.plugin.PluginDefineCategory;
 import net.bytebuddy.description.NamedElement;
 
 /**
+ * The matcher bases on byte-buddy {@link AbstractJunction} class.
+ * Judge the target class in transforming, should be enhanced or not.
+ * <p>
  * Created by wusheng on 16/7/31.
  */
 public class SkyWalkingEnhanceMatcher<T extends NamedElement> extends AbstractJunction<T> {

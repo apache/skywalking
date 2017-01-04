@@ -6,6 +6,14 @@ import com.a.eye.skywalking.model.Span;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Core in-process propagation context accessor.
+ * You can push, peek, pop {@link Span}s.
+ * In processing, every span be created and pushed into the context when begin
+ * This context based on stack structure. see the stack on {@link SpanNodeStack}
+ *
+ * @author wusheng
+ */
 public class CurrentThreadSpanStack {
     private static ThreadLocal<SpanNodeStack> nodes = new ThreadLocal<SpanNodeStack>();
 
@@ -36,8 +44,8 @@ public class CurrentThreadSpanStack {
 
     static class SpanNodeStack {
         /**
-         * 单JVM的单线程,埋点数量一般不会超过20.
-         * 超过20会影响性能,不推荐使用
+         * The depth of call stack should less than 20, in most cases.
+         * The depth is calculated by span, not class or the depth of java stack.
          */
         private List<SpanNode> spans = new ArrayList<SpanNode>(20);
 
