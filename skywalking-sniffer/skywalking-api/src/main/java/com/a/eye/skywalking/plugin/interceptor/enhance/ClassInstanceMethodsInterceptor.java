@@ -10,19 +10,40 @@ import java.lang.reflect.Method;
 import java.util.concurrent.Callable;
 
 /**
- * 类方法拦截、控制器
+ * The actual byte-buddy's interceptor to intercept class instance methods.
+ * In this class, it provide a bridge between byte-buddy and sky-walking plugin.
  *
  * @author wusheng
  */
 public class ClassInstanceMethodsInterceptor {
     private static ILog logger = LogManager.getLogger(ClassInstanceMethodsInterceptor.class);
 
+    /**
+     * A class full name, and instanceof {@link InstanceMethodsAroundInterceptor}
+     * This name should only stay in {@link String}, the real {@link Class} type will trigger classloader failure.
+     * If you want to know more, please check on books about Classloader or Classloader appointment mechanism.
+     */
     private String instanceMethodsAroundInterceptorClassName;
 
+    /**
+     * Set the name of {@link ClassInstanceMethodsInterceptor#instanceMethodsAroundInterceptorClassName}
+     * @param instanceMethodsAroundInterceptorClassName class full name.
+     */
     public ClassInstanceMethodsInterceptor(String instanceMethodsAroundInterceptorClassName) {
         this.instanceMethodsAroundInterceptorClassName = instanceMethodsAroundInterceptorClassName;
     }
 
+    /**
+     * Intercept the target instance method.
+     * @param obj target class instance.
+     * @param allArguments all method arguments
+     * @param method method description.
+     * @param zuper the origin call ref.
+     * @param instanceContext the added field of enhanced class.
+     * @return the return value of target instance method.
+     * @throws Exception only throw exception because of zuper.call()
+     *          or unexpected exception in sky-walking ( This is a bug, if anything triggers this condition ).
+     */
     @RuntimeType
     public Object intercept(@This Object obj, @AllArguments Object[] allArguments, @Origin Method method, @SuperCall Callable<?> zuper,
             @FieldValue(ClassEnhancePluginDefine.contextAttrName) EnhancedClassInstanceContext instanceContext) throws Exception {

@@ -12,19 +12,39 @@ import java.lang.reflect.Method;
 import java.util.concurrent.Callable;
 
 /**
- * 类静态方法拦截、控制器
+ * The actual byte-buddy's interceptor to intercept class instance methods.
+ * In this class, it provide a bridge between byte-buddy and sky-walking plugin.
  *
  * @author wusheng
  */
 public class ClassStaticMethodsInterceptor {
     private static ILog logger = LogManager.getLogger(ClassStaticMethodsInterceptor.class);
 
+    /**
+     * A class full name, and instanceof {@link StaticMethodsAroundInterceptor}
+     * This name should only stay in {@link String}, the real {@link Class} type will trigger classloader failure.
+     * If you want to know more, please check on books about Classloader or Classloader appointment mechanism.
+     */
     private String staticMethodsAroundInterceptorClassName;
 
+    /**
+     * Set the name of {@link ClassStaticMethodsInterceptor#staticMethodsAroundInterceptorClassName}
+     * @param staticMethodsAroundInterceptorClassName class full name.
+     */
     public ClassStaticMethodsInterceptor(String staticMethodsAroundInterceptorClassName) {
         this.staticMethodsAroundInterceptorClassName = staticMethodsAroundInterceptorClassName;
     }
 
+    /**
+     * Intercept the target static method.
+     * @param clazz target class
+     * @param allArguments all method arguments
+     * @param method method description.
+     * @param zuper the origin call ref.
+     * @return the return value of target static method.
+     * @throws Exception only throw exception because of zuper.call()
+     *          or unexpected exception in sky-walking ( This is a bug, if anything triggers this condition ).
+     */
     @RuntimeType
     public Object intercept(@Origin Class<?> clazz, @AllArguments Object[] allArguments, @Origin Method method, @SuperCall Callable<?> zuper) throws Exception {
         StaticMethodsAroundInterceptor interceptor = InterceptorInstanceLoader

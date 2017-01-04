@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * Any plugins({@link com.a.eye.skywalking.plugin.AbstractClassEnhancePluginDefine}'s subclass) override
  * {@link com.a.eye.skywalking.plugin.interceptor.enhance.ClassEnhancePluginDefine#getConstructorsInterceptPoints}
- * and
+ * or
  * {@link com.a.eye.skywalking.plugin.interceptor.enhance.ClassEnhancePluginDefine#getInstanceMethodsInterceptPoints}
  * will add a field with this type.
  * 
