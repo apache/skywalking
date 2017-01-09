@@ -9,6 +9,8 @@ import com.a.eye.skywalking.plugin.interceptor.enhance.StaticMethodInvokeContext
 import com.a.eye.skywalking.plugin.interceptor.enhance.StaticMethodsAroundInterceptor;
 
 /**
+ *
+ *
  * Created by xin on 2016/12/15.
  */
 public class TraceContextInterceptor implements StaticMethodsAroundInterceptor {

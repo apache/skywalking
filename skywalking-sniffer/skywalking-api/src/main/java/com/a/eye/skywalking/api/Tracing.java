@@ -9,9 +9,9 @@ import static com.a.eye.skywalking.util.TraceIdUtil.formatTraceId;
 
 public class Tracing {
     /**
-     * 获取当前上下文中的TraceId
+     * Get the traceId of current trace context.
      *
-     * @return
+     * @return traceId, if it exists, or empty {@link String}.
      */
     public static String getTraceId() {
         Span spanData = CurrentThreadSpanStack.peek();
@@ -20,26 +20,5 @@ public class Tracing {
         }
 
         return formatTraceId(spanData.getTraceId());
-    }
-
-    public static String getTracelevelId() {
-        Span spanData = CurrentThreadSpanStack.peek();
-        if (spanData == null) {
-            return "";
-        }
-
-        return (spanData.getParentLevel() == null || spanData.getParentLevel().length() == 0) ?
-                Integer.toString(spanData.getLevelId()) :
-                spanData.getParentLevel() + "." + spanData.getLevelId();
-    }
-
-    public static String generateNextContextData() {
-        Span spanData = CurrentThreadSpanStack.peek();
-        if (spanData == null) {
-            return null;
-        }
-
-        ContextData contextData = new ContextData(spanData);
-        return contextData.toString();
     }
 }

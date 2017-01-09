@@ -15,6 +15,14 @@ public class PrintTraceIdInterceptor implements InstanceMethodsAroundInterceptor
 
     }
 
+    /**
+     * Override com.a.eye.skywalking.toolkit.log.logback.v1.x.LogbackPatternConverter.convert(),
+     *
+     * @param context instance context, a class instance only has one {@link EnhancedClassInstanceContext} instance.
+     * @param interceptorContext method context, includes class name, method name, etc.
+     * @param ret the method's original return value.
+     * @return the traceId
+     */
     @Override
     public Object afterMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext, Object ret) {
         return "TID:" + Tracing.getTraceId();
