@@ -6,7 +6,7 @@
 
     <groupId>com.a.eye</groupId>
     <artifactId>skywalking</artifactId>
-    <version>${skywalking.version}</version>
+    <version>2.1-2017</version>
 
     <modules>
         <module>skywalking-commons</module>

@@ -9,15 +9,25 @@ import com.a.eye.skywalking.registry.api.RegistryCenter;
 import com.a.eye.skywalking.registry.assist.NetUtils;
 import com.a.eye.skywalking.registry.impl.zookeeper.ZookeeperConfig;
 import com.a.eye.skywalking.routing.config.Config;
-import com.a.eye.skywalking.routing.config.ConfigInitializer;
 import com.a.eye.skywalking.routing.listener.SpanStorageListenerImpl;
 import com.a.eye.skywalking.routing.listener.TraceSearchListenerImpl;
 import com.a.eye.skywalking.routing.router.RoutingService;
+import com.a.eye.skywalking.util.ConfigInitializer;
 
 import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
 
+/**
+ * Main Class of the routing server.
+ * It starts server in a sequence:
+ * 1. init config
+ * 2. init logManager
+ * 3. registry server
+ * 4. open service, and start listening port.
+ *
+ * @author wusheng
+ */
 public class Main {
 
     private static final ILog logger = LogManager.getLogger(Main.class);

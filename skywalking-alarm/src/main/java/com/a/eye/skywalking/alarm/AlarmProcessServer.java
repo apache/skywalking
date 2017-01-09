@@ -1,8 +1,8 @@
 package com.a.eye.skywalking.alarm;
 
-import com.a.eye.skywalking.alarm.conf.ConfigInitializer;
 import com.a.eye.skywalking.alarm.conf.Config;
 import com.a.eye.skywalking.alarm.util.ZKUtil;
+import com.a.eye.skywalking.util.ConfigInitializer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

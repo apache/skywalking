@@ -1,4 +1,4 @@
-package com.a.eye.skywalking.storage.config;
+package com.a.eye.skywalking.util;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -6,6 +6,12 @@ import java.util.LinkedList;
 import java.util.Properties;
 import java.util.logging.Logger;
 
+/**
+ * Init a class's static fields by a {@link Properties},
+ * including static fields and static inner classes.
+ * <p>
+ * Created by wusheng on 2017/1/9.
+ */
 public class ConfigInitializer {
     private static Logger logger = Logger.getLogger(ConfigInitializer.class.getName());
 
@@ -13,11 +19,10 @@ public class ConfigInitializer {
         initNextLevel(properties, rootConfigType, new ConfigDesc());
     }
 
-    private static void initNextLevel(Properties properties, Class<?> recentConfigType, ConfigDesc parentDesc) throws NumberFormatException, IllegalArgumentException, IllegalAccessException {
+    private static void initNextLevel(Properties properties, Class<?> recentConfigType, ConfigDesc parentDesc) throws IllegalArgumentException, IllegalAccessException {
         for (Field field : recentConfigType.getFields()) {
             if (Modifier.isPublic(field.getModifiers()) && Modifier.isStatic(field.getModifiers())) {
-                String configKey = (parentDesc + "." +
-                        field.getName()).toLowerCase();
+                String configKey = (parentDesc + "." + field.getName()).toLowerCase();
                 String value = properties.getProperty(configKey);
                 if (value != null) {
                     if (field.getType().equals(int.class))

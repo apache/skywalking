@@ -2,7 +2,7 @@ package com.a.eye.skywalking.agent;
 
 import com.a.eye.skywalking.agent.junction.SkyWalkingEnhanceMatcher;
 import com.a.eye.skywalking.conf.Config;
-import com.a.eye.skywalking.conf.ConfigInitializer;
+import com.a.eye.skywalking.conf.SnifferConfigInitializer;
 import com.a.eye.skywalking.logging.EasyLogResolver;
 import com.a.eye.skywalking.logging.api.ILog;
 import com.a.eye.skywalking.logging.api.LogManager;
@@ -98,7 +98,7 @@ public class SkyWalkingAgent {
         Config.SkyWalking.IS_PREMAIN_MODE = true;
         Config.SkyWalking.AGENT_BASE_PATH = initAgentBasePath();
 
-        ConfigInitializer.initialize();
+        SnifferConfigInitializer.initialize();
     }
 
     /**
