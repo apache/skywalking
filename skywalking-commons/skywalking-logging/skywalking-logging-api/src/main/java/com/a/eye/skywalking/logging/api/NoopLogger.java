@@ -2,9 +2,12 @@ package com.a.eye.skywalking.logging.api;
 
 
 /**
+ * No operation logger implementation.
+ * Just implement {@link ILog} interface, but do nothing.
+ * <p>
  * Created by xin on 2016/11/10.
  */
-public class NoopLogger implements ILog{
+public class NoopLogger implements ILog {
     public static final ILog INSTANCE = new NoopLogger();
 
     @Override
