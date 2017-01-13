@@ -2,7 +2,6 @@ package com.a.eye.skywalking.routing.http;
 
 import com.a.eye.skywalking.logging.api.ILog;
 import com.a.eye.skywalking.logging.api.LogManager;
-import com.a.eye.skywalking.network.dependencies.com.google.gson.Gson;
 import com.a.eye.skywalking.routing.http.module.ResponseMessage;
 
 import java.io.IOException;
@@ -11,19 +10,18 @@ import java.util.Map;
 
 import fi.iki.elonen.NanoHTTPD;
 
-import static com.a.eye.skywalking.routing.http.module.ResponseMessage.REQUEST_METHOD_NOT_SUPPORT;
+import static com.a.eye.skywalking.routing.http.module.ResponseMessage.GET_NOT_SUPPORT;
 import static com.a.eye.skywalking.routing.http.module.ResponseMessage.SERVER_ERROR;
 
 public class RestfulAPIService extends NanoHTTPD {
-
-    private static final SpanStorageController spanController = new SpanStorageController();
     public static final String JSON_MIME_TYPE = "application/json";
-    private ILog logger = LogManager.getLogger(RestfulAPIService.class);
+
+    private static ILog logger = LogManager.getLogger(RestfulAPIService.class);
+    private static final SpanStorageController spanController = new SpanStorageController();
 
     public RestfulAPIService(String host, int port) {
         super(host, port);
     }
-
 
     public void doStart() throws IOException {
         try {
@@ -39,10 +37,10 @@ public class RestfulAPIService extends NanoHTTPD {
     public Response serve(IHTTPSession session) {
         if (session.getMethod() != Method.POST) {
             return newFixedLengthResponse(Response.Status.OK, JSON_MIME_TYPE,
-                    new Gson().toJson(REQUEST_METHOD_NOT_SUPPORT));
+                    String.valueOf(GET_NOT_SUPPORT));
         }
 
-        ResponseMessage responseMessage = ResponseMessage.URL_NOT_FOUND;
+        ResponseMessage responseMessage = ResponseMessage.NOT_FOUND;
         try {
             String postData = getPostData(session);
             if (spanController.isAddAckSpanURI(session.getUri())) {
@@ -58,8 +56,7 @@ public class RestfulAPIService extends NanoHTTPD {
             responseMessage = SERVER_ERROR;
         }
 
-        return newFixedLengthResponse(Response.Status.OK, JSON_MIME_TYPE, new Gson().toJson
-                (responseMessage));
+        return newFixedLengthResponse(Response.Status.OK, JSON_MIME_TYPE, String.valueOf(responseMessage));
     }
 
     /**

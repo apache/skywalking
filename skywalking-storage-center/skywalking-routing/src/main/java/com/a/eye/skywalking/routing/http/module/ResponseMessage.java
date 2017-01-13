@@ -1,31 +1,48 @@
 package com.a.eye.skywalking.routing.http.module;
 
+import com.google.gson.JsonObject;
 
-import com.a.eye.skywalking.network.dependencies.com.google.gson.Gson;
-
-public class ResponseMessage {
-    public static final ResponseMessage OK = new ResponseMessage(200, "Store success");
-    public static final ResponseMessage REQUEST_METHOD_NOT_SUPPORT = new ResponseMessage(403, "Request method " +
-            "not support");
-    public static final ResponseMessage SERVER_ERROR = new ResponseMessage(500, "Server error");
-    public static final ResponseMessage URL_NOT_FOUND = new ResponseMessage(404, "Not found");
+/**
+ * A {@link ResponseMessage} represent a status code and response messages for http-service.
+ * <p>
+ * Created by wusheng on 2017/1/13.
+ */
+public enum ResponseMessage {
+    /**
+     * Request span or Ack Span are received and parsed without any errors.
+     */
+    OK(200, "Store success"),
+    /**
+     * Request a no-supported service.
+     */
+    GET_NOT_SUPPORT(405, "Get method not support"),
+    /**
+     * An internal error occurs.
+     */
+    SERVER_ERROR(500, "Server error"),
+    /**
+     * No service found. Also mean not provide this service.
+     */
+    NOT_FOUND(404, "Not found");
 
     /**
-     * Response code:
-     * 200 -- store success
-     * 403 -- request method not support
-     * 500 -- server error
-     * 404 -- not found
+     * The {@link String} represents the return message of the http services.
+     * It is in the JSON format, and formatted by {@link com.google.gson.Gson}.
      */
-    private int code;
     private String message;
 
     ResponseMessage(int code, String message) {
-        this.code = code;
-        this.message = message;
+        JsonObject messageFormatter = new JsonObject();
+        messageFormatter.addProperty("code", code);
+        messageFormatter.addProperty("message", message);
+        this.message = messageFormatter.toString();
     }
 
-    public int getCode() {
-        return code;
+    /**
+     * @return the return message of the http services.
+     */
+    @Override
+    public String toString() {
+        return message;
     }
 }

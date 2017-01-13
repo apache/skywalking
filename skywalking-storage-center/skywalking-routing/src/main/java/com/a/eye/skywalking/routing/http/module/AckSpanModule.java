@@ -9,13 +9,16 @@ import java.util.Map;
 
 /**
  * Ack span module
+ * <p>
+ * All fields in this class will be initialized by {@link com.google.gson.Gson#fromJson(String, Class)},
+ * ignore the un-assign values warning.
  */
 public class AckSpanModule {
     private String traceId;
     private String parentLevelId = "";
-    private int levelId = 0;
+    private int    levelId       = 0;
     private long cost;
-    private int routeKey;
+    private int  routeKey;
 
     private Map<String, String> tags;
 
@@ -24,16 +27,15 @@ public class AckSpanModule {
             return null;
         }
 
-        return AckSpan.newBuilder().putAllTags(tags).setLevelId(levelId).setParentLevel
-                (parentLevelId).setRouteKey(routeKey).setCost(cost)
-                .setTraceId(TraceIdUtil.toTraceId(traceId)).build();
+        return AckSpan.newBuilder().putAllTags(tags).setLevelId(levelId).setParentLevel(parentLevelId)
+                .setRouteKey(routeKey).setCost(cost).setTraceId(TraceIdUtil.toTraceId(traceId)).build();
     }
 
     private boolean illegalAckSpan() {
         if (StringUtil.isEmpty(traceId)) {
             return true;
         }
-        if (tags.isEmpty()){
+        if (tags.isEmpty()) {
             return true;
         }
         return false;
