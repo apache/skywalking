@@ -9,6 +9,7 @@ import com.a.eye.skywalking.registry.api.RegistryCenter;
 import com.a.eye.skywalking.registry.assist.NetUtils;
 import com.a.eye.skywalking.registry.impl.zookeeper.ZookeeperConfig;
 import com.a.eye.skywalking.routing.config.Config;
+import com.a.eye.skywalking.routing.http.RestfulAPIService;
 import com.a.eye.skywalking.routing.listener.SpanStorageListenerImpl;
 import com.a.eye.skywalking.routing.listener.TraceSearchListenerImpl;
 import com.a.eye.skywalking.routing.router.RoutingService;
@@ -23,8 +24,9 @@ import java.util.Properties;
  * It starts server in a sequence:
  * 1. init config
  * 2. init logManager
- * 3. registry server
- * 4. open service, and start listening port.
+ * 3. start restful service
+ * 4. registry server
+ * 5. open service, and start listening port.
  *
  * @author wusheng
  */
@@ -33,10 +35,13 @@ public class Main {
     private static final ILog logger = LogManager.getLogger(Main.class);
 
     public static void main(String[] args) {
+        RestfulAPIService restfulAPIService = null;
         try {
             initConfig();
             LogManager.setLogResolver(new Log4j2Resolver());
-
+            restfulAPIService = new RestfulAPIService(Config.Server.REST_SERVICE_HOST,Config.Server
+                    .REST_SERVICE_PORT);
+            restfulAPIService.doStart();
             RegistryCenter center = RegistryCenterFactory.INSTANCE.getRegistryCenter(Config.RegistryCenter.TYPE);
             center.start(fetchRegistryCenterConfig());
             center.subscribe(Config.StorageNode.SUBSCRIBE_PATH, RoutingService.getRouter());
@@ -47,10 +52,10 @@ public class Main {
             logger.info("Skywalking routing service was started.");
             Thread.currentThread().join();
         } catch (Exception e) {
-            e.printStackTrace();
             logger.error("Failed to start routing service.", e);
             System.exit(-1);
         } finally {
+            restfulAPIService.doStop();
             RoutingService.stop();
         }
     }

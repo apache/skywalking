@@ -3,6 +3,10 @@ package com.a.eye.skywalking.routing.config;
 public class Config {
     public static class Server {
         public static int PORT = 23000;
+
+        public static String REST_SERVICE_HOST = "0.0.0.0";
+
+        public static int REST_SERVICE_PORT = 23100;
     }
 
 

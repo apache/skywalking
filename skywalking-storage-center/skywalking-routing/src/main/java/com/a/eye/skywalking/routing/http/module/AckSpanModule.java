@@ -1,0 +1,41 @@
+package com.a.eye.skywalking.routing.http.module;
+
+import com.a.eye.skywalking.network.grpc.AckSpan;
+import com.a.eye.skywalking.util.StringUtil;
+import com.a.eye.skywalking.util.TraceIdUtil;
+
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * Ack span module
+ */
+public class AckSpanModule {
+    private String traceId;
+    private String parentLevelId = "";
+    private int levelId = 0;
+    private long cost;
+    private int routeKey;
+
+    private Map<String, String> tags;
+
+    public AckSpan convertToGRPCModule() {
+        if (illegalAckSpan()) {
+            return null;
+        }
+
+        return AckSpan.newBuilder().putAllTags(tags).setLevelId(levelId).setParentLevel
+                (parentLevelId).setRouteKey(routeKey).setCost(cost)
+                .setTraceId(TraceIdUtil.toTraceId(traceId)).build();
+    }
+
+    private boolean illegalAckSpan() {
+        if (StringUtil.isEmpty(traceId)) {
+            return true;
+        }
+        if (tags.isEmpty()){
+            return true;
+        }
+        return false;
+    }
+}
