@@ -5,10 +5,12 @@ import com.a.eye.skywalking.network.grpc.server.SpanStorageServer;
 import com.a.eye.skywalking.network.grpc.server.TraceSearchServer;
 import com.a.eye.skywalking.network.listener.server.SpanStorageServerListener;
 import com.a.eye.skywalking.network.listener.server.TraceSearchListener;
+
 import io.grpc.netty.NettyServerBuilder;
 import io.netty.channel.nio.NioEventLoopGroup;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 
 public class Server {
     private io.grpc.Server server;
@@ -33,13 +35,14 @@ public class Server {
         }
     }
 
-    public static TransferServiceBuilder newBuilder(int port) {
-        return new TransferServiceBuilder(port);
+    public static TransferServiceBuilder newBuilder(String host, int port) {
+        return new TransferServiceBuilder(host, port);
     }
 
     public static class TransferServiceBuilder {
-        private TransferServiceBuilder(int port) {
-            serverBuilder = NettyServerBuilder.forPort(port);
+        private TransferServiceBuilder(String host, int port) {
+            serverBuilder = NettyServerBuilder.forAddress(new InetSocketAddress
+                    (host, port));
             serverBuilder.maxConcurrentCallsPerConnection(4);
         }
 

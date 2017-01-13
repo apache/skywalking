@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
 
+import static com.a.eye.skywalking.registry.assist.NetUtils.isAnyHost;
 import static com.a.eye.skywalking.storage.config.Config.RegistryCenter.PATH_PREFIX;
 
 /**
@@ -48,7 +49,9 @@ public class Main {
 
             DataFilesManager.init();
 
-            server = Server.newBuilder(Config.Server.PORT).addSpanStorageService(new StorageListener())
+            server = Server.newBuilder(Config.Server.HOST, Config.Server.PORT)
+                    .addSpanStorageService(new
+                    StorageListener())
                     .addAsyncTraceSearchService(new SearchListener()).build();
             server.start();
 
@@ -77,7 +80,16 @@ public class Main {
         registerConfig.setProperty(ZookeeperConfig.AUTH_SCHEMA, Config.RegistryCenter.AUTH_SCHEMA);
         registerConfig.setProperty(ZookeeperConfig.AUTH_INFO, Config.RegistryCenter.AUTH_INFO);
         registryCenter.start(registerConfig);
-        registryCenter.register(PATH_PREFIX + NetUtils.getLocalAddress().getHostAddress() + ":" + Config.Server.PORT);
+        registryCenter.register(PATH_PREFIX + fetchHostOfStorageServerBinding() + ":" + Config
+                .Server.PORT);
+    }
+
+    private static String fetchHostOfStorageServerBinding(){
+        if (isAnyHost(Config.Server.HOST)){
+            return NetUtils.getLocalAddress().getHostAddress();
+        }
+
+        return Config.Server.HOST;
     }
 
     private static void initConfig() throws IllegalAccessException, IOException {

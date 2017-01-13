@@ -5,6 +5,8 @@ package com.a.eye.skywalking.storage.config;
  */
 public class Config {
     public static class Server {
+        public static String HOST = "0.0.0.0";
+
         public static int PORT = 34000;
     }
 

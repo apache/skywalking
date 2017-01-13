@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
 
+import static com.a.eye.skywalking.registry.assist.NetUtils.isAnyHost;
+
 /**
  * Main Class of the routing server.
  * It starts server in a sequence:
@@ -46,9 +48,11 @@ public class Main {
             center.start(fetchRegistryCenterConfig());
             center.subscribe(Config.StorageNode.SUBSCRIBE_PATH, RoutingService.getRouter());
 
-            Server.newBuilder(Config.Server.PORT).addSpanStorageService(new SpanStorageListenerImpl()).addTraceSearchService(new TraceSearchListenerImpl()).build().start();
+            Server.newBuilder(Config.Server.HOST,Config.Server.PORT).addSpanStorageService(new
+                    SpanStorageListenerImpl()).addTraceSearchService(new TraceSearchListenerImpl()).build().start();
 
-            center.register(Config.RegistryCenter.PATH_PREFIX + NetUtils.getLocalAddress().getHostAddress() + ":" + Config.Server.PORT);
+            center.register(Config.RegistryCenter.PATH_PREFIX + fetchHostOfStorageServerBinding
+                    () + ":" + Config.Server.PORT);
             logger.info("Skywalking routing service was started.");
             Thread.currentThread().join();
         } catch (Exception e) {
@@ -58,6 +62,14 @@ public class Main {
             restfulAPIService.doStop();
             RoutingService.stop();
         }
+    }
+
+    private static String fetchHostOfStorageServerBinding(){
+        if (isAnyHost(Config.Server.HOST)){
+            return NetUtils.getLocalAddress().getHostAddress();
+        }
+
+        return Config.Server.HOST;
     }
 
     private static void initConfig() throws IllegalAccessException, IOException {
