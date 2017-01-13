@@ -9,15 +9,16 @@ import java.util.Map;
 import static com.a.eye.skywalking.util.TraceIdUtil.isIllegalTraceId;
 
 /**
- * Ack span module <p> All fields in this class will be initialized by {@link
- * com.google.gson.Gson#fromJson(String, Class)}, ignore the un-assign values warning.
+ * Ack span module
+ * <p>
+ * All fields in this class will be initialized by {@link com.google.gson.Gson#fromJson(String, Class)}, ignore the un-assign values warning.
  */
 public class AckSpanModule {
     private String traceId;
     private String parentLevelId;
-    private int levelId = 0;
-    private long cost;
-    private int routeKey;
+    private int    levelId;
+    private long   cost;
+    private int    routeKey;
 
     private Map<String, String> tags;
 
