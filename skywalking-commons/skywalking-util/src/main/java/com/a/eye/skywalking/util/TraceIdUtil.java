@@ -14,4 +14,17 @@ public class TraceIdUtil {
 
         return traceIdBuilder.substring(0, traceIdBuilder.length() - 1).toString();
     }
+
+    public static TraceId toTraceId(String traceId) {
+        String[] traceIdSegment = traceId.split("\\.");
+        TraceId.Builder builder = TraceId.newBuilder();
+
+        for (String segment : traceIdSegment) {
+            builder = builder.addSegments(Long.parseLong(segment));
+        }
+
+        return builder.build();
+    }
+
+
 }
