@@ -36,7 +36,7 @@ public class RestfulAPIService extends NanoHTTPD {
     @Override
     public Response serve(IHTTPSession session) {
         if (session.getMethod() != Method.POST) {
-            return newFixedLengthResponse(Response.Status.OK, JSON_MIME_TYPE,
+            return newFixedLengthResponse(GET_NOT_SUPPORT.getStatus(), JSON_MIME_TYPE,
                     String.valueOf(GET_NOT_SUPPORT));
         }
 
@@ -56,7 +56,8 @@ public class RestfulAPIService extends NanoHTTPD {
             responseMessage = SERVER_ERROR;
         }
 
-        return newFixedLengthResponse(Response.Status.OK, JSON_MIME_TYPE, String.valueOf(responseMessage));
+        return newFixedLengthResponse(responseMessage.getStatus(), JSON_MIME_TYPE, String.valueOf
+                (responseMessage));
     }
 
     /**

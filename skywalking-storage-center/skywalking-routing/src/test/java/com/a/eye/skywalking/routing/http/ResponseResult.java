@@ -1,8 +1,9 @@
 package com.a.eye.skywalking.routing.http;
 
-import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
-import com.a.eye.skywalking.routing.http.module.ResponseMessage;
 
 /**
  * Created by xin on 2017/1/10.
@@ -16,8 +17,9 @@ public class ResponseResult {
        this.responseBody = responseBody;
     }
 
-    public ResponseMessage getResponseMessage() {
-        return new Gson().fromJson(responseBody, ResponseMessage.class);
+    public JsonObject getResponseMessage() {
+        JsonParser jsonParser = new JsonParser();
+       return (JsonObject) jsonParser.parse(responseBody);
     }
 
     public int getStatusCode(){

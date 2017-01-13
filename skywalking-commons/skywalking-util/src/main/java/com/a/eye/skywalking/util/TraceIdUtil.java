@@ -27,4 +27,13 @@ public class TraceIdUtil {
     }
 
 
+    public static boolean isIllegalTraceId(String traceId){
+        if (StringUtil.isEmpty(traceId)){
+            return true;
+        }
+
+        return traceId.split("\\.").length != 6;
+    }
+
+
 }

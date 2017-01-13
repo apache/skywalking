@@ -1,6 +1,9 @@
 package com.a.eye.skywalking.routing.http;
 
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
 import com.a.eye.skywalking.routing.http.module.ResponseMessage;
 
 import org.junit.After;
@@ -28,17 +31,15 @@ public class RestfulAPIServiceTest {
     @Test
     public void testRequestMethodWithGet() throws IOException {
         ResponseResult responseResult = HttpClientUtil.doGet(REST_URL_PREFIX);
-        assertEquals(200, responseResult.getStatusCode());
-        ResponseMessage responseMessage = responseResult.getResponseMessage();
-        assertEquals(403, responseMessage.getCode());
+        assertEquals(405, responseResult.getStatusCode());
+        validateResponseCode(405, responseResult);
     }
 
     @Test
     public void testRequestMethodWithWrongURL() throws IOException {
         ResponseResult responseResult = HttpClientUtil.doPost(REST_URL_PREFIX, "{}");
-        assertEquals(200, responseResult.getStatusCode());
-        ResponseMessage responseMessage = responseResult.getResponseMessage();
-        assertEquals(404, responseMessage.getCode());
+        assertEquals(404, responseResult.getStatusCode());
+        validateResponseCode(404, responseResult);
     }
 
     @Test
@@ -58,8 +59,7 @@ public class RestfulAPIServiceTest {
                         "    }\n" +
                         "}]");
         assertEquals(200, responseResult.getStatusCode());
-        ResponseMessage responseMessage = responseResult.getResponseMessage();
-        assertEquals(200, responseMessage.getCode());
+        validateResponseCode(200, responseResult);
     }
 
     @Test
@@ -84,10 +84,8 @@ public class RestfulAPIServiceTest {
                         "}]");
 
         assertEquals(200, responseResult.getStatusCode());
-        ResponseMessage responseMessage = responseResult.getResponseMessage();
-        assertEquals(200, responseMessage.getCode());
+        validateResponseCode(200, responseResult);
     }
-
 
     @Test
     public void testAddWithErrorRequestSpanJson() throws IOException {
@@ -110,9 +108,14 @@ public class RestfulAPIServiceTest {
                         "    }\n" +
                         "}");
 
-        assertEquals(200, responseResult.getStatusCode());
-        ResponseMessage responseMessage = responseResult.getResponseMessage();
-        assertEquals(500, responseMessage.getCode());
+        assertEquals(500, responseResult.getStatusCode());
+        validateResponseCode(500, responseResult);
+    }
+
+
+    private void validateResponseCode(int expectedCode, ResponseResult responseResult) {
+        JsonObject responseJson = responseResult.getResponseMessage();
+        assertEquals(expectedCode, responseJson.get("code").getAsInt());
     }
 
     @After
