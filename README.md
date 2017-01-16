@@ -3,7 +3,7 @@ Sky Walking
 
 <img src="docs/resources/skywalking.png" alt="Sky Walking logo" height="90px" align="right" />
 
-SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, also known Distributed Tracer。
+SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, also known Distributed Tracer.
 
 [![Build Status](https://travis-ci.org/wu-sheng/sky-walking.svg?branch=master)](https://travis-ci.org/wu-sheng/sky-walking)
 ![license](https://img.shields.io/aur/license/yaourt.svg)
