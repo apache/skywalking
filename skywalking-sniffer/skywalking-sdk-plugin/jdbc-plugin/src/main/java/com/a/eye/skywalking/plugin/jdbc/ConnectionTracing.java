@@ -25,7 +25,7 @@ public class ConnectionTracing {
                             "connection."
                                     + method
                                     + (sql == null || sql.length() == 0 ? ""
-                                    : ":" + sql)).spanType(JDBCBuriedPointType.instance()).build());
+                                    : ":" + sql)).spanType(JDBCBuriedPointType.INSTANCE).build());
             return exec.exe(realConnection, sql);
         } catch (SQLException e) {
             rpcClientInvokeMonitor.occurException(e);

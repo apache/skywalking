@@ -47,7 +47,7 @@ public class TomcatPluginInterceptor implements InstanceMethodsAroundInterceptor
     private Identification generateIdentification(HttpServletRequest request) {
         return Identification.newBuilder()
                 .viewPoint(request.getRequestURL().toString())
-                .spanType(WebBuriedPointType.instance())
+                .spanType(WebBuriedPointType.INSTANCE)
                 .build();
     }
 

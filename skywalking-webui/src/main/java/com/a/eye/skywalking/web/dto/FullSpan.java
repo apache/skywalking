@@ -42,7 +42,7 @@ public class FullSpan {
         this.businessKey = span.getBusinessKey();
         this.spanTypeDesc = span.getSpanTypeDesc();
         this.username = span.getUsername();
-        this.startDate = span.getStartTime();
+        this.startDate = span.getStartTimestamp();
         this.viewPointId = span.getViewpoint();
         this.spanType = span.getSpanType() + "";
         this.address = span.getAddress();

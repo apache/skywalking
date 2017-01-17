@@ -52,6 +52,6 @@ public class MotanServerInterceptor implements InstanceConstructorInterceptor, I
 
     public static Identification generateIdentify(Request request, URL serviceURI) {
         return Identification.newBuilder().viewPoint(generateViewPoint(serviceURI, request))
-                .spanType(MotanBuriedPointType.instance()).build();
+                .spanType(MotanBuriedPointType.INSTANCE).build();
     }
 }

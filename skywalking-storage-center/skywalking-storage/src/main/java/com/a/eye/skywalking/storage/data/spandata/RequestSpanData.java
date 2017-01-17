@@ -67,7 +67,7 @@ public class RequestSpanData extends AbstractSpanData {
     }
 
     public long getStartTime() {
-        return requestSpan.getStartDate();
+        return requestSpan.getStartTimestamp();
     }
 
     public String getBusinessKey() {

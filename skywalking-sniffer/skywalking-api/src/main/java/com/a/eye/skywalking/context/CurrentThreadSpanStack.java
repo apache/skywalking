@@ -1,6 +1,7 @@
 package com.a.eye.skywalking.context;
 
 
+import com.a.eye.skywalking.model.RefContext;
 import com.a.eye.skywalking.model.Span;
 
 import java.util.ArrayList;
@@ -42,7 +43,20 @@ public class CurrentThreadSpanStack {
         return nodes.get().pop();
     }
 
+    public static void initRefContext(RefContext refContext) {
+        if (nodes.get() == null){
+            nodes.set(new SpanNodeStack());
+        }
+        nodes.get().initRefContext(refContext);
+    }
+
     static class SpanNodeStack {
+
+        /**
+         * This {@link RefContext} contain the trace context from another processor.
+         */
+        private RefContext refContext = null;
+
         /**
          * The depth of call stack should less than 20, in most cases.
          * The depth is calculated by span, not class or the depth of java stack.
@@ -53,6 +67,8 @@ public class CurrentThreadSpanStack {
             Span span = spans.remove(getTopElementIdx()).getData();
             if (!isEmpty()) {
                 spans.get(getTopElementIdx()).incrementNextSubSpanLevelId();
+            }else{
+                refContext = null;
             }
             return span;
         }
@@ -61,6 +77,12 @@ public class CurrentThreadSpanStack {
             if (!isEmpty()) {
                 listPush(new SpanNode(span, spans.get(getTopElementIdx()).getNextSubSpanLevelId()));
             } else {
+                if (refContext != null) {
+                    span.setTraceId(refContext.getTraceId());
+                    span.setParentLevel(refContext.getParentLevelId());
+                    span.setLevelId(0);
+                }
+
                 listPush(new SpanNode(span));
             }
 
@@ -85,6 +107,9 @@ public class CurrentThreadSpanStack {
             spans.add(spans.size(), spanNode);
         }
 
+        public void initRefContext(RefContext refContext) {
+            this.refContext = refContext;
+        }
     }
 
     static class SpanNode {

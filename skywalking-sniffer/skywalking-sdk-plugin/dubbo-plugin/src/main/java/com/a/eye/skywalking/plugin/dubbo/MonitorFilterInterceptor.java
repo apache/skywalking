@@ -128,7 +128,7 @@ public class MonitorFilterInterceptor implements InstanceMethodsAroundIntercepto
         }
 
         viewPoint.append(")");
-        return Identification.newBuilder().viewPoint(viewPoint.toString()).spanType(DubboBuriedPointType.instance())
+        return Identification.newBuilder().viewPoint(viewPoint.toString()).spanType(DubboBuriedPointType.INSTANCE)
                 .build();
     }
 

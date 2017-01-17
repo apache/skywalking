@@ -20,8 +20,8 @@ public class SpanTagBuilder {
     }
 
 
-    public SpanTagBuilder setSpanType(int spanType) {
-        span.setTag(Tag.SPAN_TYPE, spanType + "");
+    public SpanTagBuilder setSpanType(String spanType) {
+        span.setTag(Tag.SPAN_TYPE, spanType);
         return this;
     }
 

@@ -15,19 +15,18 @@ import com.weibo.api.motan.rpc.URL;
 /**
  * Motan client interceptor
  */
-public class MotanClientInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
-    @Override
-    public void onConstruct(EnhancedClassInstanceContext context, ConstructorInvokeContext interceptorContext) {
-        context.set("serviceURI", interceptorContext.allArguments()[1]);
-    }
+public class MotanClientCallInterceptor implements InstanceMethodsAroundInterceptor{
+
+    private static final String REQUEST_URL = "REQUEST_URL";
 
     @Override
     public void beforeMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
                              MethodInterceptResult result) {
-        com.weibo.api.motan.rpc.Request request = (com.weibo.api.motan.rpc.Request) interceptorContext.allArguments()[0];
-        if (request != null) {
+        URL url = (URL) context.get(REQUEST_URL);
+        Request request = (Request) interceptorContext.allArguments()[0];
+        if (url != null) {
             ContextData contextData = new RPCClientInvokeMonitor()
-                    .beforeInvoke(generateIdentify(request, (com.weibo.api.motan.rpc.URL) context.get("serviceURI")));
+                    .beforeInvoke(generateIdentify(request, url));
             String contextDataStr = contextData.toString();
             request.setAttachment("contextData", contextDataStr);
         }
@@ -57,6 +56,6 @@ public class MotanClientInterceptor implements InstanceMethodsAroundInterceptor,
 
     public static Identification generateIdentify(Request request, URL serviceURI) {
         return Identification.newBuilder().viewPoint(generateViewPoint(serviceURI, request))
-                .spanType(MotanBuriedPointType.instance()).build();
+                .spanType(MotanBuriedPointType.INSTANCE).build();
     }
 }

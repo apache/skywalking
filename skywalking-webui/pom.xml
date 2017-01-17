@@ -20,22 +20,22 @@
         <dependency>
             <groupId>com.a.eye</groupId>
             <artifactId>skywalking-network</artifactId>
-            <version>2.1-2017</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.a.eye</groupId>
             <artifactId>skywalking-logging-api</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.a.eye</groupId>
             <artifactId>skywalking-logging-impl-log4j2</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.a.eye</groupId>
             <artifactId>skywalking-registry</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>

@@ -15,6 +15,7 @@ import com.a.eye.skywalking.network.grpc.RequestSpan;
 import com.a.eye.skywalking.util.BuriedPointMachineUtil;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -61,7 +62,7 @@ public abstract class BaseInvokeMonitor {
      */
     protected void sendRequestSpan(Span span, Identification id) {
         RequestSpan requestSpan = SpanTagBuilder.newBuilder(span).setBusinessKey(id.getBusinessKey()).setSpanTypeDesc(id.getSpanTypeDesc()).setCallType(id.getCallType())
-                .setProcessNo(BuriedPointMachineUtil.getProcessNo()).setAddress(BuriedPointMachineUtil.getHostDesc()).buildRequestSpan(RequestSpan.newBuilder());
+                .setProcessNo(BuriedPointMachineUtil.getProcessNo()).setAddress(BuriedPointMachineUtil.getHostDesc()).setSpanType(span.getSpanType()).buildRequestSpan(RequestSpan.newBuilder());
 
         RequestSpanDisruptor.INSTANCE.ready2Send(requestSpan);
     }
@@ -72,7 +73,7 @@ public abstract class BaseInvokeMonitor {
      * @param span
      */
     protected void sendAckSpan(Span span) {
-        AckSpan ackSpan = SpanTagBuilder.newBuilder(span).setStatusCode(span.getStatusCode()).setExceptionStack(span.getExceptionStack()).buildAckSpan(AckSpan.newBuilder());
+        AckSpan ackSpan = SpanTagBuilder.newBuilder(span).setStatusCode(span.getStatusCode()).setExceptionStack(span.getExceptionStack()).setSpanType(span.getSpanType()).buildAckSpan(AckSpan.newBuilder());
 
         AckSpanDisruptor.INSTANCE.ready2Send(ackSpan);
     }
