@@ -8,6 +8,25 @@
     <artifactId>skywalking</artifactId>
     <version>2.1-2017</version>
 
+    <licenses>
+        <license>
+            <name>GNU GENERAL PUBLIC LICENSE V3</name>
+            <url>https://github.com/wu-sheng/sky-walking/blob/master/LICENSE</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Wu Sheng</name>
+            <email>wu.sheng@foxmail.com</email>
+            <url>https://wu-sheng.github.io/me/</url>
+        </developer>
+        <developer>
+            <name>Zhang Xin</name>
+            <url>https://github.com/ascrutae</url>
+        </developer>
+    </developers>
+
     <modules>
         <module>skywalking-commons</module>
         <module>skywalking-alarm</module>
@@ -19,7 +38,17 @@
     <packaging>pom</packaging>
 
     <name>skywalking</name>
-    <url>http://maven.apache.org</url>
+    <url>https://github.com/wu-sheng/sky-walking</url>
+
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/wu-sheng/sky-walking/issues</url>
+    </issueManagement>
+
+    <ciManagement>
+        <system>travis</system>
+        <url>https://travis-ci.org/wu-sheng/sky-walking</url>
+    </ciManagement>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
