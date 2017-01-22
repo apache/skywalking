@@ -22,8 +22,8 @@ import java.util.List;
 public class StoreRequestSpanEventHandler implements EventHandler<RequestSpanData> {
     private static ILog logger = LogManager.getLogger(StoreRequestSpanEventHandler.class);
     private DataFileWriter fileWriter;
-    private IndexOperator  operator;
-    private int            bufferSize;
+    private IndexOperator operator;
+    private int bufferSize;
     private List<SpanData> buffer;
 
     public StoreRequestSpanEventHandler() {
@@ -35,21 +35,25 @@ public class StoreRequestSpanEventHandler implements EventHandler<RequestSpanDat
 
     @Override
     public void onEvent(RequestSpanData event, long sequence, boolean endOfBatch) throws Exception {
-        buffer.add(event);
+        try {
+            buffer.add(event);
 
-        if (endOfBatch || buffer.size() == bufferSize) {
-            try {
-                IndexMetaCollection collection = fileWriter.write(buffer);
+            if (endOfBatch || buffer.size() == bufferSize) {
+                try {
+                    IndexMetaCollection collection = fileWriter.write(buffer);
 
-                operator.batchUpdate(collection);
+                    operator.batchUpdate(collection);
 
-                HealthCollector.getCurrentHeathReading("StoreRequestSpanEventHandler").updateData(HeathReading.INFO, "Batch consume %s messages successfully.", buffer.size());
-            } catch (Throwable e) {
-                logger.error("Ack messages consume failure.", e);
-                HealthCollector.getCurrentHeathReading("StoreRequestSpanEventHandler").updateData(HeathReading.ERROR, "Batch consume %s messages failure.", buffer.size());
-            } finally {
-                buffer.clear();
+                    HealthCollector.getCurrentHeathReading("StoreRequestSpanEventHandler").updateData(HeathReading.INFO, "Batch consume %s messages successfully.", buffer.size());
+                } catch (Throwable e) {
+                    logger.error("Ack messages consume failure.", e);
+                    HealthCollector.getCurrentHeathReading("StoreRequestSpanEventHandler").updateData(HeathReading.ERROR, "Batch consume %s messages failure.", buffer.size());
+                } finally {
+                    buffer.clear();
+                }
             }
+        } finally {
+            event.setRequestSpan(null);
         }
     }
 }

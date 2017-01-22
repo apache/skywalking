@@ -1,6 +1,5 @@
 package com.a.eye.skywalking.routing.disruptor.request;
 
-
 import com.a.eye.skywalking.health.report.HealthCollector;
 import com.a.eye.skywalking.health.report.HeathReading;
 import com.a.eye.skywalking.logging.api.ILog;
@@ -33,34 +32,38 @@ public class RouteSendRequestSpanEventHandler extends AbstractRouteSpanEventHand
 
     @Override
     public void onEvent(RequestSpanHolder event, long sequence, boolean endOfBatch) throws Exception {
-        buffer.add(event.getRequestSpan());
+        try {
+            buffer.add(event.getRequestSpan());
 
-        if (stop) {
-            try {
-                for (RequestSpan requestSpan : buffer) {
-                    SpanDisruptor spanDisruptor = RoutingService.getRouter().lookup(requestSpan);
-                    spanDisruptor.saveSpan(requestSpan);
+            if (stop) {
+                try {
+                    for (RequestSpan requestSpan : buffer) {
+                        SpanDisruptor spanDisruptor = RoutingService.getRouter().lookup(requestSpan);
+                        spanDisruptor.saveSpan(requestSpan);
+                    }
+                } finally {
+                    buffer.clear();
                 }
-            } finally {
-                buffer.clear();
+
+                return;
             }
 
-            return;
-        }
+            wait2Finish();
 
-        wait2Finish();
-
-        if (endOfBatch || buffer.size() == bufferSize) {
-            try {
-                SpanStorageClient spanStorageClient = getStorageClient();
-                spanStorageClient.sendRequestSpan(buffer);
-                HealthCollector.getCurrentHeathReading("RouteSendRequestSpanEventHandler").updateData(HeathReading.INFO, "Batch consume %s messages successfully.", buffer.size());
-            } catch (Throwable e) {
-                logger.error("RequestSpan messages consume failure.", e);
-                HealthCollector.getCurrentHeathReading("RouteSendRequestSpanEventHandler").updateData(HeathReading.ERROR, "Batch consume %s messages failure.", buffer.size());
-            } finally {
-                buffer.clear();
+            if (endOfBatch || buffer.size() == bufferSize) {
+                try {
+                    SpanStorageClient spanStorageClient = getStorageClient();
+                    spanStorageClient.sendRequestSpan(buffer);
+                    HealthCollector.getCurrentHeathReading("RouteSendRequestSpanEventHandler").updateData(HeathReading.INFO, "Batch consume %s messages successfully.", buffer.size());
+                } catch (Throwable e) {
+                    logger.error("RequestSpan messages consume failure.", e);
+                    HealthCollector.getCurrentHeathReading("RouteSendRequestSpanEventHandler").updateData(HeathReading.ERROR, "Batch consume %s messages failure.", buffer.size());
+                } finally {
+                    buffer.clear();
+                }
             }
+        } finally {
+            event.setRequestSpan(null);
         }
     }
 }

@@ -26,19 +26,23 @@ public class SendRequestSpanEventHandler implements EventHandler<RequestSpanHold
 
     @Override
     public void onEvent(RequestSpanHolder event, long sequence, boolean endOfBatch) throws Exception {
-        if (buffer[bufferIdx] != null) {
-            return;
-        }
+        try {
+            if (buffer[bufferIdx] != null) {
+                return;
+            }
 
-        buffer[bufferIdx] = event.getData();
-        bufferIdx++;
+            buffer[bufferIdx] = event.getData();
+            bufferIdx++;
 
-        if (bufferIdx == buffer.length) {
-            bufferIdx = 0;
-        }
+            if (bufferIdx == buffer.length) {
+                bufferIdx = 0;
+            }
 
-        if (endOfBatch) {
-            HealthCollector.getCurrentHeathReading("SendRequestSpanEventHandler").updateData(HeathReading.INFO, "Request Span messages were successful consumed .");
+            if (endOfBatch) {
+                HealthCollector.getCurrentHeathReading("SendRequestSpanEventHandler").updateData(HeathReading.INFO, "Request Span messages were successful consumed .");
+            }
+        } finally {
+            event.setData(null);
         }
     }
 

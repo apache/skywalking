@@ -22,8 +22,8 @@ import java.util.List;
 public class StoreAckSpanEventHandler implements EventHandler<AckSpanData> {
     private static ILog logger = LogManager.getLogger(StoreAckSpanEventHandler.class);
     private DataFileWriter fileWriter;
-    private IndexOperator  operator;
-    private int            bufferSize;
+    private IndexOperator operator;
+    private int bufferSize;
     private List<SpanData> buffer;
 
     public StoreAckSpanEventHandler() {
@@ -35,20 +35,24 @@ public class StoreAckSpanEventHandler implements EventHandler<AckSpanData> {
 
     @Override
     public void onEvent(AckSpanData event, long sequence, boolean endOfBatch) throws Exception {
-        buffer.add(event);
+        try {
+            buffer.add(event);
 
-        if (endOfBatch || buffer.size() == bufferSize) {
-            try {
-                IndexMetaCollection collection = fileWriter.write(buffer);
+            if (endOfBatch || buffer.size() == bufferSize) {
+                try {
+                    IndexMetaCollection collection = fileWriter.write(buffer);
 
-                operator.batchUpdate(collection);
-                HealthCollector.getCurrentHeathReading("StoreAckSpanEventHandler").updateData(HeathReading.INFO, "Batch consume %s messages successfully.", buffer.size());
-            } catch (Throwable e) {
-                logger.error("Ack messages consume failure.", e);
-                HealthCollector.getCurrentHeathReading("StoreAckSpanEventHandler").updateData(HeathReading.ERROR, "Batch consume %s messages failure.", buffer.size());
-            } finally {
-                buffer.clear();
+                    operator.batchUpdate(collection);
+                    HealthCollector.getCurrentHeathReading("StoreAckSpanEventHandler").updateData(HeathReading.INFO, "Batch consume %s messages successfully.", buffer.size());
+                } catch (Throwable e) {
+                    logger.error("Ack messages consume failure.", e);
+                    HealthCollector.getCurrentHeathReading("StoreAckSpanEventHandler").updateData(HeathReading.ERROR, "Batch consume %s messages failure.", buffer.size());
+                } finally {
+                    buffer.clear();
+                }
             }
+        } finally {
+            event.setAckSpan(null);
         }
     }
 }
