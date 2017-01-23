@@ -9,7 +9,7 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, also known D
 ![license](https://img.shields.io/aur/license/yaourt.svg)
 [![codebeat badge](https://codebeat.co/badges/579e4dce-1dc7-4f32-a163-c164eafa1335)](https://codebeat.co/projects/github-com-wu-sheng-sky-walking)
 [![Join the chat at https://gitter.im/sky-walking/Lobby](https://badges.gitter.im/sky-walking/Lobby.svg)](https://gitter.im/sky-walking/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
+[![OpenTracing-1.0 Badge](https://img.shields.io/badge/OpenTracing--1.0-enabled-blue.svg)](http://opentracing.io)
 [![Release Version](https://img.shields.io/badge/stable-2.0--release-brightgreen.svg)](https://github.com/wu-sheng/sky-walking/releases)
 
 # Abstract
@@ -23,18 +23,17 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, also known D
 
 # Supported components
 
-### web container
+### web containers
 * Tomcat 7
 * Tomcat 8
 
-### database
+### databases
 * mysql
 * oracle
 * h2
 * easily extend to support sybase, sqlserver, jtds, db2, informix
 
-
-### rpc framework
+### rpc frameworks
 * dubbo 
 * dubbox 
 * httpClient
@@ -42,6 +41,10 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, also known D
 
 ### cache
 * jedis
+
+### opentracing supported frameworks
+* motan
+* hprose-java
 
 # Contributors
 * 吴晟 [wusheng](https://github.com/wu-sheng) &nbsp;&nbsp;wu.sheng@foxmail.com
