@@ -27,6 +27,8 @@ public class Constants {
             put("D", "DUBBO");
             put("L", "LOCAL");
             put("U", "UNKNOWN");
+            put("MO", "Motan");
+            put("OT", "OpenTracing");
         }
     };
 

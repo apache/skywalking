@@ -2,17 +2,8 @@ package com.a.eye.skywalking.plugin.httpClient.v4;
 
 import com.a.eye.skywalking.api.IBuriedPointType;
 
-public class WebBuriedPointType implements IBuriedPointType {
-
-    private static WebBuriedPointType webBuriedPointType;
-
-    public static IBuriedPointType instance() {
-        if (webBuriedPointType == null) {
-            webBuriedPointType = new WebBuriedPointType();
-        }
-
-        return webBuriedPointType;
-    }
+public enum  WebBuriedPointType implements IBuriedPointType {
+    INSTANCE;
 
     @Override
     public String getTypeName() {
@@ -24,7 +15,4 @@ public class WebBuriedPointType implements IBuriedPointType {
         return CallType.SYNC;
     }
 
-    private WebBuriedPointType() {
-        // Non
-    }
 }

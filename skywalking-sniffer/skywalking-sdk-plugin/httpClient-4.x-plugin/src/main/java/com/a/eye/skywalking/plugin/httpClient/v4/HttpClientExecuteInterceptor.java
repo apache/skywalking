@@ -41,7 +41,7 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
 																.toString())
 												.spanType(
 														WebBuriedPointType
-																.instance())
+																.INSTANCE)
 												.build()).toString());
 	}
 

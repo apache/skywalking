@@ -28,7 +28,7 @@
         <dependency>
             <groupId>com.a.eye</groupId>
             <artifactId>skywalking-util</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <!-- nano httpd -->
         <dependency>

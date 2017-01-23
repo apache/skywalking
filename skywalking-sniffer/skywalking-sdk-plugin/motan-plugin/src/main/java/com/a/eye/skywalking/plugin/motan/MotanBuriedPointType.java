@@ -2,30 +2,18 @@ package com.a.eye.skywalking.plugin.motan;
 
 import com.a.eye.skywalking.api.IBuriedPointType;
 
-public class MotanBuriedPointType implements IBuriedPointType {
+public enum MotanBuriedPointType implements IBuriedPointType {
 
-    private static MotanBuriedPointType motanBuriedPointType;
-
-    public static IBuriedPointType instance() {
-        if (motanBuriedPointType == null) {
-            motanBuriedPointType = new MotanBuriedPointType();
-        }
-
-        return motanBuriedPointType;
-    }
+    INSTANCE;
 
     @Override
     public String getTypeName() {
-        return "M";
+        return "MO";
     }
 
     @Override
     public CallType getCallType() {
         return CallType.SYNC;
-    }
-
-    private MotanBuriedPointType() {
-        //Non
     }
 
 }

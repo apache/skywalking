@@ -26,7 +26,7 @@ public class RequestSpanModule {
             return null;
         }
         return RequestSpan.newBuilder().putAllTags(tags).setLevelId(levelId).setParentLevel(parentLevelId)
-                .setRouteKey(routeKey).setStartDate(startTime).setTraceId(TraceIdUtil.toTraceId(traceId)).build();
+                .setRouteKey(routeKey).setStartTimestamp(startTime).setTraceId(TraceIdUtil.toTraceId(traceId)).build();
 
     }
 

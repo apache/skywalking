@@ -39,7 +39,7 @@ public class Span {
     /**
      * 节点调用开始时间
      */
-    protected long startDate = System.currentTimeMillis();
+    protected long startTimestamp = System.currentTimeMillis();
 
     /**
      * 节点调用的状态<br/>
@@ -87,7 +87,6 @@ public class Span {
         this.parentLevel = parentLevel;
         this.levelId = levelId;
         this.routeKey = routeKey;
-        this.startDate = System.currentTimeMillis();
 
         this.setTag(Tag.USER_NAME, Config.SkyWalking.USERNAME);
         this.setTag(Tag.APPLICATION_CODE, Config.SkyWalking.APPLICATION_CODE);
@@ -104,6 +103,10 @@ public class Span {
 
     public void setParentLevel(String parentLevel) {
         this.parentLevel = parentLevel;
+    }
+
+    public void setTraceId(TraceId traceId) {
+        this.traceId = traceId;
     }
 
     public int getLevelId() {
@@ -166,12 +169,12 @@ public class Span {
 
     public RequestSpan.Builder buildRequestSpan(RequestSpan.Builder builder) {
         return builder.setTraceId(this.traceId).setParentLevel(this.parentLevel).setLevelId(this.levelId)
-                .setStartDate(this.startDate).setRouteKey(routeKey).putAllTags(tags);
+                .setStartTimestamp(this.startTimestamp).setRouteKey(routeKey).putAllTags(tags);
     }
 
     public AckSpan.Builder buildAckSpan(AckSpan.Builder builder) {
         return builder.setTraceId(this.traceId).setParentLevel(this.parentLevel).setLevelId(this.levelId)
-                .setCost(System.currentTimeMillis() - this.startDate).setRouteKey(routeKey).putAllTags(tags);
+                .setCost(System.currentTimeMillis() - this.startTimestamp).setRouteKey(routeKey).putAllTags(tags);
     }
 
     public int getRouteKey() {
@@ -196,5 +199,13 @@ public class Span {
 
     public String getExceptionStack() {
         return exceptionStack;
+    }
+
+    public void tag(String key, String value) {
+        tags.put(key, value);
+    }
+
+    public void setStartTimestamp(long startTimestamp) {
+        this.startTimestamp = startTimestamp;
     }
 }

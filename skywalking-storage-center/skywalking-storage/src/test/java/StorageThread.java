@@ -40,7 +40,7 @@ public class StorageThread extends Thread {
                     .putTags(Tag.ADDRESS.toString(), NetUtils.getLocalAddress().toString())
                     .putTags(Tag.APPLICATION_CODE.toString(), "1")
                     .putTags(Tag.CALL_TYPE.toString(), "1").setLevelId(0)
-                    .putTags(Tag.PROCESS_NO.toString(), "19287").setStartDate(System.currentTimeMillis())
+                    .putTags(Tag.PROCESS_NO.toString(), "19287").setStartTimestamp(System.currentTimeMillis())
                     .setTraceId(TraceId.newBuilder().addSegments(201611).addSegments(value).addSegments(8504828).addSegments(2277).addSegments(53).addSegments(3).build())
                     .putTags(Tag.USER_NAME.toString(), "1").putTags(Tag.VIEW_POINT.toString(), "http://localhost:8080/wwww/test/helloWorld").setRouteKey(i).build();
 

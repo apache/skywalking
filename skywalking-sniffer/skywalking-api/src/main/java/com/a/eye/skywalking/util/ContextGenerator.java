@@ -5,6 +5,8 @@ import com.a.eye.skywalking.model.ContextData;
 import com.a.eye.skywalking.model.Identification;
 import com.a.eye.skywalking.model.Span;
 
+import java.util.Map;
+
 public final class ContextGenerator {
     /**
      * 利用本地ThreadLocal的信息创建Context，主要用于非跨JVM的操作
@@ -50,6 +52,12 @@ public final class ContextGenerator {
             span = new Span(parentSpan, id.getViewPoint());
         }
 
+        if (id.getStartTimestamp() != 0) {
+            span.setStartTimestamp(id.getStartTimestamp());
+        }
+        for (Map.Entry<String, String> entry : id.getTags().entrySet()) {
+            span.tag(entry.getKey(), entry.getValue());
+        }
         return span;
     }
 

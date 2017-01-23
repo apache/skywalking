@@ -51,7 +51,7 @@ public class SpanDataHelper {
         }
 
         builder = builder.setLevelId(requestSpanData.getLevelId()).setParentLevelId(requestSpanData.getParentLevelId()).setProcessNo(requestSpanData.getProcessNo())
-                .setSpanType(requestSpanData.getType()).setSpanTypeDesc(requestSpanData.getSpanTypeDesc()).setStartTime(requestSpanData.getStartTime())
+                .setSpanType(requestSpanData.getType()).setSpanTypeDesc(requestSpanData.getSpanTypeDesc()).setStartTimestamp(requestSpanData.getStartTime())
                 .setStatusCode(ackSpanData.getStatusCode())
                 .setViewpoint(requestSpanData.getViewPoint())
                 .setTraceId(TraceId.newBuilder().addAllSegments(Arrays.asList(requestSpanData.getTraceIdSegments())));

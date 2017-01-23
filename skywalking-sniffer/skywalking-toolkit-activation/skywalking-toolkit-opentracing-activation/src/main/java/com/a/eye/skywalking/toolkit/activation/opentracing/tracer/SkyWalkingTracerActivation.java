@@ -1,4 +1,4 @@
-package com.a.eye.skywalking.toolkit.activation.opentracing;
+package com.a.eye.skywalking.toolkit.activation.opentracing.tracer;
 
 import com.a.eye.skywalking.plugin.interceptor.ConstructorInterceptPoint;
 import com.a.eye.skywalking.plugin.interceptor.InstanceMethodsInterceptPoint;
@@ -36,7 +36,7 @@ public class SkyWalkingTracerActivation extends ClassInstanceMethodsEnhancePlugi
 
             @Override
             public String getMethodsInterceptor() {
-                return "com.a.eye.skywalking.toolkit.activation.opentracing.FormatCrossProcessContextInterceptor";
+                return "com.a.eye.skywalking.toolkit.activation.opentracing.tracer.interceptor.TracerFormatCrossProcessContextInterceptor";
             }
         }, new InstanceMethodsInterceptPoint() {
             @Override
@@ -46,7 +46,7 @@ public class SkyWalkingTracerActivation extends ClassInstanceMethodsEnhancePlugi
 
             @Override
             public String getMethodsInterceptor() {
-                return "com.a.eye.skywalking.toolkit.activation.opentracing.ExtractCrossProcessTextMapContextInterceptor";
+                return "com.a.eye.skywalking.toolkit.activation.opentracing.tracer.interceptor.TracerExtractCrossProcessTextMapContextInterceptor";
             }
         }, new InstanceMethodsInterceptPoint() {
             @Override
@@ -56,7 +56,7 @@ public class SkyWalkingTracerActivation extends ClassInstanceMethodsEnhancePlugi
 
             @Override
             public String getMethodsInterceptor() {
-                return "com.a.eye.skywalking.toolkit.activation.opentracing.ExtractCrossProcessByteBufferContextInterceptor";
+                return "com.a.eye.skywalking.toolkit.activation.opentracing.tracer.interceptor.TracerExtractCrossProcessByteBufferContextInterceptor";
             }
         }};
     }

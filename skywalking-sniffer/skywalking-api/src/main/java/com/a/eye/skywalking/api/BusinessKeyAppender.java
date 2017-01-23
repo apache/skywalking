@@ -12,8 +12,6 @@ public final class BusinessKeyAppender {
 
     /**
      * 在当前埋点上下文中设置业务级信息
-     *
-     * @param businessKey
      */
     public static void setBusinessKey2Trace(String businessKey) {
 
@@ -27,4 +25,6 @@ public final class BusinessKeyAppender {
         }
         spanData.setBusinessKey(businessKey.substring(0, Config.BuriedPoint.BUSINESSKEY_MAX_LENGTH));
     }
+
+
 }

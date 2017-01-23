@@ -24,7 +24,7 @@ public class JedisMethodInterceptor extends SimpleObjectFirstInvokeInterceptor {
                     .viewPoint(
                             context.get(REDIS_CONN_INFO_KEY, String.class)
                                     + " " + interceptorContext.methodName())
-                    .spanType(RedisBuriedPointType.instance());
+                    .spanType(RedisBuriedPointType.INSTANCE);
             if (interceptorContext.allArguments().length > 0
                     && interceptorContext.allArguments()[0] instanceof String) {
                 builder.businessKey("key="

@@ -17,7 +17,7 @@ message RequestSpan {
     TraceId traceId = 1;
     string parentLevel = 2;
     int32 levelId = 3;
-    int64 startDate = 4;
+    int64 startTimestamp = 4;
     int32 routeKey = 5;
     map<string, string> tags = 6;
 }
@@ -31,7 +31,7 @@ message Span {
     string parentLevelId=2;
     int32 levelId = 3; 
     string viewpoint = 4;
-    int64 startTime = 5;
+    int64 startTimestamp = 5;
     int64 cost = 6;
     int32 statusCode = 7;
     string exceptionStack = 8;
