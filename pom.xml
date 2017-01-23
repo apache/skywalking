@@ -131,6 +131,30 @@
                 <artifactId>versions-maven-plugin</artifactId>
                 <version>2.3</version>
             </plugin>
+            <plugin>
+                <groupId>org.eluder.coveralls</groupId>
+                <artifactId>coveralls-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <repoToken>GGTAeHsfVql3x1BmTFaJvxC27f5sfcZNg</repoToken>
+                </configuration>
+            </plugin>
+            <!-- 覆盖率 -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>cobertura-maven-plugin</artifactId>
+                <version>2.6</version>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                    <aggregate>true</aggregate>
+                    <formats>
+                        <format>xml</format>
+                        <format>html</format>
+                    </formats>
+                    <instrumentation>
+                    </instrumentation>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
