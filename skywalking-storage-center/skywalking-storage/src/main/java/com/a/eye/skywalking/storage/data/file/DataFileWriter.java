@@ -1,5 +1,7 @@
 package com.a.eye.skywalking.storage.data.file;
 
+import com.a.eye.skywalking.health.report.HealthCollector;
+import com.a.eye.skywalking.health.report.HeathReading;
 import com.a.eye.skywalking.storage.data.spandata.SpanData;
 import com.a.eye.skywalking.storage.data.index.IndexMetaCollection;
 
@@ -20,12 +22,21 @@ public class DataFileWriter {
         }
 
         IndexMetaCollection collections = new IndexMetaCollection();
+        int failedCount = 0;
         try {
             for (SpanData data : spanData) {
-                collections.add(dataFile.write(data));
+                try {
+                    collections.add(dataFile.write(data));
+                }catch (Throwable e){
+                    failedCount++;
+                }
             }
         }finally {
             dataFile.flush();
+        }
+
+        if (failedCount > 0) {
+            HealthCollector.getCurrentHeathReading("DataFileWriter").updateData(HeathReading.ERROR ,"Failed to write %s span to data file.", Integer.valueOf(failedCount));
         }
 
         return collections;

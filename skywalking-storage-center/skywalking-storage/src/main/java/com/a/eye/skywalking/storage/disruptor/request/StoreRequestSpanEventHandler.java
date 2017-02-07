@@ -35,25 +35,22 @@ public class StoreRequestSpanEventHandler implements EventHandler<RequestSpanDat
 
     @Override
     public void onEvent(RequestSpanData event, long sequence, boolean endOfBatch) throws Exception {
-        try {
-            buffer.add(event);
+        buffer.add(event);
 
-            if (endOfBatch || buffer.size() == bufferSize) {
-                try {
-                    IndexMetaCollection collection = fileWriter.write(buffer);
+        if (endOfBatch || buffer.size() == bufferSize) {
+            try {
+                IndexMetaCollection collection = fileWriter.write(buffer);
 
-                    operator.batchUpdate(collection);
+                operator.batchUpdate(collection);
 
-                    HealthCollector.getCurrentHeathReading("StoreRequestSpanEventHandler").updateData(HeathReading.INFO, "Batch consume %s messages successfully.", buffer.size());
-                } catch (Throwable e) {
-                    logger.error("Ack messages consume failure.", e);
-                    HealthCollector.getCurrentHeathReading("StoreRequestSpanEventHandler").updateData(HeathReading.ERROR, "Batch consume %s messages failure.", buffer.size());
-                } finally {
-                    buffer.clear();
-                }
+                HealthCollector.getCurrentHeathReading("StoreRequestSpanEventHandler").updateData(HeathReading.INFO, "Batch consume %s messages successfully.", buffer.size());
+            } catch (Throwable e) {
+                logger.error("Ack messages consume failure.", e);
+                HealthCollector.getCurrentHeathReading("StoreRequestSpanEventHandler").updateData(HeathReading.ERROR, "Batch consume %s messages failure.", buffer.size());
+            } finally {
+                buffer.clear();
             }
-        } finally {
-            event.setRequestSpan(null);
         }
+
     }
 }
