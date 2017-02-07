@@ -26,7 +26,7 @@ public class AckSpanDisruptor extends AbstractSpanDisruptor {
     public AckSpanDisruptor(String connectionURL) {
         ackSpanDisruptor = new Disruptor<AckSpanHolder>(new AckSpanFactory(), Config.Disruptor.BUFFER_SIZE, DaemonThreadFactory.INSTANCE);
         ackSpanEventHandler = new RouteAckSpanBufferEventHandler(connectionURL);
-        ackSpanDisruptor.handleEventsWith(ackSpanEventHandler, new SpanAlarmHandler());
+        ackSpanDisruptor.handleEventsWith(ackSpanEventHandler).then(new SpanAlarmHandler()).then(new AckSpanClearEventHandler());
         ackSpanDisruptor.start();
         ackSpanRingBuffer = ackSpanDisruptor.getRingBuffer();
     }

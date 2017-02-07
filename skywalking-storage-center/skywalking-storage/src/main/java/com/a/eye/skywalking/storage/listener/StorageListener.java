@@ -8,10 +8,10 @@ import com.a.eye.skywalking.network.grpc.AckSpan;
 import com.a.eye.skywalking.network.grpc.RequestSpan;
 import com.a.eye.skywalking.network.listener.server.SpanStorageServerListener;
 import com.a.eye.skywalking.storage.config.Config;
-import com.a.eye.skywalking.storage.data.spandata.AckSpanData;
-import com.a.eye.skywalking.storage.data.spandata.RequestSpanData;
+import com.a.eye.skywalking.storage.disruptor.ack.AckSpanDataHolder;
 import com.a.eye.skywalking.storage.disruptor.ack.AckSpanFactory;
 import com.a.eye.skywalking.storage.disruptor.ack.StoreAckSpanEventHandler;
+import com.a.eye.skywalking.storage.disruptor.request.RequestSpanDataHolder;
 import com.a.eye.skywalking.storage.disruptor.request.RequestSpanFactory;
 import com.a.eye.skywalking.storage.disruptor.request.StoreRequestSpanEventHandler;
 import com.lmax.disruptor.RingBuffer;
@@ -22,19 +22,19 @@ public class StorageListener implements SpanStorageServerListener {
 
     private ILog logger = LogManager.getLogger(StorageListener.class);
 
-    private Disruptor<RequestSpanData>  requestSpanDisruptor;
-    private RingBuffer<RequestSpanData> requestSpanRingBuffer;
+    private Disruptor<RequestSpanDataHolder>  requestSpanDisruptor;
+    private RingBuffer<RequestSpanDataHolder> requestSpanRingBuffer;
 
-    private Disruptor<AckSpanData>  ackSpanDisruptor;
-    private RingBuffer<AckSpanData> ackSpanRingBuffer;
+    private Disruptor<AckSpanDataHolder>  ackSpanDisruptor;
+    private RingBuffer<AckSpanDataHolder> ackSpanRingBuffer;
 
     public StorageListener() {
-        requestSpanDisruptor = new Disruptor<RequestSpanData>(new RequestSpanFactory(), Config.Disruptor.BUFFER_SIZE, DaemonThreadFactory.INSTANCE);
+        requestSpanDisruptor = new Disruptor<RequestSpanDataHolder>(new RequestSpanFactory(), Config.Disruptor.BUFFER_SIZE, DaemonThreadFactory.INSTANCE);
         requestSpanDisruptor.handleEventsWith(new StoreRequestSpanEventHandler());
         requestSpanDisruptor.start();
         requestSpanRingBuffer = requestSpanDisruptor.getRingBuffer();
 
-        ackSpanDisruptor = new Disruptor<AckSpanData>(new AckSpanFactory(), Config.Disruptor.BUFFER_SIZE, DaemonThreadFactory.INSTANCE);
+        ackSpanDisruptor = new Disruptor<AckSpanDataHolder>(new AckSpanFactory(), Config.Disruptor.BUFFER_SIZE, DaemonThreadFactory.INSTANCE);
         ackSpanDisruptor.handleEventsWith(new StoreAckSpanEventHandler());
         ackSpanDisruptor.start();
         ackSpanRingBuffer = ackSpanDisruptor.getRingBuffer();
@@ -44,8 +44,8 @@ public class StorageListener implements SpanStorageServerListener {
     public boolean storage(RequestSpan requestSpan) {
         long sequence = requestSpanRingBuffer.next();  // Grab the next sequence
         try {
-            RequestSpanData data = requestSpanRingBuffer.get(sequence);
-            data.setRequestSpan(requestSpan);
+            RequestSpanDataHolder data = requestSpanRingBuffer.get(sequence);
+            data.fillData(requestSpan);
 
             HealthCollector.getCurrentHeathReading("StorageListener").updateData(HeathReading.INFO, "RequestSpan stored.");
             return true;
@@ -62,8 +62,8 @@ public class StorageListener implements SpanStorageServerListener {
     public boolean storage(AckSpan ackSpan) {
         long sequence = ackSpanRingBuffer.next();  // Grab the next sequence
         try {
-            AckSpanData data = ackSpanRingBuffer.get(sequence);
-            data.setAckSpan(ackSpan);
+            AckSpanDataHolder data = ackSpanRingBuffer.get(sequence);
+            data.fillData(ackSpan);
 
             HealthCollector.getCurrentHeathReading("StorageListener").updateData(HeathReading.INFO, "AckSpan stored.");
             return true;

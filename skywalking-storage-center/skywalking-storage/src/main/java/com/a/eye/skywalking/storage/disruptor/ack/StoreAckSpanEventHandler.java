@@ -11,6 +11,7 @@ import com.a.eye.skywalking.storage.data.index.IndexOperator;
 import com.a.eye.skywalking.storage.data.index.IndexOperatorFactory;
 import com.a.eye.skywalking.storage.data.spandata.AckSpanData;
 import com.a.eye.skywalking.storage.data.spandata.SpanData;
+import com.a.eye.skywalking.storage.disruptor.request.RequestSpanDataHolder;
 import com.lmax.disruptor.EventHandler;
 
 import java.util.ArrayList;
@@ -19,7 +20,7 @@ import java.util.List;
 /**
  * Created by wusheng on 2016/11/24.
  */
-public class StoreAckSpanEventHandler implements EventHandler<AckSpanData> {
+public class StoreAckSpanEventHandler implements EventHandler<AckSpanDataHolder> {
     private static ILog logger = LogManager.getLogger(StoreAckSpanEventHandler.class);
     private DataFileWriter fileWriter;
     private IndexOperator operator;
@@ -34,21 +35,25 @@ public class StoreAckSpanEventHandler implements EventHandler<AckSpanData> {
     }
 
     @Override
-    public void onEvent(AckSpanData event, long sequence, boolean endOfBatch) throws Exception {
-        buffer.add(event);
+    public void onEvent(AckSpanDataHolder event, long sequence, boolean endOfBatch) throws Exception {
+        try {
+            buffer.add(event.getAckSpanData());
 
-        if (endOfBatch || buffer.size() == bufferSize) {
-            try {
-                IndexMetaCollection collection = fileWriter.write(buffer);
+            if (endOfBatch || buffer.size() == bufferSize) {
+                try {
+                    IndexMetaCollection collection = fileWriter.write(buffer);
 
-                operator.batchUpdate(collection);
-                HealthCollector.getCurrentHeathReading("StoreAckSpanEventHandler").updateData(HeathReading.INFO, "Batch consume %s messages successfully.", buffer.size());
-            } catch (Throwable e) {
-                logger.error("Ack messages consume failure.", e);
-                HealthCollector.getCurrentHeathReading("StoreAckSpanEventHandler").updateData(HeathReading.ERROR, "Batch consume %s messages failure.", buffer.size());
-            } finally {
-                buffer.clear();
+                    operator.batchUpdate(collection);
+                    HealthCollector.getCurrentHeathReading("StoreAckSpanEventHandler").updateData(HeathReading.INFO, "Batch consume %s messages successfully.", buffer.size());
+                } catch (Throwable e) {
+                    logger.error("Ack messages consume failure.", e);
+                    HealthCollector.getCurrentHeathReading("StoreAckSpanEventHandler").updateData(HeathReading.ERROR, "Batch consume %s messages failure.", buffer.size());
+                } finally {
+                    buffer.clear();
+                }
             }
+        } finally {
+            event.clearData();
         }
     }
 }

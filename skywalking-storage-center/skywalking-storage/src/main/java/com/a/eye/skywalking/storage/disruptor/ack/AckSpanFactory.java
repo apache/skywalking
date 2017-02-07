@@ -6,9 +6,9 @@ import com.lmax.disruptor.EventFactory;
 /**
  * Created by wusheng on 2016/11/24.
  */
-public class AckSpanFactory implements EventFactory<AckSpanData> {
+public class AckSpanFactory implements EventFactory<AckSpanDataHolder> {
     @Override
-    public AckSpanData newInstance() {
-        return new AckSpanData();
+    public AckSpanDataHolder newInstance() {
+        return new AckSpanDataHolder();
     }
 }

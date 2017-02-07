@@ -6,9 +6,9 @@ import com.lmax.disruptor.EventFactory;
 /**
  * Created by wusheng on 2016/11/24.
  */
-public class RequestSpanFactory implements EventFactory<RequestSpanData> {
+public class RequestSpanFactory implements EventFactory<RequestSpanDataHolder> {
     @Override
-    public RequestSpanData newInstance() {
-        return new RequestSpanData();
+    public RequestSpanDataHolder newInstance() {
+        return new RequestSpanDataHolder();
     }
 }
