@@ -29,38 +29,34 @@ public class RouteAckSpanBufferEventHandler extends AbstractRouteSpanEventHandle
 
     @Override
     public void onEvent(AckSpanHolder event, long sequence, boolean endOfBatch) throws Exception {
-        try {
-            buffer.add(event.getAckSpan());
+        buffer.add(event.getAckSpan());
 
-            if (stop) {
-                try {
-                    for (AckSpan ackSpan : buffer) {
-                        SpanDisruptor spanDisruptor = RoutingService.getRouter().lookup(ackSpan);
-                        spanDisruptor.saveSpan(ackSpan);
-                    }
-                } finally {
-                    buffer.clear();
+        if (stop) {
+            try {
+                for (AckSpan ackSpan : buffer) {
+                    SpanDisruptor spanDisruptor = RoutingService.getRouter().lookup(ackSpan);
+                    spanDisruptor.saveSpan(ackSpan);
                 }
-
-                return;
+            } finally {
+                buffer.clear();
             }
 
-            wait2Finish();
+            return;
+        }
 
-            if (endOfBatch || buffer.size() == bufferSize) {
-                try {
-                    SpanStorageClient spanStorageClient = getStorageClient();
-                    spanStorageClient.sendACKSpan(buffer);
-                    HealthCollector.getCurrentHeathReading("RouteAckSpanBufferEventHandler").updateData(HeathReading.INFO, "Batch consume %s messages successfully.", buffer.size());
-                } catch (Throwable e) {
-                    logger.error("Ack messages consume failure.", e);
-                    HealthCollector.getCurrentHeathReading("RouteAckSpanBufferEventHandler").updateData(HeathReading.ERROR, "Batch consume %s messages failure.", buffer.size());
-                } finally {
-                    buffer.clear();
-                }
+        wait2Finish();
+
+        if (endOfBatch || buffer.size() == bufferSize) {
+            try {
+                SpanStorageClient spanStorageClient = getStorageClient();
+                spanStorageClient.sendACKSpan(buffer);
+                HealthCollector.getCurrentHeathReading("RouteAckSpanBufferEventHandler").updateData(HeathReading.INFO, "Batch consume %s messages successfully.", buffer.size());
+            } catch (Throwable e) {
+                logger.error("Ack messages consume failure.", e);
+                HealthCollector.getCurrentHeathReading("RouteAckSpanBufferEventHandler").updateData(HeathReading.ERROR, "Batch consume %s messages failure.", buffer.size());
+            } finally {
+                buffer.clear();
             }
-        } finally {
-            event.setAckSpan(null);
         }
     }
 }

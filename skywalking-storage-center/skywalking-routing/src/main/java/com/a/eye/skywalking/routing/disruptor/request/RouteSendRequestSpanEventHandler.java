@@ -32,38 +32,34 @@ public class RouteSendRequestSpanEventHandler extends AbstractRouteSpanEventHand
 
     @Override
     public void onEvent(RequestSpanHolder event, long sequence, boolean endOfBatch) throws Exception {
-        try {
-            buffer.add(event.getRequestSpan());
+        buffer.add(event.getRequestSpan());
 
-            if (stop) {
-                try {
-                    for (RequestSpan requestSpan : buffer) {
-                        SpanDisruptor spanDisruptor = RoutingService.getRouter().lookup(requestSpan);
-                        spanDisruptor.saveSpan(requestSpan);
-                    }
-                } finally {
-                    buffer.clear();
+        if (stop) {
+            try {
+                for (RequestSpan requestSpan : buffer) {
+                    SpanDisruptor spanDisruptor = RoutingService.getRouter().lookup(requestSpan);
+                    spanDisruptor.saveSpan(requestSpan);
                 }
-
-                return;
+            } finally {
+                buffer.clear();
             }
 
-            wait2Finish();
+            return;
+        }
 
-            if (endOfBatch || buffer.size() == bufferSize) {
-                try {
-                    SpanStorageClient spanStorageClient = getStorageClient();
-                    spanStorageClient.sendRequestSpan(buffer);
-                    HealthCollector.getCurrentHeathReading("RouteSendRequestSpanEventHandler").updateData(HeathReading.INFO, "Batch consume %s messages successfully.", buffer.size());
-                } catch (Throwable e) {
-                    logger.error("RequestSpan messages consume failure.", e);
-                    HealthCollector.getCurrentHeathReading("RouteSendRequestSpanEventHandler").updateData(HeathReading.ERROR, "Batch consume %s messages failure.", buffer.size());
-                } finally {
-                    buffer.clear();
-                }
+        wait2Finish();
+
+        if (endOfBatch || buffer.size() == bufferSize) {
+            try {
+                SpanStorageClient spanStorageClient = getStorageClient();
+                spanStorageClient.sendRequestSpan(buffer);
+                HealthCollector.getCurrentHeathReading("RouteSendRequestSpanEventHandler").updateData(HeathReading.INFO, "Batch consume %s messages successfully.", buffer.size());
+            } catch (Throwable e) {
+                logger.error("RequestSpan messages consume failure.", e);
+                HealthCollector.getCurrentHeathReading("RouteSendRequestSpanEventHandler").updateData(HeathReading.ERROR, "Batch consume %s messages failure.", buffer.size());
+            } finally {
+                buffer.clear();
             }
-        } finally {
-            event.setRequestSpan(null);
         }
     }
 }
