@@ -22,7 +22,7 @@ public class AlarmRedisConnector {
     }
 
     public static Jedis getJedis() {
-        if (Config.Alarm.ALARM_OFF_FLAG) {
+        if (!Config.Alarm.ALARM_OFF_FLAG) {
             return null;
         } else {
             return jedisPool.getResource();

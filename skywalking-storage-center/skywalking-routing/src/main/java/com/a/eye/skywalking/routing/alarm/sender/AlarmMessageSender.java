@@ -17,7 +17,7 @@ public class AlarmMessageSender {
         Jedis jedis = null;
         try {
             jedis = AlarmRedisConnector.getJedis();
-            if (jedis != null)
+            if (jedis == null)
                 return;
             jedis.hsetnx(alarmKey, traceId, message);
             jedis.expire(alarmKey, Config.Alarm.ALARM_EXPIRE_SECONDS);

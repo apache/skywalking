@@ -80,7 +80,7 @@
                         <td>....</td>
                         <td>....</td>
                         <td>....</td>
-                        <td style="text-align:center;color:green;">The number of call chain node is great than the max query node size({{>maxQueryNodeSize}})， only call entry node is displayed.</td>
+                        <td style="text-align:center;color:green;">The number of span is great than the max query span size({{>maxQueryNodeSize}}), only call entry span is displayed.</td>
                         <td>....</td>
                         <td>....</td>
                     </tr>
@@ -90,8 +90,9 @@
                         <td>....</td>
                         <td>....</td>
                         <td>....</td>
-                        <td style="text-align:center;color:green;">The total  of  call chain node is {{>totalSize}}，but the number is great than then max number of showing node({{>maxShowNodeSize}})
-                        ， Only the first {{>showSize}} chain node are displayed.</td>
+                        <td style="text-align:center;color:green;">The total number of span is {{>totalSize}}，but the number is great than then max show number
+                        ({{>maxShowNodeSize}})
+                        ， Only the first {{>showSize}} spans are displayed.</td>
                         <td>....</td>
                         <td>....</td>
                     </tr>
@@ -145,16 +146,14 @@
 <script type="text/x-jsrender" id="traceTreeAllTmpl">
         <div class="row">
             <h5>
-                Transaction <strong>{{>traceId}}</strong> starts in <strong>{{>callIP}}</strong> at <strong>{{>startTimeStr}}</strong> and it cost <strong>{{>totalTime}}</strong> ms.
+                Trace <strong>{{>traceId}}</strong> starts in <strong>{{>callIP}}</strong> at <strong>{{>startTimeStr}}</strong> and it costs <strong>{{>totalTime}}</strong> ms.
                 <br/>
                 {{if totalSize > maxQueryNodeSize}}
-                  This chain node number of transaction great than the max query node size(<strong>{{>maxQueryNodeSize}}</strong>)，Only the entry node is displayed.
+                  The span number of trace is great than the max query node size(<strong>{{>maxQueryNodeSize}}</strong>)，Only the entry span is displayed.
                 {{else totalSize > maxShowNodeSize}}
-                  This transaction has <strong>{{>totalSize}}</strong> call chain node(s), but the number is great than then max number of showing node，Only the first <strong>{{>showSize}}</strong>
-                   are
-                  displayed.
+                  This trace has <strong>{{>totalSize}}</strong> spans, but the number is great than then max number of showing node，Only the first <strong>{{>showSize}}</strong> spans are displayed.
                 {{else}}
-                   This transaction has <strong>{{>totalSize}}</strong> call chain node(s).
+                   This trace has <strong>{{>totalSize}}</strong> span(s).
                 {{/if}}
                 </h5>
         </div>

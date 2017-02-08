@@ -26,9 +26,6 @@ public class MailSender {
 
             config.setProperty("mail.transport.protocol", Config.MailSenderInfo.TRANSPORT_PROTOCOL);
             config.setProperty("mail.smtp.auth", String.valueOf(Config.MailSenderInfo.SMTP_AUTH));
-            config.setProperty("mail.smtp.socketFactory.port", "587");
-            config.setProperty("mail.debug", "true");
-            //config.setProperty("mail.smtp.ssl.enable", "true");
             if (Config.MailSenderInfo.SSL_ENABLE) {
                 MailSSLSocketFactory sf = new MailSSLSocketFactory();
                 sf.setTrustAllHosts(true);

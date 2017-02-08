@@ -138,16 +138,16 @@ public class AlarmMessageProcessor {
         String title = (exceptionAlarmSize > 0 ? "[Error]" : "[Warning]")
                 + " Dear  "
                 + userName
-                + ", SkyWalking collects "
+                + ", Skywalking has collected  "
                 + (exceptionAlarmSize > 0 ? exceptionAlarmSize
-                + " tid of system exceptions, " : "");
+                + "  system exception message(s)   " : "");
         if (count > exceptionAlarmSize) {
-            title += (count - exceptionAlarmSize) + " tid of warnings, ";
+            title += exceptionAlarmSize > 0 ? "and " : ""  + (count - exceptionAlarmSize) + " system warning message(s) ";
         }
         title += "between "
                 + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(
                 startTime * 10000 * 6))
-                + " to "
+                + " and "
                 + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(
                 endTime * 10000 * 6));
 

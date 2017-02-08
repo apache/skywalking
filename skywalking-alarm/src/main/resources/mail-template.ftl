@@ -90,7 +90,7 @@
 
 <div id="mainDiv">
     <p class="greetings">Dear ${name!}:</p>
-    <p class="greetings">&nbsp&nbsp&nbsp&nbspOur platform collects alarm infomation between <b>${startDate!} </b>to<b> ${endDate!}</b> as follows:
+    <p class="greetings">&nbsp&nbsp&nbsp&nbspHere are the alarm message(s) between <b>${startDate!} </b> and <b> ${endDate!}</b> :
     </p>
     <table id="dataTable" width="80%">
         <tr id="dataTableHead">
