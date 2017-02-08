@@ -71,7 +71,7 @@ ___
 
 
 # Quick View
-* distributed tracer
+* distributed trace
 
 ![追踪连路图1](docs/resources/callChain.png)
 
