@@ -71,17 +71,17 @@ ___
 
 
 # Quick View
-* distributed tracer
+* distributed trace
 
-![追踪连路图1](docs/resources/callChain.png)
+![追踪连路图1](docs/resources/callChain.png?1=1)
 
-![追踪连路图2](docs/resources/callChainDetail.png)
+![追踪连路图2](docs/resources/callChainDetail.png?1=1)
 
-![追踪连路图3](docs/resources/callChainLog.png)
+![追踪连路图3](docs/resources/callChainLog.png?1=1)
 
 * alarm mail
 
-![告警邮件](docs/resources/alarmMail.png)
+![告警邮件](docs/resources/alarmMail.png?1=1)
 
 # Document
 * [WIKI](https://github.com/wu-sheng/sky-walking/wiki)
