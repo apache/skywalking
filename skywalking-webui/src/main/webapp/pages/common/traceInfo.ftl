@@ -3,12 +3,12 @@
         <table id="traceTreeTable">
             <thead>
             <tr>
-                <th style="width: 25%" >服务名</th>
-                <th style="width: 5%">类型</th>
-                <th style="width: 5%">状态</th>
-                <th style="width: 20%">服务/方法</th>
-                <th style="width: 15%">主机信息</th>
-                <th style="width: 30%">时间轴</th>
+                <th style="width: 25%" >Application Code</th>
+                <th style="width: 5%">Type</th>
+                <th style="width: 5%">Status</th>
+                <th style="width: 20%">Operation Name</th>
+                <th style="width: 15%">Host</th>
+                <th style="width: 30%">Time</th>
             </tr>
             </thead>
             <tbody>
@@ -26,19 +26,19 @@
                                 <div class="modal-content">
                                     <div class="modal-body">
                                        <ul class="list-group">
-                                            <li class="list-group-item" style="word-wrap:break-word"><strong>服务/方法：</strong>{{>viewPointId}}</li>
-                                            <li class="list-group-item"><strong>调用类型：</strong>{{>spanTypeName}}</li>
-                                            <li class="list-group-item"><strong>花费时间：</strong>{{>cost}}<strong>毫秒</strong></li>
-                                            <li class="list-group-item" style="word-wrap: break-word;word-break: normal;"><strong>业务字段：</strong>{{>businessKey}}</li>
-                                            <li class="list-group-item"><strong>应用Code：</strong>{{>applicationCode}}</li>
-                                            <li class="list-group-item" style="word-wrap: break-word;word-break: normal;"><strong>主机信息：</strong>{{>address}}}</li>
-                                            <li class="list-group-item"><strong>调用进程号：</strong>{{>processNo}}</li>
-                                            <li class="list-group-item" style="word-wrap: break-word;word-break: normal;"><strong>异常堆栈：</strong>
+                                            <li class="list-group-item" style="word-wrap:break-word"><strong>Operation Name：</strong>{{>viewPointId}}</li>
+                                            <li class="list-group-item"><strong>Span Type：</strong>{{>spanTypeName}}</li>
+                                            <li class="list-group-item"><strong>Cost：</strong>{{>cost}}<strong>ms</strong></li>
+                                            <li class="list-group-item" style="word-wrap: break-word;word-break: normal;"><strong>Business Key：</strong>{{>businessKey}}</li>
+                                            <li class="list-group-item"><strong>Application Code：</strong>{{>applicationCode}}</li>
+                                            <li class="list-group-item" style="word-wrap: break-word;word-break: normal;"><strong>Host：</strong>{{>address}}</li>
+                                            <li class="list-group-item"><strong>Process No.：</strong>{{>processNo}}</li>
+                                            <li class="list-group-item" style="word-wrap: break-word;word-break: normal;"><strong>Exception Stack：</strong>
                                                 {{if　exceptionStack}}
                                                     {{>exceptionStack}}
                                                 {{/if}}
                                                 {{if serverExceptionStr}}
-                                                    <br/>服务端异常堆栈:{{>serverExceptionStr}}
+                                                    <br/>Server:{{>serverExceptionStr}}
                                                 {{/if}}
                                             </li>
                                         </ul>
@@ -80,7 +80,7 @@
                         <td>....</td>
                         <td>....</td>
                         <td>....</td>
-                        <td style="text-align:center;color:green;">该调用链超过{{>maxQueryNodeSize}}个节点，仅展现调用入口，具体调用情况可查询HBase</td>
+                        <td style="text-align:center;color:green;">The number of call chain node is great than the max query node size({{>maxQueryNodeSize}})， only call entry node is displayed.</td>
                         <td>....</td>
                         <td>....</td>
                     </tr>
@@ -90,7 +90,8 @@
                         <td>....</td>
                         <td>....</td>
                         <td>....</td>
-                        <td style="text-align:center;color:green;">该调用链共{{>totalSize}}个调用节点，已超过最大展示节点数({{>maxShowNodeSize}}个)，仅展现前{{>showSize}}个节点的缩略图</td>
+                        <td style="text-align:center;color:green;">The total  of  call chain node is {{>totalSize}}，but the number is great than then max number of showing node({{>maxShowNodeSize}})
+                        ， Only the first {{>showSize}} chain node are displayed.</td>
                         <td>....</td>
                         <td>....</td>
                     </tr>
@@ -116,20 +117,20 @@
             <div id="collapse{{: #index}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
                 <div class="panel-body">
                     <ul class="list-group">
-                        <li class="list-group-item" style="word-wrap:break-word"><strong>服务/方法：</strong>{{>viewPointId}}</li>
-                        <li class="list-group-item"><strong>调用类型：</strong>{{>spanTypeName}}</li>
-                        <li class="list-group-item"><strong>调用时间：</strong>{{>startDate}}</li>
-                        <li class="list-group-item"><strong>花费时间：</strong>{{>cost}}<strong>毫秒</strong></li>
-                        <li class="list-group-item"><strong>业务字段：</strong>{{>businessKey}}</li>
-                        <li class="list-group-item"><strong>应用Code：</strong>{{>applicationCode}}</li>
-                        <li class="list-group-item"><strong>主机信息：</strong>{{>address}}</li>
-                        <li class="list-group-item"><strong>调用进程号：</strong>{{>processNo}}</li>
-                        <li class="list-group-item"><strong>异常堆栈：</strong>
+                        <li class="list-group-item" style="word-wrap:break-word"><strong>Operation Name：</strong>{{>viewPointId}}</li>
+                        <li class="list-group-item"><strong>Span Type ：</strong>{{>spanTypeName}}</li>
+                        <li class="list-group-item"><strong>Start Time ：</strong>{{>startDate}}</li>
+                        <li class="list-group-item"><strong>Cost ：</strong>{{>cost}}<strong>ms</strong></li>
+                        <li class="list-group-item"><strong>Business Key：</strong>{{>businessKey}}</li>
+                        <li class="list-group-item"><strong>Application Name：</strong>{{>applicationCode}}</li>
+                        <li class="list-group-item"><strong>Host ：</strong>{{>address}}</li>
+                        <li class="list-group-item"><strong>Process No. ：</strong>{{>processNo}}</li>
+                        <li class="list-group-item"><strong>Exception stack：</strong>
                             {{if　exceptionStack}}
                                 {{>exceptionStack}}
                             {{/if}}
                             {{if serverExceptionStr}}
-                                <br/>服务端异常堆栈:{{>serverExceptionStr}}
+                                <br/>Server:{{>serverExceptionStr}}
                             {{/if}}
                         </li>
                     </ul>
@@ -144,15 +145,15 @@
 <script type="text/x-jsrender" id="traceTreeAllTmpl">
         <div class="row">
             <h5>
-                {{>traceId}}</br>
-                调度入口IP：{{>callIP}}，开始时间：{{>startTimeStr}}，
+                Trace Id : {{>traceId}}</br>
+                Host of transaction occur: {{>callIP}}，Start time: {{>startTimeStr}}，
                 {{if totalSize > maxQueryNodeSize}}
-                    调用超过{{>maxQueryNodeSize}}个节点，仅展示入口调用，
+                    The call chain node number is great than the max query node size({{>maxQueryNodeSize}})，Only the entry node is displayed，
                 {{else totalSize > maxShowNodeSize}}
-                    共{{>totalSize}}个调用节点，仅展示前{{>showSize}}个调用节点，
+                    The call chain number is {{>totalSize}}, but the number is great than then max number of showing node，Only the first {{>showSize}} are displayed，
                 {{else}}
-                    {{>totalSize}}个调用节点，
-                {{/if}}消耗总时长：{{>totalTime}}ms。
+                    Number of call chain node : {{>totalSize}}，
+                {{/if}}Cost：{{>totalTime}}ms.
             </h5>
         </div>
         <ul id="myTab" class="nav nav-tabs">
