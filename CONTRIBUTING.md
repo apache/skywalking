@@ -1,4 +1,4 @@
-### Welcome all contributors
+# Welcome all contributors
 
 Please observe the following rules:
 * All Issues and Features will be managed in the [**Issues Page**](https://github.com/wu-sheng/sky-walking/issues).
