@@ -13,7 +13,7 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, also known D
 [![Release Version](https://img.shields.io/badge/stable-2.1--2017-brightgreen.svg)](https://github.com/wu-sheng/sky-walking/releases)
 
 # News
-* sky-walking v3.0 iteration begins... The top 2 important features is: [`Update the trace-structure`](https://github.com/wu-sheng/sky-walking/issues/83) and [`Analyze trace, and bring metric/analytic/cause up`](https://github.com/wu-sheng/sky-walking/issues/84)
+* sky-walking v3.0 iteration begins... The top 2 important features are: [`Update the trace-structure`](https://github.com/wu-sheng/sky-walking/issues/83) and [`Analyze trace, and bring metric/analytic/cause up`](https://github.com/wu-sheng/sky-walking/issues/84)
 * See feature codes at [branch feature/3.0](https://github.com/wu-sheng/sky-walking/tree/feature/3.0)
 
 # Abstract
