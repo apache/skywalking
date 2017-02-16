@@ -12,6 +12,10 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, also known D
 [![OpenTracing-1.0 Badge](https://img.shields.io/badge/OpenTracing--1.0-enabled-blue.svg)](http://opentracing.io)
 [![Release Version](https://img.shields.io/badge/stable-2.1--2017-brightgreen.svg)](https://github.com/wu-sheng/sky-walking/releases)
 
+# News
+* sky-walking v3.0 iteration begins... The top 2 important features is: [`Update the trace-structure`](https://github.com/wu-sheng/sky-walking/issues/83) and [`Analyze trace, and bring metric/analytic/cause up`](https://github.com/wu-sheng/sky-walking/issues/84)
+* See feature codes at [branch feature/3.0](https://github.com/wu-sheng/sky-walking/tree/feature/3.0)
+
 # Abstract
 * An open source Large-Scale Distributed Systems Tracing Infrastructure, also known a ditributed tracer.
 * Based on [Google Dapper Paper: Dapper, a Large-Scale Distributed Systems Tracing Infrastructure](http://research.google.com/pubs/pub36356.html), read [Simplified Chinese Version](http://duanple.blog.163.com/blog/static/70971767201329113141336/)
