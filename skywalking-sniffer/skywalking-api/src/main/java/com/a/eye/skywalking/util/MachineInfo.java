@@ -4,7 +4,7 @@ import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-public final class BuriedPointMachineUtil {
+public final class MachineInfo {
     private static int processNo = -1;
     private static String IP;
     private static String hostName;
@@ -63,7 +63,7 @@ public final class BuriedPointMachineUtil {
         return getHostName() + "/" + getHostIp();
     }
 
-    private BuriedPointMachineUtil() {
+    private MachineInfo() {
         // Non
     }
 

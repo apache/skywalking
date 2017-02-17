@@ -86,7 +86,7 @@ public class TraceSegment {
      *
      * @param finishedSpan
      */
-    void archive(Span finishedSpan){
+    public void archive(Span finishedSpan){
         spans.add(finishedSpan);
     }
 

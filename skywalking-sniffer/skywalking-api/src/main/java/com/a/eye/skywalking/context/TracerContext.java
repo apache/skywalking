@@ -3,7 +3,10 @@ package com.a.eye.skywalking.context;
 import com.a.eye.skywalking.trace.Span;
 import com.a.eye.skywalking.trace.TraceSegment;
 import com.a.eye.skywalking.util.TraceIdGenerator;
+import java.lang.reflect.Executable;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -76,7 +79,12 @@ public final class TracerContext {
 
         if (activeSpanStack.isEmpty()) {
             segment.finish();
+            this.finish();
         }
+    }
+
+    private void finish() {
+        ListenerManager.notifyFinish(segment);
     }
 
     /**
@@ -133,5 +141,31 @@ public final class TracerContext {
      */
     private int getTopElementIdx() {
         return activeSpanStack.size() - 1;
+    }
+
+    public static class ListenerManager {
+        private static List<TracerContextListener> listeners = new LinkedList<>();
+
+        /**
+         * Add the given {@link TracerContextListener} to {@link #listeners} list.
+         *
+         * @param listener the new listener.
+         */
+        public static synchronized void add(TracerContextListener listener) {
+            listeners.add(listener);
+        }
+
+        /**
+         * Notify the {@link ListenerManager} about the given {@link TraceSegment} have finished.
+         * And trigger {@link ListenerManager} to notify all {@link #listeners} 's
+         * {@link TracerContextListener#afterFinished(TraceSegment)}
+         *
+         * @param finishedSegment
+         */
+        static void notifyFinish(TraceSegment finishedSegment) {
+            for (TracerContextListener listener : listeners) {
+                listener.afterFinished(finishedSegment);
+            }
+        }
     }
 }

@@ -37,6 +37,6 @@ public final class TraceIdGenerator {
 
         return StringUtil.join('.',
             Constants.SDK_VERSION + "", System.currentTimeMillis() + "", PROCESS_UUID + "",
-            BuriedPointMachineUtil.getProcessNo() + "", Thread.currentThread().getId() + "", seq + "");
+            MachineInfo.getProcessNo() + "", Thread.currentThread().getId() + "", seq + "");
     }
 }

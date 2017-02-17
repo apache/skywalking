@@ -1,5 +1,6 @@
 package com.a.eye.skywalking.context;
 
+import com.a.eye.skywalking.queue.TraceSegmentProcessQueue;
 import com.a.eye.skywalking.trace.TraceSegment;
 
 /**
@@ -12,8 +13,17 @@ import com.a.eye.skywalking.trace.TraceSegment;
  *
  * Created by wusheng on 2017/2/17.
  */
-public enum ContextManager {
-    INSTANCE;
+public enum ContextManager implements TracerContextListener {
+    INSTANCE {
+        @Override public void afterFinished(TraceSegment traceSegment) {
+            CONTEXT.remove();
+        }
+    };
+
+    ContextManager() {
+        TracerContext.ListenerManager.add(this);
+        TraceSegmentProcessQueue.INSTANCE.start();
+    }
 
     private static ThreadLocal<TracerContext> CONTEXT = new ThreadLocal<>();
 
