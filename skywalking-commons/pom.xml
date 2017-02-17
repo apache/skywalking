@@ -3,7 +3,7 @@
     <parent>
         <artifactId>skywalking</artifactId>
         <groupId>com.a.eye</groupId>
-        <version>2.2-2017</version>
+        <version>3.0-2017</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -11,8 +11,8 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>skywalking-trace</module>
         <module>skywalking-logging</module>
-        <module>skywalking-registry</module>
         <module>skywalking-health-report</module>
         <module>skywalking-util</module>
     </modules>

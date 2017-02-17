@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.a.eye</groupId>
         <artifactId>skywalking-sniffer</artifactId>
-        <version>2.2-2017</version>
+        <version>3.0-2017</version>
     </parent>
 
 
@@ -28,8 +28,8 @@
         </dependency>
         <dependency>
             <groupId>com.a.eye</groupId>
-            <artifactId>skywalking-network</artifactId>
-            <version>2.2-2017</version>
+            <artifactId>skywalking-trace</artifactId>
+            <version>3.0-2017</version>
         </dependency>
         <dependency>
             <groupId>com.lmax</groupId>

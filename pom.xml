@@ -6,7 +6,7 @@
 
     <groupId>com.a.eye</groupId>
     <artifactId>skywalking</artifactId>
-    <version>2.2-2017</version>
+    <version>3.0-2017</version>
 
     <licenses>
         <license>
@@ -29,10 +29,7 @@
 
     <modules>
         <module>skywalking-commons</module>
-        <module>skywalking-alarm</module>
-        <module>skywalking-webui</module>
         <module>skywalking-sniffer</module>
-        <module>skywalking-storage-center</module>
         <module>skywalking-application-toolkit</module>
     </modules>
     <packaging>pom</packaging>
