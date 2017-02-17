@@ -53,14 +53,14 @@ public class Span {
      *
      * {@see https://github.com/opentracing/specification/blob/master/specification.md#set-a-span-tag}
      */
-    private final Map<String,Object> tags = new HashMap<String,Object>();
+    private final Map<String,Object> tags;
 
     /**
      * Log is a concept from OpenTracing spec.
      *
      * {@see https://github.com/opentracing/specification/blob/master/specification.md#log-structured-data}
      */
-    private final List<LogData> logs = new ArrayList<LogData>();
+    private final List<LogData> logs;
 
     /**
      * Create a new span, by given span id and parent span id.
@@ -75,6 +75,9 @@ public class Span {
         this.spanId = spanId;
         this.parentSpanId = parentSpanId;
         this.startTime = System.currentTimeMillis();
+        this.operationName = operationName;
+        this.tags = new HashMap<String,Object>();
+        this.logs = new ArrayList<LogData>();
     }
 
     /**
