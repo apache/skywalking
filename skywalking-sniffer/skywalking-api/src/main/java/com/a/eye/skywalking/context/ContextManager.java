@@ -1,4 +1,6 @@
-package com.a.eye.skywalking.trace;
+package com.a.eye.skywalking.context;
+
+import com.a.eye.skywalking.trace.TraceSegment;
 
 /**
  * {@link TracerContext} controls the whole context of {@link TraceSegment}. Any {@link TraceSegment} relates to

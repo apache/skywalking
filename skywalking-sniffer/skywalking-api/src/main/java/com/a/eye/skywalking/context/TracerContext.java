@@ -1,5 +1,7 @@
-package com.a.eye.skywalking.trace;
+package com.a.eye.skywalking.context;
 
+import com.a.eye.skywalking.trace.Span;
+import com.a.eye.skywalking.trace.TraceSegment;
 import com.a.eye.skywalking.util.TraceIdGenerator;
 import java.util.ArrayList;
 import java.util.List;
