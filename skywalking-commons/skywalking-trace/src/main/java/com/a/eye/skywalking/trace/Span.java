@@ -150,7 +150,7 @@ public class Span {
      * @return the Span, for chaining
      * @see Span#log(String)
      */
-    Span log(Map<String, ?> fields){
+    public Span log(Map<String, ?> fields){
         logs.add(new LogData(System.currentTimeMillis(), fields));
         return this;
     }
@@ -170,7 +170,7 @@ public class Span {
      * @param event the event value; often a stable identifier for a moment in the Span lifecycle
      * @return the Span, for chaining
      */
-    Span log(String event){
+    public Span log(String event){
         log(Collections.singletonMap("event", event));
         return this;
     }
