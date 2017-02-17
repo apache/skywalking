@@ -71,7 +71,7 @@ public class Span {
      *                  Value -1 means no parent span if this {@link TraceSegment}.
      * @param operationName {@link #operationName}
      */
-    public Span(int spanId, int parentSpanId, String operationName){
+    private Span(int spanId, int parentSpanId, String operationName){
         this.spanId = spanId;
         this.parentSpanId = parentSpanId;
         this.startTime = System.currentTimeMillis();
@@ -89,6 +89,17 @@ public class Span {
      */
     public Span(int spanId, String operationName){
         this(spanId, -1, operationName);
+    }
+
+    /**
+     * Create a new span, by given span id and given parent {@link Span}.
+     *
+     * @param spanId given by the creator, and must be unique id in the {@link TraceSegment}
+     * @param parentSpan {@link Span}
+     * @param operationName {@link #operationName}
+     */
+    public Span(int spanId, Span parentSpan, String operationName){
+        this(spanId, parentSpan.spanId, operationName);
     }
 
     /**
@@ -176,5 +187,9 @@ public class Span {
     public Span log(String event){
         log(Collections.singletonMap("event", event));
         return this;
+    }
+
+    public int getSpanId() {
+        return spanId;
     }
 }

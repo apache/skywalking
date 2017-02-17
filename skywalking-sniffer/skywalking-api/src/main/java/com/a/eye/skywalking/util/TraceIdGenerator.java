@@ -1,12 +1,10 @@
 package com.a.eye.skywalking.util;
 
+import com.a.eye.skywalking.conf.Constants;
 import java.util.UUID;
 
-import com.a.eye.skywalking.conf.Constants;
-import com.a.eye.skywalking.network.grpc.TraceId;
-
 public final class TraceIdGenerator {
-    private static final ThreadLocal<Integer> ThreadTraceIdSequence = new ThreadLocal<Integer>(){
+    private static final ThreadLocal<Integer> ThreadTraceIdSequence = new ThreadLocal<Integer>() {
         @Override
         protected Integer initialValue() {
             return 0;
@@ -32,14 +30,13 @@ public final class TraceIdGenerator {
      *
      * @return
      */
-    public static TraceId generate() {
+    public static String generate() {
         Integer seq = ThreadTraceIdSequence.get();
         seq++;
         ThreadTraceIdSequence.set(seq);
 
-        return TraceId.newBuilder().addSegments(Constants.SDK_VERSION)
-                .addSegments(System.currentTimeMillis()).addSegments(PROCESS_UUID)
-                .addSegments(BuriedPointMachineUtil.getProcessNo())
-                .addSegments(Thread.currentThread().getId()).addSegments(seq).build();
+        return StringUtil.join('.',
+            Constants.SDK_VERSION + "", System.currentTimeMillis() + "", PROCESS_UUID + "",
+            BuriedPointMachineUtil.getProcessNo() + "", Thread.currentThread().getId() + "", seq + "");
     }
 }

@@ -96,4 +96,8 @@ public class TraceSegment {
     public void finish(){
        this.endTime = System.currentTimeMillis();
     }
+
+    public String getTraceSegmentId() {
+        return traceSegmentId;
+    }
 }
