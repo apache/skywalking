@@ -37,6 +37,9 @@ public class TraceSegmentTestCase {
         Assert.assertEquals(ref1, segment.getPrimaryRef());
         Assert.assertEquals(ref2, segment.getRefs().get(0));
         Assert.assertEquals(ref3, segment.getRefs().get(1));
+
+        Assert.assertEquals("parent_trace_0", segment.getPrimaryRef().getTraceSegmentId());
+        Assert.assertEquals(1, segment.getPrimaryRef().getSpanId());
     }
 
     @Test

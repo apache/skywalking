@@ -15,4 +15,12 @@ public class LogData {
         this.time = time;
         this.fields = fields;
     }
+
+    public long getTime() {
+        return time;
+    }
+
+    public Map<String, ?> getFields() {
+        return fields;
+    }
 }

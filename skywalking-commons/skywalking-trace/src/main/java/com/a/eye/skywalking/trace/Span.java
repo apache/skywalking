@@ -202,4 +202,24 @@ public class Span {
     public int getSpanId() {
         return spanId;
     }
+
+    public int getParentSpanId() {
+        return parentSpanId;
+    }
+
+    public long getStartTime() {
+        return startTime;
+    }
+
+    public long getEndTime() {
+        return endTime;
+    }
+
+    public String getOperationName() {
+        return operationName;
+    }
+
+    public List<LogData> getLogs() {
+        return Collections.unmodifiableList(logs);
+    }
 }
