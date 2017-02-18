@@ -141,6 +141,16 @@ public class Span {
     }
 
     /**
+     * Get tag value of the given key.
+     *
+     * @param key the given tag key.
+     * @return tag value.
+     */
+    public Object getTag(String key){
+        return tags.get(key);
+    }
+
+    /**
      * This method is from opentracing-java.
      * {@see https://github.com/opentracing/opentracing-java/blob/release-0.20.9/opentracing-api/src/main/java/io/opentracing/Span.java#L91}
      *

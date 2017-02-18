@@ -17,4 +17,8 @@ public class StringTag extends AbstractTag<String> {
     protected void set(Span span, String tagValue) {
         span.setTag(key, tagValue);
     }
+
+    @Override public String get(Span span) {
+        return (String)span.getTag(super.key);
+    }
 }

@@ -16,4 +16,8 @@ public class BooleanTag extends AbstractTag<Boolean>{
     public void set(Span span, Boolean tagValue) {
         span.setTag(key, tagValue);
     }
+
+    @Override public Boolean get(Span span) {
+        return (Boolean)span.getTag(super.key);
+    }
 }

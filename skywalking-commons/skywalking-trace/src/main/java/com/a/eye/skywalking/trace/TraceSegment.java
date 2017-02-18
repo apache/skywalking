@@ -1,5 +1,6 @@
 package com.a.eye.skywalking.trace;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -99,5 +100,25 @@ public class TraceSegment {
 
     public String getTraceSegmentId() {
         return traceSegmentId;
+    }
+
+    public long getStartTime() {
+        return startTime;
+    }
+
+    public long getEndTime() {
+        return endTime;
+    }
+
+    public TraceSegmentRef getPrimaryRef() {
+        return primaryRef;
+    }
+
+    public List<TraceSegmentRef> getRefs() {
+        return Collections.unmodifiableList(refs);
+    }
+
+    public List<Span> getSpans() {
+        return Collections.unmodifiableList(spans);
     }
 }

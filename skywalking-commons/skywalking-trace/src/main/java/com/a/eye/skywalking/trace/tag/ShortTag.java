@@ -16,4 +16,8 @@ public class ShortTag extends AbstractTag<Short> {
     public void set(Span span, Short tagValue) {
         span.setTag(super.key, tagValue);
     }
+
+    @Override public Short get(Span span) {
+        return (Short)span.getTag(super.key);
+    }
 }

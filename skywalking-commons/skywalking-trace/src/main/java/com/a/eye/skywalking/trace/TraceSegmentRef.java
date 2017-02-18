@@ -1,7 +1,8 @@
 package com.a.eye.skywalking.trace;
 
 /**
- * {@link TraceSegmentRef} is like a pointer, which ref to another {@link TraceSegment}.
+ * {@link TraceSegmentRef} is like a pointer, which ref to another {@link TraceSegment},
+ * use {@link #spanId} point to the exact span of the ref {@link TraceSegment}.
  *
  * Created by wusheng on 2017/2/17.
  */

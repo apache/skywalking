@@ -11,6 +11,10 @@ import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.util.DaemonThreadFactory;
 
 /**
+ * {@link TraceSegmentProcessQueue} is a proxy of {@link Disruptor}, High Performance Inter-Thread MQ.
+ *
+ * {@see https://github.com/LMAX-Exchange/disruptor}
+ *
  * Created by wusheng on 2017/2/17.
  */
 public enum TraceSegmentProcessQueue implements TracerContextListener {

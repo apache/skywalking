@@ -19,19 +19,6 @@ public class Config {
         public static int BUFFER_SIZE = 1024 * 4;
     }
 
-    public static class BuriedPoint {
-        // 是否打印埋点信息
-        public static boolean PRINTF = false;
-
-        public static int MAX_EXCEPTION_STACK_LENGTH = 4000;
-
-        // Business Key 最大长度
-        public static int BUSINESSKEY_MAX_LENGTH = 300;
-
-        // 使用逗号分离
-        public static String EXCLUSIVE_EXCEPTIONS = "";
-    }
-
 
     public static class Logging {
         // log文件名

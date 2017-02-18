@@ -8,7 +8,7 @@ import com.a.eye.skywalking.trace.Span;
  * which provide an easy way to
  *      {@link Span#setTag(String, String)} ,
  *      {@link Span#setTag(String, Number)} ,
- *      {@link Span#setTag(String, boolean)}
+ *      {@link Span#setTag(String, boolean)} ,
  *
  * Created by wusheng on 2017/2/17.
  */
@@ -27,4 +27,6 @@ public abstract class AbstractTag<T> {
     }
 
     protected abstract void set(Span span, T tagValue);
+
+    public abstract T get(Span span);
 }

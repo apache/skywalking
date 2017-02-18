@@ -1,6 +1,7 @@
 package com.a.eye.skywalking.context;
 
 import com.a.eye.skywalking.queue.TraceSegmentProcessQueue;
+import com.a.eye.skywalking.trace.Span;
 import com.a.eye.skywalking.trace.TraceSegment;
 
 /**
@@ -10,6 +11,8 @@ import com.a.eye.skywalking.trace.TraceSegment;
  *
  * What is 'ChildOf'? {@see https://github.com/opentracing/specification/blob/master/specification.md#references-between-spans}
  *
+ * Also, {@link ContextManager} delegates to all {@link TracerContext}'s major methods: {@link
+ * TracerContext#createSpan(String)}, {@link TracerContext#activeSpan()}, {@link TracerContext#stopSpan(Span)}
  *
  * Created by wusheng on 2017/2/17.
  */
@@ -34,5 +37,21 @@ public enum ContextManager implements TracerContextListener {
             CONTEXT.set(segment);
         }
         return segment;
+    }
+
+    public Span createSpan(String operationName) {
+        return get().createSpan(operationName);
+    }
+
+    public Span activeSpan() {
+        return get().activeSpan();
+    }
+
+    public void stopSpan(Span span) {
+        get().stopSpan(span);
+    }
+
+    public void stopSpan() {
+        stopSpan(activeSpan());
     }
 }
