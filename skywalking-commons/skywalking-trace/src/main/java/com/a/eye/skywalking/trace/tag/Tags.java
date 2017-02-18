@@ -24,13 +24,25 @@ public final class Tags {
 
     /**
      *  SPAN_KIND represents the kind of span.
-     *  e.g. db=database,
+     *  e.g. db=database, rpc=Remote Procedure Call, nosql=something like redis/memcache
      */
     public static final class SPAN_KIND{
         private static StringTag SPAN_KIND_TAG = new StringTag("span.kind");
 
         public static void asDBAccess(Span span){
             SPAN_KIND_TAG.set(span, "db");
+        }
+
+        public static void asRPC(Span span){
+            SPAN_KIND_TAG.set(span, "rpc");
+        }
+
+        public static void asNoSQL(Span span){
+            SPAN_KIND_TAG.set(span, "nosql");
+        }
+
+        public static void asHttp(Span span){
+            SPAN_KIND_TAG.set(span, "http");
         }
     }
 
@@ -56,7 +68,7 @@ public final class Tags {
     public static final StringTag DB_URL = new StringTag("db.url");
 
     /**
-     *  DB_SQL records the sql of the database access.
+     *  DB_SQL records the sql statement of the database access.
      */
-    public static final StringTag DB_SQL = new StringTag("db.sql");
+    public static final StringTag DB_SQL = new StringTag("db.statement");
 }
