@@ -33,7 +33,7 @@ public enum TraceSegmentProcessQueue implements TracerContextListener {
     };
 
     private Disruptor<TraceSegmentHolder> disruptor;
-    private RingBuffer<TraceSegmentHolder> buffer;
+    RingBuffer<TraceSegmentHolder> buffer;
 
     TraceSegmentProcessQueue() {
         disruptor = new Disruptor<>(TraceSegmentHolder.Factory.INSTANCE, Config.Disruptor.BUFFER_SIZE, DaemonThreadFactory.INSTANCE);
