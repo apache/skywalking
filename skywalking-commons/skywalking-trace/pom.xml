@@ -11,5 +11,11 @@
 
     <artifactId>skywalking-trace</artifactId>
 
-
+    <dependencies>
+        <dependency>
+            <groupId>com.a.eye</groupId>
+            <artifactId>skywalking-logging-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>

@@ -30,7 +30,7 @@ public enum ContextManager implements TracerContextListener {
 
     private static ThreadLocal<TracerContext> CONTEXT = new ThreadLocal<>();
 
-    public TracerContext get() {
+    private TracerContext get() {
         TracerContext segment = CONTEXT.get();
         if (segment == null) {
             segment = new TracerContext();

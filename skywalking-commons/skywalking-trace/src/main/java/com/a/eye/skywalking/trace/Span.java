@@ -1,5 +1,7 @@
 package com.a.eye.skywalking.trace;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -10,19 +12,19 @@ import java.util.Map;
  * Span is a concept from OpenTracing Spec, also from Google Dapper Paper.
  * Traces in OpenTracing are defined implicitly by their Spans.
  *
- *               [Span A]  ←←←(the root span)
- *                  |
- *           +------+------+
- *           |             |
- *           [Span B]      [Span C] ←←←(Span C is a `ChildOf` Span A)
- *           |             |
- *           [Span D]      +---+-------+
- *                         |           |
- *                      [Span E]    [Span F] >>> [Span G] >>> [Span H]
- *                                     ↑
- *                                     ↑
- *                                     ↑
- *                                  (Span G `FollowsFrom` Span F)
+ * [Span A]  ←←←(the root span)
+ * |
+ * +------+------+
+ * |             |
+ * [Span B]      [Span C] ←←←(Span C is a `ChildOf` Span A)
+ * |             |
+ * [Span D]      +---+-------+
+ * |           |
+ * [Span E]    [Span F] >>> [Span G] >>> [Span H]
+ * ↑
+ * ↑
+ * ↑
+ * (Span G `FollowsFrom` Span F)
  *
  * Created by wusheng on 2017/2/17.
  */
@@ -53,7 +55,7 @@ public class Span {
      *
      * {@see https://github.com/opentracing/specification/blob/master/specification.md#set-a-span-tag}
      */
-    private final Map<String,Object> tags;
+    private final Map<String, Object> tags;
 
     /**
      * Log is a concept from OpenTracing spec.
@@ -67,16 +69,16 @@ public class Span {
      * This span must belong a {@link TraceSegment}, also is a part of Distributed Trace.
      *
      * @param spanId given by the creator, and must be unique id in the {@link TraceSegment}
-     * @param parentSpanId given by the creator, and must be an existed span id in the {@link TraceSegment}.
-     *                  Value -1 means no parent span if this {@link TraceSegment}.
+     * @param parentSpanId given by the creator, and must be an existed span id in the {@link TraceSegment}. Value -1
+     * means no parent span if this {@link TraceSegment}.
      * @param operationName {@link #operationName}
      */
-    private Span(int spanId, int parentSpanId, String operationName){
+    private Span(int spanId, int parentSpanId, String operationName) {
         this.spanId = spanId;
         this.parentSpanId = parentSpanId;
         this.startTime = System.currentTimeMillis();
         this.operationName = operationName;
-        this.tags = new HashMap<String,Object>();
+        this.tags = new HashMap<String, Object>();
         this.logs = new ArrayList<LogData>();
     }
 
@@ -87,7 +89,7 @@ public class Span {
      * @param spanId given by the creator, and must be unique id in the {@link TraceSegment}
      * @param operationName {@link #operationName}
      */
-    public Span(int spanId, String operationName){
+    public Span(int spanId, String operationName) {
         this(spanId, -1, operationName);
     }
 
@@ -98,7 +100,7 @@ public class Span {
      * @param parentSpan {@link Span}
      * @param operationName {@link #operationName}
      */
-    public Span(int spanId, Span parentSpan, String operationName){
+    public Span(int spanId, Span parentSpan, String operationName) {
         this(spanId, parentSpan.spanId, operationName);
     }
 
@@ -108,7 +110,7 @@ public class Span {
      *
      * @param owner of the Span.
      */
-    public void finish(TraceSegment owner){
+    public void finish(TraceSegment owner) {
         this.endTime = System.currentTimeMillis();
         owner.archive(this);
     }
@@ -136,7 +138,7 @@ public class Span {
      *
      * @return
      */
-    public final Map<String,Object> getTags() {
+    public final Map<String, Object> getTags() {
         return Collections.unmodifiableMap(tags);
     }
 
@@ -146,13 +148,12 @@ public class Span {
      * @param key the given tag key.
      * @return tag value.
      */
-    public Object getTag(String key){
+    public Object getTag(String key) {
         return tags.get(key);
     }
 
     /**
-     * This method is from opentracing-java.
-     * {@see https://github.com/opentracing/opentracing-java/blob/release-0.20.9/opentracing-api/src/main/java/io/opentracing/Span.java#L91}
+     * This method is from opentracing-java. {@see https://github.com/opentracing/opentracing-java/blob/release-0.20.9/opentracing-api/src/main/java/io/opentracing/Span.java#L91}
      *
      * Log key:value pairs to the Span with the current walltime timestamp.
      *
@@ -161,40 +162,82 @@ public class Span {
      *
      * <p>A contrived example (using Guava, which is not required):
      * <pre>{@code
-        span.log(
-            ImmutableMap.Builder<String, Object>()
-            .put("event", "soft error")
-            .put("type", "cache timeout")
-            .put("waited.millis", 1500)
-            .build());
-        }</pre>
+     * span.log(
+     * ImmutableMap.Builder<String, Object>()
+     * .put("event", "soft error")
+     * .put("type", "cache timeout")
+     * .put("waited.millis", 1500)
+     * .build());
+     * }</pre>
      *
      * @param fields key:value log fields. Tracer implementations should support String, numeric, and boolean values;
-     *               some may also support arbitrary Objects.
+     * some may also support arbitrary Objects.
      * @return the Span, for chaining
      * @see Span#log(String)
      */
-    public Span log(Map<String, ?> fields){
+    public Span log(Map<String, ?> fields) {
         logs.add(new LogData(System.currentTimeMillis(), fields));
         return this;
     }
 
     /**
-     * This method is from opentracing-java.
-     * {@see https://github.com/opentracing/opentracing-java/blob/release-0.20.9/opentracing-api/src/main/java/io/opentracing/Span.java#L120}
+     * Record an exception event of the current walltime timestamp.
+     *
+     * @param t any subclass of {@link Throwable}, which occurs in this span.
+     * @return the Span, for chaining
+     */
+    public Span log(Throwable t) {
+        Map<String, String> exceptionFields = new HashMap<String, String>();
+        exceptionFields.put("error.kind", t.getClass().getName());
+        exceptionFields.put("message", t.getMessage());
+        exceptionFields.put("stack", ThrowableTransformer.INSTANCE.convert2String(t, 4000));
+
+        logs.add(new LogData(System.currentTimeMillis(), exceptionFields));
+
+        return this;
+    }
+
+    private enum ThrowableTransformer {
+        INSTANCE;
+
+        private String convert2String(Throwable e, int maxLength) {
+            ByteArrayOutputStream buf = null;
+            StringBuilder expMessage = new StringBuilder();
+            try {
+                buf = new ByteArrayOutputStream();
+                Throwable causeException = e;
+                while (expMessage.length() < maxLength && causeException != null) {
+                    causeException.printStackTrace(new java.io.PrintWriter(buf, true));
+                    expMessage.append(buf.toString());
+                    causeException = causeException.getCause();
+                }
+
+            } finally {
+                try {
+                    buf.close();
+                } catch (IOException ioe) {
+                }
+            }
+
+            return (maxLength > expMessage.length() ? expMessage : expMessage.substring(0, maxLength)).toString();
+        }
+    }
+
+    /**
+     * This method is from opentracing-java. {@see https://github.com/opentracing/opentracing-java/blob/release-0.20.9/opentracing-api/src/main/java/io/opentracing/Span.java#L120}
      *
      * Record an event at the current walltime timestamp.
      *
      * Shorthand for
      *
      * <pre>{@code
-        span.log(Collections.singletonMap("event", event));
-        }</pre>
+     * span.log(Collections.singletonMap("event", event));
+     * }</pre>
      *
      * @param event the event value; often a stable identifier for a moment in the Span lifecycle
      * @return the Span, for chaining
      */
-    public Span log(String event){
+    public Span log(String event) {
         log(Collections.singletonMap("event", event));
         return this;
     }

@@ -1,5 +1,7 @@
 package com.a.eye.skywalking.trace.tag;
 
+import com.a.eye.skywalking.trace.Span;
+
 /**
  * The span tags are supported by sky-walking engine.
  * As default, all tags will be stored, but these ones have particular meanings.
@@ -21,10 +23,16 @@ public final class Tags {
     public static final IntTag HTTP_STATUS = new IntTag("http.status_code");
 
     /**
-     *  SPAN_KIND hints at the relationship between spans.
-     *  e.g. cl = client; se = server.
+     *  SPAN_KIND represents the kind of span.
+     *  e.g. db=database,
      */
-    public static final StringTag SPAN_KIND = new StringTag("span.kind");
+    public static final class SPAN_KIND{
+        private static StringTag SPAN_KIND_TAG = new StringTag("span.kind");
+
+        public static void asDBAccess(Span span){
+            SPAN_KIND_TAG.set(span, "db");
+        }
+    }
 
     /**
      *  COMPONENT is a low-cardinality identifier of the module, library, or package that is instrumented.
