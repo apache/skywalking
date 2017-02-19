@@ -19,7 +19,7 @@ public class PreparedStatementTracing {
         try {
             Tags.SPAN_LAYER.asDBAccess(span);
             Tags.DB_URL.set(span, connectInfo);
-            Tags.DB_SQL.set(span, sql);
+            Tags.DB_STATEMENT.set(span, sql);
             return exec.exe(realStatement, sql);
         } catch (SQLException e) {
             span.log(e);

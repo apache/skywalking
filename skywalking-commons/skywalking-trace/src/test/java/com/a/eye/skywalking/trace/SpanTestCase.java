@@ -41,10 +41,10 @@ public class SpanTestCase {
         Tags.COMPONENT.set(span1, "Spring");
         Tags.PEER_HOST.set(span1, ipToInt("127.0.0.1"));
         Tags.ERROR.set(span1, true);
-        Tags.HTTP_STATUS.set(span1, 302);
-        Tags.HTTP_URL.set(span1, "http://127.0.0.1/serviceA");
+        Tags.STATUS_CODE.set(span1, 302);
+        Tags.URL.set(span1, "http://127.0.0.1/serviceA");
         Tags.DB_URL.set(span1, "jdbc:127.0.0.1:user");
-        Tags.DB_SQL.set(span1, "select * from users");
+        Tags.DB_STATEMENT.set(span1, "select * from users");
 
         Map<String, Object> tags = span1.getTags();
         Assert.assertEquals(8, tags.size());
