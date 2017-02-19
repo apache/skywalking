@@ -1,4 +1,4 @@
-package test.a.eye.cloud.plugin;
+package com.a.eye.skywalking.plugin;
 
 import com.a.eye.skywalking.plugin.interceptor.enhance.MethodInterceptResult;
 import com.a.eye.skywalking.plugin.interceptor.enhance.MethodInvokeContext;

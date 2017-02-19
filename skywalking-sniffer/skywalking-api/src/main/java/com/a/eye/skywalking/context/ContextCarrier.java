@@ -29,7 +29,7 @@ public class ContextCarrier extends TraceSegmentRef implements Serializable {
      */
     public ContextCarrier deserialize(String text) {
         if(text != null){
-            String[] parts = text.split("|");
+            String[] parts = text.split("\\|");
             if(parts.length == 2){
                 try{
                     setSpanId(Integer.parseInt(parts[1]));
@@ -40,6 +40,15 @@ public class ContextCarrier extends TraceSegmentRef implements Serializable {
             }
         }
         return this;
+    }
+
+    /**
+     * Make sure this {@link ContextCarrier} has been initialized.
+     *
+     * @return true for unbroken {@link ContextCarrier} or no-initialized. Otherwise, false;
+     */
+    public boolean isValid(){
+        return !StringUtil.isEmpty(getTraceSegmentId()) && getSpanId() > -1;
     }
 
 }

@@ -1,4 +1,4 @@
-package test.a.eye.cloud.bytebuddy;
+package com.a.eye.skywalking.bytebuddy;
 
 import static net.bytebuddy.matcher.ElementMatchers.isConstructor;
 import static net.bytebuddy.matcher.ElementMatchers.isMethod;

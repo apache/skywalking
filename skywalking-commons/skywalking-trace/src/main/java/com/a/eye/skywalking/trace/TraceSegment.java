@@ -124,4 +124,14 @@ public class TraceSegment {
     public List<Span> getSpans() {
         return Collections.unmodifiableList(spans);
     }
+
+    @Override
+    public String toString() {
+        return "TraceSegment{" +
+            "traceSegmentId='" + traceSegmentId + '\'' +
+            ", endTime=" + endTime +
+            ", primaryRef=" + primaryRef +
+            ", spans.size=" + spans.size() +
+            '}';
+    }
 }

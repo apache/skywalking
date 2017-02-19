@@ -15,7 +15,7 @@ public class TraceSegmentRef {
     /**
      * {@link Span#spanId}
      */
-    private int spanId;
+    private int spanId = -1;
 
     /**
      * Create a {@link TraceSegmentRef} instance, without any data.
@@ -37,5 +37,13 @@ public class TraceSegmentRef {
 
     public void setSpanId(int spanId) {
         this.spanId = spanId;
+    }
+
+    @Override
+    public String toString() {
+        return "TraceSegmentRef{" +
+            "traceSegmentId='" + traceSegmentId + '\'' +
+            ", spanId=" + spanId +
+            '}';
     }
 }

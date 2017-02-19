@@ -1,4 +1,4 @@
-package test.a.eye.cloud.bytebuddy;
+package com.a.eye.skywalking.bytebuddy;
 
 import java.lang.reflect.Method;
 import java.util.concurrent.Callable;

@@ -1,4 +1,4 @@
-package test.a.eye.cloud.plugin;
+package com.a.eye.skywalking.plugin;
 
 public class BeInterceptedClass {
 	public BeInterceptedClass(){

@@ -95,7 +95,7 @@ public final class TracerContext {
      *
      * @param carrier holds the snapshot
      */
-    private void inject(ContextCarrier carrier) {
+    public void inject(ContextCarrier carrier) {
         carrier.setTraceSegmentId(this.segment.getTraceSegmentId());
         carrier.setSpanId(this.activeSpan().getSpanId());
     }
@@ -106,7 +106,7 @@ public final class TracerContext {
      * @param carrier holds the snapshot, if get this {@link ContextCarrier} from remote, make sure {@link
      * ContextCarrier#deserialize(String)} called.
      */
-    private void extract(ContextCarrier carrier) {
+    public void extract(ContextCarrier carrier) {
         this.segment.ref(carrier);
     }
 
@@ -168,6 +168,13 @@ public final class TracerContext {
             for (TracerContextListener listener : listeners) {
                 listener.afterFinished(finishedSegment);
             }
+        }
+
+        /**
+         * Clear the given {@link TracerContextListener}
+         */
+        static synchronized void remove(TracerContextListener listener){
+            listeners.remove(listener);
         }
     }
 }

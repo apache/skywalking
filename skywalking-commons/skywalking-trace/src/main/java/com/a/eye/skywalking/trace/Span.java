@@ -252,4 +252,14 @@ public class Span {
     public List<LogData> getLogs() {
         return Collections.unmodifiableList(logs);
     }
+
+    @Override
+    public String toString() {
+        return "Span{" +
+            "spanId=" + spanId +
+            ", parentSpanId=" + parentSpanId +
+            ", startTime=" + startTime +
+            ", operationName='" + operationName + '\'' +
+            '}';
+    }
 }

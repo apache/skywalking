@@ -1,4 +1,4 @@
-package test.a.eye.cloud.bytebuddy;
+package com.a.eye.skywalking.bytebuddy;
 
 public class TestClass {
 	public TestClass(){

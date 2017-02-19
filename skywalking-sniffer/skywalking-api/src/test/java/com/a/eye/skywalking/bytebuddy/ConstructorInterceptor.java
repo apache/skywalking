@@ -1,4 +1,4 @@
-package test.a.eye.cloud.bytebuddy;
+package com.a.eye.skywalking.bytebuddy;
 
 import net.bytebuddy.implementation.bind.annotation.AllArguments;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
