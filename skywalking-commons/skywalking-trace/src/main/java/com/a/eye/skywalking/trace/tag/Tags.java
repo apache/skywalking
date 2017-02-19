@@ -39,7 +39,7 @@ public final class Tags {
 
     /**
      * SPAN_LAYER represents the kind of span.
-     * 
+     *
      * e.g.
      * db=database;
      * rpc=Remote Procedure Call Framework, like motan, thift;
