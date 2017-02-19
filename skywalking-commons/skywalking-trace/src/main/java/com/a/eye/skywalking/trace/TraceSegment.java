@@ -93,9 +93,12 @@ public class TraceSegment {
 
     /**
      * Finish this {@link TraceSegment}.
+     *
+     * return this, for chaining
      */
-    public void finish(){
+    public TraceSegment finish(){
        this.endTime = System.currentTimeMillis();
+       return this;
     }
 
     public String getTraceSegmentId() {

@@ -78,13 +78,15 @@ public final class TracerContext {
         }
 
         if (activeSpanStack.isEmpty()) {
-            segment.finish();
             this.finish();
         }
     }
 
+    /**
+     * Finish this context, and notify all {@link TracerContextListener}s, managed by {@link ListenerManager}
+     */
     private void finish() {
-        ListenerManager.notifyFinish(segment);
+        ListenerManager.notifyFinish(segment.finish());
     }
 
     /**
