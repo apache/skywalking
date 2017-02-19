@@ -1,5 +1,6 @@
 package com.a.eye.skywalking.trace;
 
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -21,6 +22,6 @@ public class LogData {
     }
 
     public Map<String, ?> getFields() {
-        return fields;
+        return Collections.unmodifiableMap(fields);
     }
 }

@@ -29,20 +29,45 @@ public final class Tags {
     public static final class SPAN_KIND{
         private static StringTag SPAN_KIND_TAG = new StringTag("span.kind");
 
+        private static final String DB_KIND = "db";
+        private static final String RPC_KIND = "rpc";
+        private static final String NOSQL_KIND = "nosql";
+        private static final String HTTP_KIND = "http";
+
         public static void asDBAccess(Span span){
-            SPAN_KIND_TAG.set(span, "db");
+            SPAN_KIND_TAG.set(span, DB_KIND);
         }
 
         public static void asRPC(Span span){
-            SPAN_KIND_TAG.set(span, "rpc");
+            SPAN_KIND_TAG.set(span, RPC_KIND);
         }
 
         public static void asNoSQL(Span span){
-            SPAN_KIND_TAG.set(span, "nosql");
+            SPAN_KIND_TAG.set(span, NOSQL_KIND);
         }
 
         public static void asHttp(Span span){
-            SPAN_KIND_TAG.set(span, "http");
+            SPAN_KIND_TAG.set(span, HTTP_KIND);
+        }
+
+        public static String get(Span span){
+            return SPAN_KIND_TAG.get(span);
+        }
+
+        public static boolean isDBAccess(Span span){
+            return DB_KIND.equals(get(span));
+        }
+
+        public static boolean isRPC(Span span){
+            return RPC_KIND.equals(get(span));
+        }
+
+        public static boolean isNoSQL(Span span){
+            return NOSQL_KIND.equals(get(span));
+        }
+
+        public static boolean isHttp(Span span){
+            return HTTP_KIND.equals(get(span));
         }
     }
 

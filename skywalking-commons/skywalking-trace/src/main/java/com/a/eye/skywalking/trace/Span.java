@@ -12,19 +12,8 @@ import java.util.Map;
  * Span is a concept from OpenTracing Spec, also from Google Dapper Paper.
  * Traces in OpenTracing are defined implicitly by their Spans.
  *
- * [Span A]  ←←←(the root span)
- * |
- * +------+------+
- * |             |
- * [Span B]      [Span C] ←←←(Span C is a `ChildOf` Span A)
- * |             |
- * [Span D]      +---+-------+
- * |           |
- * [Span E]    [Span F] >>> [Span G] >>> [Span H]
- * ↑
- * ↑
- * ↑
- * (Span G `FollowsFrom` Span F)
+ * Know more things about span concept:
+ * {@see https://github.com/opentracing/specification/blob/master/specification.md#the-opentracing-data-model}
  *
  * Created by wusheng on 2017/2/17.
  */
@@ -192,9 +181,7 @@ public class Span {
         exceptionFields.put("message", t.getMessage());
         exceptionFields.put("stack", ThrowableTransformer.INSTANCE.convert2String(t, 4000));
 
-        logs.add(new LogData(System.currentTimeMillis(), exceptionFields));
-
-        return this;
+        return log(exceptionFields);
     }
 
     private enum ThrowableTransformer {

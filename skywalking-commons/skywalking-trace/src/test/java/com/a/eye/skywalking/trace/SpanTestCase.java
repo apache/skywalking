@@ -2,6 +2,7 @@ package com.a.eye.skywalking.trace;
 
 import com.a.eye.skywalking.trace.tag.Tags;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
@@ -37,7 +38,7 @@ public class SpanTestCase {
     @Test
     public void testSetTag() {
         Span span1 = new Span(0, "serviceA");
-        Tags.SPAN_KIND.set(span1, "client");
+        Tags.SPAN_KIND.asHttp(span1);
         Tags.COMPONENT.set(span1, "Spring");
         Tags.PEER_HOST_IPV4.set(span1, ipToInt("127.0.0.1"));
         Tags.ERROR.set(span1, true);
@@ -48,7 +49,7 @@ public class SpanTestCase {
 
         Map<String, Object> tags = span1.getTags();
         Assert.assertEquals(8, tags.size());
-        Assert.assertEquals("client", Tags.SPAN_KIND.get(span1));
+        Assert.assertTrue(Tags.SPAN_KIND.isHttp(span1));
         Assert.assertEquals("127.0.0.1", intToIp(Tags.PEER_HOST_IPV4.get(span1)));
         Assert.assertTrue(Tags.ERROR.get(span1));
     }
@@ -81,5 +82,17 @@ public class SpanTestCase {
         sb.append(".");
         sb.append(String.valueOf((longIp & 0x000000FF)));
         return sb.toString();
+    }
+
+    @Test
+    public void testLogException(){
+        Span span1 = new Span(0, "serviceA");
+        Exception exp = new Exception("exception msg");
+        span1.log(exp);
+        List<LogData> logs = span1.getLogs();
+
+        Assert.assertEquals("java.lang.Exception", logs.get(0).getFields().get("error.kind"));
+        Assert.assertEquals("exception msg", logs.get(0).getFields().get("message"));
+        Assert.assertNotNull(logs.get(0).getFields().get("stack"));
     }
 }
