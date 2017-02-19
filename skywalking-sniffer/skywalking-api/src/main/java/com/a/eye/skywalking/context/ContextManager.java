@@ -39,6 +39,20 @@ public enum ContextManager implements TracerContextListener {
         return segment;
     }
 
+    /**
+     * @see {@link TracerContext#inject(ContextCarrier)}
+     */
+    public void inject(ContextCarrier carrier) {
+        get().inject(carrier);
+    }
+
+    /**
+     *@see {@link TracerContext#extract(ContextCarrier)}
+     */
+    public void extract(ContextCarrier carrier) {
+        get().extract(carrier);
+    }
+
     public Span createSpan(String operationName) {
         return get().createSpan(operationName);
     }
