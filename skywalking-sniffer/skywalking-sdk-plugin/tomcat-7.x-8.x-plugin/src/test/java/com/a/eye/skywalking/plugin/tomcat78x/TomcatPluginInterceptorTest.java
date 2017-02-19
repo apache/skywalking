@@ -23,6 +23,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -102,9 +103,9 @@ public class TomcatPluginInterceptorTest {
     }
 
     private void assertSpan(Span span) {
-        assertThat(Tags.SPAN_KIND.get(span), is("http"));
-        assertThat(span.getOperationName(), is("Web/Tomcat/test/a"));
-        assertThat(Tags.HTTP_URL.get(span), is("http://localhost:8080/test/a"));
+        assertTrue(Tags.SPAN_LAYER.isHttp(span));
+        assertThat(span.getOperationName(), is("/test/a"));
+        assertThat(Tags.URL.get(span), is("http://localhost:8080/test/a"));
         assertThat(span.getSpanId(), is(0));
     }
 
