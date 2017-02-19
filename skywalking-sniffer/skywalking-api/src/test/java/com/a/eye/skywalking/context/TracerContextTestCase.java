@@ -9,7 +9,7 @@ import org.junit.Test;
 /**
  * Created by wusheng on 2017/2/19.
  */
-public class TracerContextTest {
+public class TracerContextTestCase {
     @Test
     public void testSpanLifeCycle(){
         TracerContext context = new TracerContext();
@@ -88,14 +88,5 @@ public class TracerContextTest {
     @After
     public void reset(){
         TracerContext.ListenerManager.remove(TestTracerContextListener.INSTANCE);
-    }
-
-    public enum TestTracerContextListener implements TracerContextListener {
-        INSTANCE;
-        final TraceSegment[] finishedSegmentCarrier = {null};
-
-        @Override public void afterFinished(TraceSegment traceSegment) {
-            finishedSegmentCarrier[0] = traceSegment;
-        }
     }
 }

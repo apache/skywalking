@@ -6,7 +6,7 @@ import org.junit.Test;
 /**
  * Created by wusheng on 2017/2/19.
  */
-public class ContextCarrierTest {
+public class ContextCarrierTestCase {
     @Test
     public void testSerialize(){
         ContextCarrier carrier = new ContextCarrier();
