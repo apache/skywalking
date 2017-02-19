@@ -23,51 +23,56 @@ public final class Tags {
     public static final IntTag HTTP_STATUS = new IntTag("http.status_code");
 
     /**
-     *  SPAN_KIND represents the kind of span.
+     *
+     */
+    public static final StringTag SPAN_KIND = new StringTag("span.kind");
+
+    /**
+     *  SPAN_LAYER represents the kind of span.
      *  e.g. db=database, rpc=Remote Procedure Call, nosql=something like redis/memcache
      */
-    public static final class SPAN_KIND{
-        private static StringTag SPAN_KIND_TAG = new StringTag("span.kind");
+    public static final class SPAN_LAYER {
+        private static StringTag SPAN_LAYER_TAG = new StringTag("span.layer");
 
-        private static final String DB_KIND = "db";
-        private static final String RPC_KIND = "rpc";
-        private static final String NOSQL_KIND = "nosql";
-        private static final String HTTP_KIND = "http";
+        private static final String DB_LAYER = "db";
+        private static final String RPC_LAYER = "rpc";
+        private static final String NOSQL_LAYER = "nosql";
+        private static final String HTTP_LAYER = "http";
 
         public static void asDBAccess(Span span){
-            SPAN_KIND_TAG.set(span, DB_KIND);
+            SPAN_LAYER_TAG.set(span, DB_LAYER);
         }
 
         public static void asRPC(Span span){
-            SPAN_KIND_TAG.set(span, RPC_KIND);
+            SPAN_LAYER_TAG.set(span, RPC_LAYER);
         }
 
         public static void asNoSQL(Span span){
-            SPAN_KIND_TAG.set(span, NOSQL_KIND);
+            SPAN_LAYER_TAG.set(span, NOSQL_LAYER);
         }
 
         public static void asHttp(Span span){
-            SPAN_KIND_TAG.set(span, HTTP_KIND);
+            SPAN_LAYER_TAG.set(span, HTTP_LAYER);
         }
 
         public static String get(Span span){
-            return SPAN_KIND_TAG.get(span);
+            return SPAN_LAYER_TAG.get(span);
         }
 
         public static boolean isDBAccess(Span span){
-            return DB_KIND.equals(get(span));
+            return DB_LAYER.equals(get(span));
         }
 
         public static boolean isRPC(Span span){
-            return RPC_KIND.equals(get(span));
+            return RPC_LAYER.equals(get(span));
         }
 
         public static boolean isNoSQL(Span span){
-            return NOSQL_KIND.equals(get(span));
+            return NOSQL_LAYER.equals(get(span));
         }
 
         public static boolean isHttp(Span span){
-            return HTTP_KIND.equals(get(span));
+            return HTTP_LAYER.equals(get(span));
         }
     }
 
@@ -83,9 +88,9 @@ public final class Tags {
     public static final BooleanTag ERROR = new BooleanTag("error");
 
     /**
-     *  PEER_HOST_IPV4 records IPv4 host address of the peer.
+     *  PEER_HOST records host address of the peer, maybe IPV4, IPV6 or hostname.
      */
-    public static final IntTag PEER_HOST_IPV4 = new IntTag("peer.ipv4");
+    public static final StringTag PEER_HOST = new StringTag("peer.host");
 
     /**
      *  DB_URL records the url of the database access.

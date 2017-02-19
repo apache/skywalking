@@ -3,6 +3,7 @@ package com.a.eye.skywalking.context;
 import com.a.eye.skywalking.trace.Span;
 import com.a.eye.skywalking.trace.TraceSegment;
 import com.a.eye.skywalking.trace.tag.Tags;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -23,5 +24,10 @@ public class ContextManagerTestCase {
         TraceSegment segment = TestTracerContextListener.INSTANCE.finishedSegmentCarrier[0];
 
         Assert.assertEquals(span, segment.getSpans().get(0));
+    }
+
+    @After
+    public void reset(){
+        TracerContext.ListenerManager.remove(TestTracerContextListener.INSTANCE);
     }
 }

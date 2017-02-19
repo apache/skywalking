@@ -1,7 +1,6 @@
 package com.a.eye.skywalking.trace;
 
 import com.a.eye.skywalking.trace.tag.Tags;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.junit.Assert;
@@ -38,9 +37,9 @@ public class SpanTestCase {
     @Test
     public void testSetTag() {
         Span span1 = new Span(0, "serviceA");
-        Tags.SPAN_KIND.asHttp(span1);
+        Tags.SPAN_LAYER.asHttp(span1);
         Tags.COMPONENT.set(span1, "Spring");
-        Tags.PEER_HOST_IPV4.set(span1, ipToInt("127.0.0.1"));
+        Tags.PEER_HOST.set(span1, ipToInt("127.0.0.1"));
         Tags.ERROR.set(span1, true);
         Tags.HTTP_STATUS.set(span1, 302);
         Tags.HTTP_URL.set(span1, "http://127.0.0.1/serviceA");
@@ -49,8 +48,8 @@ public class SpanTestCase {
 
         Map<String, Object> tags = span1.getTags();
         Assert.assertEquals(8, tags.size());
-        Assert.assertTrue(Tags.SPAN_KIND.isHttp(span1));
-        Assert.assertEquals("127.0.0.1", intToIp(Tags.PEER_HOST_IPV4.get(span1)));
+        Assert.assertTrue(Tags.SPAN_LAYER.isHttp(span1));
+        Assert.assertEquals("127.0.0.1", intToIp(Tags.PEER_HOST.get(span1)));
         Assert.assertTrue(Tags.ERROR.get(span1));
     }
 

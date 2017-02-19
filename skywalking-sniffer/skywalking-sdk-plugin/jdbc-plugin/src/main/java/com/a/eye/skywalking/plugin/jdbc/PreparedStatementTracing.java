@@ -17,7 +17,7 @@ public class PreparedStatementTracing {
         throws SQLException {
         Span span = ContextManager.INSTANCE.createSpan("JDBC/PreparedStatement/" + method);
         try {
-            Tags.SPAN_KIND.asDBAccess(span);
+            Tags.SPAN_LAYER.asDBAccess(span);
             Tags.DB_URL.set(span, connectInfo);
             Tags.DB_SQL.set(span, sql);
             return exec.exe(realStatement, sql);
