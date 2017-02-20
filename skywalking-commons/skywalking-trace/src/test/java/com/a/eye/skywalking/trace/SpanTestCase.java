@@ -39,7 +39,7 @@ public class SpanTestCase {
         Span span1 = new Span(0, "serviceA");
         Tags.SPAN_LAYER.asHttp(span1);
         Tags.COMPONENT.set(span1, "Spring");
-        Tags.PEER_HOST.set(span1, ipToInt("127.0.0.1"));
+        Tags.PEER_HOST.set(span1, "127.0.0.1");
         Tags.ERROR.set(span1, true);
         Tags.STATUS_CODE.set(span1, 302);
         Tags.URL.set(span1, "http://127.0.0.1/serviceA");
@@ -49,7 +49,7 @@ public class SpanTestCase {
         Map<String, Object> tags = span1.getTags();
         Assert.assertEquals(8, tags.size());
         Assert.assertTrue(Tags.SPAN_LAYER.isHttp(span1));
-        Assert.assertEquals("127.0.0.1", intToIp(Tags.PEER_HOST.get(span1)));
+        Assert.assertEquals("127.0.0.1", Tags.PEER_HOST.get(span1));
         Assert.assertTrue(Tags.ERROR.get(span1));
     }
 
