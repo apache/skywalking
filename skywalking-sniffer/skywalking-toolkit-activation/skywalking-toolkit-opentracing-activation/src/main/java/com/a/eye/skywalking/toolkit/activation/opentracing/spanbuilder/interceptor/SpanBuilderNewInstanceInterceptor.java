@@ -1,8 +1,8 @@
 package com.a.eye.skywalking.toolkit.activation.opentracing.spanbuilder.interceptor;
 
-import com.a.eye.skywalking.plugin.interceptor.EnhancedClassInstanceContext;
+import com.a.eye.skywalking.api.plugin.interceptor.EnhancedClassInstanceContext;
 import com.a.eye.skywalking.plugin.interceptor.enhance.ConstructorInvokeContext;
-import com.a.eye.skywalking.plugin.interceptor.enhance.InstanceConstructorInterceptor;
+import com.a.eye.skywalking.api.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 
 public class SpanBuilderNewInstanceInterceptor implements InstanceConstructorInterceptor {
 

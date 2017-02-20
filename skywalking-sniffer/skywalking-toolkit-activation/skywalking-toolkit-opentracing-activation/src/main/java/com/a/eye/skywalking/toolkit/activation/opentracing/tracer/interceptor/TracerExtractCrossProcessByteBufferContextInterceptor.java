@@ -2,10 +2,10 @@ package com.a.eye.skywalking.toolkit.activation.opentracing.tracer.interceptor;
 
 import com.a.eye.skywalking.api.Tracing;
 import com.a.eye.skywalking.model.RefContext;
-import com.a.eye.skywalking.plugin.interceptor.EnhancedClassInstanceContext;
+import com.a.eye.skywalking.api.plugin.interceptor.EnhancedClassInstanceContext;
 import com.a.eye.skywalking.plugin.interceptor.enhance.InstanceMethodInvokeContext;
-import com.a.eye.skywalking.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
-import com.a.eye.skywalking.plugin.interceptor.enhance.MethodInterceptResult;
+import com.a.eye.skywalking.api.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
+import com.a.eye.skywalking.api.plugin.interceptor.enhance.MethodInterceptResult;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
