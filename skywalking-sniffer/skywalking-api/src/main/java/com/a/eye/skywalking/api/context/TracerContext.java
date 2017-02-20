@@ -171,7 +171,7 @@ public final class TracerContext {
         /**
          * Clear the given {@link TracerContextListener}
          */
-        static synchronized void remove(TracerContextListener listener){
+        public static synchronized void remove(TracerContextListener listener){
             listeners.remove(listener);
         }
     }

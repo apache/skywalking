@@ -48,4 +48,14 @@ public class MockTracerContextListener implements TracerContextListener {
     public void clear(){
         finishedTraceSegments.clear();
     }
+
+    /**
+     * Get {@link TraceSegment} of the given index.
+     * @param index
+     * @return
+     */
+    public TraceSegment getFinished(int index){
+        assertSize(index + 1);
+        return finishedTraceSegments.get(index);
+    }
 }
