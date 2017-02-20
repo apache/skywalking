@@ -1,70 +1,49 @@
-package com.a.eye.skywalking.api.plugin.tomcat78x;
+package com.a.eye.skywalking.plugin.tomcat78x;
 
-import com.a.eye.skywalking.api.Tracing;
-import com.a.eye.skywalking.invoke.monitor.RPCServerInvokeMonitor;
-import com.a.eye.skywalking.model.ContextData;
-import com.a.eye.skywalking.model.Identification;
-import com.a.eye.skywalking.api.plugin.interceptor.EnhancedClassInstanceContext;
-import com.a.eye.skywalking.plugin.interceptor.enhance.ConstructorInvokeContext;
+import com.a.eye.skywalking.context.ContextCarrier;
+import com.a.eye.skywalking.context.ContextManager;
+import com.a.eye.skywalking.plugin.interceptor.EnhancedClassInstanceContext;
 import com.a.eye.skywalking.plugin.interceptor.enhance.InstanceMethodInvokeContext;
-import com.a.eye.skywalking.api.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
-import com.a.eye.skywalking.api.plugin.interceptor.enhance.MethodInterceptResult;
+import com.a.eye.skywalking.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
+import com.a.eye.skywalking.plugin.interceptor.enhance.MethodInterceptResult;
+import com.a.eye.skywalking.trace.Span;
+import com.a.eye.skywalking.trace.tag.Tags;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class TomcatPluginInterceptor implements InstanceMethodsAroundInterceptor {
-    private final String secondKey = "ContextData";
     private String tracingName = DEFAULT_TRACE_NAME;
     private static final String DEFAULT_TRACE_NAME = "SkyWalking-TRACING-NAME";
-    private static final String TRACE_ID_HEADER_NAME = "SW-TraceId";
 
     @Override
     public void beforeMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext, MethodInterceptResult result) {
         Object[] args = interceptorContext.allArguments();
-        HttpServletRequest requests = (HttpServletRequest) args[0];
-        String tracingHeaderValue = requests.getHeader(tracingName);
-        ContextData contextData = null;
+        HttpServletRequest request = (HttpServletRequest) args[0];
+        String tracingHeaderValue = request.getHeader(tracingName);
+
+        Span span = ContextManager.INSTANCE.createSpan(request.getRequestURI());
+        Tags.SPAN_LAYER.asHttp(span);
+        Tags.COMPONENT.set(span, "Tomcat");
+        Tags.URL.set(span, request.getRequestURL().toString());
+
         if (tracingHeaderValue != null) {
-            String contextDataStr = null;
-            int index = tracingHeaderValue.indexOf("=");
-            if (index > 0) {
-                String key = tracingHeaderValue.substring(0, index);
-                if (secondKey.equals(key)) {
-                    contextDataStr = tracingHeaderValue.substring(index + 1);
-                }
-            }
-
-            if (contextDataStr != null && contextDataStr.length() > 0) {
-                contextData = new ContextData(contextDataStr);
-            }
+            ContextManager.INSTANCE.extract(new ContextCarrier().deserialize(tracingHeaderValue));
         }
-        RPCServerInvokeMonitor rpcServerInvokeMonitor = new RPCServerInvokeMonitor();
-        rpcServerInvokeMonitor.beforeInvoke(contextData, generateIdentification(requests));
     }
-
-
-    private Identification generateIdentification(HttpServletRequest request) {
-        return Identification.newBuilder()
-                .viewPoint(request.getRequestURL().toString())
-                .spanType(WebBuriedPointType.INSTANCE)
-                .build();
-    }
-
 
     @Override
     public Object afterMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext, Object ret) {
-        Object[] args = interceptorContext.allArguments();
-        HttpServletResponse httpServletResponse = (HttpServletResponse) args[1];
-        httpServletResponse.addHeader(TRACE_ID_HEADER_NAME, Tracing.getTraceId());
-        new RPCServerInvokeMonitor().afterInvoke();
+        HttpServletResponse response = (HttpServletResponse) interceptorContext.allArguments()[1];
+        Tags.STATUS_CODE.set(ContextManager.INSTANCE.activeSpan(), response.getStatus());
+        ContextManager.INSTANCE.stopSpan();
         return ret;
     }
 
     @Override
     public void handleMethodException(Throwable t, EnhancedClassInstanceContext context,
-            InstanceMethodInvokeContext interceptorContext) {
-        new RPCServerInvokeMonitor().occurException(t);
+                                      InstanceMethodInvokeContext interceptorContext) {
+        ContextManager.INSTANCE.activeSpan().log(t);
     }
 
 }

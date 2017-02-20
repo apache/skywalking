@@ -1,35 +1,42 @@
-package com.a.eye.skywalking.api.plugin.dubbo;
+package com.a.eye.skywalking.plugin.dubbo;
 
-import com.a.eye.skywalking.api.plugin.dubbox.bugfix.below283.BugFixAcitve;
-import com.a.eye.skywalking.api.plugin.dubbox.bugfix.below283.SWBaseBean;
-import com.a.eye.skywalking.invoke.monitor.RPCClientInvokeMonitor;
-import com.a.eye.skywalking.invoke.monitor.RPCServerInvokeMonitor;
-import com.a.eye.skywalking.model.ContextData;
-import com.a.eye.skywalking.model.Identification;
-import com.a.eye.skywalking.api.plugin.interceptor.EnhancedClassInstanceContext;
+import com.a.eye.skywalking.context.ContextCarrier;
+import com.a.eye.skywalking.context.ContextManager;
+import com.a.eye.skywalking.plugin.dubbox.bugfix.below283.BugFixAcitve;
+import com.a.eye.skywalking.plugin.dubbox.bugfix.below283.SWBaseBean;
+import com.a.eye.skywalking.plugin.interceptor.EnhancedClassInstanceContext;
 import com.a.eye.skywalking.plugin.interceptor.enhance.InstanceMethodInvokeContext;
-import com.a.eye.skywalking.api.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
-import com.a.eye.skywalking.api.plugin.interceptor.enhance.MethodInterceptResult;
+import com.a.eye.skywalking.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
+import com.a.eye.skywalking.plugin.interceptor.enhance.MethodInterceptResult;
+import com.a.eye.skywalking.trace.Span;
+import com.a.eye.skywalking.trace.tag.Tags;
+import com.a.eye.skywalking.util.StringUtil;
 import com.alibaba.dubbo.rpc.Invocation;
 import com.alibaba.dubbo.rpc.Invoker;
 import com.alibaba.dubbo.rpc.Result;
 import com.alibaba.dubbo.rpc.RpcContext;
 
+/**
+ *
+ */
 public class MonitorFilterInterceptor implements InstanceMethodsAroundInterceptor {
+
+    private static final String IS_CONSUMER_FLAG = "isConsumer";
+    private static final String DUBBO_COMPONENT = "Dubbo";
+    private static final String ATTACHMENT_KEY_OF_CONTEXT_CARRIER_DATA = "contextData";
+
     @Override
     public void beforeMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
                              MethodInterceptResult result) {
-        Object[] arguments = interceptorContext.allArguments();
-        Invoker invoker = (Invoker) arguments[0];
-        Invocation invocation = (Invocation) arguments[1];
+        DubboRequestParam dubboRequestParam = new DubboRequestParam(interceptorContext);
+        context.set(IS_CONSUMER_FLAG, dubboRequestParam.isConsumer);
+        Span span = ContextManager.INSTANCE.createSpan(dubboRequestParam.fetchOperationName());
 
-        RpcContext rpcContext = RpcContext.getContext();
-        boolean isConsumer = rpcContext.isConsumerSide();
-        context.set("isConsumer", isConsumer);
-        if (isConsumer) {
-            ContextData contextData =
-                    new RPCClientInvokeMonitor().beforeInvoke(createIdentification(invoker, invocation, true));
-            String contextDataStr = contextData.toString();
+        if (dubboRequestParam.isConsumer) {
+            Tags.SPAN_KIND.set(span, Tags.SPAN_KIND_CLIENT);
+
+            ContextCarrier contextCarrier = new ContextCarrier();
+            ContextManager.INSTANCE.extract(contextCarrier);
 
             //追加参数
             if (!BugFixAcitve.isActive) {
@@ -47,28 +54,22 @@ public class MonitorFilterInterceptor implements InstanceMethodsAroundIntercepto
                 // 在Rest模式中attachment会被抹除，不会传入到服务端
                 // Rest模式会将attachment存放到header里面，具体见com.alibaba.dubbo.rpc.protocol.rest.RpcContextFilter
                 //invocation.getAttachments().put("contextData", contextDataStr);
-                rpcContext.getAttachments().put("contextData", contextDataStr);
+                dubboRequestParam.rpcContext.getAttachments().put(ATTACHMENT_KEY_OF_CONTEXT_CARRIER_DATA, contextCarrier.serialize());
             } else {
-                fix283SendNoAttachmentIssue(invocation, contextDataStr);
+                fix283SendNoAttachmentIssue(dubboRequestParam.invocation, contextCarrier.serialize());
             }
         } else {
-            // 读取参数
-            String contextDataStr;
+            Tags.SPAN_KIND.set(span, Tags.SPAN_KIND_SERVER);
 
-            if (!BugFixAcitve.isActive) {
-                contextDataStr = rpcContext.getAttachment("contextData");
-            } else {
-                contextDataStr = fix283RecvNoAttachmentIssue(invocation);
+            String contextDataStr = fetchContextSerializeData(dubboRequestParam.invocation, dubboRequestParam.rpcContext);
+            if (!StringUtil.isEmpty(contextDataStr)) {
+                ContextManager.INSTANCE.inject(new ContextCarrier().deserialize(contextDataStr));
             }
-
-            ContextData contextData = null;
-            if (contextDataStr != null && contextDataStr.length() > 0) {
-                contextData = new ContextData(contextDataStr);
-            }
-
-            new RPCServerInvokeMonitor().beforeInvoke(contextData, createIdentification(invoker, invocation, false));
         }
 
+        Tags.URL.set(span, dubboRequestParam.fetchRequestURL());
+        Tags.COMPONENT.set(span, DUBBO_COMPONENT);
+        Tags.SPAN_LAYER.asRPCFramework(span);
     }
 
     @Override
@@ -76,60 +77,31 @@ public class MonitorFilterInterceptor implements InstanceMethodsAroundIntercepto
                               Object ret) {
         Result result = (Result) ret;
         if (result != null && result.getException() != null) {
-            dealException(result.getException(), context);
+            dealException(result.getException());
         }
-
-        if (isConsumer(context)) {
-            new RPCClientInvokeMonitor().afterInvoke();
-        } else {
-            new RPCServerInvokeMonitor().afterInvoke();
-        }
-
+        ContextManager.INSTANCE.stopSpan();
         return ret;
     }
 
     @Override
     public void handleMethodException(Throwable t, EnhancedClassInstanceContext context,
                                       InstanceMethodInvokeContext interceptorContext) {
-        dealException(t, context);
+        dealException(t);
     }
 
-
-    private boolean isConsumer(EnhancedClassInstanceContext context) {
-        return (Boolean) context.get("isConsumer");
-    }
-
-    private void dealException(Throwable t, EnhancedClassInstanceContext context) {
-        if (isConsumer(context)) {
-            new RPCClientInvokeMonitor().occurException(t);
+    private String fetchContextSerializeData(Invocation invocation, RpcContext rpcContext) {
+        String contextDataStr;
+        if (!BugFixAcitve.isActive) {
+            contextDataStr = rpcContext.getAttachment(ATTACHMENT_KEY_OF_CONTEXT_CARRIER_DATA);
         } else {
-            new RPCServerInvokeMonitor().occurException(t);
+            contextDataStr = fix283RecvNoAttachmentIssue(invocation);
         }
+        return contextDataStr;
     }
 
-    private static Identification createIdentification(Invoker<?> invoker, Invocation invocation, boolean isConsumer) {
-        StringBuilder viewPoint = new StringBuilder();
-        if (isConsumer) {
-            viewPoint.append("comsumer:");
-        } else {
-            viewPoint.append("provider:");
-        }
-        viewPoint.append(invoker.getUrl().getProtocol() + "://");
-        viewPoint.append(invoker.getUrl().getHost());
-        viewPoint.append(":" + invoker.getUrl().getPort());
-        viewPoint.append(invoker.getUrl().getAbsolutePath());
-        viewPoint.append("." + invocation.getMethodName() + "(");
-        for (Class<?> classes : invocation.getParameterTypes()) {
-            viewPoint.append(classes.getSimpleName() + ",");
-        }
 
-        if (invocation.getParameterTypes().length > 0) {
-            viewPoint.delete(viewPoint.length() - 1, viewPoint.length());
-        }
-
-        viewPoint.append(")");
-        return Identification.newBuilder().viewPoint(viewPoint.toString()).spanType(DubboBuriedPointType.INSTANCE)
-                .build();
+    private void dealException(Throwable t) {
+        ContextManager.INSTANCE.activeSpan().log(t);
     }
 
 
@@ -151,5 +123,45 @@ public class MonitorFilterInterceptor implements InstanceMethodsAroundIntercepto
         }
 
         return null;
+    }
+
+    class DubboRequestParam {
+        final boolean isConsumer;
+        final RpcContext rpcContext;
+        final Invocation invocation;
+        final Invoker invoker;
+
+        public DubboRequestParam(InstanceMethodInvokeContext interceptorContext) {
+            Object[] arguments = interceptorContext.allArguments();
+            rpcContext = RpcContext.getContext();
+            isConsumer = rpcContext.isConsumerSide();
+            invocation = (Invocation) arguments[1];
+            invoker = (Invoker) arguments[0];
+        }
+
+        public String fetchOperationName() {
+            StringBuilder operationName = new StringBuilder();
+            operationName.append(invoker.getUrl().getAbsolutePath());
+            operationName.append("." + invocation.getMethodName() + "(");
+            for (Class<?> classes : invocation.getParameterTypes()) {
+                operationName.append(classes.getSimpleName() + ",");
+            }
+
+            if (invocation.getParameterTypes().length > 0) {
+                operationName.delete(operationName.length() - 1, operationName.length());
+            }
+
+            operationName.append(")");
+            return operationName.toString();
+        }
+
+        public String fetchRequestURL() {
+            StringBuilder operationName = new StringBuilder();
+            operationName.append(invoker.getUrl().getProtocol() + "://");
+            operationName.append(invoker.getUrl().getHost());
+            operationName.append(":" + invoker.getUrl().getPort());
+            operationName.append(fetchOperationName());
+            return operationName.toString();
+        }
     }
 }
