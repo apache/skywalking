@@ -1,7 +1,7 @@
 package com.a.eye.skywalking.toolkit.activation.log.log4j.v1.x;
 
 import com.a.eye.skywalking.plugin.interceptor.ConstructorInterceptPoint;
-import com.a.eye.skywalking.plugin.interceptor.InstanceMethodsInterceptPoint;
+import com.a.eye.skywalking.api.plugin.interceptor.InstanceMethodsInterceptPoint;
 import com.a.eye.skywalking.plugin.interceptor.StaticMethodsInterceptPoint;
 import com.a.eye.skywalking.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import net.bytebuddy.description.method.MethodDescription;

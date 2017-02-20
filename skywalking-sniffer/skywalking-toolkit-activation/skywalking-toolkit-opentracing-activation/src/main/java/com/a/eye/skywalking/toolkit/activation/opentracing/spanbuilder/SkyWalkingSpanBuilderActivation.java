@@ -1,7 +1,7 @@
 package com.a.eye.skywalking.toolkit.activation.opentracing.spanbuilder;
 
 import com.a.eye.skywalking.plugin.interceptor.ConstructorInterceptPoint;
-import com.a.eye.skywalking.plugin.interceptor.InstanceMethodsInterceptPoint;
+import com.a.eye.skywalking.api.plugin.interceptor.InstanceMethodsInterceptPoint;
 import com.a.eye.skywalking.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 
 import net.bytebuddy.description.method.MethodDescription;

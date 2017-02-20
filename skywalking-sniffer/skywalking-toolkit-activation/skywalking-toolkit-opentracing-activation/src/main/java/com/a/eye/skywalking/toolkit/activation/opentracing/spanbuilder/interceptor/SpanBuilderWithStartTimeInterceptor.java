@@ -1,9 +1,9 @@
 package com.a.eye.skywalking.toolkit.activation.opentracing.spanbuilder.interceptor;
 
-import com.a.eye.skywalking.plugin.interceptor.EnhancedClassInstanceContext;
+import com.a.eye.skywalking.api.plugin.interceptor.EnhancedClassInstanceContext;
 import com.a.eye.skywalking.plugin.interceptor.enhance.InstanceMethodInvokeContext;
-import com.a.eye.skywalking.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
-import com.a.eye.skywalking.plugin.interceptor.enhance.MethodInterceptResult;
+import com.a.eye.skywalking.api.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
+import com.a.eye.skywalking.api.plugin.interceptor.enhance.MethodInterceptResult;
 
 /**
  * Created by xin on 2017/1/16.
