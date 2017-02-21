@@ -1,6 +1,6 @@
 package com.a.eye.skywalking.agent.junction;
 
-import com.a.eye.skywalking.plugin.PluginDefineCategory;
+import com.a.eye.skywalking.api.plugin.PluginDefineCategory;
 import net.bytebuddy.description.NamedElement;
 
 /**

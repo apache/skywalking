@@ -2,10 +2,10 @@ package com.a.eye.skywalking.toolkit.activation.opentracing.spanbuilder.intercep
 
 import com.a.eye.skywalking.invoke.monitor.LocalMethodInvokeMonitor;
 import com.a.eye.skywalking.model.Identification;
-import com.a.eye.skywalking.plugin.interceptor.EnhancedClassInstanceContext;
+import com.a.eye.skywalking.api.plugin.interceptor.EnhancedClassInstanceContext;
 import com.a.eye.skywalking.plugin.interceptor.enhance.InstanceMethodInvokeContext;
-import com.a.eye.skywalking.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
-import com.a.eye.skywalking.plugin.interceptor.enhance.MethodInterceptResult;
+import com.a.eye.skywalking.api.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
+import com.a.eye.skywalking.api.plugin.interceptor.enhance.MethodInterceptResult;
 import com.a.eye.skywalking.toolkit.activation.opentracing.spanbuilder.OpenTracingLocalBuriedPointType;
 
 import java.util.Map;

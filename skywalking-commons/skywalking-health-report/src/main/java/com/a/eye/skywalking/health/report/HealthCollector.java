@@ -1,8 +1,8 @@
 package com.a.eye.skywalking.health.report;
 
 
-import com.a.eye.skywalking.logging.api.ILog;
-import com.a.eye.skywalking.logging.api.LogManager;
+import com.a.eye.skywalking.api.logging.api.ILog;
+import com.a.eye.skywalking.api.logging.api.LogManager;
 
 import java.util.Arrays;
 import java.util.Map;

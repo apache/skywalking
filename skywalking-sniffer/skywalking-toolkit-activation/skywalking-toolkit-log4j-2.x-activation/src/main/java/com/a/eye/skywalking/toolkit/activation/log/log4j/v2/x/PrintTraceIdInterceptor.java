@@ -1,8 +1,6 @@
 package com.a.eye.skywalking.toolkit.activation.log.log4j.v2.x;
 
 import com.a.eye.skywalking.api.Tracing;
-import com.a.eye.skywalking.plugin.interceptor.EnhancedClassInstanceContext;
-import com.a.eye.skywalking.plugin.interceptor.enhance.*;
 
 /**
  * Created by wusheng on 2016/12/7.
