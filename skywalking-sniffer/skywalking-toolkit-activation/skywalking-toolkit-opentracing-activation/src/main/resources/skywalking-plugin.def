@@ -1,3 +1,2 @@
 com.a.eye.skywalking.toolkit.activation.opentracing.span.SkyWalkingSpanActivation
-com.a.eye.skywalking.toolkit.activation.opentracing.spanbuilder.SkyWalkingSpanBuilderActivation
 com.a.eye.skywalking.toolkit.activation.opentracing.tracer.SkyWalkingTracerActivation

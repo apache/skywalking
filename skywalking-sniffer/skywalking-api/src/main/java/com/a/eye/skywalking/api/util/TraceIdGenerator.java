@@ -1,6 +1,6 @@
 package com.a.eye.skywalking.api.util;
 
-import com.a.eye.skywalking.conf.Constants;
+import com.a.eye.skywalking.api.conf.Constants;
 import java.util.UUID;
 
 public final class TraceIdGenerator {

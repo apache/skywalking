@@ -1,36 +1,32 @@
 package com.a.eye.skywalking.toolkit.activation.opentracing.span.interceptor;
 
-import com.a.eye.skywalking.api.Tracing;
-import com.a.eye.skywalking.invoke.monitor.LocalMethodInvokeMonitor;
-import com.a.eye.skywalking.model.Span;
+import com.a.eye.skywalking.api.context.ContextManager;
 import com.a.eye.skywalking.api.plugin.interceptor.EnhancedClassInstanceContext;
-import com.a.eye.skywalking.plugin.interceptor.enhance.InstanceMethodInvokeContext;
+import com.a.eye.skywalking.api.plugin.interceptor.enhance.InstanceMethodInvokeContext;
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.MethodInterceptResult;
-
-import java.util.Map;
+import com.a.eye.skywalking.toolkit.opentracing.SkyWalkingSpan;
 
 /**
- * Created by xin on 2017/1/16.
+ * Intercept these following methods:
+ * {@link SkyWalkingSpan#finish()}
+ * {@link SkyWalkingSpan#finish(long)}
  */
 public class SpanFinishInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext, MethodInterceptResult result) {
-        // do nothing
     }
 
     @Override
     public Object afterMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext, Object ret) {
-        Span currentSpan = Tracing.getCurrentSpan();
+        Object[] allArguments = interceptorContext.allArguments();
 
-        Map<String, String> tags = (Map<String, String>) context.get("tags");
-        if (tags != null) {
-            for (Map.Entry<String, String> entry : tags.entrySet()) {
-                Tracing.tag(currentSpan, entry.getKey(), entry.getValue());
-            }
+        if(allArguments.length == 1) {
+            ContextManager.INSTANCE.stopSpan(((Long)allArguments[0]));
+        }else{
+            ContextManager.INSTANCE.stopSpan();
         }
 
-        new LocalMethodInvokeMonitor().afterInvoke();
         return ret;
     }
 

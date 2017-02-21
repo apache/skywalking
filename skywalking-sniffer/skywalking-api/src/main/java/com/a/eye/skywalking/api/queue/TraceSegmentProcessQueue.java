@@ -1,8 +1,8 @@
 package com.a.eye.skywalking.api.queue;
 
-import com.a.eye.skywalking.conf.Config;
+import com.a.eye.skywalking.api.conf.Config;
 import com.a.eye.skywalking.api.context.TracerContext;
-import com.a.eye.skywalking.context.TracerContextListener;
+import com.a.eye.skywalking.api.context.TracerContextListener;
 import com.a.eye.skywalking.health.report.HealthCollector;
 import com.a.eye.skywalking.health.report.HeathReading;
 import com.a.eye.skywalking.trace.TraceSegment;
@@ -36,7 +36,7 @@ public enum TraceSegmentProcessQueue implements TracerContextListener {
     RingBuffer<TraceSegmentHolder> buffer;
 
     TraceSegmentProcessQueue() {
-        disruptor = new Disruptor<>(TraceSegmentHolder.Factory.INSTANCE, Config.Disruptor.BUFFER_SIZE, DaemonThreadFactory.INSTANCE);
+        disruptor = new Disruptor<TraceSegmentHolder>(TraceSegmentHolder.Factory.INSTANCE, Config.Disruptor.BUFFER_SIZE, DaemonThreadFactory.INSTANCE);
         buffer = disruptor.getRingBuffer();
     }
 

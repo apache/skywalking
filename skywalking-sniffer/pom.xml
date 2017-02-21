@@ -17,6 +17,7 @@
         <module>skywalking-api</module>
         <module>skywalking-sdk-plugin</module>
         <module>skywalking-toolkit-activation</module>
+        <module>skywalking-sniffer-mock</module>
     </modules>
 
     <properties>

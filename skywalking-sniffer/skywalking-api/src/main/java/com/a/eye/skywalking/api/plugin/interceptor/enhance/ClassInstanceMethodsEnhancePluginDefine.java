@@ -1,7 +1,6 @@
 package com.a.eye.skywalking.api.plugin.interceptor.enhance;
 
 import com.a.eye.skywalking.api.plugin.interceptor.StaticMethodsInterceptPoint;
-import com.a.eye.skywalking.plugin.interceptor.StaticMethodsInterceptPoint;
 
 /**
  * Plugins, which only need enhance class static methods.

@@ -40,12 +40,23 @@ public final class TracerContext {
      * @return the new active span.
      */
     public Span createSpan(String operationName) {
+        return this.createSpan(operationName, System.currentTimeMillis());
+    }
+
+    /**
+     * Create a new span, as an active span, by the given operationName and startTime;
+     *
+     * @param operationName {@link Span#operationName}
+     * @param startTime {@link Span#startTime}
+     * @return
+     */
+    public Span createSpan(String operationName, long startTime){
         Span parentSpan = peek();
         Span span;
         if (parentSpan == null) {
-            span = new Span(spanIdGenerator++, operationName);
+            span = new Span(spanIdGenerator++, operationName, startTime);
         } else {
-            span = new Span(spanIdGenerator++, parentSpan, operationName);
+            span = new Span(spanIdGenerator++, parentSpan, operationName, startTime);
         }
         push(span);
         return span;
@@ -68,9 +79,13 @@ public final class TracerContext {
      * @param span to finish. It must the the top element of {@link #activeSpanStack}.
      */
     public void stopSpan(Span span) {
+        stopSpan(span, System.currentTimeMillis());
+    }
+
+    public void stopSpan(Span span, Long endTime){
         Span lastSpan = peek();
         if (lastSpan == span) {
-            segment.archive(pop());
+            pop().finish(segment, endTime);
         } else {
             throw new IllegalStateException("Stopping the unexpected span = " + span);
         }
@@ -171,7 +186,7 @@ public final class TracerContext {
         /**
          * Clear the given {@link TracerContextListener}
          */
-        static synchronized void remove(TracerContextListener listener){
+        public static synchronized void remove(TracerContextListener listener){
             listeners.remove(listener);
         }
     }
