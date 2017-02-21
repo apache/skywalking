@@ -31,6 +31,15 @@ public class MockTracerContextListener implements TracerContextListener {
     }
 
     /**
+     * Assert the given index is a valid index of {@link #finishedTraceSegments}
+     *
+     * @param index the given index.
+     */
+    public void assertValidIndex(int index){
+        Assert.assertTrue(index < finishedTraceSegments.size());
+    }
+
+    /**
      * Assert the {@link TraceSegment} at the given index of {@link #finishedTraceSegments},
      * and run the given {@link SegmentAssert#call(TraceSegment)} to assert.
      *
@@ -38,7 +47,7 @@ public class MockTracerContextListener implements TracerContextListener {
      * @param segmentAssert the given assert.
      */
     public void assertTraceSegment(int index, SegmentAssert segmentAssert){
-        assertSize(index + 1);
+        assertValidIndex(index);
         segmentAssert.call(finishedTraceSegments.get(index));
     }
 
