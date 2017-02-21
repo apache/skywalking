@@ -3,7 +3,6 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<modules>
-		<module>test</module>
 		<module>skywalking-collector-cluster</module>
 		<module>skywalking-collector-worker</module>
 	</modules>
@@ -20,6 +19,11 @@
 	</properties>
 
 	<dependencies>
+		<dependency>
+			<groupId>com.a.eye</groupId>
+			<artifactId>skywalking-sniffer-mock</artifactId>
+			<version>3.0-2017</version>
+		</dependency>
 		<dependency>
 			<groupId>com.typesafe.akka</groupId>
 			<artifactId>akka-cluster_2.11</artifactId>

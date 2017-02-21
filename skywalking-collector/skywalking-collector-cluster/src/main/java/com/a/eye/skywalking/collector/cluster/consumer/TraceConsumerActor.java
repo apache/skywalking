@@ -1,7 +1,8 @@
 package com.a.eye.skywalking.collector.cluster.consumer;
 
-import static com.a.eye.skywalking.collector.cluster.message.TraceMessages.BACKEND_REGISTRATION;
-
+import akka.cluster.ClusterEvent;
+import com.a.eye.skywalking.collector.cluster.Const;
+import com.a.eye.skywalking.collector.cluster.message.ActorRegisteMessage;
 import com.a.eye.skywalking.collector.cluster.message.TraceMessages.TransformationJob;
 import com.a.eye.skywalking.collector.cluster.message.TraceMessages.TransformationResult;
 import akka.actor.UntypedActor;
@@ -12,7 +13,6 @@ import akka.cluster.Member;
 import akka.cluster.MemberStatus;
 import org.springframework.context.annotation.Scope;
 
-//#backend
 //@Named("TraceConsumerActor")
 @Scope("prototype")
 public class TraceConsumerActor extends UntypedActor {
@@ -22,7 +22,7 @@ public class TraceConsumerActor extends UntypedActor {
     //subscribe to cluster changes, MemberUp
     @Override
     public void preStart() {
-        cluster.subscribe(getSelf(), MemberUp.class);
+        cluster.subscribe(getSelf(), ClusterEvent.MemberEvent.class);
     }
 
     //re-subscribe when restart
@@ -35,19 +35,14 @@ public class TraceConsumerActor extends UntypedActor {
     public void onReceive(Object message) {
         if (message instanceof TransformationJob) {
             TransformationJob job = (TransformationJob) message;
-            getSender().tell(new TransformationResult(job.getText().toUpperCase()),
-                    getSelf());
-
+            getSender().tell(new TransformationResult(job.getText().toUpperCase()), getSelf());
         } else if (message instanceof CurrentClusterState) {
-            System.out.print("##################################");
             CurrentClusterState state = (CurrentClusterState) message;
             for (Member member : state.getMembers()) {
-                System.out.printf("###: " + member.status().toString());
                 if (member.status().equals(MemberStatus.up())) {
                     register(member);
                 }
             }
-
         } else if (message instanceof MemberUp) {
             MemberUp mUp = (MemberUp) message;
             register(mUp.member());
@@ -58,9 +53,11 @@ public class TraceConsumerActor extends UntypedActor {
     }
 
     void register(Member member) {
-        if (member.hasRole("frontend"))
-            getContext().actorSelection(member.address() + "/user/frontend").tell(
-                    BACKEND_REGISTRATION, getSelf());
+        System.out.println("register");
+        if (member.hasRole(Const.Trace_Producer_Role)) {
+            System.out.println("register: " + Const.Trace_Producer_Role);
+            ActorRegisteMessage.RegisteMessage registeMessage = new ActorRegisteMessage.RegisteMessage(Const.Trace_Consumer_Role, "");
+            getContext().actorSelection(member.address() + Const.Actor_Manager_Path).tell(registeMessage, getSelf());
+        }
     }
 }
-//#backend

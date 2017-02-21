@@ -1,5 +1,7 @@
 package com.a.eye.skywalking.collector.cluster.message;
 
+import com.a.eye.skywalking.trace.TraceSegment;
+
 import java.io.Serializable;
 
 //#messages
@@ -7,13 +9,19 @@ public interface TraceMessages {
 
   public static class TransformationJob implements Serializable {
     private final String text;
+    private final TraceSegment traceSegment;
 
-    public TransformationJob(String text) {
+    public TransformationJob(String text, TraceSegment traceSegment) {
       this.text = text;
+      this.traceSegment = traceSegment;
     }
 
     public String getText() {
       return text;
+    }
+
+    public TraceSegment getTraceSegment() {
+      return traceSegment;
     }
   }
 
