@@ -2,7 +2,7 @@ package com.a.eye.skywalking.collector.cluster.consumer;
 
 import akka.cluster.ClusterEvent;
 import com.a.eye.skywalking.collector.cluster.Const;
-import com.a.eye.skywalking.collector.cluster.message.ActorRegisteMessage;
+import com.a.eye.skywalking.collector.cluster.message.ActorRegisterMessage;
 import com.a.eye.skywalking.collector.cluster.message.TraceMessages.TransformationJob;
 import com.a.eye.skywalking.collector.cluster.message.TraceMessages.TransformationResult;
 import akka.actor.UntypedActor;
@@ -56,8 +56,8 @@ public class TraceConsumerActor extends UntypedActor {
         System.out.println("register");
         if (member.hasRole(Const.Trace_Producer_Role)) {
             System.out.println("register: " + Const.Trace_Producer_Role);
-            ActorRegisteMessage.RegisteMessage registeMessage = new ActorRegisteMessage.RegisteMessage(Const.Trace_Consumer_Role, "");
-            getContext().actorSelection(member.address() + Const.Actor_Manager_Path).tell(registeMessage, getSelf());
+            ActorRegisterMessage.RegisterMessage registerMessage = new ActorRegisterMessage.RegisterMessage(Const.Trace_Consumer_Role, "");
+            getContext().actorSelection(member.address() + Const.Actor_Manager_Path).tell(registerMessage, getSelf());
         }
     }
 }

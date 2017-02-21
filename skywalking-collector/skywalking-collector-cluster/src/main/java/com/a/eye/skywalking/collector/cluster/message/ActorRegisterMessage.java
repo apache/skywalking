@@ -5,13 +5,13 @@ import java.io.Serializable;
 /**
  * Created by Administrator on 2017/2/21 0021.
  */
-public interface ActorRegisteMessage {
+public interface ActorRegisterMessage {
 
-    public static class RegisteMessage implements Serializable {
+    public static class RegisterMessage implements Serializable {
         public final String role;
         public final String action;
 
-        public RegisteMessage(String role, String action) {
+        public RegisterMessage(String role, String action) {
             this.role = role;
             this.action = action;
         }
