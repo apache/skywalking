@@ -46,11 +46,6 @@
             <artifactId>skywalking-logging-api</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.lmax</groupId>
-            <artifactId>disruptor</artifactId>
-            <version>3.3.6</version>
-        </dependency>
     </dependencies>
     <build>
         <plugins>

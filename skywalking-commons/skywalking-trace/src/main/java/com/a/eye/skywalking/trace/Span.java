@@ -54,7 +54,7 @@ public class Span {
     private final List<LogData> logs;
 
     /**
-     * Create a new span, by given span id and parent span id.
+     * Create a new span, by given span id, parent span id and operationName.
      * This span must belong a {@link TraceSegment}, also is a part of Distributed Trace.
      *
      * @param spanId given by the creator, and must be unique id in the {@link TraceSegment}
@@ -63,9 +63,23 @@ public class Span {
      * @param operationName {@link #operationName}
      */
     private Span(int spanId, int parentSpanId, String operationName) {
+        this(spanId, parentSpanId, operationName, System.currentTimeMillis());
+    }
+
+    /**
+     *Create a new span, by given span id, parent span id, operationName and startTime.
+     * This span must belong a {@link TraceSegment}, also is a part of Distributed Trace.
+     *
+     * @param spanId given by the creator, and must be unique id in the {@link TraceSegment}
+     * @param parentSpanId given by the creator, and must be an existed span id in the {@link TraceSegment}. Value -1
+     * means no parent span if this {@link TraceSegment}.
+     * @param operationName {@link #operationName}
+     * @param startTime given start timestamp.
+     */
+    private Span(int spanId, int parentSpanId, String operationName, long startTime){
         this.spanId = spanId;
         this.parentSpanId = parentSpanId;
-        this.startTime = System.currentTimeMillis();
+        this.startTime = startTime;
         this.operationName = operationName;
         this.tags = new HashMap<String, Object>();
         this.logs = new ArrayList<LogData>();
@@ -83,6 +97,19 @@ public class Span {
     }
 
     /**
+     *
+     * Create a new span, by given span id and give startTime but no parent span id,
+     * No parent span id means that, this Span is the first span of the {@link TraceSegment}
+     *
+     * @param spanId given by the creator, and must be unique id in the {@link TraceSegment}
+     * @param operationName {@link #operationName}
+     * @param startTime given start time of span
+     */
+    public Span(int spanId, String operationName, long startTime) {
+        this(spanId, -1, operationName, startTime);
+    }
+
+    /**
      * Create a new span, by given span id and given parent {@link Span}.
      *
      * @param spanId given by the creator, and must be unique id in the {@link TraceSegment}
@@ -90,7 +117,18 @@ public class Span {
      * @param operationName {@link #operationName}
      */
     public Span(int spanId, Span parentSpan, String operationName) {
-        this(spanId, parentSpan.spanId, operationName);
+        this(spanId, parentSpan.spanId, operationName, System.currentTimeMillis());
+    }
+
+    /**
+     *
+     * @param spanId
+     * @param parentSpan
+     * @param operationName
+     * @param startTime
+     */
+    public Span(int spanId, Span parentSpan, String operationName, long startTime) {
+        this(spanId, parentSpan.spanId, operationName, startTime);
     }
 
     /**
@@ -100,12 +138,36 @@ public class Span {
      * @param owner of the Span.
      */
     public void finish(TraceSegment owner) {
-        this.endTime = System.currentTimeMillis();
+        this.finish(owner, System.currentTimeMillis());
+    }
+
+    /**
+     * Finish the active Span.
+     * When it is finished, it will be archived by the given {@link TraceSegment}, which owners it.
+     * At the same out, set the {@link #endTime} as the given endTime
+     *
+     * @param owner of the Span.
+     * @param endTime of the Span.
+     */
+    public void finish(TraceSegment owner, long endTime){
+        this.endTime = endTime;
         owner.archive(this);
     }
 
     /**
+     * Sets the string name for the logical operation this span represents.
+     *
+     * @return this Span instance, for chaining
+     */
+    public Span setOperationName(String operationName){
+        this.operationName = operationName;
+        return this;
+    }
+
+    /**
      * Set a key:value tag on the Span.
+     *
+     * @return this Span instance, for chaining
      */
     public final Span setTag(String key, String value) {
         tags.put(key, value);
