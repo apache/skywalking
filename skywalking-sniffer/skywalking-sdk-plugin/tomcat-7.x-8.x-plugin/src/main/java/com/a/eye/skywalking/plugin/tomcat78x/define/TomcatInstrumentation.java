@@ -1,32 +1,29 @@
-package com.a.eye.skywalking.plugin.dubbo;
+package com.a.eye.skywalking.plugin.tomcat78x.define;
 
 import com.a.eye.skywalking.api.plugin.interceptor.ConstructorInterceptPoint;
 import com.a.eye.skywalking.api.plugin.interceptor.InstanceMethodsInterceptPoint;
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
-import com.alibaba.dubbo.rpc.Invocation;
-import com.alibaba.dubbo.rpc.Invoker;
+import com.a.eye.skywalking.plugin.tomcat78x.TomcatInterceptor;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 
+import org.apache.catalina.connector.Request;
+import org.apache.catalina.connector.Response;
+
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
- * {@link DubboInstrumentation} presents that skywalking use class {@link DubboInterceptor} to
- * intercept {@link com.alibaba.dubbo.monitor.support.MonitorFilter#invoke(Invoker, Invocation)}.
+ * {@link TomcatInstrumentation} presents that skywalking use class {@link TomcatInterceptor} to
+ * intercept {@link org.apache.catalina.core.StandardEngineValve#invoke(Request, Response)}.
  *
  * @author zhangxin
  */
-public class DubboInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class TomcatInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    /**
-     * Enhance class
-     */
-    private static final String ENHANCE_CLASS = "com.alibaba.dubbo.monitor.support.MonitorFilter";
-    /**
-     * Intercept class
-     */
-    private static final String INTERCEPT_CLASS = "com.a.eye.skywalking.plugin.dubbo.DubboInterceptor";
+    private static final String ENHANCE_CLASS = "org.apache.catalina.core.StandardEngineValve";
+
+    private static final String INTERCEPT_CLASS = "com.a.eye.skywalking.plugin.tomcat78x.TomcatInterceptor";
 
     @Override
     protected String enhanceClassName() {

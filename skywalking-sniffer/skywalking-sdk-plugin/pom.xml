@@ -33,6 +33,12 @@
 			<artifactId>skywalking-api</artifactId>
 			<version>3.0-2017</version>
 		</dependency>
+		<dependency>
+			<groupId>com.a.eye</groupId>
+			<artifactId>skywalking-sniffer-mock</artifactId>
+			<version>3.0-2017</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
