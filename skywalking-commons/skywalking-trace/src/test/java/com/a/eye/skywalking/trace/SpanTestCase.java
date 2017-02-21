@@ -39,7 +39,7 @@ public class SpanTestCase {
         Span span1 = new Span(0, "serviceA");
         Tags.SPAN_LAYER.asHttp(span1);
         Tags.COMPONENT.set(span1, "Spring");
-        Tags.PEER_HOST.set(span1, ipToInt("127.0.0.1"));
+        Tags.PEER_HOST.set(span1, "127.0.0.1");
         Tags.ERROR.set(span1, true);
         Tags.STATUS_CODE.set(span1, 302);
         Tags.URL.set(span1, "http://127.0.0.1/serviceA");
@@ -49,38 +49,8 @@ public class SpanTestCase {
         Map<String, Object> tags = span1.getTags();
         Assert.assertEquals(8, tags.size());
         Assert.assertTrue(Tags.SPAN_LAYER.isHttp(span1));
-        Assert.assertEquals("127.0.0.1", intToIp(Tags.PEER_HOST.get(span1)));
+        Assert.assertEquals("127.0.0.1", Tags.PEER_HOST.get(span1));
         Assert.assertTrue(Tags.ERROR.get(span1));
-    }
-
-    private int ipToInt(String ipAddress) {
-        int result = 0;
-        String[] ipAddressInArray = ipAddress.split("\\.");
-
-        for (int i = 3; i >= 0; i--) {
-
-            int ip = Integer.parseInt(ipAddressInArray[3 - i]);
-
-            //left shifting 24,16,8,0 and bitwise OR
-            //1. 192 << 24
-            //1. 168 << 16
-            //1. 1   << 8
-            //1. 2   << 0
-            result |= ip << (i * 8);
-        }
-        return result;
-    }
-
-    private static String intToIp(int longIp) {
-        StringBuffer sb = new StringBuffer("");
-        sb.append(String.valueOf((longIp >>> 24)));
-        sb.append(".");
-        sb.append(String.valueOf((longIp & 0x00FFFFFF) >>> 16));
-        sb.append(".");
-        sb.append(String.valueOf((longIp & 0x0000FFFF) >>> 8));
-        sb.append(".");
-        sb.append(String.valueOf((longIp & 0x000000FF)));
-        return sb.toString();
     }
 
     @Test

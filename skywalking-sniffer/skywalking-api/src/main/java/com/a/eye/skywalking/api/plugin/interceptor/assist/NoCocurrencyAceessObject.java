@@ -1,7 +1,7 @@
 package com.a.eye.skywalking.api.plugin.interceptor.assist;
 
 import com.a.eye.skywalking.api.plugin.interceptor.EnhancedClassInstanceContext;
-import com.a.eye.skywalking.plugin.interceptor.InterceptorException;
+import com.a.eye.skywalking.api.plugin.interceptor.InterceptorException;
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 
 /**

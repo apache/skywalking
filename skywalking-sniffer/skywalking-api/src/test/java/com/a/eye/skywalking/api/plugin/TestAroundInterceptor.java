@@ -1,8 +1,7 @@
 package com.a.eye.skywalking.api.plugin;
 
 import com.a.eye.skywalking.api.plugin.interceptor.EnhancedClassInstanceContext;
-import com.a.eye.skywalking.plugin.interceptor.enhance.ConstructorInvokeContext;
-import com.a.eye.skywalking.plugin.interceptor.enhance.InstanceMethodInvokeContext;
+import com.a.eye.skywalking.api.plugin.interceptor.enhance.InstanceMethodInvokeContext;
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.MethodInterceptResult;
 

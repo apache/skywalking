@@ -4,8 +4,6 @@ import com.a.eye.skywalking.api.plugin.interceptor.ConstructorInterceptPoint;
 import com.a.eye.skywalking.api.plugin.interceptor.InstanceMethodsInterceptPoint;
 import com.a.eye.skywalking.api.plugin.interceptor.StaticMethodsInterceptPoint;
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.ClassEnhancePluginDefine;
-import com.a.eye.skywalking.plugin.interceptor.ConstructorInterceptPoint;
-import com.a.eye.skywalking.plugin.interceptor.StaticMethodsInterceptPoint;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 

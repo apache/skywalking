@@ -1,9 +1,9 @@
 package com.a.eye.skywalking.api.logging;
 
 
-import com.a.eye.skywalking.conf.Config;
-import com.a.eye.skywalking.util.LoggingUtil;
 
+import com.a.eye.skywalking.api.conf.Config;
+import com.a.eye.skywalking.api.util.LoggingUtil;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;

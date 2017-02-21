@@ -2,13 +2,13 @@ package com.a.eye.skywalking.api.logging;
 
 
 import com.a.eye.skywalking.api.logging.api.ILog;
-import com.a.eye.skywalking.util.LoggingUtil;
 
+import com.a.eye.skywalking.api.util.LoggingUtil;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import static com.a.eye.skywalking.logging.LogLevel.*;
+import static com.a.eye.skywalking.api.logging.LogLevel.*;
 
 /**
  * Created by xin on 16-6-23.

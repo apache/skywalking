@@ -1,6 +1,6 @@
 package com.a.eye.skywalking.api.logging;
 
-import com.a.eye.skywalking.conf.Config;
+import com.a.eye.skywalking.api.conf.Config;
 
 public class WriterFactory {
     private WriterFactory(){
