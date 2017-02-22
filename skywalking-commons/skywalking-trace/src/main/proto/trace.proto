@@ -3,7 +3,35 @@ syntax = "proto3";
 option java_multiple_files = true;
 option java_package = "com.a.eye.skywalking.trace.proto.message";
 
+message SegmentMessage {
+    string traceSegmentId = 1;
+    int64 startTime = 2;
+    int64 endTime = 3;
+    SegmentRefMessage primaryRef = 4;
+    repeated SegmentRefMessage refs = 5;
+    repeated SpanMessage spans = 6;
+}
 
-message SegmentMessage{
+message SegmentRefMessage {
+    string traceSegmentId = 1;
+    int32 spanId = 2;
+}
 
+message SpanMessage {
+    int32 spanId = 1;
+    int64 startTime = 2;
+    int64 endTime = 3;
+    string operationName = 4;
+    repeated KeyValue tags = 5;
+    repeated LogDataMessage logs = 6;
+}
+
+message LogDataMessage {
+    int64 time = 1;
+    repeated KeyValue fields = 5;
+}
+
+message KeyValue {
+    string key = 1;
+    string value = 2;
 }
