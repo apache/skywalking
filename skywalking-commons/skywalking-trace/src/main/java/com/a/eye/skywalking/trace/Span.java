@@ -259,6 +259,7 @@ public class Span implements ISerializable<SpanMessage> {
      */
     public Span log(Throwable t) {
         Map<String, String> exceptionFields = new HashMap<String, String>();
+        exceptionFields.put("event", "error");
         exceptionFields.put("error.kind", t.getClass().getName());
         exceptionFields.put("message", t.getMessage());
         exceptionFields.put("stack", ThrowableTransformer.INSTANCE.convert2String(t, 4000));
