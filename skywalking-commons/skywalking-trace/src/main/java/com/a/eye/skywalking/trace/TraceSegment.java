@@ -1,5 +1,9 @@
 package com.a.eye.skywalking.trace;
 
+import com.a.eye.skywalking.messages.ISerializable;
+import com.a.eye.skywalking.trace.messages.proto.SegmentMessage;
+import com.a.eye.skywalking.trace.messages.proto.SegmentRefMessage;
+import com.a.eye.skywalking.trace.messages.proto.SpanMessage;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -13,7 +17,7 @@ import java.util.List;
  *
  * Created by wusheng on 2017/2/17.
  */
-public class TraceSegment {
+public class TraceSegment implements ISerializable<SegmentMessage> {
     /**
      * The id of this trace segment.
      * Every segment has its unique-global-id.
@@ -70,10 +74,10 @@ public class TraceSegment {
      *
      * @param refSegment {@link TraceSegmentRef}
      */
-    public void ref(TraceSegmentRef refSegment){
-        if(primaryRef == null){
+    public void ref(TraceSegmentRef refSegment) {
+        if (primaryRef == null) {
             primaryRef = refSegment;
-        }else {
+        } else {
             if (refs == null) {
                 refs = new LinkedList<TraceSegmentRef>();
             }
@@ -87,7 +91,7 @@ public class TraceSegment {
      *
      * @param finishedSpan
      */
-    public void archive(Span finishedSpan){
+    public void archive(Span finishedSpan) {
         spans.add(finishedSpan);
     }
 
@@ -96,9 +100,9 @@ public class TraceSegment {
      *
      * return this, for chaining
      */
-    public TraceSegment finish(){
-       this.endTime = System.currentTimeMillis();
-       return this;
+    public TraceSegment finish() {
+        this.endTime = System.currentTimeMillis();
+        return this;
     }
 
     public String getTraceSegmentId() {
@@ -133,5 +137,46 @@ public class TraceSegment {
             ", primaryRef=" + primaryRef +
             ", spans.size=" + spans.size() +
             '}';
+    }
+
+    @Override
+    public SegmentMessage serialize() {
+        SegmentMessage.Builder segmentBuilder = SegmentMessage.newBuilder();
+        segmentBuilder.setTraceSegmentId(traceSegmentId);
+        segmentBuilder.setStartTime(startTime);
+        segmentBuilder.setEndTime(endTime);
+        segmentBuilder.setPrimaryRef(primaryRef.serialize());
+        for (TraceSegmentRef ref : refs) {
+            segmentBuilder.addRefs(ref.serialize());
+        }
+        for (Span span : spans) {
+            segmentBuilder.addSpans(span.serialize());
+        }
+        return segmentBuilder.build();
+    }
+
+    @Override
+    public void deserialize(SegmentMessage message) {
+        traceSegmentId = message.getTraceSegmentId();
+        startTime = message.getStartTime();
+        endTime = message.getEndTime();
+        (primaryRef = new TraceSegmentRef()).deserialize(message.getPrimaryRef());
+        List<SegmentRefMessage> refsList = message.getRefsList();
+        if(refsList != null){
+            for (SegmentRefMessage refMessage : refsList) {
+                TraceSegmentRef ref = new TraceSegmentRef();
+                ref.deserialize(refMessage);
+                refs.add(ref);
+            }
+        }
+
+        List<SpanMessage> spansList = message.getSpansList();
+        if(spansList != null){
+            for (SpanMessage spanMessage : spansList) {
+                Span span = new Span();
+                span.deserialize(spanMessage);
+                spans.add(span);
+            }
+        }
     }
 }
