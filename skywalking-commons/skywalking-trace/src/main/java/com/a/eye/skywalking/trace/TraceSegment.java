@@ -68,6 +68,15 @@ public class TraceSegment implements ISerializable<SegmentMessage> {
     }
 
     /**
+     * Create a trace segment, by given {@link SegmentMessage}
+     *
+     * @param message from another {@link TraceSegment#serialize()}
+     */
+    public TraceSegment(SegmentMessage message){
+        deserialize(message);
+    }
+
+    /**
      * Establish the link between this segment and its parents.
      * The first time, you {@link #ref(TraceSegmentRef)} to parent, it is affirmed as {@link #primaryRef}.
      * And others are affirmed as {@link #refs}.
@@ -163,6 +172,7 @@ public class TraceSegment implements ISerializable<SegmentMessage> {
         (primaryRef = new TraceSegmentRef()).deserialize(message.getPrimaryRef());
         List<SegmentRefMessage> refsList = message.getRefsList();
         if(refsList != null){
+            this.refs = new LinkedList<TraceSegmentRef>();
             for (SegmentRefMessage refMessage : refsList) {
                 TraceSegmentRef ref = new TraceSegmentRef();
                 ref.deserialize(refMessage);
@@ -172,10 +182,9 @@ public class TraceSegment implements ISerializable<SegmentMessage> {
 
         List<SpanMessage> spansList = message.getSpansList();
         if(spansList != null){
+            this.spans = new LinkedList<Span>();
             for (SpanMessage spanMessage : spansList) {
-                Span span = new Span();
-                span.deserialize(spanMessage);
-                spans.add(span);
+                spans.add(new Span(spanMessage));
             }
         }
     }

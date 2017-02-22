@@ -140,13 +140,15 @@ public class Span implements ISerializable<SpanMessage> {
     }
 
     /**
-     * This is a empty constructor, only to get a object.
+     * Create a new span, by given {@link SpanMessage}, which you can get from another {@link Span} object,
+     * by calling {@link Span#serialize()};
      *
-     * DO NOT use this in anywhere, except {@link TraceSegment#deserialize(SegmentMessage)}.
+     * @param spanMessage from another {@link Span#serialize()}
      */
-    Span() {
+    public Span(SpanMessage spanMessage) {
         tags = new HashMap<String, Object>();
         logs = new LinkedList<LogData>();
+        this.deserialize(spanMessage);
     }
 
     /**
@@ -294,18 +296,17 @@ public class Span implements ISerializable<SpanMessage> {
         endTime = message.getEndTime();
         operationName = message.getOperationName();
 
+        List<KeyValue> tagsList = message.getTagsList();
+        if(tagsList != null){
+            for (KeyValue tag : tagsList) {
+                tags.put(tag.getKey(), tag.getValue());
+            }
+        }
+
         List<LogDataMessage> logsList = message.getLogsList();
         if (logsList != null) {
             for (LogDataMessage logDataMessage : logsList) {
-                List<KeyValue> fieldsList = logDataMessage.getFieldsList();
-                Map<String, String> fieldsMap = new HashMap<String, String>();
-                if (fieldsList != null) {
-                    for (KeyValue field : fieldsList) {
-                        fieldsMap.put(field.getKey(), field.getValue());
-                    }
-                }
-                LogData logData = new LogData(logDataMessage.getTime(), fieldsMap);
-                logs.add(logData);
+                logs.add(new LogData(logDataMessage));
             }
         }
     }

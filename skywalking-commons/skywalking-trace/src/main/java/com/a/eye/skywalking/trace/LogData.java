@@ -26,6 +26,10 @@ public class LogData implements ISerializable<LogDataMessage>{
         this.fields = fields;
     }
 
+    LogData(LogDataMessage message){
+        deserialize(message);
+    }
+
     public long getTime() {
         return time;
     }

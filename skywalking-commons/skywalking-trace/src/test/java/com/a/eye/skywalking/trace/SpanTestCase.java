@@ -14,6 +14,8 @@ public class SpanTestCase {
     public void testConstructors() {
         Span span1 = new Span(0, "serviceA");
         Span span2 = new Span(2, span1, "serviceA");
+        span2.setOperationName("serviceA-2");
+        Assert.assertEquals("serviceA-2", span2.getOperationName());
 
         Assert.assertEquals(-1, span1.getParentSpanId());
         Assert.assertEquals(0, span2.getParentSpanId());
