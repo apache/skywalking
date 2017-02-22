@@ -1,2 +1,2 @@
-com.a.eye.skywalking.plugin.motan.define.MotanClientDefine
-com.a.eye.skywalking.plugin.motan.define.MotanServerDefine
+com.a.eye.skywalking.plugin.motan.define.ConsumerInstrumentation
+com.a.eye.skywalking.plugin.motan.define.ProviderInstrumentation
