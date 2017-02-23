@@ -7,9 +7,10 @@ message SegmentMessage {
     string traceSegmentId = 1;
     int64 startTime = 2;
     int64 endTime = 3;
-    SegmentRefMessage primaryRef = 4;
-    repeated SegmentRefMessage refs = 5;
-    repeated SpanMessage spans = 6;
+    string applicationCode = 4;
+    SegmentRefMessage primaryRef = 5;
+    repeated SegmentRefMessage refs = 6;
+    repeated SpanMessage spans = 7;
 }
 
 message SegmentRefMessage {

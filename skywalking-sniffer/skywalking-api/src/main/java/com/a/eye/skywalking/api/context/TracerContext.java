@@ -1,5 +1,6 @@
 package com.a.eye.skywalking.api.context;
 
+import com.a.eye.skywalking.api.conf.Config;
 import com.a.eye.skywalking.trace.Span;
 import com.a.eye.skywalking.trace.TraceSegment;
 import com.a.eye.skywalking.api.util.TraceIdGenerator;
@@ -28,8 +29,11 @@ public final class TracerContext {
 
     private int spanIdGenerator;
 
+    /**
+     * Create a {@link TraceSegment} and init {@link #spanIdGenerator} as 0;
+     */
     TracerContext() {
-        this.segment = new TraceSegment(TraceIdGenerator.generate());
+        this.segment = new TraceSegment(TraceIdGenerator.generate(), Config.SkyWalking.APPLICATION_CODE);
         this.spanIdGenerator = 0;
     }
 

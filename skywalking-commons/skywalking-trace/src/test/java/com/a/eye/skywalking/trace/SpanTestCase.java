@@ -25,7 +25,7 @@ public class SpanTestCase {
 
     @Test
     public void testFinish() {
-        TraceSegment owner = new TraceSegment("trace_1");
+        TraceSegment owner = new TraceSegment("trace_1", "billing_app");
 
         Span span1 = new Span(0, "serviceA");
 

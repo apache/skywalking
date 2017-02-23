@@ -10,15 +10,16 @@ import org.junit.Test;
 public class TraceSegmentTestCase {
     @Test
     public void testConstructor() {
-        TraceSegment segment = new TraceSegment("trace_1");
+        TraceSegment segment = new TraceSegment("trace_1", "billing_app");
 
         Assert.assertEquals("trace_1", segment.getTraceSegmentId());
         Assert.assertTrue(segment.getStartTime() > 0);
+        Assert.assertEquals("billing_app", segment.getApplicationCode());
     }
 
     @Test
     public void testRef() {
-        TraceSegment segment = new TraceSegment("trace_3");
+        TraceSegment segment = new TraceSegment("trace_3", "billing_app");
 
         TraceSegmentRef ref1 = new TraceSegmentRef();
         ref1.setTraceSegmentId("parent_trace_0");
@@ -45,7 +46,7 @@ public class TraceSegmentTestCase {
 
     @Test
     public void testArchiveSpan() {
-        TraceSegment segment = new TraceSegment("trace_1");
+        TraceSegment segment = new TraceSegment("trace_1", "billing_app");
         Span span1 = new Span(1, "/serviceA");
         segment.archive(span1);
 
@@ -58,7 +59,7 @@ public class TraceSegmentTestCase {
 
     @Test
     public void testFinish() {
-        TraceSegment segment = new TraceSegment("trace_1");
+        TraceSegment segment = new TraceSegment("trace_1", "billing_app");
 
         Assert.assertTrue(segment.getEndTime() == 0);
         segment.finish();
@@ -67,7 +68,7 @@ public class TraceSegmentTestCase {
 
     @Test
     public void testSerialize() {
-        TraceSegment segment = new TraceSegment("trace_3");
+        TraceSegment segment = new TraceSegment("trace_3", "billing_app");
 
         TraceSegmentRef ref1 = new TraceSegmentRef();
         ref1.setTraceSegmentId("parent_trace_0");
