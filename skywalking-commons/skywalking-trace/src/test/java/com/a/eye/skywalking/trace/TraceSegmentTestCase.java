@@ -73,16 +73,22 @@ public class TraceSegmentTestCase {
         TraceSegmentRef ref1 = new TraceSegmentRef();
         ref1.setTraceSegmentId("parent_trace_0");
         ref1.setSpanId(1);
+        ref1.setApplicationCode("REMOTE_APP");
+        ref1.setPeerHost("10.2.3.16:8080");
         segment.ref(ref1);
 
         TraceSegmentRef ref2 = new TraceSegmentRef();
         ref2.setTraceSegmentId("parent_trace_1");
         ref2.setSpanId(5);
+        ref2.setApplicationCode("REMOTE_APP");
+        ref2.setPeerHost("10.2.3.16:8080");
         segment.ref(ref2);
 
         TraceSegmentRef ref3 = new TraceSegmentRef();
         ref3.setTraceSegmentId("parent_trace_1");
         ref3.setSpanId(5);
+        ref3.setApplicationCode("REMOTE_APP");
+        ref3.setPeerHost("10.2.3.16:8080");
         segment.ref(ref3);
 
         Span span1 = new Span(1, "/serviceA");

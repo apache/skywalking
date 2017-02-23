@@ -16,6 +16,8 @@ message SegmentMessage {
 message SegmentRefMessage {
     string traceSegmentId = 1;
     int32 spanId = 2;
+    string applicationCode = 3;
+    string peerHost = 4;
 }
 
 message SpanMessage {

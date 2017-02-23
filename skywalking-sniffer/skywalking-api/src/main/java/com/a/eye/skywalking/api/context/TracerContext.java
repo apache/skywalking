@@ -5,6 +5,7 @@ import com.a.eye.skywalking.trace.Span;
 import com.a.eye.skywalking.trace.TraceSegment;
 import com.a.eye.skywalking.api.util.TraceIdGenerator;
 import com.a.eye.skywalking.trace.TraceSegmentRef;
+import com.a.eye.skywalking.trace.tag.Tags;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -116,6 +117,8 @@ public final class TracerContext {
     public void inject(ContextCarrier carrier) {
         carrier.setTraceSegmentId(this.segment.getTraceSegmentId());
         carrier.setSpanId(this.activeSpan().getSpanId());
+        carrier.setApplicationCode(Config.SkyWalking.APPLICATION_CODE);
+        carrier.setPeerHost(Tags.PEER_HOST.get(activeSpan()));
     }
 
     /**
@@ -128,6 +131,8 @@ public final class TracerContext {
         TraceSegmentRef ref = new TraceSegmentRef();
         ref.setTraceSegmentId(carrier.getTraceSegmentId());
         ref.setSpanId(carrier.getSpanId());
+        ref.setApplicationCode(carrier.getApplicationCode());
+        ref.setPeerHost(carrier.getPeerHost());
         this.segment.ref(ref);
     }
 

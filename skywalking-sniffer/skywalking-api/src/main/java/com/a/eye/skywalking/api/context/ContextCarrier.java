@@ -2,8 +2,8 @@ package com.a.eye.skywalking.api.context;
 
 import com.a.eye.skywalking.trace.Span;
 import com.a.eye.skywalking.trace.TraceSegment;
-import com.a.eye.skywalking.trace.TraceSegmentRef;
 import com.a.eye.skywalking.api.util.StringUtil;
+import com.a.eye.skywalking.trace.tag.Tags;
 import java.io.Serializable;
 
 /**
@@ -24,13 +24,23 @@ public class ContextCarrier implements Serializable {
     private int spanId = -1;
 
     /**
+     * {@link TraceSegment#applicationCode}
+     */
+    private String applicationCode;
+
+    /**
+     * {@link Tags#PEER_HOST}
+     */
+    private String peerHost;
+
+    /**
      * Serialize this {@link ContextCarrier} to a {@link String},
      * with '|' split.
      *
      * @return the serialization string.
      */
     public String serialize() {
-        return StringUtil.join('|', this.getTraceSegmentId(), this.getSpanId() + "");
+        return StringUtil.join('|', this.getTraceSegmentId(), this.getSpanId() + "", this.getApplicationCode(), this.getPeerHost());
     }
 
     /**
@@ -40,11 +50,13 @@ public class ContextCarrier implements Serializable {
      */
     public ContextCarrier deserialize(String text) {
         if(text != null){
-            String[] parts = text.split("\\|");
-            if(parts.length == 2){
+            String[] parts = text.split("\\|", 4);
+            if(parts.length == 4){
                 try{
                     setSpanId(Integer.parseInt(parts[1]));
                     setTraceSegmentId(parts[0]);
+                    setApplicationCode(parts[2]);
+                    setPeerHost(parts[3]);
                 }catch(NumberFormatException e){
 
                 }
@@ -59,7 +71,7 @@ public class ContextCarrier implements Serializable {
      * @return true for unbroken {@link ContextCarrier} or no-initialized. Otherwise, false;
      */
     public boolean isValid(){
-        return !StringUtil.isEmpty(getTraceSegmentId()) && getSpanId() > -1;
+        return !StringUtil.isEmpty(traceSegmentId) && getSpanId() > -1 && !StringUtil.isEmpty(applicationCode) && !StringUtil.isEmpty(peerHost);
     }
 
     public String getTraceSegmentId() {
@@ -76,5 +88,21 @@ public class ContextCarrier implements Serializable {
 
     public void setSpanId(int spanId) {
         this.spanId = spanId;
+    }
+
+    public String getApplicationCode() {
+        return applicationCode;
+    }
+
+    public void setApplicationCode(String applicationCode) {
+        this.applicationCode = applicationCode;
+    }
+
+    public String getPeerHost() {
+        return peerHost;
+    }
+
+    public void setPeerHost(String peerHost) {
+        this.peerHost = peerHost;
     }
 }
