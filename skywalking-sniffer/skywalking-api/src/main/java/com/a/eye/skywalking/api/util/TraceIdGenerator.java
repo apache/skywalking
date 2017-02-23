@@ -39,4 +39,8 @@ public final class TraceIdGenerator {
             Constants.SDK_VERSION + "", System.currentTimeMillis() + "", PROCESS_UUID + "",
             MachineInfo.getProcessNo() + "", Thread.currentThread().getId() + "", seq + "");
     }
+
+    public static void main(String[] args){
+        System.out.printf(generate());
+    }
 }

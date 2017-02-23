@@ -4,6 +4,7 @@ import com.a.eye.skywalking.api.conf.Config;
 import com.a.eye.skywalking.trace.Span;
 import com.a.eye.skywalking.trace.TraceSegment;
 import com.a.eye.skywalking.api.util.TraceIdGenerator;
+import com.a.eye.skywalking.trace.TraceSegmentRef;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -124,7 +125,10 @@ public final class TracerContext {
      * ContextCarrier#deserialize(String)} called.
      */
     public void extract(ContextCarrier carrier) {
-        this.segment.ref(carrier);
+        TraceSegmentRef ref = new TraceSegmentRef();
+        ref.setTraceSegmentId(carrier.getTraceSegmentId());
+        ref.setSpanId(carrier.getSpanId());
+        this.segment.ref(ref);
     }
 
     /**

@@ -4,7 +4,6 @@ import com.a.eye.skywalking.api.util.StringUtil;
 import com.a.eye.skywalking.messages.ISerializable;
 import com.a.eye.skywalking.trace.messages.proto.KeyValue;
 import com.a.eye.skywalking.trace.messages.proto.LogDataMessage;
-import com.a.eye.skywalking.trace.messages.proto.SegmentMessage;
 import com.a.eye.skywalking.trace.messages.proto.SpanMessage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
