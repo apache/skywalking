@@ -17,7 +17,19 @@ public class ShortTag extends AbstractTag<Short> {
         span.setTag(super.key, tagValue);
     }
 
+    /**
+     * Get a tag value, type of {@link Short}.
+     * After akka-message/serialize, all tags values are type of {@link String}, convert to {@link Short}, if necessary.
+     *
+     * @param span
+     * @return tag value
+     */
     @Override public Short get(Span span) {
-        return (Short)span.getTag(super.key);
+        Object tagValue = span.getTag(super.key);
+        if(tagValue instanceof Short){
+            return (Short)tagValue;
+        }else {
+            return Short.valueOf(tagValue.toString());
+        }
     }
 }
