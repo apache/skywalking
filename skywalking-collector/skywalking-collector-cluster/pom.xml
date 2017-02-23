@@ -27,5 +27,10 @@
             <artifactId>spring-context-support</artifactId>
             <version>${project.spring.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.a.eye</groupId>
+            <artifactId>skywalking-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

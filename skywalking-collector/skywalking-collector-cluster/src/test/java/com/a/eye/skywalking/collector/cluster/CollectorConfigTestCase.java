@@ -7,8 +7,6 @@ import com.typesafe.config.Config;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.ArrayList;
-
 /**
  * Created by pengys5 on 2017/2/22 0022.
  */

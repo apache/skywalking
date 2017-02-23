@@ -1,13 +1,14 @@
 package com.a.eye.skywalking.collector.cluster.manager;
 
 import akka.actor.Terminated;
-import akka.actor.UntypedActor;
+import com.a.eye.skywalking.collector.cluster.base.AbstractUntypedActor;
+import com.a.eye.skywalking.collector.cluster.base.IActorProvider;
 import com.a.eye.skywalking.collector.cluster.message.ActorRegisterMessage;
 
 /**
  * Created by Administrator on 2017/2/21 0021.
  */
-public class ActorManagerActor extends UntypedActor {
+public class ActorManagerActor extends AbstractUntypedActor {
 
     @Override
     public void onReceive(Object message) throws Throwable {

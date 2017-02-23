@@ -20,11 +20,6 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>com.a.eye</groupId>
-			<artifactId>skywalking-sniffer-mock</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>com.typesafe.akka</groupId>
 			<artifactId>akka-cluster_2.11</artifactId>
 			<version>${akka.version}</version>
@@ -48,6 +43,13 @@
 			<groupId>org.iq80.leveldb</groupId>
 			<artifactId>leveldb</artifactId>
 			<version>0.9</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.a.eye</groupId>
+			<artifactId>skywalking-sniffer-mock</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 </project>

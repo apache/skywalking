@@ -11,5 +11,11 @@
 
     <artifactId>skywalking-collector-worker</artifactId>
 
-
+    <dependencies>
+        <dependency>
+            <groupId>com.a.eye</groupId>
+            <artifactId>skywalking-collector-cluster</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>

@@ -1,6 +1,5 @@
 package com.a.eye.skywalking.collector.cluster.config;
 
-import com.a.eye.skywalking.api.conf.Config;
 import com.a.eye.skywalking.api.logging.api.ILog;
 import com.a.eye.skywalking.api.logging.api.LogManager;
 import com.a.eye.skywalking.api.util.ConfigInitializer;

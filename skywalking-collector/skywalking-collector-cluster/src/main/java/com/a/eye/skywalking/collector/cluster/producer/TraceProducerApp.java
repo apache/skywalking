@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static akka.pattern.Patterns.ask;
 
 /**
- * {@link TraceProducerApp} is a producer for trace agent to send @link TraceSegment.
+ * {@link TraceProducerApp} is a producer for trace agent to send {@link TraceSegment}.
  * <p>
  * Created by pengys5 on 2017/2/17.
  */

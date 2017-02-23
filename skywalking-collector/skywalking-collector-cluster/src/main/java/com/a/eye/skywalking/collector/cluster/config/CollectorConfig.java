@@ -11,5 +11,9 @@ public class CollectorConfig {
         public static String hostname = "127.0.0.1";
         public static String port = "2551";
         public static String cluster = "127.0.0.1:2551";
+
+        public static class Actor {
+            public static int ActorManagerActor_Num = 2;
+        }
     }
 }
