@@ -27,6 +27,8 @@ public class SpiTestWorkerFactoryTestCase {
 
     @Test
     public void testWorkerCreate() {
+
+
         SpiTestWorkerFactory factory = Mockito.mock(SpiTestWorkerFactory.class);
         Mockito.when(factory.workerName()).thenReturn("");
         factory.createWorker(system);

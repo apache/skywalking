@@ -2,6 +2,7 @@ package com.a.eye.skywalking.api.context;
 
 import com.a.eye.skywalking.trace.Span;
 import com.a.eye.skywalking.trace.TraceSegment;
+import com.a.eye.skywalking.trace.tag.Tags;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
@@ -56,11 +57,12 @@ public class TracerContextTestCase {
         TracerContext context = new TracerContext();
         Span serviceSpan = context.createSpan("/serviceA");
         Span dbSpan = context.createSpan("db/preparedStatement/execute");
+        Tags.PEER_HOST.set(dbSpan, "127.0.0.1:8080");
 
         ContextCarrier carrier = new ContextCarrier();
         context.inject(carrier);
 
-        Assert.assertTrue(carrier.isValid());
+        Assert.assertEquals("127.0.0.1:8080", carrier.getPeerHost());
         Assert.assertEquals(1, carrier.getSpanId());
     }
 
@@ -69,6 +71,8 @@ public class TracerContextTestCase {
         ContextCarrier carrier = new ContextCarrier();
         carrier.setTraceSegmentId("trace_id_1");
         carrier.setSpanId(5);
+        carrier.setApplicationCode("REMOTE_APP");
+        carrier.setPeerHost("10.2.3.16:8080");
 
         Assert.assertTrue(carrier.isValid());
 

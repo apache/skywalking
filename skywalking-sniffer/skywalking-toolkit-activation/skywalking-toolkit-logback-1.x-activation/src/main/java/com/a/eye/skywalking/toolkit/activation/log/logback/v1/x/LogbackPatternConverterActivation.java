@@ -1,9 +1,9 @@
 package com.a.eye.skywalking.toolkit.activation.log.logback.v1.x;
 
-import com.a.eye.skywalking.plugin.interceptor.ConstructorInterceptPoint;
+import com.a.eye.skywalking.api.plugin.interceptor.ConstructorInterceptPoint;
 import com.a.eye.skywalking.api.plugin.interceptor.InstanceMethodsInterceptPoint;
-import com.a.eye.skywalking.plugin.interceptor.StaticMethodsInterceptPoint;
-import com.a.eye.skywalking.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
+import com.a.eye.skywalking.api.plugin.interceptor.StaticMethodsInterceptPoint;
+import com.a.eye.skywalking.api.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 

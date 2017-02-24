@@ -102,7 +102,7 @@ public final class Tags {
     public static final BooleanTag ERROR = new BooleanTag("error");
 
     /**
-     * PEER_HOST records host address of the peer, maybe IPV4, IPV6 or hostname.
+     * PEER_HOST records host address (ip:port, or ip1:port1,ip2:port2) of the peer, maybe IPV4, IPV6 or hostname.
      */
     public static final StringTag PEER_HOST = new StringTag("peer.host");
 

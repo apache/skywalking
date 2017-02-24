@@ -57,12 +57,20 @@ public enum ContextManager implements TracerContextListener {
         return get().createSpan(operationName);
     }
 
+    public Span createSpan(String operationName, long startTime) {
+        return get().createSpan(operationName);
+    }
+
     public Span activeSpan() {
         return get().activeSpan();
     }
 
     public void stopSpan(Span span) {
         get().stopSpan(span);
+    }
+
+    public void stopSpan(Long endTime) {
+        get().stopSpan(activeSpan(), endTime);
     }
 
     public void stopSpan() {

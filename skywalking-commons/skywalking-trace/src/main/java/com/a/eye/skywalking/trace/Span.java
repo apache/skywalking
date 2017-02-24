@@ -1,10 +1,16 @@
 package com.a.eye.skywalking.trace;
 
+import com.a.eye.skywalking.api.util.StringUtil;
+import com.a.eye.skywalking.messages.ISerializable;
+import com.a.eye.skywalking.trace.messages.proto.KeyValue;
+import com.a.eye.skywalking.trace.messages.proto.LogDataMessage;
+import com.a.eye.skywalking.trace.messages.proto.SpanMessage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -17,7 +23,7 @@ import java.util.Map;
  *
  * Created by wusheng on 2017/2/17.
  */
-public class Span {
+public class Span implements ISerializable<SpanMessage> {
     private int spanId;
 
     private int parentSpanId;
@@ -54,7 +60,7 @@ public class Span {
     private final List<LogData> logs;
 
     /**
-     * Create a new span, by given span id and parent span id.
+     * Create a new span, by given span id, parent span id and operationName.
      * This span must belong a {@link TraceSegment}, also is a part of Distributed Trace.
      *
      * @param spanId given by the creator, and must be unique id in the {@link TraceSegment}
@@ -63,9 +69,23 @@ public class Span {
      * @param operationName {@link #operationName}
      */
     private Span(int spanId, int parentSpanId, String operationName) {
+        this(spanId, parentSpanId, operationName, System.currentTimeMillis());
+    }
+
+    /**
+     * Create a new span, by given span id, parent span id, operationName and startTime.
+     * This span must belong a {@link TraceSegment}, also is a part of Distributed Trace.
+     *
+     * @param spanId given by the creator, and must be unique id in the {@link TraceSegment}
+     * @param parentSpanId given by the creator, and must be an existed span id in the {@link TraceSegment}. Value -1
+     * means no parent span if this {@link TraceSegment}.
+     * @param operationName {@link #operationName}
+     * @param startTime given start timestamp.
+     */
+    private Span(int spanId, int parentSpanId, String operationName, long startTime) {
         this.spanId = spanId;
         this.parentSpanId = parentSpanId;
-        this.startTime = System.currentTimeMillis();
+        this.startTime = startTime;
         this.operationName = operationName;
         this.tags = new HashMap<String, Object>();
         this.logs = new ArrayList<LogData>();
@@ -83,6 +103,18 @@ public class Span {
     }
 
     /**
+     * Create a new span, by given span id and give startTime but no parent span id,
+     * No parent span id means that, this Span is the first span of the {@link TraceSegment}
+     *
+     * @param spanId given by the creator, and must be unique id in the {@link TraceSegment}
+     * @param operationName {@link #operationName}
+     * @param startTime given start time of span
+     */
+    public Span(int spanId, String operationName, long startTime) {
+        this(spanId, -1, operationName, startTime);
+    }
+
+    /**
      * Create a new span, by given span id and given parent {@link Span}.
      *
      * @param spanId given by the creator, and must be unique id in the {@link TraceSegment}
@@ -90,7 +122,32 @@ public class Span {
      * @param operationName {@link #operationName}
      */
     public Span(int spanId, Span parentSpan, String operationName) {
-        this(spanId, parentSpan.spanId, operationName);
+        this(spanId, parentSpan.spanId, operationName, System.currentTimeMillis());
+    }
+
+    /**
+     * Create a new span, by given span id, parent span, operationName and startTime.
+     * This span must belong a {@link TraceSegment}, also is a part of Distributed Trace.
+     *
+     * @param spanId given by the creator, and must be unique id in the {@link TraceSegment}
+     * @param parentSpan {@link Span}
+     * @param operationName {@link #operationName}
+     * @param startTime given start timestamp
+     */
+    public Span(int spanId, Span parentSpan, String operationName, long startTime) {
+        this(spanId, parentSpan.spanId, operationName, startTime);
+    }
+
+    /**
+     * Create a new span, by given {@link SpanMessage}, which you can get from another {@link Span} object,
+     * by calling {@link Span#serialize()};
+     *
+     * @param spanMessage from another {@link Span#serialize()}
+     */
+    public Span(SpanMessage spanMessage) {
+        tags = new HashMap<String, Object>();
+        logs = new LinkedList<LogData>();
+        this.deserialize(spanMessage);
     }
 
     /**
@@ -100,12 +157,36 @@ public class Span {
      * @param owner of the Span.
      */
     public void finish(TraceSegment owner) {
-        this.endTime = System.currentTimeMillis();
+        this.finish(owner, System.currentTimeMillis());
+    }
+
+    /**
+     * Finish the active Span.
+     * When it is finished, it will be archived by the given {@link TraceSegment}, which owners it.
+     * At the same out, set the {@link #endTime} as the given endTime
+     *
+     * @param owner of the Span.
+     * @param endTime of the Span.
+     */
+    public void finish(TraceSegment owner, long endTime) {
+        this.endTime = endTime;
         owner.archive(this);
     }
 
     /**
+     * Sets the string name for the logical operation this span represents.
+     *
+     * @return this Span instance, for chaining
+     */
+    public Span setOperationName(String operationName) {
+        this.operationName = operationName;
+        return this;
+    }
+
+    /**
      * Set a key:value tag on the Span.
+     *
+     * @return this Span instance, for chaining
      */
     public final Span setTag(String key, String value) {
         tags.put(key, value);
@@ -177,11 +258,57 @@ public class Span {
      */
     public Span log(Throwable t) {
         Map<String, String> exceptionFields = new HashMap<String, String>();
+        exceptionFields.put("event", "error");
         exceptionFields.put("error.kind", t.getClass().getName());
         exceptionFields.put("message", t.getMessage());
         exceptionFields.put("stack", ThrowableTransformer.INSTANCE.convert2String(t, 4000));
 
         return log(exceptionFields);
+    }
+
+    @Override
+    public SpanMessage serialize() {
+        SpanMessage.Builder builder = SpanMessage.newBuilder();
+        builder.setSpanId(spanId);
+        builder.setStartTime(startTime);
+        builder.setEndTime(endTime);
+        builder.setOperationName(operationName);
+        for (Map.Entry<String, Object> entry : tags.entrySet()) {
+            KeyValue.Builder tagEntryBuilder = KeyValue.newBuilder();
+            tagEntryBuilder.setKey(entry.getKey());
+            String value = String.valueOf(entry.getValue());
+            if (!StringUtil.isEmpty(value)) {
+                tagEntryBuilder.setValue(value);
+            }
+            builder.addTags(tagEntryBuilder);
+        }
+
+        for (LogData log : logs) {
+            builder.addLogs(log.serialize());
+        }
+        return builder.build();
+    }
+
+    @Override
+    public void deserialize(SpanMessage message) {
+        spanId = message.getSpanId();
+        startTime = message.getStartTime();
+        endTime = message.getEndTime();
+        operationName = message.getOperationName();
+
+        List<KeyValue> tagsList = message.getTagsList();
+        if(tagsList != null){
+            for (KeyValue tag : tagsList) {
+                tags.put(tag.getKey(), tag.getValue());
+            }
+        }
+
+        List<LogDataMessage> logsList = message.getLogsList();
+        if (logsList != null) {
+            for (LogDataMessage logDataMessage : logsList) {
+                logs.add(new LogData(logDataMessage));
+            }
+        }
     }
 
     private enum ThrowableTransformer {

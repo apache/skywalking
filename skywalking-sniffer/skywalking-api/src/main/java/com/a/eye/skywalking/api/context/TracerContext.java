@@ -1,8 +1,11 @@
 package com.a.eye.skywalking.api.context;
 
+import com.a.eye.skywalking.api.conf.Config;
 import com.a.eye.skywalking.trace.Span;
 import com.a.eye.skywalking.trace.TraceSegment;
 import com.a.eye.skywalking.api.util.TraceIdGenerator;
+import com.a.eye.skywalking.trace.TraceSegmentRef;
+import com.a.eye.skywalking.trace.tag.Tags;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -28,8 +31,11 @@ public final class TracerContext {
 
     private int spanIdGenerator;
 
+    /**
+     * Create a {@link TraceSegment} and init {@link #spanIdGenerator} as 0;
+     */
     TracerContext() {
-        this.segment = new TraceSegment(TraceIdGenerator.generate());
+        this.segment = new TraceSegment(TraceIdGenerator.generate(), Config.SkyWalking.APPLICATION_CODE);
         this.spanIdGenerator = 0;
     }
 
@@ -40,12 +46,23 @@ public final class TracerContext {
      * @return the new active span.
      */
     public Span createSpan(String operationName) {
+        return this.createSpan(operationName, System.currentTimeMillis());
+    }
+
+    /**
+     * Create a new span, as an active span, by the given operationName and startTime;
+     *
+     * @param operationName {@link Span#operationName}
+     * @param startTime {@link Span#startTime}
+     * @return
+     */
+    public Span createSpan(String operationName, long startTime){
         Span parentSpan = peek();
         Span span;
         if (parentSpan == null) {
-            span = new Span(spanIdGenerator++, operationName);
+            span = new Span(spanIdGenerator++, operationName, startTime);
         } else {
-            span = new Span(spanIdGenerator++, parentSpan, operationName);
+            span = new Span(spanIdGenerator++, parentSpan, operationName, startTime);
         }
         push(span);
         return span;
@@ -68,9 +85,13 @@ public final class TracerContext {
      * @param span to finish. It must the the top element of {@link #activeSpanStack}.
      */
     public void stopSpan(Span span) {
+        stopSpan(span, System.currentTimeMillis());
+    }
+
+    public void stopSpan(Span span, Long endTime){
         Span lastSpan = peek();
         if (lastSpan == span) {
-            segment.archive(pop());
+            pop().finish(segment, endTime);
         } else {
             throw new IllegalStateException("Stopping the unexpected span = " + span);
         }
@@ -96,6 +117,8 @@ public final class TracerContext {
     public void inject(ContextCarrier carrier) {
         carrier.setTraceSegmentId(this.segment.getTraceSegmentId());
         carrier.setSpanId(this.activeSpan().getSpanId());
+        carrier.setApplicationCode(Config.SkyWalking.APPLICATION_CODE);
+        carrier.setPeerHost(Tags.PEER_HOST.get(activeSpan()));
     }
 
     /**
@@ -105,7 +128,12 @@ public final class TracerContext {
      * ContextCarrier#deserialize(String)} called.
      */
     public void extract(ContextCarrier carrier) {
-        this.segment.ref(carrier);
+        TraceSegmentRef ref = new TraceSegmentRef();
+        ref.setTraceSegmentId(carrier.getTraceSegmentId());
+        ref.setSpanId(carrier.getSpanId());
+        ref.setApplicationCode(carrier.getApplicationCode());
+        ref.setPeerHost(carrier.getPeerHost());
+        this.segment.ref(ref);
     }
 
     /**

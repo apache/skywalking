@@ -1,7 +1,7 @@
 package com.a.eye.skywalking.toolkit.activation.trace;
 
-import com.a.eye.skywalking.plugin.interceptor.StaticMethodsInterceptPoint;
-import com.a.eye.skywalking.plugin.interceptor.enhance.ClassStaticMethodsEnhancePluginDefine;
+import com.a.eye.skywalking.api.plugin.interceptor.StaticMethodsInterceptPoint;
+import com.a.eye.skywalking.api.plugin.interceptor.enhance.ClassStaticMethodsEnhancePluginDefine;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 
