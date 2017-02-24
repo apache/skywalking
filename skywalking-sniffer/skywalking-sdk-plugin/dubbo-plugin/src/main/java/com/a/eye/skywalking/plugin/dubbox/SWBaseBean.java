@@ -10,7 +10,7 @@ import java.io.Serializable;
  */
 public class SWBaseBean implements Serializable {
     /**
-     * Serialized context data
+     * Serialized context data.
      */
     private String contextData;
 

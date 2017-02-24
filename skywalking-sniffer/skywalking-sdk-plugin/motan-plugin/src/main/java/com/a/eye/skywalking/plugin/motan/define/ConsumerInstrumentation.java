@@ -14,14 +14,25 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
  * {@link ConsumerInstrumentation} presents that skywalking use {@link ConsumerInvokeInterceptor}
- * to intercept {@link com.weibo.api.motan.cluster.support.ClusterSpi#call(Request)} and use {@link ConsumerFetchRequestURLInterceptor}
- * to intercept{@link ConsumerFetchRequestURLInterceptor}
+ * to intercept {@link com.weibo.api.motan.cluster.support.ClusterSpi#call(Request)} and use
+ * {@link ConsumerFetchRequestURLInterceptor} to intercept{@link ConsumerFetchRequestURLInterceptor}.
+ *
+ * @author zhangxin
  */
 public class ConsumerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
+    /**
+     * Enhance class.
+     */
     private static final String ENHANCE_CLASS = "com.weibo.api.motan.cluster.support.ClusterSpi";
+    /**
+     * Class that intercept for fetch request url.
+     */
     private static final String FETCH_REQUEST_URL_INTERCEPT_CLASS = "com.a.eye.skywalking.plugin.motan.ConsumerFetchRequestURLInterceptor";
-    private static final String INVOKE_INTECEPT_CLASS = "com.a.eye.skywalking.plugin.motan.ConsumerInvokeInterceptor";
+    /**
+     * Class that intercept {@link com.weibo.api.motan.cluster.support.ClusterSpi#call(Request)}.
+     */
+    private static final String INVOKE_INTERCEPT_CLASS = "com.a.eye.skywalking.plugin.motan.ConsumerInvokeInterceptor";
 
     @Override
     protected String enhanceClassName() {
@@ -53,7 +64,7 @@ public class ConsumerInstrumentation extends ClassInstanceMethodsEnhancePluginDe
 
             @Override
             public String getMethodsInterceptor() {
-                return INVOKE_INTECEPT_CLASS;
+                return INVOKE_INTERCEPT_CLASS;
             }
         }};
     }

@@ -20,6 +20,7 @@ public class JedisConstructorWithUriArgInterceptor implements InstanceConstructo
         URI uri = (URI) interceptorContext.allArguments()[0];
         redisConnInfo = uri.getHost() + ":" + uri.getPort();
         context.set(JedisMethodInterceptor.KEY_OF_REDIS_CONN_INFO, redisConnInfo);
-        context.set(JedisMethodInterceptor.KEY_OF_REDIS_HOSTS, uri.getHost());
+        context.set(JedisMethodInterceptor.KEY_OF_REDIS_HOST, uri.getHost());
+        context.set(JedisMethodInterceptor.KEY_OF_REDIS_PORT, uri.getPort());
     }
 }

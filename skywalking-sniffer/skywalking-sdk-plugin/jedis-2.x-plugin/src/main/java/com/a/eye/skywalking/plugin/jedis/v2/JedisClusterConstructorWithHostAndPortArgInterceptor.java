@@ -7,7 +7,9 @@ import com.a.eye.skywalking.api.plugin.interceptor.enhance.InstanceConstructorIn
 import redis.clients.jedis.HostAndPort;
 
 import static com.a.eye.skywalking.plugin.jedis.v2.JedisMethodInterceptor.KEY_OF_REDIS_CONN_INFO;
+import static com.a.eye.skywalking.plugin.jedis.v2.JedisMethodInterceptor.KEY_OF_REDIS_HOST;
 import static com.a.eye.skywalking.plugin.jedis.v2.JedisMethodInterceptor.KEY_OF_REDIS_HOSTS;
+import static com.a.eye.skywalking.plugin.jedis.v2.JedisMethodInterceptor.KEY_OF_REDIS_PORT;
 
 /**
  * {@link JedisClusterConstructorWithHostAndPortArgInterceptor} will record the host and port information that fetch
@@ -23,6 +25,7 @@ public class JedisClusterConstructorWithHostAndPortArgInterceptor implements Ins
         HostAndPort hostAndPort = (HostAndPort) interceptorContext.allArguments()[0];
         redisConnInfo.append(hostAndPort.toString()).append(";");
         context.set(KEY_OF_REDIS_CONN_INFO, redisConnInfo.toString());
-        context.set(KEY_OF_REDIS_HOSTS, hostAndPort.getHost());
+        context.set(KEY_OF_REDIS_HOST, hostAndPort.getHost());
+        context.set(KEY_OF_REDIS_PORT, hostAndPort.getPort());
     }
 }

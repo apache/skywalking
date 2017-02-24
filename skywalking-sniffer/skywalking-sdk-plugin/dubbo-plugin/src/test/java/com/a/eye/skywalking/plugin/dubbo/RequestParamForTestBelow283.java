@@ -17,8 +17,8 @@ public class RequestParamForTestBelow283 extends SWBaseBean {
      *
      * @param expectSpanId expect span id
      */
-    public void assertSelf(String expectSpanId) {
+    public void assertSelf(String expectSpanId, String expectHost) {
         assertNotNull(getContextData());
-        assertThat(getContextData(), endsWith(expectSpanId));
+        assertThat(getContextData(), endsWith(expectSpanId + "|" + expectHost));
     }
 }

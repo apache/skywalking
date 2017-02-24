@@ -16,7 +16,8 @@ public class ConsumerFetchRequestURLInterceptor implements InstanceMethodsAround
     private static final String CONTEXT_NAME_OF_REQUEST_URL = "REQUEST_URL";
 
     /**
-     * Fetch the request url from the first param of all constructor, and put request url into {@link EnhancedClassInstanceContext#context}.
+     * Fetch the request url from the first param of all constructor, and put request
+     *  url into {@link EnhancedClassInstanceContext#context}.
      *
      * @param context            instance context, a class instance only has one {@link EnhancedClassInstanceContext} instance.
      * @param interceptorContext method context, includes class name, method name, etc.

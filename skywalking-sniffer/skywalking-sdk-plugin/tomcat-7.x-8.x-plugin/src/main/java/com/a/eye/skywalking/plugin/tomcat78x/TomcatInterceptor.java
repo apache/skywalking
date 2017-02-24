@@ -14,12 +14,18 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * {@link TomcatInterceptor} fetch the serialized context data by use {@link HttpServletRequest#getHeader(String)}.
+ * {@link TomcatInterceptor} fetch the serialized context data by using {@link HttpServletRequest#getHeader(String)}.
  * The {@link com.a.eye.skywalking.trace.TraceSegment#primaryRef} of current trace segment will reference to the trace segment id
  * of the previous level if the serialized context is not null.
  */
 public class TomcatInterceptor implements InstanceMethodsAroundInterceptor {
+    /**
+     * Header name that the serialized context data stored in {@link HttpServletRequest#getHeader(String)}.
+     */
     public static final String HEADER_NAME_OF_CONTEXT_DATA = "SKYWALKING_CONTEXT_DATA";
+    /**
+     * Tomcat component.
+     */
     public static final String TOMCAT_COMPONENT = "Tomcat";
 
     /**
@@ -37,6 +43,7 @@ public class TomcatInterceptor implements InstanceMethodsAroundInterceptor {
 
         Span span = ContextManager.INSTANCE.createSpan(request.getRequestURI());
         Tags.COMPONENT.set(span, TOMCAT_COMPONENT);
+        Tags.SPAN_KIND.set(span, Tags.SPAN_KIND_SERVER);
         Tags.URL.set(span, request.getRequestURL().toString());
         Tags.SPAN_LAYER.asHttp(span);
 
@@ -52,8 +59,12 @@ public class TomcatInterceptor implements InstanceMethodsAroundInterceptor {
 
         Span span = ContextManager.INSTANCE.activeSpan();
         Tags.STATUS_CODE.set(span, response.getStatus());
-        ContextManager.INSTANCE.stopSpan();
 
+        if (response.getStatus() != 200) {
+            Tags.ERROR.set(span, true);
+        }
+
+        ContextManager.INSTANCE.stopSpan();
         return ret;
     }
 

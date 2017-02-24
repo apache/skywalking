@@ -77,7 +77,7 @@ public class TomcatInterceptorTest {
 
     @Test
     public void testWithSerializedContextData() {
-        when(request.getHeader(TomcatInterceptor.HEADER_NAME_OF_CONTEXT_DATA)).thenReturn("302017.1487666919810.624424584.17332.1.1|1");
+        when(request.getHeader(TomcatInterceptor.HEADER_NAME_OF_CONTEXT_DATA)).thenReturn("302017.1487666919810.624424584.17332.1.1|1|REMOTE_APP|127.0.0.1");
 
         tomcatInterceptor.beforeMethod(classInstanceContext, methodInvokeContext, methodInterceptResult);
         tomcatInterceptor.afterMethod(classInstanceContext, methodInvokeContext, null);
@@ -114,7 +114,8 @@ public class TomcatInterceptorTest {
     }
 
     private void assertSpanLog(LogData logData) {
-        assertThat(logData.getFields().size(), is(3));
+        assertThat(logData.getFields().size(), is(4));
+        assertThat(logData.getFields().get("event"), CoreMatchers.<Object>is("error"));
         assertThat(logData.getFields().get("error.kind"), CoreMatchers.<Object>is(RuntimeException.class.getName()));
         assertNull(logData.getFields().get("message"));
     }
@@ -129,6 +130,7 @@ public class TomcatInterceptorTest {
         assertThat(Tags.COMPONENT.get(span), is("Tomcat"));
         assertThat(Tags.URL.get(span), is("http://localhost:8080/test/testRequestURL"));
         assertThat(Tags.STATUS_CODE.get(span), is(200));
+        assertThat(Tags.SPAN_KIND.get(span), is(Tags.SPAN_KIND_SERVER));
         assertTrue(Tags.SPAN_LAYER.isHttp(span));
     }
 

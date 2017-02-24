@@ -10,6 +10,7 @@ import com.a.eye.skywalking.api.plugin.interceptor.EnhancedClassInstanceContext;
 import com.a.eye.skywalking.api.plugin.interceptor.InstanceMethodsInterceptPoint;
 import com.a.eye.skywalking.api.plugin.interceptor.StaticMethodsInterceptPoint;
 import com.a.eye.skywalking.api.util.StringUtil;
+
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.dynamic.DynamicType;
 import net.bytebuddy.implementation.MethodDelegation;
@@ -25,7 +26,7 @@ import static net.bytebuddy.matcher.ElementMatchers.not;
  * This class controls all enhance operations, including enhance constructors, instance methods and static methods.
  * All the enhances base on three types interceptor point: {@link ConstructorInterceptPoint}, {@link InstanceMethodsInterceptPoint} and {@link StaticMethodsInterceptPoint}
  * If plugin is going to enhance constructors, instance methods, or both,
- * {@link ClassEnhancePluginDefine} will add a field of {@link EnhancedClassInstanceContext} type.
+ * {@link ClassEnhancePluginDefine} will add a field of {@link com.a.eye.skywalking.api.plugin.interceptor.EnhancedClassInstanceContext} type.
  *
  * @author wusheng
  */
@@ -44,7 +45,6 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
      * @param enhanceOriginClassName target class name
      * @param newClassBuilder        byte-buddy's builder to manipulate class bytecode.
      * @return new byte-buddy's builder for further manipulation.
-     * @throws PluginException
      */
     @Override
     protected DynamicType.Builder<?> enhance(String enhanceOriginClassName, DynamicType.Builder<?> newClassBuilder) throws PluginException {
@@ -61,7 +61,6 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
      * @param enhanceOriginClassName target class name
      * @param newClassBuilder        byte-buddy's builder to manipulate class bytecode.
      * @return new byte-buddy's builder for further manipulation.
-     * @throws PluginException
      */
     private DynamicType.Builder<?> enhanceInstance(String enhanceOriginClassName, DynamicType.Builder<?> newClassBuilder) throws PluginException {
         ConstructorInterceptPoint[] constructorInterceptPoints = getConstructorsInterceptPoints();
@@ -150,7 +149,6 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
      * @param enhanceOriginClassName target class name
      * @param newClassBuilder        byte-buddy's builder to manipulate class bytecode.
      * @return new byte-buddy's builder for further manipulation.
-     * @throws PluginException
      */
     private DynamicType.Builder<?> enhanceClass(String enhanceOriginClassName, DynamicType.Builder<?> newClassBuilder) throws PluginException {
         StaticMethodsInterceptPoint[] staticMethodsInterceptPoints = getStaticMethodsInterceptPoints();

@@ -13,20 +13,21 @@ import com.weibo.api.motan.rpc.Response;
 import com.weibo.api.motan.rpc.URL;
 
 /**
- * {@link ConsumerInvokeInterceptor} create span by fetch request url from {@link EnhancedClassInstanceContext#context} and
- * transport serialized context data to provider side through {@link Request#setAttachment(String, String)}.
+ * {@link ConsumerInvokeInterceptor} create span by fetch request url from
+ * {@link EnhancedClassInstanceContext#context} and transport serialized context
+ * data to provider side through {@link Request#setAttachment(String, String)}.
  *
  * @author zhangxin
  */
 public class ConsumerInvokeInterceptor implements InstanceMethodsAroundInterceptor {
 
     /**
-     * Context name of request url in {@link EnhancedClassInstanceContext#context}
+     * Context name of request url in {@link EnhancedClassInstanceContext#context}.
      */
     private static final String CONTEXT_NAME_OF_REQUEST_URL = "REQUEST_URL";
 
     /**
-     * Attachment key of the serialized context data
+     * Attachment key of the serialized context data.
      */
     private static final String ATTACHMENT_KEY_OF_CONTEXT_DATA = "contextData";
 
@@ -81,13 +82,11 @@ public class ConsumerInvokeInterceptor implements InstanceMethodsAroundIntercept
     /**
      * Generate operation name.
      *
-     * @return operation name
+     * @return operation name.
      */
     private static String generateOperationName(URL serviceURI, Request request) {
-        StringBuilder viewPoint = new StringBuilder(serviceURI.getPath());
-        viewPoint.append("." + request.getMethodName());
-        viewPoint.append("(" + request.getParamtersDesc() + ")");
-        return viewPoint.toString();
+        return new StringBuilder(serviceURI.getPath()).append(".").append(request.getMethodName()).append("(")
+                .append(request.getParamtersDesc()).append(")").toString();
     }
 
 }

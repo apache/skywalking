@@ -14,15 +14,21 @@ import org.apache.catalina.connector.Response;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
- * {@link TomcatInstrumentation} presents that skywalking use class {@link TomcatInterceptor} to
+ * {@link TomcatInstrumentation} presents that skywalking using class {@link TomcatInterceptor} to
  * intercept {@link org.apache.catalina.core.StandardEngineValve#invoke(Request, Response)}.
  *
  * @author zhangxin
  */
 public class TomcatInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
+    /**
+     * Enhance class.
+     */
     private static final String ENHANCE_CLASS = "org.apache.catalina.core.StandardEngineValve";
 
+    /**
+     * Intercept class.
+     */
     private static final String INTERCEPT_CLASS = "com.a.eye.skywalking.plugin.tomcat78x.TomcatInterceptor";
 
     @Override

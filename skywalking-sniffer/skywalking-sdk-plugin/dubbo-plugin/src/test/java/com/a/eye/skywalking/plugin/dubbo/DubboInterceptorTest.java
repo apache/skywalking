@@ -89,7 +89,7 @@ public class DubboInterceptorTest {
             public void call(TraceSegment traceSegment) {
                 assertThat(traceSegment.getSpans().size(), is(1));
                 assertConsumerSpan(traceSegment.getSpans().get(0));
-                testParam.assertSelf("0");
+                testParam.assertSelf("0", "127.0.0.1");
             }
         });
     }
@@ -143,7 +143,7 @@ public class DubboInterceptorTest {
     @Test
     public void testProviderWithAttachment() {
         when(rpcContext.isConsumerSide()).thenReturn(false);
-        when(rpcContext.getAttachment(DubboInterceptor.ATTACHMENT_NAME_OF_CONTEXT_DATA)).thenReturn("302017.1487666919810.624424584.17332.1.1|1");
+        when(rpcContext.getAttachment(DubboInterceptor.ATTACHMENT_NAME_OF_CONTEXT_DATA)).thenReturn("302017.1487666919810.624424584.17332.1.1|1|REMOTE_APP|127.0.0.1");
 
         dubboInterceptor.beforeMethod(classInstanceContext, methodInvokeContext, methodInterceptResult);
         dubboInterceptor.afterMethod(classInstanceContext, methodInvokeContext, result);
@@ -156,7 +156,7 @@ public class DubboInterceptorTest {
         when(rpcContext.isConsumerSide()).thenReturn(false);
         when(BugFixActive.isActive()).thenReturn(true);
 
-        testParam.setContextData("302017.1487666919810.624424584.17332.1.1|1");
+        testParam.setContextData("302017.1487666919810.624424584.17332.1.1|1|REMOTE_APP|127.0.0.1");
 
 
         dubboInterceptor.beforeMethod(classInstanceContext, methodInvokeContext, methodInterceptResult);
@@ -175,7 +175,8 @@ public class DubboInterceptorTest {
     }
 
     private void assertErrorLog(LogData logData) {
-        assertThat(logData.getFields().size(), is(3));
+        assertThat(logData.getFields().size(), is(4));
+        assertThat(logData.getFields().get("event"), CoreMatchers.<Object>is("error"));
         assertThat(logData.getFields().get("error.kind"), CoreMatchers.<Object>is(RuntimeException.class.getName()));
         assertNull(logData.getFields().get("message"));
     }

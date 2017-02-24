@@ -20,11 +20,11 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 public class DubboInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     /**
-     * Enhance class
+     * Enhance class.
      */
     private static final String ENHANCE_CLASS = "com.alibaba.dubbo.monitor.support.MonitorFilter";
     /**
-     * Intercept class
+     * Intercept class.
      */
     private static final String INTERCEPT_CLASS = "com.a.eye.skywalking.plugin.dubbo.DubboInterceptor";
 

@@ -18,13 +18,11 @@ public class JedisClusterConstructorWithListHostAndPortArgInterceptor implements
     @Override
     public void onConstruct(EnhancedClassInstanceContext context, ConstructorInvokeContext interceptorContext) {
         StringBuilder redisConnInfo = new StringBuilder();
-        StringBuilder redisHost = new StringBuilder();
         Set<HostAndPort> hostAndPorts = (Set<HostAndPort>) interceptorContext.allArguments()[0];
         for (HostAndPort hostAndPort : hostAndPorts) {
             redisConnInfo.append(hostAndPort.toString()).append(";");
-            redisHost.append(hostAndPort.getHost()).append(";");
         }
         context.set(JedisMethodInterceptor.KEY_OF_REDIS_CONN_INFO, redisConnInfo.toString());
-        context.set(JedisMethodInterceptor.KEY_OF_REDIS_HOSTS, redisHost);
+        context.set(JedisMethodInterceptor.KEY_OF_REDIS_HOSTS, redisConnInfo);
     }
 }

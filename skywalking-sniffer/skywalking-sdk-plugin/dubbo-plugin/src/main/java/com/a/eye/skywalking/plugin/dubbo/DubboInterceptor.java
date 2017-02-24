@@ -2,21 +2,22 @@ package com.a.eye.skywalking.plugin.dubbo;
 
 import com.a.eye.skywalking.api.context.ContextCarrier;
 import com.a.eye.skywalking.api.context.ContextManager;
-import com.a.eye.skywalking.plugin.dubbox.BugFixActive;
-import com.a.eye.skywalking.plugin.dubbox.SWBaseBean;
 import com.a.eye.skywalking.api.plugin.interceptor.EnhancedClassInstanceContext;
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.InstanceMethodInvokeContext;
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.MethodInterceptResult;
+import com.a.eye.skywalking.plugin.dubbox.BugFixActive;
+import com.a.eye.skywalking.plugin.dubbox.SWBaseBean;
 import com.a.eye.skywalking.trace.Span;
 import com.a.eye.skywalking.trace.tag.Tags;
+import com.alibaba.dubbo.common.URL;
 import com.alibaba.dubbo.rpc.Invocation;
 import com.alibaba.dubbo.rpc.Invoker;
 import com.alibaba.dubbo.rpc.Result;
 import com.alibaba.dubbo.rpc.RpcContext;
 
 /**
- * {@link DubboInterceptor} define how to enhance class{@link com.alibaba.dubbo.monitor.support.MonitorFilter#invoke(Invoker, Invocation)}.
+ * {@link DubboInterceptor} define how to enhance class {@link com.alibaba.dubbo.monitor.support.MonitorFilter#invoke(Invoker, Invocation)}.
  * the context data will transport to the provider side by {@link RpcContext#attachments}.but all the version of dubbo framework below 2.8.3
  * don't support {@link RpcContext#attachments}, we support another way to support it. it is that all request parameters of dubbo service
  * need to extend {@link SWBaseBean}, and {@link DubboInterceptor} will inject the serialized context data to the {@link SWBaseBean} bean and
@@ -39,10 +40,6 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
      * The serialized context data will extract from the first param that extend {@link SWBaseBean} of dubbo service
      * if the method {@link BugFixActive#active()} be called. or it will extract from {@link RpcContext#attachments}.
      * current trace segment will ref if the serialize context data is not null.
-     *
-     * @param context            instance context, a class instance only has one {@link EnhancedClassInstanceContext} instance.
-     * @param interceptorContext method context, includes class name, method name, etc.
-     * @param result             change this result, if you want to truncate the method.
      */
     @Override
     public void beforeMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
@@ -52,8 +49,15 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
         Invocation invocation = (Invocation) arguments[1];
         RpcContext rpcContext = RpcContext.getContext();
         boolean isConsumer = rpcContext.isConsumerSide();
+        URL requestURL = invoker.getUrl();
 
-        Span span = ContextManager.INSTANCE.createSpan(generateOperationName(invoker, invocation));
+        Span span = ContextManager.INSTANCE.createSpan(generateOperationName(requestURL, invocation));
+        Tags.URL.set(span, generateRequestURL(requestURL, invocation));
+        Tags.COMPONENT.set(span, DUBBO_COMPONENT);
+        Tags.PEER_HOST.set(span, requestURL.getHost());
+        Tags.PEER_PORT.set(span, requestURL.getPort());
+        Tags.SPAN_LAYER.asRPCFramework(span);
+
         if (isConsumer) {
             Tags.SPAN_KIND.set(span, Tags.SPAN_KIND_CLIENT);
             ContextCarrier contextCarrier = new ContextCarrier();
@@ -91,20 +95,12 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
                 ContextManager.INSTANCE.extract(new ContextCarrier().deserialize(contextDataStr));
             }
         }
-
-        Tags.URL.set(span, generateRequestURL(invoker, invocation));
-        Tags.COMPONENT.set(span, DUBBO_COMPONENT);
-        Tags.SPAN_LAYER.asRPCFramework(span);
     }
 
     /**
      * {@link DubboInterceptor#afterMethod(EnhancedClassInstanceContext, InstanceMethodInvokeContext, Object)} be executed after
      * {@link com.alibaba.dubbo.monitor.support.MonitorFilter#invoke(Invoker, Invocation)}, and it will check {@link Result#getException()} if is null.
      * current active span will log the exception and set true to the value of error tag if the {@link Result#getException()} is not null.
-     *
-     * @param context            instance context, a class instance only has one {@link EnhancedClassInstanceContext} instance.
-     * @param interceptorContext method context, includes class name, method name, etc.
-     * @param ret                the method's original return value.
      */
     @Override
     public Object afterMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
@@ -135,13 +131,13 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
 
     /**
      * Generate operation name.
-     * the operation name should be like this <code>com.a.eye.skywalking.plugin.test.Test.test(String)</code>
+     * the operation name should be like this <code>com.a.eye.skywalking.plugin.test.Test.test(String)</code>.
      *
-     * @return operation name
+     * @return operation name.
      */
-    private static String generateOperationName(Invoker<?> invoker, Invocation invocation) {
+    private static String generateOperationName(URL requestURL, Invocation invocation) {
         StringBuilder operationName = new StringBuilder();
-        operationName.append(invoker.getUrl().getPath());
+        operationName.append(requestURL.getPath());
         operationName.append("." + invocation.getMethodName() + "(");
         for (Class<?> classes : invocation.getParameterTypes()) {
             operationName.append(classes.getSimpleName() + ",");
@@ -158,23 +154,23 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
 
     /**
      * Generate request url.
-     * The request url may be like this <code>dubbo://127.0.0.1:20880/com.a.eye.skywalking.plugin.test.Test.test(String)</code>
+     * The request url may be like this <code>dubbo://127.0.0.1:20880/com.a.eye.skywalking.plugin.test.Test.test(String)</code>.
      *
-     * @return request url
+     * @return request url.
      */
-    private static String generateRequestURL(Invoker<?> invoker, Invocation invocation) {
+    private static String generateRequestURL(URL url, Invocation invocation) {
         StringBuilder requestURL = new StringBuilder();
-        requestURL.append(invoker.getUrl().getProtocol() + "://");
-        requestURL.append(invoker.getUrl().getHost());
-        requestURL.append(":" + invoker.getUrl().getPort() + "/");
-        requestURL.append(generateOperationName(invoker, invocation));
+        requestURL.append(url.getProtocol() + "://");
+        requestURL.append(url.getHost());
+        requestURL.append(":" + url.getPort() + "/");
+        requestURL.append(generateOperationName(url, invocation));
         return requestURL.toString();
     }
 
     /**
-     * Set the serialized context data to the first request param that extend {@link SWBaseBean} of dubbo service
+     * Set the serialized context data to the first request param that extend {@link SWBaseBean} of dubbo service.
      *
-     * @param contextDataStr serialized context data
+     * @param contextDataStr serialized context data.
      */
     private static void fix283SendNoAttachmentIssue(Invocation invocation, String contextDataStr) {
         for (Object parameter : invocation.getArguments()) {
@@ -188,7 +184,7 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
     /**
      * Fetch the serialize context data from the first request param that extend {@link SWBaseBean} of dubbo service.
      *
-     * @return serialized context data
+     * @return serialized context data.
      */
     private static String fix283RecvNoAttachmentIssue(Invocation invocation) {
         for (Object parameter : invocation.getArguments()) {

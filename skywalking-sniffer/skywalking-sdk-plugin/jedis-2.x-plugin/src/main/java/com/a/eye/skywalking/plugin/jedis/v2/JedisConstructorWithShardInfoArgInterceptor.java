@@ -20,6 +20,7 @@ public class JedisConstructorWithShardInfoArgInterceptor implements InstanceCons
         JedisShardInfo shardInfo = (JedisShardInfo) interceptorContext.allArguments()[0];
         redisConnInfo = shardInfo.getHost() + ":" + shardInfo.getPort();
         context.set(JedisMethodInterceptor.KEY_OF_REDIS_CONN_INFO, redisConnInfo);
-        context.set(JedisMethodInterceptor.KEY_OF_REDIS_HOSTS, shardInfo.getHost());
+        context.set(JedisMethodInterceptor.KEY_OF_REDIS_HOST, shardInfo.getHost());
+        context.set(JedisMethodInterceptor.KEY_OF_REDIS_PORT, shardInfo.getPort());
     }
 }

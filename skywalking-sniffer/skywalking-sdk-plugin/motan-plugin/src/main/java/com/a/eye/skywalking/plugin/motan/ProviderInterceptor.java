@@ -34,6 +34,10 @@ public class ProviderInterceptor implements InstanceConstructorInterceptor, Inst
      * The key name that the serialized context data stored in {@link Request#getAttachments()}
      */
     private static final String ATTACHMENT_KEY_OF_CONTEXT_DATA = "contextData";
+    /**
+     * Motan component
+     */
+    private static final String MOTAN_COMPONENT = "Motan";
 
     @Override
     public void onConstruct(EnhancedClassInstanceContext context, ConstructorInvokeContext interceptorContext) {
@@ -47,7 +51,7 @@ public class ProviderInterceptor implements InstanceConstructorInterceptor, Inst
         if (url != null) {
             com.weibo.api.motan.rpc.Request request = (com.weibo.api.motan.rpc.Request) interceptorContext.allArguments()[0];
             Span span = ContextManager.INSTANCE.createSpan(generateViewPoint(url, request));
-            Tags.COMPONENT.set(span, "Motan");
+            Tags.COMPONENT.set(span, MOTAN_COMPONENT);
             Tags.URL.set(span, url.getIdentity());
             Tags.PEER_PORT.set(span, url.getPort());
             Tags.PEER_HOST.set(span, url.getHost());
