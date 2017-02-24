@@ -5,8 +5,8 @@ import akka.actor.ActorSystem;
 /**
  * @author pengys5
  */
-public class CollectorBoot {
+public class CollectorBootstrap {
     public static void main(String[] args) {
-        ActorSystem system = ActorSystem.create("ClusterSystem", config);
+//        ActorSystem system = ActorSystem.create("ClusterSystem", config);
     }
 }

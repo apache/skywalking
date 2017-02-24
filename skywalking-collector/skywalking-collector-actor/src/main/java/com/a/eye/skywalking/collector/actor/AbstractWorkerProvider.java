@@ -16,6 +16,7 @@ public abstract class AbstractWorkerProvider {
     public abstract int workerNum();
 
     public void createWorker(ActorSystem system) {
+        System.out.println("workerName: " + workerName());
         if (StringUtil.isEmpty(workerName())) {
             throw new IllegalArgumentException("cannot createWorker() with anything not obtained from workerName()");
         }
