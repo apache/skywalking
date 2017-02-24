@@ -9,12 +9,12 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>skywalking-collector-worker</artifactId>
+    <artifactId>skywalking-collector-actor</artifactId>
 
     <dependencies>
         <dependency>
             <groupId>com.a.eye</groupId>
-            <artifactId>skywalking-collector-actor</artifactId>
+            <artifactId>skywalking-collector-cluster</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

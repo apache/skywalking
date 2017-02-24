@@ -1,4 +1,4 @@
-package com.a.eye.skywalking.collector.cluster.config;
+package com.a.eye.skywalking.collector.actor;
 
 /**
  * Created by pengys5 on 2017/2/22 0022.
@@ -12,8 +12,8 @@ public class CollectorConfig {
         public static String port = "2551";
         public static String cluster = "127.0.0.1:2551";
 
-        public static class Actor {
-            public static int ActorManagerActor_Num = 2;
+        public static class Worker {
+            public static int ApplicationDiscoverMetric_Num = 2;
         }
     }
 }

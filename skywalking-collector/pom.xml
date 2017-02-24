@@ -5,6 +5,8 @@
 	<modules>
 		<module>skywalking-collector-cluster</module>
 		<module>skywalking-collector-worker</module>
+        <module>../skywalking-collector-actor</module>
+		<module>skywalking-collector-actor</module>
 	</modules>
 	<parent>
 		<artifactId>skywalking</artifactId>
@@ -45,6 +47,11 @@
 			<version>0.9</version>
 		</dependency>
 
+		<dependency>
+			<groupId>com.typesafe.akka</groupId>
+			<artifactId>akka-testkit_2.11</artifactId>
+			<version>${akka.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>com.a.eye</groupId>
 			<artifactId>skywalking-sniffer-mock</artifactId>

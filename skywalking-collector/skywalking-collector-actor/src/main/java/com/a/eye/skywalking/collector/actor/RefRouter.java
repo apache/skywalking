@@ -1,10 +1,11 @@
-package com.a.eye.skywalking.collector.cluster.manager;
+package com.a.eye.skywalking.collector.actor;
 
 import akka.actor.ActorRef;
+
 import java.util.List;
 
 /**
- * Created by wusheng on 2017/2/21.
+ * @author wusheng
  */
 public interface RefRouter {
     ActorRef find(List<ActorRef> candidates);

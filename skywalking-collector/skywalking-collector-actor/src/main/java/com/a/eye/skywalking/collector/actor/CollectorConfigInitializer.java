@@ -1,4 +1,4 @@
-package com.a.eye.skywalking.collector.cluster.config;
+package com.a.eye.skywalking.collector.actor;
 
 import com.a.eye.skywalking.api.logging.api.ILog;
 import com.a.eye.skywalking.api.logging.api.LogManager;
@@ -9,7 +9,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 /**
- * Created by pengys5 on 2017/2/22 0022.
+ * @author pengys5
  */
 public class CollectorConfigInitializer {
 

@@ -1,4 +1,4 @@
-package com.a.eye.skywalking.collector.worker.indicator;
+package com.a.eye.skywalking.collector.worker.metric;
 
 import akka.actor.UntypedActor;
 
