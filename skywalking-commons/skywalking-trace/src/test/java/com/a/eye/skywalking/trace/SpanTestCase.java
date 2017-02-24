@@ -48,7 +48,7 @@ public class SpanTestCase {
         Tags.DB_STATEMENT.set(span1, "select * from users");
 
         Map<String, Object> tags = span1.getTags();
-        Assert.assertEquals(8, tags.size());
+        Assert.assertEquals(7, tags.size());
         Assert.assertTrue(Tags.SPAN_LAYER.isHttp(span1));
         Assert.assertEquals("127.0.0.1", Tags.PEER_HOST.get(span1));
         Assert.assertTrue(Tags.ERROR.get(span1));
