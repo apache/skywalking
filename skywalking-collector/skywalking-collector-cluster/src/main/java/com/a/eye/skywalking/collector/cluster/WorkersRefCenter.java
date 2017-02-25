@@ -37,11 +37,19 @@ public enum WorkersRefCenter {
         actorToRole.remove(newRef);
     }
 
-    public ActorRef find(String workerRole, int sequence) {
-        return roleToActor.get(workerRole).get(sequence);
-    }
-
-    public int sizeOf(String workerRole) {
-        return roleToActor.get(workerRole).size();
+    /**
+     * Get a copy all available {@link ActorRef} list, by the given worker role.
+     * @param workerRole the given role
+     * @return available {@link ActorRef} list
+     * @throws NoAvailableWorkerException , when no available worker.
+     */
+    public List<ActorRef> avaibleWorks(String workerRole) throws NoAvailableWorkerException {
+        List<ActorRef> refs = roleToActor.get(workerRole);
+        if(refs == null || refs.size() == 0){
+            throw new NoAvailableWorkerException("role=" + workerRole + ", no available worker.");
+        }
+        List<ActorRef> availableList = new ArrayList<>(refs.size());
+        availableList.addAll(refs);
+        return Collections.unmodifiableList(availableList);
     }
 }

@@ -9,16 +9,11 @@ import com.a.eye.skywalking.api.util.StringUtil;
  */
 public abstract class AbstractWorkerProvider {
 
-    public abstract String workerRole();
-
     public abstract Class workerClass();
 
     public abstract int workerNum();
 
     public void createWorker(ActorSystem system) {
-        if (StringUtil.isEmpty(workerRole())) {
-            throw new IllegalArgumentException("cannot createWorker() with nothing obtained from workerRole()");
-        }
         if (workerClass() == null) {
             throw new IllegalArgumentException("cannot createWorker() with nothing obtained from workerClass()");
         }
@@ -27,7 +22,11 @@ public abstract class AbstractWorkerProvider {
         }
 
         for (int i = 1; i <= workerNum(); i++) {
-            system.actorOf(Props.create(workerClass(), workerRole()), workerRole() + "_" + i);
+            system.actorOf(Props.create(workerClass(), roleName()), roleName() + "_" + i);
         }
+    }
+
+    protected String roleName(){
+        return workerClass().getSimpleName();
     }
 }
