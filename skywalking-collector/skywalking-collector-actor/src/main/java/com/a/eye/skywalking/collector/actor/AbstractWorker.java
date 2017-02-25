@@ -5,7 +5,7 @@ import akka.actor.UntypedActor;
 import akka.cluster.ClusterEvent;
 import akka.cluster.Member;
 import akka.cluster.MemberStatus;
-import com.a.eye.skywalking.collector.actor.router.WorkerSelector;
+import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
 import com.a.eye.skywalking.collector.cluster.WorkerListenerMessage;
 import com.a.eye.skywalking.collector.cluster.WorkersListener;
 import com.a.eye.skywalking.collector.cluster.WorkersRefCenter;

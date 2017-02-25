@@ -1,4 +1,4 @@
-package com.a.eye.skywalking.collector.actor.router;
+package com.a.eye.skywalking.collector.actor.selector;
 
 import akka.actor.ActorRef;
 import com.a.eye.skywalking.collector.actor.AbstractWorker;
