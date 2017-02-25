@@ -1,18 +1,10 @@
 package com.a.eye.skywalking.plugin.jdbc.connectionurl.parser;
 
-/**
- * {@link AbstractConnectionURLParser} is abstract class that the class that parse jdbc url.
- *
- * @author zhangxin
- */
-public abstract class AbstractConnectionURLParser implements ConnectionURLParser {
+public abstract class AbstractURLParser implements ConnectionURLParser {
 
-    /**
-     * Connection url
-     */
     protected String url;
 
-    public AbstractConnectionURLParser(String url) {
+    public AbstractURLParser(String url) {
         this.url = url;
     }
 
@@ -59,7 +51,4 @@ public abstract class AbstractConnectionURLParser implements ConnectionURLParser
         return url.substring(indexRange[0], indexRange[1]);
     }
 
-    public String getConnectionURL() {
-        return this.url;
-    }
 }

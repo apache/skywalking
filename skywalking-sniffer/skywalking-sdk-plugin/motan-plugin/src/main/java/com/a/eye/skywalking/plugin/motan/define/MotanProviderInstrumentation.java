@@ -12,14 +12,14 @@ import static net.bytebuddy.matcher.ElementMatchers.any;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
- * {@link ProviderInstrumentation} presents that skywalking will use
+ * {@link MotanProviderInstrumentation} presents that skywalking will use
  * {@link com.a.eye.skywalking.plugin.motan.ProviderInterceptor} to intercept
  * all constructor of {@link com.weibo.api.motan.rpc.AbstractProvider} and
  * {@link com.weibo.api.motan.rpc.AbstractProvider#call(Request)}.
  *
  * @author zhangxin
  */
-public class ProviderInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class MotanProviderInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     /**
      * Enhance class.

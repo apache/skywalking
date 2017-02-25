@@ -1,2 +1,2 @@
-com.a.eye.skywalking.plugin.motan.define.ConsumerInstrumentation
-com.a.eye.skywalking.plugin.motan.define.ProviderInstrumentation
+com.a.eye.skywalking.plugin.motan.define.MotanConsumerInstrumentation
+com.a.eye.skywalking.plugin.motan.define.MotanProviderInstrumentation

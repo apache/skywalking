@@ -9,8 +9,8 @@ import java.util.Set;
 import redis.clients.jedis.HostAndPort;
 
 /**
- * {@link JedisClusterConstructorWithHostAndPortArgInterceptor} will record the host and port information that fetch
- * from {@link HostAndPort} collector into {@link EnhancedClassInstanceContext#context}, and each host and port will spilt ;.
+ * {@link JedisClusterConstructorWithHostAndPortArgInterceptor} record the host and port information that fetch
+ * from {@link EnhancedClassInstanceContext#context}, and each host and port will spilt ;.
  *
  * @author zhangxin
  */

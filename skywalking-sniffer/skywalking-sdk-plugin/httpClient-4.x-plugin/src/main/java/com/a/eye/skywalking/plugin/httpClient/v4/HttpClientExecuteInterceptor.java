@@ -14,10 +14,11 @@ import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
 
 /**
- * {@link HttpClientExecuteInterceptor} create span and set the serialized context
- * data to {@link HttpRequest#setHeader(Header)} by using {@link #HEADER_NAME_OF_CONTEXT_DATA} for the header key.
+ * {@link HttpClientExecuteInterceptor} transport the trace context by call {@link HttpRequest#setHeader(Header)},
+ * The current span tag the {@link Tags#ERROR} if {@link StatusLine#getStatusCode()} is not equals 200.
  *
  * @author zhangxin
  */
@@ -48,7 +49,7 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
     }
 
     /**
-     * Generate request URL by using {@link HttpRequest} and {@link HttpHost}
+     * Format request URL.
      *
      * @return request URL
      */

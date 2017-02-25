@@ -1,7 +1,7 @@
 package com.a.eye.skywalking.plugin.jdbc.define;
 
 /**
- * {@link OracleInstrumentation} presents that skywalking will intercept the class <code>oracle.jdbc.OracleDriver
+ * {@link OracleInstrumentation} presents that skywalking intercepts the class <code>oracle.jdbc.OracleDriver
  * </code>.
  *
  * @author zhangxin

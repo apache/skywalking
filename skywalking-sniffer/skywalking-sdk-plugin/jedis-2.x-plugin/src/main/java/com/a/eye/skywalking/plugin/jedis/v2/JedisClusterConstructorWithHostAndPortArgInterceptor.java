@@ -8,12 +8,11 @@ import redis.clients.jedis.HostAndPort;
 
 import static com.a.eye.skywalking.plugin.jedis.v2.JedisMethodInterceptor.KEY_OF_REDIS_CONN_INFO;
 import static com.a.eye.skywalking.plugin.jedis.v2.JedisMethodInterceptor.KEY_OF_REDIS_HOST;
-import static com.a.eye.skywalking.plugin.jedis.v2.JedisMethodInterceptor.KEY_OF_REDIS_HOSTS;
 import static com.a.eye.skywalking.plugin.jedis.v2.JedisMethodInterceptor.KEY_OF_REDIS_PORT;
 
 /**
- * {@link JedisClusterConstructorWithHostAndPortArgInterceptor} will record the host and port information that fetch
- * from {@link HostAndPort} into {@link EnhancedClassInstanceContext#context}, and each host and port will spilt ;.
+ * {@link JedisClusterConstructorWithHostAndPortArgInterceptor} record the host and port information from {@link EnhancedClassInstanceContext#context},
+ * and each host and port will spilt ;.
  *
  * @author zhangxin
  */

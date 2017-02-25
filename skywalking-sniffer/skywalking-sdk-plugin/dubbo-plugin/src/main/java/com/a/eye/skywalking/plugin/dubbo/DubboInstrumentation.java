@@ -12,20 +12,14 @@ import net.bytebuddy.matcher.ElementMatcher;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
- * {@link DubboInstrumentation} presents that skywalking use class {@link DubboInterceptor} to
- * intercept {@link com.alibaba.dubbo.monitor.support.MonitorFilter#invoke(Invoker, Invocation)}.
+ * {@link DubboInstrumentation} presents that skywalking intercepts {@link com.alibaba.dubbo.monitor.support.MonitorFilter#invoke(Invoker, Invocation)}
+ * by using {@link DubboInterceptor}.
  *
  * @author zhangxin
  */
 public class DubboInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    /**
-     * Enhance class.
-     */
     private static final String ENHANCE_CLASS = "com.alibaba.dubbo.monitor.support.MonitorFilter";
-    /**
-     * Intercept class.
-     */
     private static final String INTERCEPT_CLASS = "com.a.eye.skywalking.plugin.dubbo.DubboInterceptor";
 
     @Override

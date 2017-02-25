@@ -12,13 +12,13 @@ import static org.junit.Assert.assertThat;
 public class RequestParamForTestBelow283 extends SWBaseBean {
 
     /**
-     * This method assert that {@link SWBaseBean#getContextData()} if it's not null and context data
+     * This method assert that {@link SWBaseBean#getTraceContext()} if it's not null and context data
      * will end with the expect span id.
      *
      * @param expectSpanId expect span id
      */
     public void assertSelf(String expectSpanId, String expectHost) {
-        assertNotNull(getContextData());
-        assertThat(getContextData(), endsWith(expectSpanId + "|" + expectHost));
+        assertNotNull(getTraceContext());
+        assertThat(getTraceContext(), endsWith(expectSpanId + "|" + expectHost));
     }
 }

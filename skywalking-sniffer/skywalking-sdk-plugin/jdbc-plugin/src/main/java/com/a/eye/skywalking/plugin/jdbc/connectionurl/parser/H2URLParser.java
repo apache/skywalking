@@ -17,12 +17,9 @@ import com.a.eye.skywalking.plugin.jdbc.ConnectionInfo;
  *
  * @author zhangxin
  */
-public class H2URLParser extends AbstractConnectionURLParser {
+public class H2URLParser extends AbstractURLParser {
 
     private static final String LOCALHOST = "localhost";
-    /**
-     * Default port that H2 running with mix mode.
-     */
     private static final int DEFAULT_PORT = 8084;
     /**
      * Flag that H2 running with file mode.
@@ -32,9 +29,6 @@ public class H2URLParser extends AbstractConnectionURLParser {
      * Flag that H2 running with memory mode.
      */
     private static final String MEMORY_MODE_FLAG = "mem";
-    /**
-     * H2 data type.
-     */
     private static final String H2_DB_TYPE = "H2";
 
     public H2URLParser(String url) {

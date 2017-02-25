@@ -1,7 +1,7 @@
 package com.a.eye.skywalking.plugin.jdbc.define;
 
 /**
- * {@link MysqlInstrumentation} presents that skywalking will intercept {@link com.mysql.jdbc.Driver}.
+ * {@link MysqlInstrumentation} presents that skywalking intercepts {@link com.mysql.jdbc.Driver}.
  *
  * @author zhangxin
  */

@@ -9,13 +9,18 @@ import com.a.eye.skywalking.plugin.jdbc.ConnectionInfo;
  * @author zhangxin
  */
 public class URLParser {
+
+    private static final String MYSQL_JDBC_URL_PREFIX = "jdbc:mysql";
+    private static final String ORACLE_JDBC_URL_PREFIX = "jdbc:oracle";
+    private static final String H2_JDBC_URL_PREFIX = "jdbc:h2";
+
     public static ConnectionInfo parser(String url) {
         ConnectionURLParser parser = null;
-        if (url.startsWith("jdbc:mysql")) {
+        if (url.startsWith(MYSQL_JDBC_URL_PREFIX)) {
             parser = new MysqlURLParser(url);
-        } else if (url.startsWith("jdbc:oracle")) {
+        } else if (url.startsWith(ORACLE_JDBC_URL_PREFIX)) {
             parser = new OracleURLParser(url);
-        } else if (url.startsWith("jdbc:h2")) {
+        } else if (url.startsWith(H2_JDBC_URL_PREFIX)) {
             parser = new H2URLParser(url);
         }
         return parser.parse();

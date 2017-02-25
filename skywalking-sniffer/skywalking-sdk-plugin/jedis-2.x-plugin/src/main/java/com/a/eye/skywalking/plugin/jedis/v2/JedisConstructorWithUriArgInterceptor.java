@@ -7,8 +7,8 @@ import com.a.eye.skywalking.api.plugin.interceptor.enhance.InstanceConstructorIn
 import java.net.URI;
 
 /**
- * {@link JedisClusterConstructorWithHostAndPortArgInterceptor} will record the host and port information that fetch
- * from {@link URI} argument into {@link EnhancedClassInstanceContext#context}.
+ * {@link JedisClusterConstructorWithHostAndPortArgInterceptor} record the host and port information that fetch
+ * from {@link EnhancedClassInstanceContext#context}.
  *
  * @author zhangxin
  */

@@ -26,12 +26,12 @@ import com.weibo.api.motan.rpc.URL;
 public class ProviderInterceptor implements InstanceConstructorInterceptor, InstanceMethodsAroundInterceptor {
 
     /**
-     * The key name of request url that stored in {@link EnhancedClassInstanceContext#context}
+     * The
      */
     private static final String KEY_NAME_OF_REQUEST_URL = "REQUEST_URL";
 
     /**
-     * The key name that the serialized context data stored in {@link Request#getAttachments()}
+     * The {@link Request#getAttachments()} key. It maps to the serialized {@link ContextCarrier}.
      */
     private static final String ATTACHMENT_KEY_OF_CONTEXT_DATA = "contextData";
     /**

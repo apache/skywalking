@@ -5,8 +5,8 @@ import com.a.eye.skywalking.api.plugin.interceptor.enhance.ConstructorInvokeCont
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 
 /**
- * {@link JedisClusterConstructorWithHostAndPortArgInterceptor} will record the host and port information that fetch
- * from string argument into {@link EnhancedClassInstanceContext#context}.
+ * {@link JedisClusterConstructorWithHostAndPortArgInterceptor} record the host
+ * and port information from {@link EnhancedClassInstanceContext#context}.
  *
  * @author zhangxin
  */

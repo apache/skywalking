@@ -3,7 +3,7 @@ package com.a.eye.skywalking.plugin.jdbc.connectionurl.parser;
 import com.a.eye.skywalking.plugin.jdbc.ConnectionInfo;
 
 /**
- * {@link MysqlURLParser} presents that how to parse mysql connection url.
+ * {@link MysqlURLParser} parse connection url of mysql.
  *
  * The {@link ConnectionInfo#host} be set the string between charset "//" and the first
  * charset "/" after the charset "//", and {@link ConnectionInfo#databaseName} be set the
@@ -12,16 +12,10 @@ import com.a.eye.skywalking.plugin.jdbc.ConnectionInfo;
  *
  * @author zhangxin
  */
-public class MysqlURLParser extends AbstractConnectionURLParser {
+public class MysqlURLParser extends AbstractURLParser {
 
-    /**
-     * Mysql default port.
-     */
     private static final int DEFAULT_PORT = 3306;
-    /**
-     * Mysql db type.
-     */
-    private static final String MYSQL_DB_TYPE = "Mysql";
+    private static final String DB_TYPE = "Mysql";
 
     public MysqlURLParser(String url) {
         super(url);
@@ -58,13 +52,13 @@ public class MysqlURLParser extends AbstractConnectionURLParser {
                     sb.append(host + ",");
                 }
             }
-            return new ConnectionInfo(MYSQL_DB_TYPE, sb.toString(), fetchDatabaseNameFromURL());
+            return new ConnectionInfo(DB_TYPE, sb.toString(), fetchDatabaseNameFromURL());
         } else {
             String[] hostAndPort = hostSegment[0].split(":");
             if (hostAndPort.length != 1) {
-                return new ConnectionInfo(MYSQL_DB_TYPE, hostAndPort[0], Integer.valueOf(hostAndPort[1]), fetchDatabaseNameFromURL());
+                return new ConnectionInfo(DB_TYPE, hostAndPort[0], Integer.valueOf(hostAndPort[1]), fetchDatabaseNameFromURL());
             } else {
-                return new ConnectionInfo(MYSQL_DB_TYPE, hostAndPort[0], DEFAULT_PORT, fetchDatabaseNameFromURL());
+                return new ConnectionInfo(DB_TYPE, hostAndPort[0], DEFAULT_PORT, fetchDatabaseNameFromURL());
             }
         }
     }

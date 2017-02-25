@@ -156,7 +156,7 @@ public class DubboInterceptorTest {
         when(rpcContext.isConsumerSide()).thenReturn(false);
         when(BugFixActive.isActive()).thenReturn(true);
 
-        testParam.setContextData("302017.1487666919810.624424584.17332.1.1|1|REMOTE_APP|127.0.0.1");
+        testParam.setTraceContext("302017.1487666919810.624424584.17332.1.1|1|REMOTE_APP|127.0.0.1");
 
 
         dubboInterceptor.beforeMethod(classInstanceContext, methodInvokeContext, methodInterceptResult);

@@ -15,15 +15,9 @@ import com.a.eye.skywalking.plugin.jdbc.ConnectionInfo;
  *
  * @author zhangxin
  */
-public class OracleURLParser extends AbstractConnectionURLParser {
+public class OracleURLParser extends AbstractURLParser {
 
-    /**
-     * Oracle db type.
-     */
-    private static final String ORACLE_DB_TYPE = "Oracle";
-    /**
-     * Oracle default port
-     */
+    private static final String DB_TYPE = "Oracle";
     private static final int DEFAULT_PORT = 1521;
 
     public OracleURLParser(String url) {
@@ -49,9 +43,9 @@ public class OracleURLParser extends AbstractConnectionURLParser {
         String[] hostSegment = splitDatabaseAddress(host);
         String databaseName = url.substring(hostRangeIndex[1] + 1);
         if (hostSegment.length == 1) {
-            return new ConnectionInfo(ORACLE_DB_TYPE, host, DEFAULT_PORT, databaseName);
+            return new ConnectionInfo(DB_TYPE, host, DEFAULT_PORT, databaseName);
         } else {
-            return new ConnectionInfo(ORACLE_DB_TYPE, hostSegment[0], Integer.valueOf(hostSegment[1]), databaseName);
+            return new ConnectionInfo(DB_TYPE, hostSegment[0], Integer.valueOf(hostSegment[1]), databaseName);
         }
     }
 

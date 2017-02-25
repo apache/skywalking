@@ -10,8 +10,8 @@ import java.sql.Connection;
 import java.util.Properties;
 
 /**
- * {@link JDBCDriverInterceptor} will return {@link SWConnection} when {@link java.sql.Driver#connect(String, Properties)},
- * instead of the instance that extend {@link Connection}.
+ * {@link JDBCDriverInterceptor} return {@link SWConnection} when {@link java.sql.Driver} to create connection,
+ * instead of the  {@link Connection} instance.
  *
  * @author zhangxin
  */

@@ -6,6 +6,7 @@ import com.a.eye.skywalking.api.plugin.interceptor.enhance.ClassInstanceMethodsE
 import com.a.eye.skywalking.plugin.motan.ConsumerFetchRequestURLInterceptor;
 import com.a.eye.skywalking.plugin.motan.ConsumerInvokeInterceptor;
 import com.weibo.api.motan.rpc.Request;
+import com.weibo.api.motan.rpc.URL;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
@@ -13,25 +14,19 @@ import net.bytebuddy.matcher.ElementMatcher;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
- * {@link ConsumerInstrumentation} presents that skywalking use {@link ConsumerInvokeInterceptor}
- * to intercept {@link com.weibo.api.motan.cluster.support.ClusterSpi#call(Request)} and use
+ * {@link MotanConsumerInstrumentation} presents that skywalking intercept
+ * {@link com.weibo.api.motan.cluster.support.ClusterSpi#call(Request)} by using {@link ConsumerInvokeInterceptor} and
+ * intercept {@link com.weibo.api.motan.cluster.support.ClusterSpi#setUrl(URL)} by using
  * {@link ConsumerFetchRequestURLInterceptor} to intercept{@link ConsumerFetchRequestURLInterceptor}.
  *
  * @author zhangxin
  */
-public class ConsumerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class MotanConsumerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    /**
-     * Enhance class.
-     */
     private static final String ENHANCE_CLASS = "com.weibo.api.motan.cluster.support.ClusterSpi";
-    /**
-     * Class that intercept for fetch request url.
-     */
+
     private static final String FETCH_REQUEST_URL_INTERCEPT_CLASS = "com.a.eye.skywalking.plugin.motan.ConsumerFetchRequestURLInterceptor";
-    /**
-     * Class that intercept {@link com.weibo.api.motan.cluster.support.ClusterSpi#call(Request)}.
-     */
+
     private static final String INVOKE_INTERCEPT_CLASS = "com.a.eye.skywalking.plugin.motan.ConsumerInvokeInterceptor";
 
     @Override

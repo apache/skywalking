@@ -7,8 +7,8 @@ import com.a.eye.skywalking.api.plugin.interceptor.enhance.InstanceConstructorIn
 import redis.clients.jedis.JedisShardInfo;
 
 /**
- * {@link JedisClusterConstructorWithHostAndPortArgInterceptor} will record the host and port information that fetch
- * from {@link JedisShardInfo} argument into {@link EnhancedClassInstanceContext#context}.
+ * {@link JedisClusterConstructorWithHostAndPortArgInterceptor} will record the host
+ * and port information from {@link EnhancedClassInstanceContext#context}.
  *
  * @author zhangxin
  */

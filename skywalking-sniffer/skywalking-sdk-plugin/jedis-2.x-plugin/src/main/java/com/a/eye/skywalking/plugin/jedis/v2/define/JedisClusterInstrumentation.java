@@ -18,35 +18,19 @@ import static net.bytebuddy.matcher.ElementMatchers.not;
 import static net.bytebuddy.matcher.ElementMatchers.takesArgument;
 
 /**
- * {@link JedisClusterInstrumentation} presents that skywalking will intercept all constructors and methods of {@link redis.clients.jedis.JedisCluster}.
- * There are two intercept classes to intercept the constructor of {@link redis.clients.jedis.JedisCluster}.
+ * {@link JedisClusterInstrumentation} presents that skywalking intercepts all constructors and methods of {@link redis.clients.jedis.JedisCluster}.
  * {@link com.a.eye.skywalking.plugin.jedis.v2.JedisClusterConstructorWithHostAndPortArgInterceptor} intercepts all constructor with argument {@link redis.clients.jedis.HostAndPort}
- * and the other constructor will intercept by class {@link JedisClusterConstructorWithListHostAndPortArgInterceptor}.
- * {@link JedisMethodInterceptor} will intercept all methods of {@link redis.clients.jedis.JedisCluster}
+ * and the other constructor intercept by class {@link JedisClusterConstructorWithListHostAndPortArgInterceptor}.
+ * {@link JedisMethodInterceptor} intercept all methods of {@link redis.clients.jedis.JedisCluster}
  *
  * @author zhangxin
  */
 public class JedisClusterInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    /**
-     * {@link redis.clients.jedis.HostAndPort} argument type name
-     */
     private static final String ARGUMENT_TYPE_NAME = "redis.clients.jedis.HostAndPort";
-    /**
-     * Enhance class
-     */
     private static final String ENHANCE_CLASS = "redis.clients.jedis.JedisCluster";
-    /**
-     * Class that intercept all constructors with arg.
-     */
     private static final String CONSTRUCTOR_WITH_LIST_HOSTANDPORT_ARG_INTERCEPT_CLASS = "com.a.eye.skywalking.plugin.jedis.v2.JedisClusterConstructorWithListHostAndPortArgInterceptor";
-    /**
-     * Class that intercept all methods.
-     */
     private static final String METHOD_INTERCEPT_CLASS = "com.a.eye.skywalking.plugin.jedis.v2.JedisMethodInterceptor";
-    /**
-     * Class that intercept all constructors with {@link redis.clients.jedis.HostAndPort}
-     */
     private static final String CONSTRUCTOR_WITH_HOSTANDPORT_ARG_INTERCEPT_CLASS = "com.a.eye.skywalking.plugin.jedis.v2.JedisClusterConstructorWithHostAndPortArgInterceptor";
 
 

@@ -13,7 +13,7 @@ import org.apache.http.protocol.HttpContext;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
- * {@link AbstractHttpClientInstrumentation} presents that skywalking will intercept
+ * {@link AbstractHttpClientInstrumentation} presents that skywalking intercepts
  * {@link org.apache.http.impl.client.DefaultRequestDirector#execute(HttpHost, HttpRequest, HttpContext)}
  * by using {@link HttpClientInstrumentation#INTERCEPT_CLASS}.
  *
