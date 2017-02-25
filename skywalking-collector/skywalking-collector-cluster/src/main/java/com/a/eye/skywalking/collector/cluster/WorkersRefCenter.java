@@ -43,7 +43,7 @@ public enum WorkersRefCenter {
      * @return available {@link ActorRef} list
      * @throws NoAvailableWorkerException , when no available worker.
      */
-    public List<ActorRef> avaibleWorks(String workerRole) throws NoAvailableWorkerException {
+    public List<ActorRef> availableWorks(String workerRole) throws NoAvailableWorkerException {
         List<ActorRef> refs = roleToActor.get(workerRole);
         if(refs == null || refs.size() == 0){
             throw new NoAvailableWorkerException("role=" + workerRole + ", no available worker.");

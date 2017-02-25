@@ -2,7 +2,7 @@ package com.a.eye.skywalking.collector.cluster;
 
 /**
  * The <code>NoAvailableWorkerException</code> represents no available member，
- * when a {@link WorkerSelector} try to select.
+ * when the {@link WorkersRefCenter#availableWorks(String)} try to get the list.
  *
  * Most likely, in the cluster, these is no active worker of the particular role.
  *
