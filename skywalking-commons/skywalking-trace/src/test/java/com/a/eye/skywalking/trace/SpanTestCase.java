@@ -45,11 +45,10 @@ public class SpanTestCase {
         Tags.ERROR.set(span1, true);
         Tags.STATUS_CODE.set(span1, 302);
         Tags.URL.set(span1, "http://127.0.0.1/serviceA");
-        Tags.DB_URL.set(span1, "jdbc:127.0.0.1:user");
         Tags.DB_STATEMENT.set(span1, "select * from users");
 
         Map<String, Object> tags = span1.getTags();
-        Assert.assertEquals(8, tags.size());
+        Assert.assertEquals(7, tags.size());
         Assert.assertTrue(Tags.SPAN_LAYER.isHttp(span1));
         Assert.assertEquals("127.0.0.1", Tags.PEER_HOST.get(span1));
         Assert.assertTrue(Tags.ERROR.get(span1));

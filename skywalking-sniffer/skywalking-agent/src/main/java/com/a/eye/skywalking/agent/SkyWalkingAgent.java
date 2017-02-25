@@ -1,15 +1,16 @@
 package com.a.eye.skywalking.agent;
 
 import com.a.eye.skywalking.agent.junction.SkyWalkingEnhanceMatcher;
-import com.a.eye.skywalking.conf.Config;
+import com.a.eye.skywalking.api.conf.Config;
 import com.a.eye.skywalking.api.conf.SnifferConfigInitializer;
-import com.a.eye.skywalking.logging.EasyLogResolver;
+import com.a.eye.skywalking.api.logging.EasyLogResolver;
 import com.a.eye.skywalking.api.logging.api.ILog;
 import com.a.eye.skywalking.api.logging.api.LogManager;
 import com.a.eye.skywalking.api.plugin.AbstractClassEnhancePluginDefine;
 import com.a.eye.skywalking.api.plugin.PluginBootstrap;
 import com.a.eye.skywalking.api.plugin.PluginDefineCategory;
-import com.a.eye.skywalking.plugin.PluginException;
+import com.a.eye.skywalking.api.plugin.PluginException;
+
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.description.NamedElement;
 import net.bytebuddy.description.type.TypeDescription;
