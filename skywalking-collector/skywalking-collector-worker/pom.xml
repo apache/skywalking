@@ -14,7 +14,7 @@
     <dependencies>
         <dependency>
             <groupId>com.a.eye</groupId>
-            <artifactId>skywalking-collector-actor</artifactId>
+            <artifactId>skywalking-collector-cluster</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

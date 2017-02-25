@@ -9,6 +9,7 @@ import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
 import com.a.eye.skywalking.collector.cluster.WorkerListenerMessage;
 import com.a.eye.skywalking.collector.cluster.WorkersListener;
 import com.a.eye.skywalking.collector.cluster.WorkersRefCenter;
+
 import java.util.List;
 
 /**
@@ -42,7 +43,7 @@ public abstract class AbstractWorker<T> extends UntypedActor {
     }
 
     public void tell(AbstractWorkerProvider targetWorkerProvider, WorkerSelector selector, T message) throws Throwable {
-        List<ActorRef> avaibleWorks = WorkersRefCenter.INSTANCE.availableWorks(targetWorkerProvider.roleName());
+        List<WorkerRef> avaibleWorks = WorkersRefCenter.INSTANCE.availableWorks(targetWorkerProvider.roleName());
         selector.select(avaibleWorks, message).tell(message, getSelf());
     }
 

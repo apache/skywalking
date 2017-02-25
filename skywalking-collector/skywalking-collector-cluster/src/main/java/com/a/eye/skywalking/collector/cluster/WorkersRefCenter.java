@@ -1,6 +1,7 @@
 package com.a.eye.skywalking.collector.cluster;
 
 import akka.actor.ActorRef;
+import com.a.eye.skywalking.collector.actor.WorkerRef;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,38 +19,45 @@ import java.util.concurrent.ConcurrentHashMap;
 public enum WorkersRefCenter {
     INSTANCE;
 
-    private Map<String, List<ActorRef>> roleToActor = new ConcurrentHashMap();
+    private Map<String, List<WorkerRef>> roleToActor = new ConcurrentHashMap();
 
-    private Map<ActorRef, String> actorToRole = new ConcurrentHashMap();
+    private Map<WorkerRef, String> actorToRole = new ConcurrentHashMap();
 
-    public void register(ActorRef newRef, String workerRole) {
+//    private Map<String, WorkerRef> pathToWorkerRef = new ConcurrentHashMap();
+
+    public void register(ActorRef newActorRef, String workerRole) {
         if (!roleToActor.containsKey(workerRole)) {
-            List<ActorRef> actorList = Collections.synchronizedList(new ArrayList<ActorRef>());
+            List<WorkerRef> actorList = Collections.synchronizedList(new ArrayList<WorkerRef>());
             roleToActor.putIfAbsent(workerRole, actorList);
         }
-        roleToActor.get(workerRole).add(newRef);
-        actorToRole.put(newRef, workerRole);
+
+        WorkerRef newWorkerRef = new WorkerRef(newActorRef);
+        roleToActor.get(workerRole).add(newWorkerRef);
+        actorToRole.put(newWorkerRef, workerRole);
+//        pathToWorkerRef.put(newWorkerRef.path(), newWorkerRef);
     }
 
-    public void unregister(ActorRef newRef) {
-        String workerRole = actorToRole.get(newRef);
-        roleToActor.get(workerRole).remove(newRef);
-        actorToRole.remove(newRef);
+    public void unregister(ActorRef newActorRef) {
+        String workerRole = actorToRole.get(newActorRef.path());
+//        WorkerRef workerRef = pathToWorkerRef.get(newActorRef.path());
+
+        roleToActor.get(workerRole).remove(newActorRef);
+        actorToRole.remove(newActorRef);
+//        pathToWorkerRef.remove(newActorRef.path());
     }
 
     /**
-     * Get a copy all available {@link ActorRef} list, by the given worker role.
+     * Get all available {@link WorkerRef} list, by the given worker role.
+     *
      * @param workerRole the given role
-     * @return available {@link ActorRef} list
+     * @return available {@link WorkerRef} list
      * @throws NoAvailableWorkerException , when no available worker.
      */
-    public List<ActorRef> availableWorks(String workerRole) throws NoAvailableWorkerException {
-        List<ActorRef> refs = roleToActor.get(workerRole);
-        if(refs == null || refs.size() == 0){
+    public List<WorkerRef> availableWorks(String workerRole) throws NoAvailableWorkerException {
+        List<WorkerRef> refs = roleToActor.get(workerRole);
+        if (refs == null || refs.size() == 0) {
             throw new NoAvailableWorkerException("role=" + workerRole + ", no available worker.");
         }
-        List<ActorRef> availableList = new ArrayList<>(refs.size());
-        availableList.addAll(refs);
-        return Collections.unmodifiableList(availableList);
+        return Collections.unmodifiableList(refs);
     }
 }

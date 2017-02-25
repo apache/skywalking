@@ -5,13 +5,11 @@ import akka.testkit.JavaTestKit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 /**
  * @author pengys5
  */
-public class SpiTestWorkerFactoryTestCase {
-
+public class WorkersCreatorTestCase {
     ActorSystem system;
 
     @Before
@@ -27,13 +25,13 @@ public class SpiTestWorkerFactoryTestCase {
     }
 
     @Test
-    public void testCreateWorker() {
+    public void testBoot() {
         new JavaTestKit(system) {{
-            SpiTestWorkerFactory aWorkerProvider = new SpiTestWorkerFactory();
-            aWorkerProvider.createWorker(system);
-            system.actorSelection("/user/" + SpiTestWorkerFactory.WorkerRole + "_1").tell("Test1", getRef());
+            WorkersCreator.INSTANCE.boot(system);
+
+            system.actorSelection("/user/SpiTestWorker_1").tell("Test1", getRef());
             expectMsgEquals(duration("1 second"), "Yes");
-            system.actorSelection("/user/" + SpiTestWorkerFactory.WorkerRole + "_2").tell("Test2", getRef());
+            system.actorSelection("/user/SpiTestWorker_2").tell("Test2", getRef());
             expectMsgEquals(duration("1 second"), "No");
         }};
     }

@@ -4,6 +4,7 @@ import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
 import akka.testkit.TestActorRef;
+import com.a.eye.skywalking.collector.actor.WorkerRef;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -47,14 +48,22 @@ public class WorkersRefCenterTestCase {
         WorkersRefCenter.INSTANCE.register(actorRef2, "WorkersListener");
         WorkersRefCenter.INSTANCE.register(actorRef3, "WorkersListener");
 
-        Map<ActorRef, String> actorToRole = (Map<ActorRef, String>) MemberModifier.field(WorkersRefCenter.class, "actorToRole").get(WorkersRefCenter.INSTANCE);
-        Assert.assertEquals("WorkersListener", actorToRole.get(actorRef1));
-        Assert.assertEquals("WorkersListener", actorToRole.get(actorRef2));
-        Assert.assertEquals("WorkersListener", actorToRole.get(actorRef3));
+        Map<WorkerRef, String> actorToRole = (Map<WorkerRef, String>) MemberModifier.field(WorkersRefCenter.class, "actorToRole").get(WorkersRefCenter.INSTANCE);
 
-        Map<String, List<ActorRef>> roleToActor = (Map<String, List<ActorRef>>) MemberModifier.field(WorkersRefCenter.class, "roleToActor").get(WorkersRefCenter.INSTANCE);
-        ActorRef[] actorRefs = {actorRef1, actorRef2, actorRef3};
-        Assert.assertArrayEquals(actorRefs, roleToActor.get("WorkersListener").toArray());
+        for (Map.Entry<WorkerRef, String> entry : actorToRole.entrySet()) {
+            WorkerRef workerRef = entry.getKey();
+            if (workerRef.equals(actorRef1) || workerRef.equals(actorRef2) || workerRef.equals(actorRef3)) {
+                Assert.assertEquals("WorkersListener", entry.getValue());
+            } else {
+                Assert.fail();
+            }
+        }
+
+        Map<String, List<WorkerRef>> roleToActor = (Map<String, List<WorkerRef>>) MemberModifier.field(WorkersRefCenter.class, "roleToActor").get(WorkersRefCenter.INSTANCE);
+        List<WorkerRef> workerRefs = roleToActor.get("WorkersListener");
+        Assert.assertEquals(actorRef1.path().toString(), workerRefs.get(0).path().toString());
+        Assert.assertEquals(actorRef2.path().toString(), workerRefs.get(1).path().toString());
+        Assert.assertEquals(actorRef3.path().toString(), workerRefs.get(2).path().toString());
     }
 
     @Test
@@ -79,7 +88,7 @@ public class WorkersRefCenterTestCase {
     }
 
     @Test
-    public void testSizeOf(){
+    public void testSizeOf() throws NoAvailableWorkerException {
         final Props props = Props.create(WorkersListener.class);
         final TestActorRef<WorkersListener> actorRef1 = TestActorRef.create(system, props, "WorkersListener1");
         final TestActorRef<WorkersListener> actorRef2 = TestActorRef.create(system, props, "WorkersListener2");
@@ -89,6 +98,6 @@ public class WorkersRefCenterTestCase {
         WorkersRefCenter.INSTANCE.register(actorRef2, "WorkersListener");
         WorkersRefCenter.INSTANCE.register(actorRef3, "WorkersListener");
 
-        Assert.assertEquals(3, WorkersRefCenter.INSTANCE.sizeOf("WorkersListener"));
+        Assert.assertEquals(3, WorkersRefCenter.INSTANCE.availableWorks("WorkersListener").size());
     }
 }

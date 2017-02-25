@@ -9,8 +9,7 @@ import org.junit.Test;
 /**
  * @author pengys5
  */
-public class WorkersCreatorTestCase {
-
+public class SpiTestWorkerFactoryTestCase {
     ActorSystem system;
 
     @Before
@@ -26,13 +25,13 @@ public class WorkersCreatorTestCase {
     }
 
     @Test
-    public void testBoot() {
+    public void testCreateWorker() {
         new JavaTestKit(system) {{
-            WorkersCreator.INSTANCE.boot(system);
-
-            system.actorSelection("/user/SpiTestWorker_1").tell("Test1", getRef());
+            SpiTestWorkerFactory aWorkerProvider = new SpiTestWorkerFactory();
+            aWorkerProvider.createWorker(system);
+            system.actorSelection("/user/" + SpiTestWorkerFactory.WorkerRole + "_1").tell("Test1", getRef());
             expectMsgEquals(duration("1 second"), "Yes");
-            system.actorSelection("/user/SpiTestWorker_2").tell("Test2", getRef());
+            system.actorSelection("/user/" + SpiTestWorkerFactory.WorkerRole + "_2").tell("Test2", getRef());
             expectMsgEquals(duration("1 second"), "No");
         }};
     }

@@ -2,7 +2,6 @@ package com.a.eye.skywalking.collector.actor;
 
 import akka.actor.ActorSystem;
 import akka.actor.Props;
-import com.a.eye.skywalking.api.util.StringUtil;
 
 /**
  * @author pengys5

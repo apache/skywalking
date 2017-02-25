@@ -8,11 +8,6 @@ public class SpiTestWorkerFactory extends AbstractWorkerProvider {
     public static final String WorkerRole = "SpiTestWorker";
 
     @Override
-    public String workerRole() {
-        return WorkerRole;
-    }
-
-    @Override
     public Class workerClass() {
         return SpiTestWorker.class;
     }

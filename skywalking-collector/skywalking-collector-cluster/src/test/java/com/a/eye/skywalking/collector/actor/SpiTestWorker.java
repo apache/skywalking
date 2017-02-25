@@ -1,7 +1,5 @@
 package com.a.eye.skywalking.collector.actor;
 
-import akka.japi.Creator;
-
 /**
  * @author pengys5
  */
