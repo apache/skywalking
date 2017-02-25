@@ -41,14 +41,9 @@ public abstract class AbstractWorker<T> extends UntypedActor {
         }
     }
 
-<<<<<<< HEAD
-    protected void tell(String workerRole, WorkerRouter router, Object message) throws Throwable {
-        router.find(workerRole).tell(message, getSelf());
-=======
     public void tell(AbstractWorkerProvider targetWorkerProvider, WorkerSelector selector, T message) throws Throwable {
         List<ActorRef> avaibleWorks = WorkersRefCenter.INSTANCE.availableWorks(targetWorkerProvider.roleName());
         selector.select(avaibleWorks, message).tell(message, getSelf());
->>>>>>> e93c6a65c448419bb87c0777b3c42dfc425d533b
     }
 
     void register(Member member) {
