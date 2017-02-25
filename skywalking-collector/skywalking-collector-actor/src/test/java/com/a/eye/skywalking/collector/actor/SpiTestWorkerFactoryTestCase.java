@@ -1,6 +1,7 @@
 package com.a.eye.skywalking.collector.actor;
 
 import akka.actor.ActorSystem;
+import akka.testkit.JavaTestKit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,11 +27,14 @@ public class SpiTestWorkerFactoryTestCase {
     }
 
     @Test
-    public void testWorkerCreate() {
-
-
-        SpiTestWorkerFactory factory = Mockito.mock(SpiTestWorkerFactory.class);
-        Mockito.when(factory.workerName()).thenReturn("");
-        factory.createWorker(system);
+    public void testCreateWorker() {
+        new JavaTestKit(system) {{
+            SpiTestWorkerFactory aWorkerProvider = new SpiTestWorkerFactory();
+            aWorkerProvider.createWorker(system);
+            system.actorSelection("/user/" + SpiTestWorkerFactory.WorkerRole + "_1").tell("Test1", getRef());
+            expectMsgEquals(duration("1 second"), "Yes");
+            system.actorSelection("/user/" + SpiTestWorkerFactory.WorkerRole + "_2").tell("Test2", getRef());
+            expectMsgEquals(duration("1 second"), "No");
+        }};
     }
 }

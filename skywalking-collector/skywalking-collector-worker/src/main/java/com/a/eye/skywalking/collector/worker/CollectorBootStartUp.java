@@ -1,10 +1,5 @@
 package com.a.eye.skywalking.collector.worker;
 
-import akka.actor.ActorSystem;
-import akka.actor.Props;
-import com.a.eye.skywalking.collector.cluster.Const;
-import com.a.eye.skywalking.collector.cluster.consumer.TraceConsumerActor;
-
 /**
  * @author pengys5
  */

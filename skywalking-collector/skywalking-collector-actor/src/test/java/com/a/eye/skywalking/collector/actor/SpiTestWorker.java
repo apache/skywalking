@@ -1,12 +1,22 @@
 package com.a.eye.skywalking.collector.actor;
 
+import akka.japi.Creator;
+
 /**
  * @author pengys5
  */
 public class SpiTestWorker extends AbstractWorker {
 
-    @Override
-    public void onReceive(Object message) throws Throwable {
+    public SpiTestWorker(String workerRole) {
+        super(workerRole);
+    }
 
+    @Override
+    public void receive(Object message) {
+        if (message.equals("Test1")) {
+            getSender().tell("Yes", getSelf());
+        } else if (message.equals("Test2")) {
+            getSender().tell("No", getSelf());
+        }
     }
 }

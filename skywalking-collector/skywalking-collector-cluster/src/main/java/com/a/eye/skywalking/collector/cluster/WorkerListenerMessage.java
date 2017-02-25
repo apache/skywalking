@@ -8,14 +8,14 @@ import java.io.Serializable;
 public class WorkerListenerMessage {
 
     public static class RegisterMessage implements Serializable {
-        public final String role;
+        public final String workRole;
 
-        public RegisterMessage(String role) {
-            this.role = role;
+        public RegisterMessage(String workRole) {
+            this.workRole = workRole;
         }
 
-        public String getRole() {
-            return role;
+        public String getWorkRole() {
+            return workRole;
         }
     }
 }

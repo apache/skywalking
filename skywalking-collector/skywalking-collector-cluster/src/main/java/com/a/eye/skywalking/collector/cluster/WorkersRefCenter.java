@@ -22,26 +22,26 @@ public enum WorkersRefCenter {
 
     private Map<ActorRef, String> actorToRole = new ConcurrentHashMap();
 
-    public void register(ActorRef newRef, String name) {
-        if (!roleToActor.containsKey(name)) {
+    public void register(ActorRef newRef, String workerRole) {
+        if (!roleToActor.containsKey(workerRole)) {
             List<ActorRef> actorList = Collections.synchronizedList(new ArrayList<ActorRef>());
-            roleToActor.putIfAbsent(name, actorList);
+            roleToActor.putIfAbsent(workerRole, actorList);
         }
-        roleToActor.get(name).add(newRef);
-        actorToRole.put(newRef, name);
+        roleToActor.get(workerRole).add(newRef);
+        actorToRole.put(newRef, workerRole);
     }
 
     public void unregister(ActorRef newRef) {
-        String role = actorToRole.get(newRef);
-        roleToActor.get(role).remove(newRef);
+        String workerRole = actorToRole.get(newRef);
+        roleToActor.get(workerRole).remove(newRef);
         actorToRole.remove(newRef);
     }
 
-//    public ActorRef find(String name, RefRouter router) {
-//        return router.find(roleToActor.get(name));
-//    }
+    public ActorRef find(String workerRole, int sequence) {
+        return roleToActor.get(workerRole).get(sequence);
+    }
 
-    public int sizeOf(String name) {
-        return roleToActor.get(name).size();
+    public int sizeOf(String workerRole) {
+        return roleToActor.get(workerRole).size();
     }
 }

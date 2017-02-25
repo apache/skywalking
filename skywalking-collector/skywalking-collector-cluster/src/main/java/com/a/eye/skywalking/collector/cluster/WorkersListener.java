@@ -9,6 +9,8 @@ import akka.actor.UntypedActor;
  */
 public class WorkersListener extends UntypedActor {
 
+    public static final String WorkName = "WorkersListener";
+
     @Override
     public void onReceive(Object message) throws Throwable {
         if (message instanceof WorkerListenerMessage.RegisterMessage) {
@@ -16,7 +18,7 @@ public class WorkersListener extends UntypedActor {
             ActorRef sender = getSender();
             getContext().watch(sender);
 
-            WorkersRefCenter.INSTANCE.register(sender, register.getRole());
+            WorkersRefCenter.INSTANCE.register(sender, register.getWorkRole());
         } else if (message instanceof Terminated) {
             Terminated terminated = (Terminated) message;
             WorkersRefCenter.INSTANCE.unregister(terminated.getActor());

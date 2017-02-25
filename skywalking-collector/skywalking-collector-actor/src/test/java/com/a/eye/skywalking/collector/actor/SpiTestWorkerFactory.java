@@ -5,11 +5,11 @@ package com.a.eye.skywalking.collector.actor;
  */
 public class SpiTestWorkerFactory extends AbstractWorkerProvider {
 
-    public static final String WorkerName = "SpiTestWorker";
+    public static final String WorkerRole = "SpiTestWorker";
 
     @Override
-    public String workerName() {
-        return WorkerName;
+    public String workerRole() {
+        return WorkerRole;
     }
 
     @Override
