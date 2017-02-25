@@ -1,17 +1,20 @@
 package com.a.eye.skywalking.collector.actor;
 
+import akka.actor.ActorRef;
 import akka.actor.UntypedActor;
 import akka.cluster.ClusterEvent;
 import akka.cluster.Member;
 import akka.cluster.MemberStatus;
-import com.a.eye.skywalking.collector.actor.router.WorkerRouter;
+import com.a.eye.skywalking.collector.actor.router.WorkerSelector;
 import com.a.eye.skywalking.collector.cluster.WorkerListenerMessage;
 import com.a.eye.skywalking.collector.cluster.WorkersListener;
+import com.a.eye.skywalking.collector.cluster.WorkersRefCenter;
+import java.util.List;
 
 /**
  * @author pengys5
  */
-public abstract class AbstractWorker extends UntypedActor {
+public abstract class AbstractWorker<T> extends UntypedActor {
 
     final String workerRole;
 
@@ -38,8 +41,14 @@ public abstract class AbstractWorker extends UntypedActor {
         }
     }
 
+<<<<<<< HEAD
     protected void tell(String workerRole, WorkerRouter router, Object message) throws Throwable {
         router.find(workerRole).tell(message, getSelf());
+=======
+    public void tell(AbstractWorkerProvider targetWorkerProvider, WorkerSelector selector, T message) throws Throwable {
+        List<ActorRef> avaibleWorks = WorkersRefCenter.INSTANCE.availableWorks(targetWorkerProvider.roleName());
+        selector.select(avaibleWorks, message).tell(message, getSelf());
+>>>>>>> e93c6a65c448419bb87c0777b3c42dfc425d533b
     }
 
     void register(Member member) {
