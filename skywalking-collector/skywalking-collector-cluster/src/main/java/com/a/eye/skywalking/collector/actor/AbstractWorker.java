@@ -43,8 +43,8 @@ public abstract class AbstractWorker<T> extends UntypedActor {
     }
 
     public void tell(AbstractWorkerProvider targetWorkerProvider, WorkerSelector selector, T message) throws Throwable {
-        List<WorkerRef> avaibleWorks = WorkersRefCenter.INSTANCE.availableWorks(targetWorkerProvider.roleName());
-        selector.select(avaibleWorks, message).tell(message, getSelf());
+        List<WorkerRef> availableWorks = WorkersRefCenter.INSTANCE.availableWorks(targetWorkerProvider.roleName());
+        selector.select(availableWorks, message).tell(message, getSelf());
     }
 
     void register(Member member) {
