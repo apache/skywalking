@@ -35,6 +35,7 @@ public class JedisInstrumentation extends ClassInstanceMethodsEnhancePluginDefin
     private static final String CONSTRUCTOR_WITH_STRING_ARG_INTERCEPT_CLASS = "com.a.eye.skywalking.plugin.jedis.v2.JedisConstructorWithStringArgInterceptor";
     private static final String CONSTRUCTOR_WITH_SHARD_INFO_ARG_INTERCEPT_CLASS = "com.a.eye.skywalking.plugin.jedis.v2.JedisConstructorWithShardInfoArgInterceptor";
     private static final String CONSTRUCTOR_WITH_URI_ARG_INTERCEPT_CLASS = "com.a.eye.skywalking.plugin.jedis.v2.JedisConstructorWithUriArgInterceptor";
+    private static final String JEDIS_METHOD_INTERCET_CLASS = "com.a.eye.skywalking.plugin.jedis.v2.JedisMethodInterceptor";
 
     @Override
     public String enhanceClassName() {
@@ -94,7 +95,7 @@ public class JedisInstrumentation extends ClassInstanceMethodsEnhancePluginDefin
 
             @Override
             public String getMethodsInterceptor() {
-                return "com.a.eye.skywalking.plugin.jedis.v2.JedisMethodInterceptor";
+                return JEDIS_METHOD_INTERCET_CLASS;
             }
         }};
     }

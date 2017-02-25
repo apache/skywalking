@@ -18,12 +18,12 @@ import com.weibo.api.motan.rpc.URL;
  * Current trace segment will ref the trace segment from previous level if the serialized context data that fetch
  * from {@link Request#getAttachments()} is not null.
  *
- * {@link ProviderInterceptor} intercept all constructor of {@link com.weibo.api.motan.rpc.AbstractProvider} for record
+ * {@link MotanProviderInterceptor} intercept all constructor of {@link com.weibo.api.motan.rpc.AbstractProvider} for record
  * the request url from consumer side.
  *
  * @author zhangxin
  */
-public class ProviderInterceptor implements InstanceConstructorInterceptor, InstanceMethodsAroundInterceptor {
+public class MotanProviderInterceptor implements InstanceConstructorInterceptor, InstanceMethodsAroundInterceptor {
 
     /**
      * The

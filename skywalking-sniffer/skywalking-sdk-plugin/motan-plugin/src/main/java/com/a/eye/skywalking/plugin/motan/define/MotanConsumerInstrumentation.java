@@ -3,8 +3,8 @@ package com.a.eye.skywalking.plugin.motan.define;
 import com.a.eye.skywalking.api.plugin.interceptor.ConstructorInterceptPoint;
 import com.a.eye.skywalking.api.plugin.interceptor.InstanceMethodsInterceptPoint;
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
-import com.a.eye.skywalking.plugin.motan.ConsumerFetchRequestURLInterceptor;
-import com.a.eye.skywalking.plugin.motan.ConsumerInvokeInterceptor;
+import com.a.eye.skywalking.plugin.motan.MotanConsumerFetchRequestURLInterceptor;
+import com.a.eye.skywalking.plugin.motan.MotanConsumerInvokeInterceptor;
 import com.weibo.api.motan.rpc.Request;
 import com.weibo.api.motan.rpc.URL;
 
@@ -15,9 +15,9 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
  * {@link MotanConsumerInstrumentation} presents that skywalking intercept
- * {@link com.weibo.api.motan.cluster.support.ClusterSpi#call(Request)} by using {@link ConsumerInvokeInterceptor} and
+ * {@link com.weibo.api.motan.cluster.support.ClusterSpi#call(Request)} by using {@link MotanConsumerInvokeInterceptor} and
  * intercept {@link com.weibo.api.motan.cluster.support.ClusterSpi#setUrl(URL)} by using
- * {@link ConsumerFetchRequestURLInterceptor} to intercept{@link ConsumerFetchRequestURLInterceptor}.
+ * {@link MotanConsumerFetchRequestURLInterceptor} to intercept{@link MotanConsumerFetchRequestURLInterceptor}.
  *
  * @author zhangxin
  */
@@ -25,9 +25,9 @@ public class MotanConsumerInstrumentation extends ClassInstanceMethodsEnhancePlu
 
     private static final String ENHANCE_CLASS = "com.weibo.api.motan.cluster.support.ClusterSpi";
 
-    private static final String FETCH_REQUEST_URL_INTERCEPT_CLASS = "com.a.eye.skywalking.plugin.motan.ConsumerFetchRequestURLInterceptor";
+    private static final String FETCH_REQUEST_URL_INTERCEPT_CLASS = "com.a.eye.skywalking.plugin.motan.MotanConsumerFetchRequestURLInterceptor";
 
-    private static final String INVOKE_INTERCEPT_CLASS = "com.a.eye.skywalking.plugin.motan.ConsumerInvokeInterceptor";
+    private static final String INVOKE_INTERCEPT_CLASS = "com.a.eye.skywalking.plugin.motan.MotanConsumerInvokeInterceptor";
 
     @Override
     protected String enhanceClassName() {

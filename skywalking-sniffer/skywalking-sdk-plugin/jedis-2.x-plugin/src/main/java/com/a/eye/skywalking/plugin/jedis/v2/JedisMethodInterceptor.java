@@ -10,8 +10,9 @@ import com.a.eye.skywalking.trace.Span;
 import com.a.eye.skywalking.trace.tag.Tags;
 
 /**
- * {@link JedisMethodInterceptor} create span and set redis host and redis connection information
- * from {@link EnhancedClassInstanceContext#context} to span tags.
+ * {@link JedisMethodInterceptor} intercept all method of {@link redis.clients.jedis.Jedis}
+ * or {@link redis.clients.jedis.JedisCluster}. {@link JedisMethodInterceptor} record
+ * the redis host, operation name and the key of the operation.
  *
  * @author zhangxin
  */
@@ -36,9 +37,7 @@ public class JedisMethodInterceptor extends NoCocurrencyAceessObject {
      * using {@link #KEY_OF_REDIS_HOST} is not null.
      */
     protected static final String KEY_OF_REDIS_PORT = "KEY_OF_REDIS_PORT";
-    /**
-     * Redis component
-     */
+
     private static final String REDIS_COMPONENT = "Redis";
 
 

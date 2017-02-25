@@ -6,12 +6,12 @@ import com.a.eye.skywalking.api.plugin.interceptor.enhance.InstanceMethodsAround
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.MethodInterceptResult;
 
 /**
- * {@link ConsumerFetchRequestURLInterceptor} record {@link com.weibo.api.motan.rpc.URL} to {@link EnhancedClassInstanceContext#context}
+ * {@link MotanConsumerFetchRequestURLInterceptor} record {@link com.weibo.api.motan.rpc.URL} to {@link EnhancedClassInstanceContext#context}
  * for the operation name that create span need.
  *
  * @author zhangxin
  */
-public class ConsumerFetchRequestURLInterceptor implements InstanceMethodsAroundInterceptor {
+public class MotanConsumerFetchRequestURLInterceptor implements InstanceMethodsAroundInterceptor {
 
     private static final String CONTEXT_NAME_OF_REQUEST_URL = "REQUEST_URL";
 

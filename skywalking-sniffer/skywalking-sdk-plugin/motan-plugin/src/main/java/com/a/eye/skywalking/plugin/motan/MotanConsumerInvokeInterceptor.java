@@ -13,13 +13,13 @@ import com.weibo.api.motan.rpc.Response;
 import com.weibo.api.motan.rpc.URL;
 
 /**
- * {@link ConsumerInvokeInterceptor} create span by fetch request url from
+ * {@link MotanConsumerInvokeInterceptor} create span by fetch request url from
  * {@link EnhancedClassInstanceContext#context} and transport serialized context
  * data to provider side through {@link Request#setAttachment(String, String)}.
  *
  * @author zhangxin
  */
-public class ConsumerInvokeInterceptor implements InstanceMethodsAroundInterceptor {
+public class MotanConsumerInvokeInterceptor implements InstanceMethodsAroundInterceptor {
 
     /**
      * Context name of request url in {@link EnhancedClassInstanceContext#context}.
