@@ -48,22 +48,18 @@ public final class Tags {
     public static final class SPAN_LAYER {
         private static StringTag SPAN_LAYER_TAG = new StringTag("span.layer");
 
-        private static final String RDB_LAYER = "rdb";
+        private static final String DB_LAYER = "db";
         private static final String RPC_FRAMEWORK_LAYER = "rpc";
-        private static final String NOSQL_LAYER = "nosql";
         private static final String HTTP_LAYER = "http";
 
-        public static void asRDB(Span span) {
-            SPAN_LAYER_TAG.set(span, RDB_LAYER);
+        public static void asDB(Span span) {
+            SPAN_LAYER_TAG.set(span, DB_LAYER);
         }
 
         public static void asRPCFramework(Span span) {
             SPAN_LAYER_TAG.set(span, RPC_FRAMEWORK_LAYER);
         }
 
-        public static void asNoSQL(Span span) {
-            SPAN_LAYER_TAG.set(span, NOSQL_LAYER);
-        }
 
         public static void asHttp(Span span) {
             SPAN_LAYER_TAG.set(span, HTTP_LAYER);
@@ -73,16 +69,12 @@ public final class Tags {
             return SPAN_LAYER_TAG.get(span);
         }
 
-        public static boolean isRDB(Span span) {
-            return RDB_LAYER.equals(get(span));
+        public static boolean isDB(Span span) {
+            return DB_LAYER.equals(get(span));
         }
 
         public static boolean isRPCFramework(Span span) {
             return RPC_FRAMEWORK_LAYER.equals(get(span));
-        }
-
-        public static boolean isNoSQL(Span span) {
-            return NOSQL_LAYER.equals(get(span));
         }
 
         public static boolean isHttp(Span span) {
@@ -107,9 +99,24 @@ public final class Tags {
     public static final StringTag PEER_HOST = new StringTag("peer.host");
 
     /**
-     * DB_URL records the url of the database access.
+     * PEER_PORT records remote port of the peer
      */
-    public static final StringTag DB_URL = new StringTag("db.url");
+    public static final IntTag PEER_PORT = new IntTag("peer.port");
+
+    /**
+     * PEERS records multiple host address and port of remote
+     */
+    public static final StringTag PEERS = new StringTag("peers");
+
+    /**
+     * DB_TYPE records database type, such as sql, redis, cassandra and so on.
+     */
+    public static final StringTag DB_TYPE = new StringTag("db.type");
+
+    /**
+     * DB_INSTANCE records database instance name.
+     */
+    public static final StringTag DB_INSTANCE = new StringTag("db.instance");
 
     /**
      * DB_STATEMENT records the sql statement of the database access.

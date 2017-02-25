@@ -52,7 +52,7 @@
                         </goals>
                         <configuration>
                             <sources>
-                                <source>src/java/generated-source/protobuf/java</source>
+                                <source>${basedir}/target/generated-sources/protobuf/java</source>
                             </sources>
                         </configuration>
                     </execution>
@@ -79,6 +79,8 @@
                     </execution>
                 </executions>
             </plugin>
+
+
         </plugins>
     </build>
 </project>

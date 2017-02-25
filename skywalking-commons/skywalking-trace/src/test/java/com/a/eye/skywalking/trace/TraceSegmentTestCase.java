@@ -96,7 +96,7 @@ public class TraceSegmentTestCase {
         segment.archive(span1);
 
         Span span2 = new Span(2, span1, "/db/sql");
-        Tags.SPAN_LAYER.asNoSQL(span2);
+        Tags.SPAN_LAYER.asDB(span2);
         span2.log(new NullPointerException());
         segment.archive(span2);
 

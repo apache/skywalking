@@ -1,5 +1,6 @@
 package com.a.eye.skywalking.api.plugin.interceptor;
 
+
 import com.a.eye.skywalking.api.plugin.PluginException;
 
 public class EnhanceException extends PluginException {
