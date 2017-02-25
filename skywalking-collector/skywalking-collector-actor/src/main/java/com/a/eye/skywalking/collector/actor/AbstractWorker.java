@@ -38,12 +38,14 @@ public abstract class AbstractWorker extends UntypedActor {
         }
     }
 
-    public void tell(String workerRole, WorkerRouter router, Object message) throws Throwable {
+    protected void tell(String workerRole, WorkerRouter router, Object message) throws Throwable {
         router.find(workerRole).tell(message, getSelf());
     }
 
     void register(Member member) {
-        WorkerListenerMessage.RegisterMessage registerMessage = new WorkerListenerMessage.RegisterMessage(workerRole);
-        getContext().actorSelection(member.address() + "/user/" + WorkersListener.WorkName).tell(registerMessage, getSelf());
+        if (member.getRoles().equals(WorkersListener.WorkName)) {
+            WorkerListenerMessage.RegisterMessage registerMessage = new WorkerListenerMessage.RegisterMessage(workerRole);
+            getContext().actorSelection(member.address() + "/user/" + WorkersListener.WorkName).tell(registerMessage, getSelf());
+        }
     }
 }
