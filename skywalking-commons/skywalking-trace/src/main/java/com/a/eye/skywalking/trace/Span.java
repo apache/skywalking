@@ -2,9 +2,9 @@ package com.a.eye.skywalking.trace;
 
 import com.a.eye.skywalking.api.util.StringUtil;
 import com.a.eye.skywalking.messages.ISerializable;
-import com.a.eye.skywalking.trace.messages.proto.KeyValue;
-import com.a.eye.skywalking.trace.messages.proto.LogDataMessage;
-import com.a.eye.skywalking.trace.messages.proto.SpanMessage;
+import com.a.eye.skywalking.trace.proto.KeyValue;
+import com.a.eye.skywalking.trace.proto.LogDataMessage;
+import com.a.eye.skywalking.trace.proto.SpanMessage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;

@@ -1,9 +1,9 @@
 package com.a.eye.skywalking.trace;
 
 import com.a.eye.skywalking.messages.ISerializable;
-import com.a.eye.skywalking.trace.messages.proto.SegmentMessage;
-import com.a.eye.skywalking.trace.messages.proto.SegmentRefMessage;
-import com.a.eye.skywalking.trace.messages.proto.SpanMessage;
+import com.a.eye.skywalking.trace.proto.SegmentMessage;
+import com.a.eye.skywalking.trace.proto.SegmentRefMessage;
+import com.a.eye.skywalking.trace.proto.SpanMessage;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
