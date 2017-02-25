@@ -29,7 +29,7 @@
         <dependency>
             <groupId>com.a.eye</groupId>
             <artifactId>skywalking-trace</artifactId>
-            <version>3.0-2017</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.lmax</groupId>
