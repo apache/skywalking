@@ -9,6 +9,14 @@ import java.io.InputStream;
 import java.util.Properties;
 
 /**
+ * <code>ClusterConfigInitializer</code> Contains static methods for setting
+ * {@link ClusterConfig} attributes value.
+ *
+ * <p>
+ * The priority of value setting is
+ * system property -> collector.config -> {@link ClusterConfig} default value
+ * <p>
+ *
  * @author pengys5
  */
 public class ClusterConfigInitializer {
@@ -17,6 +25,11 @@ public class ClusterConfigInitializer {
 
     public static final String ConfigFileName = "collector.config";
 
+    /**
+     * Read config file to setting {@link ClusterConfig} then get system property to overwrite it.
+     *
+     * @param configFileName is the config file name, the file format is key-value pairs
+     */
     public static void initialize(String configFileName) {
         InputStream configFileStream = ClusterConfigInitializer.class.getResourceAsStream("/" + configFileName);
 

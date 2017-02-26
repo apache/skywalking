@@ -19,31 +19,25 @@ import java.util.concurrent.ConcurrentHashMap;
 public enum WorkersRefCenter {
     INSTANCE;
 
-    private Map<String, List<WorkerRef>> roleToActor = new ConcurrentHashMap();
+    private Map<String, List<WorkerRef>> roleToWorkerRef = new ConcurrentHashMap();
 
-    private Map<WorkerRef, String> actorToRole = new ConcurrentHashMap();
-
-//    private Map<String, WorkerRef> pathToWorkerRef = new ConcurrentHashMap();
+    private Map<ActorRef, WorkerRef> actorRefToWorkerRef = new ConcurrentHashMap<>();
 
     public void register(ActorRef newActorRef, String workerRole) {
-        if (!roleToActor.containsKey(workerRole)) {
+        if (!roleToWorkerRef.containsKey(workerRole)) {
             List<WorkerRef> actorList = Collections.synchronizedList(new ArrayList<WorkerRef>());
-            roleToActor.putIfAbsent(workerRole, actorList);
+            roleToWorkerRef.putIfAbsent(workerRole, actorList);
         }
 
-        WorkerRef newWorkerRef = new WorkerRef(newActorRef);
-        roleToActor.get(workerRole).add(newWorkerRef);
-        actorToRole.put(newWorkerRef, workerRole);
-//        pathToWorkerRef.put(newWorkerRef.path(), newWorkerRef);
+        WorkerRef newWorkerRef = new WorkerRef(newActorRef, workerRole);
+        roleToWorkerRef.get(workerRole).add(newWorkerRef);
+        actorRefToWorkerRef.put(newActorRef, newWorkerRef);
     }
 
-    public void unregister(ActorRef newActorRef) {
-        String workerRole = actorToRole.get(newActorRef.path());
-//        WorkerRef workerRef = pathToWorkerRef.get(newActorRef.path());
-
-        roleToActor.get(workerRole).remove(newActorRef);
-        actorToRole.remove(newActorRef);
-//        pathToWorkerRef.remove(newActorRef.path());
+    public void unregister(ActorRef oldActorRef) {
+        WorkerRef oldWorkerRef = actorRefToWorkerRef.get(oldActorRef);
+        roleToWorkerRef.get(oldWorkerRef.getWorkerRole()).remove(oldWorkerRef);
+        actorRefToWorkerRef.remove(oldActorRef);
     }
 
     /**
@@ -54,7 +48,7 @@ public enum WorkersRefCenter {
      * @throws NoAvailableWorkerException , when no available worker.
      */
     public List<WorkerRef> availableWorks(String workerRole) throws NoAvailableWorkerException {
-        List<WorkerRef> refs = roleToActor.get(workerRole);
+        List<WorkerRef> refs = roleToWorkerRef.get(workerRole);
         if (refs == null || refs.size() == 0) {
             throw new NoAvailableWorkerException("role=" + workerRole + ", no available worker.");
         }

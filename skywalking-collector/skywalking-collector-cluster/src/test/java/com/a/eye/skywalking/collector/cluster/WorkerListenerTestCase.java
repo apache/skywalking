@@ -6,6 +6,7 @@ import akka.actor.Props;
 import akka.actor.Terminated;
 import akka.pattern.Patterns;
 import akka.testkit.TestActorRef;
+import com.a.eye.skywalking.collector.actor.WorkerRef;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -23,10 +24,19 @@ import java.util.concurrent.ConcurrentHashMap;
 public class WorkerListenerTestCase {
 
     ActorSystem system;
+    TestActorRef<WorkersListener> senderActorRef;
+    TestActorRef<WorkersListener> receiveactorRef;
 
     @Before
-    public void createSystem() {
+    public void initData() {
         system = ActorSystem.create();
+
+        final Props props = Props.create(WorkersListener.class);
+        senderActorRef = TestActorRef.create(system, props, "WorkersListenerSender");
+        receiveactorRef = TestActorRef.create(system, props, "WorkersListenerReceive");
+
+        WorkerListenerMessage.RegisterMessage message = new WorkerListenerMessage.RegisterMessage("WorkersListener");
+        receiveactorRef.tell(message, senderActorRef);
     }
 
     @After
@@ -34,44 +44,32 @@ public class WorkerListenerTestCase {
         system.terminate();
         system.awaitTermination();
         system = null;
-        MemberModifier.field(WorkersRefCenter.class, "actorToRole").set(WorkersRefCenter.INSTANCE, new ConcurrentHashMap());
-        MemberModifier.field(WorkersRefCenter.class, "roleToActor").set(WorkersRefCenter.INSTANCE, new ConcurrentHashMap());
+        MemberModifier.field(WorkersRefCenter.class, "roleToWorkerRef").set(WorkersRefCenter.INSTANCE, new ConcurrentHashMap());
+        MemberModifier.field(WorkersRefCenter.class, "actorRefToWorkerRef").set(WorkersRefCenter.INSTANCE, new ConcurrentHashMap());
     }
 
     @Test
     public void testRegister() throws IllegalAccessException {
-        final Props props = Props.create(WorkersListener.class);
-        final TestActorRef<WorkersListener> senderActorRef = TestActorRef.create(system, props, "WorkersListenerSender");
-        final TestActorRef<WorkersListener> receiveactorRef = TestActorRef.create(system, props, "WorkersListenerReceive");
+        Map<ActorRef, WorkerRef> actorRefToWorkerRef = (Map<ActorRef, WorkerRef>) MemberModifier.field(WorkersRefCenter.class, "actorRefToWorkerRef").get(WorkersRefCenter.INSTANCE);
+        ActorRef senderRefInWorkerRef = (ActorRef) MemberModifier.field(WorkerRef.class, "actorRef").get(actorRefToWorkerRef.get(senderActorRef));
+        Assert.assertEquals(senderActorRef, senderRefInWorkerRef);
 
-        WorkerListenerMessage.RegisterMessage message = new WorkerListenerMessage.RegisterMessage("WorkersListener");
-        receiveactorRef.tell(message, senderActorRef);
-
-        Map<ActorRef, String> actorToRole = (Map<ActorRef, String>) MemberModifier.field(WorkersRefCenter.class, "actorToRole").get(WorkersRefCenter.INSTANCE);
-        Assert.assertEquals("WorkersListener", actorToRole.get(senderActorRef));
-
-        Map<String, List<ActorRef>> roleToActor = (Map<String, List<ActorRef>>) MemberModifier.field(WorkersRefCenter.class, "roleToActor").get(WorkersRefCenter.INSTANCE);
-        ActorRef[] actorRefs = {senderActorRef};
-        Assert.assertArrayEquals(actorRefs, roleToActor.get("WorkersListener").toArray());
+        Map<String, List<WorkerRef>> roleToWorkerRef = (Map<String, List<WorkerRef>>) MemberModifier.field(WorkersRefCenter.class, "roleToWorkerRef").get(WorkersRefCenter.INSTANCE);
+        WorkerRef workerRef = roleToWorkerRef.get("WorkersListener").get(0);
+        senderRefInWorkerRef = (ActorRef) MemberModifier.field(WorkerRef.class, "actorRef").get(workerRef);
+        Assert.assertEquals(senderActorRef, senderRefInWorkerRef);
     }
 
     @Test
     public void testTerminated() throws IllegalAccessException {
-        final Props props = Props.create(WorkersListener.class);
-        final TestActorRef<WorkersListener> senderActorRef = TestActorRef.create(system, props, "WorkersListenerSender");
-        final TestActorRef<WorkersListener> receiveactorRef = TestActorRef.create(system, props, "WorkersListenerReceive");
-
-        WorkerListenerMessage.RegisterMessage message = new WorkerListenerMessage.RegisterMessage("WorkersListener");
-        receiveactorRef.tell(message, senderActorRef);
-
         senderActorRef.stop();
 
-        Map<ActorRef, String> actorToRole = (Map<ActorRef, String>) MemberModifier.field(WorkersRefCenter.class, "actorToRole").get(WorkersRefCenter.INSTANCE);
-        Assert.assertEquals(null, actorToRole.get(senderActorRef));
+        Map<ActorRef, WorkerRef> actorRefToWorkerRef = (Map<ActorRef, WorkerRef>) MemberModifier.field(WorkersRefCenter.class, "actorRefToWorkerRef").get(WorkersRefCenter.INSTANCE);
+        Assert.assertEquals(null, actorRefToWorkerRef.get(senderActorRef));
 
-        Map<String, List<ActorRef>> roleToActor = (Map<String, List<ActorRef>>) MemberModifier.field(WorkersRefCenter.class, "roleToActor").get(WorkersRefCenter.INSTANCE);
+        Map<String, List<WorkerRef>> roleToWorkerRef = (Map<String, List<WorkerRef>>) MemberModifier.field(WorkersRefCenter.class, "roleToWorkerRef").get(WorkersRefCenter.INSTANCE);
         ActorRef[] actorRefs = {};
-        Assert.assertArrayEquals(actorRefs, roleToActor.get("WorkersListener").toArray());
+        Assert.assertArrayEquals(actorRefs, roleToWorkerRef.get("WorkersListener").toArray());
     }
 
     @Test
