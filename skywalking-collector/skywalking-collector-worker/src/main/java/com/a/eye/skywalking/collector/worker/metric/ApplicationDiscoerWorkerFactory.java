@@ -10,11 +10,6 @@ public class ApplicationDiscoerWorkerFactory extends AbstractWorkerProvider {
     public static final String WorkerName = "ApplicationDiscoverMetric";
 
     @Override
-    public String workerName() {
-        return WorkerName;
-    }
-
-    @Override
     public Class workerClass() {
         return ApplicationDiscoverMetric.class;
     }
