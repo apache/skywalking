@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 option java_multiple_files = true;
-option java_package = "com.a.eye.skywalking.trace.messages.proto";
+option java_package = "com.a.eye.skywalking.trace.proto";
 
 message SegmentMessage {
     string traceSegmentId = 1;
