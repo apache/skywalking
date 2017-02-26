@@ -44,7 +44,7 @@ public abstract class AbstractWorkerProvider {
         }
 
         for (int i = 1; i <= workerNum(); i++) {
-            system.actorOf(Props.create(workerClass(), roleName()), roleName() + "_" + i);
+            system.actorOf(Props.create(workerClass()), roleName() + "_" + i);
         }
     }
 

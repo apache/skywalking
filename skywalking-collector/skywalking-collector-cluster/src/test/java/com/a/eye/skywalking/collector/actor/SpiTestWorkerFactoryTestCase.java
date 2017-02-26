@@ -29,9 +29,9 @@ public class SpiTestWorkerFactoryTestCase {
         new JavaTestKit(system) {{
             SpiTestWorkerFactory aWorkerProvider = new SpiTestWorkerFactory();
             aWorkerProvider.createWorker(system);
-            system.actorSelection("/user/" + SpiTestWorkerFactory.WorkerRole + "_1").tell("Test1", getRef());
+            system.actorSelection("/user/" + aWorkerProvider.roleName() + "_1").tell("Test1", getRef());
             expectMsgEquals(duration("1 second"), "Yes");
-            system.actorSelection("/user/" + SpiTestWorkerFactory.WorkerRole + "_2").tell("Test2", getRef());
+            system.actorSelection("/user/" + aWorkerProvider.roleName() + "_2").tell("Test2", getRef());
             expectMsgEquals(duration("1 second"), "No");
         }};
     }
