@@ -152,6 +152,11 @@
                         <format>xml</format>
                         <format>html</format>
                     </formats>
+                    <instrumentation>
+                        <excludes>
+                            <exclude>com/a/eye/skywalking/trace/proto/*.class</exclude>
+                        </excludes>
+                    </instrumentation>
                 </configuration>
             </plugin>
         </plugins>
