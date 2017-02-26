@@ -1,7 +1,7 @@
 package com.a.eye.skywalking.trace;
 
 import com.a.eye.skywalking.messages.ISerializable;
-import com.a.eye.skywalking.trace.messages.proto.SegmentRefMessage;
+import com.a.eye.skywalking.trace.proto.SegmentRefMessage;
 import com.a.eye.skywalking.trace.tag.Tags;
 
 /**

@@ -2,8 +2,8 @@ package com.a.eye.skywalking.trace;
 
 import com.a.eye.skywalking.api.util.StringUtil;
 import com.a.eye.skywalking.messages.ISerializable;
-import com.a.eye.skywalking.trace.messages.proto.KeyValue;
-import com.a.eye.skywalking.trace.messages.proto.LogDataMessage;
+import com.a.eye.skywalking.trace.proto.KeyValue;
+import com.a.eye.skywalking.trace.proto.LogDataMessage;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -14,7 +14,7 @@ import java.util.Map;
  *
  * Created by wusheng on 2017/2/17.
  */
-public class LogData implements ISerializable<LogDataMessage>{
+public class LogData implements ISerializable<LogDataMessage> {
     private long time;
     private Map<String, ?> fields;
 
