@@ -1,6 +1,6 @@
 package com.a.eye.skywalking.agent.junction;
 
-import com.a.eye.skywalking.api.plugin.PluginDefineCategory;
+import com.a.eye.skywalking.api.plugin.PluginFinder;
 import net.bytebuddy.description.NamedElement;
 
 /**
@@ -11,14 +11,14 @@ import net.bytebuddy.description.NamedElement;
  */
 public class SkyWalkingEnhanceMatcher<T extends NamedElement> extends AbstractJunction<T> {
 
-    private final PluginDefineCategory pluginDefineCategory;
+    private final PluginFinder pluginFinder;
 
-    public SkyWalkingEnhanceMatcher(PluginDefineCategory pluginDefineCategory) {
-        this.pluginDefineCategory = pluginDefineCategory;
+    public SkyWalkingEnhanceMatcher(PluginFinder pluginFinder) {
+        this.pluginFinder = pluginFinder;
     }
 
     @Override
     public boolean matches(T target) {
-        return pluginDefineCategory.findPluginDefine(target.getActualName()) != null ? true : false;
+        return pluginFinder.exist(target.getActualName());
     }
 }

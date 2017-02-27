@@ -9,12 +9,10 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PluginCfg {
-	public final static PluginCfg CFG = new PluginCfg();
+public enum PluginCfg {
+	INSTANCE;
 	
 	private List<String> pluginClassList = new ArrayList<String>();
-	
-	private PluginCfg(){}
 	
 	void load(InputStream input) throws IOException{
 		try{
