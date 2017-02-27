@@ -7,8 +7,8 @@ package com.a.eye.skywalking.api.logging.api;
  * <p>
  * Created by xin on 2016/11/10.
  */
-public class NoopLogger implements ILog {
-    public static final ILog INSTANCE = new NoopLogger();
+public enum NoopLogger implements ILog {
+    INSTANCE;
 
     @Override
     public void info(String message) {
