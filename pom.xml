@@ -133,7 +133,10 @@
                 <artifactId>coveralls-maven-plugin</artifactId>
                 <version>4.1.0</version>
                 <configuration>
-                    <repoToken>fih43wxBvxJKW1gnt5Br6LGqyLoSCoXbc</repoToken>
+                    <repoToken>GGTAeHsfVql3x1BmTFaJvxC27f5sfcZNg</repoToken>
+                    <sourceDirectories>
+                        <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
+                    </sourceDirectories>
                 </configuration>
             </plugin>
             <!-- 覆盖率 -->
@@ -142,6 +145,7 @@
                 <artifactId>cobertura-maven-plugin</artifactId>
                 <version>2.7</version>
                 <configuration>
+                    <check>true</check>
                     <encoding>UTF-8</encoding>
                     <aggregate>true</aggregate>
                     <formats>
@@ -149,6 +153,9 @@
                         <format>html</format>
                     </formats>
                     <instrumentation>
+                        <excludes>
+                            <exclude>com/a/eye/skywalking/trace/proto/*.class</exclude>
+                        </excludes>
                     </instrumentation>
                 </configuration>
             </plugin>
