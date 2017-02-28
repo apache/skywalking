@@ -14,7 +14,7 @@ public enum SingleTomcat404TraceBuilder implements TraceSegmentBuilder {
     INSTANCE;
 
     @Override public TraceSegment build(MockTracerContextListener listener) {
-        TomcatSpanGenerator.INSTANCE.on404();
+        TomcatSpanGenerator.ON404.INSTANCE.build().generate();
         return listener.getFinished(0);
     }
 }

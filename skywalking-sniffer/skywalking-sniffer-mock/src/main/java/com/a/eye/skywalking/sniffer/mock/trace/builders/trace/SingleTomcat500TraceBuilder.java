@@ -14,7 +14,7 @@ public enum SingleTomcat500TraceBuilder implements TraceSegmentBuilder {
     INSTANCE;
 
     @Override public TraceSegment build(MockTracerContextListener listener) {
-        TomcatSpanGenerator.INSTANCE.on500();
+        TomcatSpanGenerator.ON500.INSTANCE.build().generate();
         return listener.getFinished(0);
     }
 }
