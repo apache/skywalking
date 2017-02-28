@@ -26,8 +26,8 @@ import static net.bytebuddy.matcher.ElementMatchers.isInterface;
 import static net.bytebuddy.matcher.ElementMatchers.not;
 
 /**
- * The main entrance of sky-waking agent.
- * It bases on javaagent mechanism.
+ * The main entrance of sky-waking agent,
+ * based on javaagent mechanism.
  *
  * @author wusheng
  */

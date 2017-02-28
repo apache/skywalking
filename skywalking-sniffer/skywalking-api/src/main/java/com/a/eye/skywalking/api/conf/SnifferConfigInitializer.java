@@ -11,7 +11,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 public class SnifferConfigInitializer {
-	private static ILog logger = LogManager.getLogger(SnifferConfigInitializer.class);
+    private static ILog logger = LogManager.getLogger(SnifferConfigInitializer.class);
 
     public static void initialize() {
         InputStream configFileStream;
@@ -32,24 +32,34 @@ public class SnifferConfigInitializer {
                 logger.error("Failed to read the config file, sky-walking api run in default config.", e);
             }
         }
-        Config.SkyWalking.USERNAME = System.getProperty("username");
-        Config.SkyWalking.APPLICATION_CODE = System.getProperty("applicationCode");
-        Config.SkyWalking.SERVERS = System.getProperty("servers");
 
-        if(StringUtil.isEmpty(Config.SkyWalking.USERNAME)){
+        String username = System.getProperty("username");
+        if (!StringUtil.isEmpty(username)) {
+            Config.SkyWalking.USERNAME = username;
+        }
+        String applicationCode = System.getProperty("applicationCode");
+        if (!StringUtil.isEmpty(applicationCode)) {
+            Config.SkyWalking.APPLICATION_CODE = applicationCode;
+        }
+        String servers = System.getProperty("servers");
+        if(!StringUtil.isEmpty(servers)) {
+            Config.SkyWalking.SERVERS = servers;
+        }
+
+        if (StringUtil.isEmpty(Config.SkyWalking.USERNAME)) {
             throw new ExceptionInInitializerError("'-Dusername=' is missing.");
         }
-        if(StringUtil.isEmpty(Config.SkyWalking.APPLICATION_CODE)){
+        if (StringUtil.isEmpty(Config.SkyWalking.APPLICATION_CODE)) {
             throw new ExceptionInInitializerError("'-DapplicationCode=' is missing.");
         }
-        if(StringUtil.isEmpty(Config.SkyWalking.SERVERS)){
+        if (StringUtil.isEmpty(Config.SkyWalking.SERVERS)) {
             throw new ExceptionInInitializerError("'-Dservers=' is missing.");
         }
     }
 
     private static InputStream fetchAuthFileInputStream() {
         try {
-            return new FileInputStream(Config.SkyWalking.AGENT_BASE_PATH + File.separator + "/sky-walking.config");
+            return new FileInputStream(Config.SkyWalking.AGENT_BASE_PATH + File.separator + "sky-walking.config");
         } catch (Exception e) {
             logger.warn("sky-walking.config is missing, use default config.");
             return null;
