@@ -4,8 +4,8 @@ import com.a.eye.skywalking.agent.junction.SkyWalkingEnhanceMatcher;
 import com.a.eye.skywalking.api.conf.Config;
 import com.a.eye.skywalking.api.conf.SnifferConfigInitializer;
 import com.a.eye.skywalking.api.logging.EasyLogResolver;
-import com.a.eye.skywalking.api.logging.api.ILog;
-import com.a.eye.skywalking.api.logging.api.LogManager;
+import com.a.eye.skywalking.api.logging.ILog;
+import com.a.eye.skywalking.api.logging.LogManager;
 import com.a.eye.skywalking.api.plugin.AbstractClassEnhancePluginDefine;
 import com.a.eye.skywalking.api.plugin.PluginBootstrap;
 import com.a.eye.skywalking.api.plugin.PluginFinder;
@@ -26,8 +26,8 @@ import static net.bytebuddy.matcher.ElementMatchers.isInterface;
 import static net.bytebuddy.matcher.ElementMatchers.not;
 
 /**
- * The main entrance of sky-waking agent.
- * It bases on javaagent mechanism.
+ * The main entrance of sky-waking agent,
+ * based on javaagent mechanism.
  *
  * @author wusheng
  */

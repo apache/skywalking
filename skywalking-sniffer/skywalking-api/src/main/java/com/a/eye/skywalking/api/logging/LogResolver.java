@@ -1,4 +1,4 @@
-package com.a.eye.skywalking.api.logging.api;
+package com.a.eye.skywalking.api.logging;
 
 /**
  * {@link LogResolver} just do only one thing: return the {@link ILog} implementation.

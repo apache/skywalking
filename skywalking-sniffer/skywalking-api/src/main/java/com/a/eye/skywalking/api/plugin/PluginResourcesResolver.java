@@ -1,7 +1,7 @@
 package com.a.eye.skywalking.api.plugin;
 
-import com.a.eye.skywalking.api.logging.api.ILog;
-import com.a.eye.skywalking.api.logging.api.LogManager;
+import com.a.eye.skywalking.api.logging.ILog;
+import com.a.eye.skywalking.api.logging.LogManager;
 
 import java.io.IOException;
 import java.net.URL;

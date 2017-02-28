@@ -1,7 +1,7 @@
 package com.a.eye.skywalking.api.plugin;
 
-import com.a.eye.skywalking.api.logging.api.ILog;
-import com.a.eye.skywalking.api.logging.api.LogManager;
+import com.a.eye.skywalking.api.logging.ILog;
+import com.a.eye.skywalking.api.logging.LogManager;
 import net.bytebuddy.pool.TypePool;
 
 import java.net.URL;
@@ -37,7 +37,7 @@ public class PluginBootstrap {
             try {
                 PluginCfg.INSTANCE.load(pluginUrl.openStream());
             } catch (Throwable t) {
-                logger.error("plugin [{}] init failure.", new Object[] {pluginUrl}, t);
+                logger.error(t, "plugin [{}] init failure.", pluginUrl);
             }
         }
 
@@ -52,7 +52,7 @@ public class PluginBootstrap {
                 plugin.setClassTypePool(classTypePool);
                 plugins.add(plugin);
             } catch (Throwable t) {
-                logger.error("loade plugin [{}] failure.", new Object[] {pluginClassName}, t);
+                logger.error(t, "loade plugin [{}] failure.", pluginClassName);
             }
         }
 

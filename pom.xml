@@ -155,6 +155,7 @@
                     <instrumentation>
                         <excludes>
                             <exclude>com/a/eye/skywalking/trace/proto/*.class</exclude>
+                            <exclude>com/a/eye/skywalking/sniffer/mock/**/*.class</exclude>
                         </excludes>
                     </instrumentation>
                 </configuration>

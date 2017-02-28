@@ -1,4 +1,4 @@
-package com.a.eye.skywalking.api.logging.api;
+package com.a.eye.skywalking.api.logging;
 
 
 /**
@@ -8,7 +8,9 @@ package com.a.eye.skywalking.api.logging.api;
  * Created by xin on 2016/11/10.
  */
 public enum NoopLogger implements ILog {
-    INSTANCE;
+    INSTANCE {
+
+    };
 
     @Override
     public void info(String message) {
@@ -26,17 +28,8 @@ public enum NoopLogger implements ILog {
     }
 
     @Override
-    public void warn(String format, Object arguments, Throwable e) {
-
-    }
-
-    @Override
     public void error(String format, Throwable e) {
 
-    }
-
-    @Override
-    public void error(String format, Object argument, Throwable e) {
     }
 
     @Override
@@ -71,6 +64,11 @@ public enum NoopLogger implements ILog {
 
     @Override
     public void error(String format) {
+
+    }
+
+    @Override
+    public void error(Throwable e, String format, Object... arguments) {
 
     }
 }

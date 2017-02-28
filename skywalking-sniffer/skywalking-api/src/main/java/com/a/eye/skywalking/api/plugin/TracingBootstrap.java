@@ -1,7 +1,7 @@
 package com.a.eye.skywalking.api.plugin;
 
-import com.a.eye.skywalking.api.logging.api.ILog;
-import com.a.eye.skywalking.api.logging.api.LogManager;
+import com.a.eye.skywalking.api.logging.ILog;
+import com.a.eye.skywalking.api.logging.LogManager;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.dynamic.ClassFileLocator;
 import net.bytebuddy.dynamic.DynamicType;

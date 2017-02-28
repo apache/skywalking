@@ -1,4 +1,4 @@
-package com.a.eye.skywalking.api.util;
+package com.a.eye.skywalking.api.logging;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -6,8 +6,8 @@ import java.io.IOException;
 /**
  * Created by xin on 16-6-24.
  */
-public class LoggingUtil {
-    public static String fetchThrowableStack(Throwable e) {
+public class ThrowableFormatter {
+    public static String format(Throwable e) {
         ByteArrayOutputStream buf = new ByteArrayOutputStream();
         e.printStackTrace(new java.io.PrintWriter(buf, true));
         String expMessage = buf.toString();

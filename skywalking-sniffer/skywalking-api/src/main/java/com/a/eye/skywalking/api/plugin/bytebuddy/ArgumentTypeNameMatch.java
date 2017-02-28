@@ -1,6 +1,7 @@
 package com.a.eye.skywalking.api.plugin.bytebuddy;
 
 import net.bytebuddy.description.method.MethodDescription;
+import net.bytebuddy.description.method.ParameterList;
 import net.bytebuddy.matcher.ElementMatcher;
 
 /**
@@ -39,8 +40,9 @@ public class ArgumentTypeNameMatch implements ElementMatcher<MethodDescription> 
      */
     @Override
     public boolean matches(MethodDescription target) {
-        if (target.getParameters().size() > index) {
-            return target.getParameters().get(index).getType().asErasure().getName().equals(argumentTypeName);
+        ParameterList<?> parameters = target.getParameters();
+        if (parameters.size() > index) {
+            return parameters.get(index).getType().asErasure().getName().equals(argumentTypeName);
         }
 
         return false;

@@ -12,7 +12,6 @@
 
     <modules>
         <module>skywalking-trace</module>
-        <module>skywalking-logging</module>
         <module>skywalking-util</module>
     </modules>
 
