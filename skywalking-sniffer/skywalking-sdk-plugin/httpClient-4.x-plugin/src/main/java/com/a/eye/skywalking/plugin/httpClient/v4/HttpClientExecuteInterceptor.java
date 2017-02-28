@@ -24,6 +24,7 @@ import org.apache.http.StatusLine;
  */
 public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterceptor {
     public static final String HEADER_NAME_OF_CONTEXT_DATA = "SKYWALKING_CONTEXT_DATA";
+    private static final String COMPONENT_NAME = "Http";
 
     @Override
     public void beforeMethod(EnhancedClassInstanceContext context,
@@ -40,6 +41,7 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
         Tags.PEER_PORT.set(span, httpHost.getPort());
         Tags.PEER_HOST.set(span, httpHost.getHostName());
         Tags.SPAN_KIND.set(span, Tags.SPAN_KIND_CLIENT);
+        Tags.COMPONENT.set(span, COMPONENT_NAME);
         Tags.URL.set(span, generateURL(httpHost, httpRequest));
         Tags.SPAN_LAYER.asHttp(span);
 
@@ -79,6 +81,7 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
 
     @Override
     public void handleMethodException(Throwable t, EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext) {
+        Tags.ERROR.set(ContextManager.INSTANCE.activeSpan(), true);
         ContextManager.INSTANCE.activeSpan().log(t);
     }
 
