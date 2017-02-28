@@ -8,6 +8,7 @@ import com.a.eye.skywalking.api.plugin.interceptor.enhance.InstanceConstructorIn
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.InstanceMethodInvokeContext;
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.MethodInterceptResult;
+import com.a.eye.skywalking.api.util.StringUtil;
 import com.a.eye.skywalking.trace.Span;
 import com.a.eye.skywalking.trace.tag.Tags;
 import com.weibo.api.motan.rpc.Request;
@@ -33,7 +34,7 @@ public class MotanProviderInterceptor implements InstanceConstructorInterceptor,
     /**
      * The {@link Request#getAttachments()} key. It maps to the serialized {@link ContextCarrier}.
      */
-    private static final String ATTACHMENT_KEY_OF_CONTEXT_DATA = "contextData";
+    private static final String ATTACHMENT_KEY_OF_CONTEXT_DATA = "SWTraceContext";
     /**
      * Motan component
      */
@@ -50,7 +51,7 @@ public class MotanProviderInterceptor implements InstanceConstructorInterceptor,
         URL url = (URL) context.get(KEY_NAME_OF_REQUEST_URL);
         if (url != null) {
             com.weibo.api.motan.rpc.Request request = (com.weibo.api.motan.rpc.Request) interceptorContext.allArguments()[0];
-            Span span = ContextManager.INSTANCE.createSpan(generateViewPoint(url, request));
+            Span span = ContextManager.INSTANCE.createSpan(generateViewPoint(request));
             Tags.COMPONENT.set(span, MOTAN_COMPONENT);
             Tags.URL.set(span, url.getIdentity());
             Tags.PEER_PORT.set(span, url.getPort());
@@ -59,7 +60,9 @@ public class MotanProviderInterceptor implements InstanceConstructorInterceptor,
             Tags.SPAN_LAYER.asRPCFramework(span);
 
             String serializedContextData = request.getAttachments().get(ATTACHMENT_KEY_OF_CONTEXT_DATA);
-            ContextManager.INSTANCE.extract(new ContextCarrier().deserialize(serializedContextData));
+            if (!StringUtil.isEmpty(serializedContextData)) {
+                ContextManager.INSTANCE.extract(new ContextCarrier().deserialize(serializedContextData));
+            }
         }
     }
 
@@ -72,6 +75,7 @@ public class MotanProviderInterceptor implements InstanceConstructorInterceptor,
             Tags.ERROR.set(span, true);
             span.log(response.getException());
         }
+        ContextManager.INSTANCE.stopSpan();
         return ret;
     }
 
@@ -82,8 +86,8 @@ public class MotanProviderInterceptor implements InstanceConstructorInterceptor,
     }
 
 
-    private static String generateViewPoint(URL serviceURI, Request request) {
-        StringBuilder viewPoint = new StringBuilder(serviceURI.getUri());
+    private static String generateViewPoint(Request request) {
+        StringBuilder viewPoint = new StringBuilder(request.getInterfaceName());
         viewPoint.append("." + request.getMethodName());
         viewPoint.append("(" + request.getParamtersDesc() + ")");
         return viewPoint.toString();
