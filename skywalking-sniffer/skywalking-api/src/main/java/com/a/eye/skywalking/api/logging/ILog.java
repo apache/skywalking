@@ -1,4 +1,4 @@
-package com.a.eye.skywalking.api.logging.api;
+package com.a.eye.skywalking.api.logging;
 
 /**
  * The Log interface.
@@ -15,6 +15,8 @@ public interface ILog {
     void warn(String format, Object... arguments);
 
     void error(String format, Throwable e);
+
+    void error(Throwable e, String format, Object... arguments);
 
     boolean isDebugEnable();
 

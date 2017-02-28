@@ -20,7 +20,6 @@
     </properties>
 
     <dependencies>
-
         <dependency>
             <groupId>net.bytebuddy</groupId>
             <artifactId>byte-buddy</artifactId>
@@ -35,11 +34,6 @@
             <groupId>com.lmax</groupId>
             <artifactId>disruptor</artifactId>
             <version>3.3.6</version>
-        </dependency>
-        <dependency>
-            <groupId>com.a.eye</groupId>
-            <artifactId>skywalking-logging-api</artifactId>
-            <version>${project.version}</version>
         </dependency>
     </dependencies>
     <build>

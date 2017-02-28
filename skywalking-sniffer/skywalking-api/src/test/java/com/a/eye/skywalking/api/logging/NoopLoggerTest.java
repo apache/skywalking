@@ -1,9 +1,9 @@
-package com.a.eye.skywalking.api.logging.api;
+package com.a.eye.skywalking.api.logging;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import static com.a.eye.skywalking.api.logging.api.NoopLogger.INSTANCE;
+import static com.a.eye.skywalking.api.logging.NoopLogger.INSTANCE;
 
 /**
  * Created by wusheng on 2017/2/27.

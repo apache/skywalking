@@ -1,4 +1,4 @@
-package com.a.eye.skywalking.api.logging.api;
+package com.a.eye.skywalking.api.logging;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -54,6 +54,10 @@ public class LogManagerTest {
 
         }
 
+        @Override public void error(Throwable e, String format, Object... arguments) {
+
+        }
+
         @Override public boolean isDebugEnable() {
             return false;
         }
@@ -83,3 +87,4 @@ public class LogManagerTest {
         }
     }
 }
+

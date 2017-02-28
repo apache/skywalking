@@ -1,8 +1,5 @@
 package com.a.eye.skywalking.api.logging;
 
-import com.a.eye.skywalking.api.logging.api.ILog;
-import com.a.eye.skywalking.api.logging.api.LogResolver;
-
 /**
  * Created by wusheng on 2016/11/26.
  */
