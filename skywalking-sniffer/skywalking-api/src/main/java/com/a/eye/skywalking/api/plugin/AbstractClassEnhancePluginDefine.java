@@ -5,6 +5,7 @@ import com.a.eye.skywalking.api.logging.api.LogManager;
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.ClassEnhancePluginDefine;
 import com.a.eye.skywalking.api.util.StringUtil;
 import net.bytebuddy.dynamic.DynamicType;
+import net.bytebuddy.pool.TypePool;
 import net.bytebuddy.pool.TypePool.Resolution;
 
 /**
@@ -15,6 +16,8 @@ import net.bytebuddy.pool.TypePool.Resolution;
  */
 public abstract class AbstractClassEnhancePluginDefine {
     private static ILog logger = LogManager.getLogger(AbstractClassEnhancePluginDefine.class);
+
+    private TypePool classTypePool;
 
     /**
      * Main entrance of enhancing the class.
@@ -40,7 +43,7 @@ public abstract class AbstractClassEnhancePluginDefine {
         String[] witnessClasses = witnessClasses();
         if (witnessClasses != null) {
             for (String witnessClass : witnessClasses) {
-                Resolution witnessClassResolution = PluginBootstrap.CLASS_TYPE_POOL.describe(witnessClass);
+                Resolution witnessClassResolution = classTypePool.describe(witnessClass);
                 if (!witnessClassResolution.isResolved()) {
                     logger.warn("enhance class {} by plugin {} is not working. Because witness class {} is not existed.", transformClassName, interceptorDefineClassName,
                             witnessClass);
@@ -84,5 +87,9 @@ public abstract class AbstractClassEnhancePluginDefine {
      */
     protected String[] witnessClasses() {
         return new String[] {};
+    }
+
+    public void setClassTypePool(TypePool classTypePool) {
+        this.classTypePool = classTypePool;
     }
 }
