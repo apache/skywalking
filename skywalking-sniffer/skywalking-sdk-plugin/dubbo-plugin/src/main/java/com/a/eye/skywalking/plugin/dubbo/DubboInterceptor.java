@@ -27,7 +27,7 @@ import com.alibaba.dubbo.rpc.RpcContext;
  */
 public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
 
-    public static final String ATTACHMENT_NAME_OF_CONTEXT_DATA = "contextData";
+    public static final String ATTACHMENT_NAME_OF_CONTEXT_DATA = "SWTraceContext";
     public static final String DUBBO_COMPONENT = "Dubbo";
 
     /**

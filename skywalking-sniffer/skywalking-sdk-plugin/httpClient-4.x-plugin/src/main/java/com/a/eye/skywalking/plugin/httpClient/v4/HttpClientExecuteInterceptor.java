@@ -23,7 +23,7 @@ import org.apache.http.StatusLine;
  * @author zhangxin
  */
 public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterceptor {
-    public static final String HEADER_NAME_OF_CONTEXT_DATA = "SKYWALKING_CONTEXT_DATA";
+    public static final String HEADER_NAME_OF_CONTEXT_DATA = "SWTraceContext";
     private static final String COMPONENT_NAME = "Http";
 
     @Override
