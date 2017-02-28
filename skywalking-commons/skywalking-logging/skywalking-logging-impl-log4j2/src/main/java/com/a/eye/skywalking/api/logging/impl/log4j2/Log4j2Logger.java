@@ -29,18 +29,8 @@ public class Log4j2Logger implements ILog {
     }
 
     @Override
-    public void warn(String format, Object arguments, Throwable e) {
-        logger.warn(format, arguments, e);
-    }
-
-    @Override
     public void error(String message, Throwable e) {
         logger.error(message, e);
-    }
-
-    @Override
-    public void error(String message, Object argument, Throwable e) {
-        logger.error(message, argument, e);
     }
 
     @Override

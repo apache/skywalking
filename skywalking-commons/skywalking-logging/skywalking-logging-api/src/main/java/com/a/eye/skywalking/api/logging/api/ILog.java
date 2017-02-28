@@ -14,11 +14,7 @@ public interface ILog {
 
     void warn(String format, Object... arguments);
 
-    void warn(String format, Object arguments, Throwable e);
-
     void error(String format, Throwable e);
-
-    void error(String format, Object arguments, Throwable e);
 
     boolean isDebugEnable();
 

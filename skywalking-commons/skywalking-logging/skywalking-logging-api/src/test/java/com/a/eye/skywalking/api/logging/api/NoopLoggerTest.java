@@ -24,6 +24,5 @@ public class NoopLoggerTest {
         INSTANCE.warn("Any string", new Object[0], new NullPointerException());
         INSTANCE.error("Any string");
         INSTANCE.error("Any string", new NullPointerException());
-        INSTANCE.error("Any string", new Object[0], new NullPointerException());
     }
 }

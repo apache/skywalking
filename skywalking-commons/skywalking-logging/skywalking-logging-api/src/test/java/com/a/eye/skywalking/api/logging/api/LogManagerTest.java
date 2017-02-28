@@ -50,15 +50,7 @@ public class LogManagerTest {
 
         }
 
-        @Override public void warn(String format, Object arguments, Throwable e) {
-
-        }
-
         @Override public void error(String format, Throwable e) {
-
-        }
-
-        @Override public void error(String format, Object arguments, Throwable e) {
 
         }
 
