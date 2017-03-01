@@ -17,6 +17,10 @@ import redis.clients.jedis.HostAndPort;
 
 import static com.a.eye.skywalking.plugin.jedis.v2.JedisMethodInterceptor.KEY_OF_REDIS_CONN_INFO;
 import static com.a.eye.skywalking.plugin.jedis.v2.JedisMethodInterceptor.KEY_OF_REDIS_HOSTS;
+import static org.hamcrest.core.Is.is;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.contains;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -51,8 +55,8 @@ public class JedisClusterConstructorWithListHostAndPortArgInterceptorTest {
     public void onConstruct() throws Exception {
         interceptor.onConstruct(instanceContext, invokeContext);
 
-        verify(instanceContext, times(1)).set(KEY_OF_REDIS_CONN_INFO, "127.0.0.1:6379;127.0.0.1:16379;");
-        verify(instanceContext, times(1)).set(KEY_OF_REDIS_HOSTS, "127.0.0.1:6379;127.0.0.1:16379;");
+        verify(instanceContext, times(1)).set(eq(KEY_OF_REDIS_CONN_INFO), contains("127.0.0.1:6379;"));
+        verify(instanceContext, times(1)).set(eq(KEY_OF_REDIS_HOSTS), contains("127.0.0.1:16379;"));
     }
 
 }
