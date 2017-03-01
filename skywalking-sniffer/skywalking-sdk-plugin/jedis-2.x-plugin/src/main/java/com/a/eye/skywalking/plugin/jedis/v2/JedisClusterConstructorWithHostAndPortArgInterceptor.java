@@ -22,7 +22,7 @@ public class JedisClusterConstructorWithHostAndPortArgInterceptor implements Ins
     public void onConstruct(EnhancedClassInstanceContext context, ConstructorInvokeContext interceptorContext) {
         StringBuilder redisConnInfo = new StringBuilder();
         HostAndPort hostAndPort = (HostAndPort) interceptorContext.allArguments()[0];
-        redisConnInfo.append(hostAndPort.toString()).append(";");
+        redisConnInfo.append(hostAndPort.toString());
         context.set(KEY_OF_REDIS_CONN_INFO, redisConnInfo.toString());
         context.set(KEY_OF_REDIS_HOST, hostAndPort.getHost());
         context.set(KEY_OF_REDIS_PORT, hostAndPort.getPort());
