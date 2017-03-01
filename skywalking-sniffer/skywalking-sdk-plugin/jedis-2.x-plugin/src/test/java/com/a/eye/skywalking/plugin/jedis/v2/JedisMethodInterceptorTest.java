@@ -126,7 +126,7 @@ public class JedisMethodInterceptorTest {
     }
 
     private void assertRedisSpan(Span span) {
-        assertThat(span.getOperationName(), is("set"));
+        assertThat(span.getOperationName(), is("Jedis/set"));
         assertThat(Tags.PEER_HOST.get(span), is("127.0.0.1"));
         assertThat(Tags.PEER_PORT.get(span), is(6379));
         assertThat(Tags.COMPONENT.get(span), is("Redis"));
@@ -136,7 +136,7 @@ public class JedisMethodInterceptorTest {
     }
 
     private void assertRedisSpan(Span span, String exceptedPeerHosts){
-        assertThat(span.getOperationName(), is("set"));
+        assertThat(span.getOperationName(), is("Jedis/set"));
         assertThat(Tags.PEERS.get(span), is(exceptedPeerHosts));
         assertThat(Tags.COMPONENT.get(span), is("Redis"));
         assertThat(Tags.DB_STATEMENT.get(span), is("set OperationKey"));
