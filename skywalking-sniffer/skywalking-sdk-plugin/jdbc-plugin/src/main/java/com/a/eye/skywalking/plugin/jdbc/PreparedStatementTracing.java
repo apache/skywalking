@@ -32,6 +32,7 @@ public class PreparedStatementTracing {
                 Tags.PEER_PORT.set(span, connectInfo.getPort());
                 Tags.PEER_HOST.set(span, connectInfo.getHost());
             }
+            Tags.SPAN_LAYER.asDB(span);
             return exec.exe(realStatement, sql);
         } catch (SQLException e) {
             Span span = ContextManager.INSTANCE.activeSpan();

@@ -26,6 +26,7 @@ public class StatementTracing {
             Tags.DB_INSTANCE.set(span, connectInfo.getDatabaseName());
             Tags.DB_STATEMENT.set(span, sql);
             Tags.COMPONENT.set(span, connectInfo.getDBType());
+            Tags.SPAN_LAYER.asDB(span);
             if (!StringUtil.isEmpty(connectInfo.getHosts())) {
                 Tags.PEERS.set(span, connectInfo.getHosts());
             } else {
