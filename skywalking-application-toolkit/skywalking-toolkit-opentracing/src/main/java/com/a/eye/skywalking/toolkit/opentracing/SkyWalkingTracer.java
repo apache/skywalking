@@ -15,7 +15,7 @@ import java.nio.ByteBuffer;
  * Created by wusheng on 2016/12/20.
  */
 public class SkyWalkingTracer implements Tracer {
-    private static String TRACE_HEAD_NAME = "SkyWalking-TRACING-NAME";
+    private static String TRACE_HEAD_NAME = "SW-TRACING-NAME";
 
     public static Tracer INSTANCE = new SkyWalkingTracer();
 

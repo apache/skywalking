@@ -1,6 +1,5 @@
 package com.a.eye.skywalking.toolkit.activation.log.logback.v1.x;
 
-import com.a.eye.skywalking.api.context.ContextCarrier;
 import com.a.eye.skywalking.api.context.ContextManager;
 import com.a.eye.skywalking.api.plugin.interceptor.EnhancedClassInstanceContext;
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.InstanceMethodInvokeContext;
@@ -19,16 +18,14 @@ public class PrintTraceIdInterceptor implements InstanceMethodsAroundInterceptor
     /**
      * Override com.a.eye.skywalking.toolkit.log.logback.v1.x.LogbackPatternConverter.convert(),
      *
-     * @param context instance context, a class instance only has one {@link EnhancedClassInstanceContext} instance.
+     * @param context            instance context, a class instance only has one {@link EnhancedClassInstanceContext} instance.
      * @param interceptorContext method context, includes class name, method name, etc.
-     * @param ret the method's original return value.
+     * @param ret                the method's original return value.
      * @return the traceId
      */
     @Override
     public Object afterMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext, Object ret) {
-        ContextCarrier carrier = new ContextCarrier();
-        ContextManager.INSTANCE.inject(carrier);
-        return "TID:" + carrier.getTraceSegmentId();
+        return "TID:" + ContextManager.INSTANCE.getTraceSegmentId();
     }
 
     @Override
