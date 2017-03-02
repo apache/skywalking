@@ -95,7 +95,7 @@ public abstract class AbstractWorker<T> extends UntypedActor {
         }
     }
 
-    public MemberSystem getMemberContext() {
+    public MemberSystem memberContext() {
         return memberSystem;
     }
 }

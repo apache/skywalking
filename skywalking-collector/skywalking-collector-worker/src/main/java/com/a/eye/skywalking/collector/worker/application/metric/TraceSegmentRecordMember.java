@@ -1,7 +1,12 @@
-package com.a.eye.skywalking.collector.worker.persistence;
+package com.a.eye.skywalking.collector.worker.application.metric;
 
-import com.a.eye.skywalking.collector.actor.AbstractWorker;
-import com.a.eye.skywalking.collector.worker.RecordCollection;
+
+import akka.actor.ActorRef;
+import com.a.eye.skywalking.collector.actor.AbstractMember;
+import com.a.eye.skywalking.collector.actor.AbstractMemberProvider;
+import com.a.eye.skywalking.collector.actor.MemberSystem;
+import com.a.eye.skywalking.collector.actor.selector.LocalSelector;
+import com.a.eye.skywalking.collector.worker.application.persistence.TraceSegmentRecordPersistence;
 import com.a.eye.skywalking.trace.Span;
 import com.a.eye.skywalking.trace.TraceSegment;
 import com.a.eye.skywalking.trace.TraceSegmentRef;
@@ -14,17 +19,30 @@ import java.util.Map;
 /**
  * @author pengys5
  */
-public class AppTraceSegmentRecord extends AbstractWorker {
+public class TraceSegmentRecordMember extends AbstractMember {
 
-    private RecordCollection recordCollection = new RecordCollection();
+    public TraceSegmentRecordMember(MemberSystem memberSystem, ActorRef actorRef) {
+        super(memberSystem, actorRef);
+    }
+
+    @Override
+    public void preStart() throws Throwable {
+    }
 
     @Override
     public void receive(Object message) throws Throwable {
         if (message instanceof TraceSegment) {
             TraceSegment traceSegment = (TraceSegment) message;
+            JsonObject traceSegmentJsonObj = parseTraceSegment(traceSegment);
 
-            JsonObject traceJsonObj = parseTraceSegment(traceSegment);
-            recordCollection.put("", traceSegment.getTraceSegmentId(), traceJsonObj);
+            tell(new TraceSegmentRecordPersistence.Factory(), LocalSelector.INSTANCE, traceSegmentJsonObj);
+        }
+    }
+
+    public static class Factory extends AbstractMemberProvider {
+        @Override
+        public Class memberClass() {
+            return TraceSegmentRecordMember.class;
         }
     }
 

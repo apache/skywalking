@@ -11,15 +11,25 @@ import java.util.List;
  */
 public abstract class AbstractMember<T> {
 
+    private MemberSystem memberSystem;
+
     private ActorRef actorRef;
+
+    public MemberSystem memberContext() {
+        return memberSystem;
+    }
 
     public ActorRef getSelf() {
         return actorRef;
     }
 
-    public void creatorRef(ActorRef actorRef) {
+    public AbstractMember(MemberSystem memberSystem, ActorRef actorRef) {
+        this.memberSystem = memberSystem;
         this.actorRef = actorRef;
     }
+
+
+    public abstract void preStart() throws Throwable;
 
     /**
      * Receive the message to analyse.

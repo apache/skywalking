@@ -19,8 +19,8 @@ public enum WorkersCreator {
      * @param system is create by akka {@link ActorSystem}
      */
     public void boot(ActorSystem system) {
-        ServiceLoader<AbstractClusterWorkerProvider> clusterServiceLoader = ServiceLoader.load(AbstractClusterWorkerProvider.class);
-        for (AbstractClusterWorkerProvider provider : clusterServiceLoader) {
+        ServiceLoader<AbstractWorkerProvider> clusterServiceLoader = ServiceLoader.load(AbstractWorkerProvider.class);
+        for (AbstractWorkerProvider provider : clusterServiceLoader) {
             provider.createWorker(system);
         }
     }

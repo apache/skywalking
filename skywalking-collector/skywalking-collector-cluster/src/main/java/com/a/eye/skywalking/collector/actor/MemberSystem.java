@@ -10,17 +10,8 @@ public class MemberSystem {
 
     private Map<String, AbstractMember> memberMap = new HashMap();
 
-    public AbstractMember memberOf(Class clazz, String role) {
-        try {
-            AbstractMember member = (AbstractMember) clazz.newInstance();
-            memberMap.put(role, member);
-            return member;
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
-        return null;
+    public void memberOf(AbstractMember member, String role) {
+        memberMap.put(role, member);
     }
 
     public AbstractMember memberFor(String role) {
