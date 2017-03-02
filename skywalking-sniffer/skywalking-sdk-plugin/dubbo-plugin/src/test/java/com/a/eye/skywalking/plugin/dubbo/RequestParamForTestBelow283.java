@@ -14,11 +14,9 @@ public class RequestParamForTestBelow283 extends SWBaseBean {
     /**
      * This method assert that {@link SWBaseBean#getTraceContext()} if it's not null and context data
      * will end with the expect span id.
-     *
-     * @param expectSpanId expect span id
      */
-    public void assertSelf(String expectSpanId, String expectHost) {
+    public void assertSelf(String expectHost) {
         assertNotNull(getTraceContext());
-        assertThat(getTraceContext(), endsWith(expectSpanId + "|" + expectHost));
+        assertThat(getTraceContext(), endsWith(expectHost));
     }
 }
