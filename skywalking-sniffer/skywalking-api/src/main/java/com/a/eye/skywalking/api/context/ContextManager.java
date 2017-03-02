@@ -54,6 +54,13 @@ public enum ContextManager implements TracerContextListener {
     }
 
     /**
+     * @see {@link TracerContext#extract(ContextCarrier)}
+     */
+    public void multiExtract(ContextCarrier carrier){
+        get().extract(carrier);
+    }
+
+    /**
      * @return the {@link TraceSegment#traceSegmentId} if exist. Otherwise, "N/A".
      */
     public String getTraceSegmentId(){
