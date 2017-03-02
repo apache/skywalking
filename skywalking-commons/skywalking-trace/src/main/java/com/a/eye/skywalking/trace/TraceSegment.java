@@ -87,20 +87,38 @@ public class TraceSegment implements ISerializable<SegmentMessage> {
 
     /**
      * Establish the link between this segment and its parents.
+     * When {@param primaryOnly} is true;
      * The first time, you {@link #ref(TraceSegmentRef)} to parent, it is affirmed as {@link #primaryRef}.
      * And others are affirmed as {@link #refs}.
      *
      * @param refSegment {@link TraceSegmentRef}
+     * @param primaryOnly if true, set {@param refSegment} to {@link #primaryRef} only.
      */
-    public void ref(TraceSegmentRef refSegment) {
-        if (primaryRef == null) {
-            primaryRef = refSegment;
-        } else {
-            if (refs == null) {
-                refs = new LinkedList<TraceSegmentRef>();
+    public void ref(TraceSegmentRef refSegment, boolean primaryOnly) {
+        if(primaryOnly){
+            if (primaryRef == null) {
+                primaryRef = refSegment;
             }
-            refs.add(refSegment);
+        }else {
+            if (primaryRef == null) {
+                primaryRef = refSegment;
+            } else {
+                if (refs == null) {
+                    refs = new LinkedList<TraceSegmentRef>();
+                }
+                refs.add(refSegment);
+            }
         }
+    }
+
+    /**
+     * Set to {@link #primaryRef} only,
+     * based on {@link #ref(TraceSegmentRef, boolean)}
+     *
+     * @param refSegment {@link TraceSegmentRef}
+     */
+    public void ref(TraceSegmentRef refSegment){
+        ref(refSegment, true);
     }
 
     /**
