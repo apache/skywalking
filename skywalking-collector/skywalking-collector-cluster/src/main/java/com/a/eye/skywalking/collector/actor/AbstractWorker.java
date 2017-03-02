@@ -15,7 +15,7 @@ import java.util.List;
  * Abstract implementation of the {@link akka.actor.UntypedActor} that represents an
  * analysis unit. <code>AbstractWorker</code> implementation process the message in
  * {@link #receive(Object)} method.
- *
+ * <p>
  * <p>
  * Subclasses must implement the abstract {@link #receive(Object)} method to process message.
  * Subclasses forbid to override the {@link #onReceive(Object)} method.
@@ -25,19 +25,17 @@ import java.util.List;
  * {{{
  * public class SampleWorker extends AbstractWorker {
  *
- *      @Override
- *      public void receive(Object message) throws Throwable {
- *          if (message.equals("Tell Next")) {
- *              Object sendMessage = new Object();
- *              tell(new NextSampleWorkerFactory(), RollingSelector.INSTANCE, sendMessage);
- *          }
- *      }
+ * @author pengys5
+ * @Override public void receive(Object message) throws Throwable {
+ * if (message.equals("Tell Next")) {
+ * Object sendMessage = new Object();
+ * tell(new NextSampleWorkerFactory(), RollingSelector.INSTANCE, sendMessage);
+ * }
+ * }
  * }
  * }}}
- *
- * @author pengys5
  */
-public abstract class AbstractWorker<T> extends UntypedActor {
+public abstract class AbstractWorker<T> extends UntypedActor implements Worker{
 
     /**
      * Receive the message to analyse.
@@ -78,8 +76,13 @@ public abstract class AbstractWorker<T> extends UntypedActor {
      * @throws Throwable
      */
     public void tell(AbstractWorkerProvider targetWorkerProvider, WorkerSelector selector, T message) throws Throwable {
-        List<WorkerRef> availableWorks = WorkersRefCenter.INSTANCE.availableWorks(targetWorkerProvider.roleName());
-        selector.select(availableWorks, message).tell(message, getSelf());
+        if (targetWorkerProvider instanceof AbstractLocalWorkerProvider) {
+            Worker worker = LocalSystem.actorFor(targetWorkerProvider.getClass(), targetWorkerProvider.roleName());
+            worker.receive(message);
+        } else if (targetWorkerProvider instanceof AbstractClusterWorkerProvider) {
+            List<WorkerRef> availableWorks = WorkersRefCenter.INSTANCE.availableWorks(targetWorkerProvider.roleName());
+            selector.select(availableWorks, message).tell(message, getSelf());
+        }
     }
 
     /**

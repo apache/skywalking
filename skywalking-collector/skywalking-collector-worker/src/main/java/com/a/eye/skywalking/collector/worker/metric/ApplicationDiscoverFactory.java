@@ -5,9 +5,7 @@ import com.a.eye.skywalking.collector.actor.AbstractWorkerProvider;
 /**
  * @author pengys5
  */
-public class ApplicationDiscoerWorkerFactory extends AbstractWorkerProvider {
-
-    public static final String WorkerName = "ApplicationDiscoverMetric";
+public class ApplicationDiscoverFactory extends AbstractWorkerProvider {
 
     @Override
     public Class workerClass() {
