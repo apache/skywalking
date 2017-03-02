@@ -23,6 +23,6 @@ public class JedisClusterConstructorWithListHostAndPortArgInterceptor implements
             redisConnInfo.append(hostAndPort.toString()).append(";");
         }
         context.set(JedisMethodInterceptor.KEY_OF_REDIS_CONN_INFO, redisConnInfo.toString());
-        context.set(JedisMethodInterceptor.KEY_OF_REDIS_HOSTS, redisConnInfo);
+        context.set(JedisMethodInterceptor.KEY_OF_REDIS_HOSTS, redisConnInfo.toString());
     }
 }
