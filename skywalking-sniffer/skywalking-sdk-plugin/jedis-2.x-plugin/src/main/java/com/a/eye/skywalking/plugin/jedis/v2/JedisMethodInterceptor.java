@@ -46,11 +46,17 @@ public class JedisMethodInterceptor extends NoCocurrencyAceessObject {
         this.whenEnter(context, new Runnable() {
             @Override
             public void run() {
-                Span span = ContextManager.INSTANCE.createSpan(context.get(KEY_OF_REDIS_CONN_INFO, String.class) + " " + interceptorContext.methodName());
+                Span span = ContextManager.INSTANCE.createSpan("Jedis/" + interceptorContext.methodName());
                 Tags.COMPONENT.set(span, REDIS_COMPONENT);
                 Tags.DB_TYPE.set(span, REDIS_COMPONENT);
                 tagPeer(span, context);
                 Tags.SPAN_LAYER.asDB(span);
+                if (StringUtil.isEmpty(context.get(KEY_OF_REDIS_HOST, String.class))) {
+                    Tags.PEERS.set(span, String.valueOf(context.get(KEY_OF_REDIS_HOSTS)));
+                } else {
+                    Tags.PEER_HOST.set(span, context.get(KEY_OF_REDIS_HOST, String.class));
+                    Tags.PEER_PORT.set(span, (Integer) context.get(KEY_OF_REDIS_PORT));
+                }
 
                 if (interceptorContext.allArguments().length > 0
                         && interceptorContext.allArguments()[0] instanceof String) {
