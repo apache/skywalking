@@ -53,6 +53,18 @@ public enum ContextManager implements TracerContextListener {
         get().extract(carrier);
     }
 
+    /**
+     * @return the {@link TraceSegment#traceSegmentId} if exist. Otherwise, "N/A".
+     */
+    public String getTraceSegmentId(){
+        TracerContext segment = CONTEXT.get();
+        if(segment == null){
+            return "N/A";
+        }else{
+            return segment.getTraceSegmentId();
+        }
+    }
+
     public Span createSpan(String operationName) {
         return get().createSpan(operationName);
     }

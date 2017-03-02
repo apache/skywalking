@@ -88,6 +88,13 @@ public final class TracerContext {
         stopSpan(span, System.currentTimeMillis());
     }
 
+    /**
+     * @return the current trace segment id.
+     */
+    String getTraceSegmentId(){
+        return segment.getTraceSegmentId();
+    }
+
     public void stopSpan(Span span, Long endTime){
         Span lastSpan = peek();
         if (lastSpan == span) {
