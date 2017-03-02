@@ -2,10 +2,8 @@ package com.a.eye.skywalking.collector.worker.persistence;
 
 import com.a.eye.skywalking.collector.actor.AbstractWorker;
 import com.a.eye.skywalking.collector.worker.RecordCollection;
+import com.a.eye.skywalking.collector.worker.application.persistence.ApplicationMessage;
 import com.google.gson.JsonObject;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author pengys5

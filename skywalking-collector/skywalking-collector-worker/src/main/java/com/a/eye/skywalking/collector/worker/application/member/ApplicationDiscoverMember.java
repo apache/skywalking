@@ -1,17 +1,17 @@
-package com.a.eye.skywalking.collector.worker.metric;
+package com.a.eye.skywalking.collector.worker.application.member;
 
 
-import com.a.eye.skywalking.collector.actor.AbstractWorker;
+import com.a.eye.skywalking.collector.actor.AbstractMember;
 import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
-import com.a.eye.skywalking.collector.worker.persistence.ApplicationMessage;
-import com.a.eye.skywalking.collector.worker.persistence.ApplicationPersistenceFactory;
+import com.a.eye.skywalking.collector.worker.application.persistence.ApplicationMessage;
+import com.a.eye.skywalking.collector.worker.application.persistence.ApplicationPersistenceFactory;
 import com.a.eye.skywalking.trace.TraceSegment;
 import com.a.eye.skywalking.trace.tag.Tags;
 
 /**
  * @author pengys5
  */
-public class ApplicationDiscoverMetric extends AbstractWorker {
+public class ApplicationDiscoverMember extends AbstractMember {
 
     @Override
     public void receive(Object message) throws Throwable {

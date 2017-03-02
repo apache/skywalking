@@ -1,14 +1,14 @@
-package com.a.eye.skywalking.collector.worker.persistence;
+package com.a.eye.skywalking.collector.worker.applicationref;
 
 import com.a.eye.skywalking.collector.actor.AbstractWorkerProvider;
 
 /**
  * @author pengys5
  */
-public class ApplicationPersistenceFactory extends AbstractWorkerProvider {
+public class ApplicationRefWorkerFactory extends AbstractWorkerProvider {
     @Override
     public Class workerClass() {
-        return ApplicationPersistence.class;
+        return ApplicationRefWorker.class;
     }
 
     @Override

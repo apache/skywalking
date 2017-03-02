@@ -35,7 +35,9 @@ import java.util.List;
  * }
  * }}}
  */
-public abstract class AbstractWorker<T> extends UntypedActor implements Worker{
+public abstract class AbstractWorker<T> extends UntypedActor {
+
+    private MemberSystem memberSystem = new MemberSystem();
 
     /**
      * Receive the message to analyse.
@@ -76,13 +78,8 @@ public abstract class AbstractWorker<T> extends UntypedActor implements Worker{
      * @throws Throwable
      */
     public void tell(AbstractWorkerProvider targetWorkerProvider, WorkerSelector selector, T message) throws Throwable {
-        if (targetWorkerProvider instanceof AbstractLocalWorkerProvider) {
-            Worker worker = LocalSystem.actorFor(targetWorkerProvider.getClass(), targetWorkerProvider.roleName());
-            worker.receive(message);
-        } else if (targetWorkerProvider instanceof AbstractClusterWorkerProvider) {
-            List<WorkerRef> availableWorks = WorkersRefCenter.INSTANCE.availableWorks(targetWorkerProvider.roleName());
-            selector.select(availableWorks, message).tell(message, getSelf());
-        }
+        List<WorkerRef> availableWorks = WorkersRefCenter.INSTANCE.availableWorks(targetWorkerProvider.roleName());
+        selector.select(availableWorks, message).tell(message, getSelf());
     }
 
     /**
@@ -96,5 +93,9 @@ public abstract class AbstractWorker<T> extends UntypedActor implements Worker{
             WorkerListenerMessage.RegisterMessage registerMessage = new WorkerListenerMessage.RegisterMessage(getClass().getSimpleName());
             getContext().actorSelection(member.address() + "/user/" + WorkersListener.WorkName).tell(registerMessage, getSelf());
         }
+    }
+
+    public MemberSystem getMemberContext() {
+        return memberSystem;
     }
 }

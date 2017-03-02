@@ -1,15 +1,14 @@
-package com.a.eye.skywalking.collector.worker.metric;
+package com.a.eye.skywalking.collector.worker.application.persistence;
 
 import com.a.eye.skywalking.collector.actor.AbstractWorkerProvider;
 
 /**
  * @author pengys5
  */
-public class ApplicationDiscoverFactory extends AbstractWorkerProvider {
-
+public class ApplicationPersistenceFactory extends AbstractWorkerProvider {
     @Override
     public Class workerClass() {
-        return ApplicationDiscoverMetric.class;
+        return ApplicationPersistence.class;
     }
 
     @Override

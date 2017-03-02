@@ -31,7 +31,18 @@ public abstract class AbstractWorkerProvider<T> {
 
     public abstract int workerNum();
 
-    public abstract void createWorker(T system);
+    public void createWorker(ActorSystem system) {
+        if (workerClass() == null) {
+            throw new IllegalArgumentException("cannot createInstance() with nothing obtained from workerClass()");
+        }
+        if (workerNum() <= 0) {
+            throw new IllegalArgumentException("cannot createInstance() with obtained from workerNum() must greater than 0");
+        }
+
+        for (int i = 1; i <= workerNum(); i++) {
+            system.actorOf(Props.create(workerClass()), roleName() + "_" + i);
+        }
+    }
 
     /**
      * Use {@link #workerClass()} method returned class's simple name as a role name.

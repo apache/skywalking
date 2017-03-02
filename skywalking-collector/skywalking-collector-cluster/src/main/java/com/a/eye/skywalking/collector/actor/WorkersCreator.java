@@ -23,11 +23,5 @@ public enum WorkersCreator {
         for (AbstractClusterWorkerProvider provider : clusterServiceLoader) {
             provider.createWorker(system);
         }
-
-        LocalSystem localSystem = new LocalSystem();
-        ServiceLoader<AbstractLocalWorkerProvider> localServiceLoader = ServiceLoader.load(AbstractLocalWorkerProvider.class);
-        for (AbstractLocalWorkerProvider provider : localServiceLoader) {
-            provider.createWorker(localSystem);
-        }
     }
 }

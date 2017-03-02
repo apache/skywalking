@@ -1,4 +1,4 @@
-package com.a.eye.skywalking.collector.worker.persistence;
+package com.a.eye.skywalking.collector.worker.application.persistence;
 
 /**
  * @author pengys5
