@@ -19,9 +19,7 @@ public class PrintTraceIdInterceptor implements StaticMethodsAroundInterceptor {
      */
     @Override
     public void beforeMethod(StaticMethodInvokeContext interceptorContext, MethodInterceptResult result) {
-        ContextCarrier carrier = new ContextCarrier();
-        ContextManager.INSTANCE.inject(carrier);
-        ((StringBuilder) interceptorContext.allArguments()[0]).append("TID:" + carrier.getTraceSegmentId());
+        ((StringBuilder) interceptorContext.allArguments()[0]).append("TID:" + ContextManager.INSTANCE.getTraceSegmentId());
 
         //make sure origin method do not invoke.
         result.defineReturnValue(null);

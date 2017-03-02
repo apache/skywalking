@@ -29,7 +29,7 @@ public class MotanConsumerInvokeInterceptor implements InstanceMethodsAroundInte
     /**
      * Attachment key of the serialized context data.
      */
-    private static final String ATTACHMENT_KEY_OF_CONTEXT_DATA = "contextData";
+    private static final String ATTACHMENT_KEY_OF_CONTEXT_DATA = "SWTraceContext";
 
     /**
      * Motan component
