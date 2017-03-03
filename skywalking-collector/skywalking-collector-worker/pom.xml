@@ -28,5 +28,11 @@
             <artifactId>transport</artifactId>
             <version>5.2.2</version>
         </dependency>
+        <dependency>
+            <groupId>com.a.eye</groupId>
+            <artifactId>skywalking-sniffer-mock</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

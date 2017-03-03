@@ -3,6 +3,8 @@ package com.a.eye.skywalking.collector.cluster;
 import akka.actor.ActorRef;
 import akka.actor.Terminated;
 import akka.actor.UntypedActor;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * <code>WorkersListener</code> listening the register message from workers
@@ -18,6 +20,8 @@ import akka.actor.UntypedActor;
  */
 public class WorkersListener extends UntypedActor {
 
+    private Logger logger = LogManager.getFormatterLogger(WorkersListener.class);
+
     public static final String WorkName = "WorkersListener";
 
     @Override
@@ -26,6 +30,8 @@ public class WorkersListener extends UntypedActor {
             WorkerListenerMessage.RegisterMessage register = (WorkerListenerMessage.RegisterMessage) message;
             ActorRef sender = getSender();
             getContext().watch(sender);
+
+            logger.info("register worker of role %s", register.getWorkRole());
 
             WorkersRefCenter.INSTANCE.register(sender, register.getWorkRole());
         } else if (message instanceof Terminated) {

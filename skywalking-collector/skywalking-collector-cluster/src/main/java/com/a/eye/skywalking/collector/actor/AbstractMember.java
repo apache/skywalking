@@ -29,7 +29,7 @@ public abstract class AbstractMember<T> {
     }
 
 
-    public abstract void preStart() throws Throwable;
+    public abstract void preStart() throws Exception;
 
     /**
      * Receive the message to analyse.

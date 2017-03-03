@@ -21,12 +21,12 @@ import java.util.Map;
  */
 public class TraceSegmentRecordMember extends AbstractMember {
 
-    public TraceSegmentRecordMember(MemberSystem memberSystem, ActorRef actorRef) {
+    public TraceSegmentRecordMember(MemberSystem memberSystem, ActorRef actorRef) throws Throwable {
         super(memberSystem, actorRef);
     }
 
     @Override
-    public void preStart() throws Throwable {
+    public void preStart() throws Exception {
     }
 
     @Override
@@ -53,11 +53,15 @@ public class TraceSegmentRecordMember extends AbstractMember {
         traceJsonObj.addProperty("endTime", traceSegment.getEndTime());
         traceJsonObj.addProperty("appCode", traceSegment.getApplicationCode());
 
-        JsonObject primaryRefJsonObj = parsePrimaryRef(traceSegment.getPrimaryRef());
-        traceJsonObj.add("primaryRef", primaryRefJsonObj);
+        if (traceSegment.getPrimaryRef() != null) {
+            JsonObject primaryRefJsonObj = parsePrimaryRef(traceSegment.getPrimaryRef());
+            traceJsonObj.add("primaryRef", primaryRefJsonObj);
+        }
 
-        JsonArray refsJsonArray = parseRefs(traceSegment.getRefs());
-        traceJsonObj.add("refs", refsJsonArray);
+//        if (traceSegment.getRefs() != null) {
+//            JsonArray refsJsonArray = parseRefs(traceSegment.getRefs());
+//            traceJsonObj.add("refs", refsJsonArray);
+//        }
 
         JsonArray spanJsonArray = new JsonArray();
         for (Span span : traceSegment.getSpans()) {

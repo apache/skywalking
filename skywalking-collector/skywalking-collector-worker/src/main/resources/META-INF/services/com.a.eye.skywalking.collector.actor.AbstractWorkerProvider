@@ -1,1 +1,8 @@
-com.a.eye.skywalking.collector.actor.SpiTestWorkerFactory
+com.a.eye.skywalking.collector.worker.receiver.TraceSegmentReceiver$Factory
+com.a.eye.skywalking.collector.worker.application.persistence.TraceSegmentRecordPersistence$Factory
+com.a.eye.skywalking.collector.worker.application.persistence.DAGNodePersistence$Factory
+com.a.eye.skywalking.collector.worker.application.persistence.NodeInstancePersistence$Factory
+com.a.eye.skywalking.collector.worker.application.persistence.ResponseCostPersistence$Factory
+com.a.eye.skywalking.collector.worker.application.persistence.ResponseSummaryPersistence$Factory
+com.a.eye.skywalking.collector.worker.application.persistence.TraceSegmentRecordPersistence$Factory
+com.a.eye.skywalking.collector.worker.applicationref.presistence.DAGNodeRefPersistence$Factory

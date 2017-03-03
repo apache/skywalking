@@ -1,5 +1,6 @@
 package com.a.eye.skywalking.collector.actor;
 
+import akka.actor.Terminated;
 import akka.actor.UntypedActor;
 import akka.cluster.ClusterEvent;
 import akka.cluster.Member;
@@ -8,6 +9,9 @@ import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
 import com.a.eye.skywalking.collector.cluster.WorkerListenerMessage;
 import com.a.eye.skywalking.collector.cluster.WorkersListener;
 import com.a.eye.skywalking.collector.cluster.WorkersRefCenter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import scala.Option;
 
 import java.util.List;
 
@@ -37,7 +41,21 @@ import java.util.List;
  */
 public abstract class AbstractWorker<T> extends UntypedActor {
 
+    private Logger logger = LogManager.getFormatterLogger(AbstractWorker.class);
+
     private MemberSystem memberSystem = new MemberSystem();
+
+    @Override
+    public void preStart() throws Exception {
+        super.preStart();
+        register();
+    }
+
+    @Override
+    public void preRestart(Throwable reason, Option<Object> message) throws Exception {
+        super.preRestart(reason, message);
+        register();
+    }
 
     /**
      * Receive the message to analyse.
@@ -55,6 +73,7 @@ public abstract class AbstractWorker<T> extends UntypedActor {
     @Override
     public void onReceive(Object message) throws Throwable {
         if (message instanceof ClusterEvent.CurrentClusterState) {
+            logger.info("receive ClusterEvent.CurrentClusterState message");
             ClusterEvent.CurrentClusterState state = (ClusterEvent.CurrentClusterState) message;
             for (Member member : state.getMembers()) {
                 if (member.status().equals(MemberStatus.up())) {
@@ -62,9 +81,11 @@ public abstract class AbstractWorker<T> extends UntypedActor {
                 }
             }
         } else if (message instanceof ClusterEvent.MemberUp) {
+            logger.info("receive ClusterEvent.MemberUp message");
             ClusterEvent.MemberUp memberUp = (ClusterEvent.MemberUp) message;
             register(memberUp.member());
-        } else {
+        }  else {
+            logger.info("message class: %s", message.getClass().getName());
             receive(message);
         }
     }
@@ -89,10 +110,16 @@ public abstract class AbstractWorker<T> extends UntypedActor {
      * @param member is the new created or restart worker
      */
     void register(Member member) {
+        System.out.println("register");
         if (member.getRoles().equals(WorkersListener.WorkName)) {
             WorkerListenerMessage.RegisterMessage registerMessage = new WorkerListenerMessage.RegisterMessage(getClass().getSimpleName());
             getContext().actorSelection(member.address() + "/user/" + WorkersListener.WorkName).tell(registerMessage, getSelf());
         }
+    }
+
+    void register() {
+        WorkerListenerMessage.RegisterMessage registerMessage = new WorkerListenerMessage.RegisterMessage(getClass().getSimpleName());
+        getContext().actorSelection("/user/" + WorkersListener.WorkName).tell(registerMessage, getSelf());
     }
 
     public MemberSystem memberContext() {

@@ -18,6 +18,7 @@ public abstract class AbstractMemberProvider {
         Constructor memberConstructor = memberClass().getDeclaredConstructor(new Class[]{MemberSystem.class, ActorRef.class});
         memberConstructor.setAccessible(true);
         AbstractMember member = (AbstractMember) memberConstructor.newInstance(system, actorRef);
+        member.preStart();
         system.memberOf(member, roleName());
     }
 

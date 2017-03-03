@@ -13,18 +13,23 @@ import com.a.eye.skywalking.collector.worker.application.persistence.ResponseSum
 import com.a.eye.skywalking.trace.Span;
 import com.a.eye.skywalking.trace.TraceSegment;
 import com.a.eye.skywalking.trace.tag.Tags;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * @author pengys5
  */
 public class ApplicationMember extends AbstractMember {
 
+    private Logger logger = LogManager.getFormatterLogger(ApplicationMember.class);
+
     public ApplicationMember(MemberSystem memberSystem, ActorRef actorRef) {
         super(memberSystem, actorRef);
     }
 
     @Override
-    public void preStart() throws Throwable {
+    public void preStart() throws Exception {
+        logger.info("create members");
         TraceSegmentRecordMember.Factory factory = new TraceSegmentRecordMember.Factory();
         factory.createWorker(memberContext(), getSelf());
     }
@@ -32,6 +37,7 @@ public class ApplicationMember extends AbstractMember {
     @Override
     public void receive(Object message) throws Throwable {
         if (message instanceof TraceSegment) {
+            logger.debug("begin translate TraceSegment Object to JsonObject");
             TraceSegment traceSegment = (TraceSegment) message;
             AbstractMember discoverMember = memberContext().memberFor(TraceSegmentRecordMember.class.getSimpleName());
             discoverMember.receive(traceSegment);
@@ -67,11 +73,13 @@ public class ApplicationMember extends AbstractMember {
     }
 
     private void sendToNodeInstancePersistence(TraceSegment traceSegment) throws Throwable {
-        String code = traceSegment.getPrimaryRef().getApplicationCode();
-        String address = traceSegment.getPrimaryRef().getPeerHost();
+        if (traceSegment.getPrimaryRef() != null) {
+            String code = traceSegment.getPrimaryRef().getApplicationCode();
+            String address = traceSegment.getPrimaryRef().getPeerHost();
 
-        NodeInstancePersistence.Metric property = new NodeInstancePersistence.Metric(code, address);
-        tell(new NodeInstancePersistence.Factory(), RollingSelector.INSTANCE, property);
+            NodeInstancePersistence.Metric property = new NodeInstancePersistence.Metric(code, address);
+            tell(new NodeInstancePersistence.Factory(), RollingSelector.INSTANCE, property);
+        }
     }
 
     private void sendToResponseCostPersistence(TraceSegment traceSegment) throws Throwable {

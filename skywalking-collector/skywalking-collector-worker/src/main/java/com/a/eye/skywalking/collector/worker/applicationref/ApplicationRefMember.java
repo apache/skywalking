@@ -13,12 +13,12 @@ import com.a.eye.skywalking.trace.TraceSegment;
  */
 public class ApplicationRefMember extends AbstractMember {
 
-    public ApplicationRefMember(MemberSystem memberSystem, ActorRef actorRef) {
+    public ApplicationRefMember(MemberSystem memberSystem, ActorRef actorRef) throws Throwable {
         super(memberSystem, actorRef);
     }
 
     @Override
-    public void preStart() throws Throwable {
+    public void preStart() {
 
     }
 
