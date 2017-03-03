@@ -1,14 +1,18 @@
 package com.a.eye.skywalking.collector.worker.application.persistence;
 
 import com.a.eye.skywalking.collector.actor.AbstractWorkerProvider;
-import com.a.eye.skywalking.collector.worker.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.PersistenceWorker;
+import com.a.eye.skywalking.collector.worker.WorkerConfig;
 import com.google.gson.JsonObject;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * @author pengys5
  */
 public class DAGNodePersistence extends PersistenceWorker<DAGNodePersistence.Metric> {
+
+    private Logger logger = LogManager.getFormatterLogger(DAGNodePersistence.class);
 
     @Override
     public String esIndex() {
@@ -29,6 +33,7 @@ public class DAGNodePersistence extends PersistenceWorker<DAGNodePersistence.Met
             propertyJsonObj.addProperty("component", metric.component);
             propertyJsonObj.addProperty("layer", metric.layer);
 
+            logger.debug("dag node persistence data: %s", propertyJsonObj.toString());
             putData(metric.code, propertyJsonObj);
         }
     }
