@@ -15,6 +15,7 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, also known D
 # News
 * sky-walking v3.0 iteration begins... The top 2 important features are: [`Update the trace-structure`](https://github.com/wu-sheng/sky-walking/issues/83) and [`Analyze trace, and bring metric/analytic/cause up`](https://github.com/wu-sheng/sky-walking/issues/84)
 * See feature codes at [branch feature/3.0](https://github.com/wu-sheng/sky-walking/tree/feature/3.0)
+* The new UI release on [wu-sheng/sky-walking-ui](https://github.com/wu-sheng/sky-walking-ui)
 
 # Abstract
 * An open source Large-Scale Distributed Systems Tracing Infrastructure, also known a ditributed tracer.

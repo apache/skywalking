@@ -1,7 +1,7 @@
 package com.a.eye.skywalking.api.plugin.interceptor.enhance;
 
-import com.a.eye.skywalking.api.logging.api.ILog;
-import com.a.eye.skywalking.api.logging.api.LogManager;
+import com.a.eye.skywalking.api.logging.ILog;
+import com.a.eye.skywalking.api.logging.LogManager;
 import com.a.eye.skywalking.api.plugin.interceptor.loader.InterceptorInstanceLoader;
 import com.a.eye.skywalking.api.plugin.interceptor.EnhancedClassInstanceContext;
 import net.bytebuddy.implementation.bind.annotation.*;
@@ -55,7 +55,7 @@ public class ClassInstanceMethodsInterceptor {
         try {
             interceptor.beforeMethod(instanceContext, interceptorContext, result);
         } catch (Throwable t) {
-            logger.error("class[{}] before method[{}] intercept failue:{}", new Object[] {obj.getClass(), method.getName(), t.getMessage()}, t);
+            logger.error(t,"class[{}] before method[{}] intercept failure", obj.getClass(), method.getName());
         }
 
         Object ret = null;
@@ -69,14 +69,14 @@ public class ClassInstanceMethodsInterceptor {
             try {
                 interceptor.handleMethodException(t, instanceContext, interceptorContext);
             } catch (Throwable t2) {
-                logger.error("class[{}] handle method[{}] exception failue:{}", new Object[] {obj.getClass(), method.getName(), t2.getMessage()}, t2);
+                logger.error(t2, "class[{}] handle method[{}] exception failure", obj.getClass(), method.getName());
             }
             throw t;
         } finally {
             try {
                 ret = interceptor.afterMethod(instanceContext, interceptorContext, ret);
             } catch (Throwable t) {
-                logger.error("class[{}] after method[{}] intercept failue:{}", new Object[] {obj.getClass(), method.getName(), t.getMessage()}, t);
+                logger.error(t, "class[{}] after method[{}] intercept failure", obj.getClass(), method.getName());
             }
         }
         return ret;

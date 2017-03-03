@@ -1,7 +1,7 @@
 package com.a.eye.skywalking.api.plugin;
 
-import com.a.eye.skywalking.api.logging.api.ILog;
-import com.a.eye.skywalking.api.logging.api.LogManager;
+import com.a.eye.skywalking.api.logging.ILog;
+import com.a.eye.skywalking.api.logging.LogManager;
 import net.bytebuddy.pool.TypePool;
 
 import java.net.URL;
@@ -18,32 +18,30 @@ import java.util.List;
 public class PluginBootstrap {
     private static ILog logger = LogManager.getLogger(PluginBootstrap.class);
 
-    public static TypePool CLASS_TYPE_POOL = null;
-
     /**
      * load all plugins.
      * @return plugin definition list.
      */
     public List<AbstractClassEnhancePluginDefine> loadPlugins() {
-        CLASS_TYPE_POOL = TypePool.Default.ofClassPath();
+        TypePool classTypePool = TypePool.Default.ofClassPath();
 
         PluginResourcesResolver resolver = new PluginResourcesResolver();
         List<URL> resources = resolver.getResources();
 
         if (resources == null || resources.size() == 0) {
             logger.info("no plugin files (skywalking-plugin.properties) found, continue to start application.");
-            return new ArrayList<AbstractClassEnhancePluginDefine>();
+            return new ArrayList<>();
         }
 
         for (URL pluginUrl : resources) {
             try {
-                PluginCfg.CFG.load(pluginUrl.openStream());
+                PluginCfg.INSTANCE.load(pluginUrl.openStream());
             } catch (Throwable t) {
-                logger.error("plugin [{}] init failure.", new Object[] {pluginUrl}, t);
+                logger.error(t, "plugin [{}] init failure.", pluginUrl);
             }
         }
 
-        List<String> pluginClassList = PluginCfg.CFG.getPluginClassList();
+        List<String> pluginClassList = PluginCfg.INSTANCE.getPluginClassList();
 
         List<AbstractClassEnhancePluginDefine> plugins = new ArrayList<AbstractClassEnhancePluginDefine>();
         for (String pluginClassName : pluginClassList) {
@@ -51,9 +49,10 @@ public class PluginBootstrap {
                 logger.debug("loading plugin class {}.", pluginClassName);
                 AbstractClassEnhancePluginDefine plugin =
                         (AbstractClassEnhancePluginDefine) Class.forName(pluginClassName).newInstance();
+                plugin.setClassTypePool(classTypePool);
                 plugins.add(plugin);
             } catch (Throwable t) {
-                logger.error("loade plugin [{}] failure.", new Object[] {pluginClassName}, t);
+                logger.error(t, "loade plugin [{}] failure.", pluginClassName);
             }
         }
 

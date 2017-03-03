@@ -315,4 +315,5 @@ public class SWConnection implements Connection {
         return realConnection.getNetworkTimeout();
     }
 
+
 }

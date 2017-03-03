@@ -89,7 +89,7 @@ public class DubboInterceptorTest {
             public void call(TraceSegment traceSegment) {
                 assertThat(traceSegment.getSpans().size(), is(1));
                 assertConsumerSpan(traceSegment.getSpans().get(0));
-                testParam.assertSelf("0", "127.0.0.1");
+                testParam.assertSelf("127.0.0.1");
             }
         });
     }

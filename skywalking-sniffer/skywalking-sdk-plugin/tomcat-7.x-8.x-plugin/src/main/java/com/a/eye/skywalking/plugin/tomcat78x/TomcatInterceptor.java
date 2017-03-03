@@ -22,7 +22,7 @@ public class TomcatInterceptor implements InstanceMethodsAroundInterceptor {
     /**
      * Header name that the serialized context data stored in {@link HttpServletRequest#getHeader(String)}.
      */
-    public static final String HEADER_NAME_OF_CONTEXT_DATA = "SKYWALKING_CONTEXT_DATA";
+    public static final String HEADER_NAME_OF_CONTEXT_DATA = "SWTraceContext";
     /**
      * Tomcat component.
      */

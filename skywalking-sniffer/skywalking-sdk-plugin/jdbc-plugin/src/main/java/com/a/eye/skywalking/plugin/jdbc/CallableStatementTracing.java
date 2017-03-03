@@ -26,6 +26,7 @@ public class CallableStatementTracing {
             Tags.DB_TYPE.set(span, "sql");
             Tags.DB_INSTANCE.set(span, connectInfo.getDatabaseName());
             Tags.DB_STATEMENT.set(span, sql);
+            Tags.SPAN_LAYER.asDB(span);
             Tags.COMPONENT.set(span, connectInfo.getDBType());
             if (!StringUtil.isEmpty(connectInfo.getHosts())) {
                 Tags.PEERS.set(span, connectInfo.getHosts());

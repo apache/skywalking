@@ -7,7 +7,7 @@ import com.a.eye.skywalking.trace.Span;
  *
  * Created by wusheng on 2017/2/17.
  */
-public class BooleanTag extends AbstractTag<Boolean>{
+public class BooleanTag extends AbstractTag<Boolean> {
     public BooleanTag(String key) {
         super(key);
     }
@@ -18,8 +18,8 @@ public class BooleanTag extends AbstractTag<Boolean>{
     }
 
     /**
-     * Get a tag value, type of {@link Boolean}.
-     * After akka-message/serialize, all tags values are type of {@link String}, convert to {@link Boolean}, if necessary.
+     * Get a tag value, type of {@link Boolean}. After akka-message/serialize, all tags values are type of {@link
+     * String}, convert to {@link Boolean}, if necessary.
      *
      * @param span
      * @return tag value
@@ -27,9 +27,11 @@ public class BooleanTag extends AbstractTag<Boolean>{
     @Override
     public Boolean get(Span span) {
         Object tagValue = span.getTag(super.key);
-        if(tagValue instanceof Boolean){
+        if (tagValue == null) {
+            return null;
+        } else if (tagValue instanceof Boolean) {
             return (Boolean)tagValue;
-        }else {
+        } else {
             return Boolean.valueOf(tagValue.toString());
         }
     }

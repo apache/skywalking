@@ -3,7 +3,6 @@ package com.a.eye.skywalking.api.logging;
 
 
 import com.a.eye.skywalking.api.conf.Config;
-import com.a.eye.skywalking.api.util.LoggingUtil;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -97,15 +96,15 @@ public class SyncFileWriter implements IWriter {
         try {
             File file = new File(Config.Logging.LOG_DIR_NAME, Config.Logging.SYSTEM_ERROR_LOG_FILE_NAME);
             fileOutputStream = new FileOutputStream(file, true);
-            fileOutputStream.write(("Failed to init sync File Writer.\n" + LoggingUtil.fetchThrowableStack(e)).getBytes());
+            fileOutputStream.write(("Failed to init sync File Writer.\n" + ThrowableFormatter.format(e)).getBytes());
         } catch (Exception e1) {
-            System.err.print(LoggingUtil.fetchThrowableStack(e1));
+            System.err.print(ThrowableFormatter.format(e1));
         } finally {
             if (fileOutputStream != null) {
                 try {
                     fileOutputStream.close();
                 } catch (IOException e1) {
-                    System.err.print(LoggingUtil.fetchThrowableStack(e1));
+                    System.err.print(ThrowableFormatter.format(e1));
                 }
             }
         }

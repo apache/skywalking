@@ -1,9 +1,6 @@
 package com.a.eye.skywalking.api.logging;
 
 
-import com.a.eye.skywalking.api.logging.api.ILog;
-
-import com.a.eye.skywalking.api.util.LoggingUtil;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -34,7 +31,7 @@ public class EasyLogger implements ILog {
         }
 
         if (e != null) {
-            WriterFactory.getLogWriter().writeError(LoggingUtil.fetchThrowableStack(e));
+            WriterFactory.getLogWriter().writeError(ThrowableFormatter.format(e));
         }
     }
 
@@ -77,17 +74,12 @@ public class EasyLogger implements ILog {
     }
 
     @Override
-    public void warn(String format, Object arguments, Throwable e) {
-        logger(WARN, replaceParam(format, arguments), e);
-    }
-
-    @Override
     public void error(String format, Throwable e) {
         logger(ERROR, format, e);
     }
 
     @Override
-    public void error(String format, Object arguments, Throwable e) {
+    public void error(Throwable e, String format, Object... arguments) {
         logger(ERROR, replaceParam(format, arguments), e);
     }
 

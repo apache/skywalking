@@ -16,7 +16,7 @@ import java.util.Map;
  */
 public class TracerExtractCrossProcessTextMapContextInterceptor implements InstanceMethodsAroundInterceptor {
 
-    public static final String SKY_WALKING_TRACING_NAME = "SkyWalking-TRACING-NAME";
+    public static final String SKY_WALKING_TRACING_NAME = "SW-TRACING-NAME";
 
     @Override
     public void beforeMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
