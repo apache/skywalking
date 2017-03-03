@@ -158,6 +158,9 @@ public class TraceSegment implements ISerializable<SegmentMessage> {
     }
 
     public List<TraceSegmentRef> getRefs() {
+        if(refs == null){
+            return null;
+        }
         return Collections.unmodifiableList(refs);
     }
 
