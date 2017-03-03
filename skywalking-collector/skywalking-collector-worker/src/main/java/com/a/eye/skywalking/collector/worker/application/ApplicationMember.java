@@ -86,7 +86,7 @@ public class ApplicationMember extends AbstractMember {
         String code = traceSegment.getApplicationCode();
         long startTime = -1;
         long endTime = -1;
-        boolean isError = false;
+        Boolean isError = false;
 
         for (Span span : traceSegment.getSpans()) {
             if (span.getParentSpanId() == -1) {

@@ -19,8 +19,8 @@ public class TraceSegmentReceiver extends AbstractWorker {
 
     @Override
     public void preStart() throws Exception {
-        ApplicationMember.Factory factory = new ApplicationMember.Factory();
-        factory.createWorker(memberContext(), getSelf());
+        new ApplicationMember.Factory().createWorker(memberContext(), getSelf());
+        new ApplicationRefMember.Factory().createWorker(memberContext(), getSelf());
         super.preStart();
     }
 

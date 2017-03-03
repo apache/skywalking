@@ -5,7 +5,7 @@ import com.a.eye.skywalking.trace.Span;
 /**
  * The span tags are supported by sky-walking engine.
  * As default, all tags will be stored, but these ones have particular meanings.
- *
+ * <p>
  * Created by wusheng on 2017/2/17.
  */
 public final class Tags {
@@ -39,7 +39,7 @@ public final class Tags {
 
     /**
      * SPAN_LAYER represents the kind of span.
-     *
+     * <p>
      * e.g.
      * db=database;
      * rpc=Remote Procedure Call Framework, like motan, thift;
@@ -91,7 +91,7 @@ public final class Tags {
     /**
      * ERROR indicates whether a Span ended in an error state.
      */
-    public static final BooleanTag ERROR = new BooleanTag("error");
+    public static final BooleanTag ERROR = new BooleanTag("error", false);
 
     /**
      * PEER_HOST records host address (ip:port, or ip1:port1,ip2:port2) of the peer, maybe IPV4, IPV6 or hostname.
