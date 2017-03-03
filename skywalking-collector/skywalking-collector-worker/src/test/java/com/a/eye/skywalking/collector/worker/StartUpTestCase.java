@@ -23,7 +23,6 @@ import java.util.List;
  */
 public class StartUpTestCase {
 
-    @Test
     public void test() throws Exception {
         ClusterConfigInitializer.initialize("collector.config");
         System.out.println(ClusterConfig.Cluster.Current.roles);
