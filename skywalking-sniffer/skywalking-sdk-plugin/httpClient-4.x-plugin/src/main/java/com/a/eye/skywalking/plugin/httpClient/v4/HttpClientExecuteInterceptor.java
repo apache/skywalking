@@ -24,7 +24,7 @@ import org.apache.http.StatusLine;
  */
 public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterceptor {
     public static final String HEADER_NAME_OF_CONTEXT_DATA = "SWTraceContext";
-    private static final String COMPONENT_NAME = "Http";
+    private static final String COMPONENT_NAME = "HttpClient";
 
     @Override
     public void beforeMethod(EnhancedClassInstanceContext context,
@@ -56,7 +56,7 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
      * @return request URL
      */
     private String generateURL(HttpHost httpHost, HttpRequest httpRequest) {
-        return httpHost.getSchemeName() + "://" + httpHost.getHostName() + ":" + httpHost.getPort() + httpRequest.getRequestLine().getUri();
+        return httpRequest.getRequestLine().getUri();
     }
 
     @Override

@@ -72,12 +72,6 @@ public class MotanProviderInterceptorTest {
     }
 
     @Test
-    public void testFetchRequestURL() {
-        invokeInterceptor.onConstruct(instanceContext, constructorInvokeContext);
-        verify(instanceContext, times(1)).set(Matchers.any(), Matchers.any());
-    }
-
-    @Test
     public void testInvokerWithoutRefSegment() {
         invokeInterceptor.beforeMethod(instanceContext, interceptorContext, null);
         invokeInterceptor.afterMethod(instanceContext, interceptorContext, response);
@@ -170,10 +164,7 @@ public class MotanProviderInterceptorTest {
         assertThat(span.getOperationName(), is("com.a.eye.skywalking.test.TestService.test(java.lang.String, java.lang.Object)"));
         assertThat(Tags.COMPONENT.get(span), is("Motan"));
         assertThat(Tags.SPAN_KIND.get(span), is(Tags.SPAN_KIND_SERVER));
-        assertThat(Tags.PEER_HOST.get(span), is("127.0.0.1"));
-        assertThat(Tags.PEER_PORT.get(span), is(34000));
         assertTrue(Tags.SPAN_LAYER.isRPCFramework(span));
-        assertThat(Tags.URL.get(span), is("motan://127.0.0.1:34000/default_rpc/com.a.eye.skywalking.test.TestService/1.0/service"));
     }
 
 
