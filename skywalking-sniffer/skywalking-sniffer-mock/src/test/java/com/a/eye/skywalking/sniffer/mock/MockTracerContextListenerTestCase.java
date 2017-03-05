@@ -49,4 +49,18 @@ public class MockTracerContextListenerTestCase {
         listener.clear();
         listener.assertValidIndex(0);
     }
+
+    @Test
+    public void testTraceOf_Tomcat_DubboClient(){
+        TraceSegment segment = TraceSegmentBuilderFactory.INSTANCE.traceOf_Tomcat_DubboClient();
+
+        Assert.assertEquals(2, segment.getSpans().size());
+    }
+
+    @Test
+    public void testTraceOf_DubboServer_MySQL(){
+        TraceSegment segment = TraceSegmentBuilderFactory.INSTANCE.traceOf_DubboServer_MySQL();
+
+        Assert.assertEquals(2, segment.getSpans().size());
+    }
 }
