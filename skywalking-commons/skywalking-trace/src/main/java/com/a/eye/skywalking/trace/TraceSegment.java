@@ -189,12 +189,16 @@ public class TraceSegment implements ISerializable<SegmentMessage> {
         segmentBuilder.setStartTime(startTime);
         segmentBuilder.setEndTime(endTime);
         segmentBuilder.setApplicationCode(applicationCode);
-        segmentBuilder.setPrimaryRef(primaryRef.serialize());
-        for (TraceSegmentRef ref : refs) {
-            segmentBuilder.addRefs(ref.serialize());
+        if(primaryRef != null) {
+            segmentBuilder.setPrimaryRef(primaryRef.serialize());
         }
-        for (Span span : spans) {
-            segmentBuilder.addSpans(span.serialize());
+        if(refs != null && refs.size() > 0) {
+            for (TraceSegmentRef ref : refs) {
+                segmentBuilder.addRefs(ref.serialize());
+            }
+            for (Span span : spans) {
+                segmentBuilder.addSpans(span.serialize());
+            }
         }
         return segmentBuilder.build();
     }
@@ -205,9 +209,12 @@ public class TraceSegment implements ISerializable<SegmentMessage> {
         startTime = message.getStartTime();
         endTime = message.getEndTime();
         applicationCode = message.getApplicationCode();
-        (primaryRef = new TraceSegmentRef()).deserialize(message.getPrimaryRef());
+        SegmentRefMessage messagePrimaryRef = message.getPrimaryRef();
+        if(messagePrimaryRef != null) {
+            (primaryRef = new TraceSegmentRef()).deserialize(messagePrimaryRef);
+        }
         List<SegmentRefMessage> refsList = message.getRefsList();
-        if (refsList != null) {
+        if (refsList != null && refsList.size() > 0) {
             this.refs = new LinkedList<TraceSegmentRef>();
             for (SegmentRefMessage refMessage : refsList) {
                 TraceSegmentRef ref = new TraceSegmentRef();
