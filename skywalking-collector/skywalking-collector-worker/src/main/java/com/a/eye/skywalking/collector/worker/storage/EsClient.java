@@ -1,4 +1,4 @@
-package com.a.eye.skywalking.collector.worker.tools;
+package com.a.eye.skywalking.collector.worker.storage;
 
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;

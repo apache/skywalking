@@ -13,7 +13,6 @@
     <packaging>jar</packaging>
 
     <properties>
-        <project.spring.version>4.1.6.RELEASE</project.spring.version>
     </properties>
 
     <dependencies>
@@ -23,9 +22,9 @@
             <version>1</version>
         </dependency>
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context-support</artifactId>
-            <version>${project.spring.version}</version>
+            <groupId>com.lmax</groupId>
+            <artifactId>disruptor</artifactId>
+            <version>3.3.6</version>
         </dependency>
         <dependency>
             <groupId>com.a.eye</groupId>

@@ -1,6 +1,7 @@
 package com.a.eye.skywalking.collector.worker;
 
-import com.a.eye.skywalking.collector.actor.AbstractWorker;
+import akka.actor.ActorRef;
+import com.a.eye.skywalking.collector.actor.AbstractMember;
 import com.a.eye.skywalking.collector.worker.storage.EsClient;
 import com.google.gson.JsonObject;
 import org.apache.logging.log4j.LogManager;
@@ -15,13 +16,17 @@ import java.util.Map;
 /**
  * @author pengys5
  */
-public abstract class PersistenceWorker<T> extends AbstractWorker<T> {
+public abstract class PersistenceMember<T> extends AbstractMember<T> {
 
-    private Logger logger = LogManager.getFormatterLogger(PersistenceWorker.class);
+    private Logger logger = LogManager.getFormatterLogger(PersistenceMember.class);
 
     private long lastPersistenceTimestamp = 0;
 
     private Map<String, JsonObject> persistenceData = new HashMap();
+
+    public PersistenceMember(ActorRef actorRef) {
+        super(actorRef);
+    }
 
     public abstract String esIndex();
 
@@ -42,10 +47,10 @@ public abstract class PersistenceWorker<T> extends AbstractWorker<T> {
         return persistenceData.get(id);
     }
 
-    public abstract void analyse(Object message) throws Throwable;
+    public abstract void analyse(Object message) throws Exception;
 
     @Override
-    public void receive(Object message) throws Throwable {
+    public void receive(Object message) throws Exception {
         if (message instanceof PersistenceCommand) {
             persistence(false);
         } else {

@@ -1,14 +1,18 @@
 package com.a.eye.skywalking.collector.worker.application.persistence;
 
 import com.a.eye.skywalking.collector.actor.AbstractWorkerProvider;
-import com.a.eye.skywalking.collector.worker.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.PersistenceWorker;
+import com.a.eye.skywalking.collector.worker.WorkerConfig;
 import com.google.gson.JsonObject;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * @author pengys5
  */
 public class NodeInstancePersistence extends PersistenceWorker<NodeInstancePersistence.Metric> {
+
+    private Logger logger = LogManager.getFormatterLogger(NodeInstancePersistence.class);
 
     @Override
     public String esIndex() {
@@ -29,10 +33,15 @@ public class NodeInstancePersistence extends PersistenceWorker<NodeInstancePersi
             propertyJsonObj.addProperty("address", metric.address);
 
             putData(metric.address, propertyJsonObj);
+            logger.debug("node instance: %s", propertyJsonObj.toString());
+        } else {
+            logger.error("message unhandled");
         }
     }
 
     public static class Factory extends AbstractWorkerProvider {
+        public static Factory INSTANCE = new Factory();
+
         @Override
         public Class workerClass() {
             return NodeInstancePersistence.class;
@@ -40,7 +49,7 @@ public class NodeInstancePersistence extends PersistenceWorker<NodeInstancePersi
 
         @Override
         public int workerNum() {
-            return WorkerConfig.WorkerNum.NodeInstancePersistence_Num;
+            return WorkerConfig.Worker.NodeInstancePersistence.Num;
         }
     }
 

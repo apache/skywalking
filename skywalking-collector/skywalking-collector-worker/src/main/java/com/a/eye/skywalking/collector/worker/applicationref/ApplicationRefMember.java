@@ -2,8 +2,7 @@ package com.a.eye.skywalking.collector.worker.applicationref;
 
 import akka.actor.ActorRef;
 import com.a.eye.skywalking.collector.actor.AbstractMember;
-import com.a.eye.skywalking.collector.actor.AbstractMemberProvider;
-import com.a.eye.skywalking.collector.actor.MemberSystem;
+import com.a.eye.skywalking.collector.actor.AbstractSyncMemberProvider;
 import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
 import com.a.eye.skywalking.collector.worker.applicationref.presistence.DAGNodeRefPersistence;
 import com.a.eye.skywalking.trace.TraceSegment;
@@ -13,17 +12,12 @@ import com.a.eye.skywalking.trace.TraceSegment;
  */
 public class ApplicationRefMember extends AbstractMember {
 
-    public ApplicationRefMember(MemberSystem memberSystem, ActorRef actorRef) throws Throwable {
-        super(memberSystem, actorRef);
+    public ApplicationRefMember(ActorRef actorRef) throws Throwable {
+        super(actorRef);
     }
 
     @Override
-    public void preStart() {
-
-    }
-
-    @Override
-    public void receive(Object message) throws Throwable {
+    public void receive(Object message) throws Exception {
         TraceSegment traceSegment = (TraceSegment) message;
 
         if (traceSegment.getPrimaryRef() != null) {
@@ -35,7 +29,9 @@ public class ApplicationRefMember extends AbstractMember {
         }
     }
 
-    public static class Factory extends AbstractMemberProvider {
+    public static class Factory extends AbstractSyncMemberProvider<ApplicationRefMember> {
+        public static Factory INSTANCE = new Factory();
+
         @Override
         public Class memberClass() {
             return ApplicationRefMember.class;

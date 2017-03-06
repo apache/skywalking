@@ -5,6 +5,8 @@ import com.a.eye.skywalking.collector.worker.PersistenceWorker;
 import com.a.eye.skywalking.collector.worker.WorkerConfig;
 import com.google.gson.JsonObject;
 
+import java.io.Serializable;
+
 /**
  * @author pengys5
  */
@@ -33,6 +35,9 @@ public class DAGNodeRefPersistence extends PersistenceWorker<DAGNodeRefPersisten
     }
 
     public static class Factory extends AbstractWorkerProvider {
+
+        public static Factory INSTANCE = new Factory();
+
         @Override
         public Class workerClass() {
             return DAGNodeRefPersistence.class;
@@ -40,11 +45,11 @@ public class DAGNodeRefPersistence extends PersistenceWorker<DAGNodeRefPersisten
 
         @Override
         public int workerNum() {
-            return WorkerConfig.WorkerNum.DAGNodeRefPersistence_Num;
+            return WorkerConfig.Worker.DAGNodeRefPersistence.Num;
         }
     }
 
-    public static class Metric {
+    public static class Metric implements Serializable {
         private final String frontCode;
         private final String behindCode;
 

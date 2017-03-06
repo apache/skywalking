@@ -7,19 +7,19 @@ import java.lang.reflect.Constructor;
 /**
  * @author pengys5
  */
-public abstract class AbstractMemberProvider {
+public abstract class AbstractSyncMemberProvider<T> {
+
     public abstract Class memberClass();
 
-    public void createWorker(MemberSystem system, ActorRef actorRef) throws Exception {
+    public T createWorker(ActorRef actorRef) throws Exception {
         if (memberClass() == null) {
             throw new IllegalArgumentException("cannot createInstance() with nothing obtained from memberClass()");
         }
 
-        Constructor memberConstructor = memberClass().getDeclaredConstructor(new Class[]{MemberSystem.class, ActorRef.class});
+        Constructor memberConstructor = memberClass().getDeclaredConstructor(new Class[]{ActorRef.class});
         memberConstructor.setAccessible(true);
-        AbstractMember member = (AbstractMember) memberConstructor.newInstance(system, actorRef);
-        member.preStart();
-        system.memberOf(member, roleName());
+        T member = (T) memberConstructor.newInstance(actorRef);
+        return member;
     }
 
     /**

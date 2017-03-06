@@ -23,6 +23,7 @@ import java.util.List;
  */
 public class StartUpTestCase {
 
+//    @Test
     public void test() throws Exception {
         ClusterConfigInitializer.initialize("collector.config");
         System.out.println(ClusterConfig.Cluster.Current.roles);
@@ -32,22 +33,10 @@ public class StartUpTestCase {
                 withFallback(ConfigFactory.parseString("akka.cluster.roles=" + ClusterConfig.Cluster.Current.roles)).
                 withFallback(ConfigFactory.parseString("akka.actor.provider=" + ClusterConfig.Cluster.provider)).
                 withFallback(ConfigFactory.parseString("akka.cluster.seed-nodes=" + ClusterConfig.Cluster.nodes)).
-                withFallback(ConfigFactory.load());
+                withFallback(ConfigFactory.load("application.conf"));
         ActorSystem system = ActorSystem.create(ClusterConfig.Cluster.appname, config);
         WorkersCreator.INSTANCE.boot(system);
 
-        Thread.sleep(2000);
-
-        for (int i = 0; i < 1; i++) {
-            TraceSegment traceSegment = TraceSegmentBuilderFactory.INSTANCE.singleTomcat200Trace();
-
-            List<WorkerRef> availableWorks = WorkersRefCenter.INSTANCE.availableWorks(TraceSegmentReceiver.class.getSimpleName());
-            WorkerRef workerRef = RollingSelector.INSTANCE.select(availableWorks, traceSegment);
-
-            ActorRef actorRef = (ActorRef) MemberModifier.field(WorkerRef.class, "actorRef").get(workerRef);
-            actorRef.tell(traceSegment, ActorRef.noSender());
-        }
-
-        Thread.sleep(10000);
+        Thread.sleep(1000000);
     }
 }

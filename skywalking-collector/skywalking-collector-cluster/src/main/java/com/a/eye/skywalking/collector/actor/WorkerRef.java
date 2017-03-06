@@ -1,6 +1,8 @@
 package com.a.eye.skywalking.collector.actor;
 
 import akka.actor.ActorRef;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * The Worker reference
@@ -8,6 +10,8 @@ import akka.actor.ActorRef;
  * @author pengys5
  */
 public class WorkerRef {
+    private Logger logger = LogManager.getFormatterLogger(WorkerRef.class);
+
     final ActorRef actorRef;
 
     final String workerRole;
@@ -17,8 +21,9 @@ public class WorkerRef {
         this.workerRole = workerRole;
     }
 
-    void tell(Object message, ActorRef actorRef) {
-        actorRef.tell(message, actorRef);
+    void tell(Object message, ActorRef sender) {
+        logger.debug("tell %s worker", actorRef.toString());
+        actorRef.tell(message, sender);
     }
 
     public String getWorkerRole() {

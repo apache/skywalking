@@ -2,14 +2,19 @@ package com.a.eye.skywalking.collector.worker.application.persistence;
 
 import com.a.eye.skywalking.collector.actor.AbstractWorkerProvider;
 import com.a.eye.skywalking.collector.worker.PersistenceWorker;
+import com.a.eye.skywalking.collector.worker.WorkerConfig;
 import com.google.gson.JsonObject;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import static com.a.eye.skywalking.collector.worker.WorkerConfig.WorkerNum.ResponseSummaryPersistence_Num;
+import java.io.Serializable;
 
 /**
  * @author pengys5
  */
 public class ResponseSummaryPersistence extends PersistenceWorker<ResponseSummaryPersistence.Metric> {
+
+    private Logger logger = LogManager.getFormatterLogger(ResponseSummaryPersistence.class);
 
     @Override
     public String esIndex() {
@@ -33,7 +38,7 @@ public class ResponseSummaryPersistence extends PersistenceWorker<ResponseSummar
                 data = new JsonObject();
             }
 
-            String propertyKey = "";
+            String propertyKey;
             if (metric.isError) {
                 propertyKey = "error";
             } else {
@@ -45,10 +50,13 @@ public class ResponseSummaryPersistence extends PersistenceWorker<ResponseSummar
             } else {
                 data.addProperty(propertyKey, 1);
             }
+            logger.debug("response summary metric: %s", data.toString());
         }
     }
 
     public static class Factory extends AbstractWorkerProvider {
+        public static Factory INSTANCE = new Factory();
+
         @Override
         public Class workerClass() {
             return ResponseSummaryPersistence.class;
@@ -56,11 +64,11 @@ public class ResponseSummaryPersistence extends PersistenceWorker<ResponseSummar
 
         @Override
         public int workerNum() {
-            return ResponseSummaryPersistence_Num;
+            return WorkerConfig.Worker.ResponseSummaryPersistence.Num;
         }
     }
 
-    public static class Metric {
+    public static class Metric implements Serializable {
         private final String code;
         private final Boolean isError;
 

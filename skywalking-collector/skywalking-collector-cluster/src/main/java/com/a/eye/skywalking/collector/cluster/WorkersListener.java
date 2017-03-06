@@ -31,7 +31,7 @@ public class WorkersListener extends UntypedActor {
             ActorRef sender = getSender();
             getContext().watch(sender);
 
-            logger.info("register worker of role %s", register.getWorkRole());
+            logger.info("register worker of role: %s, path: %s", register.getWorkRole(), sender.toString());
 
             WorkersRefCenter.INSTANCE.register(sender, register.getWorkRole());
         } else if (message instanceof Terminated) {

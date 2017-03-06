@@ -1,6 +1,5 @@
 package com.a.eye.skywalking.collector.worker.receiver;
 
-import com.a.eye.skywalking.collector.actor.AbstractMember;
 import com.a.eye.skywalking.collector.actor.AbstractWorker;
 import com.a.eye.skywalking.collector.actor.AbstractWorkerProvider;
 import com.a.eye.skywalking.collector.worker.WorkerConfig;
@@ -17,11 +16,11 @@ public class TraceSegmentReceiver extends AbstractWorker {
 
     private Logger logger = LogManager.getFormatterLogger(TraceSegmentReceiver.class);
 
-    @Override
-    public void preStart() throws Exception {
-        new ApplicationMember.Factory().createWorker(memberContext(), getSelf());
-        new ApplicationRefMember.Factory().createWorker(memberContext(), getSelf());
-        super.preStart();
+    private ApplicationMember applicationMember = ApplicationMember.Factory.INSTANCE.createWorker(getSelf());
+
+    private ApplicationRefMember applicationRefMember = ApplicationRefMember.Factory.INSTANCE.createWorker(getSelf());
+
+    public TraceSegmentReceiver() throws Exception {
     }
 
     @Override
@@ -30,15 +29,14 @@ public class TraceSegmentReceiver extends AbstractWorker {
             TraceSegment traceSegment = (TraceSegment) message;
             logger.debug("receive message instanceof TraceSegment, traceSegmentId is %s", traceSegment.getTraceSegmentId());
 
-            AbstractMember applicationMember = memberContext().memberFor(ApplicationMember.class.getSimpleName());
             applicationMember.receive(traceSegment);
-
-            AbstractMember applicationRefMember = memberContext().memberFor(ApplicationRefMember.class.getSimpleName());
             applicationRefMember.receive(traceSegment);
         }
     }
 
     public static class Factory extends AbstractWorkerProvider {
+        public static Factory INSTANCE = new Factory();
+
         @Override
         public Class workerClass() {
             return TraceSegmentReceiver.class;
@@ -46,7 +44,7 @@ public class TraceSegmentReceiver extends AbstractWorker {
 
         @Override
         public int workerNum() {
-            return WorkerConfig.WorkerNum.TraceSegmentReceiver_Num;
+            return WorkerConfig.Worker.TraceSegmentReceiver.Num;
         }
     }
 }

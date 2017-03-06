@@ -2,16 +2,18 @@ package com.a.eye.skywalking.collector.worker.application.metric;
 
 
 import akka.actor.ActorRef;
+import com.a.eye.skywalking.collector.actor.AbstractASyncMemberProvider;
 import com.a.eye.skywalking.collector.actor.AbstractMember;
-import com.a.eye.skywalking.collector.actor.AbstractMemberProvider;
-import com.a.eye.skywalking.collector.actor.MemberSystem;
-import com.a.eye.skywalking.collector.actor.selector.LocalSelector;
+import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
+import com.a.eye.skywalking.collector.queue.MessageHolder;
+import com.a.eye.skywalking.collector.worker.PersistenceMember;
 import com.a.eye.skywalking.collector.worker.application.persistence.TraceSegmentRecordPersistence;
 import com.a.eye.skywalking.trace.Span;
 import com.a.eye.skywalking.trace.TraceSegment;
 import com.a.eye.skywalking.trace.TraceSegmentRef;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.lmax.disruptor.EventFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -19,27 +21,43 @@ import java.util.Map;
 /**
  * @author pengys5
  */
-public class TraceSegmentRecordMember extends AbstractMember {
+public class TraceSegmentRecordMember extends PersistenceMember {
 
-    public TraceSegmentRecordMember(MemberSystem memberSystem, ActorRef actorRef) throws Throwable {
-        super(memberSystem, actorRef);
+    @Override
+    public String esIndex() {
+        return "application_record";
     }
 
     @Override
-    public void preStart() throws Exception {
+    public String esType() {
+        return "trace_segment";
+    }
+
+    public TraceSegmentRecordMember(ActorRef actorRef) throws Throwable {
+        super(actorRef);
     }
 
     @Override
-    public void receive(Object message) throws Throwable {
+    public void analyse(Object message) throws Exception {
         if (message instanceof TraceSegment) {
             TraceSegment traceSegment = (TraceSegment) message;
             JsonObject traceSegmentJsonObj = parseTraceSegment(traceSegment);
 
-            tell(new TraceSegmentRecordPersistence.Factory(), LocalSelector.INSTANCE, traceSegmentJsonObj);
+            tell(TraceSegmentRecordPersistence.Factory.INSTANCE, RollingSelector.INSTANCE, traceSegmentJsonObj);
         }
     }
 
-    public static class Factory extends AbstractMemberProvider {
+    public static class MessageFactory implements EventFactory<MessageHolder> {
+        public static MessageFactory INSTANCE = new MessageFactory();
+
+        public MessageHolder newInstance() {
+            return new MessageHolder();
+        }
+    }
+
+    public static class Factory extends AbstractASyncMemberProvider<TraceSegmentRecordMember> {
+        public static Factory INSTANCE = new Factory();
+
         @Override
         public Class memberClass() {
             return TraceSegmentRecordMember.class;

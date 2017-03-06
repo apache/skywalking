@@ -7,6 +7,8 @@ import com.google.gson.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.Serializable;
+
 /**
  * @author pengys5
  */
@@ -33,12 +35,16 @@ public class DAGNodePersistence extends PersistenceWorker<DAGNodePersistence.Met
             propertyJsonObj.addProperty("component", metric.component);
             propertyJsonObj.addProperty("layer", metric.layer);
 
-            logger.debug("dag node persistence data: %s", propertyJsonObj.toString());
+            logger.debug("dag node: %s", propertyJsonObj.toString());
             putData(metric.code, propertyJsonObj);
+        } else {
+            logger.error("message unhandled");
         }
     }
 
     public static class Factory extends AbstractWorkerProvider {
+        public static Factory INSTANCE = new Factory();
+
         @Override
         public Class workerClass() {
             return DAGNodePersistence.class;
@@ -46,11 +52,11 @@ public class DAGNodePersistence extends PersistenceWorker<DAGNodePersistence.Met
 
         @Override
         public int workerNum() {
-            return WorkerConfig.WorkerNum.DAGNodePersistence_Num;
+            return WorkerConfig.Worker.DAGNodePersistence.Num;
         }
     }
 
-    public static class Metric {
+    public static class Metric implements Serializable {
         private final String code;
         private final String component;
         private final String layer;

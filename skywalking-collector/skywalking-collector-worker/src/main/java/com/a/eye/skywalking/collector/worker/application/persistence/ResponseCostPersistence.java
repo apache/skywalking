@@ -4,11 +4,17 @@ import com.a.eye.skywalking.collector.actor.AbstractWorkerProvider;
 import com.a.eye.skywalking.collector.worker.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.PersistenceWorker;
 import com.google.gson.JsonObject;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.io.Serializable;
 
 /**
  * @author pengys5
  */
 public class ResponseCostPersistence extends PersistenceWorker<ResponseCostPersistence.Metric> {
+
+    private Logger logger = LogManager.getFormatterLogger(ResponseCostPersistence.class);
 
     @Override
     public String esIndex() {
@@ -51,10 +57,18 @@ public class ResponseCostPersistence extends PersistenceWorker<ResponseCostPersi
             } else {
                 data.addProperty(propertyKey, 1);
             }
+
+            if (data.get(propertyKey).getAsLong() % 20000 == 0) {
+                logger.info(data.get(propertyKey).getAsLong());
+            }
+            putData(metric.code, data);
+            logger.debug("response cost metric: %s", data.toString());
         }
     }
 
     public static class Factory extends AbstractWorkerProvider {
+        public static Factory INSTANCE = new Factory();
+
         @Override
         public Class workerClass() {
             return ResponseCostPersistence.class;
@@ -62,11 +76,11 @@ public class ResponseCostPersistence extends PersistenceWorker<ResponseCostPersi
 
         @Override
         public int workerNum() {
-            return WorkerConfig.WorkerNum.ResponseCostPersistence_Num;
+            return WorkerConfig.Worker.ResponseCostPersistence.Num;
         }
     }
 
-    public static class Metric {
+    public static class Metric implements Serializable {
         private final String code;
         private final Boolean isError;
         private final Long startTime;

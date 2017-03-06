@@ -27,7 +27,7 @@ import org.apache.logging.log4j.Logger;
  * }}}
  * <p>
  */
-public abstract class AbstractWorkerProvider<T> {
+public abstract class AbstractWorkerProvider {
 
     private Logger logger = LogManager.getFormatterLogger(AbstractWorkerProvider.class);
 
