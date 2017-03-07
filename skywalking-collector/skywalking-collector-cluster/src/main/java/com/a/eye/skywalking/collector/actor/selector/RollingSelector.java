@@ -11,7 +11,7 @@ import java.util.List;
  *
  * @author wusheng
  */
-public enum RollingSelector implements WorkerSelector<Object> {
+public enum RollingSelector implements WorkerSelector {
     INSTANCE;
 
     /**
