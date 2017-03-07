@@ -13,18 +13,15 @@ import com.weibo.api.motan.rpc.Request;
 import com.weibo.api.motan.rpc.Response;
 
 /**
- * {@link MotanProviderInterceptor} create span by fetch request url from
- * {@link EnhancedClassInstanceContext#context} and transport serialized context
- * data to provider side through {@link Request#setAttachment(String, String)}.
+ * Current trace segment will ref the trace segment if the serialized trace context that fetch
+ * from {@link Request#getAttachments()} is not null.
+ *
+ * {@link MotanConsumerInterceptor} intercept all constructor of {@link com.weibo.api.motan.rpc.AbstractProvider} for record
+ * the request url from consumer side.
  *
  * @author zhangxin
  */
 public class MotanProviderInterceptor implements InstanceMethodsAroundInterceptor {
-
-    /**
-     * Context name of request url in {@link EnhancedClassInstanceContext#context}.
-     */
-    private static final String CONTEXT_NAME_OF_REQUEST_URL = "REQUEST_URL";
 
     /**
      * Attachment key of the serialized context data.

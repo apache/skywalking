@@ -14,12 +14,11 @@ import com.weibo.api.motan.rpc.Request;
 import com.weibo.api.motan.rpc.Response;
 import com.weibo.api.motan.rpc.URL;
 
+
 /**
- * Current trace segment will ref the trace segment from previous level if the serialized context data that fetch
- * from {@link Request#getAttachments()} is not null.
- *
- * {@link MotanConsumerInterceptor} intercept all constructor of {@link com.weibo.api.motan.rpc.AbstractProvider} for record
- * the request url from consumer side.
+ * {@link MotanProviderInterceptor} create span by fetch request url from
+ * {@link EnhancedClassInstanceContext#context} and transport serialized context
+ * data to provider side through {@link Request#setAttachment(String, String)}.
  *
  * @author zhangxin
  */
@@ -48,7 +47,7 @@ public class MotanConsumerInterceptor implements InstanceConstructorInterceptor,
     public void beforeMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
                              MethodInterceptResult result) {
         URL url = (URL) context.get(KEY_NAME_OF_REQUEST_URL);
-        com.weibo.api.motan.rpc.Request request = (com.weibo.api.motan.rpc.Request) interceptorContext.allArguments()[0];
+        Request request = (Request) interceptorContext.allArguments()[0];
         if (url != null) {
             Span span = ContextManager.INSTANCE.createSpan(generateOperationName(url, request));
             Tags.PEER_HOST.set(span, url.getHost());
