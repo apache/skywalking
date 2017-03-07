@@ -12,7 +12,7 @@ import java.io.Serializable;
 /**
  * @author pengys5
  */
-public class DAGNodePersistence extends PersistenceWorker<DAGNodePersistence.Metric> {
+public class DAGNodePersistence extends PersistenceWorker {
 
     private Logger logger = LogManager.getFormatterLogger(DAGNodePersistence.class);
 

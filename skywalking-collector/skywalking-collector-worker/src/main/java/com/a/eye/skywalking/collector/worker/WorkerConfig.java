@@ -37,4 +37,9 @@ public class WorkerConfig extends ClusterConfig {
         }
     }
 
+    public static class Queue {
+        public static class TraceSegmentRecordMember {
+            public static int Size = 32;
+        }
+    }
 }

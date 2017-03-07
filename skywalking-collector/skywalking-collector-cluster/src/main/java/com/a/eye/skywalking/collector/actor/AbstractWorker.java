@@ -38,7 +38,7 @@ import java.util.List;
  * }
  * }}}
  */
-public abstract class AbstractWorker<T> extends UntypedActor {
+public abstract class AbstractWorker extends UntypedActor {
 
     private Logger logger = LogManager.getFormatterLogger(AbstractWorker.class);
 
@@ -96,7 +96,7 @@ public abstract class AbstractWorker<T> extends UntypedActor {
      * @param message              is the data used to send to next worker.
      * @throws Throwable
      */
-    public void tell(AbstractWorkerProvider targetWorkerProvider, WorkerSelector selector, T message) throws Throwable {
+    public void tell(AbstractWorkerProvider targetWorkerProvider, WorkerSelector selector, Object message) throws Throwable {
         List<WorkerRef> availableWorks = WorkersRefCenter.INSTANCE.availableWorks(targetWorkerProvider.roleName());
         selector.select(availableWorks, message).tell(message, getSelf());
     }

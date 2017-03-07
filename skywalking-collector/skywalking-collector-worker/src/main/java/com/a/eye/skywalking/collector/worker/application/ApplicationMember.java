@@ -1,7 +1,7 @@
 package com.a.eye.skywalking.collector.worker.application;
 
 import akka.actor.ActorRef;
-import com.a.eye.skywalking.collector.actor.AbstractMember;
+import com.a.eye.skywalking.collector.actor.AbstractSyncMember;
 import com.a.eye.skywalking.collector.actor.AbstractSyncMemberProvider;
 import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
 import com.a.eye.skywalking.collector.worker.application.metric.TraceSegmentRecordMember;
@@ -19,14 +19,15 @@ import org.apache.logging.log4j.Logger;
 /**
  * @author pengys5
  */
-public class ApplicationMember extends AbstractMember {
+public class ApplicationMember extends AbstractSyncMember {
 
     private Logger logger = LogManager.getFormatterLogger(ApplicationMember.class);
 
-    private TraceSegmentRecordMember traceSegmentRecordMember = TraceSegmentRecordMember.Factory.INSTANCE.createWorker(TraceSegmentRecordMember.MessageFactory.INSTANCE, getSelf());
+    private TraceSegmentRecordMember recordMember;
 
     public ApplicationMember(ActorRef actorRef) throws Exception {
         super(actorRef);
+        recordMember = TraceSegmentRecordMember.Factory.INSTANCE.createWorker(actorRef);
     }
 
     @Override
@@ -34,7 +35,7 @@ public class ApplicationMember extends AbstractMember {
         if (message instanceof TraceSegment) {
             logger.debug("begin translate TraceSegment Object to JsonObject");
             TraceSegment traceSegment = (TraceSegment) message;
-            traceSegmentRecordMember.receive(traceSegment);
+            recordMember.beTold(traceSegment);
 
             sendToDAGNodePersistence(traceSegment);
             sendToNodeInstancePersistence(traceSegment);

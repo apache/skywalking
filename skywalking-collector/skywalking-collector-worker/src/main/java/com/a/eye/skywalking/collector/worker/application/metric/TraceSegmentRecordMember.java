@@ -2,18 +2,18 @@ package com.a.eye.skywalking.collector.worker.application.metric;
 
 
 import akka.actor.ActorRef;
-import com.a.eye.skywalking.collector.actor.AbstractASyncMemberProvider;
-import com.a.eye.skywalking.collector.actor.AbstractMember;
+import com.a.eye.skywalking.collector.actor.AbstractAsyncMemberProvider;
 import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
 import com.a.eye.skywalking.collector.queue.MessageHolder;
 import com.a.eye.skywalking.collector.worker.PersistenceMember;
+import com.a.eye.skywalking.collector.worker.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.application.persistence.TraceSegmentRecordPersistence;
 import com.a.eye.skywalking.trace.Span;
 import com.a.eye.skywalking.trace.TraceSegment;
 import com.a.eye.skywalking.trace.TraceSegmentRef;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.lmax.disruptor.EventFactory;
+import com.lmax.disruptor.RingBuffer;
 
 import java.util.List;
 import java.util.Map;
@@ -33,8 +33,8 @@ public class TraceSegmentRecordMember extends PersistenceMember {
         return "trace_segment";
     }
 
-    public TraceSegmentRecordMember(ActorRef actorRef) throws Throwable {
-        super(actorRef);
+    public TraceSegmentRecordMember(RingBuffer<MessageHolder> ringBuffer, ActorRef actorRef) {
+        super(ringBuffer, actorRef);
     }
 
     @Override
@@ -47,16 +47,13 @@ public class TraceSegmentRecordMember extends PersistenceMember {
         }
     }
 
-    public static class MessageFactory implements EventFactory<MessageHolder> {
-        public static MessageFactory INSTANCE = new MessageFactory();
-
-        public MessageHolder newInstance() {
-            return new MessageHolder();
-        }
-    }
-
-    public static class Factory extends AbstractASyncMemberProvider<TraceSegmentRecordMember> {
+    public static class Factory extends AbstractAsyncMemberProvider<TraceSegmentRecordMember> {
         public static Factory INSTANCE = new Factory();
+
+        @Override
+        public int queueSize() {
+            return WorkerConfig.Queue.TraceSegmentRecordMember.Size;
+        }
 
         @Override
         public Class memberClass() {

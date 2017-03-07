@@ -13,7 +13,7 @@ import java.util.List;
  *
  * @author wusheng
  */
-public interface WorkerSelector<T> {
+public interface WorkerSelector {
     /**
      * select a {@link WorkerRef} from a {@link WorkerRef} list.
      *
@@ -21,5 +21,5 @@ public interface WorkerSelector<T> {
      * @param message the {@link AbstractWorker} is going to send.
      * @return the selected {@link WorkerRef}
      */
-    WorkerRef select(List<WorkerRef> members, T message);
+    WorkerRef select(List<WorkerRef> members, Object message);
 }

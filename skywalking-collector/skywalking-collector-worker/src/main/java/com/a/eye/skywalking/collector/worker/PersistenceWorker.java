@@ -5,9 +5,6 @@ import com.a.eye.skywalking.collector.worker.storage.EsClient;
 import com.google.gson.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.elasticsearch.action.bulk.BulkRequestBuilder;
-import org.elasticsearch.action.bulk.BulkResponse;
-import org.elasticsearch.client.transport.TransportClient;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,7 +12,7 @@ import java.util.Map;
 /**
  * @author pengys5
  */
-public abstract class PersistenceWorker<T> extends AbstractWorker<T> {
+public abstract class PersistenceWorker extends AbstractWorker {
 
     private Logger logger = LogManager.getFormatterLogger(PersistenceWorker.class);
 
@@ -57,25 +54,11 @@ public abstract class PersistenceWorker<T> extends AbstractWorker<T> {
     private void persistence(boolean dataFull) {
         long now = System.currentTimeMillis();
         if (now - lastPersistenceTimestamp > 5000 || dataFull) {
-            boolean success = saveToEs();
+            boolean success = EsClient.saveToEs(esIndex(), esType(), persistenceData);
             if (success) {
                 persistenceData.clear();
                 lastPersistenceTimestamp = now;
             }
         }
-    }
-
-    private boolean saveToEs() {
-        TransportClient client = EsClient.client();
-        BulkRequestBuilder bulkRequest = client.prepareBulk();
-
-        for (Map.Entry<String, JsonObject> entry : persistenceData.entrySet()) {
-            String id = entry.getKey();
-            JsonObject data = entry.getValue();
-            bulkRequest.add(client.prepareIndex(esIndex(), esType(), id).setSource(data.toString()));
-        }
-
-        BulkResponse bulkResponse = bulkRequest.execute().actionGet();
-        return !bulkResponse.hasFailures();
     }
 }

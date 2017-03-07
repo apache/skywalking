@@ -16,11 +16,14 @@ public class TraceSegmentReceiver extends AbstractWorker {
 
     private Logger logger = LogManager.getFormatterLogger(TraceSegmentReceiver.class);
 
-    private ApplicationMember applicationMember = ApplicationMember.Factory.INSTANCE.createWorker(getSelf());
+    private ApplicationMember applicationMember;
 
-    private ApplicationRefMember applicationRefMember = ApplicationRefMember.Factory.INSTANCE.createWorker(getSelf());
+    private ApplicationRefMember applicationRefMember;
+
 
     public TraceSegmentReceiver() throws Exception {
+        applicationMember = ApplicationMember.Factory.INSTANCE.createWorker(getSelf());
+        applicationRefMember = ApplicationRefMember.Factory.INSTANCE.createWorker(getSelf());
     }
 
     @Override
@@ -29,8 +32,8 @@ public class TraceSegmentReceiver extends AbstractWorker {
             TraceSegment traceSegment = (TraceSegment) message;
             logger.debug("receive message instanceof TraceSegment, traceSegmentId is %s", traceSegment.getTraceSegmentId());
 
-            applicationMember.receive(traceSegment);
-            applicationRefMember.receive(traceSegment);
+            applicationMember.beTold(traceSegment);
+            applicationRefMember.beTold(traceSegment);
         }
     }
 

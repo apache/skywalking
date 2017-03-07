@@ -13,19 +13,21 @@ import java.util.List;
 /**
  * @author pengys5
  */
-public abstract class AbstractMember<T> implements EventHandler<MessageHolder<T>> {
+public abstract class AbstractMember implements EventHandler<MessageHolder> {
 
     private Logger logger = LogManager.getFormatterLogger(AbstractMember.class);
 
     private ActorRef actorRef;
 
-    public ActorRef getSelf() {
+    private ActorRef getSelf() {
         return actorRef;
     }
 
     public AbstractMember(ActorRef actorRef) {
         this.actorRef = actorRef;
     }
+
+    public abstract void beTold(Object message) throws Exception;
 
     /**
      * Receive the message to analyse.
@@ -35,12 +37,6 @@ public abstract class AbstractMember<T> implements EventHandler<MessageHolder<T>
      */
     public abstract void receive(Object message) throws Exception;
 
-    public void onEvent(MessageHolder<T> event, long sequence, boolean endOfBatch) throws Exception {
-        T message = event.getMessage();
-        event.reset();
-        receive(message);
-    }
-
     /**
      * Send analysed data to next Worker.
      *
@@ -49,7 +45,7 @@ public abstract class AbstractMember<T> implements EventHandler<MessageHolder<T>
      * @param message              is the data used to send to next worker.
      * @throws Exception
      */
-    public void tell(AbstractWorkerProvider targetWorkerProvider, WorkerSelector selector, T message) throws Exception {
+    public void tell(AbstractWorkerProvider targetWorkerProvider, WorkerSelector selector, Object message) throws Exception {
         logger.debug("worker provider: %s ,role name: %s", targetWorkerProvider.getClass().getName(), targetWorkerProvider.roleName());
         List<WorkerRef> availableWorks = WorkersRefCenter.INSTANCE.availableWorks(targetWorkerProvider.roleName());
         selector.select(availableWorks, message).tell(message, getSelf());

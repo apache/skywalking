@@ -1,9 +1,12 @@
 package com.a.eye.skywalking.collector.worker;
 
 import akka.actor.ActorRef;
+import com.a.eye.skywalking.collector.actor.AbstractAsyncMember;
 import com.a.eye.skywalking.collector.actor.AbstractMember;
+import com.a.eye.skywalking.collector.queue.MessageHolder;
 import com.a.eye.skywalking.collector.worker.storage.EsClient;
 import com.google.gson.JsonObject;
+import com.lmax.disruptor.RingBuffer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
@@ -16,7 +19,7 @@ import java.util.Map;
 /**
  * @author pengys5
  */
-public abstract class PersistenceMember<T> extends AbstractMember<T> {
+public abstract class PersistenceMember extends AbstractAsyncMember {
 
     private Logger logger = LogManager.getFormatterLogger(PersistenceMember.class);
 
@@ -24,8 +27,8 @@ public abstract class PersistenceMember<T> extends AbstractMember<T> {
 
     private Map<String, JsonObject> persistenceData = new HashMap();
 
-    public PersistenceMember(ActorRef actorRef) {
-        super(actorRef);
+    public PersistenceMember(RingBuffer<MessageHolder> ringBuffer, ActorRef actorRef) {
+        super(ringBuffer, actorRef);
     }
 
     public abstract String esIndex();
@@ -54,7 +57,6 @@ public abstract class PersistenceMember<T> extends AbstractMember<T> {
         if (message instanceof PersistenceCommand) {
             persistence(false);
         } else {
-            logger.debug("receive message");
             analyse(message);
         }
     }
@@ -62,25 +64,11 @@ public abstract class PersistenceMember<T> extends AbstractMember<T> {
     private void persistence(boolean dataFull) {
         long now = System.currentTimeMillis();
         if (now - lastPersistenceTimestamp > 5000 || dataFull) {
-            boolean success = saveToEs();
+            boolean success = EsClient.saveToEs(esIndex(), esType(), persistenceData);
             if (success) {
                 persistenceData.clear();
                 lastPersistenceTimestamp = now;
             }
         }
-    }
-
-    private boolean saveToEs() {
-        TransportClient client = EsClient.client();
-        BulkRequestBuilder bulkRequest = client.prepareBulk();
-
-        for (Map.Entry<String, JsonObject> entry : persistenceData.entrySet()) {
-            String id = entry.getKey();
-            JsonObject data = entry.getValue();
-            bulkRequest.add(client.prepareIndex(esIndex(), esType(), id).setSource(data.toString()));
-        }
-
-        BulkResponse bulkResponse = bulkRequest.execute().actionGet();
-        return !bulkResponse.hasFailures();
     }
 }

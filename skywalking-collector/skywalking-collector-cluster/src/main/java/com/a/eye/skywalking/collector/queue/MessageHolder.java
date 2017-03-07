@@ -3,14 +3,14 @@ package com.a.eye.skywalking.collector.queue;
 /**
  * @author pengys5
  */
-public class MessageHolder<T> {
-    private T message;
+public class MessageHolder {
+    private Object message;
 
-    public T getMessage() {
+    public Object getMessage() {
         return message;
     }
 
-    public void setMessage(T message) {
+    public void setMessage(Object message) {
         this.message = message;
     }
 

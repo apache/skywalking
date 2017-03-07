@@ -10,7 +10,7 @@ import java.io.Serializable;
 /**
  * @author pengys5
  */
-public class DAGNodeRefPersistence extends PersistenceWorker<DAGNodeRefPersistence.Metric> {
+public class DAGNodeRefPersistence extends PersistenceWorker {
 
     @Override
     public String esIndex() {

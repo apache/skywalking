@@ -10,7 +10,7 @@ import org.apache.logging.log4j.Logger;
 /**
  * @author pengys5
  */
-public class NodeInstancePersistence extends PersistenceWorker<NodeInstancePersistence.Metric> {
+public class NodeInstancePersistence extends PersistenceWorker {
 
     private Logger logger = LogManager.getFormatterLogger(NodeInstancePersistence.class);
 

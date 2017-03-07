@@ -12,7 +12,7 @@ import java.io.Serializable;
 /**
  * @author pengys5
  */
-public class ResponseCostPersistence extends PersistenceWorker<ResponseCostPersistence.Metric> {
+public class ResponseCostPersistence extends PersistenceWorker {
 
     private Logger logger = LogManager.getFormatterLogger(ResponseCostPersistence.class);
 
