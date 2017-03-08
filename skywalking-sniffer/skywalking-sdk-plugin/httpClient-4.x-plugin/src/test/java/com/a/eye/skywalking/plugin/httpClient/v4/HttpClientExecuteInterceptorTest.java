@@ -77,7 +77,7 @@ public class HttpClientExecuteInterceptorTest {
 
             @Override
             public String getUri() {
-                return "/test-web/test";
+                return "http://127.0.0.1:8080/test-web/test";
             }
         });
         when(httpHost.getPort()).thenReturn(8080);
@@ -151,7 +151,7 @@ public class HttpClientExecuteInterceptorTest {
 
     private void assertHttpSpan(Span span) {
         assertThat(span.getOperationName(), is("/test-web/test"));
-        assertThat(Tags.COMPONENT.get(span), is("Http"));
+        assertThat(Tags.COMPONENT.get(span), is("HttpClient"));
         assertThat(Tags.PEER_HOST.get(span), is("127.0.0.1"));
         assertThat(Tags.PEER_PORT.get(span), is(8080));
         assertThat(Tags.URL.get(span), is("http://127.0.0.1:8080/test-web/test"));

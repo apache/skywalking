@@ -16,6 +16,9 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 /**
  * {@link HttpClientExecuteInterceptor} transport the trace context by call {@link HttpRequest#setHeader(Header)},
  * The current span tag the {@link Tags#ERROR} if {@link StatusLine#getStatusCode()} is not equals 200.
@@ -24,7 +27,7 @@ import org.apache.http.StatusLine;
  */
 public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterceptor {
     public static final String HEADER_NAME_OF_CONTEXT_DATA = "SWTraceContext";
-    private static final String COMPONENT_NAME = "Http";
+    private static final String COMPONENT_NAME = "HttpClient";
 
     @Override
     public void beforeMethod(EnhancedClassInstanceContext context,
@@ -36,13 +39,12 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
         }
         HttpHost httpHost = (HttpHost) allArguments[0];
         HttpRequest httpRequest = (HttpRequest) allArguments[1];
-
-        Span span = ContextManager.INSTANCE.createSpan(httpRequest.getRequestLine().getUri());
+        Span span = createSpan(httpRequest);
         Tags.PEER_PORT.set(span, httpHost.getPort());
         Tags.PEER_HOST.set(span, httpHost.getHostName());
         Tags.SPAN_KIND.set(span, Tags.SPAN_KIND_CLIENT);
         Tags.COMPONENT.set(span, COMPONENT_NAME);
-        Tags.URL.set(span, generateURL(httpHost, httpRequest));
+        Tags.URL.set(span, generateURL(httpRequest));
         Tags.SPAN_LAYER.asHttp(span);
 
         ContextCarrier contextCarrier = new ContextCarrier();
@@ -55,8 +57,22 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
      *
      * @return request URL
      */
-    private String generateURL(HttpHost httpHost, HttpRequest httpRequest) {
-        return httpHost.getSchemeName() + "://" + httpHost.getHostName() + ":" + httpHost.getPort() + httpRequest.getRequestLine().getUri();
+    private String generateURL(HttpRequest httpRequest) {
+        return httpRequest.getRequestLine().getUri();
+    }
+
+    /**
+     * Create span.
+     */
+    private Span createSpan(HttpRequest httpRequest) {
+        Span span;
+        try {
+            URL url = new URL(httpRequest.getRequestLine().getUri());
+            span = ContextManager.INSTANCE.createSpan(url.getPath());
+        } catch (MalformedURLException e) {
+            span = ContextManager.INSTANCE.createSpan(httpRequest.getRequestLine().getUri());
+        }
+        return span;
     }
 
     @Override

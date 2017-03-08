@@ -30,6 +30,7 @@ public abstract class NoCocurrencyAceessObject implements InstanceMethodsAroundI
         if(++counter == 1){
             runnable.run();
         }
+        context.set(invokeCounterKey, counter);
     }
 
     public void whenExist(EnhancedClassInstanceContext context, Runnable runnable) {
@@ -42,5 +43,6 @@ public abstract class NoCocurrencyAceessObject implements InstanceMethodsAroundI
         if(--counter == 0){
             runnable.run();
         }
+        context.set(invokeCounterKey, counter);
     }
 }
