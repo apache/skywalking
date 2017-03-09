@@ -1,6 +1,7 @@
 package com.a.eye.skywalking.collector.actor;
 
 import akka.actor.ActorRef;
+import com.a.eye.skywalking.collector.queue.EndOfBatchCommand;
 import com.a.eye.skywalking.collector.queue.MessageHolder;
 import com.lmax.disruptor.RingBuffer;
 
@@ -20,6 +21,9 @@ public abstract class AbstractAsyncMember extends AbstractMember {
         Object message = event.getMessage();
         event.reset();
         receive(message);
+        if (endOfBatch) {
+            receive(new EndOfBatchCommand());
+        }
     }
 
     public void beTold(Object message) throws Exception {

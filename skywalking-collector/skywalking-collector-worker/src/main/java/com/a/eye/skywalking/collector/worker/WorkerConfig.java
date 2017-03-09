@@ -7,39 +7,91 @@ import com.a.eye.skywalking.collector.cluster.ClusterConfig;
  */
 public class WorkerConfig extends ClusterConfig {
 
+    public static class Analysis {
+        public static class Data {
+            public static int size = 1000;
+        }
+    }
+
+    public static class Persistence {
+        public static class Data {
+            public static int size = 1000;
+        }
+    }
+
     public static class Worker {
         public static class TraceSegmentReceiver {
             public static int Num = 5;
         }
 
-        public static class DAGNodePersistence {
+        public static class DAGNodeReceiver {
             public static int Num = 5;
         }
 
-        public static class NodeInstancePersistence {
+        public static class NodeInstanceReceiver {
             public static int Num = 5;
         }
 
-        public static class ResponseCostPersistence {
+        public static class ResponseCostReceiver {
             public static int Num = 5;
         }
 
-        public static class ResponseSummaryPersistence {
+        public static class ResponseSummaryReceiver {
             public static int Num = 5;
         }
 
-        public static class TraceSegmentRecordPersistence {
-            public static int Num = 5;
-        }
-
-        public static class DAGNodeRefPersistence {
+        public static class DAGNodeRefReceiver {
             public static int Num = 5;
         }
     }
 
     public static class Queue {
-        public static class TraceSegmentRecordMember {
-            public static int Size = 32;
+        public static class Persistence {
+            public static class DAGNodePersistence {
+                public static int Size = 1024;
+            }
+
+            public static class NodeInstancePersistence {
+                public static int Size = 1024;
+            }
+
+            public static class ResponseCostPersistence {
+                public static int Size = 1024;
+            }
+
+            public static class ResponseSummaryPersistence {
+                public static int Size = 1024;
+            }
+
+            public static class DAGNodeRefPersistence {
+                public static int Size = 1024;
+            }
         }
+
+
+        public static class TraceSegmentRecordAnalysis {
+            public static int Size = 1024;
+        }
+
+        public static class NodeInstanceAnalysis {
+            public static int Size = 1024;
+        }
+
+        public static class DAGNodeAnalysis {
+            public static int Size = 1024;
+        }
+
+        public static class ResponseCostAnalysis {
+            public static int Size = 1024;
+        }
+
+        public static class ResponseSummaryAnalysis {
+            public static int Size = 1024;
+        }
+
+        public static class DAGNodeRefAnalysis {
+            public static int Size = 1024;
+        }
+
     }
 }

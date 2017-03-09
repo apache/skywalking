@@ -3,8 +3,8 @@ package com.a.eye.skywalking.collector.worker.receiver;
 import com.a.eye.skywalking.collector.actor.AbstractWorker;
 import com.a.eye.skywalking.collector.actor.AbstractWorkerProvider;
 import com.a.eye.skywalking.collector.worker.WorkerConfig;
-import com.a.eye.skywalking.collector.worker.application.ApplicationMember;
-import com.a.eye.skywalking.collector.worker.applicationref.ApplicationRefMember;
+import com.a.eye.skywalking.collector.worker.application.ApplicationMain;
+import com.a.eye.skywalking.collector.worker.applicationref.ApplicationRefMain;
 import com.a.eye.skywalking.trace.TraceSegment;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,14 +16,14 @@ public class TraceSegmentReceiver extends AbstractWorker {
 
     private Logger logger = LogManager.getFormatterLogger(TraceSegmentReceiver.class);
 
-    private ApplicationMember applicationMember;
+    private ApplicationMain applicationMain;
 
-    private ApplicationRefMember applicationRefMember;
+    private ApplicationRefMain applicationRefMain;
 
 
     public TraceSegmentReceiver() throws Exception {
-        applicationMember = ApplicationMember.Factory.INSTANCE.createWorker(getSelf());
-        applicationRefMember = ApplicationRefMember.Factory.INSTANCE.createWorker(getSelf());
+        applicationMain = ApplicationMain.Factory.INSTANCE.createWorker(getSelf());
+        applicationRefMain = ApplicationRefMain.Factory.INSTANCE.createWorker(getSelf());
     }
 
     @Override
@@ -32,8 +32,8 @@ public class TraceSegmentReceiver extends AbstractWorker {
             TraceSegment traceSegment = (TraceSegment) message;
             logger.debug("receive message instanceof TraceSegment, traceSegmentId is %s", traceSegment.getTraceSegmentId());
 
-            applicationMember.beTold(traceSegment);
-            applicationRefMember.beTold(traceSegment);
+            applicationMain.beTold(traceSegment);
+            applicationRefMain.beTold(traceSegment);
         }
     }
 

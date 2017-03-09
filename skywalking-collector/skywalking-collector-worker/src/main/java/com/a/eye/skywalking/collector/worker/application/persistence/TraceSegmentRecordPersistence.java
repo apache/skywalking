@@ -1,16 +1,27 @@
 package com.a.eye.skywalking.collector.worker.application.persistence;
 
-import com.a.eye.skywalking.collector.actor.AbstractWorkerProvider;
-import com.a.eye.skywalking.collector.worker.PersistenceWorker;
+
+import akka.actor.ActorRef;
+import com.a.eye.skywalking.collector.actor.AbstractAsyncMemberProvider;
+import com.a.eye.skywalking.collector.queue.MessageHolder;
+import com.a.eye.skywalking.collector.worker.RecordPersistenceMember;
 import com.a.eye.skywalking.collector.worker.WorkerConfig;
+import com.a.eye.skywalking.trace.Span;
+import com.a.eye.skywalking.trace.TraceSegment;
+import com.a.eye.skywalking.trace.TraceSegmentRef;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.lmax.disruptor.RingBuffer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author pengys5
  */
-public class TraceSegmentRecordPersistence extends PersistenceWorker {
+public class TraceSegmentRecordPersistence extends RecordPersistenceMember {
 
     private Logger logger = LogManager.getFormatterLogger(TraceSegmentRecordPersistence.class);
 
@@ -24,27 +35,105 @@ public class TraceSegmentRecordPersistence extends PersistenceWorker {
         return "trace_segment";
     }
 
+    public TraceSegmentRecordPersistence(RingBuffer<MessageHolder> ringBuffer, ActorRef actorRef) {
+        super(ringBuffer, actorRef);
+    }
+
     @Override
-    public void analyse(Object message) throws Throwable {
-        if (message instanceof JsonObject) {
-            JsonObject traceSegmentJsonObj = (JsonObject) message;
-            logger.debug("segmentId: %s, json record: %s", traceSegmentJsonObj.get("segmentId").getAsString(), traceSegmentJsonObj.toString());
-            putData(traceSegmentJsonObj.get("segmentId").getAsString(), traceSegmentJsonObj);
-        } else {
-            logger.error("message unhandled");
+    public void analyse(Object message) throws Exception {
+        if (message instanceof TraceSegment) {
+            TraceSegment traceSegment = (TraceSegment) message;
+            JsonObject traceSegmentJsonObj = parseTraceSegment(traceSegment);
+
+            setRecord(traceSegmentJsonObj.get("segmentId").getAsString(), traceSegmentJsonObj);
+            logger.debug("segment record: %s", traceSegmentJsonObj.toString());
         }
     }
 
-    public static class Factory extends AbstractWorkerProvider {
+    public static class Factory extends AbstractAsyncMemberProvider<TraceSegmentRecordPersistence> {
         public static Factory INSTANCE = new Factory();
+
         @Override
-        public Class workerClass() {
-            return TraceSegmentRecordPersistence.class;
+        public int queueSize() {
+            return WorkerConfig.Queue.TraceSegmentRecordAnalysis.Size;
         }
 
         @Override
-        public int workerNum() {
-            return WorkerConfig.Worker.TraceSegmentRecordPersistence.Num;
+        public Class memberClass() {
+            return TraceSegmentRecordPersistence.class;
         }
+    }
+
+    private JsonObject parseTraceSegment(TraceSegment traceSegment) {
+        JsonObject traceJsonObj = new JsonObject();
+        traceJsonObj.addProperty("segmentId", traceSegment.getTraceSegmentId());
+        traceJsonObj.addProperty("startTime", traceSegment.getStartTime());
+        traceJsonObj.addProperty("endTime", traceSegment.getEndTime());
+        traceJsonObj.addProperty("appCode", traceSegment.getApplicationCode());
+
+        if (traceSegment.getPrimaryRef() != null) {
+            JsonObject primaryRefJsonObj = parsePrimaryRef(traceSegment.getPrimaryRef());
+            traceJsonObj.add("primaryRef", primaryRefJsonObj);
+        }
+
+        if (traceSegment.getRefs() != null) {
+            JsonArray refsJsonArray = parseRefs(traceSegment.getRefs());
+            traceJsonObj.add("refs", refsJsonArray);
+        }
+
+        JsonArray spanJsonArray = new JsonArray();
+        for (Span span : traceSegment.getSpans()) {
+            JsonObject spanJsonObj = parseSpan(span);
+            spanJsonArray.add(spanJsonObj);
+        }
+        traceJsonObj.add("spans", spanJsonArray);
+
+        return traceJsonObj;
+    }
+
+    private JsonObject parsePrimaryRef(TraceSegmentRef primaryRef) {
+        JsonObject primaryRefJsonObj = new JsonObject();
+        primaryRefJsonObj.addProperty("appCode", primaryRef.getApplicationCode());
+        primaryRefJsonObj.addProperty("spanId", primaryRef.getSpanId());
+        primaryRefJsonObj.addProperty("peerHost", primaryRef.getPeerHost());
+        primaryRefJsonObj.addProperty("segmentId", primaryRef.getTraceSegmentId());
+        return primaryRefJsonObj;
+    }
+
+    private JsonArray parseRefs(List<TraceSegmentRef> refs) {
+        JsonArray refsJsonArray = new JsonArray();
+        for (TraceSegmentRef ref : refs) {
+            JsonObject refJsonObj = new JsonObject();
+            refJsonObj.addProperty("spanId", ref.getSpanId());
+            refJsonObj.addProperty("appCode", ref.getApplicationCode());
+            refJsonObj.addProperty("segmentId", ref.getTraceSegmentId());
+            refJsonObj.addProperty("peerHost", ref.getPeerHost());
+            refsJsonArray.add(refJsonObj);
+        }
+        return refsJsonArray;
+    }
+
+    private JsonObject parseSpan(Span span) {
+        JsonObject spanJsonObj = new JsonObject();
+        spanJsonObj.addProperty("spanId", span.getSpanId());
+        spanJsonObj.addProperty("parentSpanId", span.getParentSpanId());
+        spanJsonObj.addProperty("startTime", span.getStartTime());
+        spanJsonObj.addProperty("endTime", span.getEndTime());
+        spanJsonObj.addProperty("operationName", span.getOperationName());
+
+        JsonObject tagsJsonObj = parseSpanTag(span.getTags());
+        spanJsonObj.add("tags", tagsJsonObj);
+        return spanJsonObj;
+    }
+
+    private JsonObject parseSpanTag(Map<String, Object> tags) {
+        JsonObject tagsJsonObj = new JsonObject();
+
+        for (Map.Entry<String, Object> entry : tags.entrySet()) {
+            String key = entry.getKey();
+            String value = String.valueOf(entry.getValue());
+            tagsJsonObj.addProperty(key, value);
+        }
+        return tagsJsonObj;
     }
 }

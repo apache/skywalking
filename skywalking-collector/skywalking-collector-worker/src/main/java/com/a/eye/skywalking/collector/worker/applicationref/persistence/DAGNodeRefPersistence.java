@@ -1,4 +1,4 @@
-package com.a.eye.skywalking.collector.worker.application.persistence;
+package com.a.eye.skywalking.collector.worker.applicationref.persistence;
 
 import akka.actor.ActorRef;
 import com.a.eye.skywalking.collector.actor.AbstractAsyncMemberProvider;
@@ -12,35 +12,36 @@ import org.apache.logging.log4j.Logger;
 /**
  * @author pengys5
  */
-public class NodeInstancePersistence extends RecordPersistenceMember {
+public class DAGNodeRefPersistence extends RecordPersistenceMember {
 
-    private Logger logger = LogManager.getFormatterLogger(NodeInstancePersistence.class);
+    private Logger logger = LogManager.getFormatterLogger(DAGNodeRefPersistence.class);
 
-    public NodeInstancePersistence(RingBuffer<MessageHolder> ringBuffer, ActorRef actorRef) {
+    public DAGNodeRefPersistence(RingBuffer<MessageHolder> ringBuffer, ActorRef actorRef) {
         super(ringBuffer, actorRef);
     }
 
     @Override
     public String esIndex() {
-        return "application";
+        return "node_ref";
     }
 
     @Override
     public String esType() {
-        return "node_instance";
+        return "node_ref";
     }
 
-    public static class Factory extends AbstractAsyncMemberProvider<NodeInstancePersistence> {
+    public static class Factory extends AbstractAsyncMemberProvider<DAGNodeRefPersistence> {
+
         public static Factory INSTANCE = new Factory();
 
         @Override
         public Class memberClass() {
-            return NodeInstancePersistence.class;
+            return DAGNodeRefPersistence.class;
         }
 
         @Override
         public int queueSize() {
-            return WorkerConfig.Queue.Persistence.NodeInstancePersistence.Size;
+            return WorkerConfig.Queue.Persistence.DAGNodeRefPersistence.Size;
         }
     }
 }

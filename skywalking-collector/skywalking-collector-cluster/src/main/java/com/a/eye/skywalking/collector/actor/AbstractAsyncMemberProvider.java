@@ -23,19 +23,22 @@ public abstract class AbstractAsyncMemberProvider<T extends EventHandler> extend
             throw new IllegalArgumentException("cannot createInstance() with nothing obtained from memberClass()");
         }
 
+        Constructor memberConstructor = memberClass().getDeclaredConstructor(new Class<?>[]{RingBuffer.class, ActorRef.class});
+        memberConstructor.setAccessible(true);
+
         // Specify the size of the ring buffer, must be power of 2.
         int bufferSize = queueSize();
         // Construct the Disruptor
         Disruptor<MessageHolder> disruptor = new Disruptor<MessageHolder>(MessageHolderFactory.INSTANCE, bufferSize, DaemonThreadFactory.INSTANCE);
-        // Start the Disruptor, starts all threads running
-        RingBuffer<MessageHolder> ringBuffer = disruptor.start();
 
-        Constructor memberConstructor = memberClass().getDeclaredConstructor(new Class<?>[]{RingBuffer.class, ActorRef.class});
-        memberConstructor.setAccessible(true);
+        RingBuffer<MessageHolder> ringBuffer = disruptor.getRingBuffer();
         T member = (T) memberConstructor.newInstance(ringBuffer, actorRef);
 
         // Connect the handler
         disruptor.handleEventsWith(member);
+
+        // Start the Disruptor, starts all threads running
+        disruptor.start();
         return member;
     }
 }

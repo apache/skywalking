@@ -196,9 +196,9 @@ public class TraceSegment implements ISerializable<SegmentMessage> {
             for (TraceSegmentRef ref : refs) {
                 segmentBuilder.addRefs(ref.serialize());
             }
-            for (Span span : spans) {
-                segmentBuilder.addSpans(span.serialize());
-            }
+        }
+        for (Span span : spans) {
+            segmentBuilder.addSpans(span.serialize());
         }
         return segmentBuilder.build();
     }
