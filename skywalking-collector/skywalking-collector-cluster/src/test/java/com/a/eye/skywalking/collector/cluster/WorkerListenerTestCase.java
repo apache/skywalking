@@ -59,21 +59,4 @@ public class WorkerListenerTestCase {
         senderRefInWorkerRef = (ActorRef) MemberModifier.field(WorkerRef.class, "actorRef").get(workerRef);
         Assert.assertEquals(senderActorRef, senderRefInWorkerRef);
     }
-
-    @Test
-    public void testTerminated() throws IllegalAccessException {
-        senderActorRef.stop();
-
-        Map<ActorRef, WorkerRef> actorRefToWorkerRef = (Map<ActorRef, WorkerRef>) MemberModifier.field(WorkersRefCenter.class, "actorRefToWorkerRef").get(WorkersRefCenter.INSTANCE);
-        Assert.assertEquals(null, actorRefToWorkerRef.get(senderActorRef));
-
-        Map<String, List<WorkerRef>> roleToWorkerRef = (Map<String, List<WorkerRef>>) MemberModifier.field(WorkersRefCenter.class, "roleToWorkerRef").get(WorkersRefCenter.INSTANCE);
-        ActorRef[] actorRefs = {};
-        Assert.assertArrayEquals(actorRefs, roleToWorkerRef.get("WorkersListener").toArray());
-    }
-
-    @Test
-    public void testUnhandled() {
-
-    }
 }
