@@ -1,12 +1,10 @@
 package com.a.eye.skywalking.collector.cluster;
 
 import akka.actor.ActorRef;
+import akka.actor.Address;
 import com.a.eye.skywalking.collector.actor.WorkerRef;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -24,13 +22,13 @@ public enum WorkersRefCenter {
     private Map<ActorRef, WorkerRef> actorRefToWorkerRef = new ConcurrentHashMap<>();
 
     public void register(ActorRef newActorRef, String workerRole) {
-        System.out.println("register: " + workerRole);
         if (!roleToWorkerRef.containsKey(workerRole)) {
             List<WorkerRef> actorList = Collections.synchronizedList(new ArrayList<WorkerRef>());
             roleToWorkerRef.putIfAbsent(workerRole, actorList);
         }
 
         WorkerRef newWorkerRef = new WorkerRef(newActorRef, workerRole);
+
         roleToWorkerRef.get(workerRole).add(newWorkerRef);
         actorRefToWorkerRef.put(newActorRef, newWorkerRef);
     }
@@ -39,6 +37,27 @@ public enum WorkersRefCenter {
         WorkerRef oldWorkerRef = actorRefToWorkerRef.get(oldActorRef);
         roleToWorkerRef.get(oldWorkerRef.getWorkerRole()).remove(oldWorkerRef);
         actorRefToWorkerRef.remove(oldActorRef);
+    }
+
+    public void unregister(Address address) {
+        Iterator<ActorRef> actorRefToWorkerRefIterator = actorRefToWorkerRef.keySet().iterator();
+        while (actorRefToWorkerRefIterator.hasNext()) {
+            if (address.equals(actorRefToWorkerRefIterator.next().path().address())) {
+                actorRefToWorkerRefIterator.remove();
+            }
+        }
+
+        Iterator<Map.Entry<String, List<WorkerRef>>> roleToWorkerRefIterator = roleToWorkerRef.entrySet().iterator();
+        while (roleToWorkerRefIterator.hasNext()) {
+            List<WorkerRef> workerRefList = roleToWorkerRefIterator.next().getValue();
+
+            Iterator<WorkerRef> workerRefIterator = workerRefList.iterator();
+            while (workerRefIterator.hasNext()) {
+                if (workerRefIterator.next().path().address().equals(address)) {
+                    workerRefIterator.remove();
+                }
+            }
+        }
     }
 
     /**

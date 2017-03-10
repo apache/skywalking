@@ -3,6 +3,8 @@ package com.a.eye.skywalking.collector.cluster;
 import akka.actor.ActorRef;
 import akka.actor.Terminated;
 import akka.actor.UntypedActor;
+import akka.cluster.Cluster;
+import akka.cluster.ClusterEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -24,12 +26,19 @@ public class WorkersListener extends UntypedActor {
 
     public static final String WorkName = "WorkersListener";
 
+    private Cluster cluster = Cluster.get(getContext().system());
+
+    @Override
+    public void preStart() throws Exception {
+        cluster.subscribe(getSelf(), ClusterEvent.UnreachableMember.class);
+    }
+
     @Override
     public void onReceive(Object message) throws Throwable {
         if (message instanceof WorkerListenerMessage.RegisterMessage) {
             WorkerListenerMessage.RegisterMessage register = (WorkerListenerMessage.RegisterMessage) message;
             ActorRef sender = getSender();
-            getContext().watch(sender);
+//            getContext().watch(sender);
 
             logger.info("register worker of role: %s, path: %s", register.getWorkRole(), sender.toString());
 
@@ -37,6 +46,9 @@ public class WorkersListener extends UntypedActor {
         } else if (message instanceof Terminated) {
             Terminated terminated = (Terminated) message;
             WorkersRefCenter.INSTANCE.unregister(terminated.getActor());
+        } else if (message instanceof ClusterEvent.UnreachableMember) {
+            ClusterEvent.UnreachableMember unreachableMember = (ClusterEvent.UnreachableMember) message;
+            WorkersRefCenter.INSTANCE.unregister(unreachableMember.member().address());
         } else {
             unhandled(message);
         }

@@ -1,5 +1,6 @@
 package com.a.eye.skywalking.collector.actor;
 
+import akka.actor.ActorPath;
 import akka.actor.ActorRef;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,6 +25,10 @@ public class WorkerRef {
     void tell(Object message, ActorRef sender) {
         logger.debug("tell %s worker", actorRef.toString());
         actorRef.tell(message, sender);
+    }
+
+    public ActorPath path() {
+        return actorRef.path();
     }
 
     public String getWorkerRole() {

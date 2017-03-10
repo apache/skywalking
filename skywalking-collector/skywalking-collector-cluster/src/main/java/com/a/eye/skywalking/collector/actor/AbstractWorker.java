@@ -47,7 +47,6 @@ public abstract class AbstractWorker extends UntypedActor {
     @Override
     public void preStart() throws Exception {
         cluster.subscribe(getSelf(), ClusterEvent.MemberUp.class);
-        register();
     }
 
     @Override
@@ -71,7 +70,6 @@ public abstract class AbstractWorker extends UntypedActor {
     @Override
     public void onReceive(Object message) throws Throwable {
         if (message instanceof ClusterEvent.CurrentClusterState) {
-            logger.info("receive ClusterEvent.CurrentClusterState message");
             ClusterEvent.CurrentClusterState state = (ClusterEvent.CurrentClusterState) message;
             for (Member member : state.getMembers()) {
                 if (member.status().equals(MemberStatus.up())) {
@@ -82,14 +80,6 @@ public abstract class AbstractWorker extends UntypedActor {
             ClusterEvent.MemberUp memberUp = (ClusterEvent.MemberUp) message;
             logger.info("receive ClusterEvent.MemberUp message, address: %s", memberUp.member().address().toString());
             register(memberUp.member());
-        } else if (message instanceof ClusterEvent.MemberEvent) {
-            System.out.println("other event: " + message.getClass().getSimpleName());
-        } else if (message instanceof ClusterEvent.UnreachableMember) {
-            System.out.println("other event: " + message.getClass().getSimpleName());
-        } else if (message instanceof ClusterEvent.MemberJoined) {
-            System.out.println("other event: " + message.getClass().getSimpleName());
-        } else if (message instanceof ClusterEvent.ReachableMember) {
-            System.out.println("other event: " + message.getClass().getSimpleName());
         } else {
             logger.debug("worker class: %s, message class: %s", this.getClass().getName(), message.getClass().getName());
             receive(message);
@@ -125,10 +115,5 @@ public abstract class AbstractWorker extends UntypedActor {
             logger.info("member address: %s, worker path: %s", member.address().toString(), getSelf().path().toString());
             getContext().actorSelection(member.address() + "/user/" + WorkersListener.WorkName).tell(registerMessage, getSelf());
         }
-    }
-
-    void register() {
-        WorkerListenerMessage.RegisterMessage registerMessage = new WorkerListenerMessage.RegisterMessage(getClass().getSimpleName());
-        getContext().actorSelection("/user/" + WorkersListener.WorkName).tell(registerMessage, getSelf());
     }
 }
