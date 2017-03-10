@@ -6,9 +6,10 @@ import com.a.eye.skywalking.collector.actor.selector.HashCodeSelector;
 import com.a.eye.skywalking.collector.queue.MessageHolder;
 import com.a.eye.skywalking.collector.worker.RecordAnalysisMember;
 import com.a.eye.skywalking.collector.worker.WorkerConfig;
-import com.a.eye.skywalking.collector.worker.application.receiver.DAGNodeReceiver;
 import com.a.eye.skywalking.collector.worker.application.receiver.NodeInstanceReceiver;
-import com.a.eye.skywalking.collector.worker.storage.RecordPersistenceData;
+import com.a.eye.skywalking.collector.worker.storage.AbstractTimeSlice;
+import com.a.eye.skywalking.collector.worker.storage.RecordData;
+import com.a.eye.skywalking.collector.worker.tools.DateTools;
 import com.google.gson.JsonObject;
 import com.lmax.disruptor.RingBuffer;
 import org.apache.logging.log4j.LogManager;
@@ -31,9 +32,11 @@ public class NodeInstanceAnalysis extends RecordAnalysisMember {
             Metric metric = (Metric) message;
             JsonObject propertyJsonObj = new JsonObject();
             propertyJsonObj.addProperty("code", metric.code);
+            propertyJsonObj.addProperty(DateTools.Time_Slice_Column_Name, metric.getMinute());
             propertyJsonObj.addProperty("address", metric.address);
 
-            setRecord(metric.address, propertyJsonObj);
+            String id = metric.getMinute() + "-" + metric.address;
+            setRecord(id, propertyJsonObj);
             logger.debug("node instance: %s", propertyJsonObj.toString());
         } else {
             logger.error("message unhandled");
@@ -42,8 +45,8 @@ public class NodeInstanceAnalysis extends RecordAnalysisMember {
 
     @Override
     protected void aggregation() throws Exception {
-        RecordPersistenceData oneRecord;
-        while ((oneRecord = pushOneRecord()) != null) {
+        RecordData oneRecord;
+        while ((oneRecord = pushOne()) != null) {
             tell(NodeInstanceReceiver.Factory.INSTANCE, HashCodeSelector.INSTANCE, oneRecord);
         }
     }
@@ -62,11 +65,12 @@ public class NodeInstanceAnalysis extends RecordAnalysisMember {
         }
     }
 
-    public static class Metric {
+    public static class Metric extends AbstractTimeSlice{
         private final String code;
         private final String address;
 
-        public Metric(String code, String address) {
+        public Metric(long minute, int second, String code, String address) {
+            super(minute, second);
             this.code = code;
             this.address = address;
         }

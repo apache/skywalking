@@ -5,6 +5,8 @@ import com.a.eye.skywalking.collector.actor.AbstractWorkerProvider;
 import com.a.eye.skywalking.collector.worker.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.application.ApplicationMain;
 import com.a.eye.skywalking.collector.worker.applicationref.ApplicationRefMain;
+import com.a.eye.skywalking.collector.worker.storage.AbstractTimeSlice;
+import com.a.eye.skywalking.collector.worker.tools.DateTools;
 import com.a.eye.skywalking.trace.TraceSegment;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,9 +33,12 @@ public class TraceSegmentReceiver extends AbstractWorker {
         if (message instanceof TraceSegment) {
             TraceSegment traceSegment = (TraceSegment) message;
             logger.debug("receive message instanceof TraceSegment, traceSegmentId is %s", traceSegment.getTraceSegmentId());
+            long timeSlice = DateTools.timeStampToTimeSlice(traceSegment.getStartTime());
+            int second = DateTools.timeStampToSecond(traceSegment.getStartTime());
 
-            applicationMain.beTold(traceSegment);
-            applicationRefMain.beTold(traceSegment);
+            TraceSegmentTimeSlice segmentTimeSlice = new TraceSegmentTimeSlice(timeSlice, second, traceSegment);
+            tell(applicationMain, segmentTimeSlice);
+            tell(applicationRefMain, segmentTimeSlice);
         }
     }
 
@@ -48,6 +53,19 @@ public class TraceSegmentReceiver extends AbstractWorker {
         @Override
         public int workerNum() {
             return WorkerConfig.Worker.TraceSegmentReceiver.Num;
+        }
+    }
+
+    public static class TraceSegmentTimeSlice extends AbstractTimeSlice {
+        private final TraceSegment traceSegment;
+
+        public TraceSegmentTimeSlice(long timeSliceMinute, int second, TraceSegment traceSegment) {
+            super(timeSliceMinute, second);
+            this.traceSegment = traceSegment;
+        }
+
+        public TraceSegment getTraceSegment() {
+            return traceSegment;
         }
     }
 }

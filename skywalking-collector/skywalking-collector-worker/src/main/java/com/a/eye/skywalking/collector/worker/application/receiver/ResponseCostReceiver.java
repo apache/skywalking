@@ -4,7 +4,7 @@ import com.a.eye.skywalking.collector.actor.AbstractWorker;
 import com.a.eye.skywalking.collector.actor.AbstractWorkerProvider;
 import com.a.eye.skywalking.collector.worker.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.application.persistence.ResponseCostPersistence;
-import com.a.eye.skywalking.collector.worker.storage.MetricPersistenceData;
+import com.a.eye.skywalking.collector.worker.storage.MetricData;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -25,7 +25,7 @@ public class ResponseCostReceiver extends AbstractWorker {
 
     @Override
     public void receive(Object message) throws Throwable {
-        if (message instanceof MetricPersistenceData) {
+        if (message instanceof MetricData) {
             persistence.beTold(message);
         } else {
             logger.error("message unhandled");

@@ -1,43 +1,23 @@
 package com.a.eye.skywalking.collector.worker.storage;
 
-import com.a.eye.skywalking.collector.actor.AbstractHashMessage;
-import com.a.eye.skywalking.collector.worker.tools.PersistenceDataTools;
-
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Spliterator;
+import java.util.function.Consumer;
 
 /**
  * @author pengys5
  */
-public class MetricPersistenceData extends AbstractHashMessage {
+public class MetricPersistenceData implements Iterable {
 
-    private Map<String, Map<String, Long>> persistenceData = new HashMap();
+    private Map<String, MetricData> persistenceData = new HashMap();
 
-    public void setMetric(String id, int second, Long value) {
-        if (persistenceData.containsKey(id)) {
-            String columnName = PersistenceDataTools.second2ColumnName(second);
-            Long metric = persistenceData.get(id).get(columnName);
-            persistenceData.get(id).put(columnName, metric + value);
-        } else {
-            Map<String, Long> metrics = PersistenceDataTools.getFilledPersistenceData();
-            metrics.put(PersistenceDataTools.second2ColumnName(second), value);
-            persistenceData.put(id, metrics);
+    public MetricData getElseCreate(String id) {
+        if (!persistenceData.containsKey(id)) {
+            persistenceData.put(id, new MetricData(id));
         }
-    }
-
-    public void setMetric(String id, String column, Long value) {
-        if (persistenceData.containsKey(id)) {
-            Long metric = persistenceData.get(id).get(column);
-            persistenceData.get(id).put(column, metric + value);
-        } else {
-            Map<String, Long> metrics = PersistenceDataTools.getFilledPersistenceData();
-            metrics.put(column, value);
-            persistenceData.put(id, metrics);
-        }
-    }
-
-    public Map<String, Map<String, Long>> getData() {
-        return persistenceData;
+        return persistenceData.get(id);
     }
 
     public int size() {
@@ -46,5 +26,26 @@ public class MetricPersistenceData extends AbstractHashMessage {
 
     public void clear() {
         persistenceData.clear();
+    }
+
+    public MetricData pushOne() {
+        MetricData one = persistenceData.entrySet().iterator().next().getValue();
+        persistenceData.remove(one.getId());
+        return one;
+    }
+
+    @Override
+    public void forEach(Consumer action) {
+        throw new UnsupportedOperationException("forEach");
+    }
+
+    @Override
+    public Spliterator spliterator() {
+        throw new UnsupportedOperationException("spliterator");
+    }
+
+    @Override
+    public Iterator<Map.Entry<String, MetricData>> iterator() {
+        return persistenceData.entrySet().iterator();
     }
 }

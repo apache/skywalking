@@ -1,6 +1,5 @@
 package com.a.eye.skywalking.collector.actor.selector;
 
-import com.a.eye.skywalking.collector.actor.AbstractHashMessage;
 import com.a.eye.skywalking.collector.actor.AbstractWorker;
 import com.a.eye.skywalking.collector.actor.WorkerRef;
 

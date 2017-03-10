@@ -6,13 +6,13 @@ import com.a.eye.skywalking.collector.actor.selector.HashCodeSelector;
 import com.a.eye.skywalking.collector.queue.MessageHolder;
 import com.a.eye.skywalking.collector.worker.RecordAnalysisMember;
 import com.a.eye.skywalking.collector.worker.application.receiver.DAGNodeReceiver;
-import com.a.eye.skywalking.collector.worker.storage.RecordPersistenceData;
+import com.a.eye.skywalking.collector.worker.storage.AbstractTimeSlice;
+import com.a.eye.skywalking.collector.worker.storage.RecordData;
+import com.a.eye.skywalking.collector.worker.tools.DateTools;
 import com.google.gson.JsonObject;
 import com.lmax.disruptor.RingBuffer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.io.Serializable;
 
 /**
  * @author pengys5
@@ -31,11 +31,13 @@ public class DAGNodeAnalysis extends RecordAnalysisMember {
             Metric metric = (Metric) message;
             JsonObject propertyJsonObj = new JsonObject();
             propertyJsonObj.addProperty("code", metric.code);
+            propertyJsonObj.addProperty(DateTools.Time_Slice_Column_Name, metric.getMinute());
             propertyJsonObj.addProperty("component", metric.component);
             propertyJsonObj.addProperty("layer", metric.layer);
 
+            String id = metric.getMinute() + "-" + metric.code;
             logger.debug("dag node: %s", propertyJsonObj.toString());
-            setRecord(metric.code, propertyJsonObj);
+            setRecord(id, propertyJsonObj);
         } else {
             logger.error("message unhandled");
         }
@@ -43,8 +45,8 @@ public class DAGNodeAnalysis extends RecordAnalysisMember {
 
     @Override
     protected void aggregation() throws Exception {
-        RecordPersistenceData oneRecord;
-        while ((oneRecord = pushOneRecord()) != null) {
+        RecordData oneRecord;
+        while ((oneRecord = pushOne()) != null) {
             tell(DAGNodeReceiver.Factory.INSTANCE, HashCodeSelector.INSTANCE, oneRecord);
         }
     }
@@ -63,12 +65,13 @@ public class DAGNodeAnalysis extends RecordAnalysisMember {
         }
     }
 
-    public static class Metric implements Serializable {
+    public static class Metric extends AbstractTimeSlice {
         private final String code;
         private final String component;
         private final String layer;
 
-        public Metric(String code, String component, String layer) {
+        public Metric(long minute, int second, String code, String component, String layer) {
+            super(minute, second);
             this.code = code;
             this.component = component;
             this.layer = layer;

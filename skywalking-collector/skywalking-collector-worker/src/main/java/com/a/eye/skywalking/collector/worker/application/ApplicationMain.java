@@ -1,6 +1,7 @@
 package com.a.eye.skywalking.collector.worker.application;
 
 import akka.actor.ActorRef;
+import com.a.eye.skywalking.api.util.StringUtil;
 import com.a.eye.skywalking.collector.actor.AbstractSyncMember;
 import com.a.eye.skywalking.collector.actor.AbstractSyncMemberProvider;
 import com.a.eye.skywalking.collector.worker.application.analysis.DAGNodeAnalysis;
@@ -8,9 +9,9 @@ import com.a.eye.skywalking.collector.worker.application.analysis.NodeInstanceAn
 import com.a.eye.skywalking.collector.worker.application.analysis.ResponseCostAnalysis;
 import com.a.eye.skywalking.collector.worker.application.analysis.ResponseSummaryAnalysis;
 import com.a.eye.skywalking.collector.worker.application.persistence.TraceSegmentRecordPersistence;
-import com.a.eye.skywalking.collector.worker.tools.DateTools;
+import com.a.eye.skywalking.collector.worker.receiver.TraceSegmentReceiver;
 import com.a.eye.skywalking.trace.Span;
-import com.a.eye.skywalking.trace.TraceSegment;
+import com.a.eye.skywalking.trace.TraceSegmentRef;
 import com.a.eye.skywalking.trace.tag.Tags;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -39,17 +40,16 @@ public class ApplicationMain extends AbstractSyncMember {
 
     @Override
     public void receive(Object message) throws Exception {
-        if (message instanceof TraceSegment) {
+        if (message instanceof TraceSegmentReceiver.TraceSegmentTimeSlice) {
             logger.debug("begin translate TraceSegment Object to JsonObject");
-            TraceSegment traceSegment = (TraceSegment) message;
-            int second = DateTools.timeStampToSecond(traceSegment.getStartTime());
+            TraceSegmentReceiver.TraceSegmentTimeSlice traceSegment = (TraceSegmentReceiver.TraceSegmentTimeSlice) message;
 
             recordPersistence.beTold(traceSegment);
 
             sendToDAGNodePersistence(traceSegment);
             sendToNodeInstanceAnalysis(traceSegment);
-            sendToResponseCostPersistence(traceSegment, second);
-            sendToResponseSummaryPersistence(traceSegment, second);
+            sendToResponseCostPersistence(traceSegment);
+            sendToResponseSummaryPersistence(traceSegment);
         }
     }
 
@@ -62,40 +62,42 @@ public class ApplicationMain extends AbstractSyncMember {
         }
     }
 
-    private void sendToDAGNodePersistence(TraceSegment traceSegment) throws Exception {
-        String code = traceSegment.getApplicationCode();
+    private void sendToDAGNodePersistence(TraceSegmentReceiver.TraceSegmentTimeSlice traceSegment) throws Exception {
+        String code = traceSegment.getTraceSegment().getApplicationCode();
 
         String component = null;
         String layer = null;
-        for (Span span : traceSegment.getSpans()) {
+        for (Span span : traceSegment.getTraceSegment().getSpans()) {
             if (span.getParentSpanId() == -1) {
                 component = Tags.COMPONENT.get(span);
                 layer = Tags.SPAN_LAYER.get(span);
             }
         }
 
-        DAGNodeAnalysis.Metric node = new DAGNodeAnalysis.Metric(code, component, layer);
+        DAGNodeAnalysis.Metric node = new DAGNodeAnalysis.Metric(traceSegment.getMinute(), traceSegment.getSecond(), code, component, layer);
         dagNodeAnalysis.beTold(node);
     }
 
-    private void sendToNodeInstanceAnalysis(TraceSegment traceSegment) throws Exception {
-        if (traceSegment.getPrimaryRef() != null) {
-            String code = traceSegment.getPrimaryRef().getApplicationCode();
-            String address = traceSegment.getPrimaryRef().getPeerHost();
+    private void sendToNodeInstanceAnalysis(TraceSegmentReceiver.TraceSegmentTimeSlice traceSegment) throws Exception {
+        TraceSegmentRef traceSegmentRef = traceSegment.getTraceSegment().getPrimaryRef();
 
-            NodeInstanceAnalysis.Metric property = new NodeInstanceAnalysis.Metric(code, address);
+        if (traceSegmentRef != null && !StringUtil.isEmpty(traceSegmentRef.getApplicationCode())) {
+            String code = traceSegmentRef.getApplicationCode();
+            String address = traceSegmentRef.getPeerHost();
+
+            NodeInstanceAnalysis.Metric property = new NodeInstanceAnalysis.Metric(traceSegment.getMinute(), traceSegment.getSecond(), code, address);
             nodeInstanceAnalysis.beTold(property);
         }
     }
 
-    private void sendToResponseCostPersistence(TraceSegment traceSegment, int second) throws Exception {
-        String code = traceSegment.getApplicationCode();
+    private void sendToResponseCostPersistence(TraceSegmentReceiver.TraceSegmentTimeSlice traceSegment) throws Exception {
+        String code = traceSegment.getTraceSegment().getApplicationCode();
 
         long startTime = -1;
         long endTime = -1;
         Boolean isError = false;
 
-        for (Span span : traceSegment.getSpans()) {
+        for (Span span : traceSegment.getTraceSegment().getSpans()) {
             if (span.getParentSpanId() == -1) {
                 startTime = span.getStartTime();
                 endTime = span.getEndTime();
@@ -103,21 +105,21 @@ public class ApplicationMain extends AbstractSyncMember {
             }
         }
 
-        ResponseCostAnalysis.Metric cost = new ResponseCostAnalysis.Metric(code, second, isError, startTime, endTime);
+        ResponseCostAnalysis.Metric cost = new ResponseCostAnalysis.Metric(traceSegment.getMinute(), traceSegment.getSecond(), code, isError, startTime, endTime);
         responseCostAnalysis.beTold(cost);
     }
 
-    private void sendToResponseSummaryPersistence(TraceSegment traceSegment, int second) throws Exception {
-        String code = traceSegment.getApplicationCode();
+    private void sendToResponseSummaryPersistence(TraceSegmentReceiver.TraceSegmentTimeSlice traceSegment) throws Exception {
+        String code = traceSegment.getTraceSegment().getApplicationCode();
         boolean isError = false;
 
-        for (Span span : traceSegment.getSpans()) {
+        for (Span span : traceSegment.getTraceSegment().getSpans()) {
             if (span.getParentSpanId() == -1) {
                 isError = Tags.ERROR.get(span);
             }
         }
 
-        ResponseSummaryAnalysis.Metric summary = new ResponseSummaryAnalysis.Metric(code, second, isError);
+        ResponseSummaryAnalysis.Metric summary = new ResponseSummaryAnalysis.Metric(traceSegment.getMinute(), traceSegment.getSecond(), code, isError);
         responseSummaryAnalysis.beTold(summary);
     }
 }

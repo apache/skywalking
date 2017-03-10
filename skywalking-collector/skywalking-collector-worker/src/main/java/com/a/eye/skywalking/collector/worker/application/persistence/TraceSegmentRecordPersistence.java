@@ -6,6 +6,9 @@ import com.a.eye.skywalking.collector.actor.AbstractAsyncMemberProvider;
 import com.a.eye.skywalking.collector.queue.MessageHolder;
 import com.a.eye.skywalking.collector.worker.RecordPersistenceMember;
 import com.a.eye.skywalking.collector.worker.WorkerConfig;
+import com.a.eye.skywalking.collector.worker.receiver.TraceSegmentReceiver;
+import com.a.eye.skywalking.collector.worker.storage.RecordData;
+import com.a.eye.skywalking.collector.worker.tools.DateTools;
 import com.a.eye.skywalking.trace.Span;
 import com.a.eye.skywalking.trace.TraceSegment;
 import com.a.eye.skywalking.trace.TraceSegmentRef;
@@ -41,12 +44,13 @@ public class TraceSegmentRecordPersistence extends RecordPersistenceMember {
 
     @Override
     public void analyse(Object message) throws Exception {
-        if (message instanceof TraceSegment) {
-            TraceSegment traceSegment = (TraceSegment) message;
-            JsonObject traceSegmentJsonObj = parseTraceSegment(traceSegment);
+        if (message instanceof TraceSegmentReceiver.TraceSegmentTimeSlice) {
+            TraceSegmentReceiver.TraceSegmentTimeSlice traceSegment = (TraceSegmentReceiver.TraceSegmentTimeSlice) message;
+            JsonObject jsonObject = parseTraceSegment(traceSegment.getTraceSegment(), traceSegment.getMinute());
 
-            setRecord(traceSegmentJsonObj.get("segmentId").getAsString(), traceSegmentJsonObj);
-            logger.debug("segment record: %s", traceSegmentJsonObj.toString());
+            RecordData recordData = new RecordData(traceSegment.getTraceSegment().getTraceSegmentId());
+            recordData.setRecord(jsonObject);
+            super.analyse(recordData);
         }
     }
 
@@ -64,9 +68,10 @@ public class TraceSegmentRecordPersistence extends RecordPersistenceMember {
         }
     }
 
-    private JsonObject parseTraceSegment(TraceSegment traceSegment) {
+    private JsonObject parseTraceSegment(TraceSegment traceSegment, long minute) {
         JsonObject traceJsonObj = new JsonObject();
         traceJsonObj.addProperty("segmentId", traceSegment.getTraceSegmentId());
+        traceJsonObj.addProperty(DateTools.Time_Slice_Column_Name, minute);
         traceJsonObj.addProperty("startTime", traceSegment.getStartTime());
         traceJsonObj.addProperty("endTime", traceSegment.getEndTime());
         traceJsonObj.addProperty("appCode", traceSegment.getApplicationCode());

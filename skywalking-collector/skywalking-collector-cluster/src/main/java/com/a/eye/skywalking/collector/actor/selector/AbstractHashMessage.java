@@ -1,4 +1,4 @@
-package com.a.eye.skywalking.collector.actor;
+package com.a.eye.skywalking.collector.actor.selector;
 
 /**
  * @author pengys5
@@ -6,11 +6,11 @@ package com.a.eye.skywalking.collector.actor;
 public abstract class AbstractHashMessage {
     private int hashCode;
 
-    public void setHashCode(String key) {
+    public AbstractHashMessage(String key) {
         this.hashCode = key.hashCode();
     }
 
-    public int getHashCode() {
+    protected int getHashCode() {
         return hashCode;
     }
 }

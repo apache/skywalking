@@ -2,12 +2,21 @@ package com.a.eye.skywalking.collector.worker;
 
 import akka.actor.ActorRef;
 import com.a.eye.skywalking.collector.queue.MessageHolder;
+import com.a.eye.skywalking.collector.worker.storage.EsClient;
+import com.a.eye.skywalking.collector.worker.storage.MetricData;
 import com.a.eye.skywalking.collector.worker.storage.MetricPersistenceData;
-import com.a.eye.skywalking.collector.worker.tools.PersistenceDataTools;
 import com.lmax.disruptor.RingBuffer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.elasticsearch.action.bulk.BulkRequestBuilder;
+import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.get.GetResponse;
+import org.elasticsearch.action.get.MultiGetItemResponse;
+import org.elasticsearch.action.get.MultiGetRequestBuilder;
+import org.elasticsearch.action.get.MultiGetResponse;
+import org.elasticsearch.client.Client;
 
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -25,35 +34,57 @@ public abstract class MetricPersistenceMember extends PersistenceMember {
 
     @Override
     public void analyse(Object message) throws Exception {
-        if (message instanceof MetricPersistenceData) {
-            MetricPersistenceData persistenceData = (MetricPersistenceData) message;
-            merge(persistenceData);
+        if (message instanceof MetricData) {
+            MetricData metricData = (MetricData) message;
+            persistenceData.getElseCreate(metricData.getId()).merge(metricData);
+            if (persistenceData.size() >= WorkerConfig.Persistence.Data.size) {
+                persistence();
+            }
         } else {
             logger.error("message unhandled");
         }
     }
 
-    public void merge(MetricPersistenceData receiveData) {
-        for (Map.Entry<String, Map<String, Long>> lineDate : receiveData.getData().entrySet()) {
-            for (Map.Entry<String, Long> columnDate : lineDate.getValue().entrySet()) {
-                persistenceData.setMetric(lineDate.getKey(), columnDate.getKey(), columnDate.getValue());
-                if (persistenceData.size() >= WorkerConfig.Persistence.Data.size) {
-                    persistence();
-                }
+    protected void persistence() {
+        MultiGetResponse multiGetResponse = searchFromEs();
+        for (MultiGetItemResponse itemResponse : multiGetResponse) {
+            GetResponse response = itemResponse.getResponse();
+            if (response != null && response.isExists()) {
+                persistenceData.getElseCreate(response.getId()).merge(response.getSource());
             }
+        }
+
+        boolean success = saveToEs();
+        if (success) {
+            persistenceData.clear();
         }
     }
 
-    protected void persistence() {
-        if (persistenceData.size() > 0) {
-            Map<String, Map<String, Object>> dataInDB = PersistenceDataTools.searchEs(esIndex(), esType(), persistenceData);
-            MetricPersistenceData dbData = PersistenceDataTools.dbData2PersistenceData(dataInDB);
-            PersistenceDataTools.mergeData(dbData, persistenceData);
+    public MultiGetResponse searchFromEs() {
+        Client client = EsClient.getClient();
+        MultiGetRequestBuilder multiGetRequestBuilder = client.prepareMultiGet();
 
-            boolean success = PersistenceDataTools.saveToEs(esIndex(), esType(), persistenceData);
-            if (success) {
-                persistenceData.clear();
-            }
+        Iterator<Map.Entry<String, MetricData>> iterator = persistenceData.iterator();
+        while (iterator.hasNext()) {
+            multiGetRequestBuilder.add(esIndex(), esType(), iterator.next().getKey());
         }
+
+        MultiGetResponse multiGetResponse = multiGetRequestBuilder.get();
+        return multiGetResponse;
+    }
+
+    public boolean saveToEs() {
+        Client client = EsClient.getClient();
+        BulkRequestBuilder bulkRequest = client.prepareBulk();
+        logger.debug("persistenceData size: %s", persistenceData.size());
+
+        Iterator<Map.Entry<String, MetricData>> iterator = persistenceData.iterator();
+        while (iterator.hasNext()) {
+            MetricData metricData = iterator.next().getValue();
+            bulkRequest.add(client.prepareIndex(esIndex(), esType(), metricData.getId()).setSource(metricData.toMap()));
+        }
+
+        BulkResponse bulkResponse = bulkRequest.execute().actionGet();
+        return !bulkResponse.hasFailures();
     }
 }

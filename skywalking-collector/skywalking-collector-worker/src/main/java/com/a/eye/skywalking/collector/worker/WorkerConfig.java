@@ -21,27 +21,27 @@ public class WorkerConfig extends ClusterConfig {
 
     public static class Worker {
         public static class TraceSegmentReceiver {
-            public static int Num = 5;
+            public static int Num = 10;
         }
 
         public static class DAGNodeReceiver {
-            public static int Num = 5;
+            public static int Num = 10;
         }
 
         public static class NodeInstanceReceiver {
-            public static int Num = 5;
+            public static int Num = 10;
         }
 
         public static class ResponseCostReceiver {
-            public static int Num = 5;
+            public static int Num = 10;
         }
 
         public static class ResponseSummaryReceiver {
-            public static int Num = 5;
+            public static int Num = 10;
         }
 
         public static class DAGNodeRefReceiver {
-            public static int Num = 5;
+            public static int Num = 10;
         }
     }
 

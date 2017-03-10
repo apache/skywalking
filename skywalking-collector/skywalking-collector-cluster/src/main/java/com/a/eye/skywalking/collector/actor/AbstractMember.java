@@ -27,7 +27,7 @@ public abstract class AbstractMember implements EventHandler<MessageHolder> {
         this.actorRef = actorRef;
     }
 
-    public abstract void beTold(Object message) throws Exception;
+    protected abstract void beTold(Object message) throws Exception;
 
     /**
      * Receive the message to analyse.

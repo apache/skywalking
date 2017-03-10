@@ -4,7 +4,7 @@ import com.a.eye.skywalking.collector.actor.AbstractWorker;
 import com.a.eye.skywalking.collector.actor.AbstractWorkerProvider;
 import com.a.eye.skywalking.collector.worker.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.application.persistence.DAGNodePersistence;
-import com.a.eye.skywalking.collector.worker.storage.RecordPersistenceData;
+import com.a.eye.skywalking.collector.worker.storage.RecordData;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -25,7 +25,7 @@ public class DAGNodeReceiver extends AbstractWorker {
 
     @Override
     public void receive(Object message) throws Throwable {
-        if (message instanceof RecordPersistenceData) {
+        if (message instanceof RecordData) {
             persistence.beTold(message);
         } else {
             logger.error("message unhandled");

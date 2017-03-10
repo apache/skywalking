@@ -7,13 +7,13 @@ import com.a.eye.skywalking.collector.queue.MessageHolder;
 import com.a.eye.skywalking.collector.worker.RecordAnalysisMember;
 import com.a.eye.skywalking.collector.worker.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.applicationref.receiver.DAGNodeRefReceiver;
-import com.a.eye.skywalking.collector.worker.storage.RecordPersistenceData;
+import com.a.eye.skywalking.collector.worker.storage.AbstractTimeSlice;
+import com.a.eye.skywalking.collector.worker.storage.RecordData;
+import com.a.eye.skywalking.collector.worker.tools.DateTools;
 import com.google.gson.JsonObject;
 import com.lmax.disruptor.RingBuffer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.io.Serializable;
 
 /**
  * @author pengys5
@@ -28,21 +28,23 @@ public class DAGNodeRefAnalysis extends RecordAnalysisMember {
 
     @Override
     public void analyse(Object message) throws Exception {
-        if (message instanceof RecordPersistenceData) {
+        if (message instanceof Metric) {
             Metric metric = (Metric) message;
             JsonObject propertyJsonObj = new JsonObject();
             propertyJsonObj.addProperty("frontCode", metric.frontCode);
             propertyJsonObj.addProperty("behindCode", metric.behindCode);
+            propertyJsonObj.addProperty(DateTools.Time_Slice_Column_Name, metric.getMinute());
 
-            setRecord(metric.frontCode + "-" + metric.behindCode, propertyJsonObj);
+            String id = metric.getMinute() + "-" + metric.frontCode + "-" + metric.behindCode;
+            setRecord(id, propertyJsonObj);
             logger.debug("dag node ref: %s", propertyJsonObj.toString());
         }
     }
 
     @Override
     protected void aggregation() throws Exception {
-        RecordPersistenceData oneRecord;
-        while ((oneRecord = pushOneRecord()) != null) {
+        RecordData oneRecord;
+        while ((oneRecord = pushOne()) != null) {
             tell(DAGNodeRefReceiver.Factory.INSTANCE, HashCodeSelector.INSTANCE, oneRecord);
         }
     }
@@ -62,11 +64,12 @@ public class DAGNodeRefAnalysis extends RecordAnalysisMember {
         }
     }
 
-    public static class Metric implements Serializable {
+    public static class Metric extends AbstractTimeSlice {
         private final String frontCode;
         private final String behindCode;
 
-        public Metric(String frontCode, String behindCode) {
+        public Metric(long minute, int second, String frontCode, String behindCode) {
+            super(minute, second);
             this.frontCode = frontCode;
             this.behindCode = behindCode;
         }

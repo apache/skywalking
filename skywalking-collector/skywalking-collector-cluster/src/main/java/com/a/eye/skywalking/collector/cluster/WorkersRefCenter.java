@@ -24,6 +24,7 @@ public enum WorkersRefCenter {
     private Map<ActorRef, WorkerRef> actorRefToWorkerRef = new ConcurrentHashMap<>();
 
     public void register(ActorRef newActorRef, String workerRole) {
+        System.out.println("register: " + workerRole);
         if (!roleToWorkerRef.containsKey(workerRole)) {
             List<WorkerRef> actorList = Collections.synchronizedList(new ArrayList<WorkerRef>());
             roleToWorkerRef.putIfAbsent(workerRole, actorList);

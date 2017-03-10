@@ -82,6 +82,14 @@ public abstract class AbstractWorker extends UntypedActor {
             ClusterEvent.MemberUp memberUp = (ClusterEvent.MemberUp) message;
             logger.info("receive ClusterEvent.MemberUp message, address: %s", memberUp.member().address().toString());
             register(memberUp.member());
+        } else if (message instanceof ClusterEvent.MemberEvent) {
+            System.out.println("other event: " + message.getClass().getSimpleName());
+        } else if (message instanceof ClusterEvent.UnreachableMember) {
+            System.out.println("other event: " + message.getClass().getSimpleName());
+        } else if (message instanceof ClusterEvent.MemberJoined) {
+            System.out.println("other event: " + message.getClass().getSimpleName());
+        } else if (message instanceof ClusterEvent.ReachableMember) {
+            System.out.println("other event: " + message.getClass().getSimpleName());
         } else {
             logger.debug("worker class: %s, message class: %s", this.getClass().getName(), message.getClass().getName());
             receive(message);
@@ -99,6 +107,10 @@ public abstract class AbstractWorker extends UntypedActor {
     public void tell(AbstractWorkerProvider targetWorkerProvider, WorkerSelector selector, Object message) throws Throwable {
         List<WorkerRef> availableWorks = WorkersRefCenter.INSTANCE.availableWorks(targetWorkerProvider.roleName());
         selector.select(availableWorks, message).tell(message, getSelf());
+    }
+
+    public void tell(AbstractMember targetMember, Object message) throws Exception {
+        targetMember.beTold(message);
     }
 
     /**

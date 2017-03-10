@@ -23,8 +23,8 @@ import org.junit.Test;
  */
 public class StartUpTestCase {
 
-    @Test
     public void test() throws Exception {
+        System.out.println(TraceSegmentReceiver.class.getSimpleName());
         ClusterConfigInitializer.initialize("collector.config");
         System.out.println(ClusterConfig.Cluster.Current.roles);
 

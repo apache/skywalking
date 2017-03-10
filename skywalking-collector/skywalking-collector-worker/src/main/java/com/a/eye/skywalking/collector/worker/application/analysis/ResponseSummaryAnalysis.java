@@ -7,12 +7,11 @@ import com.a.eye.skywalking.collector.queue.MessageHolder;
 import com.a.eye.skywalking.collector.worker.MetricAnalysisMember;
 import com.a.eye.skywalking.collector.worker.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.application.receiver.ResponseSummaryReceiver;
-import com.a.eye.skywalking.collector.worker.storage.MetricPersistenceData;
+import com.a.eye.skywalking.collector.worker.storage.AbstractTimeSlice;
+import com.a.eye.skywalking.collector.worker.storage.MetricData;
 import com.lmax.disruptor.RingBuffer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.io.Serializable;
 
 /**
  * @author pengys5
@@ -29,16 +28,16 @@ public class ResponseSummaryAnalysis extends MetricAnalysisMember {
     public void analyse(Object message) throws Exception {
         if (message instanceof Metric) {
             Metric metric = (Metric) message;
-
-            setMetric(metric.code, metric.second, 1L);
+            String id = metric.getMinute() + "-" + metric.code;
+            setMetric(id, metric.getSecond(), 1L);
 //            logger.debug("response summary metric: %s", data.toString());
         }
     }
 
     @Override
     protected void aggregation() throws Exception {
-        MetricPersistenceData oneMetric;
-        while ((oneMetric = pushOneMetric()) != null) {
+        MetricData oneMetric;
+        while ((oneMetric = pushOne()) != null) {
             tell(ResponseSummaryReceiver.Factory.INSTANCE, HashCodeSelector.INSTANCE, oneMetric);
         }
     }
@@ -57,14 +56,13 @@ public class ResponseSummaryAnalysis extends MetricAnalysisMember {
         }
     }
 
-    public static class Metric implements Serializable {
+    public static class Metric extends AbstractTimeSlice {
         private final String code;
-        private final int second;
         private final Boolean isError;
 
-        public Metric(String code, int second, Boolean isError) {
+        public Metric(long minute, int second, String code, Boolean isError) {
+            super(minute, second);
             this.code = code;
-            this.second = second;
             this.isError = isError;
         }
     }
