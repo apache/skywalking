@@ -2,9 +2,11 @@ package com.a.eye.skywalking.sniffer.mock.trace;
 
 import com.a.eye.skywalking.api.context.TracerContext;
 import com.a.eye.skywalking.sniffer.mock.context.MockTracerContextListener;
+import com.a.eye.skywalking.sniffer.mock.trace.builders.trace.DubboServerMysqlTraceBuilder;
 import com.a.eye.skywalking.sniffer.mock.trace.builders.trace.SingleTomcat200TraceBuilder;
 import com.a.eye.skywalking.sniffer.mock.trace.builders.trace.SingleTomcat404TraceBuilder;
 import com.a.eye.skywalking.sniffer.mock.trace.builders.trace.SingleTomcat500TraceBuilder;
+import com.a.eye.skywalking.sniffer.mock.trace.builders.trace.TomcatDubboClientTraceBuilder;
 import com.a.eye.skywalking.trace.TraceSegment;
 
 /**
@@ -19,7 +21,6 @@ public enum TraceSegmentBuilderFactory {
     /**
      * @see {@link SingleTomcat200TraceBuilder}
      *
-     * @return
      */
     public TraceSegment singleTomcat200Trace(){
        return this.build(SingleTomcat200TraceBuilder.INSTANCE);
@@ -28,7 +29,6 @@ public enum TraceSegmentBuilderFactory {
     /**
      * @see {@link SingleTomcat404TraceBuilder}
      *
-     * @return
      */
     public TraceSegment singleTomcat404Trace(){
         return this.build(SingleTomcat404TraceBuilder.INSTANCE);
@@ -37,10 +37,23 @@ public enum TraceSegmentBuilderFactory {
     /**
      * @see {@link SingleTomcat500TraceBuilder}
      *
-     * @return
      */
     public TraceSegment singleTomcat500Trace(){
         return this.build(SingleTomcat500TraceBuilder.INSTANCE);
+    }
+
+    /**
+     * @see {@link TomcatDubboClientTraceBuilder}
+     */
+    public TraceSegment traceOf_Tomcat_DubboClient(){
+        return this.build(TomcatDubboClientTraceBuilder.INSTANCE);
+    }
+
+    /**
+     * @see {@link DubboServerMysqlTraceBuilder}
+     */
+    public TraceSegment traceOf_DubboServer_MySQL() {
+        return this.build(DubboServerMysqlTraceBuilder.INSTANCE);
     }
 
     private TraceSegment build(TraceSegmentBuilder builder){

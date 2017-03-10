@@ -4,12 +4,16 @@ import com.a.eye.skywalking.trace.Span;
 
 /**
  * Do the same thing as {@link StringTag}, just with a {@link Boolean} value.
- *
+ * <p>
  * Created by wusheng on 2017/2/17.
  */
 public class BooleanTag extends AbstractTag<Boolean> {
-    public BooleanTag(String key) {
+
+    private boolean defaultValue;
+
+    public BooleanTag(String key, boolean defaultValue) {
         super(key);
+        this.defaultValue = defaultValue;
     }
 
     @Override
@@ -28,9 +32,9 @@ public class BooleanTag extends AbstractTag<Boolean> {
     public Boolean get(Span span) {
         Object tagValue = span.getTag(super.key);
         if (tagValue == null) {
-            return null;
+            return defaultValue;
         } else if (tagValue instanceof Boolean) {
-            return (Boolean)tagValue;
+            return (Boolean) tagValue;
         } else {
             return Boolean.valueOf(tagValue.toString());
         }
