@@ -1,43 +1,51 @@
 package com.a.eye.skywalking.plugin.jdbc;
 
-import com.a.eye.skywalking.model.Identification;
-import com.a.eye.skywalking.invoke.monitor.RPCClientInvokeMonitor;
-import com.a.eye.skywalking.plugin.jdbc.define.JDBCBuriedPointType;
+import com.a.eye.skywalking.api.context.ContextManager;
+import com.a.eye.skywalking.api.util.StringUtil;
+import com.a.eye.skywalking.trace.Span;
+import com.a.eye.skywalking.trace.tag.Tags;
 
 import java.sql.SQLException;
 
 /**
- * 连接级追踪，用于追踪用于Connection的操作追踪
- * 
- * @author wusheng
+ * {@link PreparedStatementTracing} create span with the {@link Span#operationName} start with
+ * "JDBC/PreparedStatement/"and set {@link ConnectionInfo#dbType} to the {@link Tags#COMPONENT}.
  *
+ * Notice: {@link Tags#PEERS} may be is null if database connection url don't contain multiple hosts.
+ *
+ * @author zhangxin
  */
 public class PreparedStatementTracing {
-	private static RPCClientInvokeMonitor rpcClientInvokeMonitor = new RPCClientInvokeMonitor();
 
-	public static <R> R execute(java.sql.PreparedStatement realStatement,
-			String connectInfo, String method, String sql, Executable<R> exec)
-			throws SQLException {
-		try {
-			rpcClientInvokeMonitor.beforeInvoke(Identification
-					.newBuilder()
-					.viewPoint(connectInfo)
-					.businessKey(
-							"preaparedStatement."
-									+ method
-									+ (sql == null || sql.length() == 0 ? ""
-											: ":" + sql)).spanType(JDBCBuriedPointType.INSTANCE).build());
-			return exec.exe(realStatement, sql);
-		} catch (SQLException e) {
-			rpcClientInvokeMonitor.occurException(e);
-			throw e;
-		} finally {
-			rpcClientInvokeMonitor.afterInvoke();
-		}
-	}
+    public static <R> R execute(java.sql.PreparedStatement realStatement,
+                                ConnectionInfo connectInfo, String method, String sql, Executable<R> exec)
+            throws SQLException {
+        try {
+            Span span = ContextManager.INSTANCE.createSpan("JDBC/PreparedStatement/" + method);
+            Tags.DB_TYPE.set(span, "sql");
+            Tags.DB_INSTANCE.set(span, connectInfo.getDatabaseName());
+            Tags.DB_STATEMENT.set(span, sql);
+            Tags.COMPONENT.set(span, connectInfo.getDBType());
+            if (!StringUtil.isEmpty(connectInfo.getHosts())) {
+                Tags.PEERS.set(span, connectInfo.getHosts());
+            } else {
+                Tags.PEER_PORT.set(span, connectInfo.getPort());
+                Tags.PEER_HOST.set(span, connectInfo.getHost());
+            }
+            Tags.SPAN_LAYER.asDB(span);
+            return exec.exe(realStatement, sql);
+        } catch (SQLException e) {
+            Span span = ContextManager.INSTANCE.activeSpan();
+            Tags.ERROR.set(span, true);
+            span.log(e);
+            throw e;
+        } finally {
+            ContextManager.INSTANCE.stopSpan();
+        }
+    }
 
-	public interface Executable<R> {
-		public R exe(java.sql.PreparedStatement realConnection, String sql)
-				throws SQLException;
-	}
+    public interface Executable<R> {
+        R exe(java.sql.PreparedStatement realConnection, String sql)
+                throws SQLException;
+    }
 }

@@ -11,11 +11,11 @@ import java.util.Map;
 public class SWCallableStatement implements CallableStatement {
     private Connection realConnection;
     private CallableStatement realStatement;
-    private String connectInfo;
+    private ConnectionInfo connectInfo;
     private String sql;
 
     SWCallableStatement(Connection realConnection,
-                        CallableStatement realStatement, String connectInfo,
+                        CallableStatement realStatement, ConnectionInfo connectInfo,
                         String sql) {
         this.realConnection = realConnection;
         this.realStatement = realStatement;

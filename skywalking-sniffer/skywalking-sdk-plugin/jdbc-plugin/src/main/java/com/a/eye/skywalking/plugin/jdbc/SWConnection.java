@@ -1,19 +1,33 @@
 package com.a.eye.skywalking.plugin.jdbc;
 
-import java.sql.*;
+import com.a.eye.skywalking.plugin.jdbc.connectionurl.parser.URLParser;
+
+import java.sql.Array;
+import java.sql.Blob;
+import java.sql.CallableStatement;
+import java.sql.Clob;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.NClob;
+import java.sql.PreparedStatement;
+import java.sql.SQLClientInfoException;
+import java.sql.SQLException;
+import java.sql.SQLWarning;
+import java.sql.SQLXML;
+import java.sql.Savepoint;
+import java.sql.Statement;
+import java.sql.Struct;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 
-public class SWConnection implements java.sql.Connection {
-    private String connectInfo;
+public class SWConnection implements Connection {
+    private ConnectionInfo connectInfo;
+    private final Connection realConnection;
 
-    private final java.sql.Connection realConnection;
-
-    public SWConnection(String url, Properties info,
-                        java.sql.Connection realConnection) {
+    public SWConnection(String url, Properties info, Connection realConnection) {
         super();
-        this.connectInfo = url + "(" + info.getProperty("user") + ")";
+        this.connectInfo = URLParser.parser(url);
         this.realConnection = realConnection;
     }
 
@@ -300,5 +314,6 @@ public class SWConnection implements java.sql.Connection {
     public int getNetworkTimeout() throws SQLException {
         return realConnection.getNetworkTimeout();
     }
+
 
 }

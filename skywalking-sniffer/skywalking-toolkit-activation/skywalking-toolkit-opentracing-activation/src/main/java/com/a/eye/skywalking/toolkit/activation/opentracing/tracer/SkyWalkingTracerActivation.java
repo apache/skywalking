@@ -1,14 +1,14 @@
 package com.a.eye.skywalking.toolkit.activation.opentracing.tracer;
 
-import com.a.eye.skywalking.plugin.interceptor.ConstructorInterceptPoint;
-import com.a.eye.skywalking.plugin.interceptor.InstanceMethodsInterceptPoint;
-import com.a.eye.skywalking.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
+import com.a.eye.skywalking.api.plugin.interceptor.ConstructorInterceptPoint;
+import com.a.eye.skywalking.api.plugin.interceptor.InstanceMethodsInterceptPoint;
+import com.a.eye.skywalking.api.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 
 import java.nio.ByteBuffer;
 
-import static com.a.eye.skywalking.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
+import static com.a.eye.skywalking.api.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArgument;
 

@@ -9,9 +9,9 @@ import java.sql.SQLWarning;
 public class SWStatement implements java.sql.Statement {
     private Connection realConnection;
     private java.sql.Statement realStatement;
-    private String connectInfo;
+    private ConnectionInfo connectInfo;
 
-    SWStatement(Connection realConnection, java.sql.Statement realStatement, String connectInfo) {
+    SWStatement(Connection realConnection, java.sql.Statement realStatement, ConnectionInfo connectInfo) {
         this.realConnection = realConnection;
         this.realStatement = realStatement;
         this.connectInfo = connectInfo;

@@ -10,11 +10,11 @@ import java.util.Calendar;
 public class SWPreparedStatement implements PreparedStatement {
     private Connection realConnection;
     private PreparedStatement realStatement;
-    private String connectInfo;
+    private ConnectionInfo connectInfo;
     private String sql;
 
     SWPreparedStatement(Connection realConnection,
-                        PreparedStatement realStatement, String connectInfo,
+                        PreparedStatement realStatement, ConnectionInfo connectInfo,
                         String sql) {
         this.realConnection = realConnection;
         this.realStatement = realStatement;

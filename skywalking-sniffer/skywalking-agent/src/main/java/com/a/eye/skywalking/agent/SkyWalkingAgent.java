@@ -1,15 +1,16 @@
 package com.a.eye.skywalking.agent;
 
 import com.a.eye.skywalking.agent.junction.SkyWalkingEnhanceMatcher;
-import com.a.eye.skywalking.conf.Config;
-import com.a.eye.skywalking.conf.SnifferConfigInitializer;
-import com.a.eye.skywalking.logging.EasyLogResolver;
-import com.a.eye.skywalking.logging.api.ILog;
-import com.a.eye.skywalking.logging.api.LogManager;
-import com.a.eye.skywalking.plugin.AbstractClassEnhancePluginDefine;
-import com.a.eye.skywalking.plugin.PluginBootstrap;
-import com.a.eye.skywalking.plugin.PluginDefineCategory;
-import com.a.eye.skywalking.plugin.PluginException;
+import com.a.eye.skywalking.api.conf.Config;
+import com.a.eye.skywalking.api.conf.SnifferConfigInitializer;
+import com.a.eye.skywalking.api.logging.EasyLogResolver;
+import com.a.eye.skywalking.api.logging.ILog;
+import com.a.eye.skywalking.api.logging.LogManager;
+import com.a.eye.skywalking.api.plugin.AbstractClassEnhancePluginDefine;
+import com.a.eye.skywalking.api.plugin.PluginBootstrap;
+import com.a.eye.skywalking.api.plugin.PluginFinder;
+import com.a.eye.skywalking.api.plugin.PluginException;
+
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.description.NamedElement;
 import net.bytebuddy.description.type.TypeDescription;
@@ -25,8 +26,8 @@ import static net.bytebuddy.matcher.ElementMatchers.isInterface;
 import static net.bytebuddy.matcher.ElementMatchers.not;
 
 /**
- * The main entrance of sky-waking agent.
- * It bases on javaagent mechanism.
+ * The main entrance of sky-waking agent,
+ * based on javaagent mechanism.
  *
  * @author wusheng
  */
@@ -50,11 +51,11 @@ public class SkyWalkingAgent {
 
         initConfig();
 
-        final PluginDefineCategory pluginDefineCategory = PluginDefineCategory.category(new PluginBootstrap().loadPlugins());
+        final PluginFinder pluginFinder = new PluginFinder(new PluginBootstrap().loadPlugins());
 
-        new AgentBuilder.Default().type(enhanceClassMatcher(pluginDefineCategory).and(not(isInterface()))).transform(new AgentBuilder.Transformer() {
+        new AgentBuilder.Default().type(enhanceClassMatcher(pluginFinder).and(not(isInterface()))).transform(new AgentBuilder.Transformer() {
             public DynamicType.Builder<?> transform(DynamicType.Builder<?> builder, TypeDescription typeDescription, ClassLoader classLoader) {
-                AbstractClassEnhancePluginDefine pluginDefine = pluginDefineCategory.findPluginDefine(typeDescription.getTypeName());
+                AbstractClassEnhancePluginDefine pluginDefine = pluginFinder.find(typeDescription.getTypeName());
                 return pluginDefine.define(typeDescription.getTypeName(), builder);
             }
         }).with(new AgentBuilder.Listener() {
@@ -81,12 +82,12 @@ public class SkyWalkingAgent {
     /**
      * Get the enhance target classes matcher.
      *
-     * @param pluginDefineCategory
+     * @param pluginFinder
      * @param <T>
      * @return class matcher.
      */
-    private static <T extends NamedElement> ElementMatcher.Junction<T> enhanceClassMatcher(PluginDefineCategory pluginDefineCategory) {
-        return new SkyWalkingEnhanceMatcher<T>(pluginDefineCategory);
+    private static <T extends NamedElement> ElementMatcher.Junction<T> enhanceClassMatcher(PluginFinder pluginFinder) {
+        return new SkyWalkingEnhanceMatcher<T>(pluginFinder);
     }
 
     private static String generateLocationPath() {

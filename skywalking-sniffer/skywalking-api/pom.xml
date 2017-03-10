@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.a.eye</groupId>
         <artifactId>skywalking-sniffer</artifactId>
-        <version>2.2-2017</version>
+        <version>3.0-2017</version>
     </parent>
 
 
@@ -20,7 +20,6 @@
     </properties>
 
     <dependencies>
-
         <dependency>
             <groupId>net.bytebuddy</groupId>
             <artifactId>byte-buddy</artifactId>
@@ -28,48 +27,13 @@
         </dependency>
         <dependency>
             <groupId>com.a.eye</groupId>
-            <artifactId>skywalking-network</artifactId>
-            <version>2.2-2017</version>
-        </dependency>
-        <dependency>
-            <groupId>com.lmax</groupId>
-            <artifactId>disruptor</artifactId>
-            <version>3.3.6</version>
-        </dependency>
-        <dependency>
-            <groupId>com.a.eye</groupId>
-            <artifactId>skywalking-health-report</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.a.eye</groupId>
-            <artifactId>skywalking-logging-api</artifactId>
+            <artifactId>skywalking-trace</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.lmax</groupId>
             <artifactId>disruptor</artifactId>
             <version>3.3.6</version>
-        </dependency>
-
-        <!-- test dependencies section -->
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.11</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-api-mockito</artifactId>
-            <version>1.6.5</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-module-junit4</artifactId>
-            <version>1.6.5</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
     <build>
