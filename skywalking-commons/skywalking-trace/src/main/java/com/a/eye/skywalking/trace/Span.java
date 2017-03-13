@@ -270,6 +270,7 @@ public class Span implements ISerializable<SpanMessage> {
     public SpanMessage serialize() {
         SpanMessage.Builder builder = SpanMessage.newBuilder();
         builder.setSpanId(spanId);
+        builder.setParentSpanId(parentSpanId);
         builder.setStartTime(startTime);
         builder.setEndTime(endTime);
         builder.setOperationName(operationName);
@@ -292,6 +293,7 @@ public class Span implements ISerializable<SpanMessage> {
     @Override
     public void deserialize(SpanMessage message) {
         spanId = message.getSpanId();
+        parentSpanId = message.getParentSpanId();
         startTime = message.getStartTime();
         endTime = message.getEndTime();
         operationName = message.getOperationName();

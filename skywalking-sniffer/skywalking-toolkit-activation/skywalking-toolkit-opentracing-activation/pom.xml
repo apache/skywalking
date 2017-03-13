@@ -21,6 +21,7 @@
             <groupId>com.a.eye</groupId>
             <artifactId>skywalking-toolkit-opentracing</artifactId>
             <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

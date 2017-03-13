@@ -1,16 +1,23 @@
 package com.a.eye.skywalking.sniffer.mock;
 
+import com.a.eye.skywalking.api.boot.ServiceStarter;
 import com.a.eye.skywalking.sniffer.mock.context.MockTracerContextListener;
 import com.a.eye.skywalking.sniffer.mock.context.SegmentAssert;
 import com.a.eye.skywalking.sniffer.mock.trace.TraceSegmentBuilderFactory;
 import com.a.eye.skywalking.trace.TraceSegment;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
  * Created by wusheng on 2017/2/21.
  */
 public class MockTracerContextListenerTestCase {
+    @BeforeClass
+    public static void setup(){
+        ServiceStarter.INSTANCE.boot();
+    }
+
     @Test
     public void testAfterFinished(){
         MockTracerContextListener listener = new MockTracerContextListener();
@@ -48,5 +55,19 @@ public class MockTracerContextListenerTestCase {
 
         listener.clear();
         listener.assertValidIndex(0);
+    }
+
+    @Test
+    public void testTraceOf_Tomcat_DubboClient(){
+        TraceSegment segment = TraceSegmentBuilderFactory.INSTANCE.traceOf_Tomcat_DubboClient();
+
+        Assert.assertEquals(2, segment.getSpans().size());
+    }
+
+    @Test
+    public void testTraceOf_DubboServer_MySQL(){
+        TraceSegment segment = TraceSegmentBuilderFactory.INSTANCE.traceOf_DubboServer_MySQL();
+
+        Assert.assertEquals(2, segment.getSpans().size());
     }
 }

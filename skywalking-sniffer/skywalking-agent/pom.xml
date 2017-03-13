@@ -16,13 +16,24 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <shade.package>com.a.eye.skywalking.api.dependencies</shade.package>
+        <shade.package>com.a.eye.skywalking.dependencies</shade.package>
         <premain.class>com.a.eye.skywalking.agent.SkyWalkingAgent</premain.class>
         <shade.net.bytebuddy.source>net.bytebuddy</shade.net.bytebuddy.source>
         <shade.net.bytebuddy.target>${shade.package}.${shade.net.bytebuddy.source}</shade.net.bytebuddy.target>
-        <!-- queue -->
         <shade.com.lmax.disruptor.source>com.lmax.disruptor</shade.com.lmax.disruptor.source>
         <shade.com.lmax.disruptor.target>${shade.package}.${shade.com.lmax.disruptor.source}</shade.com.lmax.disruptor.target>
+        <shade.akka.source>akka</shade.akka.source>
+        <shade.akka.target>${shade.package}.${shade.akka.source}</shade.akka.target>
+        <shade.scala.source>scala</shade.scala.source>
+        <shade.scala.target>${shade.package}.${shade.scala.source}</shade.scala.target>
+        <shade.all.org.source>org</shade.all.org.source>
+        <shade.all.org.target>${shade.package}.${shade.all.org.source}</shade.all.org.target>
+        <shade.com.google.source>com.google</shade.com.google.source>
+        <shade.com.google.target>${shade.package}.${shade.com.google.source}</shade.com.google.target>
+        <shade.io.aeron.source>io.aeron</shade.io.aeron.source>
+        <shade.io.aeron.target>${shade.package}.${shade.io.aeron.source}</shade.io.aeron.target>
+        <shade.com.typesafe.source>com.typesafe</shade.com.typesafe.source>
+        <shade.com.typesafe.target>${shade.package}.${shade.com.typesafe.source}</shade.com.typesafe.target>
     </properties>
 
     <dependencies>
@@ -126,6 +137,30 @@
                                 <relocation>
                                     <pattern>${shade.com.lmax.disruptor.source}</pattern>
                                     <shadedPattern>${shade.com.lmax.disruptor.target}</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>${shade.akka.source}</pattern>
+                                    <shadedPattern>${shade.akka.target}</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>${shade.com.google.source}</pattern>
+                                    <shadedPattern>${shade.com.google.target}</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>${shade.all.org.source}</pattern>
+                                    <shadedPattern>${shade.all.org.target}</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>${shade.scala.source}</pattern>
+                                    <shadedPattern>${shade.scala.target}</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>${shade.io.aeron.source}</pattern>
+                                    <shadedPattern>${shade.io.aeron.target}</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>${shade.com.typesafe.source}</pattern>
+                                    <shadedPattern>${shade.com.typesafe.target}</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>

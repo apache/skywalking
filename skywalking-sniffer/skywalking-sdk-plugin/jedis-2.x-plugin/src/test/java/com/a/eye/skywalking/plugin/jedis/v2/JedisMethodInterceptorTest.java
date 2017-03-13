@@ -1,5 +1,6 @@
 package com.a.eye.skywalking.plugin.jedis.v2;
 
+import com.a.eye.skywalking.api.boot.ServiceStarter;
 import com.a.eye.skywalking.api.context.TracerContext;
 import com.a.eye.skywalking.api.plugin.interceptor.EnhancedClassInstanceContext;
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.InstanceMethodInvokeContext;
@@ -46,6 +47,8 @@ public class JedisMethodInterceptorTest {
 
     @Before
     public void setUp() throws Exception {
+        ServiceStarter.INSTANCE.boot();
+
         interceptor = new JedisMethodInterceptor();
         mockTracerContextListener = new MockTracerContextListener();
 

@@ -1,5 +1,6 @@
 package com.a.eye.skywalking.api.queue;
 
+import com.a.eye.skywalking.api.boot.StatusBootService;
 import com.a.eye.skywalking.api.conf.Config;
 import com.a.eye.skywalking.api.context.TracerContext;
 import com.a.eye.skywalking.api.context.TracerContextListener;
@@ -15,9 +16,24 @@ import com.lmax.disruptor.util.DaemonThreadFactory;
  *
  * Created by wusheng on 2017/2/17.
  */
-public enum TraceSegmentProcessQueue implements TracerContextListener {
-    INSTANCE {
-        @Override public void afterFinished(TraceSegment traceSegment) {
+public class TraceSegmentProcessQueue extends StatusBootService implements TracerContextListener {
+    private Disruptor<TraceSegmentHolder> disruptor;
+    private RingBuffer<TraceSegmentHolder> buffer;
+
+    public TraceSegmentProcessQueue() {
+        disruptor = new Disruptor<>(TraceSegmentHolder.Factory.INSTANCE, Config.Disruptor.BUFFER_SIZE, DaemonThreadFactory.INSTANCE);
+        buffer = disruptor.getRingBuffer();
+    }
+
+    @Override
+    protected void bootUpWithStatus() {
+        TracerContext.ListenerManager.add(this);
+        disruptor.start();
+    }
+
+    @Override
+    public void afterFinished(TraceSegment traceSegment) {
+        if(isStarted()) {
             long sequence = this.buffer.next();  // Grab the next sequence
             try {
                 TraceSegmentHolder data = this.buffer.get(sequence);
@@ -26,19 +42,5 @@ public enum TraceSegmentProcessQueue implements TracerContextListener {
                 this.buffer.publish(sequence);
             }
         }
-    };
-
-    private Disruptor<TraceSegmentHolder> disruptor;
-    RingBuffer<TraceSegmentHolder> buffer;
-
-    TraceSegmentProcessQueue() {
-        disruptor = new Disruptor<>(TraceSegmentHolder.Factory.INSTANCE, Config.Disruptor.BUFFER_SIZE, DaemonThreadFactory.INSTANCE);
-        buffer = disruptor.getRingBuffer();
-    }
-
-    public void start() {
-        TracerContext.ListenerManager.add(this);
-        disruptor.start();
-
     }
 }

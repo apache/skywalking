@@ -1,5 +1,6 @@
 package com.a.eye.skywalking.plugin.tomcat78x;
 
+import com.a.eye.skywalking.api.boot.ServiceStarter;
 import com.a.eye.skywalking.api.context.TracerContext;
 import com.a.eye.skywalking.api.plugin.interceptor.EnhancedClassInstanceContext;
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.InstanceMethodInvokeContext;
@@ -48,6 +49,9 @@ public class TomcatInterceptorTest {
 
     @Before
     public void setUp() throws Exception {
+
+        ServiceStarter.INSTANCE.boot();
+
         tomcatInterceptor = new TomcatInterceptor();
         contextListener = new MockTracerContextListener();
 

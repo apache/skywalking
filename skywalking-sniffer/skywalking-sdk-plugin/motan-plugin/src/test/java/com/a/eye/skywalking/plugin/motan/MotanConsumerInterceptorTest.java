@@ -1,5 +1,6 @@
 package com.a.eye.skywalking.plugin.motan;
 
+import com.a.eye.skywalking.api.boot.ServiceStarter;
 import com.a.eye.skywalking.api.context.TracerContext;
 import com.a.eye.skywalking.api.plugin.interceptor.EnhancedClassInstanceContext;
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.InstanceMethodInvokeContext;
@@ -51,6 +52,8 @@ public class MotanConsumerInterceptorTest {
 
     @Before
     public void setUp() {
+        ServiceStarter.INSTANCE.boot();
+
         contextListener = new MockTracerContextListener();
         invokeInterceptor = new MotanConsumerInterceptor();
         url = URL.valueOf("motan://127.0.0.1:34000/com.a.eye.skywalking.test.TestService");

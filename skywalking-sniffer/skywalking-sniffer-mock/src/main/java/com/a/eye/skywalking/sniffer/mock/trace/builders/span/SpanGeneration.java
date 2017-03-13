@@ -1,18 +1,20 @@
 package com.a.eye.skywalking.sniffer.mock.trace.builders.span;
 
 /**
- * Created by wusheng on 2017/2/28.
+ * The <code>SpanGeneration</code> implementations can generate several kinds of spans.
+ *
+ * @author wusheng
  */
 public abstract class SpanGeneration {
-    private SpanGeneration next;
+    private SpanGeneration[] next;
 
     public SpanGeneration build(SpanGeneration next){
-        this.next = next;
+        this.next = new SpanGeneration[]{next};
         return next;
     }
 
-    public SpanGeneration build(){
-        return this;
+    public void build(SpanGeneration... next){
+        this.next = next;
     }
 
     protected abstract void before();
@@ -22,7 +24,9 @@ public abstract class SpanGeneration {
     public void generate(){
         this.before();
         if(next != null){
-            next.generate();
+            for (SpanGeneration generation : next) {
+                generation.generate();
+            }
         }
         this.after();
     }

@@ -22,9 +22,9 @@ public class SpanFinishInterceptor implements InstanceMethodsAroundInterceptor {
         Object[] allArguments = interceptorContext.allArguments();
 
         if(allArguments.length == 1) {
-            ContextManager.INSTANCE.stopSpan(((Long)allArguments[0]));
+            ContextManager.stopSpan(((Long)allArguments[0]));
         }else{
-            ContextManager.INSTANCE.stopSpan();
+            ContextManager.stopSpan();
         }
 
         return ret;

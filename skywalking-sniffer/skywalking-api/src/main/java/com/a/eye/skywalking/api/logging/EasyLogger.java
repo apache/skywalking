@@ -1,6 +1,7 @@
 package com.a.eye.skywalking.api.logging;
 
 
+import com.a.eye.skywalking.logging.ILog;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;

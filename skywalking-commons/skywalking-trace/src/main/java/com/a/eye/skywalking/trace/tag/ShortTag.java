@@ -26,7 +26,9 @@ public class ShortTag extends AbstractTag<Short> {
      */
     @Override public Short get(Span span) {
         Object tagValue = span.getTag(super.key);
-        if(tagValue instanceof Short){
+        if (tagValue == null) {
+            return null;
+        } else if(tagValue instanceof Short){
             return (Short)tagValue;
         }else {
             return Short.valueOf(tagValue.toString());
