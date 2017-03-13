@@ -9,6 +9,6 @@ package com.a.eye.skywalking.plugin.jdbc.define;
 public class OracleInstrumentation extends AbstractDatabaseInstrumentation {
     @Override
     protected String enhanceClassName() {
-        return "oracle.jdbc.OracleDriver";
+        return "oracle.jdbc.driver.OracleDriver";
     }
 }
