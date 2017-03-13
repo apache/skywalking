@@ -55,10 +55,10 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
         Tags.URL.set(span, generateRequestURL(requestURL, invocation));
         Tags.COMPONENT.set(span, DUBBO_COMPONENT);
         Tags.SPAN_LAYER.asRPCFramework(span);
+        Tags.PEER_HOST.set(span, requestURL.getHost());
+        Tags.PEER_PORT.set(span, requestURL.getPort());
 
         if (isConsumer) {
-            Tags.PEER_HOST.set(span, requestURL.getHost());
-            Tags.PEER_PORT.set(span, requestURL.getPort());
             Tags.SPAN_KIND.set(span, Tags.SPAN_KIND_CLIENT);
             ContextCarrier contextCarrier = new ContextCarrier();
             ContextManager.inject(contextCarrier);

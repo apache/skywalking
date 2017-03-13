@@ -465,7 +465,7 @@ public class SWCallableStatementTest extends AbstractStatementTest {
             public void call(TraceSegment traceSegment) {
                 assertThat(traceSegment.getSpans().size(), is(1));
                 Span span = traceSegment.getSpans().get(0);
-                assertDBSpan(span, "JDBC/CallableStatement/executeQuery", "SELECT * FROM test");
+                assertDBSpan(span, "Mysql/JDBI/CallableStatement/executeQuery", "SELECT * FROM test");
             }
         });
     }
@@ -486,7 +486,7 @@ public class SWCallableStatementTest extends AbstractStatementTest {
             public void call(TraceSegment traceSegment) {
                 assertThat(traceSegment.getSpans().size(), is(1));
                 Span span = traceSegment.getSpans().get(0);
-                assertDBSpan(span, "JDBC/CallableStatement/executeQuery", "SELECT * FROM test");
+                assertDBSpan(span, "Mysql/JDBI/CallableStatement/executeQuery", "SELECT * FROM test");
             }
         });
     }
@@ -505,7 +505,7 @@ public class SWCallableStatementTest extends AbstractStatementTest {
             public void call(TraceSegment traceSegment) {
                 assertThat(traceSegment.getSpans().size(), is(1));
                 Span span = traceSegment.getSpans().get(0);
-                assertDBSpan(span, "JDBC/CallableStatement/execute", "INSERT INTO test VALUES(1)");
+                assertDBSpan(span, "Mysql/JDBI/CallableStatement/execute", "INSERT INTO test VALUES(1)");
             }
         });
     }
@@ -523,7 +523,7 @@ public class SWCallableStatementTest extends AbstractStatementTest {
             public void call(TraceSegment traceSegment) {
                 assertThat(traceSegment.getSpans().size(), is(1));
                 Span span = traceSegment.getSpans().get(0);
-                assertDBSpan(span, "JDBC/CallableStatement/execute", "INSERT INTO test VALUES(1)");
+                assertDBSpan(span, "Mysql/JDBI/CallableStatement/execute", "INSERT INTO test VALUES(1)");
             }
         });
     }
@@ -541,7 +541,7 @@ public class SWCallableStatementTest extends AbstractStatementTest {
             public void call(TraceSegment traceSegment) {
                 assertThat(traceSegment.getSpans().size(), is(1));
                 Span span = traceSegment.getSpans().get(0);
-                assertDBSpan(span, "JDBC/CallableStatement/execute", "INSERT INTO test VALUES(1)");
+                assertDBSpan(span, "Mysql/JDBI/CallableStatement/execute", "INSERT INTO test VALUES(1)");
             }
         });
     }
@@ -562,7 +562,7 @@ public class SWCallableStatementTest extends AbstractStatementTest {
             public void call(TraceSegment traceSegment) {
                 assertThat(traceSegment.getSpans().size(), is(1));
                 Span span = traceSegment.getSpans().get(0);
-                assertDBSpan(span, "JDBC/CallableStatement/execute", "UPDATE test SET  a = 1");
+                assertDBSpan(span, "Mysql/JDBI/CallableStatement/execute", "UPDATE test SET  a = 1");
             }
         });
     }
@@ -583,7 +583,7 @@ public class SWCallableStatementTest extends AbstractStatementTest {
             public void call(TraceSegment traceSegment) {
                 assertThat(traceSegment.getSpans().size(), is(1));
                 Span span = traceSegment.getSpans().get(0);
-                assertDBSpan(span, "JDBC/CallableStatement/executeUpdate", "UPDATE test SET  a = ?");
+                assertDBSpan(span, "Mysql/JDBI/CallableStatement/executeUpdate", "UPDATE test SET  a = ?");
             }
         });
     }
@@ -604,7 +604,7 @@ public class SWCallableStatementTest extends AbstractStatementTest {
             public void call(TraceSegment traceSegment) {
                 assertThat(traceSegment.getSpans().size(), is(1));
                 Span span = traceSegment.getSpans().get(0);
-                assertDBSpan(span, "JDBC/CallableStatement/executeUpdate", "UPDATE test SET  a = 1");
+                assertDBSpan(span, "Mysql/JDBI/CallableStatement/executeUpdate", "UPDATE test SET  a = 1");
             }
         });
     }
@@ -624,7 +624,7 @@ public class SWCallableStatementTest extends AbstractStatementTest {
             public void call(TraceSegment traceSegment) {
                 assertThat(traceSegment.getSpans().size(), is(1));
                 Span span = traceSegment.getSpans().get(0);
-                assertDBSpan(span, "JDBC/CallableStatement/executeUpdate", "UPDATE test SET  a = 1");
+                assertDBSpan(span, "Mysql/JDBI/CallableStatement/executeUpdate", "UPDATE test SET  a = 1");
             }
         });
     }
@@ -644,7 +644,7 @@ public class SWCallableStatementTest extends AbstractStatementTest {
             public void call(TraceSegment traceSegment) {
                 assertThat(traceSegment.getSpans().size(), is(1));
                 Span span = traceSegment.getSpans().get(0);
-                assertDBSpan(span, "JDBC/CallableStatement/executeUpdate", "UPDATE test SET  a = 1");
+                assertDBSpan(span, "Mysql/JDBI/CallableStatement/executeUpdate", "UPDATE test SET  a = 1");
             }
         });
     }
@@ -664,7 +664,7 @@ public class SWCallableStatementTest extends AbstractStatementTest {
             public void call(TraceSegment traceSegment) {
                 assertThat(traceSegment.getSpans().size(), is(1));
                 Span span = traceSegment.getSpans().get(0);
-                assertDBSpan(span, "JDBC/CallableStatement/executeUpdate", "UPDATE test SET  a = 1");
+                assertDBSpan(span, "Mysql/JDBI/CallableStatement/executeUpdate", "UPDATE test SET  a = 1");
             }
         });
     }
@@ -689,7 +689,7 @@ public class SWCallableStatementTest extends AbstractStatementTest {
             public void call(TraceSegment traceSegment) {
                 assertThat(traceSegment.getSpans().size(), is(1));
                 Span span = traceSegment.getSpans().get(0);
-                assertDBSpan(span, "JDBC/CallableStatement/executeBatch", "");
+                assertDBSpan(span, "Mysql/JDBI/CallableStatement/executeBatch", "");
             }
         });
     }
@@ -738,7 +738,7 @@ public class SWCallableStatementTest extends AbstractStatementTest {
                 public void call(TraceSegment traceSegment) {
                     assertThat(traceSegment.getSpans().size(), is(1));
                     Span span = traceSegment.getSpans().get(0);
-                    assertDBSpan(span, "JDBC/CallableStatement/executeQuery", "SELECT * FROM test WHERE a = ? or b = ? or c=? or d = ? or e=?");
+                    assertDBSpan(span, "Mysql/JDBI/CallableStatement/executeQuery", "SELECT * FROM test WHERE a = ? or b = ? or c=? or d = ? or e=?");
                     assertThat(span.getLogs().size(), is(1));
                     assertDBSpanLog(span.getLogs().get(0));
                 }

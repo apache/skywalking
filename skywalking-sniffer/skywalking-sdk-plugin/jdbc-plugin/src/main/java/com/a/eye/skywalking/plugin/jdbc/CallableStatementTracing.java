@@ -22,7 +22,7 @@ public class CallableStatementTracing {
                                 ConnectionInfo connectInfo, String method, String sql, Executable<R> exec)
             throws SQLException {
         try {
-            Span span = ContextManager.createSpan("JDBC/CallableStatement/" + method);
+            Span span = ContextManager.createSpan(connectInfo.getDBType() + "/JDBI/CallableStatement/" + method);
             Tags.DB_TYPE.set(span, "sql");
             Tags.DB_INSTANCE.set(span, connectInfo.getDatabaseName());
             Tags.DB_STATEMENT.set(span, sql);

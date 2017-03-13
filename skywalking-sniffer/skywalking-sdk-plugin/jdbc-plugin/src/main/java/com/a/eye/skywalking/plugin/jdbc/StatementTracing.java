@@ -21,7 +21,7 @@ public class StatementTracing {
                                 ConnectionInfo connectInfo, String method, String sql, Executable<R> exec)
             throws SQLException {
         try {
-            Span span = ContextManager.createSpan("JDBC/Statement/" + method);
+            Span span = ContextManager.createSpan(connectInfo.getDBType() + "/JDBI/Statement/" + method);
             Tags.DB_TYPE.set(span, "sql");
             Tags.DB_INSTANCE.set(span, connectInfo.getDatabaseName());
             Tags.DB_STATEMENT.set(span, sql);
