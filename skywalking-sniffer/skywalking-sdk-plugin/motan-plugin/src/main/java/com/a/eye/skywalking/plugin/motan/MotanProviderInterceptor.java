@@ -37,14 +37,14 @@ public class MotanProviderInterceptor implements InstanceMethodsAroundIntercepto
     public void beforeMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
                              MethodInterceptResult result) {
         Request request = (Request) interceptorContext.allArguments()[0];
-        Span span = ContextManager.INSTANCE.createSpan(generateViewPoint(request));
+        Span span = ContextManager.createSpan(generateViewPoint(request));
         Tags.COMPONENT.set(span, MOTAN_COMPONENT);
         Tags.SPAN_KIND.set(span, Tags.SPAN_KIND_SERVER);
         Tags.SPAN_LAYER.asRPCFramework(span);
 
         String serializedContextData = request.getAttachments().get(ATTACHMENT_KEY_OF_CONTEXT_DATA);
         if (!StringUtil.isEmpty(serializedContextData)) {
-            ContextManager.INSTANCE.extract(new ContextCarrier().deserialize(serializedContextData));
+            ContextManager.extract(new ContextCarrier().deserialize(serializedContextData));
         }
     }
 
@@ -53,19 +53,19 @@ public class MotanProviderInterceptor implements InstanceMethodsAroundIntercepto
                               Object ret) {
         Response response = (Response) ret;
         if (response != null && response.getException() != null) {
-            Span span = ContextManager.INSTANCE.activeSpan();
+            Span span = ContextManager.activeSpan();
             span.log(response.getException());
             Tags.ERROR.set(span, true);
         }
 
-        ContextManager.INSTANCE.stopSpan();
+        ContextManager.stopSpan();
         return ret;
     }
 
     @Override
     public void handleMethodException(Throwable t, EnhancedClassInstanceContext context,
                                       InstanceMethodInvokeContext interceptorContext) {
-        ContextManager.INSTANCE.activeSpan().log(t);
+        ContextManager.activeSpan().log(t);
     }
 
 

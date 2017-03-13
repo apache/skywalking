@@ -20,7 +20,7 @@ public class TracerFormatCrossProcessContextInterceptor implements InstanceMetho
     @Override
     public Object afterMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext, Object ret) {
         ContextCarrier carrier = new ContextCarrier();
-        ContextManager.INSTANCE.inject(carrier);
+        ContextManager.inject(carrier);
         return carrier.serialize();
     }
 

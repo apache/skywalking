@@ -19,7 +19,7 @@ public class SpanNewInstanceInterceptor implements InstanceConstructorIntercepto
         String operationName = ((String)allArguments[0]);
         long startTime = ((Long)allArguments[1]);
         Map<String, String> tags = ((Map<String, String>)allArguments[2]);
-        Span span = ContextManager.INSTANCE.createSpan(operationName, startTime);
+        Span span = ContextManager.createSpan(operationName, startTime);
 
         for (Map.Entry<String, String> entry : tags.entrySet()) {
             span.setTag(entry.getKey(), entry.getValue());

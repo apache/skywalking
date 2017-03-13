@@ -5,8 +5,8 @@ import akka.actor.Terminated;
 import akka.actor.UntypedActor;
 import akka.cluster.Cluster;
 import akka.cluster.ClusterEvent;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import com.a.eye.skywalking.logging.ILog;
+import com.a.eye.skywalking.logging.LogManager;
 
 /**
  * <code>WorkersListener</code> listening the register message from workers
@@ -22,7 +22,7 @@ import org.apache.logging.log4j.Logger;
  */
 public class WorkersListener extends UntypedActor {
 
-    private Logger logger = LogManager.getFormatterLogger(WorkersListener.class);
+    private ILog logger = LogManager.getLogger(WorkersListener.class);
 
     public static final String WorkName = "WorkersListener";
 

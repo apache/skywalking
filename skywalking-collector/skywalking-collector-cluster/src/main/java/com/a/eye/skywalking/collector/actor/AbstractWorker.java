@@ -9,9 +9,8 @@ import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
 import com.a.eye.skywalking.collector.cluster.WorkerListenerMessage;
 import com.a.eye.skywalking.collector.cluster.WorkersListener;
 import com.a.eye.skywalking.collector.cluster.WorkersRefCenter;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
+import com.a.eye.skywalking.logging.ILog;
+import com.a.eye.skywalking.logging.LogManager;
 import java.util.List;
 
 /**
@@ -40,7 +39,7 @@ import java.util.List;
  */
 public abstract class AbstractWorker extends UntypedActor {
 
-    private Logger logger = LogManager.getFormatterLogger(AbstractWorker.class);
+    private ILog logger = LogManager.getLogger(AbstractWorker.class);
 
     private Cluster cluster = Cluster.get(getContext().system());
 

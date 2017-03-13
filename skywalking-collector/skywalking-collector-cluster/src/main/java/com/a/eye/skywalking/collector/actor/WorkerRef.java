@@ -2,8 +2,8 @@ package com.a.eye.skywalking.collector.actor;
 
 import akka.actor.ActorPath;
 import akka.actor.ActorRef;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import com.a.eye.skywalking.logging.ILog;
+import com.a.eye.skywalking.logging.LogManager;
 
 /**
  * The Worker reference
@@ -11,7 +11,7 @@ import org.apache.logging.log4j.Logger;
  * @author pengys5
  */
 public class WorkerRef {
-    private Logger logger = LogManager.getFormatterLogger(WorkerRef.class);
+    private ILog logger = LogManager.getLogger(WorkerRef.class);
 
     final ActorRef actorRef;
 

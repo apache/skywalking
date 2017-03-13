@@ -17,19 +17,14 @@
 
     <dependencies>
         <dependency>
-            <groupId>javax.inject</groupId>
-            <artifactId>javax.inject</artifactId>
-            <version>1</version>
+            <groupId>com.a.eye</groupId>
+            <artifactId>skywalking-util</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.lmax</groupId>
             <artifactId>disruptor</artifactId>
             <version>3.3.6</version>
-        </dependency>
-        <dependency>
-            <groupId>com.a.eye</groupId>
-            <artifactId>skywalking-api</artifactId>
-            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>

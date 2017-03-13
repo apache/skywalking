@@ -1,12 +1,12 @@
 package com.a.eye.skywalking.api.plugin.interceptor.enhance;
 
-import com.a.eye.skywalking.api.logging.ILog;
-import com.a.eye.skywalking.api.logging.LogManager;
 import com.a.eye.skywalking.api.plugin.interceptor.loader.InterceptorInstanceLoader;
 import net.bytebuddy.implementation.bind.annotation.AllArguments;
 import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import net.bytebuddy.implementation.bind.annotation.SuperCall;
+import com.a.eye.skywalking.logging.ILog;
+import com.a.eye.skywalking.logging.LogManager;
 
 import java.lang.reflect.Method;
 import java.util.concurrent.Callable;

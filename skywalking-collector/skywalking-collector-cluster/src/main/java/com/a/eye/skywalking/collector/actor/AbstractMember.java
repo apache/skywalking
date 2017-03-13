@@ -4,10 +4,9 @@ import akka.actor.ActorRef;
 import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
 import com.a.eye.skywalking.collector.cluster.WorkersRefCenter;
 import com.a.eye.skywalking.collector.queue.MessageHolder;
+import com.a.eye.skywalking.logging.ILog;
+import com.a.eye.skywalking.logging.LogManager;
 import com.lmax.disruptor.EventHandler;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.util.List;
 
 /**
@@ -15,7 +14,7 @@ import java.util.List;
  */
 public abstract class AbstractMember implements EventHandler<MessageHolder> {
 
-    private Logger logger = LogManager.getFormatterLogger(AbstractMember.class);
+    private ILog logger = LogManager.getLogger(AbstractMember.class);
 
     private ActorRef actorRef;
 

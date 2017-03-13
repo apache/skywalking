@@ -13,6 +13,8 @@
     <modules>
         <module>skywalking-trace</module>
         <module>skywalking-util</module>
+        <module>skywalking-logging-api</module>
+        <module>skywalking-logging-log4j2</module>
     </modules>
 
     <name>skywalking-commons</name>

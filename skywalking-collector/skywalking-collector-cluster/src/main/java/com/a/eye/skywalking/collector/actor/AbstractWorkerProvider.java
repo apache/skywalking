@@ -2,8 +2,8 @@ package com.a.eye.skywalking.collector.actor;
 
 import akka.actor.ActorSystem;
 import akka.actor.Props;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import com.a.eye.skywalking.logging.ILog;
+import com.a.eye.skywalking.logging.LogManager;
 
 /**
  * The <code>AbstractWorkerProvider</code> should be implemented by any class whose
@@ -28,8 +28,7 @@ import org.apache.logging.log4j.Logger;
  * <p>
  */
 public abstract class AbstractWorkerProvider {
-
-    private Logger logger = LogManager.getFormatterLogger(AbstractWorkerProvider.class);
+    private ILog logger = LogManager.getLogger(AbstractWorkerProvider.class);
 
     public abstract Class workerClass();
 

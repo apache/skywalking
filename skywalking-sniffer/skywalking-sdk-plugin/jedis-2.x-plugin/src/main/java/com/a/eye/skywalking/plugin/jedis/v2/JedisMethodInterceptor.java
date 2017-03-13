@@ -46,7 +46,7 @@ public class JedisMethodInterceptor extends NoCocurrencyAceessObject {
         this.whenEnter(context, new Runnable() {
             @Override
             public void run() {
-                Span span = ContextManager.INSTANCE.createSpan("Jedis/" + interceptorContext.methodName());
+                Span span = ContextManager.createSpan("Jedis/" + interceptorContext.methodName());
                 Tags.COMPONENT.set(span, REDIS_COMPONENT);
                 Tags.DB_TYPE.set(span, REDIS_COMPONENT);
                 tagPeer(span, context);
@@ -84,7 +84,7 @@ public class JedisMethodInterceptor extends NoCocurrencyAceessObject {
         this.whenExist(context, new Runnable() {
             @Override
             public void run() {
-                ContextManager.INSTANCE.stopSpan();
+                ContextManager.stopSpan();
             }
         });
         return ret;
@@ -92,6 +92,6 @@ public class JedisMethodInterceptor extends NoCocurrencyAceessObject {
 
     @Override
     public void handleMethodException(Throwable t, EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext) {
-        ContextManager.INSTANCE.activeSpan().log(t);
+        ContextManager.activeSpan().log(t);
     }
 }

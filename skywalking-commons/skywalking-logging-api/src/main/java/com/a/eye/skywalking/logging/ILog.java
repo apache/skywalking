@@ -1,4 +1,4 @@
-package com.a.eye.skywalking.api.logging;
+package com.a.eye.skywalking.logging;
 
 /**
  * The Log interface.

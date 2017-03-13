@@ -1,5 +1,6 @@
 package com.a.eye.skywalking.plugin.jdbc;
 
+import com.a.eye.skywalking.api.boot.ServiceStarter;
 import com.a.eye.skywalking.api.context.TracerContext;
 import com.a.eye.skywalking.sniffer.mock.context.MockTracerContextListener;
 import com.a.eye.skywalking.sniffer.mock.context.SegmentAssert;
@@ -89,6 +90,8 @@ public class SwPreparedStatementTest extends AbstractStatementTest {
     @Before
     public void setUp() throws Exception {
         mockTracerContextListener = new MockTracerContextListener();
+
+        ServiceStarter.INSTANCE.boot();
         swConnection = new SWConnection("jdbc:mysql://127.0.0.1:3306/test", new Properties(), jdbcConnection);
         multiHostConnection = new SWConnection("jdbc:mysql://127.0.0.1:3306,127.0.0.1:3309/test", new Properties(), jdbcConnection);
 

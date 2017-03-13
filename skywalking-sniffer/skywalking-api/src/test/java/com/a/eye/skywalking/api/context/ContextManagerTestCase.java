@@ -13,13 +13,13 @@ import org.junit.Test;
 public class ContextManagerTestCase {
     @Test
     public void testDelegateToTracerContext(){
-        Span span = ContextManager.INSTANCE.createSpan("serviceA");
+        Span span = ContextManager.createSpan("serviceA");
         Tags.COMPONENT.set(span, "test");
 
-        Assert.assertEquals(span, ContextManager.INSTANCE.activeSpan());
+        Assert.assertEquals(span, ContextManager.activeSpan());
 
         TracerContext.ListenerManager.add(TestTracerContextListener.INSTANCE);
-        ContextManager.INSTANCE.stopSpan();
+        ContextManager.stopSpan();
 
         TraceSegment segment = TestTracerContextListener.INSTANCE.finishedSegmentCarrier[0];
 

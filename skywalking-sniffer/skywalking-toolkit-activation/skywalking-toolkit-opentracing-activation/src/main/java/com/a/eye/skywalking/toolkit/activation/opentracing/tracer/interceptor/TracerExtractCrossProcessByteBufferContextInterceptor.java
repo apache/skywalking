@@ -29,7 +29,7 @@ public class TracerExtractCrossProcessByteBufferContextInterceptor implements In
         ContextCarrier carrier = new ContextCarrier();
         carrier.deserialize(contextDataStr);
 
-        ContextManager.INSTANCE.extract(carrier);
+        ContextManager.extract(carrier);
         return ret;
     }
 

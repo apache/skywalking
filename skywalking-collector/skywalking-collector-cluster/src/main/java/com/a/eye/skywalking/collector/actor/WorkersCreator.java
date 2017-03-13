@@ -3,8 +3,8 @@ package com.a.eye.skywalking.collector.actor;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
 import com.a.eye.skywalking.collector.cluster.WorkersListener;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import com.a.eye.skywalking.logging.ILog;
+import com.a.eye.skywalking.logging.LogManager;
 
 import java.util.ServiceLoader;
 
@@ -17,7 +17,7 @@ import java.util.ServiceLoader;
 public enum WorkersCreator {
     INSTANCE;
 
-    private Logger logger = LogManager.getFormatterLogger(WorkersCreator.class);
+    private ILog logger = LogManager.getLogger(WorkersCreator.class);
 
     /**
      * create worker to use Java Spi.
