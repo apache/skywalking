@@ -26,8 +26,14 @@
         <shade.akka.target>${shade.package}.${shade.akka.source}</shade.akka.target>
         <shade.scala.source>scala</shade.scala.source>
         <shade.scala.target>${shade.package}.${shade.scala.source}</shade.scala.target>
-        <shade.all.org.source>org</shade.all.org.source>
-        <shade.all.org.target>${shade.package}.${shade.all.org.source}</shade.all.org.target>
+        <shade.org.agrona.source>org.agrona</shade.org.agrona.source>
+        <shade.org.agrona.target>${shade.package}.${shade.org.agrona.source}</shade.org.agrona.target>
+        <shade.org.jboss.netty.source>org.jboss.netty</shade.org.jboss.netty.source>
+        <shade.org.jboss.netty.target>${shade.package}.${shade.org.jboss.netty.source}</shade.org.jboss.netty.target>
+        <shade.org.reactivestreams.source>org.reactivestreams</shade.org.reactivestreams.source>
+        <shade.org.reactivestreams.target>${shade.package}.${shade.org.reactivestreams.source}</shade.org.reactivestreams.target>
+        <shade.org.uncommons.maths.source>org.uncommons.maths</shade.org.uncommons.maths.source>
+        <shade.org.uncommons.maths.target>${shade.package}.${shade.org.uncommons.maths.source}</shade.org.uncommons.maths.target>
         <shade.com.google.source>com.google</shade.com.google.source>
         <shade.com.google.target>${shade.package}.${shade.com.google.source}</shade.com.google.target>
         <shade.io.aeron.source>io.aeron</shade.io.aeron.source>
@@ -147,8 +153,20 @@
                                     <shadedPattern>${shade.com.google.target}</shadedPattern>
                                 </relocation>
                                 <relocation>
-                                    <pattern>${shade.all.org.source}</pattern>
-                                    <shadedPattern>${shade.all.org.target}</shadedPattern>
+                                    <pattern>${shade.org.agrona.source}</pattern>
+                                    <shadedPattern>${shade.org.agrona.target}</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>${shade.org.jboss.netty.source}</pattern>
+                                    <shadedPattern>${shade.org.jboss.netty.target}</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>${shade.org.reactivestreams.source}</pattern>
+                                    <shadedPattern>${shade.org.reactivestreams.target}</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>${shade.org.uncommons.maths.source}</pattern>
+                                    <shadedPattern>${shade.org.uncommons.maths.target}</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>${shade.scala.source}</pattern>
