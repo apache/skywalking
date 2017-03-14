@@ -5,6 +5,7 @@
     <modules>
         <module>skywalking-collector-cluster</module>
         <module>skywalking-collector-worker</module>
+        <module>skywalking-collector-recevier</module>
     </modules>
     <parent>
         <artifactId>skywalking</artifactId>
@@ -33,16 +34,6 @@
             <groupId>com.typesafe.akka</groupId>
             <artifactId>akka-cluster-tools_2.11</artifactId>
             <version>${akka.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-persistence_2.11</artifactId>
-            <version>${akka.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.iq80.leveldb</groupId>
-            <artifactId>leveldb</artifactId>
-            <version>0.9</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
