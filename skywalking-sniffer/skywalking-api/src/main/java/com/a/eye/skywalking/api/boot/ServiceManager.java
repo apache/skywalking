@@ -8,12 +8,12 @@ import java.util.Map;
 import java.util.ServiceLoader;
 
 /**
- * The <code>ServiceStarter</code> bases on {@link ServiceLoader},
+ * The <code>ServiceManager</code> bases on {@link ServiceLoader},
  * load all {@link BootService} implementations.
  *
  * @author wusheng
  */
-public enum ServiceStarter {
+public enum ServiceManager {
     INSTANCE;
 
     private static ILog logger = LogManager.getLogger(StatusBootService.class);
@@ -31,7 +31,7 @@ public enum ServiceStarter {
                         bootService.bootUp();
                         bootedServices.put(bootService.getClass(), bootService);
                     } catch (Exception e) {
-                        logger.error(e, "ServiceStarter try to start [{}] fail.", bootService.getClass().getName());
+                        logger.error(e, "ServiceManager try to start [{}] fail.", bootService.getClass().getName());
                     }
                 }
             } finally {

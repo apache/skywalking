@@ -1,7 +1,7 @@
 package com.a.eye.skywalking.agent;
 
 import com.a.eye.skywalking.agent.junction.SkyWalkingEnhanceMatcher;
-import com.a.eye.skywalking.api.boot.ServiceStarter;
+import com.a.eye.skywalking.api.boot.ServiceManager;
 import com.a.eye.skywalking.api.conf.Config;
 import com.a.eye.skywalking.api.conf.SnifferConfigInitializer;
 import com.a.eye.skywalking.api.logging.EasyLogResolver;
@@ -54,7 +54,7 @@ public class SkyWalkingAgent {
 
         final PluginFinder pluginFinder = new PluginFinder(new PluginBootstrap().loadPlugins());
 
-        ServiceStarter.INSTANCE.boot();
+        ServiceManager.INSTANCE.boot();
 
         new AgentBuilder.Default().type(enhanceClassMatcher(pluginFinder).and(not(isInterface()))).transform(new AgentBuilder.Transformer() {
             public DynamicType.Builder<?> transform(DynamicType.Builder<?> builder, TypeDescription typeDescription, ClassLoader classLoader) {

@@ -1,10 +1,9 @@
 package com.a.eye.skywalking.plugin.motan;
 
-import com.a.eye.skywalking.api.boot.ServiceStarter;
+import com.a.eye.skywalking.api.boot.ServiceManager;
 import com.a.eye.skywalking.api.context.TracerContext;
 import com.a.eye.skywalking.api.plugin.interceptor.EnhancedClassInstanceContext;
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.InstanceMethodInvokeContext;
-import com.a.eye.skywalking.plugin.motan.define.MotanConsumerInstrumentation;
 import com.a.eye.skywalking.sniffer.mock.context.MockTracerContextListener;
 import com.a.eye.skywalking.sniffer.mock.context.SegmentAssert;
 import com.a.eye.skywalking.trace.LogData;
@@ -52,7 +51,7 @@ public class MotanConsumerInterceptorTest {
 
     @Before
     public void setUp() {
-        ServiceStarter.INSTANCE.boot();
+        ServiceManager.INSTANCE.boot();
 
         contextListener = new MockTracerContextListener();
         invokeInterceptor = new MotanConsumerInterceptor();

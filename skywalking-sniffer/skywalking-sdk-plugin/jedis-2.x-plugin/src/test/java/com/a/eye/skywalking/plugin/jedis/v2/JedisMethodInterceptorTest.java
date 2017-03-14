@@ -1,6 +1,6 @@
 package com.a.eye.skywalking.plugin.jedis.v2;
 
-import com.a.eye.skywalking.api.boot.ServiceStarter;
+import com.a.eye.skywalking.api.boot.ServiceManager;
 import com.a.eye.skywalking.api.context.TracerContext;
 import com.a.eye.skywalking.api.plugin.interceptor.EnhancedClassInstanceContext;
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.InstanceMethodInvokeContext;
@@ -20,8 +20,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.sql.SQLException;
-
 import static com.a.eye.skywalking.plugin.jedis.v2.JedisMethodInterceptor.KEY_OF_REDIS_HOST;
 import static com.a.eye.skywalking.plugin.jedis.v2.JedisMethodInterceptor.KEY_OF_REDIS_HOSTS;
 import static com.a.eye.skywalking.plugin.jedis.v2.JedisMethodInterceptor.KEY_OF_REDIS_PORT;
@@ -30,7 +28,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -47,7 +44,7 @@ public class JedisMethodInterceptorTest {
 
     @Before
     public void setUp() throws Exception {
-        ServiceStarter.INSTANCE.boot();
+        ServiceManager.INSTANCE.boot();
 
         interceptor = new JedisMethodInterceptor();
         mockTracerContextListener = new MockTracerContextListener();

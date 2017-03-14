@@ -1,6 +1,6 @@
 package com.a.eye.skywalking.plugin.dubbo;
 
-import com.a.eye.skywalking.api.boot.ServiceStarter;
+import com.a.eye.skywalking.api.boot.ServiceManager;
 import com.a.eye.skywalking.api.context.TracerContext;
 import com.a.eye.skywalking.api.plugin.interceptor.EnhancedClassInstanceContext;
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.InstanceMethodInvokeContext;
@@ -60,7 +60,7 @@ public class DubboInterceptorTest {
 
     @Before
     public void setUp() throws Exception {
-        ServiceStarter.INSTANCE.boot();
+        ServiceManager.INSTANCE.boot();
 
         dubboInterceptor = new DubboInterceptor();
         testParam = new RequestParamForTestBelow283();

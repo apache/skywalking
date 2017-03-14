@@ -1,6 +1,6 @@
 package com.a.eye.skywalking.plugin.httpClient.v4;
 
-import com.a.eye.skywalking.api.boot.ServiceStarter;
+import com.a.eye.skywalking.api.boot.ServiceManager;
 import com.a.eye.skywalking.api.context.TracerContext;
 import com.a.eye.skywalking.api.plugin.interceptor.EnhancedClassInstanceContext;
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.InstanceMethodInvokeContext;
@@ -58,7 +58,7 @@ public class HttpClientExecuteInterceptorTest {
     public void setUp() throws Exception {
         mockTracerContextListener = new MockTracerContextListener();
 
-        ServiceStarter.INSTANCE.boot();
+        ServiceManager.INSTANCE.boot();
         httpClientExecuteInterceptor = new HttpClientExecuteInterceptor();
 
         PowerMockito.mock(HttpHost.class);

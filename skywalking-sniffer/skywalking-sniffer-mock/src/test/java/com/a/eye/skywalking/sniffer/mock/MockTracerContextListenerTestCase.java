@@ -1,6 +1,6 @@
 package com.a.eye.skywalking.sniffer.mock;
 
-import com.a.eye.skywalking.api.boot.ServiceStarter;
+import com.a.eye.skywalking.api.boot.ServiceManager;
 import com.a.eye.skywalking.sniffer.mock.context.MockTracerContextListener;
 import com.a.eye.skywalking.sniffer.mock.context.SegmentAssert;
 import com.a.eye.skywalking.sniffer.mock.trace.TraceSegmentBuilderFactory;
@@ -15,7 +15,7 @@ import org.junit.Test;
 public class MockTracerContextListenerTestCase {
     @BeforeClass
     public static void setup(){
-        ServiceStarter.INSTANCE.boot();
+        ServiceManager.INSTANCE.boot();
     }
 
     @Test
