@@ -148,31 +148,8 @@
     </repository>
   </distributionManagement>
   <properties>
-    <shade.org.agrona.target>${shade.package}.${shade.org.agrona.source}</shade.org.agrona.target>
-    <shade.com.typesafe.target>${shade.package}.${shade.com.typesafe.source}</shade.com.typesafe.target>
-    <shade.com.lmax.disruptor.target>${shade.package}.${shade.com.lmax.disruptor.source}</shade.com.lmax.disruptor.target>
-    <shade.org.reactivestreams.target>${shade.package}.${shade.org.reactivestreams.source}</shade.org.reactivestreams.target>
-    <shade.net.bytebuddy.source>net.bytebuddy</shade.net.bytebuddy.source>
-    <shade.akka.target>${shade.package}.${shade.akka.source}</shade.akka.target>
-    <shade.org.jboss.netty.source>org.jboss.netty</shade.org.jboss.netty.source>
-    <shade.io.aeron.target>${shade.package}.${shade.io.aeron.source}</shade.io.aeron.target>
-    <shade.org.uncommons.maths.source>org.uncommons.maths</shade.org.uncommons.maths.source>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <shade.scala.source>scala</shade.scala.source>
-    <shade.net.bytebuddy.target>${shade.package}.${shade.net.bytebuddy.source}</shade.net.bytebuddy.target>
-    <shade.org.jboss.netty.target>${shade.package}.${shade.org.jboss.netty.source}</shade.org.jboss.netty.target>
-    <shade.org.uncommons.maths.target>${shade.package}.${shade.org.uncommons.maths.source}</shade.org.uncommons.maths.target>
-    <shade.package>com.a.eye.skywalking.dependencies</shade.package>
-    <shade.com.google.source>com.google</shade.com.google.source>
-    <shade.org.agrona.source>org.agrona</shade.org.agrona.source>
-    <shade.scala.target>${shade.package}.${shade.scala.source}</shade.scala.target>
-    <shade.com.typesafe.source>com.typesafe</shade.com.typesafe.source>
-    <shade.com.lmax.disruptor.source>com.lmax.disruptor</shade.com.lmax.disruptor.source>
-    <shade.org.reactivestreams.source>org.reactivestreams</shade.org.reactivestreams.source>
-    <shade.akka.source>akka</shade.akka.source>
     <premain.class>com.a.eye.skywalking.agent.SkyWalkingAgent</premain.class>
-    <shade.io.aeron.source>io.aeron</shade.io.aeron.source>
-    <shade.com.google.target>${shade.package}.${shade.com.google.source}</shade.com.google.target>
   </properties>
 </project>
 
