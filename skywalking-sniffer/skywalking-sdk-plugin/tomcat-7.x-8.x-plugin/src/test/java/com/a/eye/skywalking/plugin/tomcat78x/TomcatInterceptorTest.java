@@ -81,7 +81,7 @@ public class TomcatInterceptorTest {
 
     @Test
     public void testWithSerializedContextData() {
-        when(request.getHeader(TomcatInterceptor.HEADER_NAME_OF_CONTEXT_DATA)).thenReturn("302017.1487666919810.624424584.17332.1.1|1|REMOTE_APP|127.0.0.1");
+        when(request.getHeader(TomcatInterceptor.HEADER_NAME_OF_CONTEXT_DATA)).thenReturn("302017.1487666919810.624424584.17332.1.1|1|REMOTE_APP|127.0.0.1|Trace.globalId.123");
 
         tomcatInterceptor.beforeMethod(classInstanceContext, methodInvokeContext, methodInterceptResult);
         tomcatInterceptor.afterMethod(classInstanceContext, methodInvokeContext, null);

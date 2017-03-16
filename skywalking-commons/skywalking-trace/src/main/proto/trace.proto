@@ -10,7 +10,8 @@ message SegmentMessage {
     string applicationCode = 4;
     SegmentRefMessage primaryRef = 5;
     repeated SegmentRefMessage refs = 6;
-    repeated SpanMessage spans = 7;
+    repeated string relatedTraceIds = 7;
+    repeated SpanMessage spans = 8;
 }
 
 message SegmentRefMessage {
