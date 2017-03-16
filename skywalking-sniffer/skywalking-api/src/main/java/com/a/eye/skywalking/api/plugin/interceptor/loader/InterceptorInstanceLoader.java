@@ -1,5 +1,8 @@
 package com.a.eye.skywalking.api.plugin.interceptor.loader;
 
+import com.a.eye.skywalking.api.plugin.interceptor.enhance.InstanceConstructorInterceptor;
+import com.a.eye.skywalking.api.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
+import com.a.eye.skywalking.api.plugin.interceptor.enhance.StaticMethodsAroundInterceptor;
 import com.a.eye.skywalking.logging.ILog;
 import com.a.eye.skywalking.logging.LogManager;
 import java.io.BufferedInputStream;
@@ -12,12 +15,16 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * The Classloader controller.
- * This is a very important class in sky-walking's auto-instrumentation mechanism.
- * If you want to fully understand why need this, and how it works, you need have knowledge about Classloader appointment mechanism.
- * <p>
+ * The <code>InterceptorInstanceLoader</code> is a classes finder and container.
+ *
+ * This is a very important class in sky-walking's auto-instrumentation mechanism. If you want to fully understand why
+ * need this, and how it works, you need have knowledge about Classloader appointment mechanism.
+ *
  * The loader will load a class, and focus the target class loader (be intercepted class's classloader) loads it.
- * <p>
+ *
+ * If the target class and target class loader are same, the loaded classes( {@link InstanceConstructorInterceptor},
+ * {@link InstanceMethodsAroundInterceptor} and {@link StaticMethodsAroundInterceptor} implementations) stay in singleton.
+ *
  * Created by wusheng on 16/8/2.
  */
 public class InterceptorInstanceLoader {
@@ -28,43 +35,43 @@ public class InterceptorInstanceLoader {
     private static ReentrantLock instanceLoadLock = new ReentrantLock();
 
     public static <T> T load(String className, ClassLoader targetClassLoader)
-            throws InvocationTargetException, IllegalAccessException, InstantiationException, ClassNotFoundException {
+        throws InvocationTargetException, IllegalAccessException, InstantiationException, ClassNotFoundException {
         String instanceKey = className + "_OF_" + targetClassLoader.getClass().getName() + "@" + Integer.toHexString(targetClassLoader.hashCode());
         Object inst = INSTANCE_CACHE.get(instanceKey);
-        if (inst != null) {
-            return (T) inst;
-        }
-
-        if (InterceptorInstanceLoader.class.getClassLoader().equals(targetClassLoader)) {
-            return (T) targetClassLoader.loadClass(className).newInstance();
-        }
-
-        instanceLoadLock.lock();
-        try {
-            try {
-                inst = findLoadedClass(className, targetClassLoader);
-                if (inst == null) {
-                    inst = loadBinary(className, targetClassLoader);
+        if (inst == null) {
+            if (InterceptorInstanceLoader.class.getClassLoader().equals(targetClassLoader)) {
+                inst = targetClassLoader.loadClass(className).newInstance();
+            } else {
+                instanceLoadLock.lock();
+                try {
+                    try {
+                        inst = findLoadedClass(className, targetClassLoader);
+                        if (inst == null) {
+                            inst = loadBinary(className, targetClassLoader);
+                        }
+                        if (inst == null) {
+                            throw new ClassNotFoundException(targetClassLoader.toString() + " load interceptor class:" + className + " failure.");
+                        }
+                    } catch (Exception e) {
+                        throw new ClassNotFoundException(targetClassLoader.toString() + " load interceptor class:" + className + " failure.", e);
+                    }
+                } finally {
+                    instanceLoadLock.unlock();
                 }
-                if (inst == null) {
-                    throw new ClassNotFoundException(targetClassLoader.toString() + " load interceptor class:" + className + " failure.");
-                }
-                INSTANCE_CACHE.put(instanceKey, inst);
-                return (T) inst;
-            } catch (Exception e) {
-                throw new ClassNotFoundException(targetClassLoader.toString() + " load interceptor class:" + className + " failure.", e);
             }
-        } finally {
-            instanceLoadLock.unlock();
+            if (inst != null) {
+                INSTANCE_CACHE.put(instanceKey, inst);
+            }
         }
 
+        return (T)inst;
     }
 
     /**
      * load class from class binary files.
      * Most likely all the interceptor implementations should be loaded by this.
      *
-     * @param className         interceptor class name.
+     * @param className interceptor class name.
      * @param targetClassLoader the classloader, which should load the interceptor.
      * @param <T>
      * @return interceptor instance.
@@ -72,7 +79,8 @@ public class InterceptorInstanceLoader {
      * @throws IllegalAccessException
      * @throws InstantiationException
      */
-    private static <T> T loadBinary(String className, ClassLoader targetClassLoader) throws InvocationTargetException, IllegalAccessException, InstantiationException {
+    private static <T> T loadBinary(String className,
+        ClassLoader targetClassLoader) throws InvocationTargetException, IllegalAccessException, InstantiationException {
         String path = "/" + className.replace('.', '/').concat(".class");
         byte[] data = null;
         BufferedInputStream is = null;
@@ -111,21 +119,22 @@ public class InterceptorInstanceLoader {
             }
         }
         defineClassMethod.setAccessible(true);
-        logger.debug("load binary code of {} to classload {}", className, targetClassLoader);
-        Class<?> type = (Class<?>) defineClassMethod.invoke(targetClassLoader, className, data, 0, data.length, null);
-        return (T) type.newInstance();
+        logger.debug("load binary code of {} to classloader {}", className, targetClassLoader);
+        Class<?> type = (Class<?>)defineClassMethod.invoke(targetClassLoader, className, data, 0, data.length, null);
+        return (T)type.newInstance();
     }
 
     /**
      * Find loaded class in the current classloader.
-     * Just in case some classes have already been loaded for some reasons.s
+     * Just in case some classes have already been loaded for some reason.
      *
-     * @param className         interceptor class name.
+     * @param className interceptor class name.
      * @param targetClassLoader the classloader, which should load the interceptor.
      * @param <T>
      * @return interceptor instance.
      */
-    private static <T> T findLoadedClass(String className, ClassLoader targetClassLoader) throws InvocationTargetException, IllegalAccessException, InstantiationException {
+    private static <T> T findLoadedClass(String className,
+        ClassLoader targetClassLoader) throws InvocationTargetException, IllegalAccessException, InstantiationException {
         Method defineClassMethod = null;
         Class<?> targetClassLoaderType = targetClassLoader.getClass();
         while (defineClassMethod == null && targetClassLoaderType != null) {
@@ -136,10 +145,10 @@ public class InterceptorInstanceLoader {
             }
         }
         defineClassMethod.setAccessible(true);
-        Class<?> type = (Class<?>) defineClassMethod.invoke(targetClassLoader, className);
+        Class<?> type = (Class<?>)defineClassMethod.invoke(targetClassLoader, className);
         if (type == null) {
             return null;
         }
-        return (T) type.newInstance();
+        return (T)type.newInstance();
     }
 }
