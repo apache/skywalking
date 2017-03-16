@@ -1,7 +1,10 @@
 package com.a.eye.skywalking.collector.worker.receiver;
 
-import com.a.eye.skywalking.collector.actor.AbstractWorker;
-import com.a.eye.skywalking.collector.actor.AbstractWorkerProvider;
+import com.a.eye.skywalking.collector.actor.AbstractClusterWorker;
+import com.a.eye.skywalking.collector.actor.AbstractClusterWorkerProvider;
+import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
+import com.a.eye.skywalking.collector.actor.Role;
+import com.a.eye.skywalking.collector.role.TraceSegmentReceiverRole;
 import com.a.eye.skywalking.collector.worker.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.application.ApplicationMain;
 import com.a.eye.skywalking.collector.worker.applicationref.ApplicationRefMain;
@@ -14,22 +17,22 @@ import org.apache.logging.log4j.Logger;
 /**
  * @author pengys5
  */
-public class TraceSegmentReceiver extends AbstractWorker {
+public class TraceSegmentReceiver extends AbstractClusterWorker {
 
     private Logger logger = LogManager.getFormatterLogger(TraceSegmentReceiver.class);
 
-    private ApplicationMain applicationMain;
-
-    private ApplicationRefMain applicationRefMain;
-
-
-    public TraceSegmentReceiver() throws Exception {
-        applicationMain = ApplicationMain.Factory.INSTANCE.createWorker(getSelf());
-        applicationRefMain = ApplicationRefMain.Factory.INSTANCE.createWorker(getSelf());
+    public TraceSegmentReceiver(Role role, ClusterWorkerContext clusterContext) throws Exception {
+        super(role, clusterContext);
     }
 
     @Override
-    public void receive(Object message) throws Throwable {
+    public void preStart() throws Exception {
+        getClusterContext().findProvider(ApplicationMain.Role.INSTANCE).create(getClusterContext(), getSelfContext());
+        getClusterContext().findProvider(ApplicationRefMain.Role.INSTANCE).create(getClusterContext(), getSelfContext());
+    }
+
+    @Override
+    public void work(Object message) throws Exception {
         if (message instanceof TraceSegment) {
             TraceSegment traceSegment = (TraceSegment) message;
             logger.debug("receive message instanceof TraceSegment, traceSegmentId is %s", traceSegment.getTraceSegmentId());
@@ -37,22 +40,27 @@ public class TraceSegmentReceiver extends AbstractWorker {
             int second = DateTools.timeStampToSecond(traceSegment.getStartTime());
 
             TraceSegmentTimeSlice segmentTimeSlice = new TraceSegmentTimeSlice(timeSlice, second, traceSegment);
-            tell(applicationMain, segmentTimeSlice);
-            tell(applicationRefMain, segmentTimeSlice);
+            getSelfContext().lookup(ApplicationMain.Role.INSTANCE).tell(segmentTimeSlice);
+            getSelfContext().lookup(ApplicationRefMain.Role.INSTANCE).tell(segmentTimeSlice);
         }
     }
 
-    public static class Factory extends AbstractWorkerProvider {
+    public static class Factory extends AbstractClusterWorkerProvider<TraceSegmentReceiver> {
         public static Factory INSTANCE = new Factory();
-
-        @Override
-        public Class workerClass() {
-            return TraceSegmentReceiver.class;
-        }
 
         @Override
         public int workerNum() {
             return WorkerConfig.Worker.TraceSegmentReceiver.Num;
+        }
+
+        @Override
+        public Role role() {
+            return TraceSegmentReceiverRole.INSTANCE;
+        }
+
+        @Override
+        public Class<TraceSegmentReceiver> workerClass() {
+            return TraceSegmentReceiver.class;
         }
     }
 

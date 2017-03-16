@@ -1,9 +1,10 @@
 package com.a.eye.skywalking.collector.worker.application.persistence;
 
 
-import akka.actor.ActorRef;
-import com.a.eye.skywalking.collector.actor.AbstractAsyncMemberProvider;
-import com.a.eye.skywalking.collector.queue.MessageHolder;
+import com.a.eye.skywalking.collector.actor.AbstractLocalAsyncWorkerProvider;
+import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
+import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
+import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
 import com.a.eye.skywalking.collector.worker.RecordPersistenceMember;
 import com.a.eye.skywalking.collector.worker.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.receiver.TraceSegmentReceiver;
@@ -14,7 +15,6 @@ import com.a.eye.skywalking.trace.TraceSegment;
 import com.a.eye.skywalking.trace.TraceSegmentRef;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.lmax.disruptor.RingBuffer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -38,8 +38,8 @@ public class TraceSegmentRecordPersistence extends RecordPersistenceMember {
         return "trace_segment";
     }
 
-    public TraceSegmentRecordPersistence(RingBuffer<MessageHolder> ringBuffer, ActorRef actorRef) {
-        super(ringBuffer, actorRef);
+    public TraceSegmentRecordPersistence(Role role, ClusterWorkerContext clusterContext) throws Exception {
+        super(role, clusterContext);
     }
 
     @Override
@@ -54,8 +54,13 @@ public class TraceSegmentRecordPersistence extends RecordPersistenceMember {
         }
     }
 
-    public static class Factory extends AbstractAsyncMemberProvider<TraceSegmentRecordPersistence> {
+    public static class Factory extends AbstractLocalAsyncWorkerProvider<TraceSegmentRecordPersistence> {
         public static Factory INSTANCE = new Factory();
+
+        @Override
+        public Role role() {
+            return Role.INSTANCE;
+        }
 
         @Override
         public int queueSize() {
@@ -63,8 +68,22 @@ public class TraceSegmentRecordPersistence extends RecordPersistenceMember {
         }
 
         @Override
-        public Class memberClass() {
+        public Class workerClass() {
             return TraceSegmentRecordPersistence.class;
+        }
+    }
+
+    public static class Role extends com.a.eye.skywalking.collector.actor.Role {
+        public static Role INSTANCE = new Role();
+
+        @Override
+        public String name() {
+            return TraceSegmentRecordPersistence.class.getSimpleName();
+        }
+
+        @Override
+        public WorkerSelector workerSelector() {
+            return new RollingSelector();
         }
     }
 

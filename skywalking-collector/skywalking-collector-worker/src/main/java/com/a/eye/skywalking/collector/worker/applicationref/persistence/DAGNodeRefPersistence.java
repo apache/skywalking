@@ -1,11 +1,11 @@
 package com.a.eye.skywalking.collector.worker.applicationref.persistence;
 
-import akka.actor.ActorRef;
-import com.a.eye.skywalking.collector.actor.AbstractAsyncMemberProvider;
-import com.a.eye.skywalking.collector.queue.MessageHolder;
+import com.a.eye.skywalking.collector.actor.AbstractLocalAsyncWorkerProvider;
+import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
+import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
+import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
 import com.a.eye.skywalking.collector.worker.RecordPersistenceMember;
 import com.a.eye.skywalking.collector.worker.WorkerConfig;
-import com.lmax.disruptor.RingBuffer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -16,8 +16,8 @@ public class DAGNodeRefPersistence extends RecordPersistenceMember {
 
     private Logger logger = LogManager.getFormatterLogger(DAGNodeRefPersistence.class);
 
-    public DAGNodeRefPersistence(RingBuffer<MessageHolder> ringBuffer, ActorRef actorRef) {
-        super(ringBuffer, actorRef);
+    public DAGNodeRefPersistence(Role role, ClusterWorkerContext clusterContext) throws Exception {
+        super(role, clusterContext);
     }
 
     @Override
@@ -30,18 +30,37 @@ public class DAGNodeRefPersistence extends RecordPersistenceMember {
         return "node_ref";
     }
 
-    public static class Factory extends AbstractAsyncMemberProvider<DAGNodeRefPersistence> {
+    public static class Factory extends AbstractLocalAsyncWorkerProvider<DAGNodeRefPersistence> {
 
         public static Factory INSTANCE = new Factory();
 
         @Override
-        public Class memberClass() {
+        public Role role() {
+            return Role.INSTANCE;
+        }
+
+        @Override
+        public Class workerClass() {
             return DAGNodeRefPersistence.class;
         }
 
         @Override
         public int queueSize() {
             return WorkerConfig.Queue.Persistence.DAGNodeRefPersistence.Size;
+        }
+    }
+
+    public static class Role extends com.a.eye.skywalking.collector.actor.Role {
+        public static Role INSTANCE = new Role();
+
+        @Override
+        public String name() {
+            return DAGNodeRefPersistence.class.getSimpleName();
+        }
+
+        @Override
+        public WorkerSelector workerSelector() {
+            return new RollingSelector();
         }
     }
 }

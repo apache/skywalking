@@ -43,6 +43,7 @@ public class StartUpTestCase {
 
         SegmentMessage.Builder clientBuilder = dubboClientData.serialize().toBuilder();
         clientBuilder.setApplicationCode("Tomcat_DubboClient");
+
         dubboClientData = new TraceSegment(clientBuilder.build());
 
         TraceSegment dubboServerData = TraceSegmentBuilderFactory.INSTANCE.traceOf_DubboServer_MySQL();

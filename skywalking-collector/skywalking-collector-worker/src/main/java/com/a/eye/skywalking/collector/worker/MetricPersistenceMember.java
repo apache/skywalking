@@ -1,6 +1,8 @@
 package com.a.eye.skywalking.collector.worker;
 
 import akka.actor.ActorRef;
+import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
+import com.a.eye.skywalking.collector.actor.Role;
 import com.a.eye.skywalking.collector.queue.MessageHolder;
 import com.a.eye.skywalking.collector.worker.storage.EsClient;
 import com.a.eye.skywalking.collector.worker.storage.MetricData;
@@ -28,8 +30,8 @@ public abstract class MetricPersistenceMember extends PersistenceMember {
 
     protected MetricPersistenceData persistenceData = new MetricPersistenceData();
 
-    public MetricPersistenceMember(RingBuffer<MessageHolder> ringBuffer, ActorRef actorRef) {
-        super(ringBuffer, actorRef);
+    public MetricPersistenceMember(Role role, ClusterWorkerContext clusterContext) throws Exception {
+        super(role, clusterContext);
     }
 
     @Override

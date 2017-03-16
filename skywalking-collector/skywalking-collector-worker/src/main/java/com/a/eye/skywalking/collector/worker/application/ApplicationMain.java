@@ -1,9 +1,11 @@
 package com.a.eye.skywalking.collector.worker.application;
 
-import akka.actor.ActorRef;
 import com.a.eye.skywalking.api.util.StringUtil;
-import com.a.eye.skywalking.collector.actor.AbstractSyncMember;
-import com.a.eye.skywalking.collector.actor.AbstractSyncMemberProvider;
+import com.a.eye.skywalking.collector.actor.AbstractLocalSyncWorker;
+import com.a.eye.skywalking.collector.actor.AbstractLocalSyncWorkerProvider;
+import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
+import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
+import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
 import com.a.eye.skywalking.collector.worker.application.analysis.DAGNodeAnalysis;
 import com.a.eye.skywalking.collector.worker.application.analysis.NodeInstanceAnalysis;
 import com.a.eye.skywalking.collector.worker.application.analysis.ResponseCostAnalysis;
@@ -19,32 +21,30 @@ import org.apache.logging.log4j.Logger;
 /**
  * @author pengys5
  */
-public class ApplicationMain extends AbstractSyncMember {
+public class ApplicationMain extends AbstractLocalSyncWorker {
 
     private Logger logger = LogManager.getFormatterLogger(ApplicationMain.class);
 
-    private DAGNodeAnalysis dagNodeAnalysis;
-    private NodeInstanceAnalysis nodeInstanceAnalysis;
-    private ResponseCostAnalysis responseCostAnalysis;
-    private ResponseSummaryAnalysis responseSummaryAnalysis;
-    private TraceSegmentRecordPersistence recordPersistence;
-
-    public ApplicationMain(ActorRef actorRef) throws Exception {
-        super(actorRef);
-        dagNodeAnalysis = DAGNodeAnalysis.Factory.INSTANCE.createWorker(actorRef);
-        nodeInstanceAnalysis = NodeInstanceAnalysis.Factory.INSTANCE.createWorker(actorRef);
-        responseCostAnalysis = ResponseCostAnalysis.Factory.INSTANCE.createWorker(actorRef);
-        responseSummaryAnalysis = ResponseSummaryAnalysis.Factory.INSTANCE.createWorker(actorRef);
-        recordPersistence = TraceSegmentRecordPersistence.Factory.INSTANCE.createWorker(actorRef);
+    public ApplicationMain(Role role, ClusterWorkerContext clusterContext) throws Exception {
+        super(role, clusterContext);
     }
 
     @Override
-    public void receive(Object message) throws Exception {
+    public void preStart() throws Exception {
+        getClusterContext().findProvider(DAGNodeAnalysis.Role.INSTANCE).create(getClusterContext(), getSelfContext());
+        getClusterContext().findProvider(NodeInstanceAnalysis.Role.INSTANCE).create(getClusterContext(), getSelfContext());
+        getClusterContext().findProvider(ResponseCostAnalysis.Role.INSTANCE).create(getClusterContext(), getSelfContext());
+        getClusterContext().findProvider(ResponseSummaryAnalysis.Role.INSTANCE).create(getClusterContext(), getSelfContext());
+        getClusterContext().findProvider(TraceSegmentRecordPersistence.Role.INSTANCE).create(getClusterContext(), getSelfContext());
+    }
+
+    @Override
+    public void work(Object message) throws Exception {
         if (message instanceof TraceSegmentReceiver.TraceSegmentTimeSlice) {
             logger.debug("begin translate TraceSegment Object to JsonObject");
             TraceSegmentReceiver.TraceSegmentTimeSlice traceSegment = (TraceSegmentReceiver.TraceSegmentTimeSlice) message;
 
-            recordPersistence.beTold(traceSegment);
+            getSelfContext().lookup(TraceSegmentRecordPersistence.Role.INSTANCE).tell(traceSegment);
 
             sendToDAGNodePersistence(traceSegment);
             sendToNodeInstanceAnalysis(traceSegment);
@@ -53,12 +53,31 @@ public class ApplicationMain extends AbstractSyncMember {
         }
     }
 
-    public static class Factory extends AbstractSyncMemberProvider<ApplicationMain> {
+    public static class Factory extends AbstractLocalSyncWorkerProvider<ApplicationMain> {
         public static Factory INSTANCE = new Factory();
 
         @Override
-        public Class memberClass() {
+        public Role role() {
+            return null;
+        }
+
+        @Override
+        public Class workerClass() {
             return ApplicationMain.class;
+        }
+    }
+
+    public static class Role extends com.a.eye.skywalking.collector.actor.Role {
+        public static Role INSTANCE = new Role();
+
+        @Override
+        public String name() {
+            return ApplicationMain.class.getSimpleName();
+        }
+
+        @Override
+        public WorkerSelector workerSelector() {
+            return new RollingSelector();
         }
     }
 
@@ -75,7 +94,7 @@ public class ApplicationMain extends AbstractSyncMember {
         }
 
         DAGNodeAnalysis.Metric node = new DAGNodeAnalysis.Metric(traceSegment.getMinute(), traceSegment.getSecond(), code, component, layer);
-        dagNodeAnalysis.beTold(node);
+        getSelfContext().lookup(DAGNodeAnalysis.Role.INSTANCE).tell(node);
     }
 
     private void sendToNodeInstanceAnalysis(TraceSegmentReceiver.TraceSegmentTimeSlice traceSegment) throws Exception {
@@ -86,7 +105,7 @@ public class ApplicationMain extends AbstractSyncMember {
             String address = traceSegmentRef.getPeerHost();
 
             NodeInstanceAnalysis.Metric property = new NodeInstanceAnalysis.Metric(traceSegment.getMinute(), traceSegment.getSecond(), code, address);
-            nodeInstanceAnalysis.beTold(property);
+            getSelfContext().lookup(NodeInstanceAnalysis.Role.INSTANCE).tell(property);
         }
     }
 
@@ -106,7 +125,7 @@ public class ApplicationMain extends AbstractSyncMember {
         }
 
         ResponseCostAnalysis.Metric cost = new ResponseCostAnalysis.Metric(traceSegment.getMinute(), traceSegment.getSecond(), code, isError, startTime, endTime);
-        responseCostAnalysis.beTold(cost);
+        getSelfContext().lookup(ResponseCostAnalysis.Role.INSTANCE).tell(cost);
     }
 
     private void sendToResponseSummaryPersistence(TraceSegmentReceiver.TraceSegmentTimeSlice traceSegment) throws Exception {
@@ -120,6 +139,6 @@ public class ApplicationMain extends AbstractSyncMember {
         }
 
         ResponseSummaryAnalysis.Metric summary = new ResponseSummaryAnalysis.Metric(traceSegment.getMinute(), traceSegment.getSecond(), code, isError);
-        responseSummaryAnalysis.beTold(summary);
+        getSelfContext().lookup(ResponseSummaryAnalysis.Role.INSTANCE).tell(summary);
     }
 }

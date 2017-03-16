@@ -1,9 +1,9 @@
 package com.a.eye.skywalking.collector.worker.application.analysis;
 
-import akka.actor.ActorRef;
-import com.a.eye.skywalking.collector.actor.AbstractAsyncMemberProvider;
+import com.a.eye.skywalking.collector.actor.AbstractLocalAsyncWorkerProvider;
+import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
 import com.a.eye.skywalking.collector.actor.selector.HashCodeSelector;
-import com.a.eye.skywalking.collector.queue.MessageHolder;
+import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
 import com.a.eye.skywalking.collector.worker.RecordAnalysisMember;
 import com.a.eye.skywalking.collector.worker.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.application.receiver.NodeInstanceReceiver;
@@ -11,7 +11,6 @@ import com.a.eye.skywalking.collector.worker.storage.AbstractTimeSlice;
 import com.a.eye.skywalking.collector.worker.storage.RecordData;
 import com.a.eye.skywalking.collector.worker.tools.DateTools;
 import com.google.gson.JsonObject;
-import com.lmax.disruptor.RingBuffer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -22,8 +21,8 @@ public class NodeInstanceAnalysis extends RecordAnalysisMember {
 
     private Logger logger = LogManager.getFormatterLogger(NodeInstanceAnalysis.class);
 
-    public NodeInstanceAnalysis(RingBuffer<MessageHolder> ringBuffer, ActorRef actorRef) {
-        super(ringBuffer, actorRef);
+    public NodeInstanceAnalysis(Role role, ClusterWorkerContext clusterContext) throws Exception {
+        super(role, clusterContext);
     }
 
     @Override
@@ -47,15 +46,20 @@ public class NodeInstanceAnalysis extends RecordAnalysisMember {
     protected void aggregation() throws Exception {
         RecordData oneRecord;
         while ((oneRecord = pushOne()) != null) {
-            tell(NodeInstanceReceiver.Factory.INSTANCE, HashCodeSelector.INSTANCE, oneRecord);
+            getClusterContext().lookup(NodeInstanceReceiver.Role.INSTANCE).tell(oneRecord);
         }
     }
 
-    public static class Factory extends AbstractAsyncMemberProvider<NodeInstanceAnalysis> {
+    public static class Factory extends AbstractLocalAsyncWorkerProvider<NodeInstanceAnalysis> {
         public static Factory INSTANCE = new Factory();
 
         @Override
-        public Class memberClass() {
+        public Role role() {
+            return null;
+        }
+
+        @Override
+        public Class workerClass() {
             return NodeInstanceAnalysis.class;
         }
 
@@ -65,7 +69,21 @@ public class NodeInstanceAnalysis extends RecordAnalysisMember {
         }
     }
 
-    public static class Metric extends AbstractTimeSlice{
+    public static class Role extends com.a.eye.skywalking.collector.actor.Role {
+        public static Role INSTANCE = new Role();
+
+        @Override
+        public String name() {
+            return NodeInstanceAnalysis.class.getSimpleName();
+        }
+
+        @Override
+        public WorkerSelector workerSelector() {
+            return new HashCodeSelector();
+        }
+    }
+
+    public static class Metric extends AbstractTimeSlice {
         private final String code;
         private final String address;
 

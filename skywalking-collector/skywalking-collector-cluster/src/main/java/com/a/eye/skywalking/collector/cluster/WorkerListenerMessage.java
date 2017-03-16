@@ -1,5 +1,7 @@
 package com.a.eye.skywalking.collector.cluster;
 
+import com.a.eye.skywalking.collector.actor.Role;
+
 import java.io.Serializable;
 
 /**
@@ -12,14 +14,14 @@ import java.io.Serializable;
 public class WorkerListenerMessage {
 
     public static class RegisterMessage implements Serializable {
-        public final String workRole;
+        private final Role role;
 
-        public RegisterMessage(String workRole) {
-            this.workRole = workRole;
+        public RegisterMessage(Role role) {
+            this.role = role;
         }
 
-        public String getWorkRole() {
-            return workRole;
+        public Role getRole() {
+            return role;
         }
     }
 }

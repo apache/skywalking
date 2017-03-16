@@ -5,8 +5,14 @@ import akka.actor.Terminated;
 import akka.actor.UntypedActor;
 import akka.cluster.Cluster;
 import akka.cluster.ClusterEvent;
+import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
+import com.a.eye.skywalking.collector.actor.ClusterWorkerRef;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.Iterator;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * <code>WorkersListener</code> listening the register message from workers
@@ -28,6 +34,14 @@ public class WorkersListener extends UntypedActor {
 
     private Cluster cluster = Cluster.get(getContext().system());
 
+    private Map<ActorRef, ClusterWorkerRef> relation = new ConcurrentHashMap<>();
+
+    private final ClusterWorkerContext clusterContext;
+
+    public WorkersListener(ClusterWorkerContext clusterContext) {
+        this.clusterContext = clusterContext;
+    }
+
     @Override
     public void preStart() throws Exception {
         cluster.subscribe(getSelf(), ClusterEvent.UnreachableMember.class);
@@ -38,14 +52,26 @@ public class WorkersListener extends UntypedActor {
         if (message instanceof WorkerListenerMessage.RegisterMessage) {
             WorkerListenerMessage.RegisterMessage register = (WorkerListenerMessage.RegisterMessage) message;
             ActorRef sender = getSender();
-            logger.info("register worker of role: %s, path: %s", register.getWorkRole(), sender.toString());
-            WorkersRefCenter.INSTANCE.register(sender, register.getWorkRole());
+//            logger.info("register worker of role: %s, path: %s", register.getWorkRole(), sender.toString());
+            ClusterWorkerRef workerRef = new ClusterWorkerRef(sender, register.getRole());
+            relation.put(sender, workerRef);
+            clusterContext.put(new ClusterWorkerRef(sender, register.getRole()));
         } else if (message instanceof Terminated) {
             Terminated terminated = (Terminated) message;
-            WorkersRefCenter.INSTANCE.unregister(terminated.getActor());
+            clusterContext.remove(relation.get(terminated.getActor()));
+            relation.remove(terminated.getActor());
         } else if (message instanceof ClusterEvent.UnreachableMember) {
             ClusterEvent.UnreachableMember unreachableMember = (ClusterEvent.UnreachableMember) message;
-            WorkersRefCenter.INSTANCE.unregister(unreachableMember.member().address());
+
+            Iterator<Map.Entry<ActorRef, ClusterWorkerRef>> iterator = relation.entrySet().iterator();
+            while (iterator.hasNext()) {
+                Map.Entry<ActorRef, ClusterWorkerRef> next = iterator.next();
+
+                if (next.getKey().path().address().equals(unreachableMember.member().address())) {
+                    clusterContext.remove(next.getValue());
+                    iterator.remove();
+                }
+            }
         } else {
             unhandled(message);
         }

@@ -1,22 +1,21 @@
 package com.a.eye.skywalking.collector.worker;
 
-import akka.actor.ActorRef;
-import com.a.eye.skywalking.collector.actor.AbstractAsyncMember;
+import com.a.eye.skywalking.collector.actor.AbstractLocalAsyncWorker;
+import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
+import com.a.eye.skywalking.collector.actor.Role;
 import com.a.eye.skywalking.collector.queue.EndOfBatchCommand;
-import com.a.eye.skywalking.collector.queue.MessageHolder;
-import com.lmax.disruptor.RingBuffer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
  * @author pengys5
  */
-public abstract class PersistenceMember extends AbstractAsyncMember {
+public abstract class PersistenceMember extends AbstractLocalAsyncWorker {
 
     private Logger logger = LogManager.getFormatterLogger(PersistenceMember.class);
 
-    public PersistenceMember(RingBuffer<MessageHolder> ringBuffer, ActorRef actorRef) {
-        super(ringBuffer, actorRef);
+    public PersistenceMember(Role role, ClusterWorkerContext clusterContext) throws Exception {
+        super(role, clusterContext);
     }
 
     public abstract String esIndex();
@@ -26,7 +25,11 @@ public abstract class PersistenceMember extends AbstractAsyncMember {
     public abstract void analyse(Object message) throws Exception;
 
     @Override
-    public void receive(Object message) throws Exception {
+    public void preStart() throws Exception {
+    }
+
+    @Override
+    public void work(Object message) throws Exception {
         if (message instanceof EndOfBatchCommand) {
             persistence();
         } else {
