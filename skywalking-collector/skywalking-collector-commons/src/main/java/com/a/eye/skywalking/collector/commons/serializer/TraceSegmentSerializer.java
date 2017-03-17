@@ -1,7 +1,6 @@
 package com.a.eye.skywalking.collector.commons.serializer;
 
 import akka.serialization.JSerializer;
-import com.a.eye.skywalking.collector.CollectorSystem;
 import com.a.eye.skywalking.logging.ILog;
 import com.a.eye.skywalking.logging.LogManager;
 import com.a.eye.skywalking.trace.TraceSegment;
@@ -12,7 +11,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
  * @author pengys5
  */
 public class TraceSegmentSerializer extends JSerializer {
-    private static ILog logger = LogManager.getLogger(CollectorSystem.class);
+    private static ILog logger = LogManager.getLogger(TraceSegmentSerializer.class);
 
     @Override
     public boolean includeManifest() {

@@ -53,8 +53,8 @@ public class ClusterConfigInitializer {
         if (!StringUtil.isEmpty(System.getProperty("cluster.current.roles"))) {
             ClusterConfig.Cluster.Current.roles = System.getProperty("cluster.current.roles");
         }
-        if (!StringUtil.isEmpty(System.getProperty("cluster.nodes"))) {
-            ClusterConfig.Cluster.nodes = System.getProperty("cluster.nodes");
+        if (!StringUtil.isEmpty(System.getProperty("cluster.seed_nodes"))) {
+            ClusterConfig.Cluster.seed_nodes = System.getProperty("cluster.seed_nodes");
         }
     }
 }
