@@ -1,0 +1,92 @@
+<!-- @author pengys5 -->
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="cache-control" content="no-cache,no-store, must-revalidate">
+    <meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1,IE=edge">
+    <title>Skywalking UI</title>
+    <link href="/webjars/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/webjars/animate.css/3.5.2/animate.css" rel="stylesheet">
+    <link href="/webjars/jquery-ui/1.12.0/jquery-ui.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+<body class="top-navigation" style="background-color: #ffffff">
+<nav class="navbar-default navbar-fixed-top" role="navigation">
+    <div class="container-fluid" style="padding-right: 0px; padding-left: 0px; background-color: #ffffff">
+        <div class="navbar-header" style="width: 100%;">
+            <div class="navbar-brand"
+                 style="padding: 0; background: url(img/logo.png) no-repeat center center; width: 122px;"></div>
+            <div class="input-group" style="padding: 10px">
+                <div class="input-group-btn">
+                    <input id="input_search" type="text" placeholder="亚信搜搜，乐趣在其中" name="input_search"
+                           onkeypress="if(event.keyCode==13){search();}" class="form-control input-sm"
+                           style="width: 45%">
+                    <button id="soso_button" class="btn btn-sm btn-success" type="button" onclick="search();"
+                            style="width: 50px">
+                        <span data-i18n="soso_button.name"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div id="page-wrapper" class="white-bg" style="padding: 0px; min-height: 600px">
+    <div class="wrapper wrapper-content animated fadeInRight" style="padding: 40px 0px 0px 0px">
+        <div class="row">
+            <div class="search-form gray-bg" style="padding-left: 140px">
+                <div class="btn-group">
+                    <button class="btn gray-bg" type="button" onclick="changeModule(this, all_module_id);"
+                            style="border-bottom: 2px solid #38f; font-weight: bold">
+                        <span data-i18n="nav.all.name"></span>
+                    </button>
+                    <button class="btn gray-bg" type="button" onclick="changeModule(this, func_module_id);">
+                        <span data-i18n="nav.func.name"></span>
+                    </button>
+                    <button class="btn gray-bg" type="button" onclick="changeModule(this, todo_module_id);">
+                        <span data-i18n="nav.todo.name"></span>
+                    </button>
+                    <button class="btn gray-bg" type="button" onclick="changeModule(this, html_module_id);">
+                        <span data-i18n="nav.html.name"></span>
+                    </button>
+                    <button class="btn gray-bg" type="button" onclick="changeModule(this, service_module_id);">
+                        <span data-i18n="nav.service.name"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12" style="padding: 0px 140px 0px 140px">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-content" style="padding: 0px">
+                        <div style="padding: 10px 0px 10px 0px" id="div_count"></div>
+
+                        <div class="search-result" id="div_func_result"
+                             style="padding: 0px 0px 20px 0px; display: inline"></div>
+
+                        <div class="feed-activity-list" id="div_todo_result"
+                             style="padding: 0px 0px 20px 0px; display: inline"></div>
+
+                        <div id="div_result_list" class="feed-activity-list animated fadeInRight"></div>
+
+                        <div id="div_page" class="text-center" style="display: none; padding-top: 20px">
+                            <div class="btn-group"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="\webjars\jquery\2.2.4\jquery.min.js"></script>
+<script src="/webjars/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+<script src="\webjars\jquery-ui\1.12.1\jquery-ui.min.js"></script>
+<script src="/webjars/jsviews/1.0.0-beta.70/jsrender.min.js"></script>
+<script src="/webjars/jsviews/1.0.0-beta.70/jsviews.min.js"></script>
+<!--<script src="./index/index.js"></script>-->
+</body>
+</html>
