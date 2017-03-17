@@ -1,4 +1,4 @@
-package com.a.eye.skywalking.collector.role;
+package com.a.eye.skywalking.collector.commons.role;
 
 import com.a.eye.skywalking.collector.actor.Role;
 import com.a.eye.skywalking.collector.actor.selector.RollingSelector;

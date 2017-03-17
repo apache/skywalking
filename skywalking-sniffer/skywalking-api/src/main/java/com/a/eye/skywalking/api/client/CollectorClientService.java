@@ -7,7 +7,7 @@ import com.a.eye.skywalking.collector.CollectorSystem;
 import com.a.eye.skywalking.collector.actor.LookUp;
 import com.a.eye.skywalking.collector.actor.WorkerNotFoundException;
 import com.a.eye.skywalking.collector.actor.WorkerRefs;
-import com.a.eye.skywalking.collector.role.TraceSegmentReceiverRole;
+import com.a.eye.skywalking.collector.commons.role.TraceSegmentReceiverRole;
 import com.a.eye.skywalking.logging.ILog;
 import com.a.eye.skywalking.logging.LogManager;
 import com.a.eye.skywalking.trace.TraceSegment;

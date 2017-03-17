@@ -1,4 +1,4 @@
-package com.a.eye.skywalking.collector.worker;
+package com.a.eye.skywalking.collector.commons.serializer;
 
 import akka.serialization.JSerializer;
 import com.google.gson.Gson;
@@ -15,7 +15,7 @@ public class JsonSerializer extends JSerializer {
 
     @Override
     public int identifier() {
-        return 123;
+        return 31;
     }
 
     @Override

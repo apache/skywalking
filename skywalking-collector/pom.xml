@@ -5,7 +5,7 @@
     <modules>
         <module>skywalking-collector-cluster</module>
         <module>skywalking-collector-worker</module>
-        <module>skywalking-collector-role</module>
+        <module>skywalking-collector-commons</module>
     </modules>
     <parent>
         <artifactId>skywalking</artifactId>

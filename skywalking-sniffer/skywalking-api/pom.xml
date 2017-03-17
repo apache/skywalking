@@ -37,7 +37,7 @@
         </dependency>
         <dependency>
             <groupId>com.a.eye</groupId>
-            <artifactId>skywalking-collector-role</artifactId>
+            <artifactId>skywalking-collector-commons</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

@@ -1,7 +1,7 @@
 package com.a.eye.skywalking.collector.worker.receiver;
 
 import com.a.eye.skywalking.collector.actor.*;
-import com.a.eye.skywalking.collector.role.TraceSegmentReceiverRole;
+import com.a.eye.skywalking.collector.commons.role.TraceSegmentReceiverRole;
 import com.a.eye.skywalking.collector.worker.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.application.ApplicationMain;
 import com.a.eye.skywalking.collector.worker.applicationref.ApplicationRefMain;
