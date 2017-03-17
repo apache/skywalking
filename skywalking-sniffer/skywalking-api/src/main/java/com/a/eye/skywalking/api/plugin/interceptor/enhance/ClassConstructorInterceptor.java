@@ -1,7 +1,7 @@
 package com.a.eye.skywalking.api.plugin.interceptor.enhance;
 
-import com.a.eye.skywalking.api.logging.ILog;
-import com.a.eye.skywalking.api.logging.LogManager;
+import com.a.eye.skywalking.logging.ILog;
+import com.a.eye.skywalking.logging.LogManager;
 import com.a.eye.skywalking.api.plugin.interceptor.loader.InterceptorInstanceLoader;
 import com.a.eye.skywalking.api.plugin.interceptor.EnhancedClassInstanceContext;
 import net.bytebuddy.implementation.bind.annotation.AllArguments;

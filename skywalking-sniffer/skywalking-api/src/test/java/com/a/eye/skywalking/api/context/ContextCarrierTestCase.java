@@ -1,5 +1,9 @@
 package com.a.eye.skywalking.api.context;
 
+import com.a.eye.skywalking.trace.TraceId.DistributedTraceId;
+import com.a.eye.skywalking.trace.TraceId.PropagatedTraceId;
+import java.util.LinkedList;
+import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -14,19 +18,24 @@ public class ContextCarrierTestCase {
         carrier.setSpanId(100);
         carrier.setApplicationCode("REMOTE_APP");
         carrier.setPeerHost("10.2.3.16:8080");
+        List<DistributedTraceId> ids = new LinkedList<>();
+        ids.add(new PropagatedTraceId("Trace.global.id.123"));
+        carrier.setDistributedTraceIds(ids);
 
-        Assert.assertEquals("trace_id_A|100|REMOTE_APP|10.2.3.16:8080", carrier.serialize());
+        Assert.assertEquals("trace_id_A|100|REMOTE_APP|10.2.3.16:8080|Trace.global.id.123", carrier.serialize());
     }
 
     @Test
     public void testDeserialize(){
         ContextCarrier carrier = new ContextCarrier();
-        carrier.deserialize("trace_id_A|100|REMOTE_APP|10.2.3.16:8080");
+        carrier.deserialize("trace_id_A|100|REMOTE_APP|10.2.3.16:8080|Trace.global.id.123,Trace.global.id.222");
 
         Assert.assertEquals("trace_id_A", carrier.getTraceSegmentId());
         Assert.assertEquals(100, carrier.getSpanId());
         Assert.assertEquals("REMOTE_APP", carrier.getApplicationCode());
         Assert.assertEquals("10.2.3.16:8080", carrier.getPeerHost());
+        Assert.assertEquals("Trace.global.id.123", carrier.getDistributedTraceIds().get(0).get());
+        Assert.assertEquals("Trace.global.id.222", carrier.getDistributedTraceIds().get(1).get());
     }
 
     @Test
@@ -49,6 +58,10 @@ public class ContextCarrierTestCase {
 
         carrier = new ContextCarrier();
         carrier.deserialize("trace_id|100|REMOTE_APP|10.2.3.16:8080");
+        Assert.assertFalse(carrier.isValid());
+
+        carrier = new ContextCarrier();
+        carrier.deserialize("trace_id|100|REMOTE_APP|10.2.3.16:8080|Trace.global.id.123,Trace.global.id.222");
         Assert.assertTrue(carrier.isValid());
     }
 }

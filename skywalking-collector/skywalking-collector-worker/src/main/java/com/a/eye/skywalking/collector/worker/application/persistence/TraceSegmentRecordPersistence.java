@@ -1,9 +1,11 @@
 package com.a.eye.skywalking.collector.worker.application.persistence;
 
 
-import akka.actor.ActorRef;
-import com.a.eye.skywalking.collector.actor.AbstractAsyncMemberProvider;
-import com.a.eye.skywalking.collector.queue.MessageHolder;
+import com.a.eye.skywalking.collector.actor.AbstractLocalAsyncWorkerProvider;
+import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
+import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
+import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
+import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
 import com.a.eye.skywalking.collector.worker.RecordPersistenceMember;
 import com.a.eye.skywalking.collector.worker.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.receiver.TraceSegmentReceiver;
@@ -14,7 +16,6 @@ import com.a.eye.skywalking.trace.TraceSegment;
 import com.a.eye.skywalking.trace.TraceSegmentRef;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.lmax.disruptor.RingBuffer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -38,8 +39,8 @@ public class TraceSegmentRecordPersistence extends RecordPersistenceMember {
         return "trace_segment";
     }
 
-    public TraceSegmentRecordPersistence(RingBuffer<MessageHolder> ringBuffer, ActorRef actorRef) {
-        super(ringBuffer, actorRef);
+    public TraceSegmentRecordPersistence(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+        super(role, clusterContext, selfContext);
     }
 
     @Override
@@ -54,8 +55,13 @@ public class TraceSegmentRecordPersistence extends RecordPersistenceMember {
         }
     }
 
-    public static class Factory extends AbstractAsyncMemberProvider<TraceSegmentRecordPersistence> {
+    public static class Factory extends AbstractLocalAsyncWorkerProvider<TraceSegmentRecordPersistence> {
         public static Factory INSTANCE = new Factory();
+
+        @Override
+        public Role role() {
+            return Role.INSTANCE;
+        }
 
         @Override
         public int queueSize() {
@@ -63,8 +69,22 @@ public class TraceSegmentRecordPersistence extends RecordPersistenceMember {
         }
 
         @Override
-        public Class memberClass() {
-            return TraceSegmentRecordPersistence.class;
+        public TraceSegmentRecordPersistence workerInstance(ClusterWorkerContext clusterContext) {
+            return new TraceSegmentRecordPersistence(role(), clusterContext, new LocalWorkerContext());
+        }
+    }
+
+    public enum Role implements com.a.eye.skywalking.collector.actor.Role {
+        INSTANCE;
+
+        @Override
+        public String roleName() {
+            return TraceSegmentRecordPersistence.class.getSimpleName();
+        }
+
+        @Override
+        public WorkerSelector workerSelector() {
+            return new RollingSelector();
         }
     }
 
@@ -75,11 +95,6 @@ public class TraceSegmentRecordPersistence extends RecordPersistenceMember {
         traceJsonObj.addProperty("startTime", traceSegment.getStartTime());
         traceJsonObj.addProperty("endTime", traceSegment.getEndTime());
         traceJsonObj.addProperty("appCode", traceSegment.getApplicationCode());
-
-        if (traceSegment.getPrimaryRef() != null) {
-            JsonObject primaryRefJsonObj = parsePrimaryRef(traceSegment.getPrimaryRef());
-            traceJsonObj.add("primaryRef", primaryRefJsonObj);
-        }
 
         if (traceSegment.getRefs() != null) {
             JsonArray refsJsonArray = parseRefs(traceSegment.getRefs());
@@ -94,15 +109,6 @@ public class TraceSegmentRecordPersistence extends RecordPersistenceMember {
         traceJsonObj.add("spans", spanJsonArray);
 
         return traceJsonObj;
-    }
-
-    private JsonObject parsePrimaryRef(TraceSegmentRef primaryRef) {
-        JsonObject primaryRefJsonObj = new JsonObject();
-        primaryRefJsonObj.addProperty("appCode", primaryRef.getApplicationCode());
-        primaryRefJsonObj.addProperty("spanId", primaryRef.getSpanId());
-        primaryRefJsonObj.addProperty("peerHost", primaryRef.getPeerHost());
-        primaryRefJsonObj.addProperty("segmentId", primaryRef.getTraceSegmentId());
-        return primaryRefJsonObj;
     }
 
     private JsonArray parseRefs(List<TraceSegmentRef> refs) {

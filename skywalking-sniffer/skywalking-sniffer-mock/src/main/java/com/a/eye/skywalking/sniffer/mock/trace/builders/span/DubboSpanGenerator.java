@@ -13,7 +13,7 @@ import com.a.eye.skywalking.trace.tag.Tags;
 public class DubboSpanGenerator {
     public static class Client extends SpanGeneration{
         @Override protected void before() {
-            Span span = ContextManager.INSTANCE.createSpan("/default_rpc/com.a.eye.skywalking.test.persistence.PersistenceService.query");
+            Span span = ContextManager.createSpan("/default_rpc/com.a.eye.skywalking.test.persistence.PersistenceService.query");
             Tags.COMPONENT.set(span, "Dubbo");
             Tags.URL.set(span, "rest://192.168.1.8:20880/default_rpc/com.a.eye.skywalking.test.persistence.PersistenceService.query(String)");
             Tags.SPAN_KIND.set(span, Tags.SPAN_KIND_SERVER);
@@ -23,13 +23,13 @@ public class DubboSpanGenerator {
         }
 
         @Override protected void after() {
-            ContextManager.INSTANCE.stopSpan();
+            ContextManager.stopSpan();
         }
     }
 
     public static class Server extends SpanGeneration{
         @Override protected void before() {
-            Span span = ContextManager.INSTANCE.createSpan("/default_rpc/com.a.eye.skywalking.test.persistence.PersistenceService.query");
+            Span span = ContextManager.createSpan("/default_rpc/com.a.eye.skywalking.test.persistence.PersistenceService.query");
             Tags.COMPONENT.set(span, "Dubbo");
             Tags.URL.set(span, "rest://192.168.1.8:20880/default_rpc/com.a.eye.skywalking.test.persistence.PersistenceService.query(String)");
             Tags.SPAN_KIND.set(span, Tags.SPAN_KIND_CLIENT);
@@ -38,7 +38,7 @@ public class DubboSpanGenerator {
         }
 
         @Override protected void after() {
-            ContextManager.INSTANCE.stopSpan();
+            ContextManager.stopSpan();
         }
     }
 }

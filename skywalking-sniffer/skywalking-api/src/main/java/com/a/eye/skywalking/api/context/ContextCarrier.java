@@ -1,10 +1,14 @@
 package com.a.eye.skywalking.api.context;
 
 import com.a.eye.skywalking.trace.Span;
+import com.a.eye.skywalking.trace.TraceId.DistributedTraceId;
+import com.a.eye.skywalking.trace.TraceId.PropagatedTraceId;
 import com.a.eye.skywalking.trace.TraceSegment;
 import com.a.eye.skywalking.api.util.StringUtil;
 import com.a.eye.skywalking.trace.tag.Tags;
 import java.io.Serializable;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * {@link ContextCarrier} is a data carrier of {@link TracerContext}.
@@ -34,13 +38,23 @@ public class ContextCarrier implements Serializable {
     private String peerHost;
 
     /**
+     * {@link DistributedTraceId}
+     */
+    private List<DistributedTraceId> distributedTraceIds;
+
+    /**
      * Serialize this {@link ContextCarrier} to a {@link String},
      * with '|' split.
      *
      * @return the serialization string.
      */
     public String serialize() {
-        return StringUtil.join('|', this.getTraceSegmentId(), this.getSpanId() + "", this.getApplicationCode(), this.getPeerHost());
+        return StringUtil.join('|',
+            this.getTraceSegmentId(),
+            this.getSpanId() + "",
+            this.getApplicationCode(),
+            this.getPeerHost(),
+            this.serializeDistributedTraceIds());
     }
 
     /**
@@ -49,15 +63,16 @@ public class ContextCarrier implements Serializable {
      * @param text carries {@link #traceSegmentId} and {@link #spanId}, with '|' split.
      */
     public ContextCarrier deserialize(String text) {
-        if(text != null){
-            String[] parts = text.split("\\|", 4);
-            if(parts.length == 4){
-                try{
+        if (text != null) {
+            String[] parts = text.split("\\|", 5);
+            if (parts.length == 5) {
+                try {
                     setSpanId(Integer.parseInt(parts[1]));
                     setTraceSegmentId(parts[0]);
                     setApplicationCode(parts[2]);
                     setPeerHost(parts[3]);
-                }catch(NumberFormatException e){
+                    setDistributedTraceIds(deserializeDistributedTraceIds(parts[4]));
+                } catch (NumberFormatException e) {
 
                 }
             }
@@ -70,8 +85,12 @@ public class ContextCarrier implements Serializable {
      *
      * @return true for unbroken {@link ContextCarrier} or no-initialized. Otherwise, false;
      */
-    public boolean isValid(){
-        return !StringUtil.isEmpty(traceSegmentId) && getSpanId() > -1 && !StringUtil.isEmpty(applicationCode) && !StringUtil.isEmpty(peerHost);
+    public boolean isValid() {
+        return !StringUtil.isEmpty(traceSegmentId)
+            && getSpanId() > -1
+            && !StringUtil.isEmpty(applicationCode)
+            && !StringUtil.isEmpty(peerHost)
+            && distributedTraceIds != null;
     }
 
     public String getTraceSegmentId() {
@@ -105,4 +124,52 @@ public class ContextCarrier implements Serializable {
     public void setPeerHost(String peerHost) {
         this.peerHost = peerHost;
     }
+
+    public List<DistributedTraceId> getDistributedTraceIds() {
+        return distributedTraceIds;
+    }
+
+    public void setDistributedTraceIds(List<DistributedTraceId> distributedTraceIds) {
+        this.distributedTraceIds = distributedTraceIds;
+    }
+
+    /**
+     * Serialize {@link #distributedTraceIds} to a string, with ',' split.
+     *
+     * @return string, represents all {@link DistributedTraceId}
+     */
+    private String serializeDistributedTraceIds() {
+        StringBuilder traceIdString = new StringBuilder();
+        if (distributedTraceIds != null) {
+            boolean first = true;
+            for (DistributedTraceId distributedTraceId : distributedTraceIds) {
+                if (first) {
+                    first = false;
+                } else {
+                    traceIdString.append(",");
+                }
+                traceIdString.append(distributedTraceId.get());
+            }
+        }
+        return traceIdString.toString();
+    }
+
+    /**
+     * Deserialize {@link #distributedTraceIds} from a text, whith
+     *
+     * @param text
+     * @return
+     */
+    private List<DistributedTraceId> deserializeDistributedTraceIds(String text) {
+        if (StringUtil.isEmpty(text)) {
+            return null;
+        }
+        String[] propagationTraceIdValues = text.split(",");
+        List<DistributedTraceId> traceIds = new LinkedList<>();
+        for (String propagationTraceIdValue : propagationTraceIdValues) {
+            traceIds.add(new PropagatedTraceId(propagationTraceIdValue));
+        }
+        return traceIds;
+    }
+
 }

@@ -1,37 +1,18 @@
 package com.a.eye.skywalking.collector.actor;
 
-import akka.actor.ActorPath;
-import akka.actor.ActorRef;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 /**
- * The Worker reference
- *
  * @author pengys5
  */
-public class WorkerRef {
-    private Logger logger = LogManager.getFormatterLogger(WorkerRef.class);
+public abstract class WorkerRef {
+    private Role role;
 
-    final ActorRef actorRef;
-
-    final String workerRole;
-
-    public WorkerRef(ActorRef actorRef, String workerRole) {
-        this.actorRef = actorRef;
-        this.workerRole = workerRole;
+    public WorkerRef(Role role) {
+        this.role = role;
     }
 
-    void tell(Object message, ActorRef sender) {
-        logger.debug("tell %s worker", actorRef.toString());
-        actorRef.tell(message, sender);
+    final public Role getRole() {
+        return role;
     }
 
-    public ActorPath path() {
-        return actorRef.path();
-    }
-
-    public String getWorkerRole() {
-        return workerRole;
-    }
+    public abstract void tell(Object message) throws Exception;
 }

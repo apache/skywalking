@@ -12,7 +12,7 @@ import com.a.eye.skywalking.trace.tag.Tags;
 public class MySQLGenerator {
     public static class Query extends SpanGeneration {
         @Override protected void before() {
-            Span span = ContextManager.INSTANCE.createSpan("mysql/jdbi/statement/executeQuery");
+            Span span = ContextManager.createSpan("mysql/jdbi/statement/executeQuery");
             Tags.COMPONENT.set(span, "Mysql");
             Tags.SPAN_KIND.set(span, Tags.SPAN_KIND_CLIENT);
             Tags.PEER_HOST.set(span, "10.5.34.18");
@@ -24,7 +24,7 @@ public class MySQLGenerator {
         }
 
         @Override protected void after() {
-            ContextManager.INSTANCE.stopSpan();
+            ContextManager.stopSpan();
         }
     }
 }

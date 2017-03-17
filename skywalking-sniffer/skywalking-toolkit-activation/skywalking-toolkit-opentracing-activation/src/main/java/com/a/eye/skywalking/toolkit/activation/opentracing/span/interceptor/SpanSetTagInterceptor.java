@@ -21,11 +21,11 @@ public class SpanSetTagInterceptor implements InstanceMethodsAroundInterceptor {
         String key = (String)interceptorContext.allArguments()[0];
         Object value = interceptorContext.allArguments()[1];
         if (value instanceof String)
-            ContextManager.INSTANCE.activeSpan().setTag(key, (String)value);
+            ContextManager.activeSpan().setTag(key, (String)value);
         else if (value instanceof Boolean)
-            ContextManager.INSTANCE.activeSpan().setTag(key, (Boolean)value);
+            ContextManager.activeSpan().setTag(key, (Boolean)value);
         else if (value instanceof Number)
-            ContextManager.INSTANCE.activeSpan().setTag(key, (Number)value);
+            ContextManager.activeSpan().setTag(key, (Number)value);
     }
 
     @Override

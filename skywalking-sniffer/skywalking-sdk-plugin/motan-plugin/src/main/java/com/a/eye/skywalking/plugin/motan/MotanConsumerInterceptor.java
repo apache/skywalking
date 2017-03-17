@@ -49,7 +49,7 @@ public class MotanConsumerInterceptor implements InstanceConstructorInterceptor,
         URL url = (URL) context.get(KEY_NAME_OF_REQUEST_URL);
         Request request = (Request) interceptorContext.allArguments()[0];
         if (url != null) {
-            Span span = ContextManager.INSTANCE.createSpan(generateOperationName(url, request));
+            Span span = ContextManager.createSpan(generateOperationName(url, request));
             Tags.PEER_HOST.set(span, url.getHost());
             Tags.PEER_PORT.set(span, url.getPort());
             Tags.COMPONENT.set(span, MOTAN_COMPONENT);
@@ -58,7 +58,7 @@ public class MotanConsumerInterceptor implements InstanceConstructorInterceptor,
             Tags.SPAN_LAYER.asRPCFramework(span);
 
             ContextCarrier contextCarrier = new ContextCarrier();
-            ContextManager.INSTANCE.inject(contextCarrier);
+            ContextManager.inject(contextCarrier);
             request.setAttachment(ATTACHMENT_KEY_OF_CONTEXT_DATA, contextCarrier.serialize());
         }
     }
@@ -68,18 +68,18 @@ public class MotanConsumerInterceptor implements InstanceConstructorInterceptor,
                               Object ret) {
         Response response = (Response) ret;
         if (response != null && response.getException() != null) {
-            Span span = ContextManager.INSTANCE.activeSpan();
+            Span span = ContextManager.activeSpan();
             Tags.ERROR.set(span, true);
             span.log(response.getException());
         }
-        ContextManager.INSTANCE.stopSpan();
+        ContextManager.stopSpan();
         return ret;
     }
 
     @Override
     public void handleMethodException(Throwable t, EnhancedClassInstanceContext context,
                                       InstanceMethodInvokeContext interceptorContext) {
-        ContextManager.INSTANCE.activeSpan().log(t);
+        ContextManager.activeSpan().log(t);
     }
 
 

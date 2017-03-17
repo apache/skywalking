@@ -48,7 +48,7 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
         Tags.SPAN_LAYER.asHttp(span);
 
         ContextCarrier contextCarrier = new ContextCarrier();
-        ContextManager.INSTANCE.inject(contextCarrier);
+        ContextManager.inject(contextCarrier);
         httpRequest.setHeader(HEADER_NAME_OF_CONTEXT_DATA, contextCarrier.serialize());
     }
 
@@ -68,9 +68,9 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
         Span span;
         try {
             URL url = new URL(httpRequest.getRequestLine().getUri());
-            span = ContextManager.INSTANCE.createSpan(url.getPath());
+            span = ContextManager.createSpan(url.getPath());
         } catch (MalformedURLException e) {
-            span = ContextManager.INSTANCE.createSpan(httpRequest.getRequestLine().getUri());
+            span = ContextManager.createSpan(httpRequest.getRequestLine().getUri());
         }
         return span;
     }
@@ -85,20 +85,20 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
 
         HttpResponse response = (HttpResponse) ret;
         int statusCode = response.getStatusLine().getStatusCode();
-        Span span = ContextManager.INSTANCE.activeSpan();
+        Span span = ContextManager.activeSpan();
         if (statusCode != 200) {
             Tags.ERROR.set(span, true);
         }
 
         Tags.STATUS_CODE.set(span, statusCode);
-        ContextManager.INSTANCE.stopSpan();
+        ContextManager.stopSpan();
         return ret;
     }
 
     @Override
     public void handleMethodException(Throwable t, EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext) {
-        Tags.ERROR.set(ContextManager.INSTANCE.activeSpan(), true);
-        ContextManager.INSTANCE.activeSpan().log(t);
+        Tags.ERROR.set(ContextManager.activeSpan(), true);
+        ContextManager.activeSpan().log(t);
     }
 
 }

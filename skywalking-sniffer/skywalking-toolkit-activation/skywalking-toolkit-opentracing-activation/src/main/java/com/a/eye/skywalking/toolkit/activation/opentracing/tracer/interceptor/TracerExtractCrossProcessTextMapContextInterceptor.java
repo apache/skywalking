@@ -35,7 +35,7 @@ public class TracerExtractCrossProcessTextMapContextInterceptor implements Insta
                 ContextCarrier carrier = new ContextCarrier();
                 carrier.deserialize(entry.getValue());
 
-                ContextManager.INSTANCE.extract(carrier);
+                ContextManager.extract(carrier);
             }
         }
         return ret;

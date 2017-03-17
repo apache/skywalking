@@ -41,7 +41,7 @@ public class TomcatInterceptor implements InstanceMethodsAroundInterceptor {
         Object[] args = interceptorContext.allArguments();
         HttpServletRequest request = (HttpServletRequest) args[0];
 
-        Span span = ContextManager.INSTANCE.createSpan(request.getRequestURI());
+        Span span = ContextManager.createSpan(request.getRequestURI());
         Tags.COMPONENT.set(span, TOMCAT_COMPONENT);
         Tags.PEER_HOST.set(span, fetchRequestPeerHost(request));
         Tags.PEER_PORT.set(span, request.getRemotePort());
@@ -51,7 +51,7 @@ public class TomcatInterceptor implements InstanceMethodsAroundInterceptor {
 
         String tracingHeaderValue = request.getHeader(HEADER_NAME_OF_CONTEXT_DATA);
         if (!StringUtil.isEmpty(tracingHeaderValue)) {
-            ContextManager.INSTANCE.extract(new ContextCarrier().deserialize(tracingHeaderValue));
+            ContextManager.extract(new ContextCarrier().deserialize(tracingHeaderValue));
         }
     }
 
@@ -59,21 +59,21 @@ public class TomcatInterceptor implements InstanceMethodsAroundInterceptor {
     public Object afterMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext, Object ret) {
         HttpServletResponse response = (HttpServletResponse) interceptorContext.allArguments()[1];
 
-        Span span = ContextManager.INSTANCE.activeSpan();
+        Span span = ContextManager.activeSpan();
         Tags.STATUS_CODE.set(span, response.getStatus());
 
         if (response.getStatus() != 200) {
             Tags.ERROR.set(span, true);
         }
 
-        ContextManager.INSTANCE.stopSpan();
+        ContextManager.stopSpan();
         return ret;
     }
 
     @Override
     public void handleMethodException(Throwable t, EnhancedClassInstanceContext context,
                                       InstanceMethodInvokeContext interceptorContext) {
-        Span span = ContextManager.INSTANCE.activeSpan();
+        Span span = ContextManager.activeSpan();
         span.log(t);
         Tags.ERROR.set(span, true);
     }

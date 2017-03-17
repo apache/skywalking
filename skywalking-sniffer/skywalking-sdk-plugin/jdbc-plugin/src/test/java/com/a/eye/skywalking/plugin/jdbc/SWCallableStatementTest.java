@@ -1,12 +1,11 @@
 package com.a.eye.skywalking.plugin.jdbc;
 
+import com.a.eye.skywalking.api.boot.ServiceManager;
 import com.a.eye.skywalking.api.context.TracerContext;
 import com.a.eye.skywalking.sniffer.mock.context.MockTracerContextListener;
 import com.a.eye.skywalking.sniffer.mock.context.SegmentAssert;
-import com.a.eye.skywalking.trace.LogData;
 import com.a.eye.skywalking.trace.Span;
 import com.a.eye.skywalking.trace.TraceSegment;
-import com.a.eye.skywalking.trace.tag.Tags;
 import com.mysql.cj.api.jdbc.JdbcConnection;
 
 import org.hamcrest.CoreMatchers;
@@ -89,6 +88,7 @@ public class SWCallableStatementTest extends AbstractStatementTest {
     @Before
     public void setUp() throws Exception {
         mockTracerContextListener = new MockTracerContextListener();
+        ServiceManager.INSTANCE.boot();
         swConnection = new SWConnection("jdbc:mysql://127.0.0.1:3306/test", new Properties(), jdbcConnection);
         multiHostConnection = new SWConnection("jdbc:mysql://127.0.0.1:3306,127.0.0.1:3309/test", new Properties(), jdbcConnection);
 
