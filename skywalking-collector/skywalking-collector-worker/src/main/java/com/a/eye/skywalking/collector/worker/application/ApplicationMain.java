@@ -1,9 +1,9 @@
 package com.a.eye.skywalking.collector.worker.application;
 
-import akka.actor.ActorRef;
 import com.a.eye.skywalking.api.util.StringUtil;
-import com.a.eye.skywalking.collector.actor.AbstractSyncMember;
-import com.a.eye.skywalking.collector.actor.AbstractSyncMemberProvider;
+import com.a.eye.skywalking.collector.actor.*;
+import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
+import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
 import com.a.eye.skywalking.collector.worker.application.analysis.DAGNodeAnalysis;
 import com.a.eye.skywalking.collector.worker.application.analysis.NodeInstanceAnalysis;
 import com.a.eye.skywalking.collector.worker.application.analysis.ResponseCostAnalysis;
@@ -11,40 +11,40 @@ import com.a.eye.skywalking.collector.worker.application.analysis.ResponseSummar
 import com.a.eye.skywalking.collector.worker.application.persistence.TraceSegmentRecordPersistence;
 import com.a.eye.skywalking.collector.worker.receiver.TraceSegmentReceiver;
 import com.a.eye.skywalking.trace.Span;
+import com.a.eye.skywalking.trace.TraceSegment;
 import com.a.eye.skywalking.trace.TraceSegmentRef;
 import com.a.eye.skywalking.trace.tag.Tags;
+import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
  * @author pengys5
  */
-public class ApplicationMain extends AbstractSyncMember {
+public class ApplicationMain extends AbstractLocalSyncWorker {
 
     private Logger logger = LogManager.getFormatterLogger(ApplicationMain.class);
 
-    private DAGNodeAnalysis dagNodeAnalysis;
-    private NodeInstanceAnalysis nodeInstanceAnalysis;
-    private ResponseCostAnalysis responseCostAnalysis;
-    private ResponseSummaryAnalysis responseSummaryAnalysis;
-    private TraceSegmentRecordPersistence recordPersistence;
-
-    public ApplicationMain(ActorRef actorRef) throws Exception {
-        super(actorRef);
-        dagNodeAnalysis = DAGNodeAnalysis.Factory.INSTANCE.createWorker(actorRef);
-        nodeInstanceAnalysis = NodeInstanceAnalysis.Factory.INSTANCE.createWorker(actorRef);
-        responseCostAnalysis = ResponseCostAnalysis.Factory.INSTANCE.createWorker(actorRef);
-        responseSummaryAnalysis = ResponseSummaryAnalysis.Factory.INSTANCE.createWorker(actorRef);
-        recordPersistence = TraceSegmentRecordPersistence.Factory.INSTANCE.createWorker(actorRef);
+    public ApplicationMain(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+        super(role, clusterContext, selfContext);
     }
 
     @Override
-    public void receive(Object message) throws Exception {
+    public void preStart() throws ProviderNotFountException {
+        getClusterContext().findProvider(DAGNodeAnalysis.Role.INSTANCE).create(getClusterContext(), getSelfContext());
+        getClusterContext().findProvider(NodeInstanceAnalysis.Role.INSTANCE).create(getClusterContext(), getSelfContext());
+        getClusterContext().findProvider(ResponseCostAnalysis.Role.INSTANCE).create(getClusterContext(), getSelfContext());
+        getClusterContext().findProvider(ResponseSummaryAnalysis.Role.INSTANCE).create(getClusterContext(), getSelfContext());
+        getClusterContext().findProvider(TraceSegmentRecordPersistence.Role.INSTANCE).create(getClusterContext(), getSelfContext());
+    }
+
+    @Override
+    public void work(Object message) throws Exception {
         if (message instanceof TraceSegmentReceiver.TraceSegmentTimeSlice) {
             logger.debug("begin translate TraceSegment Object to JsonObject");
             TraceSegmentReceiver.TraceSegmentTimeSlice traceSegment = (TraceSegmentReceiver.TraceSegmentTimeSlice) message;
 
-            recordPersistence.beTold(traceSegment);
+            getSelfContext().lookup(TraceSegmentRecordPersistence.Role.INSTANCE).tell(traceSegment);
 
             sendToDAGNodePersistence(traceSegment);
             sendToNodeInstanceAnalysis(traceSegment);
@@ -53,12 +53,31 @@ public class ApplicationMain extends AbstractSyncMember {
         }
     }
 
-    public static class Factory extends AbstractSyncMemberProvider<ApplicationMain> {
+    public static class Factory extends AbstractLocalSyncWorkerProvider<ApplicationMain> {
         public static Factory INSTANCE = new Factory();
 
         @Override
-        public Class memberClass() {
-            return ApplicationMain.class;
+        public Role role() {
+            return null;
+        }
+
+        @Override
+        public ApplicationMain workerInstance(ClusterWorkerContext clusterContext) {
+            return new ApplicationMain(role(), clusterContext, new LocalWorkerContext());
+        }
+    }
+
+    public enum Role implements com.a.eye.skywalking.collector.actor.Role {
+        INSTANCE;
+
+        @Override
+        public String roleName() {
+            return ApplicationMain.class.getSimpleName();
+        }
+
+        @Override
+        public WorkerSelector workerSelector() {
+            return new RollingSelector();
         }
     }
 
@@ -75,18 +94,21 @@ public class ApplicationMain extends AbstractSyncMember {
         }
 
         DAGNodeAnalysis.Metric node = new DAGNodeAnalysis.Metric(traceSegment.getMinute(), traceSegment.getSecond(), code, component, layer);
-        dagNodeAnalysis.beTold(node);
+        getSelfContext().lookup(DAGNodeAnalysis.Role.INSTANCE).tell(node);
     }
 
     private void sendToNodeInstanceAnalysis(TraceSegmentReceiver.TraceSegmentTimeSlice traceSegment) throws Exception {
-        TraceSegmentRef traceSegmentRef = traceSegment.getTraceSegment().getPrimaryRef();
+        TraceSegment segment = traceSegment.getTraceSegment();
+        List<TraceSegmentRef> refs = segment.getRefs();
 
-        if (traceSegmentRef != null && !StringUtil.isEmpty(traceSegmentRef.getApplicationCode())) {
-            String code = traceSegmentRef.getApplicationCode();
-            String address = traceSegmentRef.getPeerHost();
+        if (refs != null) {
+            for (TraceSegmentRef ref : refs) {
+                String code = segment.getApplicationCode();
+                String address = ref.getPeerHost();
 
-            NodeInstanceAnalysis.Metric property = new NodeInstanceAnalysis.Metric(traceSegment.getMinute(), traceSegment.getSecond(), code, address);
-            nodeInstanceAnalysis.beTold(property);
+                NodeInstanceAnalysis.Metric property = new NodeInstanceAnalysis.Metric(traceSegment.getMinute(), traceSegment.getSecond(), code, address);
+                getSelfContext().lookup(NodeInstanceAnalysis.Role.INSTANCE).tell(property);
+            }
         }
     }
 
@@ -106,7 +128,7 @@ public class ApplicationMain extends AbstractSyncMember {
         }
 
         ResponseCostAnalysis.Metric cost = new ResponseCostAnalysis.Metric(traceSegment.getMinute(), traceSegment.getSecond(), code, isError, startTime, endTime);
-        responseCostAnalysis.beTold(cost);
+        getSelfContext().lookup(ResponseCostAnalysis.Role.INSTANCE).tell(cost);
     }
 
     private void sendToResponseSummaryPersistence(TraceSegmentReceiver.TraceSegmentTimeSlice traceSegment) throws Exception {
@@ -120,6 +142,6 @@ public class ApplicationMain extends AbstractSyncMember {
         }
 
         ResponseSummaryAnalysis.Metric summary = new ResponseSummaryAnalysis.Metric(traceSegment.getMinute(), traceSegment.getSecond(), code, isError);
-        responseSummaryAnalysis.beTold(summary);
+        getSelfContext().lookup(ResponseSummaryAnalysis.Role.INSTANCE).tell(summary);
     }
 }

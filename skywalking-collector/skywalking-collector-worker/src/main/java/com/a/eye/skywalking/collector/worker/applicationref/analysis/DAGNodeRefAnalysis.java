@@ -1,9 +1,10 @@
 package com.a.eye.skywalking.collector.worker.applicationref.analysis;
 
-import akka.actor.ActorRef;
-import com.a.eye.skywalking.collector.actor.AbstractAsyncMemberProvider;
+import com.a.eye.skywalking.collector.actor.AbstractLocalAsyncWorkerProvider;
+import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
+import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
 import com.a.eye.skywalking.collector.actor.selector.HashCodeSelector;
-import com.a.eye.skywalking.collector.queue.MessageHolder;
+import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
 import com.a.eye.skywalking.collector.worker.RecordAnalysisMember;
 import com.a.eye.skywalking.collector.worker.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.applicationref.receiver.DAGNodeRefReceiver;
@@ -11,7 +12,6 @@ import com.a.eye.skywalking.collector.worker.storage.AbstractTimeSlice;
 import com.a.eye.skywalking.collector.worker.storage.RecordData;
 import com.a.eye.skywalking.collector.worker.tools.DateTools;
 import com.google.gson.JsonObject;
-import com.lmax.disruptor.RingBuffer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -22,8 +22,8 @@ public class DAGNodeRefAnalysis extends RecordAnalysisMember {
 
     private Logger logger = LogManager.getFormatterLogger(DAGNodeRefAnalysis.class);
 
-    public DAGNodeRefAnalysis(RingBuffer<MessageHolder> ringBuffer, ActorRef actorRef) {
-        super(ringBuffer, actorRef);
+    public DAGNodeRefAnalysis(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+        super(role, clusterContext, selfContext);
     }
 
     @Override
@@ -45,22 +45,41 @@ public class DAGNodeRefAnalysis extends RecordAnalysisMember {
     protected void aggregation() throws Exception {
         RecordData oneRecord;
         while ((oneRecord = pushOne()) != null) {
-            tell(DAGNodeRefReceiver.Factory.INSTANCE, HashCodeSelector.INSTANCE, oneRecord);
+            getClusterContext().lookup(DAGNodeRefReceiver.Role.INSTANCE).tell(oneRecord);
         }
     }
 
-    public static class Factory extends AbstractAsyncMemberProvider<DAGNodeRefAnalysis> {
+    public static class Factory extends AbstractLocalAsyncWorkerProvider<DAGNodeRefAnalysis> {
 
         public static Factory INSTANCE = new Factory();
 
         @Override
-        public Class memberClass() {
-            return DAGNodeRefAnalysis.class;
+        public Role role() {
+            return Role.INSTANCE;
+        }
+
+        @Override
+        public DAGNodeRefAnalysis workerInstance(ClusterWorkerContext clusterContext) {
+            return new DAGNodeRefAnalysis(role(), clusterContext, new LocalWorkerContext());
         }
 
         @Override
         public int queueSize() {
             return WorkerConfig.Queue.DAGNodeRefAnalysis.Size;
+        }
+    }
+
+    public enum Role implements com.a.eye.skywalking.collector.actor.Role {
+        INSTANCE;
+
+        @Override
+        public String roleName() {
+            return DAGNodeRefAnalysis.class.getSimpleName();
+        }
+
+        @Override
+        public WorkerSelector workerSelector() {
+            return new HashCodeSelector();
         }
     }
 

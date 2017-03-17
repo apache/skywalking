@@ -92,8 +92,8 @@ public class TracerContextTestCase {
 
         context.stopSpan(span);
 
-        Assert.assertEquals("trace_id_1", finishedSegmentCarrier[0].getPrimaryRef().getTraceSegmentId());
-        Assert.assertEquals(5, finishedSegmentCarrier[0].getPrimaryRef().getSpanId());
+        Assert.assertEquals("trace_id_1", finishedSegmentCarrier[0].getRefs().get(0).getTraceSegmentId());
+        Assert.assertEquals(5, finishedSegmentCarrier[0].getRefs().get(0).getSpanId());
     }
 
     @After

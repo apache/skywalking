@@ -106,6 +106,9 @@ public class TraceSegment implements ISerializable<SegmentMessage> {
      * @param refSegment {@link TraceSegmentRef}
      */
     public void ref(TraceSegmentRef refSegment) {
+        if (refs == null) {
+            refs = new LinkedList<TraceSegmentRef>();
+        }
         if(!refs.contains(refSegment)){
             refs.add(refSegment);
         }

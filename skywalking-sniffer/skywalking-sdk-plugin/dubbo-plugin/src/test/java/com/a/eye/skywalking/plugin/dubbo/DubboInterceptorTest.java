@@ -205,7 +205,7 @@ public class DubboInterceptorTest {
             public void call(TraceSegment traceSegment) {
                 assertThat(traceSegment.getSpans().size(), is(1));
                 assertProviderSpan(traceSegment.getSpans().get(0));
-                assertTraceSegmentRef(traceSegment.getPrimaryRef(), expect);
+                assertTraceSegmentRef(traceSegment.getRefs().get(0), expect);
             }
         });
     }
