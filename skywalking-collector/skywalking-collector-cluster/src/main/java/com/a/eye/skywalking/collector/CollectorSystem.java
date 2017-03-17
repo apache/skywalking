@@ -6,10 +6,10 @@ import com.a.eye.skywalking.collector.actor.*;
 import com.a.eye.skywalking.collector.cluster.ClusterConfig;
 import com.a.eye.skywalking.collector.cluster.ClusterConfigInitializer;
 import com.a.eye.skywalking.collector.cluster.WorkersListener;
+import com.a.eye.skywalking.logging.ILog;
+import com.a.eye.skywalking.logging.LogManager;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.ServiceLoader;
 
@@ -17,15 +17,14 @@ import java.util.ServiceLoader;
  * @author pengys5
  */
 public class CollectorSystem {
-    private Logger logger = LogManager.getFormatterLogger(CollectorSystem.class);
-
+    private ILog logger = LogManager.getLogger(CollectorSystem.class);
     private ClusterWorkerContext clusterContext;
 
     public LookUp getClusterContext() {
         return clusterContext;
     }
 
-    public void boot() throws UsedRoleNameException, ProviderNotFountException {
+    public void boot() throws UsedRoleNameException, ProviderNotFoundException {
         createAkkaSystem();
         createListener();
         loadLocalProviders();
@@ -54,7 +53,7 @@ public class CollectorSystem {
         clusterContext.getAkkaSystem().actorOf(Props.create(WorkersListener.class, clusterContext), WorkersListener.WorkName);
     }
 
-    private void createClusterWorkers() throws ProviderNotFountException {
+    private void createClusterWorkers() throws ProviderNotFoundException {
         ServiceLoader<AbstractClusterWorkerProvider> clusterServiceLoader = ServiceLoader.load(AbstractClusterWorkerProvider.class);
         for (AbstractClusterWorkerProvider provider : clusterServiceLoader) {
             logger.info("create {%s} worker using java service loader", provider.workerNum());

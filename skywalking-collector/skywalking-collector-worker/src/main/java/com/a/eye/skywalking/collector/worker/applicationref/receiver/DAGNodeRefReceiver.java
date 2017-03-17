@@ -23,7 +23,7 @@ public class DAGNodeRefReceiver extends AbstractClusterWorker {
     }
 
     @Override
-    public void preStart() throws ProviderNotFountException {
+    public void preStart() throws ProviderNotFoundException {
         getClusterContext().findProvider(DAGNodeRefPersistence.Role.INSTANCE).create(this);
     }
 

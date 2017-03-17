@@ -4,6 +4,7 @@ import com.a.eye.skywalking.api.context.ContextManager;
 import com.a.eye.skywalking.api.plugin.interceptor.EnhancedClassInstanceContext;
 import com.a.eye.skywalking.api.plugin.interceptor.assist.NoCocurrencyAceessObject;
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.InstanceMethodInvokeContext;
+import com.a.eye.skywalking.api.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.MethodInterceptResult;
 import com.a.eye.skywalking.api.util.StringUtil;
 import com.a.eye.skywalking.trace.Span;
@@ -16,7 +17,7 @@ import com.a.eye.skywalking.trace.tag.Tags;
  *
  * @author zhangxin
  */
-public class JedisMethodInterceptor extends NoCocurrencyAceessObject {
+public class JedisMethodInterceptor extends NoCocurrencyAceessObject implements InstanceMethodsAroundInterceptor {
     /**
      * The key name that redis connection information in {@link EnhancedClassInstanceContext#context}.
      */
@@ -46,7 +47,7 @@ public class JedisMethodInterceptor extends NoCocurrencyAceessObject {
         this.whenEnter(context, new Runnable() {
             @Override
             public void run() {
-                Span span = ContextManager.INSTANCE.createSpan("Jedis/" + interceptorContext.methodName());
+                Span span = ContextManager.createSpan("Jedis/" + interceptorContext.methodName());
                 Tags.COMPONENT.set(span, REDIS_COMPONENT);
                 Tags.DB_TYPE.set(span, REDIS_COMPONENT);
                 tagPeer(span, context);
@@ -84,7 +85,7 @@ public class JedisMethodInterceptor extends NoCocurrencyAceessObject {
         this.whenExist(context, new Runnable() {
             @Override
             public void run() {
-                ContextManager.INSTANCE.stopSpan();
+                ContextManager.stopSpan();
             }
         });
         return ret;
@@ -92,6 +93,6 @@ public class JedisMethodInterceptor extends NoCocurrencyAceessObject {
 
     @Override
     public void handleMethodException(Throwable t, EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext) {
-        ContextManager.INSTANCE.activeSpan().log(t);
+        ContextManager.activeSpan().log(t);
     }
 }

@@ -4,7 +4,6 @@ package com.a.eye.skywalking.collector.actor;
  * @author pengys5
  */
 public abstract class WorkerRef {
-
     private Role role;
 
     public WorkerRef(Role role) {

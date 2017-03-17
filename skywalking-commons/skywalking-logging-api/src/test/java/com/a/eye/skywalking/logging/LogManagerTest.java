@@ -1,4 +1,4 @@
-package com.a.eye.skywalking.api.logging;
+package com.a.eye.skywalking.logging;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -7,21 +7,9 @@ import org.junit.Test;
 import org.powermock.api.support.membermodification.MemberModifier;
 
 /**
- * Created by wusheng on 2017/2/27.
+ * @author wusheng
  */
 public class LogManagerTest {
-    @Test
-    public void testGetLogger() {
-        final TestLogger logger = new TestLogger();
-        LogManager.setLogResolver(new LogResolver() {
-            @Override
-            public ILog getLogger(Class<?> clazz) {
-                return logger;
-            }
-        });
-
-        Assert.assertEquals(logger, LogManager.getLogger(LogManagerTest.class));
-    }
 
     @Test
     public void testGetNoopLogger(){
@@ -86,5 +74,5 @@ public class LogManagerTest {
 
         }
     }
-}
 
+}

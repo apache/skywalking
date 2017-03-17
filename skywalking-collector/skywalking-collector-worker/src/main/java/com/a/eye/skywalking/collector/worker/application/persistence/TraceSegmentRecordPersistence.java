@@ -96,11 +96,6 @@ public class TraceSegmentRecordPersistence extends RecordPersistenceMember {
         traceJsonObj.addProperty("endTime", traceSegment.getEndTime());
         traceJsonObj.addProperty("appCode", traceSegment.getApplicationCode());
 
-        if (traceSegment.getPrimaryRef() != null) {
-            JsonObject primaryRefJsonObj = parsePrimaryRef(traceSegment.getPrimaryRef());
-            traceJsonObj.add("primaryRef", primaryRefJsonObj);
-        }
-
         if (traceSegment.getRefs() != null) {
             JsonArray refsJsonArray = parseRefs(traceSegment.getRefs());
             traceJsonObj.add("refs", refsJsonArray);
@@ -114,15 +109,6 @@ public class TraceSegmentRecordPersistence extends RecordPersistenceMember {
         traceJsonObj.add("spans", spanJsonArray);
 
         return traceJsonObj;
-    }
-
-    private JsonObject parsePrimaryRef(TraceSegmentRef primaryRef) {
-        JsonObject primaryRefJsonObj = new JsonObject();
-        primaryRefJsonObj.addProperty("appCode", primaryRef.getApplicationCode());
-        primaryRefJsonObj.addProperty("spanId", primaryRef.getSpanId());
-        primaryRefJsonObj.addProperty("peerHost", primaryRef.getPeerHost());
-        primaryRefJsonObj.addProperty("segmentId", primaryRef.getTraceSegmentId());
-        return primaryRefJsonObj;
     }
 
     private JsonArray parseRefs(List<TraceSegmentRef> refs) {

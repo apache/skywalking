@@ -1,7 +1,7 @@
 package com.a.eye.skywalking.api.conf;
 
-import com.a.eye.skywalking.api.logging.ILog;
-import com.a.eye.skywalking.api.logging.LogManager;
+import com.a.eye.skywalking.logging.ILog;
+import com.a.eye.skywalking.logging.LogManager;
 import com.a.eye.skywalking.api.util.ConfigInitializer;
 import com.a.eye.skywalking.api.util.StringUtil;
 

@@ -19,7 +19,7 @@ public abstract class AnalysisMember extends AbstractLocalAsyncWorker {
     public abstract void analyse(Object message) throws Exception;
 
     @Override
-    public void preStart() throws ProviderNotFountException {
+    public void preStart() throws ProviderNotFoundException {
         
     }
 

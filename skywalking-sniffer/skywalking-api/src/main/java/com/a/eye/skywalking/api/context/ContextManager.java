@@ -1,5 +1,6 @@
 package com.a.eye.skywalking.api.context;
 
+import com.a.eye.skywalking.api.boot.BootService;
 import com.a.eye.skywalking.api.queue.TraceSegmentProcessQueue;
 import com.a.eye.skywalking.trace.Span;
 import com.a.eye.skywalking.trace.TraceSegment;
@@ -16,21 +17,10 @@ import com.a.eye.skywalking.trace.TraceSegment;
  *
  * Created by wusheng on 2017/2/17.
  */
-public enum ContextManager implements TracerContextListener {
-    INSTANCE {
-        @Override public void afterFinished(TraceSegment traceSegment) {
-            CONTEXT.remove();
-        }
-    };
-
-    ContextManager() {
-        TracerContext.ListenerManager.add(this);
-        TraceSegmentProcessQueue.INSTANCE.start();
-    }
-
+public class ContextManager implements TracerContextListener, BootService {
     private static ThreadLocal<TracerContext> CONTEXT = new ThreadLocal<>();
 
-    private TracerContext get() {
+    private static TracerContext get() {
         TracerContext segment = CONTEXT.get();
         if (segment == null) {
             segment = new TracerContext();
@@ -42,28 +32,28 @@ public enum ContextManager implements TracerContextListener {
     /**
      * @see {@link TracerContext#inject(ContextCarrier)}
      */
-    public void inject(ContextCarrier carrier) {
+    public static void inject(ContextCarrier carrier) {
         get().inject(carrier);
     }
 
     /**
      *@see {@link TracerContext#extract(ContextCarrier)}
      */
-    public void extract(ContextCarrier carrier) {
+    public static void extract(ContextCarrier carrier) {
         get().extract(carrier);
     }
 
     /**
      * @see {@link TracerContext#extract(ContextCarrier)}
      */
-    public void multiExtract(ContextCarrier carrier){
+    public static void multiExtract(ContextCarrier carrier){
         get().extract(carrier);
     }
 
     /**
      * @return the {@link TraceSegment#traceSegmentId} if exist. Otherwise, "N/A".
      */
-    public String getTraceSegmentId(){
+    public static String getTraceSegmentId(){
         TracerContext segment = CONTEXT.get();
         if(segment == null){
             return "N/A";
@@ -72,27 +62,37 @@ public enum ContextManager implements TracerContextListener {
         }
     }
 
-    public Span createSpan(String operationName) {
+    public static Span createSpan(String operationName) {
         return get().createSpan(operationName);
     }
 
-    public Span createSpan(String operationName, long startTime) {
-        return get().createSpan(operationName);
+    public static Span createSpan(String operationName, long startTime) {
+        return get().createSpan(operationName, startTime);
     }
 
-    public Span activeSpan() {
+    public static Span activeSpan() {
         return get().activeSpan();
     }
 
-    public void stopSpan(Span span) {
+    public static void stopSpan(Span span) {
         get().stopSpan(span);
     }
 
-    public void stopSpan(Long endTime) {
+    public static void stopSpan(Long endTime) {
         get().stopSpan(activeSpan(), endTime);
     }
 
-    public void stopSpan() {
+    public static void stopSpan() {
         stopSpan(activeSpan());
+    }
+
+    @Override
+    public void bootUp(){
+        TracerContext.ListenerManager.add(this);
+    }
+
+    @Override
+    public void afterFinished(TraceSegment traceSegment) {
+        CONTEXT.remove();
     }
 }

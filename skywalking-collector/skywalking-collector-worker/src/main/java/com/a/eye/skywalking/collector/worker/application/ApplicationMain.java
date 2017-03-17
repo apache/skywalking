@@ -1,6 +1,5 @@
 package com.a.eye.skywalking.collector.worker.application;
 
-import com.a.eye.skywalking.api.util.StringUtil;
 import com.a.eye.skywalking.collector.actor.*;
 import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
 import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
@@ -11,8 +10,10 @@ import com.a.eye.skywalking.collector.worker.application.analysis.ResponseSummar
 import com.a.eye.skywalking.collector.worker.application.persistence.TraceSegmentRecordPersistence;
 import com.a.eye.skywalking.collector.worker.receiver.TraceSegmentReceiver;
 import com.a.eye.skywalking.trace.Span;
+import com.a.eye.skywalking.trace.TraceSegment;
 import com.a.eye.skywalking.trace.TraceSegmentRef;
 import com.a.eye.skywalking.trace.tag.Tags;
+import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -28,7 +29,7 @@ public class ApplicationMain extends AbstractLocalSyncWorker {
     }
 
     @Override
-    public void preStart() throws ProviderNotFountException {
+    public void preStart() throws ProviderNotFoundException {
         getClusterContext().findProvider(DAGNodeAnalysis.Role.INSTANCE).create(this);
         getClusterContext().findProvider(NodeInstanceAnalysis.Role.INSTANCE).create(this);
         getClusterContext().findProvider(ResponseCostAnalysis.Role.INSTANCE).create(this);
@@ -97,14 +98,17 @@ public class ApplicationMain extends AbstractLocalSyncWorker {
     }
 
     private void sendToNodeInstanceAnalysis(TraceSegmentReceiver.TraceSegmentTimeSlice traceSegment) throws Exception {
-        TraceSegmentRef traceSegmentRef = traceSegment.getTraceSegment().getPrimaryRef();
+        TraceSegment segment = traceSegment.getTraceSegment();
+        List<TraceSegmentRef> refs = segment.getRefs();
 
-        if (traceSegmentRef != null && !StringUtil.isEmpty(traceSegmentRef.getApplicationCode())) {
-            String code = traceSegmentRef.getApplicationCode();
-            String address = traceSegmentRef.getPeerHost();
+        if (refs != null) {
+            for (TraceSegmentRef ref : refs) {
+                String code = segment.getApplicationCode();
+                String address = ref.getPeerHost();
 
-            NodeInstanceAnalysis.Metric property = new NodeInstanceAnalysis.Metric(traceSegment.getMinute(), traceSegment.getSecond(), code, address);
-            getSelfContext().lookup(NodeInstanceAnalysis.Role.INSTANCE).tell(property);
+                NodeInstanceAnalysis.Metric property = new NodeInstanceAnalysis.Metric(traceSegment.getMinute(), traceSegment.getSecond(), code, address);
+                getSelfContext().lookup(NodeInstanceAnalysis.Role.INSTANCE).tell(property);
+            }
         }
     }
 

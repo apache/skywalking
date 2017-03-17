@@ -1,5 +1,6 @@
 package com.a.eye.skywalking.plugin.jdbc;
 
+import com.a.eye.skywalking.api.boot.ServiceManager;
 import com.a.eye.skywalking.api.context.TracerContext;
 import com.a.eye.skywalking.sniffer.mock.context.MockTracerContextListener;
 import com.a.eye.skywalking.sniffer.mock.context.SegmentAssert;
@@ -46,6 +47,7 @@ public class SWConnectionTest extends AbstractStatementTest {
 
     @Before
     public void setUp() throws Exception {
+        ServiceManager.INSTANCE.boot();
         mockTracerContextListener = new MockTracerContextListener();
         swConnection = new SWConnection("jdbc:mysql://127.0.0.1:3306/test", new Properties(), jdbcConnection);
         multiHostConnection = new SWConnection("jdbc:mysql://127.0.0.1:3306,127.0.0.1:3309/test", new Properties(), jdbcConnection);
@@ -66,7 +68,7 @@ public class SWConnectionTest extends AbstractStatementTest {
             @Override
             public void call(TraceSegment traceSegment) {
                 assertThat(traceSegment.getSpans().size(), is(1));
-                assertDBSpan(traceSegment.getSpans().get(0), "JDBC/Connection/commit");
+                assertDBSpan(traceSegment.getSpans().get(0), "Mysql/JDBI/Connection/commit");
             }
         });
     }
@@ -81,7 +83,7 @@ public class SWConnectionTest extends AbstractStatementTest {
             @Override
             public void call(TraceSegment traceSegment) {
                 assertThat(traceSegment.getSpans().size(), is(1));
-                assertDBSpan(traceSegment.getSpans().get(0), "JDBC/Connection/commit");
+                assertDBSpan(traceSegment.getSpans().get(0), "Mysql/JDBI/Connection/commit");
             }
         });
     }
@@ -98,7 +100,7 @@ public class SWConnectionTest extends AbstractStatementTest {
                 @Override
                 public void call(TraceSegment traceSegment) {
                     assertThat(traceSegment.getSpans().size(), is(1));
-                    assertDBSpan(traceSegment.getSpans().get(0), "JDBC/Connection/commit");
+                    assertDBSpan(traceSegment.getSpans().get(0), "Mysql/JDBI/Connection/commit");
                     assertDBSpanLog(traceSegment.getSpans().get(0).getLogs().get(0));
                 }
             });
@@ -115,7 +117,7 @@ public class SWConnectionTest extends AbstractStatementTest {
             @Override
             public void call(TraceSegment traceSegment) {
                 assertThat(traceSegment.getSpans().size(), is(1));
-                assertDBSpan(traceSegment.getSpans().get(0), "JDBC/Connection/rollback");
+                assertDBSpan(traceSegment.getSpans().get(0), "Mysql/JDBI/Connection/rollback");
 
             }
         });
@@ -131,7 +133,7 @@ public class SWConnectionTest extends AbstractStatementTest {
             @Override
             public void call(TraceSegment traceSegment) {
                 assertThat(traceSegment.getSpans().size(), is(1));
-                assertDBSpan(traceSegment.getSpans().get(0), "JDBC/Connection/rollback");
+                assertDBSpan(traceSegment.getSpans().get(0), "Mysql/JDBI/Connection/rollback");
             }
         });
     }
@@ -147,7 +149,7 @@ public class SWConnectionTest extends AbstractStatementTest {
             @Override
             public void call(TraceSegment traceSegment) {
                 assertThat(traceSegment.getSpans().size(), is(1));
-                assertDBSpan(traceSegment.getSpans().get(0), "JDBC/Connection/rollback");
+                assertDBSpan(traceSegment.getSpans().get(0), "Mysql/JDBI/Connection/rollback");
             }
         });
     }
@@ -162,7 +164,7 @@ public class SWConnectionTest extends AbstractStatementTest {
             @Override
             public void call(TraceSegment traceSegment) {
                 assertThat(traceSegment.getSpans().size(), is(1));
-                assertDBSpan(traceSegment.getSpans().get(0), "JDBC/Connection/rollback to savepoint");
+                assertDBSpan(traceSegment.getSpans().get(0), "Mysql/JDBI/Connection/rollback to savepoint");
             }
         });
     }
@@ -176,7 +178,7 @@ public class SWConnectionTest extends AbstractStatementTest {
             @Override
             public void call(TraceSegment traceSegment) {
                 assertThat(traceSegment.getSpans().size(), is(1));
-                assertDBSpan(traceSegment.getSpans().get(0), "JDBC/Connection/rollback to savepoint");
+                assertDBSpan(traceSegment.getSpans().get(0), "Mysql/JDBI/Connection/rollback to savepoint");
             }
         });
     }
@@ -192,7 +194,7 @@ public class SWConnectionTest extends AbstractStatementTest {
             @Override
             public void call(TraceSegment traceSegment) {
                 assertThat(traceSegment.getSpans().size(), is(1));
-                assertDBSpan(traceSegment.getSpans().get(0), "JDBC/Connection/rollback to savepoint");
+                assertDBSpan(traceSegment.getSpans().get(0), "Mysql/JDBI/Connection/rollback to savepoint");
                 assertDBSpanLog(traceSegment.getSpans().get(0).getLogs().get(0));
             }
         });
@@ -208,7 +210,7 @@ public class SWConnectionTest extends AbstractStatementTest {
             @Override
             public void call(TraceSegment traceSegment) {
                 assertThat(traceSegment.getSpans().size(), is(1));
-                assertDBSpan(traceSegment.getSpans().get(0), "JDBC/Connection/close");
+                assertDBSpan(traceSegment.getSpans().get(0), "Mysql/JDBI/Connection/close");
             }
         });
     }
@@ -222,7 +224,7 @@ public class SWConnectionTest extends AbstractStatementTest {
             @Override
             public void call(TraceSegment traceSegment) {
                 assertThat(traceSegment.getSpans().size(), is(1));
-                assertDBSpan(traceSegment.getSpans().get(0), "JDBC/Connection/close");
+                assertDBSpan(traceSegment.getSpans().get(0), "Mysql/JDBI/Connection/close");
             }
         });
     }
@@ -238,7 +240,7 @@ public class SWConnectionTest extends AbstractStatementTest {
             @Override
             public void call(TraceSegment traceSegment) {
                 assertThat(traceSegment.getSpans().size(), is(1));
-                assertDBSpan(traceSegment.getSpans().get(0), "JDBC/Connection/close");
+                assertDBSpan(traceSegment.getSpans().get(0), "Mysql/JDBI/Connection/close");
                 assertDBSpanLog(traceSegment.getSpans().get(0).getLogs().get(0));
             }
         });
@@ -255,7 +257,7 @@ public class SWConnectionTest extends AbstractStatementTest {
             @Override
             public void call(TraceSegment traceSegment) {
                 assertThat(traceSegment.getSpans().size(), is(1));
-                assertDBSpan(traceSegment.getSpans().get(0), "JDBC/Connection/releaseSavepoint savepoint");
+                assertDBSpan(traceSegment.getSpans().get(0), "Mysql/JDBI/Connection/releaseSavepoint savepoint");
             }
         });
     }
@@ -269,7 +271,7 @@ public class SWConnectionTest extends AbstractStatementTest {
             @Override
             public void call(TraceSegment traceSegment) {
                 assertThat(traceSegment.getSpans().size(), is(1));
-                assertDBSpan(traceSegment.getSpans().get(0), "JDBC/Connection/releaseSavepoint savepoint");
+                assertDBSpan(traceSegment.getSpans().get(0), "Mysql/JDBI/Connection/releaseSavepoint savepoint");
             }
         });
     }
@@ -285,7 +287,7 @@ public class SWConnectionTest extends AbstractStatementTest {
             @Override
             public void call(TraceSegment traceSegment) {
                 assertThat(traceSegment.getSpans().size(), is(1));
-                assertDBSpan(traceSegment.getSpans().get(0), "JDBC/Connection/releaseSavepoint savepoint");
+                assertDBSpan(traceSegment.getSpans().get(0), "Mysql/JDBI/Connection/releaseSavepoint savepoint");
                 assertDBSpanLog(traceSegment.getSpans().get(0).getLogs().get(0));
             }
         });

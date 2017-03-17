@@ -6,7 +6,7 @@ package com.a.eye.skywalking.collector.actor;
 public class LocalWorkerContext extends WorkerContext {
 
     @Override
-    final public AbstractWorkerProvider findProvider(Role role) throws ProviderNotFountException {
+    final public AbstractWorkerProvider findProvider(Role role) throws ProviderNotFoundException {
         return null;
     }
 

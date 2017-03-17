@@ -5,7 +5,7 @@ package com.a.eye.skywalking.collector.actor;
  */
 public interface LookUp {
 
-    WorkerRefs lookup(Role role) throws WorkerNotFountException;
+    WorkerRefs lookup(Role role) throws WorkerNotFoundException;
 
-    Provider findProvider(Role role) throws ProviderNotFountException;
+    Provider findProvider(Role role) throws ProviderNotFoundException;
 }

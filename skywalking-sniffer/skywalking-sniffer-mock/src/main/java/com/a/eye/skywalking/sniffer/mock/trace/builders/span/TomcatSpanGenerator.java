@@ -14,7 +14,7 @@ public class TomcatSpanGenerator{
         public static final ON200 INSTANCE = new ON200();
 
         @Override protected void before() {
-            Span webSpan = ContextManager.INSTANCE.createSpan("/web/serviceA");
+            Span webSpan = ContextManager.createSpan("/web/serviceA");
             Tags.COMPONENT.set(webSpan, "Tomcat");
             Tags.URL.set(webSpan, "http://10.21.9.35/web/serviceA");
             Tags.SPAN_KIND.set(webSpan, Tags.SPAN_KIND_SERVER);
@@ -24,9 +24,9 @@ public class TomcatSpanGenerator{
         }
 
         @Override protected void after() {
-            Span webSpan = ContextManager.INSTANCE.activeSpan();
+            Span webSpan = ContextManager.activeSpan();
             Tags.STATUS_CODE.set(webSpan, 200);
-            ContextManager.INSTANCE.stopSpan();
+            ContextManager.stopSpan();
         }
     }
 
@@ -34,7 +34,7 @@ public class TomcatSpanGenerator{
         public static final ON404 INSTANCE = new ON404();
 
         @Override protected void before() {
-            Span webSpan = ContextManager.INSTANCE.createSpan("/web/service/unknown");
+            Span webSpan = ContextManager.createSpan("/web/service/unknown");
             Tags.COMPONENT.set(webSpan, "Tomcat");
             Tags.URL.set(webSpan, "http://10.21.9.35/web/unknown");
             Tags.SPAN_KIND.set(webSpan, Tags.SPAN_KIND_SERVER);
@@ -44,17 +44,17 @@ public class TomcatSpanGenerator{
         }
 
         @Override protected void after() {
-            Span webSpan = ContextManager.INSTANCE.activeSpan();
+            Span webSpan = ContextManager.activeSpan();
             Tags.STATUS_CODE.set(webSpan, 404);
             Tags.ERROR.set(webSpan,true);
-            ContextManager.INSTANCE.stopSpan();
+            ContextManager.stopSpan();
         }
     }
     public static class ON500 extends SpanGeneration{
         public static final ON500 INSTANCE = new ON500();
 
         @Override protected void before() {
-            Span webSpan = ContextManager.INSTANCE.createSpan("/web/error/service");
+            Span webSpan = ContextManager.createSpan("/web/error/service");
             Tags.COMPONENT.set(webSpan, "Tomcat");
             Tags.URL.set(webSpan, "http://10.21.9.35/web/error/service");
             Tags.SPAN_KIND.set(webSpan, Tags.SPAN_KIND_SERVER);
@@ -64,11 +64,11 @@ public class TomcatSpanGenerator{
         }
 
         @Override protected void after() {
-            Span webSpan = ContextManager.INSTANCE.activeSpan();
+            Span webSpan = ContextManager.activeSpan();
             Tags.STATUS_CODE.set(webSpan, 500);
             Tags.ERROR.set(webSpan,true);
             webSpan.log(new NumberFormatException("Can't convert 'abc' to int."));
-            ContextManager.INSTANCE.stopSpan();
+            ContextManager.stopSpan();
         }
     }
 }

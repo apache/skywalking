@@ -48,14 +48,14 @@ public class StartUpTestCase {
         SegmentMessage serializeServer = dubboServerData.serialize();
         SegmentMessage.Builder builder = serializeServer.toBuilder();
 
-        SegmentRefMessage.Builder builderRef = builder.getPrimaryRef().toBuilder();
+        SegmentRefMessage.Builder builderRef = builder.getRefs(0).toBuilder();
         builderRef.setApplicationCode(dubboClientData.getApplicationCode());
 
 
         builderRef.setPeerHost(Tags.PEER_HOST.get(dubboClientData.getSpans().get(1)));
 
         builder.setApplicationCode("DubboServer_MySQL");
-        builder.setPrimaryRef(builderRef);
+        builder.addRefs(builderRef);
         dubboServerData = new TraceSegment(builder.build());
 
         Thread.sleep(5000);

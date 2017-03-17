@@ -5,14 +5,15 @@ import com.a.eye.skywalking.api.plugin.interceptor.InterceptorException;
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 
 /**
- * {@link NoCocurrencyAceessObject} is an abstract class,
- * works for class's methods call each others, which these methods should be intercepted.
+ * {@link NoCocurrencyAceessObject} is method invocation counter,
+ * when {@link #whenEnter(EnhancedClassInstanceContext, Runnable)}, counter + 1;
+ * and when {@link #whenExist(EnhancedClassInstanceContext, Runnable)}, counter -1;
  *
- * At this scenario, only the first access should be intercepted.
+ * When, and only when, the first enter and last exist, also meaning first access, the Runnable is called.
  *
  * @author wusheng
  */
-public abstract class NoCocurrencyAceessObject implements InstanceMethodsAroundInterceptor {
+public class NoCocurrencyAceessObject {
     protected String invokeCounterKey = "__$invokeCounterKey";
 
     protected Object invokeCounterInstLock = new Object();
@@ -30,6 +31,7 @@ public abstract class NoCocurrencyAceessObject implements InstanceMethodsAroundI
         if(++counter == 1){
             runnable.run();
         }
+        context.set(invokeCounterKey, counter);
     }
 
     public void whenExist(EnhancedClassInstanceContext context, Runnable runnable) {
@@ -42,5 +44,6 @@ public abstract class NoCocurrencyAceessObject implements InstanceMethodsAroundI
         if(--counter == 0){
             runnable.run();
         }
+        context.set(invokeCounterKey, counter);
     }
 }

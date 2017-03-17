@@ -1,5 +1,6 @@
 package com.a.eye.skywalking.plugin.tomcat78x;
 
+import com.a.eye.skywalking.api.boot.ServiceManager;
 import com.a.eye.skywalking.api.context.TracerContext;
 import com.a.eye.skywalking.api.plugin.interceptor.EnhancedClassInstanceContext;
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.InstanceMethodInvokeContext;
@@ -48,6 +49,9 @@ public class TomcatInterceptorTest {
 
     @Before
     public void setUp() throws Exception {
+
+        ServiceManager.INSTANCE.boot();
+
         tomcatInterceptor = new TomcatInterceptor();
         contextListener = new MockTracerContextListener();
 
@@ -77,7 +81,7 @@ public class TomcatInterceptorTest {
 
     @Test
     public void testWithSerializedContextData() {
-        when(request.getHeader(TomcatInterceptor.HEADER_NAME_OF_CONTEXT_DATA)).thenReturn("302017.1487666919810.624424584.17332.1.1|1|REMOTE_APP|127.0.0.1");
+        when(request.getHeader(TomcatInterceptor.HEADER_NAME_OF_CONTEXT_DATA)).thenReturn("302017.1487666919810.624424584.17332.1.1|1|REMOTE_APP|127.0.0.1|Trace.globalId.123");
 
         tomcatInterceptor.beforeMethod(classInstanceContext, methodInvokeContext, methodInterceptResult);
         tomcatInterceptor.afterMethod(classInstanceContext, methodInvokeContext, null);
@@ -89,7 +93,7 @@ public class TomcatInterceptorTest {
                 assertThat(traceSegment.getSpans().size(), is(1));
                 Span span = traceSegment.getSpans().get(0);
                 assertHttpSpan(span);
-                assertTraceSegmentRef(traceSegment.getPrimaryRef());
+                assertTraceSegmentRef(traceSegment.getRefs().get(0));
             }
         });
     }

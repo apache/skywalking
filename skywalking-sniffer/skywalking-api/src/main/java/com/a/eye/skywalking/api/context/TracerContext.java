@@ -3,7 +3,6 @@ package com.a.eye.skywalking.api.context;
 import com.a.eye.skywalking.api.conf.Config;
 import com.a.eye.skywalking.trace.Span;
 import com.a.eye.skywalking.trace.TraceSegment;
-import com.a.eye.skywalking.api.util.TraceIdGenerator;
 import com.a.eye.skywalking.trace.TraceSegmentRef;
 import com.a.eye.skywalking.trace.tag.Tags;
 import java.util.ArrayList;
@@ -35,7 +34,7 @@ public final class TracerContext {
      * Create a {@link TraceSegment} and init {@link #spanIdGenerator} as 0;
      */
     TracerContext() {
-        this.segment = new TraceSegment(TraceIdGenerator.generate(), Config.SkyWalking.APPLICATION_CODE);
+        this.segment = new TraceSegment(Config.SkyWalking.APPLICATION_CODE);
         this.spanIdGenerator = 0;
     }
 
@@ -126,6 +125,7 @@ public final class TracerContext {
         carrier.setSpanId(this.activeSpan().getSpanId());
         carrier.setApplicationCode(Config.SkyWalking.APPLICATION_CODE);
         carrier.setPeerHost(Tags.PEER_HOST.get(activeSpan()));
+        carrier.setDistributedTraceIds(this.segment.getRelatedGlobalTraces());
     }
 
     /**
@@ -137,18 +137,7 @@ public final class TracerContext {
     public void extract(ContextCarrier carrier) {
         if(carrier.isValid()) {
             this.segment.ref(getRef(carrier));
-        }
-    }
-
-    /**
-     * Ref this {@link ContextCarrier} to this {@link TraceSegment}, and support multi-extract for supporting batch process, like MQ.
-     *
-     * @param carrier holds the snapshot, if get this {@link ContextCarrier} from remote, make sure {@link
-     * ContextCarrier#deserialize(String)} called.
-     */
-    public void multiExtract(ContextCarrier carrier){
-        if(carrier.isValid()) {
-            this.segment.ref(getRef(carrier), false);
+            this.segment.relatedGlobalTraces(carrier.getDistributedTraceIds());
         }
     }
 

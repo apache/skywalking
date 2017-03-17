@@ -19,6 +19,10 @@ public final class TraceSegmentHolder {
         this.value = value;
     }
 
+    public void clear(){
+        this.value = null;
+    }
+
     public enum Factory implements EventFactory<TraceSegmentHolder> {
         INSTANCE;
 

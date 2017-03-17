@@ -5,10 +5,10 @@ import akka.actor.Terminated;
 import akka.actor.UntypedActor;
 import akka.cluster.Cluster;
 import akka.cluster.ClusterEvent;
+import com.a.eye.skywalking.logging.ILog;
+import com.a.eye.skywalking.logging.LogManager;
 import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
 import com.a.eye.skywalking.collector.actor.ClusterWorkerRef;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -20,15 +20,15 @@ import java.util.concurrent.ConcurrentHashMap;
  * and terminated message from akka cluster.
  * <p>
  * when listened register message then begin to watch the state for this worker
- * and register to {@link WorkersRefCenter}.
+ * and register to {@link ClusterWorkerContext} and {@link #relation}.
  * <p>
- * when listened terminate message then unregister from {@link WorkersRefCenter}.
+ * when listened terminate message then unregister from {@link ClusterWorkerContext} and {@link #relation} .
  *
  * @author pengys5
  */
 public class WorkersListener extends UntypedActor {
 
-    private Logger logger = LogManager.getFormatterLogger(WorkersListener.class);
+    private ILog logger = LogManager.getLogger(WorkersListener.class);
 
     public static final String WorkName = "WorkersListener";
 

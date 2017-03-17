@@ -1,5 +1,8 @@
 package com.a.eye.skywalking.plugin.dubbo;
 
+import com.a.eye.skywalking.api.boot.ServiceManager;
+import com.a.eye.skywalking.api.conf.Config;
+import com.a.eye.skywalking.api.context.ContextCarrier;
 import com.a.eye.skywalking.api.context.TracerContext;
 import com.a.eye.skywalking.api.plugin.interceptor.EnhancedClassInstanceContext;
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.InstanceMethodInvokeContext;
@@ -20,6 +23,7 @@ import com.alibaba.dubbo.rpc.RpcContext;
 
 import org.hamcrest.CoreMatchers;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,6 +34,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.when;
@@ -59,6 +64,8 @@ public class DubboInterceptorTest {
 
     @Before
     public void setUp() throws Exception {
+        ServiceManager.INSTANCE.boot();
+
         dubboInterceptor = new DubboInterceptor();
         testParam = new RequestParamForTestBelow283();
         mockTracerContextListener = new MockTracerContextListener();
@@ -73,6 +80,7 @@ public class DubboInterceptorTest {
         Mockito.when(RpcContext.getContext()).thenReturn(rpcContext);
         when(rpcContext.isConsumerSide()).thenReturn(true);
         when(methodInvokeContext.allArguments()).thenReturn(new Object[]{invoker, invocation});
+        Config.SkyWalking.APPLICATION_CODE = "DubboTestCases-APP";
     }
 
 
@@ -89,7 +97,11 @@ public class DubboInterceptorTest {
             public void call(TraceSegment traceSegment) {
                 assertThat(traceSegment.getSpans().size(), is(1));
                 assertConsumerSpan(traceSegment.getSpans().get(0));
-                testParam.assertSelf("127.0.0.1");
+
+                assertNotNull(testParam.getTraceContext());
+                ContextCarrier contextCarrier = new ContextCarrier();
+                contextCarrier.deserialize(testParam.getTraceContext());
+                Assert.assertTrue(contextCarrier.isValid());
             }
         });
     }
@@ -143,7 +155,7 @@ public class DubboInterceptorTest {
     @Test
     public void testProviderWithAttachment() {
         when(rpcContext.isConsumerSide()).thenReturn(false);
-        when(rpcContext.getAttachment(DubboInterceptor.ATTACHMENT_NAME_OF_CONTEXT_DATA)).thenReturn("302017.1487666919810.624424584.17332.1.1|1|REMOTE_APP|127.0.0.1");
+        when(rpcContext.getAttachment(DubboInterceptor.ATTACHMENT_NAME_OF_CONTEXT_DATA)).thenReturn("302017.1487666919810.624424584.17332.1.1|1|REMOTE_APP|127.0.0.1|Trace.globalId.123");
 
         dubboInterceptor.beforeMethod(classInstanceContext, methodInvokeContext, methodInterceptResult);
         dubboInterceptor.afterMethod(classInstanceContext, methodInvokeContext, result);
@@ -156,7 +168,7 @@ public class DubboInterceptorTest {
         when(rpcContext.isConsumerSide()).thenReturn(false);
         when(BugFixActive.isActive()).thenReturn(true);
 
-        testParam.setTraceContext("302017.1487666919810.624424584.17332.1.1|1|REMOTE_APP|127.0.0.1");
+        testParam.setTraceContext("302017.1487666919810.624424584.17332.1.1|1|REMOTE_APP|127.0.0.1|Trace.globalId.123");
 
 
         dubboInterceptor.beforeMethod(classInstanceContext, methodInvokeContext, methodInterceptResult);
@@ -193,7 +205,7 @@ public class DubboInterceptorTest {
             public void call(TraceSegment traceSegment) {
                 assertThat(traceSegment.getSpans().size(), is(1));
                 assertProviderSpan(traceSegment.getSpans().get(0));
-                assertTraceSegmentRef(traceSegment.getPrimaryRef(), expect);
+                assertTraceSegmentRef(traceSegment.getRefs().get(0), expect);
             }
         });
     }

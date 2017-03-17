@@ -1,5 +1,6 @@
 package com.a.eye.skywalking.plugin.httpClient.v4;
 
+import com.a.eye.skywalking.api.boot.ServiceManager;
 import com.a.eye.skywalking.api.context.TracerContext;
 import com.a.eye.skywalking.api.plugin.interceptor.EnhancedClassInstanceContext;
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.InstanceMethodInvokeContext;
@@ -56,6 +57,8 @@ public class HttpClientExecuteInterceptorTest {
     @Before
     public void setUp() throws Exception {
         mockTracerContextListener = new MockTracerContextListener();
+
+        ServiceManager.INSTANCE.boot();
         httpClientExecuteInterceptor = new HttpClientExecuteInterceptor();
 
         PowerMockito.mock(HttpHost.class);
@@ -77,7 +80,7 @@ public class HttpClientExecuteInterceptorTest {
 
             @Override
             public String getUri() {
-                return "/test-web/test";
+                return "http://127.0.0.1:8080/test-web/test";
             }
         });
         when(httpHost.getPort()).thenReturn(8080);
@@ -151,7 +154,7 @@ public class HttpClientExecuteInterceptorTest {
 
     private void assertHttpSpan(Span span) {
         assertThat(span.getOperationName(), is("/test-web/test"));
-        assertThat(Tags.COMPONENT.get(span), is("Http"));
+        assertThat(Tags.COMPONENT.get(span), is("HttpClient"));
         assertThat(Tags.PEER_HOST.get(span), is("127.0.0.1"));
         assertThat(Tags.PEER_PORT.get(span), is(8080));
         assertThat(Tags.URL.get(span), is("http://127.0.0.1:8080/test-web/test"));

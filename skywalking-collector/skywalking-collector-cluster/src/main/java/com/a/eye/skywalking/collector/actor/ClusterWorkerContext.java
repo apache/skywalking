@@ -1,9 +1,9 @@
 package com.a.eye.skywalking.collector.actor;
 
 import akka.actor.ActorSystem;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
+import com.a.eye.skywalking.logging.ILog;
+import com.a.eye.skywalking.logging.LogManager;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -11,11 +11,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author pengys5
  */
 public class ClusterWorkerContext extends WorkerContext {
-
-    private Logger logger = LogManager.getFormatterLogger(ClusterWorkerContext.class);
-
+    private ILog logger = LogManager.getLogger(ClusterWorkerContext.class);
     private final ActorSystem akkaSystem;
-
     private Map<String, AbstractWorkerProvider> providers = new ConcurrentHashMap<>();
 
     public ClusterWorkerContext(ActorSystem akkaSystem) {
@@ -27,12 +24,12 @@ public class ClusterWorkerContext extends WorkerContext {
     }
 
     @Override
-    public AbstractWorkerProvider findProvider(Role role) throws ProviderNotFountException {
+    public AbstractWorkerProvider findProvider(Role role) throws ProviderNotFoundException {
         logger.debug("find role of %s provider from ClusterWorkerContext", role.roleName());
         if (providers.containsKey(role.roleName())) {
             return providers.get(role.roleName());
         } else {
-            throw new ProviderNotFountException("role=" + role.roleName() + ", no available provider.");
+            throw new ProviderNotFoundException("role=" + role.roleName() + ", no available provider.");
         }
     }
 

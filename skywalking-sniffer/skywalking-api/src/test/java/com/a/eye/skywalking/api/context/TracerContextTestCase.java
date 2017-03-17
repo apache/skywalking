@@ -1,8 +1,12 @@
 package com.a.eye.skywalking.api.context;
 
 import com.a.eye.skywalking.trace.Span;
+import com.a.eye.skywalking.trace.TraceId.DistributedTraceId;
+import com.a.eye.skywalking.trace.TraceId.PropagatedTraceId;
 import com.a.eye.skywalking.trace.TraceSegment;
 import com.a.eye.skywalking.trace.tag.Tags;
+import java.util.LinkedList;
+import java.util.List;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
@@ -73,6 +77,9 @@ public class TracerContextTestCase {
         carrier.setSpanId(5);
         carrier.setApplicationCode("REMOTE_APP");
         carrier.setPeerHost("10.2.3.16:8080");
+        List<DistributedTraceId> ids = new LinkedList<>();
+        ids.add(new PropagatedTraceId("Trace.global.id.123"));
+        carrier.setDistributedTraceIds(ids);
 
         Assert.assertTrue(carrier.isValid());
 
@@ -85,8 +92,8 @@ public class TracerContextTestCase {
 
         context.stopSpan(span);
 
-        Assert.assertEquals("trace_id_1", finishedSegmentCarrier[0].getPrimaryRef().getTraceSegmentId());
-        Assert.assertEquals(5, finishedSegmentCarrier[0].getPrimaryRef().getSpanId());
+        Assert.assertEquals("trace_id_1", finishedSegmentCarrier[0].getRefs().get(0).getTraceSegmentId());
+        Assert.assertEquals(5, finishedSegmentCarrier[0].getRefs().get(0).getSpanId());
     }
 
     @After

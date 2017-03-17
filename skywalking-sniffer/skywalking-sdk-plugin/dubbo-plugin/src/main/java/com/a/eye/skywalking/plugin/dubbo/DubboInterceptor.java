@@ -51,17 +51,17 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
         boolean isConsumer = rpcContext.isConsumerSide();
         URL requestURL = invoker.getUrl();
 
-        Span span = ContextManager.INSTANCE.createSpan(generateOperationName(requestURL, invocation));
+        Span span = ContextManager.createSpan(generateOperationName(requestURL, invocation));
         Tags.URL.set(span, generateRequestURL(requestURL, invocation));
         Tags.COMPONENT.set(span, DUBBO_COMPONENT);
+        Tags.SPAN_LAYER.asRPCFramework(span);
         Tags.PEER_HOST.set(span, requestURL.getHost());
         Tags.PEER_PORT.set(span, requestURL.getPort());
-        Tags.SPAN_LAYER.asRPCFramework(span);
 
         if (isConsumer) {
             Tags.SPAN_KIND.set(span, Tags.SPAN_KIND_CLIENT);
             ContextCarrier contextCarrier = new ContextCarrier();
-            ContextManager.INSTANCE.inject(contextCarrier);
+            ContextManager.inject(contextCarrier);
             if (!BugFixActive.isActive()) {
                 //invocation.getAttachments().put("contextData", contextDataStr);
                 //@see https://github.com/alibaba/dubbo/blob/dubbo-2.5.3/dubbo-rpc/dubbo-rpc-api/src/main/java/com/alibaba/dubbo/rpc/RpcInvocation.java#L154-L161
@@ -80,7 +80,7 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
             }
 
             if (contextCarrier != null) {
-                ContextManager.INSTANCE.extract(contextCarrier);
+                ContextManager.extract(contextCarrier);
             }
         }
     }
@@ -98,7 +98,7 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
             dealException(result.getException());
         }
 
-        ContextManager.INSTANCE.stopSpan();
+        ContextManager.stopSpan();
         return ret;
     }
 
@@ -112,7 +112,7 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
      * Log the throwable, which occurs in Dubbo RPC service.
      */
     private void dealException(Throwable throwable) {
-        Span span = ContextManager.INSTANCE.activeSpan();
+        Span span = ContextManager.activeSpan();
         Tags.ERROR.set(span, true);
         span.log(throwable);
     }

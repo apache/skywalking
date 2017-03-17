@@ -16,7 +16,7 @@ public class Config {
     }
 
     public static class Disruptor{
-        public static int BUFFER_SIZE = 1024 * 4;
+        public static int BUFFER_SIZE = 512;
     }
 
 

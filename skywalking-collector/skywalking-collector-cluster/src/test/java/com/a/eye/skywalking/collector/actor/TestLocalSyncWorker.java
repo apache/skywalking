@@ -13,7 +13,7 @@ public class TestLocalSyncWorker extends AbstractLocalSyncWorker {
     }
 
     @Override
-    public void preStart() throws ProviderNotFountException {
+    public void preStart() throws ProviderNotFoundException {
 
     }
 

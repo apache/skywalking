@@ -1,4 +1,4 @@
-package com.a.eye.skywalking.api.logging;
+package com.a.eye.skywalking.logging;
 
 /**
  * LogManager is the {@link LogResolver} implementation manager.

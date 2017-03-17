@@ -21,7 +21,7 @@ public class ResponseSummaryReceiver extends AbstractClusterWorker {
     }
 
     @Override
-    public void preStart() throws ProviderNotFountException {
+    public void preStart() throws ProviderNotFoundException {
         getClusterContext().findProvider(ResponseSummaryPersistence.Role.INSTANCE).create(this);
     }
 

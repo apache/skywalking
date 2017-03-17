@@ -15,7 +15,7 @@ public class SpanSetOperationNameInterceptor implements InstanceMethodsAroundInt
     @Override
     public void beforeMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext, MethodInterceptResult result) {
         String operationName = (String)interceptorContext.allArguments()[0];
-        ContextManager.INSTANCE.activeSpan().setOperationName(operationName);
+        ContextManager.activeSpan().setOperationName(operationName);
     }
 
     @Override

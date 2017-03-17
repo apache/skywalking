@@ -1,16 +1,17 @@
 package com.a.eye.skywalking.agent;
 
 import com.a.eye.skywalking.agent.junction.SkyWalkingEnhanceMatcher;
+import com.a.eye.skywalking.api.boot.ServiceManager;
 import com.a.eye.skywalking.api.conf.Config;
 import com.a.eye.skywalking.api.conf.SnifferConfigInitializer;
 import com.a.eye.skywalking.api.logging.EasyLogResolver;
-import com.a.eye.skywalking.api.logging.ILog;
-import com.a.eye.skywalking.api.logging.LogManager;
 import com.a.eye.skywalking.api.plugin.AbstractClassEnhancePluginDefine;
 import com.a.eye.skywalking.api.plugin.PluginBootstrap;
 import com.a.eye.skywalking.api.plugin.PluginFinder;
 import com.a.eye.skywalking.api.plugin.PluginException;
 
+import com.a.eye.skywalking.logging.ILog;
+import com.a.eye.skywalking.logging.LogManager;
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.description.NamedElement;
 import net.bytebuddy.description.type.TypeDescription;
@@ -52,6 +53,8 @@ public class SkyWalkingAgent {
         initConfig();
 
         final PluginFinder pluginFinder = new PluginFinder(new PluginBootstrap().loadPlugins());
+
+        ServiceManager.INSTANCE.boot();
 
         new AgentBuilder.Default().type(enhanceClassMatcher(pluginFinder).and(not(isInterface()))).transform(new AgentBuilder.Transformer() {
             public DynamicType.Builder<?> transform(DynamicType.Builder<?> builder, TypeDescription typeDescription, ClassLoader classLoader) {

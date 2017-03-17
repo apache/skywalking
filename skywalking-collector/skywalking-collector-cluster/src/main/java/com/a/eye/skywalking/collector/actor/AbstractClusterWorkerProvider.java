@@ -11,7 +11,7 @@ public abstract class AbstractClusterWorkerProvider<T extends AbstractClusterWor
     public abstract int workerNum();
 
     @Override
-    final public WorkerRef onCreate(LocalWorkerContext localContext) throws IllegalArgumentException, ProviderNotFountException {
+    final public WorkerRef onCreate(LocalWorkerContext localContext) throws IllegalArgumentException, ProviderNotFoundException {
         int num = ClusterWorkerRefCounter.INSTANCE.incrementAndGet(role());
 
         T clusterWorker = (T) workerInstance(getClusterContext());

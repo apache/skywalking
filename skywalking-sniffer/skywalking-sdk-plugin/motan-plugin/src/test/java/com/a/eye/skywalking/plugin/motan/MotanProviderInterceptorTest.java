@@ -1,5 +1,6 @@
 package com.a.eye.skywalking.plugin.motan;
 
+import com.a.eye.skywalking.api.boot.ServiceManager;
 import com.a.eye.skywalking.api.context.TracerContext;
 import com.a.eye.skywalking.api.plugin.interceptor.EnhancedClassInstanceContext;
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.ConstructorInvokeContext;
@@ -57,6 +58,8 @@ public class MotanProviderInterceptorTest {
 
     @Before
     public void setUp() {
+        ServiceManager.INSTANCE.boot();
+
         invokeInterceptor = new MotanProviderInterceptor();
         contextListener = new MockTracerContextListener();
         url = URL.valueOf("motan://127.0.0.1:34000/com.a.eye.skywalking.test.TestService");
@@ -72,12 +75,6 @@ public class MotanProviderInterceptorTest {
     }
 
     @Test
-    public void testFetchRequestURL() {
-        invokeInterceptor.onConstruct(instanceContext, constructorInvokeContext);
-        verify(instanceContext, times(1)).set(Matchers.any(), Matchers.any());
-    }
-
-    @Test
     public void testInvokerWithoutRefSegment() {
         invokeInterceptor.beforeMethod(instanceContext, interceptorContext, null);
         invokeInterceptor.afterMethod(instanceContext, interceptorContext, response);
@@ -89,7 +86,7 @@ public class MotanProviderInterceptorTest {
                 assertThat(traceSegment.getSpans().size(), is(1));
                 Span span = traceSegment.getSpans().get(0);
                 assertMotanProviderSpan(span);
-                assertTrue(traceSegment.getPrimaryRef() == null);
+                assertTrue(traceSegment.getRefs() == null);
             }
         });
     }
@@ -97,7 +94,7 @@ public class MotanProviderInterceptorTest {
     @Test
     public void testInvokerWithRefSegment() {
         HashMap attachments = new HashMap();
-        attachments.put("SWTraceContext", "302017.1487666919810.624424584.17332.1.1|1|REMOTE_APP|127.0.0.1");
+        attachments.put("SWTraceContext", "302017.1487666919810.624424584.17332.1.1|1|REMOTE_APP|127.0.0.1|Trace.globalId.123");
         when(request.getAttachments()).thenReturn(attachments);
 
         invokeInterceptor.beforeMethod(instanceContext, interceptorContext, null);
@@ -110,7 +107,7 @@ public class MotanProviderInterceptorTest {
                 assertThat(traceSegment.getSpans().size(), is(1));
                 Span span = traceSegment.getSpans().get(0);
                 assertMotanProviderSpan(span);
-                assertRefSegment(traceSegment.getPrimaryRef());
+                assertRefSegment(traceSegment.getRefs().get(0));
             }
         });
     }
@@ -170,10 +167,7 @@ public class MotanProviderInterceptorTest {
         assertThat(span.getOperationName(), is("com.a.eye.skywalking.test.TestService.test(java.lang.String, java.lang.Object)"));
         assertThat(Tags.COMPONENT.get(span), is("Motan"));
         assertThat(Tags.SPAN_KIND.get(span), is(Tags.SPAN_KIND_SERVER));
-        assertThat(Tags.PEER_HOST.get(span), is("127.0.0.1"));
-        assertThat(Tags.PEER_PORT.get(span), is(34000));
         assertTrue(Tags.SPAN_LAYER.isRPCFramework(span));
-        assertThat(Tags.URL.get(span), is("motan://127.0.0.1:34000/default_rpc/com.a.eye.skywalking.test.TestService/1.0/service"));
     }
 
 

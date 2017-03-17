@@ -21,7 +21,7 @@ public class NodeInstanceReceiver extends AbstractClusterWorker {
     }
 
     @Override
-    public void preStart() throws ProviderNotFountException {
+    public void preStart() throws ProviderNotFoundException {
         getClusterContext().findProvider(NodeInstancePersistence.Role.INSTANCE).create(this);
     }
 

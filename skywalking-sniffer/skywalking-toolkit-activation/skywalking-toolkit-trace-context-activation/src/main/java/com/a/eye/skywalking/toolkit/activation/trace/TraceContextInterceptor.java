@@ -2,8 +2,8 @@ package com.a.eye.skywalking.toolkit.activation.trace;
 
 import com.a.eye.skywalking.api.context.ContextCarrier;
 import com.a.eye.skywalking.api.context.ContextManager;
-import com.a.eye.skywalking.api.logging.ILog;
-import com.a.eye.skywalking.api.logging.LogManager;
+import com.a.eye.skywalking.logging.ILog;
+import com.a.eye.skywalking.logging.LogManager;
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.MethodInterceptResult;
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.MethodInvokeContext;
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.StaticMethodInvokeContext;
@@ -25,7 +25,7 @@ public class TraceContextInterceptor implements StaticMethodsAroundInterceptor {
     @Override
     public Object afterMethod(StaticMethodInvokeContext interceptorContext, Object ret) {
         ContextCarrier carrier = new ContextCarrier();
-        ContextManager.INSTANCE.inject(carrier);
+        ContextManager.inject(carrier);
        return carrier.getTraceSegmentId();
     }
 

@@ -23,7 +23,7 @@
         </dependency>
         <dependency>
             <groupId>com.a.eye</groupId>
-            <artifactId>skywalking-api</artifactId>
+            <artifactId>skywalking-util</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

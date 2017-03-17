@@ -2,6 +2,8 @@ package com.a.eye.skywalking.collector.worker;
 
 import com.a.eye.skywalking.collector.cluster.ClusterConfig;
 import com.a.eye.skywalking.collector.cluster.ClusterConfigInitializer;
+import com.a.eye.skywalking.logging.LogManager;
+import com.a.eye.skywalking.logging.log4j2.Log4j2Resolver;
 import com.a.eye.skywalking.collector.worker.httpserver.HttpServer;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -11,7 +13,14 @@ import com.typesafe.config.ConfigFactory;
  */
 public class CollectorBootStartUp {
 
+    /**
+     * TODO pengys5, make the exception clear.
+     * @param args
+     * @throws Exception
+     */
     public static void main(String[] args) throws Exception {
+        LogManager.setLogResolver(new Log4j2Resolver());
+
         ClusterConfigInitializer.initialize("collector.config");
 
         final Config config = ConfigFactory.parseString("akka.remote.netty.tcp.hostname=" + ClusterConfig.Cluster.Current.hostname).
