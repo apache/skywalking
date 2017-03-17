@@ -8,10 +8,9 @@ message SegmentMessage {
     int64 startTime = 2;
     int64 endTime = 3;
     string applicationCode = 4;
-    SegmentRefMessage primaryRef = 5;
-    repeated SegmentRefMessage refs = 6;
-    repeated string relatedTraceIds = 7;
-    repeated SpanMessage spans = 8;
+    repeated SegmentRefMessage refs = 5;
+    repeated string relatedTraceIds = 6;
+    repeated SpanMessage spans = 7;
 }
 
 message SegmentRefMessage {

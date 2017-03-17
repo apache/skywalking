@@ -137,19 +137,7 @@ public final class TracerContext {
     public void extract(ContextCarrier carrier) {
         if(carrier.isValid()) {
             this.segment.ref(getRef(carrier));
-            this.segment.buildRelation(carrier.getDistributedTraceIds());
-        }
-    }
-
-    /**
-     * Ref this {@link ContextCarrier} to this {@link TraceSegment}, and support multi-extract for supporting batch process, like MQ.
-     *
-     * @param carrier holds the snapshot, if get this {@link ContextCarrier} from remote, make sure {@link
-     * ContextCarrier#deserialize(String)} called.
-     */
-    public void multiExtract(ContextCarrier carrier){
-        if(carrier.isValid()) {
-            this.segment.ref(getRef(carrier), false);
+            this.segment.relatedGlobalTraces(carrier.getDistributedTraceIds());
         }
     }
 

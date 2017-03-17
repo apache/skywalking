@@ -41,14 +41,8 @@ public class TraceSegment implements ISerializable<SegmentMessage> {
     private long endTime;
 
     /**
-     * The primary ref of the parent trace segment.
-     * Use {@link TraceSegmentRef}, we can link this trace segment to the primary parent segment.
-     */
-    private TraceSegmentRef primaryRef;
-
-    /**
-     * The refs of other parent trace segments, except the primary one.
-     * For most RPC call, {@link #refs} stay in null,
+     * The refs of parent trace segments, except the primary one.
+     * For most RPC call, {@link #refs} contains only one element,
      * but if this segment is a start span of batch process, the segment faces multi parents,
      * at this moment, we use this {@link #refs} to link them.
      */
@@ -74,13 +68,13 @@ public class TraceSegment implements ISerializable<SegmentMessage> {
      * element, because only one parent {@link TraceSegment} exists, but, in batch scenario, the num becomes greater
      * than 1, also meaning multi-parents {@link TraceSegment}.
      *
-     * The difference between <code>relatedGlobalTraces</code> and {@link #primaryRef}/{@link #refs} is: {@link
-     * #primaryRef}/{@link #refs} targets this {@link TraceSegment}'s direct parent,
+     * The difference between <code>relatedGlobalTraces</code> and {@link #refs} is:
+     * {@link #refs} targets this {@link TraceSegment}'s direct parent,
      *
      * and
      *
      * <code>relatedGlobalTraces</code> targets this {@link TraceSegment}'s related call chain, a call chain contains
-     * multi {@link TraceSegment}s, only using {@link #primaryRef}/{@link #refs} is enough for analysis and ui.
+     * multi {@link TraceSegment}s, only using {@link #refs} is not enough for analysis and ui.
      */
     private LinkedList<DistributedTraceId> relatedGlobalTraces;
 
@@ -108,48 +102,27 @@ public class TraceSegment implements ISerializable<SegmentMessage> {
 
     /**
      * Establish the link between this segment and its parents.
-     * When {@param primaryOnly} is true;
-     * The first time, you {@link #ref(TraceSegmentRef)} to parent, it is affirmed as {@link #primaryRef}.
-     * And others are affirmed as {@link #refs}.
-     *
-     * @param refSegment {@link TraceSegmentRef}
-     * @param primaryOnly if true, set {@param refSegment} to {@link #primaryRef} only.
-     */
-    public void ref(TraceSegmentRef refSegment, boolean primaryOnly) {
-        if (primaryOnly) {
-            if (primaryRef == null) {
-                primaryRef = refSegment;
-            }
-        } else {
-            if (primaryRef == null) {
-                primaryRef = refSegment;
-            } else {
-                if (refs == null) {
-                    refs = new LinkedList<TraceSegmentRef>();
-                }
-                refs.add(refSegment);
-            }
-        }
-    }
-
-    /**
-     * Set to {@link #primaryRef} only,
-     * based on {@link #ref(TraceSegmentRef, boolean)}
      *
      * @param refSegment {@link TraceSegmentRef}
      */
     public void ref(TraceSegmentRef refSegment) {
-        ref(refSegment, true);
+        if(!refs.contains(refSegment)){
+            refs.add(refSegment);
+        }
     }
 
-    public void buildRelation(List<DistributedTraceId> distributedTraceIds){
-        if(distributedTraceIds == null || distributedTraceIds.size() == 0){
+    public void relatedGlobalTraces(List<DistributedTraceId> distributedTraceIds) {
+        if (distributedTraceIds == null || distributedTraceIds.size() == 0) {
             return;
         }
-        if(relatedGlobalTraces.getFirst() instanceof NewDistributedTraceId){
+        if (relatedGlobalTraces.getFirst() instanceof NewDistributedTraceId) {
             relatedGlobalTraces.removeFirst();
         }
-        relatedGlobalTraces.addAll(distributedTraceIds);
+        for (DistributedTraceId distributedTraceId : distributedTraceIds) {
+            if(!relatedGlobalTraces.contains(distributedTraceId)){
+                relatedGlobalTraces.add(distributedTraceId);
+            }
+        }
     }
 
     /**
@@ -184,10 +157,6 @@ public class TraceSegment implements ISerializable<SegmentMessage> {
         return endTime;
     }
 
-    public TraceSegmentRef getPrimaryRef() {
-        return primaryRef;
-    }
-
     public List<TraceSegmentRef> getRefs() {
         if (refs == null) {
             return null;
@@ -207,13 +176,15 @@ public class TraceSegment implements ISerializable<SegmentMessage> {
         return applicationCode;
     }
 
-    @Override
-    public String toString() {
+    @Override public String toString() {
         return "TraceSegment{" +
             "traceSegmentId='" + traceSegmentId + '\'' +
+            ", startTime=" + startTime +
             ", endTime=" + endTime +
-            ", primaryRef=" + primaryRef +
-            ", spans.size=" + spans.size() +
+            ", refs=" + refs +
+            ", spans=" + spans +
+            ", applicationCode='" + applicationCode + '\'' +
+            ", relatedGlobalTraces=" + relatedGlobalTraces +
             '}';
     }
 
@@ -224,9 +195,6 @@ public class TraceSegment implements ISerializable<SegmentMessage> {
         segmentBuilder.setStartTime(startTime);
         segmentBuilder.setEndTime(endTime);
         segmentBuilder.setApplicationCode(applicationCode);
-        if (primaryRef != null) {
-            segmentBuilder.setPrimaryRef(primaryRef.serialize());
-        }
         if (refs != null && refs.size() > 0) {
             for (TraceSegmentRef ref : refs) {
                 segmentBuilder.addRefs(ref.serialize());
@@ -247,10 +215,6 @@ public class TraceSegment implements ISerializable<SegmentMessage> {
         startTime = message.getStartTime();
         endTime = message.getEndTime();
         applicationCode = message.getApplicationCode();
-        SegmentRefMessage messagePrimaryRef = message.getPrimaryRef();
-        if (messagePrimaryRef != null) {
-            (primaryRef = new TraceSegmentRef()).deserialize(messagePrimaryRef);
-        }
         List<SegmentRefMessage> refsList = message.getRefsList();
         if (refsList != null && refsList.size() > 0) {
             this.refs = new LinkedList<TraceSegmentRef>();

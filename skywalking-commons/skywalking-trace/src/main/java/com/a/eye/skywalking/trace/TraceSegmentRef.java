@@ -97,4 +97,31 @@ public class TraceSegmentRef implements ISerializable<SegmentRefMessage> {
         applicationCode = message.getApplicationCode();
         peerHost = message.getPeerHost();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+
+        TraceSegmentRef ref = (TraceSegmentRef)o;
+
+        if (spanId != ref.spanId)
+            return false;
+        if (traceSegmentId != null ? !traceSegmentId.equals(ref.traceSegmentId) : ref.traceSegmentId != null)
+            return false;
+        if (applicationCode != null ? !applicationCode.equals(ref.applicationCode) : ref.applicationCode != null)
+            return false;
+        return peerHost != null ? peerHost.equals(ref.peerHost) : ref.peerHost == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = traceSegmentId != null ? traceSegmentId.hashCode() : 0;
+        result = 31 * result + spanId;
+        result = 31 * result + (applicationCode != null ? applicationCode.hashCode() : 0);
+        result = 31 * result + (peerHost != null ? peerHost.hashCode() : 0);
+        return result;
+    }
 }
