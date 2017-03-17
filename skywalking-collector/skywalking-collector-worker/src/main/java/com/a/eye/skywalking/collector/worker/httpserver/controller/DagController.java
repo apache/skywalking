@@ -11,7 +11,7 @@ import java.util.Map;
 /**
  * @author pengys5
  */
-public class DagController implements Controller {
+public class DagController extends Controller {
 
     @Override
     public NanoHTTPD.Method httpMethod() {

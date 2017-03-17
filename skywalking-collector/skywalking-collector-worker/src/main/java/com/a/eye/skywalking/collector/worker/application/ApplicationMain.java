@@ -1,9 +1,7 @@
 package com.a.eye.skywalking.collector.worker.application;
 
 import com.a.eye.skywalking.api.util.StringUtil;
-import com.a.eye.skywalking.collector.actor.AbstractLocalSyncWorker;
-import com.a.eye.skywalking.collector.actor.AbstractLocalSyncWorkerProvider;
-import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
+import com.a.eye.skywalking.collector.actor.*;
 import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
 import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
 import com.a.eye.skywalking.collector.worker.application.analysis.DAGNodeAnalysis;
@@ -25,12 +23,12 @@ public class ApplicationMain extends AbstractLocalSyncWorker {
 
     private Logger logger = LogManager.getFormatterLogger(ApplicationMain.class);
 
-    public ApplicationMain(Role role, ClusterWorkerContext clusterContext) throws Exception {
-        super(role, clusterContext);
+    public ApplicationMain(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+        super(role, clusterContext, selfContext);
     }
 
     @Override
-    public void preStart() throws Exception {
+    public void preStart() throws ProviderNotFountException {
         getClusterContext().findProvider(DAGNodeAnalysis.Role.INSTANCE).create(getClusterContext(), getSelfContext());
         getClusterContext().findProvider(NodeInstanceAnalysis.Role.INSTANCE).create(getClusterContext(), getSelfContext());
         getClusterContext().findProvider(ResponseCostAnalysis.Role.INSTANCE).create(getClusterContext(), getSelfContext());
@@ -62,16 +60,16 @@ public class ApplicationMain extends AbstractLocalSyncWorker {
         }
 
         @Override
-        public Class workerClass() {
-            return ApplicationMain.class;
+        public ApplicationMain workerInstance(ClusterWorkerContext clusterContext) {
+            return new ApplicationMain(role(), clusterContext, new LocalWorkerContext());
         }
     }
 
-    public static class Role extends com.a.eye.skywalking.collector.actor.Role {
-        public static Role INSTANCE = new Role();
+    public enum Role implements com.a.eye.skywalking.collector.actor.Role {
+        INSTANCE;
 
         @Override
-        public String name() {
+        public String roleName() {
             return ApplicationMain.class.getSimpleName();
         }
 
