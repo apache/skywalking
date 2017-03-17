@@ -1,6 +1,5 @@
 package com.a.eye.skywalking.trace;
 
-import com.a.eye.skywalking.messages.ISerializable;
 import com.a.eye.skywalking.trace.proto.SegmentRefMessage;
 import com.a.eye.skywalking.trace.tag.Tags;
 
@@ -10,7 +9,7 @@ import com.a.eye.skywalking.trace.tag.Tags;
  *
  * Created by wusheng on 2017/2/17.
  */
-public class TraceSegmentRef implements ISerializable<SegmentRefMessage> {
+public class TraceSegmentRef{
     /**
      * {@link TraceSegment#traceSegmentId}
      */
@@ -78,7 +77,6 @@ public class TraceSegmentRef implements ISerializable<SegmentRefMessage> {
             '}';
     }
 
-    @Override
     public SegmentRefMessage serialize() {
         SegmentRefMessage.Builder builder = SegmentRefMessage.newBuilder();
         builder.setTraceSegmentId(traceSegmentId);
@@ -90,7 +88,6 @@ public class TraceSegmentRef implements ISerializable<SegmentRefMessage> {
         return builder.build();
     }
 
-    @Override
     public void deserialize(SegmentRefMessage message) {
         traceSegmentId = message.getTraceSegmentId();
         spanId = message.getSpanId();

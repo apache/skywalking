@@ -1,6 +1,5 @@
 package com.a.eye.skywalking.trace;
 
-import com.a.eye.skywalking.messages.ISerializable;
 import com.a.eye.skywalking.trace.TraceId.DistributedTraceId;
 import com.a.eye.skywalking.trace.TraceId.NewDistributedTraceId;
 import com.a.eye.skywalking.trace.TraceId.PropagatedTraceId;
@@ -21,7 +20,7 @@ import java.util.List;
  *
  * Created by wusheng on 2017/2/17.
  */
-public class TraceSegment implements ISerializable<SegmentMessage> {
+public class TraceSegment {
     private static final String ID_TYPE = "Segment";
 
     /**
@@ -191,7 +190,6 @@ public class TraceSegment implements ISerializable<SegmentMessage> {
             '}';
     }
 
-    @Override
     public SegmentMessage serialize() {
         SegmentMessage.Builder segmentBuilder = SegmentMessage.newBuilder();
         segmentBuilder.setTraceSegmentId(traceSegmentId);
@@ -212,7 +210,6 @@ public class TraceSegment implements ISerializable<SegmentMessage> {
         return segmentBuilder.build();
     }
 
-    @Override
     public void deserialize(SegmentMessage message) {
         traceSegmentId = message.getTraceSegmentId();
         startTime = message.getStartTime();
