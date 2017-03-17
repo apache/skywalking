@@ -13,12 +13,12 @@ public abstract class WorkerContext implements Context {
     private Map<String, List<WorkerRef>> roleWorkers = new ConcurrentHashMap<>();
 
     @Override
-    final public WorkerRefs lookup(Role role) throws WorkerNotFountException {
+    final public WorkerRefs lookup(Role role) throws WorkerNotFoundException {
         if (roleWorkers.containsKey(role.roleName())) {
             WorkerRefs refs = new WorkerRefs(roleWorkers.get(role.roleName()), role.workerSelector());
             return refs;
         } else {
-            throw new WorkerNotFountException("role=" + role.roleName() + ", no available worker.");
+            throw new WorkerNotFoundException("role=" + role.roleName() + ", no available worker.");
         }
     }
 

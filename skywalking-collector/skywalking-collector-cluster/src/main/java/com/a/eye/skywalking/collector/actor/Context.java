@@ -9,7 +9,7 @@ public interface Context {
 
     void putProvider(AbstractWorkerProvider provider) throws UsedRoleNameException;
 
-    WorkerRefs lookup(Role role) throws WorkerNotFountException;
+    WorkerRefs lookup(Role role) throws WorkerNotFoundException;
 
     void put(WorkerRef workerRef);
 
