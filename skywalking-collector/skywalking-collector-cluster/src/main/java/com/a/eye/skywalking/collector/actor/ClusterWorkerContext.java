@@ -28,21 +28,21 @@ public class ClusterWorkerContext extends WorkerContext {
 
     @Override
     public AbstractWorkerProvider findProvider(Role role) throws ProviderNotFountException {
-        logger.debug("find role of %s provider from ClusterWorkerContext", role.name());
-        if (providers.containsKey(role.name())) {
-            return providers.get(role.name());
+        logger.debug("find role of %s provider from ClusterWorkerContext", role.roleName());
+        if (providers.containsKey(role.roleName())) {
+            return providers.get(role.roleName());
         } else {
-            throw new ProviderNotFountException("role=" + role.name() + ", no available provider.");
+            throw new ProviderNotFountException("role=" + role.roleName() + ", no available provider.");
         }
     }
 
     @Override
-    public void putProvider(AbstractWorkerProvider provider) throws DuplicateProviderException {
-        logger.debug("put role of %s provider into ClusterWorkerContext", provider.role().name());
-        if (providers.containsKey(provider.role().name())) {
-            throw new DuplicateProviderException("provider with role=" + provider.role().name() + " duplicate each other.");
+    public void putProvider(AbstractWorkerProvider provider) throws UsedRoleNameException {
+        logger.debug("put role of %s provider into ClusterWorkerContext", provider.role().roleName());
+        if (providers.containsKey(provider.role().roleName())) {
+            throw new UsedRoleNameException("provider with role=" + provider.role().roleName() + " duplicate each other.");
         } else {
-            providers.put(provider.role().name(), provider);
+            providers.put(provider.role().roleName(), provider);
         }
     }
 }

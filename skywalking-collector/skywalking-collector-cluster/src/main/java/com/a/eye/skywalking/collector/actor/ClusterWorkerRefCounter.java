@@ -13,10 +13,10 @@ public enum ClusterWorkerRefCounter {
     private Map<String, AtomicInteger> counter = new ConcurrentHashMap<>();
 
     public int incrementAndGet(Role role) {
-        if (!counter.containsKey(role.name())) {
+        if (!counter.containsKey(role.roleName())) {
             AtomicInteger atomic = new AtomicInteger(0);
-            counter.putIfAbsent(role.name(), atomic);
+            counter.putIfAbsent(role.roleName(), atomic);
         }
-        return counter.get(role.name()).incrementAndGet();
+        return counter.get(role.roleName()).incrementAndGet();
     }
 }

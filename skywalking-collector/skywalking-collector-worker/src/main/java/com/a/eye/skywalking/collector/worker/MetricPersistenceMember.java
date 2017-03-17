@@ -1,13 +1,11 @@
 package com.a.eye.skywalking.collector.worker;
 
-import akka.actor.ActorRef;
 import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
+import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
 import com.a.eye.skywalking.collector.actor.Role;
-import com.a.eye.skywalking.collector.queue.MessageHolder;
 import com.a.eye.skywalking.collector.worker.storage.EsClient;
 import com.a.eye.skywalking.collector.worker.storage.MetricData;
 import com.a.eye.skywalking.collector.worker.storage.MetricPersistenceData;
-import com.lmax.disruptor.RingBuffer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
@@ -30,8 +28,8 @@ public abstract class MetricPersistenceMember extends PersistenceMember {
 
     protected MetricPersistenceData persistenceData = new MetricPersistenceData();
 
-    public MetricPersistenceMember(Role role, ClusterWorkerContext clusterContext) throws Exception {
-        super(role, clusterContext);
+    public MetricPersistenceMember(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+        super(role, clusterContext, selfContext);
     }
 
     @Override

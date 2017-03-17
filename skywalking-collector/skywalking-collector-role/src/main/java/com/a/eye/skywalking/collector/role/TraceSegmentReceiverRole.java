@@ -7,11 +7,11 @@ import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
 /**
  * @author pengys5
  */
-public class TraceSegmentReceiverRole extends Role {
-    public static TraceSegmentReceiverRole INSTANCE = new TraceSegmentReceiverRole();
+public enum TraceSegmentReceiverRole implements Role {
+    INSTANCE;
 
     @Override
-    public String name() {
+    public String roleName() {
         return "TraceSegmentReceiver";
     }
 

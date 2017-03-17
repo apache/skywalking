@@ -3,6 +3,7 @@ package com.a.eye.skywalking.collector.worker.application.persistence;
 
 import com.a.eye.skywalking.collector.actor.AbstractLocalAsyncWorkerProvider;
 import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
+import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
 import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
 import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
 import com.a.eye.skywalking.collector.worker.RecordPersistenceMember;
@@ -38,8 +39,8 @@ public class TraceSegmentRecordPersistence extends RecordPersistenceMember {
         return "trace_segment";
     }
 
-    public TraceSegmentRecordPersistence(Role role, ClusterWorkerContext clusterContext) throws Exception {
-        super(role, clusterContext);
+    public TraceSegmentRecordPersistence(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+        super(role, clusterContext, selfContext);
     }
 
     @Override
@@ -68,16 +69,16 @@ public class TraceSegmentRecordPersistence extends RecordPersistenceMember {
         }
 
         @Override
-        public Class workerClass() {
-            return TraceSegmentRecordPersistence.class;
+        public TraceSegmentRecordPersistence workerInstance(ClusterWorkerContext clusterContext) {
+            return new TraceSegmentRecordPersistence(role(), clusterContext, new LocalWorkerContext());
         }
     }
 
-    public static class Role extends com.a.eye.skywalking.collector.actor.Role {
-        public static Role INSTANCE = new Role();
+    public enum Role implements com.a.eye.skywalking.collector.actor.Role {
+        INSTANCE;
 
         @Override
-        public String name() {
+        public String roleName() {
             return TraceSegmentRecordPersistence.class.getSimpleName();
         }
 

@@ -3,8 +3,6 @@ package com.a.eye.skywalking.collector.actor;
 import akka.actor.ActorRef;
 import akka.actor.Props;
 
-import java.lang.reflect.Constructor;
-
 /**
  * @author pengys5
  */
@@ -13,12 +11,10 @@ public abstract class AbstractClusterWorkerProvider<T extends AbstractClusterWor
     public abstract int workerNum();
 
     @Override
-    final public WorkerRef create(ClusterWorkerContext clusterContext, LocalWorkerContext localContext) throws Exception {
+    final public WorkerRef onCreate(ClusterWorkerContext clusterContext, LocalWorkerContext localContext) throws IllegalArgumentException, ProviderNotFountException {
         int num = ClusterWorkerRefCounter.INSTANCE.incrementAndGet(role());
 
-        Constructor workerConstructor = workerClass().getDeclaredConstructor(new Class<?>[]{Role.class, ClusterWorkerContext.class});
-        workerConstructor.setAccessible(true);
-        T clusterWorker = (T) workerConstructor.newInstance(role(), clusterContext);
+        T clusterWorker = (T) workerInstance(clusterContext);
         clusterWorker.preStart();
 
         ActorRef actorRef = clusterContext.getAkkaSystem().actorOf(Props.create(AbstractClusterWorker.WorkerWithAkka.class, clusterWorker), role() + "_" + num);

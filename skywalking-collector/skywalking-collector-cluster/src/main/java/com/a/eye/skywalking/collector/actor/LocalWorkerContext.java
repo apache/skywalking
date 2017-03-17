@@ -11,7 +11,7 @@ public class LocalWorkerContext extends WorkerContext {
     }
 
     @Override
-    final public void putProvider(AbstractWorkerProvider provider) throws DuplicateProviderException {
+    final public void putProvider(AbstractWorkerProvider provider) throws UsedRoleNameException {
 
     }
 }

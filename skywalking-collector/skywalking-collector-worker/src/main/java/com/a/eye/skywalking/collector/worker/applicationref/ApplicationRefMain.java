@@ -1,9 +1,7 @@
 package com.a.eye.skywalking.collector.worker.applicationref;
 
 import com.a.eye.skywalking.api.util.StringUtil;
-import com.a.eye.skywalking.collector.actor.AbstractLocalSyncWorker;
-import com.a.eye.skywalking.collector.actor.AbstractLocalSyncWorkerProvider;
-import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
+import com.a.eye.skywalking.collector.actor.*;
 import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
 import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
 import com.a.eye.skywalking.collector.worker.applicationref.analysis.DAGNodeRefAnalysis;
@@ -17,12 +15,12 @@ public class ApplicationRefMain extends AbstractLocalSyncWorker {
 
     private DAGNodeRefAnalysis dagNodeRefAnalysis;
 
-    public ApplicationRefMain(Role role, ClusterWorkerContext clusterContext) throws Exception {
-        super(role, clusterContext);
+    public ApplicationRefMain(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+        super(role, clusterContext, selfContext);
     }
 
     @Override
-    public void preStart() throws Exception {
+    public void preStart() throws ProviderNotFountException {
         getClusterContext().findProvider(DAGNodeRefAnalysis.Role.INSTANCE).create(getClusterContext(), getSelfContext());
     }
 
@@ -49,16 +47,16 @@ public class ApplicationRefMain extends AbstractLocalSyncWorker {
         }
 
         @Override
-        public Class workerClass() {
-            return ApplicationRefMain.class;
+        public ApplicationRefMain workerInstance(ClusterWorkerContext clusterContext) {
+            return new ApplicationRefMain(role(), clusterContext, new LocalWorkerContext());
         }
     }
 
-    public static class Role extends com.a.eye.skywalking.collector.actor.Role {
-        public static Role INSTANCE = new Role();
+    public enum Role implements com.a.eye.skywalking.collector.actor.Role {
+        INSTANCE;
 
         @Override
-        public String name() {
+        public String roleName() {
             return ApplicationRefMain.class.getSimpleName();
         }
 

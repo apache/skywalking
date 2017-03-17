@@ -5,9 +5,9 @@ import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
 /**
  * @author pengys5
  */
-public abstract class Role {
+public interface Role {
 
-    public abstract String name();
+    String roleName();
 
-    public abstract WorkerSelector workerSelector();
+    WorkerSelector workerSelector();
 }

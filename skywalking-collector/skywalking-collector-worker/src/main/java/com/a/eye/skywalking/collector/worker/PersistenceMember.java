@@ -1,8 +1,6 @@
 package com.a.eye.skywalking.collector.worker;
 
-import com.a.eye.skywalking.collector.actor.AbstractLocalAsyncWorker;
-import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
-import com.a.eye.skywalking.collector.actor.Role;
+import com.a.eye.skywalking.collector.actor.*;
 import com.a.eye.skywalking.collector.queue.EndOfBatchCommand;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,8 +12,8 @@ public abstract class PersistenceMember extends AbstractLocalAsyncWorker {
 
     private Logger logger = LogManager.getFormatterLogger(PersistenceMember.class);
 
-    public PersistenceMember(Role role, ClusterWorkerContext clusterContext) throws Exception {
-        super(role, clusterContext);
+    public PersistenceMember(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+        super(role, clusterContext, selfContext);
     }
 
     public abstract String esIndex();
@@ -25,7 +23,8 @@ public abstract class PersistenceMember extends AbstractLocalAsyncWorker {
     public abstract void analyse(Object message) throws Exception;
 
     @Override
-    public void preStart() throws Exception {
+    public void preStart() throws ProviderNotFountException {
+        
     }
 
     @Override

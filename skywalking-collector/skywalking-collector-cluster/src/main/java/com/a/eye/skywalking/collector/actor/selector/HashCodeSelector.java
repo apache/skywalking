@@ -11,9 +11,13 @@ public class HashCodeSelector implements WorkerSelector<WorkerRef> {
 
     @Override
     public WorkerRef select(List<WorkerRef> members, Object message) {
-        AbstractHashMessage hashMessage = (AbstractHashMessage) message;
-        int size = members.size();
-        int selectIndex = Math.abs(hashMessage.getHashCode()) % size;
-        return members.get(selectIndex);
+        if (message instanceof AbstractHashMessage) {
+            AbstractHashMessage hashMessage = (AbstractHashMessage) message;
+            int size = members.size();
+            int selectIndex = Math.abs(hashMessage.getHashCode()) % size;
+            return members.get(selectIndex);
+        } else {
+            throw new IllegalArgumentException("the message send into HashCodeSelector must implementation of AbstractHashMessage");
+        }
     }
 }

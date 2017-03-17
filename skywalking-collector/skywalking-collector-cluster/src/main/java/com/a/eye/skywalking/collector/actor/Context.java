@@ -7,7 +7,7 @@ public interface Context {
 
     AbstractWorkerProvider findProvider(Role role) throws ProviderNotFountException;
 
-    void putProvider(AbstractWorkerProvider provider) throws DuplicateProviderException;
+    void putProvider(AbstractWorkerProvider provider) throws UsedRoleNameException;
 
     WorkerRefs lookup(Role role) throws WorkerNotFountException;
 

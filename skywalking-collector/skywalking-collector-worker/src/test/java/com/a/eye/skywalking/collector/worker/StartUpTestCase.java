@@ -3,10 +3,8 @@ package com.a.eye.skywalking.collector.worker;
 import akka.actor.ActorRef;
 import akka.actor.ActorSelection;
 import akka.actor.ActorSystem;
-import com.a.eye.skywalking.collector.actor.WorkersCreator;
 import com.a.eye.skywalking.collector.cluster.ClusterConfig;
 import com.a.eye.skywalking.collector.cluster.ClusterConfigInitializer;
-import com.a.eye.skywalking.collector.cluster.WorkersListener;
 import com.a.eye.skywalking.collector.worker.receiver.TraceSegmentReceiver;
 import com.a.eye.skywalking.collector.worker.storage.EsClient;
 import com.a.eye.skywalking.sniffer.mock.trace.TraceSegmentBuilderFactory;
@@ -16,7 +14,6 @@ import com.a.eye.skywalking.trace.proto.SegmentRefMessage;
 import com.a.eye.skywalking.trace.tag.Tags;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import org.junit.Test;
 
 /**
  * @author pengys5
@@ -35,7 +32,7 @@ public class StartUpTestCase {
                 withFallback(ConfigFactory.parseString("akka.cluster.seed-nodes=" + ClusterConfig.Cluster.nodes)).
                 withFallback(ConfigFactory.load("application.conf"));
         ActorSystem system = ActorSystem.create(ClusterConfig.Cluster.appname, config);
-        WorkersCreator.INSTANCE.boot(system);
+//        WorkersCreator.INSTANCE.boot(system);
 
         EsClient.boot();
 

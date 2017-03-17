@@ -5,18 +5,19 @@ package com.a.eye.skywalking.collector.actor;
  */
 public abstract class AbstractWorker {
 
-    private final LocalWorkerContext selfContext = new LocalWorkerContext();
+    private final LocalWorkerContext selfContext;
 
     private final Role role;
 
     private final ClusterWorkerContext clusterContext;
 
-    public AbstractWorker(Role role, ClusterWorkerContext clusterContext) {
+    public AbstractWorker(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         this.role = role;
         this.clusterContext = clusterContext;
+        this.selfContext = selfContext;
     }
 
-    public abstract void preStart() throws Exception;
+    public abstract void preStart() throws ProviderNotFountException;
 
     public abstract void work(Object message) throws Exception;
 

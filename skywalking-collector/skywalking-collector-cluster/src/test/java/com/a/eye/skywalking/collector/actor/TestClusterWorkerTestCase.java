@@ -10,19 +10,19 @@ import org.junit.Test;
  */
 public class TestClusterWorkerTestCase {
 
-    @Before
+    private CollectorSystem collectorSystem;
+
     public void createSystem() throws Exception {
-        CollectorSystem.INSTANCE.boot();
+        collectorSystem = new CollectorSystem();
+        collectorSystem.boot();
     }
 
-    @After
     public void terminateSystem() {
-        CollectorSystem.INSTANCE.terminate();
+        collectorSystem.terminate();
     }
 
-    @Test
     public void testTellWorker() throws Exception {
-        WorkerRefs workerRefs = CollectorSystem.INSTANCE.getClusterContext().lookup(TestClusterWorker.TestClusterWorkerRole.INSTANCE);
+        WorkerRefs workerRefs = collectorSystem.getClusterContext().lookup(TestClusterWorker.TestClusterWorkerRole.INSTANCE);
         workerRefs.tell("Print");
         workerRefs.tell("TellLocalWorker");
         workerRefs.tell("TellLocalAsyncWorker");

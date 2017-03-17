@@ -1,8 +1,6 @@
 package com.a.eye.skywalking.collector.worker.application.receiver;
 
-import com.a.eye.skywalking.collector.actor.AbstractClusterWorker;
-import com.a.eye.skywalking.collector.actor.AbstractClusterWorkerProvider;
-import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
+import com.a.eye.skywalking.collector.actor.*;
 import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
 import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
 import com.a.eye.skywalking.collector.worker.WorkerConfig;
@@ -18,12 +16,12 @@ public class ResponseCostReceiver extends AbstractClusterWorker {
 
     private Logger logger = LogManager.getFormatterLogger(ResponseCostReceiver.class);
 
-    public ResponseCostReceiver(Role role, ClusterWorkerContext clusterContext) throws Exception {
-        super(role, clusterContext);
+    public ResponseCostReceiver(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+        super(role, clusterContext, selfContext);
     }
 
     @Override
-    public void preStart() throws Exception {
+    public void preStart() throws ProviderNotFountException {
         getClusterContext().findProvider(ResponseCostPersistence.Role.INSTANCE).create(getClusterContext(), getSelfContext());
     }
 
@@ -45,8 +43,8 @@ public class ResponseCostReceiver extends AbstractClusterWorker {
         }
 
         @Override
-        public Class workerClass() {
-            return ResponseCostReceiver.class;
+        public ResponseCostReceiver workerInstance(ClusterWorkerContext clusterContext) {
+            return new ResponseCostReceiver(role(), clusterContext, new LocalWorkerContext());
         }
 
         @Override
@@ -55,11 +53,11 @@ public class ResponseCostReceiver extends AbstractClusterWorker {
         }
     }
 
-    public static class Role extends com.a.eye.skywalking.collector.actor.Role {
-        public static Role INSTANCE = new Role();
+    public enum Role implements com.a.eye.skywalking.collector.actor.Role {
+        INSTANCE;
 
         @Override
-        public String name() {
+        public String roleName() {
             return ResponseCostReceiver.class.getSimpleName();
         }
 

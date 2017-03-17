@@ -1,7 +1,5 @@
 package com.a.eye.skywalking.collector.actor;
 
-import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
-
 /**
  * @author pengys5
  */
@@ -9,13 +7,14 @@ public abstract class AbstractWorkerProvider<T extends AbstractWorker> implement
 
     public abstract Role role();
 
-    public abstract Class<T> workerClass();
+    public abstract T workerInstance(ClusterWorkerContext clusterContext);
 
-//    public abstract WorkerSelector selector();
+    public abstract WorkerRef onCreate(ClusterWorkerContext clusterContext, LocalWorkerContext localContext) throws IllegalArgumentException, ProviderNotFountException;
 
-    final void validate() throws Exception {
-        if (workerClass() == null) {
-            throw new IllegalArgumentException("cannot createInstance() with nothing obtained from workerClass()");
+    final public WorkerRef create(ClusterWorkerContext clusterContext, LocalWorkerContext localContext) throws IllegalArgumentException, ProviderNotFountException {
+        if (workerInstance(clusterContext) == null) {
+            throw new IllegalArgumentException("cannot get worker instance with nothing obtained from workerInstance()");
         }
+        return onCreate(clusterContext, localContext);
     }
 }

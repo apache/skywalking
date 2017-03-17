@@ -1,8 +1,6 @@
 package com.a.eye.skywalking.collector.worker.application.receiver;
 
-import com.a.eye.skywalking.collector.actor.AbstractClusterWorker;
-import com.a.eye.skywalking.collector.actor.AbstractClusterWorkerProvider;
-import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
+import com.a.eye.skywalking.collector.actor.*;
 import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
 import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
 import com.a.eye.skywalking.collector.worker.WorkerConfig;
@@ -18,12 +16,12 @@ public class ResponseSummaryReceiver extends AbstractClusterWorker {
 
     private Logger logger = LogManager.getFormatterLogger(ResponseSummaryReceiver.class);
 
-    public ResponseSummaryReceiver(Role role, ClusterWorkerContext clusterContext) throws Exception {
-        super(role, clusterContext);
+    public ResponseSummaryReceiver(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+        super(role, clusterContext, selfContext);
     }
 
     @Override
-    public void preStart() throws Exception {
+    public void preStart() throws ProviderNotFountException {
         getClusterContext().findProvider(ResponseSummaryPersistence.Role.INSTANCE).create(getClusterContext(), getSelfContext());
     }
 
@@ -45,8 +43,8 @@ public class ResponseSummaryReceiver extends AbstractClusterWorker {
         }
 
         @Override
-        public Class workerClass() {
-            return ResponseSummaryReceiver.class;
+        public ResponseSummaryReceiver workerInstance(ClusterWorkerContext clusterContext) {
+            return new ResponseSummaryReceiver(role(), clusterContext, new LocalWorkerContext());
         }
 
         @Override
@@ -55,11 +53,11 @@ public class ResponseSummaryReceiver extends AbstractClusterWorker {
         }
     }
 
-    public static class Role extends com.a.eye.skywalking.collector.actor.Role {
-        public static Role INSTANCE = new Role();
+    public enum Role implements com.a.eye.skywalking.collector.actor.Role {
+        INSTANCE;
 
         @Override
-        public String name() {
+        public String roleName() {
             return ResponseSummaryReceiver.class.getSimpleName();
         }
 

@@ -2,10 +2,7 @@ package com.a.eye.skywalking.collector;
 
 import akka.actor.ActorSystem;
 import akka.actor.Props;
-import com.a.eye.skywalking.collector.actor.AbstractClusterWorkerProvider;
-import com.a.eye.skywalking.collector.actor.AbstractLocalWorkerProvider;
-import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
-import com.a.eye.skywalking.collector.actor.DuplicateProviderException;
+import com.a.eye.skywalking.collector.actor.*;
 import com.a.eye.skywalking.collector.cluster.ClusterConfig;
 import com.a.eye.skywalking.collector.cluster.ClusterConfigInitializer;
 import com.a.eye.skywalking.collector.cluster.WorkersListener;
@@ -19,9 +16,7 @@ import java.util.ServiceLoader;
 /**
  * @author pengys5
  */
-public enum CollectorSystem {
-    INSTANCE;
-
+public class CollectorSystem {
     private Logger logger = LogManager.getFormatterLogger(CollectorSystem.class);
 
     private ClusterWorkerContext clusterContext;
@@ -33,7 +28,7 @@ public enum CollectorSystem {
     public void boot() throws Exception {
         createAkkaSystem();
         createListener();
-        createLocalProvider();
+        loadLocalProviders();
 
         createClusterWorker();
     }
@@ -63,14 +58,14 @@ public enum CollectorSystem {
     private void createClusterWorker() throws Exception {
         ServiceLoader<AbstractClusterWorkerProvider> clusterServiceLoader = ServiceLoader.load(AbstractClusterWorkerProvider.class);
         for (AbstractClusterWorkerProvider provider : clusterServiceLoader) {
-            logger.info("create {%s} worker {%s} using java service loader", provider.workerNum(), provider.workerClass().getName());
+            logger.info("create {%s} worker using java service loader", provider.workerNum());
             for (int i = 1; i <= provider.workerNum(); i++) {
-                provider.create(clusterContext, null);
+                provider.create(clusterContext, new LocalWorkerContext());
             }
         }
     }
 
-    private void createLocalProvider() throws DuplicateProviderException {
+    private void loadLocalProviders() throws UsedRoleNameException {
         ServiceLoader<AbstractLocalWorkerProvider> clusterServiceLoader = ServiceLoader.load(AbstractLocalWorkerProvider.class);
         for (AbstractLocalWorkerProvider provider : clusterServiceLoader) {
             clusterContext.putProvider(provider);

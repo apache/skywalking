@@ -1,9 +1,6 @@
 package com.a.eye.skywalking.collector.worker.receiver;
 
-import com.a.eye.skywalking.collector.actor.AbstractClusterWorker;
-import com.a.eye.skywalking.collector.actor.AbstractClusterWorkerProvider;
-import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
-import com.a.eye.skywalking.collector.actor.Role;
+import com.a.eye.skywalking.collector.actor.*;
 import com.a.eye.skywalking.collector.role.TraceSegmentReceiverRole;
 import com.a.eye.skywalking.collector.worker.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.application.ApplicationMain;
@@ -21,12 +18,12 @@ public class TraceSegmentReceiver extends AbstractClusterWorker {
 
     private Logger logger = LogManager.getFormatterLogger(TraceSegmentReceiver.class);
 
-    public TraceSegmentReceiver(Role role, ClusterWorkerContext clusterContext) throws Exception {
-        super(role, clusterContext);
+    public TraceSegmentReceiver(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+        super(role, clusterContext, selfContext);
     }
 
     @Override
-    public void preStart() throws Exception {
+    public void preStart() throws ProviderNotFountException {
         getClusterContext().findProvider(ApplicationMain.Role.INSTANCE).create(getClusterContext(), getSelfContext());
         getClusterContext().findProvider(ApplicationRefMain.Role.INSTANCE).create(getClusterContext(), getSelfContext());
     }
@@ -59,8 +56,8 @@ public class TraceSegmentReceiver extends AbstractClusterWorker {
         }
 
         @Override
-        public Class<TraceSegmentReceiver> workerClass() {
-            return TraceSegmentReceiver.class;
+        public TraceSegmentReceiver workerInstance(ClusterWorkerContext clusterContext) {
+            return new TraceSegmentReceiver(role(), clusterContext, new LocalWorkerContext());
         }
     }
 

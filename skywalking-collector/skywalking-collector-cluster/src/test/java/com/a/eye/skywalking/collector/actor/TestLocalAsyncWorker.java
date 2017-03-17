@@ -8,12 +8,12 @@ import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
  */
 public class TestLocalAsyncWorker extends AbstractLocalAsyncWorker {
 
-    public TestLocalAsyncWorker(Role role, ClusterWorkerContext clusterContext) throws Exception {
-        super(role, clusterContext);
+    public TestLocalAsyncWorker(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+        super(role, clusterContext, selfContext);
     }
 
     @Override
-    public void preStart() throws Exception {
+    public void preStart() throws ProviderNotFountException {
 
     }
 
@@ -37,16 +37,16 @@ public class TestLocalAsyncWorker extends AbstractLocalAsyncWorker {
         }
 
         @Override
-        public Class<TestLocalAsyncWorker> workerClass() {
-            return TestLocalAsyncWorker.class;
+        public TestLocalAsyncWorker workerInstance(ClusterWorkerContext clusterContext) {
+            return new TestLocalAsyncWorker(role(), clusterContext, new LocalWorkerContext());
         }
     }
 
-    public static class TestLocalASyncWorkerRole extends Role {
-        public static TestLocalASyncWorkerRole INSTANCE = new TestLocalASyncWorkerRole();
+    public enum TestLocalASyncWorkerRole implements Role {
+        INSTANCE;
 
         @Override
-        public String name() {
+        public String roleName() {
             return TestLocalAsyncWorker.class.getSimpleName();
         }
 

@@ -10,8 +10,8 @@ import com.lmax.disruptor.RingBuffer;
  */
 public abstract class AbstractLocalAsyncWorker extends AbstractLocalWorker {
 
-    public AbstractLocalAsyncWorker(Role role, ClusterWorkerContext clusterContext) throws Exception {
-        super(role, clusterContext);
+    public AbstractLocalAsyncWorker(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+        super(role, clusterContext, selfContext);
     }
 
     static class WorkerWithDisruptor implements EventHandler<MessageHolder> {
@@ -19,17 +19,21 @@ public abstract class AbstractLocalAsyncWorker extends AbstractLocalWorker {
         private RingBuffer<MessageHolder> ringBuffer;
         private AbstractLocalAsyncWorker asyncWorker;
 
-        private WorkerWithDisruptor(RingBuffer<MessageHolder> ringBuffer, AbstractLocalAsyncWorker asyncWorker) {
+        public WorkerWithDisruptor(RingBuffer<MessageHolder> ringBuffer, AbstractLocalAsyncWorker asyncWorker) {
             this.ringBuffer = ringBuffer;
             this.asyncWorker = asyncWorker;
         }
 
-        public void onEvent(MessageHolder event, long sequence, boolean endOfBatch) throws Exception {
-            Object message = event.getMessage();
-            event.reset();
-            asyncWorker.work(message);
-            if (endOfBatch) {
-                asyncWorker.work(new EndOfBatchCommand());
+        public void onEvent(MessageHolder event, long sequence, boolean endOfBatch) {
+            try {
+                Object message = event.getMessage();
+                event.reset();
+                asyncWorker.work(message);
+                if (endOfBatch) {
+                    asyncWorker.work(new EndOfBatchCommand());
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
 

@@ -2,6 +2,7 @@ package com.a.eye.skywalking.collector.worker.application.analysis;
 
 import com.a.eye.skywalking.collector.actor.AbstractLocalAsyncWorkerProvider;
 import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
+import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
 import com.a.eye.skywalking.collector.actor.selector.HashCodeSelector;
 import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
 import com.a.eye.skywalking.collector.worker.MetricAnalysisMember;
@@ -19,8 +20,8 @@ public class ResponseSummaryAnalysis extends MetricAnalysisMember {
 
     private Logger logger = LogManager.getFormatterLogger(ResponseSummaryAnalysis.class);
 
-    public ResponseSummaryAnalysis(Role role, ClusterWorkerContext clusterContext) throws Exception {
-        super(role, clusterContext);
+    public ResponseSummaryAnalysis(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+        super(role, clusterContext, selfContext);
     }
 
     @Override
@@ -50,8 +51,8 @@ public class ResponseSummaryAnalysis extends MetricAnalysisMember {
         }
 
         @Override
-        public Class workerClass() {
-            return ResponseSummaryAnalysis.class;
+        public ResponseSummaryAnalysis workerInstance(ClusterWorkerContext clusterContext) {
+            return new ResponseSummaryAnalysis(role(), clusterContext, new LocalWorkerContext());
         }
 
         @Override
@@ -60,11 +61,11 @@ public class ResponseSummaryAnalysis extends MetricAnalysisMember {
         }
     }
 
-    public static class Role extends com.a.eye.skywalking.collector.actor.Role {
-        public static Role INSTANCE = new Role();
+    public enum Role implements com.a.eye.skywalking.collector.actor.Role {
+        INSTANCE;
 
         @Override
-        public String name() {
+        public String roleName() {
             return ResponseSummaryAnalysis.class.getSimpleName();
         }
 

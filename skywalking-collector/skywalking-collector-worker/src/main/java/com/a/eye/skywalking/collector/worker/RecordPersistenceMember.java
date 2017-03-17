@@ -1,6 +1,7 @@
 package com.a.eye.skywalking.collector.worker;
 
 import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
+import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
 import com.a.eye.skywalking.collector.actor.Role;
 import com.a.eye.skywalking.collector.worker.storage.EsClient;
 import com.a.eye.skywalking.collector.worker.storage.RecordData;
@@ -23,8 +24,8 @@ public abstract class RecordPersistenceMember extends PersistenceMember {
 
     protected RecordPersistenceData persistenceData = new RecordPersistenceData();
 
-    public RecordPersistenceMember(Role role, ClusterWorkerContext clusterContext) throws Exception {
-        super(role, clusterContext);
+    public RecordPersistenceMember(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+        super(role, clusterContext, selfContext);
     }
 
     @Override

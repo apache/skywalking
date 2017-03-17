@@ -2,6 +2,7 @@ package com.a.eye.skywalking.collector.worker.applicationref.persistence;
 
 import com.a.eye.skywalking.collector.actor.AbstractLocalAsyncWorkerProvider;
 import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
+import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
 import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
 import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
 import com.a.eye.skywalking.collector.worker.RecordPersistenceMember;
@@ -16,8 +17,8 @@ public class DAGNodeRefPersistence extends RecordPersistenceMember {
 
     private Logger logger = LogManager.getFormatterLogger(DAGNodeRefPersistence.class);
 
-    public DAGNodeRefPersistence(Role role, ClusterWorkerContext clusterContext) throws Exception {
-        super(role, clusterContext);
+    public DAGNodeRefPersistence(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+        super(role, clusterContext, selfContext);
     }
 
     @Override
@@ -40,8 +41,8 @@ public class DAGNodeRefPersistence extends RecordPersistenceMember {
         }
 
         @Override
-        public Class workerClass() {
-            return DAGNodeRefPersistence.class;
+        public DAGNodeRefPersistence workerInstance(ClusterWorkerContext clusterContext) {
+            return new DAGNodeRefPersistence(role(), clusterContext, new LocalWorkerContext());
         }
 
         @Override
@@ -50,11 +51,11 @@ public class DAGNodeRefPersistence extends RecordPersistenceMember {
         }
     }
 
-    public static class Role extends com.a.eye.skywalking.collector.actor.Role {
-        public static Role INSTANCE = new Role();
+    public enum Role implements com.a.eye.skywalking.collector.actor.Role {
+        INSTANCE;
 
         @Override
-        public String name() {
+        public String roleName() {
             return DAGNodeRefPersistence.class.getSimpleName();
         }
 

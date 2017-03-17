@@ -1,5 +1,6 @@
 package com.a.eye.skywalking.collector.actor;
 
+
 import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
 import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
 
@@ -8,12 +9,12 @@ import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
  */
 public class TestClusterWorker extends AbstractClusterWorker {
 
-    public TestClusterWorker(Role role, ClusterWorkerContext clusterContext) throws Exception {
-        super(role, clusterContext);
+    public TestClusterWorker(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+        super(role, clusterContext, selfContext);
     }
 
     @Override
-    public void preStart() throws Exception {
+    public void preStart() throws ProviderNotFountException {
         getClusterContext().findProvider(TestLocalSyncWorker.TestLocalSyncWorkerRole.INSTANCE).create(getClusterContext(), getSelfContext());
         getClusterContext().findProvider(TestLocalAsyncWorker.TestLocalASyncWorkerRole.INSTANCE).create(getClusterContext(), getSelfContext());
     }
@@ -42,20 +43,20 @@ public class TestClusterWorker extends AbstractClusterWorker {
 
         @Override
         public Role role() {
-            return new TestClusterWorkerRole();
+            return TestClusterWorkerRole.INSTANCE;
         }
 
         @Override
-        public Class<TestClusterWorker> workerClass() {
-            return TestClusterWorker.class;
+        public TestClusterWorker workerInstance(ClusterWorkerContext clusterContext) {
+            return new TestClusterWorker(role(), clusterContext, new LocalWorkerContext());
         }
     }
 
-    public static class TestClusterWorkerRole extends Role {
-        public static TestClusterWorkerRole INSTANCE = new TestClusterWorkerRole();
+    public enum TestClusterWorkerRole implements Role {
+        INSTANCE;
 
         @Override
-        public String name() {
+        public String roleName() {
             return TestClusterWorker.class.getSimpleName();
         }
 

@@ -12,12 +12,11 @@ public class TestLocalSyncWorkerTestCase {
 
     @Before
     public void createSystem() throws Exception {
-        CollectorSystem.INSTANCE.boot();
     }
 
     @After
     public void terminateSystem() {
-        CollectorSystem.INSTANCE.terminate();
+
     }
 
     @Test
