@@ -21,15 +21,19 @@ public abstract class AbstractWorker {
 
     public abstract void work(Object message) throws Exception;
 
-    final public LocalWorkerContext getSelfContext() {
+    final public LookUp getSelfContext() {
         return selfContext;
     }
 
-    final public ClusterWorkerContext getClusterContext() {
+    final public LookUp getClusterContext() {
         return clusterContext;
     }
 
     final public Role getRole() {
         return role;
+    }
+
+    final public static AbstractWorker noOwner() {
+        return null;
     }
 }

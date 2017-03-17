@@ -12,15 +12,18 @@ public class TestClusterWorkerTestCase {
 
     private CollectorSystem collectorSystem;
 
+//    @Before
     public void createSystem() throws Exception {
         collectorSystem = new CollectorSystem();
         collectorSystem.boot();
     }
 
+//    @Before
     public void terminateSystem() {
         collectorSystem.terminate();
     }
 
+//    @Test
     public void testTellWorker() throws Exception {
         WorkerRefs workerRefs = collectorSystem.getClusterContext().lookup(TestClusterWorker.TestClusterWorkerRole.INSTANCE);
         workerRefs.tell("Print");

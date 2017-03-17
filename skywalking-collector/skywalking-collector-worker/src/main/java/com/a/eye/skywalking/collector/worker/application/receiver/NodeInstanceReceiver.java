@@ -22,7 +22,7 @@ public class NodeInstanceReceiver extends AbstractClusterWorker {
 
     @Override
     public void preStart() throws ProviderNotFountException {
-        getClusterContext().findProvider(NodeInstancePersistence.Role.INSTANCE).create(getClusterContext(), getSelfContext());
+        getClusterContext().findProvider(NodeInstancePersistence.Role.INSTANCE).create(this);
     }
 
     @Override

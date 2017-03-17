@@ -15,8 +15,8 @@ public class TestClusterWorker extends AbstractClusterWorker {
 
     @Override
     public void preStart() throws ProviderNotFountException {
-        getClusterContext().findProvider(TestLocalSyncWorker.TestLocalSyncWorkerRole.INSTANCE).create(getClusterContext(), getSelfContext());
-        getClusterContext().findProvider(TestLocalAsyncWorker.TestLocalASyncWorkerRole.INSTANCE).create(getClusterContext(), getSelfContext());
+        getClusterContext().findProvider(TestLocalSyncWorker.TestLocalSyncWorkerRole.INSTANCE).create(this);
+        getClusterContext().findProvider(TestLocalAsyncWorker.TestLocalASyncWorkerRole.INSTANCE).create(this);
     }
 
     @Override

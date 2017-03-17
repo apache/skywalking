@@ -21,16 +21,15 @@ public class CollectorSystem {
 
     private ClusterWorkerContext clusterContext;
 
-    public ClusterWorkerContext getClusterContext() {
+    public LookUp getClusterContext() {
         return clusterContext;
     }
 
-    public void boot() throws Exception {
+    public void boot() throws UsedRoleNameException, ProviderNotFountException {
         createAkkaSystem();
         createListener();
         loadLocalProviders();
-
-        createClusterWorker();
+        createClusterWorkers();
     }
 
     public void terminate() {
@@ -55,12 +54,13 @@ public class CollectorSystem {
         clusterContext.getAkkaSystem().actorOf(Props.create(WorkersListener.class, clusterContext), WorkersListener.WorkName);
     }
 
-    private void createClusterWorker() throws Exception {
+    private void createClusterWorkers() throws ProviderNotFountException {
         ServiceLoader<AbstractClusterWorkerProvider> clusterServiceLoader = ServiceLoader.load(AbstractClusterWorkerProvider.class);
         for (AbstractClusterWorkerProvider provider : clusterServiceLoader) {
             logger.info("create {%s} worker using java service loader", provider.workerNum());
+            provider.setClusterContext(clusterContext);
             for (int i = 1; i <= provider.workerNum(); i++) {
-                provider.create(clusterContext, new LocalWorkerContext());
+                provider.create(AbstractWorker.noOwner());
             }
         }
     }
@@ -68,6 +68,7 @@ public class CollectorSystem {
     private void loadLocalProviders() throws UsedRoleNameException {
         ServiceLoader<AbstractLocalWorkerProvider> clusterServiceLoader = ServiceLoader.load(AbstractLocalWorkerProvider.class);
         for (AbstractLocalWorkerProvider provider : clusterServiceLoader) {
+            provider.setClusterContext(clusterContext);
             clusterContext.putProvider(provider);
         }
     }

@@ -5,5 +5,5 @@ package com.a.eye.skywalking.collector.actor;
  */
 public interface Provider {
 
-    WorkerRef create(ClusterWorkerContext clusterContext, LocalWorkerContext localContext) throws Exception;
+    WorkerRef create(AbstractWorker workerOwner) throws IllegalArgumentException, ProviderNotFountException;
 }

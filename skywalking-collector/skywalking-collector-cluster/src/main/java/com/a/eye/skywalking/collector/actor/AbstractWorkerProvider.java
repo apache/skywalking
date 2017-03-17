@@ -5,16 +5,33 @@ package com.a.eye.skywalking.collector.actor;
  */
 public abstract class AbstractWorkerProvider<T extends AbstractWorker> implements Provider {
 
+    private ClusterWorkerContext clusterContext;
+
     public abstract Role role();
 
     public abstract T workerInstance(ClusterWorkerContext clusterContext);
 
-    public abstract WorkerRef onCreate(ClusterWorkerContext clusterContext, LocalWorkerContext localContext) throws IllegalArgumentException, ProviderNotFountException;
+    public abstract WorkerRef onCreate(LocalWorkerContext localContext) throws IllegalArgumentException, ProviderNotFountException;
 
-    final public WorkerRef create(ClusterWorkerContext clusterContext, LocalWorkerContext localContext) throws IllegalArgumentException, ProviderNotFountException {
+    final public void setClusterContext(ClusterWorkerContext clusterContext) {
+        this.clusterContext = clusterContext;
+    }
+
+    final protected ClusterWorkerContext getClusterContext() {
+        return clusterContext;
+    }
+
+    final public WorkerRef create(AbstractWorker workerOwner) throws IllegalArgumentException, ProviderNotFountException {
         if (workerInstance(clusterContext) == null) {
             throw new IllegalArgumentException("cannot get worker instance with nothing obtained from workerInstance()");
         }
-        return onCreate(clusterContext, localContext);
+
+        if (workerOwner == null) {
+            return onCreate(null);
+        } else if (workerOwner.getSelfContext() instanceof LocalWorkerContext) {
+            return onCreate((LocalWorkerContext) workerOwner.getSelfContext());
+        } else {
+            throw new IllegalArgumentException("the argument of workerOwner is Illegal");
+        }
     }
 }

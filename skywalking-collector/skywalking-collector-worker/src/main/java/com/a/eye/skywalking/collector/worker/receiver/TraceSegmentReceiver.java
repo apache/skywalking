@@ -24,8 +24,8 @@ public class TraceSegmentReceiver extends AbstractClusterWorker {
 
     @Override
     public void preStart() throws ProviderNotFountException {
-        getClusterContext().findProvider(ApplicationMain.Role.INSTANCE).create(getClusterContext(), getSelfContext());
-        getClusterContext().findProvider(ApplicationRefMain.Role.INSTANCE).create(getClusterContext(), getSelfContext());
+        getClusterContext().findProvider(ApplicationMain.Role.INSTANCE).create(this);
+        getClusterContext().findProvider(ApplicationRefMain.Role.INSTANCE).create(this);
     }
 
     @Override

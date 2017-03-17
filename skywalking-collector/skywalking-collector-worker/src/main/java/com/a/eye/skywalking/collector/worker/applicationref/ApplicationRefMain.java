@@ -21,11 +21,11 @@ public class ApplicationRefMain extends AbstractLocalSyncWorker {
 
     @Override
     public void preStart() throws ProviderNotFountException {
-        getClusterContext().findProvider(DAGNodeRefAnalysis.Role.INSTANCE).create(getClusterContext(), getSelfContext());
+        getClusterContext().findProvider(DAGNodeRefAnalysis.Role.INSTANCE).create(this);
     }
 
     @Override
-    public void work(Object message) throws Exception {
+    public Object onWork(Object message) throws Exception {
         TraceSegmentReceiver.TraceSegmentTimeSlice traceSegment = (TraceSegmentReceiver.TraceSegmentTimeSlice) message;
 
         TraceSegmentRef traceSegmentRef = traceSegment.getTraceSegment().getPrimaryRef();
@@ -36,6 +36,7 @@ public class ApplicationRefMain extends AbstractLocalSyncWorker {
             DAGNodeRefAnalysis.Metric nodeRef = new DAGNodeRefAnalysis.Metric(traceSegment.getMinute(), traceSegment.getSecond(), front, behind);
             getSelfContext().lookup(DAGNodeRefAnalysis.Role.INSTANCE).tell(nodeRef);
         }
+        return null;
     }
 
     public static class Factory extends AbstractLocalSyncWorkerProvider<ApplicationRefMain> {

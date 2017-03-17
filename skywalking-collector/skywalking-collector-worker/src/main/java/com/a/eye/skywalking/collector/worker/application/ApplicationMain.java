@@ -29,15 +29,15 @@ public class ApplicationMain extends AbstractLocalSyncWorker {
 
     @Override
     public void preStart() throws ProviderNotFountException {
-        getClusterContext().findProvider(DAGNodeAnalysis.Role.INSTANCE).create(getClusterContext(), getSelfContext());
-        getClusterContext().findProvider(NodeInstanceAnalysis.Role.INSTANCE).create(getClusterContext(), getSelfContext());
-        getClusterContext().findProvider(ResponseCostAnalysis.Role.INSTANCE).create(getClusterContext(), getSelfContext());
-        getClusterContext().findProvider(ResponseSummaryAnalysis.Role.INSTANCE).create(getClusterContext(), getSelfContext());
-        getClusterContext().findProvider(TraceSegmentRecordPersistence.Role.INSTANCE).create(getClusterContext(), getSelfContext());
+        getClusterContext().findProvider(DAGNodeAnalysis.Role.INSTANCE).create(this);
+        getClusterContext().findProvider(NodeInstanceAnalysis.Role.INSTANCE).create(this);
+        getClusterContext().findProvider(ResponseCostAnalysis.Role.INSTANCE).create(this);
+        getClusterContext().findProvider(ResponseSummaryAnalysis.Role.INSTANCE).create(this);
+        getClusterContext().findProvider(TraceSegmentRecordPersistence.Role.INSTANCE).create(this);
     }
 
     @Override
-    public void work(Object message) throws Exception {
+    public Object onWork(Object message) throws Exception {
         if (message instanceof TraceSegmentReceiver.TraceSegmentTimeSlice) {
             logger.debug("begin translate TraceSegment Object to JsonObject");
             TraceSegmentReceiver.TraceSegmentTimeSlice traceSegment = (TraceSegmentReceiver.TraceSegmentTimeSlice) message;
@@ -49,6 +49,7 @@ public class ApplicationMain extends AbstractLocalSyncWorker {
             sendToResponseCostPersistence(traceSegment);
             sendToResponseSummaryPersistence(traceSegment);
         }
+        return null;
     }
 
     public static class Factory extends AbstractLocalSyncWorkerProvider<ApplicationMain> {

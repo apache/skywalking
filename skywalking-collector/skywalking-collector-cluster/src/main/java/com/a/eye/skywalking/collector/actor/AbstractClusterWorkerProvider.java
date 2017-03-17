@@ -11,16 +11,16 @@ public abstract class AbstractClusterWorkerProvider<T extends AbstractClusterWor
     public abstract int workerNum();
 
     @Override
-    final public WorkerRef onCreate(ClusterWorkerContext clusterContext, LocalWorkerContext localContext) throws IllegalArgumentException, ProviderNotFountException {
+    final public WorkerRef onCreate(LocalWorkerContext localContext) throws IllegalArgumentException, ProviderNotFountException {
         int num = ClusterWorkerRefCounter.INSTANCE.incrementAndGet(role());
 
-        T clusterWorker = (T) workerInstance(clusterContext);
+        T clusterWorker = (T) workerInstance(getClusterContext());
         clusterWorker.preStart();
 
-        ActorRef actorRef = clusterContext.getAkkaSystem().actorOf(Props.create(AbstractClusterWorker.WorkerWithAkka.class, clusterWorker), role() + "_" + num);
+        ActorRef actorRef = getClusterContext().getAkkaSystem().actorOf(Props.create(AbstractClusterWorker.WorkerWithAkka.class, clusterWorker), role() + "_" + num);
 
         ClusterWorkerRef workerRef = new ClusterWorkerRef(actorRef, role());
-        clusterContext.put(workerRef);
+        getClusterContext().put(workerRef);
         return workerRef;
     }
 }
