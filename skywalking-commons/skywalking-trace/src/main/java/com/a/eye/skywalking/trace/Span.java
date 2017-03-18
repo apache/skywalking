@@ -1,12 +1,9 @@
 package com.a.eye.skywalking.trace;
 
-import com.a.eye.skywalking.api.util.StringUtil;
-import com.a.eye.skywalking.trace.proto.KeyValue;
-import com.a.eye.skywalking.trace.proto.LogDataMessage;
-import com.a.eye.skywalking.trace.proto.SpanMessage;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -23,18 +20,26 @@ import java.util.Map;
  * Created by wusheng on 2017/2/17.
  */
 public class Span{
+    @Expose
+    @SerializedName(value="si")
     private int spanId;
 
+    @Expose
+    @SerializedName(value="ps")
     private int parentSpanId;
 
     /**
      * The start time of this Span.
      */
+    @Expose
+    @SerializedName(value="st")
     private long startTime;
 
     /**
      * The end time of this Span.
      */
+    @Expose
+    @SerializedName(value="et")
     private long endTime;
 
     /**
@@ -42,6 +47,8 @@ public class Span{
      * If you want to know, how to set an operation name,
      * {@see https://github.com/opentracing/specification/blob/master/specification.md#start-a-new-span}
      */
+    @Expose
+    @SerializedName(value="on")
     private String operationName;
 
     /**
@@ -49,6 +56,8 @@ public class Span{
      *
      * {@see https://github.com/opentracing/specification/blob/master/specification.md#set-a-span-tag}
      */
+    @Expose
+    @SerializedName(value="ta")
     private final Map<String, Object> tags;
 
     /**
@@ -56,6 +65,8 @@ public class Span{
      *
      * {@see https://github.com/opentracing/specification/blob/master/specification.md#log-structured-data}
      */
+    @Expose
+    @SerializedName(value="ls")
     private final List<LogData> logs;
 
     /**
@@ -82,12 +93,11 @@ public class Span{
      * @param startTime given start timestamp.
      */
     private Span(int spanId, int parentSpanId, String operationName, long startTime) {
+        this();
         this.spanId = spanId;
         this.parentSpanId = parentSpanId;
         this.startTime = startTime;
         this.operationName = operationName;
-        this.tags = new HashMap<String, Object>();
-        this.logs = new ArrayList<LogData>();
     }
 
     /**
@@ -138,15 +148,11 @@ public class Span{
     }
 
     /**
-     * Create a new span, by given {@link SpanMessage}, which you can get from another {@link Span} object,
-     * by calling {@link Span#serialize()};
-     *
-     * @param spanMessage from another {@link Span#serialize()}
+     * Create a new/empty span.
      */
-    public Span(SpanMessage spanMessage) {
+    public Span() {
         tags = new HashMap<String, Object>();
         logs = new LinkedList<LogData>();
-        this.deserialize(spanMessage);
     }
 
     /**
@@ -263,51 +269,6 @@ public class Span{
         exceptionFields.put("stack", ThrowableTransformer.INSTANCE.convert2String(t, 4000));
 
         return log(exceptionFields);
-    }
-
-    public SpanMessage serialize() {
-        SpanMessage.Builder builder = SpanMessage.newBuilder();
-        builder.setSpanId(spanId);
-        builder.setParentSpanId(parentSpanId);
-        builder.setStartTime(startTime);
-        builder.setEndTime(endTime);
-        builder.setOperationName(operationName);
-        for (Map.Entry<String, Object> entry : tags.entrySet()) {
-            KeyValue.Builder tagEntryBuilder = KeyValue.newBuilder();
-            tagEntryBuilder.setKey(entry.getKey());
-            String value = String.valueOf(entry.getValue());
-            if (!StringUtil.isEmpty(value)) {
-                tagEntryBuilder.setValue(value);
-            }
-            builder.addTags(tagEntryBuilder);
-        }
-
-        for (LogData log : logs) {
-            builder.addLogs(log.serialize());
-        }
-        return builder.build();
-    }
-
-    public void deserialize(SpanMessage message) {
-        spanId = message.getSpanId();
-        parentSpanId = message.getParentSpanId();
-        startTime = message.getStartTime();
-        endTime = message.getEndTime();
-        operationName = message.getOperationName();
-
-        List<KeyValue> tagsList = message.getTagsList();
-        if(tagsList != null){
-            for (KeyValue tag : tagsList) {
-                tags.put(tag.getKey(), tag.getValue());
-            }
-        }
-
-        List<LogDataMessage> logsList = message.getLogsList();
-        if (logsList != null) {
-            for (LogDataMessage logDataMessage : logsList) {
-                logs.add(new LogData(logDataMessage));
-            }
-        }
     }
 
     private enum ThrowableTransformer {

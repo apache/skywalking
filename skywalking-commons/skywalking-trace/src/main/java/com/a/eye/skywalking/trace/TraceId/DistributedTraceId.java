@@ -1,5 +1,11 @@
 package com.a.eye.skywalking.trace.TraceId;
 
+import com.google.gson.TypeAdapter;
+import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
+
 /**
  * The <code>DistributedTraceId</code> presents a distributed call chain.
  *
@@ -13,6 +19,7 @@ package com.a.eye.skywalking.trace.TraceId;
  *
  * @author wusheng
  */
+@JsonAdapter(DistributedTraceId.Serializer.class)
 public abstract class DistributedTraceId {
     private String id;
 
@@ -39,5 +46,23 @@ public abstract class DistributedTraceId {
     @Override
     public int hashCode() {
         return id != null ? id.hashCode() : 0;
+    }
+
+    public static class Serializer extends TypeAdapter<DistributedTraceId> {
+
+        @Override
+        public void write(JsonWriter out, DistributedTraceId value) throws IOException {
+            out.beginArray();
+            out.value(value.get());
+            out.endArray();
+        }
+
+        @Override
+        public DistributedTraceId read(JsonReader in) throws IOException {
+            in.beginArray();
+            PropagatedTraceId traceId = new PropagatedTraceId(in.nextString());
+            in.endArray();
+            return traceId;
+        }
     }
 }

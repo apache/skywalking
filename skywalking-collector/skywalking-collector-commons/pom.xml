@@ -23,10 +23,5 @@
             <artifactId>skywalking-trace</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>2.8.0</version>
-        </dependency>
     </dependencies>
 </project>
