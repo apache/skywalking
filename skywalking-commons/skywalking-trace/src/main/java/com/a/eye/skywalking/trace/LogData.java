@@ -1,7 +1,6 @@
 package com.a.eye.skywalking.trace;
 
 import com.a.eye.skywalking.api.util.StringUtil;
-import com.a.eye.skywalking.messages.ISerializable;
 import com.a.eye.skywalking.trace.proto.KeyValue;
 import com.a.eye.skywalking.trace.proto.LogDataMessage;
 import java.util.Collections;
@@ -14,7 +13,7 @@ import java.util.Map;
  *
  * Created by wusheng on 2017/2/17.
  */
-public class LogData implements ISerializable<LogDataMessage> {
+public class LogData {
     private long time;
     private Map<String, ?> fields;
 
@@ -38,7 +37,6 @@ public class LogData implements ISerializable<LogDataMessage> {
         return Collections.unmodifiableMap(fields);
     }
 
-    @Override
     public LogDataMessage serialize() {
         LogDataMessage.Builder logDataBuilder = LogDataMessage.newBuilder();
         logDataBuilder.setTime(time);
@@ -59,7 +57,6 @@ public class LogData implements ISerializable<LogDataMessage> {
         return logDataBuilder.build();
     }
 
-    @Override
     public void deserialize(LogDataMessage message) {
         time = message.getTime();
         List<KeyValue> list = message.getFieldsList();

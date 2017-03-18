@@ -1,7 +1,6 @@
 package com.a.eye.skywalking.trace;
 
 import com.a.eye.skywalking.api.util.StringUtil;
-import com.a.eye.skywalking.messages.ISerializable;
 import com.a.eye.skywalking.trace.proto.KeyValue;
 import com.a.eye.skywalking.trace.proto.LogDataMessage;
 import com.a.eye.skywalking.trace.proto.SpanMessage;
@@ -23,7 +22,7 @@ import java.util.Map;
  *
  * Created by wusheng on 2017/2/17.
  */
-public class Span implements ISerializable<SpanMessage> {
+public class Span{
     private int spanId;
 
     private int parentSpanId;
@@ -266,7 +265,6 @@ public class Span implements ISerializable<SpanMessage> {
         return log(exceptionFields);
     }
 
-    @Override
     public SpanMessage serialize() {
         SpanMessage.Builder builder = SpanMessage.newBuilder();
         builder.setSpanId(spanId);
@@ -290,7 +288,6 @@ public class Span implements ISerializable<SpanMessage> {
         return builder.build();
     }
 
-    @Override
     public void deserialize(SpanMessage message) {
         spanId = message.getSpanId();
         parentSpanId = message.getParentSpanId();
