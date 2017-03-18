@@ -104,21 +104,15 @@ public class TraceSegmentRef{
 
         TraceSegmentRef ref = (TraceSegmentRef)o;
 
-        if (spanId != ref.spanId)
-            return false;
         if (traceSegmentId != null ? !traceSegmentId.equals(ref.traceSegmentId) : ref.traceSegmentId != null)
             return false;
-        if (applicationCode != null ? !applicationCode.equals(ref.applicationCode) : ref.applicationCode != null)
-            return false;
-        return peerHost != null ? peerHost.equals(ref.peerHost) : ref.peerHost == null;
+        return applicationCode != null ? applicationCode.equals(ref.applicationCode) : ref.applicationCode == null;
     }
 
     @Override
     public int hashCode() {
         int result = traceSegmentId != null ? traceSegmentId.hashCode() : 0;
-        result = 31 * result + spanId;
         result = 31 * result + (applicationCode != null ? applicationCode.hashCode() : 0);
-        result = 31 * result + (peerHost != null ? peerHost.hashCode() : 0);
         return result;
     }
 }
