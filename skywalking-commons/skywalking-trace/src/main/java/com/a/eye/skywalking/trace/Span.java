@@ -66,7 +66,7 @@ public class Span{
      * {@see https://github.com/opentracing/specification/blob/master/specification.md#log-structured-data}
      */
     @Expose
-    @SerializedName(value="ls")
+    @SerializedName(value="lo")
     private final List<LogData> logs;
 
     /**
