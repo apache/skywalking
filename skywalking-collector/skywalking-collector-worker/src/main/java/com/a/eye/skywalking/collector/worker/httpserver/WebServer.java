@@ -11,10 +11,10 @@ import java.util.Map;
 /**
  * @author pengys5
  */
-public enum HttpServer {
+public enum WebServer {
     INSTANCE;
 
-    private Logger logger = LogManager.getFormatterLogger(HttpServer.class);
+    private Logger logger = LogManager.getFormatterLogger(WebServer.class);
 
     public void boot() throws Exception {
         NanoHttpServer server = new NanoHttpServer(7001);

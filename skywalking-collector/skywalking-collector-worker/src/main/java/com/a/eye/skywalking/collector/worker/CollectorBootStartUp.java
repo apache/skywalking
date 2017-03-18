@@ -4,7 +4,7 @@ import com.a.eye.skywalking.collector.cluster.ClusterConfig;
 import com.a.eye.skywalking.collector.cluster.ClusterConfigInitializer;
 import com.a.eye.skywalking.logging.LogManager;
 import com.a.eye.skywalking.logging.log4j2.Log4j2Resolver;
-import com.a.eye.skywalking.collector.worker.httpserver.HttpServer;
+import com.a.eye.skywalking.collector.worker.httpserver.WebServer;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
@@ -32,7 +32,7 @@ public class CollectorBootStartUp {
 
 //        ActorSystem system = ActorSystem.create(ClusterConfig.Cluster.appname, config);
 //        WorkersCreator.INSTANCE.boot(system);
-        HttpServer.INSTANCE.boot();
+        WebServer.INSTANCE.boot();
 //        EsClient.boot();
     }
 }

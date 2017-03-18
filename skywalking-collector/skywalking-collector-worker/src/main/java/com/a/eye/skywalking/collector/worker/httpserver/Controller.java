@@ -16,8 +16,4 @@ public abstract class Controller {
     protected abstract String path();
 
     protected abstract JsonElement execute(Map<String, String> parms);
-
-    protected void tell(Role role, Object message) throws Exception {
-//        targetMember.beTold(message);
-    }
 }

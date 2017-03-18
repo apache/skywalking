@@ -38,7 +38,7 @@ public class ApplicationMain extends AbstractLocalSyncWorker {
     }
 
     @Override
-    public Object onWork(Object message) throws Exception {
+    public void work(Object message) throws Exception {
         if (message instanceof TraceSegmentReceiver.TraceSegmentTimeSlice) {
             logger.debug("begin translate TraceSegment Object to JsonObject");
             TraceSegmentReceiver.TraceSegmentTimeSlice traceSegment = (TraceSegmentReceiver.TraceSegmentTimeSlice) message;
@@ -50,7 +50,6 @@ public class ApplicationMain extends AbstractLocalSyncWorker {
             sendToResponseCostPersistence(traceSegment);
             sendToResponseSummaryPersistence(traceSegment);
         }
-        return null;
     }
 
     public static class Factory extends AbstractLocalSyncWorkerProvider<ApplicationMain> {

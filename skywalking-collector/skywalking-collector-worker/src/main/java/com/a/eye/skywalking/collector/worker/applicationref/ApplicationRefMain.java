@@ -26,7 +26,7 @@ public class ApplicationRefMain extends AbstractLocalSyncWorker {
     }
 
     @Override
-    public Object onWork(Object message) throws Exception {
+    public void work(Object message) throws Exception {
         TraceSegmentReceiver.TraceSegmentTimeSlice traceSegment = (TraceSegmentReceiver.TraceSegmentTimeSlice) message;
 
         TraceSegment segment = traceSegment.getTraceSegment();
@@ -40,7 +40,6 @@ public class ApplicationRefMain extends AbstractLocalSyncWorker {
                 getSelfContext().lookup(DAGNodeRefAnalysis.Role.INSTANCE).tell(nodeRef);
             }
         }
-        return null;
     }
 
     public static class Factory extends AbstractLocalSyncWorkerProvider<ApplicationRefMain> {
