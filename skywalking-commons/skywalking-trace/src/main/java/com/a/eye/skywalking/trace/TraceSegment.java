@@ -1,6 +1,7 @@
 package com.a.eye.skywalking.trace;
 
 import com.a.eye.skywalking.trace.TraceId.DistributedTraceId;
+import com.a.eye.skywalking.trace.TraceId.DistributedTraceIds;
 import com.a.eye.skywalking.trace.TraceId.NewDistributedTraceId;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -86,7 +87,7 @@ public class TraceSegment {
      */
     @Expose
     @SerializedName(value="gt")
-    private LinkedList<DistributedTraceId> relatedGlobalTraces;
+    private DistributedTraceIds relatedGlobalTraces;
 
     /**
      * Create a trace segment, by given segmentId.
@@ -94,18 +95,18 @@ public class TraceSegment {
      */
     public TraceSegment(String applicationCode) {
         this();
-        this.traceSegmentId = GlobalIdGenerator.generate(ID_TYPE);
         this.applicationCode = applicationCode;
-        this.startTime = System.currentTimeMillis();
     }
 
     /**
      * Create a default/empty trace segment
      */
     public TraceSegment() {
+        this.startTime = System.currentTimeMillis();
+        this.traceSegmentId = GlobalIdGenerator.generate(ID_TYPE);
         this.spans = new LinkedList<Span>();
-        this.relatedGlobalTraces = new LinkedList<DistributedTraceId>();
-        this.relatedGlobalTraces.add(new NewDistributedTraceId());
+        this.relatedGlobalTraces = new DistributedTraceIds();
+        this.relatedGlobalTraces.append(new NewDistributedTraceId());
     }
 
     /**
@@ -126,13 +127,8 @@ public class TraceSegment {
         if (distributedTraceIds == null || distributedTraceIds.size() == 0) {
             return;
         }
-        if (relatedGlobalTraces.getFirst() instanceof NewDistributedTraceId) {
-            relatedGlobalTraces.removeFirst();
-        }
         for (DistributedTraceId distributedTraceId : distributedTraceIds) {
-            if(!relatedGlobalTraces.contains(distributedTraceId)){
-                relatedGlobalTraces.add(distributedTraceId);
-            }
+            relatedGlobalTraces.append(distributedTraceId);
         }
     }
 
@@ -176,7 +172,7 @@ public class TraceSegment {
     }
 
     public List<DistributedTraceId> getRelatedGlobalTraces() {
-        return Collections.unmodifiableList(relatedGlobalTraces);
+        return relatedGlobalTraces.getRelatedGlobalTraces();
     }
 
     public List<Span> getSpans() {
@@ -187,7 +183,8 @@ public class TraceSegment {
         return applicationCode;
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return "TraceSegment{" +
             "traceSegmentId='" + traceSegmentId + '\'' +
             ", startTime=" + startTime +

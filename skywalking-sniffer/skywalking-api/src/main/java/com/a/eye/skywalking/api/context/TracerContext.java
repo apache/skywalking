@@ -186,7 +186,7 @@ public final class TracerContext {
     }
 
     public static class ListenerManager {
-        private static List<TracerContextListener> listeners = new LinkedList<>();
+        private static List<TracerContextListener> listeners = new LinkedList<TracerContextListener>();
 
         /**
          * Add the given {@link TracerContextListener} to {@link #listeners} list.

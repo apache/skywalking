@@ -11,6 +11,7 @@ public class Config {
 
         public static String SERVERS = "";
 
+        public static String SERVICE_NAME = "/segments";
     }
 
     public static class Disruptor{

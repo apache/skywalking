@@ -23,14 +23,14 @@ public enum ServiceManager {
     public void boot() {
         if (!isStarted) {
             try {
-                bootedServices = new HashMap<>();
+                bootedServices = new HashMap<Class, BootService>();
                 Iterator<BootService> serviceIterator = load().iterator();
                 while (serviceIterator.hasNext()) {
                     BootService bootService = serviceIterator.next();
                     try {
                         bootService.bootUp();
                         bootedServices.put(bootService.getClass(), bootService);
-                    } catch (Exception e) {
+                    } catch (Throwable e) {
                         logger.error(e, "ServiceManager try to start [{}] fail.", bootService.getClass().getName());
                     }
                 }

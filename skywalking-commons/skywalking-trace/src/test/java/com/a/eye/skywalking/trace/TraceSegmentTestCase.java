@@ -106,11 +106,15 @@ public class TraceSegmentTestCase {
             .excludeFieldsWithoutExposeAnnotation()
             .create();
 
-        String json = gson.toJson(segment);
+        SegmentsMessage message = new SegmentsMessage();
+        message.append(segment);
+        String json = gson.toJson(message);
+
         System.out.println(json);
 
+        message = gson.fromJson(json, SegmentsMessage.class);
 
-        TraceSegment newSegment = gson.fromJson(json, TraceSegment.class);
+        TraceSegment newSegment = message.getSegments().get(0);
 
         Assert.assertEquals(segment.getSpans().size(), newSegment.getSpans().size());
         Assert.assertEquals(segment.getRefs().get(0).getTraceSegmentId(), newSegment.getRefs().get(0).getTraceSegmentId());
