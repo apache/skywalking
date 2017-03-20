@@ -23,17 +23,17 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(PowerMockRunner.class)
 public class AbstractClassEnhancePluginDefineTest {
-    static final String WEAVE_CLASS = "com.a.eye.skywalking.api.plugin.MockTargetObject";
+    static final String WEAVE_CLASS = "com.a.eye.skywalking.api.plugin.TargetObject";
     static final String INTERCEPTOR_CLASS = "com.a.eye.skywalking.api.plugin.MockPluginInterceptor";
-    static final String WEAVE_INSTANCE_METHOD_NAME = "targetInstanceMethod";
-    static final String WEAVE_INSTANCE_WITH_EXCEPTION_METHOD_NAME = "targetInstanceMethodWithException";
-    static final String WEAVE_STATIC_METHOD_NAME = "targetStaticMethod";
+    static final String WEAVE_INSTANCE_METHOD_NAME = "instanceMethod";
+    static final String WEAVE_INSTANCE_WITH_EXCEPTION_METHOD_NAME = "instanceMethodWithException";
+    static final String WEAVE_STATIC_METHOD_NAME = "staticMethod";
     private ClassLoader classLoader;
 
     @Before
     public void setUp() throws Exception {
         classLoader = new ByteArrayClassLoader.ChildFirst(getClass().getClassLoader(),
-                ClassFileExtraction.of(MockTargetObject.class),
+                ClassFileExtraction.of(TargetObject.class),
                 null,
                 ByteArrayClassLoader.PersistenceHandler.MANIFEST,
                 PackageDefinitionStrategy.NoOp.INSTANCE);
@@ -45,11 +45,11 @@ public class AbstractClassEnhancePluginDefineTest {
         ClassFileTransformer classFileTransformer = new AgentBuilder.Default()
                 .with(AgentBuilder.PoolStrategy.Default.FAST)
                 .ignore(none())
-                .type(ElementMatchers.is(MockTargetObject.class), ElementMatchers.is(classLoader)).transform(new MockTargetObjectTransformer())
+                .type(ElementMatchers.is(TargetObject.class), ElementMatchers.is(classLoader)).transform(new MockTargetObjectTransformer())
                 .installOnByteBuddyAgent();
 
         try {
-            Class<?> type = classLoader.loadClass(MockTargetObject.class.getName());
+            Class<?> type = classLoader.loadClass(TargetObject.class.getName());
             assertThat(type.getDeclaredMethod(WEAVE_INSTANCE_METHOD_NAME).invoke(type.getDeclaredConstructor(String.class).newInstance("a"))
                     , CoreMatchers.<Object>is(WEAVE_INSTANCE_METHOD_NAME + "a"));
         } finally {
@@ -64,11 +64,11 @@ public class AbstractClassEnhancePluginDefineTest {
         ClassFileTransformer classFileTransformer = new AgentBuilder.Default()
                 .with(AgentBuilder.PoolStrategy.Default.FAST)
                 .ignore(none())
-                .type(ElementMatchers.is(MockTargetObject.class), ElementMatchers.is(classLoader)).transform(new MockTargetObjectTransformer())
+                .type(ElementMatchers.is(TargetObject.class), ElementMatchers.is(classLoader)).transform(new MockTargetObjectTransformer())
                 .installOnByteBuddyAgent();
 
         try {
-            Class<?> type = classLoader.loadClass(MockTargetObject.class.getName());
+            Class<?> type = classLoader.loadClass(TargetObject.class.getName());
             type.getDeclaredMethod(WEAVE_INSTANCE_WITH_EXCEPTION_METHOD_NAME).invoke(type.getDeclaredConstructor(String.class).newInstance("a"));
         } finally {
             ByteBuddyAgent.getInstrumentation().removeTransformer(classFileTransformer);
@@ -81,11 +81,11 @@ public class AbstractClassEnhancePluginDefineTest {
         ClassFileTransformer classFileTransformer = new AgentBuilder.Default()
                 .with(AgentBuilder.PoolStrategy.Default.FAST)
                 .ignore(none())
-                .type(ElementMatchers.is(MockTargetObject.class), ElementMatchers.is(classLoader)).transform(new MockTargetObjectTransformer())
+                .type(ElementMatchers.is(TargetObject.class), ElementMatchers.is(classLoader)).transform(new MockTargetObjectTransformer())
                 .installOnByteBuddyAgent();
 
         try {
-            Class<?> type = classLoader.loadClass(MockTargetObject.class.getName());
+            Class<?> type = classLoader.loadClass(TargetObject.class.getName());
             assertThat(type.getDeclaredMethod(WEAVE_STATIC_METHOD_NAME).invoke(type), CoreMatchers.<Object>is(WEAVE_STATIC_METHOD_NAME + "_STATIC"));
         } finally {
             ByteBuddyAgent.getInstrumentation().removeTransformer(classFileTransformer);
