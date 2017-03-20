@@ -99,8 +99,8 @@ public class SkyWalkingAgent {
 
 
     private static void initConfig() {
-        Config.SkyWalking.IS_PREMAIN_MODE = true;
-        Config.SkyWalking.AGENT_BASE_PATH = initAgentBasePath();
+        Config.Agent.IS_PREMAIN_MODE = true;
+        Config.Agent.PATH = initAgentBasePath();
 
         SnifferConfigInitializer.initialize();
     }

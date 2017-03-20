@@ -30,8 +30,8 @@ public class TraceSegmentProcessQueue extends StatusBootService implements Trace
     private volatile int cacheIndex;
 
     public TraceSegmentProcessQueue() {
-        disruptor = new Disruptor<TraceSegmentHolder>(TraceSegmentHolder.Factory.INSTANCE, Config.Disruptor.BUFFER_SIZE, DaemonThreadFactory.INSTANCE);
-        secondLevelCache = new TraceSegment[Config.Disruptor.BUFFER_SIZE];
+        disruptor = new Disruptor<TraceSegmentHolder>(TraceSegmentHolder.Factory.INSTANCE, Config.Buffer.SIZE, DaemonThreadFactory.INSTANCE);
+        secondLevelCache = new TraceSegment[Config.Buffer.SIZE];
         cacheIndex = 0;
         disruptor.handleEventsWith(this);
         buffer = disruptor.getRingBuffer();

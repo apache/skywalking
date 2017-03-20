@@ -80,7 +80,7 @@ public class DubboInterceptorTest {
         Mockito.when(RpcContext.getContext()).thenReturn(rpcContext);
         when(rpcContext.isConsumerSide()).thenReturn(true);
         when(methodInvokeContext.allArguments()).thenReturn(new Object[]{invoker, invocation});
-        Config.SkyWalking.APPLICATION_CODE = "DubboTestCases-APP";
+        Config.Agent.APPLICATION_CODE = "DubboTestCases-APP";
     }
 
 

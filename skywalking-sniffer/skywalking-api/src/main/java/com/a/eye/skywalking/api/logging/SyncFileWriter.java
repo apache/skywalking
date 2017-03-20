@@ -19,7 +19,7 @@ public class SyncFileWriter implements IWriter {
 
     private SyncFileWriter() {
         try {
-            File logFilePath = new File(Config.SkyWalking.AGENT_BASE_PATH, Config.Logging.LOG_DIR_NAME);
+            File logFilePath = new File(Config.Agent.PATH, Config.Logging.LOG_DIR_NAME);
             if (!logFilePath.exists()) {
                 logFilePath.mkdirs();
             }
