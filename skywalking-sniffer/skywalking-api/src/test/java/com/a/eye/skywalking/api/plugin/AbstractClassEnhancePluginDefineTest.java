@@ -14,17 +14,14 @@ import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.lang.instrument.ClassFileTransformer;
 
-import static net.bytebuddy.matcher.ElementMatchers.is;
 import static net.bytebuddy.matcher.ElementMatchers.none;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({})
 public class AbstractClassEnhancePluginDefineTest {
     static final String WEAVE_CLASS = "com.a.eye.skywalking.api.plugin.MockTargetObject";
     static final String INTERCEPTOR_CLASS = "com.a.eye.skywalking.api.plugin.MockPluginInterceptor";
