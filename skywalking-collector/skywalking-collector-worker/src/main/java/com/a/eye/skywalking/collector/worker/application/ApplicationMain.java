@@ -13,9 +13,10 @@ import com.a.eye.skywalking.trace.Span;
 import com.a.eye.skywalking.trace.TraceSegment;
 import com.a.eye.skywalking.trace.TraceSegmentRef;
 import com.a.eye.skywalking.trace.tag.Tags;
-import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.List;
 
 /**
  * @author pengys5
@@ -38,10 +39,10 @@ public class ApplicationMain extends AbstractLocalSyncWorker {
     }
 
     @Override
-    public void work(Object message) throws Exception {
-        if (message instanceof TraceSegmentReceiver.TraceSegmentTimeSlice) {
+    protected void onWork(Object request, Object response) throws Exception {
+        if (request instanceof TraceSegmentReceiver.TraceSegmentTimeSlice) {
             logger.debug("begin translate TraceSegment Object to JsonObject");
-            TraceSegmentReceiver.TraceSegmentTimeSlice traceSegment = (TraceSegmentReceiver.TraceSegmentTimeSlice) message;
+            TraceSegmentReceiver.TraceSegmentTimeSlice traceSegment = (TraceSegmentReceiver.TraceSegmentTimeSlice) request;
 
             getSelfContext().lookup(TraceSegmentRecordPersistence.Role.INSTANCE).tell(traceSegment);
 

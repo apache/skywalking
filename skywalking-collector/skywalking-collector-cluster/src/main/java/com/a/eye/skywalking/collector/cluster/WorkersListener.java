@@ -5,10 +5,10 @@ import akka.actor.Terminated;
 import akka.actor.UntypedActor;
 import akka.cluster.Cluster;
 import akka.cluster.ClusterEvent;
-import com.a.eye.skywalking.logging.ILog;
-import com.a.eye.skywalking.logging.LogManager;
 import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
 import com.a.eye.skywalking.collector.actor.ClusterWorkerRef;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class WorkersListener extends UntypedActor {
 
-    private ILog logger = LogManager.getLogger(WorkersListener.class);
+    private Logger logger = LogManager.getFormatterLogger(WorkersListener.class);
 
     public static final String WorkName = "WorkersListener";
 
@@ -52,7 +52,7 @@ public class WorkersListener extends UntypedActor {
         if (message instanceof WorkerListenerMessage.RegisterMessage) {
             WorkerListenerMessage.RegisterMessage register = (WorkerListenerMessage.RegisterMessage) message;
             ActorRef sender = getSender();
-//            logger.info("register worker of role: %s, path: %s", register.getWorkRole(), sender.toString());
+            logger.info("register worker of role: %s, path: %s", register.getRole().roleName(), sender.toString());
             ClusterWorkerRef workerRef = new ClusterWorkerRef(sender, register.getRole());
             relation.put(sender, workerRef);
             clusterContext.put(new ClusterWorkerRef(sender, register.getRole()));

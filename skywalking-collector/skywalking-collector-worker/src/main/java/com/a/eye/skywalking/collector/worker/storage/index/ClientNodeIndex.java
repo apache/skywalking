@@ -10,12 +10,11 @@ import java.io.IOException;
 /**
  * @author pengys5
  */
-public class ApplicationIndexWithNodeInstType extends AbstractIndex {
+public class ClientNodeIndex extends AbstractIndex {
 
-    private static Logger logger = LogManager.getFormatterLogger(ApplicationIndexWithNodeInstType.class);
+    private Logger logger = LogManager.getFormatterLogger(ClientNodeIndex.class);
 
-    public static final String Index = "application";
-    public static final String Type = "node_instance";
+    public static final String Index = "client_node_idx";
 
     @Override
     public String index() {
@@ -23,26 +22,24 @@ public class ApplicationIndexWithNodeInstType extends AbstractIndex {
     }
 
     @Override
-    public String type() {
-        return Type;
-    }
-
-    @Override
     public XContentBuilder createMappingBuilder() throws IOException {
         XContentBuilder mappingBuilder = XContentFactory.jsonBuilder()
                 .startObject()
                     .startObject("properties")
-                        .startObject("code")
+                        .startObject("layer")
                             .field("type", "string")
-                            .field("fielddata", true)
                             .field("index", "not_analyzed")
                         .endObject()
-                        .startObject("address")
+                        .startObject("component")
+                            .field("type", "string")
+                            .field("index", "not_analyzed")
+                        .endObject()
+                        .startObject("serverHost")
                             .field("type", "string")
                             .field("index", "not_analyzed")
                         .endObject()
                         .startObject("timeSlice")
-                            .field("type", "long_range")
+                            .field("type", "long")
                             .field("index", "not_analyzed")
                         .endObject()
                     .endObject()

@@ -20,18 +20,22 @@ public abstract class AbstractIndex {
 
     private Logger logger = LogManager.getFormatterLogger(AbstractIndex.class);
 
+    public static final String Type_Minute = "minute";
+    public static final String Type_Hour = "hour";
+    public static final String Type_Day = "day";
+
     final public XContentBuilder createSettingBuilder() throws IOException {
         XContentBuilder settingsBuilder = XContentFactory.jsonBuilder()
                 .startObject()
-                    .field("index.number_of_shards", 2)
-                    .field("index.number_of_replicas", 0)
+                .field("index.number_of_shards", 2)
+                .field("index.number_of_replicas", 0)
                 .endObject();
         return settingsBuilder;
     }
 
     public abstract XContentBuilder createMappingBuilder() throws IOException;
 
-    final public boolean createIndex() {
+    final public void createIndex() {
         // settings
         String settingSource = "";
 
@@ -45,13 +49,15 @@ public abstract class AbstractIndex {
             mappingBuilder = createMappingBuilder();
             logger.info("mapping builder str: %s", mappingBuilder.string());
         } catch (Exception e) {
-            logger.error("create %s index type of %s mapping builder error", index(), type());
+            logger.error("create %s index mapping builder error", index());
         }
         Settings settings = Settings.builder().loadFromSource(settingSource).build();
         IndicesAdminClient client = EsClient.getClient().admin().indices();
-        CreateIndexResponse response = client.prepareCreate(index()).setSettings(settings).addMapping(type(), mappingBuilder).get();
-        logger.info("create %s index with type of %s finished, isAcknowledged: %s", index(), type(), response.isAcknowledged());
-        return response.isAcknowledged();
+        CreateIndexResponse response = client.prepareCreate(index()).setSettings(settings).addMapping(Type_Minute, mappingBuilder).get();
+
+        client.preparePutMapping(index()).setType(Type_Hour).setSource(mappingBuilder).get();
+        client.preparePutMapping(index()).setType(Type_Day).setSource(mappingBuilder).get();
+        logger.info("create %s index with type of %s finished, isAcknowledged: %s", index(), "aaa", response.isAcknowledged());
     }
 
     final public boolean deleteIndex() {
@@ -67,6 +73,4 @@ public abstract class AbstractIndex {
     }
 
     public abstract String index();
-
-    public abstract String type();
 }

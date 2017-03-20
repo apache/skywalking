@@ -7,6 +7,7 @@ import com.a.eye.skywalking.collector.worker.applicationref.analysis.DAGNodeRefA
 import com.a.eye.skywalking.collector.worker.receiver.TraceSegmentReceiver;
 import com.a.eye.skywalking.trace.TraceSegment;
 import com.a.eye.skywalking.trace.TraceSegmentRef;
+
 import java.util.List;
 
 /**
@@ -26,12 +27,12 @@ public class ApplicationRefMain extends AbstractLocalSyncWorker {
     }
 
     @Override
-    public void work(Object message) throws Exception {
-        TraceSegmentReceiver.TraceSegmentTimeSlice traceSegment = (TraceSegmentReceiver.TraceSegmentTimeSlice) message;
+    protected void onWork(Object request, Object response) throws Exception {
+        TraceSegmentReceiver.TraceSegmentTimeSlice traceSegment = (TraceSegmentReceiver.TraceSegmentTimeSlice) request;
 
         TraceSegment segment = traceSegment.getTraceSegment();
         List<TraceSegmentRef> refs = segment.getRefs();
-        if(refs != null){
+        if (refs != null) {
             for (TraceSegmentRef ref : refs) {
                 String front = ref.getApplicationCode();
                 String behind = segment.getApplicationCode();

@@ -26,7 +26,7 @@ public class NodeInstanceReceiver extends AbstractClusterWorker {
     }
 
     @Override
-    public void work(Object message) throws Exception {
+    protected void onWork(Object message) throws Exception {
         if (message instanceof RecordData) {
             getSelfContext().lookup(NodeInstancePersistence.Role.INSTANCE).tell(message);
         } else {

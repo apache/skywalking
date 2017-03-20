@@ -24,11 +24,11 @@ public abstract class PersistenceMember extends AbstractLocalAsyncWorker {
 
     @Override
     public void preStart() throws ProviderNotFoundException {
-        
+
     }
 
     @Override
-    public void work(Object message) throws Exception {
+    protected void onWork(Object message) throws Exception {
         if (message instanceof EndOfBatchCommand) {
             persistence();
         } else {

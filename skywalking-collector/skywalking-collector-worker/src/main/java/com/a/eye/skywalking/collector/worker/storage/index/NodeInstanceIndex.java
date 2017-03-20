@@ -10,21 +10,15 @@ import java.io.IOException;
 /**
  * @author pengys5
  */
-public class ApplicationIndexWithDagNodeType extends AbstractIndex {
+public class NodeInstanceIndex extends AbstractIndex {
 
-    private Logger logger = LogManager.getFormatterLogger(ApplicationIndexWithDagNodeType.class);
+    private static Logger logger = LogManager.getFormatterLogger(NodeInstanceIndex.class);
 
-    public static final String Index = "application";
-    public static final String Type = "dag_node";
+    public static final String Index = "node_instance_idx";
 
     @Override
     public String index() {
         return Index;
-    }
-
-    @Override
-    public String type() {
-        return Type;
     }
 
     @Override
@@ -36,11 +30,7 @@ public class ApplicationIndexWithDagNodeType extends AbstractIndex {
                             .field("type", "string")
                             .field("index", "not_analyzed")
                         .endObject()
-                            .startObject("layer")
-                            .field("type", "string")
-                            .field("index", "not_analyzed")
-                        .endObject()
-                            .startObject("component")
+                        .startObject("address")
                             .field("type", "string")
                             .field("index", "not_analyzed")
                         .endObject()

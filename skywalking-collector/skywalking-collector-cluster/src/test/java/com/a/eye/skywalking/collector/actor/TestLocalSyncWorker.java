@@ -18,8 +18,8 @@ public class TestLocalSyncWorker extends AbstractLocalSyncWorker {
     }
 
     @Override
-    public void work(Object message) throws Exception {
-        if (message.equals("TellLocalWorker")) {
+    public void onWork(Object request, Object response) throws Exception {
+        if (request.equals("TellLocalWorker")) {
             System.out.println("hello! ");
         } else {
             System.out.println("unhandled");

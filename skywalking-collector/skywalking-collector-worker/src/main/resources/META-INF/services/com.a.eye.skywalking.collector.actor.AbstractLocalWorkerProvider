@@ -1,0 +1,4 @@
+com.a.eye.skywalking.collector.worker.dagnode.persistence.ClientNodeSearchPersistence$Factory
+com.a.eye.skywalking.collector.worker.dagnode.persistence.NodeInstanceSearchPersistence$Factory
+com.a.eye.skywalking.collector.worker.dagnode.persistence.NodeRefSearchPersistence$Factory
+com.a.eye.skywalking.collector.worker.dagnode.persistence.ServerNodeSearchPersistence$Factory
