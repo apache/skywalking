@@ -1,7 +1,8 @@
 package com.a.eye.skywalking.collector.worker.application.receiver;
 
-import com.a.eye.skywalking.collector.actor.AbstractWorker;
-import com.a.eye.skywalking.collector.actor.AbstractWorkerProvider;
+import com.a.eye.skywalking.collector.actor.*;
+import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
+import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
 import com.a.eye.skywalking.collector.worker.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.application.persistence.DAGNodePersistence;
 import com.a.eye.skywalking.collector.worker.storage.RecordData;
@@ -11,38 +12,58 @@ import org.apache.logging.log4j.Logger;
 /**
  * @author pengys5
  */
-public class DAGNodeReceiver extends AbstractWorker {
+public class DAGNodeReceiver extends AbstractClusterWorker {
 
     private Logger logger = LogManager.getFormatterLogger(DAGNodeReceiver.class);
 
-    private DAGNodePersistence persistence;
-
-    @Override
-    public void preStart() throws Exception {
-        super.preStart();
-        persistence = DAGNodePersistence.Factory.INSTANCE.createWorker(getSelf());
+    public DAGNodeReceiver(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+        super(role, clusterContext, selfContext);
     }
 
     @Override
-    public void receive(Object message) throws Throwable {
+    public void preStart() throws ProviderNotFoundException {
+        getClusterContext().findProvider(DAGNodePersistence.Role.INSTANCE).create(this);
+    }
+
+    @Override
+    public void work(Object message) throws Exception {
         if (message instanceof RecordData) {
-            persistence.beTold(message);
+            getSelfContext().lookup(DAGNodePersistence.Role.INSTANCE).tell(message);
         } else {
             logger.error("message unhandled");
         }
     }
 
-    public static class Factory extends AbstractWorkerProvider {
+    public static class Factory extends AbstractClusterWorkerProvider<DAGNodeReceiver> {
         public static Factory INSTANCE = new Factory();
 
         @Override
-        public Class workerClass() {
-            return DAGNodeReceiver.class;
+        public Role role() {
+            return Role.INSTANCE;
+        }
+
+        @Override
+        public DAGNodeReceiver workerInstance(ClusterWorkerContext clusterContext) {
+            return new DAGNodeReceiver(role(), clusterContext, new LocalWorkerContext());
         }
 
         @Override
         public int workerNum() {
             return WorkerConfig.Worker.DAGNodeReceiver.Num;
+        }
+    }
+
+    public enum Role implements com.a.eye.skywalking.collector.actor.Role {
+        INSTANCE;
+
+        @Override
+        public String roleName() {
+            return DAGNodeReceiver.class.getSimpleName();
+        }
+
+        @Override
+        public WorkerSelector workerSelector() {
+            return new RollingSelector();
         }
     }
 }

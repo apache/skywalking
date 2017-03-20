@@ -17,14 +17,14 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.a.eye</groupId>
-            <artifactId>skywalking-util</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>com.lmax</groupId>
             <artifactId>disruptor</artifactId>
             <version>3.3.6</version>
+        </dependency>
+        <dependency>
+            <groupId>com.a.eye</groupId>
+            <artifactId>skywalking-util</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>

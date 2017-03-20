@@ -1,7 +1,7 @@
 package com.a.eye.skywalking.api.client;
 
-import com.a.eye.skywalking.api.boot.BootService;
 import com.a.eye.skywalking.api.boot.ServiceManager;
+import com.a.eye.skywalking.api.boot.StatusBootService;
 import com.a.eye.skywalking.api.queue.TraceSegmentProcessQueue;
 import com.a.eye.skywalking.logging.ILog;
 import com.a.eye.skywalking.logging.LogManager;
@@ -11,15 +11,15 @@ import java.util.List;
 /**
  * @author wusheng
  */
-public class CollectorClientService implements Runnable, BootService {
+public class CollectorClientService extends StatusBootService implements Runnable {
     private static ILog logger = LogManager.getLogger(CollectorClientService.class);
-    private static long NO_DATA_SLEEP_TIME_MILLIS = 500;
+    private static long SLEEP_TIME_MILLIS = 500;
 
     /**
      * Start a new {@link Thread} to get finished {@link TraceSegment} by {@link TraceSegmentProcessQueue#getCachedTraceSegments()}
      */
     @Override
-    public void bootUp() {
+    protected void bootUpWithStatus() throws Exception {
         Thread collectorClientThread = new Thread(this, "collectorClientThread");
         collectorClientThread.start();
     }
@@ -28,18 +28,23 @@ public class CollectorClientService implements Runnable, BootService {
     public void run() {
         while (true) {
             try {
+                long sleepTime = -1;
                 TraceSegmentProcessQueue segmentProcessQueue = ServiceManager.INSTANCE.findService(TraceSegmentProcessQueue.class);
                 List<TraceSegment> cachedTraceSegments = segmentProcessQueue.getCachedTraceSegments();
                 if (cachedTraceSegments.size() > 0) {
                     for (TraceSegment segment : cachedTraceSegments) {
-                        //TODO: wusheng
-                        //send data
+                            /**
+                             * No receiver found, means collector server is off-line.
+                             */
+                            sleepTime = SLEEP_TIME_MILLIS * 10;
+                            break;
                     }
-                    /**
-                     * No sleep, when exist finished {@link TraceSegment}.
-                     */
                 } else {
-                    try2Sleep(NO_DATA_SLEEP_TIME_MILLIS);
+                    sleepTime = SLEEP_TIME_MILLIS;
+                }
+
+                if (sleepTime > 0) {
+                    try2Sleep(sleepTime);
                 }
             } catch (Throwable t) {
                 logger.error(t, "Send trace segments to collector failure.");

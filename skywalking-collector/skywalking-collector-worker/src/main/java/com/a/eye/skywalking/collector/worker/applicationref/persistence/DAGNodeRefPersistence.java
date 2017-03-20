@@ -1,11 +1,12 @@
 package com.a.eye.skywalking.collector.worker.applicationref.persistence;
 
-import akka.actor.ActorRef;
-import com.a.eye.skywalking.collector.actor.AbstractAsyncMemberProvider;
-import com.a.eye.skywalking.collector.queue.MessageHolder;
+import com.a.eye.skywalking.collector.actor.AbstractLocalAsyncWorkerProvider;
+import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
+import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
+import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
+import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
 import com.a.eye.skywalking.collector.worker.RecordPersistenceMember;
 import com.a.eye.skywalking.collector.worker.WorkerConfig;
-import com.lmax.disruptor.RingBuffer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -16,8 +17,8 @@ public class DAGNodeRefPersistence extends RecordPersistenceMember {
 
     private Logger logger = LogManager.getFormatterLogger(DAGNodeRefPersistence.class);
 
-    public DAGNodeRefPersistence(RingBuffer<MessageHolder> ringBuffer, ActorRef actorRef) {
-        super(ringBuffer, actorRef);
+    public DAGNodeRefPersistence(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+        super(role, clusterContext, selfContext);
     }
 
     @Override
@@ -30,18 +31,37 @@ public class DAGNodeRefPersistence extends RecordPersistenceMember {
         return "node_ref";
     }
 
-    public static class Factory extends AbstractAsyncMemberProvider<DAGNodeRefPersistence> {
+    public static class Factory extends AbstractLocalAsyncWorkerProvider<DAGNodeRefPersistence> {
 
         public static Factory INSTANCE = new Factory();
 
         @Override
-        public Class memberClass() {
-            return DAGNodeRefPersistence.class;
+        public Role role() {
+            return Role.INSTANCE;
+        }
+
+        @Override
+        public DAGNodeRefPersistence workerInstance(ClusterWorkerContext clusterContext) {
+            return new DAGNodeRefPersistence(role(), clusterContext, new LocalWorkerContext());
         }
 
         @Override
         public int queueSize() {
             return WorkerConfig.Queue.Persistence.DAGNodeRefPersistence.Size;
+        }
+    }
+
+    public enum Role implements com.a.eye.skywalking.collector.actor.Role {
+        INSTANCE;
+
+        @Override
+        public String roleName() {
+            return DAGNodeRefPersistence.class.getSimpleName();
+        }
+
+        @Override
+        public WorkerSelector workerSelector() {
+            return new RollingSelector();
         }
     }
 }

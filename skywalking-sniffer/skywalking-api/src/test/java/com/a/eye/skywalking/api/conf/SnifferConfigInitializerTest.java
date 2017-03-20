@@ -14,7 +14,6 @@ public class SnifferConfigInitializerTest {
         Config.SkyWalking.IS_PREMAIN_MODE = false;
         SnifferConfigInitializer.initialize();
 
-        Assert.assertEquals("testUser", Config.SkyWalking.USERNAME);
         Assert.assertEquals("crmApp", Config.SkyWalking.APPLICATION_CODE);
         Assert.assertEquals("127.0.0.1:8080", Config.SkyWalking.SERVERS);
 

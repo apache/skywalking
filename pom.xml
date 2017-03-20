@@ -53,33 +53,15 @@
 		<scala.compiler.version>2.11.7</scala.compiler.version>
 		<powermock.version>1.6.4</powermock.version>
 		<docker.plugin.version>0.4.13</docker.plugin.version>
-
-        <shade.package>com.a.eye.skywalking.dependencies</shade.package>
-        <shade.net.bytebuddy.source>net.bytebuddy</shade.net.bytebuddy.source>
-        <shade.net.bytebuddy.target>${shade.package}.${shade.net.bytebuddy.source}</shade.net.bytebuddy.target>
-        <shade.com.lmax.disruptor.source>com.lmax.disruptor</shade.com.lmax.disruptor.source>
-        <shade.com.lmax.disruptor.target>${shade.package}.${shade.com.lmax.disruptor.source}</shade.com.lmax.disruptor.target>
-        <shade.akka.source>akka</shade.akka.source>
-        <shade.akka.target>${shade.package}.${shade.akka.source}</shade.akka.target>
-        <shade.scala.source>scala</shade.scala.source>
-        <shade.scala.target>${shade.package}.${shade.scala.source}</shade.scala.target>
-        <shade.org.agrona.source>org.agrona</shade.org.agrona.source>
-        <shade.org.agrona.target>${shade.package}.${shade.org.agrona.source}</shade.org.agrona.target>
-        <shade.org.jboss.netty.source>org.jboss.netty</shade.org.jboss.netty.source>
-        <shade.org.jboss.netty.target>${shade.package}.${shade.org.jboss.netty.source}</shade.org.jboss.netty.target>
-        <shade.org.reactivestreams.source>org.reactivestreams</shade.org.reactivestreams.source>
-        <shade.org.reactivestreams.target>${shade.package}.${shade.org.reactivestreams.source}</shade.org.reactivestreams.target>
-        <shade.org.uncommons.maths.source>org.uncommons.maths</shade.org.uncommons.maths.source>
-        <shade.org.uncommons.maths.target>${shade.package}.${shade.org.uncommons.maths.source}</shade.org.uncommons.maths.target>
-        <shade.com.google.source>com.google</shade.com.google.source>
-        <shade.com.google.target>${shade.package}.${shade.com.google.source}</shade.com.google.target>
-        <shade.io.aeron.source>io.aeron</shade.io.aeron.source>
-        <shade.io.aeron.target>${shade.package}.${shade.io.aeron.source}</shade.io.aeron.target>
-        <shade.com.typesafe.source>com.typesafe</shade.com.typesafe.source>
-        <shade.com.typesafe.target>${shade.package}.${shade.com.typesafe.source}</shade.com.typesafe.target>
 	</properties>
 
     <dependencies>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.8.0</version>
+        </dependency>
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

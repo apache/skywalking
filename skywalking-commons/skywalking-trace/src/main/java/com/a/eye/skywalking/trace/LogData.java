@@ -1,12 +1,8 @@
 package com.a.eye.skywalking.trace;
 
-import com.a.eye.skywalking.api.util.StringUtil;
-import com.a.eye.skywalking.messages.ISerializable;
-import com.a.eye.skywalking.trace.proto.KeyValue;
-import com.a.eye.skywalking.trace.proto.LogDataMessage;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -14,8 +10,13 @@ import java.util.Map;
  *
  * Created by wusheng on 2017/2/17.
  */
-public class LogData implements ISerializable<LogDataMessage> {
+public class LogData {
+    @Expose
+    @SerializedName(value="ti")
     private long time;
+
+    @Expose
+    @SerializedName(value="fi")
     private Map<String, ?> fields;
 
     LogData(long time, Map<String, ?> fields) {
@@ -26,9 +27,7 @@ public class LogData implements ISerializable<LogDataMessage> {
         this.fields = fields;
     }
 
-    LogData(LogDataMessage message){
-        deserialize(message);
-    }
+    public LogData(){}
 
     public long getTime() {
         return time;
@@ -38,37 +37,4 @@ public class LogData implements ISerializable<LogDataMessage> {
         return Collections.unmodifiableMap(fields);
     }
 
-    @Override
-    public LogDataMessage serialize() {
-        LogDataMessage.Builder logDataBuilder = LogDataMessage.newBuilder();
-        logDataBuilder.setTime(time);
-
-        if(fields != null){
-            for (Map.Entry<String, ?> entry : fields.entrySet()) {
-                KeyValue.Builder logEntryBuilder = KeyValue.newBuilder();
-
-                logEntryBuilder.setKey(entry.getKey());
-                String value = String.valueOf(entry.getValue());
-                if(!StringUtil.isEmpty(value)) {
-                    logEntryBuilder.setValue(value);
-                }
-
-                logDataBuilder.addFields(logEntryBuilder);
-            }
-        }
-        return logDataBuilder.build();
-    }
-
-    @Override
-    public void deserialize(LogDataMessage message) {
-        time = message.getTime();
-        List<KeyValue> list = message.getFieldsList();
-        if(list != null){
-            HashMap initFields = new HashMap<String, String>();
-            for (KeyValue field : list) {
-                initFields.put(field.getKey(), field.getValue());
-            }
-            this.fields = initFields;
-        }
-    }
 }

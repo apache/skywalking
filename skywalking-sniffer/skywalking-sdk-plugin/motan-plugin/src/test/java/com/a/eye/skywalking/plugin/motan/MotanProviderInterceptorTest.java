@@ -1,5 +1,6 @@
 package com.a.eye.skywalking.plugin.motan;
 
+import com.a.eye.skywalking.api.boot.ServiceManager;
 import com.a.eye.skywalking.api.context.TracerContext;
 import com.a.eye.skywalking.api.plugin.interceptor.EnhancedClassInstanceContext;
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.ConstructorInvokeContext;
@@ -57,6 +58,8 @@ public class MotanProviderInterceptorTest {
 
     @Before
     public void setUp() {
+        ServiceManager.INSTANCE.boot();
+
         invokeInterceptor = new MotanProviderInterceptor();
         contextListener = new MockTracerContextListener();
         url = URL.valueOf("motan://127.0.0.1:34000/com.a.eye.skywalking.test.TestService");
@@ -83,7 +86,7 @@ public class MotanProviderInterceptorTest {
                 assertThat(traceSegment.getSpans().size(), is(1));
                 Span span = traceSegment.getSpans().get(0);
                 assertMotanProviderSpan(span);
-                assertTrue(traceSegment.getPrimaryRef() == null);
+                assertTrue(traceSegment.getRefs() == null);
             }
         });
     }
@@ -104,7 +107,7 @@ public class MotanProviderInterceptorTest {
                 assertThat(traceSegment.getSpans().size(), is(1));
                 Span span = traceSegment.getSpans().get(0);
                 assertMotanProviderSpan(span);
-                assertRefSegment(traceSegment.getPrimaryRef());
+                assertRefSegment(traceSegment.getRefs().get(0));
             }
         });
     }

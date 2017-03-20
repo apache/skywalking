@@ -93,7 +93,7 @@ public class TomcatInterceptorTest {
                 assertThat(traceSegment.getSpans().size(), is(1));
                 Span span = traceSegment.getSpans().get(0);
                 assertHttpSpan(span);
-                assertTraceSegmentRef(traceSegment.getPrimaryRef());
+                assertTraceSegmentRef(traceSegment.getRefs().get(0));
             }
         });
     }
