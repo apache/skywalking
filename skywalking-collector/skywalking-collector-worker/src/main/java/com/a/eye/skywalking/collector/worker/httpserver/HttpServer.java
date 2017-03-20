@@ -18,7 +18,7 @@ public enum HttpServer {
     public void boot(ClusterWorkerContext clusterContext) throws Exception {
         Server server = new Server(7001);
 
-        String contextPath = "/skywalking";
+        String contextPath = "/";
         ServletContextHandler servletContextHandler = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
         servletContextHandler.setContextPath(contextPath);
         logger.info("http server root context path: %s", contextPath);

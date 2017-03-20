@@ -17,7 +17,7 @@ public abstract class AbstractClusterWorkerProvider<T extends AbstractClusterWor
         T clusterWorker = (T) workerInstance(getClusterContext());
         clusterWorker.preStart();
 
-        ActorRef actorRef = getClusterContext().getAkkaSystem().actorOf(Props.create(AbstractClusterWorker.WorkerWithAkka.class, clusterWorker), role() + "_" + num);
+        ActorRef actorRef = getClusterContext().getAkkaSystem().actorOf(Props.create(AbstractClusterWorker.WorkerWithAkka.class, clusterWorker), role().roleName() + "_" + num);
 
         ClusterWorkerRef workerRef = new ClusterWorkerRef(actorRef, role());
         getClusterContext().put(workerRef);

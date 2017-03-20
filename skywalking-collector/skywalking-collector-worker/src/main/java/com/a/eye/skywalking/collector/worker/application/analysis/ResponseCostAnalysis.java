@@ -84,8 +84,8 @@ public class ResponseCostAnalysis extends MetricAnalysisMember {
         private final Long startTime;
         private final Long endTime;
 
-        public Metric(long minute, int second, String code, Boolean isError, Long startTime, Long endTime) {
-            super(minute, second);
+        public Metric(long minute, long hour, long day, int second, String code, Boolean isError, Long startTime, Long endTime) {
+            super(minute, hour, day, second);
             this.code = code;
             this.isError = isError;
             this.startTime = startTime;

@@ -3,7 +3,7 @@ package com.a.eye.skywalking.collector.worker.dagnode.persistence;
 import com.a.eye.skywalking.collector.actor.AbstractWorker;
 import com.a.eye.skywalking.collector.actor.LocalSyncWorkerRef;
 import com.a.eye.skywalking.collector.worker.storage.EsClient;
-import com.a.eye.skywalking.collector.worker.storage.index.NodeInstanceIndex;
+import com.a.eye.skywalking.collector.worker.nodeinst.NodeInstIndex;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.elasticsearch.action.index.IndexResponse;
@@ -23,23 +23,23 @@ public class NodeInstanceTestCase {
     @Before
     public void initIndex() throws UnknownHostException {
         EsClient.boot();
-        NodeInstanceIndex index = new NodeInstanceIndex();
+        NodeInstIndex index = new NodeInstIndex();
         index.deleteIndex();
         index.createIndex();
     }
 
     @Test
     public void testLoadNodeInstance() throws Exception {
-        loadNodeInstance(201703101201l, NodeInstanceIndex.Type_Minute);
-        loadNodeInstance(201703101200l, NodeInstanceIndex.Type_Hour);
-        loadNodeInstance(201703100000l, NodeInstanceIndex.Type_Day);
+        loadNodeInstance(201703101201l, NodeInstIndex.Type_Minute);
+        loadNodeInstance(201703101200l, NodeInstIndex.Type_Hour);
+        loadNodeInstance(201703100000l, NodeInstIndex.Type_Day);
     }
 
     public void loadNodeInstance(long timeSlice, String type) throws Exception {
         LocalSyncWorkerRef workerRef = (LocalSyncWorkerRef) NodeInstanceSearchPersistence.Factory.INSTANCE.create(AbstractWorker.noOwner());
 
         insertData(timeSlice, type);
-        EsClient.indexRefresh(NodeInstanceIndex.Index);
+        EsClient.indexRefresh(NodeInstIndex.Index);
 
         NodeInstanceSearchPersistence.RequestEntity requestEntity = new NodeInstanceSearchPersistence.RequestEntity(type, timeSlice);
         JsonObject resJsonObj = new JsonObject();
@@ -58,7 +58,7 @@ public class NodeInstanceTestCase {
         json.put("timeSlice", timeSlice);
 
         String _id = timeSlice + "-WebApplication-" + "10.218.9.86:8080";
-        IndexResponse response = EsClient.getClient().prepareIndex(NodeInstanceIndex.Index, type, _id).setSource(json).get();
+        IndexResponse response = EsClient.getClient().prepareIndex(NodeInstIndex.Index, type, _id).setSource(json).get();
         RestStatus status = response.status();
         status.getStatus();
 
@@ -68,7 +68,7 @@ public class NodeInstanceTestCase {
         json.put("timeSlice", timeSlice);
 
         _id = timeSlice + "-MotanServiceApplication-" + "10.20.3.15:3000";
-        response = EsClient.getClient().prepareIndex(NodeInstanceIndex.Index, type, _id).setSource(json).get();
+        response = EsClient.getClient().prepareIndex(NodeInstIndex.Index, type, _id).setSource(json).get();
         status = response.status();
         status.getStatus();
     }

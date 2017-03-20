@@ -9,7 +9,7 @@ import com.a.eye.skywalking.collector.worker.RecordAnalysisMember;
 import com.a.eye.skywalking.collector.worker.application.receiver.DAGNodeReceiver;
 import com.a.eye.skywalking.collector.worker.storage.AbstractTimeSlice;
 import com.a.eye.skywalking.collector.worker.storage.RecordData;
-import com.a.eye.skywalking.collector.worker.tools.DateTools;
+import com.a.eye.skywalking.collector.worker.storage.index.AbstractIndex;
 import com.google.gson.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,7 +31,7 @@ public class DAGNodeAnalysis extends RecordAnalysisMember {
             Metric metric = (Metric) message;
             JsonObject propertyJsonObj = new JsonObject();
             propertyJsonObj.addProperty("code", metric.code);
-            propertyJsonObj.addProperty(DateTools.Time_Slice_Column_Name, metric.getMinute());
+            propertyJsonObj.addProperty(AbstractIndex.Time_Slice_Column_Name, metric.getMinute());
             propertyJsonObj.addProperty("component", metric.component);
             propertyJsonObj.addProperty("layer", metric.layer);
 
@@ -89,8 +89,8 @@ public class DAGNodeAnalysis extends RecordAnalysisMember {
         private final String component;
         private final String layer;
 
-        public Metric(long minute, int second, String code, String component, String layer) {
-            super(minute, second);
+        public Metric(long minute, long hour, long day, int second, String code, String component, String layer) {
+            super(minute, hour, day, second);
             this.code = code;
             this.component = component;
             this.layer = layer;

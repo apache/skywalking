@@ -3,7 +3,7 @@ package com.a.eye.skywalking.collector.worker.dagnode.persistence;
 import com.a.eye.skywalking.collector.actor.AbstractWorker;
 import com.a.eye.skywalking.collector.actor.LocalSyncWorkerRef;
 import com.a.eye.skywalking.collector.worker.storage.EsClient;
-import com.a.eye.skywalking.collector.worker.storage.index.ServerNodeIndex;
+import com.a.eye.skywalking.collector.worker.node.NodeIndex;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.elasticsearch.action.index.IndexResponse;
@@ -23,23 +23,23 @@ public class ServerNodeTestCase {
     @Before
     public void initIndex() throws UnknownHostException {
         EsClient.boot();
-        ServerNodeIndex index = new ServerNodeIndex();
+        NodeIndex index = new NodeIndex();
         index.deleteIndex();
         index.createIndex();
     }
 
     @Test
     public void testLoadServerNode() throws Exception {
-        loadNode(201703101201l, ServerNodeIndex.Type_Minute);
-        loadNode(201703101200l, ServerNodeIndex.Type_Hour);
-        loadNode(201703100000l, ServerNodeIndex.Type_Day);
+        loadNode(201703101201l, NodeIndex.Type_Minute);
+        loadNode(201703101200l, NodeIndex.Type_Hour);
+        loadNode(201703100000l, NodeIndex.Type_Day);
     }
 
     public void loadNode(long timeSlice, String type) throws Exception {
         LocalSyncWorkerRef workerRef = (LocalSyncWorkerRef) ServerNodeSearchPersistence.Factory.INSTANCE.create(AbstractWorker.noOwner());
 
         insertData(timeSlice, type);
-        EsClient.indexRefresh(ServerNodeIndex.Index);
+        EsClient.indexRefresh(NodeIndex.Index);
 
         ServerNodeSearchPersistence.RequestEntity requestEntity = new ServerNodeSearchPersistence.RequestEntity(type, timeSlice);
         JsonObject resJsonObj = new JsonObject();
@@ -59,7 +59,7 @@ public class ServerNodeTestCase {
         json.put("layer", "http");
 
         String _id = timeSlice + "-WebApplication";
-        IndexResponse response = EsClient.getClient().prepareIndex(ServerNodeIndex.Index, type, _id).setSource(json).get();
+        IndexResponse response = EsClient.getClient().prepareIndex(NodeIndex.Index, type, _id).setSource(json).get();
         RestStatus status = response.status();
         status.getStatus();
 
@@ -70,7 +70,7 @@ public class ServerNodeTestCase {
         json.put("layer", "rpc");
         _id = timeSlice + "-MotanServiceApplication";
 
-        response = EsClient.getClient().prepareIndex(ServerNodeIndex.Index, type, _id).setSource(json).get();
+        response = EsClient.getClient().prepareIndex(NodeIndex.Index, type, _id).setSource(json).get();
         status = response.status();
         status.getStatus();
     }

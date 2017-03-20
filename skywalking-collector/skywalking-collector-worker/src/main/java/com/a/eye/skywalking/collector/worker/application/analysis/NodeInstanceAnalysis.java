@@ -10,7 +10,7 @@ import com.a.eye.skywalking.collector.worker.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.application.receiver.NodeInstanceReceiver;
 import com.a.eye.skywalking.collector.worker.storage.AbstractTimeSlice;
 import com.a.eye.skywalking.collector.worker.storage.RecordData;
-import com.a.eye.skywalking.collector.worker.tools.DateTools;
+import com.a.eye.skywalking.collector.worker.storage.index.AbstractIndex;
 import com.google.gson.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -32,7 +32,7 @@ public class NodeInstanceAnalysis extends RecordAnalysisMember {
             Metric metric = (Metric) message;
             JsonObject propertyJsonObj = new JsonObject();
             propertyJsonObj.addProperty("code", metric.code);
-            propertyJsonObj.addProperty(DateTools.Time_Slice_Column_Name, metric.getMinute());
+            propertyJsonObj.addProperty(AbstractIndex.Time_Slice_Column_Name, metric.getMinute());
             propertyJsonObj.addProperty("address", metric.address);
 
             String id = metric.getMinute() + "-" + metric.address;
@@ -88,8 +88,8 @@ public class NodeInstanceAnalysis extends RecordAnalysisMember {
         private final String code;
         private final String address;
 
-        public Metric(long minute, int second, String code, String address) {
-            super(minute, second);
+        public Metric(long minute, long hour, long day, int second, String code, String address) {
+            super(minute, hour, day, second);
             this.code = code;
             this.address = address;
         }

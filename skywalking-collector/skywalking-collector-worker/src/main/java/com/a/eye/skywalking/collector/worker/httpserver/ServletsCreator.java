@@ -17,18 +17,18 @@ public enum ServletsCreator {
     private Logger logger = LogManager.getFormatterLogger(ServletsCreator.class);
 
     public void boot(ServletContextHandler servletContextHandler, ClusterWorkerContext clusterContext) throws IllegalArgumentException, ProviderNotFoundException {
-        ServiceLoader<AbstractReceiverProvider> receiverLoader = java.util.ServiceLoader.load(AbstractReceiverProvider.class);
-        for (AbstractReceiverProvider provider : receiverLoader) {
+        ServiceLoader<AbstractPostProvider> receiverLoader = java.util.ServiceLoader.load(AbstractPostProvider.class);
+        for (AbstractPostProvider provider : receiverLoader) {
             provider.setClusterContext(clusterContext);
-            provider.createReceiver(servletContextHandler);
-            logger.info("add receiver servlet mapping path: %s ", provider.servletPath());
+            provider.create(servletContextHandler);
+            logger.info("add post servlet mapping path: %s ", provider.servletPath());
         }
 
-        ServiceLoader<AbstractSearcherProvider> searcherLoader = java.util.ServiceLoader.load(AbstractSearcherProvider.class);
-        for (AbstractSearcherProvider provider : searcherLoader) {
+        ServiceLoader<AbstractGetProvider> searcherLoader = java.util.ServiceLoader.load(AbstractGetProvider.class);
+        for (AbstractGetProvider provider : searcherLoader) {
             provider.setClusterContext(clusterContext);
-            provider.createSearcher(servletContextHandler);
-            logger.info("add searcher servlet mapping path: %s ", provider.servletPath());
+            provider.create(servletContextHandler);
+            logger.info("add get servlet mapping path: %s ", provider.servletPath());
         }
     }
 }

@@ -1,7 +1,8 @@
 package com.a.eye.skywalking.trace;
 
-import com.a.eye.skywalking.trace.proto.SegmentRefMessage;
 import com.a.eye.skywalking.trace.tag.Tags;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 
 /**
  * {@link TraceSegmentRef} is like a pointer, which ref to another {@link TraceSegment},
@@ -13,21 +14,29 @@ public class TraceSegmentRef{
     /**
      * {@link TraceSegment#traceSegmentId}
      */
+    @Expose
+    @SerializedName(value="ts")
     private String traceSegmentId;
 
     /**
      * {@link Span#spanId}
      */
+    @Expose
+    @SerializedName(value="si")
     private int spanId = -1;
 
     /**
      * {@link TraceSegment#applicationCode}
      */
+    @Expose
+    @SerializedName(value="ac")
     private String applicationCode;
 
     /**
      * {@link Tags#PEER_HOST}
      */
+    @Expose
+    @SerializedName(value="ph")
     private String peerHost;
 
     /**
@@ -77,23 +86,6 @@ public class TraceSegmentRef{
             '}';
     }
 
-    public SegmentRefMessage serialize() {
-        SegmentRefMessage.Builder builder = SegmentRefMessage.newBuilder();
-        builder.setTraceSegmentId(traceSegmentId);
-        builder.setSpanId(spanId);
-        builder.setApplicationCode(applicationCode);
-        if(peerHost != null) {
-            builder.setPeerHost(peerHost);
-        }
-        return builder.build();
-    }
-
-    public void deserialize(SegmentRefMessage message) {
-        traceSegmentId = message.getTraceSegmentId();
-        spanId = message.getSpanId();
-        applicationCode = message.getApplicationCode();
-        peerHost = message.getPeerHost();
-    }
 
     @Override
     public boolean equals(Object o) {

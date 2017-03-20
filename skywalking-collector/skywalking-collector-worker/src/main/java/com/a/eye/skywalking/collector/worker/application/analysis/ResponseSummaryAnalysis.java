@@ -79,8 +79,8 @@ public class ResponseSummaryAnalysis extends MetricAnalysisMember {
         private final String code;
         private final Boolean isError;
 
-        public Metric(long minute, int second, String code, Boolean isError) {
-            super(minute, second);
+        public Metric(long minute, long hour, long day, int second, String code, Boolean isError) {
+            super(minute, hour, day, second);
             this.code = code;
             this.isError = isError;
         }

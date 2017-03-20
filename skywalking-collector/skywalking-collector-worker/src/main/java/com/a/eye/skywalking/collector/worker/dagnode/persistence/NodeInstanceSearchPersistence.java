@@ -5,7 +5,7 @@ import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
 import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
 import com.a.eye.skywalking.collector.worker.TimeSlice;
 import com.a.eye.skywalking.collector.worker.storage.EsClient;
-import com.a.eye.skywalking.collector.worker.storage.index.NodeInstanceIndex;
+import com.a.eye.skywalking.collector.worker.nodeinst.NodeInstIndex;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.apache.logging.log4j.LogManager;
@@ -40,7 +40,7 @@ public class NodeInstanceSearchPersistence extends AbstractLocalSyncWorker {
     }
 
     public JsonArray search(String type, long timeSlice) {
-        SearchRequestBuilder searchRequestBuilder = EsClient.getClient().prepareSearch(NodeInstanceIndex.Index);
+        SearchRequestBuilder searchRequestBuilder = EsClient.getClient().prepareSearch(NodeInstIndex.Index);
         searchRequestBuilder.setTypes(type);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
         searchRequestBuilder.setQuery(QueryBuilders.multiMatchQuery(timeSlice, "timeSlice"));

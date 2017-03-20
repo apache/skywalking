@@ -2,6 +2,7 @@ package com.a.eye.skywalking.collector;
 
 import akka.actor.ActorSystem;
 import akka.actor.Props;
+import com.a.eye.skywalking.api.util.StringUtil;
 import com.a.eye.skywalking.collector.actor.*;
 import com.a.eye.skywalking.collector.cluster.ClusterConfig;
 import com.a.eye.skywalking.collector.cluster.Const;
@@ -39,8 +40,10 @@ public class CollectorSystem {
     private void createAkkaSystem() {
         final Config config = ConfigFactory.parseString("akka.remote.netty.tcp.hostname=" + ClusterConfig.Cluster.Current.hostname).
                 withFallback(ConfigFactory.parseString("akka.remote.netty.tcp.port=" + ClusterConfig.Cluster.Current.port)).
-                withFallback(ConfigFactory.parseString("akka.cluster.seed-nodes=" + ClusterConfig.Cluster.seed_nodes)).
                 withFallback(ConfigFactory.load("application.conf"));
+        if (!StringUtil.isEmpty(ClusterConfig.Cluster.seed_nodes)) {
+            config.withFallback(ConfigFactory.parseString("akka.cluster.seed-nodes=" + ClusterConfig.Cluster.seed_nodes));
+        }
         ActorSystem akkaSystem = ActorSystem.create(Const.SystemName, config);
 
         clusterContext = new ClusterWorkerContext(akkaSystem);

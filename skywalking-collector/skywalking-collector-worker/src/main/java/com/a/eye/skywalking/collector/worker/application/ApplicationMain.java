@@ -8,7 +8,7 @@ import com.a.eye.skywalking.collector.worker.application.analysis.NodeInstanceAn
 import com.a.eye.skywalking.collector.worker.application.analysis.ResponseCostAnalysis;
 import com.a.eye.skywalking.collector.worker.application.analysis.ResponseSummaryAnalysis;
 import com.a.eye.skywalking.collector.worker.application.persistence.TraceSegmentRecordPersistence;
-import com.a.eye.skywalking.collector.worker.receiver.TraceSegmentReceiver;
+import com.a.eye.skywalking.collector.worker.segment.SegmentPost;
 import com.a.eye.skywalking.trace.Span;
 import com.a.eye.skywalking.trace.TraceSegment;
 import com.a.eye.skywalking.trace.TraceSegmentRef;
@@ -40,9 +40,9 @@ public class ApplicationMain extends AbstractLocalSyncWorker {
 
     @Override
     protected void onWork(Object request, Object response) throws Exception {
-        if (request instanceof TraceSegmentReceiver.TraceSegmentTimeSlice) {
+        if (request instanceof SegmentPost.SegmentWithTimeSlice) {
             logger.debug("begin translate TraceSegment Object to JsonObject");
-            TraceSegmentReceiver.TraceSegmentTimeSlice traceSegment = (TraceSegmentReceiver.TraceSegmentTimeSlice) request;
+            SegmentPost.SegmentWithTimeSlice traceSegment = (SegmentPost.SegmentWithTimeSlice) request;
 
             getSelfContext().lookup(TraceSegmentRecordPersistence.Role.INSTANCE).tell(traceSegment);
 
@@ -81,7 +81,7 @@ public class ApplicationMain extends AbstractLocalSyncWorker {
         }
     }
 
-    private void sendToDAGNodePersistence(TraceSegmentReceiver.TraceSegmentTimeSlice traceSegment) throws Exception {
+    private void sendToDAGNodePersistence(SegmentPost.SegmentWithTimeSlice traceSegment) throws Exception {
         String code = traceSegment.getTraceSegment().getApplicationCode();
 
         String component = null;
@@ -93,11 +93,11 @@ public class ApplicationMain extends AbstractLocalSyncWorker {
             }
         }
 
-        DAGNodeAnalysis.Metric node = new DAGNodeAnalysis.Metric(traceSegment.getMinute(), traceSegment.getSecond(), code, component, layer);
-        getSelfContext().lookup(DAGNodeAnalysis.Role.INSTANCE).tell(node);
+//        DAGNodeAnalysis.Metric node = new DAGNodeAnalysis.Metric(traceSegment.getMinute(), traceSegment.getSecond(), code, component, layer);
+//        getSelfContext().lookup(DAGNodeAnalysis.Role.INSTANCE).tell(node);
     }
 
-    private void sendToNodeInstanceAnalysis(TraceSegmentReceiver.TraceSegmentTimeSlice traceSegment) throws Exception {
+    private void sendToNodeInstanceAnalysis(SegmentPost.SegmentWithTimeSlice traceSegment) throws Exception {
         TraceSegment segment = traceSegment.getTraceSegment();
         List<TraceSegmentRef> refs = segment.getRefs();
 
@@ -106,13 +106,13 @@ public class ApplicationMain extends AbstractLocalSyncWorker {
                 String code = segment.getApplicationCode();
                 String address = ref.getPeerHost();
 
-                NodeInstanceAnalysis.Metric property = new NodeInstanceAnalysis.Metric(traceSegment.getMinute(), traceSegment.getSecond(), code, address);
-                getSelfContext().lookup(NodeInstanceAnalysis.Role.INSTANCE).tell(property);
+//                NodeInstanceAnalysis.Metric property = new NodeInstanceAnalysis.Metric(traceSegment.getMinute(), traceSegment.getSecond(), code, address);
+//                getSelfContext().lookup(NodeInstanceAnalysis.Role.INSTANCE).tell(property);
             }
         }
     }
 
-    private void sendToResponseCostPersistence(TraceSegmentReceiver.TraceSegmentTimeSlice traceSegment) throws Exception {
+    private void sendToResponseCostPersistence(SegmentPost.SegmentWithTimeSlice traceSegment) throws Exception {
         String code = traceSegment.getTraceSegment().getApplicationCode();
 
         long startTime = -1;
@@ -127,11 +127,11 @@ public class ApplicationMain extends AbstractLocalSyncWorker {
             }
         }
 
-        ResponseCostAnalysis.Metric cost = new ResponseCostAnalysis.Metric(traceSegment.getMinute(), traceSegment.getSecond(), code, isError, startTime, endTime);
-        getSelfContext().lookup(ResponseCostAnalysis.Role.INSTANCE).tell(cost);
+//        ResponseCostAnalysis.Metric cost = new ResponseCostAnalysis.Metric(traceSegment.getMinute(), traceSegment.getSecond(), code, isError, startTime, endTime);
+//        getSelfContext().lookup(ResponseCostAnalysis.Role.INSTANCE).tell(cost);
     }
 
-    private void sendToResponseSummaryPersistence(TraceSegmentReceiver.TraceSegmentTimeSlice traceSegment) throws Exception {
+    private void sendToResponseSummaryPersistence(SegmentPost.SegmentWithTimeSlice traceSegment) throws Exception {
         String code = traceSegment.getTraceSegment().getApplicationCode();
         boolean isError = false;
 
@@ -141,7 +141,7 @@ public class ApplicationMain extends AbstractLocalSyncWorker {
             }
         }
 
-        ResponseSummaryAnalysis.Metric summary = new ResponseSummaryAnalysis.Metric(traceSegment.getMinute(), traceSegment.getSecond(), code, isError);
-        getSelfContext().lookup(ResponseSummaryAnalysis.Role.INSTANCE).tell(summary);
+//        ResponseSummaryAnalysis.Metric summary = new ResponseSummaryAnalysis.Metric(traceSegment.getMinute(), traceSegment.getSecond(), code, isError);
+//        getSelfContext().lookup(ResponseSummaryAnalysis.Role.INSTANCE).tell(summary);
     }
 }

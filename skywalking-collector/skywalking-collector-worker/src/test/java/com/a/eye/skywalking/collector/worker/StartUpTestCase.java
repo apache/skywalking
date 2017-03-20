@@ -5,13 +5,10 @@ import akka.actor.ActorSelection;
 import akka.actor.ActorSystem;
 import com.a.eye.skywalking.collector.cluster.ClusterConfig;
 import com.a.eye.skywalking.collector.cluster.ClusterConfigInitializer;
-import com.a.eye.skywalking.collector.worker.receiver.TraceSegmentReceiver;
+import com.a.eye.skywalking.collector.worker.segment.SegmentPost;
 import com.a.eye.skywalking.collector.worker.storage.EsClient;
 import com.a.eye.skywalking.sniffer.mock.trace.TraceSegmentBuilderFactory;
 import com.a.eye.skywalking.trace.TraceSegment;
-import com.a.eye.skywalking.trace.proto.SegmentMessage;
-import com.a.eye.skywalking.trace.proto.SegmentRefMessage;
-import com.a.eye.skywalking.trace.tag.Tags;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
@@ -21,7 +18,7 @@ import com.typesafe.config.ConfigFactory;
 public class StartUpTestCase {
 
     public void test() throws Exception {
-        System.out.println(TraceSegmentReceiver.class.getSimpleName());
+        System.out.println(SegmentPost.class.getSimpleName());
         ClusterConfigInitializer.initialize("collector.config");
         System.out.println(ClusterConfig.Cluster.Current.roles);
 
@@ -36,25 +33,25 @@ public class StartUpTestCase {
 
         TraceSegment dubboClientData = TraceSegmentBuilderFactory.INSTANCE.traceOf_Tomcat_DubboClient();
 
-        SegmentMessage.Builder clientBuilder = dubboClientData.serialize().toBuilder();
-        clientBuilder.setApplicationCode("Tomcat_DubboClient");
-
-        dubboClientData = new TraceSegment(clientBuilder.build());
-
-        TraceSegment dubboServerData = TraceSegmentBuilderFactory.INSTANCE.traceOf_DubboServer_MySQL();
-
-        SegmentMessage serializeServer = dubboServerData.serialize();
-        SegmentMessage.Builder builder = serializeServer.toBuilder();
-
-        SegmentRefMessage.Builder builderRef = builder.getRefs(0).toBuilder();
-        builderRef.setApplicationCode(dubboClientData.getApplicationCode());
-
-
-        builderRef.setPeerHost(Tags.PEER_HOST.get(dubboClientData.getSpans().get(1)));
-
-        builder.setApplicationCode("DubboServer_MySQL");
-        builder.addRefs(builderRef);
-        dubboServerData = new TraceSegment(builder.build());
+//        SegmentMessage.Builder clientBuilder = dubboClientData.serialize().toBuilder();
+//        clientBuilder.setApplicationCode("Tomcat_DubboClient");
+//
+//        dubboClientData = new TraceSegment(clientBuilder.build());
+//
+//        TraceSegment dubboServerData = TraceSegmentBuilderFactory.INSTANCE.traceOf_DubboServer_MySQL();
+//
+//        SegmentMessage serializeServer = dubboServerData.serialize();
+//        SegmentMessage.Builder builder = serializeServer.toBuilder();
+//
+//        SegmentRefMessage.Builder builderRef = builder.getRefs(0).toBuilder();
+//        builderRef.setApplicationCode(dubboClientData.getApplicationCode());
+//
+//
+//        builderRef.setPeerHost(Tags.PEER_HOST.get(dubboClientData.getSpans().get(1)));
+//
+//        builder.setApplicationCode("DubboServer_MySQL");
+//        builder.addRefs(builderRef);
+//        dubboServerData = new TraceSegment(builder.build());
 
         Thread.sleep(5000);
 
@@ -62,7 +59,7 @@ public class StartUpTestCase {
 
         for (int i = 0; i < 100; i++) {
             selection.tell(dubboClientData, ActorRef.noSender());
-            selection.tell(dubboServerData, ActorRef.noSender());
+//            selection.tell(dubboServerData, ActorRef.noSender());
 
             Thread.sleep(200);
         }

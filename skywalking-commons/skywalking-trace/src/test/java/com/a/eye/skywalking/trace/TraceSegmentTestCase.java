@@ -1,6 +1,8 @@
 package com.a.eye.skywalking.trace;
 
 import com.a.eye.skywalking.trace.tag.Tags;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -100,7 +102,15 @@ public class TraceSegmentTestCase {
         span2.log(new NullPointerException());
         segment.archive(span2);
 
-        TraceSegment newSegment = new TraceSegment(segment.serialize());
+        Gson gson = new GsonBuilder()
+            .excludeFieldsWithoutExposeAnnotation()
+            .create();
+
+        String json = gson.toJson(segment);
+        System.out.println(json);
+
+
+        TraceSegment newSegment = gson.fromJson(json, TraceSegment.class);
 
         Assert.assertEquals(segment.getSpans().size(), newSegment.getSpans().size());
         Assert.assertEquals(segment.getRefs().get(0).getTraceSegmentId(), newSegment.getRefs().get(0).getTraceSegmentId());

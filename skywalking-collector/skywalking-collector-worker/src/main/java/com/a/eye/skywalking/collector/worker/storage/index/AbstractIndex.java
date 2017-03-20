@@ -5,6 +5,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
+import org.elasticsearch.action.admin.indices.mapping.put.PutMappingResponse;
 import org.elasticsearch.client.IndicesAdminClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentBuilder;
@@ -24,6 +25,10 @@ public abstract class AbstractIndex {
     public static final String Type_Hour = "hour";
     public static final String Type_Day = "day";
 
+    public static final String Type_Record = "record";
+
+    public static final String Time_Slice_Column_Name = "timeSlice";
+
     final public XContentBuilder createSettingBuilder() throws IOException {
         XContentBuilder settingsBuilder = XContentFactory.jsonBuilder()
                 .startObject()
@@ -32,6 +37,8 @@ public abstract class AbstractIndex {
                 .endObject();
         return settingsBuilder;
     }
+
+    public abstract boolean isRecord();
 
     public abstract XContentBuilder createMappingBuilder() throws IOException;
 
@@ -53,11 +60,18 @@ public abstract class AbstractIndex {
         }
         Settings settings = Settings.builder().loadFromSource(settingSource).build();
         IndicesAdminClient client = EsClient.getClient().admin().indices();
-        CreateIndexResponse response = client.prepareCreate(index()).setSettings(settings).addMapping(Type_Minute, mappingBuilder).get();
 
-        client.preparePutMapping(index()).setType(Type_Hour).setSource(mappingBuilder).get();
-        client.preparePutMapping(index()).setType(Type_Day).setSource(mappingBuilder).get();
-        logger.info("create %s index with type of %s finished, isAcknowledged: %s", index(), "aaa", response.isAcknowledged());
+        if (isRecord()) {
+            CreateIndexResponse response = client.prepareCreate(index()).setSettings(settings).addMapping(Type_Record, mappingBuilder).get();
+            logger.info("create %s index with type of %s finished, isAcknowledged: %s", index(), Type_Record, response.isAcknowledged());
+        } else {
+            CreateIndexResponse response = client.prepareCreate(index()).setSettings(settings).addMapping(Type_Minute, mappingBuilder).get();
+            logger.info("create %s index with type of %s finished, isAcknowledged: %s", index(), Type_Minute, response.isAcknowledged());
+            PutMappingResponse putMappingResponse = client.preparePutMapping(index()).setType(Type_Hour).setSource(mappingBuilder).get();
+            logger.info("create %s index with type of %s finished, isAcknowledged: %s", index(), Type_Hour, putMappingResponse.isAcknowledged());
+            putMappingResponse = client.preparePutMapping(index()).setType(Type_Day).setSource(mappingBuilder).get();
+            logger.info("create %s index with type of %s finished, isAcknowledged: %s", index(), Type_Day, putMappingResponse.isAcknowledged());
+        }
     }
 
     final public boolean deleteIndex() {

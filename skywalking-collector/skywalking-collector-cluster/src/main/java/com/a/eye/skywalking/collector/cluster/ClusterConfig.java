@@ -19,6 +19,6 @@ public class ClusterConfig {
             public static String roles = "";
         }
 
-        public static String seed_nodes = "127.0.0.1:2551";
+        public static String seed_nodes = "";
     }
 }

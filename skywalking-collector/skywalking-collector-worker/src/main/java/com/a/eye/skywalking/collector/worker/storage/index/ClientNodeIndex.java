@@ -22,6 +22,11 @@ public class ClientNodeIndex extends AbstractIndex {
     }
 
     @Override
+    public boolean isRecord() {
+        return false;
+    }
+
+    @Override
     public XContentBuilder createMappingBuilder() throws IOException {
         XContentBuilder mappingBuilder = XContentFactory.jsonBuilder()
                 .startObject()
