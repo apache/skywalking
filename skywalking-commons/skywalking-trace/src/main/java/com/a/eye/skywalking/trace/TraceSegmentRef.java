@@ -86,7 +86,6 @@ public class TraceSegmentRef{
             '}';
     }
 
-
     @Override
     public boolean equals(Object o) {
         if (this == o)
@@ -96,15 +95,15 @@ public class TraceSegmentRef{
 
         TraceSegmentRef ref = (TraceSegmentRef)o;
 
-        if (traceSegmentId != null ? !traceSegmentId.equals(ref.traceSegmentId) : ref.traceSegmentId != null)
+        if (spanId != ref.spanId)
             return false;
-        return applicationCode != null ? applicationCode.equals(ref.applicationCode) : ref.applicationCode == null;
+        return traceSegmentId != null ? traceSegmentId.equals(ref.traceSegmentId) : ref.traceSegmentId == null;
     }
 
     @Override
     public int hashCode() {
         int result = traceSegmentId != null ? traceSegmentId.hashCode() : 0;
-        result = 31 * result + (applicationCode != null ? applicationCode.hashCode() : 0);
+        result = 31 * result + spanId;
         return result;
     }
 }
