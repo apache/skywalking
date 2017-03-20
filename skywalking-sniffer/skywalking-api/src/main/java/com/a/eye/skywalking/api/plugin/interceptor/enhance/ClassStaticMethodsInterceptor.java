@@ -46,7 +46,7 @@ public class ClassStaticMethodsInterceptor {
      *          or unexpected exception in sky-walking ( This is a bug, if anything triggers this condition ).
      */
     @RuntimeType
-    public Object intercept(@Origin Class<?> clazz, @AllArguments Object[] allArguments, @Origin Method method, @SuperCall Callable<?> zuper) throws Exception {
+    public Object intercept(@Origin Class<?> clazz, @AllArguments Object[] allArguments, @Origin Method method, @SuperCall Callable<?> zuper) throws Throwable {
         StaticMethodsAroundInterceptor interceptor = InterceptorInstanceLoader
                 .load(staticMethodsAroundInterceptorClassName, clazz.getClassLoader());
 

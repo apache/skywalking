@@ -18,7 +18,7 @@ import com.a.eye.skywalking.trace.TraceSegment;
  * Created by wusheng on 2017/2/17.
  */
 public class ContextManager implements TracerContextListener, BootService {
-    private static ThreadLocal<TracerContext> CONTEXT = new ThreadLocal<>();
+    private static ThreadLocal<TracerContext> CONTEXT = new ThreadLocal<TracerContext>();
 
     private static TracerContext get() {
         TracerContext segment = CONTEXT.get();

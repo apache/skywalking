@@ -165,7 +165,7 @@ public class ContextCarrier implements Serializable {
             return null;
         }
         String[] propagationTraceIdValues = text.split(",");
-        List<DistributedTraceId> traceIds = new LinkedList<>();
+        List<DistributedTraceId> traceIds = new LinkedList<DistributedTraceId>();
         for (String propagationTraceIdValue : propagationTraceIdValues) {
             traceIds.add(new PropagatedTraceId(propagationTraceIdValue));
         }

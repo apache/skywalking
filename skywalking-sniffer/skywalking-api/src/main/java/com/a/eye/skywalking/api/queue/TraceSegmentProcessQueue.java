@@ -30,7 +30,7 @@ public class TraceSegmentProcessQueue extends StatusBootService implements Trace
     private volatile int cacheIndex;
 
     public TraceSegmentProcessQueue() {
-        disruptor = new Disruptor<>(TraceSegmentHolder.Factory.INSTANCE, Config.Disruptor.BUFFER_SIZE, DaemonThreadFactory.INSTANCE);
+        disruptor = new Disruptor<TraceSegmentHolder>(TraceSegmentHolder.Factory.INSTANCE, Config.Disruptor.BUFFER_SIZE, DaemonThreadFactory.INSTANCE);
         secondLevelCache = new TraceSegment[Config.Disruptor.BUFFER_SIZE];
         cacheIndex = 0;
         disruptor.handleEventsWith(this);
@@ -83,7 +83,7 @@ public class TraceSegmentProcessQueue extends StatusBootService implements Trace
     }
 
     public List<TraceSegment> getCachedTraceSegments(){
-        List<TraceSegment> segmentList = new LinkedList<>();
+        List<TraceSegment> segmentList = new LinkedList<TraceSegment>();
         for (int i = 0; i < secondLevelCache.length; i++) {
             TraceSegment segment = secondLevelCache[i];
             if(segment != null){

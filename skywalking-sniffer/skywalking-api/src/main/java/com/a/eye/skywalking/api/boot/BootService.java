@@ -8,5 +8,5 @@ package com.a.eye.skywalking.api.boot;
  * @author wusheng
  */
 public interface BootService {
-    void bootUp() throws Exception;
+    void bootUp() throws Throwable;
 }

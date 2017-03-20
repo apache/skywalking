@@ -30,7 +30,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class InterceptorInstanceLoader {
     private static ILog logger = LogManager.getLogger(InterceptorInstanceLoader.class);
 
-    private static ConcurrentHashMap<String, Object> INSTANCE_CACHE = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<String, Object> INSTANCE_CACHE = new ConcurrentHashMap<String, Object>();
 
     private static ReentrantLock instanceLoadLock = new ReentrantLock();
 
