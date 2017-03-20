@@ -33,10 +33,6 @@ public class SnifferConfigInitializer {
             }
         }
 
-        String username = System.getProperty("username");
-        if (!StringUtil.isEmpty(username)) {
-            Config.SkyWalking.USERNAME = username;
-        }
         String applicationCode = System.getProperty("applicationCode");
         if (!StringUtil.isEmpty(applicationCode)) {
             Config.SkyWalking.APPLICATION_CODE = applicationCode;
@@ -46,9 +42,6 @@ public class SnifferConfigInitializer {
             Config.SkyWalking.SERVERS = servers;
         }
 
-        if (StringUtil.isEmpty(Config.SkyWalking.USERNAME)) {
-            throw new ExceptionInInitializerError("'-Dusername=' is missing.");
-        }
         if (StringUtil.isEmpty(Config.SkyWalking.APPLICATION_CODE)) {
             throw new ExceptionInInitializerError("'-DapplicationCode=' is missing.");
         }

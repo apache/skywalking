@@ -3,8 +3,6 @@ package com.a.eye.skywalking.api.conf;
 public class Config {
 
     public static class SkyWalking {
-        public static String USERNAME = "";
-
         public static String APPLICATION_CODE = "";
 
         public static boolean IS_PREMAIN_MODE = false;
