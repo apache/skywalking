@@ -46,7 +46,7 @@ public class ClassInstanceMethodsInterceptor {
      */
     @RuntimeType
     public Object intercept(@This Object obj, @AllArguments Object[] allArguments, @Origin Method method, @SuperCall Callable<?> zuper,
-            @FieldValue(ClassEnhancePluginDefine.contextAttrName) EnhancedClassInstanceContext instanceContext) throws Exception {
+            @FieldValue(ClassEnhancePluginDefine.contextAttrName) EnhancedClassInstanceContext instanceContext) throws Throwable {
         InstanceMethodsAroundInterceptor interceptor = InterceptorInstanceLoader
                 .load(instanceMethodsAroundInterceptorClassName, obj.getClass().getClassLoader());
 

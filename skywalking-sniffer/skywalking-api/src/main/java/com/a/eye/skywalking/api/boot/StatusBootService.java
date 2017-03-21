@@ -18,7 +18,7 @@ public abstract class StatusBootService implements BootService {
     }
 
     @Override
-    public final void bootUp() throws Exception{
+    public final void bootUp() throws Throwable{
         try {
             bootUpWithStatus();
             started = true;

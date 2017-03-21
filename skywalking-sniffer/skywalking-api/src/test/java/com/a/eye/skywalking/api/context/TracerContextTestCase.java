@@ -77,7 +77,7 @@ public class TracerContextTestCase {
         carrier.setSpanId(5);
         carrier.setApplicationCode("REMOTE_APP");
         carrier.setPeerHost("10.2.3.16:8080");
-        List<DistributedTraceId> ids = new LinkedList<>();
+        List<DistributedTraceId> ids = new LinkedList<DistributedTraceId>();
         ids.add(new PropagatedTraceId("Trace.global.id.123"));
         carrier.setDistributedTraceIds(ids);
 

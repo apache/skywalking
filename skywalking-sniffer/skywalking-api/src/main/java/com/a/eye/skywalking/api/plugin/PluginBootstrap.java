@@ -31,7 +31,7 @@ public class PluginBootstrap {
 
         if (resources == null || resources.size() == 0) {
             logger.info("no plugin files (skywalking-plugin.properties) found, continue to start application.");
-            return new ArrayList<>();
+            return new ArrayList<AbstractClassEnhancePluginDefine>();
         }
 
         for (URL pluginUrl : resources) {

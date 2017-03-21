@@ -11,7 +11,7 @@ import org.junit.Test;
 public class PluginFinderTest {
     @Test
     public void testFind(){
-        ArrayList<AbstractClassEnhancePluginDefine> defines = new ArrayList<>();
+        ArrayList<AbstractClassEnhancePluginDefine> defines = new ArrayList<AbstractClassEnhancePluginDefine>();
         defines.add(new NewTestPlugin());
         defines.add(new NewTestPlugin2());
         PluginFinder finder = new PluginFinder(defines);
@@ -22,7 +22,7 @@ public class PluginFinderTest {
 
     @Test(expected = PluginException.class)
     public void testCanNotFind(){
-        ArrayList<AbstractClassEnhancePluginDefine> defines = new ArrayList<>();
+        ArrayList<AbstractClassEnhancePluginDefine> defines = new ArrayList<AbstractClassEnhancePluginDefine>();
         defines.add(new NewTestPlugin());
         PluginFinder finder = new PluginFinder(defines);
 
