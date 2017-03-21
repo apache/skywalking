@@ -25,11 +25,11 @@ public class TraceDagController extends ControllerBase {
     @Autowired
     private TraceDagService service;
 
-    @RequestMapping(value = "initDagNodes", method = RequestMethod.GET)
+    @RequestMapping(value = "dagNodesLoad", method = RequestMethod.GET)
     @ResponseBody
-    public void initDagNodes(@ModelAttribute("query") String query, HttpServletResponse response) throws IOException {
-        logger.debug("initDagNodes");
-        JsonObject dagJson = service.getDag();
+    public void dagNodesLoad(@ModelAttribute("timeSliceType") String timeSliceType, @ModelAttribute("timeSliceValue") long timeSliceValue, HttpServletResponse response) throws IOException {
+        logger.debug("dagNodesLoad timeSliceType = %s, timeSliceValue = %s", timeSliceType, timeSliceValue);
+        JsonObject dagJson = service.buildGraphData(timeSliceType, timeSliceValue);
         reply(dagJson.toString(), response);
     }
 }

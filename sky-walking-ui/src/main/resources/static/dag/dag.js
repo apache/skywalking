@@ -6,7 +6,7 @@ var network, nodes, edges;
 startNetwork();
 
 $(document).ready(function () {
-    $.getJSON('initDagNodes', function (data) {
+    $.getJSON('dagNodesLoad?timeSliceType=minute&timeSliceValue=201703212343', function (data) {
         loadDag(data);
     });
 });

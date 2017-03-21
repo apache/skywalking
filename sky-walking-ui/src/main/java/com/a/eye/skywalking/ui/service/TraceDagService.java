@@ -1,10 +1,22 @@
 package com.a.eye.skywalking.ui.service;
 
-import com.a.eye.skywalking.ui.config.ImageBase64Config;
+import com.a.eye.skywalking.ui.tools.HttpClientTools;
+import com.a.eye.skywalking.ui.tools.UrlCreator;
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author pengys5
@@ -12,58 +24,131 @@ import org.springframework.stereotype.Service;
 @Service
 public class TraceDagService {
 
+    private Logger logger = LogManager.getFormatterLogger(TraceDagService.class);
+
+    private Gson gson = new Gson();
+
     @Autowired
-    private ImageBase64Config config;
+    private UrlCreator urlCreator;
 
-    public JsonObject getDag() {
-        JsonObject dagJson = new JsonObject();
-        dagJson.add("nodes", getNodes());
-        dagJson.add("nodeRefs", getNodeRefs());
-        return dagJson;
+    @Autowired
+    private TraceDagGraphBuildService graphBuildService;
+
+    public JsonObject buildGraphData(String timeSliceType, long timeSliceValue) throws IOException {
+        return loadDataFromServer(timeSliceType, timeSliceValue);
     }
 
-    public JsonArray getNodes() {
-        JsonArray nodes = new JsonArray();
-        nodes.add(createNode(1, "User", config.getImage().get("User"), 1));
-        nodes.add(createNode(2, "Front-Web", config.getImage().get("Tomcat"), 15));
-        nodes.add(createNode(3, "Backend-API", config.getImage().get("Tomcat"), 4));
-        nodes.add(createNode(4, "Backend-Web", config.getImage().get("Tomcat"), 3));
-        nodes.add(createNode(5, "User", config.getImage().get("User"), 2));
-        nodes.add(createNode(6, "MemCached", config.getImage().get("Oracle"), 1));
-        nodes.add(createNode(7, "UNKNOWN_CLOUD", config.getImage().get("Mysql"), 1));
-        nodes.add(createNode(8, "MYSQL", config.getImage().get("Mysql"), 1));
-        nodes.add(createNode(9, "ORACLE", config.getImage().get("Oracle"), 2));
-        return nodes;
+    public JsonObject loadDataFromServer(String timeSliceType, long timeSliceValue) throws IOException {
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        params.add(new BasicNameValuePair("timeSliceType", timeSliceType));
+        params.add(new BasicNameValuePair("timeSliceValue", String.valueOf(timeSliceValue)));
+
+        String nodeInstSumUrl = urlCreator.compound("/nodeInst/summary/timeSlice");
+        String nodeInstSumResponse = HttpClientTools.INSTANCE.get(nodeInstSumUrl, params);
+
+        String nodeRefUrl = urlCreator.compound("/nodeRef/timeSlice");
+        String nodeRefResponse = HttpClientTools.INSTANCE.get(nodeRefUrl, params);
+
+        String nodeRefResSumUrl = urlCreator.compound("/nodeRef/resSum/timeSlice");
+        String nodeRefResSumResponse = HttpClientTools.INSTANCE.get(nodeRefResSumUrl, params);
+
+        String nodeUrl = urlCreator.compound("/node/timeSlice");
+        String nodeResponse = HttpClientTools.INSTANCE.get(nodeUrl, params);
+
+        String nodeInstUrl = urlCreator.compound("/nodeInst/timeSlice");
+        String nodeInstResponse = HttpClientTools.INSTANCE.get(nodeInstUrl, params);
+
+        JsonObject nodes = gson.fromJson(nodeResponse, JsonObject.class);
+        logger.debug("nodes: %s", nodes.toString());
+        JsonArray nodesArray = nodes.get("result").getAsJsonArray();
+
+        JsonObject nodeRef = gson.fromJson(nodeRefResponse, JsonObject.class);
+        logger.debug("nodeRef: %s", nodeRef.toString());
+        JsonArray nodeRefArray = nodeRef.get("result").getAsJsonArray();
+
+        JsonObject nodeRefResSum = gson.fromJson(nodeRefResSumResponse, JsonObject.class);
+        logger.debug("nodeRefResSum: %s", nodeRefResSum.toString());
+        JsonArray nodeRefResSumArray = nodeRefResSum.get("result").getAsJsonArray();
+
+        JsonObject nodeInstSum = gson.fromJson(nodeInstSumResponse, JsonObject.class);
+        JsonArray nodeInstSumArray = nodeInstSum.get("result").getAsJsonArray();
+
+        JsonObject nodeInst = gson.fromJson(nodeInstResponse, JsonObject.class);
+        JsonArray nodeInstArray = nodeInst.get("result").getAsJsonArray();
+
+        Map<String, Integer> sumMapping = buildNodeInstSumMapping(nodeInstSumArray);
+        nodeRefArray = nodeRefCodeRename(nodeRefArray, nodesArray);
+
+        Map<String, JsonObject> nodeRefResSumMapping = nodeRefResSumCodeRename(nodeRefResSumArray, nodesArray);
+
+        return graphBuildService.buildNodesGraph(nodesArray, nodeRefArray, nodeInst, sumMapping, nodeRefResSumMapping);
     }
 
-    public JsonArray getNodeRefs() {
-        JsonArray nodeRefs = new JsonArray();
-        nodeRefs.add(createNodeRef(1, 2, 100));
-        nodeRefs.add(createNodeRef(2, 3, 100));
-        nodeRefs.add(createNodeRef(2, 4, 100));
-        nodeRefs.add(createNodeRef(4, 3, 100));
-        nodeRefs.add(createNodeRef(2, 6, 100));
-        nodeRefs.add(createNodeRef(2, 7, 100));
-        nodeRefs.add(createNodeRef(5, 4, 100));
-        nodeRefs.add(createNodeRef(3, 8, 100));
-        nodeRefs.add(createNodeRef(3, 9, 100));
-        return nodeRefs;
+    private Map<String, Integer> buildNodeInstSumMapping(JsonArray nodeInstSumArray) {
+        Map<String, Integer> sumMapping = new HashMap<>();
+        for (int i = 0; i < nodeInstSumArray.size(); i++) {
+            JsonObject nodeInstSum = nodeInstSumArray.get(i).getAsJsonObject();
+            String code = nodeInstSum.get("code").getAsString();
+            int count = nodeInstSum.get("count").getAsInt();
+            sumMapping.put(code, count);
+        }
+        return sumMapping;
     }
 
-    public JsonObject createNode(int id, String label, String image, int instNum) {
-        JsonObject nodeJsonObj = new JsonObject();
-        nodeJsonObj.addProperty("id", id);
-        nodeJsonObj.addProperty("label", label);
-        nodeJsonObj.addProperty("image", image);
-        nodeJsonObj.addProperty("instNum", instNum);
-        return nodeJsonObj;
+    private JsonArray nodeRefCodeRename(JsonArray nodeRefArray, JsonArray nodesArray) {
+        JsonArray newNodeRefArray = new JsonArray();
+        for (int i = 0; i < nodeRefArray.size(); i++) {
+            JsonObject nodeRef = nodeRefArray.get(i).getAsJsonObject();
+            String front = nodeRef.get("front").getAsString();
+            boolean frontIsRealCode = nodeRef.get("frontIsRealCode").getAsBoolean();
+            if (!frontIsRealCode) {
+                front = findCodeByNickName(front, nodesArray);
+            }
+
+            String behind = nodeRef.get("behind").getAsString();
+            boolean behindIsRealCode = nodeRef.get("behindIsRealCode").getAsBoolean();
+            if (!behindIsRealCode) {
+                behind = findCodeByNickName(behind, nodesArray);
+            }
+            nodeRef.addProperty("front", front);
+            nodeRef.addProperty("behind", behind);
+            newNodeRefArray.add(nodeRef);
+        }
+        return newNodeRefArray;
     }
 
-    public JsonObject createNodeRef(int from, int to, int resSum) {
-        JsonObject nodeRefJsonObj = new JsonObject();
-        nodeRefJsonObj.addProperty("from", from);
-        nodeRefJsonObj.addProperty("to", to);
-        nodeRefJsonObj.addProperty("resSum", resSum);
-        return nodeRefJsonObj;
+    private Map<String, JsonObject> nodeRefResSumCodeRename(JsonArray nodeRefResSumArray, JsonArray nodesArray) {
+        Map<String, JsonObject> nodeRefResSumMapping = new HashMap<>();
+
+        for (int i = 0; i < nodeRefResSumArray.size(); i++) {
+            JsonObject nodeRefResSum = nodeRefResSumArray.get(i).getAsJsonObject();
+            String front = nodeRefResSum.get("front").getAsString();
+            if (front.contains("[") && front.contains("]")) {
+                front = findCodeByNickName(front, nodesArray);
+            }
+
+            String behind = nodeRefResSum.get("behind").getAsString();
+            if (behind.contains("[") && behind.contains("]")) {
+                behind = findCodeByNickName(behind, nodesArray);
+            }
+            String nodeRefId = front + "-" + behind;
+            nodeRefResSumMapping.put(nodeRefId, nodeRefResSum);
+        }
+        return nodeRefResSumMapping;
     }
+
+    private String findCodeByNickName(String refNodeNickName, JsonArray nodesArray) {
+        for (int i = 0; i < nodesArray.size(); i++) {
+            JsonObject node = nodesArray.get(i).getAsJsonObject();
+            String code = node.get("code").getAsString();
+            String nickName = node.get("nickName").getAsString();
+            String kind = node.get("kind").getAsString();
+
+            if (kind.equals("server") && nickName.equals(refNodeNickName)) {
+                return code;
+            }
+        }
+        return refNodeNickName;
+    }
+
 }
