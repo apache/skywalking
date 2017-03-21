@@ -29,8 +29,7 @@ public class NodeRefDayAnalysis extends AbstractNodeRefAnalysis {
         if (message instanceof SegmentPost.SegmentWithTimeSlice) {
             SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice = (SegmentPost.SegmentWithTimeSlice) message;
             TraceSegment segment = segmentWithTimeSlice.getTraceSegment();
-            analyseRefs(segment, segmentWithTimeSlice.getDay());
-            analyseSpans(segment, segmentWithTimeSlice.getDay());
+            analyseNodeRef(segment, segmentWithTimeSlice.getDay());
         }
     }
 

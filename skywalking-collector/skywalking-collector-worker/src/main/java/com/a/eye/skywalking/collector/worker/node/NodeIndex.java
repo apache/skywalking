@@ -1,8 +1,6 @@
 package com.a.eye.skywalking.collector.worker.node;
 
 import com.a.eye.skywalking.collector.worker.storage.index.AbstractIndex;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 
@@ -13,9 +11,13 @@ import java.io.IOException;
  */
 public class NodeIndex extends AbstractIndex {
 
-    private Logger logger = LogManager.getFormatterLogger(NodeIndex.class);
-
     public static final String Index = "node_idx";
+
+    public static final String Code = "code";
+    public static final String NickName = "nickName";
+    public static final String Layer = "layer";
+    public static final String Component = "component";
+    public static final String Kind = "kind";
 
     @Override
     public String index() {
@@ -32,19 +34,27 @@ public class NodeIndex extends AbstractIndex {
         XContentBuilder mappingBuilder = XContentFactory.jsonBuilder()
                 .startObject()
                     .startObject("properties")
-                        .startObject("code")
+                        .startObject(Code)
                             .field("type", "string")
                             .field("index", "not_analyzed")
                         .endObject()
-                        .startObject("layer")
+                        .startObject(NickName)
                             .field("type", "string")
                             .field("index", "not_analyzed")
                         .endObject()
-                        .startObject("component")
+                        .startObject(Layer)
                             .field("type", "string")
                             .field("index", "not_analyzed")
                         .endObject()
-                        .startObject("timeSlice")
+                        .startObject(Component)
+                            .field("type", "string")
+                            .field("index", "not_analyzed")
+                        .endObject()
+                        .startObject(Kind)
+                            .field("type", "string")
+                            .field("index", "not_analyzed")
+                        .endObject()
+                        .startObject(Time_Slice)
                             .field("type", "long")
                             .field("index", "not_analyzed")
                         .endObject()

@@ -11,14 +11,11 @@ import java.io.IOException;
 /**
  * @author pengys5
  */
-public class NodeRefIndex extends AbstractIndex {
+public class NodeRefResSumIndex extends AbstractIndex {
 
-    public static final String Index = "node_ref_idx";
+    private Logger logger = LogManager.getFormatterLogger(NodeRefResSumIndex.class);
 
-    public static final String Front = "front";
-    public static final String FrontIsRealCode = "frontIsRealCode";
-    public static final String Behind = "behind";
-    public static final String BehindIsRealCode = "behindIsRealCode";
+    public static final String Index = "node_ref_res_sum_idx";
 
     @Override
     public String index() {
@@ -35,23 +32,15 @@ public class NodeRefIndex extends AbstractIndex {
         XContentBuilder mappingBuilder = XContentFactory.jsonBuilder()
                 .startObject()
                     .startObject("properties")
-                        .startObject(Front)
+                        .startObject("front")
                             .field("type", "string")
                             .field("index", "not_analyzed")
                         .endObject()
-                        .startObject(FrontIsRealCode)
-                            .field("type", "boolean")
-                            .field("index", "not_analyzed")
-                        .endObject()
-                        .startObject(Behind)
+                        .startObject("behind")
                             .field("type", "string")
                             .field("index", "not_analyzed")
                         .endObject()
-                        .startObject(BehindIsRealCode)
-                            .field("type", "boolean")
-                            .field("index", "not_analyzed")
-                        .endObject()
-                        .startObject(Time_Slice)
+                        .startObject("timeSlice")
                             .field("type", "long")
                             .field("index", "not_analyzed")
                         .endObject()

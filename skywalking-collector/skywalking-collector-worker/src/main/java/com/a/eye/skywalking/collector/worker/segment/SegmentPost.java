@@ -12,6 +12,9 @@ import com.a.eye.skywalking.collector.worker.httpserver.AbstractPostProvider;
 import com.a.eye.skywalking.collector.worker.node.analysis.NodeDayAnalysis;
 import com.a.eye.skywalking.collector.worker.node.analysis.NodeHourAnalysis;
 import com.a.eye.skywalking.collector.worker.node.analysis.NodeMinuteAnalysis;
+import com.a.eye.skywalking.collector.worker.nodeinst.analysis.NodeInstDayAnalysis;
+import com.a.eye.skywalking.collector.worker.nodeinst.analysis.NodeInstHourAnalysis;
+import com.a.eye.skywalking.collector.worker.nodeinst.analysis.NodeInstMinuteAnalysis;
 import com.a.eye.skywalking.collector.worker.noderef.analysis.NodeRefDayAnalysis;
 import com.a.eye.skywalking.collector.worker.noderef.analysis.NodeRefHourAnalysis;
 import com.a.eye.skywalking.collector.worker.noderef.analysis.NodeRefMinuteAnalysis;
@@ -48,6 +51,10 @@ public class SegmentPost extends AbstractPost {
         getClusterContext().findProvider(NodeMinuteAnalysis.Role.INSTANCE).create(this);
         getClusterContext().findProvider(NodeHourAnalysis.Role.INSTANCE).create(this);
         getClusterContext().findProvider(NodeDayAnalysis.Role.INSTANCE).create(this);
+
+        getClusterContext().findProvider(NodeInstMinuteAnalysis.Role.INSTANCE).create(this);
+        getClusterContext().findProvider(NodeInstHourAnalysis.Role.INSTANCE).create(this);
+        getClusterContext().findProvider(NodeInstDayAnalysis.Role.INSTANCE).create(this);
     }
 
     @Override
@@ -66,26 +73,33 @@ public class SegmentPost extends AbstractPost {
 
         tellNodeRef(segmentWithTimeSlice);
         tellNode(segmentWithTimeSlice);
+        tellNodeInst(segmentWithTimeSlice);
     }
 
     private void tellSegmentSave(String reqJsonStr, long day, long hour, long minute) throws Exception {
         JsonObject newSegmentJson = gson.fromJson(reqJsonStr, JsonObject.class);
         newSegmentJson.addProperty("minute", minute);
-        newSegmentJson.addProperty("hour", hour);
-        newSegmentJson.addProperty("day", day);
+//        newSegmentJson.addProperty("hour", hour);
+//        newSegmentJson.addProperty("day", day);
         getSelfContext().lookup(SegmentSave.Role.INSTANCE).tell(newSegmentJson);
     }
 
     private void tellNodeRef(SegmentWithTimeSlice segmentWithTimeSlice) throws Exception {
         getSelfContext().lookup(NodeRefMinuteAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
-        getSelfContext().lookup(NodeRefHourAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
-        getSelfContext().lookup(NodeRefDayAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
+//        getSelfContext().lookup(NodeRefHourAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
+//        getSelfContext().lookup(NodeRefDayAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
     }
 
     private void tellNode(SegmentWithTimeSlice segmentWithTimeSlice) throws Exception {
         getSelfContext().lookup(NodeMinuteAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
-        getSelfContext().lookup(NodeHourAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
-        getSelfContext().lookup(NodeDayAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
+//        getSelfContext().lookup(NodeHourAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
+//        getSelfContext().lookup(NodeDayAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
+    }
+
+    private void tellNodeInst(SegmentWithTimeSlice segmentWithTimeSlice) throws Exception {
+        getSelfContext().lookup(NodeInstMinuteAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
+//        getSelfContext().lookup(NodeInstHourAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
+//        getSelfContext().lookup(NodeInstDayAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
     }
 
     private void validateData(TraceSegment newSegment) {

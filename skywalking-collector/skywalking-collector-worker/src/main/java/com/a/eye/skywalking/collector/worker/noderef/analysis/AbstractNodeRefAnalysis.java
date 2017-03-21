@@ -3,7 +3,9 @@ package com.a.eye.skywalking.collector.worker.noderef.analysis;
 import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
 import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
 import com.a.eye.skywalking.collector.worker.RecordAnalysisMember;
-import com.a.eye.skywalking.collector.worker.storage.index.AbstractIndex;
+import com.a.eye.skywalking.collector.worker.noderef.NodeRefIndex;
+import com.a.eye.skywalking.collector.worker.tools.ClientSpanIsLeafTools;
+import com.a.eye.skywalking.collector.worker.tools.CollectionTools;
 import com.a.eye.skywalking.trace.Span;
 import com.a.eye.skywalking.trace.TraceSegment;
 import com.a.eye.skywalking.trace.TraceSegmentRef;
@@ -17,50 +19,62 @@ import java.util.List;
 /**
  * @author pengys5
  */
-public abstract class AbstractNodeRefAnalysis extends RecordAnalysisMember {
+abstract class AbstractNodeRefAnalysis extends RecordAnalysisMember {
 
     private Logger logger = LogManager.getFormatterLogger(AbstractNodeRefAnalysis.class);
 
-    public AbstractNodeRefAnalysis(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    AbstractNodeRefAnalysis(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
-    void analyseRefs(TraceSegment segment, long timeSlice) throws Exception {
-        List<TraceSegmentRef> segmentRefList = segment.getRefs();
-        if (segmentRefList != null && segmentRefList.size() > 0) {
-            for (TraceSegmentRef segmentRef : segmentRefList) {
-                String front = segmentRef.getApplicationCode();
-                String behind = segment.getApplicationCode();
-                String id = timeSlice + "-" + front + "-" + behind;
-
-                JsonObject dataJsonObj = new JsonObject();
-                dataJsonObj.addProperty("front", front);
-                dataJsonObj.addProperty("behind", behind);
-                dataJsonObj.addProperty(AbstractIndex.Time_Slice_Column_Name, timeSlice);
-                logger.debug("dag node ref: %s", dataJsonObj.toString());
-                setRecord(id, dataJsonObj);
-            }
-        }
-    }
-
-    void analyseSpans(TraceSegment segment, long timeSlice) throws Exception {
+    void analyseNodeRef(TraceSegment segment, long timeSlice) throws Exception {
         List<Span> spanList = segment.getSpans();
-        if (spanList != null && spanList.size() > 0) {
+        if (CollectionTools.isNotEmpty(spanList)) {
             for (Span span : spanList) {
-                if (Tags.SPAN_KIND_CLIENT.equals(Tags.SPAN_KIND.get(span))) {
-                    JsonObject dataJsonObj = new JsonObject();
-                    String front = segment.getApplicationCode();
-                    dataJsonObj.addProperty("front", front);
+                JsonObject dataJsonObj = new JsonObject();
+                String component = Tags.COMPONENT.get(span);
+                String peers = Tags.PEERS.get(span);
+                dataJsonObj.addProperty(NodeRefIndex.Time_Slice, timeSlice);
+                dataJsonObj.addProperty(NodeRefIndex.FrontIsRealCode, true);
+                dataJsonObj.addProperty(NodeRefIndex.BehindIsRealCode, true);
 
-                    String component = Tags.COMPONENT.get(span);
-                    String peers = Tags.PEERS.get(span);
+                if (Tags.SPAN_KIND_CLIENT.equals(Tags.SPAN_KIND.get(span)) && ClientSpanIsLeafTools.isLeaf(span.getSpanId(), spanList)) {
+                    String front = segment.getApplicationCode();
+                    dataJsonObj.addProperty(NodeRefIndex.Front, front);
+
                     String behind = component + "-" + peers;
-                    dataJsonObj.addProperty("behind", behind);
-                    dataJsonObj.addProperty(AbstractIndex.Time_Slice_Column_Name, timeSlice);
+                    dataJsonObj.addProperty(NodeRefIndex.Behind, behind);
+                    dataJsonObj.addProperty(NodeRefIndex.BehindIsRealCode, false);
 
                     String id = timeSlice + "-" + front + "-" + behind;
                     logger.debug("dag node ref: %s", dataJsonObj.toString());
                     setRecord(id, dataJsonObj);
+                } else if (Tags.SPAN_KIND_SERVER.equals(Tags.SPAN_KIND.get(span))) {
+                    if (span.getParentSpanId() == -1 && CollectionTools.isEmpty(segment.getRefs())) {
+                        String behind = segment.getApplicationCode();
+                        dataJsonObj.addProperty(NodeRefIndex.Behind, behind);
+
+                        String front = "User";
+                        dataJsonObj.addProperty(NodeRefIndex.Front, front);
+
+                        String id = timeSlice + "-" + front + "-" + behind;
+                        setRecord(id, dataJsonObj);
+                    } else if (span.getParentSpanId() == -1 && CollectionTools.isNotEmpty(segment.getRefs())) {
+                        for (TraceSegmentRef segmentRef : segment.getRefs()) {
+                            String front = segmentRef.getApplicationCode();
+                            String behind = component + "-" + segmentRef.getPeerHost();
+                            String id = timeSlice + "-" + front + "-" + behind;
+
+                            JsonObject refDataJsonObj = new JsonObject();
+                            refDataJsonObj.addProperty(NodeRefIndex.Front, front);
+                            refDataJsonObj.addProperty(NodeRefIndex.FrontIsRealCode, true);
+                            refDataJsonObj.addProperty(NodeRefIndex.Behind, behind);
+                            refDataJsonObj.addProperty(NodeRefIndex.BehindIsRealCode, false);
+                            refDataJsonObj.addProperty(NodeRefIndex.Time_Slice, timeSlice);
+                            logger.debug("dag node ref: %s", refDataJsonObj.toString());
+                            setRecord(id, refDataJsonObj);
+                        }
+                    }
                 }
             }
         }

@@ -29,8 +29,7 @@ public class NodeRefHourAnalysis extends AbstractNodeRefAnalysis {
         if (message instanceof SegmentPost.SegmentWithTimeSlice) {
             SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice = (SegmentPost.SegmentWithTimeSlice) message;
             TraceSegment segment = segmentWithTimeSlice.getTraceSegment();
-            analyseRefs(segment, segmentWithTimeSlice.getHour());
-            analyseSpans(segment, segmentWithTimeSlice.getHour());
+            analyseNodeRef(segment, segmentWithTimeSlice.getHour());
         }
     }
 

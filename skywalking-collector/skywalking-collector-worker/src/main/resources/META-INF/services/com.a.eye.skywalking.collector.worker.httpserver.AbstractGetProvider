@@ -1,0 +1,4 @@
+com.a.eye.skywalking.collector.worker.node.NodeGetWithTimeSlice$Factory
+com.a.eye.skywalking.collector.worker.nodeinst.NodeInstGetWithTimeSlice$Factory
+com.a.eye.skywalking.collector.worker.nodeinst.NodeInstSummaryGetWithTimeSlice$Factory
+com.a.eye.skywalking.collector.worker.noderef.NodeRefGetWithTimeSlice$Factory

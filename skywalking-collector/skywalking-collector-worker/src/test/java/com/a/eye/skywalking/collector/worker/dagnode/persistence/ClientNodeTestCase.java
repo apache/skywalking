@@ -36,19 +36,19 @@ public class ClientNodeTestCase {
     }
 
     public void loadNode(long timeSlice, String type) throws Exception {
-        LocalSyncWorkerRef workerRef = (LocalSyncWorkerRef) ClientNodeSearchPersistence.Factory.INSTANCE.create(AbstractWorker.noOwner());
-
-        insertData(timeSlice, type);
-        EsClient.indexRefresh(ClientNodeIndex.Index);
-
-        ClientNodeSearchPersistence.RequestEntity requestEntity = new ClientNodeSearchPersistence.RequestEntity(type, timeSlice);
-        JsonObject resJsonObj = new JsonObject();
-        workerRef.ask(requestEntity, resJsonObj);
-        JsonArray nodeArray = resJsonObj.get("result").getAsJsonArray();
-        for (int i = 0; i < nodeArray.size(); i++) {
-            JsonObject node = nodeArray.get(i).getAsJsonObject();
-            System.out.println(node);
-        }
+//        LocalSyncWorkerRef workerRef = (LocalSyncWorkerRef) ClientNodeSearchPersistence.Factory.INSTANCE.create(AbstractWorker.noOwner());
+//
+//        insertData(timeSlice, type);
+//        EsClient.indexRefresh(ClientNodeIndex.Index);
+//
+//        ClientNodeSearchPersistence.RequestEntity requestEntity = new ClientNodeSearchPersistence.RequestEntity(type, timeSlice);
+//        JsonObject resJsonObj = new JsonObject();
+//        workerRef.ask(requestEntity, resJsonObj);
+//        JsonArray nodeArray = resJsonObj.get("result").getAsJsonArray();
+//        for (int i = 0; i < nodeArray.size(); i++) {
+//            JsonObject node = nodeArray.get(i).getAsJsonObject();
+//            System.out.println(node);
+//        }
     }
 
     private void insertData(long timeSlice, String type) {

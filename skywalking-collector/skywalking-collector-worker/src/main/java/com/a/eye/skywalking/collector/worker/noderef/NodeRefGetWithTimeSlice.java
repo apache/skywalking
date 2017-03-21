@@ -1,4 +1,4 @@
-package com.a.eye.skywalking.collector.worker.dagnode.searcher;
+package com.a.eye.skywalking.collector.worker.noderef;
 
 import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
 import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
@@ -6,9 +6,9 @@ import com.a.eye.skywalking.collector.actor.ProviderNotFoundException;
 import com.a.eye.skywalking.collector.actor.Role;
 import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
 import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
-import com.a.eye.skywalking.collector.worker.dagnode.persistence.NodeRefSearchPersistence;
 import com.a.eye.skywalking.collector.worker.httpserver.AbstractGet;
 import com.a.eye.skywalking.collector.worker.httpserver.AbstractGetProvider;
+import com.a.eye.skywalking.collector.worker.noderef.persistence.NodeRefSearchWithTimeSlice;
 import com.a.eye.skywalking.collector.worker.tools.ParameterTools;
 import com.google.gson.JsonObject;
 import org.apache.logging.log4j.LogManager;
@@ -20,17 +20,17 @@ import java.util.Map;
 /**
  * @author pengys5
  */
-public class NodeRefWithTimeSliceGet extends AbstractGet {
+public class NodeRefGetWithTimeSlice extends AbstractGet {
 
-    private Logger logger = LogManager.getFormatterLogger(NodeRefWithTimeSliceGet.class);
+    private Logger logger = LogManager.getFormatterLogger(NodeRefGetWithTimeSlice.class);
 
-    private NodeRefWithTimeSliceGet(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    private NodeRefGetWithTimeSlice(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
     @Override
     public void preStart() throws ProviderNotFoundException {
-        getClusterContext().findProvider(NodeRefSearchPersistence.WorkerRole.INSTANCE).create(this);
+        getClusterContext().findProvider(NodeRefSearchWithTimeSlice.WorkerRole.INSTANCE).create(this);
     }
 
     @Override
@@ -47,12 +47,12 @@ public class NodeRefWithTimeSliceGet extends AbstractGet {
             throw new IllegalArgumentException("the request parameter timeSliceValue must numeric with long type");
         }
 
-        NodeRefSearchPersistence.RequestEntity requestEntity;
-        requestEntity = new NodeRefSearchPersistence.RequestEntity(ParameterTools.toString(request, "timeSliceType"), timeSlice);
-        getSelfContext().lookup(NodeRefSearchPersistence.WorkerRole.INSTANCE).ask(requestEntity, response);
+        NodeRefSearchWithTimeSlice.RequestEntity requestEntity;
+        requestEntity = new NodeRefSearchWithTimeSlice.RequestEntity(ParameterTools.toString(request, "timeSliceType"), timeSlice);
+        getSelfContext().lookup(NodeRefSearchWithTimeSlice.WorkerRole.INSTANCE).ask(requestEntity, response);
     }
 
-    public static class Factory extends AbstractGetProvider<NodeRefWithTimeSliceGet> {
+    public static class Factory extends AbstractGetProvider<NodeRefGetWithTimeSlice> {
 
         @Override
         public Role role() {
@@ -60,13 +60,13 @@ public class NodeRefWithTimeSliceGet extends AbstractGet {
         }
 
         @Override
-        public NodeRefWithTimeSliceGet workerInstance(ClusterWorkerContext clusterContext) {
-            return new NodeRefWithTimeSliceGet(role(), clusterContext, new LocalWorkerContext());
+        public NodeRefGetWithTimeSlice workerInstance(ClusterWorkerContext clusterContext) {
+            return new NodeRefGetWithTimeSlice(role(), clusterContext, new LocalWorkerContext());
         }
 
         @Override
         public String servletPath() {
-            return "/dagNode/search/nodeRefWithTimeSlice";
+            return "/nodeRef/timeSlice";
         }
     }
 
@@ -75,7 +75,7 @@ public class NodeRefWithTimeSliceGet extends AbstractGet {
 
         @Override
         public String roleName() {
-            return NodeRefWithTimeSliceGet.class.getSimpleName();
+            return NodeRefGetWithTimeSlice.class.getSimpleName();
         }
 
         @Override

@@ -1,4 +1,4 @@
-package com.a.eye.skywalking.collector.worker.dagnode.searcher;
+package com.a.eye.skywalking.collector.worker.nodeinst;
 
 import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
 import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
@@ -6,9 +6,9 @@ import com.a.eye.skywalking.collector.actor.ProviderNotFoundException;
 import com.a.eye.skywalking.collector.actor.Role;
 import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
 import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
-import com.a.eye.skywalking.collector.worker.dagnode.persistence.NodeInstanceSearchPersistence;
 import com.a.eye.skywalking.collector.worker.httpserver.AbstractGet;
 import com.a.eye.skywalking.collector.worker.httpserver.AbstractGetProvider;
+import com.a.eye.skywalking.collector.worker.nodeinst.persistence.NodeInstSummarySearchWithTimeSlice;
 import com.a.eye.skywalking.collector.worker.tools.ParameterTools;
 import com.google.gson.JsonObject;
 import org.apache.logging.log4j.LogManager;
@@ -20,17 +20,17 @@ import java.util.Map;
 /**
  * @author pengys5
  */
-public class NodeInstanceWithTimeSliceGet extends AbstractGet {
+public class NodeInstSummaryGetWithTimeSlice extends AbstractGet {
 
-    private Logger logger = LogManager.getFormatterLogger(NodeInstanceWithTimeSliceGet.class);
+    private Logger logger = LogManager.getFormatterLogger(NodeInstSummaryGetWithTimeSlice.class);
 
-    private NodeInstanceWithTimeSliceGet(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    private NodeInstSummaryGetWithTimeSlice(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
     @Override
     public void preStart() throws ProviderNotFoundException {
-        getClusterContext().findProvider(NodeInstanceSearchPersistence.WorkerRole.INSTANCE).create(this);
+        getClusterContext().findProvider(NodeInstSummarySearchWithTimeSlice.WorkerRole.INSTANCE).create(this);
     }
 
     @Override
@@ -47,12 +47,12 @@ public class NodeInstanceWithTimeSliceGet extends AbstractGet {
             throw new IllegalArgumentException("the request parameter timeSliceValue must numeric with long type");
         }
 
-        NodeInstanceSearchPersistence.RequestEntity requestEntity;
-        requestEntity = new NodeInstanceSearchPersistence.RequestEntity(ParameterTools.toString(request, "timeSliceType"), timeSlice);
-        getSelfContext().lookup(NodeInstanceSearchPersistence.WorkerRole.INSTANCE).ask(requestEntity, response);
+        NodeInstSummarySearchWithTimeSlice.RequestEntity requestEntity;
+        requestEntity = new NodeInstSummarySearchWithTimeSlice.RequestEntity(ParameterTools.toString(request, "timeSliceType"), timeSlice);
+        getSelfContext().lookup(NodeInstSummarySearchWithTimeSlice.WorkerRole.INSTANCE).ask(requestEntity, response);
     }
 
-    public static class Factory extends AbstractGetProvider<NodeInstanceWithTimeSliceGet> {
+    public static class Factory extends AbstractGetProvider<NodeInstSummaryGetWithTimeSlice> {
 
         @Override
         public Role role() {
@@ -60,13 +60,13 @@ public class NodeInstanceWithTimeSliceGet extends AbstractGet {
         }
 
         @Override
-        public NodeInstanceWithTimeSliceGet workerInstance(ClusterWorkerContext clusterContext) {
-            return new NodeInstanceWithTimeSliceGet(role(), clusterContext, new LocalWorkerContext());
+        public NodeInstSummaryGetWithTimeSlice workerInstance(ClusterWorkerContext clusterContext) {
+            return new NodeInstSummaryGetWithTimeSlice(role(), clusterContext, new LocalWorkerContext());
         }
 
         @Override
         public String servletPath() {
-            return "/dagNode/search/nodeInstanceWithTimeSlice";
+            return "/nodeInst/summary/timeSlice";
         }
     }
 
@@ -75,7 +75,7 @@ public class NodeInstanceWithTimeSliceGet extends AbstractGet {
 
         @Override
         public String roleName() {
-            return NodeInstanceWithTimeSliceGet.class.getSimpleName();
+            return NodeInstSummaryGetWithTimeSlice.class.getSimpleName();
         }
 
         @Override

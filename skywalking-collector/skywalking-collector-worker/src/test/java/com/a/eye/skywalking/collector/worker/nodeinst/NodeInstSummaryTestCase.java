@@ -1,9 +1,9 @@
-package com.a.eye.skywalking.collector.worker.dagnode.persistence;
+package com.a.eye.skywalking.collector.worker.nodeinst;
 
 import com.a.eye.skywalking.collector.actor.AbstractWorker;
 import com.a.eye.skywalking.collector.actor.LocalSyncWorkerRef;
+import com.a.eye.skywalking.collector.worker.nodeinst.persistence.NodeInstSummarySearchWithTimeSlice;
 import com.a.eye.skywalking.collector.worker.storage.EsClient;
-import com.a.eye.skywalking.collector.worker.nodeinst.NodeInstIndex;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.elasticsearch.action.index.IndexResponse;
@@ -18,30 +18,30 @@ import java.util.Map;
 /**
  * @author pengys5
  */
-public class NodeInstanceTestCase {
+public class NodeInstSummaryTestCase {
 
     @Before
     public void initIndex() throws UnknownHostException {
         EsClient.boot();
-        NodeInstIndex index = new NodeInstIndex();
-        index.deleteIndex();
-        index.createIndex();
+//        NodeInstIndex index = new NodeInstIndex();
+//        index.deleteIndex();
+//        index.createIndex();
     }
 
     @Test
-    public void testLoadNodeInstance() throws Exception {
-        loadNodeInstance(201703101201l, NodeInstIndex.Type_Minute);
-        loadNodeInstance(201703101200l, NodeInstIndex.Type_Hour);
-        loadNodeInstance(201703100000l, NodeInstIndex.Type_Day);
+    public void testLoadNodeInstSummary() throws Exception {
+        loadNodeInstSummary(201703202208l, NodeInstIndex.Type_Minute);
+//        loadNodeInstance(201703202200l, NodeInstIndex.Type_Hour);
+//        loadNodeInstance(201703200000l, NodeInstIndex.Type_Day);
     }
 
-    public void loadNodeInstance(long timeSlice, String type) throws Exception {
-        LocalSyncWorkerRef workerRef = (LocalSyncWorkerRef) NodeInstanceSearchPersistence.Factory.INSTANCE.create(AbstractWorker.noOwner());
+    public void loadNodeInstSummary(long timeSlice, String type) throws Exception {
+        LocalSyncWorkerRef workerRef = (LocalSyncWorkerRef) NodeInstSummarySearchWithTimeSlice.Factory.INSTANCE.create(AbstractWorker.noOwner());
 
-        insertData(timeSlice, type);
-        EsClient.indexRefresh(NodeInstIndex.Index);
+//        insertData(timeSlice, type);
+//        EsClient.indexRefresh(NodeInstIndex.Index);
 
-        NodeInstanceSearchPersistence.RequestEntity requestEntity = new NodeInstanceSearchPersistence.RequestEntity(type, timeSlice);
+        NodeInstSummarySearchWithTimeSlice.RequestEntity requestEntity = new NodeInstSummarySearchWithTimeSlice.RequestEntity(type, timeSlice);
         JsonObject resJsonObj = new JsonObject();
         workerRef.ask(requestEntity, resJsonObj);
         JsonArray nodeArray = resJsonObj.get("result").getAsJsonArray();

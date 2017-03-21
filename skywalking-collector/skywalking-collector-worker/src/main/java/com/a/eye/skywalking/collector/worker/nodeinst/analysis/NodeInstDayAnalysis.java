@@ -1,4 +1,4 @@
-package com.a.eye.skywalking.collector.worker.noderef.analysis;
+package com.a.eye.skywalking.collector.worker.nodeinst.analysis;
 
 import com.a.eye.skywalking.collector.actor.AbstractLocalAsyncWorkerProvider;
 import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
@@ -6,8 +6,8 @@ import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
 import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
 import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
 import com.a.eye.skywalking.collector.worker.WorkerConfig;
+import com.a.eye.skywalking.collector.worker.nodeinst.persistence.NodeInstDayAgg;
 import com.a.eye.skywalking.collector.worker.segment.SegmentPost;
-import com.a.eye.skywalking.collector.worker.noderef.persistence.NodeRefMinuteAgg;
 import com.a.eye.skywalking.collector.worker.storage.RecordData;
 import com.a.eye.skywalking.trace.TraceSegment;
 import org.apache.logging.log4j.LogManager;
@@ -16,11 +16,11 @@ import org.apache.logging.log4j.Logger;
 /**
  * @author pengys5
  */
-public class NodeRefMinuteAnalysis extends AbstractNodeRefAnalysis {
+public class NodeInstDayAnalysis extends AbstractNodeInstAnalysis {
 
-    private Logger logger = LogManager.getFormatterLogger(NodeRefMinuteAnalysis.class);
+    private Logger logger = LogManager.getFormatterLogger(NodeInstDayAnalysis.class);
 
-    public NodeRefMinuteAnalysis(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    public NodeInstDayAnalysis(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
@@ -29,7 +29,7 @@ public class NodeRefMinuteAnalysis extends AbstractNodeRefAnalysis {
         if (message instanceof SegmentPost.SegmentWithTimeSlice) {
             SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice = (SegmentPost.SegmentWithTimeSlice) message;
             TraceSegment segment = segmentWithTimeSlice.getTraceSegment();
-            analyseNodeRef(segment, segmentWithTimeSlice.getMinute());
+            analyseSpans(segment, segmentWithTimeSlice.getDay());
         }
     }
 
@@ -37,12 +37,11 @@ public class NodeRefMinuteAnalysis extends AbstractNodeRefAnalysis {
     protected void aggregation() throws Exception {
         RecordData oneRecord;
         while ((oneRecord = pushOne()) != null) {
-            getClusterContext().lookup(NodeRefMinuteAgg.Role.INSTANCE).tell(oneRecord);
+            getClusterContext().lookup(NodeInstDayAgg.Role.INSTANCE).tell(oneRecord);
         }
     }
 
-    public static class Factory extends AbstractLocalAsyncWorkerProvider<NodeRefMinuteAnalysis> {
-
+    public static class Factory extends AbstractLocalAsyncWorkerProvider<NodeInstDayAnalysis> {
         public static Factory INSTANCE = new Factory();
 
         @Override
@@ -51,13 +50,13 @@ public class NodeRefMinuteAnalysis extends AbstractNodeRefAnalysis {
         }
 
         @Override
-        public NodeRefMinuteAnalysis workerInstance(ClusterWorkerContext clusterContext) {
-            return new NodeRefMinuteAnalysis(role(), clusterContext, new LocalWorkerContext());
+        public NodeInstDayAnalysis workerInstance(ClusterWorkerContext clusterContext) {
+            return new NodeInstDayAnalysis(role(), clusterContext, new LocalWorkerContext());
         }
 
         @Override
         public int queueSize() {
-            return WorkerConfig.Queue.DAGNodeRefAnalysis.Size;
+            return WorkerConfig.Queue.NodeInstanceAnalysis.Size;
         }
     }
 
@@ -66,7 +65,7 @@ public class NodeRefMinuteAnalysis extends AbstractNodeRefAnalysis {
 
         @Override
         public String roleName() {
-            return NodeRefMinuteAnalysis.class.getSimpleName();
+            return NodeInstDayAnalysis.class.getSimpleName();
         }
 
         @Override

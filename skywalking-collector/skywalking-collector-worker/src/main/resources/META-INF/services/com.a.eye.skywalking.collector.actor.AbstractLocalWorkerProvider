@@ -7,6 +7,7 @@ com.a.eye.skywalking.collector.worker.noderef.analysis.NodeRefMinuteAnalysis$Fac
 com.a.eye.skywalking.collector.worker.noderef.persistence.NodeRefDaySave$Factory
 com.a.eye.skywalking.collector.worker.noderef.persistence.NodeRefHourSave$Factory
 com.a.eye.skywalking.collector.worker.noderef.persistence.NodeRefMinuteSave$Factory
+com.a.eye.skywalking.collector.worker.noderef.persistence.NodeRefSearchWithTimeSlice$Factory
 
 com.a.eye.skywalking.collector.worker.node.analysis.NodeDayAnalysis$Factory
 com.a.eye.skywalking.collector.worker.node.analysis.NodeHourAnalysis$Factory
@@ -15,7 +16,15 @@ com.a.eye.skywalking.collector.worker.node.analysis.NodeMinuteAnalysis$Factory
 com.a.eye.skywalking.collector.worker.node.persistence.NodeDaySave$Factory
 com.a.eye.skywalking.collector.worker.node.persistence.NodeHourSave$Factory
 com.a.eye.skywalking.collector.worker.node.persistence.NodeMinuteSave$Factory
+com.a.eye.skywalking.collector.worker.node.persistence.NodeSearchWithTimeSlice$Factory
 
 com.a.eye.skywalking.collector.worker.nodeinst.persistence.NodeInstDaySave$Factory
 com.a.eye.skywalking.collector.worker.nodeinst.persistence.NodeInstHourSave$Factory
 com.a.eye.skywalking.collector.worker.nodeinst.persistence.NodeInstMinuteSave$Factory
+com.a.eye.skywalking.collector.worker.nodeinst.persistence.NodeInstSearchWithTimeSlice$Factory
+com.a.eye.skywalking.collector.worker.nodeinst.persistence.NodeInstSummarySearchWithTimeSlice$Factory
+
+com.a.eye.skywalking.collector.worker.nodeinst.analysis.NodeInstDayAnalysis$Factory
+com.a.eye.skywalking.collector.worker.nodeinst.analysis.NodeInstHourAnalysis$Factory
+com.a.eye.skywalking.collector.worker.nodeinst.analysis.NodeInstMinuteAnalysis$Factory
+

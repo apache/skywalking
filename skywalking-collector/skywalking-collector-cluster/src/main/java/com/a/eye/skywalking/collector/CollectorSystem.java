@@ -67,6 +67,7 @@ public class CollectorSystem {
     private void loadLocalProviders() throws UsedRoleNameException {
         ServiceLoader<AbstractLocalWorkerProvider> clusterServiceLoader = ServiceLoader.load(AbstractLocalWorkerProvider.class);
         for (AbstractLocalWorkerProvider provider : clusterServiceLoader) {
+            logger.info("loadLocalProviders provider name: %s", provider.getClass().getName());
             provider.setClusterContext(clusterContext);
             clusterContext.putProvider(provider);
         }

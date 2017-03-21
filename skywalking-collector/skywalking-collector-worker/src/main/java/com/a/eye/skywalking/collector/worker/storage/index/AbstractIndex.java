@@ -27,7 +27,7 @@ public abstract class AbstractIndex {
 
     public static final String Type_Record = "record";
 
-    public static final String Time_Slice_Column_Name = "timeSlice";
+    public static final String Time_Slice = "timeSlice";
 
     final public XContentBuilder createSettingBuilder() throws IOException {
         XContentBuilder settingsBuilder = XContentFactory.jsonBuilder()

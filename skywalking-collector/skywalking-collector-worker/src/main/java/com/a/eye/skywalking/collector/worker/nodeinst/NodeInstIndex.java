@@ -1,8 +1,6 @@
 package com.a.eye.skywalking.collector.worker.nodeinst;
 
 import com.a.eye.skywalking.collector.worker.storage.index.AbstractIndex;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 
@@ -13,9 +11,12 @@ import java.io.IOException;
  */
 public class NodeInstIndex extends AbstractIndex {
 
-    private static Logger logger = LogManager.getFormatterLogger(NodeInstIndex.class);
-
     public static final String Index = "node_inst_idx";
+
+    public static final String Code = "code";
+    public static final String Kind = "kind";
+    public static final String Component = "component";
+    public static final String Address = "address";
 
     @Override
     public String index() {
@@ -32,15 +33,23 @@ public class NodeInstIndex extends AbstractIndex {
         XContentBuilder mappingBuilder = XContentFactory.jsonBuilder()
                 .startObject()
                     .startObject("properties")
-                        .startObject("code")
+                        .startObject(Code)
                             .field("type", "string")
                             .field("index", "not_analyzed")
                         .endObject()
-                        .startObject("address")
+                        .startObject(Kind)
                             .field("type", "string")
                             .field("index", "not_analyzed")
                         .endObject()
-                        .startObject("timeSlice")
+                        .startObject(Component)
+                            .field("type", "string")
+                            .field("index", "not_analyzed")
+                        .endObject()
+                        .startObject(Address)
+                            .field("type", "string")
+                            .field("index", "not_analyzed")
+                        .endObject()
+                        .startObject(Time_Slice)
                             .field("type", "long")
                             .field("index", "not_analyzed")
                         .endObject()
