@@ -1,6 +1,8 @@
 package com.a.eye.skywalking.api.context;
 
+import com.a.eye.skywalking.api.boot.ServiceManager;
 import com.a.eye.skywalking.api.conf.Config;
+import com.a.eye.skywalking.api.sampling.SamplingService;
 import com.a.eye.skywalking.trace.Span;
 import com.a.eye.skywalking.trace.TraceSegment;
 import com.a.eye.skywalking.trace.TraceSegmentRef;
@@ -35,6 +37,7 @@ public final class TracerContext {
      */
     TracerContext() {
         this.segment = new TraceSegment(Config.Agent.APPLICATION_CODE);
+        ServiceManager.INSTANCE.findService(SamplingService.class).trySampling(this.segment);
         this.spanIdGenerator = 0;
     }
 
@@ -126,6 +129,7 @@ public final class TracerContext {
         carrier.setApplicationCode(Config.Agent.APPLICATION_CODE);
         carrier.setPeerHost(Tags.PEER_HOST.get(activeSpan()));
         carrier.setDistributedTraceIds(this.segment.getRelatedGlobalTraces());
+        carrier.setSampled(this.segment.isSampled());
     }
 
     /**
@@ -137,6 +141,7 @@ public final class TracerContext {
     public void extract(ContextCarrier carrier) {
         if(carrier.isValid()) {
             this.segment.ref(getRef(carrier));
+            ServiceManager.INSTANCE.findService(SamplingService.class).setSampleWhenExtract(this.segment, carrier);
             this.segment.relatedGlobalTraces(carrier.getDistributedTraceIds());
         }
     }

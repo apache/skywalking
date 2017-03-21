@@ -12,13 +12,13 @@ public class TagsTest {
     public void testLayer(){
         Span span = new Span(1, "/test");
         Tags.SPAN_LAYER.asDB(span);
-        Assert.assertEquals("db", span.getTag("span.layer"));
+        Assert.assertEquals("db", span.getStrTag("span.layer"));
 
         Tags.SPAN_LAYER.asRPCFramework(span);
-        Assert.assertEquals("rpc", span.getTag("span.layer"));
+        Assert.assertEquals("rpc", span.getStrTag("span.layer"));
 
         Tags.SPAN_LAYER.asHttp(span);
-        Assert.assertEquals("http", span.getTag("span.layer"));
+        Assert.assertEquals("http", span.getStrTag("span.layer"));
     }
 
     @Test

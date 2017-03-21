@@ -8,6 +8,8 @@ public class Config {
         public static boolean IS_PREMAIN_MODE = false;
 
         public static String PATH = "";
+
+        public static int SAMPLING_RATE = 10000;
     }
 
     public static class Collector{

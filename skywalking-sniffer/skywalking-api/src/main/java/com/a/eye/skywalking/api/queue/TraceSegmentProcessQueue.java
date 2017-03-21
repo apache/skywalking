@@ -43,9 +43,14 @@ public class TraceSegmentProcessQueue extends StatusBootService implements Trace
         disruptor.start();
     }
 
+    /**
+     * Append the given traceSegment to the queue, wait for sending to Collector.
+     *
+     * @param traceSegment finished {@link TraceSegment}
+     */
     @Override
     public void afterFinished(TraceSegment traceSegment) {
-        if (isStarted()) {
+        if (isStarted() && traceSegment.isSampled()) {
             long sequence = this.buffer.next();  // Grab the next sequence
             try {
                 TraceSegmentHolder data = this.buffer.get(sequence);

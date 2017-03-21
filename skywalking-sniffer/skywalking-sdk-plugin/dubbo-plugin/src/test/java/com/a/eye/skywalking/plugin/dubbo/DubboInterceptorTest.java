@@ -155,7 +155,7 @@ public class DubboInterceptorTest {
     @Test
     public void testProviderWithAttachment() {
         when(rpcContext.isConsumerSide()).thenReturn(false);
-        when(rpcContext.getAttachment(DubboInterceptor.ATTACHMENT_NAME_OF_CONTEXT_DATA)).thenReturn("302017.1487666919810.624424584.17332.1.1|1|REMOTE_APP|127.0.0.1|Trace.globalId.123");
+        when(rpcContext.getAttachment(DubboInterceptor.ATTACHMENT_NAME_OF_CONTEXT_DATA)).thenReturn("302017.1487666919810.624424584.17332.1.1|1|REMOTE_APP|127.0.0.1|Trace.globalId.123|1");
 
         dubboInterceptor.beforeMethod(classInstanceContext, methodInvokeContext, methodInterceptResult);
         dubboInterceptor.afterMethod(classInstanceContext, methodInvokeContext, result);
@@ -168,7 +168,7 @@ public class DubboInterceptorTest {
         when(rpcContext.isConsumerSide()).thenReturn(false);
         when(BugFixActive.isActive()).thenReturn(true);
 
-        testParam.setTraceContext("302017.1487666919810.624424584.17332.1.1|1|REMOTE_APP|127.0.0.1|Trace.globalId.123");
+        testParam.setTraceContext("302017.1487666919810.624424584.17332.1.1|1|REMOTE_APP|127.0.0.1|Trace.globalId.123|1");
 
 
         dubboInterceptor.beforeMethod(classInstanceContext, methodInvokeContext, methodInterceptResult);
