@@ -24,9 +24,7 @@ public class TraceContextInterceptor implements StaticMethodsAroundInterceptor {
 
     @Override
     public Object afterMethod(StaticMethodInvokeContext interceptorContext, Object ret) {
-        ContextCarrier carrier = new ContextCarrier();
-        ContextManager.inject(carrier);
-       return carrier.getTraceSegmentId();
+       return ContextManager.getTraceSegmentId();
     }
 
     @Override

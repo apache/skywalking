@@ -88,22 +88,16 @@ public class TraceSegmentRef{
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-        TraceSegmentRef ref = (TraceSegmentRef)o;
+        TraceSegmentRef that = (TraceSegmentRef) o;
 
-        if (spanId != ref.spanId)
-            return false;
-        return traceSegmentId != null ? traceSegmentId.equals(ref.traceSegmentId) : ref.traceSegmentId == null;
+        return traceSegmentId != null ? traceSegmentId.equals(that.traceSegmentId) : that.traceSegmentId == null;
     }
 
     @Override
     public int hashCode() {
-        int result = traceSegmentId != null ? traceSegmentId.hashCode() : 0;
-        result = 31 * result + spanId;
-        return result;
+        return traceSegmentId != null ? traceSegmentId.hashCode() : 0;
     }
 }

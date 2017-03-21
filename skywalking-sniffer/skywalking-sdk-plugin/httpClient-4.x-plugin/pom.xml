@@ -21,13 +21,6 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>com.a.eye</groupId>
-			<artifactId>skywalking-api</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		
-
-		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
 			<version>4.3</version>
