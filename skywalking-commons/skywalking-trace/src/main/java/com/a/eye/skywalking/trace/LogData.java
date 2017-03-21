@@ -12,7 +12,7 @@ import java.util.Map;
  */
 public class LogData {
     @Expose
-    @SerializedName(value="ti")
+    @SerializedName(value="tm")
     private long time;
 
     @Expose
