@@ -14,11 +14,6 @@
     <dependencies>
         <dependency>
             <groupId>com.a.eye</groupId>
-            <artifactId>skywalking-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.a.eye</groupId>
             <artifactId>skywalking-toolkit-opentracing</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>

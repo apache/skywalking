@@ -17,6 +17,15 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jetty.version>9.4.2.v20170220</jetty.version>
+
+        <shade.package>com.a.eye.skywalking.dependencies</shade.package>
+        <shade.com.lmax.disruptor.source>com.lmax.disruptor</shade.com.lmax.disruptor.source>
+        <shade.com.lmax.disruptor.target>${shade.package}.${shade.com.lmax.disruptor.source}
+        </shade.com.lmax.disruptor.target>
+        <shade.com.google.source>com.google</shade.com.google.source>
+        <shade.com.google.target>${shade.package}.${shade.com.google.source}</shade.com.google.target>
+        <shade.org.apache.source>org.apache</shade.org.apache.source>
+        <shade.org.apache.target>${shade.package}.${shade.org.apache.source}</shade.org.apache.target>
     </properties>
 
     <dependencies>
@@ -73,6 +82,40 @@
                 <configuration>
                     <encoding>${project.build.sourceEncoding}</encoding>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.4.1</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <artifactSet>
+                                <excludes>
+                                    <exclude>net.bytebuddy:byte-buddy:jar:</exclude>
+                                </excludes>
+                            </artifactSet>
+                            <relocations>
+                                <relocation>
+                                    <pattern>${shade.com.lmax.disruptor.source}</pattern>
+                                    <shadedPattern>${shade.com.lmax.disruptor.target}</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>${shade.com.google.source}</pattern>
+                                    <shadedPattern>${shade.com.google.target}</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>${shade.org.apache.source}</pattern>
+                                    <shadedPattern>${shade.org.apache.target}</shadedPattern>
+                                </relocation>
+                            </relocations>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
