@@ -25,14 +25,14 @@ public abstract class RecordAnalysisMember extends AnalysisMember {
         super(role, clusterContext, selfContext);
     }
 
-    public void setRecord(String id, JsonObject record) throws Exception {
+    final public void setRecord(String id, JsonObject record) throws Exception {
         persistenceData.getElseCreate(id).setRecord(record);
         if (persistenceData.size() >= WorkerConfig.Analysis.Data.size) {
             aggregation();
         }
     }
 
-    public RecordData pushOne() {
+    final public RecordData pushOne() {
         if (persistenceData.hasNext()) {
             return persistenceData.pushOne();
         }

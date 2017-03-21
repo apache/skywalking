@@ -3,25 +3,28 @@ package com.a.eye.skywalking.collector.worker.noderef.analysis;
 import com.a.eye.skywalking.collector.actor.AbstractLocalAsyncWorkerProvider;
 import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
 import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
+import com.a.eye.skywalking.collector.actor.ProviderNotFoundException;
 import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
 import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
 import com.a.eye.skywalking.collector.worker.WorkerConfig;
-import com.a.eye.skywalking.collector.worker.segment.SegmentPost;
 import com.a.eye.skywalking.collector.worker.noderef.persistence.NodeRefDayAgg;
+import com.a.eye.skywalking.collector.worker.segment.SegmentPost;
 import com.a.eye.skywalking.collector.worker.storage.RecordData;
 import com.a.eye.skywalking.trace.TraceSegment;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  * @author pengys5
  */
 public class NodeRefDayAnalysis extends AbstractNodeRefAnalysis {
 
-    private Logger logger = LogManager.getFormatterLogger(NodeRefDayAnalysis.class);
-
-    public NodeRefDayAnalysis(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    private NodeRefDayAnalysis(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
+    }
+
+    @Override
+    public void preStart() throws ProviderNotFoundException {
+        super.preStart();
+        getClusterContext().findProvider(NodeRefResSumDayAnalysis.Role.INSTANCE).create(this);
     }
 
     @Override
@@ -29,8 +32,18 @@ public class NodeRefDayAnalysis extends AbstractNodeRefAnalysis {
         if (message instanceof SegmentPost.SegmentWithTimeSlice) {
             SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice = (SegmentPost.SegmentWithTimeSlice) message;
             TraceSegment segment = segmentWithTimeSlice.getTraceSegment();
-            analyseNodeRef(segment, segmentWithTimeSlice.getDay());
+
+            long minute = segmentWithTimeSlice.getMinute();
+            long hour = segmentWithTimeSlice.getHour();
+            long day = segmentWithTimeSlice.getDay();
+            int second = segmentWithTimeSlice.getSecond();
+            analyseNodeRef(segment, segmentWithTimeSlice.getDay(), minute, hour, day, second);
         }
+    }
+
+    @Override
+    protected void sendToResSumAnalysis(AbstractNodeRefResSumAnalysis.NodeRefResRecord refResRecord) throws Exception {
+        getSelfContext().lookup(NodeRefResSumDayAnalysis.Role.INSTANCE).tell(refResRecord);
     }
 
     @Override

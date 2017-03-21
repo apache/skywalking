@@ -1,6 +1,7 @@
 package com.a.eye.skywalking.collector.worker.segment;
 
 import com.a.eye.skywalking.collector.worker.tools.HttpClientTools;
+import com.a.eye.skywalking.trace.SegmentsMessage;
 import com.a.eye.skywalking.trace.Span;
 import com.a.eye.skywalking.trace.TraceSegment;
 import com.a.eye.skywalking.trace.TraceSegmentRef;
@@ -20,6 +21,8 @@ public class SegmentPostTestCase {
     @Test
     public void testPostSegment() throws Exception {
         Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+
+        SegmentsMessage segmentsMessage = new SegmentsMessage();
 
         TraceSegment webSegment = new TraceSegment("WebApplication");
 
@@ -48,8 +51,9 @@ public class SegmentPostTestCase {
         webSegment.finish();
         Thread.sleep(300);
 
-        String webJsonStr = gson.toJson(webSegment);
-        HttpClientTools.INSTANCE.post("http://localhost:7001/segment", webJsonStr);
+        segmentsMessage.append(webSegment);
+//        String webJsonStr = gson.toJson(webSegment);
+//        HttpClientTools.INSTANCE.post("http://localhost:7001/segment", webJsonStr);
 
         TraceSegment motanSegment = new TraceSegment("MotanServiceApplication");
 
@@ -82,15 +86,16 @@ public class SegmentPostTestCase {
         motanSegment.finish();
         Thread.sleep(300);
 
-        String motanJsonStr = gson.toJson(motanSegment);
-        HttpClientTools.INSTANCE.post("http://localhost:7001/segment", motanJsonStr);
+        segmentsMessage.append(motanSegment);
+        String segmentJsonStr = gson.toJson(segmentsMessage);
+        HttpClientTools.INSTANCE.post("http://localhost:7001/segment", segmentJsonStr);
     }
 
     @Test
     public void testPostSample1Segment() throws Exception {
         HttpClientTools.INSTANCE.post("http://localhost:7001/segment", sample1);
-//        HttpClientTools.INSTANCE.post("http://localhost:7001/segment", sample2);
-//        HttpClientTools.INSTANCE.post("http://localhost:7001/segment", sample3);
+        HttpClientTools.INSTANCE.post("http://localhost:7001/segment", sample2);
+        HttpClientTools.INSTANCE.post("http://localhost:7001/segment", sample3);
     }
 
     private String sample1 = "[{\"ts\":\"Segment.1490064072962.-2099929254.16777.68.1\",\"st\":1490064072962,\"et\":1490064073000,\"ss\":[{\"si\":2,\"ps\":1,\"st\":1490064072965,\"et\":1490064072970,\"on\":\"com.a.eye.skywalking.test.cache.CacheService.findCache(java.lang.String)\",\"ta\":{\"span.layer\":\"rpc\",\"component\":\"Motan\",\"span.kind\":\"client\",\"peer.host\":\"127.0.0.1\",\"peer.port\":8002,\"url\":\"motan://127.0.0.1:8002/default_rpc/com.a.eye.skywalking.test.cache.CacheService/1.0/referer\"},\"lo\":[]},{\"si\":1,\"ps\":0,\"st\":0,\"et\":1490064072970,\"on\":\"Motan_default_rpc_com.a.eye.skywalking.test.cache.CacheService.findCache(java.lang.String)\",\"ta\":{\"requestId\":1562445425373347845},\"lo\":[]},{\"si\":4,\"ps\":3,\"st\":1490064072970,\"et\":1490064072991,\"on\":\"/persistence/query\",\"ta\":{\"span.layer\":\"http\",\"component\":\"HttpClient\",\"status_code\":200,\"span.kind\":\"client\",\"peer.host\":\"10.128.35.80\",\"peer.port\":20880,\"url\":\"http://10.128.35.80:20880/persistence/query\"},\"lo\":[]},{\"si\":3,\"ps\":0,\"st\":1490064072970,\"et\":1490064072993,\"on\":\"com.a.eye.skywalking.test.persistence.PersistenceService.query(String)\",\"ta\":{\"span.layer\":\"rpc\",\"component\":\"Dubbo\",\"span.kind\":\"client\",\"peer.host\":\"10.128.35.80\",\"peer.port\":20880,\"url\":\"rest://10.128.35.80:20880/com.a.eye.skywalking.test.persistence.PersistenceService.query(String)\"},\"lo\":[]},{\"si\":6,\"ps\":5,\"st\":1490064072994,\"et\":1490064072997,\"on\":\"com.a.eye.skywalking.test.cache.CacheService.updateCache(java.lang.String,java.lang.String)\",\"ta\":{\"span.layer\":\"rpc\",\"component\":\"Motan\",\"span.kind\":\"client\",\"peer.host\":\"127.0.0.1\",\"peer.port\":8002,\"url\":\"motan://127.0.0.1:8002/default_rpc/com.a.eye.skywalking.test.cache.CacheService/1.0/referer\"},\"lo\":[]},{\"si\":5,\"ps\":0,\"st\":0,\"et\":1490064072997,\"on\":\"Motan_default_rpc_com.a.eye.skywalking.test.cache.CacheService.updateCache(java.lang.String,java.lang.String)\",\"ta\":{\"requestId\":1562445425402707974},\"lo\":[]},{\"si\":0,\"ps\":-1,\"st\":1490064072963,\"et\":1490064073000,\"on\":\"/portal/\",\"ta\":{\"span.layer\":\"http\",\"component\":\"Tomcat\",\"status_code\":200,\"span.kind\":\"server\",\"peer.host\":\"0:0:0:0:0:0:0:1\",\"peer.port\":51735,\"url\":\"http://localhost:8080/portal/\"},\"lo\":[]}],\"ac\":\"portal-service\",\"gt\":[\"Trace.1490064072962.-2099929254.16777.68.2\"]}]";

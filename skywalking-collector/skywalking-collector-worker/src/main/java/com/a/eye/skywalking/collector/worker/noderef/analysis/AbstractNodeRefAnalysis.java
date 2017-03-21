@@ -27,7 +27,7 @@ abstract class AbstractNodeRefAnalysis extends RecordAnalysisMember {
         super(role, clusterContext, selfContext);
     }
 
-    void analyseNodeRef(TraceSegment segment, long timeSlice) throws Exception {
+    final void analyseNodeRef(TraceSegment segment, long timeSlice, long minute, long hour, long day, int second) throws Exception {
         List<Span> spanList = segment.getSpans();
         if (CollectionTools.isNotEmpty(spanList)) {
             for (Span span : spanList) {
@@ -42,13 +42,14 @@ abstract class AbstractNodeRefAnalysis extends RecordAnalysisMember {
                     String front = segment.getApplicationCode();
                     dataJsonObj.addProperty(NodeRefIndex.Front, front);
 
-                    String behind = component + "-" + peers;
+                    String behind = component + "[" + peers + "]";
                     dataJsonObj.addProperty(NodeRefIndex.Behind, behind);
                     dataJsonObj.addProperty(NodeRefIndex.BehindIsRealCode, false);
 
                     String id = timeSlice + "-" + front + "-" + behind;
                     logger.debug("dag node ref: %s", dataJsonObj.toString());
                     setRecord(id, dataJsonObj);
+                    buildNodeRefResRecordData(id, span, minute, hour, day, second);
                 } else if (Tags.SPAN_KIND_SERVER.equals(Tags.SPAN_KIND.get(span))) {
                     if (span.getParentSpanId() == -1 && CollectionTools.isEmpty(segment.getRefs())) {
                         String behind = segment.getApplicationCode();
@@ -59,10 +60,11 @@ abstract class AbstractNodeRefAnalysis extends RecordAnalysisMember {
 
                         String id = timeSlice + "-" + front + "-" + behind;
                         setRecord(id, dataJsonObj);
+                        buildNodeRefResRecordData(id, span, minute, hour, day, second);
                     } else if (span.getParentSpanId() == -1 && CollectionTools.isNotEmpty(segment.getRefs())) {
                         for (TraceSegmentRef segmentRef : segment.getRefs()) {
                             String front = segmentRef.getApplicationCode();
-                            String behind = component + "-" + segmentRef.getPeerHost();
+                            String behind = component + "[" + segmentRef.getPeerHost() + "]";
                             String id = timeSlice + "-" + front + "-" + behind;
 
                             JsonObject refDataJsonObj = new JsonObject();
@@ -73,10 +75,22 @@ abstract class AbstractNodeRefAnalysis extends RecordAnalysisMember {
                             refDataJsonObj.addProperty(NodeRefIndex.Time_Slice, timeSlice);
                             logger.debug("dag node ref: %s", refDataJsonObj.toString());
                             setRecord(id, refDataJsonObj);
+//                            buildNodeRefResRecordData(id, span, minute, hour, day, second);
                         }
                     }
                 }
             }
         }
     }
+
+    private void buildNodeRefResRecordData(String nodeRefId, Span span, long minute, long hour, long day, int second) throws Exception {
+        AbstractNodeRefResSumAnalysis.NodeRefResRecord refResRecord = new AbstractNodeRefResSumAnalysis.NodeRefResRecord(minute, hour, day, second);
+        refResRecord.setStartTime(span.getStartTime());
+        refResRecord.setEndTime(span.getEndTime());
+        refResRecord.setNodeRefId(nodeRefId);
+        refResRecord.setError(Tags.ERROR.get(span));
+        sendToResSumAnalysis(refResRecord);
+    }
+
+    protected abstract void sendToResSumAnalysis(AbstractNodeRefResSumAnalysis.NodeRefResRecord refResRecord) throws Exception;
 }

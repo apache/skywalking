@@ -1,10 +1,9 @@
-package com.a.eye.skywalking.collector.worker.application.receiver;
+package com.a.eye.skywalking.collector.worker.noderef.persistence;
 
 import com.a.eye.skywalking.collector.actor.*;
-import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
+import com.a.eye.skywalking.collector.actor.selector.HashCodeSelector;
 import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
 import com.a.eye.skywalking.collector.worker.WorkerConfig;
-import com.a.eye.skywalking.collector.worker.application.persistence.ResponseCostPersistence;
 import com.a.eye.skywalking.collector.worker.storage.MetricData;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -12,29 +11,29 @@ import org.apache.logging.log4j.Logger;
 /**
  * @author pengys5
  */
-public class ResponseCostReceiver extends AbstractClusterWorker {
+public class NodeRefResSumDayAgg extends AbstractClusterWorker {
 
-    private Logger logger = LogManager.getFormatterLogger(ResponseCostReceiver.class);
+    private Logger logger = LogManager.getFormatterLogger(NodeRefResSumDayAgg.class);
 
-    public ResponseCostReceiver(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    private NodeRefResSumDayAgg(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
     @Override
     public void preStart() throws ProviderNotFoundException {
-        getClusterContext().findProvider(ResponseCostPersistence.Role.INSTANCE).create(this);
+        getClusterContext().findProvider(NodeRefResSumDaySave.Role.INSTANCE).create(this);
     }
 
     @Override
     protected void onWork(Object message) throws Exception {
         if (message instanceof MetricData) {
-            getSelfContext().lookup(ResponseCostPersistence.Role.INSTANCE).tell(message);
+            getSelfContext().lookup(NodeRefResSumDaySave.Role.INSTANCE).tell(message);
         } else {
             logger.error("message unhandled");
         }
     }
 
-    public static class Factory extends AbstractClusterWorkerProvider<ResponseCostReceiver> {
+    public static class Factory extends AbstractClusterWorkerProvider<NodeRefResSumDayAgg> {
         public static Factory INSTANCE = new Factory();
 
         @Override
@@ -43,13 +42,13 @@ public class ResponseCostReceiver extends AbstractClusterWorker {
         }
 
         @Override
-        public ResponseCostReceiver workerInstance(ClusterWorkerContext clusterContext) {
-            return new ResponseCostReceiver(role(), clusterContext, new LocalWorkerContext());
+        public NodeRefResSumDayAgg workerInstance(ClusterWorkerContext clusterContext) {
+            return new NodeRefResSumDayAgg(role(), clusterContext, new LocalWorkerContext());
         }
 
         @Override
         public int workerNum() {
-            return WorkerConfig.Worker.ResponseCostReceiver.Num;
+            return WorkerConfig.Worker.ResponseSummaryReceiver.Num;
         }
     }
 
@@ -58,12 +57,12 @@ public class ResponseCostReceiver extends AbstractClusterWorker {
 
         @Override
         public String roleName() {
-            return ResponseCostReceiver.class.getSimpleName();
+            return NodeRefResSumDayAgg.class.getSimpleName();
         }
 
         @Override
         public WorkerSelector workerSelector() {
-            return new RollingSelector();
+            return new HashCodeSelector();
         }
     }
 }

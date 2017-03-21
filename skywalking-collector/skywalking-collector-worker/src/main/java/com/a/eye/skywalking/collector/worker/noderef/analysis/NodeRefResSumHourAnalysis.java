@@ -6,15 +6,15 @@ import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
 import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
 import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
 import com.a.eye.skywalking.collector.worker.WorkerConfig;
-import com.a.eye.skywalking.collector.worker.noderef.persistence.NodeRefResSumMinuteAgg;
+import com.a.eye.skywalking.collector.worker.noderef.persistence.NodeRefResSumHourAgg;
 import com.a.eye.skywalking.collector.worker.storage.MetricData;
 
 /**
  * @author pengys5
  */
-public class NodeRefResSumMinuteAnalysis extends AbstractNodeRefResSumAnalysis {
+public class NodeRefResSumHourAnalysis extends AbstractNodeRefResSumAnalysis {
 
-    private NodeRefResSumMinuteAnalysis(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    private NodeRefResSumHourAnalysis(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
@@ -30,11 +30,11 @@ public class NodeRefResSumMinuteAnalysis extends AbstractNodeRefResSumAnalysis {
     protected void aggregation() throws Exception {
         MetricData oneMetric;
         while ((oneMetric = pushOne()) != null) {
-            getClusterContext().lookup(NodeRefResSumMinuteAgg.Role.INSTANCE).tell(oneMetric);
+            getClusterContext().lookup(NodeRefResSumHourAgg.Role.INSTANCE).tell(oneMetric);
         }
     }
 
-    public static class Factory extends AbstractLocalAsyncWorkerProvider<NodeRefResSumMinuteAnalysis> {
+    public static class Factory extends AbstractLocalAsyncWorkerProvider<NodeRefResSumHourAnalysis> {
         public static Factory INSTANCE = new Factory();
 
         @Override
@@ -43,8 +43,8 @@ public class NodeRefResSumMinuteAnalysis extends AbstractNodeRefResSumAnalysis {
         }
 
         @Override
-        public NodeRefResSumMinuteAnalysis workerInstance(ClusterWorkerContext clusterContext) {
-            return new NodeRefResSumMinuteAnalysis(role(), clusterContext, new LocalWorkerContext());
+        public NodeRefResSumHourAnalysis workerInstance(ClusterWorkerContext clusterContext) {
+            return new NodeRefResSumHourAnalysis(role(), clusterContext, new LocalWorkerContext());
         }
 
         @Override
@@ -58,7 +58,7 @@ public class NodeRefResSumMinuteAnalysis extends AbstractNodeRefResSumAnalysis {
 
         @Override
         public String roleName() {
-            return NodeRefResSumMinuteAnalysis.class.getSimpleName();
+            return NodeRefResSumHourAnalysis.class.getSimpleName();
         }
 
         @Override

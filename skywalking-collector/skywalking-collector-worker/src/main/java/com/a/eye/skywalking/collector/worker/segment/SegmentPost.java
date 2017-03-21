@@ -21,11 +21,14 @@ import com.a.eye.skywalking.collector.worker.noderef.analysis.NodeRefMinuteAnaly
 import com.a.eye.skywalking.collector.worker.segment.persistence.SegmentSave;
 import com.a.eye.skywalking.collector.worker.storage.AbstractTimeSlice;
 import com.a.eye.skywalking.collector.worker.tools.DateTools;
+import com.a.eye.skywalking.trace.SegmentsMessage;
 import com.a.eye.skywalking.trace.TraceSegment;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.List;
 
 /**
  * @author pengys5
@@ -59,28 +62,37 @@ public class SegmentPost extends AbstractPost {
 
     @Override
     protected void onReceive(String reqJsonStr) throws Exception {
-        TraceSegment newSegment = gson.fromJson(reqJsonStr, TraceSegment.class);
-        validateData(newSegment);
-        logger.debug("receive message instanceof TraceSegment, traceSegmentId is %s", newSegment.getTraceSegmentId());
+        SegmentsMessage segmentsMessage = gson.fromJson(reqJsonStr, SegmentsMessage.class);
+        List<TraceSegment> segmentList = segmentsMessage.getSegments();
+        for (TraceSegment newSegment : segmentList) {
+            try {
+                validateData(newSegment);
+            } catch (IllegalArgumentException e) {
+                continue;
+            }
 
-        long minuteSlice = DateTools.getMinuteSlice(newSegment.getStartTime());
-        long hourSlice = DateTools.getHourSlice(newSegment.getStartTime());
-        long daySlice = DateTools.getDaySlice(newSegment.getStartTime());
-        int second = DateTools.getSecond(newSegment.getStartTime());
+            logger.debug("receive message instanceof TraceSegment, traceSegmentId is %s", newSegment.getTraceSegmentId());
 
-        SegmentWithTimeSlice segmentWithTimeSlice = new SegmentWithTimeSlice(newSegment, minuteSlice, hourSlice, daySlice, second);
-        tellSegmentSave(reqJsonStr, daySlice, hourSlice, minuteSlice);
+            long minuteSlice = DateTools.getMinuteSlice(newSegment.getStartTime());
+            long hourSlice = DateTools.getHourSlice(newSegment.getStartTime());
+            long daySlice = DateTools.getDaySlice(newSegment.getStartTime());
+            int second = DateTools.getSecond(newSegment.getStartTime());
 
-        tellNodeRef(segmentWithTimeSlice);
-        tellNode(segmentWithTimeSlice);
-        tellNodeInst(segmentWithTimeSlice);
+            SegmentWithTimeSlice segmentWithTimeSlice = new SegmentWithTimeSlice(newSegment, minuteSlice, hourSlice, daySlice, second);
+            String newSegmentJsonStr = gson.toJson(newSegment);
+            tellSegmentSave(newSegmentJsonStr, daySlice, hourSlice, minuteSlice);
+
+            tellNodeRef(segmentWithTimeSlice);
+            tellNode(segmentWithTimeSlice);
+            tellNodeInst(segmentWithTimeSlice);
+        }
     }
 
-    private void tellSegmentSave(String reqJsonStr, long day, long hour, long minute) throws Exception {
-        JsonObject newSegmentJson = gson.fromJson(reqJsonStr, JsonObject.class);
+    private void tellSegmentSave(String newSegmentJsonStr, long day, long hour, long minute) throws Exception {
+        JsonObject newSegmentJson = gson.fromJson(newSegmentJsonStr, JsonObject.class);
         newSegmentJson.addProperty("minute", minute);
-//        newSegmentJson.addProperty("hour", hour);
-//        newSegmentJson.addProperty("day", day);
+        newSegmentJson.addProperty("hour", hour);
+        newSegmentJson.addProperty("day", day);
         getSelfContext().lookup(SegmentSave.Role.INSTANCE).tell(newSegmentJson);
     }
 

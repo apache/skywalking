@@ -15,7 +15,7 @@ public class NodeRefResSumMinuteAgg extends AbstractClusterWorker {
 
     private Logger logger = LogManager.getFormatterLogger(NodeRefResSumMinuteAgg.class);
 
-    public NodeRefResSumMinuteAgg(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    private NodeRefResSumMinuteAgg(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
@@ -38,7 +38,7 @@ public class NodeRefResSumMinuteAgg extends AbstractClusterWorker {
 
         @Override
         public Role role() {
-            return null;
+            return Role.INSTANCE;
         }
 
         @Override

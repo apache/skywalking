@@ -34,7 +34,7 @@ abstract class AbstractNodeInstAnalysis extends RecordAnalysisMember {
                     String kind = Tags.SPAN_KIND.get(span);
                     String component = Tags.COMPONENT.get(span);
                     String url = Tags.URL.get(span);
-                    url = UrlTools.parse(url, component);
+//                    url = UrlTools.parse(url, component);
 
                     JsonObject dataJsonObj = new JsonObject();
                     dataJsonObj.addProperty(NodeInstIndex.Code, code);

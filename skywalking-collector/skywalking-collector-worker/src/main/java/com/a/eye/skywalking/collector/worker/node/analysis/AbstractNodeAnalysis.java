@@ -6,6 +6,7 @@ import com.a.eye.skywalking.collector.worker.RecordAnalysisMember;
 import com.a.eye.skywalking.collector.worker.node.NodeIndex;
 import com.a.eye.skywalking.collector.worker.tools.ClientSpanIsLeafTools;
 import com.a.eye.skywalking.collector.worker.tools.CollectionTools;
+import com.a.eye.skywalking.collector.worker.tools.SpanPeersTools;
 import com.a.eye.skywalking.trace.Span;
 import com.a.eye.skywalking.trace.TraceSegment;
 import com.a.eye.skywalking.trace.TraceSegmentRef;
@@ -48,7 +49,7 @@ abstract class AbstractNodeAnalysis extends RecordAnalysisMember {
                 dataJsonObj.addProperty(NodeIndex.Time_Slice, timeSlice);
 
                 if (Tags.SPAN_KIND_CLIENT.equals(kind) && ClientSpanIsLeafTools.isLeaf(span.getSpanId(), spanList)) {
-                    code = component + "-" + Tags.PEERS.get(span);
+                    code = component + "[" + SpanPeersTools.getPeers(span) + "]";
                     dataJsonObj.addProperty(NodeIndex.Code, code);
                     dataJsonObj.addProperty(NodeIndex.NickName, code);
 
@@ -74,7 +75,7 @@ abstract class AbstractNodeAnalysis extends RecordAnalysisMember {
                         setRecord(id, dataJsonObj);
                     } else {
                         for (TraceSegmentRef segmentRef : segment.getRefs()) {
-                            String nickName = component + "-" + segmentRef.getPeerHost();
+                            String nickName = component + "[" + segmentRef.getPeerHost() + "]";
                             dataJsonObj.addProperty(NodeIndex.NickName, nickName);
                             String id = timeSlice + "-" + code;
                             logger.debug("refs node: %s", dataJsonObj.toString());

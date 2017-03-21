@@ -1,8 +1,6 @@
 package com.a.eye.skywalking.collector.worker.noderef;
 
 import com.a.eye.skywalking.collector.worker.storage.index.AbstractIndex;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 
@@ -13,9 +11,13 @@ import java.io.IOException;
  */
 public class NodeRefResSumIndex extends AbstractIndex {
 
-    private Logger logger = LogManager.getFormatterLogger(NodeRefResSumIndex.class);
-
     public static final String Index = "node_ref_res_sum_idx";
+    public static final String OneSecondLess = "oneSecondLess";
+    public static final String ThreeSecondLess = "threeSecondLess";
+    public static final String FiveSecondLess = "fiveSecondLess";
+    public static final String FiveSecondGreater = "fiveSecondGreater";
+    public static final String Error = "error";
+    public static final String Summary = "summary";
 
     @Override
     public String index() {
@@ -32,15 +34,31 @@ public class NodeRefResSumIndex extends AbstractIndex {
         XContentBuilder mappingBuilder = XContentFactory.jsonBuilder()
                 .startObject()
                     .startObject("properties")
-                        .startObject("front")
-                            .field("type", "string")
+                        .startObject(OneSecondLess)
+                            .field("type", "long")
                             .field("index", "not_analyzed")
                         .endObject()
-                        .startObject("behind")
-                            .field("type", "string")
+                        .startObject(ThreeSecondLess)
+                            .field("type", "long")
                             .field("index", "not_analyzed")
                         .endObject()
-                        .startObject("timeSlice")
+                        .startObject(FiveSecondLess)
+                            .field("type", "long")
+                            .field("index", "not_analyzed")
+                        .endObject()
+                        .startObject(FiveSecondGreater)
+                            .field("type", "long")
+                            .field("index", "not_analyzed")
+                        .endObject()
+                        .startObject(Error)
+                            .field("type", "long")
+                            .field("index", "not_analyzed")
+                        .endObject()
+                        .startObject(Summary)
+                            .field("type", "long")
+                            .field("index", "not_analyzed")
+                        .endObject()
+                        .startObject(Time_Slice)
                             .field("type", "long")
                             .field("index", "not_analyzed")
                         .endObject()

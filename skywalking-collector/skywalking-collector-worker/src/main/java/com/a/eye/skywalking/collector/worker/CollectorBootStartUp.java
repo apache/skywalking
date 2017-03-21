@@ -23,7 +23,7 @@ public class CollectorBootStartUp {
         CollectorSystem collectorSystem = new CollectorSystem();
         collectorSystem.boot();
         EsClient.boot();
-//        IndexCreator.INSTANCE.create();
+        IndexCreator.INSTANCE.create();
         HttpServer.INSTANCE.boot((ClusterWorkerContext) collectorSystem.getClusterContext());
     }
 }

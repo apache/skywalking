@@ -12,9 +12,9 @@ import com.a.eye.skywalking.collector.worker.noderef.NodeRefResSumIndex;
 /**
  * @author pengys5
  */
-public class NodeRefResSumMinuteSave extends MetricPersistenceMember {
+public class NodeRefResSumDaySave extends MetricPersistenceMember {
 
-    private NodeRefResSumMinuteSave(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    private NodeRefResSumDaySave(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
@@ -25,10 +25,10 @@ public class NodeRefResSumMinuteSave extends MetricPersistenceMember {
 
     @Override
     public String esType() {
-        return NodeRefResSumIndex.Type_Minute;
+        return NodeRefResSumIndex.Type_Day;
     }
 
-    public static class Factory extends AbstractLocalAsyncWorkerProvider<NodeRefResSumMinuteSave> {
+    public static class Factory extends AbstractLocalAsyncWorkerProvider<NodeRefResSumDaySave> {
         public static Factory INSTANCE = new Factory();
 
         @Override
@@ -37,8 +37,8 @@ public class NodeRefResSumMinuteSave extends MetricPersistenceMember {
         }
 
         @Override
-        public NodeRefResSumMinuteSave workerInstance(ClusterWorkerContext clusterContext) {
-            return new NodeRefResSumMinuteSave(role(), clusterContext, new LocalWorkerContext());
+        public NodeRefResSumDaySave workerInstance(ClusterWorkerContext clusterContext) {
+            return new NodeRefResSumDaySave(role(), clusterContext, new LocalWorkerContext());
         }
 
         @Override
@@ -52,7 +52,7 @@ public class NodeRefResSumMinuteSave extends MetricPersistenceMember {
 
         @Override
         public String roleName() {
-            return NodeRefResSumMinuteSave.class.getSimpleName();
+            return NodeRefResSumDaySave.class.getSimpleName();
         }
 
         @Override

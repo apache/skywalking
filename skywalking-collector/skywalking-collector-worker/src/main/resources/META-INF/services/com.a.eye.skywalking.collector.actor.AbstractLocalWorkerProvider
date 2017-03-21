@@ -4,10 +4,19 @@ com.a.eye.skywalking.collector.worker.noderef.analysis.NodeRefDayAnalysis$Factor
 com.a.eye.skywalking.collector.worker.noderef.analysis.NodeRefHourAnalysis$Factory
 com.a.eye.skywalking.collector.worker.noderef.analysis.NodeRefMinuteAnalysis$Factory
 
+com.a.eye.skywalking.collector.worker.noderef.analysis.NodeRefResSumDayAnalysis$Factory
+com.a.eye.skywalking.collector.worker.noderef.analysis.NodeRefResSumHourAnalysis$Factory
+com.a.eye.skywalking.collector.worker.noderef.analysis.NodeRefResSumMinuteAnalysis$Factory
+
 com.a.eye.skywalking.collector.worker.noderef.persistence.NodeRefDaySave$Factory
 com.a.eye.skywalking.collector.worker.noderef.persistence.NodeRefHourSave$Factory
 com.a.eye.skywalking.collector.worker.noderef.persistence.NodeRefMinuteSave$Factory
 com.a.eye.skywalking.collector.worker.noderef.persistence.NodeRefSearchWithTimeSlice$Factory
+com.a.eye.skywalking.collector.worker.noderef.persistence.NodeRefResSumSearchWithTimeSlice$Factory
+
+com.a.eye.skywalking.collector.worker.noderef.persistence.NodeRefResSumDaySave$Factory
+com.a.eye.skywalking.collector.worker.noderef.persistence.NodeRefResSumHourSave$Factory
+com.a.eye.skywalking.collector.worker.noderef.persistence.NodeRefResSumMinuteSave$Factory
 
 com.a.eye.skywalking.collector.worker.node.analysis.NodeDayAnalysis$Factory
 com.a.eye.skywalking.collector.worker.node.analysis.NodeHourAnalysis$Factory

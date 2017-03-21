@@ -1,10 +1,9 @@
-package com.a.eye.skywalking.collector.worker.application.receiver;
+package com.a.eye.skywalking.collector.worker.noderef.persistence;
 
 import com.a.eye.skywalking.collector.actor.*;
-import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
+import com.a.eye.skywalking.collector.actor.selector.HashCodeSelector;
 import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
 import com.a.eye.skywalking.collector.worker.WorkerConfig;
-import com.a.eye.skywalking.collector.worker.application.persistence.ResponseSummaryPersistence;
 import com.a.eye.skywalking.collector.worker.storage.MetricData;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -12,39 +11,39 @@ import org.apache.logging.log4j.Logger;
 /**
  * @author pengys5
  */
-public class ResponseSummaryReceiver extends AbstractClusterWorker {
+public class NodeRefResSumHourAgg extends AbstractClusterWorker {
 
-    private Logger logger = LogManager.getFormatterLogger(ResponseSummaryReceiver.class);
+    private Logger logger = LogManager.getFormatterLogger(NodeRefResSumHourAgg.class);
 
-    public ResponseSummaryReceiver(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    private NodeRefResSumHourAgg(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
     @Override
     public void preStart() throws ProviderNotFoundException {
-        getClusterContext().findProvider(ResponseSummaryPersistence.Role.INSTANCE).create(this);
+        getClusterContext().findProvider(NodeRefResSumHourSave.Role.INSTANCE).create(this);
     }
 
     @Override
     protected void onWork(Object message) throws Exception {
         if (message instanceof MetricData) {
-            getSelfContext().lookup(ResponseSummaryPersistence.Role.INSTANCE).tell(message);
+            getSelfContext().lookup(NodeRefResSumHourSave.Role.INSTANCE).tell(message);
         } else {
             logger.error("message unhandled");
         }
     }
 
-    public static class Factory extends AbstractClusterWorkerProvider<ResponseSummaryReceiver> {
+    public static class Factory extends AbstractClusterWorkerProvider<NodeRefResSumHourAgg> {
         public static Factory INSTANCE = new Factory();
 
         @Override
         public Role role() {
-            return null;
+            return Role.INSTANCE;
         }
 
         @Override
-        public ResponseSummaryReceiver workerInstance(ClusterWorkerContext clusterContext) {
-            return new ResponseSummaryReceiver(role(), clusterContext, new LocalWorkerContext());
+        public NodeRefResSumHourAgg workerInstance(ClusterWorkerContext clusterContext) {
+            return new NodeRefResSumHourAgg(role(), clusterContext, new LocalWorkerContext());
         }
 
         @Override
@@ -58,12 +57,12 @@ public class ResponseSummaryReceiver extends AbstractClusterWorker {
 
         @Override
         public String roleName() {
-            return ResponseSummaryReceiver.class.getSimpleName();
+            return NodeRefResSumHourAgg.class.getSimpleName();
         }
 
         @Override
         public WorkerSelector workerSelector() {
-            return new RollingSelector();
+            return new HashCodeSelector();
         }
     }
 }

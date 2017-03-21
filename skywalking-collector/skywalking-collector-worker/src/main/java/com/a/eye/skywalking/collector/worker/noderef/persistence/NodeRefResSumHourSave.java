@@ -1,47 +1,44 @@
-package com.a.eye.skywalking.collector.worker.application.persistence;
+package com.a.eye.skywalking.collector.worker.noderef.persistence;
 
 import com.a.eye.skywalking.collector.actor.AbstractLocalAsyncWorkerProvider;
 import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
 import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
-import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
+import com.a.eye.skywalking.collector.actor.selector.HashCodeSelector;
 import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
 import com.a.eye.skywalking.collector.worker.MetricPersistenceMember;
 import com.a.eye.skywalking.collector.worker.WorkerConfig;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import com.a.eye.skywalking.collector.worker.noderef.NodeRefResSumIndex;
 
 /**
  * @author pengys5
  */
-public class ResponseSummaryPersistence extends MetricPersistenceMember {
+public class NodeRefResSumHourSave extends MetricPersistenceMember {
 
-    private Logger logger = LogManager.getFormatterLogger(ResponseSummaryPersistence.class);
-
-    public ResponseSummaryPersistence(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    private NodeRefResSumHourSave(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
     @Override
     public String esIndex() {
-        return "application_metric";
+        return NodeRefResSumIndex.Index;
     }
 
     @Override
     public String esType() {
-        return "response_summary";
+        return NodeRefResSumIndex.Type_Hour;
     }
 
-    public static class Factory extends AbstractLocalAsyncWorkerProvider<ResponseSummaryPersistence> {
+    public static class Factory extends AbstractLocalAsyncWorkerProvider<NodeRefResSumHourSave> {
         public static Factory INSTANCE = new Factory();
 
         @Override
         public Role role() {
-            return null;
+            return Role.INSTANCE;
         }
 
         @Override
-        public ResponseSummaryPersistence workerInstance(ClusterWorkerContext clusterContext) {
-            return new ResponseSummaryPersistence(role(), clusterContext, new LocalWorkerContext());
+        public NodeRefResSumHourSave workerInstance(ClusterWorkerContext clusterContext) {
+            return new NodeRefResSumHourSave(role(), clusterContext, new LocalWorkerContext());
         }
 
         @Override
@@ -55,12 +52,12 @@ public class ResponseSummaryPersistence extends MetricPersistenceMember {
 
         @Override
         public String roleName() {
-            return ResponseSummaryPersistence.class.getSimpleName();
+            return NodeRefResSumHourSave.class.getSimpleName();
         }
 
         @Override
         public WorkerSelector workerSelector() {
-            return new RollingSelector();
+            return new HashCodeSelector();
         }
     }
 }
