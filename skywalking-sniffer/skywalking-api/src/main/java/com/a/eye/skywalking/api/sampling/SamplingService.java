@@ -12,7 +12,7 @@ import com.a.eye.skywalking.trace.TraceSegment;
  * have been traced, but, considering CPU cost of serialization/deserialization, and network bandwidth, the agent do NOT
  * send all of them to collector, if SAMPLING is on.
  *
- * By default, SAMPLING is off, and {@link Config.Agent#SAMPLING_RATE} == 1000.
+ * By default, SAMPLING is off, and {@link Config.Agent#SAMPLING_CYCLE} == 1.
  *
  * @author wusheng
  */
@@ -20,26 +20,25 @@ public class SamplingService implements BootService {
     private static ILog logger = LogManager.getLogger(SamplingService.class);
 
     private volatile boolean on = false;
-    private volatile int rate = 0;
     private volatile int rollingSeed = 1;
 
     @Override
     public void bootUp() throws Throwable {
-        if (Config.Agent.SAMPLING_RATE == 10000) {
+        if (Config.Agent.SAMPLING_CYCLE == 1) {
+            this.on = false;
             return;
         }
-        if (Config.Agent.SAMPLING_RATE > 10000 || Config.Agent.SAMPLING_RATE < 1) {
-            throw new IllegalSamplingRateException("sampling rate should stay in (0, 10000].");
+        if (Config.Agent.SAMPLING_CYCLE < 1) {
+            throw new IllegalSamplingRateException("sampling cycle must greater than 0.");
         }
-        rate = 10000 / Config.Agent.SAMPLING_RATE;
-        on = true;
+        this.on = true;
 
-        logger.debug("The trace sampling is on, and the sampling rate is: {}", rate);
+        logger.debug("The trace sampling is on, and the sampling cycle is: {}", Config.Agent.SAMPLING_CYCLE);
     }
 
     public void trySampling(TraceSegment segment) {
         if (on) {
-            if (rollingSeed % rate != 0) {
+            if (rollingSeed % Config.Agent.SAMPLING_CYCLE != 0) {
                 segment.setSampled(false);
             }
             rollingSeed++;

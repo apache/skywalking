@@ -9,7 +9,7 @@ public class Config {
 
         public static String PATH = "";
 
-        public static int SAMPLING_RATE = 10000;
+        public static int SAMPLING_CYCLE = 1;
     }
 
     public static class Collector{

@@ -13,7 +13,7 @@ import org.junit.Test;
 public class SamplingServiceTest {
     @Test
     public void test50Percent(){
-        Config.Agent.SAMPLING_RATE = 5000;
+        Config.Agent.SAMPLING_CYCLE = 2;
         ServiceManager.INSTANCE.boot();
 
         TraceSegment segment = new TraceSegment();
@@ -30,7 +30,7 @@ public class SamplingServiceTest {
 
     @AfterClass
     public static void clear(){
-        Config.Agent.SAMPLING_RATE = 10000;
+        Config.Agent.SAMPLING_CYCLE = 1;
         ServiceManager.INSTANCE.boot();
     }
 }
