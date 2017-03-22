@@ -15,7 +15,7 @@ public class SnifferConfigInitializer {
 
     public static void initialize() {
         InputStream configFileStream;
-        if (Config.SkyWalking.IS_PREMAIN_MODE) {
+        if (Config.Agent.IS_PREMAIN_MODE) {
             configFileStream = fetchAuthFileInputStream();
         } else {
             configFileStream = SnifferConfigInitializer.class.getResourceAsStream("/sky-walking.config");
@@ -35,24 +35,24 @@ public class SnifferConfigInitializer {
 
         String applicationCode = System.getProperty("applicationCode");
         if (!StringUtil.isEmpty(applicationCode)) {
-            Config.SkyWalking.APPLICATION_CODE = applicationCode;
+            Config.Agent.APPLICATION_CODE = applicationCode;
         }
         String servers = System.getProperty("servers");
         if(!StringUtil.isEmpty(servers)) {
-            Config.SkyWalking.SERVERS = servers;
+            Config.Collector.SERVERS = servers;
         }
 
-        if (StringUtil.isEmpty(Config.SkyWalking.APPLICATION_CODE)) {
+        if (StringUtil.isEmpty(Config.Agent.APPLICATION_CODE)) {
             throw new ExceptionInInitializerError("'-DapplicationCode=' is missing.");
         }
-        if (StringUtil.isEmpty(Config.SkyWalking.SERVERS)) {
+        if (StringUtil.isEmpty(Config.Collector.SERVERS)) {
             throw new ExceptionInInitializerError("'-Dservers=' is missing.");
         }
     }
 
     private static InputStream fetchAuthFileInputStream() {
         try {
-            return new FileInputStream(Config.SkyWalking.AGENT_BASE_PATH + File.separator + "sky-walking.config");
+            return new FileInputStream(Config.Agent.PATH + File.separator + "sky-walking.config");
         } catch (Exception e) {
             logger.warn("sky-walking.config is missing, use default config.");
             return null;

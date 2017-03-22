@@ -26,13 +26,11 @@ public class IntTag extends AbstractTag<Integer> {
      */
     @Override
     public Integer get(Span span) {
-        Object tagValue = span.getTag(super.key);
+        Integer tagValue = span.getIntTag(super.key);
         if (tagValue == null) {
             return null;
-        } else if(tagValue instanceof Integer){
-            return (Integer)tagValue;
-        }else {
-            return Integer.valueOf(tagValue.toString());
+        } else {
+            return tagValue;
         }
     }
 }

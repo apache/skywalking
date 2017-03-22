@@ -2,20 +2,26 @@ package com.a.eye.skywalking.api.conf;
 
 public class Config {
 
-    public static class SkyWalking {
+    public static class Agent {
         public static String APPLICATION_CODE = "";
 
         public static boolean IS_PREMAIN_MODE = false;
 
-        public static String AGENT_BASE_PATH = "";
+        public static String PATH = "";
 
+        public static int SAMPLING_RATE = 10000;
+    }
+
+    public static class Collector{
         public static String SERVERS = "";
 
         public static String SERVICE_NAME = "/segments";
+
+        public static int BATCH_SIZE = 50;
     }
 
-    public static class Disruptor{
-        public static int BUFFER_SIZE = 512;
+    public static class Buffer {
+        public static int SIZE = 512;
     }
 
 

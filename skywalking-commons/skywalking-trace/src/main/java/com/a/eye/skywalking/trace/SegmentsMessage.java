@@ -1,6 +1,5 @@
 package com.a.eye.skywalking.trace;
 
-import com.a.eye.skywalking.trace.TraceId.PropagatedTraceId;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;

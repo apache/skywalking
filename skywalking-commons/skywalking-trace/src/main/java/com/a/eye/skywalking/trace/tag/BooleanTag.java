@@ -30,13 +30,11 @@ public class BooleanTag extends AbstractTag<Boolean> {
      */
     @Override
     public Boolean get(Span span) {
-        Object tagValue = span.getTag(super.key);
+        Boolean tagValue = span.getBoolTag(super.key);
         if (tagValue == null) {
             return defaultValue;
-        } else if (tagValue instanceof Boolean) {
-            return (Boolean) tagValue;
         } else {
-            return Boolean.valueOf(tagValue.toString());
+            return tagValue;
         }
     }
 }

@@ -75,7 +75,7 @@ public class HTTPRestServiceTestApp {
                 baseRequest.setHandled(true);
             }
         });
-        //server.start();
+        server.start();
         return server;
     }
 

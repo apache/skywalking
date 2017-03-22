@@ -12,14 +12,14 @@ import java.util.Map;
  */
 public class LogData {
     @Expose
-    @SerializedName(value="ti")
+    @SerializedName(value="tm")
     private long time;
 
     @Expose
     @SerializedName(value="fi")
-    private Map<String, ?> fields;
+    private Map<String, String> fields;
 
-    LogData(long time, Map<String, ?> fields) {
+    LogData(long time, Map<String, String> fields) {
         this.time = time;
         if(fields == null){
             throw new NullPointerException();

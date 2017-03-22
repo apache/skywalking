@@ -26,21 +26,21 @@ public class TraceSegment {
      * Every segment has its unique-global-id.
      */
     @Expose
-    @SerializedName(value="ts")
+    @SerializedName(value = "ts")
     private String traceSegmentId;
 
     /**
      * The start time of this trace segment.
      */
     @Expose
-    @SerializedName(value="st")
+    @SerializedName(value = "st")
     private long startTime;
 
     /**
      * The end time of this trace segment.
      */
     @Expose
-    @SerializedName(value="et")
+    @SerializedName(value = "et")
     private long endTime;
 
     /**
@@ -50,7 +50,7 @@ public class TraceSegment {
      * at this moment, we use this {@link #refs} to link them.
      */
     @Expose
-    @SerializedName(value="rs")
+    @SerializedName(value = "rs")
     private List<TraceSegmentRef> refs;
 
     /**
@@ -59,7 +59,7 @@ public class TraceSegment {
      * All active spans are hold and controlled by "skywalking-api" module.
      */
     @Expose
-    @SerializedName(value="ss")
+    @SerializedName(value = "ss")
     private List<Span> spans;
 
     /**
@@ -69,7 +69,7 @@ public class TraceSegment {
      * e.g. account_app, billing_app
      */
     @Expose
-    @SerializedName(value="ac")
+    @SerializedName(value = "ac")
     private String applicationCode;
 
     /**
@@ -86,8 +86,18 @@ public class TraceSegment {
      * multi {@link TraceSegment}s, only using {@link #refs} is not enough for analysis and ui.
      */
     @Expose
-    @SerializedName(value="gt")
+    @SerializedName(value = "gt")
     private DistributedTraceIds relatedGlobalTraces;
+
+    /**
+     * The <code>sampled</code> is a flag, which represent, when this {@link TraceSegment} finished, it need to be send
+     * to Collector.
+     *
+     * Its value depends on SamplingService. True, by default.
+     *
+     * This value is not serialized.
+     */
+    private boolean sampled;
 
     /**
      * Create a trace segment, by given segmentId.
@@ -107,6 +117,7 @@ public class TraceSegment {
         this.spans = new LinkedList<Span>();
         this.relatedGlobalTraces = new DistributedTraceIds();
         this.relatedGlobalTraces.append(new NewDistributedTraceId());
+        this.sampled = true;
     }
 
     /**
@@ -118,7 +129,7 @@ public class TraceSegment {
         if (refs == null) {
             refs = new LinkedList<TraceSegmentRef>();
         }
-        if(!refs.contains(refSegment)){
+        if (!refs.contains(refSegment)) {
             refs.add(refSegment);
         }
     }
@@ -181,6 +192,14 @@ public class TraceSegment {
 
     public String getApplicationCode() {
         return applicationCode;
+    }
+
+    public boolean isSampled() {
+        return sampled;
+    }
+
+    public void setSampled(boolean sampled) {
+        this.sampled = sampled;
     }
 
     @Override

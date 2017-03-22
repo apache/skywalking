@@ -26,7 +26,7 @@ public class EasyLoggerTest {
 
     @Test
     public void testLog(){
-        Config.SkyWalking.IS_PREMAIN_MODE = false;
+        Config.Agent.IS_PREMAIN_MODE = false;
 
         PrintStream output = Mockito.mock(PrintStream.class);
         System.setOut(output);

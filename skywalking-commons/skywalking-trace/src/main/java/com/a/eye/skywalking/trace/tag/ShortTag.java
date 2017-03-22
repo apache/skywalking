@@ -14,7 +14,7 @@ public class ShortTag extends AbstractTag<Short> {
 
     @Override
     public void set(Span span, Short tagValue) {
-        span.setTag(super.key, tagValue);
+        span.setTag(super.key, (int)tagValue.shortValue());
     }
 
     /**
@@ -25,12 +25,10 @@ public class ShortTag extends AbstractTag<Short> {
      * @return tag value
      */
     @Override public Short get(Span span) {
-        Object tagValue = span.getTag(super.key);
+        Integer tagValue = span.getIntTag(super.key);
         if (tagValue == null) {
             return null;
-        } else if(tagValue instanceof Short){
-            return (Short)tagValue;
-        }else {
+        } else {
             return Short.valueOf(tagValue.toString());
         }
     }

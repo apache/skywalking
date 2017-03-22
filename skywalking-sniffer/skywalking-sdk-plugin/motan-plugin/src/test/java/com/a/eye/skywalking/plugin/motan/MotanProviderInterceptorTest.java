@@ -94,7 +94,7 @@ public class MotanProviderInterceptorTest {
     @Test
     public void testInvokerWithRefSegment() {
         HashMap attachments = new HashMap();
-        attachments.put("SWTraceContext", "302017.1487666919810.624424584.17332.1.1|1|REMOTE_APP|127.0.0.1|Trace.globalId.123");
+        attachments.put("SWTraceContext", "302017.1487666919810.624424584.17332.1.1|1|REMOTE_APP|127.0.0.1|Trace.globalId.123|1");
         when(request.getAttachments()).thenReturn(attachments);
 
         invokeInterceptor.beforeMethod(instanceContext, interceptorContext, null);

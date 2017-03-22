@@ -25,18 +25,18 @@ public class WriterFactoryTest {
      */
     @Test
     public void testGetLogWriter(){
-        Config.SkyWalking.IS_PREMAIN_MODE = true;
+        Config.Agent.IS_PREMAIN_MODE = true;
         PrintStream mockStream = Mockito.mock(PrintStream.class);
         System.setErr(mockStream);
         Assert.assertEquals(SyncFileWriter.instance(), WriterFactory.getLogWriter());
 
-        Config.SkyWalking.IS_PREMAIN_MODE = false;
+        Config.Agent.IS_PREMAIN_MODE = false;
         Assert.assertTrue(WriterFactory.getLogWriter() instanceof STDOutWriter);
     }
 
     @AfterClass
     public static void reset(){
-        Config.SkyWalking.IS_PREMAIN_MODE = false;
+        Config.Agent.IS_PREMAIN_MODE = false;
         System.setErr(errRef);
     }
 }
