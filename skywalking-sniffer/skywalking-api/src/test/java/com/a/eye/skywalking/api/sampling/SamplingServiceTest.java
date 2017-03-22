@@ -26,6 +26,10 @@ public class SamplingServiceTest {
         segment = new TraceSegment();
         service.trySampling(segment);
         Assert.assertTrue(segment.isSampled());
+
+        segment = new TraceSegment();
+        service.trySampling(segment);
+        Assert.assertFalse(segment.isSampled());
     }
 
     @AfterClass

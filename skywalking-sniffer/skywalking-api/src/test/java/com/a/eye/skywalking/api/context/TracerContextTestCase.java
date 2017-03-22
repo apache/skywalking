@@ -5,6 +5,7 @@ import com.a.eye.skywalking.trace.TraceId.DistributedTraceId;
 import com.a.eye.skywalking.trace.TraceId.PropagatedTraceId;
 import com.a.eye.skywalking.trace.TraceSegment;
 import com.a.eye.skywalking.trace.tag.Tags;
+import java.awt.SystemTray;
 import java.util.LinkedList;
 import java.util.List;
 import org.junit.After;
