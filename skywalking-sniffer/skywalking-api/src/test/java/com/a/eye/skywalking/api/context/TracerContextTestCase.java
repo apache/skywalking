@@ -61,7 +61,8 @@ public class TracerContextTestCase {
         TracerContext context = new TracerContext();
         Span serviceSpan = context.createSpan("/serviceA");
         Span dbSpan = context.createSpan("db/preparedStatement/execute");
-        Tags.PEER_HOST.set(dbSpan, "127.0.0.1:8080");
+        Tags.PEER_HOST.set(dbSpan, "127.0.0.1");
+        Tags.PEER_PORT.set(dbSpan, 8080);
 
         ContextCarrier carrier = new ContextCarrier();
         context.inject(carrier);
