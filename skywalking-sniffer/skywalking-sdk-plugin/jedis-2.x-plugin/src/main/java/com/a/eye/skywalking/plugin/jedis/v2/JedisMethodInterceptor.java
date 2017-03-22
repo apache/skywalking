@@ -50,6 +50,7 @@ public class JedisMethodInterceptor extends NoCocurrencyAceessObject implements 
                 Span span = ContextManager.createSpan("Jedis/" + interceptorContext.methodName());
                 Tags.COMPONENT.set(span, REDIS_COMPONENT);
                 Tags.DB_TYPE.set(span, REDIS_COMPONENT);
+                Tags.SPAN_KIND.set(span, Tags.SPAN_KIND_CLIENT);
                 tagPeer(span, context);
                 Tags.SPAN_LAYER.asDB(span);
                 if (StringUtil.isEmpty(context.get(KEY_OF_REDIS_HOST, String.class))) {

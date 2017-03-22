@@ -21,7 +21,7 @@ public class SamplingService implements BootService {
 
     private volatile boolean on = false;
     private volatile int rate = 0;
-    private volatile int rollingSeed = 0;
+    private volatile int rollingSeed = 1;
 
     @Override
     public void bootUp() throws Throwable {
@@ -39,9 +39,10 @@ public class SamplingService implements BootService {
 
     public void trySampling(TraceSegment segment) {
         if (on) {
-            if (rollingSeed++ != rate) {
+            if (rollingSeed % rate != 0) {
                 segment.setSampled(false);
             }
+            rollingSeed++;
         }
     }
 
@@ -59,7 +60,7 @@ public class SamplingService implements BootService {
         if(on) {
             if (!segment.isSampled() && carrier.isSampled()) {
                 segment.setSampled(true);
-                this.rollingSeed = 0;
+                this.rollingSeed = 1;
             }
         }
     }
