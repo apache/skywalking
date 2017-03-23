@@ -12,14 +12,12 @@ import static org.mockito.Mockito.times;
 /**
  * Created by wusheng on 2017/2/28.
  */
-public class STDOutWriterTest {
+public class SystemOutWriterTest {
     private static PrintStream outRef;
-    private static PrintStream errRef;
 
     @BeforeClass
     public static void initAndHoldOut(){
         outRef = System.out;
-        errRef = System.err;
     }
 
     @Test
@@ -27,19 +25,7 @@ public class STDOutWriterTest {
         PrintStream mockStream = Mockito.mock(PrintStream.class);
         System.setOut(mockStream);
 
-        STDOutWriter writer = new STDOutWriter();
-        writer.write("hello");
-
-        Mockito.verify(mockStream,times(1)).println(anyString());
-    }
-
-    @Test
-    public void testWriteError(){
-        PrintStream mockStream = Mockito.mock(PrintStream.class);
-        System.setErr(mockStream);
-
-        STDOutWriter writer = new STDOutWriter();
-        writer.writeError("hello");
+        SystemOutWriter.INSTANCE.write("hello");
 
         Mockito.verify(mockStream,times(1)).println(anyString());
     }
@@ -47,6 +33,5 @@ public class STDOutWriterTest {
     @AfterClass
     public static void reset(){
         System.setOut(outRef);
-        System.setErr(errRef);
     }
 }

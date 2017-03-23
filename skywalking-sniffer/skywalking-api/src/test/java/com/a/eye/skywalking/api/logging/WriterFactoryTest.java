@@ -15,7 +15,7 @@ public class WriterFactoryTest {
     private static PrintStream errRef;
 
     @BeforeClass
-    public static void initAndHoldOut(){
+    public static void initAndHoldOut() {
         errRef = System.err;
     }
 
@@ -24,19 +24,18 @@ public class WriterFactoryTest {
      * reset {@link System#out} to a Mock object, for avoid a console system.error.
      */
     @Test
-    public void testGetLogWriter(){
-        Config.Agent.IS_PREMAIN_MODE = true;
+    public void testGetLogWriter() {
         PrintStream mockStream = Mockito.mock(PrintStream.class);
         System.setErr(mockStream);
-        Assert.assertEquals(SyncFileWriter.instance(), WriterFactory.getLogWriter());
+        Assert.assertEquals(SystemOutWriter.INSTANCE, WriterFactory.getLogWriter());
 
-        Config.Agent.IS_PREMAIN_MODE = false;
-        Assert.assertTrue(WriterFactory.getLogWriter() instanceof STDOutWriter);
+        Config.Logging.DIR = "/only/test/folder";
+        Assert.assertTrue(WriterFactory.getLogWriter() instanceof FileWriter);
     }
 
     @AfterClass
-    public static void reset(){
-        Config.Agent.IS_PREMAIN_MODE = false;
+    public static void reset() {
+        Config.Logging.DIR = "";
         System.setErr(errRef);
     }
 }

@@ -19,20 +19,24 @@ public class ConfigInitializer {
         initNextLevel(properties, rootConfigType, new ConfigDesc());
     }
 
-    private static void initNextLevel(Properties properties, Class<?> recentConfigType, ConfigDesc parentDesc) throws IllegalArgumentException, IllegalAccessException {
+    private static void initNextLevel(Properties properties, Class<?> recentConfigType,
+        ConfigDesc parentDesc) throws IllegalArgumentException, IllegalAccessException {
         for (Field field : recentConfigType.getFields()) {
             if (Modifier.isPublic(field.getModifiers()) && Modifier.isStatic(field.getModifiers())) {
                 String configKey = (parentDesc + "." + field.getName()).toLowerCase();
                 String value = properties.getProperty(configKey);
                 if (value != null) {
-                    if (field.getType().equals(int.class))
+                    Class<?> type = field.getType();
+                    if (type.equals(int.class))
                         field.set(null, Integer.valueOf(value));
-                    if (field.getType().equals(String.class))
+                    else if (type.equals(String.class))
                         field.set(null, value);
-                    if (field.getType().equals(long.class))
+                    else if (type.equals(long.class))
                         field.set(null, Long.valueOf(value));
-                    if (field.getType().equals(boolean.class))
+                    else if (type.equals(boolean.class))
                         field.set(null, Boolean.valueOf(value));
+                    else if (type.isEnum())
+                        field.set(null, Enum.valueOf((Class<Enum>)type, value.toUpperCase()));
                 }
             }
         }
@@ -43,7 +47,6 @@ public class ConfigInitializer {
         }
     }
 }
-
 
 class ConfigDesc {
     private LinkedList<String> descs = new LinkedList<String>();

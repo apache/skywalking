@@ -2,7 +2,7 @@ package com.a.eye.skywalking.plugin.jedis.v2;
 
 import com.a.eye.skywalking.api.context.ContextManager;
 import com.a.eye.skywalking.api.plugin.interceptor.EnhancedClassInstanceContext;
-import com.a.eye.skywalking.api.plugin.interceptor.assist.NoCocurrencyAceessObject;
+import com.a.eye.skywalking.api.plugin.interceptor.assist.NoConcurrencyAceessObject;
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.InstanceMethodInvokeContext;
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.MethodInterceptResult;
@@ -17,7 +17,7 @@ import com.a.eye.skywalking.trace.tag.Tags;
  *
  * @author zhangxin
  */
-public class JedisMethodInterceptor extends NoCocurrencyAceessObject implements InstanceMethodsAroundInterceptor {
+public class JedisMethodInterceptor extends NoConcurrencyAceessObject implements InstanceMethodsAroundInterceptor {
     /**
      * The key name that redis connection information in {@link EnhancedClassInstanceContext#context}.
      */

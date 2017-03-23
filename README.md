@@ -24,7 +24,8 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, also known D
 * Support popular rpc frameworks, such as [dubbo](https://github.com/alibaba/dubbo), [dubbox](https://github.com/dangdangdotcom/dubbox), [motan](https://github.com/weibocom/motan) etc., trigger email-alert when application occurs unexpected exception.
 * Auto-instrumentation mechenism, **no need to CHANGE any application source code**.
 * Easy to deploy, **even in product mode** (since 2.0) . No need of Hadoop, HBase, or Cassandra Cluster.
-* Pure Java server implementation. provide gRPC (since 2.0)  and HTTP (since 2.1) cross-platform spans collecting service.
+* Pure Java server implementation. provide HTTP (since 2.1) cross-platform spans collecting service.
+* High performance stream process. 
 
 
 # Supported components

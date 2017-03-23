@@ -1,14 +1,14 @@
 package com.a.eye.skywalking.api.logging;
 
 import com.a.eye.skywalking.api.conf.Config;
+import com.a.eye.skywalking.api.util.StringUtil;
 
 public class WriterFactory {
     public static IWriter getLogWriter(){
-        if (Config.Agent.IS_PREMAIN_MODE){
-            return SyncFileWriter.instance();
+        if (!StringUtil.isEmpty(Config.Logging.DIR)){
+            return FileWriter.get();
         }else{
-            return new STDOutWriter();
+            return SystemOutWriter.INSTANCE;
         }
-
     }
 }
