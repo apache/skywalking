@@ -3,6 +3,8 @@ package com.a.eye.skywalking.api.conf;
 import org.junit.Assert;
 import org.junit.Test;
 
+import static com.a.eye.skywalking.api.logging.LogLevel.INFO;
+
 /**
  * @author wusheng
  */
@@ -20,5 +22,6 @@ public class SnifferConfigInitializerTest {
         Assert.assertNotNull(Config.Logging.FILE_NAME);
         Assert.assertNotNull(Config.Logging.MAX_FILE_SIZE);
         Assert.assertNotNull(Config.Logging.FILE_NAME);
+        Assert.assertEquals(INFO, Config.Logging.LEVEL);
     }
 }
