@@ -20,7 +20,7 @@ import java.util.Map;
  */
 public class ClientNodeTestCase {
 
-    @Before
+//    @Before
     public void initIndex() throws UnknownHostException {
         EsClient.boot();
         ClientNodeIndex index = new ClientNodeIndex();
@@ -28,7 +28,7 @@ public class ClientNodeTestCase {
         index.createIndex();
     }
 
-    @Test
+//    @Test
     public void testLoadClientNode() throws Exception {
         loadNode(201703101201l, ClientNodeIndex.Type_Minute);
         loadNode(201703101200l, ClientNodeIndex.Type_Hour);

@@ -20,7 +20,7 @@ public abstract class AnalysisMember extends AbstractLocalAsyncWorker {
 
     @Override
     public void preStart() throws ProviderNotFoundException {
-        
+
     }
 
     @Override
@@ -28,7 +28,11 @@ public abstract class AnalysisMember extends AbstractLocalAsyncWorker {
         if (message instanceof EndOfBatchCommand) {
             aggregation();
         } else {
-            analyse(message);
+            try {
+                analyse(message);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 

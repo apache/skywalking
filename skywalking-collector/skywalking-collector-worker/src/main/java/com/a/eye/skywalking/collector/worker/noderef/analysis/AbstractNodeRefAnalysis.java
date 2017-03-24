@@ -2,10 +2,12 @@ package com.a.eye.skywalking.collector.worker.noderef.analysis;
 
 import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
 import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
+import com.a.eye.skywalking.collector.worker.Const;
 import com.a.eye.skywalking.collector.worker.RecordAnalysisMember;
 import com.a.eye.skywalking.collector.worker.noderef.NodeRefIndex;
 import com.a.eye.skywalking.collector.worker.tools.ClientSpanIsLeafTools;
 import com.a.eye.skywalking.collector.worker.tools.CollectionTools;
+import com.a.eye.skywalking.collector.worker.tools.SpanPeersTools;
 import com.a.eye.skywalking.trace.Span;
 import com.a.eye.skywalking.trace.TraceSegment;
 import com.a.eye.skywalking.trace.TraceSegmentRef;
@@ -33,7 +35,6 @@ abstract class AbstractNodeRefAnalysis extends RecordAnalysisMember {
             for (Span span : spanList) {
                 JsonObject dataJsonObj = new JsonObject();
                 String component = Tags.COMPONENT.get(span);
-                String peers = Tags.PEERS.get(span);
                 dataJsonObj.addProperty(NodeRefIndex.Time_Slice, timeSlice);
                 dataJsonObj.addProperty(NodeRefIndex.FrontIsRealCode, true);
                 dataJsonObj.addProperty(NodeRefIndex.BehindIsRealCode, true);
@@ -42,11 +43,11 @@ abstract class AbstractNodeRefAnalysis extends RecordAnalysisMember {
                     String front = segment.getApplicationCode();
                     dataJsonObj.addProperty(NodeRefIndex.Front, front);
 
-                    String behind = component + "[" + peers + "]";
+                    String behind = SpanPeersTools.getPeers(span);
                     dataJsonObj.addProperty(NodeRefIndex.Behind, behind);
                     dataJsonObj.addProperty(NodeRefIndex.BehindIsRealCode, false);
 
-                    String id = timeSlice + "-" + front + "-" + behind;
+                    String id = timeSlice + Const.ID_SPLIT + front + Const.ID_SPLIT + behind;
                     logger.debug("dag node ref: %s", dataJsonObj.toString());
                     setRecord(id, dataJsonObj);
                     buildNodeRefResRecordData(id, span, minute, hour, day, second);
@@ -55,17 +56,17 @@ abstract class AbstractNodeRefAnalysis extends RecordAnalysisMember {
                         String behind = segment.getApplicationCode();
                         dataJsonObj.addProperty(NodeRefIndex.Behind, behind);
 
-                        String front = "User";
+                        String front = Const.USER_CODE;
                         dataJsonObj.addProperty(NodeRefIndex.Front, front);
 
-                        String id = timeSlice + "-" + front + "-" + behind;
+                        String id = timeSlice + Const.ID_SPLIT + front + Const.ID_SPLIT + behind;
                         setRecord(id, dataJsonObj);
                         buildNodeRefResRecordData(id, span, minute, hour, day, second);
                     } else if (span.getParentSpanId() == -1 && CollectionTools.isNotEmpty(segment.getRefs())) {
                         for (TraceSegmentRef segmentRef : segment.getRefs()) {
                             String front = segmentRef.getApplicationCode();
-                            String behind = component + "[" + segmentRef.getPeerHost() + "]";
-                            String id = timeSlice + "-" + front + "-" + behind;
+                            String behind = Const.PEERS_FRONT_SPLIT + segmentRef.getPeerHost() + Const.PEERS_BEHIND_SPLIT;
+                            String id = timeSlice + Const.ID_SPLIT + front + Const.ID_SPLIT + behind;
 
                             JsonObject refDataJsonObj = new JsonObject();
                             refDataJsonObj.addProperty(NodeRefIndex.Front, front);

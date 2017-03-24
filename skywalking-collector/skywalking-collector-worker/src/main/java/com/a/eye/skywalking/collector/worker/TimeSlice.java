@@ -4,19 +4,25 @@ package com.a.eye.skywalking.collector.worker;
  * @author pengys5
  */
 public abstract class TimeSlice {
-    private long timeSlice;
     private String sliceType;
+    private long startTime;
+    private long endTime;
 
-    public TimeSlice(String sliceType, long timeSlice) {
-        this.timeSlice = timeSlice;
+    public TimeSlice(String sliceType,long startTime, long endTime) {
+        this.startTime = startTime;
+        this.endTime = endTime;
         this.sliceType = sliceType;
-    }
-
-    public long getTimeSlice() {
-        return timeSlice;
     }
 
     public String getSliceType() {
         return sliceType;
+    }
+
+    public long getStartTime() {
+        return startTime;
+    }
+
+    public long getEndTime() {
+        return endTime;
     }
 }

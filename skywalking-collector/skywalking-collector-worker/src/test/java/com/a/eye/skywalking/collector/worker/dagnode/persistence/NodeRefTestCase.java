@@ -20,7 +20,7 @@ import java.util.Map;
  */
 public class NodeRefTestCase {
 
-    @Before
+//    @Before
     public void initIndex() throws UnknownHostException {
         EsClient.boot();
         NodeRefIndex index = new NodeRefIndex();
@@ -28,7 +28,7 @@ public class NodeRefTestCase {
         index.createIndex();
     }
 
-    @Test
+//    @Test
     public void testLoadNodeRef() throws Exception {
         loadNodeRef(201703101201l, NodeRefIndex.Type_Minute);
         loadNodeRef(201703101200l, NodeRefIndex.Type_Hour);

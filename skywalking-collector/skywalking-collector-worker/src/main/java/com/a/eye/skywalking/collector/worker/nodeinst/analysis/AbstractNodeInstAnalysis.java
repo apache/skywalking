@@ -2,9 +2,9 @@ package com.a.eye.skywalking.collector.worker.nodeinst.analysis;
 
 import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
 import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
+import com.a.eye.skywalking.collector.worker.Const;
 import com.a.eye.skywalking.collector.worker.RecordAnalysisMember;
 import com.a.eye.skywalking.collector.worker.nodeinst.NodeInstIndex;
-import com.a.eye.skywalking.collector.worker.tools.UrlTools;
 import com.a.eye.skywalking.trace.Span;
 import com.a.eye.skywalking.trace.TraceSegment;
 import com.a.eye.skywalking.trace.tag.Tags;
@@ -43,7 +43,7 @@ abstract class AbstractNodeInstAnalysis extends RecordAnalysisMember {
                     dataJsonObj.addProperty(NodeInstIndex.Address, url);
                     dataJsonObj.addProperty(NodeInstIndex.Time_Slice, timeSlice);
 
-                    String id = timeSlice + "-" + url;
+                    String id = timeSlice + Const.ID_SPLIT + url;
                     setRecord(id, dataJsonObj);
                     logger.debug("node instance: %s", dataJsonObj.toString());
 

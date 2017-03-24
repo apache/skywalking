@@ -20,7 +20,7 @@ import java.util.Map;
  */
 public class NodeInstSummaryTestCase {
 
-    @Before
+//    @Before
     public void initIndex() throws UnknownHostException {
         EsClient.boot();
 //        NodeInstIndex index = new NodeInstIndex();
@@ -28,20 +28,20 @@ public class NodeInstSummaryTestCase {
 //        index.createIndex();
     }
 
-    @Test
+//    @Test
     public void testLoadNodeInstSummary() throws Exception {
-        loadNodeInstSummary(201703202208l, NodeInstIndex.Type_Minute);
+        loadNodeInstSummary(201703202208l, 201703202209l, NodeInstIndex.Type_Minute);
 //        loadNodeInstance(201703202200l, NodeInstIndex.Type_Hour);
 //        loadNodeInstance(201703200000l, NodeInstIndex.Type_Day);
     }
 
-    public void loadNodeInstSummary(long timeSlice, String type) throws Exception {
+    public void loadNodeInstSummary(long startTime, long endTime, String type) throws Exception {
         LocalSyncWorkerRef workerRef = (LocalSyncWorkerRef) NodeInstSummarySearchWithTimeSlice.Factory.INSTANCE.create(AbstractWorker.noOwner());
 
 //        insertData(timeSlice, type);
 //        EsClient.indexRefresh(NodeInstIndex.Index);
 
-        NodeInstSummarySearchWithTimeSlice.RequestEntity requestEntity = new NodeInstSummarySearchWithTimeSlice.RequestEntity(type, timeSlice);
+        NodeInstSummarySearchWithTimeSlice.RequestEntity requestEntity = new NodeInstSummarySearchWithTimeSlice.RequestEntity(type, startTime, endTime);
         JsonObject resJsonObj = new JsonObject();
         workerRef.ask(requestEntity, resJsonObj);
         JsonArray nodeArray = resJsonObj.get("result").getAsJsonArray();

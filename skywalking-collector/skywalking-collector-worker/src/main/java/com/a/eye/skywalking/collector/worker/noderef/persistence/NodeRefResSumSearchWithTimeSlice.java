@@ -3,6 +3,7 @@ package com.a.eye.skywalking.collector.worker.noderef.persistence;
 import com.a.eye.skywalking.collector.actor.*;
 import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
 import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
+import com.a.eye.skywalking.collector.worker.Const;
 import com.a.eye.skywalking.collector.worker.TimeSlice;
 import com.a.eye.skywalking.collector.worker.noderef.NodeRefResSumIndex;
 import com.a.eye.skywalking.collector.worker.storage.EsClient;
@@ -14,7 +15,10 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
+import org.elasticsearch.search.aggregations.metrics.sum.Sum;
 
 /**
  * @author pengys5
@@ -35,30 +39,48 @@ public class NodeRefResSumSearchWithTimeSlice extends AbstractLocalSyncWorker {
             SearchRequestBuilder searchRequestBuilder = EsClient.getClient().prepareSearch(NodeRefResSumIndex.Index);
             searchRequestBuilder.setTypes(search.getSliceType());
             searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
-            searchRequestBuilder.setQuery(QueryBuilders.termQuery(NodeRefResSumIndex.Time_Slice, search.getTimeSlice()));
+            searchRequestBuilder.setQuery(QueryBuilders.rangeQuery(NodeRefResSumIndex.Time_Slice).gte(search.getStartTime()).lte(search.getEndTime()));
+            searchRequestBuilder.setSize(0);
+
+            TermsAggregationBuilder aggregationBuilder = AggregationBuilders.terms(NodeRefResSumIndex.AGG_COLUMN).field(NodeRefResSumIndex.AGG_COLUMN);
+            aggregationBuilder.subAggregation(AggregationBuilders.sum(NodeRefResSumIndex.OneSecondLess).field(NodeRefResSumIndex.OneSecondLess));
+            aggregationBuilder.subAggregation(AggregationBuilders.sum(NodeRefResSumIndex.ThreeSecondLess).field(NodeRefResSumIndex.ThreeSecondLess));
+            aggregationBuilder.subAggregation(AggregationBuilders.sum(NodeRefResSumIndex.FiveSecondLess).field(NodeRefResSumIndex.FiveSecondLess));
+            aggregationBuilder.subAggregation(AggregationBuilders.sum(NodeRefResSumIndex.FiveSecondGreater).field(NodeRefResSumIndex.FiveSecondGreater));
+            aggregationBuilder.subAggregation(AggregationBuilders.sum(NodeRefResSumIndex.Error).field(NodeRefResSumIndex.Error));
+            aggregationBuilder.subAggregation(AggregationBuilders.sum(NodeRefResSumIndex.Summary).field(NodeRefResSumIndex.Summary));
+
+            searchRequestBuilder.addAggregation(aggregationBuilder);
+
             SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
 
-            SearchHit[] hits = searchResponse.getHits().getHits();
-            logger.debug("node reference list size: %s", hits.length);
-
             JsonArray nodeRefResSumArray = new JsonArray();
-            for (SearchHit hit : searchResponse.getHits().getHits()) {
+            Terms aggTerms = searchResponse.getAggregations().get(NodeRefResSumIndex.AGG_COLUMN);
+            for (Terms.Bucket bucket : aggTerms.getBuckets()) {
+                String aggId = String.valueOf(bucket.getKey());
+                Sum oneSecondLess = bucket.getAggregations().get(NodeRefResSumIndex.OneSecondLess);
+                Sum threeSecondLess = bucket.getAggregations().get(NodeRefResSumIndex.ThreeSecondLess);
+                Sum fiveSecondLess = bucket.getAggregations().get(NodeRefResSumIndex.FiveSecondLess);
+                Sum fiveSecondGreater = bucket.getAggregations().get(NodeRefResSumIndex.FiveSecondGreater);
+                Sum error = bucket.getAggregations().get(NodeRefResSumIndex.Error);
+                Sum summary = bucket.getAggregations().get(NodeRefResSumIndex.Summary);
+                logger.debug("aggId: %s, oneSecondLess: %s, threeSecondLess: %s, fiveSecondLess: %s, fiveSecondGreater: %s, error: %s, summary: %s", aggId,
+                        oneSecondLess.getValue(), threeSecondLess.getValue(), fiveSecondLess.getValue(), fiveSecondGreater.getValue(), error.getValue(), summary.getValue());
+
                 JsonObject nodeRefResSumObj = new JsonObject();
-                String id = hit.getId();
-                String[] ids = id.split("-");
-                String front = ids[1];
-                String behind = ids[2];
+                String[] ids = aggId.split(Const.IDS_SPLIT);
+                String front = ids[0];
+                String behind = ids[1];
 
                 nodeRefResSumObj.addProperty("front", front);
                 nodeRefResSumObj.addProperty("behind", behind);
 
-                nodeRefResSumObj.addProperty(NodeRefResSumIndex.OneSecondLess, (Number) hit.getSource().get(NodeRefResSumIndex.OneSecondLess));
-                nodeRefResSumObj.addProperty(NodeRefResSumIndex.ThreeSecondLess, (Number) hit.getSource().get(NodeRefResSumIndex.ThreeSecondLess));
-                nodeRefResSumObj.addProperty(NodeRefResSumIndex.FiveSecondLess, (Number) hit.getSource().get(NodeRefResSumIndex.FiveSecondLess));
-                nodeRefResSumObj.addProperty(NodeRefResSumIndex.FiveSecondGreater, (Number) hit.getSource().get(NodeRefResSumIndex.FiveSecondGreater));
-                nodeRefResSumObj.addProperty(NodeRefResSumIndex.Error, (Number) hit.getSource().get(NodeRefResSumIndex.Error));
-                nodeRefResSumObj.addProperty(NodeRefResSumIndex.Summary, (Number) hit.getSource().get(NodeRefResSumIndex.Summary));
-                nodeRefResSumObj.addProperty(NodeRefResSumIndex.Time_Slice, (Long) hit.getSource().get(NodeRefResSumIndex.Time_Slice));
+                nodeRefResSumObj.addProperty(NodeRefResSumIndex.OneSecondLess, oneSecondLess.getValue());
+                nodeRefResSumObj.addProperty(NodeRefResSumIndex.ThreeSecondLess, threeSecondLess.getValue());
+                nodeRefResSumObj.addProperty(NodeRefResSumIndex.FiveSecondLess, fiveSecondLess.getValue());
+                nodeRefResSumObj.addProperty(NodeRefResSumIndex.FiveSecondGreater, fiveSecondGreater.getValue());
+                nodeRefResSumObj.addProperty(NodeRefResSumIndex.Error, error.getValue());
+                nodeRefResSumObj.addProperty(NodeRefResSumIndex.Summary, summary.getValue());
                 nodeRefResSumArray.add(nodeRefResSumObj);
             }
 
@@ -70,8 +92,8 @@ public class NodeRefResSumSearchWithTimeSlice extends AbstractLocalSyncWorker {
     }
 
     public static class RequestEntity extends TimeSlice {
-        public RequestEntity(String sliceType, long timeSlice) {
-            super(sliceType, timeSlice);
+        public RequestEntity(String sliceType, long startTime, long endTime) {
+            super(sliceType, startTime, endTime);
         }
     }
 

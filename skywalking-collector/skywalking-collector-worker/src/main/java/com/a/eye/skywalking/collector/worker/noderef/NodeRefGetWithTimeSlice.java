@@ -35,20 +35,28 @@ public class NodeRefGetWithTimeSlice extends AbstractGet {
 
     @Override
     protected void onSearch(Map<String, String[]> request, JsonObject response) throws Exception {
-        if (!request.containsKey("timeSliceValue") || !request.containsKey("timeSliceType")) {
-            throw new IllegalArgumentException("the request parameter must contains timeSliceValue and timeSliceType");
+        if (!request.containsKey("startTime") || !request.containsKey("endTime") || !request.containsKey("timeSliceType")) {
+            throw new IllegalArgumentException("the request parameter must contains startTime,endTime,timeSliceType");
         }
-        logger.debug("timeSliceValue: %s, timeSliceType: %s", Arrays.toString(request.get("timeSliceValue")), Arrays.toString(request.get("timeSliceType")));
+        logger.debug("startTime: %s, endTime: %s, timeSliceType: %s", Arrays.toString(request.get("startTime")),
+                Arrays.toString(request.get("endTime")), Arrays.toString(request.get("timeSliceType")));
 
-        long timeSlice;
+        long startTime;
         try {
-            timeSlice = Long.valueOf(ParameterTools.toString(request, "timeSliceValue"));
+            startTime = Long.valueOf(ParameterTools.toString(request, "startTime"));
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("the request parameter timeSliceValue must numeric with long type");
+            throw new IllegalArgumentException("the request parameter startTime must numeric with long type");
+        }
+
+        long endTime;
+        try {
+            endTime = Long.valueOf(ParameterTools.toString(request, "endTime"));
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("the request parameter endTime must numeric with long type");
         }
 
         NodeRefSearchWithTimeSlice.RequestEntity requestEntity;
-        requestEntity = new NodeRefSearchWithTimeSlice.RequestEntity(ParameterTools.toString(request, "timeSliceType"), timeSlice);
+        requestEntity = new NodeRefSearchWithTimeSlice.RequestEntity(ParameterTools.toString(request, "timeSliceType"), startTime, endTime);
         getSelfContext().lookup(NodeRefSearchWithTimeSlice.WorkerRole.INSTANCE).ask(requestEntity, response);
     }
 

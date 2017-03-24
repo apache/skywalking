@@ -15,6 +15,10 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.aggregations.AggregationBuilder;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.metrics.tophits.TopHits;
 
 /**
  * @author pengys5
@@ -35,22 +39,31 @@ public class NodeSearchWithTimeSlice extends AbstractLocalSyncWorker {
             SearchRequestBuilder searchRequestBuilder = EsClient.getClient().prepareSearch(NodeIndex.Index);
             searchRequestBuilder.setTypes(search.getSliceType());
             searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
-            searchRequestBuilder.setQuery(QueryBuilders.termQuery(NodeIndex.Time_Slice, search.getTimeSlice()));
+            searchRequestBuilder.setQuery(QueryBuilders.rangeQuery(NodeIndex.Time_Slice).gte(search.getStartTime()).lte(search.getEndTime()));
+            searchRequestBuilder.setSize(0);
+
+            AggregationBuilder aggregation = AggregationBuilders.terms(NodeIndex.AGG_COLUMN).field(NodeIndex.AGG_COLUMN);
+            aggregation.subAggregation(AggregationBuilders.topHits(NodeIndex.Top_One).size(1));
+            searchRequestBuilder.addAggregation(aggregation);
+
             SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
 
-            SearchHit[] hits = searchResponse.getHits().getHits();
-            logger.debug("server node list size: %s", hits.length);
-
             JsonArray nodeArray = new JsonArray();
-            for (SearchHit hit : searchResponse.getHits().getHits()) {
-                JsonObject nodeObj = new JsonObject();
-                nodeObj.addProperty(NodeIndex.Code, (String) hit.getSource().get(NodeIndex.Code));
-                nodeObj.addProperty(NodeIndex.Component, (String) hit.getSource().get(NodeIndex.Component));
-                nodeObj.addProperty(NodeIndex.Layer, (String) hit.getSource().get(NodeIndex.Layer));
-                nodeObj.addProperty(NodeIndex.Kind, (String) hit.getSource().get(NodeIndex.Kind));
-                nodeObj.addProperty(NodeIndex.NickName, (String) hit.getSource().get(NodeIndex.NickName));
-                nodeObj.addProperty(NodeIndex.Time_Slice, (Long) hit.getSource().get(NodeIndex.Time_Slice));
-                nodeArray.add(nodeObj);
+            Terms agg = searchResponse.getAggregations().get(NodeIndex.AGG_COLUMN);
+            for (Terms.Bucket entry : agg.getBuckets()) {
+                TopHits topHits = entry.getAggregations().get(NodeIndex.Top_One);
+                for (SearchHit hit : topHits.getHits().getHits()) {
+                    logger.debug(" -> id [{%s}], _source [{%s}]", hit.getId(), hit.getSourceAsString());
+                    
+                    JsonObject nodeObj = new JsonObject();
+                    nodeObj.addProperty(NodeIndex.Code, (String) hit.getSource().get(NodeIndex.Code));
+                    nodeObj.addProperty(NodeIndex.Component, (String) hit.getSource().get(NodeIndex.Component));
+                    nodeObj.addProperty(NodeIndex.Layer, (String) hit.getSource().get(NodeIndex.Layer));
+                    nodeObj.addProperty(NodeIndex.Kind, (String) hit.getSource().get(NodeIndex.Kind));
+                    nodeObj.addProperty(NodeIndex.NickName, (String) hit.getSource().get(NodeIndex.NickName));
+                    nodeObj.addProperty(NodeIndex.Time_Slice, (Long) hit.getSource().get(NodeIndex.Time_Slice));
+                    nodeArray.add(nodeObj);
+                }
             }
 
             JsonObject resJsonObj = (JsonObject) response;
@@ -61,8 +74,8 @@ public class NodeSearchWithTimeSlice extends AbstractLocalSyncWorker {
     }
 
     public static class RequestEntity extends TimeSlice {
-        public RequestEntity(String sliceType, long timeSlice) {
-            super(sliceType, timeSlice);
+        public RequestEntity(String sliceType, long startTime, long endTime) {
+            super(sliceType, startTime, endTime);
         }
     }
 

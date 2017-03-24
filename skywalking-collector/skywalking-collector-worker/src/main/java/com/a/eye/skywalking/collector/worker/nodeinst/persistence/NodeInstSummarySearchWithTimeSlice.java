@@ -36,7 +36,7 @@ public class NodeInstSummarySearchWithTimeSlice extends AbstractLocalSyncWorker 
             SearchRequestBuilder searchRequestBuilder = EsClient.getClient().prepareSearch(NodeInstIndex.Index);
             searchRequestBuilder.setTypes(search.getSliceType());
             searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
-            searchRequestBuilder.setQuery(QueryBuilders.termQuery("timeSlice", search.getTimeSlice()));
+            searchRequestBuilder.setQuery(QueryBuilders.rangeQuery(NodeInstIndex.Time_Slice).gte(search.getStartTime()).lte(search.getEndTime()));
             searchRequestBuilder.addAggregation(AggregationBuilders.terms("codes").field("code"));
             searchRequestBuilder.setSize(0);
 
@@ -63,8 +63,8 @@ public class NodeInstSummarySearchWithTimeSlice extends AbstractLocalSyncWorker 
     }
 
     public static class RequestEntity extends TimeSlice {
-        public RequestEntity(String sliceType, long timeSlice) {
-            super(sliceType, timeSlice);
+        public RequestEntity(String sliceType, long startTime, long endTime) {
+            super(sliceType, startTime, endTime);
         }
     }
 

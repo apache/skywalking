@@ -84,7 +84,7 @@ public class SegmentPost extends AbstractPost {
 
             tellNodeRef(segmentWithTimeSlice);
             tellNode(segmentWithTimeSlice);
-            tellNodeInst(segmentWithTimeSlice);
+//            tellNodeInst(segmentWithTimeSlice);
         }
     }
 
@@ -98,20 +98,20 @@ public class SegmentPost extends AbstractPost {
 
     private void tellNodeRef(SegmentWithTimeSlice segmentWithTimeSlice) throws Exception {
         getSelfContext().lookup(NodeRefMinuteAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
-//        getSelfContext().lookup(NodeRefHourAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
-//        getSelfContext().lookup(NodeRefDayAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
+        getSelfContext().lookup(NodeRefHourAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
+        getSelfContext().lookup(NodeRefDayAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
     }
 
     private void tellNode(SegmentWithTimeSlice segmentWithTimeSlice) throws Exception {
         getSelfContext().lookup(NodeMinuteAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
-//        getSelfContext().lookup(NodeHourAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
-//        getSelfContext().lookup(NodeDayAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
+        getSelfContext().lookup(NodeHourAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
+        getSelfContext().lookup(NodeDayAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
     }
 
     private void tellNodeInst(SegmentWithTimeSlice segmentWithTimeSlice) throws Exception {
         getSelfContext().lookup(NodeInstMinuteAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
-//        getSelfContext().lookup(NodeInstHourAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
-//        getSelfContext().lookup(NodeInstDayAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
+        getSelfContext().lookup(NodeInstHourAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
+        getSelfContext().lookup(NodeInstDayAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
     }
 
     private void validateData(TraceSegment newSegment) {

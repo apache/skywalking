@@ -2,6 +2,7 @@ package com.a.eye.skywalking.collector.worker.node.analysis;
 
 import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
 import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
+import com.a.eye.skywalking.collector.worker.Const;
 import com.a.eye.skywalking.collector.worker.RecordAnalysisMember;
 import com.a.eye.skywalking.collector.worker.node.NodeIndex;
 import com.a.eye.skywalking.collector.worker.tools.ClientSpanIsLeafTools;
@@ -30,8 +31,10 @@ abstract class AbstractNodeAnalysis extends RecordAnalysisMember {
 
     void analyseSpans(TraceSegment segment, long timeSlice) throws Exception {
         List<Span> spanList = segment.getSpans();
+        logger.debug("node analysis span isNotEmpty %s", CollectionTools.isNotEmpty(spanList));
 
         if (CollectionTools.isNotEmpty(spanList)) {
+            logger.debug("node analysis span list size: %s", spanList.size());
             for (Span span : spanList) {
                 JsonObject dataJsonObj = new JsonObject();
                 String kind = Tags.SPAN_KIND.get(span);
@@ -47,44 +50,46 @@ abstract class AbstractNodeAnalysis extends RecordAnalysisMember {
                 dataJsonObj.addProperty(NodeIndex.Code, code);
 
                 dataJsonObj.addProperty(NodeIndex.Time_Slice, timeSlice);
+                logger.debug("span id=%s, kind=%s, layer=%s, component=%s, code=%s", span.getSpanId(), kind, layer, component, code);
 
                 if (Tags.SPAN_KIND_CLIENT.equals(kind) && ClientSpanIsLeafTools.isLeaf(span.getSpanId(), spanList)) {
-                    code = component + "[" + SpanPeersTools.getPeers(span) + "]";
+                    logger.debug("The span id %s which kind is client and is a leaf span", span.getSpanId());
+                    code = SpanPeersTools.getPeers(span);
                     dataJsonObj.addProperty(NodeIndex.Code, code);
                     dataJsonObj.addProperty(NodeIndex.NickName, code);
 
-                    String id = timeSlice + "-" + code;
+                    String id = timeSlice + Const.ID_SPLIT + code;
                     logger.debug("leaf client node: %s", dataJsonObj.toString());
                     setRecord(id, dataJsonObj);
                 } else if (Tags.SPAN_KIND_SERVER.equals(kind) && span.getParentSpanId() == -1) {
+                    logger.debug("The span id %s which kind is server and is top span", span.getSpanId());
                     if (CollectionTools.isEmpty(segment.getRefs())) {
                         JsonObject userDataJsonObj = new JsonObject();
-                        userDataJsonObj.addProperty(NodeIndex.Code, "User");
-                        userDataJsonObj.addProperty(NodeIndex.Layer, "User");
+                        userDataJsonObj.addProperty(NodeIndex.Code, Const.USER_CODE);
+                        userDataJsonObj.addProperty(NodeIndex.Layer, Const.USER_CODE);
                         userDataJsonObj.addProperty(NodeIndex.Kind, Tags.SPAN_KIND_CLIENT);
-                        userDataJsonObj.addProperty(NodeIndex.Component, "User");
-                        userDataJsonObj.addProperty(NodeIndex.NickName, "User");
+                        userDataJsonObj.addProperty(NodeIndex.Component, Const.USER_CODE);
+                        userDataJsonObj.addProperty(NodeIndex.NickName, Const.USER_CODE);
                         userDataJsonObj.addProperty(NodeIndex.Time_Slice, timeSlice);
-                        String userId = timeSlice + "-" + "User";
+                        String userId = timeSlice + Const.ID_SPLIT + Const.USER_CODE;
                         logger.debug("user node: %s", userDataJsonObj.toString());
                         setRecord(userId, userDataJsonObj);
 
-                        String id = timeSlice + "-" + code;
+                        String id = timeSlice + Const.ID_SPLIT + code;
                         dataJsonObj.addProperty(NodeIndex.NickName, code);
                         logger.debug("refs node: %s", dataJsonObj.toString());
                         setRecord(id, dataJsonObj);
                     } else {
                         for (TraceSegmentRef segmentRef : segment.getRefs()) {
-                            String nickName = component + "[" + segmentRef.getPeerHost() + "]";
+                            String nickName = Const.PEERS_FRONT_SPLIT + segmentRef.getPeerHost() + Const.PEERS_BEHIND_SPLIT;
                             dataJsonObj.addProperty(NodeIndex.NickName, nickName);
-                            String id = timeSlice + "-" + code;
+                            String id = timeSlice + Const.ID_SPLIT + code;
                             logger.debug("refs node: %s", dataJsonObj.toString());
                             setRecord(id, dataJsonObj);
                         }
                     }
                 } else {
                     logger.error("The span kind value is incorrect which segment record id is %s, the value must client or server", segment.getTraceSegmentId());
-                    return;
                 }
             }
         }
