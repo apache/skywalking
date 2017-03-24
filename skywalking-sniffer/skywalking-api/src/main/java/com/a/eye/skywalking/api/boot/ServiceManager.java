@@ -21,6 +21,7 @@ public enum ServiceManager {
 
     public void boot() {
         bootedServices = loadAllServices();
+        startup();
     }
 
     private Map<Class, BootService> loadAllServices() {
@@ -28,14 +29,19 @@ public enum ServiceManager {
         Iterator<BootService> serviceIterator = load().iterator();
         while (serviceIterator.hasNext()) {
             BootService bootService = serviceIterator.next();
-            try {
-                bootService.bootUp();
-                bootedServices.put(bootService.getClass(), bootService);
-            } catch (Throwable e) {
-                logger.error(e, "ServiceManager try to start [{}] fail.", bootService.getClass().getName());
-            }
+            bootedServices.put(bootService.getClass(), bootService);
         }
         return bootedServices;
+    }
+
+    private void startup() {
+        for (BootService service : bootedServices.values()) {
+            try {
+                service.bootUp();
+            } catch (Throwable e) {
+                logger.error(e, "ServiceManager try to start [{}] fail.", service.getClass().getName());
+            }
+        }
     }
 
     /**
