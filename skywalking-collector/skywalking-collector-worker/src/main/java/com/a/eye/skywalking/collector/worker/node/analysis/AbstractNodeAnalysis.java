@@ -52,13 +52,19 @@ abstract class AbstractNodeAnalysis extends RecordAnalysisMember {
                 dataJsonObj.addProperty(NodeIndex.Time_Slice, timeSlice);
                 logger.debug("span id=%s, kind=%s, layer=%s, component=%s, code=%s", span.getSpanId(), kind, layer, component, code);
 
+                String id = timeSlice + Const.ID_SPLIT + code;
+                logger.debug("leaf client node: %s", dataJsonObj.toString());
+                dataJsonObj.addProperty(NodeIndex.Code, code);
+                dataJsonObj.addProperty(NodeIndex.NickName, code);
+                setRecord(id, dataJsonObj);
+
                 if (Tags.SPAN_KIND_CLIENT.equals(kind) && ClientSpanIsLeafTools.isLeaf(span.getSpanId(), spanList)) {
                     logger.debug("The span id %s which kind is client and is a leaf span", span.getSpanId());
                     code = SpanPeersTools.getPeers(span);
                     dataJsonObj.addProperty(NodeIndex.Code, code);
                     dataJsonObj.addProperty(NodeIndex.NickName, code);
 
-                    String id = timeSlice + Const.ID_SPLIT + code;
+                    id = timeSlice + Const.ID_SPLIT + code;
                     logger.debug("leaf client node: %s", dataJsonObj.toString());
                     setRecord(id, dataJsonObj);
                 } else if (Tags.SPAN_KIND_SERVER.equals(kind) && span.getParentSpanId() == -1) {
@@ -75,7 +81,7 @@ abstract class AbstractNodeAnalysis extends RecordAnalysisMember {
                         logger.debug("user node: %s", userDataJsonObj.toString());
                         setRecord(userId, userDataJsonObj);
 
-                        String id = timeSlice + Const.ID_SPLIT + code;
+                        id = timeSlice + Const.ID_SPLIT + code;
                         dataJsonObj.addProperty(NodeIndex.NickName, code);
                         logger.debug("refs node: %s", dataJsonObj.toString());
                         setRecord(id, dataJsonObj);
@@ -83,7 +89,7 @@ abstract class AbstractNodeAnalysis extends RecordAnalysisMember {
                         for (TraceSegmentRef segmentRef : segment.getRefs()) {
                             String nickName = Const.PEERS_FRONT_SPLIT + segmentRef.getPeerHost() + Const.PEERS_BEHIND_SPLIT;
                             dataJsonObj.addProperty(NodeIndex.NickName, nickName);
-                            String id = timeSlice + Const.ID_SPLIT + code;
+                            id = timeSlice + Const.ID_SPLIT + code;
                             logger.debug("refs node: %s", dataJsonObj.toString());
                             setRecord(id, dataJsonObj);
                         }

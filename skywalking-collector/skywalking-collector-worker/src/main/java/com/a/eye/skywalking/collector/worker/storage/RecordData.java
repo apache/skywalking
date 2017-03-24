@@ -17,7 +17,7 @@ public class RecordData extends AbstractHashMessage {
     public RecordData(String key) {
         super(key);
         this.id = key;
-        String[] ids = id.split(Const.ID_SPLIT);
+        String[] ids = id.split(Const.IDS_SPLIT);
         for (int i = 1; i < ids.length; i++) {
             if (i == 1) {
                 this.aggId = ids[i];

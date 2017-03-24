@@ -20,7 +20,7 @@ public class MetricData extends AbstractHashMessage {
         this.id = id;
         value = new HashMap<>();
 
-        String[] ids = id.split(Const.ID_SPLIT);
+        String[] ids = id.split(Const.IDS_SPLIT);
         String slice = ids[0];
         String aggId = "";
         for (int i = 1; i < ids.length; i++) {
