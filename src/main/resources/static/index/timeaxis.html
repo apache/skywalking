@@ -1,0 +1,32 @@
+<!-- @author pengys5 -->
+<link href="\webjars\ion.rangeSlider\2.1.4\css\ion.rangeSlider.css" rel="stylesheet">
+<link href="\webjars\ion.rangeSlider\2.1.4\css\ion.rangeSlider.skinFlat.css" rel="stylesheet">
+<link href="\webjars\bootstrap-daterangepicker\2.1.24\css\bootstrap-daterangepicker.css" rel="stylesheet">
+<link href="/public/css/style.css" rel="stylesheet">
+
+<div class="row" style="line-height: 50px">
+    <div class="col-lg-3" style="width:110px; padding-left: 0; padding-right: 0">
+        <button id="minuteBtn" type="button" class="btn btn-sm btn-default">M</button>
+        <button id="hourBtn" type="button" class="btn btn-sm btn-default">H</button>
+        <button id="dayBtn" type="button" class="btn btn-sm btn-success">D</button>
+    </div>
+    <div class="col-lg-6">
+        <div id="timeAxisComponentDiv"></div>
+    </div>
+    <div class="col-lg-3">
+        <div style="float:left; overflow: hidden; width:0px; height:0px; display: inline-block">
+            <input type="text" id="dateRangeInput"/>
+        </div>
+        <a id="dataRangeBtn" class="btn btn-success">
+            <i class="fa fa-calendar"> </i>
+        </a>
+        <button id="isUpdateBtn" class="btn btn-default btn-xs btn-circle" type="button"><i class="fa fa-check"></i>
+        </button>
+        UPDATE
+    </div>
+</div>
+
+<script src="\webjars\ion.rangeSlider\2.1.4\js\ion.rangeSlider.min.js"></script>
+<script src="\webjars\momentjs\2.17.1\min\moment.min.js"></script>
+<script src="\webjars\bootstrap-daterangepicker\2.1.24\js\bootstrap-daterangepicker.js"></script>
+<script src="./index/timeaxis.js"></script>
