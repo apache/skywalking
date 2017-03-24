@@ -1,0 +1,15 @@
+com.a.eye.skywalking.collector.worker.noderef.persistence.NodeRefDayAgg$Factory
+com.a.eye.skywalking.collector.worker.noderef.persistence.NodeRefHourAgg$Factory
+com.a.eye.skywalking.collector.worker.noderef.persistence.NodeRefMinuteAgg$Factory
+
+com.a.eye.skywalking.collector.worker.noderef.persistence.NodeRefResSumDayAgg$Factory
+com.a.eye.skywalking.collector.worker.noderef.persistence.NodeRefResSumHourAgg$Factory
+com.a.eye.skywalking.collector.worker.noderef.persistence.NodeRefResSumMinuteAgg$Factory
+
+com.a.eye.skywalking.collector.worker.node.persistence.NodeDayAgg$Factory
+com.a.eye.skywalking.collector.worker.node.persistence.NodeHourAgg$Factory
+com.a.eye.skywalking.collector.worker.node.persistence.NodeMinuteAgg$Factory
+
+com.a.eye.skywalking.collector.worker.nodeinst.persistence.NodeInstDayAgg$Factory
+com.a.eye.skywalking.collector.worker.nodeinst.persistence.NodeInstHourAgg$Factory
+com.a.eye.skywalking.collector.worker.nodeinst.persistence.NodeInstMinuteAgg$Factory

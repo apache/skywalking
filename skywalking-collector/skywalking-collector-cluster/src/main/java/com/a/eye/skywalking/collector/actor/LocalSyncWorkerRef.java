@@ -14,6 +14,10 @@ public class LocalSyncWorkerRef extends WorkerRef {
 
     @Override
     public void tell(Object message) throws Exception {
-        localSyncWorker.work(message);
+        localSyncWorker.allocateJob(message, null);
+    }
+
+    public void ask(Object request, Object response) throws Exception {
+        localSyncWorker.allocateJob(request, response);
     }
 }

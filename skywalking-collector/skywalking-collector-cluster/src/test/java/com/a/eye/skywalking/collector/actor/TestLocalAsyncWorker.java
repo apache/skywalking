@@ -18,7 +18,7 @@ public class TestLocalAsyncWorker extends AbstractLocalAsyncWorker {
     }
 
     @Override
-    public void work(Object message) throws Exception {
+    public void onWork(Object message) throws Exception {
         if (message.equals("TellLocalAsyncWorker")) {
             System.out.println("hello async!");
         }

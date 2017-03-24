@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Spliterator;
-import java.util.function.Consumer;
 
 /**
  * @author pengys5
@@ -32,11 +31,6 @@ public class MetricPersistenceData implements Iterable {
         MetricData one = persistenceData.entrySet().iterator().next().getValue();
         persistenceData.remove(one.getId());
         return one;
-    }
-
-    @Override
-    public void forEach(Consumer action) {
-        throw new UnsupportedOperationException("forEach");
     }
 
     @Override

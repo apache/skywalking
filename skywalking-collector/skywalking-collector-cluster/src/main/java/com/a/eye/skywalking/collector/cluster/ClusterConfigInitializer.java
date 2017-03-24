@@ -2,8 +2,9 @@ package com.a.eye.skywalking.collector.cluster;
 
 import com.a.eye.skywalking.api.util.ConfigInitializer;
 import com.a.eye.skywalking.api.util.StringUtil;
-import com.a.eye.skywalking.logging.ILog;
-import com.a.eye.skywalking.logging.LogManager;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.InputStream;
 import java.util.Properties;
 
@@ -20,7 +21,7 @@ import java.util.Properties;
  */
 public class ClusterConfigInitializer {
 
-    private static ILog logger = LogManager.getLogger(ClusterConfigInitializer.class);
+    private static Logger logger = LogManager.getFormatterLogger(ClusterConfigInitializer.class);
 
     public static final String ConfigFileName = "collector.config";
 

@@ -8,9 +8,13 @@ public abstract class AbstractLocalSyncWorker extends AbstractLocalWorker {
         super(role, clusterContext, selfContext);
     }
 
-    @Override
-    final public void work(Object message) throws Exception {
+    final public void allocateJob(Object request, Object response) throws Exception {
+        onWork(request, response);
     }
 
-    public abstract Object onWork(Object message) throws Exception;
+    protected abstract void onWork(Object request, Object response) throws Exception;
+
+    @Override
+    public void preStart() throws ProviderNotFoundException {
+    }
 }

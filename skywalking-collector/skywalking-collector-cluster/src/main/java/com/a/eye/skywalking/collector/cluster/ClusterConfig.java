@@ -6,7 +6,7 @@ package com.a.eye.skywalking.collector.cluster;
  * {@link Cluster.Current#port} is a port of server use to bind
  * {@link Cluster.Current#roles} is a roles of workers that use to create workers which
  * has those role in this process.
- * {@link Cluster#seed_nodes} is a seed_nodes which cluster have.
+ * {@link Cluster#seed_nodes} is a seed_nodes which cluster have, List of strings, e.g. seed_nodes = "ip:port,ip:port"..
  *
  * @author pengys5
  */
@@ -19,6 +19,6 @@ public class ClusterConfig {
             public static String roles = "";
         }
 
-        public static String seed_nodes = "127.0.0.1:2551";
+        public static String seed_nodes = "";
     }
 }

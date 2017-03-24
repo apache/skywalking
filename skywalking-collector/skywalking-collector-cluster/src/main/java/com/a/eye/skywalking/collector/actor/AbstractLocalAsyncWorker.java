@@ -14,6 +14,16 @@ public abstract class AbstractLocalAsyncWorker extends AbstractLocalWorker {
         super(role, clusterContext, selfContext);
     }
 
+    @Override
+    public void preStart() throws ProviderNotFoundException {
+    }
+
+    final public void allocateJob(Object request) throws Exception {
+        onWork(request);
+    }
+
+    protected abstract void onWork(Object request) throws Exception;
+
     static class WorkerWithDisruptor implements EventHandler<MessageHolder> {
 
         private RingBuffer<MessageHolder> ringBuffer;
@@ -28,9 +38,10 @@ public abstract class AbstractLocalAsyncWorker extends AbstractLocalWorker {
             try {
                 Object message = event.getMessage();
                 event.reset();
-                asyncWorker.work(message);
+
+                asyncWorker.allocateJob(message);
                 if (endOfBatch) {
-                    asyncWorker.work(new EndOfBatchCommand());
+                    asyncWorker.allocateJob(new EndOfBatchCommand());
                 }
             } catch (Exception e) {
                 e.printStackTrace();

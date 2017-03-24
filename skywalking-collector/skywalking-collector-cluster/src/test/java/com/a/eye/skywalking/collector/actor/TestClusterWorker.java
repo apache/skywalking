@@ -20,7 +20,7 @@ public class TestClusterWorker extends AbstractClusterWorker {
     }
 
     @Override
-    public void work(Object message) throws Exception {
+    public void onWork(Object message) throws Exception {
         if (message.equals("Print")) {
             System.out.println(message);
         } else if (message.equals("TellLocalWorker")) {
