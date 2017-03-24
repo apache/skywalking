@@ -1,17 +1,17 @@
 package com.a.eye.skywalking.api.plugin.assist;
 
 import com.a.eye.skywalking.api.plugin.interceptor.EnhancedClassInstanceContext;
-import com.a.eye.skywalking.api.plugin.interceptor.assist.NoCocurrencyAceessObject;
+import com.a.eye.skywalking.api.plugin.interceptor.assist.NoConcurrencyAceessObject;
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
  * @author wusheng
  */
-public class NoCocurrencyAceessObjectTest {
+public class NoConcurrencyAceessObjectTest {
     @Test
     public void testEntraExitCounter(){
-        NoCocurrencyAceessObject object = new NoCocurrencyAceessObject();
+        NoConcurrencyAceessObject object = new NoConcurrencyAceessObject();
         final EnhancedClassInstanceContext context = new EnhancedClassInstanceContext();
         object.whenEnter(context, new Runnable() {
             @Override

@@ -23,6 +23,7 @@ public class StatementTracing {
         try {
             Span span = ContextManager.createSpan(connectInfo.getDBType() + "/JDBI/Statement/" + method);
             Tags.DB_TYPE.set(span, "sql");
+            Tags.SPAN_KIND.set(span, Tags.SPAN_KIND_CLIENT);
             Tags.DB_INSTANCE.set(span, connectInfo.getDatabaseName());
             Tags.DB_STATEMENT.set(span, sql);
             Tags.COMPONENT.set(span, connectInfo.getDBType());

@@ -17,36 +17,35 @@ public enum ServiceManager {
     INSTANCE;
 
     private static ILog logger = LogManager.getLogger(StatusBootService.class);
-    private volatile boolean isStarted = false;
-    private Map<Class, BootService> bootedServices;
+    private Map<Class, BootService> bootedServices = new HashMap<Class, BootService>();
 
     public void boot() {
-        if (!isStarted) {
+        bootedServices = loadAllServices();
+    }
+
+    private Map<Class, BootService> loadAllServices() {
+        HashMap<Class, BootService> bootedServices = new HashMap<Class, BootService>();
+        Iterator<BootService> serviceIterator = load().iterator();
+        while (serviceIterator.hasNext()) {
+            BootService bootService = serviceIterator.next();
             try {
-                bootedServices = new HashMap<Class, BootService>();
-                Iterator<BootService> serviceIterator = load().iterator();
-                while (serviceIterator.hasNext()) {
-                    BootService bootService = serviceIterator.next();
-                    try {
-                        bootService.bootUp();
-                        bootedServices.put(bootService.getClass(), bootService);
-                    } catch (Throwable e) {
-                        logger.error(e, "ServiceManager try to start [{}] fail.", bootService.getClass().getName());
-                    }
-                }
-            } finally {
-                isStarted = true;
+                bootService.bootUp();
+                bootedServices.put(bootService.getClass(), bootService);
+            } catch (Throwable e) {
+                logger.error(e, "ServiceManager try to start [{}] fail.", bootService.getClass().getName());
             }
         }
+        return bootedServices;
     }
 
     /**
      * Find a {@link BootService} implementation, which is already started.
+     *
      * @param serviceClass class name.
      * @param <T> {@link BootService} implementation class.
      * @return {@link BootService} instance
      */
-    public <T extends BootService> T findService(Class<T> serviceClass){
+    public <T extends BootService> T findService(Class<T> serviceClass) {
         return (T)bootedServices.get(serviceClass);
     }
 

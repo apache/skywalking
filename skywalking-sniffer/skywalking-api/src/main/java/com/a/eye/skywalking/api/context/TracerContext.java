@@ -125,9 +125,16 @@ public final class TracerContext {
      */
     public void inject(ContextCarrier carrier) {
         carrier.setTraceSegmentId(this.segment.getTraceSegmentId());
-        carrier.setSpanId(this.activeSpan().getSpanId());
+        Span span = this.activeSpan();
+        carrier.setSpanId(span.getSpanId());
         carrier.setApplicationCode(Config.Agent.APPLICATION_CODE);
-        carrier.setPeerHost(Tags.PEER_HOST.get(activeSpan()));
+        String host = Tags.PEER_HOST.get(span);
+        if(host != null) {
+            Integer port = Tags.PEER_PORT.get(span);
+            carrier.setPeerHost(host + ":" + port);
+        }else{
+            carrier.setPeerHost(Tags.PEERS.get(span));
+        }
         carrier.setDistributedTraceIds(this.segment.getRelatedGlobalTraces());
         carrier.setSampled(this.segment.isSampled());
     }
