@@ -3,6 +3,7 @@ package com.a.eye.skywalking.ui.service;
 import com.a.eye.skywalking.ui.creator.UrlCreator;
 import com.a.eye.skywalking.ui.tools.HttpClientTools;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.apache.http.NameValuePair;
@@ -26,7 +27,7 @@ public class TraceDagService {
 
     private Logger logger = LogManager.getFormatterLogger(TraceDagService.class);
 
-    private Gson gson = new Gson();
+    private Gson gson = new GsonBuilder().serializeNulls().create();
 
     @Autowired
     private UrlCreator urlCreator;
@@ -143,9 +144,8 @@ public class TraceDagService {
             JsonObject node = nodesArray.get(i).getAsJsonObject();
             String code = node.get("code").getAsString();
             String nickName = node.get("nickName").getAsString();
-            String kind = node.get("kind").getAsString();
 
-            if (kind.equals("server") && nickName.equals(refNodeNickName)) {
+            if (nickName.equals(refNodeNickName)) {
                 return code;
             }
         }

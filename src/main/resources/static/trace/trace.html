@@ -1,10 +1,73 @@
-<!DOCTYPE html>
-<html lang="en">
+<!-- @author pengys5 -->
+<!doctype html>
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="cache-control" content="no-cache,no-store, must-revalidate">
+    <meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1,IE=edge">
+    <title>Skywalking UI</title>
+    <link href="./trace.css" rel="stylesheet">
 </head>
 <body>
+<div class="chart" id="outer">
+    <div class="duration"></div>
+    <div class="axis">
+        time / ms
+    </div>
+</div>
+<div class="header">
+    <h1>Chart</h1>
+</div>
+<!--modal-->
+<div class="md-modal md-effect" id="modal">
+    <div class="md-content">
+        <table border="0" width="100%" height="100%" cellpadding="0" cellspacing="0">
+            <tbody>
+            <tr>
+                <td>服务/方法：</td>
+                <td id="method"></td>
+            </tr>
+            <tr>
+                <td>调用类型：</td>
+                <td id="type"></td>
+            </tr>
+            <tr>
+                <td>花费时间：</td>
+                <td id="cost"></td>
+            </tr>
+            <tr>
+                <td>业务字段：</td>
+                <td id="businessField"></td>
+            </tr>
+            <tr>
+                <td>应用code：</td>
+                <td id="code"></td>
+            </tr>
+            <tr>
+                <td>主机信息：</td>
+                <td id="hostMessage"></td>
+            </tr>
+            <tr>
+                <td>调用进程号：</td>
+                <td id="process"></td>
+            </tr>
+            <tr>
+                <td style="border-bottom:none;">异常堆栈：</td>
+                <td style="border-bottom:none;" id="exceptionStack"></td>
+            </tr>
+            </tbody>
+        </table>
+        <!-- <button class="md-close">关闭</button> -->
+    </div>
+</div>
+<div class="md-overlay"></div><!-- the overlay element -->
 
+<script src="/webjars/jquery/2.2.4/jquery.min.js"></script>
+<script src="\webjars\d3js\4.2.1\d3.min.js"></script>
+<script src="trace.js"></script>
+<!--<script src="d3.v3.min.js"></script>-->
 </body>
 </html>

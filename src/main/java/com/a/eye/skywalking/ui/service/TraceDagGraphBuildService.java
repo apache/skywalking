@@ -46,7 +46,10 @@ public class TraceDagGraphBuildService {
 
             logger.debug("front node code: %s, behind node code: %s", front, behind);
             if (!nodeMapping.containsKey(front)) {
-                String component = nodeDataMap.get(front).get("component").getAsString();
+                String component = ImageCache.UNDEFINED_IMAGE;
+                if(nodeDataMap.get(front).has("component")){
+                    component = nodeDataMap.get(front).get("component").getAsString();
+                }
 
                 int nodeInstSum = 0;
                 if (sumMapping.containsKey(front)) {
@@ -59,7 +62,11 @@ public class TraceDagGraphBuildService {
 
             if (!nodeMapping.containsKey(behind)) {
                 logger.debug("behind: %s", behind);
-                String component = nodeDataMap.get(behind).get("component").getAsString();
+
+                String component = ImageCache.UNDEFINED_IMAGE;
+                if(nodeDataMap.get(front).has("component")){
+                    component = nodeDataMap.get(behind).get("component").getAsString();
+                }
 
                 int nodeInstSum = 0;
                 if (sumMapping.containsKey(behind)) {

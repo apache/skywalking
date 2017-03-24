@@ -11,6 +11,8 @@ import java.util.Map;
 @Component
 public class ImageCache {
 
+    public static final String UNDEFINED_IMAGE = "UNDEFINED";
+
     private Map<String, String> imageCache = new HashMap<>();
 
     public void putImage(String imageName, String base64Data) {
@@ -20,7 +22,7 @@ public class ImageCache {
     public String getImage(String imageName) {
         if (imageCache.containsKey(imageName.toLowerCase())) {
             return imageCache.get(imageName.toLowerCase());
-        }else{
+        } else {
             return imageCache.get("UNDEFINED".toLowerCase());
         }
     }
