@@ -128,7 +128,7 @@ public class SegmentPost extends AbstractPost {
 
         @Override
         public String servletPath() {
-            return "/segment";
+            return "/segments";
         }
 
         @Override
