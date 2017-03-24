@@ -100,10 +100,10 @@ public class SegmentPostTestCase {
 
 //    @Test
     public void testPostSample1Segment() throws Exception {
-//        HttpClientTools.INSTANCE.post("http://localhost:7001/segment", sample1);
-//        HttpClientTools.INSTANCE.post("http://localhost:7001/segment", sample2);
-//        HttpClientTools.INSTANCE.post("http://localhost:7001/segment", sample3);
-        HttpClientTools.INSTANCE.post("http://localhost:7001/segment", test);
+//        HttpClientTools.INSTANCE.post("http://localhost:7001/segments", sample1);
+//        HttpClientTools.INSTANCE.post("http://localhost:7001/segments", sample2);
+//        HttpClientTools.INSTANCE.post("http://localhost:7001/segments", sample3);
+        HttpClientTools.INSTANCE.post("http://localhost:7001/segments", test);
     }
 
     private String test = "[{\"ts\":\"Segment.1490346133016.1756883859.5046.1.1\",\"st\":1490346133015,\"et\":1490346133041,\"ss\":[{\"si\":0,\"ps\":-1,\"st\":1490346133020,\"et\":1490346133041,\"on\":\"H2/JDBI/Statement/execute\",\"ts\":{\"db.instance\":\"dataSource\",\"span.layer\":\"db\",\"db.type\":\"sql\",\"component\":\"H2\",\"span.kind\":\"client\",\"db.statement\":\"CREATE TABLE CACHE_TABLE ( id INTEGER PRIMARY KEY AUTO_INCREMENT, CACHE_KEY VARCHAR(30), CACHE_VALUE VARCHAR(50) )\",\"peer.host\":\"localhost\"},\"tb\":{},\"ti\":{\"peer.port\":-1},\"lo\":[]}],\"ac\":\"cache-service\",\"gt\":[\"Trace.1490346133019.1756883859.5046.1.2\"],\"sampled\":true,\"minute\":201703241702,\"hour\":201703241700,\"day\":201703240000,\"aggId\":null}]";
