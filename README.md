@@ -13,56 +13,11 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, also known D
 [![OpenTracing-1.0 Badge](https://img.shields.io/badge/OpenTracing--1.0-enabled-blue.svg)](http://opentracing.io)
 [![Release Version](https://img.shields.io/badge/stable-2.3--2017-brightgreen.svg)](https://github.com/wu-sheng/sky-walking/releases)
 
-# News
-* sky-walking v3.0 iteration begins... The top 2 important features are: [`Update the trace-structure`](https://github.com/wu-sheng/sky-walking/issues/83) and [`Analyze trace, and bring metric/analytic/cause up`](https://github.com/wu-sheng/sky-walking/issues/84)
-* See feature codes at [branch feature/3.0](https://github.com/wu-sheng/sky-walking/tree/feature/3.0)
-* The new UI release on [wu-sheng/sky-walking-ui](https://github.com/wu-sheng/sky-walking-ui)
 
-# Abstract
-* An open source Large-Scale Distributed Systems Tracing Infrastructure, also known a ditributed tracer.
-* Based on [Google Dapper Paper: Dapper, a Large-Scale Distributed Systems Tracing Infrastructure](http://research.google.com/pubs/pub36356.html), read [Simplified Chinese Version](http://duanple.blog.163.com/blog/static/70971767201329113141336/)
-* Support popular rpc frameworks, such as [dubbo](https://github.com/alibaba/dubbo), [dubbox](https://github.com/dangdangdotcom/dubbox), [motan](https://github.com/weibocom/motan) etc., trigger email-alert when application occurs unexpected exception.
-* Auto-instrumentation mechenism, **no need to CHANGE any application source code**.
-* Easy to deploy, **even in product mode** (since 2.0) . No need of Hadoop, HBase, or Cassandra Cluster.
-* Pure Java server implementation. provide HTTP (since 2.1) cross-platform spans collecting service.
-* High performance stream process. 
-
-
-# Supported components
-
-### web containers
-* Tomcat 7
-* Tomcat 8
-
-### databases
-* mysql
-* oracle
-* h2
-* easily extend to support sybase, sqlserver, jtds, db2, informix
-
-### rpc frameworks
-* dubbo 
-* dubbox 
-* httpClient
-* motan
-
-### cache
-* jedis
-
-### opentracing supported frameworks
-* motan
-* hprose-java
-
-# Contributors
-* 吴晟 [wusheng](https://github.com/wu-sheng) &nbsp;&nbsp;wu.sheng@foxmail.com
-* 张鑫 [zhangxin](https://github.com/ascrutae) &nbsp;&nbsp;
-
-
-_Chinese Articles about sky-walking and distributed tracer_
-
-<img src="docs/resources/toutiao.JPG" alt="Sky Walking TouTiao" height="280px" />
-
-_If you are Chinese Developer, you can join QQ Group: 392443393, and **Tagged** Sky-Walking._
+* Auto-instrumentation mechanism, **no need to CHANGE any application source code**. Supported [frameworks](https://github.com/wu-sheng/sky-walking/wiki/3.0-supported-list).
+* Pure Java server implementation. provide HTTP traces collecting service.
+* High performance stream analysis.
+* The UI released on [wu-sheng/sky-walking-ui](https://github.com/wu-sheng/sky-walking-ui)
 
 ___
 
@@ -71,10 +26,18 @@ ___
 </a>
 
 In October 2016, Sky Walking won `OneAPM Open Source Achievement Award`. The award appreciates sky walking for its "*contribution to popularization of APM technology*". <br/>
-[OneAPM](http://www.oneapm.com/) will provide financial support for the project in 2016-2017.<br/><br/> 
+[OneAPM](http://www.oneapm.com/) provides financial support for the project in 2016-2017.<br/><br/> 
 Thanks all users of sky walking project.
 
 ___
+
+# Contributors
+_In chronological order_
+* 吴晟 [@wu-sheng](https://github.com/wu-sheng) 
+* 张鑫 [@ascrutae](https://github.com/ascrutae) 
+* 徐妍 [@TastySummer](https://github.com/TastySummer)
+* 彭勇升 [@pengys5](https://github.com/pengys5)
+* 戴文
 
 
 # Quick View
@@ -92,3 +55,5 @@ ___
 
 # Document
 * [WIKI](https://github.com/wu-sheng/sky-walking/wiki)
+
+_If you are Chinese Developer, you can join QQ Group: 392443393, and **Tagged** Sky-Walking._
