@@ -1,5 +1,9 @@
-# sky-walking web UI
-The web UI for sky-walking APM. This independence UI repository begins since sky-walking 3.0.
+Sky Walking Web UI
+===============
+
+<img src="src/main/resources/public/img/logo.png" alt="Sky Walking logo" height="90px" align="right" />
+
+The web UI for [sky-walking APM](https://github.com/wu-sheng/sky-walking). This independence UI repository works since sky-walking 3.0.
 
 1. Topological graph of application cluster, inclusing tps of every application.
 1. Alarms.
