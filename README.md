@@ -35,6 +35,7 @@ ___
 _In chronological order_
 * 吴晟 [@wu-sheng](https://github.com/wu-sheng) 
 * 张鑫 [@ascrutae](https://github.com/ascrutae) 
+* 谭真 [@mircoteam](https://github.com/mircoteam)
 * 徐妍 [@TastySummer](https://github.com/TastySummer)
 * 彭勇升 [@pengys5](https://github.com/pengys5)
 * 戴文
