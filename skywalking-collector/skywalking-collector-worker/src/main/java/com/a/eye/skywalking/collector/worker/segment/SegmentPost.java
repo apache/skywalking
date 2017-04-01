@@ -85,6 +85,7 @@ public class SegmentPost extends AbstractPost {
             long hourSlice = DateTools.getHourSlice(newSegment.getStartTime());
             long daySlice = DateTools.getDaySlice(newSegment.getStartTime());
             int second = DateTools.getSecond(newSegment.getStartTime());
+            logger.debug("minuteSlice: %s, hourSlice: %s, daySlice: %s, second:%s", minuteSlice, hourSlice, daySlice, second);
 
             SegmentWithTimeSlice segmentWithTimeSlice = new SegmentWithTimeSlice(newSegment, minuteSlice, hourSlice, daySlice, second);
             String newSegmentJsonStr = gson.toJson(newSegment);

@@ -14,6 +14,7 @@ import com.a.eye.skywalking.collector.worker.segment.mock.SegmentMock;
 import com.a.eye.skywalking.collector.worker.segment.persistence.SegmentCostSave;
 import com.a.eye.skywalking.collector.worker.segment.persistence.SegmentExceptionSave;
 import com.a.eye.skywalking.collector.worker.segment.persistence.SegmentSave;
+import com.a.eye.skywalking.collector.worker.tools.DateTools;
 import com.google.gson.JsonObject;
 import org.junit.Assert;
 import org.junit.Before;
@@ -166,48 +167,48 @@ public class SegmentPostTestCase {
 
         segmentPost.onReceive(cacheServiceSegmentAsString);
 
-        Assert.assertEquals(201703310915L, segmentSaveAnswer_1.minute);
-        Assert.assertEquals(201703310900L, segmentSaveAnswer_1.hour);
+        Assert.assertEquals(DateTools.changeToUTCSlice(201703310915L), segmentSaveAnswer_1.minute);
+        Assert.assertEquals(DateTools.changeToUTCSlice(201703310900L), segmentSaveAnswer_1.hour);
         Assert.assertEquals(201703310000L, segmentSaveAnswer_1.day);
 
-        Assert.assertEquals(201703310915L, segmentSaveAnswer_2.minute);
-        Assert.assertEquals(201703310900L, segmentSaveAnswer_2.hour);
+        Assert.assertEquals(DateTools.changeToUTCSlice(201703310915L), segmentSaveAnswer_2.minute);
+        Assert.assertEquals(DateTools.changeToUTCSlice(201703310900L), segmentSaveAnswer_2.hour);
         Assert.assertEquals(201703310000L, segmentSaveAnswer_2.day);
 
-        Assert.assertEquals(201703310915L, segmentCostSaveAnswer.segmentWithTimeSlice.getMinute());
-        Assert.assertEquals(201703310900L, segmentCostSaveAnswer.segmentWithTimeSlice.getHour());
+        Assert.assertEquals(DateTools.changeToUTCSlice(201703310915L), segmentCostSaveAnswer.segmentWithTimeSlice.getMinute());
+        Assert.assertEquals(DateTools.changeToUTCSlice(201703310900L), segmentCostSaveAnswer.segmentWithTimeSlice.getHour());
         Assert.assertEquals(201703310000L, segmentCostSaveAnswer.segmentWithTimeSlice.getDay());
 
-        Assert.assertEquals(201703310915L, globalTraceAnalysisAnswer.segmentWithTimeSlice.getMinute());
-        Assert.assertEquals(201703310900L, globalTraceAnalysisAnswer.segmentWithTimeSlice.getHour());
+        Assert.assertEquals(DateTools.changeToUTCSlice(201703310915L), globalTraceAnalysisAnswer.segmentWithTimeSlice.getMinute());
+        Assert.assertEquals(DateTools.changeToUTCSlice(201703310900L), globalTraceAnalysisAnswer.segmentWithTimeSlice.getHour());
         Assert.assertEquals(201703310000L, globalTraceAnalysisAnswer.segmentWithTimeSlice.getDay());
 
-        Assert.assertEquals(201703310915L, segmentExceptionSaveAnswer.segmentWithTimeSlice.getMinute());
-        Assert.assertEquals(201703310900L, segmentExceptionSaveAnswer.segmentWithTimeSlice.getHour());
+        Assert.assertEquals(DateTools.changeToUTCSlice(201703310915L), segmentExceptionSaveAnswer.segmentWithTimeSlice.getMinute());
+        Assert.assertEquals(DateTools.changeToUTCSlice(201703310900L), segmentExceptionSaveAnswer.segmentWithTimeSlice.getHour());
         Assert.assertEquals(201703310000L, segmentExceptionSaveAnswer.segmentWithTimeSlice.getDay());
 
-        Assert.assertEquals(201703310915L, nodeRefMinuteAnalysisAnswer.segmentWithTimeSlice.getMinute());
-        Assert.assertEquals(201703310900L, nodeRefMinuteAnalysisAnswer.segmentWithTimeSlice.getHour());
+        Assert.assertEquals(DateTools.changeToUTCSlice(201703310915L), nodeRefMinuteAnalysisAnswer.segmentWithTimeSlice.getMinute());
+        Assert.assertEquals(DateTools.changeToUTCSlice(201703310900L), nodeRefMinuteAnalysisAnswer.segmentWithTimeSlice.getHour());
         Assert.assertEquals(201703310000L, nodeRefMinuteAnalysisAnswer.segmentWithTimeSlice.getDay());
 
-        Assert.assertEquals(201703310915L, nodeRefHourAnalysisAnswer.segmentWithTimeSlice.getMinute());
-        Assert.assertEquals(201703310900L, nodeRefHourAnalysisAnswer.segmentWithTimeSlice.getHour());
+        Assert.assertEquals(DateTools.changeToUTCSlice(201703310915L), nodeRefHourAnalysisAnswer.segmentWithTimeSlice.getMinute());
+        Assert.assertEquals(DateTools.changeToUTCSlice(201703310900L), nodeRefHourAnalysisAnswer.segmentWithTimeSlice.getHour());
         Assert.assertEquals(201703310000L, nodeRefHourAnalysisAnswer.segmentWithTimeSlice.getDay());
 
-        Assert.assertEquals(201703310915L, nodeRefDayAnalysisAnswer.segmentWithTimeSlice.getMinute());
-        Assert.assertEquals(201703310900L, nodeRefDayAnalysisAnswer.segmentWithTimeSlice.getHour());
+        Assert.assertEquals(DateTools.changeToUTCSlice(201703310915L), nodeRefDayAnalysisAnswer.segmentWithTimeSlice.getMinute());
+        Assert.assertEquals(DateTools.changeToUTCSlice(201703310900L), nodeRefDayAnalysisAnswer.segmentWithTimeSlice.getHour());
         Assert.assertEquals(201703310000L, nodeRefDayAnalysisAnswer.segmentWithTimeSlice.getDay());
 
-        Assert.assertEquals(201703310915L, nodeMinuteAnalysisAnswer.segmentWithTimeSlice.getMinute());
-        Assert.assertEquals(201703310900L, nodeMinuteAnalysisAnswer.segmentWithTimeSlice.getHour());
+        Assert.assertEquals(DateTools.changeToUTCSlice(201703310915L), nodeMinuteAnalysisAnswer.segmentWithTimeSlice.getMinute());
+        Assert.assertEquals(DateTools.changeToUTCSlice(201703310900L), nodeMinuteAnalysisAnswer.segmentWithTimeSlice.getHour());
         Assert.assertEquals(201703310000L, nodeMinuteAnalysisAnswer.segmentWithTimeSlice.getDay());
 
-        Assert.assertEquals(201703310915L, nodeHourAnalysisAnswer.segmentWithTimeSlice.getMinute());
-        Assert.assertEquals(201703310900L, nodeHourAnalysisAnswer.segmentWithTimeSlice.getHour());
+        Assert.assertEquals(DateTools.changeToUTCSlice(201703310915L), nodeHourAnalysisAnswer.segmentWithTimeSlice.getMinute());
+        Assert.assertEquals(DateTools.changeToUTCSlice(201703310900L), nodeHourAnalysisAnswer.segmentWithTimeSlice.getHour());
         Assert.assertEquals(201703310000L, nodeHourAnalysisAnswer.segmentWithTimeSlice.getDay());
 
-        Assert.assertEquals(201703310915L, nodeDayAnalysisAnswer.segmentWithTimeSlice.getMinute());
-        Assert.assertEquals(201703310900L, nodeDayAnalysisAnswer.segmentWithTimeSlice.getHour());
+        Assert.assertEquals(DateTools.changeToUTCSlice(201703310915L), nodeDayAnalysisAnswer.segmentWithTimeSlice.getMinute());
+        Assert.assertEquals(DateTools.changeToUTCSlice(201703310900L), nodeDayAnalysisAnswer.segmentWithTimeSlice.getHour());
         Assert.assertEquals(201703310000L, nodeDayAnalysisAnswer.segmentWithTimeSlice.getDay());
     }
 
