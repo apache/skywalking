@@ -1,6 +1,6 @@
 package com.a.eye.skywalking.collector.worker.nodeinst;
 
-import com.a.eye.skywalking.collector.worker.storage.index.AbstractIndex;
+import com.a.eye.skywalking.collector.worker.storage.AbstractIndex;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 

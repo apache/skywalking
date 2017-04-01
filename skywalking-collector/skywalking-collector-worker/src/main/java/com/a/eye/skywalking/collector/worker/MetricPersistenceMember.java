@@ -33,7 +33,7 @@ public abstract class MetricPersistenceMember extends PersistenceMember {
     }
 
     @Override
-    public void analyse(Object message) throws Exception {
+    final public void analyse(Object message) throws Exception {
         if (message instanceof MetricData) {
             MetricData metricData = (MetricData) message;
             persistenceData.getElseCreate(metricData.getId()).merge(metricData);
@@ -45,7 +45,7 @@ public abstract class MetricPersistenceMember extends PersistenceMember {
         }
     }
 
-    protected void persistence() {
+    final protected void persistence() {
         MultiGetResponse multiGetResponse = searchFromEs();
         for (MultiGetItemResponse itemResponse : multiGetResponse) {
             GetResponse response = itemResponse.getResponse();

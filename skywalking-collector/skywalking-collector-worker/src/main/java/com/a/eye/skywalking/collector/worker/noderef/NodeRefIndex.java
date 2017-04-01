@@ -1,8 +1,6 @@
 package com.a.eye.skywalking.collector.worker.noderef;
 
-import com.a.eye.skywalking.collector.worker.storage.index.AbstractIndex;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import com.a.eye.skywalking.collector.worker.storage.AbstractIndex;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 

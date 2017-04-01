@@ -1,7 +1,6 @@
-package com.a.eye.skywalking.collector.worker.storage.index;
+package com.a.eye.skywalking.collector.worker.segment;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import com.a.eye.skywalking.collector.worker.storage.AbstractIndex;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 
@@ -10,11 +9,13 @@ import java.io.IOException;
 /**
  * @author pengys5
  */
-public class ClientNodeIndex extends AbstractIndex {
+public class SegmentExceptionIndex extends AbstractIndex {
 
-    private Logger logger = LogManager.getFormatterLogger(ClientNodeIndex.class);
+    public static final String Index = "segment_exp_idx";
 
-    public static final String Index = "client_node_idx";
+    public static final String SegId = "segId";
+    public static final String IsError = "isError";
+    public static final String ErrorKind = "errorKind";
 
     @Override
     public String index() {
@@ -23,7 +24,7 @@ public class ClientNodeIndex extends AbstractIndex {
 
     @Override
     public boolean isRecord() {
-        return false;
+        return true;
     }
 
     @Override
@@ -31,20 +32,16 @@ public class ClientNodeIndex extends AbstractIndex {
         XContentBuilder mappingBuilder = XContentFactory.jsonBuilder()
                 .startObject()
                     .startObject("properties")
-                        .startObject("layer")
+                        .startObject(SegId)
                             .field("type", "string")
                             .field("index", "not_analyzed")
                         .endObject()
-                        .startObject("component")
-                            .field("type", "string")
+                        .startObject(IsError)
+                            .field("type", "boolean")
                             .field("index", "not_analyzed")
                         .endObject()
-                        .startObject("serverHost")
+                        .startObject(ErrorKind)
                             .field("type", "string")
-                            .field("index", "not_analyzed")
-                        .endObject()
-                        .startObject("timeSlice")
-                            .field("type", "long")
                             .field("index", "not_analyzed")
                         .endObject()
                     .endObject()

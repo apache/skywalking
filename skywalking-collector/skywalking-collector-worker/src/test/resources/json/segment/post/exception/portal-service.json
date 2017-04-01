@@ -1,0 +1,77 @@
+[
+  {
+    "ts": "Segment.1490923010324.1797892356.6003.67.1",
+    "st": 1490923010324,
+    "et": 1490923010336,
+    "ss": [
+      {
+        "si": 2,
+        "ps": 1,
+        "st": 1490923010327,
+        "et": 1490923010332,
+        "on": "com.a.eye.skywalking.test.cache.CacheService.findCacheWithException(java.lang.String)",
+        "ts": {
+          "span.layer": "rpc",
+          "peer.host": "127.0.0.1",
+          "component": "Motan",
+          "span.kind": "client",
+          "url": "motan://127.0.0.1:8002/default_rpc/com.a.eye.skywalking.test.cache.CacheService/1.0/referer"
+        },
+        "tb": {},
+        "ti": {
+          "peer.port": 8002
+        },
+        "lo": [
+          {
+            "tm": 1490923010332,
+            "fi": {
+              "stack": "com.weibo.api.motan.exception.MotanBizException: error_message: provider call process error, status: 503, error_code: 30001,r\u003dnull\n\tat com.weibo.api.motan.rpc.DefaultProvider.invoke(DefaultProvider.java:62)\n\tat com.weibo.api.motan.rpc.AbstractProvider.call(AbstractProvider.java:47)\n\tat com.weibo.api.motan.filter.opentracing.OpenTracingFilter.process(OpenTracingFilter.java:94)\n\tat com.weibo.api.motan.filter.opentracing.OpenTracingFilter.processProviderTrace(OpenTracingFilter.java:148)\n\tat com.weibo.api.motan.filter.opentracing.OpenTracingFilter.filter(OpenTracingFilter.java:58)\n\tat com.weibo.api.motan.protocol.support.ProtocolFilterDecorator$2.call(ProtocolFilterDecorator.java:150)\n\tat com.weibo.api.motan.transport.ProviderMessageRouter.call$original$doBagGo8(ProviderMessageRouter.java:96)\n\tat com.weibo.api.motan.transport.ProviderMessageRouter.call$original$doBagGo8$accessor$PEWyOMYz(ProviderMessageRouter.java)\n\tat com.weibo.api.motan.transport.ProviderMessageRouter$auxiliary$s7ixnKeK.call(Unknown Source)\n\tat com.a.eye.skywalking.api.plugin.interceptor.enhance.ClassInstanceMethodsInterceptor.intercept(ClassInstanceMethodsInterceptor.java:66)\n\tat com.weibo.api.motan.transport.ProviderMessageRouter.call(ProviderMessageRouter.java)\n\tat com.weibo.api.motan.transport.ProviderProtectedMessageRouter.call(ProviderProtectedMessageRouter.java:79)\n\tat com.weibo.api.motan.transport.ProviderMessageRouter.handle(ProviderMessageRouter.java:91)\n\tat com.weibo.api.motan.transport.support.DefaultRpcHeartbeatFactory$HeartMessageHandleWrapper.handle(DefaultRpcHeartbeatFactory.java:82)\n\tat com.weibo.api.motan.transport.netty.NettyChannelHandler.processRequest(NettyChannelHandler.java:139)\n\tat com.weibo.api.motan.transport.netty.NettyChannelHandler.access$000(NettyChannelHandler.java:47)\n\tat com.weibo.api.motan.transport.netty.NettyChannelHandler$1.run(NettyChannelHandler.java:116)\n\tat java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)\n\tat java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)\n\tat java.lang.Thread.run(Thread.java:745)\nCaused by: java.lang.NullPointerException\n\tat com.a.eye.skywalking.test.cache.jedis.JedisServiceManager.findWithException(JedisServiceManager.java:49)\n\tat com.a.eye.skywalking.test.cache.CacheServiceImpl.findCacheWithException(CacheServiceImpl.java:46)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\n\tat sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\n\tat java.lang.reflect.Method.invoke(Method.java:498)\n\tat com.weibo.api.motan.rpc.DefaultProvider.invoke(DefaultProvider.java:57)\n\t... 19 more\ncom.weibo.api.motan.exception.MotanBizException: error_message: provider call process error, status: 503, error_code: 30001,r\u003dnull\n\tat com.weibo.api.motan.rpc.DefaultProvider.invoke(DefaultProvider.java:62)\n\tat com.weibo.api.motan.rpc.AbstractProvider.call(AbstractProvider.java:47)\n\tat com.weibo.api.motan.filter.opentracing.OpenTracingFilter.process(OpenTracingFilter.java:94)\n\tat com.weibo.api.motan.filter.opentracing.OpenTracingFilter.processProviderTrace(OpenTracingFilter.java:148)\n\tat com.weibo.api.motan.filter.opentracing.OpenTracingFilter.filter(OpenTracingFilter.java:58)\n\tat com.weibo.api.motan.protocol.support.ProtocolFilterDecorator$2.call(ProtocolFilterDecorator.java:150)\n\tat com.weibo.api.motan.transport.ProviderMessageRouter.call$original$doBagGo8(ProviderMessageRouter.java:96)\n\tat com.weibo.api.motan.transport.ProviderMessageRouter.call$original$doBagGo8$accessor$PEWyOMYz(ProviderMessageRouter.java)\n\tat com.weibo.api.motan.transport.ProviderMessageRouter$auxiliary$s7ixnKeK.call(Unknown Source)\n\tat com.a.eye.skywalking.api.plugin.interceptor.enhance.ClassInstanceMethodsInterceptor.intercept(ClassInstanceMethodsInterceptor.java:66)\n\tat com.weibo.api.motan.transport.ProviderMessageRouter.call(ProviderMessageRouter.java)\n\tat com.weibo.api.",
+              "error.kind": "com.weibo.api.motan.exception.MotanBizException",
+              "event": "error",
+              "message": "error_message: provider call process error, status: 503, error_code: 30001,r\u003dnull"
+            }
+          }
+        ]
+      },
+      {
+        "si": 1,
+        "ps": 0,
+        "st": 0,
+        "et": 1490923010332,
+        "on": "Motan_default_rpc_com.a.eye.skywalking.test.cache.CacheService.findCacheWithException(java.lang.String)",
+        "ts": {
+          "requestId": "1563346086476644362"
+        },
+        "tb": {},
+        "ti": {},
+        "lo": []
+      },
+      {
+        "si": 0,
+        "ps": -1,
+        "st": 1490923010324,
+        "et": 1490923010336,
+        "on": "/portal/cache/exception/test",
+        "ts": {
+          "span.layer": "http",
+          "component": "Tomcat",
+          "peer.host": "0:0:0:0:0:0:0:1",
+          "span.kind": "server",
+          "url": "http://localhost:38080/portal/cache/exception/test"
+        },
+        "tb": {
+          "error": true
+        },
+        "ti": {
+          "peer.port": 57888,
+          "status_code": 500
+        },
+        "lo": []
+      }
+    ],
+    "ac": "portal-service",
+    "gt": [
+      "Trace.1490923010324.1797892356.6003.67.2"
+    ]
+  }
+]

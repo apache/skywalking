@@ -1,6 +1,5 @@
-package com.a.eye.skywalking.collector.worker.storage.index;
+package com.a.eye.skywalking.collector.worker.storage;
 
-import com.a.eye.skywalking.collector.worker.storage.EsClient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;

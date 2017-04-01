@@ -7,6 +7,7 @@ import com.a.eye.skywalking.collector.actor.ProviderNotFoundException;
 import com.a.eye.skywalking.collector.actor.Role;
 import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
 import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
+import com.a.eye.skywalking.collector.worker.globaltrace.analysis.GlobalTraceAnalysis;
 import com.a.eye.skywalking.collector.worker.httpserver.AbstractPost;
 import com.a.eye.skywalking.collector.worker.httpserver.AbstractPostProvider;
 import com.a.eye.skywalking.collector.worker.node.analysis.NodeDayAnalysis;
@@ -18,6 +19,8 @@ import com.a.eye.skywalking.collector.worker.nodeinst.analysis.NodeInstMinuteAna
 import com.a.eye.skywalking.collector.worker.noderef.analysis.NodeRefDayAnalysis;
 import com.a.eye.skywalking.collector.worker.noderef.analysis.NodeRefHourAnalysis;
 import com.a.eye.skywalking.collector.worker.noderef.analysis.NodeRefMinuteAnalysis;
+import com.a.eye.skywalking.collector.worker.segment.persistence.SegmentCostSave;
+import com.a.eye.skywalking.collector.worker.segment.persistence.SegmentExceptionSave;
 import com.a.eye.skywalking.collector.worker.segment.persistence.SegmentSave;
 import com.a.eye.skywalking.collector.worker.storage.AbstractTimeSlice;
 import com.a.eye.skywalking.collector.worker.tools.DateTools;
@@ -37,15 +40,20 @@ public class SegmentPost extends AbstractPost {
 
     private Logger logger = LogManager.getFormatterLogger(SegmentPost.class);
 
-    private Gson gson = new Gson();
+    private Gson gson;
 
     public SegmentPost(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
+        gson = new Gson();
     }
 
     @Override
     public void preStart() throws ProviderNotFoundException {
+        getClusterContext().findProvider(GlobalTraceAnalysis.Role.INSTANCE).create(this);
+
         getClusterContext().findProvider(SegmentSave.Role.INSTANCE).create(this);
+        getClusterContext().findProvider(SegmentCostSave.Role.INSTANCE).create(this);
+        getClusterContext().findProvider(SegmentExceptionSave.Role.INSTANCE).create(this);
 
         getClusterContext().findProvider(NodeRefMinuteAnalysis.Role.INSTANCE).create(this);
         getClusterContext().findProvider(NodeRefHourAnalysis.Role.INSTANCE).create(this);
@@ -82,6 +90,10 @@ public class SegmentPost extends AbstractPost {
             String newSegmentJsonStr = gson.toJson(newSegment);
             tellSegmentSave(newSegmentJsonStr, daySlice, hourSlice, minuteSlice);
 
+            getSelfContext().lookup(SegmentCostSave.Role.INSTANCE).tell(segmentWithTimeSlice);
+            getSelfContext().lookup(GlobalTraceAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
+            getSelfContext().lookup(SegmentExceptionSave.Role.INSTANCE).tell(segmentWithTimeSlice);
+
             tellNodeRef(segmentWithTimeSlice);
             tellNode(segmentWithTimeSlice);
 //            tellNodeInst(segmentWithTimeSlice);
@@ -108,11 +120,11 @@ public class SegmentPost extends AbstractPost {
         getSelfContext().lookup(NodeDayAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
     }
 
-    private void tellNodeInst(SegmentWithTimeSlice segmentWithTimeSlice) throws Exception {
-        getSelfContext().lookup(NodeInstMinuteAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
-        getSelfContext().lookup(NodeInstHourAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
-        getSelfContext().lookup(NodeInstDayAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
-    }
+//    private void tellNodeInst(SegmentWithTimeSlice segmentWithTimeSlice) throws Exception {
+//        getSelfContext().lookup(NodeInstMinuteAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
+//        getSelfContext().lookup(NodeInstHourAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
+//        getSelfContext().lookup(NodeInstDayAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
+//    }
 
     private void validateData(TraceSegment newSegment) {
         if (StringUtil.isEmpty(newSegment.getTraceSegmentId())) {

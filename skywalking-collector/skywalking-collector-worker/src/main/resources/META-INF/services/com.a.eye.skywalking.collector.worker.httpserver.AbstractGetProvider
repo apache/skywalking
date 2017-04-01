@@ -3,3 +3,8 @@ com.a.eye.skywalking.collector.worker.nodeinst.NodeInstGetWithTimeSlice$Factory
 com.a.eye.skywalking.collector.worker.nodeinst.NodeInstSummaryGetWithTimeSlice$Factory
 com.a.eye.skywalking.collector.worker.noderef.NodeRefGetWithTimeSlice$Factory
 com.a.eye.skywalking.collector.worker.noderef.NodeRefResSumGetWithTimeSlice$Factory
+com.a.eye.skywalking.collector.worker.noderef.NodeRefResSumGetGroupWithTimeSlice$Factory
+com.a.eye.skywalking.collector.worker.segment.SegmentTopGetWithTimeSlice$Factory
+com.a.eye.skywalking.collector.worker.globaltrace.GlobalTraceGetWithGlobalId$Factory
+com.a.eye.skywalking.collector.worker.segment.SegmentTopGetWithGlobalTraceId$Factory
+com.a.eye.skywalking.collector.worker.span.SpanGetWithId$Factory

@@ -4,7 +4,6 @@ import com.a.eye.skywalking.collector.actor.AbstractLocalAsyncWorkerProvider;
 import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
 import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
 import com.a.eye.skywalking.collector.actor.selector.HashCodeSelector;
-import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
 import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
 import com.a.eye.skywalking.collector.worker.RecordPersistenceMember;
 import com.a.eye.skywalking.collector.worker.WorkerConfig;

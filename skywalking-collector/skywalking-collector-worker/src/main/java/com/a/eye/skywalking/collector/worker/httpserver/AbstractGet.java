@@ -21,7 +21,13 @@ public abstract class AbstractGet extends AbstractLocalSyncWorker {
     @Override
     final public void onWork(Object request, Object response) throws Exception {
         Map<String, String[]> parameterMap = (Map<String, String[]>) request;
-        onSearch(parameterMap, (JsonObject) response);
+        try {
+            onSearch(parameterMap, (JsonObject) response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            ((JsonObject) response).addProperty("isSuccess", false);
+            ((JsonObject) response).addProperty("reason", e.getMessage());
+        }
     }
 
     protected abstract void onSearch(Map<String, String[]> request, JsonObject response) throws Exception;
