@@ -102,6 +102,7 @@ function todayDagLoad() {
     var startTimeStr = moment().subtract(30, 'days').format("YYYYMMDD") + "0000";
 
     loadDateRangeDag("day", startTimeStr, endTimeStr);
+    loadCostData("day", startTimeStr, endTimeStr);
 }
 
 function loadDateRangeDag(slice, startTimeStr, endTimeStr) {

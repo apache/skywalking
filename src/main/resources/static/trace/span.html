@@ -1,0 +1,59 @@
+<!-- @author pengys5 -->
+<script id="spanModalTemplate" type="text/x-jsrender">
+<div class="modal-dialog modal-lg">
+    <div class="modal-content animated flipInY">
+        <div class="modal-header" style="padding-bottom: 0">
+            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span
+                    class="sr-only">Close</span></button>
+            <h4 class="modal-title">Span Info</h4>
+            <small class="font-bold">OperationName: {{:on}})</small><br/>
+            <small class="font-bold">{{:st}} - {{:et}}</small>
+        </div>
+        <div class="modal-body" style="padding: 0">
+            <div class="tabs-container">
+
+                <div class="tabs-left">
+                    <ul class="nav nav-tabs">
+                        <li class="active"><a data-toggle="tab" href="#tags">Tags</a></li>
+                        {{for lo}}
+                          <li class=""><a data-toggle="tab" href="#logData{{: #index+1}}">Log Data{{: #index+1}}</a></li>
+                        {{/for}}
+                    </ul>
+                    <div class="tab-content ">
+                        <div id="tags" class="tab-pane active">
+                            <div class="panel-body">
+                                {{props ts}}
+                                    <strong>{{>key}}</strong><p>{{>prop}}</p>
+                                {{/props}}
+                                {{props tb}}
+                                    <strong>{{>key}}</strong><p>{{>prop}}</p>
+                                {{/props}}
+                                {{props ti}}
+                                    <strong>{{>key}}</strong><p>{{>prop}}</p>
+                                {{/props}}
+                            </div>
+                        </div>
+                        {{for lo}}
+                        <div id="logData{{: #index+1}}" class="tab-pane">
+                            <div class="panel-body">
+                                <strong>time</strong><p>{{:tm}}</p>
+                                {{props fi}}
+                                    <strong>{{>key}}</strong><p>{{>prop}}</p>
+                                {{/props}}
+                            </div>
+                        </div>
+                        {{/for}}
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-white" data-dismiss="modal">Close</button>
+        </div>
+    </div>
+</div>
+
+</script>
+<script src="./span.js"></script>

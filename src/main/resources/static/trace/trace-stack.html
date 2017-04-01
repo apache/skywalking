@@ -1,0 +1,74 @@
+<!-- @author pengys5 -->
+<style>
+    svg {
+        overflow: visible;
+    }
+
+    .axis path, .axis line {
+        fill: none;
+        stroke: black;
+    }
+
+    .axis text {
+        font-size: 11px;
+    }
+
+    .rectText {
+        font-weight: 100;
+        fill: #393939;
+        font: 10px sans-serif;
+    }
+
+    .stack {
+        font-family: 'Microsoft Yahei';
+        border-radius: 5px;
+        position: relative;
+        display: block;
+        background: rgba(255, 255, 255, 9);
+    }
+
+    .stack .duration {
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        padding-top: 25px;
+        margin: 0;
+        width: 100%;
+    }
+
+    .axis {
+        position: absolute;
+        right: 0px;
+        color: #333;
+        text-align: right;
+        font-size: 12px;
+    }
+
+    .vlines, .hlines {
+        stroke: #333;
+        shape-rendering: crispEdges;
+        stroke-width: 2px;
+        stroke-opacity: 0;
+    }
+
+    .connlines {
+        stroke: #333;
+        shape-rendering: crispEdges;
+        stroke-width: 1px;
+        stroke-opacity: 1;
+    }
+
+    .legend {
+        color: #ffffff;
+        margin-right: 10px;
+        margin-top: 5px;
+    }
+</style>
+<div class="stack">
+    <div id="legendDiv" style="padding-bottom: 10px"></div>
+    <div class="axis"></div>
+    <div class="duration"></div>
+</div>
+
+<script src="\webjars\d3\3.5.17\d3.min.js"></script>
+<script src="./trace-stack.js"></script>

@@ -6,7 +6,7 @@ import com.google.gson.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,7 +14,7 @@ import java.util.Map;
 /**
  * @author pengys5
  */
-@Component
+@Service
 public class TraceDagGraphBuildService {
 
     private Logger logger = LogManager.getFormatterLogger(TraceDagGraphBuildService.class);
@@ -47,7 +47,7 @@ public class TraceDagGraphBuildService {
             logger.debug("front node code: %s, behind node code: %s", front, behind);
             if (!nodeMapping.containsKey(front)) {
                 String component = ImageCache.UNDEFINED_IMAGE;
-                if(nodeDataMap.get(front).has("component")){
+                if (nodeDataMap.get(front).has("component")) {
                     component = nodeDataMap.get(front).get("component").getAsString();
                 }
 
@@ -64,7 +64,7 @@ public class TraceDagGraphBuildService {
                 logger.debug("behind: %s", behind);
 
                 String component = ImageCache.UNDEFINED_IMAGE;
-                if(nodeDataMap.get(front).has("component")){
+                if (nodeDataMap.get(front).has("component")) {
                     component = nodeDataMap.get(behind).get("component").getAsString();
                 }
 

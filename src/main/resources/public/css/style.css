@@ -2880,15 +2880,15 @@ a.forum-item-title:hover {
 }
 .tabs-container .tabs-left > .nav-tabs,
 .tabs-container .tabs-right > .nav-tabs {
-  width: 20%;
+  width: 15%;
 }
 .tabs-container .tabs-left .panel-body {
-  width: 80%;
-  margin-left: 20%;
+  width: 85%;
+  margin-left: 15%;
 }
 .tabs-container .tabs-right .panel-body {
-  width: 80%;
-  margin-right: 20%;
+  width: 85%;
+  margin-left: 15%;
 }
 .tabs-container .tab-content > .tab-pane,
 .tabs-container .pill-content > .pill-pane {

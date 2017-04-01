@@ -9,65 +9,62 @@
     <meta http-equiv="expires" content="0">
     <meta http-equiv="X-UA-Compatible" content="chrome=1,IE=edge">
     <title>Skywalking UI</title>
-    <link href="./trace.css" rel="stylesheet">
+    <link href="/webjars/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/webjars/font-awesome/4.6.3/css/font-awesome.css" rel="stylesheet">
+    <link href="/webjars/animate.css/3.5.2/animate.css" rel="stylesheet">
+    <link href="\webjars\bootstrap-daterangepicker\2.1.24\css\bootstrap-daterangepicker.css" rel="stylesheet">
+    <link href="/public/css/style.css" rel="stylesheet">
+    <style>
+        .dataTables_wrapper {
+            padding-bottom: 0 !important;
+        }
+    </style>
 </head>
-<body>
-<div class="chart" id="outer">
-    <div class="duration"></div>
-    <div class="axis">
-        time / ms
+<body class="white-bg">
+<div class="row white-bg">
+    <div class="col-lg-2">
+        <div style="padding-left: 15px">
+            <a href="#" class="navbar-brand"
+               style="padding: 0; background: url(/public/img/logo.png) no-repeat center center; background-size: 86px 20px; width: 86px;"></a>
+        </div>
+    </div>
+    <div class="col-lg-10" id="queryConditionDiv" style="padding-bottom: 10px">
+        <div class="row" style="height: 50px">
+            <div class="col-md-4" style="line-height: 50px">
+                <span style="font-weight: 700;">GlobalTraceId:</span>
+                <input class="form-control" type="text" id="globalTraceIdInput"
+                       style="display: inline-block; width: 200px"/>
+            </div>
+            <div class="col-md-4" style="line-height: 50px;">
+                <span style="font-weight: 700;">DateRange:</span>
+                <input class="form-control" type="text" id="dateRangeInput" value=""
+                       style="display: inline-block; width: 250px"/>
+            </div>
+            <div class="col-md-4" style="line-height: 50px">
+                <span style="font-weight: 700;">CostRange:</span>
+                <input class="form-control" type="text" id="costMinInput" style="display: inline-block; width: 60px"/>
+                <span style="font-weight: 700;"> - </span>
+                <input class="form-control" type="text" id="costMaxInput" style="display: inline-block; width: 60px"/>
+                <button type="button" id="selectBtn" class="btn btn-success" style="display: inline-block;">Select
+                </button>
+            </div>
+        </div>
     </div>
 </div>
-<div class="header">
-    <h1>Chart</h1>
-</div>
-<!--modal-->
-<div class="md-modal md-effect" id="modal">
-    <div class="md-content">
-        <table border="0" width="100%" height="100%" cellpadding="0" cellspacing="0">
-            <tbody>
-            <tr>
-                <td>服务/方法：</td>
-                <td id="method"></td>
-            </tr>
-            <tr>
-                <td>调用类型：</td>
-                <td id="type"></td>
-            </tr>
-            <tr>
-                <td>花费时间：</td>
-                <td id="cost"></td>
-            </tr>
-            <tr>
-                <td>业务字段：</td>
-                <td id="businessField"></td>
-            </tr>
-            <tr>
-                <td>应用code：</td>
-                <td id="code"></td>
-            </tr>
-            <tr>
-                <td>主机信息：</td>
-                <td id="hostMessage"></td>
-            </tr>
-            <tr>
-                <td>调用进程号：</td>
-                <td id="process"></td>
-            </tr>
-            <tr>
-                <td style="border-bottom:none;">异常堆栈：</td>
-                <td style="border-bottom:none;" id="exceptionStack"></td>
-            </tr>
-            </tbody>
-        </table>
-        <!-- <button class="md-close">关闭</button> -->
+<div class="wrapper wrapper-content animated fadeInRight" style="padding-top: 0">
+    <div id="topTraceListDiv"></div>
+    <div id="traceStackDiv"></div>
+    <div class="modal inmodal" id="spanModalDiv" tabindex="-1" role="dialog" aria-hidden="true">
     </div>
+    <div id="spanModalTempDiv"></div>
 </div>
-<div class="md-overlay"></div><!-- the overlay element -->
 
 <script src="/webjars/jquery/2.2.4/jquery.min.js"></script>
-<script src="\webjars\d3js\4.2.1\d3.min.js"></script>
-<script src="trace.js"></script>
-<!--<script src="d3.v3.min.js"></script>-->
+<script src="/webjars/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+<script src="/webjars/jsviews/1.0.0-beta.70/jsrender.min.js"></script>
+<script src="/webjars/jsviews/1.0.0-beta.70/jsviews.min.js"></script>
+<script src="\webjars\momentjs\2.17.1\min\moment.min.js"></script>
+<script src="\webjars\bootstrap-daterangepicker\2.1.24\js\bootstrap-daterangepicker.js"></script>
+<script src="./trace.js"></script>
 </body>
 </html>

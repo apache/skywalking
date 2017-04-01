@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServletResponse;
 
 public abstract class ControllerBase {
 	public void reply(String result, HttpServletResponse response) throws IOException {
-		response.setContentType("text/html; charset=UTF-8");
+		response.setContentType("application/json; charset=UTF-8");
 		response.setStatus(HttpServletResponse.SC_OK);
 		PrintWriter writer = response.getWriter();
 		writer.write(result);

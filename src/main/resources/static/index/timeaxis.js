@@ -145,6 +145,8 @@ function bindDayRangePicker() {
     var endDate = moment(rangeDateTemp[rangeDateTemp.length - 1], "YYYY/MM/DD").format("YYYYMMDD");
     loadDateRangeDag(daySliceType, startDate + "0000", endDate + "0000");
 
+    loadCostData(daySliceType, startDate + "0000", endDate + "0000");
+
     $('#dateRangeInput').daterangepicker({
         startDate: moment().subtract(30, 'days'),
         endDate: moment(),
@@ -169,6 +171,8 @@ function bindDayRangePicker() {
         fromDate = start.format("YYYYMMDD");
         toDate = end.format("YYYYMMDD");
         loadDateRangeDag(daySliceType, fromDate + "0000", toDate + "0000");
+
+        loadCostData(daySliceType, fromDate + "0000", toDate + "0000");
     });
 
     $("#dataRangeBtn").click(function () {
@@ -186,6 +190,8 @@ function bindHourDatePicker() {
 
     var nowDay = moment().format("YYYYMMDD");
     loadDateRangeDag(hourSliceType, nowDay + "0000", nowDay + "2300");
+
+    loadCostData(hourSliceType, nowDay + "0000", nowDay + "2300");
 
     $('#dateRangeInput').daterangepicker({
         singleDatePicker: true,
@@ -207,6 +213,8 @@ function bindHourDatePicker() {
 
         fromDate = start.format("YYYYMMDD");
         loadDateRangeDag(hourSliceType, fromDate + "0000", fromDate + "2300");
+
+        loadCostData(hourSliceType, fromDate + "0000", fromDate + "2300");
     });
 
     $("#dataRangeBtn").click(function () {
@@ -228,6 +236,8 @@ function bindMinuteDatePicker() {
 
     var nowDay = moment().format("YYYYMMDDHH");
     loadDateRangeDag(minuteSliceType, nowDay + "00", nowDay + "59");
+
+    loadCostData(minuteSliceType, nowDay + "00", nowDay + "59");
 
     $('#dateRangeInput').daterangepicker({
         singleDatePicker: true,
@@ -253,6 +263,8 @@ function bindMinuteDatePicker() {
 
         fromDate = start.format("YYYYMMDDHH");
         loadDateRangeDag(minuteSliceType, fromDate + minute, fromDate + "59");
+
+        loadCostData(minuteSliceType, fromDate + minute, fromDate + "59");
     });
 
     $("#dataRangeBtn").click(function () {
