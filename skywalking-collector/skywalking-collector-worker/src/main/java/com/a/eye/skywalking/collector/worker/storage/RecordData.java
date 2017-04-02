@@ -2,7 +2,6 @@ package com.a.eye.skywalking.collector.worker.storage;
 
 import com.a.eye.skywalking.collector.actor.selector.AbstractHashMessage;
 import com.a.eye.skywalking.collector.worker.Const;
-import com.a.eye.skywalking.collector.worker.storage.index.AbstractIndex;
 import com.google.gson.JsonObject;
 
 /**

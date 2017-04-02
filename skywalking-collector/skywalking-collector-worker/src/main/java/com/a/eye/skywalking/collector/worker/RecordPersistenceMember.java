@@ -22,7 +22,7 @@ public abstract class RecordPersistenceMember extends PersistenceMember {
 
     private Logger logger = LogManager.getFormatterLogger(RecordPersistenceMember.class);
 
-    protected RecordPersistenceData persistenceData = new RecordPersistenceData();
+    private RecordPersistenceData persistenceData = new RecordPersistenceData();
 
     public RecordPersistenceMember(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
@@ -48,7 +48,7 @@ public abstract class RecordPersistenceMember extends PersistenceMember {
         }
     }
 
-    public boolean saveToEs() {
+    private boolean saveToEs() {
         Client client = EsClient.getClient();
         BulkRequestBuilder bulkRequest = client.prepareBulk();
         logger.debug("persistenceData size: %s", persistenceData.size());

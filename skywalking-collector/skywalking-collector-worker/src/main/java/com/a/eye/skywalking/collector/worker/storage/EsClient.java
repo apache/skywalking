@@ -17,8 +17,6 @@ import java.net.UnknownHostException;
  */
 public class EsClient {
 
-    private static Logger logger = LogManager.getFormatterLogger(EsClient.class);
-
     private static Client client;
 
     public static void boot() throws UnknownHostException {
@@ -35,6 +33,7 @@ public class EsClient {
     }
 
     public static void indexRefresh(String... indexName) {
+        Logger logger = LogManager.getFormatterLogger(EsClient.class);
         RefreshResponse response = client.admin().indices().refresh(new RefreshRequest(indexName)).actionGet();
         if (response.getShardFailures().length == response.getTotalShards()) {
             logger.error("All elasticsearch shard index refresh failure, reason: %s", response.getShardFailures());

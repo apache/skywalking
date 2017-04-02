@@ -1,6 +1,6 @@
 package com.a.eye.skywalking.collector.worker.node;
 
-import com.a.eye.skywalking.collector.worker.storage.index.AbstractIndex;
+import com.a.eye.skywalking.collector.worker.storage.AbstractIndex;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 
@@ -15,9 +15,7 @@ public class NodeIndex extends AbstractIndex {
 
     public static final String Code = "code";
     public static final String NickName = "nickName";
-    public static final String Layer = "layer";
     public static final String Component = "component";
-    public static final String Kind = "kind";
 
     @Override
     public String index() {
@@ -42,15 +40,7 @@ public class NodeIndex extends AbstractIndex {
                             .field("type", "string")
                             .field("index", "not_analyzed")
                         .endObject()
-                        .startObject(Layer)
-                            .field("type", "string")
-                            .field("index", "not_analyzed")
-                        .endObject()
                         .startObject(Component)
-                            .field("type", "string")
-                            .field("index", "not_analyzed")
-                        .endObject()
-                        .startObject(Kind)
                             .field("type", "string")
                             .field("index", "not_analyzed")
                         .endObject()

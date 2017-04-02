@@ -15,7 +15,7 @@ import org.apache.logging.log4j.Logger;
  */
 public abstract class AbstractClusterWorker extends AbstractWorker {
 
-    public AbstractClusterWorker(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    protected AbstractClusterWorker(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 

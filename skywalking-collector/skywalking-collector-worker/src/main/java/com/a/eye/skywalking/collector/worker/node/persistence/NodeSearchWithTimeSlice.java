@@ -54,12 +54,12 @@ public class NodeSearchWithTimeSlice extends AbstractLocalSyncWorker {
                 TopHits topHits = entry.getAggregations().get(NodeIndex.Top_One);
                 for (SearchHit hit : topHits.getHits().getHits()) {
                     logger.debug(" -> id [{%s}], _source [{%s}]", hit.getId(), hit.getSourceAsString());
-                    
+
                     JsonObject nodeObj = new JsonObject();
                     nodeObj.addProperty(NodeIndex.Code, (String) hit.getSource().get(NodeIndex.Code));
-                    nodeObj.addProperty(NodeIndex.Component, (String) hit.getSource().get(NodeIndex.Component));
-                    nodeObj.addProperty(NodeIndex.Layer, (String) hit.getSource().get(NodeIndex.Layer));
-                    nodeObj.addProperty(NodeIndex.Kind, (String) hit.getSource().get(NodeIndex.Kind));
+                    if (hit.getSource().containsKey(NodeIndex.Component)) {
+                        nodeObj.addProperty(NodeIndex.Component, (String) hit.getSource().get(NodeIndex.Component));
+                    }
                     nodeObj.addProperty(NodeIndex.NickName, (String) hit.getSource().get(NodeIndex.NickName));
                     nodeObj.addProperty(NodeIndex.Time_Slice, (Long) hit.getSource().get(NodeIndex.Time_Slice));
                     nodeArray.add(nodeObj);

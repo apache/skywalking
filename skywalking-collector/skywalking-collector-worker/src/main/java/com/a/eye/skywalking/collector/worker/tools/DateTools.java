@@ -2,6 +2,7 @@ package com.a.eye.skywalking.collector.worker.tools;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.TimeZone;
 
 /**
  * @author pengys5
@@ -19,7 +20,7 @@ public class DateTools {
     }
 
     public static long getMinuteSlice(long time) {
-        Calendar calendar = Calendar.getInstance();
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT+8:00"));
         calendar.setTimeInMillis(time);
         String timeStr = minuteDateFormat.format(calendar.getTime());
         return Long.valueOf(timeStr);
@@ -37,5 +38,13 @@ public class DateTools {
         calendar.setTimeInMillis(time);
         String timeStr = dayDateFormat.format(calendar.getTime()) + "0000";
         return Long.valueOf(timeStr);
+    }
+
+    public static long changeToUTCSlice(long timeSlice) {
+        if (TimeZone.getDefault().getID().equals("GMT+08:00")) {
+            return timeSlice;
+        } else {
+            return timeSlice - 800;
+        }
     }
 }

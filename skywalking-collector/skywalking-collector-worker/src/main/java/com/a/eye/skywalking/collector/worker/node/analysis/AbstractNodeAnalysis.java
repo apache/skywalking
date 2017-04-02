@@ -35,14 +35,16 @@ abstract class AbstractNodeAnalysis extends RecordAnalysisMember {
 
         if (CollectionTools.isNotEmpty(spanList)) {
             logger.debug("node analysis span list size: %s", spanList.size());
+            String id = timeSlice + Const.ID_SPLIT + segment.getApplicationCode();
+            JsonObject appDataJsonObj = new JsonObject();
+            appDataJsonObj.addProperty(NodeIndex.Code, segment.getApplicationCode());
+            appDataJsonObj.addProperty(NodeIndex.NickName, segment.getApplicationCode());
+            appDataJsonObj.addProperty(NodeIndex.Time_Slice, timeSlice);
+            setRecord(id, appDataJsonObj);
+
             for (Span span : spanList) {
                 JsonObject dataJsonObj = new JsonObject();
                 String kind = Tags.SPAN_KIND.get(span);
-                dataJsonObj.addProperty(NodeIndex.Kind, kind);
-
-                String layer = Tags.SPAN_LAYER.get(span);
-                dataJsonObj.addProperty(NodeIndex.Layer, layer);
-
                 String component = Tags.COMPONENT.get(span);
                 dataJsonObj.addProperty(NodeIndex.Component, component);
 
@@ -50,13 +52,7 @@ abstract class AbstractNodeAnalysis extends RecordAnalysisMember {
                 dataJsonObj.addProperty(NodeIndex.Code, code);
 
                 dataJsonObj.addProperty(NodeIndex.Time_Slice, timeSlice);
-                logger.debug("span id=%s, kind=%s, layer=%s, component=%s, code=%s", span.getSpanId(), kind, layer, component, code);
-
-                String id = timeSlice + Const.ID_SPLIT + code;
-                logger.debug("leaf client node: %s", dataJsonObj.toString());
-                dataJsonObj.addProperty(NodeIndex.Code, code);
-                dataJsonObj.addProperty(NodeIndex.NickName, code);
-                setRecord(id, dataJsonObj);
+                logger.debug("span id=%s, kind=%s, component=%s, code=%s", span.getSpanId(), kind, component, code);
 
                 if (Tags.SPAN_KIND_CLIENT.equals(kind) && ClientSpanIsLeafTools.isLeaf(span.getSpanId(), spanList)) {
                     logger.debug("The span id %s which kind is client and is a leaf span", span.getSpanId());
@@ -72,8 +68,6 @@ abstract class AbstractNodeAnalysis extends RecordAnalysisMember {
                     if (CollectionTools.isEmpty(segment.getRefs())) {
                         JsonObject userDataJsonObj = new JsonObject();
                         userDataJsonObj.addProperty(NodeIndex.Code, Const.USER_CODE);
-                        userDataJsonObj.addProperty(NodeIndex.Layer, Const.USER_CODE);
-                        userDataJsonObj.addProperty(NodeIndex.Kind, Tags.SPAN_KIND_CLIENT);
                         userDataJsonObj.addProperty(NodeIndex.Component, Const.USER_CODE);
                         userDataJsonObj.addProperty(NodeIndex.NickName, Const.USER_CODE);
                         userDataJsonObj.addProperty(NodeIndex.Time_Slice, timeSlice);

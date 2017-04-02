@@ -10,12 +10,20 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public abstract class WorkerContext implements Context {
 
-    private Map<String, List<WorkerRef>> roleWorkers = new ConcurrentHashMap<>();
+    private Map<String, List<WorkerRef>> roleWorkers;
+
+    public WorkerContext() {
+        this.roleWorkers = new ConcurrentHashMap<>();
+    }
+
+    private Map<String, List<WorkerRef>> getRoleWorkers() {
+        return this.roleWorkers;
+    }
 
     @Override
     final public WorkerRefs lookup(Role role) throws WorkerNotFoundException {
-        if (roleWorkers.containsKey(role.roleName())) {
-            WorkerRefs refs = new WorkerRefs(roleWorkers.get(role.roleName()), role.workerSelector());
+        if (getRoleWorkers().containsKey(role.roleName())) {
+            WorkerRefs refs = new WorkerRefs(getRoleWorkers().get(role.roleName()), role.workerSelector());
             return refs;
         } else {
             throw new WorkerNotFoundException("role=" + role.roleName() + ", no available worker.");
@@ -24,14 +32,14 @@ public abstract class WorkerContext implements Context {
 
     @Override
     final public void put(WorkerRef workerRef) {
-        if (!roleWorkers.containsKey(workerRef.getRole().roleName())) {
-            roleWorkers.putIfAbsent(workerRef.getRole().roleName(), new ArrayList<WorkerRef>());
+        if (!getRoleWorkers().containsKey(workerRef.getRole().roleName())) {
+            getRoleWorkers().putIfAbsent(workerRef.getRole().roleName(), new ArrayList<WorkerRef>());
         }
-        roleWorkers.get(workerRef.getRole().roleName()).add(workerRef);
+        getRoleWorkers().get(workerRef.getRole().roleName()).add(workerRef);
     }
 
     @Override
     final public void remove(WorkerRef workerRef) {
-        roleWorkers.remove(workerRef.getRole().roleName());
+        getRoleWorkers().remove(workerRef.getRole().roleName());
     }
 }
