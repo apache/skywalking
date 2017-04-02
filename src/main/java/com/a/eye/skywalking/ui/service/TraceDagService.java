@@ -46,7 +46,9 @@ public class TraceDagService {
         params.add(new BasicNameValuePair("endTime", String.valueOf(endTime)));
 
         String nodeInstSumUrl = urlCreator.compound("/nodeInst/summary/timeSlice");
-        String nodeInstSumResponse = HttpClientTools.INSTANCE.get(nodeInstSumUrl, params);
+//        String nodeInstSumResponse = HttpClientTools.INSTANCE.get(nodeInstSumUrl, params);
+//        String nodeInstSumResponse = "{\"result\":[{\"timeSlice\":\"201704020000\",\"oneSecondLess\":20.0,\"threeSecondLess\":1.0,\"fiveSecondLess\":0.0,\"fiveSecondGreater\":0.0,\"error\":0.0,\"summary\":21.0}]}";
+
 
         String nodeRefUrl = urlCreator.compound("/nodeRef/timeSlice");
         String nodeRefResponse = HttpClientTools.INSTANCE.get(nodeRefUrl, params);
@@ -58,7 +60,8 @@ public class TraceDagService {
         String nodeResponse = HttpClientTools.INSTANCE.get(nodeUrl, params);
 
         String nodeInstUrl = urlCreator.compound("/nodeInst/timeSlice");
-        String nodeInstResponse = HttpClientTools.INSTANCE.get(nodeInstUrl, params);
+//        String nodeInstResponse = HttpClientTools.INSTANCE.get(nodeInstUrl, params);
+        String nodeInstResponse = "";
 
         JsonObject nodes = gson.fromJson(nodeResponse, JsonObject.class);
         logger.debug("nodes: %s", nodes.toString());
@@ -72,18 +75,18 @@ public class TraceDagService {
         logger.debug("nodeRefResSum: %s", nodeRefResSum.toString());
         JsonArray nodeRefResSumArray = nodeRefResSum.get("result").getAsJsonArray();
 
-        JsonObject nodeInstSum = gson.fromJson(nodeInstSumResponse, JsonObject.class);
-        JsonArray nodeInstSumArray = nodeInstSum.get("result").getAsJsonArray();
+//        JsonObject nodeInstSum = gson.fromJson(nodeInstSumResponse, JsonObject.class);
+//        JsonArray nodeInstSumArray = nodeInstSum.get("result").getAsJsonArray();
 
-        JsonObject nodeInst = gson.fromJson(nodeInstResponse, JsonObject.class);
-        JsonArray nodeInstArray = nodeInst.get("result").getAsJsonArray();
+//        JsonObject nodeInst = gson.fromJson(nodeInstResponse, JsonObject.class);
+//        JsonArray nodeInstArray = nodeInst.get("result").getAsJsonArray();
 
-        Map<String, Integer> sumMapping = buildNodeInstSumMapping(nodeInstSumArray);
+//        Map<String, Integer> sumMapping = buildNodeInstSumMapping(nodeInstSumArray);
         nodeRefArray = nodeRefCodeRename(nodeRefArray, nodesArray);
 
         Map<String, JsonObject> nodeRefResSumMapping = nodeRefResSumCodeRename(nodeRefResSumArray, nodesArray);
 
-        return graphBuildService.buildNodesGraph(nodesArray, nodeRefArray, nodeInst, sumMapping, nodeRefResSumMapping);
+        return graphBuildService.buildNodesGraph(nodesArray, nodeRefArray, nodeRefResSumMapping);
     }
 
     private Map<String, Integer> buildNodeInstSumMapping(JsonArray nodeInstSumArray) {

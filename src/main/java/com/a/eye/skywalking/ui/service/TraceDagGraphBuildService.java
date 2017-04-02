@@ -22,7 +22,7 @@ public class TraceDagGraphBuildService {
     @Autowired
     private ImageCache imageCache;
 
-    public JsonObject buildNodesGraph(JsonArray nodesArray, JsonArray nodeRefArray, JsonObject nodeInst, Map<String, Integer> sumMapping, Map<String, JsonObject> nodeRefResSumMapping) {
+    public JsonObject buildNodesGraph(JsonArray nodesArray, JsonArray nodeRefArray, Map<String, JsonObject> nodeRefResSumMapping) {
         JsonObject graphDataJson = new JsonObject();
         logger.debug("rename node ref: %s", nodeRefArray.toString());
 
@@ -52,9 +52,9 @@ public class TraceDagGraphBuildService {
                 }
 
                 int nodeInstSum = 0;
-                if (sumMapping.containsKey(front)) {
-                    nodeInstSum = sumMapping.get(front);
-                }
+//                if (sumMapping.containsKey(front)) {
+//                    nodeInstSum = sumMapping.get(front);
+//                }
                 graphNodes.add(createNodeGraph(nodeId, front, imageCache.getImage(component), nodeInstSum));
                 nodeMapping.put(front, nodeId);
                 nodeId++;
@@ -69,9 +69,9 @@ public class TraceDagGraphBuildService {
                 }
 
                 int nodeInstSum = 0;
-                if (sumMapping.containsKey(behind)) {
-                    nodeInstSum = sumMapping.get(behind);
-                }
+//                if (sumMapping.containsKey(behind)) {
+//                    nodeInstSum = sumMapping.get(behind);
+//                }
 
                 graphNodes.add(createNodeGraph(nodeId, behind, imageCache.getImage(component), nodeInstSum));
                 nodeMapping.put(behind, nodeId);
