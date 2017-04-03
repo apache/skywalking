@@ -31,6 +31,8 @@ var images = {};
 function loadImage(data, i, imgSrc, sum) {
     var tmpImage = new Image();
     tmpImage.src = imgSrc;
+    tmpImage.width = "40px";
+    tmpImage.height = "40px";
     tmpImage.onload = function () {
         images[i] = tmpImage;
         console.log(i + " load");

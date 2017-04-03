@@ -38,7 +38,7 @@ function createNode(image, instNum) {
     context2D.lineWidth = 8;
 
     // tmpImage.onload = function () {
-        context2D.drawImage(image, left, top, imageSize * ratio, imageSize * ratio);
+        context2D.drawImage(image, left, top, imageSize, imageSize);
     // };
     context2D.font = "12px font-family: Arial, Helvetica, sans-serif;";
     context2D.fillStyle = "#ffffff";
