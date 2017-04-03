@@ -1,7 +1,7 @@
 Sky Walking
 ==========
 
-<img src="docs/resources/skywalking.png" alt="Sky Walking logo" height="90px" align="right" />
+<img src="https://sky-walking.github.io/page-resources/3.0/skywalking.png" alt="Sky Walking logo" height="90px" align="right" />
 
 SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, also known Distributed Tracer.
 
@@ -22,7 +22,7 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, also known D
 ___
 
 <a href="https://github.com/wu-sheng/sky-walking">
-<img src="docs/resources/oneapm-award.png" alt="OneAPM Open Source Achievement Award" height="110px" align="left" />
+<img src="https://sky-walking.github.io/page-resources/3.0/oneapm-award.png" alt="OneAPM Open Source Achievement Award" height="110px" align="left" />
 </a>
 
 In October 2016, Sky Walking won `OneAPM Open Source Achievement Award`. The award appreciates sky walking for its "*contribution to popularization of APM technology*". <br/>
@@ -42,17 +42,7 @@ _In chronological order_
 
 
 # Quick View
-* distributed trace
 
-![追踪连路图1](docs/resources/callChain.png?1=1)
-
-![追踪连路图2](docs/resources/callChainDetail.png?1=1)
-
-![追踪连路图3](docs/resources/callChainLog.png?1=1)
-
-* alarm mail
-
-![告警邮件](docs/resources/alarmMail.png?1=1)
 
 # Document
 * [WIKI](https://github.com/wu-sheng/sky-walking/wiki)
