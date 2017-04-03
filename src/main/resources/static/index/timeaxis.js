@@ -145,7 +145,7 @@ function bindDayRangePicker() {
     var endDate = moment(rangeDateTemp[rangeDateTemp.length - 1], "YYYY/MM/DD").format("YYYYMMDD");
     loadDateRangeDag(daySliceType, startDate + "0000", endDate + "0000");
 
-    loadCostData(daySliceType, startDate + "0000", endDate + "0000");
+    // loadCostData(daySliceType, startDate + "0000", endDate + "0000");
 
     $('#dateRangeInput').daterangepicker({
         startDate: moment().subtract(30, 'days'),
@@ -172,7 +172,7 @@ function bindDayRangePicker() {
         toDate = end.format("YYYYMMDD");
         loadDateRangeDag(daySliceType, fromDate + "0000", toDate + "0000");
 
-        loadCostData(daySliceType, fromDate + "0000", toDate + "0000");
+        // loadCostData(daySliceType, fromDate + "0000", toDate + "0000");
     });
 
     $("#dataRangeBtn").click(function () {

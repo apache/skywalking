@@ -19,21 +19,57 @@ function resizeDagDivSize() {
     $("#traceDagDiv").width(width - 360).height(height - 100);
 }
 
+function loadImages(data) {
+    console.log("nodes: " + data.nodes.length);
+    for (var i in data.nodes) {
+        loadImage(data, i, data.nodes[i].image, data.nodes.length);
+    }
+};
+
+var images = {};
+
+function loadImage(data, i, imgSrc, sum) {
+    var tmpImage = new Image();
+    tmpImage.src = imgSrc;
+    tmpImage.onload = function () {
+        images[i] = tmpImage;
+        console.log(i + " load");
+        if (loadImageFinish(sum)) {
+            console.log("all finish loadDag");
+            loadDag(data)
+        }
+    };
+}
+
+function loadImageFinish(sum) {
+    var isFinish = true;
+    for (var i = 0; i < sum; i++) {
+        if (images[i]) {
+            isFinish = isFinish && true;
+            console.log(i + ", finish");
+        } else {
+            isFinish = isFinish && false;
+            console.log(i + ", not finish");
+        }
+    }
+    return isFinish;
+}
+
 function loadDag(data) {
     for (var i in data.nodes) {
-        addNode(data.nodes[i]);
+        addNode(data.nodes[i], images[i]);
     }
 
     for (var i in data.nodeRefs) {
         addEdge(data.nodeRefs[i]);
     }
-};
+}
 
-function addNode(node) {
+function addNode(node, image) {
     nodes.add({
         id: node.id,
         label: node.label,
-        image: createNode(node.image, node.instNum),
+        image: createNode(image, node.instNum),
         shape: 'image'
     });
 }
@@ -61,8 +97,8 @@ function startNetwork() {
             },
             shapeProperties: {
                 useImageSize: true
-            },
-            fixed: true
+            }
+            // fixed: true
         },
         edges: {
             color: '#dd7e6b',
@@ -102,7 +138,7 @@ function todayDagLoad() {
     var startTimeStr = moment().subtract(30, 'days').format("YYYYMMDD") + "0000";
 
     loadDateRangeDag("day", startTimeStr, endTimeStr);
-    loadCostData("day", startTimeStr, endTimeStr);
+    // loadCostData("day", startTimeStr, endTimeStr);
 }
 
 function loadDateRangeDag(slice, startTimeStr, endTimeStr) {
@@ -110,7 +146,7 @@ function loadDateRangeDag(slice, startTimeStr, endTimeStr) {
     $.getJSON("dagNodesLoad?timeSliceType=" + slice + "&startTime=" + startTimeStr + "&endTime=" + endTimeStr, function (data) {
         nodes.clear();
         edges.clear();
-        loadDag(data);
+        loadImages(data);
         network.stabilize();
     });
 }

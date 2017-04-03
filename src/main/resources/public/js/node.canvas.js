@@ -1,7 +1,7 @@
-function createNode(imgSrc, instNum) {
+function createNode(image, instNum) {
     var canvas = document.createElement('canvas');
     var context2D = canvas.getContext('2d');
-    var tmpImage = new Image();
+    // var tmpImage = new Image();
     var base64Str = "";
     var nodeWidth = 60;
     var nodeHeight = 60;
@@ -33,14 +33,13 @@ function createNode(imgSrc, instNum) {
     };
     var ratio = getPixelRatio(context2D);
 
-    tmpImage.src = imgSrc;
+    // tmpImage.src = imgSrc;
     context2D.lineJoin = "round";
     context2D.lineWidth = 8;
 
-    tmpImage.onload = function () {
-        context2D.drawImage(tmpImage, left, top, imageSize * ratio, imageSize * ratio);
-    };
-    context2D.drawImage(tmpImage, left, top, imageSize * ratio, imageSize * ratio);
+    // tmpImage.onload = function () {
+        context2D.drawImage(image, left, top, imageSize * ratio, imageSize * ratio);
+    // };
     context2D.font = "12px font-family: Arial, Helvetica, sans-serif;";
     context2D.fillStyle = "#ffffff";
     if (instNum > 0) {
