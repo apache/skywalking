@@ -41,7 +41,7 @@ _In chronological order_
 * 戴文
 
 
-# Quick View
+# Screenshots
 
 
 # Document
