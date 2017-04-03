@@ -52,12 +52,15 @@ public class TraceDagService {
 
         String nodeRefUrl = urlCreator.compound("/nodeRef/timeSlice");
         String nodeRefResponse = HttpClientTools.INSTANCE.get(nodeRefUrl, params);
+//        String nodeRefResponse = "{\"result\":[{\"front\":\"User\",\"frontIsRealCode\":true,\"behind\":\"portal-service\",\"behindIsRealCode\":true,\"timeSlice\":201704020000},{\"front\":\"cache-service\",\"frontIsRealCode\":true,\"behind\":\"[127.0.0.1:6379]\",\"behindIsRealCode\":false,\"timeSlice\":201704020000},{\"front\":\"cache-service\",\"frontIsRealCode\":true,\"behind\":\"[localhost:-1]\",\"behindIsRealCode\":false,\"timeSlice\":201704020000},{\"front\":\"persistence-service\",\"frontIsRealCode\":true,\"behind\":\"[127.0.0.1:3307]\",\"behindIsRealCode\":false,\"timeSlice\":201704020000},{\"front\":\"portal-service\",\"frontIsRealCode\":true,\"behind\":\"[127.0.0.1:8002]\",\"behindIsRealCode\":false,\"timeSlice\":201704020000},{\"front\":\"portal-service\",\"frontIsRealCode\":true,\"behind\":\"[192.168.1.11:20880]\",\"behindIsRealCode\":false,\"timeSlice\":201704020000}]}";
 
         String nodeRefResSumUrl = urlCreator.compound("/nodeRef/resSum/timeSlice");
         String nodeRefResSumResponse = HttpClientTools.INSTANCE.get(nodeRefResSumUrl, params);
+//        String nodeRefResSumResponse = "{\"result\":[{\"front\":\"User\",\"behind\":\"portal-service\",\"oneSecondLess\":1.0,\"threeSecondLess\":1.0,\"fiveSecondLess\":0.0,\"fiveSecondGreater\":0.0,\"error\":0.0,\"summary\":2.0},{\"front\":\"cache-service\",\"behind\":\"[127.0.0.1:6379]\",\"oneSecondLess\":5.0,\"threeSecondLess\":0.0,\"fiveSecondLess\":0.0,\"fiveSecondGreater\":0.0,\"error\":0.0,\"summary\":5.0},{\"front\":\"cache-service\",\"behind\":\"[localhost:-1]\",\"oneSecondLess\":4.0,\"threeSecondLess\":0.0,\"fiveSecondLess\":0.0,\"fiveSecondGreater\":0.0,\"error\":0.0,\"summary\":4.0},{\"front\":\"persistence-service\",\"behind\":\"[127.0.0.1:3307]\",\"oneSecondLess\":4.0,\"threeSecondLess\":0.0,\"fiveSecondLess\":0.0,\"fiveSecondGreater\":0.0,\"error\":0.0,\"summary\":4.0},{\"front\":\"portal-service\",\"behind\":\"[127.0.0.1:8002]\",\"oneSecondLess\":4.0,\"threeSecondLess\":0.0,\"fiveSecondLess\":0.0,\"fiveSecondGreater\":0.0,\"error\":0.0,\"summary\":4.0},{\"front\":\"portal-service\",\"behind\":\"[192.168.1.11:20880]\",\"oneSecondLess\":2.0,\"threeSecondLess\":0.0,\"fiveSecondLess\":0.0,\"fiveSecondGreater\":0.0,\"error\":0.0,\"summary\":2.0}]}";
 
         String nodeUrl = urlCreator.compound("/node/timeSlice");
         String nodeResponse = HttpClientTools.INSTANCE.get(nodeUrl, params);
+//        String nodeResponse = "{\"result\":[{\"code\":\"User\",\"component\":\"User\",\"nickName\":\"User\",\"timeSlice\":201704020000},{\"code\":\"[127.0.0.1:3307]\",\"component\":\"Mysql\",\"nickName\":\"[127.0.0.1:3307]\",\"timeSlice\":201704020000},{\"code\":\"[127.0.0.1:6379]\",\"component\":\"Redis\",\"nickName\":\"[127.0.0.1:6379]\",\"timeSlice\":201704020000},{\"code\":\"[127.0.0.1:8002]\",\"component\":\"Motan\",\"nickName\":\"[127.0.0.1:8002]\",\"timeSlice\":201704020000},{\"code\":\"[192.168.1.11:20880]\",\"component\":\"HttpClient\",\"nickName\":\"[192.168.1.11:20880]\",\"timeSlice\":201704020000},{\"code\":\"[localhost:-1]\",\"component\":\"H2\",\"nickName\":\"[localhost:-1]\",\"timeSlice\":201704020000},{\"code\":\"cache-service\",\"component\":\"Motan\",\"nickName\":\"[127.0.0.1:8002]\",\"timeSlice\":201704020000},{\"code\":\"persistence-service\",\"component\":\"Tomcat\",\"nickName\":\"[192.168.1.11:20880]\",\"timeSlice\":201704020000},{\"code\":\"portal-service\",\"component\":\"Tomcat\",\"nickName\":\"portal-service\",\"timeSlice\":201704020000}]}";
 
         String nodeInstUrl = urlCreator.compound("/nodeInst/timeSlice");
 //        String nodeInstResponse = HttpClientTools.INSTANCE.get(nodeInstUrl, params);
@@ -143,16 +146,22 @@ public class TraceDagService {
     }
 
     private String findCodeByNickName(String refNodeNickName, JsonArray nodesArray) {
+        String realName = refNodeNickName;
+
         for (int i = 0; i < nodesArray.size(); i++) {
             JsonObject node = nodesArray.get(i).getAsJsonObject();
             String code = node.get("code").getAsString();
             String nickName = node.get("nickName").getAsString();
 
             if (nickName.equals(refNodeNickName)) {
-                return code;
+                if (code.startsWith("[") && code.endsWith("]")) {
+                    realName = code;
+                } else {
+                    return code;
+                }
             }
         }
-        return refNodeNickName;
+        return realName;
     }
 
 }
