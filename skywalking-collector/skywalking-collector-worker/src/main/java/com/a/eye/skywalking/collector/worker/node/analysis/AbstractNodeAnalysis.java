@@ -39,6 +39,7 @@ abstract class AbstractNodeAnalysis extends RecordAnalysisMember {
             JsonObject appDataJsonObj = new JsonObject();
             appDataJsonObj.addProperty(NodeIndex.Code, segment.getApplicationCode());
             appDataJsonObj.addProperty(NodeIndex.NickName, segment.getApplicationCode());
+            appDataJsonObj.addProperty(NodeIndex.IsReal, true);
             appDataJsonObj.addProperty(NodeIndex.Time_Slice, timeSlice);
             setRecord(id, appDataJsonObj);
 
@@ -47,6 +48,7 @@ abstract class AbstractNodeAnalysis extends RecordAnalysisMember {
                 String kind = Tags.SPAN_KIND.get(span);
                 String component = Tags.COMPONENT.get(span);
                 dataJsonObj.addProperty(NodeIndex.Component, component);
+                dataJsonObj.addProperty(NodeIndex.IsReal, true);
 
                 String code = segment.getApplicationCode();
                 dataJsonObj.addProperty(NodeIndex.Code, code);
@@ -59,6 +61,7 @@ abstract class AbstractNodeAnalysis extends RecordAnalysisMember {
                     code = SpanPeersTools.getPeers(span);
                     dataJsonObj.addProperty(NodeIndex.Code, code);
                     dataJsonObj.addProperty(NodeIndex.NickName, code);
+                    dataJsonObj.addProperty(NodeIndex.IsReal, false);
 
                     id = timeSlice + Const.ID_SPLIT + code;
                     logger.debug("leaf client node: %s", dataJsonObj.toString());
@@ -71,6 +74,7 @@ abstract class AbstractNodeAnalysis extends RecordAnalysisMember {
                         userDataJsonObj.addProperty(NodeIndex.Component, Const.USER_CODE);
                         userDataJsonObj.addProperty(NodeIndex.NickName, Const.USER_CODE);
                         userDataJsonObj.addProperty(NodeIndex.Time_Slice, timeSlice);
+                        userDataJsonObj.addProperty(NodeIndex.IsReal, false);
                         String userId = timeSlice + Const.ID_SPLIT + Const.USER_CODE;
                         logger.debug("user node: %s", userDataJsonObj.toString());
                         setRecord(userId, userDataJsonObj);
@@ -83,7 +87,7 @@ abstract class AbstractNodeAnalysis extends RecordAnalysisMember {
                         for (TraceSegmentRef segmentRef : segment.getRefs()) {
                             String nickName = Const.PEERS_FRONT_SPLIT + segmentRef.getPeerHost() + Const.PEERS_BEHIND_SPLIT;
                             dataJsonObj.addProperty(NodeIndex.NickName, nickName);
-                            id = timeSlice + Const.ID_SPLIT + code;
+                            id = timeSlice + Const.ID_SPLIT + nickName;
                             logger.debug("refs node: %s", dataJsonObj.toString());
                             setRecord(id, dataJsonObj);
                         }
