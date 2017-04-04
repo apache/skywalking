@@ -30,15 +30,11 @@ import org.apache.http.impl.client.HttpClients;
 public class CollectorClient implements Runnable {
     private static ILog logger = LogManager.getLogger(CollectorClient.class);
     private static long SLEEP_TIME_MILLIS = 500;
-    private CloseableHttpClient httpclient;
     private String[] serverList;
     private volatile int selectedServer = -1;
 
     public CollectorClient() {
         serverList = Config.Collector.SERVERS.split(",");
-        httpclient = HttpClients.custom()
-            .setKeepAliveStrategy(new DefaultConnectionKeepAliveStrategy())
-            .build();
         Random r = new Random();
         if (serverList.length > 0) {
             selectedServer = r.nextInt(serverList.length);
@@ -92,7 +88,9 @@ public class CollectorClient implements Runnable {
             .excludeFieldsWithoutExposeAnnotation()
             .create();
         String messageJson = gson.toJson(message);
-
+        CloseableHttpClient httpclient = HttpClients.custom()
+                .setKeepAliveStrategy(new DefaultConnectionKeepAliveStrategy())
+                .build();
         try {
             HttpPost httpPost = ready2Send(messageJson);
             if (httpPost != null) {
@@ -106,6 +104,8 @@ public class CollectorClient implements Runnable {
         } catch (IOException e) {
             findBackupServer();
             throw e;
+        }finally {
+            httpclient.close();
         }
     }
 
