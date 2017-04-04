@@ -88,9 +88,7 @@ public class CollectorClient implements Runnable {
             .excludeFieldsWithoutExposeAnnotation()
             .create();
         String messageJson = gson.toJson(message);
-        CloseableHttpClient httpClient = HttpClients.custom()
-                .setKeepAliveStrategy(new DefaultConnectionKeepAliveStrategy())
-                .build();
+        CloseableHttpClient httpClient = HttpClients.custom().build();
         try {
             HttpPost httpPost = ready2Send(messageJson);
             if (httpPost != null) {

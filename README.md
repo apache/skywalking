@@ -48,4 +48,4 @@ _In chronological order_
 # Document
 * [WIKI](https://github.com/wu-sheng/sky-walking/wiki)
 
-_As a Chinese Developer, you can join QQ Group: 392443393, and **Tagged** Sky-Walking. Or chat with us on gitter, in English._
+_Chat with us on gitter, in English. As a Chinese Developer, you can join QQ Group: 392443393, and **Tagged** Sky-Walking._ 
