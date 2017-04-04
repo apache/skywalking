@@ -5,7 +5,6 @@ import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
 import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
 import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
 import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
-import com.a.eye.skywalking.collector.worker.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.node.persistence.NodeMinuteAgg;
 import com.a.eye.skywalking.collector.worker.segment.SegmentPost;
 import com.a.eye.skywalking.collector.worker.storage.RecordData;
@@ -52,7 +51,7 @@ public class NodeMinuteAnalysis extends AbstractNodeAnalysis {
 
         @Override
         public int queueSize() {
-            return WorkerConfig.Queue.Node.NodeMinuteAnalysis.Size;
+            return 1024;
         }
     }
 

@@ -17,7 +17,7 @@ import com.a.eye.skywalking.trace.TraceSegment;
  */
 public class NodeRefDayAnalysis extends AbstractNodeRefAnalysis {
 
-    protected NodeRefDayAnalysis(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    private NodeRefDayAnalysis(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
@@ -70,7 +70,7 @@ public class NodeRefDayAnalysis extends AbstractNodeRefAnalysis {
 
         @Override
         public int queueSize() {
-            return WorkerConfig.Queue.Node.NodeRefDayAnalysis.Size;
+            return WorkerConfig.Queue.DAGNodeRefAnalysis.Size;
         }
     }
 

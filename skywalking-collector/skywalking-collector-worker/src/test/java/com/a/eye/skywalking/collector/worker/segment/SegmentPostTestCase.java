@@ -16,8 +16,6 @@ import com.a.eye.skywalking.collector.worker.segment.persistence.SegmentExceptio
 import com.a.eye.skywalking.collector.worker.segment.persistence.SegmentSave;
 import com.a.eye.skywalking.collector.worker.tools.DateTools;
 import com.google.gson.JsonObject;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,8 +37,6 @@ import static org.powermock.api.mockito.PowerMockito.*;
 @PrepareForTest({LocalWorkerContext.class, WorkerRef.class})
 @PowerMockIgnore({"javax.management.*"})
 public class SegmentPostTestCase {
-
-    private Logger logger = LogManager.getFormatterLogger(SegmentPostTestCase.class);
 
     private SegmentMock segmentMock;
     private SegmentPost segmentPost;
@@ -235,7 +231,6 @@ public class SegmentPostTestCase {
         @Override
         public Object answer(InvocationOnMock invocation) throws Throwable {
             JsonObject jsonObject = (JsonObject) invocation.getArguments()[0];
-            logger.info("SegmentSave json: " + jsonObject.toString());
             minute = jsonObject.get("minute").getAsLong();
             hour = jsonObject.get("hour").getAsLong();
             day = jsonObject.get("day").getAsLong();

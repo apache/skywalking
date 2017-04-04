@@ -16,7 +16,6 @@ public class NodeIndex extends AbstractIndex {
     public static final String Code = "code";
     public static final String NickName = "nickName";
     public static final String Component = "component";
-    public static final String IsReal = "isReal";
 
     @Override
     public String index() {
@@ -43,10 +42,6 @@ public class NodeIndex extends AbstractIndex {
                         .endObject()
                         .startObject(Component)
                             .field("type", "string")
-                            .field("index", "not_analyzed")
-                        .endObject()
-                        .startObject(IsReal)
-                            .field("type", "boolean")
                             .field("index", "not_analyzed")
                         .endObject()
                         .startObject(AGG_COLUMN)

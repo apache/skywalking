@@ -22,24 +22,18 @@ public abstract class RecordPersistenceMember extends PersistenceMember {
 
     private Logger logger = LogManager.getFormatterLogger(RecordPersistenceMember.class);
 
-    private RecordPersistenceData persistenceData;
+    private RecordPersistenceData persistenceData = new RecordPersistenceData();
 
     public RecordPersistenceMember(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
-        persistenceData = new RecordPersistenceData();
-    }
-
-    private RecordPersistenceData getPersistenceData() {
-        return this.persistenceData;
     }
 
     @Override
     public void analyse(Object message) throws Exception {
         if (message instanceof RecordData) {
             RecordData recordData = (RecordData) message;
-            logger.debug("setRecord: id: %s, data: %s", recordData.getId(), recordData.getRecord());
-            getPersistenceData().getElseCreate(recordData.getId()).setRecord(recordData.getRecord());
-            if (getPersistenceData().size() >= WorkerConfig.Persistence.Data.size) {
+            persistenceData.getElseCreate(recordData.getId()).setRecord(recordData.getRecord());
+            if (persistenceData.size() >= WorkerConfig.Persistence.Data.size) {
                 persistence();
             }
         } else {
@@ -50,20 +44,19 @@ public abstract class RecordPersistenceMember extends PersistenceMember {
     protected void persistence() {
         boolean success = saveToEs();
         if (success) {
-            getPersistenceData().clear();
+            persistenceData.clear();
         }
     }
 
     private boolean saveToEs() {
         Client client = EsClient.getClient();
         BulkRequestBuilder bulkRequest = client.prepareBulk();
-        logger.debug("persistenceData size: %s", getPersistenceData().size());
+        logger.debug("persistenceData size: %s", persistenceData.size());
 
-        Iterator<Map.Entry<String, RecordData>> iterator = getPersistenceData().iterator();
+        Iterator<Map.Entry<String, RecordData>> iterator = persistenceData.iterator();
 
         while (iterator.hasNext()) {
             Map.Entry<String, RecordData> recordData = iterator.next();
-            logger.debug("saveToEs: key: %s, data: %s", recordData.getKey(), recordData.getValue().getRecord().toString());
             bulkRequest.add(client.prepareIndex(esIndex(), esType(), recordData.getKey()).setSource(recordData.getValue().getRecord().toString()));
         }
 

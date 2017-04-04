@@ -46,43 +46,6 @@ public class WorkerConfig extends ClusterConfig {
     }
 
     public static class Queue {
-        public static class Segment {
-            public static class SegmentCostSave {
-                public static int Size = 1024;
-            }
-
-            public static class SegmentSave {
-                public static int Size = 1024;
-            }
-
-            public static class SegmentExceptionSave {
-                public static int Size = 1024;
-            }
-        }
-
-        public static class Node {
-            public static class NodeDayAnalysis {
-                public static int Size = 1024;
-            }
-
-            public static class NodeRefDayAnalysis {
-                public static int Size = 1024;
-            }
-
-            public static class NodeHourAnalysis {
-                public static int Size = 1024;
-            }
-
-            public static class NodeMinuteAnalysis {
-                public static int Size = 1024;
-            }
-
-            public static class NodeRefMinuteAnalysis {
-                public static int Size = 1024;
-            }
-        }
-
-
         public static class Persistence {
             public static class DAGNodePersistence {
                 public static int Size = 1024;

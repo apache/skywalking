@@ -58,7 +58,7 @@ public class SegmentSave extends RecordPersistenceMember {
 
         @Override
         public int queueSize() {
-            return WorkerConfig.Queue.Segment.SegmentSave.Size;
+            return WorkerConfig.Queue.TraceSegmentRecordAnalysis.Size;
         }
 
         @Override

@@ -10,6 +10,7 @@ import com.a.eye.skywalking.collector.worker.RecordPersistenceMember;
 import com.a.eye.skywalking.collector.worker.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.segment.SegmentCostIndex;
 import com.a.eye.skywalking.collector.worker.segment.SegmentPost;
+import com.a.eye.skywalking.collector.worker.storage.AbstractIndex;
 import com.a.eye.skywalking.collector.worker.storage.RecordData;
 import com.a.eye.skywalking.collector.worker.tools.CollectionTools;
 import com.a.eye.skywalking.trace.Span;
@@ -32,10 +33,10 @@ public class SegmentCostSave extends RecordPersistenceMember {
 
     @Override
     public String esType() {
-        return SegmentCostIndex.Type_Record;
+        return AbstractIndex.Type_Record;
     }
 
-    protected SegmentCostSave(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    private SegmentCostSave(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
@@ -84,7 +85,7 @@ public class SegmentCostSave extends RecordPersistenceMember {
 
         @Override
         public int queueSize() {
-            return WorkerConfig.Queue.Segment.SegmentCostSave.Size;
+            return WorkerConfig.Queue.TraceSegmentRecordAnalysis.Size;
         }
 
         @Override

@@ -41,7 +41,7 @@ public class SegmentExceptionSave extends RecordPersistenceMember {
         return AbstractIndex.Type_Record;
     }
 
-    protected SegmentExceptionSave(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    private SegmentExceptionSave(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
@@ -90,7 +90,7 @@ public class SegmentExceptionSave extends RecordPersistenceMember {
 
         @Override
         public int queueSize() {
-            return WorkerConfig.Queue.Segment.SegmentExceptionSave.Size;
+            return WorkerConfig.Queue.TraceSegmentRecordAnalysis.Size;
         }
 
         @Override
