@@ -94,6 +94,9 @@ public class SkyWalkingSpanBuilder implements Tracer.SpanBuilder {
 
     @Override
     public Span start() {
+        if (startTime == 0){
+            startTime = System.currentTimeMillis();
+        }
         return new SkyWalkingSpan(this.operationName, this.startTime, this.tags);
     }
 
