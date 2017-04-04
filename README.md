@@ -42,6 +42,7 @@ _In chronological order_
 
 
 # Screenshots
+<img src="https://sky-walking.github.io/page-resources/3.0/trace_segment.png"/>
 
 
 # Document
