@@ -92,7 +92,7 @@ define(["jquery", "text!alarmHtml", "echarts", "walden"], function ($, alarmHtml
         var exceptionChart = echarts.init(document.getElementById('exceptionMetricDiv'), 'walden');
         var option = {
             title: {
-                text: 'Exception',
+                text: 'Throughput',
                 textStyle: {fontStyle: 'normal', fontWeight: 'normal', fontSize: 14}
             },
             grid: {top: 40},
@@ -123,25 +123,33 @@ define(["jquery", "text!alarmHtml", "echarts", "walden"], function ($, alarmHtml
                     data: data.xAxis
                 }
             ],
-            yAxis: [
-                {
-                    type: 'value'
+            yAxis: [{}, {
+                inverse: true,
+                min: 0,
+                minInterval: 1,
+                boundaryGap : 2,
+                splitLine: {
+                    show: false
                 }
-            ],
+            }, {
+                show: false
+            }],
             series: [
                 {
                     name: 'success',
                     type: 'line',
                     smooth: true,
                     itemStyle: {normal: {areaStyle: {type: 'default'}}},
-                    data: data.successAxis
+                    data: data.successAxis,
+                    yAxisIndex: 0
                 },
                 {
                     name: 'error',
                     type: 'line',
                     smooth: true,
                     itemStyle: {normal: {areaStyle: {type: 'default'}}},
-                    data: data.errorAxis
+                    data: data.errorAxis,
+                    yAxisIndex: 1
                 }
             ]
         };

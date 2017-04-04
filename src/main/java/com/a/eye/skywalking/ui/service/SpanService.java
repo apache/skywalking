@@ -32,7 +32,7 @@ public class SpanService {
 
     public JsonObject loadData(String spanSegId) throws IOException {
         String[] spanSegIds = spanSegId.split("--");
-        String segId = spanSegIds[0].replaceAll("-", ".");
+        String segId = spanSegIds[0].replaceAll("A", ".");
         String spanId = spanSegIds[1];
 
         List<NameValuePair> params = new ArrayList<NameValuePair>();

@@ -56,7 +56,7 @@ define(["jquery", "vis", "text!dagHtml", "moment", "nodeCanvas", "alarm", "timer
     function _resize() {
         var width = $(document.body).width();
         var height = $(document).height();
-        $("#" + _containerDiv).width(width - 360).height(height - 100);
+        $("#" + _containerDiv).width(width - 350).height(height - 100);
     }
 
     function _addEdge(nodeRef) {

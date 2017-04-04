@@ -1,8 +1,28 @@
 /**
  * @author pengys5
  */
-var colors = ["#F2C2CE", "#F2A7A8", "#EE8D87", "#FADDA2", "#EEBE84", "#F2B75B", "#F5E586", "#E8DB62", "#C8DC60", "#BDDCAB",
-    "#96B87F", "#83B085", "#93DAD6", "#8CCCD2", "#68B9C7", "#C5DFE8", "#A7D8F0", "#91C3ED", "#BDC8E7", "#8691C5"];
+var colors = [
+    "#F2C2CE",
+    "#A7D8F0",
+    "#FADDA2",
+    "#8691C5",
+    "#E8DB62",
+    "#BDC8E7",
+    "#F2A7A8",
+    "#F5E586",
+    "#91C3ED",
+    "#96B87F",
+    "#EE8D87",
+    "#BDDCAB",
+    "#68B9C7",
+    "#93DAD6",
+    "#EEBE84",
+    "#83B085",
+    "#8CCCD2",
+    "#C5DFE8",
+    "#F2B75B",
+    "#C8DC60"
+];
 
 var nodes = [];
 var idMap = {};
@@ -16,6 +36,8 @@ var height = 36;
 var margin = 10;
 
 function buildNodes(data) {
+    sortChildren(data);
+
     $.each(data, function (item) {
         buildNode(data[item]);
 
@@ -23,12 +45,35 @@ function buildNodes(data) {
         buildNodes(children);
     })
 }
+var group = 0;
+function sortChildren(data) {
+    if (data.length < 2) {
+        return;
+    }
+
+    var tmp;
+    for (var i = 0; i < data.length; i++) {
+        for (var j = i + 1; j < data.length; j++) {
+            var spanId_i = Number(data[i].spanId);
+            var spanId_j = Number(data[j].spanId);
+            if (spanId_j < spanId_i) {
+                tmp = data[i];
+                data[i] = data[j];
+                data[j] = tmp;
+            }
+        }
+    }
+    console.log("group: " + group);
+    console.log(data);
+
+    group++;
+}
 
 function buildNode(data) {
     var node = {};
 
-    var spanSegId = data.spanSegId.replace(/\./g, '-');
-    var parentSpanSegId = data.parentSpanSegId.replace(/\./g, '-');
+    var spanSegId = data.spanSegId.replace(/\./g, 'A');
+    var parentSpanSegId = data.parentSpanSegId.replace(/\./g, 'A');
 
     node.segId = data.segId;
     node.appCode = data.appCode;
@@ -75,6 +120,7 @@ function reset() {
 }
 
 function drawAxis() {
+    console.log(nodes);
     for (var key in nodes) {
         var startTime = nodes[key].startTime,
             duration = nodes[key].duration;
@@ -140,6 +186,7 @@ function displayData() {
             });
 
         var beginY = key * height;
+        console.log("x: " + beginX + ",y: " + beginY + ",width: " + rectWith + ",id: " + spanSegId);
         bar.append("rect").attr("x", beginX).attr("y", beginY).attr("width", rectWith).attr("height", height - margin)
             .attr("id", spanSegId).style("fill", colorMap[appCode])
             .on("click", function () {
