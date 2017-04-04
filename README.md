@@ -16,7 +16,7 @@ SkyWalking: Large-Scale Distributed Systems Tracing Infrastructure, also known D
 
 * Auto-instrumentation mechanism, **no need to CHANGE any application source code**. Supported [frameworks](https://github.com/wu-sheng/sky-walking/wiki/3.0-supported-list).
 * Pure Java server implementation, with RESTful Web service.
-* High performance stream analysis.
+* High performance streaming analysis.
 * The UI released on [wu-sheng/sky-walking-ui](https://github.com/wu-sheng/sky-walking-ui)
 
 ___
@@ -48,4 +48,4 @@ _In chronological order_
 # Document
 * [WIKI](https://github.com/wu-sheng/sky-walking/wiki)
 
-_If you are Chinese Developer, you can join QQ Group: 392443393, and **Tagged** Sky-Walking._
+_As a Chinese Developer, you can join QQ Group: 392443393, and **Tagged** Sky-Walking. Or chat with us on gitter, in English._
