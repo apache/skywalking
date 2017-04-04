@@ -88,13 +88,13 @@ public class CollectorClient implements Runnable {
             .excludeFieldsWithoutExposeAnnotation()
             .create();
         String messageJson = gson.toJson(message);
-        CloseableHttpClient httpclient = HttpClients.custom()
-                .setKeepAliveStrategy(new DefaultConnectionKeepAliveStrategy())
-                .build();
+
         try {
             HttpPost httpPost = ready2Send(messageJson);
             if (httpPost != null) {
-                CloseableHttpResponse httpResponse = httpclient.execute(httpPost);
+                CloseableHttpResponse httpResponse = HttpClients.custom()
+                        .setKeepAliveStrategy(new DefaultConnectionKeepAliveStrategy())
+                        .build().execute(httpPost);
                 int statusCode = httpResponse.getStatusLine().getStatusCode();
                 if (200 != statusCode) {
                     findBackupServer();
@@ -104,8 +104,6 @@ public class CollectorClient implements Runnable {
         } catch (IOException e) {
             findBackupServer();
             throw e;
-        }finally {
-            httpclient.close();
         }
     }
 
