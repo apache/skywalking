@@ -44,7 +44,7 @@ public class NodeMappingMinuteAgg extends AbstractClusterWorker {
 
         @Override
         public int workerNum() {
-            return WorkerConfig.WorkerNum.Node.NodeMappingMinuteAgg.Size;
+            return WorkerConfig.WorkerNum.Node.NodeMappingMinuteAgg.Value;
         }
     }
 
