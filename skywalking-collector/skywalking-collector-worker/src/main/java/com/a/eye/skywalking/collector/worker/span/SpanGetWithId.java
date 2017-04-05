@@ -42,11 +42,11 @@ public class SpanGetWithId extends AbstractGet {
 
         int maxCost = -1;
         if (request.containsKey("maxCost")) {
-            maxCost = Integer.valueOf(ParameterTools.toString(request, "maxCost"));
+            maxCost = Integer.valueOf(ParameterTools.INSTANCE.toString(request, "maxCost"));
         }
 
-        String segId = ParameterTools.toString(request, "segId");
-        String spanId = ParameterTools.toString(request, "spanId");
+        String segId = ParameterTools.INSTANCE.toString(request, "segId");
+        String spanId = ParameterTools.INSTANCE.toString(request, "spanId");
 
         SpanSearchWithId.RequestEntity requestEntity = new SpanSearchWithId.RequestEntity(segId, spanId);
         getSelfContext().lookup(SpanSearchWithId.WorkerRole.INSTANCE).ask(requestEntity, response);

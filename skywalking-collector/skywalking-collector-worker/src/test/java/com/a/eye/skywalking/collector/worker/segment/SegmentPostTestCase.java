@@ -4,9 +4,10 @@ import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
 import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
 import com.a.eye.skywalking.collector.actor.WorkerRef;
 import com.a.eye.skywalking.collector.worker.globaltrace.analysis.GlobalTraceAnalysis;
-import com.a.eye.skywalking.collector.worker.node.analysis.NodeDayAnalysis;
-import com.a.eye.skywalking.collector.worker.node.analysis.NodeHourAnalysis;
-import com.a.eye.skywalking.collector.worker.node.analysis.NodeMinuteAnalysis;
+import com.a.eye.skywalking.collector.worker.node.analysis.NodeCompAnalysis;
+import com.a.eye.skywalking.collector.worker.node.analysis.NodeMappingDayAnalysis;
+import com.a.eye.skywalking.collector.worker.node.analysis.NodeMappingHourAnalysis;
+import com.a.eye.skywalking.collector.worker.node.analysis.NodeMappingMinuteAnalysis;
 import com.a.eye.skywalking.collector.worker.noderef.analysis.NodeRefDayAnalysis;
 import com.a.eye.skywalking.collector.worker.noderef.analysis.NodeRefHourAnalysis;
 import com.a.eye.skywalking.collector.worker.noderef.analysis.NodeRefMinuteAnalysis;
@@ -16,6 +17,8 @@ import com.a.eye.skywalking.collector.worker.segment.persistence.SegmentExceptio
 import com.a.eye.skywalking.collector.worker.segment.persistence.SegmentSave;
 import com.a.eye.skywalking.collector.worker.tools.DateTools;
 import com.google.gson.JsonObject;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,6 +41,8 @@ import static org.powermock.api.mockito.PowerMockito.*;
 @PowerMockIgnore({"javax.management.*"})
 public class SegmentPostTestCase {
 
+    private Logger logger = LogManager.getFormatterLogger(SegmentPostTestCase.class);
+
     private SegmentMock segmentMock;
     private SegmentPost segmentPost;
     private LocalWorkerContext localWorkerContext;
@@ -54,7 +59,8 @@ public class SegmentPostTestCase {
         initGlobalTraceAnalysis();
         initSegmentExceptionSave();
         initNodeRefAnalysis();
-        initNodeAnalysis();
+        initNodeCompAnalysis();
+        initNodeNodeMappingAnalysis();
 
         segmentPost = spy(new SegmentPost(SegmentPost.WorkerRole.INSTANCE, clusterWorkerContext, localWorkerContext));
     }
@@ -134,31 +140,42 @@ public class SegmentPostTestCase {
         doAnswer(nodeRefDayAnalysisAnswer).when(nodeRefDayAnalysis).tell(Mockito.argThat(new IsSegmentWithTimeSlice()));
     }
 
-    private SegmentOtherAnswer nodeMinuteAnalysisAnswer;
-    private SegmentOtherAnswer nodeHourAnalysisAnswer;
-    private SegmentOtherAnswer nodeDayAnalysisAnswer;
+    private SegmentOtherAnswer nodeCompAnalysisAnswer;
 
-    public void initNodeAnalysis() throws Exception {
+    public void initNodeCompAnalysis() throws Exception {
         WorkerRef nodeMinuteAnalysis = mock(WorkerRef.class);
-        doReturn(NodeMinuteAnalysis.Role.INSTANCE).when(nodeMinuteAnalysis, "getRole");
+        doReturn(NodeCompAnalysis.Role.INSTANCE).when(nodeMinuteAnalysis, "getRole");
         localWorkerContext.put(nodeMinuteAnalysis);
 
-        nodeMinuteAnalysisAnswer = new SegmentOtherAnswer();
-        doAnswer(nodeMinuteAnalysisAnswer).when(nodeMinuteAnalysis).tell(Mockito.argThat(new IsSegmentWithTimeSlice()));
+        nodeCompAnalysisAnswer = new SegmentOtherAnswer();
+        doAnswer(nodeCompAnalysisAnswer).when(nodeMinuteAnalysis).tell(Mockito.argThat(new IsSegmentWithTimeSlice()));
+    }
 
-        WorkerRef nodeHourAnalysis = mock(WorkerRef.class);
-        doReturn(NodeHourAnalysis.Role.INSTANCE).when(nodeHourAnalysis, "getRole");
-        localWorkerContext.put(nodeHourAnalysis);
+    private SegmentOtherAnswer nodeMappingMinuteAnalysisAnswer;
+    private SegmentOtherAnswer nodeMappingHourAnalysisAnswer;
+    private SegmentOtherAnswer nodeMappingDayAnalysisAnswer;
 
-        nodeHourAnalysisAnswer = new SegmentOtherAnswer();
-        doAnswer(nodeHourAnalysisAnswer).when(nodeHourAnalysis).tell(Mockito.argThat(new IsSegmentWithTimeSlice()));
+    public void initNodeNodeMappingAnalysis() throws Exception {
+        WorkerRef nodeMappingMinuteAnalysis = mock(WorkerRef.class);
+        doReturn(NodeMappingMinuteAnalysis.Role.INSTANCE).when(nodeMappingMinuteAnalysis, "getRole");
+        localWorkerContext.put(nodeMappingMinuteAnalysis);
 
-        WorkerRef nodeDayAnalysis = mock(WorkerRef.class);
-        doReturn(NodeDayAnalysis.Role.INSTANCE).when(nodeDayAnalysis, "getRole");
-        localWorkerContext.put(nodeDayAnalysis);
+        nodeMappingMinuteAnalysisAnswer = new SegmentOtherAnswer();
+        doAnswer(nodeMappingMinuteAnalysisAnswer).when(nodeMappingMinuteAnalysis).tell(Mockito.argThat(new IsSegmentWithTimeSlice()));
 
-        nodeDayAnalysisAnswer = new SegmentOtherAnswer();
-        doAnswer(nodeDayAnalysisAnswer).when(nodeDayAnalysis).tell(Mockito.argThat(new IsSegmentWithTimeSlice()));
+        WorkerRef nodeMappingHourAnalysis = mock(WorkerRef.class);
+        doReturn(NodeMappingHourAnalysis.Role.INSTANCE).when(nodeMappingHourAnalysis, "getRole");
+        localWorkerContext.put(nodeMappingHourAnalysis);
+
+        nodeMappingHourAnalysisAnswer = new SegmentOtherAnswer();
+        doAnswer(nodeMappingHourAnalysisAnswer).when(nodeMappingHourAnalysis).tell(Mockito.argThat(new IsSegmentWithTimeSlice()));
+
+        WorkerRef nodeMappingDayAnalysis = mock(WorkerRef.class);
+        doReturn(NodeMappingDayAnalysis.Role.INSTANCE).when(nodeMappingDayAnalysis, "getRole");
+        localWorkerContext.put(nodeMappingDayAnalysis);
+
+        nodeMappingDayAnalysisAnswer = new SegmentOtherAnswer();
+        doAnswer(nodeMappingDayAnalysisAnswer).when(nodeMappingDayAnalysis).tell(Mockito.argThat(new IsSegmentWithTimeSlice()));
     }
 
     @Test
@@ -198,18 +215,6 @@ public class SegmentPostTestCase {
         Assert.assertEquals(DateTools.changeToUTCSlice(201703310915L), nodeRefDayAnalysisAnswer.segmentWithTimeSlice.getMinute());
         Assert.assertEquals(DateTools.changeToUTCSlice(201703310900L), nodeRefDayAnalysisAnswer.segmentWithTimeSlice.getHour());
         Assert.assertEquals(201703310000L, nodeRefDayAnalysisAnswer.segmentWithTimeSlice.getDay());
-
-        Assert.assertEquals(DateTools.changeToUTCSlice(201703310915L), nodeMinuteAnalysisAnswer.segmentWithTimeSlice.getMinute());
-        Assert.assertEquals(DateTools.changeToUTCSlice(201703310900L), nodeMinuteAnalysisAnswer.segmentWithTimeSlice.getHour());
-        Assert.assertEquals(201703310000L, nodeMinuteAnalysisAnswer.segmentWithTimeSlice.getDay());
-
-        Assert.assertEquals(DateTools.changeToUTCSlice(201703310915L), nodeHourAnalysisAnswer.segmentWithTimeSlice.getMinute());
-        Assert.assertEquals(DateTools.changeToUTCSlice(201703310900L), nodeHourAnalysisAnswer.segmentWithTimeSlice.getHour());
-        Assert.assertEquals(201703310000L, nodeHourAnalysisAnswer.segmentWithTimeSlice.getDay());
-
-        Assert.assertEquals(DateTools.changeToUTCSlice(201703310915L), nodeDayAnalysisAnswer.segmentWithTimeSlice.getMinute());
-        Assert.assertEquals(DateTools.changeToUTCSlice(201703310900L), nodeDayAnalysisAnswer.segmentWithTimeSlice.getHour());
-        Assert.assertEquals(201703310000L, nodeDayAnalysisAnswer.segmentWithTimeSlice.getDay());
     }
 
     public class SegmentOtherAnswer implements Answer<Object> {
@@ -231,6 +236,7 @@ public class SegmentPostTestCase {
         @Override
         public Object answer(InvocationOnMock invocation) throws Throwable {
             JsonObject jsonObject = (JsonObject) invocation.getArguments()[0];
+            logger.info("SegmentSave json: " + jsonObject.toString());
             minute = jsonObject.get("minute").getAsLong();
             hour = jsonObject.get("hour").getAsLong();
             day = jsonObject.get("day").getAsLong();

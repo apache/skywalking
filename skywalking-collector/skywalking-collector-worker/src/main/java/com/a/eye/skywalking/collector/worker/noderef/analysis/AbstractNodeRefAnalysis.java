@@ -10,7 +10,6 @@ import com.a.eye.skywalking.collector.worker.tools.CollectionTools;
 import com.a.eye.skywalking.collector.worker.tools.SpanPeersTools;
 import com.a.eye.skywalking.trace.Span;
 import com.a.eye.skywalking.trace.TraceSegment;
-import com.a.eye.skywalking.trace.TraceSegmentRef;
 import com.a.eye.skywalking.trace.tag.Tags;
 import com.google.gson.JsonObject;
 import org.apache.logging.log4j.LogManager;
@@ -34,7 +33,6 @@ abstract class AbstractNodeRefAnalysis extends RecordAnalysisMember {
         if (CollectionTools.isNotEmpty(spanList)) {
             for (Span span : spanList) {
                 JsonObject dataJsonObj = new JsonObject();
-                String component = Tags.COMPONENT.get(span);
                 dataJsonObj.addProperty(NodeRefIndex.Time_Slice, timeSlice);
                 dataJsonObj.addProperty(NodeRefIndex.FrontIsRealCode, true);
                 dataJsonObj.addProperty(NodeRefIndex.BehindIsRealCode, true);
@@ -62,22 +60,6 @@ abstract class AbstractNodeRefAnalysis extends RecordAnalysisMember {
                         String id = timeSlice + Const.ID_SPLIT + front + Const.ID_SPLIT + behind;
                         setRecord(id, dataJsonObj);
                         buildNodeRefResRecordData(id, span, minute, hour, day, second);
-                    } else if (span.getParentSpanId() == -1 && CollectionTools.isNotEmpty(segment.getRefs())) {
-                        for (TraceSegmentRef segmentRef : segment.getRefs()) {
-                            String front = segmentRef.getApplicationCode();
-                            String behind = Const.PEERS_FRONT_SPLIT + segmentRef.getPeerHost() + Const.PEERS_BEHIND_SPLIT;
-                            String id = timeSlice + Const.ID_SPLIT + front + Const.ID_SPLIT + behind;
-
-                            JsonObject refDataJsonObj = new JsonObject();
-                            refDataJsonObj.addProperty(NodeRefIndex.Front, front);
-                            refDataJsonObj.addProperty(NodeRefIndex.FrontIsRealCode, true);
-                            refDataJsonObj.addProperty(NodeRefIndex.Behind, behind);
-                            refDataJsonObj.addProperty(NodeRefIndex.BehindIsRealCode, false);
-                            refDataJsonObj.addProperty(NodeRefIndex.Time_Slice, timeSlice);
-                            logger.debug("dag node ref: %s", refDataJsonObj.toString());
-                            setRecord(id, refDataJsonObj);
-//                            buildNodeRefResRecordData(id, span, minute, hour, day, second);
-                        }
                     }
                 }
             }

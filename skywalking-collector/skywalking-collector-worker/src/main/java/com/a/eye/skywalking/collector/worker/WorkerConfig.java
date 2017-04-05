@@ -45,7 +45,88 @@ public class WorkerConfig extends ClusterConfig {
         }
     }
 
+    public static class WorkerNum {
+        public static class Node {
+            public static class NodeDayAgg {
+                public static int Size = 1024;
+            }
+
+            public static class NodeHourAgg {
+                public static int Size = 1024;
+            }
+
+            public static class NodeMinuteAgg {
+                public static int Size = 1024;
+            }
+
+            public static class NodeMappingDayAgg {
+                public static int Size = 1024;
+            }
+
+            public static class NodeMappingHourAgg {
+                public static int Size = 1024;
+            }
+
+            public static class NodeMappingMinuteAgg {
+                public static int Size = 1024;
+            }
+        }
+    }
+
     public static class Queue {
+        public static class Segment {
+            public static class SegmentCostSave {
+                public static int Size = 1024;
+            }
+
+            public static class SegmentSave {
+                public static int Size = 1024;
+            }
+
+            public static class SegmentExceptionSave {
+                public static int Size = 1024;
+            }
+        }
+
+        public static class Node {
+            public static class NodeDayAnalysis {
+                public static int Size = 1024;
+            }
+
+            public static class NodeHourAnalysis {
+                public static int Size = 1024;
+            }
+
+            public static class NodeMinuteAnalysis {
+                public static int Size = 1024;
+            }
+
+            public static class NodeRefDayAnalysis {
+                public static int Size = 1024;
+            }
+
+            public static class NodeRefHourAnalysis {
+                public static int Size = 1024;
+            }
+
+            public static class NodeRefMinuteAnalysis {
+                public static int Size = 1024;
+            }
+
+            public static class NodeMappingDayAnalysis {
+                public static int Size = 1024;
+            }
+
+            public static class NodeMappingHourAnalysis {
+                public static int Size = 1024;
+            }
+
+            public static class NodeMappingMinuteAnalysis {
+                public static int Size = 1024;
+            }
+        }
+
+
         public static class Persistence {
             public static class DAGNodePersistence {
                 public static int Size = 1024;

@@ -43,19 +43,19 @@ public class SegmentTopGetWithGlobalTraceId extends AbstractGet {
 
         int from = 0;
         try {
-            from = Integer.valueOf(ParameterTools.toString(request, "from"));
+            from = Integer.valueOf(ParameterTools.INSTANCE.toString(request, "from"));
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("the request parameter from must numeric with int type");
         }
 
         int limit = 0;
         try {
-            limit = Integer.valueOf(ParameterTools.toString(request, "limit"));
+            limit = Integer.valueOf(ParameterTools.INSTANCE.toString(request, "limit"));
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("the request parameter from must numeric with int type");
         }
 
-        String globalTraceId = ParameterTools.toString(request, "globalTraceId");
+        String globalTraceId = ParameterTools.INSTANCE.toString(request, "globalTraceId");
 
         SegmentTopSearchWithGlobalTraceId.RequestEntity requestEntity = new SegmentTopSearchWithGlobalTraceId.RequestEntity(globalTraceId, from, limit);
         getSelfContext().lookup(SegmentTopSearchWithGlobalTraceId.WorkerRole.INSTANCE).ask(requestEntity, response);
