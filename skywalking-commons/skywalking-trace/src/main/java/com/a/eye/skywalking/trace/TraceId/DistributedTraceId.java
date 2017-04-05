@@ -24,6 +24,13 @@ public abstract class DistributedTraceId {
         return id;
     }
 
+    /**
+     * Compare the two <code>DistributedTraceId</code> by its {@link #id},
+     * even these two <code>DistributedTraceId</code>s are not the same instances.
+     *
+     * @param o target <code>DistributedTraceId</code>
+     * @return return if they have the same {@link #id}
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o)
