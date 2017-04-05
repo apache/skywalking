@@ -1,11 +1,11 @@
-package com.a.eye.skywalking.collector.worker.noderef.persistence;
+package com.a.eye.skywalking.collector.worker.node.persistence;
 
 import com.a.eye.skywalking.collector.actor.*;
 import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
 import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
 import com.a.eye.skywalking.collector.worker.Const;
 import com.a.eye.skywalking.collector.worker.TimeSlice;
-import com.a.eye.skywalking.collector.worker.noderef.NodeRefIndex;
+import com.a.eye.skywalking.collector.worker.node.NodeMappingIndex;
 import com.a.eye.skywalking.collector.worker.storage.EsClient;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -21,11 +21,11 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 /**
  * @author pengys5
  */
-public class NodeRefSearchWithTimeSlice extends AbstractLocalSyncWorker {
+public class NodeMappingSearchWithTimeSlice extends AbstractLocalSyncWorker {
 
-    private Logger logger = LogManager.getFormatterLogger(NodeRefSearchWithTimeSlice.class);
+    private Logger logger = LogManager.getFormatterLogger(NodeMappingSearchWithTimeSlice.class);
 
-    NodeRefSearchWithTimeSlice(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    NodeMappingSearchWithTimeSlice(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
@@ -34,34 +34,33 @@ public class NodeRefSearchWithTimeSlice extends AbstractLocalSyncWorker {
         if (request instanceof RequestEntity) {
             RequestEntity search = (RequestEntity) request;
 
-            SearchRequestBuilder searchRequestBuilder = EsClient.getClient().prepareSearch(NodeRefIndex.Index);
+            SearchRequestBuilder searchRequestBuilder = EsClient.getClient().prepareSearch(NodeMappingIndex.Index);
             searchRequestBuilder.setTypes(search.getSliceType());
             searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
-            searchRequestBuilder.setQuery(QueryBuilders.rangeQuery(NodeRefIndex.Time_Slice).gte(search.getStartTime()).lte(search.getEndTime()));
+            searchRequestBuilder.setQuery(QueryBuilders.rangeQuery(NodeMappingIndex.Time_Slice).gte(search.getStartTime()).lte(search.getEndTime()));
             searchRequestBuilder.setSize(0);
 
-            searchRequestBuilder.addAggregation(AggregationBuilders.terms(NodeRefIndex.AGG_COLUMN).field(NodeRefIndex.AGG_COLUMN).size(100));
-
+            searchRequestBuilder.addAggregation(AggregationBuilders.terms(NodeMappingIndex.AGG_COLUMN).field(NodeMappingIndex.AGG_COLUMN).size(100));
             SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
 
-            Terms genders = searchResponse.getAggregations().get(NodeRefIndex.AGG_COLUMN);
+            Terms genders = searchResponse.getAggregations().get(NodeMappingIndex.AGG_COLUMN);
 
-            JsonArray nodeRefArray = new JsonArray();
+            JsonArray nodeMappingArray = new JsonArray();
             for (Terms.Bucket entry : genders.getBuckets()) {
                 String aggId = entry.getKeyAsString();
                 String[] aggIds = aggId.split(Const.IDS_SPLIT);
-                String front = aggIds[0];
-                String behind = aggIds[1];
+                String code = aggIds[0];
+                String peers = aggIds[1];
 
-                JsonObject nodeRefObj = new JsonObject();
-                nodeRefObj.addProperty(NodeRefIndex.Front, front);
-                nodeRefObj.addProperty(NodeRefIndex.Behind, behind);
-                nodeRefArray.add(nodeRefObj);
+                JsonObject nodeMappingObj = new JsonObject();
+                nodeMappingObj.addProperty(NodeMappingIndex.Code, code);
+                nodeMappingObj.addProperty(NodeMappingIndex.Peers, peers);
+                nodeMappingArray.add(nodeMappingObj);
             }
-            logger.debug("node ref data: %s", nodeRefArray.toString());
+            logger.debug("node mapping data: %s", nodeMappingArray.toString());
 
             JsonObject resJsonObj = (JsonObject) response;
-            resJsonObj.add("result", nodeRefArray);
+            resJsonObj.add(Const.RESULT, nodeMappingArray);
         } else {
             throw new IllegalArgumentException("message instance must be RequestEntity");
         }
@@ -73,7 +72,7 @@ public class NodeRefSearchWithTimeSlice extends AbstractLocalSyncWorker {
         }
     }
 
-    public static class Factory extends AbstractLocalSyncWorkerProvider<NodeRefSearchWithTimeSlice> {
+    public static class Factory extends AbstractLocalSyncWorkerProvider<NodeMappingSearchWithTimeSlice> {
         public static Factory INSTANCE = new Factory();
 
         @Override
@@ -82,8 +81,8 @@ public class NodeRefSearchWithTimeSlice extends AbstractLocalSyncWorker {
         }
 
         @Override
-        public NodeRefSearchWithTimeSlice workerInstance(ClusterWorkerContext clusterContext) {
-            return new NodeRefSearchWithTimeSlice(role(), clusterContext, new LocalWorkerContext());
+        public NodeMappingSearchWithTimeSlice workerInstance(ClusterWorkerContext clusterContext) {
+            return new NodeMappingSearchWithTimeSlice(role(), clusterContext, new LocalWorkerContext());
         }
     }
 
@@ -92,7 +91,7 @@ public class NodeRefSearchWithTimeSlice extends AbstractLocalSyncWorker {
 
         @Override
         public String roleName() {
-            return NodeRefSearchWithTimeSlice.class.getSimpleName();
+            return NodeMappingSearchWithTimeSlice.class.getSimpleName();
         }
 
         @Override

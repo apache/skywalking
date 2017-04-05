@@ -27,7 +27,7 @@ public class NodeRefResSumSearchWithTimeSlice extends AbstractLocalSyncWorker {
 
     private Logger logger = LogManager.getFormatterLogger(NodeRefResSumSearchWithTimeSlice.class);
 
-    private NodeRefResSumSearchWithTimeSlice(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    NodeRefResSumSearchWithTimeSlice(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 

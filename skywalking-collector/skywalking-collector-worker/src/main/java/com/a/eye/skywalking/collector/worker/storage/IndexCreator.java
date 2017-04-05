@@ -1,8 +1,8 @@
 package com.a.eye.skywalking.collector.worker.storage;
 
 import com.a.eye.skywalking.collector.worker.globaltrace.GlobalTraceIndex;
-import com.a.eye.skywalking.collector.worker.node.NodeIndex;
-import com.a.eye.skywalking.collector.worker.nodeinst.NodeInstIndex;
+import com.a.eye.skywalking.collector.worker.node.NodeCompIndex;
+import com.a.eye.skywalking.collector.worker.node.NodeMappingIndex;
 import com.a.eye.skywalking.collector.worker.noderef.NodeRefIndex;
 import com.a.eye.skywalking.collector.worker.noderef.NodeRefResSumIndex;
 import com.a.eye.skywalking.collector.worker.segment.SegmentCostIndex;
@@ -31,13 +31,13 @@ public enum IndexCreator {
         segmentExceptionIndex.deleteIndex();
         segmentExceptionIndex.createIndex();
 
-        NodeIndex nodeIndex = new NodeIndex();
-        nodeIndex.deleteIndex();
-        nodeIndex.createIndex();
+        NodeCompIndex nodeCompIndex = new NodeCompIndex();
+        nodeCompIndex.deleteIndex();
+        nodeCompIndex.createIndex();
 
-        NodeInstIndex nodeInstIndex = new NodeInstIndex();
-        nodeInstIndex.deleteIndex();
-        nodeInstIndex.createIndex();
+        NodeMappingIndex nodeMappingIndex = new NodeMappingIndex();
+        nodeMappingIndex.deleteIndex();
+        nodeMappingIndex.createIndex();
 
         NodeRefIndex nodeRefIndex = new NodeRefIndex();
         nodeRefIndex.deleteIndex();

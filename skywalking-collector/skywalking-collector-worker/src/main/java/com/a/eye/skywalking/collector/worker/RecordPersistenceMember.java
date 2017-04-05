@@ -68,6 +68,9 @@ public abstract class RecordPersistenceMember extends PersistenceMember {
         }
 
         BulkResponse bulkResponse = bulkRequest.execute().actionGet();
+        if (bulkResponse.hasFailures()) {
+            logger.error(bulkResponse.buildFailureMessage());
+        }
         return !bulkResponse.hasFailures();
     }
 }

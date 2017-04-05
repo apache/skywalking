@@ -10,12 +10,7 @@ import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
 import com.a.eye.skywalking.collector.worker.globaltrace.analysis.GlobalTraceAnalysis;
 import com.a.eye.skywalking.collector.worker.httpserver.AbstractPost;
 import com.a.eye.skywalking.collector.worker.httpserver.AbstractPostProvider;
-import com.a.eye.skywalking.collector.worker.node.analysis.NodeDayAnalysis;
-import com.a.eye.skywalking.collector.worker.node.analysis.NodeHourAnalysis;
-import com.a.eye.skywalking.collector.worker.node.analysis.NodeMinuteAnalysis;
-import com.a.eye.skywalking.collector.worker.nodeinst.analysis.NodeInstDayAnalysis;
-import com.a.eye.skywalking.collector.worker.nodeinst.analysis.NodeInstHourAnalysis;
-import com.a.eye.skywalking.collector.worker.nodeinst.analysis.NodeInstMinuteAnalysis;
+import com.a.eye.skywalking.collector.worker.node.analysis.*;
 import com.a.eye.skywalking.collector.worker.noderef.analysis.NodeRefDayAnalysis;
 import com.a.eye.skywalking.collector.worker.noderef.analysis.NodeRefHourAnalysis;
 import com.a.eye.skywalking.collector.worker.noderef.analysis.NodeRefMinuteAnalysis;
@@ -51,6 +46,8 @@ public class SegmentPost extends AbstractPost {
     public void preStart() throws ProviderNotFoundException {
         getClusterContext().findProvider(GlobalTraceAnalysis.Role.INSTANCE).create(this);
 
+        getClusterContext().findProvider(NodeCompAnalysis.Role.INSTANCE).create(this);
+
         getClusterContext().findProvider(SegmentSave.Role.INSTANCE).create(this);
         getClusterContext().findProvider(SegmentCostSave.Role.INSTANCE).create(this);
         getClusterContext().findProvider(SegmentExceptionSave.Role.INSTANCE).create(this);
@@ -59,13 +56,9 @@ public class SegmentPost extends AbstractPost {
         getClusterContext().findProvider(NodeRefHourAnalysis.Role.INSTANCE).create(this);
         getClusterContext().findProvider(NodeRefDayAnalysis.Role.INSTANCE).create(this);
 
-        getClusterContext().findProvider(NodeMinuteAnalysis.Role.INSTANCE).create(this);
-        getClusterContext().findProvider(NodeHourAnalysis.Role.INSTANCE).create(this);
-        getClusterContext().findProvider(NodeDayAnalysis.Role.INSTANCE).create(this);
-
-        getClusterContext().findProvider(NodeInstMinuteAnalysis.Role.INSTANCE).create(this);
-        getClusterContext().findProvider(NodeInstHourAnalysis.Role.INSTANCE).create(this);
-        getClusterContext().findProvider(NodeInstDayAnalysis.Role.INSTANCE).create(this);
+        getClusterContext().findProvider(NodeMappingDayAnalysis.Role.INSTANCE).create(this);
+        getClusterContext().findProvider(NodeMappingHourAnalysis.Role.INSTANCE).create(this);
+        getClusterContext().findProvider(NodeMappingMinuteAnalysis.Role.INSTANCE).create(this);
     }
 
     @Override
@@ -95,9 +88,10 @@ public class SegmentPost extends AbstractPost {
             getSelfContext().lookup(GlobalTraceAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
             getSelfContext().lookup(SegmentExceptionSave.Role.INSTANCE).tell(segmentWithTimeSlice);
 
+            getSelfContext().lookup(NodeCompAnalysis.Role.INSTANCE).tell(newSegment);
+
             tellNodeRef(segmentWithTimeSlice);
-            tellNode(segmentWithTimeSlice);
-//            tellNodeInst(segmentWithTimeSlice);
+            tellNodeMapping(segmentWithTimeSlice);
         }
     }
 
@@ -115,17 +109,11 @@ public class SegmentPost extends AbstractPost {
         getSelfContext().lookup(NodeRefDayAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
     }
 
-    private void tellNode(SegmentWithTimeSlice segmentWithTimeSlice) throws Exception {
-        getSelfContext().lookup(NodeMinuteAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
-        getSelfContext().lookup(NodeHourAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
-        getSelfContext().lookup(NodeDayAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
+    private void tellNodeMapping(SegmentWithTimeSlice segmentWithTimeSlice) throws Exception {
+        getSelfContext().lookup(NodeMappingMinuteAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
+        getSelfContext().lookup(NodeMappingHourAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
+        getSelfContext().lookup(NodeMappingDayAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
     }
-
-//    private void tellNodeInst(SegmentWithTimeSlice segmentWithTimeSlice) throws Exception {
-//        getSelfContext().lookup(NodeInstMinuteAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
-//        getSelfContext().lookup(NodeInstHourAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
-//        getSelfContext().lookup(NodeInstDayAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
-//    }
 
     private void validateData(TraceSegment newSegment) {
         if (StringUtil.isEmpty(newSegment.getTraceSegmentId())) {

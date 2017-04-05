@@ -28,7 +28,6 @@ public abstract class AbstractIndex {
 
     public static final String AGG_COLUMN = "aggId";
     public static final String Time_Slice = "timeSlice";
-    public static final String Top_One = "topOne";
 
     final public XContentBuilder createSettingBuilder() throws IOException {
         XContentBuilder settingsBuilder = XContentFactory.jsonBuilder()

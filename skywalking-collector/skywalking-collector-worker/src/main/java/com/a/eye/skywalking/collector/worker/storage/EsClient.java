@@ -22,7 +22,8 @@ public class EsClient {
     public static void boot() throws UnknownHostException {
         Settings settings = Settings.builder()
                 .put("cluster.name", "CollectorCluster")
-                .put("client.transport.sniff", true).build();
+                .put("client.transport.sniff", true)
+                .build();
 
         client = new PreBuiltTransportClient(settings)
                 .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("localhost"), 9300));

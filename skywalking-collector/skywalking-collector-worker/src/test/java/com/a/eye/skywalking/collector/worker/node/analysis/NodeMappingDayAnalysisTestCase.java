@@ -1,4 +1,4 @@
-package com.a.eye.skywalking.collector.worker.noderef.analysis;
+package com.a.eye.skywalking.collector.worker.node.analysis;
 
 import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
 import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
@@ -7,7 +7,7 @@ import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
 import com.a.eye.skywalking.collector.queue.EndOfBatchCommand;
 import com.a.eye.skywalking.collector.worker.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.mock.RecordDataAnswer;
-import com.a.eye.skywalking.collector.worker.noderef.persistence.NodeRefDayAgg;
+import com.a.eye.skywalking.collector.worker.node.persistence.NodeMappingDayAgg;
 import com.a.eye.skywalking.collector.worker.segment.SegmentPost;
 import com.a.eye.skywalking.collector.worker.segment.mock.SegmentMock;
 import com.a.eye.skywalking.collector.worker.storage.RecordData;
@@ -34,9 +34,9 @@ import static org.powermock.api.mockito.PowerMockito.when;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ClusterWorkerContext.class})
 @PowerMockIgnore({"javax.management.*"})
-public class NodeRefDayAnalysisTestCase {
+public class NodeMappingDayAnalysisTestCase {
 
-    private NodeRefDayAnalysis nodeRefDayAnalysis;
+    private NodeMappingDayAnalysis nodeMappingDayAnalysis;
     private SegmentMock segmentMock = new SegmentMock();
     private RecordDataAnswer recordDataAnswer;
 
@@ -47,56 +47,53 @@ public class NodeRefDayAnalysisTestCase {
         recordDataAnswer = new RecordDataAnswer();
         doAnswer(recordDataAnswer).when(workerRefs).tell(Mockito.any(RecordData.class));
 
-        when(clusterWorkerContext.lookup(NodeRefDayAgg.Role.INSTANCE)).thenReturn(workerRefs);
+        when(clusterWorkerContext.lookup(NodeMappingDayAgg.Role.INSTANCE)).thenReturn(workerRefs);
 
-        LocalWorkerContext localWorkerContext = PowerMockito.mock(LocalWorkerContext.class);
-        WorkerRefs nodeRefResSumWorkerRefs = mock(WorkerRefs.class);
-        when(localWorkerContext.lookup(NodeRefResSumDayAnalysis.Role.INSTANCE)).thenReturn(nodeRefResSumWorkerRefs);
-        nodeRefDayAnalysis = new NodeRefDayAnalysis(NodeRefDayAnalysis.Role.INSTANCE, clusterWorkerContext, localWorkerContext);
+        LocalWorkerContext localWorkerContext = new LocalWorkerContext();
+        nodeMappingDayAnalysis = new NodeMappingDayAnalysis(NodeMappingDayAnalysis.Role.INSTANCE, clusterWorkerContext, localWorkerContext);
     }
 
     @Test
     public void testRole() {
-        Assert.assertEquals(NodeRefDayAnalysis.class.getSimpleName(), NodeRefDayAnalysis.Role.INSTANCE.roleName());
-        Assert.assertEquals(RollingSelector.class.getSimpleName(), NodeRefDayAnalysis.Role.INSTANCE.workerSelector().getClass().getSimpleName());
+        Assert.assertEquals(NodeMappingDayAnalysis.class.getSimpleName(), NodeMappingDayAnalysis.Role.INSTANCE.roleName());
+        Assert.assertEquals(RollingSelector.class.getSimpleName(), NodeMappingDayAnalysis.Role.INSTANCE.workerSelector().getClass().getSimpleName());
     }
 
     @Test
     public void testFactory() {
-        Assert.assertEquals(NodeRefDayAnalysis.class.getSimpleName(), NodeRefDayAnalysis.Factory.INSTANCE.role().roleName());
-        Assert.assertEquals(NodeRefDayAnalysis.class.getSimpleName(), NodeRefDayAnalysis.Factory.INSTANCE.workerInstance(null).getClass().getSimpleName());
+        Assert.assertEquals(NodeMappingDayAnalysis.class.getSimpleName(), NodeMappingDayAnalysis.Factory.INSTANCE.role().roleName());
+        Assert.assertEquals(NodeMappingDayAnalysis.class.getSimpleName(), NodeMappingDayAnalysis.Factory.INSTANCE.workerInstance(null).getClass().getSimpleName());
 
         int testSize = 10;
-        WorkerConfig.Queue.Node.NodeRefDayAnalysis.Size = testSize;
-        Assert.assertEquals(testSize, NodeRefDayAnalysis.Factory.INSTANCE.queueSize());
+        WorkerConfig.Queue.Node.NodeMappingDayAnalysis.Size = testSize;
+        Assert.assertEquals(testSize, NodeMappingDayAnalysis.Factory.INSTANCE.queueSize());
     }
 
     @Test
     public void testAnalyse() throws Exception {
         List<SegmentPost.SegmentWithTimeSlice> cacheServiceSegment = segmentMock.mockCacheServiceSegmentSegmentTimeSlice();
         for (SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice : cacheServiceSegment) {
-            nodeRefDayAnalysis.analyse(segmentWithTimeSlice);
+            nodeMappingDayAnalysis.analyse(segmentWithTimeSlice);
         }
         List<SegmentPost.SegmentWithTimeSlice> portalService = segmentMock.mockPortalServiceSegmentSegmentTimeSlice();
         for (SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice : portalService) {
-            nodeRefDayAnalysis.analyse(segmentWithTimeSlice);
+            nodeMappingDayAnalysis.analyse(segmentWithTimeSlice);
         }
         List<SegmentPost.SegmentWithTimeSlice> persistenceService = segmentMock.mockPersistenceServiceSegmentTimeSlice();
         for (SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice : persistenceService) {
-            nodeRefDayAnalysis.analyse(segmentWithTimeSlice);
+            nodeMappingDayAnalysis.analyse(segmentWithTimeSlice);
         }
         List<SegmentPost.SegmentWithTimeSlice> cacheServiceException = segmentMock.mockCacheServiceExceptionSegmentTimeSlice();
         for (SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice : cacheServiceException) {
-            nodeRefDayAnalysis.analyse(segmentWithTimeSlice);
+            nodeMappingDayAnalysis.analyse(segmentWithTimeSlice);
         }
         List<SegmentPost.SegmentWithTimeSlice> portalServiceException = segmentMock.mockPortalServiceExceptionSegmentTimeSlice();
         for (SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice : portalServiceException) {
-            nodeRefDayAnalysis.analyse(segmentWithTimeSlice);
+            nodeMappingDayAnalysis.analyse(segmentWithTimeSlice);
         }
 
-        nodeRefDayAnalysis.onWork(new EndOfBatchCommand());
+        nodeMappingDayAnalysis.onWork(new EndOfBatchCommand());
 
-        List<RecordData> recordDataList = recordDataAnswer.recordObj.getRecordData();
-        NodeRefAnalysisVerify.INSTANCE.verify(recordDataList, DateTools.changeToUTCSlice(201703310000L));
+        NodeMappingAnalysisVerify.INSTANCE.verify(recordDataAnswer.recordObj.getRecordData(), DateTools.changeToUTCSlice(201703310000L));
     }
 }

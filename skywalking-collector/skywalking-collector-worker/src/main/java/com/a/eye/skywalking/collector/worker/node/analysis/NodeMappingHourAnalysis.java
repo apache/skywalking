@@ -1,13 +1,12 @@
-package com.a.eye.skywalking.collector.worker.noderef.analysis;
+package com.a.eye.skywalking.collector.worker.node.analysis;
 
 import com.a.eye.skywalking.collector.actor.AbstractLocalAsyncWorkerProvider;
 import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
 import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
-import com.a.eye.skywalking.collector.actor.ProviderNotFoundException;
 import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
 import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
 import com.a.eye.skywalking.collector.worker.WorkerConfig;
-import com.a.eye.skywalking.collector.worker.noderef.persistence.NodeRefHourAgg;
+import com.a.eye.skywalking.collector.worker.node.persistence.NodeMappingHourAgg;
 import com.a.eye.skywalking.collector.worker.segment.SegmentPost;
 import com.a.eye.skywalking.collector.worker.storage.RecordData;
 import com.a.eye.skywalking.trace.TraceSegment;
@@ -15,16 +14,10 @@ import com.a.eye.skywalking.trace.TraceSegment;
 /**
  * @author pengys5
  */
-public class NodeRefHourAnalysis extends AbstractNodeRefAnalysis {
+public class NodeMappingHourAnalysis extends AbstractNodeMappingAnalysis {
 
-    protected NodeRefHourAnalysis(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    public NodeMappingHourAnalysis(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
-    }
-
-    @Override
-    public void preStart() throws ProviderNotFoundException {
-        super.preStart();
-        getClusterContext().findProvider(NodeRefResSumHourAnalysis.Role.INSTANCE).create(this);
     }
 
     @Override
@@ -32,30 +25,19 @@ public class NodeRefHourAnalysis extends AbstractNodeRefAnalysis {
         if (message instanceof SegmentPost.SegmentWithTimeSlice) {
             SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice = (SegmentPost.SegmentWithTimeSlice) message;
             TraceSegment segment = segmentWithTimeSlice.getTraceSegment();
-
-            long minute = segmentWithTimeSlice.getMinute();
-            long hour = segmentWithTimeSlice.getHour();
-            long day = segmentWithTimeSlice.getDay();
-            int second = segmentWithTimeSlice.getSecond();
-            analyseNodeRef(segment, segmentWithTimeSlice.getHour(), minute, hour, day, second);
+            analyseRefs(segment, segmentWithTimeSlice.getHour());
         }
-    }
-
-    @Override
-    protected void sendToResSumAnalysis(AbstractNodeRefResSumAnalysis.NodeRefResRecord refResRecord) throws Exception {
-        getSelfContext().lookup(NodeRefResSumHourAnalysis.Role.INSTANCE).tell(refResRecord);
     }
 
     @Override
     protected void aggregation() throws Exception {
         RecordData oneRecord;
         while ((oneRecord = pushOne()) != null) {
-            getClusterContext().lookup(NodeRefHourAgg.Role.INSTANCE).tell(oneRecord);
+            getClusterContext().lookup(NodeMappingHourAgg.Role.INSTANCE).tell(oneRecord);
         }
     }
 
-    public static class Factory extends AbstractLocalAsyncWorkerProvider<NodeRefHourAnalysis> {
-
+    public static class Factory extends AbstractLocalAsyncWorkerProvider<NodeMappingHourAnalysis> {
         public static Factory INSTANCE = new Factory();
 
         @Override
@@ -64,13 +46,13 @@ public class NodeRefHourAnalysis extends AbstractNodeRefAnalysis {
         }
 
         @Override
-        public NodeRefHourAnalysis workerInstance(ClusterWorkerContext clusterContext) {
-            return new NodeRefHourAnalysis(role(), clusterContext, new LocalWorkerContext());
+        public NodeMappingHourAnalysis workerInstance(ClusterWorkerContext clusterContext) {
+            return new NodeMappingHourAnalysis(role(), clusterContext, new LocalWorkerContext());
         }
 
         @Override
         public int queueSize() {
-            return WorkerConfig.Queue.Node.NodeRefHourAnalysis.Size;
+            return WorkerConfig.Queue.Node.NodeMappingHourAnalysis.Size;
         }
     }
 
@@ -79,7 +61,7 @@ public class NodeRefHourAnalysis extends AbstractNodeRefAnalysis {
 
         @Override
         public String roleName() {
-            return NodeRefHourAnalysis.class.getSimpleName();
+            return NodeMappingHourAnalysis.class.getSimpleName();
         }
 
         @Override
