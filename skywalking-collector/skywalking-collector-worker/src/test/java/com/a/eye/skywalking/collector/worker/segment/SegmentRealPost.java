@@ -1,7 +1,6 @@
 package com.a.eye.skywalking.collector.worker.segment;
 
 import com.a.eye.skywalking.collector.worker.segment.mock.SegmentMock;
-import com.a.eye.skywalking.collector.worker.tools.HttpClientTools;
 
 /**
  * @author pengys5

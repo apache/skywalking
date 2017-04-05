@@ -1,4 +1,4 @@
-package com.a.eye.skywalking.collector.worker.tools;
+package com.a.eye.skywalking.collector.worker.segment;
 
 import org.apache.http.Consts;
 import org.apache.http.HttpEntity;

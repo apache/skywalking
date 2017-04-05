@@ -43,20 +43,20 @@ public class NodeRefGetWithTimeSlice extends AbstractGet {
 
         long startTime;
         try {
-            startTime = Long.valueOf(ParameterTools.toString(request, "startTime"));
+            startTime = Long.valueOf(ParameterTools.INSTANCE.toString(request, "startTime"));
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("the request parameter startTime must numeric with long type");
         }
 
         long endTime;
         try {
-            endTime = Long.valueOf(ParameterTools.toString(request, "endTime"));
+            endTime = Long.valueOf(ParameterTools.INSTANCE.toString(request, "endTime"));
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("the request parameter endTime must numeric with long type");
         }
 
         NodeRefSearchWithTimeSlice.RequestEntity requestEntity;
-        requestEntity = new NodeRefSearchWithTimeSlice.RequestEntity(ParameterTools.toString(request, "timeSliceType"), startTime, endTime);
+        requestEntity = new NodeRefSearchWithTimeSlice.RequestEntity(ParameterTools.INSTANCE.toString(request, "timeSliceType"), startTime, endTime);
         getSelfContext().lookup(NodeRefSearchWithTimeSlice.WorkerRole.INSTANCE).ask(requestEntity, response);
     }
 

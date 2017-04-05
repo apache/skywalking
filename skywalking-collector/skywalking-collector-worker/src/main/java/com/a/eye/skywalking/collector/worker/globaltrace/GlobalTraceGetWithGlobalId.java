@@ -40,7 +40,7 @@ public class GlobalTraceGetWithGlobalId extends AbstractGet {
         }
         logger.debug("globalId: %s", Arrays.toString(request.get("globalId")));
 
-        String globalId = ParameterTools.toString(request, "globalId");
+        String globalId = ParameterTools.INSTANCE.toString(request, "globalId");
 
         getSelfContext().lookup(GlobalTraceSearchWithGlobalId.WorkerRole.INSTANCE).ask(globalId, response);
     }

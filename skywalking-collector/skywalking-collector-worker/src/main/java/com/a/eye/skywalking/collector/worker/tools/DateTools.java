@@ -41,7 +41,9 @@ public class DateTools {
     }
 
     public static long changeToUTCSlice(long timeSlice) {
-        if (TimeZone.getDefault().getID().equals("GMT+08:00")) {
+        String timeSliceStr = String.valueOf(timeSlice);
+
+        if (TimeZone.getDefault().getID().equals("GMT+08:00") || timeSliceStr.endsWith("0000")) {
             return timeSlice;
         } else {
             return timeSlice - 800;
