@@ -44,7 +44,7 @@ public class NodeCompAgg extends AbstractClusterWorker {
 
         @Override
         public int workerNum() {
-            return WorkerConfig.WorkerNum.Node.NodeDayAgg.Size;
+            return WorkerConfig.WorkerNum.Node.NodeDayAgg.Value;
         }
     }
 

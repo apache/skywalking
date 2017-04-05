@@ -48,27 +48,27 @@ public class WorkerConfig extends ClusterConfig {
     public static class WorkerNum {
         public static class Node {
             public static class NodeDayAgg {
-                public static int Size = 1024;
+                public static int Value = 10;
             }
 
             public static class NodeHourAgg {
-                public static int Size = 1024;
+                public static int Value = 10;
             }
 
             public static class NodeMinuteAgg {
-                public static int Size = 1024;
+                public static int Value = 10;
             }
 
             public static class NodeMappingDayAgg {
-                public static int Size = 1024;
+                public static int Value = 10;
             }
 
             public static class NodeMappingHourAgg {
-                public static int Size = 1024;
+                public static int Value = 10;
             }
 
             public static class NodeMappingMinuteAgg {
-                public static int Size = 1024;
+                public static int Value = 10;
             }
         }
     }
@@ -173,6 +173,5 @@ public class WorkerConfig extends ClusterConfig {
         public static class DAGNodeRefAnalysis {
             public static int Size = 1024;
         }
-
     }
 }
