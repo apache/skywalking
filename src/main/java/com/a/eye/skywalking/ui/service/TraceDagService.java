@@ -56,11 +56,11 @@ public class TraceDagService {
             JsonObject nodeJsonObj = nodesArray.get(i).getAsJsonObject();
             Integer id = nodeJsonObj.get("id").getAsInt();
             String peer = nodeJsonObj.get("peer").getAsString();
-            if (nodeJsonObj.has("component") && !StringUtils.isEmpty(nodeJsonObj.get("component"))) {
+            if (nodeJsonObj.has("component") && !nodeJsonObj.get("component").isJsonNull()) {
                 String component = nodeJsonObj.get("component").getAsString();
                 nodeJsonObj = createNodeGraph(id, peer, imageCache.getImage(component));
             } else {
-                nodeJsonObj = createNodeGraph(id, peer, ImageCache.UNDEFINED_IMAGE);
+                nodeJsonObj = createNodeGraph(id, peer, imageCache.getImage(ImageCache.UNDEFINED_IMAGE));
             }
 
             newNodesArray.add(nodeJsonObj);
