@@ -1,13 +1,14 @@
 /**
  * @author pengys5
  */
+var sliceType = "day";
+
 define(["moment", "text!timeAxisHtml", "rangeSlider", "daterangepicker", "alarm", "dagDraw", "text!dagHtml"], function (moment, timeAxisHtml, rangeSlider, daterangepicker, alarm, dagDraw, dagHtml) {
     var minuteSliceType = "minute";
     var hourSliceType = "hour";
     var daySliceType = "day";
 
     var isAutoUpdate = false;
-    var sliceType = daySliceType;
     var slider;
 
     function create(divId) {
@@ -70,24 +71,24 @@ define(["moment", "text!timeAxisHtml", "rangeSlider", "daterangepicker", "alarm"
         });
     }
 
-    function sliceTypeSelect(sliceType) {
-        if (sliceType == minuteSliceType) {
+    function sliceTypeSelect(sliceTypeIn) {
+        if (sliceTypeIn == minuteSliceType) {
             $("#minuteBtn").removeClass("btn-default").addClass("btn-success");
             $("#hourBtn").removeClass("btn-success").addClass("btn-default");
             $("#dayBtn").removeClass("btn-success").addClass("btn-default");
-            this.sliceType = minuteSliceType;
+            sliceType = minuteSliceType;
             bindMinuteDatePicker();
-        } else if (sliceType == hourSliceType) {
+        } else if (sliceTypeIn == hourSliceType) {
             $("#hourBtn").removeClass("btn-default").addClass("btn-success");
             $("#minuteBtn").removeClass("btn-success").addClass("btn-default");
             $("#dayBtn").removeClass("btn-success").addClass("btn-default");
-            this.sliceType = hourSliceType;
+            sliceType = hourSliceType;
             bindHourDatePicker();
         } else {
             $("#dayBtn").removeClass("btn-default").addClass("btn-success");
             $("#hourBtn").removeClass("btn-success").addClass("btn-default");
             $("#minuteBtn").removeClass("btn-success").addClass("btn-default");
-            this.sliceType = daySliceType;
+            sliceType = daySliceType;
             bindDayRangePicker();
         }
     }
@@ -104,6 +105,8 @@ define(["moment", "text!timeAxisHtml", "rangeSlider", "daterangepicker", "alarm"
             values: rangeDate,
             onChange: function (data) {
                 console.log(data.from_value + " : " + data.to_value);
+                console.log("sliceType: " + sliceType)
+
                 if (sliceType == minuteSliceType) {
                     var startTime = moment(data.from_value, "YYYY/MM/DD HH:mm").format("YYYYMMDDHHmm");
                     var endTime = moment(data.to_value, "YYYY/MM/DD HH:mm").format("YYYYMMDDHHmm");

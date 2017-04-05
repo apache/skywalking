@@ -35,5 +35,10 @@
 
 <!-- Mainly scripts -->
 <script data-main="/index/index" src="/webjars/requirejs/2.3.3/require.min.js"></script>
+<script>
+    require.config({
+        urlArgs: "r=" + (new Date()).getTime()
+    });
+</script>
 </body>
 </html>
