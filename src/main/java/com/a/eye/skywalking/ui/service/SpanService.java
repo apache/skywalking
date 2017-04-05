@@ -46,23 +46,6 @@ public class SpanService {
         JsonObject spanResponseJson = gson.fromJson(spanResponse, JsonObject.class);
         JsonObject spanJson = spanResponseJson.get("result").getAsJsonObject();
 
-        JsonArray lo = new JsonArray();
-        spanJson.add("lo", lo);
-
-        for (int i = 0; i < 5; i++) {
-            JsonObject logs = new JsonObject();
-            logs.addProperty("tm", "123123123");
-
-            JsonObject fi = new JsonObject();
-            fi.addProperty("sdfsdf1", "sdfsdf");
-            fi.addProperty("sdfsdf2", "sdfsdf");
-            fi.addProperty("sdfsdf3", "sdfsdf");
-            fi.addProperty("sdfsdf4", "sdfsdf");
-            fi.addProperty("sdfsdf5", "sdfsdf");
-            logs.add("fi", fi);
-            lo.add(logs);
-        }
-
         return spanJson;
     }
 }
