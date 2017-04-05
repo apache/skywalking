@@ -4,7 +4,6 @@ import com.a.eye.skywalking.ui.creator.ImageCache;
 import com.a.eye.skywalking.ui.creator.UrlCreator;
 import com.a.eye.skywalking.ui.tools.HttpClientTools;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.apache.http.NameValuePair;
@@ -13,6 +12,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,7 +26,7 @@ public class TraceDagService {
 
     private Logger logger = LogManager.getFormatterLogger(TraceDagService.class);
 
-    private Gson gson = new GsonBuilder().serializeNulls().create();
+    private Gson gson = new Gson();
 
     @Autowired
     private ImageCache imageCache;
@@ -56,7 +56,7 @@ public class TraceDagService {
             JsonObject nodeJsonObj = nodesArray.get(i).getAsJsonObject();
             Integer id = nodeJsonObj.get("id").getAsInt();
             String peer = nodeJsonObj.get("peer").getAsString();
-            if (nodeJsonObj.has("component")) {
+            if (nodeJsonObj.has("component") && !StringUtils.isEmpty(nodeJsonObj.get("component"))) {
                 String component = nodeJsonObj.get("component").getAsString();
                 nodeJsonObj = createNodeGraph(id, peer, imageCache.getImage(component));
             } else {
