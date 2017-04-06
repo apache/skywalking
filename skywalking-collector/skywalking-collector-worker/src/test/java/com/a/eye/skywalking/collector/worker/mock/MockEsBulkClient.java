@@ -7,6 +7,8 @@ import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.client.Client;
 import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.reflect.Whitebox;
 
 import static org.powermock.api.mockito.PowerMockito.*;
 
@@ -18,9 +20,10 @@ public class MockEsBulkClient {
     public IndexRequestBuilder indexRequestBuilder;
 
     public void createMock() {
-        Client client = mock(Client.class);
-        mockStatic(EsClient.class);
-        when(EsClient.getClient()).thenReturn(client);
+        Client client = PowerMockito.mock(Client.class);
+        EsClient esClient = PowerMockito.mock(EsClient.class);
+        Whitebox.setInternalState(EsClient.class, "INSTANCE", esClient);
+        when(esClient.getClient()).thenReturn(client);
 
         BulkRequestBuilder bulkRequestBuilder = mock(BulkRequestBuilder.class);
         when(client.prepareBulk()).thenReturn(bulkRequestBuilder);

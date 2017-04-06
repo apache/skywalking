@@ -15,11 +15,12 @@ import java.net.UnknownHostException;
 /**
  * @author pengys5
  */
-public class EsClient {
+public enum EsClient {
+    INSTANCE;
 
-    private static Client client;
+    private Client client;
 
-    public static void boot() throws UnknownHostException {
+    public void boot() throws UnknownHostException {
         Settings settings = Settings.builder()
                 .put("cluster.name", "CollectorCluster")
                 .put("client.transport.sniff", true)
@@ -29,11 +30,11 @@ public class EsClient {
                 .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("localhost"), 9300));
     }
 
-    public static Client getClient() {
+    public Client getClient() {
         return client;
     }
 
-    public static void indexRefresh(String... indexName) {
+    public void indexRefresh(String... indexName) {
         Logger logger = LogManager.getFormatterLogger(EsClient.class);
         RefreshResponse response = client.admin().indices().refresh(new RefreshRequest(indexName)).actionGet();
         if (response.getShardFailures().length == response.getTotalShards()) {

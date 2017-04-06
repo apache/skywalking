@@ -22,8 +22,8 @@ public class CollectorBootStartUp {
 
         CollectorSystem collectorSystem = new CollectorSystem();
         collectorSystem.boot();
-        EsClient.boot();
-//        IndexCreator.INSTANCE.create();
+        EsClient.INSTANCE.boot();
+        IndexCreator.INSTANCE.create();
         HttpServer.INSTANCE.boot((ClusterWorkerContext) collectorSystem.getClusterContext());
     }
 }

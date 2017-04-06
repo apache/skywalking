@@ -27,7 +27,7 @@ public class NodeCompLoad extends AbstractLocalSyncWorker {
 
     @Override
     public void onWork(Object request, Object response) throws Exception {
-        SearchRequestBuilder searchRequestBuilder = EsClient.getClient().prepareSearch(NodeCompIndex.Index);
+        SearchRequestBuilder searchRequestBuilder = EsClient.INSTANCE.getClient().prepareSearch(NodeCompIndex.Index);
         searchRequestBuilder.setTypes(NodeCompIndex.Type_Record);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
         searchRequestBuilder.setSize(100);

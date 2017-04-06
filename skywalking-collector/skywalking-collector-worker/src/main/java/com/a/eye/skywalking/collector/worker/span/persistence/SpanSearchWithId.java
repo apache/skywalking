@@ -29,7 +29,7 @@ public class SpanSearchWithId extends AbstractLocalSyncWorker {
     protected void onWork(Object request, Object response) throws Exception {
         if (request instanceof RequestEntity) {
             RequestEntity search = (RequestEntity) request;
-            GetResponse getResponse = EsClient.getClient().prepareGet(SegmentIndex.Index, SegmentIndex.Type_Record, search.segId).get();
+            GetResponse getResponse = EsClient.INSTANCE.getClient().prepareGet(SegmentIndex.Index, SegmentIndex.Type_Record, search.segId).get();
             Segment segment = SegmentDeserialize.INSTANCE.deserializeFromES(getResponse.getSourceAsString());
             List<Span> spanList = segment.getSpans();
 

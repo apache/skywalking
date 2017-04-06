@@ -10,7 +10,7 @@ import java.util.Spliterator;
  */
 public class MetricPersistenceData implements Iterable {
 
-    private Map<String, MetricData> persistenceData = new HashMap();
+    private Map<String, MetricData> persistenceData = new HashMap<>();
 
     public MetricData getElseCreate(String id) {
         if (!persistenceData.containsKey(id)) {

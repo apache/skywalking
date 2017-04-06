@@ -14,6 +14,7 @@ import com.a.eye.skywalking.collector.worker.tools.DateTools;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.apache.logging.log4j.LogManager;
+import org.elasticsearch.client.Client;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,7 +32,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
  * @author pengys5
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({EsClient.class, LogManager.class})
+@PrepareForTest({EsClient.class, Client.class, LogManager.class})
 @PowerMockIgnore({"javax.management.*"})
 public class SegmentCostSaveTestCase {
 

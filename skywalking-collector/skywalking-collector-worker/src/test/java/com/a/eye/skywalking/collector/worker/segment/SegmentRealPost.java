@@ -23,5 +23,9 @@ public class SegmentRealPost {
 
         String portalServiceSegmentAsString = mock.mockPortalServiceSegmentAsString();
         HttpClientTools.INSTANCE.post("http://localhost:7001/segments", portalServiceSegmentAsString);
+
+//        String specialSegmentAsString = mock.mockSpecialSegmentAsString();
+//        HttpClientTools.INSTANCE.post("http://localhost:7001/segments", specialSegmentAsString);
+
     }
 }

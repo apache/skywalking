@@ -61,7 +61,7 @@ public abstract class MetricPersistenceMember extends PersistenceMember {
     }
 
     private MultiGetResponse searchFromEs() {
-        Client client = EsClient.getClient();
+        Client client = EsClient.INSTANCE.getClient();
         MultiGetRequestBuilder multiGetRequestBuilder = client.prepareMultiGet();
 
         Iterator<Map.Entry<String, MetricData>> iterator = persistenceData.iterator();
@@ -75,7 +75,7 @@ public abstract class MetricPersistenceMember extends PersistenceMember {
     }
 
     private boolean saveToEs() {
-        Client client = EsClient.getClient();
+        Client client = EsClient.INSTANCE.getClient();
         BulkRequestBuilder bulkRequest = client.prepareBulk();
         logger.debug("persistenceData size: %s", persistenceData.size());
 

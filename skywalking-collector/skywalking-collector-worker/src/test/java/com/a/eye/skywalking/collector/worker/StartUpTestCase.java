@@ -29,7 +29,7 @@ public class StartUpTestCase {
                 withFallback(ConfigFactory.load("application.conf"));
         ActorSystem system = ActorSystem.create("CollectorSystem", config);
 
-        EsClient.boot();
+        EsClient.INSTANCE.boot();
 
         TraceSegment dubboClientData = TraceSegmentBuilderFactory.INSTANCE.traceOf_Tomcat_DubboClient();
 

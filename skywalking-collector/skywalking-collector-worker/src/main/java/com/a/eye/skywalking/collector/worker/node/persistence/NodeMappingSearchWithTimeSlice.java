@@ -34,7 +34,7 @@ public class NodeMappingSearchWithTimeSlice extends AbstractLocalSyncWorker {
         if (request instanceof RequestEntity) {
             RequestEntity search = (RequestEntity) request;
 
-            SearchRequestBuilder searchRequestBuilder = EsClient.getClient().prepareSearch(NodeMappingIndex.Index);
+            SearchRequestBuilder searchRequestBuilder = EsClient.INSTANCE.getClient().prepareSearch(NodeMappingIndex.Index);
             searchRequestBuilder.setTypes(search.getSliceType());
             searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
             searchRequestBuilder.setQuery(QueryBuilders.rangeQuery(NodeMappingIndex.Time_Slice).gte(search.getStartTime()).lte(search.getEndTime()));

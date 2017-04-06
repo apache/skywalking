@@ -61,7 +61,7 @@ public abstract class MergePersistenceMember extends PersistenceMember {
     }
 
     private MultiGetResponse searchFromEs() {
-        Client client = EsClient.getClient();
+        Client client = EsClient.INSTANCE.getClient();
         MultiGetRequestBuilder multiGetRequestBuilder = client.prepareMultiGet();
 
         Iterator<Map.Entry<String, MergeData>> iterator = persistenceData.iterator();
@@ -74,7 +74,7 @@ public abstract class MergePersistenceMember extends PersistenceMember {
     }
 
     private boolean saveToEs() {
-        Client client = EsClient.getClient();
+        Client client = EsClient.INSTANCE.getClient();
         BulkRequestBuilder bulkRequest = client.prepareBulk();
         logger.debug("persistenceData size: %s", persistenceData.size());
 

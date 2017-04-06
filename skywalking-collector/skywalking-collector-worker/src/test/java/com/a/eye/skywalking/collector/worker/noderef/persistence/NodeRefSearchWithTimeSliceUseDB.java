@@ -13,7 +13,7 @@ import com.google.gson.JsonObject;
 public class NodeRefSearchWithTimeSliceUseDB {
 
     public static void main(String[] args) throws Exception {
-        EsClient.boot();
+        EsClient.INSTANCE.boot();
 
         ClusterWorkerContext clusterWorkerContext = new ClusterWorkerContext(null);
         LocalWorkerContext localWorkerContext = new LocalWorkerContext();

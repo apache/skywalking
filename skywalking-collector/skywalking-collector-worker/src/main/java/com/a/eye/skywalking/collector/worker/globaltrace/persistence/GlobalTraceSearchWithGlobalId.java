@@ -40,7 +40,7 @@ public class GlobalTraceSearchWithGlobalId extends AbstractLocalSyncWorker {
     @Override
     protected void onWork(Object request, Object response) throws Exception {
         if (request instanceof String) {
-            Client client = EsClient.getClient();
+            Client client = EsClient.INSTANCE.getClient();
             String globalId = (String) request;
             String globalTraceData = client.prepareGet(GlobalTraceIndex.Index, GlobalTraceIndex.Type_Record, globalId).get().getSourceAsString();
             JsonObject globalTraceObj = gson.fromJson(globalTraceData, JsonObject.class);

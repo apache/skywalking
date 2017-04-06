@@ -41,7 +41,7 @@ abstract class AbstractNodeRefAnalysis extends RecordAnalysisMember {
                     String front = segment.getApplicationCode();
                     dataJsonObj.addProperty(NodeRefIndex.Front, front);
 
-                    String behind = SpanPeersTools.getPeers(span);
+                    String behind = SpanPeersTools.INSTANCE.getPeers(span);
                     dataJsonObj.addProperty(NodeRefIndex.Behind, behind);
                     dataJsonObj.addProperty(NodeRefIndex.BehindIsRealCode, false);
 
