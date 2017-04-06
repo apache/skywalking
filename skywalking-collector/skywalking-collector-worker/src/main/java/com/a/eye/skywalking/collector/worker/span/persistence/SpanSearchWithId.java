@@ -3,10 +3,11 @@ package com.a.eye.skywalking.collector.worker.span.persistence;
 import com.a.eye.skywalking.collector.actor.*;
 import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
 import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
+import com.a.eye.skywalking.collector.worker.Const;
 import com.a.eye.skywalking.collector.worker.segment.SegmentIndex;
 import com.a.eye.skywalking.collector.worker.segment.logic.Segment;
 import com.a.eye.skywalking.collector.worker.segment.logic.SegmentDeserialize;
-import com.a.eye.skywalking.collector.worker.storage.EsClient;
+import com.a.eye.skywalking.collector.worker.storage.GetResponseFromEs;
 import com.a.eye.skywalking.trace.Span;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -21,7 +22,7 @@ public class SpanSearchWithId extends AbstractLocalSyncWorker {
 
     private Gson gson = new Gson();
 
-    private SpanSearchWithId(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    SpanSearchWithId(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
@@ -29,7 +30,7 @@ public class SpanSearchWithId extends AbstractLocalSyncWorker {
     protected void onWork(Object request, Object response) throws Exception {
         if (request instanceof RequestEntity) {
             RequestEntity search = (RequestEntity) request;
-            GetResponse getResponse = EsClient.INSTANCE.getClient().prepareGet(SegmentIndex.Index, SegmentIndex.Type_Record, search.segId).get();
+            GetResponse getResponse = GetResponseFromEs.INSTANCE.get(SegmentIndex.Index, SegmentIndex.Type_Record, search.segId);
             Segment segment = SegmentDeserialize.INSTANCE.deserializeFromES(getResponse.getSourceAsString());
             List<Span> spanList = segment.getSpans();
 
@@ -44,7 +45,7 @@ public class SpanSearchWithId extends AbstractLocalSyncWorker {
             }
 
             JsonObject resJsonObj = (JsonObject) response;
-            resJsonObj.add("result", dataJson);
+            resJsonObj.add(Const.RESULT, dataJson);
         }
     }
 

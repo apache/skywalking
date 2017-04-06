@@ -2,17 +2,13 @@ package com.a.eye.skywalking.collector.worker;
 
 import com.a.eye.skywalking.collector.actor.*;
 import com.a.eye.skywalking.collector.queue.EndOfBatchCommand;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  * @author pengys5
  */
 public abstract class AnalysisMember extends AbstractLocalAsyncWorker {
 
-    private Logger logger = LogManager.getFormatterLogger(AnalysisMember.class);
-
-    public AnalysisMember(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    AnalysisMember(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
@@ -20,7 +16,7 @@ public abstract class AnalysisMember extends AbstractLocalAsyncWorker {
 
     @Override
     public void preStart() throws ProviderNotFoundException {
-
+        super.preStart();
     }
 
     @Override
@@ -31,7 +27,7 @@ public abstract class AnalysisMember extends AbstractLocalAsyncWorker {
             try {
                 analyse(message);
             } catch (Exception e) {
-                e.printStackTrace();
+                saveException(e);
             }
         }
     }

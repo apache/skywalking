@@ -89,15 +89,7 @@ public class WorkerConfig extends ClusterConfig {
         }
 
         public static class Node {
-            public static class NodeDayAnalysis {
-                public static int Size = 1024;
-            }
-
-            public static class NodeHourAnalysis {
-                public static int Size = 1024;
-            }
-
-            public static class NodeMinuteAnalysis {
+            public static class NodeCompAnalysis {
                 public static int Size = 1024;
             }
 
@@ -122,6 +114,48 @@ public class WorkerConfig extends ClusterConfig {
             }
 
             public static class NodeMappingMinuteAnalysis {
+                public static int Size = 1024;
+            }
+
+            public static class NodeCompSave {
+                public static int Size = 1024;
+            }
+
+            public static class NodeMappingDaySave {
+                public static int Size = 1024;
+            }
+
+            public static class NodeMappingHourSave {
+                public static int Size = 1024;
+            }
+
+            public static class NodeMappingMinuteSave {
+                public static int Size = 1024;
+            }
+        }
+
+        public static class NodeRef {
+            public static class NodeRefDaySave {
+                public static int Size = 1024;
+            }
+
+            public static class NodeRefHourSave {
+                public static int Size = 1024;
+            }
+
+            public static class NodeRefMinuteSave {
+                public static int Size = 1024;
+            }
+
+            public static class NodeRefResSumDaySave {
+                public static int Size = 1024;
+            }
+
+            public static class NodeRefResSumHourSave {
+                public static int Size = 1024;
+            }
+
+            public static class NodeRefResSumMinuteSave {
                 public static int Size = 1024;
             }
         }

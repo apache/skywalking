@@ -14,7 +14,7 @@ import com.a.eye.skywalking.collector.worker.node.NodeMappingIndex;
  */
 public class NodeMappingDaySave extends RecordPersistenceMember {
 
-    public NodeMappingDaySave(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    NodeMappingDaySave(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
@@ -43,7 +43,7 @@ public class NodeMappingDaySave extends RecordPersistenceMember {
 
         @Override
         public int queueSize() {
-            return WorkerConfig.Queue.Persistence.DAGNodePersistence.Size;
+            return WorkerConfig.Queue.Node.NodeMappingDaySave.Size;
         }
     }
 

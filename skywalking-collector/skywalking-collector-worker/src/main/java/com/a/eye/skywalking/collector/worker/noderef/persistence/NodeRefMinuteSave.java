@@ -14,7 +14,7 @@ import com.a.eye.skywalking.collector.worker.noderef.NodeRefIndex;
  */
 public class NodeRefMinuteSave extends RecordPersistenceMember {
 
-    public NodeRefMinuteSave(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    NodeRefMinuteSave(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
@@ -44,7 +44,7 @@ public class NodeRefMinuteSave extends RecordPersistenceMember {
 
         @Override
         public int queueSize() {
-            return WorkerConfig.Queue.Persistence.DAGNodeRefPersistence.Size;
+            return WorkerConfig.Queue.NodeRef.NodeRefMinuteSave.Size;
         }
     }
 

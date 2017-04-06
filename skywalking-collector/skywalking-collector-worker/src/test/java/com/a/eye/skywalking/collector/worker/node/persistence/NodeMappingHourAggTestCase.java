@@ -2,6 +2,7 @@ package com.a.eye.skywalking.collector.worker.node.persistence;
 
 import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
 import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
+import com.a.eye.skywalking.collector.actor.ProviderNotFoundException;
 import com.a.eye.skywalking.collector.actor.WorkerRefs;
 import com.a.eye.skywalking.collector.actor.selector.HashCodeSelector;
 import com.a.eye.skywalking.collector.worker.Const;
@@ -34,10 +35,11 @@ public class NodeMappingHourAggTestCase {
 
     private NodeMappingHourAgg nodeMappingHourAgg;
     private RecordDataAnswer recordDataAnswer;
+    private ClusterWorkerContext clusterWorkerContext;
 
     @Before
     public void init() throws Exception {
-        ClusterWorkerContext clusterWorkerContext = PowerMockito.mock(ClusterWorkerContext.class);
+        clusterWorkerContext = PowerMockito.mock(ClusterWorkerContext.class);
 
         LocalWorkerContext localWorkerContext = PowerMockito.mock(LocalWorkerContext.class);
         WorkerRefs workerRefs = mock(WorkerRefs.class);
@@ -63,6 +65,12 @@ public class NodeMappingHourAggTestCase {
         int testSize = 10;
         WorkerConfig.WorkerNum.Node.NodeMappingHourAgg.Value = testSize;
         Assert.assertEquals(testSize, NodeMappingHourAgg.Factory.INSTANCE.workerNum());
+    }
+
+    @Test(expected = Exception.class)
+    public void testPreStart() throws ProviderNotFoundException {
+        when(clusterWorkerContext.findProvider(NodeMappingHourSave.Role.INSTANCE)).thenThrow(new Exception());
+        nodeMappingHourAgg.preStart();
     }
 
     @Test

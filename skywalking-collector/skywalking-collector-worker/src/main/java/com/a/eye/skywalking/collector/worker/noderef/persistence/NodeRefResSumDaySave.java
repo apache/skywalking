@@ -14,7 +14,7 @@ import com.a.eye.skywalking.collector.worker.noderef.NodeRefResSumIndex;
  */
 public class NodeRefResSumDaySave extends MetricPersistenceMember {
 
-    private NodeRefResSumDaySave(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    NodeRefResSumDaySave(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
@@ -43,7 +43,7 @@ public class NodeRefResSumDaySave extends MetricPersistenceMember {
 
         @Override
         public int queueSize() {
-            return WorkerConfig.Queue.Persistence.ResponseSummaryPersistence.Size;
+            return WorkerConfig.Queue.NodeRef.NodeRefResSumDaySave.Size;
         }
     }
 

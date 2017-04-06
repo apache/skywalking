@@ -26,18 +26,23 @@ public abstract class MergePersistenceMember extends PersistenceMember {
 
     private Logger logger = LogManager.getFormatterLogger(MergePersistenceMember.class);
 
-    private MergePersistenceData persistenceData = new MergePersistenceData();
+    private MergePersistenceData persistenceData;
 
     protected MergePersistenceMember(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
+        persistenceData = new MergePersistenceData();
+    }
+
+    private MergePersistenceData getPersistenceData() {
+        return persistenceData;
     }
 
     @Override
     final public void analyse(Object message) throws Exception {
         if (message instanceof MergeData) {
             MergeData mergeData = (MergeData) message;
-            persistenceData.getElseCreate(mergeData.getId()).merge(mergeData);
-            if (persistenceData.size() >= WorkerConfig.Persistence.Data.size) {
+            getPersistenceData().getElseCreate(mergeData.getId()).merge(mergeData);
+            if (getPersistenceData().size() >= WorkerConfig.Persistence.Data.size) {
                 persistence();
             }
         } else {
@@ -50,13 +55,13 @@ public abstract class MergePersistenceMember extends PersistenceMember {
         for (MultiGetItemResponse itemResponse : multiGetResponse) {
             GetResponse response = itemResponse.getResponse();
             if (response != null && response.isExists()) {
-                persistenceData.getElseCreate(response.getId()).merge(response.getSource());
+                getPersistenceData().getElseCreate(response.getId()).merge(response.getSource());
             }
         }
 
         boolean success = saveToEs();
         if (success) {
-            persistenceData.clear();
+            getPersistenceData().clear();
         }
     }
 
@@ -64,7 +69,7 @@ public abstract class MergePersistenceMember extends PersistenceMember {
         Client client = EsClient.INSTANCE.getClient();
         MultiGetRequestBuilder multiGetRequestBuilder = client.prepareMultiGet();
 
-        Iterator<Map.Entry<String, MergeData>> iterator = persistenceData.iterator();
+        Iterator<Map.Entry<String, MergeData>> iterator = getPersistenceData().iterator();
 
         while (iterator.hasNext()) {
             multiGetRequestBuilder.add(esIndex(), esType(), iterator.next().getKey());
@@ -76,9 +81,9 @@ public abstract class MergePersistenceMember extends PersistenceMember {
     private boolean saveToEs() {
         Client client = EsClient.INSTANCE.getClient();
         BulkRequestBuilder bulkRequest = client.prepareBulk();
-        logger.debug("persistenceData size: %s", persistenceData.size());
+        logger.debug("persistenceData size: %s", getPersistenceData().size());
 
-        Iterator<Map.Entry<String, MergeData>> iterator = persistenceData.iterator();
+        Iterator<Map.Entry<String, MergeData>> iterator = getPersistenceData().iterator();
         while (iterator.hasNext()) {
             MergeData mergeData = iterator.next().getValue();
             bulkRequest.add(client.prepareIndex(esIndex(), esType(), mergeData.getId()).setSource(mergeData.toMap()));

@@ -9,7 +9,7 @@ import com.a.eye.skywalking.collector.worker.segment.SegmentIndex;
 import com.a.eye.skywalking.collector.worker.segment.logic.Segment;
 import com.a.eye.skywalking.collector.worker.segment.logic.SegmentDeserialize;
 import com.a.eye.skywalking.collector.worker.segment.logic.SpanView;
-import com.a.eye.skywalking.collector.worker.storage.EsClient;
+import com.a.eye.skywalking.collector.worker.storage.GetResponseFromEs;
 import com.a.eye.skywalking.collector.worker.storage.MergeData;
 import com.a.eye.skywalking.collector.worker.tools.CollectionTools;
 import com.a.eye.skywalking.trace.Span;
@@ -18,7 +18,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.elasticsearch.client.Client;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,17 +32,17 @@ public class GlobalTraceSearchWithGlobalId extends AbstractLocalSyncWorker {
 
     private Gson gson = new Gson();
 
-    public GlobalTraceSearchWithGlobalId(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    GlobalTraceSearchWithGlobalId(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
     @Override
     protected void onWork(Object request, Object response) throws Exception {
         if (request instanceof String) {
-            Client client = EsClient.INSTANCE.getClient();
             String globalId = (String) request;
-            String globalTraceData = client.prepareGet(GlobalTraceIndex.Index, GlobalTraceIndex.Type_Record, globalId).get().getSourceAsString();
+            String globalTraceData = GetResponseFromEs.INSTANCE.get(GlobalTraceIndex.Index, GlobalTraceIndex.Type_Record, globalId).getSourceAsString();
             JsonObject globalTraceObj = gson.fromJson(globalTraceData, JsonObject.class);
+            logger.debug("globalTraceObj: %s", globalTraceObj);
 
             String subSegIdsStr = globalTraceObj.get(GlobalTraceIndex.SubSegIds).getAsString();
             String[] subSegIds = subSegIdsStr.split(MergeData.Split);
@@ -51,7 +50,8 @@ public class GlobalTraceSearchWithGlobalId extends AbstractLocalSyncWorker {
             List<SpanView> spanViewList = new ArrayList<>();
             for (String subSegId : subSegIds) {
                 logger.debug("subSegId: %s", subSegId);
-                String segmentSource = client.prepareGet(SegmentIndex.Index, SegmentIndex.Type_Record, subSegId).get().getSourceAsString();
+                String segmentSource = GetResponseFromEs.INSTANCE.get(SegmentIndex.Index, SegmentIndex.Type_Record, subSegId).getSourceAsString();
+                logger.debug("segmentSource: %s", segmentSource);
                 Segment segment = SegmentDeserialize.INSTANCE.deserializeFromES(segmentSource);
                 String segmentId = segment.getTraceSegmentId();
                 List<TraceSegmentRef> refsList = segment.getRefs();
@@ -62,17 +62,21 @@ public class GlobalTraceSearchWithGlobalId extends AbstractLocalSyncWorker {
                 }
             }
 
-            SpanView rootSpan = findRoot(spanViewList);
-            findChild(rootSpan, spanViewList, rootSpan.getStartTime());
-
-            List<SpanView> viewList = new ArrayList<>();
-            viewList.add(rootSpan);
-
-            Gson gson = new Gson();
-            String globalTraceStr = gson.toJson(viewList);
             JsonObject responseObj = (JsonObject) response;
-            responseObj.addProperty("result", globalTraceStr);
+            responseObj.addProperty("result", buildTree(spanViewList));
         }
+    }
+
+    private String buildTree(List<SpanView> spanViewList) {
+        SpanView rootSpan = findRoot(spanViewList);
+        assert rootSpan != null;
+        findChild(rootSpan, spanViewList, rootSpan.getStartTime());
+
+        List<SpanView> viewList = new ArrayList<>();
+        viewList.add(rootSpan);
+
+        Gson gson = new Gson();
+        return gson.toJson(viewList);
     }
 
     private SpanView findRoot(List<SpanView> spanViewList) {

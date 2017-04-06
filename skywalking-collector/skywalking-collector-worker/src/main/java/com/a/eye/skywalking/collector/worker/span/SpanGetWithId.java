@@ -40,11 +40,6 @@ public class SpanGetWithId extends AbstractGet {
         }
         logger.debug("segId: %s, spanId: %s", Arrays.toString(request.get("segId")), Arrays.toString(request.get("spanId")));
 
-        int maxCost = -1;
-        if (request.containsKey("maxCost")) {
-            maxCost = Integer.valueOf(ParameterTools.INSTANCE.toString(request, "maxCost"));
-        }
-
         String segId = ParameterTools.INSTANCE.toString(request, "segId");
         String spanId = ParameterTools.INSTANCE.toString(request, "spanId");
 

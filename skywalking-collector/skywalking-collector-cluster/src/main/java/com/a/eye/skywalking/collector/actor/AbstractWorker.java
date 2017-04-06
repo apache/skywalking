@@ -33,4 +33,8 @@ public abstract class AbstractWorker {
     final public static AbstractWorker noOwner() {
         return null;
     }
+
+    final protected void saveException(Exception e) {
+//        e.printStackTrace();
+    }
 }

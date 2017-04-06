@@ -43,7 +43,7 @@ public class NodeCompSave extends RecordPersistenceMember {
 
         @Override
         public int queueSize() {
-            return WorkerConfig.Queue.Persistence.DAGNodePersistence.Size;
+            return WorkerConfig.Queue.Node.NodeCompSave.Size;
         }
     }
 

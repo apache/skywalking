@@ -1,8 +1,6 @@
 package com.a.eye.skywalking.collector.worker.node.persistence;
 
-import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
-import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
-import com.a.eye.skywalking.collector.actor.WorkerRefs;
+import com.a.eye.skywalking.collector.actor.*;
 import com.a.eye.skywalking.collector.actor.selector.HashCodeSelector;
 import com.a.eye.skywalking.collector.worker.Const;
 import com.a.eye.skywalking.collector.worker.WorkerConfig;
@@ -34,10 +32,11 @@ public class NodeMappingDayAggTestCase {
 
     private NodeMappingDayAgg nodeMappingDayAgg;
     private RecordDataAnswer recordDataAnswer;
+    private ClusterWorkerContext clusterWorkerContext;
 
     @Before
     public void init() throws Exception {
-        ClusterWorkerContext clusterWorkerContext = PowerMockito.mock(ClusterWorkerContext.class);
+        clusterWorkerContext = PowerMockito.mock(ClusterWorkerContext.class);
 
         LocalWorkerContext localWorkerContext = PowerMockito.mock(LocalWorkerContext.class);
         WorkerRefs workerRefs = mock(WorkerRefs.class);
@@ -63,6 +62,12 @@ public class NodeMappingDayAggTestCase {
         int testSize = 10;
         WorkerConfig.WorkerNum.Node.NodeMappingDayAgg.Value = testSize;
         Assert.assertEquals(testSize, NodeMappingDayAgg.Factory.INSTANCE.workerNum());
+    }
+
+    @Test(expected = Exception.class)
+    public void testPreStart() throws ProviderNotFoundException {
+        when(clusterWorkerContext.findProvider(NodeMappingDaySave.Role.INSTANCE)).thenThrow(new Exception());
+        nodeMappingDayAgg.preStart();
     }
 
     @Test

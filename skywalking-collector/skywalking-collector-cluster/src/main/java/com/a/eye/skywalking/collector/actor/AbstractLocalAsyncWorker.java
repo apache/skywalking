@@ -44,7 +44,7 @@ public abstract class AbstractLocalAsyncWorker extends AbstractLocalWorker {
                     asyncWorker.allocateJob(new EndOfBatchCommand());
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                asyncWorker.saveException(e);
             }
         }
 
