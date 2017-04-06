@@ -42,7 +42,14 @@ _In chronological order_
 
 
 # Screenshots
+- Topological graph of application clusters.
+<img src="https://sky-walking.github.io/page-resources/3.0/topological_graph.png"/>
+
+- Trace query.
 <img src="https://sky-walking.github.io/page-resources/3.0/trace_segment.png"/>
+
+- Span detail.
+<img src="https://sky-walking.github.io/page-resources/3.0/span.png" />
 
 
 # Document
