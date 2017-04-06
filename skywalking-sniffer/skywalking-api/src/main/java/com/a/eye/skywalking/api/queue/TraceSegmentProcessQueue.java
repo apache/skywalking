@@ -30,8 +30,8 @@ public class TraceSegmentProcessQueue extends StatusBootService implements Trace
     private volatile int cacheIndex;
 
     public TraceSegmentProcessQueue() {
-        disruptor = new Disruptor<TraceSegmentHolder>(TraceSegmentHolder.Factory.INSTANCE, Config.Disruptor.BUFFER_SIZE, DaemonThreadFactory.INSTANCE);
-        secondLevelCache = new TraceSegment[Config.Disruptor.BUFFER_SIZE];
+        disruptor = new Disruptor<TraceSegmentHolder>(TraceSegmentHolder.Factory.INSTANCE, Config.Buffer.SIZE, DaemonThreadFactory.INSTANCE);
+        secondLevelCache = new TraceSegment[Config.Buffer.SIZE];
         cacheIndex = 0;
         disruptor.handleEventsWith(this);
         buffer = disruptor.getRingBuffer();
@@ -43,9 +43,14 @@ public class TraceSegmentProcessQueue extends StatusBootService implements Trace
         disruptor.start();
     }
 
+    /**
+     * Append the given traceSegment to the queue, wait for sending to Collector.
+     *
+     * @param traceSegment finished {@link TraceSegment}
+     */
     @Override
     public void afterFinished(TraceSegment traceSegment) {
-        if (isStarted()) {
+        if (isStarted() && traceSegment.isSampled()) {
             long sequence = this.buffer.next();  // Grab the next sequence
             try {
                 TraceSegmentHolder data = this.buffer.get(sequence);

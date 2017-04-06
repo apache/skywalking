@@ -18,8 +18,6 @@ public abstract class AbstractWorker {
 
     public abstract void preStart() throws ProviderNotFoundException;
 
-    public abstract void work(Object message) throws Exception;
-
     final public LookUp getSelfContext() {
         return selfContext;
     }

@@ -43,6 +43,11 @@ public class ContextCarrier implements Serializable {
     private List<DistributedTraceId> distributedTraceIds;
 
     /**
+     * {@link TraceSegment#sampled}
+     */
+    private boolean sampled;
+
+    /**
      * Serialize this {@link ContextCarrier} to a {@link String},
      * with '|' split.
      *
@@ -54,7 +59,8 @@ public class ContextCarrier implements Serializable {
             this.getSpanId() + "",
             this.getApplicationCode(),
             this.getPeerHost(),
-            this.serializeDistributedTraceIds());
+            this.serializeDistributedTraceIds(),
+            this.isSampled() ? "1" : "0");
     }
 
     /**
@@ -64,14 +70,15 @@ public class ContextCarrier implements Serializable {
      */
     public ContextCarrier deserialize(String text) {
         if (text != null) {
-            String[] parts = text.split("\\|", 5);
-            if (parts.length == 5) {
+            String[] parts = text.split("\\|", 6);
+            if (parts.length == 6) {
                 try {
                     setSpanId(Integer.parseInt(parts[1]));
                     setTraceSegmentId(parts[0]);
                     setApplicationCode(parts[2]);
                     setPeerHost(parts[3]);
                     setDistributedTraceIds(deserializeDistributedTraceIds(parts[4]));
+                    setSampled("1".equals(parts[5]));
                 } catch (NumberFormatException e) {
 
                 }
@@ -127,6 +134,14 @@ public class ContextCarrier implements Serializable {
 
     public List<DistributedTraceId> getDistributedTraceIds() {
         return distributedTraceIds;
+    }
+
+    public boolean isSampled() {
+        return sampled;
+    }
+
+    public void setSampled(boolean sampled) {
+        this.sampled = sampled;
     }
 
     public void setDistributedTraceIds(List<DistributedTraceId> distributedTraceIds) {

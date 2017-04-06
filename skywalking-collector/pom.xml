@@ -17,6 +17,7 @@
 
     <properties>
         <akka.version>2.4.17</akka.version>
+        <log4j.version>2.8.1</log4j.version>
     </properties>
 
     <dependencies>
@@ -26,9 +27,14 @@
             <version>${akka.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.a.eye</groupId>
-            <artifactId>skywalking-logging-api</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>${log4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>${log4j.version}</version>
         </dependency>
         <dependency>
             <groupId>com.typesafe.akka</groupId>

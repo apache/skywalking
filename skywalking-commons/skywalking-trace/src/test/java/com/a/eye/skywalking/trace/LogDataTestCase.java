@@ -11,7 +11,7 @@ import org.junit.Test;
 public class LogDataTestCase {
     @Test
     public void testHoldValue(){
-        Map<String, ?> fields = new HashMap<String, String>();
+        Map<String, String> fields = new HashMap<String, String>();
         LogData logData = new LogData(123L, fields);
 
         Assert.assertEquals(123, logData.getTime());

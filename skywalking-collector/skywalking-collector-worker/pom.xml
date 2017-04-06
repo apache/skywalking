@@ -12,6 +12,10 @@
     <artifactId>skywalking-collector-worker</artifactId>
     <packaging>jar</packaging>
 
+    <properties>
+        <jetty.version>9.4.2.v20170220</jetty.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.a.eye</groupId>
@@ -20,18 +24,18 @@
         </dependency>
         <dependency>
             <groupId>com.a.eye</groupId>
-            <artifactId>skywalking-logging-log4j2</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.a.eye</groupId>
             <artifactId>skywalking-collector-commons</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.nanohttpd</groupId>
-            <artifactId>nanohttpd</artifactId>
-            <version>2.3.1</version>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-server</artifactId>
+            <version>${jetty.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-servlet</artifactId>
+            <version>${jetty.version}</version>
         </dependency>
         <dependency>
             <groupId>org.elasticsearch.client</groupId>

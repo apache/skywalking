@@ -17,36 +17,41 @@ public enum ServiceManager {
     INSTANCE;
 
     private static ILog logger = LogManager.getLogger(StatusBootService.class);
-    private volatile boolean isStarted = false;
-    private Map<Class, BootService> bootedServices;
+    private Map<Class, BootService> bootedServices = new HashMap<Class, BootService>();
 
     public void boot() {
-        if (!isStarted) {
+        bootedServices = loadAllServices();
+        startup();
+    }
+
+    private Map<Class, BootService> loadAllServices() {
+        HashMap<Class, BootService> bootedServices = new HashMap<Class, BootService>();
+        Iterator<BootService> serviceIterator = load().iterator();
+        while (serviceIterator.hasNext()) {
+            BootService bootService = serviceIterator.next();
+            bootedServices.put(bootService.getClass(), bootService);
+        }
+        return bootedServices;
+    }
+
+    private void startup() {
+        for (BootService service : bootedServices.values()) {
             try {
-                bootedServices = new HashMap<Class, BootService>();
-                Iterator<BootService> serviceIterator = load().iterator();
-                while (serviceIterator.hasNext()) {
-                    BootService bootService = serviceIterator.next();
-                    try {
-                        bootService.bootUp();
-                        bootedServices.put(bootService.getClass(), bootService);
-                    } catch (Throwable e) {
-                        logger.error(e, "ServiceManager try to start [{}] fail.", bootService.getClass().getName());
-                    }
-                }
-            } finally {
-                isStarted = true;
+                service.bootUp();
+            } catch (Throwable e) {
+                logger.error(e, "ServiceManager try to start [{}] fail.", service.getClass().getName());
             }
         }
     }
 
     /**
      * Find a {@link BootService} implementation, which is already started.
+     *
      * @param serviceClass class name.
      * @param <T> {@link BootService} implementation class.
      * @return {@link BootService} instance
      */
-    public <T extends BootService> T findService(Class<T> serviceClass){
+    public <T extends BootService> T findService(Class<T> serviceClass) {
         return (T)bootedServices.get(serviceClass);
     }
 

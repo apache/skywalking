@@ -21,13 +21,6 @@
         <shade.package>com.a.eye.skywalking.dependencies</shade.package>
         <shade.net.bytebuddy.source>net.bytebuddy</shade.net.bytebuddy.source>
         <shade.net.bytebuddy.target>${shade.package}.${shade.net.bytebuddy.source}</shade.net.bytebuddy.target>
-        <shade.com.lmax.disruptor.source>com.lmax.disruptor</shade.com.lmax.disruptor.source>
-        <shade.com.lmax.disruptor.target>${shade.package}.${shade.com.lmax.disruptor.source}
-        </shade.com.lmax.disruptor.target>
-        <shade.com.google.source>com.google</shade.com.google.source>
-        <shade.com.google.target>${shade.package}.${shade.com.google.source}</shade.com.google.target>
-        <shade.org.apache.source>org.apache</shade.org.apache.source>
-        <shade.org.apache.target>${shade.package}.${shade.org.apache.source}</shade.org.apache.target>
     </properties>
 
     <dependencies>
@@ -123,22 +116,19 @@
                                     </manifestEntries>
                                 </transformer>
                             </transformers>
+                            <artifactSet>
+                                <excludes>
+                                    <exclude>com.lmax:*</exclude>
+                                    <exclude>org.apache.httpcomponents:*</exclude>
+                                    <exclude>commons-logging:*</exclude>
+                                    <exclude>commons-codec:*</exclude>
+                                    <exclude>*:gson</exclude>
+                                </excludes>
+                            </artifactSet>
                             <relocations>
                                 <relocation>
                                     <pattern>${shade.net.bytebuddy.source}</pattern>
                                     <shadedPattern>${shade.net.bytebuddy.target}</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>${shade.com.lmax.disruptor.source}</pattern>
-                                    <shadedPattern>${shade.com.lmax.disruptor.target}</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>${shade.com.google.source}</pattern>
-                                    <shadedPattern>${shade.com.google.target}</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>${shade.org.apache.source}</pattern>
-                                    <shadedPattern>${shade.org.apache.target}</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>

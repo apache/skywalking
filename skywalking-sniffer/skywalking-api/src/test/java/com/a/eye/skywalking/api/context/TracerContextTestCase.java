@@ -5,6 +5,7 @@ import com.a.eye.skywalking.trace.TraceId.DistributedTraceId;
 import com.a.eye.skywalking.trace.TraceId.PropagatedTraceId;
 import com.a.eye.skywalking.trace.TraceSegment;
 import com.a.eye.skywalking.trace.tag.Tags;
+import java.awt.SystemTray;
 import java.util.LinkedList;
 import java.util.List;
 import org.junit.After;
@@ -61,7 +62,8 @@ public class TracerContextTestCase {
         TracerContext context = new TracerContext();
         Span serviceSpan = context.createSpan("/serviceA");
         Span dbSpan = context.createSpan("db/preparedStatement/execute");
-        Tags.PEER_HOST.set(dbSpan, "127.0.0.1:8080");
+        Tags.PEER_HOST.set(dbSpan, "127.0.0.1");
+        Tags.PEER_PORT.set(dbSpan, 8080);
 
         ContextCarrier carrier = new ContextCarrier();
         context.inject(carrier);

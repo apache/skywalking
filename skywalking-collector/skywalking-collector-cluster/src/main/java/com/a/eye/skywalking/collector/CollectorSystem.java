@@ -2,14 +2,15 @@ package com.a.eye.skywalking.collector;
 
 import akka.actor.ActorSystem;
 import akka.actor.Props;
+import com.a.eye.skywalking.api.util.StringUtil;
 import com.a.eye.skywalking.collector.actor.*;
 import com.a.eye.skywalking.collector.cluster.ClusterConfig;
-import com.a.eye.skywalking.collector.cluster.ClusterConfigInitializer;
+import com.a.eye.skywalking.collector.cluster.Const;
 import com.a.eye.skywalking.collector.cluster.WorkersListener;
-import com.a.eye.skywalking.logging.ILog;
-import com.a.eye.skywalking.logging.LogManager;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ServiceLoader;
 
@@ -17,7 +18,8 @@ import java.util.ServiceLoader;
  * @author pengys5
  */
 public class CollectorSystem {
-    private ILog logger = LogManager.getLogger(CollectorSystem.class);
+    private Logger logger = LogManager.getFormatterLogger(CollectorSystem.class);
+
     private ClusterWorkerContext clusterContext;
 
     public LookUp getClusterContext() {
@@ -36,14 +38,13 @@ public class CollectorSystem {
     }
 
     private void createAkkaSystem() {
-        ClusterConfigInitializer.initialize("collector.config");
-
         final Config config = ConfigFactory.parseString("akka.remote.netty.tcp.hostname=" + ClusterConfig.Cluster.Current.hostname).
                 withFallback(ConfigFactory.parseString("akka.remote.netty.tcp.port=" + ClusterConfig.Cluster.Current.port)).
-                withFallback(ConfigFactory.parseString("akka.cluster.roles=" + ClusterConfig.Cluster.Current.roles)).
-                withFallback(ConfigFactory.parseString("akka.cluster.seed-nodes=" + ClusterConfig.Cluster.seed_nodes)).
                 withFallback(ConfigFactory.load("application.conf"));
-        ActorSystem akkaSystem = ActorSystem.create("ClusterSystem", config);
+        if (!StringUtil.isEmpty(ClusterConfig.Cluster.seed_nodes)) {
+            config.withFallback(ConfigFactory.parseString("akka.cluster.seed-nodes=" + ClusterConfig.Cluster.seed_nodes));
+        }
+        ActorSystem akkaSystem = ActorSystem.create(Const.SystemName, config);
 
         clusterContext = new ClusterWorkerContext(akkaSystem);
     }
@@ -66,6 +67,7 @@ public class CollectorSystem {
     private void loadLocalProviders() throws UsedRoleNameException {
         ServiceLoader<AbstractLocalWorkerProvider> clusterServiceLoader = ServiceLoader.load(AbstractLocalWorkerProvider.class);
         for (AbstractLocalWorkerProvider provider : clusterServiceLoader) {
+            logger.info("loadLocalProviders provider name: %s", provider.getClass().getName());
             provider.setClusterContext(clusterContext);
             clusterContext.putProvider(provider);
         }

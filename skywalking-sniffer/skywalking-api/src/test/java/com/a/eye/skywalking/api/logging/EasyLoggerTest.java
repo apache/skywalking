@@ -1,6 +1,6 @@
 package com.a.eye.skywalking.api.logging;
 
-import com.a.eye.skywalking.api.conf.Config;
+import com.a.eye.skywalking.api.conf.Constants;
 import java.io.PrintStream;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -26,8 +26,6 @@ public class EasyLoggerTest {
 
     @Test
     public void testLog(){
-        Config.SkyWalking.IS_PREMAIN_MODE = false;
-
         PrintStream output = Mockito.mock(PrintStream.class);
         System.setOut(output);
         PrintStream err = Mockito.mock(PrintStream.class);
@@ -50,10 +48,18 @@ public class EasyLoggerTest {
         logger.error("hello world", new NullPointerException());
         logger.error(new NullPointerException(),"hello {}", "world");
 
-        Mockito.verify(output,times(4))
+        Mockito.verify(output,times(9))
             .println(anyString());
-        Mockito.verify(err,times(7))
-            .println(anyString());
+    }
+
+    @Test
+    public void testFormat() {
+        NullPointerException exception = new NullPointerException();
+        EasyLogger logger = new EasyLogger(EasyLoggerTest.class);
+        String formatLines = logger.format(exception);
+        String[] lines = formatLines.split(Constants.LINE_SEPARATOR);
+        Assert.assertEquals("java.lang.NullPointerException", lines[1]);
+        Assert.assertEquals("\tat com.a.eye.skywalking.api.logging.EasyLoggerTest.testFormat(EasyLoggerTest.java:57)", lines[2]);
     }
 
     @AfterClass

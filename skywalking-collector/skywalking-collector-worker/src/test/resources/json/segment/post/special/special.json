@@ -1,0 +1,187 @@
+[
+  {
+    "ts": "Segment.1491277162066.18986177.70531.27.1",
+    "st": 1491277162066,
+    "et": 1491277165743,
+    "rs": [
+      {
+        "ts": "Segment.1491277147441.-1562443425.70539.65.1",
+        "si": 6,
+        "ac": "portal-service",
+        "ph": "127.0.0.1:8002"
+      }
+    ],
+    "ss": [
+      {
+        "si": 2,
+        "ps": 1,
+        "st": 1491277162141,
+        "et": 1491277162144,
+        "on": "Jedis/getClient",
+        "ts": {
+          "span.layer": "db",
+          "component": "Redis",
+          "db.type": "Redis",
+          "peer.host": "127.0.0.1",
+          "span.kind": "client"
+        },
+        "tb": {},
+        "ti": {
+          "peer.port": 6379
+        },
+        "lo": []
+      },
+      {
+        "si": 3,
+        "ps": 1,
+        "st": 1491277162144,
+        "et": 1491277162147,
+        "on": "Jedis/getClient",
+        "ts": {
+          "span.layer": "db",
+          "component": "Redis",
+          "db.type": "Redis",
+          "peer.host": "127.0.0.1",
+          "span.kind": "client"
+        },
+        "tb": {},
+        "ti": {
+          "peer.port": 6379
+        },
+        "lo": []
+      },
+      {
+        "si": 4,
+        "ps": 1,
+        "st": 1491277162147,
+        "et": 1491277162147,
+        "on": "Jedis/isConnected",
+        "ts": {
+          "span.layer": "db",
+          "component": "Redis",
+          "db.type": "Redis",
+          "peer.host": "127.0.0.1",
+          "span.kind": "client"
+        },
+        "tb": {},
+        "ti": {
+          "peer.port": 6379
+        },
+        "lo": []
+      },
+      {
+        "si": 5,
+        "ps": 1,
+        "st": 1491277162147,
+        "et": 1491277164410,
+        "on": "Jedis/ping",
+        "ts": {
+          "span.layer": "db",
+          "component": "Redis",
+          "db.type": "Redis",
+          "peer.host": "127.0.0.1",
+          "span.kind": "client"
+        },
+        "tb": {},
+        "ti": {
+          "peer.port": 6379
+        },
+        "lo": []
+      },
+      {
+        "si": 6,
+        "ps": 1,
+        "st": 1491277164420,
+        "et": 1491277165738,
+        "on": "Jedis/set",
+        "ts": {
+          "span.layer": "db",
+          "component": "Redis",
+          "db.type": "Redis",
+          "peer.host": "127.0.0.1",
+          "span.kind": "client",
+          "db.statement": "set test_NEW"
+        },
+        "tb": {},
+        "ti": {
+          "peer.port": 6379
+        },
+        "lo": []
+      },
+      {
+        "si": 7,
+        "ps": 1,
+        "st": 1491277165741,
+        "et": 1491277165743,
+        "on": "H2/JDBI/PreparedStatement/executeUpdate",
+        "ts": {
+          "db.instance": "dataSource",
+          "span.layer": "db",
+          "db.type": "sql",
+          "component": "H2",
+          "span.kind": "client",
+          "db.statement": "INSERT INTO CACHE_TABLE(CACHE_VALUE, CACHE_KEY) VALUES(?, ?)",
+          "peer.host": "localhost"
+        },
+        "tb": {},
+        "ti": {
+          "peer.port": -1
+        },
+        "lo": []
+      },
+      {
+        "si": 8,
+        "ps": 1,
+        "st": 1491277165743,
+        "et": 1491277165743,
+        "on": "H2/JDBI/Connection/close",
+        "ts": {
+          "db.instance": "dataSource",
+          "span.layer": "db",
+          "db.type": "sql",
+          "component": "H2",
+          "span.kind": "client",
+          "db.statement": "",
+          "peer.host": "localhost"
+        },
+        "tb": {},
+        "ti": {
+          "peer.port": -1
+        },
+        "lo": []
+      },
+      {
+        "si": 1,
+        "ps": 0,
+        "st": 1491277162066,
+        "et": 1491277165743,
+        "on": "Motan_default_rpc_com.a.eye.skywalking.test.cache.CacheService.updateCache(java.lang.String,java.lang.String)",
+        "ts": {
+          "requestId": "1563717428890828802"
+        },
+        "tb": {},
+        "ti": {},
+        "lo": []
+      },
+      {
+        "si": 0,
+        "ps": -1,
+        "st": 1491277162066,
+        "et": 1491277165743,
+        "on": "com.a.eye.skywalking.test.cache.CacheService.updateCache(java.lang.String,java.lang.String)",
+        "ts": {
+          "span.layer": "rpc",
+          "component": "Motan",
+          "span.kind": "server"
+        },
+        "tb": {},
+        "ti": {},
+        "lo": []
+      }
+    ],
+    "ac": "cache-service",
+    "gt": [
+      "Trace.1491277147443.-1562443425.70539.65.2"
+    ]
+  }
+]

@@ -5,7 +5,7 @@ import akka.actor.ActorSelection;
 import akka.actor.ActorSystem;
 import com.a.eye.skywalking.collector.cluster.ClusterConfig;
 import com.a.eye.skywalking.collector.cluster.ClusterConfigInitializer;
-import com.a.eye.skywalking.collector.worker.receiver.TraceSegmentReceiver;
+import com.a.eye.skywalking.collector.worker.segment.SegmentPost;
 import com.a.eye.skywalking.collector.worker.storage.EsClient;
 import com.a.eye.skywalking.sniffer.mock.trace.TraceSegmentBuilderFactory;
 import com.a.eye.skywalking.trace.TraceSegment;
@@ -18,7 +18,7 @@ import com.typesafe.config.ConfigFactory;
 public class StartUpTestCase {
 
     public void test() throws Exception {
-        System.out.println(TraceSegmentReceiver.class.getSimpleName());
+        System.out.println(SegmentPost.class.getSimpleName());
         ClusterConfigInitializer.initialize("collector.config");
         System.out.println(ClusterConfig.Cluster.Current.roles);
 

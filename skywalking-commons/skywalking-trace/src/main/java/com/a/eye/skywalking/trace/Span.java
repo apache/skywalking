@@ -57,8 +57,16 @@ public class Span{
      * {@see https://github.com/opentracing/specification/blob/master/specification.md#set-a-span-tag}
      */
     @Expose
-    @SerializedName(value="ta")
-    private final Map<String, Object> tags;
+    @SerializedName(value="ts")
+    private final Map<String, String> tagsWithStr;
+
+    @Expose
+    @SerializedName(value="tb")
+    private final Map<String, Boolean> tagsWithBool;
+
+    @Expose
+    @SerializedName(value="ti")
+    private final Map<String, Integer> tagsWithInt;
 
     /**
      * Log is a concept from OpenTracing spec.
@@ -151,7 +159,9 @@ public class Span{
      * Create a new/empty span.
      */
     public Span() {
-        tags = new HashMap<String, Object>();
+        tagsWithStr = new HashMap<String, String>(5);
+        tagsWithBool = new HashMap<String, Boolean>(1);
+        tagsWithInt = new HashMap<String, Integer>(2);
         logs = new LinkedList<LogData>();
     }
 
@@ -194,17 +204,17 @@ public class Span{
      * @return this Span instance, for chaining
      */
     public final Span setTag(String key, String value) {
-        tags.put(key, value);
+        tagsWithStr.put(key, value);
         return this;
     }
 
     public final Span setTag(String key, boolean value) {
-        tags.put(key, value);
+        tagsWithBool.put(key, value);
         return this;
     }
 
-    public final Span setTag(String key, Number value) {
-        tags.put(key, value);
+    public final Span setTag(String key, Integer value) {
+        tagsWithInt.put(key, value);
         return this;
     }
 
@@ -214,7 +224,11 @@ public class Span{
      * @return
      */
     public final Map<String, Object> getTags() {
-        return Collections.unmodifiableMap(tags);
+        Map<String, Object> tags = new HashMap<String, Object>();
+        tags.putAll(tagsWithStr);
+        tags.putAll(tagsWithBool);
+        tags.putAll(tagsWithInt);
+        return tags;
     }
 
     /**
@@ -223,8 +237,16 @@ public class Span{
      * @param key the given tag key.
      * @return tag value.
      */
-    public Object getTag(String key) {
-        return tags.get(key);
+    public String getStrTag(String key) {
+        return tagsWithStr.get(key);
+    }
+
+    public Boolean getBoolTag(String key) {
+        return tagsWithBool.get(key);
+    }
+
+    public Integer getIntTag(String key) {
+        return tagsWithInt.get(key);
     }
 
     /**
@@ -250,7 +272,7 @@ public class Span{
      * @return the Span, for chaining
      * @see Span#log(String)
      */
-    public Span log(Map<String, ?> fields) {
+    public Span log(Map<String, String> fields) {
         logs.add(new LogData(System.currentTimeMillis(), fields));
         return this;
     }

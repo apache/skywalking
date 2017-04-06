@@ -1,46 +1,38 @@
 package com.a.eye.skywalking.api.logging;
 
-
+import com.a.eye.skywalking.api.conf.Constants;
+import com.a.eye.skywalking.api.util.StringUtil;
 import com.a.eye.skywalking.logging.ILog;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import static com.a.eye.skywalking.api.conf.Config.Logging.LEVEL;
 import static com.a.eye.skywalking.api.logging.LogLevel.*;
 
 /**
- * Created by xin on 16-6-23.
+ * The <code>EasyLogger</code> is a simple implementation of {@link ILog}.
+ *
+ * @author wusheng
  */
 public class EasyLogger implements ILog {
 
-    private Class toBeLoggerClass;
+    private Class targetClass;
 
-    public EasyLogger(Class toBeLoggerClass) {
-        this.toBeLoggerClass = toBeLoggerClass;
+    public EasyLogger(Class targetClass) {
+        this.targetClass = targetClass;
     }
 
-    public void logger(LogLevel level, String message, Throwable e) {
-        Throwable dummyException = new Throwable();
-        StackTraceElement locations[] = dummyException.getStackTrace();
-
-        if (locations != null && locations.length > 2) {
-            if (ERROR.equals(level) || WARN.equals(level)) {
-                WriterFactory.getLogWriter().writeError(formatMessage(level, message, locations[2]));
-            } else {
-                WriterFactory.getLogWriter().write(formatMessage(level, message, locations[2]));
-            }
-        }
-
-        if (e != null) {
-            WriterFactory.getLogWriter().writeError(ThrowableFormatter.format(e));
-        }
+    private void logger(LogLevel level, String message, Throwable e) {
+        WriterFactory.getLogWriter().write(format(level, message, e));
     }
-
 
     private String replaceParam(String message, Object... parameters) {
         int startSize = 0;
         int parametersIndex = 0;
-        int index = -1;
+        int index;
         String tmpMessage = message;
         while ((index = message.indexOf("{}", startSize)) != -1) {
             if (parametersIndex >= parameters.length) {
@@ -53,69 +45,97 @@ public class EasyLogger implements ILog {
         return tmpMessage;
     }
 
+    String format(LogLevel level, String message, Throwable t) {
+        return StringUtil.join(' ', level.name(),
+            new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()),
+            targetClass.getSimpleName(),
+            ": ",
+            message,
+            t == null ? "" : format(t)
+        );
+    }
 
-    private String formatMessage(LogLevel level, String message, StackTraceElement caller) {
-        return level + " " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()) + " "
-                + caller.getClassName() + "." + caller.getMethodName() + "(" + caller.getFileName() + ":" + caller.getLineNumber() + ") " + message;
+    String format(Throwable t) {
+        ByteArrayOutputStream buf = new ByteArrayOutputStream();
+        t.printStackTrace(new java.io.PrintWriter(buf, true));
+        String expMessage = buf.toString();
+        try {
+            buf.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return Constants.LINE_SEPARATOR + expMessage;
     }
 
     @Override
     public void info(String format) {
-        logger(INFO, format, null);
+        if (isInfoEnable())
+            logger(INFO, format, null);
     }
 
     @Override
     public void info(String format, Object... arguments) {
-        logger(INFO, replaceParam(format, arguments), null);
+        if (isInfoEnable())
+            logger(INFO, replaceParam(format, arguments), null);
     }
 
     @Override
     public void warn(String format, Object... arguments) {
-        logger(WARN, replaceParam(format, arguments), null);
+        if (isWarnEnable())
+            logger(WARN, replaceParam(format, arguments), null);
     }
 
     @Override
     public void error(String format, Throwable e) {
-        logger(ERROR, format, e);
+        if (isErrorEnable())
+            logger(ERROR, format, e);
     }
 
     @Override
     public void error(Throwable e, String format, Object... arguments) {
-        logger(ERROR, replaceParam(format, arguments), e);
+        if (isErrorEnable())
+            logger(ERROR, replaceParam(format, arguments), e);
     }
 
     @Override
     public boolean isDebugEnable() {
-        return true;
+        return DEBUG.compareTo(LEVEL) >= 0;
     }
 
     @Override
     public boolean isInfoEnable() {
-        return true;
+        return INFO.compareTo(LEVEL) >= 0;
     }
 
     @Override
     public boolean isWarnEnable() {
-        return true;
+        return WARN.compareTo(LEVEL) >= 0;
     }
 
     @Override
     public boolean isErrorEnable() {
-        return true;
+        return ERROR.compareTo(LEVEL) >= 0;
     }
 
     @Override
     public void debug(String format) {
-        logger(DEBUG, format, null);
+        if (isDebugEnable()) {
+            logger(DEBUG, format, null);
+        }
     }
 
     @Override
     public void debug(String format, Object... arguments) {
-        logger(DEBUG, replaceParam(format, arguments), null);
+        if (isDebugEnable()) {
+            logger(DEBUG, replaceParam(format, arguments), null);
+        }
     }
 
     @Override
     public void error(String format) {
-        logger(ERROR, format, null);
+        if (isErrorEnable()) {
+            logger(ERROR, format, null);
+        }
     }
 }

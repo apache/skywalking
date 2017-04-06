@@ -26,14 +26,14 @@ public abstract class MetricPersistenceMember extends PersistenceMember {
 
     private Logger logger = LogManager.getFormatterLogger(MetricPersistenceMember.class);
 
-    protected MetricPersistenceData persistenceData = new MetricPersistenceData();
+    private MetricPersistenceData persistenceData = new MetricPersistenceData();
 
     public MetricPersistenceMember(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
     @Override
-    public void analyse(Object message) throws Exception {
+    final public void analyse(Object message) throws Exception {
         if (message instanceof MetricData) {
             MetricData metricData = (MetricData) message;
             persistenceData.getElseCreate(metricData.getId()).merge(metricData);
@@ -45,7 +45,7 @@ public abstract class MetricPersistenceMember extends PersistenceMember {
         }
     }
 
-    protected void persistence() {
+    final protected void persistence() {
         MultiGetResponse multiGetResponse = searchFromEs();
         for (MultiGetItemResponse itemResponse : multiGetResponse) {
             GetResponse response = itemResponse.getResponse();
@@ -60,11 +60,12 @@ public abstract class MetricPersistenceMember extends PersistenceMember {
         }
     }
 
-    public MultiGetResponse searchFromEs() {
+    private MultiGetResponse searchFromEs() {
         Client client = EsClient.getClient();
         MultiGetRequestBuilder multiGetRequestBuilder = client.prepareMultiGet();
 
         Iterator<Map.Entry<String, MetricData>> iterator = persistenceData.iterator();
+
         while (iterator.hasNext()) {
             multiGetRequestBuilder.add(esIndex(), esType(), iterator.next().getKey());
         }
@@ -73,7 +74,7 @@ public abstract class MetricPersistenceMember extends PersistenceMember {
         return multiGetResponse;
     }
 
-    public boolean saveToEs() {
+    private boolean saveToEs() {
         Client client = EsClient.getClient();
         BulkRequestBuilder bulkRequest = client.prepareBulk();
         logger.debug("persistenceData size: %s", persistenceData.size());

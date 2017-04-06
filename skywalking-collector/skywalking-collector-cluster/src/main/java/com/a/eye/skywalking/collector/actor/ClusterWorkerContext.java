@@ -1,9 +1,9 @@
 package com.a.eye.skywalking.collector.actor;
 
 import akka.actor.ActorSystem;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import com.a.eye.skywalking.logging.ILog;
-import com.a.eye.skywalking.logging.LogManager;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -11,7 +11,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author pengys5
  */
 public class ClusterWorkerContext extends WorkerContext {
-    private ILog logger = LogManager.getLogger(ClusterWorkerContext.class);
+    private Logger logger = LogManager.getFormatterLogger(ClusterWorkerContext.class);
+
     private final ActorSystem akkaSystem;
     private Map<String, AbstractWorkerProvider> providers = new ConcurrentHashMap<>();
 

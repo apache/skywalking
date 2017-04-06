@@ -1,9 +1,9 @@
 package com.a.eye.skywalking.collector.actor;
 
 import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import com.a.eye.skywalking.logging.ILog;
-import com.a.eye.skywalking.logging.LogManager;
 import java.util.List;
 
 /**
@@ -11,7 +11,7 @@ import java.util.List;
  */
 public class WorkerRefs<T extends WorkerRef> {
 
-    private static ILog logger = LogManager.getLogger(WorkerRefs.class);
+    private Logger logger = LogManager.getFormatterLogger(WorkerRefs.class);
 
     private List<T> workerRefs;
     private WorkerSelector workerSelector;
@@ -24,5 +24,14 @@ public class WorkerRefs<T extends WorkerRef> {
     public void tell(Object message) throws Exception {
         logger.debug("WorkerSelector instance of %s", workerSelector.getClass());
         workerSelector.select(workerRefs, message).tell(message);
+    }
+
+    public void ask(Object request, Object response) throws Exception {
+        WorkerRef workerRef = workerSelector.select(workerRefs, request);
+        if (workerRef instanceof LocalSyncWorkerRef) {
+            ((LocalSyncWorkerRef) workerRef).ask(request, response);
+        } else {
+            throw new IllegalAccessError("only local sync worker can ask");
+        }
     }
 }

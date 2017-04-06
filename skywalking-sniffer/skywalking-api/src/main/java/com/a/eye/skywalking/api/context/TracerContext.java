@@ -1,6 +1,8 @@
 package com.a.eye.skywalking.api.context;
 
+import com.a.eye.skywalking.api.boot.ServiceManager;
 import com.a.eye.skywalking.api.conf.Config;
+import com.a.eye.skywalking.api.sampling.SamplingService;
 import com.a.eye.skywalking.trace.Span;
 import com.a.eye.skywalking.trace.TraceSegment;
 import com.a.eye.skywalking.trace.TraceSegmentRef;
@@ -34,7 +36,8 @@ public final class TracerContext {
      * Create a {@link TraceSegment} and init {@link #spanIdGenerator} as 0;
      */
     TracerContext() {
-        this.segment = new TraceSegment(Config.SkyWalking.APPLICATION_CODE);
+        this.segment = new TraceSegment(Config.Agent.APPLICATION_CODE);
+        ServiceManager.INSTANCE.findService(SamplingService.class).trySampling(this.segment);
         this.spanIdGenerator = 0;
     }
 
@@ -122,10 +125,18 @@ public final class TracerContext {
      */
     public void inject(ContextCarrier carrier) {
         carrier.setTraceSegmentId(this.segment.getTraceSegmentId());
-        carrier.setSpanId(this.activeSpan().getSpanId());
-        carrier.setApplicationCode(Config.SkyWalking.APPLICATION_CODE);
-        carrier.setPeerHost(Tags.PEER_HOST.get(activeSpan()));
+        Span span = this.activeSpan();
+        carrier.setSpanId(span.getSpanId());
+        carrier.setApplicationCode(Config.Agent.APPLICATION_CODE);
+        String host = Tags.PEER_HOST.get(span);
+        if(host != null) {
+            Integer port = Tags.PEER_PORT.get(span);
+            carrier.setPeerHost(host + ":" + port);
+        }else{
+            carrier.setPeerHost(Tags.PEERS.get(span));
+        }
         carrier.setDistributedTraceIds(this.segment.getRelatedGlobalTraces());
+        carrier.setSampled(this.segment.isSampled());
     }
 
     /**
@@ -137,6 +148,7 @@ public final class TracerContext {
     public void extract(ContextCarrier carrier) {
         if(carrier.isValid()) {
             this.segment.ref(getRef(carrier));
+            ServiceManager.INSTANCE.findService(SamplingService.class).setSampleWhenExtract(this.segment, carrier);
             this.segment.relatedGlobalTraces(carrier.getDistributedTraceIds());
         }
     }
