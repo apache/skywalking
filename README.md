@@ -3,7 +3,7 @@ Sky Walking
 
 <img src="https://sky-walking.github.io/page-resources/3.0/skywalking.png" alt="Sky Walking logo" height="90px" align="right" />
 
-SkyWalking 3.x: APM for Distributed Systems, also known Distributed Tracing System.
+**SkyWalking 3.x**: APM for Distributed Systems, also known Distributed Tracing System.
 
 [![Build Status](https://travis-ci.org/wu-sheng/sky-walking.svg?branch=master)](https://travis-ci.org/wu-sheng/sky-walking)
 [![Coverage Status](https://coveralls.io/repos/github/wu-sheng/sky-walking/badge.svg?branch=master)](https://coveralls.io/github/wu-sheng/sky-walking?branch=master)
@@ -55,4 +55,6 @@ _In chronological order_
 # Document
 * [WIKI](https://github.com/wu-sheng/sky-walking/wiki)
 
-_Chat with us on gitter, in English. As a Chinese Developer, you can join QQ Group: 392443393, and **Tagged** Sky-Walking._ 
+_Chat with us on gitter, in English. As a Chinese Developer, you can join QQ Group: 392443393, and **Tagged** Sky-Walking._
+
+_sky-walking 1.x and 2.x provide features about tracing only, did not include any analysis abilities._
