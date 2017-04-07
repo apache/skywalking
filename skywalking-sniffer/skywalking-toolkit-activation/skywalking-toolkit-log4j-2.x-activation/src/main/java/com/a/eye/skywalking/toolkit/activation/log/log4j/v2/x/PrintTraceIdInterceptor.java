@@ -1,6 +1,5 @@
 package com.a.eye.skywalking.toolkit.activation.log.log4j.v2.x;
 
-import com.a.eye.skywalking.api.context.ContextCarrier;
 import com.a.eye.skywalking.api.context.ContextManager;
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.MethodInterceptResult;
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.MethodInvokeContext;
@@ -19,7 +18,7 @@ public class PrintTraceIdInterceptor implements StaticMethodsAroundInterceptor {
      */
     @Override
     public void beforeMethod(StaticMethodInvokeContext interceptorContext, MethodInterceptResult result) {
-        ((StringBuilder) interceptorContext.allArguments()[0]).append("TID:" + ContextManager.getTraceSegmentId());
+        ((StringBuilder) interceptorContext.allArguments()[0]).append("TID:" + ContextManager.getGlobalTraceId());
 
         //make sure origin method do not invoke.
         result.defineReturnValue(null);

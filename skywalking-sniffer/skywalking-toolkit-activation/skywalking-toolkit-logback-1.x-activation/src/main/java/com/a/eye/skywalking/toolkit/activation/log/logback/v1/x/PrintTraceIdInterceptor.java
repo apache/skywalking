@@ -25,7 +25,7 @@ public class PrintTraceIdInterceptor implements InstanceMethodsAroundInterceptor
      */
     @Override
     public Object afterMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext, Object ret) {
-        return "TID:" + ContextManager.getTraceSegmentId();
+        return "TID:" + ContextManager.getGlobalTraceId();
     }
 
     @Override

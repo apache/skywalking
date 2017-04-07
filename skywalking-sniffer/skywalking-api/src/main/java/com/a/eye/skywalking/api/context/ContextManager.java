@@ -1,7 +1,6 @@
 package com.a.eye.skywalking.api.context;
 
 import com.a.eye.skywalking.api.boot.BootService;
-import com.a.eye.skywalking.api.queue.TraceSegmentProcessQueue;
 import com.a.eye.skywalking.trace.Span;
 import com.a.eye.skywalking.trace.TraceSegment;
 
@@ -44,21 +43,14 @@ public class ContextManager implements TracerContextListener, BootService {
     }
 
     /**
-     * @see {@link TracerContext#extract(ContextCarrier)}
+     * @return the first global trace id if exist. Otherwise, "N/A".
      */
-    public static void multiExtract(ContextCarrier carrier){
-        get().extract(carrier);
-    }
-
-    /**
-     * @return the {@link TraceSegment#traceSegmentId} if exist. Otherwise, "N/A".
-     */
-    public static String getTraceSegmentId(){
+    public static String getGlobalTraceId(){
         TracerContext segment = CONTEXT.get();
         if(segment == null){
             return "N/A";
         }else{
-            return segment.getTraceSegmentId();
+            return segment.getGlobalTraceId();
         }
     }
 
