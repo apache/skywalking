@@ -15,7 +15,7 @@ public class NodeRefDayAgg extends AbstractClusterWorker {
 
     private Logger logger = LogManager.getFormatterLogger(NodeRefDayAgg.class);
 
-    public NodeRefDayAgg(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    NodeRefDayAgg(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
@@ -48,7 +48,7 @@ public class NodeRefDayAgg extends AbstractClusterWorker {
 
         @Override
         public int workerNum() {
-            return WorkerConfig.Worker.DAGNodeRefReceiver.Num;
+            return WorkerConfig.WorkerNum.NodeRef.NodeRefDayAgg.Value;
         }
     }
 

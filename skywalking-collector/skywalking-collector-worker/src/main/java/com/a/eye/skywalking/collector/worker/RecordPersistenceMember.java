@@ -55,7 +55,7 @@ public abstract class RecordPersistenceMember extends PersistenceMember {
     }
 
     private boolean saveToEs() {
-        Client client = EsClient.getClient();
+        Client client = EsClient.INSTANCE.getClient();
         BulkRequestBuilder bulkRequest = client.prepareBulk();
         logger.debug("persistenceData size: %s", getPersistenceData().size());
 

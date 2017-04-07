@@ -8,8 +8,10 @@ import com.a.eye.skywalking.trace.tag.Tags;
 /**
  * @author pengys5
  */
-public class SpanPeersTools {
-    public static String getPeers(Span span) {
+public enum SpanPeersTools {
+    INSTANCE;
+
+    public String getPeers(Span span) {
         if (StringUtil.isEmpty(Tags.PEERS.get(span))) {
             String host = Tags.PEER_HOST.get(span);
             int port = Tags.PEER_PORT.get(span);

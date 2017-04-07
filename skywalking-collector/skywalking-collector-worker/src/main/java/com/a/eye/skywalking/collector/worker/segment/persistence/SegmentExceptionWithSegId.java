@@ -22,7 +22,7 @@ public class SegmentExceptionWithSegId extends AbstractLocalSyncWorker {
         if (request instanceof RequestEntity) {
             RequestEntity search = (RequestEntity) request;
 
-            GetResponse getResponse = EsClient.getClient().prepareGet(SegmentExceptionIndex.Index, SegmentExceptionIndex.Type_Record, search.segId).get();
+            GetResponse getResponse = EsClient.INSTANCE.getClient().prepareGet(SegmentExceptionIndex.Index, SegmentExceptionIndex.Type_Record, search.segId).get();
 
             JsonObject dataJson = new JsonObject();
             dataJson.addProperty(SegmentExceptionIndex.SegId, (String) getResponse.getSource().get(SegmentExceptionIndex.SegId));

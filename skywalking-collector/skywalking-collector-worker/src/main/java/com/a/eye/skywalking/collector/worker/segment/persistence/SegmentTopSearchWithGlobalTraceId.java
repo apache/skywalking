@@ -41,7 +41,7 @@ public class SegmentTopSearchWithGlobalTraceId extends AbstractLocalSyncWorker {
     protected void onWork(Object request, Object response) throws Exception {
         if (request instanceof RequestEntity) {
             RequestEntity search = (RequestEntity) request;
-            Client client = EsClient.getClient();
+            Client client = EsClient.INSTANCE.getClient();
 
             String globalTraceData = client.prepareGet(GlobalTraceIndex.Index, GlobalTraceIndex.Type_Record, search.globalTraceId).get().getSourceAsString();
             JsonObject globalTraceObj = gson.fromJson(globalTraceData, JsonObject.class);

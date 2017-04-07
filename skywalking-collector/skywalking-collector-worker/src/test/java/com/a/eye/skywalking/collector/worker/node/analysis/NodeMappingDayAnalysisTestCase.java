@@ -2,12 +2,14 @@ package com.a.eye.skywalking.collector.worker.node.analysis;
 
 import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
 import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
+import com.a.eye.skywalking.collector.actor.ProviderNotFoundException;
 import com.a.eye.skywalking.collector.actor.WorkerRefs;
 import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
 import com.a.eye.skywalking.collector.queue.EndOfBatchCommand;
 import com.a.eye.skywalking.collector.worker.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.mock.RecordDataAnswer;
 import com.a.eye.skywalking.collector.worker.node.persistence.NodeMappingDayAgg;
+import com.a.eye.skywalking.collector.worker.noderef.analysis.NodeRefResSumDayAnalysis;
 import com.a.eye.skywalking.collector.worker.segment.SegmentPost;
 import com.a.eye.skywalking.collector.worker.segment.mock.SegmentMock;
 import com.a.eye.skywalking.collector.worker.storage.RecordData;
@@ -25,6 +27,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import java.util.List;
 
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 
@@ -39,10 +42,11 @@ public class NodeMappingDayAnalysisTestCase {
     private NodeMappingDayAnalysis nodeMappingDayAnalysis;
     private SegmentMock segmentMock = new SegmentMock();
     private RecordDataAnswer recordDataAnswer;
+    private ClusterWorkerContext clusterWorkerContext;
 
     @Before
     public void init() throws Exception {
-        ClusterWorkerContext clusterWorkerContext = PowerMockito.mock(ClusterWorkerContext.class);
+        clusterWorkerContext = PowerMockito.mock(ClusterWorkerContext.class);
         WorkerRefs workerRefs = mock(WorkerRefs.class);
         recordDataAnswer = new RecordDataAnswer();
         doAnswer(recordDataAnswer).when(workerRefs).tell(Mockito.any(RecordData.class));
@@ -67,6 +71,12 @@ public class NodeMappingDayAnalysisTestCase {
         int testSize = 10;
         WorkerConfig.Queue.Node.NodeMappingDayAnalysis.Size = testSize;
         Assert.assertEquals(testSize, NodeMappingDayAnalysis.Factory.INSTANCE.queueSize());
+    }
+
+    @Test(expected = Exception.class)
+    public void testPreStart() throws ProviderNotFoundException {
+        when(clusterWorkerContext.findProvider(NodeRefResSumDayAnalysis.Role.INSTANCE)).thenThrow(new Exception());
+        nodeMappingDayAnalysis.preStart();
     }
 
     @Test

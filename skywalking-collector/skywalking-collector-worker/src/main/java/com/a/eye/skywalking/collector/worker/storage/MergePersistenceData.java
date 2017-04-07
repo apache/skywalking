@@ -11,7 +11,7 @@ import java.util.function.Consumer;
  */
 public class MergePersistenceData implements Iterable {
 
-    private Map<String, MergeData> persistenceData = new HashMap();
+    private Map<String, MergeData> persistenceData = new HashMap<>();
 
     public MergeData getElseCreate(String id) {
         if (!persistenceData.containsKey(id)) {
@@ -26,10 +26,6 @@ public class MergePersistenceData implements Iterable {
 
     public void clear() {
         persistenceData.clear();
-    }
-
-    public boolean hasNext() {
-        return persistenceData.entrySet().iterator().hasNext();
     }
 
     public MergeData pushOne() {

@@ -28,7 +28,7 @@ public class GlobalTraceSearchTestCase {
     public void testSearchWithGlobalId() throws Exception {
         Client client = mock(Client.class);
         mockStatic(EsClient.class);
-        when(EsClient.getClient()).thenReturn(client);
+//        when(EsClient.INSTANCE.getClient()).thenReturn(client);
 
         String globalTraceId = "Global.1";
         String segment_1 = "SEGMENT.1";

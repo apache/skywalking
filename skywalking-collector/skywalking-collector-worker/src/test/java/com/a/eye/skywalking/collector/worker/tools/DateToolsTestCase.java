@@ -1,9 +1,12 @@
 package com.a.eye.skywalking.collector.worker.tools;
 
+import com.a.eye.skywalking.collector.worker.storage.IndexCreator;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.TimeZone;
+
+import static org.powermock.api.mockito.PowerMockito.spy;
 
 /**
  * @author pengys5

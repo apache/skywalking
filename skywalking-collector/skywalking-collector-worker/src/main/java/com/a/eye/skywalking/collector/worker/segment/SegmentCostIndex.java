@@ -31,7 +31,7 @@ public class SegmentCostIndex extends AbstractIndex {
 
     @Override
     public XContentBuilder createMappingBuilder() throws IOException {
-        XContentBuilder mappingBuilder = XContentFactory.jsonBuilder()
+        return XContentFactory.jsonBuilder()
                 .startObject()
                     .startObject("properties")
                         .startObject(SegId)
@@ -50,12 +50,11 @@ public class SegmentCostIndex extends AbstractIndex {
                             .field("type", "string")
                             .field("index", "not_analyzed")
                         .endObject()
-                            .startObject(Cost)
+                        .startObject(Cost)
                             .field("type", "long")
-                        .field("index", "not_analyzed")
+                            .field("index", "not_analyzed")
                         .endObject()
                     .endObject()
                 .endObject();
-        return mappingBuilder;
     }
 }

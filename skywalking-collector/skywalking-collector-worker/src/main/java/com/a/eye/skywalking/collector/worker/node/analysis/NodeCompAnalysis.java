@@ -50,7 +50,7 @@ public class NodeCompAnalysis extends AbstractNodeCompAnalysis {
 
         @Override
         public int queueSize() {
-            return WorkerConfig.Queue.Node.NodeDayAnalysis.Size;
+            return WorkerConfig.Queue.Node.NodeCompAnalysis.Size;
         }
     }
 

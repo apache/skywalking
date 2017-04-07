@@ -36,7 +36,7 @@ abstract class AbstractNodeCompAnalysis extends RecordAnalysisMember {
             for (Span span : spanList) {
                 String kind = Tags.SPAN_KIND.get(span);
                 if (Tags.SPAN_KIND_CLIENT.equals(kind) && ClientSpanIsLeafTools.isLeaf(span.getSpanId(), spanList)) {
-                    String peers = SpanPeersTools.getPeers(span);
+                    String peers = SpanPeersTools.INSTANCE.getPeers(span);
 
                     JsonObject compJsonObj = new JsonObject();
                     compJsonObj.addProperty(NodeCompIndex.Peers, peers);

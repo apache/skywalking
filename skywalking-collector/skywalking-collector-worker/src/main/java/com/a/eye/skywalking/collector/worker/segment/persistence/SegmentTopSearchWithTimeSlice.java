@@ -43,7 +43,7 @@ public class SegmentTopSearchWithTimeSlice extends AbstractLocalSyncWorker {
         if (request instanceof RequestEntity) {
             RequestEntity search = (RequestEntity) request;
 
-            SearchRequestBuilder searchRequestBuilder = EsClient.getClient().prepareSearch(SegmentCostIndex.Index);
+            SearchRequestBuilder searchRequestBuilder = EsClient.INSTANCE.getClient().prepareSearch(SegmentCostIndex.Index);
             searchRequestBuilder.setTypes(SegmentCostIndex.Type_Record);
             searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
             BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
@@ -86,7 +86,7 @@ public class SegmentTopSearchWithTimeSlice extends AbstractLocalSyncWorker {
                 topSegmentJson.addProperty(SegmentCostIndex.OperationName, (String) searchHit.getSource().get(SegmentCostIndex.OperationName));
                 topSegmentJson.addProperty(SegmentCostIndex.Cost, (Number) searchHit.getSource().get(SegmentCostIndex.Cost));
 
-                String segmentSource = EsClient.getClient().prepareGet(SegmentIndex.Index, SegmentIndex.Type_Record, segId).get().getSourceAsString();
+                String segmentSource = EsClient.INSTANCE.getClient().prepareGet(SegmentIndex.Index, SegmentIndex.Type_Record, segId).get().getSourceAsString();
                 Segment segment = SegmentDeserialize.INSTANCE.deserializeFromES(segmentSource);
                 List<DistributedTraceId> distributedTraceIdList = segment.getRelatedGlobalTraces();
 

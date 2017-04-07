@@ -24,6 +24,7 @@ public class RecordData extends AbstractHashMessage {
                 this.aggId = this.aggId + Const.ID_SPLIT + ids[i];
             }
         }
+        record = new JsonObject();
     }
 
     public String getId() {

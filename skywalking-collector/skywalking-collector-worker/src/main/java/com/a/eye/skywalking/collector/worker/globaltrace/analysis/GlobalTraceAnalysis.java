@@ -21,7 +21,7 @@ import java.util.List;
  */
 public class GlobalTraceAnalysis extends MergeAnalysisMember {
 
-    private GlobalTraceAnalysis(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    GlobalTraceAnalysis(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 

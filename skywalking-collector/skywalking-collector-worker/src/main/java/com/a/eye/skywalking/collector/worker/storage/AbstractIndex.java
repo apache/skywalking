@@ -29,20 +29,19 @@ public abstract class AbstractIndex {
     public static final String AGG_COLUMN = "aggId";
     public static final String Time_Slice = "timeSlice";
 
-    final public XContentBuilder createSettingBuilder() throws IOException {
-        XContentBuilder settingsBuilder = XContentFactory.jsonBuilder()
+    final XContentBuilder createSettingBuilder() throws IOException {
+        return XContentFactory.jsonBuilder()
                 .startObject()
                 .field("index.number_of_shards", 2)
                 .field("index.number_of_replicas", 0)
                 .endObject();
-        return settingsBuilder;
     }
 
     public abstract boolean isRecord();
 
     public abstract XContentBuilder createMappingBuilder() throws IOException;
 
-    final public void createIndex() {
+    final void createIndex() {
         // settings
         String settingSource = "";
 
@@ -59,7 +58,7 @@ public abstract class AbstractIndex {
             logger.error("create %s index mapping builder error", index());
         }
         Settings settings = Settings.builder().loadFromSource(settingSource).build();
-        IndicesAdminClient client = EsClient.getClient().admin().indices();
+        IndicesAdminClient client = EsClient.INSTANCE.getClient().admin().indices();
 
         if (isRecord()) {
             CreateIndexResponse response = client.prepareCreate(index()).setSettings(settings).addMapping(Type_Record, mappingBuilder).get();
@@ -74,8 +73,8 @@ public abstract class AbstractIndex {
         }
     }
 
-    final public boolean deleteIndex() {
-        IndicesAdminClient client = EsClient.getClient().admin().indices();
+    final boolean deleteIndex() {
+        IndicesAdminClient client = EsClient.INSTANCE.getClient().admin().indices();
         try {
             DeleteIndexResponse response = client.prepareDelete(index()).get();
             logger.info("delete %s index finished, isAcknowledged: %s", index(), response.isAcknowledged());
