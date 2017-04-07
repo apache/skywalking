@@ -61,10 +61,12 @@ public enum MetricDataMergeJson {
             if (entry.getValue().isJsonNull()) {
                 Assert.assertEquals(true, actualData.get(key).isJsonNull());
             } else {
+                String actualValue = actualData.get(key).getAsString();
                 if (key.equals("timeSlice")) {
                     value = String.valueOf(DateTools.changeToUTCSlice(Long.valueOf(value)));
+                    actualValue = String.valueOf(DateTools.changeToUTCSlice(Long.valueOf(actualValue)));
                 }
-                Assert.assertEquals(value, actualData.get(key).getAsString());
+                Assert.assertEquals(value, actualValue);
             }
         }
     }
@@ -74,7 +76,7 @@ public enum MetricDataMergeJson {
         Gson gson = new Gson();
         for (MetricData metricData : recordDataList) {
             JsonObject jsonObject = gson.fromJson(gson.toJson(metricData.toMap()), JsonObject.class);
-            recordDataMap.put(metricData.getId(), jsonObject);
+            recordDataMap.put(id2UTCSlice(metricData.getId()), jsonObject);
         }
         return recordDataMap;
     }

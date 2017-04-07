@@ -21,6 +21,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.List;
+import java.util.TimeZone;
 
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
@@ -40,6 +41,9 @@ public class NodeMappingMinuteAnalysisTestCase {
 
     @Before
     public void init() throws Exception {
+        System.setProperty("user.timezone", "UTC");
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+
         ClusterWorkerContext clusterWorkerContext = PowerMockito.mock(ClusterWorkerContext.class);
         WorkerRefs workerRefs = mock(WorkerRefs.class);
         answer = new RecordDataAnswer();

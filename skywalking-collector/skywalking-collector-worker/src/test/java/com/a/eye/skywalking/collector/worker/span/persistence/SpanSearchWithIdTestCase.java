@@ -21,6 +21,8 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
+import java.util.TimeZone;
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -36,6 +38,9 @@ public class SpanSearchWithIdTestCase {
 
     @Before
     public void init() {
+        System.setProperty("user.timezone", "UTC");
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+
         getResponseFromEs = PowerMockito.mock(GetResponseFromEs.class);
         Whitebox.setInternalState(GetResponseFromEs.class, "INSTANCE", getResponseFromEs);
     }

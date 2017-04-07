@@ -20,7 +20,7 @@ public enum JsonDataMerge {
 
     private String path = this.getClass().getResource("/").getPath();
 
-    public void merge(String expectJsonFile, JsonArray actualData) throws FileNotFoundException{
+    public void merge(String expectJsonFile, JsonArray actualData) throws FileNotFoundException {
         Gson gson = new Gson();
         String jsonStrData = JsonFileReader.INSTANCE.read(path + expectJsonFile);
         JsonArray expectJsonArray = gson.fromJson(jsonStrData, JsonArray.class);
@@ -45,10 +45,15 @@ public enum JsonDataMerge {
             if (entry.getValue().isJsonNull()) {
                 Assert.assertEquals(true, actualData.get(key).isJsonNull());
             } else {
-                if (key.equals("timeSlice") || key.equals("startTime") || key.equals("endTime") || key.equals("minute") || key.equals("hour") || key.equals("day")) {
+                if (key.equals("timeSlice") || key.equals("minute") || key.equals("hour") || key.equals("day")) {
                     value = String.valueOf(DateTools.changeToUTCSlice(Long.valueOf(value)));
                 }
-                Assert.assertEquals(value, actualData.get(key).getAsString());
+                if (SpecialTimeColumn.INSTANCE.isSpecialTimeColumn(key)) {
+                    String changedValue = SpecialTimeColumn.INSTANCE.specialTimeColumnChange(value);
+                    Assert.assertEquals(changedValue, actualData.get(key).getAsString());
+                } else {
+                    Assert.assertEquals(value, actualData.get(key).getAsString());
+                }
             }
         }
     }

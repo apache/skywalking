@@ -23,6 +23,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TimeZone;
 
 import static org.mockito.Mockito.*;
 
@@ -40,6 +41,9 @@ public class SegmentTopGetWithTimeSliceTestCase {
 
     @Before
     public void init() throws Exception {
+        System.setProperty("user.timezone", "UTC");
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+
         clusterWorkerContext = PowerMockito.mock(ClusterWorkerContext.class);
 
         LocalWorkerContext localWorkerContext = PowerMockito.mock(LocalWorkerContext.class);

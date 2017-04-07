@@ -27,6 +27,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 import static org.powermock.api.mockito.PowerMockito.when;
 
@@ -47,6 +48,9 @@ public class SegmentExceptionSaveTestCase {
 
     @Before
     public void init() {
+        System.setProperty("user.timezone", "UTC");
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+
         mockEsBulkClient.createMock();
 
         saveToEsSource = new SaveToEsSource();

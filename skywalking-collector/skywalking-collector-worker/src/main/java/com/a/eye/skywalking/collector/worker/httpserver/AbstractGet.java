@@ -14,7 +14,7 @@ import java.util.Map;
  */
 public abstract class AbstractGet extends AbstractLocalSyncWorker {
 
-    public AbstractGet(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    protected AbstractGet(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
