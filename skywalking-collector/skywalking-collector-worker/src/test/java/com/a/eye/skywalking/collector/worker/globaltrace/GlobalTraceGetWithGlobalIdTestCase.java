@@ -1,11 +1,11 @@
-package com.a.eye.skywalking.collector.worker.span;
+package com.a.eye.skywalking.collector.worker.globaltrace;
 
 import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
 import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
 import com.a.eye.skywalking.collector.actor.ProviderNotFoundException;
 import com.a.eye.skywalking.collector.actor.WorkerRefs;
 import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
-import com.a.eye.skywalking.collector.worker.span.persistence.SpanSearchWithId;
+import com.a.eye.skywalking.collector.worker.globaltrace.persistence.GlobalTraceSearchWithGlobalId;
 import com.google.gson.JsonObject;
 import org.junit.Assert;
 import org.junit.Before;
@@ -31,10 +31,10 @@ import static org.mockito.Mockito.*;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ClusterWorkerContext.class})
 @PowerMockIgnore({"javax.management.*"})
-public class SpanGetWithIdTestCase {
+public class GlobalTraceGetWithGlobalIdTestCase {
 
-    private SpanGetWithId getObj;
-    private SpanGetAnswerGet answer;
+    private GlobalTraceGetWithGlobalId getObj;
+    private GlobalTraceAnswerGet answer;
     private ClusterWorkerContext clusterWorkerContext;
 
     @Before
@@ -44,31 +44,31 @@ public class SpanGetWithIdTestCase {
         LocalWorkerContext localWorkerContext = PowerMockito.mock(LocalWorkerContext.class);
         WorkerRefs workerRefs = mock(WorkerRefs.class);
 
-        answer = new SpanGetAnswerGet();
-        doAnswer(answer).when(workerRefs).ask(Mockito.any(SpanSearchWithId.RequestEntity.class), Mockito.any(JsonObject.class));
+        answer = new GlobalTraceAnswerGet();
+        doAnswer(answer).when(workerRefs).ask(Mockito.anyString(), Mockito.any(JsonObject.class));
 
-        when(localWorkerContext.lookup(SpanSearchWithId.WorkerRole.INSTANCE)).thenReturn(workerRefs);
-        getObj = new SpanGetWithId(SpanGetWithId.WorkerRole.INSTANCE, clusterWorkerContext, localWorkerContext);
+        when(localWorkerContext.lookup(GlobalTraceSearchWithGlobalId.WorkerRole.INSTANCE)).thenReturn(workerRefs);
+        getObj = new GlobalTraceGetWithGlobalId(GlobalTraceGetWithGlobalId.WorkerRole.INSTANCE, clusterWorkerContext, localWorkerContext);
     }
 
     @Test
     public void testRole() {
-        Assert.assertEquals(SpanGetWithId.class.getSimpleName(), SpanGetWithId.WorkerRole.INSTANCE.roleName());
-        Assert.assertEquals(RollingSelector.class.getSimpleName(), SpanGetWithId.WorkerRole.INSTANCE.workerSelector().getClass().getSimpleName());
+        Assert.assertEquals(GlobalTraceGetWithGlobalId.class.getSimpleName(), GlobalTraceGetWithGlobalId.WorkerRole.INSTANCE.roleName());
+        Assert.assertEquals(RollingSelector.class.getSimpleName(), GlobalTraceGetWithGlobalId.WorkerRole.INSTANCE.workerSelector().getClass().getSimpleName());
     }
 
     @Test
     public void testFactory() {
-        Assert.assertEquals(SpanGetWithId.class.getSimpleName(), SpanGetWithId.Factory.INSTANCE.role().roleName());
-        Assert.assertEquals(SpanGetWithId.class.getSimpleName(), SpanGetWithId.Factory.INSTANCE.workerInstance(null).getClass().getSimpleName());
-        Assert.assertEquals("/span/spanId", SpanGetWithId.Factory.INSTANCE.servletPath());
+        Assert.assertEquals(GlobalTraceGetWithGlobalId.class.getSimpleName(), GlobalTraceGetWithGlobalId.Factory.INSTANCE.role().roleName());
+        Assert.assertEquals(GlobalTraceGetWithGlobalId.class.getSimpleName(), GlobalTraceGetWithGlobalId.Factory.INSTANCE.workerInstance(null).getClass().getSimpleName());
+        Assert.assertEquals("/globalTrace/globalId", GlobalTraceGetWithGlobalId.Factory.INSTANCE.servletPath());
     }
 
     @Test
     public void testPreStart() throws ProviderNotFoundException {
-        when(clusterWorkerContext.findProvider(SpanSearchWithId.WorkerRole.INSTANCE)).thenReturn(SpanSearchWithId.Factory.INSTANCE);
+        when(clusterWorkerContext.findProvider(GlobalTraceSearchWithGlobalId.WorkerRole.INSTANCE)).thenReturn(GlobalTraceSearchWithGlobalId.Factory.INSTANCE);
 
-        ArgumentCaptor<SpanSearchWithId.WorkerRole> argumentCaptor = ArgumentCaptor.forClass(SpanSearchWithId.WorkerRole.class);
+        ArgumentCaptor<GlobalTraceSearchWithGlobalId.WorkerRole> argumentCaptor = ArgumentCaptor.forClass(GlobalTraceSearchWithGlobalId.WorkerRole.class);
         getObj.preStart();
         verify(clusterWorkerContext).findProvider(argumentCaptor.capture());
     }
@@ -76,10 +76,9 @@ public class SpanGetWithIdTestCase {
     @Test
     public void testOnSearch() throws Exception {
         Map<String, String[]> request = new HashMap<>();
-        String[] segId = {"10"};
-        request.put("segId", segId);
-        String[] spanId = {"20"};
-        request.put("spanId", spanId);
+        String[] globalId = {"Test"};
+        request.put("globalId", globalId);
+
         JsonObject response = new JsonObject();
         getObj.onSearch(request, response);
     }
@@ -91,13 +90,13 @@ public class SpanGetWithIdTestCase {
         getObj.onSearch(request, response);
     }
 
-    class SpanGetAnswerGet implements Answer {
+    class GlobalTraceAnswerGet implements Answer {
 
         @Override
         public Object answer(InvocationOnMock invocation) throws Throwable {
-            SpanSearchWithId.RequestEntity requestEntity = (SpanSearchWithId.RequestEntity) invocation.getArguments()[0];
-            Assert.assertEquals("10", requestEntity.getSegId());
-            Assert.assertEquals("20", requestEntity.getSpanId());
+            String globalId = (String) invocation.getArguments()[0];
+            System.out.println(globalId);
+            Assert.assertEquals("Test", globalId);
             return null;
         }
     }

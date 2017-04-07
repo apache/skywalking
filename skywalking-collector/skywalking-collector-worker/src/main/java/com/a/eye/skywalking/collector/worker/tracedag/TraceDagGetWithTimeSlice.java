@@ -64,29 +64,40 @@ public class TraceDagGetWithTimeSlice extends AbstractGet {
 
         String timeSliceType = ParameterTools.INSTANCE.toString(request, "timeSliceType");
 
-        JsonObject compResponse = new JsonObject();
+        JsonObject compResponse = getNewResponse();
         getSelfContext().lookup(NodeCompLoad.WorkerRole.INSTANCE).ask(null, compResponse);
 
-        JsonObject nodeMappingResponse = new JsonObject();
+        JsonObject nodeMappingResponse = getNewResponse();
         NodeMappingSearchWithTimeSlice.RequestEntity nodeMappingEntity = new NodeMappingSearchWithTimeSlice.RequestEntity(timeSliceType, startTime, endTime);
         getSelfContext().lookup(NodeMappingSearchWithTimeSlice.WorkerRole.INSTANCE).ask(nodeMappingEntity, nodeMappingResponse);
 
-        JsonObject nodeRefResponse = new JsonObject();
+        JsonObject nodeRefResponse = getNewResponse();
         NodeRefSearchWithTimeSlice.RequestEntity nodeReftEntity = new NodeRefSearchWithTimeSlice.RequestEntity(timeSliceType, startTime, endTime);
         getSelfContext().lookup(NodeRefSearchWithTimeSlice.WorkerRole.INSTANCE).ask(nodeReftEntity, nodeRefResponse);
 
-        JsonObject resSumResponse = new JsonObject();
+        JsonObject resSumResponse = getNewResponse();
         NodeRefResSumSearchWithTimeSlice.RequestEntity resSumEntity = new NodeRefResSumSearchWithTimeSlice.RequestEntity(timeSliceType, startTime, endTime);
         getSelfContext().lookup(NodeRefResSumSearchWithTimeSlice.WorkerRole.INSTANCE).ask(resSumEntity, resSumResponse);
 
-        TraceDagDataBuilder builder = new TraceDagDataBuilder();
-        JsonObject result = builder.build(compResponse.get(Const.RESULT).getAsJsonArray(), nodeMappingResponse.get(Const.RESULT).getAsJsonArray(),
+        JsonObject result = getBuilder().build(compResponse.get(Const.RESULT).getAsJsonArray(), nodeMappingResponse.get(Const.RESULT).getAsJsonArray(),
                 nodeRefResponse.get(Const.RESULT).getAsJsonArray(), resSumResponse.get(Const.RESULT).getAsJsonArray());
 
         response.add(Const.RESULT, result);
     }
 
+    private JsonObject getNewResponse() {
+        JsonObject response = new JsonObject();
+        return response;
+    }
+
+    private TraceDagDataBuilder getBuilder() {
+        TraceDagDataBuilder builder = new TraceDagDataBuilder();
+        return builder;
+    }
+
     public static class Factory extends AbstractGetProvider<TraceDagGetWithTimeSlice> {
+
+        public static Factory INSTANCE = new Factory();
 
         @Override
         public Role role() {

@@ -24,7 +24,7 @@ public class NodeRefResSumGetGroupWithTimeSlice extends AbstractGet {
 
     private Logger logger = LogManager.getFormatterLogger(NodeRefResSumGetGroupWithTimeSlice.class);
 
-    private NodeRefResSumGetGroupWithTimeSlice(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    NodeRefResSumGetGroupWithTimeSlice(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
@@ -61,6 +61,7 @@ public class NodeRefResSumGetGroupWithTimeSlice extends AbstractGet {
     }
 
     public static class Factory extends AbstractGetProvider<NodeRefResSumGetGroupWithTimeSlice> {
+        public static Factory INSTANCE = new Factory();
 
         @Override
         public Role role() {

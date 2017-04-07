@@ -57,6 +57,14 @@ public class SpanSearchWithId extends AbstractLocalSyncWorker {
             this.segId = segId;
             this.spanId = spanId;
         }
+
+        public String getSegId() {
+            return segId;
+        }
+
+        public String getSpanId() {
+            return spanId;
+        }
     }
 
     public static class Factory extends AbstractLocalSyncWorkerProvider<SpanSearchWithId> {

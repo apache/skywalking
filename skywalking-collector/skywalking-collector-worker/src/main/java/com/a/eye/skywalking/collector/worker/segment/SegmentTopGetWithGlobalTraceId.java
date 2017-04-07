@@ -24,7 +24,7 @@ public class SegmentTopGetWithGlobalTraceId extends AbstractGet {
 
     private Logger logger = LogManager.getFormatterLogger(SegmentTopGetWithGlobalTraceId.class);
 
-    private SegmentTopGetWithGlobalTraceId(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    SegmentTopGetWithGlobalTraceId(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
@@ -41,14 +41,14 @@ public class SegmentTopGetWithGlobalTraceId extends AbstractGet {
         logger.debug("globalTraceId: %s, from: %s, limit: %s", Arrays.toString(request.get("globalTraceId")),
                 Arrays.toString(request.get("from")), Arrays.toString(request.get("limit")));
 
-        int from = 0;
+        int from;
         try {
             from = Integer.valueOf(ParameterTools.INSTANCE.toString(request, "from"));
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("the request parameter from must numeric with int type");
         }
 
-        int limit = 0;
+        int limit;
         try {
             limit = Integer.valueOf(ParameterTools.INSTANCE.toString(request, "limit"));
         } catch (NumberFormatException e) {
@@ -62,6 +62,7 @@ public class SegmentTopGetWithGlobalTraceId extends AbstractGet {
     }
 
     public static class Factory extends AbstractGetProvider<SegmentTopGetWithGlobalTraceId> {
+        public static Factory INSTANCE = new Factory();
 
         @Override
         public Role role() {

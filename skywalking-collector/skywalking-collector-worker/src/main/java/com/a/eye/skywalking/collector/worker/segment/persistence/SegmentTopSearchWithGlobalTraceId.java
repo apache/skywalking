@@ -123,6 +123,18 @@ public class SegmentTopSearchWithGlobalTraceId extends AbstractLocalSyncWorker {
             this.limit = limit;
             this.globalTraceId = globalTraceId;
         }
+
+        public int getFrom() {
+            return from;
+        }
+
+        public int getLimit() {
+            return limit;
+        }
+
+        public String getGlobalTraceId() {
+            return globalTraceId;
+        }
     }
 
     public static class Factory extends AbstractLocalSyncWorkerProvider<SegmentTopSearchWithGlobalTraceId> {
