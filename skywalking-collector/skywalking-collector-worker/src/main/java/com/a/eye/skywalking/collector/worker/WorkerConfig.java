@@ -76,6 +76,10 @@ public class WorkerConfig extends ClusterConfig {
             public static class GlobalTraceSave {
                 public static int Size = 1024;
             }
+
+            public static class GlobalTraceAnalysis {
+                public static int Size = 1024;
+            }
         }
 
         public static class Segment {
@@ -166,10 +170,18 @@ public class WorkerConfig extends ClusterConfig {
             public static class NodeRefResSumMinuteSave {
                 public static int Size = 1024;
             }
-        }
 
-        public static class ResponseSummaryAnalysis {
-            public static int Size = 1024;
+            public static class NodeRefResSumDayAnalysis {
+                public static int Size = 1024;
+            }
+
+            public static class NodeRefResSumHourAnalysis {
+                public static int Size = 1024;
+            }
+
+            public static class NodeRefResSumMinuteAnalysis {
+                public static int Size = 1024;
+            }
         }
     }
 }

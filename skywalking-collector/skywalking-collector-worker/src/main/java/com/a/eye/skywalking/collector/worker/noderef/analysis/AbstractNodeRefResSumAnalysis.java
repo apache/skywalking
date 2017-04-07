@@ -40,7 +40,7 @@ abstract class AbstractNodeRefResSumAnalysis extends MetricAnalysisMember {
         setMetric(nodeRefRes.nodeRefId, NodeRefResSumIndex.Summary, 1L);
     }
 
-    static class NodeRefResRecord extends AbstractTimeSlice {
+    public static class NodeRefResRecord extends AbstractTimeSlice {
         private String nodeRefId;
         private long startTime;
         private long endTime;
@@ -64,6 +64,10 @@ abstract class AbstractNodeRefResSumAnalysis extends MetricAnalysisMember {
 
         void setError(Boolean error) {
             isError = error;
+        }
+
+        String getNodeRefId() {
+            return nodeRefId;
         }
     }
 }

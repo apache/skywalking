@@ -7,7 +7,7 @@ import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
 import com.a.eye.skywalking.collector.worker.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.datamerge.RecordDataMergeJson;
 import com.a.eye.skywalking.collector.worker.mock.RecordDataAnswer;
-import com.a.eye.skywalking.collector.worker.node.persistence.NodeMappingHourAgg;
+import com.a.eye.skywalking.collector.worker.node.persistence.NodeCompAgg;
 import com.a.eye.skywalking.collector.worker.segment.mock.SegmentMock;
 import com.a.eye.skywalking.collector.worker.storage.RecordData;
 import org.junit.Assert;
@@ -32,42 +32,43 @@ import static org.powermock.api.mockito.PowerMockito.when;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ClusterWorkerContext.class})
 @PowerMockIgnore({"javax.management.*"})
-public class NodeMappingHourAnalysisTestCase {
+public class NodeCompAnalysisTestCase {
 
-    private NodeMappingHourAnalysis analysis;
+    private NodeCompAnalysis analysis;
     private SegmentMock segmentMock = new SegmentMock();
     private RecordDataAnswer answer;
+    private ClusterWorkerContext clusterWorkerContext;
 
     @Before
     public void init() throws Exception {
-        ClusterWorkerContext clusterWorkerContext = PowerMockito.mock(ClusterWorkerContext.class);
+        clusterWorkerContext = PowerMockito.mock(ClusterWorkerContext.class);
         WorkerRefs workerRefs = mock(WorkerRefs.class);
         answer = new RecordDataAnswer();
         doAnswer(answer).when(workerRefs).tell(Mockito.any(RecordData.class));
 
-        when(clusterWorkerContext.lookup(NodeMappingHourAgg.Role.INSTANCE)).thenReturn(workerRefs);
+        when(clusterWorkerContext.lookup(NodeCompAgg.Role.INSTANCE)).thenReturn(workerRefs);
 
         LocalWorkerContext localWorkerContext = new LocalWorkerContext();
-        analysis = new NodeMappingHourAnalysis(NodeMappingHourAnalysis.Role.INSTANCE, clusterWorkerContext, localWorkerContext);
+        analysis = new NodeCompAnalysis(NodeCompAnalysis.Role.INSTANCE, clusterWorkerContext, localWorkerContext);
     }
 
     @Test
     public void testRole() {
-        Assert.assertEquals(NodeMappingHourAnalysis.class.getSimpleName(), NodeMappingHourAnalysis.Role.INSTANCE.roleName());
-        Assert.assertEquals(RollingSelector.class.getSimpleName(), NodeMappingHourAnalysis.Role.INSTANCE.workerSelector().getClass().getSimpleName());
+        Assert.assertEquals(NodeCompAnalysis.class.getSimpleName(), NodeCompAnalysis.Role.INSTANCE.roleName());
+        Assert.assertEquals(RollingSelector.class.getSimpleName(), NodeCompAnalysis.Role.INSTANCE.workerSelector().getClass().getSimpleName());
     }
 
     @Test
     public void testFactory() {
-        Assert.assertEquals(NodeMappingHourAnalysis.class.getSimpleName(), NodeMappingHourAnalysis.Factory.INSTANCE.role().roleName());
-        Assert.assertEquals(NodeMappingHourAnalysis.class.getSimpleName(), NodeMappingHourAnalysis.Factory.INSTANCE.workerInstance(null).getClass().getSimpleName());
+        Assert.assertEquals(NodeCompAnalysis.class.getSimpleName(), NodeCompAnalysis.Factory.INSTANCE.role().roleName());
+        Assert.assertEquals(NodeCompAnalysis.class.getSimpleName(), NodeCompAnalysis.Factory.INSTANCE.workerInstance(null).getClass().getSimpleName());
 
         int testSize = 10;
-        WorkerConfig.Queue.Node.NodeMappingHourAnalysis.Size = testSize;
-        Assert.assertEquals(testSize, NodeMappingHourAnalysis.Factory.INSTANCE.queueSize());
+        WorkerConfig.Queue.Node.NodeCompAnalysis.Size = testSize;
+        Assert.assertEquals(testSize, NodeCompAnalysis.Factory.INSTANCE.queueSize());
     }
 
-    String jsonFile = "/json/node/analysis/node_mapping_hour_analysis.json";
+    String jsonFile = "/json/node/analysis/node_comp_analysis.json";
 
     @Test
     public void testAnalyse() throws Exception {

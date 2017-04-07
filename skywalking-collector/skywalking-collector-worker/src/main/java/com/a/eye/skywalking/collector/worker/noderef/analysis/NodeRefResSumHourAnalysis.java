@@ -14,7 +14,7 @@ import com.a.eye.skywalking.collector.worker.storage.MetricData;
  */
 public class NodeRefResSumHourAnalysis extends AbstractNodeRefResSumAnalysis {
 
-    private NodeRefResSumHourAnalysis(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    NodeRefResSumHourAnalysis(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
@@ -49,7 +49,7 @@ public class NodeRefResSumHourAnalysis extends AbstractNodeRefResSumAnalysis {
 
         @Override
         public int queueSize() {
-            return WorkerConfig.Queue.ResponseSummaryAnalysis.Size;
+            return WorkerConfig.Queue.NodeRef.NodeRefResSumHourAnalysis.Size;
         }
     }
 

@@ -6,6 +6,7 @@ import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
 import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
 import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
 import com.a.eye.skywalking.collector.worker.MergeAnalysisMember;
+import com.a.eye.skywalking.collector.worker.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.globaltrace.GlobalTraceIndex;
 import com.a.eye.skywalking.collector.worker.globaltrace.persistence.GlobalTraceAgg;
 import com.a.eye.skywalking.collector.worker.segment.SegmentPost;
@@ -64,7 +65,7 @@ public class GlobalTraceAnalysis extends MergeAnalysisMember {
 
         @Override
         public int queueSize() {
-            return 1024;
+            return WorkerConfig.Queue.GlobalTrace.GlobalTraceAnalysis.Size;
         }
     }
 

@@ -16,7 +16,7 @@ import com.a.eye.skywalking.trace.TraceSegment;
  */
 public class NodeMappingHourAnalysis extends AbstractNodeMappingAnalysis {
 
-    public NodeMappingHourAnalysis(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    NodeMappingHourAnalysis(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 

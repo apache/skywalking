@@ -20,7 +20,7 @@ public class DateTools {
     }
 
     public static long getMinuteSlice(long time) {
-        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT+8:00"));
+        Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(time);
         String timeStr = minuteDateFormat.format(calendar.getTime());
         return Long.valueOf(timeStr);
