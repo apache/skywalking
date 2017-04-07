@@ -5,23 +5,20 @@ import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
 import com.a.eye.skywalking.collector.actor.ProviderNotFoundException;
 import com.a.eye.skywalking.collector.actor.WorkerRefs;
 import com.a.eye.skywalking.collector.actor.selector.HashCodeSelector;
-import com.a.eye.skywalking.collector.worker.Const;
 import com.a.eye.skywalking.collector.worker.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.mock.RecordDataAnswer;
 import com.a.eye.skywalking.collector.worker.storage.RecordData;
-import com.a.eye.skywalking.collector.worker.tools.RecordDataTool;
-import com.google.gson.JsonObject;
+import com.a.eye.skywalking.collector.worker.tools.RecordDataAggTools;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-
-import java.util.List;
 
 import static org.mockito.Mockito.*;
 
@@ -33,7 +30,7 @@ import static org.mockito.Mockito.*;
 @PowerMockIgnore({"javax.management.*"})
 public class NodeMappingHourAggTestCase {
 
-    private NodeMappingHourAgg nodeMappingHourAgg;
+    private NodeMappingHourAgg agg;
     private RecordDataAnswer recordDataAnswer;
     private ClusterWorkerContext clusterWorkerContext;
 
@@ -48,7 +45,7 @@ public class NodeMappingHourAggTestCase {
         doAnswer(recordDataAnswer).when(workerRefs).tell(Mockito.any(RecordData.class));
 
         when(localWorkerContext.lookup(NodeMappingHourSave.Role.INSTANCE)).thenReturn(workerRefs);
-        nodeMappingHourAgg = new NodeMappingHourAgg(NodeMappingHourAgg.Role.INSTANCE, clusterWorkerContext, localWorkerContext);
+        agg = new NodeMappingHourAgg(NodeMappingHourAgg.Role.INSTANCE, clusterWorkerContext, localWorkerContext);
     }
 
     @Test
@@ -67,30 +64,22 @@ public class NodeMappingHourAggTestCase {
         Assert.assertEquals(testSize, NodeMappingHourAgg.Factory.INSTANCE.workerNum());
     }
 
-    @Test(expected = Exception.class)
+    @Test
     public void testPreStart() throws ProviderNotFoundException {
-        when(clusterWorkerContext.findProvider(NodeMappingHourSave.Role.INSTANCE)).thenThrow(new Exception());
-        nodeMappingHourAgg.preStart();
+        when(clusterWorkerContext.findProvider(NodeMappingHourSave.Role.INSTANCE)).thenReturn(NodeMappingHourSave.Factory.INSTANCE);
+
+        ArgumentCaptor<NodeMappingHourSave.Role> argumentCaptor = ArgumentCaptor.forClass(NodeMappingHourSave.Role.class);
+        agg.preStart();
+        verify(clusterWorkerContext).findProvider(argumentCaptor.capture());
     }
 
     @Test
     public void testOnWork() throws Exception {
-        String id = "2017" + Const.ID_SPLIT + "TestNodeMappingHourAgg";
-        JsonObject record = new JsonObject();
-        record.addProperty("Column", "TestData");
-
-        RecordData recordData = new RecordData(id);
-        recordData.setRecord(record);
-        nodeMappingHourAgg.onWork(recordData);
-
-        List<RecordData> recordDataList = recordDataAnswer.recordObj.getRecordData();
-        RecordData data = RecordDataTool.INSTANCE.getRecord(recordDataList, id);
-        Assert.assertEquals("TestNodeMappingHourAgg", data.getRecord().get("aggId").getAsString());
-        Assert.assertEquals("TestData", data.getRecord().get("Column").getAsString());
+        RecordDataAggTools.INSTANCE.testOnWork(agg, recordDataAnswer);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testOnWorkError() throws Exception {
-        nodeMappingHourAgg.onWork(new Object());
+        agg.onWork(new Object());
     }
 }

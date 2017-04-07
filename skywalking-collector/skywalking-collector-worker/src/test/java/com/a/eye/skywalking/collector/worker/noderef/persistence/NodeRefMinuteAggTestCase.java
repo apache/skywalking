@@ -1,4 +1,4 @@
-package com.a.eye.skywalking.collector.worker.node.persistence;
+package com.a.eye.skywalking.collector.worker.noderef.persistence;
 
 import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
 import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
@@ -28,58 +28,59 @@ import static org.mockito.Mockito.*;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({LocalWorkerContext.class})
 @PowerMockIgnore({"javax.management.*"})
-public class NodeMappingDayAggTestCase {
+public class NodeRefMinuteAggTestCase {
 
-    private NodeMappingDayAgg agg;
+    private NodeRefMinuteAgg agg;
     private RecordDataAnswer recordDataAnswer;
     private ClusterWorkerContext clusterWorkerContext;
+    private LocalWorkerContext localWorkerContext;
 
     @Before
     public void init() throws Exception {
         clusterWorkerContext = PowerMockito.mock(ClusterWorkerContext.class);
 
-        LocalWorkerContext localWorkerContext = PowerMockito.mock(LocalWorkerContext.class);
+        localWorkerContext = PowerMockito.mock(LocalWorkerContext.class);
         WorkerRefs workerRefs = mock(WorkerRefs.class);
 
         recordDataAnswer = new RecordDataAnswer();
         doAnswer(recordDataAnswer).when(workerRefs).tell(Mockito.any(RecordData.class));
 
-        when(localWorkerContext.lookup(NodeMappingDaySave.Role.INSTANCE)).thenReturn(workerRefs);
-        agg = new NodeMappingDayAgg(NodeMappingDayAgg.Role.INSTANCE, clusterWorkerContext, localWorkerContext);
+        when(localWorkerContext.lookup(NodeRefMinuteSave.Role.INSTANCE)).thenReturn(workerRefs);
+        agg = new NodeRefMinuteAgg(NodeRefMinuteAgg.Role.INSTANCE, clusterWorkerContext, localWorkerContext);
     }
 
     @Test
     public void testRole() {
-        Assert.assertEquals(NodeMappingDayAgg.class.getSimpleName(), NodeMappingDayAgg.Role.INSTANCE.roleName());
-        Assert.assertEquals(HashCodeSelector.class.getSimpleName(), NodeMappingDayAgg.Role.INSTANCE.workerSelector().getClass().getSimpleName());
+        Assert.assertEquals(NodeRefMinuteAgg.class.getSimpleName(), NodeRefMinuteAgg.Role.INSTANCE.roleName());
+        Assert.assertEquals(HashCodeSelector.class.getSimpleName(), NodeRefMinuteAgg.Role.INSTANCE.workerSelector().getClass().getSimpleName());
     }
 
     @Test
     public void testFactory() {
-        Assert.assertEquals(NodeMappingDayAgg.class.getSimpleName(), NodeMappingDayAgg.Factory.INSTANCE.role().roleName());
-        Assert.assertEquals(NodeMappingDayAgg.class.getSimpleName(), NodeMappingDayAgg.Factory.INSTANCE.workerInstance(null).getClass().getSimpleName());
+        Assert.assertEquals(NodeRefMinuteAgg.class.getSimpleName(), NodeRefMinuteAgg.Factory.INSTANCE.role().roleName());
+        Assert.assertEquals(NodeRefMinuteAgg.class.getSimpleName(), NodeRefMinuteAgg.Factory.INSTANCE.workerInstance(null).getClass().getSimpleName());
 
         int testSize = 10;
-        WorkerConfig.WorkerNum.Node.NodeMappingDayAgg.Value = testSize;
-        Assert.assertEquals(testSize, NodeMappingDayAgg.Factory.INSTANCE.workerNum());
+        WorkerConfig.WorkerNum.NodeRef.NodeRefMinuteAgg.Value = testSize;
+        Assert.assertEquals(testSize, NodeRefMinuteAgg.Factory.INSTANCE.workerNum());
     }
 
     @Test
     public void testPreStart() throws ProviderNotFoundException {
-        when(clusterWorkerContext.findProvider(NodeMappingDaySave.Role.INSTANCE)).thenReturn(NodeMappingDaySave.Factory.INSTANCE);
+        when(clusterWorkerContext.findProvider(NodeRefMinuteSave.Role.INSTANCE)).thenReturn(NodeRefMinuteSave.Factory.INSTANCE);
 
-        ArgumentCaptor<NodeMappingDaySave.Role> argumentCaptor = ArgumentCaptor.forClass(NodeMappingDaySave.Role.class);
+        ArgumentCaptor<NodeRefMinuteSave.Role> argumentCaptor = ArgumentCaptor.forClass(NodeRefMinuteSave.Role.class);
         agg.preStart();
         verify(clusterWorkerContext).findProvider(argumentCaptor.capture());
     }
 
     @Test
-    public void testOnWork() throws Exception {
-        RecordDataAggTools.INSTANCE.testOnWork(agg, recordDataAnswer);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
     public void testOnWorkError() throws Exception {
         agg.onWork(new Object());
+    }
+
+    @Test
+    public void testOnWork() throws Exception {
+        RecordDataAggTools.INSTANCE.testOnWork(agg, recordDataAnswer);
     }
 }

@@ -15,7 +15,7 @@ public class GlobalTraceAgg extends AbstractClusterWorker {
 
     private Logger logger = LogManager.getFormatterLogger(GlobalTraceAgg.class);
 
-    private GlobalTraceAgg(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    GlobalTraceAgg(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
@@ -48,7 +48,7 @@ public class GlobalTraceAgg extends AbstractClusterWorker {
 
         @Override
         public int workerNum() {
-            return WorkerConfig.Worker.DAGNodeReceiver.Num;
+            return WorkerConfig.WorkerNum.GlobalTrace.GlobalTraceAgg.Value;
         }
     }
 

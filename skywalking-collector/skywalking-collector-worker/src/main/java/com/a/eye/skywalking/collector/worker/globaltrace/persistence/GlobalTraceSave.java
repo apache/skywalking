@@ -4,7 +4,7 @@ package com.a.eye.skywalking.collector.worker.globaltrace.persistence;
 import com.a.eye.skywalking.collector.actor.AbstractLocalAsyncWorkerProvider;
 import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
 import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
-import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
+import com.a.eye.skywalking.collector.actor.selector.HashCodeSelector;
 import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
 import com.a.eye.skywalking.collector.worker.MergePersistenceMember;
 import com.a.eye.skywalking.collector.worker.WorkerConfig;
@@ -15,7 +15,7 @@ import com.a.eye.skywalking.collector.worker.globaltrace.GlobalTraceIndex;
  */
 public class GlobalTraceSave extends MergePersistenceMember {
 
-    private GlobalTraceSave(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    GlobalTraceSave(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
@@ -39,7 +39,7 @@ public class GlobalTraceSave extends MergePersistenceMember {
 
         @Override
         public int queueSize() {
-            return WorkerConfig.Queue.TraceSegmentRecordAnalysis.Size;
+            return WorkerConfig.Queue.GlobalTrace.GlobalTraceSave.Size;
         }
 
         @Override
@@ -58,7 +58,7 @@ public class GlobalTraceSave extends MergePersistenceMember {
 
         @Override
         public WorkerSelector workerSelector() {
-            return new RollingSelector();
+            return new HashCodeSelector();
         }
     }
 }

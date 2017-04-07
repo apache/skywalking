@@ -15,7 +15,7 @@ public class NodeRefHourAgg extends AbstractClusterWorker {
 
     private Logger logger = LogManager.getFormatterLogger(NodeRefHourAgg.class);
 
-    public NodeRefHourAgg(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    NodeRefHourAgg(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
@@ -48,7 +48,7 @@ public class NodeRefHourAgg extends AbstractClusterWorker {
 
         @Override
         public int workerNum() {
-            return WorkerConfig.Worker.DAGNodeRefReceiver.Num;
+            return WorkerConfig.WorkerNum.NodeRef.NodeRefHourAgg.Value;
         }
     }
 

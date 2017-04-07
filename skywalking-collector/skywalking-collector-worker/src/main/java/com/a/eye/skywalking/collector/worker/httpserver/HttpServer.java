@@ -25,11 +25,6 @@ public enum HttpServer {
 
         ServletsCreator.INSTANCE.boot(servletContextHandler, clusterContext);
 
-//        ServerConnector serverConnector = new ServerConnector(server);
-//        serverConnector.setHost("127.0.0.1");
-//        serverConnector.setPort(7001);
-//        serverConnector.setIdleTimeout(5000);
-
         server.setHandler(servletContextHandler);
         server.start();
         server.join();
