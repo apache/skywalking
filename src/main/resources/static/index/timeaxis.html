@@ -5,15 +5,19 @@
 <link href="/public/css/style.css" rel="stylesheet">
 
 <div class="row" style="line-height: 50px">
-    <div class="col-lg-3" style="width:110px; padding-left: 0; padding-right: 0">
-        <button id="minuteBtn" type="button" class="btn btn-sm btn-default">M</button>
-        <button id="hourBtn" type="button" class="btn btn-sm btn-default">H</button>
-        <button id="dayBtn" type="button" class="btn btn-sm btn-success">D</button>
+    <div class="col-sm-9">
+        <div id="axisRowDiv" class="row">
+            <div style="float:left">
+                <button id="minuteBtn" type="button" class="btn btn-sm btn-default">M</button>
+                <button id="hourBtn" type="button" class="btn btn-sm btn-default">H</button>
+                <button id="dayBtn" type="button" class="btn btn-sm btn-success">D</button>
+            </div>
+            <div id="axisDiv" style="float: left; padding-left: 10px">
+                <div id="timeAxisComponentDiv"></div>
+            </div>
+        </div>
     </div>
-    <div class="col-lg-6">
-        <div id="timeAxisComponentDiv"></div>
-    </div>
-    <div class="col-lg-3">
+    <div class="col-sm-3">
         <div style="float:left; overflow: hidden; width:0px; height:0px; display: inline-block">
             <input type="text" id="dateRangeInput"/>
         </div>

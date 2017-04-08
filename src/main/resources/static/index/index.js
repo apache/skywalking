@@ -27,7 +27,7 @@ requirejs.config({
 });
 
 require(["jquery", "dagDraw", "timeAxis", "alarm"], function ($, dagDraw, timeAxis, alarm) {
-    dagDraw.startNetwork("mainDiv");
+    dagDraw.startNetwork("dagViewDiv");
     timeAxis.create("timeAxisDiv");
     alarm.create("alarmDiv");
 });

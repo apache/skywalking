@@ -54,9 +54,17 @@ define(["jquery", "vis", "text!dagHtml", "moment", "nodeCanvas", "alarm", "timer
     }
 
     function _resize() {
-        var width = $(document.body).width();
-        var height = $(document).height();
-        $("#" + _containerDiv).width(width - 350).height(height - 100);
+        var width = $("#dagViewDiv").width();
+        var height = $("#alarmDiv").height();
+
+        if(height == 0){
+            height = 100;
+        }
+
+        console.log("width: " + width);
+        console.log("height: " + height);
+        $("#" + _containerDiv).width(width - 10).height(height);
+        _network.redraw();
     }
 
     function _addEdge(nodeRef) {
@@ -141,8 +149,11 @@ define(["jquery", "vis", "text!dagHtml", "moment", "nodeCanvas", "alarm", "timer
         }
     }
 
+    $(window).resize(function() {
+        _resize();
+    });
+
     return {
-        resize: _resize,
         startNetwork: startNetwork,
         load30DayDag: load30DayDag,
         loadDateRangeDag: loadDateRangeDag,
@@ -150,9 +161,3 @@ define(["jquery", "vis", "text!dagHtml", "moment", "nodeCanvas", "alarm", "timer
         stopAutoUpdate: stopAutoUpdate
     }
 });
-
-window.onresize = function () {
-    require(["dagDraw"], function (dagDraw) {
-        dagDraw.resize();
-    });
-}

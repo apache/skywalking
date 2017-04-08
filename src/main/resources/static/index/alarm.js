@@ -4,13 +4,6 @@
 define(["jquery", "text!alarmHtml", "echarts", "walden"], function ($, alarmHtml, echarts, walden) {
     function create(divId) {
         $("#" + divId).html(alarmHtml);
-        resizeAlarmListDivSize();
-    }
-
-    function resizeAlarmListDivSize() {
-        var height = $(document).height();
-        console.log("height: " + height);
-        // $("#alarmContent").height(height - 30);
     }
 
     function loadCostMetric(data) {
@@ -165,14 +158,6 @@ define(["jquery", "text!alarmHtml", "echarts", "walden"], function ($, alarmHtml
 
     return {
         create: create,
-        loadCostData: loadCostData,
-        resizeAlarmListDivSize: resizeAlarmListDivSize
+        loadCostData: loadCostData
     }
 });
-
-
-window.onresize = function () {
-    require(["alarm"], function (alarm) {
-        alarm.resizeAlarmListDivSize();
-    });
-}

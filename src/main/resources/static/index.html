@@ -24,17 +24,18 @@
     <div class="col-lg-10" id="timeAxisDiv" style="padding-bottom: 10px">
     </div>
 </div>
-<div class="wrapper wrapper-content" style="padding-top: 10px">
-    <div class="row">
-        <div class="pull-left" id="mainDiv" style="width: ">
+<div id="mainDiv" class="ibox-content gray-bg" style="padding: 5px">
+    <div class="row" style="margin: 0">
+        <div id="dagViewDiv" class="col-sm-9" style="padding: 5px">
         </div>
-        <div class="pull-right" style="width:340px;padding: 0 0 0 10px" id="alarmDiv">
+        <div id="alarmDiv" class="col-sm-3" style="padding: 5px">
         </div>
     </div>
 </div>
 
 <!-- Mainly scripts -->
 <script data-main="/index/index" src="/webjars/requirejs/2.3.3/require.min.js"></script>
+<script src="\webjars\jquery\2.2.4\jquery.min.js"></script>
 <script>
     require.config({
         urlArgs: "r=" + (new Date()).getTime()

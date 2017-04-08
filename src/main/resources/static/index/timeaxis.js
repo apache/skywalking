@@ -3,7 +3,7 @@
  */
 var sliceType = "day";
 
-define(["moment", "text!timeAxisHtml", "rangeSlider", "daterangepicker", "alarm", "dagDraw", "text!dagHtml"], function (moment, timeAxisHtml, rangeSlider, daterangepicker, alarm, dagDraw, dagHtml) {
+define(["jquery", "moment", "text!timeAxisHtml", "rangeSlider", "daterangepicker", "alarm", "dagDraw", "text!dagHtml"], function ($, moment, timeAxisHtml, rangeSlider, daterangepicker, alarm, dagDraw, dagHtml) {
     var minuteSliceType = "minute";
     var hourSliceType = "hour";
     var daySliceType = "day";
@@ -28,6 +28,7 @@ define(["moment", "text!timeAxisHtml", "rangeSlider", "daterangepicker", "alarm"
             sliceTypeSelect(daySliceType);
         });
 
+        _resize();
         createTimeAxis();
         bindDayRangePicker();
     }
@@ -278,6 +279,15 @@ define(["moment", "text!timeAxisHtml", "rangeSlider", "daterangepicker", "alarm"
             drp.show();
         });
     }
+
+    function _resize() {
+        var width = $("#axisRowDiv").width();
+        $("#axisDiv").width(width - 150);
+    }
+
+    $(window).resize(function () {
+        _resize();
+    });
 
     return {
         create: create
