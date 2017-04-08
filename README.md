@@ -22,3 +22,4 @@ This independent UI repository works since sky-walking 3.0.
 ||Firefox|50.1.0|
 |Mac OS 10.12|Safari|10.1 (12603.1.30.0.34)|
 ||Chrome|57.0.2987.133|
+||FireFox|52.0.2|
