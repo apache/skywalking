@@ -24,7 +24,7 @@ public class GlobalTraceGetWithGlobalId extends AbstractGet {
 
     private Logger logger = LogManager.getFormatterLogger(GlobalTraceGetWithGlobalId.class);
 
-    private GlobalTraceGetWithGlobalId(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    GlobalTraceGetWithGlobalId(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
@@ -46,6 +46,7 @@ public class GlobalTraceGetWithGlobalId extends AbstractGet {
     }
 
     public static class Factory extends AbstractGetProvider<GlobalTraceGetWithGlobalId> {
+        public static Factory INSTANCE = new Factory();
 
         @Override
         public Role role() {

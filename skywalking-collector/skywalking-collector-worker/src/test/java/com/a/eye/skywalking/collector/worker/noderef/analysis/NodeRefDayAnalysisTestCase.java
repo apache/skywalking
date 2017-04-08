@@ -2,30 +2,27 @@ package com.a.eye.skywalking.collector.worker.noderef.analysis;
 
 import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
 import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
+import com.a.eye.skywalking.collector.actor.ProviderNotFoundException;
 import com.a.eye.skywalking.collector.actor.WorkerRefs;
 import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
-import com.a.eye.skywalking.collector.queue.EndOfBatchCommand;
 import com.a.eye.skywalking.collector.worker.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.mock.RecordDataAnswer;
 import com.a.eye.skywalking.collector.worker.noderef.persistence.NodeRefDayAgg;
-import com.a.eye.skywalking.collector.worker.segment.SegmentPost;
-import com.a.eye.skywalking.collector.worker.segment.mock.SegmentMock;
 import com.a.eye.skywalking.collector.worker.storage.RecordData;
-import com.a.eye.skywalking.collector.worker.tools.DateTools;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.util.List;
+import java.util.TimeZone;
 
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 /**
@@ -36,23 +33,31 @@ import static org.powermock.api.mockito.PowerMockito.when;
 @PowerMockIgnore({"javax.management.*"})
 public class NodeRefDayAnalysisTestCase {
 
-    private NodeRefDayAnalysis nodeRefDayAnalysis;
-    private SegmentMock segmentMock = new SegmentMock();
-    private RecordDataAnswer recordDataAnswer;
+    private NodeRefDayAnalysis analysis;
+    private RecordDataAnswer answer;
+    private ClusterWorkerContext clusterWorkerContext;
+    private NodeRefResRecordAnswer recordAnswer;
 
     @Before
     public void init() throws Exception {
-        ClusterWorkerContext clusterWorkerContext = PowerMockito.mock(ClusterWorkerContext.class);
+        System.setProperty("user.timezone", "UTC");
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+
+        clusterWorkerContext = PowerMockito.mock(ClusterWorkerContext.class);
         WorkerRefs workerRefs = mock(WorkerRefs.class);
-        recordDataAnswer = new RecordDataAnswer();
-        doAnswer(recordDataAnswer).when(workerRefs).tell(Mockito.any(RecordData.class));
+        answer = new RecordDataAnswer();
+        doAnswer(answer).when(workerRefs).tell(Mockito.any(RecordData.class));
 
         when(clusterWorkerContext.lookup(NodeRefDayAgg.Role.INSTANCE)).thenReturn(workerRefs);
 
         LocalWorkerContext localWorkerContext = PowerMockito.mock(LocalWorkerContext.class);
+
         WorkerRefs nodeRefResSumWorkerRefs = mock(WorkerRefs.class);
+        recordAnswer = new NodeRefResRecordAnswer();
+        doAnswer(recordAnswer).when(nodeRefResSumWorkerRefs).tell(Mockito.any(AbstractNodeRefResSumAnalysis.NodeRefResRecord.class));
+
         when(localWorkerContext.lookup(NodeRefResSumDayAnalysis.Role.INSTANCE)).thenReturn(nodeRefResSumWorkerRefs);
-        nodeRefDayAnalysis = new NodeRefDayAnalysis(NodeRefDayAnalysis.Role.INSTANCE, clusterWorkerContext, localWorkerContext);
+        analysis = new NodeRefDayAnalysis(NodeRefDayAnalysis.Role.INSTANCE, clusterWorkerContext, localWorkerContext);
     }
 
     @Test
@@ -71,32 +76,20 @@ public class NodeRefDayAnalysisTestCase {
         Assert.assertEquals(testSize, NodeRefDayAnalysis.Factory.INSTANCE.queueSize());
     }
 
+    String jsonFile = "/json/noderef/analysis/noderef_day_analysis.json";
+    String resSumJsonFile = "/json/noderef/analysis/noderef_ressum_day_analysis_request.json";
+
     @Test
     public void testAnalyse() throws Exception {
-        List<SegmentPost.SegmentWithTimeSlice> cacheServiceSegment = segmentMock.mockCacheServiceSegmentSegmentTimeSlice();
-        for (SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice : cacheServiceSegment) {
-            nodeRefDayAnalysis.analyse(segmentWithTimeSlice);
-        }
-        List<SegmentPost.SegmentWithTimeSlice> portalService = segmentMock.mockPortalServiceSegmentSegmentTimeSlice();
-        for (SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice : portalService) {
-            nodeRefDayAnalysis.analyse(segmentWithTimeSlice);
-        }
-        List<SegmentPost.SegmentWithTimeSlice> persistenceService = segmentMock.mockPersistenceServiceSegmentTimeSlice();
-        for (SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice : persistenceService) {
-            nodeRefDayAnalysis.analyse(segmentWithTimeSlice);
-        }
-        List<SegmentPost.SegmentWithTimeSlice> cacheServiceException = segmentMock.mockCacheServiceExceptionSegmentTimeSlice();
-        for (SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice : cacheServiceException) {
-            nodeRefDayAnalysis.analyse(segmentWithTimeSlice);
-        }
-        List<SegmentPost.SegmentWithTimeSlice> portalServiceException = segmentMock.mockPortalServiceExceptionSegmentTimeSlice();
-        for (SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice : portalServiceException) {
-            nodeRefDayAnalysis.analyse(segmentWithTimeSlice);
-        }
+        NodeRefAnalyse.INSTANCE.analyse(resSumJsonFile, jsonFile, analysis, answer, recordAnswer);
+    }
 
-        nodeRefDayAnalysis.onWork(new EndOfBatchCommand());
+    @Test
+    public void testPreStart() throws ProviderNotFoundException {
+        Mockito.when(clusterWorkerContext.findProvider(NodeRefResSumDayAnalysis.Role.INSTANCE)).thenReturn(NodeRefResSumDayAnalysis.Factory.INSTANCE);
 
-        List<RecordData> recordDataList = recordDataAnswer.recordObj.getRecordData();
-        NodeRefAnalysisVerify.INSTANCE.verify(recordDataList, DateTools.changeToUTCSlice(201703310000L));
+        ArgumentCaptor<NodeRefResSumDayAnalysis.Role> argumentCaptor = ArgumentCaptor.forClass(NodeRefResSumDayAnalysis.Role.class);
+        analysis.preStart();
+        verify(clusterWorkerContext).findProvider(argumentCaptor.capture());
     }
 }

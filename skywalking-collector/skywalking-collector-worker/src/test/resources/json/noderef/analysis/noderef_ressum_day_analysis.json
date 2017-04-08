@@ -1,0 +1,80 @@
+[
+  {
+    "id": "201703310000..-..User..-..portal-service",
+    "data": {
+      "summary": 1,
+      "oneSecondLess": 1,
+      "fiveSecondLess": 0,
+      "timeSlice": 201703310000,
+      "fiveSecondGreater": 0,
+      "threeSecondLess": 0,
+      "aggId": "User..-..portal-service",
+      "error": 0
+    }
+  },
+  {
+    "id": "201703310000..-..cache-service..-..[127.0.0.1:6379]",
+    "data": {
+      "summary": 10,
+      "oneSecondLess": 10,
+      "fiveSecondLess": 0,
+      "timeSlice": 201703310000,
+      "fiveSecondGreater": 0,
+      "threeSecondLess": 0,
+      "aggId": "cache-service..-..[127.0.0.1:6379]",
+      "error": 0
+    }
+  },
+  {
+    "id": "201703310000..-..cache-service..-..[localhost:-1]",
+    "data": {
+      "summary": 4,
+      "oneSecondLess": 4,
+      "fiveSecondLess": 0,
+      "timeSlice": 201703310000,
+      "fiveSecondGreater": 0,
+      "threeSecondLess": 0,
+      "aggId": "cache-service..-..[localhost:-1]",
+      "error": 0
+    }
+  },
+  {
+    "id": "201703310000..-..User..-..portal-service",
+    "data": {
+      "summary": 1,
+      "oneSecondLess": 1,
+      "fiveSecondLess": 0,
+      "timeSlice": 201703310000,
+      "fiveSecondGreater": 0,
+      "threeSecondLess": 0,
+      "aggId": "User..-..portal-service",
+      "error": 0
+    }
+  },
+  {
+    "id": "201703310000..-..portal-service..-..[127.0.0.1:8002]",
+    "data": {
+      "summary": 2,
+      "oneSecondLess": 2,
+      "fiveSecondLess": 0,
+      "timeSlice": 201703310000,
+      "fiveSecondGreater": 0,
+      "threeSecondLess": 0,
+      "aggId": "portal-service..-..[127.0.0.1:8002]",
+      "error": 0
+    }
+  },
+  {
+    "id": "201703310000..-..persistence-service..-..[127.0.0.1:3307]",
+    "data": {
+      "summary": 2,
+      "oneSecondLess": 2,
+      "fiveSecondLess": 0,
+      "timeSlice": 201703310000,
+      "fiveSecondGreater": 0,
+      "threeSecondLess": 0,
+      "aggId": "persistence-service..-..[127.0.0.1:3307]",
+      "error": 0
+    }
+  }
+]

@@ -1,5 +1,7 @@
 package com.a.eye.skywalking.collector.worker.segment.mock;
 
+import com.a.eye.skywalking.collector.queue.EndOfBatchCommand;
+import com.a.eye.skywalking.collector.worker.AnalysisMember;
 import com.a.eye.skywalking.collector.worker.segment.SegmentPost;
 import com.a.eye.skywalking.collector.worker.tools.DateTools;
 import com.a.eye.skywalking.collector.worker.tools.JsonFileReader;
@@ -31,6 +33,10 @@ public class SegmentMock {
     private final String PortalServiceExceptionJsonFile = path + "/json/segment/post/exception/portal-service.json";
 
     private final String SpecialJsonFile = path + "/json/segment/post/special/special.json";
+
+    public String loadJsonFile(String fileName) throws FileNotFoundException {
+        return JsonFileReader.INSTANCE.read(path + fileName);
+    }
 
     public String mockSpecialSegmentAsString() throws FileNotFoundException {
         return JsonFileReader.INSTANCE.read(SpecialJsonFile);
@@ -112,5 +118,24 @@ public class SegmentMock {
 
         SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice = new SegmentPost.SegmentWithTimeSlice(newSegment, minuteSlice, hourSlice, daySlice, second);
         return segmentWithTimeSlice;
+    }
+
+    public void executeAnalysis(AnalysisMember analysis) throws Exception {
+        List<SegmentPost.SegmentWithTimeSlice> cacheServiceSegment = this.mockCacheServiceSegmentSegmentTimeSlice();
+        for (SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice : cacheServiceSegment) {
+            analysis.analyse(segmentWithTimeSlice);
+        }
+
+        List<SegmentPost.SegmentWithTimeSlice> portalServiceSegment = this.mockPortalServiceSegmentSegmentTimeSlice();
+        for (SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice : portalServiceSegment) {
+            analysis.analyse(segmentWithTimeSlice);
+        }
+
+        List<SegmentPost.SegmentWithTimeSlice> persistenceServiceSegment = this.mockPersistenceServiceSegmentTimeSlice();
+        for (SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice : persistenceServiceSegment) {
+            analysis.analyse(segmentWithTimeSlice);
+        }
+
+        analysis.onWork(new EndOfBatchCommand());
     }
 }

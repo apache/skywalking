@@ -7,6 +7,7 @@ import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
 import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
 import com.a.eye.skywalking.collector.worker.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.node.persistence.NodeCompAgg;
+import com.a.eye.skywalking.collector.worker.segment.SegmentPost;
 import com.a.eye.skywalking.collector.worker.storage.RecordData;
 import com.a.eye.skywalking.trace.TraceSegment;
 
@@ -21,8 +22,9 @@ public class NodeCompAnalysis extends AbstractNodeCompAnalysis {
 
     @Override
     public void analyse(Object message) throws Exception {
-        if (message instanceof TraceSegment) {
-            TraceSegment segment = (TraceSegment) message;
+        if (message instanceof SegmentPost.SegmentWithTimeSlice) {
+            SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice = (SegmentPost.SegmentWithTimeSlice) message;
+            TraceSegment segment = segmentWithTimeSlice.getTraceSegment();
             analyseSpans(segment);
         }
     }

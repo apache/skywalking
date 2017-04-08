@@ -140,6 +140,30 @@ public class SegmentTopSearchWithTimeSlice extends AbstractLocalSyncWorker {
         public void setMaxCost(int maxCost) {
             this.maxCost = maxCost;
         }
+
+        public int getFrom() {
+            return from;
+        }
+
+        public int getLimit() {
+            return limit;
+        }
+
+        public long getStartTime() {
+            return startTime;
+        }
+
+        public long getEndTime() {
+            return endTime;
+        }
+
+        public int getMinCost() {
+            return minCost;
+        }
+
+        public int getMaxCost() {
+            return maxCost;
+        }
     }
 
     public static class Factory extends AbstractLocalSyncWorkerProvider<SegmentTopSearchWithTimeSlice> {

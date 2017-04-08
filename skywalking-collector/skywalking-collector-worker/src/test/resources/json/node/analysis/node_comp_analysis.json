@@ -1,0 +1,66 @@
+[
+  {
+    "id": "[127.0.0.1:6379]",
+    "data": {
+      "peers": "[127.0.0.1:6379]",
+      "name": "Redis",
+      "aggId": null
+    }
+  },
+  {
+    "id": "cache-service",
+    "data": {
+      "peers": "cache-service",
+      "name": "Motan",
+      "aggId": null
+    }
+  },
+  {
+    "id": "[127.0.0.1:3307]",
+    "data": {
+      "peers": "[127.0.0.1:3307]",
+      "name": "Mysql",
+      "aggId": null
+    }
+  },
+  {
+    "id": "portal-service",
+    "data": {
+      "peers": "portal-service",
+      "name": "Tomcat",
+      "aggId": null
+    }
+  },
+  {
+    "id": "[localhost:-1]",
+    "data": {
+      "peers": "[localhost:-1]",
+      "name": "H2",
+      "aggId": null
+    }
+  },
+  {
+    "id": "[10.128.35.80:20880]",
+    "data": {
+      "peers": "[10.128.35.80:20880]",
+      "name": "HttpClient",
+      "aggId": null
+    }
+  },
+  {
+    "id": "[127.0.0.1:8002]",
+    "data": {
+      "peers": "[127.0.0.1:8002]",
+      "name": "Motan",
+      "aggId": null
+    }
+  },
+  {
+    "id": "persistence-service",
+    "data": {
+      "peers": "persistence-service",
+      "name": "Tomcat",
+      "aggId": null
+    }
+  }
+]

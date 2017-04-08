@@ -24,7 +24,7 @@ public class SegmentTopGetWithTimeSlice extends AbstractGet {
 
     private Logger logger = LogManager.getFormatterLogger(SegmentTopGetWithTimeSlice.class);
 
-    private SegmentTopGetWithTimeSlice(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    SegmentTopGetWithTimeSlice(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
@@ -55,14 +55,14 @@ public class SegmentTopGetWithTimeSlice extends AbstractGet {
             throw new IllegalArgumentException("the request parameter endTime must numeric with long type");
         }
 
-        int from = 0;
+        int from;
         try {
             from = Integer.valueOf(ParameterTools.INSTANCE.toString(request, "from"));
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("the request parameter from must numeric with int type");
         }
 
-        int limit = 0;
+        int limit;
         try {
             limit = Integer.valueOf(ParameterTools.INSTANCE.toString(request, "limit"));
         } catch (NumberFormatException e) {
@@ -86,6 +86,7 @@ public class SegmentTopGetWithTimeSlice extends AbstractGet {
     }
 
     public static class Factory extends AbstractGetProvider<SegmentTopGetWithTimeSlice> {
+        public static Factory INSTANCE = new Factory();
 
         @Override
         public Role role() {

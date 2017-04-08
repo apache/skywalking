@@ -89,7 +89,7 @@ public class SegmentPost extends AbstractPost {
             getSelfContext().lookup(GlobalTraceAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
             getSelfContext().lookup(SegmentExceptionSave.Role.INSTANCE).tell(segmentWithTimeSlice);
 
-            getSelfContext().lookup(NodeCompAnalysis.Role.INSTANCE).tell(newSegment);
+            getSelfContext().lookup(NodeCompAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
 
             tellNodeRef(segmentWithTimeSlice);
             tellNodeMapping(segmentWithTimeSlice);

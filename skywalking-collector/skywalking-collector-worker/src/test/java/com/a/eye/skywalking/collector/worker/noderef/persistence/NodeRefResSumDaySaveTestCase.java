@@ -9,6 +9,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.TimeZone;
+
 /**
  * @author pengys5
  */
@@ -17,6 +19,9 @@ public class NodeRefResSumDaySaveTestCase {
 
     @Before
     public void init() {
+        System.setProperty("user.timezone", "UTC");
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+
         ClusterWorkerContext cluster = new ClusterWorkerContext(null);
         LocalWorkerContext local = new LocalWorkerContext();
         save = new NodeRefResSumDaySave(NodeRefResSumDaySave.Role.INSTANCE, cluster, local);

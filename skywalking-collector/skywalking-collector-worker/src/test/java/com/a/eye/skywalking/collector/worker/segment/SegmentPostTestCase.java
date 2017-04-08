@@ -32,6 +32,8 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.util.TimeZone;
+
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.doAnswer;
@@ -55,6 +57,9 @@ public class SegmentPostTestCase {
 
     @Before
     public void init() throws Exception {
+        System.setProperty("user.timezone", "UTC");
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+
         segmentMock = new SegmentMock();
         clusterWorkerContext = PowerMockito.mock(ClusterWorkerContext.class);
         localWorkerContext = new LocalWorkerContext();

@@ -16,7 +16,7 @@ public enum RecordDataAggTools {
         String id = "2016" + Const.ID_SPLIT + "A" + Const.ID_SPLIT + "B";
         RecordData recordData = new RecordData(id);
         agg.allocateJob(recordData);
-        RecordData result = RecordDataTool.INSTANCE.getRecord(recordDataAnswer.recordObj.getRecordData(), id);
+        RecordData result = RecordDataTool.INSTANCE.getRecord(recordDataAnswer.getRecordDataList(), id);
         Assert.assertEquals("A" + Const.ID_SPLIT + "B", result.getRecord().get("aggId").getAsString());
     }
 }

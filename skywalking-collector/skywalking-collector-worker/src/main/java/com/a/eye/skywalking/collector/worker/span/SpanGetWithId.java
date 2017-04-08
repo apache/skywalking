@@ -24,7 +24,7 @@ public class SpanGetWithId extends AbstractGet {
 
     private Logger logger = LogManager.getFormatterLogger(SpanGetWithId.class);
 
-    private SpanGetWithId(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    SpanGetWithId(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
@@ -48,6 +48,7 @@ public class SpanGetWithId extends AbstractGet {
     }
 
     public static class Factory extends AbstractGetProvider<SpanGetWithId> {
+        public static Factory INSTANCE = new Factory();
 
         @Override
         public Role role() {

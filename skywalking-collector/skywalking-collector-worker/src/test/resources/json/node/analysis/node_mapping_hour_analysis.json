@@ -1,0 +1,20 @@
+[
+  {
+    "id": "201703310900..-..cache-service..-..[127.0.0.1:8002]",
+    "data": {
+      "code": "cache-service",
+      "peers": "[127.0.0.1:8002]",
+      "timeSlice": 201703310900,
+      "aggId": "cache-service..-..[127.0.0.1:8002]"
+    }
+  },
+  {
+    "id": "201703310900..-..persistence-service..-..[10.128.35.80:20880]",
+    "data": {
+      "code": "persistence-service",
+      "peers": "[10.128.35.80:20880]",
+      "timeSlice": 201703310900,
+      "aggId": "persistence-service..-..[10.128.35.80:20880]"
+    }
+  }
+]

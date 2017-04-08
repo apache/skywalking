@@ -17,6 +17,6 @@ public enum MergeDataAggTools {
         MergeData mergeData = new MergeData(id);
         mergeData.setMergeData("Column", "Value");
         agg.allocateJob(mergeData);
-        Assert.assertEquals("Value", mergeDataAnswer.mergeObj.get("Column"));
+        Assert.assertEquals("Value", mergeDataAnswer.getMergeDataList().get(0).toMap().get("Column"));
     }
 }
