@@ -43,7 +43,7 @@ _In chronological order_
 
 # Screenshots
 - Topological graph of application clusters.
-<img src="https://sky-walking.github.io/page-resources/3.0/topological_graph.png"/>
+<img src="https://sky-walking.github.io/page-resources/3.0/topological_graph.png?forceUpdate=1"/>
 
 - Trace query.
 <img src="https://sky-walking.github.io/page-resources/3.0/trace_segment.png"/>
