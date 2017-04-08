@@ -13,19 +13,22 @@ define(["jquery", "vis", "text!dagHtml", "moment", "nodeCanvas", "alarm", "timer
     var _options = {
         nodes: {
             borderWidth: 1,
+            size: 30,
             color: {
                 background: '#ffffff'
             },
             shapeProperties: {
-                useImageSize: true
+                useImageSize: false
             }
         },
         edges: {
             color: '#dd7e6b',
             arrows: {
-                to: {enabled: true, scaleFactor: 0.5, type: 'arrow'}
+                to: {enabled: true, scaleFactor: 0.5, type: 'arrow'},
+                from: {enabled: true, scaleFactor: 0, type: 'circle'}
             },
-            smooth: false
+            smooth: false,
+            arrowStrikethrough: false
         },
         layout: {
             improvedLayout: true,
@@ -57,7 +60,7 @@ define(["jquery", "vis", "text!dagHtml", "moment", "nodeCanvas", "alarm", "timer
         var width = $("#dagViewDiv").width();
         var height = $("#alarmDiv").height();
 
-        if(height == 0){
+        if (height == 0) {
             height = 100;
         }
 
@@ -149,7 +152,7 @@ define(["jquery", "vis", "text!dagHtml", "moment", "nodeCanvas", "alarm", "timer
         }
     }
 
-    $(window).resize(function() {
+    $(window).resize(function () {
         _resize();
     });
 

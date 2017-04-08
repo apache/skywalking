@@ -73,7 +73,7 @@
         <dependency>
             <groupId>org.webjars.bower</groupId>
             <artifactId>vis</artifactId>
-            <version>4.18.0</version>
+            <version>4.19.1</version>
         </dependency>
         <dependency>
             <groupId>org.webjars</groupId>

@@ -11,7 +11,7 @@ requirejs.config({
         "metisMenu": "/webjars/metisMenu/2.5.2/dist/metisMenu.min",
         "slimscroll": "/webjars/jquery-slimscroll/1.3.6/jquery.slimscroll.min",
         "moment": "/webjars/momentjs/2.17.1/min/moment.min",
-        "vis": "/webjars/vis/4.18.0/dist/vis.min",
+        "vis": "/webjars/vis/4.19.1/dist/vis.min",
         "dagDraw": "/dag/dagDraw",
         "nodeCanvas": "/public/js/node.canvas",
         "dagHtml": "/dag/dag.html",
