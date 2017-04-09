@@ -24,7 +24,7 @@ public class ConfigInitializerTestCase {
 
         Assert.assertEquals("127.0.0.1", ClusterConfig.Cluster.Current.hostname);
         Assert.assertEquals("1000", ClusterConfig.Cluster.Current.port);
-        Assert.assertEquals("Test, Test1", ClusterConfig.Cluster.Current.roles);
+        Assert.assertEquals("WorkersListener", ClusterConfig.Cluster.Current.roles);
         Assert.assertEquals("127.0.0.1:1000", ClusterConfig.Cluster.seed_nodes);
     }
 
