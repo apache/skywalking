@@ -3,6 +3,7 @@ package com.a.eye.skywalking.collector.worker;
 import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
 import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
 import com.a.eye.skywalking.collector.actor.Role;
+import com.a.eye.skywalking.collector.worker.config.CacheSizeConfig;
 import com.a.eye.skywalking.collector.worker.storage.EsClient;
 import com.a.eye.skywalking.collector.worker.storage.MetricData;
 import com.a.eye.skywalking.collector.worker.storage.MetricPersistenceData;
@@ -37,7 +38,7 @@ public abstract class MetricPersistenceMember extends PersistenceMember {
         if (message instanceof MetricData) {
             MetricData metricData = (MetricData) message;
             persistenceData.getElseCreate(metricData.getId()).merge(metricData);
-            if (persistenceData.size() >= WorkerConfig.Persistence.Data.size) {
+            if (persistenceData.size() >= CacheSizeConfig.Cache.Persistence.size) {
                 persistence();
             }
         } else {

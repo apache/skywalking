@@ -1,23 +1,9 @@
-package com.a.eye.skywalking.collector.worker;
-
-import com.a.eye.skywalking.collector.cluster.ClusterConfig;
+package com.a.eye.skywalking.collector.worker.config;
 
 /**
  * @author pengys5
  */
-public class WorkerConfig extends ClusterConfig {
-
-    public static class Analysis {
-        public static class Data {
-            public static int size = 1000;
-        }
-    }
-
-    public static class Persistence {
-        public static class Data {
-            public static int size = 1000;
-        }
-    }
+public class WorkerConfig {
 
     public static class WorkerNum {
         public static class Node {
@@ -105,18 +91,6 @@ public class WorkerConfig extends ClusterConfig {
                 public static int Size = 1024;
             }
 
-            public static class NodeRefDayAnalysis {
-                public static int Size = 1024;
-            }
-
-            public static class NodeRefHourAnalysis {
-                public static int Size = 1024;
-            }
-
-            public static class NodeRefMinuteAnalysis {
-                public static int Size = 1024;
-            }
-
             public static class NodeMappingDayAnalysis {
                 public static int Size = 1024;
             }
@@ -147,6 +121,18 @@ public class WorkerConfig extends ClusterConfig {
         }
 
         public static class NodeRef {
+            public static class NodeRefDayAnalysis {
+                public static int Size = 1024;
+            }
+
+            public static class NodeRefHourAnalysis {
+                public static int Size = 1024;
+            }
+
+            public static class NodeRefMinuteAnalysis {
+                public static int Size = 1024;
+            }
+
             public static class NodeRefDaySave {
                 public static int Size = 1024;
             }

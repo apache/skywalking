@@ -1,11 +1,13 @@
 package com.a.eye.skywalking.collector.worker.httpserver;
 
 import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
+import com.a.eye.skywalking.collector.worker.config.HttpConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
+
+import java.net.InetSocketAddress;
 
 /**
  * @author pengys5
@@ -16,9 +18,9 @@ public enum HttpServer {
     private Logger logger = LogManager.getFormatterLogger(HttpServer.class);
 
     public void boot(ClusterWorkerContext clusterContext) throws Exception {
-        Server server = new Server(7001);
+        Server server = new Server(new InetSocketAddress(HttpConfig.Http.hostname, Integer.valueOf(HttpConfig.Http.port)));
 
-        String contextPath = "/";
+        String contextPath = HttpConfig.Http.contextPath;
         ServletContextHandler servletContextHandler = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
         servletContextHandler.setContextPath(contextPath);
         logger.info("http server root context path: %s", contextPath);

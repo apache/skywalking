@@ -3,6 +3,7 @@ package com.a.eye.skywalking.collector.worker;
 import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
 import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
 import com.a.eye.skywalking.collector.actor.Role;
+import com.a.eye.skywalking.collector.worker.config.CacheSizeConfig;
 import com.a.eye.skywalking.collector.worker.storage.MetricData;
 import com.a.eye.skywalking.collector.worker.storage.MetricPersistenceData;
 
@@ -19,7 +20,7 @@ public abstract class MetricAnalysisMember extends AnalysisMember {
 
     final protected void setMetric(String id, String column, Long value) throws Exception {
         persistenceData.getElseCreate(id).setMetric(column, value);
-        if (persistenceData.size() >= WorkerConfig.Persistence.Data.size) {
+        if (persistenceData.size() >= CacheSizeConfig.Cache.Persistence.size) {
             aggregation();
         }
     }

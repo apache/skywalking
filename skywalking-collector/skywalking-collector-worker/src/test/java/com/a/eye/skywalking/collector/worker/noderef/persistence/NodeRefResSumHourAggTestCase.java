@@ -5,7 +5,7 @@ import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
 import com.a.eye.skywalking.collector.actor.ProviderNotFoundException;
 import com.a.eye.skywalking.collector.actor.WorkerRefs;
 import com.a.eye.skywalking.collector.actor.selector.HashCodeSelector;
-import com.a.eye.skywalking.collector.worker.WorkerConfig;
+import com.a.eye.skywalking.collector.worker.config.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.mock.MetricDataAnswer;
 import com.a.eye.skywalking.collector.worker.storage.MetricData;
 import com.a.eye.skywalking.collector.worker.tools.MetricDataAggTools;

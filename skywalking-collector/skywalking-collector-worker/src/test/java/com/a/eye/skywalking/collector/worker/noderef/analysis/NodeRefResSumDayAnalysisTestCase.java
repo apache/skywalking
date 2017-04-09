@@ -4,7 +4,7 @@ import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
 import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
 import com.a.eye.skywalking.collector.actor.WorkerRefs;
 import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
-import com.a.eye.skywalking.collector.worker.WorkerConfig;
+import com.a.eye.skywalking.collector.worker.config.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.mock.MetricDataAnswer;
 import com.a.eye.skywalking.collector.worker.noderef.persistence.NodeRefResSumDayAgg;
 import com.a.eye.skywalking.collector.worker.storage.MetricData;

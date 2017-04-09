@@ -2,6 +2,7 @@ package com.a.eye.skywalking.collector.worker;
 
 import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
 import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
+import com.a.eye.skywalking.collector.worker.config.CacheSizeConfig;
 import com.a.eye.skywalking.collector.worker.storage.MergeData;
 import com.a.eye.skywalking.collector.worker.storage.MergePersistenceData;
 import org.junit.Assert;
@@ -44,7 +45,7 @@ public class MergeAnalysisMemberTestCase {
 
     @Test
     public void testSetMergeDataNotFull() throws Exception {
-        when(persistenceData.size()).thenReturn(WorkerConfig.Persistence.Data.size - 1);
+        when(persistenceData.size()).thenReturn(CacheSizeConfig.Cache.Analysis.size - 1);
 
         mergeAnalysisMember.setMergeData("segment_1", "column", "value");
         Mockito.verify(mergeAnalysisMember, Mockito.never()).aggregation();
@@ -52,7 +53,7 @@ public class MergeAnalysisMemberTestCase {
 
     @Test
     public void testSetMergeDataFull() throws Exception {
-        when(persistenceData.size()).thenReturn(WorkerConfig.Persistence.Data.size);
+        when(persistenceData.size()).thenReturn(CacheSizeConfig.Cache.Analysis.size);
 
         mergeAnalysisMember.setMergeData("segment_1", "column", "value");
         Mockito.verify(mergeAnalysisMember, Mockito.times(1)).aggregation();

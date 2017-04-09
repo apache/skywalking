@@ -3,6 +3,7 @@ package com.a.eye.skywalking.collector.worker;
 import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
 import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
 import com.a.eye.skywalking.collector.actor.Role;
+import com.a.eye.skywalking.collector.worker.config.CacheSizeConfig;
 import com.a.eye.skywalking.collector.worker.storage.EsClient;
 import com.a.eye.skywalking.collector.worker.storage.RecordData;
 import com.a.eye.skywalking.collector.worker.storage.RecordPersistenceData;
@@ -39,7 +40,7 @@ public abstract class RecordPersistenceMember extends PersistenceMember {
             RecordData recordData = (RecordData) message;
             logger.debug("setRecord: id: %s, data: %s", recordData.getId(), recordData.getRecord());
             getPersistenceData().getElseCreate(recordData.getId()).setRecord(recordData.getRecord());
-            if (getPersistenceData().size() >= WorkerConfig.Persistence.Data.size) {
+            if (getPersistenceData().size() >= CacheSizeConfig.Cache.Persistence.size) {
                 persistence();
             }
         } else {
