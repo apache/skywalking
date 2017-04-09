@@ -14,7 +14,7 @@ Sky Walking
 [![Release Version](https://img.shields.io/badge/tesing-3.0--2017-yellow.svg)](https://github.com/wu-sheng/sky-walking/releases)
 
 
-* Auto-instrumentation mechanism, **no need to CHANGE any application source code**. [Supported middlewares, frameworks or libraries](https://github.com/wu-sheng/sky-walking/wiki/3.0-supported-list).
+* Auto-instrumentation mechanism, **no need to CHANGE any application source code**. [Supported middlewares, frameworks and libraries](https://github.com/wu-sheng/sky-walking/wiki/3.0-supported-list).
 * Pure Java server implementation, with RESTful Web service.
 * High performance streaming analysis.
 * The UI released on [wu-sheng/sky-walking-ui](https://github.com/wu-sheng/sky-walking-ui)
