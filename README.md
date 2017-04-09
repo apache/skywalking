@@ -14,7 +14,7 @@ Sky Walking
 [![Release Version](https://img.shields.io/badge/tesing-3.0--2017-yellow.svg)](https://github.com/wu-sheng/sky-walking/releases)
 
 
-* Auto-instrumentation mechanism, **no need to CHANGE any application source code**. Supported [frameworks](https://github.com/wu-sheng/sky-walking/wiki/3.0-supported-list).
+* Auto-instrumentation mechanism, **no need to CHANGE any application source code**. [Supported middlewares, frameworks and libraries](https://github.com/wu-sheng/sky-walking/wiki/3.0-supported-list).
 * Pure Java server implementation, with RESTful Web service.
 * High performance streaming analysis.
 * The UI released on [wu-sheng/sky-walking-ui](https://github.com/wu-sheng/sky-walking-ui)
@@ -43,7 +43,7 @@ _In chronological order_
 
 # Screenshots
 - Topological graph of application clusters.
-<img src="https://sky-walking.github.io/page-resources/3.0/topological_graph.png?forceUpdate=1"/>
+<img src="https://sky-walking.github.io/page-resources/3.0/topological_graph.png?forceUpdate=0"/>
 
 - Trace query.
 <img src="https://sky-walking.github.io/page-resources/3.0/trace_segment.png"/>
