@@ -1,0 +1,5 @@
+com.a.eye.skywalking.collector.cluster.ClusterConfigProvider
+com.a.eye.skywalking.collector.worker.config.EsConfigProvider
+com.a.eye.skywalking.collector.worker.config.HttpConfigProvider
+com.a.eye.skywalking.collector.worker.config.CacheSizeConfigProvider
+com.a.eye.skywalking.collector.worker.config.WorkerConfigProvider

@@ -3,6 +3,7 @@ package com.a.eye.skywalking.collector.worker;
 import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
 import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
 import com.a.eye.skywalking.collector.actor.Role;
+import com.a.eye.skywalking.collector.worker.config.CacheSizeConfig;
 import com.a.eye.skywalking.collector.worker.storage.EsClient;
 import com.a.eye.skywalking.collector.worker.storage.MergeData;
 import com.a.eye.skywalking.collector.worker.storage.MergePersistenceData;
@@ -42,7 +43,7 @@ public abstract class MergePersistenceMember extends PersistenceMember {
         if (message instanceof MergeData) {
             MergeData mergeData = (MergeData) message;
             getPersistenceData().getElseCreate(mergeData.getId()).merge(mergeData);
-            if (getPersistenceData().size() >= WorkerConfig.Persistence.Data.size) {
+            if (getPersistenceData().size() >= CacheSizeConfig.Cache.Persistence.size) {
                 persistence();
             }
         } else {

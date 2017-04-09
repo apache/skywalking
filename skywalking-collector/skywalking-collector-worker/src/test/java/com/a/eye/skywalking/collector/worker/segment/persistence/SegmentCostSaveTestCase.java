@@ -3,7 +3,8 @@ package com.a.eye.skywalking.collector.worker.segment.persistence;
 import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
 import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
 import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
-import com.a.eye.skywalking.collector.worker.WorkerConfig;
+import com.a.eye.skywalking.collector.worker.config.CacheSizeConfig;
+import com.a.eye.skywalking.collector.worker.config.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.mock.MockEsBulkClient;
 import com.a.eye.skywalking.collector.worker.mock.SaveToEsSourceAnswer;
 import com.a.eye.skywalking.collector.worker.segment.SegmentCostIndex;
@@ -86,7 +87,7 @@ public class SegmentCostSaveTestCase {
 
     @Test
     public void testPersistenceServiceAnalyse() throws Exception {
-        WorkerConfig.Persistence.Data.size = 1;
+        CacheSizeConfig.Cache.Persistence.size = 1;
 
         List<SegmentPost.SegmentWithTimeSlice> segmentWithTimeSliceList = segmentMock.mockPersistenceServiceSegmentTimeSlice();
 
@@ -108,7 +109,7 @@ public class SegmentCostSaveTestCase {
 
     @Test
     public void testCacheServiceAnalyse() throws Exception {
-        WorkerConfig.Persistence.Data.size = 2;
+        CacheSizeConfig.Cache.Persistence.size = 2;
 
         List<SegmentPost.SegmentWithTimeSlice> segmentWithTimeSliceList = segmentMock.mockCacheServiceSegmentSegmentTimeSlice();
 
@@ -145,7 +146,7 @@ public class SegmentCostSaveTestCase {
 
     @Test
     public void testPortalServiceAnalyse() throws Exception {
-        WorkerConfig.Persistence.Data.size = 1;
+        CacheSizeConfig.Cache.Persistence.size = 1;
 
         List<SegmentPost.SegmentWithTimeSlice> segmentWithTimeSliceList = segmentMock.mockPortalServiceSegmentSegmentTimeSlice();
 
@@ -167,7 +168,7 @@ public class SegmentCostSaveTestCase {
 
     @Test
     public void testCacheServiceExceptionAnalyse() throws Exception {
-        WorkerConfig.Persistence.Data.size = 1;
+        CacheSizeConfig.Cache.Persistence.size = 1;
 
         List<SegmentPost.SegmentWithTimeSlice> segmentWithTimeSliceList = segmentMock.mockCacheServiceExceptionSegmentTimeSlice();
 
@@ -189,7 +190,7 @@ public class SegmentCostSaveTestCase {
 
     @Test
     public void testPortalServiceExceptionAnalyse() throws Exception {
-        WorkerConfig.Persistence.Data.size = 1;
+        CacheSizeConfig.Cache.Persistence.size = 1;
 
         List<SegmentPost.SegmentWithTimeSlice> segmentWithTimeSliceList = segmentMock.mockPortalServiceExceptionSegmentTimeSlice();
 

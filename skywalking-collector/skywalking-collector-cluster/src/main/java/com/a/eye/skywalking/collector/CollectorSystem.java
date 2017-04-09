@@ -2,16 +2,13 @@ package com.a.eye.skywalking.collector;
 
 import akka.actor.ActorSystem;
 import akka.actor.Props;
-import com.a.eye.skywalking.api.util.StringUtil;
 import com.a.eye.skywalking.collector.actor.*;
-import com.a.eye.skywalking.collector.cluster.ClusterConfig;
-import com.a.eye.skywalking.collector.cluster.Const;
 import com.a.eye.skywalking.collector.cluster.WorkersListener;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
+import com.a.eye.skywalking.collector.config.ConfigInitializer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.IOException;
 import java.util.ServiceLoader;
 
 /**
@@ -26,26 +23,16 @@ public class CollectorSystem {
         return clusterContext;
     }
 
-    public void boot() throws UsedRoleNameException, ProviderNotFoundException {
+    public void boot() throws UsedRoleNameException, ProviderNotFoundException, IOException, IllegalAccessException {
+        ConfigInitializer.INSTANCE.initialize();
         createAkkaSystem();
         createListener();
         loadLocalProviders();
         createClusterWorkers();
     }
 
-    public void terminate() {
-        clusterContext.getAkkaSystem().terminate();
-    }
-
     private void createAkkaSystem() {
-        final Config config = ConfigFactory.parseString("akka.remote.netty.tcp.hostname=" + ClusterConfig.Cluster.Current.hostname).
-                withFallback(ConfigFactory.parseString("akka.remote.netty.tcp.port=" + ClusterConfig.Cluster.Current.port)).
-                withFallback(ConfigFactory.load("application.conf"));
-        if (!StringUtil.isEmpty(ClusterConfig.Cluster.seed_nodes)) {
-            config.withFallback(ConfigFactory.parseString("akka.cluster.seed-nodes=" + ClusterConfig.Cluster.seed_nodes));
-        }
-        ActorSystem akkaSystem = ActorSystem.create(Const.SystemName, config);
-
+        ActorSystem akkaSystem = AkkaSystem.INSTANCE.create();
         clusterContext = new ClusterWorkerContext(akkaSystem);
     }
 

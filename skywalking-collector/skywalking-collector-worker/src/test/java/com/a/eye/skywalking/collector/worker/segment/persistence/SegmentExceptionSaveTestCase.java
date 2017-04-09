@@ -3,7 +3,8 @@ package com.a.eye.skywalking.collector.worker.segment.persistence;
 import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
 import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
 import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
-import com.a.eye.skywalking.collector.worker.WorkerConfig;
+import com.a.eye.skywalking.collector.worker.config.CacheSizeConfig;
+import com.a.eye.skywalking.collector.worker.config.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.mock.MockEsBulkClient;
 import com.a.eye.skywalking.collector.worker.segment.SegmentExceptionIndex;
 import com.a.eye.skywalking.collector.worker.segment.SegmentPost;
@@ -90,7 +91,7 @@ public class SegmentExceptionSaveTestCase {
 
     @Test
     public void testSuccessAnalyse() throws Exception {
-        WorkerConfig.Persistence.Data.size = 1;
+        CacheSizeConfig.Cache.Persistence.size = 1;
 
         List<SegmentPost.SegmentWithTimeSlice> cacheServiceList = segmentMock.mockCacheServiceSegmentSegmentTimeSlice();
         for (SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice : cacheServiceList) {
@@ -108,7 +109,7 @@ public class SegmentExceptionSaveTestCase {
 
     @Test
     public void testErrorAnalyse() throws Exception {
-        WorkerConfig.Persistence.Data.size = 1;
+        CacheSizeConfig.Cache.Persistence.size = 1;
 
         List<SegmentPost.SegmentWithTimeSlice> cacheServiceList = segmentMock.mockCacheServiceExceptionSegmentTimeSlice();
         for (SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice : cacheServiceList) {

@@ -2,7 +2,7 @@ package com.a.eye.skywalking.collector.worker.segment;
 
 import com.a.eye.skywalking.collector.actor.*;
 import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
-import com.a.eye.skywalking.collector.worker.WorkerConfig;
+import com.a.eye.skywalking.collector.worker.config.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.globaltrace.analysis.GlobalTraceAnalysis;
 import com.a.eye.skywalking.collector.worker.node.analysis.NodeCompAnalysis;
 import com.a.eye.skywalking.collector.worker.node.analysis.NodeMappingDayAnalysis;

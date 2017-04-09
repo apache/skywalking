@@ -1,5 +1,3 @@
-com.a.eye.skywalking.collector.worker.noderef.NodeRefGetWithTimeSlice$Factory
-com.a.eye.skywalking.collector.worker.noderef.NodeRefResSumGetWithTimeSlice$Factory
 com.a.eye.skywalking.collector.worker.noderef.NodeRefResSumGetGroupWithTimeSlice$Factory
 com.a.eye.skywalking.collector.worker.segment.SegmentTopGetWithTimeSlice$Factory
 com.a.eye.skywalking.collector.worker.globaltrace.GlobalTraceGetWithGlobalId$Factory

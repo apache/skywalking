@@ -3,9 +3,9 @@ package com.a.eye.skywalking.collector.worker.segment.persistence;
 import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
 import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
 import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
-import com.a.eye.skywalking.collector.worker.WorkerConfig;
+import com.a.eye.skywalking.collector.worker.config.CacheSizeConfig;
+import com.a.eye.skywalking.collector.worker.config.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.mock.MockEsBulkClient;
-import com.a.eye.skywalking.collector.worker.segment.SegmentCostIndex;
 import com.a.eye.skywalking.collector.worker.segment.SegmentIndex;
 import com.a.eye.skywalking.collector.worker.storage.EsClient;
 import com.google.gson.Gson;
@@ -81,7 +81,7 @@ public class SegmentSaveTestCase {
 
     @Test
     public void testAnalyse() throws Exception {
-        WorkerConfig.Persistence.Data.size = 1;
+        CacheSizeConfig.Cache.Persistence.size = 1;
 
         JsonObject segment_1 = new JsonObject();
         segment_1.addProperty("ts", "segment_1");

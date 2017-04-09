@@ -15,7 +15,7 @@ public abstract class AbstractHttpServlet extends HttpServlet {
     final public void reply(HttpServletResponse response, JsonObject resJson, int status) throws IOException {
         response.setContentType("text/json");
         response.setCharacterEncoding("utf-8");
-        response.setStatus(HttpServletResponse.SC_OK);
+        response.setStatus(status);
 
         PrintWriter out = response.getWriter();
         out.print(resJson);
