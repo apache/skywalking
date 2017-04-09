@@ -239,21 +239,28 @@ define(["jquery", "moment", "text!timeAxisHtml", "rangeSlider", "daterangepicker
                 rangeDateTemp.push(moment().format("YYYY/MM/DD HH:") + i);
             }
         }
-        updateTimeAxis(rangeDateTemp, 0, rangeDateTemp.length - 1);
+        var minute = moment().format("mm");
+
+        updateTimeAxis(rangeDateTemp, minute, rangeDateTemp.length - 1);
 
         var nowDay = moment().format("YYYYMMDDHH");
         dagDraw.loadDateRangeDag(minuteSliceType, nowDay + "00", nowDay + "59");
 
         alarm.loadCostData(minuteSliceType, nowDay + "00", nowDay + "59");
 
+
+        $("#dateRangeInput").val(moment().format("MM/DD/YYYY HH:mm"));
+
         $('#dateRangeInput').daterangepicker({
             singleDatePicker: true,
             timePicker: true,
             timePicker24Hour: true,
             timePickerSeconds: false,
-            endDate: moment(),
             maxDate: moment(),
-            "opens": "left"
+            "opens": "left",
+            locale: {
+                format: 'MM/DD/YYYY HH:mm'
+            }
         }, function (start, end, label) {
             var fromDate = start.format("YYYY/MM/DD HH");
             var minute = start.format("mm");

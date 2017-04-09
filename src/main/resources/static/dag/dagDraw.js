@@ -31,12 +31,12 @@ define(["jquery", "vis", "text!dagHtml", "moment", "nodeCanvas", "alarm", "timer
             arrowStrikethrough: false
         },
         layout: {
-            improvedLayout: true,
+            improvedLayout: false,
             hierarchical: {
                 enabled: true,
                 levelSeparation: 200,
                 nodeSpacing: 150,
-                parentCentralization: false,
+                parentCentralization: true,
                 direction: "LR",
                 sortMethod: 'directed'
             }
