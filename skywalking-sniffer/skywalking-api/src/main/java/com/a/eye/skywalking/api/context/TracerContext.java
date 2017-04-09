@@ -91,10 +91,10 @@ public final class TracerContext {
     }
 
     /**
-     * @return the current trace segment id.
+     * @return the current trace id.
      */
-    String getTraceSegmentId(){
-        return segment.getTraceSegmentId();
+    String getGlobalTraceId(){
+        return segment.getRelatedGlobalTraces().get(0).get();
     }
 
     public void stopSpan(Span span, Long endTime){

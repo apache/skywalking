@@ -24,6 +24,21 @@
 			<name>Zhang Xin</name>
 			<url>https://github.com/ascrutae</url>
 		</developer>
+        <developer>
+            <name>Tan Zhen</name>
+            <url>https://github.com/mircoteam</url>
+        </developer>
+        <developer>
+            <name>Xu Yan</name>
+            <url>https://github.com/TastySummer</url>
+        </developer>
+        <developer>
+            <name>Peng Yongsheng</name>
+            <url>https://github.com/pengys5</url>
+        </developer>
+        <developer>
+            <name>Dai Wen</name>
+        </developer>
 	</developers>
 
 	<modules>

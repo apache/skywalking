@@ -1,6 +1,5 @@
 package com.a.eye.skywalking.toolkit.activation.trace;
 
-import com.a.eye.skywalking.api.context.ContextCarrier;
 import com.a.eye.skywalking.api.context.ContextManager;
 import com.a.eye.skywalking.logging.ILog;
 import com.a.eye.skywalking.logging.LogManager;
@@ -24,7 +23,7 @@ public class TraceContextInterceptor implements StaticMethodsAroundInterceptor {
 
     @Override
     public Object afterMethod(StaticMethodInvokeContext interceptorContext, Object ret) {
-       return ContextManager.getTraceSegmentId();
+       return ContextManager.getGlobalTraceId();
     }
 
     @Override
