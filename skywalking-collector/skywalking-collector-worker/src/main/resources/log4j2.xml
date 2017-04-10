@@ -1,19 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="info">
+<Configuration status="DEBUG">
+    <Properties>
+        <Property name="log-path">../logs</Property>
+    </Properties>
     <Appenders>
-        <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout charset="UTF-8" pattern="[%d{yyyy-MM-dd HH:mm:ss:SSS}] [%p] - %c{1} - %m%n"/>
-        </Console>
+        <RollingFile name="RollingFile" fileName="${log-path}/skywalking-server-log4j2.log"
+                     filePattern="${log-path}/skywalking-server-log4j2-%d{yyyy-MM-dd}-%i.log" >
+            <PatternLayout>
+                <pattern>%d - %c -%-4r [%t] %-5p %x - %m%n</pattern>
+            </PatternLayout>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="102400KB" />
+            </Policies>
+            <DefaultRolloverStrategy max="30"/>
+        </RollingFile>
     </Appenders>
     <Loggers>
-        <logger name="org.elasticsearch" level="info" additivity="false">
-            <AppenderRef ref="Console"/>
-        </logger>
-        <logger name="com.a.eye.skywalking.collector.worker" level="debug" additivity="false">
-            <AppenderRef ref="Console"/>
-        </logger>
-        <Root level="info">
-            <AppenderRef ref="Console"/>
+        <Logger name="root" level="INFO" additivity="false">
+            <appender-ref ref="RollingFile" level="INFO"/>
+        </Logger>
+        <Root level="INFO" additivity="false">
+            <AppenderRef ref="RollingFile"/>
         </Root>
     </Loggers>
 </Configuration>
