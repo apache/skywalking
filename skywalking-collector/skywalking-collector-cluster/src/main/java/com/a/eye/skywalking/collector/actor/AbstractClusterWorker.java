@@ -11,18 +11,45 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
+ * The <code>AbstractClusterWorker</code> should be implemented by any class whose instances
+ * are intended to provide receive remote message that message will transfer across different jvm
+ * which running in same server or another address server.
+ * <p>
+ * Usually the implemented class used to receive persistence data or aggregation the metric.
+ *
  * @author pengys5
+ * @since feature3.0
  */
 public abstract class AbstractClusterWorker extends AbstractWorker {
 
+    /**
+     * Constructs a <code>AbstractClusterWorker</code> with the worker role and context.
+     *
+     * @param role           The responsibility of worker in cluster, more than one workers can have
+     *                       same responsibility which use to provide load balancing ability.
+     * @param clusterContext See {@link ClusterWorkerContext}
+     * @param selfContext    See {@link LocalWorkerContext}
+     */
     protected AbstractClusterWorker(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
+    /**
+     * Receive message
+     *
+     * @param message The persistence data or metric data.
+     * @throws Exception The Exception happen in {@link #onWork(Object)}
+     */
     final public void allocateJob(Object message) throws Exception {
         onWork(message);
     }
 
+    /**
+     * The data process logic in this method.
+     *
+     * @param message Cast the message object to a expect subclass.
+     * @throws Exception Don't handle the exception, throw it.
+     */
     protected abstract void onWork(Object message) throws Exception;
 
     static class WorkerWithAkka extends UntypedActor {

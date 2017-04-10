@@ -5,9 +5,10 @@ package com.a.eye.skywalking.collector.actor.selector;
  * are intended to provide send message with {@link HashCodeSelector}.
  * <p>
  * Usually the implemented class used to persistence data to database
- * or aggregation the metric,
+ * or aggregation the metric.
  *
  * @author pengys5
+ * @since feature3.0
  */
 public abstract class AbstractHashMessage {
     private int hashCode;
@@ -16,7 +17,7 @@ public abstract class AbstractHashMessage {
         this.hashCode = key.hashCode();
     }
 
-    protected int getHashCode() {
+    int getHashCode() {
         return hashCode;
     }
 }

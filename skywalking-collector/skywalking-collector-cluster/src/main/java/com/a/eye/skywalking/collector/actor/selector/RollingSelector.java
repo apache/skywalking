@@ -10,6 +10,7 @@ import java.util.List;
  * It choose {@link WorkerRef} nearly random, by round-robin.
  *
  * @author pengys5
+ * @since feature3.0
  */
 public class RollingSelector implements WorkerSelector<WorkerRef> {
 

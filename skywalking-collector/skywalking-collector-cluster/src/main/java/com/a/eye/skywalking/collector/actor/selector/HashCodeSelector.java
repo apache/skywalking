@@ -11,6 +11,7 @@ import java.util.List;
  * message to same {@link WorkerRef}. Usually, use to database operate which avoid dirty data.
  *
  * @author pengys5
+ * @since feature3.0
  */
 public class HashCodeSelector implements WorkerSelector<WorkerRef> {
 
