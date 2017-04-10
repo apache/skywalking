@@ -3,7 +3,7 @@ package com.a.eye.skywalking.collector.worker.node.persistence;
 import com.a.eye.skywalking.collector.actor.*;
 import com.a.eye.skywalking.collector.actor.selector.HashCodeSelector;
 import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
-import com.a.eye.skywalking.collector.worker.WorkerConfig;
+import com.a.eye.skywalking.collector.worker.config.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.storage.RecordData;
 
 /**

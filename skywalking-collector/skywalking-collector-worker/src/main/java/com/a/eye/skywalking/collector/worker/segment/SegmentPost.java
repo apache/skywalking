@@ -7,7 +7,7 @@ import com.a.eye.skywalking.collector.actor.ProviderNotFoundException;
 import com.a.eye.skywalking.collector.actor.Role;
 import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
 import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
-import com.a.eye.skywalking.collector.worker.WorkerConfig;
+import com.a.eye.skywalking.collector.worker.config.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.globaltrace.analysis.GlobalTraceAnalysis;
 import com.a.eye.skywalking.collector.worker.httpserver.AbstractPost;
 import com.a.eye.skywalking.collector.worker.httpserver.AbstractPostProvider;

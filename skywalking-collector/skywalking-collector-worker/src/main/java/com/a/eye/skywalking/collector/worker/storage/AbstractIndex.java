@@ -1,5 +1,6 @@
 package com.a.eye.skywalking.collector.worker.storage;
 
+import com.a.eye.skywalking.collector.worker.config.EsConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
@@ -32,8 +33,8 @@ public abstract class AbstractIndex {
     final XContentBuilder createSettingBuilder() throws IOException {
         return XContentFactory.jsonBuilder()
                 .startObject()
-                .field("index.number_of_shards", 2)
-                .field("index.number_of_replicas", 0)
+                .field("index.number_of_shards", EsConfig.Es.Index.Shards.number)
+                .field("index.number_of_replicas", EsConfig.Es.Index.Replicas.number)
                 .endObject();
     }
 

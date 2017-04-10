@@ -1,7 +1,6 @@
 package com.a.eye.skywalking.collector.worker.httpserver;
 
 import com.a.eye.skywalking.collector.actor.*;
-import com.a.eye.skywalking.collector.queue.EndOfBatchCommand;
 import com.google.gson.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,6 +14,7 @@ import java.io.IOException;
 /**
  * @author pengys5
  */
+
 public abstract class AbstractPost extends AbstractLocalAsyncWorker {
 
     private Logger logger = LogManager.getFormatterLogger(AbstractPost.class);
@@ -27,10 +27,9 @@ public abstract class AbstractPost extends AbstractLocalAsyncWorker {
     final public void onWork(Object request) throws Exception {
         if (request instanceof String) {
             onReceive((String) request);
-        } else if (request instanceof EndOfBatchCommand) {
-
         } else {
             logger.error("unhandled request, request instance must String, but is %s", request.getClass().toString());
+            saveException(new IllegalArgumentException("request instance must String"));
         }
     }
 
@@ -40,7 +39,7 @@ public abstract class AbstractPost extends AbstractLocalAsyncWorker {
 
         private final LocalAsyncWorkerRef ownerWorkerRef;
 
-        protected PostWithHttpServlet(LocalAsyncWorkerRef ownerWorkerRef) {
+        PostWithHttpServlet(LocalAsyncWorkerRef ownerWorkerRef) {
             this.ownerWorkerRef = ownerWorkerRef;
         }
 
@@ -49,7 +48,7 @@ public abstract class AbstractPost extends AbstractLocalAsyncWorker {
             JsonObject resJson = new JsonObject();
             try {
                 BufferedReader bufferedReader = request.getReader();
-                StringBuffer dataStr = new StringBuffer();
+                StringBuilder dataStr = new StringBuilder();
                 String tmpStr;
                 while ((tmpStr = bufferedReader.readLine()) != null) {
                     dataStr.append(tmpStr);

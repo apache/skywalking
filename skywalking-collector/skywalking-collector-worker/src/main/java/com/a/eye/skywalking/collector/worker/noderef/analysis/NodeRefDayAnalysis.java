@@ -6,7 +6,7 @@ import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
 import com.a.eye.skywalking.collector.actor.ProviderNotFoundException;
 import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
 import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
-import com.a.eye.skywalking.collector.worker.WorkerConfig;
+import com.a.eye.skywalking.collector.worker.config.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.noderef.persistence.NodeRefDayAgg;
 import com.a.eye.skywalking.collector.worker.segment.SegmentPost;
 import com.a.eye.skywalking.collector.worker.storage.RecordData;
@@ -70,7 +70,7 @@ public class NodeRefDayAnalysis extends AbstractNodeRefAnalysis {
 
         @Override
         public int queueSize() {
-            return WorkerConfig.Queue.Node.NodeRefDayAnalysis.Size;
+            return WorkerConfig.Queue.NodeRef.NodeRefDayAnalysis.Size;
         }
     }
 

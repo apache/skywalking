@@ -5,7 +5,7 @@ import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
 import com.a.eye.skywalking.collector.actor.ProviderNotFoundException;
 import com.a.eye.skywalking.collector.actor.WorkerRefs;
 import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
-import com.a.eye.skywalking.collector.worker.WorkerConfig;
+import com.a.eye.skywalking.collector.worker.config.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.mock.RecordDataAnswer;
 import com.a.eye.skywalking.collector.worker.noderef.persistence.NodeRefHourAgg;
 import com.a.eye.skywalking.collector.worker.storage.RecordData;
@@ -71,7 +71,7 @@ public class NodeRefHourAnalysisTestCase {
         Assert.assertEquals(NodeRefHourAnalysis.class.getSimpleName(), NodeRefHourAnalysis.Factory.INSTANCE.workerInstance(null).getClass().getSimpleName());
 
         int testSize = 10;
-        WorkerConfig.Queue.Node.NodeRefHourAnalysis.Size = testSize;
+        WorkerConfig.Queue.NodeRef.NodeRefHourAnalysis.Size = testSize;
         Assert.assertEquals(testSize, NodeRefHourAnalysis.Factory.INSTANCE.queueSize());
     }
 

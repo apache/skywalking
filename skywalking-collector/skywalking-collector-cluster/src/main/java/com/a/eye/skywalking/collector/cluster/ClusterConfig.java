@@ -14,8 +14,8 @@ public class ClusterConfig {
 
     public static class Cluster {
         public static class Current {
-            public static String hostname = "127.0.0.1";
-            public static String port = "2551";
+            public static String hostname = "";
+            public static String port = "";
             public static String roles = "";
         }
 

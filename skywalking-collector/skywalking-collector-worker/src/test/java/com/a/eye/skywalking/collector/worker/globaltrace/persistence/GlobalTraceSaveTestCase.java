@@ -3,7 +3,7 @@ package com.a.eye.skywalking.collector.worker.globaltrace.persistence;
 import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
 import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
 import com.a.eye.skywalking.collector.actor.selector.HashCodeSelector;
-import com.a.eye.skywalking.collector.worker.WorkerConfig;
+import com.a.eye.skywalking.collector.worker.config.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.globaltrace.GlobalTraceIndex;
 import org.junit.Assert;
 import org.junit.Before;
