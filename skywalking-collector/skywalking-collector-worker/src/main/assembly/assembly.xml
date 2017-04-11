@@ -10,7 +10,7 @@
     <dependencySets>
         <dependencySet>
             <outputDirectory>/libs</outputDirectory>
-            <scope>compile</scope>
+            <scope>runtime</scope>
         </dependencySet>
     </dependencySets>
     <fileSets>

@@ -47,12 +47,6 @@
             <groupId>com.a.eye</groupId>
             <artifactId>skywalking-sniffer-mock</artifactId>
             <version>${project.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.httpcomponents</groupId>
-                    <artifactId>httpclient</artifactId>
-                </exclusion>
-            </exclusions>
             <scope>test</scope>
         </dependency>
         <dependency>

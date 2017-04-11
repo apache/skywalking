@@ -17,11 +17,8 @@ _RUNJAVA=${JAVA_HOME}/bin/java
 CLASSPATH="$COLLECTOR_HOME/config:$CLASSPATH"
 for i in "$COLLECTOR_HOME"/libs/*.jar
 do
-	echo $i
     CLASSPATH="$i:$CLASSPATH"
 done
-
-echo $CLASSPATH
 
 echo "Starting collector...."
 eval exec "\"$_RUNJAVA\" ${JAVA_OPTS} -classpath $CLASSPATH com.a.eye.skywalking.collector.worker.CollectorBootStartUp \
