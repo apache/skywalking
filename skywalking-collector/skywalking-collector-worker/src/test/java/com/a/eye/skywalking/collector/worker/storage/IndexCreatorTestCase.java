@@ -1,8 +1,10 @@
 package com.a.eye.skywalking.collector.worker.storage;
 
+import com.a.eye.skywalking.collector.worker.config.EsConfig;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -24,6 +26,21 @@ import static org.powermock.api.mockito.PowerMockito.*;
 @PrepareForTest({IndexCreator.class, IndexCreatorTestCase.TestIndex.class})
 @PowerMockIgnore({"javax.management.*"})
 public class IndexCreatorTestCase {
+
+    private IndexCreator indexCreator;
+    private TestIndex testIndex;
+
+    @Before
+    public void init() throws Exception {
+        testIndex = mock(TestIndex.class);
+
+        indexCreator = mock(IndexCreator.class);
+        doCallRealMethod().when(indexCreator).create();
+
+        Set<AbstractIndex> indexSet = new HashSet<>();
+        indexSet.add(testIndex);
+        when(indexCreator, "loadIndex").thenReturn(indexSet);
+    }
 
     @Test
     public void testLoadIndex() throws Exception {
@@ -47,20 +64,47 @@ public class IndexCreatorTestCase {
     }
 
     @Test
-    public void testCreate() throws Exception {
-        TestIndex testIndex = mock(TestIndex.class);
+    public void testCreateOptionOff() throws Exception {
+        EsConfig.Es.Index.create = EsConfig.Create_Off;
+        indexCreator.create();
+        Mockito.verify(testIndex, Mockito.never()).createIndex();
+        Mockito.verify(testIndex, Mockito.never()).deleteIndex();
+    }
 
-        IndexCreator indexCreator = mock(IndexCreator.class);
-        doCallRealMethod().when(indexCreator).create();
-
-        Set<AbstractIndex> indexSet = new HashSet<>();
-        indexSet.add(testIndex);
-
-        when(indexCreator, "loadIndex").thenReturn(indexSet);
-
+    @Test
+    public void testCreateOptionOverWriteIndexIsExists() throws Exception {
+        EsConfig.Es.Index.create = EsConfig.Create_Overwrite;
+        when(testIndex.isExists()).thenReturn(true);
         indexCreator.create();
         Mockito.verify(testIndex).createIndex();
         Mockito.verify(testIndex).deleteIndex();
+    }
+
+    @Test
+    public void testCreateOptionOverWriteIndexNotExists() throws Exception {
+        EsConfig.Es.Index.create = EsConfig.Create_Overwrite;
+        when(testIndex.isExists()).thenReturn(false);
+        indexCreator.create();
+        Mockito.verify(testIndex).createIndex();
+        Mockito.verify(testIndex, Mockito.never()).deleteIndex();
+    }
+
+    @Test
+    public void testCreateOptionIgnoreIndexNotExists() throws Exception {
+        EsConfig.Es.Index.create = EsConfig.Create_Ignore;
+        when(testIndex.isExists()).thenReturn(false);
+        indexCreator.create();
+        Mockito.verify(testIndex).createIndex();
+        Mockito.verify(testIndex, Mockito.never()).deleteIndex();
+    }
+
+    @Test
+    public void testCreateOptionIgnoreIndexExists() throws Exception {
+        EsConfig.Es.Index.create = EsConfig.Create_Ignore;
+        when(testIndex.isExists()).thenReturn(true);
+        indexCreator.create();
+        Mockito.verify(testIndex, Mockito.never()).createIndex();
+        Mockito.verify(testIndex, Mockito.never()).deleteIndex();
     }
 
     class TestIndex extends AbstractIndex {
