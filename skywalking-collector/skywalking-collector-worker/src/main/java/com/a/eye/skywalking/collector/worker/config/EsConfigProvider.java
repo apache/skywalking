@@ -25,6 +25,9 @@ public class EsConfigProvider implements ConfigProvider {
             EsConfig.Es.Cluster.Transport.sniffer = System.getProperty("es.cluster.transport.sniffer");
         }
 
+        if (!StringUtil.isEmpty(System.getProperty("es.index.create"))) {
+            EsConfig.Es.Index.create = System.getProperty("es.index.create");
+        }
         if (!StringUtil.isEmpty(System.getProperty("es.index.shards.number"))) {
             EsConfig.Es.Index.Shards.number = System.getProperty("es.index.shards.number");
         }

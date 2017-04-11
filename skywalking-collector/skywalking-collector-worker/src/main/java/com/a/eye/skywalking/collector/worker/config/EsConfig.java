@@ -5,6 +5,10 @@ package com.a.eye.skywalking.collector.worker.config;
  */
 public class EsConfig {
 
+    public static final String Create_Overwrite = "overwrite";
+    public static final String Create_Ignore = "ignore";
+    public static final String Create_Off = "off";
+
     public static class Es {
         public static class Cluster {
             public static String name = "";
@@ -16,12 +20,14 @@ public class EsConfig {
         }
 
         public static class Index {
+            public static String create = "";
+
             public static class Shards {
-                public static String number;
+                public static String number = "";
             }
 
-            public static class Replicas{
-                public static String number;
+            public static class Replicas {
+                public static String number = "";
             }
         }
     }
