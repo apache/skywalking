@@ -15,7 +15,7 @@
     <properties>
         <jetty.version>9.4.2.v20170220</jetty.version>
         <main.class>com.a.eye.skywalking.collector.worker.CollectorBootStartUp</main.class>
-        <docker.cache.imageName>${artifactId}</docker.cache.imageName>
+        <docker.cache.imageName>skywalking-collector</docker.cache.imageName>
         <docker.imageTag.version>${version}</docker.imageTag.version>
     </properties>
 

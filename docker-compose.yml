@@ -1,19 +1,40 @@
-version: '2'
+version: '2.1'
 services:
-  skywalking-collector-worker:
-    image: skywalking-collector-worker:3.0-2017
+  skywalking-webui:
+    image: sky-walking-ui:1.0
+    expose:
+      - "8080"
+    ports:
+      - "8080:8080"
+    links:
+      - skywalking-collector
+    environment:
+      - COLLECTOR_SERVERS=skywalking-collector:7001
+
+  skywalking-collector:
+    image: skywalking-collector:3.0-2017
     expose:
       - "7001"
       - "1000"
+    ports:
+      - "7001:7001"
     depends_on:
-      - es-server
+      es-server:
+        condition: service_healthy
     links:
       - es-server
+    environment:
+      - ES_CLUSTER_NODES=es-server:9300
+      - HTTP_HOST_NAME=0.0.0.0
 
   es-server:
     image: elasticsearch:5.3
+    command: "-Enode.name=TestNode -Enetwork.host=0.0.0.0 -Ehttp.cors.enabled=true -Ehttp.cors.allow-origin=* -Ethread_pool.bulk.queue_size=1000 -Ecluster.name=CollectorDBCluster"
     expose:
       - "9200"
       - "9300"
-    entrypoint: elasticsearch
-    command: "-Des.node.name=CollectorDBCluster"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
