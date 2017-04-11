@@ -182,6 +182,14 @@
                     </instrumentation>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>com.spotify</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>${docker.plugin.version}</version>
+                <configuration>
+                    <skipDocker>true</skipDocker>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 </project>
