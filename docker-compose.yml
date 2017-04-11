@@ -1,87 +1,19 @@
 version: '2'
 services:
-
-  skywalking-storage:
-    image: skywalking/skywalking-storage:2.1-2017
+  skywalking-collector-worker:
+    image: skywalking-collector-worker:3.0-2017
     expose:
-      - "34000"
+      - "7001"
+      - "1000"
     depends_on:
-      - registry-center-server
+      - es-server
     links:
-      - registry-center-server
-    environment:
-      - REGISTRY_CENTER_URL=registry-center-server:2181
+      - es-server
 
-  skywalking-alarm:
-    image: skywalking/skywalking-alarm:2.1-2017
-    depends_on:
-      - alarm-coordinate-zk
-      - mysql-server
-      - redis-server
-    links:
-      - alarm-coordinate-zk
-      - mysql-server
-      - redis-server
-    environment:
-      - ALARM_COORDINATE_ZK_ADDRESS=alarm-coordinate-zk:2181
-      - MYSQL_SERVER=mysql-server:3306
-      - REDIS_SERVER=redis-server:6379
-      - WEBUI_DEPLOY_ADDRESS=192.168.1.104:8080
-      - WEBUI_APPLICATION_CONTEXT=skywalking
-      - ALARM_MAIL_HOST=smtp.mail.com
-      - MAIL_USER_NAME=skywalking
-      - MAIL_PASSWORD=skywalking
-      - MAIL_SENDER_MAIL=skywalking@mail.com
-
-  skywalking-routing:
-    image: skywalking/skywalking-routing:2.1-2017
+  es-server:
+    image: elasticsearch:5.3
     expose:
-      - "23000"
-    ports:
-      - "23000:23000"
-    depends_on:
-      - registry-center-server
-    links:
-      - registry-center-server
-    environment:
-      - REGISTRY_CENTER_URL=registry-center-server:2181
-      - ALARM_REDIS_SERVER=redis-server:6379
-
-  skywalking-webui:
-    image: skywalking/skywalking-webui:2.1-2017
-    expose:
-      - "8080"
-    ports:
-      - "8080:8080"
-    depends_on:
-      - mysql-server
-      - registry-center-server
-    links:
-      - mysql-server
-      - registry-center-server
-    environment:
-      - MYSQL_URL=mysql-server:3306
-      - REGISTRY_CENTER_URL=registry-center-server:2181
-
-  mysql-server:
-    image: mysql:5.6
-    expose:
-      - "3306"
-    environment:
-      MYSQL_DATABASE: test
-      MYSQL_ROOT_PASSWORD: root
-
-  registry-center-server:
-    image: zookeeper:3.4.9
-    expose:
-      - "2181"
-
-  redis-server:
-    image: redis:3.2.6
-    expose:
-      - "6379"
-
-  alarm-coordinate-zk:
-    image: zookeeper:3.4.9
-    expose:
-      - "2181"
+      - "9200"
+      - "9300"
+    entrypoint: elasticsearch
+    command: "-Des.node.name=CollectorDBCluster"
