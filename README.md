@@ -23,3 +23,15 @@ This independent UI repository works since sky-walking 3.0.
 |Mac OS 10.12|Safari|10.1 (12603.1.30.0.34)|
 ||Chrome|57.0.2987.133|
 ||FireFox|52.0.2|
+
+#### QuickStart
+1. Requirements: at least Java 8
+1. Download the skywalking-ui.tar as follows:
+    > curl -O https://github.com/wu-sheng/sky-walking-ui/releases/download/v3.0-2017/skywalking-ui.tar     
+    > tar -xvf skywalking-ui.tar  
+    > cd skywalking-ui/bin  
+    > ./startup.sh
+1. Configuring skywalking-ui
+    * application.properties for configuring ui server port 
+    * log4j2.xml for configuring ui server logging
+    * config/config.properties for configuring collector servers address
