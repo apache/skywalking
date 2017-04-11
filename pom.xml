@@ -202,6 +202,7 @@
     </dependencies>
 
     <build>
+        <finalName>skywalking-web</finalName>
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -218,6 +219,37 @@
                 <configuration>
                     <encoding>${project.build.sourceEncoding}</encoding>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.3.2</version>
+                <configuration>
+                    <excludes>
+                        <exclude>public/**</exclude>
+                        <exclude>config/**</exclude>
+                        <exclude>*.properties</exclude>
+                        <exclude>*.config</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <descriptors>
+                                <descriptor>src/main/assembly/assembly.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
