@@ -11,7 +11,7 @@ import java.util.List;
  * @author pengys5
  */
 @ConfigurationProperties(prefix = "collector")
-@PropertySource("classpath:config/config.properties")
+@PropertySource("classpath:collector_config.properties")
 @Component
 public class UIConfig {
 

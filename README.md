@@ -27,11 +27,11 @@ This independent UI repository works since sky-walking 3.0.
 #### QuickStart
 1. Requirements: at least Java 8
 1. Download the skywalking-ui.tar as follows:
-    > curl -O https://github.com/wu-sheng/sky-walking-ui/releases/download/v3.0-2017/skywalking-ui.tar     
-    > tar -xvf skywalking-ui.tar  
-    > cd skywalking-ui/bin  
+    > curl -O https://github.com/wu-sheng/sky-walking-ui/releases/download/v3.0-2017/skywalking-web.tar.gz     
+    > tar -xvf skywalking-web.tar.gz  
+    > cd skywalking-web/bin  
     > ./startup.sh
-1. Configuring skywalking-ui
-    * application.properties for configuring ui server port 
-    * log4j2.xml for configuring ui server logging
-    * config/config.properties for configuring collector servers address
+#### Configuring skywalking-ui
+    * config/application.properties for configuring ui server port 
+    * config/log4j2.xml for configuring ui server logging
+    * config/collector_config.properties for configuring collector servers address
