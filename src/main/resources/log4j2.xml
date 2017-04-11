@@ -1,16 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="debug">
+<Configuration status="DEBUG">
+	<Properties>
+		<Property name="log-path">../logs</Property>
+	</Properties>
 	<Appenders>
-		<Console name="Console" target="SYSTEM_OUT">
-			<PatternLayout charset="UTF-8" pattern="[%d{yyyy-MM-dd HH:mm:ss:SSS}] [%p] - %l - %m%n" />
-		</Console>
+		<RollingFile name="RollingFile" fileName="${log-path}/skywalking-web-server.log"
+					 filePattern="${log-path}/skywalking-web-server-%d{yyyy-MM-dd}-%i.log" >
+			<PatternLayout>
+				<pattern>%d - %c -%-4r [%t] %-5p %x - %m%n</pattern>
+			</PatternLayout>
+			<Policies>
+				<SizeBasedTriggeringPolicy size="102400KB" />
+			</Policies>
+			<DefaultRolloverStrategy max="30"/>
+		</RollingFile>
 	</Appenders>
 	<Loggers>
 		<logger name="com.a.eye.skywalking.ui" level="debug" additivity="false">
-			<AppenderRef ref="Console"/>
+			<AppenderRef ref="INFO"/>
 		</logger>
-		<Root level="debug">
-			<AppenderRef ref="Console" />
+		<Logger name="root" level="INFO" additivity="false">
+			<appender-ref ref="RollingFile" level="INFO"/>
+		</Logger>
+		<Root level="INFO" additivity="false">
+			<AppenderRef ref="RollingFile"/>
 		</Root>
 	</Loggers>
 </Configuration>
+
+
+

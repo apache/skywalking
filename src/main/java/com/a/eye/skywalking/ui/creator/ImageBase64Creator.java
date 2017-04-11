@@ -20,7 +20,8 @@ public class ImageBase64Creator {
 
     private Logger logger = LogManager.getFormatterLogger(ImageBase64Creator.class);
 
-    private final String ImageFolder_Relative_PATH = "/public/img/node/";
+    private final String ImageFolder_Relative_PATH = File.separator + "public" + File.separator + "img" + File.separator +
+            "node" + File.separator;
 
     private final String PNG_BASE64_PREFIX = "data:image/png;base64,";
     private final String JPG_BASE64_PREFIX = "data:image/png;base64,";
@@ -39,7 +40,7 @@ public class ImageBase64Creator {
         for (String nodeImageFile : imageFileList) {
             logger.debug("nodeImageFile: %s", nodeImageFile);
 
-            byte[] imageData = imageRead(imageFolder + nodeImageFile);
+            byte[] imageData = imageRead(new File(imageFolder , nodeImageFile));
             if (nodeImageFile.toLowerCase().endsWith(PNG)) {
                 String encodeImage = imageEncode(imageData, PNG);
                 String imageName = getImageName(nodeImageFile);
@@ -60,7 +61,7 @@ public class ImageBase64Creator {
     private String getImageFolder() {
         URL url = this.getClass().getResource("/");
         logger.debug("root class path: %s", url.getPath());
-        String imageFolder = url.getPath() + ImageFolder_Relative_PATH;
+        String imageFolder = new File(url.getPath(), ImageFolder_Relative_PATH).getAbsolutePath();
         return imageFolder;
     }
 
@@ -73,7 +74,7 @@ public class ImageBase64Creator {
         }
     }
 
-    private byte[] imageRead(String imgFile) {
+    private byte[] imageRead(File imgFile) {
         InputStream inputStream = null;
         byte[] imageData = null;
         try {
