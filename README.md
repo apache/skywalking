@@ -25,13 +25,16 @@ This independent UI repository works since sky-walking 3.0.
 ||FireFox|52.0.2|
 
 #### QuickStart
-1. Requirements: at least Java 8
-1. Download the skywalking-ui.tar as follows:
-    > curl -O https://github.com/wu-sheng/sky-walking-ui/releases/download/v3.0-2017/skywalking-web.tar.gz     
-    > tar -xvf skywalking-web.tar.gz  
-    > cd skywalking-web/bin  
-    > ./startup.sh
+1. Requirement: Java 8+
+1. Download and startup
+
+```shell
+> curl -O https://github.com/wu-sheng/sky-walking-ui/releases/download/v3.0-2017/skywalking-web.tar.gz  
+> tar -xvf skywalking-web.tar.gz  
+> cd skywalking-web/bin  
+> ./startup.sh
+```
 #### Configuring skywalking-ui
-    * config/application.properties for configuring ui server port 
-    * config/log4j2.xml for configuring ui server logging
-    * config/collector_config.properties for configuring collector servers address
+* Set server listening port in `config/application.properties`
+* Set log in `config/log4j2.xml`
+* Set addresses of collector servers in `config/collector_config.properties`
