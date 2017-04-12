@@ -18,7 +18,7 @@ public class EsConfig {
         public static class Index {
 
             public static class Initialize {
-                public static String model = "";
+                public static IndexInitMode mode;
             }
 
             public static class Shards {
@@ -31,7 +31,7 @@ public class EsConfig {
         }
     }
 
-    public enum IndexInitModel {
+    public enum IndexInitMode {
         auto, forced, manual
     }
 }

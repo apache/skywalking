@@ -64,16 +64,16 @@ public class IndexCreatorTestCase {
     }
 
     @Test
-    public void testCreateOptionOff() throws Exception {
-        EsConfig.Es.Index.create = EsConfig.Create_Off;
+    public void testCreateOptionManual() throws Exception {
+        EsConfig.Es.Index.Initialize.mode = EsConfig.IndexInitMode.manual;
         indexCreator.create();
         Mockito.verify(testIndex, Mockito.never()).createIndex();
         Mockito.verify(testIndex, Mockito.never()).deleteIndex();
     }
 
     @Test
-    public void testCreateOptionOverWriteIndexIsExists() throws Exception {
-        EsConfig.Es.Index.create = EsConfig.Create_Overwrite;
+    public void testCreateOptionForcedIndexIsExists() throws Exception {
+        EsConfig.Es.Index.Initialize.mode = EsConfig.IndexInitMode.forced;
         when(testIndex.isExists()).thenReturn(true);
         indexCreator.create();
         Mockito.verify(testIndex).createIndex();
@@ -81,8 +81,8 @@ public class IndexCreatorTestCase {
     }
 
     @Test
-    public void testCreateOptionOverWriteIndexNotExists() throws Exception {
-        EsConfig.Es.Index.create = EsConfig.Create_Overwrite;
+    public void testCreateOptionForcedIndexNotExists() throws Exception {
+        EsConfig.Es.Index.Initialize.mode = EsConfig.IndexInitMode.forced;
         when(testIndex.isExists()).thenReturn(false);
         indexCreator.create();
         Mockito.verify(testIndex).createIndex();
@@ -90,8 +90,8 @@ public class IndexCreatorTestCase {
     }
 
     @Test
-    public void testCreateOptionIgnoreIndexNotExists() throws Exception {
-        EsConfig.Es.Index.create = EsConfig.Create_Ignore;
+    public void testCreateOptionAutoIndexNotExists() throws Exception {
+        EsConfig.Es.Index.Initialize.mode = EsConfig.IndexInitMode.auto;
         when(testIndex.isExists()).thenReturn(false);
         indexCreator.create();
         Mockito.verify(testIndex).createIndex();
@@ -99,8 +99,8 @@ public class IndexCreatorTestCase {
     }
 
     @Test
-    public void testCreateOptionIgnoreIndexExists() throws Exception {
-        EsConfig.Es.Index.create = EsConfig.Create_Ignore;
+    public void testCreateOptionAutoIndexExists() throws Exception {
+        EsConfig.Es.Index.Initialize.mode = EsConfig.IndexInitMode.auto;
         when(testIndex.isExists()).thenReturn(true);
         indexCreator.create();
         Mockito.verify(testIndex, Mockito.never()).createIndex();

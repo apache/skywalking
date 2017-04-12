@@ -17,12 +17,12 @@ public enum IndexCreator {
     private Logger logger = LogManager.getFormatterLogger(IndexCreator.class);
 
     public void create() {
-        if (!EsConfig.IndexInitModel.manual.name().equals(EsConfig.Es.Index.Initialize.model)) {
+        if (!EsConfig.IndexInitMode.manual.equals(EsConfig.Es.Index.Initialize.mode)) {
             Set<AbstractIndex> indexSet = loadIndex();
             for (AbstractIndex index : indexSet) {
                 boolean isExists = index.isExists();
                 if (isExists) {
-                    if (EsConfig.IndexInitModel.forced.name().equals(EsConfig.Es.Index.Initialize.model)) {
+                    if (EsConfig.IndexInitMode.forced.equals(EsConfig.Es.Index.Initialize.mode)) {
                         index.deleteIndex();
                         index.createIndex();
                     }
