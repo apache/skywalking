@@ -16,6 +16,9 @@
         <compiler.version>1.8</compiler.version>
         <log4j.version>2.6.2</log4j.version>
         <powermock.version>1.6.4</powermock.version>
+        <docker.plugin.version>0.4.13</docker.plugin.version>
+        <docker.cache.imageName>${artifactId}</docker.cache.imageName>
+        <docker.imageTag.version>${version}</docker.imageTag.version>
     </properties>
 
     <dependencies>
@@ -250,6 +253,26 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.spotify</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>${docker.plugin.version}</version>
+                <configuration>
+                    <skipDocker>false</skipDocker>
+                    <imageName>${docker.cache.imageName}</imageName>
+                    <imageTags>
+                        <imageTag>${docker.imageTag.version}</imageTag>
+                    </imageTags>
+                    <dockerDirectory>${project.basedir}/docker</dockerDirectory>
+                    <resources>
+                        <resource>
+                            <targetPath>/</targetPath>
+                            <directory>${project.build.directory}</directory>
+                            <include>${build.finalName}.tar.gz</include>
+                        </resource>
+                    </resources>
+                </configuration>
             </plugin>
         </plugins>
     </build>
