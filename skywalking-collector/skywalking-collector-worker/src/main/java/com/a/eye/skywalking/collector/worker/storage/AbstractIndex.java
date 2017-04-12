@@ -5,6 +5,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
+import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.action.admin.indices.mapping.put.PutMappingResponse;
 import org.elasticsearch.client.IndicesAdminClient;
 import org.elasticsearch.common.settings.Settings;
@@ -84,6 +85,12 @@ public abstract class AbstractIndex {
             logger.info("%s index not found", index());
         }
         return false;
+    }
+
+    final boolean isExists() {
+        IndicesAdminClient client = EsClient.INSTANCE.getClient().admin().indices();
+        IndicesExistsResponse response = client.prepareExists(index()).get();
+        return response.isExists();
     }
 
     public abstract String index();

@@ -1,5 +1,6 @@
 package com.a.eye.skywalking.collector.worker.storage;
 
+import com.a.eye.skywalking.collector.worker.config.EsConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -16,10 +17,19 @@ public enum IndexCreator {
     private Logger logger = LogManager.getFormatterLogger(IndexCreator.class);
 
     public void create() {
-        Set<AbstractIndex> indexSet = loadIndex();
-        for (AbstractIndex index : indexSet) {
-            index.deleteIndex();
-            index.createIndex();
+        if (!EsConfig.IndexInitMode.manual.equals(EsConfig.Es.Index.Initialize.mode)) {
+            Set<AbstractIndex> indexSet = loadIndex();
+            for (AbstractIndex index : indexSet) {
+                boolean isExists = index.isExists();
+                if (isExists) {
+                    if (EsConfig.IndexInitMode.forced.equals(EsConfig.Es.Index.Initialize.mode)) {
+                        index.deleteIndex();
+                        index.createIndex();
+                    }
+                } else {
+                    index.createIndex();
+                }
+            }
         }
     }
 

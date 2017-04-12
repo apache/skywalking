@@ -13,6 +13,7 @@ import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -46,9 +47,9 @@ public enum EsClient {
     public void indexRefresh(String... indexName) {
         RefreshResponse response = client.admin().indices().refresh(new RefreshRequest(indexName)).actionGet();
         if (response.getShardFailures().length == response.getTotalShards()) {
-            logger.error("All elasticsearch shard index refresh failure, reason: %s", response.getShardFailures());
+            logger.error("All elasticsearch shard index refresh failure, reason: %s", Arrays.toString(response.getShardFailures()));
         } else if (response.getShardFailures().length > 0) {
-            logger.error("In parts of elasticsearch shard index refresh failure, reason: %s", response.getShardFailures());
+            logger.error("In parts of elasticsearch shard index refresh failure, reason: %s", Arrays.toString(response.getShardFailures()));
         }
         logger.info("elasticsearch index refresh success");
     }

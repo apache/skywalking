@@ -16,13 +16,22 @@ public class EsConfig {
         }
 
         public static class Index {
-            public static class Shards {
-                public static String number;
+
+            public static class Initialize {
+                public static IndexInitMode mode;
             }
 
-            public static class Replicas{
-                public static String number;
+            public static class Shards {
+                public static String number = "";
+            }
+
+            public static class Replicas {
+                public static String number = "";
             }
         }
+    }
+
+    public enum IndexInitMode {
+        auto, forced, manual
     }
 }
