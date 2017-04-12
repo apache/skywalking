@@ -1,14 +1,13 @@
 package com.a.eye.skywalking.collector.actor.selector;
 
 /**
- * The <code>AbstractHashMessage</code> should be implemented by any class whose instances
- * are intended to provide send message with {@link HashCodeSelector}.
+ * The <code>AbstractHashMessage</code> implementations represent aggregate message,
+ * which use to aggregate metric.
+ * Make the message aggregator's worker selector use of {@link HashCodeSelector}.
  * <p>
- * Usually the implemented class used to persistence data to database
- * or aggregation the metric.
  *
  * @author pengys5
- * @since feature3.0
+ * @since v3.0-2017
  */
 public abstract class AbstractHashMessage {
     private int hashCode;

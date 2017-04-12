@@ -12,7 +12,7 @@ import java.util.List;
  * Actually, the <code>WorkerRef</code> is designed to provide a routing ability in the collector cluster
  *
  * @author pengys5
- * @since feature3.0
+ * @since v3.0-2017
  */
 public interface WorkerSelector<T extends WorkerRef> {
 

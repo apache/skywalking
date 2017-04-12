@@ -4,12 +4,12 @@ import akka.actor.ActorRef;
 import akka.actor.Props;
 
 /**
- * The <code>AbstractClusterWorkerProvider</code> should be implemented by any class whose instances
- * are intended to provide create the class instance whose implemented {@link AbstractClusterWorker}.
+ * The <code>AbstractClusterWorkerProvider</code> implementations represent providers,
+ * which create instance of cluster workers whose implemented {@link AbstractClusterWorker}.
  * <p>
  *
  * @author pengys5
- * @since feature3.0
+ * @since v3.0-2017
  */
 public abstract class AbstractClusterWorkerProvider<T extends AbstractClusterWorker> extends AbstractWorkerProvider<T> {
 

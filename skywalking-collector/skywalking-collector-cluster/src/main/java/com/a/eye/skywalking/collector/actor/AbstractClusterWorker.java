@@ -11,22 +11,21 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * The <code>AbstractClusterWorker</code> should be implemented by any class whose instances
- * are intended to provide receive remote message that message will transfer across different jvm
- * which running in same server or another address server.
+ * The <code>AbstractClusterWorker</code> implementations represent workers,
+ * which receive remote messages.
  * <p>
- * Usually the implemented class used to receive persistence data or aggregation the metric.
+ * Usually, the implementations are doing persistent, or aggregate works.
  *
  * @author pengys5
- * @since feature3.0
+ * @since v3.0-2017
  */
 public abstract class AbstractClusterWorker extends AbstractWorker {
 
     /**
-     * Constructs a <code>AbstractClusterWorker</code> with the worker role and context.
+     * Construct an <code>AbstractClusterWorker</code> with the worker role and context.
      *
-     * @param role           The responsibility of worker in cluster, more than one workers can have
-     *                       same responsibility which use to provide load balancing ability.
+     * @param role           If multi-workers are for load balance, they should be more likely called worker instance.
+     *                       Meaning, each worker have multi instances.
      * @param clusterContext See {@link ClusterWorkerContext}
      * @param selfContext    See {@link LocalWorkerContext}
      */
@@ -35,7 +34,7 @@ public abstract class AbstractClusterWorker extends AbstractWorker {
     }
 
     /**
-     * Receive message
+     * This method use for message producer to call for send message.
      *
      * @param message The persistence data or metric data.
      * @throws Exception The Exception happen in {@link #onWork(Object)}
@@ -45,7 +44,7 @@ public abstract class AbstractClusterWorker extends AbstractWorker {
     }
 
     /**
-     * The data process logic in this method.
+     * This method use for message receiver to analyse message.
      *
      * @param message Cast the message object to a expect subclass.
      * @throws Exception Don't handle the exception, throw it.

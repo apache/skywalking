@@ -6,16 +6,16 @@ import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.RingBuffer;
 
 /**
- * The <code>AbstractLocalAsyncWorker</code> should be implemented by any class whose instances
- * are intended to provide receive asynchronous message in same jvm.
+ * The <code>AbstractLocalAsyncWorker</code> implementations represent workers,
+ * which receive local asynchronous message.
  *
  * @author pengys5
- * @since feature3.0
+ * @since v3.0-2017
  */
 public abstract class AbstractLocalAsyncWorker extends AbstractLocalWorker {
 
     /**
-     * Constructs a <code>AbstractLocalAsyncWorker</code> with the worker role and context.
+     * Construct an <code>AbstractLocalAsyncWorker</code> with the worker role and context.
      *
      * @param role           The responsibility of worker in cluster, more than one workers can have
      *                       same responsibility which use to provide load balancing ability.
