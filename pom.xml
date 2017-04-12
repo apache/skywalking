@@ -6,7 +6,7 @@
 
     <groupId>com.a.eye</groupId>
     <artifactId>sky-walking-ui</artifactId>
-    <version>1.0</version>
+    <version>3.0-2017</version>
     <packaging>jar</packaging>
 
     <properties>
