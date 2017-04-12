@@ -14,6 +14,9 @@
 
     <properties>
         <jetty.version>9.4.2.v20170220</jetty.version>
+        <main.class>com.a.eye.skywalking.collector.worker.CollectorBootStartUp</main.class>
+        <docker.cache.imageName>skywalking-collector</docker.cache.imageName>
+        <docker.imageTag.version>${version}</docker.imageTag.version>
     </properties>
 
     <dependencies>
@@ -54,4 +57,64 @@
             <version>RELEASE</version>
         </dependency>
     </dependencies>
+
+    <build>
+        <finalName>skywalking-collector</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.3.2</version>
+                <configuration>
+                    <excludes>
+                        <exclude>*.xml</exclude>
+                        <exclude>*.config</exclude>
+                    </excludes>
+                    <archive>
+                        <manifest>
+                            <mainClass>${main.class}</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <descriptors>
+                                <descriptor>src/main/assembly/assembly.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.spotify</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>${docker.plugin.version}</version>
+                <configuration>
+                    <skipDocker>false</skipDocker>
+                    <imageName>${docker.cache.imageName}</imageName>
+                    <imageTags>
+                        <imageTag>${docker.imageTag.version}</imageTag>
+                    </imageTags>
+                    <dockerDirectory>${project.basedir}/docker</dockerDirectory>
+                    <resources>
+                        <resource>
+                            <targetPath>/</targetPath>
+                            <directory>${project.build.directory}</directory>
+                            <include>${build.finalName}.tar.gz</include>
+                        </resource>
+                    </resources>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
