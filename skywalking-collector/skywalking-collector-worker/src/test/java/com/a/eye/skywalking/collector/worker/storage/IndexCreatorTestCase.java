@@ -65,7 +65,7 @@ public class IndexCreatorTestCase {
 
     @Test
     public void testCreateOptionManual() throws Exception {
-        EsConfig.Es.Index.Initialize.mode = EsConfig.IndexInitMode.manual;
+        EsConfig.Es.Index.Initialize.mode = EsConfig.IndexInitMode.MANUAL;
         indexCreator.create();
         Mockito.verify(testIndex, Mockito.never()).createIndex();
         Mockito.verify(testIndex, Mockito.never()).deleteIndex();
@@ -73,7 +73,7 @@ public class IndexCreatorTestCase {
 
     @Test
     public void testCreateOptionForcedIndexIsExists() throws Exception {
-        EsConfig.Es.Index.Initialize.mode = EsConfig.IndexInitMode.forced;
+        EsConfig.Es.Index.Initialize.mode = EsConfig.IndexInitMode.FORCED;
         when(testIndex.isExists()).thenReturn(true);
         indexCreator.create();
         Mockito.verify(testIndex).createIndex();
@@ -82,7 +82,7 @@ public class IndexCreatorTestCase {
 
     @Test
     public void testCreateOptionForcedIndexNotExists() throws Exception {
-        EsConfig.Es.Index.Initialize.mode = EsConfig.IndexInitMode.forced;
+        EsConfig.Es.Index.Initialize.mode = EsConfig.IndexInitMode.FORCED;
         when(testIndex.isExists()).thenReturn(false);
         indexCreator.create();
         Mockito.verify(testIndex).createIndex();
@@ -91,7 +91,7 @@ public class IndexCreatorTestCase {
 
     @Test
     public void testCreateOptionAutoIndexNotExists() throws Exception {
-        EsConfig.Es.Index.Initialize.mode = EsConfig.IndexInitMode.auto;
+        EsConfig.Es.Index.Initialize.mode = EsConfig.IndexInitMode.AUTO;
         when(testIndex.isExists()).thenReturn(false);
         indexCreator.create();
         Mockito.verify(testIndex).createIndex();
@@ -100,7 +100,7 @@ public class IndexCreatorTestCase {
 
     @Test
     public void testCreateOptionAutoIndexExists() throws Exception {
-        EsConfig.Es.Index.Initialize.mode = EsConfig.IndexInitMode.auto;
+        EsConfig.Es.Index.Initialize.mode = EsConfig.IndexInitMode.AUTO;
         when(testIndex.isExists()).thenReturn(true);
         indexCreator.create();
         Mockito.verify(testIndex, Mockito.never()).createIndex();
