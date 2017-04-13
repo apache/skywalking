@@ -32,6 +32,8 @@ public class EsConfig {
     }
 
     public enum IndexInitMode {
-        auto, forced, manual
+        AUTO,
+        FORCED,
+        MANUAL
     }
 }
