@@ -26,7 +26,7 @@ This independent UI repository works since sky-walking 3.0.
 
 #### QuickStart
 1. Requirement: Java 8+
-1. Download and startup
+2. Download and startup
 
 ```shell
 > curl -O https://github.com/wu-sheng/sky-walking-ui/releases/download/v3.0-2017/skywalking-web.tar.gz  
@@ -34,7 +34,21 @@ This independent UI repository works since sky-walking 3.0.
 > cd skywalking-web/bin  
 > ./startup.sh
 ```
-#### Configuring skywalking-ui
+3. Configuring skywalking-ui
 * Set server listening port in `config/application.properties`
 * Set log in `config/log4j2.xml`
 * Set addresses of collector servers in `config/collector_config.properties`
+
+#### QuickStart-zh
+1. 需要JDK8+
+2. 下载应用程序
+
+```shell
+> curl -O https://github.com/wu-sheng/sky-walking-ui/releases/download/v3.0-2017/skywalking-web.tar.gz  
+> tar -xvf skywalking-web.tar.gz  
+> cd skywalking-web/bin  
+> ./startup.sh
+```
+3. 配置应用程序
+* 在`config/application.properties`文件中，设置webui的监听端口
+* 在`config/collector_config.properties`文件中，设置collector集群或单实例地址，对应的`collector.config`中的配置项是`http.port`。
