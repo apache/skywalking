@@ -5,7 +5,7 @@
 
 	<groupId>com.a.eye</groupId>
 	<artifactId>skywalking</artifactId>
-	<version>3.1-2017</version>
+	<version>3.0.1-2017</version>
 
 	<licenses>
 		<license>
