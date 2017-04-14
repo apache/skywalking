@@ -22,7 +22,7 @@ done
 
 echo "Starting collector...."
 eval exec "\"$_RUNJAVA\" ${JAVA_OPTS} -classpath $CLASSPATH com.a.eye.skywalking.collector.worker.CollectorBootStartUp \
-        2>${COLLECTOR_LOGS_DIR}/collector.log 1> /dev/null &"
+        & >> ${COLLECTOR_LOGS_DIR}/collector.log &"
 
 if [ $? -eq 0 ]; then
     sleep 1
