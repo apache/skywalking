@@ -22,13 +22,12 @@ public final class TracerContext {
 
     /**
      * Active spans stored in a Stack, usually called 'ActiveSpanStack'.
-     * This {@link ArrayList} is the in-memory storage-structure.
+     * This {@link LinkedList} is the in-memory storage-structure.
      *
-     * I use {@link ArrayList#size()} as a pointer, to the top element of 'ActiveSpanStack'.
-     * And provide the top 3 important methods of stack:
+     * I use {@link LinkedList#removeLast()}, {@link LinkedList#addLast(Object)} and {@link LinkedList#last} instead of
      * {@link #pop()}, {@link #push(Span)}, {@link #peek()}
      */
-    private List<Span> activeSpanStack = new ArrayList<Span>(20);
+    private LinkedList<Span> activeSpanStack = new LinkedList<Span>();
 
     private int spanIdGenerator;
 
@@ -166,7 +165,7 @@ public final class TracerContext {
      * @return the top element of 'ActiveSpanStack', and remove it.
      */
     private Span pop() {
-        return activeSpanStack.remove(getTopElementIdx());
+        return activeSpanStack.removeLast();
     }
 
     /**
@@ -175,7 +174,7 @@ public final class TracerContext {
      * @param span
      */
     private void push(Span span) {
-        activeSpanStack.add(activeSpanStack.size(), span);
+        activeSpanStack.addLast(span);
     }
 
     /**
@@ -185,16 +184,7 @@ public final class TracerContext {
         if (activeSpanStack.isEmpty()) {
             return null;
         }
-        return activeSpanStack.get(getTopElementIdx());
-    }
-
-    /**
-     * Get the index of 'ActiveSpanStack'
-     *
-     * @return the index
-     */
-    private int getTopElementIdx() {
-        return activeSpanStack.size() - 1;
+        return activeSpanStack.getLast();
     }
 
     public static class ListenerManager {
