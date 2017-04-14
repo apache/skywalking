@@ -19,6 +19,8 @@ public enum AkkaSystem {
     public ActorSystem create() {
         final Config config = ConfigFactory.parseString("akka.remote.netty.tcp.hostname=" + ClusterConfig.Cluster.Current.hostname).
                 withFallback(ConfigFactory.parseString("akka.remote.netty.tcp.port=" + ClusterConfig.Cluster.Current.port)).
+                withFallback(ConfigFactory.parseString("akka.loggers=[\"akka.event.slf4j.Slf4jLogger\"]")).
+                withFallback(ConfigFactory.parseString("akka.loglevel=\"ERROR\"")).
                 withFallback(ConfigFactory.load("application.conf"));
         if (!StringUtil.isEmpty(ClusterConfig.Cluster.seed_nodes)) {
             config.withFallback(ConfigFactory.parseString("akka.cluster.seed-nodes=" + generateSeedNodes()));
