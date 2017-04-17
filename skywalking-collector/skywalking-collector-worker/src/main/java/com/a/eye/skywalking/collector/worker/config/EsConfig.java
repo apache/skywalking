@@ -1,5 +1,7 @@
 package com.a.eye.skywalking.collector.worker.config;
 
+import static com.a.eye.skywalking.collector.worker.config.EsConfig.IndexInitMode.AUTO;
+
 /**
  * @author pengys5
  */
@@ -18,7 +20,7 @@ public class EsConfig {
         public static class Index {
 
             public static class Initialize {
-                public static IndexInitMode mode;
+                public static IndexInitMode mode = AUTO;
             }
 
             public static class Shards {
