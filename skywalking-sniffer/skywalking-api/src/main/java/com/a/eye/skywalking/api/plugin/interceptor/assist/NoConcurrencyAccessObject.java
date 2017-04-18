@@ -13,7 +13,7 @@ import com.a.eye.skywalking.api.plugin.interceptor.InterceptorException;
  * @author wusheng
  */
 public class NoConcurrencyAccessObject {
-    private static final String INVOKE_COUNTER_KEY = "__$INVOKE_COUNTER_KEY";
+    private static final String INVOKE_COUNTER_KEY = "__$invokeCounterKey";
 
     public void whenEnter(EnhancedClassInstanceContext context, Runnable runnable) {
         if (!context.isContain(INVOKE_COUNTER_KEY)) {

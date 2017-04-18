@@ -51,7 +51,7 @@ public class TraceDagDataBuilder {
         }
 
         JsonObject dagJsonObj = new JsonObject();
-        dagJsonObj.add("NODES", pointArray);
+        dagJsonObj.add("nodes", pointArray);
         dagJsonObj.add("nodeRefs", lineArray);
         return dagJsonObj;
     }

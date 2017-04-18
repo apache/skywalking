@@ -12,7 +12,7 @@ import java.io.IOException;
 public class NodeCompIndex extends AbstractIndex {
 
     public static final String INDEX = "node_comp_idx";
-    public static final String NAME = "NAME";
+    public static final String NAME = "name";
     public static final String PEERS = "peers";
 
     @Override

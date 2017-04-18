@@ -20,7 +20,7 @@ public class LogManagerTest {
     @Before
     @After
     public void clear() throws IllegalAccessException {
-        MemberModifier.field(LogManager.class, "resolver").set(null, null);
+        MemberModifier.field(LogManager.class, "RESOLVER").set(null, null);
     }
 
     public class TestLogger implements ILog {
