@@ -13,19 +13,22 @@ import com.a.eye.skywalking.toolkit.opentracing.SkyWalkingTracer;
  */
 public class TracerFormatCrossProcessContextInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
-    public void beforeMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext, MethodInterceptResult result) {
+    public void beforeMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
+        MethodInterceptResult result) {
 
     }
 
     @Override
-    public Object afterMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext, Object ret) {
+    public Object afterMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
+        Object ret) {
         ContextCarrier carrier = new ContextCarrier();
         ContextManager.inject(carrier);
         return carrier.serialize();
     }
 
     @Override
-    public void handleMethodException(Throwable t, EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext) {
+    public void handleMethodException(Throwable t, EnhancedClassInstanceContext context,
+        InstanceMethodInvokeContext interceptorContext) {
 
     }
 }

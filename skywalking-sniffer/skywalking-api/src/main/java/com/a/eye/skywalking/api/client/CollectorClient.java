@@ -17,7 +17,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.DefaultConnectionKeepAliveStrategy;
 import org.apache.http.impl.client.HttpClients;
 
 /**
@@ -28,7 +27,7 @@ import org.apache.http.impl.client.HttpClients;
  * @author wusheng
  */
 public class CollectorClient implements Runnable {
-    private static ILog logger = LogManager.getLogger(CollectorClient.class);
+    private static final ILog logger = LogManager.getLogger(CollectorClient.class);
     private static long SLEEP_TIME_MILLIS = 500;
     private String[] serverList;
     private volatile int selectedServer = -1;
@@ -102,7 +101,7 @@ public class CollectorClient implements Runnable {
         } catch (IOException e) {
             findBackupServer();
             throw e;
-        }finally {
+        } finally {
             httpClient.close();
         }
     }

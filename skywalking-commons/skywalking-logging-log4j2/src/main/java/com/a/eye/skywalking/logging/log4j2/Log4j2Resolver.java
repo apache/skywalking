@@ -6,7 +6,6 @@ import com.a.eye.skywalking.logging.LogResolver;
 /**
  * The <code>LogResolver</code> is an implementation of {@link LogResolver},
  *
- *
  * @author wusheng
  */
 public class Log4j2Resolver implements LogResolver {

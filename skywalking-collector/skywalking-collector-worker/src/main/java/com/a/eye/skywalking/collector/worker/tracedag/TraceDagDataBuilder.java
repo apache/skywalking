@@ -27,15 +27,16 @@ public class TraceDagDataBuilder {
     private JsonArray pointArray = new JsonArray();
     private JsonArray lineArray = new JsonArray();
 
-    public JsonObject build(JsonArray nodeCompArray, JsonArray nodesMappingArray, JsonArray nodeRefsArray, JsonArray resSumArray) {
+    public JsonObject build(JsonArray nodeCompArray, JsonArray nodesMappingArray, JsonArray nodeRefsArray,
+        JsonArray resSumArray) {
         changeMapping2Map(nodesMappingArray);
         changeNodeComp2Map(nodeCompArray);
         resSumMerge(resSumArray);
 
         for (int i = 0; i < nodeRefsArray.size(); i++) {
             JsonObject nodeRefJsonObj = nodeRefsArray.get(i).getAsJsonObject();
-            String front = nodeRefJsonObj.get(NodeRefIndex.Front).getAsString();
-            String behind = nodeRefJsonObj.get(NodeRefIndex.Behind).getAsString();
+            String front = nodeRefJsonObj.get(NodeRefIndex.FRONT).getAsString();
+            String behind = nodeRefJsonObj.get(NodeRefIndex.BEHIND).getAsString();
 
             String behindCode = findRealCode(behind);
             logger.debug("behind: %s, behindCode: %s", behind, behindCode);
@@ -50,7 +51,7 @@ public class TraceDagDataBuilder {
         }
 
         JsonObject dagJsonObj = new JsonObject();
-        dagJsonObj.add("nodes", pointArray);
+        dagJsonObj.add("NODES", pointArray);
         dagJsonObj.add("nodeRefs", lineArray);
         return dagJsonObj;
     }
@@ -79,8 +80,8 @@ public class TraceDagDataBuilder {
     private void changeMapping2Map(JsonArray nodesMappingArray) {
         for (int i = 0; i < nodesMappingArray.size(); i++) {
             JsonObject nodesMappingJsonObj = nodesMappingArray.get(i).getAsJsonObject();
-            String code = nodesMappingJsonObj.get(NodeMappingIndex.Code).getAsString();
-            String peers = nodesMappingJsonObj.get(NodeMappingIndex.Peers).getAsString();
+            String code = nodesMappingJsonObj.get(NodeMappingIndex.CODE).getAsString();
+            String peers = nodesMappingJsonObj.get(NodeMappingIndex.PEERS).getAsString();
             mappingMap.put(peers, code);
         }
     }
@@ -89,8 +90,8 @@ public class TraceDagDataBuilder {
         for (int i = 0; i < nodeCompArray.size(); i++) {
             JsonObject nodesJsonObj = nodeCompArray.get(i).getAsJsonObject();
             logger.debug(nodesJsonObj);
-            String component = nodesJsonObj.get(NodeCompIndex.Name).getAsString();
-            String peers = nodesJsonObj.get(NodeCompIndex.Peers).getAsString();
+            String component = nodesJsonObj.get(NodeCompIndex.NAME).getAsString();
+            String peers = nodesJsonObj.get(NodeCompIndex.PEERS).getAsString();
             nodeCompMap.put(peers, component);
         }
     }

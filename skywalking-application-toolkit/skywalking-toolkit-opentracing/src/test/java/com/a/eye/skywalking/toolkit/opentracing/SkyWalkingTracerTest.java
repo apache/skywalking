@@ -14,7 +14,7 @@ import java.util.Map;
  */
 public class SkyWalkingTracerTest {
     @Test
-    public void testBuildSpan(){
+    public void testBuildSpan() {
         Tracer tracer = SkyWalkingTracer.INSTANCE;
         Tracer.SpanBuilder spanBuilder = tracer.buildSpan("/http/serviceName");
 
@@ -23,7 +23,7 @@ public class SkyWalkingTracerTest {
             @Override
             public Iterator<Map.Entry<String, String>> iterator() {
                 throw new UnsupportedOperationException(
-                        "TextMapInjectAdapter should only be used with Tracer.inject()");
+                    "TextMapInjectAdapter should only be used with Tracer.inject()");
             }
 
             @Override

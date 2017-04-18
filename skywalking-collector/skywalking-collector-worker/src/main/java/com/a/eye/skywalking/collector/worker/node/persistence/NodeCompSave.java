@@ -14,18 +14,19 @@ import com.a.eye.skywalking.collector.worker.node.NodeCompIndex;
  */
 public class NodeCompSave extends RecordPersistenceMember {
 
-    NodeCompSave(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    NodeCompSave(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext,
+        LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
     @Override
     public String esIndex() {
-        return NodeCompIndex.Index;
+        return NodeCompIndex.INDEX;
     }
 
     @Override
     public String esType() {
-        return NodeCompIndex.Type_Record;
+        return NodeCompIndex.TYPE_RECORD;
     }
 
     public static class Factory extends AbstractLocalAsyncWorkerProvider<NodeCompSave> {
@@ -43,7 +44,7 @@ public class NodeCompSave extends RecordPersistenceMember {
 
         @Override
         public int queueSize() {
-            return WorkerConfig.Queue.Node.NodeCompSave.Size;
+            return WorkerConfig.Queue.Node.NodeCompSave.SIZE;
         }
     }
 

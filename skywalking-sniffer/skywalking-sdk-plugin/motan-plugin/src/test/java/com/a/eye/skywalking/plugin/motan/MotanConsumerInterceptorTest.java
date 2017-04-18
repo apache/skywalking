@@ -60,7 +60,7 @@ public class MotanConsumerInterceptorTest {
         TracerContext.ListenerManager.add(contextListener);
 
         when(instanceContext.get("REQUEST_URL")).thenReturn(url);
-        when(interceptorContext.allArguments()).thenReturn(new Object[]{request});
+        when(interceptorContext.allArguments()).thenReturn(new Object[] {request});
         when(request.getMethodName()).thenReturn("test");
         when(request.getInterfaceName()).thenReturn("com.a.eye.skywalking.test.TestService");
         when(request.getParamtersDesc()).thenReturn("java.lang.String, java.lang.Object");

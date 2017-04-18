@@ -18,15 +18,14 @@ public abstract class AbstractGet extends AbstractLocalSyncWorker {
         super(role, clusterContext, selfContext);
     }
 
-    @Override
-    final public void onWork(Object request, Object response) throws Exception {
-        Map<String, String[]> parameterMap = (Map<String, String[]>) request;
+    @Override final public void onWork(Object request, Object response) throws Exception {
+        Map<String, String[]> parameterMap = (Map<String, String[]>)request;
         try {
-            onSearch(parameterMap, (JsonObject) response);
+            onSearch(parameterMap, (JsonObject)response);
         } catch (Exception e) {
             e.printStackTrace();
-            ((JsonObject) response).addProperty("isSuccess", false);
-            ((JsonObject) response).addProperty("reason", e.getMessage());
+            ((JsonObject)response).addProperty("isSuccess", false);
+            ((JsonObject)response).addProperty("reason", e.getMessage());
         }
     }
 
@@ -40,8 +39,8 @@ public abstract class AbstractGet extends AbstractLocalSyncWorker {
             this.ownerWorkerRef = ownerWorkerRef;
         }
 
-        @Override
-        final protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        @Override        final protected void doGet(HttpServletRequest request,
+            HttpServletResponse response) throws ServletException, IOException {
             Map<String, String[]> parameterMap = request.getParameterMap();
 
             JsonObject resJson = new JsonObject();

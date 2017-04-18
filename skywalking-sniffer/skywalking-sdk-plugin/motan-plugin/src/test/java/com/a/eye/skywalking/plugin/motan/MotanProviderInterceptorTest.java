@@ -39,7 +39,6 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class MotanProviderInterceptorTest {
 
-
     private MockTracerContextListener contextListener;
 
     private MotanProviderInterceptor invokeInterceptor;
@@ -67,11 +66,11 @@ public class MotanProviderInterceptorTest {
         TracerContext.ListenerManager.add(contextListener);
 
         when(instanceContext.get("REQUEST_URL")).thenReturn(url);
-        when(interceptorContext.allArguments()).thenReturn(new Object[]{request});
+        when(interceptorContext.allArguments()).thenReturn(new Object[] {request});
         when(request.getMethodName()).thenReturn("test");
         when(request.getInterfaceName()).thenReturn("com.a.eye.skywalking.test.TestService");
         when(request.getParamtersDesc()).thenReturn("java.lang.String, java.lang.Object");
-        when(constructorInvokeContext.allArguments()).thenReturn(new Object[]{url});
+        when(constructorInvokeContext.allArguments()).thenReturn(new Object[] {url});
     }
 
     @Test
@@ -112,7 +111,6 @@ public class MotanProviderInterceptorTest {
         });
     }
 
-
     @Test
     public void testResponseWithException() {
         when(response.getException()).thenReturn(new RuntimeException());
@@ -148,7 +146,6 @@ public class MotanProviderInterceptorTest {
         });
     }
 
-
     private void assertLogData(LogData logData) {
         assertThat(logData.getFields().size(), is(4));
         MatcherAssert.assertThat(logData.getFields().get("event"), CoreMatchers.<Object>is("error"));
@@ -162,14 +159,12 @@ public class MotanProviderInterceptorTest {
         assertThat(primaryRef.getPeerHost(), is("127.0.0.1"));
     }
 
-
     private void assertMotanProviderSpan(Span span) {
         assertThat(span.getOperationName(), is("com.a.eye.skywalking.test.TestService.test(java.lang.String, java.lang.Object)"));
         assertThat(Tags.COMPONENT.get(span), is("Motan"));
         assertThat(Tags.SPAN_KIND.get(span), is(Tags.SPAN_KIND_SERVER));
         assertTrue(Tags.SPAN_LAYER.isRPCFramework(span));
     }
-
 
     @After
     public void tearDown() {

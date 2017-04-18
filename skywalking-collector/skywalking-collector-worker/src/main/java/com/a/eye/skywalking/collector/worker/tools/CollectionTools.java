@@ -8,18 +8,10 @@ import java.util.List;
 public class CollectionTools {
 
     public static boolean isEmpty(List list) {
-        if (list == null || list.size() == 0) {
-            return true;
-        } else {
-            return false;
-        }
+        return list == null || list.size() == 0;
     }
 
     public static boolean isNotEmpty(List list) {
-        if (list == null || list.size() == 0) {
-            return false;
-        } else {
-            return true;
-        }
+        return !isEmpty(list);
     }
 }

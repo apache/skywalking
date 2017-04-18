@@ -15,21 +15,21 @@ public class EsConfigProvider implements ConfigProvider {
 
     @Override
     public void cliArgs() {
-        if (!StringUtil.isEmpty(System.getProperty("es.cluster.name"))) {
-            EsConfig.Es.Cluster.name = System.getProperty("es.cluster.name");
+        if (!StringUtil.isEmpty(System.getProperty("es.cluster.NAME"))) {
+            EsConfig.Es.Cluster.NAME = System.getProperty("es.cluster.NAME");
         }
-        if (!StringUtil.isEmpty(System.getProperty("es.cluster.nodes"))) {
-            EsConfig.Es.Cluster.nodes = System.getProperty("es.cluster.nodes");
+        if (!StringUtil.isEmpty(System.getProperty("es.cluster.NODES"))) {
+            EsConfig.Es.Cluster.NODES = System.getProperty("es.cluster.NODES");
         }
-        if (!StringUtil.isEmpty(System.getProperty("es.cluster.transport.sniffer"))) {
-            EsConfig.Es.Cluster.Transport.sniffer = System.getProperty("es.cluster.transport.sniffer");
+        if (!StringUtil.isEmpty(System.getProperty("es.cluster.transport.SNIFFER"))) {
+            EsConfig.Es.Cluster.Transport.SNIFFER = System.getProperty("es.cluster.transport.SNIFFER");
         }
 
-        if (!StringUtil.isEmpty(System.getProperty("es.index.shards.number"))) {
-            EsConfig.Es.Index.Shards.number = System.getProperty("es.index.shards.number");
+        if (!StringUtil.isEmpty(System.getProperty("es.index.shards.NUMBER"))) {
+            EsConfig.Es.Index.Shards.NUMBER = System.getProperty("es.index.shards.NUMBER");
         }
-        if (!StringUtil.isEmpty(System.getProperty("es.index.replicas.number"))) {
-            EsConfig.Es.Index.Replicas.number = System.getProperty("es.index.replicas.number");
+        if (!StringUtil.isEmpty(System.getProperty("es.index.replicas.NUMBER"))) {
+            EsConfig.Es.Index.Replicas.NUMBER = System.getProperty("es.index.replicas.NUMBER");
         }
     }
 }

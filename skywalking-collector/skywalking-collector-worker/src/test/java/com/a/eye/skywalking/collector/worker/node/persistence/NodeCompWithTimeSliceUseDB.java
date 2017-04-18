@@ -17,7 +17,7 @@ public class NodeCompWithTimeSliceUseDB {
         ClusterWorkerContext clusterWorkerContext = new ClusterWorkerContext(null);
         LocalWorkerContext localWorkerContext = new LocalWorkerContext();
         NodeCompLoad nodeCompLoad =
-                new NodeCompLoad(NodeCompLoad.WorkerRole.INSTANCE, clusterWorkerContext, localWorkerContext);
+            new NodeCompLoad(NodeCompLoad.WorkerRole.INSTANCE, clusterWorkerContext, localWorkerContext);
 
         JsonObject response = new JsonObject();
         nodeCompLoad.onWork(null, response);

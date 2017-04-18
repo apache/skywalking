@@ -11,7 +11,8 @@ import com.a.eye.skywalking.collector.worker.storage.RecordData;
  */
 public class NodeMappingDayAgg extends AbstractClusterWorker {
 
-    NodeMappingDayAgg(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    NodeMappingDayAgg(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext,
+        LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
@@ -44,7 +45,7 @@ public class NodeMappingDayAgg extends AbstractClusterWorker {
 
         @Override
         public int workerNum() {
-            return WorkerConfig.WorkerNum.Node.NodeMappingDayAgg.Value;
+            return WorkerConfig.WorkerNum.Node.NodeMappingDayAgg.VALUE;
         }
     }
 

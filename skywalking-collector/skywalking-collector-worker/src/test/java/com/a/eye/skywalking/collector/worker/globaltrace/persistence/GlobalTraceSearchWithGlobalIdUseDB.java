@@ -19,7 +19,7 @@ public class GlobalTraceSearchWithGlobalIdUseDB {
         ClusterWorkerContext clusterWorkerContext = new ClusterWorkerContext(null);
         LocalWorkerContext localWorkerContext = new LocalWorkerContext();
         GlobalTraceSearchWithGlobalId globalTraceSearchWithGlobalId =
-                new GlobalTraceSearchWithGlobalId(GlobalTraceSearchWithGlobalId.WorkerRole.INSTANCE, clusterWorkerContext, localWorkerContext);
+            new GlobalTraceSearchWithGlobalId(GlobalTraceSearchWithGlobalId.WorkerRole.INSTANCE, clusterWorkerContext, localWorkerContext);
 
         JsonObject response = new JsonObject();
         globalTraceSearchWithGlobalId.onWork("Trace.1491277147443.-1562443425.70539.65.2", response);

@@ -10,18 +10,17 @@ import java.io.IOException;
  * @author pengys5
  */
 public class NodeRefResSumIndex extends AbstractIndex {
-
-    public static final String Index = "node_ref_res_sum_idx";
-    public static final String OneSecondLess = "oneSecondLess";
-    public static final String ThreeSecondLess = "threeSecondLess";
-    public static final String FiveSecondLess = "fiveSecondLess";
-    public static final String FiveSecondGreater = "fiveSecondGreater";
-    public static final String Error = "error";
-    public static final String Summary = "summary";
+    public static final String INDEX = "node_ref_res_sum_idx";
+    public static final String ONE_SECOND_LESS = "oneSecondLess";
+    public static final String THREE_SECOND_LESS = "threeSecondLess";
+    public static final String FIVE_SECOND_LESS = "fiveSecondLess";
+    public static final String FIVE_SECOND_GREATER = "fiveSecondGreater";
+    public static final String ERROR = "error";
+    public static final String SUMMARY = "summary";
 
     @Override
     public String index() {
-        return Index;
+        return INDEX;
     }
 
     @Override
@@ -32,42 +31,42 @@ public class NodeRefResSumIndex extends AbstractIndex {
     @Override
     public XContentBuilder createMappingBuilder() throws IOException {
         XContentBuilder mappingBuilder = XContentFactory.jsonBuilder()
-                .startObject()
-                    .startObject("properties")
-                        .startObject(OneSecondLess)
-                            .field("type", "long")
-                            .field("index", "not_analyzed")
-                        .endObject()
-                        .startObject(ThreeSecondLess)
-                            .field("type", "long")
-                            .field("index", "not_analyzed")
-                        .endObject()
-                        .startObject(FiveSecondLess)
-                            .field("type", "long")
-                            .field("index", "not_analyzed")
-                        .endObject()
-                        .startObject(FiveSecondGreater)
-                            .field("type", "long")
-                            .field("index", "not_analyzed")
-                        .endObject()
-                        .startObject(Error)
-                            .field("type", "long")
-                            .field("index", "not_analyzed")
-                        .endObject()
-                        .startObject(Summary)
-                            .field("type", "long")
-                            .field("index", "not_analyzed")
-                        .endObject()
-                        .startObject(AGG_COLUMN)
-                            .field("type", "string")
-                            .field("index", "not_analyzed")
-                        .endObject()
-                        .startObject(Time_Slice)
-                            .field("type", "long")
-                            .field("index", "not_analyzed")
-                        .endObject()
-                    .endObject()
-                .endObject();
+            .startObject()
+            .startObject("properties")
+            .startObject(ONE_SECOND_LESS)
+            .field("type", "long")
+            .field("index", "not_analyzed")
+            .endObject()
+            .startObject(THREE_SECOND_LESS)
+            .field("type", "long")
+            .field("index", "not_analyzed")
+            .endObject()
+            .startObject(FIVE_SECOND_LESS)
+            .field("type", "long")
+            .field("index", "not_analyzed")
+            .endObject()
+            .startObject(FIVE_SECOND_GREATER)
+            .field("type", "long")
+            .field("index", "not_analyzed")
+            .endObject()
+            .startObject(ERROR)
+            .field("type", "long")
+            .field("index", "not_analyzed")
+            .endObject()
+            .startObject(SUMMARY)
+            .field("type", "long")
+            .field("index", "not_analyzed")
+            .endObject()
+            .startObject(AGG_COLUMN)
+            .field("type", "string")
+            .field("index", "not_analyzed")
+            .endObject()
+            .startObject(TIME_SLICE)
+            .field("type", "long")
+            .field("index", "not_analyzed")
+            .endObject()
+            .endObject()
+            .endObject();
         return mappingBuilder;
     }
 }

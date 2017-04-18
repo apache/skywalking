@@ -1,6 +1,5 @@
 package com.a.eye.skywalking.plugin.httpClient.v4;
 
-
 import com.a.eye.skywalking.api.context.ContextCarrier;
 import com.a.eye.skywalking.api.context.ContextManager;
 import com.a.eye.skywalking.api.plugin.interceptor.EnhancedClassInstanceContext;
@@ -31,14 +30,14 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
 
     @Override
     public void beforeMethod(EnhancedClassInstanceContext context,
-                             InstanceMethodInvokeContext interceptorContext, MethodInterceptResult result) {
+        InstanceMethodInvokeContext interceptorContext, MethodInterceptResult result) {
         Object[] allArguments = interceptorContext.allArguments();
         if (allArguments[0] == null || allArguments[1] == null) {
             // illegal args, can't trace. ignore.
             return;
         }
-        HttpHost httpHost = (HttpHost) allArguments[0];
-        HttpRequest httpRequest = (HttpRequest) allArguments[1];
+        HttpHost httpHost = (HttpHost)allArguments[0];
+        HttpRequest httpRequest = (HttpRequest)allArguments[1];
         Span span = createSpan(httpRequest);
         Tags.PEER_PORT.set(span, httpHost.getPort());
         Tags.PEER_HOST.set(span, httpHost.getHostName());
@@ -77,13 +76,13 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
 
     @Override
     public Object afterMethod(EnhancedClassInstanceContext context,
-                              InstanceMethodInvokeContext interceptorContext, Object ret) {
+        InstanceMethodInvokeContext interceptorContext, Object ret) {
         Object[] allArguments = interceptorContext.allArguments();
         if (allArguments[0] == null || allArguments[1] == null) {
             return ret;
         }
 
-        HttpResponse response = (HttpResponse) ret;
+        HttpResponse response = (HttpResponse)ret;
         int statusCode = response.getStatusLine().getStatusCode();
         Span span = ContextManager.activeSpan();
         if (statusCode != 200) {
@@ -96,7 +95,8 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
     }
 
     @Override
-    public void handleMethodException(Throwable t, EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext) {
+    public void handleMethodException(Throwable t, EnhancedClassInstanceContext context,
+        InstanceMethodInvokeContext interceptorContext) {
         Tags.ERROR.set(ContextManager.activeSpan(), true);
         ContextManager.activeSpan().log(t);
     }

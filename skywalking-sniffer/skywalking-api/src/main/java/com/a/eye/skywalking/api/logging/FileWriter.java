@@ -21,8 +21,8 @@ import java.util.concurrent.Callable;
  * @author wusheng
  */
 public class FileWriter implements IWriter, EventHandler<LogMessageHolder> {
-    private static FileWriter instance;
-    private static Object createLock = new Object();
+    private static FileWriter INSTANCE;
+    private static final Object CREATE_LOCK = new Object();
     private Disruptor<LogMessageHolder> disruptor;
     private RingBuffer<LogMessageHolder> buffer;
     private FileOutputStream fileOutputStream;
@@ -31,14 +31,14 @@ public class FileWriter implements IWriter, EventHandler<LogMessageHolder> {
     private volatile int lineNum;
 
     public static FileWriter get() {
-        if (instance == null) {
-            synchronized (createLock) {
-                if (instance == null) {
-                    instance = new FileWriter();
+        if (INSTANCE == null) {
+            synchronized (CREATE_LOCK) {
+                if (INSTANCE == null) {
+                    INSTANCE = new FileWriter();
                 }
             }
         }
-        return instance;
+        return INSTANCE;
     }
 
     private FileWriter() {

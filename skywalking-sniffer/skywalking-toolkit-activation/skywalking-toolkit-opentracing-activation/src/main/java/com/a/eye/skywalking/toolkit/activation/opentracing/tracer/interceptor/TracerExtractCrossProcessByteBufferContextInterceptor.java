@@ -17,13 +17,15 @@ import java.nio.charset.Charset;
  */
 public class TracerExtractCrossProcessByteBufferContextInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
-    public void beforeMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext, MethodInterceptResult result) {
+    public void beforeMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
+        MethodInterceptResult result) {
 
     }
 
     @Override
-    public Object afterMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext, Object ret) {
-        ByteBuffer byteBuffer = (ByteBuffer) interceptorContext.allArguments()[0];
+    public Object afterMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
+        Object ret) {
+        ByteBuffer byteBuffer = (ByteBuffer)interceptorContext.allArguments()[0];
         String contextDataStr = new String(byteBuffer.array(), Charset.forName("UTF-8"));
 
         ContextCarrier carrier = new ContextCarrier();
@@ -34,7 +36,8 @@ public class TracerExtractCrossProcessByteBufferContextInterceptor implements In
     }
 
     @Override
-    public void handleMethodException(Throwable t, EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext) {
+    public void handleMethodException(Throwable t, EnhancedClassInstanceContext context,
+        InstanceMethodInvokeContext interceptorContext) {
 
     }
 }

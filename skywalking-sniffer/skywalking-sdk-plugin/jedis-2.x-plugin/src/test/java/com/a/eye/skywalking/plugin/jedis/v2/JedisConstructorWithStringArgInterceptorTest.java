@@ -31,7 +31,7 @@ public class JedisConstructorWithStringArgInterceptorTest {
     @Before
     public void setUp() throws Exception {
         interceptor = new JedisConstructorWithStringArgInterceptor();
-        when(invokeContext.allArguments()).thenReturn(new Object[]{"127.0.0.1"});
+        when(invokeContext.allArguments()).thenReturn(new Object[] {"127.0.0.1"});
     }
 
     @Test
@@ -43,10 +43,9 @@ public class JedisConstructorWithStringArgInterceptorTest {
         verify(instanceContext, times(1)).set(KEY_OF_REDIS_PORT, 6379);
     }
 
-
     @Test
-    public void onConstructWithPort(){
-        when(invokeContext.allArguments()).thenReturn(new Object[]{"127.0.0.1", 16379});
+    public void onConstructWithPort() {
+        when(invokeContext.allArguments()).thenReturn(new Object[] {"127.0.0.1", 16379});
         interceptor.onConstruct(instanceContext, invokeContext);
 
         verify(instanceContext, times(1)).set(KEY_OF_REDIS_CONN_INFO, "127.0.0.1:16379");

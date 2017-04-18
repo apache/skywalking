@@ -1,6 +1,5 @@
 package com.a.eye.skywalking.plugin.jdbc;
 
-
 import com.a.eye.skywalking.api.context.ContextManager;
 import com.a.eye.skywalking.api.util.StringUtil;
 import com.a.eye.skywalking.trace.Span;
@@ -19,8 +18,8 @@ import java.sql.SQLException;
 public class ConnectionTracing {
 
     public static <R> R execute(java.sql.Connection realConnection,
-                                ConnectionInfo connectInfo, String method, String sql, Executable<R> exec)
-            throws SQLException {
+        ConnectionInfo connectInfo, String method, String sql, Executable<R> exec)
+        throws SQLException {
         try {
             Span span = ContextManager.createSpan(connectInfo.getDBType() + "/JDBI/Connection/" + method);
             Tags.DB_TYPE.set(span, "sql");
@@ -48,6 +47,6 @@ public class ConnectionTracing {
 
     public interface Executable<R> {
         R exe(java.sql.Connection realConnection, String sql)
-                throws SQLException;
+            throws SQLException;
     }
 }

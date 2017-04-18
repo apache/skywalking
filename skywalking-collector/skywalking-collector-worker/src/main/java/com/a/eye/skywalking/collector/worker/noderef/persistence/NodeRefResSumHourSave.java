@@ -14,18 +14,19 @@ import com.a.eye.skywalking.collector.worker.noderef.NodeRefResSumIndex;
  */
 public class NodeRefResSumHourSave extends MetricPersistenceMember {
 
-    NodeRefResSumHourSave(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    NodeRefResSumHourSave(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext,
+        LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
     @Override
     public String esIndex() {
-        return NodeRefResSumIndex.Index;
+        return NodeRefResSumIndex.INDEX;
     }
 
     @Override
     public String esType() {
-        return NodeRefResSumIndex.Type_Hour;
+        return NodeRefResSumIndex.TYPE_HOUR;
     }
 
     public static class Factory extends AbstractLocalAsyncWorkerProvider<NodeRefResSumHourSave> {
@@ -43,7 +44,7 @@ public class NodeRefResSumHourSave extends MetricPersistenceMember {
 
         @Override
         public int queueSize() {
-            return WorkerConfig.Queue.NodeRef.NodeRefResSumHourSave.Size;
+            return WorkerConfig.Queue.NodeRef.NodeRefResSumHourSave.SIZE;
         }
     }
 

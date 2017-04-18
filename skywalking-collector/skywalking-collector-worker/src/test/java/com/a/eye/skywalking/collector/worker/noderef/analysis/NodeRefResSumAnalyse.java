@@ -16,7 +16,8 @@ import java.util.List;
 public enum NodeRefResSumAnalyse {
     INSTANCE;
 
-    public void analyse(String requestJsonFile, String jsonFile, AbstractNodeRefResSumAnalysis analysis, MetricDataAnswer answer) throws Exception {
+    public void analyse(String requestJsonFile, String jsonFile, AbstractNodeRefResSumAnalysis analysis,
+        MetricDataAnswer answer) throws Exception {
         SegmentMock segmentMock = new SegmentMock();
         String requestJsonStr = segmentMock.loadJsonFile(requestJsonFile);
         Gson gson = new Gson();

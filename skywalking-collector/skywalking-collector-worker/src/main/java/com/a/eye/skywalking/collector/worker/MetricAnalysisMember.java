@@ -20,7 +20,7 @@ public abstract class MetricAnalysisMember extends AnalysisMember {
 
     final protected void setMetric(String id, String column, Long value) throws Exception {
         persistenceData.getElseCreate(id).setMetric(column, value);
-        if (persistenceData.size() >= CacheSizeConfig.Cache.Persistence.size) {
+        if (persistenceData.size() >= CacheSizeConfig.Cache.Persistence.SIZE) {
             aggregation();
         }
     }

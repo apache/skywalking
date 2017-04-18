@@ -14,7 +14,6 @@ import com.weibo.api.motan.rpc.Request;
 import com.weibo.api.motan.rpc.Response;
 import com.weibo.api.motan.rpc.URL;
 
-
 /**
  * {@link MotanProviderInterceptor} create span by fetch request url from
  * {@link EnhancedClassInstanceContext#context} and transport serialized context
@@ -45,9 +44,9 @@ public class MotanConsumerInterceptor implements InstanceConstructorInterceptor,
 
     @Override
     public void beforeMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
-                             MethodInterceptResult result) {
-        URL url = (URL) context.get(KEY_NAME_OF_REQUEST_URL);
-        Request request = (Request) interceptorContext.allArguments()[0];
+        MethodInterceptResult result) {
+        URL url = (URL)context.get(KEY_NAME_OF_REQUEST_URL);
+        Request request = (Request)interceptorContext.allArguments()[0];
         if (url != null) {
             Span span = ContextManager.createSpan(generateOperationName(url, request));
             Tags.PEER_HOST.set(span, url.getHost());
@@ -65,8 +64,8 @@ public class MotanConsumerInterceptor implements InstanceConstructorInterceptor,
 
     @Override
     public Object afterMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
-                              Object ret) {
-        Response response = (Response) ret;
+        Object ret) {
+        Response response = (Response)ret;
         if (response != null && response.getException() != null) {
             Span span = ContextManager.activeSpan();
             Tags.ERROR.set(span, true);
@@ -78,12 +77,9 @@ public class MotanConsumerInterceptor implements InstanceConstructorInterceptor,
 
     @Override
     public void handleMethodException(Throwable t, EnhancedClassInstanceContext context,
-                                      InstanceMethodInvokeContext interceptorContext) {
+        InstanceMethodInvokeContext interceptorContext) {
         ContextManager.activeSpan().log(t);
     }
-
-
-
 
     /**
      * Generate operation name.
@@ -92,7 +88,7 @@ public class MotanConsumerInterceptor implements InstanceConstructorInterceptor,
      */
     private static String generateOperationName(URL serviceURI, Request request) {
         return new StringBuilder(serviceURI.getPath()).append(".").append(request.getMethodName()).append("(")
-                .append(request.getParamtersDesc()).append(")").toString();
+            .append(request.getParamtersDesc()).append(")").toString();
     }
 
 }

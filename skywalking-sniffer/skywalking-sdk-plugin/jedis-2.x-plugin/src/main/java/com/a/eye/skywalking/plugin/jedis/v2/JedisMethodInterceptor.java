@@ -2,7 +2,7 @@ package com.a.eye.skywalking.plugin.jedis.v2;
 
 import com.a.eye.skywalking.api.context.ContextManager;
 import com.a.eye.skywalking.api.plugin.interceptor.EnhancedClassInstanceContext;
-import com.a.eye.skywalking.api.plugin.interceptor.assist.NoConcurrencyAceessObject;
+import com.a.eye.skywalking.api.plugin.interceptor.assist.NoConcurrencyAccessObject;
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.InstanceMethodInvokeContext;
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.MethodInterceptResult;
@@ -17,7 +17,7 @@ import com.a.eye.skywalking.trace.tag.Tags;
  *
  * @author zhangxin
  */
-public class JedisMethodInterceptor extends NoConcurrencyAceessObject implements InstanceMethodsAroundInterceptor {
+public class JedisMethodInterceptor extends NoConcurrencyAccessObject implements InstanceMethodsAroundInterceptor {
     /**
      * The key name that redis connection information in {@link EnhancedClassInstanceContext#context}.
      */
@@ -41,9 +41,9 @@ public class JedisMethodInterceptor extends NoConcurrencyAceessObject implements
 
     private static final String REDIS_COMPONENT = "Redis";
 
-
     @Override
-    public void beforeMethod(final EnhancedClassInstanceContext context, final InstanceMethodInvokeContext interceptorContext, MethodInterceptResult result) {
+    public void beforeMethod(final EnhancedClassInstanceContext context,
+        final InstanceMethodInvokeContext interceptorContext, MethodInterceptResult result) {
         this.whenEnter(context, new Runnable() {
             @Override
             public void run() {
@@ -57,11 +57,11 @@ public class JedisMethodInterceptor extends NoConcurrencyAceessObject implements
                     Tags.PEERS.set(span, String.valueOf(context.get(KEY_OF_REDIS_HOSTS)));
                 } else {
                     Tags.PEER_HOST.set(span, context.get(KEY_OF_REDIS_HOST, String.class));
-                    Tags.PEER_PORT.set(span, (Integer) context.get(KEY_OF_REDIS_PORT));
+                    Tags.PEER_PORT.set(span, (Integer)context.get(KEY_OF_REDIS_PORT));
                 }
 
                 if (interceptorContext.allArguments().length > 0
-                        && interceptorContext.allArguments()[0] instanceof String) {
+                    && interceptorContext.allArguments()[0] instanceof String) {
                     Tags.DB_STATEMENT.set(span, interceptorContext.methodName() + " " + interceptorContext.allArguments()[0]);
                 }
             }
@@ -72,17 +72,18 @@ public class JedisMethodInterceptor extends NoConcurrencyAceessObject implements
      * set peer host information for the current active span.
      */
     private void tagPeer(Span span, EnhancedClassInstanceContext context) {
-        String redisHosts = (String) context.get(KEY_OF_REDIS_HOSTS);
+        String redisHosts = (String)context.get(KEY_OF_REDIS_HOSTS);
         if (!StringUtil.isEmpty(redisHosts)) {
-            Tags.PEERS.set(span, (String) context.get(KEY_OF_REDIS_HOSTS));
+            Tags.PEERS.set(span, (String)context.get(KEY_OF_REDIS_HOSTS));
         } else {
-            Tags.PEER_HOST.set(span, (String) context.get(KEY_OF_REDIS_HOST));
-            Tags.PEER_PORT.set(span, (Integer) context.get(KEY_OF_REDIS_PORT));
+            Tags.PEER_HOST.set(span, (String)context.get(KEY_OF_REDIS_HOST));
+            Tags.PEER_PORT.set(span, (Integer)context.get(KEY_OF_REDIS_PORT));
         }
     }
 
     @Override
-    public Object afterMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext, Object ret) {
+    public Object afterMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
+        Object ret) {
         this.whenExist(context, new Runnable() {
             @Override
             public void run() {
@@ -93,7 +94,8 @@ public class JedisMethodInterceptor extends NoConcurrencyAceessObject implements
     }
 
     @Override
-    public void handleMethodException(Throwable t, EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext) {
+    public void handleMethodException(Throwable t, EnhancedClassInstanceContext context,
+        InstanceMethodInvokeContext interceptorContext) {
         ContextManager.activeSpan().log(t);
     }
 }

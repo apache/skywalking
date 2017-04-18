@@ -17,10 +17,10 @@ public abstract class AbstractLocalAsyncWorker extends AbstractLocalWorker {
     /**
      * Construct an <code>AbstractLocalAsyncWorker</code> with the worker role and context.
      *
-     * @param role           The responsibility of worker in cluster, more than one workers can have
-     *                       same responsibility which use to provide load balancing ability.
+     * @param role The responsibility of worker in cluster, more than one workers can have same responsibility which use
+     * to provide load balancing ability.
      * @param clusterContext See {@link ClusterWorkerContext}
-     * @param selfContext    See {@link LocalWorkerContext}
+     * @param selfContext See {@link LocalWorkerContext}
      */
     public AbstractLocalAsyncWorker(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
@@ -68,8 +68,8 @@ public abstract class AbstractLocalAsyncWorker extends AbstractLocalWorker {
          * Receive the message from disruptor, when message in disruptor is empty, then send the cached data
          * to the next workers.
          *
-         * @param event      published to the {@link RingBuffer}
-         * @param sequence   of the event being processed
+         * @param event published to the {@link RingBuffer}
+         * @param sequence of the event being processed
          * @param endOfBatch flag to indicate if this is the last event in a batch from the {@link RingBuffer}
          */
         public void onEvent(MessageHolder event, long sequence, boolean endOfBatch) {

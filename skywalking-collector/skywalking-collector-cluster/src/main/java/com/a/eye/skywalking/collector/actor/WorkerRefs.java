@@ -29,7 +29,7 @@ public class WorkerRefs<T extends WorkerRef> {
     public void ask(Object request, Object response) throws Exception {
         WorkerRef workerRef = workerSelector.select(workerRefs, request);
         if (workerRef instanceof LocalSyncWorkerRef) {
-            ((LocalSyncWorkerRef) workerRef).ask(request, response);
+            ((LocalSyncWorkerRef)workerRef).ask(request, response);
         } else {
             throw new IllegalAccessError("only local sync worker can ask");
         }

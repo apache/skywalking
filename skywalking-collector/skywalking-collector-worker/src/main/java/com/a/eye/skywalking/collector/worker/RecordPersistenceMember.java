@@ -37,10 +37,10 @@ public abstract class RecordPersistenceMember extends PersistenceMember {
     @Override
     public void analyse(Object message) throws Exception {
         if (message instanceof RecordData) {
-            RecordData recordData = (RecordData) message;
+            RecordData recordData = (RecordData)message;
             logger.debug("setRecord: id: %s, data: %s", recordData.getId(), recordData.getRecord());
             getPersistenceData().getElseCreate(recordData.getId()).setRecord(recordData.getRecord());
-            if (getPersistenceData().size() >= CacheSizeConfig.Cache.Persistence.size) {
+            if (getPersistenceData().size() >= CacheSizeConfig.Cache.Persistence.SIZE) {
                 persistence();
             }
         } else {
@@ -58,7 +58,7 @@ public abstract class RecordPersistenceMember extends PersistenceMember {
     private boolean saveToEs() {
         Client client = EsClient.INSTANCE.getClient();
         BulkRequestBuilder bulkRequest = client.prepareBulk();
-        logger.debug("persistenceData size: %s", getPersistenceData().size());
+        logger.debug("persistenceData SIZE: %s", getPersistenceData().size());
 
         Iterator<Map.Entry<String, RecordData>> iterator = getPersistenceData().iterator();
 

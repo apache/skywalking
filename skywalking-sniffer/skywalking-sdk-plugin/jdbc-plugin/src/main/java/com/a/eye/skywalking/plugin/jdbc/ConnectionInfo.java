@@ -1,8 +1,8 @@
 package com.a.eye.skywalking.plugin.jdbc;
 
 /**
- * {@link ConnectionInfo} stored the jdbc connection info, the connection info contains db type, host, port, database name.
- * The {@link #hosts} be null if {@link #host} is not null.
+ * {@link ConnectionInfo} stored the jdbc connection info, the connection info contains db type, host, port, database
+ * name. The {@link #hosts} be null if {@link #host} is not null.
  *
  * @author zhangxin
  */

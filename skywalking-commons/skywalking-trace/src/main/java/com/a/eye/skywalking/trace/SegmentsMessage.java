@@ -15,18 +15,17 @@ import java.util.List;
  * The <code>SegmentsMessage</code> is a set of {@link TraceSegment},
  * this set provides a container, when several {@link TraceSegment}s are going to uplink to server.
  *
- *
  * @author wusheng
  */
 @JsonAdapter(SegmentsMessage.Serializer.class)
 public class SegmentsMessage {
     private List<TraceSegment> segments;
 
-    public SegmentsMessage(){
+    public SegmentsMessage() {
         segments = new LinkedList<TraceSegment>();
     }
 
-    public void append(TraceSegment segment){
+    public void append(TraceSegment segment) {
         this.segments.add(segment);
     }
 
@@ -34,7 +33,7 @@ public class SegmentsMessage {
         return Collections.unmodifiableList(segments);
     }
 
-    public static class Serializer extends TypeAdapter<SegmentsMessage>{
+    public static class Serializer extends TypeAdapter<SegmentsMessage> {
 
         @Override
         public void write(JsonWriter out, SegmentsMessage value) throws IOException {
@@ -47,7 +46,7 @@ public class SegmentsMessage {
                 for (TraceSegment segment : value.segments) {
                     out.jsonValue(gson.toJson(segment));
                 }
-            }finally {
+            } finally {
                 out.endArray();
             }
         }

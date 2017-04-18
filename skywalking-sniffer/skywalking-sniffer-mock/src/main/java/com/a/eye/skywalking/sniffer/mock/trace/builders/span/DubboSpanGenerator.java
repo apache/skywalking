@@ -11,7 +11,7 @@ import com.a.eye.skywalking.trace.tag.Tags;
  * @author wusheng
  */
 public class DubboSpanGenerator {
-    public static class Client extends SpanGeneration{
+    public static class Client extends SpanGeneration {
         @Override protected void before() {
             Span span = ContextManager.createSpan("/default_rpc/com.a.eye.skywalking.test.persistence.PersistenceService.query");
             Tags.COMPONENT.set(span, "Dubbo");
@@ -27,7 +27,7 @@ public class DubboSpanGenerator {
         }
     }
 
-    public static class Server extends SpanGeneration{
+    public static class Server extends SpanGeneration {
         @Override protected void before() {
             Span span = ContextManager.createSpan("/default_rpc/com.a.eye.skywalking.test.persistence.PersistenceService.query");
             Tags.COMPONENT.set(span, "Dubbo");

@@ -22,7 +22,7 @@ public class TraceDagDataBuilderTestCase {
         TraceDagDataBuilder builder = new TraceDagDataBuilder();
         JsonObject dagJsonObj = builder.build(nodeCompArray, nodeMappingArray, nodeRefArray, resSumArray);
 
-        JsonArray pointArray = dagJsonObj.getAsJsonArray("nodes");
+        JsonArray pointArray = dagJsonObj.getAsJsonArray("NODES");
         JsonArray lineArray = dagJsonObj.getAsJsonArray("nodeRefs");
 
         for (int i = 0; i < pointArray.size(); i++) {
@@ -47,7 +47,7 @@ public class TraceDagDataBuilderTestCase {
     }
 
     private JsonArray nodeCompArrayData() {
-        String str = "[{\"name\":\"Tomcat\",\"peers\":\"portal-service\"},{\"name\":\"Motan\",\"peers\":\"cache-service\"},{\"name\":\"H2\",\"peers\":\"[localhost:-1]\"},{\"name\":\"Tomcat\",\"peers\":\"[10.128.35.80:57818]\"},{\"name\":\"Redis\",\"peers\":\"[127.0.0.1:6379]\"},{\"name\":\"Mysql\",\"peers\":\"[127.0.0.1:3307]\"},{\"name\":\"Tomcat\",\"peers\":\"persistence-service\"},{\"name\":\"HttpClient\",\"peers\":\"[10.128.35.80:20880]\"},{\"name\":\"Motan\",\"peers\":\"[127.0.0.1:8002]\"},{\"name\":\"Tomcat\",\"peers\":\"[0:0:0:0:0:0:0:1:57837]\"}]";
+        String str = "[{\"NAME\":\"Tomcat\",\"peers\":\"portal-service\"},{\"NAME\":\"Motan\",\"peers\":\"cache-service\"},{\"NAME\":\"H2\",\"peers\":\"[localhost:-1]\"},{\"NAME\":\"Tomcat\",\"peers\":\"[10.128.35.80:57818]\"},{\"NAME\":\"Redis\",\"peers\":\"[127.0.0.1:6379]\"},{\"NAME\":\"Mysql\",\"peers\":\"[127.0.0.1:3307]\"},{\"NAME\":\"Tomcat\",\"peers\":\"persistence-service\"},{\"NAME\":\"HttpClient\",\"peers\":\"[10.128.35.80:20880]\"},{\"NAME\":\"Motan\",\"peers\":\"[127.0.0.1:8002]\"},{\"NAME\":\"Tomcat\",\"peers\":\"[0:0:0:0:0:0:0:1:57837]\"}]";
         JsonArray jsonArray = gson.fromJson(str, JsonArray.class);
         return jsonArray;
     }

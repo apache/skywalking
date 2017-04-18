@@ -18,8 +18,8 @@ public class IntTag extends AbstractTag<Integer> {
     }
 
     /**
-     * Get a tag value, type of {@link Integer}.
-     * After akka-message/serialize, all tags values are type of {@link String}, convert to {@link Integer}, if necessary.
+     * Get a tag value, type of {@link Integer}. After akka-message/serialize, all tags values are type of {@link
+     * String}, convert to {@link Integer}, if necessary.
      *
      * @param span
      * @return tag value

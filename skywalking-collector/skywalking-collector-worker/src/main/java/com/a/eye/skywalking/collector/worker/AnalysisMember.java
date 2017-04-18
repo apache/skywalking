@@ -19,8 +19,7 @@ public abstract class AnalysisMember extends AbstractLocalAsyncWorker {
         super.preStart();
     }
 
-    @Override
-    final public void onWork(Object message) throws Exception {
+    @Override final public void onWork(Object message) throws Exception {
         if (message instanceof EndOfBatchCommand) {
             aggregation();
         } else {

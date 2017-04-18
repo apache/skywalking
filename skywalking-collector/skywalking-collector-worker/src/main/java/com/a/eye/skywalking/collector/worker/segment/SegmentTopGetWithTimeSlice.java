@@ -39,7 +39,7 @@ public class SegmentTopGetWithTimeSlice extends AbstractGet {
             throw new IllegalArgumentException("the request parameter must contains startTime, endTime, from, limit");
         }
         logger.debug("startTime: %s, endTime: %s, from: %s", Arrays.toString(request.get("startTime")),
-                Arrays.toString(request.get("endTime")), Arrays.toString(request.get("from")));
+            Arrays.toString(request.get("endTime")), Arrays.toString(request.get("from")));
 
         long startTime;
         try {

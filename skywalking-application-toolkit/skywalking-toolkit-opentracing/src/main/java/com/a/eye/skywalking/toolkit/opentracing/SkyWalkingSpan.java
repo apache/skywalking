@@ -18,7 +18,7 @@ public class SkyWalkingSpan implements Span, SpanContext {
 
     private final Map<String, String> baggageItems;
 
-    SkyWalkingSpan(String operationName, long startTime, Map<String, String> tags){
+    SkyWalkingSpan(String operationName, long startTime, Map<String, String> tags) {
         this.operationName = operationName;
         this.startTime = startTime;
         this.tags = tags;

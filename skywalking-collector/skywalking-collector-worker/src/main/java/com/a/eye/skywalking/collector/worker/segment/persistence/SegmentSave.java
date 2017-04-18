@@ -1,6 +1,5 @@
 package com.a.eye.skywalking.collector.worker.segment.persistence;
 
-
 import com.a.eye.skywalking.collector.actor.AbstractLocalAsyncWorkerProvider;
 import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
 import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
@@ -24,22 +23,23 @@ public class SegmentSave extends RecordPersistenceMember {
 
     @Override
     public String esIndex() {
-        return SegmentIndex.Index;
+        return SegmentIndex.INDEX;
     }
 
     @Override
     public String esType() {
-        return AbstractIndex.Type_Record;
+        return AbstractIndex.TYPE_RECORD;
     }
 
-    public SegmentSave(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    public SegmentSave(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext,
+        LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
     @Override
     public void analyse(Object message) throws Exception {
         if (message instanceof JsonObject) {
-            JsonObject segmentJson = (JsonObject) message;
+            JsonObject segmentJson = (JsonObject)message;
             RecordData recordData = new RecordData(segmentJson.get("ts").getAsString());
             recordData.setRecord(segmentJson);
             super.analyse(recordData);
@@ -58,7 +58,7 @@ public class SegmentSave extends RecordPersistenceMember {
 
         @Override
         public int queueSize() {
-            return WorkerConfig.Queue.Segment.SegmentSave.Size;
+            return WorkerConfig.Queue.Segment.SegmentSave.SIZE;
         }
 
         @Override

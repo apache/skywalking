@@ -65,12 +65,12 @@ public class SegmentExceptionSaveTestCase {
 
     @Test
     public void testEsIndex() {
-        Assert.assertEquals(SegmentExceptionIndex.Index, segmentExceptionSave.esIndex());
+        Assert.assertEquals(SegmentExceptionIndex.INDEX, segmentExceptionSave.esIndex());
     }
 
     @Test
     public void testEsType() {
-        Assert.assertEquals(SegmentExceptionIndex.Type_Record, segmentExceptionSave.esType());
+        Assert.assertEquals(SegmentExceptionIndex.TYPE_RECORD, segmentExceptionSave.esType());
     }
 
     @Test
@@ -85,13 +85,13 @@ public class SegmentExceptionSaveTestCase {
         Assert.assertEquals(SegmentExceptionSave.class.getSimpleName(), SegmentExceptionSave.Factory.INSTANCE.workerInstance(null).getClass().getSimpleName());
 
         int testSize = 10;
-        WorkerConfig.Queue.Segment.SegmentExceptionSave.Size = testSize;
+        WorkerConfig.Queue.Segment.SegmentExceptionSave.SIZE = testSize;
         Assert.assertEquals(testSize, SegmentExceptionSave.Factory.INSTANCE.queueSize());
     }
 
     @Test
     public void testSuccessAnalyse() throws Exception {
-        CacheSizeConfig.Cache.Persistence.size = 1;
+        CacheSizeConfig.Cache.Persistence.SIZE = 1;
 
         List<SegmentPost.SegmentWithTimeSlice> cacheServiceList = segmentMock.mockCacheServiceSegmentSegmentTimeSlice();
         for (SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice : cacheServiceList) {
@@ -109,7 +109,7 @@ public class SegmentExceptionSaveTestCase {
 
     @Test
     public void testErrorAnalyse() throws Exception {
-        CacheSizeConfig.Cache.Persistence.size = 1;
+        CacheSizeConfig.Cache.Persistence.SIZE = 1;
 
         List<SegmentPost.SegmentWithTimeSlice> cacheServiceList = segmentMock.mockCacheServiceExceptionSegmentTimeSlice();
         for (SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice : cacheServiceList) {
@@ -128,7 +128,7 @@ public class SegmentExceptionSaveTestCase {
         @Override
         public Object answer(InvocationOnMock invocation) throws Throwable {
             Gson gson = new Gson();
-            String source = (String) invocation.getArguments()[0];
+            String source = (String)invocation.getArguments()[0];
             JsonObject sourceJsonObj = gson.fromJson(source, JsonObject.class);
             logger.info("es source: %s", sourceJsonObj.toString());
             isErrorMap.put(sourceJsonObj.get("segId").getAsString(), sourceJsonObj);

@@ -65,7 +65,7 @@ public class NodeMappingMinuteAggTestCase {
         Assert.assertEquals(NodeMappingMinuteAgg.class.getSimpleName(), NodeMappingMinuteAgg.Factory.INSTANCE.workerInstance(null).getClass().getSimpleName());
 
         int testSize = 10;
-        WorkerConfig.WorkerNum.Node.NodeMappingMinuteAgg.Value = testSize;
+        WorkerConfig.WorkerNum.Node.NodeMappingMinuteAgg.VALUE = testSize;
         Assert.assertEquals(testSize, NodeMappingMinuteAgg.Factory.INSTANCE.workerNum());
     }
 

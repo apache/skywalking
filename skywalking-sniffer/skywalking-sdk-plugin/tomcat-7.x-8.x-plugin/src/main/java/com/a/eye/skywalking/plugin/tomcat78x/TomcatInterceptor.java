@@ -15,8 +15,8 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * {@link TomcatInterceptor} fetch the serialized context data by using {@link HttpServletRequest#getHeader(String)}.
- * The {@link com.a.eye.skywalking.trace.TraceSegment#primaryRef} of current trace segment will reference to the trace segment id
- * of the previous level if the serialized context is not null.
+ * The {@link com.a.eye.skywalking.trace.TraceSegment#primaryRef} of current trace segment will reference to the trace
+ * segment id of the previous level if the serialized context is not null.
  */
 public class TomcatInterceptor implements InstanceMethodsAroundInterceptor {
     /**
@@ -29,17 +29,18 @@ public class TomcatInterceptor implements InstanceMethodsAroundInterceptor {
     public static final String TOMCAT_COMPONENT = "Tomcat";
 
     /**
-     * The {@link com.a.eye.skywalking.trace.TraceSegment#primaryRef} of current trace segment will reference to the trace segment id
-     * of the previous level if the serialized context is not null.
+     * The {@link com.a.eye.skywalking.trace.TraceSegment#primaryRef} of current trace segment will reference to the
+     * trace segment id of the previous level if the serialized context is not null.
      *
-     * @param context            instance context, a class instance only has one {@link EnhancedClassInstanceContext} instance.
+     * @param context instance context, a class instance only has one {@link EnhancedClassInstanceContext} instance.
      * @param interceptorContext method context, includes class name, method name, etc.
-     * @param result             change this result, if you want to truncate the method.
+     * @param result change this result, if you want to truncate the method.
      */
     @Override
-    public void beforeMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext, MethodInterceptResult result) {
+    public void beforeMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
+        MethodInterceptResult result) {
         Object[] args = interceptorContext.allArguments();
-        HttpServletRequest request = (HttpServletRequest) args[0];
+        HttpServletRequest request = (HttpServletRequest)args[0];
 
         Span span = ContextManager.createSpan(request.getRequestURI());
         Tags.COMPONENT.set(span, TOMCAT_COMPONENT);
@@ -56,8 +57,9 @@ public class TomcatInterceptor implements InstanceMethodsAroundInterceptor {
     }
 
     @Override
-    public Object afterMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext, Object ret) {
-        HttpServletResponse response = (HttpServletResponse) interceptorContext.allArguments()[1];
+    public Object afterMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
+        Object ret) {
+        HttpServletResponse response = (HttpServletResponse)interceptorContext.allArguments()[1];
 
         Span span = ContextManager.activeSpan();
         Tags.STATUS_CODE.set(span, response.getStatus());
@@ -72,14 +74,13 @@ public class TomcatInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     public void handleMethodException(Throwable t, EnhancedClassInstanceContext context,
-                                      InstanceMethodInvokeContext interceptorContext) {
+        InstanceMethodInvokeContext interceptorContext) {
         Span span = ContextManager.activeSpan();
         span.log(t);
         Tags.ERROR.set(span, true);
     }
 
     /**
-     *
      * @param request
      * @return
      */

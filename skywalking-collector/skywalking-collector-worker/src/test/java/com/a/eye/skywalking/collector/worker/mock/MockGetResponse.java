@@ -21,7 +21,6 @@ public class MockGetResponse {
 
         when(client.prepareGet(anyString(), anyString(), anyString())).thenReturn(builder);
 
-
         return getResponse;
     }
 }

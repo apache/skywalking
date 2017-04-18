@@ -6,8 +6,8 @@ package com.a.eye.skywalking.collector.worker.config;
 public class HttpConfig {
 
     public static class Http {
-        public static String hostname = "";
-        public static String port = "";
-        public static String contextPath = "";
+        public static String HOSTNAME = "";
+        public static String PORT = "";
+        public static String CONTEXTPATH = "";
     }
 }

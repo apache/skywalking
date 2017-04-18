@@ -39,18 +39,18 @@ public class GlobalTraceSearchWithGlobalId extends AbstractLocalSyncWorker {
     @Override
     protected void onWork(Object request, Object response) throws Exception {
         if (request instanceof String) {
-            String globalId = (String) request;
-            String globalTraceData = GetResponseFromEs.INSTANCE.get(GlobalTraceIndex.Index, GlobalTraceIndex.Type_Record, globalId).getSourceAsString();
+            String globalId = (String)request;
+            String globalTraceData = GetResponseFromEs.INSTANCE.get(GlobalTraceIndex.INDEX, GlobalTraceIndex.TYPE_RECORD, globalId).getSourceAsString();
             JsonObject globalTraceObj = gson.fromJson(globalTraceData, JsonObject.class);
             logger.debug("globalTraceObj: %s", globalTraceObj);
 
-            String subSegIdsStr = globalTraceObj.get(GlobalTraceIndex.SubSegIds).getAsString();
-            String[] subSegIds = subSegIdsStr.split(MergeData.Split);
+            String subSegIdsStr = globalTraceObj.get(GlobalTraceIndex.SUB_SEG_IDS).getAsString();
+            String[] subSegIds = subSegIdsStr.split(MergeData.SPLIT);
 
             List<SpanView> spanViewList = new ArrayList<>();
             for (String subSegId : subSegIds) {
                 logger.debug("subSegId: %s", subSegId);
-                String segmentSource = GetResponseFromEs.INSTANCE.get(SegmentIndex.Index, SegmentIndex.Type_Record, subSegId).getSourceAsString();
+                String segmentSource = GetResponseFromEs.INSTANCE.get(SegmentIndex.INDEX, SegmentIndex.TYPE_RECORD, subSegId).getSourceAsString();
                 logger.debug("segmentSource: %s", segmentSource);
                 Segment segment = SegmentDeserialize.INSTANCE.deserializeFromES(segmentSource);
                 String segmentId = segment.getTraceSegmentId();
@@ -62,7 +62,7 @@ public class GlobalTraceSearchWithGlobalId extends AbstractLocalSyncWorker {
                 }
             }
 
-            JsonObject responseObj = (JsonObject) response;
+            JsonObject responseObj = (JsonObject)response;
             responseObj.addProperty("result", buildTree(spanViewList));
         }
     }
@@ -115,7 +115,8 @@ public class GlobalTraceSearchWithGlobalId extends AbstractLocalSyncWorker {
         return tempList;
     }
 
-    private void spansDataBuild(Span span, String appCode, String segmentId, List<SpanView> spanViewList, List<TraceSegmentRef> refsList) {
+    private void spansDataBuild(Span span, String appCode, String segmentId, List<SpanView> spanViewList,
+        List<TraceSegmentRef> refsList) {
         int spanId = span.getSpanId();
         String spanSegId = segmentId + "--" + String.valueOf(spanId);
 

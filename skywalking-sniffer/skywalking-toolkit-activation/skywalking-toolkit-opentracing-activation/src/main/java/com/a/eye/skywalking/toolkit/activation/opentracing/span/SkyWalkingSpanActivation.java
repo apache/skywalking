@@ -7,6 +7,7 @@ import com.a.eye.skywalking.api.plugin.interceptor.enhance.ClassInstanceMethodsE
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import java.util.Map;
+
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 
@@ -21,57 +22,57 @@ public class SkyWalkingSpanActivation extends ClassInstanceMethodsEnhancePluginD
 
     @Override
     protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return new ConstructorInterceptPoint[]{
-                new ConstructorInterceptPoint() {
-                    @Override
-                    public ElementMatcher<MethodDescription> getConstructorMatcher() {
-                        return takesArguments(String.class, long.class, Map.class);
-                    }
-
-                    @Override
-                    public String getConstructorInterceptor() {
-                        return "com.a.eye.skywalking.toolkit.activation.opentracing.span.interceptor.SpanNewInstanceInterceptor";
-                    }
+        return new ConstructorInterceptPoint[] {
+            new ConstructorInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                    return takesArguments(String.class, long.class, Map.class);
                 }
+
+                @Override
+                public String getConstructorInterceptor() {
+                    return "com.a.eye.skywalking.toolkit.activation.opentracing.span.interceptor.SpanNewInstanceInterceptor";
+                }
+            }
         };
     }
 
     @Override
     protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{
-                new InstanceMethodsInterceptPoint() {
-                    @Override
-                    public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                        return named("setTag");
-                    }
-
-                    @Override
-                    public String getMethodsInterceptor() {
-                        return "com.a.eye.skywalking.toolkit.activation.opentracing.span.interceptor.SpanSetTagInterceptor";
-                    }
-                },
-                new InstanceMethodsInterceptPoint() {
-                    @Override
-                    public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                        return named("setOperationName");
-                    }
-
-                    @Override
-                    public String getMethodsInterceptor() {
-                        return "com.a.eye.skywalking.toolkit.activation.opentracing.span.interceptor.SpanSetOperationNameInterceptor";
-                    }
-                },
-                new InstanceMethodsInterceptPoint() {
-                    @Override
-                    public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                        return named("finish");
-                    }
-
-                    @Override
-                    public String getMethodsInterceptor() {
-                        return "com.a.eye.skywalking.toolkit.activation.opentracing.span.interceptor.SpanFinishInterceptor";
-                    }
+        return new InstanceMethodsInterceptPoint[] {
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named("setTag");
                 }
+
+                @Override
+                public String getMethodsInterceptor() {
+                    return "com.a.eye.skywalking.toolkit.activation.opentracing.span.interceptor.SpanSetTagInterceptor";
+                }
+            },
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named("setOperationName");
+                }
+
+                @Override
+                public String getMethodsInterceptor() {
+                    return "com.a.eye.skywalking.toolkit.activation.opentracing.span.interceptor.SpanSetOperationNameInterceptor";
+                }
+            },
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named("finish");
+                }
+
+                @Override
+                public String getMethodsInterceptor() {
+                    return "com.a.eye.skywalking.toolkit.activation.opentracing.span.interceptor.SpanFinishInterceptor";
+                }
+            }
         };
     }
 }

@@ -30,12 +30,12 @@ public class NodeMappingHourSaveTestCase {
 
     @Test
     public void testEsIndex() {
-        Assert.assertEquals(NodeMappingIndex.Index, save.esIndex());
+        Assert.assertEquals(NodeMappingIndex.INDEX, save.esIndex());
     }
 
     @Test
     public void testEsType() {
-        Assert.assertEquals(NodeMappingIndex.Type_Hour, save.esType());
+        Assert.assertEquals(NodeMappingIndex.TYPE_HOUR, save.esType());
     }
 
     @Test
@@ -50,7 +50,7 @@ public class NodeMappingHourSaveTestCase {
         Assert.assertEquals(NodeMappingHourSave.class.getSimpleName(), NodeMappingHourSave.Factory.INSTANCE.workerInstance(null).getClass().getSimpleName());
 
         int testSize = 10;
-        WorkerConfig.Queue.Node.NodeMappingHourSave.Size = testSize;
+        WorkerConfig.Queue.Node.NodeMappingHourSave.SIZE = testSize;
         Assert.assertEquals(testSize, NodeMappingHourSave.Factory.INSTANCE.queueSize());
     }
 }

@@ -13,7 +13,7 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArgument;
 
 /**
- * Created by wusheng on 2017/1/3.
+ * @author wusheng
  */
 public class SkyWalkingTracerActivation extends ClassInstanceMethodsEnhancePluginDefine {
     @Override
@@ -28,36 +28,40 @@ public class SkyWalkingTracerActivation extends ClassInstanceMethodsEnhancePlugi
 
     @Override
     protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[] {new InstanceMethodsInterceptPoint() {
-            @Override
-            public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                return named("formatCrossProcessPropagationContextData");
-            }
+        return new InstanceMethodsInterceptPoint[] {
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named("formatCrossProcessPropagationContextData");
+                }
 
-            @Override
-            public String getMethodsInterceptor() {
-                return "com.a.eye.skywalking.toolkit.activation.opentracing.tracer.interceptor.TracerFormatCrossProcessContextInterceptor";
-            }
-        }, new InstanceMethodsInterceptPoint() {
-            @Override
-            public ElementMatcher<MethodDescription>  getMethodsMatcher() {
-                return named("extractCrossProcessPropagationContextData").and(takesArgumentWithType(0, "io.opentracing.propagation.TextMap"));
-            }
+                @Override
+                public String getMethodsInterceptor() {
+                    return "com.a.eye.skywalking.toolkit.activation.opentracing.tracer.interceptor.TracerFormatCrossProcessContextInterceptor";
+                }
+            },
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named("extractCrossProcessPropagationContextData").and(takesArgumentWithType(0, "io.opentracing.propagation.TextMap"));
+                }
 
-            @Override
-            public String getMethodsInterceptor() {
-                return "com.a.eye.skywalking.toolkit.activation.opentracing.tracer.interceptor.TracerExtractCrossProcessTextMapContextInterceptor";
-            }
-        }, new InstanceMethodsInterceptPoint() {
-            @Override
-            public ElementMatcher<MethodDescription>  getMethodsMatcher() {
-                return named("extractCrossProcessPropagationContextData").and(takesArgument(0, ByteBuffer.class));
-            }
+                @Override
+                public String getMethodsInterceptor() {
+                    return "com.a.eye.skywalking.toolkit.activation.opentracing.tracer.interceptor.TracerExtractCrossProcessTextMapContextInterceptor";
+                }
+            },
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named("extractCrossProcessPropagationContextData").and(takesArgument(0, ByteBuffer.class));
+                }
 
-            @Override
-            public String getMethodsInterceptor() {
-                return "com.a.eye.skywalking.toolkit.activation.opentracing.tracer.interceptor.TracerExtractCrossProcessByteBufferContextInterceptor";
+                @Override
+                public String getMethodsInterceptor() {
+                    return "com.a.eye.skywalking.toolkit.activation.opentracing.tracer.interceptor.TracerExtractCrossProcessByteBufferContextInterceptor";
+                }
             }
-        }};
+        };
     }
 }

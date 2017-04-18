@@ -1,6 +1,5 @@
 package com.a.eye.skywalking.collector.worker.segment.persistence;
 
-
 import com.a.eye.skywalking.collector.actor.AbstractLocalAsyncWorkerProvider;
 import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
 import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
@@ -27,33 +26,34 @@ public class SegmentCostSave extends RecordPersistenceMember {
 
     @Override
     public String esIndex() {
-        return SegmentCostIndex.Index;
+        return SegmentCostIndex.INDEX;
     }
 
     @Override
     public String esType() {
-        return SegmentCostIndex.Type_Record;
+        return SegmentCostIndex.TYPE_RECORD;
     }
 
-    protected SegmentCostSave(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    protected SegmentCostSave(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext,
+        LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
     @Override
     public void analyse(Object message) throws Exception {
         if (message instanceof SegmentPost.SegmentWithTimeSlice) {
-            SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice = (SegmentPost.SegmentWithTimeSlice) message;
+            SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice = (SegmentPost.SegmentWithTimeSlice)message;
             TraceSegment segment = segmentWithTimeSlice.getTraceSegment();
 
             if (CollectionTools.isNotEmpty(segment.getSpans())) {
                 for (Span span : segment.getSpans()) {
                     if (span.getParentSpanId() == -1) {
                         JsonObject dataJsonObj = new JsonObject();
-                        dataJsonObj.addProperty(SegmentCostIndex.SegId, segment.getTraceSegmentId());
-                        dataJsonObj.addProperty(SegmentCostIndex.StartTime, span.getStartTime());
-                        dataJsonObj.addProperty(SegmentCostIndex.EndTime, span.getEndTime());
-                        dataJsonObj.addProperty(SegmentCostIndex.OperationName, span.getOperationName());
-                        dataJsonObj.addProperty(SegmentCostIndex.Time_Slice, segmentWithTimeSlice.getMinute());
+                        dataJsonObj.addProperty(SegmentCostIndex.SEG_ID, segment.getTraceSegmentId());
+                        dataJsonObj.addProperty(SegmentCostIndex.START_TIME, span.getStartTime());
+                        dataJsonObj.addProperty(SegmentCostIndex.END_TIME, span.getEndTime());
+                        dataJsonObj.addProperty(SegmentCostIndex.OPERATION_NAME, span.getOperationName());
+                        dataJsonObj.addProperty(SegmentCostIndex.TIME_SLICE, segmentWithTimeSlice.getMinute());
 
                         long startTime = span.getStartTime();
                         long endTime = span.getEndTime();
@@ -61,7 +61,7 @@ public class SegmentCostSave extends RecordPersistenceMember {
                         if (cost == 0) {
                             cost = 1;
                         }
-                        dataJsonObj.addProperty(SegmentCostIndex.Cost, cost);
+                        dataJsonObj.addProperty(SegmentCostIndex.COST, cost);
 
                         RecordData recordData = new RecordData(segment.getTraceSegmentId());
                         recordData.setRecord(dataJsonObj);
@@ -84,7 +84,7 @@ public class SegmentCostSave extends RecordPersistenceMember {
 
         @Override
         public int queueSize() {
-            return WorkerConfig.Queue.Segment.SegmentCostSave.Size;
+            return WorkerConfig.Queue.Segment.SegmentCostSave.SIZE;
         }
 
         @Override

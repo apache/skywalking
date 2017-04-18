@@ -5,12 +5,12 @@
     </Properties>
     <Appenders>
         <RollingFile name="RollingFile" fileName="${log-path}/skywalking-server-log4j2.log"
-                     filePattern="${log-path}/skywalking-server-log4j2-%d{yyyy-MM-dd}-%i.log" >
+                     filePattern="${log-path}/skywalking-server-log4j2-%d{yyyy-MM-dd}-%i.log">
             <PatternLayout>
                 <pattern>%d - %c -%-4r [%t] %-5p %x - %m%n</pattern>
             </PatternLayout>
             <Policies>
-                <SizeBasedTriggeringPolicy size="102400KB" />
+                <SizeBasedTriggeringPolicy size="102400KB"/>
             </Policies>
             <DefaultRolloverStrategy max="30"/>
         </RollingFile>

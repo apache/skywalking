@@ -14,18 +14,19 @@ import com.a.eye.skywalking.collector.worker.noderef.NodeRefIndex;
  */
 public class NodeRefHourSave extends RecordPersistenceMember {
 
-    NodeRefHourSave(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    NodeRefHourSave(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext,
+        LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
     @Override
     public String esIndex() {
-        return NodeRefIndex.Index;
+        return NodeRefIndex.INDEX;
     }
 
     @Override
     public String esType() {
-        return NodeRefIndex.Type_Hour;
+        return NodeRefIndex.TYPE_HOUR;
     }
 
     public static class Factory extends AbstractLocalAsyncWorkerProvider<NodeRefHourSave> {
@@ -44,7 +45,7 @@ public class NodeRefHourSave extends RecordPersistenceMember {
 
         @Override
         public int queueSize() {
-            return WorkerConfig.Queue.NodeRef.NodeRefHourSave.Size;
+            return WorkerConfig.Queue.NodeRef.NodeRefHourSave.SIZE;
         }
     }
 

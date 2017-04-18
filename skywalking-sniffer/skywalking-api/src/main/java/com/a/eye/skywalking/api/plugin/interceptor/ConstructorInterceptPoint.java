@@ -21,7 +21,8 @@ public interface ConstructorInterceptPoint {
     ElementMatcher<MethodDescription> getConstructorMatcher();
 
     /**
-     * @return represents a class name, the class instance must be a instance of {@link com.a.eye.skywalking.plugin.interceptor.enhance.InstanceConstructorInterceptor}.
+     * @return represents a class name, the class instance must be a instance of {@link
+     * com.a.eye.skywalking.plugin.interceptor.enhance.InstanceConstructorInterceptor}.
      */
     String getConstructorInterceptor();
 }

@@ -66,7 +66,7 @@ public class NodeCompAggTestCase {
         Assert.assertEquals(NodeCompAgg.class.getSimpleName(), NodeCompAgg.Factory.INSTANCE.workerInstance(null).getClass().getSimpleName());
 
         int testSize = 10;
-        WorkerConfig.WorkerNum.Node.NodeCompAgg.Value = testSize;
+        WorkerConfig.WorkerNum.Node.NodeCompAgg.VALUE = testSize;
         Assert.assertEquals(testSize, NodeCompAgg.Factory.INSTANCE.workerNum());
     }
 

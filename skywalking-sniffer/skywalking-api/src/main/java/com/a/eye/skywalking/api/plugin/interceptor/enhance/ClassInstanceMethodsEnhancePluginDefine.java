@@ -1,13 +1,12 @@
 package com.a.eye.skywalking.api.plugin.interceptor.enhance;
 
-
 import com.a.eye.skywalking.api.plugin.interceptor.StaticMethodsInterceptPoint;
 
 /**
- * Plugins, which only need enhance class static methods.
- * Actually, inherit from {@link ClassInstanceMethodsEnhancePluginDefine} has no differences with inherit from {@link ClassEnhancePluginDefine}.
- * Just override {@link ClassEnhancePluginDefine#getStaticMethodsInterceptPoints},
- * and return {@link null}, which means nothing to enhance.
+ * Plugins, which only need enhance class static methods. Actually, inherit from {@link
+ * ClassInstanceMethodsEnhancePluginDefine} has no differences with inherit from {@link ClassEnhancePluginDefine}. Just
+ * override {@link ClassEnhancePluginDefine#getStaticMethodsInterceptPoints}, and return {@link null}, which means
+ * nothing to enhance.
  *
  * @author wusheng
  */

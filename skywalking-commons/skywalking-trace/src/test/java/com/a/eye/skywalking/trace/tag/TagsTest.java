@@ -9,7 +9,7 @@ import org.junit.Test;
  */
 public class TagsTest {
     @Test
-    public void testLayer(){
+    public void testLayer() {
         Span span = new Span(1, "/test");
         Tags.SPAN_LAYER.asDB(span);
         Assert.assertEquals("db", span.getStrTag("span.layer"));
@@ -22,7 +22,7 @@ public class TagsTest {
     }
 
     @Test
-    public void testBooleanTag(){
+    public void testBooleanTag() {
         BooleanTag tag = new BooleanTag("test.key", false);
         Span span = new Span(1, "/test");
         Assert.assertFalse(tag.get(span));
@@ -32,7 +32,7 @@ public class TagsTest {
     }
 
     @Test
-    public void testIntTag(){
+    public void testIntTag() {
         IntTag tag = new IntTag("test.key");
         Span span = new Span(1, "/test");
         Assert.assertNull(tag.get(span));
@@ -42,7 +42,7 @@ public class TagsTest {
     }
 
     @Test
-    public void testShortTag(){
+    public void testShortTag() {
         ShortTag tag = new ShortTag("test.key");
         Span span = new Span(1, "/test");
         Assert.assertNull(tag.get(span));

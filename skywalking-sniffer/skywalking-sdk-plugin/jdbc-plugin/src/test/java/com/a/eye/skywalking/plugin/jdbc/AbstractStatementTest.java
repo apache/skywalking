@@ -19,7 +19,6 @@ public abstract class AbstractStatementTest {
 
     protected MockTracerContextListener mockTracerContextListener;
 
-
     protected void assertDBSpanLog(LogData logData) {
         assertThat(logData.getFields().size(), is(4));
         assertThat(logData.getFields().get("event"), CoreMatchers.<Object>is("error"));
@@ -27,12 +26,10 @@ public abstract class AbstractStatementTest {
         assertNull(logData.getFields().get("message"));
     }
 
-
     protected void assertDBSpan(Span span, String exceptOperationName, String exceptDBStatement) {
         assertDBSpan(span, exceptOperationName);
         assertThat(Tags.DB_STATEMENT.get(span), is(exceptDBStatement));
     }
-
 
     protected void assertDBSpan(Span span, String exceptOperationName) {
         assertThat(span.getOperationName(), is(exceptOperationName));

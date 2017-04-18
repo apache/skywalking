@@ -23,16 +23,17 @@ import java.util.concurrent.locks.ReentrantLock;
  * The loader will load a class, and focus the target class loader (be intercepted class's classloader) loads it.
  *
  * If the target class and target class loader are same, the loaded classes( {@link InstanceConstructorInterceptor},
- * {@link InstanceMethodsAroundInterceptor} and {@link StaticMethodsAroundInterceptor} implementations) stay in singleton.
+ * {@link InstanceMethodsAroundInterceptor} and {@link StaticMethodsAroundInterceptor} implementations) stay in
+ * singleton.
  *
  * Created by wusheng on 16/8/2.
  */
 public class InterceptorInstanceLoader {
-    private static ILog logger = LogManager.getLogger(InterceptorInstanceLoader.class);
+    private static final ILog logger = LogManager.getLogger(InterceptorInstanceLoader.class);
 
     private static ConcurrentHashMap<String, Object> INSTANCE_CACHE = new ConcurrentHashMap<String, Object>();
 
-    private static ReentrantLock instanceLoadLock = new ReentrantLock();
+    private static ReentrantLock INSTANCE_LOAD_LOCK = new ReentrantLock();
 
     public static <T> T load(String className, ClassLoader targetClassLoader)
         throws InvocationTargetException, IllegalAccessException, InstantiationException, ClassNotFoundException {
@@ -42,7 +43,7 @@ public class InterceptorInstanceLoader {
             if (InterceptorInstanceLoader.class.getClassLoader().equals(targetClassLoader)) {
                 inst = targetClassLoader.loadClass(className).newInstance();
             } else {
-                instanceLoadLock.lock();
+                INSTANCE_LOAD_LOCK.lock();
                 try {
                     try {
                         inst = findLoadedClass(className, targetClassLoader);
@@ -56,7 +57,7 @@ public class InterceptorInstanceLoader {
                         throw new ClassNotFoundException(targetClassLoader.toString() + " load interceptor class:" + className + " failure.", e);
                     }
                 } finally {
-                    instanceLoadLock.unlock();
+                    INSTANCE_LOAD_LOCK.unlock();
                 }
             }
             if (inst != null) {

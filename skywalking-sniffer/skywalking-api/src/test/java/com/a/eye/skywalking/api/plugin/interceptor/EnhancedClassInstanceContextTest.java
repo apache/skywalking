@@ -8,7 +8,7 @@ import org.junit.Test;
  */
 public class EnhancedClassInstanceContextTest {
     @Test
-    public void test(){
+    public void test() {
         EnhancedClassInstanceContext context = new EnhancedClassInstanceContext();
         context.set("key", "value");
         Assert.assertTrue(context.isContain("key"));

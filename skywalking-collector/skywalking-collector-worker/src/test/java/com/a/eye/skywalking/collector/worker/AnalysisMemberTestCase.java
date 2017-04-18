@@ -77,7 +77,6 @@ public class AnalysisMemberTestCase {
 
     }
 
-
     class ExceptionAnswer implements Answer {
 
         boolean isTestException = false;

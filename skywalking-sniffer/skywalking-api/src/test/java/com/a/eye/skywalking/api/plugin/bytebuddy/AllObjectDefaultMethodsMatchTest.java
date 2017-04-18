@@ -7,6 +7,6 @@ import org.junit.Test;
  */
 public class AllObjectDefaultMethodsMatchTest {
     @Test
-    public void testMatches(){
+    public void testMatches() {
     }
 }

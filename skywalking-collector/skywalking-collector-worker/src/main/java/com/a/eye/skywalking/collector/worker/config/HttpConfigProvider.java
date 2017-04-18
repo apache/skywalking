@@ -15,14 +15,14 @@ public class HttpConfigProvider implements ConfigProvider {
 
     @Override
     public void cliArgs() {
-        if (!StringUtil.isEmpty(System.getProperty("http.hostname"))) {
-            HttpConfig.Http.hostname = System.getProperty("http.hostname");
+        if (!StringUtil.isEmpty(System.getProperty("http.HOSTNAME"))) {
+            HttpConfig.Http.HOSTNAME = System.getProperty("http.HOSTNAME");
         }
-        if (!StringUtil.isEmpty(System.getProperty("http.port"))) {
-            HttpConfig.Http.port = System.getProperty("http.port");
+        if (!StringUtil.isEmpty(System.getProperty("http.PORT"))) {
+            HttpConfig.Http.PORT = System.getProperty("http.PORT");
         }
-        if (!StringUtil.isEmpty(System.getProperty("http.contextPath"))) {
-            HttpConfig.Http.contextPath = System.getProperty("http.contextPath");
+        if (!StringUtil.isEmpty(System.getProperty("http.CONTEXTPATH"))) {
+            HttpConfig.Http.CONTEXTPATH = System.getProperty("http.CONTEXTPATH");
         }
     }
 }

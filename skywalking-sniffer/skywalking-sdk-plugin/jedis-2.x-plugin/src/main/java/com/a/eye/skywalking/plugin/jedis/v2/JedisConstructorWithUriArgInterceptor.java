@@ -17,7 +17,7 @@ public class JedisConstructorWithUriArgInterceptor implements InstanceConstructo
     @Override
     public void onConstruct(EnhancedClassInstanceContext context, ConstructorInvokeContext interceptorContext) {
         String redisConnInfo;
-        URI uri = (URI) interceptorContext.allArguments()[0];
+        URI uri = (URI)interceptorContext.allArguments()[0];
         redisConnInfo = uri.getHost() + ":" + uri.getPort();
         context.set(JedisMethodInterceptor.KEY_OF_REDIS_CONN_INFO, redisConnInfo);
         context.set(JedisMethodInterceptor.KEY_OF_REDIS_HOST, uri.getHost());

@@ -37,7 +37,7 @@ public class MergeDataTestCase {
     }
 
     @Test
-    public void testMerge(){
+    public void testMerge() {
         String id = "Test";
         MergeData mergeData_1 = new MergeData(id);
         mergeData_1.setMergeData("Column_1", "Value_1");
@@ -50,7 +50,7 @@ public class MergeDataTestCase {
     }
 
     @Test
-    public void testMergeMap(){
+    public void testMergeMap() {
         String id = "Test";
         MergeData mergeData_1 = new MergeData(id);
         mergeData_1.setMergeData("Column_1", "Value_1");

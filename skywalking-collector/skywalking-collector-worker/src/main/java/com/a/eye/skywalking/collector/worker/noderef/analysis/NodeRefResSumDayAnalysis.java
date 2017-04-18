@@ -14,14 +14,15 @@ import com.a.eye.skywalking.collector.worker.storage.MetricData;
  */
 public class NodeRefResSumDayAnalysis extends AbstractNodeRefResSumAnalysis {
 
-    NodeRefResSumDayAnalysis(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    NodeRefResSumDayAnalysis(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext,
+        LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
     @Override
     public void analyse(Object message) throws Exception {
         if (message instanceof NodeRefResRecord) {
-            NodeRefResRecord refResRecord = (NodeRefResRecord) message;
+            NodeRefResRecord refResRecord = (NodeRefResRecord)message;
             analyseResSum(refResRecord);
         }
     }
@@ -49,7 +50,7 @@ public class NodeRefResSumDayAnalysis extends AbstractNodeRefResSumAnalysis {
 
         @Override
         public int queueSize() {
-            return WorkerConfig.Queue.NodeRef.NodeRefResSumDayAnalysis.Size;
+            return WorkerConfig.Queue.NodeRef.NodeRefResSumDayAnalysis.SIZE;
         }
     }
 

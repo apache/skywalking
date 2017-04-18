@@ -16,7 +16,8 @@ public enum ServletsCreator {
 
     private Logger logger = LogManager.getFormatterLogger(ServletsCreator.class);
 
-    public void boot(ServletContextHandler servletContextHandler, ClusterWorkerContext clusterContext) throws IllegalArgumentException, ProviderNotFoundException {
+    public void boot(ServletContextHandler servletContextHandler,
+        ClusterWorkerContext clusterContext) throws IllegalArgumentException, ProviderNotFoundException {
         ServiceLoader<AbstractPostProvider> receiverLoader = java.util.ServiceLoader.load(AbstractPostProvider.class);
         for (AbstractPostProvider provider : receiverLoader) {
             provider.setClusterContext(clusterContext);

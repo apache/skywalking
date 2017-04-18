@@ -8,7 +8,7 @@ import org.junit.Test;
  */
 public class PluginResourcesResolverTest {
     @Test
-    public void testGetResources(){
+    public void testGetResources() {
         PluginResourcesResolver resolver = new PluginResourcesResolver();
 
         Assert.assertTrue(resolver.getResources().size() > 0);

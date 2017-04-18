@@ -9,7 +9,6 @@ import com.a.eye.skywalking.api.plugin.interceptor.enhance.StaticMethodInvokeCon
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.StaticMethodsAroundInterceptor;
 
 /**
- *
  * Created by xin on 2016/12/15.
  */
 public class TraceContextInterceptor implements StaticMethodsAroundInterceptor {
@@ -23,7 +22,7 @@ public class TraceContextInterceptor implements StaticMethodsAroundInterceptor {
 
     @Override
     public Object afterMethod(StaticMethodInvokeContext interceptorContext, Object ret) {
-       return ContextManager.getGlobalTraceId();
+        return ContextManager.getGlobalTraceId();
     }
 
     @Override

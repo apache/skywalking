@@ -5,31 +5,31 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 public final class MachineInfo {
-    private static int processNo = -1;
+    private static int PROCESS_NO = -1;
     private static String IP;
-    private static String hostName;
+    private static String HOST_NAME;
 
     static {
-        processNo = getProcessNo();
+        PROCESS_NO = getProcessNo();
     }
 
     public static int getProcessNo() {
-        if (processNo == -1) {
+        if (PROCESS_NO == -1) {
             String name = ManagementFactory.getRuntimeMXBean().getName();
             try {
-                processNo = Integer.parseInt(name.split("@")[0]);
+                PROCESS_NO = Integer.parseInt(name.split("@")[0]);
             } catch (Throwable t) {
-                processNo = 0;
+                PROCESS_NO = 0;
             }
         }
-        return processNo;
+        return PROCESS_NO;
     }
 
     private static InetAddress getInetAddress() {
         try {
             return InetAddress.getLocalHost();
         } catch (UnknownHostException e) {
-            hostName = "unknown host!";
+            HOST_NAME = "unknown host!";
         }
         return null;
 
@@ -48,15 +48,15 @@ public final class MachineInfo {
     }
 
     public static String getHostName() {
-        if (StringUtil.isEmpty(hostName)) {
+        if (StringUtil.isEmpty(HOST_NAME)) {
             InetAddress netAddress = getInetAddress();
             if (null == netAddress) {
-                hostName = "N/A";
+                HOST_NAME = "N/A";
             } else {
-                hostName = netAddress.getHostName(); //get the host address
+                HOST_NAME = netAddress.getHostName(); //get the host address
             }
         }
-        return hostName;
+        return HOST_NAME;
     }
 
     public static String getHostDesc() {

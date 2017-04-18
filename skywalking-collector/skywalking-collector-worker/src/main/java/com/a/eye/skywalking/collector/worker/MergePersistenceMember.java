@@ -38,12 +38,11 @@ public abstract class MergePersistenceMember extends PersistenceMember {
         return persistenceData;
     }
 
-    @Override
-    final public void analyse(Object message) throws Exception {
+    @Override final public void analyse(Object message) throws Exception {
         if (message instanceof MergeData) {
-            MergeData mergeData = (MergeData) message;
+            MergeData mergeData = (MergeData)message;
             getPersistenceData().getElseCreate(mergeData.getId()).merge(mergeData);
-            if (getPersistenceData().size() >= CacheSizeConfig.Cache.Persistence.size) {
+            if (getPersistenceData().size() >= CacheSizeConfig.Cache.Persistence.SIZE) {
                 persistence();
             }
         } else {
@@ -82,7 +81,7 @@ public abstract class MergePersistenceMember extends PersistenceMember {
     private boolean saveToEs() {
         Client client = EsClient.INSTANCE.getClient();
         BulkRequestBuilder bulkRequest = client.prepareBulk();
-        logger.debug("persistenceData size: %s", getPersistenceData().size());
+        logger.debug("persistenceData SIZE: %s", getPersistenceData().size());
 
         Iterator<Map.Entry<String, MergeData>> iterator = getPersistenceData().iterator();
         while (iterator.hasNext()) {

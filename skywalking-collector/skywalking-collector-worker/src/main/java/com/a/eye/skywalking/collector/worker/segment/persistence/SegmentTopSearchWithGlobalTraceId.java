@@ -28,7 +28,8 @@ public class SegmentTopSearchWithGlobalTraceId extends AbstractLocalSyncWorker {
 
     private Gson gson = new Gson();
 
-    private SegmentTopSearchWithGlobalTraceId(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    private SegmentTopSearchWithGlobalTraceId(Role role, ClusterWorkerContext clusterContext,
+        LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
@@ -40,10 +41,10 @@ public class SegmentTopSearchWithGlobalTraceId extends AbstractLocalSyncWorker {
     @Override
     protected void onWork(Object request, Object response) throws Exception {
         if (request instanceof RequestEntity) {
-            RequestEntity search = (RequestEntity) request;
+            RequestEntity search = (RequestEntity)request;
             Client client = EsClient.INSTANCE.getClient();
 
-            String globalTraceData = client.prepareGet(GlobalTraceIndex.Index, GlobalTraceIndex.Type_Record, search.globalTraceId).get().getSourceAsString();
+            String globalTraceData = client.prepareGet(GlobalTraceIndex.INDEX, GlobalTraceIndex.TYPE_RECORD, search.globalTraceId).get().getSourceAsString();
             JsonObject globalTraceObj = gson.fromJson(globalTraceData, JsonObject.class);
 
             JsonObject topSegPaging = new JsonObject();
@@ -52,9 +53,9 @@ public class SegmentTopSearchWithGlobalTraceId extends AbstractLocalSyncWorker {
             JsonArray topSegArray = new JsonArray();
             topSegPaging.add("data", topSegArray);
 
-            if (globalTraceObj != null && globalTraceObj.has(GlobalTraceIndex.SubSegIds)) {
-                String subSegIdsStr = globalTraceObj.get(GlobalTraceIndex.SubSegIds).getAsString();
-                String[] subSegIds = subSegIdsStr.split(MergeData.Split);
+            if (globalTraceObj != null && globalTraceObj.has(GlobalTraceIndex.SUB_SEG_IDS)) {
+                String subSegIdsStr = globalTraceObj.get(GlobalTraceIndex.SUB_SEG_IDS).getAsString();
+                String[] subSegIds = subSegIdsStr.split(MergeData.SPLIT);
 
                 topSegPaging.addProperty("recordsTotal", subSegIds.length);
 
@@ -65,21 +66,21 @@ public class SegmentTopSearchWithGlobalTraceId extends AbstractLocalSyncWorker {
                 }
 
                 for (int i = num; i < limit; i++) {
-                    GetResponse getResponse = client.prepareGet(SegmentCostIndex.Index, SegmentCostIndex.Type_Record, subSegIds[num]).get();
+                    GetResponse getResponse = client.prepareGet(SegmentCostIndex.INDEX, SegmentCostIndex.TYPE_RECORD, subSegIds[num]).get();
 
                     JsonObject topSegmentJson = new JsonObject();
                     topSegmentJson.addProperty("num", num);
-                    String segId = (String) getResponse.getSource().get(SegmentCostIndex.SegId);
-                    topSegmentJson.addProperty(SegmentCostIndex.SegId, segId);
-                    topSegmentJson.addProperty(SegmentCostIndex.StartTime, (Number) getResponse.getSource().get(SegmentCostIndex.StartTime));
-                    if (getResponse.getSource().containsKey(SegmentCostIndex.EndTime)) {
-                        topSegmentJson.addProperty(SegmentCostIndex.EndTime, (Number) getResponse.getSource().get(SegmentCostIndex.EndTime));
+                    String segId = (String)getResponse.getSource().get(SegmentCostIndex.SEG_ID);
+                    topSegmentJson.addProperty(SegmentCostIndex.SEG_ID, segId);
+                    topSegmentJson.addProperty(SegmentCostIndex.START_TIME, (Number)getResponse.getSource().get(SegmentCostIndex.START_TIME));
+                    if (getResponse.getSource().containsKey(SegmentCostIndex.END_TIME)) {
+                        topSegmentJson.addProperty(SegmentCostIndex.END_TIME, (Number)getResponse.getSource().get(SegmentCostIndex.END_TIME));
                     }
 
-                    topSegmentJson.addProperty(SegmentCostIndex.OperationName, (String) getResponse.getSource().get(SegmentCostIndex.OperationName));
-                    topSegmentJson.addProperty(SegmentCostIndex.Cost, (Number) getResponse.getSource().get(SegmentCostIndex.Cost));
+                    topSegmentJson.addProperty(SegmentCostIndex.OPERATION_NAME, (String)getResponse.getSource().get(SegmentCostIndex.OPERATION_NAME));
+                    topSegmentJson.addProperty(SegmentCostIndex.COST, (Number)getResponse.getSource().get(SegmentCostIndex.COST));
 
-                    String segmentSource = client.prepareGet(SegmentIndex.Index, SegmentIndex.Type_Record, segId).get().getSourceAsString();
+                    String segmentSource = client.prepareGet(SegmentIndex.INDEX, SegmentIndex.TYPE_RECORD, segId).get().getSourceAsString();
                     Segment segment = SegmentDeserialize.INSTANCE.deserializeFromES(segmentSource);
                     List<DistributedTraceId> distributedTraceIdList = segment.getRelatedGlobalTraces();
 
@@ -96,19 +97,18 @@ public class SegmentTopSearchWithGlobalTraceId extends AbstractLocalSyncWorker {
                     getSelfContext().lookup(SegmentExceptionWithSegId.WorkerRole.INSTANCE).ask(new SegmentExceptionWithSegId.RequestEntity(segId), resJsonObj);
                     if (resJsonObj.has("result")) {
                         JsonObject segExJson = resJsonObj.get("result").getAsJsonObject();
-                        if (segExJson.has(SegmentExceptionIndex.IsError)) {
-                            isError = segExJson.get(SegmentExceptionIndex.IsError).getAsBoolean();
+                        if (segExJson.has(SegmentExceptionIndex.IS_ERROR)) {
+                            isError = segExJson.get(SegmentExceptionIndex.IS_ERROR).getAsBoolean();
                         }
                     }
-                    topSegmentJson.addProperty(SegmentExceptionIndex.IsError, isError);
+                    topSegmentJson.addProperty(SegmentExceptionIndex.IS_ERROR, isError);
 
                     num++;
                     topSegArray.add(topSegmentJson);
                 }
             }
 
-
-            JsonObject resJsonObj = (JsonObject) response;
+            JsonObject resJsonObj = (JsonObject)response;
             resJsonObj.add("result", topSegPaging);
         }
     }

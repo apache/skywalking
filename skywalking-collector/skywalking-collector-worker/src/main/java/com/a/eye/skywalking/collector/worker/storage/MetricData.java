@@ -30,33 +30,33 @@ public class MetricData extends AbstractHashMessage {
             }
         }
 
-        value.put(AbstractIndex.Time_Slice, Long.valueOf(slice));
+        value.put(AbstractIndex.TIME_SLICE, Long.valueOf(slice));
         value.put(AbstractIndex.AGG_COLUMN, aggId);
     }
 
     public void setMetric(String column, Long value) {
         long valueAdd = value;
-        if (this.value.containsKey(column) && !AbstractIndex.Time_Slice.equals(column)
-                && !AbstractIndex.AGG_COLUMN.equals(column)) {
-            valueAdd += (Long) this.value.get(column);
+        if (this.value.containsKey(column) && !AbstractIndex.TIME_SLICE.equals(column)
+            && !AbstractIndex.AGG_COLUMN.equals(column)) {
+            valueAdd += (Long)this.value.get(column);
         }
         this.value.put(column, valueAdd);
     }
 
     public void merge(MetricData metricData) {
         for (Map.Entry<String, Object> entry : metricData.value.entrySet()) {
-            if (!AbstractIndex.Time_Slice.equals(entry.getKey())
-                    && !AbstractIndex.AGG_COLUMN.equals(entry.getKey())) {
-                setMetric(entry.getKey(), (Long) entry.getValue());
+            if (!AbstractIndex.TIME_SLICE.equals(entry.getKey())
+                && !AbstractIndex.AGG_COLUMN.equals(entry.getKey())) {
+                setMetric(entry.getKey(), (Long)entry.getValue());
             }
         }
     }
 
     public void merge(Map<String, Object> dbData) {
         for (Map.Entry<String, Object> entry : dbData.entrySet()) {
-            if (!AbstractIndex.Time_Slice.equals(entry.getKey())
-                    && !AbstractIndex.AGG_COLUMN.equals(entry.getKey())) {
-                long dbValue = ((Number) entry.getValue()).longValue();
+            if (!AbstractIndex.TIME_SLICE.equals(entry.getKey())
+                && !AbstractIndex.AGG_COLUMN.equals(entry.getKey())) {
+                long dbValue = ((Number)entry.getValue()).longValue();
                 setMetric(entry.getKey(), dbValue);
             }
         }

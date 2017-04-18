@@ -66,7 +66,7 @@ public class NodeRefResSumMinuteAggTestCase {
         Assert.assertEquals(NodeRefResSumMinuteAgg.class.getSimpleName(), NodeRefResSumMinuteAgg.Factory.INSTANCE.workerInstance(null).getClass().getSimpleName());
 
         int testSize = 10;
-        WorkerConfig.WorkerNum.NodeRef.NodeRefResSumMinuteAgg.Value = testSize;
+        WorkerConfig.WorkerNum.NodeRef.NodeRefResSumMinuteAgg.VALUE = testSize;
         Assert.assertEquals(testSize, NodeRefResSumMinuteAgg.Factory.INSTANCE.workerNum());
     }
 

@@ -25,7 +25,7 @@ public class MysqlURLParser extends AbstractURLParser {
     protected int[] fetchDatabaseHostsIndexRange() {
         int hostLabelStartIndex = url.indexOf("//");
         int hostLabelEndIndex = url.indexOf("/", hostLabelStartIndex + 2);
-        return new int[]{hostLabelStartIndex + 2, hostLabelEndIndex};
+        return new int[] {hostLabelStartIndex + 2, hostLabelEndIndex};
     }
 
     @Override
@@ -35,7 +35,7 @@ public class MysqlURLParser extends AbstractURLParser {
         if (databaseEndTag == -1) {
             databaseEndTag = url.length();
         }
-        return new int[]{databaseStartTag + 1, databaseEndTag};
+        return new int[] {databaseStartTag + 1, databaseEndTag};
     }
 
     @Override

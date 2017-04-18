@@ -23,10 +23,9 @@ public abstract class AbstractPost extends AbstractLocalAsyncWorker {
         super(role, clusterContext, selfContext);
     }
 
-    @Override
-    final public void onWork(Object request) throws Exception {
+    @Override final public void onWork(Object request) throws Exception {
         if (request instanceof String) {
-            onReceive((String) request);
+            onReceive((String)request);
         } else {
             logger.error("unhandled request, request instance must String, but is %s", request.getClass().toString());
             saveException(new IllegalArgumentException("request instance must String"));
@@ -43,8 +42,8 @@ public abstract class AbstractPost extends AbstractLocalAsyncWorker {
             this.ownerWorkerRef = ownerWorkerRef;
         }
 
-        @Override
-        final protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        @Override        final protected void doPost(HttpServletRequest request,
+            HttpServletResponse response) throws ServletException, IOException {
             JsonObject resJson = new JsonObject();
             try {
                 BufferedReader bufferedReader = request.getReader();

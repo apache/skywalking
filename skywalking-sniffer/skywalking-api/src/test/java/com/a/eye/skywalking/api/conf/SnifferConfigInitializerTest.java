@@ -12,7 +12,7 @@ import static com.a.eye.skywalking.api.logging.LogLevel.*;
 public class SnifferConfigInitializerTest {
 
     @Test
-    public void testInitialize(){
+    public void testInitialize() {
         SnifferConfigInitializer.initialize();
 
         Assert.assertEquals("crmApp", Config.Agent.APPLICATION_CODE);
@@ -27,7 +27,7 @@ public class SnifferConfigInitializerTest {
     }
 
     @AfterClass
-    public static void clear(){
+    public static void clear() {
         Config.Logging.LEVEL = DEBUG;
     }
 }
