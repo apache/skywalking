@@ -28,7 +28,7 @@ public enum EsClient {
 
     public void boot() throws UnknownHostException {
         Settings settings = Settings.builder()
-            .put("cluster.NAME", EsConfig.Es.Cluster.NAME)
+            .put("cluster.name", EsConfig.Es.Cluster.NAME)
             .put("client.transport.sniff", EsConfig.Es.Cluster.Transport.SNIFFER)
             .build();
 
