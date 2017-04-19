@@ -1,4 +1,4 @@
-package com.a.eye.skywalking.plugin.mongodb;
+package com.a.eye.skywalking.plugin.mongodb.v3;
 
 /**
  * {@link OperationInfo} record the methodName and filter information

@@ -57,7 +57,7 @@
         </dependency>
         <dependency>
             <groupId>com.a.eye</groupId>
-            <artifactId>skywalking-mongodb-plugin</artifactId>
+            <artifactId>skywalking-mongodb-3.x-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
 

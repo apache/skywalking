@@ -1,10 +1,10 @@
-package com.a.eye.skywalking.plugin.mongodb;
+package com.a.eye.skywalking.plugin.mongodb.v3;
 
-import com.a.eye.skywalking.api.context.ContextManager;
 import com.a.eye.skywalking.api.plugin.interceptor.EnhancedClassInstanceContext;
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.InstanceMethodInvokeContext;
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.MethodInterceptResult;
+import com.mongodb.ReadPreference;
 import com.mongodb.ServerAddress;
 import com.mongodb.binding.ReadBinding;
 
@@ -18,7 +18,6 @@ public class MongoDBReadBindingInterceptor implements InstanceMethodsAroundInter
     @Override
     public void beforeMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
             MethodInterceptResult result) {
-        
     }
 
     /**
@@ -40,7 +39,6 @@ public class MongoDBReadBindingInterceptor implements InstanceMethodsAroundInter
     @Override
     public void handleMethodException(Throwable t, EnhancedClassInstanceContext context,
             InstanceMethodInvokeContext interceptorContext) {
-        ContextManager.activeSpan().log(t);
     }
 
 }

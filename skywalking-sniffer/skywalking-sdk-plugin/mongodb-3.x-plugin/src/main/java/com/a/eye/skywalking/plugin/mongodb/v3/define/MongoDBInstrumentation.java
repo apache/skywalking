@@ -1,4 +1,4 @@
-package com.a.eye.skywalking.plugin.mongodb.define;
+package com.a.eye.skywalking.plugin.mongodb.v3.define;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import net.bytebuddy.description.method.MethodDescription;
@@ -18,11 +18,11 @@ public class MongoDBInstrumentation extends ClassInstanceMethodsEnhancePluginDef
 
     private static final String ENHANCE_CLASS = "com.mongodb.Mongo";
 
-    private static final String MONGDB_READ_BINDING_CLASS = "com.a.eye.skywalking.plugin.mongodb.MongoDBReadBindingInterceptor";
+    private static final String MONGDB_READ_BINDING_CLASS = "com.a.eye.skywalking.plugin.mongodb.v3.MongoDBReadBindingInterceptor";
 
-    private static final String MONGDB_WRITE_BINDING_CLASS = "com.a.eye.skywalking.plugin.mongodb.MongoDBWriteBindingInterceptor";
+    private static final String MONGDB_WRITE_BINDING_CLASS = "com.a.eye.skywalking.plugin.mongodb.v3.MongoDBWriteBindingInterceptor";
 
-    private static final String MONGDB_METHOD_INTERCET_CLASS = "com.a.eye.skywalking.plugin.mongodb.MongoDBMethodInterceptor";
+    private static final String MONGDB_METHOD_INTERCET_CLASS = "com.a.eye.skywalking.plugin.mongodb.v3.MongoDBMethodInterceptor";
 
     @Override
     protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
