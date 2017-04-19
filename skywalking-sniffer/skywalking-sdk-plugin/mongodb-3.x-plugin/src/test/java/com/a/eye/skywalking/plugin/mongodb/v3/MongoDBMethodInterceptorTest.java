@@ -19,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.a.eye.skywalking.api.boot.ServiceManager;
+import com.a.eye.skywalking.api.conf.Config;
 import com.a.eye.skywalking.api.context.TracerContext;
 import com.a.eye.skywalking.api.plugin.interceptor.EnhancedClassInstanceContext;
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.InstanceMethodInvokeContext;
@@ -52,6 +53,8 @@ public class MongoDBMethodInterceptorTest {
         mockTracerContextListener = new MockTracerContextListener();
 
         TracerContext.ListenerManager.add(mockTracerContextListener);
+        
+        Config.Agent.MONGODB_BINDPARAM = true;
 
         when(classInstanceContext.get(MongoDBMethodInterceptor.MONGODB_HOST, String.class)).thenReturn("127.0.0.1");
         when(classInstanceContext.get(MongoDBMethodInterceptor.MONGODB_PORT)).thenReturn(27017);
