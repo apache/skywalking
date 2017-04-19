@@ -23,6 +23,13 @@ public class Config {
          * Zero and negative number are illegal.
          */
         public static int SAMPLING_CYCLE = 1;
+        
+        /**
+         * Set Mongodb plugin whether to bind params
+         * False=Not bound
+         * True=Binding
+         */
+        public static boolean MONGODB_BINDPARAM = false;
     }
 
     public static class Collector {

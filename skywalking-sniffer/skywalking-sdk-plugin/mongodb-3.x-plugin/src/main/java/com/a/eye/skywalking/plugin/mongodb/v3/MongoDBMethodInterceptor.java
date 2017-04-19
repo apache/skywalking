@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.bson.BsonDocument;
 
+import com.a.eye.skywalking.api.conf.Config;
 import com.a.eye.skywalking.api.context.ContextManager;
 import com.a.eye.skywalking.api.plugin.interceptor.EnhancedClassInstanceContext;
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.InstanceMethodInvokeContext;
@@ -65,13 +66,18 @@ public class MongoDBMethodInterceptor implements InstanceMethodsAroundIntercepto
     public void beforeMethod(final EnhancedClassInstanceContext context,
             final InstanceMethodInvokeContext interceptorContext, final MethodInterceptResult result) {
         Object[] arguments = interceptorContext.allArguments();
-        OperationInfo operationInfo = this.getReadOperationInfo(arguments[0]);
-        Span span = ContextManager.createSpan(METHOD + operationInfo.getMethodName());
+        Span span = null;
+        if (Config.Agent.MONGODB_BINDPARAM) {
+            OperationInfo operationInfo = this.getReadOperationInfo(arguments[0]);
+            span = ContextManager.createSpan(METHOD + operationInfo.getMethodName());
+            Tags.DB_STATEMENT.set(span, operationInfo.getMethodName() + " " + operationInfo.getFilter());
+        } else {
+            span = ContextManager.createSpan(METHOD + arguments[0].getClass().getSimpleName());
+        }
         Tags.COMPONENT.set(span, MONGODB_COMPONENT);
         Tags.DB_TYPE.set(span, MONGODB_COMPONENT);
         Tags.SPAN_KIND.set(span, Tags.SPAN_KIND_CLIENT);
         Tags.SPAN_LAYER.asDB(span);
-        Tags.DB_STATEMENT.set(span, operationInfo.getMethodName() + " " + operationInfo.getFilter());
     }
 
     @Override
