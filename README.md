@@ -40,7 +40,7 @@ _In chronological order_
 * 徐妍 [@TastySummer](https://github.com/TastySummer)
 * 彭勇升 [@pengys5](https://github.com/pengys5)
 * 戴文
-
+* 柏杨 [@bai-yang](https://github.com/bai-yang)
 
 # Screenshots
 - Topological graph of application clusters.
