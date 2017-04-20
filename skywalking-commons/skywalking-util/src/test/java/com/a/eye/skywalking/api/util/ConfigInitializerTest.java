@@ -36,7 +36,7 @@ public class ConfigInitializerTest {
     }
 
     @Before
-    public void clear(){
+    public void clear() {
         TestPropertiesObject.Level1Object.strAttr = null;
         TestPropertiesObject.Level1Object.Level2Object.intAttr = 0;
         TestPropertiesObject.Level1Object.Level2Object.longAttr = 0;

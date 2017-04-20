@@ -19,7 +19,7 @@ public final class TraceSegmentHolder {
         this.value = value;
     }
 
-    public void clear(){
+    public void clear() {
         this.value = null;
     }
 

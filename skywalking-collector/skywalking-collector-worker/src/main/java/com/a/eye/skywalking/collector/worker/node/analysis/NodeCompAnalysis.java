@@ -16,14 +16,15 @@ import com.a.eye.skywalking.trace.TraceSegment;
  */
 public class NodeCompAnalysis extends AbstractNodeCompAnalysis {
 
-    NodeCompAnalysis(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    NodeCompAnalysis(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext,
+        LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
     @Override
     public void analyse(Object message) throws Exception {
         if (message instanceof SegmentPost.SegmentWithTimeSlice) {
-            SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice = (SegmentPost.SegmentWithTimeSlice) message;
+            SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice = (SegmentPost.SegmentWithTimeSlice)message;
             TraceSegment segment = segmentWithTimeSlice.getTraceSegment();
             analyseSpans(segment);
         }
@@ -52,7 +53,7 @@ public class NodeCompAnalysis extends AbstractNodeCompAnalysis {
 
         @Override
         public int queueSize() {
-            return WorkerConfig.Queue.Node.NodeCompAnalysis.Size;
+            return WorkerConfig.Queue.Node.NodeCompAnalysis.SIZE;
         }
     }
 

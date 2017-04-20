@@ -21,7 +21,7 @@ public abstract class RecordAnalysisMember extends AnalysisMember {
 
     final public void setRecord(String id, JsonObject record) throws Exception {
         persistenceData.getElseCreate(id).setRecord(record);
-        if (persistenceData.size() >= CacheSizeConfig.Cache.Analysis.size) {
+        if (persistenceData.size() >= CacheSizeConfig.Cache.Analysis.SIZE) {
             aggregation();
         }
     }

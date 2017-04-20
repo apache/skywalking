@@ -20,15 +20,15 @@ public class SegmentExceptionWithSegId extends AbstractLocalSyncWorker {
     @Override
     protected void onWork(Object request, Object response) throws Exception {
         if (request instanceof RequestEntity) {
-            RequestEntity search = (RequestEntity) request;
+            RequestEntity search = (RequestEntity)request;
 
-            GetResponse getResponse = EsClient.INSTANCE.getClient().prepareGet(SegmentExceptionIndex.Index, SegmentExceptionIndex.Type_Record, search.segId).get();
+            GetResponse getResponse = EsClient.INSTANCE.getClient().prepareGet(SegmentExceptionIndex.INDEX, SegmentExceptionIndex.TYPE_RECORD, search.segId).get();
 
             JsonObject dataJson = new JsonObject();
-            dataJson.addProperty(SegmentExceptionIndex.SegId, (String) getResponse.getSource().get(SegmentExceptionIndex.SegId));
-            dataJson.addProperty(SegmentExceptionIndex.IsError, (Boolean) getResponse.getSource().get(SegmentExceptionIndex.IsError));
+            dataJson.addProperty(SegmentExceptionIndex.SEG_ID, (String)getResponse.getSource().get(SegmentExceptionIndex.SEG_ID));
+            dataJson.addProperty(SegmentExceptionIndex.IS_ERROR, (Boolean)getResponse.getSource().get(SegmentExceptionIndex.IS_ERROR));
 
-            JsonObject resJsonObj = (JsonObject) response;
+            JsonObject resJsonObj = (JsonObject)response;
             resJsonObj.add("result", dataJson);
         }
     }

@@ -29,7 +29,7 @@ public class GetWithHttpServletTestCase {
         doAnswer(new Answer() {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
-                Integer status = (Integer) invocation.getArguments()[0];
+                Integer status = (Integer)invocation.getArguments()[0];
                 System.out.println(status);
                 Assert.assertEquals(new Integer(200), status);
                 return null;

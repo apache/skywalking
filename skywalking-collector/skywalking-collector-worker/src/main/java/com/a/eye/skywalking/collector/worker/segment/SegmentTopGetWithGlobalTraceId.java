@@ -39,7 +39,7 @@ public class SegmentTopGetWithGlobalTraceId extends AbstractGet {
             throw new IllegalArgumentException("the request parameter must contains globalTraceId, from, limit");
         }
         logger.debug("globalTraceId: %s, from: %s, limit: %s", Arrays.toString(request.get("globalTraceId")),
-                Arrays.toString(request.get("from")), Arrays.toString(request.get("limit")));
+            Arrays.toString(request.get("from")), Arrays.toString(request.get("limit")));
 
         int from;
         try {

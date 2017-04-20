@@ -43,16 +43,18 @@ public class TomcatInstrumentation extends ClassInstanceMethodsEnhancePluginDefi
 
     @Override
     protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{new InstanceMethodsInterceptPoint() {
-            @Override
-            public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                return named("invoke");
-            }
+        return new InstanceMethodsInterceptPoint[] {
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named("invoke");
+                }
 
-            @Override
-            public String getMethodsInterceptor() {
-                return INTERCEPT_CLASS;
+                @Override
+                public String getMethodsInterceptor() {
+                    return INTERCEPT_CLASS;
+                }
             }
-        }};
+        };
     }
 }

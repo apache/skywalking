@@ -60,7 +60,7 @@ public class TomcatInterceptorTest {
         when(request.getRequestURI()).thenReturn("/test/testRequestURL");
         when(request.getRequestURL()).thenReturn(new StringBuffer("http://localhost:8080/test/testRequestURL"));
         when(response.getStatus()).thenReturn(200);
-        when(methodInvokeContext.allArguments()).thenReturn(new Object[]{request, response});
+        when(methodInvokeContext.allArguments()).thenReturn(new Object[] {request, response});
     }
 
     @Test
@@ -99,7 +99,7 @@ public class TomcatInterceptorTest {
     }
 
     @Test
-    public void testWithOccurException(){
+    public void testWithOccurException() {
         tomcatInterceptor.beforeMethod(classInstanceContext, methodInvokeContext, methodInterceptResult);
         tomcatInterceptor.handleMethodException(new RuntimeException(), classInstanceContext, methodInvokeContext);
         tomcatInterceptor.afterMethod(classInstanceContext, methodInvokeContext, null);

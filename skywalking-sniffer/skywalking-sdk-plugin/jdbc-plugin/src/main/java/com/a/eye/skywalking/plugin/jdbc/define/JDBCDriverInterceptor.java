@@ -18,20 +18,20 @@ import java.util.Properties;
 public class JDBCDriverInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
-                             MethodInterceptResult result) {
+        MethodInterceptResult result) {
         // do nothing
     }
 
     @Override
     public Object afterMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
-                              Object ret) {
-        return new SWConnection((String) interceptorContext.allArguments()[0],
-                (Properties) interceptorContext.allArguments()[1], (Connection) ret);
+        Object ret) {
+        return new SWConnection((String)interceptorContext.allArguments()[0],
+            (Properties)interceptorContext.allArguments()[1], (Connection)ret);
     }
 
     @Override
     public void handleMethodException(Throwable t, EnhancedClassInstanceContext context,
-                                      InstanceMethodInvokeContext interceptorContext) {
+        InstanceMethodInvokeContext interceptorContext) {
         // do nothing.
     }
 

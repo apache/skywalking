@@ -83,7 +83,7 @@ public class SWCallableStatementTest extends AbstractStatementTest {
     private JdbcConnection jdbcConnection;
     private SWConnection swConnection;
     private SWConnection multiHostConnection;
-    private byte[] bytesParam = new byte[]{1, 2};
+    private byte[] bytesParam = new byte[] {1, 2};
 
     @Before
     public void setUp() throws Exception {
@@ -102,10 +102,10 @@ public class SWCallableStatementTest extends AbstractStatementTest {
     @Test
     public void testSetParam() throws SQLException, MalformedURLException {
         CallableStatement callableStatement = multiHostConnection.prepareCall("SELECT * FROM test WHERE a = ? or b = ? or c=? or d = ? or e = ?" +
-                " or e = ? or f = ? or g = ? or h = ? or i = ? or j = ? or k = ? or l = ? or m = ?  or n = ? or o = ? or p = ? " +
-                " or r = ?  or s = ? or t = ?  or u = ?  or v = ?  or w = ?  or x = ?  or y = ? or z = ? or a1 = ? or a2 = ? or a3 = ?" +
-                " or a4 = ? or a5 = ? or a6 = ?  or a7 = ?  or a8 = ?  or a9 = ? or b1 = ? or b2 = ? or b3 = ? or b4 = ? or b5 = ?" +
-                " or b6 = ? or b7 = ? or b8  = ? or b9 = ? or c1 = ?  or c2 = ? or c3 = ?");
+            " or e = ? or f = ? or g = ? or h = ? or i = ? or j = ? or k = ? or l = ? or m = ?  or n = ? or o = ? or p = ? " +
+            " or r = ?  or s = ? or t = ?  or u = ?  or v = ?  or w = ?  or x = ?  or y = ? or z = ? or a1 = ? or a2 = ? or a3 = ?" +
+            " or a4 = ? or a5 = ? or a6 = ?  or a7 = ?  or a8 = ?  or a9 = ? or b1 = ? or b2 = ? or b3 = ? or b4 = ? or b5 = ?" +
+            " or b6 = ? or b7 = ? or b8  = ? or b9 = ? or c1 = ?  or c2 = ? or c3 = ?");
         callableStatement.clearParameters();
         callableStatement.setAsciiStream(1, inputStream);
         callableStatement.setAsciiStream(2, inputStream, 10);
@@ -113,14 +113,14 @@ public class SWCallableStatementTest extends AbstractStatementTest {
         callableStatement.setCharacterStream(4, reader);
         callableStatement.setCharacterStream(4, reader, 10);
         callableStatement.setCharacterStream(5, reader, 10L);
-        callableStatement.setShort(6, (short) 12);
+        callableStatement.setShort(6, (short)12);
         callableStatement.setInt(7, 1);
         callableStatement.setString(8, "test");
         callableStatement.setBoolean(9, true);
         callableStatement.setLong(10, 100L);
         callableStatement.setDouble(11, 12.0);
         callableStatement.setFloat(12, 12.0f);
-        callableStatement.setByte(13, (byte) 1);
+        callableStatement.setByte(13, (byte)1);
         callableStatement.setBytes(14, bytesParam);
         callableStatement.setDate(15, new Date(System.currentTimeMillis()));
         callableStatement.setNull(16, 1);
@@ -154,7 +154,6 @@ public class SWCallableStatementTest extends AbstractStatementTest {
         callableStatement.setArray(45, array);
         callableStatement.setBlob(46, blob);
         callableStatement.setDate(47, new Date(System.currentTimeMillis()), Calendar.getInstance());
-
 
         callableStatement.getCharacterStream(4);
         callableStatement.getCharacterStream("d");
@@ -228,14 +227,14 @@ public class SWCallableStatementTest extends AbstractStatementTest {
         callableStatement.setCharacterStream("d", reader);
         callableStatement.setCharacterStream("e", reader, 10);
         callableStatement.setCharacterStream("f", reader, 10L);
-        callableStatement.setShort("g", (short) 12);
+        callableStatement.setShort("g", (short)12);
         callableStatement.setInt("h", 1);
         callableStatement.setString("i", "test");
         callableStatement.setBoolean("j", true);
         callableStatement.setLong("k", 100L);
         callableStatement.setDouble("l", 12.0);
         callableStatement.setFloat("m", 12.0f);
-        callableStatement.setByte("n", (byte) 1);
+        callableStatement.setByte("n", (byte)1);
         callableStatement.setBytes("o", bytesParam);
         callableStatement.setDate("p", new Date(System.currentTimeMillis()));
         callableStatement.setNull("q", 1);
@@ -329,7 +328,6 @@ public class SWCallableStatementTest extends AbstractStatementTest {
         verify(mysqlCallableStatement, times(1)).setArray(anyInt(), any(Array.class));
         verify(mysqlCallableStatement, times(1)).setBlob(anyInt(), any(Blob.class));
         verify(mysqlCallableStatement, times(1)).setDate(anyInt(), any(Date.class), any(Calendar.class));
-
 
         verify(mysqlCallableStatement, times(1)).clearParameters();
         verify(mysqlCallableStatement, times(1)).executeQuery();
@@ -511,7 +509,7 @@ public class SWCallableStatementTest extends AbstractStatementTest {
     @Test
     public void testInsertWithIntColumnIndexes() throws SQLException {
         CallableStatement preparedStatement = swConnection.prepareCall("INSERT INTO test VALUES(?)");
-        boolean insertCount = preparedStatement.execute("INSERT INTO test VALUES(1)", new int[]{1, 2});
+        boolean insertCount = preparedStatement.execute("INSERT INTO test VALUES(1)", new int[] {1, 2});
         preparedStatement.close();
 
         verify(mysqlCallableStatement, times(1)).close();
@@ -529,7 +527,7 @@ public class SWCallableStatementTest extends AbstractStatementTest {
     @Test
     public void testInsertWithStringColumnIndexes() throws SQLException {
         CallableStatement preparedStatement = swConnection.prepareCall("INSERT INTO test VALUES(?)");
-        boolean insertCount = preparedStatement.execute("INSERT INTO test VALUES(1)", new String[]{"1", "2"});
+        boolean insertCount = preparedStatement.execute("INSERT INTO test VALUES(1)", new String[] {"1", "2"});
         preparedStatement.close();
 
         verify(mysqlCallableStatement, times(1)).close();
@@ -631,7 +629,7 @@ public class SWCallableStatementTest extends AbstractStatementTest {
     public void testUpdateWithIntColumnIndexes() throws SQLException {
         CallableStatement preparedStatement = swConnection.prepareCall("UPDATE test SET  a = ?");
 
-        int updateCount = preparedStatement.executeUpdate("UPDATE test SET  a = 1", new int[]{1});
+        int updateCount = preparedStatement.executeUpdate("UPDATE test SET  a = 1", new int[] {1});
         preparedStatement.cancel();
         preparedStatement.close();
 
@@ -651,7 +649,7 @@ public class SWCallableStatementTest extends AbstractStatementTest {
     public void testUpdateWithStringColumnIndexes() throws SQLException {
         CallableStatement preparedStatement = swConnection.prepareCall("UPDATE test SET  a = ?");
 
-        int updateCount = preparedStatement.executeUpdate("UPDATE test SET  a = 1", new String[]{"1"});
+        int updateCount = preparedStatement.executeUpdate("UPDATE test SET  a = 1", new String[] {"1"});
         preparedStatement.cancel();
         preparedStatement.close();
 
@@ -667,11 +665,10 @@ public class SWCallableStatementTest extends AbstractStatementTest {
         });
     }
 
-
     @Test
     public void testBatch() throws SQLException, MalformedURLException {
         CallableStatement preparedStatement = multiHostConnection.prepareCall("UPDATE test SET a = ? WHERE b = ?");
-        preparedStatement.setShort(1, (short) 12);
+        preparedStatement.setShort(1, (short)12);
         preparedStatement.setTime(2, new Time(System.currentTimeMillis()));
         preparedStatement.addBatch();
         int[] resultSet = preparedStatement.executeBatch();
@@ -707,7 +704,6 @@ public class SWCallableStatementTest extends AbstractStatementTest {
         verify(mysqlCallableStatement, times(1)).close();
     }
 
-
     @Test(expected = SQLException.class)
     public void testMultiHostWithException() throws SQLException {
         when(mysqlCallableStatement.executeQuery()).thenThrow(new SQLException());
@@ -716,7 +712,7 @@ public class SWCallableStatementTest extends AbstractStatementTest {
             preparedStatement.setBigDecimal(1, new BigDecimal(10000));
             preparedStatement.setBlob(2, inputStream);
             preparedStatement.setBlob(3, inputStream, 1000000L);
-            preparedStatement.setByte(3, (byte) 1);
+            preparedStatement.setByte(3, (byte)1);
             preparedStatement.setBytes(4, bytesParam);
             preparedStatement.setLong(5, 100L);
 

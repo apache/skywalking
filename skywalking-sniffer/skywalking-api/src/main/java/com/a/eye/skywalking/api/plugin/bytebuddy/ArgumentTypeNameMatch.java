@@ -25,6 +25,7 @@ public class ArgumentTypeNameMatch implements ElementMatcher<MethodDescription> 
 
     /**
      * declare the match target method with the certain index and type.
+     *
      * @param index the index of arguments list.
      * @param argumentTypeName target argument type
      */
@@ -35,6 +36,7 @@ public class ArgumentTypeNameMatch implements ElementMatcher<MethodDescription> 
 
     /**
      * Match the target method.
+     *
      * @param target target method description.
      * @return true if matched. or false.
      */
@@ -56,7 +58,7 @@ public class ArgumentTypeNameMatch implements ElementMatcher<MethodDescription> 
      * @param argumentTypeName target argument type
      * @return new {@link ArgumentTypeNameMatch} instance.
      */
-    public static ElementMatcher<MethodDescription> takesArgumentWithType(int index, String argumentTypeName){
+    public static ElementMatcher<MethodDescription> takesArgumentWithType(int index, String argumentTypeName) {
         return new ArgumentTypeNameMatch(index, argumentTypeName);
     }
 }

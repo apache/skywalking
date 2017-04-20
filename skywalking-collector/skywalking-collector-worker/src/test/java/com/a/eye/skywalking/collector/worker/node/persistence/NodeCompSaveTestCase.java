@@ -30,12 +30,12 @@ public class NodeCompSaveTestCase {
 
     @Test
     public void testEsIndex() {
-        Assert.assertEquals(NodeCompIndex.Index, save.esIndex());
+        Assert.assertEquals(NodeCompIndex.INDEX, save.esIndex());
     }
 
     @Test
     public void testEsType() {
-        Assert.assertEquals(NodeCompIndex.Type_Record, save.esType());
+        Assert.assertEquals(NodeCompIndex.TYPE_RECORD, save.esType());
     }
 
     @Test
@@ -50,7 +50,7 @@ public class NodeCompSaveTestCase {
         Assert.assertEquals(NodeCompSave.class.getSimpleName(), NodeCompSave.Factory.INSTANCE.workerInstance(null).getClass().getSimpleName());
 
         int testSize = 10;
-        WorkerConfig.Queue.Node.NodeCompSave.Size = testSize;
+        WorkerConfig.Queue.Node.NodeCompSave.SIZE = testSize;
         Assert.assertEquals(testSize, NodeCompSave.Factory.INSTANCE.queueSize());
     }
 }

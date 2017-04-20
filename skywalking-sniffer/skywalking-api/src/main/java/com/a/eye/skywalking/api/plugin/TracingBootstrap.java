@@ -21,14 +21,16 @@ import java.util.List;
  * @author wusheng
  */
 public class TracingBootstrap {
-    private static ILog logger = LogManager.getLogger(TracingBootstrap.class);
+    private static final ILog logger = LogManager.getLogger(TracingBootstrap.class);
 
     private TracingBootstrap() {
     }
 
     /**
      * Main entrance for testing.
-     * @param args includes target classname ( which exists "public static void main(String[] args)" ) and arguments list.
+     *
+     * @param args includes target classname ( which exists "public static void main(String[] args)" ) and arguments
+     * list.
      * @throws PluginException
      * @throws ClassNotFoundException
      * @throws NoSuchMethodException
@@ -36,8 +38,8 @@ public class TracingBootstrap {
      * @throws IllegalAccessException
      */
     public static void main(String[] args)
-            throws PluginException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException,
-            IllegalAccessException {
+        throws PluginException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException,
+        IllegalAccessException {
         if (args.length == 0) {
             throw new RuntimeException("bootstrap failure. need args[0] to be main class.");
         }
@@ -59,14 +61,13 @@ public class TracingBootstrap {
                 continue;
             }
             DynamicType.Builder<?> newClassBuilder =
-                    new ByteBuddy().rebase(resolution.resolve(), ClassFileLocator.ForClassLoader.ofClassPath());
-            newClassBuilder = ((AbstractClassEnhancePluginDefine) plugin).define(enhanceClassName, newClassBuilder);
+                new ByteBuddy().rebase(resolution.resolve(), ClassFileLocator.ForClassLoader.ofClassPath());
+            newClassBuilder = ((AbstractClassEnhancePluginDefine)plugin).define(enhanceClassName, newClassBuilder);
             newClassBuilder.make(new TypeResolutionStrategy.Active()).load(ClassLoader.getSystemClassLoader(), ClassLoadingStrategy.Default.INJECTION)
-                    .getLoaded();
+                .getLoaded();
         }
 
         String[] newArgs = Arrays.copyOfRange(args, 1, args.length);
-
 
         Class.forName(args[0]).getMethod("main", String[].class).invoke(null, new Object[] {newArgs});
     }

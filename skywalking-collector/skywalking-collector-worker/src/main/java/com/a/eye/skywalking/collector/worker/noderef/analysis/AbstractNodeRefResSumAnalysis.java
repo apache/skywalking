@@ -11,7 +11,8 @@ import com.a.eye.skywalking.collector.worker.storage.AbstractTimeSlice;
  */
 abstract class AbstractNodeRefResSumAnalysis extends MetricAnalysisMember {
 
-    AbstractNodeRefResSumAnalysis(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    AbstractNodeRefResSumAnalysis(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext,
+        LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
@@ -21,23 +22,23 @@ abstract class AbstractNodeRefResSumAnalysis extends MetricAnalysisMember {
         boolean isError = nodeRefRes.isError;
         long cost = endTime - startTime;
 
-        setMetric(nodeRefRes.nodeRefId, NodeRefResSumIndex.OneSecondLess, 0L);
-        setMetric(nodeRefRes.nodeRefId, NodeRefResSumIndex.ThreeSecondLess, 0L);
-        setMetric(nodeRefRes.nodeRefId, NodeRefResSumIndex.FiveSecondLess, 0L);
-        setMetric(nodeRefRes.nodeRefId, NodeRefResSumIndex.FiveSecondGreater, 0L);
-        setMetric(nodeRefRes.nodeRefId, NodeRefResSumIndex.Error, 0L);
+        setMetric(nodeRefRes.nodeRefId, NodeRefResSumIndex.ONE_SECOND_LESS, 0L);
+        setMetric(nodeRefRes.nodeRefId, NodeRefResSumIndex.THREE_SECOND_LESS, 0L);
+        setMetric(nodeRefRes.nodeRefId, NodeRefResSumIndex.FIVE_SECOND_LESS, 0L);
+        setMetric(nodeRefRes.nodeRefId, NodeRefResSumIndex.FIVE_SECOND_GREATER, 0L);
+        setMetric(nodeRefRes.nodeRefId, NodeRefResSumIndex.ERROR, 0L);
         if (cost <= 1000 && !isError) {
-            setMetric(nodeRefRes.nodeRefId, NodeRefResSumIndex.OneSecondLess, 1L);
+            setMetric(nodeRefRes.nodeRefId, NodeRefResSumIndex.ONE_SECOND_LESS, 1L);
         } else if (1000 < cost && cost <= 3000 && !isError) {
-            setMetric(nodeRefRes.nodeRefId, NodeRefResSumIndex.ThreeSecondLess, 1L);
+            setMetric(nodeRefRes.nodeRefId, NodeRefResSumIndex.THREE_SECOND_LESS, 1L);
         } else if (3000 < cost && cost <= 5000 && !isError) {
-            setMetric(nodeRefRes.nodeRefId, NodeRefResSumIndex.FiveSecondLess, 1L);
+            setMetric(nodeRefRes.nodeRefId, NodeRefResSumIndex.FIVE_SECOND_LESS, 1L);
         } else if (5000 < cost && !isError) {
-            setMetric(nodeRefRes.nodeRefId, NodeRefResSumIndex.FiveSecondGreater, 1L);
+            setMetric(nodeRefRes.nodeRefId, NodeRefResSumIndex.FIVE_SECOND_GREATER, 1L);
         } else {
-            setMetric(nodeRefRes.nodeRefId, NodeRefResSumIndex.Error, 1L);
+            setMetric(nodeRefRes.nodeRefId, NodeRefResSumIndex.ERROR, 1L);
         }
-        setMetric(nodeRefRes.nodeRefId, NodeRefResSumIndex.Summary, 1L);
+        setMetric(nodeRefRes.nodeRefId, NodeRefResSumIndex.SUMMARY, 1L);
     }
 
     public static class NodeRefResRecord extends AbstractTimeSlice {

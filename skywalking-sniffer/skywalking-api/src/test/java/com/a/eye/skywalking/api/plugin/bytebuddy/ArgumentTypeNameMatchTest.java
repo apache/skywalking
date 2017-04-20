@@ -28,7 +28,7 @@ public class ArgumentTypeNameMatchTest {
     }
 
     @Test
-    public void testMatchesWithNoParameters(){
+    public void testMatchesWithNoParameters() {
         MethodDescription methodDescription = Mockito.mock(MethodDescription.class, Mockito.RETURNS_DEEP_STUBS);
         ParameterDescription parameterDescription = Mockito.mock(ParameterDescription.class, Mockito.RETURNS_DEEP_STUBS);
         when(methodDescription.getParameters().size()).thenReturn(0);

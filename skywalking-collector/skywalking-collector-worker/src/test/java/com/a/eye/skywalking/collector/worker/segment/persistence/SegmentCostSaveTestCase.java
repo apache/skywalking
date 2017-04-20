@@ -61,12 +61,12 @@ public class SegmentCostSaveTestCase {
 
     @Test
     public void testEsIndex() {
-        Assert.assertEquals(SegmentCostIndex.Index, segmentCostSave.esIndex());
+        Assert.assertEquals(SegmentCostIndex.INDEX, segmentCostSave.esIndex());
     }
 
     @Test
     public void testEsType() {
-        Assert.assertEquals(SegmentCostIndex.Type_Record, segmentCostSave.esType());
+        Assert.assertEquals(SegmentCostIndex.TYPE_RECORD, segmentCostSave.esType());
     }
 
     @Test
@@ -81,13 +81,13 @@ public class SegmentCostSaveTestCase {
         Assert.assertEquals(SegmentCostSave.class.getSimpleName(), SegmentCostSave.Factory.INSTANCE.workerInstance(null).getClass().getSimpleName());
 
         int testSize = 10;
-        WorkerConfig.Queue.Segment.SegmentCostSave.Size = testSize;
+        WorkerConfig.Queue.Segment.SegmentCostSave.SIZE = testSize;
         Assert.assertEquals(testSize, SegmentCostSave.Factory.INSTANCE.queueSize());
     }
 
     @Test
     public void testPersistenceServiceAnalyse() throws Exception {
-        CacheSizeConfig.Cache.Persistence.size = 1;
+        CacheSizeConfig.Cache.Persistence.SIZE = 1;
 
         List<SegmentPost.SegmentWithTimeSlice> segmentWithTimeSliceList = segmentMock.mockPersistenceServiceSegmentTimeSlice();
 
@@ -101,7 +101,7 @@ public class SegmentCostSaveTestCase {
         JsonObject costJsonObj = sourceArray.get(0).getAsJsonObject();
         Assert.assertEquals("Segment.1490922929274.1382198130.5997.47.1", costJsonObj.get("segId").getAsString());
         Assert.assertEquals(1490922929274L, costJsonObj.get("startTime").getAsLong());
-        Assert.assertEquals(1490922929288L, costJsonObj.get("EndTime").getAsLong());
+        Assert.assertEquals(1490922929288L, costJsonObj.get("END_TIME").getAsLong());
         Assert.assertEquals("/persistence/query", costJsonObj.get("operationName").getAsString());
         Assert.assertEquals(DateTools.changeToUTCSlice(201703310915L), costJsonObj.get("timeSlice").getAsLong());
         Assert.assertEquals(14, costJsonObj.get("cost").getAsInt());
@@ -109,7 +109,7 @@ public class SegmentCostSaveTestCase {
 
     @Test
     public void testCacheServiceAnalyse() throws Exception {
-        CacheSizeConfig.Cache.Persistence.size = 2;
+        CacheSizeConfig.Cache.Persistence.SIZE = 2;
 
         List<SegmentPost.SegmentWithTimeSlice> segmentWithTimeSliceList = segmentMock.mockCacheServiceSegmentSegmentTimeSlice();
 
@@ -132,13 +132,13 @@ public class SegmentCostSaveTestCase {
         }
 
         Assert.assertEquals(1490922929258L, costJsonObj_0.get("startTime").getAsLong());
-        Assert.assertEquals(1490922929261L, costJsonObj_0.get("EndTime").getAsLong());
+        Assert.assertEquals(1490922929261L, costJsonObj_0.get("END_TIME").getAsLong());
         Assert.assertEquals("com.a.eye.skywalking.test.cache.CacheService.findCache(java.lang.String)", costJsonObj_0.get("operationName").getAsString());
         Assert.assertEquals(DateTools.changeToUTCSlice(201703310915L), costJsonObj_0.get("timeSlice").getAsLong());
         Assert.assertEquals(3, costJsonObj_0.get("cost").getAsInt());
 
         Assert.assertEquals(1490922929298L, costJsonObj_1.get("startTime").getAsLong());
-        Assert.assertEquals(1490922929303L, costJsonObj_1.get("EndTime").getAsLong());
+        Assert.assertEquals(1490922929303L, costJsonObj_1.get("END_TIME").getAsLong());
         Assert.assertEquals("com.a.eye.skywalking.test.cache.CacheService.updateCache(java.lang.String,java.lang.String)", costJsonObj_1.get("operationName").getAsString());
         Assert.assertEquals(DateTools.changeToUTCSlice(201703310915L), costJsonObj_1.get("timeSlice").getAsLong());
         Assert.assertEquals(5, costJsonObj_1.get("cost").getAsInt());
@@ -146,7 +146,7 @@ public class SegmentCostSaveTestCase {
 
     @Test
     public void testPortalServiceAnalyse() throws Exception {
-        CacheSizeConfig.Cache.Persistence.size = 1;
+        CacheSizeConfig.Cache.Persistence.SIZE = 1;
 
         List<SegmentPost.SegmentWithTimeSlice> segmentWithTimeSliceList = segmentMock.mockPortalServiceSegmentSegmentTimeSlice();
 
@@ -160,7 +160,7 @@ public class SegmentCostSaveTestCase {
         JsonObject costJsonObj = sourceArray.get(0).getAsJsonObject();
         Assert.assertEquals("Segment.1490922929254.1797892356.6003.69.1", costJsonObj.get("segId").getAsString());
         Assert.assertEquals(1490922929254L, costJsonObj.get("startTime").getAsLong());
-        Assert.assertEquals(1490922929306L, costJsonObj.get("EndTime").getAsLong());
+        Assert.assertEquals(1490922929306L, costJsonObj.get("END_TIME").getAsLong());
         Assert.assertEquals("/portal/", costJsonObj.get("operationName").getAsString());
         Assert.assertEquals(DateTools.changeToUTCSlice(201703310915L), costJsonObj.get("timeSlice").getAsLong());
         Assert.assertEquals(52, costJsonObj.get("cost").getAsInt());
@@ -168,7 +168,7 @@ public class SegmentCostSaveTestCase {
 
     @Test
     public void testCacheServiceExceptionAnalyse() throws Exception {
-        CacheSizeConfig.Cache.Persistence.size = 1;
+        CacheSizeConfig.Cache.Persistence.SIZE = 1;
 
         List<SegmentPost.SegmentWithTimeSlice> segmentWithTimeSliceList = segmentMock.mockCacheServiceExceptionSegmentTimeSlice();
 
@@ -182,7 +182,7 @@ public class SegmentCostSaveTestCase {
         JsonObject costJsonObj = sourceArray.get(0).getAsJsonObject();
         Assert.assertEquals("Segment.1490923010328.927784221.5991.32.1", costJsonObj.get("segId").getAsString());
         Assert.assertEquals(1490923010328L, costJsonObj.get("startTime").getAsLong());
-        Assert.assertEquals(1490923010329L, costJsonObj.get("EndTime").getAsLong());
+        Assert.assertEquals(1490923010329L, costJsonObj.get("END_TIME").getAsLong());
         Assert.assertEquals("com.a.eye.skywalking.test.cache.CacheService.findCacheWithException(java.lang.String)", costJsonObj.get("operationName").getAsString());
         Assert.assertEquals(DateTools.changeToUTCSlice(201703310916L), costJsonObj.get("timeSlice").getAsLong());
         Assert.assertEquals(1, costJsonObj.get("cost").getAsInt());
@@ -190,7 +190,7 @@ public class SegmentCostSaveTestCase {
 
     @Test
     public void testPortalServiceExceptionAnalyse() throws Exception {
-        CacheSizeConfig.Cache.Persistence.size = 1;
+        CacheSizeConfig.Cache.Persistence.SIZE = 1;
 
         List<SegmentPost.SegmentWithTimeSlice> segmentWithTimeSliceList = segmentMock.mockPortalServiceExceptionSegmentTimeSlice();
 
@@ -204,7 +204,7 @@ public class SegmentCostSaveTestCase {
         JsonObject costJsonObj = sourceArray.get(0).getAsJsonObject();
         Assert.assertEquals("Segment.1490923010324.1797892356.6003.67.1", costJsonObj.get("segId").getAsString());
         Assert.assertEquals(1490923010324L, costJsonObj.get("startTime").getAsLong());
-        Assert.assertEquals(1490923010336L, costJsonObj.get("EndTime").getAsLong());
+        Assert.assertEquals(1490923010336L, costJsonObj.get("END_TIME").getAsLong());
         Assert.assertEquals("/portal/cache/exception/test", costJsonObj.get("operationName").getAsString());
         Assert.assertEquals(DateTools.changeToUTCSlice(201703310916L), costJsonObj.get("timeSlice").getAsLong());
         Assert.assertEquals(12, costJsonObj.get("cost").getAsInt());

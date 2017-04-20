@@ -135,7 +135,7 @@ public class SegmentTopGetWithGlobalTraceIdTestCase {
 
         @Override
         public Object answer(InvocationOnMock invocation) throws Throwable {
-            SegmentTopSearchWithGlobalTraceId.RequestEntity requestEntity = (SegmentTopSearchWithGlobalTraceId.RequestEntity) invocation.getArguments()[0];
+            SegmentTopSearchWithGlobalTraceId.RequestEntity requestEntity = (SegmentTopSearchWithGlobalTraceId.RequestEntity)invocation.getArguments()[0];
             Assert.assertEquals("TestId", requestEntity.getGlobalTraceId());
             Assert.assertEquals(20, requestEntity.getFrom());
             Assert.assertEquals(50, requestEntity.getLimit());

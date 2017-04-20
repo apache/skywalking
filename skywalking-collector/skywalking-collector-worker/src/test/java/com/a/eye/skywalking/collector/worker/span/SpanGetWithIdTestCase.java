@@ -99,7 +99,7 @@ public class SpanGetWithIdTestCase {
 
         @Override
         public Object answer(InvocationOnMock invocation) throws Throwable {
-            SpanSearchWithId.RequestEntity requestEntity = (SpanSearchWithId.RequestEntity) invocation.getArguments()[0];
+            SpanSearchWithId.RequestEntity requestEntity = (SpanSearchWithId.RequestEntity)invocation.getArguments()[0];
             Assert.assertEquals("10", requestEntity.getSegId());
             Assert.assertEquals("20", requestEntity.getSpanId());
             return null;

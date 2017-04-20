@@ -18,13 +18,13 @@ public class NodeRefResSumSearchWithTimeSliceUseDB {
         ClusterWorkerContext clusterWorkerContext = new ClusterWorkerContext(null);
         LocalWorkerContext localWorkerContext = new LocalWorkerContext();
         NodeRefResSumSearchWithTimeSlice nodeRefSearch =
-                new NodeRefResSumSearchWithTimeSlice(NodeRefResSumSearchWithTimeSlice.WorkerRole.INSTANCE, clusterWorkerContext, localWorkerContext);
+            new NodeRefResSumSearchWithTimeSlice(NodeRefResSumSearchWithTimeSlice.WorkerRole.INSTANCE, clusterWorkerContext, localWorkerContext);
 
         long startTime = 201703310910L;
         long endTime = 201703310920L;
         JsonObject response = new JsonObject();
         NodeRefResSumSearchWithTimeSlice.RequestEntity requestEntity =
-                new NodeRefResSumSearchWithTimeSlice.RequestEntity(NodeRefIndex.Type_Minute, startTime, endTime);
+            new NodeRefResSumSearchWithTimeSlice.RequestEntity(NodeRefIndex.TYPE_MINUTE, startTime, endTime);
         nodeRefSearch.onWork(requestEntity, response);
 
         JsonArray nodeRefArray = response.get("result").getAsJsonArray();

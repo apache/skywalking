@@ -16,14 +16,15 @@ import com.a.eye.skywalking.trace.TraceSegment;
  */
 public class NodeMappingHourAnalysis extends AbstractNodeMappingAnalysis {
 
-    NodeMappingHourAnalysis(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    NodeMappingHourAnalysis(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext,
+        LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
     @Override
     public void analyse(Object message) throws Exception {
         if (message instanceof SegmentPost.SegmentWithTimeSlice) {
-            SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice = (SegmentPost.SegmentWithTimeSlice) message;
+            SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice = (SegmentPost.SegmentWithTimeSlice)message;
             TraceSegment segment = segmentWithTimeSlice.getTraceSegment();
             analyseRefs(segment, segmentWithTimeSlice.getHour());
         }
@@ -52,7 +53,7 @@ public class NodeMappingHourAnalysis extends AbstractNodeMappingAnalysis {
 
         @Override
         public int queueSize() {
-            return WorkerConfig.Queue.Node.NodeMappingHourAnalysis.Size;
+            return WorkerConfig.Queue.Node.NodeMappingHourAnalysis.SIZE;
         }
     }
 

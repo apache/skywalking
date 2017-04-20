@@ -25,7 +25,7 @@ public abstract class MergeAnalysisMember extends AnalysisMember {
 
     final protected void setMergeData(String id, String column, String value) throws Exception {
         getPersistenceData().getElseCreate(id).setMergeData(column, value);
-        if (getPersistenceData().size() >= CacheSizeConfig.Cache.Analysis.size) {
+        if (getPersistenceData().size() >= CacheSizeConfig.Cache.Analysis.SIZE) {
             aggregation();
         }
     }

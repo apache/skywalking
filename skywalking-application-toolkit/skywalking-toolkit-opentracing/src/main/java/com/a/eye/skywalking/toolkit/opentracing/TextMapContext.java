@@ -9,7 +9,7 @@ import java.util.Map;
 /**
  * Created by wusheng on 2016/12/21.
  */
-public class TextMapContext  implements SpanContext {
+public class TextMapContext implements SpanContext {
     private final TextMap textMap;
 
     TextMapContext(TextMap textMap) {

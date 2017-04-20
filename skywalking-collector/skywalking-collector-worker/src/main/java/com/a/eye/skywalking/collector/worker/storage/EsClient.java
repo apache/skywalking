@@ -28,15 +28,15 @@ public enum EsClient {
 
     public void boot() throws UnknownHostException {
         Settings settings = Settings.builder()
-                .put("cluster.name", EsConfig.Es.Cluster.name)
-                .put("client.transport.sniff", EsConfig.Es.Cluster.Transport.sniffer)
-                .build();
+            .put("cluster.name", EsConfig.Es.Cluster.NAME)
+            .put("client.transport.sniff", EsConfig.Es.Cluster.Transport.SNIFFER)
+            .build();
 
         client = new PreBuiltTransportClient(settings);
 
-        List<AddressPairs> pairsList = parseClusterNodes(EsConfig.Es.Cluster.nodes);
+        List<AddressPairs> pairsList = parseClusterNodes(EsConfig.Es.Cluster.NODES);
         for (AddressPairs pairs : pairsList) {
-            ((PreBuiltTransportClient) client).addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(pairs.ip), pairs.port));
+            ((PreBuiltTransportClient)client).addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(pairs.ip), pairs.port));
         }
     }
 
@@ -56,7 +56,7 @@ public enum EsClient {
 
     private List<AddressPairs> parseClusterNodes(String nodes) {
         List<AddressPairs> pairsList = new ArrayList<>();
-        logger.info("es nodes: %s", nodes);
+        logger.info("es NODES: %s", nodes);
         String[] nodesSplit = nodes.split(",");
         for (int i = 0; i < nodesSplit.length; i++) {
             String node = nodesSplit[i];

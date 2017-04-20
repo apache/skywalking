@@ -17,28 +17,28 @@ public enum AkkaSystem {
     private Logger logger = LogManager.getFormatterLogger(AkkaSystem.class);
 
     public ActorSystem create() {
-        final Config config = ConfigFactory.parseString("akka.remote.netty.tcp.hostname=" + ClusterConfig.Cluster.Current.hostname).
-                withFallback(ConfigFactory.parseString("akka.remote.netty.tcp.port=" + ClusterConfig.Cluster.Current.port)).
-                withFallback(ConfigFactory.load("application.conf"));
-        if (!StringUtil.isEmpty(ClusterConfig.Cluster.seed_nodes)) {
+        final Config config = ConfigFactory.parseString("akka.remote.netty.tcp.HOSTNAME=" + ClusterConfig.Cluster.Current.HOSTNAME).
+            withFallback(ConfigFactory.parseString("akka.remote.netty.tcp.PORT=" + ClusterConfig.Cluster.Current.PORT)).
+            withFallback(ConfigFactory.load("application.conf"));
+        if (!StringUtil.isEmpty(ClusterConfig.Cluster.SEED_NODES)) {
             config.withFallback(ConfigFactory.parseString("akka.cluster.seed-nodes=" + generateSeedNodes()));
         }
-        return ActorSystem.create(Const.SystemName, config);
+        return ActorSystem.create(Const.SYSTEM_NAME, config);
     }
 
     private String generateSeedNodes() {
-        String[] seedNodes = ClusterConfig.Cluster.seed_nodes.split(",");
+        String[] seedNodes = ClusterConfig.Cluster.SEED_NODES.split(",");
 
         String akkaSeedNodes = "";
         for (int i = 0; i < seedNodes.length; i++) {
-            String akkaNodeName = "\"akka.tcp://" + Const.SystemName + "@" + seedNodes[i] + "\"";
+            String akkaNodeName = "\"akka.tcp://" + Const.SYSTEM_NAME + "@" + seedNodes[i] + "\"";
             if (i > 0) {
                 akkaSeedNodes += ",";
             }
             akkaSeedNodes += akkaNodeName;
         }
         akkaSeedNodes = "[" + akkaSeedNodes + "]";
-        logger.info("config seedNodes: %s, generate seedNodes: %s", ClusterConfig.Cluster.seed_nodes, akkaSeedNodes);
+        logger.info("config seedNodes: %s, generate seedNodes: %s", ClusterConfig.Cluster.SEED_NODES, akkaSeedNodes);
         return akkaSeedNodes;
     }
 }

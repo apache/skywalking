@@ -39,7 +39,6 @@ import static org.junit.Assert.assertNull;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.when;
 
-
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({RpcContext.class, BugFixActive.class})
 public class DubboInterceptorTest {
@@ -75,14 +74,13 @@ public class DubboInterceptorTest {
         mockStatic(BugFixActive.class);
         when(invoker.getUrl()).thenReturn(URL.valueOf("dubbo://127.0.0.1:20880/com.a.eye.skywalking.test.TestDubboService"));
         when(invocation.getMethodName()).thenReturn("test");
-        when(invocation.getParameterTypes()).thenReturn(new Class[]{String.class});
-        when(invocation.getArguments()).thenReturn(new Object[]{testParam});
+        when(invocation.getParameterTypes()).thenReturn(new Class[] {String.class});
+        when(invocation.getArguments()).thenReturn(new Object[] {testParam});
         Mockito.when(RpcContext.getContext()).thenReturn(rpcContext);
         when(rpcContext.isConsumerSide()).thenReturn(true);
-        when(methodInvokeContext.allArguments()).thenReturn(new Object[]{invoker, invocation});
+        when(methodInvokeContext.allArguments()).thenReturn(new Object[] {invoker, invocation});
         Config.Agent.APPLICATION_CODE = "DubboTestCases-APP";
     }
-
 
     @Test
     public void testConsumerBelow283() {
@@ -162,7 +160,6 @@ public class DubboInterceptorTest {
         assertProvider();
     }
 
-
     @Test
     public void testProviderBelow283() {
         when(rpcContext.isConsumerSide()).thenReturn(false);
@@ -170,13 +167,11 @@ public class DubboInterceptorTest {
 
         testParam.setTraceContext("302017.1487666919810.624424584.17332.1.1|1|REMOTE_APP|127.0.0.1|Trace.globalId.123|1");
 
-
         dubboInterceptor.beforeMethod(classInstanceContext, methodInvokeContext, methodInterceptResult);
         dubboInterceptor.afterMethod(classInstanceContext, methodInvokeContext, result);
 
         assertProvider();
     }
-
 
     private void assertConsumerTraceSegmentInErrorCase(TraceSegment traceSegment) {
         assertThat(traceSegment.getSpans().size(), is(1));
@@ -192,7 +187,6 @@ public class DubboInterceptorTest {
         assertThat(logData.getFields().get("error.kind"), CoreMatchers.<Object>is(RuntimeException.class.getName()));
         assertNull(logData.getFields().get("message"));
     }
-
 
     private void assertProvider() {
         final TraceSegmentRef expect = new TraceSegmentRef();
@@ -214,7 +208,6 @@ public class DubboInterceptorTest {
         assertThat(actual.getSpanId(), is(expect.getSpanId()));
         assertThat(actual.getTraceSegmentId(), is(expect.getTraceSegmentId()));
     }
-
 
     private void assertProviderSpan(Span span) {
         assertCommonsAttribute(span);

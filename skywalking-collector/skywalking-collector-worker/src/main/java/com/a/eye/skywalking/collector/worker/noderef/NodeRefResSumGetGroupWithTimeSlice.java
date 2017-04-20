@@ -39,7 +39,7 @@ public class NodeRefResSumGetGroupWithTimeSlice extends AbstractGet {
             throw new IllegalArgumentException("the request parameter must contains startTime,endTime,timeSliceType");
         }
         logger.debug("startTime: %s, endTime: %s, timeSliceType: %s", Arrays.toString(request.get("startTime")),
-                Arrays.toString(request.get("endTime")), Arrays.toString(request.get("timeSliceType")));
+            Arrays.toString(request.get("endTime")), Arrays.toString(request.get("timeSliceType")));
 
         long startTime;
         try {

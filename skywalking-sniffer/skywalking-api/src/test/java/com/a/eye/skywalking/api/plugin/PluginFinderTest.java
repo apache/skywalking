@@ -10,7 +10,7 @@ import org.junit.Test;
  */
 public class PluginFinderTest {
     @Test
-    public void testFind(){
+    public void testFind() {
         ArrayList<AbstractClassEnhancePluginDefine> defines = new ArrayList<AbstractClassEnhancePluginDefine>();
         defines.add(new NewTestPlugin());
         defines.add(new NewTestPlugin2());
@@ -21,7 +21,7 @@ public class PluginFinderTest {
     }
 
     @Test(expected = PluginException.class)
-    public void testCanNotFind(){
+    public void testCanNotFind() {
         ArrayList<AbstractClassEnhancePluginDefine> defines = new ArrayList<AbstractClassEnhancePluginDefine>();
         defines.add(new NewTestPlugin());
         PluginFinder finder = new PluginFinder(defines);
@@ -29,7 +29,7 @@ public class PluginFinderTest {
         finder.find("test.NewClass2");
     }
 
-    public class NewTestPlugin extends AbstractClassEnhancePluginDefine{
+    public class NewTestPlugin extends AbstractClassEnhancePluginDefine {
         @Override
         protected DynamicType.Builder<?> enhance(String enhanceOriginClassName,
             DynamicType.Builder<?> newClassBuilder) throws PluginException {
@@ -41,7 +41,7 @@ public class PluginFinderTest {
         }
     }
 
-    public class NewTestPlugin2 extends AbstractClassEnhancePluginDefine{
+    public class NewTestPlugin2 extends AbstractClassEnhancePluginDefine {
         @Override
         protected DynamicType.Builder<?> enhance(String enhanceOriginClassName,
             DynamicType.Builder<?> newClassBuilder) throws PluginException {

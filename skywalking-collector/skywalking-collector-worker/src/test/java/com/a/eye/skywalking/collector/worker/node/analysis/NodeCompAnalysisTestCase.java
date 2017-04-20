@@ -68,7 +68,7 @@ public class NodeCompAnalysisTestCase {
         Assert.assertEquals(NodeCompAnalysis.class.getSimpleName(), NodeCompAnalysis.Factory.INSTANCE.workerInstance(null).getClass().getSimpleName());
 
         int testSize = 10;
-        WorkerConfig.Queue.Node.NodeCompAnalysis.Size = testSize;
+        WorkerConfig.Queue.Node.NodeCompAnalysis.SIZE = testSize;
         Assert.assertEquals(testSize, NodeCompAnalysis.Factory.INSTANCE.queueSize());
     }
 

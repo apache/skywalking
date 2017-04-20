@@ -32,12 +32,12 @@ public class NodeRefSearchWithTimeSlice extends AbstractLocalSyncWorker {
     @Override
     public void onWork(Object request, Object response) throws Exception {
         if (request instanceof RequestEntity) {
-            RequestEntity search = (RequestEntity) request;
+            RequestEntity search = (RequestEntity)request;
 
-            SearchRequestBuilder searchRequestBuilder = EsClient.INSTANCE.getClient().prepareSearch(NodeRefIndex.Index);
+            SearchRequestBuilder searchRequestBuilder = EsClient.INSTANCE.getClient().prepareSearch(NodeRefIndex.INDEX);
             searchRequestBuilder.setTypes(search.getSliceType());
             searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
-            searchRequestBuilder.setQuery(QueryBuilders.rangeQuery(NodeRefIndex.Time_Slice).gte(search.getStartTime()).lte(search.getEndTime()));
+            searchRequestBuilder.setQuery(QueryBuilders.rangeQuery(NodeRefIndex.TIME_SLICE).gte(search.getStartTime()).lte(search.getEndTime()));
             searchRequestBuilder.setSize(0);
 
             searchRequestBuilder.addAggregation(AggregationBuilders.terms(NodeRefIndex.AGG_COLUMN).field(NodeRefIndex.AGG_COLUMN).size(100));
@@ -54,13 +54,13 @@ public class NodeRefSearchWithTimeSlice extends AbstractLocalSyncWorker {
                 String behind = aggIds[1];
 
                 JsonObject nodeRefObj = new JsonObject();
-                nodeRefObj.addProperty(NodeRefIndex.Front, front);
-                nodeRefObj.addProperty(NodeRefIndex.Behind, behind);
+                nodeRefObj.addProperty(NodeRefIndex.FRONT, front);
+                nodeRefObj.addProperty(NodeRefIndex.BEHIND, behind);
                 nodeRefArray.add(nodeRefObj);
             }
             logger.debug("node ref data: %s", nodeRefArray.toString());
 
-            JsonObject resJsonObj = (JsonObject) response;
+            JsonObject resJsonObj = (JsonObject)response;
             resJsonObj.add("result", nodeRefArray);
         } else {
             throw new IllegalArgumentException("message instance must be RequestEntity");

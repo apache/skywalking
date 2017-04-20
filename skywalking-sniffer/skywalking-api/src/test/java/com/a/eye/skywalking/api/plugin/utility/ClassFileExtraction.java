@@ -36,11 +36,11 @@ public class ClassFileExtraction {
         ClassReader classReader = new ClassReader(type.getName());
         ClassWriter classWriter = new ClassWriter(classReader, AsmVisitorWrapper.NO_FLAGS);
         classReader.accept(asmVisitorWrapper.wrap(new TypeDescription.ForLoadedType(type),
-                classWriter,
-                new IllegalContext(),
-                TypePool.Empty.INSTANCE,
-                AsmVisitorWrapper.NO_FLAGS,
-                AsmVisitorWrapper.NO_FLAGS), AsmVisitorWrapper.NO_FLAGS);
+            classWriter,
+            new IllegalContext(),
+            TypePool.Empty.INSTANCE,
+            AsmVisitorWrapper.NO_FLAGS,
+            AsmVisitorWrapper.NO_FLAGS), AsmVisitorWrapper.NO_FLAGS);
         return classWriter.toByteArray();
     }
 

@@ -55,12 +55,12 @@ public class SegmentSaveTestCase {
 
     @Test
     public void testEsIndex() {
-        Assert.assertEquals(SegmentIndex.Index, segmentSave.esIndex());
+        Assert.assertEquals(SegmentIndex.INDEX, segmentSave.esIndex());
     }
 
     @Test
     public void testEsType() {
-        Assert.assertEquals(SegmentIndex.Type_Record, segmentSave.esType());
+        Assert.assertEquals(SegmentIndex.TYPE_RECORD, segmentSave.esType());
     }
 
     @Test
@@ -75,13 +75,13 @@ public class SegmentSaveTestCase {
         Assert.assertEquals(SegmentSave.class.getSimpleName(), SegmentSave.Factory.INSTANCE.workerInstance(null).getClass().getSimpleName());
 
         int testSize = 10;
-        WorkerConfig.Queue.Segment.SegmentSave.Size = testSize;
+        WorkerConfig.Queue.Segment.SegmentSave.SIZE = testSize;
         Assert.assertEquals(testSize, SegmentSave.Factory.INSTANCE.queueSize());
     }
 
     @Test
     public void testAnalyse() throws Exception {
-        CacheSizeConfig.Cache.Persistence.size = 1;
+        CacheSizeConfig.Cache.Persistence.SIZE = 1;
 
         JsonObject segment_1 = new JsonObject();
         segment_1.addProperty("ts", "segment_1");
@@ -97,7 +97,7 @@ public class SegmentSaveTestCase {
         @Override
         public Object answer(InvocationOnMock invocation) throws Throwable {
             Gson gson = new Gson();
-            String source = (String) invocation.getArguments()[0];
+            String source = (String)invocation.getArguments()[0];
             JsonObject sourceJsonObj = gson.fromJson(source, JsonObject.class);
             ts = sourceJsonObj.get("ts").getAsString();
             return null;

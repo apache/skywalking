@@ -10,7 +10,7 @@ import org.apache.logging.log4j.Logger;
 public class Log4j2Logger implements ILog {
     private Logger delegateLogger;
 
-    Log4j2Logger(Class<?> targetClass){
+    Log4j2Logger(Class<?> targetClass) {
         delegateLogger = LogManager.getFormatterLogger(targetClass);
     }
 

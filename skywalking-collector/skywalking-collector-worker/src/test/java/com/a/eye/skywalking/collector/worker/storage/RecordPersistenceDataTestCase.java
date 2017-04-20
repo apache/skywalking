@@ -80,7 +80,7 @@ public class RecordPersistenceDataTestCase {
     }
 
     @Test
-    public void testIterator(){
+    public void testIterator() {
         String id_1 = "2016" + Const.ID_SPLIT + "A" + Const.ID_SPLIT + "B";
         String id_2 = "2016" + Const.ID_SPLIT + "B" + Const.ID_SPLIT + "C";
         RecordPersistenceData recordPersistenceData = new RecordPersistenceData();

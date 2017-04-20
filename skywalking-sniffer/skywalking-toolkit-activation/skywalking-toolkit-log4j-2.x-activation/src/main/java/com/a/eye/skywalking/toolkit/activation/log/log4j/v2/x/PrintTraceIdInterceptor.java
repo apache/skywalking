@@ -14,11 +14,11 @@ public class PrintTraceIdInterceptor implements StaticMethodsAroundInterceptor {
      * Override com.a.eye.skywalking.toolkit.log.log4j.v2.x.Log4j2OutputAppender.append(),
      *
      * @param interceptorContext method context, includes class name, method name, etc.
-     * @param result             change this result, to output the traceId. The origin append() method will not invoke.
+     * @param result change this result, to output the traceId. The origin append() method will not invoke.
      */
     @Override
     public void beforeMethod(StaticMethodInvokeContext interceptorContext, MethodInterceptResult result) {
-        ((StringBuilder) interceptorContext.allArguments()[0]).append("TID:" + ContextManager.getGlobalTraceId());
+        ((StringBuilder)interceptorContext.allArguments()[0]).append("TID:" + ContextManager.getGlobalTraceId());
 
         //make sure origin method do not invoke.
         result.defineReturnValue(null);

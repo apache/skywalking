@@ -18,13 +18,13 @@ public class NodeMappingSearchWithTimeSliceUseDB {
         ClusterWorkerContext clusterWorkerContext = new ClusterWorkerContext(null);
         LocalWorkerContext localWorkerContext = new LocalWorkerContext();
         NodeMappingSearchWithTimeSlice nodeMappingSearch =
-                new NodeMappingSearchWithTimeSlice(NodeMappingSearchWithTimeSlice.WorkerRole.INSTANCE, clusterWorkerContext, localWorkerContext);
+            new NodeMappingSearchWithTimeSlice(NodeMappingSearchWithTimeSlice.WorkerRole.INSTANCE, clusterWorkerContext, localWorkerContext);
 
         long startTime = 201703310910L;
         long endTime = 201703310920L;
         JsonObject response = new JsonObject();
         NodeMappingSearchWithTimeSlice.RequestEntity requestEntity =
-                new NodeMappingSearchWithTimeSlice.RequestEntity(NodeMappingIndex.Type_Minute, startTime, endTime);
+            new NodeMappingSearchWithTimeSlice.RequestEntity(NodeMappingIndex.TYPE_MINUTE, startTime, endTime);
         nodeMappingSearch.onWork(requestEntity, response);
 
         JsonArray nodeArray = response.get("result").getAsJsonArray();

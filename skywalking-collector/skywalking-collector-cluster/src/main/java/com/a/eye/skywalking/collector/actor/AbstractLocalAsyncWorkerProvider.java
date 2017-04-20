@@ -13,9 +13,9 @@ public abstract class AbstractLocalAsyncWorkerProvider<T extends AbstractLocalAs
 
     public abstract int queueSize();
 
-    @Override
-    final public WorkerRef onCreate(LocalWorkerContext localContext) throws IllegalArgumentException, ProviderNotFoundException {
-        T localAsyncWorker = (T) workerInstance(getClusterContext());
+    @Override    final public WorkerRef onCreate(
+        LocalWorkerContext localContext) throws IllegalArgumentException, ProviderNotFoundException {
+        T localAsyncWorker = (T)workerInstance(getClusterContext());
         localAsyncWorker.preStart();
 
         // Specify the size of the ring buffer, must be power of 2.

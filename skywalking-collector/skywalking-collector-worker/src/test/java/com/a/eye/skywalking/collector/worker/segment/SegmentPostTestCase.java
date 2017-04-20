@@ -88,7 +88,7 @@ public class SegmentPostTestCase {
         Assert.assertEquals("/segments", SegmentPost.Factory.INSTANCE.servletPath());
 
         int testSize = 10;
-        WorkerConfig.Queue.Segment.SegmentPost.Size = testSize;
+        WorkerConfig.Queue.Segment.SegmentPost.SIZE = testSize;
         Assert.assertEquals(testSize, SegmentPost.Factory.INSTANCE.queueSize());
     }
 
@@ -305,7 +305,7 @@ public class SegmentPostTestCase {
 
         @Override
         public Object answer(InvocationOnMock invocation) throws Throwable {
-            segmentWithTimeSlice = (SegmentPost.SegmentWithTimeSlice) invocation.getArguments()[0];
+            segmentWithTimeSlice = (SegmentPost.SegmentWithTimeSlice)invocation.getArguments()[0];
             return null;
         }
     }
@@ -317,7 +317,7 @@ public class SegmentPostTestCase {
 
         @Override
         public Object answer(InvocationOnMock invocation) throws Throwable {
-            JsonObject jsonObject = (JsonObject) invocation.getArguments()[0];
+            JsonObject jsonObject = (JsonObject)invocation.getArguments()[0];
             logger.info("SegmentSave json: " + jsonObject.toString());
             minute = jsonObject.get("minute").getAsLong();
             hour = jsonObject.get("hour").getAsLong();
@@ -330,7 +330,7 @@ public class SegmentPostTestCase {
         private static final String SegId = "Segment.1490922929258.927784221.5991.27.1";
 
         public boolean matches(Object para) {
-            JsonObject paraJson = (JsonObject) para;
+            JsonObject paraJson = (JsonObject)para;
             return SegId.equals(paraJson.get("ts").getAsString());
         }
     }
@@ -339,7 +339,7 @@ public class SegmentPostTestCase {
         private static final String SegId = "Segment.1490922929298.927784221.5991.28.1";
 
         public boolean matches(Object para) {
-            JsonObject paraJson = (JsonObject) para;
+            JsonObject paraJson = (JsonObject)para;
             return SegId.equals(paraJson.get("ts").getAsString());
         }
     }

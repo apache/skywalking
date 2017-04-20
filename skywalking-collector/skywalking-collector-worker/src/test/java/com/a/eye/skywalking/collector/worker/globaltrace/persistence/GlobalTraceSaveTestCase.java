@@ -30,12 +30,12 @@ public class GlobalTraceSaveTestCase {
 
     @Test
     public void testEsIndex() {
-        Assert.assertEquals(GlobalTraceIndex.Index, save.esIndex());
+        Assert.assertEquals(GlobalTraceIndex.INDEX, save.esIndex());
     }
 
     @Test
     public void testEsType() {
-        Assert.assertEquals(GlobalTraceIndex.Type_Record, save.esType());
+        Assert.assertEquals(GlobalTraceIndex.TYPE_RECORD, save.esType());
     }
 
     @Test
@@ -50,7 +50,7 @@ public class GlobalTraceSaveTestCase {
         Assert.assertEquals(GlobalTraceSave.class.getSimpleName(), GlobalTraceSave.Factory.INSTANCE.workerInstance(null).getClass().getSimpleName());
 
         int testSize = 10;
-        WorkerConfig.Queue.GlobalTrace.GlobalTraceSave.Size = testSize;
+        WorkerConfig.Queue.GlobalTrace.GlobalTraceSave.SIZE = testSize;
         Assert.assertEquals(testSize, GlobalTraceSave.Factory.INSTANCE.queueSize());
     }
 }

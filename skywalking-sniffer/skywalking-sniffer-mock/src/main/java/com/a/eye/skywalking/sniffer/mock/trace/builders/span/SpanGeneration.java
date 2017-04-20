@@ -8,12 +8,12 @@ package com.a.eye.skywalking.sniffer.mock.trace.builders.span;
 public abstract class SpanGeneration {
     private SpanGeneration[] next;
 
-    public SpanGeneration build(SpanGeneration next){
-        this.next = new SpanGeneration[]{next};
+    public SpanGeneration build(SpanGeneration next) {
+        this.next = new SpanGeneration[] {next};
         return next;
     }
 
-    public void build(SpanGeneration... next){
+    public void build(SpanGeneration... next) {
         this.next = next;
     }
 
@@ -21,9 +21,9 @@ public abstract class SpanGeneration {
 
     protected abstract void after();
 
-    public void generate(){
+    public void generate() {
         this.before();
-        if(next != null){
+        if (next != null) {
             for (SpanGeneration generation : next) {
                 generation.generate();
             }

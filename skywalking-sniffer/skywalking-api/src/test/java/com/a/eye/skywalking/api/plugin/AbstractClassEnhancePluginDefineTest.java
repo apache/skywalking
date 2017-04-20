@@ -33,39 +33,38 @@ public class AbstractClassEnhancePluginDefineTest {
     @Before
     public void setUp() throws Exception {
         classLoader = new ByteArrayClassLoader.ChildFirst(getClass().getClassLoader(),
-                ClassFileExtraction.of(TargetObject.class),
-                null,
-                ByteArrayClassLoader.PersistenceHandler.MANIFEST,
-                PackageDefinitionStrategy.NoOp.INSTANCE);
+            ClassFileExtraction.of(TargetObject.class),
+            null,
+            ByteArrayClassLoader.PersistenceHandler.MANIFEST,
+            PackageDefinitionStrategy.NoOp.INSTANCE);
     }
 
     @Test
     public void weaveInstanceMethod() throws Exception {
         ByteBuddyAgent.install();
         ClassFileTransformer classFileTransformer = new AgentBuilder.Default()
-                .with(AgentBuilder.PoolStrategy.Default.FAST)
-                .ignore(none())
-                .type(ElementMatchers.is(TargetObject.class), ElementMatchers.is(classLoader)).transform(new MockTargetObjectTransformer())
-                .installOnByteBuddyAgent();
+            .with(AgentBuilder.PoolStrategy.Default.FAST)
+            .ignore(none())
+            .type(ElementMatchers.is(TargetObject.class), ElementMatchers.is(classLoader)).transform(new MockTargetObjectTransformer())
+            .installOnByteBuddyAgent();
 
         try {
             Class<?> type = classLoader.loadClass(TargetObject.class.getName());
             assertThat(type.getDeclaredMethod(WEAVE_INSTANCE_METHOD_NAME).invoke(type.getDeclaredConstructor(String.class).newInstance("a"))
-                    , CoreMatchers.<Object>is(WEAVE_INSTANCE_METHOD_NAME + "a"));
+                , CoreMatchers.<Object>is(WEAVE_INSTANCE_METHOD_NAME + "a"));
         } finally {
             ByteBuddyAgent.getInstrumentation().removeTransformer(classFileTransformer);
         }
     }
 
-
     @Test(expected = RuntimeException.class)
     public void weaveInstanceMethodWITEXCEPTION() throws Exception {
         ByteBuddyAgent.install();
         ClassFileTransformer classFileTransformer = new AgentBuilder.Default()
-                .with(AgentBuilder.PoolStrategy.Default.FAST)
-                .ignore(none())
-                .type(ElementMatchers.is(TargetObject.class), ElementMatchers.is(classLoader)).transform(new MockTargetObjectTransformer())
-                .installOnByteBuddyAgent();
+            .with(AgentBuilder.PoolStrategy.Default.FAST)
+            .ignore(none())
+            .type(ElementMatchers.is(TargetObject.class), ElementMatchers.is(classLoader)).transform(new MockTargetObjectTransformer())
+            .installOnByteBuddyAgent();
 
         try {
             Class<?> type = classLoader.loadClass(TargetObject.class.getName());
@@ -79,10 +78,10 @@ public class AbstractClassEnhancePluginDefineTest {
     public void weaveStaticMethod() throws Exception {
         ByteBuddyAgent.install();
         ClassFileTransformer classFileTransformer = new AgentBuilder.Default()
-                .with(AgentBuilder.PoolStrategy.Default.FAST)
-                .ignore(none())
-                .type(ElementMatchers.is(TargetObject.class), ElementMatchers.is(classLoader)).transform(new MockTargetObjectTransformer())
-                .installOnByteBuddyAgent();
+            .with(AgentBuilder.PoolStrategy.Default.FAST)
+            .ignore(none())
+            .type(ElementMatchers.is(TargetObject.class), ElementMatchers.is(classLoader)).transform(new MockTargetObjectTransformer())
+            .installOnByteBuddyAgent();
 
         try {
             Class<?> type = classLoader.loadClass(TargetObject.class.getName());
@@ -95,7 +94,8 @@ public class AbstractClassEnhancePluginDefineTest {
     public static class MockTargetObjectTransformer implements AgentBuilder.Transformer {
 
         @Override
-        public DynamicType.Builder<?> transform(DynamicType.Builder<?> builder, TypeDescription typeDescription, ClassLoader classLoader) {
+        public DynamicType.Builder<?> transform(DynamicType.Builder<?> builder, TypeDescription typeDescription,
+            ClassLoader classLoader) {
             try {
                 DynamicType.Builder newBuilder = transformInstanceMethod(builder);
                 return transformStaticMethod(newBuilder);

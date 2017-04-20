@@ -35,20 +35,23 @@ public class LogbackPatternConverterActivation extends ClassInstanceMethodsEnhan
     }
 
     /**
-     * @return the collection of {@link StaticMethodsInterceptPoint}, represent the intercepted methods and their interceptors.
+     * @return the collection of {@link StaticMethodsInterceptPoint}, represent the intercepted methods and their
+     * interceptors.
      */
     @Override
     protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[] {new InstanceMethodsInterceptPoint() {
-            @Override
-            public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                return named("convert");
-            }
+        return new InstanceMethodsInterceptPoint[] {
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named("convert");
+                }
 
-            @Override
-            public String getMethodsInterceptor() {
-                return "com.a.eye.skywalking.toolkit.activation.log.logback.v1.x.PrintTraceIdInterceptor";
+                @Override
+                public String getMethodsInterceptor() {
+                    return "com.a.eye.skywalking.toolkit.activation.log.logback.v1.x.PrintTraceIdInterceptor";
+                }
             }
-        }};
+        };
     }
 }

@@ -9,7 +9,7 @@ import org.junit.Test;
  */
 public class PluginBootstrapTest {
     @Test
-    public void testLoadPlugins(){
+    public void testLoadPlugins() {
         PluginBootstrap bootstrap = new PluginBootstrap();
         List<AbstractClassEnhancePluginDefine> defines = bootstrap.loadPlugins();
 

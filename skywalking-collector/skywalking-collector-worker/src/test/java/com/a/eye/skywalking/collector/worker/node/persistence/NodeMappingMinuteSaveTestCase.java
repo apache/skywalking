@@ -22,7 +22,7 @@ public class NodeMappingMinuteSaveTestCase {
     public void init() {
         System.setProperty("user.timezone", "UTC");
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-        
+
         ClusterWorkerContext cluster = new ClusterWorkerContext(null);
         LocalWorkerContext local = new LocalWorkerContext();
         save = new NodeMappingMinuteSave(NodeMappingMinuteSave.Role.INSTANCE, cluster, local);
@@ -30,12 +30,12 @@ public class NodeMappingMinuteSaveTestCase {
 
     @Test
     public void testEsIndex() {
-        Assert.assertEquals(NodeMappingIndex.Index, save.esIndex());
+        Assert.assertEquals(NodeMappingIndex.INDEX, save.esIndex());
     }
 
     @Test
     public void testEsType() {
-        Assert.assertEquals(NodeMappingIndex.Type_Minute, save.esType());
+        Assert.assertEquals(NodeMappingIndex.TYPE_MINUTE, save.esType());
     }
 
     @Test
@@ -50,7 +50,7 @@ public class NodeMappingMinuteSaveTestCase {
         Assert.assertEquals(NodeMappingMinuteSave.class.getSimpleName(), NodeMappingMinuteSave.Factory.INSTANCE.workerInstance(null).getClass().getSimpleName());
 
         int testSize = 10;
-        WorkerConfig.Queue.Node.NodeMappingMinuteSave.Size = testSize;
+        WorkerConfig.Queue.Node.NodeMappingMinuteSave.SIZE = testSize;
         Assert.assertEquals(testSize, NodeMappingMinuteSave.Factory.INSTANCE.queueSize());
     }
 }

@@ -12,7 +12,7 @@ import org.junit.Test;
  */
 public class SamplingServiceTest {
     @Test
-    public void test50Percent(){
+    public void test50Percent() {
         Config.Agent.SAMPLING_CYCLE = 2;
         ServiceManager.INSTANCE.boot();
 
@@ -33,7 +33,7 @@ public class SamplingServiceTest {
     }
 
     @AfterClass
-    public static void clear(){
+    public static void clear() {
         Config.Agent.SAMPLING_CYCLE = 1;
         ServiceManager.INSTANCE.boot();
     }

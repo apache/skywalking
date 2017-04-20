@@ -19,13 +19,13 @@ public class EasyLoggerTest {
     private static PrintStream errRef;
 
     @BeforeClass
-    public static void initAndHoldOut(){
+    public static void initAndHoldOut() {
         outRef = System.out;
         errRef = System.err;
     }
 
     @Test
-    public void testLog(){
+    public void testLog() {
         PrintStream output = Mockito.mock(PrintStream.class);
         System.setOut(output);
         PrintStream err = Mockito.mock(PrintStream.class);
@@ -46,9 +46,9 @@ public class EasyLoggerTest {
         logger.warn("hello world");
         logger.error("hello world");
         logger.error("hello world", new NullPointerException());
-        logger.error(new NullPointerException(),"hello {}", "world");
+        logger.error(new NullPointerException(), "hello {}", "world");
 
-        Mockito.verify(output,times(9))
+        Mockito.verify(output, times(9))
             .println(anyString());
     }
 
@@ -63,7 +63,7 @@ public class EasyLoggerTest {
     }
 
     @AfterClass
-    public static void reset(){
+    public static void reset() {
         System.setOut(outRef);
         System.setErr(errRef);
     }

@@ -27,15 +27,15 @@ public class SkyWalkingTracer implements Tracer {
     @Override
     public <C> void inject(SpanContext spanContext, Format<C> format, C carrier) {
         if (Format.Builtin.TEXT_MAP.equals(format) || Format.Builtin.HTTP_HEADERS.equals(format)) {
-            ((TextMap) carrier).put(TRACE_HEAD_NAME, formatCrossProcessPropagationContextData());
+            ((TextMap)carrier).put(TRACE_HEAD_NAME, formatCrossProcessPropagationContextData());
         } else if (Format.Builtin.BINARY.equals(format)) {
             byte[] key = TRACE_HEAD_NAME.getBytes(ByteBufferContext.CHARSET);
             byte[] value = formatCrossProcessPropagationContextData().getBytes(ByteBufferContext.CHARSET);
-            ((ByteBuffer) carrier).put(ByteBufferContext.ENTRY);
-            ((ByteBuffer) carrier).putInt(key.length);
-            ((ByteBuffer) carrier).putInt(value.length);
-            ((ByteBuffer) carrier).put(key);
-            ((ByteBuffer) carrier).put(value);
+            ((ByteBuffer)carrier).put(ByteBufferContext.ENTRY);
+            ((ByteBuffer)carrier).putInt(key.length);
+            ((ByteBuffer)carrier).putInt(value.length);
+            ((ByteBuffer)carrier).put(key);
+            ((ByteBuffer)carrier).put(value);
         } else {
             throw new IllegalArgumentException("Unsupported format: " + format);
         }
@@ -44,7 +44,7 @@ public class SkyWalkingTracer implements Tracer {
     @Override
     public <C> SpanContext extract(Format<C> format, C carrier) {
         if (Format.Builtin.TEXT_MAP.equals(format) || Format.Builtin.HTTP_HEADERS.equals(format)) {
-            TextMap textMapCarrier = (TextMap) carrier;
+            TextMap textMapCarrier = (TextMap)carrier;
             extractCrossProcessPropagationContextData(textMapCarrier);
             return new TextMapContext(textMapCarrier);
         } else if (Format.Builtin.BINARY.equals(format)) {
@@ -55,7 +55,6 @@ public class SkyWalkingTracer implements Tracer {
             throw new IllegalArgumentException("Unsupported format: " + format);
         }
     }
-
 
     /**
      * set context data in toolkit-opentracing-activation

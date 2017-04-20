@@ -20,7 +20,7 @@ public class SaveToEsSourceAnswer implements Answer<Object> {
     @Override
     public Object answer(InvocationOnMock invocation) throws Throwable {
         Gson gson = new Gson();
-        String source = (String) invocation.getArguments()[0];
+        String source = (String)invocation.getArguments()[0];
         JsonObject sourceJsonObj = gson.fromJson(source, JsonObject.class);
         logger.debug("sourceJsonObj: %s", sourceJsonObj.toString());
 

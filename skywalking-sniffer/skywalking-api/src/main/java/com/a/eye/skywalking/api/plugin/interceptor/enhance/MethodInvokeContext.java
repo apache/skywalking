@@ -7,11 +7,11 @@ package com.a.eye.skywalking.api.plugin.interceptor.enhance;
  * @author wusheng
  */
 public class MethodInvokeContext {
-    private String   methodName;
+    private String methodName;
     private Object[] allArguments;
     private Class<?>[] argumentTypes;
 
-    MethodInvokeContext(String methodName, Object[] allArguments,Class<?>[] argumentTypes) {
+    MethodInvokeContext(String methodName, Object[] allArguments, Class<?>[] argumentTypes) {
         this.methodName = methodName;
         this.allArguments = allArguments;
         this.argumentTypes = argumentTypes;
@@ -34,7 +34,7 @@ public class MethodInvokeContext {
     /**
      * @return argument types list.
      */
-    public Class<?>[] argumentTypes(){
+    public Class<?>[] argumentTypes() {
         return argumentTypes;
     }
 

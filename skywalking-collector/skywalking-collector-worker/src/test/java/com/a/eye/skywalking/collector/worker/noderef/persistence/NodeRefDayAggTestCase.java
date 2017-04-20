@@ -66,7 +66,7 @@ public class NodeRefDayAggTestCase {
         Assert.assertEquals(NodeRefDayAgg.class.getSimpleName(), NodeRefDayAgg.Factory.INSTANCE.workerInstance(null).getClass().getSimpleName());
 
         int testSize = 10;
-        WorkerConfig.WorkerNum.NodeRef.NodeRefDayAgg.Value = testSize;
+        WorkerConfig.WorkerNum.NodeRef.NodeRefDayAgg.VALUE = testSize;
         Assert.assertEquals(testSize, NodeRefDayAgg.Factory.INSTANCE.workerNum());
     }
 

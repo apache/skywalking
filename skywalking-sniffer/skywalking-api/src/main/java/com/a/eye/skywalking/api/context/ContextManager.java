@@ -36,7 +36,7 @@ public class ContextManager implements TracerContextListener, BootService {
     }
 
     /**
-     *@see {@link TracerContext#extract(ContextCarrier)}
+     * @see {@link TracerContext#extract(ContextCarrier)}
      */
     public static void extract(ContextCarrier carrier) {
         get().extract(carrier);
@@ -45,11 +45,11 @@ public class ContextManager implements TracerContextListener, BootService {
     /**
      * @return the first global trace id if exist. Otherwise, "N/A".
      */
-    public static String getGlobalTraceId(){
+    public static String getGlobalTraceId() {
         TracerContext segment = CONTEXT.get();
-        if(segment == null){
+        if (segment == null) {
             return "N/A";
-        }else{
+        } else {
             return segment.getGlobalTraceId();
         }
     }
@@ -79,7 +79,7 @@ public class ContextManager implements TracerContextListener, BootService {
     }
 
     @Override
-    public void bootUp(){
+    public void bootUp() {
         TracerContext.ListenerManager.add(this);
     }
 

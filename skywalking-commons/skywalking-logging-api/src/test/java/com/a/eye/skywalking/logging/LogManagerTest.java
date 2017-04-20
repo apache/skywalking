@@ -12,7 +12,7 @@ import org.powermock.api.support.membermodification.MemberModifier;
 public class LogManagerTest {
 
     @Test
-    public void testGetNoopLogger(){
+    public void testGetNoopLogger() {
         ILog logger = LogManager.getLogger(LogManagerTest.class);
         Assert.assertEquals(NoopLogger.INSTANCE, logger);
     }
@@ -20,9 +20,8 @@ public class LogManagerTest {
     @Before
     @After
     public void clear() throws IllegalAccessException {
-        MemberModifier.field(LogManager.class, "resolver").set(null, null);
+        MemberModifier.field(LogManager.class, "RESOLVER").set(null, null);
     }
-
 
     public class TestLogger implements ILog {
 

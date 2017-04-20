@@ -33,12 +33,11 @@ public abstract class MetricPersistenceMember extends PersistenceMember {
         super(role, clusterContext, selfContext);
     }
 
-    @Override
-    final public void analyse(Object message) throws Exception {
+    @Override final public void analyse(Object message) throws Exception {
         if (message instanceof MetricData) {
-            MetricData metricData = (MetricData) message;
+            MetricData metricData = (MetricData)message;
             persistenceData.getElseCreate(metricData.getId()).merge(metricData);
-            if (persistenceData.size() >= CacheSizeConfig.Cache.Persistence.size) {
+            if (persistenceData.size() >= CacheSizeConfig.Cache.Persistence.SIZE) {
                 persistence();
             }
         } else {
@@ -78,7 +77,7 @@ public abstract class MetricPersistenceMember extends PersistenceMember {
     private boolean saveToEs() {
         Client client = EsClient.INSTANCE.getClient();
         BulkRequestBuilder bulkRequest = client.prepareBulk();
-        logger.debug("persistenceData size: %s", persistenceData.size());
+        logger.debug("persistenceData SIZE: %s", persistenceData.size());
 
         Iterator<Map.Entry<String, MetricData>> iterator = persistenceData.iterator();
         while (iterator.hasNext()) {

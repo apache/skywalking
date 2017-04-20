@@ -16,7 +16,7 @@ import java.util.ServiceLoader;
 public enum ServiceManager {
     INSTANCE;
 
-    private static ILog logger = LogManager.getLogger(StatusBootService.class);
+    private static final ILog logger = LogManager.getLogger(StatusBootService.class);
     private Map<Class, BootService> bootedServices = new HashMap<Class, BootService>();
 
     public void boot() {

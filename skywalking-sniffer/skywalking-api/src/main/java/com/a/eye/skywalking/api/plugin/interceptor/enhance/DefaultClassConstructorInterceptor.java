@@ -13,14 +13,14 @@ import net.bytebuddy.implementation.bind.annotation.This;
  * Created by xin on 2016/12/6.
  */
 public class DefaultClassConstructorInterceptor {
-    private static ILog logger = LogManager
-            .getLogger(ClassConstructorInterceptor.class);
+    private static final ILog logger = LogManager
+        .getLogger(ClassConstructorInterceptor.class);
 
     @RuntimeType
     public void intercept(
-            @This Object obj,
-            @FieldProxy(ClassEnhancePluginDefine.contextAttrName) FieldSetter accessor,
-            @AllArguments Object[] allArguments) {
+        @This Object obj,
+        @FieldProxy(ClassEnhancePluginDefine.CONTEXT_ATTR_NAME) FieldSetter accessor,
+        @AllArguments Object[] allArguments) {
         try {
             EnhancedClassInstanceContext context = new EnhancedClassInstanceContext();
             accessor.setValue(context);

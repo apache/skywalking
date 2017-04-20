@@ -19,24 +19,21 @@ import java.io.IOException;
  * @author pengys5
  */
 public abstract class AbstractIndex {
+    private static final Logger logger = LogManager.getFormatterLogger(AbstractIndex.class);
 
-    private Logger logger = LogManager.getFormatterLogger(AbstractIndex.class);
-
-    public static final String Type_Minute = "minute";
-    public static final String Type_Hour = "hour";
-    public static final String Type_Day = "day";
-
-    public static final String Type_Record = "record";
-
+    public static final String TYPE_MINUTE = "minute";
+    public static final String TYPE_HOUR = "hour";
+    public static final String TYPE_DAY = "day";
+    public static final String TYPE_RECORD = "record";
     public static final String AGG_COLUMN = "aggId";
-    public static final String Time_Slice = "timeSlice";
+    public static final String TIME_SLICE = "timeSlice";
 
     final XContentBuilder createSettingBuilder() throws IOException {
         return XContentFactory.jsonBuilder()
-                .startObject()
-                .field("index.number_of_shards", EsConfig.Es.Index.Shards.number)
-                .field("index.number_of_replicas", EsConfig.Es.Index.Replicas.number)
-                .endObject();
+            .startObject()
+            .field("index.number_of_shards", EsConfig.Es.Index.Shards.NUMBER)
+            .field("index.number_of_replicas", EsConfig.Es.Index.Replicas.NUMBER)
+            .endObject();
     }
 
     public abstract boolean isRecord();
@@ -63,15 +60,15 @@ public abstract class AbstractIndex {
         IndicesAdminClient client = EsClient.INSTANCE.getClient().admin().indices();
 
         if (isRecord()) {
-            CreateIndexResponse response = client.prepareCreate(index()).setSettings(settings).addMapping(Type_Record, mappingBuilder).get();
-            logger.info("create %s index with type of %s finished, isAcknowledged: %s", index(), Type_Record, response.isAcknowledged());
+            CreateIndexResponse response = client.prepareCreate(index()).setSettings(settings).addMapping(TYPE_RECORD, mappingBuilder).get();
+            logger.info("create %s index with type of %s finished, isAcknowledged: %s", index(), TYPE_RECORD, response.isAcknowledged());
         } else {
-            CreateIndexResponse response = client.prepareCreate(index()).setSettings(settings).addMapping(Type_Minute, mappingBuilder).get();
-            logger.info("create %s index with type of %s finished, isAcknowledged: %s", index(), Type_Minute, response.isAcknowledged());
-            PutMappingResponse putMappingResponse = client.preparePutMapping(index()).setType(Type_Hour).setSource(mappingBuilder).get();
-            logger.info("create %s index with type of %s finished, isAcknowledged: %s", index(), Type_Hour, putMappingResponse.isAcknowledged());
-            putMappingResponse = client.preparePutMapping(index()).setType(Type_Day).setSource(mappingBuilder).get();
-            logger.info("create %s index with type of %s finished, isAcknowledged: %s", index(), Type_Day, putMappingResponse.isAcknowledged());
+            CreateIndexResponse response = client.prepareCreate(index()).setSettings(settings).addMapping(TYPE_MINUTE, mappingBuilder).get();
+            logger.info("create %s index with type of %s finished, isAcknowledged: %s", index(), TYPE_MINUTE, response.isAcknowledged());
+            PutMappingResponse putMappingResponse = client.preparePutMapping(index()).setType(TYPE_HOUR).setSource(mappingBuilder).get();
+            logger.info("create %s index with type of %s finished, isAcknowledged: %s", index(), TYPE_HOUR, putMappingResponse.isAcknowledged());
+            putMappingResponse = client.preparePutMapping(index()).setType(TYPE_DAY).setSource(mappingBuilder).get();
+            logger.info("create %s index with type of %s finished, isAcknowledged: %s", index(), TYPE_DAY, putMappingResponse.isAcknowledged());
         }
     }
 
