@@ -62,22 +62,24 @@ public class MongoDBMethodInterceptor implements InstanceMethodsAroundIntercepto
 
     private static final int FILTER_LENGTH_LIMIT = 256;
 
+    private static final String EMPTY = "";
+
     @Override
     public void beforeMethod(final EnhancedClassInstanceContext context,
             final InstanceMethodInvokeContext interceptorContext, final MethodInterceptResult result) {
         Object[] arguments = interceptorContext.allArguments();
-        Span span = null;
-        if (Config.Agent.MONGODB_BINDPARAM) {
-            OperationInfo operationInfo = this.getReadOperationInfo(arguments[0]);
-            span = ContextManager.createSpan(METHOD + operationInfo.getMethodName());
-            Tags.DB_STATEMENT.set(span, operationInfo.getMethodName() + " " + operationInfo.getFilter());
-        } else {
-            span = ContextManager.createSpan(METHOD + arguments[0].getClass().getSimpleName());
-        }
+
+        String methodName = arguments[0].getClass().getSimpleName();
+        Span span = ContextManager.createSpan(METHOD + methodName);
         Tags.COMPONENT.set(span, MONGODB_COMPONENT);
         Tags.DB_TYPE.set(span, MONGODB_COMPONENT);
         Tags.SPAN_KIND.set(span, Tags.SPAN_KIND_CLIENT);
         Tags.SPAN_LAYER.asDB(span);
+
+        if (Config.Plugin.MongoDB.TRACE_PARAM) {
+            Tags.DB_STATEMENT.set(span, methodName + " " + this.getTraceParam(arguments[0]));
+        }
+
     }
 
     @Override
@@ -101,75 +103,79 @@ public class MongoDBMethodInterceptor implements InstanceMethodsAroundIntercepto
      * filter info.
      */
     @SuppressWarnings("rawtypes")
-    private OperationInfo getReadOperationInfo(Object obj) {
+    private String getTraceParam(Object obj) {
         if (obj instanceof CountOperation) {
             BsonDocument filter = ((CountOperation) obj).getFilter();
-            return new OperationInfo(ReadMethod.COUNT.getName(), limitFilter(filter.toString()));
+            return limitFilter(filter.toString());
         } else if (obj instanceof DistinctOperation) {
             BsonDocument filter = ((DistinctOperation) obj).getFilter();
-            return new OperationInfo(ReadMethod.DISTINCT.getName(), limitFilter(filter.toString()));
+            return limitFilter(filter.toString());
         } else if (obj instanceof FindOperation) {
             BsonDocument filter = ((FindOperation) obj).getFilter();
-            return new OperationInfo(ReadMethod.FIND.getName(), limitFilter(filter.toString()));
+            return limitFilter(filter.toString());
         } else if (obj instanceof GroupOperation) {
             BsonDocument filter = ((GroupOperation) obj).getFilter();
-            return new OperationInfo(ReadMethod.GROUP.getName(), limitFilter(filter.toString()));
+            return limitFilter(filter.toString());
         } else if (obj instanceof ListCollectionsOperation) {
             BsonDocument filter = ((ListCollectionsOperation) obj).getFilter();
-            return new OperationInfo(ReadMethod.LIST_COLLECTIONS.getName(), limitFilter(filter.toString()));
+            return limitFilter(filter.toString());
         } else if (obj instanceof MapReduceWithInlineResultsOperation) {
             BsonDocument filter = ((ListCollectionsOperation) obj).getFilter();
-            return new OperationInfo(ReadMethod.MAPREDUCE_WITHINLINE_RESULTS.getName(), limitFilter(filter.toString()));
+            return limitFilter(filter.toString());
         } else if (obj instanceof DeleteOperation) {
-            List<DeleteRequest> filter = ((DeleteOperation) obj).getDeleteRequests();
-            return new OperationInfo(WriteMethod.DELETE.getName(), limitFilter(filter.toString()));
+            List<DeleteRequest> writeRequestList = ((DeleteOperation) obj).getDeleteRequests();
+            return getFilter(writeRequestList);
         } else if (obj instanceof InsertOperation) {
-            List<InsertRequest> filter = ((InsertOperation) obj).getInsertRequests();
-            return new OperationInfo(WriteMethod.INSERT.getName(), limitFilter(filter.toString()));
+            List<InsertRequest> writeRequestList = ((InsertOperation) obj).getInsertRequests();
+            return getFilter(writeRequestList);
         } else if (obj instanceof UpdateOperation) {
-            List<UpdateRequest> filter = ((UpdateOperation) obj).getUpdateRequests();
-            return new OperationInfo(WriteMethod.UPDATE.getName(), limitFilter(filter.toString()));
+            List<UpdateRequest> writeRequestList = ((UpdateOperation) obj).getUpdateRequests();
+            return getFilter(writeRequestList);
         } else if (obj instanceof CreateCollectionOperation) {
             String filter = ((CreateCollectionOperation) obj).getCollectionName();
-            return new OperationInfo(WriteMethod.CREATECOLLECTION.getName(), limitFilter(filter));
+            return limitFilter(filter);
         } else if (obj instanceof CreateIndexesOperation) {
             List<String> filter = ((CreateIndexesOperation) obj).getIndexNames();
-            return new OperationInfo(WriteMethod.CREATEINDEXES.getName(), limitFilter(filter.toString()));
+            return limitFilter(filter.toString());
         } else if (obj instanceof CreateViewOperation) {
             String filter = ((CreateViewOperation) obj).getViewName();
-            return new OperationInfo(WriteMethod.CREATEVIEW.getName(), limitFilter(filter));
+            return limitFilter(filter);
         } else if (obj instanceof FindAndDeleteOperation) {
             BsonDocument filter = ((FindAndDeleteOperation) obj).getFilter();
-            return new OperationInfo(WriteMethod.FINDANDDELETE.getName(), limitFilter(filter.toString()));
+            return limitFilter(filter.toString());
         } else if (obj instanceof FindAndReplaceOperation) {
             BsonDocument filter = ((FindAndReplaceOperation) obj).getFilter();
-            return new OperationInfo(WriteMethod.FINDANDREPLACE.getName(), limitFilter(filter.toString()));
+            return limitFilter(filter.toString());
         } else if (obj instanceof FindAndUpdateOperation) {
             BsonDocument filter = ((FindAndUpdateOperation) obj).getFilter();
-            return new OperationInfo(WriteMethod.FINDANDUPDATE.getName(), limitFilter(filter.toString()));
+            return limitFilter(filter.toString());
         } else if (obj instanceof MapReduceToCollectionOperation) {
             BsonDocument filter = ((MapReduceToCollectionOperation) obj).getFilter();
-            return new OperationInfo(WriteMethod.MAPREDUCETOCOLLECTION.getName(), limitFilter(filter.toString()));
+            return limitFilter(filter.toString());
         } else if (obj instanceof MixedBulkWriteOperation) {
-            List<? extends WriteRequest> list = ((MixedBulkWriteOperation) obj).getWriteRequests();
-            StringBuilder params = new StringBuilder();
-            for (WriteRequest request : list) {
-                if (request instanceof InsertRequest) {
-                    params.append(((InsertRequest) request).getDocument().toString()).append(",");
-                } else if (request instanceof DeleteRequest) {
-                    params.append(((DeleteRequest) request).getFilter()).append(",");
-                } else if (request instanceof UpdateRequest) {
-                    params.append(((UpdateRequest) request).getFilter()).append(",");
-                }
-                if (params.length() > FILTER_LENGTH_LIMIT) {
-                    params.append("...");
-                    break;
-                }
-            }
-            return new OperationInfo(WriteMethod.MIXEDBULKWRITE.getName(), params.toString());
+            List<? extends WriteRequest> writeRequestList = ((MixedBulkWriteOperation) obj).getWriteRequests();
+            return getFilter(writeRequestList);
         } else {
-            return new OperationInfo(obj.getClass().getSimpleName());
+            return EMPTY;
         }
+    }
+
+    private String getFilter(List<? extends WriteRequest> writeRequestList) {
+        StringBuilder params = new StringBuilder();
+        for (WriteRequest request : writeRequestList) {
+            if (request instanceof InsertRequest) {
+                params.append(((InsertRequest) request).getDocument().toString()).append(",");
+            } else if (request instanceof DeleteRequest) {
+                params.append(((DeleteRequest) request).getFilter()).append(",");
+            } else if (request instanceof UpdateRequest) {
+                params.append(((UpdateRequest) request).getFilter()).append(",");
+            }
+            if (params.length() > FILTER_LENGTH_LIMIT) {
+                params.append("...");
+                break;
+            }
+        }
+        return params.toString();
     }
 
     private String limitFilter(String filter) {

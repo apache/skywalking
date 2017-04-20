@@ -23,13 +23,6 @@ public class Config {
          * Zero and negative number are illegal.
          */
         public static int SAMPLING_CYCLE = 1;
-        
-        /**
-         * Set Mongodb plugin whether to bind params
-         * False=Not bound
-         * True=Binding
-         */
-        public static boolean MONGODB_BINDPARAM = false;
     }
 
     public static class Collector {
@@ -87,5 +80,15 @@ public class Config {
          * @see {@link LogLevel}
          */
         public static LogLevel LEVEL = LogLevel.DEBUG;
+    }
+    
+    public static class Plugin{
+        public static class MongoDB{
+            /**
+             * If true, trace all the parameters, default is false.
+             * Only trace the operation, not include parameters.
+             */
+            public static boolean TRACE_PARAM = false;
+        }
     }
 }
