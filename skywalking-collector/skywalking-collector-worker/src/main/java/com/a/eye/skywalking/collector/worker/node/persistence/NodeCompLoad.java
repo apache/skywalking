@@ -27,8 +27,8 @@ public class NodeCompLoad extends AbstractLocalSyncWorker {
 
     @Override
     public void onWork(Object request, Object response) throws Exception {
-        SearchRequestBuilder searchRequestBuilder = EsClient.INSTANCE.getClient().prepareSearch(NodeCompIndex.Index);
-        searchRequestBuilder.setTypes(NodeCompIndex.Type_Record);
+        SearchRequestBuilder searchRequestBuilder = EsClient.INSTANCE.getClient().prepareSearch(NodeCompIndex.INDEX);
+        searchRequestBuilder.setTypes(NodeCompIndex.TYPE_RECORD);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
         searchRequestBuilder.setSize(100);
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
@@ -38,13 +38,13 @@ public class NodeCompLoad extends AbstractLocalSyncWorker {
         JsonArray nodeCompArray = new JsonArray();
         for (SearchHit searchHit : searchHits) {
             JsonObject nodeCompObj = new JsonObject();
-            nodeCompObj.addProperty(NodeCompIndex.Name, (String) searchHit.getSource().get(NodeCompIndex.Name));
-            nodeCompObj.addProperty(NodeCompIndex.Peers, (String) searchHit.getSource().get(NodeCompIndex.Peers));
+            nodeCompObj.addProperty(NodeCompIndex.NAME, (String)searchHit.getSource().get(NodeCompIndex.NAME));
+            nodeCompObj.addProperty(NodeCompIndex.PEERS, (String)searchHit.getSource().get(NodeCompIndex.PEERS));
             nodeCompArray.add(nodeCompObj);
             logger.debug("node: %s", nodeCompObj.toString());
         }
 
-        JsonObject resJsonObj = (JsonObject) response;
+        JsonObject resJsonObj = (JsonObject)response;
         resJsonObj.add("result", nodeCompArray);
     }
 

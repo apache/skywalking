@@ -12,7 +12,7 @@ import org.junit.Test;
 public class TraceSegmentTestCase {
     @Test
     public void testConstructor() {
-        TraceSegment segment = new TraceSegment( "billing_app");
+        TraceSegment segment = new TraceSegment("billing_app");
 
         Assert.assertTrue(segment.getTraceSegmentId().startsWith("Segment"));
         Assert.assertTrue(segment.getStartTime() > 0);

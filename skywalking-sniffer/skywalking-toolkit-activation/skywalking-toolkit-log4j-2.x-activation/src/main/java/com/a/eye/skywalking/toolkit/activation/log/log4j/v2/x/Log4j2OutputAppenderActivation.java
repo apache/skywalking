@@ -13,7 +13,7 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
  * Activation's classloader is diff from "com.a.eye.skywalking.toolkit.log.logback.v2.x.LogbackPatternConverter",
  * using direct will trigger classloader issue.
  *
- * Created by wusheng on 2016/12/7.
+ * @author wusheng
  */
 public class Log4j2OutputAppenderActivation extends ClassStaticMethodsEnhancePluginDefine {
     /**
@@ -25,20 +25,23 @@ public class Log4j2OutputAppenderActivation extends ClassStaticMethodsEnhancePlu
     }
 
     /**
-     * @return the collection of {@link StaticMethodsInterceptPoint}, represent the intercepted methods and their interceptors.
+     * @return the collection of {@link StaticMethodsInterceptPoint}, represent the intercepted methods and their
+     * interceptors.
      */
     @Override
     protected StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
-        return new StaticMethodsInterceptPoint[]{new StaticMethodsInterceptPoint() {
-            @Override
-            public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                return named("append");
-            }
+        return new StaticMethodsInterceptPoint[] {
+            new StaticMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named("append");
+                }
 
-            @Override
-            public String getMethodsInterceptor() {
-                return "com.a.eye.skywalking.toolkit.activation.log.log4j.v2.x.PrintTraceIdInterceptor";
+                @Override
+                public String getMethodsInterceptor() {
+                    return "com.a.eye.skywalking.toolkit.activation.log.log4j.v2.x.PrintTraceIdInterceptor";
+                }
             }
-        }};
+        };
     }
 }

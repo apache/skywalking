@@ -1,6 +1,5 @@
 package com.a.eye.skywalking.collector.worker.segment.persistence;
 
-
 import com.a.eye.skywalking.collector.actor.AbstractLocalAsyncWorkerProvider;
 import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
 import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
@@ -33,22 +32,23 @@ public class SegmentExceptionSave extends RecordPersistenceMember {
 
     @Override
     public String esIndex() {
-        return SegmentExceptionIndex.Index;
+        return SegmentExceptionIndex.INDEX;
     }
 
     @Override
     public String esType() {
-        return AbstractIndex.Type_Record;
+        return AbstractIndex.TYPE_RECORD;
     }
 
-    protected SegmentExceptionSave(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    protected SegmentExceptionSave(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext,
+        LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
     @Override
     public void analyse(Object message) throws Exception {
         if (message instanceof SegmentPost.SegmentWithTimeSlice) {
-            SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice = (SegmentPost.SegmentWithTimeSlice) message;
+            SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice = (SegmentPost.SegmentWithTimeSlice)message;
             TraceSegment segment = segmentWithTimeSlice.getTraceSegment();
 
             if (CollectionTools.isNotEmpty(segment.getSpans())) {
@@ -56,8 +56,8 @@ public class SegmentExceptionSave extends RecordPersistenceMember {
                     boolean isError = Tags.ERROR.get(span);
 
                     JsonObject dataJsonObj = new JsonObject();
-                    dataJsonObj.addProperty(SegmentExceptionIndex.IsError, isError);
-                    dataJsonObj.addProperty(SegmentExceptionIndex.SegId, segment.getTraceSegmentId());
+                    dataJsonObj.addProperty(SegmentExceptionIndex.IS_ERROR, isError);
+                    dataJsonObj.addProperty(SegmentExceptionIndex.SEG_ID, segment.getTraceSegmentId());
 
                     JsonArray errorKind = new JsonArray();
                     if (isError) {
@@ -68,7 +68,7 @@ public class SegmentExceptionSave extends RecordPersistenceMember {
                             }
                         }
                     }
-                    dataJsonObj.add(SegmentExceptionIndex.ErrorKind, errorKind);
+                    dataJsonObj.add(SegmentExceptionIndex.ERROR_KIND, errorKind);
 
                     RecordData recordData = new RecordData(segment.getTraceSegmentId());
                     recordData.setRecord(dataJsonObj);
@@ -90,7 +90,7 @@ public class SegmentExceptionSave extends RecordPersistenceMember {
 
         @Override
         public int queueSize() {
-            return WorkerConfig.Queue.Segment.SegmentExceptionSave.Size;
+            return WorkerConfig.Queue.Segment.SegmentExceptionSave.SIZE;
         }
 
         @Override

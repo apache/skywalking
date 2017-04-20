@@ -17,7 +17,8 @@ import com.a.eye.skywalking.trace.TraceSegment;
  */
 public class NodeRefMinuteAnalysis extends AbstractNodeRefAnalysis {
 
-    protected NodeRefMinuteAnalysis(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    protected NodeRefMinuteAnalysis(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext,
+        LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
@@ -30,7 +31,7 @@ public class NodeRefMinuteAnalysis extends AbstractNodeRefAnalysis {
     @Override
     public void analyse(Object message) throws Exception {
         if (message instanceof SegmentPost.SegmentWithTimeSlice) {
-            SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice = (SegmentPost.SegmentWithTimeSlice) message;
+            SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice = (SegmentPost.SegmentWithTimeSlice)message;
             TraceSegment segment = segmentWithTimeSlice.getTraceSegment();
             long minute = segmentWithTimeSlice.getMinute();
             long hour = segmentWithTimeSlice.getHour();
@@ -53,7 +54,6 @@ public class NodeRefMinuteAnalysis extends AbstractNodeRefAnalysis {
         }
     }
 
-
     public static class Factory extends AbstractLocalAsyncWorkerProvider<NodeRefMinuteAnalysis> {
 
         public static Factory INSTANCE = new Factory();
@@ -70,7 +70,7 @@ public class NodeRefMinuteAnalysis extends AbstractNodeRefAnalysis {
 
         @Override
         public int queueSize() {
-            return WorkerConfig.Queue.NodeRef.NodeRefMinuteAnalysis.Size;
+            return WorkerConfig.Queue.NodeRef.NodeRefMinuteAnalysis.SIZE;
         }
     }
 

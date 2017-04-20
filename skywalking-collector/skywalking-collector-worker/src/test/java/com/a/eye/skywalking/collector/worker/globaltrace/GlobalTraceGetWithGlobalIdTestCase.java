@@ -94,7 +94,7 @@ public class GlobalTraceGetWithGlobalIdTestCase {
 
         @Override
         public Object answer(InvocationOnMock invocation) throws Throwable {
-            String globalId = (String) invocation.getArguments()[0];
+            String globalId = (String)invocation.getArguments()[0];
             System.out.println(globalId);
             Assert.assertEquals("Test", globalId);
             return null;

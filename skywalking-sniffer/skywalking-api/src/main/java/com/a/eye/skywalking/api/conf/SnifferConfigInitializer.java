@@ -20,7 +20,7 @@ import java.util.Properties;
  * @see {@link #initialize()}, to learn more about how to initialzie.
  */
 public class SnifferConfigInitializer {
-    private static ILog logger = LogManager.getLogger(SnifferConfigInitializer.class);
+    private static final ILog logger = LogManager.getLogger(SnifferConfigInitializer.class);
     private static String CONFIG_FILE_NAME = "/sky-walking.config";
 
     /**
@@ -46,7 +46,7 @@ public class SnifferConfigInitializer {
             if (configFileStream == null) {
                 logger.info("No {} file found in class path.", CONFIG_FILE_NAME);
                 configFileStream = loadConfigFromAgentFolder();
-            }else{
+            } else {
                 logger.info("{} file found in class path.", CONFIG_FILE_NAME);
             }
         }

@@ -14,10 +14,10 @@ public class JedisConstructorWithStringArgInterceptor implements InstanceConstru
 
     @Override
     public void onConstruct(EnhancedClassInstanceContext context, ConstructorInvokeContext interceptorContext) {
-        String host = (String) interceptorContext.allArguments()[0];
+        String host = (String)interceptorContext.allArguments()[0];
         int port = 6379;
         if (interceptorContext.allArguments().length > 1) {
-            port = (Integer) interceptorContext.allArguments()[1];
+            port = (Integer)interceptorContext.allArguments()[1];
         }
         context.set(JedisMethodInterceptor.KEY_OF_REDIS_CONN_INFO, host + ":" + port);
         context.set(JedisMethodInterceptor.KEY_OF_REDIS_HOST, host);

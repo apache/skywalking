@@ -18,7 +18,7 @@ import java.util.concurrent.Callable;
  * @author wusheng
  */
 public class ClassStaticMethodsInterceptor {
-    private static ILog logger = LogManager.getLogger(ClassStaticMethodsInterceptor.class);
+    private static final ILog logger = LogManager.getLogger(ClassStaticMethodsInterceptor.class);
 
     /**
      * A class full name, and instanceof {@link StaticMethodsAroundInterceptor}
@@ -29,6 +29,7 @@ public class ClassStaticMethodsInterceptor {
 
     /**
      * Set the name of {@link ClassStaticMethodsInterceptor#staticMethodsAroundInterceptorClassName}
+     *
      * @param staticMethodsAroundInterceptorClassName class full name.
      */
     public ClassStaticMethodsInterceptor(String staticMethodsAroundInterceptorClassName) {
@@ -37,20 +38,22 @@ public class ClassStaticMethodsInterceptor {
 
     /**
      * Intercept the target static method.
+     *
      * @param clazz target class
      * @param allArguments all method arguments
      * @param method method description.
      * @param zuper the origin call ref.
      * @return the return value of target static method.
-     * @throws Exception only throw exception because of zuper.call()
-     *          or unexpected exception in sky-walking ( This is a bug, if anything triggers this condition ).
+     * @throws Exception only throw exception because of zuper.call() or unexpected exception in sky-walking ( This is a
+     * bug, if anything triggers this condition ).
      */
     @RuntimeType
-    public Object intercept(@Origin Class<?> clazz, @AllArguments Object[] allArguments, @Origin Method method, @SuperCall Callable<?> zuper) throws Throwable {
+    public Object intercept(@Origin Class<?> clazz, @AllArguments Object[] allArguments, @Origin Method method,
+        @SuperCall Callable<?> zuper) throws Throwable {
         StaticMethodsAroundInterceptor interceptor = InterceptorInstanceLoader
-                .load(staticMethodsAroundInterceptorClassName, clazz.getClassLoader());
+            .load(staticMethodsAroundInterceptorClassName, clazz.getClassLoader());
 
-        StaticMethodInvokeContext interceptorContext = new StaticMethodInvokeContext(clazz,method.getName(), allArguments, method.getParameterTypes());
+        StaticMethodInvokeContext interceptorContext = new StaticMethodInvokeContext(clazz, method.getName(), allArguments, method.getParameterTypes());
         MethodInterceptResult result = new MethodInterceptResult();
         try {
             interceptor.beforeMethod(interceptorContext, result);
@@ -58,12 +61,11 @@ public class ClassStaticMethodsInterceptor {
             logger.error(t, "class[{}] before static method[{}] intercept failure", clazz, method.getName());
         }
 
-
         Object ret = null;
         try {
             if (!result.isContinue()) {
                 ret = result._ret();
-            }else {
+            } else {
                 ret = zuper.call();
             }
         } catch (Throwable t) {
@@ -77,7 +79,7 @@ public class ClassStaticMethodsInterceptor {
             try {
                 ret = interceptor.afterMethod(interceptorContext, ret);
             } catch (Throwable t) {
-                logger.error(t,"class[{}] after static method[{}] intercept failure:{}", clazz, method.getName(), t.getMessage());
+                logger.error(t, "class[{}] after static method[{}] intercept failure:{}", clazz, method.getName(), t.getMessage());
             }
         }
         return ret;

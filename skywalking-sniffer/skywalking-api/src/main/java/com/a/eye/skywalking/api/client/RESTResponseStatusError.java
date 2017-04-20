@@ -7,7 +7,7 @@ package com.a.eye.skywalking.api.client;
  * @author wusheng
  */
 class RESTResponseStatusError extends Exception {
-    RESTResponseStatusError(int responseCode){
+    RESTResponseStatusError(int responseCode) {
         super("Unexpected service response code: " + responseCode);
     }
 }

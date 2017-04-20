@@ -33,7 +33,7 @@ public class JedisConstructorWithShardInfoArgInterceptorTest {
     public void setUp() throws Exception {
         interceptor = new JedisConstructorWithShardInfoArgInterceptor();
 
-        when(invokeContext.allArguments()).thenReturn(new Object[]{new JedisShardInfo("127.0.0.1", 6379)});
+        when(invokeContext.allArguments()).thenReturn(new Object[] {new JedisShardInfo("127.0.0.1", 6379)});
     }
 
     @After

@@ -11,14 +11,13 @@ import java.io.IOException;
  */
 public class NodeCompIndex extends AbstractIndex {
 
-    public static final String Index = "node_comp_idx";
-
-    public static final String Name = "name";
-    public static final String Peers = "peers";
+    public static final String INDEX = "node_comp_idx";
+    public static final String NAME = "name";
+    public static final String PEERS = "peers";
 
     @Override
     public String index() {
-        return Index;
+        return INDEX;
     }
 
     @Override
@@ -29,22 +28,22 @@ public class NodeCompIndex extends AbstractIndex {
     @Override
     public XContentBuilder createMappingBuilder() throws IOException {
         XContentBuilder mappingBuilder = XContentFactory.jsonBuilder()
-                .startObject()
-                    .startObject("properties")
-                        .startObject(Name)
-                            .field("type", "string")
-                            .field("index", "not_analyzed")
-                        .endObject()
-                        .startObject(Peers)
-                            .field("type", "string")
-                            .field("index", "not_analyzed")
-                        .endObject()
-                        .startObject(AGG_COLUMN)
-                            .field("type", "string")
-                            .field("index", "not_analyzed")
-                        .endObject()
-                    .endObject()
-                .endObject();
+            .startObject()
+            .startObject("properties")
+            .startObject(NAME)
+            .field("type", "string")
+            .field("index", "not_analyzed")
+            .endObject()
+            .startObject(PEERS)
+            .field("type", "string")
+            .field("index", "not_analyzed")
+            .endObject()
+            .startObject(AGG_COLUMN)
+            .field("type", "string")
+            .field("index", "not_analyzed")
+            .endObject()
+            .endObject()
+            .endObject();
         return mappingBuilder;
     }
 }

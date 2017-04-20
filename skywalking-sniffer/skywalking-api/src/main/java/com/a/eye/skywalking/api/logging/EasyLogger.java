@@ -10,7 +10,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import static com.a.eye.skywalking.api.conf.Config.Logging.LEVEL;
-import static com.a.eye.skywalking.api.logging.LogLevel.*;
+import static com.a.eye.skywalking.api.logging.LogLevel.DEBUG;
+import static com.a.eye.skywalking.api.logging.LogLevel.ERROR;
+import static com.a.eye.skywalking.api.logging.LogLevel.INFO;
+import static com.a.eye.skywalking.api.logging.LogLevel.WARN;
 
 /**
  * The <code>EasyLogger</code> is a simple implementation of {@link ILog}.

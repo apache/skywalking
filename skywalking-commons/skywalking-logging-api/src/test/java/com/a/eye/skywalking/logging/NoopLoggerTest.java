@@ -1,4 +1,5 @@
 package com.a.eye.skywalking.logging;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -9,7 +10,7 @@ import static com.a.eye.skywalking.logging.NoopLogger.INSTANCE;
  */
 public class NoopLoggerTest {
     @Test
-    public void testOnNothing(){
+    public void testOnNothing() {
         Assert.assertFalse(INSTANCE.isDebugEnable());
         Assert.assertFalse(INSTANCE.isInfoEnable());
         Assert.assertFalse(INSTANCE.isErrorEnable());

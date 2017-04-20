@@ -128,7 +128,7 @@ public class NodeRefResSumGetGroupWithTimeSliceTestCase {
 
         @Override
         public Object answer(InvocationOnMock invocation) throws Throwable {
-            NodeRefResSumGroupWithTimeSlice.RequestEntity requestEntity = (NodeRefResSumGroupWithTimeSlice.RequestEntity) invocation.getArguments()[0];
+            NodeRefResSumGroupWithTimeSlice.RequestEntity requestEntity = (NodeRefResSumGroupWithTimeSlice.RequestEntity)invocation.getArguments()[0];
             Assert.assertEquals(100L, requestEntity.getStartTime());
             Assert.assertEquals(200L, requestEntity.getEndTime());
             Assert.assertEquals("minute", requestEntity.getSliceType());

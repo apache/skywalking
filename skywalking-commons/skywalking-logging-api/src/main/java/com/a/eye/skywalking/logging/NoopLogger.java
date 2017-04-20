@@ -1,6 +1,5 @@
 package com.a.eye.skywalking.logging;
 
-
 /**
  * No operation logger implementation.
  * Just implement {@link ILog} interface, but do nothing.

@@ -44,7 +44,7 @@ public class PostWithHttpServletTestCase {
         doAnswer(new Answer() {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
-                Integer status = (Integer) invocation.getArguments()[0];
+                Integer status = (Integer)invocation.getArguments()[0];
                 System.out.println(status);
                 Assert.assertEquals(new Integer(200), status);
                 return null;
@@ -54,19 +54,17 @@ public class PostWithHttpServletTestCase {
         doAnswer(new Answer() {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
-                String reqStr = (String) invocation.getArguments()[0];
+                String reqStr = (String)invocation.getArguments()[0];
                 System.out.println(reqStr);
                 Assert.assertEquals("TestTest2", reqStr);
                 return null;
             }
         }).when(workerRef).tell(anyString());
 
-
         BufferedReader bufferedReader = mock(BufferedReader.class);
         when(bufferedReader.readLine()).thenReturn("Test").thenReturn("Test2").thenReturn(null);
 
         when(request.getReader()).thenReturn(bufferedReader);
-
 
         servlet.doPost(request, response);
     }
@@ -76,7 +74,7 @@ public class PostWithHttpServletTestCase {
         doAnswer(new Answer() {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
-                Integer status = (Integer) invocation.getArguments()[0];
+                Integer status = (Integer)invocation.getArguments()[0];
                 System.out.println(status);
                 Assert.assertEquals(new Integer(500), status);
                 return null;

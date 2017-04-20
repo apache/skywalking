@@ -19,7 +19,7 @@ public class RecordDataAnswer implements Answer<Object> {
 
     @Override
     public Object answer(InvocationOnMock invocation) throws Throwable {
-        RecordData recordData = (RecordData) invocation.getArguments()[0];
+        RecordData recordData = (RecordData)invocation.getArguments()[0];
         System.out.printf("id: %s \n", recordData.getId());
         System.out.println(recordData.getRecord().toString());
 

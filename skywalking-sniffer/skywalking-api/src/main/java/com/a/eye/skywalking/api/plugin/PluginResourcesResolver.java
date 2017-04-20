@@ -16,7 +16,7 @@ import java.util.List;
  * @author wusheng
  */
 public class PluginResourcesResolver {
-    private static ILog logger = LogManager.getLogger(PluginResourcesResolver.class);
+    private static final ILog logger = LogManager.getLogger(PluginResourcesResolver.class);
 
     public List<URL> getResources() {
         List<URL> cfgUrlPaths = new ArrayList<URL>();

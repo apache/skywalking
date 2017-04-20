@@ -14,12 +14,12 @@ import org.junit.Test;
  */
 public class ContextManagerTestCase {
     @BeforeClass
-    public static void setup(){
+    public static void setup() {
         ServiceManager.INSTANCE.boot();
     }
 
     @Test
-    public void testDelegateToTracerContext(){
+    public void testDelegateToTracerContext() {
         Span span = ContextManager.createSpan("serviceA");
         Tags.COMPONENT.set(span, "test");
 
@@ -34,7 +34,7 @@ public class ContextManagerTestCase {
     }
 
     @After
-    public void reset(){
+    public void reset() {
         TracerContext.ListenerManager.remove(TestTracerContextListener.INSTANCE);
     }
 }

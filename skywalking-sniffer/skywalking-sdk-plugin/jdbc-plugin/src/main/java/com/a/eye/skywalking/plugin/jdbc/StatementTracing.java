@@ -1,6 +1,5 @@
 package com.a.eye.skywalking.plugin.jdbc;
 
-
 import com.a.eye.skywalking.api.context.ContextManager;
 import com.a.eye.skywalking.api.util.StringUtil;
 import com.a.eye.skywalking.trace.Span;
@@ -18,8 +17,8 @@ import java.sql.SQLException;
  */
 public class StatementTracing {
     public static <R> R execute(java.sql.Statement realStatement,
-                                ConnectionInfo connectInfo, String method, String sql, Executable<R> exec)
-            throws SQLException {
+        ConnectionInfo connectInfo, String method, String sql, Executable<R> exec)
+        throws SQLException {
         try {
             Span span = ContextManager.createSpan(connectInfo.getDBType() + "/JDBI/Statement/" + method);
             Tags.DB_TYPE.set(span, "sql");
@@ -47,6 +46,6 @@ public class StatementTracing {
 
     public interface Executable<R> {
         R exe(java.sql.Statement realStatement, String sql)
-                throws SQLException;
+            throws SQLException;
     }
 }

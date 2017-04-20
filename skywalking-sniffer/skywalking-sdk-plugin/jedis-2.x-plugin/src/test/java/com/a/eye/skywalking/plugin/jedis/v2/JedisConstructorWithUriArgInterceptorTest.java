@@ -36,9 +36,8 @@ public class JedisConstructorWithUriArgInterceptorTest {
     public void setUp() throws Exception {
         interceptor = new JedisConstructorWithUriArgInterceptor();
 
-        when(invokeContext.allArguments()).thenReturn(new Object[]{uri});
+        when(invokeContext.allArguments()).thenReturn(new Object[] {uri});
     }
-
 
     @Test
     public void onConstruct() throws Exception {

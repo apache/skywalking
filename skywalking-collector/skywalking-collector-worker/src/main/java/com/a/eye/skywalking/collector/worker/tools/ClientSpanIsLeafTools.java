@@ -11,8 +11,7 @@ import java.util.List;
  * @author pengys5
  */
 public class ClientSpanIsLeafTools {
-
-    private static Logger logger = LogManager.getFormatterLogger(ClientSpanIsLeafTools.class);
+    private static final Logger logger = LogManager.getFormatterLogger(ClientSpanIsLeafTools.class);
 
     public static boolean isLeaf(int spanId, List<Span> spanList) {
         boolean isLeaf = true;

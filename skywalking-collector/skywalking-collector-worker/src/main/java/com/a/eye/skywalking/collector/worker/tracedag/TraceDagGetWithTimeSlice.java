@@ -46,7 +46,7 @@ public class TraceDagGetWithTimeSlice extends AbstractGet {
             throw new IllegalArgumentException("the request parameter must contains startTime,endTime,timeSliceType");
         }
         logger.debug("startTime: %s, endTime: %s, timeSliceType: %s", Arrays.toString(request.get("startTime")),
-                Arrays.toString(request.get("endTime")), Arrays.toString(request.get("timeSliceType")));
+            Arrays.toString(request.get("endTime")), Arrays.toString(request.get("timeSliceType")));
 
         long startTime;
         try {
@@ -80,7 +80,7 @@ public class TraceDagGetWithTimeSlice extends AbstractGet {
         getSelfContext().lookup(NodeRefResSumSearchWithTimeSlice.WorkerRole.INSTANCE).ask(resSumEntity, resSumResponse);
 
         JsonObject result = getBuilder().build(compResponse.get(Const.RESULT).getAsJsonArray(), nodeMappingResponse.get(Const.RESULT).getAsJsonArray(),
-                nodeRefResponse.get(Const.RESULT).getAsJsonArray(), resSumResponse.get(Const.RESULT).getAsJsonArray());
+            nodeRefResponse.get(Const.RESULT).getAsJsonArray(), resSumResponse.get(Const.RESULT).getAsJsonArray());
 
         response.add(Const.RESULT, result);
     }

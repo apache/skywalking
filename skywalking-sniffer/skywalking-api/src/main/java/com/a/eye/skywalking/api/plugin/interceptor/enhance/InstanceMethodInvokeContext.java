@@ -10,12 +10,11 @@ public class InstanceMethodInvokeContext extends MethodInvokeContext {
     private Object objInst;
 
     InstanceMethodInvokeContext(Object objInst, String methodName, Object[] allArguments, Class<?>[] argumentsTypes) {
-        super(methodName, allArguments,argumentsTypes);
+        super(methodName, allArguments, argumentsTypes);
         this.objInst = objInst;
     }
 
     /**
-     *
      * @return the target instance's ref.
      */
     public Object inst() {

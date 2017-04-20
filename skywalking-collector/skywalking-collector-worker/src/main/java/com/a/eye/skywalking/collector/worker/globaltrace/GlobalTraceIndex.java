@@ -11,13 +11,12 @@ import java.io.IOException;
  */
 public class GlobalTraceIndex extends AbstractIndex {
 
-    public static final String Index = "global_trace_idx";
-    public static final String SubSegIds = "subSegIds";
-
+    public static final String INDEX = "global_trace_idx";
+    public static final String SUB_SEG_IDS = "subSegIds";
 
     @Override
     public String index() {
-        return Index;
+        return INDEX;
     }
 
     @Override
@@ -28,14 +27,14 @@ public class GlobalTraceIndex extends AbstractIndex {
     @Override
     public XContentBuilder createMappingBuilder() throws IOException {
         XContentBuilder mappingBuilder = XContentFactory.jsonBuilder()
-                .startObject()
-                    .startObject("properties")
-                        .startObject(SubSegIds)
-                            .field("type", "text")
-                            .field("index", "not_analyzed")
-                        .endObject()
-                    .endObject()
-                .endObject();
+            .startObject()
+            .startObject("properties")
+            .startObject(SUB_SEG_IDS)
+            .field("type", "text")
+            .field("index", "not_analyzed")
+            .endObject()
+            .endObject()
+            .endObject();
         return mappingBuilder;
     }
 }

@@ -29,14 +29,14 @@ public class GlobalTraceAnalysis extends MergeAnalysisMember {
     @Override
     public void analyse(Object message) throws Exception {
         if (message instanceof SegmentPost.SegmentWithTimeSlice) {
-            SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice = (SegmentPost.SegmentWithTimeSlice) message;
+            SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice = (SegmentPost.SegmentWithTimeSlice)message;
             TraceSegment segment = segmentWithTimeSlice.getTraceSegment();
             String subSegmentId = segment.getTraceSegmentId();
             List<DistributedTraceId> globalTraceIdList = segment.getRelatedGlobalTraces();
             if (CollectionTools.isNotEmpty(globalTraceIdList)) {
                 for (DistributedTraceId disTraceId : globalTraceIdList) {
                     String traceId = disTraceId.get();
-                    setMergeData(traceId, GlobalTraceIndex.SubSegIds, subSegmentId);
+                    setMergeData(traceId, GlobalTraceIndex.SUB_SEG_IDS, subSegmentId);
                 }
             }
         }
@@ -65,7 +65,7 @@ public class GlobalTraceAnalysis extends MergeAnalysisMember {
 
         @Override
         public int queueSize() {
-            return WorkerConfig.Queue.GlobalTrace.GlobalTraceAnalysis.Size;
+            return WorkerConfig.Queue.GlobalTrace.GlobalTraceAnalysis.SIZE;
         }
     }
 

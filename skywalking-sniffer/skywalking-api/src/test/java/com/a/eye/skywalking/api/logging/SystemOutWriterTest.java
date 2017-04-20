@@ -16,22 +16,22 @@ public class SystemOutWriterTest {
     private static PrintStream outRef;
 
     @BeforeClass
-    public static void initAndHoldOut(){
+    public static void initAndHoldOut() {
         outRef = System.out;
     }
 
     @Test
-    public void testWrite(){
+    public void testWrite() {
         PrintStream mockStream = Mockito.mock(PrintStream.class);
         System.setOut(mockStream);
 
         SystemOutWriter.INSTANCE.write("hello");
 
-        Mockito.verify(mockStream,times(1)).println(anyString());
+        Mockito.verify(mockStream, times(1)).println(anyString());
     }
 
     @AfterClass
-    public static void reset(){
+    public static void reset() {
         System.setOut(outRef);
     }
 }

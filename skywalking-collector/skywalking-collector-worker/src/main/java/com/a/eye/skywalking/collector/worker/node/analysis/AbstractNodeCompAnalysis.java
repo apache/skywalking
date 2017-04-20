@@ -23,7 +23,8 @@ abstract class AbstractNodeCompAnalysis extends RecordAnalysisMember {
 
     private Logger logger = LogManager.getFormatterLogger(AbstractNodeCompAnalysis.class);
 
-    AbstractNodeCompAnalysis(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    AbstractNodeCompAnalysis(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext,
+        LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
@@ -32,23 +33,23 @@ abstract class AbstractNodeCompAnalysis extends RecordAnalysisMember {
         logger.debug("node analysis span isNotEmpty %s", CollectionTools.isNotEmpty(spanList));
 
         if (CollectionTools.isNotEmpty(spanList)) {
-            logger.debug("node analysis span list size: %s", spanList.size());
+            logger.debug("node analysis span list SIZE: %s", spanList.size());
             for (Span span : spanList) {
                 String kind = Tags.SPAN_KIND.get(span);
                 if (Tags.SPAN_KIND_CLIENT.equals(kind) && ClientSpanIsLeafTools.isLeaf(span.getSpanId(), spanList)) {
                     String peers = SpanPeersTools.INSTANCE.getPeers(span);
 
                     JsonObject compJsonObj = new JsonObject();
-                    compJsonObj.addProperty(NodeCompIndex.Peers, peers);
-                    compJsonObj.addProperty(NodeCompIndex.Name, Tags.COMPONENT.get(span));
+                    compJsonObj.addProperty(NodeCompIndex.PEERS, peers);
+                    compJsonObj.addProperty(NodeCompIndex.NAME, Tags.COMPONENT.get(span));
 
                     setRecord(peers, compJsonObj);
                 } else if (Tags.SPAN_KIND_SERVER.equals(kind) && span.getParentSpanId() == -1) {
                     String peers = segment.getApplicationCode();
 
                     JsonObject compJsonObj = new JsonObject();
-                    compJsonObj.addProperty(NodeCompIndex.Peers, peers);
-                    compJsonObj.addProperty(NodeCompIndex.Name, Tags.COMPONENT.get(span));
+                    compJsonObj.addProperty(NodeCompIndex.PEERS, peers);
+                    compJsonObj.addProperty(NodeCompIndex.NAME, Tags.COMPONENT.get(span));
 
                     setRecord(peers, compJsonObj);
                 } else {

@@ -1,6 +1,5 @@
 package com.a.eye.skywalking.plugin.httpClient.v4.define;
 
-
 import com.a.eye.skywalking.api.plugin.interceptor.InstanceMethodsInterceptPoint;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -30,16 +29,18 @@ public class MinimalHttpClientInstrumentation extends HttpClientInstrumentation 
 
     @Override
     protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{new InstanceMethodsInterceptPoint() {
-            @Override
-            public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                return named("doExecute");
-            }
+        return new InstanceMethodsInterceptPoint[] {
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named("doExecute");
+                }
 
-            @Override
-            public String getMethodsInterceptor() {
-                return getInstanceMethodsInterceptor();
+                @Override
+                public String getMethodsInterceptor() {
+                    return getInstanceMethodsInterceptor();
+                }
             }
-        }};
+        };
     }
 }

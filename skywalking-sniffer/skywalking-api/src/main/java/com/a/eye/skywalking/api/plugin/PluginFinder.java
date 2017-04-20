@@ -30,10 +30,10 @@ public class PluginFinder {
             return pluginDefineMap.get(enhanceClassName);
         }
 
-       throw new PluginException("Can not find plugin:" + enhanceClassName);
+        throw new PluginException("Can not find plugin:" + enhanceClassName);
     }
 
-    public boolean exist(String enhanceClassName){
+    public boolean exist(String enhanceClassName) {
         return pluginDefineMap.containsKey(enhanceClassName);
     }
 }

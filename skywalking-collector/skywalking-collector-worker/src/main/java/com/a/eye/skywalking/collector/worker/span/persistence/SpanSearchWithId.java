@@ -29,8 +29,8 @@ public class SpanSearchWithId extends AbstractLocalSyncWorker {
     @Override
     protected void onWork(Object request, Object response) throws Exception {
         if (request instanceof RequestEntity) {
-            RequestEntity search = (RequestEntity) request;
-            GetResponse getResponse = GetResponseFromEs.INSTANCE.get(SegmentIndex.Index, SegmentIndex.Type_Record, search.segId);
+            RequestEntity search = (RequestEntity)request;
+            GetResponse getResponse = GetResponseFromEs.INSTANCE.get(SegmentIndex.INDEX, SegmentIndex.TYPE_RECORD, search.segId);
             Segment segment = SegmentDeserialize.INSTANCE.deserializeFromES(getResponse.getSourceAsString());
             List<Span> spanList = segment.getSpans();
 
@@ -44,7 +44,7 @@ public class SpanSearchWithId extends AbstractLocalSyncWorker {
                 }
             }
 
-            JsonObject resJsonObj = (JsonObject) response;
+            JsonObject resJsonObj = (JsonObject)response;
             resJsonObj.add(Const.RESULT, dataJson);
         }
     }

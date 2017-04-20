@@ -19,7 +19,7 @@ public class MetricDataAnswer implements Answer<Object> {
 
     @Override
     public Object answer(InvocationOnMock invocation) throws Throwable {
-        MetricData metricData = (MetricData) invocation.getArguments()[0];
+        MetricData metricData = (MetricData)invocation.getArguments()[0];
 
         System.out.printf("id: %s \n", metricData.getId());
         metricDataList.add(metricData);

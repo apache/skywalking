@@ -10,8 +10,9 @@ import com.a.eye.skywalking.sniffer.mock.trace.builders.trace.TomcatDubboClientT
 import com.a.eye.skywalking.trace.TraceSegment;
 
 /**
- * The <code>TraceSegmentBuilderFactory</code> contains all {@link TraceSegmentBuilder} implementations.
- * All the implementations can build a true {@link TraceSegment} object, and contain all necessary spans, with all tags/events, all refs.
+ * The <code>TraceSegmentBuilderFactory</code> contains all {@link TraceSegmentBuilder} implementations. All the
+ * implementations can build a true {@link TraceSegment} object, and contain all necessary spans, with all tags/events,
+ * all refs.
  *
  * Created by wusheng on 2017/2/20.
  */
@@ -20,32 +21,29 @@ public enum TraceSegmentBuilderFactory {
 
     /**
      * @see {@link SingleTomcat200TraceBuilder}
-     *
      */
-    public TraceSegment singleTomcat200Trace(){
-       return this.build(SingleTomcat200TraceBuilder.INSTANCE);
+    public TraceSegment singleTomcat200Trace() {
+        return this.build(SingleTomcat200TraceBuilder.INSTANCE);
     }
 
     /**
      * @see {@link SingleTomcat404TraceBuilder}
-     *
      */
-    public TraceSegment singleTomcat404Trace(){
+    public TraceSegment singleTomcat404Trace() {
         return this.build(SingleTomcat404TraceBuilder.INSTANCE);
     }
 
     /**
      * @see {@link SingleTomcat500TraceBuilder}
-     *
      */
-    public TraceSegment singleTomcat500Trace(){
+    public TraceSegment singleTomcat500Trace() {
         return this.build(SingleTomcat500TraceBuilder.INSTANCE);
     }
 
     /**
      * @see {@link TomcatDubboClientTraceBuilder}
      */
-    public TraceSegment traceOf_Tomcat_DubboClient(){
+    public TraceSegment traceOf_Tomcat_DubboClient() {
         return this.build(TomcatDubboClientTraceBuilder.INSTANCE);
     }
 
@@ -56,12 +54,12 @@ public enum TraceSegmentBuilderFactory {
         return this.build(DubboServerMysqlTraceBuilder.INSTANCE);
     }
 
-    private TraceSegment build(TraceSegmentBuilder builder){
+    private TraceSegment build(TraceSegmentBuilder builder) {
         MockTracerContextListener listener = new MockTracerContextListener();
-        try{
+        try {
             TracerContext.ListenerManager.add(listener);
             return builder.build(listener);
-        }finally{
+        } finally {
             TracerContext.ListenerManager.remove(listener);
         }
     }

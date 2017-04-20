@@ -23,31 +23,33 @@ import static net.bytebuddy.matcher.ElementMatchers.isStatic;
 import static net.bytebuddy.matcher.ElementMatchers.not;
 
 /**
- * This class controls all enhance operations, including enhance constructors, instance methods and static methods.
- * All the enhances base on three types interceptor point: {@link ConstructorInterceptPoint}, {@link InstanceMethodsInterceptPoint} and {@link StaticMethodsInterceptPoint}
- * If plugin is going to enhance constructors, instance methods, or both,
- * {@link ClassEnhancePluginDefine} will add a field of {@link com.a.eye.skywalking.api.plugin.interceptor.EnhancedClassInstanceContext} type.
+ * This class controls all enhance operations, including enhance constructors, instance methods and static methods. All
+ * the enhances base on three types interceptor point: {@link ConstructorInterceptPoint}, {@link
+ * InstanceMethodsInterceptPoint} and {@link StaticMethodsInterceptPoint} If plugin is going to enhance constructors,
+ * instance methods, or both, {@link ClassEnhancePluginDefine} will add a field of {@link
+ * com.a.eye.skywalking.api.plugin.interceptor.EnhancedClassInstanceContext} type.
  *
  * @author wusheng
  */
 public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePluginDefine {
-    private static ILog logger = LogManager.getLogger(ClassEnhancePluginDefine.class);
+    private static final ILog logger = LogManager.getLogger(ClassEnhancePluginDefine.class);
 
     /**
      * New field name.
      */
-    public static final String contextAttrName = "_$EnhancedClassInstanceContext";
+    public static final String CONTEXT_ATTR_NAME = "_$EnhancedClassInstanceContext";
 
     /**
      * Begin to define how to enhance class.
      * After invoke this method, only means definition is finished.
      *
      * @param enhanceOriginClassName target class name
-     * @param newClassBuilder        byte-buddy's builder to manipulate class bytecode.
+     * @param newClassBuilder byte-buddy's builder to manipulate class bytecode.
      * @return new byte-buddy's builder for further manipulation.
      */
     @Override
-    protected DynamicType.Builder<?> enhance(String enhanceOriginClassName, DynamicType.Builder<?> newClassBuilder) throws PluginException {
+    protected DynamicType.Builder<?> enhance(String enhanceOriginClassName,
+        DynamicType.Builder<?> newClassBuilder) throws PluginException {
         newClassBuilder = this.enhanceClass(enhanceOriginClassName, newClassBuilder);
 
         newClassBuilder = this.enhanceInstance(enhanceOriginClassName, newClassBuilder);
@@ -59,10 +61,11 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
      * Enhance a class to intercept constructors and class instance methods.
      *
      * @param enhanceOriginClassName target class name
-     * @param newClassBuilder        byte-buddy's builder to manipulate class bytecode.
+     * @param newClassBuilder byte-buddy's builder to manipulate class bytecode.
      * @return new byte-buddy's builder for further manipulation.
      */
-    private DynamicType.Builder<?> enhanceInstance(String enhanceOriginClassName, DynamicType.Builder<?> newClassBuilder) throws PluginException {
+    private DynamicType.Builder<?> enhanceInstance(String enhanceOriginClassName,
+        DynamicType.Builder<?> newClassBuilder) throws PluginException {
         ConstructorInterceptPoint[] constructorInterceptPoints = getConstructorsInterceptPoints();
         InstanceMethodsInterceptPoint[] instanceMethodsInterceptPoints = getInstanceMethodsInterceptPoints();
 
@@ -82,7 +85,6 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
             return newClassBuilder;
         }
 
-
         /**
          * alter class source code.<br/>
          *
@@ -91,22 +93,21 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
          * EnhancedClassInstanceContext <br/>
          *
          */
-        newClassBuilder = newClassBuilder.defineField(contextAttrName, EnhancedClassInstanceContext.class, ACC_PRIVATE);
+        newClassBuilder = newClassBuilder.defineField(CONTEXT_ATTR_NAME, EnhancedClassInstanceContext.class, ACC_PRIVATE);
 
         /**
          * 2. enhance constructors
          */
         newClassBuilder = newClassBuilder.constructor(ElementMatchers.<MethodDescription>any()).intercept(SuperMethodCall.INSTANCE
-                .andThen(MethodDelegation.to(new DefaultClassConstructorInterceptor()).appendParameterBinder(FieldProxy.Binder.install(FieldGetter.class, FieldSetter.class))));
+            .andThen(MethodDelegation.to(new DefaultClassConstructorInterceptor()).appendParameterBinder(FieldProxy.Binder.install(FieldGetter.class, FieldSetter.class))));
 
         if (existedConstructorInterceptPoint) {
             for (ConstructorInterceptPoint constructorInterceptPoint : constructorInterceptPoints) {
                 newClassBuilder = newClassBuilder.constructor(constructorInterceptPoint.getConstructorMatcher()).intercept(SuperMethodCall.INSTANCE.andThen(
-                        MethodDelegation.to(new ClassConstructorInterceptor(constructorInterceptPoint.getConstructorInterceptor()))
-                                .appendParameterBinder(FieldProxy.Binder.install(FieldGetter.class, FieldSetter.class))));
+                    MethodDelegation.to(new ClassConstructorInterceptor(constructorInterceptPoint.getConstructorInterceptor()))
+                        .appendParameterBinder(FieldProxy.Binder.install(FieldGetter.class, FieldSetter.class))));
             }
         }
-
 
         /**
          * 3. enhance instance methods
@@ -121,7 +122,7 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
                 ClassInstanceMethodsInterceptor classMethodInterceptor = new ClassInstanceMethodsInterceptor(interceptor);
 
                 newClassBuilder =
-                        newClassBuilder.method(not(isStatic()).and(instanceMethodsInterceptPoint.getMethodsMatcher())).intercept(MethodDelegation.to(classMethodInterceptor));
+                    newClassBuilder.method(not(isStatic()).and(instanceMethodsInterceptPoint.getMethodsMatcher())).intercept(MethodDelegation.to(classMethodInterceptor));
             }
         }
 
@@ -142,15 +143,15 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
      */
     protected abstract InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints();
 
-
     /**
      * Enhance a class to intercept class static methods.
      *
      * @param enhanceOriginClassName target class name
-     * @param newClassBuilder        byte-buddy's builder to manipulate class bytecode.
+     * @param newClassBuilder byte-buddy's builder to manipulate class bytecode.
      * @return new byte-buddy's builder for further manipulation.
      */
-    private DynamicType.Builder<?> enhanceClass(String enhanceOriginClassName, DynamicType.Builder<?> newClassBuilder) throws PluginException {
+    private DynamicType.Builder<?> enhanceClass(String enhanceOriginClassName,
+        DynamicType.Builder<?> newClassBuilder) throws PluginException {
         StaticMethodsInterceptPoint[] staticMethodsInterceptPoints = getStaticMethodsInterceptPoints();
 
         if (staticMethodsInterceptPoints == null || staticMethodsInterceptPoints.length == 0) {

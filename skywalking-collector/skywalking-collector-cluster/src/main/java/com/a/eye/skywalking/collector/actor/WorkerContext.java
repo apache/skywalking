@@ -20,8 +20,7 @@ public abstract class WorkerContext implements Context {
         return this.roleWorkers;
     }
 
-    @Override
-    final public WorkerRefs lookup(Role role) throws WorkerNotFoundException {
+    @Override final public WorkerRefs lookup(Role role) throws WorkerNotFoundException {
         if (getRoleWorkers().containsKey(role.roleName())) {
             WorkerRefs refs = new WorkerRefs(getRoleWorkers().get(role.roleName()), role.workerSelector());
             return refs;
@@ -30,16 +29,14 @@ public abstract class WorkerContext implements Context {
         }
     }
 
-    @Override
-    final public void put(WorkerRef workerRef) {
+    @Override final public void put(WorkerRef workerRef) {
         if (!getRoleWorkers().containsKey(workerRef.getRole().roleName())) {
             getRoleWorkers().putIfAbsent(workerRef.getRole().roleName(), new ArrayList<WorkerRef>());
         }
         getRoleWorkers().get(workerRef.getRole().roleName()).add(workerRef);
     }
 
-    @Override
-    final public void remove(WorkerRef workerRef) {
+    @Override final public void remove(WorkerRef workerRef) {
         getRoleWorkers().remove(workerRef.getRole().roleName());
     }
 }

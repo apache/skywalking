@@ -25,20 +25,23 @@ public class TraceContextActivation extends ClassStaticMethodsEnhancePluginDefin
     }
 
     /**
-     * @return the collection of {@link StaticMethodsInterceptPoint}, represent the intercepted methods and their interceptors.
+     * @return the collection of {@link StaticMethodsInterceptPoint}, represent the intercepted methods and their
+     * interceptors.
      */
     @Override
     protected StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
-        return new StaticMethodsInterceptPoint[] {new StaticMethodsInterceptPoint() {
-            @Override
-            public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                return named("traceId");
-            }
+        return new StaticMethodsInterceptPoint[] {
+            new StaticMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named("traceId");
+                }
 
-            @Override
-            public String getMethodsInterceptor() {
-                return "com.a.eye.skywalking.toolkit.activation.trace.TraceContextInterceptor";
+                @Override
+                public String getMethodsInterceptor() {
+                    return "com.a.eye.skywalking.toolkit.activation.trace.TraceContextInterceptor";
+                }
             }
-        }};
+        };
     }
 }

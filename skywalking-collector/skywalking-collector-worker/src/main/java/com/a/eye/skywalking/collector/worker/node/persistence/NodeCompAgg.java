@@ -11,7 +11,8 @@ import com.a.eye.skywalking.collector.worker.storage.RecordData;
  */
 public class NodeCompAgg extends AbstractClusterWorker {
 
-    NodeCompAgg(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    NodeCompAgg(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext,
+        LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
@@ -24,7 +25,8 @@ public class NodeCompAgg extends AbstractClusterWorker {
     protected void onWork(Object message) throws Exception {
         if (message instanceof RecordData) {
             getSelfContext().lookup(NodeCompSave.Role.INSTANCE).tell(message);
-        } else throw new IllegalArgumentException("message instance must RecordData");
+        } else
+            throw new IllegalArgumentException("message instance must RecordData");
     }
 
     public static class Factory extends AbstractClusterWorkerProvider<NodeCompAgg> {
@@ -42,7 +44,7 @@ public class NodeCompAgg extends AbstractClusterWorker {
 
         @Override
         public int workerNum() {
-            return WorkerConfig.WorkerNum.Node.NodeCompAgg.Value;
+            return WorkerConfig.WorkerNum.Node.NodeCompAgg.VALUE;
         }
     }
 

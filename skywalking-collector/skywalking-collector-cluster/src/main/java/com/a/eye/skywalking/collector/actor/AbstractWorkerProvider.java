@@ -11,7 +11,8 @@ public abstract class AbstractWorkerProvider<T extends AbstractWorker> implement
 
     public abstract T workerInstance(ClusterWorkerContext clusterContext);
 
-    public abstract WorkerRef onCreate(LocalWorkerContext localContext) throws IllegalArgumentException, ProviderNotFoundException;
+    public abstract WorkerRef onCreate(
+        LocalWorkerContext localContext) throws IllegalArgumentException, ProviderNotFoundException;
 
     final public void setClusterContext(ClusterWorkerContext clusterContext) {
         this.clusterContext = clusterContext;
@@ -21,7 +22,8 @@ public abstract class AbstractWorkerProvider<T extends AbstractWorker> implement
         return clusterContext;
     }
 
-    final public WorkerRef create(AbstractWorker workerOwner) throws IllegalArgumentException, ProviderNotFoundException {
+    final public WorkerRef create(
+        AbstractWorker workerOwner) throws IllegalArgumentException, ProviderNotFoundException {
         if (workerInstance(clusterContext) == null) {
             throw new IllegalArgumentException("cannot get worker instance with nothing obtained from workerInstance()");
         }
@@ -29,7 +31,7 @@ public abstract class AbstractWorkerProvider<T extends AbstractWorker> implement
         if (workerOwner == null) {
             return onCreate(null);
         } else if (workerOwner.getSelfContext() instanceof LocalWorkerContext) {
-            return onCreate((LocalWorkerContext) workerOwner.getSelfContext());
+            return onCreate((LocalWorkerContext)workerOwner.getSelfContext());
         } else {
             throw new IllegalArgumentException("the argument of workerOwner is Illegal");
         }

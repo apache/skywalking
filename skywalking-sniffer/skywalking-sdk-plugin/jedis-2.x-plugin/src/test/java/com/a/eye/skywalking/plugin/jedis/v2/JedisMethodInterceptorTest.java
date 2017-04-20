@@ -54,7 +54,7 @@ public class JedisMethodInterceptorTest {
         when(classInstanceContext.get(KEY_OF_REDIS_HOST, String.class)).thenReturn("127.0.0.1");
         when(classInstanceContext.get(KEY_OF_REDIS_PORT)).thenReturn(6379);
         when(methodInvokeContext.methodName()).thenReturn("set");
-        when(methodInvokeContext.allArguments()).thenReturn(new Object[]{"OperationKey"});
+        when(methodInvokeContext.allArguments()).thenReturn(new Object[] {"OperationKey"});
         when(classInstanceContext.isContain("__$invokeCounterKey")).thenReturn(true);
     }
 
@@ -112,7 +112,7 @@ public class JedisMethodInterceptorTest {
                 assertThat(traceSegment.getSpans().size(), is(1));
                 Span span = traceSegment.getSpans().get(0);
                 assertRedisSpan(span);
-                assertThat(span.getLogs().size(),is(1));
+                assertThat(span.getLogs().size(), is(1));
                 assertLogData(span.getLogs().get(0));
             }
         });
@@ -135,7 +135,7 @@ public class JedisMethodInterceptorTest {
         assertTrue(Tags.SPAN_LAYER.isDB(span));
     }
 
-    private void assertRedisSpan(Span span, String exceptedPeerHosts){
+    private void assertRedisSpan(Span span, String exceptedPeerHosts) {
         assertThat(span.getOperationName(), is("Jedis/set"));
         assertThat(Tags.PEERS.get(span), is(exceptedPeerHosts));
         assertThat(Tags.COMPONENT.get(span), is("Redis"));

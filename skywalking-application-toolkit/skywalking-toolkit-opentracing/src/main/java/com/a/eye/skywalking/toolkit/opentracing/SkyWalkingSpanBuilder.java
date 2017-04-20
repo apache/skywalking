@@ -25,7 +25,7 @@ public class SkyWalkingSpanBuilder implements Tracer.SpanBuilder {
 
     private SpanContext parentContext;
 
-    SkyWalkingSpanBuilder(String operationName){
+    SkyWalkingSpanBuilder(String operationName) {
         this.operationName = operationName;
         this.tags = new HashMap<String, String>();
     }
@@ -44,6 +44,7 @@ public class SkyWalkingSpanBuilder implements Tracer.SpanBuilder {
 
     /**
      * In SkyWalkingTracer, Parent Span will not be used. Tracer will build reference by itself.
+     *
      * @param span
      * @return
      */
@@ -94,7 +95,7 @@ public class SkyWalkingSpanBuilder implements Tracer.SpanBuilder {
 
     @Override
     public Span start() {
-        if (startTime == 0){
+        if (startTime == 0) {
             startTime = System.currentTimeMillis();
         }
         return new SkyWalkingSpan(this.operationName, this.startTime, this.tags);
@@ -103,7 +104,7 @@ public class SkyWalkingSpanBuilder implements Tracer.SpanBuilder {
     @Override
     public Iterable<Map.Entry<String, String>> baggageItems() {
         return parentContext == null
-                ? Collections.<String, String>emptyMap().entrySet()
-                : parentContext.baggageItems();
+            ? Collections.<String, String>emptyMap().entrySet()
+            : parentContext.baggageItems();
     }
 }

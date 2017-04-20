@@ -65,7 +65,7 @@ public class GlobalTraceAggTestCase {
         Assert.assertEquals(GlobalTraceAgg.class.getSimpleName(), GlobalTraceAgg.Factory.INSTANCE.workerInstance(null).getClass().getSimpleName());
 
         int testSize = 10;
-        WorkerConfig.WorkerNum.GlobalTrace.GlobalTraceAgg.Value = testSize;
+        WorkerConfig.WorkerNum.GlobalTrace.GlobalTraceAgg.VALUE = testSize;
         Assert.assertEquals(testSize, GlobalTraceAgg.Factory.INSTANCE.workerNum());
     }
 

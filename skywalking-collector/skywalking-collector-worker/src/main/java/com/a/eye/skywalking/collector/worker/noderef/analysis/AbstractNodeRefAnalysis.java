@@ -24,26 +24,28 @@ abstract class AbstractNodeRefAnalysis extends RecordAnalysisMember {
 
     private Logger logger = LogManager.getFormatterLogger(AbstractNodeRefAnalysis.class);
 
-    AbstractNodeRefAnalysis(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    AbstractNodeRefAnalysis(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext,
+        LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
-    final void analyseNodeRef(TraceSegment segment, long timeSlice, long minute, long hour, long day, int second) throws Exception {
+    final void analyseNodeRef(TraceSegment segment, long timeSlice, long minute, long hour, long day,
+        int second) throws Exception {
         List<Span> spanList = segment.getSpans();
         if (CollectionTools.isNotEmpty(spanList)) {
             for (Span span : spanList) {
                 JsonObject dataJsonObj = new JsonObject();
-                dataJsonObj.addProperty(NodeRefIndex.Time_Slice, timeSlice);
-                dataJsonObj.addProperty(NodeRefIndex.FrontIsRealCode, true);
-                dataJsonObj.addProperty(NodeRefIndex.BehindIsRealCode, true);
+                dataJsonObj.addProperty(NodeRefIndex.TIME_SLICE, timeSlice);
+                dataJsonObj.addProperty(NodeRefIndex.FRONT_IS_REAL_CODE, true);
+                dataJsonObj.addProperty(NodeRefIndex.BEHIND_IS_REAL_CODE, true);
 
                 if (Tags.SPAN_KIND_CLIENT.equals(Tags.SPAN_KIND.get(span)) && ClientSpanIsLeafTools.isLeaf(span.getSpanId(), spanList)) {
                     String front = segment.getApplicationCode();
-                    dataJsonObj.addProperty(NodeRefIndex.Front, front);
+                    dataJsonObj.addProperty(NodeRefIndex.FRONT, front);
 
                     String behind = SpanPeersTools.INSTANCE.getPeers(span);
-                    dataJsonObj.addProperty(NodeRefIndex.Behind, behind);
-                    dataJsonObj.addProperty(NodeRefIndex.BehindIsRealCode, false);
+                    dataJsonObj.addProperty(NodeRefIndex.BEHIND, behind);
+                    dataJsonObj.addProperty(NodeRefIndex.BEHIND_IS_REAL_CODE, false);
 
                     String id = timeSlice + Const.ID_SPLIT + front + Const.ID_SPLIT + behind;
                     logger.debug("dag node ref: %s", dataJsonObj.toString());
@@ -52,10 +54,10 @@ abstract class AbstractNodeRefAnalysis extends RecordAnalysisMember {
                 } else if (Tags.SPAN_KIND_SERVER.equals(Tags.SPAN_KIND.get(span))) {
                     if (span.getParentSpanId() == -1 && CollectionTools.isEmpty(segment.getRefs())) {
                         String behind = segment.getApplicationCode();
-                        dataJsonObj.addProperty(NodeRefIndex.Behind, behind);
+                        dataJsonObj.addProperty(NodeRefIndex.BEHIND, behind);
 
                         String front = Const.USER_CODE;
-                        dataJsonObj.addProperty(NodeRefIndex.Front, front);
+                        dataJsonObj.addProperty(NodeRefIndex.FRONT, front);
 
                         String id = timeSlice + Const.ID_SPLIT + front + Const.ID_SPLIT + behind;
                         setRecord(id, dataJsonObj);
@@ -66,7 +68,8 @@ abstract class AbstractNodeRefAnalysis extends RecordAnalysisMember {
         }
     }
 
-    private void buildNodeRefResRecordData(String nodeRefId, Span span, long minute, long hour, long day, int second) throws Exception {
+    private void buildNodeRefResRecordData(String nodeRefId, Span span, long minute, long hour, long day,
+        int second) throws Exception {
         AbstractNodeRefResSumAnalysis.NodeRefResRecord refResRecord = new AbstractNodeRefResSumAnalysis.NodeRefResRecord(minute, hour, day, second);
         refResRecord.setStartTime(span.getStartTime());
         refResRecord.setEndTime(span.getEndTime());
@@ -75,5 +78,6 @@ abstract class AbstractNodeRefAnalysis extends RecordAnalysisMember {
         sendToResSumAnalysis(refResRecord);
     }
 
-    protected abstract void sendToResSumAnalysis(AbstractNodeRefResSumAnalysis.NodeRefResRecord refResRecord) throws Exception;
+    protected abstract void sendToResSumAnalysis(
+        AbstractNodeRefResSumAnalysis.NodeRefResRecord refResRecord) throws Exception;
 }

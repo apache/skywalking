@@ -20,7 +20,7 @@ public class JsonSerializer extends JSerializer {
 
     @Override
     public byte[] toBinary(Object o) {
-        JsonObject jsonObject = (JsonObject) o;
+        JsonObject jsonObject = (JsonObject)o;
         return jsonObject.toString().getBytes();
     }
 

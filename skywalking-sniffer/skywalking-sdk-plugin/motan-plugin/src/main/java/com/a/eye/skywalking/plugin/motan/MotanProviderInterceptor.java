@@ -13,11 +13,11 @@ import com.weibo.api.motan.rpc.Request;
 import com.weibo.api.motan.rpc.Response;
 
 /**
- * Current trace segment will ref the trace segment if the serialized trace context that fetch
- * from {@link Request#getAttachments()} is not null.
+ * Current trace segment will ref the trace segment if the serialized trace context that fetch from {@link
+ * Request#getAttachments()} is not null.
  *
- * {@link MotanConsumerInterceptor} intercept all constructor of {@link com.weibo.api.motan.rpc.AbstractProvider} for record
- * the request url from consumer side.
+ * {@link MotanConsumerInterceptor} intercept all constructor of {@link com.weibo.api.motan.rpc.AbstractProvider} for
+ * record the request url from consumer side.
  *
  * @author zhangxin
  */
@@ -35,8 +35,8 @@ public class MotanProviderInterceptor implements InstanceMethodsAroundIntercepto
 
     @Override
     public void beforeMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
-                             MethodInterceptResult result) {
-        Request request = (Request) interceptorContext.allArguments()[0];
+        MethodInterceptResult result) {
+        Request request = (Request)interceptorContext.allArguments()[0];
         Span span = ContextManager.createSpan(generateViewPoint(request));
         Tags.COMPONENT.set(span, MOTAN_COMPONENT);
         Tags.SPAN_KIND.set(span, Tags.SPAN_KIND_SERVER);
@@ -50,8 +50,8 @@ public class MotanProviderInterceptor implements InstanceMethodsAroundIntercepto
 
     @Override
     public Object afterMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
-                              Object ret) {
-        Response response = (Response) ret;
+        Object ret) {
+        Response response = (Response)ret;
         if (response != null && response.getException() != null) {
             Span span = ContextManager.activeSpan();
             span.log(response.getException());
@@ -64,10 +64,9 @@ public class MotanProviderInterceptor implements InstanceMethodsAroundIntercepto
 
     @Override
     public void handleMethodException(Throwable t, EnhancedClassInstanceContext context,
-                                      InstanceMethodInvokeContext interceptorContext) {
+        InstanceMethodInvokeContext interceptorContext) {
         ContextManager.activeSpan().log(t);
     }
-
 
     private static String generateViewPoint(Request request) {
         StringBuilder viewPoint = new StringBuilder(request.getInterfaceName());

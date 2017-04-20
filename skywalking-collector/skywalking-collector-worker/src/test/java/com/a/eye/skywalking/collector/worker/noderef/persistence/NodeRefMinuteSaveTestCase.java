@@ -30,12 +30,12 @@ public class NodeRefMinuteSaveTestCase {
 
     @Test
     public void testEsIndex() {
-        Assert.assertEquals(NodeRefIndex.Index, save.esIndex());
+        Assert.assertEquals(NodeRefIndex.INDEX, save.esIndex());
     }
 
     @Test
     public void testEsType() {
-        Assert.assertEquals(NodeRefIndex.Type_Minute, save.esType());
+        Assert.assertEquals(NodeRefIndex.TYPE_MINUTE, save.esType());
     }
 
     @Test
@@ -50,7 +50,7 @@ public class NodeRefMinuteSaveTestCase {
         Assert.assertEquals(NodeRefMinuteSave.class.getSimpleName(), NodeRefMinuteSave.Factory.INSTANCE.workerInstance(null).getClass().getSimpleName());
 
         int testSize = 10;
-        WorkerConfig.Queue.NodeRef.NodeRefMinuteSave.Size = testSize;
+        WorkerConfig.Queue.NodeRef.NodeRefMinuteSave.SIZE = testSize;
         Assert.assertEquals(testSize, NodeRefMinuteSave.Factory.INSTANCE.queueSize());
     }
 }

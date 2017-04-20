@@ -63,7 +63,7 @@ public class HttpClientExecuteInterceptorTest {
 
         PowerMockito.mock(HttpHost.class);
         when(statusLine.getStatusCode()).thenReturn(200);
-        when(instanceMethodInvokeContext.allArguments()).thenReturn(new Object[]{httpHost, request});
+        when(instanceMethodInvokeContext.allArguments()).thenReturn(new Object[] {httpHost, request});
         when(httpResponse.getStatusLine()).thenReturn(statusLine);
         when(httpHost.getHostName()).thenReturn("127.0.0.1");
         when(httpHost.getSchemeName()).thenReturn("http");
@@ -103,7 +103,6 @@ public class HttpClientExecuteInterceptorTest {
             }
         });
     }
-
 
     @Test
     public void testStatusCodeNotEquals200() {
@@ -150,7 +149,6 @@ public class HttpClientExecuteInterceptorTest {
         });
 
     }
-
 
     private void assertHttpSpan(Span span) {
         assertThat(span.getOperationName(), is("/test-web/test"));

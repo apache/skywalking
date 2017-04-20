@@ -2,20 +2,25 @@ package com.a.eye.skywalking.collector;
 
 import akka.actor.ActorSystem;
 import akka.actor.Props;
-import com.a.eye.skywalking.collector.actor.*;
+import com.a.eye.skywalking.collector.actor.AbstractClusterWorkerProvider;
+import com.a.eye.skywalking.collector.actor.AbstractLocalWorkerProvider;
+import com.a.eye.skywalking.collector.actor.AbstractWorker;
+import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
+import com.a.eye.skywalking.collector.actor.LookUp;
+import com.a.eye.skywalking.collector.actor.ProviderNotFoundException;
+import com.a.eye.skywalking.collector.actor.UsedRoleNameException;
 import com.a.eye.skywalking.collector.cluster.WorkersListener;
 import com.a.eye.skywalking.collector.config.ConfigInitializer;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.io.IOException;
 import java.util.ServiceLoader;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * @author pengys5
  */
 public class CollectorSystem {
-    private Logger logger = LogManager.getFormatterLogger(CollectorSystem.class);
+    private static final Logger logger = LogManager.getFormatterLogger(CollectorSystem.class);
 
     private ClusterWorkerContext clusterContext;
 
@@ -37,7 +42,7 @@ public class CollectorSystem {
     }
 
     private void createListener() {
-        clusterContext.getAkkaSystem().actorOf(Props.create(WorkersListener.class, clusterContext), WorkersListener.WorkName);
+        clusterContext.getAkkaSystem().actorOf(Props.create(WorkersListener.class, clusterContext), WorkersListener.WORK_NAME);
     }
 
     private void createClusterWorkers() throws ProviderNotFoundException {

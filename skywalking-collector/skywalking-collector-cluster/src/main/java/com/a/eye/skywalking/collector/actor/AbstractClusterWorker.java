@@ -24,10 +24,10 @@ public abstract class AbstractClusterWorker extends AbstractWorker {
     /**
      * Construct an <code>AbstractClusterWorker</code> with the worker role and context.
      *
-     * @param role           If multi-workers are for load balance, they should be more likely called worker instance.
-     *                       Meaning, each worker have multi instances.
+     * @param role If multi-workers are for load balance, they should be more likely called worker instance. Meaning,
+     * each worker have multi instances.
      * @param clusterContext See {@link ClusterWorkerContext}
-     * @param selfContext    See {@link LocalWorkerContext}
+     * @param selfContext See {@link LocalWorkerContext}
      */
     protected AbstractClusterWorker(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
@@ -80,14 +80,14 @@ public abstract class AbstractClusterWorker extends AbstractWorker {
         @Override
         public void onReceive(Object message) throws Throwable {
             if (message instanceof ClusterEvent.CurrentClusterState) {
-                ClusterEvent.CurrentClusterState state = (ClusterEvent.CurrentClusterState) message;
+                ClusterEvent.CurrentClusterState state = (ClusterEvent.CurrentClusterState)message;
                 for (Member member : state.getMembers()) {
                     if (member.status().equals(MemberStatus.up())) {
                         register(member);
                     }
                 }
             } else if (message instanceof ClusterEvent.MemberUp) {
-                ClusterEvent.MemberUp memberUp = (ClusterEvent.MemberUp) message;
+                ClusterEvent.MemberUp memberUp = (ClusterEvent.MemberUp)message;
                 logger.info("receive ClusterEvent.MemberUp message, address: %s", memberUp.member().address().toString());
                 register(memberUp.member());
             } else {
@@ -97,16 +97,16 @@ public abstract class AbstractClusterWorker extends AbstractWorker {
         }
 
         /**
-         * When member role is {@link WorkersListener#WorkName} then Select actor from context
+         * When member role is {@link WorkersListener#WORK_NAME} then Select actor from context
          * and send register message to {@link WorkersListener}
          *
          * @param member is the new created or restart worker
          */
         void register(Member member) {
-            if (member.hasRole(WorkersListener.WorkName)) {
+            if (member.hasRole(WorkersListener.WORK_NAME)) {
                 WorkerListenerMessage.RegisterMessage registerMessage = new WorkerListenerMessage.RegisterMessage(ownerWorker.getRole());
                 logger.info("member address: %s, worker path: %s", member.address().toString(), getSelf().path().toString());
-                getContext().actorSelection(member.address() + "/user/" + WorkersListener.WorkName).tell(registerMessage, getSelf());
+                getContext().actorSelection(member.address() + "/user/" + WorkersListener.WORK_NAME).tell(registerMessage, getSelf());
             }
         }
     }

@@ -19,27 +19,27 @@ import java.util.Map;
  *
  * Created by wusheng on 2017/2/17.
  */
-public class Span{
+public class Span {
     @Expose
-    @SerializedName(value="si")
+    @SerializedName(value = "si")
     private int spanId;
 
     @Expose
-    @SerializedName(value="ps")
+    @SerializedName(value = "ps")
     private int parentSpanId;
 
     /**
      * The start time of this Span.
      */
     @Expose
-    @SerializedName(value="st")
+    @SerializedName(value = "st")
     private long startTime;
 
     /**
      * The end time of this Span.
      */
     @Expose
-    @SerializedName(value="et")
+    @SerializedName(value = "et")
     private long endTime;
 
     /**
@@ -48,7 +48,7 @@ public class Span{
      * {@see https://github.com/opentracing/specification/blob/master/specification.md#start-a-new-span}
      */
     @Expose
-    @SerializedName(value="on")
+    @SerializedName(value = "on")
     private String operationName;
 
     /**
@@ -57,15 +57,15 @@ public class Span{
      * {@see https://github.com/opentracing/specification/blob/master/specification.md#set-a-span-tag}
      */
     @Expose
-    @SerializedName(value="ts")
+    @SerializedName(value = "ts")
     private final Map<String, String> tagsWithStr;
 
     @Expose
-    @SerializedName(value="tb")
+    @SerializedName(value = "tb")
     private final Map<String, Boolean> tagsWithBool;
 
     @Expose
-    @SerializedName(value="ti")
+    @SerializedName(value = "ti")
     private final Map<String, Integer> tagsWithInt;
 
     /**
@@ -74,7 +74,7 @@ public class Span{
      * {@see https://github.com/opentracing/specification/blob/master/specification.md#log-structured-data}
      */
     @Expose
-    @SerializedName(value="lo")
+    @SerializedName(value = "lo")
     private final List<LogData> logs;
 
     /**

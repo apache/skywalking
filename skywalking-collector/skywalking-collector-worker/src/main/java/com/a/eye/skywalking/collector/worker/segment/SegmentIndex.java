@@ -11,11 +11,11 @@ import java.io.IOException;
  */
 public class SegmentIndex extends AbstractIndex {
 
-    public static final String Index = "segment_idx";
+    public static final String INDEX = "segment_idx";
 
     @Override
     public String index() {
-        return Index;
+        return INDEX;
     }
 
     @Override
@@ -26,37 +26,37 @@ public class SegmentIndex extends AbstractIndex {
     @Override
     public XContentBuilder createMappingBuilder() throws IOException {
         return XContentFactory.jsonBuilder()
-                .startObject()
-                    .startObject("properties")
-                        .startObject("traceSegmentId")
-                            .field("type", "string")
-                            .field("index", "not_analyzed")
-                        .endObject()
-                        .startObject("startTime")
-                            .field("type", "date")
-                            .field("index", "not_analyzed")
-                        .endObject()
-                        .startObject("endTime")
-                            .field("type", "date")
-                            .field("index", "not_analyzed")
-                        .endObject()
-                        .startObject("applicationCode")
-                            .field("type", "string")
-                            .field("index", "not_analyzed")
-                        .endObject()
-                        .startObject("minute")
-                            .field("type", "long")
-                            .field("index", "not_analyzed")
-                        .endObject()
-                        .startObject("hour")
-                            .field("type", "long")
-                            .field("index", "not_analyzed")
-                        .endObject()
-                        .startObject("day")
-                            .field("type", "long")
-                            .field("index", "not_analyzed")
-                        .endObject()
-                    .endObject()
-                .endObject();
+            .startObject()
+            .startObject("properties")
+            .startObject("traceSegmentId")
+            .field("type", "string")
+            .field("index", "not_analyzed")
+            .endObject()
+            .startObject("startTime")
+            .field("type", "date")
+            .field("index", "not_analyzed")
+            .endObject()
+            .startObject("endTime")
+            .field("type", "date")
+            .field("index", "not_analyzed")
+            .endObject()
+            .startObject("applicationCode")
+            .field("type", "string")
+            .field("index", "not_analyzed")
+            .endObject()
+            .startObject("minute")
+            .field("type", "long")
+            .field("index", "not_analyzed")
+            .endObject()
+            .startObject("hour")
+            .field("type", "long")
+            .field("index", "not_analyzed")
+            .endObject()
+            .startObject("day")
+            .field("type", "long")
+            .field("index", "not_analyzed")
+            .endObject()
+            .endObject()
+            .endObject();
     }
 }

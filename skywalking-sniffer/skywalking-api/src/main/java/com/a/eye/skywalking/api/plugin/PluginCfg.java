@@ -10,25 +10,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 public enum PluginCfg {
-	INSTANCE;
-	
-	private List<String> pluginClassList = new ArrayList<String>();
-	
-	void load(InputStream input) throws IOException{
-		try{
-			BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-			String pluginDefineClassName = null;
-			while((pluginDefineClassName = reader.readLine()) != null){
-				if(!StringUtil.isEmpty(pluginDefineClassName)){
-					pluginClassList.add(pluginDefineClassName.trim());
-				}
-			}
-		}finally{
-			input.close();
-		}
-	}
-	
-	public List<String> getPluginClassList(){
-		return pluginClassList;
-	}
+    INSTANCE;
+
+    private List<String> pluginClassList = new ArrayList<String>();
+
+    void load(InputStream input) throws IOException {
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+            String pluginDefineClassName = null;
+            while ((pluginDefineClassName = reader.readLine()) != null) {
+                if (!StringUtil.isEmpty(pluginDefineClassName)) {
+                    pluginClassList.add(pluginDefineClassName.trim());
+                }
+            }
+        } finally {
+            input.close();
+        }
+    }
+
+    public List<String> getPluginClassList() {
+        return pluginClassList;
+    }
 }

@@ -17,11 +17,12 @@ import com.alibaba.dubbo.rpc.Result;
 import com.alibaba.dubbo.rpc.RpcContext;
 
 /**
- * {@link DubboInterceptor} define how to enhance class {@link com.alibaba.dubbo.monitor.support.MonitorFilter#invoke(Invoker, Invocation)}.
- * the trace context transport to the provider side by {@link RpcContext#attachments}.but all the version of dubbo framework below 2.8.3
- * don't support {@link RpcContext#attachments}, we support another way to support it. it is that all request parameters of dubbo service
- * need to extend {@link SWBaseBean}, and {@link DubboInterceptor} will inject the trace context data to the {@link SWBaseBean} bean and
- * extract the trace context data from {@link SWBaseBean}, or the trace context data will not transport to the provider side.
+ * {@link DubboInterceptor} define how to enhance class {@link com.alibaba.dubbo.monitor.support.MonitorFilter#invoke(Invoker,
+ * Invocation)}. the trace context transport to the provider side by {@link RpcContext#attachments}.but all the version
+ * of dubbo framework below 2.8.3 don't support {@link RpcContext#attachments}, we support another way to support it. it
+ * is that all request parameters of dubbo service need to extend {@link SWBaseBean}, and {@link DubboInterceptor} will
+ * inject the trace context data to the {@link SWBaseBean} bean and extract the trace context data from {@link
+ * SWBaseBean}, or the trace context data will not transport to the provider side.
  *
  * @author zhangxin
  */
@@ -31,22 +32,20 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
     public static final String DUBBO_COMPONENT = "Dubbo";
 
     /**
-     * <h2>Consumer:</h2>
-     * The serialized trace context data will inject the first param that extend {@link SWBaseBean} of dubbo service
-     * if the method {@link BugFixActive#active()} be called. or the serialized context data will inject to the
-     * {@link RpcContext#attachments} for transport to provider side.
+     * <h2>Consumer:</h2> The serialized trace context data will inject the first param that extend {@link SWBaseBean}
+     * of dubbo service if the method {@link BugFixActive#active()} be called. or the serialized context data will
+     * inject to the {@link RpcContext#attachments} for transport to provider side.
      *
-     * <h2>Provider:</h2>
-     * The serialized trace context data will extract from the first param that extend {@link SWBaseBean} of dubbo service
-     * if the method {@link BugFixActive#active()} be called. or it will extract from {@link RpcContext#attachments}.
-     * current trace segment will ref if the serialize context data is not null.
+     * <h2>Provider:</h2> The serialized trace context data will extract from the first param that extend {@link
+     * SWBaseBean} of dubbo service if the method {@link BugFixActive#active()} be called. or it will extract from
+     * {@link RpcContext#attachments}. current trace segment will ref if the serialize context data is not null.
      */
     @Override
     public void beforeMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
-                             MethodInterceptResult result) {
+        MethodInterceptResult result) {
         Object[] arguments = interceptorContext.allArguments();
-        Invoker invoker = (Invoker) arguments[0];
-        Invocation invocation = (Invocation) arguments[1];
+        Invoker invoker = (Invoker)arguments[0];
+        Invocation invocation = (Invocation)arguments[1];
         RpcContext rpcContext = RpcContext.getContext();
         boolean isConsumer = rpcContext.isConsumerSide();
         URL requestURL = invoker.getUrl();
@@ -87,13 +86,13 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
 
     /**
      * Execute after {@link com.alibaba.dubbo.monitor.support.MonitorFilter#invoke(Invoker, Invocation)},
-     * when dubbo instrumentation is active。Check {@link Result#getException()} , if not NULL,
+     * when dubbo instrumentation is active. Check {@link Result#getException()} , if not NULL,
      * log the exception and set tag error=true.
      */
     @Override
     public Object afterMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
-                              Object ret) {
-        Result result = (Result) ret;
+        Object ret) {
+        Result result = (Result)ret;
         if (result != null && result.getException() != null) {
             dealException(result.getException());
         }
@@ -104,7 +103,7 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     public void handleMethodException(Throwable t, EnhancedClassInstanceContext context,
-                                      InstanceMethodInvokeContext interceptorContext) {
+        InstanceMethodInvokeContext interceptorContext) {
         dealException(t);
     }
 
@@ -162,7 +161,7 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
     private void fix283SendNoAttachmentIssue(Invocation invocation, ContextCarrier contextCarrier) {
         for (Object parameter : invocation.getArguments()) {
             if (parameter instanceof SWBaseBean) {
-                ((SWBaseBean) parameter).setTraceContext(contextCarrier.serialize());
+                ((SWBaseBean)parameter).setTraceContext(contextCarrier.serialize());
                 return;
             }
         }
@@ -176,7 +175,7 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
     private ContextCarrier fix283RecvNoAttachmentIssue(Invocation invocation) {
         for (Object parameter : invocation.getArguments()) {
             if (parameter instanceof SWBaseBean) {
-                return new ContextCarrier().deserialize(((SWBaseBean) parameter).getTraceContext());
+                return new ContextCarrier().deserialize(((SWBaseBean)parameter).getTraceContext());
             }
         }
 

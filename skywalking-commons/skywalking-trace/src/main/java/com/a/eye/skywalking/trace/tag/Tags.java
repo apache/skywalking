@@ -60,7 +60,6 @@ public final class Tags {
             SPAN_LAYER_TAG.set(span, RPC_FRAMEWORK_LAYER);
         }
 
-
         public static void asHttp(Span span) {
             SPAN_LAYER_TAG.set(span, HTTP_LAYER);
         }

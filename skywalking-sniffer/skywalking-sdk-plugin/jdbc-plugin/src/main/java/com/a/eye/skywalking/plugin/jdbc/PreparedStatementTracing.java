@@ -18,8 +18,8 @@ import java.sql.SQLException;
 public class PreparedStatementTracing {
 
     public static <R> R execute(java.sql.PreparedStatement realStatement,
-                                ConnectionInfo connectInfo, String method, String sql, Executable<R> exec)
-            throws SQLException {
+        ConnectionInfo connectInfo, String method, String sql, Executable<R> exec)
+        throws SQLException {
         try {
             Span span = ContextManager.createSpan(connectInfo.getDBType() + "/JDBI/PreparedStatement/" + method);
             Tags.DB_TYPE.set(span, "sql");
@@ -47,6 +47,6 @@ public class PreparedStatementTracing {
 
     public interface Executable<R> {
         R exe(java.sql.PreparedStatement realConnection, String sql)
-                throws SQLException;
+            throws SQLException;
     }
 }

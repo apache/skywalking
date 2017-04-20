@@ -18,7 +18,7 @@ public class NodeRefResRecordAnswer implements Answer<Object> {
 
     @Override
     public Object answer(InvocationOnMock invocation) throws Throwable {
-        AbstractNodeRefResSumAnalysis.NodeRefResRecord nodeRefResRecord = (AbstractNodeRefResSumAnalysis.NodeRefResRecord) invocation.getArguments()[0];
+        AbstractNodeRefResSumAnalysis.NodeRefResRecord nodeRefResRecord = (AbstractNodeRefResSumAnalysis.NodeRefResRecord)invocation.getArguments()[0];
         String recordJsonStr = gson.toJson(nodeRefResRecord);
         JsonObject recordJsonObj = gson.fromJson(recordJsonStr, JsonObject.class);
 

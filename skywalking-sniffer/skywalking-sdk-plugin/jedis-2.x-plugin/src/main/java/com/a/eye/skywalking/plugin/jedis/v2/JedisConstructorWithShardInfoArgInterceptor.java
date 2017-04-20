@@ -17,7 +17,7 @@ public class JedisConstructorWithShardInfoArgInterceptor implements InstanceCons
     @Override
     public void onConstruct(EnhancedClassInstanceContext context, ConstructorInvokeContext interceptorContext) {
         String redisConnInfo;
-        JedisShardInfo shardInfo = (JedisShardInfo) interceptorContext.allArguments()[0];
+        JedisShardInfo shardInfo = (JedisShardInfo)interceptorContext.allArguments()[0];
         redisConnInfo = shardInfo.getHost() + ":" + shardInfo.getPort();
         context.set(JedisMethodInterceptor.KEY_OF_REDIS_CONN_INFO, redisConnInfo);
         context.set(JedisMethodInterceptor.KEY_OF_REDIS_HOST, shardInfo.getHost());

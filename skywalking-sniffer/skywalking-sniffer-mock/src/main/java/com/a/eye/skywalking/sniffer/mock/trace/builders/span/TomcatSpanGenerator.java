@@ -9,8 +9,8 @@ import com.a.eye.skywalking.trace.tag.Tags;
  *
  * Created by wusheng on 2017/2/20.
  */
-public class TomcatSpanGenerator{
-    public static class ON200 extends SpanGeneration{
+public class TomcatSpanGenerator {
+    public static class ON200 extends SpanGeneration {
         public static final ON200 INSTANCE = new ON200();
 
         @Override protected void before() {
@@ -30,7 +30,7 @@ public class TomcatSpanGenerator{
         }
     }
 
-    public static class ON404 extends SpanGeneration{
+    public static class ON404 extends SpanGeneration {
         public static final ON404 INSTANCE = new ON404();
 
         @Override protected void before() {
@@ -46,11 +46,12 @@ public class TomcatSpanGenerator{
         @Override protected void after() {
             Span webSpan = ContextManager.activeSpan();
             Tags.STATUS_CODE.set(webSpan, 404);
-            Tags.ERROR.set(webSpan,true);
+            Tags.ERROR.set(webSpan, true);
             ContextManager.stopSpan();
         }
     }
-    public static class ON500 extends SpanGeneration{
+
+    public static class ON500 extends SpanGeneration {
         public static final ON500 INSTANCE = new ON500();
 
         @Override protected void before() {
@@ -66,7 +67,7 @@ public class TomcatSpanGenerator{
         @Override protected void after() {
             Span webSpan = ContextManager.activeSpan();
             Tags.STATUS_CODE.set(webSpan, 500);
-            Tags.ERROR.set(webSpan,true);
+            Tags.ERROR.set(webSpan, true);
             webSpan.log(new NumberFormatException("Can't convert 'abc' to int."));
             ContextManager.stopSpan();
         }

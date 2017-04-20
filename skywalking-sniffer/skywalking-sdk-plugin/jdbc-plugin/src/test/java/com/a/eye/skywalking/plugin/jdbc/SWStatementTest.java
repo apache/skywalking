@@ -43,7 +43,6 @@ public class SWStatementTest extends AbstractStatementTest {
     private SWConnection swConnection;
     private SWConnection multiHostConnection;
 
-
     @Before
     public void setUp() throws Exception {
         mockTracerContextListener = new MockTracerContextListener();
@@ -198,7 +197,7 @@ public class SWStatementTest extends AbstractStatementTest {
     @Test
     public void testExecuteUpdateWithColumnIndexes() throws SQLException {
         Statement statement = swConnection.createStatement(1, 1, 1);
-        int executeSuccess = statement.executeUpdate("UPDATE test SET a = 1", new int[]{1});
+        int executeSuccess = statement.executeUpdate("UPDATE test SET a = 1", new int[] {1});
 
         mockTracerContextListener.assertSize(1);
         mockTracerContextListener.assertTraceSegment(0, new SegmentAssert() {
@@ -214,7 +213,7 @@ public class SWStatementTest extends AbstractStatementTest {
     @Test
     public void testExecuteUpdateWithColumnStringIndexes() throws SQLException {
         Statement statement = swConnection.createStatement(1, 1, 1);
-        int executeSuccess = statement.executeUpdate("UPDATE test SET a = 1", new String[]{"1"});
+        int executeSuccess = statement.executeUpdate("UPDATE test SET a = 1", new String[] {"1"});
 
         mockTracerContextListener.assertSize(1);
         mockTracerContextListener.assertTraceSegment(0, new SegmentAssert() {
@@ -230,7 +229,7 @@ public class SWStatementTest extends AbstractStatementTest {
     @Test
     public void testExecuteWithColumnIndexes() throws SQLException {
         Statement statement = swConnection.createStatement(1, 1, 1);
-        boolean executeSuccess = statement.execute("UPDATE test SET a = 1", new int[]{1});
+        boolean executeSuccess = statement.execute("UPDATE test SET a = 1", new int[] {1});
 
         mockTracerContextListener.assertSize(1);
         mockTracerContextListener.assertTraceSegment(0, new SegmentAssert() {
@@ -246,7 +245,7 @@ public class SWStatementTest extends AbstractStatementTest {
     @Test
     public void testExecuteWithColumnStringIndexes() throws SQLException {
         Statement statement = swConnection.createStatement(1, 1, 1);
-        boolean executeSuccess = statement.execute("UPDATE test SET a = 1", new String[]{"1"});
+        boolean executeSuccess = statement.execute("UPDATE test SET a = 1", new String[] {"1"});
 
         mockTracerContextListener.assertSize(1);
         mockTracerContextListener.assertTraceSegment(0, new SegmentAssert() {

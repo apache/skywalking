@@ -72,7 +72,7 @@ public class NodeRefDayAnalysisTestCase {
         Assert.assertEquals(NodeRefDayAnalysis.class.getSimpleName(), NodeRefDayAnalysis.Factory.INSTANCE.workerInstance(null).getClass().getSimpleName());
 
         int testSize = 10;
-        WorkerConfig.Queue.NodeRef.NodeRefDayAnalysis.Size = testSize;
+        WorkerConfig.Queue.NodeRef.NodeRefDayAnalysis.SIZE = testSize;
         Assert.assertEquals(testSize, NodeRefDayAnalysis.Factory.INSTANCE.queueSize());
     }
 

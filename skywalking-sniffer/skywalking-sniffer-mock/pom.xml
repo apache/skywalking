@@ -9,7 +9,9 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>skywalking-sniffer-mock</artifactId>
-    <description>This is a sniffer mock module. Simulate a sniffer, assemble one or more trace segments. Test-dependency, only.</description>
+    <description>This is a sniffer mock module. Simulate a sniffer, assemble one or more trace segments.
+        Test-dependency, only.
+    </description>
 
     <dependencies>
         <dependency>

@@ -18,9 +18,9 @@ public enum HttpServer {
     private Logger logger = LogManager.getFormatterLogger(HttpServer.class);
 
     public void boot(ClusterWorkerContext clusterContext) throws Exception {
-        Server server = new Server(new InetSocketAddress(HttpConfig.Http.hostname, Integer.valueOf(HttpConfig.Http.port)));
+        Server server = new Server(new InetSocketAddress(HttpConfig.Http.HOSTNAME, Integer.valueOf(HttpConfig.Http.PORT)));
 
-        String contextPath = HttpConfig.Http.contextPath;
+        String contextPath = HttpConfig.Http.CONTEXTPATH;
         ServletContextHandler servletContextHandler = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
         servletContextHandler.setContextPath(contextPath);
         logger.info("http server root context path: %s", contextPath);

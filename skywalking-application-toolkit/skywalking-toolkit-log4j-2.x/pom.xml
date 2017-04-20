@@ -45,7 +45,8 @@
         <repository>
             <id>bintray-wu-sheng-sky-walking-repository</id>
             <name>wu-sheng-sky-walking-repository</name>
-            <url>https://api.bintray.com/maven/wu-sheng/skywalking/com.a.eye.skywalking-toolkit-log4j-2.x/;publish=1</url>
+            <url>https://api.bintray.com/maven/wu-sheng/skywalking/com.a.eye.skywalking-toolkit-log4j-2.x/;publish=1
+            </url>
         </repository>
     </distributionManagement>
 </project>

@@ -8,6 +8,6 @@ import com.a.eye.skywalking.trace.TraceSegment;
  *
  * Created by wusheng on 2017/2/20.
  */
-public interface SegmentAssert{
+public interface SegmentAssert {
     void call(TraceSegment finishedSegment);
 }

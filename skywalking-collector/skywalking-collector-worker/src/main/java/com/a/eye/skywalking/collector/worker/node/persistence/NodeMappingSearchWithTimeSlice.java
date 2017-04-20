@@ -32,12 +32,12 @@ public class NodeMappingSearchWithTimeSlice extends AbstractLocalSyncWorker {
     @Override
     public void onWork(Object request, Object response) throws Exception {
         if (request instanceof RequestEntity) {
-            RequestEntity search = (RequestEntity) request;
+            RequestEntity search = (RequestEntity)request;
 
-            SearchRequestBuilder searchRequestBuilder = EsClient.INSTANCE.getClient().prepareSearch(NodeMappingIndex.Index);
+            SearchRequestBuilder searchRequestBuilder = EsClient.INSTANCE.getClient().prepareSearch(NodeMappingIndex.INDEX);
             searchRequestBuilder.setTypes(search.getSliceType());
             searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
-            searchRequestBuilder.setQuery(QueryBuilders.rangeQuery(NodeMappingIndex.Time_Slice).gte(search.getStartTime()).lte(search.getEndTime()));
+            searchRequestBuilder.setQuery(QueryBuilders.rangeQuery(NodeMappingIndex.TIME_SLICE).gte(search.getStartTime()).lte(search.getEndTime()));
             searchRequestBuilder.setSize(0);
 
             searchRequestBuilder.addAggregation(AggregationBuilders.terms(NodeMappingIndex.AGG_COLUMN).field(NodeMappingIndex.AGG_COLUMN).size(100));
@@ -53,13 +53,13 @@ public class NodeMappingSearchWithTimeSlice extends AbstractLocalSyncWorker {
                 String peers = aggIds[1];
 
                 JsonObject nodeMappingObj = new JsonObject();
-                nodeMappingObj.addProperty(NodeMappingIndex.Code, code);
-                nodeMappingObj.addProperty(NodeMappingIndex.Peers, peers);
+                nodeMappingObj.addProperty(NodeMappingIndex.CODE, code);
+                nodeMappingObj.addProperty(NodeMappingIndex.PEERS, peers);
                 nodeMappingArray.add(nodeMappingObj);
             }
             logger.debug("node mapping data: %s", nodeMappingArray.toString());
 
-            JsonObject resJsonObj = (JsonObject) response;
+            JsonObject resJsonObj = (JsonObject)response;
             resJsonObj.add(Const.RESULT, nodeMappingArray);
         } else {
             throw new IllegalArgumentException("message instance must be RequestEntity");

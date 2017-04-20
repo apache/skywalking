@@ -42,31 +42,35 @@ public class MotanProviderInstrumentation extends ClassInstanceMethodsEnhancePlu
 
     @Override
     protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return new ConstructorInterceptPoint[]{new ConstructorInterceptPoint() {
-            @Override
-            public ElementMatcher<MethodDescription> getConstructorMatcher() {
-                return any();
-            }
+        return new ConstructorInterceptPoint[] {
+            new ConstructorInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                    return any();
+                }
 
-            @Override
-            public String getConstructorInterceptor() {
-                return CONSTRUCTOR_INTERCEPT_CLASS;
+                @Override
+                public String getConstructorInterceptor() {
+                    return CONSTRUCTOR_INTERCEPT_CLASS;
+                }
             }
-        }};
+        };
     }
 
     @Override
     protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{new InstanceMethodsInterceptPoint() {
-            @Override
-            public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                return named("call");
-            }
+        return new InstanceMethodsInterceptPoint[] {
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named("call");
+                }
 
-            @Override
-            public String getMethodsInterceptor() {
-                return PROVIDER_INVOKE_INTERCEPT_CLASS;
+                @Override
+                public String getMethodsInterceptor() {
+                    return PROVIDER_INVOKE_INTERCEPT_CLASS;
+                }
             }
-        }};
+        };
     }
 }

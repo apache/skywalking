@@ -12,8 +12,7 @@ import org.apache.logging.log4j.Logger;
  * @author pengys5
  */
 public class CollectorBootStartUp {
-
-    private static Logger logger = LogManager.getFormatterLogger(CollectorBootStartUp.class);
+    private static final Logger logger = LogManager.getFormatterLogger(CollectorBootStartUp.class);
 
     public static void main(String[] args) throws Exception {
         logger.info("collector system starting....");
@@ -21,6 +20,6 @@ public class CollectorBootStartUp {
         collectorSystem.boot();
         EsClient.INSTANCE.boot();
         IndexCreator.INSTANCE.create();
-        HttpServer.INSTANCE.boot((ClusterWorkerContext) collectorSystem.getClusterContext());
+        HttpServer.INSTANCE.boot((ClusterWorkerContext)collectorSystem.getClusterContext());
     }
 }

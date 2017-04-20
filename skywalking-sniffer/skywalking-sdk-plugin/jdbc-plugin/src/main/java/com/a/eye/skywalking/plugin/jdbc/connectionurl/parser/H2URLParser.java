@@ -39,7 +39,7 @@ public class H2URLParser extends AbstractURLParser {
     protected int[] fetchDatabaseHostsIndexRange() {
         int hostLabelStartIndex = url.indexOf("//");
         int hostLabelEndIndex = url.indexOf("/", hostLabelStartIndex + 2);
-        return new int[]{hostLabelStartIndex + 2, hostLabelEndIndex};
+        return new int[] {hostLabelStartIndex + 2, hostLabelEndIndex};
     }
 
     @Override
@@ -49,7 +49,7 @@ public class H2URLParser extends AbstractURLParser {
         if (databaseEndTag == -1) {
             databaseEndTag = url.length();
         }
-        return new int[]{databaseStartTag + 1, databaseEndTag};
+        return new int[] {databaseStartTag + 1, databaseEndTag};
     }
 
     @Override
@@ -85,7 +85,7 @@ public class H2URLParser extends AbstractURLParser {
         }
 
         if (fileLabelIndex != -1) {
-            return new int[]{fileLabelIndex + FILE_MODE_FLAG.length() + 1, parameterLabelIndex};
+            return new int[] {fileLabelIndex + FILE_MODE_FLAG.length() + 1, parameterLabelIndex};
         } else {
             return null;
         }
@@ -104,7 +104,7 @@ public class H2URLParser extends AbstractURLParser {
         }
 
         if (fileLabelIndex != -1) {
-            return new int[]{fileLabelIndex + MEMORY_MODE_FLAG.length() + 1, parameterLabelIndex};
+            return new int[] {fileLabelIndex + MEMORY_MODE_FLAG.length() + 1, parameterLabelIndex};
         } else {
             return null;
         }

@@ -33,8 +33,7 @@ import java.util.List;
  * @author pengys5
  */
 public class SegmentPost extends AbstractPost {
-
-    private Logger logger = LogManager.getFormatterLogger(SegmentPost.class);
+    private static final Logger logger = LogManager.getFormatterLogger(SegmentPost.class);
 
     private Gson gson;
 
@@ -135,7 +134,7 @@ public class SegmentPost extends AbstractPost {
 
         @Override
         public int queueSize() {
-            return WorkerConfig.Queue.Segment.SegmentPost.Size;
+            return WorkerConfig.Queue.Segment.SegmentPost.SIZE;
         }
 
         @Override
