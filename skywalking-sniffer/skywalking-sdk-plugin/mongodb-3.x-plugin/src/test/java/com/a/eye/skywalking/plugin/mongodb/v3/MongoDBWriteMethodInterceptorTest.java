@@ -20,6 +20,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.powermock.api.mockito.PowerMockito;
 
 import com.a.eye.skywalking.api.boot.ServiceManager;
 import com.a.eye.skywalking.api.conf.Config;
@@ -32,6 +33,8 @@ import com.a.eye.skywalking.trace.LogData;
 import com.a.eye.skywalking.trace.Span;
 import com.a.eye.skywalking.trace.TraceSegment;
 import com.a.eye.skywalking.trace.tag.Tags;
+import com.mongodb.MongoNamespace;
+import com.mongodb.WriteConcern;
 import com.mongodb.bulk.DeleteRequest;
 import com.mongodb.operation.DeleteOperation;
 
@@ -45,8 +48,6 @@ public class MongoDBWriteMethodInterceptorTest {
     private EnhancedClassInstanceContext classInstanceContext;
     @Mock
     private InstanceMethodInvokeContext methodInvokeContext;
-    @Mock
-    private DeleteOperation deleteOperation;
 
     @Before
     public void setUp() throws Exception {
@@ -71,8 +72,12 @@ public class MongoDBWriteMethodInterceptorTest {
         DeleteRequest deleteRequest = new DeleteRequest(document);
 
         requestList.add(deleteRequest);
-
-        when(deleteOperation.getDeleteRequests()).thenReturn(requestList);
+        
+        MongoNamespace mongoNamespace = new MongoNamespace("test.user");
+        
+        WriteConcern writeConcern = PowerMockito.mock(WriteConcern.class);
+        
+        DeleteOperation deleteOperation = new DeleteOperation(mongoNamespace,false,writeConcern,requestList);
 
         when(methodInvokeContext.allArguments()).thenReturn(new Object[] { deleteOperation });
     }
@@ -94,11 +99,11 @@ public class MongoDBWriteMethodInterceptorTest {
     }
 
     private void assertRedisSpan(Span span) {
-        // assertThat(span.getOperationName(), is("MongoDB/DeleteOperation"));
+    	assertThat(span.getOperationName(), is("MongoDB/DeleteOperation"));
         assertThat(Tags.PEER_HOST.get(span), is("127.0.0.1"));
         assertThat(Tags.PEER_PORT.get(span), is(27017));
         assertThat(Tags.COMPONENT.get(span), is("MongoDB"));
-        // assertThat(Tags.DB_STATEMENT.get(span), is("DeleteOperation { \"name\" : \"by\" },"));
+        assertThat(Tags.DB_STATEMENT.get(span), is("DeleteOperation { \"name\" : \"by\" },"));
         assertThat(Tags.DB_TYPE.get(span), is("MongoDB"));
         assertTrue(Tags.SPAN_LAYER.isDB(span));
     }

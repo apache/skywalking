@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import org.bson.BsonDocument;
 import org.bson.BsonString;
+import org.bson.codecs.Decoder;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
 import org.junit.After;
@@ -17,6 +18,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.powermock.api.mockito.PowerMockito;
 
 import com.a.eye.skywalking.api.boot.ServiceManager;
 import com.a.eye.skywalking.api.conf.Config;
@@ -29,6 +31,7 @@ import com.a.eye.skywalking.trace.LogData;
 import com.a.eye.skywalking.trace.Span;
 import com.a.eye.skywalking.trace.TraceSegment;
 import com.a.eye.skywalking.trace.tag.Tags;
+import com.mongodb.MongoNamespace;
 import com.mongodb.operation.FindOperation;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -41,11 +44,9 @@ public class MongoDBMethodInterceptorTest {
     private EnhancedClassInstanceContext classInstanceContext;
     @Mock
     private InstanceMethodInvokeContext methodInvokeContext;
-    @SuppressWarnings("rawtypes")
-    @Mock
-    private FindOperation findOperation;
 
-    @Before
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	@Before
     public void setUp() throws Exception {
         ServiceManager.INSTANCE.boot();
 
@@ -62,8 +63,14 @@ public class MongoDBMethodInterceptorTest {
 
         BsonDocument document = new BsonDocument();
         document.append("name", new BsonString("by"));
-
-        when(findOperation.getFilter()).thenReturn(document);
+        
+        MongoNamespace mongoNamespace = new MongoNamespace("test.user");
+        
+        Decoder decoder = PowerMockito.mock(Decoder.class);
+        
+        FindOperation findOperation = new FindOperation(mongoNamespace, decoder);
+        
+        findOperation.filter(document);
 
         when(methodInvokeContext.allArguments()).thenReturn(new Object[] { findOperation });
     }
@@ -111,11 +118,11 @@ public class MongoDBMethodInterceptorTest {
     }
 
     private void assertRedisSpan(Span span) {
-        // assertThat(span.getOperationName(), is("MongoDB/FindOperation"));
+        assertThat(span.getOperationName(), is("MongoDB/FindOperation"));
         assertThat(Tags.PEER_HOST.get(span), is("127.0.0.1"));
         assertThat(Tags.PEER_PORT.get(span), is(27017));
         assertThat(Tags.COMPONENT.get(span), is("MongoDB"));
-        // assertThat(Tags.DB_STATEMENT.get(span), is("find { \"name\" : \"by\" }"));
+        assertThat(Tags.DB_STATEMENT.get(span), is("FindOperation { \"name\" : \"by\" }"));
         assertThat(Tags.DB_TYPE.get(span), is("MongoDB"));
         assertTrue(Tags.SPAN_LAYER.isDB(span));
     }
