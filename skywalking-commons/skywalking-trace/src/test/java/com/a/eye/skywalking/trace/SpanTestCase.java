@@ -55,7 +55,7 @@ public class SpanTestCase {
     }
 
     @Test
-    public void testLogException(){
+    public void testLogException() {
         Span span1 = new Span(0, "serviceA");
         Exception exp = new Exception("exception msg");
         span1.log(exp);

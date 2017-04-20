@@ -11,8 +11,9 @@ public abstract class AbstractPostProvider<T extends AbstractLocalAsyncWorker> e
 
     public abstract String servletPath();
 
-    final protected void create(ServletContextHandler context) throws IllegalArgumentException, ProviderNotFoundException {
-        LocalAsyncWorkerRef workerRef = (LocalAsyncWorkerRef) super.create(AbstractWorker.noOwner());
+    final protected void create(
+        ServletContextHandler context) throws IllegalArgumentException, ProviderNotFoundException {
+        LocalAsyncWorkerRef workerRef = (LocalAsyncWorkerRef)super.create(AbstractWorker.noOwner());
         AbstractPost.PostWithHttpServlet postWithHttpServlet = new AbstractPost.PostWithHttpServlet(workerRef);
         context.addServlet(new ServletHolder(postWithHttpServlet), servletPath());
     }

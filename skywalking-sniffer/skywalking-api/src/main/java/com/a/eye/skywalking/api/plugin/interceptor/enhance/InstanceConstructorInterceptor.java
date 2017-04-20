@@ -12,7 +12,7 @@ public interface InstanceConstructorInterceptor {
     /**
      * Called before the origin constructor invocation.
      *
-     * @param context            a new added instance field
+     * @param context a new added instance field
      * @param interceptorContext constructor invocation context.
      */
     void onConstruct(EnhancedClassInstanceContext context, ConstructorInvokeContext interceptorContext);

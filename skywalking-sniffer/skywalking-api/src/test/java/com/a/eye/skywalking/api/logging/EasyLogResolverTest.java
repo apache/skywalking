@@ -8,7 +8,7 @@ import org.junit.Test;
  */
 public class EasyLogResolverTest {
     @Test
-    public void testGetLogger(){
+    public void testGetLogger() {
         Assert.assertTrue(new EasyLogResolver().getLogger(EasyLogResolverTest.class) instanceof EasyLogger);
     }
 }

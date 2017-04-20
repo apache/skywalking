@@ -16,9 +16,9 @@ public class SpanNewInstanceInterceptor implements InstanceConstructorIntercepto
     @Override
     public void onConstruct(EnhancedClassInstanceContext context, ConstructorInvokeContext interceptorContext) {
         Object[] allArguments = interceptorContext.allArguments();
-        String operationName = ((String)allArguments[0]);
-        long startTime = ((Long)allArguments[1]);
-        Map<String, String> tags = ((Map<String, String>)allArguments[2]);
+        String operationName = (String)allArguments[0];
+        long startTime = (Long)allArguments[1];
+        Map<String, String> tags = (Map<String, String>)allArguments[2];
         Span span = ContextManager.createSpan(operationName, startTime);
 
         for (Map.Entry<String, String> entry : tags.entrySet()) {

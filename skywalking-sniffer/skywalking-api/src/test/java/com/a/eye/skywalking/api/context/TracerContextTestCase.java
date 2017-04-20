@@ -17,7 +17,7 @@ import org.junit.Test;
  */
 public class TracerContextTestCase {
     @Test
-    public void testSpanLifeCycle(){
+    public void testSpanLifeCycle() {
         TracerContext context = new TracerContext();
         Span span = context.createSpan("/serviceA");
 
@@ -33,7 +33,7 @@ public class TracerContextTestCase {
     }
 
     @Test
-    public void testChildOfSpan(){
+    public void testChildOfSpan() {
         TracerContext context = new TracerContext();
         Span serviceSpan = context.createSpan("/serviceA");
         Span dbSpan = context.createSpan("db/preparedStatement/execute");
@@ -45,7 +45,7 @@ public class TracerContextTestCase {
 
         try {
             context.stopSpan(serviceSpan);
-        }catch (Throwable t){
+        } catch (Throwable t) {
             Assert.assertTrue(t instanceof IllegalStateException);
         }
 
@@ -58,7 +58,7 @@ public class TracerContextTestCase {
     }
 
     @Test
-    public void testInject(){
+    public void testInject() {
         TracerContext context = new TracerContext();
         Span serviceSpan = context.createSpan("/serviceA");
         Span dbSpan = context.createSpan("db/preparedStatement/execute");
@@ -73,7 +73,7 @@ public class TracerContextTestCase {
     }
 
     @Test
-    public void testExtract(){
+    public void testExtract() {
         ContextCarrier carrier = new ContextCarrier();
         carrier.setTraceSegmentId("trace_id_1");
         carrier.setSpanId(5);
@@ -99,7 +99,7 @@ public class TracerContextTestCase {
     }
 
     @After
-    public void reset(){
+    public void reset() {
         TracerContext.ListenerManager.remove(TestTracerContextListener.INSTANCE);
     }
 }

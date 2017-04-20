@@ -17,7 +17,7 @@ public class MergeDataAnswer implements Answer<Object> {
 
     @Override
     public Object answer(InvocationOnMock invocation) throws Throwable {
-        MergeData mergeData = (MergeData) invocation.getArguments()[0];
+        MergeData mergeData = (MergeData)invocation.getArguments()[0];
         System.out.printf("id: %s \n", mergeData.getId());
 
         for (Map.Entry<String, String> entry : mergeData.toMap().entrySet()) {

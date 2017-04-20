@@ -24,46 +24,46 @@ public class MockPluginInstanceMethodInstrumentation extends ClassInstanceMethod
 
     @Override
     protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return new ConstructorInterceptPoint[]{
-                new ConstructorInterceptPoint() {
-                    @Override
-                    public ElementMatcher<MethodDescription> getConstructorMatcher() {
-                        return takesArgument(0, String.class);
-                    }
-
-                    @Override
-                    public String getConstructorInterceptor() {
-                        return INTERCEPTOR_CLASS;
-                    }
+        return new ConstructorInterceptPoint[] {
+            new ConstructorInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                    return takesArgument(0, String.class);
                 }
+
+                @Override
+                public String getConstructorInterceptor() {
+                    return INTERCEPTOR_CLASS;
+                }
+            }
         };
     }
 
     @Override
     protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{
-                new InstanceMethodsInterceptPoint() {
-                    @Override
-                    public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                        return named(WEAVE_INSTANCE_METHOD_NAME).and(not(AllObjectDefaultMethodsMatch.INSTANCE));
-                    }
-
-                    @Override
-                    public String getMethodsInterceptor() {
-                        return INTERCEPTOR_CLASS;
-                    }
-                },
-                new InstanceMethodsInterceptPoint() {
-                    @Override
-                    public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                        return named(WEAVE_INSTANCE_WITH_EXCEPTION_METHOD_NAME);
-                    }
-
-                    @Override
-                    public String getMethodsInterceptor() {
-                        return INTERCEPTOR_CLASS;
-                    }
+        return new InstanceMethodsInterceptPoint[] {
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named(WEAVE_INSTANCE_METHOD_NAME).and(not(AllObjectDefaultMethodsMatch.INSTANCE));
                 }
+
+                @Override
+                public String getMethodsInterceptor() {
+                    return INTERCEPTOR_CLASS;
+                }
+            },
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named(WEAVE_INSTANCE_WITH_EXCEPTION_METHOD_NAME);
+                }
+
+                @Override
+                public String getMethodsInterceptor() {
+                    return INTERCEPTOR_CLASS;
+                }
+            }
         };
     }
 }

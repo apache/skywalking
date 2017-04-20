@@ -11,7 +11,8 @@ import com.a.eye.skywalking.api.plugin.interceptor.enhance.MethodInterceptResult
  */
 public class PrintTraceIdInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
-    public void beforeMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext, MethodInterceptResult result) {
+    public void beforeMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
+        MethodInterceptResult result) {
 
     }
 
@@ -24,12 +25,14 @@ public class PrintTraceIdInterceptor implements InstanceMethodsAroundInterceptor
      * @return the traceId
      */
     @Override
-    public Object afterMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext, Object ret) {
+    public Object afterMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
+        Object ret) {
         return "TID:" + ContextManager.getGlobalTraceId();
     }
 
     @Override
-    public void handleMethodException(Throwable t, EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext) {
+    public void handleMethodException(Throwable t, EnhancedClassInstanceContext context,
+        InstanceMethodInvokeContext interceptorContext) {
 
     }
 }

@@ -129,7 +129,7 @@ public class SegmentTopGetWithTimeSliceTestCase {
         getObj.onSearch(request, response);
     }
 
-    private Map<String, String[]> createRequest(){
+    private Map<String, String[]> createRequest() {
         Map<String, String[]> request = new HashMap<>();
         String[] startTime = {"10"};
         request.put("startTime", startTime);
@@ -150,7 +150,7 @@ public class SegmentTopGetWithTimeSliceTestCase {
 
         @Override
         public Object answer(InvocationOnMock invocation) throws Throwable {
-            SegmentTopSearchWithTimeSlice.RequestEntity requestEntity = (SegmentTopSearchWithTimeSlice.RequestEntity) invocation.getArguments()[0];
+            SegmentTopSearchWithTimeSlice.RequestEntity requestEntity = (SegmentTopSearchWithTimeSlice.RequestEntity)invocation.getArguments()[0];
             Assert.assertEquals(10, requestEntity.getStartTime());
             Assert.assertEquals(20, requestEntity.getEndTime());
             Assert.assertEquals(30, requestEntity.getFrom());

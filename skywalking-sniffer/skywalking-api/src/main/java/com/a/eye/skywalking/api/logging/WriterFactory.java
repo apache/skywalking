@@ -4,10 +4,10 @@ import com.a.eye.skywalking.api.conf.Config;
 import com.a.eye.skywalking.api.util.StringUtil;
 
 public class WriterFactory {
-    public static IWriter getLogWriter(){
-        if (!StringUtil.isEmpty(Config.Logging.DIR)){
+    public static IWriter getLogWriter() {
+        if (!StringUtil.isEmpty(Config.Logging.DIR)) {
             return FileWriter.get();
-        }else{
+        } else {
             return SystemOutWriter.INSTANCE;
         }
     }

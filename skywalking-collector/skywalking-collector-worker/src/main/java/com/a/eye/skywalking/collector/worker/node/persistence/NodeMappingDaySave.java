@@ -14,18 +14,19 @@ import com.a.eye.skywalking.collector.worker.node.NodeMappingIndex;
  */
 public class NodeMappingDaySave extends RecordPersistenceMember {
 
-    NodeMappingDaySave(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    NodeMappingDaySave(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext,
+        LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
     @Override
     public String esIndex() {
-        return NodeMappingIndex.Index;
+        return NodeMappingIndex.INDEX;
     }
 
     @Override
     public String esType() {
-        return NodeMappingIndex.Type_Day;
+        return NodeMappingIndex.TYPE_DAY;
     }
 
     public static class Factory extends AbstractLocalAsyncWorkerProvider<NodeMappingDaySave> {
@@ -43,7 +44,7 @@ public class NodeMappingDaySave extends RecordPersistenceMember {
 
         @Override
         public int queueSize() {
-            return WorkerConfig.Queue.Node.NodeMappingDaySave.Size;
+            return WorkerConfig.Queue.Node.NodeMappingDaySave.SIZE;
         }
     }
 

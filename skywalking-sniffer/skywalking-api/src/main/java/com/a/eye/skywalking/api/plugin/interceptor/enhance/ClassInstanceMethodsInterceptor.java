@@ -1,13 +1,17 @@
 package com.a.eye.skywalking.api.plugin.interceptor.enhance;
 
+import com.a.eye.skywalking.api.plugin.interceptor.EnhancedClassInstanceContext;
+import com.a.eye.skywalking.api.plugin.interceptor.loader.InterceptorInstanceLoader;
 import com.a.eye.skywalking.logging.ILog;
 import com.a.eye.skywalking.logging.LogManager;
-import com.a.eye.skywalking.api.plugin.interceptor.loader.InterceptorInstanceLoader;
-import com.a.eye.skywalking.api.plugin.interceptor.EnhancedClassInstanceContext;
-import net.bytebuddy.implementation.bind.annotation.*;
-
 import java.lang.reflect.Method;
 import java.util.concurrent.Callable;
+import net.bytebuddy.implementation.bind.annotation.AllArguments;
+import net.bytebuddy.implementation.bind.annotation.FieldValue;
+import net.bytebuddy.implementation.bind.annotation.Origin;
+import net.bytebuddy.implementation.bind.annotation.RuntimeType;
+import net.bytebuddy.implementation.bind.annotation.SuperCall;
+import net.bytebuddy.implementation.bind.annotation.This;
 
 /**
  * The actual byte-buddy's interceptor to intercept class instance methods.
@@ -16,7 +20,7 @@ import java.util.concurrent.Callable;
  * @author wusheng
  */
 public class ClassInstanceMethodsInterceptor {
-    private static ILog logger = LogManager.getLogger(ClassInstanceMethodsInterceptor.class);
+    private static final ILog logger = LogManager.getLogger(ClassInstanceMethodsInterceptor.class);
 
     /**
      * A class full name, and instanceof {@link InstanceMethodsAroundInterceptor}
@@ -27,6 +31,7 @@ public class ClassInstanceMethodsInterceptor {
 
     /**
      * Set the name of {@link ClassInstanceMethodsInterceptor#instanceMethodsAroundInterceptorClassName}
+     *
      * @param instanceMethodsAroundInterceptorClassName class full name.
      */
     public ClassInstanceMethodsInterceptor(String instanceMethodsAroundInterceptorClassName) {
@@ -35,34 +40,36 @@ public class ClassInstanceMethodsInterceptor {
 
     /**
      * Intercept the target instance method.
+     *
      * @param obj target class instance.
      * @param allArguments all method arguments
      * @param method method description.
      * @param zuper the origin call ref.
      * @param instanceContext the added field of enhanced class.
      * @return the return value of target instance method.
-     * @throws Exception only throw exception because of zuper.call()
-     *          or unexpected exception in sky-walking ( This is a bug, if anything triggers this condition ).
+     * @throws Exception only throw exception because of zuper.call() or unexpected exception in sky-walking ( This is a
+     * bug, if anything triggers this condition ).
      */
     @RuntimeType
-    public Object intercept(@This Object obj, @AllArguments Object[] allArguments, @Origin Method method, @SuperCall Callable<?> zuper,
-            @FieldValue(ClassEnhancePluginDefine.contextAttrName) EnhancedClassInstanceContext instanceContext) throws Throwable {
+    public Object intercept(@This Object obj, @AllArguments Object[] allArguments, @Origin Method method,
+        @SuperCall Callable<?> zuper,
+        @FieldValue(ClassEnhancePluginDefine.CONTEXT_ATTR_NAME) EnhancedClassInstanceContext instanceContext) throws Throwable {
         InstanceMethodsAroundInterceptor interceptor = InterceptorInstanceLoader
-                .load(instanceMethodsAroundInterceptorClassName, obj.getClass().getClassLoader());
+            .load(instanceMethodsAroundInterceptorClassName, obj.getClass().getClassLoader());
 
         InstanceMethodInvokeContext interceptorContext = new InstanceMethodInvokeContext(obj, method.getName(), allArguments, method.getParameterTypes());
         MethodInterceptResult result = new MethodInterceptResult();
         try {
             interceptor.beforeMethod(instanceContext, interceptorContext, result);
         } catch (Throwable t) {
-            logger.error(t,"class[{}] before method[{}] intercept failure", obj.getClass(), method.getName());
+            logger.error(t, "class[{}] before method[{}] intercept failure", obj.getClass(), method.getName());
         }
 
         Object ret = null;
         try {
             if (!result.isContinue()) {
                 ret = result._ret();
-            }else {
+            } else {
                 ret = zuper.call();
             }
         } catch (Throwable t) {

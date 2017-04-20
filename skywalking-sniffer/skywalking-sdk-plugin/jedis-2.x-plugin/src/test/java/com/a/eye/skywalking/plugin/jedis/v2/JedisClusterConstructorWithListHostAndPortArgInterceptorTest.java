@@ -43,7 +43,7 @@ public class JedisClusterConstructorWithListHostAndPortArgInterceptorTest {
         hostAndPortSet.add(new HostAndPort("127.0.0.1", 6379));
         hostAndPortSet.add(new HostAndPort("127.0.0.1", 16379));
 
-        when(invokeContext.allArguments()).thenReturn(new Object[]{hostAndPortSet});
+        when(invokeContext.allArguments()).thenReturn(new Object[] {hostAndPortSet});
     }
 
     @After

@@ -22,7 +22,7 @@ import java.util.List;
  * Created by wusheng on 2017/2/17.
  */
 public class TraceSegmentProcessQueue extends StatusBootService implements TracerContextListener, EventHandler<TraceSegmentHolder> {
-    private static ILog logger = LogManager.getLogger(TraceSegmentProcessQueue.class);
+    private static final ILog logger = LogManager.getLogger(TraceSegmentProcessQueue.class);
 
     private Disruptor<TraceSegmentHolder> disruptor;
     private RingBuffer<TraceSegmentHolder> buffer;
@@ -67,7 +67,7 @@ public class TraceSegmentProcessQueue extends StatusBootService implements Trace
         try {
             if (secondLevelCache[cacheIndex] == null) {
                 secondLevelCache[cacheIndex] = traceSegment;
-            }else{
+            } else {
                 /**
                  * If your application has very high throughput(also called tps/qps),
                  * this log message will be output in very high frequency.
@@ -87,11 +87,11 @@ public class TraceSegmentProcessQueue extends StatusBootService implements Trace
         }
     }
 
-    public List<TraceSegment> getCachedTraceSegments(){
+    public List<TraceSegment> getCachedTraceSegments() {
         List<TraceSegment> segmentList = new LinkedList<TraceSegment>();
         for (int i = 0; i < secondLevelCache.length; i++) {
             TraceSegment segment = secondLevelCache[i];
-            if(segment != null){
+            if (segment != null) {
                 segmentList.add(segment);
                 secondLevelCache[i] = null;
             }

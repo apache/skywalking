@@ -1,6 +1,5 @@
 package com.a.eye.skywalking.toolkit.log.log4j.v2.x;
 
-
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.config.plugins.Plugin;
 import org.apache.logging.log4j.core.pattern.ConverterKeys;
@@ -21,7 +20,7 @@ public class TraceIdConverter extends LogEventPatternConverter {
     /**
      * Constructs an instance of LoggingEventPatternConverter.
      *
-     * @param name  name of converter.
+     * @param name name of converter.
      * @param style CSS style for output.
      */
     protected TraceIdConverter(String name, String style) {

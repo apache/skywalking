@@ -92,6 +92,5 @@ public enum RecordDataMergeJson {
             return id;
         }
 
-
     }
 }

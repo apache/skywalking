@@ -12,22 +12,23 @@ import java.util.Map;
  */
 public class LogData {
     @Expose
-    @SerializedName(value="tm")
+    @SerializedName(value = "tm")
     private long time;
 
     @Expose
-    @SerializedName(value="fi")
+    @SerializedName(value = "fi")
     private Map<String, String> fields;
 
     LogData(long time, Map<String, String> fields) {
         this.time = time;
-        if(fields == null){
+        if (fields == null) {
             throw new NullPointerException();
         }
         this.fields = fields;
     }
 
-    public LogData(){}
+    public LogData() {
+    }
 
     public long getTime() {
         return time;

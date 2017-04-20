@@ -11,8 +11,9 @@ public abstract class AbstractGetProvider<T extends AbstractLocalSyncWorker> ext
 
     public abstract String servletPath();
 
-    final protected void create(ServletContextHandler context) throws IllegalArgumentException, ProviderNotFoundException {
-        LocalSyncWorkerRef workerRef = (LocalSyncWorkerRef) super.create(AbstractWorker.noOwner());
+    final protected void create(
+        ServletContextHandler context) throws IllegalArgumentException, ProviderNotFoundException {
+        LocalSyncWorkerRef workerRef = (LocalSyncWorkerRef)super.create(AbstractWorker.noOwner());
         AbstractGet.GetWithHttpServlet getWithHttpServlet = new AbstractGet.GetWithHttpServlet(workerRef);
         context.addServlet(new ServletHolder(getWithHttpServlet), servletPath());
     }

@@ -6,9 +6,9 @@ import com.a.eye.skywalking.collector.actor.WorkerRef;
 import java.util.List;
 
 /**
- * The <code>HashCodeSelector</code> is a simple implementation of {@link WorkerSelector}.
- * It choose {@link WorkerRef} by message {@link AbstractHashMessage} key's hashcode, so it can use to send the same hashcode
- * message to same {@link WorkerRef}. Usually, use to database operate which avoid dirty data.
+ * The <code>HashCodeSelector</code> is a simple implementation of {@link WorkerSelector}. It choose {@link WorkerRef}
+ * by message {@link AbstractHashMessage} key's hashcode, so it can use to send the same hashcode message to same {@link
+ * WorkerRef}. Usually, use to database operate which avoid dirty data.
  *
  * @author pengys5
  * @since v3.0-2017
@@ -25,7 +25,7 @@ public class HashCodeSelector implements WorkerSelector<WorkerRef> {
     @Override
     public WorkerRef select(List<WorkerRef> members, Object message) {
         if (message instanceof AbstractHashMessage) {
-            AbstractHashMessage hashMessage = (AbstractHashMessage) message;
+            AbstractHashMessage hashMessage = (AbstractHashMessage)message;
             int size = members.size();
             int selectIndex = Math.abs(hashMessage.getHashCode()) % size;
             return members.get(selectIndex);

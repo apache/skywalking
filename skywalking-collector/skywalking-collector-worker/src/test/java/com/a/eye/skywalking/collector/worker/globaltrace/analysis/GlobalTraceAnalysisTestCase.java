@@ -66,7 +66,7 @@ public class GlobalTraceAnalysisTestCase {
         Assert.assertEquals(GlobalTraceAnalysis.class.getSimpleName(), GlobalTraceAnalysis.Factory.INSTANCE.workerInstance(null).getClass().getSimpleName());
 
         int testSize = 10;
-        WorkerConfig.Queue.GlobalTrace.GlobalTraceAnalysis.Size = testSize;
+        WorkerConfig.Queue.GlobalTrace.GlobalTraceAnalysis.SIZE = testSize;
         Assert.assertEquals(testSize, GlobalTraceAnalysis.Factory.INSTANCE.queueSize());
     }
 

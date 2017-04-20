@@ -70,7 +70,7 @@ public class NodeMappingDayAnalysisTestCase {
         Assert.assertEquals(NodeMappingDayAnalysis.class.getSimpleName(), NodeMappingDayAnalysis.Factory.INSTANCE.workerInstance(null).getClass().getSimpleName());
 
         int testSize = 10;
-        WorkerConfig.Queue.Node.NodeMappingDayAnalysis.Size = testSize;
+        WorkerConfig.Queue.Node.NodeMappingDayAnalysis.SIZE = testSize;
         Assert.assertEquals(testSize, NodeMappingDayAnalysis.Factory.INSTANCE.queueSize());
     }
 

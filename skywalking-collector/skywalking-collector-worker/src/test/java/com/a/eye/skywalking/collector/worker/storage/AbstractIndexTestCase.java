@@ -34,14 +34,14 @@ public class AbstractIndexTestCase {
         @Override
         public XContentBuilder createMappingBuilder() throws IOException {
             XContentBuilder mappingBuilder = XContentFactory.jsonBuilder()
-                    .startObject()
-                    .startObject("properties")
-                    .startObject(Time_Slice)
-                    .field("type", "long")
-                    .field("index", "not_analyzed")
-                    .endObject()
-                    .endObject()
-                    .endObject();
+                .startObject()
+                .startObject("properties")
+                .startObject(TIME_SLICE)
+                .field("type", "long")
+                .field("index", "not_analyzed")
+                .endObject()
+                .endObject()
+                .endObject();
             return mappingBuilder;
         }
 

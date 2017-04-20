@@ -6,31 +6,31 @@ package com.a.eye.skywalking.api.plugin.interceptor.enhance;
  * @author wusheng
  */
 public class ConstructorInvokeContext {
-	/**
-	 * object instance
-	 */
-	private Object objInst;
-	/**
-	 * constructor's arguments list.
-	 */
-	private Object[] allArguments;
-	
-	ConstructorInvokeContext(Object objInst, Object[] allArguments) {
-		this.objInst = objInst;
-		this.allArguments = allArguments;
-	}
+    /**
+     * object instance
+     */
+    private Object objInst;
+    /**
+     * constructor's arguments list.
+     */
+    private Object[] allArguments;
 
-	/**
-	 * @return object instance
-	 */
-	public Object inst(){
-		return objInst;
-	}
+    ConstructorInvokeContext(Object objInst, Object[] allArguments) {
+        this.objInst = objInst;
+        this.allArguments = allArguments;
+    }
 
-	/**
-	 * @return arguments list.
-	 */
-	public Object[] allArguments(){
-		return this.allArguments;
-	}
+    /**
+     * @return object instance
+     */
+    public Object inst() {
+        return objInst;
+    }
+
+    /**
+     * @return arguments list.
+     */
+    public Object[] allArguments() {
+        return this.allArguments;
+    }
 }

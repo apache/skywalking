@@ -1,10 +1,8 @@
 package com.a.eye.skywalking.collector.worker.node;
 
-import com.a.eye.skywalking.collector.worker.globaltrace.GlobalTraceIndex;
+import java.io.IOException;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.io.IOException;
 
 /**
  * @author pengys5

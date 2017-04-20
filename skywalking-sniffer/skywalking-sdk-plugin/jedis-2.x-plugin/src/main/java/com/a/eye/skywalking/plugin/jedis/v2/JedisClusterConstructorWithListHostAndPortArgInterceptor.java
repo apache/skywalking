@@ -18,7 +18,7 @@ public class JedisClusterConstructorWithListHostAndPortArgInterceptor implements
     @Override
     public void onConstruct(EnhancedClassInstanceContext context, ConstructorInvokeContext interceptorContext) {
         StringBuilder redisConnInfo = new StringBuilder();
-        Set<HostAndPort> hostAndPorts = (Set<HostAndPort>) interceptorContext.allArguments()[0];
+        Set<HostAndPort> hostAndPorts = (Set<HostAndPort>)interceptorContext.allArguments()[0];
         for (HostAndPort hostAndPort : hostAndPorts) {
             redisConnInfo.append(hostAndPort.toString()).append(";");
         }

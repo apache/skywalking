@@ -30,12 +30,12 @@ public class NodeRefResSumHourSaveTestCase {
 
     @Test
     public void testEsIndex() {
-        Assert.assertEquals(NodeRefResSumIndex.Index, save.esIndex());
+        Assert.assertEquals(NodeRefResSumIndex.INDEX, save.esIndex());
     }
 
     @Test
     public void testEsType() {
-        Assert.assertEquals(NodeRefResSumIndex.Type_Hour, save.esType());
+        Assert.assertEquals(NodeRefResSumIndex.TYPE_HOUR, save.esType());
     }
 
     @Test
@@ -50,7 +50,7 @@ public class NodeRefResSumHourSaveTestCase {
         Assert.assertEquals(NodeRefResSumHourSave.class.getSimpleName(), NodeRefResSumHourSave.Factory.INSTANCE.workerInstance(null).getClass().getSimpleName());
 
         int testSize = 10;
-        WorkerConfig.Queue.NodeRef.NodeRefResSumHourSave.Size = testSize;
+        WorkerConfig.Queue.NodeRef.NodeRefResSumHourSave.SIZE = testSize;
         Assert.assertEquals(testSize, NodeRefResSumHourSave.Factory.INSTANCE.queueSize());
     }
 }

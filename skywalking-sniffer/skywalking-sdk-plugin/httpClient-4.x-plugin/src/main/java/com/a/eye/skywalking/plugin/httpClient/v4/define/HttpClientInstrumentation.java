@@ -1,6 +1,5 @@
 package com.a.eye.skywalking.plugin.httpClient.v4.define;
 
-
 import com.a.eye.skywalking.api.plugin.interceptor.ConstructorInterceptPoint;
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 

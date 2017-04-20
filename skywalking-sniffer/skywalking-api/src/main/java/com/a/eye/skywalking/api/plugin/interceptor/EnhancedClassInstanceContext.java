@@ -13,51 +13,54 @@ import java.util.concurrent.ConcurrentHashMap;
  * or
  * {@link ClassEnhancePluginDefine#getInstanceMethodsInterceptPoints}
  * will add a field with this type.
- * 
- * @author wusheng
  *
+ * @author wusheng
  */
 public class EnhancedClassInstanceContext {
-	/**
-	 * extend field, can store any instance as you want.
-	 */
-	private Map<Object, Object> context = new ConcurrentHashMap<Object, Object>();
+    /**
+     * extend field, can store any instance as you want.
+     */
+    private Map<Object, Object> context = new ConcurrentHashMap<Object, Object>();
 
-	/**
-	 * store a new instance or override it.
-	 * @param key
-	 * @param value
-	 */
-	public void set(Object key, Object value){
-		context.put(key, value);
-	}
+    /**
+     * store a new instance or override it.
+     *
+     * @param key
+     * @param value
+     */
+    public void set(Object key, Object value) {
+        context.put(key, value);
+    }
 
-	/**
-	 * get an stored instance, if it is existed.
-	 * @param key
-	 * @return null or stored instance.
-	 */
-	public Object get(Object key){
-		return context.get(key);
-	}
+    /**
+     * get an stored instance, if it is existed.
+     *
+     * @param key
+     * @return null or stored instance.
+     */
+    public Object get(Object key) {
+        return context.get(key);
+    }
 
-	/**
-	 * judge whether stores by the key.
-	 * @param key
-	 * @return true, if stored a instance by the key.
-	 */
-	public boolean isContain(Object key){
-		return context.containsKey(key);
-	}
+    /**
+     * judge whether stores by the key.
+     *
+     * @param key
+     * @return true, if stored a instance by the key.
+     */
+    public boolean isContain(Object key) {
+        return context.containsKey(key);
+    }
 
-	/**
-	 * get an stored instance, if it is existed.
-	 * @param key
-	 * @param type
-	 * @param <T> expected stored instance's type
-	 * @return null or stored instance.
-	 */
-	public <T> T get(Object key, Class<T> type){
-		return (T)this.get(key);
-	}
+    /**
+     * get an stored instance, if it is existed.
+     *
+     * @param key
+     * @param type
+     * @param <T> expected stored instance's type
+     * @return null or stored instance.
+     */
+    public <T> T get(Object key, Class<T> type) {
+        return (T)this.get(key);
+    }
 }

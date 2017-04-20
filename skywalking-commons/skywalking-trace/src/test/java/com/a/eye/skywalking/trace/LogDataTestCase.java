@@ -10,7 +10,7 @@ import org.junit.Test;
  */
 public class LogDataTestCase {
     @Test
-    public void testHoldValue(){
+    public void testHoldValue() {
         Map<String, String> fields = new HashMap<String, String>();
         LogData logData = new LogData(123L, fields);
 

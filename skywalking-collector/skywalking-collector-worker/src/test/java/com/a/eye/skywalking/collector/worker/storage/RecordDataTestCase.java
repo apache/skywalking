@@ -25,11 +25,11 @@ public class RecordDataTestCase {
         RecordData recordData = new RecordData(id_1);
 
         JsonObject record = new JsonObject();
-        record.addProperty("Column", "Value");
+        record.addProperty("Column", "VALUE");
         recordData.setRecord(record);
 
         Assert.assertEquals(id_1, recordData.getId());
         Assert.assertEquals("B" + Const.ID_SPLIT + "C", recordData.getRecord().get("aggId").getAsString());
-        Assert.assertEquals("Value", recordData.getRecord().get("Column").getAsString());
+        Assert.assertEquals("VALUE", recordData.getRecord().get("Column").getAsString());
     }
 }

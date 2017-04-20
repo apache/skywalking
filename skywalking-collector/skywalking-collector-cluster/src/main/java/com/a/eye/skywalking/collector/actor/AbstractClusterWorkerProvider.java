@@ -25,12 +25,12 @@ public abstract class AbstractClusterWorkerProvider<T extends AbstractClusterWor
      *
      * @param localContext Not used, will be null.
      * @return The created worker reference. See {@link ClusterWorkerRef}
-     * @throws IllegalArgumentException  Not used.
-     * @throws ProviderNotFoundException This worker instance attempted to find a provider which use to create another worker
-     *                                   instance, when the worker provider not find then Throw this Exception.
+     * @throws IllegalArgumentException Not used.
+     * @throws ProviderNotFoundException This worker instance attempted to find a provider which use to create another
+     * worker instance, when the worker provider not find then Throw this Exception.
      */
-    @Override
-    final public WorkerRef onCreate(LocalWorkerContext localContext) throws IllegalArgumentException, ProviderNotFoundException {
+    @Override final public WorkerRef onCreate(
+        LocalWorkerContext localContext) throws IllegalArgumentException, ProviderNotFoundException {
         int num = ClusterWorkerRefCounter.INSTANCE.incrementAndGet(role());
 
         T clusterWorker = workerInstance(getClusterContext());

@@ -26,7 +26,7 @@ public class MockTracerContextListener implements TracerContextListener {
      *
      * @param size the give size.
      */
-    public void assertSize(int size){
+    public void assertSize(int size) {
         Assert.assertEquals(size, finishedTraceSegments.size());
     }
 
@@ -35,7 +35,7 @@ public class MockTracerContextListener implements TracerContextListener {
      *
      * @param index the given index.
      */
-    public void assertValidIndex(int index){
+    public void assertValidIndex(int index) {
         Assert.assertTrue(index < finishedTraceSegments.size());
     }
 
@@ -46,7 +46,7 @@ public class MockTracerContextListener implements TracerContextListener {
      * @param index the given index.
      * @param segmentAssert the given assert.
      */
-    public void assertTraceSegment(int index, SegmentAssert segmentAssert){
+    public void assertTraceSegment(int index, SegmentAssert segmentAssert) {
         assertValidIndex(index);
         segmentAssert.call(finishedTraceSegments.get(index));
     }
@@ -54,16 +54,17 @@ public class MockTracerContextListener implements TracerContextListener {
     /**
      * Clear all hold data.
      */
-    public void clear(){
+    public void clear() {
         finishedTraceSegments.clear();
     }
 
     /**
      * Get {@link TraceSegment} of the given index.
+     *
      * @param index
      * @return
      */
-    public TraceSegment getFinished(int index){
+    public TraceSegment getFinished(int index) {
         assertSize(index + 1);
         return finishedTraceSegments.get(index);
     }

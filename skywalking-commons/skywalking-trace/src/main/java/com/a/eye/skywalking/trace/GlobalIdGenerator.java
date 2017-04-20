@@ -5,7 +5,7 @@ import com.a.eye.skywalking.api.util.StringUtil;
 import java.util.UUID;
 
 public final class GlobalIdGenerator {
-    private static final ThreadLocal<Integer> ThreadTraceIdSequence = new ThreadLocal<Integer>() {
+    private static final ThreadLocal<Integer> THREAD_ID_SEQUENCE = new ThreadLocal<Integer>() {
         @Override
         protected Integer initialValue() {
             return 0;
@@ -22,19 +22,10 @@ public final class GlobalIdGenerator {
     private GlobalIdGenerator() {
     }
 
-    /**
-     * TraceId由以下规则组成<br/>
-     * ID类型 + 1位时间戳（毫秒数） + 1位进程随机号（UUID后7位） + 1位进程数号 + 1位线程号 + 1位线程内序号
-     * <p>
-     * 注意：这里的位，是指“.”作为分隔符所占的位数，非字符串长度的位数。
-     * TraceId为6个片段组成的数组
-     *
-     * @return
-     */
     public static String generate(String type) {
-        Integer seq = ThreadTraceIdSequence.get();
+        Integer seq = THREAD_ID_SEQUENCE.get();
         seq++;
-        ThreadTraceIdSequence.set(seq);
+        THREAD_ID_SEQUENCE.set(seq);
 
         return StringUtil.join('.',
             type + "", System.currentTimeMillis() + "", PROCESS_UUID + "",

@@ -21,7 +21,8 @@ abstract class AbstractNodeMappingAnalysis extends RecordAnalysisMember {
 
     private Logger logger = LogManager.getFormatterLogger(AbstractNodeMappingAnalysis.class);
 
-    AbstractNodeMappingAnalysis(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    AbstractNodeMappingAnalysis(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext,
+        LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
@@ -30,15 +31,15 @@ abstract class AbstractNodeMappingAnalysis extends RecordAnalysisMember {
         logger.debug("node mapping analysis refs isNotEmpty %s", CollectionTools.isNotEmpty(segmentRefList));
 
         if (CollectionTools.isNotEmpty(segmentRefList)) {
-            logger.debug("node mapping analysis refs list size: %s", segmentRefList.size());
+            logger.debug("node mapping analysis refs list SIZE: %s", segmentRefList.size());
             for (TraceSegmentRef segmentRef : segmentRefList) {
                 String peers = Const.PEERS_FRONT_SPLIT + segmentRef.getPeerHost() + Const.PEERS_BEHIND_SPLIT;
                 String code = segment.getApplicationCode();
 
                 JsonObject nodeMappingJsonObj = new JsonObject();
-                nodeMappingJsonObj.addProperty(NodeMappingIndex.Code, code);
-                nodeMappingJsonObj.addProperty(NodeMappingIndex.Peers, peers);
-                nodeMappingJsonObj.addProperty(NodeMappingIndex.Time_Slice, timeSlice);
+                nodeMappingJsonObj.addProperty(NodeMappingIndex.CODE, code);
+                nodeMappingJsonObj.addProperty(NodeMappingIndex.PEERS, peers);
+                nodeMappingJsonObj.addProperty(NodeMappingIndex.TIME_SLICE, timeSlice);
 
                 String id = timeSlice + Const.ID_SPLIT + code + Const.ID_SPLIT + peers;
                 setRecord(id, nodeMappingJsonObj);

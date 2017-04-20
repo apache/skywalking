@@ -10,16 +10,14 @@ import java.io.IOException;
  * @author pengys5
  */
 public class SegmentExceptionIndex extends AbstractIndex {
-
-    public static final String Index = "segment_exp_idx";
-
-    public static final String SegId = "segId";
-    public static final String IsError = "isError";
-    public static final String ErrorKind = "errorKind";
+    public static final String INDEX = "segment_exp_idx";
+    public static final String SEG_ID = "segId";
+    public static final String IS_ERROR = "isError";
+    public static final String ERROR_KIND = "errorKind";
 
     @Override
     public String index() {
-        return Index;
+        return INDEX;
     }
 
     @Override
@@ -30,22 +28,22 @@ public class SegmentExceptionIndex extends AbstractIndex {
     @Override
     public XContentBuilder createMappingBuilder() throws IOException {
         XContentBuilder mappingBuilder = XContentFactory.jsonBuilder()
-                .startObject()
-                    .startObject("properties")
-                        .startObject(SegId)
-                            .field("type", "string")
-                            .field("index", "not_analyzed")
-                        .endObject()
-                        .startObject(IsError)
-                            .field("type", "boolean")
-                            .field("index", "not_analyzed")
-                        .endObject()
-                        .startObject(ErrorKind)
-                            .field("type", "string")
-                            .field("index", "not_analyzed")
-                        .endObject()
-                    .endObject()
-                .endObject();
+            .startObject()
+            .startObject("properties")
+            .startObject(SEG_ID)
+            .field("type", "string")
+            .field("index", "not_analyzed")
+            .endObject()
+            .startObject(IS_ERROR)
+            .field("type", "boolean")
+            .field("index", "not_analyzed")
+            .endObject()
+            .startObject(ERROR_KIND)
+            .field("type", "string")
+            .field("index", "not_analyzed")
+            .endObject()
+            .endObject()
+            .endObject();
         return mappingBuilder;
     }
 }

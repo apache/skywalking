@@ -51,7 +51,7 @@ public class MergePersistenceMemberTestCase {
     public void testAnalyse() throws Exception {
         String id = "2016" + Const.ID_SPLIT + "A" + Const.ID_SPLIT + "B";
         MergeData mergeData = new MergeData(id);
-        mergeData.setMergeData("Column", "Value");
+        mergeData.setMergeData("Column", "VALUE");
 
 //        mergePersistenceMember.analyse(mergeData);
 //        mergePersistenceMember.onWork(new EndOfBatchCommand());

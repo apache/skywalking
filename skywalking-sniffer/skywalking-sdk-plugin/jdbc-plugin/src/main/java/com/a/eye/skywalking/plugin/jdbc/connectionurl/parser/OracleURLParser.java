@@ -28,7 +28,7 @@ public class OracleURLParser extends AbstractURLParser {
     protected int[] fetchDatabaseHostsIndexRange() {
         int hostLabelStartIndex = url.indexOf("@");
         int hostLabelEndIndex = url.lastIndexOf(":");
-        return new int[]{hostLabelStartIndex + 1, hostLabelEndIndex};
+        return new int[] {hostLabelStartIndex + 1, hostLabelEndIndex};
     }
 
     @Override

@@ -12,7 +12,7 @@ import org.junit.Test;
  */
 public class ContextCarrierTestCase {
     @Test
-    public void testSerialize(){
+    public void testSerialize() {
         ContextCarrier carrier = new ContextCarrier();
         carrier.setTraceSegmentId("trace_id_A");
         carrier.setSpanId(100);
@@ -27,7 +27,7 @@ public class ContextCarrierTestCase {
     }
 
     @Test
-    public void testDeserialize(){
+    public void testDeserialize() {
         ContextCarrier carrier = new ContextCarrier();
         carrier.deserialize("trace_id_A|100|REMOTE_APP|10.2.3.16:8080|Trace.global.id.123,Trace.global.id.222|1");
 
@@ -41,7 +41,7 @@ public class ContextCarrierTestCase {
     }
 
     @Test
-    public void testIllegalDeserialize(){
+    public void testIllegalDeserialize() {
         ContextCarrier carrier = new ContextCarrier();
         carrier.deserialize("abcde");
         Assert.assertFalse(carrier.isValid());

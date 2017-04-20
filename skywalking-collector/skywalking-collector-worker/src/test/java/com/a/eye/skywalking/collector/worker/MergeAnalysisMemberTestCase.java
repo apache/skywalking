@@ -45,7 +45,7 @@ public class MergeAnalysisMemberTestCase {
 
     @Test
     public void testSetMergeDataNotFull() throws Exception {
-        when(persistenceData.size()).thenReturn(CacheSizeConfig.Cache.Analysis.size - 1);
+        when(persistenceData.size()).thenReturn(CacheSizeConfig.Cache.Analysis.SIZE - 1);
 
         mergeAnalysisMember.setMergeData("segment_1", "column", "value");
         Mockito.verify(mergeAnalysisMember, Mockito.never()).aggregation();
@@ -53,7 +53,7 @@ public class MergeAnalysisMemberTestCase {
 
     @Test
     public void testSetMergeDataFull() throws Exception {
-        when(persistenceData.size()).thenReturn(CacheSizeConfig.Cache.Analysis.size);
+        when(persistenceData.size()).thenReturn(CacheSizeConfig.Cache.Analysis.SIZE);
 
         mergeAnalysisMember.setMergeData("segment_1", "column", "value");
         Mockito.verify(mergeAnalysisMember, Mockito.times(1)).aggregation();

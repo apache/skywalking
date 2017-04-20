@@ -1,6 +1,5 @@
 package com.a.eye.skywalking.collector.worker.globaltrace.persistence;
 
-
 import com.a.eye.skywalking.collector.actor.AbstractLocalAsyncWorkerProvider;
 import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
 import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
@@ -15,18 +14,19 @@ import com.a.eye.skywalking.collector.worker.globaltrace.GlobalTraceIndex;
  */
 public class GlobalTraceSave extends MergePersistenceMember {
 
-    GlobalTraceSave(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    GlobalTraceSave(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext,
+        LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
     @Override
     public String esIndex() {
-        return GlobalTraceIndex.Index;
+        return GlobalTraceIndex.INDEX;
     }
 
     @Override
     public String esType() {
-        return GlobalTraceIndex.Type_Record;
+        return GlobalTraceIndex.TYPE_RECORD;
     }
 
     public static class Factory extends AbstractLocalAsyncWorkerProvider<GlobalTraceSave> {
@@ -39,7 +39,7 @@ public class GlobalTraceSave extends MergePersistenceMember {
 
         @Override
         public int queueSize() {
-            return WorkerConfig.Queue.GlobalTrace.GlobalTraceSave.Size;
+            return WorkerConfig.Queue.GlobalTrace.GlobalTraceSave.SIZE;
         }
 
         @Override

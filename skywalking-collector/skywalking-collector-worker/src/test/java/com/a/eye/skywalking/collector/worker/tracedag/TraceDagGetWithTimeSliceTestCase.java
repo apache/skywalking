@@ -162,7 +162,7 @@ public class TraceDagGetWithTimeSliceTestCase {
     class TraceDagGetAnswerGet_2 implements Answer {
         @Override
         public Object answer(InvocationOnMock invocation) throws Throwable {
-            NodeMappingSearchWithTimeSlice.RequestEntity entity = (NodeMappingSearchWithTimeSlice.RequestEntity) invocation.getArguments()[0];
+            NodeMappingSearchWithTimeSlice.RequestEntity entity = (NodeMappingSearchWithTimeSlice.RequestEntity)invocation.getArguments()[0];
             Assert.assertEquals(10, entity.getStartTime());
             Assert.assertEquals(20, entity.getEndTime());
             Assert.assertEquals("minute", entity.getSliceType());
@@ -173,7 +173,7 @@ public class TraceDagGetWithTimeSliceTestCase {
     class TraceDagGetAnswerGet_3 implements Answer {
         @Override
         public Object answer(InvocationOnMock invocation) throws Throwable {
-            NodeRefSearchWithTimeSlice.RequestEntity entity = (NodeRefSearchWithTimeSlice.RequestEntity) invocation.getArguments()[0];
+            NodeRefSearchWithTimeSlice.RequestEntity entity = (NodeRefSearchWithTimeSlice.RequestEntity)invocation.getArguments()[0];
             Assert.assertEquals(10, entity.getStartTime());
             Assert.assertEquals(20, entity.getEndTime());
             Assert.assertEquals("minute", entity.getSliceType());
@@ -184,7 +184,7 @@ public class TraceDagGetWithTimeSliceTestCase {
     class TraceDagGetAnswerGet_4 implements Answer {
         @Override
         public Object answer(InvocationOnMock invocation) throws Throwable {
-            NodeRefResSumSearchWithTimeSlice.RequestEntity entity = (NodeRefResSumSearchWithTimeSlice.RequestEntity) invocation.getArguments()[0];
+            NodeRefResSumSearchWithTimeSlice.RequestEntity entity = (NodeRefResSumSearchWithTimeSlice.RequestEntity)invocation.getArguments()[0];
             Assert.assertEquals(10, entity.getStartTime());
             Assert.assertEquals(20, entity.getEndTime());
             Assert.assertEquals("minute", entity.getSliceType());

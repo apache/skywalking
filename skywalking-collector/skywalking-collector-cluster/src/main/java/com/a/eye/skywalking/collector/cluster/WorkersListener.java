@@ -27,16 +27,12 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author pengys5
  */
 public class WorkersListener extends UntypedActor {
+    public static final String WORK_NAME = "WorkersListener";
 
-    private Logger logger = LogManager.getFormatterLogger(WorkersListener.class);
-
-    public static final String WorkName = "WorkersListener";
-
-    private Cluster cluster = Cluster.get(getContext().system());
-
-    private Map<ActorRef, ClusterWorkerRef> relation = new ConcurrentHashMap<>();
-
+    private static final Logger logger = LogManager.getFormatterLogger(WorkersListener.class);
     private final ClusterWorkerContext clusterContext;
+    private Cluster cluster = Cluster.get(getContext().system());
+    private Map<ActorRef, ClusterWorkerRef> relation = new ConcurrentHashMap<>();
 
     public WorkersListener(ClusterWorkerContext clusterContext) {
         this.clusterContext = clusterContext;
@@ -50,18 +46,18 @@ public class WorkersListener extends UntypedActor {
     @Override
     public void onReceive(Object message) throws Throwable {
         if (message instanceof WorkerListenerMessage.RegisterMessage) {
-            WorkerListenerMessage.RegisterMessage register = (WorkerListenerMessage.RegisterMessage) message;
+            WorkerListenerMessage.RegisterMessage register = (WorkerListenerMessage.RegisterMessage)message;
             ActorRef sender = getSender();
             logger.info("register worker of role: %s, path: %s", register.getRole().roleName(), sender.toString());
             ClusterWorkerRef workerRef = new ClusterWorkerRef(sender, register.getRole());
             relation.put(sender, workerRef);
             clusterContext.put(new ClusterWorkerRef(sender, register.getRole()));
         } else if (message instanceof Terminated) {
-            Terminated terminated = (Terminated) message;
+            Terminated terminated = (Terminated)message;
             clusterContext.remove(relation.get(terminated.getActor()));
             relation.remove(terminated.getActor());
         } else if (message instanceof ClusterEvent.UnreachableMember) {
-            ClusterEvent.UnreachableMember unreachableMember = (ClusterEvent.UnreachableMember) message;
+            ClusterEvent.UnreachableMember unreachableMember = (ClusterEvent.UnreachableMember)message;
 
             Iterator<Map.Entry<ActorRef, ClusterWorkerRef>> iterator = relation.entrySet().iterator();
             while (iterator.hasNext()) {

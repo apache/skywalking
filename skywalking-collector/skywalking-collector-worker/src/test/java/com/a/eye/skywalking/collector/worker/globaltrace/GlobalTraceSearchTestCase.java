@@ -35,13 +35,13 @@ public class GlobalTraceSearchTestCase {
         String segment_2 = "SEGMENT.2";
 
 //        String globalData = JsonFileReader.INSTANCE.read(this.getClass().getResource("/").getPath() + "/json/globaltrace/global.json");
-//        mockSegment(client, GlobalTraceIndex.Index, GlobalTraceIndex.Type_Record, globalTraceId, globalData);
+//        mockSegment(client, GlobalTraceIndex.INDEX, GlobalTraceIndex.Type_Record, globalTraceId, globalData);
 //
 //        String segment_1_Data = JsonFileReader.INSTANCE.read(this.getClass().getResource("/").getPath() + "/json/globaltrace/segment_1.json");
-//        mockSegment(client, SegmentIndex.Index, SegmentIndex.Type_Record, segment_1, segment_1_Data);
+//        mockSegment(client, SegmentIndex.INDEX, SegmentIndex.Type_Record, segment_1, segment_1_Data);
 //
 //        String segment_2_Data = JsonFileReader.INSTANCE.read(this.getClass().getResource("/").getPath() + "/json/globaltrace/segment_2.json");
-//        mockSegment(client, SegmentIndex.Index, SegmentIndex.Type_Record, segment_2, segment_2_Data);
+//        mockSegment(client, SegmentIndex.INDEX, SegmentIndex.Type_Record, segment_2, segment_2_Data);
 //
 //        GlobalTraceSearchWithGlobalId search = new GlobalTraceSearchWithGlobalId(null, null, null);
 //

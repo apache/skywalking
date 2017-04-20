@@ -58,7 +58,7 @@ public final class TracerContext {
      * @param startTime {@link Span#startTime}
      * @return
      */
-    public Span createSpan(String operationName, long startTime){
+    public Span createSpan(String operationName, long startTime) {
         Span parentSpan = peek();
         Span span;
         if (parentSpan == null) {
@@ -93,11 +93,11 @@ public final class TracerContext {
     /**
      * @return the current trace id.
      */
-    String getGlobalTraceId(){
+    String getGlobalTraceId() {
         return segment.getRelatedGlobalTraces().get(0).get();
     }
 
-    public void stopSpan(Span span, Long endTime){
+    public void stopSpan(Span span, Long endTime) {
         Span lastSpan = peek();
         if (lastSpan == span) {
             pop().finish(segment, endTime);
@@ -129,10 +129,10 @@ public final class TracerContext {
         carrier.setSpanId(span.getSpanId());
         carrier.setApplicationCode(Config.Agent.APPLICATION_CODE);
         String host = Tags.PEER_HOST.get(span);
-        if(host != null) {
+        if (host != null) {
             Integer port = Tags.PEER_PORT.get(span);
             carrier.setPeerHost(host + ":" + port);
-        }else{
+        } else {
             carrier.setPeerHost(Tags.PEERS.get(span));
         }
         carrier.setDistributedTraceIds(this.segment.getRelatedGlobalTraces());
@@ -146,14 +146,14 @@ public final class TracerContext {
      * ContextCarrier#deserialize(String)} called.
      */
     public void extract(ContextCarrier carrier) {
-        if(carrier.isValid()) {
+        if (carrier.isValid()) {
             this.segment.ref(getRef(carrier));
             ServiceManager.INSTANCE.findService(SamplingService.class).setSampleWhenExtract(this.segment, carrier);
             this.segment.relatedGlobalTraces(carrier.getDistributedTraceIds());
         }
     }
 
-    private TraceSegmentRef getRef(ContextCarrier carrier){
+    private TraceSegmentRef getRef(ContextCarrier carrier) {
         TraceSegmentRef ref = new TraceSegmentRef();
         ref.setTraceSegmentId(carrier.getTraceSegmentId());
         ref.setSpanId(carrier.getSpanId());
@@ -198,26 +198,26 @@ public final class TracerContext {
     }
 
     public static class ListenerManager {
-        private static List<TracerContextListener> listeners = new LinkedList<TracerContextListener>();
+        private static List<TracerContextListener> LISTENERS = new LinkedList<TracerContextListener>();
 
         /**
-         * Add the given {@link TracerContextListener} to {@link #listeners} list.
+         * Add the given {@link TracerContextListener} to {@link #LISTENERS} list.
          *
          * @param listener the new listener.
          */
         public static synchronized void add(TracerContextListener listener) {
-            listeners.add(listener);
+            LISTENERS.add(listener);
         }
 
         /**
          * Notify the {@link ListenerManager} about the given {@link TraceSegment} have finished.
-         * And trigger {@link ListenerManager} to notify all {@link #listeners} 's
+         * And trigger {@link ListenerManager} to notify all {@link #LISTENERS} 's
          * {@link TracerContextListener#afterFinished(TraceSegment)}
          *
          * @param finishedSegment
          */
         static void notifyFinish(TraceSegment finishedSegment) {
-            for (TracerContextListener listener : listeners) {
+            for (TracerContextListener listener : LISTENERS) {
                 listener.afterFinished(finishedSegment);
             }
         }
@@ -225,8 +225,8 @@ public final class TracerContext {
         /**
          * Clear the given {@link TracerContextListener}
          */
-        public static synchronized void remove(TracerContextListener listener){
-            listeners.remove(listener);
+        public static synchronized void remove(TracerContextListener listener) {
+            LISTENERS.remove(listener);
         }
     }
 }

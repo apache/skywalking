@@ -33,51 +33,51 @@ public class NodeRefResSumGroupWithTimeSlice extends AbstractLocalSyncWorker {
     @Override
     public void onWork(Object request, Object response) throws Exception {
         if (request instanceof RequestEntity) {
-            RequestEntity search = (RequestEntity) request;
+            RequestEntity search = (RequestEntity)request;
 
-            SearchRequestBuilder searchRequestBuilder = EsClient.INSTANCE.getClient().prepareSearch(NodeRefResSumIndex.Index);
+            SearchRequestBuilder searchRequestBuilder = EsClient.INSTANCE.getClient().prepareSearch(NodeRefResSumIndex.INDEX);
             searchRequestBuilder.setTypes(search.getSliceType());
             searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
-            searchRequestBuilder.setQuery(QueryBuilders.rangeQuery(NodeRefResSumIndex.Time_Slice).gte(search.getStartTime()).lte(search.getEndTime()));
+            searchRequestBuilder.setQuery(QueryBuilders.rangeQuery(NodeRefResSumIndex.TIME_SLICE).gte(search.getStartTime()).lte(search.getEndTime()));
             searchRequestBuilder.setSize(0);
 
-            TermsAggregationBuilder aggregationBuilder = AggregationBuilders.terms(NodeRefResSumIndex.Time_Slice).field(NodeRefResSumIndex.Time_Slice);
-            aggregationBuilder.subAggregation(AggregationBuilders.sum(NodeRefResSumIndex.OneSecondLess).field(NodeRefResSumIndex.OneSecondLess));
-            aggregationBuilder.subAggregation(AggregationBuilders.sum(NodeRefResSumIndex.ThreeSecondLess).field(NodeRefResSumIndex.ThreeSecondLess));
-            aggregationBuilder.subAggregation(AggregationBuilders.sum(NodeRefResSumIndex.FiveSecondLess).field(NodeRefResSumIndex.FiveSecondLess));
-            aggregationBuilder.subAggregation(AggregationBuilders.sum(NodeRefResSumIndex.FiveSecondGreater).field(NodeRefResSumIndex.FiveSecondGreater));
-            aggregationBuilder.subAggregation(AggregationBuilders.sum(NodeRefResSumIndex.Error).field(NodeRefResSumIndex.Error));
-            aggregationBuilder.subAggregation(AggregationBuilders.sum(NodeRefResSumIndex.Summary).field(NodeRefResSumIndex.Summary));
+            TermsAggregationBuilder aggregationBuilder = AggregationBuilders.terms(NodeRefResSumIndex.TIME_SLICE).field(NodeRefResSumIndex.TIME_SLICE);
+            aggregationBuilder.subAggregation(AggregationBuilders.sum(NodeRefResSumIndex.ONE_SECOND_LESS).field(NodeRefResSumIndex.ONE_SECOND_LESS));
+            aggregationBuilder.subAggregation(AggregationBuilders.sum(NodeRefResSumIndex.THREE_SECOND_LESS).field(NodeRefResSumIndex.THREE_SECOND_LESS));
+            aggregationBuilder.subAggregation(AggregationBuilders.sum(NodeRefResSumIndex.FIVE_SECOND_LESS).field(NodeRefResSumIndex.FIVE_SECOND_LESS));
+            aggregationBuilder.subAggregation(AggregationBuilders.sum(NodeRefResSumIndex.FIVE_SECOND_GREATER).field(NodeRefResSumIndex.FIVE_SECOND_GREATER));
+            aggregationBuilder.subAggregation(AggregationBuilders.sum(NodeRefResSumIndex.ERROR).field(NodeRefResSumIndex.ERROR));
+            aggregationBuilder.subAggregation(AggregationBuilders.sum(NodeRefResSumIndex.SUMMARY).field(NodeRefResSumIndex.SUMMARY));
 
             searchRequestBuilder.addAggregation(aggregationBuilder);
 
             SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
 
             JsonArray nodeRefResSumArray = new JsonArray();
-            Terms aggTerms = searchResponse.getAggregations().get(NodeRefResSumIndex.Time_Slice);
+            Terms aggTerms = searchResponse.getAggregations().get(NodeRefResSumIndex.TIME_SLICE);
             for (Terms.Bucket bucket : aggTerms.getBuckets()) {
                 String aggId = String.valueOf(bucket.getKey());
-                Sum oneSecondLess = bucket.getAggregations().get(NodeRefResSumIndex.OneSecondLess);
-                Sum threeSecondLess = bucket.getAggregations().get(NodeRefResSumIndex.ThreeSecondLess);
-                Sum fiveSecondLess = bucket.getAggregations().get(NodeRefResSumIndex.FiveSecondLess);
-                Sum fiveSecondGreater = bucket.getAggregations().get(NodeRefResSumIndex.FiveSecondGreater);
-                Sum error = bucket.getAggregations().get(NodeRefResSumIndex.Error);
-                Sum summary = bucket.getAggregations().get(NodeRefResSumIndex.Summary);
+                Sum oneSecondLess = bucket.getAggregations().get(NodeRefResSumIndex.ONE_SECOND_LESS);
+                Sum threeSecondLess = bucket.getAggregations().get(NodeRefResSumIndex.THREE_SECOND_LESS);
+                Sum fiveSecondLess = bucket.getAggregations().get(NodeRefResSumIndex.FIVE_SECOND_LESS);
+                Sum fiveSecondGreater = bucket.getAggregations().get(NodeRefResSumIndex.FIVE_SECOND_GREATER);
+                Sum error = bucket.getAggregations().get(NodeRefResSumIndex.ERROR);
+                Sum summary = bucket.getAggregations().get(NodeRefResSumIndex.SUMMARY);
                 logger.debug("aggId: %s, oneSecondLess: %s, threeSecondLess: %s, fiveSecondLess: %s, fiveSecondGreater: %s, error: %s, summary: %s", aggId,
-                        oneSecondLess.getValue(), threeSecondLess.getValue(), fiveSecondLess.getValue(), fiveSecondGreater.getValue(), error.getValue(), summary.getValue());
+                    oneSecondLess.getValue(), threeSecondLess.getValue(), fiveSecondLess.getValue(), fiveSecondGreater.getValue(), error.getValue(), summary.getValue());
 
                 JsonObject nodeRefResSumObj = new JsonObject();
-                nodeRefResSumObj.addProperty(NodeRefResSumIndex.Time_Slice, aggId);
-                nodeRefResSumObj.addProperty(NodeRefResSumIndex.OneSecondLess, oneSecondLess.getValue());
-                nodeRefResSumObj.addProperty(NodeRefResSumIndex.ThreeSecondLess, threeSecondLess.getValue());
-                nodeRefResSumObj.addProperty(NodeRefResSumIndex.FiveSecondLess, fiveSecondLess.getValue());
-                nodeRefResSumObj.addProperty(NodeRefResSumIndex.FiveSecondGreater, fiveSecondGreater.getValue());
-                nodeRefResSumObj.addProperty(NodeRefResSumIndex.Error, error.getValue());
-                nodeRefResSumObj.addProperty(NodeRefResSumIndex.Summary, summary.getValue());
+                nodeRefResSumObj.addProperty(NodeRefResSumIndex.TIME_SLICE, aggId);
+                nodeRefResSumObj.addProperty(NodeRefResSumIndex.ONE_SECOND_LESS, oneSecondLess.getValue());
+                nodeRefResSumObj.addProperty(NodeRefResSumIndex.THREE_SECOND_LESS, threeSecondLess.getValue());
+                nodeRefResSumObj.addProperty(NodeRefResSumIndex.FIVE_SECOND_LESS, fiveSecondLess.getValue());
+                nodeRefResSumObj.addProperty(NodeRefResSumIndex.FIVE_SECOND_GREATER, fiveSecondGreater.getValue());
+                nodeRefResSumObj.addProperty(NodeRefResSumIndex.ERROR, error.getValue());
+                nodeRefResSumObj.addProperty(NodeRefResSumIndex.SUMMARY, summary.getValue());
                 nodeRefResSumArray.add(nodeRefResSumObj);
             }
 
-            JsonObject resJsonObj = (JsonObject) response;
+            JsonObject resJsonObj = (JsonObject)response;
             resJsonObj.add("result", nodeRefResSumArray);
         } else {
             throw new IllegalArgumentException("message instance must be RequestEntity");

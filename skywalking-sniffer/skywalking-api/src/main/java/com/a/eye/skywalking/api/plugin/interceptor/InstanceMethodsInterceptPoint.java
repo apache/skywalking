@@ -21,7 +21,6 @@ public interface InstanceMethodsInterceptPoint {
     ElementMatcher<MethodDescription> getMethodsMatcher();
 
     /**
-     *
      * @return represents a class name, the class instance must instanceof InstanceMethodsAroundInterceptor.
      */
     String getMethodsInterceptor();

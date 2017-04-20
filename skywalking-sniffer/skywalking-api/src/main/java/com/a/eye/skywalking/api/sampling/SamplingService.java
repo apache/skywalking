@@ -17,7 +17,7 @@ import com.a.eye.skywalking.trace.TraceSegment;
  * @author wusheng
  */
 public class SamplingService implements BootService {
-    private static ILog logger = LogManager.getLogger(SamplingService.class);
+    private static final ILog logger = LogManager.getLogger(SamplingService.class);
 
     private volatile boolean on = false;
     private volatile int rollingSeed = 1;
@@ -57,7 +57,7 @@ public class SamplingService implements BootService {
      * @param carrier
      */
     public void setSampleWhenExtract(TraceSegment segment, ContextCarrier carrier) {
-        if(on) {
+        if (on) {
             if (!segment.isSampled() && carrier.isSampled()) {
                 segment.setSampled(true);
                 this.rollingSeed = 1;

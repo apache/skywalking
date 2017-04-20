@@ -1,15 +1,17 @@
 package com.a.eye.skywalking.collector.worker.storage;
 
 import com.a.eye.skywalking.collector.actor.selector.AbstractHashMessage;
-
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author pengys5
  */
 public class MergeData extends AbstractHashMessage {
-
-    public static final String Split = ",";
+    public static final String SPLIT = ",";
 
     private String id;
 
@@ -44,10 +46,10 @@ public class MergeData extends AbstractHashMessage {
 
     public void merge(Map<String, Object> dbData) {
         for (Map.Entry<String, Object> entry : dbData.entrySet()) {
-            if (!AbstractIndex.Time_Slice.equals(entry.getKey())
-                    && !AbstractIndex.AGG_COLUMN.equals(entry.getKey())) {
+            if (!AbstractIndex.TIME_SLICE.equals(entry.getKey())
+                && !AbstractIndex.AGG_COLUMN.equals(entry.getKey())) {
                 String dbValue = String.valueOf(entry.getValue());
-                String[] dbValues = dbValue.split(Split);
+                String[] dbValues = dbValue.split(SPLIT);
                 for (String value : dbValues) {
                     setMergeData(entry.getKey(), value);
                 }
@@ -67,7 +69,7 @@ public class MergeData extends AbstractHashMessage {
                 if (i == 0) {
                     value.append(iterator.next());
                 } else {
-                    value.append(Split).append(iterator.next());
+                    value.append(SPLIT).append(iterator.next());
                 }
                 i++;
             }

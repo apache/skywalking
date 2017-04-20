@@ -59,7 +59,7 @@ public class Segment {
     private List<Span> spans;
 
     /**
-     * The <code>applicationCode</code> represents a name of current application/JVM and indicates which is business
+     * The <code>applicationCode</code> represents a NAME of current application/JVM and indicates which is business
      * role in the cluster.
      * <p>
      * e.g. account_app, billing_app

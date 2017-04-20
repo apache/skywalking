@@ -14,12 +14,12 @@ import org.junit.Test;
  */
 public class MockTracerContextListenerTestCase {
     @BeforeClass
-    public static void setup(){
+    public static void setup() {
         ServiceManager.INSTANCE.boot();
     }
 
     @Test
-    public void testAfterFinished(){
+    public void testAfterFinished() {
         MockTracerContextListener listener = new MockTracerContextListener();
         listener.afterFinished(TraceSegmentBuilderFactory.INSTANCE.singleTomcat200Trace());
 
@@ -27,7 +27,7 @@ public class MockTracerContextListenerTestCase {
     }
 
     @Test(expected = AssertionError.class)
-    public void testAssertSize(){
+    public void testAssertSize() {
         MockTracerContextListener listener = new MockTracerContextListener();
         listener.afterFinished(TraceSegmentBuilderFactory.INSTANCE.singleTomcat404Trace());
 
@@ -35,7 +35,7 @@ public class MockTracerContextListenerTestCase {
     }
 
     @Test
-    public void testAssertTraceSegment(){
+    public void testAssertTraceSegment() {
         MockTracerContextListener listener = new MockTracerContextListener();
         listener.afterFinished(TraceSegmentBuilderFactory.INSTANCE.singleTomcat404Trace());
         listener.afterFinished(TraceSegmentBuilderFactory.INSTANCE.singleTomcat500Trace());
@@ -48,7 +48,7 @@ public class MockTracerContextListenerTestCase {
     }
 
     @Test(expected = AssertionError.class)
-    public void testClear(){
+    public void testClear() {
         MockTracerContextListener listener = new MockTracerContextListener();
         listener.afterFinished(TraceSegmentBuilderFactory.INSTANCE.singleTomcat404Trace());
         listener.afterFinished(TraceSegmentBuilderFactory.INSTANCE.singleTomcat500Trace());
@@ -58,14 +58,14 @@ public class MockTracerContextListenerTestCase {
     }
 
     @Test
-    public void testTraceOf_Tomcat_DubboClient(){
+    public void testTraceOf_Tomcat_DubboClient() {
         TraceSegment segment = TraceSegmentBuilderFactory.INSTANCE.traceOf_Tomcat_DubboClient();
 
         Assert.assertEquals(2, segment.getSpans().size());
     }
 
     @Test
-    public void testTraceOf_DubboServer_MySQL(){
+    public void testTraceOf_DubboServer_MySQL() {
         TraceSegment segment = TraceSegmentBuilderFactory.INSTANCE.traceOf_DubboServer_MySQL();
 
         Assert.assertEquals(2, segment.getSpans().size());

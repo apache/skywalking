@@ -68,7 +68,7 @@ public class SpanSearchWithIdTestCase {
         String sourceString = gson.toJson(segment);
 
         GetResponse getResponse = mock(GetResponse.class);
-        when(getResponseFromEs.get(SegmentIndex.Index, SegmentIndex.Type_Record, "1")).thenReturn(getResponse);
+        when(getResponseFromEs.get(SegmentIndex.INDEX, SegmentIndex.TYPE_RECORD, "1")).thenReturn(getResponse);
         when(getResponse.getSourceAsString()).thenReturn(sourceString);
 
         SpanSearchWithId.RequestEntity request = new SpanSearchWithId.RequestEntity("1", "0");
@@ -77,14 +77,14 @@ public class SpanSearchWithIdTestCase {
 
         JsonObject segJsonObj = response.get(Const.RESULT).getAsJsonObject();
         String value = segJsonObj.get("ts").getAsJsonObject().get("Tag").getAsString();
-        Assert.assertEquals("Value", value);
+        Assert.assertEquals("VALUE", value);
     }
 
     private TraceSegment create() {
         TraceSegment segment = new TraceSegment();
 
         Span span = new Span();
-        span.setTag("Tag", "Value");
+        span.setTag("Tag", "VALUE");
         span.finish(segment);
         segment.finish();
 

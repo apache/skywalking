@@ -75,7 +75,7 @@ public class SWConnectionTest extends AbstractStatementTest {
 
     @Test
     public void testMultiHostCommit() throws SQLException {
-        PreparedStatement preparedStatement = swConnection.prepareStatement("SELECT * FROM test", new String[]{"1"});
+        PreparedStatement preparedStatement = swConnection.prepareStatement("SELECT * FROM test", new String[] {"1"});
         multiHostConnection.commit();
 
         mockTracerContextListener.assertSize(1);
@@ -90,7 +90,7 @@ public class SWConnectionTest extends AbstractStatementTest {
 
     @Test(expected = SQLException.class)
     public void testCommitWithException() throws SQLException {
-        PreparedStatement preparedStatement = swConnection.prepareStatement("SELECT * FROM test", new int[]{1});
+        PreparedStatement preparedStatement = swConnection.prepareStatement("SELECT * FROM test", new int[] {1});
         doThrow(new SQLException()).when(jdbcConnection).commit();
         try {
             swConnection.commit();
@@ -153,7 +153,6 @@ public class SWConnectionTest extends AbstractStatementTest {
             }
         });
     }
-
 
     @Test
     public void testRollBackWithSavePoint() throws SQLException {
@@ -245,7 +244,6 @@ public class SWConnectionTest extends AbstractStatementTest {
             }
         });
     }
-
 
     @Test
     public void testReleaseSavePoint() throws SQLException {
@@ -351,7 +349,6 @@ public class SWConnectionTest extends AbstractStatementTest {
         verify(jdbcConnection, times(1)).isReadOnly();
         verify(jdbcConnection, times(1)).isValid(anyInt());
         verify(jdbcConnection, times(1)).setTypeMap(any(HashMap.class));
-
 
     }
 

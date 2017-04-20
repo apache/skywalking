@@ -15,7 +15,8 @@ public class NodeRefResSumHourAgg extends AbstractClusterWorker {
 
     private Logger logger = LogManager.getFormatterLogger(NodeRefResSumHourAgg.class);
 
-    NodeRefResSumHourAgg(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    NodeRefResSumHourAgg(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext,
+        LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
@@ -48,7 +49,7 @@ public class NodeRefResSumHourAgg extends AbstractClusterWorker {
 
         @Override
         public int workerNum() {
-            return WorkerConfig.WorkerNum.NodeRef.NodeRefResSumHourAgg.Value;
+            return WorkerConfig.WorkerNum.NodeRef.NodeRefResSumHourAgg.VALUE;
         }
     }
 

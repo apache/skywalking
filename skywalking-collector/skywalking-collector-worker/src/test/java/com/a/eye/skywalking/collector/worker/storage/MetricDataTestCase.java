@@ -18,14 +18,14 @@ public class MetricDataTestCase {
         MetricData metricData_1 = new MetricData(id_1);
 
         Assert.assertEquals(id_1, metricData_1.getId());
-        Assert.assertEquals(2016L, metricData_1.toMap().get(AbstractIndex.Time_Slice));
+        Assert.assertEquals(2016L, metricData_1.toMap().get(AbstractIndex.TIME_SLICE));
         Assert.assertEquals("B", metricData_1.toMap().get(AbstractIndex.AGG_COLUMN));
 
         String id_2 = "2017" + Const.ID_SPLIT + "B" + Const.ID_SPLIT + "C";
         MetricData metricData_2 = new MetricData(id_2);
 
         Assert.assertEquals(id_2, metricData_2.getId());
-        Assert.assertEquals(2017L, metricData_2.toMap().get(AbstractIndex.Time_Slice));
+        Assert.assertEquals(2017L, metricData_2.toMap().get(AbstractIndex.TIME_SLICE));
         Assert.assertEquals("B" + Const.ID_SPLIT + "C", metricData_2.toMap().get(AbstractIndex.AGG_COLUMN));
     }
 

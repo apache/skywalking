@@ -28,11 +28,12 @@ import static net.bytebuddy.matcher.ElementMatchers.not;
  * @author wusheng
  */
 public class SkyWalkingAgent {
+    private static final ILog logger;
+
     static {
         LogManager.setLogResolver(new EasyLogResolver());
+        logger = LogManager.getLogger(SkyWalkingAgent.class);
     }
-
-    private static ILog logger;
 
     /**
      * Main entrance.
@@ -43,8 +44,6 @@ public class SkyWalkingAgent {
      * @throws PluginException
      */
     public static void premain(String agentArgs, Instrumentation instrumentation) throws PluginException {
-        logger = LogManager.getLogger(SkyWalkingAgent.class);
-
         SnifferConfigInitializer.initialize();
 
         final PluginFinder pluginFinder = new PluginFinder(new PluginBootstrap().loadPlugins());
@@ -52,13 +51,15 @@ public class SkyWalkingAgent {
         ServiceManager.INSTANCE.boot();
 
         new AgentBuilder.Default().type(enhanceClassMatcher(pluginFinder).and(not(isInterface()))).transform(new AgentBuilder.Transformer() {
-            public DynamicType.Builder<?> transform(DynamicType.Builder<?> builder, TypeDescription typeDescription, ClassLoader classLoader) {
+            public DynamicType.Builder<?> transform(DynamicType.Builder<?> builder, TypeDescription typeDescription,
+                ClassLoader classLoader) {
                 AbstractClassEnhancePluginDefine pluginDefine = pluginFinder.find(typeDescription.getTypeName());
                 return pluginDefine.define(typeDescription.getTypeName(), builder);
             }
         }).with(new AgentBuilder.Listener() {
             @Override
-            public void onTransformation(TypeDescription typeDescription, ClassLoader classLoader, JavaModule module, DynamicType dynamicType) {
+            public void onTransformation(TypeDescription typeDescription, ClassLoader classLoader, JavaModule module,
+                DynamicType dynamicType) {
 
             }
 

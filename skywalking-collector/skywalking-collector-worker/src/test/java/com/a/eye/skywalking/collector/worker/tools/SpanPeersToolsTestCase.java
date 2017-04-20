@@ -25,7 +25,7 @@ public class SpanPeersToolsTestCase {
         Span span = mock(Span.class);
         when(span.getStrTag("peers")).thenReturn(null);
         when(span.getStrTag("peer.host")).thenReturn("localhost");
-        when(span.getStrTag("peer.port")).thenReturn("8080");
+        when(span.getStrTag("peer.PORT")).thenReturn("8080");
 
         String peers = SpanPeersTools.INSTANCE.getPeers(span);
         Assert.assertEquals("[localhost:0]", peers);

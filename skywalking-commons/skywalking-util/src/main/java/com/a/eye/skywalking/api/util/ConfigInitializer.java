@@ -13,7 +13,7 @@ import java.util.logging.Logger;
  * Created by wusheng on 2017/1/9.
  */
 public class ConfigInitializer {
-    private static Logger logger = Logger.getLogger(ConfigInitializer.class.getName());
+    private static final Logger logger = Logger.getLogger(ConfigInitializer.class.getName());
 
     public static void initialize(Properties properties, Class<?> rootConfigType) throws IllegalAccessException {
         initNextLevel(properties, rootConfigType, new ConfigDesc());

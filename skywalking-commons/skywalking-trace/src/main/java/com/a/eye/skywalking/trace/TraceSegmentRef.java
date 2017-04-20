@@ -10,33 +10,33 @@ import com.google.gson.annotations.SerializedName;
  *
  * Created by wusheng on 2017/2/17.
  */
-public class TraceSegmentRef{
+public class TraceSegmentRef {
     /**
      * {@link TraceSegment#traceSegmentId}
      */
     @Expose
-    @SerializedName(value="ts")
+    @SerializedName(value = "ts")
     private String traceSegmentId;
 
     /**
      * {@link Span#spanId}
      */
     @Expose
-    @SerializedName(value="si")
+    @SerializedName(value = "si")
     private int spanId = -1;
 
     /**
      * {@link TraceSegment#applicationCode}
      */
     @Expose
-    @SerializedName(value="ac")
+    @SerializedName(value = "ac")
     private String applicationCode;
 
     /**
      * {@link Tags#PEER_HOST}
      */
     @Expose
-    @SerializedName(value="ph")
+    @SerializedName(value = "ph")
     private String peerHost;
 
     /**
@@ -88,10 +88,12 @@ public class TraceSegmentRef{
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
-        TraceSegmentRef that = (TraceSegmentRef) o;
+        TraceSegmentRef that = (TraceSegmentRef)o;
 
         return traceSegmentId != null ? traceSegmentId.equals(that.traceSegmentId) : that.traceSegmentId == null;
     }

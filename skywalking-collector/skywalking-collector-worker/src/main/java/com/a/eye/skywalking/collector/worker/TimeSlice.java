@@ -8,7 +8,7 @@ public abstract class TimeSlice {
     private long startTime;
     private long endTime;
 
-    public TimeSlice(String sliceType,long startTime, long endTime) {
+    public TimeSlice(String sliceType, long startTime, long endTime) {
         this.startTime = startTime;
         this.endTime = endTime;
         this.sliceType = sliceType;

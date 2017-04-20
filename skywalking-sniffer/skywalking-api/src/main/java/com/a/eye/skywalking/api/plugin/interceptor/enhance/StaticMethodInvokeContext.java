@@ -8,7 +8,7 @@ package com.a.eye.skywalking.api.plugin.interceptor.enhance;
  */
 public class StaticMethodInvokeContext extends MethodInvokeContext {
     /**
-     * 代理类名
+     * target class.
      */
     private Class clazz;
 
@@ -18,7 +18,6 @@ public class StaticMethodInvokeContext extends MethodInvokeContext {
     }
 
     /**
-     *
      * @return the target class
      */
     public Class claszz() {

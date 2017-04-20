@@ -5,9 +5,9 @@ package com.a.eye.skywalking.collector.actor;
  */
 public abstract class AbstractLocalSyncWorkerProvider<T extends AbstractLocalSyncWorker> extends AbstractLocalWorkerProvider<T> {
 
-    @Override
-    final public WorkerRef onCreate(LocalWorkerContext localContext) throws IllegalArgumentException, ProviderNotFoundException {
-        T localSyncWorker = (T) workerInstance(getClusterContext());
+    @Override    final public WorkerRef onCreate(
+        LocalWorkerContext localContext) throws IllegalArgumentException, ProviderNotFoundException {
+        T localSyncWorker = (T)workerInstance(getClusterContext());
         localSyncWorker.preStart();
 
         LocalSyncWorkerRef workerRef = new LocalSyncWorkerRef(role(), localSyncWorker);

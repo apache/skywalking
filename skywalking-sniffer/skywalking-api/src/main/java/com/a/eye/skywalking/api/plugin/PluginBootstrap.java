@@ -17,10 +17,11 @@ import java.util.List;
  * @author wusheng
  */
 public class PluginBootstrap {
-    private static ILog logger = LogManager.getLogger(PluginBootstrap.class);
+    private static final ILog logger = LogManager.getLogger(PluginBootstrap.class);
 
     /**
      * load all plugins.
+     *
      * @return plugin definition list.
      */
     public List<AbstractClassEnhancePluginDefine> loadPlugins() {
@@ -49,7 +50,7 @@ public class PluginBootstrap {
             try {
                 logger.debug("loading plugin class {}.", pluginClassName);
                 AbstractClassEnhancePluginDefine plugin =
-                        (AbstractClassEnhancePluginDefine) Class.forName(pluginClassName).newInstance();
+                    (AbstractClassEnhancePluginDefine)Class.forName(pluginClassName).newInstance();
                 plugin.setClassTypePool(classTypePool);
                 plugins.add(plugin);
             } catch (Throwable t) {
@@ -60,6 +61,5 @@ public class PluginBootstrap {
         return plugins;
 
     }
-
 
 }

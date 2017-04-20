@@ -29,7 +29,8 @@ import java.util.List;
  */
 public class SegmentTopSearchWithTimeSlice extends AbstractLocalSyncWorker {
 
-    private SegmentTopSearchWithTimeSlice(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    private SegmentTopSearchWithTimeSlice(Role role, ClusterWorkerContext clusterContext,
+        LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
@@ -41,16 +42,16 @@ public class SegmentTopSearchWithTimeSlice extends AbstractLocalSyncWorker {
     @Override
     protected void onWork(Object request, Object response) throws Exception {
         if (request instanceof RequestEntity) {
-            RequestEntity search = (RequestEntity) request;
+            RequestEntity search = (RequestEntity)request;
 
-            SearchRequestBuilder searchRequestBuilder = EsClient.INSTANCE.getClient().prepareSearch(SegmentCostIndex.Index);
-            searchRequestBuilder.setTypes(SegmentCostIndex.Type_Record);
+            SearchRequestBuilder searchRequestBuilder = EsClient.INSTANCE.getClient().prepareSearch(SegmentCostIndex.INDEX);
+            searchRequestBuilder.setTypes(SegmentCostIndex.TYPE_RECORD);
             searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
             BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
             searchRequestBuilder.setQuery(boolQueryBuilder);
-            boolQueryBuilder.must().add(QueryBuilders.rangeQuery(SegmentCostIndex.Time_Slice).gte(search.startTime).lte(search.endTime));
+            boolQueryBuilder.must().add(QueryBuilders.rangeQuery(SegmentCostIndex.TIME_SLICE).gte(search.startTime).lte(search.endTime));
             if (search.minCost != -1 || search.maxCost != -1) {
-                RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery(SegmentCostIndex.Cost);
+                RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery(SegmentCostIndex.COST);
                 if (search.minCost != -1) {
                     rangeQueryBuilder.gte(search.minCost);
                 }
@@ -60,7 +61,7 @@ public class SegmentTopSearchWithTimeSlice extends AbstractLocalSyncWorker {
                 boolQueryBuilder.must().add(rangeQueryBuilder);
             }
 
-            searchRequestBuilder.addSort(SegmentCostIndex.Cost, SortOrder.DESC);
+            searchRequestBuilder.addSort(SegmentCostIndex.COST, SortOrder.DESC);
             searchRequestBuilder.setSize(search.limit);
             searchRequestBuilder.setFrom(search.from);
 
@@ -76,17 +77,17 @@ public class SegmentTopSearchWithTimeSlice extends AbstractLocalSyncWorker {
             for (SearchHit searchHit : searchResponse.getHits().getHits()) {
                 JsonObject topSegmentJson = new JsonObject();
                 topSegmentJson.addProperty("num", num);
-                String segId = (String) searchHit.getSource().get(SegmentCostIndex.SegId);
-                topSegmentJson.addProperty(SegmentCostIndex.SegId, segId);
-                topSegmentJson.addProperty(SegmentCostIndex.StartTime, (Number) searchHit.getSource().get(SegmentCostIndex.StartTime));
-                if (searchHit.getSource().containsKey(SegmentCostIndex.EndTime)) {
-                    topSegmentJson.addProperty(SegmentCostIndex.EndTime, (Number) searchHit.getSource().get(SegmentCostIndex.EndTime));
+                String segId = (String)searchHit.getSource().get(SegmentCostIndex.SEG_ID);
+                topSegmentJson.addProperty(SegmentCostIndex.SEG_ID, segId);
+                topSegmentJson.addProperty(SegmentCostIndex.START_TIME, (Number)searchHit.getSource().get(SegmentCostIndex.START_TIME));
+                if (searchHit.getSource().containsKey(SegmentCostIndex.END_TIME)) {
+                    topSegmentJson.addProperty(SegmentCostIndex.END_TIME, (Number)searchHit.getSource().get(SegmentCostIndex.END_TIME));
                 }
 
-                topSegmentJson.addProperty(SegmentCostIndex.OperationName, (String) searchHit.getSource().get(SegmentCostIndex.OperationName));
-                topSegmentJson.addProperty(SegmentCostIndex.Cost, (Number) searchHit.getSource().get(SegmentCostIndex.Cost));
+                topSegmentJson.addProperty(SegmentCostIndex.OPERATION_NAME, (String)searchHit.getSource().get(SegmentCostIndex.OPERATION_NAME));
+                topSegmentJson.addProperty(SegmentCostIndex.COST, (Number)searchHit.getSource().get(SegmentCostIndex.COST));
 
-                String segmentSource = EsClient.INSTANCE.getClient().prepareGet(SegmentIndex.Index, SegmentIndex.Type_Record, segId).get().getSourceAsString();
+                String segmentSource = EsClient.INSTANCE.getClient().prepareGet(SegmentIndex.INDEX, SegmentIndex.TYPE_RECORD, segId).get().getSourceAsString();
                 Segment segment = SegmentDeserialize.INSTANCE.deserializeFromES(segmentSource);
                 List<DistributedTraceId> distributedTraceIdList = segment.getRelatedGlobalTraces();
 
@@ -103,17 +104,17 @@ public class SegmentTopSearchWithTimeSlice extends AbstractLocalSyncWorker {
                 getSelfContext().lookup(SegmentExceptionWithSegId.WorkerRole.INSTANCE).ask(new SegmentExceptionWithSegId.RequestEntity(segId), resJsonObj);
                 if (resJsonObj.has("result")) {
                     JsonObject segExJson = resJsonObj.get("result").getAsJsonObject();
-                    if (segExJson.has(SegmentExceptionIndex.IsError)) {
-                        isError = segExJson.get(SegmentExceptionIndex.IsError).getAsBoolean();
+                    if (segExJson.has(SegmentExceptionIndex.IS_ERROR)) {
+                        isError = segExJson.get(SegmentExceptionIndex.IS_ERROR).getAsBoolean();
                     }
                 }
-                topSegmentJson.addProperty(SegmentExceptionIndex.IsError, isError);
+                topSegmentJson.addProperty(SegmentExceptionIndex.IS_ERROR, isError);
 
                 num++;
                 topSegArray.add(topSegmentJson);
             }
 
-            JsonObject resJsonObj = (JsonObject) response;
+            JsonObject resJsonObj = (JsonObject)response;
             resJsonObj.add("result", topSegPaging);
         }
     }
