@@ -7,7 +7,6 @@ import com.a.eye.skywalking.trace.Span;
 import com.a.eye.skywalking.trace.TraceSegment;
 import com.a.eye.skywalking.trace.TraceSegmentRef;
 import com.a.eye.skywalking.trace.tag.Tags;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
