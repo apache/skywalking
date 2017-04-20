@@ -15,35 +15,35 @@ import com.mongodb.binding.ReadBinding;
  * @author baiyang
  */
 public class MongoDBReadBindingInterceptor implements
-		InstanceMethodsAroundInterceptor {
+    InstanceMethodsAroundInterceptor {
 
-	@Override
-	public void beforeMethod(EnhancedClassInstanceContext context,
-			InstanceMethodInvokeContext interceptorContext,
-			MethodInterceptResult result) {
-	}
+    @Override
+    public void beforeMethod(EnhancedClassInstanceContext context,
+        InstanceMethodInvokeContext interceptorContext,
+        MethodInterceptResult result) {
+    }
 
-	/**
-	 * Execute after {@link com.mongodb.Mongo#getReadBinding(ReadPreference)},
-	 * record the host and port information
-	 */
-	@Override
-	public Object afterMethod(EnhancedClassInstanceContext context,
-			InstanceMethodInvokeContext interceptorContext, Object ret) {
-		ReadBinding readBinding = (ReadBinding) ret;
-		ServerAddress serverAddress = readBinding.getReadConnectionSource()
-				.getServerDescription().getAddress();
-		String host = serverAddress.getHost();
-		Integer port = serverAddress.getPort();
-		context.set(MongoDBMethodInterceptor.MONGODB_HOST, host);
-		context.set(MongoDBMethodInterceptor.MONGODB_PORT, port);
-		return ret;
-	}
+    /**
+     * Execute after {@link com.mongodb.Mongo#getReadBinding(ReadPreference)},
+     * record the host and port information
+     */
+    @Override
+    public Object afterMethod(EnhancedClassInstanceContext context,
+        InstanceMethodInvokeContext interceptorContext, Object ret) {
+        ReadBinding readBinding = (ReadBinding)ret;
+        ServerAddress serverAddress = readBinding.getReadConnectionSource()
+            .getServerDescription().getAddress();
+        String host = serverAddress.getHost();
+        Integer port = serverAddress.getPort();
+        context.set(MongoDBMethodInterceptor.MONGODB_HOST, host);
+        context.set(MongoDBMethodInterceptor.MONGODB_PORT, port);
+        return ret;
+    }
 
-	@Override
-	public void handleMethodException(Throwable t,
-			EnhancedClassInstanceContext context,
-			InstanceMethodInvokeContext interceptorContext) {
-	}
+    @Override
+    public void handleMethodException(Throwable t,
+        EnhancedClassInstanceContext context,
+        InstanceMethodInvokeContext interceptorContext) {
+    }
 
 }

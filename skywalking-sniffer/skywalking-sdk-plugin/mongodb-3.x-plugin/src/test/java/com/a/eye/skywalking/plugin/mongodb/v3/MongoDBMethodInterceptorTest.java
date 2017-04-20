@@ -45,8 +45,8 @@ public class MongoDBMethodInterceptorTest {
     @Mock
     private InstanceMethodInvokeContext methodInvokeContext;
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-	@Before
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    @Before
     public void setUp() throws Exception {
         ServiceManager.INSTANCE.boot();
 
@@ -54,7 +54,7 @@ public class MongoDBMethodInterceptorTest {
         mockTracerContextListener = new MockTracerContextListener();
 
         TracerContext.ListenerManager.add(mockTracerContextListener);
-        
+
         Config.Plugin.MongoDB.TRACE_PARAM = true;
 
         when(classInstanceContext.get(MongoDBMethodInterceptor.MONGODB_HOST, String.class)).thenReturn("127.0.0.1");
@@ -63,16 +63,16 @@ public class MongoDBMethodInterceptorTest {
 
         BsonDocument document = new BsonDocument();
         document.append("name", new BsonString("by"));
-        
+
         MongoNamespace mongoNamespace = new MongoNamespace("test.user");
-        
+
         Decoder decoder = PowerMockito.mock(Decoder.class);
-        
+
         FindOperation findOperation = new FindOperation(mongoNamespace, decoder);
-        
+
         findOperation.filter(document);
 
-        when(methodInvokeContext.allArguments()).thenReturn(new Object[] { findOperation });
+        when(methodInvokeContext.allArguments()).thenReturn(new Object[] {findOperation});
     }
 
     @Test
@@ -112,7 +112,7 @@ public class MongoDBMethodInterceptorTest {
 
     private void assertLogData(LogData logData) {
         MatcherAssert.assertThat(logData.getFields().size(), is(4));
-        MatcherAssert.assertThat(logData.getFields().get("event"), CoreMatchers.<Object> is("error"));
+        MatcherAssert.assertThat(logData.getFields().get("event"), CoreMatchers.<Object>is("error"));
         assertEquals(logData.getFields().get("error.kind"), RuntimeException.class.getName());
         assertNull(logData.getFields().get("message"));
     }

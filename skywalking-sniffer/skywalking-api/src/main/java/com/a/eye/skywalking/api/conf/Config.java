@@ -81,9 +81,9 @@ public class Config {
          */
         public static LogLevel LEVEL = LogLevel.DEBUG;
     }
-    
-    public static class Plugin{
-        public static class MongoDB{
+
+    public static class Plugin {
+        public static class MongoDB {
             /**
              * If true, trace all the parameters, default is false.
              * Only trace the operation, not include parameters.

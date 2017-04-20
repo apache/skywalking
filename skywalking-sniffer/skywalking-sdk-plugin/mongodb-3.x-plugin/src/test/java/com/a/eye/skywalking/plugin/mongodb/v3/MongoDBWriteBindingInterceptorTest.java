@@ -43,7 +43,7 @@ public class MongoDBWriteBindingInterceptorTest {
         interceptor = new MongoDBWriteBindingInterceptor();
 
         ServerDescription serverDescription =
-                ServerDescription.builder().address(address).state(ServerConnectionState.CONNECTED).build();
+            ServerDescription.builder().address(address).state(ServerConnectionState.CONNECTED).build();
 
         PowerMockito.when(connectionSource.getServerDescription()).thenReturn(serverDescription);
 

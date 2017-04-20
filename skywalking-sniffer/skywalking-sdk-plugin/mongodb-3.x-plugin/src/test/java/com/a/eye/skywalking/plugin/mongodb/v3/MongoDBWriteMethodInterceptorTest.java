@@ -72,14 +72,14 @@ public class MongoDBWriteMethodInterceptorTest {
         DeleteRequest deleteRequest = new DeleteRequest(document);
 
         requestList.add(deleteRequest);
-        
-        MongoNamespace mongoNamespace = new MongoNamespace("test.user");
-        
-        WriteConcern writeConcern = PowerMockito.mock(WriteConcern.class);
-        
-        DeleteOperation deleteOperation = new DeleteOperation(mongoNamespace,false,writeConcern,requestList);
 
-        when(methodInvokeContext.allArguments()).thenReturn(new Object[] { deleteOperation });
+        MongoNamespace mongoNamespace = new MongoNamespace("test.user");
+
+        WriteConcern writeConcern = PowerMockito.mock(WriteConcern.class);
+
+        DeleteOperation deleteOperation = new DeleteOperation(mongoNamespace, false, writeConcern, requestList);
+
+        when(methodInvokeContext.allArguments()).thenReturn(new Object[] {deleteOperation});
     }
 
     @Test
@@ -99,7 +99,7 @@ public class MongoDBWriteMethodInterceptorTest {
     }
 
     private void assertRedisSpan(Span span) {
-    	assertThat(span.getOperationName(), is("MongoDB/DeleteOperation"));
+        assertThat(span.getOperationName(), is("MongoDB/DeleteOperation"));
         assertThat(Tags.PEER_HOST.get(span), is("127.0.0.1"));
         assertThat(Tags.PEER_PORT.get(span), is(27017));
         assertThat(Tags.COMPONENT.get(span), is("MongoDB"));
@@ -129,7 +129,7 @@ public class MongoDBWriteMethodInterceptorTest {
 
     private void assertLogData(LogData logData) {
         MatcherAssert.assertThat(logData.getFields().size(), is(4));
-        MatcherAssert.assertThat(logData.getFields().get("event"), CoreMatchers.<Object> is("error"));
+        MatcherAssert.assertThat(logData.getFields().get("event"), CoreMatchers.<Object>is("error"));
         assertEquals(logData.getFields().get("error.kind"), RuntimeException.class.getName());
         assertNull(logData.getFields().get("message"));
     }

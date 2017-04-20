@@ -8,7 +8,8 @@ import com.mongodb.ServerAddress;
 import com.mongodb.binding.WriteBinding;
 
 /**
- * {@link MongoDBWriteBindingInterceptor} record the host and port information from {@link EnhancedClassInstanceContext#context}
+ * {@link MongoDBWriteBindingInterceptor} record the host and port information from {@link
+ * EnhancedClassInstanceContext#context}
  *
  * @author baiyang
  */
@@ -16,7 +17,7 @@ public class MongoDBWriteBindingInterceptor implements InstanceMethodsAroundInte
 
     @Override
     public void beforeMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
-            MethodInterceptResult result) {
+        MethodInterceptResult result) {
     }
 
     /**
@@ -25,8 +26,8 @@ public class MongoDBWriteBindingInterceptor implements InstanceMethodsAroundInte
      */
     @Override
     public Object afterMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
-            Object ret) {
-        WriteBinding writeBinding = (WriteBinding) ret;
+        Object ret) {
+        WriteBinding writeBinding = (WriteBinding)ret;
         ServerAddress serverAddress = writeBinding.getWriteConnectionSource().getServerDescription().getAddress();
         String host = serverAddress.getHost();
         Integer port = serverAddress.getPort();
@@ -37,7 +38,7 @@ public class MongoDBWriteBindingInterceptor implements InstanceMethodsAroundInte
 
     @Override
     public void handleMethodException(Throwable t, EnhancedClassInstanceContext context,
-            InstanceMethodInvokeContext interceptorContext) {
+        InstanceMethodInvokeContext interceptorContext) {
     }
 
 }
