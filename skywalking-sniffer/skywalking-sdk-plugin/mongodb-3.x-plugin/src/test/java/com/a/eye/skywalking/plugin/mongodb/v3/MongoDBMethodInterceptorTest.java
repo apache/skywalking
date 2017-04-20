@@ -63,13 +63,9 @@ public class MongoDBMethodInterceptorTest {
 
         BsonDocument document = new BsonDocument();
         document.append("name", new BsonString("by"));
-
         MongoNamespace mongoNamespace = new MongoNamespace("test.user");
-
         Decoder decoder = PowerMockito.mock(Decoder.class);
-
         FindOperation findOperation = new FindOperation(mongoNamespace, decoder);
-
         findOperation.filter(document);
 
         when(methodInvokeContext.allArguments()).thenReturn(new Object[] {findOperation});
