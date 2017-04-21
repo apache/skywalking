@@ -53,61 +53,68 @@ public class Segment extends DeserializeObject {
         boolean first = true;
         reader.beginObject();
         while (reader.hasNext()) {
-            String name = reader.nextName();
-            if (name.equals("ts")) {
-                String ts = reader.nextString();
-                this.traceSegmentId = ts;
-                JsonBuilder.INSTANCE.append(stringBuilder, "ts", ts, first);
-            } else if (name.equals("ac")) {
-                String ac = reader.nextString();
-                this.applicationCode = ac;
-                JsonBuilder.INSTANCE.append(stringBuilder, "ac", ac, first);
-            } else if (name.equals("st")) {
-                long st = reader.nextLong();
-                this.startTime = st;
-                JsonBuilder.INSTANCE.append(stringBuilder, "st", st, first);
-            } else if (name.equals("et")) {
-                long et = reader.nextLong();
-                this.endTime = et;
-                JsonBuilder.INSTANCE.append(stringBuilder, "et", et, first);
-            } else if (name.equals("rs")) {
-                refs = new ArrayList<>();
-                reader.beginArray();
+            switch (reader.nextName()) {
+                case "ts":
+                    String ts = reader.nextString();
+                    this.traceSegmentId = ts;
+                    JsonBuilder.INSTANCE.append(stringBuilder, "ts", ts, first);
+                    break;
+                case "ac":
+                    String ac = reader.nextString();
+                    this.applicationCode = ac;
+                    JsonBuilder.INSTANCE.append(stringBuilder, "ac", ac, first);
+                    break;
+                case "st":
+                    long st = reader.nextLong();
+                    this.startTime = st;
+                    JsonBuilder.INSTANCE.append(stringBuilder, "st", st, first);
+                    break;
+                case "et":
+                    long et = reader.nextLong();
+                    this.endTime = et;
+                    JsonBuilder.INSTANCE.append(stringBuilder, "et", et, first);
+                    break;
+                case "rs":
+                    refs = new ArrayList<>();
+                    reader.beginArray();
 
-                while (reader.hasNext()) {
-                    TraceSegmentRef ref = new TraceSegmentRef();
-                    ref.deserialize(reader);
-                    refs.add(ref);
-                }
+                    while (reader.hasNext()) {
+                        TraceSegmentRef ref = new TraceSegmentRef();
+                        ref.deserialize(reader);
+                        refs.add(ref);
+                    }
 
-                reader.endArray();
-                JsonBuilder.INSTANCE.append(stringBuilder, "rs", refs, first);
-            } else if (name.equals("ss")) {
-                spans = new ArrayList<>();
-                reader.beginArray();
+                    reader.endArray();
+                    JsonBuilder.INSTANCE.append(stringBuilder, "rs", refs, first);
+                    break;
+                case "ss":
+                    spans = new ArrayList<>();
+                    reader.beginArray();
 
-                while (reader.hasNext()) {
-                    Span span = new Span();
-                    span.deserialize(reader);
-                    spans.add(span);
-                }
+                    while (reader.hasNext()) {
+                        Span span = new Span();
+                        span.deserialize(reader);
+                        spans.add(span);
+                    }
 
-                reader.endArray();
-                JsonBuilder.INSTANCE.append(stringBuilder, "ss", spans, first);
-            } else if (name.equals("gt")) {
-                relatedGlobalTraces = new ArrayList<>();
-                reader.beginArray();
+                    reader.endArray();
+                    JsonBuilder.INSTANCE.append(stringBuilder, "ss", spans, first);
+                    break;
+                case "gt":
+                    relatedGlobalTraces = new ArrayList<>();
+                    reader.beginArray();
 
-                while (reader.hasNext()) {
-                    GlobalTraceId globalTraceId = new GlobalTraceId();
-                    globalTraceId.deserialize(reader);
-                    relatedGlobalTraces.add(globalTraceId);
-                }
-                JsonBuilder.INSTANCE.append(stringBuilder, "gt", relatedGlobalTraces, first);
+                    while (reader.hasNext()) {
+                        GlobalTraceId globalTraceId = new GlobalTraceId();
+                        globalTraceId.deserialize(reader);
+                        relatedGlobalTraces.add(globalTraceId);
+                    }
+                    JsonBuilder.INSTANCE.append(stringBuilder, "gt", relatedGlobalTraces, first);
 
-                reader.endArray();
-            } else {
-                reader.skipValue();
+                    reader.endArray();
+                    break;
+                default:
+                    reader.skipValue();
             }
             first = false;
         }

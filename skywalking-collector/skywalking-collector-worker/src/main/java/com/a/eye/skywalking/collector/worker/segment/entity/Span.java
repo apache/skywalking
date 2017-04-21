@@ -65,73 +65,82 @@ public class Span extends DeserializeObject {
         boolean first = true;
         reader.beginObject();
         while (reader.hasNext()) {
-            String name = reader.nextName();
-            if (name.equals("si")) {
-                Integer si = reader.nextInt();
-                this.spanId = si;
-                JsonBuilder.INSTANCE.append(stringBuilder, "si", si, first);
-            } else if (name.equals("ps")) {
-                Integer ps = reader.nextInt();
-                this.parentSpanId = ps;
-                JsonBuilder.INSTANCE.append(stringBuilder, "ps", ps, first);
-            } else if (name.equals("st")) {
-                Long st = reader.nextLong();
-                this.startTime = st;
-                JsonBuilder.INSTANCE.append(stringBuilder, "st", st, first);
-            } else if (name.equals("et")) {
-                Long et = reader.nextLong();
-                this.endTime = et;
-                JsonBuilder.INSTANCE.append(stringBuilder, "et", et, first);
-            } else if (name.equals("on")) {
-                String on = reader.nextString();
-                this.operationName = on;
-                JsonBuilder.INSTANCE.append(stringBuilder, "on", on, first);
-            } else if (name.equals("ts")) {
-                tagsWithStr = new HashMap<>();
-                reader.beginObject();
+            switch (reader.nextName()) {
+                case "si":
+                    Integer si = reader.nextInt();
+                    this.spanId = si;
+                    JsonBuilder.INSTANCE.append(stringBuilder, "si", si, first);
+                    break;
+                case "ps":
+                    Integer ps = reader.nextInt();
+                    this.parentSpanId = ps;
+                    JsonBuilder.INSTANCE.append(stringBuilder, "ps", ps, first);
+                    break;
+                case "st":
+                    Long st = reader.nextLong();
+                    this.startTime = st;
+                    JsonBuilder.INSTANCE.append(stringBuilder, "st", st, first);
+                    break;
+                case "et":
+                    Long et = reader.nextLong();
+                    this.endTime = et;
+                    JsonBuilder.INSTANCE.append(stringBuilder, "et", et, first);
+                    break;
+                case "on":
+                    String on = reader.nextString();
+                    this.operationName = on;
+                    JsonBuilder.INSTANCE.append(stringBuilder, "on", on, first);
+                    break;
+                case "ts":
+                    tagsWithStr = new HashMap<>();
+                    reader.beginObject();
 
-                while (reader.hasNext()) {
-                    String key = reader.nextName();
-                    String value = reader.nextString();
-                    tagsWithStr.put(key, value);
-                }
-                reader.endObject();
-                JsonBuilder.INSTANCE.append(stringBuilder, "ts", tagsWithStr, first);
-            } else if (name.equals("tb")) {
-                tagsWithBool = new HashMap<>();
-                reader.beginObject();
+                    while (reader.hasNext()) {
+                        String key = reader.nextName();
+                        String value = reader.nextString();
+                        tagsWithStr.put(key, value);
+                    }
+                    reader.endObject();
+                    JsonBuilder.INSTANCE.append(stringBuilder, "ts", tagsWithStr, first);
+                    break;
+                case "tb":
+                    tagsWithBool = new HashMap<>();
+                    reader.beginObject();
 
-                while (reader.hasNext()) {
-                    String key = reader.nextName();
-                    boolean value = reader.nextBoolean();
-                    tagsWithBool.put(key, value);
-                }
-                reader.endObject();
-                JsonBuilder.INSTANCE.append(stringBuilder, "tb", tagsWithBool, first);
-            } else if (name.equals("ti")) {
-                tagsWithInt = new HashMap<>();
-                reader.beginObject();
+                    while (reader.hasNext()) {
+                        String key = reader.nextName();
+                        boolean value = reader.nextBoolean();
+                        tagsWithBool.put(key, value);
+                    }
+                    reader.endObject();
+                    JsonBuilder.INSTANCE.append(stringBuilder, "tb", tagsWithBool, first);
+                    break;
+                case "ti":
+                    tagsWithInt = new HashMap<>();
+                    reader.beginObject();
 
-                while (reader.hasNext()) {
-                    String key = reader.nextName();
-                    Integer value = reader.nextInt();
-                    tagsWithInt.put(key, value);
-                }
-                reader.endObject();
-                JsonBuilder.INSTANCE.append(stringBuilder, "ti", tagsWithInt, first);
-            } else if (name.equals("lo")) {
-                logs = new ArrayList<>();
-                reader.beginArray();
+                    while (reader.hasNext()) {
+                        String key = reader.nextName();
+                        Integer value = reader.nextInt();
+                        tagsWithInt.put(key, value);
+                    }
+                    reader.endObject();
+                    JsonBuilder.INSTANCE.append(stringBuilder, "ti", tagsWithInt, first);
+                    break;
+                case "lo":
+                    logs = new ArrayList<>();
+                    reader.beginArray();
 
-                while (reader.hasNext()) {
-                    LogData logData = new LogData();
-                    logData.deserialize(reader);
-                    logs.add(logData);
-                }
-                reader.endArray();
-                JsonBuilder.INSTANCE.append(stringBuilder, "lo", logs, first);
-            } else {
-                reader.skipValue();
+                    while (reader.hasNext()) {
+                        LogData logData = new LogData();
+                        logData.deserialize(reader);
+                        logs.add(logData);
+                    }
+                    reader.endArray();
+                    JsonBuilder.INSTANCE.append(stringBuilder, "lo", logs, first);
+                    break;
+                default:
+                    reader.skipValue();
             }
             first = false;
         }

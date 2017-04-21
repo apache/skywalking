@@ -1,7 +1,6 @@
 package com.a.eye.skywalking.collector.worker.segment.entity;
 
 import com.google.gson.stream.JsonReader;
-
 import java.io.IOException;
 
 /**
@@ -40,25 +39,29 @@ public class TraceSegmentRef extends DeserializeObject {
         boolean first = true;
         reader.beginObject();
         while (reader.hasNext()) {
-            String name = reader.nextName();
-            if (name.equals("ts")) {
-                String ts = reader.nextString();
-                this.traceSegmentId = ts;
-                JsonBuilder.INSTANCE.append(stringBuilder, "ts", ts, first);
-            } else if (name.equals("si")) {
-                Integer si = reader.nextInt();
-                this.spanId = si;
-                JsonBuilder.INSTANCE.append(stringBuilder, "si", si, first);
-            } else if (name.equals("ac")) {
-                String ac = reader.nextString();
-                this.applicationCode = ac;
-                JsonBuilder.INSTANCE.append(stringBuilder, "ac", ac, first);
-            } else if (name.equals("ph")) {
-                String ph = reader.nextString();
-                this.peerHost = ph;
-                JsonBuilder.INSTANCE.append(stringBuilder, "ph", ph, first);
-            } else {
-                reader.skipValue();
+            switch (reader.nextName()) {
+                case "rs":
+                    String ts = reader.nextString();
+                    this.traceSegmentId = ts;
+                    JsonBuilder.INSTANCE.append(stringBuilder, "ts", ts, first);
+                    break;
+                case "si":
+                    Integer si = reader.nextInt();
+                    this.spanId = si;
+                    JsonBuilder.INSTANCE.append(stringBuilder, "si", si, first);
+                    break;
+                case "ac":
+                    String ac = reader.nextString();
+                    this.applicationCode = ac;
+                    JsonBuilder.INSTANCE.append(stringBuilder, "ac", ac, first);
+                    break;
+                case "ph":
+                    String ph = reader.nextString();
+                    this.peerHost = ph;
+                    JsonBuilder.INSTANCE.append(stringBuilder, "ph", ph, first);
+                    break;
+                default:
+                    reader.skipValue();
             }
             first = false;
         }
