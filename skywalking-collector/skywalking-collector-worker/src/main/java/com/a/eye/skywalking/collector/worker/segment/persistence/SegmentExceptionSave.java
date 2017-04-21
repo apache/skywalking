@@ -9,13 +9,13 @@ import com.a.eye.skywalking.collector.worker.RecordPersistenceMember;
 import com.a.eye.skywalking.collector.worker.config.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.segment.SegmentExceptionIndex;
 import com.a.eye.skywalking.collector.worker.segment.SegmentPost;
+import com.a.eye.skywalking.collector.worker.segment.entity.LogData;
+import com.a.eye.skywalking.collector.worker.segment.entity.Segment;
+import com.a.eye.skywalking.collector.worker.segment.entity.Span;
+import com.a.eye.skywalking.collector.worker.segment.entity.tag.Tags;
 import com.a.eye.skywalking.collector.worker.storage.AbstractIndex;
 import com.a.eye.skywalking.collector.worker.storage.RecordData;
 import com.a.eye.skywalking.collector.worker.tools.CollectionTools;
-import com.a.eye.skywalking.trace.LogData;
-import com.a.eye.skywalking.trace.Span;
-import com.a.eye.skywalking.trace.TraceSegment;
-import com.a.eye.skywalking.trace.tag.Tags;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.apache.logging.log4j.LogManager;
@@ -49,7 +49,7 @@ public class SegmentExceptionSave extends RecordPersistenceMember {
     public void analyse(Object message) throws Exception {
         if (message instanceof SegmentPost.SegmentWithTimeSlice) {
             SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice = (SegmentPost.SegmentWithTimeSlice)message;
-            TraceSegment segment = segmentWithTimeSlice.getTraceSegment();
+            Segment segment = segmentWithTimeSlice.getSegment();
 
             if (CollectionTools.isNotEmpty(segment.getSpans())) {
                 for (Span span : segment.getSpans()) {
