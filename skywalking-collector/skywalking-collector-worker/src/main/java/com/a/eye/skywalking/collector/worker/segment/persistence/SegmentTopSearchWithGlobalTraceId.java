@@ -7,12 +7,12 @@ import com.a.eye.skywalking.collector.worker.globaltrace.GlobalTraceIndex;
 import com.a.eye.skywalking.collector.worker.segment.SegmentCostIndex;
 import com.a.eye.skywalking.collector.worker.segment.SegmentExceptionIndex;
 import com.a.eye.skywalking.collector.worker.segment.SegmentIndex;
-import com.a.eye.skywalking.collector.worker.segment.logic.Segment;
-import com.a.eye.skywalking.collector.worker.segment.logic.SegmentDeserialize;
+import com.a.eye.skywalking.collector.worker.segment.entity.GlobalTraceId;
+import com.a.eye.skywalking.collector.worker.segment.entity.Segment;
+import com.a.eye.skywalking.collector.worker.segment.entity.SegmentDeserialize;
 import com.a.eye.skywalking.collector.worker.storage.EsClient;
 import com.a.eye.skywalking.collector.worker.storage.MergeData;
 import com.a.eye.skywalking.collector.worker.tools.CollectionTools;
-import com.a.eye.skywalking.trace.TraceId.DistributedTraceId;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -81,12 +81,12 @@ public class SegmentTopSearchWithGlobalTraceId extends AbstractLocalSyncWorker {
                     topSegmentJson.addProperty(SegmentCostIndex.COST, (Number)getResponse.getSource().get(SegmentCostIndex.COST));
 
                     String segmentSource = client.prepareGet(SegmentIndex.INDEX, SegmentIndex.TYPE_RECORD, segId).get().getSourceAsString();
-                    Segment segment = SegmentDeserialize.INSTANCE.deserializeFromES(segmentSource);
-                    List<DistributedTraceId> distributedTraceIdList = segment.getRelatedGlobalTraces();
+                    Segment segment = SegmentDeserialize.INSTANCE.deserializeSingle(segmentSource);
+                    List<GlobalTraceId> distributedTraceIdList = segment.getRelatedGlobalTraces();
 
                     JsonArray distributedTraceIdArray = new JsonArray();
                     if (CollectionTools.isNotEmpty(distributedTraceIdList)) {
-                        for (DistributedTraceId distributedTraceId : distributedTraceIdList) {
+                        for (GlobalTraceId distributedTraceId : distributedTraceIdList) {
                             distributedTraceIdArray.add(distributedTraceId.get());
                         }
                     }

@@ -260,7 +260,7 @@ public class SegmentPostTestCase {
         doAnswer(nodeMappingDayAnalysisAnswer).when(nodeMappingDayAnalysis).tell(Mockito.argThat(new IsSegmentWithTimeSlice()));
     }
 
-    @Test
+//    @Test
     public void testOnReceive() throws Exception {
         String cacheServiceSegmentAsString = segmentMock.mockCacheServiceSegmentAsString();
 
