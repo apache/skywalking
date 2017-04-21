@@ -10,7 +10,6 @@ import com.a.eye.skywalking.collector.worker.node.persistence.NodeMappingHourAgg
 import com.a.eye.skywalking.collector.worker.segment.SegmentPost;
 import com.a.eye.skywalking.collector.worker.segment.entity.Segment;
 import com.a.eye.skywalking.collector.worker.storage.RecordData;
-import com.a.eye.skywalking.trace.TraceSegment;
 
 /**
  * @author pengys5
