@@ -22,7 +22,7 @@ public class AbstractIndexTestCase {
     @Test
     public void testCreateSettingBuilder() throws IOException {
         IndexTest indexTest = new IndexTest();
-        Assert.assertEquals("{\"index.number_of_shards\":\"\",\"index.number_of_replicas\":\"\"}", indexTest.createSettingBuilder().string());
+        Assert.assertEquals("{\"index.number_of_shards\":\"\",\"index.number_of_replicas\":\"\",\"index.refresh_interval\":\"0s\"}", indexTest.createSettingBuilder().string());
     }
 
     class IndexTest extends AbstractIndex {
@@ -48,6 +48,11 @@ public class AbstractIndexTestCase {
         @Override
         public String index() {
             return "Index_Test";
+        }
+
+        @Override
+        public int refreshInterval() {
+            return 0;
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.a.eye.skywalking.collector.worker.segment;
 
+import com.a.eye.skywalking.collector.worker.config.EsConfig;
 import com.a.eye.skywalking.collector.worker.storage.AbstractIndex;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
@@ -29,31 +30,36 @@ public class SegmentCostIndex extends AbstractIndex {
     }
 
     @Override
+    public int refreshInterval() {
+        return EsConfig.Es.Index.RefreshInterval.SegmentCostIndex.VALUE;
+    }
+
+    @Override
     public XContentBuilder createMappingBuilder() throws IOException {
         return XContentFactory.jsonBuilder()
-            .startObject()
-            .startObject("properties")
-            .startObject(SEG_ID)
-            .field("type", "string")
-            .field("index", "not_analyzed")
-            .endObject()
-            .startObject(START_TIME)
-            .field("type", "long")
-            .field("index", "not_analyzed")
-            .endObject()
-            .startObject(END_TIME)
-            .field("type", "long")
-            .field("index", "not_analyzed")
-            .endObject()
-            .startObject(OPERATION_NAME)
-            .field("type", "string")
-            .field("index", "not_analyzed")
-            .endObject()
-            .startObject(COST)
-            .field("type", "long")
-            .field("index", "not_analyzed")
-            .endObject()
-            .endObject()
-            .endObject();
+                .startObject()
+                .startObject("properties")
+                .startObject(SEG_ID)
+                .field("type", "string")
+                .field("index", "not_analyzed")
+                .endObject()
+                .startObject(START_TIME)
+                .field("type", "long")
+                .field("index", "not_analyzed")
+                .endObject()
+                .startObject(END_TIME)
+                .field("type", "long")
+                .field("index", "not_analyzed")
+                .endObject()
+                .startObject(OPERATION_NAME)
+                .field("type", "string")
+                .field("index", "not_analyzed")
+                .endObject()
+                .startObject(COST)
+                .field("type", "long")
+                .field("index", "not_analyzed")
+                .endObject()
+                .endObject()
+                .endObject();
     }
 }

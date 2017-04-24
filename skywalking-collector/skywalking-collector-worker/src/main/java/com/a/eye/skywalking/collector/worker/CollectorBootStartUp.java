@@ -5,6 +5,7 @@ import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
 import com.a.eye.skywalking.collector.worker.httpserver.HttpServer;
 import com.a.eye.skywalking.collector.worker.storage.EsClient;
 import com.a.eye.skywalking.collector.worker.storage.IndexCreator;
+import com.a.eye.skywalking.collector.worker.storage.PersistenceTimer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -20,6 +21,7 @@ public class CollectorBootStartUp {
         collectorSystem.boot();
         EsClient.INSTANCE.boot();
         IndexCreator.INSTANCE.create();
+        PersistenceTimer.INSTANCE.boot();
         HttpServer.INSTANCE.boot((ClusterWorkerContext)collectorSystem.getClusterContext());
     }
 }

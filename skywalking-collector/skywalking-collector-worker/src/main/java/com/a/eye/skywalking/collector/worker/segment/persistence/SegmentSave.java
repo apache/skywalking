@@ -1,34 +1,30 @@
 package com.a.eye.skywalking.collector.worker.segment.persistence;
 
-import com.a.eye.skywalking.collector.actor.AbstractLocalAsyncWorkerProvider;
+import com.a.eye.skywalking.collector.actor.AbstractLocalSyncWorkerProvider;
 import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
 import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
 import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
 import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
-import com.a.eye.skywalking.collector.worker.RecordPersistenceMember;
+import com.a.eye.skywalking.collector.worker.PersistenceMember;
 import com.a.eye.skywalking.collector.worker.config.CacheSizeConfig;
-import com.a.eye.skywalking.collector.worker.config.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.segment.SegmentIndex;
 import com.a.eye.skywalking.collector.worker.segment.entity.Segment;
-import com.a.eye.skywalking.collector.worker.storage.AbstractIndex;
-import com.a.eye.skywalking.collector.worker.storage.EsClient;
+import com.a.eye.skywalking.collector.worker.storage.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.elasticsearch.action.bulk.BulkRequestBuilder;
-import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.client.Client;
 
-import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 /**
  * @author pengys5
  */
-public class SegmentSave extends RecordPersistenceMember {
+public class SegmentSave extends PersistenceMember<SegmentPersistenceData, SegmentData> {
 
     private Logger logger = LogManager.getFormatterLogger(SegmentSave.class);
-
-    private Map<String, String> persistenceData = new LinkedHashMap<>();
 
     @Override
     public String esIndex() {
@@ -46,56 +42,63 @@ public class SegmentSave extends RecordPersistenceMember {
     }
 
     @Override
-    public void analyse(Object message) throws Exception {
+    public SegmentPersistenceData initializeData() {
+        return new SegmentPersistenceData();
+    }
+
+    int i = 0;
+
+    @Override
+    final public void analyse(Object message) throws Exception {
         if (message instanceof Segment) {
             Segment segment = (Segment) message;
-            persistenceData.put(segment.getTraceSegmentId(), segment.getJsonStr());
-            if (persistenceData.size() >= CacheSizeConfig.Cache.Persistence.SIZE) {
-                persistence();
+            SegmentPersistenceData data = getPersistenceData();
+            data.holdData();
+            data.getElseCreate(segment.getTraceSegmentId() + i).setSegmentStr(segment.getJsonStr());
+            if (data.size() >= CacheSizeConfig.Cache.Persistence.SIZE) {
+                persistence(data.asMap());
             }
+            data.releaseData();
+            i++;
         } else {
-            logger.error("unhandled message, message instance must JsonObject, but is %s", message.getClass().toString());
+            logger.error("unhandled message, message instance must Segment, but is %s", message.getClass().toString());
         }
+    }
+
+    private void persistence(Map<String, SegmentData> dataMap) {
+        List<IndexRequestBuilder> builderList = new LinkedList<>();
+        Client client = EsClient.INSTANCE.getClient();
+        dataMap.forEach((key, value) -> {
+            IndexRequestBuilder builder = client.prepareIndex(esIndex(), esType(), key).setSource(value.getSegmentStr());
+            builderList.add(builder);
+        });
+        EsClient.INSTANCE.bulk(builderList);
+        dataMap.clear();
     }
 
     @Override
-    protected void persistence() {
-        boolean success = saveToEs();
-        if (success) {
-            persistenceData.clear();
-        }
-    }
+    final protected void prepareIndex(List<IndexRequestBuilder> builderList) {
+        Map<String, SegmentData> lastData = getPersistenceData().getLast().asMap();
 
-    private boolean saveToEs() {
         Client client = EsClient.INSTANCE.getClient();
-        BulkRequestBuilder bulkRequest = client.prepareBulk();
-        logger.debug("persistenceData SIZE: %s", persistenceData.size());
-
-        persistenceData.forEach((key, value) -> bulkRequest.add(client.prepareIndex(esIndex(), esType(), key).setSource(value)));
-
-        BulkResponse bulkResponse = bulkRequest.execute().actionGet();
-        if (bulkResponse.hasFailures()) {
-            logger.error(bulkResponse.buildFailureMessage());
-        }
-        return !bulkResponse.hasFailures();
+        lastData.forEach((key, value) -> {
+            IndexRequestBuilder builder = client.prepareIndex(esIndex(), esType(), key).setSource(value.getSegmentStr());
+            builderList.add(builder);
+        });
+        lastData.clear();
     }
 
-    public static class Factory extends AbstractLocalAsyncWorkerProvider<SegmentSave> {
-        public static Factory INSTANCE = new Factory();
-
+    public static class Factory extends AbstractLocalSyncWorkerProvider<SegmentSave> {
         @Override
         public Role role() {
             return Role.INSTANCE;
         }
 
         @Override
-        public int queueSize() {
-            return WorkerConfig.Queue.Segment.SegmentSave.SIZE;
-        }
-
-        @Override
         public SegmentSave workerInstance(ClusterWorkerContext clusterContext) {
-            return new SegmentSave(role(), clusterContext, new LocalWorkerContext());
+            SegmentSave worker = new SegmentSave(role(), clusterContext, new LocalWorkerContext());
+            PersistenceWorkerListener.INSTANCE.register(worker);
+            return worker;
         }
     }
 

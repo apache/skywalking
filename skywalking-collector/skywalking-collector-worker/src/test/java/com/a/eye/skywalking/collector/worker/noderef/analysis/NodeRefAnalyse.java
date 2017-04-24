@@ -28,7 +28,6 @@ public enum NodeRefAnalyse {
         String recordJsonStr = gson.toJson(recordAnswer.getNodeRefResRecordList());
         System.out.println(recordJsonStr);
 
-        System.out.println("--------------------------------");
         JsonArray recordJsonArray = gson.fromJson(recordJsonStr, JsonArray.class);
         JsonDataMerge.INSTANCE.merge(resSumJsonFile, recordJsonArray);
     }

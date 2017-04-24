@@ -40,7 +40,7 @@ public class TraceSegmentRef extends DeserializeObject {
         reader.beginObject();
         while (reader.hasNext()) {
             switch (reader.nextName()) {
-                case "rs":
+                case "ts":
                     String ts = reader.nextString();
                     this.traceSegmentId = ts;
                     JsonBuilder.INSTANCE.append(stringBuilder, "ts", ts, first);

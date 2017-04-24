@@ -15,6 +15,12 @@ public class EsConfig {
             }
         }
 
+        public static class Persistence {
+            public static class Timer {
+                public static Integer VALUE = 3;
+            }
+        }
+
         public static class Index {
 
             public static class Initialize {
@@ -27,6 +33,40 @@ public class EsConfig {
 
             public static class Replicas {
                 public static String NUMBER = "";
+            }
+
+            public static class RefreshInterval {
+                public static class GlobalTraceIndex {
+                    public static Integer VALUE = 1;
+                }
+
+                public static class NodeCompIndex {
+                    public static Integer VALUE = 1;
+                }
+
+                public static class NodeMappingIndex {
+                    public static Integer VALUE = 1;
+                }
+
+                public static class NodeRefIndex {
+                    public static Integer VALUE = 1;
+                }
+
+                public static class NodeRefResSumIndex {
+                    public static Integer VALUE = 1;
+                }
+
+                public static class SegmentCostIndex {
+                    public static Integer VALUE = 10;
+                }
+
+                public static class SegmentExceptionIndex {
+                    public static Integer VALUE = 10;
+                }
+
+                public static class SegmentIndex {
+                    public static Integer VALUE = 10;
+                }
             }
         }
     }

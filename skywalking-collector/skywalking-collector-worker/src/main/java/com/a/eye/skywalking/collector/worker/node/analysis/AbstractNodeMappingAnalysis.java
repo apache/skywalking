@@ -26,7 +26,7 @@ abstract class AbstractNodeMappingAnalysis extends RecordAnalysisMember {
         super(role, clusterContext, selfContext);
     }
 
-    void analyseRefs(Segment segment, long timeSlice) throws Exception {
+   final void analyseRefs(Segment segment, long timeSlice) throws Exception {
         List<TraceSegmentRef> segmentRefList = segment.getRefs();
         logger.debug("node mapping analysis refs isNotEmpty %s", CollectionTools.isNotEmpty(segmentRefList));
 

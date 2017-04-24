@@ -24,8 +24,8 @@ public class MetricDataAnswer implements Answer<Object> {
         System.out.printf("id: %s \n", metricData.getId());
         metricDataList.add(metricData);
         Gson gson = new Gson();
-        String jsonStr = gson.toJson(metricData.toMap());
-        System.out.printf("data: %s \n", jsonStr);
+//        String jsonStr = gson.toJson(metricData.toMap());
+//        System.out.printf("data: %s \n", jsonStr);
         return null;
     }
 

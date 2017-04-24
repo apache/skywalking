@@ -30,13 +30,11 @@ public class NodeRefDayAgg extends AbstractClusterWorker {
         if (message instanceof RecordData) {
             getSelfContext().lookup(NodeRefDaySave.Role.INSTANCE).tell(message);
         } else {
-            logger.error("message unhandled");
+            logger.error("unhandled message, message instance must RecordData, but is %s", message.getClass().toString());
         }
     }
 
     public static class Factory extends AbstractClusterWorkerProvider<NodeRefDayAgg> {
-        public static Factory INSTANCE = new Factory();
-
         @Override
         public Role role() {
             return Role.INSTANCE;

@@ -3,7 +3,6 @@ package com.a.eye.skywalking.collector.worker.node.persistence;
 import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
 import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
 import com.a.eye.skywalking.collector.actor.selector.HashCodeSelector;
-import com.a.eye.skywalking.collector.worker.config.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.node.NodeMappingIndex;
 import org.junit.Assert;
 import org.junit.Before;
@@ -46,11 +45,8 @@ public class NodeMappingDaySaveTestCase {
 
     @Test
     public void testFactory() {
-        Assert.assertEquals(NodeMappingDaySave.class.getSimpleName(), NodeMappingDaySave.Factory.INSTANCE.role().roleName());
-        Assert.assertEquals(NodeMappingDaySave.class.getSimpleName(), NodeMappingDaySave.Factory.INSTANCE.workerInstance(null).getClass().getSimpleName());
-
-        int testSize = 10;
-        WorkerConfig.Queue.Node.NodeMappingDaySave.SIZE = testSize;
-        Assert.assertEquals(testSize, NodeMappingDaySave.Factory.INSTANCE.queueSize());
+        NodeMappingDaySave.Factory factory = new NodeMappingDaySave.Factory();
+        Assert.assertEquals(NodeMappingDaySave.class.getSimpleName(), factory.role().roleName());
+        Assert.assertEquals(NodeMappingDaySave.class.getSimpleName(), factory.workerInstance(null).getClass().getSimpleName());
     }
 }

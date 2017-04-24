@@ -8,7 +8,7 @@ import org.junit.Test;
 /**
  * @author pengys5
  */
-public class RecordDataTestCase {
+public class RecordWindowDataTestCase {
 
     @Test
     public void testConstruction() {

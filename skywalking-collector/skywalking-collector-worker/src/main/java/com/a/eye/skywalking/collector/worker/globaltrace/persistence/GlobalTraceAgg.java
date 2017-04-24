@@ -30,13 +30,11 @@ public class GlobalTraceAgg extends AbstractClusterWorker {
         if (message instanceof MergeData) {
             getSelfContext().lookup(GlobalTraceSave.Role.INSTANCE).tell(message);
         } else {
-            logger.error("message unhandled");
+            logger.error("unhandled message, message instance must MergeData, but is %s", message.getClass().toString());
         }
     }
 
     public static class Factory extends AbstractClusterWorkerProvider<GlobalTraceAgg> {
-        public static Factory INSTANCE = new Factory();
-
         @Override
         public Role role() {
             return Role.INSTANCE;

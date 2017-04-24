@@ -28,7 +28,7 @@ public class GlobalTraceSearchWithGlobalId extends AbstractLocalSyncWorker {
 
     private Gson gson = new Gson();
 
-    GlobalTraceSearchWithGlobalId(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    public GlobalTraceSearchWithGlobalId(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
@@ -60,6 +60,8 @@ public class GlobalTraceSearchWithGlobalId extends AbstractLocalSyncWorker {
 
             JsonObject responseObj = (JsonObject)response;
             responseObj.addProperty("result", buildTree(spanViewList));
+        } else {
+            logger.error("unhandled message, message instance must String, but is %s", request.getClass().toString());
         }
     }
 
@@ -153,8 +155,6 @@ public class GlobalTraceSearchWithGlobalId extends AbstractLocalSyncWorker {
     }
 
     public static class Factory extends AbstractLocalSyncWorkerProvider<GlobalTraceSearchWithGlobalId> {
-        public static Factory INSTANCE = new Factory();
-
         @Override
         public Role role() {
             return WorkerRole.INSTANCE;

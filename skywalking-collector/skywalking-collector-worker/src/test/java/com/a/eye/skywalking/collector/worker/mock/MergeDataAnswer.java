@@ -20,9 +20,9 @@ public class MergeDataAnswer implements Answer<Object> {
         MergeData mergeData = (MergeData)invocation.getArguments()[0];
         System.out.printf("id: %s \n", mergeData.getId());
 
-        for (Map.Entry<String, String> entry : mergeData.toMap().entrySet()) {
-            System.out.printf("key: %s, value: %s \n", entry.getKey(), entry.getValue());
-        }
+//        for (Map.Entry<String, ?> entry : mergeData.toSource().entrySet()) {
+//            System.out.printf("key: %s, value: %s \n", entry.getKey(), entry.getValue());
+//        }
         mergeDataList.add(mergeData);
         return null;
     }

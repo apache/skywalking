@@ -48,8 +48,6 @@ public class SpanGetWithId extends AbstractGet {
     }
 
     public static class Factory extends AbstractGetProvider<SpanGetWithId> {
-        public static Factory INSTANCE = new Factory();
-
         @Override
         public Role role() {
             return WorkerRole.INSTANCE;

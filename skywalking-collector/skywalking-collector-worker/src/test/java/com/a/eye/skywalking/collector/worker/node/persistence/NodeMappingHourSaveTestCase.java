@@ -3,7 +3,6 @@ package com.a.eye.skywalking.collector.worker.node.persistence;
 import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
 import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
 import com.a.eye.skywalking.collector.actor.selector.HashCodeSelector;
-import com.a.eye.skywalking.collector.worker.config.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.node.NodeMappingIndex;
 import org.junit.Assert;
 import org.junit.Before;
@@ -46,11 +45,8 @@ public class NodeMappingHourSaveTestCase {
 
     @Test
     public void testFactory() {
-        Assert.assertEquals(NodeMappingHourSave.class.getSimpleName(), NodeMappingHourSave.Factory.INSTANCE.role().roleName());
-        Assert.assertEquals(NodeMappingHourSave.class.getSimpleName(), NodeMappingHourSave.Factory.INSTANCE.workerInstance(null).getClass().getSimpleName());
-
-        int testSize = 10;
-        WorkerConfig.Queue.Node.NodeMappingHourSave.SIZE = testSize;
-        Assert.assertEquals(testSize, NodeMappingHourSave.Factory.INSTANCE.queueSize());
+        NodeMappingHourSave.Factory factory = new NodeMappingHourSave.Factory();
+        Assert.assertEquals(NodeMappingHourSave.class.getSimpleName(), factory.role().roleName());
+        Assert.assertEquals(NodeMappingHourSave.class.getSimpleName(), factory.workerInstance(null).getClass().getSimpleName());
     }
 }

@@ -5,11 +5,15 @@ import com.a.eye.skywalking.collector.actor.selector.HashCodeSelector;
 import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
 import com.a.eye.skywalking.collector.worker.config.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.storage.RecordData;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * @author pengys5
  */
 public class NodeMappingHourAgg extends AbstractClusterWorker {
+
+    private Logger logger = LogManager.getFormatterLogger(NodeMappingHourAgg.class);
 
     NodeMappingHourAgg(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext,
         LocalWorkerContext selfContext) {
@@ -26,13 +30,11 @@ public class NodeMappingHourAgg extends AbstractClusterWorker {
         if (message instanceof RecordData) {
             getSelfContext().lookup(NodeMappingHourSave.Role.INSTANCE).tell(message);
         } else {
-            throw new IllegalArgumentException("message instance must RecordData");
+            logger.error("unhandled message, message instance must RecordData, but is %s", message.getClass().toString());
         }
     }
 
     public static class Factory extends AbstractClusterWorkerProvider<NodeMappingHourAgg> {
-        public static Factory INSTANCE = new Factory();
-
         @Override
         public Role role() {
             return Role.INSTANCE;

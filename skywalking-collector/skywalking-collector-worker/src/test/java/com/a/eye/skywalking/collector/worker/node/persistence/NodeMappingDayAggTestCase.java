@@ -61,17 +61,18 @@ public class NodeMappingDayAggTestCase {
 
     @Test
     public void testFactory() {
-        Assert.assertEquals(NodeMappingDayAgg.class.getSimpleName(), NodeMappingDayAgg.Factory.INSTANCE.role().roleName());
-        Assert.assertEquals(NodeMappingDayAgg.class.getSimpleName(), NodeMappingDayAgg.Factory.INSTANCE.workerInstance(null).getClass().getSimpleName());
+        NodeMappingDayAgg.Factory factory = new NodeMappingDayAgg.Factory();
+        Assert.assertEquals(NodeMappingDayAgg.class.getSimpleName(), factory.role().roleName());
+        Assert.assertEquals(NodeMappingDayAgg.class.getSimpleName(), factory.workerInstance(null).getClass().getSimpleName());
 
         int testSize = 10;
         WorkerConfig.WorkerNum.Node.NodeMappingDayAgg.VALUE = testSize;
-        Assert.assertEquals(testSize, NodeMappingDayAgg.Factory.INSTANCE.workerNum());
+        Assert.assertEquals(testSize, factory.workerNum());
     }
 
     @Test
     public void testPreStart() throws ProviderNotFoundException {
-        when(clusterWorkerContext.findProvider(NodeMappingDaySave.Role.INSTANCE)).thenReturn(NodeMappingDaySave.Factory.INSTANCE);
+        when(clusterWorkerContext.findProvider(NodeMappingDaySave.Role.INSTANCE)).thenReturn(new NodeMappingDaySave.Factory());
 
         ArgumentCaptor<NodeMappingDaySave.Role> argumentCaptor = ArgumentCaptor.forClass(NodeMappingDaySave.Role.class);
         agg.preStart();
@@ -81,10 +82,5 @@ public class NodeMappingDayAggTestCase {
     @Test
     public void testOnWork() throws Exception {
         RecordDataAggTools.INSTANCE.testOnWork(agg, recordDataAnswer);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testOnWorkError() throws Exception {
-        agg.onWork(new Object());
     }
 }

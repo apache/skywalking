@@ -9,7 +9,7 @@ import java.util.Map;
 /**
  * @author pengys5
  */
-public class MergeDataTestCase {
+public class MergeWindowDataTestCase {
 
     @Test
     public void testConstruction() {
@@ -25,15 +25,15 @@ public class MergeDataTestCase {
         MergeData mergeData = new MergeData(id);
 
         mergeData.setMergeData("Column_1", "Value_1");
-        Assert.assertEquals("Value_1", mergeData.toMap().get("Column_1"));
+        Assert.assertEquals("Value_1", mergeData.asMap().get("Column_1"));
         mergeData.setMergeData("Column_1", "Value_1");
-        Assert.assertEquals("Value_1", mergeData.toMap().get("Column_1"));
+        Assert.assertEquals("Value_1", mergeData.asMap().get("Column_1"));
 
         mergeData.setMergeData("Column_1", "Value_2");
-        Assert.assertEquals("Value_2,Value_1", mergeData.toMap().get("Column_1"));
+        Assert.assertEquals("Value_2,Value_1", mergeData.asMap().get("Column_1"));
 
         mergeData.setMergeData("Column_2", "Value_3");
-        Assert.assertEquals("Value_3", mergeData.toMap().get("Column_2"));
+        Assert.assertEquals("Value_3", mergeData.asMap().get("Column_2"));
     }
 
     @Test
@@ -46,7 +46,7 @@ public class MergeDataTestCase {
         mergeData_2.setMergeData("Column_1", "Value_2");
 
         mergeData_1.merge(mergeData_2);
-        Assert.assertEquals("Value_2,Value_1", mergeData_1.toMap().get("Column_1"));
+        Assert.assertEquals("Value_2,Value_1", mergeData_1.asMap().get("Column_1"));
     }
 
     @Test
@@ -59,6 +59,6 @@ public class MergeDataTestCase {
         dbData.put("Column_1", "Value_2");
 
         mergeData_1.merge(dbData);
-        Assert.assertEquals("Value_2,Value_1", mergeData_1.toMap().get("Column_1"));
+        Assert.assertEquals("Value_2,Value_1", mergeData_1.asMap().get("Column_1"));
     }
 }

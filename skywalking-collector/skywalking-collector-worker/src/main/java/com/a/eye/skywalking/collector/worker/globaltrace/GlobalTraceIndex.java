@@ -1,5 +1,6 @@
 package com.a.eye.skywalking.collector.worker.globaltrace;
 
+import com.a.eye.skywalking.collector.worker.config.EsConfig;
 import com.a.eye.skywalking.collector.worker.storage.AbstractIndex;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
@@ -22,6 +23,11 @@ public class GlobalTraceIndex extends AbstractIndex {
     @Override
     public boolean isRecord() {
         return true;
+    }
+
+    @Override
+    public int refreshInterval() {
+        return EsConfig.Es.Index.RefreshInterval.GlobalTraceIndex.VALUE;
     }
 
     @Override

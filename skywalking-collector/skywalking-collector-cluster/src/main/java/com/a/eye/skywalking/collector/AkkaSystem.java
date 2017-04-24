@@ -6,6 +6,7 @@ import com.a.eye.skywalking.collector.cluster.ClusterConfig;
 import com.a.eye.skywalking.collector.cluster.Const;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -17,10 +18,12 @@ public enum AkkaSystem {
     private Logger logger = LogManager.getFormatterLogger(AkkaSystem.class);
 
     public ActorSystem create() {
+        Level logLevel = logger.getLevel();
+
         final Config config = ConfigFactory.parseString("akka.remote.netty.tcp.HOSTNAME=" + ClusterConfig.Cluster.Current.HOSTNAME).
                 withFallback(ConfigFactory.parseString("akka.remote.netty.tcp.PORT=" + ClusterConfig.Cluster.Current.PORT)).
                 withFallback(ConfigFactory.parseString("akka.loggers=[\"akka.event.slf4j.Slf4jLogger\"]")).
-                withFallback(ConfigFactory.parseString("akka.loglevel=\"ERROR\"")).
+                withFallback(ConfigFactory.parseString("akka.loglevel=\"" + logLevel.name() + "\"")).
 
                 withFallback(ConfigFactory.load("application.conf"));
         if (!StringUtil.isEmpty(ClusterConfig.Cluster.SEED_NODES)) {

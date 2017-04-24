@@ -8,7 +8,7 @@ import org.junit.Test;
 /**
  * @author pengys5
  */
-public class TraceDagDataBuilderTestCase {
+public class TraceDagWindowDataBuilderTestCase {
 
     private Gson gson = new Gson();
 

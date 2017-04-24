@@ -2,8 +2,6 @@ package com.a.eye.skywalking.collector.worker.globaltrace.persistence;
 
 import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
 import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
-import com.a.eye.skywalking.collector.worker.node.NodeMappingIndex;
-import com.a.eye.skywalking.collector.worker.node.persistence.NodeMappingSearchWithTimeSlice;
 import com.a.eye.skywalking.collector.worker.storage.EsClient;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;

@@ -66,12 +66,13 @@ public class NodeMappingDayAnalysisTestCase {
 
     @Test
     public void testFactory() {
-        Assert.assertEquals(NodeMappingDayAnalysis.class.getSimpleName(), NodeMappingDayAnalysis.Factory.INSTANCE.role().roleName());
-        Assert.assertEquals(NodeMappingDayAnalysis.class.getSimpleName(), NodeMappingDayAnalysis.Factory.INSTANCE.workerInstance(null).getClass().getSimpleName());
+        NodeMappingDayAnalysis.Factory factory = new NodeMappingDayAnalysis.Factory();
+        Assert.assertEquals(NodeMappingDayAnalysis.class.getSimpleName(), factory.role().roleName());
+        Assert.assertEquals(NodeMappingDayAnalysis.class.getSimpleName(), factory.workerInstance(null).getClass().getSimpleName());
 
         int testSize = 10;
         WorkerConfig.Queue.Node.NodeMappingDayAnalysis.SIZE = testSize;
-        Assert.assertEquals(testSize, NodeMappingDayAnalysis.Factory.INSTANCE.queueSize());
+        Assert.assertEquals(testSize, factory.queueSize());
     }
 
     @Test(expected = Exception.class)

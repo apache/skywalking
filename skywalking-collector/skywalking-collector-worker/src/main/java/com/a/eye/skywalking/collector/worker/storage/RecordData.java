@@ -4,10 +4,12 @@ import com.a.eye.skywalking.collector.actor.selector.AbstractHashMessage;
 import com.a.eye.skywalking.collector.worker.Const;
 import com.google.gson.JsonObject;
 
+import java.util.Map;
+
 /**
  * @author pengys5
  */
-public class RecordData extends AbstractHashMessage {
+public class RecordData extends AbstractHashMessage implements Data {
 
     private String id;
     private String aggId;
@@ -21,7 +23,7 @@ public class RecordData extends AbstractHashMessage {
             if (i == 1) {
                 this.aggId = ids[i];
             } else {
-                this.aggId = this.aggId + Const.ID_SPLIT + ids[i];
+                this.aggId += Const.ID_SPLIT + ids[i];
             }
         }
         record = new JsonObject();
@@ -38,5 +40,9 @@ public class RecordData extends AbstractHashMessage {
 
     public void setRecord(JsonObject record) {
         this.record = record;
+    }
+
+    @Override
+    public void merge(Map<String, ?> dbData) {
     }
 }

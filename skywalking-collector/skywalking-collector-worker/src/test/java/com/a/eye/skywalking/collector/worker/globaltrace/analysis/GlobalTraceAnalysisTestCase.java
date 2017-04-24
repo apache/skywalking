@@ -62,12 +62,13 @@ public class GlobalTraceAnalysisTestCase {
 
     @Test
     public void testFactory() {
-        Assert.assertEquals(GlobalTraceAnalysis.class.getSimpleName(), GlobalTraceAnalysis.Factory.INSTANCE.role().roleName());
-        Assert.assertEquals(GlobalTraceAnalysis.class.getSimpleName(), GlobalTraceAnalysis.Factory.INSTANCE.workerInstance(null).getClass().getSimpleName());
+        GlobalTraceAnalysis.Factory factory = new GlobalTraceAnalysis.Factory();
+        Assert.assertEquals(GlobalTraceAnalysis.class.getSimpleName(), factory.role().roleName());
+        Assert.assertEquals(GlobalTraceAnalysis.class.getSimpleName(), factory.workerInstance(null).getClass().getSimpleName());
 
         int testSize = 10;
         WorkerConfig.Queue.GlobalTrace.GlobalTraceAnalysis.SIZE = testSize;
-        Assert.assertEquals(testSize, GlobalTraceAnalysis.Factory.INSTANCE.queueSize());
+        Assert.assertEquals(testSize, factory.queueSize());
     }
 
     @Test
@@ -77,7 +78,7 @@ public class GlobalTraceAnalysisTestCase {
         Assert.assertEquals(1, answer.getMergeDataList().size());
         MergeData mergeData = answer.getMergeDataList().get(0);
         Assert.assertEquals(id, mergeData.getId());
-        String subSegIds = mergeData.toMap().get("subSegIds");
+        String subSegIds = mergeData.asMap().get("subSegIds").toString();
         Assert.assertEquals(cacheServiceSubSegIds, subSegIds);
     }
 

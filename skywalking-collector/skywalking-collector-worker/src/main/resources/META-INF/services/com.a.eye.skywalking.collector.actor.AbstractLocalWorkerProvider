@@ -1,3 +1,7 @@
+com.a.eye.skywalking.collector.worker.segment.analysis.SegmentAnalysis$Factory
+com.a.eye.skywalking.collector.worker.segment.analysis.SegmentCostAnalysis$Factory
+com.a.eye.skywalking.collector.worker.segment.analysis.SegmentExceptionAnalysis$Factory
+
 com.a.eye.skywalking.collector.worker.segment.persistence.SegmentSave$Factory
 com.a.eye.skywalking.collector.worker.segment.persistence.SegmentCostSave$Factory
 com.a.eye.skywalking.collector.worker.segment.persistence.SegmentExceptionSave$Factory

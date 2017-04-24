@@ -3,6 +3,7 @@ package com.a.eye.skywalking.collector.worker;
 import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
 import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
 import com.a.eye.skywalking.collector.actor.ProviderNotFoundException;
+import com.a.eye.skywalking.collector.actor.WorkerRefs;
 import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
 
 /**
@@ -25,8 +26,8 @@ public class TestMergeAnalysisMember extends MergeAnalysisMember {
     }
 
     @Override
-    protected void aggregation() throws Exception {
-
+    protected WorkerRefs aggWorkRefs() {
+        return null;
     }
 
     public enum Role implements com.a.eye.skywalking.collector.actor.Role {

@@ -61,17 +61,18 @@ public class NodeMappingHourAggTestCase {
 
     @Test
     public void testFactory() {
-        Assert.assertEquals(NodeMappingHourAgg.class.getSimpleName(), NodeMappingHourAgg.Factory.INSTANCE.role().roleName());
-        Assert.assertEquals(NodeMappingHourAgg.class.getSimpleName(), NodeMappingHourAgg.Factory.INSTANCE.workerInstance(null).getClass().getSimpleName());
+        NodeMappingHourAgg.Factory factory = new NodeMappingHourAgg.Factory();
+        Assert.assertEquals(NodeMappingHourAgg.class.getSimpleName(), factory.role().roleName());
+        Assert.assertEquals(NodeMappingHourAgg.class.getSimpleName(), factory.workerInstance(null).getClass().getSimpleName());
 
         int testSize = 10;
         WorkerConfig.WorkerNum.Node.NodeMappingHourAgg.VALUE = testSize;
-        Assert.assertEquals(testSize, NodeMappingHourAgg.Factory.INSTANCE.workerNum());
+        Assert.assertEquals(testSize, factory.workerNum());
     }
 
     @Test
     public void testPreStart() throws ProviderNotFoundException {
-        when(clusterWorkerContext.findProvider(NodeMappingHourSave.Role.INSTANCE)).thenReturn(NodeMappingHourSave.Factory.INSTANCE);
+        when(clusterWorkerContext.findProvider(NodeMappingHourSave.Role.INSTANCE)).thenReturn(new NodeMappingHourSave.Factory());
 
         ArgumentCaptor<NodeMappingHourSave.Role> argumentCaptor = ArgumentCaptor.forClass(NodeMappingHourSave.Role.class);
         agg.preStart();
@@ -81,10 +82,5 @@ public class NodeMappingHourAggTestCase {
     @Test
     public void testOnWork() throws Exception {
         RecordDataAggTools.INSTANCE.testOnWork(agg, recordDataAnswer);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testOnWorkError() throws Exception {
-        agg.onWork(new Object());
     }
 }

@@ -15,12 +15,20 @@
             <DefaultRolloverStrategy max="30"/>
         </RollingFile>
     </Appenders>
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+        </Console>
+    </Appenders>
     <Loggers>
         <Logger name="root" level="INFO" additivity="false">
             <appender-ref ref="RollingFile" level="INFO"/>
         </Logger>
         <Root level="INFO" additivity="false">
             <AppenderRef ref="RollingFile"/>
+        </Root>
+        <Root level="info">
+            <AppenderRef ref="Console"/>
         </Root>
     </Loggers>
 </Configuration>
