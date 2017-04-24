@@ -13,3 +13,4 @@ script:
 
 after_success:
   - mvn clean cobertura:cobertura coveralls:report
+  - bash ./travis/push_image.sh
