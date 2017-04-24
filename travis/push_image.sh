@@ -1,10 +1,10 @@
 #!/bin/sh
 
-check_pull_is_release() {
+check_pull_is_tagged() {
   if [ "${TRAVIS_TAG}" = "" ]; then
     return 1
   else
-    echo "[Pushing] pushing docker image of ${TRAVIS_TAG}."
+    echo "Push the collector image of ${TRAVIS_TAG} version."
     return 0
   fi
 
@@ -18,7 +18,7 @@ push_collector_image() {
 }
 
 
-if check_pull_is_release; then
+if check_pull_is_tagged; then
     push_collector_image
-    echo "[Pushing] push Done!"
+    echo "Push is Done!"
 fi
