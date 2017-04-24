@@ -28,7 +28,7 @@ abstract class AbstractNodeCompAnalysis extends RecordAnalysisMember {
         super(role, clusterContext, selfContext);
     }
 
-   final void analyseSpans(Segment segment) throws Exception {
+    final void analyseSpans(Segment segment) throws Exception {
         List<Span> spanList = segment.getSpans();
         logger.debug("node analysis span isNotEmpty %s", CollectionTools.isNotEmpty(spanList));
 

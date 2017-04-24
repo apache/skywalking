@@ -81,7 +81,7 @@ public enum EsClient {
         }
     }
 
-    public void bulk(List<IndexRequestBuilder> dataList){
+    public void bulk(List<IndexRequestBuilder> dataList) {
         Client client = EsClient.INSTANCE.getClient();
         BulkRequestBuilder bulkRequest = client.prepareBulk();
 
