@@ -1,16 +1,16 @@
 #!/bin/sh
 
-check_pull_is_tag_or_release() {
+check_pull_is_release() {
   if [ "${TRAVIS_TAG}" = "" ]; then
     return 1
   else
-    echo "[Deploying] deploy tag ${TRAVIS_TAG}."
+    echo "[Pushing] pushing docker image of ${TRAVIS_TAG}."
     return 0
   fi
 
 }
 
-deploy_collector_image() {
+push_collector_image() {
   docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
   mvn clean package docker:build
   docker push skywalking/skywalking-collector:latest
@@ -18,7 +18,7 @@ deploy_collector_image() {
 }
 
 
-if check_pull_is_tag_or_release; then
-    deploy_collector_image
-    echo "[Deploying] deploy Done!"
+if check_pull_is_release; then
+    push_collector_image
+    echo "[Pushing] push Done!"
 fi
