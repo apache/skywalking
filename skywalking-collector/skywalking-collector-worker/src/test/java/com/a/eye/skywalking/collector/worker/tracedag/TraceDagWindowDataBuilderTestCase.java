@@ -26,11 +26,11 @@ public class TraceDagWindowDataBuilderTestCase {
         JsonArray lineArray = dagJsonObj.getAsJsonArray("nodeRefs");
 
         for (int i = 0; i < pointArray.size(); i++) {
-            System.out.println(pointArray.get(i).getAsJsonObject());
+//            System.out.println(pointArray.get(i).getAsJsonObject());
         }
 
         for (int i = 0; i < lineArray.size(); i++) {
-            System.out.println(lineArray.get(i).getAsJsonObject());
+//            System.out.println(lineArray.get(i).getAsJsonObject());
         }
     }
 

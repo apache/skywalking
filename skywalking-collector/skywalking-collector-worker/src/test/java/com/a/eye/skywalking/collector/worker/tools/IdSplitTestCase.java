@@ -13,7 +13,7 @@ public class IdSplitTestCase {
         String id = "201703221502..-..portal-service..-..[127.0.0.1:8002]";
         String[] ids = id.split(Const.IDS_SPLIT);
         for (String splitId : ids) {
-            System.out.println(splitId);
+//            System.out.println(splitId);
         }
     }
 }

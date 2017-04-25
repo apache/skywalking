@@ -55,7 +55,6 @@ public enum RecordDataMergeJson {
             if (!entry.getValue().isJsonNull()) {
                 value = entry.getValue().getAsString();
             }
-            System.out.printf("key: %s, value: %s \n", key, value);
 
             if (entry.getValue().isJsonNull()) {
                 Assert.assertEquals(true, actualData.get(key).isJsonNull());
@@ -86,7 +85,6 @@ public enum RecordDataMergeJson {
                 changedId = changedId + Const.ID_SPLIT + ids[i];
             }
             changedId = String.valueOf(changedSlice) + changedId;
-            System.out.printf("changedId: %s", changedId);
             return changedId;
         } else {
             return id;

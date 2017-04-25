@@ -75,7 +75,6 @@ public class SpanSearchWithIdTestCase {
         spanSearchWithId.onWork(request, response);
 
         JsonObject spanJsonObj = response.get(Const.RESULT).getAsJsonObject();
-        System.out.println(spanJsonObj.toString());
         String value = spanJsonObj.get("operationName").getAsString();
         Assert.assertEquals("/portal/", value);
     }

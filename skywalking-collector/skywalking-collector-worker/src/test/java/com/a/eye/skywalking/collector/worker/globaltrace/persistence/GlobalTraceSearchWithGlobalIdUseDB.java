@@ -23,11 +23,8 @@ public class GlobalTraceSearchWithGlobalIdUseDB {
         globalTraceSearchWithGlobalId.onWork("Trace.1491277147443.-1562443425.70539.65.2", response);
 
         JsonArray nodeArray = response.get("result").getAsJsonArray();
-        System.out.println(nodeArray.size());
-        System.out.println(nodeArray.toString());
         for (int i = 0; i < nodeArray.size(); i++) {
             JsonObject nodeJsonObj = nodeArray.get(i).getAsJsonObject();
-            System.out.println(nodeJsonObj);
         }
     }
 }

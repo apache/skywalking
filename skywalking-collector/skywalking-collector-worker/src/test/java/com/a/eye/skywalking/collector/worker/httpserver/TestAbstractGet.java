@@ -29,8 +29,6 @@ public class TestAbstractGet extends AbstractGet {
     }
 
     public static class Factory extends AbstractGetProvider<TestAbstractGet> {
-        public static Factory INSTANCE = new Factory();
-
         @Override
         public Role role() {
             return TestAbstractGet.WorkerRole.INSTANCE;

@@ -18,11 +18,6 @@ public class MergeDataAnswer implements Answer<Object> {
     @Override
     public Object answer(InvocationOnMock invocation) throws Throwable {
         MergeData mergeData = (MergeData)invocation.getArguments()[0];
-        System.out.printf("id: %s \n", mergeData.getId());
-
-//        for (Map.Entry<String, ?> entry : mergeData.toSource().entrySet()) {
-//            System.out.printf("key: %s, value: %s \n", entry.getKey(), entry.getValue());
-//        }
         mergeDataList.add(mergeData);
         return null;
     }

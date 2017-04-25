@@ -23,11 +23,8 @@ public class NodeCompWithTimeSliceUseDB {
         nodeCompLoad.onWork(null, response);
 
         JsonArray nodeArray = response.get("result").getAsJsonArray();
-        System.out.println(nodeArray.size());
-        System.out.println(nodeArray.toString());
         for (int i = 0; i < nodeArray.size(); i++) {
             JsonObject nodeJsonObj = nodeArray.get(i).getAsJsonObject();
-            System.out.println(nodeJsonObj);
         }
     }
 }

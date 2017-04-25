@@ -35,10 +35,10 @@ public class DateToolsTestCase {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(1490922929258L);
         calendar.set(Calendar.SECOND, calendar.get(Calendar.SECOND) - 3);
-        System.out.println(calendar.getTimeInMillis());
+//        System.out.println(calendar.getTimeInMillis());
         calendar.set(Calendar.SECOND, calendar.get(Calendar.SECOND) - 2);
-        System.out.println(calendar.getTimeInMillis());
+//        System.out.println(calendar.getTimeInMillis());
         calendar.set(Calendar.SECOND, calendar.get(Calendar.SECOND) - 2);
-        System.out.println(calendar.getTimeInMillis());
+//        System.out.println(calendar.getTimeInMillis());
     }
 }
