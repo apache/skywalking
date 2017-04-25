@@ -1,13 +1,19 @@
 #!/bin/sh
 
 check_pull_is_tagged() {
-  if [ "${TRAVIS_TAG}" = "" ]; then
+  if [ "${TRAVIS_TAG}" == "" ]; then
     return 1
   else
-    echo "Push the collector image of ${TRAVIS_TAG} version."
     return 0
   fi
+}
 
+check_branch_is_master(){
+    if [ "${TRAVIS_BRANCH}" == "master" ]; then
+        return 0;
+    else
+        return 1;
+    fi
 }
 
 push_collector_image() {
@@ -18,7 +24,7 @@ push_collector_image() {
 }
 
 
-if check_pull_is_tagged; then
+if check_pull_is_tagged && check_branch_is_master; then
     push_collector_image
     echo "Push is Done!"
 fi
