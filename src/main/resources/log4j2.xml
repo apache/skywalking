@@ -16,13 +16,10 @@
 		</RollingFile>
 	</Appenders>
 	<Loggers>
-		<logger name="com.a.eye.skywalking.ui" level="debug" additivity="false">
-			<AppenderRef ref="INFO"/>
+		<logger name="com.a.eye.skywalking.ui" level="debug">
+			<AppenderRef ref="RollingFile"/>
 		</logger>
-		<Logger name="root" level="INFO" additivity="false">
-			<appender-ref ref="RollingFile" level="INFO"/>
-		</Logger>
-		<Root level="INFO" additivity="false">
+		<Root level="info">
 			<AppenderRef ref="RollingFile"/>
 		</Root>
 	</Loggers>
