@@ -9,18 +9,18 @@ public class SegmentPersistenceData extends Window<SegmentData> implements Persi
 
     private WindowData<SegmentData> lockedWindowData;
 
-    public SegmentData getElseCreate(String id) {
+    public SegmentData getOrCreate(String id) {
         if (!lockedWindowData.containsKey(id)) {
             lockedWindowData.put(id, new SegmentData(id));
         }
         return lockedWindowData.get(id);
     }
 
-    public void holdData() {
+    public void hold() {
         lockedWindowData = getCurrentAndHold();
     }
 
-    public void releaseData() {
+    public void release() {
         lockedWindowData.release();
         lockedWindowData = null;
     }

@@ -10,7 +10,7 @@ public class RecordAnalysisData {
 
     private WindowData<RecordData> windowData = new WindowData(new LinkedHashMap<String, RecordData>());
 
-    public RecordData getElseCreate(String id) {
+    public RecordData getOrCreate(String id) {
         if (!windowData.containsKey(id)) {
             windowData.put(id, new RecordData(id));
         }

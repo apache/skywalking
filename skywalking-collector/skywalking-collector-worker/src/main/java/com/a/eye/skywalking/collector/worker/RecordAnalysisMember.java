@@ -19,7 +19,7 @@ public abstract class RecordAnalysisMember extends AnalysisMember {
     }
 
     final public void setRecord(String id, JsonObject record) throws Exception {
-        getRecordAnalysisData().getElseCreate(id).setRecord(record);
+        getRecordAnalysisData().getOrCreate(id).setRecord(record);
     }
 
     private RecordAnalysisData getRecordAnalysisData() {

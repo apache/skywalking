@@ -7,7 +7,7 @@ import java.util.Map;
  */
 public class WindowData<T extends Data> {
     private Map<String, T> data;
-    private boolean isHold;
+    private volatile boolean isHold;
 
     WindowData(Map<String, T> data) {
         this.data = data;

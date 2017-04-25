@@ -35,9 +35,9 @@ public abstract class MergePersistenceMember extends PersistenceMember<MergePers
         if (message instanceof MergeData) {
             MergeData mergeData = (MergeData) message;
             MergePersistenceData data = getPersistenceData();
-            data.holdData();
-            data.getElseCreate(mergeData.getId()).merge(mergeData);
-            data.releaseData();
+            data.hold();
+            data.getOrCreate(mergeData.getId()).merge(mergeData);
+            data.release();
         } else {
             logger.error("unhandled message, message instance must MergeData, but is %s", message.getClass().toString());
         }

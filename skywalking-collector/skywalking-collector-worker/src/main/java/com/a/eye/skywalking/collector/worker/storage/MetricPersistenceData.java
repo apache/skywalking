@@ -7,18 +7,18 @@ public class MetricPersistenceData extends Window<MetricData> implements Persist
 
     private WindowData<MetricData> lockedWindowData;
 
-    public MetricData getElseCreate(String id) {
+    public MetricData getOrCreate(String id) {
         if (!lockedWindowData.containsKey(id)) {
             lockedWindowData.put(id, new MetricData(id));
         }
         return lockedWindowData.get(id);
     }
 
-    public void holdData() {
+    public void hold() {
         lockedWindowData = getCurrentAndHold();
     }
 
-    public void releaseData() {
+    public void release() {
         lockedWindowData.release();
         lockedWindowData = null;
     }

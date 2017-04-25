@@ -7,7 +7,7 @@ import java.util.HashMap;
  */
 public abstract class Window<T extends Data> {
 
-    private Pointer current;
+    private WindowData<T> pointer;
 
     private WindowData<T> windowDataA;
     private WindowData<T> windowDataB;
@@ -15,19 +15,19 @@ public abstract class Window<T extends Data> {
     public Window() {
         windowDataA = new WindowData(new HashMap<>());
         windowDataB = new WindowData(new HashMap<>());
-        current = Pointer.A;
+        pointer = windowDataA;
     }
 
     public void switchPointer() {
-        if (current.equals(Pointer.A)) {
-            current = Pointer.B;
+        if (pointer == windowDataA) {
+            pointer = windowDataB;
         } else {
-            current = Pointer.A;
+            pointer = windowDataA;
         }
     }
 
     protected WindowData<T> getCurrentAndHold() {
-        if (Pointer.A.equals(current)) {
+        if (pointer == windowDataA) {
             windowDataA.hold();
             return windowDataA;
         } else {
@@ -37,14 +37,10 @@ public abstract class Window<T extends Data> {
     }
 
     public WindowData<T> getLast() {
-        if (Pointer.A.equals(current)) {
+        if (pointer == windowDataA) {
             return windowDataB;
         } else {
             return windowDataA;
         }
-    }
-
-    enum Pointer {
-        A, B
     }
 }

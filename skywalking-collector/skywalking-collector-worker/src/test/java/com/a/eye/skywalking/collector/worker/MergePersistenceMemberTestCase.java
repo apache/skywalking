@@ -41,7 +41,7 @@ public class MergePersistenceMemberTestCase {
         MergeData mergeData = mock(MergeData.class);
 
         when(mergePersistenceMember, "getPersistenceData").thenReturn(persistenceData);
-        when(persistenceData.getElseCreate(Mockito.anyString())).thenReturn(mergeData);
+        when(persistenceData.getOrCreate(Mockito.anyString())).thenReturn(mergeData);
 
         doCallRealMethod().when(mergePersistenceMember).analyse(Mockito.any(MergeData.class));
     }

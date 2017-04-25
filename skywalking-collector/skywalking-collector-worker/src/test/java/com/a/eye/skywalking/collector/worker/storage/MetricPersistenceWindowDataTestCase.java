@@ -14,12 +14,12 @@ public class MetricPersistenceWindowDataTestCase {
         String id = "2016" + Const.ID_SPLIT + "A" + Const.ID_SPLIT + "B";
 
         MetricPersistenceData metricPersistenceData = new MetricPersistenceData();
-        metricPersistenceData.holdData();
-        MetricData metricData = metricPersistenceData.getElseCreate(id);
+        metricPersistenceData.hold();
+        MetricData metricData = metricPersistenceData.getOrCreate(id);
         metricData.setMetric("Column_1", 10L);
         Assert.assertEquals(id, metricData.getId());
 
-        MetricData metricData1 = metricPersistenceData.getElseCreate(id);
+        MetricData metricData1 = metricPersistenceData.getOrCreate(id);
         Assert.assertEquals(10L, metricData1.asMap().get("Column_1"));
     }
 
@@ -28,12 +28,12 @@ public class MetricPersistenceWindowDataTestCase {
         String id = "2016" + Const.ID_SPLIT + "A" + Const.ID_SPLIT + "B";
 
         MetricPersistenceData metricPersistenceData = new MetricPersistenceData();
-        metricPersistenceData.holdData();
-        metricPersistenceData.getElseCreate(id);
+        metricPersistenceData.hold();
+        metricPersistenceData.getOrCreate(id);
 
         Assert.assertEquals(1, metricPersistenceData.getCurrentAndHold().size());
         String id_1 = "2016" + Const.ID_SPLIT + "B" + Const.ID_SPLIT + "C";
-        metricPersistenceData.getElseCreate(id_1);
+        metricPersistenceData.getOrCreate(id_1);
         Assert.assertEquals(2, metricPersistenceData.getCurrentAndHold().size());
 
         metricPersistenceData.getCurrentAndHold().clear();

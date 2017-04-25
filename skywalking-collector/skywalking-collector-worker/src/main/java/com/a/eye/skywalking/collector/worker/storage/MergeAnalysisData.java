@@ -10,7 +10,7 @@ public class MergeAnalysisData {
 
     private WindowData<MergeData> windowData = new WindowData(new LinkedHashMap<String, MergeData>());
 
-    public MergeData getElseCreate(String id) {
+    public MergeData getOrCreate(String id) {
         if (!windowData.containsKey(id)) {
             windowData.put(id, new MergeData(id));
         }

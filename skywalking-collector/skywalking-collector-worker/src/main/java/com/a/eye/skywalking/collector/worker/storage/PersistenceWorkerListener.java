@@ -1,8 +1,7 @@
 package com.a.eye.skywalking.collector.worker.storage;
 
 import com.a.eye.skywalking.collector.actor.AbstractLocalSyncWorker;
-
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -11,7 +10,7 @@ import java.util.List;
 public enum PersistenceWorkerListener {
     INSTANCE;
 
-    private List<AbstractLocalSyncWorker> workers = new ArrayList<>();
+    private List<AbstractLocalSyncWorker> workers = new LinkedList<>();
 
     public void register(AbstractLocalSyncWorker worker) {
         workers.add(worker);

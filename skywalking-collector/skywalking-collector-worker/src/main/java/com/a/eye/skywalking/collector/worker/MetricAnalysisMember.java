@@ -17,7 +17,7 @@ public abstract class MetricAnalysisMember extends AnalysisMember {
     }
 
     final protected void setMetric(String id, String column, Long value) throws Exception {
-        getMetricAnalysisData().getElseCreate(id).setMetric(column, value);
+        getMetricAnalysisData().getOrCreate(id).setMetric(column, value);
     }
 
     private MetricAnalysisData getMetricAnalysisData() {

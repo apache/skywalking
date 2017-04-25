@@ -35,9 +35,9 @@ public abstract class RecordPersistenceMember extends PersistenceMember<RecordPe
             RecordData recordData = (RecordData) message;
             logger.debug("setRecord: id: %s, data: %s", recordData.getId(), recordData.getRecord());
             RecordPersistenceData data = getPersistenceData();
-            data.holdData();
-            data.getElseCreate(recordData.getId()).setRecord(recordData.getRecord());
-            data.releaseData();
+            data.hold();
+            data.getOrCreate(recordData.getId()).setRecord(recordData.getRecord());
+            data.release();
         } else {
             logger.error("message unhandled");
         }

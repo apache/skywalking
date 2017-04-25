@@ -7,18 +7,18 @@ public class MergePersistenceData extends Window<MergeData> implements Persisten
 
     private WindowData<MergeData> lockedWindowData;
 
-    public MergeData getElseCreate(String id) {
+    public MergeData getOrCreate(String id) {
         if (!lockedWindowData.containsKey(id)) {
             lockedWindowData.put(id, new MergeData(id));
         }
         return lockedWindowData.get(id);
     }
 
-    public void holdData() {
+    public void hold() {
         lockedWindowData = getCurrentAndHold();
     }
 
-    public void releaseData() {
+    public void release() {
         lockedWindowData.release();
         lockedWindowData = null;
     }

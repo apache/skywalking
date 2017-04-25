@@ -34,9 +34,9 @@ public abstract class MetricPersistenceMember extends PersistenceMember<MetricPe
         if (message instanceof MetricData) {
             MetricData metricData = (MetricData) message;
             MetricPersistenceData data = getPersistenceData();
-            data.holdData();
-            data.getElseCreate(metricData.getId()).merge(metricData);
-            data.releaseData();
+            data.hold();
+            data.getOrCreate(metricData.getId()).merge(metricData);
+            data.release();
         } else {
             logger.error("unhandled message, message instance must MetricData, but is %s", message.getClass().toString());
         }

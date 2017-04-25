@@ -7,18 +7,18 @@ public class RecordPersistenceData extends Window<RecordData> implements Persist
 
     private WindowData<RecordData> lockedWindowData;
 
-    public RecordData getElseCreate(String id) {
+    public RecordData getOrCreate(String id) {
         if (!lockedWindowData.containsKey(id)) {
             lockedWindowData.put(id, new RecordData(id));
         }
         return lockedWindowData.get(id);
     }
 
-    public void holdData() {
+    public void hold() {
         lockedWindowData = getCurrentAndHold();
     }
 
-    public void releaseData() {
+    public void release() {
         lockedWindowData.release();
         lockedWindowData = null;
     }

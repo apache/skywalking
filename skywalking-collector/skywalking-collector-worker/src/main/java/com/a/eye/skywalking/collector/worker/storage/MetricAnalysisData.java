@@ -10,7 +10,7 @@ public class MetricAnalysisData {
 
     private WindowData<MetricData> windowData = new WindowData(new LinkedHashMap<String, MetricData>());
 
-    public MetricData getElseCreate(String id) {
+    public MetricData getOrCreate(String id) {
         if (!windowData.containsKey(id)) {
             windowData.put(id, new MetricData(id));
         }

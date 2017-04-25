@@ -5,9 +5,9 @@ package com.a.eye.skywalking.collector.worker.storage;
  */
 public interface PersistenceData<T extends Data> {
 
-    T getElseCreate(String id);
+    T getOrCreate(String id);
 
-    void releaseData();
+    void release();
 
-    void holdData();
+    void hold();
 }

@@ -22,7 +22,7 @@ public abstract class MergeAnalysisMember extends AnalysisMember {
     }
 
     final protected void setMergeData(String id, String column, String value) throws Exception {
-        getMergeAnalysisData().getElseCreate(id).setMergeData(column, value);
+        getMergeAnalysisData().getOrCreate(id).setMergeData(column, value);
     }
 
     @Override

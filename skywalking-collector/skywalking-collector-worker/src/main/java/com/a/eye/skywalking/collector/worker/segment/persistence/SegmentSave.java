@@ -53,12 +53,12 @@ public class SegmentSave extends PersistenceMember<SegmentPersistenceData, Segme
         if (message instanceof Segment) {
             Segment segment = (Segment) message;
             SegmentPersistenceData data = getPersistenceData();
-            data.holdData();
-            data.getElseCreate(segment.getTraceSegmentId() + i).setSegmentStr(segment.getJsonStr());
+            data.hold();
+            data.getOrCreate(segment.getTraceSegmentId() + i).setSegmentStr(segment.getJsonStr());
             if (data.size() >= CacheSizeConfig.Cache.Persistence.SIZE) {
                 persistence(data.asMap());
             }
-            data.releaseData();
+            data.release();
             i++;
         } else {
             logger.error("unhandled message, message instance must Segment, but is %s", message.getClass().toString());

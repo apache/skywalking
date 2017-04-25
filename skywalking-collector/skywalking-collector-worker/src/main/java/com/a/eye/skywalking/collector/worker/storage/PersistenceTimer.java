@@ -4,6 +4,7 @@ import com.a.eye.skywalking.collector.actor.AbstractLocalSyncWorker;
 import com.a.eye.skywalking.collector.worker.config.EsConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.message.StringFormattedMessage;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 
 import java.util.LinkedList;
@@ -26,13 +27,14 @@ public enum PersistenceTimer {
                 try {
                     extractDataAndSave();
                     Thread.sleep(timeInterval);
-                } catch (Exception e) {
-                    e.printStackTrace();
+                } catch (Throwable e) {
+                    logger.error(e);
                 }
             }
         };
-        Thread thread = new Thread(runnable);
-        thread.start();
+        Thread persistenceThread = new Thread(runnable);
+        persistenceThread.setName("timerPersistence");
+        persistenceThread.start();
     }
 
     private void extractDataAndSave() {
@@ -44,8 +46,7 @@ public enum PersistenceTimer {
             try {
                 worker.allocateJob(new FlushAndSwitch(), dataList);
             } catch (Exception e) {
-                logger.error("flush persistence worker data error, worker role name: %s", worker.getRole().roleName());
-                e.printStackTrace();
+                logger.error(new StringFormattedMessage("flush persistence worker data error, worker role name: %s", worker.getRole().roleName()), e);
             }
         }
         EsClient.INSTANCE.bulk(dataList);
