@@ -20,7 +20,7 @@ public enum PersistenceWorkerListener {
         return workers;
     }
 
-    public void reset(){
+    public void reset() {
         workers.clear();
     }
 }
