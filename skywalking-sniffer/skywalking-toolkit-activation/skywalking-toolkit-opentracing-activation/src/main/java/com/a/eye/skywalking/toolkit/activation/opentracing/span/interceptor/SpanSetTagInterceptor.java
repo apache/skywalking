@@ -24,8 +24,10 @@ public class SpanSetTagInterceptor implements InstanceMethodsAroundInterceptor {
             ContextManager.activeSpan().setTag(key, (String)value);
         else if (value instanceof Boolean)
             ContextManager.activeSpan().setTag(key, (Boolean)value);
-        else if (value instanceof Integer || value instanceof Short)
+        else if (value instanceof Integer)
             ContextManager.activeSpan().setTag(key, (Integer)value);
+        else if (value instanceof Short)
+            ContextManager.activeSpan().setTag(key, ((Short)value).intValue());
         else
             ContextManager.activeSpan().setTag(key, value.toString());
     }
