@@ -1,3 +1,8 @@
+sudo: required
+
+services:
+  - docker
+
 language: java
 install:
   - cd ci-dependencies
