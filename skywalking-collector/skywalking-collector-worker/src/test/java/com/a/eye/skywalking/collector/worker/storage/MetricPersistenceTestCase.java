@@ -1,13 +1,14 @@
 package com.a.eye.skywalking.collector.worker.storage;
 
 import com.a.eye.skywalking.collector.worker.Const;
+import java.lang.reflect.Field;
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
  * @author pengys5
  */
-public class MetricPersistenceWindowDataTestCase {
+public class MetricPersistenceTestCase {
 
     @Test
     public void testGetElseCreate() {
@@ -38,5 +39,30 @@ public class MetricPersistenceWindowDataTestCase {
 
         metricPersistenceData.getCurrentAndHold().clear();
         Assert.assertEquals(0, metricPersistenceData.getCurrentAndHold().size());
+    }
+
+    @Test
+    public void hold() throws NoSuchFieldException, IllegalAccessException {
+        MetricPersistenceData persistenceData = new MetricPersistenceData();
+        persistenceData.hold();
+
+        Field testAField = persistenceData.getClass().getDeclaredField("lockedWindowData");
+        testAField.setAccessible(true);
+        WindowData<MergeData> windowData = (WindowData<MergeData>)testAField.get(persistenceData);
+        Assert.assertEquals(true, windowData.isHolding());
+    }
+
+    @Test
+    public void release() throws NoSuchFieldException, IllegalAccessException {
+        MetricPersistenceData persistenceData = new MetricPersistenceData();
+        persistenceData.hold();
+
+        Field testAField = persistenceData.getClass().getDeclaredField("lockedWindowData");
+        testAField.setAccessible(true);
+        WindowData<MergeData> windowData = (WindowData<MergeData>)testAField.get(persistenceData);
+        Assert.assertEquals(true, windowData.isHolding());
+
+        persistenceData.release();
+        Assert.assertEquals(false, windowData.isHolding());
     }
 }

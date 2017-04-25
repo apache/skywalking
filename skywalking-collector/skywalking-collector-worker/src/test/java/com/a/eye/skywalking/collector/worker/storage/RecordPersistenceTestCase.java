@@ -2,13 +2,14 @@ package com.a.eye.skywalking.collector.worker.storage;
 
 import com.a.eye.skywalking.collector.worker.Const;
 import com.google.gson.JsonObject;
+import java.lang.reflect.Field;
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
  * @author pengys5
  */
-public class RecordPersistenceWindowDataTestCase {
+public class RecordPersistenceTestCase {
 
     @Test
     public void testGetElseCreate() {
@@ -42,5 +43,30 @@ public class RecordPersistenceWindowDataTestCase {
 
         recordPersistenceData.getCurrentAndHold().clear();
         Assert.assertEquals(0, recordPersistenceData.getCurrentAndHold().size());
+    }
+
+    @Test
+    public void hold() throws NoSuchFieldException, IllegalAccessException {
+        RecordPersistenceData persistenceData = new RecordPersistenceData();
+        persistenceData.hold();
+
+        Field testAField = persistenceData.getClass().getDeclaredField("lockedWindowData");
+        testAField.setAccessible(true);
+        WindowData<MergeData> windowData = (WindowData<MergeData>)testAField.get(persistenceData);
+        Assert.assertEquals(true, windowData.isHolding());
+    }
+
+    @Test
+    public void release() throws NoSuchFieldException, IllegalAccessException {
+        RecordPersistenceData persistenceData = new RecordPersistenceData();
+        persistenceData.hold();
+
+        Field testAField = persistenceData.getClass().getDeclaredField("lockedWindowData");
+        testAField.setAccessible(true);
+        WindowData<MergeData> windowData = (WindowData<MergeData>)testAField.get(persistenceData);
+        Assert.assertEquals(true, windowData.isHolding());
+
+        persistenceData.release();
+        Assert.assertEquals(false, windowData.isHolding());
     }
 }

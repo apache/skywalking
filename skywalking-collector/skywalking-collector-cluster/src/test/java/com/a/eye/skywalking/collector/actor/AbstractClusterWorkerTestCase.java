@@ -1,21 +1,80 @@
 package com.a.eye.skywalking.collector.actor;
 
+import akka.actor.Address;
+import akka.cluster.ClusterEvent;
+import akka.cluster.Member;
+import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
+import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.reflect.Whitebox;
+import org.apache.logging.log4j.Logger;
+
+import static org.mockito.Mockito.*;
 
 /**
  * @author pengys5
  */
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({ClusterEvent.MemberUp.class, Address.class})
 public class AbstractClusterWorkerTestCase {
+
+    private AbstractClusterWorker.WorkerWithAkka workerWithAkka = mock(AbstractClusterWorker.WorkerWithAkka.class, CALLS_REAL_METHODS);
+    private AbstractClusterWorker worker = PowerMockito.spy(new Impl(null, null, null));
+
+    @Before
+    public void init(){
+        Logger logger = mock(Logger.class);
+        Whitebox.setInternalState(workerWithAkka, "logger", logger);
+        Whitebox.setInternalState(workerWithAkka, "ownerWorker", worker);
+    }
 
     @Test
     public void testAllocateJob() throws Exception {
-        AbstractClusterWorker worker = PowerMockito.mock(AbstractClusterWorker.class);
 
         String jobStr = "TestJob";
         worker.allocateJob(jobStr);
 
-        Mockito.verify(worker).onWork(jobStr);
+        verify(worker).onWork(jobStr);
+    }
+
+    @Test
+    public void testMemberUp() throws Throwable {
+        ClusterEvent.MemberUp memberUp = mock(ClusterEvent.MemberUp.class);
+
+        Address address = mock(Address.class);
+        when(address.toString()).thenReturn("address");
+
+        Member member = mock(Member.class);
+        when(member.address()).thenReturn(address);
+
+        when(memberUp.member()).thenReturn(member);
+
+        workerWithAkka.onReceive(memberUp);
+
+        verify(workerWithAkka).register(member);
+    }
+
+    @Test
+    public void testMessage() throws Throwable {
+        String message = "test";
+        workerWithAkka.onReceive(message);
+
+        verify(worker).allocateJob(message);
+    }
+
+    static class Impl extends AbstractClusterWorker {
+        @Override public void preStart() throws ProviderNotFoundException {
+        }
+
+        public Impl(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+            super(role, clusterContext, selfContext);
+        }
+
+        @Override protected void onWork(Object message) throws Exception {
+
+        }
     }
 }

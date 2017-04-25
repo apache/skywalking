@@ -36,8 +36,7 @@ public class GlobalTraceIndex extends AbstractIndex {
             .startObject()
             .startObject("properties")
             .startObject(SUB_SEG_IDS)
-            .field("type", "text")
-            .field("index", "not_analyzed")
+            .field("type", "keyword")
             .endObject()
             .endObject()
             .endObject();

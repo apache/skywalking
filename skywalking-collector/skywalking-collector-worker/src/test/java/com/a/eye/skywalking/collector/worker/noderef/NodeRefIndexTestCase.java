@@ -21,6 +21,6 @@ public class NodeRefIndexTestCase {
     @Test
     public void testBuilder() throws IOException {
         NodeRefIndex index = new NodeRefIndex();
-        Assert.assertEquals("{\"properties\":{\"front\":{\"type\":\"string\",\"index\":\"not_analyzed\"},\"frontIsRealCode\":{\"type\":\"boolean\",\"index\":\"not_analyzed\"},\"behind\":{\"type\":\"string\",\"index\":\"not_analyzed\"},\"behindIsRealCode\":{\"type\":\"boolean\",\"index\":\"not_analyzed\"},\"aggId\":{\"type\":\"string\",\"index\":\"not_analyzed\"},\"timeSlice\":{\"type\":\"long\",\"index\":\"not_analyzed\"}}}", index.createMappingBuilder().string());
+        Assert.assertEquals("{\"properties\":{\"front\":{\"type\":\"keyword\"},\"frontIsRealCode\":{\"type\":\"boolean\",\"index\":\"not_analyzed\"},\"behind\":{\"type\":\"keyword\"},\"behindIsRealCode\":{\"type\":\"boolean\",\"index\":\"not_analyzed\"},\"aggId\":{\"type\":\"keyword\"},\"timeSlice\":{\"type\":\"long\",\"index\":\"not_analyzed\"}}}", index.createMappingBuilder().string());
     }
 }

@@ -19,4 +19,8 @@ public enum PersistenceWorkerListener {
     public List<AbstractLocalSyncWorker> getWorkers() {
         return workers;
     }
+
+    public void reset(){
+        workers.clear();
+    }
 }
