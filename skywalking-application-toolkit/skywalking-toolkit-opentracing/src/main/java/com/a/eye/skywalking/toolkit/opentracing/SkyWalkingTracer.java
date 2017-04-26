@@ -6,6 +6,9 @@ import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMap;
 
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * All source code in SkyWalkingTracer acts like an NoopTracer.
@@ -15,9 +18,10 @@ import java.nio.ByteBuffer;
  * Created by wusheng on 2016/12/20.
  */
 public class SkyWalkingTracer implements Tracer {
-    private static String TRACE_HEAD_NAME = "SW-TRACING-NAME";
+    private static String TRACE_HEAD_NAME = "sw3";
 
     public static Tracer INSTANCE = new SkyWalkingTracer();
+
 
     @Override
     public SpanBuilder buildSpan(String operationName) {
@@ -27,15 +31,13 @@ public class SkyWalkingTracer implements Tracer {
     @Override
     public <C> void inject(SpanContext spanContext, Format<C> format, C carrier) {
         if (Format.Builtin.TEXT_MAP.equals(format) || Format.Builtin.HTTP_HEADERS.equals(format)) {
-            ((TextMap)carrier).put(TRACE_HEAD_NAME, formatCrossProcessPropagationContextData());
+            ((TextMap) carrier).put(TRACE_HEAD_NAME, formatInjectCrossProcessPropagationContextData());
         } else if (Format.Builtin.BINARY.equals(format)) {
             byte[] key = TRACE_HEAD_NAME.getBytes(ByteBufferContext.CHARSET);
-            byte[] value = formatCrossProcessPropagationContextData().getBytes(ByteBufferContext.CHARSET);
-            ((ByteBuffer)carrier).put(ByteBufferContext.ENTRY);
-            ((ByteBuffer)carrier).putInt(key.length);
-            ((ByteBuffer)carrier).putInt(value.length);
-            ((ByteBuffer)carrier).put(key);
-            ((ByteBuffer)carrier).put(value);
+            byte[] value = formatInjectCrossProcessPropagationContextData().getBytes(ByteBufferContext.CHARSET);
+            ((ByteBuffer) carrier).put(key);
+            ((ByteBuffer) carrier).putInt(value.length);
+            ((ByteBuffer) carrier).put(value);
         } else {
             throw new IllegalArgumentException("Unsupported format: " + format);
         }
@@ -44,13 +46,13 @@ public class SkyWalkingTracer implements Tracer {
     @Override
     public <C> SpanContext extract(Format<C> format, C carrier) {
         if (Format.Builtin.TEXT_MAP.equals(format) || Format.Builtin.HTTP_HEADERS.equals(format)) {
-            TextMap textMapCarrier = (TextMap)carrier;
-            extractCrossProcessPropagationContextData(textMapCarrier);
+            TextMap textMapCarrier = (TextMap) carrier;
+            formatExtractCrossProcessPropagationContextData(fetchContextData(textMapCarrier));
             return new TextMapContext(textMapCarrier);
         } else if (Format.Builtin.BINARY.equals(format)) {
-            ByteBuffer byteBufferCarrier = (ByteBuffer)carrier;
-            extractCrossProcessPropagationContextData(byteBufferCarrier);
-            return new ByteBufferContext((ByteBuffer)carrier);
+            ByteBuffer byteBufferCarrier = (ByteBuffer) carrier;
+            formatExtractCrossProcessPropagationContextData(fetchContextData(byteBufferCarrier));
+            return new ByteBufferContext((ByteBuffer) carrier);
         } else {
             throw new IllegalArgumentException("Unsupported format: " + format);
         }
@@ -58,28 +60,43 @@ public class SkyWalkingTracer implements Tracer {
 
     /**
      * set context data in toolkit-opentracing-activation
-     *
-     * @return
      */
-    private String formatCrossProcessPropagationContextData() {
+    private String formatInjectCrossProcessPropagationContextData() {
         return "";
     }
 
     /**
      * read context data in toolkit-opentracing-activation
-     *
-     * @param textMapCarrier
      */
-    private void extractCrossProcessPropagationContextData(TextMap textMapCarrier) {
-
+    private void formatExtractCrossProcessPropagationContextData(String contextData) {
     }
 
-    /**
-     * read context data in toolkit-opentracing-activation
-     *
-     * @param byteBufferCarrier
-     */
-    private void extractCrossProcessPropagationContextData(ByteBuffer byteBufferCarrier) {
+    private String fetchContextData(TextMap textMap) {
+        Iterator<Map.Entry<String, String>> iterator = textMap.iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<String, String> entry = iterator.next();
+            if (TRACE_HEAD_NAME.equals(entry.getKey())) {
+                return entry.getValue();
+            }
+        }
 
+        return null;
+    }
+
+    private String fetchContextData(ByteBuffer byteBuffer) {
+        String contextDataStr = new String(byteBuffer.array(), Charset.forName("UTF-8"));
+        int index = contextDataStr.indexOf(TRACE_HEAD_NAME);
+        if (index == -1) {
+            return null;
+        }
+
+        try {
+            byteBuffer.position(index + TRACE_HEAD_NAME.getBytes().length);
+            byte[] contextDataBytes = new byte[byteBuffer.getInt()];
+            byteBuffer.get(contextDataBytes);
+            return new String(contextDataBytes, Charset.forName("UTF-8"));
+        } catch (Exception e) {
+            return null;
+        }
     }
 }
