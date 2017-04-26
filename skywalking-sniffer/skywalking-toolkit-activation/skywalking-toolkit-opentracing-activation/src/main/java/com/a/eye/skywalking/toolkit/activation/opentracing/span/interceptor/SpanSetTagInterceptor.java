@@ -54,13 +54,12 @@ public class SpanSetTagInterceptor implements InstanceMethodsAroundInterceptor {
     }
 
     /**
-     * Check current tag is peer tag.
+     * Check whether current tag is one of {@link Tags#PEER_HOSTNAME}, {@link Tags#PEER_HOST_IPV4} and {@link Tags#PEER_HOST_IPV6}.
+     * If yes, will use the {@link com.a.eye.skywalking.trace.tag.Tags#PEER_HOST} as the key, instead of original key,
+     * in {@link #adaptTag(String)}.
      *
-     * Skywalking put the tag value of {@link Tags#PEER_HOSTNAME}, {@link Tags#PEER_HOST_IPV4} and
-     * {@link Tags#PEER_HOST_IPV6} into {@link com.a.eye.skywalking.trace.tag.Tags#PEER_HOST} which
-     * facilitate analysis.
-     *
-     * @param key tag key
+     * @param key of current tag
+     * @return true if this tag is a host related.
      */
     private boolean isPeerTag(String key) {
         return Tags.PEER_HOST_IPV4.equals(key) || Tags.PEER_HOST_IPV6.equals(key) || Tags.PEER_HOSTNAME.equals(key);
