@@ -6,7 +6,7 @@ ADD skywalking-web.tar.gz /usr/local
 COPY startup.sh /usr/local/skywalking-web/bin
 
 ADD docker-entrypoint.sh /
-RUN chmod +x /docker-entrypoint.sh && chmod +x /usr/local/skywalking-web/bin/startup.shls
+RUN chmod +x /docker-entrypoint.sh && chmod +x /usr/local/skywalking-web/bin/startup.sh
 
 ENTRYPOINT [ "/docker-entrypoint.sh" ]
 CMD ["/usr/local/skywalking-web/bin/startup.sh"]
