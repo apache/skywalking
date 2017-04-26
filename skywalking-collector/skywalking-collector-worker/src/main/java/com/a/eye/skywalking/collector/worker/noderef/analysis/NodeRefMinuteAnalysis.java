@@ -9,8 +9,8 @@ import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
 import com.a.eye.skywalking.collector.worker.config.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.noderef.persistence.NodeRefMinuteAgg;
 import com.a.eye.skywalking.collector.worker.segment.SegmentPost;
+import com.a.eye.skywalking.collector.worker.segment.entity.Segment;
 import com.a.eye.skywalking.collector.worker.storage.RecordData;
-import com.a.eye.skywalking.trace.TraceSegment;
 
 /**
  * @author pengys5
@@ -18,7 +18,7 @@ import com.a.eye.skywalking.trace.TraceSegment;
 public class NodeRefMinuteAnalysis extends AbstractNodeRefAnalysis {
 
     protected NodeRefMinuteAnalysis(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext,
-        LocalWorkerContext selfContext) {
+                                    LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
@@ -31,8 +31,8 @@ public class NodeRefMinuteAnalysis extends AbstractNodeRefAnalysis {
     @Override
     public void analyse(Object message) throws Exception {
         if (message instanceof SegmentPost.SegmentWithTimeSlice) {
-            SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice = (SegmentPost.SegmentWithTimeSlice)message;
-            TraceSegment segment = segmentWithTimeSlice.getTraceSegment();
+            SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice = (SegmentPost.SegmentWithTimeSlice) message;
+            Segment segment = segmentWithTimeSlice.getSegment();
             long minute = segmentWithTimeSlice.getMinute();
             long hour = segmentWithTimeSlice.getHour();
             long day = segmentWithTimeSlice.getDay();

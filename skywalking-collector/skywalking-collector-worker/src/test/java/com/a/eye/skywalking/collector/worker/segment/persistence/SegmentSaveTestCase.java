@@ -7,6 +7,7 @@ import com.a.eye.skywalking.collector.worker.config.CacheSizeConfig;
 import com.a.eye.skywalking.collector.worker.config.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.mock.MockEsBulkClient;
 import com.a.eye.skywalking.collector.worker.segment.SegmentIndex;
+import com.a.eye.skywalking.collector.worker.segment.entity.Segment;
 import com.a.eye.skywalking.collector.worker.storage.EsClient;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -20,6 +21,7 @@ import org.mockito.stubbing.Answer;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.reflect.Whitebox;
 
 import java.util.TimeZone;
 
@@ -83,9 +85,9 @@ public class SegmentSaveTestCase {
     public void testAnalyse() throws Exception {
         CacheSizeConfig.Cache.Persistence.SIZE = 1;
 
-        JsonObject segment_1 = new JsonObject();
-        segment_1.addProperty("ts", "segment_1");
-        segmentSave.analyse(segment_1);
+        Segment segment = new Segment();
+        segment.setJsonStr("{\"ts\":\"segment_1\"}");
+        segmentSave.analyse(segment);
 
         Assert.assertEquals("segment_1", saveToEsSource.ts);
     }
@@ -97,7 +99,7 @@ public class SegmentSaveTestCase {
         @Override
         public Object answer(InvocationOnMock invocation) throws Throwable {
             Gson gson = new Gson();
-            String source = (String)invocation.getArguments()[0];
+            String source = (String) invocation.getArguments()[0];
             JsonObject sourceJsonObj = gson.fromJson(source, JsonObject.class);
             ts = sourceJsonObj.get("ts").getAsString();
             return null;

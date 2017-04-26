@@ -1,6 +1,7 @@
 package com.a.eye.skywalking.collector.worker.httpserver;
 
 import com.a.eye.skywalking.collector.actor.LocalAsyncWorkerRef;
+import com.a.eye.skywalking.collector.worker.segment.entity.Segment;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.PrintWriter;
+import java.io.StringReader;
 
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.*;
@@ -54,15 +56,14 @@ public class PostWithHttpServletTestCase {
         doAnswer(new Answer() {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
-                String reqStr = (String)invocation.getArguments()[0];
-                System.out.println(reqStr);
-                Assert.assertEquals("TestTest2", reqStr);
+                Segment segment = (Segment)invocation.getArguments()[0];
+                System.out.println(segment.getTraceSegmentId());
+                Assert.assertEquals("TestTest2", segment.getTraceSegmentId());
                 return null;
             }
-        }).when(workerRef).tell(anyString());
+        }).when(workerRef).tell(any(Segment.class));
 
-        BufferedReader bufferedReader = mock(BufferedReader.class);
-        when(bufferedReader.readLine()).thenReturn("Test").thenReturn("Test2").thenReturn(null);
+        BufferedReader bufferedReader = new BufferedReader(new StringReader("[{\"ts\":\"TestTest2\"}]"));
 
         when(request.getReader()).thenReturn(bufferedReader);
 

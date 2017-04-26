@@ -11,23 +11,21 @@ import com.a.eye.skywalking.collector.worker.config.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.globaltrace.analysis.GlobalTraceAnalysis;
 import com.a.eye.skywalking.collector.worker.httpserver.AbstractPost;
 import com.a.eye.skywalking.collector.worker.httpserver.AbstractPostProvider;
-import com.a.eye.skywalking.collector.worker.node.analysis.*;
+import com.a.eye.skywalking.collector.worker.node.analysis.NodeCompAnalysis;
+import com.a.eye.skywalking.collector.worker.node.analysis.NodeMappingDayAnalysis;
+import com.a.eye.skywalking.collector.worker.node.analysis.NodeMappingHourAnalysis;
+import com.a.eye.skywalking.collector.worker.node.analysis.NodeMappingMinuteAnalysis;
 import com.a.eye.skywalking.collector.worker.noderef.analysis.NodeRefDayAnalysis;
 import com.a.eye.skywalking.collector.worker.noderef.analysis.NodeRefHourAnalysis;
 import com.a.eye.skywalking.collector.worker.noderef.analysis.NodeRefMinuteAnalysis;
+import com.a.eye.skywalking.collector.worker.segment.entity.Segment;
 import com.a.eye.skywalking.collector.worker.segment.persistence.SegmentCostSave;
 import com.a.eye.skywalking.collector.worker.segment.persistence.SegmentExceptionSave;
 import com.a.eye.skywalking.collector.worker.segment.persistence.SegmentSave;
 import com.a.eye.skywalking.collector.worker.storage.AbstractTimeSlice;
 import com.a.eye.skywalking.collector.worker.tools.DateTools;
-import com.a.eye.skywalking.trace.SegmentsMessage;
-import com.a.eye.skywalking.trace.TraceSegment;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.util.List;
 
 /**
  * @author pengys5
@@ -35,11 +33,8 @@ import java.util.List;
 public class SegmentPost extends AbstractPost {
     private static final Logger logger = LogManager.getFormatterLogger(SegmentPost.class);
 
-    private Gson gson;
-
     public SegmentPost(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
-        gson = new Gson();
     }
 
     @Override
@@ -62,27 +57,25 @@ public class SegmentPost extends AbstractPost {
     }
 
     @Override
-    protected void onReceive(String reqJsonStr) throws Exception {
-        SegmentsMessage segmentsMessage = gson.fromJson(reqJsonStr, SegmentsMessage.class);
-        List<TraceSegment> segmentList = segmentsMessage.getSegments();
-        for (TraceSegment newSegment : segmentList) {
+    protected void onReceive(Object message) throws Exception {
+        if (message instanceof Segment) {
+            Segment segment = (Segment) message;
             try {
-                validateData(newSegment);
+                validateData(segment);
             } catch (IllegalArgumentException e) {
-                continue;
+                return;
             }
 
-            logger.debug("receive message instanceof TraceSegment, traceSegmentId is %s", newSegment.getTraceSegmentId());
+            logger.debug("receive message instanceof TraceSegment, traceSegmentId is %s", segment.getTraceSegmentId());
 
-            long minuteSlice = DateTools.getMinuteSlice(newSegment.getStartTime());
-            long hourSlice = DateTools.getHourSlice(newSegment.getStartTime());
-            long daySlice = DateTools.getDaySlice(newSegment.getStartTime());
-            int second = DateTools.getSecond(newSegment.getStartTime());
+            long minuteSlice = DateTools.getMinuteSlice(segment.getStartTime());
+            long hourSlice = DateTools.getHourSlice(segment.getStartTime());
+            long daySlice = DateTools.getDaySlice(segment.getStartTime());
+            int second = DateTools.getSecond(segment.getStartTime());
             logger.debug("minuteSlice: %s, hourSlice: %s, daySlice: %s, second:%s", minuteSlice, hourSlice, daySlice, second);
 
-            SegmentWithTimeSlice segmentWithTimeSlice = new SegmentWithTimeSlice(newSegment, minuteSlice, hourSlice, daySlice, second);
-            String newSegmentJsonStr = gson.toJson(newSegment);
-            tellSegmentSave(newSegmentJsonStr, daySlice, hourSlice, minuteSlice);
+            SegmentWithTimeSlice segmentWithTimeSlice = new SegmentWithTimeSlice(segment, minuteSlice, hourSlice, daySlice, second);
+            getSelfContext().lookup(SegmentSave.Role.INSTANCE).tell(segment);
 
             getSelfContext().lookup(SegmentCostSave.Role.INSTANCE).tell(segmentWithTimeSlice);
             getSelfContext().lookup(GlobalTraceAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
@@ -93,14 +86,6 @@ public class SegmentPost extends AbstractPost {
             tellNodeRef(segmentWithTimeSlice);
             tellNodeMapping(segmentWithTimeSlice);
         }
-    }
-
-    private void tellSegmentSave(String newSegmentJsonStr, long day, long hour, long minute) throws Exception {
-        JsonObject newSegmentJson = gson.fromJson(newSegmentJsonStr, JsonObject.class);
-        newSegmentJson.addProperty("minute", minute);
-        newSegmentJson.addProperty("hour", hour);
-        newSegmentJson.addProperty("day", day);
-        getSelfContext().lookup(SegmentSave.Role.INSTANCE).tell(newSegmentJson);
     }
 
     private void tellNodeRef(SegmentWithTimeSlice segmentWithTimeSlice) throws Exception {
@@ -115,11 +100,11 @@ public class SegmentPost extends AbstractPost {
         getSelfContext().lookup(NodeMappingDayAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
     }
 
-    private void validateData(TraceSegment newSegment) {
-        if (StringUtil.isEmpty(newSegment.getTraceSegmentId())) {
+    private void validateData(Segment segment) {
+        if (StringUtil.isEmpty(segment.getTraceSegmentId())) {
             throw new IllegalArgumentException("traceSegmentId required");
         }
-        if (0 == newSegment.getStartTime()) {
+        if (0 == segment.getStartTime()) {
             throw new IllegalArgumentException("startTime required");
         }
     }
@@ -163,15 +148,15 @@ public class SegmentPost extends AbstractPost {
     }
 
     public static class SegmentWithTimeSlice extends AbstractTimeSlice {
-        private final TraceSegment traceSegment;
+        private final Segment segment;
 
-        public SegmentWithTimeSlice(TraceSegment traceSegment, long minute, long hour, long day, int second) {
+        public SegmentWithTimeSlice(Segment segment, long minute, long hour, long day, int second) {
             super(minute, hour, day, second);
-            this.traceSegment = traceSegment;
+            this.segment = segment;
         }
 
-        public TraceSegment getTraceSegment() {
-            return traceSegment;
+        public Segment getSegment() {
+            return segment;
         }
     }
 }

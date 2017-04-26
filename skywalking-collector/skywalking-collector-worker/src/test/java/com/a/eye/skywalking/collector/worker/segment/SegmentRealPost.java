@@ -16,13 +16,13 @@ public class SegmentRealPost {
 //        HttpClientTools.INSTANCE.post("http://localhost:7001/segments", portalServiceExceptionSegmentAsString);
 
         String cacheServiceSegmentAsString = mock.mockCacheServiceSegmentAsString();
-        HttpClientTools.INSTANCE.post("http://localhost:7001/segments", cacheServiceSegmentAsString);
+        HttpClientTools.INSTANCE.post("http://localhost:12800/segments", cacheServiceSegmentAsString);
 
         String persistenceServiceSegmentAsString = mock.mockPersistenceServiceSegmentAsString();
-        HttpClientTools.INSTANCE.post("http://localhost:7001/segments", persistenceServiceSegmentAsString);
+        HttpClientTools.INSTANCE.post("http://localhost:12800/segments", persistenceServiceSegmentAsString);
 
         String portalServiceSegmentAsString = mock.mockPortalServiceSegmentAsString();
-        HttpClientTools.INSTANCE.post("http://localhost:7001/segments", portalServiceSegmentAsString);
+        HttpClientTools.INSTANCE.post("http://localhost:12800/segments", portalServiceSegmentAsString);
 
 //        String specialSegmentAsString = mock.mockSpecialSegmentAsString();
 //        HttpClientTools.INSTANCE.post("http://localhost:7001/segments", specialSegmentAsString);

@@ -10,10 +10,10 @@ import com.a.eye.skywalking.collector.worker.config.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.globaltrace.GlobalTraceIndex;
 import com.a.eye.skywalking.collector.worker.globaltrace.persistence.GlobalTraceAgg;
 import com.a.eye.skywalking.collector.worker.segment.SegmentPost;
+import com.a.eye.skywalking.collector.worker.segment.entity.GlobalTraceId;
+import com.a.eye.skywalking.collector.worker.segment.entity.Segment;
 import com.a.eye.skywalking.collector.worker.storage.MergeData;
 import com.a.eye.skywalking.collector.worker.tools.CollectionTools;
-import com.a.eye.skywalking.trace.TraceId.DistributedTraceId;
-import com.a.eye.skywalking.trace.TraceSegment;
 
 import java.util.List;
 
@@ -29,12 +29,12 @@ public class GlobalTraceAnalysis extends MergeAnalysisMember {
     @Override
     public void analyse(Object message) throws Exception {
         if (message instanceof SegmentPost.SegmentWithTimeSlice) {
-            SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice = (SegmentPost.SegmentWithTimeSlice)message;
-            TraceSegment segment = segmentWithTimeSlice.getTraceSegment();
+            SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice = (SegmentPost.SegmentWithTimeSlice) message;
+            Segment segment = segmentWithTimeSlice.getSegment();
             String subSegmentId = segment.getTraceSegmentId();
-            List<DistributedTraceId> globalTraceIdList = segment.getRelatedGlobalTraces();
+            List<GlobalTraceId> globalTraceIdList = segment.getRelatedGlobalTraces();
             if (CollectionTools.isNotEmpty(globalTraceIdList)) {
-                for (DistributedTraceId disTraceId : globalTraceIdList) {
+                for (GlobalTraceId disTraceId : globalTraceIdList) {
                     String traceId = disTraceId.get();
                     setMergeData(traceId, GlobalTraceIndex.SUB_SEG_IDS, subSegmentId);
                 }

@@ -18,12 +18,12 @@ public abstract class AbstractGet extends AbstractLocalSyncWorker {
         super(role, clusterContext, selfContext);
     }
 
-    @Override final public void onWork(Object request, Object response) throws Exception {
+    @Override
+    final public void onWork(Object request, Object response) throws Exception {
         Map<String, String[]> parameterMap = (Map<String, String[]>)request;
         try {
             onSearch(parameterMap, (JsonObject)response);
         } catch (Exception e) {
-            e.printStackTrace();
             ((JsonObject)response).addProperty("isSuccess", false);
             ((JsonObject)response).addProperty("reason", e.getMessage());
         }
