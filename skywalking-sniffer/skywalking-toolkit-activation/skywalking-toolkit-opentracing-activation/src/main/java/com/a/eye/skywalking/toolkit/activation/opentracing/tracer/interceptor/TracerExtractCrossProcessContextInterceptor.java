@@ -6,16 +6,12 @@ import com.a.eye.skywalking.api.plugin.interceptor.EnhancedClassInstanceContext;
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.InstanceMethodInvokeContext;
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.MethodInterceptResult;
-
 import com.a.eye.skywalking.toolkit.opentracing.SkyWalkingTracer;
-import io.opentracing.propagation.TextMap;
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 
 /**
- * Intercept {@link SkyWalkingTracer#extractCrossProcessPropagationContextData(TextMap)}
+ * Intercept {@link SkyWalkingTracer#formatExtractCrossProcessPropagationContextData(String)}
  */
-public class TracerExtractCrossProcessByteBufferContextInterceptor implements InstanceMethodsAroundInterceptor {
+public class TracerExtractCrossProcessContextInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
         MethodInterceptResult result) {
@@ -25,8 +21,7 @@ public class TracerExtractCrossProcessByteBufferContextInterceptor implements In
     @Override
     public Object afterMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
         Object ret) {
-        ByteBuffer byteBuffer = (ByteBuffer)interceptorContext.allArguments()[0];
-        String contextDataStr = new String(byteBuffer.array(), Charset.forName("UTF-8"));
+        String contextDataStr = (String)interceptorContext.allArguments()[0];
 
         ContextCarrier carrier = new ContextCarrier();
         carrier.deserialize(contextDataStr);

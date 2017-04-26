@@ -7,6 +7,9 @@ import com.a.eye.skywalking.api.plugin.interceptor.enhance.InstanceMethodsAround
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.MethodInterceptResult;
 import com.a.eye.skywalking.toolkit.opentracing.SkyWalkingSpan;
 
+import io.opentracing.Span;
+import io.opentracing.tag.Tags;
+
 /**
  * Intercept these following methods:
  * {@link SkyWalkingSpan#setTag(String, boolean)}
@@ -15,10 +18,15 @@ import com.a.eye.skywalking.toolkit.opentracing.SkyWalkingSpan;
  */
 public class SpanSetTagInterceptor implements InstanceMethodsAroundInterceptor {
 
+    /**
+     * key of {@link com.a.eye.skywalking.trace.tag.Tags#PEER_HOST}
+     */
+    private static final String KEY_OF_PEER_HOST_TAG = "peer.host";
+
     @Override
     public void beforeMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
         MethodInterceptResult result) {
-        String key = (String)interceptorContext.allArguments()[0];
+        String key = adaptTag((String)interceptorContext.allArguments()[0]);
         Object value = interceptorContext.allArguments()[1];
         if (value instanceof String)
             ContextManager.activeSpan().setTag(key, (String)value);
@@ -28,6 +36,34 @@ public class SpanSetTagInterceptor implements InstanceMethodsAroundInterceptor {
             ContextManager.activeSpan().setTag(key, (Integer)value);
         else
             ContextManager.activeSpan().setTag(key, value.toString());
+    }
+
+    /**
+     * Adapt {@link Tags} of open tracing.
+     *
+     * @return tag key
+     */
+    private String adaptTag(String tagKey) {
+        String key = tagKey;
+
+        if (isPeerTag(key)) {
+            key = KEY_OF_PEER_HOST_TAG;
+        }
+
+        return key;
+    }
+
+    /**
+     * Check current tag is peer tag.
+     *
+     * Skywalking put the tag value of {@link Tags#PEER_HOSTNAME}, {@link Tags#PEER_HOST_IPV4} and
+     * {@link Tags#PEER_HOST_IPV6} into {@link com.a.eye.skywalking.trace.tag.Tags#PEER_HOST} which
+     * facilitate analysis.
+     *
+     * @param key tag key
+     */
+    private boolean isPeerTag(String key) {
+        return Tags.PEER_HOST_IPV4.equals(key) || Tags.PEER_HOST_IPV6.equals(key) || Tags.PEER_HOSTNAME.equals(key);
     }
 
     @Override

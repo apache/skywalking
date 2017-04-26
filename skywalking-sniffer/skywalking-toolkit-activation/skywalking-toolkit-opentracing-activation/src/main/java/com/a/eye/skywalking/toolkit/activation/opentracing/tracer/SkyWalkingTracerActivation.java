@@ -6,11 +6,7 @@ import com.a.eye.skywalking.api.plugin.interceptor.enhance.ClassInstanceMethodsE
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 
-import java.nio.ByteBuffer;
-
-import static com.a.eye.skywalking.api.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 import static net.bytebuddy.matcher.ElementMatchers.named;
-import static net.bytebuddy.matcher.ElementMatchers.takesArgument;
 
 /**
  * @author wusheng
@@ -32,34 +28,23 @@ public class SkyWalkingTracerActivation extends ClassInstanceMethodsEnhancePlugi
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("formatCrossProcessPropagationContextData");
+                    return named("formatInjectCrossProcessPropagationContextData");
                 }
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return "com.a.eye.skywalking.toolkit.activation.opentracing.tracer.interceptor.TracerFormatCrossProcessContextInterceptor";
+                    return "com.a.eye.skywalking.toolkit.activation.opentracing.tracer.interceptor.TracerInjectFormatCrossProcessContextInterceptor";
                 }
             },
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("extractCrossProcessPropagationContextData").and(takesArgumentWithType(0, "io.opentracing.propagation.TextMap"));
+                    return named("formatExtractCrossProcessPropagationContextData");
                 }
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return "com.a.eye.skywalking.toolkit.activation.opentracing.tracer.interceptor.TracerExtractCrossProcessTextMapContextInterceptor";
-                }
-            },
-            new InstanceMethodsInterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("extractCrossProcessPropagationContextData").and(takesArgument(0, ByteBuffer.class));
-                }
-
-                @Override
-                public String getMethodsInterceptor() {
-                    return "com.a.eye.skywalking.toolkit.activation.opentracing.tracer.interceptor.TracerExtractCrossProcessByteBufferContextInterceptor";
+                    return "com.a.eye.skywalking.toolkit.activation.opentracing.tracer.interceptor.TracerExtractCrossProcessContextInterceptor";
                 }
             }
         };
