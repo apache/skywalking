@@ -22,10 +22,10 @@
     </Appenders>
     <Loggers>
         <logger name="com.a.eye.skywalking.collector" level="debug">
-            <AppenderRef ref="Console"/>
+            <AppenderRef ref="RollingFile"/>
         </logger>
         <Root level="INFO">
-            <AppenderRef ref="Console"/>
+            <AppenderRef ref="RollingFile"/>
         </Root>
     </Loggers>
 </Configuration>

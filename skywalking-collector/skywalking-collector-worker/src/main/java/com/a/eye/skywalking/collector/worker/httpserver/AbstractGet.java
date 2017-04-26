@@ -26,7 +26,6 @@ public abstract class AbstractGet extends AbstractLocalSyncWorker {
         } catch (Exception e) {
             ((JsonObject)response).addProperty("isSuccess", false);
             ((JsonObject)response).addProperty("reason", e.getMessage());
-            logger().error(e);
         }
     }
 
