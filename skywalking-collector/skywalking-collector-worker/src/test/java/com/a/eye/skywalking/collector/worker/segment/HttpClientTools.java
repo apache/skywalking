@@ -41,12 +41,12 @@ public enum HttpClientTools {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e);
         } finally {
             try {
                 httpClient.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.error(e);
             }
         }
         return null;
@@ -65,12 +65,12 @@ public enum HttpClientTools {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e);
         } finally {
             try {
                 httpClient.close();
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error(e);
             }
         }
         return null;

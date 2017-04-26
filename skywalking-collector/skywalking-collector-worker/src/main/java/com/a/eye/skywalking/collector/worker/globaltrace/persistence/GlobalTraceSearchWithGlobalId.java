@@ -8,7 +8,7 @@ import com.a.eye.skywalking.collector.worker.globaltrace.GlobalTraceIndex;
 import com.a.eye.skywalking.collector.worker.segment.SegmentIndex;
 import com.a.eye.skywalking.collector.worker.segment.entity.*;
 import com.a.eye.skywalking.collector.worker.storage.GetResponseFromEs;
-import com.a.eye.skywalking.collector.worker.storage.MergeData;
+import com.a.eye.skywalking.collector.worker.storage.JoinAndSplitData;
 import com.a.eye.skywalking.collector.worker.tools.CollectionTools;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -41,7 +41,7 @@ public class GlobalTraceSearchWithGlobalId extends AbstractLocalSyncWorker {
             logger.debug("globalTraceObj: %s", globalTraceObj);
 
             String subSegIdsStr = globalTraceObj.get(GlobalTraceIndex.SUB_SEG_IDS).getAsString();
-            String[] subSegIds = subSegIdsStr.split(MergeData.SPLIT);
+            String[] subSegIds = subSegIdsStr.split(JoinAndSplitData.SPLIT);
 
             List<SpanView> spanViewList = new ArrayList<>();
             for (String subSegId : subSegIds) {

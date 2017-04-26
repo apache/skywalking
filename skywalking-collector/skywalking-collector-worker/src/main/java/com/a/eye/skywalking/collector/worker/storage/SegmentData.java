@@ -10,8 +10,8 @@ public class SegmentData implements Data {
     private String id;
     private String segmentStr;
 
-    public SegmentData(String key) {
-        this.id = key;
+    public SegmentData(String id) {
+        this.id = id;
     }
 
     public String getId() {
@@ -19,7 +19,7 @@ public class SegmentData implements Data {
     }
 
     @Override
-    public void merge(Map<String, ?> dbData) {
+    public void merge(Map<String, ?> source) {
     }
 
     public String getSegmentStr() {

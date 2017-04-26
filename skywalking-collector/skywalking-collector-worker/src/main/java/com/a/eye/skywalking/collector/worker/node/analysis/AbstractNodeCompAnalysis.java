@@ -43,7 +43,7 @@ abstract class AbstractNodeCompAnalysis extends RecordAnalysisMember {
                     compJsonObj.addProperty(NodeCompIndex.PEERS, peers);
                     compJsonObj.addProperty(NodeCompIndex.NAME, Tags.COMPONENT.get(span));
 
-                    setRecord(peers, compJsonObj);
+                    set(peers, compJsonObj);
                 } else if (Tags.SPAN_KIND_SERVER.equals(kind) && span.getParentSpanId() == -1) {
                     String peers = segment.getApplicationCode();
 
@@ -51,7 +51,7 @@ abstract class AbstractNodeCompAnalysis extends RecordAnalysisMember {
                     compJsonObj.addProperty(NodeCompIndex.PEERS, peers);
                     compJsonObj.addProperty(NodeCompIndex.NAME, Tags.COMPONENT.get(span));
 
-                    setRecord(peers, compJsonObj);
+                    set(peers, compJsonObj);
                 }
             }
         }

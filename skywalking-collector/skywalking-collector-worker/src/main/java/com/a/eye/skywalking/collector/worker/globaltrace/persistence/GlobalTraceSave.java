@@ -5,14 +5,14 @@ import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
 import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
 import com.a.eye.skywalking.collector.actor.selector.HashCodeSelector;
 import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
-import com.a.eye.skywalking.collector.worker.MergePersistenceMember;
+import com.a.eye.skywalking.collector.worker.JoinAndSplitPersistenceMember;
 import com.a.eye.skywalking.collector.worker.globaltrace.GlobalTraceIndex;
 import com.a.eye.skywalking.collector.worker.storage.PersistenceWorkerListener;
 
 /**
  * @author pengys5
  */
-public class GlobalTraceSave extends MergePersistenceMember {
+public class GlobalTraceSave extends JoinAndSplitPersistenceMember {
 
     GlobalTraceSave(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext,
                     LocalWorkerContext selfContext) {

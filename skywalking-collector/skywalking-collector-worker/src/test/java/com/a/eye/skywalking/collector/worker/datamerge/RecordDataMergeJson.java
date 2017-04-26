@@ -70,7 +70,7 @@ public enum RecordDataMergeJson {
     private Map<String, JsonObject> recordData2Map(List<RecordData> recordDataList) {
         Map<String, JsonObject> recordDataMap = new HashMap<>();
         for (RecordData recordData : recordDataList) {
-            recordDataMap.put(recordData.getId(), recordData.getRecord());
+            recordDataMap.put(recordData.getId(), recordData.get());
         }
         return recordDataMap;
     }

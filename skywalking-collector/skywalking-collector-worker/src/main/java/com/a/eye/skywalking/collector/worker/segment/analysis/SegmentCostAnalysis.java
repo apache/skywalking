@@ -54,7 +54,7 @@ public class SegmentCostAnalysis extends RecordAnalysisMember {
                             cost = 1;
                         }
                         dataJsonObj.addProperty(SegmentCostIndex.COST, cost);
-                        setRecord(segment.getTraceSegmentId(), dataJsonObj);
+                        set(segment.getTraceSegmentId(), dataJsonObj);
                     }
                 }
             }

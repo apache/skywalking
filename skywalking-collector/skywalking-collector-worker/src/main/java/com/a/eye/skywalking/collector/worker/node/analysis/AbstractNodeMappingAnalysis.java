@@ -42,7 +42,7 @@ abstract class AbstractNodeMappingAnalysis extends RecordAnalysisMember {
                 nodeMappingJsonObj.addProperty(NodeMappingIndex.TIME_SLICE, timeSlice);
 
                 String id = timeSlice + Const.ID_SPLIT + code + Const.ID_SPLIT + peers;
-                setRecord(id, nodeMappingJsonObj);
+                set(id, nodeMappingJsonObj);
             }
         }
     }

@@ -60,7 +60,7 @@ public class SegmentExceptionAnalysis extends RecordAnalysisMember {
                         }
                     }
                     dataJsonObj.add(SegmentExceptionIndex.ERROR_KIND, errorKind);
-                    setRecord(segment.getTraceSegmentId(), dataJsonObj);
+                    set(segment.getTraceSegmentId(), dataJsonObj);
                 }
             }
         } else {

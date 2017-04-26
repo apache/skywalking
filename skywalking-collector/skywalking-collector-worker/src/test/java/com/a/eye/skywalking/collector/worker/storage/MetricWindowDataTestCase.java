@@ -34,10 +34,10 @@ public class MetricWindowDataTestCase {
         String id_1 = "2016" + Const.ID_SPLIT + "B";
         MetricData metricData = new MetricData(id_1);
 
-        metricData.setMetric("Column", 10L);
+        metricData.set("Column", 10L);
         Assert.assertEquals(10L, metricData.asMap().get("Column"));
 
-        metricData.setMetric("Column", 10L);
+        metricData.set("Column", 10L);
         Assert.assertEquals(20L, metricData.asMap().get("Column"));
     }
 
@@ -45,10 +45,10 @@ public class MetricWindowDataTestCase {
     public void testMerge() {
         String id_1 = "2016" + Const.ID_SPLIT + "B";
         MetricData metricData_1 = new MetricData(id_1);
-        metricData_1.setMetric("Column", 10L);
+        metricData_1.set("Column", 10L);
 
         MetricData metricData_2 = new MetricData(id_1);
-        metricData_2.setMetric("Column", 10L);
+        metricData_2.set("Column", 10L);
 
         metricData_1.merge(metricData_2);
         Assert.assertEquals(20L, metricData_1.asMap().get("Column"));
@@ -58,7 +58,7 @@ public class MetricWindowDataTestCase {
     public void testMergeMapData() {
         String id_1 = "2016" + Const.ID_SPLIT + "B";
         MetricData metricData_1 = new MetricData(id_1);
-        metricData_1.setMetric("Column", 10L);
+        metricData_1.set("Column", 10L);
 
         Map<String, Object> dbData = new HashMap<>();
         dbData.put("Column", 10L);

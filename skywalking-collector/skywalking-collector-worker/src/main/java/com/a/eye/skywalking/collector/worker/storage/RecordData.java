@@ -13,12 +13,12 @@ public class RecordData extends AbstractHashMessage implements Data {
 
     private String id;
     private String aggId;
-    private JsonObject record;
+    private JsonObject data;
 
-    public RecordData(String key) {
-        super(key);
-        this.id = key;
-        String[] ids = id.split(Const.IDS_SPLIT);
+    public RecordData(String id) {
+        super(id);
+        this.id = id;
+        String[] ids = this.id.split(Const.IDS_SPLIT);
         for (int i = 1; i < ids.length; i++) {
             if (i == 1) {
                 this.aggId = ids[i];
@@ -26,23 +26,23 @@ public class RecordData extends AbstractHashMessage implements Data {
                 this.aggId += Const.ID_SPLIT + ids[i];
             }
         }
-        record = new JsonObject();
+        data = new JsonObject();
     }
 
     public String getId() {
         return id;
     }
 
-    public JsonObject getRecord() {
-        record.addProperty(AbstractIndex.AGG_COLUMN, this.aggId);
-        return record;
+    public JsonObject get() {
+        data.addProperty(AbstractIndex.AGG_COLUMN, this.aggId);
+        return data;
     }
 
-    public void setRecord(JsonObject record) {
-        this.record = record;
+    public void set(JsonObject record) {
+        this.data = record;
     }
 
     @Override
-    public void merge(Map<String, ?> dbData) {
+    public void merge(Map<String, ?> source) {
     }
 }

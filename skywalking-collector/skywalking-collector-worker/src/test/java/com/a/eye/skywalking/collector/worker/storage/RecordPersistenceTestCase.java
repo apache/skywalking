@@ -21,12 +21,12 @@ public class RecordPersistenceTestCase {
         recordPersistenceData.hold();
 
         RecordData recordData = recordPersistenceData.getOrCreate(id);
-        recordData.setRecord(record);
+        recordData.set(record);
 
         Assert.assertEquals(id, recordData.getId());
 
         RecordData recordData1 = recordPersistenceData.getOrCreate(id);
-        Assert.assertEquals("Value_1", recordData1.getRecord().get("Column_1").getAsString());
+        Assert.assertEquals("Value_1", recordData1.get().get("Column_1").getAsString());
     }
 
     @Test
@@ -52,7 +52,7 @@ public class RecordPersistenceTestCase {
 
         Field testAField = persistenceData.getClass().getDeclaredField("lockedWindowData");
         testAField.setAccessible(true);
-        WindowData<MergeData> windowData = (WindowData<MergeData>)testAField.get(persistenceData);
+        WindowData<JoinAndSplitData> windowData = (WindowData<JoinAndSplitData>)testAField.get(persistenceData);
         Assert.assertEquals(true, windowData.isHolding());
     }
 
@@ -63,7 +63,7 @@ public class RecordPersistenceTestCase {
 
         Field testAField = persistenceData.getClass().getDeclaredField("lockedWindowData");
         testAField.setAccessible(true);
-        WindowData<MergeData> windowData = (WindowData<MergeData>)testAField.get(persistenceData);
+        WindowData<JoinAndSplitData> windowData = (WindowData<JoinAndSplitData>)testAField.get(persistenceData);
         Assert.assertEquals(true, windowData.isHolding());
 
         persistenceData.release();

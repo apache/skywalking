@@ -29,10 +29,10 @@ public abstract class RecordPersistenceMember extends PersistenceMember<RecordPe
     public void analyse(Object message) throws Exception {
         if (message instanceof RecordData) {
             RecordData recordData = (RecordData) message;
-            logger().debug("setRecord: id: %s, data: %s", recordData.getId(), recordData.getRecord());
+            logger().debug("set: id: %s, data: %s", recordData.getId(), recordData.get());
             RecordPersistenceData data = getPersistenceData();
             data.hold();
-            data.getOrCreate(recordData.getId()).setRecord(recordData.getRecord());
+            data.getOrCreate(recordData.getId()).set(recordData.get());
             data.release();
         } else {
             logger().error("message unhandled");
@@ -46,7 +46,7 @@ public abstract class RecordPersistenceMember extends PersistenceMember<RecordPe
 
         Client client = EsClient.INSTANCE.getClient();
         lastData.forEach((key, value) -> {
-            IndexRequestBuilder builder = client.prepareIndex(esIndex(), esType(), key).setSource(value.getRecord().toString());
+            IndexRequestBuilder builder = client.prepareIndex(esIndex(), esType(), key).setSource(value.get().toString());
             builderList.add(builder);
         });
         lastData.clear();

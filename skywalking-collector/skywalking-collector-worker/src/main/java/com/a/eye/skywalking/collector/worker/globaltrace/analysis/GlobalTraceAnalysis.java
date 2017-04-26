@@ -3,7 +3,7 @@ package com.a.eye.skywalking.collector.worker.globaltrace.analysis;
 import com.a.eye.skywalking.collector.actor.*;
 import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
 import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
-import com.a.eye.skywalking.collector.worker.MergeAnalysisMember;
+import com.a.eye.skywalking.collector.worker.JoinAndSplitAnalysisMember;
 import com.a.eye.skywalking.collector.worker.config.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.globaltrace.GlobalTraceIndex;
 import com.a.eye.skywalking.collector.worker.globaltrace.persistence.GlobalTraceAgg;
@@ -19,7 +19,7 @@ import java.util.List;
 /**
  * @author pengys5
  */
-public class GlobalTraceAnalysis extends MergeAnalysisMember {
+public class GlobalTraceAnalysis extends JoinAndSplitAnalysisMember {
 
     private Logger logger = LogManager.getFormatterLogger(GlobalTraceAnalysis.class);
 
@@ -37,7 +37,7 @@ public class GlobalTraceAnalysis extends MergeAnalysisMember {
             if (CollectionTools.isNotEmpty(globalTraceIdList)) {
                 for (GlobalTraceId disTraceId : globalTraceIdList) {
                     String traceId = disTraceId.get();
-                    setMergeData(traceId, GlobalTraceIndex.SUB_SEG_IDS, subSegmentId);
+                    set(traceId, GlobalTraceIndex.SUB_SEG_IDS, subSegmentId);
                 }
             }
         } else {

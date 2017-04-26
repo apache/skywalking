@@ -49,7 +49,7 @@ abstract class AbstractNodeRefAnalysis extends RecordAnalysisMember {
 
                     String id = timeSlice + Const.ID_SPLIT + front + Const.ID_SPLIT + behind;
                     logger.debug("dag node ref: %s", dataJsonObj.toString());
-                    setRecord(id, dataJsonObj);
+                    set(id, dataJsonObj);
                     buildNodeRefResRecordData(id, span, minute, hour, day, second);
                 } else if (Tags.SPAN_KIND_SERVER.equals(Tags.SPAN_KIND.get(span))) {
                     if (span.getParentSpanId() == -1 && CollectionTools.isEmpty(segment.getRefs())) {
@@ -60,7 +60,7 @@ abstract class AbstractNodeRefAnalysis extends RecordAnalysisMember {
                         dataJsonObj.addProperty(NodeRefIndex.FRONT, front);
 
                         String id = timeSlice + Const.ID_SPLIT + front + Const.ID_SPLIT + behind;
-                        setRecord(id, dataJsonObj);
+                        set(id, dataJsonObj);
                         buildNodeRefResRecordData(id, span, minute, hour, day, second);
                     }
                 }

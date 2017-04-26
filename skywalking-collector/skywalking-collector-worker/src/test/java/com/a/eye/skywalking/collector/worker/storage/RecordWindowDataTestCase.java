@@ -16,7 +16,7 @@ public class RecordWindowDataTestCase {
         RecordData recordData = new RecordData(id_1);
 
         Assert.assertEquals(id_1, recordData.getId());
-        Assert.assertEquals("B" + Const.ID_SPLIT + "C", recordData.getRecord().get("aggId").getAsString());
+        Assert.assertEquals("B" + Const.ID_SPLIT + "C", recordData.get().get("aggId").getAsString());
     }
 
     @Test
@@ -26,10 +26,10 @@ public class RecordWindowDataTestCase {
 
         JsonObject record = new JsonObject();
         record.addProperty("Column", "VALUE");
-        recordData.setRecord(record);
+        recordData.set(record);
 
         Assert.assertEquals(id_1, recordData.getId());
-        Assert.assertEquals("B" + Const.ID_SPLIT + "C", recordData.getRecord().get("aggId").getAsString());
-        Assert.assertEquals("VALUE", recordData.getRecord().get("Column").getAsString());
+        Assert.assertEquals("B" + Const.ID_SPLIT + "C", recordData.get().get("aggId").getAsString());
+        Assert.assertEquals("VALUE", recordData.get().get("Column").getAsString());
     }
 }

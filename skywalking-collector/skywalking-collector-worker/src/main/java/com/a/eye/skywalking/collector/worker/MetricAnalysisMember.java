@@ -16,8 +16,8 @@ public abstract class MetricAnalysisMember extends AnalysisMember {
         super(role, clusterContext, selfContext);
     }
 
-    final protected void setMetric(String id, String column, Long value) throws Exception {
-        getMetricAnalysisData().getOrCreate(id).setMetric(column, value);
+    final protected void set(String id, String metricName, Long value) throws Exception {
+        getMetricAnalysisData().getOrCreate(id).set(metricName, value);
     }
 
     private MetricAnalysisData getMetricAnalysisData() {

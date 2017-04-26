@@ -22,8 +22,8 @@ public abstract class RecordAnalysisMember extends AnalysisMember {
         super(role, clusterContext, selfContext);
     }
 
-    final public void setRecord(String id, JsonObject record) throws Exception {
-        getRecordAnalysisData().getOrCreate(id).setRecord(record);
+    final public void set(String id, JsonObject record) throws Exception {
+        getRecordAnalysisData().getOrCreate(id).set(record);
     }
 
     private RecordAnalysisData getRecordAnalysisData() {

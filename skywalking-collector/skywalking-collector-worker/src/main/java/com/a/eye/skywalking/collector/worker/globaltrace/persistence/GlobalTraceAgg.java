@@ -4,7 +4,7 @@ import com.a.eye.skywalking.collector.actor.*;
 import com.a.eye.skywalking.collector.actor.selector.HashCodeSelector;
 import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
 import com.a.eye.skywalking.collector.worker.config.WorkerConfig;
-import com.a.eye.skywalking.collector.worker.storage.MergeData;
+import com.a.eye.skywalking.collector.worker.storage.JoinAndSplitData;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -27,10 +27,10 @@ public class GlobalTraceAgg extends AbstractClusterWorker {
 
     @Override
     protected void onWork(Object message) throws Exception {
-        if (message instanceof MergeData) {
+        if (message instanceof JoinAndSplitData) {
             getSelfContext().lookup(GlobalTraceSave.Role.INSTANCE).tell(message);
         } else {
-            logger.error("unhandled message, message instance must MergeData, but is %s", message.getClass().toString());
+            logger.error("unhandled message, message instance must JoinAndSplitData, but is %s", message.getClass().toString());
         }
     }
 

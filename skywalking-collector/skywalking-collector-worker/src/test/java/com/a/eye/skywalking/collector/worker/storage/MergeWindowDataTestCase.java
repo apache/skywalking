@@ -14,51 +14,51 @@ public class MergeWindowDataTestCase {
     @Test
     public void testConstruction() {
         String id = "Test";
-        MergeData mergeData = new MergeData(id);
+        JoinAndSplitData joinAndSplitData = new JoinAndSplitData(id);
 
-        Assert.assertEquals(id, mergeData.getId());
+        Assert.assertEquals(id, joinAndSplitData.getId());
     }
 
     @Test
     public void testSetMergeData() {
         String id = "Test";
-        MergeData mergeData = new MergeData(id);
+        JoinAndSplitData joinAndSplitData = new JoinAndSplitData(id);
 
-        mergeData.setMergeData("Column_1", "Value_1");
-        Assert.assertEquals("Value_1", mergeData.asMap().get("Column_1"));
-        mergeData.setMergeData("Column_1", "Value_1");
-        Assert.assertEquals("Value_1", mergeData.asMap().get("Column_1"));
+        joinAndSplitData.set("Column_1", "Value_1");
+        Assert.assertEquals("Value_1", joinAndSplitData.asMap().get("Column_1"));
+        joinAndSplitData.set("Column_1", "Value_1");
+        Assert.assertEquals("Value_1", joinAndSplitData.asMap().get("Column_1"));
 
-        mergeData.setMergeData("Column_1", "Value_2");
-        Assert.assertEquals("Value_2,Value_1", mergeData.asMap().get("Column_1"));
+        joinAndSplitData.set("Column_1", "Value_2");
+        Assert.assertEquals("Value_2,Value_1", joinAndSplitData.asMap().get("Column_1"));
 
-        mergeData.setMergeData("Column_2", "Value_3");
-        Assert.assertEquals("Value_3", mergeData.asMap().get("Column_2"));
+        joinAndSplitData.set("Column_2", "Value_3");
+        Assert.assertEquals("Value_3", joinAndSplitData.asMap().get("Column_2"));
     }
 
     @Test
     public void testMerge() {
         String id = "Test";
-        MergeData mergeData_1 = new MergeData(id);
-        mergeData_1.setMergeData("Column_1", "Value_1");
+        JoinAndSplitData joinAndSplitData_1 = new JoinAndSplitData(id);
+        joinAndSplitData_1.set("Column_1", "Value_1");
 
-        MergeData mergeData_2 = new MergeData(id);
-        mergeData_2.setMergeData("Column_1", "Value_2");
+        JoinAndSplitData joinAndSplitData_2 = new JoinAndSplitData(id);
+        joinAndSplitData_2.set("Column_1", "Value_2");
 
-        mergeData_1.merge(mergeData_2);
-        Assert.assertEquals("Value_2,Value_1", mergeData_1.asMap().get("Column_1"));
+        joinAndSplitData_1.merge(joinAndSplitData_2);
+        Assert.assertEquals("Value_2,Value_1", joinAndSplitData_1.asMap().get("Column_1"));
     }
 
     @Test
     public void testMergeMap() {
         String id = "Test";
-        MergeData mergeData_1 = new MergeData(id);
-        mergeData_1.setMergeData("Column_1", "Value_1");
+        JoinAndSplitData joinAndSplitData_1 = new JoinAndSplitData(id);
+        joinAndSplitData_1.set("Column_1", "Value_1");
 
         Map<String, Object> dbData = new HashMap<>();
         dbData.put("Column_1", "Value_2");
 
-        mergeData_1.merge(dbData);
-        Assert.assertEquals("Value_2,Value_1", mergeData_1.asMap().get("Column_1"));
+        joinAndSplitData_1.merge(dbData);
+        Assert.assertEquals("Value_2,Value_1", joinAndSplitData_1.asMap().get("Column_1"));
     }
 }

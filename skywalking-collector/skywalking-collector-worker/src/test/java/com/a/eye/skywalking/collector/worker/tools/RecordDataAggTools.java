@@ -17,6 +17,6 @@ public enum RecordDataAggTools {
         RecordData recordData = new RecordData(id);
         agg.allocateJob(recordData);
         RecordData result = RecordDataTool.INSTANCE.getRecord(recordDataAnswer.getRecordDataList(), id);
-        Assert.assertEquals("A" + Const.ID_SPLIT + "B", result.getRecord().get("aggId").getAsString());
+        Assert.assertEquals("A" + Const.ID_SPLIT + "B", result.get().get("aggId").getAsString());
     }
 }

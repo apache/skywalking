@@ -17,7 +17,7 @@ public class MetricPersistenceTestCase {
         MetricPersistenceData metricPersistenceData = new MetricPersistenceData();
         metricPersistenceData.hold();
         MetricData metricData = metricPersistenceData.getOrCreate(id);
-        metricData.setMetric("Column_1", 10L);
+        metricData.set("Column_1", 10L);
         Assert.assertEquals(id, metricData.getId());
 
         MetricData metricData1 = metricPersistenceData.getOrCreate(id);
@@ -48,7 +48,7 @@ public class MetricPersistenceTestCase {
 
         Field testAField = persistenceData.getClass().getDeclaredField("lockedWindowData");
         testAField.setAccessible(true);
-        WindowData<MergeData> windowData = (WindowData<MergeData>)testAField.get(persistenceData);
+        WindowData<JoinAndSplitData> windowData = (WindowData<JoinAndSplitData>)testAField.get(persistenceData);
         Assert.assertEquals(true, windowData.isHolding());
     }
 
@@ -59,7 +59,7 @@ public class MetricPersistenceTestCase {
 
         Field testAField = persistenceData.getClass().getDeclaredField("lockedWindowData");
         testAField.setAccessible(true);
-        WindowData<MergeData> windowData = (WindowData<MergeData>)testAField.get(persistenceData);
+        WindowData<JoinAndSplitData> windowData = (WindowData<JoinAndSplitData>)testAField.get(persistenceData);
         Assert.assertEquals(true, windowData.isHolding());
 
         persistenceData.release();
