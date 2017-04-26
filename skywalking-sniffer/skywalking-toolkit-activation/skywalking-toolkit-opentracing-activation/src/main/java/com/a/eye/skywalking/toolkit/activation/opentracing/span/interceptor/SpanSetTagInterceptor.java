@@ -59,7 +59,7 @@ public class SpanSetTagInterceptor implements InstanceMethodsAroundInterceptor {
      * in {@link #adaptTag(String)}.
      *
      * @param key of current tag
-     * @return true if this tag is a host related.
+     * @return true if this tag is host related.
      */
     private boolean isPeerTag(String key) {
         return Tags.PEER_HOST_IPV4.equals(key) || Tags.PEER_HOST_IPV6.equals(key) || Tags.PEER_HOSTNAME.equals(key);
