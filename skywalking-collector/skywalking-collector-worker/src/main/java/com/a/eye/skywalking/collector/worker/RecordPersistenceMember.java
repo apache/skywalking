@@ -8,8 +8,6 @@ import com.a.eye.skywalking.collector.worker.storage.RecordData;
 import com.a.eye.skywalking.collector.worker.storage.RecordPersistenceData;
 import java.util.List;
 import java.util.Map;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.client.Client;
 
@@ -17,8 +15,6 @@ import org.elasticsearch.client.Client;
  * @author pengys5
  */
 public abstract class RecordPersistenceMember extends PersistenceMember<RecordPersistenceData, RecordData> {
-
-    private Logger logger = LogManager.getFormatterLogger(RecordPersistenceMember.class);
 
     public RecordPersistenceMember(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
@@ -33,13 +29,13 @@ public abstract class RecordPersistenceMember extends PersistenceMember<RecordPe
     public void analyse(Object message) throws Exception {
         if (message instanceof RecordData) {
             RecordData recordData = (RecordData) message;
-            logger.debug("setRecord: id: %s, data: %s", recordData.getId(), recordData.getRecord());
+            logger().debug("setRecord: id: %s, data: %s", recordData.getId(), recordData.getRecord());
             RecordPersistenceData data = getPersistenceData();
             data.hold();
             data.getOrCreate(recordData.getId()).setRecord(recordData.getRecord());
             data.release();
         } else {
-            logger.error("message unhandled");
+            logger().error("message unhandled");
         }
     }
 

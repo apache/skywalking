@@ -1,10 +1,9 @@
 package com.a.eye.skywalking.collector.worker.segment;
 
-import com.a.eye.skywalking.collector.worker.globaltrace.GlobalTraceIndex;
+import com.a.eye.skywalking.collector.worker.config.EsConfig;
+import java.io.IOException;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.io.IOException;
 
 /**
  * @author pengys5
@@ -22,5 +21,11 @@ public class SegmentCostIndexTestCase {
     public void testBuilder() throws IOException {
         SegmentCostIndex index = new SegmentCostIndex();
         Assert.assertEquals("{\"properties\":{\"segId\":{\"type\":\"keyword\"},\"startTime\":{\"type\":\"long\",\"index\":\"not_analyzed\"},\"END_TIME\":{\"type\":\"long\",\"index\":\"not_analyzed\"},\"operationName\":{\"type\":\"keyword\"},\"cost\":{\"type\":\"long\",\"index\":\"not_analyzed\"}}}", index.createMappingBuilder().string());
+    }
+
+    @Test
+    public void refreshInterval() {
+        SegmentCostIndex index = new SegmentCostIndex();
+        Assert.assertEquals(EsConfig.Es.Index.RefreshInterval.SegmentCostIndex.VALUE.intValue(), index.refreshInterval());
     }
 }

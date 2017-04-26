@@ -1,9 +1,15 @@
 package com.a.eye.skywalking.collector.actor;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
  * @author pengys5
  */
 public abstract class AbstractWorker {
+
+    private final Logger logger;
+
     private final LocalWorkerContext selfContext;
 
     private final Role role;
@@ -14,6 +20,11 @@ public abstract class AbstractWorker {
         this.role = role;
         this.clusterContext = clusterContext;
         this.selfContext = selfContext;
+        this.logger = LogManager.getFormatterLogger(role.roleName());
+    }
+
+    final public Logger logger() {
+        return logger;
     }
 
     public abstract void preStart() throws ProviderNotFoundException;

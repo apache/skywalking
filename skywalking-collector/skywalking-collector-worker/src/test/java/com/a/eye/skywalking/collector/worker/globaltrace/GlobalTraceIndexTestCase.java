@@ -1,5 +1,6 @@
 package com.a.eye.skywalking.collector.worker.globaltrace;
 
+import com.a.eye.skywalking.collector.worker.config.EsConfig;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -21,5 +22,11 @@ public class GlobalTraceIndexTestCase {
     public void testBuilder() throws IOException {
         GlobalTraceIndex index = new GlobalTraceIndex();
         Assert.assertEquals("{\"properties\":{\"subSegIds\":{\"type\":\"keyword\"}}}", index.createMappingBuilder().string());
+    }
+
+    @Test
+    public void refreshInterval() {
+        GlobalTraceIndex index = new GlobalTraceIndex();
+        Assert.assertEquals(EsConfig.Es.Index.RefreshInterval.GlobalTraceIndex.VALUE.intValue(), index.refreshInterval());
     }
 }

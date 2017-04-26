@@ -6,11 +6,15 @@ import com.a.eye.skywalking.collector.actor.Role;
 import com.a.eye.skywalking.collector.actor.WorkerRefs;
 import com.a.eye.skywalking.collector.worker.storage.RecordAnalysisData;
 import com.google.gson.JsonObject;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * @author pengys5
  */
 public abstract class RecordAnalysisMember extends AnalysisMember {
+
+    private Logger logger = LogManager.getFormatterLogger(RecordAnalysisMember.class);
 
     private RecordAnalysisData recordAnalysisData = new RecordAnalysisData();
 
@@ -26,13 +30,12 @@ public abstract class RecordAnalysisMember extends AnalysisMember {
         return recordAnalysisData;
     }
 
-    @Override
-    final protected void aggregation() throws Exception {
+    @Override final protected void aggregation() throws Exception {
         getRecordAnalysisData().asMap().forEach((key, value) -> {
             try {
                 aggWorkRefs().tell(value);
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error(e);
             }
         });
         getRecordAnalysisData().asMap().clear();
