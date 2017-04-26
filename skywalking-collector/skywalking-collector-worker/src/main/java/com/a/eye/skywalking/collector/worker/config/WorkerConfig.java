@@ -8,61 +8,57 @@ public class WorkerConfig {
     public static class WorkerNum {
         public static class Node {
             public static class NodeCompAgg {
-                public static int VALUE = 10;
+                public static int VALUE = 2;
             }
 
             public static class NodeMappingDayAgg {
-                public static int VALUE = 10;
+                public static int VALUE = 2;
             }
 
             public static class NodeMappingHourAgg {
-                public static int VALUE = 10;
+                public static int VALUE = 2;
             }
 
             public static class NodeMappingMinuteAgg {
-                public static int VALUE = 10;
+                public static int VALUE = 2;
             }
         }
 
         public static class NodeRef {
             public static class NodeRefDayAgg {
-                public static int VALUE = 10;
+                public static int VALUE = 2;
             }
 
             public static class NodeRefHourAgg {
-                public static int VALUE = 10;
+                public static int VALUE = 2;
             }
 
             public static class NodeRefMinuteAgg {
-                public static int VALUE = 10;
+                public static int VALUE = 2;
             }
 
             public static class NodeRefResSumDayAgg {
-                public static int VALUE = 10;
+                public static int VALUE = 2;
             }
 
             public static class NodeRefResSumHourAgg {
-                public static int VALUE = 10;
+                public static int VALUE = 2;
             }
 
             public static class NodeRefResSumMinuteAgg {
-                public static int VALUE = 10;
+                public static int VALUE = 2;
             }
         }
 
         public static class GlobalTrace {
             public static class GlobalTraceAgg {
-                public static int VALUE = 10;
+                public static int VALUE = 2;
             }
         }
     }
 
     public static class Queue {
         public static class GlobalTrace {
-            public static class GlobalTraceSave {
-                public static int SIZE = 1024;
-            }
-
             public static class GlobalTraceAnalysis {
                 public static int SIZE = 1024;
             }
@@ -70,19 +66,19 @@ public class WorkerConfig {
 
         public static class Segment {
             public static class SegmentPost {
+                public static int SIZE = 4096;
+            }
+
+            public static class SegmentAnalysis {
                 public static int SIZE = 1024;
             }
 
-            public static class SegmentCostSave {
-                public static int SIZE = 1024;
+            public static class SegmentCostAnalysis {
+                public static int SIZE = 4096;
             }
 
-            public static class SegmentSave {
-                public static int SIZE = 1024;
-            }
-
-            public static class SegmentExceptionSave {
-                public static int SIZE = 1024;
+            public static class SegmentExceptionAnalysis {
+                public static int SIZE = 4096;
             }
         }
 
@@ -102,22 +98,6 @@ public class WorkerConfig {
             public static class NodeMappingMinuteAnalysis {
                 public static int SIZE = 1024;
             }
-
-            public static class NodeCompSave {
-                public static int SIZE = 1024;
-            }
-
-            public static class NodeMappingDaySave {
-                public static int SIZE = 1024;
-            }
-
-            public static class NodeMappingHourSave {
-                public static int SIZE = 1024;
-            }
-
-            public static class NodeMappingMinuteSave {
-                public static int SIZE = 1024;
-            }
         }
 
         public static class NodeRef {
@@ -130,30 +110,6 @@ public class WorkerConfig {
             }
 
             public static class NodeRefMinuteAnalysis {
-                public static int SIZE = 1024;
-            }
-
-            public static class NodeRefDaySave {
-                public static int SIZE = 1024;
-            }
-
-            public static class NodeRefHourSave {
-                public static int SIZE = 1024;
-            }
-
-            public static class NodeRefMinuteSave {
-                public static int SIZE = 1024;
-            }
-
-            public static class NodeRefResSumDaySave {
-                public static int SIZE = 1024;
-            }
-
-            public static class NodeRefResSumHourSave {
-                public static int SIZE = 1024;
-            }
-
-            public static class NodeRefResSumMinuteSave {
                 public static int SIZE = 1024;
             }
 

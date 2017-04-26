@@ -7,7 +7,7 @@ import akka.cluster.Member;
 import akka.cluster.MemberStatus;
 import com.a.eye.skywalking.collector.cluster.WorkerListenerMessage;
 import com.a.eye.skywalking.collector.cluster.WorkersListener;
-import org.apache.logging.log4j.LogManager;
+import com.a.eye.skywalking.collector.log.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
@@ -52,7 +52,7 @@ public abstract class AbstractClusterWorker extends AbstractWorker {
     protected abstract void onWork(Object message) throws Exception;
 
     static class WorkerWithAkka extends UntypedActor {
-        private Logger logger = LogManager.getFormatterLogger(WorkerWithAkka.class);
+        private Logger logger = LogManager.INSTANCE.getFormatterLogger(WorkerWithAkka.class);
 
         private Cluster cluster;
         private final AbstractClusterWorker ownerWorker;

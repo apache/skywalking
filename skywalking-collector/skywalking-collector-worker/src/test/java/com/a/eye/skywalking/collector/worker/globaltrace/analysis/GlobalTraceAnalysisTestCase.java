@@ -8,7 +8,7 @@ import com.a.eye.skywalking.collector.worker.config.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.globaltrace.persistence.GlobalTraceAgg;
 import com.a.eye.skywalking.collector.worker.mock.MergeDataAnswer;
 import com.a.eye.skywalking.collector.worker.segment.mock.SegmentMock;
-import com.a.eye.skywalking.collector.worker.storage.MergeData;
+import com.a.eye.skywalking.collector.worker.storage.JoinAndSplitData;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,7 +46,7 @@ public class GlobalTraceAnalysisTestCase {
         clusterWorkerContext = PowerMockito.mock(ClusterWorkerContext.class);
         WorkerRefs workerRefs = mock(WorkerRefs.class);
         answer = new MergeDataAnswer();
-        doAnswer(answer).when(workerRefs).tell(Mockito.any(MergeData.class));
+        doAnswer(answer).when(workerRefs).tell(Mockito.any(JoinAndSplitData.class));
 
         when(clusterWorkerContext.lookup(GlobalTraceAgg.Role.INSTANCE)).thenReturn(workerRefs);
 
@@ -62,22 +62,23 @@ public class GlobalTraceAnalysisTestCase {
 
     @Test
     public void testFactory() {
-        Assert.assertEquals(GlobalTraceAnalysis.class.getSimpleName(), GlobalTraceAnalysis.Factory.INSTANCE.role().roleName());
-        Assert.assertEquals(GlobalTraceAnalysis.class.getSimpleName(), GlobalTraceAnalysis.Factory.INSTANCE.workerInstance(null).getClass().getSimpleName());
+        GlobalTraceAnalysis.Factory factory = new GlobalTraceAnalysis.Factory();
+        Assert.assertEquals(GlobalTraceAnalysis.class.getSimpleName(), factory.role().roleName());
+        Assert.assertEquals(GlobalTraceAnalysis.class.getSimpleName(), factory.workerInstance(null).getClass().getSimpleName());
 
         int testSize = 10;
         WorkerConfig.Queue.GlobalTrace.GlobalTraceAnalysis.SIZE = testSize;
-        Assert.assertEquals(testSize, GlobalTraceAnalysis.Factory.INSTANCE.queueSize());
+        Assert.assertEquals(testSize, factory.queueSize());
     }
 
     @Test
     public void testAnalyse() throws Exception {
         segmentMock.executeAnalysis(analysis);
 
-        Assert.assertEquals(1, answer.getMergeDataList().size());
-        MergeData mergeData = answer.getMergeDataList().get(0);
-        Assert.assertEquals(id, mergeData.getId());
-        String subSegIds = mergeData.toMap().get("subSegIds");
+        Assert.assertEquals(1, answer.getJoinAndSplitDataList().size());
+        JoinAndSplitData joinAndSplitData = answer.getJoinAndSplitDataList().get(0);
+        Assert.assertEquals(id, joinAndSplitData.getId());
+        String subSegIds = joinAndSplitData.asMap().get("subSegIds").toString();
         Assert.assertEquals(cacheServiceSubSegIds, subSegIds);
     }
 

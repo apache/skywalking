@@ -11,7 +11,7 @@ import com.a.eye.skywalking.collector.worker.segment.entity.GlobalTraceId;
 import com.a.eye.skywalking.collector.worker.segment.entity.Segment;
 import com.a.eye.skywalking.collector.worker.segment.entity.SegmentDeserialize;
 import com.a.eye.skywalking.collector.worker.storage.EsClient;
-import com.a.eye.skywalking.collector.worker.storage.MergeData;
+import com.a.eye.skywalking.collector.worker.storage.JoinAndSplitData;
 import com.a.eye.skywalking.collector.worker.tools.CollectionTools;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -55,7 +55,7 @@ public class SegmentTopSearchWithGlobalTraceId extends AbstractLocalSyncWorker {
 
             if (globalTraceObj != null && globalTraceObj.has(GlobalTraceIndex.SUB_SEG_IDS)) {
                 String subSegIdsStr = globalTraceObj.get(GlobalTraceIndex.SUB_SEG_IDS).getAsString();
-                String[] subSegIds = subSegIdsStr.split(MergeData.SPLIT);
+                String[] subSegIds = subSegIdsStr.split(JoinAndSplitData.SPLIT);
 
                 topSegPaging.addProperty("recordsTotal", subSegIds.length);
 
@@ -138,8 +138,6 @@ public class SegmentTopSearchWithGlobalTraceId extends AbstractLocalSyncWorker {
     }
 
     public static class Factory extends AbstractLocalSyncWorkerProvider<SegmentTopSearchWithGlobalTraceId> {
-        public static Factory INSTANCE = new Factory();
-
         @Override
         public Role role() {
             return WorkerRole.INSTANCE;

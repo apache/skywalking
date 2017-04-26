@@ -64,18 +64,22 @@ public class SegmentTopGetWithGlobalTraceIdTestCase {
 
     @Test
     public void testFactory() {
-        Assert.assertEquals(SegmentTopGetWithGlobalTraceId.class.getSimpleName(), SegmentTopGetWithGlobalTraceId.Factory.INSTANCE.role().roleName());
-        Assert.assertEquals(SegmentTopGetWithGlobalTraceId.class.getSimpleName(), SegmentTopGetWithGlobalTraceId.Factory.INSTANCE.workerInstance(null).getClass().getSimpleName());
-        Assert.assertEquals("/segments/top/globalTraceId", SegmentTopGetWithGlobalTraceId.Factory.INSTANCE.servletPath());
+        SegmentTopGetWithGlobalTraceId.Factory factory = new SegmentTopGetWithGlobalTraceId.Factory();
+        Assert.assertEquals(SegmentTopGetWithGlobalTraceId.class.getSimpleName(), factory.role().roleName());
+        Assert.assertEquals(SegmentTopGetWithGlobalTraceId.class.getSimpleName(), factory.workerInstance(null).getClass().getSimpleName());
+        Assert.assertEquals("/segments/top/globalTraceId", factory.servletPath());
     }
 
     @Test
     public void testPreStart() throws ProviderNotFoundException {
         ClusterWorkerContext exceptionContext = PowerMockito.mock(ClusterWorkerContext.class);
-        when(exceptionContext.findProvider(SegmentExceptionWithSegId.WorkerRole.INSTANCE)).thenReturn(SegmentExceptionWithSegId.Factory.INSTANCE);
-        SegmentTopSearchWithGlobalTraceId.Factory.INSTANCE.setClusterContext(exceptionContext);
+        SegmentExceptionWithSegId.Factory factory = new SegmentExceptionWithSegId.Factory();
+        when(exceptionContext.findProvider(SegmentExceptionWithSegId.WorkerRole.INSTANCE)).thenReturn(factory);
 
-        when(clusterWorkerContext.findProvider(SegmentTopSearchWithGlobalTraceId.WorkerRole.INSTANCE)).thenReturn(SegmentTopSearchWithGlobalTraceId.Factory.INSTANCE);
+        SegmentTopSearchWithGlobalTraceId.Factory factory1 = new SegmentTopSearchWithGlobalTraceId.Factory();
+        factory1.setClusterContext(exceptionContext);
+
+        when(clusterWorkerContext.findProvider(SegmentTopSearchWithGlobalTraceId.WorkerRole.INSTANCE)).thenReturn(factory1);
 
         ArgumentCaptor<SegmentTopSearchWithGlobalTraceId.WorkerRole> argumentCaptor = ArgumentCaptor.forClass(SegmentTopSearchWithGlobalTraceId.WorkerRole.class);
         getObj.preStart();
@@ -135,7 +139,7 @@ public class SegmentTopGetWithGlobalTraceIdTestCase {
 
         @Override
         public Object answer(InvocationOnMock invocation) throws Throwable {
-            SegmentTopSearchWithGlobalTraceId.RequestEntity requestEntity = (SegmentTopSearchWithGlobalTraceId.RequestEntity)invocation.getArguments()[0];
+            SegmentTopSearchWithGlobalTraceId.RequestEntity requestEntity = (SegmentTopSearchWithGlobalTraceId.RequestEntity) invocation.getArguments()[0];
             Assert.assertEquals("TestId", requestEntity.getGlobalTraceId());
             Assert.assertEquals(20, requestEntity.getFrom());
             Assert.assertEquals(50, requestEntity.getLimit());

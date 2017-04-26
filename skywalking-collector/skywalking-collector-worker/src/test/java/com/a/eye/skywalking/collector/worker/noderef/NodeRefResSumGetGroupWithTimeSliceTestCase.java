@@ -63,14 +63,15 @@ public class NodeRefResSumGetGroupWithTimeSliceTestCase {
 
     @Test
     public void testFactory() {
-        Assert.assertEquals(NodeRefResSumGetGroupWithTimeSlice.class.getSimpleName(), NodeRefResSumGetGroupWithTimeSlice.Factory.INSTANCE.role().roleName());
-        Assert.assertEquals(NodeRefResSumGetGroupWithTimeSlice.class.getSimpleName(), NodeRefResSumGetGroupWithTimeSlice.Factory.INSTANCE.workerInstance(null).getClass().getSimpleName());
-        Assert.assertEquals("/nodeRef/resSum/groupTimeSlice", NodeRefResSumGetGroupWithTimeSlice.Factory.INSTANCE.servletPath());
+        NodeRefResSumGetGroupWithTimeSlice.Factory factory = new NodeRefResSumGetGroupWithTimeSlice.Factory();
+        Assert.assertEquals(NodeRefResSumGetGroupWithTimeSlice.class.getSimpleName(), factory.role().roleName());
+        Assert.assertEquals(NodeRefResSumGetGroupWithTimeSlice.class.getSimpleName(), factory.workerInstance(null).getClass().getSimpleName());
+        Assert.assertEquals("/nodeRef/resSum/groupTimeSlice", factory.servletPath());
     }
 
     @Test
     public void testPreStart() throws ProviderNotFoundException {
-        when(clusterWorkerContext.findProvider(NodeRefResSumGroupWithTimeSlice.WorkerRole.INSTANCE)).thenReturn(NodeRefResSumGroupWithTimeSlice.Factory.INSTANCE);
+        when(clusterWorkerContext.findProvider(NodeRefResSumGroupWithTimeSlice.WorkerRole.INSTANCE)).thenReturn(new NodeRefResSumGroupWithTimeSlice.Factory());
 
         ArgumentCaptor<NodeRefResSumGroupWithTimeSlice.WorkerRole> argumentCaptor = ArgumentCaptor.forClass(NodeRefResSumGroupWithTimeSlice.WorkerRole.class);
         getObj.preStart();
@@ -128,7 +129,7 @@ public class NodeRefResSumGetGroupWithTimeSliceTestCase {
 
         @Override
         public Object answer(InvocationOnMock invocation) throws Throwable {
-            NodeRefResSumGroupWithTimeSlice.RequestEntity requestEntity = (NodeRefResSumGroupWithTimeSlice.RequestEntity)invocation.getArguments()[0];
+            NodeRefResSumGroupWithTimeSlice.RequestEntity requestEntity = (NodeRefResSumGroupWithTimeSlice.RequestEntity) invocation.getArguments()[0];
             Assert.assertEquals(100L, requestEntity.getStartTime());
             Assert.assertEquals(200L, requestEntity.getEndTime());
             Assert.assertEquals("minute", requestEntity.getSliceType());

@@ -8,7 +8,7 @@ import com.a.eye.skywalking.collector.worker.globaltrace.GlobalTraceIndex;
 import com.a.eye.skywalking.collector.worker.segment.SegmentIndex;
 import com.a.eye.skywalking.collector.worker.segment.entity.*;
 import com.a.eye.skywalking.collector.worker.storage.GetResponseFromEs;
-import com.a.eye.skywalking.collector.worker.storage.MergeData;
+import com.a.eye.skywalking.collector.worker.storage.JoinAndSplitData;
 import com.a.eye.skywalking.collector.worker.tools.CollectionTools;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -28,7 +28,7 @@ public class GlobalTraceSearchWithGlobalId extends AbstractLocalSyncWorker {
 
     private Gson gson = new Gson();
 
-    GlobalTraceSearchWithGlobalId(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    public GlobalTraceSearchWithGlobalId(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
@@ -41,7 +41,7 @@ public class GlobalTraceSearchWithGlobalId extends AbstractLocalSyncWorker {
             logger.debug("globalTraceObj: %s", globalTraceObj);
 
             String subSegIdsStr = globalTraceObj.get(GlobalTraceIndex.SUB_SEG_IDS).getAsString();
-            String[] subSegIds = subSegIdsStr.split(MergeData.SPLIT);
+            String[] subSegIds = subSegIdsStr.split(JoinAndSplitData.SPLIT);
 
             List<SpanView> spanViewList = new ArrayList<>();
             for (String subSegId : subSegIds) {
@@ -60,6 +60,8 @@ public class GlobalTraceSearchWithGlobalId extends AbstractLocalSyncWorker {
 
             JsonObject responseObj = (JsonObject)response;
             responseObj.addProperty("result", buildTree(spanViewList));
+        } else {
+            logger.error("unhandled message, message instance must String, but is %s", request.getClass().toString());
         }
     }
 
@@ -153,8 +155,6 @@ public class GlobalTraceSearchWithGlobalId extends AbstractLocalSyncWorker {
     }
 
     public static class Factory extends AbstractLocalSyncWorkerProvider<GlobalTraceSearchWithGlobalId> {
-        public static Factory INSTANCE = new Factory();
-
         @Override
         public Role role() {
             return WorkerRole.INSTANCE;

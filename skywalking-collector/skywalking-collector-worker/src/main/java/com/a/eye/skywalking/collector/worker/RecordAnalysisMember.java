@@ -3,33 +3,43 @@ package com.a.eye.skywalking.collector.worker;
 import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
 import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
 import com.a.eye.skywalking.collector.actor.Role;
-import com.a.eye.skywalking.collector.worker.config.CacheSizeConfig;
-import com.a.eye.skywalking.collector.worker.storage.RecordData;
-import com.a.eye.skywalking.collector.worker.storage.RecordPersistenceData;
+import com.a.eye.skywalking.collector.actor.WorkerRefs;
+import com.a.eye.skywalking.collector.worker.storage.RecordAnalysisData;
 import com.google.gson.JsonObject;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * @author pengys5
  */
 public abstract class RecordAnalysisMember extends AnalysisMember {
 
-    private RecordPersistenceData persistenceData = new RecordPersistenceData();
+    private Logger logger = LogManager.getFormatterLogger(RecordAnalysisMember.class);
+
+    private RecordAnalysisData recordAnalysisData = new RecordAnalysisData();
 
     public RecordAnalysisMember(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
-    final public void setRecord(String id, JsonObject record) throws Exception {
-        persistenceData.getElseCreate(id).setRecord(record);
-        if (persistenceData.size() >= CacheSizeConfig.Cache.Analysis.SIZE) {
-            aggregation();
-        }
+    final public void set(String id, JsonObject record) throws Exception {
+        getRecordAnalysisData().getOrCreate(id).set(record);
     }
 
-    final public RecordData pushOne() {
-        if (persistenceData.hasNext()) {
-            return persistenceData.pushOne();
-        }
-        return null;
+    private RecordAnalysisData getRecordAnalysisData() {
+        return recordAnalysisData;
     }
+
+    @Override final protected void aggregation() throws Exception {
+        getRecordAnalysisData().asMap().forEach((key, value) -> {
+            try {
+                aggWorkRefs().tell(value);
+            } catch (Exception e) {
+                logger.error(e);
+            }
+        });
+        getRecordAnalysisData().asMap().clear();
+    }
+
+    protected abstract WorkerRefs aggWorkRefs();
 }

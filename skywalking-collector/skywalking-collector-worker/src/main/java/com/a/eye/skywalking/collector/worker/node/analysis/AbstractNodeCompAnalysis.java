@@ -28,7 +28,7 @@ abstract class AbstractNodeCompAnalysis extends RecordAnalysisMember {
         super(role, clusterContext, selfContext);
     }
 
-    void analyseSpans(Segment segment) throws Exception {
+    final void analyseSpans(Segment segment) throws Exception {
         List<Span> spanList = segment.getSpans();
         logger.debug("node analysis span isNotEmpty %s", CollectionTools.isNotEmpty(spanList));
 
@@ -43,7 +43,7 @@ abstract class AbstractNodeCompAnalysis extends RecordAnalysisMember {
                     compJsonObj.addProperty(NodeCompIndex.PEERS, peers);
                     compJsonObj.addProperty(NodeCompIndex.NAME, Tags.COMPONENT.get(span));
 
-                    setRecord(peers, compJsonObj);
+                    set(peers, compJsonObj);
                 } else if (Tags.SPAN_KIND_SERVER.equals(kind) && span.getParentSpanId() == -1) {
                     String peers = segment.getApplicationCode();
 
@@ -51,9 +51,7 @@ abstract class AbstractNodeCompAnalysis extends RecordAnalysisMember {
                     compJsonObj.addProperty(NodeCompIndex.PEERS, peers);
                     compJsonObj.addProperty(NodeCompIndex.NAME, Tags.COMPONENT.get(span));
 
-                    setRecord(peers, compJsonObj);
-                } else {
-                    logger.error("The span kind value is incorrect which segment record id is %s, the value must client or server", segment.getTraceSegmentId());
+                    set(peers, compJsonObj);
                 }
             }
         }

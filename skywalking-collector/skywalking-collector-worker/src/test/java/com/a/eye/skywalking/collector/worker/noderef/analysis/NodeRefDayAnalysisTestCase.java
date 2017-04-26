@@ -68,12 +68,13 @@ public class NodeRefDayAnalysisTestCase {
 
     @Test
     public void testFactory() {
-        Assert.assertEquals(NodeRefDayAnalysis.class.getSimpleName(), NodeRefDayAnalysis.Factory.INSTANCE.role().roleName());
-        Assert.assertEquals(NodeRefDayAnalysis.class.getSimpleName(), NodeRefDayAnalysis.Factory.INSTANCE.workerInstance(null).getClass().getSimpleName());
+        NodeRefDayAnalysis.Factory factory = new NodeRefDayAnalysis.Factory();
+        Assert.assertEquals(NodeRefDayAnalysis.class.getSimpleName(), factory.role().roleName());
+        Assert.assertEquals(NodeRefDayAnalysis.class.getSimpleName(), factory.workerInstance(null).getClass().getSimpleName());
 
         int testSize = 10;
         WorkerConfig.Queue.NodeRef.NodeRefDayAnalysis.SIZE = testSize;
-        Assert.assertEquals(testSize, NodeRefDayAnalysis.Factory.INSTANCE.queueSize());
+        Assert.assertEquals(testSize, factory.queueSize());
     }
 
     String jsonFile = "/json/noderef/analysis/noderef_day_analysis.json";
@@ -86,7 +87,7 @@ public class NodeRefDayAnalysisTestCase {
 
     @Test
     public void testPreStart() throws ProviderNotFoundException {
-        Mockito.when(clusterWorkerContext.findProvider(NodeRefResSumDayAnalysis.Role.INSTANCE)).thenReturn(NodeRefResSumDayAnalysis.Factory.INSTANCE);
+        Mockito.when(clusterWorkerContext.findProvider(NodeRefResSumDayAnalysis.Role.INSTANCE)).thenReturn(new NodeRefResSumDayAnalysis.Factory());
 
         ArgumentCaptor<NodeRefResSumDayAnalysis.Role> argumentCaptor = ArgumentCaptor.forClass(NodeRefResSumDayAnalysis.Role.class);
         analysis.preStart();

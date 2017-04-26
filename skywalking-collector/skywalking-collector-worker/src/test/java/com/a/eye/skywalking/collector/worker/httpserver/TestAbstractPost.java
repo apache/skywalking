@@ -39,8 +39,6 @@ public class TestAbstractPost extends AbstractPost {
     }
 
     public static class Factory extends AbstractPostProvider<TestAbstractPost> {
-        public static Factory INSTANCE = new Factory();
-
         @Override
         public String servletPath() {
             return "/TestAbstractPost";

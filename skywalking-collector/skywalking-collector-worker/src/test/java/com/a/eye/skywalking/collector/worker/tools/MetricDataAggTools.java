@@ -16,6 +16,6 @@ public enum MetricDataAggTools {
         String id = "2016" + Const.ID_SPLIT + "A" + Const.ID_SPLIT + "B";
         MetricData metricData = new MetricData(id);
         agg.allocateJob(metricData);
-        Assert.assertEquals("A" + Const.ID_SPLIT + "B", metricDataAnswer.getMetricDataList().get(0).toMap().get("aggId"));
+        Assert.assertEquals("A" + Const.ID_SPLIT + "B", metricDataAnswer.getMetricDataList().get(0).asMap().get("aggId"));
     }
 }

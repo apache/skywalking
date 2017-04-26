@@ -53,8 +53,9 @@ public class SpanSearchWithIdTestCase {
 
     @Test
     public void testFactory() {
-        Assert.assertEquals(SpanSearchWithId.class.getSimpleName(), SpanSearchWithId.Factory.INSTANCE.role().roleName());
-        Assert.assertEquals(SpanSearchWithId.class.getSimpleName(), SpanSearchWithId.Factory.INSTANCE.workerInstance(null).getClass().getSimpleName());
+        SpanSearchWithId.Factory factory = new SpanSearchWithId.Factory();
+        Assert.assertEquals(SpanSearchWithId.class.getSimpleName(), factory.role().roleName());
+        Assert.assertEquals(SpanSearchWithId.class.getSimpleName(), factory.workerInstance(null).getClass().getSimpleName());
     }
 
     @Test
@@ -74,7 +75,6 @@ public class SpanSearchWithIdTestCase {
         spanSearchWithId.onWork(request, response);
 
         JsonObject spanJsonObj = response.get(Const.RESULT).getAsJsonObject();
-        System.out.println(spanJsonObj.toString());
         String value = spanJsonObj.get("operationName").getAsString();
         Assert.assertEquals("/portal/", value);
     }

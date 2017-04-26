@@ -63,12 +63,13 @@ public class NodeMappingHourAnalysisTestCase {
 
     @Test
     public void testFactory() {
-        Assert.assertEquals(NodeMappingHourAnalysis.class.getSimpleName(), NodeMappingHourAnalysis.Factory.INSTANCE.role().roleName());
-        Assert.assertEquals(NodeMappingHourAnalysis.class.getSimpleName(), NodeMappingHourAnalysis.Factory.INSTANCE.workerInstance(null).getClass().getSimpleName());
+        NodeMappingHourAnalysis.Factory factory = new NodeMappingHourAnalysis.Factory();
+        Assert.assertEquals(NodeMappingHourAnalysis.class.getSimpleName(), factory.role().roleName());
+        Assert.assertEquals(NodeMappingHourAnalysis.class.getSimpleName(), factory.workerInstance(null).getClass().getSimpleName());
 
         int testSize = 10;
         WorkerConfig.Queue.Node.NodeMappingHourAnalysis.SIZE = testSize;
-        Assert.assertEquals(testSize, NodeMappingHourAnalysis.Factory.INSTANCE.queueSize());
+        Assert.assertEquals(testSize, factory.queueSize());
     }
 
     String jsonFile = "/json/node/analysis/node_mapping_hour_analysis.json";

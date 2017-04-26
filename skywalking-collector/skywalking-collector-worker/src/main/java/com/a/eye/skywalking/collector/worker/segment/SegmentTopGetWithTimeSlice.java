@@ -86,8 +86,6 @@ public class SegmentTopGetWithTimeSlice extends AbstractGet {
     }
 
     public static class Factory extends AbstractGetProvider<SegmentTopGetWithTimeSlice> {
-        public static Factory INSTANCE = new Factory();
-
         @Override
         public Role role() {
             return WorkerRole.INSTANCE;

@@ -1,13 +1,13 @@
 package com.a.eye.skywalking.collector.worker.noderef.persistence;
 
-import com.a.eye.skywalking.collector.actor.AbstractLocalAsyncWorkerProvider;
+import com.a.eye.skywalking.collector.actor.AbstractLocalSyncWorkerProvider;
 import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
 import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
 import com.a.eye.skywalking.collector.actor.selector.HashCodeSelector;
 import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
 import com.a.eye.skywalking.collector.worker.MetricPersistenceMember;
-import com.a.eye.skywalking.collector.worker.config.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.noderef.NodeRefResSumIndex;
+import com.a.eye.skywalking.collector.worker.storage.PersistenceWorkerListener;
 
 /**
  * @author pengys5
@@ -15,7 +15,7 @@ import com.a.eye.skywalking.collector.worker.noderef.NodeRefResSumIndex;
 public class NodeRefResSumDaySave extends MetricPersistenceMember {
 
     NodeRefResSumDaySave(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext,
-        LocalWorkerContext selfContext) {
+                         LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
@@ -29,9 +29,7 @@ public class NodeRefResSumDaySave extends MetricPersistenceMember {
         return NodeRefResSumIndex.TYPE_DAY;
     }
 
-    public static class Factory extends AbstractLocalAsyncWorkerProvider<NodeRefResSumDaySave> {
-        public static Factory INSTANCE = new Factory();
-
+    public static class Factory extends AbstractLocalSyncWorkerProvider<NodeRefResSumDaySave> {
         @Override
         public Role role() {
             return Role.INSTANCE;
@@ -39,12 +37,9 @@ public class NodeRefResSumDaySave extends MetricPersistenceMember {
 
         @Override
         public NodeRefResSumDaySave workerInstance(ClusterWorkerContext clusterContext) {
-            return new NodeRefResSumDaySave(role(), clusterContext, new LocalWorkerContext());
-        }
-
-        @Override
-        public int queueSize() {
-            return WorkerConfig.Queue.NodeRef.NodeRefResSumDaySave.SIZE;
+            NodeRefResSumDaySave worker = new NodeRefResSumDaySave(role(), clusterContext, new LocalWorkerContext());
+            PersistenceWorkerListener.INSTANCE.register(worker);
+            return worker;
         }
     }
 

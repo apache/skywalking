@@ -1,21 +1,21 @@
 package com.a.eye.skywalking.collector.worker.globaltrace.persistence;
 
-import com.a.eye.skywalking.collector.actor.AbstractLocalAsyncWorkerProvider;
+import com.a.eye.skywalking.collector.actor.AbstractLocalSyncWorkerProvider;
 import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
 import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
 import com.a.eye.skywalking.collector.actor.selector.HashCodeSelector;
 import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
-import com.a.eye.skywalking.collector.worker.MergePersistenceMember;
-import com.a.eye.skywalking.collector.worker.config.WorkerConfig;
+import com.a.eye.skywalking.collector.worker.JoinAndSplitPersistenceMember;
 import com.a.eye.skywalking.collector.worker.globaltrace.GlobalTraceIndex;
+import com.a.eye.skywalking.collector.worker.storage.PersistenceWorkerListener;
 
 /**
  * @author pengys5
  */
-public class GlobalTraceSave extends MergePersistenceMember {
+public class GlobalTraceSave extends JoinAndSplitPersistenceMember {
 
     GlobalTraceSave(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext,
-        LocalWorkerContext selfContext) {
+                    LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
@@ -29,22 +29,17 @@ public class GlobalTraceSave extends MergePersistenceMember {
         return GlobalTraceIndex.TYPE_RECORD;
     }
 
-    public static class Factory extends AbstractLocalAsyncWorkerProvider<GlobalTraceSave> {
-        public static Factory INSTANCE = new Factory();
-
+    public static class Factory extends AbstractLocalSyncWorkerProvider<GlobalTraceSave> {
         @Override
         public Role role() {
             return Role.INSTANCE;
         }
 
         @Override
-        public int queueSize() {
-            return WorkerConfig.Queue.GlobalTrace.GlobalTraceSave.SIZE;
-        }
-
-        @Override
         public GlobalTraceSave workerInstance(ClusterWorkerContext clusterContext) {
-            return new GlobalTraceSave(role(), clusterContext, new LocalWorkerContext());
+            GlobalTraceSave worker = new GlobalTraceSave(role(), clusterContext, new LocalWorkerContext());
+            PersistenceWorkerListener.INSTANCE.register(worker);
+            return worker;
         }
     }
 

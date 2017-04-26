@@ -26,7 +26,7 @@ abstract class AbstractNodeMappingAnalysis extends RecordAnalysisMember {
         super(role, clusterContext, selfContext);
     }
 
-    void analyseRefs(Segment segment, long timeSlice) throws Exception {
+    final void analyseRefs(Segment segment, long timeSlice) throws Exception {
         List<TraceSegmentRef> segmentRefList = segment.getRefs();
         logger.debug("node mapping analysis refs isNotEmpty %s", CollectionTools.isNotEmpty(segmentRefList));
 
@@ -42,7 +42,7 @@ abstract class AbstractNodeMappingAnalysis extends RecordAnalysisMember {
                 nodeMappingJsonObj.addProperty(NodeMappingIndex.TIME_SLICE, timeSlice);
 
                 String id = timeSlice + Const.ID_SPLIT + code + Const.ID_SPLIT + peers;
-                setRecord(id, nodeMappingJsonObj);
+                set(id, nodeMappingJsonObj);
             }
         }
     }

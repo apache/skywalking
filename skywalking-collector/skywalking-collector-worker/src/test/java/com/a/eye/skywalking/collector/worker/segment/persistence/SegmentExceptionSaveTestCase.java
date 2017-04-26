@@ -4,7 +4,6 @@ import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
 import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
 import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
 import com.a.eye.skywalking.collector.worker.config.CacheSizeConfig;
-import com.a.eye.skywalking.collector.worker.config.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.mock.MockEsBulkClient;
 import com.a.eye.skywalking.collector.worker.segment.SegmentExceptionIndex;
 import com.a.eye.skywalking.collector.worker.segment.SegmentPost;
@@ -81,44 +80,9 @@ public class SegmentExceptionSaveTestCase {
 
     @Test
     public void testFactory() {
-        Assert.assertEquals(SegmentExceptionSave.class.getSimpleName(), SegmentExceptionSave.Factory.INSTANCE.role().roleName());
-        Assert.assertEquals(SegmentExceptionSave.class.getSimpleName(), SegmentExceptionSave.Factory.INSTANCE.workerInstance(null).getClass().getSimpleName());
-
-        int testSize = 10;
-        WorkerConfig.Queue.Segment.SegmentExceptionSave.SIZE = testSize;
-        Assert.assertEquals(testSize, SegmentExceptionSave.Factory.INSTANCE.queueSize());
-    }
-
-    @Test
-    public void testSuccessAnalyse() throws Exception {
-        CacheSizeConfig.Cache.Persistence.SIZE = 1;
-
-        List<SegmentPost.SegmentWithTimeSlice> cacheServiceList = segmentMock.mockCacheServiceSegmentSegmentTimeSlice();
-        for (SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice : cacheServiceList) {
-            segmentExceptionSave.analyse(segmentWithTimeSlice);
-        }
-
-        JsonObject isError_1 = saveToEsSource.isErrorMap.get("Segment.1490922929258.927784221.5991.27.1");
-        Assert.assertEquals(false, isError_1.get("isError").getAsBoolean());
-        Assert.assertEquals(0, isError_1.get("errorKind").getAsJsonArray().size());
-
-        JsonObject isError_2 = saveToEsSource.isErrorMap.get("Segment.1490922929298.927784221.5991.28.1");
-        Assert.assertEquals(false, isError_2.get("isError").getAsBoolean());
-        Assert.assertEquals(0, isError_2.get("errorKind").getAsJsonArray().size());
-    }
-
-    @Test
-    public void testErrorAnalyse() throws Exception {
-        CacheSizeConfig.Cache.Persistence.SIZE = 1;
-
-        List<SegmentPost.SegmentWithTimeSlice> cacheServiceList = segmentMock.mockCacheServiceExceptionSegmentTimeSlice();
-        for (SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice : cacheServiceList) {
-            segmentExceptionSave.analyse(segmentWithTimeSlice);
-        }
-
-        JsonObject isError_1 = saveToEsSource.isErrorMap.get("Segment.1490923010328.927784221.5991.32.1");
-        Assert.assertEquals(true, isError_1.get("isError").getAsBoolean());
-        Assert.assertEquals("com.weibo.api.motan.exception.MotanBizException", isError_1.get("errorKind").getAsJsonArray().get(0).getAsString());
+        SegmentExceptionSave.Factory factory = new SegmentExceptionSave.Factory();
+        Assert.assertEquals(SegmentExceptionSave.class.getSimpleName(), factory.role().roleName());
+        Assert.assertEquals(SegmentExceptionSave.class.getSimpleName(), factory.workerInstance(null).getClass().getSimpleName());
     }
 
     class SaveToEsSource implements Answer<Object> {
@@ -128,7 +92,7 @@ public class SegmentExceptionSaveTestCase {
         @Override
         public Object answer(InvocationOnMock invocation) throws Throwable {
             Gson gson = new Gson();
-            String source = (String)invocation.getArguments()[0];
+            String source = (String) invocation.getArguments()[0];
             JsonObject sourceJsonObj = gson.fromJson(source, JsonObject.class);
             logger.info("es source: %s", sourceJsonObj.toString());
             isErrorMap.put(sourceJsonObj.get("segId").getAsString(), sourceJsonObj);

@@ -59,14 +59,15 @@ public class GlobalTraceGetWithGlobalIdTestCase {
 
     @Test
     public void testFactory() {
-        Assert.assertEquals(GlobalTraceGetWithGlobalId.class.getSimpleName(), GlobalTraceGetWithGlobalId.Factory.INSTANCE.role().roleName());
-        Assert.assertEquals(GlobalTraceGetWithGlobalId.class.getSimpleName(), GlobalTraceGetWithGlobalId.Factory.INSTANCE.workerInstance(null).getClass().getSimpleName());
-        Assert.assertEquals("/globalTrace/globalId", GlobalTraceGetWithGlobalId.Factory.INSTANCE.servletPath());
+        GlobalTraceGetWithGlobalId.Factory factory = new GlobalTraceGetWithGlobalId.Factory();
+        Assert.assertEquals(GlobalTraceGetWithGlobalId.class.getSimpleName(), factory.role().roleName());
+        Assert.assertEquals(GlobalTraceGetWithGlobalId.class.getSimpleName(), factory.workerInstance(null).getClass().getSimpleName());
+        Assert.assertEquals("/globalTrace/globalId", factory.servletPath());
     }
 
     @Test
     public void testPreStart() throws ProviderNotFoundException {
-        when(clusterWorkerContext.findProvider(GlobalTraceSearchWithGlobalId.WorkerRole.INSTANCE)).thenReturn(GlobalTraceSearchWithGlobalId.Factory.INSTANCE);
+        when(clusterWorkerContext.findProvider(GlobalTraceSearchWithGlobalId.WorkerRole.INSTANCE)).thenReturn(new GlobalTraceSearchWithGlobalId.Factory());
 
         ArgumentCaptor<GlobalTraceSearchWithGlobalId.WorkerRole> argumentCaptor = ArgumentCaptor.forClass(GlobalTraceSearchWithGlobalId.WorkerRole.class);
         getObj.preStart();
@@ -94,8 +95,7 @@ public class GlobalTraceGetWithGlobalIdTestCase {
 
         @Override
         public Object answer(InvocationOnMock invocation) throws Throwable {
-            String globalId = (String)invocation.getArguments()[0];
-            System.out.println(globalId);
+            String globalId = (String) invocation.getArguments()[0];
             Assert.assertEquals("Test", globalId);
             return null;
         }

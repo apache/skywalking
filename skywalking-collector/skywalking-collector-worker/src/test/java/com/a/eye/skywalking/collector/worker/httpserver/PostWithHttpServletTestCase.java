@@ -47,7 +47,6 @@ public class PostWithHttpServletTestCase {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 Integer status = (Integer)invocation.getArguments()[0];
-                System.out.println(status);
                 Assert.assertEquals(new Integer(200), status);
                 return null;
             }
@@ -57,7 +56,6 @@ public class PostWithHttpServletTestCase {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 Segment segment = (Segment)invocation.getArguments()[0];
-                System.out.println(segment.getTraceSegmentId());
                 Assert.assertEquals("TestTest2", segment.getTraceSegmentId());
                 return null;
             }
@@ -76,7 +74,6 @@ public class PostWithHttpServletTestCase {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 Integer status = (Integer)invocation.getArguments()[0];
-                System.out.println(status);
                 Assert.assertEquals(new Integer(500), status);
                 return null;
             }
