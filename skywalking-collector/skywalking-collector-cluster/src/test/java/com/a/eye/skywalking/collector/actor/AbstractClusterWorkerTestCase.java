@@ -3,6 +3,9 @@ package com.a.eye.skywalking.collector.actor;
 import akka.actor.Address;
 import akka.cluster.ClusterEvent;
 import akka.cluster.Member;
+import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
+import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
+import org.apache.logging.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,9 +13,11 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
-import org.apache.logging.log4j.Logger;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author pengys5
@@ -22,7 +27,7 @@ import static org.mockito.Mockito.*;
 public class AbstractClusterWorkerTestCase {
 
     private AbstractClusterWorker.WorkerWithAkka workerWithAkka = mock(AbstractClusterWorker.WorkerWithAkka.class, CALLS_REAL_METHODS);
-    private AbstractClusterWorker worker = PowerMockito.spy(new Impl(null, null, null));
+    private AbstractClusterWorker worker = PowerMockito.spy(new Impl(WorkerRole.INSTANCE, null, null));
 
     @Before
     public void init(){
@@ -75,6 +80,20 @@ public class AbstractClusterWorkerTestCase {
 
         @Override protected void onWork(Object message) throws Exception {
 
+        }
+    }
+
+    public enum WorkerRole implements Role {
+        INSTANCE;
+
+        @Override
+        public String roleName() {
+            return Impl.class.getSimpleName();
+        }
+
+        @Override
+        public WorkerSelector workerSelector() {
+            return new RollingSelector();
         }
     }
 }
