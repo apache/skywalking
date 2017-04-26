@@ -1,6 +1,11 @@
 package com.a.eye.skywalking.collector.worker.segment.persistence;
 
-import com.a.eye.skywalking.collector.actor.*;
+import com.a.eye.skywalking.collector.actor.AbstractLocalSyncWorker;
+import com.a.eye.skywalking.collector.actor.AbstractLocalSyncWorkerProvider;
+import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
+import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
+import com.a.eye.skywalking.collector.actor.ProviderNotFoundException;
+import com.a.eye.skywalking.collector.actor.Role;
 import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
 import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
 import com.a.eye.skywalking.collector.worker.segment.SegmentCostIndex;
@@ -13,6 +18,7 @@ import com.a.eye.skywalking.collector.worker.storage.EsClient;
 import com.a.eye.skywalking.collector.worker.tools.CollectionTools;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import java.util.List;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
@@ -22,15 +28,13 @@ import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.SortOrder;
 
-import java.util.List;
-
 /**
  * @author pengys5
  */
 public class SegmentTopSearchWithTimeSlice extends AbstractLocalSyncWorker {
 
     private SegmentTopSearchWithTimeSlice(Role role, ClusterWorkerContext clusterContext,
-                                          LocalWorkerContext selfContext) {
+        LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
@@ -42,7 +46,7 @@ public class SegmentTopSearchWithTimeSlice extends AbstractLocalSyncWorker {
     @Override
     protected void onWork(Object request, Object response) throws Exception {
         if (request instanceof RequestEntity) {
-            RequestEntity search = (RequestEntity) request;
+            RequestEntity search = (RequestEntity)request;
 
             SearchRequestBuilder searchRequestBuilder = EsClient.INSTANCE.getClient().prepareSearch(SegmentCostIndex.INDEX);
             searchRequestBuilder.setTypes(SegmentCostIndex.TYPE_RECORD);
@@ -77,17 +81,18 @@ public class SegmentTopSearchWithTimeSlice extends AbstractLocalSyncWorker {
             for (SearchHit searchHit : searchResponse.getHits().getHits()) {
                 JsonObject topSegmentJson = new JsonObject();
                 topSegmentJson.addProperty("num", num);
-                String segId = (String) searchHit.getSource().get(SegmentCostIndex.SEG_ID);
+                String segId = (String)searchHit.getSource().get(SegmentCostIndex.SEG_ID);
                 topSegmentJson.addProperty(SegmentCostIndex.SEG_ID, segId);
-                topSegmentJson.addProperty(SegmentCostIndex.START_TIME, (Number) searchHit.getSource().get(SegmentCostIndex.START_TIME));
+                topSegmentJson.addProperty(SegmentCostIndex.START_TIME, (Number)searchHit.getSource().get(SegmentCostIndex.START_TIME));
                 if (searchHit.getSource().containsKey(SegmentCostIndex.END_TIME)) {
-                    topSegmentJson.addProperty(SegmentCostIndex.END_TIME, (Number) searchHit.getSource().get(SegmentCostIndex.END_TIME));
+                    topSegmentJson.addProperty(SegmentCostIndex.END_TIME, (Number)searchHit.getSource().get(SegmentCostIndex.END_TIME));
                 }
 
-                topSegmentJson.addProperty(SegmentCostIndex.OPERATION_NAME, (String) searchHit.getSource().get(SegmentCostIndex.OPERATION_NAME));
-                topSegmentJson.addProperty(SegmentCostIndex.COST, (Number) searchHit.getSource().get(SegmentCostIndex.COST));
+                topSegmentJson.addProperty(SegmentCostIndex.OPERATION_NAME, (String)searchHit.getSource().get(SegmentCostIndex.OPERATION_NAME));
+                topSegmentJson.addProperty(SegmentCostIndex.COST, (Number)searchHit.getSource().get(SegmentCostIndex.COST));
 
                 String segmentSource = EsClient.INSTANCE.getClient().prepareGet(SegmentIndex.INDEX, SegmentIndex.TYPE_RECORD, segId).get().getSourceAsString();
+                logger().debug("segmentSource:" + segmentSource);
                 Segment segment = SegmentDeserialize.INSTANCE.deserializeSingle(segmentSource);
                 List<GlobalTraceId> distributedTraceIdList = segment.getRelatedGlobalTraces();
 
@@ -114,7 +119,7 @@ public class SegmentTopSearchWithTimeSlice extends AbstractLocalSyncWorker {
                 topSegArray.add(topSegmentJson);
             }
 
-            JsonObject resJsonObj = (JsonObject) response;
+            JsonObject resJsonObj = (JsonObject)response;
             resJsonObj.add("result", topSegPaging);
         }
     }

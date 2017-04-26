@@ -21,11 +21,11 @@
         </Console>
     </Appenders>
     <Loggers>
-        <logger name="com.a.eye.skywalking.collector" level="debug">
-            <AppenderRef ref="Console"/>
+        <logger name="com.a.eye.skywalking.collector" level="ERROR">
+            <AppenderRef ref="RollingFile"/>
         </logger>
-        <Root level="INFO">
-            <AppenderRef ref="Console"/>
+        <Root level="ERROR">
+            <AppenderRef ref="RollingFile"/>
         </Root>
     </Loggers>
 </Configuration>
