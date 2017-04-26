@@ -26,7 +26,7 @@ public class SpanSetTagInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
         MethodInterceptResult result) {
-        String key = fetchTagKeyFromArguments(interceptorContext.allArguments());
+        String key = adaptTag((String)interceptorContext.allArguments()[0]);
         Object value = interceptorContext.allArguments()[1];
         if (value instanceof String)
             ContextManager.activeSpan().setTag(key, (String)value);
@@ -39,14 +39,14 @@ public class SpanSetTagInterceptor implements InstanceMethodsAroundInterceptor {
     }
 
     /**
-     * Fetch tag key of {@link Span#setTag}.
+     * Adapt {@link Tags} of open tracing.
      *
      * @return tag key
      */
-    private String fetchTagKeyFromArguments(Object[] arguments) {
-        String key = (String)arguments[0];
+    private String adaptTag(String tagKey) {
+        String key = tagKey;
 
-        if (isPeerHostPrefix(key)) {
+        if (isPeerTag(key)) {
             key = KEY_OF_PEER_HOST_TAG;
         }
 
@@ -54,13 +54,15 @@ public class SpanSetTagInterceptor implements InstanceMethodsAroundInterceptor {
     }
 
     /**
+     * Check current tag is peer tag.
+     *
      * Skywalking put the tag value of {@link Tags#PEER_HOSTNAME}, {@link Tags#PEER_HOST_IPV4} and
      * {@link Tags#PEER_HOST_IPV6} into {@link com.a.eye.skywalking.trace.tag.Tags#PEER_HOST} which
      * facilitate analysis.
      *
      * @param key tag key
      */
-    private boolean isPeerHostPrefix(String key) {
+    private boolean isPeerTag(String key) {
         return Tags.PEER_HOST_IPV4.equals(key) || Tags.PEER_HOST_IPV6.equals(key) || Tags.PEER_HOSTNAME.equals(key);
     }
 
