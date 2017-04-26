@@ -29,7 +29,7 @@ This independent UI repository works since sky-walking 3.0.
 2. Download and startup
 
 ```shell
-> curl -O https://github.com/wu-sheng/sky-walking-ui/releases/download/v3.0-2017/skywalking-web.tar.gz  
+> curl -O https://github.com/wu-sheng/sky-walking-ui/releases/download/v3.0.1-2017/skywalking-web.tar.gz  
 > tar -xvf skywalking-web.tar.gz  
 > cd skywalking-web/bin  
 > ./startup.sh
@@ -44,7 +44,7 @@ This independent UI repository works since sky-walking 3.0.
 2. 下载应用程序
 
 ```shell
-> curl -O https://github.com/wu-sheng/sky-walking-ui/releases/download/v3.0-2017/skywalking-web.tar.gz  
+> curl -O https://github.com/wu-sheng/sky-walking-ui/releases/download/v3.0.1-2017/skywalking-web.tar.gz  
 > tar -xvf skywalking-web.tar.gz  
 > cd skywalking-web/bin  
 > ./startup.sh
