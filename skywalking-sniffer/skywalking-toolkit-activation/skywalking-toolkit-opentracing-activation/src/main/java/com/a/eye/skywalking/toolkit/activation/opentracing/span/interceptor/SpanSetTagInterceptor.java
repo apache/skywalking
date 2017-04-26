@@ -6,8 +6,6 @@ import com.a.eye.skywalking.api.plugin.interceptor.enhance.InstanceMethodInvokeC
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import com.a.eye.skywalking.api.plugin.interceptor.enhance.MethodInterceptResult;
 import com.a.eye.skywalking.toolkit.opentracing.SkyWalkingSpan;
-
-import io.opentracing.Span;
 import io.opentracing.tag.Tags;
 
 /**
