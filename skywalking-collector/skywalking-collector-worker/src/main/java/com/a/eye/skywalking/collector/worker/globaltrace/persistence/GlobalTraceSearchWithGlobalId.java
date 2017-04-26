@@ -6,14 +6,10 @@ import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
 import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
 import com.a.eye.skywalking.collector.worker.globaltrace.GlobalTraceIndex;
 import com.a.eye.skywalking.collector.worker.segment.SegmentIndex;
-import com.a.eye.skywalking.collector.worker.segment.logic.Segment;
-import com.a.eye.skywalking.collector.worker.segment.logic.SegmentDeserialize;
-import com.a.eye.skywalking.collector.worker.segment.logic.SpanView;
+import com.a.eye.skywalking.collector.worker.segment.entity.*;
 import com.a.eye.skywalking.collector.worker.storage.GetResponseFromEs;
 import com.a.eye.skywalking.collector.worker.storage.MergeData;
 import com.a.eye.skywalking.collector.worker.tools.CollectionTools;
-import com.a.eye.skywalking.trace.Span;
-import com.a.eye.skywalking.trace.TraceSegmentRef;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.apache.logging.log4j.LogManager;
@@ -52,7 +48,7 @@ public class GlobalTraceSearchWithGlobalId extends AbstractLocalSyncWorker {
                 logger.debug("subSegId: %s", subSegId);
                 String segmentSource = GetResponseFromEs.INSTANCE.get(SegmentIndex.INDEX, SegmentIndex.TYPE_RECORD, subSegId).getSourceAsString();
                 logger.debug("segmentSource: %s", segmentSource);
-                Segment segment = SegmentDeserialize.INSTANCE.deserializeFromES(segmentSource);
+                Segment segment = SegmentDeserialize.INSTANCE.deserializeSingle(segmentSource);
                 String segmentId = segment.getTraceSegmentId();
                 List<TraceSegmentRef> refsList = segment.getRefs();
 

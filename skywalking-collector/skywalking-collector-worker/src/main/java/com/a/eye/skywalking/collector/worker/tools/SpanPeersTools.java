@@ -2,8 +2,8 @@ package com.a.eye.skywalking.collector.worker.tools;
 
 import com.a.eye.skywalking.api.util.StringUtil;
 import com.a.eye.skywalking.collector.worker.Const;
-import com.a.eye.skywalking.trace.Span;
-import com.a.eye.skywalking.trace.tag.Tags;
+import com.a.eye.skywalking.collector.worker.segment.entity.Span;
+import com.a.eye.skywalking.collector.worker.segment.entity.tag.Tags;
 
 /**
  * @author pengys5
