@@ -15,11 +15,6 @@
             <DefaultRolloverStrategy max="30"/>
         </RollingFile>
     </Appenders>
-    <Appenders>
-        <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
-        </Console>
-    </Appenders>
     <Loggers>
         <logger name="com.a.eye.skywalking.collector" level="ERROR">
             <AppenderRef ref="RollingFile"/>
