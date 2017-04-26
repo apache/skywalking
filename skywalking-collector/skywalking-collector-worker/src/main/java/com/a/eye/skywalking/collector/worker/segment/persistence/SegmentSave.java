@@ -9,22 +9,21 @@ import com.a.eye.skywalking.collector.worker.PersistenceMember;
 import com.a.eye.skywalking.collector.worker.config.CacheSizeConfig;
 import com.a.eye.skywalking.collector.worker.segment.SegmentIndex;
 import com.a.eye.skywalking.collector.worker.segment.entity.Segment;
-import com.a.eye.skywalking.collector.worker.storage.*;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.elasticsearch.action.index.IndexRequestBuilder;
-import org.elasticsearch.client.Client;
-
+import com.a.eye.skywalking.collector.worker.storage.AbstractIndex;
+import com.a.eye.skywalking.collector.worker.storage.EsClient;
+import com.a.eye.skywalking.collector.worker.storage.PersistenceWorkerListener;
+import com.a.eye.skywalking.collector.worker.storage.SegmentData;
+import com.a.eye.skywalking.collector.worker.storage.SegmentPersistenceData;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import org.elasticsearch.action.index.IndexRequestBuilder;
+import org.elasticsearch.client.Client;
 
 /**
  * @author pengys5
  */
 public class SegmentSave extends PersistenceMember<SegmentPersistenceData, SegmentData> {
-
-    private Logger logger = LogManager.getFormatterLogger(SegmentSave.class);
 
     @Override
     public String esIndex() {
@@ -46,22 +45,19 @@ public class SegmentSave extends PersistenceMember<SegmentPersistenceData, Segme
         return new SegmentPersistenceData();
     }
 
-    int i = 0;
-
     @Override
     final public void analyse(Object message) throws Exception {
         if (message instanceof Segment) {
             Segment segment = (Segment) message;
             SegmentPersistenceData data = getPersistenceData();
             data.hold();
-            data.getOrCreate(segment.getTraceSegmentId() + i).setSegmentStr(segment.getJsonStr());
+            data.getOrCreate(segment.getTraceSegmentId()).setSegmentStr(segment.getJsonStr());
             if (data.size() >= CacheSizeConfig.Cache.Persistence.SIZE) {
                 persistence(data.asMap());
             }
             data.release();
-            i++;
         } else {
-            logger.error("unhandled message, message instance must Segment, but is %s", message.getClass().toString());
+            logger().error("unhandled message, message instance must Segment, but is %s", message.getClass().toString());
         }
     }
 
