@@ -15,11 +15,11 @@ public class TestAbstractGetProvider extends AbstractGetProvider {
 
     @Override
     public Role role() {
-        return null;
+        return TestAbstractGet.WorkerRole.INSTANCE;
     }
 
     @Override
     public AbstractWorker workerInstance(ClusterWorkerContext clusterContext) {
-        return new TestAbstractGet(null, null, null);
+        return new TestAbstractGet(role(), null, null);
     }
 }

@@ -25,6 +25,6 @@ public class TestAbstractPostProvider extends AbstractPostProvider {
 
     @Override
     public AbstractWorker workerInstance(ClusterWorkerContext clusterContext) {
-        return new TestAbstractPost(null, null, null);
+        return new TestAbstractPost(TestAbstractPost.WorkerRole.INSTANCE, null, null);
     }
 }

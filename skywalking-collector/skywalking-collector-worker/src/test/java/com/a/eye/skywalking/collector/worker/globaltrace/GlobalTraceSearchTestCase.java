@@ -40,7 +40,7 @@ public class GlobalTraceSearchTestCase {
         String segment_Data = JsonFileReader.INSTANCE.read(this.getClass().getResource("/").getPath() + "/json/globaltrace/persistence/globaltrace_segment.json");
         mockSegment(getResponseFromEs, SegmentIndex.INDEX, SegmentIndex.TYPE_RECORD, segment_1, segment_Data);
 
-        GlobalTraceSearchWithGlobalId search = new GlobalTraceSearchWithGlobalId(null, null, null);
+        GlobalTraceSearchWithGlobalId search = new GlobalTraceSearchWithGlobalId(GlobalTraceSearchWithGlobalId.WorkerRole.INSTANCE, null, null);
 
         JsonObject responseObj = new JsonObject();
 //        search.allocateJob(globalTraceId, responseObj);
