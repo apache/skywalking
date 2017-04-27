@@ -44,28 +44,7 @@ public class JedisMethodInterceptor extends NoConcurrencyAccessObject implements
     @Override
     public void beforeMethod(final EnhancedClassInstanceContext context,
         final InstanceMethodInvokeContext interceptorContext, MethodInterceptResult result) {
-        this.whenEnter(context, new Runnable() {
-            @Override
-            public void run() {
-                Span span = ContextManager.createSpan("Jedis/" + interceptorContext.methodName());
-                Tags.COMPONENT.set(span, REDIS_COMPONENT);
-                Tags.DB_TYPE.set(span, REDIS_COMPONENT);
-                Tags.SPAN_KIND.set(span, Tags.SPAN_KIND_CLIENT);
-                tagPeer(span, context);
-                Tags.SPAN_LAYER.asDB(span);
-                if (StringUtil.isEmpty(context.get(KEY_OF_REDIS_HOST, String.class))) {
-                    Tags.PEERS.set(span, String.valueOf(context.get(KEY_OF_REDIS_HOSTS)));
-                } else {
-                    Tags.PEER_HOST.set(span, context.get(KEY_OF_REDIS_HOST, String.class));
-                    Tags.PEER_PORT.set(span, (Integer)context.get(KEY_OF_REDIS_PORT));
-                }
-
-                if (interceptorContext.allArguments().length > 0
-                    && interceptorContext.allArguments()[0] instanceof String) {
-                    Tags.DB_STATEMENT.set(span, interceptorContext.methodName() + " " + interceptorContext.allArguments()[0]);
-                }
-            }
-        });
+        this.whenEnter(context, interceptorContext);
     }
 
     /**
@@ -84,12 +63,7 @@ public class JedisMethodInterceptor extends NoConcurrencyAccessObject implements
     @Override
     public Object afterMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
         Object ret) {
-        this.whenExist(context, new Runnable() {
-            @Override
-            public void run() {
-                ContextManager.stopSpan();
-            }
-        });
+        this.whenExist(context);
         return ret;
     }
 
@@ -97,5 +71,31 @@ public class JedisMethodInterceptor extends NoConcurrencyAccessObject implements
     public void handleMethodException(Throwable t, EnhancedClassInstanceContext context,
         InstanceMethodInvokeContext interceptorContext) {
         ContextManager.activeSpan().log(t);
+    }
+
+    @Override
+    protected void enter(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext) {
+        Span span = ContextManager.createSpan("Jedis/" + interceptorContext.methodName());
+        Tags.COMPONENT.set(span, REDIS_COMPONENT);
+        Tags.DB_TYPE.set(span, REDIS_COMPONENT);
+        Tags.SPAN_KIND.set(span, Tags.SPAN_KIND_CLIENT);
+        tagPeer(span, context);
+        Tags.SPAN_LAYER.asDB(span);
+        if (StringUtil.isEmpty(context.get(KEY_OF_REDIS_HOST, String.class))) {
+            Tags.PEERS.set(span, String.valueOf(context.get(KEY_OF_REDIS_HOSTS)));
+        } else {
+            Tags.PEER_HOST.set(span, context.get(KEY_OF_REDIS_HOST, String.class));
+            Tags.PEER_PORT.set(span, (Integer)context.get(KEY_OF_REDIS_PORT));
+        }
+
+        if (interceptorContext.allArguments().length > 0
+            && interceptorContext.allArguments()[0] instanceof String) {
+            Tags.DB_STATEMENT.set(span, interceptorContext.methodName() + " " + interceptorContext.allArguments()[0]);
+        }
+    }
+
+    @Override
+    protected void exit() {
+        ContextManager.stopSpan();
     }
 }

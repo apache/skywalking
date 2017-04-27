@@ -2,32 +2,35 @@ package com.a.eye.skywalking.api.plugin.interceptor.assist;
 
 import com.a.eye.skywalking.api.plugin.interceptor.EnhancedClassInstanceContext;
 import com.a.eye.skywalking.api.plugin.interceptor.InterceptorException;
+import com.a.eye.skywalking.api.plugin.interceptor.enhance.InstanceMethodInvokeContext;
 
 /**
  * {@link NoConcurrencyAccessObject} is method invocation counter,
- * when {@link #whenEnter(EnhancedClassInstanceContext, Runnable)}, counter + 1;
- * and when {@link #whenExist(EnhancedClassInstanceContext, Runnable)}, counter -1;
+ * when {@link #whenEnter(EnhancedClassInstanceContext, InstanceMethodInvokeContext)} , counter + 1;
+ * and when {@link #whenExist(EnhancedClassInstanceContext)}  , counter -1;
  *
- * When, and only when, the first enter and last exist, also meaning first access, the Runnable is called.
+ * When, and only when, the first enter and last exist, also meaning first access,
+ * the {@link #enter(EnhancedClassInstanceContext, InstanceMethodInvokeContext)}
+ * and {@link #exit()} are called.
  *
  * @author wusheng
  */
-public class NoConcurrencyAccessObject {
+public abstract class NoConcurrencyAccessObject {
     private static final String INVOKE_COUNTER_KEY = "__$invokeCounterKey";
 
-    public void whenEnter(EnhancedClassInstanceContext context, Runnable runnable) {
+    public void whenEnter(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext) {
         if (!context.isContain(INVOKE_COUNTER_KEY)) {
             context.set(INVOKE_COUNTER_KEY, 0);
         }
         int counter = context.get(INVOKE_COUNTER_KEY,
             Integer.class);
         if (++counter == 1) {
-            runnable.run();
+            enter(context, interceptorContext);
         }
         context.set(INVOKE_COUNTER_KEY, counter);
     }
 
-    public void whenExist(EnhancedClassInstanceContext context, Runnable runnable) {
+    public void whenExist(EnhancedClassInstanceContext context) {
         if (!context.isContain(INVOKE_COUNTER_KEY)) {
             throw new InterceptorException(
                 "key=INVOKE_COUNTER_KEY not found is context. unexpected situation.");
@@ -35,8 +38,12 @@ public class NoConcurrencyAccessObject {
         int counter = context.get(INVOKE_COUNTER_KEY,
             Integer.class);
         if (--counter == 0) {
-            runnable.run();
+            exit();
         }
         context.set(INVOKE_COUNTER_KEY, counter);
     }
+
+    protected abstract void enter(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext);
+
+    protected abstract void exit();
 }
