@@ -14,10 +14,10 @@ services:
   skywalking-collector:
     image: skywalking-collector:3.0.1-2017
     expose:
-      - "7001"
+      - "12800"
       - "1000"
     ports:
-      - "7001:7001"
+      - "12800:12800"
     depends_on:
       es-server:
         condition: service_healthy
