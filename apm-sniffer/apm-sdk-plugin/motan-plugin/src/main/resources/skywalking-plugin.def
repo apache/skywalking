@@ -1,2 +1,2 @@
-MotanConsumerInstrumentation
-MotanProviderInstrumentation
+org.skywalking.apm.plugin.motan.define.MotanConsumerInstrumentation
+org.skywalking.apm.plugin.motan.define.MotanProviderInstrumentation

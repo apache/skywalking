@@ -14,7 +14,7 @@ import org.apache.logging.log4j.core.pattern.LogEventPatternConverter;
  * Created by wusheng on 2016/12/7.
  */
 @Plugin(name = "TraceIdConverter", category = "Converter")
-@ConverterKeys( {"traceId"})
+@ConverterKeys({"traceId"})
 public class TraceIdConverter extends LogEventPatternConverter {
 
     /**

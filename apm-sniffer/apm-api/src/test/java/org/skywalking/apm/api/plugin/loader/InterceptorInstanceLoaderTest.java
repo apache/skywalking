@@ -18,17 +18,17 @@ public class InterceptorInstanceLoaderTest {
                 return super.loadClass(name);
             }
         };
-        Object obj = InterceptorInstanceLoader.load("NeverUsedTestClass", mockClassLoader);
+        Object obj = InterceptorInstanceLoader.load("org.skywalking.apm.api.plugin.loader.NeverUsedTestClass", mockClassLoader);
         Assert.assertTrue(obj != null);
 
-        Object obj2 = InterceptorInstanceLoader.load("NeverUsedTestClass", mockClassLoader);
+        Object obj2 = InterceptorInstanceLoader.load("org.skywalking.apm.api.plugin.loader.NeverUsedTestClass", mockClassLoader);
         Assert.assertTrue(obj != null);
         Assert.assertEquals(obj, obj2);
 
-        Object obj3 = InterceptorInstanceLoader.load("NeverUsedTestClass", InterceptorInstanceLoaderTest.class.getClassLoader());
+        Object obj3 = InterceptorInstanceLoader.load("org.skywalking.apm.api.plugin.loader.NeverUsedTestClass", InterceptorInstanceLoaderTest.class.getClassLoader());
         Assert.assertTrue(obj3 != null);
 
-        Object obj4 = InterceptorInstanceLoader.load("NeverUsedTestClass", InterceptorInstanceLoaderTest.class.getClassLoader());
+        Object obj4 = InterceptorInstanceLoader.load("org.skywalking.apm.api.plugin.loader.NeverUsedTestClass", InterceptorInstanceLoaderTest.class.getClassLoader());
         Assert.assertTrue(obj4 != null);
         Assert.assertEquals(obj3, obj4);
     }

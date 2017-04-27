@@ -1,4 +1,4 @@
-AbstractHttpClientInstrumentation
-InternalHttpClientInstrumentation
-MinimalHttpClientInstrumentation
-DefaultRequestDirectorInstrumentation
+org.skywalking.apm.plugin.httpClient.v4.define.AbstractHttpClientInstrumentation
+org.skywalking.apm.plugin.httpClient.v4.define.InternalHttpClientInstrumentation
+org.skywalking.apm.plugin.httpClient.v4.define.MinimalHttpClientInstrumentation
+org.skywalking.apm.plugin.httpClient.v4.define.DefaultRequestDirectorInstrumentation

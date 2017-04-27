@@ -1,1 +1,1 @@
-TomcatInstrumentation
+org.skywalking.apm.plugin.tomcat78x.define.TomcatInstrumentation

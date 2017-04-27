@@ -21,8 +21,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(PowerMockRunner.class)
 public class AbstractClassEnhancePluginDefineTest {
-    static final String WEAVE_CLASS = "TargetObject";
-    static final String INTERCEPTOR_CLASS = "MockPluginInterceptor";
+    static final String WEAVE_CLASS = "org.skywalking.apm.api.plugin.TargetObject";
+    static final String INTERCEPTOR_CLASS = "org.skywalking.apm.api.plugin.MockPluginInterceptor";
     static final String WEAVE_INSTANCE_METHOD_NAME = "instanceMethod";
     static final String WEAVE_INSTANCE_WITH_EXCEPTION_METHOD_NAME = "instanceMethodWithException";
     static final String WEAVE_STATIC_METHOD_NAME = "staticMethod";
