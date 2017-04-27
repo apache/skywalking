@@ -26,8 +26,8 @@ public class AbstractPostTestCase {
 
     @Before
     public void init() {
-        ClusterWorkerContext clusterWorkerContext = mock(ClusterWorkerContext.class);
-        LocalWorkerContext localWorkerContext = mock(LocalWorkerContext.class);
+        ClusterWorkerContext clusterWorkerContext = PowerMockito.mock(ClusterWorkerContext.class);
+        LocalWorkerContext localWorkerContext = PowerMockito.mock(LocalWorkerContext.class);
         post = spy(new TestAbstractPost(TestAbstractPost.WorkerRole.INSTANCE, clusterWorkerContext, localWorkerContext));
     }
 
