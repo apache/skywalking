@@ -39,6 +39,7 @@ public class SpanSearchWithId extends AbstractLocalSyncWorker {
 
             for (Span span : spanList) {
                 if (String.valueOf(span.getSpanId()).equals(search.spanId)) {
+                    span.setJsonStr("");
                     String spanJsonStr = gson.toJson(span);
                     dataJson = gson.fromJson(spanJsonStr, JsonObject.class);
                 }
