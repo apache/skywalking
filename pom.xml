@@ -282,7 +282,7 @@
                 <version>${docker.plugin.version}</version>
                 <configuration>
                     <skipDocker>false</skipDocker>
-                    <imageName>skywalking/${docker.image.name}</imageName>
+                    <imageName>${docker.image.name}</imageName>
                     <imageTags>
                         <imageTag>${docker.image.version}</imageTag>
                     </imageTags>
