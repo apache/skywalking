@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="DEBUG">
+<Configuration status="error">
 	<Properties>
 		<Property name="log-path">../logs</Property>
 	</Properties>
