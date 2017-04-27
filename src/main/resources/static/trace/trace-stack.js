@@ -157,7 +157,6 @@ function drawLegend() {
     $("#legendDiv").empty();
     $.each(colorMap, function (key, val) {
         $("#legendDiv").append("<button type='button' class='btn btn-xs legend' style='background-color: " + val + ";'>" + key + "</button>")
-
     });
 }
 
@@ -179,6 +178,7 @@ function displayData() {
         // svgContainer.append("rect").attr("x", 0).attr("y", key * height).attr("width", "100%").attr("height", height).style("fill", color);
 
         var rectWith = ((duration * width) / (bap[1] * Math.pow(10, (bap[0] - 4)))) / 100;
+        console.log("startTime: " + startTime + ", duration: " + duration);
         var beginX = ((startTime * width) / (bap[1] * Math.pow(10, (bap[0] - 4)))) / 100;
         var bar = svgContainer.append("g")
             .attr("transform", function (d, i) {
@@ -270,7 +270,7 @@ function displayData() {
             .attr("x2", function () {
                 return i * columnWidth;
             })
-            .attr("y2", 200)
+            .attr("y2", height * nodes.length)
             .attr("class", "vlines")
             .on("mouseover", function (d) {
                 d3.select(this).style("stroke-opacity", "1");
