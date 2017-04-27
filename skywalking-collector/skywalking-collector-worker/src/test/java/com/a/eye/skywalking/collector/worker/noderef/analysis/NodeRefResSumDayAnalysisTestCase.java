@@ -59,12 +59,13 @@ public class NodeRefResSumDayAnalysisTestCase {
 
     @Test
     public void testFactory() {
-        Assert.assertEquals(NodeRefResSumDayAnalysis.class.getSimpleName(), NodeRefResSumDayAnalysis.Factory.INSTANCE.role().roleName());
-        Assert.assertEquals(NodeRefResSumDayAnalysis.class.getSimpleName(), NodeRefResSumDayAnalysis.Factory.INSTANCE.workerInstance(null).getClass().getSimpleName());
+        NodeRefResSumDayAnalysis.Factory factory = new NodeRefResSumDayAnalysis.Factory();
+        Assert.assertEquals(NodeRefResSumDayAnalysis.class.getSimpleName(), factory.role().roleName());
+        Assert.assertEquals(NodeRefResSumDayAnalysis.class.getSimpleName(), factory.workerInstance(null).getClass().getSimpleName());
 
         int testSize = 10;
         WorkerConfig.Queue.NodeRef.NodeRefResSumDayAnalysis.SIZE = testSize;
-        Assert.assertEquals(testSize, NodeRefResSumDayAnalysis.Factory.INSTANCE.queueSize());
+        Assert.assertEquals(testSize, factory.queueSize());
     }
 
     String jsonFile = "/json/noderef/analysis/noderef_ressum_day_analysis.json";

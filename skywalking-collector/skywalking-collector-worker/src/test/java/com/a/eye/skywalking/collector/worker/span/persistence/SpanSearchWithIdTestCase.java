@@ -5,10 +5,10 @@ import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
 import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
 import com.a.eye.skywalking.collector.worker.Const;
 import com.a.eye.skywalking.collector.worker.segment.SegmentIndex;
+import com.a.eye.skywalking.collector.worker.segment.mock.SegmentMock;
 import com.a.eye.skywalking.collector.worker.storage.GetResponseFromEs;
 import com.a.eye.skywalking.trace.Span;
 import com.a.eye.skywalking.trace.TraceSegment;
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.elasticsearch.action.get.GetResponse;
 import org.junit.Assert;
@@ -53,8 +53,9 @@ public class SpanSearchWithIdTestCase {
 
     @Test
     public void testFactory() {
-        Assert.assertEquals(SpanSearchWithId.class.getSimpleName(), SpanSearchWithId.Factory.INSTANCE.role().roleName());
-        Assert.assertEquals(SpanSearchWithId.class.getSimpleName(), SpanSearchWithId.Factory.INSTANCE.workerInstance(null).getClass().getSimpleName());
+        SpanSearchWithId.Factory factory = new SpanSearchWithId.Factory();
+        Assert.assertEquals(SpanSearchWithId.class.getSimpleName(), factory.role().roleName());
+        Assert.assertEquals(SpanSearchWithId.class.getSimpleName(), factory.workerInstance(null).getClass().getSimpleName());
     }
 
     @Test
@@ -63,10 +64,8 @@ public class SpanSearchWithIdTestCase {
         LocalWorkerContext localWorkerContext = new LocalWorkerContext();
         SpanSearchWithId spanSearchWithId = new SpanSearchWithId(SpanSearchWithId.WorkerRole.INSTANCE, clusterWorkerContext, localWorkerContext);
 
-        TraceSegment segment = create();
-        Gson gson = new Gson();
-        String sourceString = gson.toJson(segment);
-
+        SegmentMock mock = new SegmentMock();
+        String sourceString = mock.loadJsonFile("/json/span/persistence/segment.json");
         GetResponse getResponse = mock(GetResponse.class);
         when(getResponseFromEs.get(SegmentIndex.INDEX, SegmentIndex.TYPE_RECORD, "1")).thenReturn(getResponse);
         when(getResponse.getSourceAsString()).thenReturn(sourceString);
@@ -75,9 +74,9 @@ public class SpanSearchWithIdTestCase {
         JsonObject response = new JsonObject();
         spanSearchWithId.onWork(request, response);
 
-        JsonObject segJsonObj = response.get(Const.RESULT).getAsJsonObject();
-        String value = segJsonObj.get("ts").getAsJsonObject().get("Tag").getAsString();
-        Assert.assertEquals("VALUE", value);
+        JsonObject spanJsonObj = response.get(Const.RESULT).getAsJsonObject();
+        String value = spanJsonObj.get("operationName").getAsString();
+        Assert.assertEquals("/portal/", value);
     }
 
     private TraceSegment create() {

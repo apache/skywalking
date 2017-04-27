@@ -62,26 +62,22 @@ public class NodeRefResSumMinuteAggTestCase {
 
     @Test
     public void testFactory() {
-        Assert.assertEquals(NodeRefResSumMinuteAgg.class.getSimpleName(), NodeRefResSumMinuteAgg.Factory.INSTANCE.role().roleName());
-        Assert.assertEquals(NodeRefResSumMinuteAgg.class.getSimpleName(), NodeRefResSumMinuteAgg.Factory.INSTANCE.workerInstance(null).getClass().getSimpleName());
+        NodeRefResSumMinuteAgg.Factory factory = new NodeRefResSumMinuteAgg.Factory();
+        Assert.assertEquals(NodeRefResSumMinuteAgg.class.getSimpleName(), factory.role().roleName());
+        Assert.assertEquals(NodeRefResSumMinuteAgg.class.getSimpleName(), factory.workerInstance(null).getClass().getSimpleName());
 
         int testSize = 10;
         WorkerConfig.WorkerNum.NodeRef.NodeRefResSumMinuteAgg.VALUE = testSize;
-        Assert.assertEquals(testSize, NodeRefResSumMinuteAgg.Factory.INSTANCE.workerNum());
+        Assert.assertEquals(testSize, factory.workerNum());
     }
 
     @Test
     public void testPreStart() throws ProviderNotFoundException {
-        when(clusterWorkerContext.findProvider(NodeRefResSumMinuteSave.Role.INSTANCE)).thenReturn(NodeRefResSumMinuteSave.Factory.INSTANCE);
+        when(clusterWorkerContext.findProvider(NodeRefResSumMinuteSave.Role.INSTANCE)).thenReturn(new NodeRefResSumMinuteSave.Factory());
 
         ArgumentCaptor<NodeRefResSumMinuteSave.Role> argumentCaptor = ArgumentCaptor.forClass(NodeRefResSumMinuteSave.Role.class);
         agg.preStart();
         verify(clusterWorkerContext).findProvider(argumentCaptor.capture());
-    }
-
-    @Test
-    public void testOnWorkError() throws Exception {
-        agg.onWork(new Object());
     }
 
     @Test

@@ -1,26 +1,27 @@
 package com.a.eye.skywalking.collector.worker.globaltrace.analysis;
 
-import com.a.eye.skywalking.collector.actor.AbstractLocalAsyncWorkerProvider;
-import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
-import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
+import com.a.eye.skywalking.collector.actor.*;
 import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
 import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
-import com.a.eye.skywalking.collector.worker.MergeAnalysisMember;
+import com.a.eye.skywalking.collector.worker.JoinAndSplitAnalysisMember;
 import com.a.eye.skywalking.collector.worker.config.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.globaltrace.GlobalTraceIndex;
 import com.a.eye.skywalking.collector.worker.globaltrace.persistence.GlobalTraceAgg;
 import com.a.eye.skywalking.collector.worker.segment.SegmentPost;
-import com.a.eye.skywalking.collector.worker.storage.MergeData;
+import com.a.eye.skywalking.collector.worker.segment.entity.GlobalTraceId;
+import com.a.eye.skywalking.collector.worker.segment.entity.Segment;
 import com.a.eye.skywalking.collector.worker.tools.CollectionTools;
-import com.a.eye.skywalking.trace.TraceId.DistributedTraceId;
-import com.a.eye.skywalking.trace.TraceSegment;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 
 /**
  * @author pengys5
  */
-public class GlobalTraceAnalysis extends MergeAnalysisMember {
+public class GlobalTraceAnalysis extends JoinAndSplitAnalysisMember {
+
+    private Logger logger = LogManager.getFormatterLogger(GlobalTraceAnalysis.class);
 
     GlobalTraceAnalysis(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
@@ -29,30 +30,32 @@ public class GlobalTraceAnalysis extends MergeAnalysisMember {
     @Override
     public void analyse(Object message) throws Exception {
         if (message instanceof SegmentPost.SegmentWithTimeSlice) {
-            SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice = (SegmentPost.SegmentWithTimeSlice)message;
-            TraceSegment segment = segmentWithTimeSlice.getTraceSegment();
+            SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice = (SegmentPost.SegmentWithTimeSlice) message;
+            Segment segment = segmentWithTimeSlice.getSegment();
             String subSegmentId = segment.getTraceSegmentId();
-            List<DistributedTraceId> globalTraceIdList = segment.getRelatedGlobalTraces();
+            List<GlobalTraceId> globalTraceIdList = segment.getRelatedGlobalTraces();
             if (CollectionTools.isNotEmpty(globalTraceIdList)) {
-                for (DistributedTraceId disTraceId : globalTraceIdList) {
+                for (GlobalTraceId disTraceId : globalTraceIdList) {
                     String traceId = disTraceId.get();
-                    setMergeData(traceId, GlobalTraceIndex.SUB_SEG_IDS, subSegmentId);
+                    set(traceId, GlobalTraceIndex.SUB_SEG_IDS, subSegmentId);
                 }
             }
+        } else {
+            logger.error("unhandled message, message instance must SegmentPost.SegmentWithTimeSlice, but is %s", message.getClass().toString());
         }
     }
 
     @Override
-    protected void aggregation() throws Exception {
-        MergeData oneRecord;
-        while ((oneRecord = pushOne()) != null) {
-            getClusterContext().lookup(GlobalTraceAgg.Role.INSTANCE).tell(oneRecord);
+    protected WorkerRefs aggWorkRefs() {
+        try {
+            return getClusterContext().lookup(GlobalTraceAgg.Role.INSTANCE);
+        } catch (WorkerNotFoundException e) {
+            logger.error("The role of %s worker not found", GlobalTraceAgg.Role.INSTANCE.roleName());
         }
+        return null;
     }
 
     public static class Factory extends AbstractLocalAsyncWorkerProvider<GlobalTraceAnalysis> {
-        public static Factory INSTANCE = new Factory();
-
         @Override
         public Role role() {
             return Role.INSTANCE;

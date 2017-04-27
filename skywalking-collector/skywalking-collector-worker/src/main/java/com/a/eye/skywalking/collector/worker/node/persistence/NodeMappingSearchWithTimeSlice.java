@@ -62,7 +62,7 @@ public class NodeMappingSearchWithTimeSlice extends AbstractLocalSyncWorker {
             JsonObject resJsonObj = (JsonObject)response;
             resJsonObj.add(Const.RESULT, nodeMappingArray);
         } else {
-            throw new IllegalArgumentException("message instance must be RequestEntity");
+            logger.error("unhandled message, message instance must NodeMappingSearchWithTimeSlice.RequestEntity, but is %s", request.getClass().toString());
         }
     }
 
@@ -73,8 +73,6 @@ public class NodeMappingSearchWithTimeSlice extends AbstractLocalSyncWorker {
     }
 
     public static class Factory extends AbstractLocalSyncWorkerProvider<NodeMappingSearchWithTimeSlice> {
-        public static Factory INSTANCE = new Factory();
-
         @Override
         public Role role() {
             return WorkerRole.INSTANCE;

@@ -46,8 +46,6 @@ public class GlobalTraceGetWithGlobalId extends AbstractGet {
     }
 
     public static class Factory extends AbstractGetProvider<GlobalTraceGetWithGlobalId> {
-        public static Factory INSTANCE = new Factory();
-
         @Override
         public Role role() {
             return WorkerRole.INSTANCE;

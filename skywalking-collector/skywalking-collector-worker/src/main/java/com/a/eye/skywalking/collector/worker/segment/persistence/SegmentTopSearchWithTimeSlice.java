@@ -1,18 +1,24 @@
 package com.a.eye.skywalking.collector.worker.segment.persistence;
 
-import com.a.eye.skywalking.collector.actor.*;
+import com.a.eye.skywalking.collector.actor.AbstractLocalSyncWorker;
+import com.a.eye.skywalking.collector.actor.AbstractLocalSyncWorkerProvider;
+import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
+import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
+import com.a.eye.skywalking.collector.actor.ProviderNotFoundException;
+import com.a.eye.skywalking.collector.actor.Role;
 import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
 import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
 import com.a.eye.skywalking.collector.worker.segment.SegmentCostIndex;
 import com.a.eye.skywalking.collector.worker.segment.SegmentExceptionIndex;
 import com.a.eye.skywalking.collector.worker.segment.SegmentIndex;
-import com.a.eye.skywalking.collector.worker.segment.logic.Segment;
-import com.a.eye.skywalking.collector.worker.segment.logic.SegmentDeserialize;
+import com.a.eye.skywalking.collector.worker.segment.entity.GlobalTraceId;
+import com.a.eye.skywalking.collector.worker.segment.entity.Segment;
+import com.a.eye.skywalking.collector.worker.segment.entity.SegmentDeserialize;
 import com.a.eye.skywalking.collector.worker.storage.EsClient;
 import com.a.eye.skywalking.collector.worker.tools.CollectionTools;
-import com.a.eye.skywalking.trace.TraceId.DistributedTraceId;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import java.util.List;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
@@ -21,8 +27,6 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.SortOrder;
-
-import java.util.List;
 
 /**
  * @author pengys5
@@ -88,12 +92,13 @@ public class SegmentTopSearchWithTimeSlice extends AbstractLocalSyncWorker {
                 topSegmentJson.addProperty(SegmentCostIndex.COST, (Number)searchHit.getSource().get(SegmentCostIndex.COST));
 
                 String segmentSource = EsClient.INSTANCE.getClient().prepareGet(SegmentIndex.INDEX, SegmentIndex.TYPE_RECORD, segId).get().getSourceAsString();
-                Segment segment = SegmentDeserialize.INSTANCE.deserializeFromES(segmentSource);
-                List<DistributedTraceId> distributedTraceIdList = segment.getRelatedGlobalTraces();
+                logger().debug("segmentSource:" + segmentSource);
+                Segment segment = SegmentDeserialize.INSTANCE.deserializeSingle(segmentSource);
+                List<GlobalTraceId> distributedTraceIdList = segment.getRelatedGlobalTraces();
 
                 JsonArray distributedTraceIdArray = new JsonArray();
                 if (CollectionTools.isNotEmpty(distributedTraceIdList)) {
-                    for (DistributedTraceId distributedTraceId : distributedTraceIdList) {
+                    for (GlobalTraceId distributedTraceId : distributedTraceIdList) {
                         distributedTraceIdArray.add(distributedTraceId.get());
                     }
                 }
@@ -168,8 +173,6 @@ public class SegmentTopSearchWithTimeSlice extends AbstractLocalSyncWorker {
     }
 
     public static class Factory extends AbstractLocalSyncWorkerProvider<SegmentTopSearchWithTimeSlice> {
-        public static Factory INSTANCE = new Factory();
-
         @Override
         public Role role() {
             return WorkerRole.INSTANCE;

@@ -3,7 +3,6 @@ package com.a.eye.skywalking.collector.worker.noderef.persistence;
 import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
 import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
 import com.a.eye.skywalking.collector.actor.selector.HashCodeSelector;
-import com.a.eye.skywalking.collector.worker.config.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.noderef.NodeRefResSumIndex;
 import org.junit.Assert;
 import org.junit.Before;
@@ -46,11 +45,8 @@ public class NodeRefResSumHourSaveTestCase {
 
     @Test
     public void testFactory() {
-        Assert.assertEquals(NodeRefResSumHourSave.class.getSimpleName(), NodeRefResSumHourSave.Factory.INSTANCE.role().roleName());
-        Assert.assertEquals(NodeRefResSumHourSave.class.getSimpleName(), NodeRefResSumHourSave.Factory.INSTANCE.workerInstance(null).getClass().getSimpleName());
-
-        int testSize = 10;
-        WorkerConfig.Queue.NodeRef.NodeRefResSumHourSave.SIZE = testSize;
-        Assert.assertEquals(testSize, NodeRefResSumHourSave.Factory.INSTANCE.queueSize());
+        NodeRefResSumHourSave.Factory factory = new NodeRefResSumHourSave.Factory();
+        Assert.assertEquals(NodeRefResSumHourSave.class.getSimpleName(), factory.role().roleName());
+        Assert.assertEquals(NodeRefResSumHourSave.class.getSimpleName(), factory.workerInstance(null).getClass().getSimpleName());
     }
 }

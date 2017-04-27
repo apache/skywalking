@@ -63,14 +63,15 @@ public class SpanGetWithIdTestCase {
 
     @Test
     public void testFactory() {
-        Assert.assertEquals(SpanGetWithId.class.getSimpleName(), SpanGetWithId.Factory.INSTANCE.role().roleName());
-        Assert.assertEquals(SpanGetWithId.class.getSimpleName(), SpanGetWithId.Factory.INSTANCE.workerInstance(null).getClass().getSimpleName());
-        Assert.assertEquals("/span/spanId", SpanGetWithId.Factory.INSTANCE.servletPath());
+        SpanGetWithId.Factory factory = new SpanGetWithId.Factory();
+        Assert.assertEquals(SpanGetWithId.class.getSimpleName(), factory.role().roleName());
+        Assert.assertEquals(SpanGetWithId.class.getSimpleName(), factory.workerInstance(null).getClass().getSimpleName());
+        Assert.assertEquals("/span/spanId", factory.servletPath());
     }
 
     @Test
     public void testPreStart() throws ProviderNotFoundException {
-        when(clusterWorkerContext.findProvider(SpanSearchWithId.WorkerRole.INSTANCE)).thenReturn(SpanSearchWithId.Factory.INSTANCE);
+        when(clusterWorkerContext.findProvider(SpanSearchWithId.WorkerRole.INSTANCE)).thenReturn(new SpanSearchWithId.Factory());
 
         ArgumentCaptor<SpanSearchWithId.WorkerRole> argumentCaptor = ArgumentCaptor.forClass(SpanSearchWithId.WorkerRole.class);
         getObj.preStart();
@@ -99,7 +100,7 @@ public class SpanGetWithIdTestCase {
 
         @Override
         public Object answer(InvocationOnMock invocation) throws Throwable {
-            SpanSearchWithId.RequestEntity requestEntity = (SpanSearchWithId.RequestEntity)invocation.getArguments()[0];
+            SpanSearchWithId.RequestEntity requestEntity = (SpanSearchWithId.RequestEntity) invocation.getArguments()[0];
             Assert.assertEquals("10", requestEntity.getSegId());
             Assert.assertEquals("20", requestEntity.getSpanId());
             return null;

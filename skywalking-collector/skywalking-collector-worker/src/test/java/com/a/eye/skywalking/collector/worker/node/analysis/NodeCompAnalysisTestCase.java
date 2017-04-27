@@ -64,12 +64,13 @@ public class NodeCompAnalysisTestCase {
 
     @Test
     public void testFactory() {
-        Assert.assertEquals(NodeCompAnalysis.class.getSimpleName(), NodeCompAnalysis.Factory.INSTANCE.role().roleName());
-        Assert.assertEquals(NodeCompAnalysis.class.getSimpleName(), NodeCompAnalysis.Factory.INSTANCE.workerInstance(null).getClass().getSimpleName());
+        NodeCompAnalysis.Factory factory = new NodeCompAnalysis.Factory();
+        Assert.assertEquals(NodeCompAnalysis.class.getSimpleName(), factory.role().roleName());
+        Assert.assertEquals(NodeCompAnalysis.class.getSimpleName(), factory.workerInstance(null).getClass().getSimpleName());
 
         int testSize = 10;
         WorkerConfig.Queue.Node.NodeCompAnalysis.SIZE = testSize;
-        Assert.assertEquals(testSize, NodeCompAnalysis.Factory.INSTANCE.queueSize());
+        Assert.assertEquals(testSize, factory.queueSize());
     }
 
     String jsonFile = "/json/node/analysis/node_comp_analysis.json";

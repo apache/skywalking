@@ -20,12 +20,7 @@ public class MetricDataAnswer implements Answer<Object> {
     @Override
     public Object answer(InvocationOnMock invocation) throws Throwable {
         MetricData metricData = (MetricData)invocation.getArguments()[0];
-
-        System.out.printf("id: %s \n", metricData.getId());
         metricDataList.add(metricData);
-        Gson gson = new Gson();
-        String jsonStr = gson.toJson(metricData.toMap());
-        System.out.printf("data: %s \n", jsonStr);
         return null;
     }
 

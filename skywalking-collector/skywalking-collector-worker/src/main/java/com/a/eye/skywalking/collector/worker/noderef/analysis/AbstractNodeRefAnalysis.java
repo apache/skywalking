@@ -5,12 +5,12 @@ import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
 import com.a.eye.skywalking.collector.worker.Const;
 import com.a.eye.skywalking.collector.worker.RecordAnalysisMember;
 import com.a.eye.skywalking.collector.worker.noderef.NodeRefIndex;
+import com.a.eye.skywalking.collector.worker.segment.entity.Segment;
+import com.a.eye.skywalking.collector.worker.segment.entity.Span;
+import com.a.eye.skywalking.collector.worker.segment.entity.tag.Tags;
 import com.a.eye.skywalking.collector.worker.tools.ClientSpanIsLeafTools;
 import com.a.eye.skywalking.collector.worker.tools.CollectionTools;
 import com.a.eye.skywalking.collector.worker.tools.SpanPeersTools;
-import com.a.eye.skywalking.trace.Span;
-import com.a.eye.skywalking.trace.TraceSegment;
-import com.a.eye.skywalking.trace.tag.Tags;
 import com.google.gson.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,12 +25,12 @@ abstract class AbstractNodeRefAnalysis extends RecordAnalysisMember {
     private Logger logger = LogManager.getFormatterLogger(AbstractNodeRefAnalysis.class);
 
     AbstractNodeRefAnalysis(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext,
-        LocalWorkerContext selfContext) {
+                            LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
-    final void analyseNodeRef(TraceSegment segment, long timeSlice, long minute, long hour, long day,
-        int second) throws Exception {
+    final void analyseNodeRef(Segment segment, long timeSlice, long minute, long hour, long day,
+                              int second) throws Exception {
         List<Span> spanList = segment.getSpans();
         if (CollectionTools.isNotEmpty(spanList)) {
             for (Span span : spanList) {
@@ -49,7 +49,7 @@ abstract class AbstractNodeRefAnalysis extends RecordAnalysisMember {
 
                     String id = timeSlice + Const.ID_SPLIT + front + Const.ID_SPLIT + behind;
                     logger.debug("dag node ref: %s", dataJsonObj.toString());
-                    setRecord(id, dataJsonObj);
+                    set(id, dataJsonObj);
                     buildNodeRefResRecordData(id, span, minute, hour, day, second);
                 } else if (Tags.SPAN_KIND_SERVER.equals(Tags.SPAN_KIND.get(span))) {
                     if (span.getParentSpanId() == -1 && CollectionTools.isEmpty(segment.getRefs())) {
@@ -60,7 +60,7 @@ abstract class AbstractNodeRefAnalysis extends RecordAnalysisMember {
                         dataJsonObj.addProperty(NodeRefIndex.FRONT, front);
 
                         String id = timeSlice + Const.ID_SPLIT + front + Const.ID_SPLIT + behind;
-                        setRecord(id, dataJsonObj);
+                        set(id, dataJsonObj);
                         buildNodeRefResRecordData(id, span, minute, hour, day, second);
                     }
                 }
@@ -69,7 +69,7 @@ abstract class AbstractNodeRefAnalysis extends RecordAnalysisMember {
     }
 
     private void buildNodeRefResRecordData(String nodeRefId, Span span, long minute, long hour, long day,
-        int second) throws Exception {
+                                           int second) throws Exception {
         AbstractNodeRefResSumAnalysis.NodeRefResRecord refResRecord = new AbstractNodeRefResSumAnalysis.NodeRefResRecord(minute, hour, day, second);
         refResRecord.setStartTime(span.getStartTime());
         refResRecord.setEndTime(span.getEndTime());
@@ -79,5 +79,5 @@ abstract class AbstractNodeRefAnalysis extends RecordAnalysisMember {
     }
 
     protected abstract void sendToResSumAnalysis(
-        AbstractNodeRefResSumAnalysis.NodeRefResRecord refResRecord) throws Exception;
+            AbstractNodeRefResSumAnalysis.NodeRefResRecord refResRecord) throws Exception;
 }

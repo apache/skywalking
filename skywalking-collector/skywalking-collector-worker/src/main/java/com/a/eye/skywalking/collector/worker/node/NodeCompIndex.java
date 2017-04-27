@@ -1,5 +1,6 @@
 package com.a.eye.skywalking.collector.worker.node;
 
+import com.a.eye.skywalking.collector.worker.config.EsConfig;
 import com.a.eye.skywalking.collector.worker.storage.AbstractIndex;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
@@ -26,24 +27,26 @@ public class NodeCompIndex extends AbstractIndex {
     }
 
     @Override
+    public int refreshInterval() {
+        return EsConfig.Es.Index.RefreshInterval.NodeCompIndex.VALUE;
+    }
+
+    @Override
     public XContentBuilder createMappingBuilder() throws IOException {
         XContentBuilder mappingBuilder = XContentFactory.jsonBuilder()
-            .startObject()
-            .startObject("properties")
-            .startObject(NAME)
-            .field("type", "string")
-            .field("index", "not_analyzed")
-            .endObject()
-            .startObject(PEERS)
-            .field("type", "string")
-            .field("index", "not_analyzed")
-            .endObject()
-            .startObject(AGG_COLUMN)
-            .field("type", "string")
-            .field("index", "not_analyzed")
-            .endObject()
-            .endObject()
-            .endObject();
+                .startObject()
+                .startObject("properties")
+                .startObject(NAME)
+                .field("type", "keyword")
+                .endObject()
+                .startObject(PEERS)
+                .field("type", "keyword")
+                .endObject()
+                .startObject(AGG_COLUMN)
+                .field("type", "keyword")
+                .endObject()
+                .endObject()
+                .endObject();
         return mappingBuilder;
     }
 }

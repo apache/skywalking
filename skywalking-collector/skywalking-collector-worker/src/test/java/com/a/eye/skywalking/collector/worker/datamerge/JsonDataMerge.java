@@ -40,7 +40,6 @@ public enum JsonDataMerge {
             if (!entry.getValue().isJsonNull()) {
                 value = entry.getValue().getAsString();
             }
-            System.out.printf("key: %s, value: %s \n", key, value);
 
             if (entry.getValue().isJsonNull()) {
                 Assert.assertEquals(true, actualData.get(key).isJsonNull());

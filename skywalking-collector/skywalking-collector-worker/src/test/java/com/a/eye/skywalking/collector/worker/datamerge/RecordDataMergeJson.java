@@ -55,7 +55,6 @@ public enum RecordDataMergeJson {
             if (!entry.getValue().isJsonNull()) {
                 value = entry.getValue().getAsString();
             }
-            System.out.printf("key: %s, value: %s \n", key, value);
 
             if (entry.getValue().isJsonNull()) {
                 Assert.assertEquals(true, actualData.get(key).isJsonNull());
@@ -71,7 +70,7 @@ public enum RecordDataMergeJson {
     private Map<String, JsonObject> recordData2Map(List<RecordData> recordDataList) {
         Map<String, JsonObject> recordDataMap = new HashMap<>();
         for (RecordData recordData : recordDataList) {
-            recordDataMap.put(recordData.getId(), recordData.getRecord());
+            recordDataMap.put(recordData.getId(), recordData.get());
         }
         return recordDataMap;
     }
@@ -86,7 +85,6 @@ public enum RecordDataMergeJson {
                 changedId = changedId + Const.ID_SPLIT + ids[i];
             }
             changedId = String.valueOf(changedSlice) + changedId;
-            System.out.printf("changedId: %s", changedId);
             return changedId;
         } else {
             return id;

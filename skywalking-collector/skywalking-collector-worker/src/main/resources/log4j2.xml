@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="DEBUG">
+<Configuration status="error">
     <Properties>
         <Property name="log-path">../logs</Property>
     </Properties>
@@ -16,10 +16,10 @@
         </RollingFile>
     </Appenders>
     <Loggers>
-        <Logger name="root" level="INFO" additivity="false">
-            <appender-ref ref="RollingFile" level="INFO"/>
-        </Logger>
-        <Root level="INFO" additivity="false">
+        <logger name="com.a.eye.skywalking.collector" level="debug">
+            <AppenderRef ref="RollingFile"/>
+        </logger>
+        <Root level="INFO">
             <AppenderRef ref="RollingFile"/>
         </Root>
     </Loggers>

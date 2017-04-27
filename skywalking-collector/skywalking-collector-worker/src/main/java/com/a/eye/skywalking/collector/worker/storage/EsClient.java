@@ -5,6 +5,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.action.admin.indices.refresh.RefreshResponse;
+import org.elasticsearch.action.bulk.BulkRequestBuilder;
+import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
@@ -75,6 +78,23 @@ public enum EsClient {
         public AddressPairs(String ip, Integer port) {
             this.ip = ip;
             this.port = port;
+        }
+    }
+
+    public void bulk(List<IndexRequestBuilder> dataList) {
+        Client client = EsClient.INSTANCE.getClient();
+        BulkRequestBuilder bulkRequest = client.prepareBulk();
+
+        logger.info("bulk data size: %s", dataList.size());
+        if (dataList.size() > 0) {
+            for (IndexRequestBuilder builder : dataList) {
+                bulkRequest.add(builder);
+            }
+
+            BulkResponse bulkResponse = bulkRequest.execute().actionGet();
+            if (bulkResponse.hasFailures()) {
+                logger.error(bulkResponse.buildFailureMessage());
+            }
         }
     }
 }

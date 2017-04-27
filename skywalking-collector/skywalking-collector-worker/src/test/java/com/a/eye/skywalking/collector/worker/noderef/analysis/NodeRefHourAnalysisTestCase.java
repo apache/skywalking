@@ -67,12 +67,13 @@ public class NodeRefHourAnalysisTestCase {
 
     @Test
     public void testFactory() {
-        Assert.assertEquals(NodeRefHourAnalysis.class.getSimpleName(), NodeRefHourAnalysis.Factory.INSTANCE.role().roleName());
-        Assert.assertEquals(NodeRefHourAnalysis.class.getSimpleName(), NodeRefHourAnalysis.Factory.INSTANCE.workerInstance(null).getClass().getSimpleName());
+        NodeRefHourAnalysis.Factory factory = new NodeRefHourAnalysis.Factory();
+        Assert.assertEquals(NodeRefHourAnalysis.class.getSimpleName(), factory.role().roleName());
+        Assert.assertEquals(NodeRefHourAnalysis.class.getSimpleName(), factory.workerInstance(null).getClass().getSimpleName());
 
         int testSize = 10;
         WorkerConfig.Queue.NodeRef.NodeRefHourAnalysis.SIZE = testSize;
-        Assert.assertEquals(testSize, NodeRefHourAnalysis.Factory.INSTANCE.queueSize());
+        Assert.assertEquals(testSize, factory.queueSize());
     }
 
     String jsonFile = "/json/noderef/analysis/noderef_hour_analysis.json";
@@ -85,7 +86,7 @@ public class NodeRefHourAnalysisTestCase {
 
     @Test
     public void testPreStart() throws ProviderNotFoundException {
-        Mockito.when(clusterWorkerContext.findProvider(NodeRefResSumHourAnalysis.Role.INSTANCE)).thenReturn(NodeRefResSumHourAnalysis.Factory.INSTANCE);
+        Mockito.when(clusterWorkerContext.findProvider(NodeRefResSumHourAnalysis.Role.INSTANCE)).thenReturn(new NodeRefResSumHourAnalysis.Factory());
 
         ArgumentCaptor<NodeRefResSumHourAnalysis.Role> argumentCaptor = ArgumentCaptor.forClass(NodeRefResSumHourAnalysis.Role.class);
         analysis.preStart();

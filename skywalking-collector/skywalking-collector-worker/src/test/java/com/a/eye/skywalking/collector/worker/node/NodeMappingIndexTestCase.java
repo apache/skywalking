@@ -1,5 +1,6 @@
 package com.a.eye.skywalking.collector.worker.node;
 
+import com.a.eye.skywalking.collector.worker.config.EsConfig;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -21,5 +22,11 @@ public class NodeMappingIndexTestCase {
     public void testBuilder() throws IOException {
         NodeMappingIndex index = new NodeMappingIndex();
         Assert.assertEquals("{\"properties\":{\"code\":{\"type\":\"string\",\"index\":\"not_analyzed\"},\"peers\":{\"type\":\"string\",\"index\":\"not_analyzed\"},\"aggId\":{\"type\":\"string\",\"index\":\"not_analyzed\"},\"timeSlice\":{\"type\":\"long\",\"index\":\"not_analyzed\"}}}", index.createMappingBuilder().string());
+    }
+
+    @Test
+    public void refreshInterval() {
+        NodeMappingIndex index = new NodeMappingIndex();
+        Assert.assertEquals(EsConfig.Es.Index.RefreshInterval.NodeMappingIndex.VALUE.intValue(), index.refreshInterval());
     }
 }

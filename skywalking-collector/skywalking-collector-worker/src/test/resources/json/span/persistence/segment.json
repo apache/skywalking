@@ -1,0 +1,134 @@
+{
+  "ts": "Segment.1490922929254.1797892356.6003.69.1",
+  "st": 1490922929254,
+  "et": 1490922929306,
+  "ss": [
+    {
+      "si": 2,
+      "ps": 1,
+      "st": 1490922929257,
+      "et": 1490922929262,
+      "on": "com.a.eye.skywalking.test.cache.CacheService.findCache(java.lang.String)",
+      "ts": {
+        "span.layer": "rpc",
+        "peer.host": "127.0.0.1",
+        "component": "Motan",
+        "span.kind": "client",
+        "url": "motan://127.0.0.1:8002/default_rpc/com.a.eye.skywalking.test.cache.CacheService/1.0/referer"
+      },
+      "tb": {},
+      "ti": {
+        "peer.port": 8002
+      },
+      "lo": []
+    },
+    {
+      "si": 1,
+      "ps": 0,
+      "st": 0,
+      "et": 1490922929262,
+      "on": "Motan_default_rpc_com.a.eye.skywalking.test.cache.CacheService.findCache(java.lang.String)",
+      "ts": {
+        "requestId": "1563346001467539461"
+      },
+      "tb": {},
+      "ti": {},
+      "lo": []
+    },
+    {
+      "si": 4,
+      "ps": 3,
+      "st": 1490922929262,
+      "et": 1490922929293,
+      "on": "/persistence/query",
+      "ts": {
+        "span.layer": "http",
+        "peer.host": "10.128.35.80",
+        "component": "HttpClient",
+        "span.kind": "client",
+        "url": "http://10.128.35.80:20880/persistence/query"
+      },
+      "tb": {},
+      "ti": {
+        "peer.port": 20880,
+        "status_code": 200
+      },
+      "lo": []
+    },
+    {
+      "si": 3,
+      "ps": 0,
+      "st": 1490922929262,
+      "et": 1490922929297,
+      "on": "com.a.eye.skywalking.test.persistence.PersistenceService.query(String)",
+      "ts": {
+        "span.layer": "rpc",
+        "component": "Dubbo",
+        "peer.host": "10.128.35.80",
+        "span.kind": "client",
+        "url": "rest://10.128.35.80:20880/com.a.eye.skywalking.test.persistence.PersistenceService.query(String)"
+      },
+      "tb": {},
+      "ti": {
+        "peer.port": 20880
+      },
+      "lo": []
+    },
+    {
+      "si": 6,
+      "ps": 5,
+      "st": 1490922929297,
+      "et": 1490922929303,
+      "on": "com.a.eye.skywalking.test.cache.CacheService.updateCache(java.lang.String,java.lang.String)",
+      "ts": {
+        "span.layer": "rpc",
+        "peer.host": "127.0.0.1",
+        "component": "Motan",
+        "span.kind": "client",
+        "url": "motan://127.0.0.1:8002/default_rpc/com.a.eye.skywalking.test.cache.CacheService/1.0/referer"
+      },
+      "tb": {},
+      "ti": {
+        "peer.port": 8002
+      },
+      "lo": []
+    },
+    {
+      "si": 5,
+      "ps": 0,
+      "st": 0,
+      "et": 1490922929303,
+      "on": "Motan_default_rpc_com.a.eye.skywalking.test.cache.CacheService.updateCache(java.lang.String,java.lang.String)",
+      "ts": {
+        "requestId": "1563346001510531078"
+      },
+      "tb": {},
+      "ti": {},
+      "lo": []
+    },
+    {
+      "si": 0,
+      "ps": -1,
+      "st": 1490922929254,
+      "et": 1490922929306,
+      "on": "/portal/",
+      "ts": {
+        "span.layer": "http",
+        "component": "Tomcat",
+        "peer.host": "0:0:0:0:0:0:0:1",
+        "span.kind": "server",
+        "url": "http://localhost:38080/portal/"
+      },
+      "tb": {},
+      "ti": {
+        "peer.port": 57837,
+        "status_code": 200
+      },
+      "lo": []
+    }
+  ],
+  "ac": "portal-service",
+  "gt": [
+    "Trace.1490922929254.1797892356.6003.69.2"
+  ]
+}

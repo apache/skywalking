@@ -110,8 +110,6 @@ public class TraceSegmentTestCase {
         message.append(segment);
         String json = gson.toJson(message);
 
-        System.out.println(json);
-
         message = gson.fromJson(json, SegmentsMessage.class);
 
         TraceSegment newSegment = message.getSegments().get(0);

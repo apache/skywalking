@@ -46,4 +46,10 @@ public class HashCodeSelectorTestCase {
         WorkerRef select_3 = selector.select(members, message_3);
         Assert.assertEquals(workerRef_3.hashCode(), select_3.hashCode());
     }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testSelectError() {
+        HashCodeSelector selector = new HashCodeSelector();
+        selector.select(null, new Object());
+    }
 }

@@ -21,9 +21,6 @@ public class NodeRefResRecordAnswer implements Answer<Object> {
         AbstractNodeRefResSumAnalysis.NodeRefResRecord nodeRefResRecord = (AbstractNodeRefResSumAnalysis.NodeRefResRecord)invocation.getArguments()[0];
         String recordJsonStr = gson.toJson(nodeRefResRecord);
         JsonObject recordJsonObj = gson.fromJson(recordJsonStr, JsonObject.class);
-
-        System.out.printf("NodeRefId: %s \n", nodeRefResRecord.getNodeRefId());
-        System.out.printf("NodeRefResRecord data: %s \n", recordJsonStr);
         nodeRefResRecordList.add(recordJsonObj);
         return null;
     }

@@ -86,10 +86,10 @@ public class TraceDagGetWithTimeSliceTestCase {
 
     @Test
     public void testPreStart() throws ProviderNotFoundException {
-        when(clusterWorkerContext.findProvider(NodeCompLoad.WorkerRole.INSTANCE)).thenReturn(NodeCompLoad.Factory.INSTANCE);
-        when(clusterWorkerContext.findProvider(NodeMappingSearchWithTimeSlice.WorkerRole.INSTANCE)).thenReturn(NodeMappingSearchWithTimeSlice.Factory.INSTANCE);
-        when(clusterWorkerContext.findProvider(NodeRefSearchWithTimeSlice.WorkerRole.INSTANCE)).thenReturn(NodeRefSearchWithTimeSlice.Factory.INSTANCE);
-        when(clusterWorkerContext.findProvider(NodeRefResSumSearchWithTimeSlice.WorkerRole.INSTANCE)).thenReturn(NodeRefResSumSearchWithTimeSlice.Factory.INSTANCE);
+        when(clusterWorkerContext.findProvider(NodeCompLoad.WorkerRole.INSTANCE)).thenReturn(new NodeCompLoad.Factory());
+        when(clusterWorkerContext.findProvider(NodeMappingSearchWithTimeSlice.WorkerRole.INSTANCE)).thenReturn(new NodeMappingSearchWithTimeSlice.Factory());
+        when(clusterWorkerContext.findProvider(NodeRefSearchWithTimeSlice.WorkerRole.INSTANCE)).thenReturn(new NodeRefSearchWithTimeSlice.Factory());
+        when(clusterWorkerContext.findProvider(NodeRefResSumSearchWithTimeSlice.WorkerRole.INSTANCE)).thenReturn(new NodeRefResSumSearchWithTimeSlice.Factory());
 
         ArgumentCaptor<Role> argumentCaptor = ArgumentCaptor.forClass(Role.class);
         getObj.preStart();

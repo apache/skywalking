@@ -50,7 +50,6 @@ public class HTTPRestServiceTestApp {
         post.setEntity(entity);
         try {
             CloseableHttpResponse httpResponse = httpclient.execute(post);
-            System.out.println(httpResponse.getStatusLine().getStatusCode());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -69,7 +68,6 @@ public class HTTPRestServiceTestApp {
                 while ((str = br.readLine()) != null) {
                     wholeStr += str;
                 }
-                System.out.println(wholeStr);
                 response.setContentType("text/html; charset=utf-8");
                 response.setStatus(HttpServletResponse.SC_OK);
                 baseRequest.setHandled(true);

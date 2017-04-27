@@ -5,9 +5,9 @@ import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
 import com.a.eye.skywalking.collector.worker.Const;
 import com.a.eye.skywalking.collector.worker.RecordAnalysisMember;
 import com.a.eye.skywalking.collector.worker.node.NodeMappingIndex;
+import com.a.eye.skywalking.collector.worker.segment.entity.Segment;
+import com.a.eye.skywalking.collector.worker.segment.entity.TraceSegmentRef;
 import com.a.eye.skywalking.collector.worker.tools.CollectionTools;
-import com.a.eye.skywalking.trace.TraceSegment;
-import com.a.eye.skywalking.trace.TraceSegmentRef;
 import com.google.gson.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -26,7 +26,7 @@ abstract class AbstractNodeMappingAnalysis extends RecordAnalysisMember {
         super(role, clusterContext, selfContext);
     }
 
-    void analyseRefs(TraceSegment segment, long timeSlice) throws Exception {
+    final void analyseRefs(Segment segment, long timeSlice) throws Exception {
         List<TraceSegmentRef> segmentRefList = segment.getRefs();
         logger.debug("node mapping analysis refs isNotEmpty %s", CollectionTools.isNotEmpty(segmentRefList));
 
@@ -42,7 +42,7 @@ abstract class AbstractNodeMappingAnalysis extends RecordAnalysisMember {
                 nodeMappingJsonObj.addProperty(NodeMappingIndex.TIME_SLICE, timeSlice);
 
                 String id = timeSlice + Const.ID_SPLIT + code + Const.ID_SPLIT + peers;
-                setRecord(id, nodeMappingJsonObj);
+                set(id, nodeMappingJsonObj);
             }
         }
     }

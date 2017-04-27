@@ -80,7 +80,7 @@ public class NodeRefResSumGroupWithTimeSlice extends AbstractLocalSyncWorker {
             JsonObject resJsonObj = (JsonObject)response;
             resJsonObj.add("result", nodeRefResSumArray);
         } else {
-            throw new IllegalArgumentException("message instance must be RequestEntity");
+            logger.error("unhandled message, message instance must NodeRefResSumGroupWithTimeSlice.RequestEntity, but is %s", request.getClass().toString());
         }
     }
 
@@ -91,8 +91,6 @@ public class NodeRefResSumGroupWithTimeSlice extends AbstractLocalSyncWorker {
     }
 
     public static class Factory extends AbstractLocalSyncWorkerProvider<NodeRefResSumGroupWithTimeSlice> {
-        public static Factory INSTANCE = new Factory();
-
         @Override
         public Role role() {
             return WorkerRole.INSTANCE;

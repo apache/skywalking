@@ -4,7 +4,6 @@ import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
 import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
 import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
 import com.a.eye.skywalking.collector.worker.config.CacheSizeConfig;
-import com.a.eye.skywalking.collector.worker.config.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.mock.MockEsBulkClient;
 import com.a.eye.skywalking.collector.worker.segment.SegmentIndex;
 import com.a.eye.skywalking.collector.worker.storage.EsClient;
@@ -71,23 +70,9 @@ public class SegmentSaveTestCase {
 
     @Test
     public void testFactory() {
-        Assert.assertEquals(SegmentSave.class.getSimpleName(), SegmentSave.Factory.INSTANCE.role().roleName());
-        Assert.assertEquals(SegmentSave.class.getSimpleName(), SegmentSave.Factory.INSTANCE.workerInstance(null).getClass().getSimpleName());
-
-        int testSize = 10;
-        WorkerConfig.Queue.Segment.SegmentSave.SIZE = testSize;
-        Assert.assertEquals(testSize, SegmentSave.Factory.INSTANCE.queueSize());
-    }
-
-    @Test
-    public void testAnalyse() throws Exception {
-        CacheSizeConfig.Cache.Persistence.SIZE = 1;
-
-        JsonObject segment_1 = new JsonObject();
-        segment_1.addProperty("ts", "segment_1");
-        segmentSave.analyse(segment_1);
-
-        Assert.assertEquals("segment_1", saveToEsSource.ts);
+        SegmentSave.Factory factory = new SegmentSave.Factory();
+        Assert.assertEquals(SegmentSave.class.getSimpleName(), factory.role().roleName());
+        Assert.assertEquals(SegmentSave.class.getSimpleName(), factory.workerInstance(null).getClass().getSimpleName());
     }
 
     class SaveToEsSource implements Answer<Object> {
@@ -97,7 +82,7 @@ public class SegmentSaveTestCase {
         @Override
         public Object answer(InvocationOnMock invocation) throws Throwable {
             Gson gson = new Gson();
-            String source = (String)invocation.getArguments()[0];
+            String source = (String) invocation.getArguments()[0];
             JsonObject sourceJsonObj = gson.fromJson(source, JsonObject.class);
             ts = sourceJsonObj.get("ts").getAsString();
             return null;

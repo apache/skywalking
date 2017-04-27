@@ -28,10 +28,8 @@ public class NodeRefSearchWithTimeSliceUseDB {
         nodeRefSearch.onWork(requestEntity, response);
 
         JsonArray nodeRefArray = response.get("result").getAsJsonArray();
-        System.out.println(nodeRefArray.toString());
         for (int i = 0; i < nodeRefArray.size(); i++) {
             JsonObject nodeRefJsonObj = nodeRefArray.get(i).getAsJsonObject();
-            System.out.println(nodeRefJsonObj);
         }
     }
 }

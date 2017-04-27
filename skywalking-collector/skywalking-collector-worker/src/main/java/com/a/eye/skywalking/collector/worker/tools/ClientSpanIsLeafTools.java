@@ -1,7 +1,7 @@
 package com.a.eye.skywalking.collector.worker.tools;
 
-import com.a.eye.skywalking.trace.Span;
-import com.a.eye.skywalking.trace.tag.Tags;
+import com.a.eye.skywalking.collector.worker.segment.entity.Span;
+import com.a.eye.skywalking.collector.worker.segment.entity.tag.Tags;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

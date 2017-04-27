@@ -53,8 +53,9 @@ public class GlobalTraceSearchWithGlobalIdTestCase {
 
     @Test
     public void testFactory() {
-        Assert.assertEquals(GlobalTraceSearchWithGlobalId.class.getSimpleName(), GlobalTraceSearchWithGlobalId.Factory.INSTANCE.role().roleName());
-        Assert.assertEquals(GlobalTraceSearchWithGlobalId.class.getSimpleName(), GlobalTraceSearchWithGlobalId.Factory.INSTANCE.workerInstance(null).getClass().getSimpleName());
+        GlobalTraceSearchWithGlobalId.Factory factory = new GlobalTraceSearchWithGlobalId.Factory();
+        Assert.assertEquals(GlobalTraceSearchWithGlobalId.class.getSimpleName(), factory.role().roleName());
+        Assert.assertEquals(GlobalTraceSearchWithGlobalId.class.getSimpleName(), factory.workerInstance(null).getClass().getSimpleName());
     }
 
     @Test

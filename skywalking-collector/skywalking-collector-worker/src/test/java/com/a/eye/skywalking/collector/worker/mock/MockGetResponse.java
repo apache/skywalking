@@ -23,4 +23,17 @@ public class MockGetResponse {
 
         return getResponse;
     }
+
+    public GetResponse mockito(String index, String type, String id) {
+        MockEsClient mockEsClient = new MockEsClient();
+        Client client = mockEsClient.mock();
+
+        GetRequestBuilder builder = mock(GetRequestBuilder.class);
+        GetResponse getResponse = mock(GetResponse.class);
+        when(builder.get()).thenReturn(getResponse);
+
+        when(client.prepareGet(index, type, id)).thenReturn(builder);
+
+        return getResponse;
+    }
 }

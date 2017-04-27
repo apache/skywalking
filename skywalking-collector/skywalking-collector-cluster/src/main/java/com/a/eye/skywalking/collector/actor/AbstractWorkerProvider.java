@@ -24,9 +24,6 @@ public abstract class AbstractWorkerProvider<T extends AbstractWorker> implement
 
     final public WorkerRef create(
         AbstractWorker workerOwner) throws IllegalArgumentException, ProviderNotFoundException {
-        if (workerInstance(clusterContext) == null) {
-            throw new IllegalArgumentException("cannot get worker instance with nothing obtained from workerInstance()");
-        }
 
         if (workerOwner == null) {
             return onCreate(null);

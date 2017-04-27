@@ -46,11 +46,8 @@ public class NodeRefHourSaveTestCase {
 
     @Test
     public void testFactory() {
-        Assert.assertEquals(NodeRefHourSave.class.getSimpleName(), NodeRefHourSave.Factory.INSTANCE.role().roleName());
-        Assert.assertEquals(NodeRefHourSave.class.getSimpleName(), NodeRefHourSave.Factory.INSTANCE.workerInstance(null).getClass().getSimpleName());
-
-        int testSize = 10;
-        WorkerConfig.Queue.NodeRef.NodeRefHourSave.SIZE = testSize;
-        Assert.assertEquals(testSize, NodeRefHourSave.Factory.INSTANCE.queueSize());
+        NodeRefHourSave.Factory factory = new NodeRefHourSave.Factory();
+        Assert.assertEquals(NodeRefHourSave.class.getSimpleName(), factory.role().roleName());
+        Assert.assertEquals(NodeRefHourSave.class.getSimpleName(), factory.workerInstance(null).getClass().getSimpleName());
     }
 }

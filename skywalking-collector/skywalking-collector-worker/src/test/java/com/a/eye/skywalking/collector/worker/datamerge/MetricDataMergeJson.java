@@ -2,7 +2,6 @@ package com.a.eye.skywalking.collector.worker.datamerge;
 
 import com.a.eye.skywalking.collector.worker.Const;
 import com.a.eye.skywalking.collector.worker.storage.MetricData;
-import com.a.eye.skywalking.collector.worker.storage.RecordData;
 import com.a.eye.skywalking.collector.worker.tools.DateTools;
 import com.a.eye.skywalking.collector.worker.tools.JsonFileReader;
 import com.google.gson.Gson;
@@ -56,7 +55,6 @@ public enum MetricDataMergeJson {
             if (!entry.getValue().isJsonNull()) {
                 value = entry.getValue().getAsString();
             }
-            System.out.printf("key: %s, value: %s \n", key, value);
 
             if (entry.getValue().isJsonNull()) {
                 Assert.assertEquals(true, actualData.get(key).isJsonNull());
@@ -75,7 +73,7 @@ public enum MetricDataMergeJson {
         Map<String, JsonObject> recordDataMap = new HashMap<>();
         Gson gson = new Gson();
         for (MetricData metricData : recordDataList) {
-            JsonObject jsonObject = gson.fromJson(gson.toJson(metricData.toMap()), JsonObject.class);
+            JsonObject jsonObject = gson.fromJson(gson.toJson(metricData.asMap()), JsonObject.class);
             recordDataMap.put(id2UTCSlice(metricData.getId()), jsonObject);
         }
         return recordDataMap;
@@ -91,7 +89,6 @@ public enum MetricDataMergeJson {
             changedId = changedId + Const.ID_SPLIT + ids[i];
         }
         changedId = String.valueOf(changedSlice) + changedId;
-        System.out.printf("changedId: %s", changedId);
         return changedId;
     }
 }

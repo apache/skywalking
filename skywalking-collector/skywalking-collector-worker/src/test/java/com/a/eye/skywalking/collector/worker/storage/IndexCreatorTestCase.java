@@ -120,6 +120,11 @@ public class IndexCreatorTestCase {
         }
 
         @Override
+        public int refreshInterval() {
+            return 0;
+        }
+
+        @Override
         public XContentBuilder createMappingBuilder() throws IOException {
             return XContentFactory.jsonBuilder();
         }

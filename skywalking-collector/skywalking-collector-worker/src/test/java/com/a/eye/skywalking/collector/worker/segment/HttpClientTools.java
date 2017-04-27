@@ -36,18 +36,17 @@ public enum HttpClientTools {
 
             try (CloseableHttpResponse response = httpClient.execute(httpget)) {
                 HttpEntity entity = response.getEntity();
-                System.out.println(response.getStatusLine());
                 if (entity != null) {
                     return EntityUtils.toString(entity);
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e);
         } finally {
             try {
                 httpClient.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.error(e);
             }
         }
         return null;
@@ -66,12 +65,12 @@ public enum HttpClientTools {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e);
         } finally {
             try {
                 httpClient.close();
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error(e);
             }
         }
         return null;

@@ -1,6 +1,6 @@
 package com.a.eye.skywalking.collector.worker.tools;
 
-import com.a.eye.skywalking.trace.Span;
+import com.a.eye.skywalking.collector.worker.segment.entity.Span;
 import org.junit.Assert;
 import org.junit.Test;
 

@@ -1,24 +1,24 @@
 package com.a.eye.skywalking.collector.worker.noderef.analysis;
 
-import com.a.eye.skywalking.collector.actor.AbstractLocalAsyncWorkerProvider;
-import com.a.eye.skywalking.collector.actor.ClusterWorkerContext;
-import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
-import com.a.eye.skywalking.collector.actor.ProviderNotFoundException;
+import com.a.eye.skywalking.collector.actor.*;
 import com.a.eye.skywalking.collector.actor.selector.RollingSelector;
 import com.a.eye.skywalking.collector.actor.selector.WorkerSelector;
 import com.a.eye.skywalking.collector.worker.config.WorkerConfig;
 import com.a.eye.skywalking.collector.worker.noderef.persistence.NodeRefHourAgg;
 import com.a.eye.skywalking.collector.worker.segment.SegmentPost;
-import com.a.eye.skywalking.collector.worker.storage.RecordData;
-import com.a.eye.skywalking.trace.TraceSegment;
+import com.a.eye.skywalking.collector.worker.segment.entity.Segment;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * @author pengys5
  */
 public class NodeRefHourAnalysis extends AbstractNodeRefAnalysis {
 
+    private Logger logger = LogManager.getFormatterLogger(NodeRefHourAnalysis.class);
+
     protected NodeRefHourAnalysis(com.a.eye.skywalking.collector.actor.Role role, ClusterWorkerContext clusterContext,
-        LocalWorkerContext selfContext) {
+                                  LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
@@ -31,14 +31,16 @@ public class NodeRefHourAnalysis extends AbstractNodeRefAnalysis {
     @Override
     public void analyse(Object message) throws Exception {
         if (message instanceof SegmentPost.SegmentWithTimeSlice) {
-            SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice = (SegmentPost.SegmentWithTimeSlice)message;
-            TraceSegment segment = segmentWithTimeSlice.getTraceSegment();
+            SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice = (SegmentPost.SegmentWithTimeSlice) message;
+            Segment segment = segmentWithTimeSlice.getSegment();
 
             long minute = segmentWithTimeSlice.getMinute();
             long hour = segmentWithTimeSlice.getHour();
             long day = segmentWithTimeSlice.getDay();
             int second = segmentWithTimeSlice.getSecond();
             analyseNodeRef(segment, segmentWithTimeSlice.getHour(), minute, hour, day, second);
+        } else {
+            logger.error("unhandled message, message instance must SegmentPost.SegmentWithTimeSlice, but is %s", message.getClass().toString());
         }
     }
 
@@ -48,17 +50,16 @@ public class NodeRefHourAnalysis extends AbstractNodeRefAnalysis {
     }
 
     @Override
-    protected void aggregation() throws Exception {
-        RecordData oneRecord;
-        while ((oneRecord = pushOne()) != null) {
-            getClusterContext().lookup(NodeRefHourAgg.Role.INSTANCE).tell(oneRecord);
+    protected WorkerRefs aggWorkRefs() {
+        try {
+            return getClusterContext().lookup(NodeRefHourAgg.Role.INSTANCE);
+        } catch (WorkerNotFoundException e) {
+            logger.error("The role of %s worker not found", NodeRefHourAgg.Role.INSTANCE.roleName());
         }
+        return null;
     }
 
     public static class Factory extends AbstractLocalAsyncWorkerProvider<NodeRefHourAnalysis> {
-
-        public static Factory INSTANCE = new Factory();
-
         @Override
         public Role role() {
             return Role.INSTANCE;

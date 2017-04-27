@@ -21,8 +21,7 @@ public class TestAbstractPost extends AbstractPost {
     }
 
     @Override
-    protected void onReceive(String reqJsonStr) throws Exception {
-
+    protected void onReceive(Object message) throws Exception {
     }
 
     public enum WorkerRole implements Role {
@@ -40,8 +39,6 @@ public class TestAbstractPost extends AbstractPost {
     }
 
     public static class Factory extends AbstractPostProvider<TestAbstractPost> {
-        public static Factory INSTANCE = new Factory();
-
         @Override
         public String servletPath() {
             return "/TestAbstractPost";

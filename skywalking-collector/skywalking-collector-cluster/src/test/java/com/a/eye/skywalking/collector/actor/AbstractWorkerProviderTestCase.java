@@ -6,6 +6,7 @@ import org.junit.runner.RunWith;
 import static org.powermock.api.mockito.PowerMockito.*;
 
 import org.mockito.Mockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -14,6 +15,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({AbstractWorker.class})
+@PowerMockIgnore({"javax.management.*"})
 public class AbstractWorkerProviderTestCase {
 
     @Test(expected = IllegalArgumentException.class)

@@ -30,11 +30,14 @@ public abstract class AbstractIndex {
 
     final XContentBuilder createSettingBuilder() throws IOException {
         return XContentFactory.jsonBuilder()
-            .startObject()
-            .field("index.number_of_shards", EsConfig.Es.Index.Shards.NUMBER)
-            .field("index.number_of_replicas", EsConfig.Es.Index.Replicas.NUMBER)
-            .endObject();
+                .startObject()
+                .field("index.number_of_shards", EsConfig.Es.Index.Shards.NUMBER)
+                .field("index.number_of_replicas", EsConfig.Es.Index.Replicas.NUMBER)
+                .field("index.refresh_interval", String.valueOf(refreshInterval()) + "s")
+                .endObject();
     }
+
+    public abstract int refreshInterval();
 
     public abstract boolean isRecord();
 
