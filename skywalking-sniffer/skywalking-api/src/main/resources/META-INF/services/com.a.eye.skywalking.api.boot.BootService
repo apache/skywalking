@@ -1,4 +1,0 @@
-com.a.eye.skywalking.api.queue.TraceSegmentProcessQueue
-com.a.eye.skywalking.api.context.ContextManager
-com.a.eye.skywalking.api.client.CollectorClientService
-com.a.eye.skywalking.api.sampling.SamplingService

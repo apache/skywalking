@@ -1,4 +1,0 @@
-com.a.eye.skywalking.plugin.httpClient.v4.define.AbstractHttpClientInstrumentation
-com.a.eye.skywalking.plugin.httpClient.v4.define.InternalHttpClientInstrumentation
-com.a.eye.skywalking.plugin.httpClient.v4.define.MinimalHttpClientInstrumentation
-com.a.eye.skywalking.plugin.httpClient.v4.define.DefaultRequestDirectorInstrumentation

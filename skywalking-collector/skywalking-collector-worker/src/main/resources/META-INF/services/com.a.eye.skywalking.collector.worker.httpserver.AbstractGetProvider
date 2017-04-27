@@ -1,6 +1,0 @@
-com.a.eye.skywalking.collector.worker.noderef.NodeRefResSumGetGroupWithTimeSlice$Factory
-com.a.eye.skywalking.collector.worker.segment.SegmentTopGetWithTimeSlice$Factory
-com.a.eye.skywalking.collector.worker.globaltrace.GlobalTraceGetWithGlobalId$Factory
-com.a.eye.skywalking.collector.worker.segment.SegmentTopGetWithGlobalTraceId$Factory
-com.a.eye.skywalking.collector.worker.span.SpanGetWithId$Factory
-com.a.eye.skywalking.collector.worker.tracedag.TraceDagGetWithTimeSlice$Factory
