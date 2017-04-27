@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.a.eye</groupId>
-    <artifactId>sky-walking-ui</artifactId>
+    <groupId>org.skywalking</groupId>
+    <artifactId>apm-ui</artifactId>
     <version>3.1-2017</version>
     <packaging>jar</packaging>
 

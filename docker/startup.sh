@@ -21,4 +21,4 @@ do
 done
 
 echo "Starting web service...."
-$_RUNJAVA ${JAVA_OPTS} -classpath $CLASSPATH com.a.eye.skywalking.ui.ApplicationStartUp
+$_RUNJAVA ${JAVA_OPTS} -classpath $CLASSPATH ApplicationStartUp
