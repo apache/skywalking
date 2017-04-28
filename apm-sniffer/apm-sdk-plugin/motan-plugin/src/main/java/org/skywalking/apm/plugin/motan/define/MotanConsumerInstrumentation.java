@@ -19,7 +19,7 @@ public class MotanConsumerInstrumentation extends ClassInstanceMethodsEnhancePlu
 
     private static final String ENHANCE_CLASS = "com.weibo.api.motan.transport.ProviderMessageRouter";
 
-    private static final String INVOKE_INTERCEPT_CLASS = "MotanProviderInterceptor";
+    private static final String INVOKE_INTERCEPT_CLASS = "org.skywalking.apm.plugin.motan.MotanProviderInterceptor";
 
     @Override
     protected String enhanceClassName() {

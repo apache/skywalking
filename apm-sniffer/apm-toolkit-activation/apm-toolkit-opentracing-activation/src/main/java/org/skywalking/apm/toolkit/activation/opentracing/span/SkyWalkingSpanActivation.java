@@ -48,7 +48,7 @@ public class SkyWalkingSpanActivation extends ClassInstanceMethodsEnhancePluginD
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return "SpanSetTagInterceptor";
+                    return "org.skywalking.apm.toolkit.activation.opentracing.span.interceptor.SpanSetTagInterceptor";
                 }
             },
             new InstanceMethodsInterceptPoint() {
@@ -59,7 +59,7 @@ public class SkyWalkingSpanActivation extends ClassInstanceMethodsEnhancePluginD
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return "SpanSetOperationNameInterceptor";
+                    return "org.skywalking.apm.toolkit.activation.opentracing.span.interceptor.SpanSetOperationNameInterceptor";
                 }
             },
             new InstanceMethodsInterceptPoint() {
@@ -70,7 +70,7 @@ public class SkyWalkingSpanActivation extends ClassInstanceMethodsEnhancePluginD
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return "SpanFinishInterceptor";
+                    return "org.skywalking.apm.toolkit.activation.opentracing.span.interceptor.SpanFinishInterceptor";
                 }
             }
         };

@@ -30,10 +30,10 @@ public class JedisInstrumentation extends ClassInstanceMethodsEnhancePluginDefin
 
     private static final String HOST_AND_PORT_ARG_TYPE_NAME = "redis.clients.jedis.HostAndPort";
     private static final String ENHANCE_CLASS = "redis.clients.jedis.Jedis";
-    private static final String CONSTRUCTOR_WITH_STRING_ARG_INTERCEPT_CLASS = "JedisConstructorWithStringArgInterceptor";
-    private static final String CONSTRUCTOR_WITH_SHARD_INFO_ARG_INTERCEPT_CLASS = "JedisConstructorWithShardInfoArgInterceptor";
-    private static final String CONSTRUCTOR_WITH_URI_ARG_INTERCEPT_CLASS = "JedisConstructorWithUriArgInterceptor";
-    private static final String JEDIS_METHOD_INTERCET_CLASS = "JedisMethodInterceptor";
+    private static final String CONSTRUCTOR_WITH_STRING_ARG_INTERCEPT_CLASS = "org.skywalking.apm.plugin.jedis.v2.JedisConstructorWithStringArgInterceptor";
+    private static final String CONSTRUCTOR_WITH_SHARD_INFO_ARG_INTERCEPT_CLASS = "org.skywalking.apm.plugin.jedis.v2.JedisConstructorWithShardInfoArgInterceptor";
+    private static final String CONSTRUCTOR_WITH_URI_ARG_INTERCEPT_CLASS = "org.skywalking.apm.plugin.jedis.v2.JedisConstructorWithUriArgInterceptor";
+    private static final String JEDIS_METHOD_INTERCET_CLASS = "org.skywalking.apm.plugin.jedis.v2.JedisMethodInterceptor";
 
     @Override
     public String enhanceClassName() {

@@ -27,7 +27,7 @@ public class TomcatInstrumentation extends ClassInstanceMethodsEnhancePluginDefi
     /**
      * Intercept class.
      */
-    private static final String INTERCEPT_CLASS = "TomcatInterceptor";
+    private static final String INTERCEPT_CLASS = "org.skywalking.apm.plugin.tomcat78x.TomcatInterceptor";
 
     @Override
     protected String enhanceClassName() {

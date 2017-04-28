@@ -1,2 +1,2 @@
-SkyWalkingSpanActivation
-SkyWalkingTracerActivation
+org.skywalking.apm.toolkit.activation.opentracing.span.SkyWalkingSpanActivation
+org.skywalking.apm.toolkit.activation.opentracing.tracer.SkyWalkingTracerActivation
