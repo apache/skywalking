@@ -11,7 +11,6 @@ Sky Walking | [中文](https://github.com/wu-sheng/sky-walking/wiki/sky-walking-
 [![codebeat badge](https://codebeat.co/badges/579e4dce-1dc7-4f32-a163-c164eafa1335)](https://codebeat.co/projects/github-com-wu-sheng-sky-walking)
 [![Join the chat at https://gitter.im/sky-walking/Lobby](https://badges.gitter.im/sky-walking/Lobby.svg)](https://gitter.im/sky-walking/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![OpenTracing-1.0 Badge](https://img.shields.io/badge/OpenTracing--1.0-enabled-blue.svg)](http://opentracing.io)
-[![Release Version](https://img.shields.io/badge/release-3.0--2017-brightgreen.svg)](https://github.com/wu-sheng/sky-walking/releases)
 
 
 * Auto-instrumentation mechanism, **no need to CHANGE any application source code**. [Supported middlewares, frameworks and libraries](https://github.com/wu-sheng/sky-walking/wiki/3.0-supported-list).
@@ -56,6 +55,6 @@ _In chronological order_
 # Document
 * [WIKI](https://github.com/wu-sheng/sky-walking/wiki)
 
-_Chat with us on gitter, in English. As a Chinese Developer, you can join QQ Group: 392443393, and **Tagged** Sky-Walking._
+_Chat with us on gitter, in English. As a Chinese Developer, you can join QQ Group: 392443393, by **tagging** Sky-Walking._
 
 _sky-walking 1.x and 2.x provide features about tracing only, did not include any analysis abilities._
