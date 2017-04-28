@@ -39,7 +39,7 @@ public class Log4j2OutputAppenderActivation extends ClassStaticMethodsEnhancePlu
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return "PrintTraceIdInterceptor";
+                    return "org.skywalking.apm.toolkit.activation.log.log4j.v2.x.PrintTraceIdInterceptor";
                 }
             }
         };

@@ -19,11 +19,11 @@ public class MongoDBInstrumentation extends ClassInstanceMethodsEnhancePluginDef
 
     private static final String ENHANCE_CLASS = "com.mongodb.Mongo";
 
-    private static final String MONGDB_READ_BINDING_CLASS = "MongoDBReadBindingInterceptor";
+    private static final String MONGDB_READ_BINDING_CLASS = "org.skywalking.apm.plugin.mongodb.v3.MongoDBReadBindingInterceptor";
 
-    private static final String MONGDB_WRITE_BINDING_CLASS = "MongoDBWriteBindingInterceptor";
+    private static final String MONGDB_WRITE_BINDING_CLASS = "org.skywalking.apm.plugin.mongodb.v3.MongoDBWriteBindingInterceptor";
 
-    private static final String MONGDB_METHOD_INTERCET_CLASS = "MongoDBMethodInterceptor";
+    private static final String MONGDB_METHOD_INTERCET_CLASS = "org.skywalking.apm.plugin.mongodb.v3.MongoDBMethodInterceptor";
 
     @Override
     protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {

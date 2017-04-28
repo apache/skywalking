@@ -12,7 +12,7 @@ import org.skywalking.apm.plugin.httpClient.v4.HttpClientExecuteInterceptor;
  */
 public abstract class HttpClientInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    private static final String INTERCEPT_CLASS = "HttpClientExecuteInterceptor";
+    private static final String INTERCEPT_CLASS = "org.skywalking.apm.plugin.httpClient.v4.HttpClientExecuteInterceptor";
 
     @Override
     protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
