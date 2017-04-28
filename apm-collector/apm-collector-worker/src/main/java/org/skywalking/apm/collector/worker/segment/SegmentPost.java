@@ -2,7 +2,7 @@ package org.skywalking.apm.collector.worker.segment;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.skywalking.apm.api.util.StringUtil;
+import org.skywalking.apm.util.StringUtil;
 import org.skywalking.apm.collector.actor.ClusterWorkerContext;
 import org.skywalking.apm.collector.actor.LocalWorkerContext;
 import org.skywalking.apm.collector.actor.ProviderNotFoundException;

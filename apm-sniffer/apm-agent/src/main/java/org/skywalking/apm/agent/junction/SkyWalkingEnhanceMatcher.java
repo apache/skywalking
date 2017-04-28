@@ -1,7 +1,7 @@
 package org.skywalking.apm.agent.junction;
 
 import net.bytebuddy.description.NamedElement;
-import org.skywalking.apm.api.plugin.PluginFinder;
+import org.skywalking.apm.agent.core.plugin.PluginFinder;
 
 /**
  * The matcher bases on byte-buddy {@link AbstractJunction} class.

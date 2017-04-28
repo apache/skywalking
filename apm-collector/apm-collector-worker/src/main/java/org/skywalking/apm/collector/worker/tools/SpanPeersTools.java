@@ -1,6 +1,6 @@
 package org.skywalking.apm.collector.worker.tools;
 
-import org.skywalking.apm.api.util.StringUtil;
+import org.skywalking.apm.util.StringUtil;
 import org.skywalking.apm.collector.worker.Const;
 import org.skywalking.apm.collector.worker.segment.entity.Span;
 import org.skywalking.apm.collector.worker.segment.entity.tag.Tags;

@@ -14,7 +14,7 @@
 
     <modules>
         <module>apm-agent</module>
-        <module>apm-api</module>
+        <module>apm-agent-core</module>
         <module>apm-sdk-plugin</module>
         <module>apm-toolkit-activation</module>
         <module>apm-sniffer-mock</module>

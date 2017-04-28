@@ -22,7 +22,7 @@
     <dependencies>
         <dependency>
             <groupId>org.skywalking</groupId>
-            <artifactId>apm-api</artifactId>
+            <artifactId>apm-agent-core</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

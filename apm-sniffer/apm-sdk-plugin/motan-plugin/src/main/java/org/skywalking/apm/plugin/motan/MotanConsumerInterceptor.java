@@ -3,10 +3,14 @@ package org.skywalking.apm.plugin.motan;
 import com.weibo.api.motan.rpc.Request;
 import com.weibo.api.motan.rpc.Response;
 import com.weibo.api.motan.rpc.URL;
-import org.skywalking.apm.api.context.ContextCarrier;
-import org.skywalking.apm.api.context.ContextManager;
-import org.skywalking.apm.api.plugin.interceptor.EnhancedClassInstanceContext;
-import org.skywalking.apm.api.plugin.interceptor.enhance.*;
+import org.skywalking.apm.agent.core.context.ContextCarrier;
+import org.skywalking.apm.agent.core.context.ContextManager;
+import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceContext;
+import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ConstructorInvokeContext;
+import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
+import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodInvokeContext;
+import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
+import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.skywalking.apm.trace.Span;
 import org.skywalking.apm.trace.tag.Tags;
 

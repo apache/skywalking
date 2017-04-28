@@ -1,12 +1,12 @@
 package org.skywalking.apm.plugin.jedis.v2;
 
-import org.skywalking.apm.api.context.ContextManager;
-import org.skywalking.apm.api.plugin.interceptor.EnhancedClassInstanceContext;
-import org.skywalking.apm.api.plugin.interceptor.assist.NoConcurrencyAccessObject;
-import org.skywalking.apm.api.plugin.interceptor.enhance.InstanceMethodInvokeContext;
-import org.skywalking.apm.api.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
-import org.skywalking.apm.api.plugin.interceptor.enhance.MethodInterceptResult;
-import org.skywalking.apm.api.util.StringUtil;
+import org.skywalking.apm.agent.core.context.ContextManager;
+import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceContext;
+import org.skywalking.apm.agent.core.plugin.interceptor.assist.NoConcurrencyAccessObject;
+import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodInvokeContext;
+import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
+import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.skywalking.apm.util.StringUtil;
 import org.skywalking.apm.trace.Span;
 import org.skywalking.apm.trace.tag.Tags;
 

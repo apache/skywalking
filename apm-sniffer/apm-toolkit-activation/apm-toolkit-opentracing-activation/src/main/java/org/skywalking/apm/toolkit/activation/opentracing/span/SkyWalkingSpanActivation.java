@@ -2,9 +2,9 @@ package org.skywalking.apm.toolkit.activation.opentracing.span;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
-import org.skywalking.apm.api.plugin.interceptor.ConstructorInterceptPoint;
-import org.skywalking.apm.api.plugin.interceptor.InstanceMethodsInterceptPoint;
-import org.skywalking.apm.api.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
+import org.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
+import org.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
+import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 
 import java.util.Map;
 

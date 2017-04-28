@@ -6,8 +6,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-import org.skywalking.apm.api.plugin.interceptor.EnhancedClassInstanceContext;
-import org.skywalking.apm.api.plugin.interceptor.enhance.ConstructorInvokeContext;
+import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceContext;
+import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ConstructorInvokeContext;
 
 import java.net.URI;
 

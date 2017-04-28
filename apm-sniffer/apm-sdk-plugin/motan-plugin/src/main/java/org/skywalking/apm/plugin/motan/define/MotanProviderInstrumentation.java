@@ -3,9 +3,9 @@ package org.skywalking.apm.plugin.motan.define;
 import com.weibo.api.motan.rpc.Request;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
-import org.skywalking.apm.api.plugin.interceptor.ConstructorInterceptPoint;
-import org.skywalking.apm.api.plugin.interceptor.InstanceMethodsInterceptPoint;
-import org.skywalking.apm.api.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
+import org.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
+import org.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
+import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.skywalking.apm.plugin.motan.MotanConsumerInterceptor;
 
 import static net.bytebuddy.matcher.ElementMatchers.any;

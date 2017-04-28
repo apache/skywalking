@@ -2,10 +2,10 @@ package org.skywalking.apm.plugin.jedis.v2.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
-import org.skywalking.apm.api.plugin.bytebuddy.AllObjectDefaultMethodsMatch;
-import org.skywalking.apm.api.plugin.interceptor.ConstructorInterceptPoint;
-import org.skywalking.apm.api.plugin.interceptor.InstanceMethodsInterceptPoint;
-import org.skywalking.apm.api.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
+import org.skywalking.apm.agent.core.plugin.bytebuddy.AllObjectDefaultMethodsMatch;
+import org.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
+import org.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
+import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.skywalking.apm.plugin.jedis.v2.JedisClusterConstructorWithHostAndPortArgInterceptor;
 import org.skywalking.apm.plugin.jedis.v2.JedisClusterConstructorWithListHostAndPortArgInterceptor;
 import org.skywalking.apm.plugin.jedis.v2.JedisMethodInterceptor;
@@ -13,7 +13,7 @@ import org.skywalking.apm.plugin.jedis.v2.JedisMethodInterceptor;
 import java.util.Set;
 
 import static net.bytebuddy.matcher.ElementMatchers.*;
-import static org.skywalking.apm.api.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
+import static org.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 
 /**
  * {@link JedisClusterInstrumentation} presents that skywalking intercepts all constructors and methods of {@link

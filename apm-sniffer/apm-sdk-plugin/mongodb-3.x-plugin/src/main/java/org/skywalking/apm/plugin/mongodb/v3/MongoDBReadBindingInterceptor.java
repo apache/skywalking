@@ -3,10 +3,10 @@ package org.skywalking.apm.plugin.mongodb.v3;
 import com.mongodb.ReadPreference;
 import com.mongodb.ServerAddress;
 import com.mongodb.binding.ReadBinding;
-import org.skywalking.apm.api.plugin.interceptor.EnhancedClassInstanceContext;
-import org.skywalking.apm.api.plugin.interceptor.enhance.InstanceMethodInvokeContext;
-import org.skywalking.apm.api.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
-import org.skywalking.apm.api.plugin.interceptor.enhance.MethodInterceptResult;
+import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceContext;
+import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodInvokeContext;
+import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
+import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 
 /**
  * {@link MongoDBReadBindingInterceptor} record the host and port information

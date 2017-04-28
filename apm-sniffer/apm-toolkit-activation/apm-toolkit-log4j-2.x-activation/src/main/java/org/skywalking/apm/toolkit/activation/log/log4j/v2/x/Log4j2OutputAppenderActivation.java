@@ -2,8 +2,8 @@ package org.skywalking.apm.toolkit.activation.log.log4j.v2.x;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
-import org.skywalking.apm.api.plugin.interceptor.StaticMethodsInterceptPoint;
-import org.skywalking.apm.api.plugin.interceptor.enhance.ClassStaticMethodsEnhancePluginDefine;
+import org.skywalking.apm.agent.core.plugin.interceptor.StaticMethodsInterceptPoint;
+import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassStaticMethodsEnhancePluginDefine;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 

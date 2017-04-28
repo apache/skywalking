@@ -1,9 +1,9 @@
 package org.skywalking.apm.toolkit.activation.opentracing.span.interceptor;
 
-import org.skywalking.apm.api.context.ContextManager;
-import org.skywalking.apm.api.plugin.interceptor.EnhancedClassInstanceContext;
-import org.skywalking.apm.api.plugin.interceptor.enhance.ConstructorInvokeContext;
-import org.skywalking.apm.api.plugin.interceptor.enhance.InstanceConstructorInterceptor;
+import org.skywalking.apm.agent.core.context.ContextManager;
+import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceContext;
+import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ConstructorInvokeContext;
+import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 import org.skywalking.apm.toolkit.opentracing.SkyWalkingSpan;
 import org.skywalking.apm.trace.Span;
 

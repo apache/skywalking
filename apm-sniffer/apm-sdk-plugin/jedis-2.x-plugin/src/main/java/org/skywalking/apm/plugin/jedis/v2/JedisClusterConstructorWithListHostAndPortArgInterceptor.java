@@ -1,8 +1,8 @@
 package org.skywalking.apm.plugin.jedis.v2;
 
-import org.skywalking.apm.api.plugin.interceptor.EnhancedClassInstanceContext;
-import org.skywalking.apm.api.plugin.interceptor.enhance.ConstructorInvokeContext;
-import org.skywalking.apm.api.plugin.interceptor.enhance.InstanceConstructorInterceptor;
+import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceContext;
+import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ConstructorInvokeContext;
+import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 import redis.clients.jedis.HostAndPort;
 
 import java.util.Set;
