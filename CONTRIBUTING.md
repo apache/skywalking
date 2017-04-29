@@ -10,6 +10,8 @@ Please observe the following rules:
 1. If your issues have been confirmed, you can develop features, or fix bugs, on your fork repo, and send PR.
 1. We will have a discussion on that PR, when everything looks good, I will merge it. And, Wo-ah, you will begin an official contributor of **sky-walking**
 
+**Anyone, who contributes at least one plugin or new feature, can ask for joinging [sky-walking contributor organizations](https://github.com/sky-walking), by @mention us(@wu-sheng or @sky-walking) in your merged pr.**
+
 ---
 
 All features or bug-fix codes have been merged into this repo, they belong to sky-walking team, with [GPL-3.0](https://github.com/wu-sheng/sky-walking/blob/master/LICENSE) protocol.
