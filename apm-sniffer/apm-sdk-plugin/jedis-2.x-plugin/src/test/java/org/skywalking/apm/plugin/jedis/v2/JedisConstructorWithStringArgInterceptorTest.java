@@ -5,8 +5,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.skywalking.apm.api.plugin.interceptor.EnhancedClassInstanceContext;
-import org.skywalking.apm.api.plugin.interceptor.enhance.ConstructorInvokeContext;
+import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceContext;
+import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ConstructorInvokeContext;
 
 import static org.mockito.Mockito.*;
 import static org.skywalking.apm.plugin.jedis.v2.JedisMethodInterceptor.*;

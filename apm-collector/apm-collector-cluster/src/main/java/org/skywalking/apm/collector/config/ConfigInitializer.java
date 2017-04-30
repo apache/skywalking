@@ -34,7 +34,7 @@ public enum ConfigInitializer {
         for (ConfigProvider provider : configProviders) {
             logger.info("configProvider provider name: %s", provider.getClass().getName());
             Class configClass = provider.configClass();
-            org.skywalking.apm.api.util.ConfigInitializer.initialize(properties, configClass);
+            org.skywalking.apm.util.ConfigInitializer.initialize(properties, configClass);
         }
     }
 }

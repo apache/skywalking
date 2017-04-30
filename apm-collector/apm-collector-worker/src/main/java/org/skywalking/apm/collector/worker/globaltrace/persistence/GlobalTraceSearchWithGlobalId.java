@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.skywalking.apm.api.util.StringUtil;
+import org.skywalking.apm.util.StringUtil;
 import org.skywalking.apm.collector.actor.*;
 import org.skywalking.apm.collector.actor.selector.RollingSelector;
 import org.skywalking.apm.collector.actor.selector.WorkerSelector;

@@ -1,4 +1,0 @@
-org.skywalking.apm.api.queue.TraceSegmentProcessQueue
-org.skywalking.apm.api.context.ContextManager
-org.skywalking.apm.api.client.CollectorClientService
-org.skywalking.apm.api.sampling.SamplingService

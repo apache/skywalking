@@ -2,9 +2,9 @@ package org.skywalking.apm.toolkit.activation.log.log4j.v1.x;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
-import org.skywalking.apm.api.plugin.interceptor.ConstructorInterceptPoint;
-import org.skywalking.apm.api.plugin.interceptor.InstanceMethodsInterceptPoint;
-import org.skywalking.apm.api.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
+import org.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
+import org.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
+import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 

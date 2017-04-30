@@ -1,7 +1,7 @@
 package org.skywalking.apm.plugin.httpClient.v4.define;
 
-import org.skywalking.apm.api.plugin.interceptor.ConstructorInterceptPoint;
-import org.skywalking.apm.api.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
+import org.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
+import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.skywalking.apm.plugin.httpClient.v4.HttpClientExecuteInterceptor;
 
 /**

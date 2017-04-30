@@ -1,10 +1,10 @@
 package org.skywalking.apm.toolkit.activation.trace;
 
-import org.skywalking.apm.api.context.ContextManager;
-import org.skywalking.apm.api.plugin.interceptor.enhance.MethodInterceptResult;
-import org.skywalking.apm.api.plugin.interceptor.enhance.MethodInvokeContext;
-import org.skywalking.apm.api.plugin.interceptor.enhance.StaticMethodInvokeContext;
-import org.skywalking.apm.api.plugin.interceptor.enhance.StaticMethodsAroundInterceptor;
+import org.skywalking.apm.agent.core.context.ContextManager;
+import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInvokeContext;
+import org.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMethodInvokeContext;
+import org.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMethodsAroundInterceptor;
 import org.skywalking.apm.logging.ILog;
 import org.skywalking.apm.logging.LogManager;
 

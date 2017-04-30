@@ -1,6 +1,6 @@
 package org.skywalking.apm.sniffer.mock.trace.builders.span;
 
-import org.skywalking.apm.api.context.ContextManager;
+import org.skywalking.apm.agent.core.context.ContextManager;
 import org.skywalking.apm.trace.Span;
 import org.skywalking.apm.trace.tag.Tags;
 

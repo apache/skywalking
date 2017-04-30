@@ -3,7 +3,7 @@ package org.skywalking.apm.sniffer.mock;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.skywalking.apm.api.boot.ServiceManager;
+import org.skywalking.apm.agent.core.boot.ServiceManager;
 import org.skywalking.apm.sniffer.mock.context.MockTracerContextListener;
 import org.skywalking.apm.sniffer.mock.context.SegmentAssert;
 import org.skywalking.apm.sniffer.mock.trace.TraceSegmentBuilderFactory;

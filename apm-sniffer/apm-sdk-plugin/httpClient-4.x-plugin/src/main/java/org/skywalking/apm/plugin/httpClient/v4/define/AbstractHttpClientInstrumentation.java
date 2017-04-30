@@ -5,7 +5,7 @@ import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.protocol.HttpContext;
-import org.skywalking.apm.api.plugin.interceptor.InstanceMethodsInterceptPoint;
+import org.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 

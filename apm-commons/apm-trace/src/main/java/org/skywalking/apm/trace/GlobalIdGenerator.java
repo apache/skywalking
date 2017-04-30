@@ -1,7 +1,7 @@
 package org.skywalking.apm.trace;
 
-import org.skywalking.apm.api.util.MachineInfo;
-import org.skywalking.apm.api.util.StringUtil;
+import org.skywalking.apm.util.MachineInfo;
+import org.skywalking.apm.util.StringUtil;
 
 import java.util.UUID;
 

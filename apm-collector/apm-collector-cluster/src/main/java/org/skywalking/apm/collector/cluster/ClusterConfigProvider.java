@@ -1,6 +1,6 @@
 package org.skywalking.apm.collector.cluster;
 
-import org.skywalking.apm.api.util.StringUtil;
+import org.skywalking.apm.util.StringUtil;
 import org.skywalking.apm.collector.config.ConfigProvider;
 
 /**

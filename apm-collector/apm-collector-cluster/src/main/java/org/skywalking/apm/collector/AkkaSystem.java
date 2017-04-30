@@ -6,7 +6,7 @@ import com.typesafe.config.ConfigFactory;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.skywalking.apm.api.util.StringUtil;
+import org.skywalking.apm.util.StringUtil;
 import org.skywalking.apm.collector.cluster.ClusterConfig;
 import org.skywalking.apm.collector.cluster.Const;
 

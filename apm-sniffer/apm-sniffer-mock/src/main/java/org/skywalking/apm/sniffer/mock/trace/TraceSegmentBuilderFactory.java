@@ -1,6 +1,6 @@
 package org.skywalking.apm.sniffer.mock.trace;
 
-import org.skywalking.apm.api.context.TracerContext;
+import org.skywalking.apm.agent.core.context.TracerContext;
 import org.skywalking.apm.sniffer.mock.context.MockTracerContextListener;
 import org.skywalking.apm.sniffer.mock.trace.builders.trace.*;
 import org.skywalking.apm.trace.TraceSegment;

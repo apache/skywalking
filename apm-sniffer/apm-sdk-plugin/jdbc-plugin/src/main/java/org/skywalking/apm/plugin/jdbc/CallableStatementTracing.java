@@ -1,7 +1,7 @@
 package org.skywalking.apm.plugin.jdbc;
 
-import org.skywalking.apm.api.context.ContextManager;
-import org.skywalking.apm.api.util.StringUtil;
+import org.skywalking.apm.agent.core.context.ContextManager;
+import org.skywalking.apm.util.StringUtil;
 import org.skywalking.apm.trace.Span;
 import org.skywalking.apm.trace.tag.Tags;
 
