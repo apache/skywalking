@@ -1,4 +1,4 @@
-package org.skywalking.apm.plugin.resin.v3x.v4x.define;
+package org.skywalking.apm.plugin.resin34x.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
@@ -18,7 +18,7 @@ public class ResinInstrumentation extends ClassInstanceMethodsEnhancePluginDefin
 
     private static final String ENHANCE_CLASS = "com.caucho.server.dispatch.ServletInvocation";
 
-    private static final String METHOD_INTERCET_CLASS = "org.skywalking.apm.plugin.resin.v3x.v4x.ResinInterceptor";
+    private static final String METHOD_INTERCET_CLASS = "org.skywalking.apm.plugin.resin34x.ResinInterceptor";
 
     @Override
     protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {

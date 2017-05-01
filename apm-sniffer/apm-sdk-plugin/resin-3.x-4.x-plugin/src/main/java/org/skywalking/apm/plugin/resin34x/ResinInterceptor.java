@@ -1,4 +1,4 @@
-package org.skywalking.apm.plugin.resin.v3x.v4x;
+package org.skywalking.apm.plugin.resin34x;
 
 import javax.servlet.http.HttpServletRequest;
 import org.skywalking.apm.agent.core.context.ContextCarrier;
