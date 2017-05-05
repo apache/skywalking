@@ -1,2 +1,2 @@
-org.skywalking.apm.plugin.jedis.v2.define.JedisClusterInstrumentation
-org.skywalking.apm.plugin.jedis.v2.define.JedisInstrumentation
+jedis=org.skywalking.apm.plugin.jedis.v2.define.JedisClusterInstrumentation
+jedis=org.skywalking.apm.plugin.jedis.v2.define.JedisInstrumentation

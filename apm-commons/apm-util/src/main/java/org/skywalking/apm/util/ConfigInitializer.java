@@ -2,7 +2,9 @@ package org.skywalking.apm.util;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -20,7 +22,7 @@ public class ConfigInitializer {
     }
 
     private static void initNextLevel(Properties properties, Class<?> recentConfigType,
-                                      ConfigDesc parentDesc) throws IllegalArgumentException, IllegalAccessException {
+        ConfigDesc parentDesc) throws IllegalArgumentException, IllegalAccessException {
         for (Field field : recentConfigType.getFields()) {
             if (Modifier.isPublic(field.getModifiers()) && Modifier.isStatic(field.getModifiers())) {
                 String configKey = (parentDesc + "." + field.getName()).toLowerCase();
@@ -35,8 +37,10 @@ public class ConfigInitializer {
                         field.set(null, Long.valueOf(value));
                     else if (type.equals(boolean.class))
                         field.set(null, Boolean.valueOf(value));
+                    else if (type.equals(List.class))
+                        field.set(null, convert2List(value));
                     else if (type.isEnum())
-                        field.set(null, Enum.valueOf((Class<Enum>) type, value.toUpperCase()));
+                        field.set(null, Enum.valueOf((Class<Enum>)type, value.toUpperCase()));
                 }
             }
         }
@@ -45,6 +49,19 @@ public class ConfigInitializer {
             initNextLevel(properties, innerConfiguration, parentDesc);
             parentDesc.removeLastDesc();
         }
+    }
+
+    private static List convert2List(String value) {
+        List result = new ArrayList();
+        if (StringUtil.isEmpty(value)) {
+            return result;
+        }
+
+        String[] segments = value.split(",");
+        for (String segment : segments) {
+            result.add(segment);
+        }
+        return result;
     }
 }
 
