@@ -53,7 +53,7 @@ public class PluginBootstrap {
                 plugin.setClassTypePool(classTypePool);
                 plugins.add(plugin);
             } catch (Throwable t) {
-                logger.error(t, "loade plugin [{}] failure.", pluginDefine.getDefineClass());
+                logger.error(t, "load plugin [{}] failure.", pluginDefine.getDefineClass());
             }
         }
 

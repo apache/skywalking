@@ -52,7 +52,7 @@ public class ConfigInitializer {
     }
 
     private static List convert2List(String value) {
-        List result = new ArrayList();
+        List result = new LinkedList();
         if (StringUtil.isEmpty(value)) {
             return result;
         }

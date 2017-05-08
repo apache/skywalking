@@ -1,6 +1,8 @@
 package org.skywalking.apm.agent.core.plugin;
 
 import java.util.List;
+import org.skywalking.apm.agent.core.conf.Config;
+import org.skywalking.apm.agent.core.plugin.exception.IllegalPluginDefineException;
 import org.skywalking.apm.util.StringUtil;
 
 public class PluginDefine {
@@ -22,35 +24,25 @@ public class PluginDefine {
         this.defineClass = defineClass;
     }
 
-    public static PluginDefine build(String define) {
+    public static PluginDefine build(String define) throws IllegalPluginDefineException {
         if (StringUtil.isEmpty(define)) {
-            return IllegalPluginDefine.INSTANCE;
+            throw new IllegalPluginDefineException();
         }
 
         String[] pluginDefine = define.split("=");
         if (pluginDefine.length != 2) {
-            return IllegalPluginDefine.INSTANCE;
+            throw new IllegalPluginDefineException();
         }
 
         return new PluginDefine(pluginDefine[0], pluginDefine[1]);
     }
 
-    public boolean disabled(List<String> disablePlugins) {
-        return disablePlugins.contains(name);
+    public boolean disabled() {
+        return Config.Plugin.DISABLED_PLUGINS.contains(name);
     }
 
     public String getDefineClass() {
         return defineClass;
-    }
-
-    static class IllegalPluginDefine extends PluginDefine {
-
-        static final PluginDefine INSTANCE = new IllegalPluginDefine();
-
-        @Override
-        public boolean disabled(List<String> disablePlugins) {
-            return true;
-        }
     }
 }
 

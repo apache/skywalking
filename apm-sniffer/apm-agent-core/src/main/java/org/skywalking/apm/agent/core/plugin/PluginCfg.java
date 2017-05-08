@@ -7,9 +7,14 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import org.skywalking.apm.agent.core.conf.Config;
+import org.skywalking.apm.agent.core.plugin.exception.IllegalPluginDefineException;
+import org.skywalking.apm.logging.ILog;
+import org.skywalking.apm.logging.LogManager;
 
 public enum PluginCfg {
     INSTANCE;
+
+    private static final ILog logger = LogManager.getLogger(PluginCfg.class);
 
     private List<PluginDefine> pluginClassList = new ArrayList<PluginDefine>();
 
@@ -18,16 +23,19 @@ public enum PluginCfg {
             BufferedReader reader = new BufferedReader(new InputStreamReader(input));
             String pluginDefine = null;
             while ((pluginDefine = reader.readLine()) != null) {
-                PluginDefine plugin = PluginDefine.build(pluginDefine);
-                if (!plugin.disabled(Config.Plugin.DISABLED_PLUGINS)) {
-                    pluginClassList.add(plugin);
+                try {
+                    PluginDefine plugin = PluginDefine.build(pluginDefine);
+                    if (!plugin.disabled()) {
+                        pluginClassList.add(plugin);
+                    }
+                } catch (IllegalPluginDefineException e) {
+                    logger.error(e, "Illegal plugin define : " + pluginDefine);
                 }
             }
         } finally {
             input.close();
         }
     }
-
 
     public List<PluginDefine> getPluginClassList() {
         return pluginClassList;
