@@ -2,7 +2,6 @@ package org.skywalking.apm.util;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
@@ -59,7 +58,10 @@ public class ConfigInitializer {
 
         String[] segments = value.split(",");
         for (String segment : segments) {
-            result.add(segment);
+            String trimmedSegment = segment.trim();
+            if (!StringUtil.isEmpty(trimmedSegment)) {
+                result.add(trimmedSegment);
+            }
         }
         return result;
     }

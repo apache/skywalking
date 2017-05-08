@@ -6,7 +6,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
-import org.skywalking.apm.agent.core.conf.Config;
 import org.skywalking.apm.agent.core.plugin.exception.IllegalPluginDefineException;
 import org.skywalking.apm.logging.ILog;
 import org.skywalking.apm.logging.LogManager;
@@ -25,11 +24,11 @@ public enum PluginCfg {
             while ((pluginDefine = reader.readLine()) != null) {
                 try {
                     PluginDefine plugin = PluginDefine.build(pluginDefine);
-                    if (!plugin.disabled()) {
+                    if (plugin.enable()) {
                         pluginClassList.add(plugin);
                     }
                 } catch (IllegalPluginDefineException e) {
-                    logger.error(e, "Illegal plugin define : " + pluginDefine);
+                    logger.error("Failed to format plugin define.", e);
                 }
             }
         } finally {

@@ -1,6 +1,5 @@
 package org.skywalking.apm.agent.core.conf;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import org.skywalking.apm.agent.core.logging.LogLevel;
