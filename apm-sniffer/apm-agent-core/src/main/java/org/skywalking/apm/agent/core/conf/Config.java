@@ -1,5 +1,7 @@
 package org.skywalking.apm.agent.core.conf;
 
+import java.util.LinkedList;
+import java.util.List;
 import org.skywalking.apm.agent.core.logging.LogLevel;
 import org.skywalking.apm.agent.core.logging.WriterFactory;
 
@@ -83,6 +85,16 @@ public class Config {
     }
 
     public static class Plugin {
+
+        /**
+         * Name of disabled plugin, The value spilt by <code>,</code>
+         * if you have multiple plugins need to disable.
+         *
+         * Here are the plugin names :
+         * tomcat-7.x/8.x, dubbo, jedis-2.x, motan, httpclient-4.x, jdbc, mongodb-3.x.
+         */
+        public static List DISABLED_PLUGINS = new LinkedList();
+
         public static class MongoDB {
             /**
              * If true, trace all the parameters, default is false.
@@ -90,5 +102,6 @@ public class Config {
              */
             public static boolean TRACE_PARAM = false;
         }
+
     }
 }
