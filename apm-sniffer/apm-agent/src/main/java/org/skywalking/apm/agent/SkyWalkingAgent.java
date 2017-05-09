@@ -1,5 +1,6 @@
 package org.skywalking.apm.agent;
 
+import java.util.List;
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.description.NamedElement;
 import net.bytebuddy.description.type.TypeDescription;
@@ -53,14 +54,22 @@ public class SkyWalkingAgent {
 
         new AgentBuilder.Default().type(enhanceClassMatcher(pluginFinder).and(not(isInterface()))).transform(new AgentBuilder.Transformer() {
             public DynamicType.Builder<?> transform(DynamicType.Builder<?> builder, TypeDescription typeDescription,
-                                                    ClassLoader classLoader) {
-                AbstractClassEnhancePluginDefine pluginDefine = pluginFinder.find(typeDescription.getTypeName());
-                return pluginDefine.define(typeDescription.getTypeName(), builder);
+                ClassLoader classLoader) {
+                List<AbstractClassEnhancePluginDefine> pluginDefines = pluginFinder.find(typeDescription.getTypeName());
+                for (AbstractClassEnhancePluginDefine pluginDefine : pluginDefines) {
+                    DynamicType.Builder<?> newBuilder = pluginDefine.define(typeDescription.getTypeName(), builder);
+                    if (newBuilder != null) {
+                        return newBuilder;
+                    }
+                }
+
+                logger.warn("Matched class {}, but enhancement fail.", typeDescription.getTypeName());
+                return builder;
             }
         }).with(new AgentBuilder.Listener() {
             @Override
             public void onTransformation(TypeDescription typeDescription, ClassLoader classLoader, JavaModule module,
-                                         DynamicType dynamicType) {
+                DynamicType dynamicType) {
 
             }
 

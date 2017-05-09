@@ -16,7 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * {@link TomcatInterceptor} fetch the serialized context data by using {@link HttpServletRequest#getHeader(String)}.
- * The {@link TraceSegment#primaryRef} of current trace segment will reference to the trace
+ * The {@link TraceSegment#refs} of current trace segment will reference to the trace
  * segment id of the previous level if the serialized context is not null.
  */
 public class TomcatInterceptor implements InstanceMethodsAroundInterceptor {
@@ -30,7 +30,7 @@ public class TomcatInterceptor implements InstanceMethodsAroundInterceptor {
     public static final String TOMCAT_COMPONENT = "Tomcat";
 
     /**
-     * The {@link TraceSegment#primaryRef} of current trace segment will reference to the
+     * The {@link TraceSegment#refs} of current trace segment will reference to the
      * trace segment id of the previous level if the serialized context is not null.
      *
      * @param context            instance context, a class instance only has one {@link EnhancedClassInstanceContext} instance.

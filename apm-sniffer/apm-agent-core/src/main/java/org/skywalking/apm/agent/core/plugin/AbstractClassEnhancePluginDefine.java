@@ -24,7 +24,7 @@ public abstract class AbstractClassEnhancePluginDefine {
      *
      * @param transformClassName target class.
      * @param builder            byte-buddy's builder to manipulate target class's bytecode.
-     * @return be defined builder.
+     * @return the new builder, or <code>null</code> if not be enhanced.
      * @throws PluginException, when set builder failure.
      */
     public DynamicType.Builder<?> define(String transformClassName,
@@ -33,7 +33,7 @@ public abstract class AbstractClassEnhancePluginDefine {
 
         if (StringUtil.isEmpty(transformClassName)) {
             logger.warn("classname of being intercepted is not defined by {}.", interceptorDefineClassName);
-            return builder;
+            return null;
         }
 
         logger.debug("prepare to enhance class {} by {}.", transformClassName, interceptorDefineClassName);
@@ -48,7 +48,7 @@ public abstract class AbstractClassEnhancePluginDefine {
                 if (!witnessClassResolution.isResolved()) {
                     logger.warn("enhance class {} by plugin {} is not working. Because witness class {} is not existed.", transformClassName, interceptorDefineClassName,
                         witnessClass);
-                    return builder;
+                    return null;
                 }
             }
         }
