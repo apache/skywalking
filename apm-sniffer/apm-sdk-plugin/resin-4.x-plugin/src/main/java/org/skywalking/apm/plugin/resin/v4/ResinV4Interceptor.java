@@ -1,8 +1,8 @@
 package org.skywalking.apm.plugin.resin.v4;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import com.caucho.server.http.CauchoRequest;
 import com.caucho.server.http.HttpRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.skywalking.apm.agent.core.context.ContextCarrier;
 import org.skywalking.apm.agent.core.context.ContextManager;
 import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceContext;
@@ -31,19 +31,36 @@ public class ResinV4Interceptor implements InstanceMethodsAroundInterceptor {
     public void beforeMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
         MethodInterceptResult result) {
         Object[] args = interceptorContext.allArguments();
-        HttpServletRequest request = (HttpServletRequest)args[0];
-        Span span = ContextManager.createSpan(request.getRequestURI());
+        CauchoRequest request = (CauchoRequest)args[0];
+        Span span = ContextManager.createSpan(request.getPageURI());
         Tags.COMPONENT.set(span, RESIN_COMPONENT);
         Tags.PEER_HOST.set(span, request.getServerName());
         Tags.PEER_PORT.set(span, request.getServerPort());
         Tags.SPAN_KIND.set(span, Tags.SPAN_KIND_SERVER);
-        Tags.URL.set(span, request.getRequestURL().toString());
+        Tags.URL.set(span, appendRequestURL(request));
         Tags.SPAN_LAYER.asHttp(span);
 
         String tracingHeaderValue = request.getHeader(HEADER_NAME_OF_CONTEXT_DATA);
         if (!StringUtil.isEmpty(tracingHeaderValue)) {
             ContextManager.extract(new ContextCarrier().deserialize(tracingHeaderValue));
         }
+    }
+
+    /**
+     * Append request URL.
+     *
+     * @param request
+     * @return
+     */
+    private String appendRequestURL(CauchoRequest request) {
+        StringBuffer sb = new StringBuffer();
+        sb.append(request.getScheme());
+        sb.append("://");
+        sb.append(request.getServerName());
+        sb.append(":");
+        sb.append(request.getServerPort());
+        sb.append(request.getPageURI());
+        return sb.toString();
     }
 
     @Override
