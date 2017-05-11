@@ -1,5 +1,6 @@
 package org.skywalking.apm.plugin.resin.v3;
 
+import com.caucho.server.connection.CauchoRequest;
 import com.caucho.server.http.HttpResponse;
 import com.caucho.server.http.HttpRequest;
 import org.skywalking.apm.agent.core.context.ContextCarrier;
@@ -33,13 +34,13 @@ public class ResinV3Interceptor implements InstanceMethodsAroundInterceptor {
     public void beforeMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
         MethodInterceptResult result) {
         Object[] args = interceptorContext.allArguments();
-        HttpRequest request = (HttpRequest)args[0];
-        Span span = ContextManager.createSpan(request.getRequestURI());
+        CauchoRequest request = (CauchoRequest)args[0];
+        Span span = ContextManager.createSpan(request.getPageURI());
         Tags.COMPONENT.set(span, RESIN_COMPONENT);
         Tags.PEER_HOST.set(span, request.getServerName());
         Tags.PEER_PORT.set(span, request.getServerPort());
         Tags.SPAN_KIND.set(span, Tags.SPAN_KIND_SERVER);
-        Tags.URL.set(span, request.getRequestURL().toString());
+        Tags.URL.set(span, request.getPageURI().toString());
         Tags.SPAN_LAYER.asHttp(span);
 
         String tracingHeaderValue = request.getHeader(HEADER_NAME_OF_CONTEXT_DATA);
