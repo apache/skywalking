@@ -37,7 +37,7 @@ _In chronological order_
 * 张鑫 [@ascrutae](https://github.com/ascrutae)   
 * 谭真 [@mircoteam](https://github.com/mircoteam)  Advanced R&D Engineers, Creative & Interactive Group.
 * 徐妍 [@TastySummer](https://github.com/TastySummer)
-* 彭勇升 [@pengys5](https://github.com/pengys5)   Expert, OneAPM.
+* 彭勇升 [@pengys5](https://github.com/pengys5)   Technical Specialist, OneAPM.
 * 戴文
 * 柏杨 [@bai-yang](https://github.com/bai-yang)  Senior Engineer, Alibaba Group.
 
