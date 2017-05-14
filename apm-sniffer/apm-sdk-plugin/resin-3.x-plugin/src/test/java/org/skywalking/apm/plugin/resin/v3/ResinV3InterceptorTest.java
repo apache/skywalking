@@ -1,7 +1,7 @@
 package org.skywalking.apm.plugin.resin.v3;
 
+import com.caucho.server.connection.CauchoRequest;
 import com.caucho.server.http.HttpResponse;
-import com.caucho.server.http.HttpRequest;
 import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Before;
@@ -39,7 +39,7 @@ public class ResinV3InterceptorTest {
     private MockTracerContextListener contextListener;
 
     @Mock
-    private HttpRequest request;
+    private CauchoRequest request;
     @Mock
     private HttpResponse response;
     @Mock
@@ -59,7 +59,10 @@ public class ResinV3InterceptorTest {
 
         TracerContext.ListenerManager.add(contextListener);
 
-        when(request.getRequestURI()).thenReturn("/test/testRequestURL");
+        when(request.getPageURI()).thenReturn("/test/testRequestURL");
+        when(request.getScheme()).thenReturn("http");
+        when(request.getServerName()).thenReturn("localhost");
+        when(request.getServerPort()).thenReturn(8080);
         when(request.getRequestURL()).thenReturn(new StringBuffer("http://localhost:8080/test/testRequestURL"));
         when(response.getStatusCode()).thenReturn(200);
         when(methodInvokeContext.allArguments()).thenReturn(new Object[] {request, response});

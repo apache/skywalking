@@ -1,6 +1,7 @@
 package org.skywalking.apm.plugin.resin.v4;
 
-import javax.servlet.http.HttpServletRequest;
+import com.caucho.server.http.CauchoRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Before;
@@ -20,7 +21,6 @@ import org.skywalking.apm.trace.Span;
 import org.skywalking.apm.trace.TraceSegment;
 import org.skywalking.apm.trace.TraceSegmentRef;
 import org.skywalking.apm.trace.tag.Tags;
-import javax.servlet.http.HttpServletResponse;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -37,7 +37,7 @@ public class ResinV4InterceptorTest {
     private MockTracerContextListener contextListener;
 
     @Mock
-    private HttpServletRequest request;
+    private CauchoRequest request;
     @Mock
     private HttpServletResponse response;
     @Mock
@@ -57,6 +57,10 @@ public class ResinV4InterceptorTest {
 
         TracerContext.ListenerManager.add(contextListener);
 
+        when(request.getPageURI()).thenReturn("/test/testRequestURL");
+        when(request.getScheme()).thenReturn("http");
+        when(request.getServerName()).thenReturn("localhost");
+        when(request.getServerPort()).thenReturn(8080);
         when(request.getRequestURI()).thenReturn("/test/testRequestURL");
         when(request.getRequestURL()).thenReturn(new StringBuffer("http://localhost:8080/test/testRequestURL"));
         when(response.getStatus()).thenReturn(200);
