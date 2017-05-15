@@ -90,5 +90,13 @@ public class Config {
              */
             public static boolean TRACE_PARAM = false;
         }
+
+        public static class Http {
+
+            /**
+             * The header name of context data.
+             */
+            public static String HEADER_NAME_OF_CONTEXT_DATA = "SWTraceContext";
+        }
     }
 }

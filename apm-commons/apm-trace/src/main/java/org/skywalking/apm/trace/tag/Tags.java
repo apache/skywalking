@@ -121,4 +121,8 @@ public final class Tags {
      * DB_STATEMENT records the sql statement of the database access.
      */
     public static final StringTag DB_STATEMENT = new StringTag("db.statement");
+
+    public static final class HTTP {
+        public static final StringTag METHOD = new StringTag("http.method");
+    }
 }

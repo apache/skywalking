@@ -18,6 +18,7 @@
         <module>tomcat-7.x-8.x-plugin</module>
         <module>motan-plugin</module>
         <module>mongodb-3.x-plugin</module>
+        <module>http-plugin</module>
     </modules>
     <packaging>pom</packaging>
 
