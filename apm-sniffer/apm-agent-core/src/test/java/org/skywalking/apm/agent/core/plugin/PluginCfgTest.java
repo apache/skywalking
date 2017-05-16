@@ -17,7 +17,7 @@ import java.util.List;
 public class PluginCfgTest {
     @Test
     public void testLoad() throws IOException {
-        String data = "com.test.classA\r\ncom.test.ClassB";
+        String data = "TestA=com.test.classA\r\nTestB=com.test.ClassB";
         final byte[] dataBytes = data.getBytes();
         PluginCfg.INSTANCE.load(new InputStream() {
             int index = 0;
@@ -31,10 +31,10 @@ public class PluginCfgTest {
             }
         });
 
-        List<String> list = PluginCfg.INSTANCE.getPluginClassList();
+        List<PluginDefine> list = PluginCfg.INSTANCE.getPluginClassList();
         Assert.assertEquals(2, list.size());
-        Assert.assertEquals("com.test.classA", list.get(0));
-        Assert.assertEquals("com.test.ClassB", list.get(1));
+        Assert.assertEquals("com.test.classA", list.get(0).getDefineClass());
+        Assert.assertEquals("com.test.ClassB", list.get(1).getDefineClass());
     }
 
     @Before

@@ -62,6 +62,16 @@
         </dependency>
         <dependency>
             <groupId>org.skywalking</groupId>
+            <artifactId>apm-resin-3.x-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>apm-resin-4.x-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
             <artifactId>apm-okhttp-3.x-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>

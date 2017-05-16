@@ -1,6 +1,7 @@
 package org.skywalking.apm.agent.core.plugin;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -11,7 +12,7 @@ import java.util.Map;
  * @author wusheng
  */
 public class PluginFinder {
-    private final Map<String, AbstractClassEnhancePluginDefine> pluginDefineMap = new HashMap<String, AbstractClassEnhancePluginDefine>();
+    private final Map<String, LinkedList<AbstractClassEnhancePluginDefine>> pluginDefineMap = new HashMap<String, LinkedList<AbstractClassEnhancePluginDefine>>();
 
     public PluginFinder(List<AbstractClassEnhancePluginDefine> plugins) {
         for (AbstractClassEnhancePluginDefine plugin : plugins) {
@@ -21,11 +22,17 @@ public class PluginFinder {
                 continue;
             }
 
-            pluginDefineMap.put(enhanceClassName, plugin);
+            LinkedList<AbstractClassEnhancePluginDefine> pluginDefinesWithSameTarget = pluginDefineMap.get(enhanceClassName);
+            if (pluginDefinesWithSameTarget == null) {
+                pluginDefinesWithSameTarget = new LinkedList<AbstractClassEnhancePluginDefine>();
+                pluginDefineMap.put(enhanceClassName, pluginDefinesWithSameTarget);
+            }
+
+            pluginDefinesWithSameTarget.add(plugin);
         }
     }
 
-    public AbstractClassEnhancePluginDefine find(String enhanceClassName) {
+    public List<AbstractClassEnhancePluginDefine> find(String enhanceClassName) {
         if (pluginDefineMap.containsKey(enhanceClassName)) {
             return pluginDefineMap.get(enhanceClassName);
         }

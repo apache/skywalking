@@ -19,6 +19,8 @@
         <module>motan-plugin</module>
         <module>mongodb-3.x-plugin</module>
         <module>http-plugin</module>
+        <module>resin-3.x-plugin</module>
+        <module>resin-4.x-plugin</module>
     </modules>
     <packaging>pom</packaging>
 

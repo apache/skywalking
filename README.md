@@ -33,13 +33,13 @@ ___
 
 # Contributors
 _In chronological order_
-* 吴晟 [@wu-sheng](https://github.com/wu-sheng) 
-* 张鑫 [@ascrutae](https://github.com/ascrutae) 
-* 谭真 [@mircoteam](https://github.com/mircoteam)
+* 吴晟 [@wu-sheng](https://github.com/wu-sheng)  Principle Engineer, 2012 Lab, Huawei. 
+* 张鑫 [@ascrutae](https://github.com/ascrutae)   
+* 谭真 [@mircoteam](https://github.com/mircoteam)  Advanced R&D Engineers, Creative & Interactive Group.
 * 徐妍 [@TastySummer](https://github.com/TastySummer)
-* 彭勇升 [@pengys5](https://github.com/pengys5)
+* 彭勇升 [@pengys5](https://github.com/pengys5)   Technical Specialist, OneAPM.
 * 戴文
-* 柏杨 [@bai-yang](https://github.com/bai-yang)
+* 柏杨 [@bai-yang](https://github.com/bai-yang)  Senior Engineer, Alibaba Group.
 
 # Screenshots
 - Topological graph of application clusters.

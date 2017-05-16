@@ -1,2 +1,2 @@
-org.skywalking.apm.plugin.motan.define.MotanConsumerInstrumentation
-org.skywalking.apm.plugin.motan.define.MotanProviderInstrumentation
+motan-0.x=org.skywalking.apm.plugin.motan.define.MotanConsumerInstrumentation
+motan-0.x=org.skywalking.apm.plugin.motan.define.MotanProviderInstrumentation

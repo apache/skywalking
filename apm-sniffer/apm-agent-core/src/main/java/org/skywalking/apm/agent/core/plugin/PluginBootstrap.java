@@ -42,18 +42,18 @@ public class PluginBootstrap {
             }
         }
 
-        List<String> pluginClassList = PluginCfg.INSTANCE.getPluginClassList();
+        List<PluginDefine> pluginClassList = PluginCfg.INSTANCE.getPluginClassList();
 
         List<AbstractClassEnhancePluginDefine> plugins = new ArrayList<AbstractClassEnhancePluginDefine>();
-        for (String pluginClassName : pluginClassList) {
+        for (PluginDefine pluginDefine : pluginClassList) {
             try {
-                logger.debug("loading plugin class {}.", pluginClassName);
+                logger.debug("loading plugin class {}.", pluginDefine.getDefineClass());
                 AbstractClassEnhancePluginDefine plugin =
-                    (AbstractClassEnhancePluginDefine) Class.forName(pluginClassName).newInstance();
+                    (AbstractClassEnhancePluginDefine) Class.forName(pluginDefine.getDefineClass()).newInstance();
                 plugin.setClassTypePool(classTypePool);
                 plugins.add(plugin);
             } catch (Throwable t) {
-                logger.error(t, "loade plugin [{}] failure.", pluginClassName);
+                logger.error(t, "load plugin [{}] failure.", pluginDefine.getDefineClass());
             }
         }
 
