@@ -19,7 +19,7 @@ public class TracerContextTestCase {
     @Test
     public void testSpanLifeCycle() {
         TracerContext context = new TracerContext();
-        Span span = context.createSpan("/serviceA");
+        Span span = context.createSpan("/serviceA", false);
 
         Assert.assertEquals(span, context.activeSpan());
 
@@ -35,8 +35,8 @@ public class TracerContextTestCase {
     @Test
     public void testChildOfSpan() {
         TracerContext context = new TracerContext();
-        Span serviceSpan = context.createSpan("/serviceA");
-        Span dbSpan = context.createSpan("db/preparedStatement/execute");
+        Span serviceSpan = context.createSpan("/serviceA", false);
+        Span dbSpan = context.createSpan("db/preparedStatement/execute", false);
 
         Assert.assertEquals(dbSpan, context.activeSpan());
 
@@ -60,8 +60,8 @@ public class TracerContextTestCase {
     @Test
     public void testInject() {
         TracerContext context = new TracerContext();
-        Span serviceSpan = context.createSpan("/serviceA");
-        Span dbSpan = context.createSpan("db/preparedStatement/execute");
+        Span serviceSpan = context.createSpan("/serviceA", false);
+        Span dbSpan = context.createSpan("db/preparedStatement/execute", false);
         Tags.PEER_HOST.set(dbSpan, "127.0.0.1");
         Tags.PEER_PORT.set(dbSpan, 8080);
 
@@ -87,7 +87,7 @@ public class TracerContextTestCase {
 
         TracerContext context = new TracerContext();
         context.extract(carrier);
-        Span span = context.createSpan("/serviceC");
+        Span span = context.createSpan("/serviceC", false);
 
         TracerContext.ListenerManager.add(TestTracerContextListener.INSTANCE);
         final TraceSegment[] finishedSegmentCarrier = TestTracerContextListener.INSTANCE.finishedSegmentCarrier;
