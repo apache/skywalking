@@ -25,8 +25,7 @@ ___
 <img src="https://sky-walking.github.io/page-resources/3.0/oneapm-award.png" alt="OneAPM Open Source Achievement Award" height="110px" align="left" />
 </a>
 
-In October 2016, Sky Walking won `OneAPM Open Source Achievement Award`. The award appreciates sky walking for its "*contribution to popularization of APM technology*". <br/>
-[OneAPM](http://www.oneapm.com/) provides financial support for the project in 2016-2017.<br/><br/> 
+In October 2016, Sky Walking won `OneAPM Open Source Achievement Award`. The award appreciates sky walking for its "*contribution to popularization of APM technology*". <br/><br/><br/> 
 Thanks all users of sky walking project.
 
 ___
