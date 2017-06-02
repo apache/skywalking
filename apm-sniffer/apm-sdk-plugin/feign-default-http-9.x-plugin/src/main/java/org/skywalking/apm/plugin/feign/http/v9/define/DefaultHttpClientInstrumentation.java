@@ -1,6 +1,5 @@
 package org.skywalking.apm.plugin.feign.http.v9.define;
 
-import feign.Request;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
@@ -12,7 +11,9 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
  * {@link DefaultHttpClientInstrumentation} presents that skywalking intercepts {@link
- * feign.Client.Default#execute(Request, Request.Options)} by using {@link DefaultHttpClientInterceptor}.
+ * feign.Client.Default#execute(feign.Request, feign.Request.Options)} by using {@link DefaultHttpClientInterceptor}.
+ * If feign did't run in default mode, the instrumentation depend on the http client implementation.
+ * e.g. okhttp client implementation depend on okhttp-plugin.
  *
  * @author pengys5
  */
