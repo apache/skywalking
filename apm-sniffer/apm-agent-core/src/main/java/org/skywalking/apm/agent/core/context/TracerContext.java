@@ -46,26 +46,40 @@ public final class TracerContext {
      * @param operationName {@link Span#operationName}
      * @return the new active span.
      */
-    public Span createSpan(String operationName) {
-        return this.createSpan(operationName, System.currentTimeMillis());
+    public Span createSpan(String operationName, boolean isLeaf) {
+        return this.createSpan(operationName, System.currentTimeMillis(), isLeaf);
     }
 
     /**
      * Create a new span, as an active span, by the given operationName and startTime;
      *
      * @param operationName {@link Span#operationName}
-     * @param startTime     {@link Span#startTime}
+     * @param startTime {@link Span#startTime}
+     * @param isLeaf is true, if the span is a leaf in trace tree.
      * @return
      */
-    public Span createSpan(String operationName, long startTime) {
+    public Span createSpan(String operationName, long startTime, boolean isLeaf) {
         Span parentSpan = peek();
         Span span;
         if (parentSpan == null) {
-            span = new Span(spanIdGenerator++, operationName, startTime);
+            if (isLeaf) {
+                span = new LeafSpan(spanIdGenerator++, operationName, startTime);
+            } else {
+                span = new Span(spanIdGenerator++, operationName, startTime);
+            }
+            push(span);
+        } else if (parentSpan.isLeaf()) {
+            span = parentSpan;
+            LeafSpan leafSpan = (LeafSpan)span;
+            leafSpan.push();
         } else {
-            span = new Span(spanIdGenerator++, parentSpan, operationName, startTime);
+            if (isLeaf) {
+                span = new LeafSpan(spanIdGenerator++, parentSpan, operationName, startTime);
+            } else {
+                span = new Span(spanIdGenerator++, parentSpan, operationName, startTime);
+            }
+            push(span);
         }
-        push(span);
         return span;
     }
 
@@ -98,6 +112,13 @@ public final class TracerContext {
 
     public void stopSpan(Span span, Long endTime) {
         Span lastSpan = peek();
+        if (lastSpan.isLeaf()) {
+            LeafSpan leafSpan = (LeafSpan)lastSpan;
+            leafSpan.pop();
+            if (!leafSpan.isFinished()) {
+                return;
+            }
+        }
         if (lastSpan == span) {
             pop().finish(segment, endTime);
         } else {
@@ -142,7 +163,7 @@ public final class TracerContext {
      * Ref this {@link ContextCarrier} to this {@link TraceSegment}
      *
      * @param carrier holds the snapshot, if get this {@link ContextCarrier} from remote, make sure {@link
-     *                ContextCarrier#deserialize(String)} called.
+     * ContextCarrier#deserialize(String)} called.
      */
     public void extract(ContextCarrier carrier) {
         if (carrier.isValid()) {

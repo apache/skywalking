@@ -55,11 +55,19 @@ public class ContextManager implements TracerContextListener, BootService {
     }
 
     public static Span createSpan(String operationName) {
-        return get().createSpan(operationName);
+        return get().createSpan(operationName, false);
     }
 
     public static Span createSpan(String operationName, long startTime) {
-        return get().createSpan(operationName, startTime);
+        return get().createSpan(operationName, startTime, false);
+    }
+
+    public static Span createLeafSpan(String operationName) {
+        return get().createSpan(operationName, true);
+    }
+
+    public static Span createLeafSpan(String operationName, long startTime) {
+        return get().createSpan(operationName, startTime, true);
     }
 
     public static Span activeSpan() {

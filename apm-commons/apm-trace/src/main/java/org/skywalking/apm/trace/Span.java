@@ -83,7 +83,7 @@ public class Span {
      *                      means no parent span if this {@link TraceSegment}.
      * @param operationName {@link #operationName}
      */
-    private Span(int spanId, int parentSpanId, String operationName) {
+    protected Span(int spanId, int parentSpanId, String operationName) {
         this(spanId, parentSpanId, operationName, System.currentTimeMillis());
     }
 
@@ -97,7 +97,7 @@ public class Span {
      * @param operationName {@link #operationName}
      * @param startTime     given start timestamp.
      */
-    private Span(int spanId, int parentSpanId, String operationName, long startTime) {
+    protected Span(int spanId, int parentSpanId, String operationName, long startTime) {
         this();
         this.spanId = spanId;
         this.parentSpanId = parentSpanId;
@@ -200,17 +200,17 @@ public class Span {
      *
      * @return this Span instance, for chaining
      */
-    public final Span setTag(String key, String value) {
+    public Span setTag(String key, String value) {
         tagsWithStr.put(key, value);
         return this;
     }
 
-    public final Span setTag(String key, boolean value) {
+    public Span setTag(String key, boolean value) {
         tagsWithBool.put(key, value);
         return this;
     }
 
-    public final Span setTag(String key, Integer value) {
+    public Span setTag(String key, Integer value) {
         tagsWithInt.put(key, value);
         return this;
     }
@@ -357,6 +357,10 @@ public class Span {
 
     public List<LogData> getLogs() {
         return Collections.unmodifiableList(logs);
+    }
+
+    public boolean isLeaf() {
+        return false;
     }
 
     @Override
