@@ -17,7 +17,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.powermock.api.mockito.PowerMockito;
 import org.skywalking.apm.agent.core.boot.ServiceManager;
 import org.skywalking.apm.agent.core.conf.Config;
-import org.skywalking.apm.agent.core.context.TracingContext;
+import org.skywalking.apm.agent.core.context.TracerContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodInvokeContext;
 import org.skywalking.apm.sniffer.mock.context.MockTracerContextListener;
@@ -52,7 +52,7 @@ public class MongoDBWriteMethodInterceptorTest {
         interceptor = new MongoDBMethodInterceptor();
         mockTracerContextListener = new MockTracerContextListener();
 
-        TracingContext.ListenerManager.add(mockTracerContextListener);
+        TracerContext.ListenerManager.add(mockTracerContextListener);
 
         Config.Plugin.MongoDB.TRACE_PARAM = true;
 
@@ -132,7 +132,7 @@ public class MongoDBWriteMethodInterceptorTest {
 
     @After
     public void tearDown() throws Exception {
-        TracingContext.ListenerManager.remove(mockTracerContextListener);
+        TracerContext.ListenerManager.remove(mockTracerContextListener);
     }
 
 }

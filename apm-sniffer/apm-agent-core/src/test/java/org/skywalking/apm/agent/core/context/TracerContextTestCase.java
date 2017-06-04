@@ -15,15 +15,15 @@ import java.util.List;
 /**
  * Created by wusheng on 2017/2/19.
  */
-public class TracingContextTestCase {
+public class TracerContextTestCase {
     @Test
     public void testSpanLifeCycle() {
-        TracingContext context = new TracingContext();
+        TracerContext context = new TracerContext();
         Span span = context.createSpan("/serviceA", false);
 
         Assert.assertEquals(span, context.activeSpan());
 
-        TracingContext.ListenerManager.add(TestTracerContextListener.INSTANCE);
+        TracerContext.ListenerManager.add(TestTracerContextListener.INSTANCE);
         final TraceSegment[] finishedSegmentCarrier = TestTracerContextListener.INSTANCE.finishedSegmentCarrier;
         context.stopSpan(span);
 
@@ -34,13 +34,13 @@ public class TracingContextTestCase {
 
     @Test
     public void testChildOfSpan() {
-        TracingContext context = new TracingContext();
+        TracerContext context = new TracerContext();
         Span serviceSpan = context.createSpan("/serviceA", false);
         Span dbSpan = context.createSpan("db/preparedStatement/execute", false);
 
         Assert.assertEquals(dbSpan, context.activeSpan());
 
-        TracingContext.ListenerManager.add(TestTracerContextListener.INSTANCE);
+        TracerContext.ListenerManager.add(TestTracerContextListener.INSTANCE);
         final TraceSegment[] finishedSegmentCarrier = TestTracerContextListener.INSTANCE.finishedSegmentCarrier;
 
         try {
@@ -59,7 +59,7 @@ public class TracingContextTestCase {
 
     @Test
     public void testInject() {
-        TracingContext context = new TracingContext();
+        TracerContext context = new TracerContext();
         Span serviceSpan = context.createSpan("/serviceA", false);
         Span dbSpan = context.createSpan("db/preparedStatement/execute", false);
         Tags.PEER_HOST.set(dbSpan, "127.0.0.1");
@@ -85,11 +85,11 @@ public class TracingContextTestCase {
 
         Assert.assertTrue(carrier.isValid());
 
-        TracingContext context = new TracingContext();
+        TracerContext context = new TracerContext();
         context.extract(carrier);
         Span span = context.createSpan("/serviceC", false);
 
-        TracingContext.ListenerManager.add(TestTracerContextListener.INSTANCE);
+        TracerContext.ListenerManager.add(TestTracerContextListener.INSTANCE);
         final TraceSegment[] finishedSegmentCarrier = TestTracerContextListener.INSTANCE.finishedSegmentCarrier;
 
         context.stopSpan(span);
@@ -100,6 +100,6 @@ public class TracingContextTestCase {
 
     @After
     public void reset() {
-        TracingContext.ListenerManager.remove(TestTracerContextListener.INSTANCE);
+        TracerContext.ListenerManager.remove(TestTracerContextListener.INSTANCE);
     }
 }

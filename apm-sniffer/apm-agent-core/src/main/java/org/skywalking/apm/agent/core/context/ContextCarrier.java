@@ -12,8 +12,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * {@link ContextCarrier} is a data carrier of {@link TracingContext}.
- * It holds the snapshot (current state) of {@link TracingContext}.
+ * {@link ContextCarrier} is a data carrier of {@link TracerContext}.
+ * It holds the snapshot (current state) of {@link TracerContext}.
  * <p>
  * Created by wusheng on 2017/2/17.
  */

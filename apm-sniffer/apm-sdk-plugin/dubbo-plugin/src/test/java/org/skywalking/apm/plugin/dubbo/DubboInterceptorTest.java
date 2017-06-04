@@ -18,7 +18,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.skywalking.apm.agent.core.boot.ServiceManager;
 import org.skywalking.apm.agent.core.conf.Config;
 import org.skywalking.apm.agent.core.context.ContextCarrier;
-import org.skywalking.apm.agent.core.context.TracingContext;
+import org.skywalking.apm.agent.core.context.TracerContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodInvokeContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
@@ -67,7 +67,7 @@ public class DubboInterceptorTest {
         dubboInterceptor = new DubboInterceptor();
         testParam = new RequestParamForTestBelow283();
         mockTracerContextListener = new MockTracerContextListener();
-        TracingContext.ListenerManager.add(mockTracerContextListener);
+        TracerContext.ListenerManager.add(mockTracerContextListener);
 
         mockStatic(RpcContext.class);
         mockStatic(BugFixActive.class);
@@ -227,7 +227,7 @@ public class DubboInterceptorTest {
 
     @After
     public void tearDown() throws Exception {
-        TracingContext.ListenerManager.remove(mockTracerContextListener);
+        TracerContext.ListenerManager.remove(mockTracerContextListener);
     }
 
 }

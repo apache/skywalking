@@ -12,12 +12,12 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * {@link TracingContext} maintains the context.
+ * {@link TracerContext} maintains the context.
  * You manipulate (create/finish/get) spans and (inject/extract) context.
  * <p>
  * Created by wusheng on 2017/2/17.
  */
-public final class TracingContext implements AbstractTracingContext {
+public final class TracerContext {
     private TraceSegment segment;
 
     /**
@@ -34,7 +34,7 @@ public final class TracingContext implements AbstractTracingContext {
     /**
      * Create a {@link TraceSegment} and init {@link #spanIdGenerator} as 0;
      */
-    TracingContext() {
+    TracerContext() {
         this.segment = new TraceSegment(Config.Agent.APPLICATION_CODE);
         ServiceManager.INSTANCE.findService(SamplingService.class).trySampling(this.segment);
         this.spanIdGenerator = 0;
@@ -106,7 +106,7 @@ public final class TracingContext implements AbstractTracingContext {
     /**
      * @return the current trace id.
      */
-    public String getGlobalTraceId() {
+    String getGlobalTraceId() {
         return segment.getRelatedGlobalTraces().get(0).get();
     }
 
@@ -138,7 +138,7 @@ public final class TracingContext implements AbstractTracingContext {
     }
 
     /**
-     * Give a snapshot of this {@link TracingContext},
+     * Give a snapshot of this {@link TracerContext},
      * and save current state to the given {@link ContextCarrier}.
      *
      * @param carrier holds the snapshot
@@ -165,13 +165,12 @@ public final class TracingContext implements AbstractTracingContext {
      * @param carrier holds the snapshot, if get this {@link ContextCarrier} from remote, make sure {@link
      * ContextCarrier#deserialize(String)} called.
      */
-    public AbstractTracingContext extract(ContextCarrier carrier) {
+    public void extract(ContextCarrier carrier) {
         if (carrier.isValid()) {
             this.segment.ref(getRef(carrier));
             ServiceManager.INSTANCE.findService(SamplingService.class).setSampleWhenExtract(this.segment, carrier);
             this.segment.relatedGlobalTraces(carrier.getDistributedTraceIds());
         }
-        return this;
     }
 
     private TraceSegmentRef getRef(ContextCarrier carrier) {

@@ -10,7 +10,7 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.skywalking.apm.agent.core.boot.ServiceManager;
-import org.skywalking.apm.agent.core.context.TracingContext;
+import org.skywalking.apm.agent.core.context.TracerContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodInvokeContext;
 import org.skywalking.apm.sniffer.mock.context.MockTracerContextListener;
@@ -77,7 +77,7 @@ public class HttpClientExecuteInterceptorTest {
         });
         when(httpHost.getPort()).thenReturn(8080);
 
-        TracingContext.ListenerManager.add(mockTracerContextListener);
+        TracerContext.ListenerManager.add(mockTracerContextListener);
     }
 
     @Test
@@ -153,7 +153,7 @@ public class HttpClientExecuteInterceptorTest {
 
     @After
     public void tearDown() throws Exception {
-        TracingContext.ListenerManager.remove(mockTracerContextListener);
+        TracerContext.ListenerManager.remove(mockTracerContextListener);
     }
 
 }

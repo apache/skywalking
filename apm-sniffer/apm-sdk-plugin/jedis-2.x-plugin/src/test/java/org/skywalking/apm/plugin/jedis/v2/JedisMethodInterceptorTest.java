@@ -9,7 +9,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.skywalking.apm.agent.core.boot.ServiceManager;
-import org.skywalking.apm.agent.core.context.TracingContext;
+import org.skywalking.apm.agent.core.context.TracerContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodInvokeContext;
 import org.skywalking.apm.sniffer.mock.context.MockTracerContextListener;
@@ -43,7 +43,7 @@ public class JedisMethodInterceptorTest {
         interceptor = new JedisMethodInterceptor();
         mockTracerContextListener = new MockTracerContextListener();
 
-        TracingContext.ListenerManager.add(mockTracerContextListener);
+        TracerContext.ListenerManager.add(mockTracerContextListener);
 
         when(classInstanceContext.get(KEY_OF_REDIS_HOST, String.class)).thenReturn("127.0.0.1");
         when(classInstanceContext.get(KEY_OF_REDIS_PORT)).thenReturn(6379);
@@ -140,7 +140,7 @@ public class JedisMethodInterceptorTest {
 
     @After
     public void tearDown() throws Exception {
-        TracingContext.ListenerManager.remove(mockTracerContextListener);
+        TracerContext.ListenerManager.remove(mockTracerContextListener);
     }
 
 }

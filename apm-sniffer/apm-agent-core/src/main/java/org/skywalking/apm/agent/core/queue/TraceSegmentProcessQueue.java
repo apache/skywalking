@@ -6,7 +6,7 @@ import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.util.DaemonThreadFactory;
 import org.skywalking.apm.agent.core.conf.Config;
 import org.skywalking.apm.agent.core.boot.StatusBootService;
-import org.skywalking.apm.agent.core.context.TracingContext;
+import org.skywalking.apm.agent.core.context.TracerContext;
 import org.skywalking.apm.agent.core.context.TracerContextListener;
 import org.skywalking.apm.logging.ILog;
 import org.skywalking.apm.logging.LogManager;
@@ -40,7 +40,7 @@ public class TraceSegmentProcessQueue extends StatusBootService implements Trace
 
     @Override
     protected void bootUpWithStatus() {
-        TracingContext.ListenerManager.add(this);
+        TracerContext.ListenerManager.add(this);
         disruptor.start();
     }
 
