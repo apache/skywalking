@@ -24,5 +24,12 @@ public abstract class AbstractTag<T> {
 
     protected abstract void set(Span span, T tagValue);
 
+    /**
+     * @return the key of this tag.
+     */
+    public String key() {
+        return this.key;
+    }
+
     public abstract T get(Span span);
 }
