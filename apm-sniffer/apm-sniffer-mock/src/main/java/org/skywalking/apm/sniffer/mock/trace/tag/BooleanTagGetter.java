@@ -10,6 +10,11 @@ import org.skywalking.apm.trace.tag.BooleanTag;
  */
 public class BooleanTagGetter {
     public static Boolean get(Span span, BooleanTag tag) {
-        return span.getBoolTag(tag.key());
+        Boolean tagValue = span.getBoolTag(tag.key());
+        if (tagValue == null) {
+            return tag.defaultValue();
+        } else {
+            return tagValue;
+        }
     }
 }

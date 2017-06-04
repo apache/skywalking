@@ -30,6 +30,4 @@ public abstract class AbstractTag<T> {
     public String key() {
         return this.key;
     }
-
-    public abstract T get(Span span);
 }
