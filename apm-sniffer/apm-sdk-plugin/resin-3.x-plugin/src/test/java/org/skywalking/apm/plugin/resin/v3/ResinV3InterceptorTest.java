@@ -10,7 +10,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.skywalking.apm.agent.core.boot.ServiceManager;
-import org.skywalking.apm.agent.core.context.TracerContext;
+import org.skywalking.apm.agent.core.context.TracingContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodInvokeContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
@@ -57,7 +57,7 @@ public class ResinV3InterceptorTest {
         interceptor = new ResinV3Interceptor();
         contextListener = new MockTracerContextListener();
 
-        TracerContext.ListenerManager.add(contextListener);
+        TracingContext.ListenerManager.add(contextListener);
 
         when(request.getPageURI()).thenReturn("/test/testRequestURL");
         when(request.getScheme()).thenReturn("http");
@@ -145,6 +145,6 @@ public class ResinV3InterceptorTest {
 
     @After
     public void tearDown() throws Exception {
-        TracerContext.ListenerManager.remove(new MockTracerContextListener());
+        TracingContext.ListenerManager.remove(new MockTracerContextListener());
     }
 }

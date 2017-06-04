@@ -12,7 +12,7 @@ import org.skywalking.apm.trace.TraceSegment;
 /**
  * Created by wusheng on 2017/2/21.
  */
-public class MockTracerContextListenerTestCase {
+public class MockTracingContextListenerTestCase {
     @BeforeClass
     public static void setup() {
         ServiceManager.INSTANCE.boot();

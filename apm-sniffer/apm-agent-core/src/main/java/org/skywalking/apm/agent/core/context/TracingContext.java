@@ -12,12 +12,12 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * {@link TracerContext} maintains the context.
+ * {@link TracingContext} maintains the context.
  * You manipulate (create/finish/get) spans and (inject/extract) context.
  * <p>
  * Created by wusheng on 2017/2/17.
  */
-public final class TracerContext {
+public final class TracingContext implements AbstractTracingContext {
     private TraceSegment segment;
 
     /**
@@ -34,7 +34,7 @@ public final class TracerContext {
     /**
      * Create a {@link TraceSegment} and init {@link #spanIdGenerator} as 0;
      */
-    TracerContext() {
+    TracingContext() {
         this.segment = new TraceSegment(Config.Agent.APPLICATION_CODE);
         ServiceManager.INSTANCE.findService(SamplingService.class).trySampling(this.segment);
         this.spanIdGenerator = 0;
@@ -106,7 +106,7 @@ public final class TracerContext {
     /**
      * @return the current trace id.
      */
-    String getGlobalTraceId() {
+    public String getGlobalTraceId() {
         return segment.getRelatedGlobalTraces().get(0).get();
     }
 
@@ -138,7 +138,7 @@ public final class TracerContext {
     }
 
     /**
-     * Give a snapshot of this {@link TracerContext},
+     * Give a snapshot of this {@link TracingContext},
      * and save current state to the given {@link ContextCarrier}.
      *
      * @param carrier holds the snapshot
@@ -165,12 +165,13 @@ public final class TracerContext {
      * @param carrier holds the snapshot, if get this {@link ContextCarrier} from remote, make sure {@link
      * ContextCarrier#deserialize(String)} called.
      */
-    public void extract(ContextCarrier carrier) {
+    public AbstractTracingContext extract(ContextCarrier carrier) {
         if (carrier.isValid()) {
             this.segment.ref(getRef(carrier));
             ServiceManager.INSTANCE.findService(SamplingService.class).setSampleWhenExtract(this.segment, carrier);
             this.segment.relatedGlobalTraces(carrier.getDistributedTraceIds());
         }
+        return this;
     }
 
     private TraceSegmentRef getRef(ContextCarrier carrier) {

@@ -8,7 +8,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.skywalking.apm.agent.core.boot.ServiceManager;
-import org.skywalking.apm.agent.core.context.TracerContext;
+import org.skywalking.apm.agent.core.context.TracingContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodInvokeContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
@@ -54,7 +54,7 @@ public class TomcatInterceptorTest {
         tomcatInterceptor = new TomcatInterceptor();
         contextListener = new MockTracerContextListener();
 
-        TracerContext.ListenerManager.add(contextListener);
+        TracingContext.ListenerManager.add(contextListener);
 
         when(request.getRequestURI()).thenReturn("/test/testRequestURL");
         when(request.getRequestURL()).thenReturn(new StringBuffer("http://localhost:8080/test/testRequestURL"));
@@ -139,7 +139,7 @@ public class TomcatInterceptorTest {
 
     @After
     public void tearDown() throws Exception {
-        TracerContext.ListenerManager.remove(new MockTracerContextListener());
+        TracingContext.ListenerManager.remove(new MockTracerContextListener());
     }
 
 }

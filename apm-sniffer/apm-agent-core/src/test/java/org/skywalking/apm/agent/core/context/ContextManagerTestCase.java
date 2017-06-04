@@ -25,7 +25,7 @@ public class ContextManagerTestCase {
 
         Assert.assertEquals(span, ContextManager.activeSpan());
 
-        TracerContext.ListenerManager.add(TestTracerContextListener.INSTANCE);
+        TracingContext.ListenerManager.add(TestTracerContextListener.INSTANCE);
         ContextManager.stopSpan();
 
         TraceSegment segment = TestTracerContextListener.INSTANCE.finishedSegmentCarrier[0];
@@ -35,6 +35,6 @@ public class ContextManagerTestCase {
 
     @After
     public void reset() {
-        TracerContext.ListenerManager.remove(TestTracerContextListener.INSTANCE);
+        TracingContext.ListenerManager.remove(TestTracerContextListener.INSTANCE);
     }
 }

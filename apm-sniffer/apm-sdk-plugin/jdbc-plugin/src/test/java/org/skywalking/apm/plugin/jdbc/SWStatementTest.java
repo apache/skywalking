@@ -9,7 +9,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.skywalking.apm.agent.core.boot.ServiceManager;
-import org.skywalking.apm.agent.core.context.TracerContext;
+import org.skywalking.apm.agent.core.context.TracingContext;
 import org.skywalking.apm.sniffer.mock.context.MockTracerContextListener;
 import org.skywalking.apm.sniffer.mock.context.SegmentAssert;
 import org.skywalking.apm.trace.Span;
@@ -46,7 +46,7 @@ public class SWStatementTest extends AbstractStatementTest {
         swConnection = new SWConnection("jdbc:mysql://127.0.0.1:3306/test", new Properties(), jdbcConnection);
         multiHostConnection = new SWConnection("jdbc:mysql://127.0.0.1:3306,127.0.0.1:3309/test", new Properties(), jdbcConnection);
 
-        TracerContext.ListenerManager.add(mockTracerContextListener);
+        TracingContext.ListenerManager.add(mockTracerContextListener);
 
         when(jdbcConnection.createStatement()).thenReturn(mysqlStatement);
         when(jdbcConnection.createStatement(anyInt(), anyInt())).thenReturn(mysqlStatement);
@@ -299,6 +299,6 @@ public class SWStatementTest extends AbstractStatementTest {
 
     @After
     public void tearDown() throws Exception {
-        TracerContext.ListenerManager.remove(mockTracerContextListener);
+        TracingContext.ListenerManager.remove(mockTracerContextListener);
     }
 }

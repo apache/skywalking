@@ -5,38 +5,38 @@ import org.skywalking.apm.trace.Span;
 import org.skywalking.apm.trace.TraceSegment;
 
 /**
- * {@link TracerContext} controls the whole context of {@link TraceSegment}. Any {@link TraceSegment} relates to
+ * {@link TracingContext} controls the whole context of {@link TraceSegment}. Any {@link TraceSegment} relates to
  * single-thread, so this context use {@link ThreadLocal} to maintain the context, and make sure, since a {@link
  * TraceSegment} starts, all ChildOf spans are in the same context.
  * <p>
  * What is 'ChildOf'? {@see https://github.com/opentracing/specification/blob/master/specification.md#references-between-spans}
  * <p>
- * Also, {@link ContextManager} delegates to all {@link TracerContext}'s major methods: {@link
- * TracerContext#createSpan(String)}, {@link TracerContext#activeSpan()}, {@link TracerContext#stopSpan(Span)}
+ * Also, {@link ContextManager} delegates to all {@link TracingContext}'s major methods: {@link
+ * TracingContext#createSpan(String, boolean)}, {@link TracingContext#activeSpan()}, {@link TracingContext#stopSpan(Span)}
  * <p>
  * Created by wusheng on 2017/2/17.
  */
 public class ContextManager implements TracerContextListener, BootService {
-    private static ThreadLocal<TracerContext> CONTEXT = new ThreadLocal<TracerContext>();
+    private static ThreadLocal<AbstractTracingContext> CONTEXT = new ThreadLocal<AbstractTracingContext>();
 
-    private static TracerContext get() {
-        TracerContext segment = CONTEXT.get();
+    private static AbstractTracingContext get() {
+        AbstractTracingContext segment = CONTEXT.get();
         if (segment == null) {
-            segment = new TracerContext();
+            segment = new TracingContext();
             CONTEXT.set(segment);
         }
         return segment;
     }
 
     /**
-     * @see {@link TracerContext#inject(ContextCarrier)}
+     * @see {@link TracingContext#inject(ContextCarrier)}
      */
     public static void inject(ContextCarrier carrier) {
         get().inject(carrier);
     }
 
     /**
-     * @see {@link TracerContext#extract(ContextCarrier)}
+     * @see {@link TracingContext#extract(ContextCarrier)}
      */
     public static void extract(ContextCarrier carrier) {
         get().extract(carrier);
@@ -46,7 +46,7 @@ public class ContextManager implements TracerContextListener, BootService {
      * @return the first global trace id if exist. Otherwise, "N/A".
      */
     public static String getGlobalTraceId() {
-        TracerContext segment = CONTEXT.get();
+        AbstractTracingContext segment = CONTEXT.get();
         if (segment == null) {
             return "N/A";
         } else {
@@ -88,7 +88,7 @@ public class ContextManager implements TracerContextListener, BootService {
 
     @Override
     public void bootUp() {
-        TracerContext.ListenerManager.add(this);
+        TracingContext.ListenerManager.add(this);
     }
 
     @Override

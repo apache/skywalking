@@ -12,7 +12,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.skywalking.apm.agent.core.boot.ServiceManager;
-import org.skywalking.apm.agent.core.context.TracerContext;
+import org.skywalking.apm.agent.core.context.TracingContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ConstructorInvokeContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodInvokeContext;
@@ -57,7 +57,7 @@ public class MotanProviderInterceptorTest {
         contextListener = new MockTracerContextListener();
         url = URL.valueOf("motan://127.0.0.1:34000/org.skywalking.apm.test.TestService");
 
-        TracerContext.ListenerManager.add(contextListener);
+        TracingContext.ListenerManager.add(contextListener);
 
         when(instanceContext.get("REQUEST_URL")).thenReturn(url);
         when(interceptorContext.allArguments()).thenReturn(new Object[] {request});
@@ -162,6 +162,6 @@ public class MotanProviderInterceptorTest {
 
     @After
     public void tearDown() {
-        TracerContext.ListenerManager.remove(contextListener);
+        TracingContext.ListenerManager.remove(contextListener);
     }
 }
