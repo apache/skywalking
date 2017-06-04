@@ -10,11 +10,6 @@ import org.skywalking.apm.trace.tag.IntTag;
  */
 public class IntTagGetter {
     public static Integer get(Span span, IntTag tag) {
-        Integer tagValue = span.getIntTag(tag.key());
-        if (tagValue == null) {
-            return null;
-        } else {
-            return tagValue;
-        }
+        return span.getIntTag(tag.key());
     }
 }
