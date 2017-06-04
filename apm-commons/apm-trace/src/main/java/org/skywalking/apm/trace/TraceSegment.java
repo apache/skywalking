@@ -19,7 +19,7 @@ import java.util.List;
  * <p>
  * Created by wusheng on 2017/2/17.
  */
-public class TraceSegment implements AbstractTraceSegment{
+public class TraceSegment {
     private static final String ID_TYPE = "Segment";
 
     /**
