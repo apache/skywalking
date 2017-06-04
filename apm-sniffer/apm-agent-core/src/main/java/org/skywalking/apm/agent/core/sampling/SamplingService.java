@@ -41,7 +41,7 @@ public class SamplingService implements BootService {
             if (rollingSeed % Config.Agent.SAMPLING_CYCLE != 0) {
                 segment.setSampled(false);
                 rollingSeed++;
-            }else{
+            } else {
                 this.rollingSeed = 1;
             }
         }
