@@ -32,6 +32,7 @@ public class CollectorClient implements Runnable {
     private static long SLEEP_TIME_MILLIS = 500;
     private String[] serverList;
     private volatile int selectedServer = -1;
+    private Gson serializer;
 
     public CollectorClient() {
         serverList = Config.Collector.SERVERS.split(",");
@@ -39,6 +40,9 @@ public class CollectorClient implements Runnable {
         if (serverList.length > 0) {
             selectedServer = r.nextInt(serverList.length);
         }
+        serializer = new GsonBuilder()
+            .excludeFieldsWithoutExposeAnnotation()
+            .create();
     }
 
     @Override
@@ -84,10 +88,7 @@ public class CollectorClient implements Runnable {
         if (message == null) {
             return;
         }
-        Gson gson = new GsonBuilder()
-            .excludeFieldsWithoutExposeAnnotation()
-            .create();
-        String messageJson = gson.toJson(message);
+        String messageJson = message.serialize(serializer);
         CloseableHttpClient httpClient = HttpClients.custom().build();
         try {
             HttpPost httpPost = ready2Send(messageJson);
