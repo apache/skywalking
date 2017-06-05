@@ -1,0 +1,2 @@
+opentracing=org.skywalking.apm.toolkit.activation.opentracing.span.SkyWalkingSpanActivation
+opentracing=org.skywalking.apm.toolkit.activation.opentracing.tracer.SkyWalkingTracerActivation

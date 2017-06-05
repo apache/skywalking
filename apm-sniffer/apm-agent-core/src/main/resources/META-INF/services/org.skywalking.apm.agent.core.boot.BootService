@@ -1,0 +1,4 @@
+org.skywalking.apm.agent.core.queue.TraceSegmentProcessQueue
+org.skywalking.apm.agent.core.context.ContextManager
+org.skywalking.apm.agent.core.client.CollectorClientService
+org.skywalking.apm.agent.core.sampling.SamplingService

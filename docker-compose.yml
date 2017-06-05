@@ -1,87 +1,40 @@
-version: '2'
+version: '2.1'
 services:
-
-  skywalking-storage:
-    image: skywalking/skywalking-storage:2.1-2017
-    expose:
-      - "34000"
-    depends_on:
-      - registry-center-server
-    links:
-      - registry-center-server
-    environment:
-      - REGISTRY_CENTER_URL=registry-center-server:2181
-
-  skywalking-alarm:
-    image: skywalking/skywalking-alarm:2.1-2017
-    depends_on:
-      - alarm-coordinate-zk
-      - mysql-server
-      - redis-server
-    links:
-      - alarm-coordinate-zk
-      - mysql-server
-      - redis-server
-    environment:
-      - ALARM_COORDINATE_ZK_ADDRESS=alarm-coordinate-zk:2181
-      - MYSQL_SERVER=mysql-server:3306
-      - REDIS_SERVER=redis-server:6379
-      - WEBUI_DEPLOY_ADDRESS=192.168.1.104:8080
-      - WEBUI_APPLICATION_CONTEXT=skywalking
-      - ALARM_MAIL_HOST=smtp.mail.com
-      - MAIL_USER_NAME=skywalking
-      - MAIL_PASSWORD=skywalking
-      - MAIL_SENDER_MAIL=skywalking@mail.com
-
-  skywalking-routing:
-    image: skywalking/skywalking-routing:2.1-2017
-    expose:
-      - "23000"
-    ports:
-      - "23000:23000"
-    depends_on:
-      - registry-center-server
-    links:
-      - registry-center-server
-    environment:
-      - REGISTRY_CENTER_URL=registry-center-server:2181
-      - ALARM_REDIS_SERVER=redis-server:6379
-
   skywalking-webui:
-    image: skywalking/skywalking-webui:2.1-2017
+    image: sky-walking-ui:3.0.1-2017
     expose:
       - "8080"
     ports:
       - "8080:8080"
-    depends_on:
-      - mysql-server
-      - registry-center-server
     links:
-      - mysql-server
-      - registry-center-server
+      - skywalking-collector
     environment:
-      - MYSQL_URL=mysql-server:3306
-      - REGISTRY_CENTER_URL=registry-center-server:2181
+      - COLLECTOR_SERVERS=skywalking-collector:7001
 
-  mysql-server:
-    image: mysql:5.6
+  skywalking-collector:
+    image: skywalking-collector:3.0.1-2017
     expose:
-      - "3306"
+      - "12800"
+      - "1000"
+    ports:
+      - "12800:12800"
+    depends_on:
+      es-server:
+        condition: service_healthy
+    links:
+      - es-server
     environment:
-      MYSQL_DATABASE: test
-      MYSQL_ROOT_PASSWORD: root
+      - ES_CLUSTER_NODES=es-server:9300
+      - HTTP_HOST_NAME=0.0.0.0
 
-  registry-center-server:
-    image: zookeeper:3.4.9
+  es-server:
+    image: elasticsearch:5.3
+    command: "-Enode.name=TestNode -Enetwork.host=0.0.0.0 -Ehttp.cors.enabled=true -Ehttp.cors.allow-origin=* -Ethread_pool.bulk.queue_size=1000 -Ecluster.name=CollectorDBCluster"
     expose:
-      - "2181"
-
-  redis-server:
-    image: redis:3.2.6
-    expose:
-      - "6379"
-
-  alarm-coordinate-zk:
-    image: zookeeper:3.4.9
-    expose:
-      - "2181"
+      - "9200"
+      - "9300"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200"]
+      interval: 30s
+      timeout: 10s
+      retries: 5

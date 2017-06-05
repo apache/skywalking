@@ -1,6 +1,0 @@
-com.a.eye.skywalking.collector.worker.receiver.TraceSegmentReceiver$Factory
-com.a.eye.skywalking.collector.worker.application.receiver.DAGNodeReceiver$Factory
-com.a.eye.skywalking.collector.worker.application.receiver.NodeInstanceReceiver$Factory
-com.a.eye.skywalking.collector.worker.application.receiver.ResponseCostReceiver$Factory
-com.a.eye.skywalking.collector.worker.application.receiver.ResponseSummaryReceiver$Factory
-com.a.eye.skywalking.collector.worker.applicationref.receiver.DAGNodeRefReceiver$Factory

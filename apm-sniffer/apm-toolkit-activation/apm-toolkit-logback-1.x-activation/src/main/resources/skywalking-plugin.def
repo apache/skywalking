@@ -1,0 +1,1 @@
+logback=org.skywalking.apm.toolkit.activation.log.logback.v1.x.LogbackPatternConverterActivation

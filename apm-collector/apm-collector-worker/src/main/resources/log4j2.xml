@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="error">
+    <Properties>
+        <Property name="log-path">../logs</Property>
+    </Properties>
+    <Appenders>
+        <RollingFile name="RollingFile" fileName="${log-path}/skywalking-server-log4j2.log"
+                     filePattern="${log-path}/skywalking-server-log4j2-%d{yyyy-MM-dd}-%i.log">
+            <PatternLayout>
+                <pattern>%d - %c -%-4r [%t] %-5p %x - %m%n</pattern>
+            </PatternLayout>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="102400KB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="30"/>
+        </RollingFile>
+    </Appenders>
+    <Loggers>
+        <logger name="org.skywalking.apm.collector" level="debug">
+            <AppenderRef ref="RollingFile"/>
+        </logger>
+        <Root level="INFO">
+            <AppenderRef ref="RollingFile"/>
+        </Root>
+    </Loggers>
+</Configuration>

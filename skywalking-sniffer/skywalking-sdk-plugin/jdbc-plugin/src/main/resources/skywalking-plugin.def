@@ -1,3 +1,0 @@
-com.a.eye.skywalking.plugin.jdbc.define.H2Instrumentation
-com.a.eye.skywalking.plugin.jdbc.define.MysqlInstrumentation
-com.a.eye.skywalking.plugin.jdbc.define.OracleInstrumentation

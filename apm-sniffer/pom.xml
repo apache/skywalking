@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>apm</artifactId>
+        <groupId>org.skywalking</groupId>
+        <version>3.1-2017</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>apm-sniffer</artifactId>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>apm-agent</module>
+        <module>apm-agent-core</module>
+        <module>apm-sdk-plugin</module>
+        <module>apm-toolkit-activation</module>
+        <module>apm-sniffer-mock</module>
+    </modules>
+
+    <properties>
+        <compiler.version>1.6</compiler.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>apm-util</artifactId>
+            <version>3.1-2017</version>
+        </dependency>
+    </dependencies>
+</project>

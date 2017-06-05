@@ -1,0 +1,1 @@
+dubbo=org.skywalking.apm.plugin.dubbo.DubboInstrumentation

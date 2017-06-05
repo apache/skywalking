@@ -1,0 +1,1 @@
+log4j2=org.skywalking.apm.toolkit.activation.log.log4j.v2.x.Log4j2OutputAppenderActivation
