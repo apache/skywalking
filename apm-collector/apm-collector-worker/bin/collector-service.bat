@@ -14,7 +14,7 @@ if ""%JAVA_HOME%"" == """" (
   set _EXECJAVA="%JAVA_HOME%"/bin/java
 )
 
-start /MIN "%COLLECOTR_PROCESS_TITLE%" %_EXECJAVA% "%COLLECTOR_RUNTIME_OPTIONS%" -cp "%CLASSPATH%" CollectorBootStartUp &
+start /MIN "%COLLECOTR_PROCESS_TITLE%" %_EXECJAVA% "%COLLECTOR_RUNTIME_OPTIONS%" -cp "%CLASSPATH%" org.skywalking.apm.collector.worker.CollectorBootStartUp &
 echo Collector started successfully!
 
 endlocal

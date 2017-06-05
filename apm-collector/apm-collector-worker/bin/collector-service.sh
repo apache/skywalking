@@ -21,7 +21,7 @@ do
 done
 
 echo "Starting collector...."
-eval exec "\"$_RUNJAVA\" ${JAVA_OPTS} -classpath $CLASSPATH CollectorBootStartUp \
+eval exec "\"$_RUNJAVA\" ${JAVA_OPTS} -classpath $CLASSPATH org.skywalking.apm.collector.worker.CollectorBootStartUp \
         2>${COLLECTOR_LOGS_DIR}/collector.log 1> /dev/null &"
 
 if [ $? -eq 0 ]; then
