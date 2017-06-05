@@ -7,7 +7,7 @@
                     class="sr-only">Close</span></button>
             <h4 class="modal-title">Span Info</h4>
             <small class="font-bold">OperationName: {{:operationName}})</small><br/>
-            <small class="font-bold">{{:startTime}} - {{:endTime}}</small>
+            <small class="font-bold">{{dateFormat:startTime}} - {{dateFormat:endTime}}</small>
         </div>
         <div class="modal-body" style="padding: 0">
             <div class="tabs-container">
@@ -36,9 +36,9 @@
                         {{for logs}}
                         <div id="logData{{: #index+1}}" class="tab-pane">
                             <div class="panel-body">
-                                <strong>time</strong><p>{{:time}}</p>
+                                <strong>time</strong><p>{{dateFormat:time}}</p>
                                 {{props fields}}
-                                    <strong>{{>key}}</strong><p>{{>prop}}</p>
+                                    <strong>{{>key}}</strong><p>{{tabCharacter:prop}}</p>
                                 {{/props}}
                             </div>
                         </div>
