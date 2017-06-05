@@ -633,23 +633,23 @@ public class SegmentJsonReader implements Closeable {
         }
         StringValue result = new StringValue();
         if (p == PEEKED_UNQUOTED) {
-            result.setNonQuoteValue(nextUnquotedValue());
-            result.setQuoteValue(nextUnquotedValue());
+            result.setValue(nextUnquotedValue());
+            result.setOriginValue(nextUnquotedValue());
         } else if (p == PEEKED_SINGLE_QUOTED) {
-            result.setNonQuoteValue(nextQuotedValue('\''));
-            result.setQuoteValue(nextQuotedValue('\''));
+            result.setValue(nextQuotedValue('\''));
+            result.setOriginValue(nextQuotedValue('\''));
         } else if (p == PEEKED_DOUBLE_QUOTED) {
             result = nextQuotedValueForString('"');
         } else if (p == PEEKED_BUFFERED) {
-            result.setNonQuoteValue(peekedString);
-            result.setQuoteValue(peekedString);
+            result.setValue(peekedString);
+            result.setOriginValue(peekedString);
             peekedString = null;
         } else if (p == PEEKED_LONG) {
-            result.setNonQuoteValue(Long.toString(peekedLong));
-            result.setQuoteValue(Long.toString(peekedLong));
+            result.setValue(Long.toString(peekedLong));
+            result.setOriginValue(Long.toString(peekedLong));
         } else if (p == PEEKED_NUMBER) {
-            result.setNonQuoteValue(new String(buffer, pos, peekedNumberLength));
-            result.setQuoteValue(new String(buffer, pos, peekedNumberLength));
+            result.setValue(new String(buffer, pos, peekedNumberLength));
+            result.setOriginValue(new String(buffer, pos, peekedNumberLength));
             pos += peekedNumberLength;
         } else {
             throw new IllegalStateException("Expected a string but was " + peek() + locationString());
@@ -864,8 +864,8 @@ public class SegmentJsonReader implements Closeable {
                     nonQuoteBuilder.append(buffer, start, p - start - 1);
                     quoteBuilder.append(buffer, start, p - start - 1);
 
-                    result.setNonQuoteValue(nonQuoteBuilder.toString());
-                    result.setQuoteValue(quoteBuilder.toString());
+                    result.setValue(nonQuoteBuilder.toString());
+                    result.setOriginValue(quoteBuilder.toString());
                     return result;
                 } else if (c == '\\') {
                     pos = p;
@@ -876,6 +876,21 @@ public class SegmentJsonReader implements Closeable {
                     nonQuoteBuilder.append(character);
 
                     switch (character) {
+                        case '\t':
+                            quoteBuilder.append('\\').append('t');
+                            break;
+                        case '\b':
+                            quoteBuilder.append('\\').append('b');
+                            break;
+                        case '\n':
+                            quoteBuilder.append('\\').append('n');
+                            break;
+                        case '\r':
+                            quoteBuilder.append('\\').append('r');
+                            break;
+                        case '\f':
+                            quoteBuilder.append('\\').append('f');
+                            break;
                         case '\'':
                         case '"':
                         case '\\':
@@ -1468,23 +1483,23 @@ public class SegmentJsonReader implements Closeable {
     }
 
     public static class StringValue {
-        private String nonQuoteValue;
-        private String quoteValue;
+        private String value;
+        private String originValue;
 
-        public String getNonQuoteValue() {
-            return nonQuoteValue;
+        public String getValue() {
+            return value;
         }
 
-        public void setNonQuoteValue(String nonQuoteValue) {
-            this.nonQuoteValue = nonQuoteValue;
+        public void setValue(String value) {
+            this.value = value;
         }
 
-        public String getQuoteValue() {
-            return quoteValue;
+        public String getOriginValue() {
+            return originValue;
         }
 
-        public void setQuoteValue(String quoteValue) {
-            this.quoteValue = quoteValue;
+        public void setOriginValue(String originValue) {
+            this.originValue = originValue;
         }
     }
 }

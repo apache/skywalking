@@ -38,7 +38,7 @@ public class LogData extends DeserializeObject {
 
                     while (reader.hasNext()) {
                         String key = reader.nextName();
-                        String value = reader.nextString().getQuoteValue();
+                        String value = reader.nextString().getOriginValue();
                         fields.put(key, value);
                     }
                     reader.endObject();

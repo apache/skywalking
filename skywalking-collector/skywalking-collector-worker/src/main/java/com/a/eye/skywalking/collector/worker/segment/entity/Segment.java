@@ -54,13 +54,13 @@ public class Segment extends DeserializeObject {
             switch (reader.nextName()) {
                 case "ts":
                     SegmentJsonReader.StringValue ts = reader.nextString();
-                    this.traceSegmentId = ts.getNonQuoteValue();
-                    JsonBuilder.INSTANCE.append(stringBuilder, "ts", ts.getQuoteValue(), first);
+                    this.traceSegmentId = ts.getValue();
+                    JsonBuilder.INSTANCE.append(stringBuilder, "ts", ts.getOriginValue(), first);
                     break;
                 case "ac":
                     SegmentJsonReader.StringValue ac = reader.nextString();
-                    this.applicationCode = ac.getNonQuoteValue();
-                    JsonBuilder.INSTANCE.append(stringBuilder, "ac", ac.getQuoteValue(), first);
+                    this.applicationCode = ac.getValue();
+                    JsonBuilder.INSTANCE.append(stringBuilder, "ac", ac.getOriginValue(), first);
                     break;
                 case "st":
                     long st = reader.nextLong();

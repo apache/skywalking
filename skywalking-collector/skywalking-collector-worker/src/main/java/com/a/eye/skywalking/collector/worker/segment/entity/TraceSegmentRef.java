@@ -40,7 +40,7 @@ public class TraceSegmentRef extends DeserializeObject {
         while (reader.hasNext()) {
             switch (reader.nextName()) {
                 case "ts":
-                    String ts = reader.nextString().getNonQuoteValue();
+                    String ts = reader.nextString().getValue();
                     this.traceSegmentId = ts;
                     JsonBuilder.INSTANCE.append(stringBuilder, "ts", ts, first);
                     break;
@@ -50,12 +50,12 @@ public class TraceSegmentRef extends DeserializeObject {
                     JsonBuilder.INSTANCE.append(stringBuilder, "si", si, first);
                     break;
                 case "ac":
-                    String ac = reader.nextString().getNonQuoteValue();
+                    String ac = reader.nextString().getValue();
                     this.applicationCode = ac;
                     JsonBuilder.INSTANCE.append(stringBuilder, "ac", ac, first);
                     break;
                 case "ph":
-                    String ph = reader.nextString().getNonQuoteValue();
+                    String ph = reader.nextString().getValue();
                     this.peerHost = ph;
                     JsonBuilder.INSTANCE.append(stringBuilder, "ph", ph, first);
                     break;

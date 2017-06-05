@@ -13,7 +13,7 @@ public class GlobalTraceId extends DeserializeObject {
     }
 
     public GlobalTraceId deserialize(SegmentJsonReader reader) throws IOException {
-        this.globalTraceId = reader.nextString().getNonQuoteValue();
+        this.globalTraceId = reader.nextString().getValue();
         this.setJsonStr("\"" + globalTraceId + "\"");
         return this;
     }
