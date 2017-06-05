@@ -16,7 +16,7 @@
         </RollingFile>
     </Appenders>
     <Loggers>
-        <logger name="com.a.eye.skywalking.collector" level="debug">
+        <logger name="com.a.eye.skywalking.collector" level="INFO">
             <AppenderRef ref="RollingFile"/>
         </logger>
         <Root level="INFO">

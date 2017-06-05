@@ -357,11 +357,19 @@
         "ts": {
           "span.layer": "rpc",
           "component": "Motan",
-          "span.kind": "server"
+          "span.kind": "server",
+          "sql": "select * from table where column=\"value\""
         },
         "tb": {},
         "ti": {},
-        "lo": []
+        "lo": [
+          {
+            "tm": 1490923010332,
+            "fi": {
+              "special.character": "\'\" \\ /"
+            }
+          }
+        ]
       }
     ],
     "ac": "cache-service",
