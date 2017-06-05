@@ -14,7 +14,7 @@ if ""%JAVA_HOME%"" == """" (
   set _EXECJAVA="%JAVA_HOME%"/bin/java
 )
 
-start /MIN "%WEB_PROCESS_TITLE%" %_EXECJAVA% "%WEB_RUNTIME_OPTIONS%" -cp "%CLASSPATH%" ApplicationStartUp &
+start /MIN "%WEB_PROCESS_TITLE%" %_EXECJAVA% "%WEB_RUNTIME_OPTIONS%" -cp "%CLASSPATH%" org.skywalking.apm.ui.ApplicationStartUp &
 echo Skywalking Web started successfully!
 
 endlocal

@@ -21,7 +21,7 @@ do
 done
 
 echo "Starting web service...."
-eval exec "\"$_RUNJAVA\" ${JAVA_OPTS} -classpath $CLASSPATH ApplicationStartUp \
+eval exec "\"$_RUNJAVA\" ${JAVA_OPTS} -classpath $CLASSPATH org.skywalking.apm.ui.ApplicationStartUp \
         2>${WEB_LOGS_DIR}/collector.log 1> /dev/null &"
 
 if [ $? -eq 0 ]; then
