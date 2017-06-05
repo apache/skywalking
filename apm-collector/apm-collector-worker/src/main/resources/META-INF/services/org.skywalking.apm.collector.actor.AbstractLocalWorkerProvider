@@ -46,3 +46,7 @@ org.skywalking.apm.collector.worker.globaltrace.persistence.GlobalTraceSave$Fact
 org.skywalking.apm.collector.worker.globaltrace.persistence.GlobalTraceSearchWithGlobalId$Factory
 
 org.skywalking.apm.collector.worker.span.persistence.SpanSearchWithId$Factory
+
+org.skywalking.apm.collector.worker.instance.heartbeat.HeartBeatAnalysis$Factory
+org.skywalking.apm.collector.worker.instance.InstanceInfoSave$Factory
+org.skywalking.apm.collector.worker.instance.heartbeat.HeartBeatPersistenceMember$Factory

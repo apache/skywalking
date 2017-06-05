@@ -1,18 +1,20 @@
 package org.skywalking.apm.collector.worker.segment;
 
+import com.google.gson.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.skywalking.apm.util.StringUtil;
 import org.skywalking.apm.collector.actor.ClusterWorkerContext;
 import org.skywalking.apm.collector.actor.LocalWorkerContext;
 import org.skywalking.apm.collector.actor.ProviderNotFoundException;
 import org.skywalking.apm.collector.actor.Role;
+import org.skywalking.apm.collector.actor.WorkerRef;
 import org.skywalking.apm.collector.actor.selector.RollingSelector;
 import org.skywalking.apm.collector.actor.selector.WorkerSelector;
-import org.skywalking.apm.collector.worker.config.WorkerConfig;
 import org.skywalking.apm.collector.worker.globaltrace.analysis.GlobalTraceAnalysis;
 import org.skywalking.apm.collector.worker.httpserver.AbstractPost;
 import org.skywalking.apm.collector.worker.httpserver.AbstractPostProvider;
+import org.skywalking.apm.collector.worker.httpserver.AbstractPostWithHttpServlet;
+import org.skywalking.apm.collector.worker.instance.heartbeat.HeartBeatAnalysis;
 import org.skywalking.apm.collector.worker.node.analysis.NodeCompAnalysis;
 import org.skywalking.apm.collector.worker.node.analysis.NodeMappingDayAnalysis;
 import org.skywalking.apm.collector.worker.node.analysis.NodeMappingHourAnalysis;
@@ -26,6 +28,7 @@ import org.skywalking.apm.collector.worker.segment.analysis.SegmentExceptionAnal
 import org.skywalking.apm.collector.worker.segment.entity.Segment;
 import org.skywalking.apm.collector.worker.storage.AbstractTimeSlice;
 import org.skywalking.apm.collector.worker.tools.DateTools;
+import org.skywalking.apm.util.StringUtil;
 
 /**
  * @author pengys5
@@ -54,12 +57,14 @@ public class SegmentPost extends AbstractPost {
         getClusterContext().findProvider(NodeMappingDayAnalysis.Role.INSTANCE).create(this);
         getClusterContext().findProvider(NodeMappingHourAnalysis.Role.INSTANCE).create(this);
         getClusterContext().findProvider(NodeMappingMinuteAnalysis.Role.INSTANCE).create(this);
+
+        getClusterContext().findProvider(HeartBeatAnalysis.Role.INSTANCE).create(this);
     }
 
     @Override
-    protected void onReceive(Object message) throws Exception {
+    protected void onReceive(Object message, JsonObject response) throws Exception {
         if (message instanceof Segment) {
-            Segment segment = (Segment) message;
+            Segment segment = (Segment)message;
             try {
                 validateData(segment);
             } catch (IllegalArgumentException e) {
@@ -85,6 +90,8 @@ public class SegmentPost extends AbstractPost {
 
             tellNodeRef(segmentWithTimeSlice);
             tellNodeMapping(segmentWithTimeSlice);
+
+            getSelfContext().lookup(HeartBeatAnalysis.Role.INSTANCE).tell(segment);
         }
     }
 
@@ -115,9 +122,8 @@ public class SegmentPost extends AbstractPost {
             return "/segments";
         }
 
-        @Override
-        public int queueSize() {
-            return WorkerConfig.Queue.Segment.SegmentPost.SIZE;
+        @Override public AbstractPostWithHttpServlet handleServlet(WorkerRef workerRef) {
+            return new SegmentPostWithHttpServlet(workerRef);
         }
 
         @Override

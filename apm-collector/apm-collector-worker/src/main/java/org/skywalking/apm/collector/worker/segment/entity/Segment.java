@@ -17,6 +17,7 @@ public class Segment extends DeserializeObject {
     private List<Span> spans;
     private String applicationCode;
     private List<GlobalTraceId> relatedGlobalTraces;
+    private String instanceId;
 
     public String getTraceSegmentId() {
         return traceSegmentId;
@@ -113,6 +114,11 @@ public class Segment extends DeserializeObject {
 
                     reader.endArray();
                     break;
+                case "ii":
+                    String ii = reader.nextString();
+                    this.instanceId = ii;
+                    JsonBuilder.INSTANCE.append(stringBuilder, "ii", ii, first);
+                    break;
                 default:
                     reader.skipValue();
             }
@@ -123,5 +129,9 @@ public class Segment extends DeserializeObject {
         stringBuilder.append("}");
         this.setJsonStr(stringBuilder.toString());
         return this;
+    }
+
+    public String getInstanceId() {
+        return instanceId;
     }
 }

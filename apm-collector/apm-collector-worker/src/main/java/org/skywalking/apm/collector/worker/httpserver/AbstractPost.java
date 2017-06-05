@@ -2,60 +2,46 @@ package org.skywalking.apm.collector.worker.httpserver;
 
 import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonReader;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.skywalking.apm.collector.actor.*;
-import org.skywalking.apm.collector.worker.segment.entity.Segment;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
-import java.io.IOException;
+import org.skywalking.apm.collector.actor.AbstractLocalSyncWorker;
+import org.skywalking.apm.collector.actor.ClusterWorkerContext;
+import org.skywalking.apm.collector.actor.LocalSyncWorkerRef;
+import org.skywalking.apm.collector.actor.LocalWorkerContext;
+import org.skywalking.apm.collector.actor.Role;
+import org.skywalking.apm.collector.actor.WorkerRef;
+import org.skywalking.apm.collector.worker.instance.entity.RegistryInfo;
+import org.skywalking.apm.collector.worker.instance.entity.HeartBeat;
+import org.skywalking.apm.collector.worker.segment.entity.Segment;
 
 /**
  * @author pengys5
  */
 
-public abstract class AbstractPost extends AbstractLocalAsyncWorker {
+public abstract class AbstractPost extends AbstractLocalSyncWorker {
 
     public AbstractPost(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
     @Override
-    final public void onWork(Object message) throws Exception {
-        onReceive(message);
+    protected void onWork(Object request, Object response) throws Exception {
+        try {
+            onReceive(request, (JsonObject)response);
+        } catch (Exception e) {
+            ((JsonObject)response).addProperty("isSuccess", false);
+            ((JsonObject)response).addProperty("reason", e.getMessage());
+        }
     }
 
-    protected abstract void onReceive(Object message) throws Exception;
+    protected abstract void onReceive(Object message, JsonObject response) throws Exception;
 
-    static class PostWithHttpServlet extends AbstractHttpServlet {
+    public static class SegmentPostWithHttpServlet extends AbstractPostWithHttpServlet {
 
-        private Logger logger = LogManager.getFormatterLogger(PostWithHttpServlet.class);
-
-        private final LocalAsyncWorkerRef ownerWorkerRef;
-
-        PostWithHttpServlet(LocalAsyncWorkerRef ownerWorkerRef) {
-            this.ownerWorkerRef = ownerWorkerRef;
+        public SegmentPostWithHttpServlet(WorkerRef ownerWorkerRef) {
+            super(ownerWorkerRef);
         }
 
-        @Override
-        final protected void doPost(HttpServletRequest request,
-                                    HttpServletResponse response) throws ServletException, IOException {
-            JsonObject resJson = new JsonObject();
-            try {
-                BufferedReader bufferedReader = request.getReader();
-                streamReader(bufferedReader);
-                reply(response, resJson, HttpServletResponse.SC_OK);
-            } catch (Exception e) {
-                logger.error(e);
-                resJson.addProperty("error", e.getMessage());
-                reply(response, resJson, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            }
-        }
-
-        private void streamReader(BufferedReader bufferedReader) throws Exception {
+        protected void doWork(BufferedReader bufferedReader, JsonObject resJson) throws Exception {
             try (JsonReader reader = new JsonReader(bufferedReader)) {
                 readSegmentArray(reader);
             }
@@ -71,4 +57,42 @@ public abstract class AbstractPost extends AbstractLocalAsyncWorker {
             reader.endArray();
         }
     }
+
+    public static class RegisterPostWithHttpServlet extends AbstractPostWithHttpServlet {
+
+        public RegisterPostWithHttpServlet(WorkerRef ownerWorkerRef) {
+            super(ownerWorkerRef);
+        }
+
+        @Override
+        protected void doWork(BufferedReader bufferedReader, JsonObject resJson) throws Exception {
+            JsonReader reader = new JsonReader(bufferedReader);
+            reader.beginObject();
+            if (reader.nextName().equals("ac")) {
+                RegistryInfo registryParam = new RegistryInfo(reader.nextString());
+                ((LocalSyncWorkerRef)ownerWorkerRef).ask(registryParam, resJson);
+            }
+            reader.endObject();
+        }
+
+    }
+
+    public static class HeartBeatPostWithHttpServlet extends AbstractPostWithHttpServlet {
+
+        public HeartBeatPostWithHttpServlet(WorkerRef ownerWorkerRef) {
+            super(ownerWorkerRef);
+        }
+
+        @Override
+       protected void doWork(BufferedReader bufferedReader, JsonObject resJson) throws Exception {
+            JsonReader reader = new JsonReader(bufferedReader);
+            reader.beginObject();
+            if (reader.nextName().equals("ac")) {
+                HeartBeat registryParam = new HeartBeat(reader.nextString());
+                ownerWorkerRef.tell(registryParam);
+            }
+        }
+
+    }
+
 }

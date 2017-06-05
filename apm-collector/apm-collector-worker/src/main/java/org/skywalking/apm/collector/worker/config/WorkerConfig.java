@@ -22,6 +22,10 @@ public class WorkerConfig {
             public static class NodeMappingMinuteAgg {
                 public static int VALUE = 2;
             }
+
+            public static class HeartBeatSave {
+                public static int VALUE = 2;
+            }
         }
 
         public static class NodeRef {
@@ -97,6 +101,10 @@ public class WorkerConfig {
 
             public static class NodeMappingMinuteAnalysis {
                 public static int SIZE = 1024;
+            }
+
+            public class HeartBeatAnalysis {
+                public static final int SIZE = 64;
             }
         }
 

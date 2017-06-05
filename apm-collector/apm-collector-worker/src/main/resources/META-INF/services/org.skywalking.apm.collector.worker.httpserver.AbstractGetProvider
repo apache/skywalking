@@ -4,3 +4,4 @@ org.skywalking.apm.collector.worker.globaltrace.GlobalTraceGetWithGlobalId$Facto
 org.skywalking.apm.collector.worker.segment.SegmentTopGetWithGlobalTraceId$Factory
 org.skywalking.apm.collector.worker.span.SpanGetWithId$Factory
 org.skywalking.apm.collector.worker.tracedag.TraceDagGetWithTimeSlice$Factory
+

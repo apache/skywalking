@@ -41,7 +41,6 @@ public class SegmentsMessage {
             Gson gson = new GsonBuilder()
                 .excludeFieldsWithoutExposeAnnotation()
                 .create();
-
             out.beginArray();
             try {
                 for (TraceSegment segment : value.segments) {

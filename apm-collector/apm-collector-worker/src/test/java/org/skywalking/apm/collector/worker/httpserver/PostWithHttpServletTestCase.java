@@ -23,7 +23,7 @@ import static org.mockito.Mockito.*;
 public class PostWithHttpServletTestCase {
 
     private LocalAsyncWorkerRef workerRef;
-    private AbstractPost.PostWithHttpServlet servlet;
+    private AbstractPost.SegmentPostWithHttpServlet servlet;
     private HttpServletRequest request;
     private HttpServletResponse response;
     private PrintWriter writer;
@@ -31,7 +31,7 @@ public class PostWithHttpServletTestCase {
     @Before
     public void init() throws Exception {
         workerRef = mock(LocalAsyncWorkerRef.class);
-        servlet = new AbstractPost.PostWithHttpServlet(workerRef);
+        servlet = new AbstractPost.SegmentPostWithHttpServlet(workerRef);
 
         request = mock(HttpServletRequest.class);
         response = mock(HttpServletResponse.class);

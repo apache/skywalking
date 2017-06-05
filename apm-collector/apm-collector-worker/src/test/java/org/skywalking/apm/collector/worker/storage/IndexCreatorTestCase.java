@@ -46,7 +46,7 @@ public class IndexCreatorTestCase {
     public void testLoadIndex() throws Exception {
         IndexCreator indexCreator = spy(IndexCreator.INSTANCE);
         Set<AbstractIndex> indexSet = Whitebox.invokeMethod(indexCreator, "loadIndex");
-        Assert.assertEquals(8, indexSet.size());
+        Assert.assertEquals(9, indexSet.size());
 
         Set<String> indexName = new HashSet<>();
         for (AbstractIndex index : indexSet) {

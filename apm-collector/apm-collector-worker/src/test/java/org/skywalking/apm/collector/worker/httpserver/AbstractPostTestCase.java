@@ -34,13 +34,13 @@ public class AbstractPostTestCase {
     @Test
     public void testOnWork() throws Exception {
         String request = "testOnWork";
-        post.onWork(request);
-        verify(post).onReceive(anyString());
+        post.onWork(request, new JsonObject());
+        verify(post).onReceive(anyString(), any(JsonObject.class));
     }
 
     @Test
     public void testOnWorkError() throws Exception {
-        post.onWork(new JsonObject());
+        post.onWork(any(JsonObject.class),any(Object.class));
         PowerMockito.verifyPrivate(post).invoke("saveException", any(IllegalArgumentException.class));
     }
 }

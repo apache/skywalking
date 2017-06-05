@@ -17,10 +17,14 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.skywalking.apm.collector.AkkaSystem;
 import org.skywalking.apm.collector.actor.*;
 import org.skywalking.apm.collector.actor.selector.RollingSelector;
 import org.skywalking.apm.collector.worker.config.WorkerConfig;
 import org.skywalking.apm.collector.worker.globaltrace.analysis.GlobalTraceAnalysis;
+import org.skywalking.apm.collector.worker.instance.heartbeat.HeartBeatAnalysis;
+import org.skywalking.apm.collector.worker.instance.heartbeat.HeartBeatDataSave;
+import org.skywalking.apm.collector.worker.instance.heartbeat.HeartBeatPersistenceMember;
 import org.skywalking.apm.collector.worker.node.analysis.NodeCompAnalysis;
 import org.skywalking.apm.collector.worker.node.analysis.NodeMappingDayAnalysis;
 import org.skywalking.apm.collector.worker.node.analysis.NodeMappingHourAnalysis;
@@ -90,10 +94,6 @@ public class SegmentPostTestCase {
         Assert.assertEquals(SegmentPost.class.getSimpleName(), factory.role().roleName());
         Assert.assertEquals(SegmentPost.class.getSimpleName(), factory.workerInstance(null).getClass().getSimpleName());
         Assert.assertEquals("/segments", factory.servletPath());
-
-        int testSize = 10;
-        WorkerConfig.Queue.Segment.SegmentPost.SIZE = testSize;
-        Assert.assertEquals(testSize, factory.queueSize());
     }
 
     @Test
@@ -133,12 +133,13 @@ public class SegmentPostTestCase {
         when(clusterWorkerContext.findProvider(NodeMappingDayAnalysis.Role.INSTANCE)).thenReturn(new NodeMappingDayAnalysis.Factory());
         when(clusterWorkerContext.findProvider(NodeMappingHourAnalysis.Role.INSTANCE)).thenReturn(new NodeMappingHourAnalysis.Factory());
         when(clusterWorkerContext.findProvider(NodeMappingMinuteAnalysis.Role.INSTANCE)).thenReturn(new NodeMappingMinuteAnalysis.Factory());
+        when(clusterWorkerContext.findProvider(HeartBeatAnalysis.Role.INSTANCE)).thenReturn(new HeartBeatAnalysis.Factory());
 
         ArgumentCaptor<Role> argumentCaptor = ArgumentCaptor.forClass(Role.class);
 
         segmentPost.preStart();
 
-        verify(clusterWorkerContext, times(17)).findProvider(argumentCaptor.capture());
+        verify(clusterWorkerContext, times(18)).findProvider(argumentCaptor.capture());
         Assert.assertEquals(GlobalTraceAnalysis.Role.INSTANCE.roleName(), argumentCaptor.getAllValues().get(0).roleName());
 
         Assert.assertEquals(SegmentAnalysis.Role.INSTANCE.roleName(), argumentCaptor.getAllValues().get(1).roleName());
@@ -171,7 +172,7 @@ public class SegmentPostTestCase {
         segmentJsonObj.addProperty("et", 1491277162066L);
         segmentArray.add(segmentJsonObj);
 
-        segmentPost.onReceive(segmentArray.toString());
+        segmentPost.onReceive(segmentArray.toString(), new JsonObject());
     }
 
     private SegmentSaveAnswer segmentSaveAnswer_1;
@@ -297,7 +298,7 @@ public class SegmentPostTestCase {
     public void testOnReceive() throws Exception {
         String cacheServiceSegmentAsString = segmentMock.mockCacheServiceSegmentAsString();
 
-        segmentPost.onReceive(cacheServiceSegmentAsString);
+        segmentPost.onReceive(cacheServiceSegmentAsString, new JsonObject());
 
         Assert.assertEquals(DateTools.changeToUTCSlice(201703310915L), segmentSaveAnswer_1.minute);
         Assert.assertEquals(DateTools.changeToUTCSlice(201703310900L), segmentSaveAnswer_1.hour);

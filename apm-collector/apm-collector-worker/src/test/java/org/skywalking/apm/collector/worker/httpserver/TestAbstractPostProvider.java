@@ -3,19 +3,21 @@ package org.skywalking.apm.collector.worker.httpserver;
 import org.skywalking.apm.collector.actor.AbstractWorker;
 import org.skywalking.apm.collector.actor.ClusterWorkerContext;
 import org.skywalking.apm.collector.actor.Role;
+import org.skywalking.apm.collector.actor.WorkerRef;
 
 /**
  * @author pengys5
  */
 public class TestAbstractPostProvider extends AbstractPostProvider {
-    @Override
-    public int queueSize() {
-        return 4;
-    }
 
     @Override
     public String servletPath() {
         return "testPost";
+    }
+
+    @Override
+    public AbstractPostWithHttpServlet handleServlet(WorkerRef workerRef) {
+        return new AbstractPost.SegmentPostWithHttpServlet(workerRef);
     }
 
     @Override

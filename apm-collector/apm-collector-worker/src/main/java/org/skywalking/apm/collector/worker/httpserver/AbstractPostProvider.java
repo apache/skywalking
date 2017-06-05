@@ -7,14 +7,15 @@ import org.skywalking.apm.collector.actor.*;
 /**
  * @author pengys5
  */
-public abstract class AbstractPostProvider<T extends AbstractLocalAsyncWorker> extends AbstractLocalAsyncWorkerProvider<T> {
+public abstract class AbstractPostProvider<T extends AbstractLocalSyncWorker> extends AbstractLocalSyncWorkerProvider<T> {
 
     public abstract String servletPath();
 
     final protected void create(
         ServletContextHandler context) throws IllegalArgumentException, ProviderNotFoundException {
-        LocalAsyncWorkerRef workerRef = (LocalAsyncWorkerRef) super.create(AbstractWorker.noOwner());
-        AbstractPost.PostWithHttpServlet postWithHttpServlet = new AbstractPost.PostWithHttpServlet(workerRef);
-        context.addServlet(new ServletHolder(postWithHttpServlet), servletPath());
+        WorkerRef workerRef = super.create(AbstractWorker.noOwner());
+        context.addServlet(new ServletHolder(handleServlet(workerRef)), servletPath());
     }
+
+    public abstract AbstractPostWithHttpServlet handleServlet(WorkerRef workerRef);
 }

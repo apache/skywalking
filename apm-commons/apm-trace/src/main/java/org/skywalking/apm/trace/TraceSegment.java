@@ -100,6 +100,10 @@ public class TraceSegment {
      */
     private boolean sampled;
 
+    @Expose
+    @SerializedName(value = "ii")
+    private long instanceId;
+
     /**
      * Create a trace segment, by the given applicationCode.
      */
@@ -209,6 +213,10 @@ public class TraceSegment {
         this.sampled = sampled;
     }
 
+    public void setInstanceId(long instanceId) {
+        this.instanceId = instanceId;
+    }
+
     @Override
     public String toString() {
         return "TraceSegment{" +
@@ -219,6 +227,7 @@ public class TraceSegment {
             ", spans=" + spans +
             ", applicationCode='" + applicationCode + '\'' +
             ", relatedGlobalTraces=" + relatedGlobalTraces +
+            ", instanceId=" + instanceId +
             '}';
     }
 }

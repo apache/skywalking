@@ -1,9 +1,11 @@
 package org.skywalking.apm.collector.worker.httpserver;
 
+import com.google.gson.JsonObject;
 import org.skywalking.apm.collector.actor.ClusterWorkerContext;
 import org.skywalking.apm.collector.actor.LocalWorkerContext;
 import org.skywalking.apm.collector.actor.ProviderNotFoundException;
 import org.skywalking.apm.collector.actor.Role;
+import org.skywalking.apm.collector.actor.WorkerRef;
 import org.skywalking.apm.collector.actor.selector.RollingSelector;
 import org.skywalking.apm.collector.actor.selector.WorkerSelector;
 
@@ -21,7 +23,7 @@ public class TestAbstractPost extends AbstractPost {
     }
 
     @Override
-    protected void onReceive(Object message) throws Exception {
+    protected void onReceive(Object message, JsonObject response) throws Exception {
     }
 
     public enum WorkerRole implements Role {
@@ -45,8 +47,8 @@ public class TestAbstractPost extends AbstractPost {
         }
 
         @Override
-        public int queueSize() {
-            return 4;
+        public AbstractPostWithHttpServlet handleServlet(WorkerRef workerRef) {
+            return new SegmentPostWithHttpServlet(workerRef);
         }
 
         @Override
