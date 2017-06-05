@@ -1,7 +1,5 @@
 package com.a.eye.skywalking.collector.worker.segment.entity;
 
-import com.google.gson.stream.JsonReader;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -58,7 +56,7 @@ public class Span extends DeserializeObject {
         return logs;
     }
 
-    public Span deserialize(JsonReader reader) throws IOException {
+    public Span deserialize(SegmentJsonReader reader) throws IOException {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("{");
 
@@ -87,7 +85,7 @@ public class Span extends DeserializeObject {
                     JsonBuilder.INSTANCE.append(stringBuilder, "et", et, first);
                     break;
                 case "on":
-                    String on = reader.nextString();
+                    String on = reader.nextString().getValue();
                     this.operationName = on;
                     JsonBuilder.INSTANCE.append(stringBuilder, "on", on, first);
                     break;
@@ -97,7 +95,7 @@ public class Span extends DeserializeObject {
 
                     while (reader.hasNext()) {
                         String key = reader.nextName();
-                        String value = reader.nextString();
+                        String value = reader.nextString().getOriginValue();
                         tagsWithStr.put(key, value);
                     }
                     reader.endObject();

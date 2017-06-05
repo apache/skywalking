@@ -6,8 +6,8 @@ import com.a.eye.skywalking.collector.actor.LocalAsyncWorkerRef;
 import com.a.eye.skywalking.collector.actor.LocalWorkerContext;
 import com.a.eye.skywalking.collector.actor.Role;
 import com.a.eye.skywalking.collector.worker.segment.entity.Segment;
+import com.a.eye.skywalking.collector.worker.segment.entity.SegmentJsonReader;
 import com.google.gson.JsonObject;
-import com.google.gson.stream.JsonReader;
 import java.io.BufferedReader;
 import java.io.IOException;
 import javax.servlet.ServletException;
@@ -57,12 +57,12 @@ public abstract class AbstractPost extends AbstractLocalAsyncWorker {
         }
 
         private void streamReader(BufferedReader bufferedReader) throws Exception {
-            try (JsonReader reader = new JsonReader(bufferedReader)) {
+            try (SegmentJsonReader reader = new SegmentJsonReader(bufferedReader)) {
                 readSegmentArray(reader);
             }
         }
 
-        private void readSegmentArray(JsonReader reader) throws Exception {
+        private void readSegmentArray(SegmentJsonReader reader) throws Exception {
             reader.beginArray();
             while (reader.hasNext()) {
                 Segment segment = new Segment();

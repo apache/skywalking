@@ -42,7 +42,7 @@ public enum PersistenceTimer {
 
         List<AbstractLocalSyncWorker> workers = PersistenceWorkerListener.INSTANCE.getWorkers();
         for (AbstractLocalSyncWorker worker : workers) {
-            logger.info("worker role name: %s", worker.getRole().roleName());
+            logger.debug("worker role name: %s", worker.getRole().roleName());
             try {
                 worker.allocateJob(new FlushAndSwitch(), dataList);
             } catch (Exception e) {
