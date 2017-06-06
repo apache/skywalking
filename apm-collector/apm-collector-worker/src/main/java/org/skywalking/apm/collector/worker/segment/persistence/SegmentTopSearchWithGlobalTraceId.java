@@ -82,12 +82,13 @@ public class SegmentTopSearchWithGlobalTraceId extends AbstractLocalSyncWorker {
 
                     String segmentSource = client.prepareGet(SegmentIndex.INDEX, SegmentIndex.TYPE_RECORD, segId).get().getSourceAsString();
                     Segment segment = SegmentDeserialize.INSTANCE.deserializeSingle(segmentSource);
-                    List<GlobalTraceId> distributedTraceIdList = segment.getRelatedGlobalTraces();
+                    List<GlobalTraceId> distributedTraceIdList = null;
+//                    List<GlobalTraceId> distributedTraceIdList = segment.getRelatedGlobalTraces();
 
                     JsonArray distributedTraceIdArray = new JsonArray();
                     if (CollectionTools.isNotEmpty(distributedTraceIdList)) {
                         for (GlobalTraceId distributedTraceId : distributedTraceIdList) {
-                            distributedTraceIdArray.add(distributedTraceId.get());
+//                            distributedTraceIdArray.add(distributedTraceId.get());
                         }
                     }
                     topSegmentJson.add("traceIds", distributedTraceIdArray);

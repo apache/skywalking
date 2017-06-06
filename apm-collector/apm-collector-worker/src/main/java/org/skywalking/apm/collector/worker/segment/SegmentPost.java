@@ -2,6 +2,7 @@ package org.skywalking.apm.collector.worker.segment;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.skywalking.apm.collector.worker.segment.entity.SegmentAndJson;
 import org.skywalking.apm.util.StringUtil;
 import org.skywalking.apm.collector.actor.ClusterWorkerContext;
 import org.skywalking.apm.collector.actor.LocalWorkerContext;
@@ -58,8 +59,9 @@ public class SegmentPost extends AbstractPost {
 
     @Override
     protected void onReceive(Object message) throws Exception {
-        if (message instanceof Segment) {
-            Segment segment = (Segment) message;
+        if (message instanceof SegmentAndJson) {
+            SegmentAndJson segmentAndJson = (SegmentAndJson) message;
+            Segment segment = segmentAndJson.getSegment();
             try {
                 validateData(segment);
             } catch (IllegalArgumentException e) {
@@ -75,7 +77,7 @@ public class SegmentPost extends AbstractPost {
             logger.debug("minuteSlice: %s, hourSlice: %s, daySlice: %s, second:%s", minuteSlice, hourSlice, daySlice, second);
 
             SegmentWithTimeSlice segmentWithTimeSlice = new SegmentWithTimeSlice(segment, minuteSlice, hourSlice, daySlice, second);
-            getSelfContext().lookup(SegmentAnalysis.Role.INSTANCE).tell(segment);
+            getSelfContext().lookup(SegmentAnalysis.Role.INSTANCE).tell(segmentAndJson);
 
             getSelfContext().lookup(SegmentCostAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
             getSelfContext().lookup(GlobalTraceAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);

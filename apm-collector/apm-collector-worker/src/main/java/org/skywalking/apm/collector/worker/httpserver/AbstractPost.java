@@ -1,17 +1,21 @@
 package org.skywalking.apm.collector.worker.httpserver;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.google.gson.stream.JsonReader;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.skywalking.apm.collector.actor.*;
-import org.skywalking.apm.collector.worker.segment.entity.Segment;
-
+import java.io.BufferedReader;
+import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedReader;
-import java.io.IOException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.skywalking.apm.collector.actor.AbstractLocalAsyncWorker;
+import org.skywalking.apm.collector.actor.ClusterWorkerContext;
+import org.skywalking.apm.collector.actor.LocalAsyncWorkerRef;
+import org.skywalking.apm.collector.actor.LocalWorkerContext;
+import org.skywalking.apm.collector.actor.Role;
+import org.skywalking.apm.collector.worker.segment.entity.Segment;
+import org.skywalking.apm.collector.worker.segment.entity.SegmentAndJson;
 
 /**
  * @author pengys5
@@ -23,8 +27,7 @@ public abstract class AbstractPost extends AbstractLocalAsyncWorker {
         super(role, clusterContext, selfContext);
     }
 
-    @Override
-    final public void onWork(Object message) throws Exception {
+    @Override final public void onWork(Object message) throws Exception {
         onReceive(message);
     }
 
@@ -34,15 +37,16 @@ public abstract class AbstractPost extends AbstractLocalAsyncWorker {
 
         private Logger logger = LogManager.getFormatterLogger(PostWithHttpServlet.class);
 
+        private final Gson gson = new Gson();
+
         private final LocalAsyncWorkerRef ownerWorkerRef;
 
         PostWithHttpServlet(LocalAsyncWorkerRef ownerWorkerRef) {
             this.ownerWorkerRef = ownerWorkerRef;
         }
 
-        @Override
-        final protected void doPost(HttpServletRequest request,
-                                    HttpServletResponse response) throws ServletException, IOException {
+        @Override final protected void doPost(HttpServletRequest request,
+            HttpServletResponse response) throws ServletException, IOException {
             JsonObject resJson = new JsonObject();
             try {
                 BufferedReader bufferedReader = request.getReader();
@@ -56,19 +60,34 @@ public abstract class AbstractPost extends AbstractLocalAsyncWorker {
         }
 
         private void streamReader(BufferedReader bufferedReader) throws Exception {
-            try (JsonReader reader = new JsonReader(bufferedReader)) {
-                readSegmentArray(reader);
-            }
-        }
+            Segment segment;
+            do {
+                int character;
+                StringBuilder builder = new StringBuilder();
+                while ((character = bufferedReader.read()) != ' ') {
+                    if (character == -1) {
+                        return;
+                    }
+                    builder.append((char)character);
+                }
 
-        private void readSegmentArray(JsonReader reader) throws Exception {
-            reader.beginArray();
-            while (reader.hasNext()) {
-                Segment segment = new Segment();
-                segment.deserialize(reader);
-                ownerWorkerRef.tell(segment);
+                int length = Integer.valueOf(builder.toString());
+                builder = new StringBuilder();
+
+                char[] buffer = new char[length];
+                int readLength = bufferedReader.read(buffer, 0, length);
+                if (readLength != length) {
+                    logger.error("The actual data length was different from the length in data head! ");
+                    return;
+                }
+                builder.append(buffer);
+
+                String segmentJsonStr = builder.toString();
+                segment = gson.fromJson(segmentJsonStr, Segment.class);
+
+                ownerWorkerRef.tell(new SegmentAndJson(segment, segmentJsonStr));
             }
-            reader.endArray();
+            while (segment != null);
         }
     }
 }

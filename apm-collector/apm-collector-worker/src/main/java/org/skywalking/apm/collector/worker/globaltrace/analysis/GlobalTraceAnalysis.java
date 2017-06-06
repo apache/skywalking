@@ -33,11 +33,12 @@ public class GlobalTraceAnalysis extends JoinAndSplitAnalysisMember {
             SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice = (SegmentPost.SegmentWithTimeSlice) message;
             Segment segment = segmentWithTimeSlice.getSegment();
             String subSegmentId = segment.getTraceSegmentId();
-            List<GlobalTraceId> globalTraceIdList = segment.getRelatedGlobalTraces();
+            List<GlobalTraceId> globalTraceIdList = null;
+//            List<GlobalTraceId> globalTraceIdList = segment.getRelatedGlobalTraces();
             if (CollectionTools.isNotEmpty(globalTraceIdList)) {
                 for (GlobalTraceId disTraceId : globalTraceIdList) {
-                    String traceId = disTraceId.get();
-                    set(traceId, GlobalTraceIndex.SUB_SEG_IDS, subSegmentId);
+//                    String traceId = disTraceId.get();
+//                    set(traceId, GlobalTraceIndex.SUB_SEG_IDS, subSegmentId);
                 }
             }
         } else {

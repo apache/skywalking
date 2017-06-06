@@ -90,12 +90,13 @@ public class SegmentTopSearchWithTimeSlice extends AbstractLocalSyncWorker {
                 String segmentSource = EsClient.INSTANCE.getClient().prepareGet(SegmentIndex.INDEX, SegmentIndex.TYPE_RECORD, segId).get().getSourceAsString();
                 logger().debug("segmentSource:" + segmentSource);
                 Segment segment = SegmentDeserialize.INSTANCE.deserializeSingle(segmentSource);
-                List<GlobalTraceId> distributedTraceIdList = segment.getRelatedGlobalTraces();
+//                List<GlobalTraceId> distributedTraceIdList = segment.getRelatedGlobalTraces();
+                List<GlobalTraceId> distributedTraceIdList = null;
 
                 JsonArray distributedTraceIdArray = new JsonArray();
                 if (CollectionTools.isNotEmpty(distributedTraceIdList)) {
                     for (GlobalTraceId distributedTraceId : distributedTraceIdList) {
-                        distributedTraceIdArray.add(distributedTraceId.get());
+//                        distributedTraceIdArray.add(distributedTraceId.get());
                     }
                 }
                 topSegmentJson.add("traceIds", distributedTraceIdArray);

@@ -35,6 +35,10 @@ public class SegmentMock {
         return JsonFileReader.INSTANCE.read(CacheServiceJsonFile);
     }
 
+    public String mockCacheServiceExceptionSegmentAsString() throws FileNotFoundException {
+        return JsonFileReader.INSTANCE.read(CacheServiceExceptionJsonFile);
+    }
+
     public String mockPersistenceServiceSegmentAsString() throws FileNotFoundException {
         return JsonFileReader.INSTANCE.read(PersistenceServiceJsonFile);
     }

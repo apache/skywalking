@@ -8,6 +8,7 @@ import org.skywalking.apm.collector.actor.selector.WorkerSelector;
 import org.skywalking.apm.collector.worker.RecordAnalysisMember;
 import org.skywalking.apm.collector.worker.config.WorkerConfig;
 import org.skywalking.apm.collector.worker.segment.entity.Segment;
+import org.skywalking.apm.collector.worker.segment.entity.SegmentAndJson;
 import org.skywalking.apm.collector.worker.segment.persistence.SegmentSave;
 
 /**
@@ -29,8 +30,8 @@ public class SegmentAnalysis extends RecordAnalysisMember {
     @Override
     public void analyse(Object message) throws Exception {
         if (message instanceof Segment) {
-            Segment segment = (Segment) message;
-            getSelfContext().lookup(SegmentSave.Role.INSTANCE).tell(segment);
+            SegmentAndJson segmentAndJson = (SegmentAndJson) message;
+            getSelfContext().lookup(SegmentSave.Role.INSTANCE).tell(segmentAndJson);
         } else {
             logger.error("unhandled message, message instance must Segment, but is %s", message.getClass().toString());
         }

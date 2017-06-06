@@ -1,10 +1,9 @@
 package org.skywalking.apm.collector.worker.segment.entity;
 
+import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
-
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,10 +13,10 @@ import java.util.List;
 public enum SegmentDeserialize {
     INSTANCE;
 
+    private final Gson gson = new Gson();
+
     public Segment deserializeSingle(String singleSegmentJsonStr) throws IOException {
-        JsonReader reader = new JsonReader(new StringReader(singleSegmentJsonStr));
-        Segment segment = new Segment();
-        segment.deserialize(reader);
+        Segment segment = gson.fromJson(singleSegmentJsonStr, Segment.class);
         return segment;
     }
 
@@ -37,7 +36,7 @@ public enum SegmentDeserialize {
         reader.beginArray();
         while (reader.hasNext()) {
             Segment segment = new Segment();
-            segment.deserialize(reader);
+//            segment.deserialize(reader);
             segmentList.add(segment);
         }
         reader.endArray();
