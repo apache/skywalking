@@ -9,7 +9,7 @@ services:
     links:
       - skywalking-collector
     environment:
-      - COLLECTOR_SERVERS=skywalking-collector:7001
+      - COLLECTOR_SERVERS=skywalking-collector:12800
 
   skywalking-collector:
     image: skywalking-collector:3.0.1-2017
