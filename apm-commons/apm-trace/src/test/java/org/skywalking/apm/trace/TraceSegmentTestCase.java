@@ -108,15 +108,18 @@ public class TraceSegmentTestCase {
 
         SegmentsMessage message = new SegmentsMessage();
         message.append(segment);
-        String json = gson.toJson(message);
 
-        message = gson.fromJson(json, SegmentsMessage.class);
+        String jsonString = message.serialize(gson);
+        int length = Integer.parseInt(jsonString.substring(0, 4));
 
-        TraceSegment newSegment = message.getSegments().get(0);
+        String segmentJson = jsonString.substring(5);
 
-        Assert.assertEquals(segment.getSpans().size(), newSegment.getSpans().size());
-        Assert.assertEquals(segment.getRefs().get(0).getTraceSegmentId(), newSegment.getRefs().get(0).getTraceSegmentId());
-        Assert.assertEquals(Tags.SPAN_LAYER.get(segment.getSpans().get(1)), Tags.SPAN_LAYER.get(newSegment.getSpans().get(1)));
-        Assert.assertEquals(segment.getSpans().get(1).getLogs().get(0).getTime(), newSegment.getSpans().get(1).getLogs().get(0).getTime());
+        Assert.assertEquals(length, segmentJson.length());
+        TraceSegment recoverySegment = gson.fromJson(segmentJson, TraceSegment.class);
+
+        Assert.assertEquals(segment.getSpans().size(), recoverySegment.getSpans().size());
+        Assert.assertEquals(segment.getRefs().get(0).getTraceSegmentId(), recoverySegment.getRefs().get(0).getTraceSegmentId());
+        Assert.assertEquals(Tags.SPAN_LAYER.get(segment.getSpans().get(1)), Tags.SPAN_LAYER.get(recoverySegment.getSpans().get(1)));
+        Assert.assertEquals(segment.getSpans().get(1).getLogs().get(0).getTime(), recoverySegment.getSpans().get(1).getLogs().get(0).getTime());
     }
 }
