@@ -24,10 +24,14 @@ echo "Starting collector...."
 eval exec "\"$_RUNJAVA\" ${JAVA_OPTS} -classpath $CLASSPATH org.skywalking.apm.collector.worker.CollectorBootStartUp \
         2>${COLLECTOR_LOGS_DIR}/collector.log 1> /dev/null &"
 
-if [ $? -eq 0 ]; then
-    sleep 1
-	echo "Collector started successfully!"
-else
-	echo "Collector started failure!"
-	exit 1
+retval=$?
+pid=$!
+FAIL_MSG="Collector started failure!"
+SUCCESS_MSG="Collector started successfully!"
+[ ${retval} -eq 0 ] || (echo ${FAIL_MSG}; exit ${retval})
+sleep 1
+if ! ps -p ${pid} > /dev/null ; then
+    echo ${FAIL_MSG}
+    exit 1
 fi
+echo ${SUCCESS_MSG}
