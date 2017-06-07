@@ -6,7 +6,6 @@
 	<groupId>com.a.eye</groupId>
 	<artifactId>skywalking</artifactId>
 	<version>3.0.3-2017</version>
-
 	<licenses>
 		<license>
 			<name>GNU GENERAL PUBLIC LICENSE V3</name>
