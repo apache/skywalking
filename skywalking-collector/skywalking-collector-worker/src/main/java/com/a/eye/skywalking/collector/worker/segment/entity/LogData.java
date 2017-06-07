@@ -1,5 +1,6 @@
 package com.a.eye.skywalking.collector.worker.segment.entity;
 
+import com.google.gson.stream.JsonReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,7 +20,7 @@ public class LogData extends DeserializeObject {
         return fields;
     }
 
-    public LogData deserialize(SegmentJsonReader reader) throws IOException {
+    public LogData deserialize(JsonReader reader) throws IOException {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("{");
 
@@ -38,7 +39,7 @@ public class LogData extends DeserializeObject {
 
                     while (reader.hasNext()) {
                         String key = reader.nextName();
-                        String value = reader.nextString().getOriginValue();
+                        String value = reader.nextString();
                         fields.put(key, value);
                     }
                     reader.endObject();

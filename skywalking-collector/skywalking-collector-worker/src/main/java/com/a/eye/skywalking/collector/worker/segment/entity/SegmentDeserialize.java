@@ -1,5 +1,6 @@
 package com.a.eye.skywalking.collector.worker.segment.entity;
 
+import com.google.gson.stream.JsonReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
@@ -13,7 +14,7 @@ public enum SegmentDeserialize {
     INSTANCE;
 
     public Segment deserializeSingle(String singleSegmentJsonStr) throws IOException {
-        SegmentJsonReader reader = new SegmentJsonReader(new StringReader(singleSegmentJsonStr));
+        JsonReader reader = new JsonReader(new StringReader(singleSegmentJsonStr));
         Segment segment = new Segment();
         segment.deserialize(reader);
         return segment;
@@ -26,12 +27,12 @@ public enum SegmentDeserialize {
     }
 
     private void streamReader(List<Segment> segmentList, FileReader fileReader) throws Exception {
-        try (SegmentJsonReader reader = new SegmentJsonReader(fileReader)) {
+        try (JsonReader reader = new JsonReader(fileReader)) {
             readSegmentArray(segmentList, reader);
         }
     }
 
-    private void readSegmentArray(List<Segment> segmentList, SegmentJsonReader reader) throws Exception {
+    private void readSegmentArray(List<Segment> segmentList, JsonReader reader) throws Exception {
         reader.beginArray();
         while (reader.hasNext()) {
             Segment segment = new Segment();

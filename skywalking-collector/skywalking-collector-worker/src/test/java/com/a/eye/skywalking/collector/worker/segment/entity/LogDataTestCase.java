@@ -1,5 +1,6 @@
 package com.a.eye.skywalking.collector.worker.segment.entity;
 
+import com.google.gson.stream.JsonReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Map;
@@ -15,7 +16,7 @@ public class LogDataTestCase {
     public void deserialize() throws IOException {
         LogData logData = new LogData();
 
-        SegmentJsonReader reader = new SegmentJsonReader(new StringReader("{\"tm\":1, \"fi\": {\"test1\":\"test1\",\"test2\":\"test2\"}, \"skip\":\"skip\"}"));
+        JsonReader reader = new JsonReader(new StringReader("{\"tm\":1, \"fi\": {\"test1\":\"test1\",\"test2\":\"test2\"}, \"skip\":\"skip\"}"));
         logData.deserialize(reader);
 
         Assert.assertEquals(1L, logData.getTime());
