@@ -15,6 +15,12 @@ public enum JsonFileReader {
     public String read(String path) throws FileNotFoundException {
         JsonParser jsonParser = new JsonParser();
         JsonElement jsonElement = jsonParser.parse(new FileReader(path));
+        return jsonElement.toString();
+    }
+
+    public String readSegment(String path) throws FileNotFoundException {
+        JsonParser jsonParser = new JsonParser();
+        JsonElement jsonElement = jsonParser.parse(new FileReader(path));
 
         StringBuilder segmentBuilder = new StringBuilder();
         JsonArray segments = jsonElement.getAsJsonArray();

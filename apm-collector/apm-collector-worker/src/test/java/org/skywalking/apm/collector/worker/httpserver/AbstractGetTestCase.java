@@ -1,26 +1,22 @@
 package org.skywalking.apm.collector.worker.httpserver;
 
 import com.google.gson.JsonObject;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.util.HashMap;
 import java.util.Map;
+import org.junit.Assert;
+import org.junit.Test;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author pengys5
  */
 public class AbstractGetTestCase {
 
-    private TestAbstractGet get;
-
-    @Before
-    public void init() {
-        get = mock(TestAbstractGet.class);
-    }
+    private TestAbstractGet get = spy(new TestAbstractGet(TestAbstractGet.WorkerRole.INSTANCE, null, null));
 
     @Test
     public void testOnWork() throws Exception {
