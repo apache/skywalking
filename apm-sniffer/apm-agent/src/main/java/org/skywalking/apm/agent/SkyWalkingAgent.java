@@ -57,7 +57,7 @@ public class SkyWalkingAgent {
                 ClassLoader classLoader) {
                 List<AbstractClassEnhancePluginDefine> pluginDefines = pluginFinder.find(typeDescription.getTypeName());
                 for (AbstractClassEnhancePluginDefine pluginDefine : pluginDefines) {
-                    DynamicType.Builder<?> newBuilder = pluginDefine.define(typeDescription.getTypeName(), builder);
+                    DynamicType.Builder<?> newBuilder = pluginDefine.define(typeDescription.getTypeName(), builder, classLoader);
                     if (newBuilder != null) {
                         return newBuilder;
                     }

@@ -1,8 +1,6 @@
 package org.skywalking.apm.agent.core.plugin;
 
 import net.bytebuddy.dynamic.DynamicType;
-import net.bytebuddy.pool.TypePool;
-import net.bytebuddy.pool.TypePool.Resolution;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassEnhancePluginDefine;
 import org.skywalking.apm.util.StringUtil;
 import org.skywalking.apm.logging.ILog;
@@ -17,18 +15,16 @@ import org.skywalking.apm.logging.LogManager;
 public abstract class AbstractClassEnhancePluginDefine {
     private static final ILog logger = LogManager.getLogger(AbstractClassEnhancePluginDefine.class);
 
-    private TypePool classTypePool;
-
     /**
      * Main entrance of enhancing the class.
      *
      * @param transformClassName target class.
-     * @param builder            byte-buddy's builder to manipulate target class's bytecode.
+     * @param builder byte-buddy's builder to manipulate target class's bytecode.
      * @return the new builder, or <code>null</code> if not be enhanced.
      * @throws PluginException, when set builder failure.
      */
     public DynamicType.Builder<?> define(String transformClassName,
-                                         DynamicType.Builder<?> builder) throws PluginException {
+        DynamicType.Builder<?> builder, ClassLoader classLoader) throws PluginException {
         String interceptorDefineClassName = this.getClass().getName();
 
         if (StringUtil.isEmpty(transformClassName)) {
@@ -44,8 +40,7 @@ public abstract class AbstractClassEnhancePluginDefine {
         String[] witnessClasses = witnessClasses();
         if (witnessClasses != null) {
             for (String witnessClass : witnessClasses) {
-                Resolution witnessClassResolution = classTypePool.describe(witnessClass);
-                if (!witnessClassResolution.isResolved()) {
+                if (!WitnessClassFinder.INSTANCE.exist(witnessClass, classLoader)) {
                     logger.warn("enhance class {} by plugin {} is not working. Because witness class {} is not existed.", transformClassName, interceptorDefineClassName,
                         witnessClass);
                     return null;
@@ -64,7 +59,7 @@ public abstract class AbstractClassEnhancePluginDefine {
     }
 
     protected abstract DynamicType.Builder<?> enhance(String enhanceOriginClassName,
-                                                      DynamicType.Builder<?> newClassBuilder) throws PluginException;
+        DynamicType.Builder<?> newClassBuilder) throws PluginException;
 
     /**
      * Define the classname of target class.
@@ -85,9 +80,5 @@ public abstract class AbstractClassEnhancePluginDefine {
      */
     protected String[] witnessClasses() {
         return new String[] {};
-    }
-
-    public void setClassTypePool(TypePool classTypePool) {
-        this.classTypePool = classTypePool;
     }
 }
