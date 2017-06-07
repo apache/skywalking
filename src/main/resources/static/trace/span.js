@@ -16,15 +16,15 @@ $.views.converters({
     },
 
     tabCharacter: function (val) {
-        console.log(val);
-        return replaceAll(val);
+        var aa = replaceAll(val);
+        console.log(aa);
+        return aa;
     }
 });
 
 function replaceAll(str) {
     if (str != null){
-        str = str.replace(/\\n\\t/ig, "<br />");
-        str = str.replace(/\\n/ig, "<br />");
+        str = str.replace(/\n\t/ig, "<br />");
     }
     return str;
 }

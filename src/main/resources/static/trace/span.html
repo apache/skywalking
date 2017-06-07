@@ -6,8 +6,8 @@
             <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span
                     class="sr-only">Close</span></button>
             <h4 class="modal-title">Span Info</h4>
-            <small class="font-bold">OperationName: {{:operationName}})</small><br/>
-            <small class="font-bold">{{dateFormat:startTime}} - {{dateFormat:endTime}}</small>
+            <small class="font-bold">OperationName: {{:on}})</small><br/>
+            <small class="font-bold">{{dateFormat:st}} - {{dateFormat:et}}</small>
         </div>
         <div class="modal-body" style="padding: 0">
             <div class="tabs-container">
@@ -15,29 +15,29 @@
                 <div class="tabs-left">
                     <ul class="nav nav-tabs">
                         <li class="active"><a data-toggle="tab" href="#tags">Tags</a></li>
-                        {{for logs}}
+                        {{for lo}}
                           <li class=""><a data-toggle="tab" href="#logData{{: #index+1}}">Log Data{{: #index+1}}</a></li>
                         {{/for}}
                     </ul>
                     <div class="tab-content ">
                         <div id="tags" class="tab-pane active">
                             <div class="panel-body">
-                                {{props tagsWithStr}}
+                                {{props ts}}
                                     <strong>{{>key}}</strong><p>{{>prop}}</p>
                                 {{/props}}
-                                {{props tagsWithBool}}
+                                {{props tb}}
                                     <strong>{{>key}}</strong><p>{{>prop}}</p>
                                 {{/props}}
-                                {{props tagsWithInt}}
+                                {{props ti}}
                                     <strong>{{>key}}</strong><p>{{>prop}}</p>
                                 {{/props}}
                             </div>
                         </div>
-                        {{for logs}}
+                        {{for lo}}
                         <div id="logData{{: #index+1}}" class="tab-pane">
                             <div class="panel-body">
-                                <strong>time</strong><p>{{dateFormat:time}}</p>
-                                {{props fields}}
+                                <strong>time</strong><p>{{dateFormat:tm}}</p>
+                                {{props fi}}
                                     <strong>{{>key}}</strong><p>{{tabCharacter:prop}}</p>
                                 {{/props}}
                             </div>
