@@ -1,5 +1,6 @@
 package com.a.eye.skywalking.collector.worker.segment.entity;
 
+import com.google.gson.stream.JsonReader;
 import java.io.IOException;
 
 /**
@@ -12,8 +13,8 @@ public class GlobalTraceId extends DeserializeObject {
         return globalTraceId;
     }
 
-    public GlobalTraceId deserialize(SegmentJsonReader reader) throws IOException {
-        this.globalTraceId = reader.nextString().getValue();
+    public GlobalTraceId deserialize(JsonReader reader) throws IOException {
+        this.globalTraceId = reader.nextString();
         this.setJsonStr("\"" + globalTraceId + "\"");
         return this;
     }

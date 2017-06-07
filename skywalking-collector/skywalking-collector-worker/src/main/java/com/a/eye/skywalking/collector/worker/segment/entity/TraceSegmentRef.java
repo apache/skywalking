@@ -1,5 +1,6 @@
 package com.a.eye.skywalking.collector.worker.segment.entity;
 
+import com.google.gson.stream.JsonReader;
 import java.io.IOException;
 
 /**
@@ -31,7 +32,7 @@ public class TraceSegmentRef extends DeserializeObject {
         return peerHost;
     }
 
-    public TraceSegmentRef deserialize(SegmentJsonReader reader) throws IOException {
+    public TraceSegmentRef deserialize(JsonReader reader) throws IOException {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("{");
 
@@ -40,7 +41,7 @@ public class TraceSegmentRef extends DeserializeObject {
         while (reader.hasNext()) {
             switch (reader.nextName()) {
                 case "ts":
-                    String ts = reader.nextString().getValue();
+                    String ts = reader.nextString();
                     this.traceSegmentId = ts;
                     JsonBuilder.INSTANCE.append(stringBuilder, "ts", ts, first);
                     break;
@@ -50,12 +51,12 @@ public class TraceSegmentRef extends DeserializeObject {
                     JsonBuilder.INSTANCE.append(stringBuilder, "si", si, first);
                     break;
                 case "ac":
-                    String ac = reader.nextString().getValue();
+                    String ac = reader.nextString();
                     this.applicationCode = ac;
                     JsonBuilder.INSTANCE.append(stringBuilder, "ac", ac, first);
                     break;
                 case "ph":
-                    String ph = reader.nextString().getValue();
+                    String ph = reader.nextString();
                     this.peerHost = ph;
                     JsonBuilder.INSTANCE.append(stringBuilder, "ph", ph, first);
                     break;

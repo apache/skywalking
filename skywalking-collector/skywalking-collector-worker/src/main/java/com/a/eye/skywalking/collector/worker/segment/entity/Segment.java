@@ -1,5 +1,6 @@
 package com.a.eye.skywalking.collector.worker.segment.entity;
 
+import com.google.gson.stream.JsonReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +45,7 @@ public class Segment extends DeserializeObject {
         return relatedGlobalTraces;
     }
 
-    public Segment deserialize(SegmentJsonReader reader) throws IOException {
+    public Segment deserialize(JsonReader reader) throws IOException {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("{");
 
@@ -53,14 +54,12 @@ public class Segment extends DeserializeObject {
         while (reader.hasNext()) {
             switch (reader.nextName()) {
                 case "ts":
-                    SegmentJsonReader.StringValue ts = reader.nextString();
-                    this.traceSegmentId = ts.getValue();
-                    JsonBuilder.INSTANCE.append(stringBuilder, "ts", ts.getOriginValue(), first);
+                    this.traceSegmentId = reader.nextString();
+                    JsonBuilder.INSTANCE.append(stringBuilder, "ts", this.traceSegmentId, first);
                     break;
                 case "ac":
-                    SegmentJsonReader.StringValue ac = reader.nextString();
-                    this.applicationCode = ac.getValue();
-                    JsonBuilder.INSTANCE.append(stringBuilder, "ac", ac.getOriginValue(), first);
+                    this.applicationCode = reader.nextString();
+                    JsonBuilder.INSTANCE.append(stringBuilder, "ac", this.applicationCode, first);
                     break;
                 case "st":
                     long st = reader.nextLong();

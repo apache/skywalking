@@ -1,5 +1,6 @@
 package com.a.eye.skywalking.collector.worker.segment.entity;
 
+import com.google.gson.Gson;
 import java.util.List;
 import java.util.Map;
 
@@ -8,6 +9,8 @@ import java.util.Map;
  */
 public enum JsonBuilder {
     INSTANCE;
+
+    private final Gson gson = new Gson();
 
     public void append(StringBuilder builder, String name, String value, boolean first) {
         if (!first) {
@@ -58,7 +61,8 @@ public enum JsonBuilder {
                 builder.append(",");
             }
             if (value instanceof String) {
-                builder.append("\"").append(key).append("\":\"").append(value).append("\"");
+//                builder.append("\"").append(key).append("\":\"").append(value).append("\"");
+                builder.append("\"").append(key).append("\":").append(gson.toJson(value));
             } else {
                 builder.append("\"").append(key).append("\":").append(value);
             }
