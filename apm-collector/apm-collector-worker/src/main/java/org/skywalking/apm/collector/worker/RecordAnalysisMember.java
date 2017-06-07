@@ -36,7 +36,7 @@ public abstract class RecordAnalysisMember extends AnalysisMember {
             try {
                 aggWorkRefs().tell(value);
             } catch (Exception e) {
-                logger.error(e);
+                logger.error(e, e);
             }
         });
         getRecordAnalysisData().asMap().clear();

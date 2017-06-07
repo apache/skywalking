@@ -29,7 +29,7 @@ public class SegmentAnalysis extends RecordAnalysisMember {
 
     @Override
     public void analyse(Object message) throws Exception {
-        if (message instanceof Segment) {
+        if (message instanceof SegmentAndJson) {
             SegmentAndJson segmentAndJson = (SegmentAndJson) message;
             getSelfContext().lookup(SegmentSave.Role.INSTANCE).tell(segmentAndJson);
         } else {

@@ -1,31 +1,38 @@
 package org.skywalking.apm.collector.worker.httpserver;
 
 import com.google.gson.JsonObject;
-import org.skywalking.apm.collector.actor.*;
-
+import java.io.IOException;
+import java.util.Map;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.Map;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.skywalking.apm.collector.actor.AbstractLocalSyncWorker;
+import org.skywalking.apm.collector.actor.ClusterWorkerContext;
+import org.skywalking.apm.collector.actor.LocalSyncWorkerRef;
+import org.skywalking.apm.collector.actor.LocalWorkerContext;
+import org.skywalking.apm.collector.actor.Role;
 
 /**
  * @author pengys5
  */
 public abstract class AbstractGet extends AbstractLocalSyncWorker {
 
+    private Logger logger = LogManager.getFormatterLogger(AbstractGet.class);
+
     protected AbstractGet(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
-    @Override
-    final public void onWork(Object request, Object response) throws Exception {
-        Map<String, String[]> parameterMap = (Map<String, String[]>) request;
+    @Override final public void onWork(Object request, Object response) throws Exception {
+        Map<String, String[]> parameterMap = (Map<String, String[]>)request;
         try {
-            onSearch(parameterMap, (JsonObject) response);
+            onSearch(parameterMap, (JsonObject)response);
         } catch (Exception e) {
-            ((JsonObject) response).addProperty("isSuccess", false);
-            ((JsonObject) response).addProperty("reason", e.getMessage());
+            logger.error(e, e);
+            ((JsonObject)response).addProperty("isSuccess", false);
+            ((JsonObject)response).addProperty("reason", e.getMessage());
         }
     }
 
@@ -39,9 +46,8 @@ public abstract class AbstractGet extends AbstractLocalSyncWorker {
             this.ownerWorkerRef = ownerWorkerRef;
         }
 
-        @Override
-        final protected void doGet(HttpServletRequest request,
-                                   HttpServletResponse response) throws ServletException, IOException {
+        @Override final protected void doGet(HttpServletRequest request,
+            HttpServletResponse response) throws ServletException, IOException {
             Map<String, String[]> parameterMap = request.getParameterMap();
 
             JsonObject resJson = new JsonObject();

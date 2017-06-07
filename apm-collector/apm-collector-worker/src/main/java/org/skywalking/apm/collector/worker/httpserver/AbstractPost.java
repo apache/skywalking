@@ -1,6 +1,5 @@
 package org.skywalking.apm.collector.worker.httpserver;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,6 +15,7 @@ import org.skywalking.apm.collector.actor.LocalWorkerContext;
 import org.skywalking.apm.collector.actor.Role;
 import org.skywalking.apm.collector.worker.segment.entity.Segment;
 import org.skywalking.apm.collector.worker.segment.entity.SegmentAndJson;
+import org.skywalking.apm.collector.worker.segment.entity.SegmentDeserialize;
 
 /**
  * @author pengys5
@@ -37,8 +37,6 @@ public abstract class AbstractPost extends AbstractLocalAsyncWorker {
 
         private Logger logger = LogManager.getFormatterLogger(PostWithHttpServlet.class);
 
-        private final Gson gson = new Gson();
-
         private final LocalAsyncWorkerRef ownerWorkerRef;
 
         PostWithHttpServlet(LocalAsyncWorkerRef ownerWorkerRef) {
@@ -53,7 +51,7 @@ public abstract class AbstractPost extends AbstractLocalAsyncWorker {
                 streamReader(bufferedReader);
                 reply(response, resJson, HttpServletResponse.SC_OK);
             } catch (Exception e) {
-                logger.error(e);
+                logger.error(e, e);
                 resJson.addProperty("error", e.getMessage());
                 reply(response, resJson, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             }
@@ -83,7 +81,7 @@ public abstract class AbstractPost extends AbstractLocalAsyncWorker {
                 builder.append(buffer);
 
                 String segmentJsonStr = builder.toString();
-                segment = gson.fromJson(segmentJsonStr, Segment.class);
+                segment = SegmentDeserialize.INSTANCE.deserializeSingle(segmentJsonStr);
 
                 ownerWorkerRef.tell(new SegmentAndJson(segment, segmentJsonStr));
             }
