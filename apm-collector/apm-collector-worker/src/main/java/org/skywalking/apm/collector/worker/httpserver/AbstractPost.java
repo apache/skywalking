@@ -20,7 +20,6 @@ import org.skywalking.apm.collector.worker.segment.entity.SegmentDeserialize;
 /**
  * @author pengys5
  */
-
 public abstract class AbstractPost extends AbstractLocalAsyncWorker {
 
     public AbstractPost(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
@@ -43,6 +42,16 @@ public abstract class AbstractPost extends AbstractLocalAsyncWorker {
             this.ownerWorkerRef = ownerWorkerRef;
         }
 
+        /**
+         * Get segment's buffer from request then execute deserialize operation.
+         *
+         * @param request an {@link HttpServletRequest} object that contains the request the client has made of the
+         * servlet
+         * @param response {@link HttpServletResponse} object that contains the response the servlet sends to the
+         * client
+         * @throws ServletException if the request for the POST could not be handled
+         * @throws IOException if an input or output error is detected when the servlet handles the request
+         */
         @Override final protected void doPost(HttpServletRequest request,
             HttpServletResponse response) throws ServletException, IOException {
             JsonObject resJson = new JsonObject();
@@ -57,6 +66,13 @@ public abstract class AbstractPost extends AbstractLocalAsyncWorker {
             }
         }
 
+        /**
+         * Read segment's buffer from buffer reader by stream mode. when finish read one segment then send to analysis.
+         * This method in there, so post servlet just can receive segments data.
+         *
+         * @param bufferedReader an {@link BufferedReader} object that contains the segment's data using the construct of chars.
+         * @throws Exception
+         */
         private void streamReader(BufferedReader bufferedReader) throws Exception {
             Segment segment;
             do {
