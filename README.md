@@ -39,7 +39,6 @@ _In chronological order_
 * 彭勇升 [@pengys5](https://github.com/pengys5)   Technical Specialist, OneAPM.
 * 戴文
 * 柏杨 [@bai-yang](https://github.com/bai-yang)  Senior Engineer, Alibaba Group.
-* 肖长军 [@xcaspar](https://github.com/xcaspar)  OneAPM
 
 # Screenshots
 - Topological graph of application clusters.
