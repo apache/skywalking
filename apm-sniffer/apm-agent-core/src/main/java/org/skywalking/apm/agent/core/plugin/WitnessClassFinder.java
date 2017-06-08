@@ -1,7 +1,7 @@
 package org.skywalking.apm.agent.core.plugin;
 
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.HashMap;
 import net.bytebuddy.pool.TypePool;
 
 /**
@@ -14,7 +14,7 @@ import net.bytebuddy.pool.TypePool;
 public enum WitnessClassFinder {
     INSTANCE;
 
-    private Map<ClassLoader, TypePool> poolMap = new ConcurrentHashMap<ClassLoader, TypePool>();
+    private Map<ClassLoader, TypePool> poolMap = new HashMap<ClassLoader, TypePool>();
 
     /**
      * @param witnessClass
@@ -23,9 +23,9 @@ public enum WitnessClassFinder {
      */
     public boolean exist(String witnessClass, ClassLoader classLoader) {
         ClassLoader mappingKey = classLoader == null ? NullClassLoader.INSTANCE : classLoader;
-        if (!poolMap.containsKey(witnessClass)) {
+        if (!poolMap.containsKey(mappingKey)) {
             synchronized (poolMap) {
-                if (!poolMap.containsKey(witnessClass)) {
+                if (!poolMap.containsKey(mappingKey)) {
                     TypePool classTypePool = classLoader == null ? TypePool.Default.ofClassPath() : TypePool.Default.of(classLoader);
                     poolMap.put(mappingKey, classTypePool);
                 }
