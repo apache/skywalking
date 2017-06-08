@@ -285,7 +285,7 @@ in one of these ways:
     Corresponding Source, you remain obligated to ensure that it is
     available for as long as needed to satisfy these requirements.
 
-    e) Convey the object code using peer-to-peer transmission, provided
+    e) Convey the object code using peer_host-to-peer_host transmission, provided
     you inform other peers where the object code and Corresponding
     Source of the work are being offered to the general public at no
     charge under subsection 6d.
@@ -436,7 +436,7 @@ material under section 10.
 
   You are not required to accept this License in order to receive or
 run a copy of the Program.  Ancillary propagation of a covered work
-occurring solely as a consequence of using peer-to-peer transmission
+occurring solely as a consequence of using peer_host-to-peer_host transmission
 to receive a copy likewise does not require acceptance.  However,
 nothing other than this License grants you permission to propagate or
 modify any covered work.  These actions infringe copyright if you do

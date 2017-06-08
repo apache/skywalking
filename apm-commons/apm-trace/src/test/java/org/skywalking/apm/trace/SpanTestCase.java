@@ -8,7 +8,6 @@ import org.skywalking.apm.trace.tag.StringTagReader;
 import org.skywalking.apm.trace.tag.Tags;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by wusheng on 2017/2/18.
@@ -45,14 +44,14 @@ public class SpanTestCase {
         Span span1 = new Span(0, "serviceA");
         Tags.SPAN_LAYER.asHttp(span1);
         Tags.COMPONENT.set(span1, "Spring");
-        span1.setPeer("127.0.0.1");
+        span1.setPeer_host("127.0.0.1");
         Tags.ERROR.set(span1, true);
         Tags.STATUS_CODE.set(span1, 302);
         Tags.URL.set(span1, "http://127.0.0.1/serviceA");
         Tags.DB_STATEMENT.set(span1, "select * from users");
 
         Assert.assertEquals("http", StringTagReader.get(span1, Tags.SPAN_LAYER.SPAN_LAYER_TAG));
-        Assert.assertEquals("127.0.0.1", span1.getPeer());
+        Assert.assertEquals("127.0.0.1", span1.getPeerHost());
         Assert.assertTrue(BooleanTagReader.get(span1, Tags.ERROR));
     }
 

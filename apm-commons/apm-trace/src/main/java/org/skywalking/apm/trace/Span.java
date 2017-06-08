@@ -4,16 +4,16 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.TypeAdapter;
-import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.JsonAdapter;
-import com.google.gson.annotations.SerializedName;
-
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.*;
-import org.skywalking.apm.trace.TraceId.DistributedTraceIds;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import org.skywalking.apm.trace.tag.BooleanTagItem;
 import org.skywalking.apm.trace.tag.IntTagItem;
 import org.skywalking.apm.trace.tag.StringTagItem;
@@ -30,7 +30,7 @@ import org.skywalking.apm.util.StringUtil;
  */
 @JsonAdapter(Span.Serializer.class)
 public class Span {
-    private static Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+    private static Gson SERIALIZATION_GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 
     private int spanId;
     private int parentSpanId;
@@ -53,10 +53,10 @@ public class Span {
     private String operationName;
 
     /**
-     * {@link #peer}, {@link #port} and {@link #peers} were part of tags,
+     * {@link #peer_host}, {@link #port} and {@link #peers} were part of tags,
      * independence them from tags for better performance and gc.
      */
-    private String peer;
+    private String peer_host;
 
     private int port;
 
@@ -334,8 +334,8 @@ public class Span {
         return false;
     }
 
-    public String getPeer() {
-        return peer;
+    public String getPeerHost() {
+        return peer_host;
     }
 
     public int getPort() {
@@ -346,8 +346,8 @@ public class Span {
         return peers;
     }
 
-    public void setPeer(String peer) {
-        this.peer = peer;
+    public void setPeer_host(String peer_host) {
+        this.peer_host = peer_host;
     }
 
     public void setPort(int port) {
@@ -380,8 +380,8 @@ public class Span {
 
             this.writeTags(out, span);
 
-            if(span.logs != null) {
-                out.name("logs").jsonValue(gson.toJson(span.logs));
+            if (span.logs != null) {
+                out.name("logs").jsonValue(SERIALIZATION_GSON.toJson(span.logs));
             }
 
             out.endObject();
@@ -391,9 +391,9 @@ public class Span {
             JsonObject tagWithStr = null;
             JsonObject tagWithInt = null;
             JsonObject tagWithBool = null;
-            if (!StringUtil.isEmpty(span.peer)) {
+            if (!StringUtil.isEmpty(span.peer_host)) {
                 tagWithStr = new JsonObject();
-                tagWithStr.addProperty("peer.host", span.peer);
+                tagWithStr.addProperty("peer.host", span.peer_host);
                 tagWithInt = new JsonObject();
                 tagWithInt.addProperty("peer.port", span.port);
             } else if (!StringUtil.isEmpty(span.peers)) {

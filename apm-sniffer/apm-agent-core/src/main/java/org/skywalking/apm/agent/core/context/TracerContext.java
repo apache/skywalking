@@ -1,15 +1,13 @@
 package org.skywalking.apm.agent.core.context;
 
-import org.skywalking.apm.agent.core.conf.Config;
+import java.util.LinkedList;
+import java.util.List;
 import org.skywalking.apm.agent.core.boot.ServiceManager;
+import org.skywalking.apm.agent.core.conf.Config;
 import org.skywalking.apm.agent.core.sampling.SamplingService;
 import org.skywalking.apm.trace.Span;
 import org.skywalking.apm.trace.TraceSegment;
 import org.skywalking.apm.trace.TraceSegmentRef;
-import org.skywalking.apm.trace.tag.Tags;
-
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * {@link TracerContext} maintains the context.
@@ -148,12 +146,12 @@ public final class TracerContext {
         Span span = this.activeSpan();
         carrier.setSpanId(span.getSpanId());
         carrier.setApplicationCode(Config.Agent.APPLICATION_CODE);
-        String host = Tags.PEER_HOST.get(span);
+        String host = span.getPeerHost();
         if (host != null) {
-            Integer port = Tags.PEER_PORT.get(span);
+            Integer port = span.getPort();
             carrier.setPeerHost(host + ":" + port);
         } else {
-            carrier.setPeerHost(Tags.PEERS.get(span));
+            carrier.setPeerHost(span.getPeers());
         }
         carrier.setDistributedTraceIds(this.segment.getRelatedGlobalTraces());
         carrier.setSampled(this.segment.isSampled());
