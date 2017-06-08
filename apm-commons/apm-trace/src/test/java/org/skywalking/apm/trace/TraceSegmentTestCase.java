@@ -2,8 +2,10 @@ package org.skywalking.apm.trace;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import org.junit.Assert;
 import org.junit.Test;
+import org.skywalking.apm.trace.tag.StringTagReader;
 import org.skywalking.apm.trace.tag.Tags;
 
 /**
@@ -116,6 +118,12 @@ public class TraceSegmentTestCase {
 
         Assert.assertEquals(length, segmentJson.length());
 
-        System.out.println(segmentJson);
+        JsonObject jsonObject = gson.fromJson(segmentJson, JsonObject.class);
+
+        Assert.assertEquals(segment.getSpans().size(), jsonObject.get("ss").getAsJsonArray().size());
+        Assert.assertEquals(segment.getRefs().get(0).getTraceSegmentId(),
+            jsonObject.get("rs").getAsJsonArray().get(0).getAsJsonObject().get("ts").getAsString());
+        Assert.assertEquals(StringTagReader.get(segment.getSpans().get(1), Tags.SPAN_LAYER.SPAN_LAYER_TAG),
+            jsonObject.get("ss").getAsJsonArray().get(1).getAsJsonObject().get("ts").getAsJsonObject().get("span.layer").getAsString());
     }
 }
