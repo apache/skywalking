@@ -12,32 +12,32 @@ public class TagsTest {
     public void testLayer() {
         Span span = new Span(1, "/test");
         Tags.SPAN_LAYER.asDB(span);
-        Assert.assertEquals("db", span.getStrTag("span.layer"));
+        Assert.assertEquals("db", StringTagReader.get(span, Tags.SPAN_LAYER.SPAN_LAYER_TAG));
 
         Tags.SPAN_LAYER.asRPCFramework(span);
-        Assert.assertEquals("rpc", span.getStrTag("span.layer"));
+        Assert.assertEquals("rpc", StringTagReader.get(span, Tags.SPAN_LAYER.SPAN_LAYER_TAG));
 
         Tags.SPAN_LAYER.asHttp(span);
-        Assert.assertEquals("http", span.getStrTag("span.layer"));
+        Assert.assertEquals("http", StringTagReader.get(span, Tags.SPAN_LAYER.SPAN_LAYER_TAG));
     }
 
     @Test
     public void testBooleanTag() {
         BooleanTag tag = new BooleanTag("test.key", false);
         Span span = new Span(1, "/test");
-        Assert.assertFalse(tag.get(span));
+        Assert.assertFalse(BooleanTagReader.get(span, tag));
 
         tag.set(span, true);
-        Assert.assertTrue(tag.get(span));
+        Assert.assertTrue(BooleanTagReader.get(span, tag));
     }
 
     @Test
     public void testIntTag() {
         IntTag tag = new IntTag("test.key");
         Span span = new Span(1, "/test");
-        Assert.assertNull(tag.get(span));
+        Assert.assertNull(IntTagReader.get(span, tag));
 
         tag.set(span, 123);
-        Assert.assertEquals(123, tag.get(span).intValue());
+        Assert.assertEquals(123, IntTagReader.get(span, tag).intValue());
     }
 }

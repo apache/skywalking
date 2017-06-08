@@ -1,11 +1,23 @@
 package org.skywalking.apm.trace;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.TypeAdapter;
 import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
 
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.*;
+import org.skywalking.apm.trace.TraceId.DistributedTraceIds;
+import org.skywalking.apm.trace.tag.BooleanTagItem;
+import org.skywalking.apm.trace.tag.IntTagItem;
+import org.skywalking.apm.trace.tag.StringTagItem;
+import org.skywalking.apm.util.StringUtil;
 
 /**
  * Span is a concept from OpenTracing Spec, also from Google Dapper Paper.
@@ -16,27 +28,21 @@ import java.util.*;
  * <p>
  * Created by wusheng on 2017/2/17.
  */
+@JsonAdapter(Span.Serializer.class)
 public class Span {
-    @Expose
-    @SerializedName(value = "si")
-    private int spanId;
+    private static Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 
-    @Expose
-    @SerializedName(value = "ps")
+    private int spanId;
     private int parentSpanId;
 
     /**
      * The start time of this Span.
      */
-    @Expose
-    @SerializedName(value = "st")
     private long startTime;
 
     /**
      * The end time of this Span.
      */
-    @Expose
-    @SerializedName(value = "et")
     private long endTime;
 
     /**
@@ -44,43 +50,43 @@ public class Span {
      * If you want to know, how to set an operation name,
      * {@see https://github.com/opentracing/specification/blob/master/specification.md#start-a-new-span}
      */
-    @Expose
-    @SerializedName(value = "on")
     private String operationName;
+
+    /**
+     * {@link #peer}, {@link #port} and {@link #peers} were part of tags,
+     * independence them from tags for better performance and gc.
+     */
+    private String peer;
+
+    private int port;
+
+    private String peers;
 
     /**
      * Tag is a concept from OpenTracing spec.
      * <p>
      * {@see https://github.com/opentracing/specification/blob/master/specification.md#set-a-span-tag}
      */
-    @Expose
-    @SerializedName(value = "ts")
-    private final Map<String, String> tagsWithStr;
+    private List<StringTagItem> tagsWithStr;
 
-    @Expose
-    @SerializedName(value = "tb")
-    private final Map<String, Boolean> tagsWithBool;
+    private List<BooleanTagItem> tagsWithBool;
 
-    @Expose
-    @SerializedName(value = "ti")
-    private final Map<String, Integer> tagsWithInt;
+    private List<IntTagItem> tagsWithInt;
 
     /**
      * Log is a concept from OpenTracing spec.
      * <p>
      * {@see https://github.com/opentracing/specification/blob/master/specification.md#log-structured-data}
      */
-    @Expose
-    @SerializedName(value = "lo")
-    private final List<LogData> logs;
+    private List<LogData> logs;
 
     /**
      * Create a new span, by given span id, parent span id and operationName.
      * This span must belong a {@link TraceSegment}, also is a part of Distributed Trace.
      *
-     * @param spanId        given by the creator, and must be unique id in the {@link TraceSegment}
-     * @param parentSpanId  given by the creator, and must be an existed span id in the {@link TraceSegment}. Value -1
-     *                      means no parent span if this {@link TraceSegment}.
+     * @param spanId given by the creator, and must be unique id in the {@link TraceSegment}
+     * @param parentSpanId given by the creator, and must be an existed span id in the {@link TraceSegment}. Value -1
+     * means no parent span if this {@link TraceSegment}.
      * @param operationName {@link #operationName}
      */
     protected Span(int spanId, int parentSpanId, String operationName) {
@@ -91,11 +97,11 @@ public class Span {
      * Create a new span, by given span id, parent span id, operationName and startTime.
      * This span must belong a {@link TraceSegment}, also is a part of Distributed Trace.
      *
-     * @param spanId        given by the creator, and must be unique id in the {@link TraceSegment}
-     * @param parentSpanId  given by the creator, and must be an existed span id in the {@link TraceSegment}. Value -1
-     *                      means no parent span if this {@link TraceSegment}.
+     * @param spanId given by the creator, and must be unique id in the {@link TraceSegment}
+     * @param parentSpanId given by the creator, and must be an existed span id in the {@link TraceSegment}. Value -1
+     * means no parent span if this {@link TraceSegment}.
      * @param operationName {@link #operationName}
-     * @param startTime     given start timestamp.
+     * @param startTime given start timestamp.
      */
     protected Span(int spanId, int parentSpanId, String operationName, long startTime) {
         this();
@@ -109,7 +115,7 @@ public class Span {
      * Create a new span, by given span id and no parent span id.
      * No parent span id means that, this Span is the first span of the {@link TraceSegment}
      *
-     * @param spanId        given by the creator, and must be unique id in the {@link TraceSegment}
+     * @param spanId given by the creator, and must be unique id in the {@link TraceSegment}
      * @param operationName {@link #operationName}
      */
     public Span(int spanId, String operationName) {
@@ -120,9 +126,9 @@ public class Span {
      * Create a new span, by given span id and give startTime but no parent span id,
      * No parent span id means that, this Span is the first span of the {@link TraceSegment}
      *
-     * @param spanId        given by the creator, and must be unique id in the {@link TraceSegment}
+     * @param spanId given by the creator, and must be unique id in the {@link TraceSegment}
      * @param operationName {@link #operationName}
-     * @param startTime     given start time of span
+     * @param startTime given start time of span
      */
     public Span(int spanId, String operationName, long startTime) {
         this(spanId, -1, operationName, startTime);
@@ -131,8 +137,8 @@ public class Span {
     /**
      * Create a new span, by given span id and given parent {@link Span}.
      *
-     * @param spanId        given by the creator, and must be unique id in the {@link TraceSegment}
-     * @param parentSpan    {@link Span}
+     * @param spanId given by the creator, and must be unique id in the {@link TraceSegment}
+     * @param parentSpan {@link Span}
      * @param operationName {@link #operationName}
      */
     public Span(int spanId, Span parentSpan, String operationName) {
@@ -143,10 +149,10 @@ public class Span {
      * Create a new span, by given span id, parent span, operationName and startTime.
      * This span must belong a {@link TraceSegment}, also is a part of Distributed Trace.
      *
-     * @param spanId        given by the creator, and must be unique id in the {@link TraceSegment}
-     * @param parentSpan    {@link Span}
+     * @param spanId given by the creator, and must be unique id in the {@link TraceSegment}
+     * @param parentSpan {@link Span}
      * @param operationName {@link #operationName}
-     * @param startTime     given start timestamp
+     * @param startTime given start timestamp
      */
     public Span(int spanId, Span parentSpan, String operationName, long startTime) {
         this(spanId, parentSpan.spanId, operationName, startTime);
@@ -156,10 +162,6 @@ public class Span {
      * Create a new/empty span.
      */
     public Span() {
-        tagsWithStr = new HashMap<String, String>(5);
-        tagsWithBool = new HashMap<String, Boolean>(1);
-        tagsWithInt = new HashMap<String, Integer>(2);
-        logs = new LinkedList<LogData>();
     }
 
     /**
@@ -177,7 +179,7 @@ public class Span {
      * When it is finished, it will be archived by the given {@link TraceSegment}, which owners it.
      * At the same out, set the {@link #endTime} as the given endTime
      *
-     * @param owner   of the Span.
+     * @param owner of the Span.
      * @param endTime of the Span.
      */
     public void finish(TraceSegment owner, long endTime) {
@@ -201,60 +203,34 @@ public class Span {
      * @return this Span instance, for chaining
      */
     public Span setTag(String key, String value) {
-        tagsWithStr.put(key, value);
+        if (tagsWithStr == null) {
+            tagsWithStr = new LinkedList<StringTagItem>();
+        }
+        tagsWithStr.add(new StringTagItem(key, value));
         return this;
     }
 
     public Span setTag(String key, boolean value) {
-        tagsWithBool.put(key, value);
+        if (tagsWithBool == null) {
+            tagsWithBool = new LinkedList<BooleanTagItem>();
+        }
+        tagsWithBool.add(new BooleanTagItem(key, value));
         return this;
     }
 
     public Span setTag(String key, Integer value) {
-        tagsWithInt.put(key, value);
+        if (tagsWithInt == null) {
+            tagsWithInt = new LinkedList<IntTagItem>();
+        }
+        tagsWithInt.add(new IntTagItem(key, value));
         return this;
     }
 
     /**
-     * Get all tags from this span, but readonly.
-     *
-     * @return
-     */
-    public final Map<String, Object> getTags() {
-        Map<String, Object> tags = new HashMap<String, Object>();
-        tags.putAll(tagsWithStr);
-        tags.putAll(tagsWithBool);
-        tags.putAll(tagsWithInt);
-        return tags;
-    }
-
-    /**
-     * Get tag value of the given key.
-     *
-     * @param key the given tag key.
-     * @return tag value.
-     */
-    public String getStrTag(String key) {
-        return tagsWithStr.get(key);
-    }
-
-    public Boolean getBoolTag(String key) {
-        return tagsWithBool.get(key);
-    }
-
-    public Integer getIntTag(String key) {
-        return tagsWithInt.get(key);
-    }
-
-    /**
      * This method is from opentracing-java. {@see https://github.com/opentracing/opentracing-java/blob/release-0.20.9/opentracing-api/src/main/java/io/opentracing/Span.java#L91}
-     * <p>
-     * Log key:value pairs to the Span with the current walltime timestamp.
-     * <p>
-     * <p><strong>CAUTIONARY NOTE:</strong> not all Tracer implementations support key:value log fields end-to-end.
-     * Caveat emptor.
-     * <p>
-     * <p>A contrived example (using Guava, which is not required):
+     * <p> Log key:value pairs to the Span with the current walltime timestamp. <p> <p><strong>CAUTIONARY NOTE:</strong>
+     * not all Tracer implementations support key:value log fields end-to-end. Caveat emptor. <p> <p>A contrived example
+     * (using Guava, which is not required):
      * <pre>{@code
      * span.log(
      * ImmutableMap.Builder<String, Object>()
@@ -265,11 +241,14 @@ public class Span {
      * }</pre>
      *
      * @param fields key:value log fields. Tracer implementations should support String, numeric, and boolean values;
-     *               some may also support arbitrary Objects.
+     * some may also support arbitrary Objects.
      * @return the Span, for chaining
      * @see Span#log(String)
      */
     public Span log(Map<String, String> fields) {
+        if (logs == null) {
+            logs = new LinkedList<LogData>();
+        }
         logs.add(new LogData(System.currentTimeMillis(), fields));
         return this;
     }
@@ -318,11 +297,7 @@ public class Span {
 
     /**
      * This method is from opentracing-java. {@see https://github.com/opentracing/opentracing-java/blob/release-0.20.9/opentracing-api/src/main/java/io/opentracing/Span.java#L120}
-     * <p>
-     * Record an event at the current walltime timestamp.
-     * <p>
-     * Shorthand for
-     * <p>
+     * <p> Record an event at the current walltime timestamp. <p> Shorthand for <p>
      * <pre>{@code
      * span.log(Collections.singletonMap("event", event));
      * }</pre>
@@ -355,12 +330,32 @@ public class Span {
         return operationName;
     }
 
-    public List<LogData> getLogs() {
-        return Collections.unmodifiableList(logs);
-    }
-
     public boolean isLeaf() {
         return false;
+    }
+
+    public String getPeer() {
+        return peer;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public String getPeers() {
+        return peers;
+    }
+
+    public void setPeer(String peer) {
+        this.peer = peer;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
+
+    public void setPeers(String peers) {
+        this.peers = peers;
     }
 
     @Override
@@ -371,5 +366,77 @@ public class Span {
             ", startTime=" + startTime +
             ", operationName='" + operationName + '\'' +
             '}';
+    }
+
+    public static class Serializer extends TypeAdapter<Span> {
+        @Override
+        public void write(JsonWriter out, Span span) throws IOException {
+            out.beginObject();
+            out.name("si").value(span.spanId);
+            out.name("ps").value(span.parentSpanId);
+            out.name("st").value(span.startTime);
+            out.name("et").value(span.endTime);
+            out.name("on").value(span.operationName);
+
+            this.writeTags(out, span);
+
+            if(span.logs != null) {
+                out.name("logs").jsonValue(gson.toJson(span.logs));
+            }
+
+            out.endObject();
+        }
+
+        public void writeTags(JsonWriter out, Span span) throws IOException {
+            JsonObject tagWithStr = null;
+            JsonObject tagWithInt = null;
+            JsonObject tagWithBool = null;
+            if (!StringUtil.isEmpty(span.peer)) {
+                tagWithStr = new JsonObject();
+                tagWithStr.addProperty("peer.host", span.peer);
+                tagWithInt = new JsonObject();
+                tagWithInt.addProperty("peer.port", span.port);
+            } else if (!StringUtil.isEmpty(span.peers)) {
+                tagWithStr = new JsonObject();
+                tagWithStr.addProperty("peers", span.peers);
+            } else if (span.tagsWithStr != null) {
+                tagWithStr = new JsonObject();
+            }
+
+            if (span.tagsWithStr != null) {
+                for (StringTagItem item : span.tagsWithStr) {
+                    tagWithStr.addProperty(item.getKey(), item.getValue());
+                }
+            }
+            if (span.tagsWithInt != null) {
+                if (tagWithInt != null) {
+                    tagWithInt = new JsonObject();
+                }
+                for (IntTagItem item : span.tagsWithInt) {
+                    tagWithInt.addProperty(item.getKey(), item.getValue());
+                }
+            }
+            if (span.tagsWithBool != null) {
+                tagWithBool = new JsonObject();
+                for (BooleanTagItem item : span.tagsWithBool) {
+                    tagWithBool.addProperty(item.getKey(), item.getValue());
+                }
+            }
+
+            if (tagWithStr != null) {
+                out.name("ts").jsonValue(tagWithStr.toString());
+            }
+            if (tagWithInt != null) {
+                out.name("ti").jsonValue(tagWithInt.toString());
+            }
+            if (tagWithBool != null) {
+                out.name("tb").jsonValue(tagWithBool.toString());
+            }
+        }
+
+        @Override
+        public Span read(JsonReader in) throws IOException {
+            throw new IOException("Can't deserialize span at agent side for performance consideration");
+        }
     }
 }

@@ -46,7 +46,7 @@ public final class Tags {
      * nosql=something like redis/memcache
      */
     public static final class SPAN_LAYER {
-        private static StringTag SPAN_LAYER_TAG = new StringTag("span.layer");
+        public static StringTag SPAN_LAYER_TAG = new StringTag("span.layer");
 
         private static final String DB_LAYER = "db";
         private static final String RPC_FRAMEWORK_LAYER = "rpc";
@@ -63,22 +63,6 @@ public final class Tags {
         public static void asHttp(Span span) {
             SPAN_LAYER_TAG.set(span, HTTP_LAYER);
         }
-
-        public static String get(Span span) {
-            return SPAN_LAYER_TAG.get(span);
-        }
-
-        public static boolean isDB(Span span) {
-            return DB_LAYER.equals(get(span));
-        }
-
-        public static boolean isRPCFramework(Span span) {
-            return RPC_FRAMEWORK_LAYER.equals(get(span));
-        }
-
-        public static boolean isHttp(Span span) {
-            return HTTP_LAYER.equals(get(span));
-        }
     }
 
     /**
@@ -91,21 +75,6 @@ public final class Tags {
      * ERROR indicates whether a Span ended in an error state.
      */
     public static final BooleanTag ERROR = new BooleanTag("error", false);
-
-    /**
-     * PEER_HOST records host address (ip:port, or ip1:port1,ip2:port2) of the peer, maybe IPV4, IPV6 or hostname.
-     */
-    public static final StringTag PEER_HOST = new StringTag("peer.host");
-
-    /**
-     * PEER_PORT records remote port of the peer
-     */
-    public static final IntTag PEER_PORT = new IntTag("peer.port");
-
-    /**
-     * PEERS records multiple host address and port of remote
-     */
-    public static final StringTag PEERS = new StringTag("peers");
 
     /**
      * DB_TYPE records database type, such as sql, redis, cassandra and so on.

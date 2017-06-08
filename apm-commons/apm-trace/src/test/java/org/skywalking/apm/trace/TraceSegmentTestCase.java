@@ -115,11 +115,7 @@ public class TraceSegmentTestCase {
         String segmentJson = jsonString.substring(5);
 
         Assert.assertEquals(length, segmentJson.length());
-        TraceSegment recoverySegment = gson.fromJson(segmentJson, TraceSegment.class);
 
-        Assert.assertEquals(segment.getSpans().size(), recoverySegment.getSpans().size());
-        Assert.assertEquals(segment.getRefs().get(0).getTraceSegmentId(), recoverySegment.getRefs().get(0).getTraceSegmentId());
-        Assert.assertEquals(Tags.SPAN_LAYER.get(segment.getSpans().get(1)), Tags.SPAN_LAYER.get(recoverySegment.getSpans().get(1)));
-        Assert.assertEquals(segment.getSpans().get(1).getLogs().get(0).getTime(), recoverySegment.getSpans().get(1).getLogs().get(0).getTime());
+        System.out.println(segmentJson);
     }
 }
