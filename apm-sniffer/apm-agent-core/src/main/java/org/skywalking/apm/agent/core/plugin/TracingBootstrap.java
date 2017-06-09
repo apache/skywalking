@@ -30,7 +30,7 @@ public class TracingBootstrap {
      * Main entrance for testing.
      *
      * @param args includes target classname ( which exists "public static void main(String[] args)" ) and arguments
-     *             list.
+     * list.
      * @throws PluginException
      * @throws ClassNotFoundException
      * @throws NoSuchMethodException
@@ -62,7 +62,7 @@ public class TracingBootstrap {
             }
             DynamicType.Builder<?> newClassBuilder =
                 new ByteBuddy().rebase(resolution.resolve(), ClassFileLocator.ForClassLoader.ofClassPath());
-            newClassBuilder = ((AbstractClassEnhancePluginDefine) plugin).define(enhanceClassName, newClassBuilder);
+            newClassBuilder = ((AbstractClassEnhancePluginDefine)plugin).define(enhanceClassName, newClassBuilder, TracingBootstrap.class.getClassLoader());
             newClassBuilder.make(new TypeResolutionStrategy.Active()).load(ClassLoader.getSystemClassLoader(), ClassLoadingStrategy.Default.INJECTION)
                 .getLoaded();
         }

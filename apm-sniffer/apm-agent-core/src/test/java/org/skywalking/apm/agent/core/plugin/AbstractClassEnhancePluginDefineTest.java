@@ -104,12 +104,12 @@ public class AbstractClassEnhancePluginDefineTest {
 
         private DynamicType.Builder<?> transformStaticMethod(DynamicType.Builder newBuilder) {
             MockPluginStaticMethodInstrumentation staticMethodInstrumentation = new MockPluginStaticMethodInstrumentation();
-            return staticMethodInstrumentation.define(WEAVE_CLASS, newBuilder);
+            return staticMethodInstrumentation.define(WEAVE_CLASS, newBuilder, AbstractClassEnhancePluginDefineTest.class.getClassLoader());
         }
 
         private DynamicType.Builder transformInstanceMethod(DynamicType.Builder<?> builder) {
             MockPluginInstanceMethodInstrumentation instrumentation = new MockPluginInstanceMethodInstrumentation();
-            return instrumentation.define(WEAVE_CLASS, builder);
+            return instrumentation.define(WEAVE_CLASS, builder, AbstractClassEnhancePluginDefineTest.class.getClassLoader());
         }
     }
 
