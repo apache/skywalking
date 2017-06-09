@@ -16,7 +16,7 @@ public class MySQLGenerator {
             Span span = ContextManager.createSpan("mysql/jdbi/statement/executeQuery");
             Tags.COMPONENT.set(span, "Mysql");
             Tags.SPAN_KIND.set(span, Tags.SPAN_KIND_CLIENT);
-            span.setPeer_host("10.5.34.18");
+            span.setPeerHost("10.5.34.18");
             span.setPort(30088);
             Tags.DB_INSTANCE.set(span, "mysql-instance");
             Tags.DB_STATEMENT.set(span, "select * from users where user_id = 1");

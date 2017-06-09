@@ -53,10 +53,10 @@ public class Span {
     private String operationName;
 
     /**
-     * {@link #peer_host}, {@link #port} and {@link #peers} were part of tags,
+     * {@link #peerHost}, {@link #port} and {@link #peers} were part of tags,
      * independence them from tags for better performance and gc.
      */
-    private String peer_host;
+    private String peerHost;
 
     private int port;
 
@@ -335,7 +335,7 @@ public class Span {
     }
 
     public String getPeerHost() {
-        return peer_host;
+        return peerHost;
     }
 
     public int getPort() {
@@ -346,8 +346,8 @@ public class Span {
         return peers;
     }
 
-    public void setPeer_host(String peer_host) {
-        this.peer_host = peer_host;
+    public void setPeerHost(String peerHost) {
+        this.peerHost = peerHost;
     }
 
     public void setPort(int port) {
@@ -391,9 +391,9 @@ public class Span {
             JsonObject tagWithStr = null;
             JsonObject tagWithInt = null;
             JsonObject tagWithBool = null;
-            if (!StringUtil.isEmpty(span.peer_host)) {
+            if (!StringUtil.isEmpty(span.peerHost)) {
                 tagWithStr = new JsonObject();
-                tagWithStr.addProperty("peer.host", span.peer_host);
+                tagWithStr.addProperty("peer.host", span.peerHost);
                 tagWithInt = new JsonObject();
                 tagWithInt.addProperty("peer.port", span.port);
             } else if (!StringUtil.isEmpty(span.peers)) {

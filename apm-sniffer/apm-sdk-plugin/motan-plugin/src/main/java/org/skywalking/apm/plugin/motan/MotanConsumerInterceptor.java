@@ -49,8 +49,8 @@ public class MotanConsumerInterceptor implements InstanceConstructorInterceptor,
         Request request = (Request) interceptorContext.allArguments()[0];
         if (url != null) {
             Span span = ContextManager.createSpan(generateOperationName(url, request));
-            Tags.PEER_HOST.set(span, url.getHost());
-            Tags.PEER_PORT.set(span, url.getPort());
+            span.setPeerHost(url.getHost());
+            span.setPort(url.getPort());
             Tags.COMPONENT.set(span, MOTAN_COMPONENT);
             Tags.URL.set(span, url.getIdentity());
             Tags.SPAN_KIND.set(span, Tags.SPAN_KIND_CLIENT);

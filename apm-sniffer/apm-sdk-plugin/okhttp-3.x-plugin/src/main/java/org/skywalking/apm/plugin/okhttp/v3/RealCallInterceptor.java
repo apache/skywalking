@@ -58,8 +58,8 @@ public class RealCallInterceptor implements InstanceMethodsAroundInterceptor, In
         Request request = (Request)context.get(REQUEST_CONTEXT_KEY);
 
         Span span = ContextManager.createSpan(request.url().uri().toString());
-        Tags.PEER_PORT.set(span, request.url().port());
-        Tags.PEER_HOST.set(span, request.url().host());
+        span.setPeerHost(request.url().host());
+        span.setPort(request.url().port());
         Tags.SPAN_KIND.set(span, Tags.SPAN_KIND_CLIENT);
         Tags.COMPONENT.set(span, COMPONENT_NAME);
         Tags.HTTP.METHOD.set(span, request.method());

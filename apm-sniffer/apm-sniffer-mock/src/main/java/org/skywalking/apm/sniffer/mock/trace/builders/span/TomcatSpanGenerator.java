@@ -19,7 +19,7 @@ public class TomcatSpanGenerator {
             Tags.COMPONENT.set(webSpan, "Tomcat");
             Tags.URL.set(webSpan, "http://10.21.9.35/web/serviceA");
             Tags.SPAN_KIND.set(webSpan, Tags.SPAN_KIND_SERVER);
-            webSpan.setPeer_host("10.21.9.35");
+            webSpan.setPeerHost("10.21.9.35");
             webSpan.setPort(80);
             Tags.SPAN_LAYER.asHttp(webSpan);
         }
@@ -41,7 +41,7 @@ public class TomcatSpanGenerator {
             Tags.COMPONENT.set(webSpan, "Tomcat");
             Tags.URL.set(webSpan, "http://10.21.9.35/web/unknown");
             Tags.SPAN_KIND.set(webSpan, Tags.SPAN_KIND_SERVER);
-            webSpan.setPeer_host("10.21.9.35");
+            webSpan.setPeerHost("10.21.9.35");
             webSpan.setPort(80);
             Tags.SPAN_LAYER.asHttp(webSpan);
         }
@@ -64,7 +64,7 @@ public class TomcatSpanGenerator {
             Tags.COMPONENT.set(webSpan, "Tomcat");
             Tags.URL.set(webSpan, "http://10.21.9.35/web/error/service");
             Tags.SPAN_KIND.set(webSpan, Tags.SPAN_KIND_SERVER);
-            webSpan.setPeer_host("10.21.9.35");
+            webSpan.setPeerHost("10.21.9.35");
             webSpan.setPort(80);
             Tags.SPAN_LAYER.asHttp(webSpan);
         }

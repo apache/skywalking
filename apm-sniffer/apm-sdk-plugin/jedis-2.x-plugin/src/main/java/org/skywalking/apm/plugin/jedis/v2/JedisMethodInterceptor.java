@@ -53,10 +53,10 @@ public class JedisMethodInterceptor extends NoConcurrencyAccessObject implements
     private void tagPeer(Span span, EnhancedClassInstanceContext context) {
         String redisHosts = (String) context.get(KEY_OF_REDIS_HOSTS);
         if (!StringUtil.isEmpty(redisHosts)) {
-            Tags.PEERS.set(span, (String) context.get(KEY_OF_REDIS_HOSTS));
+            span.setPeerHost(context.get(KEY_OF_REDIS_HOST, String.class));
         } else {
-            Tags.PEER_HOST.set(span, (String) context.get(KEY_OF_REDIS_HOST));
-            Tags.PEER_PORT.set(span, (Integer) context.get(KEY_OF_REDIS_PORT));
+            span.setPeerHost(context.get(KEY_OF_REDIS_HOST, String.class));
+            span.setPort(context.get(KEY_OF_REDIS_PORT, Integer.class));
         }
     }
 
@@ -82,10 +82,10 @@ public class JedisMethodInterceptor extends NoConcurrencyAccessObject implements
         tagPeer(span, context);
         Tags.SPAN_LAYER.asDB(span);
         if (StringUtil.isEmpty(context.get(KEY_OF_REDIS_HOST, String.class))) {
-            Tags.PEERS.set(span, String.valueOf(context.get(KEY_OF_REDIS_HOSTS)));
+            span.setPeerHost(context.get(KEY_OF_REDIS_HOST, String.class));
         } else {
-            Tags.PEER_HOST.set(span, context.get(KEY_OF_REDIS_HOST, String.class));
-            Tags.PEER_PORT.set(span, (Integer) context.get(KEY_OF_REDIS_PORT));
+            span.setPeerHost(context.get(KEY_OF_REDIS_HOST, String.class));
+            span.setPort(context.get(KEY_OF_REDIS_PORT, Integer.class));
         }
 
         if (interceptorContext.allArguments().length > 0

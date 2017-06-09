@@ -44,7 +44,7 @@ public class SpanTestCase {
         Span span1 = new Span(0, "serviceA");
         Tags.SPAN_LAYER.asHttp(span1);
         Tags.COMPONENT.set(span1, "Spring");
-        span1.setPeer_host("127.0.0.1");
+        span1.setPeerHost("127.0.0.1");
         Tags.ERROR.set(span1, true);
         Tags.STATUS_CODE.set(span1, 302);
         Tags.URL.set(span1, "http://127.0.0.1/serviceA");

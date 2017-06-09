@@ -45,8 +45,8 @@ public class TomcatInterceptor implements InstanceMethodsAroundInterceptor {
 
         Span span = ContextManager.createSpan(request.getRequestURI());
         Tags.COMPONENT.set(span, TOMCAT_COMPONENT);
-        Tags.PEER_HOST.set(span, fetchRequestPeerHost(request));
-        Tags.PEER_PORT.set(span, request.getRemotePort());
+        span.setPeerHost(fetchRequestPeerHost(request));
+        span.setPort(request.getRemotePort());
         Tags.SPAN_KIND.set(span, Tags.SPAN_KIND_SERVER);
         Tags.URL.set(span, request.getRequestURL().toString());
         Tags.SPAN_LAYER.asHttp(span);

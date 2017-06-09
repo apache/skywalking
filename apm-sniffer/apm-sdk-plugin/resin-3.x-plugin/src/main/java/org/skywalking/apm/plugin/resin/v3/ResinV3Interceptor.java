@@ -37,8 +37,8 @@ public class ResinV3Interceptor implements InstanceMethodsAroundInterceptor {
         CauchoRequest request = (CauchoRequest)args[0];
         Span span = ContextManager.createSpan(request.getPageURI());
         Tags.COMPONENT.set(span, RESIN_COMPONENT);
-        Tags.PEER_HOST.set(span, request.getServerName());
-        Tags.PEER_PORT.set(span, request.getServerPort());
+        span.setPeerHost(request.getServerName());
+        span.setPort(request.getServerPort());
         Tags.SPAN_KIND.set(span, Tags.SPAN_KIND_SERVER);
         Tags.URL.set(span, appendRequestURL(request));
         Tags.SPAN_LAYER.asHttp(span);

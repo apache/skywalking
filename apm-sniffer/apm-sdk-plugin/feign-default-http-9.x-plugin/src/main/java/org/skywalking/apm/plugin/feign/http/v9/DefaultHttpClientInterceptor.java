@@ -47,8 +47,8 @@ public class DefaultHttpClientInterceptor implements InstanceMethodsAroundInterc
 
         URL url = new URL(request.url());
         Span span = ContextManager.createSpan(request.url());
-        Tags.PEER_PORT.set(span, url.getPort());
-        Tags.PEER_HOST.set(span, url.getHost());
+        span.setPeerHost(url.getHost());
+        span.setPort(url.getPort());
         Tags.SPAN_KIND.set(span, Tags.SPAN_KIND_CLIENT);
         Tags.COMPONENT.set(span, COMPONENT_NAME);
         Tags.HTTP.METHOD.set(span, request.method());

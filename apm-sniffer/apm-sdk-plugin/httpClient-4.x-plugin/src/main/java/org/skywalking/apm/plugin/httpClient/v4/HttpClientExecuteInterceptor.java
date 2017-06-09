@@ -34,8 +34,8 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
         HttpHost httpHost = (HttpHost) allArguments[0];
         HttpRequest httpRequest = (HttpRequest) allArguments[1];
         Span span = createSpan(httpRequest);
-        Tags.PEER_PORT.set(span, httpHost.getPort());
-        Tags.PEER_HOST.set(span, httpHost.getHostName());
+        span.setPeerHost(httpHost.getHostName());
+        span.setPort(httpHost.getPort());
         Tags.SPAN_KIND.set(span, Tags.SPAN_KIND_CLIENT);
         Tags.COMPONENT.set(span, COMPONENT_NAME);
         Tags.URL.set(span, generateURL(httpRequest));

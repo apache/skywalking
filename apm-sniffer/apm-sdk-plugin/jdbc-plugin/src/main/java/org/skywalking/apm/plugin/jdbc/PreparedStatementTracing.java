@@ -11,7 +11,7 @@ import java.sql.SQLException;
  * {@link PreparedStatementTracing} create span with the {@link Span#operationName} start with
  * "JDBC/PreparedStatement/"and set {@link ConnectionInfo#dbType} to the {@link Tags#COMPONENT}.
  * <p>
- * Notice: {@link Tags#PEERS} may be is null if database connection url don't contain multiple hosts.
+ * Notice: {@link Span#peerHost} may be is null if database connection url don't contain multiple hosts.
  *
  * @author zhangxin
  */
@@ -28,10 +28,10 @@ public class PreparedStatementTracing {
             Tags.DB_STATEMENT.set(span, sql);
             Tags.COMPONENT.set(span, connectInfo.getDBType());
             if (!StringUtil.isEmpty(connectInfo.getHosts())) {
-                Tags.PEERS.set(span, connectInfo.getHosts());
+                span.setPeers(connectInfo.getHosts());
             } else {
-                Tags.PEER_PORT.set(span, connectInfo.getPort());
-                Tags.PEER_HOST.set(span, connectInfo.getHost());
+                span.setPeerHost(connectInfo.getHost());
+                span.setPort(connectInfo.getPort());
             }
             Tags.SPAN_LAYER.asDB(span);
             return exec.exe(realStatement, sql);

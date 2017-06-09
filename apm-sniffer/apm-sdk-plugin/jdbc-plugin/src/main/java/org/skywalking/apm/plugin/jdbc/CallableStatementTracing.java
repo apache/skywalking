@@ -11,7 +11,7 @@ import java.sql.SQLException;
  * {@link CallableStatementTracing} create span with the {@link Span#operationName} start with
  * "JDBC/CallableStatement/"and set {@link ConnectionInfo#dbType} to the {@link Tags#COMPONENT}.
  * <p>
- * Notice: {@link Tags#PEERS} may be is null if database connection url don't contain multiple hosts.
+ * Notice: {@link Span#peerHost} may be is null if database connection url don't contain multiple hosts.
  *
  * @author zhangxin
  */
@@ -29,10 +29,10 @@ public class CallableStatementTracing {
             Tags.SPAN_LAYER.asDB(span);
             Tags.COMPONENT.set(span, connectInfo.getDBType());
             if (!StringUtil.isEmpty(connectInfo.getHosts())) {
-                Tags.PEERS.set(span, connectInfo.getHosts());
+                span.setPeers(connectInfo.getHosts());
             } else {
-                Tags.PEER_PORT.set(span, connectInfo.getPort());
-                Tags.PEER_HOST.set(span, connectInfo.getHost());
+                span.setPeerHost(connectInfo.getHost());
+                span.setPort(connectInfo.getPort());
             }
             return exec.exe(realStatement, sql);
         } catch (SQLException e) {

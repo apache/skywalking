@@ -18,7 +18,7 @@ public class DubboSpanGenerator {
             Tags.COMPONENT.set(span, "Dubbo");
             Tags.URL.set(span, "rest://192.168.1.8:20880/default_rpc/org.skywalking.apm.test.persistence.PersistenceService.query(String)");
             Tags.SPAN_KIND.set(span, Tags.SPAN_KIND_SERVER);
-            span.setPeer_host("192.168.1.8");
+            span.setPeerHost("192.168.1.8");
             span.setPort(20880);
             Tags.SPAN_LAYER.asHttp(span);
         }
@@ -36,7 +36,7 @@ public class DubboSpanGenerator {
             Tags.COMPONENT.set(span, "Dubbo");
             Tags.URL.set(span, "rest://192.168.1.8:20880/default_rpc/org.skywalking.apm.test.persistence.PersistenceService.query(String)");
             Tags.SPAN_KIND.set(span, Tags.SPAN_KIND_CLIENT);
-            span.setPeer_host("10.21.9.35");
+            span.setPeerHost("10.21.9.35");
             Tags.SPAN_LAYER.asHttp(span);
         }
 
