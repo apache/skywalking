@@ -6,9 +6,9 @@ import org.skywalking.apm.agent.core.plugin.interceptor.assist.NoConcurrencyAcce
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodInvokeContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.skywalking.apm.util.StringUtil;
 import org.skywalking.apm.trace.Span;
 import org.skywalking.apm.trace.tag.Tags;
+import org.skywalking.apm.util.StringUtil;
 
 /**
  * {@link JedisMethodInterceptor} intercept all method of {@link redis.clients.jedis.Jedis}
@@ -43,7 +43,7 @@ public class JedisMethodInterceptor extends NoConcurrencyAccessObject implements
 
     @Override
     public void beforeMethod(final EnhancedClassInstanceContext context,
-                             final InstanceMethodInvokeContext interceptorContext, MethodInterceptResult result) {
+        final InstanceMethodInvokeContext interceptorContext, MethodInterceptResult result) {
         this.whenEnter(context, interceptorContext);
     }
 
@@ -51,25 +51,28 @@ public class JedisMethodInterceptor extends NoConcurrencyAccessObject implements
      * set peer host information for the current active span.
      */
     private void tagPeer(Span span, EnhancedClassInstanceContext context) {
-        String redisHosts = (String) context.get(KEY_OF_REDIS_HOSTS);
+        String redisHosts = (String)context.get(KEY_OF_REDIS_HOSTS);
         if (!StringUtil.isEmpty(redisHosts)) {
-            span.setPeerHost(context.get(KEY_OF_REDIS_HOST, String.class));
+            span.setPeers((String)context.get(KEY_OF_REDIS_HOST));
         } else {
-            span.setPeerHost(context.get(KEY_OF_REDIS_HOST, String.class));
-            span.setPort(context.get(KEY_OF_REDIS_PORT, Integer.class));
+            span.setPeerHost((String)context.get(KEY_OF_REDIS_HOST));
+            Integer port = (Integer)context.get(KEY_OF_REDIS_PORT);
+            if (port != null) {
+                span.setPort(port);
+            }
         }
     }
 
     @Override
     public Object afterMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
-                              Object ret) {
+        Object ret) {
         this.whenExist(context);
         return ret;
     }
 
     @Override
     public void handleMethodException(Throwable t, EnhancedClassInstanceContext context,
-                                      InstanceMethodInvokeContext interceptorContext) {
+        InstanceMethodInvokeContext interceptorContext) {
         ContextManager.activeSpan().log(t);
     }
 
@@ -81,11 +84,15 @@ public class JedisMethodInterceptor extends NoConcurrencyAccessObject implements
         Tags.SPAN_KIND.set(span, Tags.SPAN_KIND_CLIENT);
         tagPeer(span, context);
         Tags.SPAN_LAYER.asDB(span);
-        if (StringUtil.isEmpty(context.get(KEY_OF_REDIS_HOST, String.class))) {
-            span.setPeerHost(context.get(KEY_OF_REDIS_HOST, String.class));
+        String host = (String)context.get(KEY_OF_REDIS_HOST);
+        if (StringUtil.isEmpty(host)) {
+            span.setPeers((String)context.get(KEY_OF_REDIS_HOSTS));
         } else {
-            span.setPeerHost(context.get(KEY_OF_REDIS_HOST, String.class));
-            span.setPort(context.get(KEY_OF_REDIS_PORT, Integer.class));
+            span.setPeerHost(host);
+            Integer port = (Integer)context.get(KEY_OF_REDIS_PORT);
+            if (port != null) {
+                span.setPort(port);
+            }
         }
 
         if (interceptorContext.allArguments().length > 0

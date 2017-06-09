@@ -13,6 +13,6 @@ public class EnhancedClassInstanceContextTest {
         context.set("key", "value");
         Assert.assertTrue(context.isContain("key"));
         Assert.assertEquals("value", context.get("key"));
-        Assert.assertEquals("value", context.get("key", String.class));
+        Assert.assertEquals("value", (String)context.get("key"));
     }
 }

@@ -1,8 +1,10 @@
-package org.skywalking.apm.trace.tag;
+package org.skywalking.apm.agent.core.tags;
 
 import java.lang.reflect.Field;
 import java.util.List;
 import org.skywalking.apm.trace.Span;
+import org.skywalking.apm.trace.tag.BooleanTag;
+import org.skywalking.apm.trace.tag.BooleanTagItem;
 
 /**
  * @author wusheng
@@ -20,11 +22,9 @@ public class BooleanTagReader {
             e.printStackTrace();
         }
 
-        if (tagsWithBoolList != null) {
-            for (BooleanTagItem item : tagsWithBoolList) {
-                if (tag.key().equals(item.getKey())) {
-                    return item.getValue();
-                }
+        for (BooleanTagItem item : tagsWithBoolList) {
+            if (tag.key().equals(item.getKey())) {
+                return item.getValue();
             }
         }
         return tag.defaultValue();

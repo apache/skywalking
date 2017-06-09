@@ -1,8 +1,13 @@
 package org.skywalking.apm.agent.core.context;
 
-import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
+import org.skywalking.apm.agent.core.tags.BooleanTagReader;
+import org.skywalking.apm.agent.core.tags.IntTagReader;
+import org.skywalking.apm.agent.core.tags.StringTagReader;
+import org.skywalking.apm.trace.tag.BooleanTag;
+import org.skywalking.apm.trace.tag.IntTag;
+import org.skywalking.apm.trace.tag.StringTag;
 
 /**
  * @author wusheng
@@ -27,9 +32,9 @@ public class LeafSpanTestCase {
         span.setTag("key2", true);
         span.setTag("key3", 2);
         Assert.assertEquals("serviceA2", span.getOperationName());
-        Assert.assertEquals("value-text", span.getStrTag("key"));
-        Assert.assertFalse(span.getBoolTag("key2"));
-        Assert.assertEquals(1, span.getIntTag("key3").intValue());
+        Assert.assertEquals("value-text", StringTagReader.get(span, new StringTag("key")));
+        Assert.assertFalse(BooleanTagReader.get(span, new BooleanTag("key2", false)));
+        Assert.assertEquals(1, IntTagReader.get(span, new IntTag("key3")).intValue());
 
         //end 2nd span
         span.pop();

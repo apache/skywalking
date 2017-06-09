@@ -53,15 +53,4 @@ public class EnhancedClassInstanceContext {
         return context.containsKey(key);
     }
 
-    /**
-     * get an stored instance, if it is existed.
-     *
-     * @param key
-     * @param type
-     * @param <T>  expected stored instance's type
-     * @return null or stored instance.
-     */
-    public <T> T get(Object key, Class<T> type) {
-        return (T) this.get(key);
-    }
 }

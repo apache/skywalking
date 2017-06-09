@@ -1,5 +1,6 @@
 package org.skywalking.apm.plugin.httpClient.v4;
 
+import java.lang.reflect.Field;
 import org.apache.http.*;
 import org.junit.After;
 import org.junit.Before;
@@ -15,6 +16,8 @@ import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceCon
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodInvokeContext;
 import org.skywalking.apm.sniffer.mock.context.MockTracerContextListener;
 import org.skywalking.apm.sniffer.mock.context.SegmentAssert;
+import org.skywalking.apm.sniffer.mock.trace.tags.BooleanTagReader;
+import org.skywalking.apm.sniffer.mock.trace.tags.StringTagReader;
 import org.skywalking.apm.trace.LogData;
 import org.skywalking.apm.trace.Span;
 import org.skywalking.apm.trace.TraceSegment;
@@ -108,7 +111,7 @@ public class HttpClientExecuteInterceptorTest {
             public void call(TraceSegment traceSegment) {
                 assertThat(traceSegment.getSpans().size(), is(1));
                 assertHttpSpan(traceSegment.getSpans().get(0));
-                assertThat(Tags.ERROR.get(traceSegment.getSpans().get(0)), is(true));
+                assertThat(BooleanTagReader.get(traceSegment.getSpans().get(0), Tags.ERROR), is(true));
                 verify(request, times(1)).setHeader(anyString(), anyString());
             }
         });
@@ -127,8 +130,14 @@ public class HttpClientExecuteInterceptorTest {
                 assertThat(traceSegment.getSpans().size(), is(1));
                 Span span = traceSegment.getSpans().get(0);
                 assertHttpSpan(span);
-                assertThat(Tags.ERROR.get(span), is(true));
-                assertHttpSpanErrorLog(span.getLogs());
+                assertThat(BooleanTagReader.get(span, Tags.ERROR), is(true));
+                try {
+                    assertHttpSpanErrorLog(getLogs(span));
+                } catch (NoSuchFieldException e) {
+                    throw new RuntimeException(e);
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
                 verify(request, times(1)).setHeader(anyString(), anyString());
 
             }
@@ -144,16 +153,22 @@ public class HttpClientExecuteInterceptorTest {
 
     private void assertHttpSpan(Span span) {
         assertThat(span.getOperationName(), is("/test-web/test"));
-        assertThat(Tags.COMPONENT.get(span), is("HttpClient"));
-        assertThat(Tags.PEER_HOST.get(span), is("127.0.0.1"));
-        assertThat(Tags.PEER_PORT.get(span), is(8080));
-        assertThat(Tags.URL.get(span), is("http://127.0.0.1:8080/test-web/test"));
-        assertThat(Tags.SPAN_KIND.get(span), is(Tags.SPAN_KIND_CLIENT));
+        assertThat(StringTagReader.get(span, Tags.COMPONENT), is("HttpClient"));
+        assertThat(span.getPeerHost(), is("127.0.0.1"));
+        assertThat(span.getPort(), is(8080));
+        assertThat(StringTagReader.get(span, Tags.URL), is("http://127.0.0.1:8080/test-web/test"));
+        assertThat(StringTagReader.get(span, Tags.SPAN_KIND), is(Tags.SPAN_KIND_CLIENT));
     }
 
     @After
     public void tearDown() throws Exception {
         TracerContext.ListenerManager.remove(mockTracerContextListener);
+    }
+
+    protected List<LogData> getLogs(Span span) throws NoSuchFieldException, IllegalAccessException {
+        Field logs = Span.class.getDeclaredField("logs");
+        logs.setAccessible(true);
+        return (List<LogData>)logs.get(span);
     }
 
 }

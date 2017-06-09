@@ -1,8 +1,11 @@
 package org.skywalking.apm.plugin.jdbc;
 
 import com.mysql.cj.api.jdbc.JdbcConnection;
+import java.lang.reflect.Field;
+import java.util.List;
 import org.hamcrest.CoreMatchers;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,6 +16,7 @@ import org.skywalking.apm.agent.core.boot.ServiceManager;
 import org.skywalking.apm.agent.core.context.TracerContext;
 import org.skywalking.apm.sniffer.mock.context.MockTracerContextListener;
 import org.skywalking.apm.sniffer.mock.context.SegmentAssert;
+import org.skywalking.apm.trace.LogData;
 import org.skywalking.apm.trace.Span;
 import org.skywalking.apm.trace.TraceSegment;
 
@@ -549,8 +553,19 @@ public class SwPreparedStatementTest extends AbstractStatementTest {
                     assertThat(traceSegment.getSpans().size(), is(1));
                     Span span = traceSegment.getSpans().get(0);
                     assertDBSpan(span, "Mysql/JDBI/PreparedStatement/executeQuery", "SELECT * FROM test WHERE a = ? or b = ? or c=? or d = ? or e=?");
-                    assertThat(span.getLogs().size(), is(1));
-                    assertDBSpanLog(span.getLogs().get(0));
+                    try {
+                        Field logs = Span.class.getDeclaredField("logs");
+                        logs.setAccessible(true);
+                        List<LogData> logData = (List<LogData>)logs.get(span);
+                        Assert.assertThat(logData.size(), is(1));
+                        assertThat(logData.size(), is(1));
+                        assertDBSpanLog(logData.get(0));
+                    } catch (NoSuchFieldException e) {
+                        throw new RuntimeException(e);
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException(e);
+                    }
+
                 }
             });
         }

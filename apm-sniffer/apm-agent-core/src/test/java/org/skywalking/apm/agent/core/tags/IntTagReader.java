@@ -1,8 +1,10 @@
-package org.skywalking.apm.trace.tag;
+package org.skywalking.apm.agent.core.tags;
 
 import java.lang.reflect.Field;
 import java.util.List;
 import org.skywalking.apm.trace.Span;
+import org.skywalking.apm.trace.tag.IntTag;
+import org.skywalking.apm.trace.tag.IntTagItem;
 
 /**
  * @author wusheng
@@ -20,11 +22,9 @@ public class IntTagReader {
             e.printStackTrace();
         }
 
-        if (tagsWithIntList != null) {
-            for (IntTagItem item : tagsWithIntList) {
-                if (tag.key().equals(item.getKey())) {
-                    return item.getValue();
-                }
+        for (IntTagItem item : tagsWithIntList) {
+            if (tag.key().equals(item.getKey())) {
+                return item.getValue();
             }
         }
         return null;

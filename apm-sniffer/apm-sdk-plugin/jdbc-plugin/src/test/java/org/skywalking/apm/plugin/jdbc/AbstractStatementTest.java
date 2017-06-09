@@ -1,7 +1,10 @@
 package org.skywalking.apm.plugin.jdbc;
 
+import java.lang.reflect.Field;
+import java.util.List;
 import org.hamcrest.CoreMatchers;
 import org.skywalking.apm.sniffer.mock.context.MockTracerContextListener;
+import org.skywalking.apm.sniffer.mock.trace.tags.StringTagReader;
 import org.skywalking.apm.trace.LogData;
 import org.skywalking.apm.trace.Span;
 import org.skywalking.apm.trace.tag.Tags;
@@ -25,13 +28,20 @@ public abstract class AbstractStatementTest {
 
     protected void assertDBSpan(Span span, String exceptOperationName, String exceptDBStatement) {
         assertDBSpan(span, exceptOperationName);
-        assertThat(Tags.DB_STATEMENT.get(span), is(exceptDBStatement));
+        assertThat(StringTagReader.get(span, Tags.DB_STATEMENT), is(exceptDBStatement));
     }
 
     protected void assertDBSpan(Span span, String exceptOperationName) {
         assertThat(span.getOperationName(), is(exceptOperationName));
-        assertThat(Tags.COMPONENT.get(span), is("Mysql"));
-        assertThat(Tags.DB_INSTANCE.get(span), is("test"));
-        assertTrue(Tags.SPAN_LAYER.isDB(span));
+        assertThat(StringTagReader.get(span, Tags.COMPONENT), is("Mysql"));
+        assertThat(StringTagReader.get(span, Tags.DB_INSTANCE), is("test"));
+        assertThat(StringTagReader.get(span, Tags.SPAN_LAYER.SPAN_LAYER_TAG), is("db"));
     }
+
+    protected List<LogData> getLogs(Span span) throws NoSuchFieldException, IllegalAccessException {
+        Field logs = Span.class.getDeclaredField("logs");
+        logs.setAccessible(true);
+        return (List<LogData>)logs.get(span);
+    }
+
 }

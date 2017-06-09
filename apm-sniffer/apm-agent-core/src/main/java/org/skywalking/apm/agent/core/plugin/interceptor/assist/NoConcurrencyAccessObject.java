@@ -22,8 +22,7 @@ public abstract class NoConcurrencyAccessObject {
         if (!context.isContain(INVOKE_COUNTER_KEY)) {
             context.set(INVOKE_COUNTER_KEY, 0);
         }
-        int counter = context.get(INVOKE_COUNTER_KEY,
-            Integer.class);
+        int counter = (Integer)context.get(INVOKE_COUNTER_KEY);
         if (++counter == 1) {
             enter(context, interceptorContext);
         }
@@ -35,8 +34,7 @@ public abstract class NoConcurrencyAccessObject {
             throw new InterceptorException(
                 "key=INVOKE_COUNTER_KEY not found is context. unexpected situation.");
         }
-        int counter = context.get(INVOKE_COUNTER_KEY,
-            Integer.class);
+        int counter = (Integer)context.get(INVOKE_COUNTER_KEY);
         if (--counter == 0) {
             exit();
         }
