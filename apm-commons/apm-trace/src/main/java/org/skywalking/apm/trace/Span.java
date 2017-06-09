@@ -7,7 +7,6 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -17,6 +16,7 @@ import java.util.Map;
 import org.skywalking.apm.trace.tag.BooleanTagItem;
 import org.skywalking.apm.trace.tag.IntTagItem;
 import org.skywalking.apm.trace.tag.StringTagItem;
+import org.skywalking.apm.trace.util.ThrowableTransformer;
 import org.skywalking.apm.util.StringUtil;
 
 /**
@@ -267,32 +267,6 @@ public class Span {
         exceptionFields.put("stack", ThrowableTransformer.INSTANCE.convert2String(t, 4000));
 
         return log(exceptionFields);
-    }
-
-    private enum ThrowableTransformer {
-        INSTANCE;
-
-        private String convert2String(Throwable e, int maxLength) {
-            ByteArrayOutputStream buf = null;
-            StringBuilder expMessage = new StringBuilder();
-            try {
-                buf = new ByteArrayOutputStream();
-                Throwable causeException = e;
-                while (expMessage.length() < maxLength && causeException != null) {
-                    causeException.printStackTrace(new java.io.PrintWriter(buf, true));
-                    expMessage.append(buf.toString());
-                    causeException = causeException.getCause();
-                }
-
-            } finally {
-                try {
-                    buf.close();
-                } catch (IOException ioe) {
-                }
-            }
-
-            return (maxLength > expMessage.length() ? expMessage : expMessage.substring(0, maxLength)).toString();
-        }
     }
 
     /**
