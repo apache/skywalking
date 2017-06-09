@@ -1,5 +1,7 @@
 package org.skywalking.apm.plugin.tomcat78x;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Before;
@@ -14,19 +16,18 @@ import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodIn
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.skywalking.apm.sniffer.mock.context.MockTracerContextListener;
 import org.skywalking.apm.sniffer.mock.context.SegmentAssert;
+import org.skywalking.apm.sniffer.mock.trace.SpanLogReader;
+import org.skywalking.apm.sniffer.mock.trace.tags.IntTagReader;
+import org.skywalking.apm.sniffer.mock.trace.tags.StringTagReader;
 import org.skywalking.apm.trace.LogData;
 import org.skywalking.apm.trace.Span;
 import org.skywalking.apm.trace.TraceSegment;
 import org.skywalking.apm.trace.TraceSegmentRef;
 import org.skywalking.apm.trace.tag.Tags;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -110,8 +111,8 @@ public class TomcatInterceptorTest {
                 assertThat(traceSegment.getSpans().size(), is(1));
                 Span span = traceSegment.getSpans().get(0);
                 assertHttpSpan(span);
-                assertThat(span.getLogs().size(), is(1));
-                assertSpanLog(span.getLogs().get(0));
+                assertThat(SpanLogReader.getLogs(span).size(), is(1));
+                assertSpanLog(SpanLogReader.getLogs(span).get(0));
             }
         });
     }
@@ -130,16 +131,15 @@ public class TomcatInterceptorTest {
 
     private void assertHttpSpan(Span span) {
         assertThat(span.getOperationName(), is("/test/testRequestURL"));
-        assertThat(Tags.COMPONENT.get(span), is("Tomcat"));
-        assertThat(Tags.URL.get(span), is("http://localhost:8080/test/testRequestURL"));
-        assertThat(Tags.STATUS_CODE.get(span), is(200));
-        assertThat(Tags.SPAN_KIND.get(span), is(Tags.SPAN_KIND_SERVER));
-        assertTrue(Tags.SPAN_LAYER.isHttp(span));
+        assertThat(StringTagReader.get(span, Tags.COMPONENT), is("Tomcat"));
+        assertThat(StringTagReader.get(span, Tags.URL), is("http://localhost:8080/test/testRequestURL"));
+        assertThat(IntTagReader.get(span, Tags.STATUS_CODE), is(200));
+        assertThat(StringTagReader.get(span, Tags.SPAN_KIND), is(Tags.SPAN_KIND_SERVER));
+        assertThat(StringTagReader.get(span, Tags.SPAN_LAYER.SPAN_LAYER_TAG), is("http"));
     }
 
     @After
     public void tearDown() throws Exception {
         TracerContext.ListenerManager.remove(new MockTracerContextListener());
     }
-
 }

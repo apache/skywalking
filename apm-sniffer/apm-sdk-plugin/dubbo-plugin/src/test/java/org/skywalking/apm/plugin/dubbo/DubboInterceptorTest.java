@@ -5,6 +5,8 @@ import com.alibaba.dubbo.rpc.Invocation;
 import com.alibaba.dubbo.rpc.Invoker;
 import com.alibaba.dubbo.rpc.Result;
 import com.alibaba.dubbo.rpc.RpcContext;
+import java.lang.reflect.Field;
+import java.util.List;
 import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Assert;
@@ -25,6 +27,8 @@ import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptR
 import org.skywalking.apm.plugin.dubbox.BugFixActive;
 import org.skywalking.apm.sniffer.mock.context.MockTracerContextListener;
 import org.skywalking.apm.sniffer.mock.context.SegmentAssert;
+import org.skywalking.apm.sniffer.mock.trace.SpanLogReader;
+import org.skywalking.apm.sniffer.mock.trace.tags.StringTagReader;
 import org.skywalking.apm.trace.LogData;
 import org.skywalking.apm.trace.Span;
 import org.skywalking.apm.trace.TraceSegment;
@@ -39,7 +43,7 @@ import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest( {RpcContext.class, BugFixActive.class})
+@PrepareForTest({RpcContext.class, BugFixActive.class})
 public class DubboInterceptorTest {
 
     private MockTracerContextListener mockTracerContextListener;
@@ -172,12 +176,13 @@ public class DubboInterceptorTest {
         assertProvider();
     }
 
-    private void assertConsumerTraceSegmentInErrorCase(TraceSegment traceSegment) {
+    private void assertConsumerTraceSegmentInErrorCase(
+        TraceSegment traceSegment) {
         assertThat(traceSegment.getSpans().size(), is(1));
         assertConsumerSpan(traceSegment.getSpans().get(0));
         Span span = traceSegment.getSpans().get(0);
-        assertThat(span.getLogs().size(), is(1));
-        assertErrorLog(span.getLogs().get(0));
+        assertThat(SpanLogReader.getLogs(span).size(), is(1));
+        assertErrorLog(SpanLogReader.getLogs(span).get(0));
     }
 
     private void assertErrorLog(LogData logData) {
@@ -210,18 +215,18 @@ public class DubboInterceptorTest {
 
     private void assertProviderSpan(Span span) {
         assertCommonsAttribute(span);
-        assertThat(Tags.SPAN_KIND.get(span), is(Tags.SPAN_KIND_SERVER));
+        assertThat(StringTagReader.get(span, Tags.SPAN_KIND), is(Tags.SPAN_KIND_SERVER));
     }
 
     private void assertConsumerSpan(Span span) {
         assertCommonsAttribute(span);
-        assertThat(Tags.SPAN_KIND.get(span), is(Tags.SPAN_KIND_CLIENT));
+        assertThat(StringTagReader.get(span, Tags.SPAN_KIND), is(Tags.SPAN_KIND_CLIENT));
     }
 
     private void assertCommonsAttribute(Span span) {
-        assertThat(Tags.SPAN_LAYER.isRPCFramework(span), is(true));
-        assertThat(Tags.COMPONENT.get(span), is(DubboInterceptor.DUBBO_COMPONENT));
-        assertThat(Tags.URL.get(span), is("dubbo://127.0.0.1:20880/org.skywalking.apm.test.TestDubboService.test(String)"));
+        assertThat(StringTagReader.get(span, Tags.SPAN_LAYER.SPAN_LAYER_TAG), is("rpc"));
+        assertThat(StringTagReader.get(span, Tags.COMPONENT), is(DubboInterceptor.DUBBO_COMPONENT));
+        assertThat(StringTagReader.get(span, Tags.URL), is("dubbo://127.0.0.1:20880/org.skywalking.apm.test.TestDubboService.test(String)"));
         assertThat(span.getOperationName(), is("org.skywalking.apm.test.TestDubboService.test(String)"));
     }
 
@@ -229,5 +234,4 @@ public class DubboInterceptorTest {
     public void tearDown() throws Exception {
         TracerContext.ListenerManager.remove(mockTracerContextListener);
     }
-
 }

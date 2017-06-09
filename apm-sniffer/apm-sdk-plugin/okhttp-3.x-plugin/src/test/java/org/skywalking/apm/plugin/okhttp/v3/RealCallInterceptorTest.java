@@ -17,6 +17,9 @@ import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ConstructorInvok
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodInvokeContext;
 import org.skywalking.apm.sniffer.mock.context.MockTracerContextListener;
 import org.skywalking.apm.sniffer.mock.context.SegmentAssert;
+import org.skywalking.apm.sniffer.mock.trace.SpanLogReader;
+import org.skywalking.apm.sniffer.mock.trace.tags.BooleanTagReader;
+import org.skywalking.apm.sniffer.mock.trace.tags.StringTagReader;
 import org.skywalking.apm.trace.Span;
 import org.skywalking.apm.trace.TraceSegment;
 import org.skywalking.apm.trace.tag.Tags;
@@ -83,7 +86,7 @@ public class RealCallInterceptorTest {
             @Override public void call(TraceSegment finishedSegment) {
                 Assert.assertEquals(1, finishedSegment.getSpans().size());
                 assertSpan(finishedSegment.getSpans().get(0));
-                Assert.assertEquals(false, Tags.ERROR.get(finishedSegment.getSpans().get(0)));
+                Assert.assertEquals(false, BooleanTagReader.get(finishedSegment.getSpans().get(0), Tags.ERROR));
             }
         });
     }
@@ -102,19 +105,19 @@ public class RealCallInterceptorTest {
             @Override public void call(TraceSegment finishedSegment) {
                 Assert.assertEquals(1, finishedSegment.getSpans().size());
                 assertSpan(finishedSegment.getSpans().get(0));
-                Assert.assertEquals(true, Tags.ERROR.get(finishedSegment.getSpans().get(0)));
+                Assert.assertEquals(true, BooleanTagReader.get(finishedSegment.getSpans().get(0), Tags.ERROR));
             }
         });
     }
 
     private void assertSpan(Span span) {
-        Assert.assertEquals("http", Tags.SPAN_LAYER.get(span));
-        Assert.assertEquals("GET", Tags.HTTP.METHOD.get(span));
-        Assert.assertEquals("skywalking.org", Tags.PEER_HOST.get(span));
-        Assert.assertEquals(80, Tags.PEER_PORT.get(span).intValue());
-        Assert.assertEquals("OKHttp", Tags.COMPONENT.get(span));
-        Assert.assertEquals("client", Tags.SPAN_KIND.get(span));
-        Assert.assertEquals("/", Tags.URL.get(span));
+        Assert.assertEquals("http", StringTagReader.get(span, Tags.SPAN_LAYER.SPAN_LAYER_TAG));
+        Assert.assertEquals("GET", StringTagReader.get(span, Tags.HTTP.METHOD));
+        Assert.assertEquals("skywalking.org", span.getPeerHost());
+        Assert.assertEquals(80, span.getPort());
+        Assert.assertEquals("OKHttp", StringTagReader.get(span, Tags.COMPONENT));
+        Assert.assertEquals("client", StringTagReader.get(span, Tags.SPAN_KIND));
+        Assert.assertEquals("/", StringTagReader.get(span, Tags.URL));
     }
 
     @Test
@@ -133,10 +136,10 @@ public class RealCallInterceptorTest {
             @Override public void call(TraceSegment finishedSegment) {
                 Assert.assertEquals(1, finishedSegment.getSpans().size());
                 assertSpan(finishedSegment.getSpans().get(0));
-                Assert.assertEquals(true, Tags.ERROR.get(finishedSegment.getSpans().get(0)));
+                Assert.assertEquals(true, BooleanTagReader.get(finishedSegment.getSpans().get(0), Tags.ERROR));
 
-                Assert.assertEquals(1, finishedSegment.getSpans().get(0).getLogs().size());
-                Assert.assertEquals(true, finishedSegment.getSpans().get(0).getLogs().get(0).getFields().containsKey("stack"));
+                Assert.assertEquals(1, SpanLogReader.getLogs(finishedSegment.getSpans().get(0)).size());
+                Assert.assertEquals(true, SpanLogReader.getLogs(finishedSegment.getSpans().get(0)).get(0).getFields().containsKey("stack"));
             }
         });
     }

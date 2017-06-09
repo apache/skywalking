@@ -22,9 +22,11 @@ public class BooleanTagReader {
             e.printStackTrace();
         }
 
-        for (BooleanTagItem item : tagsWithBoolList) {
-            if (tag.key().equals(item.getKey())) {
-                return item.getValue();
+        if (tagsWithBoolList != null) {
+            for (BooleanTagItem item : tagsWithBoolList) {
+                if (tag.key().equals(item.getKey())) {
+                    return item.getValue();
+                }
             }
         }
         return tag.defaultValue();

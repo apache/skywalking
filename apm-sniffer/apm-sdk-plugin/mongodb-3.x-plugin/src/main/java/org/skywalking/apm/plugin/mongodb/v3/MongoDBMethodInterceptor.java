@@ -67,8 +67,8 @@ public class MongoDBMethodInterceptor implements InstanceMethodsAroundIntercepto
     public Object afterMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
                               Object ret) {
         Span span = ContextManager.activeSpan();
-        span.setPeerHost(context.get(MONGODB_HOST, String.class));
-        span.setPort(context.get(MONGODB_PORT, Integer.class));
+        span.setPeerHost((String)context.get(MONGODB_HOST));
+        span.setPort((Integer)context.get(MONGODB_PORT));
         ContextManager.stopSpan();
         return ret;
     }
