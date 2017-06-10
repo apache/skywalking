@@ -1,7 +1,7 @@
 version: '2.1'
 services:
   skywalking-webui:
-    image: sky-walking-ui:3.0.3-2017
+    image: sky-walking-ui:3.0.2-2017
     expose:
       - "8080"
     ports:
