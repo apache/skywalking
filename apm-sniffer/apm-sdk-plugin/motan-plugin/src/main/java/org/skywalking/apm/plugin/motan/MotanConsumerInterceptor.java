@@ -3,6 +3,7 @@ package org.skywalking.apm.plugin.motan;
 import com.weibo.api.motan.rpc.Request;
 import com.weibo.api.motan.rpc.Response;
 import com.weibo.api.motan.rpc.URL;
+import org.skywalking.apm.agent.core.conf.Config;
 import org.skywalking.apm.agent.core.context.ContextCarrier;
 import org.skywalking.apm.agent.core.context.ContextManager;
 import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceContext;
@@ -11,8 +12,8 @@ import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstruc
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodInvokeContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.skywalking.apm.trace.Span;
-import org.skywalking.apm.trace.tag.Tags;
+import org.skywalking.apm.agent.core.context.trace.Span;
+import org.skywalking.apm.agent.core.context.tag.Tags;
 
 /**
  * {@link MotanProviderInterceptor} create span by fetch request url from
@@ -28,10 +29,6 @@ public class MotanConsumerInterceptor implements InstanceConstructorInterceptor,
      */
     private static final String KEY_NAME_OF_REQUEST_URL = "REQUEST_URL";
 
-    /**
-     * The {@link Request#getAttachments()} key. It maps to the serialized {@link ContextCarrier}.
-     */
-    private static final String ATTACHMENT_KEY_OF_CONTEXT_DATA = "SWTraceContext";
     /**
      * Motan component
      */
@@ -58,7 +55,7 @@ public class MotanConsumerInterceptor implements InstanceConstructorInterceptor,
 
             ContextCarrier contextCarrier = new ContextCarrier();
             ContextManager.inject(contextCarrier);
-            request.setAttachment(ATTACHMENT_KEY_OF_CONTEXT_DATA, contextCarrier.serialize());
+            request.setAttachment(Config.Plugin.Propagation.HEADER_NAME, contextCarrier.serialize());
         }
     }
 

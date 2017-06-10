@@ -3,7 +3,7 @@ package org.skywalking.apm.sniffer.mock.context;
 import org.junit.Assert;
 import org.skywalking.apm.agent.core.context.TracerContext;
 import org.skywalking.apm.agent.core.context.TracerContextListener;
-import org.skywalking.apm.trace.TraceSegment;
+import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 
 import java.util.ArrayList;
 import java.util.Collections;

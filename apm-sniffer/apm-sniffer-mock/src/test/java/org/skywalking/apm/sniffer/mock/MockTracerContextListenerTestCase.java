@@ -7,7 +7,7 @@ import org.skywalking.apm.agent.core.boot.ServiceManager;
 import org.skywalking.apm.sniffer.mock.context.MockTracerContextListener;
 import org.skywalking.apm.sniffer.mock.context.SegmentAssert;
 import org.skywalking.apm.sniffer.mock.trace.TraceSegmentBuilderFactory;
-import org.skywalking.apm.trace.TraceSegment;
+import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 
 /**
  * Created by wusheng on 2017/2/21.

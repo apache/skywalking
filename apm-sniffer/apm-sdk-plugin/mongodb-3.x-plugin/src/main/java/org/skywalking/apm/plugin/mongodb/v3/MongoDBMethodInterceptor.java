@@ -13,8 +13,8 @@ import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceCon
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodInvokeContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.skywalking.apm.trace.Span;
-import org.skywalking.apm.trace.tag.Tags;
+import org.skywalking.apm.agent.core.context.trace.Span;
+import org.skywalking.apm.agent.core.context.tag.Tags;
 
 import java.util.List;
 

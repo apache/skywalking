@@ -2,6 +2,7 @@ package org.skywalking.apm.plugin.motan;
 
 import com.weibo.api.motan.rpc.Request;
 import com.weibo.api.motan.rpc.Response;
+import org.skywalking.apm.agent.core.conf.Config;
 import org.skywalking.apm.agent.core.context.ContextCarrier;
 import org.skywalking.apm.agent.core.context.ContextManager;
 import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceContext;
@@ -9,8 +10,8 @@ import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodIn
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.skywalking.apm.util.StringUtil;
-import org.skywalking.apm.trace.Span;
-import org.skywalking.apm.trace.tag.Tags;
+import org.skywalking.apm.agent.core.context.trace.Span;
+import org.skywalking.apm.agent.core.context.tag.Tags;
 
 /**
  * Current trace segment will ref the trace segment if the serialized trace context that fetch from {@link
@@ -22,12 +23,6 @@ import org.skywalking.apm.trace.tag.Tags;
  * @author zhangxin
  */
 public class MotanProviderInterceptor implements InstanceMethodsAroundInterceptor {
-
-    /**
-     * Attachment key of the serialized context data.
-     */
-    private static final String ATTACHMENT_KEY_OF_CONTEXT_DATA = "SWTraceContext";
-
     /**
      * Motan component
      */
@@ -42,7 +37,7 @@ public class MotanProviderInterceptor implements InstanceMethodsAroundIntercepto
         Tags.SPAN_KIND.set(span, Tags.SPAN_KIND_SERVER);
         Tags.SPAN_LAYER.asRPCFramework(span);
 
-        String serializedContextData = request.getAttachments().get(ATTACHMENT_KEY_OF_CONTEXT_DATA);
+        String serializedContextData = request.getAttachments().get(Config.Plugin.Propagation.HEADER_NAME);
         if (!StringUtil.isEmpty(serializedContextData)) {
             ContextManager.extract(new ContextCarrier().deserialize(serializedContextData));
         }

@@ -23,10 +23,10 @@ import org.skywalking.apm.sniffer.mock.context.MockTracerContextListener;
 import org.skywalking.apm.sniffer.mock.context.SegmentAssert;
 import org.skywalking.apm.sniffer.mock.trace.SpanLogReader;
 import org.skywalking.apm.sniffer.mock.trace.tags.StringTagReader;
-import org.skywalking.apm.trace.LogData;
-import org.skywalking.apm.trace.Span;
-import org.skywalking.apm.trace.TraceSegment;
-import org.skywalking.apm.trace.tag.Tags;
+import org.skywalking.apm.agent.core.context.trace.LogData;
+import org.skywalking.apm.agent.core.context.trace.Span;
+import org.skywalking.apm.agent.core.context.trace.TraceSegment;
+import org.skywalking.apm.agent.core.context.tag.Tags;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;

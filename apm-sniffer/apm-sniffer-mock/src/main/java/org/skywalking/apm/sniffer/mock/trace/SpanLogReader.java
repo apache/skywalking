@@ -2,8 +2,8 @@ package org.skywalking.apm.sniffer.mock.trace;
 
 import java.lang.reflect.Field;
 import java.util.List;
-import org.skywalking.apm.trace.LogData;
-import org.skywalking.apm.trace.Span;
+import org.skywalking.apm.agent.core.context.trace.LogData;
+import org.skywalking.apm.agent.core.context.trace.Span;
 
 /**
  * @author wusheng

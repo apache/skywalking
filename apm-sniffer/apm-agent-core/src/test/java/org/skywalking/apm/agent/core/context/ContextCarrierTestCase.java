@@ -2,8 +2,8 @@ package org.skywalking.apm.agent.core.context;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.skywalking.apm.trace.TraceId.DistributedTraceId;
-import org.skywalking.apm.trace.TraceId.PropagatedTraceId;
+import org.skywalking.apm.agent.core.context.ids.DistributedTraceId;
+import org.skywalking.apm.agent.core.context.ids.PropagatedTraceId;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -19,18 +19,17 @@ public class ContextCarrierTestCase {
         carrier.setSpanId(100);
         carrier.setApplicationCode("REMOTE_APP");
         carrier.setPeerHost("10.2.3.16:8080");
-        carrier.setSampled(true);
         List<DistributedTraceId> ids = new LinkedList<DistributedTraceId>();
         ids.add(new PropagatedTraceId("Trace.global.id.123"));
         carrier.setDistributedTraceIds(ids);
 
-        Assert.assertEquals("trace_id_A|100|REMOTE_APP|10.2.3.16:8080|Trace.global.id.123|1", carrier.serialize());
+        Assert.assertEquals("trace_id_A|100|REMOTE_APP|10.2.3.16:8080|Trace.global.id.123", carrier.serialize());
     }
 
     @Test
     public void testDeserialize() {
         ContextCarrier carrier = new ContextCarrier();
-        carrier.deserialize("trace_id_A|100|REMOTE_APP|10.2.3.16:8080|Trace.global.id.123,Trace.global.id.222|1");
+        carrier.deserialize("trace_id_A|100|REMOTE_APP|10.2.3.16:8080|Trace.global.id.123,Trace.global.id.222");
 
         Assert.assertEquals("trace_id_A", carrier.getTraceSegmentId());
         Assert.assertEquals(100, carrier.getSpanId());
@@ -38,7 +37,6 @@ public class ContextCarrierTestCase {
         Assert.assertEquals("10.2.3.16:8080", carrier.getPeerHost());
         Assert.assertEquals("Trace.global.id.123", carrier.getDistributedTraceIds().get(0).get());
         Assert.assertEquals("Trace.global.id.222", carrier.getDistributedTraceIds().get(1).get());
-        Assert.assertEquals(true, carrier.isSampled());
     }
 
     @Test
@@ -65,10 +63,10 @@ public class ContextCarrierTestCase {
 
         carrier = new ContextCarrier();
         carrier.deserialize("trace_id|100|REMOTE_APP|10.2.3.16:8080|Trace.global.id.123,Trace.global.id.222");
-        Assert.assertFalse(carrier.isValid());
+        Assert.assertTrue(carrier.isValid());
 
         carrier = new ContextCarrier();
         carrier.deserialize("trace_id|100|REMOTE_APP|10.2.3.16:8080|Trace.global.id.123,Trace.global.id.222|0");
-        Assert.assertTrue(carrier.isValid());
+        Assert.assertFalse(carrier.isValid());
     }
 }

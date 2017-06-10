@@ -11,7 +11,7 @@ import org.skywalking.apm.agent.core.boot.ServiceManager;
 import org.skywalking.apm.agent.core.context.TracerContext;
 import org.skywalking.apm.sniffer.mock.context.MockTracerContextListener;
 import org.skywalking.apm.sniffer.mock.context.SegmentAssert;
-import org.skywalking.apm.trace.TraceSegment;
+import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;

@@ -18,8 +18,8 @@ import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceCon
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodInvokeContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.skywalking.apm.trace.Span;
-import org.skywalking.apm.trace.tag.Tags;
+import org.skywalking.apm.agent.core.context.trace.Span;
+import org.skywalking.apm.agent.core.context.tag.Tags;
 
 /**
  * {@link DefaultHttpClientInterceptor} intercept the default implementation of http calls by the Feign.
@@ -68,7 +68,7 @@ public class DefaultHttpClientInterceptor implements InstanceMethodsAroundInterc
 
         headersField.setAccessible(true);
         Map<String, Collection<String>> headers = new LinkedHashMap<String, Collection<String>>();
-        headers.put(Config.Plugin.Http.HEADER_NAME_OF_CONTEXT_DATA, contextCollection);
+        headers.put(Config.Plugin.Propagation.HEADER_NAME, contextCollection);
         headers.putAll(request.headers());
 
         headersField.set(request, Collections.unmodifiableMap(headers));

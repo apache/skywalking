@@ -2,6 +2,7 @@ package org.skywalking.apm.agent.core.conf;
 
 import java.util.LinkedList;
 import java.util.List;
+import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.skywalking.apm.agent.core.logging.LogLevel;
 import org.skywalking.apm.agent.core.logging.WriterFactory;
 
@@ -20,11 +21,16 @@ public class Config {
         public static String APPLICATION_CODE = "";
 
         /**
-         * One, means sampling OFF.
-         * Greater than one, select one trace in every N traces.
-         * Zero and negative number are illegal.
+         * Negative or zero means off, by default.
+         * {@link #SAMPLE_N_PER_10_SECS} means sampling N {@link TraceSegment} in 10 seconds tops.
          */
-        public static int SAMPLING_CYCLE = 1;
+        public static int SAMPLE_N_PER_10_SECS = -1;
+
+        /**
+         * If the operation name of the first span is included in this set,
+         * this segment should be ignored.
+         */
+        public static String IGNORE_SUFFIX = ".jpg,.jpeg,.js,.css,.png,.bmp,.gif,.ico,.mp3,.mp4,.html";
     }
 
     public static class Collector {
@@ -103,12 +109,12 @@ public class Config {
             public static boolean TRACE_PARAM = false;
         }
 
-        public static class Http {
+        public static class Propagation {
 
             /**
-             * The header name of context data.
+             * The header name of cross process propagation data.
              */
-            public static String HEADER_NAME_OF_CONTEXT_DATA = "SWTraceContext";
+            public static String HEADER_NAME = "sw3";
         }
     }
 }

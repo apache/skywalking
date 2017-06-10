@@ -5,7 +5,7 @@ import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceCon
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ConstructorInvokeContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 import org.skywalking.apm.toolkit.opentracing.SkyWalkingSpan;
-import org.skywalking.apm.trace.Span;
+import org.skywalking.apm.agent.core.context.trace.Span;
 
 import java.util.Map;
 

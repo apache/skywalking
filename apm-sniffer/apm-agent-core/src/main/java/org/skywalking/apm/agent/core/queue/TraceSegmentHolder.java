@@ -1,7 +1,7 @@
 package org.skywalking.apm.agent.core.queue;
 
 import com.lmax.disruptor.EventFactory;
-import org.skywalking.apm.trace.TraceSegment;
+import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 
 /**
  * Just a holder of {@link TraceSegment} instance.

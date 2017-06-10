@@ -3,7 +3,7 @@ package org.skywalking.apm.sniffer.mock.trace.builders.trace;
 import org.skywalking.apm.sniffer.mock.context.MockTracerContextListener;
 import org.skywalking.apm.sniffer.mock.trace.TraceSegmentBuilder;
 import org.skywalking.apm.sniffer.mock.trace.builders.span.TomcatSpanGenerator;
-import org.skywalking.apm.trace.TraceSegment;
+import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 
 /**
  * A Trace contains only one span, which represent a tomcat server side span.

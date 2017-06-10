@@ -5,9 +5,9 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.skywalking.apm.agent.core.boot.ServiceManager;
-import org.skywalking.apm.trace.Span;
-import org.skywalking.apm.trace.TraceSegment;
-import org.skywalking.apm.trace.tag.Tags;
+import org.skywalking.apm.agent.core.context.trace.Span;
+import org.skywalking.apm.agent.core.context.trace.TraceSegment;
+import org.skywalking.apm.agent.core.context.tag.Tags;
 
 /**
  * Created by wusheng on 2017/2/19.

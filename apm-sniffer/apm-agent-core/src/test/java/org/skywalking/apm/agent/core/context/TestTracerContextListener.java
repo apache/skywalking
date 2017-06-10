@@ -1,6 +1,6 @@
 package org.skywalking.apm.agent.core.context;
 
-import org.skywalking.apm.trace.TraceSegment;
+import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 
 /**
  * Created by wusheng on 2017/2/19.

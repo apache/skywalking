@@ -1,8 +1,8 @@
 package org.skywalking.apm.sniffer.mock.trace.builders.span;
 
 import org.skywalking.apm.agent.core.context.ContextManager;
-import org.skywalking.apm.trace.Span;
-import org.skywalking.apm.trace.tag.Tags;
+import org.skywalking.apm.agent.core.context.trace.Span;
+import org.skywalking.apm.agent.core.context.tag.Tags;
 
 /**
  * The <code>TomcatSpanGenerator</code> generate all possible spans, by tracing Tomcat.

@@ -1,26 +1,27 @@
 package org.skywalking.apm.agent.core.context;
 
 import org.skywalking.apm.agent.core.boot.BootService;
-import org.skywalking.apm.trace.Span;
-import org.skywalking.apm.trace.TraceSegment;
+import org.skywalking.apm.agent.core.context.trace.Span;
+import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 
 /**
  * {@link TracerContext} controls the whole context of {@link TraceSegment}. Any {@link TraceSegment} relates to
  * single-thread, so this context use {@link ThreadLocal} to maintain the context, and make sure, since a {@link
  * TraceSegment} starts, all ChildOf spans are in the same context.
+ * <p> What is 'ChildOf'? {@see
+ * https://github.com/opentracing/specification/blob/master/specification.md#references-between-spans}
+ * <p> Also, {@link
+ * ContextManager} delegates to all {@link TracerContext}'s major methods: {@link TracerContext#createSpan(String,
+ * boolean)}, {@link TracerContext#activeSpan()}, {@link TracerContext#stopSpan(Span)}
  * <p>
- * What is 'ChildOf'? {@see https://github.com/opentracing/specification/blob/master/specification.md#references-between-spans}
- * <p>
- * Also, {@link ContextManager} delegates to all {@link TracerContext}'s major methods: {@link
- * TracerContext#createSpan(String)}, {@link TracerContext#activeSpan()}, {@link TracerContext#stopSpan(Span)}
- * <p>
- * Created by wusheng on 2017/2/17.
+ *
+ * @author wusheng
  */
 public class ContextManager implements TracerContextListener, BootService {
-    private static ThreadLocal<TracerContext> CONTEXT = new ThreadLocal<TracerContext>();
+    private static ThreadLocal<AbstractTracerContext> CONTEXT = new ThreadLocal<AbstractTracerContext>();
 
-    private static TracerContext get() {
-        TracerContext segment = CONTEXT.get();
+    private static AbstractTracerContext get() {
+        AbstractTracerContext segment = CONTEXT.get();
         if (segment == null) {
             segment = new TracerContext();
             CONTEXT.set(segment);
@@ -46,7 +47,7 @@ public class ContextManager implements TracerContextListener, BootService {
      * @return the first global trace id if exist. Otherwise, "N/A".
      */
     public static String getGlobalTraceId() {
-        TracerContext segment = CONTEXT.get();
+        AbstractTracerContext segment = CONTEXT.get();
         if (segment == null) {
             return "N/A";
         } else {
@@ -94,5 +95,16 @@ public class ContextManager implements TracerContextListener, BootService {
     @Override
     public void afterFinished(TraceSegment traceSegment) {
         CONTEXT.remove();
+    }
+
+    /**
+     * The <code>ContextSwitcher</code> gives the chance to switch {@link AbstractTracerContext} in {@link #CONTEXT}.
+     */
+    enum ContextSwitcher {
+        INSTANCE;
+
+        void toNew(AbstractTracerContext context) {
+            CONTEXT.set(context);
+        }
     }
 }

@@ -1,8 +1,8 @@
 package org.skywalking.apm.agent.core.client;
 
+import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.skywalking.apm.agent.core.queue.TraceSegmentProcessQueue;
 import org.skywalking.apm.agent.core.boot.StatusBootService;
-import org.skywalking.apm.trace.TraceSegment;
 
 /**
  * The <code>CollectorClientService</code> is responsible for start {@link CollectorClient}.

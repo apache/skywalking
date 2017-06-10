@@ -4,7 +4,7 @@ import org.skywalking.apm.sniffer.mock.context.MockTracerContextListener;
 import org.skywalking.apm.sniffer.mock.trace.TraceSegmentBuilder;
 import org.skywalking.apm.sniffer.mock.trace.builders.span.DubboSpanGenerator;
 import org.skywalking.apm.sniffer.mock.trace.builders.span.TomcatSpanGenerator;
-import org.skywalking.apm.trace.TraceSegment;
+import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 
 /**
  * A Trace segment contains two spans with ChildOf relations,

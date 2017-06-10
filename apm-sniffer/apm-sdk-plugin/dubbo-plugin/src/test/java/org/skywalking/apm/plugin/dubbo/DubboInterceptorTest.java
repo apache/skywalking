@@ -5,8 +5,6 @@ import com.alibaba.dubbo.rpc.Invocation;
 import com.alibaba.dubbo.rpc.Invoker;
 import com.alibaba.dubbo.rpc.Result;
 import com.alibaba.dubbo.rpc.RpcContext;
-import java.lang.reflect.Field;
-import java.util.List;
 import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Assert;
@@ -29,11 +27,11 @@ import org.skywalking.apm.sniffer.mock.context.MockTracerContextListener;
 import org.skywalking.apm.sniffer.mock.context.SegmentAssert;
 import org.skywalking.apm.sniffer.mock.trace.SpanLogReader;
 import org.skywalking.apm.sniffer.mock.trace.tags.StringTagReader;
-import org.skywalking.apm.trace.LogData;
-import org.skywalking.apm.trace.Span;
-import org.skywalking.apm.trace.TraceSegment;
-import org.skywalking.apm.trace.TraceSegmentRef;
-import org.skywalking.apm.trace.tag.Tags;
+import org.skywalking.apm.agent.core.context.trace.LogData;
+import org.skywalking.apm.agent.core.context.trace.Span;
+import org.skywalking.apm.agent.core.context.trace.TraceSegment;
+import org.skywalking.apm.agent.core.context.trace.TraceSegmentRef;
+import org.skywalking.apm.agent.core.context.tag.Tags;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -156,7 +154,7 @@ public class DubboInterceptorTest {
     @Test
     public void testProviderWithAttachment() {
         when(rpcContext.isConsumerSide()).thenReturn(false);
-        when(rpcContext.getAttachment(DubboInterceptor.ATTACHMENT_NAME_OF_CONTEXT_DATA)).thenReturn("302017.1487666919810.624424584.17332.1.1|1|REMOTE_APP|127.0.0.1|Trace.globalId.123|1");
+        when(rpcContext.getAttachment(Config.Plugin.Propagation.HEADER_NAME)).thenReturn("302017.1487666919810.624424584.17332.1.1|1|REMOTE_APP|127.0.0.1|Trace.globalId.123");
 
         dubboInterceptor.beforeMethod(classInstanceContext, methodInvokeContext, methodInterceptResult);
         dubboInterceptor.afterMethod(classInstanceContext, methodInvokeContext, result);
@@ -168,7 +166,7 @@ public class DubboInterceptorTest {
         when(rpcContext.isConsumerSide()).thenReturn(false);
         when(BugFixActive.isActive()).thenReturn(true);
 
-        testParam.setTraceContext("302017.1487666919810.624424584.17332.1.1|1|REMOTE_APP|127.0.0.1|Trace.globalId.123|1");
+        testParam.setTraceContext("302017.1487666919810.624424584.17332.1.1|1|REMOTE_APP|127.0.0.1|Trace.globalId.123");
 
         dubboInterceptor.beforeMethod(classInstanceContext, methodInvokeContext, methodInterceptResult);
         dubboInterceptor.afterMethod(classInstanceContext, methodInvokeContext, result);

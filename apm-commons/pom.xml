@@ -11,7 +11,6 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>apm-trace</module>
         <module>apm-util</module>
         <module>apm-logging-api</module>
         <module>apm-logging-log4j2</module>

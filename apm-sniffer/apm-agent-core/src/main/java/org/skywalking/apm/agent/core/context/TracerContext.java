@@ -2,12 +2,11 @@ package org.skywalking.apm.agent.core.context;
 
 import java.util.LinkedList;
 import java.util.List;
-import org.skywalking.apm.agent.core.boot.ServiceManager;
 import org.skywalking.apm.agent.core.conf.Config;
-import org.skywalking.apm.agent.core.sampling.SamplingService;
-import org.skywalking.apm.trace.Span;
-import org.skywalking.apm.trace.TraceSegment;
-import org.skywalking.apm.trace.TraceSegmentRef;
+import org.skywalking.apm.agent.core.context.trace.LeafSpan;
+import org.skywalking.apm.agent.core.context.trace.Span;
+import org.skywalking.apm.agent.core.context.trace.TraceSegment;
+import org.skywalking.apm.agent.core.context.trace.TraceSegmentRef;
 
 /**
  * {@link TracerContext} maintains the context.
@@ -15,7 +14,7 @@ import org.skywalking.apm.trace.TraceSegmentRef;
  * <p>
  * Created by wusheng on 2017/2/17.
  */
-public final class TracerContext {
+public final class TracerContext implements AbstractTracerContext {
     private TraceSegment segment;
 
     /**
@@ -34,7 +33,6 @@ public final class TracerContext {
      */
     TracerContext() {
         this.segment = new TraceSegment(Config.Agent.APPLICATION_CODE);
-        ServiceManager.INSTANCE.findService(SamplingService.class).trySampling(this.segment);
         this.spanIdGenerator = 0;
     }
 
@@ -104,7 +102,7 @@ public final class TracerContext {
     /**
      * @return the current trace id.
      */
-    String getGlobalTraceId() {
+    public String getGlobalTraceId() {
         return segment.getRelatedGlobalTraces().get(0).get();
     }
 
@@ -154,7 +152,6 @@ public final class TracerContext {
             carrier.setPeerHost(span.getPeers());
         }
         carrier.setDistributedTraceIds(this.segment.getRelatedGlobalTraces());
-        carrier.setSampled(this.segment.isSampled());
     }
 
     /**
@@ -166,7 +163,6 @@ public final class TracerContext {
     public void extract(ContextCarrier carrier) {
         if (carrier.isValid()) {
             this.segment.ref(getRef(carrier));
-            ServiceManager.INSTANCE.findService(SamplingService.class).setSampleWhenExtract(this.segment, carrier);
             this.segment.relatedGlobalTraces(carrier.getDistributedTraceIds());
         }
     }

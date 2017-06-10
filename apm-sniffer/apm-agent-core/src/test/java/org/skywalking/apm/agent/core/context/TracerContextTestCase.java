@@ -3,11 +3,10 @@ package org.skywalking.apm.agent.core.context;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
-import org.skywalking.apm.trace.Span;
-import org.skywalking.apm.trace.TraceId.DistributedTraceId;
-import org.skywalking.apm.trace.TraceId.PropagatedTraceId;
-import org.skywalking.apm.trace.TraceSegment;
-import org.skywalking.apm.trace.tag.Tags;
+import org.skywalking.apm.agent.core.context.trace.Span;
+import org.skywalking.apm.agent.core.context.ids.DistributedTraceId;
+import org.skywalking.apm.agent.core.context.ids.PropagatedTraceId;
+import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 
 import java.util.LinkedList;
 import java.util.List;

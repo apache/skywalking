@@ -4,16 +4,16 @@ import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.util.DaemonThreadFactory;
+import java.util.LinkedList;
+import java.util.List;
 import org.skywalking.apm.agent.core.conf.Config;
 import org.skywalking.apm.agent.core.boot.StatusBootService;
 import org.skywalking.apm.agent.core.context.TracerContext;
 import org.skywalking.apm.agent.core.context.TracerContextListener;
+import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.skywalking.apm.logging.ILog;
 import org.skywalking.apm.logging.LogManager;
-import org.skywalking.apm.trace.TraceSegment;
 
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * {@link TraceSegmentProcessQueue} is a proxy of {@link Disruptor}, High Performance Inter-Thread MQ.
@@ -51,7 +51,7 @@ public class TraceSegmentProcessQueue extends StatusBootService implements Trace
      */
     @Override
     public void afterFinished(TraceSegment traceSegment) {
-        if (isStarted() && traceSegment.isSampled()) {
+        if (isStarted()) {
             long sequence = this.buffer.next();  // Grab the next sequence
             try {
                 TraceSegmentHolder data = this.buffer.get(sequence);

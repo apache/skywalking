@@ -12,6 +12,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.skywalking.apm.agent.core.boot.ServiceManager;
+import org.skywalking.apm.agent.core.conf.Config;
 import org.skywalking.apm.agent.core.context.TracerContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ConstructorInvokeContext;
@@ -20,11 +21,11 @@ import org.skywalking.apm.sniffer.mock.context.MockTracerContextListener;
 import org.skywalking.apm.sniffer.mock.context.SegmentAssert;
 import org.skywalking.apm.sniffer.mock.trace.SpanLogReader;
 import org.skywalking.apm.sniffer.mock.trace.tags.StringTagReader;
-import org.skywalking.apm.trace.LogData;
-import org.skywalking.apm.trace.Span;
-import org.skywalking.apm.trace.TraceSegment;
-import org.skywalking.apm.trace.TraceSegmentRef;
-import org.skywalking.apm.trace.tag.Tags;
+import org.skywalking.apm.agent.core.context.trace.LogData;
+import org.skywalking.apm.agent.core.context.trace.Span;
+import org.skywalking.apm.agent.core.context.trace.TraceSegment;
+import org.skywalking.apm.agent.core.context.trace.TraceSegmentRef;
+import org.skywalking.apm.agent.core.context.tag.Tags;
 
 import java.util.HashMap;
 
@@ -89,7 +90,7 @@ public class MotanProviderInterceptorTest {
     @Test
     public void testInvokerWithRefSegment() {
         HashMap attachments = new HashMap();
-        attachments.put("SWTraceContext", "302017.1487666919810.624424584.17332.1.1|1|REMOTE_APP|127.0.0.1|Trace.globalId.123|1");
+        attachments.put(Config.Plugin.Propagation.HEADER_NAME, "302017.1487666919810.624424584.17332.1.1|1|REMOTE_APP|127.0.0.1|Trace.globalId.123");
         when(request.getAttachments()).thenReturn(attachments);
 
         invokeInterceptor.beforeMethod(instanceContext, interceptorContext, null);

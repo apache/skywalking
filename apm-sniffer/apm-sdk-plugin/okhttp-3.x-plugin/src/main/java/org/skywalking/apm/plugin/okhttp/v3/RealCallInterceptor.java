@@ -15,8 +15,8 @@ import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstruc
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodInvokeContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.skywalking.apm.trace.Span;
-import org.skywalking.apm.trace.tag.Tags;
+import org.skywalking.apm.agent.core.context.trace.Span;
+import org.skywalking.apm.agent.core.context.tag.Tags;
 
 /**
  * {@link RealCallInterceptor} intercept the synchronous http calls by the client of okhttp.
@@ -75,7 +75,7 @@ public class RealCallInterceptor implements InstanceMethodsAroundInterceptor, In
         modifiersField.setInt(headersField, headersField.getModifiers() & ~Modifier.FINAL);
 
         headersField.setAccessible(true);
-        Headers headers = request.headers().newBuilder().add(Config.Plugin.Http.HEADER_NAME_OF_CONTEXT_DATA, contextCarrier.serialize()).build();
+        Headers headers = request.headers().newBuilder().add(Config.Plugin.Propagation.HEADER_NAME, contextCarrier.serialize()).build();
         headersField.set(request, headers);
     }
 

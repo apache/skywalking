@@ -10,11 +10,11 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.skywalking.apm.agent.core.boot.ServiceManager;
 import org.skywalking.apm.agent.core.conf.Config;
+import org.skywalking.apm.agent.core.context.trace.SegmentsMessage;
+import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.skywalking.apm.agent.core.queue.TraceSegmentProcessQueue;
 import org.skywalking.apm.logging.ILog;
 import org.skywalking.apm.logging.LogManager;
-import org.skywalking.apm.trace.SegmentsMessage;
-import org.skywalking.apm.trace.TraceSegment;
 
 import java.io.IOException;
 import java.util.List;
