@@ -23,4 +23,6 @@ public interface AbstractTracerContext {
     void stopSpan(Span span);
 
     void stopSpan(Span span, Long endTime);
+
+    void dispose();
 }

@@ -17,7 +17,7 @@ import org.skywalking.apm.agent.core.context.trace.TraceSegment;
  *
  * @author wusheng
  */
-public class ContextManager implements TracerContextListener, BootService {
+public class ContextManager implements TracerContextListener, BootService, IgnoreTracerContextListener {
     private static ThreadLocal<AbstractTracerContext> CONTEXT = new ThreadLocal<AbstractTracerContext>();
 
     private static AbstractTracerContext get() {
@@ -75,21 +75,18 @@ public class ContextManager implements TracerContextListener, BootService {
         return get().activeSpan();
     }
 
-    public static void stopSpan(Span span) {
-        get().stopSpan(span);
-    }
-
     public static void stopSpan(Long endTime) {
         get().stopSpan(activeSpan(), endTime);
     }
 
     public static void stopSpan() {
-        stopSpan(activeSpan());
+        get().stopSpan(activeSpan());
     }
 
     @Override
     public void bootUp() {
         TracerContext.ListenerManager.add(this);
+        IgnoreTracerContext.ListenerManager.add(this);
     }
 
     @Override
@@ -97,13 +94,23 @@ public class ContextManager implements TracerContextListener, BootService {
         CONTEXT.remove();
     }
 
+    @Override
+    public void afterFinished(IgnoreTracerContext traceSegment) {
+        CONTEXT.remove();
+    }
+
     /**
-     * The <code>ContextSwitcher</code> gives the chance to switch {@link AbstractTracerContext} in {@link #CONTEXT}.
+     * The <code>ContextSwitcher</code> gives the chance to switch {@link AbstractTracerContext} in {@link #CONTEXT},
+     * for ignore, sampling, and analytic trace.
      */
-    enum ContextSwitcher {
+    public enum ContextSwitcher {
         INSTANCE;
 
-        void toNew(AbstractTracerContext context) {
+        public void toNew(AbstractTracerContext context) {
+            AbstractTracerContext existedContext = CONTEXT.get();
+            if (existedContext != null) {
+                existedContext.dispose();
+            }
             CONTEXT.set(context);
         }
     }

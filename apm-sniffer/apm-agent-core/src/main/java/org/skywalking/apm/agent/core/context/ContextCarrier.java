@@ -49,12 +49,16 @@ public class ContextCarrier implements Serializable {
      * @return the serialization string.
      */
     public String serialize() {
-        return StringUtil.join('|',
-            this.getTraceSegmentId(),
-            this.getSpanId() + "",
-            this.getApplicationCode(),
-            this.getPeerHost(),
-            this.serializeDistributedTraceIds());
+        if (this.isValid()) {
+            return StringUtil.join('|',
+                this.getTraceSegmentId(),
+                this.getSpanId() + "",
+                this.getApplicationCode(),
+                this.getPeerHost(),
+                this.serializeDistributedTraceIds());
+        } else {
+            return "";
+        }
     }
 
     /**

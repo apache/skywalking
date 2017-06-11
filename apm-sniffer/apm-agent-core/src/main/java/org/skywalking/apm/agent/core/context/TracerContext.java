@@ -126,6 +126,12 @@ public final class TracerContext implements AbstractTracerContext {
         }
     }
 
+    @Override
+    public void dispose() {
+        this.segment = null;
+        this.activeSpanStack = null;
+    }
+
     /**
      * Finish this context, and notify all {@link TracerContextListener}s, managed by {@link ListenerManager}
      */

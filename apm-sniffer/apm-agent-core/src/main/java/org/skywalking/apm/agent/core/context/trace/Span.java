@@ -14,6 +14,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import org.skywalking.apm.agent.core.conf.Config;
+import org.skywalking.apm.agent.core.context.ContextManager;
+import org.skywalking.apm.agent.core.context.IgnoreTracerContext;
 import org.skywalking.apm.agent.core.context.tag.BooleanTagItem;
 import org.skywalking.apm.agent.core.context.tag.IntTagItem;
 import org.skywalking.apm.agent.core.context.tag.StringTagItem;
@@ -199,7 +201,7 @@ public class Span {
             if (operationName != null) {
                 int suffixIdx = operationName.lastIndexOf(".");
                 if (suffixIdx > -1 && Config.Agent.IGNORE_SUFFIX.contains(operationName.substring(suffixIdx))) {
-
+                    ContextManager.ContextSwitcher.INSTANCE.toNew(new IgnoreTracerContext(1));
                 }
             }
         }
