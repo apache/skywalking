@@ -9,13 +9,13 @@ import org.skywalking.apm.collector.actor.LocalSyncWorkerRef;
 import org.skywalking.apm.collector.actor.ProviderNotFoundException;
 
 /**
- * The <code>AbstractGetProvider</code> implementations represent providers, which use to create {@link AbstractGet}
- * worker instances.
+ * The <code>AbstractStreamPostProvider</code> implementations represent providers, which use to create {@link
+ * AbstractStreamPost} worker instances.
  *
  * @author pengys5
- * @since v3.0-2017
+ * @since v3.1-2017
  */
-public abstract class AbstractGetProvider<T extends AbstractLocalSyncWorker> extends AbstractLocalSyncWorkerProvider<T> {
+public abstract class AbstractStreamPostProvider<T extends AbstractLocalSyncWorker> extends AbstractLocalSyncWorkerProvider<T> {
 
     public abstract String servletPath();
 
@@ -29,7 +29,7 @@ public abstract class AbstractGetProvider<T extends AbstractLocalSyncWorker> ext
     final protected void create(
         ServletContextHandler context) throws IllegalArgumentException, ProviderNotFoundException {
         LocalSyncWorkerRef workerRef = (LocalSyncWorkerRef)super.create(AbstractWorker.noOwner());
-        AbstractGet.GetWithHttpServlet getWithHttpServlet = new AbstractGet.GetWithHttpServlet(workerRef);
-        context.addServlet(new ServletHolder(getWithHttpServlet), servletPath());
+        AbstractStreamPost.StreamPostWithHttpServlet postWithHttpServlet = new AbstractStreamPost.StreamPostWithHttpServlet(workerRef);
+        context.addServlet(new ServletHolder(postWithHttpServlet), servletPath());
     }
 }

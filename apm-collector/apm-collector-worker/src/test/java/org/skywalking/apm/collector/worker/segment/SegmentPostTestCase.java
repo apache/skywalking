@@ -1,7 +1,9 @@
 package org.skywalking.apm.collector.worker.segment;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import java.io.BufferedReader;
+import java.io.StringReader;
+import java.util.TimeZone;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Assert;
@@ -17,15 +19,23 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-import org.skywalking.apm.collector.actor.*;
+import org.skywalking.apm.collector.actor.ClusterWorkerContext;
+import org.skywalking.apm.collector.actor.LocalWorkerContext;
+import org.skywalking.apm.collector.actor.ProviderNotFoundException;
+import org.skywalking.apm.collector.actor.Role;
+import org.skywalking.apm.collector.actor.WorkerRef;
 import org.skywalking.apm.collector.actor.selector.RollingSelector;
-import org.skywalking.apm.collector.worker.config.WorkerConfig;
 import org.skywalking.apm.collector.worker.globaltrace.analysis.GlobalTraceAnalysis;
 import org.skywalking.apm.collector.worker.node.analysis.NodeCompAnalysis;
 import org.skywalking.apm.collector.worker.node.analysis.NodeMappingDayAnalysis;
 import org.skywalking.apm.collector.worker.node.analysis.NodeMappingHourAnalysis;
 import org.skywalking.apm.collector.worker.node.analysis.NodeMappingMinuteAnalysis;
-import org.skywalking.apm.collector.worker.noderef.analysis.*;
+import org.skywalking.apm.collector.worker.noderef.analysis.NodeRefDayAnalysis;
+import org.skywalking.apm.collector.worker.noderef.analysis.NodeRefHourAnalysis;
+import org.skywalking.apm.collector.worker.noderef.analysis.NodeRefMinuteAnalysis;
+import org.skywalking.apm.collector.worker.noderef.analysis.NodeRefResSumDayAnalysis;
+import org.skywalking.apm.collector.worker.noderef.analysis.NodeRefResSumHourAnalysis;
+import org.skywalking.apm.collector.worker.noderef.analysis.NodeRefResSumMinuteAnalysis;
 import org.skywalking.apm.collector.worker.segment.analysis.SegmentAnalysis;
 import org.skywalking.apm.collector.worker.segment.analysis.SegmentCostAnalysis;
 import org.skywalking.apm.collector.worker.segment.analysis.SegmentExceptionAnalysis;
@@ -35,9 +45,8 @@ import org.skywalking.apm.collector.worker.segment.persistence.SegmentExceptionS
 import org.skywalking.apm.collector.worker.segment.persistence.SegmentSave;
 import org.skywalking.apm.collector.worker.tools.DateTools;
 
-import java.util.TimeZone;
-
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.doAnswer;
 import static org.powermock.api.mockito.PowerMockito.doReturn;
@@ -47,8 +56,8 @@ import static org.powermock.api.mockito.PowerMockito.mock;
  * @author pengys5
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest( {LocalWorkerContext.class, WorkerRef.class})
-@PowerMockIgnore( {"javax.management.*"})
+@PrepareForTest({LocalWorkerContext.class, WorkerRef.class})
+@PowerMockIgnore({"javax.management.*"})
 public class SegmentPostTestCase {
 
     private Logger logger = LogManager.getFormatterLogger(SegmentPostTestCase.class);
@@ -90,10 +99,6 @@ public class SegmentPostTestCase {
         Assert.assertEquals(SegmentPost.class.getSimpleName(), factory.role().roleName());
         Assert.assertEquals(SegmentPost.class.getSimpleName(), factory.workerInstance(null).getClass().getSimpleName());
         Assert.assertEquals("/segments", factory.servletPath());
-
-        int testSize = 10;
-        WorkerConfig.Queue.Segment.SegmentPost.SIZE = testSize;
-        Assert.assertEquals(testSize, factory.queueSize());
     }
 
     @Test
@@ -166,12 +171,14 @@ public class SegmentPostTestCase {
 
     @Test
     public void testValidateData() throws Exception {
-        JsonArray segmentArray = new JsonArray();
         JsonObject segmentJsonObj = new JsonObject();
         segmentJsonObj.addProperty("et", 1491277162066L);
-        segmentArray.add(segmentJsonObj);
+        String jsonStr = segmentJsonObj.toString();
 
-        segmentPost.onReceive(segmentArray.toString());
+        JsonObject response = new JsonObject();
+
+        BufferedReader reader = new BufferedReader(new StringReader(jsonStr.length() + " " + jsonStr));
+        segmentPost.onReceive(reader, response);
     }
 
     private SegmentSaveAnswer segmentSaveAnswer_1;
@@ -297,7 +304,7 @@ public class SegmentPostTestCase {
     public void testOnReceive() throws Exception {
         String cacheServiceSegmentAsString = segmentMock.mockCacheServiceSegmentAsString();
 
-        segmentPost.onReceive(cacheServiceSegmentAsString);
+        segmentPost.onReceive(new BufferedReader(new StringReader(cacheServiceSegmentAsString)), new JsonObject());
 
         Assert.assertEquals(DateTools.changeToUTCSlice(201703310915L), segmentSaveAnswer_1.minute);
         Assert.assertEquals(DateTools.changeToUTCSlice(201703310900L), segmentSaveAnswer_1.hour);
@@ -338,7 +345,7 @@ public class SegmentPostTestCase {
 
         @Override
         public Object answer(InvocationOnMock invocation) throws Throwable {
-            segmentWithTimeSlice = (SegmentPost.SegmentWithTimeSlice) invocation.getArguments()[0];
+            segmentWithTimeSlice = (SegmentPost.SegmentWithTimeSlice)invocation.getArguments()[0];
             return null;
         }
     }
@@ -350,7 +357,7 @@ public class SegmentPostTestCase {
 
         @Override
         public Object answer(InvocationOnMock invocation) throws Throwable {
-            JsonObject jsonObject = (JsonObject) invocation.getArguments()[0];
+            JsonObject jsonObject = (JsonObject)invocation.getArguments()[0];
             logger.info("SegmentSave json: " + jsonObject.toString());
             minute = jsonObject.get("minute").getAsLong();
             hour = jsonObject.get("hour").getAsLong();
@@ -363,7 +370,7 @@ public class SegmentPostTestCase {
         private static final String SegId = "Segment.1490922929258.927784221.5991.27.1";
 
         public boolean matches(Object para) {
-            JsonObject paraJson = (JsonObject) para;
+            JsonObject paraJson = (JsonObject)para;
             return SegId.equals(paraJson.get("ts").getAsString());
         }
     }
@@ -372,7 +379,7 @@ public class SegmentPostTestCase {
         private static final String SegId = "Segment.1490922929298.927784221.5991.28.1";
 
         public boolean matches(Object para) {
-            JsonObject paraJson = (JsonObject) para;
+            JsonObject paraJson = (JsonObject)para;
             return SegId.equals(paraJson.get("ts").getAsString());
         }
     }

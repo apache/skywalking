@@ -1,6 +1,8 @@
 package org.skywalking.apm.collector.worker.noderef;
 
 import com.google.gson.JsonObject;
+import java.util.Arrays;
+import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.skywalking.apm.collector.actor.ClusterWorkerContext;
@@ -13,9 +15,6 @@ import org.skywalking.apm.collector.worker.httpserver.AbstractGet;
 import org.skywalking.apm.collector.worker.httpserver.AbstractGetProvider;
 import org.skywalking.apm.collector.worker.noderef.persistence.NodeRefResSumGroupWithTimeSlice;
 import org.skywalking.apm.collector.worker.tools.ParameterTools;
-
-import java.util.Arrays;
-import java.util.Map;
 
 /**
  * @author pengys5
@@ -33,30 +32,29 @@ public class NodeRefResSumGetGroupWithTimeSlice extends AbstractGet {
         getClusterContext().findProvider(NodeRefResSumGroupWithTimeSlice.WorkerRole.INSTANCE).create(this);
     }
 
-    @Override
-    protected void onSearch(Map<String, String[]> request, JsonObject response) throws Exception {
-        if (!request.containsKey("startTime") || !request.containsKey("endTime") || !request.containsKey("timeSliceType")) {
+    @Override protected void onReceive(Map<String, String[]> parameter, JsonObject response) throws Exception {
+        if (!parameter.containsKey("startTime") || !parameter.containsKey("endTime") || !parameter.containsKey("timeSliceType")) {
             throw new IllegalArgumentException("the request parameter must contains startTime,endTime,timeSliceType");
         }
-        logger.debug("startTime: %s, endTime: %s, timeSliceType: %s", Arrays.toString(request.get("startTime")),
-            Arrays.toString(request.get("endTime")), Arrays.toString(request.get("timeSliceType")));
+        logger.debug("startTime: %s, endTime: %s, timeSliceType: %s", Arrays.toString(parameter.get("startTime")),
+            Arrays.toString(parameter.get("endTime")), Arrays.toString(parameter.get("timeSliceType")));
 
         long startTime;
         try {
-            startTime = Long.valueOf(ParameterTools.INSTANCE.toString(request, "startTime"));
+            startTime = Long.valueOf(ParameterTools.INSTANCE.toString(parameter, "startTime"));
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("the request parameter startTime must numeric with long type");
         }
 
         long endTime;
         try {
-            endTime = Long.valueOf(ParameterTools.INSTANCE.toString(request, "endTime"));
+            endTime = Long.valueOf(ParameterTools.INSTANCE.toString(parameter, "endTime"));
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("the request parameter endTime must numeric with long type");
         }
 
         NodeRefResSumGroupWithTimeSlice.RequestEntity requestEntity;
-        requestEntity = new NodeRefResSumGroupWithTimeSlice.RequestEntity(ParameterTools.INSTANCE.toString(request, "timeSliceType"), startTime, endTime);
+        requestEntity = new NodeRefResSumGroupWithTimeSlice.RequestEntity(ParameterTools.INSTANCE.toString(parameter, "timeSliceType"), startTime, endTime);
         getSelfContext().lookup(NodeRefResSumGroupWithTimeSlice.WorkerRole.INSTANCE).ask(requestEntity, response);
     }
 

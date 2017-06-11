@@ -1,6 +1,8 @@
 package org.skywalking.apm.collector.worker.segment;
 
 import com.google.gson.JsonObject;
+import java.util.Arrays;
+import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.skywalking.apm.collector.actor.ClusterWorkerContext;
@@ -13,9 +15,6 @@ import org.skywalking.apm.collector.worker.httpserver.AbstractGet;
 import org.skywalking.apm.collector.worker.httpserver.AbstractGetProvider;
 import org.skywalking.apm.collector.worker.segment.persistence.SegmentTopSearchWithTimeSlice;
 import org.skywalking.apm.collector.worker.tools.ParameterTools;
-
-import java.util.Arrays;
-import java.util.Map;
 
 /**
  * @author pengys5
@@ -33,49 +32,48 @@ public class SegmentTopGetWithTimeSlice extends AbstractGet {
         getClusterContext().findProvider(SegmentTopSearchWithTimeSlice.WorkerRole.INSTANCE).create(this);
     }
 
-    @Override
-    protected void onSearch(Map<String, String[]> request, JsonObject response) throws Exception {
-        if (!request.containsKey("startTime") || !request.containsKey("endTime") || !request.containsKey("from") || !request.containsKey("limit")) {
+    @Override protected void onReceive(Map<String, String[]> parameter, JsonObject response) throws Exception {
+        if (!parameter.containsKey("startTime") || !parameter.containsKey("endTime") || !parameter.containsKey("from") || !parameter.containsKey("limit")) {
             throw new IllegalArgumentException("the request parameter must contains startTime, endTime, from, limit");
         }
-        logger.debug("startTime: %s, endTime: %s, from: %s", Arrays.toString(request.get("startTime")),
-            Arrays.toString(request.get("endTime")), Arrays.toString(request.get("from")));
+        logger.debug("startTime: %s, endTime: %s, from: %s", Arrays.toString(parameter.get("startTime")),
+            Arrays.toString(parameter.get("endTime")), Arrays.toString(parameter.get("from")));
 
         long startTime;
         try {
-            startTime = Long.valueOf(ParameterTools.INSTANCE.toString(request, "startTime"));
+            startTime = Long.valueOf(ParameterTools.INSTANCE.toString(parameter, "startTime"));
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("the request parameter startTime must numeric with long type");
         }
 
         long endTime;
         try {
-            endTime = Long.valueOf(ParameterTools.INSTANCE.toString(request, "endTime"));
+            endTime = Long.valueOf(ParameterTools.INSTANCE.toString(parameter, "endTime"));
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("the request parameter endTime must numeric with long type");
         }
 
         int from;
         try {
-            from = Integer.valueOf(ParameterTools.INSTANCE.toString(request, "from"));
+            from = Integer.valueOf(ParameterTools.INSTANCE.toString(parameter, "from"));
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("the request parameter from must numeric with int type");
         }
 
         int limit;
         try {
-            limit = Integer.valueOf(ParameterTools.INSTANCE.toString(request, "limit"));
+            limit = Integer.valueOf(ParameterTools.INSTANCE.toString(parameter, "limit"));
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("the request parameter from must numeric with int type");
         }
 
         int minCost = -1;
-        if (request.containsKey("minCost")) {
-            minCost = Integer.valueOf(ParameterTools.INSTANCE.toString(request, "minCost"));
+        if (parameter.containsKey("minCost")) {
+            minCost = Integer.valueOf(ParameterTools.INSTANCE.toString(parameter, "minCost"));
         }
         int maxCost = -1;
-        if (request.containsKey("maxCost")) {
-            maxCost = Integer.valueOf(ParameterTools.INSTANCE.toString(request, "maxCost"));
+        if (parameter.containsKey("maxCost")) {
+            maxCost = Integer.valueOf(ParameterTools.INSTANCE.toString(parameter, "maxCost"));
         }
 
         SegmentTopSearchWithTimeSlice.RequestEntity requestEntity;

@@ -1,5 +1,7 @@
 package org.skywalking.apm.collector.worker.httpserver;
 
+import com.google.gson.JsonObject;
+import java.util.Map;
 import org.skywalking.apm.collector.actor.ClusterWorkerContext;
 import org.skywalking.apm.collector.actor.LocalWorkerContext;
 import org.skywalking.apm.collector.actor.ProviderNotFoundException;
@@ -20,8 +22,8 @@ public class TestAbstractPost extends AbstractPost {
         super.preStart();
     }
 
-    @Override
-    protected void onReceive(Object message) throws Exception {
+    @Override protected void onReceive(Map<String, String[]> parameter, JsonObject response) throws Exception {
+
     }
 
     public enum WorkerRole implements Role {
@@ -42,11 +44,6 @@ public class TestAbstractPost extends AbstractPost {
         @Override
         public String servletPath() {
             return "/TestAbstractPost";
-        }
-
-        @Override
-        public int queueSize() {
-            return 4;
         }
 
         @Override

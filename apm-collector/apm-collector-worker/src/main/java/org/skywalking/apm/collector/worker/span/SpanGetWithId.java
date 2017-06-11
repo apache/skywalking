@@ -1,6 +1,8 @@
 package org.skywalking.apm.collector.worker.span;
 
 import com.google.gson.JsonObject;
+import java.util.Arrays;
+import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.skywalking.apm.collector.actor.ClusterWorkerContext;
@@ -13,9 +15,6 @@ import org.skywalking.apm.collector.worker.httpserver.AbstractGet;
 import org.skywalking.apm.collector.worker.httpserver.AbstractGetProvider;
 import org.skywalking.apm.collector.worker.span.persistence.SpanSearchWithId;
 import org.skywalking.apm.collector.worker.tools.ParameterTools;
-
-import java.util.Arrays;
-import java.util.Map;
 
 /**
  * @author pengys5
@@ -33,15 +32,14 @@ public class SpanGetWithId extends AbstractGet {
         getClusterContext().findProvider(SpanSearchWithId.WorkerRole.INSTANCE).create(this);
     }
 
-    @Override
-    protected void onSearch(Map<String, String[]> request, JsonObject response) throws Exception {
-        if (!request.containsKey("segId") || !request.containsKey("spanId")) {
+    @Override protected void onReceive(Map<String, String[]> parameter, JsonObject response) throws Exception {
+        if (!parameter.containsKey("segId") || !parameter.containsKey("spanId")) {
             throw new IllegalArgumentException("the request parameter must contains segId, spanId");
         }
-        logger.debug("segId: %s, spanId: %s", Arrays.toString(request.get("segId")), Arrays.toString(request.get("spanId")));
+        logger.debug("segId: %s, spanId: %s", Arrays.toString(parameter.get("segId")), Arrays.toString(parameter.get("spanId")));
 
-        String segId = ParameterTools.INSTANCE.toString(request, "segId");
-        String spanId = ParameterTools.INSTANCE.toString(request, "spanId");
+        String segId = ParameterTools.INSTANCE.toString(parameter, "segId");
+        String spanId = ParameterTools.INSTANCE.toString(parameter, "spanId");
 
         SpanSearchWithId.RequestEntity requestEntity = new SpanSearchWithId.RequestEntity(segId, spanId);
         getSelfContext().lookup(SpanSearchWithId.WorkerRole.INSTANCE).ask(requestEntity, response);
