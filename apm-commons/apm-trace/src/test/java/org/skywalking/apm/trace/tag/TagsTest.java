@@ -40,15 +40,4 @@ public class TagsTest {
         tag.set(span, 123);
         Assert.assertEquals(123, tag.get(span).intValue());
     }
-
-    @Test
-    public void testShortTag() {
-        ShortTag tag = new ShortTag("test.key");
-        Span span = new Span(1, "/test");
-        Assert.assertNull(tag.get(span));
-
-        short value = 123;
-        tag.set(span, value);
-        Assert.assertEquals(value, tag.get(span).intValue());
-    }
 }

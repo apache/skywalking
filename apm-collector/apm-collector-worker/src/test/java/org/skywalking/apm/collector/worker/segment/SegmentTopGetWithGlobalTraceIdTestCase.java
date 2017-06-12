@@ -97,14 +97,14 @@ public class SegmentTopGetWithGlobalTraceIdTestCase {
         request.put("limit", limit);
 
         JsonObject response = new JsonObject();
-        getObj.onSearch(request, response);
+        getObj.onReceive(request, response);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testOnSearchError() throws Exception {
         Map<String, String[]> request = new HashMap<>();
         JsonObject response = new JsonObject();
-        getObj.onSearch(request, response);
+        getObj.onReceive(request, response);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -118,7 +118,7 @@ public class SegmentTopGetWithGlobalTraceIdTestCase {
         request.put("limit", limit);
 
         JsonObject response = new JsonObject();
-        getObj.onSearch(request, response);
+        getObj.onReceive(request, response);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -132,7 +132,7 @@ public class SegmentTopGetWithGlobalTraceIdTestCase {
         request.put("limit", limit);
 
         JsonObject response = new JsonObject();
-        getObj.onSearch(request, response);
+        getObj.onReceive(request, response);
     }
 
     class SegmentTopGetAnswerGet implements Answer {

@@ -1,98 +1,74 @@
 package org.skywalking.apm.collector.worker.httpserver;
 
 import com.google.gson.JsonObject;
-import com.google.gson.stream.JsonReader;
-import java.io.BufferedReader;
-import org.skywalking.apm.collector.actor.AbstractLocalSyncWorker;
+import java.io.IOException;
+import java.util.Map;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.skywalking.apm.collector.actor.ClusterWorkerContext;
 import org.skywalking.apm.collector.actor.LocalSyncWorkerRef;
 import org.skywalking.apm.collector.actor.LocalWorkerContext;
 import org.skywalking.apm.collector.actor.Role;
-import org.skywalking.apm.collector.actor.WorkerRef;
-import org.skywalking.apm.collector.worker.instance.entity.RegistryInfo;
-import org.skywalking.apm.collector.worker.instance.entity.HeartBeat;
-import org.skywalking.apm.collector.worker.segment.entity.Segment;
 
 /**
+ * The <code>AbstractGet</code> implementations represent workers, which called by the server to allow a servlet to
+ * handle a POST request.
+ *
+ * <p>verride the {@link #onReceive(Map, JsonObject)} method to support a search service.
+ *
  * @author pengys5
+ * @since v3.0-2017
  */
-
-public abstract class AbstractPost extends AbstractLocalSyncWorker {
+public abstract class AbstractPost extends AbstractServlet {
 
     public AbstractPost(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
-    @Override
-    protected void onWork(Object request, Object response) throws Exception {
-        try {
-            onReceive(request, (JsonObject)response);
-        } catch (Exception e) {
-            ((JsonObject)response).addProperty("isSuccess", false);
-            ((JsonObject)response).addProperty("reason", e.getMessage());
-        }
+    /**
+     * Add final modifier to avoid the subclass override this method.
+     *
+     * @param parameter {@link Object} data structure of the map
+     * @param response {@link Object} is a out parameter
+     * @throws Exception
+     */
+    @Override final protected void onWork(Object parameter, Object response) throws Exception {
+        super.onWork(parameter, response);
     }
 
-    protected abstract void onReceive(Object message, JsonObject response) throws Exception;
+    static class PostWithHttpServlet extends HttpServlet {
 
-    public static class SegmentPostWithHttpServlet extends AbstractPostWithHttpServlet {
+        private Logger logger = LogManager.getFormatterLogger(PostWithHttpServlet.class);
 
-        public SegmentPostWithHttpServlet(WorkerRef ownerWorkerRef) {
-            super(ownerWorkerRef);
+        private final LocalSyncWorkerRef ownerWorkerRef;
+
+        PostWithHttpServlet(LocalSyncWorkerRef ownerWorkerRef) {
+            this.ownerWorkerRef = ownerWorkerRef;
         }
 
-        protected void doWork(BufferedReader bufferedReader, JsonObject resJson) throws Exception {
-            try (JsonReader reader = new JsonReader(bufferedReader)) {
-                readSegmentArray(reader);
+        /**
+         * Override the {@link HttpServlet#doPost(HttpServletRequest, HttpServletResponse)} method, receive the
+         * parameter from request then send parameter to the owner worker.
+         *
+         * @param request an {@link HttpServletRequest} object that contains the request the client has made of the
+         * servlet
+         * @param response {@link HttpServletResponse} object that contains the response the servlet sends to the
+         * client
+         * @throws ServletException if the request for the POST could not be handled
+         * @throws IOException if an input or output error is detected when the servlet handles the request
+         */
+        @Override final protected void doPost(HttpServletRequest request,
+            HttpServletResponse response) throws ServletException, IOException {
+            try {
+                Map<String, String[]> parameter = request.getParameterMap();
+                ownerWorkerRef.ask(parameter, response);
+            } catch (Exception e) {
+                logger.error(e, e);
             }
-        }
-
-        private void readSegmentArray(JsonReader reader) throws Exception {
-            reader.beginArray();
-            while (reader.hasNext()) {
-                Segment segment = new Segment();
-                segment.deserialize(reader);
-                ownerWorkerRef.tell(segment);
-            }
-            reader.endArray();
         }
     }
-
-    public static class RegisterPostWithHttpServlet extends AbstractPostWithHttpServlet {
-
-        public RegisterPostWithHttpServlet(WorkerRef ownerWorkerRef) {
-            super(ownerWorkerRef);
-        }
-
-        @Override
-        protected void doWork(BufferedReader bufferedReader, JsonObject resJson) throws Exception {
-            JsonReader reader = new JsonReader(bufferedReader);
-            reader.beginObject();
-            if (reader.nextName().equals("ac")) {
-                RegistryInfo registryParam = new RegistryInfo(reader.nextString());
-                ((LocalSyncWorkerRef)ownerWorkerRef).ask(registryParam, resJson);
-            }
-            reader.endObject();
-        }
-
-    }
-
-    public static class HeartBeatPostWithHttpServlet extends AbstractPostWithHttpServlet {
-
-        public HeartBeatPostWithHttpServlet(WorkerRef ownerWorkerRef) {
-            super(ownerWorkerRef);
-        }
-
-        @Override
-       protected void doWork(BufferedReader bufferedReader, JsonObject resJson) throws Exception {
-            JsonReader reader = new JsonReader(bufferedReader);
-            reader.beginObject();
-            if (reader.nextName().equals("ac")) {
-                HeartBeat registryParam = new HeartBeat(reader.nextString());
-                ownerWorkerRef.tell(registryParam);
-            }
-        }
-
-    }
-
 }

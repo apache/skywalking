@@ -28,7 +28,7 @@ public enum PersistenceTimer {
                     extractDataAndSave();
                     Thread.sleep(timeInterval);
                 } catch (Throwable e) {
-                    logger.error(e);
+                    logger.error(e, e);
                 }
             }
         };

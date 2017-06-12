@@ -1,6 +1,9 @@
 package org.skywalking.apm.collector.worker.noderef;
 
 import com.google.gson.JsonObject;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TimeZone;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,18 +23,17 @@ import org.skywalking.apm.collector.actor.WorkerRefs;
 import org.skywalking.apm.collector.actor.selector.RollingSelector;
 import org.skywalking.apm.collector.worker.noderef.persistence.NodeRefResSumGroupWithTimeSlice;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TimeZone;
-
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author pengys5
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest( {ClusterWorkerContext.class})
-@PowerMockIgnore( {"javax.management.*"})
+@PrepareForTest({ClusterWorkerContext.class})
+@PowerMockIgnore({"javax.management.*"})
 public class NodeRefResSumGetGroupWithTimeSliceTestCase {
 
     private NodeRefResSumGetGroupWithTimeSlice getObj;
@@ -79,7 +81,7 @@ public class NodeRefResSumGetGroupWithTimeSliceTestCase {
     }
 
     @Test
-    public void testOnSearch() throws Exception {
+    public void testOnReceive() throws Exception {
         Map<String, String[]> request = new HashMap<>();
         String[] startTime = {"100"};
         request.put("startTime", startTime);
@@ -89,18 +91,18 @@ public class NodeRefResSumGetGroupWithTimeSliceTestCase {
         request.put("timeSliceType", timeSliceType);
 
         JsonObject response = new JsonObject();
-        getObj.onSearch(request, response);
+        getObj.onReceive(request, response);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testOnSearchError() throws Exception {
+    public void testOnReceiveError() throws Exception {
         Map<String, String[]> request = new HashMap<>();
         JsonObject response = new JsonObject();
-        getObj.onSearch(request, response);
+        getObj.onReceive(request, response);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testOnSearchStartTimeError() throws Exception {
+    public void testOnReceiveStartTimeError() throws Exception {
         Map<String, String[]> request = new HashMap<>();
         String[] startTime = {"x"};
         request.put("startTime", startTime);
@@ -109,11 +111,12 @@ public class NodeRefResSumGetGroupWithTimeSliceTestCase {
         String[] timeSliceType = {"minute"};
         request.put("timeSliceType", timeSliceType);
         JsonObject response = new JsonObject();
-        getObj.onSearch(request, response);
+
+        getObj.onReceive(request, response);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testOnSearchEndTimeError() throws Exception {
+    public void testOnReceiveEndTimeError() throws Exception {
         Map<String, String[]> request = new HashMap<>();
         String[] startTime = {"100"};
         request.put("startTime", startTime);
@@ -122,14 +125,14 @@ public class NodeRefResSumGetGroupWithTimeSliceTestCase {
         String[] timeSliceType = {"minute"};
         request.put("timeSliceType", timeSliceType);
         JsonObject response = new JsonObject();
-        getObj.onSearch(request, response);
+        getObj.onReceive(request, response);
     }
 
     class NodeRefResSumGetAnswerGet implements Answer {
 
         @Override
         public Object answer(InvocationOnMock invocation) throws Throwable {
-            NodeRefResSumGroupWithTimeSlice.RequestEntity requestEntity = (NodeRefResSumGroupWithTimeSlice.RequestEntity) invocation.getArguments()[0];
+            NodeRefResSumGroupWithTimeSlice.RequestEntity requestEntity = (NodeRefResSumGroupWithTimeSlice.RequestEntity)invocation.getArguments()[0];
             Assert.assertEquals(100L, requestEntity.getStartTime());
             Assert.assertEquals(200L, requestEntity.getEndTime());
             Assert.assertEquals("minute", requestEntity.getSliceType());

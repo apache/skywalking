@@ -16,6 +16,7 @@ public class SegmentRealPost {
 //        HttpClientTools.INSTANCE.post("http://localhost:7001/segments", portalServiceExceptionSegmentAsString);
 
         String cacheServiceSegmentAsString = mock.mockCacheServiceSegmentAsString();
+        System.out.println(cacheServiceSegmentAsString);
         HttpClientTools.INSTANCE.post("http://localhost:12800/segments", cacheServiceSegmentAsString);
 
         String persistenceServiceSegmentAsString = mock.mockPersistenceServiceSegmentAsString();

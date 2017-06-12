@@ -105,7 +105,7 @@ public class TraceDagGetWithTimeSliceTestCase {
     public void testOnSearchError() throws Exception {
         Map<String, String[]> request = new HashMap<>();
         JsonObject response = new JsonObject();
-        getObj.onSearch(request, response);
+        getObj.onReceive(request, response);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -115,7 +115,7 @@ public class TraceDagGetWithTimeSliceTestCase {
         request.put("startTime", startTime);
 
         JsonObject response = new JsonObject();
-        getObj.onSearch(request, response);
+        getObj.onReceive(request, response);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -125,7 +125,7 @@ public class TraceDagGetWithTimeSliceTestCase {
         request.put("endTime", endTime);
 
         JsonObject response = new JsonObject();
-        getObj.onSearch(request, response);
+        getObj.onReceive(request, response);
     }
 
     private Map<String, String[]> createRequest() {
@@ -149,7 +149,7 @@ public class TraceDagGetWithTimeSliceTestCase {
         PowerMockito.when(getObj, "getNewResponse").thenReturn(response);
 
         Map<String, String[]> request = createRequest();
-        getObj.onSearch(request, response);
+        getObj.onReceive(request, response);
     }
 
     class TraceDagGetAnswerGet_1 implements Answer {

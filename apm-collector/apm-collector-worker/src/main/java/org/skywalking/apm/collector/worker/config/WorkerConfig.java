@@ -69,10 +69,6 @@ public class WorkerConfig {
         }
 
         public static class Segment {
-            public static class SegmentPost {
-                public static int SIZE = 4096;
-            }
-
             public static class SegmentAnalysis {
                 public static int SIZE = 1024;
             }

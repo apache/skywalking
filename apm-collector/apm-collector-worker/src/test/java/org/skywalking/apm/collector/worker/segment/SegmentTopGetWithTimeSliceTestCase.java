@@ -90,7 +90,7 @@ public class SegmentTopGetWithTimeSliceTestCase {
     public void testOnSearch() throws Exception {
         Map<String, String[]> request = createRequest();
         JsonObject response = new JsonObject();
-        getObj.onSearch(request, response);
+        getObj.onReceive(request, response);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -100,7 +100,7 @@ public class SegmentTopGetWithTimeSliceTestCase {
         request.put("startTime", startTime);
 
         JsonObject response = new JsonObject();
-        getObj.onSearch(request, response);
+        getObj.onReceive(request, response);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -110,7 +110,7 @@ public class SegmentTopGetWithTimeSliceTestCase {
         request.put("endTime", endTime);
 
         JsonObject response = new JsonObject();
-        getObj.onSearch(request, response);
+        getObj.onReceive(request, response);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -120,7 +120,7 @@ public class SegmentTopGetWithTimeSliceTestCase {
         request.put("from", from);
 
         JsonObject response = new JsonObject();
-        getObj.onSearch(request, response);
+        getObj.onReceive(request, response);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -130,7 +130,7 @@ public class SegmentTopGetWithTimeSliceTestCase {
         request.put("limit", limit);
 
         JsonObject response = new JsonObject();
-        getObj.onSearch(request, response);
+        getObj.onReceive(request, response);
     }
 
     private Map<String, String[]> createRequest() {

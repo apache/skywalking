@@ -21,4 +21,4 @@ do
 done
 
 echo "Starting collector...."
-$_RUNJAVA ${JAVA_OPTS} -classpath $CLASSPATH CollectorBootStartUp
+$_RUNJAVA ${JAVA_OPTS} -classpath $CLASSPATH org.skywalking.apm.collector.worker.CollectorBootStartUp

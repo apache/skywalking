@@ -75,6 +75,11 @@
             <artifactId>apm-okhttp-3.x-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>apm-feign-default-http-9.x-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- activation -->
         <dependency>

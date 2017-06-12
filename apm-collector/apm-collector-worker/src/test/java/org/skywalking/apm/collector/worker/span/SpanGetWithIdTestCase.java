@@ -86,14 +86,14 @@ public class SpanGetWithIdTestCase {
         String[] spanId = {"20"};
         request.put("spanId", spanId);
         JsonObject response = new JsonObject();
-        getObj.onSearch(request, response);
+        getObj.onReceive(request, response);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testOnSearchError() throws Exception {
         Map<String, String[]> request = new HashMap<>();
         JsonObject response = new JsonObject();
-        getObj.onSearch(request, response);
+        getObj.onReceive(request, response);
     }
 
     class SpanGetAnswerGet implements Answer {

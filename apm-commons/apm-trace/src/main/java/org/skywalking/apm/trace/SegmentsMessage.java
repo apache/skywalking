@@ -1,13 +1,6 @@
 package org.skywalking.apm.trace;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.TypeAdapter;
-import com.google.gson.annotations.JsonAdapter;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
-
-import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -18,7 +11,6 @@ import java.util.List;
  *
  * @author wusheng
  */
-@JsonAdapter(SegmentsMessage.Serializer.class)
 public class SegmentsMessage {
     private List<TraceSegment> segments;
 
@@ -34,39 +26,23 @@ public class SegmentsMessage {
         return Collections.unmodifiableList(segments);
     }
 
-    public static class Serializer extends TypeAdapter<SegmentsMessage> {
-
-        @Override
-        public void write(JsonWriter out, SegmentsMessage value) throws IOException {
-            Gson gson = new GsonBuilder()
-                .excludeFieldsWithoutExposeAnnotation()
-                .create();
-            out.beginArray();
-            try {
-                for (TraceSegment segment : value.segments) {
-                    out.jsonValue(gson.toJson(segment));
-                }
-            } finally {
-                out.endArray();
-            }
+    /**
+     * This serialization mechanism started from 3.1, it is similar to network package.
+     * The data protocol is
+     *
+     * segment1.json.length + ' '(one blank space) + segment1.json
+     * + segment2.json.length + ' '(one blank space) + segment2.json
+     * + etc.
+     *
+     * @param gson the serializer for {@link TraceSegment}
+     * @return the string represents the <code>SegmentMessage</code>
+     */
+    public String serialize(Gson gson) {
+        StringBuilder buffer = new StringBuilder();
+        for (TraceSegment segment : segments) {
+            String segmentJson = gson.toJson(segment);
+            buffer.append(segmentJson.length()).append(' ').append(segmentJson);
         }
-
-        @Override
-        public SegmentsMessage read(JsonReader in) throws IOException {
-            SegmentsMessage message = new SegmentsMessage();
-            in.beginArray();
-            Gson gson = new GsonBuilder()
-                .excludeFieldsWithoutExposeAnnotation()
-                .create();
-            try {
-                while (in.hasNext()) {
-                    TraceSegment traceSegment = gson.fromJson(in, TraceSegment.class);
-                    message.append(traceSegment);
-                }
-            } finally {
-                in.endArray();
-            }
-            return message;
-        }
+        return buffer.toString();
     }
 }

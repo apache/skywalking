@@ -1,8 +1,13 @@
 package org.skywalking.apm.collector.worker.globaltrace.analysis;
 
+import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.skywalking.apm.collector.actor.*;
+import org.skywalking.apm.collector.actor.AbstractLocalAsyncWorkerProvider;
+import org.skywalking.apm.collector.actor.ClusterWorkerContext;
+import org.skywalking.apm.collector.actor.LocalWorkerContext;
+import org.skywalking.apm.collector.actor.WorkerNotFoundException;
+import org.skywalking.apm.collector.actor.WorkerRefs;
 import org.skywalking.apm.collector.actor.selector.RollingSelector;
 import org.skywalking.apm.collector.actor.selector.WorkerSelector;
 import org.skywalking.apm.collector.worker.JoinAndSplitAnalysisMember;
@@ -10,11 +15,8 @@ import org.skywalking.apm.collector.worker.config.WorkerConfig;
 import org.skywalking.apm.collector.worker.globaltrace.GlobalTraceIndex;
 import org.skywalking.apm.collector.worker.globaltrace.persistence.GlobalTraceAgg;
 import org.skywalking.apm.collector.worker.segment.SegmentPost;
-import org.skywalking.apm.collector.worker.segment.entity.GlobalTraceId;
 import org.skywalking.apm.collector.worker.segment.entity.Segment;
 import org.skywalking.apm.collector.worker.tools.CollectionTools;
-
-import java.util.List;
 
 /**
  * @author pengys5
@@ -30,14 +32,13 @@ public class GlobalTraceAnalysis extends JoinAndSplitAnalysisMember {
     @Override
     public void analyse(Object message) throws Exception {
         if (message instanceof SegmentPost.SegmentWithTimeSlice) {
-            SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice = (SegmentPost.SegmentWithTimeSlice) message;
+            SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice = (SegmentPost.SegmentWithTimeSlice)message;
             Segment segment = segmentWithTimeSlice.getSegment();
             String subSegmentId = segment.getTraceSegmentId();
-            List<GlobalTraceId> globalTraceIdList = segment.getRelatedGlobalTraces();
+            List<String> globalTraceIdList = segment.getRelatedGlobalTraces().get();
             if (CollectionTools.isNotEmpty(globalTraceIdList)) {
-                for (GlobalTraceId disTraceId : globalTraceIdList) {
-                    String traceId = disTraceId.get();
-                    set(traceId, GlobalTraceIndex.SUB_SEG_IDS, subSegmentId);
+                for (String globalTraceId : globalTraceIdList) {
+                    set(globalTraceId, GlobalTraceIndex.SUB_SEG_IDS, subSegmentId);
                 }
             }
         } else {
