@@ -2,22 +2,31 @@ package org.skywalking.apm.collector.worker.globaltrace.persistence;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.skywalking.apm.util.StringUtil;
-import org.skywalking.apm.collector.actor.*;
+import org.skywalking.apm.collector.actor.AbstractLocalSyncWorker;
+import org.skywalking.apm.collector.actor.AbstractLocalSyncWorkerProvider;
+import org.skywalking.apm.collector.actor.ClusterWorkerContext;
+import org.skywalking.apm.collector.actor.LocalWorkerContext;
+import org.skywalking.apm.collector.actor.Role;
+import org.skywalking.apm.collector.actor.WorkerException;
 import org.skywalking.apm.collector.actor.selector.RollingSelector;
 import org.skywalking.apm.collector.actor.selector.WorkerSelector;
 import org.skywalking.apm.collector.worker.globaltrace.GlobalTraceIndex;
 import org.skywalking.apm.collector.worker.segment.SegmentIndex;
-import org.skywalking.apm.collector.worker.segment.entity.*;
+import org.skywalking.apm.collector.worker.segment.entity.Segment;
+import org.skywalking.apm.collector.worker.segment.entity.SegmentDeserialize;
+import org.skywalking.apm.collector.worker.segment.entity.Span;
+import org.skywalking.apm.collector.worker.segment.entity.SpanView;
+import org.skywalking.apm.collector.worker.segment.entity.TraceSegmentRef;
 import org.skywalking.apm.collector.worker.storage.GetResponseFromEs;
 import org.skywalking.apm.collector.worker.storage.JoinAndSplitData;
 import org.skywalking.apm.collector.worker.tools.CollectionTools;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import org.skywalking.apm.util.StringUtil;
 
 /**
  * @author pengys5
@@ -28,14 +37,15 @@ public class GlobalTraceSearchWithGlobalId extends AbstractLocalSyncWorker {
 
     private Gson gson = new Gson();
 
-    public GlobalTraceSearchWithGlobalId(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    public GlobalTraceSearchWithGlobalId(Role role, ClusterWorkerContext clusterContext,
+        LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
     @Override
-    protected void onWork(Object request, Object response) throws Exception {
+    protected void onWork(Object request, Object response) throws WorkerException {
         if (request instanceof String) {
-            String globalId = (String) request;
+            String globalId = (String)request;
             String globalTraceData = GetResponseFromEs.INSTANCE.get(GlobalTraceIndex.INDEX, GlobalTraceIndex.TYPE_RECORD, globalId).getSourceAsString();
             JsonObject globalTraceObj = gson.fromJson(globalTraceData, JsonObject.class);
             logger.debug("globalTraceObj: %s", globalTraceObj);
@@ -48,7 +58,12 @@ public class GlobalTraceSearchWithGlobalId extends AbstractLocalSyncWorker {
                 logger.debug("subSegId: %s", subSegId);
                 String segmentSource = GetResponseFromEs.INSTANCE.get(SegmentIndex.INDEX, SegmentIndex.TYPE_RECORD, subSegId).getSourceAsString();
                 logger.debug("segmentSource: %s", segmentSource);
-                Segment segment = SegmentDeserialize.INSTANCE.deserializeSingle(segmentSource);
+                Segment segment = null;
+                try {
+                    segment = SegmentDeserialize.INSTANCE.deserializeSingle(segmentSource);
+                } catch (IOException e) {
+                    throw new WorkerException(e.getMessage(), e);
+                }
                 String segmentId = segment.getTraceSegmentId();
                 List<TraceSegmentRef> refsList = segment.getRefs();
 
@@ -58,7 +73,7 @@ public class GlobalTraceSearchWithGlobalId extends AbstractLocalSyncWorker {
                 }
             }
 
-            JsonObject responseObj = (JsonObject) response;
+            JsonObject responseObj = (JsonObject)response;
             responseObj.addProperty("result", buildTree(spanViewList));
         } else {
             logger.error("unhandled message, message instance must String, but is %s", request.getClass().toString());
@@ -114,7 +129,7 @@ public class GlobalTraceSearchWithGlobalId extends AbstractLocalSyncWorker {
     }
 
     private void spansDataBuild(Span span, String appCode, String segmentId, List<SpanView> spanViewList,
-                                List<TraceSegmentRef> refsList) {
+        List<TraceSegmentRef> refsList) {
         int spanId = span.getSpanId();
         String spanSegId = segmentId + "--" + String.valueOf(spanId);
 

@@ -5,5 +5,5 @@ package org.skywalking.apm.collector.actor;
  */
 public interface Provider {
 
-    WorkerRef create(AbstractWorker workerOwner) throws IllegalArgumentException, ProviderNotFoundException;
+    WorkerRef create(AbstractWorker workerOwner) throws ProviderNotFoundException;
 }

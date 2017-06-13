@@ -2,8 +2,15 @@ package org.skywalking.apm.collector.worker.span.persistence;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import java.io.IOException;
+import java.util.List;
 import org.elasticsearch.action.get.GetResponse;
-import org.skywalking.apm.collector.actor.*;
+import org.skywalking.apm.collector.actor.AbstractLocalSyncWorker;
+import org.skywalking.apm.collector.actor.AbstractLocalSyncWorkerProvider;
+import org.skywalking.apm.collector.actor.ClusterWorkerContext;
+import org.skywalking.apm.collector.actor.LocalWorkerContext;
+import org.skywalking.apm.collector.actor.Role;
+import org.skywalking.apm.collector.actor.WorkerException;
 import org.skywalking.apm.collector.actor.selector.RollingSelector;
 import org.skywalking.apm.collector.actor.selector.WorkerSelector;
 import org.skywalking.apm.collector.worker.Const;
@@ -12,8 +19,6 @@ import org.skywalking.apm.collector.worker.segment.entity.Segment;
 import org.skywalking.apm.collector.worker.segment.entity.SegmentDeserialize;
 import org.skywalking.apm.collector.worker.segment.entity.Span;
 import org.skywalking.apm.collector.worker.storage.GetResponseFromEs;
-
-import java.util.List;
 
 /**
  * @author pengys5
@@ -27,11 +32,16 @@ public class SpanSearchWithId extends AbstractLocalSyncWorker {
     }
 
     @Override
-    protected void onWork(Object request, Object response) throws Exception {
+    protected void onWork(Object request, Object response) throws WorkerException {
         if (request instanceof RequestEntity) {
-            RequestEntity search = (RequestEntity) request;
+            RequestEntity search = (RequestEntity)request;
             GetResponse getResponse = GetResponseFromEs.INSTANCE.get(SegmentIndex.INDEX, SegmentIndex.TYPE_RECORD, search.segId);
-            Segment segment = SegmentDeserialize.INSTANCE.deserializeSingle(getResponse.getSourceAsString());
+            Segment segment;
+            try {
+                segment = SegmentDeserialize.INSTANCE.deserializeSingle(getResponse.getSourceAsString());
+            } catch (IOException e) {
+                throw new WorkerException(e.getMessage(), e);
+            }
             List<Span> spanList = segment.getSpans();
 
             getResponse.getSource();
@@ -44,7 +54,7 @@ public class SpanSearchWithId extends AbstractLocalSyncWorker {
                 }
             }
 
-            JsonObject resJsonObj = (JsonObject) response;
+            JsonObject resJsonObj = (JsonObject)response;
             resJsonObj.add(Const.RESULT, dataJson);
         }
     }

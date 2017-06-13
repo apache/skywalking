@@ -18,6 +18,7 @@ import org.skywalking.apm.collector.actor.LocalWorkerContext;
 import org.skywalking.apm.collector.actor.ProviderNotFoundException;
 import org.skywalking.apm.collector.actor.WorkerRefs;
 import org.skywalking.apm.collector.actor.selector.RollingSelector;
+import org.skywalking.apm.collector.worker.httpserver.ArgumentsParseException;
 import org.skywalking.apm.collector.worker.segment.persistence.SegmentExceptionWithSegId;
 import org.skywalking.apm.collector.worker.segment.persistence.SegmentTopSearchWithTimeSlice;
 
@@ -93,7 +94,7 @@ public class SegmentTopGetWithTimeSliceTestCase {
         getObj.onReceive(request, response);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = ArgumentsParseException.class)
     public void testOnSearchErrorStartTime() throws Exception {
         Map<String, String[]> request = createRequest();
         String[] startTime = {"x"};
@@ -103,7 +104,7 @@ public class SegmentTopGetWithTimeSliceTestCase {
         getObj.onReceive(request, response);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = ArgumentsParseException.class)
     public void testOnSearchErrorEndTime() throws Exception {
         Map<String, String[]> request = createRequest();
         String[] endTime = {"x"};
@@ -113,7 +114,7 @@ public class SegmentTopGetWithTimeSliceTestCase {
         getObj.onReceive(request, response);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = ArgumentsParseException.class)
     public void testOnSearchErrorFrom() throws Exception {
         Map<String, String[]> request = createRequest();
         String[] from = {"x"};
@@ -123,7 +124,7 @@ public class SegmentTopGetWithTimeSliceTestCase {
         getObj.onReceive(request, response);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = ArgumentsParseException.class)
     public void testOnSearchErrorLimit() throws Exception {
         Map<String, String[]> request = createRequest();
         String[] limit = {"x"};

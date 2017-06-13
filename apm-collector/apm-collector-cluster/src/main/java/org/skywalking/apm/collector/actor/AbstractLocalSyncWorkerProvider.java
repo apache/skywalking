@@ -7,7 +7,7 @@ public abstract class AbstractLocalSyncWorkerProvider<T extends AbstractLocalSyn
 
     @Override
     final public WorkerRef onCreate(
-        LocalWorkerContext localContext) throws IllegalArgumentException, ProviderNotFoundException {
+        LocalWorkerContext localContext) throws ProviderNotFoundException {
         T localSyncWorker = (T) workerInstance(getClusterContext());
         localSyncWorker.preStart();
 

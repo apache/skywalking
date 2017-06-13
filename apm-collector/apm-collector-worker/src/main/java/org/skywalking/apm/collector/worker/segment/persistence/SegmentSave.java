@@ -45,7 +45,7 @@ public class SegmentSave extends PersistenceMember<SegmentPersistenceData, Segme
         return new SegmentPersistenceData();
     }
 
-    @Override final public void analyse(Object message) throws Exception {
+    @Override final public void analyse(Object message) {
         if (message instanceof SegmentAndJson) {
             SegmentAndJson segmentAndJson = (SegmentAndJson)message;
             SegmentPersistenceData data = getPersistenceData();

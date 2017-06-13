@@ -26,7 +26,7 @@ public class GlobalTraceAgg extends AbstractClusterWorker {
     }
 
     @Override
-    protected void onWork(Object message) throws Exception {
+    protected void onWork(Object message) throws WorkerException {
         if (message instanceof JoinAndSplitData) {
             getSelfContext().lookup(GlobalTraceSave.Role.INSTANCE).tell(message);
         } else {

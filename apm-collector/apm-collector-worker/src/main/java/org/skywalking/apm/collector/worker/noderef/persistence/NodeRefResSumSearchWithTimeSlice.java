@@ -12,7 +12,12 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.sum.Sum;
-import org.skywalking.apm.collector.actor.*;
+import org.skywalking.apm.collector.actor.AbstractLocalSyncWorker;
+import org.skywalking.apm.collector.actor.AbstractLocalSyncWorkerProvider;
+import org.skywalking.apm.collector.actor.ClusterWorkerContext;
+import org.skywalking.apm.collector.actor.LocalWorkerContext;
+import org.skywalking.apm.collector.actor.Role;
+import org.skywalking.apm.collector.actor.WorkerException;
 import org.skywalking.apm.collector.actor.selector.RollingSelector;
 import org.skywalking.apm.collector.actor.selector.WorkerSelector;
 import org.skywalking.apm.collector.worker.Const;
@@ -32,9 +37,9 @@ public class NodeRefResSumSearchWithTimeSlice extends AbstractLocalSyncWorker {
     }
 
     @Override
-    public void onWork(Object request, Object response) throws Exception {
+    public void onWork(Object request, Object response) throws WorkerException {
         if (request instanceof RequestEntity) {
-            RequestEntity search = (RequestEntity) request;
+            RequestEntity search = (RequestEntity)request;
 
             SearchRequestBuilder searchRequestBuilder = EsClient.INSTANCE.getClient().prepareSearch(NodeRefResSumIndex.INDEX);
             searchRequestBuilder.setTypes(search.getSliceType());
@@ -84,7 +89,7 @@ public class NodeRefResSumSearchWithTimeSlice extends AbstractLocalSyncWorker {
                 nodeRefResSumArray.add(nodeRefResSumObj);
             }
 
-            JsonObject resJsonObj = (JsonObject) response;
+            JsonObject resJsonObj = (JsonObject)response;
             resJsonObj.add("result", nodeRefResSumArray);
         } else {
             logger.error("unhandled message, message instance must NodeRefResSumSearchWithTimeSlice.RequestEntity, but is %s", request.getClass().toString());

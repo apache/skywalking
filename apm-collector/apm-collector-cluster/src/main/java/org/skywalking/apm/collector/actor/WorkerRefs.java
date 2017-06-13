@@ -1,10 +1,9 @@
 package org.skywalking.apm.collector.actor;
 
+import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.skywalking.apm.collector.actor.selector.WorkerSelector;
-
-import java.util.List;
 
 /**
  * @author pengys5
@@ -21,15 +20,15 @@ public class WorkerRefs<T extends WorkerRef> {
         this.workerSelector = workerSelector;
     }
 
-    public void tell(Object message) throws Exception {
+    public void tell(Object message) throws WorkerInvokeException {
         logger.debug("WorkerSelector instance of %s", workerSelector.getClass());
         workerSelector.select(workerRefs, message).tell(message);
     }
 
-    public void ask(Object request, Object response) throws Exception {
+    public void ask(Object request, Object response) throws WorkerInvokeException {
         WorkerRef workerRef = workerSelector.select(workerRefs, request);
         if (workerRef instanceof LocalSyncWorkerRef) {
-            ((LocalSyncWorkerRef) workerRef).ask(request, response);
+            ((LocalSyncWorkerRef)workerRef).ask(request, response);
         } else {
             throw new IllegalAccessError("only local sync worker can ask");
         }

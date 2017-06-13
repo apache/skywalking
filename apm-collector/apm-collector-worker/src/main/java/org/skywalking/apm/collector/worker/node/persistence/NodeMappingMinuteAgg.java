@@ -26,7 +26,7 @@ public class NodeMappingMinuteAgg extends AbstractClusterWorker {
     }
 
     @Override
-    protected void onWork(Object message) throws Exception {
+    protected void onWork(Object message) throws WorkerException {
         if (message instanceof RecordData) {
             getSelfContext().lookup(NodeMappingMinuteSave.Role.INSTANCE).tell(message);
         } else {

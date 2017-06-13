@@ -10,7 +10,12 @@ import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.skywalking.apm.collector.actor.*;
+import org.skywalking.apm.collector.actor.AbstractLocalSyncWorker;
+import org.skywalking.apm.collector.actor.AbstractLocalSyncWorkerProvider;
+import org.skywalking.apm.collector.actor.ClusterWorkerContext;
+import org.skywalking.apm.collector.actor.LocalWorkerContext;
+import org.skywalking.apm.collector.actor.Role;
+import org.skywalking.apm.collector.actor.WorkerException;
 import org.skywalking.apm.collector.actor.selector.RollingSelector;
 import org.skywalking.apm.collector.actor.selector.WorkerSelector;
 import org.skywalking.apm.collector.worker.Const;
@@ -30,9 +35,9 @@ public class NodeMappingSearchWithTimeSlice extends AbstractLocalSyncWorker {
     }
 
     @Override
-    public void onWork(Object request, Object response) throws Exception {
+    public void onWork(Object request, Object response) throws WorkerException {
         if (request instanceof RequestEntity) {
-            RequestEntity search = (RequestEntity) request;
+            RequestEntity search = (RequestEntity)request;
 
             SearchRequestBuilder searchRequestBuilder = EsClient.INSTANCE.getClient().prepareSearch(NodeMappingIndex.INDEX);
             searchRequestBuilder.setTypes(search.getSliceType());
@@ -59,7 +64,7 @@ public class NodeMappingSearchWithTimeSlice extends AbstractLocalSyncWorker {
             }
             logger.debug("node mapping data: %s", nodeMappingArray.toString());
 
-            JsonObject resJsonObj = (JsonObject) response;
+            JsonObject resJsonObj = (JsonObject)response;
             resJsonObj.add(Const.RESULT, nodeMappingArray);
         } else {
             logger.error("unhandled message, message instance must NodeMappingSearchWithTimeSlice.RequestEntity, but is %s", request.getClass().toString());

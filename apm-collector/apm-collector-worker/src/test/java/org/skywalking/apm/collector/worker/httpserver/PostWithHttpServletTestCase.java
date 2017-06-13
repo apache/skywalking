@@ -11,6 +11,7 @@ import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.skywalking.apm.collector.actor.LocalSyncWorkerRef;
+import org.skywalking.apm.collector.actor.WorkerInvokeException;
 import org.skywalking.apm.collector.worker.segment.entity.Segment;
 
 import static org.mockito.Matchers.anyInt;
@@ -82,7 +83,7 @@ public class PostWithHttpServletTestCase {
                 return null;
             }
         }).when(response).setStatus(anyInt());
-        doThrow(new Exception()).when(workerRef).tell(anyString());
+        doThrow(new WorkerInvokeException("")).when(workerRef).tell(anyString());
         servlet.doPost(request, response);
     }
 }
