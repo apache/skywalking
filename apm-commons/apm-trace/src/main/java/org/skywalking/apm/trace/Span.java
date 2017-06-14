@@ -3,9 +3,8 @@ package org.skywalking.apm.trace;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.*;
+import org.skywalking.apm.trace.util.ThrowableTransformer;
 
 /**
  * Span is a concept from OpenTracing Spec, also from Google Dapper Paper.
@@ -288,32 +287,6 @@ public class Span {
         exceptionFields.put("stack", ThrowableTransformer.INSTANCE.convert2String(t, 4000));
 
         return log(exceptionFields);
-    }
-
-    private enum ThrowableTransformer {
-        INSTANCE;
-
-        private String convert2String(Throwable e, int maxLength) {
-            ByteArrayOutputStream buf = null;
-            StringBuilder expMessage = new StringBuilder();
-            try {
-                buf = new ByteArrayOutputStream();
-                Throwable causeException = e;
-                while (expMessage.length() < maxLength && causeException != null) {
-                    causeException.printStackTrace(new java.io.PrintWriter(buf, true));
-                    expMessage.append(buf.toString());
-                    causeException = causeException.getCause();
-                }
-
-            } finally {
-                try {
-                    buf.close();
-                } catch (IOException ioe) {
-                }
-            }
-
-            return (maxLength > expMessage.length() ? expMessage : expMessage.substring(0, maxLength)).toString();
-        }
     }
 
     /**

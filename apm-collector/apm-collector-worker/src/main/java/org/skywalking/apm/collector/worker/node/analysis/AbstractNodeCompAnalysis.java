@@ -1,6 +1,7 @@
 package org.skywalking.apm.collector.worker.node.analysis;
 
 import com.google.gson.JsonObject;
+import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.skywalking.apm.collector.actor.ClusterWorkerContext;
@@ -15,8 +16,6 @@ import org.skywalking.apm.collector.worker.tools.ClientSpanIsLeafTools;
 import org.skywalking.apm.collector.worker.tools.CollectionTools;
 import org.skywalking.apm.collector.worker.tools.SpanPeersTools;
 
-import java.util.List;
-
 /**
  * @author pengys5
  */
@@ -25,11 +24,11 @@ abstract class AbstractNodeCompAnalysis extends RecordAnalysisMember {
     private Logger logger = LogManager.getFormatterLogger(AbstractNodeCompAnalysis.class);
 
     AbstractNodeCompAnalysis(Role role, ClusterWorkerContext clusterContext,
-                             LocalWorkerContext selfContext) {
+        LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
-    final void analyseSpans(Segment segment) throws Exception {
+    final void analyseSpans(Segment segment) {
         List<Span> spanList = segment.getSpans();
         logger.debug("node analysis span isNotEmpty %s", CollectionTools.isNotEmpty(spanList));
 

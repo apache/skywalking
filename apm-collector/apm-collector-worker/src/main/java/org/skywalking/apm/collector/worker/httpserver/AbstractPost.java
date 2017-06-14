@@ -13,6 +13,8 @@ import org.skywalking.apm.collector.actor.ClusterWorkerContext;
 import org.skywalking.apm.collector.actor.LocalSyncWorkerRef;
 import org.skywalking.apm.collector.actor.LocalWorkerContext;
 import org.skywalking.apm.collector.actor.Role;
+import org.skywalking.apm.collector.actor.WorkerInvokeException;
+import org.skywalking.apm.collector.actor.WorkerNotFoundException;
 
 /**
  * The <code>AbstractGet</code> implementations represent workers, which called by the server to allow a servlet to
@@ -34,9 +36,12 @@ public abstract class AbstractPost extends AbstractServlet {
      *
      * @param parameter {@link Object} data structure of the map
      * @param response {@link Object} is a out parameter
-     * @throws Exception
+     * @throws ArgumentsParseException if the key could not contains in parameter
+     * @throws WorkerInvokeException if any error is detected when call(or ask) worker
+     * @throws WorkerNotFoundException if the worker reference could not found in context.
      */
-    @Override final protected void onWork(Object parameter, Object response) throws Exception {
+    @Override final protected void onWork(Object parameter,
+        Object response) throws ArgumentsParseException, WorkerInvokeException, WorkerNotFoundException {
         super.onWork(parameter, response);
     }
 

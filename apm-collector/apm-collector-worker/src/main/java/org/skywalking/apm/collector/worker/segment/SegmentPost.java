@@ -2,17 +2,21 @@ package org.skywalking.apm.collector.worker.segment;
 
 import com.google.gson.JsonObject;
 import java.io.BufferedReader;
+import java.io.IOException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.skywalking.apm.collector.actor.ClusterWorkerContext;
 import org.skywalking.apm.collector.actor.LocalWorkerContext;
 import org.skywalking.apm.collector.actor.ProviderNotFoundException;
 import org.skywalking.apm.collector.actor.Role;
+import org.skywalking.apm.collector.actor.WorkerInvokeException;
+import org.skywalking.apm.collector.actor.WorkerNotFoundException;
 import org.skywalking.apm.collector.actor.selector.RollingSelector;
 import org.skywalking.apm.collector.actor.selector.WorkerSelector;
 import org.skywalking.apm.collector.worker.globaltrace.analysis.GlobalTraceAnalysis;
 import org.skywalking.apm.collector.worker.httpserver.AbstractStreamPost;
 import org.skywalking.apm.collector.worker.httpserver.AbstractStreamPostProvider;
+import org.skywalking.apm.collector.worker.httpserver.ArgumentsParseException;
 import org.skywalking.apm.collector.worker.node.analysis.NodeCompAnalysis;
 import org.skywalking.apm.collector.worker.node.analysis.NodeMappingDayAnalysis;
 import org.skywalking.apm.collector.worker.node.analysis.NodeMappingHourAnalysis;
@@ -62,42 +66,43 @@ public class SegmentPost extends AbstractStreamPost {
     /**
      * Read segment's buffer from buffer reader by stream mode. when finish read one segment then send to analysis.
      * This method in there, so post servlet just can receive segments data.
-     *
-     * @param bufferedReader
-     * @param response
-     * @throws Exception
      */
-    @Override protected void onReceive(BufferedReader bufferedReader, JsonObject response) throws Exception {
+    @Override protected void onReceive(BufferedReader bufferedReader,
+        JsonObject response) throws ArgumentsParseException, WorkerInvokeException, WorkerNotFoundException {
         Segment segment;
-        do {
-            int character;
-            StringBuilder builder = new StringBuilder();
-            while ((character = bufferedReader.read()) != ' ') {
-                if (character == -1) {
+        try {
+            do {
+                int character;
+                StringBuilder builder = new StringBuilder();
+                while ((character = bufferedReader.read()) != ' ') {
+                    if (character == -1) {
+                        return;
+                    }
+                    builder.append((char)character);
+                }
+
+                int length = Integer.valueOf(builder.toString());
+                builder = new StringBuilder();
+
+                char[] buffer = new char[length];
+                int readLength = bufferedReader.read(buffer, 0, length);
+                if (readLength != length) {
+                    logger.error("The actual data length was different from the length in data head! ");
                     return;
                 }
-                builder.append((char)character);
+                builder.append(buffer);
+
+                String segmentJsonStr = builder.toString();
+                segment = SegmentDeserialize.INSTANCE.deserializeSingle(segmentJsonStr);
+                tellWorkers(new SegmentAndJson(segment, segmentJsonStr));
             }
-
-            int length = Integer.valueOf(builder.toString());
-            builder = new StringBuilder();
-
-            char[] buffer = new char[length];
-            int readLength = bufferedReader.read(buffer, 0, length);
-            if (readLength != length) {
-                logger.error("The actual data length was different from the length in data head! ");
-                return;
-            }
-            builder.append(buffer);
-
-            String segmentJsonStr = builder.toString();
-            segment = SegmentDeserialize.INSTANCE.deserializeSingle(segmentJsonStr);
-            tellWorkers(new SegmentAndJson(segment, segmentJsonStr));
+            while (segment != null);
+        } catch (IOException e) {
+            throw new ArgumentsParseException(e.getMessage(), e);
         }
-        while (segment != null);
     }
 
-    private void tellWorkers(SegmentAndJson segmentAndJson) throws Exception {
+    private void tellWorkers(SegmentAndJson segmentAndJson) throws WorkerNotFoundException, WorkerInvokeException {
         Segment segment = segmentAndJson.getSegment();
         try {
             validateData(segment);
@@ -126,13 +131,15 @@ public class SegmentPost extends AbstractStreamPost {
         tellNodeMapping(segmentWithTimeSlice);
     }
 
-    private void tellNodeRef(SegmentWithTimeSlice segmentWithTimeSlice) throws Exception {
+    private void tellNodeRef(
+        SegmentWithTimeSlice segmentWithTimeSlice) throws WorkerNotFoundException, WorkerInvokeException {
         getSelfContext().lookup(NodeRefMinuteAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
         getSelfContext().lookup(NodeRefHourAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
         getSelfContext().lookup(NodeRefDayAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
     }
 
-    private void tellNodeMapping(SegmentWithTimeSlice segmentWithTimeSlice) throws Exception {
+    private void tellNodeMapping(
+        SegmentWithTimeSlice segmentWithTimeSlice) throws WorkerNotFoundException, WorkerInvokeException {
         getSelfContext().lookup(NodeMappingMinuteAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
         getSelfContext().lookup(NodeMappingHourAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
         getSelfContext().lookup(NodeMappingDayAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);

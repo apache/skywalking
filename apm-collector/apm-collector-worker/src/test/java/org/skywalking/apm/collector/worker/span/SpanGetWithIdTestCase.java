@@ -1,6 +1,9 @@
 package org.skywalking.apm.collector.worker.span;
 
 import com.google.gson.JsonObject;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TimeZone;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,20 +21,20 @@ import org.skywalking.apm.collector.actor.LocalWorkerContext;
 import org.skywalking.apm.collector.actor.ProviderNotFoundException;
 import org.skywalking.apm.collector.actor.WorkerRefs;
 import org.skywalking.apm.collector.actor.selector.RollingSelector;
+import org.skywalking.apm.collector.worker.httpserver.ArgumentsParseException;
 import org.skywalking.apm.collector.worker.span.persistence.SpanSearchWithId;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TimeZone;
-
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author pengys5
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest( {ClusterWorkerContext.class})
-@PowerMockIgnore( {"javax.management.*"})
+@PrepareForTest({ClusterWorkerContext.class})
+@PowerMockIgnore({"javax.management.*"})
 public class SpanGetWithIdTestCase {
 
     private SpanGetWithId getObj;
@@ -89,7 +92,7 @@ public class SpanGetWithIdTestCase {
         getObj.onReceive(request, response);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = ArgumentsParseException.class)
     public void testOnSearchError() throws Exception {
         Map<String, String[]> request = new HashMap<>();
         JsonObject response = new JsonObject();
@@ -100,7 +103,7 @@ public class SpanGetWithIdTestCase {
 
         @Override
         public Object answer(InvocationOnMock invocation) throws Throwable {
-            SpanSearchWithId.RequestEntity requestEntity = (SpanSearchWithId.RequestEntity) invocation.getArguments()[0];
+            SpanSearchWithId.RequestEntity requestEntity = (SpanSearchWithId.RequestEntity)invocation.getArguments()[0];
             Assert.assertEquals("10", requestEntity.getSegId());
             Assert.assertEquals("20", requestEntity.getSpanId());
             return null;

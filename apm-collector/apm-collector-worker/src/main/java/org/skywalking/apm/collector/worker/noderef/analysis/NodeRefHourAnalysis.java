@@ -2,7 +2,13 @@ package org.skywalking.apm.collector.worker.noderef.analysis;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.skywalking.apm.collector.actor.*;
+import org.skywalking.apm.collector.actor.AbstractLocalAsyncWorkerProvider;
+import org.skywalking.apm.collector.actor.ClusterWorkerContext;
+import org.skywalking.apm.collector.actor.LocalWorkerContext;
+import org.skywalking.apm.collector.actor.ProviderNotFoundException;
+import org.skywalking.apm.collector.actor.WorkerInvokeException;
+import org.skywalking.apm.collector.actor.WorkerNotFoundException;
+import org.skywalking.apm.collector.actor.WorkerRefs;
 import org.skywalking.apm.collector.actor.selector.RollingSelector;
 import org.skywalking.apm.collector.actor.selector.WorkerSelector;
 import org.skywalking.apm.collector.worker.config.WorkerConfig;
@@ -18,7 +24,7 @@ public class NodeRefHourAnalysis extends AbstractNodeRefAnalysis {
     private Logger logger = LogManager.getFormatterLogger(NodeRefHourAnalysis.class);
 
     protected NodeRefHourAnalysis(org.skywalking.apm.collector.actor.Role role, ClusterWorkerContext clusterContext,
-                                  LocalWorkerContext selfContext) {
+        LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
@@ -29,9 +35,9 @@ public class NodeRefHourAnalysis extends AbstractNodeRefAnalysis {
     }
 
     @Override
-    public void analyse(Object message) throws Exception {
+    public void analyse(Object message) {
         if (message instanceof SegmentPost.SegmentWithTimeSlice) {
-            SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice = (SegmentPost.SegmentWithTimeSlice) message;
+            SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice = (SegmentPost.SegmentWithTimeSlice)message;
             Segment segment = segmentWithTimeSlice.getSegment();
 
             long minute = segmentWithTimeSlice.getMinute();
@@ -45,8 +51,12 @@ public class NodeRefHourAnalysis extends AbstractNodeRefAnalysis {
     }
 
     @Override
-    protected void sendToResSumAnalysis(AbstractNodeRefResSumAnalysis.NodeRefResRecord refResRecord) throws Exception {
-        getSelfContext().lookup(NodeRefResSumHourAnalysis.Role.INSTANCE).tell(refResRecord);
+    protected void sendToResSumAnalysis(AbstractNodeRefResSumAnalysis.NodeRefResRecord refResRecord) {
+        try {
+            getSelfContext().lookup(NodeRefResSumHourAnalysis.Role.INSTANCE).tell(refResRecord);
+        } catch (WorkerInvokeException | WorkerNotFoundException e) {
+            logger.error(e.getMessage(), e);
+        }
     }
 
     @Override

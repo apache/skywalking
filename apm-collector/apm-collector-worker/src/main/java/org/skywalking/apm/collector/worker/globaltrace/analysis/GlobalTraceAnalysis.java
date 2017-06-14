@@ -30,7 +30,7 @@ public class GlobalTraceAnalysis extends JoinAndSplitAnalysisMember {
     }
 
     @Override
-    public void analyse(Object message) throws Exception {
+    public void analyse(Object message) {
         if (message instanceof SegmentPost.SegmentWithTimeSlice) {
             SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice = (SegmentPost.SegmentWithTimeSlice)message;
             Segment segment = segmentWithTimeSlice.getSegment();

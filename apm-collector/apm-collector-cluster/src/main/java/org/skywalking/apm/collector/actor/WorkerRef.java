@@ -14,5 +14,5 @@ public abstract class WorkerRef {
         return role;
     }
 
-    public abstract void tell(Object message) throws Exception;
+    public abstract void tell(Object message) throws WorkerInvokeException;
 }

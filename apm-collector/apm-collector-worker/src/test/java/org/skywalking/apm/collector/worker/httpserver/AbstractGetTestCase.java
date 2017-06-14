@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.skywalking.apm.collector.actor.WorkerInvokeException;
 
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doAnswer;
@@ -44,7 +45,7 @@ public class AbstractGetTestCase {
         verify(get).onReceive(any(Map.class), any(JsonObject.class));
     }
 
-    @Test
+    @Test(expected = WorkerInvokeException.class)
     public void testOnWorkError() throws Exception {
         Map<String, String[]> parameterMap = new HashMap<>();
 
@@ -57,7 +58,7 @@ public class AbstractGetTestCase {
             }
         }).when(writer).print(any(JsonObject.class));
 
-        doThrow(new Exception("testOnWorkError")).when(get).onReceive(any(Map.class), any(JsonObject.class));
+        doThrow(new WorkerInvokeException("testOnWorkError")).when(get).onReceive(any(Map.class), any(JsonObject.class));
         get.onWork(parameterMap, response);
     }
 }

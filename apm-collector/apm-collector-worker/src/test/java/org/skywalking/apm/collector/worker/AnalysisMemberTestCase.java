@@ -1,10 +1,7 @@
 package org.skywalking.apm.collector.worker;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -13,14 +10,17 @@ import org.skywalking.apm.collector.actor.ClusterWorkerContext;
 import org.skywalking.apm.collector.actor.LocalWorkerContext;
 import org.skywalking.apm.collector.queue.EndOfBatchCommand;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyObject;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author pengys5
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(TestAnalysisMember.class)
-@PowerMockIgnore( {"javax.management.*"})
+@PowerMockIgnore({"javax.management.*"})
 public class AnalysisMemberTestCase {
 
     @Test
@@ -53,41 +53,5 @@ public class AnalysisMemberTestCase {
         LocalWorkerContext localWorkerContext = new LocalWorkerContext();
         TestAnalysisMember member = PowerMockito.spy(new TestAnalysisMember(TestAnalysisMember.Role.INSTANCE, clusterWorkerContext, localWorkerContext));
         member.preStart();
-    }
-
-    @Test
-    public void testOnWorkException() throws Exception {
-        ClusterWorkerContext clusterWorkerContext = new ClusterWorkerContext(null);
-        LocalWorkerContext localWorkerContext = new LocalWorkerContext();
-        TestAnalysisMember member = PowerMockito.spy(new TestAnalysisMember(TestAnalysisMember.Role.INSTANCE, clusterWorkerContext, localWorkerContext));
-
-        doThrow(new TestException()).when(member).analyse(anyObject());
-
-        ExceptionAnswer answer = new ExceptionAnswer();
-        PowerMockito.when(member, "saveException", any(TestException.class)).thenAnswer(answer);
-
-        member.onWork(new Object());
-
-        Assert.assertEquals(true, answer.isTestException);
-    }
-
-    class TestException extends Exception {
-
-    }
-
-    class ExceptionAnswer implements Answer {
-
-        boolean isTestException = false;
-
-        @Override
-        public Object answer(InvocationOnMock invocation) throws Throwable {
-            Object obj = invocation.getArguments()[0];
-            if (obj instanceof TestException) {
-                isTestException = true;
-            } else {
-                isTestException = false;
-            }
-            return null;
-        }
     }
 }

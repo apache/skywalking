@@ -18,6 +18,7 @@ import org.skywalking.apm.collector.actor.LocalWorkerContext;
 import org.skywalking.apm.collector.actor.ProviderNotFoundException;
 import org.skywalking.apm.collector.actor.WorkerRefs;
 import org.skywalking.apm.collector.actor.selector.RollingSelector;
+import org.skywalking.apm.collector.worker.httpserver.ArgumentsParseException;
 import org.skywalking.apm.collector.worker.segment.persistence.SegmentExceptionWithSegId;
 import org.skywalking.apm.collector.worker.segment.persistence.SegmentTopSearchWithGlobalTraceId;
 
@@ -100,14 +101,14 @@ public class SegmentTopGetWithGlobalTraceIdTestCase {
         getObj.onReceive(request, response);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = ArgumentsParseException.class)
     public void testOnSearchError() throws Exception {
         Map<String, String[]> request = new HashMap<>();
         JsonObject response = new JsonObject();
         getObj.onReceive(request, response);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = ArgumentsParseException.class)
     public void testOnSearchErrorFrom() throws Exception {
         Map<String, String[]> request = new HashMap<>();
         String[] globalTraceId = {"TestId"};
@@ -121,7 +122,7 @@ public class SegmentTopGetWithGlobalTraceIdTestCase {
         getObj.onReceive(request, response);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = ArgumentsParseException.class)
     public void testOnSearchErrorLimit() throws Exception {
         Map<String, String[]> request = new HashMap<>();
         String[] globalTraceId = {"TestId"};

@@ -1,11 +1,8 @@
 package org.skywalking.apm.collector.actor;
 
 /**
- * The <code>AbstractLocalSyncWorker</code> use to define workers that receive data from jvm inside call and the
- * workers response result in real time.
- *
- * <p> The implementation class is same as normal class, it make the framework be similar to the asynchronous
- * workers inside jvm and outside jvm.
+ * The <code>AbstractLocalSyncWorker</code> defines workers who receive data from jvm inside call and response in real
+ * time.
  *
  * @author pengys5
  * @since v3.0-2017
@@ -18,25 +15,27 @@ public abstract class AbstractLocalSyncWorker extends AbstractLocalWorker {
     /**
      * Called by the worker reference to execute the worker service.
      *
-     * @param request {@link Object} is a in parameter
-     * @param response {@link Object} is a out parameter
-     * @throws Exception
+     * @param request {@link Object} is an input parameter
+     * @param response {@link Object} is an output parameter
      */
-    final public void allocateJob(Object request, Object response) throws Exception {
-        onWork(request, response);
+    final public void allocateJob(Object request, Object response) throws WorkerInvokeException {
+        try {
+            onWork(request, response);
+        } catch (WorkerException e) {
+            throw new WorkerInvokeException(e.getMessage(), e.getCause());
+        }
     }
 
     /**
-     * Override this method to implementing business logic.
+     * Override this method to implement business logic.
      *
      * @param request {@link Object} is a in parameter
      * @param response {@link Object} is a out parameter
-     * @throws Exception
      */
-    protected abstract void onWork(Object request, Object response) throws Exception;
+    protected abstract void onWork(Object request, Object response) throws WorkerException;
 
     /**
-     * Called by the worker on start.
+     * Prepare methods before this work starts to work.
      * <p>Usually, create or find the workers reference should be call.
      *
      * @throws ProviderNotFoundException
