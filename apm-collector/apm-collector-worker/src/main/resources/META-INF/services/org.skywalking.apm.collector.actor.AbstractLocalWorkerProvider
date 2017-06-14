@@ -6,8 +6,7 @@ org.skywalking.apm.collector.worker.segment.persistence.SegmentSave$Factory
 org.skywalking.apm.collector.worker.segment.persistence.SegmentCostSave$Factory
 org.skywalking.apm.collector.worker.segment.persistence.SegmentExceptionSave$Factory
 org.skywalking.apm.collector.worker.segment.persistence.SegmentExceptionWithSegId$Factory
-org.skywalking.apm.collector.worker.segment.persistence.SegmentTopSearchWithTimeSlice$Factory
-org.skywalking.apm.collector.worker.segment.persistence.SegmentTopSearchWithGlobalTraceId$Factory
+org.skywalking.apm.collector.worker.segment.persistence.SegmentTopSearch$Factory
 
 org.skywalking.apm.collector.worker.noderef.analysis.NodeRefDayAnalysis$Factory
 org.skywalking.apm.collector.worker.noderef.analysis.NodeRefHourAnalysis$Factory

@@ -16,23 +16,23 @@ import org.skywalking.apm.collector.actor.selector.WorkerSelector;
 import org.skywalking.apm.collector.worker.httpserver.AbstractGet;
 import org.skywalking.apm.collector.worker.httpserver.AbstractGetProvider;
 import org.skywalking.apm.collector.worker.httpserver.ArgumentsParseException;
-import org.skywalking.apm.collector.worker.segment.persistence.SegmentTopSearchWithTimeSlice;
+import org.skywalking.apm.collector.worker.segment.persistence.SegmentTopSearch;
 import org.skywalking.apm.collector.worker.tools.ParameterTools;
 
 /**
  * @author pengys5
  */
-public class SegmentTopGetWithTimeSlice extends AbstractGet {
+public class SegmentTopGet extends AbstractGet {
 
-    private Logger logger = LogManager.getFormatterLogger(SegmentTopGetWithTimeSlice.class);
+    private Logger logger = LogManager.getFormatterLogger(SegmentTopGet.class);
 
-    SegmentTopGetWithTimeSlice(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    SegmentTopGet(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
     @Override
     public void preStart() throws ProviderNotFoundException {
-        getClusterContext().findProvider(SegmentTopSearchWithTimeSlice.WorkerRole.INSTANCE).create(this);
+        getClusterContext().findProvider(SegmentTopSearch.WorkerRole.INSTANCE).create(this);
     }
 
     @Override protected void onReceive(Map<String, String[]> parameter,
@@ -83,27 +83,37 @@ public class SegmentTopGetWithTimeSlice extends AbstractGet {
             maxCost = Integer.valueOf(ParameterTools.INSTANCE.toString(parameter, "maxCost"));
         }
 
-        SegmentTopSearchWithTimeSlice.RequestEntity requestEntity;
-        requestEntity = new SegmentTopSearchWithTimeSlice.RequestEntity(from, limit, startTime, endTime);
+        String globalTraceId = null;
+        if (parameter.containsKey("globalTraceId")) {
+            globalTraceId = ParameterTools.INSTANCE.toString(parameter, "globalTraceId");
+        }
+
+        String operationName = null;
+        if (parameter.containsKey("operationName")) {
+            operationName = ParameterTools.INSTANCE.toString(parameter, "operationName");
+        }
+
+        SegmentTopSearch.RequestEntity requestEntity;
+        requestEntity = new SegmentTopSearch.RequestEntity(from, limit, startTime, endTime, globalTraceId, operationName);
         requestEntity.setMinCost(minCost);
         requestEntity.setMaxCost(maxCost);
-        getSelfContext().lookup(SegmentTopSearchWithTimeSlice.WorkerRole.INSTANCE).ask(requestEntity, response);
+        getSelfContext().lookup(SegmentTopSearch.WorkerRole.INSTANCE).ask(requestEntity, response);
     }
 
-    public static class Factory extends AbstractGetProvider<SegmentTopGetWithTimeSlice> {
+    public static class Factory extends AbstractGetProvider<SegmentTopGet> {
         @Override
         public Role role() {
             return WorkerRole.INSTANCE;
         }
 
         @Override
-        public SegmentTopGetWithTimeSlice workerInstance(ClusterWorkerContext clusterContext) {
-            return new SegmentTopGetWithTimeSlice(role(), clusterContext, new LocalWorkerContext());
+        public SegmentTopGet workerInstance(ClusterWorkerContext clusterContext) {
+            return new SegmentTopGet(role(), clusterContext, new LocalWorkerContext());
         }
 
         @Override
         public String servletPath() {
-            return "/segments/top/timeSlice";
+            return "/segments/top";
         }
     }
 
@@ -112,7 +122,7 @@ public class SegmentTopGetWithTimeSlice extends AbstractGet {
 
         @Override
         public String roleName() {
-            return SegmentTopGetWithTimeSlice.class.getSimpleName();
+            return SegmentTopGet.class.getSimpleName();
         }
 
         @Override

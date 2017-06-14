@@ -49,6 +49,9 @@ public class SegmentCostAnalysis extends RecordAnalysisMember {
                         dataJsonObj.addProperty(SegmentCostIndex.SEG_ID, segment.getTraceSegmentId());
                         dataJsonObj.addProperty(SegmentCostIndex.START_TIME, span.getStartTime());
                         dataJsonObj.addProperty(SegmentCostIndex.END_TIME, span.getEndTime());
+                        if (segment.getRelatedGlobalTraces().get() != null && segment.getRelatedGlobalTraces().get().size() > 0) {
+                            dataJsonObj.addProperty(SegmentCostIndex.GLOBAL_TRACE_ID, segment.getRelatedGlobalTraces().get().get(0));
+                        }
                         dataJsonObj.addProperty(SegmentCostIndex.OPERATION_NAME, span.getOperationName());
                         dataJsonObj.addProperty(SegmentCostIndex.TIME_SLICE, segmentWithTimeSlice.getMinute());
 
