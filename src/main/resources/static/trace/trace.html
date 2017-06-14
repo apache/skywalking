@@ -25,35 +25,59 @@
     </style>
 </head>
 <body class="white-bg">
-<div class="row white-bg">
-    <div class="col-lg-2">
-        <div style="padding-left: 15px">
-            <a href="#" class="navbar-brand"
-               style="padding: 0; background: url(/public/img/logo.png) no-repeat center center; background-size: 86px 20px; width: 86px;"></a>
+<div class="row white-bg" id="queryConditionDiv">
+    <div class="row">
+        <div class="col-lg-12"  style="padding-bottom: 10px">
+            <div class="row" style="height: 50px">
+                <div class="col-md-1">
+                    <div style="padding-left: 30px">
+                        <a href="#" class="navbar-brand"
+                           style="padding: 0; background: url(/public/img/logo.png) no-repeat center center; background-size: 86px 20px; width: 86px;"></a>
+                    </div>
+                </div>
+                <div class="col-md-2" style="line-height: 50px">
+                </div>
+                <div class="col-md-3" style="line-height: 50px">
+                    <span style="font-weight: 700;" title="GlobalTraceId">GlobalTraceId:&nbsp;&nbsp;</span>
+                    <input class="form-control" type="text" id="globalTraceIdInput"
+                           style="display: inline-block; width: 200px"/>
+                </div>
+                <div class="col-md-3" style="line-height: 50px">
+                    <span style="font-weight: 700;" title="OperationName">OperationName:&nbsp;&nbsp;</span>
+                    <input class="form-control" type="text" id="operationNameInput"
+                           style="display: inline-block; width: 200px"/>
+                </div>
+                <div class="col-md-3" style="line-height: 50px">
+                    <button type="button" id="selectBtn" class="btn btn-success" style="display: inline-block;">Select
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
-    <div class="col-lg-10" id="queryConditionDiv" style="padding-bottom: 10px">
-        <div class="row" style="height: 50px">
-            <div class="col-md-4" style="line-height: 50px">
-                <span style="font-weight: 700;">GlobalTraceId:</span>
-                <input class="form-control" type="text" id="globalTraceIdInput"
-                       style="display: inline-block; width: 200px"/>
-            </div>
-            <div class="col-md-4" style="line-height: 50px;">
-                <span style="font-weight: 700;">DateRange:</span>
-                <input class="form-control" type="text" id="dateRangeInput" value=""
-                       style="display: inline-block; width: 250px"/>
-            </div>
-            <div class="col-md-4" style="line-height: 50px">
-                <span style="font-weight: 700;">CostRange:</span>
-                <input class="form-control" type="text" id="costMinInput" style="display: inline-block; width: 60px"/>
-                <span style="font-weight: 700;"> - </span>
-                <input class="form-control" type="text" id="costMaxInput" style="display: inline-block; width: 60px"/>
-                <button type="button" id="selectBtn" class="btn btn-success" style="display: inline-block;">Select
-                </button>
+    <div class="row">
+        <div class="col-lg-12"  style="padding-bottom: 10px">
+            <div class="row" style="height: 50px">
+                <div class="col-md-1">
+                </div>
+                <div class="col-md-2" style="line-height: 50px">
+                </div>
+                <div class="col-md-3">
+                    <span style="font-weight: 700;" title="StartDateRange">DateRange:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                    <input class="form-control" type="text" id="dateRangeInput" value=""
+                           style="display: inline-block; width: 200px"/>
+                </div>
+                <div class="col-md-3">
+                    <span style="font-weight: 700;" title="CostRange">CostRange:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                    <input class="form-control" type="text" id="costMinInput" style="display: inline-block; width: 95px"/>
+                    <span style="font-weight: 700;"> - </span>
+                    <input class="form-control" type="text" id="costMaxInput" style="display: inline-block; width: 95px"/>
+                </div>
+                <div class="col-md-3">
+                </div>
             </div>
         </div>
     </div>
+
 </div>
 <div class="wrapper wrapper-content animated fadeInRight" style="padding-top: 0">
     <div id="topTraceListDiv"></div>

@@ -1,23 +1,21 @@
 package org.skywalking.apm.ui.service;
 
-import org.skywalking.apm.ui.creator.UrlCreator;
-import org.skywalking.apm.ui.tools.HttpClientTools;
-import org.skywalking.apm.ui.tools.TimeTools;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.skywalking.apm.ui.creator.UrlCreator;
+import org.skywalking.apm.ui.tools.HttpClientTools;
+import org.skywalking.apm.ui.tools.TimeTools;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author pengys5
@@ -32,20 +30,8 @@ public class TopTraceListService {
     @Autowired
     private UrlCreator urlCreator;
 
-    public String loadWithGlobalTraceId(String globalTraceId, int limit, int from) throws IOException {
-        List<NameValuePair> params = new ArrayList<NameValuePair>();
-        params.add(new BasicNameValuePair("globalTraceId", String.valueOf(globalTraceId)));
-        params.add(new BasicNameValuePair("from", String.valueOf(from)));
-        params.add(new BasicNameValuePair("limit", String.valueOf(limit)));
-
-        String topSegLoadUrl = urlCreator.compound("/segments/top/globalTraceId");
-        String topSegResponse = HttpClientTools.INSTANCE.get(topSegLoadUrl, params);
-        logger.debug("load top segment data: %s", topSegResponse);
-
-        return topSegResponse;
-    }
-
-    public String loadWithOther(long startTime, long endTime, int minCost, int maxCost, int limit, int from) throws IOException {
+    public String load(long startTime, long endTime, int minCost, int maxCost, int limit,
+        int from, String globalTraceId, String operationName) throws IOException {
         List<NameValuePair> params = new ArrayList<NameValuePair>();
         params.add(new BasicNameValuePair("startTime", String.valueOf(startTime)));
         params.add(new BasicNameValuePair("endTime", String.valueOf(endTime)));
@@ -53,21 +39,19 @@ public class TopTraceListService {
         params.add(new BasicNameValuePair("limit", String.valueOf(limit)));
         params.add(new BasicNameValuePair("minCost", String.valueOf(minCost)));
         params.add(new BasicNameValuePair("maxCost", String.valueOf(maxCost)));
+        params.add(new BasicNameValuePair("globalTraceId", globalTraceId));
+        params.add(new BasicNameValuePair("operationName", operationName));
 
-        String topSegLoadUrl = urlCreator.compound("/segments/top/timeSlice");
+        String topSegLoadUrl = urlCreator.compound("/segments/top");
         String topSegResponse = HttpClientTools.INSTANCE.get(topSegLoadUrl, params);
         logger.debug("load top segment data: %s", topSegResponse);
 
         return topSegResponse;
     }
 
-    public JsonObject topTraceListDataLoad(long startTime, long endTime, int minCost, int maxCost, int limit, int from, String globalTraceId) throws IOException {
-        String topSegResponse = "";
-        if (StringUtils.isEmpty(globalTraceId)) {
-            topSegResponse = loadWithOther(startTime, endTime, minCost, maxCost, limit, from);
-        } else {
-            topSegResponse = loadWithGlobalTraceId(globalTraceId, limit, from);
-        }
+    public JsonObject topTraceListDataLoad(long startTime, long endTime, int minCost, int maxCost, int limit, int from,
+        String globalTraceId, String operationName) throws IOException {
+        String topSegResponse = load(startTime, endTime, minCost, maxCost, limit, from, globalTraceId, operationName);
 
         JsonObject topSegDataJson = new JsonObject();
         JsonArray topSegDataArray = new JsonArray();

@@ -6,6 +6,7 @@ var endDate = moment().format("YYYYMMDD") + "9999";
 var minCost = -1;
 var maxCost = -1;
 var globalTraceId = null;
+var operationName = null;
 
 $(document).ready(function () {
     $("#topTraceListDiv").load("./top-trace-list.html");
@@ -18,6 +19,7 @@ $(document).ready(function () {
         minCost = $("#costMinInput").val();
         maxCost = $("#costMaxInput").val();
         globalTraceId = $("#globalTraceIdInput").val();
+        operationName = $("#operationNameInput").val();
 
         if (minCost == null || minCost == "") {
             minCost = -1;
