@@ -1,7 +1,7 @@
 package org.skywalking.apm.collector.actor;
 
 /**
- * This exception is raised when call (or ask) worker.
+ * This exception is raised when worker fails to process job during "call" or "ask" 
  *
  * @author pengys5
  * @since v3.1-2017
