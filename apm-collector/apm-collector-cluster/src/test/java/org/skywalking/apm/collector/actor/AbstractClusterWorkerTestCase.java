@@ -79,7 +79,7 @@ public class AbstractClusterWorkerTestCase {
         }
 
         @Override
-        protected void onWork(Object message) throws Exception {
+        protected void onWork(Object message) throws IllegalArgumentException {
 
         }
     }

@@ -1,5 +1,7 @@
 package org.skywalking.apm.collector.worker;
 
+import java.util.List;
+import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.action.index.IndexRequestBuilder;
@@ -11,9 +13,6 @@ import org.skywalking.apm.collector.worker.storage.EsClient;
 import org.skywalking.apm.collector.worker.storage.JoinAndSplitData;
 import org.skywalking.apm.collector.worker.storage.JoinAndSplitPersistenceData;
 
-import java.util.List;
-import java.util.Map;
-
 /**
  * @author pengys5
  */
@@ -21,7 +20,8 @@ public abstract class JoinAndSplitPersistenceMember extends PersistenceMember<Jo
 
     private Logger logger = LogManager.getFormatterLogger(JoinAndSplitPersistenceMember.class);
 
-    protected JoinAndSplitPersistenceMember(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    protected JoinAndSplitPersistenceMember(Role role, ClusterWorkerContext clusterContext,
+        LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
@@ -30,10 +30,9 @@ public abstract class JoinAndSplitPersistenceMember extends PersistenceMember<Jo
         return new JoinAndSplitPersistenceData();
     }
 
-    @Override
-    final public void analyse(Object message) throws Exception {
+    @Override final public void analyse(Object message) {
         if (message instanceof JoinAndSplitData) {
-            JoinAndSplitData joinAndSplitData = (JoinAndSplitData) message;
+            JoinAndSplitData joinAndSplitData = (JoinAndSplitData)message;
             JoinAndSplitPersistenceData data = getPersistenceData();
             data.hold();
             data.getOrCreate(joinAndSplitData.getId()).merge(joinAndSplitData);
@@ -43,8 +42,7 @@ public abstract class JoinAndSplitPersistenceMember extends PersistenceMember<Jo
         }
     }
 
-    @Override
-    final protected void prepareIndex(List<IndexRequestBuilder> builderList) {
+    @Override final protected void prepareIndex(List<IndexRequestBuilder> builderList) {
         Map<String, JoinAndSplitData> lastData = getPersistenceData().getLast().asMap();
         extractData(lastData);
 

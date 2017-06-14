@@ -1,18 +1,22 @@
 package org.skywalking.apm.collector.worker.segment;
 
+import com.google.gson.JsonObject;
+import java.io.BufferedReader;
+import java.io.IOException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.skywalking.apm.util.StringUtil;
 import org.skywalking.apm.collector.actor.ClusterWorkerContext;
 import org.skywalking.apm.collector.actor.LocalWorkerContext;
 import org.skywalking.apm.collector.actor.ProviderNotFoundException;
 import org.skywalking.apm.collector.actor.Role;
+import org.skywalking.apm.collector.actor.WorkerInvokeException;
+import org.skywalking.apm.collector.actor.WorkerNotFoundException;
 import org.skywalking.apm.collector.actor.selector.RollingSelector;
 import org.skywalking.apm.collector.actor.selector.WorkerSelector;
-import org.skywalking.apm.collector.worker.config.WorkerConfig;
 import org.skywalking.apm.collector.worker.globaltrace.analysis.GlobalTraceAnalysis;
-import org.skywalking.apm.collector.worker.httpserver.AbstractPost;
-import org.skywalking.apm.collector.worker.httpserver.AbstractPostProvider;
+import org.skywalking.apm.collector.worker.httpserver.AbstractStreamPost;
+import org.skywalking.apm.collector.worker.httpserver.AbstractStreamPostProvider;
+import org.skywalking.apm.collector.worker.httpserver.ArgumentsParseException;
 import org.skywalking.apm.collector.worker.node.analysis.NodeCompAnalysis;
 import org.skywalking.apm.collector.worker.node.analysis.NodeMappingDayAnalysis;
 import org.skywalking.apm.collector.worker.node.analysis.NodeMappingHourAnalysis;
@@ -24,13 +28,16 @@ import org.skywalking.apm.collector.worker.segment.analysis.SegmentAnalysis;
 import org.skywalking.apm.collector.worker.segment.analysis.SegmentCostAnalysis;
 import org.skywalking.apm.collector.worker.segment.analysis.SegmentExceptionAnalysis;
 import org.skywalking.apm.collector.worker.segment.entity.Segment;
+import org.skywalking.apm.collector.worker.segment.entity.SegmentAndJson;
+import org.skywalking.apm.collector.worker.segment.entity.SegmentDeserialize;
 import org.skywalking.apm.collector.worker.storage.AbstractTimeSlice;
 import org.skywalking.apm.collector.worker.tools.DateTools;
+import org.skywalking.apm.util.StringUtil;
 
 /**
  * @author pengys5
  */
-public class SegmentPost extends AbstractPost {
+public class SegmentPost extends AbstractStreamPost {
     private static final Logger logger = LogManager.getFormatterLogger(SegmentPost.class);
 
     public SegmentPost(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
@@ -56,45 +63,83 @@ public class SegmentPost extends AbstractPost {
         getClusterContext().findProvider(NodeMappingMinuteAnalysis.Role.INSTANCE).create(this);
     }
 
-    @Override
-    protected void onReceive(Object message) throws Exception {
-        if (message instanceof Segment) {
-            Segment segment = (Segment) message;
-            try {
-                validateData(segment);
-            } catch (IllegalArgumentException e) {
-                return;
+    /**
+     * Read segment's buffer from buffer reader by stream mode. when finish read one segment then send to analysis.
+     * This method in there, so post servlet just can receive segments data.
+     */
+    @Override protected void onReceive(BufferedReader bufferedReader,
+        JsonObject response) throws ArgumentsParseException, WorkerInvokeException, WorkerNotFoundException {
+        Segment segment;
+        try {
+            do {
+                int character;
+                StringBuilder builder = new StringBuilder();
+                while ((character = bufferedReader.read()) != ' ') {
+                    if (character == -1) {
+                        return;
+                    }
+                    builder.append((char)character);
+                }
+
+                int length = Integer.valueOf(builder.toString());
+                builder = new StringBuilder();
+
+                char[] buffer = new char[length];
+                int readLength = bufferedReader.read(buffer, 0, length);
+                if (readLength != length) {
+                    logger.error("The actual data length was different from the length in data head! ");
+                    return;
+                }
+                builder.append(buffer);
+
+                String segmentJsonStr = builder.toString();
+                segment = SegmentDeserialize.INSTANCE.deserializeSingle(segmentJsonStr);
+                tellWorkers(new SegmentAndJson(segment, segmentJsonStr));
             }
-
-            logger.debug("receive message instanceof TraceSegment, traceSegmentId is %s", segment.getTraceSegmentId());
-
-            long minuteSlice = DateTools.getMinuteSlice(segment.getStartTime());
-            long hourSlice = DateTools.getHourSlice(segment.getStartTime());
-            long daySlice = DateTools.getDaySlice(segment.getStartTime());
-            int second = DateTools.getSecond(segment.getStartTime());
-            logger.debug("minuteSlice: %s, hourSlice: %s, daySlice: %s, second:%s", minuteSlice, hourSlice, daySlice, second);
-
-            SegmentWithTimeSlice segmentWithTimeSlice = new SegmentWithTimeSlice(segment, minuteSlice, hourSlice, daySlice, second);
-            getSelfContext().lookup(SegmentAnalysis.Role.INSTANCE).tell(segment);
-
-            getSelfContext().lookup(SegmentCostAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
-            getSelfContext().lookup(GlobalTraceAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
-            getSelfContext().lookup(SegmentExceptionAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
-
-            getSelfContext().lookup(NodeCompAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
-
-            tellNodeRef(segmentWithTimeSlice);
-            tellNodeMapping(segmentWithTimeSlice);
+            while (segment != null);
+        } catch (IOException e) {
+            throw new ArgumentsParseException(e.getMessage(), e);
         }
     }
 
-    private void tellNodeRef(SegmentWithTimeSlice segmentWithTimeSlice) throws Exception {
+    private void tellWorkers(SegmentAndJson segmentAndJson) throws WorkerNotFoundException, WorkerInvokeException {
+        Segment segment = segmentAndJson.getSegment();
+        try {
+            validateData(segment);
+        } catch (IllegalArgumentException e) {
+            return;
+        }
+
+        logger.debug("receive message instanceof TraceSegment, traceSegmentId is %s", segment.getTraceSegmentId());
+
+        long minuteSlice = DateTools.getMinuteSlice(segment.getStartTime());
+        long hourSlice = DateTools.getHourSlice(segment.getStartTime());
+        long daySlice = DateTools.getDaySlice(segment.getStartTime());
+        int second = DateTools.getSecond(segment.getStartTime());
+        logger.debug("minuteSlice: %s, hourSlice: %s, daySlice: %s, second:%s", minuteSlice, hourSlice, daySlice, second);
+
+        SegmentWithTimeSlice segmentWithTimeSlice = new SegmentWithTimeSlice(segment, minuteSlice, hourSlice, daySlice, second);
+        getSelfContext().lookup(SegmentAnalysis.Role.INSTANCE).tell(segmentAndJson);
+
+        getSelfContext().lookup(SegmentCostAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
+        getSelfContext().lookup(GlobalTraceAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
+        getSelfContext().lookup(SegmentExceptionAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
+
+        getSelfContext().lookup(NodeCompAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
+
+        tellNodeRef(segmentWithTimeSlice);
+        tellNodeMapping(segmentWithTimeSlice);
+    }
+
+    private void tellNodeRef(
+        SegmentWithTimeSlice segmentWithTimeSlice) throws WorkerNotFoundException, WorkerInvokeException {
         getSelfContext().lookup(NodeRefMinuteAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
         getSelfContext().lookup(NodeRefHourAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
         getSelfContext().lookup(NodeRefDayAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
     }
 
-    private void tellNodeMapping(SegmentWithTimeSlice segmentWithTimeSlice) throws Exception {
+    private void tellNodeMapping(
+        SegmentWithTimeSlice segmentWithTimeSlice) throws WorkerNotFoundException, WorkerInvokeException {
         getSelfContext().lookup(NodeMappingMinuteAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
         getSelfContext().lookup(NodeMappingHourAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
         getSelfContext().lookup(NodeMappingDayAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
@@ -109,15 +154,10 @@ public class SegmentPost extends AbstractPost {
         }
     }
 
-    public static class Factory extends AbstractPostProvider<SegmentPost> {
+    public static class Factory extends AbstractStreamPostProvider<SegmentPost> {
         @Override
         public String servletPath() {
             return "/segments";
-        }
-
-        @Override
-        public int queueSize() {
-            return WorkerConfig.Queue.Segment.SegmentPost.SIZE;
         }
 
         @Override

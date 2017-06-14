@@ -1,5 +1,7 @@
 package org.skywalking.apm.collector.worker;
 
+import java.util.List;
+import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.action.index.IndexRequestBuilder;
@@ -10,9 +12,6 @@ import org.skywalking.apm.collector.actor.Role;
 import org.skywalking.apm.collector.worker.storage.EsClient;
 import org.skywalking.apm.collector.worker.storage.MetricData;
 import org.skywalking.apm.collector.worker.storage.MetricPersistenceData;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author pengys5
@@ -30,10 +29,9 @@ public abstract class MetricPersistenceMember extends PersistenceMember<MetricPe
         return new MetricPersistenceData();
     }
 
-    @Override
-    final public void analyse(Object message) throws Exception {
+    @Override final public void analyse(Object message) {
         if (message instanceof MetricData) {
-            MetricData metricData = (MetricData) message;
+            MetricData metricData = (MetricData)message;
             MetricPersistenceData data = getPersistenceData();
             data.hold();
             data.getOrCreate(metricData.getId()).merge(metricData);
@@ -43,8 +41,7 @@ public abstract class MetricPersistenceMember extends PersistenceMember<MetricPe
         }
     }
 
-    @Override
-    final protected void prepareIndex(List<IndexRequestBuilder> builderList) {
+    @Override final protected void prepareIndex(List<IndexRequestBuilder> builderList) {
         Map<String, MetricData> lastData = getPersistenceData().getLast().asMap();
         extractData(lastData);
 

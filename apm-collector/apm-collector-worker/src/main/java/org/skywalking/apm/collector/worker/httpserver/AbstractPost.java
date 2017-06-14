@@ -1,74 +1,79 @@
 package org.skywalking.apm.collector.worker.httpserver;
 
 import com.google.gson.JsonObject;
-import com.google.gson.stream.JsonReader;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.skywalking.apm.collector.actor.*;
-import org.skywalking.apm.collector.worker.segment.entity.Segment;
-
+import java.io.IOException;
+import java.util.Map;
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedReader;
-import java.io.IOException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.skywalking.apm.collector.actor.ClusterWorkerContext;
+import org.skywalking.apm.collector.actor.LocalSyncWorkerRef;
+import org.skywalking.apm.collector.actor.LocalWorkerContext;
+import org.skywalking.apm.collector.actor.Role;
+import org.skywalking.apm.collector.actor.WorkerInvokeException;
+import org.skywalking.apm.collector.actor.WorkerNotFoundException;
 
 /**
+ * The <code>AbstractGet</code> implementations represent workers, which called by the server to allow a servlet to
+ * handle a POST request.
+ *
+ * <p>verride the {@link #onReceive(Map, JsonObject)} method to support a search service.
+ *
  * @author pengys5
+ * @since v3.0-2017
  */
-
-public abstract class AbstractPost extends AbstractLocalAsyncWorker {
+public abstract class AbstractPost extends AbstractServlet {
 
     public AbstractPost(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
-    @Override
-    final public void onWork(Object message) throws Exception {
-        onReceive(message);
+    /**
+     * Add final modifier to avoid the subclass override this method.
+     *
+     * @param parameter {@link Object} data structure of the map
+     * @param response {@link Object} is a out parameter
+     * @throws ArgumentsParseException if the key could not contains in parameter
+     * @throws WorkerInvokeException if any error is detected when call(or ask) worker
+     * @throws WorkerNotFoundException if the worker reference could not found in context.
+     */
+    @Override final protected void onWork(Object parameter,
+        Object response) throws ArgumentsParseException, WorkerInvokeException, WorkerNotFoundException {
+        super.onWork(parameter, response);
     }
 
-    protected abstract void onReceive(Object message) throws Exception;
-
-    static class PostWithHttpServlet extends AbstractHttpServlet {
+    static class PostWithHttpServlet extends HttpServlet {
 
         private Logger logger = LogManager.getFormatterLogger(PostWithHttpServlet.class);
 
-        private final LocalAsyncWorkerRef ownerWorkerRef;
+        private final LocalSyncWorkerRef ownerWorkerRef;
 
-        PostWithHttpServlet(LocalAsyncWorkerRef ownerWorkerRef) {
+        PostWithHttpServlet(LocalSyncWorkerRef ownerWorkerRef) {
             this.ownerWorkerRef = ownerWorkerRef;
         }
 
-        @Override
-        final protected void doPost(HttpServletRequest request,
-                                    HttpServletResponse response) throws ServletException, IOException {
-            JsonObject resJson = new JsonObject();
+        /**
+         * Override the {@link HttpServlet#doPost(HttpServletRequest, HttpServletResponse)} method, receive the
+         * parameter from request then send parameter to the owner worker.
+         *
+         * @param request an {@link HttpServletRequest} object that contains the request the client has made of the
+         * servlet
+         * @param response {@link HttpServletResponse} object that contains the response the servlet sends to the
+         * client
+         * @throws ServletException if the request for the POST could not be handled
+         * @throws IOException if an input or output error is detected when the servlet handles the request
+         */
+        @Override final protected void doPost(HttpServletRequest request,
+            HttpServletResponse response) throws ServletException, IOException {
             try {
-                BufferedReader bufferedReader = request.getReader();
-                streamReader(bufferedReader);
-                reply(response, resJson, HttpServletResponse.SC_OK);
+                Map<String, String[]> parameter = request.getParameterMap();
+                ownerWorkerRef.ask(parameter, response);
             } catch (Exception e) {
-                logger.error(e);
-                resJson.addProperty("error", e.getMessage());
-                reply(response, resJson, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                logger.error(e, e);
             }
-        }
-
-        private void streamReader(BufferedReader bufferedReader) throws Exception {
-            try (JsonReader reader = new JsonReader(bufferedReader)) {
-                readSegmentArray(reader);
-            }
-        }
-
-        private void readSegmentArray(JsonReader reader) throws Exception {
-            reader.beginArray();
-            while (reader.hasNext()) {
-                Segment segment = new Segment();
-                segment.deserialize(reader);
-                ownerWorkerRef.tell(segment);
-            }
-            reader.endArray();
         }
     }
 }

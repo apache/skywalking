@@ -1,16 +1,15 @@
 package org.skywalking.apm.collector.worker.segment.mock;
 
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
 import org.skywalking.apm.collector.queue.EndOfBatchCommand;
 import org.skywalking.apm.collector.worker.AnalysisMember;
 import org.skywalking.apm.collector.worker.segment.SegmentPost;
 import org.skywalking.apm.collector.worker.segment.entity.Segment;
-import org.skywalking.apm.collector.worker.segment.entity.SegmentDeserialize;
+import org.skywalking.apm.collector.worker.segment.entity.SegmentDeserializeFromFile;
 import org.skywalking.apm.collector.worker.tools.DateTools;
 import org.skywalking.apm.collector.worker.tools.JsonFileReader;
-
-import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author pengys5
@@ -32,7 +31,11 @@ public class SegmentMock {
     }
 
     public String mockCacheServiceSegmentAsString() throws FileNotFoundException {
-        return JsonFileReader.INSTANCE.read(CacheServiceJsonFile);
+        return JsonFileReader.INSTANCE.readSegment(CacheServiceJsonFile);
+    }
+
+    public String mockCacheServiceExceptionSegmentAsString() throws FileNotFoundException {
+        return JsonFileReader.INSTANCE.read(CacheServiceExceptionJsonFile);
     }
 
     public String mockPersistenceServiceSegmentAsString() throws FileNotFoundException {
@@ -63,8 +66,9 @@ public class SegmentMock {
         return createSegmentWithTimeSliceList(PortalServiceJsonFile);
     }
 
-    private List<SegmentPost.SegmentWithTimeSlice> createSegmentWithTimeSliceList(String jsonFilePath) throws Exception {
-        List<Segment> segmentList = SegmentDeserialize.INSTANCE.deserializeMultiple(jsonFilePath);
+    private List<SegmentPost.SegmentWithTimeSlice> createSegmentWithTimeSliceList(
+        String jsonFilePath) throws Exception {
+        List<Segment> segmentList = SegmentDeserializeFromFile.INSTANCE.deserializeMultiple(jsonFilePath);
 
         List<SegmentPost.SegmentWithTimeSlice> segmentWithTimeSliceList = new ArrayList<>();
         for (Segment segment : segmentList) {

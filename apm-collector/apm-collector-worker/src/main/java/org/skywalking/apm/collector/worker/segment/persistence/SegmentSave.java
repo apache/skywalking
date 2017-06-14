@@ -1,5 +1,8 @@
 package org.skywalking.apm.collector.worker.segment.persistence;
 
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.client.Client;
 import org.skywalking.apm.collector.actor.AbstractLocalSyncWorkerProvider;
@@ -10,12 +13,12 @@ import org.skywalking.apm.collector.actor.selector.WorkerSelector;
 import org.skywalking.apm.collector.worker.PersistenceMember;
 import org.skywalking.apm.collector.worker.config.CacheSizeConfig;
 import org.skywalking.apm.collector.worker.segment.SegmentIndex;
-import org.skywalking.apm.collector.worker.segment.entity.Segment;
-import org.skywalking.apm.collector.worker.storage.*;
-
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import org.skywalking.apm.collector.worker.segment.entity.SegmentAndJson;
+import org.skywalking.apm.collector.worker.storage.AbstractIndex;
+import org.skywalking.apm.collector.worker.storage.EsClient;
+import org.skywalking.apm.collector.worker.storage.PersistenceWorkerListener;
+import org.skywalking.apm.collector.worker.storage.SegmentData;
+import org.skywalking.apm.collector.worker.storage.SegmentPersistenceData;
 
 /**
  * @author pengys5
@@ -33,7 +36,7 @@ public class SegmentSave extends PersistenceMember<SegmentPersistenceData, Segme
     }
 
     public SegmentSave(org.skywalking.apm.collector.actor.Role role, ClusterWorkerContext clusterContext,
-                       LocalWorkerContext selfContext) {
+        LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
@@ -42,13 +45,12 @@ public class SegmentSave extends PersistenceMember<SegmentPersistenceData, Segme
         return new SegmentPersistenceData();
     }
 
-    @Override
-    final public void analyse(Object message) throws Exception {
-        if (message instanceof Segment) {
-            Segment segment = (Segment) message;
+    @Override final public void analyse(Object message) {
+        if (message instanceof SegmentAndJson) {
+            SegmentAndJson segmentAndJson = (SegmentAndJson)message;
             SegmentPersistenceData data = getPersistenceData();
             data.hold();
-            data.getOrCreate(segment.getTraceSegmentId()).setSegmentStr(segment.getJsonStr());
+            data.getOrCreate(segmentAndJson.getSegment().getTraceSegmentId()).setSegmentStr(segmentAndJson.getJsonStr());
             if (data.size() >= CacheSizeConfig.Cache.Persistence.SIZE) {
                 persistence(data.asMap());
             }
@@ -69,8 +71,7 @@ public class SegmentSave extends PersistenceMember<SegmentPersistenceData, Segme
         dataMap.clear();
     }
 
-    @Override
-    final protected void prepareIndex(List<IndexRequestBuilder> builderList) {
+    @Override final protected void prepareIndex(List<IndexRequestBuilder> builderList) {
         Map<String, SegmentData> lastData = getPersistenceData().getLast().asMap();
 
         Client client = EsClient.INSTANCE.getClient();

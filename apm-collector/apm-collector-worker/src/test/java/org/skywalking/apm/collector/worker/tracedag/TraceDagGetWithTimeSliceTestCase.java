@@ -17,6 +17,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.skywalking.apm.collector.actor.*;
 import org.skywalking.apm.collector.actor.selector.RollingSelector;
 import org.skywalking.apm.collector.worker.Const;
+import org.skywalking.apm.collector.worker.httpserver.ArgumentsParseException;
 import org.skywalking.apm.collector.worker.node.persistence.NodeCompLoad;
 import org.skywalking.apm.collector.worker.node.persistence.NodeMappingSearchWithTimeSlice;
 import org.skywalking.apm.collector.worker.noderef.persistence.NodeRefResSumSearchWithTimeSlice;
@@ -101,31 +102,31 @@ public class TraceDagGetWithTimeSliceTestCase {
         Assert.assertEquals("NodeRefResSumSearchWithTimeSlice", argumentCaptor.getAllValues().get(3).roleName());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = ArgumentsParseException.class)
     public void testOnSearchError() throws Exception {
         Map<String, String[]> request = new HashMap<>();
         JsonObject response = new JsonObject();
-        getObj.onSearch(request, response);
+        getObj.onReceive(request, response);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = ArgumentsParseException.class)
     public void testOnSearchErrorStartTime() throws Exception {
         Map<String, String[]> request = createRequest();
         String[] startTime = {"xx"};
         request.put("startTime", startTime);
 
         JsonObject response = new JsonObject();
-        getObj.onSearch(request, response);
+        getObj.onReceive(request, response);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = ArgumentsParseException.class)
     public void testOnSearchErrorEndTime() throws Exception {
         Map<String, String[]> request = createRequest();
         String[] endTime = {"xx"};
         request.put("endTime", endTime);
 
         JsonObject response = new JsonObject();
-        getObj.onSearch(request, response);
+        getObj.onReceive(request, response);
     }
 
     private Map<String, String[]> createRequest() {
@@ -149,7 +150,7 @@ public class TraceDagGetWithTimeSliceTestCase {
         PowerMockito.when(getObj, "getNewResponse").thenReturn(response);
 
         Map<String, String[]> request = createRequest();
-        getObj.onSearch(request, response);
+        getObj.onReceive(request, response);
     }
 
     class TraceDagGetAnswerGet_1 implements Answer {

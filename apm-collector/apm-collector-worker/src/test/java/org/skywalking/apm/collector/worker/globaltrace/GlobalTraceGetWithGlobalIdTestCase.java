@@ -81,14 +81,14 @@ public class GlobalTraceGetWithGlobalIdTestCase {
         request.put("globalId", globalId);
 
         JsonObject response = new JsonObject();
-        getObj.onSearch(request, response);
+        getObj.onReceive(request, response);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testOnSearchError() throws Exception {
         Map<String, String[]> request = new HashMap<>();
         JsonObject response = new JsonObject();
-        getObj.onSearch(request, response);
+        getObj.onReceive(request, response);
     }
 
     class GlobalTraceAnswerGet implements Answer {

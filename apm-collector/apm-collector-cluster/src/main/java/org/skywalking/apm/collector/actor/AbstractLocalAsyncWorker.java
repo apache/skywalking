@@ -17,10 +17,10 @@ public abstract class AbstractLocalAsyncWorker extends AbstractLocalWorker {
     /**
      * Construct an <code>AbstractLocalAsyncWorker</code> with the worker role and context.
      *
-     * @param role           The responsibility of worker in cluster, more than one workers can have same responsibility which use
-     *                       to provide load balancing ability.
+     * @param role The responsibility of worker in cluster, more than one workers can have same responsibility which use
+     * to provide load balancing ability.
      * @param clusterContext See {@link ClusterWorkerContext}
-     * @param selfContext    See {@link LocalWorkerContext}
+     * @param selfContext See {@link LocalWorkerContext}
      */
     public AbstractLocalAsyncWorker(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
@@ -40,9 +40,9 @@ public abstract class AbstractLocalAsyncWorker extends AbstractLocalWorker {
      * Receive message
      *
      * @param message The persistence data or metric data.
-     * @throws Exception The Exception happen in {@link #onWork(Object)}
+     * @throws WorkerException The Exception happen in {@link #onWork(Object)}
      */
-    final public void allocateJob(Object message) throws Exception {
+    final public void allocateJob(Object message) throws WorkerException {
         onWork(message);
     }
 
@@ -50,9 +50,9 @@ public abstract class AbstractLocalAsyncWorker extends AbstractLocalWorker {
      * The data process logic in this method.
      *
      * @param message Cast the message object to a expect subclass.
-     * @throws Exception Don't handle the exception, throw it.
+     * @throws WorkerException Don't handle the exception, throw it.
      */
-    protected abstract void onWork(Object message) throws Exception;
+    protected abstract void onWork(Object message) throws WorkerException;
 
     static class WorkerWithDisruptor implements EventHandler<MessageHolder> {
 
@@ -68,8 +68,8 @@ public abstract class AbstractLocalAsyncWorker extends AbstractLocalWorker {
          * Receive the message from disruptor, when message in disruptor is empty, then send the cached data
          * to the next workers.
          *
-         * @param event      published to the {@link RingBuffer}
-         * @param sequence   of the event being processed
+         * @param event published to the {@link RingBuffer}
+         * @param sequence of the event being processed
          * @param endOfBatch flag to indicate if this is the last event in a batch from the {@link RingBuffer}
          */
         public void onEvent(MessageHolder event, long sequence, boolean endOfBatch) {
@@ -90,9 +90,8 @@ public abstract class AbstractLocalAsyncWorker extends AbstractLocalWorker {
          * Push the message into disruptor ring buffer.
          *
          * @param message of the data to process.
-         * @throws Exception not used.
          */
-        public void tell(Object message) throws Exception {
+        public void tell(Object message) {
             long sequence = ringBuffer.next();
             try {
                 ringBuffer.get(sequence).setMessage(message);
