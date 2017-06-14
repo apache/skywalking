@@ -68,7 +68,7 @@ public class SegmentTopGetWithTimeSliceTestCase {
         SegmentTopGetWithTimeSlice.Factory factory = new SegmentTopGetWithTimeSlice.Factory();
         Assert.assertEquals(SegmentTopGetWithTimeSlice.class.getSimpleName(), factory.role().roleName());
         Assert.assertEquals(SegmentTopGetWithTimeSlice.class.getSimpleName(), factory.workerInstance(null).getClass().getSimpleName());
-        Assert.assertEquals("/segments/top/timeSlice", factory.servletPath());
+        Assert.assertEquals("/segments/top", factory.servletPath());
     }
 
     @Test
