@@ -20,7 +20,7 @@ import org.skywalking.apm.collector.actor.WorkerRefs;
 import org.skywalking.apm.collector.actor.selector.RollingSelector;
 import org.skywalking.apm.collector.worker.httpserver.ArgumentsParseException;
 import org.skywalking.apm.collector.worker.segment.persistence.SegmentExceptionWithSegId;
-import org.skywalking.apm.collector.worker.segment.persistence.SegmentTopSearchWithGlobalTraceId;
+import org.skywalking.apm.collector.worker.segment.persistence.SegmentTopSearch;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,9 +34,9 @@ import static org.mockito.Mockito.*;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest( {ClusterWorkerContext.class})
 @PowerMockIgnore( {"javax.management.*"})
-public class SegmentTopGetWithGlobalTraceIdTestCase {
+public class SegmentTopGetTestCase {
 
-    private SegmentTopGetWithGlobalTraceId getObj;
+    private SegmentTopGet getObj;
     private SegmentTopGetAnswerGet answer;
     private ClusterWorkerContext clusterWorkerContext;
 
@@ -51,24 +51,24 @@ public class SegmentTopGetWithGlobalTraceIdTestCase {
         WorkerRefs workerRefs = mock(WorkerRefs.class);
 
         answer = new SegmentTopGetAnswerGet();
-        doAnswer(answer).when(workerRefs).ask(Mockito.any(SegmentTopSearchWithGlobalTraceId.RequestEntity.class), Mockito.any(JsonObject.class));
+        doAnswer(answer).when(workerRefs).ask(Mockito.any(SegmentTopSearch.RequestEntity.class), Mockito.any(JsonObject.class));
 
-        when(localWorkerContext.lookup(SegmentTopSearchWithGlobalTraceId.WorkerRole.INSTANCE)).thenReturn(workerRefs);
-        getObj = new SegmentTopGetWithGlobalTraceId(SegmentTopGetWithGlobalTraceId.WorkerRole.INSTANCE, clusterWorkerContext, localWorkerContext);
+        when(localWorkerContext.lookup(SegmentTopSearch.WorkerRole.INSTANCE)).thenReturn(workerRefs);
+        getObj = new SegmentTopGet(SegmentTopGet.WorkerRole.INSTANCE, clusterWorkerContext, localWorkerContext);
     }
 
     @Test
     public void testRole() {
-        Assert.assertEquals(SegmentTopGetWithGlobalTraceId.class.getSimpleName(), SegmentTopGetWithGlobalTraceId.WorkerRole.INSTANCE.roleName());
-        Assert.assertEquals(RollingSelector.class.getSimpleName(), SegmentTopGetWithGlobalTraceId.WorkerRole.INSTANCE.workerSelector().getClass().getSimpleName());
+        Assert.assertEquals(SegmentTopGet.class.getSimpleName(), SegmentTopGet.WorkerRole.INSTANCE.roleName());
+        Assert.assertEquals(RollingSelector.class.getSimpleName(), SegmentTopGet.WorkerRole.INSTANCE.workerSelector().getClass().getSimpleName());
     }
 
     @Test
     public void testFactory() {
-        SegmentTopGetWithGlobalTraceId.Factory factory = new SegmentTopGetWithGlobalTraceId.Factory();
-        Assert.assertEquals(SegmentTopGetWithGlobalTraceId.class.getSimpleName(), factory.role().roleName());
-        Assert.assertEquals(SegmentTopGetWithGlobalTraceId.class.getSimpleName(), factory.workerInstance(null).getClass().getSimpleName());
-        Assert.assertEquals("/segments/top/globalTraceId", factory.servletPath());
+        SegmentTopGet.Factory factory = new SegmentTopGet.Factory();
+        Assert.assertEquals(SegmentTopGet.class.getSimpleName(), factory.role().roleName());
+        Assert.assertEquals(SegmentTopGet.class.getSimpleName(), factory.workerInstance(null).getClass().getSimpleName());
+        Assert.assertEquals("/segments/top", factory.servletPath());
     }
 
     @Test
@@ -77,46 +77,48 @@ public class SegmentTopGetWithGlobalTraceIdTestCase {
         SegmentExceptionWithSegId.Factory factory = new SegmentExceptionWithSegId.Factory();
         when(exceptionContext.findProvider(SegmentExceptionWithSegId.WorkerRole.INSTANCE)).thenReturn(factory);
 
-        SegmentTopSearchWithGlobalTraceId.Factory factory1 = new SegmentTopSearchWithGlobalTraceId.Factory();
+        SegmentTopSearch.Factory factory1 = new SegmentTopSearch.Factory();
         factory1.setClusterContext(exceptionContext);
 
-        when(clusterWorkerContext.findProvider(SegmentTopSearchWithGlobalTraceId.WorkerRole.INSTANCE)).thenReturn(factory1);
+        when(clusterWorkerContext.findProvider(SegmentTopSearch.WorkerRole.INSTANCE)).thenReturn(factory1);
 
-        ArgumentCaptor<SegmentTopSearchWithGlobalTraceId.WorkerRole> argumentCaptor = ArgumentCaptor.forClass(SegmentTopSearchWithGlobalTraceId.WorkerRole.class);
+        ArgumentCaptor<SegmentTopSearch.WorkerRole> argumentCaptor = ArgumentCaptor.forClass(SegmentTopSearch.WorkerRole.class);
         getObj.preStart();
         verify(clusterWorkerContext).findProvider(argumentCaptor.capture());
     }
 
     @Test
     public void testOnSearch() throws Exception {
-        Map<String, String[]> request = new HashMap<>();
-        String[] globalTraceId = {"TestId"};
-        request.put("globalTraceId", globalTraceId);
-        String[] from = {"20"};
-        request.put("from", from);
-        String[] limit = {"50"};
-        request.put("limit", limit);
+        Map<String, String[]> request = createRequest();
+        JsonObject response = new JsonObject();
+        getObj.onReceive(request, response);
+    }
+
+    @Test(expected = ArgumentsParseException.class)
+    public void testOnSearchErrorStartTime() throws Exception {
+        Map<String, String[]> request = createRequest();
+        String[] startTime = {"x"};
+        request.put("startTime", startTime);
 
         JsonObject response = new JsonObject();
         getObj.onReceive(request, response);
     }
 
     @Test(expected = ArgumentsParseException.class)
-    public void testOnSearchError() throws Exception {
-        Map<String, String[]> request = new HashMap<>();
+    public void testOnSearchErrorEndTime() throws Exception {
+        Map<String, String[]> request = createRequest();
+        String[] endTime = {"x"};
+        request.put("endTime", endTime);
+
         JsonObject response = new JsonObject();
         getObj.onReceive(request, response);
     }
 
     @Test(expected = ArgumentsParseException.class)
     public void testOnSearchErrorFrom() throws Exception {
-        Map<String, String[]> request = new HashMap<>();
-        String[] globalTraceId = {"TestId"};
-        request.put("globalTraceId", globalTraceId);
+        Map<String, String[]> request = createRequest();
         String[] from = {"x"};
         request.put("from", from);
-        String[] limit = {"50"};
-        request.put("limit", limit);
 
         JsonObject response = new JsonObject();
         getObj.onReceive(request, response);
@@ -124,11 +126,7 @@ public class SegmentTopGetWithGlobalTraceIdTestCase {
 
     @Test(expected = ArgumentsParseException.class)
     public void testOnSearchErrorLimit() throws Exception {
-        Map<String, String[]> request = new HashMap<>();
-        String[] globalTraceId = {"TestId"};
-        request.put("globalTraceId", globalTraceId);
-        String[] from = {"20"};
-        request.put("from", from);
+        Map<String, String[]> request = createRequest();
         String[] limit = {"x"};
         request.put("limit", limit);
 
@@ -136,14 +134,34 @@ public class SegmentTopGetWithGlobalTraceIdTestCase {
         getObj.onReceive(request, response);
     }
 
+    private Map<String, String[]> createRequest() {
+        Map<String, String[]> request = new HashMap<>();
+        String[] startTime = {"10"};
+        request.put("startTime", startTime);
+        String[] endTime = {"20"};
+        request.put("endTime", endTime);
+        String[] from = {"30"};
+        request.put("from", from);
+        String[] limit = {"40"};
+        request.put("limit", limit);
+        String[] minCost = {"50"};
+        request.put("minCost", minCost);
+        String[] maxCost = {"60"};
+        request.put("maxCost", maxCost);
+        return request;
+    }
+
     class SegmentTopGetAnswerGet implements Answer {
 
         @Override
         public Object answer(InvocationOnMock invocation) throws Throwable {
-            SegmentTopSearchWithGlobalTraceId.RequestEntity requestEntity = (SegmentTopSearchWithGlobalTraceId.RequestEntity) invocation.getArguments()[0];
-            Assert.assertEquals("TestId", requestEntity.getGlobalTraceId());
-            Assert.assertEquals(20, requestEntity.getFrom());
-            Assert.assertEquals(50, requestEntity.getLimit());
+            SegmentTopSearch.RequestEntity requestEntity = (SegmentTopSearch.RequestEntity) invocation.getArguments()[0];
+            Assert.assertEquals(10, requestEntity.getStartTime());
+            Assert.assertEquals(20, requestEntity.getEndTime());
+            Assert.assertEquals(30, requestEntity.getFrom());
+            Assert.assertEquals(40, requestEntity.getLimit());
+            Assert.assertEquals(50, requestEntity.getMinCost());
+            Assert.assertEquals(60, requestEntity.getMaxCost());
             return null;
         }
     }
