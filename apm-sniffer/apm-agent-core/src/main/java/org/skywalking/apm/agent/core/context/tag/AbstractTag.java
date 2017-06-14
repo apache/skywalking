@@ -1,5 +1,6 @@
 package org.skywalking.apm.agent.core.context.tag;
 
+import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.skywalking.apm.agent.core.context.trace.Span;
 
 /**
@@ -22,7 +23,7 @@ public abstract class AbstractTag<T> {
         this.key = tagKey;
     }
 
-    protected abstract void set(Span span, T tagValue);
+    protected abstract void set(AbstractSpan span, T tagValue);
 
     /**
      * @return the key of this tag.

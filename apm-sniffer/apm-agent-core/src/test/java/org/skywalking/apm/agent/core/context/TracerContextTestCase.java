@@ -1,15 +1,15 @@
 package org.skywalking.apm.agent.core.context;
 
+import java.util.LinkedList;
+import java.util.List;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
-import org.skywalking.apm.agent.core.context.trace.Span;
 import org.skywalking.apm.agent.core.context.ids.DistributedTraceId;
 import org.skywalking.apm.agent.core.context.ids.PropagatedTraceId;
+import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.skywalking.apm.agent.core.context.trace.Span;
 import org.skywalking.apm.agent.core.context.trace.TraceSegment;
-
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * Created by wusheng on 2017/2/19.
@@ -18,7 +18,7 @@ public class TracerContextTestCase {
     @Test
     public void testSpanLifeCycle() {
         TracerContext context = new TracerContext();
-        Span span = context.createSpan("/serviceA", false);
+        AbstractSpan span = context.createSpan("/serviceA", false);
 
         Assert.assertEquals(span, context.activeSpan());
 
@@ -34,8 +34,8 @@ public class TracerContextTestCase {
     @Test
     public void testChildOfSpan() {
         TracerContext context = new TracerContext();
-        Span serviceSpan = context.createSpan("/serviceA", false);
-        Span dbSpan = context.createSpan("db/preparedStatement/execute", false);
+        AbstractSpan serviceSpan = context.createSpan("/serviceA", false);
+        AbstractSpan dbSpan = context.createSpan("db/preparedStatement/execute", false);
 
         Assert.assertEquals(dbSpan, context.activeSpan());
 
@@ -59,8 +59,8 @@ public class TracerContextTestCase {
     @Test
     public void testInject() {
         TracerContext context = new TracerContext();
-        Span serviceSpan = context.createSpan("/serviceA", false);
-        Span dbSpan = context.createSpan("db/preparedStatement/execute", false);
+        AbstractSpan serviceSpan = context.createSpan("/serviceA", false);
+        AbstractSpan dbSpan = context.createSpan("db/preparedStatement/execute", false);
         dbSpan.setPeerHost("127.0.0.1");
         dbSpan.setPort(8080);
 
@@ -86,7 +86,7 @@ public class TracerContextTestCase {
 
         TracerContext context = new TracerContext();
         context.extract(carrier);
-        Span span = context.createSpan("/serviceC", false);
+        AbstractSpan span = context.createSpan("/serviceC", false);
 
         TracerContext.ListenerManager.add(TestTracerContextListener.INSTANCE);
         final TraceSegment[] finishedSegmentCarrier = TestTracerContextListener.INSTANCE.finishedSegmentCarrier;

@@ -1,7 +1,7 @@
 package org.skywalking.apm.agent.core.context;
 
 import org.skywalking.apm.agent.core.boot.BootService;
-import org.skywalking.apm.agent.core.context.trace.Span;
+import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 
 /**
@@ -12,7 +12,7 @@ import org.skywalking.apm.agent.core.context.trace.TraceSegment;
  * https://github.com/opentracing/specification/blob/master/specification.md#references-between-spans}
  * <p> Also, {@link
  * ContextManager} delegates to all {@link TracerContext}'s major methods: {@link TracerContext#createSpan(String,
- * boolean)}, {@link TracerContext#activeSpan()}, {@link TracerContext#stopSpan(Span)}
+ * boolean)}, {@link TracerContext#activeSpan()}, {@link AbstractTracerContext#stopSpan(org.skywalking.apm.agent.core.context.trace.AbstractSpan)}
  * <p>
  *
  * @author wusheng
@@ -55,23 +55,23 @@ public class ContextManager implements TracerContextListener, BootService, Ignor
         }
     }
 
-    public static Span createSpan(String operationName) {
+    public static AbstractSpan createSpan(String operationName) {
         return get().createSpan(operationName, false);
     }
 
-    public static Span createSpan(String operationName, long startTime) {
+    public static AbstractSpan createSpan(String operationName, long startTime) {
         return get().createSpan(operationName, startTime, false);
     }
 
-    public static Span createLeafSpan(String operationName) {
+    public static AbstractSpan createLeafSpan(String operationName) {
         return get().createSpan(operationName, true);
     }
 
-    public static Span createLeafSpan(String operationName, long startTime) {
+    public static AbstractSpan createLeafSpan(String operationName, long startTime) {
         return get().createSpan(operationName, startTime, true);
     }
 
-    public static Span activeSpan() {
+    public static AbstractSpan activeSpan() {
         return get().activeSpan();
     }
 

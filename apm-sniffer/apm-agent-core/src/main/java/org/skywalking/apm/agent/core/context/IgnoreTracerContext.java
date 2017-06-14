@@ -2,7 +2,7 @@ package org.skywalking.apm.agent.core.context;
 
 import java.util.LinkedList;
 import java.util.List;
-import org.skywalking.apm.agent.core.context.trace.Span;
+import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
 
 /**
  * The <code>IgnoreTracerContext</code> represent a context should be ignored.
@@ -36,23 +36,23 @@ public class IgnoreTracerContext implements AbstractTracerContext {
     }
 
     @Override
-    public Span createSpan(String operationName, boolean isLeaf) {
+    public AbstractSpan createSpan(String operationName, boolean isLeaf) {
         stackDepth++;
         return null;
     }
 
     @Override
-    public Span createSpan(String operationName, long startTime, boolean isLeaf) {
+    public AbstractSpan createSpan(String operationName, long startTime, boolean isLeaf) {
         return createSpan(operationName, isLeaf);
     }
 
     @Override
-    public Span activeSpan() {
+    public AbstractSpan activeSpan() {
         return null;
     }
 
     @Override
-    public void stopSpan(Span span) {
+    public void stopSpan(AbstractSpan span) {
         stackDepth--;
         if (stackDepth == 0) {
 
@@ -60,7 +60,7 @@ public class IgnoreTracerContext implements AbstractTracerContext {
     }
 
     @Override
-    public void stopSpan(Span span, Long endTime) {
+    public void stopSpan(AbstractSpan span, Long endTime) {
         stopSpan(span);
     }
 

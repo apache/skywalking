@@ -1,13 +1,13 @@
 package org.skywalking.apm.plugin.jedis.v2;
 
 import org.skywalking.apm.agent.core.context.ContextManager;
+import org.skywalking.apm.agent.core.context.tag.Tags;
+import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.assist.NoConcurrencyAccessObject;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodInvokeContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.skywalking.apm.agent.core.context.trace.Span;
-import org.skywalking.apm.agent.core.context.tag.Tags;
 import org.skywalking.apm.util.StringUtil;
 
 /**
@@ -50,7 +50,7 @@ public class JedisMethodInterceptor extends NoConcurrencyAccessObject implements
     /**
      * set peer host information for the current active span.
      */
-    private void tagPeer(Span span, EnhancedClassInstanceContext context) {
+    private void tagPeer(AbstractSpan span, EnhancedClassInstanceContext context) {
         String redisHosts = (String)context.get(KEY_OF_REDIS_HOSTS);
         if (!StringUtil.isEmpty(redisHosts)) {
             span.setPeers((String)context.get(KEY_OF_REDIS_HOST));
@@ -78,7 +78,7 @@ public class JedisMethodInterceptor extends NoConcurrencyAccessObject implements
 
     @Override
     protected void enter(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext) {
-        Span span = ContextManager.createSpan("Jedis/" + interceptorContext.methodName());
+        AbstractSpan span = ContextManager.createSpan("Jedis/" + interceptorContext.methodName());
         Tags.COMPONENT.set(span, REDIS_COMPONENT);
         Tags.DB_TYPE.set(span, REDIS_COMPONENT);
         Tags.SPAN_KIND.set(span, Tags.SPAN_KIND_CLIENT);

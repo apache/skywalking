@@ -1,18 +1,21 @@
 package org.skywalking.apm.plugin.httpClient.v4;
 
-import org.apache.http.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+import org.apache.http.Header;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
 import org.skywalking.apm.agent.core.conf.Config;
 import org.skywalking.apm.agent.core.context.ContextCarrier;
 import org.skywalking.apm.agent.core.context.ContextManager;
+import org.skywalking.apm.agent.core.context.tag.Tags;
+import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodInvokeContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.skywalking.apm.agent.core.context.trace.Span;
-import org.skywalking.apm.agent.core.context.tag.Tags;
-
-import java.net.MalformedURLException;
-import java.net.URL;
 
 /**
  * {@link HttpClientExecuteInterceptor} transport the trace context by call {@link HttpRequest#setHeader(Header)},
@@ -33,7 +36,7 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
         }
         HttpHost httpHost = (HttpHost)allArguments[0];
         HttpRequest httpRequest = (HttpRequest)allArguments[1];
-        Span span = createSpan(httpRequest);
+        AbstractSpan span = createSpan(httpRequest);
         span.setPeerHost(httpHost.getHostName());
         span.setPort(httpHost.getPort());
         Tags.SPAN_KIND.set(span, Tags.SPAN_KIND_CLIENT);
@@ -58,8 +61,8 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
     /**
      * Create span.
      */
-    private Span createSpan(HttpRequest httpRequest) {
-        Span span;
+    private AbstractSpan createSpan(HttpRequest httpRequest) {
+        AbstractSpan span;
         try {
             URL url = new URL(httpRequest.getRequestLine().getUri());
             span = ContextManager.createSpan(url.getPath());
@@ -79,7 +82,7 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
 
         HttpResponse response = (HttpResponse)ret;
         int statusCode = response.getStatusLine().getStatusCode();
-        Span span = ContextManager.activeSpan();
+        AbstractSpan span = ContextManager.activeSpan();
         if (statusCode != 200) {
             Tags.ERROR.set(span, true);
         }

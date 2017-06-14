@@ -5,18 +5,35 @@ import com.mongodb.bulk.DeleteRequest;
 import com.mongodb.bulk.InsertRequest;
 import com.mongodb.bulk.UpdateRequest;
 import com.mongodb.bulk.WriteRequest;
-import com.mongodb.operation.*;
+import com.mongodb.operation.CountOperation;
+import com.mongodb.operation.CreateCollectionOperation;
+import com.mongodb.operation.CreateIndexesOperation;
+import com.mongodb.operation.CreateViewOperation;
+import com.mongodb.operation.DeleteOperation;
+import com.mongodb.operation.DistinctOperation;
+import com.mongodb.operation.FindAndDeleteOperation;
+import com.mongodb.operation.FindAndReplaceOperation;
+import com.mongodb.operation.FindAndUpdateOperation;
+import com.mongodb.operation.FindOperation;
+import com.mongodb.operation.GroupOperation;
+import com.mongodb.operation.InsertOperation;
+import com.mongodb.operation.ListCollectionsOperation;
+import com.mongodb.operation.MapReduceToCollectionOperation;
+import com.mongodb.operation.MapReduceWithInlineResultsOperation;
+import com.mongodb.operation.MixedBulkWriteOperation;
+import com.mongodb.operation.ReadOperation;
+import com.mongodb.operation.UpdateOperation;
+import com.mongodb.operation.WriteOperation;
+import java.util.List;
 import org.bson.BsonDocument;
 import org.skywalking.apm.agent.core.conf.Config;
 import org.skywalking.apm.agent.core.context.ContextManager;
+import org.skywalking.apm.agent.core.context.tag.Tags;
+import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodInvokeContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.skywalking.apm.agent.core.context.trace.Span;
-import org.skywalking.apm.agent.core.context.tag.Tags;
-
-import java.util.List;
 
 /**
  * {@link MongoDBMethodInterceptor} intercept method of {@link com.mongodb.Mongo#execute(ReadOperation, ReadPreference)}
@@ -51,7 +68,7 @@ public class MongoDBMethodInterceptor implements InstanceMethodsAroundIntercepto
         Object[] arguments = interceptorContext.allArguments();
 
         String methodName = arguments[0].getClass().getSimpleName();
-        Span span = ContextManager.createSpan(METHOD + methodName);
+        AbstractSpan span = ContextManager.createSpan(METHOD + methodName);
         Tags.COMPONENT.set(span, MONGODB_COMPONENT);
         Tags.DB_TYPE.set(span, MONGODB_COMPONENT);
         Tags.SPAN_KIND.set(span, Tags.SPAN_KIND_CLIENT);
@@ -66,7 +83,7 @@ public class MongoDBMethodInterceptor implements InstanceMethodsAroundIntercepto
     @Override
     public Object afterMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
                               Object ret) {
-        Span span = ContextManager.activeSpan();
+        AbstractSpan span = ContextManager.activeSpan();
         span.setPeerHost((String)context.get(MONGODB_HOST));
         span.setPort((Integer)context.get(MONGODB_PORT));
         ContextManager.stopSpan();

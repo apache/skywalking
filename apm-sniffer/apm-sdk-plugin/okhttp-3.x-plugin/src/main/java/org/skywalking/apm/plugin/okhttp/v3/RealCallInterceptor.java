@@ -9,14 +9,15 @@ import okhttp3.Response;
 import org.skywalking.apm.agent.core.conf.Config;
 import org.skywalking.apm.agent.core.context.ContextCarrier;
 import org.skywalking.apm.agent.core.context.ContextManager;
+import org.skywalking.apm.agent.core.context.tag.Tags;
+import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.skywalking.apm.agent.core.context.trace.Span;
 import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ConstructorInvokeContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodInvokeContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.skywalking.apm.agent.core.context.trace.Span;
-import org.skywalking.apm.agent.core.context.tag.Tags;
 
 /**
  * {@link RealCallInterceptor} intercept the synchronous http calls by the client of okhttp.
@@ -57,7 +58,7 @@ public class RealCallInterceptor implements InstanceMethodsAroundInterceptor, In
         MethodInterceptResult result) throws Throwable {
         Request request = (Request)context.get(REQUEST_CONTEXT_KEY);
 
-        Span span = ContextManager.createSpan(request.url().uri().toString());
+        AbstractSpan span = ContextManager.createSpan(request.url().uri().toString());
         span.setPeerHost(request.url().host());
         span.setPort(request.url().port());
         Tags.SPAN_KIND.set(span, Tags.SPAN_KIND_CLIENT);
@@ -96,7 +97,7 @@ public class RealCallInterceptor implements InstanceMethodsAroundInterceptor, In
         Response response = (Response)ret;
         int statusCode = response.code();
 
-        Span span = ContextManager.activeSpan();
+        AbstractSpan span = ContextManager.activeSpan();
         if (statusCode >= 400) {
             Tags.ERROR.set(span, true);
         }

@@ -8,14 +8,14 @@ import com.alibaba.dubbo.rpc.RpcContext;
 import org.skywalking.apm.agent.core.conf.Config;
 import org.skywalking.apm.agent.core.context.ContextCarrier;
 import org.skywalking.apm.agent.core.context.ContextManager;
+import org.skywalking.apm.agent.core.context.tag.Tags;
+import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodInvokeContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.skywalking.apm.plugin.dubbox.BugFixActive;
 import org.skywalking.apm.plugin.dubbox.SWBaseBean;
-import org.skywalking.apm.agent.core.context.trace.Span;
-import org.skywalking.apm.agent.core.context.tag.Tags;
 
 /**
  * {@link DubboInterceptor} define how to enhance class {@link com.alibaba.dubbo.monitor.support.MonitorFilter#invoke(Invoker,
@@ -50,7 +50,7 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
         boolean isConsumer = rpcContext.isConsumerSide();
         URL requestURL = invoker.getUrl();
 
-        Span span = ContextManager.createSpan(generateOperationName(requestURL, invocation));
+        AbstractSpan span = ContextManager.createSpan(generateOperationName(requestURL, invocation));
         Tags.URL.set(span, generateRequestURL(requestURL, invocation));
         Tags.COMPONENT.set(span, DUBBO_COMPONENT);
         Tags.SPAN_LAYER.asRPCFramework(span);
@@ -111,7 +111,7 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
      * Log the throwable, which occurs in Dubbo RPC service.
      */
     private void dealException(Throwable throwable) {
-        Span span = ContextManager.activeSpan();
+        AbstractSpan span = ContextManager.activeSpan();
         Tags.ERROR.set(span, true);
         span.log(throwable);
     }

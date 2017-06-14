@@ -1,6 +1,6 @@
 package org.skywalking.apm.agent.core.context.tag;
 
-import org.skywalking.apm.agent.core.context.trace.Span;
+import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
 
 /**
  * Do the same thing as {@link StringTag}, just with a {@link Boolean} value.
@@ -17,7 +17,7 @@ public class BooleanTag extends AbstractTag<Boolean> {
     }
 
     @Override
-    public void set(Span span, Boolean tagValue) {
+    public void set(AbstractSpan span, Boolean tagValue) {
         span.setTag(key, tagValue);
     }
 

@@ -1,6 +1,6 @@
 package org.skywalking.apm.agent.core.context.tag;
 
-import org.skywalking.apm.agent.core.context.trace.Span;
+import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
 
 /**
  * The span tags are supported by sky-walking engine.
@@ -52,15 +52,15 @@ public final class Tags {
         private static final String RPC_FRAMEWORK_LAYER = "rpc";
         private static final String HTTP_LAYER = "http";
 
-        public static void asDB(Span span) {
+        public static void asDB(AbstractSpan span) {
             SPAN_LAYER_TAG.set(span, DB_LAYER);
         }
 
-        public static void asRPCFramework(Span span) {
+        public static void asRPCFramework(AbstractSpan span) {
             SPAN_LAYER_TAG.set(span, RPC_FRAMEWORK_LAYER);
         }
 
-        public static void asHttp(Span span) {
+        public static void asHttp(AbstractSpan span) {
             SPAN_LAYER_TAG.set(span, HTTP_LAYER);
         }
     }

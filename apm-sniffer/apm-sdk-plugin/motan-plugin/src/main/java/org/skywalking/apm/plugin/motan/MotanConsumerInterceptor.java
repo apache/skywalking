@@ -6,14 +6,14 @@ import com.weibo.api.motan.rpc.URL;
 import org.skywalking.apm.agent.core.conf.Config;
 import org.skywalking.apm.agent.core.context.ContextCarrier;
 import org.skywalking.apm.agent.core.context.ContextManager;
+import org.skywalking.apm.agent.core.context.tag.Tags;
+import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ConstructorInvokeContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodInvokeContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.skywalking.apm.agent.core.context.trace.Span;
-import org.skywalking.apm.agent.core.context.tag.Tags;
 
 /**
  * {@link MotanProviderInterceptor} create span by fetch request url from
@@ -45,7 +45,7 @@ public class MotanConsumerInterceptor implements InstanceConstructorInterceptor,
         URL url = (URL) context.get(KEY_NAME_OF_REQUEST_URL);
         Request request = (Request) interceptorContext.allArguments()[0];
         if (url != null) {
-            Span span = ContextManager.createSpan(generateOperationName(url, request));
+            AbstractSpan span = ContextManager.createSpan(generateOperationName(url, request));
             span.setPeerHost(url.getHost());
             span.setPort(url.getPort());
             Tags.COMPONENT.set(span, MOTAN_COMPONENT);
@@ -64,7 +64,7 @@ public class MotanConsumerInterceptor implements InstanceConstructorInterceptor,
                               Object ret) {
         Response response = (Response) ret;
         if (response != null && response.getException() != null) {
-            Span span = ContextManager.activeSpan();
+            AbstractSpan span = ContextManager.activeSpan();
             Tags.ERROR.set(span, true);
             span.log(response.getException());
         }

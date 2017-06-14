@@ -1,8 +1,8 @@
 package org.skywalking.apm.sniffer.mock.trace.builders.span;
 
 import org.skywalking.apm.agent.core.context.ContextManager;
-import org.skywalking.apm.agent.core.context.trace.Span;
 import org.skywalking.apm.agent.core.context.tag.Tags;
+import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
 
 /**
  * The <code>MySQLGenerator</code> generates all possible spans, by tracing mysql client access.
@@ -13,7 +13,7 @@ public class MySQLGenerator {
     public static class Query extends SpanGeneration {
         @Override
         protected void before() {
-            Span span = ContextManager.createSpan("mysql/jdbi/statement/executeQuery");
+            AbstractSpan span = ContextManager.createSpan("mysql/jdbi/statement/executeQuery");
             Tags.COMPONENT.set(span, "Mysql");
             Tags.SPAN_KIND.set(span, Tags.SPAN_KIND_CLIENT);
             span.setPeerHost("10.5.34.18");

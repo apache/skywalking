@@ -3,6 +3,7 @@ package org.skywalking.apm.agent.core.context;
 import java.util.LinkedList;
 import java.util.List;
 import org.skywalking.apm.agent.core.conf.Config;
+import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.skywalking.apm.agent.core.context.trace.LeafSpan;
 import org.skywalking.apm.agent.core.context.trace.Span;
 import org.skywalking.apm.agent.core.context.trace.TraceSegment;
@@ -42,7 +43,7 @@ public final class TracerContext implements AbstractTracerContext {
      * @param operationName {@link Span#operationName}
      * @return the new active span.
      */
-    public Span createSpan(String operationName, boolean isLeaf) {
+    public AbstractSpan createSpan(String operationName, boolean isLeaf) {
         return this.createSpan(operationName, System.currentTimeMillis(), isLeaf);
     }
 
@@ -54,7 +55,7 @@ public final class TracerContext implements AbstractTracerContext {
      * @param isLeaf is true, if the span is a leaf in trace tree.
      * @return
      */
-    public Span createSpan(String operationName, long startTime, boolean isLeaf) {
+    public AbstractSpan createSpan(String operationName, long startTime, boolean isLeaf) {
         Span parentSpan = peek();
         Span span;
         if (parentSpan == null) {
@@ -82,7 +83,7 @@ public final class TracerContext implements AbstractTracerContext {
     /**
      * @return the active span of current context.
      */
-    public Span activeSpan() {
+    public AbstractSpan activeSpan() {
         Span span = peek();
         if (span == null) {
             throw new IllegalStateException("No active span.");
@@ -95,7 +96,7 @@ public final class TracerContext implements AbstractTracerContext {
      *
      * @param span to finish. It must the the top element of {@link #activeSpanStack}.
      */
-    public void stopSpan(Span span) {
+    public void stopSpan(AbstractSpan span) {
         stopSpan(span, System.currentTimeMillis());
     }
 
@@ -106,7 +107,7 @@ public final class TracerContext implements AbstractTracerContext {
         return segment.getRelatedGlobalTraces().get(0).get();
     }
 
-    public void stopSpan(Span span, Long endTime) {
+    public void stopSpan(AbstractSpan span, Long endTime) {
         Span lastSpan = peek();
         if (lastSpan.isLeaf()) {
             LeafSpan leafSpan = (LeafSpan)lastSpan;
@@ -147,7 +148,7 @@ public final class TracerContext implements AbstractTracerContext {
      */
     public void inject(ContextCarrier carrier) {
         carrier.setTraceSegmentId(this.segment.getTraceSegmentId());
-        Span span = this.activeSpan();
+        Span span = (Span)this.activeSpan();
         carrier.setSpanId(span.getSpanId());
         carrier.setApplicationCode(Config.Agent.APPLICATION_CODE);
         String host = span.getPeerHost();

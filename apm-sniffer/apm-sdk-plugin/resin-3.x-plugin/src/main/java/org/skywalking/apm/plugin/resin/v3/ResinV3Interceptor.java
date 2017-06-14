@@ -5,12 +5,12 @@ import com.caucho.server.http.HttpResponse;
 import org.skywalking.apm.agent.core.conf.Config;
 import org.skywalking.apm.agent.core.context.ContextCarrier;
 import org.skywalking.apm.agent.core.context.ContextManager;
+import org.skywalking.apm.agent.core.context.tag.Tags;
+import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodInvokeContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.skywalking.apm.agent.core.context.trace.Span;
-import org.skywalking.apm.agent.core.context.tag.Tags;
 import org.skywalking.apm.util.StringUtil;
 
 /**
@@ -30,7 +30,7 @@ public class ResinV3Interceptor implements InstanceMethodsAroundInterceptor {
         MethodInterceptResult result) {
         Object[] args = interceptorContext.allArguments();
         CauchoRequest request = (CauchoRequest)args[0];
-        Span span = ContextManager.createSpan(request.getPageURI());
+        AbstractSpan span = ContextManager.createSpan(request.getPageURI());
         Tags.COMPONENT.set(span, RESIN_COMPONENT);
         span.setPeerHost(request.getServerName());
         span.setPort(request.getServerPort());
@@ -65,7 +65,7 @@ public class ResinV3Interceptor implements InstanceMethodsAroundInterceptor {
     public Object afterMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
         Object ret) {
         HttpResponse response = (HttpResponse)interceptorContext.allArguments()[1];
-        Span span = ContextManager.activeSpan();
+        AbstractSpan span = ContextManager.activeSpan();
         Tags.STATUS_CODE.set(span, response.getStatusCode());
 
         if (response.getStatusCode() != 200) {
@@ -78,7 +78,7 @@ public class ResinV3Interceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void handleMethodException(Throwable t, EnhancedClassInstanceContext context,
         InstanceMethodInvokeContext interceptorContext) {
-        Span span = ContextManager.activeSpan();
+        AbstractSpan span = ContextManager.activeSpan();
         span.log(t);
         Tags.ERROR.set(span, true);
     }

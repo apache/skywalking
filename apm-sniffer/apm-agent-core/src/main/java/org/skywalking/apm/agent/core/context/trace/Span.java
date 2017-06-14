@@ -32,7 +32,7 @@ import org.skywalking.apm.util.StringUtil;
  * Created by wusheng on 2017/2/17.
  */
 @JsonAdapter(Span.Serializer.class)
-public class Span {
+public class Span implements AbstractSpan {
     private static Gson SERIALIZATION_GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 
     private int spanId;
@@ -111,7 +111,7 @@ public class Span {
         this.spanId = spanId;
         this.parentSpanId = parentSpanId;
         this.startTime = startTime;
-        this.operationName = operationName;
+        this.setOperationName(operationName);
     }
 
     /**
@@ -192,10 +192,12 @@ public class Span {
 
     /**
      * Sets the string name for the logical operation this span represents.
+     * These is one scenario, which trigger context switch.
+     * 1) the operations ends with the defined suffix, see {@link Config.Agent#IGNORE_SUFFIX}
      *
      * @return this Span instance, for chaining
      */
-    public Span setOperationName(String operationName) {
+    public AbstractSpan setOperationName(String operationName) {
         this.operationName = operationName;
         if (this.spanId == 0) {
             if (operationName != null) {

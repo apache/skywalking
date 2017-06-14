@@ -5,9 +5,9 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.skywalking.apm.agent.core.boot.ServiceManager;
-import org.skywalking.apm.agent.core.context.trace.Span;
-import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.skywalking.apm.agent.core.context.tag.Tags;
+import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 
 /**
  * Created by wusheng on 2017/2/19.
@@ -20,7 +20,7 @@ public class ContextManagerTestCase {
 
     @Test
     public void testDelegateToTracerContext() {
-        Span span = ContextManager.createSpan("serviceA");
+        AbstractSpan span = ContextManager.createSpan("serviceA");
         Tags.COMPONENT.set(span, "test");
 
         Assert.assertEquals(span, ContextManager.activeSpan());

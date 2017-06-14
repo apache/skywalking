@@ -1,6 +1,7 @@
 package org.skywalking.apm.plugin.jdbc;
 
 import org.skywalking.apm.agent.core.context.ContextManager;
+import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.skywalking.apm.util.StringUtil;
 import org.skywalking.apm.agent.core.context.trace.Span;
 import org.skywalking.apm.agent.core.context.tag.Tags;
@@ -21,7 +22,7 @@ public class ConnectionTracing {
                                 ConnectionInfo connectInfo, String method, String sql, Executable<R> exec)
         throws SQLException {
         try {
-            Span span = ContextManager.createSpan(connectInfo.getDBType() + "/JDBI/Connection/" + method);
+            AbstractSpan span = ContextManager.createSpan(connectInfo.getDBType() + "/JDBI/Connection/" + method);
             Tags.DB_TYPE.set(span, "sql");
             Tags.SPAN_KIND.set(span, Tags.SPAN_KIND_CLIENT);
             Tags.DB_INSTANCE.set(span, connectInfo.getDatabaseName());
@@ -36,7 +37,7 @@ public class ConnectionTracing {
             }
             return exec.exe(realConnection, sql);
         } catch (SQLException e) {
-            Span span = ContextManager.activeSpan();
+            AbstractSpan span = ContextManager.activeSpan();
             Tags.ERROR.set(span, true);
             span.log(e);
             throw e;

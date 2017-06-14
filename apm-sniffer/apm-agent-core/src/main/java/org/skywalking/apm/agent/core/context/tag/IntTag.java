@@ -1,6 +1,6 @@
 package org.skywalking.apm.agent.core.context.tag;
 
-import org.skywalking.apm.agent.core.context.trace.Span;
+import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
 
 /**
  * Do the same thing as {@link StringTag}, just with a {@link Integer} value.
@@ -13,7 +13,7 @@ public class IntTag extends AbstractTag<Integer> {
     }
 
     @Override
-    public void set(Span span, Integer tagValue) {
+    public void set(AbstractSpan span, Integer tagValue) {
         span.setTag(super.key, tagValue);
     }
 

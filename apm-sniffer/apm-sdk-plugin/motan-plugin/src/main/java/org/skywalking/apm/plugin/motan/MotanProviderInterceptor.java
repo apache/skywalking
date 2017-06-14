@@ -5,13 +5,13 @@ import com.weibo.api.motan.rpc.Response;
 import org.skywalking.apm.agent.core.conf.Config;
 import org.skywalking.apm.agent.core.context.ContextCarrier;
 import org.skywalking.apm.agent.core.context.ContextManager;
+import org.skywalking.apm.agent.core.context.tag.Tags;
+import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodInvokeContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.skywalking.apm.util.StringUtil;
-import org.skywalking.apm.agent.core.context.trace.Span;
-import org.skywalking.apm.agent.core.context.tag.Tags;
 
 /**
  * Current trace segment will ref the trace segment if the serialized trace context that fetch from {@link
@@ -32,7 +32,7 @@ public class MotanProviderInterceptor implements InstanceMethodsAroundIntercepto
     public void beforeMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
                              MethodInterceptResult result) {
         Request request = (Request) interceptorContext.allArguments()[0];
-        Span span = ContextManager.createSpan(generateViewPoint(request));
+        AbstractSpan span = ContextManager.createSpan(generateViewPoint(request));
         Tags.COMPONENT.set(span, MOTAN_COMPONENT);
         Tags.SPAN_KIND.set(span, Tags.SPAN_KIND_SERVER);
         Tags.SPAN_LAYER.asRPCFramework(span);
@@ -48,7 +48,7 @@ public class MotanProviderInterceptor implements InstanceMethodsAroundIntercepto
                               Object ret) {
         Response response = (Response) ret;
         if (response != null && response.getException() != null) {
-            Span span = ContextManager.activeSpan();
+            AbstractSpan span = ContextManager.activeSpan();
             span.log(response.getException());
             Tags.ERROR.set(span, true);
         }
