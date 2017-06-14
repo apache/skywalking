@@ -6,6 +6,7 @@ import org.apache.logging.log4j.Logger;
 import org.skywalking.apm.collector.actor.ClusterWorkerContext;
 import org.skywalking.apm.collector.actor.LocalWorkerContext;
 import org.skywalking.apm.collector.actor.Role;
+import org.skywalking.apm.collector.actor.WorkerInvokeException;
 import org.skywalking.apm.collector.actor.WorkerRefs;
 import org.skywalking.apm.collector.worker.storage.RecordAnalysisData;
 
@@ -22,7 +23,7 @@ public abstract class RecordAnalysisMember extends AnalysisMember {
         super(role, clusterContext, selfContext);
     }
 
-    final public void set(String id, JsonObject record) throws Exception {
+    final public void set(String id, JsonObject record) {
         getRecordAnalysisData().getOrCreate(id).set(record);
     }
 
@@ -30,13 +31,12 @@ public abstract class RecordAnalysisMember extends AnalysisMember {
         return recordAnalysisData;
     }
 
-    @Override
-    final protected void aggregation() throws Exception {
+    @Override final protected void aggregation() {
         getRecordAnalysisData().asMap().forEach((key, value) -> {
             try {
                 aggWorkRefs().tell(value);
-            } catch (Exception e) {
-                logger.error(e);
+            } catch (WorkerInvokeException e) {
+                logger.error(e.getMessage(), e);
             }
         });
         getRecordAnalysisData().asMap().clear();

@@ -18,6 +18,7 @@ import org.skywalking.apm.collector.actor.LocalWorkerContext;
 import org.skywalking.apm.collector.actor.ProviderNotFoundException;
 import org.skywalking.apm.collector.actor.WorkerRefs;
 import org.skywalking.apm.collector.actor.selector.RollingSelector;
+import org.skywalking.apm.collector.worker.httpserver.ArgumentsParseException;
 import org.skywalking.apm.collector.worker.segment.persistence.SegmentExceptionWithSegId;
 import org.skywalking.apm.collector.worker.segment.persistence.SegmentTopSearchWithTimeSlice;
 
@@ -90,47 +91,47 @@ public class SegmentTopGetWithTimeSliceTestCase {
     public void testOnSearch() throws Exception {
         Map<String, String[]> request = createRequest();
         JsonObject response = new JsonObject();
-        getObj.onSearch(request, response);
+        getObj.onReceive(request, response);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = ArgumentsParseException.class)
     public void testOnSearchErrorStartTime() throws Exception {
         Map<String, String[]> request = createRequest();
         String[] startTime = {"x"};
         request.put("startTime", startTime);
 
         JsonObject response = new JsonObject();
-        getObj.onSearch(request, response);
+        getObj.onReceive(request, response);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = ArgumentsParseException.class)
     public void testOnSearchErrorEndTime() throws Exception {
         Map<String, String[]> request = createRequest();
         String[] endTime = {"x"};
         request.put("endTime", endTime);
 
         JsonObject response = new JsonObject();
-        getObj.onSearch(request, response);
+        getObj.onReceive(request, response);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = ArgumentsParseException.class)
     public void testOnSearchErrorFrom() throws Exception {
         Map<String, String[]> request = createRequest();
         String[] from = {"x"};
         request.put("from", from);
 
         JsonObject response = new JsonObject();
-        getObj.onSearch(request, response);
+        getObj.onReceive(request, response);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = ArgumentsParseException.class)
     public void testOnSearchErrorLimit() throws Exception {
         Map<String, String[]> request = createRequest();
         String[] limit = {"x"};
         request.put("limit", limit);
 
         JsonObject response = new JsonObject();
-        getObj.onSearch(request, response);
+        getObj.onReceive(request, response);
     }
 
     private Map<String, String[]> createRequest() {

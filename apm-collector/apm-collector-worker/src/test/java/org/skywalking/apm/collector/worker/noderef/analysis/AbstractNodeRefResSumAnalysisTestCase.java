@@ -1,5 +1,6 @@
 package org.skywalking.apm.collector.worker.noderef.analysis;
 
+import java.lang.reflect.Field;
 import org.junit.Assert;
 import org.junit.Test;
 import org.skywalking.apm.collector.actor.ClusterWorkerContext;
@@ -9,8 +10,6 @@ import org.skywalking.apm.collector.actor.selector.RollingSelector;
 import org.skywalking.apm.collector.actor.selector.WorkerSelector;
 import org.skywalking.apm.collector.worker.Const;
 import org.skywalking.apm.collector.worker.storage.MetricAnalysisData;
-
-import java.lang.reflect.Field;
 
 /**
  * @author pengys5
@@ -56,7 +55,7 @@ public class AbstractNodeRefResSumAnalysisTestCase {
         Field testAField = impl.getClass().getSuperclass().getSuperclass().getDeclaredField("metricAnalysisData");
         testAField.setAccessible(true);
 
-        MetricAnalysisData metricAnalysisData = (MetricAnalysisData) testAField.get(impl);
+        MetricAnalysisData metricAnalysisData = (MetricAnalysisData)testAField.get(impl);
 
         Assert.assertEquals(1L, metricAnalysisData.asMap().get("2017..-..A..-..B").asMap().get("oneSecondLess"));
         Assert.assertEquals(1L, metricAnalysisData.asMap().get("2017..-..A..-..B").asMap().get("threeSecondLess"));
@@ -72,7 +71,7 @@ public class AbstractNodeRefResSumAnalysisTestCase {
         }
 
         @Override
-        public void analyse(Object message) throws Exception {
+        public void analyse(Object message) {
 
         }
 

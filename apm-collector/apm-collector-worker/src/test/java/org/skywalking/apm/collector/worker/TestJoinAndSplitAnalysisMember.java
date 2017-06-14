@@ -16,7 +16,7 @@ public class TestJoinAndSplitAnalysisMember extends JoinAndSplitAnalysisMember {
     }
 
     @Override
-    public void analyse(Object message) throws Exception {
+    public void analyse(Object message) {
 
     }
 

@@ -55,5 +55,3 @@ _In chronological order_
 * [WIKI](https://github.com/wu-sheng/sky-walking/wiki)
 
 _Chat with us on gitter, in English. As a Chinese Developer, you can join QQ Group: 392443393, by **tagging** Sky-Walking._
-
-_sky-walking 1.x and 2.x provide features about tracing only, did not include any analysis abilities._

@@ -2,12 +2,18 @@ package org.skywalking.apm.collector.worker.segment.analysis;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.skywalking.apm.collector.actor.*;
+import org.skywalking.apm.collector.actor.AbstractLocalAsyncWorkerProvider;
+import org.skywalking.apm.collector.actor.ClusterWorkerContext;
+import org.skywalking.apm.collector.actor.LocalWorkerContext;
+import org.skywalking.apm.collector.actor.ProviderNotFoundException;
+import org.skywalking.apm.collector.actor.WorkerInvokeException;
+import org.skywalking.apm.collector.actor.WorkerNotFoundException;
+import org.skywalking.apm.collector.actor.WorkerRefs;
 import org.skywalking.apm.collector.actor.selector.RollingSelector;
 import org.skywalking.apm.collector.actor.selector.WorkerSelector;
 import org.skywalking.apm.collector.worker.RecordAnalysisMember;
 import org.skywalking.apm.collector.worker.config.WorkerConfig;
-import org.skywalking.apm.collector.worker.segment.entity.Segment;
+import org.skywalking.apm.collector.worker.segment.entity.SegmentAndJson;
 import org.skywalking.apm.collector.worker.segment.persistence.SegmentSave;
 
 /**
@@ -27,10 +33,16 @@ public class SegmentAnalysis extends RecordAnalysisMember {
     }
 
     @Override
-    public void analyse(Object message) throws Exception {
-        if (message instanceof Segment) {
-            Segment segment = (Segment) message;
-            getSelfContext().lookup(SegmentSave.Role.INSTANCE).tell(segment);
+    public void analyse(Object message) {
+        if (message instanceof SegmentAndJson) {
+            SegmentAndJson segmentAndJson = (SegmentAndJson)message;
+
+            try {
+                getSelfContext().lookup(SegmentSave.Role.INSTANCE).tell(segmentAndJson);
+            } catch (WorkerInvokeException | WorkerNotFoundException e) {
+                e.printStackTrace();
+                logger.error(e.getMessage(), e);
+            }
         } else {
             logger.error("unhandled message, message instance must Segment, but is %s", message.getClass().toString());
         }

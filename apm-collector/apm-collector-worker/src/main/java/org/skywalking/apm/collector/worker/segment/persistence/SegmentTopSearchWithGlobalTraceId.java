@@ -3,23 +3,28 @@ package org.skywalking.apm.collector.worker.segment.persistence;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import java.io.IOException;
+import java.util.List;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.client.Client;
-import org.skywalking.apm.collector.actor.*;
+import org.skywalking.apm.collector.actor.AbstractLocalSyncWorker;
+import org.skywalking.apm.collector.actor.AbstractLocalSyncWorkerProvider;
+import org.skywalking.apm.collector.actor.ClusterWorkerContext;
+import org.skywalking.apm.collector.actor.LocalWorkerContext;
+import org.skywalking.apm.collector.actor.ProviderNotFoundException;
+import org.skywalking.apm.collector.actor.Role;
+import org.skywalking.apm.collector.actor.WorkerException;
 import org.skywalking.apm.collector.actor.selector.RollingSelector;
 import org.skywalking.apm.collector.actor.selector.WorkerSelector;
 import org.skywalking.apm.collector.worker.globaltrace.GlobalTraceIndex;
 import org.skywalking.apm.collector.worker.segment.SegmentCostIndex;
 import org.skywalking.apm.collector.worker.segment.SegmentExceptionIndex;
 import org.skywalking.apm.collector.worker.segment.SegmentIndex;
-import org.skywalking.apm.collector.worker.segment.entity.GlobalTraceId;
 import org.skywalking.apm.collector.worker.segment.entity.Segment;
 import org.skywalking.apm.collector.worker.segment.entity.SegmentDeserialize;
 import org.skywalking.apm.collector.worker.storage.EsClient;
 import org.skywalking.apm.collector.worker.storage.JoinAndSplitData;
 import org.skywalking.apm.collector.worker.tools.CollectionTools;
-
-import java.util.List;
 
 /**
  * @author pengys5
@@ -29,7 +34,7 @@ public class SegmentTopSearchWithGlobalTraceId extends AbstractLocalSyncWorker {
     private Gson gson = new Gson();
 
     private SegmentTopSearchWithGlobalTraceId(Role role, ClusterWorkerContext clusterContext,
-                                              LocalWorkerContext selfContext) {
+        LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
@@ -39,9 +44,9 @@ public class SegmentTopSearchWithGlobalTraceId extends AbstractLocalSyncWorker {
     }
 
     @Override
-    protected void onWork(Object request, Object response) throws Exception {
+    protected void onWork(Object request, Object response) throws WorkerException {
         if (request instanceof RequestEntity) {
-            RequestEntity search = (RequestEntity) request;
+            RequestEntity search = (RequestEntity)request;
             Client client = EsClient.INSTANCE.getClient();
 
             String globalTraceData = client.prepareGet(GlobalTraceIndex.INDEX, GlobalTraceIndex.TYPE_RECORD, search.globalTraceId).get().getSourceAsString();
@@ -70,24 +75,30 @@ public class SegmentTopSearchWithGlobalTraceId extends AbstractLocalSyncWorker {
 
                     JsonObject topSegmentJson = new JsonObject();
                     topSegmentJson.addProperty("num", num);
-                    String segId = (String) getResponse.getSource().get(SegmentCostIndex.SEG_ID);
+                    String segId = (String)getResponse.getSource().get(SegmentCostIndex.SEG_ID);
                     topSegmentJson.addProperty(SegmentCostIndex.SEG_ID, segId);
-                    topSegmentJson.addProperty(SegmentCostIndex.START_TIME, (Number) getResponse.getSource().get(SegmentCostIndex.START_TIME));
+                    topSegmentJson.addProperty(SegmentCostIndex.START_TIME, (Number)getResponse.getSource().get(SegmentCostIndex.START_TIME));
                     if (getResponse.getSource().containsKey(SegmentCostIndex.END_TIME)) {
-                        topSegmentJson.addProperty(SegmentCostIndex.END_TIME, (Number) getResponse.getSource().get(SegmentCostIndex.END_TIME));
+                        topSegmentJson.addProperty(SegmentCostIndex.END_TIME, (Number)getResponse.getSource().get(SegmentCostIndex.END_TIME));
                     }
 
-                    topSegmentJson.addProperty(SegmentCostIndex.OPERATION_NAME, (String) getResponse.getSource().get(SegmentCostIndex.OPERATION_NAME));
-                    topSegmentJson.addProperty(SegmentCostIndex.COST, (Number) getResponse.getSource().get(SegmentCostIndex.COST));
+                    topSegmentJson.addProperty(SegmentCostIndex.OPERATION_NAME, (String)getResponse.getSource().get(SegmentCostIndex.OPERATION_NAME));
+                    topSegmentJson.addProperty(SegmentCostIndex.COST, (Number)getResponse.getSource().get(SegmentCostIndex.COST));
 
                     String segmentSource = client.prepareGet(SegmentIndex.INDEX, SegmentIndex.TYPE_RECORD, segId).get().getSourceAsString();
-                    Segment segment = SegmentDeserialize.INSTANCE.deserializeSingle(segmentSource);
-                    List<GlobalTraceId> distributedTraceIdList = segment.getRelatedGlobalTraces();
+
+                    Segment segment = null;
+                    try {
+                        segment = SegmentDeserialize.INSTANCE.deserializeSingle(segmentSource);
+                    } catch (IOException e) {
+                        throw new WorkerException(e.getMessage(), e);
+                    }
+                    List<String> distributedTraceIdList = segment.getRelatedGlobalTraces().get();
 
                     JsonArray distributedTraceIdArray = new JsonArray();
                     if (CollectionTools.isNotEmpty(distributedTraceIdList)) {
-                        for (GlobalTraceId distributedTraceId : distributedTraceIdList) {
-                            distributedTraceIdArray.add(distributedTraceId.get());
+                        for (String distributedTraceId : distributedTraceIdList) {
+                            distributedTraceIdArray.add(distributedTraceId);
                         }
                     }
                     topSegmentJson.add("traceIds", distributedTraceIdArray);
@@ -108,7 +119,7 @@ public class SegmentTopSearchWithGlobalTraceId extends AbstractLocalSyncWorker {
                 }
             }
 
-            JsonObject resJsonObj = (JsonObject) response;
+            JsonObject resJsonObj = (JsonObject)response;
             resJsonObj.add("result", topSegPaging);
         }
     }

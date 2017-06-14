@@ -16,7 +16,7 @@ public abstract class MetricAnalysisMember extends AnalysisMember {
         super(role, clusterContext, selfContext);
     }
 
-    final protected void set(String id, String metricName, Long value) throws Exception {
+    final protected void set(String id, String metricName, Long value) {
         getMetricAnalysisData().getOrCreate(id).set(metricName, value);
     }
 
@@ -24,8 +24,7 @@ public abstract class MetricAnalysisMember extends AnalysisMember {
         return metricAnalysisData;
     }
 
-    @Override
-    final protected void aggregation() throws Exception {
+    @Override final protected void aggregation() {
         getMetricAnalysisData().asMap().forEach((key, value) -> {
             try {
                 aggWorkRefs().tell(value);

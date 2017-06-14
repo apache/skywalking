@@ -19,6 +19,9 @@
         <logger name="org.skywalking.apm.collector" level="debug">
             <AppenderRef ref="RollingFile"/>
         </logger>
+        <logger name="org.skywalking.apm.collector.worker.storage" level="error">
+            <AppenderRef ref="RollingFile"/>
+        </logger>
         <Root level="INFO">
             <AppenderRef ref="RollingFile"/>
         </Root>

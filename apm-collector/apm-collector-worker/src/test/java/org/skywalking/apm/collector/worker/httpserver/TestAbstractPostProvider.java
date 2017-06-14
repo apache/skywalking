@@ -9,11 +9,6 @@ import org.skywalking.apm.collector.actor.Role;
  */
 public class TestAbstractPostProvider extends AbstractPostProvider {
     @Override
-    public int queueSize() {
-        return 4;
-    }
-
-    @Override
     public String servletPath() {
         return "testPost";
     }

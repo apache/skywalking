@@ -2,7 +2,12 @@ package org.skywalking.apm.collector.worker.segment.persistence;
 
 import com.google.gson.JsonObject;
 import org.elasticsearch.action.get.GetResponse;
-import org.skywalking.apm.collector.actor.*;
+import org.skywalking.apm.collector.actor.AbstractLocalSyncWorker;
+import org.skywalking.apm.collector.actor.AbstractLocalSyncWorkerProvider;
+import org.skywalking.apm.collector.actor.ClusterWorkerContext;
+import org.skywalking.apm.collector.actor.LocalWorkerContext;
+import org.skywalking.apm.collector.actor.Role;
+import org.skywalking.apm.collector.actor.WorkerException;
 import org.skywalking.apm.collector.actor.selector.RollingSelector;
 import org.skywalking.apm.collector.actor.selector.WorkerSelector;
 import org.skywalking.apm.collector.worker.segment.SegmentExceptionIndex;
@@ -18,17 +23,17 @@ public class SegmentExceptionWithSegId extends AbstractLocalSyncWorker {
     }
 
     @Override
-    protected void onWork(Object request, Object response) throws Exception {
+    protected void onWork(Object request, Object response) throws WorkerException {
         if (request instanceof RequestEntity) {
-            RequestEntity search = (RequestEntity) request;
+            RequestEntity search = (RequestEntity)request;
 
             GetResponse getResponse = EsClient.INSTANCE.getClient().prepareGet(SegmentExceptionIndex.INDEX, SegmentExceptionIndex.TYPE_RECORD, search.segId).get();
 
             JsonObject dataJson = new JsonObject();
-            dataJson.addProperty(SegmentExceptionIndex.SEG_ID, (String) getResponse.getSource().get(SegmentExceptionIndex.SEG_ID));
-            dataJson.addProperty(SegmentExceptionIndex.IS_ERROR, (Boolean) getResponse.getSource().get(SegmentExceptionIndex.IS_ERROR));
+            dataJson.addProperty(SegmentExceptionIndex.SEG_ID, (String)getResponse.getSource().get(SegmentExceptionIndex.SEG_ID));
+            dataJson.addProperty(SegmentExceptionIndex.IS_ERROR, (Boolean)getResponse.getSource().get(SegmentExceptionIndex.IS_ERROR));
 
-            JsonObject resJsonObj = (JsonObject) response;
+            JsonObject resJsonObj = (JsonObject)response;
             resJsonObj.add("result", dataJson);
         }
     }

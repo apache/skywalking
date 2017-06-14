@@ -13,7 +13,7 @@ public class LocalAsyncWorkerRef extends WorkerRef {
     }
 
     @Override
-    public void tell(Object message) throws Exception {
+    public void tell(Object message) throws WorkerInvokeException {
         workerWithDisruptor.tell(message);
     }
 }
