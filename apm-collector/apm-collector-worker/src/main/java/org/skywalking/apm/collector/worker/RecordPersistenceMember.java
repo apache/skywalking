@@ -1,5 +1,7 @@
 package org.skywalking.apm.collector.worker;
 
+import java.util.List;
+import java.util.Map;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.client.Client;
 import org.skywalking.apm.collector.actor.ClusterWorkerContext;
@@ -8,9 +10,6 @@ import org.skywalking.apm.collector.actor.Role;
 import org.skywalking.apm.collector.worker.storage.EsClient;
 import org.skywalking.apm.collector.worker.storage.RecordData;
 import org.skywalking.apm.collector.worker.storage.RecordPersistenceData;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author pengys5
@@ -21,15 +20,14 @@ public abstract class RecordPersistenceMember extends PersistenceMember<RecordPe
         super(role, clusterContext, selfContext);
     }
 
-    @Override
-    final public RecordPersistenceData initializeData() {
+    @Override final public RecordPersistenceData initializeData() {
         return new RecordPersistenceData();
     }
 
     @Override
-    public void analyse(Object message) throws Exception {
+    public void analyse(Object message) {
         if (message instanceof RecordData) {
-            RecordData recordData = (RecordData) message;
+            RecordData recordData = (RecordData)message;
             logger().debug("set: id: %s, data: %s", recordData.getId(), recordData.get());
             RecordPersistenceData data = getPersistenceData();
             data.hold();
@@ -40,8 +38,7 @@ public abstract class RecordPersistenceMember extends PersistenceMember<RecordPe
         }
     }
 
-    @Override
-    final protected void prepareIndex(List<IndexRequestBuilder> builderList) {
+    @Override final protected void prepareIndex(List<IndexRequestBuilder> builderList) {
         Map<String, RecordData> lastData = getPersistenceData().getLast().asMap();
         extractData(lastData);
 

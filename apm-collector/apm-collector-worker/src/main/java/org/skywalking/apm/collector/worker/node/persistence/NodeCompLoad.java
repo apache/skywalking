@@ -8,7 +8,12 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.search.SearchHit;
-import org.skywalking.apm.collector.actor.*;
+import org.skywalking.apm.collector.actor.AbstractLocalSyncWorker;
+import org.skywalking.apm.collector.actor.AbstractLocalSyncWorkerProvider;
+import org.skywalking.apm.collector.actor.ClusterWorkerContext;
+import org.skywalking.apm.collector.actor.LocalWorkerContext;
+import org.skywalking.apm.collector.actor.Role;
+import org.skywalking.apm.collector.actor.WorkerException;
 import org.skywalking.apm.collector.actor.selector.RollingSelector;
 import org.skywalking.apm.collector.actor.selector.WorkerSelector;
 import org.skywalking.apm.collector.worker.node.NodeCompIndex;
@@ -26,7 +31,7 @@ public class NodeCompLoad extends AbstractLocalSyncWorker {
     }
 
     @Override
-    public void onWork(Object request, Object response) throws Exception {
+    public void onWork(Object request, Object response) throws WorkerException {
         SearchRequestBuilder searchRequestBuilder = EsClient.INSTANCE.getClient().prepareSearch(NodeCompIndex.INDEX);
         searchRequestBuilder.setTypes(NodeCompIndex.TYPE_RECORD);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
@@ -38,13 +43,13 @@ public class NodeCompLoad extends AbstractLocalSyncWorker {
         JsonArray nodeCompArray = new JsonArray();
         for (SearchHit searchHit : searchHits) {
             JsonObject nodeCompObj = new JsonObject();
-            nodeCompObj.addProperty(NodeCompIndex.NAME, (String) searchHit.getSource().get(NodeCompIndex.NAME));
-            nodeCompObj.addProperty(NodeCompIndex.PEERS, (String) searchHit.getSource().get(NodeCompIndex.PEERS));
+            nodeCompObj.addProperty(NodeCompIndex.NAME, (String)searchHit.getSource().get(NodeCompIndex.NAME));
+            nodeCompObj.addProperty(NodeCompIndex.PEERS, (String)searchHit.getSource().get(NodeCompIndex.PEERS));
             nodeCompArray.add(nodeCompObj);
             logger.debug("node: %s", nodeCompObj.toString());
         }
 
-        JsonObject resJsonObj = (JsonObject) response;
+        JsonObject resJsonObj = (JsonObject)response;
         resJsonObj.add("result", nodeCompArray);
     }
 

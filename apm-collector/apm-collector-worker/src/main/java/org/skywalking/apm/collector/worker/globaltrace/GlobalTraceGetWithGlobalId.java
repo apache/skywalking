@@ -9,11 +9,14 @@ import org.skywalking.apm.collector.actor.ClusterWorkerContext;
 import org.skywalking.apm.collector.actor.LocalWorkerContext;
 import org.skywalking.apm.collector.actor.ProviderNotFoundException;
 import org.skywalking.apm.collector.actor.Role;
+import org.skywalking.apm.collector.actor.WorkerInvokeException;
+import org.skywalking.apm.collector.actor.WorkerNotFoundException;
 import org.skywalking.apm.collector.actor.selector.RollingSelector;
 import org.skywalking.apm.collector.actor.selector.WorkerSelector;
 import org.skywalking.apm.collector.worker.globaltrace.persistence.GlobalTraceSearchWithGlobalId;
 import org.skywalking.apm.collector.worker.httpserver.AbstractGet;
 import org.skywalking.apm.collector.worker.httpserver.AbstractGetProvider;
+import org.skywalking.apm.collector.worker.httpserver.ArgumentsParseException;
 import org.skywalking.apm.collector.worker.tools.ParameterTools;
 
 /**
@@ -32,11 +35,15 @@ public class GlobalTraceGetWithGlobalId extends AbstractGet {
         getClusterContext().findProvider(GlobalTraceSearchWithGlobalId.WorkerRole.INSTANCE).create(this);
     }
 
-    @Override protected void onReceive(Map<String, String[]> parameter, JsonObject response) throws Exception {
+    @Override protected void onReceive(Map<String, String[]> parameter,
+        JsonObject response) throws ArgumentsParseException, WorkerInvokeException, WorkerNotFoundException {
         if (!parameter.containsKey("globalId")) {
             throw new IllegalArgumentException("the request parameter must contains globalId");
         }
-        logger.debug("globalId: %s", Arrays.toString(parameter.get("globalId")));
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("globalId: %s", Arrays.toString(parameter.get("globalId")));
+        }
 
         String globalId = ParameterTools.INSTANCE.toString(parameter, "globalId");
 

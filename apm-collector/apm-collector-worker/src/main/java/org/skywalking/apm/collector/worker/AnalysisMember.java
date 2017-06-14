@@ -1,6 +1,10 @@
 package org.skywalking.apm.collector.worker;
 
-import org.skywalking.apm.collector.actor.*;
+import org.skywalking.apm.collector.actor.AbstractLocalAsyncWorker;
+import org.skywalking.apm.collector.actor.ClusterWorkerContext;
+import org.skywalking.apm.collector.actor.LocalWorkerContext;
+import org.skywalking.apm.collector.actor.ProviderNotFoundException;
+import org.skywalking.apm.collector.actor.Role;
 import org.skywalking.apm.collector.queue.EndOfBatchCommand;
 import org.skywalking.apm.collector.worker.config.CacheSizeConfig;
 
@@ -15,24 +19,19 @@ public abstract class AnalysisMember extends AbstractLocalAsyncWorker {
 
     private int messageNum;
 
-    public abstract void analyse(Object message) throws Exception;
+    public abstract void analyse(Object message);
 
     @Override
     public void preStart() throws ProviderNotFoundException {
         super.preStart();
     }
 
-    @Override
-    final public void onWork(Object message) throws Exception {
+    @Override final public void onWork(Object message) {
         if (message instanceof EndOfBatchCommand) {
             aggregation();
         } else {
             messageNum++;
-            try {
-                analyse(message);
-            } catch (Exception e) {
-                saveException(e);
-            }
+            analyse(message);
 
             if (messageNum >= CacheSizeConfig.Cache.Analysis.SIZE) {
                 aggregation();
@@ -41,5 +40,5 @@ public abstract class AnalysisMember extends AbstractLocalAsyncWorker {
         }
     }
 
-    protected abstract void aggregation() throws Exception;
+    protected abstract void aggregation();
 }

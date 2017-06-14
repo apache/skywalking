@@ -21,6 +21,7 @@ import org.skywalking.apm.collector.actor.LocalWorkerContext;
 import org.skywalking.apm.collector.actor.ProviderNotFoundException;
 import org.skywalking.apm.collector.actor.WorkerRefs;
 import org.skywalking.apm.collector.actor.selector.RollingSelector;
+import org.skywalking.apm.collector.worker.httpserver.ArgumentsParseException;
 import org.skywalking.apm.collector.worker.noderef.persistence.NodeRefResSumGroupWithTimeSlice;
 
 import static org.mockito.Mockito.doAnswer;
@@ -94,14 +95,14 @@ public class NodeRefResSumGetGroupWithTimeSliceTestCase {
         getObj.onReceive(request, response);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = ArgumentsParseException.class)
     public void testOnReceiveError() throws Exception {
         Map<String, String[]> request = new HashMap<>();
         JsonObject response = new JsonObject();
         getObj.onReceive(request, response);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = ArgumentsParseException.class)
     public void testOnReceiveStartTimeError() throws Exception {
         Map<String, String[]> request = new HashMap<>();
         String[] startTime = {"x"};
@@ -115,7 +116,7 @@ public class NodeRefResSumGetGroupWithTimeSliceTestCase {
         getObj.onReceive(request, response);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = ArgumentsParseException.class)
     public void testOnReceiveEndTimeError() throws Exception {
         Map<String, String[]> request = new HashMap<>();
         String[] startTime = {"100"};

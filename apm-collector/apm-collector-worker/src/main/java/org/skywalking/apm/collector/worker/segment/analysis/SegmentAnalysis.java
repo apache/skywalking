@@ -6,6 +6,8 @@ import org.skywalking.apm.collector.actor.AbstractLocalAsyncWorkerProvider;
 import org.skywalking.apm.collector.actor.ClusterWorkerContext;
 import org.skywalking.apm.collector.actor.LocalWorkerContext;
 import org.skywalking.apm.collector.actor.ProviderNotFoundException;
+import org.skywalking.apm.collector.actor.WorkerInvokeException;
+import org.skywalking.apm.collector.actor.WorkerNotFoundException;
 import org.skywalking.apm.collector.actor.WorkerRefs;
 import org.skywalking.apm.collector.actor.selector.RollingSelector;
 import org.skywalking.apm.collector.actor.selector.WorkerSelector;
@@ -31,10 +33,16 @@ public class SegmentAnalysis extends RecordAnalysisMember {
     }
 
     @Override
-    public void analyse(Object message) throws Exception {
+    public void analyse(Object message) {
         if (message instanceof SegmentAndJson) {
             SegmentAndJson segmentAndJson = (SegmentAndJson)message;
-            getSelfContext().lookup(SegmentSave.Role.INSTANCE).tell(segmentAndJson);
+
+            try {
+                getSelfContext().lookup(SegmentSave.Role.INSTANCE).tell(segmentAndJson);
+            } catch (WorkerInvokeException | WorkerNotFoundException e) {
+                e.printStackTrace();
+                logger.error(e.getMessage(), e);
+            }
         } else {
             logger.error("unhandled message, message instance must Segment, but is %s", message.getClass().toString());
         }

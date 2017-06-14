@@ -2,7 +2,11 @@ package org.skywalking.apm.collector.worker.noderef.analysis;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.skywalking.apm.collector.actor.*;
+import org.skywalking.apm.collector.actor.AbstractLocalAsyncWorkerProvider;
+import org.skywalking.apm.collector.actor.ClusterWorkerContext;
+import org.skywalking.apm.collector.actor.LocalWorkerContext;
+import org.skywalking.apm.collector.actor.WorkerNotFoundException;
+import org.skywalking.apm.collector.actor.WorkerRefs;
 import org.skywalking.apm.collector.actor.selector.RollingSelector;
 import org.skywalking.apm.collector.actor.selector.WorkerSelector;
 import org.skywalking.apm.collector.worker.config.WorkerConfig;
@@ -16,14 +20,14 @@ public class NodeRefResSumHourAnalysis extends AbstractNodeRefResSumAnalysis {
     private Logger logger = LogManager.getFormatterLogger(NodeRefResSumHourAnalysis.class);
 
     NodeRefResSumHourAnalysis(org.skywalking.apm.collector.actor.Role role, ClusterWorkerContext clusterContext,
-                              LocalWorkerContext selfContext) {
+        LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
     @Override
-    public void analyse(Object message) throws Exception {
+    public void analyse(Object message) {
         if (message instanceof NodeRefResRecord) {
-            NodeRefResRecord refResRecord = (NodeRefResRecord) message;
+            NodeRefResRecord refResRecord = (NodeRefResRecord)message;
             analyseResSum(refResRecord);
         } else {
             logger.error("unhandled message, message instance must NodeRefResRecord, but is %s", message.getClass().toString());

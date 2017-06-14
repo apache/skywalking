@@ -1,7 +1,7 @@
 package org.skywalking.apm.collector.worker.httpserver;
 
 import com.google.gson.JsonObject;
-import java.util.Map;
+import java.io.BufferedReader;
 import org.skywalking.apm.collector.actor.ClusterWorkerContext;
 import org.skywalking.apm.collector.actor.LocalWorkerContext;
 import org.skywalking.apm.collector.actor.ProviderNotFoundException;
@@ -14,8 +14,8 @@ import org.skywalking.apm.collector.actor.selector.WorkerSelector;
 /**
  * @author pengys5
  */
-public class TestAbstractPost extends AbstractPost {
-    public TestAbstractPost(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+public class TestAbstractStreamPost extends AbstractStreamPost {
+    public TestAbstractStreamPost(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
@@ -24,7 +24,7 @@ public class TestAbstractPost extends AbstractPost {
         super.preStart();
     }
 
-    @Override protected void onReceive(Map<String, String[]> parameter,
+    @Override protected void onReceive(BufferedReader reader,
         JsonObject response) throws ArgumentsParseException, WorkerInvokeException, WorkerNotFoundException {
 
     }
@@ -34,7 +34,7 @@ public class TestAbstractPost extends AbstractPost {
 
         @Override
         public String roleName() {
-            return TestAbstractPost.class.getSimpleName();
+            return TestAbstractStreamPost.class.getSimpleName();
         }
 
         @Override
@@ -43,7 +43,7 @@ public class TestAbstractPost extends AbstractPost {
         }
     }
 
-    public static class Factory extends AbstractPostProvider<TestAbstractPost> {
+    public static class Factory extends AbstractStreamPostProvider<TestAbstractStreamPost> {
         @Override
         public String servletPath() {
             return "/TestAbstractPost";
@@ -51,12 +51,12 @@ public class TestAbstractPost extends AbstractPost {
 
         @Override
         public Role role() {
-            return TestAbstractPost.WorkerRole.INSTANCE;
+            return TestAbstractStreamPost.WorkerRole.INSTANCE;
         }
 
         @Override
-        public TestAbstractPost workerInstance(ClusterWorkerContext clusterContext) {
-            return new TestAbstractPost(role(), clusterContext, new LocalWorkerContext());
+        public TestAbstractStreamPost workerInstance(ClusterWorkerContext clusterContext) {
+            return new TestAbstractStreamPost(role(), clusterContext, new LocalWorkerContext());
         }
     }
 }

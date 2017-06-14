@@ -24,10 +24,10 @@ public abstract class AbstractClusterWorker extends AbstractWorker {
     /**
      * Construct an <code>AbstractClusterWorker</code> with the worker role and context.
      *
-     * @param role           If multi-workers are for load balance, they should be more likely called worker instance. Meaning,
-     *                       each worker have multi instances.
+     * @param role If multi-workers are for load balance, they should be more likely called worker instance. Meaning,
+     * each worker have multi instances.
      * @param clusterContext See {@link ClusterWorkerContext}
-     * @param selfContext    See {@link LocalWorkerContext}
+     * @param selfContext See {@link LocalWorkerContext}
      */
     protected AbstractClusterWorker(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
@@ -39,7 +39,7 @@ public abstract class AbstractClusterWorker extends AbstractWorker {
      * @param message The persistence data or metric data.
      * @throws Exception The Exception happen in {@link #onWork(Object)}
      */
-    final public void allocateJob(Object message) throws Exception {
+    final public void allocateJob(Object message) throws WorkerException {
         onWork(message);
     }
 
@@ -49,7 +49,7 @@ public abstract class AbstractClusterWorker extends AbstractWorker {
      * @param message Cast the message object to a expect subclass.
      * @throws Exception Don't handle the exception, throw it.
      */
-    protected abstract void onWork(Object message) throws Exception;
+    protected abstract void onWork(Object message) throws WorkerException;
 
     static class WorkerWithAkka extends UntypedActor {
         private Logger logger = LogManager.INSTANCE.getFormatterLogger(WorkerWithAkka.class);
@@ -63,12 +63,12 @@ public abstract class AbstractClusterWorker extends AbstractWorker {
         }
 
         @Override
-        public void preStart() throws Exception {
+        public void preStart() {
             cluster.subscribe(getSelf(), ClusterEvent.MemberUp.class);
         }
 
         @Override
-        public void postStop() throws Exception {
+        public void postStop() {
             cluster.unsubscribe(getSelf());
         }
 
@@ -78,16 +78,16 @@ public abstract class AbstractClusterWorker extends AbstractWorker {
          * the sender to register self.
          */
         @Override
-        public void onReceive(Object message) throws Throwable {
+        public void onReceive(Object message) throws WorkerException {
             if (message instanceof ClusterEvent.CurrentClusterState) {
-                ClusterEvent.CurrentClusterState state = (ClusterEvent.CurrentClusterState) message;
+                ClusterEvent.CurrentClusterState state = (ClusterEvent.CurrentClusterState)message;
                 for (Member member : state.getMembers()) {
                     if (member.status().equals(MemberStatus.up())) {
                         register(member);
                     }
                 }
             } else if (message instanceof ClusterEvent.MemberUp) {
-                ClusterEvent.MemberUp memberUp = (ClusterEvent.MemberUp) message;
+                ClusterEvent.MemberUp memberUp = (ClusterEvent.MemberUp)message;
                 logger.info("receive ClusterEvent.MemberUp message, address: %s", memberUp.member().address().toString());
                 register(memberUp.member());
             } else {

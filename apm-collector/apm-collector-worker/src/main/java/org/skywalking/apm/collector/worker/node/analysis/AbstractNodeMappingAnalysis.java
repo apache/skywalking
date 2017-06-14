@@ -1,6 +1,7 @@
 package org.skywalking.apm.collector.worker.node.analysis;
 
 import com.google.gson.JsonObject;
+import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.skywalking.apm.collector.actor.ClusterWorkerContext;
@@ -13,8 +14,6 @@ import org.skywalking.apm.collector.worker.segment.entity.Segment;
 import org.skywalking.apm.collector.worker.segment.entity.TraceSegmentRef;
 import org.skywalking.apm.collector.worker.tools.CollectionTools;
 
-import java.util.List;
-
 /**
  * @author pengys5
  */
@@ -23,11 +22,11 @@ abstract class AbstractNodeMappingAnalysis extends RecordAnalysisMember {
     private Logger logger = LogManager.getFormatterLogger(AbstractNodeMappingAnalysis.class);
 
     AbstractNodeMappingAnalysis(Role role, ClusterWorkerContext clusterContext,
-                                LocalWorkerContext selfContext) {
+        LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
-    final void analyseRefs(Segment segment, long timeSlice) throws Exception {
+    final void analyseRefs(Segment segment, long timeSlice) {
         List<TraceSegmentRef> segmentRefList = segment.getRefs();
         logger.debug("node mapping analysis refs isNotEmpty %s", CollectionTools.isNotEmpty(segmentRefList));
 

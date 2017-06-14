@@ -9,10 +9,13 @@ import org.skywalking.apm.collector.actor.ClusterWorkerContext;
 import org.skywalking.apm.collector.actor.LocalWorkerContext;
 import org.skywalking.apm.collector.actor.ProviderNotFoundException;
 import org.skywalking.apm.collector.actor.Role;
+import org.skywalking.apm.collector.actor.WorkerInvokeException;
+import org.skywalking.apm.collector.actor.WorkerNotFoundException;
 import org.skywalking.apm.collector.actor.selector.RollingSelector;
 import org.skywalking.apm.collector.actor.selector.WorkerSelector;
 import org.skywalking.apm.collector.worker.httpserver.AbstractGet;
 import org.skywalking.apm.collector.worker.httpserver.AbstractGetProvider;
+import org.skywalking.apm.collector.worker.httpserver.ArgumentsParseException;
 import org.skywalking.apm.collector.worker.span.persistence.SpanSearchWithId;
 import org.skywalking.apm.collector.worker.tools.ParameterTools;
 
@@ -32,11 +35,15 @@ public class SpanGetWithId extends AbstractGet {
         getClusterContext().findProvider(SpanSearchWithId.WorkerRole.INSTANCE).create(this);
     }
 
-    @Override protected void onReceive(Map<String, String[]> parameter, JsonObject response) throws Exception {
+    @Override protected void onReceive(Map<String, String[]> parameter,
+        JsonObject response) throws ArgumentsParseException, WorkerInvokeException, WorkerNotFoundException {
         if (!parameter.containsKey("segId") || !parameter.containsKey("spanId")) {
-            throw new IllegalArgumentException("the request parameter must contains segId, spanId");
+            throw new ArgumentsParseException("the request parameter must contains segId, spanId");
         }
-        logger.debug("segId: %s, spanId: %s", Arrays.toString(parameter.get("segId")), Arrays.toString(parameter.get("spanId")));
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("segId: %s, spanId: %s", Arrays.toString(parameter.get("segId")), Arrays.toString(parameter.get("spanId")));
+        }
 
         String segId = ParameterTools.INSTANCE.toString(parameter, "segId");
         String spanId = ParameterTools.INSTANCE.toString(parameter, "spanId");

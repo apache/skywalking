@@ -9,10 +9,13 @@ import org.skywalking.apm.collector.actor.ClusterWorkerContext;
 import org.skywalking.apm.collector.actor.LocalWorkerContext;
 import org.skywalking.apm.collector.actor.ProviderNotFoundException;
 import org.skywalking.apm.collector.actor.Role;
+import org.skywalking.apm.collector.actor.WorkerInvokeException;
+import org.skywalking.apm.collector.actor.WorkerNotFoundException;
 import org.skywalking.apm.collector.actor.selector.RollingSelector;
 import org.skywalking.apm.collector.actor.selector.WorkerSelector;
 import org.skywalking.apm.collector.worker.httpserver.AbstractGet;
 import org.skywalking.apm.collector.worker.httpserver.AbstractGetProvider;
+import org.skywalking.apm.collector.worker.httpserver.ArgumentsParseException;
 import org.skywalking.apm.collector.worker.segment.persistence.SegmentTopSearchWithGlobalTraceId;
 import org.skywalking.apm.collector.worker.tools.ParameterTools;
 
@@ -32,25 +35,29 @@ public class SegmentTopGetWithGlobalTraceId extends AbstractGet {
         getClusterContext().findProvider(SegmentTopSearchWithGlobalTraceId.WorkerRole.INSTANCE).create(this);
     }
 
-    @Override protected void onReceive(Map<String, String[]> parameter, JsonObject response) throws Exception {
+    @Override protected void onReceive(Map<String, String[]> parameter,
+        JsonObject response) throws ArgumentsParseException, WorkerInvokeException, WorkerNotFoundException {
         if (!parameter.containsKey("globalTraceId") || !parameter.containsKey("from") || !parameter.containsKey("limit")) {
-            throw new IllegalArgumentException("the request parameter must contains globalTraceId, from, limit");
+            throw new ArgumentsParseException("the request parameter must contains globalTraceId, from, limit");
         }
-        logger.debug("globalTraceId: %s, from: %s, limit: %s", Arrays.toString(parameter.get("globalTraceId")),
-            Arrays.toString(parameter.get("from")), Arrays.toString(parameter.get("limit")));
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("globalTraceId: %s, from: %s, limit: %s", Arrays.toString(parameter.get("globalTraceId")),
+                Arrays.toString(parameter.get("from")), Arrays.toString(parameter.get("limit")));
+        }
 
         int from;
         try {
             from = Integer.valueOf(ParameterTools.INSTANCE.toString(parameter, "from"));
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("the request parameter from must numeric with int type");
+            throw new ArgumentsParseException("the request parameter from must be an integer");
         }
 
         int limit;
         try {
             limit = Integer.valueOf(ParameterTools.INSTANCE.toString(parameter, "limit"));
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("the request parameter from must numeric with int type");
+            throw new ArgumentsParseException("the request parameter limit must be an integer");
         }
 
         String globalTraceId = ParameterTools.INSTANCE.toString(parameter, "globalTraceId");

@@ -2,6 +2,7 @@ package org.skywalking.apm.collector.worker.segment.persistence;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import java.io.IOException;
 import java.util.List;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -17,6 +18,7 @@ import org.skywalking.apm.collector.actor.ClusterWorkerContext;
 import org.skywalking.apm.collector.actor.LocalWorkerContext;
 import org.skywalking.apm.collector.actor.ProviderNotFoundException;
 import org.skywalking.apm.collector.actor.Role;
+import org.skywalking.apm.collector.actor.WorkerException;
 import org.skywalking.apm.collector.actor.selector.RollingSelector;
 import org.skywalking.apm.collector.actor.selector.WorkerSelector;
 import org.skywalking.apm.collector.worker.segment.SegmentCostIndex;
@@ -43,7 +45,7 @@ public class SegmentTopSearchWithTimeSlice extends AbstractLocalSyncWorker {
     }
 
     @Override
-    protected void onWork(Object request, Object response) throws Exception {
+    protected void onWork(Object request, Object response) throws WorkerException {
         if (request instanceof RequestEntity) {
             RequestEntity search = (RequestEntity)request;
 
@@ -92,7 +94,12 @@ public class SegmentTopSearchWithTimeSlice extends AbstractLocalSyncWorker {
 
                 String segmentSource = EsClient.INSTANCE.getClient().prepareGet(SegmentIndex.INDEX, SegmentIndex.TYPE_RECORD, segId).get().getSourceAsString();
                 logger().debug("segmentSource:" + segmentSource);
-                Segment segment = SegmentDeserialize.INSTANCE.deserializeSingle(segmentSource);
+                Segment segment;
+                try {
+                    segment = SegmentDeserialize.INSTANCE.deserializeSingle(segmentSource);
+                } catch (IOException e) {
+                    throw new WorkerException(e.getMessage(), e);
+                }
                 List<String> distributedTraceIdList = segment.getRelatedGlobalTraces().get();
 
                 JsonArray distributedTraceIdArray = new JsonArray();

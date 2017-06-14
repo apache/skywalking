@@ -1,6 +1,7 @@
 package org.skywalking.apm.collector.worker.noderef.analysis;
 
 import com.google.gson.JsonObject;
+import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.skywalking.apm.collector.actor.ClusterWorkerContext;
@@ -16,8 +17,6 @@ import org.skywalking.apm.collector.worker.tools.ClientSpanIsLeafTools;
 import org.skywalking.apm.collector.worker.tools.CollectionTools;
 import org.skywalking.apm.collector.worker.tools.SpanPeersTools;
 
-import java.util.List;
-
 /**
  * @author pengys5
  */
@@ -26,12 +25,12 @@ abstract class AbstractNodeRefAnalysis extends RecordAnalysisMember {
     private Logger logger = LogManager.getFormatterLogger(AbstractNodeRefAnalysis.class);
 
     AbstractNodeRefAnalysis(Role role, ClusterWorkerContext clusterContext,
-                            LocalWorkerContext selfContext) {
+        LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
     final void analyseNodeRef(Segment segment, long timeSlice, long minute, long hour, long day,
-                              int second) throws Exception {
+        int second) {
         List<Span> spanList = segment.getSpans();
         if (CollectionTools.isNotEmpty(spanList)) {
             for (Span span : spanList) {
@@ -70,7 +69,7 @@ abstract class AbstractNodeRefAnalysis extends RecordAnalysisMember {
     }
 
     private void buildNodeRefResRecordData(String nodeRefId, Span span, long minute, long hour, long day,
-                                           int second) throws Exception {
+        int second) {
         AbstractNodeRefResSumAnalysis.NodeRefResRecord refResRecord = new AbstractNodeRefResSumAnalysis.NodeRefResRecord(minute, hour, day, second);
         refResRecord.setStartTime(span.getStartTime());
         refResRecord.setEndTime(span.getEndTime());
@@ -80,5 +79,5 @@ abstract class AbstractNodeRefAnalysis extends RecordAnalysisMember {
     }
 
     protected abstract void sendToResSumAnalysis(
-        AbstractNodeRefResSumAnalysis.NodeRefResRecord refResRecord) throws Exception;
+        AbstractNodeRefResSumAnalysis.NodeRefResRecord refResRecord);
 }

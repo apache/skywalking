@@ -14,6 +14,8 @@ import org.skywalking.apm.collector.actor.ClusterWorkerContext;
 import org.skywalking.apm.collector.actor.LocalSyncWorkerRef;
 import org.skywalking.apm.collector.actor.LocalWorkerContext;
 import org.skywalking.apm.collector.actor.Role;
+import org.skywalking.apm.collector.actor.WorkerInvokeException;
+import org.skywalking.apm.collector.actor.WorkerNotFoundException;
 
 /**
  * The <code>AbstractStreamPost</code> implementations represent workers, which called by the server to allow a servlet
@@ -37,9 +39,12 @@ public abstract class AbstractStreamPost extends AbstractServlet {
      *
      * @param reader {@link BufferedReader} json construct
      * @param response {@link Object} is a out parameter
-     * @throws Exception
+     * @throws ArgumentsParseException if the key could not contains in parameter
+     * @throws WorkerInvokeException if any error is detected when call(or ask) worker
+     * @throws WorkerNotFoundException if the worker reference could not found in context.
      */
-    @Override final protected void onWork(Object reader, Object response) throws Exception {
+    @Override final protected void onWork(Object reader,
+        Object response) throws ArgumentsParseException, WorkerInvokeException, WorkerNotFoundException {
         JsonObject resJson = new JsonObject();
         try {
             onReceive((BufferedReader)reader, resJson);
@@ -54,10 +59,13 @@ public abstract class AbstractStreamPost extends AbstractServlet {
      *
      * @param parameter {@link Map}, get the request parameter by key.
      * @param response {@link JsonObject}, set the response data as json object.
-     * @throws Exception
+     * @throws ArgumentsParseException if the key could not contains in parameter
+     * @throws WorkerInvokeException if any error is detected when call(or ask) worker
+     * @throws WorkerNotFoundException if the worker reference could not found in context.
      */
-    @Override final protected void onReceive(Map<String, String[]> parameter, JsonObject response) throws Exception {
-        throw new IllegalAccessException("Use the other method with buffer reader parameter");
+    @Override final protected void onReceive(Map<String, String[]> parameter,
+        JsonObject response) throws ArgumentsParseException, WorkerInvokeException, WorkerNotFoundException {
+        throw new WorkerInvokeException("Use the other method with buffer reader parameter");
     }
 
     /**
@@ -65,9 +73,12 @@ public abstract class AbstractStreamPost extends AbstractServlet {
      *
      * @param reader {@link BufferedReader} json construct
      * @param response {@link Object} is a out parameter
-     * @throws Exception
+     * @throws ArgumentsParseException if the key could not contains in parameter
+     * @throws WorkerInvokeException if any error is detected when call(or ask) worker
+     * @throws WorkerNotFoundException if the worker reference could not found in context.
      */
-    protected abstract void onReceive(BufferedReader reader, JsonObject response) throws Exception;
+    protected abstract void onReceive(BufferedReader reader,
+        JsonObject response) throws ArgumentsParseException, WorkerInvokeException, WorkerNotFoundException;
 
     static class StreamPostWithHttpServlet extends HttpServlet {
 

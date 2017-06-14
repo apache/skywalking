@@ -13,11 +13,11 @@ import org.skywalking.apm.collector.worker.storage.AbstractTimeSlice;
 abstract class AbstractNodeRefResSumAnalysis extends MetricAnalysisMember {
 
     AbstractNodeRefResSumAnalysis(Role role, ClusterWorkerContext clusterContext,
-                                  LocalWorkerContext selfContext) {
+        LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
-    final void analyseResSum(NodeRefResRecord nodeRefRes) throws Exception {
+    final void analyseResSum(NodeRefResRecord nodeRefRes) {
         long startTime = nodeRefRes.startTime;
         long endTime = nodeRefRes.endTime;
         boolean isError = nodeRefRes.isError;
