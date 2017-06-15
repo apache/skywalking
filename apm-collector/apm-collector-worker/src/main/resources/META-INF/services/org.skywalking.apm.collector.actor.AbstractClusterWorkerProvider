@@ -13,5 +13,3 @@ org.skywalking.apm.collector.worker.node.persistence.NodeCompAgg$Factory
 org.skywalking.apm.collector.worker.node.persistence.NodeMappingDayAgg$Factory
 org.skywalking.apm.collector.worker.node.persistence.NodeMappingHourAgg$Factory
 org.skywalking.apm.collector.worker.node.persistence.NodeMappingMinuteAgg$Factory
-
-org.skywalking.apm.collector.worker.instance.heartbeat.HeartBeatDataSave$Factory

@@ -42,7 +42,7 @@ public class Config {
         public static String SERVERS = "";
 
         public static class Services {
-            public static final String HEART_BEAT_REPORT = "/heartbeat";
+            public static final String HEART_BEAT_REPORT = "/instance/ping";
             /**
              * Collector receive segments REST-Service name.
              */
@@ -51,7 +51,7 @@ public class Config {
             /**
              * Register instance REST-Service name.
              */
-            public static String INSTANCE_REGISTRY = "/register";
+            public static String INSTANCE_REGISTRY = "/instance/register";
         }
 
         /**

@@ -67,6 +67,14 @@ public class EsConfig {
                 public static class SegmentIndex {
                     public static Integer VALUE = 10;
                 }
+
+                public static class InstanceIndex {
+                    public static Integer VALUE = 1;
+                }
+
+                public static class PingTime {
+                    public static final int VALUE = 1;
+                }
             }
         }
     }

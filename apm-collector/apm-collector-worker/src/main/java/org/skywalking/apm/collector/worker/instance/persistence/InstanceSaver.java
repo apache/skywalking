@@ -1,44 +1,39 @@
-package org.skywalking.apm.collector.worker.noderef.persistence;
+package org.skywalking.apm.collector.worker.instance.persistence;
 
 import org.skywalking.apm.collector.actor.AbstractLocalSyncWorkerProvider;
 import org.skywalking.apm.collector.actor.ClusterWorkerContext;
 import org.skywalking.apm.collector.actor.LocalWorkerContext;
 import org.skywalking.apm.collector.actor.selector.HashCodeSelector;
 import org.skywalking.apm.collector.actor.selector.WorkerSelector;
-import org.skywalking.apm.collector.worker.PersistenceMember;
 import org.skywalking.apm.collector.worker.RecordPersistenceMember;
-import org.skywalking.apm.collector.worker.noderef.NodeRefIndex;
+import org.skywalking.apm.collector.worker.instance.InstanceIndex;
 import org.skywalking.apm.collector.worker.storage.PersistenceWorkerListener;
 
-/**
- * @author pengys5
- */
-public class NodeRefMinuteSave extends RecordPersistenceMember {
+public class InstanceSaver extends RecordPersistenceMember {
 
-    NodeRefMinuteSave(org.skywalking.apm.collector.actor.Role role, ClusterWorkerContext clusterContext,
-                      LocalWorkerContext selfContext) {
+    public InstanceSaver(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
     @Override
     public String esIndex() {
-        return NodeRefIndex.INDEX;
+        return InstanceIndex.INDEX;
     }
 
     @Override
     public String esType() {
-        return NodeRefIndex.TYPE_MINUTE;
+        return InstanceIndex.TYPE_REGISTRY;
     }
 
-    public static class Factory extends AbstractLocalSyncWorkerProvider<NodeRefMinuteSave> {
+    public static class Factory extends AbstractLocalSyncWorkerProvider<InstanceSaver> {
         @Override
-        public Role role() {
-            return Role.INSTANCE;
+        public InstanceSaver.Role role() {
+            return InstanceSaver.Role.INSTANCE;
         }
 
         @Override
-        public NodeRefMinuteSave workerInstance(ClusterWorkerContext clusterContext) {
-            NodeRefMinuteSave worker = new NodeRefMinuteSave(role(), clusterContext, new LocalWorkerContext());
+        public InstanceSaver workerInstance(ClusterWorkerContext clusterContext) {
+            InstanceSaver worker = new InstanceSaver(role(), clusterContext, new LocalWorkerContext());
             PersistenceWorkerListener.INSTANCE.register(worker);
             return worker;
         }
@@ -49,7 +44,7 @@ public class NodeRefMinuteSave extends RecordPersistenceMember {
 
         @Override
         public String roleName() {
-            return NodeRefMinuteSave.class.getSimpleName();
+            return InstanceSaver.class.getSimpleName();
         }
 
         @Override

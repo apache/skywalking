@@ -2,10 +2,10 @@ package org.skywalking.apm.agent.core.collector.sender;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import org.skywalking.apm.agent.core.collector.entity.InstanceInfo;
+import org.skywalking.apm.agent.core.collector.entity.Instance;
 import org.skywalking.apm.agent.core.conf.Config;
 
-public class InstanceRegistrySender extends HttpPostSender<InstanceInfo> {
+public class InstanceRegistrySender extends HttpPostSender<Instance> {
 
     private Listener listener;
 
@@ -15,7 +15,7 @@ public class InstanceRegistrySender extends HttpPostSender<InstanceInfo> {
     }
 
     @Override
-    public String serializeData(InstanceInfo data) {
+    public String serializeData(Instance data) {
         return new Gson().toJson(data);
     }
 

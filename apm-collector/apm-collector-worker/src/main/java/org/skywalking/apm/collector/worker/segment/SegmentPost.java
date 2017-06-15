@@ -17,6 +17,7 @@ import org.skywalking.apm.collector.worker.globaltrace.analysis.GlobalTraceAnaly
 import org.skywalking.apm.collector.worker.httpserver.AbstractStreamPost;
 import org.skywalking.apm.collector.worker.httpserver.AbstractStreamPostProvider;
 import org.skywalking.apm.collector.worker.httpserver.ArgumentsParseException;
+import org.skywalking.apm.collector.worker.instance.analysis.PingTimeAnalysis;
 import org.skywalking.apm.collector.worker.node.analysis.NodeCompAnalysis;
 import org.skywalking.apm.collector.worker.node.analysis.NodeMappingDayAnalysis;
 import org.skywalking.apm.collector.worker.node.analysis.NodeMappingHourAnalysis;
@@ -61,6 +62,8 @@ public class SegmentPost extends AbstractStreamPost {
         getClusterContext().findProvider(NodeMappingDayAnalysis.Role.INSTANCE).create(this);
         getClusterContext().findProvider(NodeMappingHourAnalysis.Role.INSTANCE).create(this);
         getClusterContext().findProvider(NodeMappingMinuteAnalysis.Role.INSTANCE).create(this);
+
+        getClusterContext().findProvider(PingTimeAnalysis.Role.INSTANCE).create(this);
     }
 
     /**
@@ -129,6 +132,8 @@ public class SegmentPost extends AbstractStreamPost {
 
         tellNodeRef(segmentWithTimeSlice);
         tellNodeMapping(segmentWithTimeSlice);
+
+        getSelfContext().lookup(PingTimeAnalysis.Role.INSTANCE).tell(new PingTimeAnalysis.Ping(segment.getInstanceId(), minuteSlice));
     }
 
     private void tellNodeRef(

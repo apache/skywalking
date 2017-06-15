@@ -10,4 +10,5 @@ org.skywalking.apm.collector.worker.node.NodeMappingIndex
 org.skywalking.apm.collector.worker.noderef.NodeRefIndex
 org.skywalking.apm.collector.worker.noderef.NodeRefResSumIndex
 
-org.skywalking.apm.collector.worker.instance.InstanceInfoIndex
+org.skywalking.apm.collector.worker.instance.InstanceIndex
+org.skywalking.apm.collector.worker.instance.PingTimeIndex

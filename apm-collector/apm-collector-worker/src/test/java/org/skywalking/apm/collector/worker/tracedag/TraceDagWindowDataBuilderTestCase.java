@@ -18,9 +18,10 @@ public class TraceDagWindowDataBuilderTestCase {
         JsonArray nodeRefArray = nodeRefArrayData();
         JsonArray nodeCompArray = nodeCompArrayData();
         JsonArray resSumArray = resSumArrayData();
+        JsonArray nodeCountArrayData = nodeCountArrayData();
 
         TraceDagDataBuilder builder = new TraceDagDataBuilder();
-        JsonObject dagJsonObj = builder.build(nodeCompArray, nodeMappingArray, nodeRefArray, resSumArray);
+        JsonObject dagJsonObj = builder.build(nodeCompArray, nodeMappingArray, nodeRefArray, resSumArray, nodeCountArrayData);
 
         JsonArray pointArray = dagJsonObj.getAsJsonArray("nodes");
         JsonArray lineArray = dagJsonObj.getAsJsonArray("nodeRefs");
@@ -54,6 +55,12 @@ public class TraceDagWindowDataBuilderTestCase {
 
     private JsonArray resSumArrayData() {
         String str = "[{\"front\":\"User\",\"behind\":\"portal-service\",\"oneSecondLess\":1.0,\"threeSecondLess\":0.0,\"fiveSecondLess\":0.0,\"fiveSecondGreater\":0.0,\"error\":0.0,\"summary\":1.0},{\"front\":\"cache-service\",\"behind\":\"[127.0.0.1:6379]\",\"oneSecondLess\":10.0,\"threeSecondLess\":0.0,\"fiveSecondLess\":0.0,\"fiveSecondGreater\":0.0,\"error\":0.0,\"summary\":10.0},{\"front\":\"cache-service\",\"behind\":\"[localhost:-1]\",\"oneSecondLess\":4.0,\"threeSecondLess\":0.0,\"fiveSecondLess\":0.0,\"fiveSecondGreater\":0.0,\"error\":0.0,\"summary\":4.0},{\"front\":\"persistence-service\",\"behind\":\"[127.0.0.1:3307]\",\"oneSecondLess\":2.0,\"threeSecondLess\":0.0,\"fiveSecondLess\":0.0,\"fiveSecondGreater\":0.0,\"error\":0.0,\"summary\":2.0},{\"front\":\"portal-service\",\"behind\":\"[10.128.35.80:20880]\",\"oneSecondLess\":1.0,\"threeSecondLess\":0.0,\"fiveSecondLess\":0.0,\"fiveSecondGreater\":0.0,\"error\":0.0,\"summary\":1.0},{\"front\":\"portal-service\",\"behind\":\"[127.0.0.1:8002]\",\"oneSecondLess\":2.0,\"threeSecondLess\":0.0,\"fiveSecondLess\":0.0,\"fiveSecondGreater\":0.0,\"error\":0.0,\"summary\":2.0}]";
+        JsonArray jsonArray = gson.fromJson(str, JsonArray.class);
+        return jsonArray;
+    }
+
+    private JsonArray nodeCountArrayData() {
+        String str = "[{\"ac\":\"cache-service\",\"count\":1},{\"ac\":\"persistence-service\",\"count\":2}, {\"ac\":\"portal-service\",\"count\":2}]";
         JsonArray jsonArray = gson.fromJson(str, JsonArray.class);
         return jsonArray;
     }

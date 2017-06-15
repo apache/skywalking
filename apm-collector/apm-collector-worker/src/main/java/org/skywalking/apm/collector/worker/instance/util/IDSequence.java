@@ -1,10 +1,10 @@
-package org.skywalking.apm.collector.worker.instance;
+package org.skywalking.apm.collector.worker.instance.util;
 
-public class IdentificationSegment {
+public class IDSequence {
     private long startInstanceId;
     private long endInstanceId;
 
-    IdentificationSegment(long start, long end) {
+    IDSequence(long start, long end) {
         this.startInstanceId = start;
         this.endInstanceId = end;
     }
@@ -14,6 +14,6 @@ public class IdentificationSegment {
     }
 
     public boolean hasNext() {
-        return startInstanceId + 1 >= endInstanceId;
+        return startInstanceId + 1 < endInstanceId;
     }
 }

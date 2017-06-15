@@ -17,6 +17,7 @@ import org.skywalking.apm.collector.worker.Const;
 import org.skywalking.apm.collector.worker.httpserver.AbstractGet;
 import org.skywalking.apm.collector.worker.httpserver.AbstractGetProvider;
 import org.skywalking.apm.collector.worker.httpserver.ArgumentsParseException;
+import org.skywalking.apm.collector.worker.instance.persistence.CountInstancesWithTimeSlice;
 import org.skywalking.apm.collector.worker.node.persistence.NodeCompLoad;
 import org.skywalking.apm.collector.worker.node.persistence.NodeMappingSearchWithTimeSlice;
 import org.skywalking.apm.collector.worker.noderef.persistence.NodeRefResSumSearchWithTimeSlice;
@@ -40,6 +41,7 @@ public class TraceDagGetWithTimeSlice extends AbstractGet {
         getClusterContext().findProvider(NodeMappingSearchWithTimeSlice.WorkerRole.INSTANCE).create(this);
         getClusterContext().findProvider(NodeRefSearchWithTimeSlice.WorkerRole.INSTANCE).create(this);
         getClusterContext().findProvider(NodeRefResSumSearchWithTimeSlice.WorkerRole.INSTANCE).create(this);
+        getClusterContext().findProvider(CountInstancesWithTimeSlice.WorkerRole.INSTANCE).create(this);
     }
 
     @Override protected void onReceive(Map<String, String[]> parameter,
@@ -76,6 +78,10 @@ public class TraceDagGetWithTimeSlice extends AbstractGet {
         NodeMappingSearchWithTimeSlice.RequestEntity nodeMappingEntity = new NodeMappingSearchWithTimeSlice.RequestEntity(timeSliceType, startTime, endTime);
         getSelfContext().lookup(NodeMappingSearchWithTimeSlice.WorkerRole.INSTANCE).ask(nodeMappingEntity, nodeMappingResponse);
 
+        JsonObject nodeCountResponse = getNewResponse();
+        CountInstancesWithTimeSlice.RequestEntity nodeCountEntity = new CountInstancesWithTimeSlice.RequestEntity(startTime, endTime);
+        getSelfContext().lookup(CountInstancesWithTimeSlice.WorkerRole.INSTANCE).ask(nodeCountEntity, nodeCountResponse);
+
         JsonObject nodeRefResponse = getNewResponse();
         NodeRefSearchWithTimeSlice.RequestEntity nodeReftEntity = new NodeRefSearchWithTimeSlice.RequestEntity(timeSliceType, startTime, endTime);
         getSelfContext().lookup(NodeRefSearchWithTimeSlice.WorkerRole.INSTANCE).ask(nodeReftEntity, nodeRefResponse);
@@ -85,7 +91,7 @@ public class TraceDagGetWithTimeSlice extends AbstractGet {
         getSelfContext().lookup(NodeRefResSumSearchWithTimeSlice.WorkerRole.INSTANCE).ask(resSumEntity, resSumResponse);
 
         JsonObject result = getBuilder().build(compResponse.get(Const.RESULT).getAsJsonArray(), nodeMappingResponse.get(Const.RESULT).getAsJsonArray(),
-            nodeRefResponse.get(Const.RESULT).getAsJsonArray(), resSumResponse.get(Const.RESULT).getAsJsonArray());
+            nodeRefResponse.get(Const.RESULT).getAsJsonArray(), resSumResponse.get(Const.RESULT).getAsJsonArray(),nodeCountResponse.get(Const.RESULT).getAsJsonArray());
 
         response.add(Const.RESULT, result);
     }

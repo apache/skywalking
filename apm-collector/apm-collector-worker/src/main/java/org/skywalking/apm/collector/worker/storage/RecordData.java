@@ -44,5 +44,6 @@ public class RecordData extends AbstractHashMessage implements Data {
 
     @Override
     public void merge(Map<String, ?> source) {
+        //TODO
     }
 }

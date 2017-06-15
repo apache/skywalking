@@ -1,44 +1,39 @@
-package org.skywalking.apm.collector.worker.noderef.persistence;
+package org.skywalking.apm.collector.worker.instance.persistence;
 
 import org.skywalking.apm.collector.actor.AbstractLocalSyncWorkerProvider;
 import org.skywalking.apm.collector.actor.ClusterWorkerContext;
 import org.skywalking.apm.collector.actor.LocalWorkerContext;
 import org.skywalking.apm.collector.actor.selector.HashCodeSelector;
 import org.skywalking.apm.collector.actor.selector.WorkerSelector;
-import org.skywalking.apm.collector.worker.PersistenceMember;
 import org.skywalking.apm.collector.worker.RecordPersistenceMember;
-import org.skywalking.apm.collector.worker.noderef.NodeRefIndex;
+import org.skywalking.apm.collector.worker.instance.PingTimeIndex;
 import org.skywalking.apm.collector.worker.storage.PersistenceWorkerListener;
 
-/**
- * @author pengys5
- */
-public class NodeRefMinuteSave extends RecordPersistenceMember {
+public class PingTimeUpdater extends RecordPersistenceMember {
 
-    NodeRefMinuteSave(org.skywalking.apm.collector.actor.Role role, ClusterWorkerContext clusterContext,
-                      LocalWorkerContext selfContext) {
+    public PingTimeUpdater(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
     @Override
     public String esIndex() {
-        return NodeRefIndex.INDEX;
+        return PingTimeIndex.INDEX;
     }
 
     @Override
     public String esType() {
-        return NodeRefIndex.TYPE_MINUTE;
+        return PingTimeIndex.TYPE_PING_TIME;
     }
 
-    public static class Factory extends AbstractLocalSyncWorkerProvider<NodeRefMinuteSave> {
+    public static class Factory extends AbstractLocalSyncWorkerProvider<PingTimeUpdater> {
         @Override
-        public Role role() {
-            return Role.INSTANCE;
+        public PingTimeUpdater.Role role() {
+            return PingTimeUpdater.Role.INSTANCE;
         }
 
         @Override
-        public NodeRefMinuteSave workerInstance(ClusterWorkerContext clusterContext) {
-            NodeRefMinuteSave worker = new NodeRefMinuteSave(role(), clusterContext, new LocalWorkerContext());
+        public PingTimeUpdater workerInstance(ClusterWorkerContext clusterContext) {
+            PingTimeUpdater worker = new PingTimeUpdater(role(), clusterContext, new LocalWorkerContext());
             PersistenceWorkerListener.INSTANCE.register(worker);
             return worker;
         }
@@ -49,7 +44,7 @@ public class NodeRefMinuteSave extends RecordPersistenceMember {
 
         @Override
         public String roleName() {
-            return NodeRefMinuteSave.class.getSimpleName();
+            return PingTimeUpdater.class.getSimpleName();
         }
 
         @Override

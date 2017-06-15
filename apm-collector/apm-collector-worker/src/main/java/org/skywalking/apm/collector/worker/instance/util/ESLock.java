@@ -21,7 +21,7 @@ public class ESLock {
         try {
             Map<String, Object> source = new HashMap<>();
             source.put("next_start_value", 0);
-            client.prepareIndex("records", "instance-ids", "1").setVersion(0)
+            client.prepareIndex("instances","sequences", "1").setVersion(0)
                 .setVersionType(VersionType.EXTERNAL).setSource(source).get();
         } catch (VersionConflictEngineException e) {
             
@@ -46,8 +46,8 @@ public class ESLock {
         Map<String, Object> source = new HashMap<String, Object>();
         source.put("next_start_value", result.getNextStartCount());
         IndexRequest updateRequest = new IndexRequest();
-        updateRequest.index("records");
-        updateRequest.type("instance-ids");
+        updateRequest.index("instances");
+        updateRequest.type("sequences");
         updateRequest.id("1");
         updateRequest.version(result.getNextVersion());
         updateRequest.versionType(VersionType.EXTERNAL);
@@ -65,7 +65,7 @@ public class ESLock {
     }
 
     private Result searchIndex() {
-        GetResponse response = EsClient.INSTANCE.getClient().prepareGet("records", "instance-ids", "1").get();
+        GetResponse response = EsClient.INSTANCE.getClient().prepareGet("instances", "sequences", "1").get();
         return new Result(response);
     }
 

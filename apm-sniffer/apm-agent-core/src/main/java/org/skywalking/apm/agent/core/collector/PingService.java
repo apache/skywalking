@@ -2,12 +2,12 @@ package org.skywalking.apm.agent.core.collector;
 
 import org.skywalking.apm.agent.core.boot.BootService;
 import org.skywalking.apm.agent.core.collector.sender.HeartBeatSender;
-import org.skywalking.apm.agent.core.collector.task.HeartBeatSendTask;
+import org.skywalking.apm.agent.core.collector.task.PingSendTask;
 
-public class HeartBeatReportService implements BootService {
+public class PingService implements BootService {
 
     @Override
     public void bootUp() throws Throwable {
-        new HeartBeatSendTask(new HeartBeatSender()).start();
+        new PingSendTask(new HeartBeatSender()).start();
     }
 }

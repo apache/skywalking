@@ -5,6 +5,7 @@ import org.skywalking.apm.collector.actor.ClusterWorkerContext;
 import org.skywalking.apm.collector.actor.LocalWorkerContext;
 import org.skywalking.apm.collector.actor.selector.HashCodeSelector;
 import org.skywalking.apm.collector.actor.selector.WorkerSelector;
+import org.skywalking.apm.collector.worker.PersistenceMember;
 import org.skywalking.apm.collector.worker.RecordPersistenceMember;
 import org.skywalking.apm.collector.worker.node.NodeCompIndex;
 import org.skywalking.apm.collector.worker.storage.PersistenceWorkerListener;

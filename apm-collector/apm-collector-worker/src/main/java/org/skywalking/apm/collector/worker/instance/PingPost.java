@@ -16,19 +16,14 @@ import org.skywalking.apm.collector.actor.selector.WorkerSelector;
 import org.skywalking.apm.collector.worker.httpserver.AbstractStreamPost;
 import org.skywalking.apm.collector.worker.httpserver.AbstractStreamPostProvider;
 import org.skywalking.apm.collector.worker.httpserver.ArgumentsParseException;
-import org.skywalking.apm.collector.worker.instance.analysis.InstanceAnalysis;
 import org.skywalking.apm.collector.worker.instance.analysis.PingTimeAnalysis;
 import org.skywalking.apm.collector.worker.instance.entity.InstanceDeserialize;
-import org.skywalking.apm.collector.worker.instance.entity.Registry;
-import org.skywalking.apm.collector.worker.instance.util.IDSequenceCache;
+import org.skywalking.apm.collector.worker.instance.entity.Ping;
 import org.skywalking.apm.collector.worker.tools.DateTools;
-import org.skywalking.apm.util.StringUtil;
 
-public class RegistryPost extends AbstractStreamPost {
+public class PingPost extends AbstractStreamPost {
 
-    private Logger logger = LogManager.getFormatterLogger(RegistryPost.class);
-
-    public RegistryPost(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    public PingPost(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
@@ -36,23 +31,11 @@ public class RegistryPost extends AbstractStreamPost {
     protected void onReceive(BufferedReader reader,
         JsonObject response) throws ArgumentsParseException, WorkerInvokeException, WorkerNotFoundException {
         try {
-            long instanceId = IDSequenceCache.INSTANCE.fetchInstanceId();
-            Registry registryInfo = InstanceDeserialize.INSTANCE.deserializeRegistryInfo(reader.readLine());
-
-            if (StringUtil.isEmpty(registryInfo.getApplicationCode())) {
-                throw new ArgumentsParseException("application code required.");
+            Ping ping = InstanceDeserialize.INSTANCE.deserializePingInfo(reader.readLine());
+            if (ping == null || ping.getInstanceId() == -1) {
+                throw new ArgumentsParseException("instance id required.");
             }
-
-            long registryTime = DateTools.getMinuteSlice(System.currentTimeMillis());
-
-            getSelfContext().lookup(InstanceAnalysis.Role.INSTANCE).tell(new InstanceAnalysis.Instance(registryInfo.getApplicationCode(),
-                instanceId, registryTime));
-            getSelfContext().lookup(PingTimeAnalysis.Role.INSTANCE).tell(new PingTimeAnalysis.Ping(instanceId, registryTime));
-
-            response.addProperty("ii", instanceId);
-            response.addProperty("pt", registryTime);
-
-            logger.debug("Application[%s] registry an instance. instance id is %d", registryInfo.getApplicationCode(), instanceId);
+            getSelfContext().lookup(PingTimeAnalysis.Role.INSTANCE).tell(new PingTimeAnalysis.Ping(ping.getInstanceId(), DateTools.getMinuteSlice(System.currentTimeMillis())));
         } catch (IOException e) {
             throw new ArgumentsParseException(e.getMessage(), e);
         }
@@ -60,25 +43,25 @@ public class RegistryPost extends AbstractStreamPost {
 
     @Override
     public void preStart() throws ProviderNotFoundException {
-        getClusterContext().findProvider(InstanceAnalysis.Role.INSTANCE).create(this);
         getClusterContext().findProvider(PingTimeAnalysis.Role.INSTANCE).create(this);
     }
 
-    public static class Factory extends AbstractStreamPostProvider<RegistryPost> {
+    public static class Factory extends AbstractStreamPostProvider<PingPost> {
         @Override
         public Role role() {
-            return RegistryPost.WorkerRole.INSTANCE;
+            return PingPost.WorkerRole.INSTANCE;
         }
 
         @Override
-        public RegistryPost workerInstance(ClusterWorkerContext clusterContext) {
-            return new RegistryPost(role(), clusterContext, new LocalWorkerContext());
+        public PingPost workerInstance(ClusterWorkerContext clusterContext) {
+            return new PingPost(role(), clusterContext, new LocalWorkerContext());
         }
 
         @Override
         public String servletPath() {
-            return "/instance/register";
+            return "/instance/ping";
         }
+
     }
 
     public enum WorkerRole implements Role {
@@ -86,7 +69,7 @@ public class RegistryPost extends AbstractStreamPost {
 
         @Override
         public String roleName() {
-            return RegistryPost.class.getSimpleName();
+            return PingPost.class.getSimpleName();
         }
 
         @Override

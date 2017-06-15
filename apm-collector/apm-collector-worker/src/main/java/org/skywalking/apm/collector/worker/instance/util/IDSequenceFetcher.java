@@ -1,31 +1,29 @@
-package org.skywalking.apm.collector.worker.instance;
+package org.skywalking.apm.collector.worker.instance.util;
 
-import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.skywalking.apm.collector.worker.instance.util.ESLock;
 
-public enum IdentificationSegmentFetcher {
+public enum IDSequenceFetcher {
     INSTANCE;
 
     private ScheduledFuture task;
-    private Logger logger = LogManager.getLogger(IdentificationSegmentFetcher.class);
+    private Logger logger = LogManager.getLogger(IDSequenceFetcher.class);
     private ESLock esLock = new ESLock();
 
-    public void fetchSegment(Listener listener) {
+    public void fetchSequence(Listener listener) {
         for (int index = 0; index < 3; index++) {
             boolean updateSuccess = esLock.tryLock((start, end) -> {
-                listener.success(new IdentificationSegment(start, end));
+                listener.success(new IDSequence(start, end));
             });
 
             if (updateSuccess) {
                 return;
             } else {
                 try {
-                    Thread.sleep(new Random().nextInt(1000));
+                    Thread.sleep(100);
                 } catch (InterruptedException e) {
                 }
             }
@@ -34,22 +32,22 @@ public enum IdentificationSegmentFetcher {
         listener.failed();
     }
 
-    public void fetchSegmentInBackGround(final IdentificationCache cache) {
+    public void fetchSequenceInBackGround(final IDSequenceCache cache) {
         if (task != null) {
-            logger.info("Fetch segment task already running.");
+            logger.info("Fetch sequence task already running.");
             return;
         }
 
-        task = Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> fetchSegment(new Listener() {
+        task = Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> fetchSequence(new Listener() {
             @Override
             public void failed() {
-                logger.warn("Failed to fetch Identification segment.");
+                logger.warn("Failed to fetch id sequence.");
             }
 
             @Override
-            public void success(IdentificationSegment segment) {
-                cache.state = IdentificationCache.State.NORMAL;
-                cache.segment = segment;
+            public void success(IDSequence idSequence) {
+                cache.state = IDSequenceCache.State.NORMAL;
+                cache.idSequence = idSequence;
                 if (task != null) {
                     task.cancel(false);
                     task = null;
@@ -62,6 +60,6 @@ public enum IdentificationSegmentFetcher {
 
         void failed();
 
-        void success(IdentificationSegment segment);
+        void success(IDSequence idSequence);
     }
 }

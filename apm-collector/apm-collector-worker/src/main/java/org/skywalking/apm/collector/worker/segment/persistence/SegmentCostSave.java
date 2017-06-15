@@ -3,8 +3,10 @@ package org.skywalking.apm.collector.worker.segment.persistence;
 import org.skywalking.apm.collector.actor.AbstractLocalSyncWorkerProvider;
 import org.skywalking.apm.collector.actor.ClusterWorkerContext;
 import org.skywalking.apm.collector.actor.LocalWorkerContext;
+import org.skywalking.apm.collector.actor.selector.HashCodeSelector;
 import org.skywalking.apm.collector.actor.selector.RollingSelector;
 import org.skywalking.apm.collector.actor.selector.WorkerSelector;
+import org.skywalking.apm.collector.worker.PersistenceMember;
 import org.skywalking.apm.collector.worker.RecordPersistenceMember;
 import org.skywalking.apm.collector.worker.segment.SegmentCostIndex;
 import org.skywalking.apm.collector.worker.storage.PersistenceWorkerListener;
@@ -52,7 +54,7 @@ public class SegmentCostSave extends RecordPersistenceMember {
 
         @Override
         public WorkerSelector workerSelector() {
-            return new RollingSelector();
+            return new HashCodeSelector();
         }
     }
 }

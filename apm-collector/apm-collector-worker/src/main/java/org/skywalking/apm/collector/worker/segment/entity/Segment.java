@@ -29,6 +29,9 @@ public class Segment {
     @SerializedName("gt")
     private GlobalTraceId relatedGlobalTraces;
 
+    @SerializedName("ii")
+    private long instanceId;
+
     public String getTraceSegmentId() {
         return traceSegmentId;
     }
@@ -55,5 +58,9 @@ public class Segment {
 
     public GlobalTraceId getRelatedGlobalTraces() {
         return relatedGlobalTraces;
+    }
+
+    public long getInstanceId() {
+        return instanceId;
     }
 }
