@@ -59,6 +59,14 @@ public final class TracerContext implements AbstractTracerContext {
         Span parentSpan = peek();
         Span span;
         if (parentSpan == null) {
+            if (operationName != null) {
+                int suffixIdx = operationName.lastIndexOf(".");
+                if (suffixIdx > -1 && Config.Agent.IGNORE_SUFFIX.contains(operationName.substring(suffixIdx))) {
+                    ContextManager.ContextSwitcher.INSTANCE.toNew(new IgnoredTracerContext(1));
+                    return ContextManager.activeSpan();
+                }
+            }
+
             if (isLeaf) {
                 span = new LeafSpan(spanIdGenerator++, operationName, startTime);
             } else {

@@ -86,7 +86,7 @@ public class ContextManager implements TracerContextListener, BootService, Ignor
     @Override
     public void bootUp() {
         TracerContext.ListenerManager.add(this);
-        IgnoreTracerContext.ListenerManager.add(this);
+        IgnoredTracerContext.ListenerManager.add(this);
     }
 
     @Override
@@ -95,7 +95,7 @@ public class ContextManager implements TracerContextListener, BootService, Ignor
     }
 
     @Override
-    public void afterFinished(IgnoreTracerContext traceSegment) {
+    public void afterFinished(IgnoredTracerContext traceSegment) {
         CONTEXT.remove();
     }
 

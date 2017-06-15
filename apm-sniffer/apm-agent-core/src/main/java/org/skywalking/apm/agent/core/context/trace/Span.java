@@ -13,9 +13,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import org.skywalking.apm.agent.core.conf.Config;
-import org.skywalking.apm.agent.core.context.ContextManager;
-import org.skywalking.apm.agent.core.context.IgnoreTracerContext;
 import org.skywalking.apm.agent.core.context.tag.BooleanTagItem;
 import org.skywalking.apm.agent.core.context.tag.IntTagItem;
 import org.skywalking.apm.agent.core.context.tag.StringTagItem;
@@ -191,22 +188,12 @@ public class Span implements AbstractSpan {
     }
 
     /**
-     * Sets the string name for the logical operation this span represents.
-     * These is one scenario, which trigger context switch.
-     * 1) the operations ends with the defined suffix, see {@link Config.Agent#IGNORE_SUFFIX}
+     * Set the string name for the logical operation this span represents.
      *
      * @return this Span instance, for chaining
      */
     public AbstractSpan setOperationName(String operationName) {
         this.operationName = operationName;
-        if (this.spanId == 0) {
-            if (operationName != null) {
-                int suffixIdx = operationName.lastIndexOf(".");
-                if (suffixIdx > -1 && Config.Agent.IGNORE_SUFFIX.contains(operationName.substring(suffixIdx))) {
-                    ContextManager.ContextSwitcher.INSTANCE.toNew(new IgnoreTracerContext(1));
-                }
-            }
-        }
         return this;
     }
 

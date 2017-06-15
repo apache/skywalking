@@ -3,20 +3,21 @@ package org.skywalking.apm.agent.core.context;
 import java.util.LinkedList;
 import java.util.List;
 import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.skywalking.apm.agent.core.context.trace.NoopSpan;
 
 /**
- * The <code>IgnoreTracerContext</code> represent a context should be ignored.
+ * The <code>IgnoredTracerContext</code> represent a context should be ignored.
  * So it just maintains the stack with integer depth.
- * All operations through this <code>IgnoreTracerContext</code> will be ignored, with low gc cost.
- *
- * TODO: Can't return null span
+ * All operations through this <code>IgnoredTracerContext</code> will be ignored, with low gc cost.
  *
  * @author wusheng
  */
-public class IgnoreTracerContext implements AbstractTracerContext {
+public class IgnoredTracerContext implements AbstractTracerContext {
+    private static final NoopSpan NOOP_SPAN = new NoopSpan();
+
     private int stackDepth;
 
-    public IgnoreTracerContext(int initStackDepth) {
+    public IgnoredTracerContext(int initStackDepth) {
         this.stackDepth = initStackDepth;
     }
 
@@ -38,7 +39,7 @@ public class IgnoreTracerContext implements AbstractTracerContext {
     @Override
     public AbstractSpan createSpan(String operationName, boolean isLeaf) {
         stackDepth++;
-        return null;
+        return NOOP_SPAN;
     }
 
     @Override
@@ -48,14 +49,14 @@ public class IgnoreTracerContext implements AbstractTracerContext {
 
     @Override
     public AbstractSpan activeSpan() {
-        return null;
+        return NOOP_SPAN;
     }
 
     @Override
     public void stopSpan(AbstractSpan span) {
         stackDepth--;
         if (stackDepth == 0) {
-
+            ListenerManager.notifyFinish(this);
         }
     }
 
@@ -82,15 +83,15 @@ public class IgnoreTracerContext implements AbstractTracerContext {
         }
 
         /**
-         * Notify the {@link IgnoreTracerContext.ListenerManager} about the given {@link IgnoreTracerContext} have
-         * finished. And trigger {@link IgnoreTracerContext.ListenerManager} to notify all {@link #LISTENERS} 's {@link
-         * IgnoreTracerContextListener#afterFinished(IgnoreTracerContext)}
+         * Notify the {@link IgnoredTracerContext.ListenerManager} about the given {@link IgnoredTracerContext} have
+         * finished. And trigger {@link IgnoredTracerContext.ListenerManager} to notify all {@link #LISTENERS} 's {@link
+         * IgnoreTracerContextListener#afterFinished(IgnoredTracerContext)}
          *
-         * @param ignoreTracerContext
+         * @param ignoredTracerContext
          */
-        static void notifyFinish(IgnoreTracerContext ignoreTracerContext) {
+        static void notifyFinish(IgnoredTracerContext ignoredTracerContext) {
             for (IgnoreTracerContextListener listener : LISTENERS) {
-                listener.afterFinished(ignoreTracerContext);
+                listener.afterFinished(ignoredTracerContext);
             }
         }
 
