@@ -178,6 +178,10 @@ public class TraceSegment {
         return Collections.unmodifiableList(refs);
     }
 
+    public boolean hasRef() {
+        return !(refs == null || refs.size() == 0);
+    }
+
     public List<DistributedTraceId> getRelatedGlobalTraces() {
         return relatedGlobalTraces.getRelatedGlobalTraces();
     }

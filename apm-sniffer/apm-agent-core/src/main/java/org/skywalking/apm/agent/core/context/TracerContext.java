@@ -2,12 +2,14 @@ package org.skywalking.apm.agent.core.context;
 
 import java.util.LinkedList;
 import java.util.List;
+import org.skywalking.apm.agent.core.boot.ServiceManager;
 import org.skywalking.apm.agent.core.conf.Config;
 import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.skywalking.apm.agent.core.context.trace.LeafSpan;
 import org.skywalking.apm.agent.core.context.trace.Span;
 import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.skywalking.apm.agent.core.context.trace.TraceSegmentRef;
+import org.skywalking.apm.agent.core.sampling.SamplingService;
 
 /**
  * {@link TracerContext} maintains the context.
@@ -73,17 +75,42 @@ public final class TracerContext implements AbstractTracerContext {
                 span = new Span(spanIdGenerator++, operationName, startTime);
             }
             push(span);
-        } else if (parentSpan.isLeaf()) {
-            span = parentSpan;
-            LeafSpan leafSpan = (LeafSpan)span;
-            leafSpan.push();
         } else {
-            if (isLeaf) {
-                span = new LeafSpan(spanIdGenerator++, parentSpan, operationName, startTime);
-            } else {
-                span = new Span(spanIdGenerator++, parentSpan, operationName, startTime);
+            /**
+             * Don't have ref yet, means this isn't part of distributed trace.
+             * Use sampling mechanism
+             * Only check this on the second span,
+             * because the {@link #extract(ContextCarrier)} invoke before create the second span.
+             */
+            if (spanIdGenerator == 1) {
+                SamplingService samplingService = ServiceManager.INSTANCE.findService(SamplingService.class);
+                if (segment.hasRef()) {
+                    samplingService.forceSampled();
+                } else {
+                    if (!samplingService.trySampling()) {
+                        /**
+                         * Don't sample this trace.
+                         * Now, switch this trace as an {@link IgnoredTracerContext},
+                         * further more, we will provide an analytic tracer context for all metrics in this trace.
+                         */
+                        ContextManager.ContextSwitcher.INSTANCE.toNew(new IgnoredTracerContext(2));
+                        return ContextManager.activeSpan();
+                    }
+                }
             }
-            push(span);
+
+            if (parentSpan.isLeaf()) {
+                span = parentSpan;
+                LeafSpan leafSpan = (LeafSpan)span;
+                leafSpan.push();
+            } else {
+                if (isLeaf) {
+                    span = new LeafSpan(spanIdGenerator++, parentSpan, operationName, startTime);
+                } else {
+                    span = new Span(spanIdGenerator++, parentSpan, operationName, startTime);
+                }
+                push(span);
+            }
         }
         return span;
     }

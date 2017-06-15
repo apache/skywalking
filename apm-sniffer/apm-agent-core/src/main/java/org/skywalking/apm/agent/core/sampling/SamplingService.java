@@ -1,8 +1,11 @@
 package org.skywalking.apm.agent.core.sampling;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.skywalking.apm.agent.core.boot.BootService;
 import org.skywalking.apm.agent.core.conf.Config;
-import org.skywalking.apm.agent.core.context.ContextCarrier;
 import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.skywalking.apm.logging.ILog;
 import org.skywalking.apm.logging.LogManager;
@@ -20,29 +23,53 @@ public class SamplingService implements BootService {
     private static final ILog logger = LogManager.getLogger(SamplingService.class);
 
     private volatile boolean on = false;
-    private volatile int rollingSeed = 1;
+    private volatile AtomicInteger samplingFactorHolder;
 
     @Override
     public void bootUp() throws Throwable {
         if (Config.Agent.SAMPLE_N_PER_10_SECS > 0) {
             on = true;
+            this.resetSamplingFactor();
+            ScheduledExecutorService service = Executors
+                .newSingleThreadScheduledExecutor();
+            service.scheduleAtFixedRate(new Runnable() {
+                @Override
+                public void run() {
+                    resetSamplingFactor();
+                }
+            }, 1, 1, TimeUnit.SECONDS);
+            logger.debug("Agent sampling mechanism started. Sample {} traces in 10 seconds.", Config.Agent.SAMPLE_N_PER_10_SECS);
         }
     }
 
-    public void trySampling(TraceSegment segment) {
+    /**
+     * @return true, if sampling mechanism is on, and get the sampling factor successfully.
+     */
+    public boolean trySampling() {
+        if (on) {
+            int factor = samplingFactorHolder.get();
+            if (factor < Config.Agent.SAMPLE_N_PER_10_SECS) {
+                return samplingFactorHolder.compareAndSet(factor, factor + 1);
+            } else {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
-     * Set the {@link TraceSegment} to sampled, when {@link ContextCarrier} contains "isSampled" flag.
-     * <p>
-     * A -> B, if TraceSegment is sampled in A, then the related TraceSegment in B must be sampled, no matter you
-     * sampling rate. And reset the {@link #rollingSeed}, in case of too many {@link TraceSegment}s, which started in
-     * this JVM, are sampled.
-     *
-     * @param segment the current TraceSegment.
-     * @param carrier
+     * Increase the sampling factor by force,
+     * to avoid sampling too many traces.
+     * If many distributed traces require sampled,
+     * the trace beginning at local, has less chance to be sampled.
      */
-    public void setSampleWhenExtract(TraceSegment segment, ContextCarrier carrier) {
+    public void forceSampled() {
+        if (on) {
+            samplingFactorHolder.incrementAndGet();
+        }
     }
 
+    private void resetSamplingFactor() {
+        samplingFactorHolder = new AtomicInteger(0);
+    }
 }
