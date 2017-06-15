@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import org.elasticsearch.action.index.IndexRequestBuilder;
+import org.elasticsearch.action.update.UpdateRequestBuilder;
 import org.elasticsearch.client.Client;
 import org.skywalking.apm.collector.actor.AbstractLocalSyncWorkerProvider;
 import org.skywalking.apm.collector.actor.ClusterWorkerContext;
@@ -16,6 +17,7 @@ import org.skywalking.apm.collector.worker.segment.SegmentIndex;
 import org.skywalking.apm.collector.worker.segment.entity.SegmentAndJson;
 import org.skywalking.apm.collector.worker.storage.AbstractIndex;
 import org.skywalking.apm.collector.worker.storage.EsClient;
+import org.skywalking.apm.collector.worker.storage.IndexBuilder;
 import org.skywalking.apm.collector.worker.storage.PersistenceWorkerListener;
 import org.skywalking.apm.collector.worker.storage.SegmentData;
 import org.skywalking.apm.collector.worker.storage.SegmentPersistenceData;
@@ -61,23 +63,24 @@ public class SegmentSave extends PersistenceMember<SegmentPersistenceData, Segme
     }
 
     private void persistence(Map<String, SegmentData> dataMap) {
-        List<IndexRequestBuilder> builderList = new LinkedList<>();
+        IndexBuilder indexBuilder = new IndexBuilder();
         Client client = EsClient.INSTANCE.getClient();
         dataMap.forEach((key, value) -> {
             IndexRequestBuilder builder = client.prepareIndex(esIndex(), esType(), key).setSource(value.getSegmentStr());
-            builderList.add(builder);
+            indexBuilder.addIndexRequestBuilder(builder);
         });
-        EsClient.INSTANCE.bulk(builderList);
+        EsClient.INSTANCE.bulk(indexBuilder);
         dataMap.clear();
     }
 
-    @Override final protected void prepareIndex(List<IndexRequestBuilder> builderList) {
+    @Override final protected void prepareIndex(List<IndexRequestBuilder> indexRequestBuilders,
+        List<UpdateRequestBuilder> updateRequestBuilderList) {
         Map<String, SegmentData> lastData = getPersistenceData().getLast().asMap();
 
         Client client = EsClient.INSTANCE.getClient();
         lastData.forEach((key, value) -> {
             IndexRequestBuilder builder = client.prepareIndex(esIndex(), esType(), key).setSource(value.getSegmentStr());
-            builderList.add(builder);
+            indexRequestBuilders.add(builder);
         });
         lastData.clear();
     }

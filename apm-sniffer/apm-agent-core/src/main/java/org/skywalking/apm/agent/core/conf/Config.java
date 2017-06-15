@@ -42,7 +42,7 @@ public class Config {
         public static String SERVERS = "";
 
         public static class Services {
-            public static final String HEART_BEAT_REPORT = "/heartbeat";
+            public static final String HEART_BEAT_REPORT = "/ping";
             /**
              * Collector receive segments REST-Service name.
              */

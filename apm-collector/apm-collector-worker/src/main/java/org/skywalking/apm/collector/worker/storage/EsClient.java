@@ -1,5 +1,10 @@
 package org.skywalking.apm.collector.worker.storage;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
@@ -7,17 +12,12 @@ import org.elasticsearch.action.admin.indices.refresh.RefreshResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
+import org.elasticsearch.action.update.UpdateRequestBuilder;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.skywalking.apm.collector.worker.config.EsConfig;
-
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * @author pengys5
@@ -39,7 +39,7 @@ public enum EsClient {
 
         List<AddressPairs> pairsList = parseClusterNodes(EsConfig.Es.Cluster.NODES);
         for (AddressPairs pairs : pairsList) {
-            ((PreBuiltTransportClient) client).addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(pairs.ip), pairs.port));
+            ((PreBuiltTransportClient)client).addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(pairs.ip), pairs.port));
         }
     }
 
@@ -81,13 +81,18 @@ public enum EsClient {
         }
     }
 
-    public void bulk(List<IndexRequestBuilder> dataList) {
+    public void bulk(IndexBuilder indexBuilder) {
         Client client = EsClient.INSTANCE.getClient();
         BulkRequestBuilder bulkRequest = client.prepareBulk();
 
-        logger.info("bulk data size: %s", dataList.size());
-        if (dataList.size() > 0) {
-            for (IndexRequestBuilder builder : dataList) {
+        if (indexBuilder.getIndexRequestBuilders().size() > 0 || indexBuilder.getUpdateRequestBuilders().size() > 0) {
+            logger.info("bulk index data size: %s", indexBuilder.getIndexRequestBuilders().size());
+            for (IndexRequestBuilder builder : indexBuilder.getIndexRequestBuilders()) {
+                bulkRequest.add(builder);
+            }
+
+            logger.info("bulk update data size: %s", indexBuilder.getIndexRequestBuilders().size());
+            for (UpdateRequestBuilder builder : indexBuilder.getUpdateRequestBuilders()) {
                 bulkRequest.add(builder);
             }
 

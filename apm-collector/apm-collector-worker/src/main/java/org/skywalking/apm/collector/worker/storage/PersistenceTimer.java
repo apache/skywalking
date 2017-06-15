@@ -38,17 +38,17 @@ public enum PersistenceTimer {
     }
 
     private void extractDataAndSave() {
-        List<IndexRequestBuilder> dataList = new LinkedList<>();
+        IndexBuilder indexBuilder = new IndexBuilder();
 
         List<AbstractLocalSyncWorker> workers = PersistenceWorkerListener.INSTANCE.getWorkers();
         for (AbstractLocalSyncWorker worker : workers) {
             logger.info("worker role name: %s", worker.getRole().roleName());
             try {
-                worker.allocateJob(new FlushAndSwitch(), dataList);
+                worker.allocateJob(new FlushAndSwitch(), indexBuilder);
             } catch (Exception e) {
                 logger.error(new StringFormattedMessage("flush persistence worker data error, worker role name: %s", worker.getRole().roleName()), e);
             }
         }
-        EsClient.INSTANCE.bulk(dataList);
+        EsClient.INSTANCE.bulk(indexBuilder);
     }
 }

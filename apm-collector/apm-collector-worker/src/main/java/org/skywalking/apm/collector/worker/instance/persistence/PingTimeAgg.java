@@ -1,49 +1,48 @@
-package org.skywalking.apm.collector.worker.instance.heartbeat;
+package org.skywalking.apm.collector.worker.instance.persistence;
 
 import org.skywalking.apm.collector.actor.AbstractClusterWorker;
 import org.skywalking.apm.collector.actor.AbstractClusterWorkerProvider;
 import org.skywalking.apm.collector.actor.ClusterWorkerContext;
 import org.skywalking.apm.collector.actor.LocalWorkerContext;
 import org.skywalking.apm.collector.actor.ProviderNotFoundException;
+import org.skywalking.apm.collector.actor.WorkerException;
 import org.skywalking.apm.collector.actor.selector.HashCodeSelector;
 import org.skywalking.apm.collector.actor.selector.WorkerSelector;
 import org.skywalking.apm.collector.worker.config.WorkerConfig;
-import org.skywalking.apm.collector.worker.instance.entity.HeartBeat;
 import org.skywalking.apm.collector.worker.storage.RecordData;
 
-public class HeartBeatDataSave extends AbstractClusterWorker {
+public class PingTimeAgg extends AbstractClusterWorker {
 
-    protected HeartBeatDataSave(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    protected PingTimeAgg(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
     @Override
     public void preStart() throws ProviderNotFoundException {
-        getClusterContext().findProvider(HeartBeatPersistenceMember.Role.INSTANCE).create(this);
+        getClusterContext().findProvider(PingTimeSave.Role.INSTANCE).create(this);
     }
 
     @Override
-    protected void onWork(Object message) throws Exception {
+    protected void onWork(Object message) throws WorkerException {
         if (message instanceof RecordData) {
-            HeartBeat heartBeat = new HeartBeat(((RecordData)message).get());
-            getSelfContext().lookup(HeartBeatPersistenceMember.Role.INSTANCE).tell(heartBeat);
+            getSelfContext().lookup(PingTimeSave.Role.INSTANCE).tell(message);
         }
     }
 
-    public static class Factory extends AbstractClusterWorkerProvider<HeartBeatDataSave> {
+    public static class Factory extends AbstractClusterWorkerProvider<PingTimeAgg> {
         @Override
-        public HeartBeatDataSave.Role role() {
-            return HeartBeatDataSave.Role.INSTANCE;
+        public PingTimeAgg.Role role() {
+            return PingTimeAgg.Role.INSTANCE;
         }
 
         @Override
-        public HeartBeatDataSave workerInstance(ClusterWorkerContext clusterContext) {
-            return new HeartBeatDataSave(role(), clusterContext, new LocalWorkerContext());
+        public PingTimeAgg workerInstance(ClusterWorkerContext clusterContext) {
+            return new PingTimeAgg(role(), clusterContext, new LocalWorkerContext());
         }
 
         @Override
         public int workerNum() {
-            return WorkerConfig.WorkerNum.Node.HeartBeatSave.VALUE;
+            return WorkerConfig.WorkerNum.NodeRef.PingTimeAgg.VALUE;
         }
     }
 
@@ -52,7 +51,7 @@ public class HeartBeatDataSave extends AbstractClusterWorker {
 
         @Override
         public String roleName() {
-            return HeartBeatDataSave.class.getSimpleName();
+            return PingTimeAgg.class.getSimpleName();
         }
 
         @Override
@@ -60,4 +59,5 @@ public class HeartBeatDataSave extends AbstractClusterWorker {
             return new HashCodeSelector();
         }
     }
+
 }

@@ -3,6 +3,7 @@ package org.skywalking.apm.collector.worker;
 import java.util.List;
 import java.util.Map;
 import org.elasticsearch.action.index.IndexRequestBuilder;
+import org.elasticsearch.action.update.UpdateRequestBuilder;
 import org.elasticsearch.client.Client;
 import org.skywalking.apm.collector.actor.ClusterWorkerContext;
 import org.skywalking.apm.collector.actor.LocalWorkerContext;
@@ -38,14 +39,15 @@ public abstract class RecordPersistenceMember extends PersistenceMember<RecordPe
         }
     }
 
-    @Override final protected void prepareIndex(List<IndexRequestBuilder> builderList) {
+    @Override final protected void prepareIndex(List<IndexRequestBuilder> indexRequestBuilders,
+        List<UpdateRequestBuilder> updateRequestBuilderList) {
         Map<String, RecordData> lastData = getPersistenceData().getLast().asMap();
         extractData(lastData);
 
         Client client = EsClient.INSTANCE.getClient();
         lastData.forEach((key, value) -> {
             IndexRequestBuilder builder = client.prepareIndex(esIndex(), esType(), key).setSource(value.get().toString());
-            builderList.add(builder);
+            indexRequestBuilders.add(builder);
         });
         lastData.clear();
     }

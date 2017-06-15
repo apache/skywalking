@@ -1,6 +1,5 @@
 package org.skywalking.apm.collector.worker;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
@@ -10,6 +9,7 @@ import org.elasticsearch.action.get.MultiGetItemResponse;
 import org.elasticsearch.action.get.MultiGetRequestBuilder;
 import org.elasticsearch.action.get.MultiGetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
+import org.elasticsearch.action.update.UpdateRequestBuilder;
 import org.elasticsearch.client.Client;
 import org.skywalking.apm.collector.actor.AbstractLocalSyncWorker;
 import org.skywalking.apm.collector.actor.ClusterWorkerContext;
@@ -20,6 +20,7 @@ import org.skywalking.apm.collector.actor.WorkerException;
 import org.skywalking.apm.collector.worker.storage.Data;
 import org.skywalking.apm.collector.worker.storage.EsClient;
 import org.skywalking.apm.collector.worker.storage.FlushAndSwitch;
+import org.skywalking.apm.collector.worker.storage.IndexBuilder;
 import org.skywalking.apm.collector.worker.storage.PersistenceData;
 import org.skywalking.apm.collector.worker.storage.Window;
 
@@ -65,8 +66,9 @@ public abstract class PersistenceMember<T extends Window & PersistenceData, D ex
                 }
             }
 
-            if (response instanceof LinkedList) {
-                prepareIndex((LinkedList)response);
+            if (response instanceof IndexBuilder) {
+                IndexBuilder indexBuilder = (IndexBuilder)response;
+                prepareIndex(indexBuilder.getIndexRequestBuilders(), indexBuilder.getUpdateRequestBuilders());
             } else {
                 logger.error("unhandled response, response instance must LinkedList, but is %s", response.getClass().toString());
             }
@@ -107,7 +109,8 @@ public abstract class PersistenceMember<T extends Window & PersistenceData, D ex
         }
     }
 
-    protected abstract void prepareIndex(List<IndexRequestBuilder> builderList);
+    protected abstract void prepareIndex(List<IndexRequestBuilder> indexRequestBuilders,
+        List<UpdateRequestBuilder> updateRequestBuilderList);
 
     class HasDataFlag {
         private boolean hasData;

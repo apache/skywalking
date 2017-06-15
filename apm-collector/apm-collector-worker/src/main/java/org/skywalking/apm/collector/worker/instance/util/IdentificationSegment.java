@@ -1,4 +1,4 @@
-package org.skywalking.apm.collector.worker.instance;
+package org.skywalking.apm.collector.worker.instance.util;
 
 public class IdentificationSegment {
     private long startInstanceId;

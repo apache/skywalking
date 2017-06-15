@@ -1,11 +1,11 @@
 package org.skywalking.apm.collector.worker.instance.entity;
 
-public class RegistryInfo {
-    private String applicationCode;
+import com.google.gson.annotations.SerializedName;
 
-    public RegistryInfo(String applicationCode) {
-        this.applicationCode = applicationCode;
-    }
+public class RegistryInfo {
+
+    @SerializedName("ac")
+    private String applicationCode;
 
     public String getApplicationCode() {
         return applicationCode;

@@ -1,4 +1,4 @@
-package org.skywalking.apm.collector.worker.instance;
+package org.skywalking.apm.collector.worker.instance.util;
 
 import java.util.Random;
 import java.util.concurrent.Executors;
@@ -6,7 +6,6 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.skywalking.apm.collector.worker.instance.util.ESLock;
 
 public enum IdentificationSegmentFetcher {
     INSTANCE;
@@ -34,7 +33,7 @@ public enum IdentificationSegmentFetcher {
         listener.failed();
     }
 
-    public void fetchSegmentInBackGround(final IdentificationCache cache) {
+    public void fetchSegmentInBackGround(final IDSequence cache) {
         if (task != null) {
             logger.info("Fetch segment task already running.");
             return;
@@ -48,7 +47,7 @@ public enum IdentificationSegmentFetcher {
 
             @Override
             public void success(IdentificationSegment segment) {
-                cache.state = IdentificationCache.State.NORMAL;
+                cache.state = IDSequence.State.NORMAL;
                 cache.segment = segment;
                 if (task != null) {
                     task.cancel(false);

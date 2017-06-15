@@ -52,6 +52,10 @@ public class WorkerConfig {
             public static class NodeRefResSumMinuteAgg {
                 public static int VALUE = 2;
             }
+
+            public static class PingTimeAgg {
+                public static int VALUE = 2;
+            }
         }
 
         public static class GlobalTrace {
