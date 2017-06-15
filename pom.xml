@@ -157,6 +157,12 @@
             <groupId>org.webjars.npm</groupId>
             <artifactId>jquery-slimscroll</artifactId>
             <version>1.3.6</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>jquery</artifactId>
+                    <groupId>org.webjars.npm</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.webjars.bower</groupId>
