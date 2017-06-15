@@ -20,7 +20,7 @@ import org.skywalking.apm.collector.actor.WorkerRefs;
 import org.skywalking.apm.collector.actor.selector.RollingSelector;
 import org.skywalking.apm.collector.worker.httpserver.ArgumentsParseException;
 import org.skywalking.apm.collector.worker.segment.persistence.SegmentExceptionWithSegId;
-import org.skywalking.apm.collector.worker.segment.persistence.SegmentTopSearchWithTimeSlice;
+import org.skywalking.apm.collector.worker.segment.persistence.SegmentTopSearch;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,9 +34,9 @@ import static org.mockito.Mockito.*;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest( {ClusterWorkerContext.class})
 @PowerMockIgnore( {"javax.management.*"})
-public class SegmentTopGetWithTimeSliceTestCase {
+public class SegmentTopGetTestCase {
 
-    private SegmentTopGetWithTimeSlice getObj;
+    private SegmentTopGet getObj;
     private SegmentTopGetAnswerGet answer;
     private ClusterWorkerContext clusterWorkerContext;
 
@@ -51,24 +51,24 @@ public class SegmentTopGetWithTimeSliceTestCase {
         WorkerRefs workerRefs = mock(WorkerRefs.class);
 
         answer = new SegmentTopGetAnswerGet();
-        doAnswer(answer).when(workerRefs).ask(Mockito.any(SegmentTopSearchWithTimeSlice.RequestEntity.class), Mockito.any(JsonObject.class));
+        doAnswer(answer).when(workerRefs).ask(Mockito.any(SegmentTopSearch.RequestEntity.class), Mockito.any(JsonObject.class));
 
-        when(localWorkerContext.lookup(SegmentTopSearchWithTimeSlice.WorkerRole.INSTANCE)).thenReturn(workerRefs);
-        getObj = new SegmentTopGetWithTimeSlice(SegmentTopGetWithTimeSlice.WorkerRole.INSTANCE, clusterWorkerContext, localWorkerContext);
+        when(localWorkerContext.lookup(SegmentTopSearch.WorkerRole.INSTANCE)).thenReturn(workerRefs);
+        getObj = new SegmentTopGet(SegmentTopGet.WorkerRole.INSTANCE, clusterWorkerContext, localWorkerContext);
     }
 
     @Test
     public void testRole() {
-        Assert.assertEquals(SegmentTopGetWithTimeSlice.class.getSimpleName(), SegmentTopGetWithTimeSlice.WorkerRole.INSTANCE.roleName());
-        Assert.assertEquals(RollingSelector.class.getSimpleName(), SegmentTopGetWithTimeSlice.WorkerRole.INSTANCE.workerSelector().getClass().getSimpleName());
+        Assert.assertEquals(SegmentTopGet.class.getSimpleName(), SegmentTopGet.WorkerRole.INSTANCE.roleName());
+        Assert.assertEquals(RollingSelector.class.getSimpleName(), SegmentTopGet.WorkerRole.INSTANCE.workerSelector().getClass().getSimpleName());
     }
 
     @Test
     public void testFactory() {
-        SegmentTopGetWithTimeSlice.Factory factory = new SegmentTopGetWithTimeSlice.Factory();
-        Assert.assertEquals(SegmentTopGetWithTimeSlice.class.getSimpleName(), factory.role().roleName());
-        Assert.assertEquals(SegmentTopGetWithTimeSlice.class.getSimpleName(), factory.workerInstance(null).getClass().getSimpleName());
-        Assert.assertEquals("/segments/top/timeSlice", factory.servletPath());
+        SegmentTopGet.Factory factory = new SegmentTopGet.Factory();
+        Assert.assertEquals(SegmentTopGet.class.getSimpleName(), factory.role().roleName());
+        Assert.assertEquals(SegmentTopGet.class.getSimpleName(), factory.workerInstance(null).getClass().getSimpleName());
+        Assert.assertEquals("/segments/top", factory.servletPath());
     }
 
     @Test
@@ -77,12 +77,12 @@ public class SegmentTopGetWithTimeSliceTestCase {
         SegmentExceptionWithSegId.Factory factory = new SegmentExceptionWithSegId.Factory();
         when(exceptionContext.findProvider(SegmentExceptionWithSegId.WorkerRole.INSTANCE)).thenReturn(factory);
 
-        SegmentTopSearchWithTimeSlice.Factory factory1 = new SegmentTopSearchWithTimeSlice.Factory();
+        SegmentTopSearch.Factory factory1 = new SegmentTopSearch.Factory();
         factory1.setClusterContext(exceptionContext);
 
-        when(clusterWorkerContext.findProvider(SegmentTopSearchWithTimeSlice.WorkerRole.INSTANCE)).thenReturn(factory1);
+        when(clusterWorkerContext.findProvider(SegmentTopSearch.WorkerRole.INSTANCE)).thenReturn(factory1);
 
-        ArgumentCaptor<SegmentTopSearchWithTimeSlice.WorkerRole> argumentCaptor = ArgumentCaptor.forClass(SegmentTopSearchWithTimeSlice.WorkerRole.class);
+        ArgumentCaptor<SegmentTopSearch.WorkerRole> argumentCaptor = ArgumentCaptor.forClass(SegmentTopSearch.WorkerRole.class);
         getObj.preStart();
         verify(clusterWorkerContext).findProvider(argumentCaptor.capture());
     }
@@ -155,7 +155,7 @@ public class SegmentTopGetWithTimeSliceTestCase {
 
         @Override
         public Object answer(InvocationOnMock invocation) throws Throwable {
-            SegmentTopSearchWithTimeSlice.RequestEntity requestEntity = (SegmentTopSearchWithTimeSlice.RequestEntity) invocation.getArguments()[0];
+            SegmentTopSearch.RequestEntity requestEntity = (SegmentTopSearch.RequestEntity) invocation.getArguments()[0];
             Assert.assertEquals(10, requestEntity.getStartTime());
             Assert.assertEquals(20, requestEntity.getEndTime());
             Assert.assertEquals(30, requestEntity.getFrom());

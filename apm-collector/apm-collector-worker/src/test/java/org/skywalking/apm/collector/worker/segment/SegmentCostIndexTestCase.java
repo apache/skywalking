@@ -21,7 +21,7 @@ public class SegmentCostIndexTestCase {
     @Test
     public void testBuilder() throws IOException {
         SegmentCostIndex index = new SegmentCostIndex();
-        Assert.assertEquals("{\"properties\":{\"segId\":{\"type\":\"keyword\"},\"startTime\":{\"type\":\"long\",\"index\":\"not_analyzed\"},\"END_TIME\":{\"type\":\"long\",\"index\":\"not_analyzed\"},\"operationName\":{\"type\":\"keyword\"},\"cost\":{\"type\":\"long\",\"index\":\"not_analyzed\"}}}", index.createMappingBuilder().string());
+        Assert.assertEquals("{\"properties\":{\"segId\":{\"type\":\"keyword\"},\"startTime\":{\"type\":\"long\",\"index\":\"not_analyzed\"},\"endTime\":{\"type\":\"long\",\"index\":\"not_analyzed\"},\"globalTraceId\":{\"type\":\"keyword\"},\"operationName\":{\"type\":\"text\"},\"cost\":{\"type\":\"long\",\"index\":\"not_analyzed\"}}}", index.createMappingBuilder().string());
     }
 
     @Test

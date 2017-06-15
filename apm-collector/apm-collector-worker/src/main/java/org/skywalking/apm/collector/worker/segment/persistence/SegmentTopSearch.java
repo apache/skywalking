@@ -8,6 +8,7 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.search.SearchHit;
@@ -28,13 +29,14 @@ import org.skywalking.apm.collector.worker.segment.entity.Segment;
 import org.skywalking.apm.collector.worker.segment.entity.SegmentDeserialize;
 import org.skywalking.apm.collector.worker.storage.EsClient;
 import org.skywalking.apm.collector.worker.tools.CollectionTools;
+import org.skywalking.apm.util.StringUtil;
 
 /**
  * @author pengys5
  */
-public class SegmentTopSearchWithTimeSlice extends AbstractLocalSyncWorker {
+public class SegmentTopSearch extends AbstractLocalSyncWorker {
 
-    private SegmentTopSearchWithTimeSlice(Role role, ClusterWorkerContext clusterContext,
+    private SegmentTopSearch(Role role, ClusterWorkerContext clusterContext,
         LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
@@ -54,7 +56,9 @@ public class SegmentTopSearchWithTimeSlice extends AbstractLocalSyncWorker {
             searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
             BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
             searchRequestBuilder.setQuery(boolQueryBuilder);
-            boolQueryBuilder.must().add(QueryBuilders.rangeQuery(SegmentCostIndex.TIME_SLICE).gte(search.startTime).lte(search.endTime));
+            List<QueryBuilder> mustQueryList = boolQueryBuilder.must();
+
+            mustQueryList.add(QueryBuilders.rangeQuery(SegmentCostIndex.TIME_SLICE).gte(search.startTime).lte(search.endTime));
             if (search.minCost != -1 || search.maxCost != -1) {
                 RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery(SegmentCostIndex.COST);
                 if (search.minCost != -1) {
@@ -64,6 +68,12 @@ public class SegmentTopSearchWithTimeSlice extends AbstractLocalSyncWorker {
                     rangeQueryBuilder.lte(search.maxCost);
                 }
                 boolQueryBuilder.must().add(rangeQueryBuilder);
+            }
+            if (!StringUtil.isEmpty(search.operationName)) {
+                mustQueryList.add(QueryBuilders.matchQuery(SegmentCostIndex.OPERATION_NAME, search.operationName));
+            }
+            if (!StringUtil.isEmpty(search.globalTraceId)) {
+                mustQueryList.add(QueryBuilders.matchQuery(SegmentCostIndex.GLOBAL_TRACE_ID, search.globalTraceId));
             }
 
             searchRequestBuilder.addSort(SegmentCostIndex.COST, SortOrder.DESC);
@@ -137,12 +147,17 @@ public class SegmentTopSearchWithTimeSlice extends AbstractLocalSyncWorker {
         private long endTime;
         private int minCost;
         private int maxCost;
+        private String globalTraceId;
+        private String operationName;
 
-        public RequestEntity(int from, int limit, long startTime, long endTime) {
+        public RequestEntity(int from, int limit, long startTime, long endTime, String globalTraceId,
+            String operationName) {
             this.from = from;
             this.limit = limit;
             this.startTime = startTime;
             this.endTime = endTime;
+            this.globalTraceId = globalTraceId;
+            this.operationName = operationName;
         }
 
         public void setMinCost(int minCost) {
@@ -178,15 +193,15 @@ public class SegmentTopSearchWithTimeSlice extends AbstractLocalSyncWorker {
         }
     }
 
-    public static class Factory extends AbstractLocalSyncWorkerProvider<SegmentTopSearchWithTimeSlice> {
+    public static class Factory extends AbstractLocalSyncWorkerProvider<SegmentTopSearch> {
         @Override
         public Role role() {
             return WorkerRole.INSTANCE;
         }
 
         @Override
-        public SegmentTopSearchWithTimeSlice workerInstance(ClusterWorkerContext clusterContext) {
-            return new SegmentTopSearchWithTimeSlice(role(), clusterContext, new LocalWorkerContext());
+        public SegmentTopSearch workerInstance(ClusterWorkerContext clusterContext) {
+            return new SegmentTopSearch(role(), clusterContext, new LocalWorkerContext());
         }
     }
 
@@ -195,7 +210,7 @@ public class SegmentTopSearchWithTimeSlice extends AbstractLocalSyncWorker {
 
         @Override
         public String roleName() {
-            return SegmentTopSearchWithTimeSlice.class.getSimpleName();
+            return SegmentTopSearch.class.getSimpleName();
         }
 
         @Override
