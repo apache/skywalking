@@ -40,6 +40,8 @@ _In chronological order_
 * 戴文
 * 柏杨 [@bai-yang](https://github.com/bai-yang)  Senior Engineer, Alibaba Group.
 
+This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to wu.sheng@foxmail.com.
+
 # Screenshots
 - Topological graph of application clusters.
 <img src="https://sky-walking.github.io/page-resources/3.0/topological_graph.png?forceUpdate=0"/>
