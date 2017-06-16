@@ -2,15 +2,14 @@ package org.skywalking.apm.collector.worker.tracedag;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.skywalking.apm.collector.worker.Const;
 import org.skywalking.apm.collector.worker.node.NodeCompIndex;
 import org.skywalking.apm.collector.worker.node.NodeMappingIndex;
 import org.skywalking.apm.collector.worker.noderef.NodeRefIndex;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author pengys5
@@ -28,7 +27,7 @@ public class TraceDagDataBuilder {
     private JsonArray lineArray = new JsonArray();
 
     public JsonObject build(JsonArray nodeCompArray, JsonArray nodesMappingArray, JsonArray nodeRefsArray,
-                            JsonArray resSumArray) {
+        JsonArray resSumArray) {
         changeMapping2Map(nodesMappingArray);
         changeNodeComp2Map(nodeCompArray);
         resSumMerge(resSumArray);
@@ -57,7 +56,7 @@ public class TraceDagDataBuilder {
     }
 
     private Integer findOrCreateNode(String peers) {
-        if (nodeIdMap.containsKey(peers)) {
+        if (nodeIdMap.containsKey(peers) && !peers.equals(Const.USER_CODE)) {
             return nodeIdMap.get(peers);
         } else {
             nodeId++;
