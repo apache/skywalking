@@ -12,7 +12,7 @@ define(["jquery", "vis", "text!dagHtml", "moment", "nodeCanvas", "alarm", "timer
     var _images = {};
     var _options = {
         nodes: {
-            borderWidth: 1,
+            borderWidth: 0,
             size: 30,
             color: {
                 background: '#ffffff'
@@ -22,7 +22,7 @@ define(["jquery", "vis", "text!dagHtml", "moment", "nodeCanvas", "alarm", "timer
             }
         },
         edges: {
-            color: '#dd7e6b',
+            color: 'grey',
             arrows: {
                 to: {enabled: true, scaleFactor: 0.5, type: 'arrow'},
                 from: {enabled: true, scaleFactor: 0, type: 'circle'}
@@ -30,16 +30,10 @@ define(["jquery", "vis", "text!dagHtml", "moment", "nodeCanvas", "alarm", "timer
             smooth: false,
             arrowStrikethrough: false
         },
-        layout: {
-            improvedLayout: false,
-            hierarchical: {
-                enabled: true,
-                levelSeparation: 200,
-                nodeSpacing: 150,
-                parentCentralization: true,
-                direction: "LR",
-                sortMethod: 'directed'
-            }
+        physics: {
+            enabled: true,
+            barnesHut: {gravitationalConstant: -30000},
+            stabilization: {iterations: 2500}
         }
     };
 
@@ -76,12 +70,15 @@ define(["jquery", "vis", "text!dagHtml", "moment", "nodeCanvas", "alarm", "timer
     }
 
     function _addNode(node) {
-        console.log(node.id + " - " + node.label + " - " + node.instNum);
+        console.log(node.id + " - " + node.label + " - " + node.title + " - " + node.instNum);
         _data.nodes.add({
             id: node.id,
             label: node.label,
-            image: nodeCanvas.createNode(node.imageObj, node.instNum),
-            shape: 'image'
+            title: node.title,
+            image: nodeCanvas.createNode(node.imageObj, node.real, node.instNum),
+            shape: 'image',
+            borderWidth: 4
+
         })
     }
 
