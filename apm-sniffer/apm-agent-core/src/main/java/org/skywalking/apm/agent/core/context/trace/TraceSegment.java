@@ -5,9 +5,9 @@ import com.google.gson.annotations.SerializedName;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import org.skywalking.apm.agent.core.context.ids.GlobalIdGenerator;
 import org.skywalking.apm.agent.core.context.ids.DistributedTraceId;
 import org.skywalking.apm.agent.core.context.ids.DistributedTraceIds;
+import org.skywalking.apm.agent.core.context.ids.GlobalIdGenerator;
 import org.skywalking.apm.agent.core.context.ids.NewDistributedTraceId;
 
 /**
@@ -89,6 +89,8 @@ public class TraceSegment {
     @Expose
     @SerializedName(value = "gt")
     private DistributedTraceIds relatedGlobalTraces;
+
+    private boolean ignore = false;
 
     /**
      * Create a trace segment, by the given applicationCode.
@@ -186,12 +188,24 @@ public class TraceSegment {
         return relatedGlobalTraces.getRelatedGlobalTraces();
     }
 
+    public boolean isSingleSpanSegment() {
+        return this.spans != null && this.spans.size() == 1;
+    }
+
     public List<Span> getSpans() {
         return Collections.unmodifiableList(spans);
     }
 
     public String getApplicationCode() {
         return applicationCode;
+    }
+
+    public boolean isIgnore() {
+        return ignore;
+    }
+
+    public void setIgnore(boolean ignore) {
+        this.ignore = ignore;
     }
 
     @Override

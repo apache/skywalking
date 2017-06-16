@@ -2,6 +2,7 @@ package org.skywalking.apm.agent.core.sampling;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.skywalking.apm.agent.core.boot.BootService;
@@ -24,20 +25,28 @@ public class SamplingService implements BootService {
 
     private volatile boolean on = false;
     private volatile AtomicInteger samplingFactorHolder;
+    private volatile ScheduledFuture<?> scheduledFuture;
 
     @Override
     public void bootUp() throws Throwable {
+        if (scheduledFuture != null) {
+            /**
+             * If {@link #bootUp()} invokes twice, mostly in test cases,
+             * cancel the old one.
+             */
+            scheduledFuture.cancel(true);
+        }
         if (Config.Agent.SAMPLE_N_PER_10_SECS > 0) {
             on = true;
             this.resetSamplingFactor();
             ScheduledExecutorService service = Executors
                 .newSingleThreadScheduledExecutor();
-            service.scheduleAtFixedRate(new Runnable() {
+            scheduledFuture = service.scheduleAtFixedRate(new Runnable() {
                 @Override
                 public void run() {
                     resetSamplingFactor();
                 }
-            }, 1, 1, TimeUnit.SECONDS);
+            }, 0, 10, TimeUnit.SECONDS);
             logger.debug("Agent sampling mechanism started. Sample {} traces in 10 seconds.", Config.Agent.SAMPLE_N_PER_10_SECS);
         }
     }
@@ -49,7 +58,8 @@ public class SamplingService implements BootService {
         if (on) {
             int factor = samplingFactorHolder.get();
             if (factor < Config.Agent.SAMPLE_N_PER_10_SECS) {
-                return samplingFactorHolder.compareAndSet(factor, factor + 1);
+                boolean success = samplingFactorHolder.compareAndSet(factor, factor + 1);
+                return success;
             } else {
                 return false;
             }

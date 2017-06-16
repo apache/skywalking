@@ -51,7 +51,7 @@ public class TraceSegmentProcessQueue extends StatusBootService implements Trace
      */
     @Override
     public void afterFinished(TraceSegment traceSegment) {
-        if (isStarted()) {
+        if (isStarted() && !traceSegment.isIgnore()) {
             long sequence = this.buffer.next();  // Grab the next sequence
             try {
                 TraceSegmentHolder data = this.buffer.get(sequence);

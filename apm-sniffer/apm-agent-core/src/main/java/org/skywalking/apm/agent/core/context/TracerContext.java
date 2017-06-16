@@ -18,6 +18,8 @@ import org.skywalking.apm.agent.core.sampling.SamplingService;
  * Created by wusheng on 2017/2/17.
  */
 public final class TracerContext implements AbstractTracerContext {
+    private SamplingService samplingService;
+
     private TraceSegment segment;
 
     /**
@@ -37,6 +39,9 @@ public final class TracerContext implements AbstractTracerContext {
     TracerContext() {
         this.segment = new TraceSegment(Config.Agent.APPLICATION_CODE);
         this.spanIdGenerator = 0;
+        if (samplingService == null) {
+            samplingService = ServiceManager.INSTANCE.findService(SamplingService.class);
+        }
     }
 
     /**
@@ -83,7 +88,6 @@ public final class TracerContext implements AbstractTracerContext {
              * because the {@link #extract(ContextCarrier)} invoke before create the second span.
              */
             if (spanIdGenerator == 1) {
-                SamplingService samplingService = ServiceManager.INSTANCE.findService(SamplingService.class);
                 if (segment.hasRef()) {
                     samplingService.forceSampled();
                 } else {
@@ -172,7 +176,19 @@ public final class TracerContext implements AbstractTracerContext {
      * Finish this context, and notify all {@link TracerContextListener}s, managed by {@link ListenerManager}
      */
     private void finish() {
-        ListenerManager.notifyFinish(segment.finish());
+        TraceSegment finishedSegment = segment.finish();
+        /**
+         * Recheck the segment if the segment contains only one span.
+         * Because in the runtime, can't sure this segment is part of distributed trace.
+         *
+         * @see {@link #createSpan(String, long, boolean)}
+         */
+        if (!segment.hasRef() && segment.isSingleSpanSegment()) {
+            if (!samplingService.trySampling()) {
+                finishedSegment.setIgnore(true);
+            }
+        }
+        ListenerManager.notifyFinish(finishedSegment);
     }
 
     /**
