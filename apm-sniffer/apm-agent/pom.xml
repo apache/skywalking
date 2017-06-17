@@ -113,7 +113,7 @@
 
     </dependencies>
     <build>
-        <finalName>${artifactId}</finalName>
+        <finalName>skywalking-agent</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
