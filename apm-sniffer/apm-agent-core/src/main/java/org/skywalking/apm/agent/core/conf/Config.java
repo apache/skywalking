@@ -25,6 +25,11 @@ public class Config {
          * Zero and negative number are illegal.
          */
         public static int SAMPLING_CYCLE = 1;
+
+        /**
+         * Agent instance id.
+         */
+        public static int INSTANCE_ID = -1;
     }
 
     public static class Collector {
@@ -36,10 +41,18 @@ public class Config {
          */
         public static String SERVERS = "";
 
-        /**
-         * Collector receive segments REST-Service name.
-         */
-        public static String SERVICE_NAME = "/segments";
+        public static class Services {
+            public static final String HEART_BEAT_REPORT = "/ping";
+            /**
+             * Collector receive segments REST-Service name.
+             */
+            public static String SEGMENT_REPORT = "/segments";
+
+            /**
+             * Register instance REST-Service name.
+             */
+            public static String INSTANCE_REGISTRY = "/register";
+        }
 
         /**
          * The max size to send traces per rest-service call.

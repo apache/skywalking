@@ -45,3 +45,10 @@ org.skywalking.apm.collector.worker.globaltrace.persistence.GlobalTraceSave$Fact
 org.skywalking.apm.collector.worker.globaltrace.persistence.GlobalTraceSearchWithGlobalId$Factory
 
 org.skywalking.apm.collector.worker.span.persistence.SpanSearchWithId$Factory
+
+org.skywalking.apm.collector.worker.instance.analysis.InstanceAnalysis$Factory
+org.skywalking.apm.collector.worker.instance.analysis.PingTimeAnalysis$Factory
+
+org.skywalking.apm.collector.worker.instance.persistence.InstanceSave$Factory
+org.skywalking.apm.collector.worker.instance.persistence.PingTimeSave$Factory
+org.skywalking.apm.collector.worker.instance.persistence.InstanceCountSearchGroupWithTimeSlice$Factory

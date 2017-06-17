@@ -1,1 +1,3 @@
 org.skywalking.apm.collector.worker.segment.SegmentPost$Factory
+org.skywalking.apm.collector.worker.instance.RegistryPost$Factory
+org.skywalking.apm.collector.worker.instance.PingPost$Factory

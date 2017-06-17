@@ -5,6 +5,7 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.action.index.IndexRequestBuilder;
+import org.elasticsearch.action.update.UpdateRequestBuilder;
 import org.elasticsearch.client.Client;
 import org.skywalking.apm.collector.actor.ClusterWorkerContext;
 import org.skywalking.apm.collector.actor.LocalWorkerContext;
@@ -41,14 +42,15 @@ public abstract class MetricPersistenceMember extends PersistenceMember<MetricPe
         }
     }
 
-    @Override final protected void prepareIndex(List<IndexRequestBuilder> builderList) {
+    @Override final protected void prepareIndex(List<IndexRequestBuilder> indexRequestBuilders,
+        List<UpdateRequestBuilder> updateRequestBuilderList) {
         Map<String, MetricData> lastData = getPersistenceData().getLast().asMap();
         extractData(lastData);
 
         Client client = EsClient.INSTANCE.getClient();
         lastData.forEach((key, value) -> {
             IndexRequestBuilder builder = client.prepareIndex(esIndex(), esType(), key).setSource(value.asMap());
-            builderList.add(builder);
+            indexRequestBuilders.add(builder);
         });
         lastData.clear();
     }
