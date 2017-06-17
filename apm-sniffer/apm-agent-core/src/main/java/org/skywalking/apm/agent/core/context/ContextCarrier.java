@@ -1,15 +1,13 @@
 package org.skywalking.apm.agent.core.context;
 
-import org.skywalking.apm.util.StringUtil;
-import org.skywalking.apm.trace.Span;
-import org.skywalking.apm.trace.TraceId.DistributedTraceId;
-import org.skywalking.apm.trace.TraceId.PropagatedTraceId;
-import org.skywalking.apm.trace.TraceSegment;
-import org.skywalking.apm.trace.tag.Tags;
-
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
+import org.skywalking.apm.agent.core.context.ids.DistributedTraceId;
+import org.skywalking.apm.agent.core.context.ids.PropagatedTraceId;
+import org.skywalking.apm.agent.core.context.trace.Span;
+import org.skywalking.apm.agent.core.context.trace.TraceSegment;
+import org.skywalking.apm.util.StringUtil;
 
 /**
  * {@link ContextCarrier} is a data carrier of {@link TracerContext}.
@@ -34,7 +32,8 @@ public class ContextCarrier implements Serializable {
     private String applicationCode;
 
     /**
-     * {@link Tags#PEER_HOST}
+     * Either {@link Span#peerHost} + {@link Span#port} or {@link Span#peers},
+     * depend on which one of them is valid.
      */
     private String peerHost;
 
@@ -44,24 +43,22 @@ public class ContextCarrier implements Serializable {
     private List<DistributedTraceId> distributedTraceIds;
 
     /**
-     * {@link TraceSegment#sampled}
-     */
-    private boolean sampled;
-
-    /**
      * Serialize this {@link ContextCarrier} to a {@link String},
      * with '|' split.
      *
      * @return the serialization string.
      */
     public String serialize() {
-        return StringUtil.join('|',
-            this.getTraceSegmentId(),
-            this.getSpanId() + "",
-            this.getApplicationCode(),
-            this.getPeerHost(),
-            this.serializeDistributedTraceIds(),
-            this.isSampled() ? "1" : "0");
+        if (this.isValid()) {
+            return StringUtil.join('|',
+                this.getTraceSegmentId(),
+                this.getSpanId() + "",
+                this.getApplicationCode(),
+                this.getPeerHost(),
+                this.serializeDistributedTraceIds());
+        } else {
+            return "";
+        }
     }
 
     /**
@@ -72,14 +69,13 @@ public class ContextCarrier implements Serializable {
     public ContextCarrier deserialize(String text) {
         if (text != null) {
             String[] parts = text.split("\\|", 6);
-            if (parts.length == 6) {
+            if (parts.length == 5) {
                 try {
                     setSpanId(Integer.parseInt(parts[1]));
                     setTraceSegmentId(parts[0]);
                     setApplicationCode(parts[2]);
                     setPeerHost(parts[3]);
                     setDistributedTraceIds(deserializeDistributedTraceIds(parts[4]));
-                    setSampled("1".equals(parts[5]));
                 } catch (NumberFormatException e) {
 
                 }
@@ -135,14 +131,6 @@ public class ContextCarrier implements Serializable {
 
     public List<DistributedTraceId> getDistributedTraceIds() {
         return distributedTraceIds;
-    }
-
-    public boolean isSampled() {
-        return sampled;
-    }
-
-    public void setSampled(boolean sampled) {
-        this.sampled = sampled;
     }
 
     public void setDistributedTraceIds(List<DistributedTraceId> distributedTraceIds) {

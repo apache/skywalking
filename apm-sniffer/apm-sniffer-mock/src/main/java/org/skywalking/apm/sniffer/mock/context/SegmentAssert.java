@@ -1,6 +1,6 @@
 package org.skywalking.apm.sniffer.mock.context;
 
-import org.skywalking.apm.trace.TraceSegment;
+import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 
 /**
  * The <code>SegmentAssert</code> interface should be implemented by any

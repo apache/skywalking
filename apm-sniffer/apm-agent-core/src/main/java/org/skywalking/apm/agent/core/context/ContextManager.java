@@ -1,26 +1,27 @@
 package org.skywalking.apm.agent.core.context;
 
 import org.skywalking.apm.agent.core.boot.BootService;
-import org.skywalking.apm.trace.Span;
-import org.skywalking.apm.trace.TraceSegment;
+import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 
 /**
  * {@link TracerContext} controls the whole context of {@link TraceSegment}. Any {@link TraceSegment} relates to
  * single-thread, so this context use {@link ThreadLocal} to maintain the context, and make sure, since a {@link
  * TraceSegment} starts, all ChildOf spans are in the same context.
+ * <p> What is 'ChildOf'? {@see
+ * https://github.com/opentracing/specification/blob/master/specification.md#references-between-spans}
+ * <p> Also, {@link
+ * ContextManager} delegates to all {@link TracerContext}'s major methods: {@link TracerContext#createSpan(String,
+ * boolean)}, {@link TracerContext#activeSpan()}, {@link AbstractTracerContext#stopSpan(org.skywalking.apm.agent.core.context.trace.AbstractSpan)}
  * <p>
- * What is 'ChildOf'? {@see https://github.com/opentracing/specification/blob/master/specification.md#references-between-spans}
- * <p>
- * Also, {@link ContextManager} delegates to all {@link TracerContext}'s major methods: {@link
- * TracerContext#createSpan(String)}, {@link TracerContext#activeSpan()}, {@link TracerContext#stopSpan(Span)}
- * <p>
- * Created by wusheng on 2017/2/17.
+ *
+ * @author wusheng
  */
-public class ContextManager implements TracerContextListener, BootService {
-    private static ThreadLocal<TracerContext> CONTEXT = new ThreadLocal<TracerContext>();
+public class ContextManager implements TracerContextListener, BootService, IgnoreTracerContextListener {
+    private static ThreadLocal<AbstractTracerContext> CONTEXT = new ThreadLocal<AbstractTracerContext>();
 
-    private static TracerContext get() {
-        TracerContext segment = CONTEXT.get();
+    private static AbstractTracerContext get() {
+        AbstractTracerContext segment = CONTEXT.get();
         if (segment == null) {
             segment = new TracerContext();
             CONTEXT.set(segment);
@@ -46,7 +47,7 @@ public class ContextManager implements TracerContextListener, BootService {
      * @return the first global trace id if exist. Otherwise, "N/A".
      */
     public static String getGlobalTraceId() {
-        TracerContext segment = CONTEXT.get();
+        AbstractTracerContext segment = CONTEXT.get();
         if (segment == null) {
             return "N/A";
         } else {
@@ -54,28 +55,24 @@ public class ContextManager implements TracerContextListener, BootService {
         }
     }
 
-    public static Span createSpan(String operationName) {
+    public static AbstractSpan createSpan(String operationName) {
         return get().createSpan(operationName, false);
     }
 
-    public static Span createSpan(String operationName, long startTime) {
+    public static AbstractSpan createSpan(String operationName, long startTime) {
         return get().createSpan(operationName, startTime, false);
     }
 
-    public static Span createLeafSpan(String operationName) {
+    public static AbstractSpan createLeafSpan(String operationName) {
         return get().createSpan(operationName, true);
     }
 
-    public static Span createLeafSpan(String operationName, long startTime) {
+    public static AbstractSpan createLeafSpan(String operationName, long startTime) {
         return get().createSpan(operationName, startTime, true);
     }
 
-    public static Span activeSpan() {
+    public static AbstractSpan activeSpan() {
         return get().activeSpan();
-    }
-
-    public static void stopSpan(Span span) {
-        get().stopSpan(span);
     }
 
     public static void stopSpan(Long endTime) {
@@ -83,16 +80,38 @@ public class ContextManager implements TracerContextListener, BootService {
     }
 
     public static void stopSpan() {
-        stopSpan(activeSpan());
+        get().stopSpan(activeSpan());
     }
 
     @Override
     public void bootUp() {
         TracerContext.ListenerManager.add(this);
+        IgnoredTracerContext.ListenerManager.add(this);
     }
 
     @Override
     public void afterFinished(TraceSegment traceSegment) {
         CONTEXT.remove();
+    }
+
+    @Override
+    public void afterFinished(IgnoredTracerContext traceSegment) {
+        CONTEXT.remove();
+    }
+
+    /**
+     * The <code>ContextSwitcher</code> gives the chance to switch {@link AbstractTracerContext} in {@link #CONTEXT},
+     * for ignore, sampling, and analytic trace.
+     */
+    public enum ContextSwitcher {
+        INSTANCE;
+
+        public void toNew(AbstractTracerContext context) {
+            AbstractTracerContext existedContext = CONTEXT.get();
+            if (existedContext != null) {
+                existedContext.dispose();
+            }
+            CONTEXT.set(context);
+        }
     }
 }

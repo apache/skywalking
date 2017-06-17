@@ -1,18 +1,22 @@
 package org.skywalking.apm.agent.core.sampling;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.skywalking.apm.agent.core.boot.BootService;
 import org.skywalking.apm.agent.core.conf.Config;
-import org.skywalking.apm.agent.core.context.ContextCarrier;
+import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.skywalking.apm.logging.ILog;
 import org.skywalking.apm.logging.LogManager;
-import org.skywalking.apm.trace.TraceSegment;
 
 /**
  * The <code>SamplingService</code> take charge of how to sample the {@link TraceSegment}. Every {@link TraceSegment}s
  * have been traced, but, considering CPU cost of serialization/deserialization, and network bandwidth, the agent do NOT
  * send all of them to collector, if SAMPLING is on.
  * <p>
- * By default, SAMPLING is off, and {@link Config.Agent#SAMPLING_CYCLE} == 1.
+ * By default, SAMPLING is on, and {@see {@link Config.Agent#SAMPLE_N_PER_10_SECS}}
  *
  * @author wusheng
  */
@@ -20,50 +24,62 @@ public class SamplingService implements BootService {
     private static final ILog logger = LogManager.getLogger(SamplingService.class);
 
     private volatile boolean on = false;
-    private volatile int rollingSeed = 1;
+    private volatile AtomicInteger samplingFactorHolder;
+    private volatile ScheduledFuture<?> scheduledFuture;
 
     @Override
     public void bootUp() throws Throwable {
-        if (Config.Agent.SAMPLING_CYCLE == 1) {
-            this.on = false;
-            return;
+        if (scheduledFuture != null) {
+            /**
+             * If {@link #bootUp()} invokes twice, mostly in test cases,
+             * cancel the old one.
+             */
+            scheduledFuture.cancel(true);
         }
-        if (Config.Agent.SAMPLING_CYCLE < 1) {
-            throw new IllegalSamplingRateException("sampling cycle must greater than 0.");
-        }
-        this.on = true;
-
-        logger.debug("The trace sampling is on, and the sampling cycle is: {}", Config.Agent.SAMPLING_CYCLE);
-    }
-
-    public void trySampling(TraceSegment segment) {
-        if (on) {
-            if (rollingSeed % Config.Agent.SAMPLING_CYCLE != 0) {
-                segment.setSampled(false);
-                rollingSeed++;
-            } else {
-                this.rollingSeed = 1;
-            }
+        if (Config.Agent.SAMPLE_N_PER_10_SECS > 0) {
+            on = true;
+            this.resetSamplingFactor();
+            ScheduledExecutorService service = Executors
+                .newSingleThreadScheduledExecutor();
+            scheduledFuture = service.scheduleAtFixedRate(new Runnable() {
+                @Override
+                public void run() {
+                    resetSamplingFactor();
+                }
+            }, 0, 10, TimeUnit.SECONDS);
+            logger.debug("Agent sampling mechanism started. Sample {} traces in 10 seconds.", Config.Agent.SAMPLE_N_PER_10_SECS);
         }
     }
 
     /**
-     * Set the {@link TraceSegment} to sampled, when {@link ContextCarrier} contains "isSampled" flag.
-     * <p>
-     * A -> B, if TraceSegment is sampled in A, then the related TraceSegment in B must be sampled, no matter you
-     * sampling rate. And reset the {@link #rollingSeed}, in case of too many {@link TraceSegment}s, which started in
-     * this JVM, are sampled.
-     *
-     * @param segment the current TraceSegment.
-     * @param carrier
+     * @return true, if sampling mechanism is on, and get the sampling factor successfully.
      */
-    public void setSampleWhenExtract(TraceSegment segment, ContextCarrier carrier) {
+    public boolean trySampling() {
         if (on) {
-            if (!segment.isSampled() && carrier.isSampled()) {
-                segment.setSampled(true);
-                this.rollingSeed = 1;
+            int factor = samplingFactorHolder.get();
+            if (factor < Config.Agent.SAMPLE_N_PER_10_SECS) {
+                boolean success = samplingFactorHolder.compareAndSet(factor, factor + 1);
+                return success;
+            } else {
+                return false;
             }
+        }
+        return true;
+    }
+
+    /**
+     * Increase the sampling factor by force,
+     * to avoid sampling too many traces.
+     * If many distributed traces require sampled,
+     * the trace beginning at local, has less chance to be sampled.
+     */
+    public void forceSampled() {
+        if (on) {
+            samplingFactorHolder.incrementAndGet();
         }
     }
 
+    private void resetSamplingFactor() {
+        samplingFactorHolder = new AtomicInteger(0);
+    }
 }

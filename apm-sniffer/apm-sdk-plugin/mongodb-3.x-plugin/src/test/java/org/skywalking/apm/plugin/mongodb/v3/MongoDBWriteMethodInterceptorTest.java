@@ -22,10 +22,12 @@ import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceCon
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodInvokeContext;
 import org.skywalking.apm.sniffer.mock.context.MockTracerContextListener;
 import org.skywalking.apm.sniffer.mock.context.SegmentAssert;
-import org.skywalking.apm.trace.LogData;
-import org.skywalking.apm.trace.Span;
-import org.skywalking.apm.trace.TraceSegment;
-import org.skywalking.apm.trace.tag.Tags;
+import org.skywalking.apm.sniffer.mock.trace.SpanLogReader;
+import org.skywalking.apm.sniffer.mock.trace.tags.StringTagReader;
+import org.skywalking.apm.agent.core.context.trace.LogData;
+import org.skywalking.apm.agent.core.context.trace.Span;
+import org.skywalking.apm.agent.core.context.trace.TraceSegment;
+import org.skywalking.apm.agent.core.context.tag.Tags;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,7 +58,7 @@ public class MongoDBWriteMethodInterceptorTest {
 
         Config.Plugin.MongoDB.TRACE_PARAM = true;
 
-        when(classInstanceContext.get(MongoDBMethodInterceptor.MONGODB_HOST, String.class)).thenReturn("127.0.0.1");
+        when(classInstanceContext.get(MongoDBMethodInterceptor.MONGODB_HOST)).thenReturn("127.0.0.1");
         when(classInstanceContext.get(MongoDBMethodInterceptor.MONGODB_PORT)).thenReturn(27017);
         when(methodInvokeContext.methodName()).thenReturn("find");
 
@@ -96,12 +98,12 @@ public class MongoDBWriteMethodInterceptorTest {
 
     private void assertRedisSpan(Span span) {
         assertThat(span.getOperationName(), is("MongoDB/DeleteOperation"));
-        assertThat(Tags.PEER_HOST.get(span), is("127.0.0.1"));
-        assertThat(Tags.PEER_PORT.get(span), is(27017));
-        assertThat(Tags.COMPONENT.get(span), is("MongoDB"));
-        assertThat(Tags.DB_STATEMENT.get(span), is("DeleteOperation { \"name\" : \"by\" },"));
-        assertThat(Tags.DB_TYPE.get(span), is("MongoDB"));
-        assertTrue(Tags.SPAN_LAYER.isDB(span));
+        assertThat(span.getPeerHost(), is("127.0.0.1"));
+        assertThat(span.getPort(), is(27017));
+        assertThat(StringTagReader.get(span, Tags.COMPONENT), is("MongoDB"));
+        assertThat(StringTagReader.get(span, Tags.DB_STATEMENT), is("DeleteOperation { \"name\" : \"by\" },"));
+        assertThat(StringTagReader.get(span, Tags.DB_TYPE), is("MongoDB"));
+        assertThat(StringTagReader.get(span, Tags.SPAN_LAYER.SPAN_LAYER_TAG), is("db"));
     }
 
     @Test
@@ -117,8 +119,8 @@ public class MongoDBWriteMethodInterceptorTest {
                 assertThat(traceSegment.getSpans().size(), is(1));
                 Span span = traceSegment.getSpans().get(0);
                 assertRedisSpan(span);
-                assertThat(span.getLogs().size(), is(1));
-                assertLogData(span.getLogs().get(0));
+                assertThat(SpanLogReader.getLogs(span).size(), is(1));
+                assertLogData(SpanLogReader.getLogs(span).get(0));
             }
         });
     }

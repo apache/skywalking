@@ -1,6 +1,6 @@
 package org.skywalking.apm.agent.core.context;
 
-import org.skywalking.apm.trace.TraceSegment;
+import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 
 /**
  * {@link TracerContextListener} is a status change listener of {@link TracerContext}.

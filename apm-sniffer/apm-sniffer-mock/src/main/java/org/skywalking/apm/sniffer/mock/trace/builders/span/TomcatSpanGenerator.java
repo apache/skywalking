@@ -1,8 +1,8 @@
 package org.skywalking.apm.sniffer.mock.trace.builders.span;
 
 import org.skywalking.apm.agent.core.context.ContextManager;
-import org.skywalking.apm.trace.Span;
-import org.skywalking.apm.trace.tag.Tags;
+import org.skywalking.apm.agent.core.context.tag.Tags;
+import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
 
 /**
  * The <code>TomcatSpanGenerator</code> generate all possible spans, by tracing Tomcat.
@@ -15,18 +15,18 @@ public class TomcatSpanGenerator {
 
         @Override
         protected void before() {
-            Span webSpan = ContextManager.createSpan("/web/serviceA");
+            AbstractSpan webSpan = ContextManager.createSpan("/web/serviceA");
             Tags.COMPONENT.set(webSpan, "Tomcat");
             Tags.URL.set(webSpan, "http://10.21.9.35/web/serviceA");
             Tags.SPAN_KIND.set(webSpan, Tags.SPAN_KIND_SERVER);
-            Tags.PEER_HOST.set(webSpan, "10.21.9.35");
-            Tags.PEER_PORT.set(webSpan, 80);
+            webSpan.setPeerHost("10.21.9.35");
+            webSpan.setPort(80);
             Tags.SPAN_LAYER.asHttp(webSpan);
         }
 
         @Override
         protected void after() {
-            Span webSpan = ContextManager.activeSpan();
+            AbstractSpan webSpan = ContextManager.activeSpan();
             Tags.STATUS_CODE.set(webSpan, 200);
             ContextManager.stopSpan();
         }
@@ -37,18 +37,18 @@ public class TomcatSpanGenerator {
 
         @Override
         protected void before() {
-            Span webSpan = ContextManager.createSpan("/web/service/unknown");
+            AbstractSpan webSpan = ContextManager.createSpan("/web/service/unknown");
             Tags.COMPONENT.set(webSpan, "Tomcat");
             Tags.URL.set(webSpan, "http://10.21.9.35/web/unknown");
             Tags.SPAN_KIND.set(webSpan, Tags.SPAN_KIND_SERVER);
-            Tags.PEER_HOST.set(webSpan, "10.21.9.35");
-            Tags.PEER_PORT.set(webSpan, 80);
+            webSpan.setPeerHost("10.21.9.35");
+            webSpan.setPort(80);
             Tags.SPAN_LAYER.asHttp(webSpan);
         }
 
         @Override
         protected void after() {
-            Span webSpan = ContextManager.activeSpan();
+            AbstractSpan webSpan = ContextManager.activeSpan();
             Tags.STATUS_CODE.set(webSpan, 404);
             Tags.ERROR.set(webSpan, true);
             ContextManager.stopSpan();
@@ -60,18 +60,18 @@ public class TomcatSpanGenerator {
 
         @Override
         protected void before() {
-            Span webSpan = ContextManager.createSpan("/web/error/service");
+            AbstractSpan webSpan = ContextManager.createSpan("/web/error/service");
             Tags.COMPONENT.set(webSpan, "Tomcat");
             Tags.URL.set(webSpan, "http://10.21.9.35/web/error/service");
             Tags.SPAN_KIND.set(webSpan, Tags.SPAN_KIND_SERVER);
-            Tags.PEER_HOST.set(webSpan, "10.21.9.35");
-            Tags.PEER_PORT.set(webSpan, 80);
+            webSpan.setPeerHost("10.21.9.35");
+            webSpan.setPort(80);
             Tags.SPAN_LAYER.asHttp(webSpan);
         }
 
         @Override
         protected void after() {
-            Span webSpan = ContextManager.activeSpan();
+            AbstractSpan webSpan = ContextManager.activeSpan();
             Tags.STATUS_CODE.set(webSpan, 500);
             Tags.ERROR.set(webSpan, true);
             webSpan.log(new NumberFormatException("Can't convert 'abc' to int."));

@@ -18,8 +18,8 @@ import org.skywalking.apm.collector.worker.Const;
 import org.skywalking.apm.collector.worker.segment.SegmentIndex;
 import org.skywalking.apm.collector.worker.segment.mock.SegmentMock;
 import org.skywalking.apm.collector.worker.storage.GetResponseFromEs;
-import org.skywalking.apm.trace.Span;
-import org.skywalking.apm.trace.TraceSegment;
+import org.skywalking.apm.agent.core.context.trace.Span;
+import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 
 import java.util.TimeZone;
 

@@ -10,17 +10,21 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.skywalking.apm.agent.core.boot.ServiceManager;
+import org.skywalking.apm.agent.core.conf.Config;
 import org.skywalking.apm.agent.core.context.TracerContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodInvokeContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.skywalking.apm.sniffer.mock.context.MockTracerContextListener;
 import org.skywalking.apm.sniffer.mock.context.SegmentAssert;
-import org.skywalking.apm.trace.LogData;
-import org.skywalking.apm.trace.Span;
-import org.skywalking.apm.trace.TraceSegment;
-import org.skywalking.apm.trace.TraceSegmentRef;
-import org.skywalking.apm.trace.tag.Tags;
+import org.skywalking.apm.sniffer.mock.trace.SpanLogReader;
+import org.skywalking.apm.sniffer.mock.trace.tags.IntTagReader;
+import org.skywalking.apm.sniffer.mock.trace.tags.StringTagReader;
+import org.skywalking.apm.agent.core.context.trace.LogData;
+import org.skywalking.apm.agent.core.context.trace.Span;
+import org.skywalking.apm.agent.core.context.trace.TraceSegment;
+import org.skywalking.apm.agent.core.context.trace.TraceSegmentRef;
+import org.skywalking.apm.agent.core.context.tag.Tags;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -86,7 +90,7 @@ public class ResinV3InterceptorTest {
 
     @Test
     public void testWithSerializedContextData() {
-        when(request.getHeader(ResinV3Interceptor.HEADER_NAME_OF_CONTEXT_DATA)).thenReturn("302017.1487666919810.624424584.17332.1.1|1|REMOTE_APP|127.0.0.1|Trace.globalId.123|1");
+        when(request.getHeader(Config.Plugin.Propagation.HEADER_NAME)).thenReturn("302017.1487666919810.624424584.17332.1.1|1|REMOTE_APP|127.0.0.1|Trace.globalId.123");
 
         interceptor.beforeMethod(classInstanceContext, methodInvokeContext, methodInterceptResult);
         interceptor.afterMethod(classInstanceContext, methodInvokeContext, null);
@@ -116,8 +120,8 @@ public class ResinV3InterceptorTest {
                 assertThat(traceSegment.getSpans().size(), is(1));
                 Span span = traceSegment.getSpans().get(0);
                 assertHttpSpan(span);
-                assertThat(span.getLogs().size(), is(1));
-                assertSpanLog(span.getLogs().get(0));
+                assertThat(SpanLogReader.getLogs(span).size(), is(1));
+                assertSpanLog(SpanLogReader.getLogs(span).get(0));
             }
         });
     }
@@ -136,11 +140,11 @@ public class ResinV3InterceptorTest {
 
     private void assertHttpSpan(Span span) {
         assertThat(span.getOperationName(), is("/test/testRequestURL"));
-        assertThat(Tags.COMPONENT.get(span), is("Resin"));
-        assertThat(Tags.URL.get(span), is("http://localhost:8080/test/testRequestURL"));
-        assertThat(Tags.STATUS_CODE.get(span), is(200));
-        assertThat(Tags.SPAN_KIND.get(span), is(Tags.SPAN_KIND_SERVER));
-        assertTrue(Tags.SPAN_LAYER.isHttp(span));
+        assertThat(StringTagReader.get(span, Tags.COMPONENT), is("Resin"));
+        assertThat(StringTagReader.get(span, Tags.URL), is("http://localhost:8080/test/testRequestURL"));
+        assertThat(IntTagReader.get(span, Tags.STATUS_CODE), is(200));
+        assertThat(StringTagReader.get(span, Tags.SPAN_KIND), is(Tags.SPAN_KIND_SERVER));
+        assertThat(StringTagReader.get(span, Tags.SPAN_LAYER.SPAN_LAYER_TAG), is("http"));
     }
 
     @After

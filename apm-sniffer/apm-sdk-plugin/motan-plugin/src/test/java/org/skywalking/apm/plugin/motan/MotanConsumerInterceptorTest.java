@@ -17,10 +17,12 @@ import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceCon
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodInvokeContext;
 import org.skywalking.apm.sniffer.mock.context.MockTracerContextListener;
 import org.skywalking.apm.sniffer.mock.context.SegmentAssert;
-import org.skywalking.apm.trace.LogData;
-import org.skywalking.apm.trace.Span;
-import org.skywalking.apm.trace.TraceSegment;
-import org.skywalking.apm.trace.tag.Tags;
+import org.skywalking.apm.sniffer.mock.trace.SpanLogReader;
+import org.skywalking.apm.sniffer.mock.trace.tags.StringTagReader;
+import org.skywalking.apm.agent.core.context.trace.LogData;
+import org.skywalking.apm.agent.core.context.trace.Span;
+import org.skywalking.apm.agent.core.context.trace.TraceSegment;
+import org.skywalking.apm.agent.core.context.tag.Tags;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
@@ -97,8 +99,8 @@ public class MotanConsumerInterceptorTest {
                 Span span = traceSegment.getSpans().get(0);
                 assertMotanConsumerSpan(span);
                 verify(request, times(1)).setAttachment(anyString(), anyString());
-                assertThat(span.getLogs().size(), is(1));
-                LogData logData = span.getLogs().get(0);
+                assertThat(SpanLogReader.getLogs(span).size(), is(1));
+                LogData logData = SpanLogReader.getLogs(span).get(0);
                 assertLogData(logData);
             }
         });
@@ -124,12 +126,12 @@ public class MotanConsumerInterceptorTest {
 
     private void assertMotanConsumerSpan(Span span) {
         assertThat(span.getOperationName(), is("org.skywalking.apm.test.TestService.test(java.lang.String, java.lang.Object)"));
-        assertThat(Tags.COMPONENT.get(span), is("Motan"));
-        assertThat(Tags.SPAN_KIND.get(span), is(Tags.SPAN_KIND_CLIENT));
-        assertThat(Tags.PEER_HOST.get(span), is("127.0.0.1"));
-        assertThat(Tags.PEER_PORT.get(span), is(34000));
-        assertTrue(Tags.SPAN_LAYER.isRPCFramework(span));
-        assertThat(Tags.URL.get(span), is("motan://127.0.0.1:34000/default_rpc/org.skywalking.apm.test.TestService/1.0/service"));
+        assertThat(StringTagReader.get(span, Tags.COMPONENT), is("Motan"));
+        assertThat(StringTagReader.get(span, Tags.SPAN_KIND), is(Tags.SPAN_KIND_CLIENT));
+        assertThat(span.getPeerHost(), is("127.0.0.1"));
+        assertThat(span.getPort(), is(34000));
+        assertThat(StringTagReader.get(span, Tags.SPAN_LAYER.SPAN_LAYER_TAG), is("rpc"));
+        assertThat(StringTagReader.get(span, Tags.URL), is("motan://127.0.0.1:34000/default_rpc/org.skywalking.apm.test.TestService/1.0/service"));
     }
 
     @After

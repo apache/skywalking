@@ -9,14 +9,15 @@ import okhttp3.Response;
 import org.skywalking.apm.agent.core.conf.Config;
 import org.skywalking.apm.agent.core.context.ContextCarrier;
 import org.skywalking.apm.agent.core.context.ContextManager;
+import org.skywalking.apm.agent.core.context.tag.Tags;
+import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.skywalking.apm.agent.core.context.trace.Span;
 import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ConstructorInvokeContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodInvokeContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.skywalking.apm.trace.Span;
-import org.skywalking.apm.trace.tag.Tags;
 
 /**
  * {@link RealCallInterceptor} intercept the synchronous http calls by the client of okhttp.
@@ -57,9 +58,9 @@ public class RealCallInterceptor implements InstanceMethodsAroundInterceptor, In
         MethodInterceptResult result) throws Throwable {
         Request request = (Request)context.get(REQUEST_CONTEXT_KEY);
 
-        Span span = ContextManager.createSpan(request.url().uri().toString());
-        Tags.PEER_PORT.set(span, request.url().port());
-        Tags.PEER_HOST.set(span, request.url().host());
+        AbstractSpan span = ContextManager.createSpan(request.url().uri().toString());
+        span.setPeerHost(request.url().host());
+        span.setPort(request.url().port());
         Tags.SPAN_KIND.set(span, Tags.SPAN_KIND_CLIENT);
         Tags.COMPONENT.set(span, COMPONENT_NAME);
         Tags.HTTP.METHOD.set(span, request.method());
@@ -75,7 +76,7 @@ public class RealCallInterceptor implements InstanceMethodsAroundInterceptor, In
         modifiersField.setInt(headersField, headersField.getModifiers() & ~Modifier.FINAL);
 
         headersField.setAccessible(true);
-        Headers headers = request.headers().newBuilder().add(Config.Plugin.Http.HEADER_NAME_OF_CONTEXT_DATA, contextCarrier.serialize()).build();
+        Headers headers = request.headers().newBuilder().add(Config.Plugin.Propagation.HEADER_NAME, contextCarrier.serialize()).build();
         headersField.set(request, headers);
     }
 
@@ -96,7 +97,7 @@ public class RealCallInterceptor implements InstanceMethodsAroundInterceptor, In
         Response response = (Response)ret;
         int statusCode = response.code();
 
-        Span span = ContextManager.activeSpan();
+        AbstractSpan span = ContextManager.activeSpan();
         if (statusCode >= 400) {
             Tags.ERROR.set(span, true);
         }

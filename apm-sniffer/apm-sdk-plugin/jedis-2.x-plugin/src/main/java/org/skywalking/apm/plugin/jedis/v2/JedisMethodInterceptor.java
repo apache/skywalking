@@ -1,14 +1,14 @@
 package org.skywalking.apm.plugin.jedis.v2;
 
 import org.skywalking.apm.agent.core.context.ContextManager;
+import org.skywalking.apm.agent.core.context.tag.Tags;
+import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.assist.NoConcurrencyAccessObject;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodInvokeContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.skywalking.apm.util.StringUtil;
-import org.skywalking.apm.trace.Span;
-import org.skywalking.apm.trace.tag.Tags;
 
 /**
  * {@link JedisMethodInterceptor} intercept all method of {@link redis.clients.jedis.Jedis}
@@ -43,49 +43,56 @@ public class JedisMethodInterceptor extends NoConcurrencyAccessObject implements
 
     @Override
     public void beforeMethod(final EnhancedClassInstanceContext context,
-                             final InstanceMethodInvokeContext interceptorContext, MethodInterceptResult result) {
+        final InstanceMethodInvokeContext interceptorContext, MethodInterceptResult result) {
         this.whenEnter(context, interceptorContext);
     }
 
     /**
      * set peer host information for the current active span.
      */
-    private void tagPeer(Span span, EnhancedClassInstanceContext context) {
-        String redisHosts = (String) context.get(KEY_OF_REDIS_HOSTS);
+    private void tagPeer(AbstractSpan span, EnhancedClassInstanceContext context) {
+        String redisHosts = (String)context.get(KEY_OF_REDIS_HOSTS);
         if (!StringUtil.isEmpty(redisHosts)) {
-            Tags.PEERS.set(span, (String) context.get(KEY_OF_REDIS_HOSTS));
+            span.setPeers((String)context.get(KEY_OF_REDIS_HOST));
         } else {
-            Tags.PEER_HOST.set(span, (String) context.get(KEY_OF_REDIS_HOST));
-            Tags.PEER_PORT.set(span, (Integer) context.get(KEY_OF_REDIS_PORT));
+            span.setPeerHost((String)context.get(KEY_OF_REDIS_HOST));
+            Integer port = (Integer)context.get(KEY_OF_REDIS_PORT);
+            if (port != null) {
+                span.setPort(port);
+            }
         }
     }
 
     @Override
     public Object afterMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
-                              Object ret) {
+        Object ret) {
         this.whenExist(context);
         return ret;
     }
 
     @Override
     public void handleMethodException(Throwable t, EnhancedClassInstanceContext context,
-                                      InstanceMethodInvokeContext interceptorContext) {
+        InstanceMethodInvokeContext interceptorContext) {
         ContextManager.activeSpan().log(t);
     }
 
     @Override
     protected void enter(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext) {
-        Span span = ContextManager.createSpan("Jedis/" + interceptorContext.methodName());
+        AbstractSpan span = ContextManager.createSpan("Jedis/" + interceptorContext.methodName());
         Tags.COMPONENT.set(span, REDIS_COMPONENT);
         Tags.DB_TYPE.set(span, REDIS_COMPONENT);
         Tags.SPAN_KIND.set(span, Tags.SPAN_KIND_CLIENT);
         tagPeer(span, context);
         Tags.SPAN_LAYER.asDB(span);
-        if (StringUtil.isEmpty(context.get(KEY_OF_REDIS_HOST, String.class))) {
-            Tags.PEERS.set(span, String.valueOf(context.get(KEY_OF_REDIS_HOSTS)));
+        String host = (String)context.get(KEY_OF_REDIS_HOST);
+        if (StringUtil.isEmpty(host)) {
+            span.setPeers((String)context.get(KEY_OF_REDIS_HOSTS));
         } else {
-            Tags.PEER_HOST.set(span, context.get(KEY_OF_REDIS_HOST, String.class));
-            Tags.PEER_PORT.set(span, (Integer) context.get(KEY_OF_REDIS_PORT));
+            span.setPeerHost(host);
+            Integer port = (Integer)context.get(KEY_OF_REDIS_PORT);
+            if (port != null) {
+                span.setPort(port);
+            }
         }
 
         if (interceptorContext.allArguments().length > 0

@@ -3,7 +3,7 @@ package org.skywalking.apm.sniffer.mock.trace;
 import org.skywalking.apm.agent.core.context.TracerContext;
 import org.skywalking.apm.sniffer.mock.context.MockTracerContextListener;
 import org.skywalking.apm.sniffer.mock.trace.builders.trace.*;
-import org.skywalking.apm.trace.TraceSegment;
+import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 
 /**
  * The <code>TraceSegmentBuilderFactory</code> contains all {@link TraceSegmentBuilder} implementations. All the

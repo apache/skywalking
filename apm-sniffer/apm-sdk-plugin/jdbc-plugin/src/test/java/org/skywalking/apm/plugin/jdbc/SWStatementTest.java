@@ -1,6 +1,7 @@
 package org.skywalking.apm.plugin.jdbc;
 
 import com.mysql.cj.api.jdbc.JdbcConnection;
+import java.util.List;
 import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Before;
@@ -12,8 +13,9 @@ import org.skywalking.apm.agent.core.boot.ServiceManager;
 import org.skywalking.apm.agent.core.context.TracerContext;
 import org.skywalking.apm.sniffer.mock.context.MockTracerContextListener;
 import org.skywalking.apm.sniffer.mock.context.SegmentAssert;
-import org.skywalking.apm.trace.Span;
-import org.skywalking.apm.trace.TraceSegment;
+import org.skywalking.apm.agent.core.context.trace.LogData;
+import org.skywalking.apm.agent.core.context.trace.Span;
+import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 
 import java.net.MalformedURLException;
 import java.sql.Connection;
@@ -290,8 +292,16 @@ public class SWStatementTest extends AbstractStatementTest {
                     assertThat(traceSegment.getSpans().size(), is(1));
                     Span span = traceSegment.getSpans().get(0);
                     assertDBSpan(span, "Mysql/JDBI/Statement/execute", "UPDATE test SET a = 1 WHERE b = 2");
-                    assertThat(span.getLogs().size(), is(1));
-                    assertDBSpanLog(span.getLogs().get(0));
+                    List<LogData> logs = null;
+                    try {
+                        logs = getLogs(span);
+                    } catch (NoSuchFieldException e) {
+                        throw new RuntimeException(e);
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException(e);
+                    }
+                    assertThat(logs.size(), is(1));
+                    assertDBSpanLog(logs.get(0));
                 }
             });
         }

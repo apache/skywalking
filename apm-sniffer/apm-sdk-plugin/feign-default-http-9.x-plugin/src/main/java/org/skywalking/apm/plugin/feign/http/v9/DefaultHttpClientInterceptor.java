@@ -14,12 +14,13 @@ import java.util.Map;
 import org.skywalking.apm.agent.core.conf.Config;
 import org.skywalking.apm.agent.core.context.ContextCarrier;
 import org.skywalking.apm.agent.core.context.ContextManager;
+import org.skywalking.apm.agent.core.context.tag.Tags;
+import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.skywalking.apm.agent.core.context.trace.Span;
 import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodInvokeContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.skywalking.apm.trace.Span;
-import org.skywalking.apm.trace.tag.Tags;
 
 /**
  * {@link DefaultHttpClientInterceptor} intercept the default implementation of http calls by the Feign.
@@ -46,9 +47,9 @@ public class DefaultHttpClientInterceptor implements InstanceMethodsAroundInterc
         Request request = (Request)interceptorContext.allArguments()[0];
 
         URL url = new URL(request.url());
-        Span span = ContextManager.createSpan(request.url());
-        Tags.PEER_PORT.set(span, url.getPort());
-        Tags.PEER_HOST.set(span, url.getHost());
+        AbstractSpan span = ContextManager.createSpan(request.url());
+        span.setPeerHost(url.getHost());
+        span.setPort(url.getPort());
         Tags.SPAN_KIND.set(span, Tags.SPAN_KIND_CLIENT);
         Tags.COMPONENT.set(span, COMPONENT_NAME);
         Tags.HTTP.METHOD.set(span, request.method());
@@ -68,7 +69,7 @@ public class DefaultHttpClientInterceptor implements InstanceMethodsAroundInterc
 
         headersField.setAccessible(true);
         Map<String, Collection<String>> headers = new LinkedHashMap<String, Collection<String>>();
-        headers.put(Config.Plugin.Http.HEADER_NAME_OF_CONTEXT_DATA, contextCollection);
+        headers.put(Config.Plugin.Propagation.HEADER_NAME, contextCollection);
         headers.putAll(request.headers());
 
         headersField.set(request, Collections.unmodifiableMap(headers));
@@ -91,7 +92,7 @@ public class DefaultHttpClientInterceptor implements InstanceMethodsAroundInterc
         Response response = (Response)ret;
         int statusCode = response.status();
 
-        Span span = ContextManager.activeSpan();
+        AbstractSpan span = ContextManager.activeSpan();
         if (statusCode >= 400) {
             Tags.ERROR.set(span, true);
         }

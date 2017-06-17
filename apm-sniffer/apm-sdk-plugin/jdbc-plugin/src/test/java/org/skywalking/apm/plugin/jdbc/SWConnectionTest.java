@@ -11,7 +11,7 @@ import org.skywalking.apm.agent.core.boot.ServiceManager;
 import org.skywalking.apm.agent.core.context.TracerContext;
 import org.skywalking.apm.sniffer.mock.context.MockTracerContextListener;
 import org.skywalking.apm.sniffer.mock.context.SegmentAssert;
-import org.skywalking.apm.trace.TraceSegment;
+import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -97,7 +97,13 @@ public class SWConnectionTest extends AbstractStatementTest {
                 public void call(TraceSegment traceSegment) {
                     assertThat(traceSegment.getSpans().size(), is(1));
                     assertDBSpan(traceSegment.getSpans().get(0), "Mysql/JDBI/Connection/commit");
-                    assertDBSpanLog(traceSegment.getSpans().get(0).getLogs().get(0));
+                    try {
+                        assertDBSpanLog(getLogs(traceSegment.getSpans().get(0)).get(0));
+                    } catch (NoSuchFieldException e) {
+                        throw new RuntimeException(e);
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             });
         }
@@ -190,7 +196,13 @@ public class SWConnectionTest extends AbstractStatementTest {
             public void call(TraceSegment traceSegment) {
                 assertThat(traceSegment.getSpans().size(), is(1));
                 assertDBSpan(traceSegment.getSpans().get(0), "Mysql/JDBI/Connection/rollback to savepoint");
-                assertDBSpanLog(traceSegment.getSpans().get(0).getLogs().get(0));
+                try {
+                    assertDBSpanLog(getLogs(traceSegment.getSpans().get(0)).get(0));
+                } catch (NoSuchFieldException e) {
+                    throw new RuntimeException(e);
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
             }
         });
     }
@@ -236,7 +248,13 @@ public class SWConnectionTest extends AbstractStatementTest {
             public void call(TraceSegment traceSegment) {
                 assertThat(traceSegment.getSpans().size(), is(1));
                 assertDBSpan(traceSegment.getSpans().get(0), "Mysql/JDBI/Connection/close");
-                assertDBSpanLog(traceSegment.getSpans().get(0).getLogs().get(0));
+                try {
+                    assertDBSpanLog(getLogs(traceSegment.getSpans().get(0)).get(0));
+                } catch (NoSuchFieldException e) {
+                    throw new RuntimeException(e);
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
             }
         });
     }
@@ -282,7 +300,13 @@ public class SWConnectionTest extends AbstractStatementTest {
             public void call(TraceSegment traceSegment) {
                 assertThat(traceSegment.getSpans().size(), is(1));
                 assertDBSpan(traceSegment.getSpans().get(0), "Mysql/JDBI/Connection/releaseSavepoint savepoint");
-                assertDBSpanLog(traceSegment.getSpans().get(0).getLogs().get(0));
+                try {
+                    assertDBSpanLog(getLogs(traceSegment.getSpans().get(0)).get(0));
+                } catch (NoSuchFieldException e) {
+                    throw new RuntimeException(e);
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
             }
         });
     }

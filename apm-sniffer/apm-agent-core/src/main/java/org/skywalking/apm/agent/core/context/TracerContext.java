@@ -1,15 +1,15 @@
 package org.skywalking.apm.agent.core.context;
 
-import org.skywalking.apm.agent.core.conf.Config;
-import org.skywalking.apm.agent.core.boot.ServiceManager;
-import org.skywalking.apm.agent.core.sampling.SamplingService;
-import org.skywalking.apm.trace.Span;
-import org.skywalking.apm.trace.TraceSegment;
-import org.skywalking.apm.trace.TraceSegmentRef;
-import org.skywalking.apm.trace.tag.Tags;
-
 import java.util.LinkedList;
 import java.util.List;
+import org.skywalking.apm.agent.core.boot.ServiceManager;
+import org.skywalking.apm.agent.core.conf.Config;
+import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.skywalking.apm.agent.core.context.trace.LeafSpan;
+import org.skywalking.apm.agent.core.context.trace.Span;
+import org.skywalking.apm.agent.core.context.trace.TraceSegment;
+import org.skywalking.apm.agent.core.context.trace.TraceSegmentRef;
+import org.skywalking.apm.agent.core.sampling.SamplingService;
 
 /**
  * {@link TracerContext} maintains the context.
@@ -17,7 +17,9 @@ import java.util.List;
  * <p>
  * Created by wusheng on 2017/2/17.
  */
-public final class TracerContext {
+public final class TracerContext implements AbstractTracerContext {
+    private SamplingService samplingService;
+
     private TraceSegment segment;
 
     /**
@@ -36,8 +38,10 @@ public final class TracerContext {
      */
     TracerContext() {
         this.segment = new TraceSegment(Config.Agent.APPLICATION_CODE);
-        ServiceManager.INSTANCE.findService(SamplingService.class).trySampling(this.segment);
         this.spanIdGenerator = 0;
+        if (samplingService == null) {
+            samplingService = ServiceManager.INSTANCE.findService(SamplingService.class);
+        }
     }
 
     /**
@@ -46,7 +50,7 @@ public final class TracerContext {
      * @param operationName {@link Span#operationName}
      * @return the new active span.
      */
-    public Span createSpan(String operationName, boolean isLeaf) {
+    public AbstractSpan createSpan(String operationName, boolean isLeaf) {
         return this.createSpan(operationName, System.currentTimeMillis(), isLeaf);
     }
 
@@ -58,27 +62,59 @@ public final class TracerContext {
      * @param isLeaf is true, if the span is a leaf in trace tree.
      * @return
      */
-    public Span createSpan(String operationName, long startTime, boolean isLeaf) {
+    public AbstractSpan createSpan(String operationName, long startTime, boolean isLeaf) {
         Span parentSpan = peek();
         Span span;
         if (parentSpan == null) {
+            if (operationName != null) {
+                int suffixIdx = operationName.lastIndexOf(".");
+                if (suffixIdx > -1 && Config.Agent.IGNORE_SUFFIX.contains(operationName.substring(suffixIdx))) {
+                    ContextManager.ContextSwitcher.INSTANCE.toNew(new IgnoredTracerContext(1));
+                    return ContextManager.activeSpan();
+                }
+            }
+
             if (isLeaf) {
                 span = new LeafSpan(spanIdGenerator++, operationName, startTime);
             } else {
                 span = new Span(spanIdGenerator++, operationName, startTime);
             }
             push(span);
-        } else if (parentSpan.isLeaf()) {
-            span = parentSpan;
-            LeafSpan leafSpan = (LeafSpan)span;
-            leafSpan.push();
         } else {
-            if (isLeaf) {
-                span = new LeafSpan(spanIdGenerator++, parentSpan, operationName, startTime);
-            } else {
-                span = new Span(spanIdGenerator++, parentSpan, operationName, startTime);
+            /**
+             * Don't have ref yet, means this isn't part of distributed trace.
+             * Use sampling mechanism
+             * Only check this on the second span,
+             * because the {@link #extract(ContextCarrier)} invoke before create the second span.
+             */
+            if (spanIdGenerator == 1) {
+                if (segment.hasRef()) {
+                    samplingService.forceSampled();
+                } else {
+                    if (!samplingService.trySampling()) {
+                        /**
+                         * Don't sample this trace.
+                         * Now, switch this trace as an {@link IgnoredTracerContext},
+                         * further more, we will provide an analytic tracer context for all metrics in this trace.
+                         */
+                        ContextManager.ContextSwitcher.INSTANCE.toNew(new IgnoredTracerContext(2));
+                        return ContextManager.activeSpan();
+                    }
+                }
             }
-            push(span);
+
+            if (parentSpan.isLeaf()) {
+                span = parentSpan;
+                LeafSpan leafSpan = (LeafSpan)span;
+                leafSpan.push();
+            } else {
+                if (isLeaf) {
+                    span = new LeafSpan(spanIdGenerator++, parentSpan, operationName, startTime);
+                } else {
+                    span = new Span(spanIdGenerator++, parentSpan, operationName, startTime);
+                }
+                push(span);
+            }
         }
         return span;
     }
@@ -86,7 +122,7 @@ public final class TracerContext {
     /**
      * @return the active span of current context.
      */
-    public Span activeSpan() {
+    public AbstractSpan activeSpan() {
         Span span = peek();
         if (span == null) {
             throw new IllegalStateException("No active span.");
@@ -99,18 +135,18 @@ public final class TracerContext {
      *
      * @param span to finish. It must the the top element of {@link #activeSpanStack}.
      */
-    public void stopSpan(Span span) {
+    public void stopSpan(AbstractSpan span) {
         stopSpan(span, System.currentTimeMillis());
     }
 
     /**
      * @return the current trace id.
      */
-    String getGlobalTraceId() {
+    public String getGlobalTraceId() {
         return segment.getRelatedGlobalTraces().get(0).get();
     }
 
-    public void stopSpan(Span span, Long endTime) {
+    public void stopSpan(AbstractSpan span, Long endTime) {
         Span lastSpan = peek();
         if (lastSpan.isLeaf()) {
             LeafSpan leafSpan = (LeafSpan)lastSpan;
@@ -130,11 +166,29 @@ public final class TracerContext {
         }
     }
 
+    @Override
+    public void dispose() {
+        this.segment = null;
+        this.activeSpanStack = null;
+    }
+
     /**
      * Finish this context, and notify all {@link TracerContextListener}s, managed by {@link ListenerManager}
      */
     private void finish() {
-        ListenerManager.notifyFinish(segment.finish());
+        TraceSegment finishedSegment = segment.finish();
+        /**
+         * Recheck the segment if the segment contains only one span.
+         * Because in the runtime, can't sure this segment is part of distributed trace.
+         *
+         * @see {@link #createSpan(String, long, boolean)}
+         */
+        if (!segment.hasRef() && segment.isSingleSpanSegment()) {
+            if (!samplingService.trySampling()) {
+                finishedSegment.setIgnore(true);
+            }
+        }
+        ListenerManager.notifyFinish(finishedSegment);
     }
 
     /**
@@ -145,18 +199,17 @@ public final class TracerContext {
      */
     public void inject(ContextCarrier carrier) {
         carrier.setTraceSegmentId(this.segment.getTraceSegmentId());
-        Span span = this.activeSpan();
+        Span span = (Span)this.activeSpan();
         carrier.setSpanId(span.getSpanId());
         carrier.setApplicationCode(Config.Agent.APPLICATION_CODE);
-        String host = Tags.PEER_HOST.get(span);
+        String host = span.getPeerHost();
         if (host != null) {
-            Integer port = Tags.PEER_PORT.get(span);
+            Integer port = span.getPort();
             carrier.setPeerHost(host + ":" + port);
         } else {
-            carrier.setPeerHost(Tags.PEERS.get(span));
+            carrier.setPeerHost(span.getPeers());
         }
         carrier.setDistributedTraceIds(this.segment.getRelatedGlobalTraces());
-        carrier.setSampled(this.segment.isSampled());
     }
 
     /**
@@ -168,7 +221,6 @@ public final class TracerContext {
     public void extract(ContextCarrier carrier) {
         if (carrier.isValid()) {
             this.segment.ref(getRef(carrier));
-            ServiceManager.INSTANCE.findService(SamplingService.class).setSampleWhenExtract(this.segment, carrier);
             this.segment.relatedGlobalTraces(carrier.getDistributedTraceIds());
         }
     }

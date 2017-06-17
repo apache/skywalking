@@ -5,16 +5,17 @@ import com.alibaba.dubbo.rpc.Invocation;
 import com.alibaba.dubbo.rpc.Invoker;
 import com.alibaba.dubbo.rpc.Result;
 import com.alibaba.dubbo.rpc.RpcContext;
+import org.skywalking.apm.agent.core.conf.Config;
 import org.skywalking.apm.agent.core.context.ContextCarrier;
 import org.skywalking.apm.agent.core.context.ContextManager;
+import org.skywalking.apm.agent.core.context.tag.Tags;
+import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodInvokeContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.skywalking.apm.plugin.dubbox.BugFixActive;
 import org.skywalking.apm.plugin.dubbox.SWBaseBean;
-import org.skywalking.apm.trace.Span;
-import org.skywalking.apm.trace.tag.Tags;
 
 /**
  * {@link DubboInterceptor} define how to enhance class {@link com.alibaba.dubbo.monitor.support.MonitorFilter#invoke(Invoker,
@@ -28,7 +29,6 @@ import org.skywalking.apm.trace.tag.Tags;
  */
 public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
 
-    public static final String ATTACHMENT_NAME_OF_CONTEXT_DATA = "SWTraceContext";
     public static final String DUBBO_COMPONENT = "Dubbo";
 
     /**
@@ -50,12 +50,12 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
         boolean isConsumer = rpcContext.isConsumerSide();
         URL requestURL = invoker.getUrl();
 
-        Span span = ContextManager.createSpan(generateOperationName(requestURL, invocation));
+        AbstractSpan span = ContextManager.createSpan(generateOperationName(requestURL, invocation));
         Tags.URL.set(span, generateRequestURL(requestURL, invocation));
         Tags.COMPONENT.set(span, DUBBO_COMPONENT);
         Tags.SPAN_LAYER.asRPCFramework(span);
-        Tags.PEER_HOST.set(span, requestURL.getHost());
-        Tags.PEER_PORT.set(span, requestURL.getPort());
+        span.setPeerHost(requestURL.getHost());
+        span.setPort(requestURL.getPort());
 
         if (isConsumer) {
             Tags.SPAN_KIND.set(span, Tags.SPAN_KIND_CLIENT);
@@ -64,7 +64,7 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
             if (!BugFixActive.isActive()) {
                 //invocation.getAttachments().put("contextData", contextDataStr);
                 //@see https://github.com/alibaba/dubbo/blob/dubbo-2.5.3/dubbo-rpc/dubbo-rpc-api/src/main/java/com/alibaba/dubbo/rpc/RpcInvocation.java#L154-L161
-                rpcContext.getAttachments().put(ATTACHMENT_NAME_OF_CONTEXT_DATA, contextCarrier.serialize());
+                rpcContext.getAttachments().put(Config.Plugin.Propagation.HEADER_NAME, contextCarrier.serialize());
             } else {
                 fix283SendNoAttachmentIssue(invocation, contextCarrier);
             }
@@ -73,7 +73,7 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
 
             ContextCarrier contextCarrier;
             if (!BugFixActive.isActive()) {
-                contextCarrier = new ContextCarrier().deserialize(rpcContext.getAttachment(ATTACHMENT_NAME_OF_CONTEXT_DATA));
+                contextCarrier = new ContextCarrier().deserialize(rpcContext.getAttachment(Config.Plugin.Propagation.HEADER_NAME));
             } else {
                 contextCarrier = fix283RecvNoAttachmentIssue(invocation);
             }
@@ -111,7 +111,7 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
      * Log the throwable, which occurs in Dubbo RPC service.
      */
     private void dealException(Throwable throwable) {
-        Span span = ContextManager.activeSpan();
+        AbstractSpan span = ContextManager.activeSpan();
         Tags.ERROR.set(span, true);
         span.log(throwable);
     }

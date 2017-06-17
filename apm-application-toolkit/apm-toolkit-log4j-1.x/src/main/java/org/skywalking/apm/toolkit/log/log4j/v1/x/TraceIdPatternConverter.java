@@ -5,7 +5,7 @@ import org.apache.log4j.spi.LoggingEvent;
 
 /**
  * Default implementation outputs "TID: N/A".
- * But, if in sky-walking agent active mode, output will become the real TraceId.
+ * But, if in sky-walking agent active mode, output will become the real ids.
  * <p>
  * Created by wusheng on 2016/12/7.
  */
