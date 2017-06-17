@@ -1,6 +1,8 @@
 package org.skywalking.apm.collector.worker.segment.entity;
 
 import com.google.gson.annotations.SerializedName;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -25,16 +27,16 @@ public class Span {
     private String operationName;
 
     @SerializedName("ts")
-    private Map<String, String> tagsWithStr;
+    private Map<String, String> tagsWithStr = new LinkedHashMap<>();
 
     @SerializedName("tb")
-    private Map<String, Boolean> tagsWithBool;
+    private Map<String, Boolean> tagsWithBool = new LinkedHashMap<>();
 
     @SerializedName("ti")
-    private Map<String, Integer> tagsWithInt;
+    private Map<String, Integer> tagsWithInt = new LinkedHashMap<>();
 
     @SerializedName("lo")
-    private List<LogData> logs;
+    private List<LogData> logs = new LinkedList<>();
 
     public int getSpanId() {
         return spanId;
