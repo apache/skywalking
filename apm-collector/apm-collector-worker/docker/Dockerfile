@@ -9,12 +9,12 @@ ENV CLUSTER_CURRENT_HOST_NAME=127.0.0.1 \
     ES_INDEX_SHARDS_NUMBER=2 \
     ES_INDEX_REPLICAS_NUMBER=0 \
     HTTP_HOST_NAME=127.0.0.1 \
-    HTTP_PORT=12800 \
-    HTTP_CONTEXT_PATH=/
+    HTTP_PORT=12800
 
 ADD skywalking-collector.tar.gz /usr/local
 COPY startup.sh /usr/local/skywalking-collector/bin
 COPY collector.config /usr/local/skywalking-collector/config
+COPY log4j2.xml /usr/local/skywalking-collector/config
 ADD docker-entrypoint.sh /
 RUN chmod +x /docker-entrypoint.sh && chmod +x /usr/local/skywalking-collector/bin/startup.sh
 
