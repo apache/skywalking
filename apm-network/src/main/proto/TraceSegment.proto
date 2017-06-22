@@ -3,15 +3,13 @@ syntax = "proto3";
 option java_multiple_files = true;
 option java_package = "org.skywalking.apm.network.trace.proto";
 
+import "Downstream.proto";
+
 service TraceSegmentService {
-    rpc collect (TraceSegmentObject) returns (CollectResult) {
+    rpc collect (TraceSegmentObject) returns (Downstream) {
     }
 }
 
 message TraceSegmentObject {
     string traceId = 1;
-}
-
-message CollectResult {
-    bytes resultCode = 1;
 }
