@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "org.skywalking.apm";
+
+service TraceSegmentService {
+    rpc collect (TraceSegmentObject) returns (CollectResult) {
+    }
+}
+
+message TraceSegmentObject {
+    string traceId = 1;
+}
+
+message CollectResult {
+    bytes resultCode = 1;
+}

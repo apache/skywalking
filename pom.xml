@@ -46,6 +46,7 @@
         <module>apm-sniffer</module>
         <module>apm-application-toolkit</module>
         <module>apm-collector</module>
+        <module>apm-network</module>
     </modules>
     <packaging>pom</packaging>
 
