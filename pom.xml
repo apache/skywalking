@@ -203,7 +203,7 @@
                             <encoding>UTF-8</encoding>
                             <consoleOutput>true</consoleOutput>
                             <failsOnError>true</failsOnError>
-                            <excludes>org/skywalking/apm/network/**/*.class</excludes>
+                            <excludes>org/skywalking/apm/network/**/*.java</excludes>
                         </configuration>
                         <goals>
                             <goal>check</goal>
