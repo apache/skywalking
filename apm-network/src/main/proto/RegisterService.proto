@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "org.skywalking.apm.network.trace.proto";
+
+//register service for ApplicationCode, this service is called when service starts.
+service ApplicationRegisterService {
+    rpc register (ApplicationMetaInfo) returns (ApplicationRegiseredInfo) {
+    }
+}
+
+message ApplicationMetaInfo {
+    string applicationCode = 1;
+}
+
+message ApplicationRegiseredInfo {
+    int32 applicationId = 2;
+}
+
+//register service for ServiceName, Network address
+service DictionaryRegisterService {
+    rpc register (DictionaryRegisterMetaInfo) returns (DictionaryRegiseredInfo) {
+    }
+}
+
+message DictionaryRegisterMetaInfo {
+    repeated DictionaryRegisterElement elements = 1;
+}
+
+message DictionaryRegisterElement {
+    RegisterElementType type = 1;
+    string name = 2;
+}
+
+message DictionaryRegiseredInfo {
+    repeated DictionaryRegiseredElement elements = 1;
+}
+
+message DictionaryRegiseredElement {
+    RegisterElementType type = 1;
+    string name = 2;
+    int32 id = 3;
+}
+
+
+enum RegisterElementType {
+    ServiceName = 0;
+    NetworkAddress = 1;
+}
+
