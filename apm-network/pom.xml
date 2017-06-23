@@ -16,6 +16,14 @@
         <grpc.version>1.4.0</grpc.version>
 
         <compiler.version>1.6</compiler.version>
+
+        <shade.package>org.skywalking.apm.dependencies</shade.package>
+        <shade.com.google.source>com.google</shade.com.google.source>
+        <shade.com.google.target>${shade.package}.${shade.com.google.source}</shade.com.google.target>
+        <shade.io.grpc.source>io.grpc</shade.io.grpc.source>
+        <shade.io.grpc.target>${shade.package}.${shade.io.grpc.source}</shade.io.grpc.target>
+        <shade.io.netty.source>io.netty</shade.io.netty.source>
+        <shade.io.netty.target>${shade.package}.${shade.io.netty.source}</shade.io.netty.target>
     </properties>
 
     <dependencies>
@@ -74,6 +82,91 @@
                         <goals>
                             <goal>compile</goal>
                             <goal>compile-custom</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.4.3</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <shadedArtifactAttached>false</shadedArtifactAttached>
+                            <createDependencyReducedPom>true</createDependencyReducedPom>
+                            <createSourcesJar>true</createSourcesJar>
+                            <shadeSourcesContent>true</shadeSourcesContent>
+                            <relocations>
+                                <relocation>
+                                    <pattern>${shade.com.google.source}</pattern>
+                                    <shadedPattern>${shade.com.google.target}</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>${shade.io.grpc.source}</pattern>
+                                    <shadedPattern>${shade.io.grpc.target}</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>${shade.io.netty.source}</pattern>
+                                    <shadedPattern>${shade.io.netty.target}</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>${shade.io.netty.source}</pattern>
+                                    <shadedPattern>${shade.io.netty.target}</shadedPattern>
+                                </relocation>
+                            </relocations>
+                            <artifactSet>
+                                <includes>
+                                    <include>io.grpc:grpc-*:jar:*</include>
+                                    <inclued>io.netty:netty-*:jar:*</inclued>
+                                    <inclued>com.google.protobuf:*:jar:*</inclued>
+                                    <inclued>com.google.code.gson:gson:jar:*</inclued>
+                                    <include>com.google.guava:guava:jar:*</include>
+                                </includes>
+                            </artifactSet>
+                            <filters>
+                                <filter>
+                                    <artifact>com.google.protobuf:protobuf-java</artifact>
+                                    <excludes>
+                                        <exclude>google/</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                            <transformers>
+                                <transformer
+                                    implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.8</version>
+                <executions>
+                    <execution>
+                        <id>unpack</id>
+                        <phase>package</phase>
+                        <configuration>
+                            <target>
+                                <unzip src="${project.build.directory}/${artifactId}-${version}.jar"
+                                       dest="${project.build.directory}/unpacked/"/>
+                                <move todir="${project.build.directory}/unpacked/META-INF/services"
+                                      includeemptydirs="false">
+                                    <fileset dir="${project.build.directory}/unpacked/META-INF/services"/>
+                                    <mapper type="glob" from="*" to="${shade.package}.*"/>
+                                </move>
+                                <jar destfile="${project.build.directory}/${artifactId}-${version}.jar"
+                                     basedir="${project.build.directory}/unpacked"/>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
                         </goals>
                     </execution>
                 </executions>
