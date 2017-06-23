@@ -132,11 +132,11 @@
                             <shadeSourcesContent>true</shadeSourcesContent>
                             <transformers>
                                 <transformer
-                                    implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                        implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                                     <resource>skywalking-plugin.def</resource>
                                 </transformer>
                                 <transformer
-                                    implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <manifestEntries>
                                         <Premain-Class>${premain.class}</Premain-Class>
                                     </manifestEntries>
@@ -149,10 +149,6 @@
                                     <exclude>commons-logging:*</exclude>
                                     <exclude>commons-codec:*</exclude>
                                     <exclude>*:gson</exclude>
-                                    <exclude>io.grpc:*</exclude>
-                                    <exclude>io.netty:*</exclude>
-                                    <exclude>com.google.protobuf:*</exclude>
-                                    <exclude>com.google.guava:guava</exclude>
                                 </excludes>
                             </artifactSet>
                             <relocations>
