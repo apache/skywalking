@@ -52,6 +52,7 @@ enum SpanLayer {
     Database = 0;
     RPCFramework = 1;
     Http = 2;
+    MQ = 3;
 }
 
 message KeyValue {
