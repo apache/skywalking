@@ -11,5 +11,54 @@ service TraceSegmentService {
 }
 
 message TraceSegmentObject {
-    string traceId = 1;
+    string traceSegmentId = 1;
+    repeated TraceSegmentReference refs = 2;
+    repeated SpanObject spans = 3;
+    int32 applicationId = 4;
+    repeated string globalTraceIds = 5;
+}
+
+message TraceSegmentReference {
+    string parentTraceSegmentId = 1;
+    int32 parentSpanId = 2;
+    repeated int32 serviceChains = 3;
+    int32 parentApplicationId = 4;
+    int32 networkAddressId = 5;
+}
+
+message SpanObject {
+    int32 spanId = 1;
+    int32 parentSpanId = 2;
+    int64 startTime = 3;
+    int64 endTime = 4;
+    int32 operationNameId = 5;
+    int32 peerNetworkAddressId = 6;
+    SpanType spanType = 7;
+    SpanLayer spanLayer = 8;
+    string component = 9;
+    bool isError = 10;
+    repeated KeyValue tags = 11;
+    repeated LogMessage logs = 12;
+}
+
+enum SpanType {
+    Entry = 0;
+    Exit = 1;
+    Local = 2;
+}
+
+enum SpanLayer {
+    Database = 0;
+    RPCFramework = 1;
+    Http = 2;
+}
+
+message KeyValue {
+    string key = 1;
+    string value = 2;
+}
+
+message LogMessage {
+    int64 time = 1;
+    repeated KeyValue data = 2;
 }
