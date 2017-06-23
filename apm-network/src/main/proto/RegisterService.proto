@@ -14,7 +14,8 @@ message ApplicationMetaInfo {
 }
 
 message ApplicationRegiseredInfo {
-    int32 applicationId = 2;
+    int32 applicationId = 1;
+    int32 applicationInstanceId = 2;
 }
 
 //register service for ServiceName, Network address

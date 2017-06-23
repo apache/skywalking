@@ -12,6 +12,8 @@ service AggregatedMetricsService {
 
 message AggregatedMetrics {
     repeated Metric metrics = 1;
+    int32 applicationId = 2;
+    int32 applicationInstanceId = 3;
 }
 
 // In aggregated metric, every operation metric is aggregated in 1 seconds.
