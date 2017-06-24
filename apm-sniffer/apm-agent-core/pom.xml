@@ -17,6 +17,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jetty.version>9.4.2.v20170220</jetty.version>
+        <grpc.version>1.4.0</grpc.version>
 
         <shade.package>org.skywalking.apm.dependencies</shade.package>
         <shade.com.lmax.disruptor.source>com.lmax.disruptor</shade.com.lmax.disruptor.source>
@@ -26,12 +27,21 @@
         <shade.com.google.target>${shade.package}.${shade.com.google.source}</shade.com.google.target>
         <shade.org.apache.source>org.apache</shade.org.apache.source>
         <shade.org.apache.target>${shade.package}.${shade.org.apache.source}</shade.org.apache.target>
+        <shade.io.grpc.source>io.grpc</shade.io.grpc.source>
+        <shade.io.grpc.target>${shade.package}.${shade.io.grpc.source}</shade.io.grpc.target>
+        <shade.io.netty.source>io.netty</shade.io.netty.source>
+        <shade.io.netty.target>${shade.package}.${shade.io.netty.source}</shade.io.netty.target>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.skywalking</groupId>
             <artifactId>apm-logging-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>apm-network</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -69,6 +79,13 @@
         </dependency>
     </dependencies>
     <build>
+        <extensions>
+            <extension>
+                <groupId>kr.motd.maven</groupId>
+                <artifactId>os-maven-plugin</artifactId>
+                <version>1.4.1.Final</version>
+            </extension>
+        </extensions>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -92,6 +109,9 @@
                             <artifactSet>
                                 <excludes>
                                     <exclude>net.bytebuddy:byte-buddy:jar:</exclude>
+                                    <exclude>com.google.errorprone:error_prone_annotations:jar:</exclude>
+                                    <exclude>com.google.code.findbugs:jsr305:jar:</exclude>
+                                    <exclude>com.google.instrumentation:instrumentation-api:jar:</exclude>
                                 </excludes>
                             </artifactSet>
                             <relocations>
@@ -107,11 +127,53 @@
                                     <pattern>${shade.org.apache.source}</pattern>
                                     <shadedPattern>${shade.org.apache.target}</shadedPattern>
                                 </relocation>
+                                <relocation>
+                                    <pattern>${shade.io.grpc.source}</pattern>
+                                    <shadedPattern>${shade.io.grpc.target}</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>${shade.io.netty.source}</pattern>
+                                    <shadedPattern>${shade.io.netty.target}</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>${shade.io.netty.source}</pattern>
+                                    <shadedPattern>${shade.io.netty.target}</shadedPattern>
+                                </relocation>
                             </relocations>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.8</version>
+                <executions>
+                    <execution>
+                        <id>unpack</id>
+                        <phase>package</phase>
+                        <configuration>
+                            <target>
+                                <unzip src="${project.build.directory}/${artifactId}-${version}.jar"
+                                       dest="${project.build.directory}/unpacked/"/>
+                                <move todir="${project.build.directory}/unpacked/META-INF/services"
+                                      includeemptydirs="false">
+                                    <fileset dir="${project.build.directory}/unpacked/META-INF/services">
+                                        <include name="io.grpc.*"/>
+                                    </fileset>
+                                    <mapper type="glob" from="*" to="${shade.package}.*"/>
+                                </move>
+                                <jar destfile="${project.build.directory}/${artifactId}-${version}.jar"
+                                     basedir="${project.build.directory}/unpacked"/>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
         </plugins>
     </build>
 </project>

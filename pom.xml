@@ -46,6 +46,7 @@
         <module>apm-sniffer</module>
         <module>apm-application-toolkit</module>
         <module>apm-collector</module>
+        <module>apm-network</module>
     </modules>
     <packaging>pom</packaging>
 
@@ -177,7 +178,7 @@
                     </formats>
                     <instrumentation>
                         <excludes>
-                            <exclude>org/skywalking/apm/trace/proto/*.class</exclude>
+                            <exclude>org/skywalking/apm/network/trace/proto/*.class</exclude>
                         </excludes>
                     </instrumentation>
                 </configuration>
@@ -202,6 +203,7 @@
                             <encoding>UTF-8</encoding>
                             <consoleOutput>true</consoleOutput>
                             <failsOnError>true</failsOnError>
+                            <excludes>org/skywalking/apm/network/**/*.java</excludes>
                         </configuration>
                         <goals>
                             <goal>check</goal>
