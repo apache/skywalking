@@ -49,7 +49,7 @@ public class TracingContext implements AbstractTracerContext {
 
     @Override
     public String getGlobalTraceId() {
-        return null;
+        return segment.getRelatedGlobalTraces().get(0).get();
     }
 
     @Override
@@ -58,8 +58,12 @@ public class TracingContext implements AbstractTracerContext {
     }
 
     @Override
-    public AbstractSpan activeSpan() {
-        return null;
+    public AbstractTracingSpan activeSpan() {
+        AbstractTracingSpan span = peek();
+        if (span == null) {
+            throw new IllegalStateException("No active span.");
+        }
+        return span;
     }
 
     @Override
@@ -69,7 +73,8 @@ public class TracingContext implements AbstractTracerContext {
 
     @Override
     public void dispose() {
-
+        this.segment = null;
+        this.activeSpanStack = null;
     }
 
     /**
