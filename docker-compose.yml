@@ -30,6 +30,9 @@ services:
   es-server:
     image: elasticsearch:5.3
     command: "-Enode.name=TestNode -Enetwork.host=0.0.0.0 -Ehttp.cors.enabled=true -Ehttp.cors.allow-origin=* -Ethread_pool.bulk.queue_size=1000 -Ecluster.name=CollectorDBCluster"
+    environment:
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     expose:
       - "9200"
       - "9300"
