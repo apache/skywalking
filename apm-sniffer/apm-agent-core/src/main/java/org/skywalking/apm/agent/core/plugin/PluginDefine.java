@@ -15,9 +15,15 @@ public class PluginDefine {
      */
     private String defineClass;
 
-    private PluginDefine(String name, String defineClass) {
+    /**
+     * The sate of plugin.
+     */
+    private State state;
+
+    private PluginDefine(String name, String defineClass, State state) {
         this.name = name;
         this.defineClass = defineClass;
+        this.state = state;
     }
 
     public static PluginDefine build(String define) throws IllegalPluginDefineException {
@@ -30,15 +36,30 @@ public class PluginDefine {
             throw new IllegalPluginDefineException(define);
         }
 
-        return new PluginDefine(pluginDefine[0], pluginDefine[1]);
+        String pluginName = pluginDefine[0];
+        String defineClass = pluginDefine[1];
+        if (pluginName.toUpperCase().startsWith("[OFF]")) {
+            return new PluginDefine(pluginName.substring(5), defineClass, State.OFF);
+        } else {
+            return new PluginDefine(pluginName, defineClass, State.ON);
+        }
     }
 
     public boolean enable() {
-        return !Config.Plugin.DISABLED_PLUGINS.contains(name);
+        return !Config.Plugin.DISABLED_PLUGINS.contains(name) || forceEnable();
+    }
+
+
+    private boolean forceEnable() {
+        return state == State.OFF && Config.Plugin.FORCE_ENABLE_PLUGINS.contains(name);
     }
 
     public String getDefineClass() {
         return defineClass;
+    }
+
+    private enum State {
+        OFF, ON;
     }
 }
 
