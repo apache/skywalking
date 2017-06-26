@@ -5,8 +5,6 @@ import java.util.List;
 import org.hamcrest.CoreMatchers;
 import org.skywalking.apm.sniffer.mock.context.MockTracerContextListener;
 import org.skywalking.apm.sniffer.mock.trace.tags.StringTagReader;
-import org.skywalking.apm.agent.core.context.trace.LogData;
-import org.skywalking.apm.agent.core.context.trace.Span;
 import org.skywalking.apm.agent.core.context.tag.Tags;
 
 import java.sql.SQLException;

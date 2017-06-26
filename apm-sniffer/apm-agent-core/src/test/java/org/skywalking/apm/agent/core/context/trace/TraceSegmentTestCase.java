@@ -18,7 +18,7 @@ public class TraceSegmentTestCase {
 
         Assert.assertTrue(segment.getTraceSegmentId().startsWith("Segment"));
         Assert.assertTrue(segment.getStartTime() > 0);
-        Assert.assertEquals("billing_app", segment.getApplicationCode());
+        Assert.assertEquals("billing_app", segment.getApplicationId());
     }
 
     @Test

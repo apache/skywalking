@@ -2,7 +2,6 @@ package org.skywalking.apm.agent.core.context.trace;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.skywalking.apm.agent.core.context.trace.LeafSpan;
 import org.skywalking.apm.agent.core.tags.BooleanTagReader;
 import org.skywalking.apm.agent.core.tags.IntTagReader;
 import org.skywalking.apm.agent.core.tags.StringTagReader;

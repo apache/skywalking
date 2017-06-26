@@ -1,7 +1,5 @@
 package org.skywalking.apm.agent.core.context.trace;
 
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -26,22 +24,16 @@ public class TraceSegment {
      * The id of this trace segment.
      * Every segment has its unique-global-id.
      */
-    @Expose
-    @SerializedName(value = "ts")
     private String traceSegmentId;
 
     /**
      * The start time of this trace segment.
      */
-    @Expose
-    @SerializedName(value = "st")
     private long startTime;
 
     /**
      * The end time of this trace segment.
      */
-    @Expose
-    @SerializedName(value = "et")
     private long endTime;
 
     /**
@@ -50,8 +42,6 @@ public class TraceSegment {
      * but if this segment is a start span of batch process, the segment faces multi parents,
      * at this moment, we use this {@link #refs} to link them.
      */
-    @Expose
-    @SerializedName(value = "rs")
     private List<TraceSegmentRef> refs;
 
     /**
@@ -59,19 +49,15 @@ public class TraceSegment {
      * They all have finished.
      * All active spans are hold and controlled by "skywalking-api" module.
      */
-    @Expose
-    @SerializedName(value = "ss")
-    private List<Span> spans;
+    private List<AbstractTracingSpan> spans;
 
     /**
-     * The <code>applicationCode</code> represents a name of current application/JVM and indicates which is business
+     * The <code>applicationId</code> represents a name of current application/JVM and indicates which is business
      * role in the cluster.
      * <p>
      * e.g. account_app, billing_app
      */
-    @Expose
-    @SerializedName(value = "ac")
-    private String applicationCode;
+    private int applicationId;
 
     /**
      * The <code>relatedGlobalTraces</code> represent a set of all related trace. Most time it contains only one
@@ -86,18 +72,16 @@ public class TraceSegment {
      * <code>relatedGlobalTraces</code> targets this {@link TraceSegment}'s related call chain, a call chain contains
      * multi {@link TraceSegment}s, only using {@link #refs} is not enough for analysis and ui.
      */
-    @Expose
-    @SerializedName(value = "gt")
     private DistributedTraceIds relatedGlobalTraces;
 
     private boolean ignore = false;
 
     /**
-     * Create a trace segment, by the given applicationCode.
+     * Create a trace segment, by the given applicationId.
      */
-    public TraceSegment(String applicationCode) {
+    public TraceSegment(int applicationId) {
         this();
-        this.applicationCode = applicationCode;
+        this.applicationId = applicationId;
     }
 
     /**
@@ -108,7 +92,7 @@ public class TraceSegment {
     public TraceSegment() {
         this.startTime = System.currentTimeMillis();
         this.traceSegmentId = GlobalIdGenerator.generate(ID_TYPE);
-        this.spans = new LinkedList<Span>();
+        this.spans = new LinkedList<AbstractTracingSpan>();
         this.relatedGlobalTraces = new DistributedTraceIds();
         this.relatedGlobalTraces.append(new NewDistributedTraceId());
     }
@@ -142,12 +126,12 @@ public class TraceSegment {
     }
 
     /**
-     * After {@link Span} is finished, as be controller by "skywalking-api" module,
+     * After {@link AbstractSpan} is finished, as be controller by "skywalking-api" module,
      * notify the {@link TraceSegment} to archive it.
      *
      * @param finishedSpan
      */
-    public void archive(Span finishedSpan) {
+    public void archive(AbstractTracingSpan finishedSpan) {
         spans.add(finishedSpan);
     }
 
@@ -173,13 +157,6 @@ public class TraceSegment {
         return endTime;
     }
 
-    public List<TraceSegmentRef> getRefs() {
-        if (refs == null) {
-            return null;
-        }
-        return Collections.unmodifiableList(refs);
-    }
-
     public boolean hasRef() {
         return !(refs == null || refs.size() == 0);
     }
@@ -190,14 +167,6 @@ public class TraceSegment {
 
     public boolean isSingleSpanSegment() {
         return this.spans != null && this.spans.size() == 1;
-    }
-
-    public List<Span> getSpans() {
-        return Collections.unmodifiableList(spans);
-    }
-
-    public String getApplicationCode() {
-        return applicationCode;
     }
 
     public boolean isIgnore() {
@@ -216,7 +185,7 @@ public class TraceSegment {
             ", endTime=" + endTime +
             ", refs=" + refs +
             ", spans=" + spans +
-            ", applicationCode='" + applicationCode + '\'' +
+            ", applicationId='" + applicationId + '\'' +
             ", relatedGlobalTraces=" + relatedGlobalTraces +
             '}';
     }

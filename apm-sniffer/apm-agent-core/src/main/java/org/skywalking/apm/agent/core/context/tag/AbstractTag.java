@@ -1,7 +1,6 @@
 package org.skywalking.apm.agent.core.context.tag;
 
 import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
-import org.skywalking.apm.agent.core.context.trace.Span;
 
 /**
  * This is the abstract tag.

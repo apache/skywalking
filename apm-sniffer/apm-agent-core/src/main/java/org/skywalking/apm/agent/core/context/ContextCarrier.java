@@ -5,7 +5,6 @@ import java.util.LinkedList;
 import java.util.List;
 import org.skywalking.apm.agent.core.context.ids.DistributedTraceId;
 import org.skywalking.apm.agent.core.context.ids.PropagatedTraceId;
-import org.skywalking.apm.agent.core.context.trace.Span;
 import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.skywalking.apm.util.StringUtil;
 

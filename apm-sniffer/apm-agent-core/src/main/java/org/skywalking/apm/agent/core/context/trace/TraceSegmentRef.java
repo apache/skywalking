@@ -1,9 +1,5 @@
 package org.skywalking.apm.agent.core.context.trace;
 
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
-import org.skywalking.apm.agent.core.context.tag.Tags;
-
 /**
  * {@link TraceSegmentRef} is like a pointer, which ref to another {@link TraceSegment},
  * use {@link #spanId} point to the exact span of the ref {@link TraceSegment}.
@@ -14,29 +10,12 @@ public class TraceSegmentRef {
     /**
      * {@link TraceSegment#traceSegmentId}
      */
-    @Expose
-    @SerializedName(value = "ts")
     private String traceSegmentId;
 
-    /**
-     * {@link Span#spanId}
-     */
-    @Expose
-    @SerializedName(value = "si")
     private int spanId = -1;
 
-    /**
-     * {@link TraceSegment#applicationCode}
-     */
-    @Expose
-    @SerializedName(value = "ac")
     private String applicationCode;
 
-    /**
-     * {@link Tags#PEER_HOST}
-     */
-    @Expose
-    @SerializedName(value = "ph")
     private String peerHost;
 
     /**

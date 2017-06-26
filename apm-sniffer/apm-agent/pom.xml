@@ -148,7 +148,6 @@
                                     <exclude>org.apache.httpcomponents:*</exclude>
                                     <exclude>commons-logging:*</exclude>
                                     <exclude>commons-codec:*</exclude>
-                                    <exclude>*:gson</exclude>
                                 </excludes>
                             </artifactSet>
                             <relocations>
