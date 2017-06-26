@@ -8,12 +8,14 @@ set WEB_RUNTIME_OPTIONS="-Xms256M -Xmx512M"
 set CLASSPATH=%WEB_BASE_PATH%\config;
 SET CLASSPATH=%WEB_BASE_PATH%\libs\*;%CLASSPATH%
 
-if ""%JAVA_HOME%"" == """" (
-  set _EXECJAVA=java
-) else (
-  set _EXECJAVA="%JAVA_HOME%"/bin/java
+if defined JAVA_HOME (
+ set _EXECJAVA="%JAVA_HOME:"=%"\bin\java
 )
 
+if not defined JAVA_HOME (
+ echo "JAVA_HOME not set."
+ set _EXECJAVA=java
+)
 start /MIN "%WEB_PROCESS_TITLE%" %_EXECJAVA% "%WEB_RUNTIME_OPTIONS%" -cp "%CLASSPATH%" org.skywalking.apm.ui.ApplicationStartUp &
 echo Skywalking Web started successfully!
 
