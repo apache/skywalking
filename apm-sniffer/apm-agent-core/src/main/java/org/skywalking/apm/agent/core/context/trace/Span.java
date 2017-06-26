@@ -383,7 +383,7 @@ public class Span implements AbstractSpan {
                 }
             }
             if (span.tagsWithInt != null) {
-                if (tagWithInt != null) {
+                if (tagWithInt == null) {
                     tagWithInt = new JsonObject();
                 }
                 for (IntTagItem item : span.tagsWithInt) {
