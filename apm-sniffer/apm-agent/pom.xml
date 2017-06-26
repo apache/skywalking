@@ -148,6 +148,11 @@
                                     <exclude>org.apache.httpcomponents:*</exclude>
                                     <exclude>commons-logging:*</exclude>
                                     <exclude>commons-codec:*</exclude>
+                                    <exclude>*:gson</exclude>
+                                    <exclude>io.grpc:*</exclude>
+                                    <exclude>io.netty:*</exclude>
+                                    <exclude>com.google.protobuf:*</exclude>
+                                    <exclude>com.google.guava:guava</exclude>
                                 </excludes>
                             </artifactSet>
                             <relocations>
