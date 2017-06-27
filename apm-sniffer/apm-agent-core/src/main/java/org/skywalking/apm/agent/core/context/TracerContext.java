@@ -171,7 +171,7 @@ public final class TracerContext implements AbstractTracerContext {
     }
 
     /**
-     * Finish this context, and notify all {@link TracerContextListener}s, managed by {@link ListenerManager}
+     * Finish this context, and notify all {@link TracingContextListener}s, managed by {@link ListenerManager}
      */
     private void finish() {
         TraceSegment finishedSegment = segment.finish();
@@ -259,34 +259,34 @@ public final class TracerContext implements AbstractTracerContext {
     }
 
     public static class ListenerManager {
-        private static List<TracerContextListener> LISTENERS = new LinkedList<TracerContextListener>();
+        private static List<TracingContextListener> LISTENERS = new LinkedList<TracingContextListener>();
 
         /**
-         * Add the given {@link TracerContextListener} to {@link #LISTENERS} list.
+         * Add the given {@link TracingContextListener} to {@link #LISTENERS} list.
          *
          * @param listener the new listener.
          */
-        public static synchronized void add(TracerContextListener listener) {
+        public static synchronized void add(TracingContextListener listener) {
             LISTENERS.add(listener);
         }
 
         /**
          * Notify the {@link ListenerManager} about the given {@link TraceSegment} have finished.
          * And trigger {@link ListenerManager} to notify all {@link #LISTENERS} 's
-         * {@link TracerContextListener#afterFinished(TraceSegment)}
+         * {@link TracingContextListener#afterFinished(TraceSegment)}
          *
          * @param finishedSegment
          */
         static void notifyFinish(TraceSegment finishedSegment) {
-            for (TracerContextListener listener : LISTENERS) {
+            for (TracingContextListener listener : LISTENERS) {
                 listener.afterFinished(finishedSegment);
             }
         }
 
         /**
-         * Clear the given {@link TracerContextListener}
+         * Clear the given {@link TracingContextListener}
          */
-        public static synchronized void remove(TracerContextListener listener) {
+        public static synchronized void remove(TracingContextListener listener) {
             LISTENERS.remove(listener);
         }
     }

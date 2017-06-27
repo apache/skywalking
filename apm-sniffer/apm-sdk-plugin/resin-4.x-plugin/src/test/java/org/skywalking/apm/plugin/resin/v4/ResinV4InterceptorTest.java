@@ -15,7 +15,7 @@ import org.skywalking.apm.agent.core.context.TracerContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodInvokeContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.skywalking.apm.sniffer.mock.context.MockTracerContextListener;
+import org.skywalking.apm.sniffer.mock.context.MockTracingContextListener;
 import org.skywalking.apm.sniffer.mock.context.SegmentAssert;
 import org.skywalking.apm.sniffer.mock.trace.SpanLogReader;
 import org.skywalking.apm.sniffer.mock.trace.tags.IntTagReader;
@@ -36,7 +36,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class ResinV4InterceptorTest {
     private ResinV4Interceptor interceptor;
-    private MockTracerContextListener contextListener;
+    private MockTracingContextListener contextListener;
 
     @Mock
     private CauchoRequest request;
@@ -55,7 +55,7 @@ public class ResinV4InterceptorTest {
         ServiceManager.INSTANCE.boot();
 
         interceptor = new ResinV4Interceptor();
-        contextListener = new MockTracerContextListener();
+        contextListener = new MockTracingContextListener();
 
         TracerContext.ListenerManager.add(contextListener);
 
@@ -146,6 +146,6 @@ public class ResinV4InterceptorTest {
 
     @After
     public void tearDown() throws Exception {
-        TracerContext.ListenerManager.remove(new MockTracerContextListener());
+        TracerContext.ListenerManager.remove(new MockTracingContextListener());
     }
 }

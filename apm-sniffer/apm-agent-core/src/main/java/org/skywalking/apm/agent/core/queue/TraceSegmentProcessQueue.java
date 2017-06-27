@@ -9,7 +9,7 @@ import java.util.List;
 import org.skywalking.apm.agent.core.conf.Config;
 import org.skywalking.apm.agent.core.boot.StatusBootService;
 import org.skywalking.apm.agent.core.context.TracerContext;
-import org.skywalking.apm.agent.core.context.TracerContextListener;
+import org.skywalking.apm.agent.core.context.TracingContextListener;
 import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.skywalking.apm.logging.ILog;
 import org.skywalking.apm.logging.LogManager;
@@ -22,7 +22,7 @@ import org.skywalking.apm.logging.LogManager;
  * <p>
  * Created by wusheng on 2017/2/17.
  */
-public class TraceSegmentProcessQueue extends StatusBootService implements TracerContextListener, EventHandler<TraceSegmentHolder> {
+public class TraceSegmentProcessQueue extends StatusBootService implements TracingContextListener, EventHandler<TraceSegmentHolder> {
     private static final ILog logger = LogManager.getLogger(TraceSegmentProcessQueue.class);
 
     private Disruptor<TraceSegmentHolder> disruptor;

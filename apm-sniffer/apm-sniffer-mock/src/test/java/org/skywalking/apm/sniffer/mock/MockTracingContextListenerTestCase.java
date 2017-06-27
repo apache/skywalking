@@ -4,7 +4,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.skywalking.apm.agent.core.boot.ServiceManager;
-import org.skywalking.apm.sniffer.mock.context.MockTracerContextListener;
+import org.skywalking.apm.sniffer.mock.context.MockTracingContextListener;
 import org.skywalking.apm.sniffer.mock.context.SegmentAssert;
 import org.skywalking.apm.sniffer.mock.trace.TraceSegmentBuilderFactory;
 import org.skywalking.apm.agent.core.context.trace.TraceSegment;
@@ -12,7 +12,7 @@ import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 /**
  * Created by wusheng on 2017/2/21.
  */
-public class MockTracerContextListenerTestCase {
+public class MockTracingContextListenerTestCase {
     @BeforeClass
     public static void setup() {
         ServiceManager.INSTANCE.boot();
@@ -20,7 +20,7 @@ public class MockTracerContextListenerTestCase {
 
     @Test
     public void testAfterFinished() {
-        MockTracerContextListener listener = new MockTracerContextListener();
+        MockTracingContextListener listener = new MockTracingContextListener();
         listener.afterFinished(TraceSegmentBuilderFactory.INSTANCE.singleTomcat200Trace());
 
         Assert.assertNotNull(listener.getFinished(0));
@@ -28,7 +28,7 @@ public class MockTracerContextListenerTestCase {
 
     @Test(expected = AssertionError.class)
     public void testAssertSize() {
-        MockTracerContextListener listener = new MockTracerContextListener();
+        MockTracingContextListener listener = new MockTracingContextListener();
         listener.afterFinished(TraceSegmentBuilderFactory.INSTANCE.singleTomcat404Trace());
 
         listener.assertSize(0);
@@ -36,7 +36,7 @@ public class MockTracerContextListenerTestCase {
 
     @Test
     public void testAssertTraceSegment() {
-        MockTracerContextListener listener = new MockTracerContextListener();
+        MockTracingContextListener listener = new MockTracingContextListener();
         listener.afterFinished(TraceSegmentBuilderFactory.INSTANCE.singleTomcat404Trace());
         listener.afterFinished(TraceSegmentBuilderFactory.INSTANCE.singleTomcat500Trace());
 
@@ -50,7 +50,7 @@ public class MockTracerContextListenerTestCase {
 
     @Test(expected = AssertionError.class)
     public void testClear() {
-        MockTracerContextListener listener = new MockTracerContextListener();
+        MockTracingContextListener listener = new MockTracingContextListener();
         listener.afterFinished(TraceSegmentBuilderFactory.INSTANCE.singleTomcat404Trace());
         listener.afterFinished(TraceSegmentBuilderFactory.INSTANCE.singleTomcat500Trace());
 

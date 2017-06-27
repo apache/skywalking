@@ -3,7 +3,7 @@ package org.skywalking.apm.plugin.jdbc;
 import java.lang.reflect.Field;
 import java.util.List;
 import org.hamcrest.CoreMatchers;
-import org.skywalking.apm.sniffer.mock.context.MockTracerContextListener;
+import org.skywalking.apm.sniffer.mock.context.MockTracingContextListener;
 import org.skywalking.apm.sniffer.mock.trace.tags.StringTagReader;
 import org.skywalking.apm.agent.core.context.tag.Tags;
 
@@ -15,7 +15,7 @@ import static org.junit.Assert.*;
 
 public abstract class AbstractStatementTest {
 
-    protected MockTracerContextListener mockTracerContextListener;
+    protected MockTracingContextListener mockTracerContextListener;
 
     protected void assertDBSpanLog(LogData logData) {
         assertThat(logData.getFields().size(), is(4));

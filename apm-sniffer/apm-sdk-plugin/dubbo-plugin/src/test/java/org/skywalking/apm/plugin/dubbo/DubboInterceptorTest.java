@@ -23,7 +23,7 @@ import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceCon
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodInvokeContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.skywalking.apm.plugin.dubbox.BugFixActive;
-import org.skywalking.apm.sniffer.mock.context.MockTracerContextListener;
+import org.skywalking.apm.sniffer.mock.context.MockTracingContextListener;
 import org.skywalking.apm.sniffer.mock.context.SegmentAssert;
 import org.skywalking.apm.sniffer.mock.trace.SpanLogReader;
 import org.skywalking.apm.sniffer.mock.trace.tags.StringTagReader;
@@ -42,7 +42,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
 @PrepareForTest({RpcContext.class, BugFixActive.class})
 public class DubboInterceptorTest {
 
-    private MockTracerContextListener mockTracerContextListener;
+    private MockTracingContextListener mockTracerContextListener;
     private DubboInterceptor dubboInterceptor;
     private RequestParamForTestBelow283 testParam;
     @Mock
@@ -66,7 +66,7 @@ public class DubboInterceptorTest {
 
         dubboInterceptor = new DubboInterceptor();
         testParam = new RequestParamForTestBelow283();
-        mockTracerContextListener = new MockTracerContextListener();
+        mockTracerContextListener = new MockTracingContextListener();
         TracerContext.ListenerManager.add(mockTracerContextListener);
 
         mockStatic(RpcContext.class);

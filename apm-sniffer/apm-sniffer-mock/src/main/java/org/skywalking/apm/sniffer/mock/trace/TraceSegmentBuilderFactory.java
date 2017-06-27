@@ -1,7 +1,7 @@
 package org.skywalking.apm.sniffer.mock.trace;
 
 import org.skywalking.apm.agent.core.context.TracerContext;
-import org.skywalking.apm.sniffer.mock.context.MockTracerContextListener;
+import org.skywalking.apm.sniffer.mock.context.MockTracingContextListener;
 import org.skywalking.apm.sniffer.mock.trace.builders.trace.*;
 import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 
@@ -51,7 +51,7 @@ public enum TraceSegmentBuilderFactory {
     }
 
     private TraceSegment build(TraceSegmentBuilder builder) {
-        MockTracerContextListener listener = new MockTracerContextListener();
+        MockTracingContextListener listener = new MockTracingContextListener();
         try {
             TracerContext.ListenerManager.add(listener);
             return builder.build(listener);

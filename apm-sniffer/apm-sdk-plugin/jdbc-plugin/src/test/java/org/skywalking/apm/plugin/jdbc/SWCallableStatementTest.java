@@ -13,7 +13,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.skywalking.apm.agent.core.boot.ServiceManager;
 import org.skywalking.apm.agent.core.context.TracerContext;
-import org.skywalking.apm.sniffer.mock.context.MockTracerContextListener;
+import org.skywalking.apm.sniffer.mock.context.MockTracingContextListener;
 import org.skywalking.apm.sniffer.mock.context.SegmentAssert;
 import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 
@@ -70,7 +70,7 @@ public class SWCallableStatementTest extends AbstractStatementTest {
 
     @Before
     public void setUp() throws Exception {
-        mockTracerContextListener = new MockTracerContextListener();
+        mockTracerContextListener = new MockTracingContextListener();
         ServiceManager.INSTANCE.boot();
         swConnection = new SWConnection("jdbc:mysql://127.0.0.1:3306/test", new Properties(), jdbcConnection);
         multiHostConnection = new SWConnection("jdbc:mysql://127.0.0.1:3306,127.0.0.1:3309/test", new Properties(), jdbcConnection);

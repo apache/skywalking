@@ -1,12 +1,17 @@
 package org.skywalking.apm.agent.core.context.trace;
 
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import org.skywalking.apm.agent.core.conf.Config;
 import org.skywalking.apm.agent.core.context.ids.DistributedTraceId;
 import org.skywalking.apm.agent.core.context.ids.DistributedTraceIds;
 import org.skywalking.apm.agent.core.context.ids.GlobalIdGenerator;
 import org.skywalking.apm.agent.core.context.ids.NewDistributedTraceId;
+import org.skywalking.apm.agent.core.dictionary.DictionaryManager;
+import org.skywalking.apm.agent.core.dictionary.IDictionaryCompressible;
+import org.skywalking.apm.agent.core.dictionary.PossibleFound;
+import org.skywalking.apm.logging.ILog;
+import org.skywalking.apm.logging.LogManager;
 
 /**
  * {@link TraceSegment} is a segment or fragment of the distributed trace.
@@ -17,7 +22,9 @@ import org.skywalking.apm.agent.core.context.ids.NewDistributedTraceId;
  * <p>
  * Created by wusheng on 2017/2/17.
  */
-public class TraceSegment {
+public class TraceSegment implements IDictionaryCompressible {
+    private static final ILog logger = LogManager.getLogger(TraceSegment.class);
+
     private static final String ID_TYPE = "Segment";
 
     /**
@@ -77,19 +84,19 @@ public class TraceSegment {
     private boolean ignore = false;
 
     /**
-     * Create a trace segment, by the given applicationId.
-     */
-    public TraceSegment(int applicationId) {
-        this();
-        this.applicationId = applicationId;
-    }
-
-    /**
      * Create a default/empty trace segment,
      * with current time as start time,
      * and generate a new segment id.
      */
     public TraceSegment() {
+        DictionaryManager.findApplicationCodeSection()
+            .find(Config.Agent.APPLICATION_CODE, this)
+            .ifFound(new PossibleFound.Setter() {
+                @Override
+                public void set(int value) {
+                    applicationId = value;
+                }
+            });
         this.startTime = System.currentTimeMillis();
         this.traceSegmentId = GlobalIdGenerator.generate(ID_TYPE);
         this.spans = new LinkedList<AbstractTracingSpan>();
@@ -188,5 +195,16 @@ public class TraceSegment {
             ", applicationId='" + applicationId + '\'' +
             ", relatedGlobalTraces=" + relatedGlobalTraces +
             '}';
+    }
+
+    /**
+     * If compress is incomplete, this segment will be ignored.
+     */
+    @Override
+    public void incomplete(String notFoundKey) {
+        if (logger.isDebugEnable()) {
+            logger.debug("Segment[{}] ignored, cause by compress key [{}] not found.", this.traceSegmentId, notFoundKey);
+        }
+        this.ignore = true;
     }
 }

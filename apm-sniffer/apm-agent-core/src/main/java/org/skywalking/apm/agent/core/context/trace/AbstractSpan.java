@@ -33,8 +33,9 @@ public abstract class AbstractSpan {
         this.operationName = operationName;
     }
 
-    public void start() {
+    public AbstractSpan start() {
         this.startTime = System.currentTimeMillis();
+        return this;
     }
 
     /**

@@ -19,7 +19,7 @@ import org.skywalking.apm.agent.core.conf.Config;
 import org.skywalking.apm.agent.core.context.TracerContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodInvokeContext;
-import org.skywalking.apm.sniffer.mock.context.MockTracerContextListener;
+import org.skywalking.apm.sniffer.mock.context.MockTracingContextListener;
 import org.skywalking.apm.sniffer.mock.context.SegmentAssert;
 import org.skywalking.apm.sniffer.mock.trace.SpanLogReader;
 import org.skywalking.apm.sniffer.mock.trace.tags.StringTagReader;
@@ -34,7 +34,7 @@ import static org.mockito.Mockito.when;
 public class MongoDBMethodInterceptorTest {
 
     private MongoDBMethodInterceptor interceptor;
-    private MockTracerContextListener mockTracerContextListener;
+    private MockTracingContextListener mockTracerContextListener;
 
     @Mock
     private EnhancedClassInstanceContext classInstanceContext;
@@ -47,7 +47,7 @@ public class MongoDBMethodInterceptorTest {
         ServiceManager.INSTANCE.boot();
 
         interceptor = new MongoDBMethodInterceptor();
-        mockTracerContextListener = new MockTracerContextListener();
+        mockTracerContextListener = new MockTracingContextListener();
 
         TracerContext.ListenerManager.add(mockTracerContextListener);
 

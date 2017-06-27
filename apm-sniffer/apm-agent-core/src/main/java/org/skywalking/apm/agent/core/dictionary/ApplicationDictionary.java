@@ -8,7 +8,7 @@ package org.skywalking.apm.agent.core.dictionary;
 public enum ApplicationDictionary {
     INSTANCE;
 
-    public int findId(String applicationCode) {
+    public PossibleFound find(String applicationCode, IDictionaryCompressible compressedOwner) {
 
     }
 }

@@ -7,7 +7,7 @@ public class DictionaryManager {
     /**
      * @return {@link ApplicationDictionary} to find applicationId
      */
-    public static ApplicationDictionary getApplicationDictionary(){
+    public static ApplicationDictionary findApplicationCodeSection(){
         return ApplicationDictionary.INSTANCE;
     }
 }

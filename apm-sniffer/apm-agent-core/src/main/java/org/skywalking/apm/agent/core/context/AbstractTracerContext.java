@@ -17,6 +17,8 @@ public interface AbstractTracerContext {
 
     AbstractSpan createSpan(String operationName, SpanType spanType);
 
+    AbstractSpan createSpan(String operationName, SpanType spanType, Injectable injectable);
+
     AbstractSpan activeSpan();
 
     void stopSpan(AbstractSpan span);

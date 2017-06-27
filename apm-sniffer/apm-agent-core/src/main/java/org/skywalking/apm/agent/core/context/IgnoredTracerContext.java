@@ -17,8 +17,8 @@ public class IgnoredTracerContext implements AbstractTracerContext {
 
     private int stackDepth;
 
-    public IgnoredTracerContext(int initStackDepth) {
-        this.stackDepth = initStackDepth;
+    public IgnoredTracerContext() {
+        this.stackDepth = 0;
     }
 
     @Override

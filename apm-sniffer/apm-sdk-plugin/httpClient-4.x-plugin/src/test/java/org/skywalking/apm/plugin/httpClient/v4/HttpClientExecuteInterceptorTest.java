@@ -14,7 +14,7 @@ import org.skywalking.apm.agent.core.boot.ServiceManager;
 import org.skywalking.apm.agent.core.context.TracerContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodInvokeContext;
-import org.skywalking.apm.sniffer.mock.context.MockTracerContextListener;
+import org.skywalking.apm.sniffer.mock.context.MockTracingContextListener;
 import org.skywalking.apm.sniffer.mock.context.SegmentAssert;
 import org.skywalking.apm.sniffer.mock.trace.tags.BooleanTagReader;
 import org.skywalking.apm.sniffer.mock.trace.tags.StringTagReader;
@@ -33,7 +33,7 @@ import static org.mockito.Mockito.*;
 public class HttpClientExecuteInterceptorTest {
 
     private HttpClientExecuteInterceptor httpClientExecuteInterceptor;
-    private MockTracerContextListener mockTracerContextListener;
+    private MockTracingContextListener mockTracerContextListener;
     @Mock
     private EnhancedClassInstanceContext classInstanceContext;
     @Mock
@@ -49,7 +49,7 @@ public class HttpClientExecuteInterceptorTest {
 
     @Before
     public void setUp() throws Exception {
-        mockTracerContextListener = new MockTracerContextListener();
+        mockTracerContextListener = new MockTracingContextListener();
 
         ServiceManager.INSTANCE.boot();
         httpClientExecuteInterceptor = new HttpClientExecuteInterceptor();

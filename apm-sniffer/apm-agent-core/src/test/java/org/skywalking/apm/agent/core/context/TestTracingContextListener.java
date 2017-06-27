@@ -5,7 +5,7 @@ import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 /**
  * Created by wusheng on 2017/2/19.
  */
-public enum TestTracerContextListener implements TracerContextListener {
+public enum TestTracingContextListener implements TracingContextListener {
     INSTANCE;
     final TraceSegment[] finishedSegmentCarrier = {null};
 

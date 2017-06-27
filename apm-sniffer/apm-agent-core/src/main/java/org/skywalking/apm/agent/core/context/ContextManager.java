@@ -1,46 +1,55 @@
 package org.skywalking.apm.agent.core.context;
 
 import org.skywalking.apm.agent.core.boot.BootService;
+import org.skywalking.apm.agent.core.boot.ServiceManager;
+import org.skywalking.apm.agent.core.conf.Config;
 import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.skywalking.apm.agent.core.context.trace.SpanType;
 import org.skywalking.apm.agent.core.context.trace.TraceSegment;
+import org.skywalking.apm.agent.core.sampling.SamplingService;
+import org.skywalking.apm.util.StringUtil;
 
 /**
  * {@link TracerContext} controls the whole context of {@link TraceSegment}. Any {@link TraceSegment} relates to
  * single-thread, so this context use {@link ThreadLocal} to maintain the context, and make sure, since a {@link
- * TraceSegment} starts, all ChildOf spans are in the same context.
- * <p> What is 'ChildOf'? {@see
- * https://github.com/opentracing/specification/blob/master/specification.md#references-between-spans}
- * <p> Also, {@link
+ * TraceSegment} starts, all ChildOf spans are in the same context. <p> What is 'ChildOf'? {@see
+ * https://github.com/opentracing/specification/blob/master/specification.md#references-between-spans} <p> Also, {@link
  * ContextManager} delegates to all {@link TracerContext}'s major methods: {@link TracerContext#createSpan(String,
  * boolean)}, {@link TracerContext#activeSpan()}, {@link AbstractTracerContext#stopSpan(org.skywalking.apm.agent.core.context.trace.AbstractSpan)}
  * <p>
  *
  * @author wusheng
  */
-public class ContextManager implements TracerContextListener, BootService, IgnoreTracerContextListener {
+public class ContextManager implements TracingContextListener, BootService, IgnoreTracerContextListener {
     private static ThreadLocal<AbstractTracerContext> CONTEXT = new ThreadLocal<AbstractTracerContext>();
 
-    private static AbstractTracerContext get() {
-        AbstractTracerContext segment = CONTEXT.get();
-        if (segment == null) {
-            segment = new TracerContext();
-            CONTEXT.set(segment);
+    private static AbstractTracerContext getOrCreate(String operationName, boolean forceSampling) {
+        if (StringUtil.isEmpty(operationName)) {
+            throw new IllegalArgumentException("No operation name");
         }
-        return segment;
+        AbstractTracerContext context = CONTEXT.get();
+        if (context == null) {
+            int suffixIdx = operationName.lastIndexOf(".");
+            if (suffixIdx > -1 && Config.Agent.IGNORE_SUFFIX.contains(operationName.substring(suffixIdx))) {
+                context = new IgnoredTracerContext();
+            } else {
+                SamplingService samplingService = ServiceManager.INSTANCE.findService(SamplingService.class);
+                if (forceSampling || samplingService.trySampling()) {
+                    context = new TracingContext();
+                } else {
+                    /**
+                     * {@link ContextType#AGGREGATED_TRACING}
+                     * TODO
+                     */
+                }
+            }
+            CONTEXT.set(context);
+        }
+        return context;
     }
 
-    /**
-     * @see {@link TracerContext#inject(ContextCarrier)}
-     */
-    public static void inject(ContextCarrier carrier) {
-        get().inject(carrier);
-    }
-
-    /**
-     * @see {@link TracerContext#extract(ContextCarrier)}
-     */
-    public static void extract(ContextCarrier carrier) {
-        get().extract(carrier);
+    private static AbstractTracerContext get() {
+        return CONTEXT.get();
     }
 
     /**
@@ -55,28 +64,37 @@ public class ContextManager implements TracerContextListener, BootService, Ignor
         }
     }
 
+    public static AbstractSpan createSpan(String operationName, ContextCarrier carrier) {
+        if (carrier == null) {
+            throw new IllegalArgumentException("ContextCarrier can't be null.");
+        }
+        SamplingService samplingService = ServiceManager.INSTANCE.findService(SamplingService.class);
+        AbstractTracerContext context;
+        if (carrier.isValid()) {
+            samplingService.forceSampled();
+            context = getOrCreate(operationName, true);
+            context.extract(carrier);
+        } else {
+            context = getOrCreate(operationName, false);
+        }
+        return context.createSpan(operationName, SpanType.ENTRY);
+    }
+
     public static AbstractSpan createSpan(String operationName) {
-        return get().createSpan(operationName, false);
+        AbstractTracerContext context = getOrCreate(operationName, false);
+        return context.createSpan(operationName, SpanType.LOCAL);
     }
 
-    public static AbstractSpan createSpan(String operationName, long startTime) {
-        return get().createSpan(operationName, startTime, false);
-    }
-
-    public static AbstractSpan createLeafSpan(String operationName) {
-        return get().createSpan(operationName, true);
-    }
-
-    public static AbstractSpan createLeafSpan(String operationName, long startTime) {
-        return get().createSpan(operationName, startTime, true);
+    public static AbstractSpan createSpan(String operationName, Injectable injectable) {
+        if (injectable == null) {
+            throw new IllegalArgumentException("Injectable can't be null.");
+        }
+        AbstractTracerContext context = getOrCreate(operationName, false);
+        return context.createSpan(operationName, SpanType.EXIT);
     }
 
     public static AbstractSpan activeSpan() {
         return get().activeSpan();
-    }
-
-    public static void stopSpan(Long endTime) {
-        get().stopSpan(activeSpan(), endTime);
     }
 
     public static void stopSpan() {
@@ -85,7 +103,7 @@ public class ContextManager implements TracerContextListener, BootService, Ignor
 
     @Override
     public void bootUp() {
-        TracerContext.ListenerManager.add(this);
+        TracingContext.ListenerManager.add(this);
         IgnoredTracerContext.ListenerManager.add(this);
     }
 
@@ -97,21 +115,5 @@ public class ContextManager implements TracerContextListener, BootService, Ignor
     @Override
     public void afterFinished(IgnoredTracerContext traceSegment) {
         CONTEXT.remove();
-    }
-
-    /**
-     * The <code>ContextSwitcher</code> gives the chance to switch {@link AbstractTracerContext} in {@link #CONTEXT},
-     * for ignore, sampling, and analytic trace.
-     */
-    public enum ContextSwitcher {
-        INSTANCE;
-
-        public void toNew(AbstractTracerContext context) {
-            AbstractTracerContext existedContext = CONTEXT.get();
-            if (existedContext != null) {
-                existedContext.dispose();
-            }
-            CONTEXT.set(context);
-        }
     }
 }

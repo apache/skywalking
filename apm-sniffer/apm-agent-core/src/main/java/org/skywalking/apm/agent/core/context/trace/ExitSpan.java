@@ -24,10 +24,11 @@ public class ExitSpan extends AbstractTracingSpan {
      * Set the {@link #startTime}, when the first start, which means the first service provided.
      */
     @Override
-    public void start() {
+    public ExitSpan start() {
         if (++stackDepth == 1) {
             super.start();
         }
+        return this;
     }
 
     @Override
@@ -39,9 +40,11 @@ public class ExitSpan extends AbstractTracingSpan {
     }
 
     @Override
-    public void finish(TraceSegment owner) {
+    public boolean finish(TraceSegment owner) {
         if (--stackDepth == 0) {
-            super.finish(owner);
+            return super.finish(owner);
+        }else{
+            return false;
         }
     }
 

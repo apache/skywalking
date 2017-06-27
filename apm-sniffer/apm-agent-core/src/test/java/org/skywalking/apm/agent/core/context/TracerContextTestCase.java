@@ -21,8 +21,8 @@ public class TracerContextTestCase {
 
         Assert.assertEquals(span, context.activeSpan());
 
-        TracerContext.ListenerManager.add(TestTracerContextListener.INSTANCE);
-        final TraceSegment[] finishedSegmentCarrier = TestTracerContextListener.INSTANCE.finishedSegmentCarrier;
+        TracerContext.ListenerManager.add(TestTracingContextListener.INSTANCE);
+        final TraceSegment[] finishedSegmentCarrier = TestTracingContextListener.INSTANCE.finishedSegmentCarrier;
         context.stopSpan(span);
 
         Assert.assertNotNull(finishedSegmentCarrier[0]);
@@ -38,8 +38,8 @@ public class TracerContextTestCase {
 
         Assert.assertEquals(dbSpan, context.activeSpan());
 
-        TracerContext.ListenerManager.add(TestTracerContextListener.INSTANCE);
-        final TraceSegment[] finishedSegmentCarrier = TestTracerContextListener.INSTANCE.finishedSegmentCarrier;
+        TracerContext.ListenerManager.add(TestTracingContextListener.INSTANCE);
+        final TraceSegment[] finishedSegmentCarrier = TestTracingContextListener.INSTANCE.finishedSegmentCarrier;
 
         try {
             context.stopSpan(serviceSpan);
@@ -87,8 +87,8 @@ public class TracerContextTestCase {
         context.extract(carrier);
         AbstractSpan span = context.createSpan("/serviceC", false);
 
-        TracerContext.ListenerManager.add(TestTracerContextListener.INSTANCE);
-        final TraceSegment[] finishedSegmentCarrier = TestTracerContextListener.INSTANCE.finishedSegmentCarrier;
+        TracerContext.ListenerManager.add(TestTracingContextListener.INSTANCE);
+        final TraceSegment[] finishedSegmentCarrier = TestTracingContextListener.INSTANCE.finishedSegmentCarrier;
 
         context.stopSpan(span);
 
@@ -98,6 +98,6 @@ public class TracerContextTestCase {
 
     @After
     public void reset() {
-        TracerContext.ListenerManager.remove(TestTracerContextListener.INSTANCE);
+        TracerContext.ListenerManager.remove(TestTracingContextListener.INSTANCE);
     }
 }

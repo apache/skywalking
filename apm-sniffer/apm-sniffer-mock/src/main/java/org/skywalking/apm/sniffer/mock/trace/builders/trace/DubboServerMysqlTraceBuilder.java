@@ -1,6 +1,6 @@
 package org.skywalking.apm.sniffer.mock.trace.builders.trace;
 
-import org.skywalking.apm.sniffer.mock.context.MockTracerContextListener;
+import org.skywalking.apm.sniffer.mock.context.MockTracingContextListener;
 import org.skywalking.apm.sniffer.mock.trace.TraceSegmentBuilder;
 import org.skywalking.apm.sniffer.mock.trace.builders.span.DubboSpanGenerator;
 import org.skywalking.apm.sniffer.mock.trace.builders.span.MySQLGenerator;
@@ -13,7 +13,7 @@ public enum DubboServerMysqlTraceBuilder implements TraceSegmentBuilder {
     INSTANCE;
 
     @Override
-    public TraceSegment build(MockTracerContextListener listener) {
+    public TraceSegment build(MockTracingContextListener listener) {
         DubboSpanGenerator.Server rootSpan = new DubboSpanGenerator.Server();
         rootSpan.build(new MySQLGenerator.Query());
         rootSpan.generate();

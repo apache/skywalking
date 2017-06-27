@@ -36,8 +36,9 @@ public abstract class AbstractTracingSpan extends AbstractSpan {
      *
      * @param owner of the Span.
      */
-    public void finish(TraceSegment owner) {
+    public boolean finish(TraceSegment owner) {
         this.endTime = System.currentTimeMillis();
         owner.archive(this);
+        return true;
     }
 }

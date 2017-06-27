@@ -8,7 +8,7 @@ import org.skywalking.apm.agent.core.boot.ServiceManager;
 import org.skywalking.apm.agent.core.conf.Config;
 import org.skywalking.apm.agent.core.context.ContextManager;
 import org.skywalking.apm.agent.core.context.TracerContext;
-import org.skywalking.apm.agent.core.context.TracerContextListener;
+import org.skywalking.apm.agent.core.context.TracingContextListener;
 import org.skywalking.apm.agent.core.context.tag.Tags;
 import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.skywalking.apm.agent.core.context.trace.TraceSegment;
@@ -19,7 +19,7 @@ import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 public class SamplingTracerContextTestCase {
     private int finishedTracerCounter = 0;
 
-    private TracerContextListener listener = new TracerContextListener() {
+    private TracingContextListener listener = new TracingContextListener() {
         @Override
         public void afterFinished(TraceSegment traceSegment) {
             if (!traceSegment.isIgnore()) {
