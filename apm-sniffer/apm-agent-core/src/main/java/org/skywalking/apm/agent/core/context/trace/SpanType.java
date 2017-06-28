@@ -6,5 +6,5 @@ package org.skywalking.apm.agent.core.context.trace;
 public enum SpanType {
     ENTRY,
     EXIT,
-    LOCAL;
+    LOCAL
 }

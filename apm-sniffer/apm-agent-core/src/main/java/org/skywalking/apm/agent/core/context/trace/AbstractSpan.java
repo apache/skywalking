@@ -8,6 +8,8 @@ package org.skywalking.apm.agent.core.context.trace;
  * @author wusheng
  */
 public interface AbstractSpan {
+    void setLayer(SpanLayer layer);
+
     /**
      * Set a key:value tag on the Span.
      *

@@ -10,6 +10,11 @@ service TraceSegmentService {
     }
 }
 
+message UpstreamSegment {
+    repeated string globalTraceIds = 1;
+    bytes segment = 2; // the byte array of TraceSegmentObject
+}
+
 message TraceSegmentObject {
     string traceSegmentId = 1;
     repeated TraceSegmentReference refs = 2;
@@ -22,8 +27,8 @@ message TraceSegmentObject {
 message TraceSegmentReference {
     string parentTraceSegmentId = 1;
     int32 parentSpanId = 2;
-    repeated int32 serviceChains = 3;
-    int32 parentApplicationId = 4;
+    int32 parentApplicationId = 3;
+    string networkAddress = 4;
     int32 networkAddressId = 5;
 }
 
@@ -33,13 +38,14 @@ message SpanObject {
     int64 startTime = 3;
     int64 endTime = 4;
     int32 operationNameId = 5;
-    int32 peerNetworkAddressId = 6;
-    SpanType spanType = 7;
-    SpanLayer spanLayer = 8;
-    string component = 9;
-    bool isError = 10;
-    repeated KeyValue tags = 11;
-    repeated LogMessage logs = 12;
+    int32 peerId = 6;
+    string peer = 7;
+    SpanType spanType = 8;
+    SpanLayer spanLayer = 9;
+    string component = 10;
+    bool isError = 11;
+    repeated KeyValue tags = 12;
+    repeated LogMessage logs = 13;
 }
 
 enum SpanType {
