@@ -101,6 +101,12 @@ public class Config {
          */
         public static List DISABLED_PLUGINS = new LinkedList();
 
+        /**
+         * Name of force enable plugin, The value spilt by <code>,</code>
+         * if you have multiple plugins need to enable.
+         */
+        public static List FORCE_ENABLE_PLUGINS = new LinkedList();
+
         public static class MongoDB {
             /**
              * If true, trace all the parameters, default is false.

@@ -51,6 +51,7 @@ public final class Tags {
         private static final String DB_LAYER = "db";
         private static final String RPC_FRAMEWORK_LAYER = "rpc";
         private static final String HTTP_LAYER = "http";
+        private static final String MQ_LAYER = "mq";
 
         public static void asDB(AbstractSpan span) {
             SPAN_LAYER_TAG.set(span, DB_LAYER);
@@ -62,6 +63,10 @@ public final class Tags {
 
         public static void asHttp(AbstractSpan span) {
             SPAN_LAYER_TAG.set(span, HTTP_LAYER);
+        }
+
+        public static void asMQ(AbstractSpan span) {
+            SPAN_LAYER_TAG.set(span, MQ_LAYER);
         }
     }
 

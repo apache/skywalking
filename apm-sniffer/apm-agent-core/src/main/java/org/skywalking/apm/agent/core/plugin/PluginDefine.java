@@ -5,6 +5,7 @@ import org.skywalking.apm.agent.core.plugin.exception.IllegalPluginDefineExcepti
 import org.skywalking.apm.util.StringUtil;
 
 public class PluginDefine {
+    public static final String PLUGIN_OFF_PREFIX = "[OFF]";
     /**
      * Plugin name.
      */
@@ -15,9 +16,15 @@ public class PluginDefine {
      */
     private String defineClass;
 
-    private PluginDefine(String name, String defineClass) {
+    /**
+     * The sate of plugin.
+     */
+    private State state;
+
+    private PluginDefine(String name, String defineClass, State state) {
         this.name = name;
         this.defineClass = defineClass;
+        this.state = state;
     }
 
     public static PluginDefine build(String define) throws IllegalPluginDefineException {
@@ -30,15 +37,33 @@ public class PluginDefine {
             throw new IllegalPluginDefineException(define);
         }
 
-        return new PluginDefine(pluginDefine[0], pluginDefine[1]);
+        String pluginName = pluginDefine[0];
+        String defineClass = pluginDefine[1];
+        if (pluginName.toUpperCase().startsWith(PLUGIN_OFF_PREFIX)) {
+            return new PluginDefine(pluginName.substring(PLUGIN_OFF_PREFIX.length()), defineClass, State.OFF);
+        } else {
+            return new PluginDefine(pluginName, defineClass, State.ON);
+        }
     }
 
     public boolean enable() {
-        return !Config.Plugin.DISABLED_PLUGINS.contains(name);
+        return !forceDisable() || forceEnable();
+    }
+
+    private boolean forceDisable() {
+        return state != State.ON || Config.Plugin.DISABLED_PLUGINS.contains(name);
+    }
+
+    private boolean forceEnable() {
+        return state == State.OFF && Config.Plugin.FORCE_ENABLE_PLUGINS.contains(name);
     }
 
     public String getDefineClass() {
         return defineClass;
+    }
+
+    private enum State {
+        OFF, ON;
     }
 }
 
