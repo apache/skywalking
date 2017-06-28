@@ -2,8 +2,6 @@ package org.skywalking.apm.toolkit.activation.opentracing.tracer.interceptor;
 
 import org.skywalking.apm.agent.core.context.ContextCarrier;
 import org.skywalking.apm.agent.core.context.ContextManager;
-import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceContext;
-import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodInvokeContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.skywalking.apm.toolkit.opentracing.SkyWalkingTracer;

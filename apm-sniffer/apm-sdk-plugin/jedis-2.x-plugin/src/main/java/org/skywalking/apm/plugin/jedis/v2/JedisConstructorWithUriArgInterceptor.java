@@ -1,7 +1,5 @@
 package org.skywalking.apm.plugin.jedis.v2;
 
-import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceContext;
-import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ConstructorInvokeContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 
 import java.net.URI;

@@ -53,8 +53,9 @@ public class SkyWalkingAgent {
         ServiceManager.INSTANCE.boot();
 
         new AgentBuilder.Default().type(enhanceClassMatcher(pluginFinder).and(not(isInterface()))).transform(new AgentBuilder.Transformer() {
+            @Override
             public DynamicType.Builder<?> transform(DynamicType.Builder<?> builder, TypeDescription typeDescription,
-                ClassLoader classLoader) {
+                ClassLoader classLoader, JavaModule module) {
                 List<AbstractClassEnhancePluginDefine> pluginDefines = pluginFinder.find(typeDescription.getTypeName());
                 for (AbstractClassEnhancePluginDefine pluginDefine : pluginDefines) {
                     DynamicType.Builder<?> newBuilder = pluginDefine.define(typeDescription.getTypeName(), builder, classLoader);
@@ -63,27 +64,37 @@ public class SkyWalkingAgent {
                     }
                 }
 
-                logger.warn("Matched class {}, but enhancement fail.", typeDescription.getTypeName());
+                logger.warn("Matched class {}, but enhancement fails.", typeDescription.getTypeName());
                 return builder;
             }
         }).with(new AgentBuilder.Listener() {
             @Override
+            public void onDiscovery(String typeName, ClassLoader classLoader, JavaModule module, boolean loaded) {
+
+            }
+
+            @Override
             public void onTransformation(TypeDescription typeDescription, ClassLoader classLoader, JavaModule module,
-                DynamicType dynamicType) {
+                boolean loaded, DynamicType dynamicType) {
 
             }
 
             @Override
-            public void onIgnored(TypeDescription typeDescription, ClassLoader classLoader, JavaModule module) {
+            public void onIgnored(TypeDescription typeDescription, ClassLoader classLoader, JavaModule module,
+                boolean loaded) {
+
             }
 
-            @Override
-            public void onError(String typeName, ClassLoader classLoader, JavaModule module, Throwable throwable) {
+            @Override public void onError(String typeName, ClassLoader classLoader, JavaModule module, boolean loaded,
+                Throwable throwable) {
                 logger.error("Failed to enhance class " + typeName, throwable);
             }
 
             @Override
-            public void onComplete(String typeName, ClassLoader classLoader, JavaModule module) {
+            public void onComplete(String typeName, ClassLoader classLoader, JavaModule module, boolean loaded) {
+                if(logger.isDebugEnable()){
+                    logger.debug("Enhance class {} completed.", typeName);
+                }
             }
         }).installOn(instrumentation);
     }

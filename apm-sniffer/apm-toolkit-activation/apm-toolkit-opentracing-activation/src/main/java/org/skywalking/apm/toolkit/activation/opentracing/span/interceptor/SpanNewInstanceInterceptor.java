@@ -3,8 +3,6 @@ package org.skywalking.apm.toolkit.activation.opentracing.span.interceptor;
 import java.util.Map;
 import org.skywalking.apm.agent.core.context.ContextManager;
 import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
-import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceContext;
-import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ConstructorInvokeContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 import org.skywalking.apm.toolkit.opentracing.SkyWalkingSpan;
 

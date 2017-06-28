@@ -1,15 +1,13 @@
 package org.skywalking.apm.agent.core.plugin.interceptor.enhance;
 
+import java.lang.reflect.Method;
 import net.bytebuddy.implementation.bind.annotation.AllArguments;
+import net.bytebuddy.implementation.bind.annotation.Morph;
 import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
-import net.bytebuddy.implementation.bind.annotation.SuperCall;
 import org.skywalking.apm.agent.core.plugin.interceptor.loader.InterceptorInstanceLoader;
 import org.skywalking.apm.logging.ILog;
 import org.skywalking.apm.logging.LogManager;
-
-import java.lang.reflect.Method;
-import java.util.concurrent.Callable;
 
 /**
  * The actual byte-buddy's interceptor to intercept class instance methods.
@@ -17,8 +15,8 @@ import java.util.concurrent.Callable;
  *
  * @author wusheng
  */
-public class ClassStaticMethodsInterceptor {
-    private static final ILog logger = LogManager.getLogger(ClassStaticMethodsInterceptor.class);
+public class StaticMethodsInterWithOverrideArgs {
+    private static final ILog logger = LogManager.getLogger(StaticMethodsInterWithOverrideArgs.class);
 
     /**
      * A class full name, and instanceof {@link StaticMethodsAroundInterceptor}
@@ -28,35 +26,34 @@ public class ClassStaticMethodsInterceptor {
     private String staticMethodsAroundInterceptorClassName;
 
     /**
-     * Set the name of {@link ClassStaticMethodsInterceptor#staticMethodsAroundInterceptorClassName}
+     * Set the name of {@link StaticMethodsInterWithOverrideArgs#staticMethodsAroundInterceptorClassName}
      *
      * @param staticMethodsAroundInterceptorClassName class full name.
      */
-    public ClassStaticMethodsInterceptor(String staticMethodsAroundInterceptorClassName) {
+    public StaticMethodsInterWithOverrideArgs(String staticMethodsAroundInterceptorClassName) {
         this.staticMethodsAroundInterceptorClassName = staticMethodsAroundInterceptorClassName;
     }
 
     /**
      * Intercept the target static method.
      *
-     * @param clazz        target class
+     * @param clazz target class
      * @param allArguments all method arguments
-     * @param method       method description.
-     * @param zuper        the origin call ref.
+     * @param method method description.
+     * @param zuper the origin call ref.
      * @return the return value of target static method.
      * @throws Exception only throw exception because of zuper.call() or unexpected exception in sky-walking ( This is a
-     *                   bug, if anything triggers this condition ).
+     * bug, if anything triggers this condition ).
      */
     @RuntimeType
     public Object intercept(@Origin Class<?> clazz, @AllArguments Object[] allArguments, @Origin Method method,
-                            @SuperCall Callable<?> zuper) throws Throwable {
+        @Morph(defaultMethod = true) OverrideCallable zuper) throws Throwable {
         StaticMethodsAroundInterceptor interceptor = InterceptorInstanceLoader
             .load(staticMethodsAroundInterceptorClassName, clazz.getClassLoader());
 
-        StaticMethodInvokeContext interceptorContext = new StaticMethodInvokeContext(clazz, method.getName(), allArguments, method.getParameterTypes());
         MethodInterceptResult result = new MethodInterceptResult();
         try {
-            interceptor.beforeMethod(interceptorContext, result);
+            interceptor.beforeMethod(clazz, method.getName(), allArguments, method.getParameterTypes(), result);
         } catch (Throwable t) {
             logger.error(t, "class[{}] before static method[{}] intercept failure", clazz, method.getName());
         }
@@ -66,18 +63,18 @@ public class ClassStaticMethodsInterceptor {
             if (!result.isContinue()) {
                 ret = result._ret();
             } else {
-                ret = zuper.call();
+                ret = zuper.call(allArguments);
             }
         } catch (Throwable t) {
             try {
-                interceptor.handleMethodException(t, interceptorContext);
+                interceptor.handleMethodException(clazz, method.getName(), allArguments, method.getParameterTypes(), t);
             } catch (Throwable t2) {
                 logger.error(t2, "class[{}] handle static method[{}] exception failure", clazz, method.getName(), t2.getMessage());
             }
             throw t;
         } finally {
             try {
-                ret = interceptor.afterMethod(interceptorContext, ret);
+                ret = interceptor.afterMethod(clazz, method.getName(), allArguments, method.getParameterTypes(), ret);
             } catch (Throwable t) {
                 logger.error(t, "class[{}] after static method[{}] intercept failure:{}", clazz, method.getName(), t.getMessage());
             }

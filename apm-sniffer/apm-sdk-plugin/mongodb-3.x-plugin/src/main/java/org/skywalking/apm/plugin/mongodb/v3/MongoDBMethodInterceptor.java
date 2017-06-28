@@ -30,8 +30,6 @@ import org.skywalking.apm.agent.core.conf.Config;
 import org.skywalking.apm.agent.core.context.ContextManager;
 import org.skywalking.apm.agent.core.context.tag.Tags;
 import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
-import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceContext;
-import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodInvokeContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 

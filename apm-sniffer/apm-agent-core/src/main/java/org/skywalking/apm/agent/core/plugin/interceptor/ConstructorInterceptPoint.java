@@ -21,8 +21,10 @@ public interface ConstructorInterceptPoint {
     ElementMatcher<MethodDescription> getConstructorMatcher();
 
     /**
-     * @return represents a class name, the class instance must be a instance of {@link
-     * org.skywalking.apm.plugin.interceptor.enhance.InstanceConstructorInterceptor}.
+     * @return represents a class name, the class instance must be a instance of
+     * {@link org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor}
      */
     String getConstructorInterceptor();
+
+    boolean isOverrideArgs();
 }

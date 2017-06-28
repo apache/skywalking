@@ -1,8 +1,6 @@
 package org.skywalking.apm.toolkit.activation.log.log4j.v1.x;
 
 import org.skywalking.apm.agent.core.context.ContextManager;
-import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceContext;
-import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodInvokeContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 
