@@ -40,11 +40,11 @@ message ServiceNameMappingCollection {
 
 message ServiceNameMappingElement {
     int32 serviceId = 1;
-    ServiceNameElement element = 1;
+    ServiceNameElement element = 2;
 }
 
 message ServiceNameElement {
-    ServiceName = 0;
-    ApplicationCode = 1;
+    string serviceName = 1;
+    string ApplicationCode = 2;
 }
 

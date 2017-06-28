@@ -15,6 +15,6 @@ message Application {
 
 message ApplicationMapping {
     int32 applicationId = 1;
-    Application = 2;
+    Application application = 2;
 }
 
