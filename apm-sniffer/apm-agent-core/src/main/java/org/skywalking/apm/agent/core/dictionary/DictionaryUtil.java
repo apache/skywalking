@@ -5,14 +5,10 @@ package org.skywalking.apm.agent.core.dictionary;
  */
 public class DictionaryUtil {
     public static int nullValue() {
-        return -1;
+        return 0;
     }
 
-    public static boolean isNull(int value) {
-        return value == nullValue();
-    }
-
-    public static boolean isNull(String text) {
-        return text == null;
+    public static boolean isNull(int id) {
+        return id == nullValue();
     }
 }

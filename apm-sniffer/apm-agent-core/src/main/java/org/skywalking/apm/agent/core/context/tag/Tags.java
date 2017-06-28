@@ -23,21 +23,6 @@ public final class Tags {
     public static final StringTag STATUS_CODE = new StringTag("status_code");
 
     /**
-     * SPAN_KIND hints at the relationship between spans, e.g. client/server.
-     */
-    public static final StringTag SPAN_KIND = new StringTag("span.kind");
-
-    /**
-     * A constant for setting the span kind to indicate that it represents a server span.
-     */
-    public static final String SPAN_KIND_SERVER = "server";
-
-    /**
-     * A constant for setting the span kind to indicate that it represents a client span.
-     */
-    public static final String SPAN_KIND_CLIENT = "client";
-
-    /**
      * SPAN_LAYER represents the kind of span.
      * <p>
      * e.g.

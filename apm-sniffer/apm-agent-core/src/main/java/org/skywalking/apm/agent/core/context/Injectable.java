@@ -1,7 +1,8 @@
 package org.skywalking.apm.agent.core.context;
 
 /**
- * The <code>Injectable</code> represents a callback
+ * The <code>Injectable</code> represents a provider, which gives the reference of {@link ContextCarrier} and peer
+ * for the agent core, for cross-process propagation.
  *
  * @author wusheng
  */
