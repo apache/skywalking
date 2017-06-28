@@ -5,47 +5,16 @@ option java_package = "org.skywalking.apm.network.trace.proto";
 
 //register service for ApplicationCode, this service is called when service starts.
 service ApplicationRegisterService {
-    rpc register (ApplicationMetaInfo) returns (ApplicationRegiseredInfo) {
+    rpc register (Application) returns (ApplicationMapping) {
     }
 }
 
-message ApplicationMetaInfo {
+message Application {
     string applicationCode = 1;
 }
 
-message ApplicationRegiseredInfo {
+message ApplicationMapping {
     int32 applicationId = 1;
-    int32 applicationInstanceId = 2;
-}
-
-//register service for ServiceName, Network address
-service DictionaryRegisterService {
-    rpc register (DictionaryRegisterMetaInfo) returns (DictionaryRegiseredInfo) {
-    }
-}
-
-message DictionaryRegisterMetaInfo {
-    repeated DictionaryRegisterElement elements = 1;
-}
-
-message DictionaryRegisterElement {
-    RegisterElementType type = 1;
-    string name = 2;
-}
-
-message DictionaryRegiseredInfo {
-    repeated DictionaryRegiseredElement elements = 1;
-}
-
-message DictionaryRegiseredElement {
-    RegisterElementType type = 1;
-    string name = 2;
-    int32 id = 3;
-}
-
-
-enum RegisterElementType {
-    ServiceName = 0;
-    NetworkAddress = 1;
+    Application = 2;
 }
 

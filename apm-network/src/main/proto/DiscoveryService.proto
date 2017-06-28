@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "org.skywalking.apm.network.trace.proto";
+
+import "Downstream.proto";
+
+//discovery service for application instance, this service is called when application starts
+//or http client connection switch to another collector server instance
+service InstanceDiscoveryService {
+    rpc register (ApplicationInstance) returns (ApplicationInstanceMapping) {
+    }
+
+    rpc registerRecover (ApplicationInstanceMapping) returns (Downstream) {
+    }
+}
+
+message ApplicationInstance {
+    string applicationCode = 1;
+}
+
+message ApplicationInstanceMapping {
+    int32 applicationInstanceId = 1;
+    int64 registerTime = 2;
+}
+
+//discovery service for ServiceName by Network address or application code
+service ServiceNameDiscoveryService {
+    rpc discovery (ServiceNameCollection) returns (ServiceNameMappingCollection) {
+    }
+}
+
+message ServiceNameCollection {
+    repeated ServiceNameElement elements = 1;
+}
+
+message ServiceNameMappingCollection {
+    repeated ServiceNameMappingElement elements = 1;
+}
+
+message ServiceNameMappingElement {
+    int32 serviceId = 1;
+    ServiceNameElement element = 1;
+}
+
+message ServiceNameElement {
+    ServiceName = 0;
+    ApplicationCode = 1;
+}
+
