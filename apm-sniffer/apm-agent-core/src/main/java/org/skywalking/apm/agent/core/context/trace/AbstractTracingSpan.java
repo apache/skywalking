@@ -2,10 +2,10 @@ package org.skywalking.apm.agent.core.context.trace;
 
 import java.util.LinkedList;
 import java.util.List;
-import org.skywalking.apm.agent.core.context.component.AbstractComponent;
 import org.skywalking.apm.agent.core.context.util.KeyValuePair;
 import org.skywalking.apm.agent.core.context.util.ThrowableTransformer;
 import org.skywalking.apm.agent.core.dictionary.DictionaryUtil;
+import org.skywalking.apm.network.trace.component.Component;
 
 /**
  * The <code>AbstractTracingSpan</code> represents a group of {@link AbstractSpan} implementations,
@@ -34,6 +34,8 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
     protected boolean errorOccurred = false;
 
     protected int componentId = 0;
+
+    protected String componentName;
 
     /**
      * Log is a concept from OpenTracing spec.
@@ -123,7 +125,13 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
         this.layer = layer;
     }
 
-    public void setComponent(AbstractComponent component){
+    @Override
+    public void setComponent(Component component) {
         this.componentId = component.getId();
+    }
+
+    @Override
+    public void setComponent(String componentName) {
+        this.componentName = componentName;
     }
 }

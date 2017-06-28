@@ -38,14 +38,16 @@ message SpanObject {
     int64 startTime = 3;
     int64 endTime = 4;
     int32 operationNameId = 5;
-    int32 peerId = 6;
-    string peer = 7;
-    SpanType spanType = 8;
-    SpanLayer spanLayer = 9;
-    string component = 10;
-    bool isError = 11;
-    repeated KeyValue tags = 12;
-    repeated LogMessage logs = 13;
+    string operationName = 6;
+    int32 peerId = 7;
+    string peer = 8;
+    SpanType spanType = 9;
+    SpanLayer spanLayer = 10;
+    int32 componentId = 11;
+    string component = 12;
+    bool isError = 13;
+    repeated KeyValue tags = 14;
+    repeated LogMessage logs = 15;
 }
 
 enum SpanType {

@@ -1,5 +1,6 @@
 package org.skywalking.apm.agent.core.context.trace;
 
+import org.skywalking.apm.network.trace.component.Component;
 
 /**
  * The <code>AbstractSpan</code> represents the span's skeleton,
@@ -8,6 +9,14 @@ package org.skywalking.apm.agent.core.context.trace;
  * @author wusheng
  */
 public interface AbstractSpan {
+    /**
+     * Set the component id, which defines in {@link org.skywalking.apm.network.trace.component.ComponentsDefine}
+     * @param component
+     */
+    void setComponent(Component component);
+
+    void setComponent(String componentName);
+
     void setLayer(SpanLayer layer);
 
     /**
