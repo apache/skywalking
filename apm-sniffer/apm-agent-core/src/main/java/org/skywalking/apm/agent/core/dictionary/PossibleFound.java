@@ -5,7 +5,7 @@ package org.skywalking.apm.agent.core.dictionary;
  *
  * @author wusheng
  */
-public class PossibleFound {
+public abstract class PossibleFound {
     private boolean found;
     private int value;
 
@@ -18,13 +18,35 @@ public class PossibleFound {
         this.found = false;
     }
 
-    public void ifFound(Setter setter) {
+    public void doInCondition(Found condition1, NotFound condition2) {
         if (found) {
-            setter.set(value);
+            condition1.doProcess(value);
+        } else {
+            condition2.doProcess();
         }
     }
 
-    public interface Setter {
-        void set(int value);
+    public Object doInCondition(FoundAndObtain condition1, NotFoundAndObtain condition2) {
+        if (found) {
+            return condition1.doProcess(value);
+        } else {
+            return condition2.doProcess();
+        }
+    }
+
+    public interface Found {
+        void doProcess(int value);
+    }
+
+    public interface NotFound {
+        void doProcess();
+    }
+
+    public interface FoundAndObtain {
+        Object doProcess(int value);
+    }
+
+    public interface NotFoundAndObtain {
+        Object doProcess();
     }
 }

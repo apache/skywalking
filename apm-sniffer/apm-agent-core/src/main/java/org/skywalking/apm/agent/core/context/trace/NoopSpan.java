@@ -8,19 +8,14 @@ import org.skywalking.apm.agent.core.context.IgnoredTracerContext;
  *
  * @author wusheng
  */
-public class NoopSpan extends AbstractSpan {
+public class NoopSpan implements AbstractSpan {
     public NoopSpan() {
-        super(null);
     }
 
-    @Override
-    public void start() {
-        super.start();
-    }
 
     @Override
     public AbstractSpan log(Throwable t) {
-        return super.log(t);
+        return this;
     }
 
     public void finish(){
@@ -29,7 +24,7 @@ public class NoopSpan extends AbstractSpan {
 
     @Override
     public AbstractSpan tag(String key, String value) {
-        return null;
+        return this;
     }
 
     @Override public boolean isEntry() {

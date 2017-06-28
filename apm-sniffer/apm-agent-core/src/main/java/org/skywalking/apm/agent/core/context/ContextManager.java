@@ -10,13 +10,12 @@ import org.skywalking.apm.agent.core.sampling.SamplingService;
 import org.skywalking.apm.util.StringUtil;
 
 /**
- * {@link TracerContext} controls the whole context of {@link TraceSegment}. Any {@link TraceSegment} relates to
+ * {@link ContextManager} controls the whole context of {@link TraceSegment}. Any {@link TraceSegment} relates to
  * single-thread, so this context use {@link ThreadLocal} to maintain the context, and make sure, since a {@link
  * TraceSegment} starts, all ChildOf spans are in the same context. <p> What is 'ChildOf'? {@see
- * https://github.com/opentracing/specification/blob/master/specification.md#references-between-spans} <p> Also, {@link
- * ContextManager} delegates to all {@link TracerContext}'s major methods: {@link TracerContext#createSpan(String,
- * boolean)}, {@link TracerContext#activeSpan()}, {@link AbstractTracerContext#stopSpan(org.skywalking.apm.agent.core.context.trace.AbstractSpan)}
- * <p>
+ * https://github.com/opentracing/specification/blob/master/specification.md#references-between-spans}
+ *
+ * <p> Also, {@link ContextManager} delegates to all {@link AbstractTracerContext}'s major methods.
  *
  * @author wusheng
  */
@@ -37,10 +36,7 @@ public class ContextManager implements TracingContextListener, BootService, Igno
                 if (forceSampling || samplingService.trySampling()) {
                     context = new TracingContext();
                 } else {
-                    /**
-                     * {@link ContextType#AGGREGATED_TRACING}
-                     * TODO
-                     */
+                    context = new IgnoredTracerContext();
                 }
             }
             CONTEXT.set(context);
@@ -90,7 +86,9 @@ public class ContextManager implements TracingContextListener, BootService, Igno
             throw new IllegalArgumentException("Injectable can't be null.");
         }
         AbstractTracerContext context = getOrCreate(operationName, false);
-        return context.createSpan(operationName, SpanType.EXIT);
+        AbstractSpan span = context.createSpan(operationName, SpanType.EXIT);
+        context.inject(injectable.getCarrier());
+        return span;
     }
 
     public static AbstractSpan activeSpan() {

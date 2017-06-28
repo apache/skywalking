@@ -3,7 +3,6 @@ package org.skywalking.apm.agent.core.tags;
 import java.lang.reflect.Field;
 import java.util.List;
 import org.skywalking.apm.agent.core.context.tag.StringTag;
-import org.skywalking.apm.agent.core.context.tag.StringTagItem;
 
 /**
  * @author wusheng

@@ -4,7 +4,6 @@ import java.lang.reflect.Field;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
-import org.skywalking.apm.agent.core.tags.BooleanTagReader;
 import org.skywalking.apm.agent.core.tags.StringTagReader;
 import org.skywalking.apm.agent.core.context.tag.Tags;
 

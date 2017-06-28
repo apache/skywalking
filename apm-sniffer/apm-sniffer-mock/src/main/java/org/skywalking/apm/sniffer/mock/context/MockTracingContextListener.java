@@ -1,7 +1,6 @@
 package org.skywalking.apm.sniffer.mock.context;
 
 import org.junit.Assert;
-import org.skywalking.apm.agent.core.context.TracerContext;
 import org.skywalking.apm.agent.core.context.TracingContextListener;
 import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 

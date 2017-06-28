@@ -1,5 +1,9 @@
 package org.skywalking.apm.agent.core.context.trace;
 
+import java.util.List;
+import org.skywalking.apm.agent.core.context.ContextCarrier;
+import org.skywalking.apm.agent.core.context.ids.DistributedTraceId;
+
 /**
  * {@link TraceSegmentRef} is like a pointer, which ref to another {@link TraceSegment},
  * use {@link #spanId} point to the exact span of the ref {@link TraceSegment}.
@@ -7,9 +11,6 @@ package org.skywalking.apm.agent.core.context.trace;
  * Created by wusheng on 2017/2/17.
  */
 public class TraceSegmentRef {
-    /**
-     * {@link TraceSegment#traceSegmentId}
-     */
     private String traceSegmentId;
 
     private int spanId = -1;
@@ -19,51 +20,16 @@ public class TraceSegmentRef {
     private String peerHost;
 
     /**
-     * Create a {@link TraceSegmentRef} instance, without any data.
+     * {@link DistributedTraceId}
      */
-    public TraceSegmentRef() {
-    }
+    private List<DistributedTraceId> distributedTraceIds;
 
-    public String getTraceSegmentId() {
-        return traceSegmentId;
-    }
-
-    public void setTraceSegmentId(String traceSegmentId) {
-        this.traceSegmentId = traceSegmentId;
-    }
-
-    public int getSpanId() {
-        return spanId;
-    }
-
-    public void setSpanId(int spanId) {
-        this.spanId = spanId;
-    }
-
-    public String getApplicationCode() {
-        return applicationCode;
-    }
-
-    public void setApplicationCode(String applicationCode) {
-        this.applicationCode = applicationCode;
-    }
-
-    public String getPeerHost() {
-        return peerHost;
-    }
-
-    public void setPeerHost(String peerHost) {
-        this.peerHost = peerHost;
-    }
-
-    @Override
-    public String toString() {
-        return "TraceSegmentRef{" +
-            "traceSegmentId='" + traceSegmentId + '\'' +
-            ", spanId=" + spanId +
-            ", applicationCode='" + applicationCode + '\'' +
-            ", peerHost='" + peerHost + '\'' +
-            '}';
+    public TraceSegmentRef(ContextCarrier carrier) {
+        this.traceSegmentId = carrier.getTraceSegmentId();
+        this.spanId = carrier.getSpanId();
+        this.applicationCode = carrier.getApplicationCode();
+        this.peerHost = carrier.getPeerHost();
+        this.distributedTraceIds = carrier.getDistributedTraceIds();
     }
 
     @Override
@@ -73,13 +39,17 @@ public class TraceSegmentRef {
         if (o == null || getClass() != o.getClass())
             return false;
 
-        TraceSegmentRef that = (TraceSegmentRef) o;
+        TraceSegmentRef ref = (TraceSegmentRef)o;
 
-        return traceSegmentId != null ? traceSegmentId.equals(that.traceSegmentId) : that.traceSegmentId == null;
+        if (spanId != ref.spanId)
+            return false;
+        return traceSegmentId.equals(ref.traceSegmentId);
     }
 
     @Override
     public int hashCode() {
-        return traceSegmentId != null ? traceSegmentId.hashCode() : 0;
+        int result = traceSegmentId.hashCode();
+        result = 31 * result + spanId;
+        return result;
     }
 }

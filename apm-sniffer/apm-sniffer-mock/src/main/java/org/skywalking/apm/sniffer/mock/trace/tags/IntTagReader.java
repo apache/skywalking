@@ -2,8 +2,6 @@ package org.skywalking.apm.sniffer.mock.trace.tags;
 
 import java.lang.reflect.Field;
 import java.util.List;
-import org.skywalking.apm.agent.core.context.tag.IntTag;
-import org.skywalking.apm.agent.core.context.tag.IntTagItem;
 
 /**
  * @author wusheng

@@ -8,7 +8,6 @@ import org.skywalking.apm.agent.core.context.ids.DistributedTraceIds;
 import org.skywalking.apm.agent.core.context.ids.GlobalIdGenerator;
 import org.skywalking.apm.agent.core.context.ids.NewDistributedTraceId;
 import org.skywalking.apm.agent.core.dictionary.DictionaryManager;
-import org.skywalking.apm.agent.core.dictionary.IDictionaryCompressible;
 import org.skywalking.apm.agent.core.dictionary.PossibleFound;
 import org.skywalking.apm.logging.ILog;
 import org.skywalking.apm.logging.LogManager;
@@ -20,9 +19,10 @@ import org.skywalking.apm.logging.LogManager;
  * TraceSegment} means the segment, which exists in current {@link Thread}. And the distributed trace is formed by multi
  * {@link TraceSegment}s, because the distributed trace crosses multi-processes, multi-threads.
  * <p>
- * Created by wusheng on 2017/2/17.
+ *
+ * @author wusheng
  */
-public class TraceSegment implements IDictionaryCompressible {
+public class TraceSegment {
     private static final ILog logger = LogManager.getLogger(TraceSegment.class);
 
     private static final String ID_TYPE = "Segment";
@@ -89,14 +89,20 @@ public class TraceSegment implements IDictionaryCompressible {
      * and generate a new segment id.
      */
     public TraceSegment() {
-        DictionaryManager.findApplicationCodeSection()
-            .find(Config.Agent.APPLICATION_CODE, this)
-            .ifFound(new PossibleFound.Setter() {
-                @Override
-                public void set(int value) {
-                    applicationId = value;
+        this.applicationId = (Integer)DictionaryManager.findApplicationCodeSection()
+            .find(Config.Agent.APPLICATION_CODE)
+            .doInCondition(
+                new PossibleFound.FoundAndObtain() {
+                    @Override public Object doProcess(int applicationId) {
+                        return applicationId;
+                    }
+                },
+                new PossibleFound.NotFoundAndObtain() {
+                    @Override public Object doProcess() {
+                        throw new IllegalStateException("Application id must not NULL.");
+                    }
                 }
-            });
+            );
         this.startTime = System.currentTimeMillis();
         this.traceSegmentId = GlobalIdGenerator.generate(ID_TYPE);
         this.spans = new LinkedList<AbstractTracingSpan>();
@@ -164,6 +170,10 @@ public class TraceSegment implements IDictionaryCompressible {
         return endTime;
     }
 
+    public int getApplicationId() {
+        return applicationId;
+    }
+
     public boolean hasRef() {
         return !(refs == null || refs.size() == 0);
     }
@@ -195,16 +205,5 @@ public class TraceSegment implements IDictionaryCompressible {
             ", applicationId='" + applicationId + '\'' +
             ", relatedGlobalTraces=" + relatedGlobalTraces +
             '}';
-    }
-
-    /**
-     * If compress is incomplete, this segment will be ignored.
-     */
-    @Override
-    public void incomplete(String notFoundKey) {
-        if (logger.isDebugEnable()) {
-            logger.debug("Segment[{}] ignored, cause by compress key [{}] not found.", this.traceSegmentId, notFoundKey);
-        }
-        this.ignore = true;
     }
 }

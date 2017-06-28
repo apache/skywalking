@@ -11,6 +11,9 @@ import org.skywalking.apm.agent.core.context.trace.LocalSpan;
 import org.skywalking.apm.agent.core.context.trace.SpanType;
 import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.skywalking.apm.agent.core.context.trace.TraceSegmentRef;
+import org.skywalking.apm.agent.core.dictionary.DictionaryManager;
+import org.skywalking.apm.agent.core.dictionary.DictionaryUtil;
+import org.skywalking.apm.agent.core.dictionary.PossibleFound;
 import org.skywalking.apm.agent.core.sampling.SamplingService;
 
 /**
@@ -42,12 +45,29 @@ public class TracingContext implements AbstractTracerContext {
 
     @Override
     public void inject(ContextCarrier carrier) {
+        AbstractTracingSpan span = this.activeSpan();
+        if (span.isExit()) {
+            throw new IllegalStateException("Inject can be done only in Exit Span");
+        }
+        ExitSpan exitSpan = (ExitSpan)span;
 
+        carrier.setTraceSegmentId(this.segment.getTraceSegmentId());
+        carrier.setSpanId(span.getSpanId());
+
+        carrier.setApplicationId(segment.getApplicationId());
+
+        if (DictionaryUtil.isNull(exitSpan.getPeerId())) {
+            carrier.setPeerHost(exitSpan.getPeer());
+        } else {
+            carrier.setPeerId(exitSpan.getPeerId());
+        }
+
+        carrier.setDistributedTraceIds(this.segment.getRelatedGlobalTraces());
     }
 
     @Override
     public void extract(ContextCarrier carrier) {
-        this.segment.ref(getRef(carrier));
+        this.segment.ref(new TraceSegmentRef(carrier));
         this.segment.relatedGlobalTraces(carrier.getDistributedTraceIds());
     }
 
@@ -69,23 +89,71 @@ public class TracingContext implements AbstractTracerContext {
         return span.start();
     }
 
-    private AbstractTracingSpan createByType(int spanId, int parentSpanId,
-        String operationName, SpanType spanType,
-        String peerHost, AbstractTracingSpan parentSpan) {
+    private AbstractTracingSpan createByType(final int spanId, final int parentSpanId,
+        final String operationName, SpanType spanType,
+        final String peerHost, AbstractTracingSpan parentSpan) {
         switch (spanType) {
             case LOCAL:
-                return new LocalSpan(spanId, parentSpanId, operationName);
+                return (AbstractTracingSpan)DictionaryManager.findOperationNameCodeSection()
+                    .find(segment.getApplicationId(), operationName)
+                    .doInCondition(new PossibleFound.FoundAndObtain() {
+                        @Override
+                        public Object doProcess(int operationId) {
+                            return new LocalSpan(spanId, parentSpanId, operationId);
+                        }
+                    }, new PossibleFound.NotFoundAndObtain() {
+                        @Override
+                        public Object doProcess() {
+                            return new LocalSpan(spanId, parentSpanId, operationName);
+                        }
+                    });
             case EXIT:
                 if (parentSpan != null && parentSpan.isExit()) {
                     return parentSpan;
                 } else {
-                    return new ExitSpan(spanId, parentSpanId, operationName, peerHost);
+                    return (AbstractTracingSpan)DictionaryManager.findApplicationCodeSection()
+                        .find(peerHost).doInCondition(
+                            new PossibleFound.FoundAndObtain() {
+                                @Override
+                                public Object doProcess(final int applicationId) {
+                                    return DictionaryManager.findOperationNameCodeSection()
+                                        .find(applicationId, operationName)
+                                        .doInCondition(
+                                            new PossibleFound.FoundAndObtain() {
+                                                @Override
+                                                public Object doProcess(int peerId) {
+                                                    return new ExitSpan(spanId, parentSpanId, applicationId, peerId);
+                                                }
+                                            }, new PossibleFound.NotFoundAndObtain() {
+                                                @Override
+                                                public Object doProcess() {
+                                                    return new ExitSpan(spanId, parentSpanId, applicationId, peerHost);
+                                                }
+                                            });
+                                }
+                            },
+                            new PossibleFound.NotFoundAndObtain() {
+                                @Override
+                                public Object doProcess() {
+                                    return new ExitSpan(spanId, parentSpanId, operationName, peerHost);
+                                }
+                            });
                 }
             case ENTRY:
                 if (parentSpan.isEntry()) {
                     return parentSpan;
                 } else if (parentSpan == null) {
-                    return new EntrySpan(spanId, parentSpanId, operationName);
+                    return (AbstractTracingSpan)DictionaryManager.findOperationNameCodeSection()
+                        .find(segment.getApplicationId(), operationName)
+                        .doInCondition(new PossibleFound.FoundAndObtain() {
+                            @Override public Object doProcess(int operationId) {
+                                return new EntrySpan(spanId, parentSpanId, operationId);
+                            }
+                        }, new PossibleFound.NotFoundAndObtain() {
+                            @Override public Object doProcess() {
+                                return new EntrySpan(spanId, parentSpanId, operationName);
+                            }
+                        });
                 } else {
                     throw new IllegalStateException("The Entry Span can't be the child of Non-Entry Span");
                 }
@@ -121,7 +189,7 @@ public class TracingContext implements AbstractTracerContext {
 
     /**
      * Finish this context, and notify all {@link TracingContextListener}s, managed by {@link
-     * TracerContext.ListenerManager}
+     * TracingContext.ListenerManager}
      */
     private void finish() {
         TraceSegment finishedSegment = segment.finish();
@@ -136,7 +204,7 @@ public class TracingContext implements AbstractTracerContext {
                 finishedSegment.setIgnore(true);
             }
         }
-        TracerContext.ListenerManager.notifyFinish(finishedSegment);
+        TracingContext.ListenerManager.notifyFinish(finishedSegment);
     }
 
     @Override
@@ -158,8 +226,8 @@ public class TracingContext implements AbstractTracerContext {
         }
 
         /**
-         * Notify the {@link TracerContext.ListenerManager} about the given {@link TraceSegment} have finished.
-         * And trigger {@link TracerContext.ListenerManager} to notify all {@link #LISTENERS} 's
+         * Notify the {@link TracingContext.ListenerManager} about the given {@link TraceSegment} have finished.
+         * And trigger {@link TracingContext.ListenerManager} to notify all {@link #LISTENERS} 's
          * {@link TracingContextListener#afterFinished(TraceSegment)}
          *
          * @param finishedSegment
@@ -203,14 +271,5 @@ public class TracingContext implements AbstractTracerContext {
             return null;
         }
         return activeSpanStack.getLast();
-    }
-
-    private TraceSegmentRef getRef(ContextCarrier carrier) {
-        TraceSegmentRef ref = new TraceSegmentRef();
-        ref.setTraceSegmentId(carrier.getTraceSegmentId());
-        ref.setSpanId(carrier.getSpanId());
-        ref.setApplicationCode(carrier.getApplicationCode());
-        ref.setPeerHost(carrier.getPeerHost());
-        return ref;
     }
 }

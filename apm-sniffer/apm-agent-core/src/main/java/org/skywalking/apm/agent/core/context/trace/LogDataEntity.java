@@ -28,14 +28,14 @@ public class LogDataEntity {
             logs = new LinkedList<KeyValuePair>();
         }
 
-        public Builder add(KeyValuePair... fields){
+        public Builder add(KeyValuePair... fields) {
             for (KeyValuePair field : fields) {
                 logs.add(field);
             }
             return this;
         }
 
-        public LogDataEntity build(){
+        public LogDataEntity build() {
             return new LogDataEntity(logs);
         }
     }

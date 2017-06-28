@@ -20,7 +20,7 @@ public final class Tags {
     /**
      * STATUS_CODE records the http status code of the response.
      */
-    public static final IntTag STATUS_CODE = new IntTag("status_code");
+    public static final StringTag STATUS_CODE = new StringTag("status_code");
 
     /**
      * SPAN_KIND hints at the relationship between spans, e.g. client/server.
@@ -70,11 +70,6 @@ public final class Tags {
      * Like dubbo/dubbox/motan
      */
     public static final StringTag COMPONENT = new StringTag("component");
-
-    /**
-     * ERROR indicates whether a Span ended in an error state.
-     */
-    public static final BooleanTag ERROR = new BooleanTag("error", false);
 
     /**
      * DB_TYPE records database type, such as sql, redis, cassandra and so on.

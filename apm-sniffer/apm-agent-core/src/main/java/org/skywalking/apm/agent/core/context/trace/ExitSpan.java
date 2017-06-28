@@ -1,5 +1,7 @@
 package org.skywalking.apm.agent.core.context.trace;
 
+import org.skywalking.apm.agent.core.dictionary.DictionaryUtil;
+
 /**
  * The <code>ExitSpan</code> represents a service consumer point, such as Feign, Okhttp client for a Http service.
  *
@@ -12,12 +14,28 @@ package org.skywalking.apm.agent.core.context.trace;
  */
 public class ExitSpan extends AbstractTracingSpan {
     private int stackDepth;
-    private String peerPoint;
+    private String peer;
+    private int peerId;
 
-    public ExitSpan(int spanId, int parentSpanId, String operationName, String peerPoint) {
+    public ExitSpan(int spanId, int parentSpanId, String operationName, String peer) {
         super(spanId, parentSpanId, operationName);
         this.stackDepth = 0;
-        this.peerPoint = peerPoint;
+        this.peer = peer;
+        this.peerId = DictionaryUtil.nullValue();
+    }
+
+    public ExitSpan(int spanId, int parentSpanId, int operationId, int peerId) {
+        super(spanId, parentSpanId, operationId);
+        this.stackDepth = 0;
+        this.peer = null;
+        this.peerId = peerId;
+    }
+
+    public ExitSpan(int spanId, int parentSpanId, int operationId, String peer) {
+        super(spanId, parentSpanId, operationId);
+        this.stackDepth = 0;
+        this.peer = peer;
+        this.peerId = DictionaryUtil.nullValue();
     }
 
     /**
@@ -43,7 +61,7 @@ public class ExitSpan extends AbstractTracingSpan {
     public boolean finish(TraceSegment owner) {
         if (--stackDepth == 0) {
             return super.finish(owner);
-        }else{
+        } else {
             return false;
         }
     }
@@ -54,6 +72,14 @@ public class ExitSpan extends AbstractTracingSpan {
             super.log(t);
         }
         return this;
+    }
+
+    public int getPeerId() {
+        return peerId;
+    }
+
+    public String getPeer() {
+        return peer;
     }
 
     @Override public boolean isEntry() {

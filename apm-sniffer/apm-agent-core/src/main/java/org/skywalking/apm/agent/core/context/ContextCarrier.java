@@ -9,8 +9,8 @@ import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.skywalking.apm.util.StringUtil;
 
 /**
- * {@link ContextCarrier} is a data carrier of {@link TracerContext}.
- * It holds the snapshot (current state) of {@link TracerContext}.
+ * {@link ContextCarrier} is a data carrier of {@link TracingContext}.
+ * It holds the snapshot (current state) of {@link TracingContext}.
  * <p>
  * Created by wusheng on 2017/2/17.
  */
@@ -20,20 +20,10 @@ public class ContextCarrier implements Serializable {
      */
     private String traceSegmentId;
 
-    /**
-     * {@link Span#spanId}
-     */
     private int spanId = -1;
 
-    /**
-     * {@link TraceSegment#applicationCode}
-     */
     private String applicationCode;
 
-    /**
-     * Either {@link Span#peerHost} + {@link Span#port} or {@link Span#peers},
-     * depend on which one of them is valid.
-     */
     private String peerHost;
 
     /**
@@ -120,12 +110,20 @@ public class ContextCarrier implements Serializable {
         this.applicationCode = applicationCode;
     }
 
+    public void setApplicationId(int applicationId) {
+        this.applicationCode = applicationId + "";
+    }
+
     public String getPeerHost() {
         return peerHost;
     }
 
     public void setPeerHost(String peerHost) {
         this.peerHost = peerHost;
+    }
+
+    public void setPeerId(int peerId) {
+        this.peerHost = peerId + "";
     }
 
     public List<DistributedTraceId> getDistributedTraceIds() {

@@ -6,10 +6,7 @@ package org.skywalking.apm.agent.core.context;
  * @author wusheng
  */
 public interface Injectable {
-    /**
-     * @param injectedCarrier notify the <code>Injectable</code> the {@link ContextCarrier} has been injected.
-     */
-    void notify(ContextCarrier injectedCarrier);
+    ContextCarrier getCarrier();
 
     /**
      * @return peer, represent ipv4, ipv6, hostname, or cluster addresses list.

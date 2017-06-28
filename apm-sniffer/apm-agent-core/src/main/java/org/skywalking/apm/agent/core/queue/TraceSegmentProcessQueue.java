@@ -8,7 +8,6 @@ import java.util.LinkedList;
 import java.util.List;
 import org.skywalking.apm.agent.core.conf.Config;
 import org.skywalking.apm.agent.core.boot.StatusBootService;
-import org.skywalking.apm.agent.core.context.TracerContext;
 import org.skywalking.apm.agent.core.context.TracingContextListener;
 import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.skywalking.apm.logging.ILog;

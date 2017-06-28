@@ -12,10 +12,18 @@ package org.skywalking.apm.agent.core.context.trace;
  */
 public class EntrySpan extends AbstractTracingSpan {
     private int stackDepth;
+    private int currentMaxDepth;
 
     public EntrySpan(int spanId, int parentSpanId, String operationName) {
         super(spanId, parentSpanId, operationName);
         this.stackDepth = 0;
+        this.currentMaxDepth = 0;
+    }
+
+    public EntrySpan(int spanId, int parentSpanId, int operationId) {
+        super(spanId, parentSpanId, operationId);
+        this.stackDepth = 0;
+        this.currentMaxDepth = 0;
     }
 
     /**
@@ -23,7 +31,7 @@ public class EntrySpan extends AbstractTracingSpan {
      */
     @Override
     public EntrySpan start() {
-        if (++stackDepth == 1) {
+        if ((currentMaxDepth = ++stackDepth) == 1) {
             super.start();
         }
         clearWhenRestart();
@@ -32,7 +40,7 @@ public class EntrySpan extends AbstractTracingSpan {
 
     @Override
     public EntrySpan tag(String key, String value) {
-        if (stackDepth == 1) {
+        if (stackDepth == currentMaxDepth) {
             super.tag(key, value);
         }
         return this;
