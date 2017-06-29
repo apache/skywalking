@@ -3,9 +3,11 @@ package org.skywalking.apm.agent.core.context;
 import org.skywalking.apm.agent.core.boot.BootService;
 import org.skywalking.apm.agent.core.boot.ServiceManager;
 import org.skywalking.apm.agent.core.conf.Config;
+import org.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
 import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.skywalking.apm.agent.core.context.trace.SpanType;
 import org.skywalking.apm.agent.core.context.trace.TraceSegment;
+import org.skywalking.apm.agent.core.dictionary.DictionaryUtil;
 import org.skywalking.apm.agent.core.sampling.SamplingService;
 import org.skywalking.apm.util.StringUtil;
 
@@ -28,15 +30,22 @@ public class ContextManager implements TracingContextListener, BootService, Igno
         }
         AbstractTracerContext context = CONTEXT.get();
         if (context == null) {
-            int suffixIdx = operationName.lastIndexOf(".");
-            if (suffixIdx > -1 && Config.Agent.IGNORE_SUFFIX.contains(operationName.substring(suffixIdx))) {
+            if (RemoteDownstreamConfig.Agent.APPLICATION_ID == DictionaryUtil.nullValue()) {
+                /**
+                 * Can't register to collector, no need to trace anything.
+                 */
                 context = new IgnoredTracerContext();
             } else {
-                SamplingService samplingService = ServiceManager.INSTANCE.findService(SamplingService.class);
-                if (forceSampling || samplingService.trySampling()) {
-                    context = new TracingContext();
-                } else {
+                int suffixIdx = operationName.lastIndexOf(".");
+                if (suffixIdx > -1 && Config.Agent.IGNORE_SUFFIX.contains(operationName.substring(suffixIdx))) {
                     context = new IgnoredTracerContext();
+                } else {
+                    SamplingService samplingService = ServiceManager.INSTANCE.findService(SamplingService.class);
+                    if (forceSampling || samplingService.trySampling()) {
+                        context = new TracingContext();
+                    } else {
+                        context = new IgnoredTracerContext();
+                    }
                 }
             }
             CONTEXT.set(context);

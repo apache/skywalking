@@ -103,26 +103,14 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
          */
         if (existedConstructorInterceptPoint) {
             for (ConstructorInterceptPoint constructorInterceptPoint : constructorInterceptPoints) {
-                if (constructorInterceptPoint.isOverrideArgs()) {
-                    newClassBuilder = newClassBuilder.constructor(ElementMatchers.<MethodDescription>any()).intercept(SuperMethodCall.INSTANCE
-                        .andThen(MethodDelegation.withDefaultConfiguration()
-                            .withBinders(
-                                FieldProxy.Binder.install(FieldGetter.class, FieldSetter.class),
-                                Morph.Binder.install(Constructible.class)
-                            )
-                            .to(new ConstructorInter(constructorInterceptPoint.getConstructorInterceptor()))
+                newClassBuilder = newClassBuilder.constructor(ElementMatchers.<MethodDescription>any()).intercept(SuperMethodCall.INSTANCE
+                    .andThen(MethodDelegation.withDefaultConfiguration()
+                        .withBinders(
+                            FieldProxy.Binder.install(FieldGetter.class, FieldSetter.class)
                         )
-                    );
-                } else {
-                    newClassBuilder = newClassBuilder.constructor(ElementMatchers.<MethodDescription>any()).intercept(SuperMethodCall.INSTANCE
-                        .andThen(MethodDelegation.withDefaultConfiguration()
-                            .withBinders(
-                                FieldProxy.Binder.install(FieldGetter.class, FieldSetter.class)
-                            )
-                            .to(new ConstructorInter(constructorInterceptPoint.getConstructorInterceptor()))
-                        )
-                    );
-                }
+                        .to(new ConstructorInter(constructorInterceptPoint.getConstructorInterceptor()))
+                    )
+                );
             }
         }
 

@@ -25,7 +25,7 @@ import org.skywalking.apm.logging.LogManager;
 public class TraceSegment {
     private static final ILog logger = LogManager.getLogger(TraceSegment.class);
 
-    private static final String ID_TYPE = "Segment";
+    private static final String ID_TYPE = "S";
 
     /**
      * The id of this trace segment.

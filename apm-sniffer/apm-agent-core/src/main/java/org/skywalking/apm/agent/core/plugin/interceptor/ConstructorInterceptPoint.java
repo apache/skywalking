@@ -25,6 +25,4 @@ public interface ConstructorInterceptPoint {
      * {@link org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor}
      */
     String getConstructorInterceptor();
-
-    boolean isOverrideArgs();
 }
