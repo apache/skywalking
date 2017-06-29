@@ -9,7 +9,7 @@ import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 /**
  * A Trace segment contains two spans with ChildOf relations,
  * the parent is a Tomcat span,
- * the child is a Dubbo client span.
+ * the child is a Dubbo discovery span.
  *
  * @author wusheng
  */

@@ -104,7 +104,7 @@ public class DefaultHttpClientInterceptorTest {
         Assert.assertEquals("skywalking.org", span.getPeerHost());
         Assert.assertEquals(-1, span.getPort());
         Assert.assertEquals("FeignDefaultHttp", StringTagReader.get(span, Tags.COMPONENT));
-        Assert.assertEquals("client", StringTagReader.get(span, Tags.SPAN_KIND));
+        Assert.assertEquals("discovery", StringTagReader.get(span, Tags.SPAN_KIND));
         Assert.assertEquals("", StringTagReader.get(span, Tags.URL));
     }
 

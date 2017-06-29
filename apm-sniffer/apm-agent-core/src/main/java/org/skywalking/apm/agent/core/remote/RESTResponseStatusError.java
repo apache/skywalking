@@ -1,7 +1,7 @@
-package org.skywalking.apm.agent.core.client;
+package org.skywalking.apm.agent.core.remote;
 
 /**
- * The <code>RESTResponseStatusError</code> represents the REST-Service client got an unexpected response code.
+ * The <code>RESTResponseStatusError</code> represents the REST-Service discovery got an unexpected response code.
  * Most likely, the response code is not 200.
  *
  * @author wusheng

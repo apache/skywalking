@@ -19,7 +19,7 @@ public class DefaultRequestDirectorInstrumentation extends HttpClientInstrumenta
     /**
      * Enhance class.
      */
-    private static final String ENHANCE_CLASS = "org.apache.http.impl.client.DefaultRequestDirector";
+    private static final String ENHANCE_CLASS = "org.apache.http.impl.discovery.DefaultRequestDirector";
 
     /**
      * DefaultRequestDirector is default implement.<br/>

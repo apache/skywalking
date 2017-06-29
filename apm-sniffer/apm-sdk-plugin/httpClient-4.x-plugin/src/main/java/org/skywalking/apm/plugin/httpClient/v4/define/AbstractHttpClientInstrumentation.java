@@ -18,7 +18,7 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
  */
 public class AbstractHttpClientInstrumentation extends HttpClientInstrumentation {
 
-    private static final String ENHANCE_CLASS = "org.apache.http.impl.client.AbstractHttpClient";
+    private static final String ENHANCE_CLASS = "org.apache.http.impl.discovery.AbstractHttpClient";
 
     @Override
     public String enhanceClassName() {

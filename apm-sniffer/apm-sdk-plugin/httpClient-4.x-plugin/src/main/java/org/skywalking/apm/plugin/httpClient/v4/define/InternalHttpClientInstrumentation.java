@@ -15,7 +15,7 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
  */
 public class InternalHttpClientInstrumentation extends HttpClientInstrumentation {
 
-    private static final String ENHANCE_CLASS = "org.apache.http.impl.client.InternalHttpClient";
+    private static final String ENHANCE_CLASS = "org.apache.http.impl.discovery.InternalHttpClient";
 
     @Override
     public String enhanceClassName() {

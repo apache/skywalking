@@ -6,7 +6,7 @@ import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
 
 /**
  * The <code>DubboSpanGenerator</code> generates all possible spans, by tracing Dubbo rpc.
- * Including client/server side span.
+ * Including discovery/server side span.
  *
  * @author wusheng
  */

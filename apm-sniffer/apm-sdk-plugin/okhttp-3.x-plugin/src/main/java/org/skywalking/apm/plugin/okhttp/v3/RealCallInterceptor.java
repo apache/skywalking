@@ -16,7 +16,7 @@ import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsA
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 
 /**
- * {@link RealCallInterceptor} intercept the synchronous http calls by the client of okhttp.
+ * {@link RealCallInterceptor} intercept the synchronous http calls by the discovery of okhttp.
  *
  * @author pengys5
  */

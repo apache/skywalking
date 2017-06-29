@@ -3,10 +3,10 @@ package org.skywalking.apm.agent.core.context.trace;
 import org.skywalking.apm.agent.core.dictionary.DictionaryUtil;
 
 /**
- * The <code>ExitSpan</code> represents a service consumer point, such as Feign, Okhttp client for a Http service.
+ * The <code>ExitSpan</code> represents a service consumer point, such as Feign, Okhttp discovery for a Http service.
  *
  * It is an exit point or a leaf span(our old name) of trace tree.
- * In a single rpc call, because of a combination of client libs, there maybe contain multi exit point.
+ * In a single rpc call, because of a combination of discovery libs, there maybe contain multi exit point.
  *
  * The <code>ExitSpan</code> only presents the first one.
  *

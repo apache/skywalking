@@ -1,4 +1,4 @@
-package org.skywalking.apm.agent.core.client;
+package org.skywalking.apm.agent.core.remote;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;

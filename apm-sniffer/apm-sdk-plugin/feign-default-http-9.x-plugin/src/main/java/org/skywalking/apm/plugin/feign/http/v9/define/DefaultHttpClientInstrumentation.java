@@ -12,8 +12,8 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 /**
  * {@link DefaultHttpClientInstrumentation} presents that skywalking intercepts {@link
  * feign.Client.Default#execute(feign.Request, feign.Request.Options)} by using {@link DefaultHttpClientInterceptor}.
- * If feign did't run in default mode, the instrumentation depend on the http client implementation.
- * e.g. okhttp client implementation depend on okhttp-plugin.
+ * If feign did't run in default mode, the instrumentation depend on the http discovery implementation.
+ * e.g. okhttp discovery implementation depend on okhttp-plugin.
  *
  * @author pengys5
  */

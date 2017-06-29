@@ -13,11 +13,11 @@ public interface AbstractSpan {
      * Set the component id, which defines in {@link org.skywalking.apm.network.trace.component.ComponentsDefine}
      * @param component
      */
-    void setComponent(Component component);
+    AbstractSpan setComponent(Component component);
 
-    void setComponent(String componentName);
+    AbstractSpan setComponent(String componentName);
 
-    void setLayer(SpanLayer layer);
+    AbstractSpan setLayer(SpanLayer layer);
 
     /**
      * Set a key:value tag on the Span.
@@ -34,7 +34,7 @@ public interface AbstractSpan {
      */
     AbstractSpan log(Throwable t);
 
-    void errorOccurred();
+    AbstractSpan errorOccurred();
 
     /**
      * @return true if the actual span is an entry span.

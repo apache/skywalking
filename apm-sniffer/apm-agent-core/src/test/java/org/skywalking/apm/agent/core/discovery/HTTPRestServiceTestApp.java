@@ -1,4 +1,4 @@
-package org.skywalking.apm.agent.core.client;
+package org.skywalking.apm.agent.core.discovery;
 
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -19,7 +19,7 @@ import java.io.IOException;
 
 /**
  * This is a small application, test for http restful service.
- * Use APACHE HttpClient as client, nanohttpd as server.
+ * Use APACHE HttpClient as discovery, nanohttpd as server.
  *
  * @author wusheng
  */

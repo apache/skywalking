@@ -1,4 +1,5 @@
 org.skywalking.apm.agent.core.datacarrier.DataBufferService
 org.skywalking.apm.agent.core.context.ContextManager
-org.skywalking.apm.agent.core.client.CollectorDiscoveryService
+org.skywalking.apm.agent.core.discovery.CollectorDiscoveryService
 org.skywalking.apm.agent.core.sampling.SamplingService
+org.skywalking.apm.agent.core.remote.GRPCChannelManager

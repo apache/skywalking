@@ -1,6 +1,7 @@
 package org.skywalking.apm.agent.core.context.trace;
 
 import org.skywalking.apm.agent.core.context.IgnoredTracerContext;
+import org.skywalking.apm.network.trace.component.Component;
 
 /**
  * The <code>NoopSpan</code> represents a span implementation without any actual operation.
@@ -18,8 +19,24 @@ public class NoopSpan implements AbstractSpan {
         return this;
     }
 
+    @Override public AbstractSpan errorOccurred() {
+        return null;
+    }
+
     public void finish(){
 
+    }
+
+    @Override public AbstractSpan setComponent(Component component) {
+        return this;
+    }
+
+    @Override public AbstractSpan setComponent(String componentName) {
+        return this;
+    }
+
+    @Override public AbstractSpan setLayer(SpanLayer layer) {
+        return this;
     }
 
     @Override

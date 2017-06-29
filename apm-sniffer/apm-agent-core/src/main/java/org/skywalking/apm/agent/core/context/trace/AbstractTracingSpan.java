@@ -108,8 +108,9 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
         return this;
     }
 
-    public void errorOccurred() {
+    public AbstractSpan errorOccurred() {
         this.errorOccurred = true;
+        return this;
     }
 
     public int getSpanId() {
@@ -121,17 +122,20 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
     }
 
     @Override
-    public void setLayer(SpanLayer layer) {
+    public AbstractSpan setLayer(SpanLayer layer) {
         this.layer = layer;
+        return this;
     }
 
     @Override
-    public void setComponent(Component component) {
+    public AbstractSpan setComponent(Component component) {
         this.componentId = component.getId();
+        return this;
     }
 
     @Override
-    public void setComponent(String componentName) {
+    public AbstractSpan setComponent(String componentName) {
         this.componentName = componentName;
+        return this;
     }
 }

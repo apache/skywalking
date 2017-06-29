@@ -5,7 +5,7 @@ import org.skywalking.apm.agent.core.context.tag.Tags;
 import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
 
 /**
- * The <code>MySQLGenerator</code> generates all possible spans, by tracing mysql client access.
+ * The <code>MySQLGenerator</code> generates all possible spans, by tracing mysql discovery access.
  *
  * @author wusheng
  */

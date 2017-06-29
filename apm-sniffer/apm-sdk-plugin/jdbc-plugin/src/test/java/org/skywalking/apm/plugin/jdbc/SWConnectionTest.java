@@ -327,7 +327,7 @@ public class SWConnectionTest extends AbstractStatementTest {
         swConnection.setHoldability(1);
         swConnection.getHoldability();
         swConnection.setReadOnly(false);
-        swConnection.setClientInfo("test-client", "test-client");
+        swConnection.setClientInfo("test-discovery", "test-discovery");
         swConnection.getClientInfo("test");
         swConnection.setSavepoint();
         swConnection.getMetaData();
