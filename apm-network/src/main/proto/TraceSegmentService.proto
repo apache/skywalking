@@ -6,7 +6,7 @@ option java_package = "org.skywalking.apm.network.trace.proto";
 import "Downstream.proto";
 
 service TraceSegmentService {
-    rpc collect (stream TraceSegmentObject) returns (Downstream) {
+    rpc collect (stream UpstreamSegment) returns (Downstream) {
     }
 }
 
