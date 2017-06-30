@@ -98,7 +98,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>2.4.1</version>
+                <version>3.0.0</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -135,10 +135,6 @@
                                     <pattern>${shade.io.netty.source}</pattern>
                                     <shadedPattern>${shade.io.netty.target}</shadedPattern>
                                 </relocation>
-                                <relocation>
-                                    <pattern>${shade.io.netty.source}</pattern>
-                                    <shadedPattern>${shade.io.netty.target}</shadedPattern>
-                                </relocation>
                             </relocations>
                             <filters>
                                 <filter>
@@ -149,40 +145,14 @@
                                     </excludes>
                                 </filter>
                             </filters>
+                            <transformers>
+                                <transformer
+                                    implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                            </transformers>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.8</version>
-                <executions>
-                    <execution>
-                        <id>unpack</id>
-                        <phase>package</phase>
-                        <configuration>
-                            <target>
-                                <unzip src="${project.build.directory}/${artifactId}-${version}.jar"
-                                       dest="${project.build.directory}/unpacked/"/>
-                                <move todir="${project.build.directory}/unpacked/META-INF/services"
-                                      includeemptydirs="false">
-                                    <fileset dir="${project.build.directory}/unpacked/META-INF/services">
-                                        <include name="io.grpc.*"/>
-                                    </fileset>
-                                    <mapper type="glob" from="*" to="${shade.package}.*"/>
-                                </move>
-                                <jar destfile="${project.build.directory}/${artifactId}-${version}.jar"
-                                     basedir="${project.build.directory}/unpacked"/>
-                            </target>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
         </plugins>
     </build>
 </project>
