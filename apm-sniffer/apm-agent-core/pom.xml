@@ -144,7 +144,8 @@
                                 <filter>
                                     <artifact>com.google.protobuf:protobuf-java</artifact>
                                     <excludes>
-                                        <exclude>google/</exclude>
+                                        <exclude>google/protobuf/*.proto</exclude>
+                                        <exclude>google/protobuf/compiler/*.proto</exclude>
                                     </excludes>
                                 </filter>
                             </filters>
