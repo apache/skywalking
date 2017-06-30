@@ -49,10 +49,10 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
      */
     @Override
     protected DynamicType.Builder<?> enhance(String enhanceOriginClassName,
-        DynamicType.Builder<?> newClassBuilder) throws PluginException {
-        newClassBuilder = this.enhanceClass(enhanceOriginClassName, newClassBuilder);
+        DynamicType.Builder<?> newClassBuilder, ClassLoader classLoader) throws PluginException {
+        newClassBuilder = this.enhanceClass(enhanceOriginClassName, newClassBuilder, classLoader);
 
-        newClassBuilder = this.enhanceInstance(enhanceOriginClassName, newClassBuilder);
+        newClassBuilder = this.enhanceInstance(enhanceOriginClassName, newClassBuilder, classLoader);
 
         return newClassBuilder;
     }
@@ -65,7 +65,7 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
      * @return new byte-buddy's builder for further manipulation.
      */
     private DynamicType.Builder<?> enhanceInstance(String enhanceOriginClassName,
-        DynamicType.Builder<?> newClassBuilder) throws PluginException {
+        DynamicType.Builder<?> newClassBuilder, ClassLoader classLoader) throws PluginException {
         ConstructorInterceptPoint[] constructorInterceptPoints = getConstructorsInterceptPoints();
         InstanceMethodsInterceptPoint[] instanceMethodsInterceptPoints = getInstanceMethodsInterceptPoints();
 
@@ -173,7 +173,7 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
      * @return new byte-buddy's builder for further manipulation.
      */
     private DynamicType.Builder<?> enhanceClass(String enhanceOriginClassName,
-        DynamicType.Builder<?> newClassBuilder) throws PluginException {
+        DynamicType.Builder<?> newClassBuilder, ClassLoader classLoader) throws PluginException {
         StaticMethodsInterceptPoint[] staticMethodsInterceptPoints = getStaticMethodsInterceptPoints();
 
         if (staticMethodsInterceptPoints == null || staticMethodsInterceptPoints.length == 0) {

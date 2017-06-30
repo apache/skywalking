@@ -52,7 +52,7 @@ public abstract class AbstractClassEnhancePluginDefine {
         /**
          * find origin class source code for interceptor
          */
-        DynamicType.Builder<?> newClassBuilder = this.enhance(transformClassName, builder);
+        DynamicType.Builder<?> newClassBuilder = this.enhance(transformClassName, builder, classLoader);
 
         logger.debug("enhance class {} by {} completely.", transformClassName, interceptorDefineClassName);
 
@@ -60,7 +60,7 @@ public abstract class AbstractClassEnhancePluginDefine {
     }
 
     protected abstract DynamicType.Builder<?> enhance(String enhanceOriginClassName,
-        DynamicType.Builder<?> newClassBuilder) throws PluginException;
+        DynamicType.Builder<?> newClassBuilder, ClassLoader classLoader) throws PluginException;
 
     /**
      * Define the classname of target class.
