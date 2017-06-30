@@ -89,8 +89,8 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
          * alter class source code.<br/>
          *
          * new class need:<br/>
-         * 1.add field, name {@link #CONTEXT_ATTR_NAME}, with an {@link Object} reference.
-         * EnhancedClassInstanceContext <br/>
+         * 1.Add field, name {@link #CONTEXT_ATTR_NAME}.
+         * 2.Add a field accessor for this field.
          *
          */
         newClassBuilder = newClassBuilder.defineField(CONTEXT_ATTR_NAME, Object.class, ACC_PRIVATE)
