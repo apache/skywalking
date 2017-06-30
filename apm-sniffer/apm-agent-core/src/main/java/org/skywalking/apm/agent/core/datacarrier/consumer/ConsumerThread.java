@@ -13,7 +13,7 @@ public class ConsumerThread<T> extends Thread {
     private List<DataSource> dataSources;
 
     ConsumerThread(String threadName, IConsumer<T> consumer) {
-        super((threadName));
+        super(threadName);
         this.consumer = consumer;
         running = false;
         dataSources = new LinkedList<DataSource>();

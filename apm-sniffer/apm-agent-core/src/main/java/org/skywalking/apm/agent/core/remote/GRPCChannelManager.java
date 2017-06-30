@@ -27,7 +27,9 @@ public class GRPCChannelManager implements BootService, Runnable {
             synchronized (this) {
                 if (channelManagerThread == null || !channelManagerThread.isAlive()) {
                     if (managedChannel == null || managedChannel.isTerminated() || managedChannel.isShutdown()) {
-                        managedChannel.shutdownNow();
+                        if (managedChannel != null) {
+                            managedChannel.shutdownNow();
+                        }
                         Thread channelManagerThread = new Thread(this, "ChannelManagerThread");
                         channelManagerThread.setDaemon(true);
                         channelManagerThread.start();

@@ -23,6 +23,9 @@ public enum PluginCfg {
             String pluginDefine = null;
             while ((pluginDefine = reader.readLine()) != null) {
                 try {
+                    if (pluginDefine == null || pluginDefine.trim().length() == 0) {
+                        continue;
+                    }
                     PluginDefine plugin = PluginDefine.build(pluginDefine);
                     if (plugin.enable()) {
                         pluginClassList.add(plugin);

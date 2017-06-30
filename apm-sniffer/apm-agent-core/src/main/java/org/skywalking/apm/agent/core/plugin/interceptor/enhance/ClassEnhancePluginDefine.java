@@ -2,24 +2,24 @@ package org.skywalking.apm.agent.core.plugin.interceptor.enhance;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.dynamic.DynamicType;
+import net.bytebuddy.implementation.FieldAccessor;
 import net.bytebuddy.implementation.MethodDelegation;
 import net.bytebuddy.implementation.SuperMethodCall;
 import net.bytebuddy.implementation.bind.annotation.FieldProxy;
 import net.bytebuddy.implementation.bind.annotation.Morph;
 import net.bytebuddy.matcher.ElementMatchers;
+import org.skywalking.apm.agent.core.plugin.AbstractClassEnhancePluginDefine;
 import org.skywalking.apm.agent.core.plugin.PluginException;
 import org.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.skywalking.apm.agent.core.plugin.interceptor.EnhanceException;
 import org.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.skywalking.apm.agent.core.plugin.interceptor.StaticMethodsInterceptPoint;
-import org.skywalking.apm.util.StringUtil;
-import org.skywalking.apm.agent.core.plugin.AbstractClassEnhancePluginDefine;
 import org.skywalking.apm.logging.ILog;
 import org.skywalking.apm.logging.LogManager;
+import org.skywalking.apm.util.StringUtil;
 
 import static net.bytebuddy.jar.asm.Opcodes.ACC_PRIVATE;
 import static net.bytebuddy.matcher.ElementMatchers.isStatic;
-import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.not;
 
 /**
@@ -95,8 +95,7 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
          */
         newClassBuilder = newClassBuilder.defineField(CONTEXT_ATTR_NAME, Object.class, ACC_PRIVATE)
             .implement(EnhancedInstance.class)
-            .method(named("_getSkyWalkingDynamicFiled"))
-            .intercept(MethodDelegation.to(EnhancedInstanceFieldGetter.class));
+            .intercept(FieldAccessor.ofField(CONTEXT_ATTR_NAME));
 
         /**
          * 2. enhance constructors

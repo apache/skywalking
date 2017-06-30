@@ -139,6 +139,7 @@ public class SnifferConfigInitializer {
         URL resource = SnifferConfigInitializer.class.getClassLoader().getSystemClassLoader().getResource(classResourcePath);
         if (resource != null) {
             String urlString = resource.toString();
+            logger.debug(urlString);
             urlString = urlString.substring(urlString.indexOf("file:"), urlString.indexOf('!'));
             File agentJarFile = null;
             try {

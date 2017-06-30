@@ -1,8 +1,6 @@
 package org.skywalking.apm.agent.core.datacarrier.buffer;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
 import org.skywalking.apm.agent.core.datacarrier.common.AtomicRangeInteger;
 
 /**

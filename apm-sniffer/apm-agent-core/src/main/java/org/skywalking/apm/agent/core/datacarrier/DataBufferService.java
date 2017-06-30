@@ -5,6 +5,7 @@ import org.skywalking.apm.agent.core.boot.BootService;
 import org.skywalking.apm.agent.core.context.TracingContext;
 import org.skywalking.apm.agent.core.context.TracingContextListener;
 import org.skywalking.apm.agent.core.context.trace.TraceSegment;
+import org.skywalking.apm.agent.core.datacarrier.buffer.BufferStrategy;
 import org.skywalking.apm.agent.core.datacarrier.consumer.IConsumer;
 
 import static org.skywalking.apm.agent.core.conf.Config.Buffer.BUFFER_SIZE;
@@ -19,6 +20,7 @@ public class DataBufferService implements BootService, IConsumer<TraceSegment>, 
     @Override
     public void bootUp() throws Throwable {
         carrier = new DataCarrier<TraceSegment>(CHANNEL_SIZE, BUFFER_SIZE);
+        carrier.setBufferStrategy(BufferStrategy.IF_POSSIBLE);
         carrier.consume(this, 1);
         TracingContext.ListenerManager.add(this);
     }
