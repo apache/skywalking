@@ -151,7 +151,7 @@
                                     <exclude>*:gson</exclude>
                                     <exclude>io.grpc:*</exclude>
                                     <exclude>io.netty:*</exclude>
-                                    <exclude>com.google.protobuf:*</exclude>
+                                    <exclude>com.google.*:*</exclude>
                                     <exclude>com.google.guava:guava</exclude>
                                 </excludes>
                             </artifactSet>

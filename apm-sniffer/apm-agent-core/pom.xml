@@ -140,6 +140,15 @@
                                     <shadedPattern>${shade.io.netty.target}</shadedPattern>
                                 </relocation>
                             </relocations>
+                            <filters>
+                                <filter>
+                                    <artifact>com.google.protobuf:protobuf-java</artifact>
+                                    <excludes>
+                                        <exclude>google/protobuf/*.proto</exclude>
+                                        <exclude>google/protobuf/compiler/*.proto</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
                         </configuration>
                     </execution>
                 </executions>
