@@ -111,7 +111,6 @@
                                     <exclude>net.bytebuddy:byte-buddy:jar:</exclude>
                                     <exclude>com.google.errorprone:error_prone_annotations:jar:</exclude>
                                     <exclude>com.google.code.findbugs:jsr305:jar:</exclude>
-                                    <exclude>com.google.instrumentation:instrumentation-api:jar:</exclude>
                                 </excludes>
                             </artifactSet>
                             <relocations>
