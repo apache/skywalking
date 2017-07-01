@@ -29,6 +29,7 @@ public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSe
 
     private volatile DataCarrier<TraceSegment> carrier;
     private volatile TraceSegmentServiceGrpc.TraceSegmentServiceStub serviceStub;
+    private volatile GRPCChannelStatus status = null;
 
     @Override
     public void beforeBoot() throws Throwable {
@@ -54,39 +55,46 @@ public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSe
 
     @Override
     public void consume(List<TraceSegment> data) {
-        final GRPCStreamServiceStatus status = new GRPCStreamServiceStatus(false);
-        StreamObserver<UpstreamSegment> upstreamSegmentStreamObserver = serviceStub.collect(new StreamObserver<Downstream>() {
-            @Override
-            public void onNext(Downstream downstream) {
+        if (CONNECTED.equals(status)) {
+            final GRPCStreamServiceStatus status = new GRPCStreamServiceStatus(false);
+            StreamObserver<UpstreamSegment> upstreamSegmentStreamObserver = serviceStub.collect(new StreamObserver<Downstream>() {
+                @Override
+                public void onNext(Downstream downstream) {
 
+                }
+
+                @Override
+                public void onError(Throwable throwable) {
+                    status.finished();
+                    ServiceManager.INSTANCE.findService(GRPCChannelManager.class).reportError();
+                }
+
+                @Override
+                public void onCompleted() {
+                    status.finished();
+                }
+            });
+
+            try {
+                for (TraceSegment segment : data) {
+                    //TODO
+                    // segment to PROTOBUFF object
+                    upstreamSegmentStreamObserver.onNext(null);
+                }
+            } catch (Throwable t) {
+                logger.error(t, "Send UpstreamSegment to collector fail.");
             }
+            upstreamSegmentStreamObserver.onCompleted();
 
-            @Override
-            public void onError(Throwable throwable) {
-                status.setStatus(true);
+            status.wait4Finish(30 * 1000);
+
+            if (logger.isDebugEnable()) {
+                logger.debug("{} trace segments have been sent to collector.", data.size());
             }
-
-            @Override
-            public void onCompleted() {
-                status.setStatus(true);
+        } else {
+            if (logger.isDebugEnable()) {
+                logger.debug("{} trace segments have been abandoned, cause by no available channel.", data.size());
             }
-        });
-
-        try {
-            for (TraceSegment segment : data) {
-                //TODO
-                // segment to PROTOBUF object
-                upstreamSegmentStreamObserver.onNext(null);
-            }
-        } catch (Throwable t) {
-            logger.error(t, "Send UpstreamSegment to collector fail.");
-        }
-        upstreamSegmentStreamObserver.onCompleted();
-
-        status.wait4Finish(30 * 1000);
-
-        if (logger.isDebugEnable()) {
-            logger.debug("{} trace segments have been sent to collector.", data.size());
         }
     }
 
@@ -110,6 +118,8 @@ public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSe
         if (CONNECTED.equals(status)) {
             ManagedChannel channel = ServiceManager.INSTANCE.findService(GRPCChannelManager.class).getManagedChannel();
             serviceStub = TraceSegmentServiceGrpc.newStub(channel);
+        } else {
+
         }
     }
 }

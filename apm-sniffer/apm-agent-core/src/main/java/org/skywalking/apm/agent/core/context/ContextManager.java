@@ -9,6 +9,8 @@ import org.skywalking.apm.agent.core.context.trace.SpanType;
 import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.skywalking.apm.agent.core.dictionary.DictionaryUtil;
 import org.skywalking.apm.agent.core.sampling.SamplingService;
+import org.skywalking.apm.logging.ILog;
+import org.skywalking.apm.logging.LogManager;
 import org.skywalking.apm.util.StringUtil;
 
 /**
@@ -22,29 +24,35 @@ import org.skywalking.apm.util.StringUtil;
  * @author wusheng
  */
 public class ContextManager implements TracingContextListener, BootService, IgnoreTracerContextListener {
+    private static final ILog logger = LogManager.getLogger(ContextManager.class);
+
     private static ThreadLocal<AbstractTracerContext> CONTEXT = new ThreadLocal<AbstractTracerContext>();
 
     private static AbstractTracerContext getOrCreate(String operationName, boolean forceSampling) {
-        if (StringUtil.isEmpty(operationName)) {
-            throw new IllegalArgumentException("No operation name");
-        }
         AbstractTracerContext context = CONTEXT.get();
         if (context == null) {
-            if (RemoteDownstreamConfig.Agent.APPLICATION_ID == DictionaryUtil.nullValue()) {
-                /**
-                 * Can't register to collector, no need to trace anything.
-                 */
+            if (StringUtil.isEmpty(operationName)) {
+                if (logger.isDebugEnable()) {
+                    logger.debug("No operation name, ignore this trace.");
+                }
                 context = new IgnoredTracerContext();
             } else {
-                int suffixIdx = operationName.lastIndexOf(".");
-                if (suffixIdx > -1 && Config.Agent.IGNORE_SUFFIX.contains(operationName.substring(suffixIdx))) {
+                if (RemoteDownstreamConfig.Agent.APPLICATION_ID == DictionaryUtil.nullValue()) {
+                    /**
+                     * Can't register to collector, no need to trace anything.
+                     */
                     context = new IgnoredTracerContext();
                 } else {
-                    SamplingService samplingService = ServiceManager.INSTANCE.findService(SamplingService.class);
-                    if (forceSampling || samplingService.trySampling()) {
-                        context = new TracingContext();
-                    } else {
+                    int suffixIdx = operationName.lastIndexOf(".");
+                    if (suffixIdx > -1 && Config.Agent.IGNORE_SUFFIX.contains(operationName.substring(suffixIdx))) {
                         context = new IgnoredTracerContext();
+                    } else {
+                        SamplingService samplingService = ServiceManager.INSTANCE.findService(SamplingService.class);
+                        if (forceSampling || samplingService.trySampling()) {
+                            context = new TracingContext();
+                        } else {
+                            context = new IgnoredTracerContext();
+                        }
                     }
                 }
             }

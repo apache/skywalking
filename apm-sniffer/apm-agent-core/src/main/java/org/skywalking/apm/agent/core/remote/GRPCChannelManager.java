@@ -21,6 +21,7 @@ public class GRPCChannelManager implements BootService, Runnable {
 
     private volatile Thread channelManagerThread = null;
     private volatile ManagedChannel managedChannel = null;
+    private volatile long nextStartTime = 0;
     private Random random = new Random();
     private List<GRPCChannelListener> listeners = Collections.synchronizedList(new LinkedList<GRPCChannelListener>());
 
@@ -31,7 +32,7 @@ public class GRPCChannelManager implements BootService, Runnable {
 
     @Override
     public void boot() throws Throwable {
-        this.startupInBackground();
+        this.startupInBackground(false);
     }
 
     @Override
@@ -39,11 +40,20 @@ public class GRPCChannelManager implements BootService, Runnable {
 
     }
 
-    private void startupInBackground() {
+    private void startupInBackground(boolean forceStart) {
         if (channelManagerThread == null || !channelManagerThread.isAlive()) {
             synchronized (this) {
+                if (forceStart) {
+                    /**
+                     * The startup has invoked in 30 seconds before, don't invoke again.
+                     */
+                    if (System.currentTimeMillis() < nextStartTime) {
+                        return;
+                    }
+                }
+                resetNextStartTime();
                 if (channelManagerThread == null || !channelManagerThread.isAlive()) {
-                    if (managedChannel == null || managedChannel.isTerminated() || managedChannel.isShutdown()) {
+                    if (forceStart || managedChannel == null || managedChannel.isTerminated() || managedChannel.isShutdown()) {
                         if (managedChannel != null) {
                             managedChannel.shutdownNow();
                         }
@@ -59,6 +69,8 @@ public class GRPCChannelManager implements BootService, Runnable {
     @Override
     public void run() {
         while (true) {
+            resetNextStartTime();
+
             if (RemoteDownstreamConfig.Collector.GRPC_SERVERS.size() > 0) {
                 int index = random.nextInt() % RemoteDownstreamConfig.Collector.GRPC_SERVERS.size();
                 String server = RemoteDownstreamConfig.Collector.GRPC_SERVERS.get(index);
@@ -79,18 +91,27 @@ public class GRPCChannelManager implements BootService, Runnable {
                 }
             }
 
+            resetNextStartTime();
             int waitTime = 5 * 1000;
             logger.debug("Selected collector grpc service is not available. Wait {} seconds to try", waitTime);
             try2Sleep(waitTime);
         }
     }
 
-    public void addChannelListener(GRPCChannelListener listener){
+    public void addChannelListener(GRPCChannelListener listener) {
         listeners.add(listener);
     }
 
     public ManagedChannel getManagedChannel() {
         return managedChannel;
+    }
+
+    public void reportError() {
+        this.startupInBackground(true);
+    }
+
+    private void resetNextStartTime() {
+        nextStartTime = System.currentTimeMillis() + 20 * 1000;
     }
 
     /**
