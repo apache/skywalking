@@ -113,7 +113,11 @@ public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSe
 
     @Override
     public void afterFinished(TraceSegment traceSegment) {
-        carrier.produce(traceSegment);
+        if (!carrier.produce(traceSegment)) {
+            if (logger.isDebugEnable()) {
+                logger.debug("One trace segment has been abandoned, cause by buffer is full.");
+            }
+        }
     }
 
     @Override
