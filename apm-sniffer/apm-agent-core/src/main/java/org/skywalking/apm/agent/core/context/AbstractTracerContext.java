@@ -1,7 +1,6 @@
 package org.skywalking.apm.agent.core.context;
 
 import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
-import org.skywalking.apm.agent.core.context.trace.SpanType;
 
 /**
  * The <code>AbstractTracerContext</code> represents the tracer context manager.
@@ -15,9 +14,11 @@ public interface AbstractTracerContext {
 
     String getGlobalTraceId();
 
-    AbstractSpan createSpan(String operationName, SpanType spanType);
+    AbstractSpan createEntrySpan(String operationName);
 
-    AbstractSpan createSpan(String operationName, SpanType spanType, Injectable injectable);
+    AbstractSpan createLocalSpan(String operationName);
+
+    AbstractSpan createExitSpan(String operationName, String remotePeer);
 
     AbstractSpan activeSpan();
 

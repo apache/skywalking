@@ -5,7 +5,6 @@ import org.skywalking.apm.agent.core.boot.ServiceManager;
 import org.skywalking.apm.agent.core.conf.Config;
 import org.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
 import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
-import org.skywalking.apm.agent.core.context.trace.SpanType;
 import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.skywalking.apm.agent.core.dictionary.DictionaryUtil;
 import org.skywalking.apm.agent.core.sampling.SamplingService;
@@ -77,7 +76,7 @@ public class ContextManager implements TracingContextListener, BootService, Igno
         }
     }
 
-    public static AbstractSpan createSpan(String operationName, ContextCarrier carrier) {
+    public static AbstractSpan createEntrySpan(String operationName, ContextCarrier carrier) {
         if (carrier == null) {
             throw new IllegalArgumentException("ContextCarrier can't be null.");
         }
@@ -90,21 +89,21 @@ public class ContextManager implements TracingContextListener, BootService, Igno
         } else {
             context = getOrCreate(operationName, false);
         }
-        return context.createSpan(operationName, SpanType.ENTRY);
+        return context.createEntrySpan(operationName);
     }
 
-    public static AbstractSpan createSpan(String operationName) {
+    public static AbstractSpan createLocalSpan(String operationName) {
         AbstractTracerContext context = getOrCreate(operationName, false);
-        return context.createSpan(operationName, SpanType.LOCAL);
+        return context.createLocalSpan(operationName);
     }
 
-    public static AbstractSpan createSpan(String operationName, Injectable injectable) {
-        if (injectable == null) {
-            throw new IllegalArgumentException("Injectable can't be null.");
+    public static AbstractSpan createExitSpan(String operationName, ContextCarrier carrier, String remotePeer) {
+        if (carrier == null) {
+            throw new IllegalArgumentException("ContextCarrier can't be null.");
         }
         AbstractTracerContext context = getOrCreate(operationName, false);
-        AbstractSpan span = context.createSpan(operationName, SpanType.EXIT);
-        context.inject(injectable.getCarrier());
+        AbstractSpan span = context.createExitSpan(operationName, remotePeer);
+        context.inject(carrier);
         return span;
     }
 

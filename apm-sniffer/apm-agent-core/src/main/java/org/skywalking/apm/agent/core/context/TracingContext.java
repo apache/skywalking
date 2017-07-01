@@ -8,7 +8,6 @@ import org.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.skywalking.apm.agent.core.context.trace.EntrySpan;
 import org.skywalking.apm.agent.core.context.trace.ExitSpan;
 import org.skywalking.apm.agent.core.context.trace.LocalSpan;
-import org.skywalking.apm.agent.core.context.trace.SpanType;
 import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.skywalking.apm.agent.core.context.trace.TraceSegmentRef;
 import org.skywalking.apm.agent.core.dictionary.DictionaryManager;
@@ -77,88 +76,81 @@ public class TracingContext implements AbstractTracerContext {
     }
 
     @Override
-    public AbstractSpan createSpan(String operationName, SpanType spanType) {
-        return createSpan(operationName, spanType, null);
+    public AbstractSpan createEntrySpan(final String operationName) {
+        AbstractTracingSpan parentSpan = peek();
+        final int parentSpanId = parentSpan == null ? -1 : parentSpan.getSpanId();
+        if (parentSpan == null) {
+            return (AbstractTracingSpan)DictionaryManager.findOperationNameCodeSection()
+                .find(segment.getApplicationId(), operationName)
+                .doInCondition(new PossibleFound.FoundAndObtain() {
+                    @Override public Object doProcess(int operationId) {
+                        return new EntrySpan(spanIdGenerator++, parentSpanId, operationId);
+                    }
+                }, new PossibleFound.NotFoundAndObtain() {
+                    @Override public Object doProcess() {
+                        return new EntrySpan(spanIdGenerator++, parentSpanId, operationName);
+                    }
+                });
+        } else if (parentSpan.isEntry()) {
+            return parentSpan;
+        } else {
+            throw new IllegalStateException("The Entry Span can't be the child of Non-Entry Span");
+        }
     }
 
     @Override
-    public AbstractSpan createSpan(String operationName, SpanType spanType, Injectable injectable) {
+    public AbstractSpan createLocalSpan(final String operationName) {
         AbstractTracingSpan parentSpan = peek();
-        AbstractTracingSpan span = createByType(spanIdGenerator++, -1, operationName,
-            spanType, injectable.getPeer(), parentSpan);
-        return span.start();
+        final int parentSpanId = parentSpan == null ? -1 : parentSpan.getSpanId();
+        return (AbstractTracingSpan)DictionaryManager.findOperationNameCodeSection()
+            .find(segment.getApplicationId(), operationName)
+            .doInCondition(new PossibleFound.FoundAndObtain() {
+                @Override
+                public Object doProcess(int operationId) {
+                    return new LocalSpan(spanIdGenerator++, parentSpanId, operationId);
+                }
+            }, new PossibleFound.NotFoundAndObtain() {
+                @Override
+                public Object doProcess() {
+                    return new LocalSpan(spanIdGenerator++, parentSpanId, operationName);
+                }
+            });
     }
 
-    private AbstractTracingSpan createByType(final int spanId, final int parentSpanId,
-        final String operationName, SpanType spanType,
-        final String peerHost, AbstractTracingSpan parentSpan) {
-        switch (spanType) {
-            case LOCAL:
-                return (AbstractTracingSpan)DictionaryManager.findOperationNameCodeSection()
-                    .find(segment.getApplicationId(), operationName)
-                    .doInCondition(new PossibleFound.FoundAndObtain() {
+    @Override
+    public AbstractSpan createExitSpan(final String operationName, final String remotePeer) {
+        AbstractTracingSpan parentSpan = peek();
+        if (parentSpan != null && parentSpan.isExit()) {
+            return parentSpan;
+        } else {
+            final int parentSpanId = parentSpan == null ? -1 : parentSpan.getSpanId();
+            return (AbstractTracingSpan)DictionaryManager.findApplicationCodeSection()
+                .find(remotePeer).doInCondition(
+                    new PossibleFound.FoundAndObtain() {
                         @Override
-                        public Object doProcess(int operationId) {
-                            return new LocalSpan(spanId, parentSpanId, operationId);
+                        public Object doProcess(final int applicationId) {
+                            return DictionaryManager.findOperationNameCodeSection()
+                                .find(applicationId, operationName)
+                                .doInCondition(
+                                    new PossibleFound.FoundAndObtain() {
+                                        @Override
+                                        public Object doProcess(int peerId) {
+                                            return new ExitSpan(spanIdGenerator++, parentSpanId, applicationId, peerId);
+                                        }
+                                    }, new PossibleFound.NotFoundAndObtain() {
+                                        @Override
+                                        public Object doProcess() {
+                                            return new ExitSpan(spanIdGenerator++, parentSpanId, applicationId, remotePeer);
+                                        }
+                                    });
                         }
-                    }, new PossibleFound.NotFoundAndObtain() {
+                    },
+                    new PossibleFound.NotFoundAndObtain() {
                         @Override
                         public Object doProcess() {
-                            return new LocalSpan(spanId, parentSpanId, operationName);
+                            return new ExitSpan(spanIdGenerator++, parentSpanId, operationName, remotePeer);
                         }
                     });
-            case EXIT:
-                if (parentSpan != null && parentSpan.isExit()) {
-                    return parentSpan;
-                } else {
-                    return (AbstractTracingSpan)DictionaryManager.findApplicationCodeSection()
-                        .find(peerHost).doInCondition(
-                            new PossibleFound.FoundAndObtain() {
-                                @Override
-                                public Object doProcess(final int applicationId) {
-                                    return DictionaryManager.findOperationNameCodeSection()
-                                        .find(applicationId, operationName)
-                                        .doInCondition(
-                                            new PossibleFound.FoundAndObtain() {
-                                                @Override
-                                                public Object doProcess(int peerId) {
-                                                    return new ExitSpan(spanId, parentSpanId, applicationId, peerId);
-                                                }
-                                            }, new PossibleFound.NotFoundAndObtain() {
-                                                @Override
-                                                public Object doProcess() {
-                                                    return new ExitSpan(spanId, parentSpanId, applicationId, peerHost);
-                                                }
-                                            });
-                                }
-                            },
-                            new PossibleFound.NotFoundAndObtain() {
-                                @Override
-                                public Object doProcess() {
-                                    return new ExitSpan(spanId, parentSpanId, operationName, peerHost);
-                                }
-                            });
-                }
-            case ENTRY:
-                if (parentSpan.isEntry()) {
-                    return parentSpan;
-                } else if (parentSpan == null) {
-                    return (AbstractTracingSpan)DictionaryManager.findOperationNameCodeSection()
-                        .find(segment.getApplicationId(), operationName)
-                        .doInCondition(new PossibleFound.FoundAndObtain() {
-                            @Override public Object doProcess(int operationId) {
-                                return new EntrySpan(spanId, parentSpanId, operationId);
-                            }
-                        }, new PossibleFound.NotFoundAndObtain() {
-                            @Override public Object doProcess() {
-                                return new EntrySpan(spanId, parentSpanId, operationName);
-                            }
-                        });
-                } else {
-                    throw new IllegalStateException("The Entry Span can't be the child of Non-Entry Span");
-                }
-            default:
-                throw new IllegalStateException("Unsupported Span type:" + spanType);
         }
     }
 
