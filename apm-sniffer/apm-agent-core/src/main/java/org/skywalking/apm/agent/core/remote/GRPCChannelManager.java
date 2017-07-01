@@ -2,6 +2,8 @@ package org.skywalking.apm.agent.core.remote;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import io.grpc.internal.DnsNameResolverProvider;
 import io.grpc.netty.NettyChannelBuilder;
 import java.util.Collections;
@@ -32,7 +34,7 @@ public class GRPCChannelManager implements BootService, Runnable {
 
     @Override
     public void boot() throws Throwable {
-        this.startupInBackground(false);
+        this.connectInBackground(false);
     }
 
     @Override
@@ -40,7 +42,7 @@ public class GRPCChannelManager implements BootService, Runnable {
 
     }
 
-    private void startupInBackground(boolean forceStart) {
+    private void connectInBackground(boolean forceStart) {
         if (channelManagerThread == null || !channelManagerThread.isAlive()) {
             synchronized (this) {
                 if (forceStart) {
@@ -106,8 +108,37 @@ public class GRPCChannelManager implements BootService, Runnable {
         return managedChannel;
     }
 
-    public void reportError() {
-        this.startupInBackground(true);
+    /**
+     * If the given expcetion is triggered by network problem, connect in background.
+     * @param throwable
+     */
+    public void reportError(Throwable throwable) {
+        if (isNetworkError(throwable)) {
+            this.connectInBackground(true);
+        }
+    }
+
+    private boolean isNetworkError(Throwable throwable) {
+        if (throwable instanceof StatusRuntimeException) {
+            StatusRuntimeException statusRuntimeException = (StatusRuntimeException)throwable;
+            return statusEquals(statusRuntimeException.getStatus(),
+                Status.UNAVAILABLE,
+                Status.PERMISSION_DENIED,
+                Status.UNAUTHENTICATED,
+                Status.RESOURCE_EXHAUSTED,
+                Status.UNKNOWN
+            );
+        }
+        return false;
+    }
+
+    private boolean statusEquals(Status sourceStatus, Status... potentialStatus) {
+        for (Status status : potentialStatus) {
+            if (sourceStatus.getCode() == status.getCode()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void resetNextStartTime() {
