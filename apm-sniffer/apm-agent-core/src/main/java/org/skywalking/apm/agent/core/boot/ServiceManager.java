@@ -22,6 +22,8 @@ public enum ServiceManager {
 
     public void boot() {
         bootedServices = loadAllServices();
+
+        beforeBoot();
         startup();
         afterBoot();
     }
@@ -36,10 +38,20 @@ public enum ServiceManager {
         return bootedServices;
     }
 
+    private void beforeBoot() {
+        for (BootService service : bootedServices.values()) {
+            try {
+                service.beforeBoot();
+            } catch (Throwable e) {
+                logger.error(e, "ServiceManager try to pre-start [{}] fail.", service.getClass().getName());
+            }
+        }
+    }
+
     private void startup() {
         for (BootService service : bootedServices.values()) {
             try {
-                service.bootUp();
+                service.boot();
             } catch (Throwable e) {
                 logger.error(e, "ServiceManager try to start [{}] fail.", service.getClass().getName());
             }

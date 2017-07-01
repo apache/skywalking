@@ -1,4 +1,4 @@
-org.skywalking.apm.agent.core.datacarrier.DataBufferService
+org.skywalking.apm.agent.core.remote.TraceSegmentServiceClient
 org.skywalking.apm.agent.core.context.ContextManager
 org.skywalking.apm.agent.core.discovery.CollectorDiscoveryService
 org.skywalking.apm.agent.core.sampling.SamplingService

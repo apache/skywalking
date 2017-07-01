@@ -4,6 +4,9 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.internal.DnsNameResolverProvider;
 import io.grpc.netty.NettyChannelBuilder;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
 import org.skywalking.apm.agent.core.boot.BootService;
 import org.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
@@ -19,9 +22,15 @@ public class GRPCChannelManager implements BootService, Runnable {
     private volatile Thread channelManagerThread = null;
     private volatile ManagedChannel managedChannel = null;
     private Random random = new Random();
+    private List<GRPCChannelListener> listeners = Collections.synchronizedList(new LinkedList<GRPCChannelListener>());
 
     @Override
-    public void bootUp() throws Throwable {
+    public void beforeBoot() throws Throwable {
+
+    }
+
+    @Override
+    public void boot() throws Throwable {
         this.startupInBackground();
     }
 
@@ -61,6 +70,9 @@ public class GRPCChannelManager implements BootService, Runnable {
                             .maxInboundMessageSize(1024 * 1024 * 50)
                             .usePlaintext(true);
                     managedChannel = channelBuilder.build();
+                    for (GRPCChannelListener listener : listeners) {
+                        listener.statusChanged(GRPCChannelStatus.CONNECTED);
+                    }
                     break;
                 } catch (Throwable t) {
                     logger.error(t, "Create channel to {} fail.", server);
@@ -71,6 +83,14 @@ public class GRPCChannelManager implements BootService, Runnable {
             logger.debug("Selected collector grpc service is not available. Wait {} seconds to try", waitTime);
             try2Sleep(waitTime);
         }
+    }
+
+    public void addChannelListener(GRPCChannelListener listener){
+        listeners.add(listener);
+    }
+
+    public ManagedChannel getManagedChannel() {
+        return managedChannel;
     }
 
     /**

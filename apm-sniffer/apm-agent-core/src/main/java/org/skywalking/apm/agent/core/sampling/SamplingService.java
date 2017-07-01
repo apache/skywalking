@@ -28,10 +28,15 @@ public class SamplingService implements BootService {
     private volatile ScheduledFuture<?> scheduledFuture;
 
     @Override
-    public void bootUp() throws Throwable {
+    public void beforeBoot() throws Throwable {
+
+    }
+
+    @Override
+    public void boot() throws Throwable {
         if (scheduledFuture != null) {
             /**
-             * If {@link #bootUp()} invokes twice, mostly in test cases,
+             * If {@link #boot()} invokes twice, mostly in test cases,
              * cancel the old one.
              */
             scheduledFuture.cancel(true);

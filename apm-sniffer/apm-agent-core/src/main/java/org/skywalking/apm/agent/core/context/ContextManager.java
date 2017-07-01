@@ -109,7 +109,12 @@ public class ContextManager implements TracingContextListener, BootService, Igno
     }
 
     @Override
-    public void bootUp() {
+    public void beforeBoot() throws Throwable {
+
+    }
+
+    @Override
+    public void boot() {
         TracingContext.ListenerManager.add(this);
         IgnoredTracerContext.ListenerManager.add(this);
     }
