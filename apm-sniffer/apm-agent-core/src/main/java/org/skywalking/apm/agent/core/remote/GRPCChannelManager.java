@@ -51,7 +51,7 @@ public class GRPCChannelManager implements BootService, Runnable {
     public void run() {
         while (true) {
             if (RemoteDownstreamConfig.Collector.GRPC_SERVERS.size() > 0) {
-                int index = random.nextInt() % RemoteDownstreamConfig.Collector.GRPC_SERVERS.size()
+                int index = random.nextInt() % RemoteDownstreamConfig.Collector.GRPC_SERVERS.size();
                 String server = RemoteDownstreamConfig.Collector.GRPC_SERVERS.get(index);
                 try {
                     String[] ipAndPort = server.split(":");
