@@ -19,7 +19,6 @@ public class GRPCStreamServiceStatus {
     }
 
     /**
-     *
      * @param maxTimeout max wait time, milliseconds.
      */
     public void wait4Finish(long maxTimeout) {
@@ -28,8 +27,8 @@ public class GRPCStreamServiceStatus {
             if (time > maxTimeout) {
                 break;
             }
-            try2Sleep(50);
-            time += 50;
+            try2Sleep(5);
+            time += 5;
         }
     }
 
