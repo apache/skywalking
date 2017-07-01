@@ -17,12 +17,13 @@ import java.util.ServiceLoader;
 public enum ServiceManager {
     INSTANCE;
 
-    private static final ILog logger = LogManager.getLogger(StatusBootService.class);
+    private static final ILog logger = LogManager.getLogger(ServiceManager.class);
     private Map<Class, BootService> bootedServices = new HashMap<Class, BootService>();
 
     public void boot() {
         bootedServices = loadAllServices();
         startup();
+        afterBoot();
     }
 
     private Map<Class, BootService> loadAllServices() {
@@ -41,6 +42,16 @@ public enum ServiceManager {
                 service.bootUp();
             } catch (Throwable e) {
                 logger.error(e, "ServiceManager try to start [{}] fail.", service.getClass().getName());
+            }
+        }
+    }
+
+    private void afterBoot(){
+        for (BootService service : bootedServices.values()) {
+            try {
+                service.afterBoot();
+            } catch (Throwable e) {
+                logger.error(e, "Service [{}] AfterBoot process fails.", service.getClass().getName());
             }
         }
     }

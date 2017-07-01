@@ -9,4 +9,6 @@ package org.skywalking.apm.agent.core.boot;
  */
 public interface BootService {
     void bootUp() throws Throwable;
+
+    void afterBoot() throws Throwable;
 }

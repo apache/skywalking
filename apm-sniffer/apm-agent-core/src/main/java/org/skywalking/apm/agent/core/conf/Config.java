@@ -22,9 +22,9 @@ public class Config {
 
         /**
          * Negative or zero means off, by default.
-         * {@link #SAMPLE_N_PER_10_SECS} means sampling N {@link TraceSegment} in 10 seconds tops.
+         * {@link #SAMPLE_N_PER_3_SECS} means sampling N {@link TraceSegment} in 10 seconds tops.
          */
-        public static int SAMPLE_N_PER_10_SECS = -1;
+        public static int SAMPLE_N_PER_3_SECS = -1;
 
         /**
          * If the operation name of the first span is included in this set,

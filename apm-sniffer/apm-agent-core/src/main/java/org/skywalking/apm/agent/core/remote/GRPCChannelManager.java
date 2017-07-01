@@ -4,7 +4,9 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.internal.DnsNameResolverProvider;
 import io.grpc.netty.NettyChannelBuilder;
+import java.util.Random;
 import org.skywalking.apm.agent.core.boot.BootService;
+import org.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
 import org.skywalking.apm.logging.ILog;
 import org.skywalking.apm.logging.LogManager;
 
@@ -16,10 +18,16 @@ public class GRPCChannelManager implements BootService, Runnable {
 
     private volatile Thread channelManagerThread = null;
     private volatile ManagedChannel managedChannel = null;
+    private Random random = new Random();
 
     @Override
     public void bootUp() throws Throwable {
         this.startupInBackground();
+    }
+
+    @Override
+    public void afterBoot() throws Throwable {
+
     }
 
     private void startupInBackground() {
@@ -41,17 +49,40 @@ public class GRPCChannelManager implements BootService, Runnable {
 
     @Override
     public void run() {
-        ManagedChannelBuilder<?> channelBuilder =
-            NettyChannelBuilder.forAddress("127.0.0.1", 808)
-                .nameResolverFactory(new DnsNameResolverProvider())
-                .maxInboundMessageSize(1024 * 1024 * 50)
-                .usePlaintext(true);
-        managedChannel = channelBuilder.build();
+        while (true) {
+            if (RemoteDownstreamConfig.Collector.GRPC_SERVERS.size() > 0) {
+                int index = random.nextInt() % RemoteDownstreamConfig.Collector.GRPC_SERVERS.size()
+                String server = RemoteDownstreamConfig.Collector.GRPC_SERVERS.get(index);
+                try {
+                    String[] ipAndPort = server.split(":");
+                    ManagedChannelBuilder<?> channelBuilder =
+                        NettyChannelBuilder.forAddress(ipAndPort[0], Integer.parseInt(ipAndPort[1]))
+                            .nameResolverFactory(new DnsNameResolverProvider())
+                            .maxInboundMessageSize(1024 * 1024 * 50)
+                            .usePlaintext(true);
+                    managedChannel = channelBuilder.build();
+                    break;
+                } catch (Throwable t) {
+                    logger.error(t, "Create channel to {} fail.", server);
+                }
+            }
+
+            int waitTime = 5 * 1000;
+            logger.debug("Selected collector grpc service is not available. Wait {} seconds to try", waitTime);
+            try2Sleep(waitTime);
+        }
     }
 
-    public static void main(String[] args) throws Throwable {
-        new GRPCChannelManager().bootUp();
+    /**
+     * Try to sleep, and ignore the {@link InterruptedException}
+     *
+     * @param millis the length of time to sleep in milliseconds
+     */
+    private void try2Sleep(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
 
-        Thread.sleep(60 * 1000);
+        }
     }
 }

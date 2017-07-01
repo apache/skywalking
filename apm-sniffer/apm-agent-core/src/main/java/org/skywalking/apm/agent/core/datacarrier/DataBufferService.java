@@ -22,6 +22,10 @@ public class DataBufferService implements BootService, IConsumer<TraceSegment>, 
         carrier = new DataCarrier<TraceSegment>(CHANNEL_SIZE, BUFFER_SIZE);
         carrier.setBufferStrategy(BufferStrategy.IF_POSSIBLE);
         carrier.consume(this, 1);
+    }
+
+    @Override
+    public void afterBoot() throws Throwable {
         TracingContext.ListenerManager.add(this);
     }
 
