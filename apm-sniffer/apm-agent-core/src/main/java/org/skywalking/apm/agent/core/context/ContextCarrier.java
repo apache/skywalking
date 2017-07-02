@@ -6,6 +6,7 @@ import java.util.List;
 import org.skywalking.apm.agent.core.context.ids.DistributedTraceId;
 import org.skywalking.apm.agent.core.context.ids.PropagatedTraceId;
 import org.skywalking.apm.agent.core.context.trace.TraceSegment;
+import org.skywalking.apm.agent.core.dictionary.DictionaryUtil;
 import org.skywalking.apm.util.StringUtil;
 
 /**
@@ -22,9 +23,11 @@ public class ContextCarrier implements Serializable {
 
     private int spanId = -1;
 
-    private String applicationCode;
+    private int applicationId = DictionaryUtil.nullValue();
 
     private String peerHost;
+
+    private String entryOperationName;
 
     /**
      * {@link DistributedTraceId}
@@ -42,8 +45,9 @@ public class ContextCarrier implements Serializable {
             return StringUtil.join('|',
                 this.getTraceSegmentId(),
                 this.getSpanId() + "",
-                this.getApplicationCode(),
+                this.getApplicationId() + "",
                 this.getPeerHost(),
+                this.getEntryOperationName(),
                 this.serializeDistributedTraceIds());
         } else {
             return "";
@@ -58,13 +62,14 @@ public class ContextCarrier implements Serializable {
     public ContextCarrier deserialize(String text) {
         if (text != null) {
             String[] parts = text.split("\\|", 6);
-            if (parts.length == 5) {
+            if (parts.length == 6) {
                 try {
-                    setSpanId(Integer.parseInt(parts[1]));
-                    setTraceSegmentId(parts[0]);
-                    setApplicationCode(parts[2]);
-                    setPeerHost(parts[3]);
-                    setDistributedTraceIds(deserializeDistributedTraceIds(parts[4]));
+                    this.traceSegmentId = parts[0];
+                    this.spanId = Integer.parseInt(parts[1]);
+                    this.applicationId = Integer.parseInt(parts[2]);
+                    this.peerHost = parts[3];
+                    this.entryOperationName = parts[4];
+                    this.distributedTraceIds = deserializeDistributedTraceIds(parts[5]);
                 } catch (NumberFormatException e) {
 
                 }
@@ -81,9 +86,22 @@ public class ContextCarrier implements Serializable {
     public boolean isValid() {
         return !StringUtil.isEmpty(traceSegmentId)
             && getSpanId() > -1
-            && !StringUtil.isEmpty(applicationCode)
+            && applicationId != DictionaryUtil.nullValue()
             && !StringUtil.isEmpty(peerHost)
+            && !StringUtil.isEmpty(entryOperationName)
             && distributedTraceIds != null;
+    }
+
+    public String getEntryOperationName() {
+        return entryOperationName;
+    }
+
+    public void setEntryOperationName(String entryOperationName) {
+        this.entryOperationName = '#' + entryOperationName;
+    }
+
+    public void setEntryOperationId(int entryOperationId) {
+        this.entryOperationName = entryOperationId + "";
     }
 
     public String getTraceSegmentId() {
@@ -102,16 +120,12 @@ public class ContextCarrier implements Serializable {
         this.spanId = spanId;
     }
 
-    public String getApplicationCode() {
-        return applicationCode;
-    }
-
-    public void setApplicationCode(String applicationCode) {
-        this.applicationCode = applicationCode;
+    public int getApplicationId() {
+        return applicationId;
     }
 
     public void setApplicationId(int applicationId) {
-        this.applicationCode = applicationId + "";
+        this.applicationId = applicationId;
     }
 
     public String getPeerHost() {
@@ -119,7 +133,7 @@ public class ContextCarrier implements Serializable {
     }
 
     public void setPeerHost(String peerHost) {
-        this.peerHost = peerHost;
+        this.peerHost = '#' + peerHost;
     }
 
     public void setPeerId(int peerId) {
