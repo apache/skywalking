@@ -45,7 +45,7 @@ public class TracingContext implements AbstractTracerContext {
     @Override
     public void inject(ContextCarrier carrier) {
         AbstractTracingSpan span = this.activeSpan();
-        if (span.isExit()) {
+        if (!span.isExit()) {
             throw new IllegalStateException("Inject can be done only in Exit Span");
         }
         ExitSpan exitSpan = (ExitSpan)span;
