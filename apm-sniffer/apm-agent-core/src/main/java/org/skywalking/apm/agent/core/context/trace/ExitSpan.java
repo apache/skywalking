@@ -1,6 +1,7 @@
 package org.skywalking.apm.agent.core.context.trace;
 
 import org.skywalking.apm.agent.core.dictionary.DictionaryUtil;
+import org.skywalking.apm.network.trace.component.Component;
 
 /**
  * The <code>ExitSpan</code> represents a service consumer point, such as Feign, Okhttp discovery for a Http service.
@@ -63,6 +64,33 @@ public class ExitSpan extends AbstractTracingSpan {
             return super.finish(owner);
         } else {
             return false;
+        }
+    }
+
+    @Override
+    public AbstractSpan setLayer(SpanLayer layer) {
+        if (stackDepth == 1) {
+            return super.setLayer(layer);
+        } else {
+            return this;
+        }
+    }
+
+    @Override
+    public AbstractSpan setComponent(Component component) {
+        if (stackDepth == 1) {
+            return super.setComponent(component);
+        } else {
+            return this;
+        }
+    }
+
+    @Override
+    public AbstractSpan setComponent(String componentName) {
+        if (stackDepth == 1) {
+            return super.setComponent(componentName);
+        } else {
+            return this;
         }
     }
 

@@ -1,5 +1,8 @@
 package org.skywalking.apm.agent.core.context.trace;
 
+import org.skywalking.apm.agent.core.dictionary.DictionaryUtil;
+import org.skywalking.apm.network.trace.component.Component;
+
 /**
  * The <code>EntrySpan</code> represents a service provider point, such as Tomcat server entrance.
  *
@@ -47,6 +50,33 @@ public class EntrySpan extends AbstractTracingSpan {
     }
 
     @Override
+    public AbstractSpan setLayer(SpanLayer layer) {
+        if (stackDepth == currentMaxDepth) {
+            return super.setLayer(layer);
+        } else {
+            return this;
+        }
+    }
+
+    @Override
+    public AbstractSpan setComponent(Component component) {
+        if (stackDepth == currentMaxDepth) {
+            return super.setComponent(component);
+        } else {
+            return this;
+        }
+    }
+
+    @Override
+    public AbstractSpan setComponent(String componentName) {
+        if (stackDepth == currentMaxDepth) {
+            return super.setComponent(componentName);
+        } else {
+            return this;
+        }
+    }
+
+    @Override
     public boolean finish(TraceSegment owner) {
         if (--stackDepth == 0) {
             return super.finish(owner);
@@ -74,6 +104,9 @@ public class EntrySpan extends AbstractTracingSpan {
     }
 
     private void clearWhenRestart() {
+        this.componentId = DictionaryUtil.nullValue();
+        this.componentName = null;
+        this.layer = null;
         this.logs = null;
         this.tags = null;
     }

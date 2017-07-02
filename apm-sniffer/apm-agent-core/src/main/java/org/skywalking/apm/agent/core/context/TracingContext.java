@@ -77,10 +77,11 @@ public class TracingContext implements AbstractTracerContext {
 
     @Override
     public AbstractSpan createEntrySpan(final String operationName) {
+        AbstractTracingSpan entrySpan;
         AbstractTracingSpan parentSpan = peek();
         final int parentSpanId = parentSpan == null ? -1 : parentSpan.getSpanId();
         if (parentSpan == null) {
-            AbstractTracingSpan span = (AbstractTracingSpan)DictionaryManager.findOperationNameCodeSection()
+            entrySpan = (AbstractTracingSpan)DictionaryManager.findOperationNameCodeSection()
                 .find(segment.getApplicationId(), operationName)
                 .doInCondition(new PossibleFound.FoundAndObtain() {
                     @Override public Object doProcess(int operationId) {
@@ -91,9 +92,10 @@ public class TracingContext implements AbstractTracerContext {
                         return new EntrySpan(spanIdGenerator++, parentSpanId, operationName);
                     }
                 });
-            return push(span);
+            entrySpan.start();
+            return push(entrySpan);
         } else if (parentSpan.isEntry()) {
-            return parentSpan;
+            return parentSpan.start();
         } else {
             throw new IllegalStateException("The Entry Span can't be the child of Non-Entry Span");
         }
@@ -116,17 +118,19 @@ public class TracingContext implements AbstractTracerContext {
                     return new LocalSpan(spanIdGenerator++, parentSpanId, operationName);
                 }
             });
+        span.start();
         return push(span);
     }
 
     @Override
     public AbstractSpan createExitSpan(final String operationName, final String remotePeer) {
+        AbstractTracingSpan exitSpan;
         AbstractTracingSpan parentSpan = peek();
         if (parentSpan != null && parentSpan.isExit()) {
-            return parentSpan;
+            exitSpan = parentSpan;
         } else {
             final int parentSpanId = parentSpan == null ? -1 : parentSpan.getSpanId();
-            AbstractTracingSpan span = (AbstractTracingSpan)DictionaryManager.findApplicationCodeSection()
+            exitSpan = (AbstractTracingSpan)DictionaryManager.findApplicationCodeSection()
                 .find(remotePeer).doInCondition(
                     new PossibleFound.FoundAndObtain() {
                         @Override
@@ -153,8 +157,10 @@ public class TracingContext implements AbstractTracerContext {
                             return new ExitSpan(spanIdGenerator++, parentSpanId, operationName, remotePeer);
                         }
                     });
-            return push(span);
+            exitSpan.start();
+            push(exitSpan);
         }
+        return exitSpan;
     }
 
     @Override

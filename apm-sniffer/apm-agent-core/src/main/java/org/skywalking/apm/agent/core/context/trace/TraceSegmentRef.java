@@ -31,6 +31,11 @@ public class TraceSegmentRef {
      */
     private List<DistributedTraceId> distributedTraceIds;
 
+    /**
+     * Transform a {@link ContextCarrier} to the <code>TraceSegmentRef</code>
+     *
+     * @param carrier the valid cross-process propagation format.
+     */
     public TraceSegmentRef(ContextCarrier carrier) {
         this.traceSegmentId = carrier.getTraceSegmentId();
         this.spanId = carrier.getSpanId();
