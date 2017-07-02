@@ -104,9 +104,6 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
             for (ConstructorInterceptPoint constructorInterceptPoint : constructorInterceptPoints) {
                 newClassBuilder = newClassBuilder.constructor(ElementMatchers.<MethodDescription>any()).intercept(SuperMethodCall.INSTANCE
                     .andThen(MethodDelegation.withDefaultConfiguration()
-                        .withBinders(
-                            FieldProxy.Binder.install(FieldGetter.class, FieldSetter.class)
-                        )
                         .to(new ConstructorInter(constructorInterceptPoint.getConstructorInterceptor()))
                     )
                 );
@@ -129,7 +126,6 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
                             .intercept(
                                 MethodDelegation.withDefaultConfiguration()
                                     .withBinders(
-                                        FieldProxy.Binder.install(FieldGetter.class, FieldSetter.class),
                                         Morph.Binder.install(OverrideCallable.class)
                                     )
                                     .to(new InstMethodsInterWithOverrideArgs(interceptor))
@@ -139,9 +135,6 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
                         newClassBuilder.method(not(isStatic()).and(instanceMethodsInterceptPoint.getMethodsMatcher()))
                             .intercept(
                                 MethodDelegation.withDefaultConfiguration()
-                                    .withBinders(
-                                        FieldProxy.Binder.install(FieldGetter.class, FieldSetter.class)
-                                    )
                                     .to(new InstMethodsInter(interceptor))
                             );
                 }

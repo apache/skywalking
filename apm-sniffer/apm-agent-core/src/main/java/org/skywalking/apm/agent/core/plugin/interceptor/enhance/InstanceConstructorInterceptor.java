@@ -11,8 +11,5 @@ public interface InstanceConstructorInterceptor {
     /**
      * Called before the origin constructor invocation.
      */
-    void onConstruct(Object objInst,
-        Object[] allArguments,
-        FieldSetter dynamicFieldSetter,
-        FieldGetter dynamicFieldGetter);
+    void onConstruct(Object objInst, Object[] allArguments);
 }

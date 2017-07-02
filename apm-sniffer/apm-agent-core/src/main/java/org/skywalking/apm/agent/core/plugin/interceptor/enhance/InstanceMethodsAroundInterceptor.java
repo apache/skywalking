@@ -13,9 +13,7 @@ public interface InstanceMethodsAroundInterceptor {
      * @param result change this result, if you want to truncate the method.
      * @throws Throwable
      */
-    void beforeMethod(Object objInst, String methodName, Object[] allArguments, Class<?>[] argumentsTypes,
-        FieldSetter dynamicFieldSetter,
-        FieldGetter dynamicFieldGetter,
+    void beforeMethod(EnhancedInstance objInst, String methodName, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable;
 
     /**
@@ -25,9 +23,7 @@ public interface InstanceMethodsAroundInterceptor {
      * @return the method's actual return value.
      * @throws Throwable
      */
-    Object afterMethod(Object objInst, String methodName, Object[] allArguments, Class<?>[] argumentsTypes,
-        FieldSetter dynamicFieldSetter,
-        FieldGetter dynamicFieldGetter,
+    Object afterMethod(EnhancedInstance objInst, String methodName, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable;
 
     /**
@@ -35,8 +31,6 @@ public interface InstanceMethodsAroundInterceptor {
      *
      * @param t the exception occur.
      */
-    void handleMethodException(Object objInst, String methodName, Object[] allArguments, Class<?>[] argumentsTypes,
-        FieldSetter dynamicFieldSetter,
-        FieldGetter dynamicFieldGetter,
+    void handleMethodException(EnhancedInstance objInst, String methodName, Object[] allArguments, Class<?>[] argumentsTypes,
         Throwable t);
 }

@@ -42,8 +42,6 @@ public class InstMethodsInterWithOverrideArgs {
      * @param obj target class instance.
      * @param allArguments all method arguments
      * @param method method description.
-     * @param dynamicFieldGetter a proxy to set the dynamic field
-     * @param dynamicFieldSetter a proxy to get the dynamic field
      * @param zuper the origin call ref.
      * @return the return value of target instance method.
      * @throws Exception only throw exception because of zuper.call() or unexpected exception in sky-walking ( This is a
@@ -53,18 +51,15 @@ public class InstMethodsInterWithOverrideArgs {
     public Object intercept(@This Object obj,
         @AllArguments Object[] allArguments,
         @Origin Method method,
-        @FieldProxy(ClassEnhancePluginDefine.CONTEXT_ATTR_NAME) FieldSetter dynamicFieldSetter,
-        @FieldProxy(ClassEnhancePluginDefine.CONTEXT_ATTR_NAME) FieldGetter dynamicFieldGetter,
         @Morph(defaultMethod = true) OverrideCallable zuper
     ) throws Throwable {
         InstanceMethodsAroundInterceptor interceptor = InterceptorInstanceLoader
             .load(instanceMethodsAroundInterceptorClassName, obj.getClass().getClassLoader());
+        EnhancedInstance targetObject = (EnhancedInstance)obj;
 
         MethodInterceptResult result = new MethodInterceptResult();
         try {
-            interceptor.beforeMethod(obj, method.getName(), allArguments, method.getParameterTypes(),
-                dynamicFieldSetter,
-                dynamicFieldGetter,
+            interceptor.beforeMethod(targetObject, method.getName(), allArguments, method.getParameterTypes(),
                 result);
         } catch (Throwable t) {
             logger.error(t, "class[{}] before method[{}] intercept failure", obj.getClass(), method.getName());
@@ -79,9 +74,7 @@ public class InstMethodsInterWithOverrideArgs {
             }
         } catch (Throwable t) {
             try {
-                interceptor.handleMethodException(obj, method.getName(), allArguments, method.getParameterTypes(),
-                    dynamicFieldSetter,
-                    dynamicFieldGetter,
+                interceptor.handleMethodException(targetObject, method.getName(), allArguments, method.getParameterTypes(),
                     t);
             } catch (Throwable t2) {
                 logger.error(t2, "class[{}] handle method[{}] exception failure", obj.getClass(), method.getName());
@@ -89,9 +82,7 @@ public class InstMethodsInterWithOverrideArgs {
             throw t;
         } finally {
             try {
-                ret = interceptor.afterMethod(obj, method.getName(), allArguments, method.getParameterTypes(),
-                    dynamicFieldSetter,
-                    dynamicFieldGetter,
+                ret = interceptor.afterMethod(targetObject, method.getName(), allArguments, method.getParameterTypes(),
                     ret);
             } catch (Throwable t) {
                 logger.error(t, "class[{}] after method[{}] intercept failure", obj.getClass(), method.getName());

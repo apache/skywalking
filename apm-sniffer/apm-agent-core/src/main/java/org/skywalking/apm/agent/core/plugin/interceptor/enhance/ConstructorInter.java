@@ -37,19 +37,16 @@ public class ConstructorInter {
      * Intercept the target constructor.
      *
      * @param obj target class instance.
-     * @param dynamicFieldGetter a proxy to set the dynamic field
-     * @param dynamicFieldSetter a proxy to get the dynamic field
      * @param allArguments all constructor arguments
      */
     @RuntimeType
     public void intercept(@This Object obj,
-        @FieldProxy(ClassEnhancePluginDefine.CONTEXT_ATTR_NAME) FieldSetter dynamicFieldSetter,
-        @FieldProxy(ClassEnhancePluginDefine.CONTEXT_ATTR_NAME) FieldGetter dynamicFieldGetter,
         @AllArguments Object[] allArguments) {
         try {
             InstanceConstructorInterceptor interceptor = InterceptorInstanceLoader.load(constructorInterceptorClassName, obj.getClass().getClassLoader());
+            EnhancedInstance targetObject = (EnhancedInstance)obj;
 
-            interceptor.onConstruct(obj, allArguments, dynamicFieldSetter, dynamicFieldGetter);
+            interceptor.onConstruct(targetObject, allArguments);
         } catch (Throwable t) {
             logger.error("ConstructorInter failure.", t);
         }
