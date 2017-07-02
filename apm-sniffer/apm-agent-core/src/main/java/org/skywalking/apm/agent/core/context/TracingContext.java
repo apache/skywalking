@@ -256,6 +256,7 @@ public class TracingContext implements AbstractTracerContext {
      */
     private AbstractTracingSpan push(AbstractTracingSpan span) {
         activeSpanStack.addLast(span);
+        return span;
     }
 
     /**
