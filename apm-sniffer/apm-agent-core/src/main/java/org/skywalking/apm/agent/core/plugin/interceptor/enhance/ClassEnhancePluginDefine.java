@@ -104,7 +104,7 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
             for (ConstructorInterceptPoint constructorInterceptPoint : constructorInterceptPoints) {
                 newClassBuilder = newClassBuilder.constructor(ElementMatchers.<MethodDescription>any()).intercept(SuperMethodCall.INSTANCE
                     .andThen(MethodDelegation.withDefaultConfiguration()
-                        .to(new ConstructorInter(constructorInterceptPoint.getConstructorInterceptor()))
+                        .to(new ConstructorInter(constructorInterceptPoint.getConstructorInterceptor(), classLoader))
                     )
                 );
             }
@@ -135,7 +135,7 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
                         newClassBuilder.method(not(isStatic()).and(instanceMethodsInterceptPoint.getMethodsMatcher()))
                             .intercept(
                                 MethodDelegation.withDefaultConfiguration()
-                                    .to(new InstMethodsInter(interceptor))
+                                    .to(new InstMethodsInter(interceptor, classLoader))
                             );
                 }
             }

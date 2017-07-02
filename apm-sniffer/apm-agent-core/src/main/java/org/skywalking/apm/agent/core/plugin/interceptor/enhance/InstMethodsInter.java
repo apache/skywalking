@@ -1,6 +1,7 @@
 package org.skywalking.apm.agent.core.plugin.interceptor.enhance;
 
 import net.bytebuddy.implementation.bind.annotation.*;
+import org.skywalking.apm.agent.core.plugin.PluginException;
 import org.skywalking.apm.agent.core.plugin.interceptor.loader.InterceptorInstanceLoader;
 import org.skywalking.apm.logging.ILog;
 import org.skywalking.apm.logging.LogManager;
@@ -18,19 +19,21 @@ public class InstMethodsInter {
     private static final ILog logger = LogManager.getLogger(InstMethodsInter.class);
 
     /**
-     * A class full name, and instanceof {@link InstanceMethodsAroundInterceptor}
+     * An {@link InstanceMethodsAroundInterceptor}
      * This name should only stay in {@link String}, the real {@link Class} type will trigger classloader failure.
      * If you want to know more, please check on books about Classloader or Classloader appointment mechanism.
      */
-    private String instanceMethodsAroundInterceptorClassName;
+    private InstanceMethodsAroundInterceptor interceptor;
 
     /**
-     * Set the name of {@link InstMethodsInter#instanceMethodsAroundInterceptorClassName}
-     *
      * @param instanceMethodsAroundInterceptorClassName class full name.
      */
-    public InstMethodsInter(String instanceMethodsAroundInterceptorClassName) {
-        this.instanceMethodsAroundInterceptorClassName = instanceMethodsAroundInterceptorClassName;
+    public InstMethodsInter(String instanceMethodsAroundInterceptorClassName, ClassLoader classLoader) {
+        try {
+            interceptor = InterceptorInstanceLoader.load(instanceMethodsAroundInterceptorClassName, classLoader);
+        } catch (Throwable t) {
+            throw new PluginException("Can't create InstanceMethodsAroundInterceptor.", t);
+        }
     }
 
     /**
@@ -50,8 +53,6 @@ public class InstMethodsInter {
         @SuperCall Callable<?> zuper,
         @Origin Method method
     ) throws Throwable {
-        InstanceMethodsAroundInterceptor interceptor = InterceptorInstanceLoader
-            .load(instanceMethodsAroundInterceptorClassName, obj.getClass().getClassLoader());
         EnhancedInstance targetObject = (EnhancedInstance)obj;
 
         MethodInterceptResult result = new MethodInterceptResult();

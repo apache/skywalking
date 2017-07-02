@@ -95,7 +95,7 @@ public class TracingContext implements AbstractTracerContext {
     @Override
     public AbstractSpan createEntrySpan(final String operationName) {
         AbstractTracingSpan entrySpan;
-        AbstractTracingSpan parentSpan = peek();
+        final AbstractTracingSpan parentSpan = peek();
         final int parentSpanId = parentSpan == null ? -1 : parentSpan.getSpanId();
         if (parentSpan == null) {
             entrySpan = (AbstractTracingSpan)DictionaryManager.findOperationNameCodeSection()
@@ -112,7 +112,18 @@ public class TracingContext implements AbstractTracerContext {
             entrySpan.start();
             return push(entrySpan);
         } else if (parentSpan.isEntry()) {
-            return parentSpan.start();
+            entrySpan = (AbstractTracingSpan)DictionaryManager.findOperationNameCodeSection()
+                .find(segment.getApplicationId(), operationName)
+                .doInCondition(new PossibleFound.FoundAndObtain() {
+                    @Override public Object doProcess(int operationId) {
+                        return parentSpan.setOperationId(operationId);
+                    }
+                }, new PossibleFound.NotFoundAndObtain() {
+                    @Override public Object doProcess() {
+                        return parentSpan.setOperationName(operationName);
+                    }
+                });
+            return entrySpan.start();
         } else {
             throw new IllegalStateException("The Entry Span can't be the child of Non-Entry Span");
         }

@@ -7,6 +7,7 @@ import net.bytebuddy.implementation.bind.annotation.Morph;
 import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import net.bytebuddy.implementation.bind.annotation.This;
+import org.skywalking.apm.agent.core.plugin.PluginException;
 import org.skywalking.apm.agent.core.plugin.interceptor.loader.InterceptorInstanceLoader;
 import org.skywalking.apm.logging.ILog;
 import org.skywalking.apm.logging.LogManager;
@@ -21,19 +22,21 @@ public class InstMethodsInterWithOverrideArgs {
     private static final ILog logger = LogManager.getLogger(InstMethodsInterWithOverrideArgs.class);
 
     /**
-     * A class full name, and instanceof {@link InstanceMethodsAroundInterceptor}
+     * An {@link InstanceMethodsAroundInterceptor}
      * This name should only stay in {@link String}, the real {@link Class} type will trigger classloader failure.
      * If you want to know more, please check on books about Classloader or Classloader appointment mechanism.
      */
-    private String instanceMethodsAroundInterceptorClassName;
+    private InstanceMethodsAroundInterceptor interceptor;
 
     /**
-     * Set the name of {@link InstMethodsInterWithOverrideArgs#instanceMethodsAroundInterceptorClassName}
-     *
      * @param instanceMethodsAroundInterceptorClassName class full name.
      */
-    public InstMethodsInterWithOverrideArgs(String instanceMethodsAroundInterceptorClassName) {
-        this.instanceMethodsAroundInterceptorClassName = instanceMethodsAroundInterceptorClassName;
+    public InstMethodsInterWithOverrideArgs(String instanceMethodsAroundInterceptorClassName, ClassLoader classLoader) {
+        try {
+            interceptor = InterceptorInstanceLoader.load(instanceMethodsAroundInterceptorClassName, classLoader);
+        } catch (Throwable t) {
+            throw new PluginException("Can't create InstanceMethodsAroundInterceptor.", t);
+        }
     }
 
     /**
@@ -53,8 +56,6 @@ public class InstMethodsInterWithOverrideArgs {
         @Origin Method method,
         @Morph(defaultMethod = true) OverrideCallable zuper
     ) throws Throwable {
-        InstanceMethodsAroundInterceptor interceptor = InterceptorInstanceLoader
-            .load(instanceMethodsAroundInterceptorClassName, obj.getClass().getClassLoader());
         EnhancedInstance targetObject = (EnhancedInstance)obj;
 
         MethodInterceptResult result = new MethodInterceptResult();

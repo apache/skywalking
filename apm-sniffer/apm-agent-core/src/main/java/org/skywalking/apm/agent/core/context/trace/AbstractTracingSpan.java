@@ -113,6 +113,16 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
         return this;
     }
 
+    public AbstractTracingSpan setOperationName(String operationName) {
+        this.operationName = operationName;
+        return this;
+    }
+
+    public AbstractTracingSpan setOperationId(int operationId) {
+        this.operationId = operationId;
+        return this;
+    }
+
     public int getSpanId() {
         return spanId;
     }
