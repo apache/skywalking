@@ -38,6 +38,11 @@ public class MinimalHttpClientInstrumentation extends HttpClientInstrumentation 
                 public String getMethodsInterceptor() {
                     return getInstanceMethodsInterceptor();
                 }
+
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
             }
         };
     }

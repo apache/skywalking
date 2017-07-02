@@ -8,8 +8,8 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
  * {@link AbstractHttpClientInstrumentation} presents that skywalking intercepts {@link
- * org.apache.http.impl.client.InternalHttpClient#doExecute(org.apache.http.HttpHost, org.apache.http.HttpRequest, org.apache.http.protocol.HttpContext)} by using {@link
- * HttpClientInstrumentation#INTERCEPT_CLASS}.
+ * org.apache.http.impl.client.InternalHttpClient#doExecute(org.apache.http.HttpHost, org.apache.http.HttpRequest,
+ * org.apache.http.protocol.HttpContext)} by using {@link HttpClientInstrumentation#INTERCEPT_CLASS}.
  *
  * @author zhangxin
  */
@@ -34,6 +34,11 @@ public class InternalHttpClientInstrumentation extends HttpClientInstrumentation
                 @Override
                 public String getMethodsInterceptor() {
                     return getInstanceMethodsInterceptor();
+                }
+
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
                 }
             }
         };

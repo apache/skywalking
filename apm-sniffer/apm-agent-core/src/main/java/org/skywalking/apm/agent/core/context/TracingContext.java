@@ -185,9 +185,9 @@ public class TracingContext implements AbstractTracerContext {
                             return new ExitSpan(spanIdGenerator++, parentSpanId, operationName, remotePeer);
                         }
                     });
-            exitSpan.start();
             push(exitSpan);
         }
+        exitSpan.start();
         return exitSpan;
     }
 

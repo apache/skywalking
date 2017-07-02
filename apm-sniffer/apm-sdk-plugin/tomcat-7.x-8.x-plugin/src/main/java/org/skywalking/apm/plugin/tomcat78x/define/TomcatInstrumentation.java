@@ -52,6 +52,11 @@ public class TomcatInstrumentation extends ClassInstanceMethodsEnhancePluginDefi
                 public String getMethodsInterceptor() {
                     return INTERCEPT_CLASS;
                 }
+
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
             }
         };
     }
