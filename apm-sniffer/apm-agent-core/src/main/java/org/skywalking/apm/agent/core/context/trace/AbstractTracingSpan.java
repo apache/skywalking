@@ -121,6 +121,10 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
         return operationId;
     }
 
+    public String getOperationName() {
+        return operationName;
+    }
+
     @Override
     public AbstractSpan setLayer(SpanLayer layer) {
         this.layer = layer;

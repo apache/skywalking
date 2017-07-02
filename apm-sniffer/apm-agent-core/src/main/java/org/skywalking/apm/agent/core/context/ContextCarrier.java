@@ -6,6 +6,7 @@ import java.util.List;
 import org.skywalking.apm.agent.core.context.ids.DistributedTraceId;
 import org.skywalking.apm.agent.core.context.ids.PropagatedTraceId;
 import org.skywalking.apm.agent.core.context.trace.TraceSegment;
+import org.skywalking.apm.agent.core.dictionary.DictionaryManager;
 import org.skywalking.apm.agent.core.dictionary.DictionaryUtil;
 import org.skywalking.apm.util.StringUtil;
 
@@ -96,11 +97,11 @@ public class ContextCarrier implements Serializable {
         return entryOperationName;
     }
 
-    public void setEntryOperationName(String entryOperationName) {
+    void setEntryOperationName(String entryOperationName) {
         this.entryOperationName = '#' + entryOperationName;
     }
 
-    public void setEntryOperationId(int entryOperationId) {
+    void setEntryOperationId(int entryOperationId) {
         this.entryOperationName = entryOperationId + "";
     }
 
@@ -112,11 +113,11 @@ public class ContextCarrier implements Serializable {
         return spanId;
     }
 
-    public void setTraceSegmentId(String traceSegmentId) {
+    void setTraceSegmentId(String traceSegmentId) {
         this.traceSegmentId = traceSegmentId;
     }
 
-    public void setSpanId(int spanId) {
+    void setSpanId(int spanId) {
         this.spanId = spanId;
     }
 
@@ -124,7 +125,7 @@ public class ContextCarrier implements Serializable {
         return applicationId;
     }
 
-    public void setApplicationId(int applicationId) {
+    void setApplicationId(int applicationId) {
         this.applicationId = applicationId;
     }
 
@@ -132,11 +133,11 @@ public class ContextCarrier implements Serializable {
         return peerHost;
     }
 
-    public void setPeerHost(String peerHost) {
+    void setPeerHost(String peerHost) {
         this.peerHost = '#' + peerHost;
     }
 
-    public void setPeerId(int peerId) {
+    void setPeerId(int peerId) {
         this.peerHost = peerId + "";
     }
 

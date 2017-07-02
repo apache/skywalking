@@ -60,6 +60,23 @@ public class TracingContext implements AbstractTracerContext {
         } else {
             carrier.setPeerId(exitSpan.getPeerId());
         }
+        List<TraceSegmentRef> refs = this.segment.getRefs();
+        int operationId;
+        String operationName;
+        if (refs != null && refs.size() > 0) {
+            TraceSegmentRef ref = refs.get(0);
+            operationId = ref.getOperationId();
+            operationName = ref.getOperationName();
+        } else {
+            AbstractTracingSpan firstSpan = first();
+            operationId = firstSpan.getOperationId();
+            operationName = firstSpan.getOperationName();
+        }
+        if (operationId == DictionaryUtil.nullValue()) {
+            carrier.setEntryOperationName(operationName);
+        } else {
+            carrier.setEntryOperationId(operationId);
+        }
 
         carrier.setDistributedTraceIds(this.segment.getRelatedGlobalTraces());
     }
@@ -273,5 +290,9 @@ public class TracingContext implements AbstractTracerContext {
             return null;
         }
         return activeSpanStack.getLast();
+    }
+
+    private AbstractTracingSpan first() {
+        return activeSpanStack.getFirst();
     }
 }

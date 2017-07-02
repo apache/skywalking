@@ -178,6 +178,10 @@ public class TraceSegment {
         return !(refs == null || refs.size() == 0);
     }
 
+    public List<TraceSegmentRef> getRefs() {
+        return refs;
+    }
+
     public List<DistributedTraceId> getRelatedGlobalTraces() {
         return relatedGlobalTraces.getRelatedGlobalTraces();
     }

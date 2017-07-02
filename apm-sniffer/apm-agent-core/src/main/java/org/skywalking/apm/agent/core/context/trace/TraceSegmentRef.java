@@ -24,7 +24,7 @@ public class TraceSegmentRef {
 
     private String operationName;
 
-    private int operationId;
+    private int operationId = DictionaryUtil.nullValue();
 
     /**
      * {@link DistributedTraceId}
@@ -54,6 +54,14 @@ public class TraceSegmentRef {
         }
 
         this.distributedTraceIds = carrier.getDistributedTraceIds();
+    }
+
+    public String getOperationName() {
+        return operationName;
+    }
+
+    public int getOperationId() {
+        return operationId;
     }
 
     @Override
