@@ -80,7 +80,7 @@ public class TracingContext implements AbstractTracerContext {
         AbstractTracingSpan parentSpan = peek();
         final int parentSpanId = parentSpan == null ? -1 : parentSpan.getSpanId();
         if (parentSpan == null) {
-            return (AbstractTracingSpan)DictionaryManager.findOperationNameCodeSection()
+            AbstractTracingSpan span = (AbstractTracingSpan)DictionaryManager.findOperationNameCodeSection()
                 .find(segment.getApplicationId(), operationName)
                 .doInCondition(new PossibleFound.FoundAndObtain() {
                     @Override public Object doProcess(int operationId) {
@@ -91,6 +91,7 @@ public class TracingContext implements AbstractTracerContext {
                         return new EntrySpan(spanIdGenerator++, parentSpanId, operationName);
                     }
                 });
+            return push(span);
         } else if (parentSpan.isEntry()) {
             return parentSpan;
         } else {
@@ -102,7 +103,7 @@ public class TracingContext implements AbstractTracerContext {
     public AbstractSpan createLocalSpan(final String operationName) {
         AbstractTracingSpan parentSpan = peek();
         final int parentSpanId = parentSpan == null ? -1 : parentSpan.getSpanId();
-        return (AbstractTracingSpan)DictionaryManager.findOperationNameCodeSection()
+        AbstractTracingSpan span = (AbstractTracingSpan)DictionaryManager.findOperationNameCodeSection()
             .find(segment.getApplicationId(), operationName)
             .doInCondition(new PossibleFound.FoundAndObtain() {
                 @Override
@@ -115,6 +116,7 @@ public class TracingContext implements AbstractTracerContext {
                     return new LocalSpan(spanIdGenerator++, parentSpanId, operationName);
                 }
             });
+        return push(span);
     }
 
     @Override
@@ -124,7 +126,7 @@ public class TracingContext implements AbstractTracerContext {
             return parentSpan;
         } else {
             final int parentSpanId = parentSpan == null ? -1 : parentSpan.getSpanId();
-            return (AbstractTracingSpan)DictionaryManager.findApplicationCodeSection()
+            AbstractTracingSpan span = (AbstractTracingSpan)DictionaryManager.findApplicationCodeSection()
                 .find(remotePeer).doInCondition(
                     new PossibleFound.FoundAndObtain() {
                         @Override
@@ -151,6 +153,7 @@ public class TracingContext implements AbstractTracerContext {
                             return new ExitSpan(spanIdGenerator++, parentSpanId, operationName, remotePeer);
                         }
                     });
+            return push(span);
         }
     }
 
@@ -251,7 +254,7 @@ public class TracingContext implements AbstractTracerContext {
      *
      * @param span
      */
-    private void push(AbstractTracingSpan span) {
+    private AbstractTracingSpan push(AbstractTracingSpan span) {
         activeSpanStack.addLast(span);
     }
 
