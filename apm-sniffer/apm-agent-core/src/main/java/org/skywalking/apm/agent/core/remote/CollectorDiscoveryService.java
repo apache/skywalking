@@ -1,4 +1,4 @@
-package org.skywalking.apm.agent.core.discovery;
+package org.skywalking.apm.agent.core.remote;
 
 import org.skywalking.apm.agent.core.boot.BootService;
 import org.skywalking.apm.agent.core.remote.DiscoveryRestServiceClient;
