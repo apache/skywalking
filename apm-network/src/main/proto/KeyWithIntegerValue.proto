@@ -3,6 +3,7 @@ syntax = "proto3";
 option java_multiple_files = true;
 option java_package = "org.skywalking.apm.network.proto";
 
-// nothing down stream from collector yet.
-message Downstream {
+message KeyWithIntegerValue {
+    string key = 1;
+    int32 value = 2;
 }

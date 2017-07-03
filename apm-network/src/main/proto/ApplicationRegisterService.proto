@@ -1,7 +1,9 @@
 syntax = "proto3";
 
 option java_multiple_files = true;
-option java_package = "org.skywalking.apm.network.trace.proto";
+option java_package = "org.skywalking.apm.network.proto";
+
+import "KeyWithIntegerValue.proto";
 
 //register service for ApplicationCode, this service is called when service starts.
 service ApplicationRegisterService {
@@ -10,11 +12,9 @@ service ApplicationRegisterService {
 }
 
 message Application {
-    string applicationCode = 1;
+    repeated string applicationCode = 1;
 }
 
 message ApplicationMapping {
-    int32 applicationId = 1;
-    Application application = 2;
+    repeated KeyWithIntegerValue application = 1;
 }
-

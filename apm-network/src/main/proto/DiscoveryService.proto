@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 option java_multiple_files = true;
-option java_package = "org.skywalking.apm.network.trace.proto";
+option java_package = "org.skywalking.apm.network.proto";
 
 import "Downstream.proto";
 
@@ -16,7 +16,7 @@ service InstanceDiscoveryService {
 }
 
 message ApplicationInstance {
-    string applicationCode = 1;
+    int32 applicationId = 1;
 }
 
 message ApplicationInstanceMapping {
@@ -45,6 +45,6 @@ message ServiceNameMappingElement {
 
 message ServiceNameElement {
     string serviceName = 1;
-    string ApplicationCode = 2;
+    int32 applicationId = 2;
 }
 
