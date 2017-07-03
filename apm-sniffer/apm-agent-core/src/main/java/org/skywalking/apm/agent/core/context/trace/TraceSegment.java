@@ -203,10 +203,6 @@ public class TraceSegment {
                 traceSegmentBuilder.addRefs(ref.transform());
             }
         }
-        // globalTraceIds
-        for (DistributedTraceId distributedTraceId : getRelatedGlobalTraces()) {
-            traceSegmentBuilder.addGlobalTraceIds(distributedTraceId.get());
-        }
         // SpanObject
         for (AbstractTracingSpan span : this.spans) {
             traceSegmentBuilder.addSpans(span.transform());

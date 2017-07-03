@@ -19,10 +19,9 @@ message UpstreamSegment {
 message TraceSegmentObject {
     string traceSegmentId = 1;
     repeated TraceSegmentReference refs = 2;
-    repeated string globalTraceIds = 3;
-    repeated SpanObject spans = 4;
-    int32 applicationId = 5;
-    int32 applicationInstanceId = 6;
+    repeated SpanObject spans = 3;
+    int32 applicationId = 4;
+    int32 applicationInstanceId = 5;
 }
 
 message TraceSegmentReference {
