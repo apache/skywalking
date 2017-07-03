@@ -5,7 +5,6 @@ import net.bytebuddy.dynamic.DynamicType;
 import net.bytebuddy.implementation.FieldAccessor;
 import net.bytebuddy.implementation.MethodDelegation;
 import net.bytebuddy.implementation.SuperMethodCall;
-import net.bytebuddy.implementation.bind.annotation.FieldProxy;
 import net.bytebuddy.implementation.bind.annotation.Morph;
 import net.bytebuddy.matcher.ElementMatchers;
 import org.skywalking.apm.agent.core.plugin.AbstractClassEnhancePluginDefine;
@@ -128,7 +127,7 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
                                     .withBinders(
                                         Morph.Binder.install(OverrideCallable.class)
                                     )
-                                    .to(new InstMethodsInterWithOverrideArgs(interceptor))
+                                    .to(new InstMethodsInterWithOverrideArgs(interceptor, classLoader))
                             );
                 } else {
                     newClassBuilder =

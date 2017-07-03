@@ -1,12 +1,11 @@
 package org.skywalking.apm.agent.core.boot;
 
-import org.skywalking.apm.logging.ILog;
-import org.skywalking.apm.logging.LogManager;
-
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.ServiceLoader;
+import org.skywalking.apm.logging.ILog;
+import org.skywalking.apm.logging.LogManager;
 
 /**
  * The <code>ServiceManager</code> bases on {@link ServiceLoader},
@@ -58,7 +57,7 @@ public enum ServiceManager {
         }
     }
 
-    private void afterBoot(){
+    private void afterBoot() {
         for (BootService service : bootedServices.values()) {
             try {
                 service.afterBoot();
@@ -72,11 +71,11 @@ public enum ServiceManager {
      * Find a {@link BootService} implementation, which is already started.
      *
      * @param serviceClass class name.
-     * @param <T>          {@link BootService} implementation class.
+     * @param <T> {@link BootService} implementation class.
      * @return {@link BootService} instance
      */
     public <T extends BootService> T findService(Class<T> serviceClass) {
-        return (T) bootedServices.get(serviceClass);
+        return (T)bootedServices.get(serviceClass);
     }
 
     ServiceLoader<BootService> load() {

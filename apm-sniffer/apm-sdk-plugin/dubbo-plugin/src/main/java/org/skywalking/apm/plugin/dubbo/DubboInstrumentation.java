@@ -42,6 +42,11 @@ public class DubboInstrumentation extends ClassInstanceMethodsEnhancePluginDefin
                 public String getMethodsInterceptor() {
                     return INTERCEPT_CLASS;
                 }
+
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
             }
         };
     }

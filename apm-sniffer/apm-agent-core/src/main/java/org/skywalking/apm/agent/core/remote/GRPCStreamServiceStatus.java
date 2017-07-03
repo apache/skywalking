@@ -23,7 +23,7 @@ public class GRPCStreamServiceStatus {
      */
     public void wait4Finish(long maxTimeout) {
         long time = 0;
-        while (status == false) {
+        while (!status) {
             if (time > maxTimeout) {
                 break;
             }

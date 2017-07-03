@@ -48,7 +48,7 @@ public class TraceSegmentRef {
         }
         String entryOperationName = carrier.getEntryOperationName();
         if (entryOperationName.charAt(0) == '#') {
-            this.operationName = host.substring(1);
+            this.operationName = entryOperationName.substring(1);
         } else {
             this.operationId = Integer.parseInt(entryOperationName);
         }
