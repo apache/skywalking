@@ -13,9 +13,9 @@ import org.skywalking.apm.agent.core.datacarrier.buffer.BufferStrategy;
 import org.skywalking.apm.agent.core.datacarrier.consumer.IConsumer;
 import org.skywalking.apm.logging.ILog;
 import org.skywalking.apm.logging.LogManager;
-import org.skywalking.apm.network.collecor.proto.Downstream;
-import org.skywalking.apm.network.trace.proto.TraceSegmentServiceGrpc;
-import org.skywalking.apm.network.trace.proto.UpstreamSegment;
+import org.skywalking.apm.network.proto.Downstream;
+import org.skywalking.apm.network.proto.TraceSegmentServiceGrpc;
+import org.skywalking.apm.network.proto.UpstreamSegment;
 
 import static org.skywalking.apm.agent.core.conf.Config.Buffer.BUFFER_SIZE;
 import static org.skywalking.apm.agent.core.conf.Config.Buffer.CHANNEL_SIZE;
@@ -78,14 +78,13 @@ public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSe
                 }
             });
 
-            try {
-                for (TraceSegment segment : data) {
-                    //TODO
-                    // segment to PROTOBUFF object
-                    upstreamSegmentStreamObserver.onNext(null);
+            for (TraceSegment segment : data) {
+                try {
+                    UpstreamSegment upstreamSegment = segment.transform();
+                    upstreamSegmentStreamObserver.onNext(upstreamSegment);
+                } catch (Throwable t) {
+                    logger.error(t, "Transform and send UpstreamSegment to collector fail.");
                 }
-            } catch (Throwable t) {
-                logger.error(t, "Send UpstreamSegment to collector fail.");
             }
             upstreamSegmentStreamObserver.onCompleted();
 
@@ -113,6 +112,9 @@ public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSe
 
     @Override
     public void afterFinished(TraceSegment traceSegment) {
+        if (traceSegment.isIgnore()) {
+            return;
+        }
         if (!carrier.produce(traceSegment)) {
             if (logger.isDebugEnable()) {
                 logger.debug("One trace segment has been abandoned, cause by buffer is full.");

@@ -3,6 +3,7 @@ package org.skywalking.apm.agent.core.context.trace;
 import java.util.LinkedList;
 import java.util.List;
 import org.skywalking.apm.agent.core.conf.Config;
+import org.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
 import org.skywalking.apm.agent.core.context.ids.DistributedTraceId;
 import org.skywalking.apm.agent.core.context.ids.DistributedTraceIds;
 import org.skywalking.apm.agent.core.context.ids.GlobalIdGenerator;
@@ -11,6 +12,9 @@ import org.skywalking.apm.agent.core.dictionary.DictionaryManager;
 import org.skywalking.apm.agent.core.dictionary.PossibleFound;
 import org.skywalking.apm.logging.ILog;
 import org.skywalking.apm.logging.LogManager;
+import org.skywalking.apm.network.proto.TraceSegmentObject;
+import org.skywalking.apm.network.proto.TraceSegmentReference;
+import org.skywalking.apm.network.proto.UpstreamSegment;
 
 /**
  * {@link TraceSegment} is a segment or fragment of the distributed trace.
@@ -32,16 +36,6 @@ public class TraceSegment {
      * Every segment has its unique-global-id.
      */
     private String traceSegmentId;
-
-    /**
-     * The start time of this trace segment.
-     */
-    private long startTime;
-
-    /**
-     * The end time of this trace segment.
-     */
-    private long endTime;
 
     /**
      * The refs of parent trace segments, except the primary one.
@@ -103,7 +97,6 @@ public class TraceSegment {
                     }
                 }
             );
-        this.startTime = System.currentTimeMillis();
         this.traceSegmentId = GlobalIdGenerator.generate(ID_TYPE);
         this.spans = new LinkedList<AbstractTracingSpan>();
         this.relatedGlobalTraces = new DistributedTraceIds();
@@ -154,20 +147,11 @@ public class TraceSegment {
      * return this, for chaining
      */
     public TraceSegment finish() {
-        this.endTime = System.currentTimeMillis();
         return this;
     }
 
     public String getTraceSegmentId() {
         return traceSegmentId;
-    }
-
-    public long getStartTime() {
-        return startTime;
-    }
-
-    public long getEndTime() {
-        return endTime;
     }
 
     public int getApplicationId() {
@@ -198,12 +182,46 @@ public class TraceSegment {
         this.ignore = ignore;
     }
 
+    /**
+     * This is a high CPU cost method, only called when sending to collector or test cases.
+     *
+     * @return the segment as GRPC service parameter
+     */
+    public UpstreamSegment transform() {
+        UpstreamSegment.Builder upstreamBuilder = UpstreamSegment.newBuilder();
+        for (DistributedTraceId distributedTraceId : getRelatedGlobalTraces()) {
+            upstreamBuilder = upstreamBuilder.addGlobalTraceIds(distributedTraceId.get());
+        }
+        TraceSegmentObject.Builder traceSegmentBuilder = TraceSegmentObject.newBuilder();
+        /**
+         * Trace Segment
+         */
+        traceSegmentBuilder.setTraceSegmentId(this.traceSegmentId);
+        // TraceSegmentReference
+        if (this.refs != null) {
+            for (TraceSegmentRef ref : this.refs) {
+                traceSegmentBuilder.addRefs(ref.transform());
+            }
+        }
+        // globalTraceIds
+        for (DistributedTraceId distributedTraceId : getRelatedGlobalTraces()) {
+            traceSegmentBuilder.addGlobalTraceIds(distributedTraceId.get());
+        }
+        // SpanObject
+        for (AbstractTracingSpan span : this.spans) {
+            traceSegmentBuilder.addSpans(span.transform());
+        }
+        traceSegmentBuilder.setApplicationId(this.applicationId);
+        traceSegmentBuilder.setApplicationInstanceId(RemoteDownstreamConfig.Agent.APPLICATION_ID);
+
+        upstreamBuilder.setSegment(traceSegmentBuilder.build().toByteString());
+        return upstreamBuilder.build();
+    }
+
     @Override
     public String toString() {
         return "TraceSegment{" +
             "traceSegmentId='" + traceSegmentId + '\'' +
-            ", startTime=" + startTime +
-            ", endTime=" + endTime +
             ", refs=" + refs +
             ", spans=" + spans +
             ", applicationId='" + applicationId + '\'' +

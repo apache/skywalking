@@ -3,6 +3,8 @@ package org.skywalking.apm.agent.core.context.trace;
 import java.util.LinkedList;
 import java.util.List;
 import org.skywalking.apm.agent.core.context.util.KeyValuePair;
+import org.skywalking.apm.network.proto.KeyWithStringValue;
+import org.skywalking.apm.network.proto.LogMessage;
 
 /**
  * The <code>LogDataEntity</code> represents a collection of {@link KeyValuePair},
@@ -38,5 +40,13 @@ public class LogDataEntity {
         public LogDataEntity build() {
             return new LogDataEntity(logs);
         }
+    }
+
+    public LogMessage transform() {
+        LogMessage.Builder logMessageBuilder = LogMessage.newBuilder();
+        for (KeyValuePair log : logs) {
+            logMessageBuilder.addData(log.transform());
+        }
+        return logMessageBuilder.build();
     }
 }

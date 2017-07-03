@@ -4,10 +4,20 @@ package org.skywalking.apm.agent.core.context.trace;
  * @author wusheng
  */
 public enum SpanLayer {
-    DB,
-    RPC_FRAMEWORK,
-    HTTP,
-    MQ;
+    DB(0),
+    RPC_FRAMEWORK(1),
+    HTTP(2),
+    MQ(3);
+
+    private int code;
+
+    SpanLayer(int code) {
+        this.code = code;
+    }
+
+    public int getCode() {
+        return code;
+    }
 
     public static void asDB(AbstractSpan span) {
         span.setLayer(SpanLayer.DB);

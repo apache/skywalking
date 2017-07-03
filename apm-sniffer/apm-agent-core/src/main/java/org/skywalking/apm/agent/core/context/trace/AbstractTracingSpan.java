@@ -5,6 +5,8 @@ import java.util.List;
 import org.skywalking.apm.agent.core.context.util.KeyValuePair;
 import org.skywalking.apm.agent.core.context.util.ThrowableTransformer;
 import org.skywalking.apm.agent.core.dictionary.DictionaryUtil;
+import org.skywalking.apm.network.proto.SpanObject;
+import org.skywalking.apm.network.proto.SpanType;
 import org.skywalking.apm.network.trace.component.Component;
 
 /**
@@ -151,5 +153,39 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
     public AbstractSpan setComponent(String componentName) {
         this.componentName = componentName;
         return this;
+    }
+
+    public SpanObject.Builder transform(){
+        SpanObject.Builder spanBuilder = SpanObject.newBuilder();
+
+        spanBuilder.setSpanId(this.spanId);
+        spanBuilder.setParentSpanId(parentSpanId);
+        spanBuilder.setStartTime(startTime);
+        spanBuilder.setEndTime(endTime);
+        if (operationId == DictionaryUtil.nullValue()) {
+            spanBuilder.setOperationNameId(operationId);
+        } else {
+            spanBuilder.setOperationName(operationName);
+        }
+        spanBuilder.setSpanType(SpanType.Entry);
+        spanBuilder.setSpanLayerValue(this.layer.getCode());
+        if (componentId == DictionaryUtil.nullValue()) {
+            spanBuilder.setComponentId(componentId);
+        } else {
+            spanBuilder.setComponent(componentName);
+        }
+        spanBuilder.setIsError(errorOccurred);
+        if (this.tags != null) {
+            for (KeyValuePair tag : this.tags) {
+                spanBuilder.addTags(tag.transform());
+            }
+        }
+        if (this.logs != null) {
+            for (LogDataEntity log : this.logs) {
+                spanBuilder.addLogs(log.transform());
+            }
+        }
+
+        return spanBuilder;
     }
 }

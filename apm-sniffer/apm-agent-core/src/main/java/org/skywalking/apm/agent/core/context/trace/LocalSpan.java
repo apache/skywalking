@@ -1,5 +1,7 @@
 package org.skywalking.apm.agent.core.context.trace;
 
+import org.skywalking.apm.network.proto.SpanObject;
+
 /**
  * The <code>LocalSpan</code> represents a normal tracing point, such as a local method.
  *
@@ -25,6 +27,10 @@ public class LocalSpan extends AbstractTracingSpan {
     public LocalSpan log(Throwable t) {
         super.log(t);
         return this;
+    }
+
+    @Override public SpanObject transform() {
+        return null;
     }
 
     @Override public boolean isEntry() {

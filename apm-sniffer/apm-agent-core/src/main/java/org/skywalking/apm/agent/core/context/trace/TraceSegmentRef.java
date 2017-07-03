@@ -4,6 +4,8 @@ import java.util.List;
 import org.skywalking.apm.agent.core.context.ContextCarrier;
 import org.skywalking.apm.agent.core.context.ids.DistributedTraceId;
 import org.skywalking.apm.agent.core.dictionary.DictionaryUtil;
+import org.skywalking.apm.network.proto.TraceSegmentReference;
+import org.skywalking.apm.network.proto.UpstreamSegment;
 
 /**
  * {@link TraceSegmentRef} is like a pointer, which ref to another {@link TraceSegment},
@@ -27,11 +29,6 @@ public class TraceSegmentRef {
     private int operationId = DictionaryUtil.nullValue();
 
     /**
-     * {@link DistributedTraceId}
-     */
-    private List<DistributedTraceId> distributedTraceIds;
-
-    /**
      * Transform a {@link ContextCarrier} to the <code>TraceSegmentRef</code>
      *
      * @param carrier the valid cross-process propagation format.
@@ -52,8 +49,6 @@ public class TraceSegmentRef {
         } else {
             this.operationId = Integer.parseInt(entryOperationName);
         }
-
-        this.distributedTraceIds = carrier.getDistributedTraceIds();
     }
 
     public String getOperationName() {
@@ -62,6 +57,24 @@ public class TraceSegmentRef {
 
     public int getOperationId() {
         return operationId;
+    }
+
+    public TraceSegmentReference transform() {
+        TraceSegmentReference.Builder refBuilder = TraceSegmentReference.newBuilder();
+        refBuilder.setParentTraceSegmentId(traceSegmentId);
+        refBuilder.setParentSpanId(spanId);
+        refBuilder.setParentApplicationId(applicationId);
+        if (peerId == DictionaryUtil.nullValue()) {
+            refBuilder.setNetworkAddress(peerHost);
+        } else {
+            refBuilder.setNetworkAddressId(peerId);
+        }
+        if (operationId == DictionaryUtil.nullValue()) {
+            refBuilder.setEntryServiceName(operationName);
+        } else {
+            refBuilder.setEntryServiceId(operationId);
+        }
+        return refBuilder.build();
     }
 
     @Override
