@@ -30,6 +30,8 @@ message TraceSegmentReference {
     int32 parentApplicationId = 3;
     string networkAddress = 4;
     int32 networkAddressId = 5;
+    string entryServiceName = 6;
+    int32 entryServiceId = 7;
 }
 
 message SpanObject {
