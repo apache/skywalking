@@ -16,7 +16,7 @@ service InstanceDiscoveryService {
 }
 
 message ApplicationInstance {
-    string applicationCode = 1;
+    int32 applicationId = 1;
 }
 
 message ApplicationInstanceMapping {
@@ -45,6 +45,6 @@ message ServiceNameMappingElement {
 
 message ServiceNameElement {
     string serviceName = 1;
-    string ApplicationCode = 2;
+    int32 applicationId = 2;
 }
 
