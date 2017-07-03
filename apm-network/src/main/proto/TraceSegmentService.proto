@@ -21,7 +21,6 @@ message TraceSegmentObject {
     repeated SpanObject spans = 3;
     int32 applicationId = 4;
     int32 applicationInstanceId = 5;
-    repeated string globalTraceIds = 6;
 }
 
 message TraceSegmentReference {
@@ -32,6 +31,7 @@ message TraceSegmentReference {
     int32 networkAddressId = 5;
     string entryServiceName = 6;
     int32 entryServiceId = 7;
+    repeated string globalTraceIds = 8;
 }
 
 message SpanObject {
