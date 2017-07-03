@@ -4,7 +4,7 @@ option java_multiple_files = true;
 option java_package = "org.skywalking.apm.network.trace.proto";
 
 import "Downstream.proto";
-import "KeyValue.proto";
+import "KeyWithStringValue.proto";
 
 service TraceSegmentService {
     rpc collect (stream UpstreamSegment) returns (Downstream) {
@@ -49,7 +49,7 @@ message SpanObject {
     int32 componentId = 11;
     string component = 12;
     bool isError = 13;
-    repeated KeyValue tags = 14;
+    repeated KeyWithStringValue tags = 14;
     repeated LogMessage logs = 15;
 }
 
@@ -68,5 +68,5 @@ enum SpanLayer {
 
 message LogMessage {
     int64 time = 1;
-    repeated KeyValue data = 2;
+    repeated KeyWithStringValue data = 2;
 }
