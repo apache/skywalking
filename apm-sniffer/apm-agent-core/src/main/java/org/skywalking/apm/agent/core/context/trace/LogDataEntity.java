@@ -3,7 +3,6 @@ package org.skywalking.apm.agent.core.context.trace;
 import java.util.LinkedList;
 import java.util.List;
 import org.skywalking.apm.agent.core.context.util.KeyValuePair;
-import org.skywalking.apm.network.proto.KeyWithStringValue;
 import org.skywalking.apm.network.proto.LogMessage;
 
 /**

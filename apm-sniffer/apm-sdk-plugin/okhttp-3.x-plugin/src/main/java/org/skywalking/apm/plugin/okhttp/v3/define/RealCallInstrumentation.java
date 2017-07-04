@@ -58,6 +58,10 @@ public class RealCallInstrumentation extends ClassInstanceMethodsEnhancePluginDe
                 @Override public String getMethodsInterceptor() {
                     return INTERCEPT_CLASS;
                 }
+
+                @Override public boolean isOverrideArgs() {
+                    return false;
+                }
             }
         };
     }

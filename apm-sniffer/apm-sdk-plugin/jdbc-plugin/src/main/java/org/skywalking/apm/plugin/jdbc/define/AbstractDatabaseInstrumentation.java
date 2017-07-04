@@ -39,6 +39,10 @@ public abstract class AbstractDatabaseInstrumentation extends ClassInstanceMetho
                 public String getMethodsInterceptor() {
                     return INTERCEPT_CLASS;
                 }
+
+                @Override public boolean isOverrideArgs() {
+                    return false;
+                }
             }
         };
     }

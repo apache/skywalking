@@ -1,7 +1,6 @@
 package org.skywalking.apm.agent.core.remote;
 
 import org.skywalking.apm.agent.core.boot.BootService;
-import org.skywalking.apm.agent.core.remote.DiscoveryRestServiceClient;
 
 /**
  * The <code>CollectorDiscoveryService</code> is responsible for start {@link DiscoveryRestServiceClient}.

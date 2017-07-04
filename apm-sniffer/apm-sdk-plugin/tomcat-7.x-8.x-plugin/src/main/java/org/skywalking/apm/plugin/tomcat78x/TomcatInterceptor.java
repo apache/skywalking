@@ -50,9 +50,9 @@ public class TomcatInterceptor implements InstanceMethodsAroundInterceptor {
         HttpServletResponse response = (HttpServletResponse)allArguments[1];
 
         AbstractSpan span = ContextManager.activeSpan();
-        if (response.getStatus() != 200) {
+        if (response.getStatus() >= 400) {
             span.errorOccurred();
-            Tags.STATUS_CODE.set(span, response.getStatus() + "");
+            Tags.STATUS_CODE.set(span, Integer.toString(response.getStatus()));
         }
         ContextManager.stopSpan();
         return ret;

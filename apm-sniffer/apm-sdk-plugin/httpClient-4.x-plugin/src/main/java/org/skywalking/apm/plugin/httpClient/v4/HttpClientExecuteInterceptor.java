@@ -2,11 +2,9 @@ package org.skywalking.apm.plugin.httpClient.v4;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.apache.http.StatusLine;
 import org.skywalking.apm.agent.core.conf.Config;
 import org.skywalking.apm.agent.core.context.ContextCarrier;
 import org.skywalking.apm.agent.core.context.ContextManager;
@@ -18,12 +16,6 @@ import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsA
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.skywalking.apm.network.trace.component.ComponentsDefine;
 
-/**
- * {@link HttpClientExecuteInterceptor} transport the trace context by call {@link HttpRequest#setHeader(Header)},
- * The {@link Tags#STATUS_CODE} will be set if {@link StatusLine#getStatusCode()} is not equals 200.
- *
- * @author zhangxin
- */
 public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override public void beforeMethod(EnhancedInstance objInst, String methodName, Object[] allArguments,
@@ -60,9 +52,9 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
         HttpResponse response = (HttpResponse)ret;
         int statusCode = response.getStatusLine().getStatusCode();
         AbstractSpan span = ContextManager.activeSpan();
-        if (statusCode != 200) {
+        if (statusCode >= 400) {
             span.errorOccurred();
-            Tags.STATUS_CODE.set(span, statusCode + "");
+            Tags.STATUS_CODE.set(span, Integer.toString(statusCode));
         }
 
         ContextManager.stopSpan();

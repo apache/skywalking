@@ -1,11 +1,8 @@
 package org.skywalking.apm.agent.core.context.trace;
 
-import java.util.List;
 import org.skywalking.apm.agent.core.context.ContextCarrier;
-import org.skywalking.apm.agent.core.context.ids.DistributedTraceId;
 import org.skywalking.apm.agent.core.dictionary.DictionaryUtil;
 import org.skywalking.apm.network.proto.TraceSegmentReference;
-import org.skywalking.apm.network.proto.UpstreamSegment;
 
 /**
  * {@link TraceSegmentRef} is like a pointer, which ref to another {@link TraceSegment},
