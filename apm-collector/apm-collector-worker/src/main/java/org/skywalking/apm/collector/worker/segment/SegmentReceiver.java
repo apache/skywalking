@@ -1,10 +1,12 @@
 package org.skywalking.apm.collector.worker.segment;
 
-import com.google.gson.JsonObject;
-import java.io.BufferedReader;
-import java.io.IOException;
+import com.google.protobuf.ByteString;
+import com.google.protobuf.InvalidProtocolBufferException;
+import java.util.List;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.skywalking.apm.collector.actor.AbstractLocalSyncWorkerProvider;
 import org.skywalking.apm.collector.actor.ClusterWorkerContext;
 import org.skywalking.apm.collector.actor.LocalWorkerContext;
 import org.skywalking.apm.collector.actor.ProviderNotFoundException;
@@ -14,8 +16,7 @@ import org.skywalking.apm.collector.actor.WorkerNotFoundException;
 import org.skywalking.apm.collector.actor.selector.RollingSelector;
 import org.skywalking.apm.collector.actor.selector.WorkerSelector;
 import org.skywalking.apm.collector.worker.globaltrace.analysis.GlobalTraceAnalysis;
-import org.skywalking.apm.collector.worker.httpserver.AbstractStreamPost;
-import org.skywalking.apm.collector.worker.httpserver.AbstractStreamPostProvider;
+import org.skywalking.apm.collector.worker.grpcserver.AbstractReceiver;
 import org.skywalking.apm.collector.worker.httpserver.ArgumentsParseException;
 import org.skywalking.apm.collector.worker.node.analysis.NodeCompAnalysis;
 import org.skywalking.apm.collector.worker.node.analysis.NodeMappingDayAnalysis;
@@ -27,20 +28,21 @@ import org.skywalking.apm.collector.worker.noderef.analysis.NodeRefMinuteAnalysi
 import org.skywalking.apm.collector.worker.segment.analysis.SegmentAnalysis;
 import org.skywalking.apm.collector.worker.segment.analysis.SegmentCostAnalysis;
 import org.skywalking.apm.collector.worker.segment.analysis.SegmentExceptionAnalysis;
-import org.skywalking.apm.collector.worker.segment.entity.Segment;
-import org.skywalking.apm.collector.worker.segment.entity.SegmentAndJson;
-import org.skywalking.apm.collector.worker.segment.entity.SegmentDeserialize;
+import org.skywalking.apm.collector.worker.segment.entity.SegmentAndBase64;
 import org.skywalking.apm.collector.worker.storage.AbstractTimeSlice;
 import org.skywalking.apm.collector.worker.tools.DateTools;
+import org.skywalking.apm.network.proto.SpanObject;
+import org.skywalking.apm.network.proto.TraceSegmentObject;
+import org.skywalking.apm.network.proto.UpstreamSegment;
 import org.skywalking.apm.util.StringUtil;
 
 /**
  * @author pengys5
  */
-public class SegmentPost extends AbstractStreamPost {
-    private static final Logger logger = LogManager.getFormatterLogger(SegmentPost.class);
+public class SegmentReceiver extends AbstractReceiver {
+    private static final Logger logger = LogManager.getFormatterLogger(SegmentReceiver.class);
 
-    public SegmentPost(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    public SegmentReceiver(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 
@@ -67,59 +69,47 @@ public class SegmentPost extends AbstractStreamPost {
      * Read segment's buffer from buffer reader by stream mode. when finish read one segment then send to analysis.
      * This method in there, so post servlet just can receive segments data.
      */
-    @Override protected void onReceive(BufferedReader bufferedReader,
-        JsonObject response) throws ArgumentsParseException, WorkerInvokeException, WorkerNotFoundException {
-        Segment segment;
-        try {
-            do {
-                int character;
-                StringBuilder builder = new StringBuilder();
-                while ((character = bufferedReader.read()) != ' ') {
-                    if (character == -1) {
-                        return;
-                    }
-                    builder.append((char)character);
-                }
+    @Override protected void onReceive(
+        Object request) throws ArgumentsParseException, WorkerInvokeException, WorkerNotFoundException {
+        if (request instanceof UpstreamSegment) {
+            UpstreamSegment upstreamSegment = (UpstreamSegment)request;
+            ByteString segmentByte = upstreamSegment.getSegment();
+            List<String> globalTraceIds = upstreamSegment.getGlobalTraceIdsList();
 
-                int length = Integer.valueOf(builder.toString());
-                builder = new StringBuilder();
+            String segmentBase64 = new String(Base64.encodeBase64(segmentByte.toByteArray()));
 
-                char[] buffer = new char[length];
-                int readLength = bufferedReader.read(buffer, 0, length);
-                if (readLength != length) {
-                    logger.error("The actual data length was different from the length in data head! ");
-                    return;
-                }
-                builder.append(buffer);
-
-                String segmentJsonStr = builder.toString();
-                segment = SegmentDeserialize.INSTANCE.deserializeSingle(segmentJsonStr);
-                tellWorkers(new SegmentAndJson(segment, segmentJsonStr));
+            TraceSegmentObject segment;
+            try {
+                segment = TraceSegmentObject.parseFrom(segmentByte);
+            } catch (InvalidProtocolBufferException e) {
+                throw new ArgumentsParseException(e.getMessage(), e);
             }
-            while (segment != null);
-        } catch (IOException e) {
-            throw new ArgumentsParseException(e.getMessage(), e);
+            tellWorkers(new SegmentAndBase64(segment, segmentBase64), globalTraceIds);
         }
     }
 
-    private void tellWorkers(SegmentAndJson segmentAndJson) throws WorkerNotFoundException, WorkerInvokeException {
-        Segment segment = segmentAndJson.getSegment();
+    private void tellWorkers(
+        SegmentAndBase64 segmentAndBase64,
+        List<String> globalTraceIds) throws WorkerNotFoundException, WorkerInvokeException {
+        TraceSegmentObject segment = segmentAndBase64.getObject();
         try {
             validateData(segment);
-        } catch (IllegalArgumentException e) {
+        } catch (ArgumentsParseException e) {
+            logger.error(e.getMessage(), e);
             return;
         }
 
         logger.debug("receive message instanceof TraceSegment, traceSegmentId is %s", segment.getTraceSegmentId());
+        SpanObject firstSpan = segment.getSpans(segment.getSpansCount() - 1);
 
-        long minuteSlice = DateTools.getMinuteSlice(segment.getStartTime());
-        long hourSlice = DateTools.getHourSlice(segment.getStartTime());
-        long daySlice = DateTools.getDaySlice(segment.getStartTime());
-        int second = DateTools.getSecond(segment.getStartTime());
+        long minuteSlice = DateTools.getMinuteSlice(firstSpan.getStartTime());
+        long hourSlice = DateTools.getHourSlice(firstSpan.getStartTime());
+        long daySlice = DateTools.getDaySlice(firstSpan.getStartTime());
+        int second = DateTools.getSecond(firstSpan.getStartTime());
         logger.debug("minuteSlice: %s, hourSlice: %s, daySlice: %s, second:%s", minuteSlice, hourSlice, daySlice, second);
 
-        SegmentWithTimeSlice segmentWithTimeSlice = new SegmentWithTimeSlice(segment, minuteSlice, hourSlice, daySlice, second);
-        getSelfContext().lookup(SegmentAnalysis.Role.INSTANCE).tell(segmentAndJson);
+        SegmentWithTimeSlice segmentWithTimeSlice = new SegmentWithTimeSlice(segment, globalTraceIds, minuteSlice, hourSlice, daySlice, second);
+        getSelfContext().lookup(SegmentAnalysis.Role.INSTANCE).tell(segmentAndBase64);
 
         getSelfContext().lookup(SegmentCostAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
         getSelfContext().lookup(GlobalTraceAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
@@ -145,29 +135,31 @@ public class SegmentPost extends AbstractStreamPost {
         getSelfContext().lookup(NodeMappingDayAnalysis.Role.INSTANCE).tell(segmentWithTimeSlice);
     }
 
-    private void validateData(Segment segment) {
+    private void validateData(TraceSegmentObject segment) throws ArgumentsParseException {
         if (StringUtil.isEmpty(segment.getTraceSegmentId())) {
-            throw new IllegalArgumentException("traceSegmentId required");
+            throw new ArgumentsParseException("traceSegmentId required");
         }
-        if (0 == segment.getStartTime()) {
-            throw new IllegalArgumentException("startTime required");
+        if (segment.getSpansCount() < 1) {
+            throw new ArgumentsParseException("must contain at least one span");
+        }
+        SpanObject firstSpan = segment.getSpans(segment.getSpansCount() - 1);
+        if (firstSpan.getSpanId() != 0 && firstSpan.getParentSpanId() != -1) {
+            throw new ArgumentsParseException("first span id must equals 0 and parent span id must equals -1");
+        }
+        if (0 == firstSpan.getStartTime()) {
+            throw new ArgumentsParseException("startTime required");
         }
     }
 
-    public static class Factory extends AbstractStreamPostProvider<SegmentPost> {
-        @Override
-        public String servletPath() {
-            return "/segments";
-        }
-
+    public static class Factory extends AbstractLocalSyncWorkerProvider<SegmentReceiver> {
         @Override
         public Role role() {
             return WorkerRole.INSTANCE;
         }
 
         @Override
-        public SegmentPost workerInstance(ClusterWorkerContext clusterContext) {
-            return new SegmentPost(role(), clusterContext, new LocalWorkerContext());
+        public SegmentReceiver workerInstance(ClusterWorkerContext clusterContext) {
+            return new SegmentReceiver(role(), clusterContext, new LocalWorkerContext());
         }
     }
 
@@ -176,7 +168,7 @@ public class SegmentPost extends AbstractStreamPost {
 
         @Override
         public String roleName() {
-            return SegmentPost.class.getSimpleName();
+            return SegmentReceiver.class.getSimpleName();
         }
 
         @Override
@@ -186,15 +178,23 @@ public class SegmentPost extends AbstractStreamPost {
     }
 
     public static class SegmentWithTimeSlice extends AbstractTimeSlice {
-        private final Segment segment;
+        private final TraceSegmentObject segment;
 
-        public SegmentWithTimeSlice(Segment segment, long minute, long hour, long day, int second) {
+        private final List<String> globalTraceIds;
+
+        public SegmentWithTimeSlice(TraceSegmentObject segment, List<String> globalTraceIds, long minute, long hour,
+            long day, int second) {
             super(minute, hour, day, second);
             this.segment = segment;
+            this.globalTraceIds = globalTraceIds;
         }
 
-        public Segment getSegment() {
+        public TraceSegmentObject getSegment() {
             return segment;
+        }
+
+        public List<String> getGlobalTraceIds() {
+            return globalTraceIds;
         }
     }
 }

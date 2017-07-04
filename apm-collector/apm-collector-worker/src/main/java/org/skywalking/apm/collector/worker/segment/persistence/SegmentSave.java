@@ -1,5 +1,6 @@
 package org.skywalking.apm.collector.worker.segment.persistence;
 
+import com.google.gson.JsonObject;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -13,7 +14,7 @@ import org.skywalking.apm.collector.actor.selector.WorkerSelector;
 import org.skywalking.apm.collector.worker.PersistenceMember;
 import org.skywalking.apm.collector.worker.config.CacheSizeConfig;
 import org.skywalking.apm.collector.worker.segment.SegmentIndex;
-import org.skywalking.apm.collector.worker.segment.entity.SegmentAndJson;
+import org.skywalking.apm.collector.worker.segment.entity.SegmentAndBase64;
 import org.skywalking.apm.collector.worker.storage.AbstractIndex;
 import org.skywalking.apm.collector.worker.storage.EsClient;
 import org.skywalking.apm.collector.worker.storage.PersistenceWorkerListener;
@@ -46,11 +47,11 @@ public class SegmentSave extends PersistenceMember<SegmentPersistenceData, Segme
     }
 
     @Override final public void analyse(Object message) {
-        if (message instanceof SegmentAndJson) {
-            SegmentAndJson segmentAndJson = (SegmentAndJson)message;
+        if (message instanceof SegmentAndBase64) {
+            SegmentAndBase64 segmentAndBase64 = (SegmentAndBase64)message;
             SegmentPersistenceData data = getPersistenceData();
             data.hold();
-            data.getOrCreate(segmentAndJson.getSegment().getTraceSegmentId()).setSegmentStr(segmentAndJson.getJsonStr());
+            data.getOrCreate(segmentAndBase64.getObject().getTraceSegmentId()).setSegmentStr(segmentAndBase64.getSegmentJsonStr());
             if (data.size() >= CacheSizeConfig.Cache.Persistence.SIZE) {
                 persistence(data.asMap());
             }

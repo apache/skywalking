@@ -11,8 +11,8 @@ import org.skywalking.apm.collector.actor.selector.RollingSelector;
 import org.skywalking.apm.collector.actor.selector.WorkerSelector;
 import org.skywalking.apm.collector.worker.config.WorkerConfig;
 import org.skywalking.apm.collector.worker.node.persistence.NodeCompAgg;
-import org.skywalking.apm.collector.worker.segment.SegmentPost;
-import org.skywalking.apm.collector.worker.segment.entity.Segment;
+import org.skywalking.apm.collector.worker.segment.SegmentReceiver;
+import org.skywalking.apm.network.proto.TraceSegmentObject;
 
 /**
  * @author pengys5
@@ -28,12 +28,12 @@ public class NodeCompAnalysis extends AbstractNodeCompAnalysis {
 
     @Override
     public void analyse(Object message) {
-        if (message instanceof SegmentPost.SegmentWithTimeSlice) {
-            SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice = (SegmentPost.SegmentWithTimeSlice)message;
-            Segment segment = segmentWithTimeSlice.getSegment();
+        if (message instanceof SegmentReceiver.SegmentWithTimeSlice) {
+            SegmentReceiver.SegmentWithTimeSlice segmentWithTimeSlice = (SegmentReceiver.SegmentWithTimeSlice)message;
+            TraceSegmentObject segment = segmentWithTimeSlice.getSegment();
             analyseSpans(segment);
         } else {
-            logger.error("unhandled message, message instance must SegmentPost.SegmentWithTimeSlice, but is %s", message.getClass().toString());
+            logger.error("unhandled message, message instance must SegmentReceiver.SegmentWithTimeSlice, but is %s", message.getClass().toString());
         }
     }
 

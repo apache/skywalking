@@ -2,7 +2,6 @@ package org.skywalking.apm.collector.worker.span.persistence;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import java.io.IOException;
 import java.util.List;
 import org.elasticsearch.action.get.GetResponse;
 import org.skywalking.apm.collector.actor.AbstractLocalSyncWorker;
@@ -15,10 +14,10 @@ import org.skywalking.apm.collector.actor.selector.RollingSelector;
 import org.skywalking.apm.collector.actor.selector.WorkerSelector;
 import org.skywalking.apm.collector.worker.Const;
 import org.skywalking.apm.collector.worker.segment.SegmentIndex;
-import org.skywalking.apm.collector.worker.segment.entity.Segment;
 import org.skywalking.apm.collector.worker.segment.entity.SegmentDeserialize;
-import org.skywalking.apm.collector.worker.segment.entity.Span;
 import org.skywalking.apm.collector.worker.storage.GetResponseFromEs;
+import org.skywalking.apm.network.proto.SpanObject;
+import org.skywalking.apm.network.proto.TraceSegmentObject;
 
 /**
  * @author pengys5
@@ -36,18 +35,15 @@ public class SpanSearchWithId extends AbstractLocalSyncWorker {
         if (request instanceof RequestEntity) {
             RequestEntity search = (RequestEntity)request;
             GetResponse getResponse = GetResponseFromEs.INSTANCE.get(SegmentIndex.INDEX, SegmentIndex.TYPE_RECORD, search.segId);
-            Segment segment;
-            try {
-                segment = SegmentDeserialize.INSTANCE.deserializeSingle(getResponse.getSourceAsString());
-            } catch (IOException e) {
-                throw new WorkerException(e.getMessage(), e);
-            }
-            List<Span> spanList = segment.getSpans();
+            String segmentObjBlob = (String)getResponse.getSource().get(SegmentIndex.SEGMENT_OBJ_BLOB);
+
+            TraceSegmentObject segment = SegmentDeserialize.INSTANCE.deserializeSingle(segmentObjBlob);
+            List<SpanObject> spanList = segment.getSpansList();
 
             getResponse.getSource();
             JsonObject dataJson = new JsonObject();
 
-            for (Span span : spanList) {
+            for (SpanObject span : spanList) {
                 if (String.valueOf(span.getSpanId()).equals(search.spanId)) {
                     String spanJsonStr = gson.toJson(span);
                     dataJson = gson.fromJson(spanJsonStr, JsonObject.class);

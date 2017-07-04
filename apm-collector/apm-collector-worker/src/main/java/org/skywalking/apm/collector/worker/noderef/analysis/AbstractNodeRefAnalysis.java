@@ -10,12 +10,11 @@ import org.skywalking.apm.collector.actor.Role;
 import org.skywalking.apm.collector.worker.Const;
 import org.skywalking.apm.collector.worker.RecordAnalysisMember;
 import org.skywalking.apm.collector.worker.noderef.NodeRefIndex;
-import org.skywalking.apm.collector.worker.segment.entity.Segment;
-import org.skywalking.apm.collector.worker.segment.entity.Span;
-import org.skywalking.apm.collector.worker.segment.entity.tag.Tags;
-import org.skywalking.apm.collector.worker.tools.ClientSpanIsLeafTools;
 import org.skywalking.apm.collector.worker.tools.CollectionTools;
 import org.skywalking.apm.collector.worker.tools.SpanPeersTools;
+import org.skywalking.apm.network.proto.SpanObject;
+import org.skywalking.apm.network.proto.SpanType;
+import org.skywalking.apm.network.proto.TraceSegmentObject;
 
 /**
  * @author pengys5
@@ -29,21 +28,21 @@ abstract class AbstractNodeRefAnalysis extends RecordAnalysisMember {
         super(role, clusterContext, selfContext);
     }
 
-    final void analyseNodeRef(Segment segment, long timeSlice, long minute, long hour, long day,
+    final void analyseNodeRef(TraceSegmentObject segment, long timeSlice, long minute, long hour, long day,
         int second) {
-        List<Span> spanList = segment.getSpans();
+        List<SpanObject> spanList = segment.getSpansList();
         if (CollectionTools.isNotEmpty(spanList)) {
-            for (Span span : spanList) {
+            for (SpanObject span : spanList) {
                 JsonObject dataJsonObj = new JsonObject();
                 dataJsonObj.addProperty(NodeRefIndex.TIME_SLICE, timeSlice);
                 dataJsonObj.addProperty(NodeRefIndex.FRONT_IS_REAL_CODE, true);
                 dataJsonObj.addProperty(NodeRefIndex.BEHIND_IS_REAL_CODE, true);
 
-                if (Tags.SPAN_KIND_CLIENT.equals(Tags.SPAN_KIND.get(span)) && ClientSpanIsLeafTools.isLeaf(span.getSpanId(), spanList)) {
-                    String front = segment.getApplicationCode();
+                if (SpanType.Exit.equals(span.getSpanType())) {
+                    int front = segment.getApplicationId();
                     dataJsonObj.addProperty(NodeRefIndex.FRONT, front);
 
-                    String behind = SpanPeersTools.INSTANCE.getPeers(span);
+                    int behind = SpanPeersTools.INSTANCE.getPeers(span);
                     dataJsonObj.addProperty(NodeRefIndex.BEHIND, behind);
                     dataJsonObj.addProperty(NodeRefIndex.BEHIND_IS_REAL_CODE, false);
 
@@ -51,9 +50,9 @@ abstract class AbstractNodeRefAnalysis extends RecordAnalysisMember {
                     logger.debug("dag node ref: %s", dataJsonObj.toString());
                     set(id, dataJsonObj);
                     buildNodeRefResRecordData(id, span, minute, hour, day, second);
-                } else if (Tags.SPAN_KIND_SERVER.equals(Tags.SPAN_KIND.get(span))) {
-                    if (span.getParentSpanId() == -1 && CollectionTools.isEmpty(segment.getRefs())) {
-                        String behind = segment.getApplicationCode();
+                } else if (SpanType.Entry.equals(span.getSpanType())) {
+                    if (span.getParentSpanId() == -1 && segment.getRefsCount() == 0) {
+                        int behind = segment.getApplicationId();
                         dataJsonObj.addProperty(NodeRefIndex.BEHIND, behind);
 
                         String front = Const.USER_CODE;
@@ -68,13 +67,13 @@ abstract class AbstractNodeRefAnalysis extends RecordAnalysisMember {
         }
     }
 
-    private void buildNodeRefResRecordData(String nodeRefId, Span span, long minute, long hour, long day,
+    private void buildNodeRefResRecordData(String nodeRefId, SpanObject span, long minute, long hour, long day,
         int second) {
         AbstractNodeRefResSumAnalysis.NodeRefResRecord refResRecord = new AbstractNodeRefResSumAnalysis.NodeRefResRecord(minute, hour, day, second);
         refResRecord.setStartTime(span.getStartTime());
         refResRecord.setEndTime(span.getEndTime());
         refResRecord.setNodeRefId(nodeRefId);
-        refResRecord.setError(Tags.ERROR.get(span));
+        refResRecord.setError(span.getIsError());
         sendToResSumAnalysis(refResRecord);
     }
 

@@ -1,5 +1,6 @@
 org.skywalking.apm.collector.cluster.ClusterConfigProvider
 org.skywalking.apm.collector.worker.config.EsConfigProvider
 org.skywalking.apm.collector.worker.config.HttpConfigProvider
+org.skywalking.apm.collector.worker.config.GRPCConfigProvider
 org.skywalking.apm.collector.worker.config.CacheSizeConfigProvider
 org.skywalking.apm.collector.worker.config.WorkerConfigProvider

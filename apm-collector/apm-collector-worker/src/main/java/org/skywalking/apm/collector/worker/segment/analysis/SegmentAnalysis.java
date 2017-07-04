@@ -13,7 +13,7 @@ import org.skywalking.apm.collector.actor.selector.RollingSelector;
 import org.skywalking.apm.collector.actor.selector.WorkerSelector;
 import org.skywalking.apm.collector.worker.RecordAnalysisMember;
 import org.skywalking.apm.collector.worker.config.WorkerConfig;
-import org.skywalking.apm.collector.worker.segment.entity.SegmentAndJson;
+import org.skywalking.apm.collector.worker.segment.entity.SegmentAndBase64;
 import org.skywalking.apm.collector.worker.segment.persistence.SegmentSave;
 
 /**
@@ -34,11 +34,11 @@ public class SegmentAnalysis extends RecordAnalysisMember {
 
     @Override
     public void analyse(Object message) {
-        if (message instanceof SegmentAndJson) {
-            SegmentAndJson segmentAndJson = (SegmentAndJson)message;
+        if (message instanceof SegmentAndBase64) {
+            SegmentAndBase64 segmentAndBase64 = (SegmentAndBase64)message;
 
             try {
-                getSelfContext().lookup(SegmentSave.Role.INSTANCE).tell(segmentAndJson);
+                getSelfContext().lookup(SegmentSave.Role.INSTANCE).tell(segmentAndBase64);
             } catch (WorkerInvokeException | WorkerNotFoundException e) {
                 e.printStackTrace();
                 logger.error(e.getMessage(), e);
