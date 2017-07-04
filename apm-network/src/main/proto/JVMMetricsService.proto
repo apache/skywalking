@@ -15,21 +15,47 @@ message JVMMetrics {
 message JVMMetric {
     long time = 1;
     CPU cpu = 2;
-    MEMORY memory = 3;
-    GC gc = 4;
+    repeated Memory memory = 3;
+    repeated MemoryPool memoryPool = 4;
+    repeated GC gc = 5;
 }
 
 message CPU {
 }
 
-message MEMORY {
-    long heapInit = 1;
-    long heapMax = 2;
-    long heapUsed = 3;
-    long nonHeapInit = 4;
-    long nonHeapMax = 5;
-    long nonHeapUsed = 6;
+message Memory {
+    boolean isHeap = 1;
+    long init = 2;
+    long max = 3;
+    long used = 4；
+    long committed = 5;
+}
+
+message MemoryPool {
+    boolean isHeap = 1;
+    PoolType type = 2;
+    long init = 3;
+    long max = 4;
+    long used = 5;
+    long commited = 6;
+}
+
+message PoolType {
+    CODE_CACHE_USAGE = 0;
+    NEWGEN_USAGE = 1;
+    OLDGEN_USAGE = 2;
+    SURVIVOR_USAGE = 3;
+    PERMGEN_USAGE = 4;
+    METASPACE_USAGE = 5;
 }
 
 message GC {
+    GCPhrase phrase = 1;
+    long count = 2;
+    long time = 3;
+}
+
+message GCPhrase {
+    NEW = 0;
+    OLD = 1;
 }
