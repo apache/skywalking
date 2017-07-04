@@ -15,8 +15,9 @@ public enum CPUProvider {
     CPUProvider() {
         int processorNum = ProcessorUtil.getNumberOfProcessors();
         try {
-            CPUProvider.class.getClassLoader().loadClass("com.sun.management.OperatingSystemMXBean");
-            this.cpuMetricAccessor = new SunCpuAccessor(processorNum);
+            this.cpuMetricAccessor =
+                (CPUMetricAccessor)CPUProvider.class.getClassLoader().loadClass("org.skywalking.apm.agent.core.jvm.cpu.SunCpuAccessor")
+                    .getConstructor(int.class).newInstance(processorNum);
         } catch (Exception e) {
             this.cpuMetricAccessor = new NoSupportedCPUAccessor(processorNum);
             ILog logger = LogManager.getLogger(CPUProvider.class);
