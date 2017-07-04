@@ -8,7 +8,9 @@ import io.grpc.internal.DnsNameResolverProvider;
 import io.grpc.netty.NettyChannelBuilder;
 import io.grpc.stub.StreamObserver;
 import org.junit.Assert;
-import org.skywalking.apm.network.collecor.proto.Downstream;
+import org.skywalking.apm.network.proto.Downstream;
+import org.skywalking.apm.network.proto.TraceSegmentServiceGrpc;
+import org.skywalking.apm.network.proto.UpstreamSegment;
 
 /**
  * @author wusheng

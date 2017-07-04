@@ -29,7 +29,7 @@ public class LocalSpan extends AbstractTracingSpan {
         return this;
     }
 
-    @Override public SpanObject transform() {
+    @Override public SpanObject.Builder transform() {
         return null;
     }
 

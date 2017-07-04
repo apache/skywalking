@@ -47,6 +47,10 @@ public class DefaultHttpClientInstrumentation extends ClassInstanceMethodsEnhanc
                 @Override public String getMethodsInterceptor() {
                     return INTERCEPT_CLASS;
                 }
+
+                @Override public boolean isOverrideArgs() {
+                    return false;
+                }
             }
         };
     }

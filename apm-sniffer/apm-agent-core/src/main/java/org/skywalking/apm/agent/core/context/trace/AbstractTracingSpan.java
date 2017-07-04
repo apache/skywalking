@@ -155,7 +155,7 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
         return this;
     }
 
-    public SpanObject.Builder transform(){
+    public SpanObject.Builder transform() {
         SpanObject.Builder spanBuilder = SpanObject.newBuilder();
 
         spanBuilder.setSpanId(this.spanId);

@@ -13,7 +13,6 @@ import org.skywalking.apm.agent.core.dictionary.PossibleFound;
 import org.skywalking.apm.logging.ILog;
 import org.skywalking.apm.logging.LogManager;
 import org.skywalking.apm.network.proto.TraceSegmentObject;
-import org.skywalking.apm.network.proto.TraceSegmentReference;
 import org.skywalking.apm.network.proto.UpstreamSegment;
 
 /**
