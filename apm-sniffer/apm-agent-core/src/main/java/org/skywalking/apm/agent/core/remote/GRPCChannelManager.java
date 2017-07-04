@@ -95,7 +95,7 @@ public class GRPCChannelManager implements BootService, Runnable {
 
             resetNextStartTime();
             int waitTime = 5 * 1000;
-            logger.debug("Selected collector grpc service is not available. Wait {} seconds to try", waitTime);
+            logger.debug("Selected collector grpc service is not available. Wait {} millis to try", waitTime);
             try2Sleep(waitTime);
         }
     }

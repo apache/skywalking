@@ -24,7 +24,6 @@ message JVMMetric {
 }
 
 message CPU {
-    int64 time = 1;
     double usagePercent = 2;
 }
 
@@ -37,8 +36,8 @@ message Memory {
 }
 
 message MemoryPool {
-    bool isHeap = 1;
-    PoolType type = 2;
+    PoolType type = 1;
+    bool isHeap = 2;
     int64 init = 3;
     int64 max = 4;
     int64 used = 5;
