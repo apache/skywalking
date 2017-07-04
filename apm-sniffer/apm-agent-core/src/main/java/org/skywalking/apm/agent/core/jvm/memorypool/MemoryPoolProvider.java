@@ -39,13 +39,13 @@ public enum MemoryPoolProvider {
             return new ParallelCollectorModule(beans);
         } else if (name.indexOf("CMS") > -1) {
             // CMS collector ( -XX:+UseConcMarkSweepGC )
-            return new CMSCollectorModule(beans);
+            return null;
         } else if (name.indexOf("G1") > -1) {
             // G1 collector ( -XX:+UseG1GC )
             return null;
-        } else if (name.indexOf("Survivor Space") > -1) {
+        } else if (name.equals("Survivor Space")) {
             // Serial collector ( -XX:+UseSerialGC )
-            return null;
+            return new SerialCollectorModule(beans);
         } else {
             // Unknown
             return null;

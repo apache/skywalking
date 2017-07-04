@@ -6,8 +6,8 @@ import java.util.List;
 /**
  * @author wusheng
  */
-public class CMSCollectorModule extends MemoryPoolModule {
-    public CMSCollectorModule(List<MemoryPoolMXBean> beans) {
+public class SerialCollectorModule extends MemoryPoolModule {
+    public SerialCollectorModule(List<MemoryPoolMXBean> beans) {
         super(beans);
     }
 
