@@ -9,5 +9,27 @@ service JVMMetricsService {
 }
 
 message JVMMetrics {
+    repeated JVMMetric metrics = 1;
+}
 
+message JVMMetric {
+    long time = 1;
+    CPU cpu = 2;
+    MEMORY memory = 3;
+    GC gc = 4;
+}
+
+message CPU {
+}
+
+message MEMORY {
+    long heapInit = 1;
+    long heapMax = 2;
+    long heapUsed = 3;
+    long nonHeapInit = 4;
+    long nonHeapMax = 5;
+    long nonHeapUsed = 6;
+}
+
+message GC {
 }
