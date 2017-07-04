@@ -1,3 +1,5 @@
+syntax = "proto3";
+
 option java_multiple_files = true;
 option java_package = "org.skywalking.apm.network.proto";
 
@@ -10,10 +12,11 @@ service JVMMetricsService {
 
 message JVMMetrics {
     repeated JVMMetric metrics = 1;
+    int64 applicationInstanceId = 2;
 }
 
 message JVMMetric {
-    long time = 1;
+    int64 time = 1;
     CPU cpu = 2;
     repeated Memory memory = 3;
     repeated MemoryPool memoryPool = 4;
@@ -21,26 +24,28 @@ message JVMMetric {
 }
 
 message CPU {
+    int64 time = 1;
+    double usagePercent = 2;
 }
 
 message Memory {
-    boolean isHeap = 1;
-    long init = 2;
-    long max = 3;
-    long used = 4；
-    long committed = 5;
+    bool isHeap = 1;
+    int64 init = 2;
+    int64 max = 3;
+    int64 used = 4;
+    int64 committed = 5;
 }
 
 message MemoryPool {
-    boolean isHeap = 1;
+    bool isHeap = 1;
     PoolType type = 2;
-    long init = 3;
-    long max = 4;
-    long used = 5;
-    long commited = 6;
+    int64 init = 3;
+    int64 max = 4;
+    int64 used = 5;
+    int64 commited = 6;
 }
 
-message PoolType {
+enum PoolType {
     CODE_CACHE_USAGE = 0;
     NEWGEN_USAGE = 1;
     OLDGEN_USAGE = 2;
@@ -51,11 +56,11 @@ message PoolType {
 
 message GC {
     GCPhrase phrase = 1;
-    long count = 2;
-    long time = 3;
+    int64 count = 2;
+    int64 time = 3;
 }
 
-message GCPhrase {
+enum GCPhrase {
     NEW = 0;
     OLD = 1;
 }
