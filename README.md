@@ -41,7 +41,7 @@ This independent UI repository works since sky-walking 3.0.
 
 #### QuickStart-zh
 1. 需要JDK8+
-2. 下载应用程序
+2. 通过命令下载应用程序，或直接前往[发布页面](https://github.com/wu-sheng/sky-walking-ui/releases)下载
 
 ```shell
 > curl -O https://github.com/wu-sheng/sky-walking-ui/releases/download/v3.1-2017/skywalking-web.tar.gz  
@@ -49,8 +49,6 @@ This independent UI repository works since sky-walking 3.0.
 > cd skywalking-web/bin  
 > ./startup.sh
 ```
-
-直接前往[发布页面](https://github.com/wu-sheng/sky-walking-ui/releases)下载
 
 3. 配置应用程序
 * 在`config/application.properties`文件中，设置webui的监听端口
