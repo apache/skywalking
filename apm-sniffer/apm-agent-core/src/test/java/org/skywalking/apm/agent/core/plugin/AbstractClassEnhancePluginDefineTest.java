@@ -1,5 +1,7 @@
 package org.skywalking.apm.agent.core.plugin;
 
+import java.lang.instrument.ClassFileTransformer;
+import java.lang.instrument.Instrumentation;
 import net.bytebuddy.agent.ByteBuddyAgent;
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.description.type.TypeDescription;
@@ -7,6 +9,7 @@ import net.bytebuddy.dynamic.DynamicType;
 import net.bytebuddy.dynamic.loading.ByteArrayClassLoader;
 import net.bytebuddy.dynamic.loading.PackageDefinitionStrategy;
 import net.bytebuddy.matcher.ElementMatchers;
+import net.bytebuddy.utility.JavaModule;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,9 +17,8 @@ import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.skywalking.apm.agent.core.plugin.utility.ClassFileExtraction;
 
-import java.lang.instrument.ClassFileTransformer;
-
 import static net.bytebuddy.matcher.ElementMatchers.none;
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(PowerMockRunner.class)
@@ -32,9 +34,7 @@ public class AbstractClassEnhancePluginDefineTest {
     public void setUp() throws Exception {
         classLoader = new ByteArrayClassLoader.ChildFirst(getClass().getClassLoader(),
             ClassFileExtraction.of(TargetObject.class),
-            null,
-            ByteArrayClassLoader.PersistenceHandler.MANIFEST,
-            PackageDefinitionStrategy.NoOp.INSTANCE);
+            ByteArrayClassLoader.PersistenceHandler.MANIFEST);
     }
 
     @Test
@@ -91,17 +91,6 @@ public class AbstractClassEnhancePluginDefineTest {
 
     public static class MockTargetObjectTransformer implements AgentBuilder.Transformer {
 
-        @Override
-        public DynamicType.Builder<?> transform(DynamicType.Builder<?> builder, TypeDescription typeDescription,
-                                                ClassLoader classLoader) {
-            try {
-                DynamicType.Builder newBuilder = transformInstanceMethod(builder);
-                return transformStaticMethod(newBuilder);
-            } catch (Exception exception) {
-                throw new AssertionError(exception);
-            }
-        }
-
         private DynamicType.Builder<?> transformStaticMethod(DynamicType.Builder newBuilder) {
             MockPluginStaticMethodInstrumentation staticMethodInstrumentation = new MockPluginStaticMethodInstrumentation();
             return staticMethodInstrumentation.define(WEAVE_CLASS, newBuilder, AbstractClassEnhancePluginDefineTest.class.getClassLoader());
@@ -110,6 +99,17 @@ public class AbstractClassEnhancePluginDefineTest {
         private DynamicType.Builder transformInstanceMethod(DynamicType.Builder<?> builder) {
             MockPluginInstanceMethodInstrumentation instrumentation = new MockPluginInstanceMethodInstrumentation();
             return instrumentation.define(WEAVE_CLASS, builder, AbstractClassEnhancePluginDefineTest.class.getClassLoader());
+        }
+
+        @Override
+        public DynamicType.Builder<?> transform(DynamicType.Builder<?> builder, TypeDescription typeDescription,
+            ClassLoader classLoader, JavaModule module) {
+            try {
+                DynamicType.Builder newBuilder = transformInstanceMethod(builder);
+                return transformStaticMethod(newBuilder);
+            } catch (Exception exception) {
+                throw new AssertionError(exception);
+            }
         }
     }
 

@@ -43,11 +43,11 @@ public class JVMService implements BootService, Runnable {
         String second = sdf.format(day);
 
         if (Integer.parseInt(second) % 15 == 0) {
-            JVMMetric.Builder JVMBuilder = JVMMetric.newBuilder();
-            JVMBuilder.setTime(currentTimeMillis);
-            JVMBuilder.setCpu(CPUProvider.INSTANCE.getCpuMetric());
-            JVMBuilder.addAllMemory(MemoryProvider.INSTANCE.getMemoryMetricList());
-            JVMBuilder.addAllMemoryPool(MemoryPoolProvider.INSTANCE.getMemoryPoolMetricList());
+            JVMMetric.Builder jvmBuilder = JVMMetric.newBuilder();
+            jvmBuilder.setTime(currentTimeMillis);
+            jvmBuilder.setCpu(CPUProvider.INSTANCE.getCpuMetric());
+            jvmBuilder.addAllMemory(MemoryProvider.INSTANCE.getMemoryMetricList());
+            jvmBuilder.addAllMemoryPool(MemoryPoolProvider.INSTANCE.getMemoryPoolMetricList());
         }
     }
 }

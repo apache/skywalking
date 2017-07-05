@@ -6,25 +6,24 @@ import org.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMethodsAro
 import org.skywalking.apm.logging.ILog;
 import org.skywalking.apm.logging.LogManager;
 
-/**
- * Created by xin on 2016/12/15.
- */
 public class TraceContextInterceptor implements StaticMethodsAroundInterceptor {
 
     private ILog logger = LogManager.getLogger(TraceContextInterceptor.class);
 
-    @Override
-    public void beforeMethod(StaticMethodInvokeContext interceptorContext, MethodInterceptResult result) {
+    @Override public void beforeMethod(Class clazz, String methodName, Object[] allArguments, Class<?>[] parameterTypes,
+        MethodInterceptResult result) {
 
     }
 
     @Override
-    public Object afterMethod(StaticMethodInvokeContext interceptorContext, Object ret) {
+    public Object afterMethod(Class clazz, String methodName, Object[] allArguments, Class<?>[] parameterTypes,
+        Object ret) {
         return ContextManager.getGlobalTraceId();
     }
 
     @Override
-    public void handleMethodException(Throwable t, MethodInvokeContext interceptorContext) {
+    public void handleMethodException(Class clazz, String methodName, Object[] allArguments, Class<?>[] parameterTypes,
+        Throwable t) {
         logger.error("Failed to get trace Id.", t);
     }
 }

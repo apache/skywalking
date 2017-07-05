@@ -26,6 +26,10 @@ public class MockPluginStaticMethodInstrumentation extends ClassStaticMethodsEnh
                 public String getMethodsInterceptor() {
                     return AbstractClassEnhancePluginDefineTest.INTERCEPTOR_CLASS;
                 }
+
+                @Override public boolean isOverrideArgs() {
+                    return false;
+                }
             }
         };
     }

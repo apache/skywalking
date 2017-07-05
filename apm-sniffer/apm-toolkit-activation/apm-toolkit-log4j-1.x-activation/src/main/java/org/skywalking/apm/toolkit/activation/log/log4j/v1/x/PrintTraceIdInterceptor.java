@@ -1,6 +1,7 @@
 package org.skywalking.apm.toolkit.activation.log.log4j.v1.x;
 
 import org.skywalking.apm.agent.core.context.ContextManager;
+import org.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 
@@ -8,29 +9,19 @@ import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptR
  * Created by wusheng on 2016/12/7.
  */
 public class PrintTraceIdInterceptor implements InstanceMethodsAroundInterceptor {
-    @Override
-    public void beforeMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
-                             MethodInterceptResult result) {
+
+    @Override public void beforeMethod(EnhancedInstance objInst, String methodName, Object[] allArguments,
+        Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
 
     }
 
-    /**
-     * Override org.skywalking.apm.toolkit.log.log4j.v1.x.TraceIdPatternConverter.convert(),
-     *
-     * @param context            instance context, a class instance only has one {@link EnhancedClassInstanceContext} instance.
-     * @param interceptorContext method context, includes class name, method name, etc.
-     * @param ret                the method's original return value.
-     * @return the traceId
-     */
-    @Override
-    public Object afterMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
-                              Object ret) {
+    @Override public Object afterMethod(EnhancedInstance objInst, String methodName, Object[] allArguments,
+        Class<?>[] argumentsTypes, Object ret) throws Throwable {
         return "TID:" + ContextManager.getGlobalTraceId();
     }
 
-    @Override
-    public void handleMethodException(Throwable t, EnhancedClassInstanceContext context,
-                                      InstanceMethodInvokeContext interceptorContext) {
+    @Override public void handleMethodException(EnhancedInstance objInst, String methodName, Object[] allArguments,
+        Class<?>[] argumentsTypes, Throwable t) {
 
     }
 }
