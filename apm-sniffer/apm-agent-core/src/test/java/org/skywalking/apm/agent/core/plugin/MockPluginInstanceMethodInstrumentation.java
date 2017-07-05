@@ -45,6 +45,10 @@ public class MockPluginInstanceMethodInstrumentation extends ClassInstanceMethod
                 public String getMethodsInterceptor() {
                     return AbstractClassEnhancePluginDefineTest.INTERCEPTOR_CLASS;
                 }
+
+                @Override public boolean isOverrideArgs() {
+                    return false;
+                }
             },
             new InstanceMethodsInterceptPoint() {
                 @Override
@@ -55,6 +59,10 @@ public class MockPluginInstanceMethodInstrumentation extends ClassInstanceMethod
                 @Override
                 public String getMethodsInterceptor() {
                     return AbstractClassEnhancePluginDefineTest.INTERCEPTOR_CLASS;
+                }
+
+                @Override public boolean isOverrideArgs() {
+                    return false;
                 }
             }
         };

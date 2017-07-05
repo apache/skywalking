@@ -1,10 +1,9 @@
 package org.skywalking.apm.agent.core.plugin;
 
+import java.util.ArrayList;
 import net.bytebuddy.dynamic.DynamicType;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.ArrayList;
 
 /**
  * Created by wusheng on 2017/2/27.
@@ -31,9 +30,10 @@ public class PluginFinderTest {
     }
 
     public class NewTestPlugin extends AbstractClassEnhancePluginDefine {
+
         @Override
-        protected DynamicType.Builder<?> enhance(String enhanceOriginClassName,
-                                                 DynamicType.Builder<?> newClassBuilder) throws PluginException {
+        protected DynamicType.Builder<?> enhance(String enhanceOriginClassName, DynamicType.Builder<?> newClassBuilder,
+            ClassLoader classLoader) throws PluginException {
             return newClassBuilder;
         }
 
@@ -44,9 +44,10 @@ public class PluginFinderTest {
     }
 
     public class NewTestPlugin2 extends AbstractClassEnhancePluginDefine {
+
         @Override
-        protected DynamicType.Builder<?> enhance(String enhanceOriginClassName,
-                                                 DynamicType.Builder<?> newClassBuilder) throws PluginException {
+        protected DynamicType.Builder<?> enhance(String enhanceOriginClassName, DynamicType.Builder<?> newClassBuilder,
+            ClassLoader classLoader) throws PluginException {
             return newClassBuilder;
         }
 

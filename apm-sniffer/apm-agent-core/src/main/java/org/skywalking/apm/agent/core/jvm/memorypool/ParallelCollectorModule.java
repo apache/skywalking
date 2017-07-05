@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * @author wusheng
  */
-public class ParallelCollectorModule extends MemoryPoolModule{
+public class ParallelCollectorModule extends MemoryPoolModule {
 
     public ParallelCollectorModule(List<MemoryPoolMXBean> beans) {
         super(beans);
