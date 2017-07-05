@@ -31,7 +31,7 @@ import static org.skywalking.apm.agent.core.remote.GRPCChannelStatus.CONNECTED;
  * @author wusheng
  */
 public class JVMService implements BootService, Runnable {
-    private static ILog logger = LogManager.getLogger(JVMService.class);
+    private static final ILog logger = LogManager.getLogger(JVMService.class);
     private ReentrantLock lock = new ReentrantLock();
     private volatile LinkedList<JVMMetric> buffer = new LinkedList<JVMMetric>();
     private SimpleDateFormat sdf = new SimpleDateFormat("ss");
