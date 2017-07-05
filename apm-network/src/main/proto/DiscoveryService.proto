@@ -11,18 +11,26 @@ service InstanceDiscoveryService {
     rpc register (ApplicationInstance) returns (ApplicationInstanceMapping) {
     }
 
+    rpc heartbeat (ApplicationInstanceHeartbeat) returns (Downstream) {
+    }
+
     rpc registerRecover (ApplicationInstanceMapping) returns (Downstream) {
     }
 }
 
 message ApplicationInstance {
     int32 applicationId = 1;
+    int64 registerTime = 2;
 }
 
 message ApplicationInstanceMapping {
     int32 applicationId = 1;
     int32 applicationInstanceId = 2;
-    int64 registerTime = 3;
+}
+
+message ApplicationInstanceHeartbeat {
+    int32 applicationInstanceId = 1;
+    int64 heartbeatTime = 2;
 }
 
 //discovery service for ServiceName by Network address or application code
