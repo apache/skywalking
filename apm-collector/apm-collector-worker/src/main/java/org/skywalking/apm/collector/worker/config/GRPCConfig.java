@@ -6,6 +6,7 @@ package org.skywalking.apm.collector.worker.config;
 public class GRPCConfig {
 
     public static class GRPC {
+        public static String HOSTNAME = "";
         public static String PORT = "";
     }
 }

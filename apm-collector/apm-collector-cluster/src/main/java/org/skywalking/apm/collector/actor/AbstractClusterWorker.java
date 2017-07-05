@@ -8,6 +8,9 @@ import akka.cluster.MemberStatus;
 import org.apache.logging.log4j.Logger;
 import org.skywalking.apm.collector.cluster.WorkerListenerMessage;
 import org.skywalking.apm.collector.cluster.WorkersListener;
+import org.skywalking.apm.collector.rpc.RPCAddress;
+import org.skywalking.apm.collector.rpc.RPCAddressListener;
+import org.skywalking.apm.collector.rpc.RPCAddressListenerMessage;
 import org.skywalking.apm.collector.log.LogManager;
 
 /**
@@ -56,10 +59,12 @@ public abstract class AbstractClusterWorker extends AbstractWorker {
 
         private Cluster cluster;
         private final AbstractClusterWorker ownerWorker;
+        private final RPCAddress RPCAddress;
 
-        public WorkerWithAkka(AbstractClusterWorker ownerWorker) {
+        public WorkerWithAkka(AbstractClusterWorker ownerWorker, RPCAddress RPCAddress) {
             this.ownerWorker = ownerWorker;
             cluster = Cluster.get(getContext().system());
+            this.RPCAddress = RPCAddress;
         }
 
         @Override
@@ -107,6 +112,11 @@ public abstract class AbstractClusterWorker extends AbstractWorker {
                 WorkerListenerMessage.RegisterMessage registerMessage = new WorkerListenerMessage.RegisterMessage(ownerWorker.getRole());
                 logger.info("member address: %s, worker path: %s", member.address().toString(), getSelf().path().toString());
                 getContext().actorSelection(member.address() + "/user/" + WorkersListener.WORK_NAME).tell(registerMessage, getSelf());
+            }
+            if (member.hasRole(RPCAddressListener.WORK_NAME) && RPCAddress != null) {
+                RPCAddressListenerMessage.ConfigMessage configMessage = new RPCAddressListenerMessage.ConfigMessage(RPCAddress);
+                logger.info("member address: %s, worker path: %s", member.address().toString(), getSelf().path().toString());
+                getContext().actorSelection(member.address() + "/user/" + RPCAddressListener.WORK_NAME).tell(configMessage, getSelf());
             }
         }
     }

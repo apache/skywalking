@@ -13,6 +13,9 @@ public class GRPCConfigProvider implements ConfigProvider {
     }
 
     @Override public void cliArgs() {
+        if (!StringUtil.isEmpty(System.getProperty("grpc.HOSTNAME"))) {
+            GRPCConfig.GRPC.HOSTNAME = System.getProperty("grpc.HOSTNAME");
+        }
         if (!StringUtil.isEmpty(System.getProperty("grpc.PORT"))) {
             GRPCConfig.GRPC.PORT = System.getProperty("grpc.PORT");
         }

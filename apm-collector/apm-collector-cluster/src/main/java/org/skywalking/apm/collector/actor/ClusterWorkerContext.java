@@ -1,11 +1,11 @@
 package org.skywalking.apm.collector.actor;
 
 import akka.actor.ActorSystem;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.skywalking.apm.collector.rpc.RPCAddressContext;
 
 /**
  * @author pengys5
@@ -15,6 +15,7 @@ public class ClusterWorkerContext extends WorkerContext {
 
     private final ActorSystem akkaSystem;
     private Map<String, AbstractWorkerProvider> providers = new ConcurrentHashMap<>();
+    private RPCAddressContext rpcContext = new RPCAddressContext();
 
     public ClusterWorkerContext(ActorSystem akkaSystem) {
         this.akkaSystem = akkaSystem;
@@ -42,5 +43,9 @@ public class ClusterWorkerContext extends WorkerContext {
         } else {
             providers.put(provider.role().roleName(), provider);
         }
+    }
+
+    public RPCAddressContext getRpcContext() {
+        return rpcContext;
     }
 }

@@ -6,6 +6,12 @@ package org.skywalking.apm.collector.worker.config;
 public class WorkerConfig {
 
     public static class WorkerNum {
+        public static class GRPC {
+            public static class GRPCAddressRegister {
+                public static int VALUE = 1;
+            }
+        }
+
         public static class Node {
             public static class NodeCompAgg {
                 public static int VALUE = 2;

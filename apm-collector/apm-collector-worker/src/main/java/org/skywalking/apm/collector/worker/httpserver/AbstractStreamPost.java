@@ -1,5 +1,6 @@
 package org.skywalking.apm.collector.worker.httpserver;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -58,13 +59,13 @@ public abstract class AbstractStreamPost extends AbstractServlet {
      * Override the default implementation, forbidden to call this method.
      *
      * @param parameter {@link Map}, get the request parameter by key.
-     * @param response {@link JsonObject}, set the response data as json object.
+     * @param response {@link JsonElement}, set the response data as json object.
      * @throws ArgumentsParseException if the key could not contains in parameter
      * @throws WorkerInvokeException if any error is detected when call(or ask) worker
      * @throws WorkerNotFoundException if the worker reference could not found in context.
      */
     @Override final protected void onReceive(Map<String, String[]> parameter,
-        JsonObject response) throws ArgumentsParseException, WorkerInvokeException, WorkerNotFoundException {
+        JsonElement response) throws ArgumentsParseException, WorkerInvokeException, WorkerNotFoundException {
         throw new WorkerInvokeException("Use the other method with buffer reader parameter");
     }
 
