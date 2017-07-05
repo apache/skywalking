@@ -28,6 +28,7 @@ public class ConsumerPool<T> {
         prototype.init();
         for (int i = 0; i < num; i++) {
             consumerThreads[i] = new ConsumerThread("DataCarrier.Consumser." + i + ".Thread", prototype);
+            consumerThreads[i].setDaemon(true);
         }
 
     }

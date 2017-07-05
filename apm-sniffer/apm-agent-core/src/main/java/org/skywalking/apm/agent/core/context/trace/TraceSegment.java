@@ -52,14 +52,6 @@ public class TraceSegment {
     private List<AbstractTracingSpan> spans;
 
     /**
-     * The <code>applicationId</code> represents a name of current application/JVM and indicates which is business
-     * role in the cluster.
-     * <p>
-     * e.g. account_app, billing_app
-     */
-    private int applicationId;
-
-    /**
      * The <code>relatedGlobalTraces</code> represent a set of all related trace. Most time it contains only one
      * element, because only one parent {@link TraceSegment} exists, but, in batch scenario, the num becomes greater
      * than 1, also meaning multi-parents {@link TraceSegment}.
@@ -82,20 +74,6 @@ public class TraceSegment {
      * and generate a new segment id.
      */
     public TraceSegment() {
-        this.applicationId = (Integer)DictionaryManager.findApplicationCodeSection()
-            .find(Config.Agent.APPLICATION_CODE)
-            .doInCondition(
-                new PossibleFound.FoundAndObtain() {
-                    @Override public Object doProcess(int applicationId) {
-                        return applicationId;
-                    }
-                },
-                new PossibleFound.NotFoundAndObtain() {
-                    @Override public Object doProcess() {
-                        throw new IllegalStateException("Application id must not NULL.");
-                    }
-                }
-            );
         this.traceSegmentId = GlobalIdGenerator.generate(ID_TYPE);
         this.spans = new LinkedList<AbstractTracingSpan>();
         this.relatedGlobalTraces = new DistributedTraceIds();
@@ -154,7 +132,7 @@ public class TraceSegment {
     }
 
     public int getApplicationId() {
-        return applicationId;
+        return RemoteDownstreamConfig.Agent.APPLICATION_ID;
     }
 
     public boolean hasRef() {
@@ -206,8 +184,8 @@ public class TraceSegment {
         for (AbstractTracingSpan span : this.spans) {
             traceSegmentBuilder.addSpans(span.transform());
         }
-        traceSegmentBuilder.setApplicationId(this.applicationId);
-        traceSegmentBuilder.setApplicationInstanceId(RemoteDownstreamConfig.Agent.APPLICATION_ID);
+        traceSegmentBuilder.setApplicationId(RemoteDownstreamConfig.Agent.APPLICATION_ID);
+        traceSegmentBuilder.setApplicationInstanceId(RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID);
 
         upstreamBuilder.setSegment(traceSegmentBuilder.build().toByteString());
         return upstreamBuilder.build();
@@ -219,7 +197,6 @@ public class TraceSegment {
             "traceSegmentId='" + traceSegmentId + '\'' +
             ", refs=" + refs +
             ", spans=" + spans +
-            ", applicationId='" + applicationId + '\'' +
             ", relatedGlobalTraces=" + relatedGlobalTraces +
             '}';
     }

@@ -10,6 +10,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 import org.skywalking.apm.agent.core.boot.BootService;
 import org.skywalking.apm.agent.core.boot.ServiceManager;
+import org.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
+import org.skywalking.apm.agent.core.dictionary.DictionaryUtil;
 import org.skywalking.apm.agent.core.jvm.cpu.CPUProvider;
 import org.skywalking.apm.agent.core.jvm.gc.GCProvider;
 import org.skywalking.apm.agent.core.jvm.memory.MemoryProvider;
@@ -59,32 +61,36 @@ public class JVMService implements BootService, Runnable {
 
     @Override
     public void run() {
-        long currentTimeMillis = System.currentTimeMillis();
-        Date day = new Date(currentTimeMillis);
-        String second = sdf.format(day);
-        int blockIndex = Integer.parseInt(second) / 15;
-        if (blockIndex != lastBlockIdx) {
-            lastBlockIdx = blockIndex;
-            try {
-                JVMMetric.Builder jvmBuilder = JVMMetric.newBuilder();
-                jvmBuilder.setTime(currentTimeMillis);
-                jvmBuilder.setCpu(CPUProvider.INSTANCE.getCpuMetric());
-                jvmBuilder.addAllMemory(MemoryProvider.INSTANCE.getMemoryMetricList());
-                jvmBuilder.addAllMemoryPool(MemoryPoolProvider.INSTANCE.getMemoryPoolMetricList());
-                jvmBuilder.addAllGc(GCProvider.INSTANCE.getGCList());
-
-                JVMMetric jvmMetric = jvmBuilder.build();
-                lock.lock();
+        if (RemoteDownstreamConfig.Agent.APPLICATION_ID != DictionaryUtil.nullValue()
+            && RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID != DictionaryUtil.nullValue()
+            ) {
+            long currentTimeMillis = System.currentTimeMillis();
+            Date day = new Date(currentTimeMillis);
+            String second = sdf.format(day);
+            int blockIndex = Integer.parseInt(second) / 15;
+            if (blockIndex != lastBlockIdx) {
+                lastBlockIdx = blockIndex;
                 try {
-                    buffer.add(jvmMetric);
-                    while (buffer.size() > 4) {
-                        buffer.removeFirst();
+                    JVMMetric.Builder jvmBuilder = JVMMetric.newBuilder();
+                    jvmBuilder.setTime(currentTimeMillis);
+                    jvmBuilder.setCpu(CPUProvider.INSTANCE.getCpuMetric());
+                    jvmBuilder.addAllMemory(MemoryProvider.INSTANCE.getMemoryMetricList());
+                    jvmBuilder.addAllMemoryPool(MemoryPoolProvider.INSTANCE.getMemoryPoolMetricList());
+                    jvmBuilder.addAllGc(GCProvider.INSTANCE.getGCList());
+
+                    JVMMetric jvmMetric = jvmBuilder.build();
+                    lock.lock();
+                    try {
+                        buffer.add(jvmMetric);
+                        while (buffer.size() > 4) {
+                            buffer.removeFirst();
+                        }
+                    } finally {
+                        lock.unlock();
                     }
-                } finally {
-                    lock.unlock();
+                } catch (Exception e) {
+                    logger.error(e, "Collect JVM info fail.");
                 }
-            } catch (Exception e) {
-                logger.error(e, "Collect JVM info fail.");
             }
         }
     }
@@ -95,20 +101,25 @@ public class JVMService implements BootService, Runnable {
 
         @Override
         public void run() {
-            if (status == GRPCChannelStatus.CONNECTED) {
-                try {
-                    JVMMetrics.Builder builder = JVMMetrics.newBuilder();
-                    lock.lock();
+            if (RemoteDownstreamConfig.Agent.APPLICATION_ID != DictionaryUtil.nullValue()
+                && RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID != DictionaryUtil.nullValue()
+                ) {
+                if (status == GRPCChannelStatus.CONNECTED) {
                     try {
-                        builder.addAllMetrics(buffer);
-                        buffer.clear();
-                    } finally {
-                        lock.unlock();
-                    }
+                        JVMMetrics.Builder builder = JVMMetrics.newBuilder();
+                        lock.lock();
+                        try {
+                            builder.addAllMetrics(buffer);
+                            buffer.clear();
+                        } finally {
+                            lock.unlock();
+                        }
 
-                    stub.collect(builder.build());
-                } catch (Throwable t) {
-                    logger.error(t, "send JVM metrics to Collector fail.");
+                        builder.setApplicationInstanceId(RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID);
+                        stub.collect(builder.build());
+                    } catch (Throwable t) {
+                        logger.error(t, "send JVM metrics to Collector fail.");
+                    }
                 }
             }
         }
