@@ -1,29 +1,41 @@
 package org.skywalking.apm.agent.core.jvm;
 
+import io.grpc.ManagedChannel;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
+import java.util.LinkedList;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 import org.skywalking.apm.agent.core.boot.BootService;
+import org.skywalking.apm.agent.core.boot.ServiceManager;
 import org.skywalking.apm.agent.core.jvm.cpu.CPUProvider;
+import org.skywalking.apm.agent.core.jvm.gc.GCProvider;
 import org.skywalking.apm.agent.core.jvm.memory.MemoryProvider;
 import org.skywalking.apm.agent.core.jvm.memorypool.MemoryPoolProvider;
+import org.skywalking.apm.agent.core.remote.GRPCChannelListener;
+import org.skywalking.apm.agent.core.remote.GRPCChannelManager;
+import org.skywalking.apm.agent.core.remote.GRPCChannelStatus;
 import org.skywalking.apm.logging.ILog;
 import org.skywalking.apm.logging.LogManager;
 import org.skywalking.apm.network.proto.JVMMetric;
-import org.skywalking.apm.network.proto.MemoryPool;
+import org.skywalking.apm.network.proto.JVMMetrics;
+import org.skywalking.apm.network.proto.JVMMetricsServiceGrpc;
+
+import static org.skywalking.apm.agent.core.remote.GRPCChannelStatus.CONNECTED;
 
 /**
  * @author wusheng
  */
 public class JVMService implements BootService, Runnable {
     private static ILog logger = LogManager.getLogger(JVMService.class);
+    private ReentrantLock lock = new ReentrantLock();
+    private volatile LinkedList<JVMMetric> buffer = new LinkedList<JVMMetric>();
     private SimpleDateFormat sdf = new SimpleDateFormat("ss");
-    private volatile ScheduledFuture<?> scheduledFuture;
-    private volatile int lastSeconds = -1;
+    private volatile ScheduledFuture<?> collectMetricFuture;
+    private volatile ScheduledFuture<?> sendMetricFuture;
+    private volatile int lastBlockIdx = -1;
 
     @Override
     public void beforeBoot() throws Throwable {
@@ -32,9 +44,12 @@ public class JVMService implements BootService, Runnable {
 
     @Override
     public void boot() throws Throwable {
-        ScheduledExecutorService service = Executors
-            .newSingleThreadScheduledExecutor();
-        scheduledFuture = service.scheduleAtFixedRate(this, 0, 1, TimeUnit.SECONDS);
+        collectMetricFuture = Executors
+            .newSingleThreadScheduledExecutor()
+            .scheduleAtFixedRate(this, 0, 1, TimeUnit.SECONDS);
+        sendMetricFuture = Executors
+            .newSingleThreadScheduledExecutor()
+            .scheduleAtFixedRate(new Sender(), 0, 15, TimeUnit.SECONDS);
     }
 
     @Override
@@ -47,20 +62,63 @@ public class JVMService implements BootService, Runnable {
         long currentTimeMillis = System.currentTimeMillis();
         Date day = new Date(currentTimeMillis);
         String second = sdf.format(day);
-        int secondInt = Integer.parseInt(second);
-        if (secondInt % 15 == 0 && secondInt != lastSeconds) {
-            lastSeconds = secondInt;
+        int blockIndex = Integer.parseInt(second) / 15;
+        if (blockIndex != lastBlockIdx) {
+            lastBlockIdx = blockIndex;
             try {
-                JVMMetric.Builder JVMBuilder = JVMMetric.newBuilder();
-                JVMBuilder.setTime(currentTimeMillis);
-                JVMBuilder.setCpu(CPUProvider.INSTANCE.getCpuMetric());
-                JVMBuilder.addAllMemory(MemoryProvider.INSTANCE.getMemoryMetricList());
-                List<MemoryPool> memoryPoolMetricList = MemoryPoolProvider.INSTANCE.getMemoryPoolMetricList();
-                if (memoryPoolMetricList.size() > 0) {
-                    JVMBuilder.addAllMemoryPool(memoryPoolMetricList);
+                JVMMetric.Builder jvmBuilder = JVMMetric.newBuilder();
+                jvmBuilder.setTime(currentTimeMillis);
+                jvmBuilder.setCpu(CPUProvider.INSTANCE.getCpuMetric());
+                jvmBuilder.addAllMemory(MemoryProvider.INSTANCE.getMemoryMetricList());
+                jvmBuilder.addAllMemoryPool(MemoryPoolProvider.INSTANCE.getMemoryPoolMetricList());
+                jvmBuilder.addAllGc(GCProvider.INSTANCE.getGCList());
+
+                JVMMetric jvmMetric = jvmBuilder.build();
+                lock.lock();
+                try {
+                    buffer.add(jvmMetric);
+                    while (buffer.size() > 4) {
+                        buffer.removeFirst();
+                    }
+                } finally {
+                    lock.unlock();
                 }
             } catch (Exception e) {
                 logger.error(e, "Collect JVM info fail.");
+            }
+        }
+    }
+
+    private class Sender implements Runnable, GRPCChannelListener {
+        private volatile GRPCChannelStatus status = GRPCChannelStatus.DISCONNECT;
+        private volatile JVMMetricsServiceGrpc.JVMMetricsServiceBlockingStub stub = null;
+
+        @Override
+        public void run() {
+            if (status == GRPCChannelStatus.CONNECTED) {
+                try {
+                    JVMMetrics.Builder builder = JVMMetrics.newBuilder();
+                    lock.lock();
+                    try {
+                        builder.addAllMetrics(buffer);
+                        buffer.clear();
+                    } finally {
+                        lock.unlock();
+                    }
+
+                    stub.collect(builder.build());
+                } catch (Throwable t) {
+                    logger.error(t, "send JVM metrics to Collector fail.");
+                }
+            }
+        }
+
+        @Override
+        public void statusChanged(GRPCChannelStatus status) {
+            this.status = status;
+            if (CONNECTED.equals(status)) {
+                ManagedChannel channel = ServiceManager.INSTANCE.findService(GRPCChannelManager.class).getManagedChannel();
+                stub = JVMMetricsServiceGrpc.newBlockingStub(channel);
             }
         }
     }

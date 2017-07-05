@@ -6,17 +6,16 @@ import java.util.List;
 /**
  * @author wusheng
  */
-public class ParallelGCModule extends GCModule {
-    public ParallelGCModule(List<GarbageCollectorMXBean> beans) {
+public class SerialGCModule extends GCModule {
+    public SerialGCModule(List<GarbageCollectorMXBean> beans) {
         super(beans);
     }
 
     @Override protected String getOldGCName() {
-        return "PS MarkSweep";
+        return "MarkSweepCompact";
     }
 
     @Override protected String getNewGCName() {
-        return "PS Scavenge";
+        return "Copy";
     }
-
 }

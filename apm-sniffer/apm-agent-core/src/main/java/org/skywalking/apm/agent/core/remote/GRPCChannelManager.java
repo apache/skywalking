@@ -58,6 +58,7 @@ public class GRPCChannelManager implements BootService, Runnable {
                     if (forceStart || managedChannel == null || managedChannel.isTerminated() || managedChannel.isShutdown()) {
                         if (managedChannel != null) {
                             managedChannel.shutdownNow();
+                            notify(GRPCChannelStatus.DISCONNECT);
                         }
                         Thread channelManagerThread = new Thread(this, "ChannelManagerThread");
                         channelManagerThread.setDaemon(true);
@@ -84,9 +85,7 @@ public class GRPCChannelManager implements BootService, Runnable {
                             .maxInboundMessageSize(1024 * 1024 * 50)
                             .usePlaintext(true);
                     managedChannel = channelBuilder.build();
-                    for (GRPCChannelListener listener : listeners) {
-                        listener.statusChanged(GRPCChannelStatus.CONNECTED);
-                    }
+                    notify(GRPCChannelStatus.CONNECTED);
                     break;
                 } catch (Throwable t) {
                     logger.error(t, "Create channel to {} fail.", server);
@@ -110,11 +109,18 @@ public class GRPCChannelManager implements BootService, Runnable {
 
     /**
      * If the given expcetion is triggered by network problem, connect in background.
+     *
      * @param throwable
      */
     public void reportError(Throwable throwable) {
         if (isNetworkError(throwable)) {
             this.connectInBackground(true);
+        }
+    }
+
+    private void notify(GRPCChannelStatus status) {
+        for (GRPCChannelListener listener : listeners) {
+            listener.statusChanged(status);
         }
     }
 

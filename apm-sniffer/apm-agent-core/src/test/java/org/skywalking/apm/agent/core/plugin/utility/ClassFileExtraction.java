@@ -1,8 +1,14 @@
 package org.skywalking.apm.agent.core.plugin.utility;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import net.bytebuddy.ClassFileVersion;
 import net.bytebuddy.asm.AsmVisitorWrapper;
 import net.bytebuddy.description.field.FieldDescription;
+import net.bytebuddy.description.field.FieldList;
+import net.bytebuddy.description.method.MethodDescription;
+import net.bytebuddy.description.method.MethodList;
 import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.implementation.Implementation;
 import net.bytebuddy.implementation.auxiliary.AuxiliaryType;
@@ -11,10 +17,6 @@ import net.bytebuddy.jar.asm.ClassReader;
 import net.bytebuddy.jar.asm.ClassWriter;
 import net.bytebuddy.pool.TypePool;
 import org.junit.Test;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -38,6 +40,8 @@ public class ClassFileExtraction {
             classWriter,
             new IllegalContext(),
             TypePool.Empty.INSTANCE,
+            new FieldList.Empty<FieldDescription.InDefinedShape>(),
+            new MethodList.Empty<MethodDescription>(),
             AsmVisitorWrapper.NO_FLAGS,
             AsmVisitorWrapper.NO_FLAGS), AsmVisitorWrapper.NO_FLAGS);
         return classWriter.toByteArray();
@@ -80,6 +84,24 @@ public class ClassFileExtraction {
 
         @Override
         public ClassFileVersion getClassFileVersion() {
+            throw new AssertionError("Did not expect method call");
+        }
+
+        @Override
+        public MethodDescription.InDefinedShape registerAccessorFor(
+            Implementation.SpecialMethodInvocation specialMethodInvocation, AccessType accessType) {
+            throw new AssertionError("Did not expect method call");
+        }
+
+        @Override
+        public MethodDescription.InDefinedShape registerGetterFor(FieldDescription fieldDescription,
+            AccessType accessType) {
+            throw new AssertionError("Did not expect method call");
+        }
+
+        @Override
+        public MethodDescription.InDefinedShape registerSetterFor(FieldDescription fieldDescription,
+            AccessType accessType) {
             throw new AssertionError("Did not expect method call");
         }
     }

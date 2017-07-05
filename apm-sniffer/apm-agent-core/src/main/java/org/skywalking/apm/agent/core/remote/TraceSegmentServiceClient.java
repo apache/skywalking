@@ -29,7 +29,7 @@ public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSe
 
     private volatile DataCarrier<TraceSegment> carrier;
     private volatile TraceSegmentServiceGrpc.TraceSegmentServiceStub serviceStub;
-    private volatile GRPCChannelStatus status = null;
+    private volatile GRPCChannelStatus status = GRPCChannelStatus.DISCONNECT;
 
     @Override
     public void beforeBoot() throws Throwable {
@@ -124,11 +124,10 @@ public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSe
 
     @Override
     public void statusChanged(GRPCChannelStatus status) {
+        this.status = status;
         if (CONNECTED.equals(status)) {
             ManagedChannel channel = ServiceManager.INSTANCE.findService(GRPCChannelManager.class).getManagedChannel();
             serviceStub = TraceSegmentServiceGrpc.newStub(channel);
-        } else {
-
         }
     }
 }

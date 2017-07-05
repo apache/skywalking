@@ -34,12 +34,16 @@ public enum GCProvider {
     private GCMetricAccessor findByBeanName(String name) {
         if (name.indexOf("PS") > -1) {
             //Parallel (Old) collector ( -XX:+UseParallelOldGC )
+            return new ParallelGCModule(beans);
         } else if (name.indexOf("ConcurrentMarkSweep") > -1) {
             // CMS collector ( -XX:+UseConcMarkSweepGC )
+            return new CMSGCModule(beans);
         } else if (name.indexOf("G1") > -1) {
             // G1 collector ( -XX:+UseG1GC )
+            return new G1GCModule(beans);
         } else if (name.equals("MarkSweepCompact")) {
             // Serial collector ( -XX:+UseSerialGC )
+            return new SerialGCModule(beans);
         } else {
             // Unknown
             return null;

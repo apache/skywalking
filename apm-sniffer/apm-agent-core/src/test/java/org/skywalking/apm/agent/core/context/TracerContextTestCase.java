@@ -9,6 +9,8 @@ import org.skywalking.apm.agent.core.context.ids.DistributedTraceId;
 import org.skywalking.apm.agent.core.context.ids.PropagatedTraceId;
 import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.skywalking.apm.agent.core.context.trace.TraceSegment;
+import org.skywalking.apm.agent.core.context.util.TraceSegmentHelper;
+import org.skywalking.apm.agent.core.context.util.TraceSegmentRefHelper;
 
 /**
  * Created by wusheng on 2017/2/19.
@@ -16,29 +18,30 @@ import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 public class TracerContextTestCase {
     @Test
     public void testSpanLifeCycle() {
-        TracerContext context = new TracerContext();
-        AbstractSpan span = context.createSpan("/serviceA", false);
+        TracingContext context = new TracingContext();
+        AbstractSpan span = context.createLocalSpan("/serviceA");
 
         Assert.assertEquals(span, context.activeSpan());
 
-        TracerContext.ListenerManager.add(TestTracingContextListener.INSTANCE);
+        TracingContext.ListenerManager.add(TestTracingContextListener.INSTANCE);
         final TraceSegment[] finishedSegmentCarrier = TestTracingContextListener.INSTANCE.finishedSegmentCarrier;
         context.stopSpan(span);
 
-        Assert.assertNotNull(finishedSegmentCarrier[0]);
-        Assert.assertEquals(1, finishedSegmentCarrier[0].getSpans().size());
-        Assert.assertEquals(span, finishedSegmentCarrier[0].getSpans().get(0));
+        TraceSegment traceSegment = finishedSegmentCarrier[0];
+        Assert.assertNotNull(traceSegment);
+        Assert.assertEquals(1, TraceSegmentHelper.getSpans(traceSegment).size());
+        Assert.assertEquals(span, TraceSegmentHelper.getSpans(traceSegment).get(0));
     }
 
     @Test
     public void testChildOfSpan() {
-        TracerContext context = new TracerContext();
-        AbstractSpan serviceSpan = context.createSpan("/serviceA", false);
-        AbstractSpan dbSpan = context.createSpan("db/preparedStatement/execute", false);
+        TracingContext context = new TracingContext();
+        AbstractSpan serviceSpan = context.createLocalSpan("/serviceA");
+        AbstractSpan dbSpan = context.createExitSpan("db/preparedStatement/execute", "127.0.0.1:3306");
 
         Assert.assertEquals(dbSpan, context.activeSpan());
 
-        TracerContext.ListenerManager.add(TestTracingContextListener.INSTANCE);
+        TracingContext.ListenerManager.add(TestTracingContextListener.INSTANCE);
         final TraceSegment[] finishedSegmentCarrier = TestTracingContextListener.INSTANCE.finishedSegmentCarrier;
 
         try {
@@ -50,23 +53,22 @@ public class TracerContextTestCase {
         context.stopSpan(dbSpan);
         context.stopSpan(serviceSpan);
 
-        Assert.assertNotNull(finishedSegmentCarrier[0]);
-        Assert.assertEquals(2, finishedSegmentCarrier[0].getSpans().size());
-        Assert.assertEquals(dbSpan, finishedSegmentCarrier[0].getSpans().get(0));
+        TraceSegment traceSegment = finishedSegmentCarrier[0];
+        Assert.assertNotNull(traceSegment);
+        Assert.assertEquals(2, TraceSegmentHelper.getSpans(traceSegment).size());
+        Assert.assertEquals(dbSpan, TraceSegmentHelper.getSpans(traceSegment).get(0));
     }
 
     @Test
     public void testInject() {
-        TracerContext context = new TracerContext();
-        AbstractSpan serviceSpan = context.createSpan("/serviceA", false);
-        AbstractSpan dbSpan = context.createSpan("db/preparedStatement/execute", false);
-        dbSpan.setPeerHost("127.0.0.1");
-        dbSpan.setPort(8080);
+        TracingContext context = new TracingContext();
+        AbstractSpan serviceSpan = context.createLocalSpan("/serviceA");
+        AbstractSpan dbSpan = context.createExitSpan("db/preparedStatement/execute", "127.0.0.1:3306");
 
         ContextCarrier carrier = new ContextCarrier();
         context.inject(carrier);
 
-        Assert.assertEquals("127.0.0.1:8080", carrier.getPeerHost());
+        Assert.assertEquals("127.0.0.1:3306", carrier.getPeerHost());
         Assert.assertEquals(1, carrier.getSpanId());
     }
 
@@ -75,7 +77,6 @@ public class TracerContextTestCase {
         ContextCarrier carrier = new ContextCarrier();
         carrier.setTraceSegmentId("trace_id_1");
         carrier.setSpanId(5);
-        carrier.setApplicationCode("REMOTE_APP");
         carrier.setPeerHost("10.2.3.16:8080");
         List<DistributedTraceId> ids = new LinkedList<DistributedTraceId>();
         ids.add(new PropagatedTraceId("Trace.global.id.123"));
@@ -83,21 +84,22 @@ public class TracerContextTestCase {
 
         Assert.assertTrue(carrier.isValid());
 
-        TracerContext context = new TracerContext();
+        TracingContext context = new TracingContext();
         context.extract(carrier);
-        AbstractSpan span = context.createSpan("/serviceC", false);
+        AbstractSpan span = context.createLocalSpan("/serviceC");
 
-        TracerContext.ListenerManager.add(TestTracingContextListener.INSTANCE);
+        TracingContext.ListenerManager.add(TestTracingContextListener.INSTANCE);
         final TraceSegment[] finishedSegmentCarrier = TestTracingContextListener.INSTANCE.finishedSegmentCarrier;
 
         context.stopSpan(span);
 
-        Assert.assertEquals("trace_id_1", finishedSegmentCarrier[0].getRefs().get(0).getTraceSegmentId());
-        Assert.assertEquals(5, finishedSegmentCarrier[0].getRefs().get(0).getSpanId());
+        TraceSegment segment = finishedSegmentCarrier[0];
+        Assert.assertEquals("trace_id_1", TraceSegmentRefHelper.getTraceSegmentId(segment.getRefs().get(0)));
+        Assert.assertEquals(5, TraceSegmentRefHelper.getSpanId(segment.getRefs().get(0)));
     }
 
     @After
     public void reset() {
-        TracerContext.ListenerManager.remove(TestTracingContextListener.INSTANCE);
+        TracingContext.ListenerManager.remove(TestTracingContextListener.INSTANCE);
     }
 }
