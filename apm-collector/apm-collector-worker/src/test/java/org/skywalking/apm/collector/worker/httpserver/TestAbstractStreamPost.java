@@ -1,5 +1,6 @@
 package org.skywalking.apm.collector.worker.httpserver;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.io.BufferedReader;
 import org.skywalking.apm.collector.actor.ClusterWorkerContext;
@@ -17,6 +18,10 @@ import org.skywalking.apm.collector.actor.selector.WorkerSelector;
 public class TestAbstractStreamPost extends AbstractStreamPost {
     public TestAbstractStreamPost(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
+    }
+
+    @Override protected Class<? extends JsonElement> responseClass() {
+        return JsonObject.class;
     }
 
     @Override

@@ -16,13 +16,12 @@ import org.skywalking.apm.collector.actor.selector.WorkerSelector;
 import org.skywalking.apm.collector.worker.RecordAnalysisMember;
 import org.skywalking.apm.collector.worker.config.WorkerConfig;
 import org.skywalking.apm.collector.worker.segment.SegmentExceptionIndex;
-import org.skywalking.apm.collector.worker.segment.SegmentPost;
-import org.skywalking.apm.collector.worker.segment.entity.LogData;
-import org.skywalking.apm.collector.worker.segment.entity.Segment;
-import org.skywalking.apm.collector.worker.segment.entity.Span;
-import org.skywalking.apm.collector.worker.segment.entity.tag.Tags;
+import org.skywalking.apm.collector.worker.segment.SegmentReceiver;
 import org.skywalking.apm.collector.worker.segment.persistence.SegmentExceptionSave;
 import org.skywalking.apm.collector.worker.tools.CollectionTools;
+import org.skywalking.apm.network.proto.LogMessage;
+import org.skywalking.apm.network.proto.SpanObject;
+import org.skywalking.apm.network.proto.TraceSegmentObject;
 
 /**
  * @author pengys5
@@ -42,13 +41,13 @@ public class SegmentExceptionAnalysis extends RecordAnalysisMember {
 
     @Override
     public void analyse(Object message) {
-        if (message instanceof SegmentPost.SegmentWithTimeSlice) {
-            SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice = (SegmentPost.SegmentWithTimeSlice)message;
-            Segment segment = segmentWithTimeSlice.getSegment();
+        if (message instanceof SegmentReceiver.SegmentWithTimeSlice) {
+            SegmentReceiver.SegmentWithTimeSlice segmentWithTimeSlice = (SegmentReceiver.SegmentWithTimeSlice)message;
+            TraceSegmentObject segment = segmentWithTimeSlice.getSegment();
 
-            if (CollectionTools.isNotEmpty(segment.getSpans())) {
-                for (Span span : segment.getSpans()) {
-                    boolean isError = Tags.ERROR.get(span);
+            if (CollectionTools.isNotEmpty(segment.getSpansList())) {
+                for (SpanObject span : segment.getSpansList()) {
+                    boolean isError = span.getIsError();
 
                     JsonObject dataJsonObj = new JsonObject();
                     dataJsonObj.addProperty(SegmentExceptionIndex.IS_ERROR, isError);
@@ -56,11 +55,11 @@ public class SegmentExceptionAnalysis extends RecordAnalysisMember {
 
                     JsonArray errorKind = new JsonArray();
                     if (isError) {
-                        List<LogData> logDataList = span.getLogs();
-                        for (LogData logData : logDataList) {
-                            if (logData.getFields().containsKey("error.kind")) {
-                                errorKind.add(String.valueOf(logData.getFields().get("error.kind")));
-                            }
+                        List<LogMessage> logMessages = span.getLogsList();
+                        for (LogMessage logMessage : logMessages) {
+//                            if (logMessage.getFields().containsKey("error.kind")) {
+//                                errorKind.add(String.valueOf(logData.getFields().get("error.kind")));
+//                            }
                         }
                     }
                     dataJsonObj.add(SegmentExceptionIndex.ERROR_KIND, errorKind);
@@ -68,7 +67,7 @@ public class SegmentExceptionAnalysis extends RecordAnalysisMember {
                 }
             }
         } else {
-            logger.error("unhandled message, message instance must SegmentPost.SegmentWithTimeSlice, but is %s", message.getClass().toString());
+            logger.error("unhandled message, message instance must SegmentReceiver.SegmentWithTimeSlice, but is %s", message.getClass().toString());
         }
     }
 

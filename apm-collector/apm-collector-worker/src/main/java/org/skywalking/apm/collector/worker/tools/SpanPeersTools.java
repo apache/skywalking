@@ -1,9 +1,6 @@
 package org.skywalking.apm.collector.worker.tools;
 
-import org.skywalking.apm.util.StringUtil;
-import org.skywalking.apm.collector.worker.Const;
-import org.skywalking.apm.collector.worker.segment.entity.Span;
-import org.skywalking.apm.collector.worker.segment.entity.tag.Tags;
+import org.skywalking.apm.network.proto.SpanObject;
 
 /**
  * @author pengys5
@@ -11,13 +8,11 @@ import org.skywalking.apm.collector.worker.segment.entity.tag.Tags;
 public enum SpanPeersTools {
     INSTANCE;
 
-    public String getPeers(Span span) {
-        if (StringUtil.isEmpty(Tags.PEERS.get(span))) {
-            String host = Tags.PEER_HOST.get(span);
-            int port = Tags.PEER_PORT.get(span);
-            return Const.PEERS_FRONT_SPLIT + host + ":" + port + Const.PEERS_BEHIND_SPLIT;
+    public int getPeers(SpanObject span) {
+        if (span.getPeerId() == 0) {
+            return 0; //TODO exchange peer to peer id
         } else {
-            return Const.PEERS_FRONT_SPLIT + Tags.PEERS.get(span) + Const.PEERS_BEHIND_SPLIT;
+            return span.getPeerId();
         }
     }
 }

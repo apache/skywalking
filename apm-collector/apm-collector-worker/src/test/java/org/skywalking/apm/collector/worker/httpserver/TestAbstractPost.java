@@ -1,5 +1,6 @@
 package org.skywalking.apm.collector.worker.httpserver;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.util.Map;
 import org.skywalking.apm.collector.actor.ClusterWorkerContext;
@@ -19,13 +20,17 @@ public class TestAbstractPost extends AbstractPost {
         super(role, clusterContext, selfContext);
     }
 
+    @Override protected Class<? extends JsonElement> responseClass() {
+        return JsonObject.class;
+    }
+
     @Override
     public void preStart() throws ProviderNotFoundException {
         super.preStart();
     }
 
     @Override protected void onReceive(Map<String, String[]> parameter,
-        JsonObject response) throws ArgumentsParseException, WorkerInvokeException, WorkerNotFoundException {
+        JsonElement response) throws ArgumentsParseException, WorkerInvokeException, WorkerNotFoundException {
 
     }
 

@@ -13,8 +13,8 @@ import org.skywalking.apm.collector.actor.selector.RollingSelector;
 import org.skywalking.apm.collector.actor.selector.WorkerSelector;
 import org.skywalking.apm.collector.worker.config.WorkerConfig;
 import org.skywalking.apm.collector.worker.noderef.persistence.NodeRefMinuteAgg;
-import org.skywalking.apm.collector.worker.segment.SegmentPost;
-import org.skywalking.apm.collector.worker.segment.entity.Segment;
+import org.skywalking.apm.collector.worker.segment.SegmentReceiver;
+import org.skywalking.apm.network.proto.TraceSegmentObject;
 
 /**
  * @author pengys5
@@ -36,16 +36,16 @@ public class NodeRefMinuteAnalysis extends AbstractNodeRefAnalysis {
 
     @Override
     public void analyse(Object message) {
-        if (message instanceof SegmentPost.SegmentWithTimeSlice) {
-            SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice = (SegmentPost.SegmentWithTimeSlice)message;
-            Segment segment = segmentWithTimeSlice.getSegment();
+        if (message instanceof SegmentReceiver.SegmentWithTimeSlice) {
+            SegmentReceiver.SegmentWithTimeSlice segmentWithTimeSlice = (SegmentReceiver.SegmentWithTimeSlice)message;
+            TraceSegmentObject segment = segmentWithTimeSlice.getSegment();
             long minute = segmentWithTimeSlice.getMinute();
             long hour = segmentWithTimeSlice.getHour();
             long day = segmentWithTimeSlice.getDay();
             int second = segmentWithTimeSlice.getSecond();
             analyseNodeRef(segment, segmentWithTimeSlice.getMinute(), minute, hour, day, second);
         } else {
-            logger.error("unhandled message, message instance must SegmentPost.SegmentWithTimeSlice, but is %s", message.getClass().toString());
+            logger.error("unhandled message, message instance must SegmentReceiver.SegmentWithTimeSlice, but is %s", message.getClass().toString());
         }
     }
 

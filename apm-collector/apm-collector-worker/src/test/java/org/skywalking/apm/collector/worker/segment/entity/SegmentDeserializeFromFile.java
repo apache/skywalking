@@ -2,9 +2,11 @@ package org.skywalking.apm.collector.worker.segment.entity;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
+import org.skywalking.apm.network.proto.TraceSegmentObject;
 
 /**
  * @author pengys5
@@ -21,17 +23,16 @@ public enum SegmentDeserializeFromFile {
      * @return on {@link List <Segment>}
      * @throws Exception if json data illegal or file broken.
      */
-    public List<Segment> deserializeMultiple(String segmentJsonFile) throws Exception {
-        List<Segment> segmentList = new ArrayList<>();
+    public List<TraceSegmentObject> deserializeMultiple(String segmentJsonFile) throws Exception {
+        List<TraceSegmentObject> segmentList = new ArrayList<>();
         streamReader(segmentList, new FileReader(segmentJsonFile));
         return segmentList;
     }
 
-    private void streamReader(List<Segment> segmentList, FileReader fileReader) throws Exception {
+    private void streamReader(List<TraceSegmentObject> segmentList, FileReader fileReader) throws Exception {
         JsonArray segmentArray = gson.fromJson(fileReader, JsonArray.class);
         for (int i = 0; i < segmentArray.size(); i++) {
-            Segment segment = gson.fromJson(segmentArray.get(i), Segment.class);
-            segmentList.add(segment);
+            JsonObject segmentObj = segmentArray.get(i).getAsJsonObject();
         }
     }
 }

@@ -1,11 +1,10 @@
 package org.skywalking.apm.collector.worker.segment;
 
+import java.io.IOException;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.skywalking.apm.collector.worker.config.EsConfig;
 import org.skywalking.apm.collector.worker.storage.AbstractIndex;
-
-import java.io.IOException;
 
 /**
  * @author pengys5
@@ -13,6 +12,8 @@ import java.io.IOException;
 public class SegmentIndex extends AbstractIndex {
 
     public static final String INDEX = "segment_idx";
+    public static final String TRACE_SEGMENT_ID = "traceSegmentId";
+    public static final String SEGMENT_OBJ_BLOB = "segmentObjBlob";
 
     @Override
     public String index() {
@@ -34,31 +35,20 @@ public class SegmentIndex extends AbstractIndex {
         return XContentFactory.jsonBuilder()
             .startObject()
             .startObject("properties")
-            .startObject("traceSegmentId")
+            .startObject(TRACE_SEGMENT_ID)
             .field("type", "keyword")
             .endObject()
-            .startObject("startTime")
-            .field("type", "date")
-            .field("index", "not_analyzed")
-            .endObject()
-            .startObject("endTime")
-            .field("type", "date")
-            .field("index", "not_analyzed")
-            .endObject()
-            .startObject("applicationCode")
-            .field("type", "keyword")
-            .endObject()
-            .startObject("minute")
+            .startObject(TYPE_MINUTE)
             .field("type", "long")
-            .field("index", "not_analyzed")
             .endObject()
-            .startObject("hour")
+            .startObject(TYPE_HOUR)
             .field("type", "long")
-            .field("index", "not_analyzed")
             .endObject()
-            .startObject("day")
+            .startObject(TYPE_DAY)
             .field("type", "long")
-            .field("index", "not_analyzed")
+            .endObject()
+            .startObject(SEGMENT_OBJ_BLOB)
+            .field("type", "binary")
             .endObject()
             .endObject()
             .endObject();

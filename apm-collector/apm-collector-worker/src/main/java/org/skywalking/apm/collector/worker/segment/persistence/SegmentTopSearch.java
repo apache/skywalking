@@ -2,8 +2,8 @@ package org.skywalking.apm.collector.worker.segment.persistence;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import java.io.IOException;
 import java.util.List;
+import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
@@ -25,10 +25,10 @@ import org.skywalking.apm.collector.actor.selector.WorkerSelector;
 import org.skywalking.apm.collector.worker.segment.SegmentCostIndex;
 import org.skywalking.apm.collector.worker.segment.SegmentExceptionIndex;
 import org.skywalking.apm.collector.worker.segment.SegmentIndex;
-import org.skywalking.apm.collector.worker.segment.entity.Segment;
 import org.skywalking.apm.collector.worker.segment.entity.SegmentDeserialize;
 import org.skywalking.apm.collector.worker.storage.EsClient;
 import org.skywalking.apm.collector.worker.tools.CollectionTools;
+import org.skywalking.apm.network.proto.TraceSegmentObject;
 import org.skywalking.apm.util.StringUtil;
 
 /**
@@ -102,15 +102,11 @@ public class SegmentTopSearch extends AbstractLocalSyncWorker {
                 topSegmentJson.addProperty(SegmentCostIndex.OPERATION_NAME, (String)searchHit.getSource().get(SegmentCostIndex.OPERATION_NAME));
                 topSegmentJson.addProperty(SegmentCostIndex.COST, (Number)searchHit.getSource().get(SegmentCostIndex.COST));
 
-                String segmentSource = EsClient.INSTANCE.getClient().prepareGet(SegmentIndex.INDEX, SegmentIndex.TYPE_RECORD, segId).get().getSourceAsString();
-                logger().debug("segmentSource:" + segmentSource);
-                Segment segment;
-                try {
-                    segment = SegmentDeserialize.INSTANCE.deserializeSingle(segmentSource);
-                } catch (IOException e) {
-                    throw new WorkerException(e.getMessage(), e);
-                }
-                List<String> distributedTraceIdList = segment.getRelatedGlobalTraces().get();
+                GetResponse getResponse = EsClient.INSTANCE.getClient().prepareGet(SegmentIndex.INDEX, SegmentIndex.TYPE_RECORD, segId).get();
+                String segmentObjBlob = (String)getResponse.getSource().get(SegmentIndex.SEGMENT_OBJ_BLOB);
+
+                TraceSegmentObject segment = SegmentDeserialize.INSTANCE.deserializeSingle(segmentObjBlob);
+                List<String> distributedTraceIdList = segment.getGlobalTraceIdsList();
 
                 JsonArray distributedTraceIdArray = new JsonArray();
                 if (CollectionTools.isNotEmpty(distributedTraceIdList)) {

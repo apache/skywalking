@@ -1,3 +1,4 @@
+org.skywalking.apm.collector.worker.grpcserver.GRPCAddressRegister$Factory
 org.skywalking.apm.collector.worker.globaltrace.persistence.GlobalTraceAgg$Factory
 
 org.skywalking.apm.collector.worker.noderef.persistence.NodeRefDayAgg$Factory

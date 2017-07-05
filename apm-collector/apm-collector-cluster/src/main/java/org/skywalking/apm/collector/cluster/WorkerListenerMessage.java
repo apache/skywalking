@@ -1,9 +1,8 @@
 package org.skywalking.apm.collector.cluster;
 
+import java.io.Serializable;
 import org.skywalking.apm.collector.actor.AbstractWorker;
 import org.skywalking.apm.collector.actor.Role;
-
-import java.io.Serializable;
 
 /**
  * <code>WorkerListenerMessage</code> is a message just for the worker

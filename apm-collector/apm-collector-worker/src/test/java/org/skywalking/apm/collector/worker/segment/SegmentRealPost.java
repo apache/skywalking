@@ -1,32 +1,50 @@
 package org.skywalking.apm.collector.worker.segment;
 
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
+import io.grpc.stub.StreamObserver;
+import java.util.List;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.skywalking.apm.collector.worker.segment.mock.SegmentMock;
+import org.skywalking.apm.network.proto.Downstream;
+import org.skywalking.apm.network.proto.TraceSegmentServiceGrpc;
+import org.skywalking.apm.network.proto.UpstreamSegment;
 
 /**
  * @author pengys5
  */
 public class SegmentRealPost {
 
+    private static Logger logger = LogManager.getFormatterLogger(SegmentRealPost.class);
+
     public static void main(String[] args) throws Exception {
-        SegmentMock mock = new SegmentMock();
-//        String cacheServiceExceptionSegmentAsString = mock.mockCacheServiceExceptionSegmentAsString();
-//        HttpClientTools.INSTANCE.post("http://localhost:7001/segments", cacheServiceExceptionSegmentAsString);
-//
-//        String portalServiceExceptionSegmentAsString = mock.mockPortalServiceExceptionSegmentAsString();
-//        HttpClientTools.INSTANCE.post("http://localhost:7001/segments", portalServiceExceptionSegmentAsString);
+        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 22800)
+            .usePlaintext(true)
+            .build();
 
-        String cacheServiceSegmentAsString = mock.mockCacheServiceSegmentAsString();
-        System.out.println(cacheServiceSegmentAsString);
-        HttpClientTools.INSTANCE.post("http://localhost:12800/segments", cacheServiceSegmentAsString);
+        TraceSegmentServiceGrpc.TraceSegmentServiceStub stub = TraceSegmentServiceGrpc.newStub(channel);
+        StreamObserver<UpstreamSegment> observer = stub.collect(new StreamObserver<Downstream>() {
+            @Override public void onNext(Downstream downstream) {
 
-        String persistenceServiceSegmentAsString = mock.mockPersistenceServiceSegmentAsString();
-        HttpClientTools.INSTANCE.post("http://localhost:12800/segments", persistenceServiceSegmentAsString);
+            }
 
-        String portalServiceSegmentAsString = mock.mockPortalServiceSegmentAsString();
-        HttpClientTools.INSTANCE.post("http://localhost:12800/segments", portalServiceSegmentAsString);
+            @Override public void onError(Throwable throwable) {
 
-//        String specialSegmentAsString = mock.mockSpecialSegmentAsString();
-//        HttpClientTools.INSTANCE.post("http://localhost:7001/segments", specialSegmentAsString);
+            }
 
+            @Override public void onCompleted() {
+
+            }
+        });
+
+        List<UpstreamSegment> upstreamSegmentList = SegmentMock.mockPortalServiceSegment();
+        logger.debug("upstreamSegmentList size: %s", upstreamSegmentList.size());
+        upstreamSegmentList.forEach(upstreamSegment -> {
+            observer.onNext(upstreamSegment);
+        });
+        observer.onCompleted();
+
+        Thread.sleep(2000);
     }
 }

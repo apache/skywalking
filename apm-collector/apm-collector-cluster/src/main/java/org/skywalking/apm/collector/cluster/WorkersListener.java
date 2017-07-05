@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class WorkersListener extends UntypedActor {
     public static final String WORK_NAME = "WorkersListener";
 
-    private static final Logger logger = LogManager.getFormatterLogger(WorkersListener.class);
+    private final Logger logger = LogManager.getFormatterLogger(WorkersListener.class);
     private final ClusterWorkerContext clusterContext;
     private Cluster cluster = Cluster.get(getContext().system());
     private Map<ActorRef, ClusterWorkerRef> relation = new ConcurrentHashMap<>();

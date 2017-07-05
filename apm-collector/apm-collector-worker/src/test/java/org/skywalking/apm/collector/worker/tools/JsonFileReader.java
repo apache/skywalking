@@ -18,6 +18,11 @@ public enum JsonFileReader {
         return jsonElement.toString();
     }
 
+    public JsonElement parse(String path) throws FileNotFoundException {
+        JsonParser jsonParser = new JsonParser();
+        return jsonParser.parse(new FileReader(path));
+    }
+
     public String readSegment(String path) throws FileNotFoundException {
         JsonParser jsonParser = new JsonParser();
         JsonElement jsonElement = jsonParser.parse(new FileReader(path));

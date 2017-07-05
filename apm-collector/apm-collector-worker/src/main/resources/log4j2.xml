@@ -14,16 +14,19 @@
             </Policies>
             <DefaultRolloverStrategy max="30"/>
         </RollingFile>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+        </Console>
     </Appenders>
     <Loggers>
-        <logger name="org.skywalking.apm.collector" level="debug">
-            <AppenderRef ref="RollingFile"/>
+        <logger name="org.skywalking.apm.collector" level="debug" additivity="false">
+            <AppenderRef ref="Console"/>
         </logger>
-        <logger name="org.skywalking.apm.collector.worker.storage" level="error">
-            <AppenderRef ref="RollingFile"/>
+        <logger name="org.skywalking.apm.collector.worker.storage" level="error" additivity="false">
+            <AppenderRef ref="Console"/>
         </logger>
         <Root level="INFO">
-            <AppenderRef ref="RollingFile"/>
+            <AppenderRef ref="Console"/>
         </Root>
     </Loggers>
 </Configuration>

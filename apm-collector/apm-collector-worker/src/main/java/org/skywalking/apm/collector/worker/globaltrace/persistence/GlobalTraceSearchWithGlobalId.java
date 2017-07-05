@@ -2,12 +2,12 @@ package org.skywalking.apm.collector.worker.globaltrace.persistence;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.elasticsearch.action.get.GetResponse;
 import org.skywalking.apm.collector.actor.AbstractLocalSyncWorker;
 import org.skywalking.apm.collector.actor.AbstractLocalSyncWorkerProvider;
 import org.skywalking.apm.collector.actor.ClusterWorkerContext;
@@ -18,14 +18,14 @@ import org.skywalking.apm.collector.actor.selector.RollingSelector;
 import org.skywalking.apm.collector.actor.selector.WorkerSelector;
 import org.skywalking.apm.collector.worker.globaltrace.GlobalTraceIndex;
 import org.skywalking.apm.collector.worker.segment.SegmentIndex;
-import org.skywalking.apm.collector.worker.segment.entity.Segment;
 import org.skywalking.apm.collector.worker.segment.entity.SegmentDeserialize;
-import org.skywalking.apm.collector.worker.segment.entity.Span;
 import org.skywalking.apm.collector.worker.segment.entity.SpanView;
-import org.skywalking.apm.collector.worker.segment.entity.TraceSegmentRef;
 import org.skywalking.apm.collector.worker.storage.GetResponseFromEs;
 import org.skywalking.apm.collector.worker.storage.JoinAndSplitData;
 import org.skywalking.apm.collector.worker.tools.CollectionTools;
+import org.skywalking.apm.network.proto.SpanObject;
+import org.skywalking.apm.network.proto.TraceSegmentObject;
+import org.skywalking.apm.network.proto.TraceSegmentReference;
 import org.skywalking.apm.util.StringUtil;
 
 /**
@@ -56,20 +56,16 @@ public class GlobalTraceSearchWithGlobalId extends AbstractLocalSyncWorker {
             List<SpanView> spanViewList = new ArrayList<>();
             for (String subSegId : subSegIds) {
                 logger.debug("subSegId: %s", subSegId);
-                String segmentSource = GetResponseFromEs.INSTANCE.get(SegmentIndex.INDEX, SegmentIndex.TYPE_RECORD, subSegId).getSourceAsString();
-                logger.debug("segmentSource: %s", segmentSource);
-                Segment segment = null;
-                try {
-                    segment = SegmentDeserialize.INSTANCE.deserializeSingle(segmentSource);
-                } catch (IOException e) {
-                    throw new WorkerException(e.getMessage(), e);
-                }
-                String segmentId = segment.getTraceSegmentId();
-                List<TraceSegmentRef> refsList = segment.getRefs();
+                GetResponse getResponse = GetResponseFromEs.INSTANCE.get(SegmentIndex.INDEX, SegmentIndex.TYPE_RECORD, subSegId);
+                String segmentObjBlob = (String)getResponse.getSource().get(SegmentIndex.SEGMENT_OBJ_BLOB);
 
-                for (Span span : segment.getSpans()) {
+                TraceSegmentObject segment = SegmentDeserialize.INSTANCE.deserializeSingle(segmentObjBlob);
+                String segmentId = segment.getTraceSegmentId();
+                List<TraceSegmentReference> refsList = segment.getRefsList();
+
+                for (SpanObject span : segment.getSpansList()) {
                     logger.debug(span.getOperationName());
-                    spansDataBuild(span, segment.getApplicationCode(), segmentId, spanViewList, refsList);
+                    spansDataBuild(span, segment.getTraceSegmentId(), segmentId, spanViewList, refsList);
                 }
             }
 
@@ -128,8 +124,8 @@ public class GlobalTraceSearchWithGlobalId extends AbstractLocalSyncWorker {
         return tempList;
     }
 
-    private void spansDataBuild(Span span, String appCode, String segmentId, List<SpanView> spanViewList,
-        List<TraceSegmentRef> refsList) {
+    private void spansDataBuild(SpanObject span, String appCode, String segmentId, List<SpanView> spanViewList,
+        List<TraceSegmentReference> refsList) {
         int spanId = span.getSpanId();
         String spanSegId = segmentId + "--" + String.valueOf(spanId);
 
@@ -152,9 +148,9 @@ public class GlobalTraceSearchWithGlobalId extends AbstractLocalSyncWorker {
                 if (refsList.size() > 1) {
                     throw new UnsupportedOperationException("not support batch call");
                 } else {
-                    TraceSegmentRef segmentRef = refsList.get(0);
-                    int parentSpanId = segmentRef.getSpanId();
-                    String parentSegId = segmentRef.getTraceSegmentId();
+                    TraceSegmentReference segmentRef = refsList.get(0);
+                    int parentSpanId = segmentRef.getParentSpanId();
+                    String parentSegId = segmentRef.getParentTraceSegmentId();
 
                     String parentSpanSegId = parentSegId + "--" + String.valueOf(parentSpanId);
                     spanView.setParentSpanSegId(parentSpanSegId);
