@@ -14,7 +14,7 @@ service InstanceDiscoveryService {
     rpc heartbeat (ApplicationInstanceHeartbeat) returns (Downstream) {
     }
 
-    rpc registerRecover (ApplicationInstanceMapping) returns (Downstream) {
+    rpc registerRecover (ApplicationInstanceRecover) returns (Downstream) {
     }
 }
 
@@ -24,6 +24,11 @@ message ApplicationInstance {
 }
 
 message ApplicationInstanceMapping {
+    int32 applicationId = 1;
+    int32 applicationInstanceId = 2;
+}
+
+message ApplicationInstanceRecover {
     int32 applicationId = 1;
     int32 applicationInstanceId = 2;
     int64 registerTime = 3;
@@ -57,4 +62,3 @@ message ServiceNameElement {
     string serviceName = 1;
     int32 applicationId = 2;
 }
-
