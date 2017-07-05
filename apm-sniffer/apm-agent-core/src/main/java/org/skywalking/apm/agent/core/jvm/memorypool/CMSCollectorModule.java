@@ -6,14 +6,13 @@ import java.util.List;
 /**
  * @author wusheng
  */
-public class ParallelCollectorModule extends MemoryPoolModule {
-
-    public ParallelCollectorModule(List<MemoryPoolMXBean> beans) {
+public class CMSCollectorModule extends MemoryPoolModule {
+    public CMSCollectorModule(List<MemoryPoolMXBean> beans) {
         super(beans);
     }
 
     @Override protected String getPermName() {
-        return "PS Perm Gen";
+        return "CMS Perm Gen";
     }
 
     @Override protected String getCodeCacheName() {
@@ -21,15 +20,15 @@ public class ParallelCollectorModule extends MemoryPoolModule {
     }
 
     @Override protected String getEdenName() {
-        return "PS Eden Space";
+        return "Par Eden Space";
     }
 
     @Override protected String getOldName() {
-        return "PS Old Gen";
+        return "CMS Old Gen";
     }
 
     @Override protected String getSurvivorName() {
-        return "PS Survivor Space";
+        return "Par Survivor Space";
     }
 
     @Override protected String getMetaspaceName() {
