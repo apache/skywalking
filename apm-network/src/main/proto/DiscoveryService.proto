@@ -26,6 +26,7 @@ message ApplicationInstance {
 message ApplicationInstanceMapping {
     int32 applicationId = 1;
     int32 applicationInstanceId = 2;
+    int64 registerTime = 3;
 }
 
 message ApplicationInstanceHeartbeat {
