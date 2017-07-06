@@ -1,7 +1,9 @@
 package org.skywalking.apm.agent.core.context.trace;
 
 import org.skywalking.apm.agent.core.context.ContextCarrier;
+import org.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.skywalking.apm.agent.core.dictionary.DictionaryUtil;
+import org.skywalking.apm.network.proto.RefType;
 import org.skywalking.apm.network.proto.TraceSegmentReference;
 
 /**
@@ -11,11 +13,13 @@ import org.skywalking.apm.network.proto.TraceSegmentReference;
  * Created by wusheng on 2017/2/17.
  */
 public class TraceSegmentRef {
+    private SegmentRefType type;
+
     private String traceSegmentId;
 
     private int spanId = -1;
 
-    private int applicationId;
+    private int applicationInstanceId;
 
     private String peerHost;
 
@@ -31,9 +35,10 @@ public class TraceSegmentRef {
      * @param carrier the valid cross-process propagation format.
      */
     public TraceSegmentRef(ContextCarrier carrier) {
+        this.type = SegmentRefType.CROSS_PROCESS;
         this.traceSegmentId = carrier.getTraceSegmentId();
         this.spanId = carrier.getSpanId();
-        this.applicationId = carrier.getApplicationId();
+        this.applicationInstanceId = carrier.getApplicationInstanceId();
         String host = carrier.getPeerHost();
         if (host.charAt(0) == '#') {
             this.peerHost = host.substring(1);
@@ -48,6 +53,12 @@ public class TraceSegmentRef {
         }
     }
 
+    public TraceSegmentRef(ContextSnapshot snapshot) {
+        this.type = SegmentRefType.CROSS_THREAD;
+        this.traceSegmentId = snapshot.getTraceSegmentId();
+        this.spanId = snapshot.getSpanId();
+    }
+
     public String getOperationName() {
         return operationName;
     }
@@ -58,19 +69,25 @@ public class TraceSegmentRef {
 
     public TraceSegmentReference transform() {
         TraceSegmentReference.Builder refBuilder = TraceSegmentReference.newBuilder();
+        if(SegmentRefType.CROSS_PROCESS.equals(type)) {
+            refBuilder.setRefType(RefType.CrossProcess);
+            refBuilder.setParentApplicationInstanceId(applicationInstanceId);
+            if (peerId == DictionaryUtil.nullValue()) {
+                refBuilder.setNetworkAddress(peerHost);
+            } else {
+                refBuilder.setNetworkAddressId(peerId);
+            }
+            if (operationId == DictionaryUtil.nullValue()) {
+                refBuilder.setEntryServiceName(operationName);
+            } else {
+                refBuilder.setEntryServiceId(operationId);
+            }
+        }else{
+            refBuilder.setRefType(RefType.CrossThread);
+        }
         refBuilder.setParentTraceSegmentId(traceSegmentId);
         refBuilder.setParentSpanId(spanId);
-        refBuilder.setParentApplicationId(applicationId);
-        if (peerId == DictionaryUtil.nullValue()) {
-            refBuilder.setNetworkAddress(peerHost);
-        } else {
-            refBuilder.setNetworkAddressId(peerId);
-        }
-        if (operationId == DictionaryUtil.nullValue()) {
-            refBuilder.setEntryServiceName(operationName);
-        } else {
-            refBuilder.setEntryServiceId(operationId);
-        }
+
         return refBuilder.build();
     }
 
@@ -93,5 +110,10 @@ public class TraceSegmentRef {
         int result = traceSegmentId.hashCode();
         result = 31 * result + spanId;
         return result;
+    }
+
+    public enum SegmentRefType {
+        CROSS_PROCESS,
+        CROSS_THREAD
     }
 }

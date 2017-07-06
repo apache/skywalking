@@ -20,7 +20,7 @@ message TraceSegmentObject {
     string traceSegmentId = 1;
     repeated TraceSegmentReference refs = 2;
     repeated SpanObject spans = 3;
-    int32 applicationInstanceId = 4;
+    int32 applicationId = 4;
     int32 applicationInstanceId = 5;
 }
 
@@ -28,7 +28,7 @@ message TraceSegmentReference {
     RefType refType = 1;
     string parentTraceSegmentId = 2;
     int32 parentSpanId = 3;
-    int32 parentApplicationId = 4;
+    int32 parentApplicationInstanceId = 4;
     string networkAddress = 5;
     int32 networkAddressId = 6;
     string entryServiceName = 7;

@@ -106,6 +106,17 @@ public class ContextManager implements TracingContextListener, BootService, Igno
         return span;
     }
 
+    public ContextSnapshot capture() {
+        return get().capture();
+    }
+
+    public void continued(ContextSnapshot snapshot) {
+        if (snapshot == null) {
+            throw new IllegalArgumentException("ContextSnapshot can't be null.");
+        }
+        get().continued(snapshot);
+    }
+
     public static AbstractSpan activeSpan() {
         return get().activeSpan();
     }

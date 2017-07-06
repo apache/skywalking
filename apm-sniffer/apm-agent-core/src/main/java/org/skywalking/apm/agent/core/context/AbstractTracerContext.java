@@ -12,6 +12,10 @@ public interface AbstractTracerContext {
 
     void extract(ContextCarrier carrier);
 
+    ContextSnapshot capture();
+
+    void continued(ContextSnapshot snapshot);
+
     String getGlobalTraceId();
 
     AbstractSpan createEntrySpan(String operationName);
@@ -23,6 +27,4 @@ public interface AbstractTracerContext {
     AbstractSpan activeSpan();
 
     void stopSpan(AbstractSpan span);
-
-    void dispose();
 }

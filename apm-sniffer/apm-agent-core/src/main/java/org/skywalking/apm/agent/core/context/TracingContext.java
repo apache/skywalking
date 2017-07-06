@@ -53,7 +53,7 @@ public class TracingContext implements AbstractTracerContext {
         carrier.setTraceSegmentId(this.segment.getTraceSegmentId());
         carrier.setSpanId(span.getSpanId());
 
-        carrier.setApplicationId(segment.getApplicationId());
+        carrier.setApplicationInstanceId(segment.getApplicationId());
 
         if (DictionaryUtil.isNull(exitSpan.getPeerId())) {
             carrier.setPeerHost(exitSpan.getPeer());
@@ -85,6 +85,20 @@ public class TracingContext implements AbstractTracerContext {
     public void extract(ContextCarrier carrier) {
         this.segment.ref(new TraceSegmentRef(carrier));
         this.segment.relatedGlobalTraces(carrier.getDistributedTraceIds());
+    }
+
+    @Override
+    public ContextSnapshot capture() {
+        return new ContextSnapshot(segment.getTraceSegmentId(),
+            activeSpan().getSpanId(),
+            segment.getRelatedGlobalTraces()
+        );
+    }
+
+    @Override
+    public void continued(ContextSnapshot snapshot) {
+        this.segment.ref(new TraceSegmentRef(snapshot));
+        this.segment.relatedGlobalTraces(snapshot.getDistributedTraceIds());
     }
 
     @Override
@@ -234,12 +248,6 @@ public class TracingContext implements AbstractTracerContext {
             }
         }
         TracingContext.ListenerManager.notifyFinish(finishedSegment);
-    }
-
-    @Override
-    public void dispose() {
-        this.segment = null;
-        this.activeSpanStack = null;
     }
 
     public static class ListenerManager {

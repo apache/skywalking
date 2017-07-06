@@ -31,6 +31,14 @@ public class IgnoredTracerContext implements AbstractTracerContext {
 
     }
 
+    @Override public ContextSnapshot capture() {
+        return new ContextSnapshot(null, -1, null);
+    }
+
+    @Override public void continued(ContextSnapshot snapshot) {
+
+    }
+
     @Override
     public String getGlobalTraceId() {
         return "[Ignored Trace]";
@@ -65,11 +73,6 @@ public class IgnoredTracerContext implements AbstractTracerContext {
         if (stackDepth == 0) {
             ListenerManager.notifyFinish(this);
         }
-    }
-
-    @Override
-    public void dispose() {
-
     }
 
     public static class ListenerManager {
