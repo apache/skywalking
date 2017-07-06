@@ -10,6 +10,9 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import org.skywalking.apm.agent.core.boot.BootService;
 import org.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
 import org.skywalking.apm.logging.ILog;
@@ -21,11 +24,12 @@ import org.skywalking.apm.logging.LogManager;
 public class GRPCChannelManager implements BootService, Runnable {
     private static final ILog logger = LogManager.getLogger(DiscoveryRestServiceClient.class);
 
-    private volatile Thread channelManagerThread = null;
     private volatile ManagedChannel managedChannel = null;
-    private volatile long nextStartTime = 0;
+    private volatile ScheduledFuture<?> connectCheckFuture;
+    private volatile boolean reconnect = true;
     private Random random = new Random();
     private List<GRPCChannelListener> listeners = Collections.synchronizedList(new LinkedList<GRPCChannelListener>());
+    private final int retryCycle = 30;
 
     @Override
     public void beforeBoot() throws Throwable {
@@ -34,7 +38,9 @@ public class GRPCChannelManager implements BootService, Runnable {
 
     @Override
     public void boot() throws Throwable {
-        this.connectInBackground(false);
+        connectCheckFuture = Executors
+            .newSingleThreadScheduledExecutor()
+            .scheduleAtFixedRate(this, 0, retryCycle, TimeUnit.SECONDS);
     }
 
     @Override
@@ -42,38 +48,9 @@ public class GRPCChannelManager implements BootService, Runnable {
 
     }
 
-    private void connectInBackground(boolean forceStart) {
-        if (channelManagerThread == null || !channelManagerThread.isAlive()) {
-            synchronized (this) {
-                if (forceStart) {
-                    /**
-                     * The startup has invoked in 30 seconds before, don't invoke again.
-                     */
-                    if (System.currentTimeMillis() < nextStartTime) {
-                        return;
-                    }
-                }
-                resetNextStartTime();
-                if (channelManagerThread == null || !channelManagerThread.isAlive()) {
-                    if (forceStart || managedChannel == null || managedChannel.isTerminated() || managedChannel.isShutdown()) {
-                        if (managedChannel != null) {
-                            managedChannel.shutdownNow();
-                            notify(GRPCChannelStatus.DISCONNECT);
-                        }
-                        Thread channelManagerThread = new Thread(this, "ChannelManagerThread");
-                        channelManagerThread.setDaemon(true);
-                        channelManagerThread.start();
-                    }
-                }
-            }
-        }
-    }
-
     @Override
     public void run() {
-        while (true) {
-            resetNextStartTime();
-
+        if (reconnect) {
             if (RemoteDownstreamConfig.Collector.GRPC_SERVERS.size() > 0) {
                 int index = random.nextInt() % RemoteDownstreamConfig.Collector.GRPC_SERVERS.size();
                 String server = RemoteDownstreamConfig.Collector.GRPC_SERVERS.get(index);
@@ -85,17 +62,15 @@ public class GRPCChannelManager implements BootService, Runnable {
                             .maxInboundMessageSize(1024 * 1024 * 50)
                             .usePlaintext(true);
                     managedChannel = channelBuilder.build();
+                    reconnect = false;
                     notify(GRPCChannelStatus.CONNECTED);
-                    break;
+                    return;
                 } catch (Throwable t) {
                     logger.error(t, "Create channel to {} fail.", server);
                 }
             }
 
-            resetNextStartTime();
-            int waitTime = 5 * 1000;
-            logger.debug("Selected collector grpc service is not available. Wait {} millis to try", waitTime);
-            try2Sleep(waitTime);
+            logger.debug("Selected collector grpc service is not available. Wait {} seconds to retry", retryCycle);
         }
     }
 
@@ -114,13 +89,17 @@ public class GRPCChannelManager implements BootService, Runnable {
      */
     public void reportError(Throwable throwable) {
         if (isNetworkError(throwable)) {
-            this.connectInBackground(true);
+            reconnect = true;
         }
     }
 
     private void notify(GRPCChannelStatus status) {
         for (GRPCChannelListener listener : listeners) {
-            listener.statusChanged(status);
+            try {
+                listener.statusChanged(status);
+            } catch (Throwable t) {
+                logger.error(t, "Fail to notify {} about channel connected.", listener.getClass().getName());
+            }
         }
     }
 
@@ -145,22 +124,5 @@ public class GRPCChannelManager implements BootService, Runnable {
             }
         }
         return false;
-    }
-
-    private void resetNextStartTime() {
-        nextStartTime = System.currentTimeMillis() + 20 * 1000;
-    }
-
-    /**
-     * Try to sleep, and ignore the {@link InterruptedException}
-     *
-     * @param millis the length of time to sleep in milliseconds
-     */
-    private void try2Sleep(long millis) {
-        try {
-            Thread.sleep(millis);
-        } catch (InterruptedException e) {
-
-        }
     }
 }
