@@ -20,7 +20,7 @@ message TraceSegmentObject {
     string traceSegmentId = 1;
     repeated TraceSegmentReference refs = 2;
     repeated SpanObject spans = 3;
-    int32 applicationId = 4;
+    int32 applicationInstanceId = 4;
     int32 applicationInstanceId = 5;
 }
 
