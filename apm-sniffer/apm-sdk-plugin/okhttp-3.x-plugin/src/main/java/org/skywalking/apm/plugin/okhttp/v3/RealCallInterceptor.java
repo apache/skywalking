@@ -3,6 +3,7 @@ package org.skywalking.apm.plugin.okhttp.v3;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import okhttp3.Headers;
+import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -11,64 +12,51 @@ import org.skywalking.apm.agent.core.context.ContextCarrier;
 import org.skywalking.apm.agent.core.context.ContextManager;
 import org.skywalking.apm.agent.core.context.tag.Tags;
 import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
-import org.skywalking.apm.agent.core.context.trace.Span;
-import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceContext;
-import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ConstructorInvokeContext;
+import org.skywalking.apm.agent.core.context.trace.SpanLayer;
+import org.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
-import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodInvokeContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.skywalking.apm.network.trace.component.ComponentsDefine;
 
 /**
- * {@link RealCallInterceptor} intercept the synchronous http calls by the client of okhttp.
+ * {@link RealCallInterceptor} intercept the synchronous http calls by the discovery of okhttp.
  *
  * @author pengys5
  */
 public class RealCallInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
 
-    private static final String COMPONENT_NAME = "OKHttp";
-
-    private static final String REQUEST_CONTEXT_KEY = "SWRequestContextKey";
-
     /**
      * Intercept the {@link okhttp3.RealCall#RealCall(OkHttpClient, Request, boolean)}, then put the second argument of
-     * {@link okhttp3.Request} into {@link EnhancedClassInstanceContext} with the key of {@link
-     * RealCallInterceptor#REQUEST_CONTEXT_KEY}.
+     * {@link okhttp3.Request} into {@link EnhancedInstance}.
      *
-     * @param context a new added instance field
-     * @param interceptorContext constructor invocation context.
+     * @param objInst a new added instance field
+     * @param allArguments constructor invocation context.
      */
     @Override
-    public void onConstruct(EnhancedClassInstanceContext context, ConstructorInvokeContext interceptorContext) {
-        context.set(REQUEST_CONTEXT_KEY, interceptorContext.allArguments()[1]);
+    public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
+        objInst.setSkyWalkingDynamicField(allArguments[1]);
     }
 
     /**
-     * Get the {@link okhttp3.Request} from {@link EnhancedClassInstanceContext}, then create {@link Span} and set host,
+     * Get the {@link okhttp3.Request} from {@link EnhancedInstance}, then create {@link AbstractSpan} and set host,
      * port, kind, component, url from {@link okhttp3.Request}.
      * Through the reflection of the way, set the http header of context data into {@link okhttp3.Request#headers}.
      *
-     * @param context instance context, a class instance only has one {@link EnhancedClassInstanceContext} instance.
-     * @param interceptorContext method context, includes class name, method name, etc.
      * @param result change this result, if you want to truncate the method.
      * @throws Throwable
      */
-    @Override
-    public void beforeMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
-        MethodInterceptResult result) throws Throwable {
-        Request request = (Request)context.get(REQUEST_CONTEXT_KEY);
-
-        AbstractSpan span = ContextManager.createSpan(request.url().uri().toString());
-        span.setPeerHost(request.url().host());
-        span.setPort(request.url().port());
-        Tags.SPAN_KIND.set(span, Tags.SPAN_KIND_CLIENT);
-        Tags.COMPONENT.set(span, COMPONENT_NAME);
-        Tags.HTTP.METHOD.set(span, request.method());
-        Tags.URL.set(span, request.url().url().getPath());
-        Tags.SPAN_LAYER.asHttp(span);
+    @Override public void beforeMethod(EnhancedInstance objInst, String methodName, Object[] allArguments,
+        Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
+        Request request = (Request)objInst.getSkyWalkingDynamicField();
 
         ContextCarrier contextCarrier = new ContextCarrier();
-        ContextManager.inject(contextCarrier);
+        HttpUrl requestUrl = request.url();
+        AbstractSpan span = ContextManager.createExitSpan(requestUrl.uri().toString(), contextCarrier, requestUrl.host() + ":" + requestUrl.port());
+        span.setComponent(ComponentsDefine.OKHTTP);
+        Tags.HTTP.METHOD.set(span, request.method());
+        Tags.URL.set(span, requestUrl.url().getPath());
+        SpanLayer.asHttp(span);
 
         Field headersField = Request.class.getDeclaredField("headers");
         Field modifiersField = Field.class.getDeclaredField("modifiers");
@@ -83,34 +71,31 @@ public class RealCallInterceptor implements InstanceMethodsAroundInterceptor, In
     /**
      * Get the status code from {@link Response}, when status code greater than 400, it means there was some errors in
      * the server.
-     * Finish the {@link Span}.
+     * Finish the {@link AbstractSpan}.
      *
-     * @param context instance context, a class instance only has one {@link EnhancedClassInstanceContext} instance.
-     * @param interceptorContext method context, includes class name, method name, etc.
      * @param ret the method's original return value.
      * @return
      * @throws Throwable
      */
     @Override
-    public Object afterMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
-        Object ret) throws Throwable {
+    public Object afterMethod(EnhancedInstance objInst, String methodName, Object[] allArguments,
+        Class<?>[] argumentsTypes, Object ret) throws Throwable {
         Response response = (Response)ret;
         int statusCode = response.code();
 
         AbstractSpan span = ContextManager.activeSpan();
         if (statusCode >= 400) {
-            Tags.ERROR.set(span, true);
+            span.errorOccurred();
+            Tags.STATUS_CODE.set(span, Integer.toString(statusCode));
         }
 
-        Tags.STATUS_CODE.set(span, statusCode);
         ContextManager.stopSpan();
 
         return ret;
     }
 
-    @Override public void handleMethodException(Throwable t, EnhancedClassInstanceContext context,
-        InstanceMethodInvokeContext interceptorContext) {
-        Tags.ERROR.set(ContextManager.activeSpan(), true);
-        ContextManager.activeSpan().log(t);
+    @Override public void handleMethodException(EnhancedInstance objInst, String methodName, Object[] allArguments,
+        Class<?>[] argumentsTypes, Throwable t) {
+
     }
 }

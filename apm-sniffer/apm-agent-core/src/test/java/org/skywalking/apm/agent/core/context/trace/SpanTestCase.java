@@ -1,74 +1,74 @@
 package org.skywalking.apm.agent.core.context.trace;
 
-import java.lang.reflect.Field;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
-import org.skywalking.apm.agent.core.tags.BooleanTagReader;
-import org.skywalking.apm.agent.core.tags.StringTagReader;
-import org.skywalking.apm.agent.core.context.trace.LogData;
-import org.skywalking.apm.agent.core.context.trace.Span;
-import org.skywalking.apm.agent.core.context.trace.TraceSegment;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 import org.skywalking.apm.agent.core.context.tag.Tags;
+import org.skywalking.apm.agent.core.context.util.KeyValuePair;
+import org.skywalking.apm.agent.core.context.util.KeyValuePairReader;
+import org.skywalking.apm.agent.core.context.util.TraceSegmentHelper;
+import org.skywalking.apm.agent.core.dictionary.ApplicationDictionary;
 
-/**
- * Created by wusheng on 2017/2/18.
- */
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(ApplicationDictionary.class)
 public class SpanTestCase {
+
     @Test
     public void testConstructors() {
-        Span span1 = new Span(0, "serviceA");
-        Span span2 = new Span(2, span1, "serviceA");
+        AbstractTracingSpan span1 = new LocalSpan(0, -1, "serviceA");
+        AbstractTracingSpan span2 = new LocalSpan(1, 0, "serviceA");
         span2.setOperationName("serviceA-2");
+        span1.start();
+        span2.start();
         Assert.assertEquals("serviceA-2", span2.getOperationName());
 
-        Assert.assertEquals(-1, span1.getParentSpanId());
-        Assert.assertEquals(0, span2.getParentSpanId());
-        Assert.assertTrue(span1.getStartTime() > 0);
-        Assert.assertTrue(span2.getStartTime() > 0);
+        Assert.assertEquals(-1, span1.parentSpanId);
+        Assert.assertEquals(0, span2.parentSpanId);
+        Assert.assertTrue(span1.startTime > 0);
+        Assert.assertTrue(span2.startTime > 0);
     }
 
     @Test
     public void testFinish() {
-        TraceSegment owner = new TraceSegment("billing_app");
+        TraceSegment owner = new TraceSegment();
 
-        Span span1 = new Span(0, "serviceA");
+        AbstractTracingSpan span1 = new LocalSpan(0, -1, "serviceA");
 
-        Assert.assertTrue(span1.getEndTime() == 0);
+        Assert.assertTrue(span1.endTime == 0);
 
         span1.finish(owner);
-        Assert.assertEquals(span1, owner.getSpans().get(0));
-        Assert.assertTrue(span1.getEndTime() > 0);
+        Assert.assertEquals(span1, TraceSegmentHelper.getSpans(owner).get(0));
+        Assert.assertTrue(span1.endTime > 0);
     }
 
     @Test
     public void testSetTag() {
-        Span span1 = new Span(0, "serviceA");
-        Tags.SPAN_LAYER.asHttp(span1);
-        Tags.COMPONENT.set(span1, "Spring");
-        span1.setPeerHost("127.0.0.1");
-        Tags.ERROR.set(span1, true);
-        Tags.STATUS_CODE.set(span1, 302);
+        AbstractTracingSpan span1 = new LocalSpan(0, -1, "serviceA");
+        SpanLayer.asHttp(span1);
+        span1.setComponent("Spring");
+        span1.errorOccurred();
+        Tags.STATUS_CODE.set(span1, "505");
         Tags.URL.set(span1, "http://127.0.0.1/serviceA");
         Tags.DB_STATEMENT.set(span1, "select * from users");
 
-        Assert.assertEquals("http", StringTagReader.get(span1, Tags.SPAN_LAYER.SPAN_LAYER_TAG));
-        Assert.assertEquals("127.0.0.1", span1.getPeerHost());
-        Assert.assertTrue(BooleanTagReader.get(span1, Tags.ERROR));
+        Assert.assertEquals(SpanLayer.HTTP, span1.layer);
+        Assert.assertTrue(span1.errorOccurred);
     }
 
     @Test
     public void testLogException() throws NoSuchFieldException, IllegalAccessException {
-        Span span1 = new Span(0, "serviceA");
+        AbstractTracingSpan span1 = new LocalSpan(0, -1, "serviceA");
         Exception exp = new Exception("exception msg");
         span1.log(exp);
 
-        Field logsField = Span.class.getDeclaredField("logs");
-        logsField.setAccessible(true);
-        List<LogData> logs = (List<LogData>)logsField.get(span1);
+        LogDataEntity logs = span1.logs.get(0);
+        List<KeyValuePair> keyValuePairs = logs.getLogs();
 
-        Assert.assertEquals("java.lang.Exception", logs.get(0).getFields().get("error.kind"));
-        Assert.assertEquals("exception msg", logs.get(0).getFields().get("message"));
-        Assert.assertNotNull(logs.get(0).getFields().get("stack"));
+        Assert.assertEquals("java.lang.Exception", KeyValuePairReader.get(keyValuePairs, "error.kind"));
+        Assert.assertEquals("exception msg", KeyValuePairReader.get(keyValuePairs, "message"));
+        Assert.assertNotNull(KeyValuePairReader.get(keyValuePairs, "stack"));
     }
 }

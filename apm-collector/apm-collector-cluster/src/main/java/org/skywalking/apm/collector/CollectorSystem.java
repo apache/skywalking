@@ -2,14 +2,20 @@ package org.skywalking.apm.collector;
 
 import akka.actor.ActorSystem;
 import akka.actor.Props;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.skywalking.apm.collector.actor.*;
-import org.skywalking.apm.collector.cluster.WorkersListener;
-import org.skywalking.apm.collector.config.ConfigInitializer;
-
 import java.io.IOException;
 import java.util.ServiceLoader;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.skywalking.apm.collector.actor.AbstractClusterWorkerProvider;
+import org.skywalking.apm.collector.actor.AbstractLocalWorkerProvider;
+import org.skywalking.apm.collector.actor.AbstractWorker;
+import org.skywalking.apm.collector.actor.ClusterWorkerContext;
+import org.skywalking.apm.collector.actor.LookUp;
+import org.skywalking.apm.collector.actor.ProviderNotFoundException;
+import org.skywalking.apm.collector.actor.UsedRoleNameException;
+import org.skywalking.apm.collector.cluster.WorkersListener;
+import org.skywalking.apm.collector.config.ConfigInitializer;
+import org.skywalking.apm.collector.rpc.RPCAddressListener;
 
 /**
  * @author pengys5
@@ -38,6 +44,7 @@ public class CollectorSystem {
 
     private void createListener() {
         clusterContext.getAkkaSystem().actorOf(Props.create(WorkersListener.class, clusterContext), WorkersListener.WORK_NAME);
+        clusterContext.getAkkaSystem().actorOf(Props.create(RPCAddressListener.class, clusterContext), RPCAddressListener.WORK_NAME);
     }
 
     private void createClusterWorkers() throws ProviderNotFoundException {

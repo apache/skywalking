@@ -1,5 +1,6 @@
 package org.skywalking.apm.plugin.jdbc.connectionurl.parser;
 
+import org.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.skywalking.apm.plugin.jdbc.ConnectionInfo;
 
 /**
@@ -52,13 +53,13 @@ public class MysqlURLParser extends AbstractURLParser {
                     sb.append(host + ",");
                 }
             }
-            return new ConnectionInfo(DB_TYPE, sb.toString(), fetchDatabaseNameFromURL());
+            return new ConnectionInfo(ComponentsDefine.MYSQL, DB_TYPE, sb.toString(), fetchDatabaseNameFromURL());
         } else {
             String[] hostAndPort = hostSegment[0].split(":");
             if (hostAndPort.length != 1) {
-                return new ConnectionInfo(DB_TYPE, hostAndPort[0], Integer.valueOf(hostAndPort[1]), fetchDatabaseNameFromURL());
+                return new ConnectionInfo(ComponentsDefine.MYSQL, DB_TYPE, hostAndPort[0], Integer.valueOf(hostAndPort[1]), fetchDatabaseNameFromURL());
             } else {
-                return new ConnectionInfo(DB_TYPE, hostAndPort[0], DEFAULT_PORT, fetchDatabaseNameFromURL());
+                return new ConnectionInfo(ComponentsDefine.MYSQL, DB_TYPE, hostAndPort[0], DEFAULT_PORT, fetchDatabaseNameFromURL());
             }
         }
     }

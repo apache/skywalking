@@ -11,16 +11,11 @@ import org.mockito.Mock;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.skywalking.apm.agent.core.boot.ServiceManager;
-import org.skywalking.apm.agent.core.context.TracerContext;
-import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceContext;
-import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ConstructorInvokeContext;
-import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodInvokeContext;
-import org.skywalking.apm.sniffer.mock.context.MockTracerContextListener;
+import org.skywalking.apm.sniffer.mock.context.MockTracingContextListener;
 import org.skywalking.apm.sniffer.mock.context.SegmentAssert;
 import org.skywalking.apm.sniffer.mock.trace.SpanLogReader;
 import org.skywalking.apm.sniffer.mock.trace.tags.BooleanTagReader;
 import org.skywalking.apm.sniffer.mock.trace.tags.StringTagReader;
-import org.skywalking.apm.agent.core.context.trace.Span;
 import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.skywalking.apm.agent.core.context.tag.Tags;
 
@@ -35,7 +30,7 @@ import static org.mockito.Mockito.when;
 public class RealCallInterceptorTest {
 
     private RealCallInterceptor realCallInterceptor;
-    private MockTracerContextListener mockTracerContextListener;
+    private MockTracingContextListener mockTracerContextListener;
 
     private EnhancedClassInstanceContext classInstanceContext;
 
@@ -52,7 +47,7 @@ public class RealCallInterceptorTest {
 
     @Before
     public void setUp() throws Exception {
-        mockTracerContextListener = new MockTracerContextListener();
+        mockTracerContextListener = new MockTracingContextListener();
 
         classInstanceContext = new EnhancedClassInstanceContext();
 
@@ -116,7 +111,7 @@ public class RealCallInterceptorTest {
         Assert.assertEquals("skywalking.org", span.getPeerHost());
         Assert.assertEquals(80, span.getPort());
         Assert.assertEquals("OKHttp", StringTagReader.get(span, Tags.COMPONENT));
-        Assert.assertEquals("client", StringTagReader.get(span, Tags.SPAN_KIND));
+        Assert.assertEquals("discovery", StringTagReader.get(span, Tags.SPAN_KIND));
         Assert.assertEquals("/", StringTagReader.get(span, Tags.URL));
     }
 

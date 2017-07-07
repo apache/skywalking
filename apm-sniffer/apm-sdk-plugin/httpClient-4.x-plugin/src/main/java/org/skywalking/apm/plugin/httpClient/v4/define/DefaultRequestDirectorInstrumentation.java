@@ -2,18 +2,10 @@ package org.skywalking.apm.plugin.httpClient.v4.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
-import org.apache.http.HttpHost;
 import org.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
-/**
- * {@link AbstractHttpClientInstrumentation} presents that skywalking intercepts
- * {@link org.apache.http.impl.client.DefaultRequestDirector#execute(HttpHost, org.apache.http.HttpRequest, org.apache.http.protocol.HttpContext)}
- * by using {@link HttpClientInstrumentation#INTERCEPT_CLASS}.
- *
- * @author zhangxin
- */
 public class DefaultRequestDirectorInstrumentation extends HttpClientInstrumentation {
 
     /**
@@ -43,6 +35,11 @@ public class DefaultRequestDirectorInstrumentation extends HttpClientInstrumenta
                 @Override
                 public String getMethodsInterceptor() {
                     return getInstanceMethodsInterceptor();
+                }
+
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
                 }
             }
         };

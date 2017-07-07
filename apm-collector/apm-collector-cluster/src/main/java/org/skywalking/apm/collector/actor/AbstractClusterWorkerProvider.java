@@ -2,6 +2,7 @@ package org.skywalking.apm.collector.actor;
 
 import akka.actor.ActorRef;
 import akka.actor.Props;
+import org.skywalking.apm.collector.rpc.RPCAddress;
 
 /**
  * The <code>AbstractClusterWorkerProvider</code> implementations represent providers,
@@ -20,6 +21,10 @@ public abstract class AbstractClusterWorkerProvider<T extends AbstractClusterWor
      */
     public abstract int workerNum();
 
+    public RPCAddress config() {
+        return null;
+    }
+
     /**
      * Create the worker instance into akka system, the akka system will control the cluster worker life cycle.
      *
@@ -35,10 +40,14 @@ public abstract class AbstractClusterWorkerProvider<T extends AbstractClusterWor
         T clusterWorker = workerInstance(getClusterContext());
         clusterWorker.preStart();
 
-        ActorRef actorRef = getClusterContext().getAkkaSystem().actorOf(Props.create(AbstractClusterWorker.WorkerWithAkka.class, clusterWorker), role().roleName() + "_" + num);
+        ActorRef actorRef = getClusterContext().getAkkaSystem().actorOf(Props.create(AbstractClusterWorker.WorkerWithAkka.class, clusterWorker, config()), role().roleName() + "_" + num);
 
         ClusterWorkerRef workerRef = new ClusterWorkerRef(actorRef, role());
         getClusterContext().put(workerRef);
+
+        if (config() != null) {
+            getClusterContext().getRpcContext().putAddress("Self", config());
+        }
         return workerRef;
     }
 }

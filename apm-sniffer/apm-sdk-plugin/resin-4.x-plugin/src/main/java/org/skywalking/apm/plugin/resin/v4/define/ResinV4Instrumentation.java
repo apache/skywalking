@@ -38,6 +38,11 @@ public class ResinV4Instrumentation extends ClassInstanceMethodsEnhancePluginDef
                 public String getMethodsInterceptor() {
                     return METHOD_INTERCET_CLASS;
                 }
+
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
             }
         };
     }

@@ -27,7 +27,7 @@ public class PluginBootstrap {
         List<URL> resources = resolver.getResources();
 
         if (resources == null || resources.size() == 0) {
-            logger.info("no plugin files (skywalking-plugin.properties) found, continue to start application.");
+            logger.info("no plugin files (skywalking-plugin.def) found, continue to start application.");
             return new ArrayList<AbstractClassEnhancePluginDefine>();
         }
 
@@ -35,7 +35,7 @@ public class PluginBootstrap {
             try {
                 PluginCfg.INSTANCE.load(pluginUrl.openStream());
             } catch (Throwable t) {
-                logger.error(t, "plugin [{}] init failure.", pluginUrl);
+                logger.error(t, "plugin file [{}] init failure.", pluginUrl);
             }
         }
 

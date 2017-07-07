@@ -14,11 +14,11 @@ import org.skywalking.apm.collector.actor.selector.WorkerSelector;
 import org.skywalking.apm.collector.worker.RecordAnalysisMember;
 import org.skywalking.apm.collector.worker.config.WorkerConfig;
 import org.skywalking.apm.collector.worker.segment.SegmentCostIndex;
-import org.skywalking.apm.collector.worker.segment.SegmentPost;
-import org.skywalking.apm.collector.worker.segment.entity.Segment;
-import org.skywalking.apm.collector.worker.segment.entity.Span;
+import org.skywalking.apm.collector.worker.segment.SegmentReceiver;
 import org.skywalking.apm.collector.worker.segment.persistence.SegmentCostSave;
 import org.skywalking.apm.collector.worker.tools.CollectionTools;
+import org.skywalking.apm.network.proto.SpanObject;
+import org.skywalking.apm.network.proto.TraceSegmentObject;
 
 /**
  * @author pengys5
@@ -38,36 +38,37 @@ public class SegmentCostAnalysis extends RecordAnalysisMember {
 
     @Override
     public void analyse(Object message) {
-        if (message instanceof SegmentPost.SegmentWithTimeSlice) {
-            SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice = (SegmentPost.SegmentWithTimeSlice)message;
-            Segment segment = segmentWithTimeSlice.getSegment();
+        if (message instanceof SegmentReceiver.SegmentWithTimeSlice) {
+            SegmentReceiver.SegmentWithTimeSlice segmentWithTimeSlice = (SegmentReceiver.SegmentWithTimeSlice)message;
+            TraceSegmentObject segment = segmentWithTimeSlice.getSegment();
 
-            if (CollectionTools.isNotEmpty(segment.getSpans())) {
-                for (Span span : segment.getSpans()) {
+            if (CollectionTools.isNotEmpty(segment.getSpansList())) {
+                for (SpanObject span : segment.getSpansList()) {
                     if (span.getParentSpanId() == -1) {
-                        JsonObject dataJsonObj = new JsonObject();
-                        dataJsonObj.addProperty(SegmentCostIndex.SEG_ID, segment.getTraceSegmentId());
-                        dataJsonObj.addProperty(SegmentCostIndex.START_TIME, span.getStartTime());
-                        dataJsonObj.addProperty(SegmentCostIndex.END_TIME, span.getEndTime());
-                        if (segment.getRelatedGlobalTraces().get() != null && segment.getRelatedGlobalTraces().get().size() > 0) {
-                            dataJsonObj.addProperty(SegmentCostIndex.GLOBAL_TRACE_ID, segment.getRelatedGlobalTraces().get().get(0));
-                        }
-                        dataJsonObj.addProperty(SegmentCostIndex.OPERATION_NAME, span.getOperationName());
-                        dataJsonObj.addProperty(SegmentCostIndex.TIME_SLICE, segmentWithTimeSlice.getMinute());
+                        for (String globalTraceId : segmentWithTimeSlice.getGlobalTraceIds()) {
+                            segment.getGlobalTraceIdsList();
+                            JsonObject dataJsonObj = new JsonObject();
+                            dataJsonObj.addProperty(SegmentCostIndex.SEG_ID, segment.getTraceSegmentId());
+                            dataJsonObj.addProperty(SegmentCostIndex.START_TIME, span.getStartTime());
+                            dataJsonObj.addProperty(SegmentCostIndex.END_TIME, span.getEndTime());
+                            dataJsonObj.addProperty(SegmentCostIndex.GLOBAL_TRACE_ID, globalTraceId);
+                            dataJsonObj.addProperty(SegmentCostIndex.OPERATION_NAME, span.getOperationName());
+                            dataJsonObj.addProperty(SegmentCostIndex.TIME_SLICE, segmentWithTimeSlice.getMinute());
 
-                        long startTime = span.getStartTime();
-                        long endTime = span.getEndTime();
-                        long cost = endTime - startTime;
-                        if (cost == 0) {
-                            cost = 1;
+                            long startTime = span.getStartTime();
+                            long endTime = span.getEndTime();
+                            long cost = endTime - startTime;
+                            if (cost == 0) {
+                                cost = 1;
+                            }
+                            dataJsonObj.addProperty(SegmentCostIndex.COST, cost);
+                            set(segment.getTraceSegmentId(), dataJsonObj);
                         }
-                        dataJsonObj.addProperty(SegmentCostIndex.COST, cost);
-                        set(segment.getTraceSegmentId(), dataJsonObj);
                     }
                 }
             }
         } else {
-            logger.error("unhandled message, message instance must SegmentPost.SegmentWithTimeSlice, but is %s", message.getClass().toString());
+            logger.error("unhandled message, message instance must SegmentReceiver.SegmentWithTimeSlice, but is %s", message.getClass().toString());
         }
     }
 

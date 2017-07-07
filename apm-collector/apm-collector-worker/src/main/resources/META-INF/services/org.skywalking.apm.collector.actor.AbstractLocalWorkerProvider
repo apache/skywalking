@@ -2,6 +2,7 @@ org.skywalking.apm.collector.worker.segment.analysis.SegmentAnalysis$Factory
 org.skywalking.apm.collector.worker.segment.analysis.SegmentCostAnalysis$Factory
 org.skywalking.apm.collector.worker.segment.analysis.SegmentExceptionAnalysis$Factory
 
+org.skywalking.apm.collector.worker.segment.SegmentReceiver$Factory
 org.skywalking.apm.collector.worker.segment.persistence.SegmentSave$Factory
 org.skywalking.apm.collector.worker.segment.persistence.SegmentCostSave$Factory
 org.skywalking.apm.collector.worker.segment.persistence.SegmentExceptionSave$Factory

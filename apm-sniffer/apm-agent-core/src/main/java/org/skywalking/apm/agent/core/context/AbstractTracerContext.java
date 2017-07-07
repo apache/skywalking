@@ -12,17 +12,19 @@ public interface AbstractTracerContext {
 
     void extract(ContextCarrier carrier);
 
+    ContextSnapshot capture();
+
+    void continued(ContextSnapshot snapshot);
+
     String getGlobalTraceId();
 
-    AbstractSpan createSpan(String operationName, boolean isLeaf);
+    AbstractSpan createEntrySpan(String operationName);
 
-    AbstractSpan createSpan(String operationName, long startTime, boolean isLeaf);
+    AbstractSpan createLocalSpan(String operationName);
+
+    AbstractSpan createExitSpan(String operationName, String remotePeer);
 
     AbstractSpan activeSpan();
 
     void stopSpan(AbstractSpan span);
-
-    void stopSpan(AbstractSpan span, Long endTime);
-
-    void dispose();
 }

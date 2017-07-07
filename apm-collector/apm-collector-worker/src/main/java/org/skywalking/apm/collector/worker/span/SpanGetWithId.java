@@ -1,5 +1,6 @@
 package org.skywalking.apm.collector.worker.span;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.util.Arrays;
 import java.util.Map;
@@ -30,13 +31,17 @@ public class SpanGetWithId extends AbstractGet {
         super(role, clusterContext, selfContext);
     }
 
+    @Override protected Class<? extends JsonElement> responseClass() {
+        return JsonObject.class;
+    }
+
     @Override
     public void preStart() throws ProviderNotFoundException {
         getClusterContext().findProvider(SpanSearchWithId.WorkerRole.INSTANCE).create(this);
     }
 
     @Override protected void onReceive(Map<String, String[]> parameter,
-        JsonObject response) throws ArgumentsParseException, WorkerInvokeException, WorkerNotFoundException {
+        JsonElement response) throws ArgumentsParseException, WorkerInvokeException, WorkerNotFoundException {
         if (!parameter.containsKey("segId") || !parameter.containsKey("spanId")) {
             throw new ArgumentsParseException("the request parameter must contains segId, spanId");
         }

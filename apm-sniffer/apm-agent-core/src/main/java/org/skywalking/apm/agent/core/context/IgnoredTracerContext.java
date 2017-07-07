@@ -17,8 +17,8 @@ public class IgnoredTracerContext implements AbstractTracerContext {
 
     private int stackDepth;
 
-    public IgnoredTracerContext(int initStackDepth) {
-        this.stackDepth = initStackDepth;
+    public IgnoredTracerContext() {
+        this.stackDepth = 0;
     }
 
     @Override
@@ -31,20 +31,35 @@ public class IgnoredTracerContext implements AbstractTracerContext {
 
     }
 
+    @Override public ContextSnapshot capture() {
+        return new ContextSnapshot(null, -1, null);
+    }
+
+    @Override public void continued(ContextSnapshot snapshot) {
+
+    }
+
     @Override
     public String getGlobalTraceId() {
         return "[Ignored Trace]";
     }
 
     @Override
-    public AbstractSpan createSpan(String operationName, boolean isLeaf) {
+    public AbstractSpan createEntrySpan(String operationName) {
         stackDepth++;
         return NOOP_SPAN;
     }
 
     @Override
-    public AbstractSpan createSpan(String operationName, long startTime, boolean isLeaf) {
-        return createSpan(operationName, isLeaf);
+    public AbstractSpan createLocalSpan(String operationName) {
+        stackDepth++;
+        return NOOP_SPAN;
+    }
+
+    @Override
+    public AbstractSpan createExitSpan(String operationName, String remotePeer) {
+        stackDepth++;
+        return NOOP_SPAN;
     }
 
     @Override
@@ -58,16 +73,6 @@ public class IgnoredTracerContext implements AbstractTracerContext {
         if (stackDepth == 0) {
             ListenerManager.notifyFinish(this);
         }
-    }
-
-    @Override
-    public void stopSpan(AbstractSpan span, Long endTime) {
-        stopSpan(span);
-    }
-
-    @Override
-    public void dispose() {
-
     }
 
     public static class ListenerManager {

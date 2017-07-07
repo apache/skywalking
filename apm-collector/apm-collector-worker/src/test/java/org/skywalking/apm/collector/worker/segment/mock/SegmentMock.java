@@ -1,25 +1,27 @@
 package org.skywalking.apm.collector.worker.segment.mock;
 
+import com.google.gson.JsonArray;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import org.skywalking.apm.collector.queue.EndOfBatchCommand;
 import org.skywalking.apm.collector.worker.AnalysisMember;
-import org.skywalking.apm.collector.worker.segment.SegmentPost;
-import org.skywalking.apm.collector.worker.segment.entity.Segment;
+import org.skywalking.apm.collector.worker.segment.SegmentReceiver;
 import org.skywalking.apm.collector.worker.segment.entity.SegmentDeserializeFromFile;
-import org.skywalking.apm.collector.worker.tools.DateTools;
 import org.skywalking.apm.collector.worker.tools.JsonFileReader;
+import org.skywalking.apm.network.proto.TraceSegmentObject;
+import org.skywalking.apm.network.proto.UpstreamSegment;
 
 /**
  * @author pengys5
  */
 public class SegmentMock {
-    private String path = this.getClass().getResource("/").getPath();
+    private static String path = SegmentMock.class.getResource("/").getPath();
 
     private final String CacheServiceJsonFile = path + "/json/segment/post/normal/cache-service.json";
     private final String PersistenceServiceJsonFile = path + "/json/segment/post/normal/persistence-service.json";
-    private final String PortalServiceJsonFile = path + "/json/segment/post/normal/portal-service.json";
+    public static final String PortalServiceJsonFile = path + "/json/segment/grpc/normal/portal-service.json";
 
     private final String CacheServiceExceptionJsonFile = path + "/json/segment/post/exception/cache-service.json";
     private final String PortalServiceExceptionJsonFile = path + "/json/segment/post/exception/portal-service.json";
@@ -42,65 +44,73 @@ public class SegmentMock {
         return JsonFileReader.INSTANCE.read(PersistenceServiceJsonFile);
     }
 
-    public String mockPortalServiceSegmentAsString() throws FileNotFoundException {
-        return JsonFileReader.INSTANCE.read(PortalServiceJsonFile);
+    public static List<UpstreamSegment> mockPortalServiceSegment() throws FileNotFoundException {
+        List<UpstreamSegment> upstreamSegmentList = new LinkedList<>();
+        JsonArray segmentArray = JsonFileReader.INSTANCE.parse(PortalServiceJsonFile).getAsJsonArray();
+        segmentArray.forEach(segmentObj -> {
+            UpstreamSegment upstreamSegment = UpstreamSegmentFromJson.INSTANCE.build(segmentObj.getAsJsonObject());
+            upstreamSegmentList.add(upstreamSegment);
+        });
+
+        return upstreamSegmentList;
     }
 
-    public List<SegmentPost.SegmentWithTimeSlice> mockCacheServiceExceptionSegmentTimeSlice() throws Exception {
+    public List<SegmentReceiver.SegmentWithTimeSlice> mockCacheServiceExceptionSegmentTimeSlice() throws Exception {
         return createSegmentWithTimeSliceList(CacheServiceExceptionJsonFile);
     }
 
-    public List<SegmentPost.SegmentWithTimeSlice> mockPortalServiceExceptionSegmentTimeSlice() throws Exception {
+    public List<SegmentReceiver.SegmentWithTimeSlice> mockPortalServiceExceptionSegmentTimeSlice() throws Exception {
         return createSegmentWithTimeSliceList(PortalServiceExceptionJsonFile);
     }
 
-    public List<SegmentPost.SegmentWithTimeSlice> mockCacheServiceSegmentSegmentTimeSlice() throws Exception {
+    public List<SegmentReceiver.SegmentWithTimeSlice> mockCacheServiceSegmentSegmentTimeSlice() throws Exception {
         return createSegmentWithTimeSliceList(CacheServiceJsonFile);
     }
 
-    public List<SegmentPost.SegmentWithTimeSlice> mockPersistenceServiceSegmentTimeSlice() throws Exception {
+    public List<SegmentReceiver.SegmentWithTimeSlice> mockPersistenceServiceSegmentTimeSlice() throws Exception {
         return createSegmentWithTimeSliceList(PersistenceServiceJsonFile);
     }
 
-    public List<SegmentPost.SegmentWithTimeSlice> mockPortalServiceSegmentSegmentTimeSlice() throws Exception {
+    public List<SegmentReceiver.SegmentWithTimeSlice> mockPortalServiceSegmentSegmentTimeSlice() throws Exception {
         return createSegmentWithTimeSliceList(PortalServiceJsonFile);
     }
 
-    private List<SegmentPost.SegmentWithTimeSlice> createSegmentWithTimeSliceList(
+    private List<SegmentReceiver.SegmentWithTimeSlice> createSegmentWithTimeSliceList(
         String jsonFilePath) throws Exception {
-        List<Segment> segmentList = SegmentDeserializeFromFile.INSTANCE.deserializeMultiple(jsonFilePath);
+        List<TraceSegmentObject> segmentList = SegmentDeserializeFromFile.INSTANCE.deserializeMultiple(jsonFilePath);
 
-        List<SegmentPost.SegmentWithTimeSlice> segmentWithTimeSliceList = new ArrayList<>();
-        for (Segment segment : segmentList) {
-            SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice = createSegmentWithTimeSlice(segment);
+        List<SegmentReceiver.SegmentWithTimeSlice> segmentWithTimeSliceList = new ArrayList<>();
+        for (TraceSegmentObject segment : segmentList) {
+            SegmentReceiver.SegmentWithTimeSlice segmentWithTimeSlice = createSegmentWithTimeSlice(segment);
             segmentWithTimeSliceList.add(segmentWithTimeSlice);
         }
         return segmentWithTimeSliceList;
     }
 
-    private SegmentPost.SegmentWithTimeSlice createSegmentWithTimeSlice(Segment segment) {
-        long minuteSlice = DateTools.getMinuteSlice(segment.getStartTime());
-        long hourSlice = DateTools.getHourSlice(segment.getStartTime());
-        long daySlice = DateTools.getDaySlice(segment.getStartTime());
-        int second = DateTools.getSecond(segment.getStartTime());
+    private SegmentReceiver.SegmentWithTimeSlice createSegmentWithTimeSlice(TraceSegmentObject segment) {
+//        long minuteSlice = DateTools.getMinuteSlice(segment.getStartTime());
+//        long hourSlice = DateTools.getHourSlice(segment.getStartTime());
+//        long daySlice = DateTools.getDaySlice(segment.getStartTime());
+//        int second = DateTools.getSecond(segment.getStartTime());
 
-        SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice = new SegmentPost.SegmentWithTimeSlice(segment, minuteSlice, hourSlice, daySlice, second);
-        return segmentWithTimeSlice;
+//        SegmentReceiver.SegmentWithTimeSlice segmentWithTimeSlice = new SegmentReceiver.SegmentWithTimeSlice(segment, minuteSlice, hourSlice, daySlice, second);
+//        return segmentWithTimeSlice;
+        return null;
     }
 
     public void executeAnalysis(AnalysisMember analysis) throws Exception {
-        List<SegmentPost.SegmentWithTimeSlice> cacheServiceSegment = this.mockCacheServiceSegmentSegmentTimeSlice();
-        for (SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice : cacheServiceSegment) {
+        List<SegmentReceiver.SegmentWithTimeSlice> cacheServiceSegment = this.mockCacheServiceSegmentSegmentTimeSlice();
+        for (SegmentReceiver.SegmentWithTimeSlice segmentWithTimeSlice : cacheServiceSegment) {
             analysis.analyse(segmentWithTimeSlice);
         }
 
-        List<SegmentPost.SegmentWithTimeSlice> portalServiceSegment = this.mockPortalServiceSegmentSegmentTimeSlice();
-        for (SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice : portalServiceSegment) {
+        List<SegmentReceiver.SegmentWithTimeSlice> portalServiceSegment = this.mockPortalServiceSegmentSegmentTimeSlice();
+        for (SegmentReceiver.SegmentWithTimeSlice segmentWithTimeSlice : portalServiceSegment) {
             analysis.analyse(segmentWithTimeSlice);
         }
 
-        List<SegmentPost.SegmentWithTimeSlice> persistenceServiceSegment = this.mockPersistenceServiceSegmentTimeSlice();
-        for (SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice : persistenceServiceSegment) {
+        List<SegmentReceiver.SegmentWithTimeSlice> persistenceServiceSegment = this.mockPersistenceServiceSegmentTimeSlice();
+        for (SegmentReceiver.SegmentWithTimeSlice segmentWithTimeSlice : persistenceServiceSegment) {
             analysis.analyse(segmentWithTimeSlice);
         }
 

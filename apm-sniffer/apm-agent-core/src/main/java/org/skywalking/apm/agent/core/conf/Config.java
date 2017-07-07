@@ -22,9 +22,9 @@ public class Config {
 
         /**
          * Negative or zero means off, by default.
-         * {@link #SAMPLE_N_PER_10_SECS} means sampling N {@link TraceSegment} in 10 seconds tops.
+         * {@link #SAMPLE_N_PER_3_SECS} means sampling N {@link TraceSegment} in 10 seconds tops.
          */
-        public static int SAMPLE_N_PER_10_SECS = -1;
+        public static int SAMPLE_N_PER_3_SECS = -1;
 
         /**
          * If the operation name of the first span is included in this set,
@@ -43,23 +43,15 @@ public class Config {
         public static String SERVERS = "";
 
         /**
-         * Collector receive segments REST-Service name.
+         * Collector service discovery REST service name
          */
-        public static String SERVICE_NAME = "/segments";
-
-        /**
-         * The max size to send traces per rest-service call.
-         */
-        public static int BATCH_SIZE = 50;
+        public static String DISCOVERY_SERVICE_NAME = "grpc/addresses";
     }
 
     public static class Buffer {
-        /**
-         * The in-memory buffer size. Based on Disruptor, this value must be 2^n.
-         *
-         * @see {https://github.com/LMAX-Exchange/disruptor}
-         */
-        public static int SIZE = 512;
+        public static int CHANNEL_SIZE = 5;
+
+        public static int BUFFER_SIZE = 300;
     }
 
     public static class Logging {

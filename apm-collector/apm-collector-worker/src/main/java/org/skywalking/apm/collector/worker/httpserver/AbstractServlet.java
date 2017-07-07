@@ -1,6 +1,6 @@
 package org.skywalking.apm.collector.worker.httpserver;
 
-import com.google.gson.JsonObject;
+import com.google.gson.JsonElement;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Map;
@@ -31,6 +31,8 @@ public abstract class AbstractServlet extends AbstractLocalSyncWorker {
         super(role, clusterContext, selfContext);
     }
 
+    protected abstract Class<? extends JsonElement> responseClass();
+
     /**
      * Override this method to implementing business logic.
      *
@@ -42,11 +44,15 @@ public abstract class AbstractServlet extends AbstractLocalSyncWorker {
      */
     @Override protected void onWork(Object parameter,
         Object response) throws ArgumentsParseException, WorkerInvokeException, WorkerNotFoundException {
-        JsonObject resJson = new JsonObject();
         try {
+            JsonElement resJson = responseClass().newInstance();
             onReceive((Map<String, String[]>)parameter, resJson);
             onSuccessResponse((HttpServletResponse)response, resJson);
         } catch (IOException e) {
+            logger.error(e.getMessage(), e);
+        } catch (InstantiationException e) {
+            logger.error(e.getMessage(), e);
+        } catch (IllegalAccessException e) {
             logger.error(e.getMessage(), e);
         }
     }
@@ -55,23 +61,22 @@ public abstract class AbstractServlet extends AbstractLocalSyncWorker {
      * Override this method to implementing business logic.
      *
      * @param parameter {@link Map}, get the request parameter by key.
-     * @param response {@link JsonObject}, set the response data as json object.
+     * @param response {@link JsonElement}, set the response data as json object.
      * @throws ArgumentsParseException if the key could not contains in parameter
      * @throws WorkerInvokeException if any error is detected when call(or ask) worker
      * @throws WorkerNotFoundException if the worker reference could not found in context.
      */
     protected abstract void onReceive(Map<String, String[]> parameter,
-        JsonObject response) throws ArgumentsParseException, WorkerInvokeException, WorkerNotFoundException;
+        JsonElement response) throws ArgumentsParseException, WorkerInvokeException, WorkerNotFoundException;
 
     /**
      * Set the worker response and the success status into the servlet response object
      *
      * @param response {@link HttpServletResponse} object that contains the response the servlet reply to the client
-     * @param resJson {@link JsonObject} object that contains the response from worker
+     * @param resJson {@link JsonElement} that contains the response from worker
      * @throws IOException if any error is detected when the servlet handles the response.
      */
-    protected void onSuccessResponse(HttpServletResponse response, JsonObject resJson) throws IOException {
-        resJson.addProperty("isSuccess", true);
+    protected void onSuccessResponse(HttpServletResponse response, JsonElement resJson) throws IOException {
         reply(response, resJson, HttpServletResponse.SC_OK);
     }
 
@@ -82,13 +87,14 @@ public abstract class AbstractServlet extends AbstractLocalSyncWorker {
      * @param response {@link HttpServletResponse} object that contains the response the servlet reply to the client
      */
     protected void onErrorResponse(Exception exception, HttpServletResponse response) {
-        JsonObject resJson = new JsonObject();
-        resJson.addProperty("isSuccess", false);
-        resJson.addProperty("reason", exception.getMessage());
-
+        response.setHeader("reason", exception.getMessage());
         try {
-            reply(response, resJson, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            reply(response, responseClass().newInstance(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         } catch (IOException e) {
+            logger.error(e.getMessage(), e);
+        } catch (IllegalAccessException e) {
+            logger.error(e.getMessage(), e);
+        } catch (InstantiationException e) {
             logger.error(e.getMessage(), e);
         }
     }
@@ -97,11 +103,11 @@ public abstract class AbstractServlet extends AbstractLocalSyncWorker {
      * Build the response head and body
      *
      * @param response {@link HttpServletResponse} object that contains the response the servlet reply to the client
-     * @param resJson {@link JsonObject} object that contains the response from worker
+     * @param resJson {@link JsonElement} that contains the response from worker
      * @param status http status code
      * @throws IOException if an input or output error is detected when the servlet handles the response
      */
-    private void reply(HttpServletResponse response, JsonObject resJson, int status) throws IOException {
+    private void reply(HttpServletResponse response, JsonElement resJson, int status) throws IOException {
         response.setContentType("text/json");
         response.setCharacterEncoding("utf-8");
         response.setStatus(status);

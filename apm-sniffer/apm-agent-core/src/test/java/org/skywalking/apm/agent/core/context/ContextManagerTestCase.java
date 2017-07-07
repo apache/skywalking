@@ -6,10 +6,10 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.skywalking.apm.agent.core.boot.ServiceManager;
-import org.skywalking.apm.agent.core.context.tag.Tags;
 import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.skywalking.apm.agent.core.context.trace.NoopSpan;
 import org.skywalking.apm.agent.core.context.trace.TraceSegment;
+import org.skywalking.apm.agent.core.context.util.TraceSegmentHelper;
 
 /**
  * Created by wusheng on 2017/2/19.
@@ -22,23 +22,23 @@ public class ContextManagerTestCase {
 
     @Test
     public void testDelegateToTracerContext() {
-        AbstractSpan span = ContextManager.createSpan("serviceA");
-        Tags.COMPONENT.set(span, "test");
+        AbstractSpan span = ContextManager.createLocalSpan("serviceA");
+        span.setComponent("test");
 
         Assert.assertEquals(span, ContextManager.activeSpan());
 
-        TracerContext.ListenerManager.add(TestTracerContextListener.INSTANCE);
+        TracingContext.ListenerManager.add(TestTracingContextListener.INSTANCE);
         ContextManager.stopSpan();
 
-        TraceSegment segment = TestTracerContextListener.INSTANCE.finishedSegmentCarrier[0];
+        TraceSegment segment = TestTracingContextListener.INSTANCE.finishedSegmentCarrier[0];
 
-        Assert.assertEquals(span, segment.getSpans().get(0));
+        Assert.assertEquals(span, TraceSegmentHelper.getSpans(segment).get(0));
     }
 
     @Test
     public void testSwitchToIgnoredTracerContext() throws NoSuchFieldException, IllegalAccessException {
-        AbstractSpan span = ContextManager.createSpan("/webresource/jquery.js");
-        Tags.COMPONENT.set(span, "test");
+        AbstractSpan span = ContextManager.createLocalSpan("/webresource/jquery.js");
+        span.setComponent("test");
 
         Assert.assertTrue(span instanceof NoopSpan);
         Assert.assertTrue(ContextManager.activeSpan() instanceof NoopSpan);
@@ -54,11 +54,11 @@ public class ContextManagerTestCase {
         Assert.assertNull(tracerContext);
 
         // check normal trace again
-        span = ContextManager.createSpan("serviceA");
-        Tags.COMPONENT.set(span, "test");
+        span = ContextManager.createLocalSpan("serviceA");
+        span.setComponent("test");
 
         tracerContext = ((ThreadLocal<AbstractTracerContext>)context.get(null)).get();
-        Assert.assertTrue(tracerContext instanceof TracerContext);
+        Assert.assertTrue(tracerContext instanceof TracingContext);
         ContextManager.stopSpan();
         tracerContext = ((ThreadLocal<AbstractTracerContext>)context.get(null)).get();
         Assert.assertNull(tracerContext);
@@ -66,6 +66,6 @@ public class ContextManagerTestCase {
 
     @After
     public void reset() {
-        TracerContext.ListenerManager.remove(TestTracerContextListener.INSTANCE);
+        TracingContext.ListenerManager.remove(TestTracingContextListener.INSTANCE);
     }
 }

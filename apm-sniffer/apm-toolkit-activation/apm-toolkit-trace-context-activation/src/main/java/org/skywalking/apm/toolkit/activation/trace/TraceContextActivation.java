@@ -41,6 +41,10 @@ public class TraceContextActivation extends ClassStaticMethodsEnhancePluginDefin
                 public String getMethodsInterceptor() {
                     return "org.skywalking.apm.toolkit.activation.trace.TraceContextInterceptor";
                 }
+
+                @Override public boolean isOverrideArgs() {
+                    return false;
+                }
             }
         };
     }

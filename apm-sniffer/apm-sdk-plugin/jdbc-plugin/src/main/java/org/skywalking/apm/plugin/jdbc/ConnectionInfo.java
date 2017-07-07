@@ -1,5 +1,7 @@
 package org.skywalking.apm.plugin.jdbc;
 
+import org.skywalking.apm.network.trace.component.OfficialComponent;
+
 /**
  * {@link ConnectionInfo} stored the jdbc connection info, the connection info contains db type, host, port, database
  * name. The {@link #hosts} be null if {@link #host} is not null.
@@ -28,17 +30,24 @@ public class ConnectionInfo {
      */
     private String hosts;
 
-    public ConnectionInfo(String dbType, String host, int port, String databaseName) {
+    /**
+     * Component
+     */
+    private final OfficialComponent component;
+
+    public ConnectionInfo(OfficialComponent component, String dbType, String host, int port, String databaseName) {
         this.dbType = dbType;
         this.host = host;
         this.port = port;
         this.databaseName = databaseName;
+        this.component = component;
     }
 
-    public ConnectionInfo(String dbType, String hosts, String databaseName) {
+    public ConnectionInfo(OfficialComponent component, String dbType, String hosts, String databaseName) {
         this.dbType = dbType;
         this.hosts = hosts;
         this.databaseName = databaseName;
+        this.component = component;
     }
 
     public String getDBType() {
@@ -60,4 +69,9 @@ public class ConnectionInfo {
     public String getHosts() {
         return hosts;
     }
+
+    public OfficialComponent getComponent() {
+        return component;
+    }
+
 }

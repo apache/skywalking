@@ -1,6 +1,7 @@
 package org.skywalking.apm.collector.worker.span.persistence;
 
 import com.google.gson.JsonObject;
+import java.util.TimeZone;
 import org.elasticsearch.action.get.GetResponse;
 import org.junit.Assert;
 import org.junit.Before;
@@ -18,10 +19,6 @@ import org.skywalking.apm.collector.worker.Const;
 import org.skywalking.apm.collector.worker.segment.SegmentIndex;
 import org.skywalking.apm.collector.worker.segment.mock.SegmentMock;
 import org.skywalking.apm.collector.worker.storage.GetResponseFromEs;
-import org.skywalking.apm.agent.core.context.trace.Span;
-import org.skywalking.apm.agent.core.context.trace.TraceSegment;
-
-import java.util.TimeZone;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -30,8 +27,8 @@ import static org.mockito.Mockito.when;
  * @author pengys5
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest( {GetResponseFromEs.class})
-@PowerMockIgnore( {"javax.management.*"})
+@PrepareForTest({GetResponseFromEs.class})
+@PowerMockIgnore({"javax.management.*"})
 public class SpanSearchWithIdTestCase {
 
     private GetResponseFromEs getResponseFromEs;
@@ -79,14 +76,4 @@ public class SpanSearchWithIdTestCase {
         Assert.assertEquals("/portal/", value);
     }
 
-    private TraceSegment create() {
-        TraceSegment segment = new TraceSegment();
-
-        Span span = new Span();
-        span.setTag("Tag", "VALUE");
-        span.finish(segment);
-        segment.finish();
-
-        return segment;
-    }
 }

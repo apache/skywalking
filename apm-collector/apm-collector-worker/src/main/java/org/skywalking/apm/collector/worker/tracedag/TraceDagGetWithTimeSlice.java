@@ -1,5 +1,6 @@
 package org.skywalking.apm.collector.worker.tracedag;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.util.Arrays;
 import java.util.Map;
@@ -34,6 +35,10 @@ public class TraceDagGetWithTimeSlice extends AbstractGet {
         super(role, clusterContext, selfContext);
     }
 
+    @Override protected Class<? extends JsonElement> responseClass() {
+        return JsonObject.class;
+    }
+
     @Override
     public void preStart() throws ProviderNotFoundException {
         getClusterContext().findProvider(NodeCompLoad.WorkerRole.INSTANCE).create(this);
@@ -43,7 +48,7 @@ public class TraceDagGetWithTimeSlice extends AbstractGet {
     }
 
     @Override protected void onReceive(Map<String, String[]> parameter,
-        JsonObject response) throws ArgumentsParseException, WorkerInvokeException, WorkerNotFoundException {
+        JsonElement response) throws ArgumentsParseException, WorkerInvokeException, WorkerNotFoundException {
         if (!parameter.containsKey("startTime") || !parameter.containsKey("endTime") || !parameter.containsKey("timeSliceType")) {
             throw new ArgumentsParseException("the request parameter must contains startTime,endTime,timeSliceType");
         }
@@ -87,7 +92,7 @@ public class TraceDagGetWithTimeSlice extends AbstractGet {
         JsonObject result = getBuilder().build(compResponse.get(Const.RESULT).getAsJsonArray(), nodeMappingResponse.get(Const.RESULT).getAsJsonArray(),
             nodeRefResponse.get(Const.RESULT).getAsJsonArray(), resSumResponse.get(Const.RESULT).getAsJsonArray());
 
-        response.add(Const.RESULT, result);
+        ((JsonObject)response).add(Const.RESULT, result);
     }
 
     private JsonObject getNewResponse() {

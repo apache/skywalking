@@ -11,17 +11,12 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.skywalking.apm.agent.core.boot.ServiceManager;
 import org.skywalking.apm.agent.core.conf.Config;
-import org.skywalking.apm.agent.core.context.TracerContext;
-import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceContext;
-import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodInvokeContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.skywalking.apm.sniffer.mock.context.MockTracerContextListener;
+import org.skywalking.apm.sniffer.mock.context.MockTracingContextListener;
 import org.skywalking.apm.sniffer.mock.context.SegmentAssert;
 import org.skywalking.apm.sniffer.mock.trace.SpanLogReader;
 import org.skywalking.apm.sniffer.mock.trace.tags.IntTagReader;
 import org.skywalking.apm.sniffer.mock.trace.tags.StringTagReader;
-import org.skywalking.apm.agent.core.context.trace.LogData;
-import org.skywalking.apm.agent.core.context.trace.Span;
 import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.skywalking.apm.agent.core.context.trace.TraceSegmentRef;
 import org.skywalking.apm.agent.core.context.tag.Tags;
@@ -35,7 +30,7 @@ import static org.mockito.Mockito.when;
 public class TomcatInterceptorTest {
 
     private TomcatInterceptor tomcatInterceptor;
-    private MockTracerContextListener contextListener;
+    private MockTracingContextListener contextListener;
 
     @Mock
     private HttpServletRequest request;
@@ -54,7 +49,7 @@ public class TomcatInterceptorTest {
         ServiceManager.INSTANCE.boot();
 
         tomcatInterceptor = new TomcatInterceptor();
-        contextListener = new MockTracerContextListener();
+        contextListener = new MockTracingContextListener();
 
         TracerContext.ListenerManager.add(contextListener);
 
@@ -141,6 +136,6 @@ public class TomcatInterceptorTest {
 
     @After
     public void tearDown() throws Exception {
-        TracerContext.ListenerManager.remove(new MockTracerContextListener());
+        TracerContext.ListenerManager.remove(new MockTracingContextListener());
     }
 }

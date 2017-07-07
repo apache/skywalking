@@ -14,7 +14,7 @@ public final class BugFixActive {
     private static boolean ACTIVE = false;
 
     /**
-     * Set active status, before startup dubbo services.
+     * Set active status, before startup dubbo remote.
      */
     public static void active() {
         BugFixActive.ACTIVE = true;

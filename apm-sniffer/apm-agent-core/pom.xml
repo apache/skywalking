@@ -17,6 +17,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jetty.version>9.4.2.v20170220</jetty.version>
+        <grpc.version>1.4.0</grpc.version>
 
         <shade.package>org.skywalking.apm.dependencies</shade.package>
         <shade.com.lmax.disruptor.source>com.lmax.disruptor</shade.com.lmax.disruptor.source>
@@ -26,6 +27,10 @@
         <shade.com.google.target>${shade.package}.${shade.com.google.source}</shade.com.google.target>
         <shade.org.apache.source>org.apache</shade.org.apache.source>
         <shade.org.apache.target>${shade.package}.${shade.org.apache.source}</shade.org.apache.target>
+        <shade.io.grpc.source>io.grpc</shade.io.grpc.source>
+        <shade.io.grpc.target>${shade.package}.${shade.io.grpc.source}</shade.io.grpc.target>
+        <shade.io.netty.source>io.netty</shade.io.netty.source>
+        <shade.io.netty.target>${shade.package}.${shade.io.netty.source}</shade.io.netty.target>
     </properties>
 
     <dependencies>
@@ -35,9 +40,14 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>apm-network</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>net.bytebuddy</groupId>
             <artifactId>byte-buddy</artifactId>
-            <version>1.5.7</version>
+            <version>1.7.1</version>
         </dependency>
         <dependency>
             <groupId>net.bytebuddy</groupId>
@@ -69,6 +79,13 @@
         </dependency>
     </dependencies>
     <build>
+        <extensions>
+            <extension>
+                <groupId>kr.motd.maven</groupId>
+                <artifactId>os-maven-plugin</artifactId>
+                <version>1.4.1.Final</version>
+            </extension>
+        </extensions>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -81,7 +98,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>2.4.1</version>
+                <version>3.0.0</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -92,6 +109,8 @@
                             <artifactSet>
                                 <excludes>
                                     <exclude>net.bytebuddy:byte-buddy:jar:</exclude>
+                                    <exclude>com.google.errorprone:error_prone_annotations:jar:</exclude>
+                                    <exclude>com.google.code.findbugs:jsr305:jar:</exclude>
                                 </excludes>
                             </artifactSet>
                             <relocations>
@@ -107,7 +126,28 @@
                                     <pattern>${shade.org.apache.source}</pattern>
                                     <shadedPattern>${shade.org.apache.target}</shadedPattern>
                                 </relocation>
+                                <relocation>
+                                    <pattern>${shade.io.grpc.source}</pattern>
+                                    <shadedPattern>${shade.io.grpc.target}</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>${shade.io.netty.source}</pattern>
+                                    <shadedPattern>${shade.io.netty.target}</shadedPattern>
+                                </relocation>
                             </relocations>
+                            <filters>
+                                <filter>
+                                    <artifact>com.google.protobuf:protobuf-java</artifact>
+                                    <excludes>
+                                        <exclude>google/protobuf/*.proto</exclude>
+                                        <exclude>google/protobuf/compiler/*.proto</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                            <transformers>
+                                <transformer
+                                    implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                            </transformers>
                         </configuration>
                     </execution>
                 </executions>

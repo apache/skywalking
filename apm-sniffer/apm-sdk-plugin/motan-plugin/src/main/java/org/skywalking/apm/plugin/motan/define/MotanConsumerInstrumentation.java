@@ -44,6 +44,10 @@ public class MotanConsumerInstrumentation extends ClassInstanceMethodsEnhancePlu
                 public String getMethodsInterceptor() {
                     return INVOKE_INTERCEPT_CLASS;
                 }
+
+                @Override public boolean isOverrideArgs() {
+                    return false;
+                }
             }
         };
     }

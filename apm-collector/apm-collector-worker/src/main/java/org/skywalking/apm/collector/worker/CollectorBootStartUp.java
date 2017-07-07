@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.skywalking.apm.collector.CollectorSystem;
 import org.skywalking.apm.collector.actor.ClusterWorkerContext;
+import org.skywalking.apm.collector.worker.grpcserver.GRPCServer;
 import org.skywalking.apm.collector.worker.httpserver.HttpServer;
 import org.skywalking.apm.collector.worker.storage.EsClient;
 import org.skywalking.apm.collector.worker.storage.IndexCreator;
@@ -23,5 +24,6 @@ public class CollectorBootStartUp {
         IndexCreator.INSTANCE.create();
         PersistenceTimer.INSTANCE.boot();
         HttpServer.INSTANCE.boot((ClusterWorkerContext) collectorSystem.getClusterContext());
+        GRPCServer.INSTANCE.boot((ClusterWorkerContext) collectorSystem.getClusterContext());
     }
 }

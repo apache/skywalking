@@ -18,7 +18,7 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
  */
 public class MinimalHttpClientInstrumentation extends HttpClientInstrumentation {
 
-    private static final String ENHANCE_CLASS = "org.apache.http.impl.client.MinimalHttpClient";
+    private static final String ENHANCE_CLASS = "org.apache.http.impl.discovery.MinimalHttpClient";
 
     @Override
     public String enhanceClassName() {
@@ -37,6 +37,11 @@ public class MinimalHttpClientInstrumentation extends HttpClientInstrumentation 
                 @Override
                 public String getMethodsInterceptor() {
                     return getInstanceMethodsInterceptor();
+                }
+
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
                 }
             }
         };

@@ -1,47 +1,48 @@
 package org.skywalking.apm.agent.core.plugin;
 
-import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ConstructorInvokeContext;
+import org.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
-import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodInvokeContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInvokeContext;
-import org.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMethodInvokeContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMethodsAroundInterceptor;
-import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceContext;
 
 public class MockPluginInterceptor implements InstanceMethodsAroundInterceptor, StaticMethodsAroundInterceptor, InstanceConstructorInterceptor {
+
     @Override
-    public void beforeMethod(StaticMethodInvokeContext interceptorContext, MethodInterceptResult result) {
+    public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
+        objInst.setSkyWalkingDynamicField(allArguments[0]);
     }
 
     @Override
-    public Object afterMethod(StaticMethodInvokeContext interceptorContext, Object ret) {
+    public void beforeMethod(Class clazz, String methodName, Object[] allArguments, Class<?>[] parameterTypes,
+        MethodInterceptResult result) {
+
+    }
+
+    @Override
+    public Object afterMethod(Class clazz, String methodName, Object[] allArguments, Class<?>[] parameterTypes,
+        Object ret) {
         return ret + "_STATIC";
     }
 
     @Override
-    public void handleMethodException(Throwable t, MethodInvokeContext interceptorContext) {
+    public void handleMethodException(Class clazz, String methodName, Object[] allArguments, Class<?>[] parameterTypes,
+        Throwable t) {
+
     }
 
-    @Override
-    public void beforeMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
-                             MethodInterceptResult result) {
+    @Override public void beforeMethod(EnhancedInstance objInst, String methodName, Object[] allArguments,
+        Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
+
     }
 
-    @Override
-    public Object afterMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
-                              Object ret) {
-        return ret + String.valueOf(context.get("VALUE"));
+    @Override public Object afterMethod(EnhancedInstance objInst, String methodName, Object[] allArguments,
+        Class<?>[] argumentsTypes, Object ret) throws Throwable {
+        return ret + String.valueOf(objInst.getSkyWalkingDynamicField());
     }
 
-    @Override
-    public void handleMethodException(Throwable t, EnhancedClassInstanceContext context,
-                                      InstanceMethodInvokeContext interceptorContext) {
-    }
+    @Override public void handleMethodException(EnhancedInstance objInst, String methodName, Object[] allArguments,
+        Class<?>[] argumentsTypes, Throwable t) {
 
-    @Override
-    public void onConstruct(EnhancedClassInstanceContext context, ConstructorInvokeContext interceptorContext) {
-        context.set("VALUE", interceptorContext.allArguments()[0]);
     }
 }

@@ -11,15 +11,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.skywalking.apm.agent.core.boot.ServiceManager;
-import org.skywalking.apm.agent.core.context.TracerContext;
-import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceContext;
-import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodInvokeContext;
-import org.skywalking.apm.sniffer.mock.context.MockTracerContextListener;
+import org.skywalking.apm.sniffer.mock.context.MockTracingContextListener;
 import org.skywalking.apm.sniffer.mock.context.SegmentAssert;
-import org.skywalking.apm.sniffer.mock.trace.tags.BooleanTagReader;
 import org.skywalking.apm.sniffer.mock.trace.tags.StringTagReader;
-import org.skywalking.apm.agent.core.context.trace.LogData;
-import org.skywalking.apm.agent.core.context.trace.Span;
 import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.skywalking.apm.agent.core.context.tag.Tags;
 
@@ -33,7 +27,7 @@ public class JedisMethodInterceptorTest {
 
     private JedisMethodInterceptor interceptor;
 
-    private MockTracerContextListener mockTracerContextListener;
+    private MockTracingContextListener mockTracerContextListener;
 
     @Mock
     private EnhancedClassInstanceContext classInstanceContext;
@@ -45,7 +39,7 @@ public class JedisMethodInterceptorTest {
         ServiceManager.INSTANCE.boot();
 
         interceptor = new JedisMethodInterceptor();
-        mockTracerContextListener = new MockTracerContextListener();
+        mockTracerContextListener = new MockTracingContextListener();
 
         TracerContext.ListenerManager.add(mockTracerContextListener);
 

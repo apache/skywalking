@@ -10,11 +10,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.skywalking.apm.agent.core.boot.ServiceManager;
-import org.skywalking.apm.agent.core.context.TracerContext;
-import org.skywalking.apm.sniffer.mock.context.MockTracerContextListener;
+import org.skywalking.apm.sniffer.mock.context.MockTracingContextListener;
 import org.skywalking.apm.sniffer.mock.context.SegmentAssert;
-import org.skywalking.apm.agent.core.context.trace.LogData;
-import org.skywalking.apm.agent.core.context.trace.Span;
 import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 
 import java.net.MalformedURLException;
@@ -42,7 +39,7 @@ public class SWStatementTest extends AbstractStatementTest {
 
     @Before
     public void setUp() throws Exception {
-        mockTracerContextListener = new MockTracerContextListener();
+        mockTracerContextListener = new MockTracingContextListener();
 
         ServiceManager.INSTANCE.boot();
         swConnection = new SWConnection("jdbc:mysql://127.0.0.1:3306/test", new Properties(), jdbcConnection);

@@ -5,7 +5,7 @@ package org.skywalking.apm.agent.core.context.ids;
  * <p>
  * This call chain has an unique (service) entrance,
  * <p>
- * such as: Service : http://www.skywalking.com/cust/query, all the services, called behind this service, rest services,
+ * such as: Service : http://www.skywalking.com/cust/query, all the remote, called behind this service, rest remote,
  * db executions, are using the same <code>DistributedTraceId</code> even in different JVM.
  * <p>
  * The <code>DistributedTraceId</code> contains only one string, and can NOT be reset, creating a new instance is the

@@ -25,8 +25,8 @@ public class MethodInterceptResult {
     }
 
     /**
-     * @return true, will trigger method interceptor({@link ClassInstanceMethodsInterceptor} and {@link
-     * ClassStaticMethodsInterceptor}) to invoke the origin method. Otherwise, not.
+     * @return true, will trigger method interceptor({@link InstMethodsInter} and {@link
+     * StaticMethodsInter}) to invoke the origin method. Otherwise, not.
      */
     public boolean isContinue() {
         return isContinue;

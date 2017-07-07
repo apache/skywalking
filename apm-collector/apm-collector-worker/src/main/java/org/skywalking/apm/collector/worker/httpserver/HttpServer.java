@@ -29,6 +29,5 @@ public enum HttpServer {
 
         server.setHandler(servletContextHandler);
         server.start();
-        server.join();
     }
 }

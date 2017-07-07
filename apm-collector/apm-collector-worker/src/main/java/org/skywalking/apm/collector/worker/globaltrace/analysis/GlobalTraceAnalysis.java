@@ -1,6 +1,5 @@
 package org.skywalking.apm.collector.worker.globaltrace.analysis;
 
-import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.skywalking.apm.collector.actor.AbstractLocalAsyncWorkerProvider;
@@ -14,9 +13,8 @@ import org.skywalking.apm.collector.worker.JoinAndSplitAnalysisMember;
 import org.skywalking.apm.collector.worker.config.WorkerConfig;
 import org.skywalking.apm.collector.worker.globaltrace.GlobalTraceIndex;
 import org.skywalking.apm.collector.worker.globaltrace.persistence.GlobalTraceAgg;
-import org.skywalking.apm.collector.worker.segment.SegmentPost;
-import org.skywalking.apm.collector.worker.segment.entity.Segment;
-import org.skywalking.apm.collector.worker.tools.CollectionTools;
+import org.skywalking.apm.collector.worker.segment.SegmentReceiver;
+import org.skywalking.apm.network.proto.TraceSegmentObject;
 
 /**
  * @author pengys5
@@ -31,18 +29,16 @@ public class GlobalTraceAnalysis extends JoinAndSplitAnalysisMember {
 
     @Override
     public void analyse(Object message) {
-        if (message instanceof SegmentPost.SegmentWithTimeSlice) {
-            SegmentPost.SegmentWithTimeSlice segmentWithTimeSlice = (SegmentPost.SegmentWithTimeSlice)message;
-            Segment segment = segmentWithTimeSlice.getSegment();
+        if (message instanceof SegmentReceiver.SegmentWithTimeSlice) {
+            SegmentReceiver.SegmentWithTimeSlice segmentWithTimeSlice = (SegmentReceiver.SegmentWithTimeSlice)message;
+            TraceSegmentObject segment = segmentWithTimeSlice.getSegment();
             String subSegmentId = segment.getTraceSegmentId();
-            List<String> globalTraceIdList = segment.getRelatedGlobalTraces().get();
-            if (CollectionTools.isNotEmpty(globalTraceIdList)) {
-                for (String globalTraceId : globalTraceIdList) {
-                    set(globalTraceId, GlobalTraceIndex.SUB_SEG_IDS, subSegmentId);
-                }
-            }
+
+            segmentWithTimeSlice.getGlobalTraceIds().forEach(globalTraceId -> {
+                set(globalTraceId, GlobalTraceIndex.SUB_SEG_IDS, subSegmentId);
+            });
         } else {
-            logger.error("unhandled message, message instance must SegmentPost.SegmentWithTimeSlice, but is %s", message.getClass().toString());
+            logger.error("unhandled message, message instance must SegmentReceiver.SegmentWithTimeSlice, but is %s", message.getClass().toString());
         }
     }
 

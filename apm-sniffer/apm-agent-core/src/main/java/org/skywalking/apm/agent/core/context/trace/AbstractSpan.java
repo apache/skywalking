@@ -1,6 +1,6 @@
 package org.skywalking.apm.agent.core.context.trace;
 
-import java.util.Map;
+import org.skywalking.apm.network.trace.component.Component;
 
 /**
  * The <code>AbstractSpan</code> represents the span's skeleton,
@@ -9,23 +9,45 @@ import java.util.Map;
  * @author wusheng
  */
 public interface AbstractSpan {
-    AbstractSpan setOperationName(String operationName);
+    /**
+     * Set the component id, which defines in {@link org.skywalking.apm.network.trace.component.ComponentsDefine}
+     * @param component
+     */
+    AbstractSpan setComponent(Component component);
 
-    void setPeerHost(String peerHost);
+    AbstractSpan setComponent(String componentName);
 
-    void setPort(int port);
+    AbstractSpan setLayer(SpanLayer layer);
 
-    void setPeers(String peers);
+    /**
+     * Set a key:value tag on the Span.
+     *
+     * @return this Span instance, for chaining
+     */
+    AbstractSpan tag(String key, String value);
 
-    AbstractSpan setTag(String key, String value);
-
-    AbstractSpan setTag(String key, boolean value);
-
-    AbstractSpan setTag(String key, Integer value);
-
-    AbstractSpan log(Map<String, String> fields);
-
+    /**
+     * Record an exception event of the current walltime timestamp.
+     *
+     * @param t any subclass of {@link Throwable}, which occurs in this span.
+     * @return the Span, for chaining
+     */
     AbstractSpan log(Throwable t);
 
-    AbstractSpan log(String event);
+    AbstractSpan errorOccurred();
+
+    /**
+     * @return true if the actual span is an entry span.
+     */
+    boolean isEntry();
+
+    /**
+     * @return true if the actual span is a local span.
+     */
+    boolean isLocal();
+
+    /**
+     * @return true if the actual span is an exit span.
+     */
+    boolean isExit();
 }

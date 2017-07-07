@@ -1,6 +1,6 @@
 package org.skywalking.apm.collector.worker.httpserver;
 
-import com.google.gson.JsonObject;
+import com.google.gson.JsonElement;
 import java.io.IOException;
 import java.util.Map;
 import javax.servlet.ServletException;
@@ -20,7 +20,7 @@ import org.skywalking.apm.collector.actor.WorkerNotFoundException;
  * The <code>AbstractGet</code> implementations represent workers, which called by the server to allow a servlet to
  * handle a GET request.
  *
- * <p>verride the {@link #onReceive(Map, JsonObject)} method to support a search service.
+ * <p>verride the {@link #onReceive(Map, JsonElement)} method to support a search service.
  *
  * @author pengys5
  * @since v3.0-2017

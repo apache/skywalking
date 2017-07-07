@@ -13,16 +13,10 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.skywalking.apm.agent.core.boot.ServiceManager;
 import org.skywalking.apm.agent.core.conf.Config;
-import org.skywalking.apm.agent.core.context.TracerContext;
-import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceContext;
-import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ConstructorInvokeContext;
-import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodInvokeContext;
-import org.skywalking.apm.sniffer.mock.context.MockTracerContextListener;
+import org.skywalking.apm.sniffer.mock.context.MockTracingContextListener;
 import org.skywalking.apm.sniffer.mock.context.SegmentAssert;
 import org.skywalking.apm.sniffer.mock.trace.SpanLogReader;
 import org.skywalking.apm.sniffer.mock.trace.tags.StringTagReader;
-import org.skywalking.apm.agent.core.context.trace.LogData;
-import org.skywalking.apm.agent.core.context.trace.Span;
 import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.skywalking.apm.agent.core.context.trace.TraceSegmentRef;
 import org.skywalking.apm.agent.core.context.tag.Tags;
@@ -36,7 +30,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class MotanProviderInterceptorTest {
 
-    private MockTracerContextListener contextListener;
+    private MockTracingContextListener contextListener;
 
     private MotanProviderInterceptor invokeInterceptor;
     @Mock
@@ -57,7 +51,7 @@ public class MotanProviderInterceptorTest {
         ServiceManager.INSTANCE.boot();
 
         invokeInterceptor = new MotanProviderInterceptor();
-        contextListener = new MockTracerContextListener();
+        contextListener = new MockTracingContextListener();
         url = URL.valueOf("motan://127.0.0.1:34000/org.skywalking.apm.test.TestService");
 
         TracerContext.ListenerManager.add(contextListener);
