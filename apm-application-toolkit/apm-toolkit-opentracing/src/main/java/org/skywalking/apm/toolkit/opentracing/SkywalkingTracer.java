@@ -1,74 +1,82 @@
 package org.skywalking.apm.toolkit.opentracing;
 
+import io.opentracing.ActiveSpan;
+import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMap;
-
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Iterator;
 import java.util.Map;
 
 /**
- * All source code in SkyWalkingTracer acts like an NoopTracer.
- * Actually, it is NOT.
- * The whole logic will be added after toolkit-activation.
- * <p>
- * Created by wusheng on 2016/12/20.
+ * @author wusheng
  */
-public class SkyWalkingTracer implements Tracer {
+public class SkywalkingTracer implements Tracer {
     private static String TRACE_HEAD_NAME = "sw3";
 
-    public static Tracer INSTANCE = new SkyWalkingTracer();
+    @NeedSnifferActivation("1. ContextManager#inject" +
+        "2. ContextCarrier#serialize")
+    private String inject() {
+        return null;
+    }
 
+    @NeedSnifferActivation("1. ContextCarrier#deserialize" +
+        "2. ContextManager#extract")
+    private void extract(String carrier) {
+
+    }
 
     @Override
     public SpanBuilder buildSpan(String operationName) {
-        return new SkyWalkingSpanBuilder(operationName);
+        return new SkywalkingSpanBuilder(operationName);
     }
 
     @Override
     public <C> void inject(SpanContext spanContext, Format<C> format, C carrier) {
         if (Format.Builtin.TEXT_MAP.equals(format) || Format.Builtin.HTTP_HEADERS.equals(format)) {
-            ((TextMap) carrier).put(TRACE_HEAD_NAME, formatInjectCrossProcessPropagationContextData());
+            ((TextMap)carrier).put(TRACE_HEAD_NAME, inject());
         } else if (Format.Builtin.BINARY.equals(format)) {
             byte[] key = TRACE_HEAD_NAME.getBytes(ByteBufferContext.CHARSET);
-            byte[] value = formatInjectCrossProcessPropagationContextData().getBytes(ByteBufferContext.CHARSET);
-            ((ByteBuffer) carrier).put(key);
-            ((ByteBuffer) carrier).putInt(value.length);
-            ((ByteBuffer) carrier).put(value);
+            byte[] value = inject().getBytes(ByteBufferContext.CHARSET);
+            ((ByteBuffer)carrier).put(key);
+            ((ByteBuffer)carrier).putInt(value.length);
+            ((ByteBuffer)carrier).put(value);
+        } else {
+            throw new IllegalArgumentException("Unsupported format: " + format);
+        }
+
+    }
+
+    @Override
+    public <C> SpanContext extract(Format<C> format, C carrier) {
+        if (Format.Builtin.TEXT_MAP.equals(format) || Format.Builtin.HTTP_HEADERS.equals(format)) {
+            TextMap textMapCarrier = (TextMap)carrier;
+            extract(fetchContextData(textMapCarrier));
+            return new TextMapContext(textMapCarrier);
+        } else if (Format.Builtin.BINARY.equals(format)) {
+            ByteBuffer byteBufferCarrier = (ByteBuffer)carrier;
+            extract(fetchContextData(byteBufferCarrier));
+            return new ByteBufferContext((ByteBuffer)carrier);
         } else {
             throw new IllegalArgumentException("Unsupported format: " + format);
         }
     }
 
     @Override
-    public <C> SpanContext extract(Format<C> format, C carrier) {
-        if (Format.Builtin.TEXT_MAP.equals(format) || Format.Builtin.HTTP_HEADERS.equals(format)) {
-            TextMap textMapCarrier = (TextMap) carrier;
-            formatExtractCrossProcessPropagationContextData(fetchContextData(textMapCarrier));
-            return new TextMapContext(textMapCarrier);
-        } else if (Format.Builtin.BINARY.equals(format)) {
-            ByteBuffer byteBufferCarrier = (ByteBuffer) carrier;
-            formatExtractCrossProcessPropagationContextData(fetchContextData(byteBufferCarrier));
-            return new ByteBufferContext((ByteBuffer) carrier);
+    public ActiveSpan activeSpan() {
+        return new SkywalkingActiveSpan(new SkywalkingSpan(this));
+    }
+
+    @Override
+    public ActiveSpan makeActive(Span span) {
+        if (span instanceof SkywalkingSpan) {
+            return new SkywalkingActiveSpan((SkywalkingSpan)span);
         } else {
-            throw new IllegalArgumentException("Unsupported format: " + format);
+            throw new IllegalArgumentException("span must be a type of SkywalkingSpan");
         }
-    }
-
-    /**
-     * set context data in toolkit-opentracing-activation
-     */
-    private String formatInjectCrossProcessPropagationContextData() {
-        return "";
-    }
-
-    /**
-     * read context data in toolkit-opentracing-activation
-     */
-    private void formatExtractCrossProcessPropagationContextData(String contextData) {
     }
 
     private String fetchContextData(TextMap textMap) {
@@ -99,4 +107,5 @@ public class SkyWalkingTracer implements Tracer {
             return null;
         }
     }
+
 }

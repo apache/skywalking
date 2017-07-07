@@ -5,6 +5,7 @@ import org.skywalking.apm.agent.core.boot.ServiceManager;
 import org.skywalking.apm.agent.core.conf.Config;
 import org.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
 import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.skywalking.apm.agent.core.dictionary.DictionaryUtil;
 import org.skywalking.apm.agent.core.sampling.SamplingService;
@@ -106,6 +107,28 @@ public class ContextManager implements TracingContextListener, BootService, Igno
         return span;
     }
 
+    public static void inject(ContextCarrier contextCarrier) {
+        AbstractSpan span = activeSpan();
+        if (span instanceof AbstractTracingSpan) {
+            if (span.isExit()) {
+                get().inject(contextCarrier);
+            } else {
+                throw new IllegalStateException("Can't do inject when the active span isn't an exit span");
+            }
+        }
+    }
+
+    public static void extract(ContextCarrier contextCarrier) {
+        AbstractSpan span = activeSpan();
+        if (span instanceof AbstractTracingSpan) {
+            if (span.isEntry()) {
+                get().extract(contextCarrier);
+            } else {
+                throw new IllegalStateException("Can't do extract when the active span isn't an entry span");
+            }
+        }
+    }
+
     public ContextSnapshot capture() {
         return get().capture();
     }
@@ -122,7 +145,11 @@ public class ContextManager implements TracingContextListener, BootService, Igno
     }
 
     public static void stopSpan() {
-        get().stopSpan(activeSpan());
+        stopSpan(activeSpan());
+    }
+
+    public static void stopSpan(AbstractSpan span) {
+        get().stopSpan(span);
     }
 
     @Override

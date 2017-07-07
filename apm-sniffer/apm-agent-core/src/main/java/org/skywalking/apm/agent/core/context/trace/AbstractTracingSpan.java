@@ -2,6 +2,7 @@ package org.skywalking.apm.agent.core.context.trace;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import org.skywalking.apm.agent.core.context.util.KeyValuePair;
 import org.skywalking.apm.agent.core.context.util.ThrowableTransformer;
 import org.skywalking.apm.agent.core.dictionary.DictionaryUtil;
@@ -106,7 +107,25 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
             .add(new KeyValuePair("error.kind", t.getClass().getName()))
             .add(new KeyValuePair("message", t.getMessage()))
             .add(new KeyValuePair("stack", ThrowableTransformer.INSTANCE.convert2String(t, 4000)))
-            .build());
+            .build(System.currentTimeMillis()));
+        return this;
+    }
+
+    /**
+     * Record a common log with multi fields, for supporting opentracing-java
+     *
+     * @param fields
+     * @return the Span, for chaining
+     */
+    public AbstractSpan log(long timestampMicroseconds, Map<String, ?> fields) {
+        if (logs == null) {
+            logs = new LinkedList<LogDataEntity>();
+        }
+        LogDataEntity.Builder builder = new LogDataEntity.Builder();
+        for (Map.Entry<String, ?> entry : fields.entrySet()) {
+            builder.add(new KeyValuePair(entry.getKey(), entry.getValue().toString()));
+        }
+        logs.add(builder.build(timestampMicroseconds));
         return this;
     }
 
