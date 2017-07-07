@@ -69,7 +69,7 @@ public class TraceSegmentRef {
 
     public TraceSegmentReference transform() {
         TraceSegmentReference.Builder refBuilder = TraceSegmentReference.newBuilder();
-        if(SegmentRefType.CROSS_PROCESS.equals(type)) {
+        if (SegmentRefType.CROSS_PROCESS.equals(type)) {
             refBuilder.setRefType(RefType.CrossProcess);
             refBuilder.setParentApplicationInstanceId(applicationInstanceId);
             if (peerId == DictionaryUtil.nullValue()) {
@@ -82,7 +82,7 @@ public class TraceSegmentRef {
             } else {
                 refBuilder.setEntryServiceId(operationId);
             }
-        }else{
+        } else {
             refBuilder.setRefType(RefType.CrossThread);
         }
         refBuilder.setParentTraceSegmentId(traceSegmentId);

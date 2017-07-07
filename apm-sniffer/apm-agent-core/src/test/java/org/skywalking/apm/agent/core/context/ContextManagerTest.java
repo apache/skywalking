@@ -1,8 +1,6 @@
 package org.skywalking.apm.agent.core.context;
 
-import java.lang.reflect.Field;
 import java.util.List;
-import java.util.Map;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -17,14 +15,13 @@ import org.skywalking.apm.agent.core.context.trace.LogDataEntity;
 import org.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.skywalking.apm.agent.core.context.trace.TraceSegmentRef;
+import org.skywalking.apm.agent.core.context.util.AbstractTracingSpanHelper;
+import org.skywalking.apm.agent.core.context.util.SegmentHelper;
+import org.skywalking.apm.agent.core.context.util.SegmentStorage;
+import org.skywalking.apm.agent.core.context.util.SegmentStoragePoint;
+import org.skywalking.apm.agent.core.context.util.TraceSegmentRefHelper;
+import org.skywalking.apm.agent.core.context.util.TracingSegmentRunner;
 import org.skywalking.apm.agent.core.dictionary.DictionaryUtil;
-import org.skywalking.apm.agent.core.dictionary.OperationNameDictionary;
-import org.skywalking.apm.agent.test.helper.AbstractTracingSpanHelper;
-import org.skywalking.apm.agent.test.helper.SegmentHelper;
-import org.skywalking.apm.agent.test.helper.TraceSegmentRefHelper;
-import org.skywalking.apm.agent.test.tools.SegmentStorage;
-import org.skywalking.apm.agent.test.tools.SegmentStoragePoint;
-import org.skywalking.apm.agent.test.tools.TracingSegmentRunner;
 import org.skywalking.apm.network.trace.component.ComponentsDefine;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -128,7 +125,6 @@ public class ContextManagerTest {
 
         assertThat(injectContextCarrier.getSpanId(), is(1));
         assertThat(injectContextCarrier.getEntryOperationName(), is("#/portal/"));
-        assertThat(injectContextCarrier.getApplicationId(), is(1));
         assertThat(injectContextCarrier.getPeerHost(), is("#127.0.0.1:12800"));
     }
 
@@ -175,12 +171,10 @@ public class ContextManagerTest {
         assertThat(AbstractTracingSpanHelper.getParentSpanId(actualEntrySpan), is(-1));
 
         assertThat(firstExitSpanContextCarrier.getPeerHost(), is("#127.0.0.1:8080"));
-        assertThat(firstExitSpanContextCarrier.getApplicationId(), is(1));
         assertThat(firstExitSpanContextCarrier.getSpanId(), is(1));
         assertThat(firstExitSpanContextCarrier.getEntryOperationName(), is("#/testEntrySpan"));
 
         assertThat(secondExitSpanContextCarrier.getPeerHost(), is("#127.0.0.1:8080"));
-        assertThat(secondExitSpanContextCarrier.getApplicationId(), is(1));
         assertThat(secondExitSpanContextCarrier.getSpanId(), is(1));
         assertThat(secondExitSpanContextCarrier.getEntryOperationName(), is("#/testEntrySpan"));
 
