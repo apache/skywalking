@@ -24,10 +24,6 @@ public class PluginResourcesResolver {
         try {
             urls = getDefaultClassLoader().getResources("skywalking-plugin.def");
 
-            if (!urls.hasMoreElements()) {
-                logger.info("no plugin files (skywalking-plugin.def) found");
-            }
-
             while (urls.hasMoreElements()) {
                 URL pluginUrl = urls.nextElement();
                 cfgUrlPaths.add(pluginUrl);
