@@ -10,9 +10,9 @@ import org.skywalking.apm.agent.core.conf.Config;
 import org.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
 import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.skywalking.apm.agent.core.context.trace.NoopSpan;
-import org.skywalking.apm.agent.test.tools.SegmentStorage;
-import org.skywalking.apm.agent.test.tools.SegmentStoragePoint;
-import org.skywalking.apm.agent.test.tools.TracingSegmentRunner;
+import org.skywalking.apm.agent.core.context.util.SegmentStorage;
+import org.skywalking.apm.agent.core.context.util.SegmentStoragePoint;
+import org.skywalking.apm.agent.core.context.util.TracingSegmentRunner;
 
 import static junit.framework.TestCase.assertNull;
 import static org.hamcrest.CoreMatchers.is;
