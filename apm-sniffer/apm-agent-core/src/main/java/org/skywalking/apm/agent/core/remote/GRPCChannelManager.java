@@ -62,11 +62,16 @@ public class GRPCChannelManager implements BootService, Runnable {
                             .maxInboundMessageSize(1024 * 1024 * 50)
                             .usePlaintext(true);
                     managedChannel = channelBuilder.build();
-                    reconnect = false;
-                    notify(GRPCChannelStatus.CONNECTED);
+                    if (!managedChannel.isShutdown() && !managedChannel.isTerminated()) {
+                        reconnect = false;
+                        notify(GRPCChannelStatus.CONNECTED);
+                    } else {
+                        notify(GRPCChannelStatus.DISCONNECT);
+                    }
                     return;
                 } catch (Throwable t) {
                     logger.error(t, "Create channel to {} fail.", server);
+                    notify(GRPCChannelStatus.DISCONNECT);
                 }
             }
 

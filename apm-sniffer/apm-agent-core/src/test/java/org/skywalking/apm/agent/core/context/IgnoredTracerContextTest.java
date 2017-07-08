@@ -3,6 +3,7 @@ package org.skywalking.apm.agent.core.context;
 import java.util.LinkedList;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.skywalking.apm.agent.core.boot.ServiceManager;
@@ -10,9 +11,10 @@ import org.skywalking.apm.agent.core.conf.Config;
 import org.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
 import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.skywalking.apm.agent.core.context.trace.NoopSpan;
-import org.skywalking.apm.agent.core.context.util.SegmentStorage;
-import org.skywalking.apm.agent.core.context.util.SegmentStoragePoint;
-import org.skywalking.apm.agent.core.context.util.TracingSegmentRunner;
+import org.skywalking.apm.agent.core.test.tools.AgentServiceRule;
+import org.skywalking.apm.agent.core.test.tools.SegmentStorage;
+import org.skywalking.apm.agent.core.test.tools.SegmentStoragePoint;
+import org.skywalking.apm.agent.core.test.tools.TracingSegmentRunner;
 
 import static junit.framework.TestCase.assertNull;
 import static org.hamcrest.CoreMatchers.is;
@@ -23,6 +25,9 @@ public class IgnoredTracerContextTest {
 
     @SegmentStoragePoint
     private SegmentStorage storage;
+
+    @Rule
+    public AgentServiceRule agentServiceRule = new AgentServiceRule();
 
     @Before
     public void setUp() throws Exception {
@@ -57,7 +62,6 @@ public class IgnoredTracerContextTest {
 
     @Test
     public void ignoredTraceContextWithExcludeOperationName() {
-        ServiceManager.INSTANCE.boot();
         AbstractSpan abstractSpan = ContextManager.createEntrySpan("test.js", null);
         ContextManager.stopSpan();
 
@@ -68,7 +72,6 @@ public class IgnoredTracerContextTest {
 
     @Test
     public void ignoredTraceContextWithEmptyOperationName() {
-        ServiceManager.INSTANCE.boot();
         ContextCarrier contextCarrier = new ContextCarrier();
         AbstractSpan abstractSpan = ContextManager.createExitSpan("", contextCarrier, "127.0.0.1:2181");
         ContextManager.stopSpan();

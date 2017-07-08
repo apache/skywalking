@@ -26,6 +26,7 @@ import static org.skywalking.apm.agent.core.remote.GRPCChannelStatus.CONNECTED;
  */
 public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSegment>, TracingContextListener, GRPCChannelListener {
     private static final ILog logger = LogManager.getLogger(TraceSegmentServiceClient.class);
+    private static final int TIMEOUT = 30 * 1000;
 
     private volatile DataCarrier<TraceSegment> carrier;
     private volatile TraceSegmentServiceGrpc.TraceSegmentServiceStub serviceStub;
@@ -88,7 +89,7 @@ public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSe
             }
             upstreamSegmentStreamObserver.onCompleted();
 
-            status.wait4Finish(30 * 1000);
+            status.wait4Finish(TIMEOUT);
 
             if (logger.isDebugEnable()) {
                 logger.debug("{} trace segments have been sent to collector.", data.size());

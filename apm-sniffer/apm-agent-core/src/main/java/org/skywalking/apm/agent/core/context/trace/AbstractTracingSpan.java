@@ -214,14 +214,14 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
         spanBuilder.setParentSpanId(parentSpanId);
         spanBuilder.setStartTime(startTime);
         spanBuilder.setEndTime(endTime);
-        if (operationId == DictionaryUtil.nullValue()) {
+        if (operationId != DictionaryUtil.nullValue()) {
             spanBuilder.setOperationNameId(operationId);
         } else {
             spanBuilder.setOperationName(operationName);
         }
         spanBuilder.setSpanType(SpanType.Entry);
         spanBuilder.setSpanLayerValue(this.layer.getCode());
-        if (componentId == DictionaryUtil.nullValue()) {
+        if (componentId != DictionaryUtil.nullValue()) {
             spanBuilder.setComponentId(componentId);
         } else {
             spanBuilder.setComponent(componentName);

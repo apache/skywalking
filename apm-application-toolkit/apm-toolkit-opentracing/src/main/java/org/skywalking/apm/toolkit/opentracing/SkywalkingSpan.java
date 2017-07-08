@@ -17,12 +17,13 @@ public class SkywalkingSpan implements Span {
 
     /**
      * Create a shell span for {@link SkywalkingTracer#activeSpan()}
+     *
      * @param tracer
      */
     @NeedSnifferActivation(
         "1. set the span reference to the dynamic field of enhanced SkywalkingSpan"
     )
-    public SkywalkingSpan(SkywalkingTracer tracer){
+    public SkywalkingSpan(SkywalkingTracer tracer) {
 
     }
 

@@ -34,6 +34,7 @@ public class Config {
     }
 
     public static class Collector {
+        public static long DISCOVERY_CHECK_INTERVAL = 60 * 1000;
         /**
          * Collector REST-Service address.
          * e.g.

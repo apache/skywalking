@@ -1,6 +1,9 @@
 package org.skywalking.apm.agent.core.remote;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import org.skywalking.apm.agent.core.boot.BootService;
+import org.skywalking.apm.agent.core.conf.Config;
 
 /**
  * The <code>CollectorDiscoveryService</code> is responsible for start {@link DiscoveryRestServiceClient}.
@@ -15,9 +18,9 @@ public class CollectorDiscoveryService implements BootService {
 
     @Override
     public void boot() throws Throwable {
-        Thread collectorClientThread = new Thread(new DiscoveryRestServiceClient(), "collectorClientThread");
-        collectorClientThread.setDaemon(true);
-        collectorClientThread.start();
+        Executors.newSingleThreadScheduledExecutor()
+            .scheduleAtFixedRate(new DiscoveryRestServiceClient(), 0,
+                Config.Collector.DISCOVERY_CHECK_INTERVAL, TimeUnit.MILLISECONDS);
     }
 
     @Override
