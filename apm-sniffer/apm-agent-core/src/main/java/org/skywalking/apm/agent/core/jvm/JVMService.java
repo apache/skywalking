@@ -28,6 +28,10 @@ import org.skywalking.apm.network.proto.JVMMetricsServiceGrpc;
 import static org.skywalking.apm.agent.core.remote.GRPCChannelStatus.CONNECTED;
 
 /**
+ * The <code>JVMService</code> represents a timer,
+ * which collectors JVM cpu, memory, memorypool and gc info,
+ * and send the collected info to Collector through the channel provided by {@link GRPCChannelManager}
+ *
  * @author wusheng
  */
 public class JVMService implements BootService, Runnable {
@@ -38,10 +42,12 @@ public class JVMService implements BootService, Runnable {
     private volatile ScheduledFuture<?> collectMetricFuture;
     private volatile ScheduledFuture<?> sendMetricFuture;
     private volatile int lastBlockIdx = -1;
+    private Sender sender;
 
     @Override
     public void beforeBoot() throws Throwable {
-
+        sender = new Sender();
+        ServiceManager.INSTANCE.findService(GRPCChannelManager.class).addChannelListener(sender);
     }
 
     @Override
@@ -51,7 +57,7 @@ public class JVMService implements BootService, Runnable {
             .scheduleAtFixedRate(this, 0, 1, TimeUnit.SECONDS);
         sendMetricFuture = Executors
             .newSingleThreadScheduledExecutor()
-            .scheduleAtFixedRate(new Sender(), 0, 15, TimeUnit.SECONDS);
+            .scheduleAtFixedRate(sender, 0, 15, TimeUnit.SECONDS);
     }
 
     @Override
