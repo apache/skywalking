@@ -16,11 +16,29 @@ import org.skywalking.apm.agent.core.dictionary.PossibleFound;
 import org.skywalking.apm.agent.core.sampling.SamplingService;
 
 /**
+ * The <code>TracingContext</code> represents a core tracing logic controller.
+ * It build the final {@link TracingContext}, by the stack mechanism,
+ * which is similar with the codes work.
+ *
+ * In opentracing concept, it means, all spans in a segment tracing context(thread)
+ * are CHILD_OF relationship, but no FOLLOW_OF.
+ *
+ * In skywalking core concept, FOLLOW_OF is an abstract concept
+ * when cross-process MQ or cross-thread async/batch tasks happen,
+ * we used {@link TraceSegmentRef} for these scenarios.
+ * Check {@link TraceSegmentRef} which is from {@link ContextCarrier} or {@link ContextSnapshot}.
+ *
  * @author wusheng
  */
 public class TracingContext implements AbstractTracerContext {
+    /**
+     * @see {@link SamplingService}
+     */
     private SamplingService samplingService;
 
+    /**
+     * The final {@link TraceSegment}, which includes all finished spans.
+     */
     private TraceSegment segment;
 
     /**
@@ -32,8 +50,14 @@ public class TracingContext implements AbstractTracerContext {
      */
     private LinkedList<AbstractTracingSpan> activeSpanStack = new LinkedList<AbstractTracingSpan>();
 
+    /**
+     * A counter for the next span.
+     */
     private int spanIdGenerator;
 
+    /**
+     * Initialize all fields with default value.
+     */
     TracingContext() {
         this.segment = new TraceSegment();
         this.spanIdGenerator = 0;
@@ -42,6 +66,13 @@ public class TracingContext implements AbstractTracerContext {
         }
     }
 
+    /**
+     * Inject the context into the given carrier, only when the active span is an exit one.
+     *
+     * @param carrier to carry the context for crossing process.
+     * @see {@link AbstractTracerContext#inject(ContextCarrier)}
+     * @throws IllegalStateException, if the active span isn't an exit one.
+     */
     @Override
     public void inject(ContextCarrier carrier) {
         AbstractTracingSpan span = this.activeSpan();

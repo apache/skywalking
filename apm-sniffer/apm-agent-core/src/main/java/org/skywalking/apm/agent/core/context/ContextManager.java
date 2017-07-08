@@ -108,25 +108,11 @@ public class ContextManager implements TracingContextListener, BootService, Igno
     }
 
     public static void inject(ContextCarrier contextCarrier) {
-        AbstractSpan span = activeSpan();
-        if (span instanceof AbstractTracingSpan) {
-            if (span.isExit()) {
-                get().inject(contextCarrier);
-            } else {
-                throw new IllegalStateException("Can't do inject when the active span isn't an exit span");
-            }
-        }
+        get().inject(contextCarrier);
     }
 
     public static void extract(ContextCarrier contextCarrier) {
-        AbstractSpan span = activeSpan();
-        if (span instanceof AbstractTracingSpan) {
-            if (span.isEntry()) {
-                get().extract(contextCarrier);
-            } else {
-                throw new IllegalStateException("Can't do extract when the active span isn't an entry span");
-            }
-        }
+        get().extract(contextCarrier);
     }
 
     public ContextSnapshot capture() {
