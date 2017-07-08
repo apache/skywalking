@@ -1,12 +1,11 @@
 package org.skywalking.apm.agent.core.context;
 
-import com.google.instrumentation.trace.Span;
 import com.google.protobuf.InvalidProtocolBufferException;
-import java.util.Date;
 import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.skywalking.apm.agent.core.boot.ServiceManager;
@@ -20,10 +19,11 @@ import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.skywalking.apm.agent.core.context.trace.TraceSegmentRef;
 import org.skywalking.apm.agent.core.context.util.AbstractTracingSpanHelper;
 import org.skywalking.apm.agent.core.context.util.SegmentHelper;
-import org.skywalking.apm.agent.core.context.util.SegmentStorage;
-import org.skywalking.apm.agent.core.context.util.SegmentStoragePoint;
+import org.skywalking.apm.agent.core.test.tools.AgentServiceRule;
+import org.skywalking.apm.agent.core.test.tools.SegmentStorage;
+import org.skywalking.apm.agent.core.test.tools.SegmentStoragePoint;
 import org.skywalking.apm.agent.core.context.util.TraceSegmentRefHelper;
-import org.skywalking.apm.agent.core.context.util.TracingSegmentRunner;
+import org.skywalking.apm.agent.core.test.tools.TracingSegmentRunner;
 import org.skywalking.apm.agent.core.dictionary.DictionaryUtil;
 import org.skywalking.apm.network.proto.KeyWithStringValue;
 import org.skywalking.apm.network.proto.LogMessage;
@@ -45,10 +45,8 @@ public class ContextManagerTest {
     @SegmentStoragePoint
     private SegmentStorage tracingData;
 
-    @BeforeClass
-    public static void setUpBeforeClass() {
-        ServiceManager.INSTANCE.boot();
-    }
+    @Rule
+    public AgentServiceRule agentServiceRule = new AgentServiceRule();
 
     @Before
     public void setUp() throws Exception {

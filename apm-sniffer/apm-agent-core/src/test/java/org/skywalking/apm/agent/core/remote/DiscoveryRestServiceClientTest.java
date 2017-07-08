@@ -8,6 +8,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.skywalking.apm.agent.core.conf.Config;
 import org.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
+import org.skywalking.apm.agent.core.test.tools.AgentServiceRule;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
@@ -17,6 +18,9 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class DiscoveryRestServiceClientTest {
+
+    @Rule
+    public AgentServiceRule agentServiceRule = new AgentServiceRule();
 
     private DiscoveryRestServiceClient client;
     @Rule

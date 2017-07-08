@@ -1,4 +1,4 @@
-package org.skywalking.apm.agent.core.context.util;
+package org.skywalking.apm.agent.core.test.tools;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -9,7 +9,7 @@ public class SegmentStorage {
     private LinkedList<TraceSegment> traceSegments;
     private LinkedList<IgnoredTracerContext> ignoredTracerContexts;
 
-    SegmentStorage() {
+   public SegmentStorage() {
         traceSegments = new LinkedList<TraceSegment>();
         ignoredTracerContexts = new LinkedList<IgnoredTracerContext>();
     }

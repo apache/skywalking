@@ -17,9 +17,10 @@ import org.skywalking.apm.agent.core.context.ContextManager;
 import org.skywalking.apm.agent.core.context.tag.Tags;
 import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.skywalking.apm.agent.core.context.trace.SpanLayer;
-import org.skywalking.apm.agent.core.context.util.SegmentStorage;
-import org.skywalking.apm.agent.core.context.util.SegmentStoragePoint;
-import org.skywalking.apm.agent.core.context.util.TracingSegmentRunner;
+import org.skywalking.apm.agent.core.test.tools.AgentServiceRule;
+import org.skywalking.apm.agent.core.test.tools.SegmentStorage;
+import org.skywalking.apm.agent.core.test.tools.SegmentStoragePoint;
+import org.skywalking.apm.agent.core.test.tools.TracingSegmentRunner;
 import org.skywalking.apm.network.proto.Downstream;
 import org.skywalking.apm.network.proto.SpanObject;
 import org.skywalking.apm.network.proto.SpanType;
@@ -34,6 +35,10 @@ import static org.mockito.Mockito.spy;
 
 @RunWith(TracingSegmentRunner.class)
 public class TraceSegmentServiceClientTest {
+
+    @Rule
+    public AgentServiceRule agentServiceRule = new AgentServiceRule();
+
     @Rule
     public GrpcServerRule grpcServerRule = new GrpcServerRule().directExecutor();
 
@@ -73,7 +78,6 @@ public class TraceSegmentServiceClientTest {
 
     @Before
     public void setUp() throws Throwable {
-        ServiceManager.INSTANCE.boot();
         Whitebox.setInternalState(ServiceManager.INSTANCE.findService(GRPCChannelManager.class), "reconnect", false);
         spy(serviceClient);
 
