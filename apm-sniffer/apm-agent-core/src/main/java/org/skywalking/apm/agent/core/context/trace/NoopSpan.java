@@ -5,14 +5,14 @@ import org.skywalking.apm.network.trace.component.Component;
 
 /**
  * The <code>NoopSpan</code> represents a span implementation without any actual operation.
- * This span implementation is for {@link IgnoredTracerContext}.
+ * This span implementation is for {@link IgnoredTracerContext},
+ * for keeping the memory and gc cost as low as possible.
  *
  * @author wusheng
  */
 public class NoopSpan implements AbstractSpan {
     public NoopSpan() {
     }
-
 
     @Override
     public AbstractSpan log(Throwable t) {
@@ -23,7 +23,7 @@ public class NoopSpan implements AbstractSpan {
         return null;
     }
 
-    public void finish(){
+    public void finish() {
 
     }
 

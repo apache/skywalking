@@ -6,10 +6,13 @@ import org.skywalking.apm.network.trace.component.Component;
 /**
  * The <code>EntrySpan</code> represents a service provider point, such as Tomcat server entrance.
  *
- * It is a start point of {@link TraceSegment}, even in a complex application, there maybe have multi entry point,
+ * It is a start point of {@link TraceSegment}, even in a complex application, there maybe have multi-layer entry point,
  * the <code>EntrySpan</code> only represents the first one.
  *
  * But with the last <code>EntrySpan</code>'s tags and logs, which have more details about a service provider.
+ *
+ * Such as: Tomcat Embed -> Dubbox
+ * The <code>EntrySpan</code> represents the Dubbox span.
  *
  * @author wusheng
  */

@@ -112,12 +112,24 @@ public class TracingContext implements AbstractTracerContext {
         carrier.setDistributedTraceIds(this.segment.getRelatedGlobalTraces());
     }
 
+    /**
+     * Extract the carrier to build the reference for the pre segment.
+     *
+     * @param carrier carried the context from a cross-process segment.
+     * @see {@link AbstractTracerContext#extract(ContextCarrier)}
+     */
     @Override
     public void extract(ContextCarrier carrier) {
         this.segment.ref(new TraceSegmentRef(carrier));
         this.segment.relatedGlobalTraces(carrier.getDistributedTraceIds());
     }
 
+    /**
+     * Capture the snapshot of current context.
+     *
+     * @return the snapshot of context for cross-thread propagation
+     * @see {@link AbstractTracerContext#capture()}
+     */
     @Override
     public ContextSnapshot capture() {
         return new ContextSnapshot(segment.getTraceSegmentId(),
@@ -126,17 +138,33 @@ public class TracingContext implements AbstractTracerContext {
         );
     }
 
+    /**
+     * Continue the context from the given snapshot of parent thread.
+     *
+     * @param snapshot from {@link #capture()} in the parent thread.
+     * @see {@link AbstractTracerContext#continued(ContextSnapshot)}
+     */
     @Override
     public void continued(ContextSnapshot snapshot) {
         this.segment.ref(new TraceSegmentRef(snapshot));
         this.segment.relatedGlobalTraces(snapshot.getDistributedTraceIds());
     }
 
+    /**
+     * @return the first global trace id.
+     */
     @Override
     public String getGlobalTraceId() {
         return segment.getRelatedGlobalTraces().get(0).get();
     }
 
+    /**
+     * Create an entry span
+     *
+     * @param operationName most likely a service name
+     * @return span instance.
+     * @see {@link EntrySpan}
+     */
     @Override
     public AbstractSpan createEntrySpan(final String operationName) {
         AbstractTracingSpan entrySpan;
@@ -174,6 +202,13 @@ public class TracingContext implements AbstractTracerContext {
         }
     }
 
+    /**
+     * Create a local span
+     *
+     * @param operationName most likely a local method signature, or business name.
+     * @return the span represents a local logic block.
+     * @see {@link LocalSpan}
+     */
     @Override
     public AbstractSpan createLocalSpan(final String operationName) {
         AbstractTracingSpan parentSpan = peek();
@@ -195,6 +230,14 @@ public class TracingContext implements AbstractTracerContext {
         return push(span);
     }
 
+    /**
+     * Create an exit span
+     *
+     * @param operationName most likely a service name of remote
+     * @param remotePeer the network id(ip:port, hostname:port or ip1:port1,ip2,port, etc.)
+     * @return the span represent an exit point of this segment.
+     * @see {@link ExitSpan}
+     */
     @Override
     public AbstractSpan createExitSpan(final String operationName, final String remotePeer) {
         AbstractTracingSpan exitSpan;
@@ -236,6 +279,9 @@ public class TracingContext implements AbstractTracerContext {
         return exitSpan;
     }
 
+    /**
+     * @return the active span of current context, the top element of {@link #activeSpanStack}
+     */
     @Override
     public AbstractTracingSpan activeSpan() {
         AbstractTracingSpan span = peek();
@@ -245,6 +291,12 @@ public class TracingContext implements AbstractTracerContext {
         return span;
     }
 
+    /**
+     * Stop the given span, if and only if this one is the top element of {@link #activeSpanStack}.
+     * Because the tracing core must make sure the span must match in a stack module, like any program did.
+     *
+     * @param span to finish
+     */
     @Override
     public void stopSpan(AbstractSpan span) {
         AbstractTracingSpan lastSpan = peek();
@@ -281,6 +333,10 @@ public class TracingContext implements AbstractTracerContext {
         TracingContext.ListenerManager.notifyFinish(finishedSegment);
     }
 
+    /**
+     * The <code>ListenerManager</code> represents an event notify for every registered listener, which are notified
+     * when the <cdoe>TracingContext</cdoe> finished, and {@link #segment} is ready for further process.
+     */
     public static class ListenerManager {
         private static List<TracingContextListener> LISTENERS = new LinkedList<TracingContextListener>();
 

@@ -119,7 +119,9 @@ public class ContextManager implements TracingContextListener, BootService, Igno
         if (carrier == null) {
             throw new IllegalArgumentException("ContextCarrier can't be null.");
         }
-        get().extract(carrier);
+        if (carrier.isValid()) {
+            get().extract(carrier);
+        }
     }
 
     public ContextSnapshot capture() {
@@ -130,7 +132,9 @@ public class ContextManager implements TracingContextListener, BootService, Igno
         if (snapshot == null) {
             throw new IllegalArgumentException("ContextSnapshot can't be null.");
         }
-        get().continued(snapshot);
+        if (snapshot.isValid()) {
+            get().continued(snapshot);
+        }
     }
 
     public static AbstractSpan activeSpan() {
