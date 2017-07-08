@@ -70,8 +70,8 @@ public class TracingContext implements AbstractTracerContext {
      * Inject the context into the given carrier, only when the active span is an exit one.
      *
      * @param carrier to carry the context for crossing process.
-     * @see {@link AbstractTracerContext#inject(ContextCarrier)}
      * @throws IllegalStateException, if the active span isn't an exit one.
+     * @see {@link AbstractTracerContext#inject(ContextCarrier)}
      */
     @Override
     public void inject(ContextCarrier carrier) {

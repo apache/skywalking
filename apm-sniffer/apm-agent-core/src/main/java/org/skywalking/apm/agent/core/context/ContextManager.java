@@ -16,7 +16,9 @@ import org.skywalking.apm.util.StringUtil;
 /**
  * {@link ContextManager} controls the whole context of {@link TraceSegment}. Any {@link TraceSegment} relates to
  * single-thread, so this context use {@link ThreadLocal} to maintain the context, and make sure, since a {@link
- * TraceSegment} starts, all ChildOf spans are in the same context. <p> What is 'ChildOf'? {@see
+ * TraceSegment} starts, all ChildOf spans are in the same context.
+ * <p>
+ * What is 'ChildOf'? {@see
  * https://github.com/opentracing/specification/blob/master/specification.md#references-between-spans}
  *
  * <p> Also, {@link ContextManager} delegates to all {@link AbstractTracerContext}'s major methods.
@@ -107,12 +109,17 @@ public class ContextManager implements TracingContextListener, BootService, Igno
         return span;
     }
 
-    public static void inject(ContextCarrier contextCarrier) {
-        get().inject(contextCarrier);
+    public static void inject(ContextCarrier carrier) {
+        if (carrier != null && carrier.isValid()) {
+            get().inject(carrier);
+        }
     }
 
-    public static void extract(ContextCarrier contextCarrier) {
-        get().extract(contextCarrier);
+    public static void extract(ContextCarrier carrier) {
+        if (carrier == null) {
+            throw new IllegalArgumentException("ContextCarrier can't be null.");
+        }
+        get().extract(carrier);
     }
 
     public ContextSnapshot capture() {
