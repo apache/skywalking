@@ -31,22 +31,25 @@ public class DiscoveryRestServiceClient implements Runnable {
     private volatile int selectedServer = -1;
 
     public DiscoveryRestServiceClient() {
+        if (Config.Collector.SERVERS == null || Config.Collector.SERVERS.trim().length() == 0) {
+            logger.warn("Collector server not configured.");
+            return;
+        }
+
         serverList = Config.Collector.SERVERS.split(",");
         Random r = new Random();
         if (serverList.length > 0) {
             selectedServer = r.nextInt(serverList.length);
         }
+
     }
 
     @Override
     public void run() {
-        while (true) {
-            try {
-                try2Sleep(60 * 1000);
-                findServerList();
-            } catch (Throwable t) {
-                logger.error(t, "Find server list fail.");
-            }
+        try {
+            findServerList();
+        } catch (Throwable t) {
+            logger.error(t, "Find server list fail.");
         }
     }
 
