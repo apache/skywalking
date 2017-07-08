@@ -48,10 +48,6 @@ public class NoopSpan implements AbstractSpan {
         return false;
     }
 
-    @Override public boolean isLocal() {
-        return false;
-    }
-
     @Override public boolean isExit() {
         return false;
     }

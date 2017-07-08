@@ -98,10 +98,6 @@ public class EntrySpan extends AbstractTracingSpan {
         return true;
     }
 
-    @Override public boolean isLocal() {
-        return false;
-    }
-
     @Override public boolean isExit() {
         return false;
     }

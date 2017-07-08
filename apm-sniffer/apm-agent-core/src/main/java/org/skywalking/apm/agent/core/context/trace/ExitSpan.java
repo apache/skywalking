@@ -2,7 +2,6 @@ package org.skywalking.apm.agent.core.context.trace;
 
 import org.skywalking.apm.agent.core.dictionary.DictionaryUtil;
 import org.skywalking.apm.network.proto.SpanObject;
-import org.skywalking.apm.network.proto.SpanType;
 import org.skywalking.apm.network.trace.component.Component;
 
 /**
@@ -114,7 +113,6 @@ public class ExitSpan extends AbstractTracingSpan {
         } else {
             spanBuilder.setPeer(peer);
         }
-        spanBuilder = spanBuilder.setSpanType(SpanType.Exit);
         return spanBuilder;
     }
 
@@ -127,10 +125,6 @@ public class ExitSpan extends AbstractTracingSpan {
     }
 
     @Override public boolean isEntry() {
-        return false;
-    }
-
-    @Override public boolean isLocal() {
         return false;
     }
 

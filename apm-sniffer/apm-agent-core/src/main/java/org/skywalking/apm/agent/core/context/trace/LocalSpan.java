@@ -37,10 +37,6 @@ public class LocalSpan extends AbstractTracingSpan {
         return false;
     }
 
-    @Override public boolean isLocal() {
-        return true;
-    }
-
     @Override public boolean isExit() {
         return false;
     }

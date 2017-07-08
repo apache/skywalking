@@ -219,7 +219,13 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
         } else {
             spanBuilder.setOperationName(operationName);
         }
-        spanBuilder.setSpanType(SpanType.Entry);
+        if (isEntry()) {
+            spanBuilder.setSpanType(SpanType.Entry);
+        } else if (isExit()) {
+            spanBuilder.setSpanType(SpanType.Exit);
+        } else {
+            spanBuilder.setSpanType(SpanType.Local);
+        }
         spanBuilder.setSpanLayerValue(this.layer.getCode());
         if (componentId != DictionaryUtil.nullValue()) {
             spanBuilder.setComponentId(componentId);

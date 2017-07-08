@@ -51,11 +51,6 @@ public interface AbstractSpan {
     boolean isEntry();
 
     /**
-     * @return true if the actual span is a local span.
-     */
-    boolean isLocal();
-
-    /**
      * @return true if the actual span is an exit span.
      */
     boolean isExit();
