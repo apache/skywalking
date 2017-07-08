@@ -1,6 +1,8 @@
 package org.skywalking.apm.network.trace.component;
 
 /**
+ * The supported list of skywalking java sniffer.
+ *
  * @author wusheng
  */
 public class ComponentsDefine {

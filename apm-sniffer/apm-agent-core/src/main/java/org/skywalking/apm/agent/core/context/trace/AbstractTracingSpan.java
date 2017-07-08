@@ -129,16 +129,35 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
         return this;
     }
 
+    /**
+     * In the scope of this span tracing context, error occurred,
+     * in auto-instrumentation mechanism, almost means throw an exception.
+     *
+     * @return span instance, for chaining.
+     */
     public AbstractSpan errorOccurred() {
         this.errorOccurred = true;
         return this;
     }
 
+    /**
+     * Set the operation name, just because these is not compress dictionary value for this name.
+     * Use the entire string temporarily, the agent will compress this name in async mode.
+     *
+     * @param operationName
+     * @return span instance, for chaining.
+     */
     public AbstractTracingSpan setOperationName(String operationName) {
         this.operationName = operationName;
         return this;
     }
 
+    /**
+     * Set the operation id, which compress by the name.
+     *
+     * @param operationId
+     * @return span instance, for chaining.
+     */
     public AbstractTracingSpan setOperationId(int operationId) {
         this.operationId = operationId;
         return this;
@@ -162,12 +181,26 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
         return this;
     }
 
+    /**
+     * Set the component of this span, with internal supported.
+     * Highly recommend to use this way.
+     *
+     * @param component
+     * @return span instance, for chaining.
+     */
     @Override
     public AbstractSpan setComponent(Component component) {
         this.componentId = component.getId();
         return this;
     }
 
+    /**
+     * Set the component name.
+     * By using this, cost more memory and network.
+     *
+     * @param componentName
+     * @return span instance, for chaining.
+     */
     @Override
     public AbstractSpan setComponent(String componentName) {
         this.componentName = componentName;

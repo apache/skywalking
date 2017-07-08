@@ -11,10 +11,19 @@ import org.skywalking.apm.network.trace.component.Component;
 public interface AbstractSpan {
     /**
      * Set the component id, which defines in {@link org.skywalking.apm.network.trace.component.ComponentsDefine}
+     *
      * @param component
+     * @return the span for chaining.
      */
     AbstractSpan setComponent(Component component);
 
+    /**
+     * Only use this method in explicit instrumentation, like opentracing-skywalking-bridge.
+     * It it higher recommend don't use this for performance consideration.
+     *
+     * @param componentName
+     * @return the span for chaining.
+     */
     AbstractSpan setComponent(String componentName);
 
     AbstractSpan setLayer(SpanLayer layer);
