@@ -21,8 +21,7 @@ public class SkywalkingSpan implements Span {
      * @param tracer
      */
     @NeedSnifferActivation(
-        "1. set the span reference to the dynamic field of enhanced SkywalkingSpan"
-    )
+        "1. set the span reference to the dynamic field of enhanced SkywalkingSpan")
     public SkywalkingSpan(SkywalkingTracer tracer) {
 
     }

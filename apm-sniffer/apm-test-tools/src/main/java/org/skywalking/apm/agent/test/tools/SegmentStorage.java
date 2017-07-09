@@ -9,7 +9,7 @@ public class SegmentStorage {
     private LinkedList<TraceSegment> traceSegments;
     private LinkedList<IgnoredTracerContext> ignoredTracerContexts;
 
-    SegmentStorage() {
+    public SegmentStorage() {
         traceSegments = new LinkedList<TraceSegment>();
         ignoredTracerContexts = new LinkedList<IgnoredTracerContext>();
     }

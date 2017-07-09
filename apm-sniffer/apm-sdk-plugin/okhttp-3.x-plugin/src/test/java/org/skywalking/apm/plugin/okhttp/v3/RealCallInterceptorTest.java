@@ -1,141 +1,156 @@
 package org.skywalking.apm.plugin.okhttp.v3;
 
+import java.util.List;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-import org.skywalking.apm.agent.core.boot.ServiceManager;
-import org.skywalking.apm.sniffer.mock.context.MockTracingContextListener;
-import org.skywalking.apm.sniffer.mock.context.SegmentAssert;
-import org.skywalking.apm.sniffer.mock.trace.SpanLogReader;
-import org.skywalking.apm.sniffer.mock.trace.tags.BooleanTagReader;
-import org.skywalking.apm.sniffer.mock.trace.tags.StringTagReader;
+import org.powermock.modules.junit4.PowerMockRunnerDelegate;
+import org.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
+import org.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.skywalking.apm.agent.core.context.trace.TraceSegment;
-import org.skywalking.apm.agent.core.context.tag.Tags;
+import org.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
+import org.skywalking.apm.agent.test.helper.SegmentHelper;
+import org.skywalking.apm.agent.test.helper.SpanHelper;
+import org.skywalking.apm.agent.test.tools.AgentServiceRule;
+import org.skywalking.apm.agent.test.tools.SegmentStorage;
+import org.skywalking.apm.agent.test.tools.SegmentStoragePoint;
+import org.skywalking.apm.agent.test.tools.TracingSegmentRunner;
+import org.skywalking.apm.network.trace.component.ComponentsDefine;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.skywalking.apm.agent.test.tools.SpanAssert.assertComponent;
+import static org.skywalking.apm.agent.test.tools.SpanAssert.assertException;
+import static org.skywalking.apm.agent.test.tools.SpanAssert.assertLayer;
+import static org.skywalking.apm.agent.test.tools.SpanAssert.assertLogSize;
+import static org.skywalking.apm.agent.test.tools.SpanAssert.assertOccurException;
+import static org.skywalking.apm.agent.test.tools.SpanAssert.assertTag;
 
 /**
  * @author pengys5
  */
 @RunWith(PowerMockRunner.class)
+@PowerMockRunnerDelegate(TracingSegmentRunner.class)
 @PrepareForTest({Response.class})
 public class RealCallInterceptorTest {
 
+    @SegmentStoragePoint
+    private SegmentStorage segmentStorage;
+
+    @Rule
+    public AgentServiceRule serviceRule = new AgentServiceRule();
+
     private RealCallInterceptor realCallInterceptor;
-    private MockTracingContextListener mockTracerContextListener;
-
-    private EnhancedClassInstanceContext classInstanceContext;
-
-    @Mock
-    private ConstructorInvokeContext constructorInvokeContext;
-
-    @Mock
-    private InstanceMethodInvokeContext instanceMethodInvokeContext;
 
     @Mock
     private OkHttpClient client;
 
     private Request request;
 
+    private Object[] allArguments;
+    private Class[] argumentTypes;
+
+    private EnhancedInstance enhancedInstance = new EnhancedInstance() {
+
+        private Object object;
+
+        @Override
+        public Object getSkyWalkingDynamicField() {
+            return object;
+        }
+
+        @Override public void setSkyWalkingDynamicField(Object value) {
+            this.object = value;
+        }
+    };
+
     @Before
     public void setUp() throws Exception {
-        mockTracerContextListener = new MockTracingContextListener();
-
-        classInstanceContext = new EnhancedClassInstanceContext();
-
         request = new Request.Builder().url("http://skywalking.org").build();
-        Object[] allArguments = {client, request, false};
-        when(constructorInvokeContext.allArguments()).thenReturn(allArguments);
-
-        ServiceManager.INSTANCE.boot();
+        allArguments = new Object[] {client, request, false};
+        argumentTypes = new Class[] {client.getClass(), request.getClass(), Boolean.class};
         realCallInterceptor = new RealCallInterceptor();
-
-        TracerContext.ListenerManager.add(mockTracerContextListener);
     }
 
     @Test
     public void testOnConstruct() {
-        realCallInterceptor.onConstruct(classInstanceContext, constructorInvokeContext);
-        Assert.assertEquals(request, classInstanceContext.get("SWRequestContextKey"));
+        realCallInterceptor.onConstruct(enhancedInstance, allArguments);
+        assertThat(enhancedInstance.getSkyWalkingDynamicField(), is(allArguments[1]));
     }
 
     @Test
     public void testMethodsAround() throws Throwable {
-        realCallInterceptor.onConstruct(classInstanceContext, constructorInvokeContext);
-        realCallInterceptor.beforeMethod(classInstanceContext, instanceMethodInvokeContext, null);
+        realCallInterceptor.onConstruct(enhancedInstance, allArguments);
+        realCallInterceptor.beforeMethod(enhancedInstance, "execute", allArguments, argumentTypes, null);
 
         Response response = mock(Response.class);
         when(response.code()).thenReturn(200);
-        realCallInterceptor.afterMethod(classInstanceContext, instanceMethodInvokeContext, response);
+        realCallInterceptor.afterMethod(enhancedInstance, "execute", allArguments, argumentTypes, response);
 
-        mockTracerContextListener.assertSize(1);
-        mockTracerContextListener.assertTraceSegment(0, new SegmentAssert() {
-            @Override public void call(TraceSegment finishedSegment) {
-                Assert.assertEquals(1, finishedSegment.getSpans().size());
-                assertSpan(finishedSegment.getSpans().get(0));
-                Assert.assertEquals(false, BooleanTagReader.get(finishedSegment.getSpans().get(0), Tags.ERROR));
-            }
-        });
+        assertThat(segmentStorage.getTraceSegments().size(), is(1));
+        TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
+        List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
+
+        assertSpan(spans.get(0));
+        assertOccurException(spans.get(0), false);
     }
 
     @Test
     public void testMethodsAroundError() throws Throwable {
-        realCallInterceptor.onConstruct(classInstanceContext, constructorInvokeContext);
-        realCallInterceptor.beforeMethod(classInstanceContext, instanceMethodInvokeContext, null);
+        realCallInterceptor.onConstruct(enhancedInstance, allArguments);
+        realCallInterceptor.beforeMethod(enhancedInstance, "execute", allArguments, argumentTypes, null);
 
         Response response = mock(Response.class);
         when(response.code()).thenReturn(404);
-        realCallInterceptor.afterMethod(classInstanceContext, instanceMethodInvokeContext, response);
+        realCallInterceptor.afterMethod(enhancedInstance, "execute", allArguments, argumentTypes, response);
 
-        mockTracerContextListener.assertSize(1);
-        mockTracerContextListener.assertTraceSegment(0, new SegmentAssert() {
-            @Override public void call(TraceSegment finishedSegment) {
-                Assert.assertEquals(1, finishedSegment.getSpans().size());
-                assertSpan(finishedSegment.getSpans().get(0));
-                Assert.assertEquals(true, BooleanTagReader.get(finishedSegment.getSpans().get(0), Tags.ERROR));
-            }
-        });
+        assertThat(segmentStorage.getTraceSegments().size(), is(1));
+        TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
+        List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
+
+        assertSpan(spans.get(0));
+        assertOccurException(spans.get(0), true);
     }
 
-    private void assertSpan(Span span) {
-        Assert.assertEquals("http", StringTagReader.get(span, Tags.SPAN_LAYER.SPAN_LAYER_TAG));
-        Assert.assertEquals("GET", StringTagReader.get(span, Tags.HTTP.METHOD));
-        Assert.assertEquals("skywalking.org", span.getPeerHost());
-        Assert.assertEquals(80, span.getPort());
-        Assert.assertEquals("OKHttp", StringTagReader.get(span, Tags.COMPONENT));
-        Assert.assertEquals("discovery", StringTagReader.get(span, Tags.SPAN_KIND));
-        Assert.assertEquals("/", StringTagReader.get(span, Tags.URL));
+    private void assertSpan(AbstractTracingSpan span) {
+        assertComponent(span, ComponentsDefine.OKHTTP);
+        assertLayer(span, SpanLayer.HTTP);
+        assertTag(span, 0, "GET");
+        assertTag(span, 1, "http://skywalking.org/");
+        assertThat(span.isExit(), is(true));
+        assertThat(span.getOperationName(), is("/"));
     }
 
     @Test
     public void testException() throws Throwable {
-        realCallInterceptor.onConstruct(classInstanceContext, constructorInvokeContext);
-        realCallInterceptor.beforeMethod(classInstanceContext, instanceMethodInvokeContext, null);
+        realCallInterceptor.onConstruct(enhancedInstance, allArguments);
+        realCallInterceptor.beforeMethod(enhancedInstance, "execute", allArguments, argumentTypes, null);
 
-        realCallInterceptor.handleMethodException(new NullPointerException("testException"), classInstanceContext, null);
+        realCallInterceptor.handleMethodException(enhancedInstance, "execute", allArguments, argumentTypes, new NullPointerException("testException"));
 
         Response response = mock(Response.class);
         when(response.code()).thenReturn(200);
-        realCallInterceptor.afterMethod(classInstanceContext, instanceMethodInvokeContext, response);
+        realCallInterceptor.afterMethod(enhancedInstance, "execute", allArguments, argumentTypes, response);
 
-        mockTracerContextListener.assertSize(1);
-        mockTracerContextListener.assertTraceSegment(0, new SegmentAssert() {
-            @Override public void call(TraceSegment finishedSegment) {
-                Assert.assertEquals(1, finishedSegment.getSpans().size());
-                assertSpan(finishedSegment.getSpans().get(0));
-                Assert.assertEquals(true, BooleanTagReader.get(finishedSegment.getSpans().get(0), Tags.ERROR));
+        assertThat(segmentStorage.getTraceSegments().size(), is(1));
+        TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
+        List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
 
-                Assert.assertEquals(1, SpanLogReader.getLogs(finishedSegment.getSpans().get(0)).size());
-                Assert.assertEquals(true, SpanLogReader.getLogs(finishedSegment.getSpans().get(0)).get(0).getFields().containsKey("stack"));
-            }
-        });
+        assertSpan(spans.get(0));
+        assertOccurException(spans.get(0), true);
+        assertLogSize(spans.get(0), 1);
+        assertException(SpanHelper.getLogs(spans.get(0)).get(0), NullPointerException.class, "testException");
     }
 }

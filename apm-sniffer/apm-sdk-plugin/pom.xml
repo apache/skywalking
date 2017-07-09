@@ -38,6 +38,12 @@
             <artifactId>apm-agent-core</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>apm-test-tools</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

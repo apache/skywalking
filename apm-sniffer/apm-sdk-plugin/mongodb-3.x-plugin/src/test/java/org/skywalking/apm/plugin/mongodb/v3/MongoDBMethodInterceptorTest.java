@@ -2,57 +2,68 @@ package org.skywalking.apm.plugin.mongodb.v3;
 
 import com.mongodb.MongoNamespace;
 import com.mongodb.operation.FindOperation;
+import java.util.List;
 import org.bson.BsonDocument;
 import org.bson.BsonString;
 import org.bson.codecs.Decoder;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
-import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.powermock.api.mockito.PowerMockito;
-import org.skywalking.apm.agent.core.boot.ServiceManager;
+import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 import org.skywalking.apm.agent.core.conf.Config;
-import org.skywalking.apm.sniffer.mock.context.MockTracingContextListener;
-import org.skywalking.apm.sniffer.mock.context.SegmentAssert;
-import org.skywalking.apm.sniffer.mock.trace.SpanLogReader;
-import org.skywalking.apm.sniffer.mock.trace.tags.StringTagReader;
+import org.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
+import org.skywalking.apm.agent.core.context.trace.LogDataEntity;
+import org.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.skywalking.apm.agent.core.context.trace.TraceSegment;
-import org.skywalking.apm.agent.core.context.tag.Tags;
+import org.skywalking.apm.agent.core.context.util.KeyValuePair;
+import org.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
+import org.skywalking.apm.agent.test.helper.SegmentHelper;
+import org.skywalking.apm.agent.test.helper.SpanHelper;
+import org.skywalking.apm.agent.test.tools.AgentServiceRule;
+import org.skywalking.apm.agent.test.tools.SegmentStorage;
+import org.skywalking.apm.agent.test.tools.SegmentStoragePoint;
+import org.skywalking.apm.agent.test.tools.TracingSegmentRunner;
 
+import static junit.framework.TestCase.assertNotNull;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
+import static org.skywalking.apm.agent.test.tools.SpanAssert.assertException;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(PowerMockRunner.class)
+@PowerMockRunnerDelegate(TracingSegmentRunner.class)
 public class MongoDBMethodInterceptorTest {
 
+    @SegmentStoragePoint
+    private SegmentStorage segmentStorage;
+
+    @Rule
+    public AgentServiceRule serviceRule = new AgentServiceRule();
+
     private MongoDBMethodInterceptor interceptor;
-    private MockTracingContextListener mockTracerContextListener;
 
     @Mock
-    private EnhancedClassInstanceContext classInstanceContext;
-    @Mock
-    private InstanceMethodInvokeContext methodInvokeContext;
+    private EnhancedInstance enhancedInstance;
 
-    @SuppressWarnings( {"rawtypes", "unchecked"})
+    private Object[] arguments;
+    private Class[] argumentTypes;
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Before
     public void setUp() throws Exception {
-        ServiceManager.INSTANCE.boot();
 
         interceptor = new MongoDBMethodInterceptor();
-        mockTracerContextListener = new MockTracingContextListener();
-
-        TracerContext.ListenerManager.add(mockTracerContextListener);
 
         Config.Plugin.MongoDB.TRACE_PARAM = true;
 
-        when(classInstanceContext.get(MongoDBMethodInterceptor.MONGODB_HOST)).thenReturn("127.0.0.1");
-        when(classInstanceContext.get(MongoDBMethodInterceptor.MONGODB_PORT)).thenReturn(27017);
-        when(methodInvokeContext.methodName()).thenReturn("find");
+        when(enhancedInstance.getSkyWalkingDynamicField()).thenReturn("127.0.0.1:27017");
 
         BsonDocument document = new BsonDocument();
         document.append("name", new BsonString("by"));
@@ -61,64 +72,44 @@ public class MongoDBMethodInterceptorTest {
         FindOperation findOperation = new FindOperation(mongoNamespace, decoder);
         findOperation.filter(document);
 
-        when(methodInvokeContext.allArguments()).thenReturn(new Object[] {findOperation});
+        arguments = new Object[] {findOperation};
+        argumentTypes = new Class[] {findOperation.getClass()};
     }
 
     @Test
-    public void testIntercept() {
-        interceptor.beforeMethod(classInstanceContext, methodInvokeContext, null);
-        interceptor.afterMethod(classInstanceContext, methodInvokeContext, null);
+    public void testIntercept() throws Throwable {
+        interceptor.beforeMethod(enhancedInstance, "FindOperation", arguments, argumentTypes, null);
+        interceptor.afterMethod(enhancedInstance, "FindOperation", arguments, argumentTypes, null);
 
-        mockTracerContextListener.assertSize(1);
-        mockTracerContextListener.assertTraceSegment(0, new SegmentAssert() {
-            @Override
-            public void call(TraceSegment traceSegment) {
-                assertThat(traceSegment.getSpans().size(), is(1));
-                Span span = traceSegment.getSpans().get(0);
-                assertRedisSpan(span);
-            }
-        });
+        MatcherAssert.assertThat(segmentStorage.getTraceSegments().size(), is(1));
+        TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
+        List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
+        assertRedisSpan(spans.get(0));
     }
 
     @Test
-    public void testInterceptWithException() {
-        interceptor.beforeMethod(classInstanceContext, methodInvokeContext, null);
-        interceptor.handleMethodException(new RuntimeException(), classInstanceContext, methodInvokeContext);
-        interceptor.afterMethod(classInstanceContext, methodInvokeContext, null);
+    public void testInterceptWithException() throws Throwable {
+        interceptor.beforeMethod(enhancedInstance, "FindOperation", arguments, argumentTypes, null);
+        interceptor.handleMethodException(enhancedInstance, "FindOperation", arguments, argumentTypes, new RuntimeException());
+        interceptor.afterMethod(enhancedInstance, "FindOperation", arguments, argumentTypes, null);
 
-        mockTracerContextListener.assertSize(1);
-        mockTracerContextListener.assertTraceSegment(0, new SegmentAssert() {
-            @Override
-            public void call(TraceSegment traceSegment) {
-                assertThat(traceSegment.getSpans().size(), is(1));
-                Span span = traceSegment.getSpans().get(0);
-                assertRedisSpan(span);
-                assertThat(SpanLogReader.getLogs(span).size(), is(1));
-                assertLogData(SpanLogReader.getLogs(span).get(0));
-            }
-        });
+        MatcherAssert.assertThat(segmentStorage.getTraceSegments().size(), is(1));
+        TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
+        List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
+        assertRedisSpan(spans.get(0));
+        List<LogDataEntity> logDataEntities = SpanHelper.getLogs(spans.get(0));
+        assertThat(logDataEntities.size(), is(1));
+        assertException(logDataEntities.get(0), RuntimeException.class);
     }
 
-    private void assertLogData(LogData logData) {
-        MatcherAssert.assertThat(logData.getFields().size(), is(4));
-        MatcherAssert.assertThat(logData.getFields().get("event"), CoreMatchers.<Object>is("error"));
-        assertEquals(logData.getFields().get("error.kind"), RuntimeException.class.getName());
-        assertNull(logData.getFields().get("message"));
-    }
-
-    private void assertRedisSpan(Span span) {
+    private void assertRedisSpan(AbstractTracingSpan span) {
         assertThat(span.getOperationName(), is("MongoDB/FindOperation"));
-        assertThat(span.getPeerHost(), is("127.0.0.1"));
-        assertThat(span.getPort(), is(27017));
-        assertThat(StringTagReader.get(span, Tags.COMPONENT), is("MongoDB"));
-        assertThat(StringTagReader.get(span, Tags.DB_STATEMENT), is("FindOperation { \"name\" : \"by\" }"));
-        assertThat(StringTagReader.get(span, Tags.DB_TYPE), is("MongoDB"));
-        assertThat(StringTagReader.get(span, Tags.SPAN_LAYER.SPAN_LAYER_TAG), is("db"));
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        TracerContext.ListenerManager.remove(mockTracerContextListener);
+        assertThat(SpanHelper.getComponentId(span), is(9));
+        List<KeyValuePair> tags = SpanHelper.getTags(span);
+        assertThat(tags.get(1).getValue(), is("FindOperation { \"name\" : \"by\" }"));
+        assertThat(tags.get(0).getValue(), is("MongoDB"));
+        assertThat(span.isExit(), is(true));
+        assertThat(SpanHelper.getLayer(span), is(SpanLayer.DB));
     }
 
 }
