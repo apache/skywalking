@@ -1,40 +1,56 @@
 package org.skywalking.apm.plugin.httpClient.v4;
 
-import java.lang.reflect.Field;
-import org.apache.http.*;
-import org.junit.After;
+import java.util.List;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
+import org.apache.http.ProtocolVersion;
+import org.apache.http.RequestLine;
+import org.apache.http.StatusLine;
+import org.hamcrest.CoreMatchers;
+import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 import org.skywalking.apm.agent.core.boot.ServiceManager;
-import org.skywalking.apm.sniffer.mock.context.MockTracingContextListener;
-import org.skywalking.apm.sniffer.mock.context.SegmentAssert;
-import org.skywalking.apm.sniffer.mock.trace.tags.BooleanTagReader;
-import org.skywalking.apm.sniffer.mock.trace.tags.StringTagReader;
+import org.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
+import org.skywalking.apm.agent.core.context.trace.LogDataEntity;
 import org.skywalking.apm.agent.core.context.trace.TraceSegment;
-import org.skywalking.apm.agent.core.context.tag.Tags;
+import org.skywalking.apm.agent.core.context.util.KeyValuePair;
+import org.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
+import org.skywalking.apm.agent.test.helper.SegmentHelper;
+import org.skywalking.apm.agent.test.helper.SpanHelper;
+import org.skywalking.apm.agent.test.tools.AgentServiceRule;
+import org.skywalking.apm.agent.test.tools.SegmentStorage;
+import org.skywalking.apm.agent.test.tools.SegmentStoragePoint;
+import org.skywalking.apm.agent.test.tools.TracingSegmentRunner;
 
-import java.util.List;
-
+import static junit.framework.TestCase.assertNotNull;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
+@PowerMockRunnerDelegate(TracingSegmentRunner.class)
 @PrepareForTest(HttpHost.class)
 public class HttpClientExecuteInterceptorTest {
 
+    @SegmentStoragePoint
+    private SegmentStorage segmentStorage;
+
+    @Rule
+    public AgentServiceRule agentServiceRule = new AgentServiceRule();
+
     private HttpClientExecuteInterceptor httpClientExecuteInterceptor;
-    private MockTracingContextListener mockTracerContextListener;
-    @Mock
-    private EnhancedClassInstanceContext classInstanceContext;
-    @Mock
-    private InstanceMethodInvokeContext instanceMethodInvokeContext;
     @Mock
     private HttpHost httpHost;
     @Mock
@@ -44,16 +60,20 @@ public class HttpClientExecuteInterceptorTest {
     @Mock
     private StatusLine statusLine;
 
+    private Object[] allArguments;
+    private Class[] argumentsType;
+
+    @Mock
+    private EnhancedInstance enhancedInstance;
+
     @Before
     public void setUp() throws Exception {
-        mockTracerContextListener = new MockTracingContextListener();
 
         ServiceManager.INSTANCE.boot();
         httpClientExecuteInterceptor = new HttpClientExecuteInterceptor();
 
         PowerMockito.mock(HttpHost.class);
         when(statusLine.getStatusCode()).thenReturn(200);
-        when(instanceMethodInvokeContext.allArguments()).thenReturn(new Object[] {httpHost, request});
         when(httpResponse.getStatusLine()).thenReturn(statusLine);
         when(httpHost.getHostName()).thenReturn("127.0.0.1");
         when(httpHost.getSchemeName()).thenReturn("http");
@@ -75,95 +95,80 @@ public class HttpClientExecuteInterceptorTest {
         });
         when(httpHost.getPort()).thenReturn(8080);
 
-        TracerContext.ListenerManager.add(mockTracerContextListener);
+        allArguments = new Object[] {httpHost, request};
+        argumentsType = new Class[] {httpHost.getClass(), request.getClass()};
     }
 
     @Test
-    public void testHttpClient() {
-        httpClientExecuteInterceptor.beforeMethod(classInstanceContext, instanceMethodInvokeContext, null);
-        httpClientExecuteInterceptor.afterMethod(classInstanceContext, instanceMethodInvokeContext, httpResponse);
+    public void testHttpClient() throws Throwable {
+        httpClientExecuteInterceptor.beforeMethod(enhancedInstance, "execute", allArguments, argumentsType, null);
+        httpClientExecuteInterceptor.afterMethod(enhancedInstance, "execute", allArguments, argumentsType, httpResponse);
 
-        mockTracerContextListener.assertSize(1);
-        mockTracerContextListener.assertTraceSegment(0, new SegmentAssert() {
-            @Override
-            public void call(TraceSegment traceSegment) {
-                assertThat(traceSegment.getSpans().size(), is(1));
-                assertHttpSpan(traceSegment.getSpans().get(0));
-                verify(request, times(1)).setHeader(anyString(), anyString());
-            }
-        });
+        Assert.assertThat(segmentStorage.getTraceSegments().size(), is(1));
+        TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
+
+        List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
+        assertHttpSpan(spans.get(0));
+        verify(request, times(1)).setHeader(anyString(), anyString());
     }
 
     @Test
-    public void testStatusCodeNotEquals200() {
+    public void testStatusCodeNotEquals200() throws Throwable {
         when(statusLine.getStatusCode()).thenReturn(500);
-        httpClientExecuteInterceptor.beforeMethod(classInstanceContext, instanceMethodInvokeContext, null);
-        httpClientExecuteInterceptor.afterMethod(classInstanceContext, instanceMethodInvokeContext, httpResponse);
+        httpClientExecuteInterceptor.beforeMethod(enhancedInstance, "execute", allArguments, argumentsType, null);
+        httpClientExecuteInterceptor.afterMethod(enhancedInstance, "execute", allArguments, argumentsType, httpResponse);
 
-        mockTracerContextListener.assertSize(1);
-        mockTracerContextListener.assertTraceSegment(0, new SegmentAssert() {
-            @Override
-            public void call(TraceSegment traceSegment) {
-                assertThat(traceSegment.getSpans().size(), is(1));
-                assertHttpSpan(traceSegment.getSpans().get(0));
-                assertThat(BooleanTagReader.get(traceSegment.getSpans().get(0), Tags.ERROR), is(true));
-                verify(request, times(1)).setHeader(anyString(), anyString());
-            }
-        });
+        Assert.assertThat(segmentStorage.getTraceSegments().size(), is(1));
+        TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
+        List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
+
+        assertThat(spans.size(), is(1));
+
+        List<KeyValuePair> tags = SpanHelper.getTags(spans.get(0));
+        assertThat(tags.size(), is(3));
+        assertThat(tags.get(2).getValue(), is("500"));
+
+        assertHttpSpan(spans.get(0));
+        assertThat(SpanHelper.getErrorOccurred(spans.get(0)), is(true));
+        verify(request, times(1)).setHeader(anyString(), anyString());
     }
 
     @Test
-    public void testHttpClientWithException() {
-        httpClientExecuteInterceptor.beforeMethod(classInstanceContext, instanceMethodInvokeContext, null);
-        httpClientExecuteInterceptor.handleMethodException(new RuntimeException(), classInstanceContext, instanceMethodInvokeContext);
-        httpClientExecuteInterceptor.afterMethod(classInstanceContext, instanceMethodInvokeContext, httpResponse);
+    public void testHttpClientWithException() throws Throwable {
+        httpClientExecuteInterceptor.beforeMethod(enhancedInstance, "execute", allArguments, argumentsType, null);
+        httpClientExecuteInterceptor.handleMethodException(enhancedInstance, "execute", allArguments, argumentsType, new RuntimeException("testException"));
+        httpClientExecuteInterceptor.afterMethod(enhancedInstance, "execute", allArguments, argumentsType, httpResponse);
 
-        mockTracerContextListener.assertSize(1);
-        mockTracerContextListener.assertTraceSegment(0, new SegmentAssert() {
-            @Override
-            public void call(TraceSegment traceSegment) {
-                assertThat(traceSegment.getSpans().size(), is(1));
-                Span span = traceSegment.getSpans().get(0);
-                assertHttpSpan(span);
-                assertThat(BooleanTagReader.get(span, Tags.ERROR), is(true));
-                try {
-                    assertHttpSpanErrorLog(getLogs(span));
-                } catch (NoSuchFieldException e) {
-                    throw new RuntimeException(e);
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException(e);
-                }
-                verify(request, times(1)).setHeader(anyString(), anyString());
+        Assert.assertThat(segmentStorage.getTraceSegments().size(), is(1));
+        TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
+        List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
 
-            }
-
-            private void assertHttpSpanErrorLog(List<LogData> logs) {
-                assertThat(logs.size(), is(1));
-                LogData logData = logs.get(0);
-                assertThat(logData.getFields().size(), is(4));
-            }
-        });
+        assertThat(spans.size(), is(1));
+        AbstractTracingSpan span = spans.get(0);
+        assertHttpSpan(span);
+        assertThat(SpanHelper.getErrorOccurred(span), is(true));
+        assertHttpSpanErrorLog(SpanHelper.getLogs(span));
+        verify(request, times(1)).setHeader(anyString(), anyString());
 
     }
 
-    private void assertHttpSpan(Span span) {
+    private void assertHttpSpanErrorLog(List<LogDataEntity> logs) {
+        assertThat(logs.size(), is(1));
+        LogDataEntity logData = logs.get(0);
+        Assert.assertThat(logData.getLogs().size(), is(4));
+        Assert.assertThat(logData.getLogs().get(0).getValue(), CoreMatchers.<Object>is("error"));
+        Assert.assertThat(logData.getLogs().get(1).getValue(), CoreMatchers.<Object>is(RuntimeException.class.getName()));
+        Assert.assertThat(logData.getLogs().get(2).getValue(), is("testException"));
+        assertNotNull(logData.getLogs().get(3).getValue());
+    }
+
+    private void assertHttpSpan(AbstractTracingSpan span) {
         assertThat(span.getOperationName(), is("/test-web/test"));
-        assertThat(StringTagReader.get(span, Tags.COMPONENT), is("HttpClient"));
-        assertThat(span.getPeerHost(), is("127.0.0.1"));
-        assertThat(span.getPort(), is(8080));
-        assertThat(StringTagReader.get(span, Tags.URL), is("http://127.0.0.1:8080/test-web/test"));
-        assertThat(StringTagReader.get(span, Tags.SPAN_KIND), is(Tags.SPAN_KIND_CLIENT));
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        TracerContext.ListenerManager.remove(mockTracerContextListener);
-    }
-
-    protected List<LogData> getLogs(Span span) throws NoSuchFieldException, IllegalAccessException {
-        Field logs = Span.class.getDeclaredField("logs");
-        logs.setAccessible(true);
-        return (List<LogData>)logs.get(span);
+        assertThat(SpanHelper.getComponentId(span), is(2));
+        List<KeyValuePair> tags = SpanHelper.getTags(span);
+        assertThat(tags.get(0).getValue(), is("http://127.0.0.1:8080/test-web/test"));
+        assertThat(tags.get(1).getValue(), is("GET"));
+        assertThat(span.isExit(), is(true));
     }
 
 }

@@ -3,42 +3,52 @@ package org.skywalking.apm.plugin.motan;
 import com.weibo.api.motan.rpc.Request;
 import com.weibo.api.motan.rpc.Response;
 import com.weibo.api.motan.rpc.URL;
-import org.hamcrest.CoreMatchers;
+import java.util.HashMap;
+import java.util.List;
 import org.hamcrest.MatcherAssert;
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.skywalking.apm.agent.core.boot.ServiceManager;
+import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 import org.skywalking.apm.agent.core.conf.Config;
-import org.skywalking.apm.sniffer.mock.context.MockTracingContextListener;
-import org.skywalking.apm.sniffer.mock.context.SegmentAssert;
-import org.skywalking.apm.sniffer.mock.trace.SpanLogReader;
-import org.skywalking.apm.sniffer.mock.trace.tags.StringTagReader;
+import org.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
+import org.skywalking.apm.agent.core.context.trace.LogDataEntity;
+import org.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.skywalking.apm.agent.core.context.trace.TraceSegmentRef;
-import org.skywalking.apm.agent.core.context.tag.Tags;
-
-import java.util.HashMap;
+import org.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
+import org.skywalking.apm.agent.test.helper.SegmentHelper;
+import org.skywalking.apm.agent.test.helper.SegmentRefHelper;
+import org.skywalking.apm.agent.test.helper.SpanHelper;
+import org.skywalking.apm.agent.test.tools.AgentServiceRule;
+import org.skywalking.apm.agent.test.tools.SegmentStorage;
+import org.skywalking.apm.agent.test.tools.SegmentStoragePoint;
+import org.skywalking.apm.agent.test.tools.TracingSegmentRunner;
+import org.skywalking.apm.network.trace.component.ComponentsDefine;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
+import static org.skywalking.apm.agent.test.tools.SpanAssert.assertComponent;
+import static org.skywalking.apm.agent.test.tools.SpanAssert.assertException;
+import static org.skywalking.apm.agent.test.tools.SpanAssert.assertLayer;
+import static org.skywalking.apm.agent.test.tools.SpanAssert.assertLogSize;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(PowerMockRunner.class)
+@PowerMockRunnerDelegate(TracingSegmentRunner.class)
 public class MotanProviderInterceptorTest {
 
-    private MockTracingContextListener contextListener;
+    @SegmentStoragePoint
+    private SegmentStorage segmentStorage;
+
+    @Rule
+    public AgentServiceRule serviceRule = new AgentServiceRule();
 
     private MotanProviderInterceptor invokeInterceptor;
-    @Mock
-    private EnhancedClassInstanceContext instanceContext;
-    @Mock
-    private InstanceMethodInvokeContext interceptorContext;
-    @Mock
-    private ConstructorInvokeContext constructorInvokeContext;
     @Mock
     private Response response;
     @Mock
@@ -46,119 +56,95 @@ public class MotanProviderInterceptorTest {
 
     private URL url;
 
+    @Mock
+    private EnhancedInstance enhancedInstance;
+
+    private Object[] arguments;
+    private Class[] argumentType;
+
     @Before
     public void setUp() {
-        ServiceManager.INSTANCE.boot();
-
         invokeInterceptor = new MotanProviderInterceptor();
-        contextListener = new MockTracingContextListener();
         url = URL.valueOf("motan://127.0.0.1:34000/org.skywalking.apm.test.TestService");
 
-        TracerContext.ListenerManager.add(contextListener);
-
-        when(instanceContext.get("REQUEST_URL")).thenReturn(url);
-        when(interceptorContext.allArguments()).thenReturn(new Object[] {request});
+        when(enhancedInstance.getSkyWalkingDynamicField()).thenReturn(url);
+        arguments = new Object[] {request};
+        argumentType = new Class[] {request.getClass()};
         when(request.getMethodName()).thenReturn("test");
         when(request.getInterfaceName()).thenReturn("org.skywalking.apm.test.TestService");
         when(request.getParamtersDesc()).thenReturn("java.lang.String, java.lang.Object");
-        when(constructorInvokeContext.allArguments()).thenReturn(new Object[] {url});
     }
 
     @Test
-    public void testInvokerWithoutRefSegment() {
-        invokeInterceptor.beforeMethod(instanceContext, interceptorContext, null);
-        invokeInterceptor.afterMethod(instanceContext, interceptorContext, response);
+    public void testInvokerWithoutRefSegment() throws Throwable {
+        invokeInterceptor.beforeMethod(enhancedInstance, "execute", arguments, argumentType, null);
+        invokeInterceptor.afterMethod(enhancedInstance, "execute", arguments, argumentType, response);
 
-        contextListener.assertSize(1);
-        contextListener.assertTraceSegment(0, new SegmentAssert() {
-            @Override
-            public void call(TraceSegment traceSegment) {
-                assertThat(traceSegment.getSpans().size(), is(1));
-                Span span = traceSegment.getSpans().get(0);
-                assertMotanProviderSpan(span);
-                assertTrue(traceSegment.getRefs() == null);
-            }
-        });
+        MatcherAssert.assertThat(segmentStorage.getTraceSegments().size(), is(1));
+        TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
+        List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
+        assertMotanProviderSpan(spans.get(0));
+        assertTrue(traceSegment.getRefs() == null);
+
     }
 
     @Test
-    public void testInvokerWithRefSegment() {
+    public void testInvokerWithRefSegment() throws Throwable {
         HashMap attachments = new HashMap();
-        attachments.put(Config.Plugin.Propagation.HEADER_NAME, "302017.1487666919810.624424584.17332.1.1|1|REMOTE_APP|127.0.0.1|Trace.globalId.123");
+        attachments.put(Config.Plugin.Propagation.HEADER_NAME, "S.1499176688384.581928182.80935.69.1|3|1|#192.168.1.8:18002|#/portal/|T.1499176688386.581928182.80935.69.2");
         when(request.getAttachments()).thenReturn(attachments);
 
-        invokeInterceptor.beforeMethod(instanceContext, interceptorContext, null);
-        invokeInterceptor.afterMethod(instanceContext, interceptorContext, response);
+        invokeInterceptor.beforeMethod(enhancedInstance, "execute", arguments, argumentType, null);
+        invokeInterceptor.afterMethod(enhancedInstance, "execute", arguments, argumentType, response);
 
-        contextListener.assertSize(1);
-        contextListener.assertTraceSegment(0, new SegmentAssert() {
-            @Override
-            public void call(TraceSegment traceSegment) {
-                assertThat(traceSegment.getSpans().size(), is(1));
-                Span span = traceSegment.getSpans().get(0);
-                assertMotanProviderSpan(span);
-                assertRefSegment(traceSegment.getRefs().get(0));
-            }
-        });
+        MatcherAssert.assertThat(segmentStorage.getTraceSegments().size(), is(1));
+        TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
+        List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
+        assertMotanProviderSpan(spans.get(0));
+        assertRefSegment(traceSegment.getRefs().get(0));
     }
 
     @Test
-    public void testResponseWithException() {
+    public void testResponseWithException() throws Throwable {
         when(response.getException()).thenReturn(new RuntimeException());
 
-        invokeInterceptor.beforeMethod(instanceContext, interceptorContext, null);
-        invokeInterceptor.afterMethod(instanceContext, interceptorContext, response);
+        invokeInterceptor.beforeMethod(enhancedInstance, "execute", arguments, argumentType, null);
+        invokeInterceptor.afterMethod(enhancedInstance, "execute", arguments, argumentType, response);
 
         assertTraceSegmentWhenOccurException();
     }
 
     @Test
-    public void testOccurException() {
+    public void testOccurException() throws Throwable {
 
-        invokeInterceptor.beforeMethod(instanceContext, interceptorContext, null);
-        invokeInterceptor.handleMethodException(new RuntimeException(), instanceContext, interceptorContext);
-        invokeInterceptor.afterMethod(instanceContext, interceptorContext, response);
+        invokeInterceptor.beforeMethod(enhancedInstance, "execute", arguments, argumentType, null);
+        invokeInterceptor.handleMethodException(enhancedInstance, "execute", arguments, argumentType, new RuntimeException());
+        invokeInterceptor.afterMethod(enhancedInstance, "execute", arguments, argumentType, response);
 
         assertTraceSegmentWhenOccurException();
     }
 
     private void assertTraceSegmentWhenOccurException() {
-        contextListener.assertSize(1);
-        contextListener.assertTraceSegment(0, new SegmentAssert() {
-            @Override
-            public void call(TraceSegment traceSegment) {
-                assertThat(traceSegment.getSpans().size(), is(1));
-                Span span = traceSegment.getSpans().get(0);
-                assertMotanProviderSpan(span);
-                assertThat(SpanLogReader.getLogs(span).size(), is(1));
-                LogData logData = SpanLogReader.getLogs(span).get(0);
-                assertLogData(logData);
-            }
-        });
-    }
-
-    private void assertLogData(LogData logData) {
-        assertThat(logData.getFields().size(), is(4));
-        MatcherAssert.assertThat(logData.getFields().get("event"), CoreMatchers.<Object>is("error"));
-        MatcherAssert.assertThat(logData.getFields().get("error.kind"), CoreMatchers.<Object>is(RuntimeException.class.getName()));
-        assertNull(logData.getFields().get("message"));
+        MatcherAssert.assertThat(segmentStorage.getTraceSegments().size(), is(1));
+        TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
+        List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
+        assertMotanProviderSpan(spans.get(0));
+        assertLogSize(spans.get(0), 1);
+        List<LogDataEntity> logDataEntities = SpanHelper.getLogs(spans.get(0));
+        assertException(logDataEntities.get(0), RuntimeException.class);
     }
 
     private void assertRefSegment(TraceSegmentRef primaryRef) {
-        assertThat(primaryRef.getTraceSegmentId(), is("302017.1487666919810.624424584.17332.1.1"));
-        assertThat(primaryRef.getSpanId(), is(1));
-        assertThat(primaryRef.getPeerHost(), is("127.0.0.1"));
+        assertThat(SegmentRefHelper.getTraceSegmentId(primaryRef), is("S.1499176688384.581928182.80935.69.1"));
+        assertThat(SegmentRefHelper.getSpanId(primaryRef), is(3));
+        assertThat(SegmentRefHelper.getPeerHost(primaryRef), is("192.168.1.8:18002"));
     }
 
-    private void assertMotanProviderSpan(Span span) {
+    private void assertMotanProviderSpan(AbstractTracingSpan span) {
         assertThat(span.getOperationName(), is("org.skywalking.apm.test.TestService.test(java.lang.String, java.lang.Object)"));
-        assertThat(StringTagReader.get(span, Tags.COMPONENT), is("Motan"));
-        assertThat(StringTagReader.get(span, Tags.SPAN_KIND), is(Tags.SPAN_KIND_SERVER));
-        assertThat(StringTagReader.get(span, Tags.SPAN_LAYER.SPAN_LAYER_TAG), is("rpc"));
+        assertComponent(span, ComponentsDefine.MOTAN);
+        assertThat(span.isEntry(), is(true));
+        assertLayer(span, SpanLayer.RPC_FRAMEWORK);
     }
 
-    @After
-    public void tearDown() {
-        TracerContext.ListenerManager.remove(contextListener);
-    }
 }

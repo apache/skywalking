@@ -24,7 +24,7 @@ public class StatementTracing {
             Tags.DB_TYPE.set(span, "sql");
             Tags.DB_INSTANCE.set(span, connectInfo.getDatabaseName());
             Tags.DB_STATEMENT.set(span, sql);
-            span.setComponent(connectInfo.getDBType());
+            span.setComponent(connectInfo.getComponent());
             SpanLayer.asDB(span);
             return exec.exe(realStatement, sql);
         } catch (SQLException e) {

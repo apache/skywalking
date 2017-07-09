@@ -38,6 +38,7 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
 
         span.setComponent(ComponentsDefine.HTTPCLIENT);
         Tags.URL.set(span, httpRequest.getRequestLine().getUri());
+        Tags.HTTP.METHOD.set(span, httpRequest.getRequestLine().getMethod());
         SpanLayer.asHttp(span);
 
         httpRequest.setHeader(Config.Plugin.Propagation.HEADER_NAME, contextCarrier.serialize());

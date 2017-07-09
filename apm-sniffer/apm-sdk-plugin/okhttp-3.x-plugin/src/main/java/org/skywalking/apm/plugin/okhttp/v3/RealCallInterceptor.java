@@ -52,10 +52,10 @@ public class RealCallInterceptor implements InstanceMethodsAroundInterceptor, In
 
         ContextCarrier contextCarrier = new ContextCarrier();
         HttpUrl requestUrl = request.url();
-        AbstractSpan span = ContextManager.createExitSpan(requestUrl.uri().toString(), contextCarrier, requestUrl.host() + ":" + requestUrl.port());
+        AbstractSpan span = ContextManager.createExitSpan(requestUrl.uri().getPath(), contextCarrier, requestUrl.host() + ":" + requestUrl.port());
         span.setComponent(ComponentsDefine.OKHTTP);
         Tags.HTTP.METHOD.set(span, request.method());
-        Tags.URL.set(span, requestUrl.url().getPath());
+        Tags.URL.set(span, requestUrl.uri().toString());
         SpanLayer.asHttp(span);
 
         Field headersField = Request.class.getDeclaredField("headers");
@@ -96,6 +96,8 @@ public class RealCallInterceptor implements InstanceMethodsAroundInterceptor, In
 
     @Override public void handleMethodException(EnhancedInstance objInst, String methodName, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-
+        AbstractSpan abstractSpan = ContextManager.activeSpan();
+        abstractSpan.errorOccurred();
+        abstractSpan.log(t);
     }
 }
