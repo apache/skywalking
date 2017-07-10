@@ -1,5 +1,6 @@
 package org.skywalking.apm.agent.core.context.trace;
 
+import java.util.Map;
 import org.skywalking.apm.agent.core.context.IgnoredTracerContext;
 import org.skywalking.apm.network.trace.component.Component;
 
@@ -50,5 +51,13 @@ public class NoopSpan implements AbstractSpan {
 
     @Override public boolean isExit() {
         return false;
+    }
+
+    @Override public AbstractSpan log(long timestamp, Map<String, ?> event) {
+        return this;
+    }
+
+    @Override public AbstractSpan setOperationName(String operationName) {
+        return this;
     }
 }

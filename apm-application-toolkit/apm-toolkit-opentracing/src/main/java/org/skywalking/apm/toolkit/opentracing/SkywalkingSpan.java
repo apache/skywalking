@@ -12,7 +12,7 @@ public class SkywalkingSpan implements Span {
     @NeedSnifferActivation(
         "1.ContextManager#createSpan (Entry,Exit,Local based on builder)." +
             "2.set the span reference to the dynamic field of enhanced SkywalkingSpan")
-    public SkywalkingSpan(SkywalkingSpanBuilder builder) {
+    SkywalkingSpan(SkywalkingSpanBuilder builder) {
     }
 
     /**

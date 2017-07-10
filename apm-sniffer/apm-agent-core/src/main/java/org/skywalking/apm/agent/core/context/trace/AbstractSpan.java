@@ -1,5 +1,6 @@
 package org.skywalking.apm.agent.core.context.trace;
 
+import java.util.Map;
 import org.skywalking.apm.network.trace.component.Component;
 
 /**
@@ -54,4 +55,20 @@ public interface AbstractSpan {
      * @return true if the actual span is an exit span.
      */
     boolean isExit();
+
+    /**
+     * Record an event at a specific timestamp.
+     *
+     * @param timestamp The explicit timestamp for the log record.
+     * @param event the events
+     * @return the Span, for chaining
+     */
+    AbstractSpan log(long timestamp, Map<String, ?> event);
+
+    /**
+     * Sets the string name for the logical operation this span represents.
+     *
+     * @return this Span instance, for chaining
+     */
+    AbstractSpan setOperationName(String operationName);
 }

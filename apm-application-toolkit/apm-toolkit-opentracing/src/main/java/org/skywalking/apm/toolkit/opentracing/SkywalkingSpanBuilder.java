@@ -38,7 +38,7 @@ public class SkywalkingSpanBuilder implements Tracer.SpanBuilder {
 
     @Override
     public Tracer.SpanBuilder asChildOf(BaseSpan<?> parent) {
-        if (parent instanceof SkywalkingSpan) {
+        if (parent instanceof SkywalkingSpan || parent instanceof SkywalkingActiveSpan) {
             return this;
         }
         throw new IllegalArgumentException("parent must be type of SkywalkingSpan");
@@ -61,23 +61,23 @@ public class SkywalkingSpanBuilder implements Tracer.SpanBuilder {
 
     @Override
     public Tracer.SpanBuilder withTag(String key, String value) {
-        if (Tags.COMPONENT.equals(key)) {
+        if (Tags.COMPONENT.getKey().equals(key)) {
             componentName = value;
-        } else if (Tags.SPAN_KIND.equals(key)) {
-            if (Tags.SPAN_KIND_CLIENT.equals(key) || Tags.SPAN_KIND_PRODUCER.equals(key)) {
+        } else if (Tags.SPAN_KIND.getKey().equals(key)) {
+            if (Tags.SPAN_KIND_CLIENT.equals(value) || Tags.SPAN_KIND_PRODUCER.equals(value)) {
                 isEntry = false;
                 isExit = true;
-            } else if (Tags.SPAN_KIND_SERVER.equals(key) || Tags.SPAN_KIND_CONSUMER.equals(key)) {
+            } else if (Tags.SPAN_KIND_SERVER.equals(value) || Tags.SPAN_KIND_CONSUMER.equals(value)) {
                 isEntry = true;
                 isExit = false;
             } else {
                 isEntry = false;
                 isExit = false;
             }
-        } else if (Tags.PEER_HOST_IPV4.equals(key) || Tags.PEER_HOST_IPV6.equals(key)
-            || Tags.PEER_HOSTNAME.equals(key)) {
+        } else if (Tags.PEER_HOST_IPV4.getKey().equals(key) || Tags.PEER_HOST_IPV6.getKey().equals(key)
+            || Tags.PEER_HOSTNAME.getKey().equals(key)) {
             peer = value;
-        } else if (Tags.PEER_SERVICE.equals(key)) {
+        } else if (Tags.PEER_SERVICE.getKey().equals(key)) {
             operationName = value;
         } else {
             tags.add(new Tag(key, value));
@@ -97,7 +97,7 @@ public class SkywalkingSpanBuilder implements Tracer.SpanBuilder {
 
     @Override
     public Tracer.SpanBuilder withTag(String key, Number value) {
-        if (Tags.PEER_PORT.equals(key)) {
+        if (Tags.PEER_PORT.getKey().equals(key)) {
             port = value.intValue();
         } else {
             tags.add(new Tag(key, value.toString()));
