@@ -123,11 +123,11 @@ public class ContextManager implements TracingContextListener, BootService, Igno
         }
     }
 
-    public ContextSnapshot capture() {
+    public static ContextSnapshot capture() {
         return get().capture();
     }
 
-    public void continued(ContextSnapshot snapshot) {
+    public static void continued(ContextSnapshot snapshot) {
         if (snapshot == null) {
             throw new IllegalArgumentException("ContextSnapshot can't be null.");
         }
