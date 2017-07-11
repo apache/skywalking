@@ -50,11 +50,7 @@ import org.skywalking.apm.network.trace.component.ComponentsDefine;
  */
 public class MongoDBMethodInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
 
-    static final String MONGODB_HOST = "MONGODB_HOST";
-
-    static final String MONGODB_PORT = "MONGODB_PORT";
-
-    private static final String MONGODB_COMPONENT = "MongoDB";
+    private static final String DB_TYPE = "MongoDB";
 
     private static final String METHOD = "MongoDB/";
 
@@ -159,7 +155,7 @@ public class MongoDBMethodInterceptor implements InstanceMethodsAroundIntercepto
         String remotePeer = (String)objInst.getSkyWalkingDynamicField();
         AbstractSpan span = ContextManager.createExitSpan(METHOD + methodName, new ContextCarrier(), remotePeer);
         span.setComponent(ComponentsDefine.MONGODB);
-        Tags.DB_TYPE.set(span, MONGODB_COMPONENT);
+        Tags.DB_TYPE.set(span, DB_TYPE);
         SpanLayer.asDB(span);
 
         if (Config.Plugin.MongoDB.TRACE_PARAM) {

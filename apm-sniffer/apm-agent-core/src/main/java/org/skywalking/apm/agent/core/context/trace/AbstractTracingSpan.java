@@ -87,7 +87,7 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
         return true;
     }
 
-    public AbstractSpan start() {
+    public AbstractTracingSpan start() {
         this.startTime = System.currentTimeMillis();
         return this;
     }
@@ -98,7 +98,8 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
      * @param t any subclass of {@link Throwable}, which occurs in this span.
      * @return the Span, for chaining
      */
-    public AbstractSpan log(Throwable t) {
+    @Override
+    public AbstractTracingSpan log(Throwable t) {
         if (logs == null) {
             logs = new LinkedList<LogDataEntity>();
         }
@@ -117,7 +118,8 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
      * @param fields
      * @return the Span, for chaining
      */
-    public AbstractSpan log(long timestampMicroseconds, Map<String, ?> fields) {
+    @Override
+    public AbstractTracingSpan log(long timestampMicroseconds, Map<String, ?> fields) {
         if (logs == null) {
             logs = new LinkedList<LogDataEntity>();
         }
@@ -135,7 +137,8 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
      *
      * @return span instance, for chaining.
      */
-    public AbstractSpan errorOccurred() {
+    @Override
+    public AbstractTracingSpan errorOccurred() {
         this.errorOccurred = true;
         return this;
     }
@@ -147,6 +150,7 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
      * @param operationName
      * @return span instance, for chaining.
      */
+    @Override
     public AbstractTracingSpan setOperationName(String operationName) {
         this.operationName = operationName;
         return this;
@@ -176,7 +180,7 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
     }
 
     @Override
-    public AbstractSpan setLayer(SpanLayer layer) {
+    public AbstractTracingSpan setLayer(SpanLayer layer) {
         this.layer = layer;
         return this;
     }
@@ -189,7 +193,7 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
      * @return span instance, for chaining.
      */
     @Override
-    public AbstractSpan setComponent(Component component) {
+    public AbstractTracingSpan setComponent(Component component) {
         this.componentId = component.getId();
         return this;
     }
@@ -202,7 +206,7 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
      * @return span instance, for chaining.
      */
     @Override
-    public AbstractSpan setComponent(String componentName) {
+    public AbstractTracingSpan setComponent(String componentName) {
         this.componentName = componentName;
         return this;
     }

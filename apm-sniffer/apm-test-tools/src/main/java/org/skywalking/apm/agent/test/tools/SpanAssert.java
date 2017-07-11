@@ -38,6 +38,10 @@ public class SpanAssert {
         assertThat(SpanHelper.getComponentId(span), is(component.getId()));
     }
 
+    public static void assertComponent(AbstractSpan span, String componentName) {
+        assertThat(SpanHelper.getComponentName(span), is(componentName));
+    }
+
     public static void assertLayer(AbstractSpan span, SpanLayer spanLayer) {
         assertThat(SpanHelper.getLayer(span), is(spanLayer));
     }
