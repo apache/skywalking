@@ -5,11 +5,10 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
-import org.skywalking.apm.collector.core.framework.Define;
 import org.skywalking.apm.collector.core.framework.DefinitionFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +35,7 @@ public class DefinitionLoader<D> implements Iterable<D> {
     @Override public final Iterator<D> iterator() {
         logger.info("load definition file: {}", definitionFile.get());
         Properties properties = new Properties();
-        Map<String, String> definitionList = new LinkedHashMap<>();
+        List<String> definitionList = new LinkedList<>();
         try {
             Enumeration<URL> urlEnumeration = this.getClass().getClassLoader().getResources(definitionFile.get());
             while (urlEnumeration.hasMoreElements()) {
@@ -46,16 +45,15 @@ public class DefinitionLoader<D> implements Iterable<D> {
 
                 Enumeration defineItem = properties.propertyNames();
                 while (defineItem.hasMoreElements()) {
-                    String key = (String)defineItem.nextElement();
-                    String fullNameClass = properties.getProperty(key);
-                    definitionList.put(key, fullNameClass);
+                    String fullNameClass = (String)defineItem.nextElement();
+                    definitionList.add(fullNameClass);
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        Iterator<Map.Entry<String, String>> moduleDefineIterator = definitionList.entrySet().iterator();
+        Iterator<String> moduleDefineIterator = definitionList.iterator();
 
         return new Iterator<D>() {
             @Override public boolean hasNext() {
@@ -63,16 +61,13 @@ public class DefinitionLoader<D> implements Iterable<D> {
             }
 
             @Override public D next() {
-                Map.Entry<String, String> moduleDefineEntry = moduleDefineIterator.next();
-                String definitionName = moduleDefineEntry.getKey();
-                String definitionClass = moduleDefineEntry.getValue();
-                logger.info("key: {}, definitionClass: {}", definitionName, definitionClass);
+                String definitionClass = moduleDefineIterator.next();
+                logger.info("definitionClass: {}", definitionClass);
                 try {
                     Class c = Class.forName(definitionClass);
-                    Define define = (Define)c.newInstance();
-                    define.setName(definitionName);
-                    return (D)define;
+                    return (D)c.newInstance();
                 } catch (Exception e) {
+                    logger.error(e.getMessage(), e);
                 }
                 return null;
             }

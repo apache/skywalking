@@ -27,11 +27,6 @@
         </dependency>
         <dependency>
             <groupId>org.skywalking</groupId>
-            <artifactId>apm-collector-commons</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.skywalking</groupId>
             <artifactId>apm-network</artifactId>
             <version>${project.version}</version>
         </dependency>

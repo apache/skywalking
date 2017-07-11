@@ -10,19 +10,9 @@ import org.skywalking.apm.collector.core.server.Server;
  */
 public abstract class ModuleDefine implements Define {
 
-    private String moduleName;
-
-    @Override public final String getName() {
-        return moduleName;
-    }
-
-    @Override public final void setName(String name) {
-        this.moduleName = name;
-    }
-
     protected abstract ModuleGroup group();
 
-    protected abstract boolean defaultModule();
+    public abstract boolean defaultModule();
 
     protected abstract ModuleConfigParser configParser();
 
@@ -31,4 +21,6 @@ public abstract class ModuleDefine implements Define {
     protected abstract Server server();
 
     protected abstract DataInitializer dataInitializer();
+
+    protected abstract ModuleRegistration registration();
 }

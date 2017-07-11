@@ -1,0 +1,12 @@
+cluster:
+  zookeeper:
+    hostPort: localhost:2181
+    sessionTimeout: 1000
+  redis:
+    host: localhost-rd
+    port: 2000
+worker:
+  ui:
+    host: localhost
+    port: 12800
+

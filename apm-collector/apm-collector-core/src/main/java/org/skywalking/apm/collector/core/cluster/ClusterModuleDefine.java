@@ -5,6 +5,7 @@ import org.skywalking.apm.collector.core.client.Client;
 import org.skywalking.apm.collector.core.client.ClientException;
 import org.skywalking.apm.collector.core.config.ConfigParseException;
 import org.skywalking.apm.collector.core.module.ModuleDefine;
+import org.skywalking.apm.collector.core.module.ModuleRegistration;
 import org.skywalking.apm.collector.core.server.Server;
 
 /**
@@ -26,4 +27,10 @@ public abstract class ClusterModuleDefine extends ModuleDefine {
     @Override public final Server server() {
         throw new UnsupportedOperationException("");
     }
+
+    @Override protected final ModuleRegistration registration() {
+        throw new UnsupportedOperationException("Cluster module do not need module registration.");
+    }
+
+    protected abstract ClusterModuleRegistrationWriter registrationWriter();
 }

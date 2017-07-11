@@ -9,7 +9,5 @@ public interface Define {
 
     void initialize(Map config) throws DefineException;
 
-    String getName();
-
-    void setName(String name);
+    String name();
 }

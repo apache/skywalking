@@ -11,28 +11,16 @@ import org.yaml.snakeyaml.Yaml;
 /**
  * @author pengys5
  */
-public class ModuleConfigLoader implements ConfigLoader {
+public class ModuleConfigLoader implements ConfigLoader<Map<String, Map>> {
 
     private final Logger logger = LoggerFactory.getLogger(ModuleConfigLoader.class);
 
-    @Override public void load() throws ModuleConfigLoaderException {
+    @Override public Map<String, Map> load() throws ModuleConfigLoaderException {
         Yaml yaml = new Yaml();
-        ModuleInstaller installer = new ModuleInstaller();
-
-        Map<String, Map> configurations = null;
         try {
-            configurations = (Map<String, Map>)yaml.load(ResourceUtils.read("application.yml"));
+            return (Map<String, Map>)yaml.load(ResourceUtils.read("application.yml"));
         } catch (FileNotFoundException e) {
             throw new ModuleConfigLoaderException(e.getMessage(), e);
         }
-        configurations.forEach((moduleName, moduleConfig) -> {
-            logger.info("module name \"{}\" from application.yml", moduleName);
-            try {
-                installer.install(moduleName, moduleConfig);
-            } catch (ModuleException e) {
-                logger.error("module \"{}\" install failure", moduleName);
-                logger.error(e.getMessage(), e);
-            }
-        });
     }
 }

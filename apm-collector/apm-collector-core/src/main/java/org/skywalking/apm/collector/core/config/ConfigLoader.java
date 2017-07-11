@@ -5,5 +5,5 @@ import org.skywalking.apm.collector.core.framework.Loader;
 /**
  * @author pengys5
  */
-public interface ConfigLoader extends Loader {
+public interface ConfigLoader<T> extends Loader<T> {
 }
