@@ -72,7 +72,7 @@ public class ExitSpan extends AbstractTracingSpan {
     }
 
     @Override
-    public AbstractSpan setLayer(SpanLayer layer) {
+    public AbstractTracingSpan setLayer(SpanLayer layer) {
         if (stackDepth == 1) {
             return super.setLayer(layer);
         } else {
@@ -81,7 +81,7 @@ public class ExitSpan extends AbstractTracingSpan {
     }
 
     @Override
-    public AbstractSpan setComponent(Component component) {
+    public AbstractTracingSpan setComponent(Component component) {
         if (stackDepth == 1) {
             return super.setComponent(component);
         } else {
@@ -90,7 +90,7 @@ public class ExitSpan extends AbstractTracingSpan {
     }
 
     @Override
-    public AbstractSpan setComponent(String componentName) {
+    public AbstractTracingSpan setComponent(String componentName) {
         if (stackDepth == 1) {
             return super.setComponent(componentName);
         } else {

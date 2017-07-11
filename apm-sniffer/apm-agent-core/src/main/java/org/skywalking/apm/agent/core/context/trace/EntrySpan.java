@@ -53,7 +53,7 @@ public class EntrySpan extends AbstractTracingSpan {
     }
 
     @Override
-    public AbstractSpan setLayer(SpanLayer layer) {
+    public AbstractTracingSpan setLayer(SpanLayer layer) {
         if (stackDepth == currentMaxDepth) {
             return super.setLayer(layer);
         } else {
@@ -62,7 +62,7 @@ public class EntrySpan extends AbstractTracingSpan {
     }
 
     @Override
-    public AbstractSpan setComponent(Component component) {
+    public AbstractTracingSpan setComponent(Component component) {
         if (stackDepth == currentMaxDepth) {
             return super.setComponent(component);
         } else {
@@ -71,7 +71,7 @@ public class EntrySpan extends AbstractTracingSpan {
     }
 
     @Override
-    public AbstractSpan setComponent(String componentName) {
+    public AbstractTracingSpan setComponent(String componentName) {
         if (stackDepth == currentMaxDepth) {
             return super.setComponent(componentName);
         } else {

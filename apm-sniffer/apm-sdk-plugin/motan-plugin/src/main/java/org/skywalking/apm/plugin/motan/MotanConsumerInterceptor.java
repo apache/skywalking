@@ -36,7 +36,7 @@ public class MotanConsumerInterceptor implements InstanceConstructorInterceptor,
         Request request = (Request)allArguments[0];
         if (url != null) {
             ContextCarrier contextCarrier = new ContextCarrier();
-            String remotePeer = url.getHost() + " :" + url.getPort();
+            String remotePeer = url.getHost() + ":" + url.getPort();
             AbstractSpan span = ContextManager.createExitSpan(generateOperationName(url, request), contextCarrier, remotePeer);
             span.setComponent(ComponentsDefine.MOTAN);
             Tags.URL.set(span, url.getIdentity());
