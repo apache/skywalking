@@ -39,6 +39,7 @@ _In chronological order_
 * 彭勇升 [**Project Maintainer**] [@pengys5](https://github.com/pengys5)   Technical Specialist, OneAPM.
 * 戴文
 * 柏杨 [@bai-yang](https://github.com/bai-yang)  Senior Engineer, Alibaba Group.
+* 陈凤 [@trey03](https://github.com/trey03)
 * [More contributors](https://github.com/wu-sheng/sky-walking/graphs/contributors)
 
 This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to wu.sheng@foxmail.com.
