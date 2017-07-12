@@ -153,6 +153,7 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
     @Override
     public AbstractTracingSpan setOperationName(String operationName) {
         this.operationName = operationName;
+        this.operationId = DictionaryUtil.nullValue();
         return this;
     }
 
@@ -164,6 +165,7 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
      */
     public AbstractTracingSpan setOperationId(int operationId) {
         this.operationId = operationId;
+        this.operationName = null;
         return this;
     }
 
