@@ -1,7 +1,7 @@
 package org.skywalking.apm.agent.core.dictionary;
 
 /**
- * The <code>PossibleFound</code> represents a value, which may exist or not.
+ * The <code>PossibleFound</code> represents a value, which may needEnhance or not.
  *
  * @author wusheng
  */

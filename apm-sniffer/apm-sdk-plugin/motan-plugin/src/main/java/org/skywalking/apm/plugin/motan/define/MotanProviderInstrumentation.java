@@ -6,10 +6,12 @@ import net.bytebuddy.matcher.ElementMatcher;
 import org.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
+import org.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.skywalking.apm.plugin.motan.MotanConsumerInterceptor;
 
 import static net.bytebuddy.matcher.ElementMatchers.any;
 import static net.bytebuddy.matcher.ElementMatchers.named;
+import static org.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
  * {@link MotanProviderInstrumentation} presents that skywalking will use
@@ -35,8 +37,8 @@ public class MotanProviderInstrumentation extends ClassInstanceMethodsEnhancePlu
     private static final String PROVIDER_INVOKE_INTERCEPT_CLASS = "org.skywalking.apm.plugin.motan.MotanConsumerInterceptor";
 
     @Override
-    protected String enhanceClassName() {
-        return ENHANCE_CLASS;
+    protected ClassMatch enhanceClass() {
+        return byName(ENHANCE_CLASS);
     }
 
     @Override

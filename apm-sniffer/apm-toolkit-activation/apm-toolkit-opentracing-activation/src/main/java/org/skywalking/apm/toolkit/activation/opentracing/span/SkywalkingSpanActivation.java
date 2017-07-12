@@ -6,10 +6,12 @@ import net.bytebuddy.matcher.ElementMatcher;
 import org.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
+import org.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArgument;
 import static org.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
+import static org.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
  * {@link SkywalkingSpanActivation} defines five interceptors to enhance the methods and constructor in class
@@ -48,8 +50,8 @@ public class SkywalkingSpanActivation extends ClassInstanceMethodsEnhancePluginD
     private static final String SET_OPERATION_NAME_INTERCEPTOR = "org.skywalking.apm.toolkit.activation.opentracing.span.SpanSetOperationNameInterceptor";
 
     @Override
-    protected String enhanceClassName() {
-        return ENHANCE_CLASS;
+    protected ClassMatch enhanceClass() {
+        return byName(ENHANCE_CLASS);
     }
 
     @Override

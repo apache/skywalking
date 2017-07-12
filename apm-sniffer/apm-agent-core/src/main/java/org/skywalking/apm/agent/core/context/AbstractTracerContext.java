@@ -49,7 +49,7 @@ public interface AbstractTracerContext {
     void continued(ContextSnapshot snapshot);
 
     /**
-     * Get the global trace id, if exist.
+     * Get the global trace id, if needEnhance.
      * How to build, depends on the implementation.
      *
      * @return the string represents the id.

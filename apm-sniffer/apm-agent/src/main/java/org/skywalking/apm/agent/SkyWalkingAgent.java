@@ -1,12 +1,9 @@
 package org.skywalking.apm.agent;
 
 import java.lang.instrument.Instrumentation;
-import java.util.List;
 import net.bytebuddy.agent.builder.AgentBuilder;
-import net.bytebuddy.description.NamedElement;
 import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.dynamic.DynamicType;
-import net.bytebuddy.matcher.ElementMatcher;
 import net.bytebuddy.utility.JavaModule;
 import org.skywalking.apm.agent.core.boot.ServiceManager;
 import org.skywalking.apm.agent.core.conf.SnifferConfigInitializer;
@@ -15,12 +12,8 @@ import org.skywalking.apm.agent.core.plugin.AbstractClassEnhancePluginDefine;
 import org.skywalking.apm.agent.core.plugin.PluginBootstrap;
 import org.skywalking.apm.agent.core.plugin.PluginException;
 import org.skywalking.apm.agent.core.plugin.PluginFinder;
-import org.skywalking.apm.agent.junction.SkyWalkingEnhanceMatcher;
 import org.skywalking.apm.logging.ILog;
 import org.skywalking.apm.logging.LogManager;
-
-import static net.bytebuddy.matcher.ElementMatchers.isInterface;
-import static net.bytebuddy.matcher.ElementMatchers.not;
 
 /**
  * The main entrance of sky-waking agent,
@@ -51,19 +44,20 @@ public class SkyWalkingAgent {
 
         ServiceManager.INSTANCE.boot();
 
-        new AgentBuilder.Default().type(enhanceClassMatcher(pluginFinder).and(not(isInterface()))).transform(new AgentBuilder.Transformer() {
+        new AgentBuilder.Default().type(pluginFinder.buildMatch()).transform(new AgentBuilder.Transformer() {
             @Override
             public DynamicType.Builder<?> transform(DynamicType.Builder<?> builder, TypeDescription typeDescription,
                 ClassLoader classLoader, JavaModule module) {
-                List<AbstractClassEnhancePluginDefine> pluginDefines = pluginFinder.find(typeDescription.getTypeName());
-                for (AbstractClassEnhancePluginDefine pluginDefine : pluginDefines) {
+                AbstractClassEnhancePluginDefine pluginDefine = pluginFinder.find(typeDescription, classLoader);
+                if (pluginDefine != null) {
                     DynamicType.Builder<?> newBuilder = pluginDefine.define(typeDescription.getTypeName(), builder, classLoader);
                     if (newBuilder != null) {
+                        logger.debug("Finish the prepare stage for {}.", typeDescription.getName());
                         return newBuilder;
                     }
                 }
 
-                logger.warn("Matched class {}, but enhancement fails.", typeDescription.getTypeName());
+                logger.debug("Matched class {}, but ignore by finding mechanism.", typeDescription.getTypeName());
                 return builder;
             }
         }).with(new AgentBuilder.Listener() {
@@ -95,16 +89,5 @@ public class SkyWalkingAgent {
             public void onComplete(String typeName, ClassLoader classLoader, JavaModule module, boolean loaded) {
             }
         }).installOn(instrumentation);
-    }
-
-    /**
-     * Get the enhance target classes matcher.
-     *
-     * @param pluginFinder
-     * @param <T>
-     * @return class matcher.
-     */
-    private static <T extends NamedElement> ElementMatcher.Junction<T> enhanceClassMatcher(PluginFinder pluginFinder) {
-        return new SkyWalkingEnhanceMatcher<T>(pluginFinder);
     }
 }

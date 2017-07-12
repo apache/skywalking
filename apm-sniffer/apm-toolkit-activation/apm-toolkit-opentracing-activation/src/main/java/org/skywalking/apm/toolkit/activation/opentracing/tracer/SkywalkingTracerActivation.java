@@ -5,8 +5,10 @@ import net.bytebuddy.matcher.ElementMatcher;
 import org.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
+import org.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
+import static org.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
  * {@link SkywalkingTracerActivation} defines two interceptors to enhance the methods in
@@ -24,8 +26,8 @@ public class SkywalkingTracerActivation extends ClassInstanceMethodsEnhancePlugi
     private static final String INJECT_INTERCEPTOR = "org.skywalking.apm.toolkit.activation.opentracing.tracer.SkywalkingTracerInjectInterceptor";
     private static final String EXTRACT_INTERCEPTOR = "org.skywalking.apm.toolkit.activation.opentracing.tracer.SkywalkingTracerExtractInterceptor";
 
-    @Override protected String enhanceClassName() {
-        return ENHANCE_CLASS;
+    @Override protected ClassMatch enhanceClass() {
+        return byName(ENHANCE_CLASS);
     }
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {

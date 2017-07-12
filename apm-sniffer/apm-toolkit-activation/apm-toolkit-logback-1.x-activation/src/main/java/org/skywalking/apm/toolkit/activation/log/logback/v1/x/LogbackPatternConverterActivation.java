@@ -6,8 +6,10 @@ import org.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoin
 import org.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.skywalking.apm.agent.core.plugin.interceptor.StaticMethodsInterceptPoint;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
+import org.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
+import static org.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
  * Active the toolkit class "org.skywalking.apm.toolkit.log.logback.v1.x.LogbackPatternConverter".
@@ -22,8 +24,8 @@ public class LogbackPatternConverterActivation extends ClassInstanceMethodsEnhan
      * @return the target class, which needs active.
      */
     @Override
-    protected String enhanceClassName() {
-        return "org.skywalking.apm.toolkit.log.logback.v1.x.LogbackPatternConverter";
+    protected ClassMatch enhanceClass() {
+        return byName("org.skywalking.apm.toolkit.log.logback.v1.x.LogbackPatternConverter");
     }
 
     /**

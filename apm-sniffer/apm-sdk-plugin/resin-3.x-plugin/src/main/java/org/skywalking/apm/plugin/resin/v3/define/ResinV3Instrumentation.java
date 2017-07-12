@@ -5,9 +5,11 @@ import net.bytebuddy.matcher.ElementMatcher;
 import org.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
+import org.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.skywalking.apm.plugin.resin.v3.ResinV3Interceptor;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
+import static org.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
  * {@link ResinV3Instrumentation} presents that skywalking intercepts {@link com.caucho.server.dispatch.ServletInvocation#service(javax.servlet.ServletRequest,
@@ -49,8 +51,8 @@ public class ResinV3Instrumentation extends ClassInstanceMethodsEnhancePluginDef
     }
 
     @Override
-    protected String enhanceClassName() {
-        return ENHANCE_CLASS;
+    protected ClassMatch enhanceClass() {
+        return byName(ENHANCE_CLASS);
     }
 
     @Override

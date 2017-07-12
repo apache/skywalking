@@ -4,8 +4,10 @@ import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.skywalking.apm.agent.core.plugin.interceptor.StaticMethodsInterceptPoint;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassStaticMethodsEnhancePluginDefine;
+import org.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
+import static org.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
  * Active the toolkit class "org.skywalking.apm.toolkit.trace.TraceContext".
@@ -20,8 +22,8 @@ public class TraceContextActivation extends ClassStaticMethodsEnhancePluginDefin
      * @return the target class, which needs active.
      */
     @Override
-    protected String enhanceClassName() {
-        return "org.skywalking.apm.toolkit.trace.TraceContext";
+    protected ClassMatch enhanceClass() {
+        return byName("org.skywalking.apm.toolkit.trace.TraceContext");
     }
 
     /**

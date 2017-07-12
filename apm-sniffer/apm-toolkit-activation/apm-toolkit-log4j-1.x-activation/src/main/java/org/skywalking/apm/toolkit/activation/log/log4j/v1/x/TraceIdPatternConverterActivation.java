@@ -5,8 +5,10 @@ import net.bytebuddy.matcher.ElementMatcher;
 import org.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
+import org.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
+import static org.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
  * Active the toolkit class "org.skywalking.apm.toolkit.log.log4j.v1.x.TraceIdPatternConverter".
@@ -21,8 +23,8 @@ public class TraceIdPatternConverterActivation extends ClassInstanceMethodsEnhan
      * @return the target class, which needs active.
      */
     @Override
-    protected String enhanceClassName() {
-        return "org.skywalking.apm.toolkit.log.log4j.v1.x.TraceIdPatternConverter";
+    protected ClassMatch enhanceClass() {
+        return byName("org.skywalking.apm.toolkit.log.log4j.v1.x.TraceIdPatternConverter");
     }
 
     /**

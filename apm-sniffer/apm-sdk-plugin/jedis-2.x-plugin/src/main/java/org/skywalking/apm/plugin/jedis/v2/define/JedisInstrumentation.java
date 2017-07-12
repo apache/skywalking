@@ -6,6 +6,7 @@ import net.bytebuddy.matcher.ElementMatcher;
 import org.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
+import org.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.skywalking.apm.plugin.jedis.v2.JedisConstructorWithShardInfoArgInterceptor;
 import org.skywalking.apm.plugin.jedis.v2.JedisConstructorWithUriArgInterceptor;
 import org.skywalking.apm.plugin.jedis.v2.JedisMethodInterceptor;
@@ -13,6 +14,7 @@ import org.skywalking.apm.plugin.jedis.v2.RedisMethodMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.takesArgument;
 import static org.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
+import static org.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
  * {@link JedisInstrumentation} presents that skywalking intercept all constructors and methods of {@link
@@ -34,8 +36,8 @@ public class JedisInstrumentation extends ClassInstanceMethodsEnhancePluginDefin
     private static final String JEDIS_METHOD_INTERCET_CLASS = "org.skywalking.apm.plugin.jedis.v2.JedisMethodInterceptor";
 
     @Override
-    public String enhanceClassName() {
-        return ENHANCE_CLASS;
+    public ClassMatch enhanceClass() {
+        return byName(ENHANCE_CLASS);
     }
 
     @Override

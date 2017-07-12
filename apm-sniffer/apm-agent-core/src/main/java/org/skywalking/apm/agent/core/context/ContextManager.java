@@ -69,7 +69,7 @@ public class ContextManager implements TracingContextListener, BootService, Igno
     }
 
     /**
-     * @return the first global trace id if exist. Otherwise, "N/A".
+     * @return the first global trace id if needEnhance. Otherwise, "N/A".
      */
     public static String getGlobalTraceId() {
         AbstractTracerContext segment = CONTEXT.get();
