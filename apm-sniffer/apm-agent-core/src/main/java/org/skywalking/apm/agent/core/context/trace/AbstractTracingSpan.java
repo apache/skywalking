@@ -232,11 +232,15 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
         } else {
             spanBuilder.setSpanType(SpanType.Local);
         }
-        spanBuilder.setSpanLayerValue(this.layer.getCode());
+        if (this.layer != null) {
+            spanBuilder.setSpanLayerValue(this.layer.getCode());
+        }
         if (componentId != DictionaryUtil.nullValue()) {
             spanBuilder.setComponentId(componentId);
         } else {
-            spanBuilder.setComponent(componentName);
+            if (componentName != null) {
+                spanBuilder.setComponent(componentName);
+            }
         }
         spanBuilder.setIsError(errorOccurred);
         if (this.tags != null) {
