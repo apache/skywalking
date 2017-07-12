@@ -1,4 +1,4 @@
-package org.skywalking.apm.agent.core.plugin.bytebuddy.judge;
+package org.skywalking.apm.agent.core.plugin.bytebuddy;
 
 import net.bytebuddy.matcher.ElementMatcher;
 

@@ -10,7 +10,7 @@ import net.bytebuddy.description.annotation.AnnotationDescription;
 import net.bytebuddy.description.annotation.AnnotationList;
 import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.matcher.ElementMatcher;
-import org.skywalking.apm.agent.core.plugin.bytebuddy.judge.AbstractJunction;
+import org.skywalking.apm.agent.core.plugin.bytebuddy.AbstractJunction;
 import org.skywalking.apm.agent.core.plugin.match.AnnotationMatch;
 import org.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.skywalking.apm.agent.core.plugin.match.NameMatch;
