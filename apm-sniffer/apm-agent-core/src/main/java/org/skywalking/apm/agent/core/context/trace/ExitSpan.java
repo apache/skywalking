@@ -116,6 +116,24 @@ public class ExitSpan extends AbstractTracingSpan {
         return spanBuilder;
     }
 
+    @Override
+    public AbstractTracingSpan setOperationName(String operationName) {
+        if (stackDepth == 1) {
+            return super.setOperationName(operationName);
+        } else {
+            return this;
+        }
+    }
+
+    @Override
+    public AbstractTracingSpan setOperationId(int operationId) {
+        if (stackDepth == 1) {
+            return super.setOperationId(operationId);
+        } else {
+            return this;
+        }
+    }
+
     public int getPeerId() {
         return peerId;
     }

@@ -89,6 +89,24 @@ public class EntrySpan extends AbstractTracingSpan {
     }
 
     @Override
+    public AbstractTracingSpan setOperationName(String operationName) {
+        if (stackDepth == currentMaxDepth) {
+            return super.setOperationName(operationName);
+        } else {
+            return this;
+        }
+    }
+
+    @Override
+    public AbstractTracingSpan setOperationId(int operationId) {
+        if (stackDepth == currentMaxDepth) {
+            return super.setOperationId(operationId);
+        } else {
+            return this;
+        }
+    }
+
+    @Override
     public EntrySpan log(Throwable t) {
         super.log(t);
         return this;

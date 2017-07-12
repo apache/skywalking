@@ -1,5 +1,6 @@
 package org.skywalking.apm.agent.core.context;
 
+import com.google.instrumentation.trace.Span;
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.List;
 import org.junit.After;
@@ -19,6 +20,7 @@ import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.skywalking.apm.agent.core.context.trace.TraceSegmentRef;
 import org.skywalking.apm.agent.core.context.util.AbstractTracingSpanHelper;
 import org.skywalking.apm.agent.core.context.util.SegmentHelper;
+import org.skywalking.apm.agent.core.context.util.SpanHelper;
 import org.skywalking.apm.agent.core.test.tools.AgentServiceRule;
 import org.skywalking.apm.agent.core.test.tools.SegmentStorage;
 import org.skywalking.apm.agent.core.test.tools.SegmentStoragePoint;
@@ -102,6 +104,8 @@ public class ContextManagerTest {
 
         ContextManager.stopSpan();
         ContextManager.stopSpan();
+        SpanLayer.asHttp(firstEntrySpan);
+        firstEntrySpan.setOperationName("/testFirstEntry-setOperationName");
         ContextManager.stopSpan();
 
         assertThat(tracingData.getTraceSegments().size(), is(1));
@@ -121,6 +125,8 @@ public class ContextManagerTest {
         assertThat(actualEntrySpan.getOperationName(), is("/testSecondEntry"));
         assertThat(actualEntrySpan.getSpanId(), is(0));
         assertThat(AbstractTracingSpanHelper.getParentSpanId(actualEntrySpan), is(-1));
+        assertThat(SpanHelper.getComponentId(actualEntrySpan), is(ComponentsDefine.DUBBO.getId()));
+        assertThat(SpanHelper.getLayer(actualEntrySpan), is(SpanLayer.RPC_FRAMEWORK));
 
         AbstractTracingSpan actualExitSpan = spanList.get(0);
         assertThat(actualExitSpan.getOperationName(), is("/textExitSpan"));
@@ -156,6 +162,7 @@ public class ContextManagerTest {
         Tags.HTTP.METHOD.set(secondExitSpan, "GET");
         Tags.URL.set(secondExitSpan, "127.0.0.1:8080");
         SpanLayer.asHttp(secondExitSpan);
+        secondExitSpan.setOperationName("/testSecondExit-setOperationName");
 
         ContextManager.stopSpan();
         ContextManager.stopSpan();
@@ -172,6 +179,8 @@ public class ContextManagerTest {
         assertThat(actualFirstExitSpan.getOperationName(), is("/testFirstExit"));
         assertThat(actualFirstExitSpan.getSpanId(), is(1));
         assertThat(AbstractTracingSpanHelper.getParentSpanId(actualFirstExitSpan), is(0));
+        assertThat(SpanHelper.getComponentId(actualFirstExitSpan), is(ComponentsDefine.DUBBO.getId()));
+        assertThat(SpanHelper.getLayer(actualFirstExitSpan), is(SpanLayer.RPC_FRAMEWORK));
 
         AbstractTracingSpan actualEntrySpan = spanList.get(1);
         assertThat(actualEntrySpan.getOperationName(), is("/testEntrySpan"));
