@@ -1,6 +1,7 @@
 package org.skywalking.apm.collector.core.framework;
 
 import java.util.Map;
+import org.skywalking.apm.collector.core.client.ClientException;
 import org.skywalking.apm.collector.core.config.ConfigException;
 import org.skywalking.apm.collector.core.module.ModuleConfigLoader;
 import org.skywalking.apm.collector.core.module.ModuleDefine;
@@ -17,7 +18,7 @@ public class CollectorStarter implements Starter {
 
     private final Logger logger = LoggerFactory.getLogger(CollectorStarter.class);
 
-    @Override public void start() throws ConfigException, DefineException {
+    @Override public void start() throws ConfigException, DefineException, ClientException {
         ModuleConfigLoader configLoader = new ModuleConfigLoader();
         Map<String, Map> configuration = configLoader.load();
 

@@ -1,11 +1,35 @@
 package org.skywalking.apm.collector.core.module;
 
+import com.google.gson.JsonObject;
+
 /**
  * @author pengys5
  */
 public abstract class ModuleRegistration {
 
-    protected static final String SEPARATOR = "|";
+    public abstract Value buildValue();
 
-    protected abstract String buildValue();
+    public static class Value {
+        private final String host;
+        private final int port;
+        private final JsonObject data;
+
+        public Value(String host, int port, JsonObject data) {
+            this.host = host;
+            this.port = port;
+            this.data = data;
+        }
+
+        public String getHost() {
+            return host;
+        }
+
+        public int getPort() {
+            return port;
+        }
+
+        public JsonObject getData() {
+            return data;
+        }
+    }
 }

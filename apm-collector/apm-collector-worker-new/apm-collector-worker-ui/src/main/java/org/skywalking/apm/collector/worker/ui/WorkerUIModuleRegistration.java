@@ -1,5 +1,6 @@
 package org.skywalking.apm.collector.worker.ui;
 
+import com.google.gson.JsonObject;
 import org.skywalking.apm.collector.core.module.ModuleRegistration;
 
 /**
@@ -7,7 +8,9 @@ import org.skywalking.apm.collector.core.module.ModuleRegistration;
  */
 public class WorkerUIModuleRegistration extends ModuleRegistration {
 
-    @Override protected String buildValue() {
-        return WorkerUIConfig.HOST + ModuleRegistration.SEPARATOR + WorkerUIConfig.PORT + ModuleRegistration.SEPARATOR + WorkerUIConfig.CONTEXT_PATH;
+    @Override public Value buildValue() {
+        JsonObject data = new JsonObject();
+        data.addProperty("context_path", WorkerUIConfig.CONTEXT_PATH);
+        return new Value(WorkerUIConfig.HOST, WorkerUIConfig.PORT, data);
     }
 }

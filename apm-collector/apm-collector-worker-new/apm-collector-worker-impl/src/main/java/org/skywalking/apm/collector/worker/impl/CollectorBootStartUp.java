@@ -1,5 +1,6 @@
 package org.skywalking.apm.collector.worker.impl;
 
+import org.skywalking.apm.collector.core.client.ClientException;
 import org.skywalking.apm.collector.core.config.ConfigException;
 import org.skywalking.apm.collector.core.framework.CollectorStarter;
 import org.skywalking.apm.collector.core.framework.DefineException;
@@ -13,7 +14,7 @@ public class CollectorBootStartUp {
 
     private static final Logger logger = LoggerFactory.getLogger(CollectorBootStartUp.class);
 
-    public static void main(String[] args) throws ConfigException, DefineException {
+    public static void main(String[] args) throws ConfigException, DefineException, ClientException {
         logger.info("collector starting...");
         CollectorStarter starter = new CollectorStarter();
         starter.start();

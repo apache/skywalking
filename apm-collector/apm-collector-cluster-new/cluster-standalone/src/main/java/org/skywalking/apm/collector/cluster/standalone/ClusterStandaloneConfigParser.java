@@ -9,6 +9,5 @@ import org.skywalking.apm.collector.core.module.ModuleConfigParser;
  */
 public class ClusterStandaloneConfigParser implements ModuleConfigParser {
     @Override public void parse(Map config) throws ConfigParseException {
-
     }
 }

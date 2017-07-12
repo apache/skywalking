@@ -1,6 +1,7 @@
 package org.skywalking.apm.collector.core.module;
 
 import java.util.Map;
+import org.skywalking.apm.collector.core.config.Config;
 import org.skywalking.apm.collector.core.config.ConfigParseException;
 
 /**

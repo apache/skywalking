@@ -9,7 +9,7 @@ import org.skywalking.apm.collector.core.framework.DataInitializer;
  */
 public abstract class ClusterDataInitializer implements DataInitializer {
 
-    public static final String BASE_CATALOG = "collector.cluster";
+    public static final String BASE_CATALOG = "skywalking";
     public static final String FOR_UI_CATALOG = BASE_CATALOG + ".ui";
     public static final String FOR_AGENT_CATALOG = BASE_CATALOG + ".agent";
 

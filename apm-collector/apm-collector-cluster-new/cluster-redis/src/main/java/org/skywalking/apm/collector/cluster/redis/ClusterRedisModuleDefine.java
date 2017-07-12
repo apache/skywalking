@@ -29,8 +29,8 @@ public class ClusterRedisModuleDefine extends ClusterModuleDefine {
         return new ClusterRedisConfigParser();
     }
 
-    @Override protected Client client() {
-        return new RedisClient();
+    @Override protected Client createClient() {
+        return new RedisClient(ClusterRedisConfig.HOST, ClusterRedisConfig.PORT);
     }
 
     @Override protected DataInitializer dataInitializer() {
@@ -38,6 +38,6 @@ public class ClusterRedisModuleDefine extends ClusterModuleDefine {
     }
 
     @Override protected ClusterModuleRegistrationWriter registrationWriter() {
-        return new ClusterRedisModuleRegistrationWriter();
+        return new ClusterRedisModuleRegistrationWriter(getClient());
     }
 }

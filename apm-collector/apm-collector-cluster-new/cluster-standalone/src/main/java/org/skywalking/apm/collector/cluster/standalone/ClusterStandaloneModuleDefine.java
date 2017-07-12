@@ -29,7 +29,7 @@ public class ClusterStandaloneModuleDefine extends ClusterModuleDefine {
         return new ClusterStandaloneConfigParser();
     }
 
-    @Override protected Client client() {
+    @Override public Client createClient() {
         return new H2Client();
     }
 
@@ -38,6 +38,6 @@ public class ClusterStandaloneModuleDefine extends ClusterModuleDefine {
     }
 
     @Override protected ClusterModuleRegistrationWriter registrationWriter() {
-        return new ClusterStandaloneModuleRegistrationWriter();
+        return new ClusterStandaloneModuleRegistrationWriter(getClient());
     }
 }

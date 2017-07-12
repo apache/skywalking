@@ -24,10 +24,9 @@ public class WorkerUIConfigParser implements ModuleConfigParser {
             throw new ConfigParseException("");
         }
         WorkerUIConfig.PORT = (Integer)config.get(PORT);
+        WorkerUIConfig.CONTEXT_PATH = "/";
 
-        if (StringUtils.isEmpty(config.get(CONTEXT_PATH))) {
-            WorkerUIConfig.CONTEXT_PATH = "/";
-        } else {
+        if (!StringUtils.isEmpty(config.get(CONTEXT_PATH))) {
             WorkerUIConfig.CONTEXT_PATH = (String)config.get(CONTEXT_PATH);
         }
     }

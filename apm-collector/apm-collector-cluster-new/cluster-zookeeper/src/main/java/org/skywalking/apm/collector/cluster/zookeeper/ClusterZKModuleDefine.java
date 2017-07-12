@@ -13,7 +13,7 @@ import org.skywalking.apm.collector.core.module.ModuleGroup;
  */
 public class ClusterZKModuleDefine extends ClusterModuleDefine {
 
-    @Override public ModuleGroup group() {
+    @Override protected ModuleGroup group() {
         return ModuleGroup.Cluster;
     }
 
@@ -25,19 +25,19 @@ public class ClusterZKModuleDefine extends ClusterModuleDefine {
         return false;
     }
 
-    @Override public ModuleConfigParser configParser() {
+    @Override protected ModuleConfigParser configParser() {
         return new ClusterZKConfigParser();
     }
 
-    @Override public Client client() {
-        return new ZookeeperClient();
+    @Override protected Client createClient() {
+        return new ZookeeperClient(ClusterZKConfig.HOST_PORT, ClusterZKConfig.SESSION_TIMEOUT);
     }
 
-    @Override public ClusterDataInitializer dataInitializer() {
+    @Override protected ClusterDataInitializer dataInitializer() {
         return new ClusterZKDataInitializer();
     }
 
     @Override protected ClusterModuleRegistrationWriter registrationWriter() {
-        return new ClusterZKModuleRegistrationWriter();
+        return new ClusterZKModuleRegistrationWriter(getClient());
     }
 }

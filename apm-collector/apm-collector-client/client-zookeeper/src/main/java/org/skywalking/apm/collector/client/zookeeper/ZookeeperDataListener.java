@@ -19,10 +19,10 @@ public class ZookeeperDataListener implements DataListener, Watcher {
 
     private final Logger logger = LoggerFactory.getLogger(ZookeeperDataListener.class);
 
-    private Client client;
+    private ZookeeperClient client;
 
     public ZookeeperDataListener(Client client) {
-        this.client = client;
+        this.client = (ZookeeperClient)client;
     }
 
     @Override public void process(WatchedEvent event) {
@@ -32,7 +32,7 @@ public class ZookeeperDataListener implements DataListener, Watcher {
         }
 
         try {
-            String data = client.select(event.getPath());
+            String data = String.valueOf(client.getData(event.getPath(), false, null));
             logger.debug("data {}", data);
         } catch (ClientException e) {
             logger.error(e.getMessage(), e);
@@ -46,7 +46,7 @@ public class ZookeeperDataListener implements DataListener, Watcher {
             for (String catalog : catalogs) {
                 pathBuilder.append("/").append(catalog);
             }
-            client.listen(pathBuilder.toString());
+            client.exists(pathBuilder.toString(), true);
         }
     }
 

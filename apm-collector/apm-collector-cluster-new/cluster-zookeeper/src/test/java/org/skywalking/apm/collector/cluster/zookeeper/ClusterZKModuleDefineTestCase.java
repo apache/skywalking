@@ -4,7 +4,6 @@ import java.io.FileNotFoundException;
 import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
-import org.skywalking.apm.collector.client.zookeeper.ZookeeperConfig;
 import org.skywalking.apm.collector.core.cluster.ClusterModuleException;
 import org.yaml.snakeyaml.Yaml;
 
@@ -25,8 +24,5 @@ public class ClusterZKModuleDefineTestCase {
     public void testInitialize() throws ClusterModuleException {
         ClusterZKModuleDefine define = new ClusterZKModuleDefine();
         define.initialize(config);
-
-        System.out.println(ZookeeperConfig.hostPort);
-        System.out.println(ZookeeperConfig.sessionTimeout);
     }
 }

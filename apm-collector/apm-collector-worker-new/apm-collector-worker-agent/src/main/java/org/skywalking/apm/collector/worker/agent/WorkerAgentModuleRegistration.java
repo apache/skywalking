@@ -7,7 +7,7 @@ import org.skywalking.apm.collector.core.module.ModuleRegistration;
  */
 public class WorkerAgentModuleRegistration extends ModuleRegistration {
 
-    @Override protected String buildValue() {
-        return WorkerAgentConfig.HOST + ModuleRegistration.SEPARATOR + WorkerAgentConfig.PORT;
+    @Override public Value buildValue() {
+        return new Value(WorkerAgentConfig.HOST, WorkerAgentConfig.PORT, null);
     }
 }

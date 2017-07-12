@@ -13,15 +13,21 @@ import org.skywalking.apm.collector.core.server.Server;
  */
 public abstract class ClusterModuleDefine extends ModuleDefine {
 
+    private Client client;
+
     @Override public final void initialize(Map config) throws ClusterModuleException {
         try {
             configParser().parse(config);
-            Client client = client();
+            client = createClient();
             client.initialize();
             dataInitializer().initialize(client);
         } catch (ConfigParseException | ClientException e) {
             throw new ClusterModuleException(e.getMessage(), e);
         }
+    }
+
+    public final Client getClient() {
+        return this.client;
     }
 
     @Override public final Server server() {
