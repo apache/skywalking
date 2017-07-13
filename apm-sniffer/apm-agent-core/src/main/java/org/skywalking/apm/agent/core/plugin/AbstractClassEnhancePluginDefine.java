@@ -64,7 +64,7 @@ public abstract class AbstractClassEnhancePluginDefine {
         DynamicType.Builder<?> newClassBuilder, ClassLoader classLoader) throws PluginException;
 
     /**
-     * Define the classname of target class.
+     * Define the {@link ClassMatch} for filtering class.
      *
      * @return {@link ClassMatch}
      */

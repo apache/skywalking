@@ -1,18 +1,16 @@
 package org.skywalking.apm.agent.core.plugin;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import net.bytebuddy.description.NamedElement;
-import net.bytebuddy.description.annotation.AnnotationDescription;
-import net.bytebuddy.description.annotation.AnnotationList;
 import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.skywalking.apm.agent.core.plugin.bytebuddy.AbstractJunction;
-import org.skywalking.apm.agent.core.plugin.match.AnnotationMatch;
+import org.skywalking.apm.agent.core.plugin.match.ClassAnnotationMatch;
 import org.skywalking.apm.agent.core.plugin.match.ClassMatch;
+import org.skywalking.apm.agent.core.plugin.match.IndirectMatch;
 import org.skywalking.apm.agent.core.plugin.match.NameMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.isInterface;
@@ -36,7 +34,7 @@ public class PluginFinder {
                 continue;
             }
 
-            if (match instanceof NameMatch) {
+            if (match instanceof IndirectMatch) {
                 NameMatch nameMatch = (NameMatch)match;
                 nameMatchDefine.put(nameMatch.getClassName(), plugin);
             } else {
@@ -53,17 +51,9 @@ public class PluginFinder {
         }
 
         for (AbstractClassEnhancePluginDefine pluginDefine : signatureMatchDefine) {
-            ClassMatch classMatch = pluginDefine.enhanceClass();
-            if (classMatch instanceof AnnotationMatch) {
-                AnnotationMatch annotationMatch = (AnnotationMatch)classMatch;
-                List<String> annotationList = Arrays.asList(annotationMatch.getAnnotations());
-                AnnotationList declaredAnnotations = typeDescription.getDeclaredAnnotations();
-                for (AnnotationDescription annotation : declaredAnnotations) {
-                    annotationList.remove(annotation.getAnnotationType().getActualName());
-                }
-                if (annotationList.isEmpty()) {
-                    return pluginDefine;
-                }
+            IndirectMatch match = (IndirectMatch)pluginDefine.enhanceClass();
+            if (match.isMatch(typeDescription)) {
+                return pluginDefine;
             }
         }
 
@@ -80,8 +70,8 @@ public class PluginFinder {
         judge = judge.and(not(isInterface()));
         for (AbstractClassEnhancePluginDefine define : signatureMatchDefine) {
             ClassMatch match = define.enhanceClass();
-            if (match instanceof AnnotationMatch) {
-                judge = judge.or(((AnnotationMatch)match).buildJunction());
+            if (match instanceof ClassAnnotationMatch) {
+                judge = judge.or(((ClassAnnotationMatch)match).buildJunction());
             }
         }
         return judge;

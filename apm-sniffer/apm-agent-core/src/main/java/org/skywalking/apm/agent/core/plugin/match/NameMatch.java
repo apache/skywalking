@@ -1,12 +1,14 @@
 package org.skywalking.apm.agent.core.plugin.match;
 
 /**
+ * Match the class with an explicit class name.
+ *
  * @author wusheng
  */
-public class NameMatch extends ClassMatch {
+public class NameMatch implements ClassMatch {
     private String className;
 
-    public NameMatch(String className) {
+    private NameMatch(String className) {
         this.className = className;
     }
 
