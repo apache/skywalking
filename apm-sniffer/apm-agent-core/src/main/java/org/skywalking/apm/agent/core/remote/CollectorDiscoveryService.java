@@ -20,7 +20,7 @@ public class CollectorDiscoveryService implements BootService {
     public void boot() throws Throwable {
         Executors.newSingleThreadScheduledExecutor()
             .scheduleAtFixedRate(new DiscoveryRestServiceClient(), 0,
-                Config.Collector.DISCOVERY_CHECK_INTERVAL, TimeUnit.MILLISECONDS);
+                Config.Collector.DISCOVERY_CHECK_INTERVAL, TimeUnit.SECONDS);
     }
 
     @Override

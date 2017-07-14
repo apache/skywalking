@@ -95,6 +95,11 @@
             </exclusions>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>apm-datacarrier</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <extensions>
