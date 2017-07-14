@@ -69,7 +69,7 @@ public class AppAndServiceRegisterClient implements BootService, GRPCChannelList
     public void boot() throws Throwable {
         applicationRegisterFuture = Executors
             .newSingleThreadScheduledExecutor()
-            .scheduleAtFixedRate(this, 0, 10, TimeUnit.SECONDS);
+            .scheduleAtFixedRate(this, 0, Config.Collector.APP_AND_SERVICE_REGISTER_CHECK_INTERVAL, TimeUnit.SECONDS);
     }
 
     @Override

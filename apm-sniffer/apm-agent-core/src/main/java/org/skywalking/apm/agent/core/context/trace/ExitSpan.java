@@ -108,10 +108,12 @@ public class ExitSpan extends AbstractTracingSpan {
 
     @Override public SpanObject.Builder transform() {
         SpanObject.Builder spanBuilder = super.transform();
-        if (peerId == DictionaryUtil.nullValue()) {
+        if (peerId != DictionaryUtil.nullValue()) {
             spanBuilder.setPeerId(peerId);
         } else {
-            spanBuilder.setPeer(peer);
+            if (peer != null) {
+                spanBuilder.setPeer(peer);
+            }
         }
         return spanBuilder;
     }
