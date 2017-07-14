@@ -17,6 +17,7 @@ import org.mockito.Spy;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
+import org.skywalking.apm.agent.core.conf.Config;
 import org.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
 import org.skywalking.apm.agent.core.test.tools.AgentServiceRule;
 
@@ -52,7 +53,7 @@ public class GRPCChannelManagerTest {
         List<String> grpcServers = new ArrayList<String>();
         grpcServers.add("127.0.0.1:2181");
         RemoteDownstreamConfig.Collector.GRPC_SERVERS = grpcServers;
-        Whitebox.setInternalState(grpcChannelManager, "retryCycle", 1);
+        Config.Collector.GRPC_CHANNEL_CHECK_INTERVAL = 1;
 
         mockStatic(NettyChannelBuilder.class);
         when(NettyChannelBuilder.forAddress(anyString(), anyInt())).thenReturn(mock);

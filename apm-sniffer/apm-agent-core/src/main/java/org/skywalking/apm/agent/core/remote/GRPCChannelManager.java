@@ -18,6 +18,8 @@ import org.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
 import org.skywalking.apm.logging.ILog;
 import org.skywalking.apm.logging.LogManager;
 
+import static org.skywalking.apm.agent.core.conf.Config.Collector.GRPC_CHANNEL_CHECK_INTERVAL;
+
 /**
  * @author wusheng
  */
@@ -29,7 +31,6 @@ public class GRPCChannelManager implements BootService, Runnable {
     private volatile boolean reconnect = true;
     private Random random = new Random();
     private List<GRPCChannelListener> listeners = Collections.synchronizedList(new LinkedList<GRPCChannelListener>());
-    private final int retryCycle = 30;
 
     @Override
     public void beforeBoot() throws Throwable {
@@ -40,7 +41,7 @@ public class GRPCChannelManager implements BootService, Runnable {
     public void boot() throws Throwable {
         connectCheckFuture = Executors
             .newSingleThreadScheduledExecutor()
-            .scheduleAtFixedRate(this, 0, retryCycle, TimeUnit.SECONDS);
+            .scheduleAtFixedRate(this, 0, GRPC_CHANNEL_CHECK_INTERVAL, TimeUnit.SECONDS);
     }
 
     @Override
@@ -75,7 +76,7 @@ public class GRPCChannelManager implements BootService, Runnable {
                 }
             }
 
-            logger.debug("Selected collector grpc service is not available. Wait {} seconds to retry", retryCycle);
+            logger.debug("Selected collector grpc service is not available. Wait {} seconds to retry", GRPC_CHANNEL_CHECK_INTERVAL);
         }
     }
 
