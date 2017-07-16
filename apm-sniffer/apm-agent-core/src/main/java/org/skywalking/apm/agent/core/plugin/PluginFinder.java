@@ -34,7 +34,7 @@ public class PluginFinder {
                 continue;
             }
 
-            if (match instanceof IndirectMatch) {
+            if (match instanceof NameMatch) {
                 NameMatch nameMatch = (NameMatch)match;
                 nameMatchDefine.put(nameMatch.getClassName(), plugin);
             } else {
