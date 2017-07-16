@@ -70,8 +70,8 @@ public class PluginFinder {
         judge = judge.and(not(isInterface()));
         for (AbstractClassEnhancePluginDefine define : signatureMatchDefine) {
             ClassMatch match = define.enhanceClass();
-            if (match instanceof ClassAnnotationMatch) {
-                judge = judge.or(((ClassAnnotationMatch)match).buildJunction());
+            if (match instanceof IndirectMatch) {
+                judge = judge.or(((IndirectMatch)match).buildJunction());
             }
         }
         return judge;
