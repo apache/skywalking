@@ -25,6 +25,6 @@ public class QueueDataCarrierModuleDefine extends QueueModuleDefine {
     }
 
     @Override public final void initialize(Map config) throws DefineException, ClientException {
-        QueueModuleContext.creator = new DataCarrierCreator();
+        QueueModuleContext.CREATOR = new DataCarrierCreator();
     }
 }

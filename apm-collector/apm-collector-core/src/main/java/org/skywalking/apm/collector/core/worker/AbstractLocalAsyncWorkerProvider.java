@@ -15,7 +15,7 @@ public abstract class AbstractLocalAsyncWorkerProvider<T extends AbstractLocalAs
         T localAsyncWorker = workerInstance(getClusterContext());
         localAsyncWorker.preStart();
 
-        QueueEventHandler queueEventHandler = QueueModuleContext.creator.create(queueSize(), localAsyncWorker);
+        QueueEventHandler queueEventHandler = QueueModuleContext.CREATOR.create(queueSize(), localAsyncWorker);
 
         LocalAsyncWorkerRef workerRef = new LocalAsyncWorkerRef(role(), queueEventHandler);
 

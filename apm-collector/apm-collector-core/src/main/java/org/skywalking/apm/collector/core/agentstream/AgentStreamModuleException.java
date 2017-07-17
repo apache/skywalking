@@ -5,7 +5,7 @@ import org.skywalking.apm.collector.core.module.ModuleException;
 /**
  * @author pengys5
  */
-public class AgentStreamModuleException extends ModuleException{
+public class AgentStreamModuleException extends ModuleException {
     public AgentStreamModuleException(String message) {
         super(message);
     }

@@ -18,7 +18,7 @@ public class BytesUtils {
         long num = 0;
         for (int ix = 0; ix < 8; ++ix) {
             num <<= 8;
-            num |= (byteNum[ix] & 0xff);
+            num |= byteNum[ix] & 0xff;
         }
         return num;
     }

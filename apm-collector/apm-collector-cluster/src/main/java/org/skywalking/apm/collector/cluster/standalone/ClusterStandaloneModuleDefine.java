@@ -3,6 +3,7 @@ package org.skywalking.apm.collector.cluster.standalone;
 import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.core.client.Client;
 import org.skywalking.apm.collector.core.cluster.ClusterModuleDefine;
+import org.skywalking.apm.collector.core.cluster.ClusterModuleRegistrationReader;
 import org.skywalking.apm.collector.core.cluster.ClusterModuleRegistrationWriter;
 import org.skywalking.apm.collector.core.framework.DataInitializer;
 import org.skywalking.apm.collector.core.module.ModuleConfigParser;
@@ -39,5 +40,9 @@ public class ClusterStandaloneModuleDefine extends ClusterModuleDefine {
 
     @Override protected ClusterModuleRegistrationWriter registrationWriter() {
         return new ClusterStandaloneModuleRegistrationWriter(getClient());
+    }
+
+    @Override protected ClusterModuleRegistrationReader registrationReader() {
+        return null;
     }
 }

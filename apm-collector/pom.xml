@@ -7,7 +7,6 @@
         <module>apm-collector-core</module>
         <module>apm-collector-queue</module>
         <module>apm-collector-storage</module>
-        <module>apm-collector-cluster</module>
         <module>apm-collector-client</module>
         <module>apm-collector-server</module>
         <module>apm-collector-discovery</module>

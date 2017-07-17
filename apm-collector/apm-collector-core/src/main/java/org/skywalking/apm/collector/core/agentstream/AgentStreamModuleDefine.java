@@ -24,7 +24,7 @@ public abstract class AgentStreamModuleDefine extends ModuleDefine {
             server.initialize();
 
             String key = ClusterDataInitializer.BASE_CATALOG + "." + name();
-            ClusterModuleContext.writer.write(key, registration().buildValue());
+            ClusterModuleContext.WRITER.write(key, registration().buildValue());
         } catch (ConfigParseException | ServerException e) {
             throw new AgentStreamModuleException(e.getMessage(), e);
         }

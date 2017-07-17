@@ -5,7 +5,7 @@ package org.skywalking.apm.collector.core.framework;
  */
 public abstract class DefinitionFile {
 
-    private final String CATALOG = "META-INF/defines/";
+    private static final String CATALOG = "META-INF/defines/";
 
     protected abstract String fileName();
 

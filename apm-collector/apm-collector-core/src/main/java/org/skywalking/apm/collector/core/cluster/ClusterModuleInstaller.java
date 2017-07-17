@@ -38,6 +38,6 @@ public class ClusterModuleInstaller implements ModuleInstaller {
             moduleDefine = moduleDefineMap.get(clusterConfigEntry.getKey());
             moduleDefine.initialize(clusterConfigEntry.getValue());
         }
-        ClusterModuleContext.writer = ((ClusterModuleDefine)moduleDefine).registrationWriter();
+        ClusterModuleContext.WRITER = ((ClusterModuleDefine)moduleDefine).registrationWriter();
     }
 }

@@ -4,6 +4,7 @@ import org.skywalking.apm.collector.client.zookeeper.ZookeeperClient;
 import org.skywalking.apm.collector.core.client.Client;
 import org.skywalking.apm.collector.core.cluster.ClusterDataInitializer;
 import org.skywalking.apm.collector.core.cluster.ClusterModuleDefine;
+import org.skywalking.apm.collector.core.cluster.ClusterModuleRegistrationReader;
 import org.skywalking.apm.collector.core.cluster.ClusterModuleRegistrationWriter;
 import org.skywalking.apm.collector.core.module.ModuleConfigParser;
 import org.skywalking.apm.collector.core.module.ModuleGroup;
@@ -39,5 +40,9 @@ public class ClusterZKModuleDefine extends ClusterModuleDefine {
 
     @Override protected ClusterModuleRegistrationWriter registrationWriter() {
         return new ClusterZKModuleRegistrationWriter(getClient());
+    }
+
+    @Override protected ClusterModuleRegistrationReader registrationReader() {
+        return null;
     }
 }

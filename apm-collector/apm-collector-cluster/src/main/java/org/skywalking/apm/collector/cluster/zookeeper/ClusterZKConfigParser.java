@@ -10,8 +10,8 @@ import org.skywalking.apm.collector.core.util.StringUtils;
  */
 public class ClusterZKConfigParser implements ModuleConfigParser {
 
-    private final String HOST_PORT = "hostPort";
-    private final String SESSION_TIMEOUT = "sessionTimeout";
+    private static final String HOST_PORT = "hostPort";
+    private static final String SESSION_TIMEOUT = "sessionTimeout";
 
     @Override public void parse(Map config) throws ConfigParseException {
         ClusterZKConfig.HOST_PORT = (String)config.get(HOST_PORT);

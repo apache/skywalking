@@ -1,6 +1,5 @@
 package org.skywalking.apm.collector.core.util;
 
-import com.sun.istack.internal.Nullable;
 import java.util.Map;
 
 /**
@@ -8,7 +7,7 @@ import java.util.Map;
  */
 public class CollectionUtils {
 
-    public static boolean isEmpty(@Nullable Map map) {
-        return (map == null || map.size() == 0);
+    public static boolean isEmpty(Map map) {
+        return map == null || map.size() == 0;
     }
 }

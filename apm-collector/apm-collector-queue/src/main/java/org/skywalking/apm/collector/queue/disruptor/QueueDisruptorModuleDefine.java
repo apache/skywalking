@@ -25,6 +25,6 @@ public class QueueDisruptorModuleDefine extends QueueModuleDefine {
     }
 
     @Override public final void initialize(Map config) throws DefineException, ClientException {
-        QueueModuleContext.creator = new DisruptorCreator();
+        QueueModuleContext.CREATOR = new DisruptorCreator();
     }
 }

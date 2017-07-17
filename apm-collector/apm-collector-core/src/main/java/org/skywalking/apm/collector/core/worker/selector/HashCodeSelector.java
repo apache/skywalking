@@ -1,9 +1,7 @@
 package org.skywalking.apm.collector.core.worker.selector;
 
-import org.skywalking.apm.collector.actor.AbstractWorker;
-import org.skywalking.apm.collector.actor.WorkerRef;
-
 import java.util.List;
+import org.skywalking.apm.collector.core.worker.WorkerRef;
 
 /**
  * The <code>HashCodeSelector</code> is a simple implementation of {@link WorkerSelector}. It choose {@link WorkerRef}
@@ -19,7 +17,7 @@ public class HashCodeSelector implements WorkerSelector<WorkerRef> {
      * Use message hashcode to select {@link WorkerRef}.
      *
      * @param members given {@link WorkerRef} list, which size is greater than 0;
-     * @param message the {@link AbstractWorker} is going to send.
+     * @param message the {@link org.skywalking.apm.collector.core.worker.AbstractWorker} is going to send.
      * @return the selected {@link WorkerRef}
      */
     @Override

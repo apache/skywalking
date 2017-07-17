@@ -4,7 +4,6 @@ import java.util.Map;
 import org.skywalking.apm.collector.core.client.ClientException;
 import org.skywalking.apm.collector.core.cluster.ClusterModuleInstaller;
 import org.skywalking.apm.collector.core.framework.DefineException;
-import org.skywalking.apm.collector.core.worker.WorkerModuleInstaller;
 
 /**
  * @author pengys5
@@ -16,8 +15,6 @@ public class ModuleInstallerAdapter implements ModuleInstaller {
     public ModuleInstallerAdapter(ModuleGroup moduleGroup) {
         if (ModuleGroup.Cluster.equals(moduleGroup)) {
             moduleInstaller = new ClusterModuleInstaller();
-        } else if (ModuleGroup.Worker.equals(moduleGroup)) {
-            moduleInstaller = new WorkerModuleInstaller();
         }
     }
 

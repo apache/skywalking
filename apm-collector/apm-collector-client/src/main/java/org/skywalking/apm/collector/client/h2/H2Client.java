@@ -6,11 +6,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import org.skywalking.apm.collector.core.client.Client;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author pengys5
  */
 public class H2Client implements Client {
+
+    private final Logger logger = LoggerFactory.getLogger(H2Client.class);
 
     private Connection conn;
 
@@ -40,7 +44,7 @@ public class H2Client implements Client {
             statement = conn.createStatement();
             ResultSet rs = statement.executeQuery(sql);
             while (rs.next()) {
-                System.out.println(rs.getString("ADDRESS") + "," + rs.getString("DATA"));
+                logger.debug(rs.getString("ADDRESS") + "," + rs.getString("DATA"));
             }
             statement.closeOnCompletion();
         } catch (SQLException e) {

@@ -15,7 +15,7 @@
     <dependencies>
         <dependency>
             <groupId>org.skywalking</groupId>
-            <artifactId>apm-collector-cluster-new</artifactId>
+            <artifactId>apm-collector-cluster</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

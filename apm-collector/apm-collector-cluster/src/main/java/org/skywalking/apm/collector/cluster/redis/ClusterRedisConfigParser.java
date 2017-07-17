@@ -10,12 +10,12 @@ import org.skywalking.apm.collector.core.util.StringUtils;
  */
 public class ClusterRedisConfigParser implements ModuleConfigParser {
 
-    private final String HOST = "host";
-    private final String PORT = "port";
+    private static final String HOST = "host";
+    private static final String PORT = "port";
 
     @Override public void parse(Map config) throws ConfigParseException {
         ClusterRedisConfig.HOST = (String)config.get(HOST);
-        ClusterRedisConfig.PORT = ((Integer)config.get(PORT));
+        ClusterRedisConfig.PORT = (Integer)config.get(PORT);
         if (StringUtils.isEmpty(ClusterRedisConfig.HOST) || ClusterRedisConfig.PORT == 0) {
             throw new ConfigParseException("");
         }

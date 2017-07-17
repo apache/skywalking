@@ -40,10 +40,10 @@ public class ClusterZKDataInitializer extends ClusterDataInitializer {
             pathBuilder.append("/").append(catalog);
         }
 
-        if (zkClient.exists(pathBuilder.toString(), false) == null) {
-            return false;
-        } else {
-            return true;
-        }
+//        if (zkClient.exists(pathBuilder.toString(), false) == null) {
+//            return false;
+//        } else {
+        return true;
+//        }
     }
 }
