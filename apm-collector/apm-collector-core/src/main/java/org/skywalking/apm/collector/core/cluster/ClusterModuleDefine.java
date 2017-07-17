@@ -39,4 +39,6 @@ public abstract class ClusterModuleDefine extends ModuleDefine {
     }
 
     protected abstract ClusterModuleRegistrationWriter registrationWriter();
+
+    protected abstract ClusterModuleRegistrationReader registrationReader();
 }

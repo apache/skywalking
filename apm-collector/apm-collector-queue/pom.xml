@@ -10,17 +10,18 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>apm-collector-queue</artifactId>
-    <packaging>pom</packaging>
-    <modules>
-        <module>disruptor-queue</module>
-        <module>datacarrier-queue</module>
-    </modules>
+    <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
             <groupId>org.skywalking</groupId>
             <artifactId>apm-collector-core</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.lmax</groupId>
+            <artifactId>disruptor</artifactId>
+            <version>3.3.6</version>
         </dependency>
     </dependencies>
 </project>

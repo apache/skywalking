@@ -10,12 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>apm-collector-client</artifactId>
-    <packaging>pom</packaging>
-    <modules>
-        <module>client-zookeeper</module>
-        <module>client-redis</module>
-        <module>client-h2</module>
-    </modules>
+    <packaging>jar</packaging>
 
     <dependencies>
         <dependency>

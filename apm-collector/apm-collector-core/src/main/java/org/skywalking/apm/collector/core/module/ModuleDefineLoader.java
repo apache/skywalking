@@ -19,10 +19,10 @@ public class ModuleDefineLoader implements Loader<Map<String, Map<String, Module
         Map<String, Map<String, ModuleDefine>> moduleDefineMap = new LinkedHashMap<>();
 
         ModuleDefinitionFile definitionFile = new ModuleDefinitionFile();
-        logger.info("definition file name: {}", definitionFile.fileName());
+        logger.info("module definition file name: {}", definitionFile.fileName());
         DefinitionLoader<ModuleDefine> definitionLoader = DefinitionLoader.load(ModuleDefine.class, definitionFile);
         for (ModuleDefine moduleDefine : definitionLoader) {
-            logger.info("loaded module class: {}", moduleDefine.getClass().getName());
+            logger.info("loaded module definition class: {}", moduleDefine.getClass().getName());
 
             String groupName = moduleDefine.group().name().toLowerCase();
             if (!moduleDefineMap.containsKey(groupName)) {

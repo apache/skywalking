@@ -5,4 +5,6 @@ package org.skywalking.apm.collector.core.cluster;
  */
 public class ClusterModuleContext {
     public static ClusterModuleRegistrationWriter writer;
+
+    public static ClusterModuleRegistrationReader reader;
 }

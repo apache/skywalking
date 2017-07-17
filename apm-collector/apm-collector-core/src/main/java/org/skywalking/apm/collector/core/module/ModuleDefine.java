@@ -1,7 +1,6 @@
 package org.skywalking.apm.collector.core.module;
 
 import org.skywalking.apm.collector.core.client.Client;
-import org.skywalking.apm.collector.core.client.ClientConfig;
 import org.skywalking.apm.collector.core.framework.DataInitializer;
 import org.skywalking.apm.collector.core.framework.Define;
 import org.skywalking.apm.collector.core.server.Server;

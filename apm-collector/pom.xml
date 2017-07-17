@@ -4,14 +4,17 @@
     <modelVersion>4.0.0</modelVersion>
     <modules>
         <module>apm-collector-cluster</module>
-        <module>apm-collector-worker</module>
         <module>apm-collector-core</module>
         <module>apm-collector-queue</module>
-        <module>apm-collector-worker-new</module>
         <module>apm-collector-storage</module>
-        <module>apm-collector-cluster-new</module>
+        <module>apm-collector-cluster</module>
         <module>apm-collector-client</module>
         <module>apm-collector-server</module>
+        <module>apm-collector-discovery</module>
+        <module>apm-collector-agentstream</module>
+        <module>apm-collector-ui</module>
+        <module>apm-collector-boot</module>
+        <module>apm-collector-remote</module>
     </modules>
     <parent>
         <artifactId>apm</artifactId>
