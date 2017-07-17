@@ -10,25 +10,24 @@ public interface StaticMethodsAroundInterceptor {
     /**
      * called before target method invocation.
      *
-     * @param interceptorContext method context, includes class name, method name, etc.
-     * @param result             change this result, if you want to truncate the method.
+     * @param result change this result, if you want to truncate the method.
      */
-    void beforeMethod(StaticMethodInvokeContext interceptorContext, MethodInterceptResult result);
+    void beforeMethod(Class clazz, String methodName, Object[] allArguments, Class<?>[] parameterTypes,
+        MethodInterceptResult result);
 
     /**
      * called after target method invocation. Even method's invocation triggers an exception.
      *
-     * @param interceptorContext method context, includes class name, method name, etc.
-     * @param ret                the method's original return value.
+     * @param ret the method's original return value.
      * @return the method's actual return value.
      */
-    Object afterMethod(StaticMethodInvokeContext interceptorContext, Object ret);
+    Object afterMethod(Class clazz, String methodName, Object[] allArguments, Class<?>[] parameterTypes, Object ret);
 
     /**
      * called when occur exception.
      *
-     * @param t                  the exception occur.
-     * @param interceptorContext method context, includes class name, method name, etc.
+     * @param t the exception occur.
      */
-    void handleMethodException(Throwable t, MethodInvokeContext interceptorContext);
+    void handleMethodException(Class clazz, String methodName, Object[] allArguments, Class<?>[] parameterTypes,
+        Throwable t);
 }

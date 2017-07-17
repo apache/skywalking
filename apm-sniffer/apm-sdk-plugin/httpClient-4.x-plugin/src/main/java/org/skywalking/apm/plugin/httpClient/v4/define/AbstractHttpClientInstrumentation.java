@@ -6,8 +6,10 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.protocol.HttpContext;
 import org.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
+import org.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
+import static org.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
  * {@link AbstractHttpClientInstrumentation} presents that skywalking intercepts
@@ -18,11 +20,11 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
  */
 public class AbstractHttpClientInstrumentation extends HttpClientInstrumentation {
 
-    private static final String ENHANCE_CLASS = "org.apache.http.impl.client.AbstractHttpClient";
+    private static final String ENHANCE_CLASS = "org.apache.http.impl.discovery.AbstractHttpClient";
 
     @Override
-    public String enhanceClassName() {
-        return ENHANCE_CLASS;
+    public ClassMatch enhanceClass() {
+        return byName(ENHANCE_CLASS);
     }
 
     /**
@@ -42,6 +44,11 @@ public class AbstractHttpClientInstrumentation extends HttpClientInstrumentation
                 @Override
                 public String getMethodsInterceptor() {
                     return getInstanceMethodsInterceptor();
+                }
+
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
                 }
             }
         };

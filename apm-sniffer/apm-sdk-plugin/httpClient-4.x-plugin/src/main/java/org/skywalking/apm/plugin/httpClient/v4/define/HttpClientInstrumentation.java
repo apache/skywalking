@@ -5,7 +5,7 @@ import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMet
 import org.skywalking.apm.plugin.httpClient.v4.HttpClientExecuteInterceptor;
 
 /**
- * {@link HttpClientInstrumentation} present that skywalking intercepts {@link HttpClientInstrumentation#enhanceClassName()}
+ * {@link HttpClientInstrumentation} present that skywalking intercepts {@link HttpClientInstrumentation#enhanceClass()}
  * by using {@link HttpClientExecuteInterceptor}
  *
  * @author zhangxin

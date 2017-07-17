@@ -1,28 +1,22 @@
 package org.skywalking.apm.agent.core.conf;
 
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.Test;
 import org.skywalking.apm.agent.core.logging.LogLevel;
 
-/**
- * @author wusheng
- */
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+
 public class SnifferConfigInitializerTest {
 
     @Test
-    public void testInitialize() {
+    public void testLoadConfigFromJavaAgentDir() {
+        System.setProperty("applicationCode", "testApp");
+        System.setProperty("servers", "127.0.0.1:8090");
         SnifferConfigInitializer.initialize();
-
-        Assert.assertEquals("crmApp", Config.Agent.APPLICATION_CODE);
-        Assert.assertEquals("127.0.0.1:8080", Config.Collector.SERVERS);
-
-        Assert.assertNotNull(Config.Buffer.SIZE);
-        Assert.assertNotNull(Config.Logging.DIR);
-        Assert.assertNotNull(Config.Logging.FILE_NAME);
-        Assert.assertNotNull(Config.Logging.MAX_FILE_SIZE);
-        Assert.assertNotNull(Config.Logging.FILE_NAME);
-        Assert.assertEquals(LogLevel.INFO, Config.Logging.LEVEL);
+        assertThat(Config.Agent.APPLICATION_CODE, is("testApp"));
+        assertThat(Config.Collector.SERVERS, is("127.0.0.1:8090"));
+        assertThat(Config.Logging.LEVEL, is(LogLevel.INFO));
     }
 
     @AfterClass

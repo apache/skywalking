@@ -12,18 +12,15 @@
     <artifactId>apm-collector-cluster</artifactId>
     <packaging>jar</packaging>
 
-    <properties>
-    </properties>
-
     <dependencies>
         <dependency>
-            <groupId>com.lmax</groupId>
-            <artifactId>disruptor</artifactId>
-            <version>3.3.6</version>
+            <groupId>org.skywalking</groupId>
+            <artifactId>apm-collector-core</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.skywalking</groupId>
-            <artifactId>apm-util</artifactId>
+            <artifactId>apm-collector-client</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

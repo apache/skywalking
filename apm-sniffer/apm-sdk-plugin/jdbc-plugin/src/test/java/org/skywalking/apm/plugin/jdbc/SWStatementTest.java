@@ -1,38 +1,50 @@
 package org.skywalking.apm.plugin.jdbc;
 
 import com.mysql.cj.api.jdbc.JdbcConnection;
-import java.util.List;
-import org.hamcrest.CoreMatchers;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.skywalking.apm.agent.core.boot.ServiceManager;
-import org.skywalking.apm.agent.core.context.TracerContext;
-import org.skywalking.apm.sniffer.mock.context.MockTracerContextListener;
-import org.skywalking.apm.sniffer.mock.context.SegmentAssert;
-import org.skywalking.apm.agent.core.context.trace.LogData;
-import org.skywalking.apm.agent.core.context.trace.Span;
-import org.skywalking.apm.agent.core.context.trace.TraceSegment;
-
 import java.net.MalformedURLException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.List;
 import java.util.Properties;
+import org.hamcrest.CoreMatchers;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.modules.junit4.PowerMockRunnerDelegate;
+import org.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
+import org.skywalking.apm.agent.core.context.trace.TraceSegment;
+import org.skywalking.apm.agent.test.helper.SegmentHelper;
+import org.skywalking.apm.agent.test.helper.SpanHelper;
+import org.skywalking.apm.agent.test.tools.AgentServiceRule;
+import org.skywalking.apm.agent.test.tools.SegmentStorage;
+import org.skywalking.apm.agent.test.tools.SegmentStoragePoint;
+import org.skywalking.apm.agent.test.tools.TracingSegmentRunner;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(PowerMockRunner.class)
+@PowerMockRunnerDelegate(TracingSegmentRunner.class)
 public class SWStatementTest extends AbstractStatementTest {
+
+    @SegmentStoragePoint
+    private SegmentStorage segmentStorage;
+
+    @Rule
+    public AgentServiceRule serviceRule = new AgentServiceRule();
+
     @Mock
     private com.mysql.cj.jdbc.StatementImpl mysqlStatement;
     @Mock
@@ -42,13 +54,8 @@ public class SWStatementTest extends AbstractStatementTest {
 
     @Before
     public void setUp() throws Exception {
-        mockTracerContextListener = new MockTracerContextListener();
-
-        ServiceManager.INSTANCE.boot();
         swConnection = new SWConnection("jdbc:mysql://127.0.0.1:3306/test", new Properties(), jdbcConnection);
         multiHostConnection = new SWConnection("jdbc:mysql://127.0.0.1:3306,127.0.0.1:3309/test", new Properties(), jdbcConnection);
-
-        TracerContext.ListenerManager.add(mockTracerContextListener);
 
         when(jdbcConnection.createStatement()).thenReturn(mysqlStatement);
         when(jdbcConnection.createStatement(anyInt(), anyInt())).thenReturn(mysqlStatement);
@@ -114,15 +121,10 @@ public class SWStatementTest extends AbstractStatementTest {
         verify(mysqlStatement, times(1)).getResultSet();
         assertThat(connection, CoreMatchers.<Connection>is(swConnection));
 
-        mockTracerContextListener.assertSize(1);
-        mockTracerContextListener.assertTraceSegment(0, new SegmentAssert() {
-            @Override
-            public void call(TraceSegment traceSegment) {
-                assertThat(traceSegment.getSpans().size(), is(1));
-                Span span = traceSegment.getSpans().get(0);
-                assertDBSpan(span, "Mysql/JDBI/Statement/execute", "SELECT * FROM test");
-            }
-        });
+        TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
+        List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
+        assertThat(spans.size(), is(1));
+        assertDBSpan(spans.get(0), "Mysql/JDBI/Statement/execute", "SELECT * FROM test");
     }
 
     @Test
@@ -130,15 +132,11 @@ public class SWStatementTest extends AbstractStatementTest {
         Statement statement = swConnection.createStatement(1, 1);
         boolean executeSuccess = statement.execute("SELECT * FROM test", 1);
 
-        mockTracerContextListener.assertSize(1);
-        mockTracerContextListener.assertTraceSegment(0, new SegmentAssert() {
-            @Override
-            public void call(TraceSegment traceSegment) {
-                assertThat(traceSegment.getSpans().size(), is(1));
-                Span span = traceSegment.getSpans().get(0);
-                assertDBSpan(span, "Mysql/JDBI/Statement/execute", "SELECT * FROM test");
-            }
-        });
+        TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
+        List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
+        assertThat(spans.size(), is(1));
+        assertDBSpan(spans.get(0), "Mysql/JDBI/Statement/execute", "SELECT * FROM test");
+
     }
 
     @Test
@@ -146,15 +144,11 @@ public class SWStatementTest extends AbstractStatementTest {
         Statement statement = swConnection.createStatement(1, 1, 1);
         ResultSet executeSuccess = statement.executeQuery("SELECT * FROM test");
 
-        mockTracerContextListener.assertSize(1);
-        mockTracerContextListener.assertTraceSegment(0, new SegmentAssert() {
-            @Override
-            public void call(TraceSegment traceSegment) {
-                assertThat(traceSegment.getSpans().size(), is(1));
-                Span span = traceSegment.getSpans().get(0);
-                assertDBSpan(span, "Mysql/JDBI/Statement/executeQuery", "SELECT * FROM test");
-            }
-        });
+        TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
+        List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
+        assertThat(spans.size(), is(1));
+        assertDBSpan(spans.get(0), "Mysql/JDBI/Statement/executeQuery", "SELECT * FROM test");
+
     }
 
     @Test
@@ -162,15 +156,11 @@ public class SWStatementTest extends AbstractStatementTest {
         Statement statement = swConnection.createStatement(1, 1, 1);
         int executeSuccess = statement.executeUpdate("UPDATE test SET a = 1");
 
-        mockTracerContextListener.assertSize(1);
-        mockTracerContextListener.assertTraceSegment(0, new SegmentAssert() {
-            @Override
-            public void call(TraceSegment traceSegment) {
-                assertThat(traceSegment.getSpans().size(), is(1));
-                Span span = traceSegment.getSpans().get(0);
-                assertDBSpan(span, "Mysql/JDBI/Statement/executeUpdate", "UPDATE test SET a = 1");
-            }
-        });
+        TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
+        List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
+        assertThat(spans.size(), is(1));
+        assertDBSpan(spans.get(0), "Mysql/JDBI/Statement/executeUpdate", "UPDATE test SET a = 1");
+
     }
 
     @Test
@@ -180,15 +170,11 @@ public class SWStatementTest extends AbstractStatementTest {
         statement.getGeneratedKeys();
 
         verify(mysqlStatement, times(1)).getGeneratedKeys();
-        mockTracerContextListener.assertSize(1);
-        mockTracerContextListener.assertTraceSegment(0, new SegmentAssert() {
-            @Override
-            public void call(TraceSegment traceSegment) {
-                assertThat(traceSegment.getSpans().size(), is(1));
-                Span span = traceSegment.getSpans().get(0);
-                assertDBSpan(span, "Mysql/JDBI/Statement/executeUpdate", "UPDATE test SET a = 1");
-            }
-        });
+        TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
+        List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
+        assertThat(spans.size(), is(1));
+        assertDBSpan(spans.get(0), "Mysql/JDBI/Statement/executeUpdate", "UPDATE test SET a = 1");
+
     }
 
     @Test
@@ -196,15 +182,11 @@ public class SWStatementTest extends AbstractStatementTest {
         Statement statement = swConnection.createStatement(1, 1, 1);
         int executeSuccess = statement.executeUpdate("UPDATE test SET a = 1", new int[] {1});
 
-        mockTracerContextListener.assertSize(1);
-        mockTracerContextListener.assertTraceSegment(0, new SegmentAssert() {
-            @Override
-            public void call(TraceSegment traceSegment) {
-                assertThat(traceSegment.getSpans().size(), is(1));
-                Span span = traceSegment.getSpans().get(0);
-                assertDBSpan(span, "Mysql/JDBI/Statement/executeUpdate", "UPDATE test SET a = 1");
-            }
-        });
+        TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
+        List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
+        assertThat(spans.size(), is(1));
+        assertDBSpan(spans.get(0), "Mysql/JDBI/Statement/executeUpdate", "UPDATE test SET a = 1");
+
     }
 
     @Test
@@ -212,15 +194,11 @@ public class SWStatementTest extends AbstractStatementTest {
         Statement statement = swConnection.createStatement(1, 1, 1);
         int executeSuccess = statement.executeUpdate("UPDATE test SET a = 1", new String[] {"1"});
 
-        mockTracerContextListener.assertSize(1);
-        mockTracerContextListener.assertTraceSegment(0, new SegmentAssert() {
-            @Override
-            public void call(TraceSegment traceSegment) {
-                assertThat(traceSegment.getSpans().size(), is(1));
-                Span span = traceSegment.getSpans().get(0);
-                assertDBSpan(span, "Mysql/JDBI/Statement/executeUpdate", "UPDATE test SET a = 1");
-            }
-        });
+        TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
+        List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
+        assertThat(spans.size(), is(1));
+        assertDBSpan(spans.get(0), "Mysql/JDBI/Statement/executeUpdate", "UPDATE test SET a = 1");
+
     }
 
     @Test
@@ -228,15 +206,11 @@ public class SWStatementTest extends AbstractStatementTest {
         Statement statement = swConnection.createStatement(1, 1, 1);
         boolean executeSuccess = statement.execute("UPDATE test SET a = 1", new int[] {1});
 
-        mockTracerContextListener.assertSize(1);
-        mockTracerContextListener.assertTraceSegment(0, new SegmentAssert() {
-            @Override
-            public void call(TraceSegment traceSegment) {
-                assertThat(traceSegment.getSpans().size(), is(1));
-                Span span = traceSegment.getSpans().get(0);
-                assertDBSpan(span, "Mysql/JDBI/Statement/execute", "UPDATE test SET a = 1");
-            }
-        });
+        TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
+        List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
+        assertThat(spans.size(), is(1));
+        assertDBSpan(spans.get(0), "Mysql/JDBI/Statement/execute", "UPDATE test SET a = 1");
+
     }
 
     @Test
@@ -244,15 +218,10 @@ public class SWStatementTest extends AbstractStatementTest {
         Statement statement = swConnection.createStatement(1, 1, 1);
         boolean executeSuccess = statement.execute("UPDATE test SET a = 1", new String[] {"1"});
 
-        mockTracerContextListener.assertSize(1);
-        mockTracerContextListener.assertTraceSegment(0, new SegmentAssert() {
-            @Override
-            public void call(TraceSegment traceSegment) {
-                assertThat(traceSegment.getSpans().size(), is(1));
-                Span span = traceSegment.getSpans().get(0);
-                assertDBSpan(span, "Mysql/JDBI/Statement/execute", "UPDATE test SET a = 1");
-            }
-        });
+        TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
+        List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
+        assertThat(spans.size(), is(1));
+        assertDBSpan(spans.get(0), "Mysql/JDBI/Statement/execute", "UPDATE test SET a = 1");
     }
 
     @Test
@@ -266,15 +235,11 @@ public class SWStatementTest extends AbstractStatementTest {
         verify(mysqlStatement, times(1)).addBatch(anyString());
         verify(mysqlStatement, times(1)).clearBatch();
 
-        mockTracerContextListener.assertSize(1);
-        mockTracerContextListener.assertTraceSegment(0, new SegmentAssert() {
-            @Override
-            public void call(TraceSegment traceSegment) {
-                assertThat(traceSegment.getSpans().size(), is(1));
-                Span span = traceSegment.getSpans().get(0);
-                assertDBSpan(span, "Mysql/JDBI/Statement/executeBatch", "");
-            }
-        });
+        TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
+        List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
+        assertThat(spans.size(), is(1));
+        assertDBSpan(spans.get(0), "Mysql/JDBI/Statement/executeBatch", "");
+
     }
 
     @Test(expected = SQLException.class)
@@ -285,30 +250,14 @@ public class SWStatementTest extends AbstractStatementTest {
             statement.execute("UPDATE test SET a = 1 WHERE b = 2");
         } finally {
             verify(mysqlStatement, times(1)).execute(anyString());
-            mockTracerContextListener.assertSize(1);
-            mockTracerContextListener.assertTraceSegment(0, new SegmentAssert() {
-                @Override
-                public void call(TraceSegment traceSegment) {
-                    assertThat(traceSegment.getSpans().size(), is(1));
-                    Span span = traceSegment.getSpans().get(0);
-                    assertDBSpan(span, "Mysql/JDBI/Statement/execute", "UPDATE test SET a = 1 WHERE b = 2");
-                    List<LogData> logs = null;
-                    try {
-                        logs = getLogs(span);
-                    } catch (NoSuchFieldException e) {
-                        throw new RuntimeException(e);
-                    } catch (IllegalAccessException e) {
-                        throw new RuntimeException(e);
-                    }
-                    assertThat(logs.size(), is(1));
-                    assertDBSpanLog(logs.get(0));
-                }
-            });
+            TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
+            List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
+            assertThat(spans.size(), is(1));
+            assertDBSpan(spans.get(0), "Mysql/JDBI/Statement/execute", "UPDATE test SET a = 1 WHERE b = 2");
+            assertThat(SpanHelper.getLogs(spans.get(0)).size(), is(1));
+            assertDBSpanLog(SpanHelper.getLogs(spans.get(0)).get(0));
+
         }
     }
 
-    @After
-    public void tearDown() throws Exception {
-        TracerContext.ListenerManager.remove(mockTracerContextListener);
-    }
 }

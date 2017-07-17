@@ -5,15 +5,17 @@ import net.bytebuddy.matcher.ElementMatcher;
 import org.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
+import org.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.skywalking.apm.plugin.feign.http.v9.DefaultHttpClientInterceptor;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
+import static org.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
  * {@link DefaultHttpClientInstrumentation} presents that skywalking intercepts {@link
  * feign.Client.Default#execute(feign.Request, feign.Request.Options)} by using {@link DefaultHttpClientInterceptor}.
- * If feign did't run in default mode, the instrumentation depend on the http client implementation.
- * e.g. okhttp client implementation depend on okhttp-plugin.
+ * If feign did't run in default mode, the instrumentation depend on the http discovery implementation.
+ * e.g. okhttp discovery implementation depend on okhttp-plugin.
  *
  * @author pengys5
  */
@@ -29,8 +31,8 @@ public class DefaultHttpClientInstrumentation extends ClassInstanceMethodsEnhanc
      */
     private static final String INTERCEPT_CLASS = "org.skywalking.apm.plugin.feign.http.v9.DefaultHttpClientInterceptor";
 
-    @Override protected String enhanceClassName() {
-        return ENHANCE_CLASS;
+    @Override protected ClassMatch enhanceClass() {
+        return byName(ENHANCE_CLASS);
     }
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
@@ -46,6 +48,10 @@ public class DefaultHttpClientInstrumentation extends ClassInstanceMethodsEnhanc
 
                 @Override public String getMethodsInterceptor() {
                     return INTERCEPT_CLASS;
+                }
+
+                @Override public boolean isOverrideArgs() {
+                    return false;
                 }
             }
         };

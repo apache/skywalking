@@ -1,13 +1,11 @@
 package org.skywalking.apm.plugin.jdbc.define;
 
-import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceContext;
-import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodInvokeContext;
+import java.sql.Connection;
+import java.util.Properties;
+import org.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.skywalking.apm.plugin.jdbc.SWConnection;
-
-import java.sql.Connection;
-import java.util.Properties;
 
 /**
  * {@link JDBCDriverInterceptor} return {@link SWConnection} when {@link java.sql.Driver} to create connection,
@@ -16,23 +14,20 @@ import java.util.Properties;
  * @author zhangxin
  */
 public class JDBCDriverInterceptor implements InstanceMethodsAroundInterceptor {
-    @Override
-    public void beforeMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
-                             MethodInterceptResult result) {
-        // do nothing
+
+    @Override public void beforeMethod(EnhancedInstance objInst, String methodName, Object[] allArguments,
+        Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
+
     }
 
-    @Override
-    public Object afterMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
-                              Object ret) {
-        return new SWConnection((String) interceptorContext.allArguments()[0],
-            (Properties) interceptorContext.allArguments()[1], (Connection) ret);
+    @Override public Object afterMethod(EnhancedInstance objInst, String methodName, Object[] allArguments,
+        Class<?>[] argumentsTypes, Object ret) throws Throwable {
+        return new SWConnection((String)allArguments[0],
+            (Properties)allArguments[1], (Connection)ret);
     }
 
-    @Override
-    public void handleMethodException(Throwable t, EnhancedClassInstanceContext context,
-                                      InstanceMethodInvokeContext interceptorContext) {
-        // do nothing.
-    }
+    @Override public void handleMethodException(EnhancedInstance objInst, String methodName, Object[] allArguments,
+        Class<?>[] argumentsTypes, Throwable t) {
 
+    }
 }

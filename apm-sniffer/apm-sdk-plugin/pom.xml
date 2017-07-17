@@ -40,7 +40,7 @@
         </dependency>
         <dependency>
             <groupId>org.skywalking</groupId>
-            <artifactId>apm-sniffer-mock</artifactId>
+            <artifactId>apm-test-tools</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

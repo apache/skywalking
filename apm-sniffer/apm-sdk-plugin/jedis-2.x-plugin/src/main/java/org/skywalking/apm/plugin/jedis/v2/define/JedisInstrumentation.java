@@ -1,20 +1,20 @@
 package org.skywalking.apm.plugin.jedis.v2.define;
 
+import java.net.URI;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
-import net.bytebuddy.matcher.ElementMatchers;
-import org.skywalking.apm.agent.core.plugin.bytebuddy.AllObjectDefaultMethodsMatch;
 import org.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
+import org.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.skywalking.apm.plugin.jedis.v2.JedisConstructorWithShardInfoArgInterceptor;
 import org.skywalking.apm.plugin.jedis.v2.JedisConstructorWithUriArgInterceptor;
 import org.skywalking.apm.plugin.jedis.v2.JedisMethodInterceptor;
+import org.skywalking.apm.plugin.jedis.v2.RedisMethodMatch;
 
-import java.net.URI;
-
-import static net.bytebuddy.matcher.ElementMatchers.*;
+import static net.bytebuddy.matcher.ElementMatchers.takesArgument;
 import static org.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
+import static org.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
  * {@link JedisInstrumentation} presents that skywalking intercept all constructors and methods of {@link
@@ -36,8 +36,8 @@ public class JedisInstrumentation extends ClassInstanceMethodsEnhancePluginDefin
     private static final String JEDIS_METHOD_INTERCET_CLASS = "org.skywalking.apm.plugin.jedis.v2.JedisMethodInterceptor";
 
     @Override
-    public String enhanceClassName() {
-        return ENHANCE_CLASS;
+    public ClassMatch enhanceClass() {
+        return byName(ENHANCE_CLASS);
     }
 
     @Override
@@ -85,20 +85,16 @@ public class JedisInstrumentation extends ClassInstanceMethodsEnhancePluginDefin
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return not(ElementMatchers.<MethodDescription>isPrivate()
-                        .or(AllObjectDefaultMethodsMatch.INSTANCE)
-                        .or(named("close"))
-                        .or(named("getDB"))
-                        .or(named("connect"))
-                        .or(named("setDataSource"))
-                        .or(named("resetState"))
-                        .or(named("clusterSlots"))
-                        .or(named("checkIsInMultiOrPipeline")));
+                    return RedisMethodMatch.INSTANCE.getJedisMethodMatcher();
                 }
 
                 @Override
                 public String getMethodsInterceptor() {
                     return JEDIS_METHOD_INTERCET_CLASS;
+                }
+
+                @Override public boolean isOverrideArgs() {
+                    return false;
                 }
             }
         };

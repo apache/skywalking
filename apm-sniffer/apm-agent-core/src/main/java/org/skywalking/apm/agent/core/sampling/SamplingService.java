@@ -16,7 +16,7 @@ import org.skywalking.apm.logging.LogManager;
  * have been traced, but, considering CPU cost of serialization/deserialization, and network bandwidth, the agent do NOT
  * send all of them to collector, if SAMPLING is on.
  * <p>
- * By default, SAMPLING is on, and {@see {@link Config.Agent#SAMPLE_N_PER_10_SECS}}
+ * By default, SAMPLING is on, and {@see {@link Config.Agent#SAMPLE_N_PER_3_SECS }}
  *
  * @author wusheng
  */
@@ -28,15 +28,20 @@ public class SamplingService implements BootService {
     private volatile ScheduledFuture<?> scheduledFuture;
 
     @Override
-    public void bootUp() throws Throwable {
+    public void beforeBoot() throws Throwable {
+
+    }
+
+    @Override
+    public void boot() throws Throwable {
         if (scheduledFuture != null) {
             /**
-             * If {@link #bootUp()} invokes twice, mostly in test cases,
+             * If {@link #boot()} invokes twice, mostly in test cases,
              * cancel the old one.
              */
             scheduledFuture.cancel(true);
         }
-        if (Config.Agent.SAMPLE_N_PER_10_SECS > 0) {
+        if (Config.Agent.SAMPLE_N_PER_3_SECS > 0) {
             on = true;
             this.resetSamplingFactor();
             ScheduledExecutorService service = Executors
@@ -46,9 +51,14 @@ public class SamplingService implements BootService {
                 public void run() {
                     resetSamplingFactor();
                 }
-            }, 0, 10, TimeUnit.SECONDS);
-            logger.debug("Agent sampling mechanism started. Sample {} traces in 10 seconds.", Config.Agent.SAMPLE_N_PER_10_SECS);
+            }, 0, 3, TimeUnit.SECONDS);
+            logger.debug("Agent sampling mechanism started. Sample {} traces in 10 seconds.", Config.Agent.SAMPLE_N_PER_3_SECS);
         }
+    }
+
+    @Override
+    public void afterBoot() throws Throwable {
+
     }
 
     /**
@@ -57,7 +67,7 @@ public class SamplingService implements BootService {
     public boolean trySampling() {
         if (on) {
             int factor = samplingFactorHolder.get();
-            if (factor < Config.Agent.SAMPLE_N_PER_10_SECS) {
+            if (factor < Config.Agent.SAMPLE_N_PER_3_SECS) {
                 boolean success = samplingFactorHolder.compareAndSet(factor, factor + 1);
                 return success;
             } else {
