@@ -6,10 +6,13 @@ import org.skywalking.apm.network.trace.component.Component;
 /**
  * The <code>EntrySpan</code> represents a service provider point, such as Tomcat server entrance.
  *
- * It is a start point of {@link TraceSegment}, even in a complex application, there maybe have multi entry point,
+ * It is a start point of {@link TraceSegment}, even in a complex application, there maybe have multi-layer entry point,
  * the <code>EntrySpan</code> only represents the first one.
  *
  * But with the last <code>EntrySpan</code>'s tags and logs, which have more details about a service provider.
+ *
+ * Such as: Tomcat Embed -> Dubbox
+ * The <code>EntrySpan</code> represents the Dubbox span.
  *
  * @author wusheng
  */
@@ -50,7 +53,7 @@ public class EntrySpan extends AbstractTracingSpan {
     }
 
     @Override
-    public AbstractSpan setLayer(SpanLayer layer) {
+    public AbstractTracingSpan setLayer(SpanLayer layer) {
         if (stackDepth == currentMaxDepth) {
             return super.setLayer(layer);
         } else {
@@ -59,7 +62,7 @@ public class EntrySpan extends AbstractTracingSpan {
     }
 
     @Override
-    public AbstractSpan setComponent(Component component) {
+    public AbstractTracingSpan setComponent(Component component) {
         if (stackDepth == currentMaxDepth) {
             return super.setComponent(component);
         } else {
@@ -68,7 +71,7 @@ public class EntrySpan extends AbstractTracingSpan {
     }
 
     @Override
-    public AbstractSpan setComponent(String componentName) {
+    public AbstractTracingSpan setComponent(String componentName) {
         if (stackDepth == currentMaxDepth) {
             return super.setComponent(componentName);
         } else {
@@ -86,6 +89,24 @@ public class EntrySpan extends AbstractTracingSpan {
     }
 
     @Override
+    public AbstractTracingSpan setOperationName(String operationName) {
+        if (stackDepth == currentMaxDepth) {
+            return super.setOperationName(operationName);
+        } else {
+            return this;
+        }
+    }
+
+    @Override
+    public AbstractTracingSpan setOperationId(int operationId) {
+        if (stackDepth == currentMaxDepth) {
+            return super.setOperationId(operationId);
+        } else {
+            return this;
+        }
+    }
+
+    @Override
     public EntrySpan log(Throwable t) {
         super.log(t);
         return this;
@@ -93,10 +114,6 @@ public class EntrySpan extends AbstractTracingSpan {
 
     @Override public boolean isEntry() {
         return true;
-    }
-
-    @Override public boolean isLocal() {
-        return false;
     }
 
     @Override public boolean isExit() {

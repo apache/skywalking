@@ -1,14 +1,15 @@
 package org.skywalking.apm.agent.core.plugin;
 
+import org.skywalking.apm.agent.core.plugin.exception.IllegalPluginDefineException;
+import org.skywalking.apm.logging.ILog;
+import org.skywalking.apm.logging.LogManager;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
-import org.skywalking.apm.agent.core.plugin.exception.IllegalPluginDefineException;
-import org.skywalking.apm.logging.ILog;
-import org.skywalking.apm.logging.LogManager;
 
 public enum PluginCfg {
     INSTANCE;
@@ -31,7 +32,7 @@ public enum PluginCfg {
                         pluginClassList.add(plugin);
                     }
                 } catch (IllegalPluginDefineException e) {
-                    logger.error("Failed to format plugin define.", e);
+                    logger.error(e,"Failed to format plugin({}) define.", pluginDefine);
                 }
             }
         } finally {

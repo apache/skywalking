@@ -7,9 +7,11 @@ import org.apache.catalina.connector.Response;
 import org.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
+import org.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.skywalking.apm.plugin.tomcat78x.TomcatInterceptor;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
+import static org.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
  * {@link TomcatInstrumentation} presents that skywalking using class {@link TomcatInterceptor} to
@@ -30,8 +32,8 @@ public class TomcatInstrumentation extends ClassInstanceMethodsEnhancePluginDefi
     private static final String INTERCEPT_CLASS = "org.skywalking.apm.plugin.tomcat78x.TomcatInterceptor";
 
     @Override
-    protected String enhanceClassName() {
-        return ENHANCE_CLASS;
+    protected ClassMatch enhanceClass() {
+        return byName(ENHANCE_CLASS);
     }
 
     @Override

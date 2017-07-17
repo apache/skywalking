@@ -25,13 +25,14 @@ message TraceSegmentObject {
 }
 
 message TraceSegmentReference {
-    string parentTraceSegmentId = 1;
-    int32 parentSpanId = 2;
-    int32 parentApplicationId = 3;
-    string networkAddress = 4;
-    int32 networkAddressId = 5;
-    string entryServiceName = 6;
-    int32 entryServiceId = 7;
+    RefType refType = 1;
+    string parentTraceSegmentId = 2;
+    int32 parentSpanId = 3;
+    int32 parentApplicationInstanceId = 4;
+    string networkAddress = 5;
+    int32 networkAddressId = 6;
+    string entryServiceName = 7;
+    int32 entryServiceId = 8;
 }
 
 message SpanObject {
@@ -50,6 +51,11 @@ message SpanObject {
     bool isError = 13;
     repeated KeyWithStringValue tags = 14;
     repeated LogMessage logs = 15;
+}
+
+enum RefType {
+    CrossProcess = 0;
+    CrossThread = 1;
 }
 
 enum SpanType {

@@ -4,8 +4,10 @@ import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.skywalking.apm.agent.core.plugin.interceptor.StaticMethodsInterceptPoint;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassStaticMethodsEnhancePluginDefine;
+import org.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
+import static org.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
  * Active the toolkit class "org.skywalking.apm.toolkit.log.logback.v2.x.LogbackPatternConverter".
@@ -20,8 +22,8 @@ public class Log4j2OutputAppenderActivation extends ClassStaticMethodsEnhancePlu
      * @return the target class, which needs active.
      */
     @Override
-    protected String enhanceClassName() {
-        return "org.skywalking.apm.toolkit.log.log4j.v2.x.Log4j2OutputAppender";
+    protected ClassMatch enhanceClass() {
+        return byName("org.skywalking.apm.toolkit.log.log4j.v2.x.Log4j2OutputAppender");
     }
 
     /**
@@ -40,6 +42,10 @@ public class Log4j2OutputAppenderActivation extends ClassStaticMethodsEnhancePlu
                 @Override
                 public String getMethodsInterceptor() {
                     return "org.skywalking.apm.toolkit.activation.log.log4j.v2.x.PrintTraceIdInterceptor";
+                }
+
+                @Override public boolean isOverrideArgs() {
+                    return false;
                 }
             }
         };

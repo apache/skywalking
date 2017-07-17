@@ -35,6 +35,18 @@ public class Config {
 
     public static class Collector {
         /**
+         * grpc channel status check interval
+         */
+        public static long GRPC_CHANNEL_CHECK_INTERVAL = 30;
+        /**
+         * application and service registry check interval
+         */
+        public static long APP_AND_SERVICE_REGISTER_CHECK_INTERVAL = 10;
+        /**
+         * discovery rest check interval
+         */
+        public static long DISCOVERY_CHECK_INTERVAL = 60;
+        /**
          * Collector REST-Service address.
          * e.g.
          * SERVERS="127.0.0.1:8080"  for single collector node.
@@ -45,7 +57,7 @@ public class Config {
         /**
          * Collector service discovery REST service name
          */
-        public static String DISCOVERY_SERVICE_NAME = "grpc/addresses";
+        public static String DISCOVERY_SERVICE_NAME = "/grpc/addresses";
     }
 
     public static class Buffer {

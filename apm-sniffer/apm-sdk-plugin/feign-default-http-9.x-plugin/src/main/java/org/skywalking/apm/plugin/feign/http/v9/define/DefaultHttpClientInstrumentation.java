@@ -5,9 +5,11 @@ import net.bytebuddy.matcher.ElementMatcher;
 import org.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
+import org.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.skywalking.apm.plugin.feign.http.v9.DefaultHttpClientInterceptor;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
+import static org.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
  * {@link DefaultHttpClientInstrumentation} presents that skywalking intercepts {@link
@@ -29,8 +31,8 @@ public class DefaultHttpClientInstrumentation extends ClassInstanceMethodsEnhanc
      */
     private static final String INTERCEPT_CLASS = "org.skywalking.apm.plugin.feign.http.v9.DefaultHttpClientInterceptor";
 
-    @Override protected String enhanceClassName() {
-        return ENHANCE_CLASS;
+    @Override protected ClassMatch enhanceClass() {
+        return byName(ENHANCE_CLASS);
     }
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {

@@ -8,9 +8,9 @@ import org.skywalking.apm.agent.core.boot.ServiceManager;
 import org.skywalking.apm.agent.core.context.TracingContext;
 import org.skywalking.apm.agent.core.context.TracingContextListener;
 import org.skywalking.apm.agent.core.context.trace.TraceSegment;
-import org.skywalking.apm.agent.core.datacarrier.DataCarrier;
-import org.skywalking.apm.agent.core.datacarrier.buffer.BufferStrategy;
-import org.skywalking.apm.agent.core.datacarrier.consumer.IConsumer;
+import org.skywalking.apm.commons.datacarrier.DataCarrier;
+import org.skywalking.apm.commons.datacarrier.buffer.BufferStrategy;
+import org.skywalking.apm.commons.datacarrier.consumer.IConsumer;
 import org.skywalking.apm.logging.ILog;
 import org.skywalking.apm.logging.LogManager;
 import org.skywalking.apm.network.proto.Downstream;
@@ -26,10 +26,11 @@ import static org.skywalking.apm.agent.core.remote.GRPCChannelStatus.CONNECTED;
  */
 public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSegment>, TracingContextListener, GRPCChannelListener {
     private static final ILog logger = LogManager.getLogger(TraceSegmentServiceClient.class);
+    private static final int TIMEOUT = 30 * 1000;
 
     private volatile DataCarrier<TraceSegment> carrier;
     private volatile TraceSegmentServiceGrpc.TraceSegmentServiceStub serviceStub;
-    private volatile GRPCChannelStatus status = null;
+    private volatile GRPCChannelStatus status = GRPCChannelStatus.DISCONNECT;
 
     @Override
     public void beforeBoot() throws Throwable {
@@ -88,7 +89,7 @@ public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSe
             }
             upstreamSegmentStreamObserver.onCompleted();
 
-            status.wait4Finish(30 * 1000);
+            status.wait4Finish(TIMEOUT);
 
             if (logger.isDebugEnable()) {
                 logger.debug("{} trace segments have been sent to collector.", data.size());
@@ -127,8 +128,7 @@ public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSe
         if (CONNECTED.equals(status)) {
             ManagedChannel channel = ServiceManager.INSTANCE.findService(GRPCChannelManager.class).getManagedChannel();
             serviceStub = TraceSegmentServiceGrpc.newStub(channel);
-        } else {
-
         }
+        this.status = status;
     }
 }

@@ -1,14 +1,15 @@
 package org.skywalking.apm.plugin.mongodb.v3.define;
 
-import com.mongodb.connection.Cluster;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
+import org.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
-import static net.bytebuddy.matcher.ElementMatchers.takesArgument;
+import static org.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
+import static org.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 public class MongoDBInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
@@ -22,7 +23,7 @@ public class MongoDBInstrumentation extends ClassInstanceMethodsEnhancePluginDef
             new ConstructorInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getConstructorMatcher() {
-                    return takesArgument(1, Cluster.class);
+                    return takesArgumentWithType(0, "com.mongodb.connection.Cluster");
                 }
 
                 @Override
@@ -56,8 +57,8 @@ public class MongoDBInstrumentation extends ClassInstanceMethodsEnhancePluginDef
     }
 
     @Override
-    protected String enhanceClassName() {
-        return ENHANCE_CLASS;
+    protected ClassMatch enhanceClass() {
+        return byName(ENHANCE_CLASS);
     }
 
 }

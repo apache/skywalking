@@ -5,12 +5,15 @@ import org.skywalking.apm.network.proto.SpanObject;
 import org.skywalking.apm.network.trace.component.Component;
 
 /**
- * The <code>ExitSpan</code> represents a service consumer point, such as Feign, Okhttp discovery for a Http service.
+ * The <code>ExitSpan</code> represents a service consumer point, such as Feign, Okhttp client for a Http service.
  *
  * It is an exit point or a leaf span(our old name) of trace tree.
- * In a single rpc call, because of a combination of discovery libs, there maybe contain multi exit point.
+ * In a single rpc call, because of a combination of discovery libs, there maybe contain multi-layer exit point:
  *
  * The <code>ExitSpan</code> only presents the first one.
+ *
+ * Such as: Dubbox -> Apache Httpcomponent -> ....(Remote)
+ * The <code>ExitSpan</code> represents the Dubbox span, and ignore the httpcomponent span's info.
  *
  * @author wusheng
  */
@@ -69,7 +72,7 @@ public class ExitSpan extends AbstractTracingSpan {
     }
 
     @Override
-    public AbstractSpan setLayer(SpanLayer layer) {
+    public AbstractTracingSpan setLayer(SpanLayer layer) {
         if (stackDepth == 1) {
             return super.setLayer(layer);
         } else {
@@ -78,7 +81,7 @@ public class ExitSpan extends AbstractTracingSpan {
     }
 
     @Override
-    public AbstractSpan setComponent(Component component) {
+    public AbstractTracingSpan setComponent(Component component) {
         if (stackDepth == 1) {
             return super.setComponent(component);
         } else {
@@ -87,7 +90,7 @@ public class ExitSpan extends AbstractTracingSpan {
     }
 
     @Override
-    public AbstractSpan setComponent(String componentName) {
+    public AbstractTracingSpan setComponent(String componentName) {
         if (stackDepth == 1) {
             return super.setComponent(componentName);
         } else {
@@ -105,12 +108,32 @@ public class ExitSpan extends AbstractTracingSpan {
 
     @Override public SpanObject.Builder transform() {
         SpanObject.Builder spanBuilder = super.transform();
-        if (peerId == DictionaryUtil.nullValue()) {
+        if (peerId != DictionaryUtil.nullValue()) {
             spanBuilder.setPeerId(peerId);
         } else {
-            spanBuilder.setPeer(peer);
+            if (peer != null) {
+                spanBuilder.setPeer(peer);
+            }
         }
         return spanBuilder;
+    }
+
+    @Override
+    public AbstractTracingSpan setOperationName(String operationName) {
+        if (stackDepth == 1) {
+            return super.setOperationName(operationName);
+        } else {
+            return this;
+        }
+    }
+
+    @Override
+    public AbstractTracingSpan setOperationId(int operationId) {
+        if (stackDepth == 1) {
+            return super.setOperationId(operationId);
+        } else {
+            return this;
+        }
     }
 
     public int getPeerId() {
@@ -122,10 +145,6 @@ public class ExitSpan extends AbstractTracingSpan {
     }
 
     @Override public boolean isEntry() {
-        return false;
-    }
-
-    @Override public boolean isLocal() {
         return false;
     }
 

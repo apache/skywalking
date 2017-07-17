@@ -12,9 +12,11 @@ import org.skywalking.apm.network.proto.LogMessage;
  * @author wusheng
  */
 public class LogDataEntity {
-    protected List<KeyValuePair> logs;
+    private long timestamp = 0;
+    private List<KeyValuePair> logs;
 
-    private LogDataEntity(List<KeyValuePair> logs) {
+    private LogDataEntity(long timestamp, List<KeyValuePair> logs) {
+        this.timestamp = timestamp;
         this.logs = logs;
     }
 
@@ -36,8 +38,8 @@ public class LogDataEntity {
             return this;
         }
 
-        public LogDataEntity build() {
-            return new LogDataEntity(logs);
+        public LogDataEntity build(long timestamp) {
+            return new LogDataEntity(timestamp, logs);
         }
     }
 
@@ -46,6 +48,7 @@ public class LogDataEntity {
         for (KeyValuePair log : logs) {
             logMessageBuilder.addData(log.transform());
         }
+        logMessageBuilder.setTime(timestamp);
         return logMessageBuilder.build();
     }
 }

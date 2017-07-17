@@ -35,17 +35,17 @@ public abstract class MemoryPoolModule implements MemoryPoolMetricAccessor {
                 type = PoolType.METASPACE_USAGE;
             } else if (name.equals(getPermName())) {
                 type = PoolType.PERMGEN_USAGE;
+            } else {
+                continue;
             }
 
-            if (type != null) {
-                MemoryUsage usage = bean.getUsage();
-                poolList.add(MemoryPool.newBuilder().setType(type)
-                    .setInit(usage.getInit())
-                    .setMax(usage.getMax())
-                    .setCommited(usage.getCommitted())
-                    .setUsed(usage.getUsed())
-                    .build());
-            }
+            MemoryUsage usage = bean.getUsage();
+            poolList.add(MemoryPool.newBuilder().setType(type)
+                .setInit(usage.getInit())
+                .setMax(usage.getMax())
+                .setCommited(usage.getCommitted())
+                .setUsed(usage.getUsed())
+                .build());
         }
         return poolList;
     }

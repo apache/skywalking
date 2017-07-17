@@ -7,10 +7,12 @@ import okhttp3.Request;
 import org.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
+import org.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.skywalking.apm.plugin.okhttp.v3.RealCallInterceptor;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
+import static org.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
  * {@link RealCallInstrumentation} presents that skywalking intercepts {@link okhttp3.RealCall#RealCall(OkHttpClient,
@@ -30,8 +32,8 @@ public class RealCallInstrumentation extends ClassInstanceMethodsEnhancePluginDe
      */
     private static final String INTERCEPT_CLASS = "org.skywalking.apm.plugin.okhttp.v3.RealCallInterceptor";
 
-    @Override protected String enhanceClassName() {
-        return ENHANCE_CLASS;
+    @Override protected ClassMatch enhanceClass() {
+        return byName(ENHANCE_CLASS);
     }
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {

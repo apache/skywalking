@@ -18,6 +18,6 @@ public class UnknownMemoryPool implements MemoryPoolMetricAccessor {
         poolList.add(MemoryPool.newBuilder().setType(PoolType.SURVIVOR_USAGE).build());
         poolList.add(MemoryPool.newBuilder().setType(PoolType.PERMGEN_USAGE).build());
         poolList.add(MemoryPool.newBuilder().setType(PoolType.METASPACE_USAGE).build());
-        return poolList;
+        return new LinkedList<MemoryPool>();
     }
 }

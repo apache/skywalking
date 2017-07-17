@@ -6,6 +6,7 @@ import net.bytebuddy.matcher.ElementMatcher;
 import org.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
+import org.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.skywalking.apm.plugin.jedis.v2.JedisClusterConstructorWithHostAndPortArgInterceptor;
 import org.skywalking.apm.plugin.jedis.v2.JedisClusterConstructorWithListHostAndPortArgInterceptor;
 import org.skywalking.apm.plugin.jedis.v2.JedisMethodInterceptor;
@@ -13,6 +14,7 @@ import org.skywalking.apm.plugin.jedis.v2.RedisMethodMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.takesArgument;
 import static org.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
+import static org.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
  * {@link JedisClusterInstrumentation} presents that skywalking intercepts all constructors and methods of {@link
@@ -32,8 +34,8 @@ public class JedisClusterInstrumentation extends ClassInstanceMethodsEnhancePlug
     private static final String CONSTRUCTOR_WITH_HOSTANDPORT_ARG_INTERCEPT_CLASS = "org.skywalking.apm.plugin.jedis.v2.JedisClusterConstructorWithHostAndPortArgInterceptor";
 
     @Override
-    public String enhanceClassName() {
-        return ENHANCE_CLASS;
+    public ClassMatch enhanceClass() {
+        return byName(ENHANCE_CLASS);
     }
 
     @Override

@@ -1,18 +1,19 @@
 package org.skywalking.apm.agent.core.context.trace;
 
+import java.util.Map;
 import org.skywalking.apm.agent.core.context.IgnoredTracerContext;
 import org.skywalking.apm.network.trace.component.Component;
 
 /**
  * The <code>NoopSpan</code> represents a span implementation without any actual operation.
- * This span implementation is for {@link IgnoredTracerContext}.
+ * This span implementation is for {@link IgnoredTracerContext},
+ * for keeping the memory and gc cost as low as possible.
  *
  * @author wusheng
  */
 public class NoopSpan implements AbstractSpan {
     public NoopSpan() {
     }
-
 
     @Override
     public AbstractSpan log(Throwable t) {
@@ -23,7 +24,7 @@ public class NoopSpan implements AbstractSpan {
         return null;
     }
 
-    public void finish(){
+    public void finish() {
 
     }
 
@@ -48,11 +49,15 @@ public class NoopSpan implements AbstractSpan {
         return false;
     }
 
-    @Override public boolean isLocal() {
+    @Override public boolean isExit() {
         return false;
     }
 
-    @Override public boolean isExit() {
-        return false;
+    @Override public AbstractSpan log(long timestamp, Map<String, ?> event) {
+        return this;
+    }
+
+    @Override public AbstractSpan setOperationName(String operationName) {
+        return this;
     }
 }

@@ -15,7 +15,9 @@ import org.skywalking.apm.util.StringUtil;
 /**
  * {@link ContextManager} controls the whole context of {@link TraceSegment}. Any {@link TraceSegment} relates to
  * single-thread, so this context use {@link ThreadLocal} to maintain the context, and make sure, since a {@link
- * TraceSegment} starts, all ChildOf spans are in the same context. <p> What is 'ChildOf'? {@see
+ * TraceSegment} starts, all ChildOf spans are in the same context.
+ * <p>
+ * What is 'ChildOf'? {@see
  * https://github.com/opentracing/specification/blob/master/specification.md#references-between-spans}
  *
  * <p> Also, {@link ContextManager} delegates to all {@link AbstractTracerContext}'s major methods.
@@ -36,12 +38,9 @@ public class ContextManager implements TracingContextListener, BootService, Igno
                 }
                 context = new IgnoredTracerContext();
             } else {
-                if (RemoteDownstreamConfig.Agent.APPLICATION_ID == DictionaryUtil.nullValue()) {
-                    /**
-                     * Can't register to collector, no need to trace anything.
-                     */
-                    context = new IgnoredTracerContext();
-                } else {
+                if (RemoteDownstreamConfig.Agent.APPLICATION_ID != DictionaryUtil.nullValue()
+                    || RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID != DictionaryUtil.nullValue()
+                    ) {
                     int suffixIdx = operationName.lastIndexOf(".");
                     if (suffixIdx > -1 && Config.Agent.IGNORE_SUFFIX.contains(operationName.substring(suffixIdx))) {
                         context = new IgnoredTracerContext();
@@ -53,6 +52,11 @@ public class ContextManager implements TracingContextListener, BootService, Igno
                             context = new IgnoredTracerContext();
                         }
                     }
+                } else {
+                    /**
+                     * Can't register to collector, no need to trace anything.
+                     */
+                    context = new IgnoredTracerContext();
                 }
             }
             CONTEXT.set(context);
@@ -65,7 +69,7 @@ public class ContextManager implements TracingContextListener, BootService, Igno
     }
 
     /**
-     * @return the first global trace id if exist. Otherwise, "N/A".
+     * @return the first global trace id if needEnhance. Otherwise, "N/A".
      */
     public static String getGlobalTraceId() {
         AbstractTracerContext segment = CONTEXT.get();
@@ -104,12 +108,42 @@ public class ContextManager implements TracingContextListener, BootService, Igno
         return span;
     }
 
+    public static void inject(ContextCarrier carrier) {
+        get().inject(carrier);
+    }
+
+    public static void extract(ContextCarrier carrier) {
+        if (carrier == null) {
+            throw new IllegalArgumentException("ContextCarrier can't be null.");
+        }
+        if (carrier.isValid()) {
+            get().extract(carrier);
+        }
+    }
+
+    public static ContextSnapshot capture() {
+        return get().capture();
+    }
+
+    public static void continued(ContextSnapshot snapshot) {
+        if (snapshot == null) {
+            throw new IllegalArgumentException("ContextSnapshot can't be null.");
+        }
+        if (snapshot.isValid()) {
+            get().continued(snapshot);
+        }
+    }
+
     public static AbstractSpan activeSpan() {
         return get().activeSpan();
     }
 
     public static void stopSpan() {
-        get().stopSpan(activeSpan());
+        stopSpan(activeSpan());
+    }
+
+    public static void stopSpan(AbstractSpan span) {
+        get().stopSpan(span);
     }
 
     @Override

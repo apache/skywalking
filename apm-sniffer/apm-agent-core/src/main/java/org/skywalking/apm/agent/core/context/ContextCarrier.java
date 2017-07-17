@@ -23,7 +23,7 @@ public class ContextCarrier implements Serializable {
 
     private int spanId = -1;
 
-    private int applicationId = DictionaryUtil.nullValue();
+    private int applicationInstanceId = DictionaryUtil.nullValue();
 
     private String peerHost;
 
@@ -45,7 +45,7 @@ public class ContextCarrier implements Serializable {
             return StringUtil.join('|',
                 this.getTraceSegmentId(),
                 this.getSpanId() + "",
-                this.getApplicationId() + "",
+                this.getApplicationInstanceId() + "",
                 this.getPeerHost(),
                 this.getEntryOperationName(),
                 this.serializeDistributedTraceIds());
@@ -66,7 +66,7 @@ public class ContextCarrier implements Serializable {
                 try {
                     this.traceSegmentId = parts[0];
                     this.spanId = Integer.parseInt(parts[1]);
-                    this.applicationId = Integer.parseInt(parts[2]);
+                    this.applicationInstanceId = Integer.parseInt(parts[2]);
                     this.peerHost = parts[3];
                     this.entryOperationName = parts[4];
                     this.distributedTraceIds = deserializeDistributedTraceIds(parts[5]);
@@ -86,7 +86,7 @@ public class ContextCarrier implements Serializable {
     public boolean isValid() {
         return !StringUtil.isEmpty(traceSegmentId)
             && getSpanId() > -1
-            && applicationId != DictionaryUtil.nullValue()
+            && applicationInstanceId != DictionaryUtil.nullValue()
             && !StringUtil.isEmpty(peerHost)
             && !StringUtil.isEmpty(entryOperationName)
             && distributedTraceIds != null;
@@ -120,12 +120,12 @@ public class ContextCarrier implements Serializable {
         this.spanId = spanId;
     }
 
-    public int getApplicationId() {
-        return applicationId;
+    public int getApplicationInstanceId() {
+        return applicationInstanceId;
     }
 
-    void setApplicationId(int applicationId) {
-        this.applicationId = applicationId;
+    void setApplicationInstanceId(int applicationInstanceId) {
+        this.applicationInstanceId = applicationInstanceId;
     }
 
     public String getPeerHost() {

@@ -5,6 +5,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import java.io.IOException;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -30,22 +31,25 @@ public class DiscoveryRestServiceClient implements Runnable {
     private volatile int selectedServer = -1;
 
     public DiscoveryRestServiceClient() {
+        if (Config.Collector.SERVERS == null || Config.Collector.SERVERS.trim().length() == 0) {
+            logger.warn("Collector server not configured.");
+            return;
+        }
+
         serverList = Config.Collector.SERVERS.split(",");
         Random r = new Random();
         if (serverList.length > 0) {
             selectedServer = r.nextInt(serverList.length);
         }
+
     }
 
     @Override
     public void run() {
-        while (true) {
-            try {
-                try2Sleep(60 * 1000);
-                findServerList();
-            } catch (Throwable t) {
-                logger.error(t, "Find server list fail.");
-            }
+        try {
+            findServerList();
+        } catch (Throwable t) {
+            logger.error(t, "Find server list fail.");
         }
     }
 
@@ -66,11 +70,14 @@ public class DiscoveryRestServiceClient implements Runnable {
                         for (JsonElement element : serverList) {
                             newServerList.add(element.getAsString());
                         }
-                        if (!newServerList.equals(GRPC_SERVERS)) {
+
+                        if (!isListEquals(newServerList, GRPC_SERVERS)) {
+                            GRPC_SERVERS = newServerList;
                             logger.debug("Refresh GRPC server list: {}", GRPC_SERVERS);
                         } else {
                             logger.debug("GRPC server list remain unchanged: {}", GRPC_SERVERS);
                         }
+
                     }
                 }
             }
@@ -80,6 +87,20 @@ public class DiscoveryRestServiceClient implements Runnable {
         } finally {
             httpClient.close();
         }
+    }
+
+    private boolean isListEquals(List<String> list1, List<String> list2) {
+        if (list1.size() != list2.size()) {
+            return false;
+        }
+
+        for (String ip1 : list1) {
+            if (!list2.contains(ip1)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**

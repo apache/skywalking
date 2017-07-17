@@ -2,6 +2,7 @@ package org.skywalking.apm.agent.core.context.trace;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import org.skywalking.apm.agent.core.context.util.KeyValuePair;
 import org.skywalking.apm.agent.core.context.util.ThrowableTransformer;
 import org.skywalking.apm.agent.core.dictionary.DictionaryUtil;
@@ -86,7 +87,7 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
         return true;
     }
 
-    public AbstractSpan start() {
+    public AbstractTracingSpan start() {
         this.startTime = System.currentTimeMillis();
         return this;
     }
@@ -97,7 +98,8 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
      * @param t any subclass of {@link Throwable}, which occurs in this span.
      * @return the Span, for chaining
      */
-    public AbstractSpan log(Throwable t) {
+    @Override
+    public AbstractTracingSpan log(Throwable t) {
         if (logs == null) {
             logs = new LinkedList<LogDataEntity>();
         }
@@ -106,22 +108,64 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
             .add(new KeyValuePair("error.kind", t.getClass().getName()))
             .add(new KeyValuePair("message", t.getMessage()))
             .add(new KeyValuePair("stack", ThrowableTransformer.INSTANCE.convert2String(t, 4000)))
-            .build());
+            .build(System.currentTimeMillis()));
         return this;
     }
 
-    public AbstractSpan errorOccurred() {
+    /**
+     * Record a common log with multi fields, for supporting opentracing-java
+     *
+     * @param fields
+     * @return the Span, for chaining
+     */
+    @Override
+    public AbstractTracingSpan log(long timestampMicroseconds, Map<String, ?> fields) {
+        if (logs == null) {
+            logs = new LinkedList<LogDataEntity>();
+        }
+        LogDataEntity.Builder builder = new LogDataEntity.Builder();
+        for (Map.Entry<String, ?> entry : fields.entrySet()) {
+            builder.add(new KeyValuePair(entry.getKey(), entry.getValue().toString()));
+        }
+        logs.add(builder.build(timestampMicroseconds));
+        return this;
+    }
+
+    /**
+     * In the scope of this span tracing context, error occurred,
+     * in auto-instrumentation mechanism, almost means throw an exception.
+     *
+     * @return span instance, for chaining.
+     */
+    @Override
+    public AbstractTracingSpan errorOccurred() {
         this.errorOccurred = true;
         return this;
     }
 
+    /**
+     * Set the operation name, just because these is not compress dictionary value for this name.
+     * Use the entire string temporarily, the agent will compress this name in async mode.
+     *
+     * @param operationName
+     * @return span instance, for chaining.
+     */
+    @Override
     public AbstractTracingSpan setOperationName(String operationName) {
         this.operationName = operationName;
+        this.operationId = DictionaryUtil.nullValue();
         return this;
     }
 
+    /**
+     * Set the operation id, which compress by the name.
+     *
+     * @param operationId
+     * @return span instance, for chaining.
+     */
     public AbstractTracingSpan setOperationId(int operationId) {
         this.operationId = operationId;
+        this.operationName = null;
         return this;
     }
 
@@ -138,19 +182,33 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
     }
 
     @Override
-    public AbstractSpan setLayer(SpanLayer layer) {
+    public AbstractTracingSpan setLayer(SpanLayer layer) {
         this.layer = layer;
         return this;
     }
 
+    /**
+     * Set the component of this span, with internal supported.
+     * Highly recommend to use this way.
+     *
+     * @param component
+     * @return span instance, for chaining.
+     */
     @Override
-    public AbstractSpan setComponent(Component component) {
+    public AbstractTracingSpan setComponent(Component component) {
         this.componentId = component.getId();
         return this;
     }
 
+    /**
+     * Set the component name.
+     * By using this, cost more memory and network.
+     *
+     * @param componentName
+     * @return span instance, for chaining.
+     */
     @Override
-    public AbstractSpan setComponent(String componentName) {
+    public AbstractTracingSpan setComponent(String componentName) {
         this.componentName = componentName;
         return this;
     }
@@ -162,17 +220,27 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
         spanBuilder.setParentSpanId(parentSpanId);
         spanBuilder.setStartTime(startTime);
         spanBuilder.setEndTime(endTime);
-        if (operationId == DictionaryUtil.nullValue()) {
+        if (operationId != DictionaryUtil.nullValue()) {
             spanBuilder.setOperationNameId(operationId);
         } else {
             spanBuilder.setOperationName(operationName);
         }
-        spanBuilder.setSpanType(SpanType.Entry);
-        spanBuilder.setSpanLayerValue(this.layer.getCode());
-        if (componentId == DictionaryUtil.nullValue()) {
+        if (isEntry()) {
+            spanBuilder.setSpanType(SpanType.Entry);
+        } else if (isExit()) {
+            spanBuilder.setSpanType(SpanType.Exit);
+        } else {
+            spanBuilder.setSpanType(SpanType.Local);
+        }
+        if (this.layer != null) {
+            spanBuilder.setSpanLayerValue(this.layer.getCode());
+        }
+        if (componentId != DictionaryUtil.nullValue()) {
             spanBuilder.setComponentId(componentId);
         } else {
-            spanBuilder.setComponent(componentName);
+            if (componentName != null) {
+                spanBuilder.setComponent(componentName);
+            }
         }
         spanBuilder.setIsError(errorOccurred);
         if (this.tags != null) {
