@@ -32,11 +32,11 @@ ___
 
 # Contributors
 _In chronological order_
-* 吴晟 [**Project Maintainer**] [@wu-sheng](https://github.com/wu-sheng)  Principle Engineer, 2012 Lab, Huawei. 
-* 张鑫 [**Project Maintainer**] [@ascrutae](https://github.com/ascrutae)   
+* 吴晟 [**PMC Member**] [@wu-sheng](https://github.com/wu-sheng)  Principle Engineer, 2012 Lab, Huawei. 
+* 张鑫 [**PMC Member**] [@ascrutae](https://github.com/ascrutae)   
 * 谭真 [@mircoteam](https://github.com/mircoteam)  Advanced R&D Engineers, Creative & Interactive Group.
 * 徐妍 [@TastySummer](https://github.com/TastySummer)
-* 彭勇升 [**Project Maintainer**] [@pengys5](https://github.com/pengys5)   Technical Specialist, OneAPM.
+* 彭勇升 [**PMC Member**] [@pengys5](https://github.com/pengys5)   Technical Specialist, OneAPM.
 * 戴文
 * 柏杨 [@bai-yang](https://github.com/bai-yang)  Senior Engineer, Alibaba Group.
 * 陈凤 [@trey03](https://github.com/trey03)
