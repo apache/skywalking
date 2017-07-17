@@ -1,0 +1,2 @@
+org.skywalking.apm.collector.agent.stream.server.grpc.AgentStreamGRPCModuleDefine
+org.skywalking.apm.collector.agent.stream.server.jetty.AgentStreamJettyModuleDefine
