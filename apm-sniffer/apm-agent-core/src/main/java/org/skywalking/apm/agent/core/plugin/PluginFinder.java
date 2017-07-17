@@ -8,7 +8,6 @@ import net.bytebuddy.description.NamedElement;
 import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.skywalking.apm.agent.core.plugin.bytebuddy.AbstractJunction;
-import org.skywalking.apm.agent.core.plugin.match.ClassAnnotationMatch;
 import org.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.skywalking.apm.agent.core.plugin.match.IndirectMatch;
 import org.skywalking.apm.agent.core.plugin.match.NameMatch;
