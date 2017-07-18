@@ -60,6 +60,13 @@ public class Config {
         public static String DISCOVERY_SERVICE_NAME = "/grpc/addresses";
     }
 
+    public static class Jvm {
+        /**
+         * The buffer size of collected JVM info.
+         */
+        public static int BUFFER_SIZE = 60 * 10;
+    }
+
     public static class Buffer {
         public static int CHANNEL_SIZE = 5;
 

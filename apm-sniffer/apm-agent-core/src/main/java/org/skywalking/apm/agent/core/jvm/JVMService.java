@@ -5,11 +5,13 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 import org.skywalking.apm.agent.core.boot.BootService;
 import org.skywalking.apm.agent.core.boot.ServiceManager;
+import org.skywalking.apm.agent.core.conf.Config;
 import org.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
 import org.skywalking.apm.agent.core.dictionary.DictionaryUtil;
 import org.skywalking.apm.agent.core.jvm.cpu.CPUProvider;
@@ -36,16 +38,14 @@ import static org.skywalking.apm.agent.core.remote.GRPCChannelStatus.CONNECTED;
  */
 public class JVMService implements BootService, Runnable {
     private static final ILog logger = LogManager.getLogger(JVMService.class);
-    private ReentrantLock lock = new ReentrantLock();
-    private volatile LinkedList<JVMMetric> buffer = new LinkedList<JVMMetric>();
-    private SimpleDateFormat sdf = new SimpleDateFormat("ss");
+    private LinkedBlockingQueue<JVMMetric> queue;
     private volatile ScheduledFuture<?> collectMetricFuture;
     private volatile ScheduledFuture<?> sendMetricFuture;
-    private volatile int lastBlockIdx = -1;
     private Sender sender;
 
     @Override
     public void beforeBoot() throws Throwable {
+        queue = new LinkedBlockingQueue(Config.Jvm.BUFFER_SIZE);
         sender = new Sender();
         ServiceManager.INSTANCE.findService(GRPCChannelManager.class).addChannelListener(sender);
     }
@@ -57,7 +57,7 @@ public class JVMService implements BootService, Runnable {
             .scheduleAtFixedRate(this, 0, 1, TimeUnit.SECONDS);
         sendMetricFuture = Executors
             .newSingleThreadScheduledExecutor()
-            .scheduleAtFixedRate(sender, 0, 15, TimeUnit.SECONDS);
+            .scheduleAtFixedRate(sender, 0, 1, TimeUnit.SECONDS);
     }
 
     @Override
@@ -71,32 +71,21 @@ public class JVMService implements BootService, Runnable {
             && RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID != DictionaryUtil.nullValue()
             ) {
             long currentTimeMillis = System.currentTimeMillis();
-            Date day = new Date(currentTimeMillis);
-            String second = sdf.format(day);
-            int blockIndex = Integer.parseInt(second) / 15;
-            if (blockIndex != lastBlockIdx) {
-                lastBlockIdx = blockIndex;
-                try {
-                    JVMMetric.Builder jvmBuilder = JVMMetric.newBuilder();
-                    jvmBuilder.setTime(currentTimeMillis);
-                    jvmBuilder.setCpu(CPUProvider.INSTANCE.getCpuMetric());
-                    jvmBuilder.addAllMemory(MemoryProvider.INSTANCE.getMemoryMetricList());
-                    jvmBuilder.addAllMemoryPool(MemoryPoolProvider.INSTANCE.getMemoryPoolMetricList());
-                    jvmBuilder.addAllGc(GCProvider.INSTANCE.getGCList());
+            try {
+                JVMMetric.Builder jvmBuilder = JVMMetric.newBuilder();
+                jvmBuilder.setTime(currentTimeMillis);
+                jvmBuilder.setCpu(CPUProvider.INSTANCE.getCpuMetric());
+                jvmBuilder.addAllMemory(MemoryProvider.INSTANCE.getMemoryMetricList());
+                jvmBuilder.addAllMemoryPool(MemoryPoolProvider.INSTANCE.getMemoryPoolMetricList());
+                jvmBuilder.addAllGc(GCProvider.INSTANCE.getGCList());
 
-                    JVMMetric jvmMetric = jvmBuilder.build();
-                    lock.lock();
-                    try {
-                        buffer.add(jvmMetric);
-                        while (buffer.size() > 4) {
-                            buffer.removeFirst();
-                        }
-                    } finally {
-                        lock.unlock();
-                    }
-                } catch (Exception e) {
-                    logger.error(e, "Collect JVM info fail.");
+                JVMMetric jvmMetric = jvmBuilder.build();
+                if (queue.offer(jvmMetric)) {
+                    queue.poll();
+                    queue.offer(jvmMetric);
                 }
+            } catch (Exception e) {
+                logger.error(e, "Collect JVM info fail.");
             }
         }
     }
@@ -113,13 +102,9 @@ public class JVMService implements BootService, Runnable {
                 if (status == GRPCChannelStatus.CONNECTED) {
                     try {
                         JVMMetrics.Builder builder = JVMMetrics.newBuilder();
-                        lock.lock();
-                        try {
-                            builder.addAllMetrics(buffer);
-                            buffer.clear();
-                        } finally {
-                            lock.unlock();
-                        }
+                        LinkedList<JVMMetric> buffer = new LinkedList<JVMMetric>();
+                        queue.drainTo(buffer);
+                        builder.addAllMetrics(buffer);
 
                         builder.setApplicationInstanceId(RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID);
                         stub.collect(builder.build());
