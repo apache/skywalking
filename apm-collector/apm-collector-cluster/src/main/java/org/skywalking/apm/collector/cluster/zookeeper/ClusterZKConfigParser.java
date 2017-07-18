@@ -15,7 +15,7 @@ public class ClusterZKConfigParser implements ModuleConfigParser {
 
     @Override public void parse(Map config) throws ConfigParseException {
         ClusterZKConfig.HOST_PORT = (String)config.get(HOST_PORT);
-        ClusterZKConfig.SESSION_TIMEOUT = 1000;
+        ClusterZKConfig.SESSION_TIMEOUT = 3000;
 
         if (StringUtils.isEmpty(ClusterZKConfig.HOST_PORT)) {
             throw new ConfigParseException("");

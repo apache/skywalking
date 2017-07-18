@@ -3,7 +3,7 @@ package org.skywalking.apm.collector.remote.grpc;
 import java.util.Map;
 import org.skywalking.apm.collector.core.client.Client;
 import org.skywalking.apm.collector.core.client.ClientException;
-import org.skywalking.apm.collector.core.framework.DataInitializer;
+import org.skywalking.apm.collector.core.client.DataMonitor;
 import org.skywalking.apm.collector.core.framework.DefineException;
 import org.skywalking.apm.collector.core.module.ModuleConfigParser;
 import org.skywalking.apm.collector.core.module.ModuleRegistration;
@@ -27,15 +27,11 @@ public class RemoteGRPCModuleDefine extends RemoteModuleDefine {
         return null;
     }
 
-    @Override protected Client createClient() {
+    @Override protected Client createClient(DataMonitor dataMonitor) {
         return null;
     }
 
     @Override protected Server server() {
-        return null;
-    }
-
-    @Override protected DataInitializer dataInitializer() {
         return null;
     }
 

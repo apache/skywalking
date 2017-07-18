@@ -28,16 +28,9 @@ public class GRPCServer implements Server {
         NettyServerBuilder nettyServerBuilder = NettyServerBuilder.forAddress(address);
         try {
             io.grpc.Server server = nettyServerBuilder.build().start();
-            blockUntilShutdown(server);
-        } catch (InterruptedException | IOException e) {
+        } catch (IOException e) {
             throw new GRPCServerException(e.getMessage(), e);
         }
         logger.info("Server started, host {} listening on {}", host, port);
-    }
-
-    private void blockUntilShutdown(io.grpc.Server server) throws InterruptedException {
-        if (server != null) {
-            server.awaitTermination();
-        }
     }
 }

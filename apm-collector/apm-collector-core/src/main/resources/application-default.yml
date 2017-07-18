@@ -1,7 +1,7 @@
 cluster:
-#  zookeeper:
-#    hostPort: localhost:2181
-#    sessionTimeout: 1000
+  zookeeper:
+    hostPort: localhost:2181
+    sessionTimeout: 100000
 #  redis:
 #    host: localhost
 #    port: 6379

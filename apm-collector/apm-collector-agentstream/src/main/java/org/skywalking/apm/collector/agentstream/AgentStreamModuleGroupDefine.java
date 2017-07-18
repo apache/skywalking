@@ -1,6 +1,5 @@
 package org.skywalking.apm.collector.agentstream;
 
-import org.skywalking.apm.collector.core.cluster.ClusterModuleContext;
 import org.skywalking.apm.collector.core.framework.Context;
 import org.skywalking.apm.collector.core.module.ModuleGroupDefine;
 import org.skywalking.apm.collector.core.module.ModuleInstaller;
@@ -17,7 +16,7 @@ public class AgentStreamModuleGroupDefine implements ModuleGroupDefine {
     }
 
     @Override public Context groupContext() {
-        return new ClusterModuleContext(GROUP_NAME);
+        return new AgentStreamModuleContext(GROUP_NAME);
     }
 
     @Override public ModuleInstaller moduleInstaller() {

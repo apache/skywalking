@@ -4,7 +4,6 @@ import java.util.Iterator;
 import java.util.Map;
 import org.skywalking.apm.collector.core.client.ClientException;
 import org.skywalking.apm.collector.core.cluster.ClusterModuleContext;
-import org.skywalking.apm.collector.core.cluster.ClusterModuleDefine;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
 import org.skywalking.apm.collector.core.framework.DefineException;
 import org.skywalking.apm.collector.core.module.ModuleDefine;
@@ -24,6 +23,9 @@ public class ClusterModuleInstaller implements ModuleInstaller {
         Map<String, ModuleDefine> moduleDefineMap) throws DefineException, ClientException {
         logger.info("beginning cluster module install");
 
+        ClusterModuleContext context = new ClusterModuleContext(ClusterModuleGroupDefine.GROUP_NAME);
+        CollectorContextHelper.INSTANCE.putContext(context);
+
         ModuleDefine moduleDefine = null;
         if (CollectionUtils.isEmpty(moduleConfig)) {
             logger.info("could not configure cluster module, use the default");
@@ -41,10 +43,5 @@ public class ClusterModuleInstaller implements ModuleInstaller {
             moduleDefine = moduleDefineMap.get(clusterConfigEntry.getKey());
             moduleDefine.initialize(clusterConfigEntry.getValue());
         }
-
-        ClusterModuleContext context = new ClusterModuleContext(ClusterModuleGroupDefine.GROUP_NAME);
-        context.setWriter(((ClusterModuleDefine)moduleDefine).registrationWriter());
-
-        CollectorContextHelper.INSTANCE.putContext(context);
     }
 }

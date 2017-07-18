@@ -17,7 +17,7 @@ public class QueueModuleInstaller implements ModuleInstaller {
 
     @Override public void install(Map<String, Map> moduleConfig,
         Map<String, ModuleDefine> moduleDefineMap) throws DefineException, ClientException {
-        logger.info("beginning cluster module install");
+        logger.info("beginning queue module install");
 
     }
 }

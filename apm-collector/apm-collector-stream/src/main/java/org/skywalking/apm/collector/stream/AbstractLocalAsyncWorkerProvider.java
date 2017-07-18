@@ -3,13 +3,14 @@ package org.skywalking.apm.collector.stream;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
 import org.skywalking.apm.collector.core.queue.QueueCreator;
 import org.skywalking.apm.collector.core.queue.QueueEventHandler;
+import org.skywalking.apm.collector.core.queue.QueueExecutor;
 import org.skywalking.apm.collector.queue.QueueModuleContext;
 import org.skywalking.apm.collector.queue.QueueModuleGroupDefine;
 
 /**
  * @author pengys5
  */
-public abstract class AbstractLocalAsyncWorkerProvider<T extends AbstractLocalAsyncWorker> extends AbstractLocalWorkerProvider<T> {
+public abstract class AbstractLocalAsyncWorkerProvider<T extends AbstractLocalAsyncWorker & QueueExecutor> extends AbstractLocalWorkerProvider<T> {
 
     public abstract int queueSize();
 

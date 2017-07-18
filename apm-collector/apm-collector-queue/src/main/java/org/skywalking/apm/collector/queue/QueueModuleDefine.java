@@ -1,7 +1,7 @@
 package org.skywalking.apm.collector.queue;
 
 import org.skywalking.apm.collector.core.client.Client;
-import org.skywalking.apm.collector.core.framework.DataInitializer;
+import org.skywalking.apm.collector.core.client.DataMonitor;
 import org.skywalking.apm.collector.core.module.ModuleConfigParser;
 import org.skywalking.apm.collector.core.module.ModuleDefine;
 import org.skywalking.apm.collector.core.module.ModuleRegistration;
@@ -15,11 +15,7 @@ public abstract class QueueModuleDefine extends ModuleDefine {
         throw new UnsupportedOperationException("");
     }
 
-    @Override protected final Client createClient() {
-        throw new UnsupportedOperationException("");
-    }
-
-    @Override protected final DataInitializer dataInitializer() {
+    @Override protected Client createClient(DataMonitor dataMonitor) {
         throw new UnsupportedOperationException("");
     }
 

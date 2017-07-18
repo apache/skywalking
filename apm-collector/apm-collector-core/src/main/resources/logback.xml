@@ -6,7 +6,7 @@
         </layout>
     </appender>
 
-    <logger name="com.base22" level="TRACE"/>
+    <logger name="org.apache.zookeeper.ClientCnxn" level="INFO"/>
 
     <root level="debug">
         <appender-ref ref="STDOUT"/>

@@ -1,12 +1,12 @@
 package org.skywalking.apm.collector.cluster.zookeeper;
 
+import org.apache.zookeeper.Watcher;
 import org.skywalking.apm.collector.client.zookeeper.ZookeeperClient;
+import org.skywalking.apm.collector.cluster.ClusterModuleDefine;
 import org.skywalking.apm.collector.cluster.ClusterModuleGroupDefine;
 import org.skywalking.apm.collector.core.client.Client;
-import org.skywalking.apm.collector.core.cluster.ClusterDataInitializer;
-import org.skywalking.apm.collector.core.cluster.ClusterModuleDefine;
+import org.skywalking.apm.collector.core.client.DataMonitor;
 import org.skywalking.apm.collector.core.cluster.ClusterModuleRegistrationReader;
-import org.skywalking.apm.collector.core.cluster.ClusterModuleRegistrationWriter;
 import org.skywalking.apm.collector.core.module.ModuleConfigParser;
 
 /**
@@ -32,19 +32,15 @@ public class ClusterZKModuleDefine extends ClusterModuleDefine {
         return new ClusterZKConfigParser();
     }
 
-    @Override protected Client createClient() {
-        return new ZookeeperClient(ClusterZKConfig.HOST_PORT, ClusterZKConfig.SESSION_TIMEOUT);
+    @Override public DataMonitor dataMonitor() {
+        return new ClusterZKDataMonitor();
     }
 
-    @Override protected ClusterDataInitializer dataInitializer() {
-        return new ClusterZKDataInitializer();
-    }
-
-    @Override public ClusterModuleRegistrationWriter registrationWriter() {
-        return new ClusterZKModuleRegistrationWriter(getClient());
+    @Override protected Client createClient(DataMonitor dataMonitor) {
+        return new ZookeeperClient(ClusterZKConfig.HOST_PORT, ClusterZKConfig.SESSION_TIMEOUT, (Watcher)dataMonitor);
     }
 
     @Override public ClusterModuleRegistrationReader registrationReader() {
-        return null;
+        return new ClusterZKModuleRegistrationReader();
     }
 }

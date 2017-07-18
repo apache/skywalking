@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
+import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.ACL;
 import org.apache.zookeeper.data.Stat;
@@ -22,15 +23,17 @@ public class ZookeeperClient implements Client {
 
     private final String hostPort;
     private final int sessionTimeout;
+    private final Watcher watcher;
 
-    public ZookeeperClient(String hostPort, int sessionTimeout) {
+    public ZookeeperClient(String hostPort, int sessionTimeout, Watcher watcher) {
         this.hostPort = hostPort;
         this.sessionTimeout = sessionTimeout;
+        this.watcher = watcher;
     }
 
     @Override public void initialize() throws ZookeeperClientException {
         try {
-            zk = new ZooKeeper(hostPort, sessionTimeout, new ZookeeperDataListener(this));
+            zk = new ZooKeeper(hostPort, sessionTimeout, watcher);
         } catch (IOException e) {
             throw new ZookeeperClientException(e.getMessage(), e);
         }
@@ -64,6 +67,14 @@ public class ZookeeperClient implements Client {
     public Stat setData(final String path, byte data[], int version) throws ZookeeperClientException {
         try {
             return zk.setData(path, data, version);
+        } catch (KeeperException | InterruptedException e) {
+            throw new ZookeeperClientException(e.getMessage(), e);
+        }
+    }
+
+    public List<String> getChildren(final String path, boolean watch) throws ZookeeperClientException {
+        try {
+            return zk.getChildren(path, watch);
         } catch (KeeperException | InterruptedException e) {
             throw new ZookeeperClientException(e.getMessage(), e);
         }

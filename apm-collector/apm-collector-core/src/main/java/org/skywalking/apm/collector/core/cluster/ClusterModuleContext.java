@@ -1,5 +1,6 @@
 package org.skywalking.apm.collector.core.cluster;
 
+import org.skywalking.apm.collector.core.client.DataMonitor;
 import org.skywalking.apm.collector.core.framework.Context;
 
 /**
@@ -11,17 +12,9 @@ public class ClusterModuleContext extends Context {
         super(groupName);
     }
 
-    private ClusterModuleRegistrationWriter writer;
-
     private ClusterModuleRegistrationReader reader;
 
-    public ClusterModuleRegistrationWriter getWriter() {
-        return writer;
-    }
-
-    public void setWriter(ClusterModuleRegistrationWriter writer) {
-        this.writer = writer;
-    }
+    private DataMonitor dataMonitor;
 
     public ClusterModuleRegistrationReader getReader() {
         return reader;
@@ -29,5 +22,13 @@ public class ClusterModuleContext extends Context {
 
     public void setReader(ClusterModuleRegistrationReader reader) {
         this.reader = reader;
+    }
+
+    public DataMonitor getDataMonitor() {
+        return dataMonitor;
+    }
+
+    public void setDataMonitor(DataMonitor dataMonitor) {
+        this.dataMonitor = dataMonitor;
     }
 }

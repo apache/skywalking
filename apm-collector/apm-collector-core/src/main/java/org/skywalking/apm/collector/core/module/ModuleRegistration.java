@@ -28,6 +28,10 @@ public abstract class ModuleRegistration {
             return port;
         }
 
+        public String getHostPort() {
+            return host + ":" + port;
+        }
+
         public JsonObject getData() {
             return data;
         }

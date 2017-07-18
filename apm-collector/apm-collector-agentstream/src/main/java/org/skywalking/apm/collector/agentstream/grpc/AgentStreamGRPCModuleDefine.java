@@ -2,6 +2,7 @@ package org.skywalking.apm.collector.agentstream.grpc;
 
 import org.skywalking.apm.collector.agentstream.AgentStreamModuleDefine;
 import org.skywalking.apm.collector.agentstream.AgentStreamModuleGroupDefine;
+import org.skywalking.apm.collector.core.cluster.ClusterDataListener;
 import org.skywalking.apm.collector.core.module.ModuleConfigParser;
 import org.skywalking.apm.collector.core.module.ModuleRegistration;
 import org.skywalking.apm.collector.core.server.Server;
@@ -20,10 +21,6 @@ public class AgentStreamGRPCModuleDefine extends AgentStreamModuleDefine {
         return "grpc";
     }
 
-    @Override public boolean defaultModule() {
-        return true;
-    }
-
     @Override protected ModuleConfigParser configParser() {
         return new AgentStreamGRPCConfigParser();
     }
@@ -34,5 +31,9 @@ public class AgentStreamGRPCModuleDefine extends AgentStreamModuleDefine {
 
     @Override protected ModuleRegistration registration() {
         return new AgentStreamGRPCModuleRegistration();
+    }
+
+    @Override public ClusterDataListener listener() {
+        return new AgentStreamGRPCDataListener(name());
     }
 }
