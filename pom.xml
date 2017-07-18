@@ -173,6 +173,7 @@
                     <instrumentation>
                         <excludes>
                             <exclude>org/skywalking/apm/network/trace/proto/*.class</exclude>
+                            <exclude>org/skywalking/apm/collector/remote/grpc/**/*.class</exclude>
                         </excludes>
                     </instrumentation>
                 </configuration>
