@@ -5,8 +5,7 @@ import com.lmax.disruptor.RingBuffer;
 import org.skywalking.apm.collector.core.queue.EndOfBatchCommand;
 import org.skywalking.apm.collector.core.queue.MessageHolder;
 import org.skywalking.apm.collector.core.queue.QueueEventHandler;
-import org.skywalking.apm.collector.core.worker.AbstractLocalAsyncWorker;
-import org.skywalking.apm.collector.core.worker.WorkerException;
+import org.skywalking.apm.collector.core.queue.QueueExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,11 +17,11 @@ public class DisruptorEventHandler implements EventHandler<MessageHolder>, Queue
     private final Logger logger = LoggerFactory.getLogger(DisruptorEventHandler.class);
 
     private RingBuffer<MessageHolder> ringBuffer;
-    private AbstractLocalAsyncWorker asyncWorker;
+    private QueueExecutor executor;
 
-    DisruptorEventHandler(RingBuffer<MessageHolder> ringBuffer, AbstractLocalAsyncWorker asyncWorker) {
+    DisruptorEventHandler(RingBuffer<MessageHolder> ringBuffer, QueueExecutor executor) {
         this.ringBuffer = ringBuffer;
-        this.asyncWorker = asyncWorker;
+        this.executor = executor;
     }
 
     /**
@@ -34,16 +33,12 @@ public class DisruptorEventHandler implements EventHandler<MessageHolder>, Queue
      * @param endOfBatch flag to indicate if this is the last event in a batch from the {@link RingBuffer}
      */
     public void onEvent(MessageHolder event, long sequence, boolean endOfBatch) {
-        try {
-            Object message = event.getMessage();
-            event.reset();
+        Object message = event.getMessage();
+        event.reset();
 
-            asyncWorker.allocateJob(message);
-            if (endOfBatch) {
-                asyncWorker.allocateJob(new EndOfBatchCommand());
-            }
-        } catch (WorkerException e) {
-            logger.error(e.getMessage(), e);
+        executor.execute(message);
+        if (endOfBatch) {
+            executor.execute(new EndOfBatchCommand());
         }
     }
 

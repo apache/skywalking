@@ -10,7 +10,7 @@ import org.skywalking.apm.collector.core.server.Server;
  */
 public abstract class ModuleDefine implements Define {
 
-    protected abstract ModuleGroup group();
+    protected abstract String group();
 
     public abstract boolean defaultModule();
 

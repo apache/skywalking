@@ -6,17 +6,17 @@ import org.skywalking.apm.collector.core.client.ClientException;
 import org.skywalking.apm.collector.core.framework.DataInitializer;
 import org.skywalking.apm.collector.core.framework.DefineException;
 import org.skywalking.apm.collector.core.module.ModuleConfigParser;
-import org.skywalking.apm.collector.core.module.ModuleGroup;
 import org.skywalking.apm.collector.core.module.ModuleRegistration;
-import org.skywalking.apm.collector.core.remote.RemoteModuleDefine;
 import org.skywalking.apm.collector.core.server.Server;
+import org.skywalking.apm.collector.remote.RemoteModuleDefine;
+import org.skywalking.apm.collector.remote.RemoteModuleGroupDefine;
 
 /**
  * @author pengys5
  */
 public class RemoteGRPCModuleDefine extends RemoteModuleDefine {
-    @Override protected ModuleGroup group() {
-        return ModuleGroup.Queue;
+    @Override protected String group() {
+        return RemoteModuleGroupDefine.GROUP_NAME;
     }
 
     @Override public boolean defaultModule() {

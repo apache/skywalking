@@ -24,7 +24,7 @@ public class ModuleDefineLoader implements Loader<Map<String, Map<String, Module
         for (ModuleDefine moduleDefine : definitionLoader) {
             logger.info("loaded module definition class: {}", moduleDefine.getClass().getName());
 
-            String groupName = moduleDefine.group().name().toLowerCase();
+            String groupName = moduleDefine.group();
             if (!moduleDefineMap.containsKey(groupName)) {
                 moduleDefineMap.put(groupName, new LinkedHashMap<>());
             }

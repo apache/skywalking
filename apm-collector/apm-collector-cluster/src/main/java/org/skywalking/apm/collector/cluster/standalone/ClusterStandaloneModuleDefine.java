@@ -1,25 +1,27 @@
 package org.skywalking.apm.collector.cluster.standalone;
 
 import org.skywalking.apm.collector.client.h2.H2Client;
+import org.skywalking.apm.collector.cluster.ClusterModuleGroupDefine;
 import org.skywalking.apm.collector.core.client.Client;
 import org.skywalking.apm.collector.core.cluster.ClusterModuleDefine;
 import org.skywalking.apm.collector.core.cluster.ClusterModuleRegistrationReader;
 import org.skywalking.apm.collector.core.cluster.ClusterModuleRegistrationWriter;
 import org.skywalking.apm.collector.core.framework.DataInitializer;
 import org.skywalking.apm.collector.core.module.ModuleConfigParser;
-import org.skywalking.apm.collector.core.module.ModuleGroup;
 
 /**
  * @author pengys5
  */
 public class ClusterStandaloneModuleDefine extends ClusterModuleDefine {
 
-    @Override public ModuleGroup group() {
-        return ModuleGroup.Cluster;
+    public static final String MODULE_NAME = "standalone";
+
+    @Override public String group() {
+        return ClusterModuleGroupDefine.GROUP_NAME;
     }
 
     @Override public String name() {
-        return "standalone";
+        return MODULE_NAME;
     }
 
     @Override public boolean defaultModule() {
@@ -38,11 +40,11 @@ public class ClusterStandaloneModuleDefine extends ClusterModuleDefine {
         return new ClusterStandaloneDataInitializer();
     }
 
-    @Override protected ClusterModuleRegistrationWriter registrationWriter() {
+    @Override public ClusterModuleRegistrationWriter registrationWriter() {
         return new ClusterStandaloneModuleRegistrationWriter(getClient());
     }
 
-    @Override protected ClusterModuleRegistrationReader registrationReader() {
+    @Override public ClusterModuleRegistrationReader registrationReader() {
         return null;
     }
 }

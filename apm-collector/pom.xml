@@ -14,6 +14,7 @@
         <module>apm-collector-ui</module>
         <module>apm-collector-boot</module>
         <module>apm-collector-remote</module>
+        <module>apm-collector-stream</module>
     </modules>
     <parent>
         <artifactId>apm</artifactId>
@@ -24,10 +25,18 @@
     <packaging>pom</packaging>
 
     <properties>
-        <akka.version>2.4.17</akka.version>
-        <log4j.version>2.8.1</log4j.version>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.25</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.2.3</version>
+        </dependency>
     </dependencies>
 </project>

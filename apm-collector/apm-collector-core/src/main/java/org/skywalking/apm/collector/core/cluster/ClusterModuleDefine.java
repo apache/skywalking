@@ -38,7 +38,7 @@ public abstract class ClusterModuleDefine extends ModuleDefine {
         throw new UnsupportedOperationException("Cluster module do not need module registration.");
     }
 
-    protected abstract ClusterModuleRegistrationWriter registrationWriter();
+    public abstract ClusterModuleRegistrationWriter registrationWriter();
 
-    protected abstract ClusterModuleRegistrationReader registrationReader();
+    public abstract ClusterModuleRegistrationReader registrationReader();
 }
