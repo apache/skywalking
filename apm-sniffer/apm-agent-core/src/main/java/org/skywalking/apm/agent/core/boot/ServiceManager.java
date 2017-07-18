@@ -27,6 +27,16 @@ public enum ServiceManager {
         afterBoot();
     }
 
+    public void shutdown() {
+        for (BootService service : bootedServices.values()) {
+            try {
+                service.shutdown();
+            } catch (Throwable e) {
+                logger.error(e, "ServiceManager try to shutdown [{}] fail.", service.getClass().getName());
+            }
+        }
+    }
+
     private Map<Class, BootService> loadAllServices() {
         HashMap<Class, BootService> bootedServices = new HashMap<Class, BootService>();
         Iterator<BootService> serviceIterator = load().iterator();
