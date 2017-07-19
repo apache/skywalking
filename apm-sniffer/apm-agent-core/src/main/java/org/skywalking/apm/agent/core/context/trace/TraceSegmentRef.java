@@ -57,6 +57,12 @@ public class TraceSegmentRef {
         this.type = SegmentRefType.CROSS_THREAD;
         this.traceSegmentId = snapshot.getTraceSegmentId();
         this.spanId = snapshot.getSpanId();
+        String entryOperationName = snapshot.getEntryOperationName();
+        if (entryOperationName.charAt(0) == '#') {
+            this.operationName = entryOperationName.substring(1);
+        } else {
+            this.operationId = Integer.parseInt(entryOperationName);
+        }
     }
 
     public String getOperationName() {
@@ -77,17 +83,17 @@ public class TraceSegmentRef {
             } else {
                 refBuilder.setNetworkAddressId(peerId);
             }
-            if (operationId == DictionaryUtil.nullValue()) {
-                refBuilder.setEntryServiceName(operationName);
-            } else {
-                refBuilder.setEntryServiceId(operationId);
-            }
         } else {
             refBuilder.setRefType(RefType.CrossThread);
         }
+
         refBuilder.setParentTraceSegmentId(traceSegmentId);
         refBuilder.setParentSpanId(spanId);
-
+        if (operationId == DictionaryUtil.nullValue()) {
+            refBuilder.setEntryServiceName(operationName);
+        } else {
+            refBuilder.setEntryServiceId(operationId);
+        }
         return refBuilder.build();
     }
 

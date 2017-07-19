@@ -61,6 +61,11 @@ public class SamplingService implements BootService {
 
     }
 
+    @Override
+    public void shutdown() throws Throwable {
+        scheduledFuture.cancel(true);
+    }
+
     /**
      * @return true, if sampling mechanism is on, and get the sampling factor successfully.
      */

@@ -44,6 +44,12 @@ public class SkyWalkingAgent {
 
         ServiceManager.INSTANCE.boot();
 
+        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+            @Override public void run() {
+                ServiceManager.INSTANCE.shutdown();
+            }
+        }, "skywalking service shutdown thread"));
+
         new AgentBuilder.Default().type(pluginFinder.buildMatch()).transform(new AgentBuilder.Transformer() {
             @Override
             public DynamicType.Builder<?> transform(DynamicType.Builder<?> builder, TypeDescription typeDescription,

@@ -162,6 +162,10 @@ public class ContextManager implements TracingContextListener, BootService, Igno
 
     }
 
+    @Override public void shutdown() throws Throwable {
+
+    }
+
     @Override
     public void afterFinished(TraceSegment traceSegment) {
         CONTEXT.remove();

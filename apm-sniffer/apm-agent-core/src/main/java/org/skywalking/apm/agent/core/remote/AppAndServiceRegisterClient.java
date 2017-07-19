@@ -78,6 +78,11 @@ public class AppAndServiceRegisterClient implements BootService, GRPCChannelList
     }
 
     @Override
+    public void shutdown() throws Throwable {
+        applicationRegisterFuture.cancel(true);
+    }
+
+    @Override
     public void run() {
         if (CONNECTED.equals(status)) {
             try {
