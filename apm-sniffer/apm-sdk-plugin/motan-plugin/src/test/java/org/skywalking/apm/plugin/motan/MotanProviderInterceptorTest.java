@@ -91,7 +91,7 @@ public class MotanProviderInterceptorTest {
     @Test
     public void testInvokerWithRefSegment() throws Throwable {
         HashMap attachments = new HashMap();
-        attachments.put(Config.Plugin.Propagation.HEADER_NAME, "S.1499176688384.581928182.80935.69.1|3|1|#192.168.1.8:18002|#/portal/|T.1499176688386.581928182.80935.69.2");
+        attachments.put(Config.Plugin.Propagation.HEADER_NAME, "S.1499176688384.581928182.80935.69.1|3|1|#192.168.1.8:18002|#/portal/|#/portal/|T.1499176688386.581928182.80935.69.2");
         when(request.getAttachments()).thenReturn(attachments);
 
         invokeInterceptor.beforeMethod(enhancedInstance, "execute", arguments, argumentType, null);

@@ -181,7 +181,7 @@ public class SkywalkingSpanActivationTest {
             .withTag(Tags.PEER_HOST_IPV4.getKey(), "127.0.0.1").withTag(Tags.PEER_PORT.getKey(), 8080);
         startSpan();
         extractInterceptor.afterMethod(enhancedInstance, "extract",
-            new Object[] {"S.1499746282749.1100157028.88023.1.1|0|1|#127.0.0.1:8080|#testOperationName|T.1499746282768.1100157028.88023.1.2"}, new Class[] {String.class}, null);
+            new Object[] {"S.1499746282749.1100157028.88023.1.1|0|1|#127.0.0.1:8080|#testOperationName|#testOperationName|T.1499746282768.1100157028.88023.1.2"}, new Class[] {String.class}, null);
         stopSpan();
 
         TraceSegment tracingSegment = assertTraceSemgnets();

@@ -28,6 +28,8 @@ public class ContextCarrier implements Serializable {
 
     private String entryOperationName;
 
+    private String parentOperationName;
+
     /**
      * {@link DistributedTraceId}
      */
@@ -47,7 +49,8 @@ public class ContextCarrier implements Serializable {
                 this.getApplicationInstanceId() + "",
                 this.getPeerHost(),
                 this.getEntryOperationName(),
-                this.serializeDistributedTraceId());
+                this.getParentOperationName(),
+                this.getPrimaryDistributedTraceId());
         } else {
             return "";
         }
@@ -60,15 +63,16 @@ public class ContextCarrier implements Serializable {
      */
     public ContextCarrier deserialize(String text) {
         if (text != null) {
-            String[] parts = text.split("\\|", 6);
-            if (parts.length == 6) {
+            String[] parts = text.split("\\|", 7);
+            if (parts.length == 7) {
                 try {
                     this.traceSegmentId = parts[0];
                     this.spanId = Integer.parseInt(parts[1]);
                     this.applicationInstanceId = Integer.parseInt(parts[2]);
                     this.peerHost = parts[3];
                     this.entryOperationName = parts[4];
-                    this.primaryDistributedTraceId = new PropagatedTraceId(parts[5]);
+                    this.parentOperationName = parts[5];
+                    this.primaryDistributedTraceId = new PropagatedTraceId(parts[6]);
                 } catch (NumberFormatException e) {
 
                 }
@@ -88,6 +92,7 @@ public class ContextCarrier implements Serializable {
             && applicationInstanceId != DictionaryUtil.nullValue()
             && !StringUtil.isEmpty(peerHost)
             && !StringUtil.isEmpty(entryOperationName)
+            && !StringUtil.isEmpty(parentOperationName)
             && primaryDistributedTraceId != null;
     }
 
@@ -101,6 +106,14 @@ public class ContextCarrier implements Serializable {
 
     void setEntryOperationId(int entryOperationId) {
         this.entryOperationName = entryOperationId + "";
+    }
+
+    void setParentOperationName(String parentOperationName) {
+        this.parentOperationName = '#' + parentOperationName;
+    }
+
+    void setParentOperationId(int parentOperationId) {
+        this.parentOperationName = parentOperationId + "";
     }
 
     public String getTraceSegmentId() {
@@ -147,7 +160,11 @@ public class ContextCarrier implements Serializable {
         this.primaryDistributedTraceId = distributedTraceIds.get(0);
     }
 
-    private String serializeDistributedTraceId() {
+    private String getPrimaryDistributedTraceId() {
         return primaryDistributedTraceId.toString();
+    }
+
+    public String getParentOperationName() {
+        return parentOperationName;
     }
 }

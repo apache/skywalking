@@ -96,8 +96,8 @@ public class TracingContext implements AbstractTracerContext {
         String operationName;
         if (refs != null && refs.size() > 0) {
             TraceSegmentRef ref = refs.get(0);
-            operationId = ref.getOperationId();
-            operationName = ref.getOperationName();
+            operationId = ref.getEntryOperationId();
+            operationName = ref.getEntryOperationName();
         } else {
             AbstractTracingSpan firstSpan = first();
             operationId = firstSpan.getOperationId();
@@ -107,6 +107,13 @@ public class TracingContext implements AbstractTracerContext {
             carrier.setEntryOperationName(operationName);
         } else {
             carrier.setEntryOperationId(operationId);
+        }
+
+        int parentOperationId = first().getOperationId();
+        if (parentOperationId == DictionaryUtil.nullValue()) {
+            carrier.setParentOperationName(first().getOperationName());
+        } else {
+            carrier.setParentOperationId(parentOperationId);
         }
 
         carrier.setDistributedTraceIds(this.segment.getRelatedGlobalTraces());
@@ -133,19 +140,32 @@ public class TracingContext implements AbstractTracerContext {
     @Override
     public ContextSnapshot capture() {
         List<TraceSegmentRef> refs = this.segment.getRefs();
+        ContextSnapshot snapshot = new ContextSnapshot(segment.getTraceSegmentId(),
+            activeSpan().getSpanId(),
+            segment.getRelatedGlobalTraces());
+        int entryOperationId;
+        String entryOperationName;
+        AbstractTracingSpan firstSpan = first();
         if (refs != null && refs.size() > 0) {
             TraceSegmentRef ref = refs.get(0);
-            return new ContextSnapshot(segment.getTraceSegmentId(),
-                activeSpan().getSpanId(),
-                segment.getRelatedGlobalTraces(), ref.getOperationId(), ref.getOperationName()
-            );
+            entryOperationId = ref.getEntryOperationId();
+            entryOperationName = ref.getEntryOperationName();
         } else {
-            AbstractTracingSpan firstSpan = first();
-            return new ContextSnapshot(segment.getTraceSegmentId(),
-                activeSpan().getSpanId(),
-                segment.getRelatedGlobalTraces(), firstSpan.getOperationId(), firstSpan.getOperationName()
-            );
+            entryOperationId = firstSpan.getOperationId();
+            entryOperationName = firstSpan.getOperationName();
         }
+        if (entryOperationId == DictionaryUtil.nullValue()) {
+            snapshot.setEntryOperationName(entryOperationName);
+        } else {
+            snapshot.setEntryOperationId(entryOperationId);
+        }
+
+        if (firstSpan.getOperationId() == DictionaryUtil.nullValue()) {
+            snapshot.setParentOperationName(firstSpan.getOperationName());
+        } else {
+            snapshot.setParentOperationId(firstSpan.getOperationId());
+        }
+        return snapshot;
     }
 
     /**

@@ -90,7 +90,7 @@ public class ResinV3InterceptorTest {
 
     @Test
     public void testWithSerializedContextData() throws Throwable {
-        when(request.getHeader(Config.Plugin.Propagation.HEADER_NAME)).thenReturn("S.1499176688384.581928182.80935.69.1|3|1|#192.168.1.8:18002|#/portal/|T.1499176688386.581928182.80935.69.2");
+        when(request.getHeader(Config.Plugin.Propagation.HEADER_NAME)).thenReturn("S.1499176688384.581928182.80935.69.1|3|1|#192.168.1.8:18002|#/portal/|#/portal/|T.1499176688386.581928182.80935.69.2");
 
         interceptor.beforeMethod(enhancedInstance, "service", arguments, argumentType, methodInterceptResult);
         interceptor.afterMethod(enhancedInstance, "service", arguments, argumentType, null);

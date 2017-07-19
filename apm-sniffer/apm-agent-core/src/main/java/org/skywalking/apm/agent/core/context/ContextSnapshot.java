@@ -2,7 +2,6 @@ package org.skywalking.apm.agent.core.context;
 
 import java.util.List;
 import org.skywalking.apm.agent.core.context.ids.DistributedTraceId;
-import org.skywalking.apm.agent.core.dictionary.DictionaryUtil;
 import org.skywalking.apm.util.StringUtil;
 
 /**
@@ -24,22 +23,36 @@ public class ContextSnapshot {
 
     private String entryOperationName;
 
+    private String parentOperationName;
+
     /**
      * {@link DistributedTraceId}
      */
     private DistributedTraceId primaryDistributedTraceId;
 
     ContextSnapshot(String traceSegmentId, int spanId,
-        List<DistributedTraceId> distributedTraceIds, int entryServiceId, String entryOperationName) {
+        List<DistributedTraceId> distributedTraceIds) {
         this.traceSegmentId = traceSegmentId;
         this.spanId = spanId;
-        this.primaryDistributedTraceId = distributedTraceIds.get(0);
-
-        if (entryServiceId == DictionaryUtil.nullValue()) {
-            this.entryOperationName = "#" + entryOperationName;
-        } else {
-            this.entryOperationName = String.valueOf(entryServiceId);
+        if (distributedTraceIds != null) {
+            this.primaryDistributedTraceId = distributedTraceIds.get(0);
         }
+    }
+
+    public void setEntryOperationName(String entryOperationName) {
+        this.entryOperationName = "#" + entryOperationName;
+    }
+
+    public void setEntryOperationId(int entryOperationId) {
+        this.entryOperationName = entryOperationId + "";
+    }
+
+    public void setParentOperationName(String parentOperationName) {
+        this.parentOperationName = "#" + parentOperationName;
+    }
+
+    public void setParentOperationId(int parentOperationId) {
+        this.parentOperationName = parentOperationId + "";
     }
 
     public DistributedTraceId getDistributedTraceId() {
@@ -54,11 +67,16 @@ public class ContextSnapshot {
         return spanId;
     }
 
+    public String getParentOperationName() {
+        return parentOperationName;
+    }
+
     public boolean isValid() {
         return traceSegmentId != null
             && spanId > -1
             && primaryDistributedTraceId != null
-            && !StringUtil.isEmpty(entryOperationName);
+            && !StringUtil.isEmpty(entryOperationName)
+            && !StringUtil.isEmpty(parentOperationName);
     }
 
     public String getEntryOperationName() {

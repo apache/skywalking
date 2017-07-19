@@ -1,15 +1,12 @@
 package org.skywalking.apm.agent.core.context;
 
-import com.google.instrumentation.trace.Span;
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.List;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.skywalking.apm.agent.core.boot.ServiceManager;
 import org.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
 import org.skywalking.apm.agent.core.context.tag.Tags;
 import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
@@ -82,7 +79,7 @@ public class ContextManagerTest {
 
     @Test
     public void createMultipleEntrySpan() {
-        ContextCarrier contextCarrier = new ContextCarrier().deserialize("S.1499176688384.581928182.80935.69.1|3|1|#192.168.1.8 :18002|#/portal/|T.1499176688386.581928182.80935.69.2");
+        ContextCarrier contextCarrier = new ContextCarrier().deserialize("S.1499176688384.581928182.80935.69.1|3|1|#192.168.1.8 :18002|#/portal/|#/portal/|T.1499176688386.581928182.80935.69.2");
         assertTrue(contextCarrier.isValid());
 
         AbstractSpan firstEntrySpan = ContextManager.createEntrySpan("/testFirstEntry", contextCarrier);
@@ -115,8 +112,8 @@ public class ContextManagerTest {
 
         TraceSegmentRef ref = actualSegment.getRefs().get(0);
         assertThat(TraceSegmentRefHelper.getPeerHost(ref), is("192.168.1.8 :18002"));
-        assertThat(ref.getOperationName(), is("/portal/"));
-        assertThat(ref.getOperationId(), is(0));
+        assertThat(ref.getEntryOperationName(), is("/portal/"));
+        assertThat(ref.getEntryOperationId(), is(0));
 
         List<AbstractTracingSpan> spanList = SegmentHelper.getSpan(actualSegment);
         assertThat(spanList.size(), is(2));
@@ -205,7 +202,7 @@ public class ContextManagerTest {
 
     @Test
     public void testTransform() throws InvalidProtocolBufferException {
-        ContextCarrier contextCarrier = new ContextCarrier().deserialize("S.1499176688384.581928182.80935.69.1|3|1|#192.168.1.8 :18002|#/portal/|T.1499176688386.581928182.80935.69.2");
+        ContextCarrier contextCarrier = new ContextCarrier().deserialize("S.1499176688384.581928182.80935.69.1|3|1|#192.168.1.8 :18002|#/portal/|#/portal/|T.1499176688386.581928182.80935.69.2");
         assertTrue(contextCarrier.isValid());
 
         AbstractSpan firstEntrySpan = ContextManager.createEntrySpan("/testFirstEntry", contextCarrier);

@@ -25,9 +25,13 @@ public class TraceSegmentRef {
 
     private int peerId = DictionaryUtil.nullValue();
 
-    private String operationName;
+    private String entryOperationName;
 
-    private int operationId = DictionaryUtil.nullValue();
+    private int entryOperationId = DictionaryUtil.nullValue();
+
+    private String parentOperationName;
+
+    private int parentOperationId = DictionaryUtil.nullValue();
 
     /**
      * Transform a {@link ContextCarrier} to the <code>TraceSegmentRef</code>
@@ -47,9 +51,15 @@ public class TraceSegmentRef {
         }
         String entryOperationName = carrier.getEntryOperationName();
         if (entryOperationName.charAt(0) == '#') {
-            this.operationName = entryOperationName.substring(1);
+            this.entryOperationName = entryOperationName.substring(1);
         } else {
-            this.operationId = Integer.parseInt(entryOperationName);
+            this.entryOperationId = Integer.parseInt(entryOperationName);
+        }
+        String parentOperationName = carrier.getParentOperationName();
+        if (parentOperationName.charAt(0) == '#') {
+            this.parentOperationName = parentOperationName.substring(1);
+        } else {
+            this.parentOperationId = Integer.parseInt(parentOperationName);
         }
     }
 
@@ -59,18 +69,24 @@ public class TraceSegmentRef {
         this.spanId = snapshot.getSpanId();
         String entryOperationName = snapshot.getEntryOperationName();
         if (entryOperationName.charAt(0) == '#') {
-            this.operationName = entryOperationName.substring(1);
+            this.entryOperationName = entryOperationName.substring(1);
         } else {
-            this.operationId = Integer.parseInt(entryOperationName);
+            this.entryOperationId = Integer.parseInt(entryOperationName);
+        }
+        String parentOperationName = snapshot.getParentOperationName();
+        if (parentOperationName.charAt(0) == '#') {
+            this.parentOperationName = parentOperationName.substring(1);
+        } else {
+            this.parentOperationId = Integer.parseInt(parentOperationName);
         }
     }
 
-    public String getOperationName() {
-        return operationName;
+    public String getEntryOperationName() {
+        return entryOperationName;
     }
 
-    public int getOperationId() {
-        return operationId;
+    public int getEntryOperationId() {
+        return entryOperationId;
     }
 
     public TraceSegmentReference transform() {
@@ -89,10 +105,15 @@ public class TraceSegmentRef {
 
         refBuilder.setParentTraceSegmentId(traceSegmentId);
         refBuilder.setParentSpanId(spanId);
-        if (operationId == DictionaryUtil.nullValue()) {
-            refBuilder.setEntryServiceName(operationName);
+        if (entryOperationId == DictionaryUtil.nullValue()) {
+            refBuilder.setEntryServiceName(entryOperationName);
         } else {
-            refBuilder.setEntryServiceId(operationId);
+            refBuilder.setEntryServiceId(entryOperationId);
+        }
+        if (parentOperationId == DictionaryUtil.nullValue()) {
+            refBuilder.setParentServiceName(parentOperationName);
+        } else {
+            refBuilder.setParentServiceId(parentOperationId);
         }
         return refBuilder.build();
     }
