@@ -13,12 +13,14 @@ import org.skywalking.apm.collector.server.jetty.JettyServer;
  */
 public class AgentStreamJettyModuleDefine extends AgentStreamModuleDefine {
 
+    public static final String MODULE_NAME = "jetty";
+
     @Override protected String group() {
         return AgentStreamModuleGroupDefine.GROUP_NAME;
     }
 
     @Override public String name() {
-        return "jetty";
+        return MODULE_NAME;
     }
 
     @Override protected ModuleConfigParser configParser() {
@@ -34,6 +36,6 @@ public class AgentStreamJettyModuleDefine extends AgentStreamModuleDefine {
     }
 
     @Override public ClusterDataListener listener() {
-        return new AgentStreamJettyDataListener(name());
+        return new AgentStreamJettyDataListener();
     }
 }

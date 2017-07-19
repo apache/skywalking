@@ -13,12 +13,14 @@ import org.skywalking.apm.collector.server.grpc.GRPCServer;
  */
 public class AgentStreamGRPCModuleDefine extends AgentStreamModuleDefine {
 
+    public static final String MODULE_NAME = "grpc";
+
     @Override protected String group() {
         return AgentStreamModuleGroupDefine.GROUP_NAME;
     }
 
     @Override public String name() {
-        return "grpc";
+        return MODULE_NAME;
     }
 
     @Override protected ModuleConfigParser configParser() {
@@ -34,6 +36,6 @@ public class AgentStreamGRPCModuleDefine extends AgentStreamModuleDefine {
     }
 
     @Override public ClusterDataListener listener() {
-        return new AgentStreamGRPCDataListener(name());
+        return new AgentStreamGRPCDataListener();
     }
 }

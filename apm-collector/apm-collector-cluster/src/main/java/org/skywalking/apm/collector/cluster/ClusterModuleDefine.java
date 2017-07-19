@@ -31,7 +31,10 @@ public abstract class ClusterModuleDefine extends ModuleDefine {
             client.initialize();
             dataMonitor.setClient(client);
 
+            ClusterModuleRegistrationReader reader = registrationReader(dataMonitor);
+
             ((ClusterModuleContext)CollectorContextHelper.INSTANCE.getContext(group())).setDataMonitor(dataMonitor);
+            ((ClusterModuleContext)CollectorContextHelper.INSTANCE.getContext(group())).setReader(reader);
         } catch (ConfigParseException | ClientException e) {
             throw new ClusterModuleException(e.getMessage(), e);
         }
@@ -51,5 +54,5 @@ public abstract class ClusterModuleDefine extends ModuleDefine {
 
     public abstract DataMonitor dataMonitor();
 
-    public abstract ClusterModuleRegistrationReader registrationReader();
+    public abstract ClusterModuleRegistrationReader registrationReader(DataMonitor dataMonitor);
 }

@@ -39,7 +39,7 @@ public class ClusterRedisModuleDefine extends ClusterModuleDefine {
         return new RedisClient(ClusterRedisConfig.HOST, ClusterRedisConfig.PORT);
     }
 
-    @Override public ClusterModuleRegistrationReader registrationReader() {
-        return new ClusterRedisModuleRegistrationReader();
+    @Override public ClusterModuleRegistrationReader registrationReader(DataMonitor dataMonitor) {
+        return new ClusterRedisModuleRegistrationReader(dataMonitor);
     }
 }

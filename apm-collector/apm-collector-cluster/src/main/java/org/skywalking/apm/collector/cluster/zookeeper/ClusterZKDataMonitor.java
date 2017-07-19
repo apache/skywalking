@@ -37,7 +37,21 @@ public class ClusterZKDataMonitor implements DataMonitor, Watcher {
     @Override public void process(WatchedEvent event) {
         logger.debug("changed path {}", event.getPath());
         if (listeners.containsKey(event.getPath())) {
-            putDataIntoListener(listeners.get(event.getPath()), event.getPath());
+            List<String> paths = null;
+            try {
+                paths = client.getChildren(event.getPath(), true);
+                listeners.get(event.getPath()).clearData();
+                if (CollectionUtils.isNotEmpty(paths)) {
+                    for (String serverPath : paths) {
+                        byte[] data = client.getData(event.getPath() + "/" + serverPath, false, null);
+                        String dataStr = new String(data);
+                        logger.debug("path children has been changed, path: {}, data: {}", event.getPath() + "/" + serverPath, dataStr);
+                        listeners.get(event.getPath()).addAddress(serverPath + dataStr);
+                    }
+                }
+            } catch (ZookeeperClientException e) {
+                logger.error(e.getMessage(), e);
+            }
         }
     }
 
@@ -51,16 +65,20 @@ public class ClusterZKDataMonitor implements DataMonitor, Watcher {
         logger.info("listener path: {}", path);
         listeners.put(path, listener);
         createPath(path);
-        List<String> paths = client.getChildren(path, true);
-
-        if (CollectionUtils.isNotEmpty(paths)) {
-            paths.forEach(subPath -> {
-                putDataIntoListener(listener, subPath);
-            });
-        }
 
         ModuleRegistration.Value value = registration.buildValue();
-        setData(path + "/" + value.getHostPort(), value.getData() == null ? "" : value.getData().toString());
+        String contextPath = value.getContextPath() == null ? "" : value.getContextPath();
+
+        client.getChildren(path, true);
+        String serverPath = path + "/" + value.getHostPort();
+        listener.addAddress(value.getHostPort() + contextPath);
+
+        setData(serverPath, contextPath);
+    }
+
+    @Override public ClusterDataListener getListener(String path) {
+        path = PathUtils.convertKey2Path(path);
+        return listeners.get(path);
     }
 
     @Override public void createPath(String path) throws ClientException {
@@ -80,16 +98,6 @@ public class ClusterZKDataMonitor implements DataMonitor, Watcher {
             client.create(path, value.getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
         } else {
             client.setData(path, value.getBytes(), -1);
-        }
-    }
-
-    private void putDataIntoListener(ClusterDataListener listener, String path) {
-        try {
-            byte[] data = client.getData(path, false, null);
-            String dataStr = String.valueOf(data);
-            listener.setData(new ClusterDataListener.Data(path, dataStr));
-        } catch (ZookeeperClientException e) {
-            logger.error(e.getMessage(), e);
         }
     }
 }

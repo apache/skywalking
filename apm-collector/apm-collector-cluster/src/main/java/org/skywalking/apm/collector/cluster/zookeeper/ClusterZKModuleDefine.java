@@ -40,7 +40,7 @@ public class ClusterZKModuleDefine extends ClusterModuleDefine {
         return new ZookeeperClient(ClusterZKConfig.HOST_PORT, ClusterZKConfig.SESSION_TIMEOUT, (Watcher)dataMonitor);
     }
 
-    @Override public ClusterModuleRegistrationReader registrationReader() {
-        return new ClusterZKModuleRegistrationReader();
+    @Override public ClusterModuleRegistrationReader registrationReader(DataMonitor dataMonitor) {
+        return new ClusterZKModuleRegistrationReader(dataMonitor);
     }
 }

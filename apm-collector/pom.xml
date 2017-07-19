@@ -15,6 +15,7 @@
         <module>apm-collector-boot</module>
         <module>apm-collector-remote</module>
         <module>apm-collector-stream</module>
+        <module>apm-collector-agentserver</module>
     </modules>
     <parent>
         <artifactId>apm</artifactId>

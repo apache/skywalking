@@ -9,31 +9,23 @@ import org.skywalking.apm.collector.core.framework.Listener;
  */
 public abstract class ClusterDataListener implements Listener {
 
-    private final String moduleName;
-    private List<Data> datas;
+    private List<String> addresses;
 
-    public ClusterDataListener(String moduleName) {
-        this.moduleName = moduleName;
-        datas = new LinkedList<>();
-    }
-
-    public final String moduleName() {
-        return moduleName;
+    public ClusterDataListener() {
+        addresses = new LinkedList<>();
     }
 
     public abstract String path();
 
-    public final void setData(Data data) {
-        datas.add(data);
+    public final void addAddress(String address) {
+        addresses.add(address);
     }
 
-    public static class Data {
-        private final String key;
-        private final String value;
+    public final List<String> getAddresses() {
+        return addresses;
+    }
 
-        public Data(String key, String value) {
-            this.key = key;
-            this.value = value;
-        }
+    public final void clearData() {
+        addresses.clear();
     }
 }

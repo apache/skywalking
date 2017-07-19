@@ -9,11 +9,9 @@ import org.skywalking.apm.collector.core.cluster.ClusterDataListener;
  */
 public class AgentStreamJettyDataListener extends ClusterDataListener {
 
-    public AgentStreamJettyDataListener(String moduleName) {
-        super(moduleName);
-    }
+    public static final String PATH = ClusterModuleDefine.BASE_CATALOG + "." + AgentStreamModuleGroupDefine.GROUP_NAME + "." + AgentStreamJettyModuleDefine.MODULE_NAME;
 
     @Override public String path() {
-        return ClusterModuleDefine.BASE_CATALOG + "." + AgentStreamModuleGroupDefine.GROUP_NAME + "." + moduleName();
+        return PATH;
     }
 }

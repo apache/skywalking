@@ -11,6 +11,8 @@ public interface DataMonitor {
 
     void addListener(ClusterDataListener listener, ModuleRegistration registration) throws ClientException;
 
+    ClusterDataListener getListener(String path);
+
     void createPath(String path) throws ClientException;
 
     void setData(String path, String value) throws ClientException;

@@ -3,6 +3,7 @@ package org.skywalking.apm.collector.server.grpc;
 import io.grpc.netty.NettyServerBuilder;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import org.skywalking.apm.collector.core.framework.Handler;
 import org.skywalking.apm.collector.core.server.Server;
 import org.skywalking.apm.collector.core.server.ServerException;
 import org.slf4j.Logger;
@@ -32,5 +33,13 @@ public class GRPCServer implements Server {
             throw new GRPCServerException(e.getMessage(), e);
         }
         logger.info("Server started, host {} listening on {}", host, port);
+    }
+
+    @Override public void start() throws ServerException {
+
+    }
+
+    @Override public void addHandler(Handler handler) {
+
     }
 }

@@ -39,7 +39,7 @@ public class ClusterStandaloneModuleDefine extends ClusterModuleDefine {
         return new H2Client();
     }
 
-    @Override public ClusterModuleRegistrationReader registrationReader() {
-        return new ClusterStandaloneModuleRegistrationReader();
+    @Override public ClusterModuleRegistrationReader registrationReader(DataMonitor dataMonitor) {
+        return new ClusterStandaloneModuleRegistrationReader(dataMonitor);
     }
 }
