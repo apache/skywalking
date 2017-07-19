@@ -50,6 +50,11 @@ public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSe
     }
 
     @Override
+    public void shutdown() throws Throwable {
+        carrier.shutdownConsumers();
+    }
+
+    @Override
     public void init() {
 
     }

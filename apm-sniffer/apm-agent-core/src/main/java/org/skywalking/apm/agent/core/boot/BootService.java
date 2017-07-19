@@ -13,4 +13,6 @@ public interface BootService {
     void boot() throws Throwable;
 
     void afterBoot() throws Throwable;
+
+    void shutdown() throws Throwable;
 }

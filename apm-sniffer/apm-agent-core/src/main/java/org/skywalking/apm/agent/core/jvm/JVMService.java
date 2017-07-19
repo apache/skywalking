@@ -63,6 +63,12 @@ public class JVMService implements BootService, Runnable {
     }
 
     @Override
+    public void shutdown() throws Throwable {
+        collectMetricFuture.cancel(true);
+        sendMetricFuture.cancel(true);
+    }
+
+    @Override
     public void run() {
         if (RemoteDownstreamConfig.Agent.APPLICATION_ID != DictionaryUtil.nullValue()
             && RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID != DictionaryUtil.nullValue()

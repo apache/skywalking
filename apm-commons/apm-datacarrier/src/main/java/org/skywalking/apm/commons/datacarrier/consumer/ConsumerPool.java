@@ -20,6 +20,7 @@ public class ConsumerPool<T> {
         this(channels, num);
         for (int i = 0; i < num; i++) {
             consumerThreads[i] = new ConsumerThread("DataCarrier.Consumser." + i + ".Thread", getNewConsumerInstance(consumerClass));
+            consumerThreads[i].setDaemon(true);
         }
     }
 
