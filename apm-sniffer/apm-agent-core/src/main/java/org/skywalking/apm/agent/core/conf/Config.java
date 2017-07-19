@@ -73,6 +73,15 @@ public class Config {
         public static int BUFFER_SIZE = 300;
     }
 
+    public static class Dictionary {
+        /**
+         * The buffer size of application codes and peer
+         */
+        public static int APPLICATION_CODE_BUFFER_SIZE = 10 * 10000;
+
+        public static int OPERATION_NAME_BUFFER_SIZE = 1000 * 10000;
+    }
+
     public static class Logging {
         /**
          * Log file name.
