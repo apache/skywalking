@@ -68,16 +68,19 @@ public class SkywalkingSpan implements Span {
         return SkywalkingContext.INSTANCE;
     }
 
+    @NeedSnifferActivation(
+        "1. ContextManager#activeSpan()" +
+            "2. SkywalkingSpan#setTag(String, String)")
     @Override public Span setTag(String key, String value) {
-        return null;
+        return this;
     }
 
     @Override public Span setTag(String key, boolean value) {
-        return null;
+        return setTag(key, String.valueOf(value));
     }
 
     @Override public Span setTag(String key, Number value) {
-        return null;
+        return setTag(key, String.valueOf(value));
     }
 
     @Override

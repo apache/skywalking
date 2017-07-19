@@ -48,6 +48,7 @@ public class SkywalkingSpanActivation extends ClassInstanceMethodsEnhancePluginD
     private static final String FINISH_METHOD_INTERCEPTOR = "org.skywalking.apm.toolkit.activation.opentracing.span.SpanFinishInterceptor";
     private static final String LOG_INTERCEPTOR = "org.skywalking.apm.toolkit.activation.opentracing.span.SpanLogInterceptor";
     private static final String SET_OPERATION_NAME_INTERCEPTOR = "org.skywalking.apm.toolkit.activation.opentracing.span.SpanSetOperationNameInterceptor";
+    private static final String SET_TAG_INTERCEPTOR = "org.skywalking.apm.toolkit.activation.opentracing.span.SpanSetTagInterceptor";
 
     @Override
     protected ClassMatch enhanceClass() {
@@ -130,6 +131,19 @@ public class SkywalkingSpanActivation extends ClassInstanceMethodsEnhancePluginD
 
                 @Override
                 public boolean isOverrideArgs() {
+                    return false;
+                }
+            },
+            new InstanceMethodsInterceptPoint() {
+                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named("setTag").and(takesArgument(0, String.class)).and(takesArgument(1, String.class));
+                }
+
+                @Override public String getMethodsInterceptor() {
+                    return SET_TAG_INTERCEPTOR;
+                }
+
+                @Override public boolean isOverrideArgs() {
                     return false;
                 }
             }
