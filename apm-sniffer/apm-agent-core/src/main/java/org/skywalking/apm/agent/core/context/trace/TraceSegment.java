@@ -93,16 +93,9 @@ public class TraceSegment {
 
     /**
      * Establish the line between this segment and all relative global trace ids.
-     *
-     * @param distributedTraceIds multi global trace ids. @see {@link DistributedTraceId}
      */
-    public void relatedGlobalTraces(List<DistributedTraceId> distributedTraceIds) {
-        if (distributedTraceIds == null || distributedTraceIds.size() == 0) {
-            return;
-        }
-        for (DistributedTraceId distributedTraceId : distributedTraceIds) {
-            relatedGlobalTraces.append(distributedTraceId);
-        }
+    public void relatedGlobalTraces(DistributedTraceId distributedTraceId) {
+        relatedGlobalTraces.append(distributedTraceId);
     }
 
     /**

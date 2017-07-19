@@ -23,17 +23,17 @@ public class ContextSnapshot {
     /**
      * {@link DistributedTraceId}
      */
-    private List<DistributedTraceId> distributedTraceIds;
+    private DistributedTraceId primaryDistributedTraceId;
 
     ContextSnapshot(String traceSegmentId, int spanId,
         List<DistributedTraceId> distributedTraceIds) {
         this.traceSegmentId = traceSegmentId;
         this.spanId = spanId;
-        this.distributedTraceIds = distributedTraceIds;
+        this.primaryDistributedTraceId = distributedTraceIds.get(0);
     }
 
-    public List<DistributedTraceId> getDistributedTraceIds() {
-        return distributedTraceIds;
+    public DistributedTraceId getDistributedTraceId() {
+        return primaryDistributedTraceId;
     }
 
     public String getTraceSegmentId() {
@@ -47,7 +47,6 @@ public class ContextSnapshot {
     public boolean isValid() {
         return traceSegmentId != null
             && spanId > -1
-            && distributedTraceIds != null
-            && distributedTraceIds.size() > 0;
+            && primaryDistributedTraceId != null;
     }
 }

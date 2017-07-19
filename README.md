@@ -19,16 +19,6 @@ Sky Walking | [中文](https://github.com/wu-sheng/sky-walking/wiki/sky-walking-
 * High performance streaming analysis.
 * The UI released on [wu-sheng/sky-walking-ui](https://github.com/wu-sheng/sky-walking-ui)
 
-___
-
-<a href="https://github.com/wu-sheng/sky-walking">
-<img src="https://sky-walking.github.io/page-resources/3.0/oneapm-award.png" alt="OneAPM Open Source Achievement Award" height="110px" align="left" />
-</a>
-
-In October 2016, Sky Walking won `OneAPM Open Source Achievement Award`. The award appreciates sky walking for its "*contribution to popularization of APM technology*". <br/><br/><br/> 
-Thanks all users of sky walking project.
-
-___
 
 # Contributors
 _In chronological order_

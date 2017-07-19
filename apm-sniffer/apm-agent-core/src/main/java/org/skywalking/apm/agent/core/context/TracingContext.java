@@ -121,7 +121,7 @@ public class TracingContext implements AbstractTracerContext {
     @Override
     public void extract(ContextCarrier carrier) {
         this.segment.ref(new TraceSegmentRef(carrier));
-        this.segment.relatedGlobalTraces(carrier.getDistributedTraceIds());
+        this.segment.relatedGlobalTraces(carrier.getDistributedTraceId());
     }
 
     /**
@@ -147,7 +147,7 @@ public class TracingContext implements AbstractTracerContext {
     @Override
     public void continued(ContextSnapshot snapshot) {
         this.segment.ref(new TraceSegmentRef(snapshot));
-        this.segment.relatedGlobalTraces(snapshot.getDistributedTraceIds());
+        this.segment.relatedGlobalTraces(snapshot.getDistributedTraceId());
     }
 
     /**
