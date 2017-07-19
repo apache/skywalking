@@ -12,6 +12,7 @@ import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
 import org.skywalking.apm.collector.core.module.ModuleDefine;
 import org.skywalking.apm.collector.core.module.ModuleRegistration;
 import org.skywalking.apm.collector.core.server.Server;
+import org.skywalking.apm.collector.core.server.ServerHolder;
 
 /**
  * @author pengys5
@@ -22,7 +23,7 @@ public abstract class ClusterModuleDefine extends ModuleDefine {
 
     private Client client;
 
-    @Override public final void initialize(Map config) throws ClusterModuleException {
+    @Override public final void initialize(Map config, ServerHolder serverHolder) throws ClusterModuleException {
         try {
             configParser().parse(config);
 

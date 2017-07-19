@@ -18,28 +18,37 @@ public class GRPCServer implements Server {
 
     private final String host;
     private final int port;
+    private io.grpc.Server server;
+    private NettyServerBuilder nettyServerBuilder;
 
     public GRPCServer(String host, int port) {
         this.host = host;
         this.port = port;
     }
 
+    @Override public String hostPort() {
+        return host + ":" + port;
+    }
+
+    @Override public String serverClassify() {
+        return "Google-RPC";
+    }
+
     @Override public void initialize() throws ServerException {
         InetSocketAddress address = new InetSocketAddress(host, port);
-        NettyServerBuilder nettyServerBuilder = NettyServerBuilder.forAddress(address);
-        try {
-            io.grpc.Server server = nettyServerBuilder.build().start();
-        } catch (IOException e) {
-            throw new GRPCServerException(e.getMessage(), e);
-        }
+        nettyServerBuilder = NettyServerBuilder.forAddress(address);
+        server = nettyServerBuilder.build();
         logger.info("Server started, host {} listening on {}", host, port);
     }
 
     @Override public void start() throws ServerException {
-
+        try {
+            server.start();
+        } catch (IOException e) {
+            throw new GRPCServerException(e.getMessage(), e);
+        }
     }
 
     @Override public void addHandler(Handler handler) {
-
     }
 }

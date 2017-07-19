@@ -1,4 +1,4 @@
-package org.skywalking.apm.collector.agentstream;
+package org.skywalking.apm.collector.agentregister;
 
 import java.util.List;
 import java.util.Map;
@@ -22,9 +22,9 @@ import org.slf4j.LoggerFactory;
 /**
  * @author pengys5
  */
-public abstract class AgentStreamModuleDefine extends ModuleDefine implements ClusterDataListenerDefine {
+public abstract class AgentRegisterModuleDefine extends ModuleDefine implements ClusterDataListenerDefine {
 
-    private final Logger logger = LoggerFactory.getLogger(AgentStreamModuleDefine.class);
+    private final Logger logger = LoggerFactory.getLogger(AgentRegisterModuleDefine.class);
 
     @Override
     public final void initialize(Map config, ServerHolder serverHolder) throws DefineException, ClientException {
@@ -35,7 +35,7 @@ public abstract class AgentStreamModuleDefine extends ModuleDefine implements Cl
 
             ((ClusterModuleContext)CollectorContextHelper.INSTANCE.getContext(ClusterModuleGroupDefine.GROUP_NAME)).getDataMonitor().addListener(listener(), registration());
         } catch (ConfigParseException | ServerException e) {
-            throw new AgentStreamModuleException(e.getMessage(), e);
+            throw new AgentRegisterModuleException(e.getMessage(), e);
         }
     }
 

@@ -8,6 +8,7 @@ import org.skywalking.apm.collector.core.framework.DefineException;
 import org.skywalking.apm.collector.core.module.ModuleConfigParser;
 import org.skywalking.apm.collector.core.module.ModuleRegistration;
 import org.skywalking.apm.collector.core.server.Server;
+import org.skywalking.apm.collector.core.server.ServerHolder;
 import org.skywalking.apm.collector.remote.RemoteModuleDefine;
 import org.skywalking.apm.collector.remote.RemoteModuleGroupDefine;
 
@@ -39,7 +40,7 @@ public class RemoteGRPCModuleDefine extends RemoteModuleDefine {
         return null;
     }
 
-    @Override public void initialize(Map config) throws DefineException, ClientException {
+    @Override public void initialize(Map config, ServerHolder serverHolder) throws DefineException, ClientException {
 
     }
 

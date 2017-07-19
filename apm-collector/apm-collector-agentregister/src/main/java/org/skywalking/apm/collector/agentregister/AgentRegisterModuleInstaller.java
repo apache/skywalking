@@ -1,4 +1,4 @@
-package org.skywalking.apm.collector.agentserver;
+package org.skywalking.apm.collector.agentregister;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -15,18 +15,17 @@ import org.slf4j.LoggerFactory;
 /**
  * @author pengys5
  */
-public class AgentServerModuleInstaller implements ModuleInstaller {
+public class AgentRegisterModuleInstaller implements ModuleInstaller {
 
-    private final Logger logger = LoggerFactory.getLogger(AgentServerModuleInstaller.class);
+    private final Logger logger = LoggerFactory.getLogger(AgentRegisterModuleInstaller.class);
 
     @Override public void install(Map<String, Map> moduleConfig,
         Map<String, ModuleDefine> moduleDefineMap, ServerHolder serverHolder) throws DefineException, ClientException {
-        logger.info("beginning agent server module install");
+        logger.info("beginning agent register module install");
 
-        AgentServerModuleContext context = new AgentServerModuleContext(AgentServerModuleGroupDefine.GROUP_NAME);
+        AgentRegisterModuleContext context = new AgentRegisterModuleContext(AgentRegisterModuleGroupDefine.GROUP_NAME);
         CollectorContextHelper.INSTANCE.putContext(context);
 
-        logger.info("could not configure agent server module, use the default");
         Iterator<Map.Entry<String, ModuleDefine>> moduleDefineEntry = moduleDefineMap.entrySet().iterator();
         while (moduleDefineEntry.hasNext()) {
             ModuleDefine moduleDefine = moduleDefineEntry.next().getValue();

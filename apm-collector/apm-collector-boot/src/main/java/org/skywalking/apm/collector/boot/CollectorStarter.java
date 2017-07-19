@@ -12,6 +12,8 @@ import org.skywalking.apm.collector.core.module.ModuleDefineLoader;
 import org.skywalking.apm.collector.core.module.ModuleGroupDefine;
 import org.skywalking.apm.collector.core.module.ModuleGroupDefineLoader;
 import org.skywalking.apm.collector.core.remote.SerializedDefineLoader;
+import org.skywalking.apm.collector.core.server.ServerException;
+import org.skywalking.apm.collector.core.server.ServerHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,11 +37,20 @@ public class CollectorStarter implements Starter {
         ModuleDefineLoader defineLoader = new ModuleDefineLoader();
         Map<String, Map<String, ModuleDefine>> moduleDefineMap = defineLoader.load();
 
-        moduleGroupDefineMap.get(ClusterModuleGroupDefine.GROUP_NAME).moduleInstaller().install(configuration.get(ClusterModuleGroupDefine.GROUP_NAME), moduleDefineMap.get(ClusterModuleGroupDefine.GROUP_NAME));
+        ServerHolder serverHolder = new ServerHolder();
+        moduleGroupDefineMap.get(ClusterModuleGroupDefine.GROUP_NAME).moduleInstaller().install(configuration.get(ClusterModuleGroupDefine.GROUP_NAME), moduleDefineMap.get(ClusterModuleGroupDefine.GROUP_NAME), serverHolder);
         moduleGroupDefineMap.remove(ClusterModuleGroupDefine.GROUP_NAME);
 
         for (ModuleGroupDefine moduleGroupDefine : moduleGroupDefineMap.values()) {
-            moduleGroupDefine.moduleInstaller().install(configuration.get(moduleGroupDefine.name()), moduleDefineMap.get(moduleGroupDefine.name()));
+            moduleGroupDefine.moduleInstaller().install(configuration.get(moduleGroupDefine.name()), moduleDefineMap.get(moduleGroupDefine.name()), serverHolder);
         }
+
+        serverHolder.getServers().forEach(server -> {
+            try {
+                server.start();
+            } catch (ServerException e) {
+                logger.error(e.getMessage(), e);
+            }
+        });
     }
 }

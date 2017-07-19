@@ -9,13 +9,13 @@
         <module>apm-collector-storage</module>
         <module>apm-collector-client</module>
         <module>apm-collector-server</module>
-        <module>apm-collector-discovery</module>
         <module>apm-collector-agentstream</module>
         <module>apm-collector-ui</module>
         <module>apm-collector-boot</module>
         <module>apm-collector-remote</module>
         <module>apm-collector-stream</module>
         <module>apm-collector-agentserver</module>
+        <module>apm-collector-agentregister</module>
     </modules>
     <parent>
         <artifactId>apm</artifactId>

@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>apm-collector-agentserver</artifactId>
+    <artifactId>apm-collector-agentregister</artifactId>
     <packaging>jar</packaging>
 
     <dependencies>
@@ -25,12 +25,7 @@
         </dependency>
         <dependency>
             <groupId>org.skywalking</groupId>
-            <artifactId>apm-collector-agentstream</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.skywalking</groupId>
-            <artifactId>apm-collector-agentregister</artifactId>
+            <artifactId>apm-network</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

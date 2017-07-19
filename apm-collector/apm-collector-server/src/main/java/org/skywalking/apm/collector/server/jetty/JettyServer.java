@@ -29,6 +29,14 @@ public class JettyServer implements Server {
         this.contextPath = contextPath;
     }
 
+    @Override public String hostPort() {
+        return host + ":" + port;
+    }
+
+    @Override public String serverClassify() {
+        return "Jetty";
+    }
+
     @Override public void initialize() throws ServerException {
         server = new org.eclipse.jetty.server.Server(new InetSocketAddress(host, port));
 

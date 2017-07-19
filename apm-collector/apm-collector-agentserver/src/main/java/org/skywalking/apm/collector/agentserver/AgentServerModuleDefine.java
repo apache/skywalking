@@ -15,6 +15,7 @@ import org.skywalking.apm.collector.core.framework.Handler;
 import org.skywalking.apm.collector.core.module.ModuleDefine;
 import org.skywalking.apm.collector.core.server.Server;
 import org.skywalking.apm.collector.core.server.ServerException;
+import org.skywalking.apm.collector.core.server.ServerHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,13 +26,12 @@ public abstract class AgentServerModuleDefine extends ModuleDefine implements Cl
 
     private final Logger logger = LoggerFactory.getLogger(AgentServerModuleDefine.class);
 
-    @Override public final void initialize(Map config) throws DefineException, ClientException {
+    @Override
+    public final void initialize(Map config, ServerHolder serverHolder) throws DefineException, ClientException {
         try {
             configParser().parse(config);
             Server server = server();
-            server.initialize();
-            handlerList().forEach(handler -> server.addHandler(handler));
-            server.start();
+            serverHolder.holdServer(server, handlerList());
 
             ((ClusterModuleContext)CollectorContextHelper.INSTANCE.getContext(ClusterModuleGroupDefine.GROUP_NAME)).getDataMonitor().addListener(listener(), registration());
         } catch (ConfigParseException | ServerException e) {
