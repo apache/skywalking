@@ -2,6 +2,8 @@ package org.skywalking.apm.agent.core.context;
 
 import java.util.List;
 import org.skywalking.apm.agent.core.context.ids.DistributedTraceId;
+import org.skywalking.apm.agent.core.dictionary.DictionaryUtil;
+import org.skywalking.apm.util.StringUtil;
 
 /**
  * The <code>ContextSnapshot</code> is a snapshot for current context. The snapshot carries the info for building
@@ -20,16 +22,24 @@ public class ContextSnapshot {
      */
     private int spanId = -1;
 
+    private String entryOperationName;
+
     /**
      * {@link DistributedTraceId}
      */
     private List<DistributedTraceId> distributedTraceIds;
 
     ContextSnapshot(String traceSegmentId, int spanId,
-        List<DistributedTraceId> distributedTraceIds) {
+        List<DistributedTraceId> distributedTraceIds, int entryServiceId, String entryOperationName) {
         this.traceSegmentId = traceSegmentId;
         this.spanId = spanId;
         this.distributedTraceIds = distributedTraceIds;
+
+        if (entryServiceId == DictionaryUtil.nullValue()) {
+            this.entryOperationName = "#" + entryOperationName;
+        } else {
+            this.entryOperationName = String.valueOf(entryServiceId);
+        }
     }
 
     public List<DistributedTraceId> getDistributedTraceIds() {
@@ -48,6 +58,11 @@ public class ContextSnapshot {
         return traceSegmentId != null
             && spanId > -1
             && distributedTraceIds != null
-            && distributedTraceIds.size() > 0;
+            && distributedTraceIds.size() > 0
+            && !StringUtil.isEmpty(entryOperationName);
+    }
+
+    public String getEntryOperationName() {
+        return entryOperationName;
     }
 }

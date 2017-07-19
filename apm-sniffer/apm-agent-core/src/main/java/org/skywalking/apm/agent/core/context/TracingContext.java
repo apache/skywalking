@@ -132,10 +132,20 @@ public class TracingContext implements AbstractTracerContext {
      */
     @Override
     public ContextSnapshot capture() {
-        return new ContextSnapshot(segment.getTraceSegmentId(),
-            activeSpan().getSpanId(),
-            segment.getRelatedGlobalTraces()
-        );
+        List<TraceSegmentRef> refs = this.segment.getRefs();
+        if (refs != null && refs.size() > 0) {
+            TraceSegmentRef ref = refs.get(0);
+            return new ContextSnapshot(segment.getTraceSegmentId(),
+                activeSpan().getSpanId(),
+                segment.getRelatedGlobalTraces(), ref.getOperationId(), ref.getOperationName()
+            );
+        } else {
+            AbstractTracingSpan firstSpan = first();
+            return new ContextSnapshot(segment.getTraceSegmentId(),
+                activeSpan().getSpanId(),
+                segment.getRelatedGlobalTraces(), firstSpan.getOperationId(), firstSpan.getOperationName()
+            );
+        }
     }
 
     /**
