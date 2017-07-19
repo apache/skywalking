@@ -83,17 +83,17 @@ public class TraceSegmentRef {
             } else {
                 refBuilder.setNetworkAddressId(peerId);
             }
-            if (operationId == DictionaryUtil.nullValue()) {
-                refBuilder.setEntryServiceName(operationName);
-            } else {
-                refBuilder.setEntryServiceId(operationId);
-            }
         } else {
             refBuilder.setRefType(RefType.CrossThread);
         }
+
         refBuilder.setParentTraceSegmentId(traceSegmentId);
         refBuilder.setParentSpanId(spanId);
-
+        if (operationId == DictionaryUtil.nullValue()) {
+            refBuilder.setEntryServiceName(operationName);
+        } else {
+            refBuilder.setEntryServiceId(operationId);
+        }
         return refBuilder.build();
     }
 
