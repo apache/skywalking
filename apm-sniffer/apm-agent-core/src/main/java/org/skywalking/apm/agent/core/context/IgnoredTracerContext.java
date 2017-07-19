@@ -33,7 +33,7 @@ public class IgnoredTracerContext implements AbstractTracerContext {
     }
 
     @Override public ContextSnapshot capture() {
-        return new ContextSnapshot(null, -1, null);
+        return new ContextSnapshot(null, -1, null, 0, null);
     }
 
     @Override public void continued(ContextSnapshot snapshot) {
