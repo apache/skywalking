@@ -50,5 +50,6 @@ public class GRPCServer implements Server {
     }
 
     @Override public void addHandler(Handler handler) {
+        nettyServerBuilder.addService((io.grpc.BindableService)handler);
     }
 }

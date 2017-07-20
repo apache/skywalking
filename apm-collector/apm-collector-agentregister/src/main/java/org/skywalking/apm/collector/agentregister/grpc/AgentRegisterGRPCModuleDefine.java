@@ -1,8 +1,12 @@
 package org.skywalking.apm.collector.agentregister.grpc;
 
+import java.util.LinkedList;
 import java.util.List;
 import org.skywalking.apm.collector.agentregister.AgentRegisterModuleDefine;
 import org.skywalking.apm.collector.agentregister.AgentRegisterModuleGroupDefine;
+import org.skywalking.apm.collector.agentregister.grpc.handler.ApplicationRegisterServiceHandler;
+import org.skywalking.apm.collector.agentregister.grpc.handler.InstanceDiscoveryServiceHandler;
+import org.skywalking.apm.collector.agentregister.grpc.handler.ServiceNameDiscoveryServiceHandler;
 import org.skywalking.apm.collector.core.cluster.ClusterDataListener;
 import org.skywalking.apm.collector.core.framework.Handler;
 import org.skywalking.apm.collector.core.module.ModuleConfigParser;
@@ -42,6 +46,10 @@ public class AgentRegisterGRPCModuleDefine extends AgentRegisterModuleDefine {
     }
 
     @Override public List<Handler> handlerList() {
-        return null;
+        List<Handler> handlers = new LinkedList<>();
+        handlers.add(new ApplicationRegisterServiceHandler());
+        handlers.add(new InstanceDiscoveryServiceHandler());
+        handlers.add(new ServiceNameDiscoveryServiceHandler());
+        return handlers;
     }
 }

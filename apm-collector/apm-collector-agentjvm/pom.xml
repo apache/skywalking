@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>apm-collector-boot</artifactId>
+    <artifactId>apm-collector-agentjvm</artifactId>
     <packaging>jar</packaging>
 
     <dependencies>
@@ -20,32 +20,12 @@
         </dependency>
         <dependency>
             <groupId>org.skywalking</groupId>
-            <artifactId>apm-collector-queue</artifactId>
+            <artifactId>apm-collector-server</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.skywalking</groupId>
-            <artifactId>apm-collector-ui</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.skywalking</groupId>
-            <artifactId>apm-collector-agentserver</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.skywalking</groupId>
-            <artifactId>apm-collector-agentstream</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.skywalking</groupId>
-            <artifactId>apm-collector-agentregister</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.skywalking</groupId>
-            <artifactId>apm-collector-agentjvm</artifactId>
+            <artifactId>apm-network</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

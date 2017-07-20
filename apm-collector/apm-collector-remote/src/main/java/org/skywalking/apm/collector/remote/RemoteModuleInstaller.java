@@ -13,6 +13,6 @@ import org.skywalking.apm.collector.core.server.ServerHolder;
 public class RemoteModuleInstaller implements ModuleInstaller {
     @Override public void install(Map<String, Map> moduleConfig, Map<String, ModuleDefine> moduleDefineMap,
         ServerHolder serverHolder) throws DefineException, ClientException {
-        
+
     }
 }
