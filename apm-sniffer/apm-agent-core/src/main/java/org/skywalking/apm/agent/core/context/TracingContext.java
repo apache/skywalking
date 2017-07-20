@@ -286,13 +286,13 @@ public class TracingContext implements AbstractTracerContext {
                                 .doInCondition(
                                     new PossibleFound.FoundAndObtain() {
                                         @Override
-                                        public Object doProcess(int peerId) {
-                                            return new ExitSpan(spanIdGenerator++, parentSpanId, applicationId, peerId);
+                                        public Object doProcess(int operationId) {
+                                            return new ExitSpan(spanIdGenerator++, parentSpanId, operationId, applicationId);
                                         }
                                     }, new PossibleFound.NotFoundAndObtain() {
                                         @Override
                                         public Object doProcess() {
-                                            return new ExitSpan(spanIdGenerator++, parentSpanId, applicationId, remotePeer);
+                                            return new ExitSpan(spanIdGenerator++, parentSpanId, operationName, remotePeer);
                                         }
                                     });
                         }
