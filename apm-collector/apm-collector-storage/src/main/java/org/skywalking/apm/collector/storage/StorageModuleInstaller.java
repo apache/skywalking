@@ -1,8 +1,7 @@
-package org.skywalking.apm.collector.cluster;
+package org.skywalking.apm.collector.storage;
 
 import java.util.Map;
 import org.skywalking.apm.collector.core.client.ClientException;
-import org.skywalking.apm.collector.core.cluster.ClusterModuleContext;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
 import org.skywalking.apm.collector.core.framework.DefineException;
 import org.skywalking.apm.collector.core.module.ModuleDefine;
@@ -14,15 +13,15 @@ import org.slf4j.LoggerFactory;
 /**
  * @author pengys5
  */
-public class ClusterModuleInstaller extends SingleModuleInstaller {
+public class StorageModuleInstaller extends SingleModuleInstaller {
 
-    private final Logger logger = LoggerFactory.getLogger(ClusterModuleInstaller.class);
+    private final Logger logger = LoggerFactory.getLogger(StorageModuleInstaller.class);
 
     @Override public void install(Map<String, Map> moduleConfig,
         Map<String, ModuleDefine> moduleDefineMap, ServerHolder serverHolder) throws DefineException, ClientException {
-        logger.info("beginning cluster module install");
+        logger.info("beginning agent stream module install");
 
-        ClusterModuleContext context = new ClusterModuleContext(ClusterModuleGroupDefine.GROUP_NAME);
+        StorageModuleContext context = new StorageModuleContext(StorageModuleGroupDefine.GROUP_NAME);
         CollectorContextHelper.INSTANCE.putContext(context);
 
         installSingle(moduleConfig, moduleDefineMap, serverHolder);
