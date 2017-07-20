@@ -41,7 +41,7 @@ public class IgnoredTracerContext implements AbstractTracerContext {
     }
 
     @Override
-    public String getGlobalTraceId() {
+    public String getReadableGlobalTraceId() {
         return "[Ignored Trace]";
     }
 

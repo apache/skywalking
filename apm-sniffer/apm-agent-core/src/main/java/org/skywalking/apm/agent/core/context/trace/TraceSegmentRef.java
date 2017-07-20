@@ -2,6 +2,7 @@ package org.skywalking.apm.agent.core.context.trace;
 
 import org.skywalking.apm.agent.core.context.ContextCarrier;
 import org.skywalking.apm.agent.core.context.ContextSnapshot;
+import org.skywalking.apm.agent.core.context.ids.ID;
 import org.skywalking.apm.agent.core.dictionary.DictionaryUtil;
 import org.skywalking.apm.network.proto.RefType;
 import org.skywalking.apm.network.proto.TraceSegmentReference;
@@ -15,7 +16,7 @@ import org.skywalking.apm.network.proto.TraceSegmentReference;
 public class TraceSegmentRef {
     private SegmentRefType type;
 
-    private String traceSegmentId;
+    private ID traceSegmentId;
 
     private int spanId = -1;
 
@@ -103,7 +104,7 @@ public class TraceSegmentRef {
             refBuilder.setRefType(RefType.CrossThread);
         }
 
-        refBuilder.setParentTraceSegmentId(traceSegmentId);
+        refBuilder.setParentTraceSegmentId(traceSegmentId.transform());
         refBuilder.setParentSpanId(spanId);
         if (entryOperationId == DictionaryUtil.nullValue()) {
             refBuilder.setEntryServiceName(entryOperationName);
