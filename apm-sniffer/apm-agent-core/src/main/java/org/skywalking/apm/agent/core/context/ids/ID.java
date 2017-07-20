@@ -43,11 +43,11 @@ public class ID {
             }
 
             if (part == 0) {
-                part1 = part;
+                part1 = value;
             } else if (part == 1) {
-                part2 = part;
+                part2 = value;
             } else {
-                part3 = part;
+                part3 = value;
             }
 
         }
