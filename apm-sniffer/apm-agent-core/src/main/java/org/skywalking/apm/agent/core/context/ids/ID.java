@@ -34,10 +34,10 @@ public class ID {
                 value = ByteBuffer.wrap(DECODER.decode(encodedString)).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().get(0);
             } else if (potentialTypeChar == '$') {
                 encodedString = base64String.substring(index + 1, index + 9);
-                index += 8;
+                index += 9;
                 value = ByteBuffer.wrap(DECODER.decode(encodedString)).order(ByteOrder.LITTLE_ENDIAN).asIntBuffer().get(0);
             } else {
-                encodedString = base64String.substring(index + 1, index + 13);
+                encodedString = base64String.substring(index + 1, index + 12);
                 index += 12;
                 value = ByteBuffer.wrap(DECODER.decode(encodedString)).order(ByteOrder.LITTLE_ENDIAN).asLongBuffer().get(0);
             }
