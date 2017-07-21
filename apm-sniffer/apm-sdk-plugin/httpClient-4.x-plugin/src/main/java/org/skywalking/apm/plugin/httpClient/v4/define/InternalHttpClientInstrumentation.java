@@ -17,7 +17,7 @@ import static org.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
  */
 public class InternalHttpClientInstrumentation extends HttpClientInstrumentation {
 
-    private static final String ENHANCE_CLASS = "org.apache.http.impl.discovery.InternalHttpClient";
+    private static final String ENHANCE_CLASS = "org.apache.http.impl.client.InternalHttpClient";
 
     @Override
     public ClassMatch enhanceClass() {
