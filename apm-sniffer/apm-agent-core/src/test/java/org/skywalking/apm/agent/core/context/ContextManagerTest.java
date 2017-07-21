@@ -55,7 +55,7 @@ public class ContextManagerTest {
 
     @Test
     public void createSpanWithInvalidateContextCarrier() {
-        ContextCarrier contextCarrier = new ContextCarrier().deserialize("S.1499176688384.581928182.80935.69.1|3|1|#192.168.1.8 :18002|#/portal/");
+        ContextCarrier contextCarrier = new ContextCarrier().deserialize("#AQA=#AQA=4WcWe0tQNQA=|1|#127.0.0.1:8080|#/testEntrySpan|#/testEntrySpan|#AQA=#AQA=Et0We0tQNQA=");
 
         AbstractSpan firstEntrySpan = ContextManager.createEntrySpan("/testEntrySpan", contextCarrier);
         firstEntrySpan.setComponent(ComponentsDefine.TOMCAT);
@@ -79,7 +79,7 @@ public class ContextManagerTest {
 
     @Test
     public void createMultipleEntrySpan() {
-        ContextCarrier contextCarrier = new ContextCarrier().deserialize("S.1499176688384.581928182.80935.69.1|3|1|#192.168.1.8 :18002|#/portal/|#/portal/|T.1499176688386.581928182.80935.69.2");
+        ContextCarrier contextCarrier = new ContextCarrier().deserialize("#AQA=#AQA=4WcWe0tQNQA=|1|1|#127.0.0.1:8080|#/portal/|#/testEntrySpan|#AQA=#AQA=Et0We0tQNQA=");
         assertTrue(contextCarrier.isValid());
 
         AbstractSpan firstEntrySpan = ContextManager.createEntrySpan("/testFirstEntry", contextCarrier);
@@ -111,7 +111,7 @@ public class ContextManagerTest {
         assertThat(actualSegment.getRefs().size(), is(1));
 
         TraceSegmentRef ref = actualSegment.getRefs().get(0);
-        assertThat(TraceSegmentRefHelper.getPeerHost(ref), is("192.168.1.8 :18002"));
+        assertThat(TraceSegmentRefHelper.getPeerHost(ref), is("127.0.0.1:8080"));
         assertThat(ref.getEntryOperationName(), is("/portal/"));
         assertThat(ref.getEntryOperationId(), is(0));
 
@@ -202,7 +202,7 @@ public class ContextManagerTest {
 
     @Test
     public void testTransform() throws InvalidProtocolBufferException {
-        ContextCarrier contextCarrier = new ContextCarrier().deserialize("S.1499176688384.581928182.80935.69.1|3|1|#192.168.1.8 :18002|#/portal/|#/portal/|T.1499176688386.581928182.80935.69.2");
+        ContextCarrier contextCarrier = new ContextCarrier().deserialize("#AQA=#AQA=4WcWe0tQNQA=|3|1|#127.0.0.1:8080|#/portal/|#/testEntrySpan|#AQA=#AQA=Et0We0tQNQA=");
         assertTrue(contextCarrier.isValid());
 
         AbstractSpan firstEntrySpan = ContextManager.createEntrySpan("/testFirstEntry", contextCarrier);
@@ -235,7 +235,7 @@ public class ContextManagerTest {
         TraceSegmentReference reference = traceSegmentObject.getRefs(0);
 
         assertThat(reference.getEntryServiceName(), is("/portal/"));
-        assertThat(reference.getNetworkAddress(), is("192.168.1.8 :18002"));
+        assertThat(reference.getNetworkAddress(), is("127.0.0.1:8080"));
         assertThat(reference.getParentSpanId(), is(3));
 
         assertThat(traceSegmentObject.getApplicationId(), is(1));

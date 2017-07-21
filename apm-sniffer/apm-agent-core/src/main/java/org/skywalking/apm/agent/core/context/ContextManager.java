@@ -76,7 +76,7 @@ public class ContextManager implements TracingContextListener, BootService, Igno
         if (segment == null) {
             return "N/A";
         } else {
-            return segment.getGlobalTraceId();
+            return segment.getReadableGlobalTraceId();
         }
     }
 

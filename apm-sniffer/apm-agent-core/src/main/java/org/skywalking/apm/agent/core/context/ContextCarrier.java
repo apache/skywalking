@@ -3,6 +3,7 @@ package org.skywalking.apm.agent.core.context;
 import java.io.Serializable;
 import java.util.List;
 import org.skywalking.apm.agent.core.context.ids.DistributedTraceId;
+import org.skywalking.apm.agent.core.context.ids.ID;
 import org.skywalking.apm.agent.core.context.ids.PropagatedTraceId;
 import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.skywalking.apm.agent.core.dictionary.DictionaryUtil;
@@ -18,7 +19,7 @@ public class ContextCarrier implements Serializable {
     /**
      * {@link TraceSegment#traceSegmentId}
      */
-    private String traceSegmentId;
+    private ID traceSegmentId;
 
     private int spanId = -1;
 
@@ -44,7 +45,7 @@ public class ContextCarrier implements Serializable {
     public String serialize() {
         if (this.isValid()) {
             return StringUtil.join('|',
-                this.getTraceSegmentId(),
+                this.getTraceSegmentId().toBase64(),
                 this.getSpanId() + "",
                 this.getApplicationInstanceId() + "",
                 this.getPeerHost(),
@@ -66,7 +67,7 @@ public class ContextCarrier implements Serializable {
             String[] parts = text.split("\\|", 7);
             if (parts.length == 7) {
                 try {
-                    this.traceSegmentId = parts[0];
+                    this.traceSegmentId = new ID(parts[0]);
                     this.spanId = Integer.parseInt(parts[1]);
                     this.applicationInstanceId = Integer.parseInt(parts[2]);
                     this.peerHost = parts[3];
@@ -87,7 +88,7 @@ public class ContextCarrier implements Serializable {
      * @return true for unbroken {@link ContextCarrier} or no-initialized. Otherwise, false;
      */
     public boolean isValid() {
-        return !StringUtil.isEmpty(traceSegmentId)
+        return traceSegmentId != null
             && getSpanId() > -1
             && applicationInstanceId != DictionaryUtil.nullValue()
             && !StringUtil.isEmpty(peerHost)
@@ -116,7 +117,7 @@ public class ContextCarrier implements Serializable {
         this.parentOperationName = parentOperationId + "";
     }
 
-    public String getTraceSegmentId() {
+    public ID getTraceSegmentId() {
         return traceSegmentId;
     }
 
@@ -124,7 +125,7 @@ public class ContextCarrier implements Serializable {
         return spanId;
     }
 
-    void setTraceSegmentId(String traceSegmentId) {
+    void setTraceSegmentId(ID traceSegmentId) {
         this.traceSegmentId = traceSegmentId;
     }
 
@@ -161,7 +162,7 @@ public class ContextCarrier implements Serializable {
     }
 
     private String getPrimaryDistributedTraceId() {
-        return primaryDistributedTraceId.toString();
+        return primaryDistributedTraceId.toBase64();
     }
 
     public String getParentOperationName() {

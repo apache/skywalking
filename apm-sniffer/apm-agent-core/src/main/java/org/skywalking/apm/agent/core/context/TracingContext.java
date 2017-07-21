@@ -184,8 +184,8 @@ public class TracingContext implements AbstractTracerContext {
      * @return the first global trace id.
      */
     @Override
-    public String getGlobalTraceId() {
-        return segment.getRelatedGlobalTraces().get(0).get();
+    public String getReadableGlobalTraceId() {
+        return segment.getRelatedGlobalTraces().get(0).toString();
     }
 
     /**

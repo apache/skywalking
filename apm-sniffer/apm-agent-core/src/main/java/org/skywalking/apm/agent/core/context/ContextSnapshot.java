@@ -2,6 +2,7 @@ package org.skywalking.apm.agent.core.context;
 
 import java.util.List;
 import org.skywalking.apm.agent.core.context.ids.DistributedTraceId;
+import org.skywalking.apm.agent.core.context.ids.ID;
 import org.skywalking.apm.util.StringUtil;
 
 /**
@@ -14,7 +15,7 @@ public class ContextSnapshot {
     /**
      * trace segment id of the parent trace segment.
      */
-    private String traceSegmentId;
+    private ID traceSegmentId;
 
     /**
      * span id of the parent span, in parent trace segment.
@@ -30,7 +31,7 @@ public class ContextSnapshot {
      */
     private DistributedTraceId primaryDistributedTraceId;
 
-    ContextSnapshot(String traceSegmentId, int spanId,
+    ContextSnapshot(ID traceSegmentId, int spanId,
         List<DistributedTraceId> distributedTraceIds) {
         this.traceSegmentId = traceSegmentId;
         this.spanId = spanId;
@@ -59,7 +60,7 @@ public class ContextSnapshot {
         return primaryDistributedTraceId;
     }
 
-    public String getTraceSegmentId() {
+    public ID getTraceSegmentId() {
         return traceSegmentId;
     }
 
