@@ -181,15 +181,15 @@ public class SkywalkingSpanActivationTest {
             .withTag(Tags.PEER_HOST_IPV4.getKey(), "127.0.0.1").withTag(Tags.PEER_PORT.getKey(), 8080);
         startSpan();
         extractInterceptor.afterMethod(enhancedInstance, "extract",
-            new Object[] {"S.1499746282749.1100157028.88023.1.1|0|1|#127.0.0.1:8080|#testOperationName|#testOperationName|T.1499746282768.1100157028.88023.1.2"}, new Class[] {String.class}, null);
+            new Object[] {"#AQA=#AQA=4WcWe0tQNQA=|3|1|#127.0.0.1:8080|#/portal/|#/testEntrySpan|#AQA=#AQA=Et0We0tQNQA="}, new Class[] {String.class}, null);
         stopSpan();
 
         TraceSegment tracingSegment = assertTraceSemgnets();
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(tracingSegment);
         assertThat(tracingSegment.getRefs().size(), is(1));
         TraceSegmentRef ref = tracingSegment.getRefs().get(0);
-        assertSegmentId(ref, "S.1499746282749.1100157028.88023.1.1");
-        assertSpanId(ref, 0);
+        assertSegmentId(ref, "1.1.15006458883500001");
+        assertSpanId(ref, 3);
         assertPeerHost(ref, "127.0.0.1:8080");
         assertThat(spans.size(), is(1));
         assertSpanCommonsAttribute(spans.get(0));
@@ -201,7 +201,7 @@ public class SkywalkingSpanActivationTest {
             .withTag(Tags.PEER_HOST_IPV4.getKey(), "127.0.0.1").withTag(Tags.PEER_PORT.getKey(), 8080);
         startSpan();
         extractInterceptor.afterMethod(enhancedInstance, "extract",
-            new Object[] {"S.1499746282749.1100157028.88023.1.1|0|1|#127.0.0.1:8080|#testOperationName"}, new Class[] {String.class}, null);
+            new Object[] {"#AQA=#AQA=4WcWe0tQNQA=|3|#192.168.1.8:18002|#/portal/|#/testEntrySpan|#AQA=#AQA=Et0We0tQNQA="}, new Class[] {String.class}, null);
         stopSpan();
 
         TraceSegment tracingSegment = assertTraceSemgnets();
