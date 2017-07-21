@@ -1,13 +1,14 @@
 package org.skywalking.apm.agent.core.context.ids;
 
+import java.util.Random;
 import org.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
 import org.skywalking.apm.agent.core.dictionary.DictionaryUtil;
 
 public final class GlobalIdGenerator {
-    private static final ThreadLocal<Integer> THREAD_ID_SEQUENCE = new ThreadLocal<Integer>() {
+    private static final ThreadLocal<IDContext> THREAD_ID_SEQUENCE = new ThreadLocal<IDContext>() {
         @Override
-        protected Integer initialValue() {
-            return 0;
+        protected IDContext initialValue() {
+            return new IDContext(System.currentTimeMillis(), (short)0);
         }
     };
 
@@ -36,17 +37,54 @@ public final class GlobalIdGenerator {
         if (RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID == DictionaryUtil.nullValue()) {
             throw new IllegalStateException();
         }
-        Integer seq = THREAD_ID_SEQUENCE.get();
-        seq++;
-        if (seq > 9999) {
-            seq = 0;
-        }
-        THREAD_ID_SEQUENCE.set(seq);
+        IDContext context = THREAD_ID_SEQUENCE.get();
 
         return new ID(
             RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID,
             Thread.currentThread().getId(),
-            System.currentTimeMillis() * 10000 + seq
+            context.nextSeq()
         );
+    }
+
+    private static class IDContext {
+        private long lastTimestamp;
+        private short threadSeq;
+
+        // Just for considering time-shift-back only.
+        private long runRandomTimestamp;
+        private int lastRandomValue;
+        private Random random;
+
+        private IDContext(long lastTimestamp, short threadSeq) {
+            this.lastTimestamp = lastTimestamp;
+            this.threadSeq = threadSeq;
+        }
+
+        private long nextSeq() {
+            return timestamp() * 10000 + nextThreadSeq();
+        }
+
+        private long timestamp() {
+            long currentTimeMillis = System.currentTimeMillis();
+
+            if (currentTimeMillis < lastTimestamp) {
+                // Just for considering time-shift-back by Ops or OS. @hanahmily 's suggestion.
+                if (random == null) {
+                    random = new Random();
+                }
+                if (runRandomTimestamp != currentTimeMillis) {
+                    lastRandomValue = random.nextInt();
+                    runRandomTimestamp = currentTimeMillis;
+                }
+                return lastRandomValue;
+            } else {
+                lastTimestamp = currentTimeMillis;
+                return lastTimestamp;
+            }
+        }
+
+        private short nextThreadSeq() {
+            return threadSeq++;
+        }
     }
 }
