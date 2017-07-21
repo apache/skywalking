@@ -20,7 +20,7 @@ public class StorageElasticSearchConfigParser implements ModuleConfigParser {
             StorageElasticSearchConfig.CLUSTER_NAME = (String)config.get(CLUSTER_NAME);
         }
         if (ObjectUtils.isNotEmpty(config) && StringUtils.isNotEmpty(config.get(CLUSTER_TRANSPORT_SNIFFER))) {
-            StorageElasticSearchConfig.CLUSTER_TRANSPORT_SNIFFER = (String)config.get(CLUSTER_TRANSPORT_SNIFFER);
+            StorageElasticSearchConfig.CLUSTER_TRANSPORT_SNIFFER = (Boolean)config.get(CLUSTER_TRANSPORT_SNIFFER);
         }
         if (ObjectUtils.isNotEmpty(config) && StringUtils.isNotEmpty(config.get(CLUSTER_NODES))) {
             StorageElasticSearchConfig.CLUSTER_NODES = (String)config.get(CLUSTER_NODES);

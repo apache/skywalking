@@ -19,7 +19,7 @@ public class StorageModuleInstaller extends SingleModuleInstaller {
 
     @Override public void install(Map<String, Map> moduleConfig,
         Map<String, ModuleDefine> moduleDefineMap, ServerHolder serverHolder) throws DefineException, ClientException {
-        logger.info("beginning agent stream module install");
+        logger.info("beginning storage module install");
 
         StorageModuleContext context = new StorageModuleContext(StorageModuleGroupDefine.GROUP_NAME);
         CollectorContextHelper.INSTANCE.putContext(context);

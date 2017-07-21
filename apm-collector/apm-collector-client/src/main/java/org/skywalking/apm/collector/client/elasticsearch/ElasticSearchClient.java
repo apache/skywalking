@@ -4,8 +4,13 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.LinkedList;
 import java.util.List;
+import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
+import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
+import org.elasticsearch.client.IndicesAdminClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.skywalking.apm.collector.core.client.Client;
 import org.skywalking.apm.collector.core.client.ClientException;
@@ -23,11 +28,11 @@ public class ElasticSearchClient implements Client {
 
     private final String clusterName;
 
-    private final String clusterTransportSniffer;
+    private final Boolean clusterTransportSniffer;
 
     private final String clusterNodes;
 
-    public ElasticSearchClient(String clusterName, String clusterTransportSniffer, String clusterNodes) {
+    public ElasticSearchClient(String clusterName, Boolean clusterTransportSniffer, String clusterNodes) {
         this.clusterName = clusterName;
         this.clusterTransportSniffer = clusterTransportSniffer;
         this.clusterNodes = clusterNodes;
@@ -73,5 +78,25 @@ public class ElasticSearchClient implements Client {
             this.host = host;
             this.port = port;
         }
+    }
+
+    public boolean createIndex(String indexName, String indexType, Settings settings, XContentBuilder mappingBuilder) {
+        IndicesAdminClient adminClient = client.admin().indices();
+        CreateIndexResponse response = adminClient.prepareCreate(indexName).setSettings(settings).addMapping(indexType, mappingBuilder).get();
+        logger.info("create {} index with type of {} finished, isAcknowledged: {}", indexName, indexType, response.isAcknowledged());
+        return response.isShardsAcked();
+    }
+
+    public boolean deleteIndex(String indexName) {
+        IndicesAdminClient adminClient = client.admin().indices();
+        DeleteIndexResponse response = adminClient.prepareDelete(indexName).get();
+        logger.info("delete {} index finished, isAcknowledged: {}", indexName, response.isAcknowledged());
+        return response.isAcknowledged();
+    }
+
+    public boolean isExistsIndex(String indexName) {
+        IndicesAdminClient adminClient = client.admin().indices();
+        IndicesExistsResponse response = adminClient.prepareExists(indexName).get();
+        return response.isExists();
     }
 }

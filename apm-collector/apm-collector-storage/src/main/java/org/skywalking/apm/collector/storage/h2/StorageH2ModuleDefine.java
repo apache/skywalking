@@ -4,8 +4,10 @@ import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.core.client.Client;
 import org.skywalking.apm.collector.core.client.DataMonitor;
 import org.skywalking.apm.collector.core.module.ModuleConfigParser;
+import org.skywalking.apm.collector.core.storage.StorageInstaller;
 import org.skywalking.apm.collector.storage.StorageModuleDefine;
 import org.skywalking.apm.collector.storage.StorageModuleGroupDefine;
+import org.skywalking.apm.collector.storage.h2.define.H2StorageInstaller;
 
 /**
  * @author pengys5
@@ -28,5 +30,9 @@ public class StorageH2ModuleDefine extends StorageModuleDefine {
 
     @Override protected Client createClient(DataMonitor dataMonitor) {
         return new H2Client();
+    }
+
+    @Override public StorageInstaller storageInstaller() {
+        return new H2StorageInstaller();
     }
 }

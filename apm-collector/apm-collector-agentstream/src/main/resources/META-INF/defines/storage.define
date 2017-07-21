@@ -1,0 +1,2 @@
+org.skywalking.apm.collector.agentstream.worker.node.define.NodeComponentEsTableDefine
+org.skywalking.apm.collector.agentstream.worker.node.define.NodeComponentH2TableDefine
