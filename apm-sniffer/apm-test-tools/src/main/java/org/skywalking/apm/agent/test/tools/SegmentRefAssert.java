@@ -8,7 +8,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 public class SegmentRefAssert {
     public static void assertSegmentId(TraceSegmentRef ref, String segmentId) {
-        assertThat(SegmentRefHelper.getTraceSegmentId(ref), is(segmentId));
+        assertThat(SegmentRefHelper.getTraceSegmentId(ref).toString(), is(segmentId));
     }
 
     public static void assertSpanId(TraceSegmentRef ref, int spanId) {

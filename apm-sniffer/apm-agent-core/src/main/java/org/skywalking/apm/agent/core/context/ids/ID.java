@@ -37,7 +37,7 @@ public class ID {
                 index += 9;
                 value = ByteBuffer.wrap(DECODER.decode(encodedString)).order(ByteOrder.LITTLE_ENDIAN).asIntBuffer().get(0);
             } else {
-                encodedString = base64String.substring(index + 1, index + 12);
+                encodedString = base64String.substring(index, index + 12);
                 index += 12;
                 value = ByteBuffer.wrap(DECODER.decode(encodedString)).order(ByteOrder.LITTLE_ENDIAN).asLongBuffer().get(0);
             }

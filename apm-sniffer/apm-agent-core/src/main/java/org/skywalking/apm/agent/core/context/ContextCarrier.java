@@ -162,7 +162,7 @@ public class ContextCarrier implements Serializable {
     }
 
     private String getPrimaryDistributedTraceId() {
-        return primaryDistributedTraceId.toString();
+        return primaryDistributedTraceId.toBase64();
     }
 
     public String getParentOperationName() {
