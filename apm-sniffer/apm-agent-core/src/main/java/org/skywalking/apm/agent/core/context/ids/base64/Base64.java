@@ -397,15 +397,15 @@ public class Base64 {
                 if (sp == end) {
                     dst[dp++] = (byte)base64[(b0 << 4) & 0x3f];
                     if (doPadding) {
-                        dst[dp++] = '=';
-                        dst[dp++] = '=';
+                        dst[dp++] = PADDING_CHAR;
+                        dst[dp++] = PADDING_CHAR;
                     }
                 } else {
                     int b1 = src[sp++] & 0xff;
                     dst[dp++] = (byte)base64[(b0 << 4) & 0x3f | (b1 >> 4)];
                     dst[dp++] = (byte)base64[(b1 << 2) & 0x3f];
                     if (doPadding) {
-                        dst[dp++] = '=';
+                        dst[dp++] = PADDING_CHAR;
                     }
                 }
             }
@@ -417,7 +417,7 @@ public class Base64 {
      * This class implements a decoder for decoding byte data using the
      * Base64 encoding scheme as specified in RFC 4648 and RFC 2045.
      *
-     * <p> The Base64 padding character {@code '='} is accepted and
+     * <p> The Base64 padding character {@code PADDING_CHAR} is accepted and
      * interpreted as the end of the encoded byte data, but is not
      * required. So if the final unit of the encoded byte data only has
      * two or three Base64 characters (without the corresponding padding
@@ -462,7 +462,7 @@ public class Base64 {
             Arrays.fill(fromBase64, -1);
             for (int i = 0; i < Encoder.toBase64.length; i++)
                 fromBase64[Encoder.toBase64[i]] = i;
-            fromBase64['='] = -2;
+            fromBase64[PADDING_CHAR] = -2;
         }
 
         /**
@@ -475,7 +475,7 @@ public class Base64 {
             Arrays.fill(fromBase64URL, -1);
             for (int i = 0; i < Encoder.toBase64URL.length; i++)
                 fromBase64URL[Encoder.toBase64URL[i]] = i;
-            fromBase64URL['='] = -2;
+            fromBase64URL[PADDING_CHAR] = -2;
         }
 
         static final Decoder RFC4648         = new Decoder(false, false);
@@ -640,7 +640,7 @@ public class Base64 {
                 int n = 0;
                 while (sp < sl) {
                     int b = src[sp++] & 0xff;
-                    if (b == '=') {
+                    if (b == PADDING_CHAR) {
                         len -= (sl - sp + 1);
                         break;
                     }
@@ -649,9 +649,9 @@ public class Base64 {
                 }
                 len -= n;
             } else {
-                if (src[sl - 1] == '=') {
+                if (src[sl - 1] == PADDING_CHAR) {
                     paddings++;
-                    if (src[sl - 2] == '=')
+                    if (src[sl - 2] == PADDING_CHAR)
                         paddings++;
                 }
             }
@@ -668,13 +668,13 @@ public class Base64 {
             while (sp < sl) {
                 int b = src[sp++] & 0xff;
                 if ((b = base64[b]) < 0) {
-                    if (b == -2) {         // padding byte '='
+                    if (b == -2) {         // padding byte PADDING_CHAR
                         // =     shiftto==18 unnecessary padding
                         // x=    shiftto==12 a dangling single x
                         // x     to be handled together with non-padding case
                         // xx=   shiftto==6&&sp==sl missing last =
                         // xx=y  shiftto==6 last is not =
-                        if (shiftto == 6 && (sp == sl || src[sp++] != '=') ||
+                        if (shiftto == 6 && (sp == sl || src[sp++] != PADDING_CHAR) ||
                             shiftto == 18) {
                             throw new IllegalArgumentException(
                                 "Input byte array has wrong 4-byte ending unit");
@@ -698,7 +698,7 @@ public class Base64 {
                     bits = 0;
                 }
             }
-            // reached end of byte array or hit padding '=' characters.
+            // reached end of byte array or hit padding PADDING_CHAR characters.
             if (shiftto == 6) {
                 dst[dp++] = (byte)(bits >> 16);
             } else if (shiftto == 0) {
@@ -815,8 +815,8 @@ public class Base64 {
                     out.write(base64[b0 >> 2]);
                     out.write(base64[(b0 << 4) & 0x3f]);
                     if (doPadding) {
-                        out.write('=');
-                        out.write('=');
+                        out.write(PADDING_CHAR);
+                        out.write(PADDING_CHAR);
                     }
                 } else if (leftover == 2) {
                     checkNewline();
@@ -824,7 +824,7 @@ public class Base64 {
                     out.write(base64[(b0 << 4) & 0x3f | (b1 >> 4)]);
                     out.write(base64[(b1 << 2) & 0x3f]);
                     if (doPadding) {
-                        out.write('=');
+                        out.write(PADDING_CHAR);
                     }
                 }
                 leftover = 0;
@@ -889,7 +889,7 @@ public class Base64 {
                         if (nextin == 12)
                             throw new IOException("Base64 stream has one un-decoded dangling byte.");
                         // treat ending xx/xxx without padding character legal.
-                        // same logic as v == '=' below
+                        // same logic as v == PADDING_CHAR below
                         b[off++] = (byte)(bits >> (16));
                         len--;
                         if (nextin == 0) {           // only one padding byte
@@ -906,13 +906,13 @@ public class Base64 {
                     else
                         return off - oldOff;
                 }
-                if (v == '=') {                  // padding byte(s)
+                if (v == PADDING_CHAR) {                  // padding byte(s)
                     // =     shiftto==18 unnecessary padding
                     // x=    shiftto==12 dangling x, invalid unit
-                    // xx=   shiftto==6 && missing last '='
-                    // xx=y  or last is not '='
+                    // xx=   shiftto==6 && missing last PADDING_CHAR
+                    // xx=y  or last is not PADDING_CHAR
                     if (nextin == 18 || nextin == 12 ||
-                        nextin == 6 && is.read() != '=') {
+                        nextin == 6 && is.read() != PADDING_CHAR) {
                         throw new IOException("Illegal base64 ending sequence:" + nextin);
                     }
                     b[off++] = (byte)(bits >> (16));
@@ -970,4 +970,15 @@ public class Base64 {
             }
         }
     }
+
+    /**
+     * This is a tiny adjustment for BASE64 encode and decode.
+     * I replace the padding char of base64 to '*' from '='.
+     *
+     * We found that the dubbox's head didn't support '=' as a part of value. :(
+     *
+     * @author wusheng
+     */
+    private static byte PADDING_CHAR = '*';
+
 }
