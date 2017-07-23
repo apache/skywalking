@@ -1,6 +1,5 @@
 package org.skywalking.apm.collector.agentstream.worker.node.define;
 
-import org.skywalking.apm.collector.agentstream.worker.node.NodeComponentTable;
 import org.skywalking.apm.collector.storage.elasticsearch.define.ElasticSearchColumnDefine;
 import org.skywalking.apm.collector.storage.elasticsearch.define.ElasticSearchTableDefine;
 
@@ -28,5 +27,6 @@ public class NodeComponentEsTableDefine extends ElasticSearchTableDefine {
     @Override public void initialize() {
         addColumn(new ElasticSearchColumnDefine(NodeComponentTable.COLUMN_NAME, ElasticSearchColumnDefine.Type.Keyword.name()));
         addColumn(new ElasticSearchColumnDefine(NodeComponentTable.COLUMN_PEERS, ElasticSearchColumnDefine.Type.Keyword.name()));
+        addColumn(new ElasticSearchColumnDefine(NodeComponentTable.COLUMN_AGG, ElasticSearchColumnDefine.Type.Keyword.name()));
     }
 }

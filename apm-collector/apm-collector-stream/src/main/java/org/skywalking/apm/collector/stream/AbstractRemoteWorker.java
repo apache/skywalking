@@ -1,7 +1,7 @@
 package org.skywalking.apm.collector.stream;
 
 /**
- * The <code>AbstractClusterWorker</code> implementations represent workers,
+ * The <code>AbstractRemoteWorker</code> implementations represent workers,
  * which receive remote messages.
  * <p>
  * Usually, the implementations are doing persistent, or aggregate works.
@@ -9,17 +9,17 @@ package org.skywalking.apm.collector.stream;
  * @author pengys5
  * @since v3.0-2017
  */
-public abstract class AbstractClusterWorker extends AbstractWorker {
+public abstract class AbstractRemoteWorker extends AbstractWorker {
 
     /**
-     * Construct an <code>AbstractClusterWorker</code> with the worker role and context.
+     * Construct an <code>AbstractRemoteWorker</code> with the worker role and context.
      *
      * @param role If multi-workers are for load balance, they should be more likely called worker instance. Meaning,
      * each worker have multi instances.
      * @param clusterContext See {@link ClusterWorkerContext}
      * @param selfContext See {@link LocalWorkerContext}
      */
-    protected AbstractClusterWorker(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
+    protected AbstractRemoteWorker(Role role, ClusterWorkerContext clusterContext, LocalWorkerContext selfContext) {
         super(role, clusterContext, selfContext);
     }
 

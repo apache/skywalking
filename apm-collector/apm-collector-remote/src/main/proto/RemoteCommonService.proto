@@ -10,8 +10,8 @@ service RemoteCommonService {
 
 message Message {
     string workerRole = 1;
-    int32 objectId = 2;
-    bytes objectBytes = 3; // the byte array of data object
+    int32 dataDefineId = 2;
+    bytes dataBytes = 3;
 }
 
 message Empty {

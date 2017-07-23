@@ -3,11 +3,11 @@ package org.skywalking.apm.collector.stream;
 /**
  * @author pengys5
  */
-public class ClusterWorkerRef extends WorkerRef {
+public class RemoteWorkerRef extends WorkerRef {
 
-    private AbstractClusterWorker clusterWorker;
+    private AbstractRemoteWorker clusterWorker;
 
-    public ClusterWorkerRef(Role role, AbstractClusterWorker clusterWorker) {
+    public RemoteWorkerRef(Role role, AbstractRemoteWorker clusterWorker) {
         super(role);
         this.clusterWorker = clusterWorker;
     }

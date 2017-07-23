@@ -19,21 +19,21 @@ public abstract class AbstractWorker implements Executor {
         this.selfContext = selfContext;
     }
 
+    @Override public final void execute(Object message) {
+
+    }
+
     public abstract void preStart() throws ProviderNotFoundException;
 
-    final public LookUp getSelfContext() {
+    final public LocalWorkerContext getSelfContext() {
         return selfContext;
     }
 
-    final public LookUp getClusterContext() {
+    final public ClusterWorkerContext getClusterContext() {
         return clusterContext;
     }
 
     final public Role getRole() {
         return role;
-    }
-
-    final public static AbstractWorker noOwner() {
-        return null;
     }
 }
