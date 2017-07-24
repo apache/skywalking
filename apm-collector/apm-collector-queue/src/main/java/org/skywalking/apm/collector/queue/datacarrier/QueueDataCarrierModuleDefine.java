@@ -23,7 +23,7 @@ public class QueueDataCarrierModuleDefine extends QueueModuleDefine {
     }
 
     @Override public boolean defaultModule() {
-        return true;
+        return false;
     }
 
     @Override

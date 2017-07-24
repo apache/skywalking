@@ -31,9 +31,9 @@ public abstract class SingleModuleInstaller implements ModuleInstaller {
                 }
             }
         } else {
-            Map.Entry<String, Map> clusterConfigEntry = moduleConfig.entrySet().iterator().next();
-            moduleDefine = moduleDefineMap.get(clusterConfigEntry.getKey());
-            moduleDefine.initialize(clusterConfigEntry.getValue(), serverHolder);
+            Map.Entry<String, Map> configEntry = moduleConfig.entrySet().iterator().next();
+            moduleDefine = moduleDefineMap.get(configEntry.getKey());
+            moduleDefine.initialize(configEntry.getValue(), serverHolder);
         }
     }
 }

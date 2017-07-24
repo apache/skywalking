@@ -12,7 +12,6 @@
         <module>apm-collector-agentstream</module>
         <module>apm-collector-ui</module>
         <module>apm-collector-boot</module>
-        <module>apm-collector-remote</module>
         <module>apm-collector-stream</module>
         <module>apm-collector-agentserver</module>
         <module>apm-collector-agentregister</module>
