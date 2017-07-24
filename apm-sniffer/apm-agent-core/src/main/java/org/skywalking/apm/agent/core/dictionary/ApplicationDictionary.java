@@ -9,6 +9,8 @@ import org.skywalking.apm.network.proto.ApplicationMapping;
 import org.skywalking.apm.network.proto.ApplicationRegisterServiceGrpc;
 import org.skywalking.apm.network.proto.KeyWithIntegerValue;
 
+import static org.skywalking.apm.agent.core.conf.Config.Dictionary.APPLICATION_CODE_BUFFER_SIZE;
+
 /**
  * Map of application id to application code, which is from the collector side.
  *
@@ -24,7 +26,9 @@ public enum ApplicationDictionary {
         if (applicationId != null) {
             return new Found(applicationId);
         } else {
-            unRegisterApplications.add(applicationCode);
+            if (applicationDictionary.size() + unRegisterApplications.size() < APPLICATION_CODE_BUFFER_SIZE) {
+                unRegisterApplications.add(applicationCode);
+            }
             return new NotFound();
         }
     }

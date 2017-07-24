@@ -12,12 +12,16 @@ service TraceSegmentService {
 }
 
 message UpstreamSegment {
-    repeated string globalTraceIds = 1;
+    repeated UniqueId globalTraceIds = 1;
     bytes segment = 2; // the byte array of TraceSegmentObject
 }
 
+message UniqueId {
+    repeated int64 idParts = 1;
+}
+
 message TraceSegmentObject {
-    string traceSegmentId = 1;
+    UniqueId traceSegmentId = 1;
     repeated TraceSegmentReference refs = 2;
     repeated SpanObject spans = 3;
     int32 applicationId = 4;
@@ -26,13 +30,15 @@ message TraceSegmentObject {
 
 message TraceSegmentReference {
     RefType refType = 1;
-    string parentTraceSegmentId = 2;
+    UniqueId parentTraceSegmentId = 2;
     int32 parentSpanId = 3;
     int32 parentApplicationInstanceId = 4;
     string networkAddress = 5;
     int32 networkAddressId = 6;
     string entryServiceName = 7;
     int32 entryServiceId = 8;
+    string parentServiceName = 9;
+    int32 parentServiceId = 10;
 }
 
 message SpanObject {

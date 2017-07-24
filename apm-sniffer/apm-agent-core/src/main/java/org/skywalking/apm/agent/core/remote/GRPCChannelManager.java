@@ -50,6 +50,12 @@ public class GRPCChannelManager implements BootService, Runnable {
     }
 
     @Override
+    public void shutdown() throws Throwable {
+        connectCheckFuture.cancel(true);
+        managedChannel.shutdownNow();
+    }
+
+    @Override
     public void run() {
         if (reconnect) {
             if (RemoteDownstreamConfig.Collector.GRPC_SERVERS.size() > 0) {

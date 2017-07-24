@@ -20,7 +20,8 @@ service InstanceDiscoveryService {
 
 message ApplicationInstance {
     int32 applicationId = 1;
-    int64 registerTime = 2;
+    string agentUUID = 2;
+    int64 registerTime = 3;
 }
 
 message ApplicationInstanceMapping {

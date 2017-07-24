@@ -96,8 +96,8 @@ public class TracingContext implements AbstractTracerContext {
         String operationName;
         if (refs != null && refs.size() > 0) {
             TraceSegmentRef ref = refs.get(0);
-            operationId = ref.getOperationId();
-            operationName = ref.getOperationName();
+            operationId = ref.getEntryOperationId();
+            operationName = ref.getEntryOperationName();
         } else {
             AbstractTracingSpan firstSpan = first();
             operationId = firstSpan.getOperationId();
@@ -107,6 +107,13 @@ public class TracingContext implements AbstractTracerContext {
             carrier.setEntryOperationName(operationName);
         } else {
             carrier.setEntryOperationId(operationId);
+        }
+
+        int parentOperationId = first().getOperationId();
+        if (parentOperationId == DictionaryUtil.nullValue()) {
+            carrier.setParentOperationName(first().getOperationName());
+        } else {
+            carrier.setParentOperationId(parentOperationId);
         }
 
         carrier.setDistributedTraceIds(this.segment.getRelatedGlobalTraces());
@@ -121,7 +128,7 @@ public class TracingContext implements AbstractTracerContext {
     @Override
     public void extract(ContextCarrier carrier) {
         this.segment.ref(new TraceSegmentRef(carrier));
-        this.segment.relatedGlobalTraces(carrier.getDistributedTraceIds());
+        this.segment.relatedGlobalTraces(carrier.getDistributedTraceId());
     }
 
     /**
@@ -132,10 +139,33 @@ public class TracingContext implements AbstractTracerContext {
      */
     @Override
     public ContextSnapshot capture() {
-        return new ContextSnapshot(segment.getTraceSegmentId(),
+        List<TraceSegmentRef> refs = this.segment.getRefs();
+        ContextSnapshot snapshot = new ContextSnapshot(segment.getTraceSegmentId(),
             activeSpan().getSpanId(),
-            segment.getRelatedGlobalTraces()
-        );
+            segment.getRelatedGlobalTraces());
+        int entryOperationId;
+        String entryOperationName;
+        AbstractTracingSpan firstSpan = first();
+        if (refs != null && refs.size() > 0) {
+            TraceSegmentRef ref = refs.get(0);
+            entryOperationId = ref.getEntryOperationId();
+            entryOperationName = ref.getEntryOperationName();
+        } else {
+            entryOperationId = firstSpan.getOperationId();
+            entryOperationName = firstSpan.getOperationName();
+        }
+        if (entryOperationId == DictionaryUtil.nullValue()) {
+            snapshot.setEntryOperationName(entryOperationName);
+        } else {
+            snapshot.setEntryOperationId(entryOperationId);
+        }
+
+        if (firstSpan.getOperationId() == DictionaryUtil.nullValue()) {
+            snapshot.setParentOperationName(firstSpan.getOperationName());
+        } else {
+            snapshot.setParentOperationId(firstSpan.getOperationId());
+        }
+        return snapshot;
     }
 
     /**
@@ -147,15 +177,15 @@ public class TracingContext implements AbstractTracerContext {
     @Override
     public void continued(ContextSnapshot snapshot) {
         this.segment.ref(new TraceSegmentRef(snapshot));
-        this.segment.relatedGlobalTraces(snapshot.getDistributedTraceIds());
+        this.segment.relatedGlobalTraces(snapshot.getDistributedTraceId());
     }
 
     /**
      * @return the first global trace id.
      */
     @Override
-    public String getGlobalTraceId() {
-        return segment.getRelatedGlobalTraces().get(0).get();
+    public String getReadableGlobalTraceId() {
+        return segment.getRelatedGlobalTraces().get(0).toString();
     }
 
     /**
@@ -256,13 +286,13 @@ public class TracingContext implements AbstractTracerContext {
                                 .doInCondition(
                                     new PossibleFound.FoundAndObtain() {
                                         @Override
-                                        public Object doProcess(int peerId) {
-                                            return new ExitSpan(spanIdGenerator++, parentSpanId, applicationId, peerId);
+                                        public Object doProcess(int operationId) {
+                                            return new ExitSpan(spanIdGenerator++, parentSpanId, operationId, applicationId);
                                         }
                                     }, new PossibleFound.NotFoundAndObtain() {
                                         @Override
                                         public Object doProcess() {
-                                            return new ExitSpan(spanIdGenerator++, parentSpanId, applicationId, remotePeer);
+                                            return new ExitSpan(spanIdGenerator++, parentSpanId, operationName, remotePeer);
                                         }
                                     });
                         }

@@ -1,6 +1,7 @@
 package org.skywalking.apm.agent.core.remote;
 
 import io.grpc.ManagedChannel;
+import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -33,6 +34,7 @@ import static org.skywalking.apm.agent.core.remote.GRPCChannelStatus.CONNECTED;
  */
 public class AppAndServiceRegisterClient implements BootService, GRPCChannelListener, Runnable, TracingContextListener {
     private static final ILog logger = LogManager.getLogger(AppAndServiceRegisterClient.class);
+    private static final String PROCESS_UUID = UUID.randomUUID().toString().replaceAll("-", "");
 
     private volatile GRPCChannelStatus status = GRPCChannelStatus.DISCONNECT;
     private volatile ApplicationRegisterServiceGrpc.ApplicationRegisterServiceBlockingStub applicationRegisterServiceBlockingStub;
@@ -78,6 +80,11 @@ public class AppAndServiceRegisterClient implements BootService, GRPCChannelList
     }
 
     @Override
+    public void shutdown() throws Throwable {
+        applicationRegisterFuture.cancel(true);
+    }
+
+    @Override
     public void run() {
         if (CONNECTED.equals(status)) {
             try {
@@ -95,6 +102,7 @@ public class AppAndServiceRegisterClient implements BootService, GRPCChannelList
 
                             ApplicationInstanceMapping instanceMapping = instanceDiscoveryServiceBlockingStub.register(ApplicationInstance.newBuilder()
                                 .setApplicationId(RemoteDownstreamConfig.Agent.APPLICATION_ID)
+                                .setAgentUUID(PROCESS_UUID)
                                 .setRegisterTime(System.currentTimeMillis())
                                 .build());
                             if (instanceMapping.getApplicationInstanceId() != DictionaryUtil.nullValue()) {

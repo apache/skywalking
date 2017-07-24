@@ -10,6 +10,8 @@ import org.skywalking.apm.network.proto.ServiceNameElement;
 import org.skywalking.apm.network.proto.ServiceNameMappingCollection;
 import org.skywalking.apm.network.proto.ServiceNameMappingElement;
 
+import static org.skywalking.apm.agent.core.conf.Config.Dictionary.OPERATION_NAME_BUFFER_SIZE;
+
 /**
  * @author wusheng
  */
@@ -19,12 +21,17 @@ public enum OperationNameDictionary {
     private Set<OperationNameKey> unRegisterOperationNames = new ConcurrentSet<OperationNameKey>();
 
     public PossibleFound find(int applicationId, String operationName) {
+        if (operationName == null || operationName.length() == 0) {
+            return new NotFound();
+        }
         OperationNameKey key = new OperationNameKey(applicationId, operationName);
         Integer operationId = operationNameDictionary.get(key);
         if (operationId != null) {
             return new Found(applicationId);
         } else {
-            unRegisterOperationNames.add(key);
+            if (operationNameDictionary.size() + unRegisterOperationNames.size() < OPERATION_NAME_BUFFER_SIZE) {
+                unRegisterOperationNames.add(key);
+            }
             return new NotFound();
         }
     }

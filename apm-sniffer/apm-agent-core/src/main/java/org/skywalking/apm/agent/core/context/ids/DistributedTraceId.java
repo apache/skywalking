@@ -1,5 +1,7 @@
 package org.skywalking.apm.agent.core.context.ids;
 
+import org.skywalking.apm.network.proto.UniqueId;
+
 /**
  * The <code>DistributedTraceId</code> presents a distributed call chain.
  * <p>
@@ -14,14 +16,27 @@ package org.skywalking.apm.agent.core.context.ids;
  * @author wusheng
  */
 public abstract class DistributedTraceId {
-    private String id;
+    private ID id;
 
-    public DistributedTraceId(String id) {
+    public DistributedTraceId(ID id) {
         this.id = id;
     }
 
-    public String get() {
-        return id;
+    public DistributedTraceId(String id) {
+        this.id = new ID(id);
+    }
+
+    public String toBase64() {
+        return id.toBase64();
+    }
+
+    @Override
+    public String toString() {
+        return id.toString();
+    }
+
+    public UniqueId toUniqueId() {
+        return id.transform();
     }
 
     /**
@@ -38,7 +53,7 @@ public abstract class DistributedTraceId {
         if (o == null || getClass() != o.getClass())
             return false;
 
-        DistributedTraceId id1 = (DistributedTraceId) o;
+        DistributedTraceId id1 = (DistributedTraceId)o;
 
         return id != null ? id.equals(id1.id) : id1.id == null;
     }

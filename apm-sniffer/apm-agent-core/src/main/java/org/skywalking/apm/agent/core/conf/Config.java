@@ -60,10 +60,26 @@ public class Config {
         public static String DISCOVERY_SERVICE_NAME = "/grpc/addresses";
     }
 
+    public static class Jvm {
+        /**
+         * The buffer size of collected JVM info.
+         */
+        public static int BUFFER_SIZE = 60 * 10;
+    }
+
     public static class Buffer {
         public static int CHANNEL_SIZE = 5;
 
         public static int BUFFER_SIZE = 300;
+    }
+
+    public static class Dictionary {
+        /**
+         * The buffer size of application codes and peer
+         */
+        public static int APPLICATION_CODE_BUFFER_SIZE = 10 * 10000;
+
+        public static int OPERATION_NAME_BUFFER_SIZE = 1000 * 10000;
     }
 
     public static class Logging {

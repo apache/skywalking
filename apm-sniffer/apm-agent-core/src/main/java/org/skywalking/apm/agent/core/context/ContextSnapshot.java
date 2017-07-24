@@ -2,6 +2,8 @@ package org.skywalking.apm.agent.core.context;
 
 import java.util.List;
 import org.skywalking.apm.agent.core.context.ids.DistributedTraceId;
+import org.skywalking.apm.agent.core.context.ids.ID;
+import org.skywalking.apm.util.StringUtil;
 
 /**
  * The <code>ContextSnapshot</code> is a snapshot for current context. The snapshot carries the info for building
@@ -13,30 +15,52 @@ public class ContextSnapshot {
     /**
      * trace segment id of the parent trace segment.
      */
-    private String traceSegmentId;
+    private ID traceSegmentId;
 
     /**
      * span id of the parent span, in parent trace segment.
      */
     private int spanId = -1;
 
+    private String entryOperationName;
+
+    private String parentOperationName;
+
     /**
      * {@link DistributedTraceId}
      */
-    private List<DistributedTraceId> distributedTraceIds;
+    private DistributedTraceId primaryDistributedTraceId;
 
-    ContextSnapshot(String traceSegmentId, int spanId,
+    ContextSnapshot(ID traceSegmentId, int spanId,
         List<DistributedTraceId> distributedTraceIds) {
         this.traceSegmentId = traceSegmentId;
         this.spanId = spanId;
-        this.distributedTraceIds = distributedTraceIds;
+        if (distributedTraceIds != null) {
+            this.primaryDistributedTraceId = distributedTraceIds.get(0);
+        }
     }
 
-    public List<DistributedTraceId> getDistributedTraceIds() {
-        return distributedTraceIds;
+    public void setEntryOperationName(String entryOperationName) {
+        this.entryOperationName = "#" + entryOperationName;
     }
 
-    public String getTraceSegmentId() {
+    public void setEntryOperationId(int entryOperationId) {
+        this.entryOperationName = entryOperationId + "";
+    }
+
+    public void setParentOperationName(String parentOperationName) {
+        this.parentOperationName = "#" + parentOperationName;
+    }
+
+    public void setParentOperationId(int parentOperationId) {
+        this.parentOperationName = parentOperationId + "";
+    }
+
+    public DistributedTraceId getDistributedTraceId() {
+        return primaryDistributedTraceId;
+    }
+
+    public ID getTraceSegmentId() {
         return traceSegmentId;
     }
 
@@ -44,10 +68,19 @@ public class ContextSnapshot {
         return spanId;
     }
 
+    public String getParentOperationName() {
+        return parentOperationName;
+    }
+
     public boolean isValid() {
         return traceSegmentId != null
             && spanId > -1
-            && distributedTraceIds != null
-            && distributedTraceIds.size() > 0;
+            && primaryDistributedTraceId != null
+            && !StringUtil.isEmpty(entryOperationName)
+            && !StringUtil.isEmpty(parentOperationName);
+    }
+
+    public String getEntryOperationName() {
+        return entryOperationName;
     }
 }

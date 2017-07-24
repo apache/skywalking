@@ -6,6 +6,7 @@ import org.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
 import org.skywalking.apm.agent.core.context.ids.DistributedTraceId;
 import org.skywalking.apm.agent.core.context.ids.DistributedTraceIds;
 import org.skywalking.apm.agent.core.context.ids.GlobalIdGenerator;
+import org.skywalking.apm.agent.core.context.ids.ID;
 import org.skywalking.apm.agent.core.context.ids.NewDistributedTraceId;
 import org.skywalking.apm.logging.ILog;
 import org.skywalking.apm.logging.LogManager;
@@ -31,7 +32,7 @@ public class TraceSegment {
      * The id of this trace segment.
      * Every segment has its unique-global-id.
      */
-    private String traceSegmentId;
+    private ID traceSegmentId;
 
     /**
      * The refs of parent trace segments, except the primary one.
@@ -71,7 +72,7 @@ public class TraceSegment {
      * and generate a new segment id.
      */
     public TraceSegment() {
-        this.traceSegmentId = GlobalIdGenerator.generate(ID_TYPE);
+        this.traceSegmentId = GlobalIdGenerator.generate();
         this.spans = new LinkedList<AbstractTracingSpan>();
         this.relatedGlobalTraces = new DistributedTraceIds();
         this.relatedGlobalTraces.append(new NewDistributedTraceId());
@@ -93,16 +94,9 @@ public class TraceSegment {
 
     /**
      * Establish the line between this segment and all relative global trace ids.
-     *
-     * @param distributedTraceIds multi global trace ids. @see {@link DistributedTraceId}
      */
-    public void relatedGlobalTraces(List<DistributedTraceId> distributedTraceIds) {
-        if (distributedTraceIds == null || distributedTraceIds.size() == 0) {
-            return;
-        }
-        for (DistributedTraceId distributedTraceId : distributedTraceIds) {
-            relatedGlobalTraces.append(distributedTraceId);
-        }
+    public void relatedGlobalTraces(DistributedTraceId distributedTraceId) {
+        relatedGlobalTraces.append(distributedTraceId);
     }
 
     /**
@@ -124,7 +118,7 @@ public class TraceSegment {
         return this;
     }
 
-    public String getTraceSegmentId() {
+    public ID getTraceSegmentId() {
         return traceSegmentId;
     }
 
@@ -164,13 +158,13 @@ public class TraceSegment {
     public UpstreamSegment transform() {
         UpstreamSegment.Builder upstreamBuilder = UpstreamSegment.newBuilder();
         for (DistributedTraceId distributedTraceId : getRelatedGlobalTraces()) {
-            upstreamBuilder = upstreamBuilder.addGlobalTraceIds(distributedTraceId.get());
+            upstreamBuilder = upstreamBuilder.addGlobalTraceIds(distributedTraceId.toUniqueId());
         }
         TraceSegmentObject.Builder traceSegmentBuilder = TraceSegmentObject.newBuilder();
         /**
          * Trace Segment
          */
-        traceSegmentBuilder.setTraceSegmentId(this.traceSegmentId);
+        traceSegmentBuilder.setTraceSegmentId(this.traceSegmentId.transform());
         // TraceSegmentReference
         if (this.refs != null) {
             for (TraceSegmentRef ref : this.refs) {
