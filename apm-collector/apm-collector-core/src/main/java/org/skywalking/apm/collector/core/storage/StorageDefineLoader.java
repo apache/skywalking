@@ -2,7 +2,7 @@ package org.skywalking.apm.collector.core.storage;
 
 import java.util.LinkedList;
 import java.util.List;
-import org.skywalking.apm.collector.core.config.ConfigException;
+import org.skywalking.apm.collector.core.framework.DefineException;
 import org.skywalking.apm.collector.core.framework.Loader;
 import org.skywalking.apm.collector.core.util.DefinitionLoader;
 import org.slf4j.Logger;
@@ -15,7 +15,7 @@ public class StorageDefineLoader implements Loader<List<TableDefine>> {
 
     private final Logger logger = LoggerFactory.getLogger(StorageDefineLoader.class);
 
-    @Override public List<TableDefine> load() throws ConfigException {
+    @Override public List<TableDefine> load() throws DefineException {
         List<TableDefine> tableDefines = new LinkedList<>();
 
         StorageDefinitionFile definitionFile = new StorageDefinitionFile();

@@ -2,7 +2,7 @@ package org.skywalking.apm.collector.stream.worker;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.skywalking.apm.collector.core.config.ConfigException;
+import org.skywalking.apm.collector.core.framework.DefineException;
 import org.skywalking.apm.collector.core.framework.Loader;
 import org.skywalking.apm.collector.core.util.DefinitionLoader;
 import org.slf4j.Logger;
@@ -15,7 +15,7 @@ public class RemoteWorkerProviderDefineLoader implements Loader<List<AbstractRem
 
     private final Logger logger = LoggerFactory.getLogger(RemoteWorkerProviderDefineLoader.class);
 
-    @Override public List<AbstractRemoteWorkerProvider> load() throws ConfigException {
+    @Override public List<AbstractRemoteWorkerProvider> load() throws DefineException {
         List<AbstractRemoteWorkerProvider> providers = new ArrayList<>();
         RemoteWorkerProviderDefinitionFile definitionFile = new RemoteWorkerProviderDefinitionFile();
         logger.info("remote worker provider definition file name: {}", definitionFile.fileName());

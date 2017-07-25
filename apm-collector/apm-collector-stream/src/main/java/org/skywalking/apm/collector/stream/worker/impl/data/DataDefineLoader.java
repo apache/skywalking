@@ -2,7 +2,7 @@ package org.skywalking.apm.collector.stream.worker.impl.data;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.skywalking.apm.collector.core.config.ConfigException;
+import org.skywalking.apm.collector.core.framework.DefineException;
 import org.skywalking.apm.collector.core.framework.Loader;
 import org.skywalking.apm.collector.core.util.DefinitionLoader;
 import org.slf4j.Logger;
@@ -15,7 +15,7 @@ public class DataDefineLoader implements Loader<Map<Integer, DataDefine>> {
 
     private final Logger logger = LoggerFactory.getLogger(DataDefineLoader.class);
 
-    @Override public Map<Integer, DataDefine> load() throws ConfigException {
+    @Override public Map<Integer, DataDefine> load() throws DefineException {
         Map<Integer, DataDefine> dataDefineMap = new HashMap<>();
 
         DataDefinitionFile definitionFile = new DataDefinitionFile();

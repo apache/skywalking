@@ -4,7 +4,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.skywalking.apm.collector.core.client.ClientException;
-import org.skywalking.apm.collector.core.config.ConfigException;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
 import org.skywalking.apm.collector.core.framework.DefineException;
 import org.skywalking.apm.collector.core.module.ModuleDefine;
@@ -36,12 +35,8 @@ public class StreamModuleInstaller implements ModuleInstaller {
         CollectorContextHelper.INSTANCE.putContext(context);
 
         DataDefineLoader dataDefineLoader = new DataDefineLoader();
-        try {
-            Map<Integer, DataDefine> dataDefineMap = dataDefineLoader.load();
-            context.putAllDataDefine(dataDefineMap);
-        } catch (ConfigException e) {
-            logger.error(e.getMessage(), e);
-        }
+        Map<Integer, DataDefine> dataDefineMap = dataDefineLoader.load();
+        context.putAllDataDefine(dataDefineMap);
 
         initializeWorker(context);
 
@@ -54,7 +49,7 @@ public class StreamModuleInstaller implements ModuleInstaller {
         }
     }
 
-    private void initializeWorker(StreamModuleContext context) {
+    private void initializeWorker(StreamModuleContext context) throws DefineException {
         ClusterWorkerContext clusterWorkerContext = new ClusterWorkerContext();
         context.setClusterWorkerContext(clusterWorkerContext);
 
@@ -74,7 +69,7 @@ public class StreamModuleInstaller implements ModuleInstaller {
                 provider.create();
                 clusterWorkerContext.putRole(provider.role());
             }
-        } catch (ConfigException | ProviderNotFoundException e) {
+        } catch (ProviderNotFoundException e) {
             logger.error(e.getMessage(), e);
         }
     }

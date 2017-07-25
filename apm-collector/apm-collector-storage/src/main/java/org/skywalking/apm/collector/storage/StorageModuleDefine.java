@@ -33,6 +33,7 @@ public abstract class StorageModuleDefine extends ModuleDefine implements Cluste
             Client client = createClient(null);
             client.initialize();
             context.setClient(client);
+            injectClientIntoDAO(client);
 
             storageInstaller().install(client);
         } catch (ConfigParseException | StorageException e) {
@@ -57,4 +58,6 @@ public abstract class StorageModuleDefine extends ModuleDefine implements Cluste
     }
 
     public abstract StorageInstaller storageInstaller();
+
+    public abstract void injectClientIntoDAO(Client client) throws DefineException;
 }

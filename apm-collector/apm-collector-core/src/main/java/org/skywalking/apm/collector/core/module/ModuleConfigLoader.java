@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.Map;
 import org.skywalking.apm.collector.core.config.ConfigLoader;
+import org.skywalking.apm.collector.core.framework.DefineException;
 import org.skywalking.apm.collector.core.util.ResourceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +17,7 @@ public class ModuleConfigLoader implements ConfigLoader<Map<String, Map>> {
 
     private final Logger logger = LoggerFactory.getLogger(ModuleConfigLoader.class);
 
-    @Override public Map<String, Map> load() throws ModuleConfigLoaderException {
+    @Override public Map<String, Map> load() throws DefineException {
         Yaml yaml = new Yaml();
         try {
             try {
@@ -27,7 +28,7 @@ public class ModuleConfigLoader implements ConfigLoader<Map<String, Map>> {
                 return (Map<String, Map>)yaml.load(ResourceUtils.read("application-default.yml"));
             }
         } catch (FileNotFoundException e) {
-            throw new ModuleConfigLoaderException(e.getMessage(), e);
+            throw new ModuleDefineException(e.getMessage(), e);
         }
     }
 }

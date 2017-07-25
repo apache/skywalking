@@ -1,9 +1,8 @@
 package org.skywalking.apm.collector.core.config;
 
-import java.io.FileNotFoundException;
 import org.junit.Test;
 import org.skywalking.apm.collector.core.module.ModuleConfigLoader;
-import org.skywalking.apm.collector.core.module.ModuleConfigLoaderException;
+import org.skywalking.apm.collector.core.module.ModuleDefineException;
 
 /**
  * @author pengys5
@@ -11,7 +10,7 @@ import org.skywalking.apm.collector.core.module.ModuleConfigLoaderException;
 public class ModuleConfigLoaderTestCase {
 
     @Test
-    public void testLoad() throws ModuleConfigLoaderException {
+    public void testLoad() throws ModuleDefineException {
         ModuleConfigLoader loader = new ModuleConfigLoader();
         loader.load();
     }

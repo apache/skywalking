@@ -2,7 +2,7 @@ package org.skywalking.apm.collector.core.storage;
 
 import java.util.List;
 import org.skywalking.apm.collector.core.client.Client;
-import org.skywalking.apm.collector.core.config.ConfigException;
+import org.skywalking.apm.collector.core.framework.DefineException;
 
 /**
  * @author pengys5
@@ -22,7 +22,7 @@ public abstract class StorageInstaller {
                     createTable(client, tableDefine);
                 }
             }
-        } catch (ConfigException e) {
+        } catch (DefineException e) {
             throw new StorageInstallException(e.getMessage(), e);
         }
     }
