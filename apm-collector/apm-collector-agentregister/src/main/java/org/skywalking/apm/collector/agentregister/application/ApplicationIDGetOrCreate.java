@@ -1,13 +1,14 @@
 package org.skywalking.apm.collector.agentregister.application;
 
+import org.skywalking.apm.collector.storage.dao.DAOContainer;
+
 /**
  * @author pengys5
  */
 public class ApplicationIDGetOrCreate {
 
-    private IApplicationDAO applicationDAO;
-
     public int getOrCreate(String applicationCode) {
-        return 0;
+        IApplicationDAO dao = (IApplicationDAO)DAOContainer.INSTANCE.get(IApplicationDAO.class.getName());
+        return dao.getApplicationId(applicationCode);
     }
 }

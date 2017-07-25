@@ -37,12 +37,12 @@ public class GRPCServer implements Server {
     @Override public void initialize() throws ServerException {
         InetSocketAddress address = new InetSocketAddress(host, port);
         nettyServerBuilder = NettyServerBuilder.forAddress(address);
-        server = nettyServerBuilder.build();
         logger.info("Server started, host {} listening on {}", host, port);
     }
 
     @Override public void start() throws ServerException {
         try {
+            server = nettyServerBuilder.build();
             server.start();
         } catch (IOException e) {
             throw new GRPCServerException(e.getMessage(), e);

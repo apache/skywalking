@@ -8,6 +8,7 @@ import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
+import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.client.IndicesAdminClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
@@ -99,6 +100,10 @@ public class ElasticSearchClient implements Client {
         IndicesAdminClient adminClient = client.admin().indices();
         IndicesExistsResponse response = adminClient.prepareExists(indexName).get();
         return response.isExists();
+    }
+
+    public SearchRequestBuilder prepareSearch(String indexName) {
+        return client.prepareSearch(indexName);
     }
 
     public IndexRequestBuilder prepareIndex(String indexName) {

@@ -10,6 +10,6 @@ public class ApplicationH2DAO extends H2DAO implements IApplicationDAO {
 
     @Override public int getApplicationId(String applicationCode) {
         H2Client client = getClient();
-        return 0;
+        return 100;
     }
 }

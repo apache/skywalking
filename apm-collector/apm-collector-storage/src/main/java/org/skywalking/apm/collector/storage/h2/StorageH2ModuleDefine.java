@@ -9,6 +9,7 @@ import org.skywalking.apm.collector.core.module.ModuleConfigParser;
 import org.skywalking.apm.collector.core.storage.StorageInstaller;
 import org.skywalking.apm.collector.storage.StorageModuleDefine;
 import org.skywalking.apm.collector.storage.StorageModuleGroupDefine;
+import org.skywalking.apm.collector.storage.dao.DAOContainer;
 import org.skywalking.apm.collector.storage.h2.dao.H2DAO;
 import org.skywalking.apm.collector.storage.h2.dao.H2DAODefineLoader;
 import org.skywalking.apm.collector.storage.h2.define.H2StorageInstaller;
@@ -45,6 +46,8 @@ public class StorageH2ModuleDefine extends StorageModuleDefine {
         List<H2DAO> h2DAOs = loader.load();
         h2DAOs.forEach(h2DAO -> {
             h2DAO.setClient((H2Client)client);
+            String interFaceName = h2DAO.getClass().getInterfaces()[0].getName();
+            DAOContainer.INSTANCE.put(interFaceName, h2DAO);
         });
     }
 }
