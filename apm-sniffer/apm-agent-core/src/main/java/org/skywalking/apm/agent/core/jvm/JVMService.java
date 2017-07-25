@@ -83,7 +83,7 @@ public class JVMService implements BootService, Runnable {
                 jvmBuilder.addAllGc(GCProvider.INSTANCE.getGCList());
 
                 JVMMetric jvmMetric = jvmBuilder.build();
-                if (queue.offer(jvmMetric)) {
+                if (!queue.offer(jvmMetric)) {
                     queue.poll();
                     queue.offer(jvmMetric);
                 }
@@ -107,10 +107,11 @@ public class JVMService implements BootService, Runnable {
                         JVMMetrics.Builder builder = JVMMetrics.newBuilder();
                         LinkedList<JVMMetric> buffer = new LinkedList<JVMMetric>();
                         queue.drainTo(buffer);
-                        builder.addAllMetrics(buffer);
-
-                        builder.setApplicationInstanceId(RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID);
-                        stub.collect(builder.build());
+                        if (buffer.size() > 0) {
+                            builder.addAllMetrics(buffer);
+                            builder.setApplicationInstanceId(RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID);
+                            stub.collect(builder.build());
+                        }
                     } catch (Throwable t) {
                         logger.error(t, "send JVM metrics to Collector fail.");
                     }
