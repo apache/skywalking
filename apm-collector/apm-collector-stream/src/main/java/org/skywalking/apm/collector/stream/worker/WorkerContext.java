@@ -11,6 +11,7 @@ import org.skywalking.apm.collector.stream.worker.impl.data.DataDefine;
  */
 public abstract class WorkerContext implements Context {
 
+    private Map<String, RemoteWorkerRef> remoteWorkerRefs;
     private Map<String, List<WorkerRef>> roleWorkers;
     private Map<String, Role> roles;
     private Map<Integer, DataDefine> dataDefineMap;
@@ -18,6 +19,7 @@ public abstract class WorkerContext implements Context {
     public WorkerContext() {
         this.roleWorkers = new HashMap<>();
         this.roles = new HashMap<>();
+        this.remoteWorkerRefs = new HashMap<>();
     }
 
     private Map<String, List<WorkerRef>> getRoleWorkers() {
@@ -30,6 +32,14 @@ public abstract class WorkerContext implements Context {
             return refs;
         } else {
             throw new WorkerNotFoundException("role=" + role.roleName() + ", no available worker.");
+        }
+    }
+
+    @Override final public RemoteWorkerRef lookupInSide(String roleName) throws WorkerNotFoundException {
+        if (remoteWorkerRefs.containsKey(roleName)) {
+            return remoteWorkerRefs.get(roleName);
+        } else {
+            throw new WorkerNotFoundException("role=" + roleName + ", no available worker.");
         }
     }
 
@@ -47,9 +57,16 @@ public abstract class WorkerContext implements Context {
 
     @Override final public void put(WorkerRef workerRef) {
         if (!getRoleWorkers().containsKey(workerRef.getRole().roleName())) {
-            getRoleWorkers().putIfAbsent(workerRef.getRole().roleName(), new ArrayList<WorkerRef>());
+            getRoleWorkers().putIfAbsent(workerRef.getRole().roleName(), new ArrayList<>());
         }
         getRoleWorkers().get(workerRef.getRole().roleName()).add(workerRef);
+
+        if (workerRef instanceof RemoteWorkerRef) {
+            RemoteWorkerRef remoteWorkerRef = (RemoteWorkerRef)workerRef;
+            if (!remoteWorkerRef.isAcrossJVM()) {
+                remoteWorkerRefs.put(workerRef.getRole().roleName(), remoteWorkerRef);
+            }
+        }
     }
 
     @Override final public void remove(WorkerRef workerRef) {

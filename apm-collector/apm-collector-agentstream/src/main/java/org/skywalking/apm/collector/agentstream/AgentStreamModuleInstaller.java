@@ -26,7 +26,6 @@ public class AgentStreamModuleInstaller implements ModuleInstaller {
         AgentStreamModuleContext context = new AgentStreamModuleContext(AgentStreamModuleGroupDefine.GROUP_NAME);
         CollectorContextHelper.INSTANCE.putContext(context);
 
-        logger.info("could not configure cluster module, use the default");
         Iterator<Map.Entry<String, ModuleDefine>> moduleDefineEntry = moduleDefineMap.entrySet().iterator();
         while (moduleDefineEntry.hasNext()) {
             ModuleDefine moduleDefine = moduleDefineEntry.next().getValue();

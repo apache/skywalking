@@ -21,11 +21,11 @@ public abstract class TableDefine {
         columnDefines.add(columnDefine);
     }
 
-    public String getName() {
+    public final String getName() {
         return name;
     }
 
-    public List<ColumnDefine> getColumnDefines() {
+    public final List<ColumnDefine> getColumnDefines() {
         return columnDefines;
     }
 }

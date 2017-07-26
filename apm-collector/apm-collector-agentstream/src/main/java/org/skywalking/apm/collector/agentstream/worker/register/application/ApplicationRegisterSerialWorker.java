@@ -6,6 +6,7 @@ import org.skywalking.apm.collector.stream.worker.ClusterWorkerContext;
 import org.skywalking.apm.collector.stream.worker.ProviderNotFoundException;
 import org.skywalking.apm.collector.stream.worker.Role;
 import org.skywalking.apm.collector.stream.worker.WorkerException;
+import org.skywalking.apm.collector.stream.worker.impl.data.DataDefine;
 import org.skywalking.apm.collector.stream.worker.selector.HashCodeSelector;
 import org.skywalking.apm.collector.stream.worker.selector.WorkerSelector;
 
@@ -54,5 +55,10 @@ public class ApplicationRegisterSerialWorker extends AbstractLocalAsyncWorker {
         public WorkerSelector workerSelector() {
             return new HashCodeSelector();
         }
+
+        @Override public DataDefine dataDefine() {
+            return new ApplicationDataDefine();
+        }
+
     }
 }

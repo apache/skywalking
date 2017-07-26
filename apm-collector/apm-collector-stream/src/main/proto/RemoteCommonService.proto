@@ -4,14 +4,24 @@ option java_multiple_files = true;
 option java_package = "org.skywalking.apm.collector.remote.grpc.proto";
 
 service RemoteCommonService {
-    rpc call (Message) returns (Empty) {
+    rpc call (RemoteMessage) returns (Empty) {
     }
 }
 
-message Message {
+message RemoteMessage {
     string workerRole = 1;
-    int32 dataDefineId = 2;
-    bytes dataBytes = 3;
+    RemoteData remoteData = 2;
+}
+
+message RemoteData {
+    int32 stringCapacity = 1;
+    int32 longCapacity = 2;
+    int32 floatCapacity = 3;
+    int32 integerCapacity = 4;
+    repeated string dataStrings = 5;
+    repeated int64 dataLongs = 6;
+    repeated float dataFloats = 7;
+    repeated int32 dataIntegers = 8;
 }
 
 message Empty {

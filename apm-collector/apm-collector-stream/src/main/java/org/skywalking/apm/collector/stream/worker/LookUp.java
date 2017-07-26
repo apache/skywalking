@@ -6,6 +6,4 @@ package org.skywalking.apm.collector.stream.worker;
 public interface LookUp {
 
     WorkerRefs lookup(Role role) throws WorkerNotFoundException;
-
-    Provider findProvider(Role role) throws ProviderNotFoundException;
 }

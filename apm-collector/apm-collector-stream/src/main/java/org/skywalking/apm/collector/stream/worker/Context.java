@@ -5,9 +5,11 @@ package org.skywalking.apm.collector.stream.worker;
  */
 public interface Context extends LookUp {
 
-    void putProvider(AbstractWorkerProvider provider) throws UsedRoleNameException;
+    void putProvider(AbstractRemoteWorkerProvider provider);
 
     WorkerRefs lookup(Role role) throws WorkerNotFoundException;
+
+    RemoteWorkerRef lookupInSide(String roleName) throws WorkerNotFoundException;
 
     void put(WorkerRef workerRef);
 

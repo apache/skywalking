@@ -14,23 +14,21 @@ public class WorkerRefs<T extends WorkerRef> {
 
     private List<T> workerRefs;
     private WorkerSelector workerSelector;
+    private Role role;
 
     protected WorkerRefs(List<T> workerRefs, WorkerSelector workerSelector) {
         this.workerRefs = workerRefs;
         this.workerSelector = workerSelector;
     }
 
-    public void tell(Object message) throws WorkerInvokeException {
-        logger.debug("WorkerSelector instance of %s", workerSelector.getClass());
-        workerSelector.select(workerRefs, message).tell(message);
+    protected WorkerRefs(List<T> workerRefs, WorkerSelector workerSelector, Role role) {
+        this.workerRefs = workerRefs;
+        this.workerSelector = workerSelector;
+        this.role = role;
     }
 
-    public void ask(Object request, Object response) throws WorkerInvokeException {
-        WorkerRef workerRef = workerSelector.select(workerRefs, request);
-        if (workerRef instanceof LocalSyncWorkerRef) {
-            ((LocalSyncWorkerRef)workerRef).ask(request, response);
-        } else {
-            throw new IllegalAccessError("only local sync worker can ask");
-        }
+    public void tell(Object message) throws WorkerInvokeException {
+        logger.debug("WorkerSelector instance of {}", workerSelector.getClass());
+        workerSelector.select(workerRefs, message).tell(message);
     }
 }

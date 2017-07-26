@@ -2,3 +2,6 @@ org.skywalking.apm.collector.agentstream.worker.node.define.NodeComponentEsTable
 org.skywalking.apm.collector.agentstream.worker.node.define.NodeComponentH2TableDefine
 org.skywalking.apm.collector.agentstream.worker.node.define.NodeMappingEsTableDefine
 org.skywalking.apm.collector.agentstream.worker.node.define.NodeMappingH2TableDefine
+
+org.skywalking.apm.collector.agentstream.worker.register.application.ApplicationEsTableDefine
+org.skywalking.apm.collector.agentstream.worker.register.application.ApplicationH2TableDefine

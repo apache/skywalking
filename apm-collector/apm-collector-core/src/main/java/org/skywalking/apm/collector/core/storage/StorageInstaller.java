@@ -3,11 +3,15 @@ package org.skywalking.apm.collector.core.storage;
 import java.util.List;
 import org.skywalking.apm.collector.core.client.Client;
 import org.skywalking.apm.collector.core.framework.DefineException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author pengys5
  */
 public abstract class StorageInstaller {
+
+    private final Logger logger = LoggerFactory.getLogger(StorageInstaller.class);
 
     public final void install(Client client) throws StorageException {
         StorageDefineLoader defineLoader = new StorageDefineLoader();
@@ -16,9 +20,8 @@ public abstract class StorageInstaller {
             defineFilter(tableDefines);
 
             for (TableDefine tableDefine : tableDefines) {
-                if (isExists(client, tableDefine)) {
-                    deleteIndex(client, tableDefine);
-                } else {
+                if (!isExists(client, tableDefine)) {
+                    logger.info("table: {} not exists", tableDefine.getName());
                     createTable(client, tableDefine);
                 }
             }

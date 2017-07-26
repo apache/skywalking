@@ -12,4 +12,8 @@ public class AgentServerJettyDataListener extends ClusterDataListener {
     @Override public String path() {
         return ClusterModuleDefine.BASE_CATALOG + "." + AgentServerModuleGroupDefine.GROUP_NAME + "." + AgentServerJettyModuleDefine.MODULE_NAME;
     }
+
+    @Override public void addressChangedNotify() {
+
+    }
 }

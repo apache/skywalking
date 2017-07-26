@@ -1,8 +1,0 @@
-syntax = "proto3";
-
-option java_multiple_files = false;
-option java_package = "org.skywalking.apm.collector.agentstream.worker.register.application.proto";
-
-message ApplicationRegister {
-    string application_code = 1;
-}

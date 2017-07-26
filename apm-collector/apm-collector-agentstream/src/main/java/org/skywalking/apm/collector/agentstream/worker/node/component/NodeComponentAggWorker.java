@@ -4,6 +4,7 @@ import org.skywalking.apm.collector.stream.worker.AbstractLocalAsyncWorkerProvid
 import org.skywalking.apm.collector.stream.worker.ClusterWorkerContext;
 import org.skywalking.apm.collector.stream.worker.ProviderNotFoundException;
 import org.skywalking.apm.collector.stream.worker.impl.AggregationWorker;
+import org.skywalking.apm.collector.stream.worker.impl.data.DataDefine;
 import org.skywalking.apm.collector.stream.worker.selector.RollingSelector;
 import org.skywalking.apm.collector.stream.worker.selector.WorkerSelector;
 
@@ -52,6 +53,10 @@ public class NodeComponentAggWorker extends AggregationWorker {
         @Override
         public WorkerSelector workerSelector() {
             return new RollingSelector();
+        }
+
+        @Override public DataDefine dataDefine() {
+            return new NodeComponentDataDefine();
         }
     }
 }

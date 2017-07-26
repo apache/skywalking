@@ -1,7 +1,6 @@
 package org.skywalking.apm.collector.stream.worker.impl.data;
 
-import com.google.protobuf.ByteString;
-import com.google.protobuf.InvalidProtocolBufferException;
+import org.skywalking.apm.collector.remote.grpc.proto.RemoteData;
 
 /**
  * @author pengys5
@@ -11,14 +10,18 @@ public abstract class DataDefine {
     private int stringCapacity;
     private int longCapacity;
     private int floatCapacity;
+    private int integerCapacity;
 
     public DataDefine() {
         stringCapacity = 0;
         longCapacity = 0;
         floatCapacity = 0;
+        integerCapacity = 0;
     }
 
     public final void initial() {
+        attributes = new Attribute[initialCapacity()];
+        attributeDefine();
         for (Attribute attribute : attributes) {
             if (AttributeType.STRING.equals(attribute.getType())) {
                 stringCapacity++;
@@ -26,6 +29,8 @@ public abstract class DataDefine {
                 longCapacity++;
             } else if (AttributeType.FLOAT.equals(attribute.getType())) {
                 floatCapacity++;
+            } else if (AttributeType.INTEGER.equals(attribute.getType())) {
+                integerCapacity++;
             }
         }
     }
@@ -34,36 +39,21 @@ public abstract class DataDefine {
         attributes[position] = attribute;
     }
 
-    public final void define() {
-        attributes = new Attribute[initialCapacity()];
-    }
-
-    protected abstract int defineId();
+    public abstract int defineId();
 
     protected abstract int initialCapacity();
 
     protected abstract void attributeDefine();
 
-    public int getStringCapacity() {
-        return stringCapacity;
-    }
-
-    public int getLongCapacity() {
-        return longCapacity;
-    }
-
-    public int getFloatCapacity() {
-        return floatCapacity;
-    }
-
-    public Data build() {
-        return new Data(defineId(), getStringCapacity(), getLongCapacity(), getFloatCapacity());
+    public final Data build() {
+        return new Data(defineId(), stringCapacity, longCapacity, floatCapacity, integerCapacity);
     }
 
     public void mergeData(Data newData, Data oldData) {
         int stringPosition = 0;
         int longPosition = 0;
         int floatPosition = 0;
+        int integerPosition = 0;
         for (int i = 0; i < initialCapacity(); i++) {
             Attribute attribute = attributes[i];
             if (AttributeType.STRING.equals(attribute.getType())) {
@@ -75,9 +65,14 @@ public abstract class DataDefine {
             } else if (AttributeType.FLOAT.equals(attribute.getType())) {
                 attribute.getOperation().operate(newData.getDataFloat(floatPosition), oldData.getDataFloat(floatPosition));
                 floatPosition++;
+            } else if (AttributeType.FLOAT.equals(attribute.getType())) {
+                attribute.getOperation().operate(newData.getDataInteger(integerPosition), oldData.getDataInteger(integerPosition));
+                integerPosition++;
             }
         }
     }
 
-    public abstract Data parseFrom(ByteString bytesData) throws InvalidProtocolBufferException;
+    public abstract Object deserialize(RemoteData remoteData);
+
+    public abstract RemoteData serialize(Object object);
 }

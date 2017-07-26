@@ -1,2 +1,2 @@
 org.skywalking.apm.collector.agentstream.worker.node.component.NodeComponentDataDefine
-org.skywalking.apm.collector.agentstream.worker.register.application.ApplicationRegisterDataDefine
+org.skywalking.apm.collector.agentstream.worker.register.application.ApplicationDataDefine

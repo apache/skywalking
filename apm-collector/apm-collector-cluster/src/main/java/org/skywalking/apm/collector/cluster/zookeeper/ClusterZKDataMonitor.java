@@ -47,6 +47,7 @@ public class ClusterZKDataMonitor implements DataMonitor, Watcher {
                         String dataStr = new String(data);
                         logger.debug("path children has been changed, path: {}, data: {}", event.getPath() + "/" + serverPath, dataStr);
                         listeners.get(event.getPath()).addAddress(serverPath + dataStr);
+                        listeners.get(event.getPath()).addressChangedNotify();
                     }
                 }
             } catch (ZookeeperClientException e) {

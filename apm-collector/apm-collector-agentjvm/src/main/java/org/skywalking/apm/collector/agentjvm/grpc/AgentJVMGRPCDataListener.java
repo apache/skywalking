@@ -14,4 +14,8 @@ public class AgentJVMGRPCDataListener extends ClusterDataListener {
     @Override public String path() {
         return PATH;
     }
+
+    @Override public void addressChangedNotify() {
+
+    }
 }

@@ -58,5 +58,10 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-core</artifactId>
+            <version>1.4.0</version>
+        </dependency>
     </dependencies>
 </project>

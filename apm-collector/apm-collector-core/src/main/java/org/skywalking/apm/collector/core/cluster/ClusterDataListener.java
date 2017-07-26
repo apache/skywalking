@@ -28,4 +28,6 @@ public abstract class ClusterDataListener implements Listener {
     public final void clearData() {
         addresses.clear();
     }
+
+    public abstract void addressChangedNotify();
 }

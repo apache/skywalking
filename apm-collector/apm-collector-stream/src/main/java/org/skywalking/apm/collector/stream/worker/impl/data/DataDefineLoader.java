@@ -22,6 +22,7 @@ public class DataDefineLoader implements Loader<Map<Integer, DataDefine>> {
         DefinitionLoader<DataDefine> definitionLoader = DefinitionLoader.load(DataDefine.class, definitionFile);
         for (DataDefine dataDefine : definitionLoader) {
             logger.info("loaded data definition class: {}", dataDefine.getClass().getName());
+            dataDefine.initial();
             dataDefineMap.put(dataDefine.defineId(), dataDefine);
         }
         return dataDefineMap;

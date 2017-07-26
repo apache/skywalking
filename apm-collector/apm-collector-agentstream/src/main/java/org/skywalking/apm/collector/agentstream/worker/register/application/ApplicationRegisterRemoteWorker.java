@@ -1,19 +1,23 @@
 package org.skywalking.apm.collector.agentstream.worker.register.application;
 
-import org.skywalking.apm.collector.agentstream.worker.node.component.NodeComponentAggWorker;
 import org.skywalking.apm.collector.stream.worker.AbstractRemoteWorker;
 import org.skywalking.apm.collector.stream.worker.AbstractRemoteWorkerProvider;
 import org.skywalking.apm.collector.stream.worker.ClusterWorkerContext;
 import org.skywalking.apm.collector.stream.worker.ProviderNotFoundException;
 import org.skywalking.apm.collector.stream.worker.Role;
 import org.skywalking.apm.collector.stream.worker.WorkerException;
+import org.skywalking.apm.collector.stream.worker.impl.data.DataDefine;
 import org.skywalking.apm.collector.stream.worker.selector.ForeverFirstSelector;
 import org.skywalking.apm.collector.stream.worker.selector.WorkerSelector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author pengys5
  */
 public class ApplicationRegisterRemoteWorker extends AbstractRemoteWorker {
+
+    private final Logger logger = LoggerFactory.getLogger(ApplicationRegisterRemoteWorker.class);
 
     protected ApplicationRegisterRemoteWorker(Role role, ClusterWorkerContext clusterContext) {
         super(role, clusterContext);
@@ -23,7 +27,8 @@ public class ApplicationRegisterRemoteWorker extends AbstractRemoteWorker {
     }
 
     @Override protected void onWork(Object message) throws WorkerException {
-
+        ApplicationDataDefine.Application application = (ApplicationDataDefine.Application)message;
+        logger.debug("application code: {}", application.getApplicationCode());
     }
 
     public static class Factory extends AbstractRemoteWorkerProvider<ApplicationRegisterRemoteWorker> {
@@ -36,10 +41,6 @@ public class ApplicationRegisterRemoteWorker extends AbstractRemoteWorker {
         public ApplicationRegisterRemoteWorker workerInstance(ClusterWorkerContext clusterContext) {
             return new ApplicationRegisterRemoteWorker(role(), clusterContext);
         }
-
-        @Override public int workerNum() {
-            return 1;
-        }
     }
 
     public enum WorkerRole implements Role {
@@ -47,12 +48,16 @@ public class ApplicationRegisterRemoteWorker extends AbstractRemoteWorker {
 
         @Override
         public String roleName() {
-            return NodeComponentAggWorker.class.getSimpleName();
+            return ApplicationRegisterRemoteWorker.class.getSimpleName();
         }
 
         @Override
         public WorkerSelector workerSelector() {
             return new ForeverFirstSelector();
+        }
+
+        @Override public DataDefine dataDefine() {
+            return new ApplicationDataDefine();
         }
     }
 }

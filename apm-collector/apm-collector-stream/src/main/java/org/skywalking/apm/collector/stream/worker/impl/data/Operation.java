@@ -9,4 +9,6 @@ public interface Operation {
     Long operate(Long newValue, Long oldValue);
 
     Float operate(Float newValue, Float oldValue);
+
+    Integer operate(Integer newValue, Integer oldValue);
 }
