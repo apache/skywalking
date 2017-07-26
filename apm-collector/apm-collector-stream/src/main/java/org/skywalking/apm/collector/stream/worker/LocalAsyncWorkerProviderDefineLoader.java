@@ -22,7 +22,6 @@ public class LocalAsyncWorkerProviderDefineLoader implements Loader<List<Abstrac
 
         DefinitionLoader<AbstractLocalAsyncWorkerProvider> definitionLoader = DefinitionLoader.load(AbstractLocalAsyncWorkerProvider.class, definitionFile);
 
-        int id = 1;
         for (AbstractLocalAsyncWorkerProvider provider : definitionLoader) {
             logger.info("loaded local async worker provider definition class: {}", provider.getClass().getName());
             providers.add(provider);

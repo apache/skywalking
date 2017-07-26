@@ -1,5 +1,7 @@
 package org.skywalking.apm.collector.agentstream.worker.register.application;
 
+import org.skywalking.apm.collector.agentstream.worker.register.application.dao.IApplicationDAO;
+import org.skywalking.apm.collector.storage.dao.DAOContainer;
 import org.skywalking.apm.collector.stream.worker.AbstractLocalAsyncWorker;
 import org.skywalking.apm.collector.stream.worker.AbstractLocalAsyncWorkerProvider;
 import org.skywalking.apm.collector.stream.worker.ClusterWorkerContext;
@@ -7,13 +9,17 @@ import org.skywalking.apm.collector.stream.worker.ProviderNotFoundException;
 import org.skywalking.apm.collector.stream.worker.Role;
 import org.skywalking.apm.collector.stream.worker.WorkerException;
 import org.skywalking.apm.collector.stream.worker.impl.data.DataDefine;
-import org.skywalking.apm.collector.stream.worker.selector.HashCodeSelector;
+import org.skywalking.apm.collector.stream.worker.selector.ForeverFirstSelector;
 import org.skywalking.apm.collector.stream.worker.selector.WorkerSelector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author pengys5
  */
 public class ApplicationRegisterSerialWorker extends AbstractLocalAsyncWorker {
+
+    private final Logger logger = LoggerFactory.getLogger(ApplicationRegisterSerialWorker.class);
 
     public ApplicationRegisterSerialWorker(Role role, ClusterWorkerContext clusterContext) {
         super(role, clusterContext);
@@ -24,7 +30,34 @@ public class ApplicationRegisterSerialWorker extends AbstractLocalAsyncWorker {
     }
 
     @Override protected void onWork(Object message) throws WorkerException {
+        if (message instanceof ApplicationDataDefine.Application) {
+            ApplicationDataDefine.Application application = (ApplicationDataDefine.Application)message;
+            logger.debug("register application, application code: {}", application.getApplicationCode());
 
+            IApplicationDAO dao = (IApplicationDAO)DAOContainer.INSTANCE.get(IApplicationDAO.class.getName());
+            int min = dao.getMinApplicationId();
+            if (min == 0) {
+                application.setApplicationId(1);
+                application.setId("1");
+            } else {
+                int max = dao.getMaxApplicationId();
+                int instanceId;
+                if (min == max) {
+                    instanceId = -1;
+                } else if (min + max == 0) {
+                    instanceId = max + 1;
+                } else if (min + max > 0) {
+                    instanceId = min - 1;
+                } else if (max < 0) {
+                    instanceId = 1;
+                } else {
+                    instanceId = max + 1;
+                }
+                application.setApplicationId(instanceId);
+                application.setId(String.valueOf(instanceId));
+            }
+            dao.save(application);
+        }
     }
 
     public static class Factory extends AbstractLocalAsyncWorkerProvider<ApplicationRegisterSerialWorker> {
@@ -53,12 +86,11 @@ public class ApplicationRegisterSerialWorker extends AbstractLocalAsyncWorker {
 
         @Override
         public WorkerSelector workerSelector() {
-            return new HashCodeSelector();
+            return new ForeverFirstSelector();
         }
 
         @Override public DataDefine dataDefine() {
             return new ApplicationDataDefine();
         }
-
     }
 }

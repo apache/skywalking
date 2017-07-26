@@ -5,3 +5,6 @@ org.skywalking.apm.collector.agentstream.worker.node.define.NodeMappingH2TableDe
 
 org.skywalking.apm.collector.agentstream.worker.register.application.ApplicationEsTableDefine
 org.skywalking.apm.collector.agentstream.worker.register.application.ApplicationH2TableDefine
+
+org.skywalking.apm.collector.agentstream.worker.register.instance.InstanceEsTableDefine
+org.skywalking.apm.collector.agentstream.worker.register.instance.InstanceH2TableDefine

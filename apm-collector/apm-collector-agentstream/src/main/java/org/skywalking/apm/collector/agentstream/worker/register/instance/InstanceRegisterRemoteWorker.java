@@ -1,5 +1,6 @@
-package org.skywalking.apm.collector.agentstream.worker.register.application;
+package org.skywalking.apm.collector.agentstream.worker.register.instance;
 
+import org.skywalking.apm.collector.agentstream.worker.register.application.ApplicationDataDefine;
 import org.skywalking.apm.collector.stream.worker.AbstractRemoteWorker;
 import org.skywalking.apm.collector.stream.worker.AbstractRemoteWorkerProvider;
 import org.skywalking.apm.collector.stream.worker.ClusterWorkerContext;
@@ -15,11 +16,11 @@ import org.slf4j.LoggerFactory;
 /**
  * @author pengys5
  */
-public class ApplicationRegisterRemoteWorker extends AbstractRemoteWorker {
+public class InstanceRegisterRemoteWorker extends AbstractRemoteWorker {
 
-    private final Logger logger = LoggerFactory.getLogger(ApplicationRegisterRemoteWorker.class);
+    private final Logger logger = LoggerFactory.getLogger(InstanceRegisterRemoteWorker.class);
 
-    protected ApplicationRegisterRemoteWorker(Role role, ClusterWorkerContext clusterContext) {
+    protected InstanceRegisterRemoteWorker(Role role, ClusterWorkerContext clusterContext) {
         super(role, clusterContext);
     }
 
@@ -27,20 +28,19 @@ public class ApplicationRegisterRemoteWorker extends AbstractRemoteWorker {
     }
 
     @Override protected void onWork(Object message) throws WorkerException {
-        ApplicationDataDefine.Application application = (ApplicationDataDefine.Application)message;
-        logger.debug("application code: {}", application.getApplicationCode());
-        getClusterContext().lookup(ApplicationRegisterSerialWorker.WorkerRole.INSTANCE).tell(application);
+        InstanceDataDefine.Instance instance = (InstanceDataDefine.Instance)message;
+        logger.debug("application id: {}, agentUUID: {}, register time: {}", instance.getApplicationId(), instance.getAgentUUID(), instance.getRegisterTime());
     }
 
-    public static class Factory extends AbstractRemoteWorkerProvider<ApplicationRegisterRemoteWorker> {
+    public static class Factory extends AbstractRemoteWorkerProvider<InstanceRegisterRemoteWorker> {
         @Override
         public Role role() {
             return WorkerRole.INSTANCE;
         }
 
         @Override
-        public ApplicationRegisterRemoteWorker workerInstance(ClusterWorkerContext clusterContext) {
-            return new ApplicationRegisterRemoteWorker(role(), clusterContext);
+        public InstanceRegisterRemoteWorker workerInstance(ClusterWorkerContext clusterContext) {
+            return new InstanceRegisterRemoteWorker(role(), clusterContext);
         }
     }
 
@@ -49,7 +49,7 @@ public class ApplicationRegisterRemoteWorker extends AbstractRemoteWorker {
 
         @Override
         public String roleName() {
-            return ApplicationRegisterRemoteWorker.class.getSimpleName();
+            return InstanceRegisterRemoteWorker.class.getSimpleName();
         }
 
         @Override

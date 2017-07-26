@@ -45,9 +45,9 @@ public class ApplicationDataDefine extends DataDefine {
     }
 
     public static class Application {
-        private final String id;
-        private final String applicationCode;
-        private final int applicationId;
+        private String id;
+        private String applicationCode;
+        private int applicationId;
 
         public Application(String id, String applicationCode, int applicationId) {
             this.id = id;
@@ -65,6 +65,18 @@ public class ApplicationDataDefine extends DataDefine {
 
         public int getApplicationId() {
             return applicationId;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
+
+        public void setApplicationCode(String applicationCode) {
+            this.applicationCode = applicationCode;
+        }
+
+        public void setApplicationId(int applicationId) {
+            this.applicationId = applicationId;
         }
     }
 }

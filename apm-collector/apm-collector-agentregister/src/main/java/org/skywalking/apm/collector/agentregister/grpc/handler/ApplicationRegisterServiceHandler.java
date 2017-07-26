@@ -2,7 +2,7 @@ package org.skywalking.apm.collector.agentregister.grpc.handler;
 
 import com.google.protobuf.ProtocolStringList;
 import io.grpc.stub.StreamObserver;
-import org.skywalking.apm.collector.agentregister.application.ApplicationIDGetOrCreate;
+import org.skywalking.apm.collector.agentregister.application.ApplicationIDService;
 import org.skywalking.apm.collector.server.grpc.GRPCHandler;
 import org.skywalking.apm.network.proto.Application;
 import org.skywalking.apm.network.proto.ApplicationMapping;
@@ -18,14 +18,14 @@ public class ApplicationRegisterServiceHandler extends ApplicationRegisterServic
 
     private final Logger logger = LoggerFactory.getLogger(ApplicationRegisterServiceHandler.class);
 
-    private ApplicationIDGetOrCreate applicationIDGetOrCreate = new ApplicationIDGetOrCreate();
+    private ApplicationIDService applicationIDService = new ApplicationIDService();
 
     @Override public void register(Application request, StreamObserver<ApplicationMapping> responseObserver) {
         logger.debug("register application");
         ProtocolStringList applicationCodes = request.getApplicationCodeList();
         for (int i = 0; i < applicationCodes.size(); i++) {
             String applicationCode = applicationCodes.get(i);
-            int applicationId = applicationIDGetOrCreate.getOrCreate(applicationCode);
+            int applicationId = applicationIDService.getOrCreate(applicationCode);
 
             KeyWithIntegerValue value = KeyWithIntegerValue.newBuilder().setKey(applicationCode).setValue(applicationId).build();
             ApplicationMapping mapping = ApplicationMapping.newBuilder().addApplication(i, value).build();

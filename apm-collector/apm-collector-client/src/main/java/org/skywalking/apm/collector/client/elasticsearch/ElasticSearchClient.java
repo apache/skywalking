@@ -106,7 +106,7 @@ public class ElasticSearchClient implements Client {
         return client.prepareSearch(indexName);
     }
 
-    public IndexRequestBuilder prepareIndex(String indexName) {
-        return null;
+    public IndexRequestBuilder prepareIndex(String indexName, String id) {
+        return client.prepareIndex(indexName, "type", id);
     }
 }

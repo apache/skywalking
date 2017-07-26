@@ -2,6 +2,7 @@ package org.skywalking.apm.collector.agentregister.application;
 
 import org.skywalking.apm.collector.agentstream.worker.register.application.ApplicationDataDefine;
 import org.skywalking.apm.collector.agentstream.worker.register.application.ApplicationRegisterRemoteWorker;
+import org.skywalking.apm.collector.agentstream.worker.register.application.dao.IApplicationDAO;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
 import org.skywalking.apm.collector.storage.dao.DAOContainer;
 import org.skywalking.apm.collector.stream.StreamModuleContext;
@@ -14,9 +15,9 @@ import org.slf4j.LoggerFactory;
 /**
  * @author pengys5
  */
-public class ApplicationIDGetOrCreate {
+public class ApplicationIDService {
 
-    private final Logger logger = LoggerFactory.getLogger(ApplicationIDGetOrCreate.class);
+    private final Logger logger = LoggerFactory.getLogger(ApplicationIDService.class);
 
     public int getOrCreate(String applicationCode) {
         IApplicationDAO dao = (IApplicationDAO)DAOContainer.INSTANCE.get(IApplicationDAO.class.getName());

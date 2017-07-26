@@ -41,12 +41,4 @@ public abstract class AbstractLocalAsyncWorker extends AbstractLocalWorker imple
     final public void allocateJob(Object message) throws WorkerException {
         onWork(message);
     }
-
-    /**
-     * The data process logic in this method.
-     *
-     * @param message Cast the message object to a expect subclass.
-     * @throws WorkerException Don't handle the exception, throw it.
-     */
-    protected abstract void onWork(Object message) throws WorkerException;
 }

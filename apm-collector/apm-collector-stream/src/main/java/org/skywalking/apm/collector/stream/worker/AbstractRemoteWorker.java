@@ -35,12 +35,4 @@ public abstract class AbstractRemoteWorker extends AbstractWorker {
             throw new WorkerInvokeException(e.getMessage(), e.getCause());
         }
     }
-
-    /**
-     * This method use for message receiver to analyse message.
-     *
-     * @param message Cast the message object to a expect subclass.
-     * @throws Exception Don't handle the exception, throw it.
-     */
-    protected abstract void onWork(Object message) throws WorkerException;
 }

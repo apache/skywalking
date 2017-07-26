@@ -22,6 +22,7 @@ public abstract class AbstractLocalAsyncWorkerProvider<T extends AbstractLocalAs
         QueueEventHandler queueEventHandler = queueCreator.create(queueSize(), localAsyncWorker);
 
         LocalAsyncWorkerRef workerRef = new LocalAsyncWorkerRef(role(), queueEventHandler);
+        getClusterContext().put(workerRef);
         return workerRef;
     }
 }

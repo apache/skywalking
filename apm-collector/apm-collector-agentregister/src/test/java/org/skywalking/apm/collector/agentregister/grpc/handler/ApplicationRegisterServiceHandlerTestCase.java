@@ -19,7 +19,7 @@ public class ApplicationRegisterServiceHandlerTestCase {
         ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 11800).usePlaintext(true).build();
         stub = ApplicationRegisterServiceGrpc.newBlockingStub(channel);
 
-        Application application = Application.newBuilder().addApplicationCode("test").build();
+        Application application = Application.newBuilder().addApplicationCode("test141").build();
         ApplicationMapping mapping = stub.register(application);
         System.out.println(mapping.getApplication(0).getKey() + ", " + mapping.getApplication(0).getValue());
     }
