@@ -1,7 +1,8 @@
-package org.skywalking.apm.collector.agentstream.worker.register.application;
+package org.skywalking.apm.collector.agentstream.worker.register.instance;
 
 import org.skywalking.apm.collector.agentstream.worker.register.IdAutoIncrement;
-import org.skywalking.apm.collector.agentstream.worker.register.application.dao.IApplicationDAO;
+import org.skywalking.apm.collector.agentstream.worker.register.application.ApplicationDataDefine;
+import org.skywalking.apm.collector.agentstream.worker.register.instance.dao.IInstanceDAO;
 import org.skywalking.apm.collector.storage.dao.DAOContainer;
 import org.skywalking.apm.collector.stream.worker.AbstractLocalAsyncWorker;
 import org.skywalking.apm.collector.stream.worker.AbstractLocalAsyncWorkerProvider;
@@ -18,11 +19,11 @@ import org.slf4j.LoggerFactory;
 /**
  * @author pengys5
  */
-public class ApplicationRegisterSerialWorker extends AbstractLocalAsyncWorker {
+public class InstanceRegisterSerialWorker extends AbstractLocalAsyncWorker {
 
-    private final Logger logger = LoggerFactory.getLogger(ApplicationRegisterSerialWorker.class);
+    private final Logger logger = LoggerFactory.getLogger(InstanceRegisterSerialWorker.class);
 
-    public ApplicationRegisterSerialWorker(Role role, ClusterWorkerContext clusterContext) {
+    public InstanceRegisterSerialWorker(Role role, ClusterWorkerContext clusterContext) {
         super(role, clusterContext);
     }
 
@@ -31,34 +32,34 @@ public class ApplicationRegisterSerialWorker extends AbstractLocalAsyncWorker {
     }
 
     @Override protected void onWork(Object message) throws WorkerException {
-        if (message instanceof ApplicationDataDefine.Application) {
-            ApplicationDataDefine.Application application = (ApplicationDataDefine.Application)message;
-            logger.debug("register application, application code: {}", application.getApplicationCode());
+        if (message instanceof InstanceDataDefine.Instance) {
+            InstanceDataDefine.Instance instance = (InstanceDataDefine.Instance)message;
+            logger.debug("register instance, application id: {}, agentUUID: {}", instance.getApplicationId(), instance.getAgentUUID());
 
-            IApplicationDAO dao = (IApplicationDAO)DAOContainer.INSTANCE.get(IApplicationDAO.class.getName());
-            int min = dao.getMinApplicationId();
+            IInstanceDAO dao = (IInstanceDAO)DAOContainer.INSTANCE.get(IInstanceDAO.class.getName());
+            int min = dao.getMinInstanceId();
             if (min == 0) {
-                application.setApplicationId(1);
-                application.setId("1");
+                instance.setId("1");
+                instance.setInstanceId(1);
             } else {
-                int max = dao.getMaxApplicationId();
-                int applicationId = IdAutoIncrement.INSTANCE.increment(min, max);
-                application.setApplicationId(applicationId);
-                application.setId(String.valueOf(applicationId));
+                int max = dao.getMaxInstanceId();
+                int instanceId = IdAutoIncrement.INSTANCE.increment(min, max);
+                instance.setId(String.valueOf(instanceId));
+                instance.setInstanceId(instanceId);
             }
-            dao.save(application);
+            dao.save(instance);
         }
     }
 
-    public static class Factory extends AbstractLocalAsyncWorkerProvider<ApplicationRegisterSerialWorker> {
+    public static class Factory extends AbstractLocalAsyncWorkerProvider<InstanceRegisterSerialWorker> {
         @Override
         public Role role() {
             return WorkerRole.INSTANCE;
         }
 
         @Override
-        public ApplicationRegisterSerialWorker workerInstance(ClusterWorkerContext clusterContext) {
-            return new ApplicationRegisterSerialWorker(role(), clusterContext);
+        public InstanceRegisterSerialWorker workerInstance(ClusterWorkerContext clusterContext) {
+            return new InstanceRegisterSerialWorker(role(), clusterContext);
         }
 
         @Override public int queueSize() {
@@ -71,7 +72,7 @@ public class ApplicationRegisterSerialWorker extends AbstractLocalAsyncWorker {
 
         @Override
         public String roleName() {
-            return ApplicationRegisterSerialWorker.class.getSimpleName();
+            return InstanceRegisterSerialWorker.class.getSimpleName();
         }
 
         @Override

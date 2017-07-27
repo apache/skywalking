@@ -51,11 +51,11 @@ public class InstanceDataDefine extends DataDefine {
     }
 
     public static class Instance {
-        private final String id;
-        private final int applicationId;
-        private final String agentUUID;
-        private final long registerTime;
-        private final int instanceId;
+        private String id;
+        private int applicationId;
+        private String agentUUID;
+        private long registerTime;
+        private int instanceId;
 
         public Instance(String id, int applicationId, String agentUUID, long registerTime, int instanceId) {
             this.id = id;
@@ -83,6 +83,26 @@ public class InstanceDataDefine extends DataDefine {
 
         public int getInstanceId() {
             return instanceId;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
+
+        public void setApplicationId(int applicationId) {
+            this.applicationId = applicationId;
+        }
+
+        public void setAgentUUID(String agentUUID) {
+            this.agentUUID = agentUUID;
+        }
+
+        public void setRegisterTime(long registerTime) {
+            this.registerTime = registerTime;
+        }
+
+        public void setInstanceId(int instanceId) {
+            this.instanceId = instanceId;
         }
     }
 }

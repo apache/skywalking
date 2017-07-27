@@ -4,11 +4,13 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.IndicesAdminClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
@@ -108,5 +110,13 @@ public class ElasticSearchClient implements Client {
 
     public IndexRequestBuilder prepareIndex(String indexName, String id) {
         return client.prepareIndex(indexName, "type", id);
+    }
+
+    public void update(UpdateRequest updateRequest) {
+        try {
+            client.update(updateRequest).get();
+        } catch (InterruptedException | ExecutionException e) {
+            logger.error(e.getMessage(), e);
+        }
     }
 }

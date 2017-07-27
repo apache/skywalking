@@ -1,6 +1,5 @@
 package org.skywalking.apm.collector.agentstream.worker.register.instance;
 
-import org.skywalking.apm.collector.agentstream.worker.register.application.ApplicationDataDefine;
 import org.skywalking.apm.collector.stream.worker.AbstractRemoteWorker;
 import org.skywalking.apm.collector.stream.worker.AbstractRemoteWorkerProvider;
 import org.skywalking.apm.collector.stream.worker.ClusterWorkerContext;
@@ -30,6 +29,7 @@ public class InstanceRegisterRemoteWorker extends AbstractRemoteWorker {
     @Override protected void onWork(Object message) throws WorkerException {
         InstanceDataDefine.Instance instance = (InstanceDataDefine.Instance)message;
         logger.debug("application id: {}, agentUUID: {}, register time: {}", instance.getApplicationId(), instance.getAgentUUID(), instance.getRegisterTime());
+        getClusterContext().lookup(InstanceRegisterSerialWorker.WorkerRole.INSTANCE).tell(instance);
     }
 
     public static class Factory extends AbstractRemoteWorkerProvider<InstanceRegisterRemoteWorker> {
@@ -58,7 +58,7 @@ public class InstanceRegisterRemoteWorker extends AbstractRemoteWorker {
         }
 
         @Override public DataDefine dataDefine() {
-            return new ApplicationDataDefine();
+            return new InstanceDataDefine();
         }
     }
 }

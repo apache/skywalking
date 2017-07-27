@@ -2,6 +2,7 @@ package org.skywalking.apm.collector.agentregister.instance;
 
 import org.skywalking.apm.collector.agentstream.worker.register.application.ApplicationRegisterRemoteWorker;
 import org.skywalking.apm.collector.agentstream.worker.register.instance.InstanceDataDefine;
+import org.skywalking.apm.collector.agentstream.worker.register.instance.dao.IInstanceDAO;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
 import org.skywalking.apm.collector.storage.dao.DAOContainer;
 import org.skywalking.apm.collector.stream.StreamModuleContext;
@@ -20,11 +21,11 @@ public class InstanceIDService {
 
     public int getOrCreate(int applicationId, String agentUUID, long registerTime) {
         IInstanceDAO dao = (IInstanceDAO)DAOContainer.INSTANCE.get(IInstanceDAO.class.getName());
-        int instanceId = dao.getInstanceId(agentUUID);
+        int instanceId = dao.getInstanceId(applicationId, agentUUID);
 
         if (instanceId == 0) {
             StreamModuleContext context = (StreamModuleContext)CollectorContextHelper.INSTANCE.getContext(StreamModuleGroupDefine.GROUP_NAME);
-            InstanceDataDefine.Instance instance = new InstanceDataDefine.Instance(agentUUID, applicationId, agentUUID, registerTime, 0);
+            InstanceDataDefine.Instance instance = new InstanceDataDefine.Instance("0", applicationId, agentUUID, registerTime, 0);
             try {
                 context.getClusterWorkerContext().lookup(ApplicationRegisterRemoteWorker.WorkerRole.INSTANCE).tell(instance);
             } catch (WorkerNotFoundException | WorkerInvokeException e) {
@@ -35,10 +36,14 @@ public class InstanceIDService {
     }
 
     public void heartBeat(int instanceId, long heartbeatTime) {
-
+        IInstanceDAO dao = (IInstanceDAO)DAOContainer.INSTANCE.get(IInstanceDAO.class.getName());
+        dao.updateHeartbeatTime(instanceId, heartbeatTime);
     }
 
     public void recover(int instanceId, int applicationId, long registerTime) {
+        IInstanceDAO dao = (IInstanceDAO)DAOContainer.INSTANCE.get(IInstanceDAO.class.getName());
 
+        InstanceDataDefine.Instance instance = new InstanceDataDefine.Instance(String.valueOf(instanceId), applicationId, "", registerTime, instanceId);
+        dao.save(instance);
     }
 }
