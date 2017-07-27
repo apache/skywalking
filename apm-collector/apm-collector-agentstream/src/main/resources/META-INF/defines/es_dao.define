@@ -1,2 +1,3 @@
 org.skywalking.apm.collector.agentstream.worker.register.application.dao.ApplicationEsDAO
 org.skywalking.apm.collector.agentstream.worker.register.instance.dao.InstanceEsDAO
+org.skywalking.apm.collector.agentstream.worker.register.servicename.dao.ServiceNameEsDAO
