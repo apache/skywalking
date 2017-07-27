@@ -45,7 +45,8 @@ message ApplicationInstanceHeartbeat {
 message OSInfo {
     string osName = 1;
     string hostname = 2;
-    repeated string ipv4s = 3;
+    int32 processNo = 3;
+    repeated string ipv4s = 4;
 }
 
 //discovery service for ServiceName by Network address or application code

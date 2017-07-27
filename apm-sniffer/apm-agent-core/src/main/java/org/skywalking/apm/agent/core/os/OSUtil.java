@@ -1,5 +1,6 @@
 package org.skywalking.apm.agent.core.os;
 
+import java.lang.management.ManagementFactory;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -17,6 +18,7 @@ public class OSUtil {
     private static volatile String OS_NAME;
     private static volatile String HOST_NAME;
     private static volatile List<String> IPV4_LIST;
+    private static volatile int PROCESS_NO = 0;
 
     public static String getOsName() {
         if (OS_NAME == null) {
@@ -63,6 +65,17 @@ public class OSUtil {
         return IPV4_LIST;
     }
 
+    public static int getProcessNo() {
+        if (PROCESS_NO == 0) {
+            try {
+                PROCESS_NO = Integer.parseInt(ManagementFactory.getRuntimeMXBean().getName().split("@")[0]);
+            } catch (Exception e) {
+                PROCESS_NO = -1;
+            }
+        }
+        return PROCESS_NO;
+    }
+
     public static OSInfo buildOSInfo() {
         OSInfo.Builder builder = OSInfo.newBuilder();
         String osName = getOsName();
@@ -77,6 +90,7 @@ public class OSUtil {
         if (allIPV4.size() > 0) {
             builder.addAllIpv4S(allIPV4);
         }
+        builder.setProcessNo(getProcessNo());
         return builder.build();
     }
 }
