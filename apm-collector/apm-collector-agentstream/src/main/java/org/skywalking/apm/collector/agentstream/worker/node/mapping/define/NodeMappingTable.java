@@ -1,4 +1,4 @@
-package org.skywalking.apm.collector.agentstream.worker.node.define;
+package org.skywalking.apm.collector.agentstream.worker.node.mapping.define;
 
 import org.skywalking.apm.collector.agentstream.worker.CommonTable;
 
@@ -7,6 +7,4 @@ import org.skywalking.apm.collector.agentstream.worker.CommonTable;
  */
 public class NodeMappingTable extends CommonTable {
     public static final String TABLE = "node_mapping";
-    public static final String COLUMN_NAME = "name";
-    public static final String COLUMN_PEERS = "peers";
 }

@@ -1,5 +1,6 @@
 package org.skywalking.apm.collector.agentstream.worker.node.component;
 
+import org.skywalking.apm.collector.agentstream.worker.node.component.define.NodeComponentDataDefine;
 import org.skywalking.apm.collector.stream.worker.AbstractLocalAsyncWorkerProvider;
 import org.skywalking.apm.collector.stream.worker.ClusterWorkerContext;
 import org.skywalking.apm.collector.stream.worker.ProviderNotFoundException;

@@ -1,4 +1,4 @@
-org.skywalking.apm.collector.agentstream.worker.node.component.NodeComponentDataDefine
+org.skywalking.apm.collector.agentstream.worker.node.component.define.NodeComponentDataDefine
 org.skywalking.apm.collector.agentstream.worker.register.application.ApplicationDataDefine
 org.skywalking.apm.collector.agentstream.worker.register.instance.InstanceDataDefine
 org.skywalking.apm.collector.agentstream.worker.register.servicename.ServiceNameDataDefine

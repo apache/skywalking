@@ -3,6 +3,7 @@ package org.skywalking.apm.collector.agentstream.grpc.handler;
 import com.google.protobuf.InvalidProtocolBufferException;
 import io.grpc.stub.StreamObserver;
 import java.util.List;
+import org.skywalking.apm.collector.agentstream.worker.segment.SegmentParse;
 import org.skywalking.apm.collector.server.grpc.GRPCHandler;
 import org.skywalking.apm.network.proto.Downstream;
 import org.skywalking.apm.network.proto.TraceSegmentObject;
@@ -19,12 +20,15 @@ public class TraceSegmentServiceHandler extends TraceSegmentServiceGrpc.TraceSeg
 
     private final Logger logger = LoggerFactory.getLogger(TraceSegmentServiceHandler.class);
 
+    private SegmentParse segmentParse = new SegmentParse();
+
     @Override public StreamObserver<UpstreamSegment> collect(StreamObserver<Downstream> responseObserver) {
         return new StreamObserver<UpstreamSegment>() {
             @Override public void onNext(UpstreamSegment segment) {
                 try {
                     List<UniqueId> traceIds = segment.getGlobalTraceIdsList();
                     TraceSegmentObject segmentObject = TraceSegmentObject.parseFrom(segment.getSegment());
+                    segmentParse.parse(traceIds, segmentObject);
                 } catch (InvalidProtocolBufferException e) {
                     logger.error(e.getMessage(), e);
                 }
