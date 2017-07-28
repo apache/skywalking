@@ -12,9 +12,11 @@ import org.skywalking.apm.commons.datacarrier.partition.IDataPartitioner;
 public class Channels<T> {
     private final Buffer<T>[] bufferChannels;
     private IDataPartitioner<T> dataPartitioner;
+    private BufferStrategy strategy;
 
     public Channels(int channelSize, int bufferSize, IDataPartitioner<T> partitioner, BufferStrategy strategy) {
         this.dataPartitioner = partitioner;
+        this.strategy = strategy;
         bufferChannels = new Buffer[channelSize];
         for (int i = 0; i < channelSize; i++) {
             bufferChannels[i] = new Buffer<T>(bufferSize, strategy);
@@ -23,7 +25,19 @@ public class Channels<T> {
 
     public boolean save(T data) {
         int index = dataPartitioner.partition(bufferChannels.length, data);
-        return bufferChannels[index].save(data);
+        int retryCountDown = 1;
+        if (BufferStrategy.IF_POSSIBLE.equals(strategy)) {
+            int maxRetryCount = dataPartitioner.maxRetryCount();
+            if (maxRetryCount > 1) {
+                retryCountDown = maxRetryCount;
+            }
+        }
+        for (; retryCountDown > 0; retryCountDown--) {
+            if (bufferChannels[index].save(data)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void setPartitioner(IDataPartitioner<T> dataPartitioner) {
