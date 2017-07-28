@@ -298,6 +298,21 @@ public class SwPreparedStatementTest extends AbstractStatementTest {
         assertDBSpan(spans.get(0), "Mysql/JDBI/PreparedStatement/executeQuery", "SELECT * FROM test");
     }
 
+
+    @Test
+    public void testExecute() throws SQLException {
+        PreparedStatement preparedStatement = swConnection.prepareStatement("SELECT * FROM test", 1, 1, 1);
+        preparedStatement.execute();
+
+        preparedStatement.close();
+
+        verify(mysqlPreparedStatement, times(1)).execute();
+        verify(mysqlPreparedStatement, times(1)).close();
+        TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
+        List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
+        assertThat(spans.size(), is(1));
+        assertDBSpan(spans.get(0), "Mysql/JDBI/PreparedStatement/execute", "SELECT * FROM test");
+    }
     @Test
     public void testQuerySqlWithSql() throws SQLException {
         PreparedStatement preparedStatement = swConnection.prepareStatement("SELECT * FROM test", 1);
@@ -359,7 +374,7 @@ public class SwPreparedStatementTest extends AbstractStatementTest {
     }
 
     @Test
-    public void testExecute() throws SQLException {
+    public void testExecuteWithSQL() throws SQLException {
         PreparedStatement preparedStatement = swConnection.prepareStatement("UPDATE test SET  a = ?");
         preparedStatement.setString(1, "a");
         boolean updateCount = preparedStatement.execute("UPDATE test SET  a = 1");
