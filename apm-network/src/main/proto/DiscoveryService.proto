@@ -22,6 +22,7 @@ message ApplicationInstance {
     int32 applicationId = 1;
     string agentUUID = 2;
     int64 registerTime = 3;
+    OSInfo osinfo = 4;
 }
 
 message ApplicationInstanceMapping {
@@ -33,11 +34,19 @@ message ApplicationInstanceRecover {
     int32 applicationId = 1;
     int32 applicationInstanceId = 2;
     int64 registerTime = 3;
+    OSInfo osinfo = 4;
 }
 
 message ApplicationInstanceHeartbeat {
     int32 applicationInstanceId = 1;
     int64 heartbeatTime = 2;
+}
+
+message OSInfo {
+    string osName = 1;
+    string hostname = 2;
+    int32 processNo = 3;
+    repeated string ipv4s = 4;
 }
 
 //discovery service for ServiceName by Network address or application code

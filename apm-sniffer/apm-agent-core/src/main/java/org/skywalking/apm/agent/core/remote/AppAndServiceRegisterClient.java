@@ -15,6 +15,7 @@ import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.skywalking.apm.agent.core.dictionary.ApplicationDictionary;
 import org.skywalking.apm.agent.core.dictionary.DictionaryUtil;
 import org.skywalking.apm.agent.core.dictionary.OperationNameDictionary;
+import org.skywalking.apm.agent.core.os.OSUtil;
 import org.skywalking.apm.logging.ILog;
 import org.skywalking.apm.logging.LogManager;
 import org.skywalking.apm.network.proto.Application;
@@ -104,6 +105,7 @@ public class AppAndServiceRegisterClient implements BootService, GRPCChannelList
                                 .setApplicationId(RemoteDownstreamConfig.Agent.APPLICATION_ID)
                                 .setAgentUUID(PROCESS_UUID)
                                 .setRegisterTime(System.currentTimeMillis())
+                                .setOsinfo(OSUtil.buildOSInfo())
                                 .build());
                             if (instanceMapping.getApplicationInstanceId() != DictionaryUtil.nullValue()) {
                                 RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID
@@ -115,6 +117,7 @@ public class AppAndServiceRegisterClient implements BootService, GRPCChannelList
                                     .setApplicationId(RemoteDownstreamConfig.Agent.APPLICATION_ID)
                                     .setApplicationInstanceId(RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID)
                                     .setRegisterTime(System.currentTimeMillis())
+                                    .setOsinfo(OSUtil.buildOSInfo())
                                     .build());
                             } else {
                                 if (lastSegmentTime - System.currentTimeMillis() > 60 * 1000) {
