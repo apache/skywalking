@@ -13,10 +13,9 @@ Sky Walking | [中文](https://github.com/wu-sheng/sky-walking/wiki/sky-walking-
 [![OpenTracing-1.0 Badge](https://img.shields.io/badge/OpenTracing--1.0-enabled-blue.svg)](http://opentracing.io)
 
 
-* Auto-instrumentation mechanism, **no need to CHANGE any application source code**. [Supported middlewares, frameworks and libraries](https://github.com/wu-sheng/sky-walking/wiki/3.0-supported-list).
-* Explicit-instrumentation, as an [OpenTracing supported tracer](http://opentracing.io/documentation/pages/supported-tracers).
-* Pure Java server implementation, with RESTful Web service.
-* High performance streaming analysis.
+* Auto instrumentation java agent, **no need to CHANGE any application source code**. [Supported middlewares, frameworks and libraries](https://github.com/wu-sheng/sky-walking/wiki/3.0-supported-list).
+* Manual instrumentation, as an [OpenTracing supported tracer](http://opentracing.io/documentation/pages/supported-tracers) or using **@Trace** annotation.
+* Pure Java server implementation, provide RESTful and gRPC services. Compatibility with other language agents/SDKs by following sky-walking protocol.
 * The UI released on [wu-sheng/sky-walking-ui](https://github.com/wu-sheng/sky-walking-ui)
 
 
@@ -47,6 +46,10 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 - Span detail.
 <img src="https://sky-walking.github.io/page-resources/3.0/span.png" />
 
+# Test reports
+- [Automatic integration test reports](https://github.com/sky-walking/agent-integration-test-report)
+- Performance test reports
+  - [Java Agent test report]()
 
 # Document
 * [WIKI](https://github.com/wu-sheng/sky-walking/wiki)
