@@ -359,7 +359,7 @@ public class SWPreparedStatement implements PreparedStatement {
     }
 
     public boolean execute() throws SQLException {
-        return PreparedStatementTracing.execute(realStatement, connectInfo, "executeUpdate", sql, new PreparedStatementTracing.Executable<Boolean>() {
+        return PreparedStatementTracing.execute(realStatement, connectInfo, "execute", sql, new PreparedStatementTracing.Executable<Boolean>() {
             public Boolean exe(PreparedStatement realStatement, String sql)
                 throws SQLException {
                 return realStatement.execute();
