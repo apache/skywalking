@@ -7,6 +7,11 @@ import org.skywalking.apm.collector.agentstream.worker.node.mapping.define.NodeM
 import org.skywalking.apm.collector.agentstream.worker.segment.FirstSpanListener;
 import org.skywalking.apm.collector.agentstream.worker.segment.RefsListener;
 import org.skywalking.apm.collector.agentstream.worker.util.TimeBucketUtils;
+import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
+import org.skywalking.apm.collector.stream.StreamModuleContext;
+import org.skywalking.apm.collector.stream.StreamModuleGroupDefine;
+import org.skywalking.apm.collector.stream.worker.WorkerInvokeException;
+import org.skywalking.apm.collector.stream.worker.WorkerNotFoundException;
 import org.skywalking.apm.network.proto.SpanObject;
 import org.skywalking.apm.network.proto.TraceSegmentReference;
 import org.slf4j.Logger;
@@ -23,6 +28,7 @@ public class NodeMappingSpanListener implements RefsListener, FirstSpanListener 
     private long timeBucket;
 
     @Override public void parseRef(TraceSegmentReference reference, int applicationId, int applicationInstanceId) {
+        logger.debug("node mapping listener parse reference");
         String peers = Const.PEERS_FRONT_SPLIT + reference.getNetworkAddressId() + Const.PEERS_BEHIND_SPLIT;
         if (reference.getNetworkAddressId() == 0) {
             peers = Const.PEERS_FRONT_SPLIT + reference.getNetworkAddress() + Const.PEERS_BEHIND_SPLIT;
@@ -37,11 +43,20 @@ public class NodeMappingSpanListener implements RefsListener, FirstSpanListener 
     }
 
     @Override public void build() {
+        logger.debug("node mapping listener build");
+        StreamModuleContext context = (StreamModuleContext)CollectorContextHelper.INSTANCE.getContext(StreamModuleGroupDefine.GROUP_NAME);
         for (String agg : nodeMappings) {
             NodeMappingDataDefine.NodeMapping nodeMapping = new NodeMappingDataDefine.NodeMapping();
             nodeMapping.setId(timeBucket + Const.ID_SPLIT + agg);
             nodeMapping.setAgg(agg);
             nodeMapping.setTimeBucket(timeBucket);
+
+            try {
+                logger.debug("send to node mapping aggregation worker, id: {}", nodeMapping.getId());
+                context.getClusterWorkerContext().lookup(NodeMappingAggregationWorker.WorkerRole.INSTANCE).tell(nodeMapping.transform());
+            } catch (WorkerInvokeException | WorkerNotFoundException e) {
+                logger.error(e.getMessage(), e);
+            }
         }
     }
 }

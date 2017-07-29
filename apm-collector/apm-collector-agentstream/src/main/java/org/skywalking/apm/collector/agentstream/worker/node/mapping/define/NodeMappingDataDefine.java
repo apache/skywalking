@@ -3,7 +3,9 @@ package org.skywalking.apm.collector.agentstream.worker.node.mapping.define;
 import org.skywalking.apm.collector.remote.grpc.proto.RemoteData;
 import org.skywalking.apm.collector.stream.worker.impl.data.Attribute;
 import org.skywalking.apm.collector.stream.worker.impl.data.AttributeType;
+import org.skywalking.apm.collector.stream.worker.impl.data.Data;
 import org.skywalking.apm.collector.stream.worker.impl.data.DataDefine;
+import org.skywalking.apm.collector.stream.worker.impl.data.TransformToData;
 import org.skywalking.apm.collector.stream.worker.impl.data.operate.CoverOperation;
 import org.skywalking.apm.collector.stream.worker.impl.data.operate.NonOperation;
 
@@ -34,7 +36,7 @@ public class NodeMappingDataDefine extends DataDefine {
         return null;
     }
 
-    public static class NodeMapping {
+    public static class NodeMapping implements TransformToData {
         private String id;
         private String agg;
         private long timeBucket;
@@ -46,6 +48,15 @@ public class NodeMappingDataDefine extends DataDefine {
         }
 
         public NodeMapping() {
+        }
+
+        @Override public Data transform() {
+            NodeMappingDataDefine define = new NodeMappingDataDefine();
+            Data data = define.build(id);
+            data.setDataString(0, this.id);
+            data.setDataString(1, this.agg);
+            data.setDataLong(0, this.timeBucket);
+            return data;
         }
 
         public String getId() {

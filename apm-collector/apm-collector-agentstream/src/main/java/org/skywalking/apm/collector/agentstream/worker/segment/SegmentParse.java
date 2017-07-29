@@ -31,6 +31,7 @@ public class SegmentParse {
         spanListeners.add(new NodeMappingSpanListener());
 
         refsListeners = new ArrayList<>();
+        refsListeners.add(new NodeMappingSpanListener());
     }
 
     public void parse(List<UniqueId> traceIds, TraceSegmentObject segmentObject) {

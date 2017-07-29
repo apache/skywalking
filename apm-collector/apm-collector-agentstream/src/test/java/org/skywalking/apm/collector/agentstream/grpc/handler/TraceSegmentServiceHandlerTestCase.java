@@ -9,6 +9,7 @@ import org.skywalking.apm.network.proto.SpanLayer;
 import org.skywalking.apm.network.proto.SpanObject;
 import org.skywalking.apm.network.proto.SpanType;
 import org.skywalking.apm.network.proto.TraceSegmentObject;
+import org.skywalking.apm.network.proto.TraceSegmentReference;
 import org.skywalking.apm.network.proto.TraceSegmentServiceGrpc;
 import org.skywalking.apm.network.proto.UniqueId;
 import org.skywalking.apm.network.proto.UpstreamSegment;
@@ -68,8 +69,8 @@ public class TraceSegmentServiceHandlerTestCase {
         long now = System.currentTimeMillis();
 
         TraceSegmentObject.Builder segmentBuilder = TraceSegmentObject.newBuilder();
-        segmentBuilder.setApplicationId(1);
-        segmentBuilder.setApplicationInstanceId(1);
+        segmentBuilder.setApplicationId(2);
+        segmentBuilder.setApplicationInstanceId(2);
         segmentBuilder.setTraceSegmentId(UniqueId.newBuilder().addIdParts(200).addIdParts(200).addIdParts(200).build());
 
         SpanObject.Builder span_0 = SpanObject.newBuilder();
@@ -83,9 +84,21 @@ public class TraceSegmentServiceHandlerTestCase {
         span_0.setComponentId(ComponentsDefine.TOMCAT.getId());
         span_0.setIsError(false);
         span_0.setSpanType(SpanType.Entry);
-        span_0.setPeerId(0);
-        span_0.setPeer("localhost:8080");
+        span_0.setPeerId(2);
+        span_0.setPeer("localhost:8082");
         segmentBuilder.addSpans(span_0);
+
+        TraceSegmentReference.Builder ref_0 = TraceSegmentReference.newBuilder();
+        ref_0.setEntryServiceId(1);
+        ref_0.setEntryServiceName("ServiceName");
+        ref_0.setNetworkAddress("localhost:8081");
+        ref_0.setNetworkAddressId(1);
+        ref_0.setParentApplicationInstanceId(1);
+        ref_0.setParentServiceId(1);
+        ref_0.setParentServiceName("");
+        ref_0.setParentSpanId(2);
+        ref_0.setParentTraceSegmentId(UniqueId.newBuilder().addIdParts(100).addIdParts(100).addIdParts(100).build());
+        segmentBuilder.addRefs(ref_0);
 
         builder.setSegment(segmentBuilder.build().toByteString());
     }
