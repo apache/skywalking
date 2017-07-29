@@ -15,3 +15,6 @@ org.skywalking.apm.collector.agentstream.worker.register.instance.InstanceH2Tabl
 
 org.skywalking.apm.collector.agentstream.worker.register.servicename.ServiceNameEsTableDefine
 org.skywalking.apm.collector.agentstream.worker.register.servicename.ServiceNameH2TableDefine
+
+org.skywalking.apm.collector.agentstream.worker.segment.define.SegmentEsTableDefine
+org.skywalking.apm.collector.agentstream.worker.segment.define.SegmentH2TableDefine

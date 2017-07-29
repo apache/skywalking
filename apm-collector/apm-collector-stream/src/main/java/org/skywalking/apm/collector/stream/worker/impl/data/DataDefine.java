@@ -11,6 +11,7 @@ public abstract class DataDefine {
     private int longCapacity;
     private int floatCapacity;
     private int integerCapacity;
+    private int byteCapacity;
 
     public DataDefine() {
         initial();
@@ -28,6 +29,8 @@ public abstract class DataDefine {
                 floatCapacity++;
             } else if (AttributeType.INTEGER.equals(attribute.getType())) {
                 integerCapacity++;
+            } else if (AttributeType.BYTE.equals(attribute.getType())) {
+                byteCapacity++;
             }
         }
     }
@@ -43,7 +46,7 @@ public abstract class DataDefine {
     protected abstract void attributeDefine();
 
     public final Data build(String id) {
-        return new Data(id, defineId(), stringCapacity, longCapacity, floatCapacity, integerCapacity);
+        return new Data(id, defineId(), stringCapacity, longCapacity, floatCapacity, integerCapacity, byteCapacity);
     }
 
     public void mergeData(Data newData, Data oldData) {
@@ -51,6 +54,7 @@ public abstract class DataDefine {
         int longPosition = 0;
         int floatPosition = 0;
         int integerPosition = 0;
+        int bytePosition = 0;
         for (int i = 0; i < initialCapacity(); i++) {
             Attribute attribute = attributes[i];
             if (AttributeType.STRING.equals(attribute.getType())) {
@@ -65,6 +69,9 @@ public abstract class DataDefine {
             } else if (AttributeType.FLOAT.equals(attribute.getType())) {
                 attribute.getOperation().operate(newData.getDataInteger(integerPosition), oldData.getDataInteger(integerPosition));
                 integerPosition++;
+            } else if (AttributeType.BYTE.equals(attribute.getType())) {
+                attribute.getOperation().operate(newData.getDataBytes(bytePosition), oldData.getDataBytes(integerPosition));
+                bytePosition++;
             }
         }
     }

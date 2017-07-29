@@ -22,6 +22,7 @@ public abstract class StorageInstaller {
             for (TableDefine tableDefine : tableDefines) {
                 if (!isExists(client, tableDefine)) {
                     logger.info("table: {} not exists", tableDefine.getName());
+                    tableDefine.initialize();
                     createTable(client, tableDefine);
                 }
             }

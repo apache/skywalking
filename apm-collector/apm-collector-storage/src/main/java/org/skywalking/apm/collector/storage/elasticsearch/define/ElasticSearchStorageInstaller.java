@@ -70,13 +70,14 @@ public class ElasticSearchStorageInstaller extends StorageInstaller {
             ElasticSearchColumnDefine elasticSearchColumnDefine = (ElasticSearchColumnDefine)columnDefine;
             mappingBuilder
                 .startObject(elasticSearchColumnDefine.getName())
-                .field("type", elasticSearchColumnDefine.getType())
+                .field("type", elasticSearchColumnDefine.getType().toLowerCase())
                 .endObject();
         }
 
         mappingBuilder
             .endObject()
             .endObject();
+        logger.debug("create elasticsearch index: {}", mappingBuilder.string());
         return mappingBuilder;
     }
 

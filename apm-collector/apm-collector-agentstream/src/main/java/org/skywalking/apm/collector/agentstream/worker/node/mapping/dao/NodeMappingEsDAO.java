@@ -21,7 +21,7 @@ public class NodeMappingEsDAO extends EsDAO implements INodeMappingDAO {
             source.put(NodeMappingTable.COLUMN_AGG, data.getDataString(1));
             source.put(NodeMappingTable.COLUMN_TIME_BUCKET, data.getDataLong(0));
 
-            IndexRequestBuilder builder = getClient().prepareIndex(NodeMappingTable.TABLE, id).setSource();
+            IndexRequestBuilder builder = getClient().prepareIndex(NodeMappingTable.TABLE, id).setSource(source);
             indexRequestBuilders.add(builder);
         });
         return indexRequestBuilders;

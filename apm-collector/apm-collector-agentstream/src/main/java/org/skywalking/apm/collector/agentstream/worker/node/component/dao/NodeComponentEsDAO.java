@@ -21,7 +21,7 @@ public class NodeComponentEsDAO extends EsDAO implements INodeComponentDAO {
             source.put(NodeComponentTable.COLUMN_AGG, data.getDataString(1));
             source.put(NodeComponentTable.COLUMN_TIME_BUCKET, data.getDataLong(0));
 
-            IndexRequestBuilder builder = getClient().prepareIndex(NodeComponentTable.TABLE, id).setSource();
+            IndexRequestBuilder builder = getClient().prepareIndex(NodeComponentTable.TABLE, id).setSource(source);
             indexRequestBuilders.add(builder);
         });
         return indexRequestBuilders;

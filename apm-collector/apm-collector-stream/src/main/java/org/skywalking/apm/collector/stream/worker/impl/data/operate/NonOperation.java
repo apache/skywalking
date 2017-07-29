@@ -21,4 +21,8 @@ public class NonOperation implements Operation {
     @Override public Integer operate(Integer newValue, Integer oldValue) {
         return oldValue;
     }
+
+    @Override public byte[] operate(byte[] newValue, byte[] oldValue) {
+        return oldValue;
+    }
 }

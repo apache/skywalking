@@ -18,10 +18,12 @@ message RemoteData {
     int32 longCapacity = 2;
     int32 floatCapacity = 3;
     int32 integerCapacity = 4;
-    repeated string dataStrings = 5;
-    repeated int64 dataLongs = 6;
-    repeated float dataFloats = 7;
-    repeated int32 dataIntegers = 8;
+    int32 byteCapacity = 5;
+    repeated string dataStrings = 6;
+    repeated int64 dataLongs = 7;
+    repeated float dataFloats = 8;
+    repeated int32 dataIntegers = 9;
+    repeated bytes dataBytes = 10;
 }
 
 message Empty {

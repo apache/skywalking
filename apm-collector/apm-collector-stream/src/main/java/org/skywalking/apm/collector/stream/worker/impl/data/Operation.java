@@ -11,4 +11,6 @@ public interface Operation {
     Float operate(Float newValue, Float oldValue);
 
     Integer operate(Integer newValue, Integer oldValue);
+
+    byte[] operate(byte[] newValue, byte[] oldValue);
 }

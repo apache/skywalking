@@ -21,7 +21,7 @@ public class NodeReferenceEsDAO extends EsDAO implements INodeReferenceDAO {
             source.put(NodeRefTable.COLUMN_AGG, data.getDataString(1));
             source.put(NodeRefTable.COLUMN_TIME_BUCKET, data.getDataLong(0));
 
-            IndexRequestBuilder builder = getClient().prepareIndex(NodeRefTable.TABLE, id).setSource();
+            IndexRequestBuilder builder = getClient().prepareIndex(NodeRefTable.TABLE, id).setSource(source);
             indexRequestBuilders.add(builder);
         });
         return indexRequestBuilders;

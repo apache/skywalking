@@ -71,7 +71,7 @@ public abstract class AggregationWorker extends AbstractLocalAsyncWorker {
         Data data = (Data)message;
         dataCache.hold();
         if (dataCache.containsKey(data.id())) {
-            getClusterContext().getDataDefine(data.getDefineId()).mergeData(data, dataCache.get(data.id()));
+            getRole().dataDefine().mergeData(data, dataCache.get(data.id()));
         } else {
             dataCache.put(data.id(), data);
         }

@@ -5,7 +5,13 @@ import java.util.List;
 import org.skywalking.apm.collector.agentstream.worker.node.component.NodeComponentSpanListener;
 import org.skywalking.apm.collector.agentstream.worker.node.mapping.NodeMappingSpanListener;
 import org.skywalking.apm.collector.agentstream.worker.noderef.reference.NodeRefSpanListener;
+import org.skywalking.apm.collector.agentstream.worker.segment.define.SegmentDataDefine;
+import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
 import org.skywalking.apm.collector.core.util.CollectionUtils;
+import org.skywalking.apm.collector.stream.StreamModuleContext;
+import org.skywalking.apm.collector.stream.StreamModuleGroupDefine;
+import org.skywalking.apm.collector.stream.worker.WorkerInvokeException;
+import org.skywalking.apm.collector.stream.worker.WorkerNotFoundException;
 import org.skywalking.apm.network.proto.SpanObject;
 import org.skywalking.apm.network.proto.SpanType;
 import org.skywalking.apm.network.proto.TraceSegmentObject;
@@ -68,6 +74,26 @@ public class SegmentParse {
         }
 
         notifyListenerToBuild();
+
+        StringBuilder segmentId = new StringBuilder();
+        segmentObject.getTraceSegmentId().getIdPartsList().forEach(part -> {
+            segmentId.append(part);
+        });
+        buildSegment(segmentId.toString(), segmentObject.toByteArray());
+    }
+
+    public void buildSegment(String id, byte[] dataBinary) {
+        StreamModuleContext context = (StreamModuleContext)CollectorContextHelper.INSTANCE.getContext(StreamModuleGroupDefine.GROUP_NAME);
+        SegmentDataDefine.Segment segment = new SegmentDataDefine.Segment();
+        segment.setId(id);
+        segment.setDataBinary(dataBinary);
+
+        try {
+            logger.debug("send to segment persistence worker, id: {}, dataBinary length: {}", segment.getId(), dataBinary.length);
+            context.getClusterWorkerContext().lookup(SegmentPersistenceWorker.WorkerRole.INSTANCE).tell(segment.transform());
+        } catch (WorkerInvokeException | WorkerNotFoundException e) {
+            logger.error(e.getMessage(), e);
+        }
     }
 
     private void notifyListenerToBuild() {

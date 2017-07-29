@@ -7,6 +7,8 @@ org.skywalking.apm.collector.agentstream.worker.node.mapping.NodeMappingPersiste
 org.skywalking.apm.collector.agentstream.worker.noderef.reference.NodeRefAggregationWorker$Factory
 org.skywalking.apm.collector.agentstream.worker.noderef.reference.NodeRefPersistenceWorker$Factory
 
+org.skywalking.apm.collector.agentstream.worker.segment.SegmentPersistenceWorker$Factory
+
 org.skywalking.apm.collector.agentstream.worker.register.application.ApplicationRegisterSerialWorker$Factory
 org.skywalking.apm.collector.agentstream.worker.register.instance.InstanceRegisterSerialWorker$Factory
 org.skywalking.apm.collector.agentstream.worker.register.servicename.ServiceNameRegisterSerialWorker$Factory

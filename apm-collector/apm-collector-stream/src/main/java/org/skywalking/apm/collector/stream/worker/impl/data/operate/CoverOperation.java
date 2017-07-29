@@ -21,4 +21,8 @@ public class CoverOperation implements Operation {
     @Override public Integer operate(Integer newValue, Integer oldValue) {
         return newValue;
     }
+
+    @Override public byte[] operate(byte[] newValue, byte[] oldValue) {
+        return newValue;
+    }
 }
