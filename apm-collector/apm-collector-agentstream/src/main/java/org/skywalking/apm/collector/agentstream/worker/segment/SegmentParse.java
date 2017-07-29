@@ -5,6 +5,7 @@ import java.util.List;
 import org.skywalking.apm.collector.agentstream.worker.node.component.NodeComponentSpanListener;
 import org.skywalking.apm.collector.agentstream.worker.node.mapping.NodeMappingSpanListener;
 import org.skywalking.apm.collector.agentstream.worker.noderef.reference.NodeRefSpanListener;
+import org.skywalking.apm.collector.agentstream.worker.noderef.summary.NodeRefSumSpanListener;
 import org.skywalking.apm.collector.agentstream.worker.segment.define.SegmentDataDefine;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
 import org.skywalking.apm.collector.core.util.CollectionUtils;
@@ -36,10 +37,12 @@ public class SegmentParse {
         spanListeners.add(new NodeComponentSpanListener());
         spanListeners.add(new NodeMappingSpanListener());
         spanListeners.add(new NodeRefSpanListener());
+        spanListeners.add(new NodeRefSumSpanListener());
 
         refsListeners = new ArrayList<>();
         refsListeners.add(new NodeMappingSpanListener());
         refsListeners.add(new NodeRefSpanListener());
+        refsListeners.add(new NodeRefSumSpanListener());
     }
 
     public void parse(List<UniqueId> traceIds, TraceSegmentObject segmentObject) {

@@ -7,6 +7,9 @@ org.skywalking.apm.collector.agentstream.worker.node.mapping.define.NodeMappingH
 org.skywalking.apm.collector.agentstream.worker.noderef.reference.define.NodeRefEsTableDefine
 org.skywalking.apm.collector.agentstream.worker.noderef.reference.define.NodeRefH2TableDefine
 
+org.skywalking.apm.collector.agentstream.worker.noderef.summary.define.NodeRefSumEsTableDefine
+org.skywalking.apm.collector.agentstream.worker.noderef.summary.define.NodeRefSumH2TableDefine
+
 org.skywalking.apm.collector.agentstream.worker.register.application.ApplicationEsTableDefine
 org.skywalking.apm.collector.agentstream.worker.register.application.ApplicationH2TableDefine
 

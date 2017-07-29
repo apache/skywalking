@@ -3,8 +3,10 @@ package org.skywalking.apm.collector.agentstream.worker.noderef.summary.define;
 import org.skywalking.apm.collector.remote.grpc.proto.RemoteData;
 import org.skywalking.apm.collector.stream.worker.impl.data.Attribute;
 import org.skywalking.apm.collector.stream.worker.impl.data.AttributeType;
+import org.skywalking.apm.collector.stream.worker.impl.data.Data;
 import org.skywalking.apm.collector.stream.worker.impl.data.DataDefine;
-import org.skywalking.apm.collector.stream.worker.impl.data.operate.CoverOperation;
+import org.skywalking.apm.collector.stream.worker.impl.data.TransformToData;
+import org.skywalking.apm.collector.stream.worker.impl.data.operate.AddOperation;
 import org.skywalking.apm.collector.stream.worker.impl.data.operate.NonOperation;
 
 /**
@@ -24,14 +26,14 @@ public class NodeRefSumDataDefine extends DataDefine {
 
     @Override protected void attributeDefine() {
         addAttribute(0, new Attribute(NodeRefSumTable.COLUMN_ID, AttributeType.STRING, new NonOperation()));
-        addAttribute(1, new Attribute(NodeRefSumTable.COLUMN_ONE_SECOND_LESS, AttributeType.LONG, new NonOperation()));
-        addAttribute(2, new Attribute(NodeRefSumTable.COLUMN_THREE_SECOND_LESS, AttributeType.LONG, new NonOperation()));
-        addAttribute(3, new Attribute(NodeRefSumTable.COLUMN_FIVE_SECOND_LESS, AttributeType.LONG, new NonOperation()));
-        addAttribute(4, new Attribute(NodeRefSumTable.COLUMN_FIVE_SECOND_GREATER, AttributeType.LONG, new NonOperation()));
-        addAttribute(5, new Attribute(NodeRefSumTable.COLUMN_ERROR, AttributeType.LONG, new NonOperation()));
-        addAttribute(6, new Attribute(NodeRefSumTable.COLUMN_SUMMARY, AttributeType.LONG, new NonOperation()));
-        addAttribute(7, new Attribute(NodeRefSumTable.COLUMN_AGG, AttributeType.STRING, new CoverOperation()));
-        addAttribute(8, new Attribute(NodeRefSumTable.COLUMN_TIME_BUCKET, AttributeType.LONG, new CoverOperation()));
+        addAttribute(1, new Attribute(NodeRefSumTable.COLUMN_ONE_SECOND_LESS, AttributeType.LONG, new AddOperation()));
+        addAttribute(2, new Attribute(NodeRefSumTable.COLUMN_THREE_SECOND_LESS, AttributeType.LONG, new AddOperation()));
+        addAttribute(3, new Attribute(NodeRefSumTable.COLUMN_FIVE_SECOND_LESS, AttributeType.LONG, new AddOperation()));
+        addAttribute(4, new Attribute(NodeRefSumTable.COLUMN_FIVE_SECOND_GREATER, AttributeType.LONG, new AddOperation()));
+        addAttribute(5, new Attribute(NodeRefSumTable.COLUMN_ERROR, AttributeType.LONG, new AddOperation()));
+        addAttribute(6, new Attribute(NodeRefSumTable.COLUMN_SUMMARY, AttributeType.LONG, new AddOperation()));
+        addAttribute(7, new Attribute(NodeRefSumTable.COLUMN_AGG, AttributeType.STRING, new NonOperation()));
+        addAttribute(8, new Attribute(NodeRefSumTable.COLUMN_TIME_BUCKET, AttributeType.LONG, new NonOperation()));
     }
 
     @Override public Object deserialize(RemoteData remoteData) {
@@ -62,14 +64,14 @@ public class NodeRefSumDataDefine extends DataDefine {
         return builder.build();
     }
 
-    public static class NodeReferenceSum {
+    public static class NodeReferenceSum implements TransformToData {
         private String id;
-        private Long oneSecondLess;
-        private Long threeSecondLess;
-        private Long fiveSecondLess;
-        private Long fiveSecondGreater;
-        private Long error;
-        private Long summary;
+        private Long oneSecondLess = 0L;
+        private Long threeSecondLess = 0L;
+        private Long fiveSecondLess = 0L;
+        private Long fiveSecondGreater = 0L;
+        private Long error = 0L;
+        private Long summary = 0L;
         private String agg;
         private long timeBucket;
 
@@ -87,6 +89,21 @@ public class NodeRefSumDataDefine extends DataDefine {
         }
 
         public NodeReferenceSum() {
+        }
+
+        @Override public Data transform() {
+            NodeRefSumDataDefine define = new NodeRefSumDataDefine();
+            Data data = define.build(id);
+            data.setDataString(0, this.id);
+            data.setDataString(1, this.agg);
+            data.setDataLong(0, this.oneSecondLess);
+            data.setDataLong(1, this.threeSecondLess);
+            data.setDataLong(2, this.fiveSecondLess);
+            data.setDataLong(3, this.fiveSecondGreater);
+            data.setDataLong(4, this.error);
+            data.setDataLong(5, this.summary);
+            data.setDataLong(6, this.timeBucket);
+            return data;
         }
 
         public String getId() {

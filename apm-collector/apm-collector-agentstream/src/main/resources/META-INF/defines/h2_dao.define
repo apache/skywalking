@@ -5,3 +5,4 @@ org.skywalking.apm.collector.agentstream.worker.node.component.dao.NodeComponent
 org.skywalking.apm.collector.agentstream.worker.node.mapping.dao.NodeMappingH2DAO
 org.skywalking.apm.collector.agentstream.worker.noderef.reference.dao.NodeReferenceH2DAO
 org.skywalking.apm.collector.agentstream.worker.segment.dao.SegmentH2DAO
+org.skywalking.apm.collector.agentstream.worker.noderef.summary.dao.NodeRefSumH2DAO

@@ -5,3 +5,4 @@ org.skywalking.apm.collector.agentstream.worker.node.component.dao.NodeComponent
 org.skywalking.apm.collector.agentstream.worker.node.mapping.dao.NodeMappingEsDAO
 org.skywalking.apm.collector.agentstream.worker.noderef.reference.dao.NodeReferenceEsDAO
 org.skywalking.apm.collector.agentstream.worker.segment.dao.SegmentEsDAO
+org.skywalking.apm.collector.agentstream.worker.noderef.summary.dao.NodeRefSumEsDAO
