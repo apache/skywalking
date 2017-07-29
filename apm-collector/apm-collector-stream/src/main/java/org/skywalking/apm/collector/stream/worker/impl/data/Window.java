@@ -1,9 +1,13 @@
 package org.skywalking.apm.collector.stream.worker.impl.data;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * @author pengys5
  */
 public abstract class Window {
+
+    private AtomicInteger windowSwitch = new AtomicInteger(0);
 
     private DataCollection pointer;
 
@@ -14,6 +18,15 @@ public abstract class Window {
         windowDataA = new DataCollection();
         windowDataB = new DataCollection();
         pointer = windowDataA;
+    }
+
+    public boolean trySwitchPointer() {
+        if (windowSwitch.incrementAndGet() == 1) {
+            return true;
+        } else {
+            windowSwitch.addAndGet(-1);
+            return false;
+        }
     }
 
     public void switchPointer() {
@@ -40,5 +53,10 @@ public abstract class Window {
         } else {
             return windowDataA;
         }
+    }
+
+    public void releaseLast() {
+        getLast().clear();
+        windowSwitch.addAndGet(-1);
     }
 }

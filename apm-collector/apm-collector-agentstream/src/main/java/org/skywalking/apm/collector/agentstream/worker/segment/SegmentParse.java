@@ -63,6 +63,13 @@ public class SegmentParse {
                 }
             }
         }
+
+        notifyListenerToBuild();
+    }
+
+    private void notifyListenerToBuild() {
+        spanListeners.forEach(listener -> listener.build());
+        refsListeners.forEach(listener -> listener.build());
     }
 
     private void notifyExitListener(SpanObject spanObject, int applicationId, int applicationInstanceId) {

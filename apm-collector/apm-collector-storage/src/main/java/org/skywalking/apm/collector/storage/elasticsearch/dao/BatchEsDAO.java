@@ -1,0 +1,35 @@
+package org.skywalking.apm.collector.storage.elasticsearch.dao;
+
+import java.util.List;
+import org.elasticsearch.action.bulk.BulkRequestBuilder;
+import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.index.IndexRequestBuilder;
+import org.skywalking.apm.collector.core.util.CollectionUtils;
+import org.skywalking.apm.collector.storage.dao.IBatchDAO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * @author pengys5
+ */
+public class BatchEsDAO extends EsDAO implements IBatchDAO {
+
+    private final Logger logger = LoggerFactory.getLogger(BatchEsDAO.class);
+
+    @Override public void batchPersistence(List<?> batchCollection) {
+        BulkRequestBuilder bulkRequest = getClient().prepareBulk();
+
+        logger.info("bulk data size: {}", batchCollection.size());
+        if (CollectionUtils.isNotEmpty(batchCollection)) {
+            for (int i = 0; i < batchCollection.size(); i++) {
+                IndexRequestBuilder builder = (IndexRequestBuilder)batchCollection.get(i);
+                bulkRequest.add(builder);
+            }
+
+            BulkResponse bulkResponse = bulkRequest.execute().actionGet();
+            if (bulkResponse.hasFailures()) {
+                logger.error(bulkResponse.buildFailureMessage());
+            }
+        }
+    }
+}

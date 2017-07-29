@@ -1,4 +1,5 @@
-org.skywalking.apm.collector.agentstream.worker.node.component.NodeComponentAggWorker$Factory
+org.skywalking.apm.collector.agentstream.worker.node.component.NodeComponentAggregationWorker$Factory
+org.skywalking.apm.collector.agentstream.worker.node.component.NodeComponentPersistenceWorker$Factory
 org.skywalking.apm.collector.agentstream.worker.register.application.ApplicationRegisterSerialWorker$Factory
 org.skywalking.apm.collector.agentstream.worker.register.instance.InstanceRegisterSerialWorker$Factory
 org.skywalking.apm.collector.agentstream.worker.register.servicename.ServiceNameRegisterSerialWorker$Factory

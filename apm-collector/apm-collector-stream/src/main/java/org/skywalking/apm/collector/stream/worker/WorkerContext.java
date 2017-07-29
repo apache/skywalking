@@ -5,11 +5,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.skywalking.apm.collector.stream.worker.impl.data.DataDefine;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author pengys5
  */
 public abstract class WorkerContext implements Context {
+
+    private final Logger logger = LoggerFactory.getLogger(WorkerContext.class);
 
     private Map<String, RemoteWorkerRef> remoteWorkerRefs;
     private Map<String, List<WorkerRef>> roleWorkers;
@@ -56,6 +60,7 @@ public abstract class WorkerContext implements Context {
     }
 
     @Override final public void put(WorkerRef workerRef) {
+        logger.debug("put worker reference into context, role name: {}", workerRef.getRole().roleName());
         if (!getRoleWorkers().containsKey(workerRef.getRole().roleName())) {
             getRoleWorkers().putIfAbsent(workerRef.getRole().roleName(), new ArrayList<>());
         }

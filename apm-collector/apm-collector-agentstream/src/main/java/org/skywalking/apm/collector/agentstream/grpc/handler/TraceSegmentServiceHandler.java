@@ -20,11 +20,11 @@ public class TraceSegmentServiceHandler extends TraceSegmentServiceGrpc.TraceSeg
 
     private final Logger logger = LoggerFactory.getLogger(TraceSegmentServiceHandler.class);
 
-    private SegmentParse segmentParse = new SegmentParse();
-
     @Override public StreamObserver<UpstreamSegment> collect(StreamObserver<Downstream> responseObserver) {
         return new StreamObserver<UpstreamSegment>() {
             @Override public void onNext(UpstreamSegment segment) {
+                logger.debug("receive segment");
+                SegmentParse segmentParse = new SegmentParse();
                 try {
                     List<UniqueId> traceIds = segment.getGlobalTraceIdsList();
                     TraceSegmentObject segmentObject = TraceSegmentObject.parseFrom(segment.getSegment());
@@ -39,6 +39,7 @@ public class TraceSegmentServiceHandler extends TraceSegmentServiceGrpc.TraceSeg
             }
 
             @Override public void onCompleted() {
+                responseObserver.onNext(Downstream.newBuilder().build());
                 responseObserver.onCompleted();
             }
         };

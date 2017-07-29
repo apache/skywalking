@@ -19,7 +19,7 @@ public class InstanceDataDefine extends DataDefine {
     }
 
     @Override protected int initialCapacity() {
-        return 3;
+        return 6;
     }
 
     @Override protected void attributeDefine() {
@@ -28,7 +28,7 @@ public class InstanceDataDefine extends DataDefine {
         addAttribute(2, new Attribute(InstanceTable.COLUMN_AGENTUUID, AttributeType.STRING, new CoverOperation()));
         addAttribute(3, new Attribute(InstanceTable.COLUMN_REGISTER_TIME, AttributeType.LONG, new CoverOperation()));
         addAttribute(4, new Attribute(InstanceTable.COLUMN_INSTANCE_ID, AttributeType.INTEGER, new CoverOperation()));
-        addAttribute(4, new Attribute(InstanceTable.COLUMN_HEARTBEAT_TIME, AttributeType.LONG, new CoverOperation()));
+        addAttribute(5, new Attribute(InstanceTable.COLUMN_HEARTBEAT_TIME, AttributeType.LONG, new CoverOperation()));
     }
 
     @Override public Object deserialize(RemoteData remoteData) {

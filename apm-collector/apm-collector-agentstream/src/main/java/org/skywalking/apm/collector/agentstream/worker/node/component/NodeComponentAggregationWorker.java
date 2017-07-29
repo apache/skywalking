@@ -4,17 +4,20 @@ import org.skywalking.apm.collector.agentstream.worker.node.component.define.Nod
 import org.skywalking.apm.collector.stream.worker.AbstractLocalAsyncWorkerProvider;
 import org.skywalking.apm.collector.stream.worker.ClusterWorkerContext;
 import org.skywalking.apm.collector.stream.worker.ProviderNotFoundException;
+import org.skywalking.apm.collector.stream.worker.Role;
+import org.skywalking.apm.collector.stream.worker.WorkerNotFoundException;
+import org.skywalking.apm.collector.stream.worker.WorkerRefs;
 import org.skywalking.apm.collector.stream.worker.impl.AggregationWorker;
 import org.skywalking.apm.collector.stream.worker.impl.data.DataDefine;
-import org.skywalking.apm.collector.stream.worker.selector.RollingSelector;
+import org.skywalking.apm.collector.stream.worker.selector.HashCodeSelector;
 import org.skywalking.apm.collector.stream.worker.selector.WorkerSelector;
 
 /**
  * @author pengys5
  */
-public class NodeComponentAggWorker extends AggregationWorker {
+public class NodeComponentAggregationWorker extends AggregationWorker {
 
-    public NodeComponentAggWorker(Role role, ClusterWorkerContext clusterContext) {
+    public NodeComponentAggregationWorker(Role role, ClusterWorkerContext clusterContext) {
         super(role, clusterContext);
     }
 
@@ -22,19 +25,19 @@ public class NodeComponentAggWorker extends AggregationWorker {
         super.preStart();
     }
 
-    @Override protected void sendToNext() {
-
+    @Override protected WorkerRefs nextWorkRef(String id) throws WorkerNotFoundException {
+        return getClusterContext().lookup(NodeComponentRemoteWorker.WorkerRole.INSTANCE);
     }
 
-    public static class Factory extends AbstractLocalAsyncWorkerProvider<NodeComponentAggWorker> {
+    public static class Factory extends AbstractLocalAsyncWorkerProvider<NodeComponentAggregationWorker> {
         @Override
         public Role role() {
-            return Role.INSTANCE;
+            return WorkerRole.INSTANCE;
         }
 
         @Override
-        public NodeComponentAggWorker workerInstance(ClusterWorkerContext clusterContext) {
-            return new NodeComponentAggWorker(role(), clusterContext);
+        public NodeComponentAggregationWorker workerInstance(ClusterWorkerContext clusterContext) {
+            return new NodeComponentAggregationWorker(role(), clusterContext);
         }
 
         @Override
@@ -43,17 +46,17 @@ public class NodeComponentAggWorker extends AggregationWorker {
         }
     }
 
-    public enum Role implements org.skywalking.apm.collector.stream.worker.Role {
+    public enum WorkerRole implements Role {
         INSTANCE;
 
         @Override
         public String roleName() {
-            return NodeComponentAggWorker.class.getSimpleName();
+            return NodeComponentAggregationWorker.class.getSimpleName();
         }
 
         @Override
         public WorkerSelector workerSelector() {
-            return new RollingSelector();
+            return new HashCodeSelector();
         }
 
         @Override public DataDefine dataDefine() {

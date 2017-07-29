@@ -13,13 +13,10 @@ public abstract class DataDefine {
     private int integerCapacity;
 
     public DataDefine() {
-        stringCapacity = 0;
-        longCapacity = 0;
-        floatCapacity = 0;
-        integerCapacity = 0;
+        initial();
     }
 
-    public final void initial() {
+    private void initial() {
         attributes = new Attribute[initialCapacity()];
         attributeDefine();
         for (Attribute attribute : attributes) {
@@ -45,8 +42,8 @@ public abstract class DataDefine {
 
     protected abstract void attributeDefine();
 
-    public final Data build() {
-        return new Data(defineId(), stringCapacity, longCapacity, floatCapacity, integerCapacity);
+    public final Data build(String id) {
+        return new Data(id, defineId(), stringCapacity, longCapacity, floatCapacity, integerCapacity);
     }
 
     public void mergeData(Data newData, Data oldData) {

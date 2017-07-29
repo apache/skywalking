@@ -1,11 +1,12 @@
 package org.skywalking.apm.collector.stream.worker.impl.data;
 
 import org.skywalking.apm.collector.remote.grpc.proto.RemoteData;
+import org.skywalking.apm.collector.stream.worker.selector.AbstractHashMessage;
 
 /**
  * @author pengys5
  */
-public class Data {
+public class Data extends AbstractHashMessage {
     private int defineId;
     private final int stringCapacity;
     private final int longCapacity;
@@ -16,7 +17,8 @@ public class Data {
     private Float[] dataFloats;
     private Integer[] dataIntegers;
 
-    public Data(int defineId, int stringCapacity, int longCapacity, int floatCapacity, int integerCapacity) {
+    public Data(String id, int defineId, int stringCapacity, int longCapacity, int floatCapacity, int integerCapacity) {
+        super(id);
         this.defineId = defineId;
         this.dataStrings = new String[stringCapacity];
         this.dataLongs = new Long[longCapacity];

@@ -66,7 +66,6 @@ public class StreamModuleInstaller implements ModuleInstaller {
             List<AbstractRemoteWorkerProvider> remoteProviders = remoteProviderLoader.load();
             for (AbstractRemoteWorkerProvider provider : remoteProviders) {
                 provider.setClusterContext(clusterWorkerContext);
-//                provider.create();
                 clusterWorkerContext.putRole(provider.role());
                 clusterWorkerContext.putProvider(provider);
             }

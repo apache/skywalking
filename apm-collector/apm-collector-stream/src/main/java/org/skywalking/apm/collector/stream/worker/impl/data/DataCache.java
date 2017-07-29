@@ -23,6 +23,10 @@ public class DataCache extends Window {
         lockedDataCollection = getCurrentAndHold();
     }
 
+    public int currentCollectionSize() {
+        return getCurrentAndHold().size();
+    }
+
     public void release() {
         lockedDataCollection.release();
         lockedDataCollection = null;

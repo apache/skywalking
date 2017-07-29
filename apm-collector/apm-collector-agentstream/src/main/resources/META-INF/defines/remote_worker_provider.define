@@ -1,3 +1,5 @@
 org.skywalking.apm.collector.agentstream.worker.register.application.ApplicationRegisterRemoteWorker$Factory
 org.skywalking.apm.collector.agentstream.worker.register.instance.InstanceRegisterRemoteWorker$Factory
 org.skywalking.apm.collector.agentstream.worker.register.servicename.ServiceNameRegisterRemoteWorker$Factory
+
+org.skywalking.apm.collector.agentstream.worker.node.component.NodeComponentRemoteWorker$Factory

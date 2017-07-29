@@ -2,6 +2,7 @@ package org.skywalking.apm.collector.agentstream;
 
 import java.util.Iterator;
 import java.util.Map;
+import org.skywalking.apm.collector.agentstream.worker.storage.PersistenceTimer;
 import org.skywalking.apm.collector.core.client.ClientException;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
 import org.skywalking.apm.collector.core.framework.DefineException;
@@ -32,5 +33,7 @@ public class AgentStreamModuleInstaller implements ModuleInstaller {
             logger.info("module {} initialize", moduleDefine.getClass().getName());
             moduleDefine.initialize((ObjectUtils.isNotEmpty(moduleConfig) && moduleConfig.containsKey(moduleDefine.name())) ? moduleConfig.get(moduleDefine.name()) : null, serverHolder);
         }
+
+        new PersistenceTimer().start();
     }
 }
