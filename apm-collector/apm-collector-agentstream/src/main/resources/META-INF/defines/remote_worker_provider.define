@@ -4,3 +4,4 @@ org.skywalking.apm.collector.agentstream.worker.register.servicename.ServiceName
 
 org.skywalking.apm.collector.agentstream.worker.node.component.NodeComponentRemoteWorker$Factory
 org.skywalking.apm.collector.agentstream.worker.node.mapping.NodeMappingRemoteWorker$Factory
+org.skywalking.apm.collector.agentstream.worker.noderef.reference.NodeRefRemoteWorker$Factory

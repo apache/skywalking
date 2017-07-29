@@ -9,6 +9,11 @@ import org.skywalking.apm.collector.agentstream.worker.segment.ExitSpanListener;
 import org.skywalking.apm.collector.agentstream.worker.segment.FirstSpanListener;
 import org.skywalking.apm.collector.agentstream.worker.segment.RefsListener;
 import org.skywalking.apm.collector.agentstream.worker.util.TimeBucketUtils;
+import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
+import org.skywalking.apm.collector.stream.StreamModuleContext;
+import org.skywalking.apm.collector.stream.StreamModuleGroupDefine;
+import org.skywalking.apm.collector.stream.worker.WorkerInvokeException;
+import org.skywalking.apm.collector.stream.worker.WorkerNotFoundException;
 import org.skywalking.apm.network.proto.SpanObject;
 import org.skywalking.apm.network.proto.TraceSegmentReference;
 import org.slf4j.Logger;
@@ -54,6 +59,8 @@ public class NodeRefSpanListener implements EntrySpanListener, ExitSpanListener,
     }
 
     @Override public void build() {
+        logger.debug("node reference listener build");
+        StreamModuleContext context = (StreamModuleContext)CollectorContextHelper.INSTANCE.getContext(StreamModuleGroupDefine.GROUP_NAME);
         if (!hasReference) {
             nodeExitReferences.addAll(nodeEntryReferences);
         }
@@ -63,6 +70,13 @@ public class NodeRefSpanListener implements EntrySpanListener, ExitSpanListener,
             nodeReference.setId(timeBucket + Const.ID_SPLIT + agg);
             nodeReference.setAgg(agg);
             nodeReference.setTimeBucket(timeBucket);
+
+            try {
+                logger.debug("send to node reference aggregation worker, id: {}", nodeReference.getId());
+                context.getClusterWorkerContext().lookup(NodeRefAggregationWorker.WorkerRole.INSTANCE).tell(nodeReference.transform());
+            } catch (WorkerInvokeException | WorkerNotFoundException e) {
+                logger.error(e.getMessage(), e);
+            }
         }
     }
 }

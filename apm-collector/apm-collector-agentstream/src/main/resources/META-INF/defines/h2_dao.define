@@ -3,3 +3,4 @@ org.skywalking.apm.collector.agentstream.worker.register.instance.dao.InstanceH2
 org.skywalking.apm.collector.agentstream.worker.register.servicename.dao.ServiceNameH2DAO
 org.skywalking.apm.collector.agentstream.worker.node.component.dao.NodeComponentH2DAO
 org.skywalking.apm.collector.agentstream.worker.node.mapping.dao.NodeMappingH2DAO
+org.skywalking.apm.collector.agentstream.worker.noderef.reference.dao.NodeReferenceH2DAO

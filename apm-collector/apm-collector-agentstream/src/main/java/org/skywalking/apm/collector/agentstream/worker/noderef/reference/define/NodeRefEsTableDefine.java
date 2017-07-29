@@ -13,7 +13,7 @@ public class NodeRefEsTableDefine extends ElasticSearchTableDefine {
     }
 
     @Override public int refreshInterval() {
-        return 0;
+        return 2;
     }
 
     @Override public int numberOfShards() {
