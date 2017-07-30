@@ -1,4 +1,4 @@
-package org.skywalking.apm.collector.agentstream.worker.segment.dao;
+package org.skywalking.apm.collector.agentstream.worker.segment.origin.dao;
 
 import java.util.List;
 import java.util.Map;

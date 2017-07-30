@@ -31,7 +31,8 @@ public class NodeRefSpanListener implements EntrySpanListener, ExitSpanListener,
     private long timeBucket;
     private boolean hasReference = false;
 
-    @Override public void parseExit(SpanObject spanObject, int applicationId, int applicationInstanceId) {
+    @Override
+    public void parseExit(SpanObject spanObject, int applicationId, int applicationInstanceId, String segmentId) {
         String front = String.valueOf(applicationId);
         String behind = String.valueOf(spanObject.getPeerId());
         if (spanObject.getPeerId() == 0) {
@@ -42,7 +43,8 @@ public class NodeRefSpanListener implements EntrySpanListener, ExitSpanListener,
         nodeExitReferences.add(agg);
     }
 
-    @Override public void parseEntry(SpanObject spanObject, int applicationId, int applicationInstanceId) {
+    @Override
+    public void parseEntry(SpanObject spanObject, int applicationId, int applicationInstanceId, String segmentId) {
         String behind = String.valueOf(applicationId);
         String front = Const.USER_CODE;
 
@@ -50,11 +52,13 @@ public class NodeRefSpanListener implements EntrySpanListener, ExitSpanListener,
         nodeEntryReferences.add(agg);
     }
 
-    @Override public void parseFirst(SpanObject spanObject, int applicationId, int applicationInstanceId) {
+    @Override
+    public void parseFirst(SpanObject spanObject, int applicationId, int applicationInstanceId, String segmentId) {
         timeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(spanObject.getStartTime());
     }
 
-    @Override public void parseRef(TraceSegmentReference reference, int applicationId, int applicationInstanceId) {
+    @Override public void parseRef(TraceSegmentReference reference, int applicationId, int applicationInstanceId,
+        String segmentId) {
         hasReference = true;
     }
 

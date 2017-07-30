@@ -6,7 +6,9 @@ import org.skywalking.apm.collector.agentstream.worker.node.component.NodeCompon
 import org.skywalking.apm.collector.agentstream.worker.node.mapping.NodeMappingSpanListener;
 import org.skywalking.apm.collector.agentstream.worker.noderef.reference.NodeRefSpanListener;
 import org.skywalking.apm.collector.agentstream.worker.noderef.summary.NodeRefSumSpanListener;
-import org.skywalking.apm.collector.agentstream.worker.segment.define.SegmentDataDefine;
+import org.skywalking.apm.collector.agentstream.worker.segment.cost.SegmentCostSpanListener;
+import org.skywalking.apm.collector.agentstream.worker.segment.origin.SegmentPersistenceWorker;
+import org.skywalking.apm.collector.agentstream.worker.segment.origin.define.SegmentDataDefine;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
 import org.skywalking.apm.collector.core.util.CollectionUtils;
 import org.skywalking.apm.collector.stream.StreamModuleContext;
@@ -29,7 +31,6 @@ public class SegmentParse {
     private final Logger logger = LoggerFactory.getLogger(SegmentParse.class);
 
     private List<SpanListener> spanListeners;
-    private List<SpanListener> refsListeners;
 
     public SegmentParse() {
         spanListeners = new ArrayList<>();
@@ -38,38 +39,40 @@ public class SegmentParse {
         spanListeners.add(new NodeMappingSpanListener());
         spanListeners.add(new NodeRefSpanListener());
         spanListeners.add(new NodeRefSumSpanListener());
-
-        refsListeners = new ArrayList<>();
-        refsListeners.add(new NodeMappingSpanListener());
-        refsListeners.add(new NodeRefSpanListener());
-        refsListeners.add(new NodeRefSumSpanListener());
+        spanListeners.add(new SegmentCostSpanListener());
     }
 
     public void parse(List<UniqueId> traceIds, TraceSegmentObject segmentObject) {
+        StringBuilder segmentIdBuilder = new StringBuilder();
+        segmentObject.getTraceSegmentId().getIdPartsList().forEach(part -> {
+            segmentIdBuilder.append(part);
+        });
+        String segmentId = segmentIdBuilder.toString();
+
         for (UniqueId uniqueId : traceIds) {
-            uniqueId.getIdPartsList();
+            notifyGlobalsListener(uniqueId);
         }
 
         int applicationId = segmentObject.getApplicationId();
         int applicationInstanceId = segmentObject.getApplicationInstanceId();
 
         for (TraceSegmentReference reference : segmentObject.getRefsList()) {
-            notifyRefsListener(reference, applicationId, applicationInstanceId);
+            notifyRefsListener(reference, applicationId, applicationInstanceId, segmentId);
         }
 
         List<SpanObject> spans = segmentObject.getSpansList();
         if (CollectionUtils.isNotEmpty(spans)) {
             for (SpanObject spanObject : spans) {
                 if (spanObject.getSpanId() == 0) {
-                    notifyFirstListener(spanObject, applicationId, applicationInstanceId);
+                    notifyFirstListener(spanObject, applicationId, applicationInstanceId, segmentId);
                 }
 
                 if (SpanType.Exit.equals(spanObject.getSpanType())) {
-                    notifyExitListener(spanObject, applicationId, applicationInstanceId);
+                    notifyExitListener(spanObject, applicationId, applicationInstanceId, segmentId);
                 } else if (SpanType.Entry.equals(spanObject.getSpanType())) {
-                    notifyEntryListener(spanObject, applicationId, applicationInstanceId);
+                    notifyEntryListener(spanObject, applicationId, applicationInstanceId, segmentId);
                 } else if (SpanType.Local.equals(spanObject.getSpanType())) {
-                    notifyLocalListener(spanObject, applicationId, applicationInstanceId);
+                    notifyLocalListener(spanObject, applicationId, applicationInstanceId, segmentId);
                 } else {
                     logger.error("span type error, span type: {}", spanObject.getSpanType().name());
                 }
@@ -77,12 +80,7 @@ public class SegmentParse {
         }
 
         notifyListenerToBuild();
-
-        StringBuilder segmentId = new StringBuilder();
-        segmentObject.getTraceSegmentId().getIdPartsList().forEach(part -> {
-            segmentId.append(part);
-        });
-        buildSegment(segmentId.toString(), segmentObject.toByteArray());
+        buildSegment(segmentId, segmentObject.toByteArray());
     }
 
     public void buildSegment(String id, byte[] dataBinary) {
@@ -101,45 +99,57 @@ public class SegmentParse {
 
     private void notifyListenerToBuild() {
         spanListeners.forEach(listener -> listener.build());
-        refsListeners.forEach(listener -> listener.build());
     }
 
-    private void notifyExitListener(SpanObject spanObject, int applicationId, int applicationInstanceId) {
+    private void notifyExitListener(SpanObject spanObject, int applicationId, int applicationInstanceId,
+        String segmentId) {
         for (SpanListener listener : spanListeners) {
             if (listener instanceof ExitSpanListener) {
-                ((ExitSpanListener)listener).parseExit(spanObject, applicationId, applicationInstanceId);
+                ((ExitSpanListener)listener).parseExit(spanObject, applicationId, applicationInstanceId, segmentId);
             }
         }
     }
 
-    private void notifyEntryListener(SpanObject spanObject, int applicationId, int applicationInstanceId) {
+    private void notifyEntryListener(SpanObject spanObject, int applicationId, int applicationInstanceId,
+        String segmentId) {
         for (SpanListener listener : spanListeners) {
             if (listener instanceof EntrySpanListener) {
-                ((EntrySpanListener)listener).parseEntry(spanObject, applicationId, applicationInstanceId);
+                ((EntrySpanListener)listener).parseEntry(spanObject, applicationId, applicationInstanceId, segmentId);
             }
         }
     }
 
-    private void notifyLocalListener(SpanObject spanObject, int applicationId, int applicationInstanceId) {
+    private void notifyLocalListener(SpanObject spanObject, int applicationId, int applicationInstanceId,
+        String segmentId) {
         for (SpanListener listener : spanListeners) {
             if (listener instanceof LocalSpanListener) {
-                ((LocalSpanListener)listener).parseLocal(spanObject, applicationId, applicationInstanceId);
+                ((LocalSpanListener)listener).parseLocal(spanObject, applicationId, applicationInstanceId, segmentId);
             }
         }
     }
 
-    private void notifyFirstListener(SpanObject spanObject, int applicationId, int applicationInstanceId) {
+    private void notifyFirstListener(SpanObject spanObject, int applicationId, int applicationInstanceId,
+        String segmentId) {
         for (SpanListener listener : spanListeners) {
             if (listener instanceof FirstSpanListener) {
-                ((FirstSpanListener)listener).parseFirst(spanObject, applicationId, applicationInstanceId);
+                ((FirstSpanListener)listener).parseFirst(spanObject, applicationId, applicationInstanceId, segmentId);
             }
         }
     }
 
-    private void notifyRefsListener(TraceSegmentReference reference, int applicationId, int applicationInstanceId) {
-        for (SpanListener listener : refsListeners) {
+    private void notifyRefsListener(TraceSegmentReference reference, int applicationId, int applicationInstanceId,
+        String segmentId) {
+        for (SpanListener listener : spanListeners) {
             if (listener instanceof RefsListener) {
-                ((RefsListener)listener).parseRef(reference, applicationId, applicationInstanceId);
+                ((RefsListener)listener).parseRef(reference, applicationId, applicationInstanceId, segmentId);
+            }
+        }
+    }
+
+    private void notifyGlobalsListener(UniqueId uniqueId) {
+        for (SpanListener listener : spanListeners) {
+            if (listener instanceof GlobalTraceIdsListener) {
+                ((GlobalTraceIdsListener)listener).parseGlobalTraceId(uniqueId);
             }
         }
     }

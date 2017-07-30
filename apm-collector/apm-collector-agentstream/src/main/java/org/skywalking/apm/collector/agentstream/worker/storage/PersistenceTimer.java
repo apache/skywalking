@@ -1,5 +1,6 @@
 package org.skywalking.apm.collector.agentstream.worker.storage;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.skywalking.apm.collector.core.framework.Starter;
 import org.skywalking.apm.collector.storage.dao.DAOContainer;
@@ -24,7 +25,7 @@ public class PersistenceTimer implements Starter {
 //        final long timeInterval = EsConfig.Es.Persistence.Timer.VALUE * 1000;
         final long timeInterval = 3 * 1000;
 
-        Runnable runnable = () -> {
+        Thread persistenceThread = new Thread(() -> {
             while (true) {
                 try {
                     extractDataAndSave();
@@ -33,23 +34,25 @@ public class PersistenceTimer implements Starter {
                     logger.error(e.getMessage(), e);
                 }
             }
-        };
-        Thread persistenceThread = new Thread(runnable);
+        });
         persistenceThread.setName("timerPersistence");
         persistenceThread.start();
     }
 
     private void extractDataAndSave() {
         List<PersistenceWorker> workers = PersistenceWorkerContainer.INSTANCE.getPersistenceWorkers();
-        workers.forEach(worker -> {
+        List batchAllCollection = new ArrayList<>();
+        workers.forEach((PersistenceWorker worker) -> {
             try {
                 worker.allocateJob(new FlushAndSwitch());
                 List<?> batchCollection = worker.buildBatchCollection();
-                IBatchDAO dao = (IBatchDAO)DAOContainer.INSTANCE.get(IBatchDAO.class.getName());
-                dao.batchPersistence(batchCollection);
+                batchAllCollection.addAll(batchCollection);
             } catch (WorkerException e) {
                 logger.error(e.getMessage(), e);
             }
         });
+
+        IBatchDAO dao = (IBatchDAO)DAOContainer.INSTANCE.get(IBatchDAO.class.getName());
+        dao.batchPersistence(batchAllCollection);
     }
 }

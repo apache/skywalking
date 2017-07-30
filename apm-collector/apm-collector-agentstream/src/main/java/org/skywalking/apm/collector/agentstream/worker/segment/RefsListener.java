@@ -6,5 +6,5 @@ import org.skywalking.apm.network.proto.TraceSegmentReference;
  * @author pengys5
  */
 public interface RefsListener extends SpanListener {
-    void parseRef(TraceSegmentReference reference, int applicationId, int applicationInstanceId);
+    void parseRef(TraceSegmentReference reference, int applicationId, int applicationInstanceId, String segmentId);
 }

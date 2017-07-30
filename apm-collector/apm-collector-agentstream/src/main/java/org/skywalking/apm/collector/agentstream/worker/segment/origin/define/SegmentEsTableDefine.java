@@ -1,4 +1,4 @@
-package org.skywalking.apm.collector.agentstream.worker.segment.define;
+package org.skywalking.apm.collector.agentstream.worker.segment.origin.define;
 
 import org.skywalking.apm.collector.storage.elasticsearch.define.ElasticSearchColumnDefine;
 import org.skywalking.apm.collector.storage.elasticsearch.define.ElasticSearchTableDefine;

@@ -1,4 +1,4 @@
-package org.skywalking.apm.collector.agentstream.worker.segment.define;
+package org.skywalking.apm.collector.agentstream.worker.segment.origin.define;
 
 import com.google.protobuf.ByteString;
 import org.skywalking.apm.collector.remote.grpc.proto.RemoteData;

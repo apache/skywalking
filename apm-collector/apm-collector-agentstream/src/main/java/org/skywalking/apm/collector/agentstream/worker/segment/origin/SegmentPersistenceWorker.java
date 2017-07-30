@@ -1,9 +1,9 @@
-package org.skywalking.apm.collector.agentstream.worker.segment;
+package org.skywalking.apm.collector.agentstream.worker.segment.origin;
 
 import java.util.List;
 import java.util.Map;
-import org.skywalking.apm.collector.agentstream.worker.segment.dao.ISegmentDAO;
-import org.skywalking.apm.collector.agentstream.worker.segment.define.SegmentDataDefine;
+import org.skywalking.apm.collector.agentstream.worker.segment.origin.dao.ISegmentDAO;
+import org.skywalking.apm.collector.agentstream.worker.segment.origin.define.SegmentDataDefine;
 import org.skywalking.apm.collector.storage.dao.DAOContainer;
 import org.skywalking.apm.collector.stream.worker.AbstractLocalAsyncWorkerProvider;
 import org.skywalking.apm.collector.stream.worker.ClusterWorkerContext;

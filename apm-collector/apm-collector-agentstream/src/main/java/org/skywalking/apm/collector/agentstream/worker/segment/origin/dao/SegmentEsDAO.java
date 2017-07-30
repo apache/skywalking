@@ -1,4 +1,4 @@
-package org.skywalking.apm.collector.agentstream.worker.segment.dao;
+package org.skywalking.apm.collector.agentstream.worker.segment.origin.dao;
 
 import java.util.ArrayList;
 import java.util.Base64;
@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.elasticsearch.action.index.IndexRequestBuilder;
-import org.skywalking.apm.collector.agentstream.worker.segment.define.SegmentTable;
+import org.skywalking.apm.collector.agentstream.worker.segment.origin.define.SegmentTable;
 import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
 import org.skywalking.apm.collector.stream.worker.impl.data.Data;
 import org.slf4j.Logger;

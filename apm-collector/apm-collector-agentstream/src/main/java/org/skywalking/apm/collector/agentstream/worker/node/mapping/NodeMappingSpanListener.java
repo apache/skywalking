@@ -27,7 +27,8 @@ public class NodeMappingSpanListener implements RefsListener, FirstSpanListener 
     private List<String> nodeMappings = new ArrayList<>();
     private long timeBucket;
 
-    @Override public void parseRef(TraceSegmentReference reference, int applicationId, int applicationInstanceId) {
+    @Override public void parseRef(TraceSegmentReference reference, int applicationId, int applicationInstanceId,
+        String segmentId) {
         logger.debug("node mapping listener parse reference");
         String peers = Const.PEERS_FRONT_SPLIT + reference.getNetworkAddressId() + Const.PEERS_BEHIND_SPLIT;
         if (reference.getNetworkAddressId() == 0) {
@@ -38,7 +39,8 @@ public class NodeMappingSpanListener implements RefsListener, FirstSpanListener 
         nodeMappings.add(agg);
     }
 
-    @Override public void parseFirst(SpanObject spanObject, int applicationId, int applicationInstanceId) {
+    @Override
+    public void parseFirst(SpanObject spanObject, int applicationId, int applicationInstanceId, String segmentId) {
         timeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(spanObject.getStartTime());
     }
 

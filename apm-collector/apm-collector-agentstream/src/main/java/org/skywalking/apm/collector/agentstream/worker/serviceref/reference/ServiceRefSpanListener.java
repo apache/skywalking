@@ -26,11 +26,13 @@ public class ServiceRefSpanListener implements FirstSpanListener, EntrySpanListe
     private List<ServiceTemp> fronts = new ArrayList<>();
     private long timeBucket;
 
-    @Override public void parseFirst(SpanObject spanObject, int applicationId, int applicationInstanceId) {
+    @Override
+    public void parseFirst(SpanObject spanObject, int applicationId, int applicationInstanceId, String segmentId) {
         timeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(spanObject.getStartTime());
     }
 
-    @Override public void parseRef(TraceSegmentReference reference, int applicationId, int applicationInstanceId) {
+    @Override public void parseRef(TraceSegmentReference reference, int applicationId, int applicationInstanceId,
+        String segmentId) {
         String entryService = String.valueOf(reference.getEntryServiceId());
         if (reference.getEntryServiceId() == 0) {
             entryService = reference.getEntryServiceName();
@@ -42,14 +44,16 @@ public class ServiceRefSpanListener implements FirstSpanListener, EntrySpanListe
         fronts.add(new ServiceTemp(entryService, parentService));
     }
 
-    @Override public void parseEntry(SpanObject spanObject, int applicationId, int applicationInstanceId) {
+    @Override
+    public void parseEntry(SpanObject spanObject, int applicationId, int applicationInstanceId, String segmentId) {
         front = String.valueOf(spanObject.getOperationNameId());
         if (spanObject.getOperationNameId() == 0) {
             front = spanObject.getOperationName();
         }
     }
 
-    @Override public void parseExit(SpanObject spanObject, int applicationId, int applicationInstanceId) {
+    @Override
+    public void parseExit(SpanObject spanObject, int applicationId, int applicationInstanceId, String segmentId) {
         String behind = String.valueOf(spanObject.getOperationNameId());
         if (spanObject.getOperationNameId() == 0) {
             behind = spanObject.getOperationName();

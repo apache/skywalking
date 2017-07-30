@@ -27,7 +27,8 @@ public class NodeComponentSpanListener implements EntrySpanListener, ExitSpanLis
     private List<String> nodeComponents = new ArrayList<>();
     private long timeBucket;
 
-    @Override public void parseExit(SpanObject spanObject, int applicationId, int applicationInstanceId) {
+    @Override
+    public void parseExit(SpanObject spanObject, int applicationId, int applicationInstanceId, String segmentId) {
         String peers = spanObject.getPeer();
         if (spanObject.getPeerId() == 0) {
             peers = String.valueOf(spanObject.getPeerId());
@@ -36,13 +37,15 @@ public class NodeComponentSpanListener implements EntrySpanListener, ExitSpanLis
         nodeComponents.add(agg);
     }
 
-    @Override public void parseEntry(SpanObject spanObject, int applicationId, int applicationInstanceId) {
+    @Override
+    public void parseEntry(SpanObject spanObject, int applicationId, int applicationInstanceId, String segmentId) {
         String peers = String.valueOf(applicationId);
         String agg = spanObject.getComponentId() + Const.ID_SPLIT + peers;
         nodeComponents.add(agg);
     }
 
-    @Override public void parseFirst(SpanObject spanObject, int applicationId, int applicationInstanceId) {
+    @Override
+    public void parseFirst(SpanObject spanObject, int applicationId, int applicationInstanceId, String segmentId) {
         timeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(spanObject.getStartTime());
     }
 
