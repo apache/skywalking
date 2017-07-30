@@ -10,6 +10,7 @@ import org.skywalking.apm.collector.core.server.Server;
 import org.skywalking.apm.collector.server.jetty.JettyServer;
 import org.skywalking.apm.collector.ui.UIModuleDefine;
 import org.skywalking.apm.collector.ui.UIModuleGroupDefine;
+import org.skywalking.apm.collector.ui.jetty.handler.TraceDagGetHandler;
 import org.skywalking.apm.collector.ui.jetty.handler.UIJettyServerHandler;
 
 /**
@@ -46,6 +47,7 @@ public class UIJettyModuleDefine extends UIModuleDefine {
     @Override public List<Handler> handlerList() {
         List<Handler> handlers = new LinkedList<>();
         handlers.add(new UIJettyServerHandler());
+        handlers.add(new TraceDagGetHandler());
         return handlers;
     }
 }

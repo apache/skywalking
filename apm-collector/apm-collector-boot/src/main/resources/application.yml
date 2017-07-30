@@ -20,7 +20,7 @@ ui:
   jetty:
     host: localhost
     port: 12800
-    context_path: /ui
+    context_path: /
 storage:
   elasticsearch:
     cluster_name: CollectorDBCluster
