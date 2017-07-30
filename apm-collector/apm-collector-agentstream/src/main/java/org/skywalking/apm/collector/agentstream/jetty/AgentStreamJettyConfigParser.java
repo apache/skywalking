@@ -20,7 +20,10 @@ public class AgentStreamJettyConfigParser implements ModuleConfigParser {
 
         if (ObjectUtils.isEmpty(config) || StringUtils.isEmpty(config.get(HOST))) {
             AgentStreamJettyConfig.HOST = "localhost";
+        } else {
+            AgentStreamJettyConfig.HOST = (String)config.get(HOST);
         }
+
         if (ObjectUtils.isEmpty(config) || StringUtils.isEmpty(config.get(PORT))) {
             AgentStreamJettyConfig.PORT = 12800;
         } else {

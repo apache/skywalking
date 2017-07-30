@@ -17,7 +17,10 @@ public class StreamGRPCConfigParser implements ModuleConfigParser {
     @Override public void parse(Map config) throws ConfigParseException {
         if (ObjectUtils.isEmpty(config) || StringUtils.isEmpty(config.get(HOST))) {
             StreamGRPCConfig.HOST = "localhost";
+        } else {
+            StreamGRPCConfig.HOST = (String)config.get(HOST);
         }
+
         if (ObjectUtils.isEmpty(config) || StringUtils.isEmpty(config.get(PORT))) {
             StreamGRPCConfig.PORT = 11800;
         } else {

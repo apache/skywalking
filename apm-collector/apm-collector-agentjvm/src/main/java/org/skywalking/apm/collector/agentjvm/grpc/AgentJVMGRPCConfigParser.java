@@ -17,7 +17,10 @@ public class AgentJVMGRPCConfigParser implements ModuleConfigParser {
     @Override public void parse(Map config) throws ConfigParseException {
         if (ObjectUtils.isEmpty(config) || StringUtils.isEmpty(config.get(HOST))) {
             AgentJVMGRPCConfig.HOST = "localhost";
+        } else {
+            AgentJVMGRPCConfig.HOST = (String)config.get(HOST);
         }
+
         if (ObjectUtils.isEmpty(config) || StringUtils.isEmpty(config.get(PORT))) {
             AgentJVMGRPCConfig.PORT = 11800;
         } else {

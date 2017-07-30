@@ -33,5 +33,10 @@
             <artifactId>apm-collector-agentregister</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>apm-collector-ui</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
