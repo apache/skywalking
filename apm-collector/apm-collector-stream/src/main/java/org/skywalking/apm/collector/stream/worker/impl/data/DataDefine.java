@@ -11,6 +11,7 @@ public abstract class DataDefine {
     private int longCapacity;
     private int floatCapacity;
     private int integerCapacity;
+    private int booleanCapacity;
     private int byteCapacity;
 
     public DataDefine() {
@@ -29,6 +30,8 @@ public abstract class DataDefine {
                 floatCapacity++;
             } else if (AttributeType.INTEGER.equals(attribute.getType())) {
                 integerCapacity++;
+            } else if (AttributeType.BOOLEAN.equals(attribute.getType())) {
+                booleanCapacity++;
             } else if (AttributeType.BYTE.equals(attribute.getType())) {
                 byteCapacity++;
             }
@@ -46,7 +49,7 @@ public abstract class DataDefine {
     protected abstract void attributeDefine();
 
     public final Data build(String id) {
-        return new Data(id, defineId(), stringCapacity, longCapacity, floatCapacity, integerCapacity, byteCapacity);
+        return new Data(id, defineId(), stringCapacity, longCapacity, floatCapacity, integerCapacity, booleanCapacity, byteCapacity);
     }
 
     public void mergeData(Data newData, Data oldData) {
@@ -54,6 +57,7 @@ public abstract class DataDefine {
         int longPosition = 0;
         int floatPosition = 0;
         int integerPosition = 0;
+        int booleanPosition = 0;
         int bytePosition = 0;
         for (int i = 0; i < initialCapacity(); i++) {
             Attribute attribute = attributes[i];
@@ -66,8 +70,11 @@ public abstract class DataDefine {
             } else if (AttributeType.FLOAT.equals(attribute.getType())) {
                 attribute.getOperation().operate(newData.getDataFloat(floatPosition), oldData.getDataFloat(floatPosition));
                 floatPosition++;
-            } else if (AttributeType.FLOAT.equals(attribute.getType())) {
+            } else if (AttributeType.INTEGER.equals(attribute.getType())) {
                 attribute.getOperation().operate(newData.getDataInteger(integerPosition), oldData.getDataInteger(integerPosition));
+                integerPosition++;
+            } else if (AttributeType.BOOLEAN.equals(attribute.getType())) {
+                attribute.getOperation().operate(newData.getDataBoolean(booleanPosition), oldData.getDataBoolean(booleanPosition));
                 integerPosition++;
             } else if (AttributeType.BYTE.equals(attribute.getType())) {
                 attribute.getOperation().operate(newData.getDataBytes(bytePosition), oldData.getDataBytes(integerPosition));

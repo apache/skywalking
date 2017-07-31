@@ -14,14 +14,12 @@ import org.skywalking.apm.collector.stream.worker.impl.data.operate.NonOperation
  */
 public class SegmentCostDataDefine extends DataDefine {
 
-    public static final int DEFINE_ID = 402;
-
     @Override public int defineId() {
-        return DEFINE_ID;
+        return 402;
     }
 
     @Override protected int initialCapacity() {
-        return 7;
+        return 9;
     }
 
     @Override protected void attributeDefine() {
@@ -32,6 +30,8 @@ public class SegmentCostDataDefine extends DataDefine {
         addAttribute(4, new Attribute(SegmentCostTable.COLUMN_COST, AttributeType.LONG, new CoverOperation()));
         addAttribute(5, new Attribute(SegmentCostTable.COLUMN_START_TIME, AttributeType.LONG, new CoverOperation()));
         addAttribute(6, new Attribute(SegmentCostTable.COLUMN_END_TIME, AttributeType.LONG, new CoverOperation()));
+        addAttribute(7, new Attribute(SegmentCostTable.COLUMN_IS_ERROR, AttributeType.BOOLEAN, new CoverOperation()));
+        addAttribute(8, new Attribute(SegmentCostTable.COLUMN_TIME_BUCKET, AttributeType.LONG, new CoverOperation()));
     }
 
     @Override public Object deserialize(RemoteData remoteData) {
@@ -42,7 +42,9 @@ public class SegmentCostDataDefine extends DataDefine {
         Long cost = remoteData.getDataLongs(0);
         Long startTime = remoteData.getDataLongs(1);
         Long endTime = remoteData.getDataLongs(2);
-        return new SegmentCost(id, segmentId, globalTraceId, operationName, cost, startTime, endTime);
+        Boolean isError = remoteData.getDataBooleans(0);
+        Long timeBucket = remoteData.getDataLongs(2);
+        return new SegmentCost(id, segmentId, globalTraceId, operationName, cost, startTime, endTime, isError, timeBucket);
     }
 
     @Override public RemoteData serialize(Object object) {
@@ -55,6 +57,7 @@ public class SegmentCostDataDefine extends DataDefine {
         builder.addDataLongs(segmentCost.getCost());
         builder.addDataLongs(segmentCost.getStartTime());
         builder.addDataLongs(segmentCost.getEndTime());
+        builder.addDataBooleans(segmentCost.isError());
         return builder.build();
     }
 
@@ -66,9 +69,11 @@ public class SegmentCostDataDefine extends DataDefine {
         private Long cost;
         private Long startTime;
         private Long endTime;
+        private boolean isError;
+        private long timeBucket;
 
-        public SegmentCost(String id, String segmentId, String globalTraceId, String operationName, Long cost,
-            Long startTime, Long endTime) {
+        SegmentCost(String id, String segmentId, String globalTraceId, String operationName, Long cost,
+            Long startTime, Long endTime, boolean isError, long timeBucket) {
             this.id = id;
             this.segmentId = segmentId;
             this.globalTraceId = globalTraceId;
@@ -76,6 +81,8 @@ public class SegmentCostDataDefine extends DataDefine {
             this.cost = cost;
             this.startTime = startTime;
             this.endTime = endTime;
+            this.isError = isError;
+            this.timeBucket = timeBucket;
         }
 
         public SegmentCost() {
@@ -91,6 +98,8 @@ public class SegmentCostDataDefine extends DataDefine {
             data.setDataLong(0, this.cost);
             data.setDataLong(1, this.startTime);
             data.setDataLong(2, this.endTime);
+            data.setDataBoolean(0, this.isError);
+            data.setDataLong(3, this.timeBucket);
             return data;
         }
 
@@ -148,6 +157,22 @@ public class SegmentCostDataDefine extends DataDefine {
 
         public void setEndTime(Long endTime) {
             this.endTime = endTime;
+        }
+
+        public boolean isError() {
+            return isError;
+        }
+
+        public void setError(boolean error) {
+            isError = error;
+        }
+
+        public long getTimeBucket() {
+            return timeBucket;
+        }
+
+        public void setTimeBucket(long timeBucket) {
+            this.timeBucket = timeBucket;
         }
     }
 }

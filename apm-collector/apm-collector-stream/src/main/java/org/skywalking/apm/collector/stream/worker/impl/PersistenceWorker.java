@@ -70,7 +70,7 @@ public abstract class PersistenceWorker extends AbstractLocalAsyncWorker {
         Data data = (Data)message;
 
         if (dataCache.containsKey(data.id())) {
-            getClusterContext().getDataDefine(data.getDefineId()).mergeData(data, dataCache.get(data.id()));
+            getRole().dataDefine().mergeData(data, dataCache.get(data.id()));
         } else {
             if (dataCache.currentCollectionSize() < 1000) {
                 dataCache.put(data.id(), data);

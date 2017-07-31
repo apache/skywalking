@@ -9,29 +9,29 @@ import java.util.TimeZone;
  */
 public enum TimeBucketUtils {
     INSTANCE;
-    
-    private final SimpleDateFormat DAY_DATE_FORMAT = new SimpleDateFormat("yyyyMMdd");
-    private final SimpleDateFormat HOUR_DATE_FORMAT = new SimpleDateFormat("yyyyMMddHH");
-    private final SimpleDateFormat MINUTE_DATE_FORMAT = new SimpleDateFormat("yyyyMMddHHmm");
+
+    private final SimpleDateFormat dayDateFormat = new SimpleDateFormat("yyyyMMdd");
+    private final SimpleDateFormat hourDateFormat = new SimpleDateFormat("yyyyMMddHH");
+    private final SimpleDateFormat minuteDateFormat = new SimpleDateFormat("yyyyMMddHHmm");
 
     public long getMinuteTimeBucket(long time) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(time);
-        String timeStr = MINUTE_DATE_FORMAT.format(calendar.getTime());
+        String timeStr = minuteDateFormat.format(calendar.getTime());
         return Long.valueOf(timeStr);
     }
 
     public long getHourTimeBucket(long time) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(time);
-        String timeStr = HOUR_DATE_FORMAT.format(calendar.getTime()) + "00";
+        String timeStr = hourDateFormat.format(calendar.getTime()) + "00";
         return Long.valueOf(timeStr);
     }
 
     public long getDayTimeBucket(long time) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(time);
-        String timeStr = DAY_DATE_FORMAT.format(calendar.getTime()) + "0000";
+        String timeStr = dayDateFormat.format(calendar.getTime()) + "0000";
         return Long.valueOf(timeStr);
     }
 

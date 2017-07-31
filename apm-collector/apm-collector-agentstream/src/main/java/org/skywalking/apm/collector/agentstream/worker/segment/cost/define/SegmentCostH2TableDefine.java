@@ -20,5 +20,7 @@ public class SegmentCostH2TableDefine extends H2TableDefine {
         addColumn(new H2ColumnDefine(SegmentCostTable.COLUMN_COST, H2ColumnDefine.Type.Bigint.name()));
         addColumn(new H2ColumnDefine(SegmentCostTable.COLUMN_START_TIME, H2ColumnDefine.Type.Bigint.name()));
         addColumn(new H2ColumnDefine(SegmentCostTable.COLUMN_END_TIME, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(SegmentCostTable.COLUMN_IS_ERROR, H2ColumnDefine.Type.Boolean.name()));
+        addColumn(new H2ColumnDefine(SegmentCostTable.COLUMN_TIME_BUCKET, H2ColumnDefine.Type.Bigint.name()));
     }
 }

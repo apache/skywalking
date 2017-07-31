@@ -29,6 +29,8 @@ public class SegmentCostEsDAO extends EsDAO implements ISegmentCostDAO {
             source.put(SegmentCostTable.COLUMN_COST, data.getDataLong(0));
             source.put(SegmentCostTable.COLUMN_START_TIME, data.getDataLong(1));
             source.put(SegmentCostTable.COLUMN_END_TIME, data.getDataLong(2));
+            source.put(SegmentCostTable.COLUMN_IS_ERROR, data.getDataBoolean(0));
+            source.put(SegmentCostTable.COLUMN_TIME_BUCKET, data.getDataLong(3));
             logger.debug("segment cost source: {}", source.toString());
             IndexRequestBuilder builder = getClient().prepareIndex(SegmentCostTable.TABLE, id).setSource(source);
             indexRequestBuilders.add(builder);

@@ -22,6 +22,10 @@ public class NonOperation implements Operation {
         return oldValue;
     }
 
+    @Override public Boolean operate(Boolean newValue, Boolean oldValue) {
+        return oldValue;
+    }
+
     @Override public byte[] operate(byte[] newValue, byte[] oldValue) {
         return oldValue;
     }

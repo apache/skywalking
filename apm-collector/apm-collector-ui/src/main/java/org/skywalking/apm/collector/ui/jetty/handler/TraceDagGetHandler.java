@@ -1,10 +1,8 @@
 package org.skywalking.apm.collector.ui.jetty.handler;
 
-import com.google.gson.JsonObject;
-import java.io.IOException;
-import javax.servlet.ServletException;
+import com.google.gson.JsonElement;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import org.skywalking.apm.collector.server.jetty.ArgumentsParseException;
 import org.skywalking.apm.collector.server.jetty.JettyHandler;
 import org.skywalking.apm.collector.ui.service.TraceDagService;
 import org.slf4j.Logger;
@@ -23,8 +21,7 @@ public class TraceDagGetHandler extends JettyHandler {
 
     private TraceDagService service = new TraceDagService();
 
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    @Override protected JsonElement doGet(HttpServletRequest req) throws ArgumentsParseException {
         String startTimeStr = req.getParameter("startTime");
         String endTimeStr = req.getParameter("endTime");
         String timeBucketType = req.getParameter("timeBucketType");
@@ -32,8 +29,6 @@ public class TraceDagGetHandler extends JettyHandler {
 
         long startTime = Long.valueOf(startTimeStr);
         long endTime = Long.valueOf(endTimeStr);
-        JsonObject traceDagJson = service.load(startTime, endTime, timeBucketType);
-
-        reply(resp, traceDagJson, HttpServletResponse.SC_OK);
+        return service.load(startTime, endTime, timeBucketType);
     }
 }

@@ -12,5 +12,7 @@ public interface Operation {
 
     Integer operate(Integer newValue, Integer oldValue);
 
+    Boolean operate(Boolean newValue, Boolean oldValue);
+
     byte[] operate(byte[] newValue, byte[] oldValue);
 }

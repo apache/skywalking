@@ -23,6 +23,10 @@ public class AddOperation implements Operation {
         return newValue + oldValue;
     }
 
+    @Override public Boolean operate(Boolean newValue, Boolean oldValue) {
+        throw new UnsupportedOperationException("not support boolean addition operation");
+    }
+
     @Override public byte[] operate(byte[] newValue, byte[] oldValue) {
         throw new UnsupportedOperationException("not support byte addition operation");
     }

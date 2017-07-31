@@ -22,6 +22,10 @@ public class CoverOperation implements Operation {
         return newValue;
     }
 
+    @Override public Boolean operate(Boolean newValue, Boolean oldValue) {
+        return newValue;
+    }
+
     @Override public byte[] operate(byte[] newValue, byte[] oldValue) {
         return newValue;
     }

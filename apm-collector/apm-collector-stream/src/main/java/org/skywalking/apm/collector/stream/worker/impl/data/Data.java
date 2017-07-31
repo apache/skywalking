@@ -13,26 +13,30 @@ public class Data extends AbstractHashMessage {
     private final int longCapacity;
     private final int floatCapacity;
     private final int integerCapacity;
+    private final int booleanCapacity;
     private final int byteCapacity;
     private String[] dataStrings;
     private Long[] dataLongs;
     private Float[] dataFloats;
     private Integer[] dataIntegers;
+    private Boolean[] dataBooleans;
     private byte[][] dataBytes;
 
     public Data(String id, int defineId, int stringCapacity, int longCapacity, int floatCapacity, int integerCapacity,
-        int byteCapacity) {
+        int booleanCapacity, int byteCapacity) {
         super(id);
         this.defineId = defineId;
         this.dataStrings = new String[stringCapacity];
         this.dataLongs = new Long[longCapacity];
         this.dataFloats = new Float[floatCapacity];
         this.dataIntegers = new Integer[integerCapacity];
+        this.dataBooleans = new Boolean[booleanCapacity];
         this.dataBytes = new byte[byteCapacity][];
         this.stringCapacity = stringCapacity;
         this.longCapacity = longCapacity;
         this.floatCapacity = floatCapacity;
         this.integerCapacity = integerCapacity;
+        this.booleanCapacity = booleanCapacity;
         this.byteCapacity = byteCapacity;
     }
 
@@ -50,6 +54,10 @@ public class Data extends AbstractHashMessage {
 
     public void setDataInteger(int position, Integer value) {
         dataIntegers[position] = value;
+    }
+
+    public void setDataBoolean(int position, Boolean value) {
+        dataBooleans[position] = value;
     }
 
     public void setDataBytes(int position, byte[] dataBytes) {
@@ -72,6 +80,10 @@ public class Data extends AbstractHashMessage {
         return dataIntegers[position];
     }
 
+    public Boolean getDataBoolean(int position) {
+        return dataBooleans[position];
+    }
+
     public byte[] getDataBytes(int position) {
         return dataBytes[position];
     }
@@ -91,6 +103,7 @@ public class Data extends AbstractHashMessage {
         builder.setStringCapacity(stringCapacity);
         builder.setLongCapacity(longCapacity);
         builder.setByteCapacity(byteCapacity);
+        builder.setBooleanCapacity(booleanCapacity);
 
         for (int i = 0; i < dataStrings.length; i++) {
             builder.setDataStrings(i, dataStrings[i]);
@@ -103,6 +116,9 @@ public class Data extends AbstractHashMessage {
         }
         for (int i = 0; i < dataLongs.length; i++) {
             builder.setDataLongs(i, dataLongs[i]);
+        }
+        for (int i = 0; i < dataBooleans.length; i++) {
+            builder.setDataBooleans(i, dataBooleans[i]);
         }
         for (int i = 0; i < dataBytes.length; i++) {
             builder.setDataBytes(i, ByteString.copyFrom(dataBytes[i]));

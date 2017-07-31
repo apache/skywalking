@@ -13,4 +13,5 @@ public class SegmentCostTable extends CommonTable {
     public static final String COLUMN_GLOBAL_TRACE_ID = "global_trace_id";
     public static final String COLUMN_OPERATION_NAME = "operation_name";
     public static final String COLUMN_COST = "cost";
+    public static final String COLUMN_IS_ERROR = "is_error";
 }

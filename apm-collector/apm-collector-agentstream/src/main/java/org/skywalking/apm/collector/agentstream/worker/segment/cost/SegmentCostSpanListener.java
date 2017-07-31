@@ -3,8 +3,12 @@ package org.skywalking.apm.collector.agentstream.worker.segment.cost;
 import java.util.ArrayList;
 import java.util.List;
 import org.skywalking.apm.collector.agentstream.worker.segment.EntrySpanListener;
+import org.skywalking.apm.collector.agentstream.worker.segment.ExitSpanListener;
+import org.skywalking.apm.collector.agentstream.worker.segment.FirstSpanListener;
 import org.skywalking.apm.collector.agentstream.worker.segment.GlobalTraceIdsListener;
+import org.skywalking.apm.collector.agentstream.worker.segment.LocalSpanListener;
 import org.skywalking.apm.collector.agentstream.worker.segment.cost.define.SegmentCostDataDefine;
+import org.skywalking.apm.collector.agentstream.worker.util.TimeBucketUtils;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
 import org.skywalking.apm.collector.stream.StreamModuleContext;
 import org.skywalking.apm.collector.stream.StreamModuleGroupDefine;
@@ -18,12 +22,19 @@ import org.slf4j.LoggerFactory;
 /**
  * @author pengys5
  */
-public class SegmentCostSpanListener implements EntrySpanListener, GlobalTraceIdsListener {
+public class SegmentCostSpanListener implements EntrySpanListener, ExitSpanListener, LocalSpanListener, FirstSpanListener, GlobalTraceIdsListener {
 
     private final Logger logger = LoggerFactory.getLogger(SegmentCostSpanListener.class);
 
     private List<String> globalTraceIds = new ArrayList<>();
     private List<SegmentCostDataDefine.SegmentCost> segmentCosts = new ArrayList<>();
+    private boolean isError = false;
+    private long timeBucket;
+
+    @Override
+    public void parseFirst(SpanObject spanObject, int applicationId, int applicationInstanceId, String segmentId) {
+        timeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(spanObject.getStartTime());
+    }
 
     @Override
     public void parseEntry(SpanObject spanObject, int applicationId, int applicationInstanceId, String segmentId) {
@@ -34,6 +45,18 @@ public class SegmentCostSpanListener implements EntrySpanListener, GlobalTraceId
         segmentCost.setSegmentId(segmentId);
         segmentCost.setOperationName(spanObject.getOperationName());
         segmentCosts.add(segmentCost);
+
+        isError = isError || spanObject.getIsError();
+    }
+
+    @Override
+    public void parseExit(SpanObject spanObject, int applicationId, int applicationInstanceId, String segmentId) {
+        isError = isError || spanObject.getIsError();
+    }
+
+    @Override
+    public void parseLocal(SpanObject spanObject, int applicationId, int applicationInstanceId, String segmentId) {
+        isError = isError || spanObject.getIsError();
     }
 
     @Override public void parseGlobalTraceId(UniqueId uniqueId) {
@@ -50,6 +73,8 @@ public class SegmentCostSpanListener implements EntrySpanListener, GlobalTraceId
             for (String globalTraceId : globalTraceIds) {
                 segmentCost.setGlobalTraceId(globalTraceId);
                 segmentCost.setId(segmentCost.getSegmentId() + globalTraceId);
+                segmentCost.setError(isError);
+                segmentCost.setTimeBucket(timeBucket);
                 try {
                     logger.debug("send to segment cost persistence worker, id: {}", segmentCost.getId());
                     context.getClusterWorkerContext().lookup(SegmentCostPersistenceWorker.WorkerRole.INSTANCE).tell(segmentCost.transform());

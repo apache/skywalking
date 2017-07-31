@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.skywalking.apm.collector.stream.worker.impl.data.DataDefine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,9 +17,8 @@ public abstract class WorkerContext implements Context {
     private Map<String, RemoteWorkerRef> remoteWorkerRefs;
     private Map<String, List<WorkerRef>> roleWorkers;
     private Map<String, Role> roles;
-    private Map<Integer, DataDefine> dataDefineMap;
 
-    public WorkerContext() {
+    WorkerContext() {
         this.roleWorkers = new HashMap<>();
         this.roles = new HashMap<>();
         this.remoteWorkerRefs = new HashMap<>();
@@ -32,8 +30,7 @@ public abstract class WorkerContext implements Context {
 
     @Override final public WorkerRefs lookup(Role role) throws WorkerNotFoundException {
         if (getRoleWorkers().containsKey(role.roleName())) {
-            WorkerRefs refs = new WorkerRefs(getRoleWorkers().get(role.roleName()), role.workerSelector());
-            return refs;
+            return new WorkerRefs(getRoleWorkers().get(role.roleName()), role.workerSelector());
         } else {
             throw new WorkerNotFoundException("role=" + role.roleName() + ", no available worker.");
         }
@@ -53,10 +50,6 @@ public abstract class WorkerContext implements Context {
 
     public final Role getRole(String roleName) {
         return roles.get(roleName);
-    }
-
-    public final DataDefine getDataDefine(int defineId) {
-        return dataDefineMap.get(defineId);
     }
 
     @Override final public void put(WorkerRef workerRef) {

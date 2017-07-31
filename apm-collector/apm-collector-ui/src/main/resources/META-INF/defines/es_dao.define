@@ -2,3 +2,4 @@ org.skywalking.apm.collector.ui.dao.NodeComponentEsDAO
 org.skywalking.apm.collector.ui.dao.NodeMappingEsDAO
 org.skywalking.apm.collector.ui.dao.NodeReferenceEsDAO
 org.skywalking.apm.collector.ui.dao.NodeRefSumEsDAO
+org.skywalking.apm.collector.ui.dao.SegmentCostEsDAO
