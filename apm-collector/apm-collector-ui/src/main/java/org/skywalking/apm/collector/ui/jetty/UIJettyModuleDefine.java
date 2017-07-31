@@ -11,7 +11,9 @@ import org.skywalking.apm.collector.server.jetty.JettyServer;
 import org.skywalking.apm.collector.ui.UIModuleDefine;
 import org.skywalking.apm.collector.ui.UIModuleGroupDefine;
 import org.skywalking.apm.collector.ui.jetty.handler.SegmentTopGetHandler;
+import org.skywalking.apm.collector.ui.jetty.handler.SpanGetHandler;
 import org.skywalking.apm.collector.ui.jetty.handler.TraceDagGetHandler;
+import org.skywalking.apm.collector.ui.jetty.handler.TraceStackGetHandler;
 import org.skywalking.apm.collector.ui.jetty.handler.UIJettyServerHandler;
 
 /**
@@ -50,6 +52,8 @@ public class UIJettyModuleDefine extends UIModuleDefine {
         handlers.add(new UIJettyServerHandler());
         handlers.add(new TraceDagGetHandler());
         handlers.add(new SegmentTopGetHandler());
+        handlers.add(new TraceStackGetHandler());
+        handlers.add(new SpanGetHandler());
         return handlers;
     }
 }

@@ -7,3 +7,4 @@ org.skywalking.apm.collector.agentstream.worker.noderef.reference.dao.NodeRefere
 org.skywalking.apm.collector.agentstream.worker.segment.origin.dao.SegmentH2DAO
 org.skywalking.apm.collector.agentstream.worker.noderef.summary.dao.NodeRefSumH2DAO
 org.skywalking.apm.collector.agentstream.worker.segment.cost.dao.SegmentCostH2DAO
+org.skywalking.apm.collector.agentstream.worker.global.dao.GlobalTraceH2DAO

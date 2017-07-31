@@ -12,8 +12,11 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.SortOrder;
+import org.skywalking.apm.collector.agentstream.worker.global.define.GlobalTraceTable;
 import org.skywalking.apm.collector.agentstream.worker.segment.cost.define.SegmentCostTable;
+import org.skywalking.apm.collector.core.util.CollectionUtils;
 import org.skywalking.apm.collector.core.util.StringUtils;
+import org.skywalking.apm.collector.storage.dao.DAOContainer;
 import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
 
 /**
@@ -44,9 +47,6 @@ public class SegmentCostEsDAO extends EsDAO implements ISegmentCostDAO {
         if (!StringUtils.isEmpty(operationName)) {
             mustQueryList.add(QueryBuilders.matchQuery(SegmentCostTable.COLUMN_OPERATION_NAME, operationName));
         }
-        if (!StringUtils.isEmpty(globalTraceId)) {
-            mustQueryList.add(QueryBuilders.matchQuery(SegmentCostTable.COLUMN_GLOBAL_TRACE_ID, globalTraceId));
-        }
 
         searchRequestBuilder.addSort(SegmentCostTable.COLUMN_COST, SortOrder.DESC);
         searchRequestBuilder.setSize(limit);
@@ -64,15 +64,20 @@ public class SegmentCostEsDAO extends EsDAO implements ISegmentCostDAO {
         for (SearchHit searchHit : searchResponse.getHits().getHits()) {
             JsonObject topSegmentJson = new JsonObject();
             topSegmentJson.addProperty("num", num);
-            String segId = (String)searchHit.getSource().get(SegmentCostTable.COLUMN_SEGMENT_ID);
-            topSegmentJson.addProperty(SegmentCostTable.COLUMN_SEGMENT_ID, segId);
+            String segmentId = (String)searchHit.getSource().get(SegmentCostTable.COLUMN_SEGMENT_ID);
+            topSegmentJson.addProperty(SegmentCostTable.COLUMN_SEGMENT_ID, segmentId);
             topSegmentJson.addProperty(SegmentCostTable.COLUMN_START_TIME, (Number)searchHit.getSource().get(SegmentCostTable.COLUMN_START_TIME));
             if (searchHit.getSource().containsKey(SegmentCostTable.COLUMN_END_TIME)) {
                 topSegmentJson.addProperty(SegmentCostTable.COLUMN_END_TIME, (Number)searchHit.getSource().get(SegmentCostTable.COLUMN_END_TIME));
             }
 
+            IGlobalTraceDAO globalTraceDAO = (IGlobalTraceDAO)DAOContainer.INSTANCE.get(IGlobalTraceDAO.class.getName());
+            List<String> globalTraces = globalTraceDAO.getGlobalTraceId(segmentId);
+            if (CollectionUtils.isNotEmpty(globalTraces)) {
+                topSegmentJson.addProperty(GlobalTraceTable.COLUMN_GLOBAL_TRACE_ID, globalTraces.get(0));
+            }
+
             topSegmentJson.addProperty(SegmentCostTable.COLUMN_OPERATION_NAME, (String)searchHit.getSource().get(SegmentCostTable.COLUMN_OPERATION_NAME));
-            topSegmentJson.addProperty(SegmentCostTable.COLUMN_GLOBAL_TRACE_ID, (String)searchHit.getSource().get(SegmentCostTable.COLUMN_GLOBAL_TRACE_ID));
             topSegmentJson.addProperty(SegmentCostTable.COLUMN_COST, (Number)searchHit.getSource().get(SegmentCostTable.COLUMN_COST));
             topSegmentJson.addProperty(SegmentCostTable.COLUMN_IS_ERROR, (Boolean)searchHit.getSource().get(SegmentCostTable.COLUMN_IS_ERROR));
 

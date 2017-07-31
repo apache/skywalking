@@ -5,6 +5,8 @@ import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
 import org.junit.Test;
 import org.skywalking.apm.network.proto.Downstream;
+import org.skywalking.apm.network.proto.KeyWithStringValue;
+import org.skywalking.apm.network.proto.LogMessage;
 import org.skywalking.apm.network.proto.SpanLayer;
 import org.skywalking.apm.network.proto.SpanObject;
 import org.skywalking.apm.network.proto.SpanType;
@@ -86,6 +88,17 @@ public class TraceSegmentServiceHandlerTestCase {
         span_0.setSpanType(SpanType.Entry);
         span_0.setPeerId(2);
         span_0.setPeer("localhost:8082");
+
+        LogMessage.Builder log_0 = LogMessage.newBuilder();
+        log_0.setTime(now);
+        log_0.addData(KeyWithStringValue.newBuilder().setKey("log1").setValue("value1"));
+        log_0.addData(KeyWithStringValue.newBuilder().setKey("log2").setValue("value2"));
+        log_0.addData(KeyWithStringValue.newBuilder().setKey("log3").setValue("value3"));
+        span_0.addLogs(log_0.build());
+
+        span_0.addTags(KeyWithStringValue.newBuilder().setKey("tag1").setValue("value1"));
+        span_0.addTags(KeyWithStringValue.newBuilder().setKey("tag2").setValue("value2"));
+        span_0.addTags(KeyWithStringValue.newBuilder().setKey("tag3").setValue("value3"));
         segmentBuilder.addSpans(span_0);
 
         TraceSegmentReference.Builder ref_0 = TraceSegmentReference.newBuilder();

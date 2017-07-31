@@ -24,8 +24,7 @@ public class SegmentCostEsDAO extends EsDAO implements ISegmentCostDAO {
             logger.debug("segment cost prepareBatch, id: {}", id);
             Map<String, Object> source = new HashMap();
             source.put(SegmentCostTable.COLUMN_SEGMENT_ID, data.getDataString(1));
-            source.put(SegmentCostTable.COLUMN_GLOBAL_TRACE_ID, data.getDataString(2));
-            source.put(SegmentCostTable.COLUMN_OPERATION_NAME, data.getDataString(3));
+            source.put(SegmentCostTable.COLUMN_OPERATION_NAME, data.getDataString(2));
             source.put(SegmentCostTable.COLUMN_COST, data.getDataLong(0));
             source.put(SegmentCostTable.COLUMN_START_TIME, data.getDataLong(1));
             source.put(SegmentCostTable.COLUMN_END_TIME, data.getDataLong(2));
