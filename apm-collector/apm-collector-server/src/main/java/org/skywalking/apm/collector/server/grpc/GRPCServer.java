@@ -3,6 +3,7 @@ package org.skywalking.apm.collector.server.grpc;
 import io.grpc.netty.NettyServerBuilder;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import org.skywalking.apm.collector.core.framework.Handler;
 import org.skywalking.apm.collector.core.server.Server;
 import org.skywalking.apm.collector.core.server.ServerException;
 import org.slf4j.Logger;
@@ -17,27 +18,38 @@ public class GRPCServer implements Server {
 
     private final String host;
     private final int port;
+    private io.grpc.Server server;
+    private NettyServerBuilder nettyServerBuilder;
 
     public GRPCServer(String host, int port) {
         this.host = host;
         this.port = port;
     }
 
+    @Override public String hostPort() {
+        return host + ":" + port;
+    }
+
+    @Override public String serverClassify() {
+        return "Google-RPC";
+    }
+
     @Override public void initialize() throws ServerException {
         InetSocketAddress address = new InetSocketAddress(host, port);
-        NettyServerBuilder nettyServerBuilder = NettyServerBuilder.forAddress(address);
-        try {
-            io.grpc.Server server = nettyServerBuilder.build().start();
-            blockUntilShutdown(server);
-        } catch (InterruptedException | IOException e) {
-            throw new GRPCServerException(e.getMessage(), e);
-        }
+        nettyServerBuilder = NettyServerBuilder.forAddress(address);
         logger.info("Server started, host {} listening on {}", host, port);
     }
 
-    private void blockUntilShutdown(io.grpc.Server server) throws InterruptedException {
-        if (server != null) {
-            server.awaitTermination();
+    @Override public void start() throws ServerException {
+        try {
+            server = nettyServerBuilder.build();
+            server.start();
+        } catch (IOException e) {
+            throw new GRPCServerException(e.getMessage(), e);
         }
+    }
+
+    @Override public void addHandler(Handler handler) {
+        nettyServerBuilder.addService((io.grpc.BindableService)handler);
     }
 }

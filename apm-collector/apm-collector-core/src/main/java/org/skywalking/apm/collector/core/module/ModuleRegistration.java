@@ -1,7 +1,5 @@
 package org.skywalking.apm.collector.core.module;
 
-import com.google.gson.JsonObject;
-
 /**
  * @author pengys5
  */
@@ -12,12 +10,12 @@ public abstract class ModuleRegistration {
     public static class Value {
         private final String host;
         private final int port;
-        private final JsonObject data;
+        private final String contextPath;
 
-        public Value(String host, int port, JsonObject data) {
+        public Value(String host, int port, String contextPath) {
             this.host = host;
             this.port = port;
-            this.data = data;
+            this.contextPath = contextPath;
         }
 
         public String getHost() {
@@ -28,8 +26,12 @@ public abstract class ModuleRegistration {
             return port;
         }
 
-        public JsonObject getData() {
-            return data;
+        public String getHostPort() {
+            return host + ":" + port;
+        }
+
+        public String getContextPath() {
+            return contextPath;
         }
     }
 }

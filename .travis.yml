@@ -18,5 +18,5 @@ script:
   - mvn clean install
 
 after_success:
-  - mvn clean cobertura:cobertura coveralls:report
+  - mvn clean test jacoco:report coveralls:report
   - bash ./travis/push_image.sh
