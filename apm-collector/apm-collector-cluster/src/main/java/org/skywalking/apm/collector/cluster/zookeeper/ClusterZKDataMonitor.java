@@ -10,6 +10,7 @@ import org.apache.zookeeper.ZooDefs;
 import org.skywalking.apm.collector.client.zookeeper.ZookeeperClient;
 import org.skywalking.apm.collector.client.zookeeper.ZookeeperClientException;
 import org.skywalking.apm.collector.client.zookeeper.util.PathUtils;
+import org.skywalking.apm.collector.cluster.ClusterNodeExistException;
 import org.skywalking.apm.collector.core.client.Client;
 import org.skywalking.apm.collector.core.client.ClientException;
 import org.skywalking.apm.collector.core.client.DataMonitor;
@@ -74,7 +75,11 @@ public class ClusterZKDataMonitor implements DataMonitor, Watcher {
         String serverPath = path + "/" + value.getHostPort();
         listener.addAddress(value.getHostPort() + contextPath);
 
-        setData(serverPath, contextPath);
+        if (client.exists(serverPath, false) == null) {
+            setData(serverPath, contextPath);
+        } else {
+            throw new ClusterNodeExistException("current address: " + value.getHostPort() + " has been registered, check the host and port configuration or wait a moment.");
+        }
     }
 
     @Override public ClusterDataListener getListener(String path) {
