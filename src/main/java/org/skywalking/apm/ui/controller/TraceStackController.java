@@ -1,9 +1,11 @@
 package org.skywalking.apm.ui.controller;
 
-import org.skywalking.apm.ui.service.GlobalTraceService;
-import org.skywalking.apm.ui.web.ControllerBase;
+import java.io.IOException;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.skywalking.apm.ui.service.TraceStackService;
+import org.skywalking.apm.ui.web.ControllerBase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -11,25 +13,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-
 /**
  * @author pengys5
  */
 @Controller
-public class GlobalTraceController extends ControllerBase {
+public class TraceStackController extends ControllerBase {
 
-    private Logger logger = LogManager.getFormatterLogger(GlobalTraceController.class);
+    private Logger logger = LogManager.getFormatterLogger(TraceStackController.class);
 
     @Autowired
-    private GlobalTraceService service;
+    private TraceStackService service;
 
-    @RequestMapping(value = "loadGlobalTraceData", method = RequestMethod.GET)
+    @RequestMapping(value = "loadTraceStackData", method = RequestMethod.GET)
     @ResponseBody
-    public void loadGlobalTraceData(@ModelAttribute("globalId") String globalId, HttpServletResponse response) throws IOException {
+    public void loadTraceStackData(@ModelAttribute("globalId") String globalId,
+        HttpServletResponse response) throws IOException {
         logger.debug("costDataLoad globalId = %s", globalId);
-        String globalTraceData = service.loadGlobalTraceData(globalId);
+        String globalTraceData = service.loadTraceStackData(globalId);
         reply(globalTraceData, response);
     }
 }

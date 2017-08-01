@@ -1,20 +1,19 @@
 package org.skywalking.apm.ui.service;
 
-import org.skywalking.apm.ui.creator.UrlCreator;
-import org.skywalking.apm.ui.tools.HttpClientTools;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.skywalking.apm.ui.creator.UrlCreator;
+import org.skywalking.apm.ui.tools.HttpClientTools;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author pengys5
@@ -27,24 +26,22 @@ public class SpanService {
     private Gson gson = new GsonBuilder().serializeNulls().create();
 
     @Autowired
-    private UrlCreator urlCreator;
+    private UrlCreator UrlCreator;
 
     public JsonObject loadData(String spanSegId) throws IOException {
-        String[] spanSegIds = spanSegId.split("--");
-        String segId = spanSegIds[0].replaceAll("A", ".");
+        String[] spanSegIds = spanSegId.split("S");
+        String segmentId = spanSegIds[0];
         String spanId = spanSegIds[1];
 
         List<NameValuePair> params = new ArrayList<NameValuePair>();
-        params.add(new BasicNameValuePair("segId", segId));
+        params.add(new BasicNameValuePair("segmentId", segmentId));
         params.add(new BasicNameValuePair("spanId", spanId));
 
-        String spanLoadUrl = urlCreator.compound("/span/spanId");
+        String spanLoadUrl = UrlCreator.compound("span/spanId");
         String spanResponse = HttpClientTools.INSTANCE.get(spanLoadUrl, params);
         logger.debug("load span data: %s", spanResponse);
 
         JsonObject spanResponseJson = gson.fromJson(spanResponse, JsonObject.class);
-        JsonObject spanJson = spanResponseJson.get("result").getAsJsonObject();
-
-        return spanJson;
+        return spanResponseJson;
     }
 }

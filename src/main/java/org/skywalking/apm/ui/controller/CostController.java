@@ -31,7 +31,7 @@ public class CostController extends ControllerBase {
     public void costDataLoad(@ModelAttribute("timeSliceType") String timeSliceType, @ModelAttribute("startTime") long startTime,
                              @ModelAttribute("endTime") long endTime, HttpServletResponse response) throws IOException {
         logger.debug("costDataLoad timeSliceType = %s, startTime = %s, endTime = %s", timeSliceType, startTime, endTime);
-        JsonObject dagJson = service.loadCostData(timeSliceType, startTime, endTime);
-        reply(dagJson.toString(), response);
+//        JsonObject dagJson = service.loadCostData(timeSliceType, startTime, endTime);
+        reply("", response);
     }
 }

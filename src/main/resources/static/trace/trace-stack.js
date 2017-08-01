@@ -36,60 +36,28 @@ var height = 36;
 var margin = 10;
 
 function buildNodes(data) {
-    sortChildren(data);
-
     $.each(data, function (item) {
         buildNode(data[item]);
-
-        var children = data[item].childSpans;
-        buildNodes(children);
     })
-}
-var group = 0;
-function sortChildren(data) {
-    if (data.length < 2) {
-        return;
-    }
-
-    var tmp;
-    for (var i = 0; i < data.length; i++) {
-        for (var j = i + 1; j < data.length; j++) {
-            var spanId_i = Number(data[i].spanId);
-            var spanId_j = Number(data[j].spanId);
-            if (spanId_j < spanId_i) {
-                tmp = data[i];
-                data[i] = data[j];
-                data[j] = tmp;
-            }
-        }
-    }
-    console.log("group: " + group);
-    console.log(data);
-
-    group++;
 }
 
 function buildNode(data) {
     var node = {};
-
-    var spanSegId = data.spanSegId.replace(/\./g, 'A');
-    var parentSpanSegId = data.parentSpanSegId.replace(/\./g, 'A');
-
-    node.segId = data.segId;
-    node.appCode = data.appCode;
-    node.startTime = data.relativeStartTime;
+    node.applicationCode = data.applicationCode;
+    node.startTime = data.startTime;
     node.duration = data.cost;
     node.content = data.operationName;
-    node.spanSegId = spanSegId;
-    node.parentSpanSegId = parentSpanSegId;
+    node.spanSegId = data.segmentSpanId;
+    node.parentSpanSegId = data.segmentParentSpanId;
+    node.isRoot = data.isRoot;
     nodes.push(node);
 
-    if (!colorMap[data.appCode]) {
-        colorMap[data.appCode] = colors[colorIndex];
+    if (!colorMap[data.applicationCode]) {
+        colorMap[data.applicationCode] = colors[colorIndex];
         colorIndex++;
     }
 
-    idMap[spanSegId] = nodes.length - 1;
+    idMap[node.spanSegId] = nodes.length - 1;
 }
 
 function drawStack(globalId) {
@@ -99,10 +67,10 @@ function drawStack(globalId) {
 
     $.ajax({
         type: "GET",
-        url: "/loadGlobalTraceData?globalId=" + globalId,
+        url: "/loadTraceStackData?globalId=" + globalId,
         dataType: "json",
         success: function (data) {
-            buildNodes($.parseJSON(data));
+            buildNodes(eval(data));
             drawAxis();
             displayData();
             drawLegend();
@@ -170,10 +138,10 @@ function displayData() {
         var startTime = nodes[key].startTime,
             duration = nodes[key].duration,
             content = nodes[key].content,
-            segId = nodes[key].segId,
-            appCode = nodes[key].appCode,
+            applicationCode = nodes[key].applicationCode,
             spanSegId = nodes[key].spanSegId,
-            parentSpanSegId = nodes[key].parentSpanSegId;
+            parentSpanSegId = nodes[key].parentSpanSegId,
+            isRoot = nodes[key].isRoot;
 
         // svgContainer.append("rect").attr("x", 0).attr("y", key * height).attr("width", "100%").attr("height", height).style("fill", color);
 
@@ -188,7 +156,7 @@ function displayData() {
         var beginY = key * height;
         console.log("x: " + beginX + ",y: " + beginY + ",width: " + rectWith + ",id: " + spanSegId);
         bar.append("rect").attr("x", beginX).attr("y", beginY).attr("width", rectWith).attr("height", height - margin)
-            .attr("id", spanSegId).style("fill", colorMap[appCode])
+            .attr("id", spanSegId).style("fill", colorMap[applicationCode])
             .on("click", function () {
                 showSpanModal(d3.select(this).attr("id"));
             });
@@ -199,7 +167,7 @@ function displayData() {
             .attr("class", "rectText")
             .text(content);
 
-        if (parentSpanSegId != "-1") {
+        if (!isRoot) {
             var parentSvg = d3.select("#" + parentSpanSegId);
             var parentX = parentSvg.attr("x");
             var parentY = parentSvg.attr("y");
