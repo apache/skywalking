@@ -30,23 +30,23 @@ public class TraceDagService {
     private ImageCache imageCache;
 
     @Autowired
-    private UrlCreator urlCreator;
+    private UrlCreator UrlCreator;
 
-    public JsonObject buildGraphData(String timeSliceType, long startTime, long endTime) throws IOException {
-        return loadDataFromServer(timeSliceType, startTime, endTime);
+    public JsonObject buildGraphData(String timeBucketType, long startTime, long endTime) throws IOException {
+        return loadDataFromServer(timeBucketType, startTime, endTime);
     }
 
-    public JsonObject loadDataFromServer(String timeSliceType, long startTime, long endTime) throws IOException {
+    public JsonObject loadDataFromServer(String timeBucketType, long startTime, long endTime) throws IOException {
         List<NameValuePair> params = new ArrayList<NameValuePair>();
-        params.add(new BasicNameValuePair("timeSliceType", timeSliceType));
+        params.add(new BasicNameValuePair("timeBucketType", timeBucketType));
         params.add(new BasicNameValuePair("startTime", String.valueOf(startTime)));
         params.add(new BasicNameValuePair("endTime", String.valueOf(endTime)));
 
-        String traceDagUrl = urlCreator.compound("/traceDag/timeSlice");
+        String traceDagUrl = UrlCreator.compound("traceDag");
         String traceDagResponse = HttpClientTools.INSTANCE.get(traceDagUrl, params);
         logger.debug("trace dag response: %s", traceDagResponse);
 
-        JsonObject dagJsonObj = gson.fromJson(traceDagResponse, JsonObject.class).get("result").getAsJsonObject();
+        JsonObject dagJsonObj = gson.fromJson(traceDagResponse, JsonObject.class).getAsJsonObject();
         JsonArray nodesArray = dagJsonObj.get("nodes").getAsJsonArray();
 
         JsonArray newNodesArray = new JsonArray();

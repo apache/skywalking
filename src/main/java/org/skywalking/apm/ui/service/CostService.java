@@ -29,7 +29,7 @@ public class CostService {
     private Gson gson = new GsonBuilder().serializeNulls().create();
 
     @Autowired
-    private UrlCreator urlCreator;
+    private UrlCreator UrlCreator;
 
     public JsonObject loadCostData(String timeSliceType, long startTime, long endTime) throws IOException {
         List<NameValuePair> params = new ArrayList<NameValuePair>();
@@ -37,7 +37,7 @@ public class CostService {
         params.add(new BasicNameValuePair("startTime", String.valueOf(startTime)));
         params.add(new BasicNameValuePair("endTime", String.valueOf(endTime)));
 
-        String costLoadUrl = urlCreator.compound("/nodeRef/resSum/groupTimeSlice");
+        String costLoadUrl = UrlCreator.compound("/nodeRef/resSum/groupTimeSlice");
         String costResponse = HttpClientTools.INSTANCE.get(costLoadUrl, params);
         logger.debug("load cost data: %s", costResponse);
 

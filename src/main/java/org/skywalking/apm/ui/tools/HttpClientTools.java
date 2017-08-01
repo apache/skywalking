@@ -1,6 +1,9 @@
 package org.skywalking.apm.ui.tools;
 
 import com.google.gson.JsonElement;
+import java.io.IOException;
+import java.net.URI;
+import java.util.List;
 import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
@@ -15,10 +18,6 @@ import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.IOException;
-import java.net.URI;
-import java.util.List;
-
 /**
  * @author pengys5
  */
@@ -31,8 +30,12 @@ public enum HttpClientTools {
         CloseableHttpClient httpClient = HttpClients.createDefault();
         try {
             HttpGet httpget = new HttpGet(url);
-            String paramStr = EntityUtils.toString(new UrlEncodedFormEntity(params));
-            httpget.setURI(new URI(httpget.getURI().toString() + "?" + paramStr));
+            if (params == null) {
+                httpget.setURI(new URI(httpget.getURI().toString()));
+            } else {
+                String paramStr = EntityUtils.toString(new UrlEncodedFormEntity(params));
+                httpget.setURI(new URI(httpget.getURI().toString() + "?" + paramStr));
+            }
             logger.debug("executing get request %s", httpget.getURI());
 
             try (CloseableHttpResponse response = httpClient.execute(httpget)) {

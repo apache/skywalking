@@ -36,11 +36,11 @@ function createTopTraceDataTable() {
         "pagingType": "numbers",
         "columns": [
             {"data": "num"},
-            {"data": "startTime"},
-            {"data": "operationName"},
-            {"data": "isError"},
+            {"data": "start_time"},
+            {"data": "operation_name"},
+            {"data": "is_error"},
             {"data": "cost"},
-            {"data": "traceIds"}
+            {"data": "global_trace_id"}
         ],
         ajax: function (data, callback, settings) {
             var param = {};

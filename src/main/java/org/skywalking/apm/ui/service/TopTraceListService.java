@@ -28,7 +28,7 @@ public class TopTraceListService {
     private Gson gson = new GsonBuilder().serializeNulls().create();
 
     @Autowired
-    private UrlCreator urlCreator;
+    private UrlCreator UrlCreator;
 
     public String load(long startTime, long endTime, int minCost, int maxCost, int limit,
         int from, String globalTraceId, String operationName) throws IOException {
@@ -42,7 +42,7 @@ public class TopTraceListService {
         params.add(new BasicNameValuePair("globalTraceId", globalTraceId));
         params.add(new BasicNameValuePair("operationName", operationName));
 
-        String topSegLoadUrl = urlCreator.compound("/segments/top");
+        String topSegLoadUrl = UrlCreator.compound("segment/top");
         String topSegResponse = HttpClientTools.INSTANCE.get(topSegLoadUrl, params);
         logger.debug("load top segment data: %s", topSegResponse);
 
@@ -57,29 +57,24 @@ public class TopTraceListService {
         JsonArray topSegDataArray = new JsonArray();
         JsonObject topSegJson = gson.fromJson(topSegResponse, JsonObject.class);
 
-        if (topSegJson.has("result")) {
-            JsonObject topSegPaging = topSegJson.get("result").getAsJsonObject();
-            topSegDataJson = topSegPaging;
+        JsonArray dataArray = topSegJson.get("data").getAsJsonArray();
+        for (int i = 0; i < dataArray.size(); i++) {
+            JsonObject data = dataArray.get(i).getAsJsonObject();
+            long start = data.get("start_time").getAsLong();
+            String startStr = TimeTools.dateFormat.format(start);
+            String traceIds = data.get("global_trace_id").getAsString();
+            data.addProperty("DT_RowId", traceIds);
+            data.addProperty("start_time", startStr);
 
-            JsonArray dataArray = topSegPaging.get("data").getAsJsonArray();
-            for (int i = 0; i < dataArray.size(); i++) {
-                JsonObject data = dataArray.get(i).getAsJsonObject();
-                long start = data.get("startTime").getAsLong();
-                String startStr = TimeTools.dateFormat.format(start);
-                String traceIds = data.get("traceIds").getAsString();
-                data.addProperty("startTime", startStr);
-                data.addProperty("DT_RowId", traceIds);
-
-                if (data.get("isError").getAsBoolean()) {
-                    data.addProperty("isError", "Failed");
-                } else {
-                    data.addProperty("isError", "Success");
-                }
-
-                topSegDataArray.add(data);
+            if (data.get("is_error").getAsBoolean()) {
+                data.addProperty("is_error", "Failed");
+            } else {
+                data.addProperty("is_error", "Success");
             }
+
+            topSegDataArray.add(data);
         }
-        topSegDataJson.addProperty("recordsFiltered", topSegDataJson.get("recordsTotal").getAsNumber());
+        topSegDataJson.addProperty("recordsFiltered", topSegJson.get("recordsTotal").getAsNumber());
         topSegDataJson.add("data", topSegDataArray);
 
         return topSegDataJson;
