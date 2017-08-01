@@ -159,25 +159,17 @@
             </plugin>
             <!-- 覆盖率 -->
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>cobertura-maven-plugin</artifactId>
-                <version>2.7</version>
-                <configuration>
-                    <check>true</check>
-                    <encoding>UTF-8</encoding>
-                    <aggregate>true</aggregate>
-                    <formats>
-                        <format>xml</format>
-                        <format>html</format>
-                    </formats>
-                    <instrumentation>
-                        <excludes>
-                            <exclude>org/skywalking/apm/network/**/*.class</exclude>
-                            <exclude>org/skywalking/apm/collector/remote/grpc/**/*.class</exclude>
-                            <exclude>org/skywalking/apm/agent/core/context/ids/base64/*.class</exclude>
-                        </excludes>
-                    </instrumentation>
-                </configuration>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.7.9</version>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>com.spotify</groupId>
