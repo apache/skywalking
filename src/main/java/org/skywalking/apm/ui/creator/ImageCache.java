@@ -1,9 +1,9 @@
 package org.skywalking.apm.ui.creator;
 
-import org.springframework.stereotype.Component;
-
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.springframework.stereotype.Component;
 
 /**
  * @author pengys5
@@ -13,7 +13,7 @@ public class ImageCache {
 
     public static final String UNDEFINED_IMAGE = "UNDEFINED";
 
-    private Map<String, String> imageCache = new HashMap<>();
+    private Map<String, String> imageCache = new ConcurrentHashMap<>();
 
     public void putImage(String imageName, String base64Data) {
         imageCache.put(imageName.toLowerCase(), base64Data);

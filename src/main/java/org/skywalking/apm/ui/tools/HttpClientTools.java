@@ -40,7 +40,6 @@ public enum HttpClientTools {
 
             try (CloseableHttpResponse response = httpClient.execute(httpget)) {
                 HttpEntity entity = response.getEntity();
-                System.out.println(response.getStatusLine());
                 if (entity != null) {
                     return EntityUtils.toString(entity);
                 }

@@ -13,7 +13,10 @@ import org.springframework.stereotype.Component;
 public class UrlCreator {
 
     private List<String> servers;
-    private boolean lock = false;
+    
+    private boolean inited=false;
+    
+    private Object waiter=new Object();
 
     public UrlCreator() {
         servers = new ArrayList<>();
@@ -23,10 +26,13 @@ public class UrlCreator {
     private ServerSelector serverSelector;
 
     public String compound(String urlSuffix) {
-        while (lock) {
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
+        if(!inited) {
+            synchronized (waiter) {
+                try {
+                    waiter.wait(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }
         String server = serverSelector.select(servers);
@@ -38,7 +44,10 @@ public class UrlCreator {
             this.servers.clear();
             this.servers.addAll(servers);
         } finally {
-            lock = false;
+            inited = true;
+            synchronized (waiter) {
+                waiter.notifyAll();
+            }
         }
     }
 }

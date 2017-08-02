@@ -24,11 +24,14 @@ public enum CollectorUIServerGetterTimer {
     public void start(ApplicationContext applicationContext) {
         logger.info("collector ui server getter timer start");
         final long timeInterval = 10 * 1000;
+        
+        UIConfig uiConfig = applicationContext.getBean(UIConfig.class);
+        UrlCreator urlCreator = applicationContext.getBean(UrlCreator.class);
 
         Thread persistenceThread = new Thread(() -> {
             while (true) {
                 try {
-                    getServer(applicationContext);
+                    getServer(uiConfig, urlCreator);
                 } catch (Throwable e) {
                     logger.error(e.getMessage(), e);
                 } finally {
@@ -43,9 +46,7 @@ public enum CollectorUIServerGetterTimer {
         persistenceThread.start();
     }
 
-    private void getServer(ApplicationContext applicationContext) {
-        UIConfig uiConfig = applicationContext.getBean(UIConfig.class);
-        UrlCreator urlCreator = applicationContext.getBean(UrlCreator.class);
+    private void getServer(UIConfig uiConfig, UrlCreator urlCreator) {
         for (String server : uiConfig.getServers()) {
             try {
                 String uiServerResponse = HttpClientTools.INSTANCE.get("http://" + server + "/ui/jetty", null);
