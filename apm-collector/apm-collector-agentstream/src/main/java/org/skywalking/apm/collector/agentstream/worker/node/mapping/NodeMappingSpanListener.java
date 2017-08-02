@@ -55,7 +55,7 @@ public class NodeMappingSpanListener implements RefsListener, FirstSpanListener 
 
             try {
                 logger.debug("send to node mapping aggregation worker, id: {}", nodeMapping.getId());
-                context.getClusterWorkerContext().lookup(NodeMappingAggregationWorker.WorkerRole.INSTANCE).tell(nodeMapping.transform());
+                context.getClusterWorkerContext().lookup(NodeMappingAggregationWorker.WorkerRole.INSTANCE).tell(nodeMapping.toData());
             } catch (WorkerInvokeException | WorkerNotFoundException e) {
                 logger.error(e.getMessage(), e);
             }

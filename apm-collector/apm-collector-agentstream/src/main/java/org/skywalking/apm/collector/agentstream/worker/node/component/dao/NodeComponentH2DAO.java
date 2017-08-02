@@ -12,4 +12,8 @@ public class NodeComponentH2DAO extends H2DAO implements INodeComponentDAO {
     @Override public List<?> prepareBatch(Map map) {
         return null;
     }
+
+    @Override public int getComponentId(int applicationId, String componentName) {
+        return 0;
+    }
 }

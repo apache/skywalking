@@ -66,7 +66,7 @@ public class SegmentCostSpanListener implements EntrySpanListener, ExitSpanListe
             segmentCost.setTimeBucket(timeBucket);
             try {
                 logger.debug("send to segment cost persistence worker, id: {}", segmentCost.getId());
-                context.getClusterWorkerContext().lookup(SegmentCostPersistenceWorker.WorkerRole.INSTANCE).tell(segmentCost.transform());
+                context.getClusterWorkerContext().lookup(SegmentCostPersistenceWorker.WorkerRole.INSTANCE).tell(segmentCost.toData());
             } catch (WorkerInvokeException | WorkerNotFoundException e) {
                 logger.error(e.getMessage(), e);
             }

@@ -20,6 +20,7 @@ public class InstanceIDService {
     private final Logger logger = LoggerFactory.getLogger(InstanceIDService.class);
 
     public int getOrCreate(int applicationId, String agentUUID, long registerTime) {
+        logger.debug("get or create instance id, application id: {}, agentUUID: {}, registerTime: {}", applicationId, agentUUID, registerTime);
         IInstanceDAO dao = (IInstanceDAO)DAOContainer.INSTANCE.get(IInstanceDAO.class.getName());
         int instanceId = dao.getInstanceId(applicationId, agentUUID);
 
@@ -36,11 +37,13 @@ public class InstanceIDService {
     }
 
     public void heartBeat(int instanceId, long heartbeatTime) {
+        logger.debug("instance heart beat, instance id: {}, heartbeat time: {}", instanceId, heartbeatTime);
         IInstanceDAO dao = (IInstanceDAO)DAOContainer.INSTANCE.get(IInstanceDAO.class.getName());
         dao.updateHeartbeatTime(instanceId, heartbeatTime);
     }
 
     public void recover(int instanceId, int applicationId, long registerTime) {
+        logger.debug("instance recover, instance id: {}, application id: {}, register time: {}", instanceId, applicationId, registerTime);
         IInstanceDAO dao = (IInstanceDAO)DAOContainer.INSTANCE.get(IInstanceDAO.class.getName());
 
         InstanceDataDefine.Instance instance = new InstanceDataDefine.Instance(String.valueOf(instanceId), applicationId, "", registerTime, instanceId);

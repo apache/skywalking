@@ -96,7 +96,7 @@ public class NodeRefSumSpanListener implements EntrySpanListener, ExitSpanListen
 
             try {
                 logger.debug("send to node reference summary aggregation worker, id: {}", referenceSum.getId());
-                context.getClusterWorkerContext().lookup(NodeRefSumAggregationWorker.WorkerRole.INSTANCE).tell(referenceSum.transform());
+                context.getClusterWorkerContext().lookup(NodeRefSumAggregationWorker.WorkerRole.INSTANCE).tell(referenceSum.toData());
             } catch (WorkerInvokeException | WorkerNotFoundException e) {
                 logger.error(e.getMessage(), e);
             }

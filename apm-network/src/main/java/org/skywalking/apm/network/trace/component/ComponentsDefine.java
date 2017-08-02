@@ -29,4 +29,34 @@ public class ComponentsDefine {
     public static final OfficialComponent FEIGN = new OfficialComponent(11, "Feign");
 
     public static final OfficialComponent OKHTTP = new OfficialComponent(12, "OKHttp");
+
+    public static String getComponentName(int componentId) {
+        if (TOMCAT.getId() == componentId) {
+            return TOMCAT.getName();
+        } else if (HTTPCLIENT.getId() == componentId) {
+            return HTTPCLIENT.getName();
+        } else if (DUBBO.getId() == componentId) {
+            return DUBBO.getName();
+        } else if (H2.getId() == componentId) {
+            return H2.getName();
+        } else if (MYSQL.getId() == componentId) {
+            return MYSQL.getName();
+        } else if (ORACLE.getId() == componentId) {
+            return ORACLE.getName();
+        } else if (REDIS.getId() == componentId) {
+            return REDIS.getName();
+        } else if (MOTAN.getId() == componentId) {
+            return MOTAN.getName();
+        } else if (MONGODB.getId() == componentId) {
+            return MONGODB.getName();
+        } else if (RESIN.getId() == componentId) {
+            return RESIN.getName();
+        } else if (FEIGN.getId() == componentId) {
+            return FEIGN.getName();
+        } else if (OKHTTP.getId() == componentId) {
+            return OKHTTP.getName();
+        } else {
+            return null;
+        }
+    }
 }

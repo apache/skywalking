@@ -5,7 +5,7 @@ import org.skywalking.apm.collector.stream.worker.impl.data.Attribute;
 import org.skywalking.apm.collector.stream.worker.impl.data.AttributeType;
 import org.skywalking.apm.collector.stream.worker.impl.data.Data;
 import org.skywalking.apm.collector.stream.worker.impl.data.DataDefine;
-import org.skywalking.apm.collector.stream.worker.impl.data.TransformToData;
+import org.skywalking.apm.collector.stream.worker.impl.data.Transform;
 import org.skywalking.apm.collector.stream.worker.impl.data.operate.CoverOperation;
 import org.skywalking.apm.collector.stream.worker.impl.data.operate.NonOperation;
 
@@ -59,7 +59,7 @@ public class SegmentCostDataDefine extends DataDefine {
         return builder.build();
     }
 
-    public static class SegmentCost implements TransformToData {
+    public static class SegmentCost implements Transform {
         private String id;
         private String segmentId;
         private String operationName;
@@ -84,7 +84,7 @@ public class SegmentCostDataDefine extends DataDefine {
         public SegmentCost() {
         }
 
-        @Override public Data transform() {
+        @Override public Data toData() {
             SegmentCostDataDefine define = new SegmentCostDataDefine();
             Data data = define.build(id);
             data.setDataString(0, this.id);
@@ -96,6 +96,10 @@ public class SegmentCostDataDefine extends DataDefine {
             data.setDataBoolean(0, this.isError);
             data.setDataLong(3, this.timeBucket);
             return data;
+        }
+
+        @Override public Object toSelf(Data data) {
+            return null;
         }
 
         public String getId() {
