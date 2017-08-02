@@ -14,7 +14,7 @@ public class UrlCreator {
 
     private List<String> servers;
     
-    private boolean inited=false;
+    private volatile boolean inited=false;
     
     private Object waiter=new Object();
 
@@ -29,7 +29,7 @@ public class UrlCreator {
         if(!inited) {
             synchronized (waiter) {
                 try {
-                    waiter.wait(1000);
+                    waiter.wait(100);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

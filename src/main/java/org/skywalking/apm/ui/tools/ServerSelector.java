@@ -1,8 +1,6 @@
 package org.skywalking.apm.ui.tools;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.ReentrantLock;
 
 import org.springframework.stereotype.Component;
 
@@ -12,25 +10,22 @@ import org.springframework.stereotype.Component;
 @Component
 public class ServerSelector {
 
-    private AtomicInteger index = new AtomicInteger();
-    private Integer MAX_INDEX = Integer.MAX_VALUE - 10000;
-    private ReentrantLock lock = new ReentrantLock();
+    private final Integer MAX_INDEX = Integer.MAX_VALUE - 10000;
+
+    private int index = 0;
 
     public String select(List<String> serverList) {
         int size = serverList.size();
-        int tmpIndex = index.incrementAndGet();
-        int selectIndex = Math.abs(tmpIndex) % size;
+        int selectIndex = Math.abs(index) % size;
 
-        if (tmpIndex > MAX_INDEX) {
-            try {
-                lock.lock();
-                if (index.get() > MAX_INDEX) {
-                    index.set(0);
-                }
-            } finally {
-                lock.unlock();
-            }
+        if (index > MAX_INDEX) {
+            index = 0;
         }
-        return serverList.get(selectIndex);
+        try {
+            return serverList.get(selectIndex);
+        } catch (Exception e) {
+
+        }
+        return serverList.get(0);
     }
 }
