@@ -29,13 +29,13 @@ public class NodeComponentSpanListener implements EntrySpanListener, ExitSpanLis
 
     @Override
     public void parseExit(SpanObject spanObject, int applicationId, int applicationInstanceId, String segmentId) {
-        String componentName = ComponentsDefine.getComponentName(spanObject.getComponentId());
+        String componentName = ComponentsDefine.getInstance().getComponentName(spanObject.getComponentId());
         createNodeComponent(spanObject, applicationId, componentName);
     }
 
     @Override
     public void parseEntry(SpanObject spanObject, int applicationId, int applicationInstanceId, String segmentId) {
-        String componentName = ComponentsDefine.getComponentName(spanObject.getComponentId());
+        String componentName = ComponentsDefine.getInstance().getComponentName(spanObject.getComponentId());
         createNodeComponent(spanObject, applicationId, componentName);
     }
 

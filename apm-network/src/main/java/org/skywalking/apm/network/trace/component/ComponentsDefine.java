@@ -6,6 +6,7 @@ package org.skywalking.apm.network.trace.component;
  * @author wusheng
  */
 public class ComponentsDefine {
+
     public static final OfficialComponent TOMCAT = new OfficialComponent(1, "Tomcat");
 
     public static final OfficialComponent HTTPCLIENT = new OfficialComponent(2, "HttpClient");
@@ -30,33 +31,39 @@ public class ComponentsDefine {
 
     public static final OfficialComponent OKHTTP = new OfficialComponent(12, "OKHttp");
 
-    public static String getComponentName(int componentId) {
-        if (TOMCAT.getId() == componentId) {
-            return TOMCAT.getName();
-        } else if (HTTPCLIENT.getId() == componentId) {
-            return HTTPCLIENT.getName();
-        } else if (DUBBO.getId() == componentId) {
-            return DUBBO.getName();
-        } else if (H2.getId() == componentId) {
-            return H2.getName();
-        } else if (MYSQL.getId() == componentId) {
-            return MYSQL.getName();
-        } else if (ORACLE.getId() == componentId) {
-            return ORACLE.getName();
-        } else if (REDIS.getId() == componentId) {
-            return REDIS.getName();
-        } else if (MOTAN.getId() == componentId) {
-            return MOTAN.getName();
-        } else if (MONGODB.getId() == componentId) {
-            return MONGODB.getName();
-        } else if (RESIN.getId() == componentId) {
-            return RESIN.getName();
-        } else if (FEIGN.getId() == componentId) {
-            return FEIGN.getName();
-        } else if (OKHTTP.getId() == componentId) {
-            return OKHTTP.getName();
-        } else {
+    private static ComponentsDefine instance = new ComponentsDefine();
+
+    private String[] components;
+
+    public static ComponentsDefine getInstance() {
+        return instance;
+    }
+
+    public ComponentsDefine() {
+        components = new String[13];
+        addComponent(TOMCAT);
+        addComponent(HTTPCLIENT);
+        addComponent(DUBBO);
+        addComponent(H2);
+        addComponent(MYSQL);
+        addComponent(ORACLE);
+        addComponent(REDIS);
+        addComponent(MOTAN);
+        addComponent(MONGODB);
+        addComponent(RESIN);
+        addComponent(FEIGN);
+        addComponent(OKHTTP);
+    }
+
+    private void addComponent(OfficialComponent component) {
+        components[component.getId()] = component.getName();
+    }
+
+    public String getComponentName(int componentId) {
+        if (componentId > components.length - 1 || componentId == 0) {
             return null;
+        } else {
+            return components[componentId];
         }
     }
 }

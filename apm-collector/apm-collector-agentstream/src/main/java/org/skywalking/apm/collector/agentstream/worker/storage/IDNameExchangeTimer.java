@@ -1,6 +1,8 @@
 package org.skywalking.apm.collector.agentstream.worker.storage;
 
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import org.skywalking.apm.collector.core.framework.Starter;
 import org.skywalking.apm.collector.stream.worker.WorkerException;
 import org.skywalking.apm.collector.stream.worker.impl.ExchangeWorker;
@@ -20,20 +22,9 @@ public class IDNameExchangeTimer implements Starter {
         logger.info("id and name exchange timer start");
         //TODO timer value config
 //        final long timeInterval = EsConfig.Es.Persistence.Timer.VALUE * 1000;
-        final long timeInterval = 3 * 1000;
+        final long timeInterval = 3;
 
-        Thread exchangeThread = new Thread(() -> {
-            while (true) {
-                try {
-                    exchangeLastData();
-                    Thread.sleep(timeInterval);
-                } catch (Throwable e) {
-                    logger.error(e.getMessage(), e);
-                }
-            }
-        });
-        exchangeThread.setName("timerExchange");
-        exchangeThread.start();
+        Executors.newSingleThreadScheduledExecutor().schedule(() -> exchangeLastData(), timeInterval, TimeUnit.SECONDS);
     }
 
     private void exchangeLastData() {

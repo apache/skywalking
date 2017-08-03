@@ -14,11 +14,11 @@ public class ComponentCache {
     private static Cache<String, Integer> CACHE = CacheBuilder.newBuilder().maximumSize(1000).build();
 
     public static int get(int applicationId, String componentName) {
-        INodeComponentDAO dao = (INodeComponentDAO)DAOContainer.INSTANCE.get(INodeComponentDAO.class.getName());
         try {
-            return CACHE.get(applicationId + Const.ID_SPLIT + componentName, () ->
-                dao.getComponentId(applicationId, componentName)
-            );
+            return CACHE.get(applicationId + Const.ID_SPLIT + componentName, () -> {
+                INodeComponentDAO dao = (INodeComponentDAO)DAOContainer.INSTANCE.get(INodeComponentDAO.class.getName());
+                return dao.getComponentId(applicationId, componentName);
+            });
         } catch (Throwable e) {
             return 0;
         }
