@@ -24,7 +24,6 @@ public class ServerSelector {
         try {
             return serverList.get(selectIndex);
         } catch (Exception e) {
-
         }
         return serverList.get(0);
     }
