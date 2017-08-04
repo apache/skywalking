@@ -4,8 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import sun.misc.BASE64Encoder;
-
+import java.util.Base64;
 import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.FileInputStream;
@@ -89,11 +88,10 @@ public class ImageBase64Creator {
     }
 
     private String imageEncode(byte[] imageData, String imageType) {
-        BASE64Encoder encoder = new BASE64Encoder();
         if (PNG.equals(imageType)) {
-            return PNG_BASE64_PREFIX + encoder.encode(imageData);
+            return PNG_BASE64_PREFIX + Base64.getEncoder().encode(imageData);
         } else {
-            return JPG_BASE64_PREFIX + encoder.encode(imageData);
+            return JPG_BASE64_PREFIX + Base64.getEncoder().encode(imageData);
         }
     }
 }

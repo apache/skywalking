@@ -61,7 +61,7 @@ public class TopTraceListService {
         for (int i = 0; i < dataArray.size(); i++) {
             JsonObject data = dataArray.get(i).getAsJsonObject();
             long start = data.get("start_time").getAsLong();
-            String startStr = TimeTools.dateFormat.format(start);
+            String startStr = TimeTools.format(start);
             String traceIds = data.get("global_trace_id").getAsString();
             data.addProperty("DT_RowId", traceIds);
             data.addProperty("start_time", startStr);

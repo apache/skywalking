@@ -1,9 +1,9 @@
 package org.skywalking.apm.ui.creator;
 
-import org.springframework.stereotype.Component;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import org.springframework.stereotype.Component;
 
 /**
  * @author pengys5
