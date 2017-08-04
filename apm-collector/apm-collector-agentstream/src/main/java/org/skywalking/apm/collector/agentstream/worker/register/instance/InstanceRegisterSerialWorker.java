@@ -37,17 +37,20 @@ public class InstanceRegisterSerialWorker extends AbstractLocalAsyncWorker {
             logger.debug("register instance, application id: {}, agentUUID: {}", instance.getApplicationId(), instance.getAgentUUID());
 
             IInstanceDAO dao = (IInstanceDAO)DAOContainer.INSTANCE.get(IInstanceDAO.class.getName());
-            int min = dao.getMinInstanceId();
-            if (min == 0) {
-                instance.setId("1");
-                instance.setInstanceId(1);
-            } else {
-                int max = dao.getMaxInstanceId();
-                int instanceId = IdAutoIncrement.INSTANCE.increment(min, max);
-                instance.setId(String.valueOf(instanceId));
-                instance.setInstanceId(instanceId);
+            int instanceId = dao.getInstanceId(instance.getApplicationId(), instance.getAgentUUID());
+            if (instanceId == 0) {
+                int min = dao.getMinInstanceId();
+                if (min == 0) {
+                    instance.setId("1");
+                    instance.setInstanceId(1);
+                } else {
+                    int max = dao.getMaxInstanceId();
+                    instanceId = IdAutoIncrement.INSTANCE.increment(min, max);
+                    instance.setId(String.valueOf(instanceId));
+                    instance.setInstanceId(instanceId);
+                }
+                dao.save(instance);
             }
-            dao.save(instance);
         }
     }
 

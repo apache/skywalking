@@ -2,6 +2,7 @@ org.skywalking.apm.collector.agentstream.worker.node.component.NodeComponentAggr
 org.skywalking.apm.collector.agentstream.worker.node.component.NodeComponentPersistenceWorker$Factory
 
 org.skywalking.apm.collector.agentstream.worker.node.mapping.NodeMappingAggregationWorker$Factory
+org.skywalking.apm.collector.agentstream.worker.node.mapping.NodeComponentExchangeWorker$Factory
 org.skywalking.apm.collector.agentstream.worker.node.mapping.NodeMappingPersistenceWorker$Factory
 
 org.skywalking.apm.collector.agentstream.worker.noderef.reference.NodeRefAggregationWorker$Factory

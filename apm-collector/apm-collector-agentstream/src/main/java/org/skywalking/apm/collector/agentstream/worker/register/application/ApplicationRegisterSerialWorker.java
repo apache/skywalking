@@ -36,17 +36,20 @@ public class ApplicationRegisterSerialWorker extends AbstractLocalAsyncWorker {
             logger.debug("register application, application code: {}", application.getApplicationCode());
 
             IApplicationDAO dao = (IApplicationDAO)DAOContainer.INSTANCE.get(IApplicationDAO.class.getName());
-            int min = dao.getMinApplicationId();
-            if (min == 0) {
-                application.setApplicationId(1);
-                application.setId("1");
-            } else {
-                int max = dao.getMaxApplicationId();
-                int applicationId = IdAutoIncrement.INSTANCE.increment(min, max);
-                application.setApplicationId(applicationId);
-                application.setId(String.valueOf(applicationId));
+            int applicationId = dao.getApplicationId(application.getApplicationCode());
+            if (applicationId == 0) {
+                int min = dao.getMinApplicationId();
+                if (min == 0) {
+                    application.setApplicationId(1);
+                    application.setId("1");
+                } else {
+                    int max = dao.getMaxApplicationId();
+                    applicationId = IdAutoIncrement.INSTANCE.increment(min, max);
+                    application.setApplicationId(applicationId);
+                    application.setId(String.valueOf(applicationId));
+                }
+                dao.save(application);
             }
-            dao.save(application);
         }
     }
 

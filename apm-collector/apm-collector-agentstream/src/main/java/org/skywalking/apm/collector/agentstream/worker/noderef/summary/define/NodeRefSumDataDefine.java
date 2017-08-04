@@ -5,7 +5,7 @@ import org.skywalking.apm.collector.stream.worker.impl.data.Attribute;
 import org.skywalking.apm.collector.stream.worker.impl.data.AttributeType;
 import org.skywalking.apm.collector.stream.worker.impl.data.Data;
 import org.skywalking.apm.collector.stream.worker.impl.data.DataDefine;
-import org.skywalking.apm.collector.stream.worker.impl.data.TransformToData;
+import org.skywalking.apm.collector.stream.worker.impl.data.Transform;
 import org.skywalking.apm.collector.stream.worker.impl.data.operate.AddOperation;
 import org.skywalking.apm.collector.stream.worker.impl.data.operate.NonOperation;
 
@@ -64,7 +64,7 @@ public class NodeRefSumDataDefine extends DataDefine {
         return builder.build();
     }
 
-    public static class NodeReferenceSum implements TransformToData {
+    public static class NodeReferenceSum implements Transform {
         private String id;
         private Long oneSecondLess = 0L;
         private Long threeSecondLess = 0L;
@@ -91,7 +91,7 @@ public class NodeRefSumDataDefine extends DataDefine {
         public NodeReferenceSum() {
         }
 
-        @Override public Data transform() {
+        @Override public Data toData() {
             NodeRefSumDataDefine define = new NodeRefSumDataDefine();
             Data data = define.build(id);
             data.setDataString(0, this.id);
@@ -104,6 +104,10 @@ public class NodeRefSumDataDefine extends DataDefine {
             data.setDataLong(5, this.summary);
             data.setDataLong(6, this.timeBucket);
             return data;
+        }
+
+        @Override public Object toSelf(Data data) {
+            return null;
         }
 
         public String getId() {

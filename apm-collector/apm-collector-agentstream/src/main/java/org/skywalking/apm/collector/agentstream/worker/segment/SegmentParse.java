@@ -93,7 +93,7 @@ public class SegmentParse {
 
         try {
             logger.debug("send to segment persistence worker, id: {}, dataBinary length: {}", segment.getId(), dataBinary.length);
-            context.getClusterWorkerContext().lookup(SegmentPersistenceWorker.WorkerRole.INSTANCE).tell(segment.transform());
+            context.getClusterWorkerContext().lookup(SegmentPersistenceWorker.WorkerRole.INSTANCE).tell(segment.toData());
         } catch (WorkerInvokeException | WorkerNotFoundException e) {
             logger.error(e.getMessage(), e);
         }

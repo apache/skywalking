@@ -77,7 +77,7 @@ public class NodeRefSpanListener implements EntrySpanListener, ExitSpanListener,
 
             try {
                 logger.debug("send to node reference aggregation worker, id: {}", nodeReference.getId());
-                context.getClusterWorkerContext().lookup(NodeRefAggregationWorker.WorkerRole.INSTANCE).tell(nodeReference.transform());
+                context.getClusterWorkerContext().lookup(NodeRefAggregationWorker.WorkerRole.INSTANCE).tell(nodeReference.toData());
             } catch (WorkerInvokeException | WorkerNotFoundException e) {
                 logger.error(e.getMessage(), e);
             }

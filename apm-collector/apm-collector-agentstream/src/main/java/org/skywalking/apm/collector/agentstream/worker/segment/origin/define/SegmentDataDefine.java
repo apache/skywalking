@@ -6,7 +6,7 @@ import org.skywalking.apm.collector.stream.worker.impl.data.Attribute;
 import org.skywalking.apm.collector.stream.worker.impl.data.AttributeType;
 import org.skywalking.apm.collector.stream.worker.impl.data.Data;
 import org.skywalking.apm.collector.stream.worker.impl.data.DataDefine;
-import org.skywalking.apm.collector.stream.worker.impl.data.TransformToData;
+import org.skywalking.apm.collector.stream.worker.impl.data.Transform;
 import org.skywalking.apm.collector.stream.worker.impl.data.operate.CoverOperation;
 import org.skywalking.apm.collector.stream.worker.impl.data.operate.NonOperation;
 
@@ -44,7 +44,7 @@ public class SegmentDataDefine extends DataDefine {
         return builder.build();
     }
 
-    public static class Segment implements TransformToData {
+    public static class Segment implements Transform {
         private String id;
         private byte[] dataBinary;
 
@@ -56,12 +56,16 @@ public class SegmentDataDefine extends DataDefine {
         public Segment() {
         }
 
-        @Override public Data transform() {
+        @Override public Data toData() {
             SegmentDataDefine define = new SegmentDataDefine();
             Data data = define.build(id);
             data.setDataString(0, this.id);
             data.setDataBytes(0, this.dataBinary);
             return data;
+        }
+
+        @Override public Object toSelf(Data data) {
+            return null;
         }
 
         public String getId() {

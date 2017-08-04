@@ -9,4 +9,6 @@ import org.skywalking.apm.collector.stream.worker.impl.data.Data;
  */
 public interface INodeComponentDAO {
     List<?> prepareBatch(Map<String, Data> dataMap);
+
+    int getComponentId(int applicationId, String componentName);
 }

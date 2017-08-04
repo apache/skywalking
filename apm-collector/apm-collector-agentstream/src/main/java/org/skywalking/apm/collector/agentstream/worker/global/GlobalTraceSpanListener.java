@@ -51,7 +51,7 @@ public class GlobalTraceSpanListener implements FirstSpanListener, GlobalTraceId
             globalTrace.setTimeBucket(timeBucket);
             try {
                 logger.debug("send to global trace persistence worker, id: {}", globalTrace.getId());
-                context.getClusterWorkerContext().lookup(GlobalTracePersistenceWorker.WorkerRole.INSTANCE).tell(globalTrace.transform());
+                context.getClusterWorkerContext().lookup(GlobalTracePersistenceWorker.WorkerRole.INSTANCE).tell(globalTrace.toData());
             } catch (WorkerInvokeException | WorkerNotFoundException e) {
                 logger.error(e.getMessage(), e);
             }

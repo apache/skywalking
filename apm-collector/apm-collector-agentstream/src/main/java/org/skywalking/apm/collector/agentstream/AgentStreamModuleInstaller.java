@@ -2,6 +2,7 @@ package org.skywalking.apm.collector.agentstream;
 
 import java.util.Iterator;
 import java.util.Map;
+import org.skywalking.apm.collector.agentstream.worker.storage.IDNameExchangeTimer;
 import org.skywalking.apm.collector.agentstream.worker.storage.PersistenceTimer;
 import org.skywalking.apm.collector.core.client.ClientException;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
@@ -35,5 +36,6 @@ public class AgentStreamModuleInstaller implements ModuleInstaller {
         }
 
         new PersistenceTimer().start();
+        new IDNameExchangeTimer().start();
     }
 }
