@@ -10,8 +10,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class ServerSelector {
 
-    private final Integer MAX_INDEX = Integer.MAX_VALUE - 10000;
-
     private int index = 0;
 
     public String select(List<String> serverList) {
@@ -21,9 +19,6 @@ public class ServerSelector {
             int size = serverList.size();
             int selectIndex = Math.abs(index) % size;
             index ++;
-            if (index > MAX_INDEX) {
-                index = 0;
-            }
             try {
                 server = serverList.get(selectIndex);
             } catch (Exception e) {
