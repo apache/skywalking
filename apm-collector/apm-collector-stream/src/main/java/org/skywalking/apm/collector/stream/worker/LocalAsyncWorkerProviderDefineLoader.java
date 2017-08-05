@@ -17,7 +17,7 @@ public class LocalAsyncWorkerProviderDefineLoader implements Loader<List<Abstrac
 
     @Override public List<AbstractLocalAsyncWorkerProvider> load() throws DefineException {
         List<AbstractLocalAsyncWorkerProvider> providers = new ArrayList<>();
-        LocalAsyncWorkerProviderDefinitionFile definitionFile = new LocalAsyncWorkerProviderDefinitionFile();
+        LocalWorkerProviderDefinitionFile definitionFile = new LocalWorkerProviderDefinitionFile();
         logger.info("local async worker provider definition file name: {}", definitionFile.fileName());
 
         DefinitionLoader<AbstractLocalAsyncWorkerProvider> definitionLoader = DefinitionLoader.load(AbstractLocalAsyncWorkerProvider.class, definitionFile);

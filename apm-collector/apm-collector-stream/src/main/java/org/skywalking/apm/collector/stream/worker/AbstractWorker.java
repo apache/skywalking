@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author pengys5
  */
-public abstract class AbstractWorker implements Executor {
+public abstract class AbstractWorker<S extends WorkerRef> implements Executor {
 
     private final Logger logger = LoggerFactory.getLogger(AbstractWorker.class);
 
@@ -45,4 +45,8 @@ public abstract class AbstractWorker implements Executor {
     final public Role getRole() {
         return role;
     }
+
+    protected abstract S getSelf();
+
+    protected abstract void putSelfRef(S workerRef);
 }
