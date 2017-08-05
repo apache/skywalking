@@ -26,7 +26,7 @@ public class PersistenceTimer implements Starter {
         //TODO timer value config
 //        final long timeInterval = EsConfig.Es.Persistence.Timer.VALUE * 1000;
         final long timeInterval = 3;
-        Executors.newSingleThreadScheduledExecutor().schedule(() -> extractDataAndSave(), timeInterval, TimeUnit.SECONDS);
+        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> extractDataAndSave(), 1, timeInterval, TimeUnit.SECONDS);
     }
 
     private void extractDataAndSave() {

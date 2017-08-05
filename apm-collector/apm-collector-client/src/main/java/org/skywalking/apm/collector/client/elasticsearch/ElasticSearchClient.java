@@ -13,6 +13,7 @@ import org.elasticsearch.action.get.GetRequestBuilder;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequest;
+import org.elasticsearch.action.update.UpdateRequestBuilder;
 import org.elasticsearch.client.IndicesAdminClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
@@ -111,7 +112,12 @@ public class ElasticSearchClient implements Client {
     }
 
     public IndexRequestBuilder prepareIndex(String indexName, String id) {
+        client.prepareUpdate();
         return client.prepareIndex(indexName, "type", id);
+    }
+
+    public UpdateRequestBuilder prepareUpdate(String indexName, String id) {
+        return client.prepareUpdate(indexName, "type", id);
     }
 
     public GetRequestBuilder prepareGet(String indexName, String id) {

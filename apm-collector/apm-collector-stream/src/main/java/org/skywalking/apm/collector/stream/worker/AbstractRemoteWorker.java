@@ -9,7 +9,9 @@ package org.skywalking.apm.collector.stream.worker;
  * @author pengys5
  * @since v3.0-2017
  */
-public abstract class AbstractRemoteWorker extends AbstractWorker {
+public abstract class AbstractRemoteWorker extends AbstractWorker<RemoteWorkerRef> {
+
+    private RemoteWorkerRef workerRef;
 
     /**
      * Construct an <code>AbstractRemoteWorker</code> with the worker role and context.
@@ -34,5 +36,13 @@ public abstract class AbstractRemoteWorker extends AbstractWorker {
         } catch (WorkerException e) {
             throw new WorkerInvokeException(e.getMessage(), e.getCause());
         }
+    }
+
+    @Override protected final RemoteWorkerRef getSelf() {
+        return workerRef;
+    }
+
+    @Override protected final void putSelfRef(RemoteWorkerRef workerRef) {
+        this.workerRef = workerRef;
     }
 }

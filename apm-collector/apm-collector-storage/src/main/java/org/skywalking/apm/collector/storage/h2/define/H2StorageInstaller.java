@@ -27,7 +27,7 @@ public class H2StorageInstaller extends StorageInstaller {
         return false;
     }
 
-    @Override protected boolean deleteIndex(Client client, TableDefine tableDefine) throws StorageException {
+    @Override protected boolean deleteTable(Client client, TableDefine tableDefine) throws StorageException {
         return false;
     }
 

@@ -7,6 +7,7 @@ import org.skywalking.apm.collector.agentstream.worker.segment.ExitSpanListener;
 import org.skywalking.apm.collector.agentstream.worker.segment.FirstSpanListener;
 import org.skywalking.apm.collector.agentstream.worker.segment.LocalSpanListener;
 import org.skywalking.apm.collector.agentstream.worker.segment.cost.define.SegmentCostDataDefine;
+import org.skywalking.apm.collector.agentstream.worker.util.ExchangeMarkUtils;
 import org.skywalking.apm.collector.agentstream.worker.util.TimeBucketUtils;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
 import org.skywalking.apm.collector.stream.StreamModuleContext;
@@ -40,10 +41,14 @@ public class SegmentCostSpanListener implements EntrySpanListener, ExitSpanListe
         segmentCost.setCost(spanObject.getEndTime() - spanObject.getStartTime());
         segmentCost.setStartTime(spanObject.getStartTime());
         segmentCost.setEndTime(spanObject.getEndTime());
-        segmentCost.setOperationName(spanObject.getOperationName());
         segmentCost.setId(segmentId);
-        segmentCosts.add(segmentCost);
+        if (spanObject.getOperationNameId() == 0) {
+            segmentCost.setServiceName(spanObject.getOperationName());
+        } else {
+            segmentCost.setServiceName(ExchangeMarkUtils.INSTANCE.buildMarkedID(spanObject.getOperationNameId()));
+        }
 
+        segmentCosts.add(segmentCost);
         isError = isError || spanObject.getIsError();
     }
 

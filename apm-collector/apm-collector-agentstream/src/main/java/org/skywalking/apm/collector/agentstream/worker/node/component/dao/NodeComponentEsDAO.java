@@ -1,58 +1,47 @@
 package org.skywalking.apm.collector.agentstream.worker.node.component.dao;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
-import org.elasticsearch.action.search.SearchRequestBuilder;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.action.update.UpdateRequestBuilder;
 import org.skywalking.apm.collector.agentstream.worker.node.component.define.NodeComponentTable;
-import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
+import org.skywalking.apm.collector.stream.worker.impl.dao.IPersistenceDAO;
 import org.skywalking.apm.collector.stream.worker.impl.data.Data;
+import org.skywalking.apm.collector.stream.worker.impl.data.DataDefine;
 
 /**
  * @author pengys5
  */
-public class NodeComponentEsDAO extends EsDAO implements INodeComponentDAO {
+public class NodeComponentEsDAO extends EsDAO implements INodeComponentDAO, IPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder> {
 
-    @Override public List<?> prepareBatch(Map<String, Data> dataMap) {
-        List<IndexRequestBuilder> indexRequestBuilders = new ArrayList<>();
-        dataMap.forEach((id, data) -> {
-            Map<String, Object> source = new HashMap();
-            source.put(NodeComponentTable.COLUMN_APPLICATION_ID, data.getDataInteger(0));
-            source.put(NodeComponentTable.COLUMN_COMPONENT_NAME, data.getDataString(1));
-            source.put(NodeComponentTable.COLUMN_COMPONENT_ID, data.getDataInteger(1));
-
-            IndexRequestBuilder builder = getClient().prepareIndex(NodeComponentTable.TABLE, id).setSource(source);
-            indexRequestBuilders.add(builder);
-        });
-        return indexRequestBuilders;
+    @Override public Data get(String id, DataDefine dataDefine) {
+        GetResponse getResponse = getClient().prepareGet(NodeComponentTable.TABLE, id).get();
+        if (getResponse.isExists()) {
+            Data data = dataDefine.build(id);
+            Map<String, Object> source = getResponse.getSource();
+            data.setDataString(1, (String)source.get(NodeComponentTable.COLUMN_AGG));
+            data.setDataLong(0, (Long)source.get(NodeComponentTable.COLUMN_TIME_BUCKET));
+            return data;
+        } else {
+            return null;
+        }
     }
 
-    public int getComponentId(int applicationId, String componentName) {
-        ElasticSearchClient client = getClient();
+    @Override public IndexRequestBuilder prepareBatchInsert(Data data) {
+        Map<String, Object> source = new HashMap<>();
+        source.put(NodeComponentTable.COLUMN_AGG, data.getDataString(1));
+        source.put(NodeComponentTable.COLUMN_TIME_BUCKET, data.getDataLong(0));
 
-        SearchRequestBuilder searchRequestBuilder = client.prepareSearch(NodeComponentTable.TABLE);
-        searchRequestBuilder.setTypes("type");
-        searchRequestBuilder.setSearchType(SearchType.QUERY_THEN_FETCH);
-        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        boolQueryBuilder.must(QueryBuilders.termQuery(NodeComponentTable.COLUMN_APPLICATION_ID, applicationId));
-        boolQueryBuilder.must(QueryBuilders.termQuery(NodeComponentTable.COLUMN_COMPONENT_NAME, componentName));
-        searchRequestBuilder.setQuery(boolQueryBuilder);
-        searchRequestBuilder.setSize(1);
+        return getClient().prepareIndex(NodeComponentTable.TABLE, data.getDataString(0)).setSource(source);
+    }
 
-        SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
-        if (searchResponse.getHits().totalHits > 0) {
-            SearchHit searchHit = searchResponse.getHits().iterator().next();
-            int componentId = (int)searchHit.getSource().get(NodeComponentTable.COLUMN_COMPONENT_ID);
-            return componentId;
-        }
-        return 0;
+    @Override public UpdateRequestBuilder prepareBatchUpdate(Data data) {
+        Map<String, Object> source = new HashMap<>();
+        source.put(NodeComponentTable.COLUMN_AGG, data.getDataString(1));
+        source.put(NodeComponentTable.COLUMN_TIME_BUCKET, data.getDataLong(0));
+
+        return getClient().prepareUpdate(NodeComponentTable.TABLE, data.getDataString(0)).setDoc(source);
     }
 }

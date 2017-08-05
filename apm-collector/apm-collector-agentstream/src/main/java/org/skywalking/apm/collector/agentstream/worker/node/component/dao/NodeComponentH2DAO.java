@@ -1,7 +1,5 @@
 package org.skywalking.apm.collector.agentstream.worker.node.component.dao;
 
-import java.util.List;
-import java.util.Map;
 import org.skywalking.apm.collector.storage.h2.dao.H2DAO;
 
 /**
@@ -9,11 +7,4 @@ import org.skywalking.apm.collector.storage.h2.dao.H2DAO;
  */
 public class NodeComponentH2DAO extends H2DAO implements INodeComponentDAO {
 
-    @Override public List<?> prepareBatch(Map map) {
-        return null;
-    }
-
-    @Override public int getComponentId(int applicationId, String componentName) {
-        return 0;
-    }
 }

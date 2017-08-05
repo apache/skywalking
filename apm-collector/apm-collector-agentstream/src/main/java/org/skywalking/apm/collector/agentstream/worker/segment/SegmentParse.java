@@ -38,7 +38,6 @@ public class SegmentParse {
         spanListeners.add(new NodeRefSpanListener());
         spanListeners.add(new NodeComponentSpanListener());
         spanListeners.add(new NodeMappingSpanListener());
-        spanListeners.add(new NodeRefSpanListener());
         spanListeners.add(new NodeRefSumSpanListener());
         spanListeners.add(new SegmentCostSpanListener());
         spanListeners.add(new GlobalTraceSpanListener());

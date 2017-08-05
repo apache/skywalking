@@ -8,6 +8,7 @@ import org.skywalking.apm.collector.agentstream.worker.segment.EntrySpanListener
 import org.skywalking.apm.collector.agentstream.worker.segment.ExitSpanListener;
 import org.skywalking.apm.collector.agentstream.worker.segment.FirstSpanListener;
 import org.skywalking.apm.collector.agentstream.worker.segment.RefsListener;
+import org.skywalking.apm.collector.agentstream.worker.util.ExchangeMarkUtils;
 import org.skywalking.apm.collector.agentstream.worker.util.TimeBucketUtils;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
 import org.skywalking.apm.collector.stream.StreamModuleContext;
@@ -34,9 +35,9 @@ public class NodeRefSpanListener implements EntrySpanListener, ExitSpanListener,
     @Override
     public void parseExit(SpanObject spanObject, int applicationId, int applicationInstanceId, String segmentId) {
         String front = String.valueOf(applicationId);
-        String behind = String.valueOf(spanObject.getPeerId());
+        String behind = spanObject.getPeer();
         if (spanObject.getPeerId() == 0) {
-            behind = spanObject.getPeer();
+            behind = ExchangeMarkUtils.INSTANCE.buildMarkedID(spanObject.getPeerId());
         }
 
         String agg = front + Const.ID_SPLIT + behind;
@@ -45,9 +46,8 @@ public class NodeRefSpanListener implements EntrySpanListener, ExitSpanListener,
 
     @Override
     public void parseEntry(SpanObject spanObject, int applicationId, int applicationInstanceId, String segmentId) {
-        String behind = String.valueOf(applicationId);
+        String behind = ExchangeMarkUtils.INSTANCE.buildMarkedID(applicationId);
         String front = Const.USER_CODE;
-
         String agg = front + Const.ID_SPLIT + behind;
         nodeEntryReferences.add(agg);
     }

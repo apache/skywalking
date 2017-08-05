@@ -81,7 +81,7 @@ public class ElasticSearchStorageInstaller extends StorageInstaller {
         return mappingBuilder;
     }
 
-    @Override protected boolean deleteIndex(Client client, TableDefine tableDefine) {
+    @Override protected boolean deleteTable(Client client, TableDefine tableDefine) {
         ElasticSearchClient esClient = (ElasticSearchClient)client;
         try {
             return esClient.deleteIndex(tableDefine.getName());

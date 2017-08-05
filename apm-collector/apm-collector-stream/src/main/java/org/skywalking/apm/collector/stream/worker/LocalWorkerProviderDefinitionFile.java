@@ -5,8 +5,8 @@ import org.skywalking.apm.collector.core.framework.DefinitionFile;
 /**
  * @author pengys5
  */
-public class LocalAsyncWorkerProviderDefinitionFile extends DefinitionFile {
+public class LocalWorkerProviderDefinitionFile extends DefinitionFile {
     @Override protected String fileName() {
-        return "local_async_worker_provider.define";
+        return "local_worker_provider.define";
     }
 }

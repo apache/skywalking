@@ -109,7 +109,7 @@ public class TraceSegmentServiceHandlerTestCase {
         ref_0.setParentServiceName("");
         ref_0.setParentSpanId(2);
         ref_0.setParentTraceSegmentId(UniqueId.newBuilder().addIdParts(100).addIdParts(100).addIdParts(100).build());
-        segmentBuilder.addRefs(ref_0);
+//        segmentBuilder.addRefs(ref_0);
 
         builder.setSegment(segmentBuilder.build().toByteString());
     }

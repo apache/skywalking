@@ -34,8 +34,15 @@ public abstract class JettyHandler extends HttpServlet implements Handler {
 
     @Override
     protected final void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        super.doPost(req, resp);
+        try {
+            doPost(req);
+            reply(resp);
+        } catch (ArgumentsParseException e) {
+            replyError(resp, e.getMessage(), HttpServletResponse.SC_BAD_REQUEST);
+        }
     }
+
+    protected abstract void doPost(HttpServletRequest req) throws ArgumentsParseException;
 
     @Override
     protected final void doHead(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -134,13 +141,23 @@ public abstract class JettyHandler extends HttpServlet implements Handler {
         out.close();
     }
 
+    private void reply(HttpServletResponse response) throws IOException {
+        response.setContentType("text/json");
+        response.setCharacterEncoding("utf-8");
+        response.setStatus(HttpServletResponse.SC_OK);
+
+        PrintWriter out = response.getWriter();
+        out.flush();
+        out.close();
+    }
+
     private void replyError(HttpServletResponse response, String errorMessage, int status) throws IOException {
         response.setContentType("text/plain");
         response.setCharacterEncoding("utf-8");
         response.setStatus(status);
+        response.setHeader("error-message", errorMessage);
 
         PrintWriter out = response.getWriter();
-        out.print(errorMessage);
         out.flush();
         out.close();
     }

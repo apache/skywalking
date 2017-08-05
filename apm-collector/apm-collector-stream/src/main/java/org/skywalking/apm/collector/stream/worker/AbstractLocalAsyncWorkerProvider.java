@@ -6,15 +6,13 @@ import org.skywalking.apm.collector.core.queue.QueueEventHandler;
 import org.skywalking.apm.collector.core.queue.QueueExecutor;
 import org.skywalking.apm.collector.queue.QueueModuleContext;
 import org.skywalking.apm.collector.queue.QueueModuleGroupDefine;
-import org.skywalking.apm.collector.stream.worker.impl.ExchangeWorker;
-import org.skywalking.apm.collector.stream.worker.impl.ExchangeWorkerContainer;
 import org.skywalking.apm.collector.stream.worker.impl.PersistenceWorker;
 import org.skywalking.apm.collector.stream.worker.impl.PersistenceWorkerContainer;
 
 /**
  * @author pengys5
  */
-public abstract class AbstractLocalAsyncWorkerProvider<T extends AbstractLocalAsyncWorker & QueueExecutor> extends AbstractLocalWorkerProvider<T> {
+public abstract class AbstractLocalAsyncWorkerProvider<T extends AbstractLocalAsyncWorker & QueueExecutor> extends AbstractWorkerProvider<T> {
 
     public abstract int queueSize();
 
@@ -24,8 +22,6 @@ public abstract class AbstractLocalAsyncWorkerProvider<T extends AbstractLocalAs
 
         if (localAsyncWorker instanceof PersistenceWorker) {
             PersistenceWorkerContainer.INSTANCE.addWorker((PersistenceWorker)localAsyncWorker);
-        } else if (localAsyncWorker instanceof ExchangeWorker) {
-            ExchangeWorkerContainer.INSTANCE.addWorker((ExchangeWorker)localAsyncWorker);
         }
 
         QueueCreator queueCreator = ((QueueModuleContext)CollectorContextHelper.INSTANCE.getContext(QueueModuleGroupDefine.GROUP_NAME)).getQueueCreator();
@@ -33,6 +29,7 @@ public abstract class AbstractLocalAsyncWorkerProvider<T extends AbstractLocalAs
 
         LocalAsyncWorkerRef workerRef = new LocalAsyncWorkerRef(role(), queueEventHandler);
         getClusterContext().put(workerRef);
+        localAsyncWorker.putSelfRef(workerRef);
         return workerRef;
     }
 }
