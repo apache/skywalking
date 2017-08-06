@@ -8,3 +8,4 @@ org.skywalking.apm.collector.agentstream.worker.segment.origin.dao.SegmentEsDAO
 org.skywalking.apm.collector.agentstream.worker.noderef.summary.dao.NodeRefSumEsDAO
 org.skywalking.apm.collector.agentstream.worker.segment.cost.dao.SegmentCostEsDAO
 org.skywalking.apm.collector.agentstream.worker.global.dao.GlobalTraceEsDAO
+org.skywalking.apm.collector.agentstream.worker.service.entry.dao.ServiceEntryEsDAO

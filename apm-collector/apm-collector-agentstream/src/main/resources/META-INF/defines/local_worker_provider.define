@@ -10,6 +10,9 @@ org.skywalking.apm.collector.agentstream.worker.noderef.reference.NodeRefPersist
 org.skywalking.apm.collector.agentstream.worker.noderef.summary.NodeRefSumAggregationWorker$Factory
 org.skywalking.apm.collector.agentstream.worker.noderef.summary.NodeRefSumPersistenceWorker$Factory
 
+org.skywalking.apm.collector.agentstream.worker.service.entry.ServiceEntryAggregationWorker$Factory
+org.skywalking.apm.collector.agentstream.worker.service.entry.ServiceEntryPersistenceWorker$Factory
+
 org.skywalking.apm.collector.agentstream.worker.segment.origin.SegmentPersistenceWorker$Factory
 org.skywalking.apm.collector.agentstream.worker.segment.cost.SegmentCostPersistenceWorker$Factory
 org.skywalking.apm.collector.agentstream.worker.global.GlobalTracePersistenceWorker$Factory

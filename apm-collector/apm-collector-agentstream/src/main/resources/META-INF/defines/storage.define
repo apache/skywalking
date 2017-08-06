@@ -27,3 +27,6 @@ org.skywalking.apm.collector.agentstream.worker.segment.cost.define.SegmentCostH
 
 org.skywalking.apm.collector.agentstream.worker.global.define.GlobalTraceEsTableDefine
 org.skywalking.apm.collector.agentstream.worker.global.define.GlobalTraceH2TableDefine
+
+org.skywalking.apm.collector.agentstream.worker.service.entry.define.ServiceEntryEsTableDefine
+org.skywalking.apm.collector.agentstream.worker.service.entry.define.ServiceEntryH2TableDefine

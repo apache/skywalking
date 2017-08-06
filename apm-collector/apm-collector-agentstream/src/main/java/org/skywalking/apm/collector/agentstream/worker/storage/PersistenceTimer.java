@@ -34,6 +34,7 @@ public class PersistenceTimer implements Starter {
             List<PersistenceWorker> workers = PersistenceWorkerContainer.INSTANCE.getPersistenceWorkers();
             List batchAllCollection = new ArrayList<>();
             workers.forEach((PersistenceWorker worker) -> {
+                logger.debug("extract {} worker data and save", worker.getRole().roleName());
                 try {
                     worker.allocateJob(new FlushAndSwitch());
                     List<?> batchCollection = worker.buildBatchCollection();

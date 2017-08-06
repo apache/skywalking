@@ -22,13 +22,13 @@ public class NodeRefSumEsDAO extends EsDAO implements INodeRefSumDAO, IPersisten
         if (getResponse.isExists()) {
             Data data = dataDefine.build(id);
             Map<String, Object> source = getResponse.getSource();
-            data.setDataLong(0, (Long)source.get(NodeRefSumTable.COLUMN_ONE_SECOND_LESS));
-            data.setDataLong(1, (Long)source.get(NodeRefSumTable.COLUMN_THREE_SECOND_LESS));
-            data.setDataLong(2, (Long)source.get(NodeRefSumTable.COLUMN_FIVE_SECOND_LESS));
-            data.setDataLong(3, (Long)source.get(NodeRefSumTable.COLUMN_FIVE_SECOND_GREATER));
-            data.setDataLong(4, (Long)source.get(NodeRefSumTable.COLUMN_ERROR));
-            data.setDataLong(5, (Long)source.get(NodeRefSumTable.COLUMN_SUMMARY));
-            data.setDataLong(6, (Long)source.get(NodeRefSumTable.COLUMN_TIME_BUCKET));
+            data.setDataLong(0, ((Number)source.get(NodeRefSumTable.COLUMN_ONE_SECOND_LESS)).longValue());
+            data.setDataLong(1, ((Number)source.get(NodeRefSumTable.COLUMN_THREE_SECOND_LESS)).longValue());
+            data.setDataLong(2, ((Number)source.get(NodeRefSumTable.COLUMN_FIVE_SECOND_LESS)).longValue());
+            data.setDataLong(3, ((Number)source.get(NodeRefSumTable.COLUMN_FIVE_SECOND_GREATER)).longValue());
+            data.setDataLong(4, ((Number)source.get(NodeRefSumTable.COLUMN_ERROR)).longValue());
+            data.setDataLong(5, ((Number)source.get(NodeRefSumTable.COLUMN_SUMMARY)).longValue());
+            data.setDataLong(6, ((Number)source.get(NodeRefSumTable.COLUMN_TIME_BUCKET)).longValue());
             data.setDataString(1, (String)source.get(NodeRefSumTable.COLUMN_AGG));
             return data;
         } else {
