@@ -36,7 +36,7 @@ public class SpanGetHandler extends JettyHandler {
         return service.load(segmentId, spanId);
     }
 
-    @Override protected void doPost(HttpServletRequest req) throws ArgumentsParseException {
+    @Override protected JsonElement doPost(HttpServletRequest req) throws ArgumentsParseException {
         throw new UnsupportedOperationException();
     }
 }

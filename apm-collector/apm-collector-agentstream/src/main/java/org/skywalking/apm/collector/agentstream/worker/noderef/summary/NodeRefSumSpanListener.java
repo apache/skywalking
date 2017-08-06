@@ -3,6 +3,7 @@ package org.skywalking.apm.collector.agentstream.worker.noderef.summary;
 import java.util.ArrayList;
 import java.util.List;
 import org.skywalking.apm.collector.agentstream.worker.Const;
+import org.skywalking.apm.collector.agentstream.worker.cache.InstanceCache;
 import org.skywalking.apm.collector.agentstream.worker.noderef.summary.define.NodeRefSumDataDefine;
 import org.skywalking.apm.collector.agentstream.worker.segment.EntrySpanListener;
 import org.skywalking.apm.collector.agentstream.worker.segment.ExitSpanListener;
@@ -29,14 +30,18 @@ public class NodeRefSumSpanListener implements EntrySpanListener, ExitSpanListen
 
     private List<NodeRefSumDataDefine.NodeReferenceSum> nodeExitReferences = new ArrayList<>();
     private List<NodeRefSumDataDefine.NodeReferenceSum> nodeEntryReferences = new ArrayList<>();
+    private List<String> nodeReferences = new ArrayList<>();
     private long timeBucket;
     private boolean hasReference = false;
+    private long startTime;
+    private long endTime;
+    private boolean isError;
 
     @Override
     public void parseExit(SpanObject spanObject, int applicationId, int applicationInstanceId, String segmentId) {
-        String front = String.valueOf(applicationId);
+        String front = ExchangeMarkUtils.INSTANCE.buildMarkedID(applicationId);
         String behind = spanObject.getPeer();
-        if (spanObject.getPeerId() == 0) {
+        if (spanObject.getPeerId() != 0) {
             behind = ExchangeMarkUtils.INSTANCE.buildMarkedID(spanObject.getPeerId());
         }
 
@@ -47,8 +52,7 @@ public class NodeRefSumSpanListener implements EntrySpanListener, ExitSpanListen
     @Override
     public void parseEntry(SpanObject spanObject, int applicationId, int applicationInstanceId, String segmentId) {
         String behind = ExchangeMarkUtils.INSTANCE.buildMarkedID(applicationId);
-        String front = Const.USER_CODE;
-
+        String front = ExchangeMarkUtils.INSTANCE.buildMarkedID(Const.USER_ID);
         String agg = front + Const.ID_SPLIT + behind;
         nodeEntryReferences.add(buildNodeRefSum(spanObject.getStartTime(), spanObject.getEndTime(), agg, spanObject.getIsError()));
     }
@@ -77,11 +81,22 @@ public class NodeRefSumSpanListener implements EntrySpanListener, ExitSpanListen
     @Override
     public void parseFirst(SpanObject spanObject, int applicationId, int applicationInstanceId, String segmentId) {
         timeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(spanObject.getStartTime());
+        startTime = spanObject.getStartTime();
+        endTime = spanObject.getEndTime();
+        isError = spanObject.getIsError();
     }
 
     @Override public void parseRef(TraceSegmentReference reference, int applicationId, int applicationInstanceId,
         String segmentId) {
+        int parentApplicationId = InstanceCache.get(reference.getParentApplicationInstanceId());
+
+        String front = ExchangeMarkUtils.INSTANCE.buildMarkedID(parentApplicationId);
+        String behind = ExchangeMarkUtils.INSTANCE.buildMarkedID(applicationId);
+
+        String agg = front + Const.ID_SPLIT + behind;
+
         hasReference = true;
+        nodeReferences.add(agg);
     }
 
     @Override public void build() {
@@ -89,6 +104,10 @@ public class NodeRefSumSpanListener implements EntrySpanListener, ExitSpanListen
         StreamModuleContext context = (StreamModuleContext)CollectorContextHelper.INSTANCE.getContext(StreamModuleGroupDefine.GROUP_NAME);
         if (!hasReference) {
             nodeExitReferences.addAll(nodeEntryReferences);
+        } else {
+            nodeReferences.forEach(agg -> {
+                nodeExitReferences.add(buildNodeRefSum(startTime, endTime, agg, isError));
+            });
         }
 
         for (NodeRefSumDataDefine.NodeReferenceSum referenceSum : nodeExitReferences) {

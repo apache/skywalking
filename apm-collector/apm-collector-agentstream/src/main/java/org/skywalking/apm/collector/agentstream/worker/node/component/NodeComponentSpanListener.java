@@ -40,7 +40,7 @@ public class NodeComponentSpanListener implements EntrySpanListener, ExitSpanLis
             peer = spanObject.getPeer();
         }
 
-        String agg = componentName + Const.ID_SPLIT + peer;
+        String agg = peer + Const.ID_SPLIT + componentName;
         nodeComponents.add(agg);
     }
 
@@ -62,7 +62,7 @@ public class NodeComponentSpanListener implements EntrySpanListener, ExitSpanLis
         }
 
         String peer = ExchangeMarkUtils.INSTANCE.buildMarkedID(applicationId);
-        String agg = componentName + Const.ID_SPLIT + peer;
+        String agg = peer + Const.ID_SPLIT + componentName;
         nodeComponents.add(agg);
     }
 

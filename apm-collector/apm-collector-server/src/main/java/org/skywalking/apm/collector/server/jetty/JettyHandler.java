@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.skywalking.apm.collector.core.framework.Handler;
+import org.skywalking.apm.collector.core.util.ObjectUtils;
 
 /**
  * @author pengys5
@@ -35,14 +36,13 @@ public abstract class JettyHandler extends HttpServlet implements Handler {
     @Override
     protected final void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-            doPost(req);
-            reply(resp);
+            reply(resp, doPost(req));
         } catch (ArgumentsParseException e) {
             replyError(resp, e.getMessage(), HttpServletResponse.SC_BAD_REQUEST);
         }
     }
 
-    protected abstract void doPost(HttpServletRequest req) throws ArgumentsParseException;
+    protected abstract JsonElement doPost(HttpServletRequest req) throws ArgumentsParseException;
 
     @Override
     protected final void doHead(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -136,17 +136,9 @@ public abstract class JettyHandler extends HttpServlet implements Handler {
         response.setStatus(HttpServletResponse.SC_OK);
 
         PrintWriter out = response.getWriter();
-        out.print(resJson);
-        out.flush();
-        out.close();
-    }
-
-    private void reply(HttpServletResponse response) throws IOException {
-        response.setContentType("text/json");
-        response.setCharacterEncoding("utf-8");
-        response.setStatus(HttpServletResponse.SC_OK);
-
-        PrintWriter out = response.getWriter();
+        if (ObjectUtils.isNotEmpty(resJson)) {
+            out.print(resJson);
+        }
         out.flush();
         out.close();
     }

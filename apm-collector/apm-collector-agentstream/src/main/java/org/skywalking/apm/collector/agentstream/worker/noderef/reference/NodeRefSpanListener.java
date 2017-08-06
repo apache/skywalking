@@ -3,6 +3,7 @@ package org.skywalking.apm.collector.agentstream.worker.noderef.reference;
 import java.util.ArrayList;
 import java.util.List;
 import org.skywalking.apm.collector.agentstream.worker.Const;
+import org.skywalking.apm.collector.agentstream.worker.cache.InstanceCache;
 import org.skywalking.apm.collector.agentstream.worker.noderef.reference.define.NodeRefDataDefine;
 import org.skywalking.apm.collector.agentstream.worker.segment.EntrySpanListener;
 import org.skywalking.apm.collector.agentstream.worker.segment.ExitSpanListener;
@@ -27,27 +28,27 @@ public class NodeRefSpanListener implements EntrySpanListener, ExitSpanListener,
 
     private final Logger logger = LoggerFactory.getLogger(NodeRefSpanListener.class);
 
-    private List<String> nodeExitReferences = new ArrayList<>();
+    private List<String> nodeReferences = new ArrayList<>();
     private List<String> nodeEntryReferences = new ArrayList<>();
     private long timeBucket;
     private boolean hasReference = false;
 
     @Override
     public void parseExit(SpanObject spanObject, int applicationId, int applicationInstanceId, String segmentId) {
-        String front = String.valueOf(applicationId);
+        String front = ExchangeMarkUtils.INSTANCE.buildMarkedID(applicationId);
         String behind = spanObject.getPeer();
-        if (spanObject.getPeerId() == 0) {
+        if (spanObject.getPeerId() != 0) {
             behind = ExchangeMarkUtils.INSTANCE.buildMarkedID(spanObject.getPeerId());
         }
 
         String agg = front + Const.ID_SPLIT + behind;
-        nodeExitReferences.add(agg);
+        nodeReferences.add(agg);
     }
 
     @Override
     public void parseEntry(SpanObject spanObject, int applicationId, int applicationInstanceId, String segmentId) {
         String behind = ExchangeMarkUtils.INSTANCE.buildMarkedID(applicationId);
-        String front = Const.USER_CODE;
+        String front = ExchangeMarkUtils.INSTANCE.buildMarkedID(Const.USER_ID);
         String agg = front + Const.ID_SPLIT + behind;
         nodeEntryReferences.add(agg);
     }
@@ -59,6 +60,14 @@ public class NodeRefSpanListener implements EntrySpanListener, ExitSpanListener,
 
     @Override public void parseRef(TraceSegmentReference reference, int applicationId, int applicationInstanceId,
         String segmentId) {
+        int parentApplicationId = InstanceCache.get(reference.getParentApplicationInstanceId());
+
+        String front = ExchangeMarkUtils.INSTANCE.buildMarkedID(parentApplicationId);
+        String behind = ExchangeMarkUtils.INSTANCE.buildMarkedID(applicationId);
+
+        String agg = front + Const.ID_SPLIT + behind;
+        nodeReferences.add(agg);
+
         hasReference = true;
     }
 
@@ -66,10 +75,10 @@ public class NodeRefSpanListener implements EntrySpanListener, ExitSpanListener,
         logger.debug("node reference listener build");
         StreamModuleContext context = (StreamModuleContext)CollectorContextHelper.INSTANCE.getContext(StreamModuleGroupDefine.GROUP_NAME);
         if (!hasReference) {
-            nodeExitReferences.addAll(nodeEntryReferences);
+            nodeReferences.addAll(nodeEntryReferences);
         }
 
-        for (String agg : nodeExitReferences) {
+        for (String agg : nodeReferences) {
             NodeRefDataDefine.NodeReference nodeReference = new NodeRefDataDefine.NodeReference();
             nodeReference.setId(timeBucket + Const.ID_SPLIT + agg);
             nodeReference.setAgg(agg);

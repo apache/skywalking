@@ -1,5 +1,6 @@
 package org.skywalking.apm.collector.agentstream.worker.register.application;
 
+import org.skywalking.apm.collector.agentstream.worker.Const;
 import org.skywalking.apm.collector.agentstream.worker.register.IdAutoIncrement;
 import org.skywalking.apm.collector.agentstream.worker.register.application.dao.IApplicationDAO;
 import org.skywalking.apm.collector.storage.dao.DAOContainer;
@@ -40,8 +41,11 @@ public class ApplicationRegisterSerialWorker extends AbstractLocalAsyncWorker {
             if (applicationId == 0) {
                 int min = dao.getMinApplicationId();
                 if (min == 0) {
-                    application.setApplicationId(1);
-                    application.setId("1");
+                    ApplicationDataDefine.Application userApplication = new ApplicationDataDefine.Application(String.valueOf(Const.USER_ID), Const.USER_CODE, Const.USER_ID);
+                    dao.save(userApplication);
+
+                    application.setApplicationId(-1);
+                    application.setId("-1");
                 } else {
                     int max = dao.getMaxApplicationId();
                     applicationId = IdAutoIncrement.INSTANCE.increment(min, max);

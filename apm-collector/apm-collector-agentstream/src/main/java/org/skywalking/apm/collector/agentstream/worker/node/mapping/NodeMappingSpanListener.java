@@ -32,11 +32,11 @@ public class NodeMappingSpanListener implements RefsListener, FirstSpanListener 
         String segmentId) {
         logger.debug("node mapping listener parse reference");
         String peers = reference.getNetworkAddress();
-        if (reference.getNetworkAddressId() == 0) {
+        if (reference.getNetworkAddressId() != 0) {
             peers = ExchangeMarkUtils.INSTANCE.buildMarkedID(reference.getNetworkAddressId());
         }
 
-        String agg = applicationId + Const.ID_SPLIT + peers;
+        String agg = ExchangeMarkUtils.INSTANCE.buildMarkedID(applicationId) + Const.ID_SPLIT + peers;
         nodeMappings.add(agg);
     }
 

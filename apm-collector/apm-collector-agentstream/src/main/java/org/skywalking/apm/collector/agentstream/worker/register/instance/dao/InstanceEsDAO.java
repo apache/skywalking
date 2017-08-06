@@ -2,6 +2,7 @@ package org.skywalking.apm.collector.agentstream.worker.register.instance.dao;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -40,8 +41,7 @@ public class InstanceEsDAO extends EsDAO implements IInstanceDAO {
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
         if (searchResponse.getHits().totalHits > 0) {
             SearchHit searchHit = searchResponse.getHits().iterator().next();
-            int instanceId = (int)searchHit.getSource().get(InstanceTable.COLUMN_INSTANCE_ID);
-            return instanceId;
+            return (int)searchHit.getSource().get(InstanceTable.COLUMN_INSTANCE_ID);
         }
         return 0;
     }
@@ -57,7 +57,7 @@ public class InstanceEsDAO extends EsDAO implements IInstanceDAO {
     @Override public void save(InstanceDataDefine.Instance instance) {
         logger.debug("save instance register info, application id: {}, agentUUID: {}", instance.getApplicationId(), instance.getAgentUUID());
         ElasticSearchClient client = getClient();
-        Map<String, Object> source = new HashMap();
+        Map<String, Object> source = new HashMap<>();
         source.put(InstanceTable.COLUMN_INSTANCE_ID, instance.getInstanceId());
         source.put(InstanceTable.COLUMN_APPLICATION_ID, instance.getApplicationId());
         source.put(InstanceTable.COLUMN_AGENTUUID, instance.getAgentUUID());
@@ -75,10 +75,19 @@ public class InstanceEsDAO extends EsDAO implements IInstanceDAO {
         updateRequest.id(String.valueOf(instanceId));
         updateRequest.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
 
-        Map<String, Object> source = new HashMap();
+        Map<String, Object> source = new HashMap<>();
         source.put(InstanceTable.COLUMN_HEARTBEAT_TIME, heartbeatTime);
 
         updateRequest.doc(source);
         client.update(updateRequest);
+    }
+
+    @Override public int getApplicationId(int applicationInstanceId) {
+        GetResponse response = getClient().prepareGet(InstanceTable.TABLE, String.valueOf(applicationInstanceId)).get();
+        if (response.isExists()) {
+            return (int)response.getSource().get(InstanceTable.COLUMN_APPLICATION_ID);
+        } else {
+            return 0;
+        }
     }
 }

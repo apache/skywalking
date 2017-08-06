@@ -4,6 +4,7 @@ import java.util.List;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
+import org.elasticsearch.action.update.UpdateRequestBuilder;
 import org.skywalking.apm.collector.core.util.CollectionUtils;
 import org.skywalking.apm.collector.storage.dao.IBatchDAO;
 import org.slf4j.Logger;
@@ -19,11 +20,16 @@ public class BatchEsDAO extends EsDAO implements IBatchDAO {
     @Override public void batchPersistence(List<?> batchCollection) {
         BulkRequestBuilder bulkRequest = getClient().prepareBulk();
 
-        logger.info("bulk data size: {}", batchCollection.size());
+        logger.debug("bulk data size: {}", batchCollection.size());
         if (CollectionUtils.isNotEmpty(batchCollection)) {
             for (int i = 0; i < batchCollection.size(); i++) {
-                IndexRequestBuilder builder = (IndexRequestBuilder)batchCollection.get(i);
-                bulkRequest.add(builder);
+                Object builder = batchCollection.get(i);
+                if (builder instanceof IndexRequestBuilder) {
+                    bulkRequest.add((IndexRequestBuilder)builder);
+                }
+                if (builder instanceof UpdateRequestBuilder) {
+                    bulkRequest.add((UpdateRequestBuilder)builder);
+                }
             }
 
             BulkResponse bulkResponse = bulkRequest.execute().actionGet();

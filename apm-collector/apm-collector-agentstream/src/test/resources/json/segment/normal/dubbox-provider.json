@@ -1,0 +1,66 @@
+[
+  {
+    "gt": [
+      [
+        230150,
+        185809,
+        24040000
+      ]
+    ],
+    "sg": {
+      "ts": [
+        137150,
+        185809,
+        48780000
+      ],
+      "ai": 3,
+      "ii": 3,
+      "rs": [
+        {
+          "ts": [
+            230150,
+            185809,
+            24040000
+          ],
+          "ai": 2,
+          "si": 1,
+          "vi": 0,
+          "vn": "org.skywaking.apm.testcase.dubbo.services.GreetService.doBusiness()",
+          "ni": 0,
+          "nn": "172.25.0.4:20880",
+          "ei": 0,
+          "en": "/dubbox-case/case/dubbox-rest",
+          "rn": 0
+        }
+      ],
+      "ss": [
+        {
+          "si": 0,
+          "tv": 0,
+          "lv": 1,
+          "ps": -1,
+          "st": 1501858094883,
+          "et": 1501858096950,
+          "ci": 3,
+          "cn": "",
+          "oi": 0,
+          "on": "org.skywaking.apm.testcase.dubbo.services.GreetService.doBusiness()",
+          "pi": 0,
+          "pn": "",
+          "ie": false,
+          "to": [
+            {
+              "k": "url",
+              "v": "rest://172.25.0.4:20880/org.skywaking.apm.testcase.dubbo.services.GreetService.doBusiness()"
+            },
+            {
+              "k": "http.method",
+              "v": "GET"
+            }
+          ],
+          "lo": []
+        }
+      ]
+    }
+  }
+]

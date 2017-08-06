@@ -30,19 +30,25 @@ public class PersistenceTimer implements Starter {
     }
 
     private void extractDataAndSave() {
-        List<PersistenceWorker> workers = PersistenceWorkerContainer.INSTANCE.getPersistenceWorkers();
-        List batchAllCollection = new ArrayList<>();
-        workers.forEach((PersistenceWorker worker) -> {
-            try {
-                worker.allocateJob(new FlushAndSwitch());
-                List<?> batchCollection = worker.buildBatchCollection();
-                batchAllCollection.addAll(batchCollection);
-            } catch (WorkerException e) {
-                logger.error(e.getMessage(), e);
-            }
-        });
+        try {
+            List<PersistenceWorker> workers = PersistenceWorkerContainer.INSTANCE.getPersistenceWorkers();
+            List batchAllCollection = new ArrayList<>();
+            workers.forEach((PersistenceWorker worker) -> {
+                try {
+                    worker.allocateJob(new FlushAndSwitch());
+                    List<?> batchCollection = worker.buildBatchCollection();
+                    batchAllCollection.addAll(batchCollection);
+                } catch (WorkerException e) {
+                    logger.error(e.getMessage(), e);
+                }
+            });
 
-        IBatchDAO dao = (IBatchDAO)DAOContainer.INSTANCE.get(IBatchDAO.class.getName());
-        dao.batchPersistence(batchAllCollection);
+            IBatchDAO dao = (IBatchDAO)DAOContainer.INSTANCE.get(IBatchDAO.class.getName());
+            dao.batchPersistence(batchAllCollection);
+        } catch (Throwable e) {
+            logger.error(e.getMessage(), e);
+        } finally {
+            logger.debug("persistence data save finish");
+        }
     }
 }

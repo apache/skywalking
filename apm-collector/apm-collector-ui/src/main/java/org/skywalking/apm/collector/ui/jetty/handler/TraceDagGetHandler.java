@@ -32,7 +32,7 @@ public class TraceDagGetHandler extends JettyHandler {
         return service.load(startTime, endTime, timeBucketType);
     }
 
-    @Override protected void doPost(HttpServletRequest req) throws ArgumentsParseException {
+    @Override protected JsonElement doPost(HttpServletRequest req) throws ArgumentsParseException {
         throw new UnsupportedOperationException();
     }
 }
