@@ -1,7 +1,6 @@
 package org.skywalking.apm.collector.agentregister.jetty;
 
 import org.skywalking.apm.collector.agentregister.AgentRegisterModuleGroupDefine;
-import org.skywalking.apm.collector.agentregister.grpc.AgentRegisterGRPCModuleDefine;
 import org.skywalking.apm.collector.cluster.ClusterModuleDefine;
 import org.skywalking.apm.collector.core.cluster.ClusterDataListener;
 
