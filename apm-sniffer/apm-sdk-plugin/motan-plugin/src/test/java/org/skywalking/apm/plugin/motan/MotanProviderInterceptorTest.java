@@ -91,7 +91,7 @@ public class MotanProviderInterceptorTest {
     @Test
     public void testInvokerWithRefSegment() throws Throwable {
         HashMap attachments = new HashMap();
-        attachments.put(Config.Plugin.Propagation.HEADER_NAME, "#AQA*#AQA*4WcWe0tQNQA*|3|1|#192.168.1.8:18002|#/portal/|#/testEntrySpan|#AQA*#AQA*Et0We0tQNQA*");
+        attachments.put(Config.Plugin.Propagation.HEADER_NAME, "#AQA*#AQA*4WcWe0tQNQA*|3|1|#192.168.1.8:18002|#/portal/|#/testEntrySpan|#AQA*#AQA*Et0We0tQNQA*|1");
         when(request.getAttachments()).thenReturn(attachments);
 
         invokeInterceptor.beforeMethod(enhancedInstance, "execute", arguments, argumentType, null);
@@ -137,6 +137,7 @@ public class MotanProviderInterceptorTest {
     private void assertRefSegment(TraceSegmentRef primaryRef) {
         assertThat(SegmentRefHelper.getTraceSegmentId(primaryRef).toString(), is("1.1.15006458883500001"));
         assertThat(SegmentRefHelper.getSpanId(primaryRef), is(3));
+        assertThat(SegmentRefHelper.getEntryApplicationInstanceId(primaryRef), is(1));
         assertThat(SegmentRefHelper.getPeerHost(primaryRef), is("192.168.1.8:18002"));
     }
 

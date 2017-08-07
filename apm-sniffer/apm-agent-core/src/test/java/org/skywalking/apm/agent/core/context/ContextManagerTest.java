@@ -79,7 +79,7 @@ public class ContextManagerTest {
 
     @Test
     public void createMultipleEntrySpan() {
-        ContextCarrier contextCarrier = new ContextCarrier().deserialize("#AQA*#AQA*4WcWe0tQNQA*|1|1|#127.0.0.1:8080|#/portal/|#/testEntrySpan|#AQA*#AQA*Et0We0tQNQA*");
+        ContextCarrier contextCarrier = new ContextCarrier().deserialize("#AQA*#AQA*4WcWe0tQNQA*|1|1|#127.0.0.1:8080|#/portal/|#/testEntrySpan|#AQA*#AQA*Et0We0tQNQA*|1");
         assertTrue(contextCarrier.isValid());
 
         AbstractSpan firstEntrySpan = ContextManager.createEntrySpan("/testFirstEntry", contextCarrier);
@@ -202,7 +202,7 @@ public class ContextManagerTest {
 
     @Test
     public void testTransform() throws InvalidProtocolBufferException {
-        ContextCarrier contextCarrier = new ContextCarrier().deserialize("#AQA*#AQA*4WcWe0tQNQA*|3|1|#127.0.0.1:8080|#/portal/|#/testEntrySpan|#AQA*#AQA*Et0We0tQNQA*");
+        ContextCarrier contextCarrier = new ContextCarrier().deserialize("#AQA*#AQA*4WcWe0tQNQA*|3|1|#127.0.0.1:8080|#/portal/|#/testEntrySpan|#AQA*#AQA*Et0We0tQNQA*|1");
         assertTrue(contextCarrier.isValid());
 
         AbstractSpan firstEntrySpan = ContextManager.createEntrySpan("/testFirstEntry", contextCarrier);

@@ -148,7 +148,7 @@ public class DubboInterceptorTest {
     @Test
     public void testProviderWithAttachment() throws Throwable {
         when(rpcContext.isConsumerSide()).thenReturn(false);
-        when(rpcContext.getAttachment(Config.Plugin.Propagation.HEADER_NAME)).thenReturn("#AQA*#AQA*4WcWe0tQNQA*|3|1|#192.168.1.8 :18002|#/portal/|#/testEntrySpan|#AQA*#AQA*Et0We0tQNQA*");
+        when(rpcContext.getAttachment(Config.Plugin.Propagation.HEADER_NAME)).thenReturn("#AQA*#AQA*4WcWe0tQNQA*|3|1|#192.168.1.8 :18002|#/portal/|#/testEntrySpan|#AQA*#AQA*Et0We0tQNQA*|1");
 
         dubboInterceptor.beforeMethod(enhancedInstance, "invoke", allArguments, argumentTypes, methodInterceptResult);
         dubboInterceptor.afterMethod(enhancedInstance, "invoke", allArguments, argumentTypes, result);
@@ -160,7 +160,7 @@ public class DubboInterceptorTest {
         when(rpcContext.isConsumerSide()).thenReturn(false);
         FieldSetter.setStaticValue(BugFixActive.class, "ACTIVE", true);
 
-        testParam.setTraceContext("#AQA*#AQA*4WcWe0tQNQA*|3|1|#192.168.1.8 :18002|#/portal/|#/testEntrySpan|#AQA*#AQA*Et0We0tQNQA*");
+        testParam.setTraceContext("#AQA*#AQA*4WcWe0tQNQA*|3|1|#192.168.1.8 :18002|#/portal/|#/testEntrySpan|#AQA*#AQA*Et0We0tQNQA*|1");
 
         dubboInterceptor.beforeMethod(enhancedInstance, "invoke", allArguments, argumentTypes, methodInterceptResult);
         dubboInterceptor.afterMethod(enhancedInstance, "invoke", allArguments, argumentTypes, result);
@@ -194,6 +194,7 @@ public class DubboInterceptorTest {
 
     private void assertTraceSegmentRef(TraceSegmentRef actual) {
         assertThat(SegmentRefHelper.getSpanId(actual), is(3));
+        assertThat(SegmentRefHelper.getEntryApplicationInstanceId(actual), is(1));
         assertThat(SegmentRefHelper.getTraceSegmentId(actual).toString(), is("1.1.15006458883500001"));
     }
 

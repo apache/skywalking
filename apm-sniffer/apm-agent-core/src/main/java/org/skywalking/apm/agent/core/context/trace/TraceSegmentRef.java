@@ -30,6 +30,8 @@ public class TraceSegmentRef {
 
     private int entryOperationId = DictionaryUtil.nullValue();
 
+    private int entryApplicationInstanceId = DictionaryUtil.nullValue();
+
     private String parentOperationName;
 
     private int parentOperationId = DictionaryUtil.nullValue();
@@ -44,6 +46,7 @@ public class TraceSegmentRef {
         this.traceSegmentId = carrier.getTraceSegmentId();
         this.spanId = carrier.getSpanId();
         this.applicationInstanceId = carrier.getApplicationInstanceId();
+        this.entryApplicationInstanceId = carrier.getEntryApplicationInstanceId();
         String host = carrier.getPeerHost();
         if (host.charAt(0) == '#') {
             this.peerHost = host.substring(1);
@@ -95,6 +98,7 @@ public class TraceSegmentRef {
         if (SegmentRefType.CROSS_PROCESS.equals(type)) {
             refBuilder.setRefType(RefType.CrossProcess);
             refBuilder.setParentApplicationInstanceId(applicationInstanceId);
+            refBuilder.setEntryServiceApplicationInstanceId(entryApplicationInstanceId);
             if (peerId == DictionaryUtil.nullValue()) {
                 refBuilder.setNetworkAddress(peerHost);
             } else {

@@ -84,7 +84,7 @@ public class TracingContext implements AbstractTracerContext {
         carrier.setTraceSegmentId(this.segment.getTraceSegmentId());
         carrier.setSpanId(span.getSpanId());
 
-        carrier.setApplicationInstanceId(segment.getApplicationId());
+        carrier.setApplicationInstanceId(segment.getApplicationInstanceId());
 
         if (DictionaryUtil.isNull(exitSpan.getPeerId())) {
             carrier.setPeerHost(exitSpan.getPeer());
@@ -102,6 +102,7 @@ public class TracingContext implements AbstractTracerContext {
             AbstractTracingSpan firstSpan = first();
             operationId = firstSpan.getOperationId();
             operationName = firstSpan.getOperationName();
+            carrier.setEntryApplicationInstanceId(this.segment.getApplicationInstanceId());
         }
         if (operationId == DictionaryUtil.nullValue()) {
             carrier.setEntryOperationName(operationName);

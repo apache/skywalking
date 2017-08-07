@@ -92,7 +92,7 @@ public class ResinV4InterceptorTest {
 
     @Test
     public void testWithSerializedContextData() throws Throwable {
-        when(request.getHeader(Config.Plugin.Propagation.HEADER_NAME)).thenReturn("#AQA*#AQA*4WcWe0tQNQA*|3|1|#192.168.1.8:18002|#/portal/|#/testEntrySpan|#AQA*#AQA*Et0We0tQNQA*");
+        when(request.getHeader(Config.Plugin.Propagation.HEADER_NAME)).thenReturn("#AQA*#AQA*4WcWe0tQNQA*|3|1|#192.168.1.8:18002|#/portal/|#/testEntrySpan|#AQA*#AQA*Et0We0tQNQA*|1");
 
         interceptor.beforeMethod(enhancedInstance, "service", arguments, argumentType, methodInterceptResult);
         interceptor.afterMethod(enhancedInstance, "service", arguments, argumentType, null);
@@ -122,6 +122,7 @@ public class ResinV4InterceptorTest {
     }
 
     private void assertTraceSegmentRef(TraceSegmentRef ref) {
+        assertThat(SegmentRefHelper.getEntryApplicationInstanceId(ref), is(1));
         assertThat(SegmentRefHelper.getSpanId(ref), is(3));
         assertThat(SegmentRefHelper.getTraceSegmentId(ref).toString(), is("1.1.15006458883500001"));
     }

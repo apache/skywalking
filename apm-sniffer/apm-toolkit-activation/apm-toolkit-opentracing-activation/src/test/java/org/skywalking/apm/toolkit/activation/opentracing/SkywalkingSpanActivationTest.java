@@ -17,6 +17,7 @@ import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.skywalking.apm.agent.core.context.trace.TraceSegmentRef;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.skywalking.apm.agent.test.helper.SegmentHelper;
+import org.skywalking.apm.agent.test.helper.SegmentRefHelper;
 import org.skywalking.apm.agent.test.tools.AgentServiceRule;
 import org.skywalking.apm.agent.test.tools.SegmentStorage;
 import org.skywalking.apm.agent.test.tools.SegmentStoragePoint;
@@ -37,6 +38,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.skywalking.apm.agent.test.tools.SegmentRefAssert.assertPeerHost;
 import static org.skywalking.apm.agent.test.tools.SegmentRefAssert.assertSegmentId;
+import static org.skywalking.apm.agent.test.tools.SegmentRefAssert.assertEntryApplicationInstanceId;
 import static org.skywalking.apm.agent.test.tools.SegmentRefAssert.assertSpanId;
 import static org.skywalking.apm.agent.test.tools.SpanAssert.assertComponent;
 import static org.skywalking.apm.agent.test.tools.SpanAssert.assertLogSize;
@@ -181,7 +183,7 @@ public class SkywalkingSpanActivationTest {
             .withTag(Tags.PEER_HOST_IPV4.getKey(), "127.0.0.1").withTag(Tags.PEER_PORT.getKey(), 8080);
         startSpan();
         extractInterceptor.afterMethod(enhancedInstance, "extract",
-            new Object[] {"#AQA*#AQA*4WcWe0tQNQA*|3|1|#127.0.0.1:8080|#/portal/|#/testEntrySpan|#AQA*#AQA*Et0We0tQNQA*"}, new Class[] {String.class}, null);
+            new Object[] {"#AQA*#AQA*4WcWe0tQNQA*|3|1|#127.0.0.1:8080|#/portal/|#/testEntrySpan|#AQA*#AQA*Et0We0tQNQA*|1"}, new Class[] {String.class}, null);
         stopSpan();
 
         TraceSegment tracingSegment = assertTraceSemgnets();
@@ -190,11 +192,11 @@ public class SkywalkingSpanActivationTest {
         TraceSegmentRef ref = tracingSegment.getRefs().get(0);
         assertSegmentId(ref, "1.1.15006458883500001");
         assertSpanId(ref, 3);
+        assertEntryApplicationInstanceId(ref, 1);
         assertPeerHost(ref, "127.0.0.1:8080");
         assertThat(spans.size(), is(1));
         assertSpanCommonsAttribute(spans.get(0));
     }
-
     @Test
     public void testExtractWithInValidateContext() throws Throwable {
         spanBuilder.withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT)
