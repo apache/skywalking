@@ -2,6 +2,8 @@ package org.skywalking.apm.collector.agentstream.worker.storage;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import org.skywalking.apm.collector.core.framework.Starter;
 import org.skywalking.apm.collector.storage.dao.DAOContainer;
 import org.skywalking.apm.collector.storage.dao.IBatchDAO;
@@ -23,20 +25,8 @@ public class PersistenceTimer implements Starter {
         logger.info("persistence timer start");
         //TODO timer value config
 //        final long timeInterval = EsConfig.Es.Persistence.Timer.VALUE * 1000;
-        final long timeInterval = 3 * 1000;
-
-        Thread persistenceThread = new Thread(() -> {
-            while (true) {
-                try {
-                    extractDataAndSave();
-                    Thread.sleep(timeInterval);
-                } catch (Throwable e) {
-                    logger.error(e.getMessage(), e);
-                }
-            }
-        });
-        persistenceThread.setName("timerPersistence");
-        persistenceThread.start();
+        final long timeInterval = 3;
+        Executors.newSingleThreadScheduledExecutor().schedule(() -> extractDataAndSave(), timeInterval, TimeUnit.SECONDS);
     }
 
     private void extractDataAndSave() {

@@ -36,17 +36,21 @@ public class ServiceNameRegisterSerialWorker extends AbstractLocalAsyncWorker {
             logger.debug("register service name: {}, application id: {}", serviceName.getServiceName(), serviceName.getApplicationId());
 
             IServiceNameDAO dao = (IServiceNameDAO)DAOContainer.INSTANCE.get(IServiceNameDAO.class.getName());
-            int min = dao.getMinServiceId();
-            if (min == 0) {
-                serviceName.setServiceId(1);
-                serviceName.setId("1");
-            } else {
-                int max = dao.getMaxServiceId();
-                int serviceId = IdAutoIncrement.INSTANCE.increment(min, max);
-                serviceName.setApplicationId(serviceId);
-                serviceName.setId(String.valueOf(serviceId));
+            int serviceId = dao.getServiceId(serviceName.getApplicationId(), serviceName.getServiceName());
+
+            if (serviceId == 0) {
+                int min = dao.getMinServiceId();
+                if (min == 0) {
+                    serviceName.setServiceId(1);
+                    serviceName.setId("1");
+                } else {
+                    int max = dao.getMaxServiceId();
+                    serviceId = IdAutoIncrement.INSTANCE.increment(min, max);
+                    serviceName.setApplicationId(serviceId);
+                    serviceName.setId(String.valueOf(serviceId));
+                }
+                dao.save(serviceName);
             }
-            dao.save(serviceName);
         }
     }
 

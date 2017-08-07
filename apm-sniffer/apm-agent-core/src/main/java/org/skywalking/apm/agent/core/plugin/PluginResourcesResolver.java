@@ -27,7 +27,7 @@ public class PluginResourcesResolver {
             while (urls.hasMoreElements()) {
                 URL pluginUrl = urls.nextElement();
                 cfgUrlPaths.add(pluginUrl);
-                logger.info("find skywalking plugin define in {}", pluginUrl);
+                logger.info("findOrPrepare4Register skywalking plugin define in {}", pluginUrl);
             }
 
             return cfgUrlPaths;
@@ -42,7 +42,7 @@ public class PluginResourcesResolver {
      * First get current thread's classloader,
      * if fail, get {@link PluginResourcesResolver}'s classloader.
      *
-     * @return the classloader to find plugin definitions.
+     * @return the classloader to findOrPrepare4Register plugin definitions.
      */
     private ClassLoader getDefaultClassLoader() {
         ClassLoader cl = null;
