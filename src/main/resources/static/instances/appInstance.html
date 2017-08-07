@@ -1,0 +1,21 @@
+<div class="row application-instance" v-for="application in appInstances">
+    <div class="col-lg-12 application-code">
+        <h5>{{application.applicationCode}}</h5>
+    </div>
+    <div class="col-lg-12">
+        <div class="col-lg-1 col-sm-2" v-for="(instance, index) in application.instances"
+             v-show="index < application.showCount">
+            <div style="">
+                <canvas height="80px" width="80px" :key="instance.id" :id="'canvas_' + instance.id" style="display:
+                block;" class="donut"
+                        v-instance="instance"></canvas>
+            </div>
+        </div>
+        <div class="col-lg-1 col-sm-2" v-if="application.instances.length > application.showCount">
+            <div class="text-center" style="margin-top:4%">
+                <a href="javascript:void(0);" class="center-block" v-on:click="showMore(application)">{{application.instances.length
+                    - application.showCount}} more...</a>
+            </div>
+        </div>
+    </div>
+</div>
