@@ -1,6 +1,8 @@
 package org.skywalking.apm.agent.core.context.trace;
 
+import org.skywalking.apm.agent.core.dictionary.DictionaryManager;
 import org.skywalking.apm.agent.core.dictionary.DictionaryUtil;
+import org.skywalking.apm.agent.core.dictionary.PossibleFound;
 import org.skywalking.apm.network.trace.component.Component;
 
 /**
@@ -82,6 +84,22 @@ public class EntrySpan extends AbstractTracingSpan {
     @Override
     public boolean finish(TraceSegment owner) {
         if (--stackDepth == 0) {
+            if (this.operationId == DictionaryUtil.nullValue()) {
+                this.operationId = (Integer)DictionaryManager.findOperationNameCodeSection()
+                    .findOrPrepare4Register(owner.getApplicationId(), operationName)
+                    .doInCondition(
+                        new PossibleFound.FoundAndObtain() {
+                            @Override public Object doProcess(int value) {
+                                return value;
+                            }
+                        },
+                        new PossibleFound.NotFoundAndObtain() {
+                            @Override public Object doProcess() {
+                                return DictionaryUtil.nullValue();
+                            }
+                        }
+                    );
+            }
             return super.finish(owner);
         } else {
             return false;

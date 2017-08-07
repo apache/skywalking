@@ -20,7 +20,15 @@ public enum OperationNameDictionary {
     private Map<OperationNameKey, Integer> operationNameDictionary = new ConcurrentHashMap<OperationNameKey, Integer>();
     private Set<OperationNameKey> unRegisterOperationNames = new ConcurrentSet<OperationNameKey>();
 
-    public PossibleFound find(int applicationId, String operationName) {
+    public PossibleFound findOrPrepare4Register(int applicationId, String operationName) {
+        return find0(applicationId, operationName, true);
+    }
+
+    public PossibleFound findOnly(int applicationId, String operationName) {
+        return find0(applicationId, operationName, false);
+    }
+
+    private PossibleFound find0(int applicationId, String operationName, boolean registerWhenNotFound) {
         if (operationName == null || operationName.length() == 0) {
             return new NotFound();
         }
@@ -29,7 +37,8 @@ public enum OperationNameDictionary {
         if (operationId != null) {
             return new Found(applicationId);
         } else {
-            if (operationNameDictionary.size() + unRegisterOperationNames.size() < OPERATION_NAME_BUFFER_SIZE) {
+            if (registerWhenNotFound &&
+                operationNameDictionary.size() + unRegisterOperationNames.size() < OPERATION_NAME_BUFFER_SIZE) {
                 unRegisterOperationNames.add(key);
             }
             return new NotFound();

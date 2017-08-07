@@ -28,6 +28,7 @@
           "vn": "org.skywaking.apm.testcase.dubbo.services.GreetService.doBusiness()",
           "ni": 0,
           "nn": "172.25.0.4:20880",
+          "ea": 2,
           "ei": 0,
           "en": "/dubbox-case/case/dubbox-rest",
           "rn": 0

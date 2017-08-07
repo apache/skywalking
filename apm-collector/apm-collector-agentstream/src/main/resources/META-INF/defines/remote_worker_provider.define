@@ -8,3 +8,4 @@ org.skywalking.apm.collector.agentstream.worker.noderef.reference.NodeRefRemoteW
 org.skywalking.apm.collector.agentstream.worker.noderef.summary.NodeRefSumRemoteWorker$Factory
 
 org.skywalking.apm.collector.agentstream.worker.service.entry.ServiceEntryRemoteWorker$Factory
+org.skywalking.apm.collector.agentstream.worker.serviceref.reference.ServiceRefRemoteWorker$Factory

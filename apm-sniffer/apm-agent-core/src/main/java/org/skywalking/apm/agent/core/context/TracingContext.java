@@ -202,7 +202,7 @@ public class TracingContext implements AbstractTracerContext {
         final int parentSpanId = parentSpan == null ? -1 : parentSpan.getSpanId();
         if (parentSpan == null) {
             entrySpan = (AbstractTracingSpan)DictionaryManager.findOperationNameCodeSection()
-                .find(segment.getApplicationId(), operationName)
+                .findOnly(segment.getApplicationId(), operationName)
                 .doInCondition(new PossibleFound.FoundAndObtain() {
                     @Override public Object doProcess(int operationId) {
                         return new EntrySpan(spanIdGenerator++, parentSpanId, operationId);
@@ -216,7 +216,7 @@ public class TracingContext implements AbstractTracerContext {
             return push(entrySpan);
         } else if (parentSpan.isEntry()) {
             entrySpan = (AbstractTracingSpan)DictionaryManager.findOperationNameCodeSection()
-                .find(segment.getApplicationId(), operationName)
+                .findOnly(segment.getApplicationId(), operationName)
                 .doInCondition(new PossibleFound.FoundAndObtain() {
                     @Override public Object doProcess(int operationId) {
                         return parentSpan.setOperationId(operationId);
@@ -244,7 +244,7 @@ public class TracingContext implements AbstractTracerContext {
         AbstractTracingSpan parentSpan = peek();
         final int parentSpanId = parentSpan == null ? -1 : parentSpan.getSpanId();
         AbstractTracingSpan span = (AbstractTracingSpan)DictionaryManager.findOperationNameCodeSection()
-            .find(segment.getApplicationId(), operationName)
+            .findOrPrepare4Register(segment.getApplicationId(), operationName)
             .doInCondition(new PossibleFound.FoundAndObtain() {
                 @Override
                 public Object doProcess(int operationId) {
@@ -282,7 +282,7 @@ public class TracingContext implements AbstractTracerContext {
                         @Override
                         public Object doProcess(final int applicationId) {
                             return DictionaryManager.findOperationNameCodeSection()
-                                .find(applicationId, operationName)
+                                .findOrPrepare4Register(applicationId, operationName)
                                 .doInCondition(
                                     new PossibleFound.FoundAndObtain() {
                                         @Override

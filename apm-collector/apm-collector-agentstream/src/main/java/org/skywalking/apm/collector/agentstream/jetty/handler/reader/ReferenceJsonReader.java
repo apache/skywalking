@@ -18,6 +18,7 @@ public class ReferenceJsonReader implements StreamJsonReader<TraceSegmentReferen
     private static final String VN = "vn";
     private static final String NI = "ni";
     private static final String NN = "nn";
+    private static final String EA = "ea";
     private static final String EI = "ei";
     private static final String EN = "en";
     private static final String RV = "rv";
@@ -48,6 +49,9 @@ public class ReferenceJsonReader implements StreamJsonReader<TraceSegmentReferen
                     break;
                 case NN:
                     builder.setNetworkAddress(reader.nextString());
+                    break;
+                case EA:
+                    builder.setEntryApplicationInstanceId(reader.nextInt());
                     break;
                 case EI:
                     builder.setEntryServiceId(reader.nextInt());

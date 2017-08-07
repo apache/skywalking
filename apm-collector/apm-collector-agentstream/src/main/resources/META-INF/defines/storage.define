@@ -30,3 +30,6 @@ org.skywalking.apm.collector.agentstream.worker.global.define.GlobalTraceH2Table
 
 org.skywalking.apm.collector.agentstream.worker.service.entry.define.ServiceEntryEsTableDefine
 org.skywalking.apm.collector.agentstream.worker.service.entry.define.ServiceEntryH2TableDefine
+
+org.skywalking.apm.collector.agentstream.worker.serviceref.reference.define.ServiceRefEsTableDefine
+org.skywalking.apm.collector.agentstream.worker.serviceref.reference.define.ServiceRefH2TableDefine

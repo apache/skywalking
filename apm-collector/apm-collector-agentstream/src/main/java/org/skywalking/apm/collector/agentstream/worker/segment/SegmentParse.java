@@ -11,6 +11,7 @@ import org.skywalking.apm.collector.agentstream.worker.segment.cost.SegmentCostS
 import org.skywalking.apm.collector.agentstream.worker.segment.origin.SegmentPersistenceWorker;
 import org.skywalking.apm.collector.agentstream.worker.segment.origin.define.SegmentDataDefine;
 import org.skywalking.apm.collector.agentstream.worker.service.entry.ServiceEntrySpanListener;
+import org.skywalking.apm.collector.agentstream.worker.serviceref.reference.ServiceRefSpanListener;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
 import org.skywalking.apm.collector.core.util.CollectionUtils;
 import org.skywalking.apm.collector.stream.StreamModuleContext;
@@ -43,6 +44,7 @@ public class SegmentParse {
         spanListeners.add(new SegmentCostSpanListener());
         spanListeners.add(new GlobalTraceSpanListener());
         spanListeners.add(new ServiceEntrySpanListener());
+        spanListeners.add(new ServiceRefSpanListener());
     }
 
     public void parse(List<UniqueId> traceIds, TraceSegmentObject segmentObject) {
