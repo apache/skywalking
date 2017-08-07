@@ -35,9 +35,9 @@ message TraceSegmentReference {
     int32 parentApplicationInstanceId = 4;
     string networkAddress = 5;
     int32 networkAddressId = 6;
-    string entryServiceName = 7;
-    int32 entryServiceId = 8;
-    int32 entryServiceApplicationInstanceId = 9;
+    int32 entryApplicationInstanceId = 7;
+    string entryServiceName = 8;
+    int32 entryServiceId = 9;
     string parentServiceName = 10;
     int32 parentServiceId = 11;
 }
