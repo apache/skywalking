@@ -17,11 +17,11 @@ public class SegmentJsonReader implements StreamJsonReader<TraceSegmentObject> {
     private ReferenceJsonReader referenceJsonReader = new ReferenceJsonReader();
     private SpanJsonReader spanJsonReader = new SpanJsonReader();
 
-    private static final String TS = "ts";
-    private static final String AI = "ai";
-    private static final String II = "ii";
-    private static final String RS = "rs";
-    private static final String SS = "ss";
+    private static final String TRACE_SEGMENT_ID = "ts";
+    private static final String APPLICATION_ID = "ai";
+    private static final String APPLICATION_INSTANCE_ID = "ii";
+    private static final String TRACE_SEGMENT_REFERENCE = "rs";
+    private static final String SPANS = "ss";
 
     @Override public TraceSegmentObject read(JsonReader reader) throws IOException {
         TraceSegmentObject.Builder builder = TraceSegmentObject.newBuilder();
@@ -29,7 +29,7 @@ public class SegmentJsonReader implements StreamJsonReader<TraceSegmentObject> {
         reader.beginObject();
         while (reader.hasNext()) {
             switch (reader.nextName()) {
-                case TS:
+                case TRACE_SEGMENT_ID:
                     builder.setTraceSegmentId(uniqueIdJsonReader.read(reader));
                     if (logger.isDebugEnabled()) {
                         StringBuilder segmentId = new StringBuilder();
@@ -37,20 +37,20 @@ public class SegmentJsonReader implements StreamJsonReader<TraceSegmentObject> {
                         logger.debug("segment id: {}", segmentId);
                     }
                     break;
-                case AI:
+                case APPLICATION_ID:
                     builder.setApplicationId(reader.nextInt());
                     break;
-                case II:
+                case APPLICATION_INSTANCE_ID:
                     builder.setApplicationInstanceId(reader.nextInt());
                     break;
-                case RS:
+                case TRACE_SEGMENT_REFERENCE:
                     reader.beginArray();
                     while (reader.hasNext()) {
                         builder.addRefs(referenceJsonReader.read(reader));
                     }
                     reader.endArray();
                     break;
-                case SS:
+                case SPANS:
                     reader.beginArray();
                     while (reader.hasNext()) {
                         builder.addSpans(spanJsonReader.read(reader));
