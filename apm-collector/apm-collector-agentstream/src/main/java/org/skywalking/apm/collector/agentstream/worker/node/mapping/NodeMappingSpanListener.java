@@ -6,6 +6,7 @@ import org.skywalking.apm.collector.agentstream.worker.Const;
 import org.skywalking.apm.collector.agentstream.worker.node.mapping.define.NodeMappingDataDefine;
 import org.skywalking.apm.collector.agentstream.worker.segment.FirstSpanListener;
 import org.skywalking.apm.collector.agentstream.worker.segment.RefsListener;
+import org.skywalking.apm.collector.agentstream.worker.util.ExchangeMarkUtils;
 import org.skywalking.apm.collector.agentstream.worker.util.TimeBucketUtils;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
 import org.skywalking.apm.collector.stream.StreamModuleContext;
@@ -30,12 +31,12 @@ public class NodeMappingSpanListener implements RefsListener, FirstSpanListener 
     @Override public void parseRef(TraceSegmentReference reference, int applicationId, int applicationInstanceId,
         String segmentId) {
         logger.debug("node mapping listener parse reference");
-        String peers = Const.PEERS_FRONT_SPLIT + reference.getNetworkAddressId() + Const.PEERS_BEHIND_SPLIT;
-        if (reference.getNetworkAddressId() == 0) {
-            peers = Const.PEERS_FRONT_SPLIT + reference.getNetworkAddress() + Const.PEERS_BEHIND_SPLIT;
+        String peers = reference.getNetworkAddress();
+        if (reference.getNetworkAddressId() != 0) {
+            peers = ExchangeMarkUtils.INSTANCE.buildMarkedID(reference.getNetworkAddressId());
         }
 
-        String agg = applicationId + Const.ID_SPLIT + peers;
+        String agg = ExchangeMarkUtils.INSTANCE.buildMarkedID(applicationId) + Const.ID_SPLIT + peers;
         nodeMappings.add(agg);
     }
 

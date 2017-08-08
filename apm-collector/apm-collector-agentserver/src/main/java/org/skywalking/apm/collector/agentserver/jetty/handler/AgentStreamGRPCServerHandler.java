@@ -25,9 +25,11 @@ public class AgentStreamGRPCServerHandler extends JettyHandler {
         ClusterModuleRegistrationReader reader = ((ClusterModuleContext)CollectorContextHelper.INSTANCE.getContext(ClusterModuleGroupDefine.GROUP_NAME)).getReader();
         List<String> servers = reader.read(AgentStreamGRPCDataListener.PATH);
         JsonArray serverArray = new JsonArray();
-        servers.forEach(server -> {
-            serverArray.add(server);
-        });
+        servers.forEach(server -> serverArray.add(server));
         return serverArray;
+    }
+
+    @Override protected JsonElement doPost(HttpServletRequest req) throws ArgumentsParseException {
+        throw new UnsupportedOperationException();
     }
 }

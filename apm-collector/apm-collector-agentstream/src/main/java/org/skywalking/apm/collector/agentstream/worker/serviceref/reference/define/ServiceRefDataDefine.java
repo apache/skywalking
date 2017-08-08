@@ -3,7 +3,9 @@ package org.skywalking.apm.collector.agentstream.worker.serviceref.reference.def
 import org.skywalking.apm.collector.remote.grpc.proto.RemoteData;
 import org.skywalking.apm.collector.stream.worker.impl.data.Attribute;
 import org.skywalking.apm.collector.stream.worker.impl.data.AttributeType;
+import org.skywalking.apm.collector.stream.worker.impl.data.Data;
 import org.skywalking.apm.collector.stream.worker.impl.data.DataDefine;
+import org.skywalking.apm.collector.stream.worker.impl.data.Transform;
 import org.skywalking.apm.collector.stream.worker.impl.data.operate.CoverOperation;
 import org.skywalking.apm.collector.stream.worker.impl.data.operate.NonOperation;
 
@@ -11,12 +13,6 @@ import org.skywalking.apm.collector.stream.worker.impl.data.operate.NonOperation
  * @author pengys5
  */
 public class ServiceRefDataDefine extends DataDefine {
-
-    public static final int DEFINE_ID = 501;
-
-    @Override public int defineId() {
-        return DEFINE_ID;
-    }
 
     @Override protected int initialCapacity() {
         return 4;
@@ -47,7 +43,7 @@ public class ServiceRefDataDefine extends DataDefine {
         return builder.build();
     }
 
-    public static class ServiceReference {
+    public static class ServiceReference implements Transform {
         private String id;
         private String entryService;
         private String agg;
@@ -61,6 +57,24 @@ public class ServiceRefDataDefine extends DataDefine {
         }
 
         public ServiceReference() {
+        }
+
+        @Override public Data toData() {
+            ServiceRefDataDefine define = new ServiceRefDataDefine();
+            Data data = define.build(id);
+            data.setDataString(0, this.id);
+            data.setDataString(1, this.entryService);
+            data.setDataString(2, this.agg);
+            data.setDataLong(0, this.timeBucket);
+            return data;
+        }
+
+        @Override public Object toSelf(Data data) {
+            this.id = data.getDataString(0);
+            this.entryService = data.getDataString(1);
+            this.agg = data.getDataString(2);
+            this.timeBucket = data.getDataLong(0);
+            return this;
         }
 
         public String getId() {

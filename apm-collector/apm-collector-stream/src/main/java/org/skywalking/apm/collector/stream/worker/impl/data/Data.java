@@ -8,7 +8,6 @@ import org.skywalking.apm.collector.stream.worker.selector.AbstractHashMessage;
  * @author pengys5
  */
 public class Data extends AbstractHashMessage {
-    private int defineId;
     private final int stringCapacity;
     private final int longCapacity;
     private final int floatCapacity;
@@ -22,10 +21,9 @@ public class Data extends AbstractHashMessage {
     private Boolean[] dataBooleans;
     private byte[][] dataBytes;
 
-    public Data(String id, int defineId, int stringCapacity, int longCapacity, int floatCapacity, int integerCapacity,
+    public Data(String id, int stringCapacity, int longCapacity, int floatCapacity, int integerCapacity,
         int booleanCapacity, int byteCapacity) {
         super(id);
-        this.defineId = defineId;
         this.dataStrings = new String[stringCapacity];
         this.dataLongs = new Long[longCapacity];
         this.dataFloats = new Float[floatCapacity];
@@ -90,10 +88,6 @@ public class Data extends AbstractHashMessage {
 
     public String id() {
         return dataStrings[0];
-    }
-
-    public int getDefineId() {
-        return defineId;
     }
 
     public RemoteData serialize() {

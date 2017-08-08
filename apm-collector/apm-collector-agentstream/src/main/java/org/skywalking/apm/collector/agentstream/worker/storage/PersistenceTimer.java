@@ -26,23 +26,31 @@ public class PersistenceTimer implements Starter {
         //TODO timer value config
 //        final long timeInterval = EsConfig.Es.Persistence.Timer.VALUE * 1000;
         final long timeInterval = 3;
-        Executors.newSingleThreadScheduledExecutor().schedule(() -> extractDataAndSave(), timeInterval, TimeUnit.SECONDS);
+        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> extractDataAndSave(), 1, timeInterval, TimeUnit.SECONDS);
     }
 
     private void extractDataAndSave() {
-        List<PersistenceWorker> workers = PersistenceWorkerContainer.INSTANCE.getPersistenceWorkers();
-        List batchAllCollection = new ArrayList<>();
-        workers.forEach((PersistenceWorker worker) -> {
-            try {
-                worker.allocateJob(new FlushAndSwitch());
-                List<?> batchCollection = worker.buildBatchCollection();
-                batchAllCollection.addAll(batchCollection);
-            } catch (WorkerException e) {
-                logger.error(e.getMessage(), e);
-            }
-        });
+        try {
+            List<PersistenceWorker> workers = PersistenceWorkerContainer.INSTANCE.getPersistenceWorkers();
+            List batchAllCollection = new ArrayList<>();
+            workers.forEach((PersistenceWorker worker) -> {
+                logger.debug("extract {} worker data and save", worker.getRole().roleName());
+                try {
+                    worker.allocateJob(new FlushAndSwitch());
+                    List<?> batchCollection = worker.buildBatchCollection();
+                    logger.debug("extract {} worker data size: {}", worker.getRole().roleName(), batchCollection.size());
+                    batchAllCollection.addAll(batchCollection);
+                } catch (WorkerException e) {
+                    logger.error(e.getMessage(), e);
+                }
+            });
 
-        IBatchDAO dao = (IBatchDAO)DAOContainer.INSTANCE.get(IBatchDAO.class.getName());
-        dao.batchPersistence(batchAllCollection);
+            IBatchDAO dao = (IBatchDAO)DAOContainer.INSTANCE.get(IBatchDAO.class.getName());
+            dao.batchPersistence(batchAllCollection);
+        } catch (Throwable e) {
+            logger.error(e.getMessage(), e);
+        } finally {
+            logger.debug("persistence data save finish");
+        }
     }
 }

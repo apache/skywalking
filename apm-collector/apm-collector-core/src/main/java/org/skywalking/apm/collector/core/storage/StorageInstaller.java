@@ -23,8 +23,11 @@ public abstract class StorageInstaller {
                 if (!isExists(client, tableDefine)) {
                     logger.info("table: {} not exists", tableDefine.getName());
                     tableDefine.initialize();
-                    createTable(client, tableDefine);
+                } else {
+                    logger.info("table: {} exists", tableDefine.getName());
+                    deleteTable(client, tableDefine);
                 }
+                createTable(client, tableDefine);
             }
         } catch (DefineException e) {
             throw new StorageInstallException(e.getMessage(), e);
@@ -35,7 +38,7 @@ public abstract class StorageInstaller {
 
     protected abstract boolean isExists(Client client, TableDefine tableDefine) throws StorageException;
 
-    protected abstract boolean deleteIndex(Client client, TableDefine tableDefine) throws StorageException;
+    protected abstract boolean deleteTable(Client client, TableDefine tableDefine) throws StorageException;
 
     protected abstract boolean createTable(Client client, TableDefine tableDefine) throws StorageException;
 }

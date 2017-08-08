@@ -26,4 +26,8 @@ public class InstanceH2DAO extends H2DAO implements IInstanceDAO {
     @Override public void updateHeartbeatTime(int instanceId, long heartbeatTime) {
 
     }
+
+    @Override public int getApplicationId(int applicationInstanceId) {
+        return 0;
+    }
 }

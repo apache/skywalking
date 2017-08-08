@@ -45,7 +45,7 @@ public class SegmentCostEsDAO extends EsDAO implements ISegmentCostDAO {
             boolQueryBuilder.must().add(rangeQueryBuilder);
         }
         if (!StringUtils.isEmpty(operationName)) {
-            mustQueryList.add(QueryBuilders.matchQuery(SegmentCostTable.COLUMN_OPERATION_NAME, operationName));
+            mustQueryList.add(QueryBuilders.matchQuery(SegmentCostTable.COLUMN_SERVICE_NAME, operationName));
         }
 
         searchRequestBuilder.addSort(SegmentCostTable.COLUMN_COST, SortOrder.DESC);
@@ -77,7 +77,7 @@ public class SegmentCostEsDAO extends EsDAO implements ISegmentCostDAO {
                 topSegmentJson.addProperty(GlobalTraceTable.COLUMN_GLOBAL_TRACE_ID, globalTraces.get(0));
             }
 
-            topSegmentJson.addProperty(SegmentCostTable.COLUMN_OPERATION_NAME, (String)searchHit.getSource().get(SegmentCostTable.COLUMN_OPERATION_NAME));
+            topSegmentJson.addProperty(SegmentCostTable.COLUMN_SERVICE_NAME, (String)searchHit.getSource().get(SegmentCostTable.COLUMN_SERVICE_NAME));
             topSegmentJson.addProperty(SegmentCostTable.COLUMN_COST, (Number)searchHit.getSource().get(SegmentCostTable.COLUMN_COST));
             topSegmentJson.addProperty(SegmentCostTable.COLUMN_IS_ERROR, (Boolean)searchHit.getSource().get(SegmentCostTable.COLUMN_IS_ERROR));
 

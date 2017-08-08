@@ -1,8 +1,10 @@
 package org.skywalking.apm.collector.agentstream.jetty;
 
+import java.util.LinkedList;
 import java.util.List;
 import org.skywalking.apm.collector.agentstream.AgentStreamModuleDefine;
 import org.skywalking.apm.collector.agentstream.AgentStreamModuleGroupDefine;
+import org.skywalking.apm.collector.agentstream.jetty.handler.TraceSegmentServletHandler;
 import org.skywalking.apm.collector.core.cluster.ClusterDataListener;
 import org.skywalking.apm.collector.core.framework.Handler;
 import org.skywalking.apm.collector.core.module.ModuleConfigParser;
@@ -42,6 +44,8 @@ public class AgentStreamJettyModuleDefine extends AgentStreamModuleDefine {
     }
 
     @Override public List<Handler> handlerList() {
-        return null;
+        List<Handler> handlers = new LinkedList<>();
+        handlers.add(new TraceSegmentServletHandler());
+        return handlers;
     }
 }

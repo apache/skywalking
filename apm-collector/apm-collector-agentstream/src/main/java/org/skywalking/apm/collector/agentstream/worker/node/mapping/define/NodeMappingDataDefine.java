@@ -14,10 +14,6 @@ import org.skywalking.apm.collector.stream.worker.impl.data.operate.NonOperation
  */
 public class NodeMappingDataDefine extends DataDefine {
 
-    @Override public int defineId() {
-        return 102;
-    }
-
     @Override protected int initialCapacity() {
         return 3;
     }
@@ -36,12 +32,12 @@ public class NodeMappingDataDefine extends DataDefine {
         return null;
     }
 
-    public static class NodeMapping implements Transform {
+    public static class NodeMapping implements Transform<NodeMapping> {
         private String id;
         private String agg;
         private long timeBucket;
 
-        public NodeMapping(String id, String agg, long timeBucket) {
+        NodeMapping(String id, String agg, long timeBucket) {
             this.id = id;
             this.agg = agg;
             this.timeBucket = timeBucket;
@@ -59,8 +55,11 @@ public class NodeMappingDataDefine extends DataDefine {
             return data;
         }
 
-        @Override public Object toSelf(Data data) {
-            return null;
+        @Override public NodeMapping toSelf(Data data) {
+            this.id = data.getDataString(0);
+            this.agg = data.getDataString(1);
+            this.timeBucket = data.getDataLong(0);
+            return this;
         }
 
         public String getId() {
