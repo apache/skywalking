@@ -84,7 +84,7 @@ public class TracingContext implements AbstractTracerContext {
         carrier.setTraceSegmentId(this.segment.getTraceSegmentId());
         carrier.setSpanId(span.getSpanId());
 
-        carrier.setApplicationInstanceId(segment.getApplicationId());
+        carrier.setParentApplicationInstanceId(segment.getApplicationInstanceId());
 
         if (DictionaryUtil.isNull(exitSpan.getPeerId())) {
             carrier.setPeerHost(exitSpan.getPeer());
@@ -94,15 +94,20 @@ public class TracingContext implements AbstractTracerContext {
         List<TraceSegmentRef> refs = this.segment.getRefs();
         int operationId;
         String operationName;
+        int entryApplicationInstanceId;
         if (refs != null && refs.size() > 0) {
             TraceSegmentRef ref = refs.get(0);
             operationId = ref.getEntryOperationId();
             operationName = ref.getEntryOperationName();
+            entryApplicationInstanceId = ref.getEntryApplicationInstanceId();
         } else {
             AbstractTracingSpan firstSpan = first();
             operationId = firstSpan.getOperationId();
             operationName = firstSpan.getOperationName();
+            entryApplicationInstanceId = this.segment.getApplicationInstanceId();
         }
+        carrier.setEntryApplicationInstanceId(entryApplicationInstanceId);
+
         if (operationId == DictionaryUtil.nullValue()) {
             carrier.setEntryOperationName(operationName);
         } else {
@@ -145,15 +150,20 @@ public class TracingContext implements AbstractTracerContext {
             segment.getRelatedGlobalTraces());
         int entryOperationId;
         String entryOperationName;
+        int entryApplicationInstanceId;
         AbstractTracingSpan firstSpan = first();
         if (refs != null && refs.size() > 0) {
             TraceSegmentRef ref = refs.get(0);
             entryOperationId = ref.getEntryOperationId();
             entryOperationName = ref.getEntryOperationName();
+            entryApplicationInstanceId = ref.getEntryApplicationInstanceId();
         } else {
             entryOperationId = firstSpan.getOperationId();
             entryOperationName = firstSpan.getOperationName();
+            entryApplicationInstanceId = this.segment.getApplicationInstanceId();
         }
+        snapshot.setEntryApplicationInstanceId(entryApplicationInstanceId);
+
         if (entryOperationId == DictionaryUtil.nullValue()) {
             snapshot.setEntryOperationName(entryOperationName);
         } else {

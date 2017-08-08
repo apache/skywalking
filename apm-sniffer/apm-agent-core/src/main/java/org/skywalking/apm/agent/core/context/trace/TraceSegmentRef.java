@@ -1,5 +1,6 @@
 package org.skywalking.apm.agent.core.context.trace;
 
+import org.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
 import org.skywalking.apm.agent.core.context.ContextCarrier;
 import org.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.skywalking.apm.agent.core.context.ids.ID;
@@ -20,11 +21,13 @@ public class TraceSegmentRef {
 
     private int spanId = -1;
 
-    private int applicationInstanceId;
+    private int peerId = DictionaryUtil.nullValue();
 
     private String peerHost;
 
-    private int peerId = DictionaryUtil.nullValue();
+    private int entryApplicationInstanceId = DictionaryUtil.nullValue();
+
+    private int parentApplicationInstanceId = DictionaryUtil.nullValue();
 
     private String entryOperationName;
 
@@ -43,7 +46,8 @@ public class TraceSegmentRef {
         this.type = SegmentRefType.CROSS_PROCESS;
         this.traceSegmentId = carrier.getTraceSegmentId();
         this.spanId = carrier.getSpanId();
-        this.applicationInstanceId = carrier.getApplicationInstanceId();
+        this.parentApplicationInstanceId = carrier.getParentApplicationInstanceId();
+        this.entryApplicationInstanceId = carrier.getEntryApplicationInstanceId();
         String host = carrier.getPeerHost();
         if (host.charAt(0) == '#') {
             this.peerHost = host.substring(1);
@@ -68,6 +72,8 @@ public class TraceSegmentRef {
         this.type = SegmentRefType.CROSS_THREAD;
         this.traceSegmentId = snapshot.getTraceSegmentId();
         this.spanId = snapshot.getSpanId();
+        this.parentApplicationInstanceId = RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID;
+        this.entryApplicationInstanceId = snapshot.getEntryApplicationInstanceId();
         String entryOperationName = snapshot.getEntryOperationName();
         if (entryOperationName.charAt(0) == '#') {
             this.entryOperationName = entryOperationName.substring(1);
@@ -90,11 +96,15 @@ public class TraceSegmentRef {
         return entryOperationId;
     }
 
+    public int getEntryApplicationInstanceId() {
+        return entryApplicationInstanceId;
+    }
+
     public TraceSegmentReference transform() {
         TraceSegmentReference.Builder refBuilder = TraceSegmentReference.newBuilder();
         if (SegmentRefType.CROSS_PROCESS.equals(type)) {
             refBuilder.setRefType(RefType.CrossProcess);
-            refBuilder.setParentApplicationInstanceId(applicationInstanceId);
+            refBuilder.setParentApplicationInstanceId(parentApplicationInstanceId);
             if (peerId == DictionaryUtil.nullValue()) {
                 refBuilder.setNetworkAddress(peerHost);
             } else {
@@ -104,6 +114,7 @@ public class TraceSegmentRef {
             refBuilder.setRefType(RefType.CrossThread);
         }
 
+        refBuilder.setEntryApplicationInstanceId(entryApplicationInstanceId);
         refBuilder.setParentTraceSegmentId(traceSegmentId.transform());
         refBuilder.setParentSpanId(spanId);
         if (entryOperationId == DictionaryUtil.nullValue()) {
@@ -139,7 +150,6 @@ public class TraceSegmentRef {
         result = 31 * result + spanId;
         return result;
     }
-
     public enum SegmentRefType {
         CROSS_PROCESS,
         CROSS_THREAD
