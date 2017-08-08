@@ -15,12 +15,6 @@ import org.skywalking.apm.collector.stream.worker.impl.data.operate.NonOperation
  */
 public class SegmentDataDefine extends DataDefine {
 
-    public static final int DEFINE_ID = 401;
-
-    @Override public int defineId() {
-        return DEFINE_ID;
-    }
-
     @Override protected int initialCapacity() {
         return 2;
     }

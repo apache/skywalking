@@ -34,7 +34,7 @@ public class InstanceEsDAO extends EsDAO implements IInstanceDAO {
         searchRequestBuilder.setSearchType(SearchType.QUERY_THEN_FETCH);
         BoolQueryBuilder builder = QueryBuilders.boolQuery();
         builder.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_APPLICATION_ID, applicationId));
-        builder.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_AGENTUUID, agentUUID));
+        builder.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_AGENT_UUID, agentUUID));
         searchRequestBuilder.setQuery(builder);
         searchRequestBuilder.setSize(1);
 
@@ -60,7 +60,7 @@ public class InstanceEsDAO extends EsDAO implements IInstanceDAO {
         Map<String, Object> source = new HashMap<>();
         source.put(InstanceTable.COLUMN_INSTANCE_ID, instance.getInstanceId());
         source.put(InstanceTable.COLUMN_APPLICATION_ID, instance.getApplicationId());
-        source.put(InstanceTable.COLUMN_AGENTUUID, instance.getAgentUUID());
+        source.put(InstanceTable.COLUMN_AGENT_UUID, instance.getAgentUUID());
         source.put(InstanceTable.COLUMN_REGISTER_TIME, instance.getRegisterTime());
 
         IndexResponse response = client.prepareIndex(InstanceTable.TABLE, instance.getId()).setSource(source).setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE).get();

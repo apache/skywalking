@@ -14,10 +14,6 @@ import org.skywalking.apm.collector.stream.worker.impl.data.operate.NonOperation
  */
 public class NodeRefDataDefine extends DataDefine {
 
-    @Override public int defineId() {
-        return 201;
-    }
-
     @Override protected int initialCapacity() {
         return 3;
     }

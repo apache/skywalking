@@ -14,10 +14,6 @@ import org.skywalking.apm.collector.stream.worker.impl.data.operate.NonOperation
  */
 public class ServiceEntryDataDefine extends DataDefine {
 
-    @Override public int defineId() {
-        return 501;
-    }
-
     @Override protected int initialCapacity() {
         return 4;
     }
