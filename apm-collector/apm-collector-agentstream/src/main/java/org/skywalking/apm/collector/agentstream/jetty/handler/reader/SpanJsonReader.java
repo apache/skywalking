@@ -12,21 +12,21 @@ public class SpanJsonReader implements StreamJsonReader<SpanObject> {
     private KeyWithStringValueJsonReader keyWithStringValueJsonReader = new KeyWithStringValueJsonReader();
     private LogJsonReader logJsonReader = new LogJsonReader();
 
-    private static final String SI = "si";
-    private static final String TV = "tv";
-    private static final String LV = "lv";
-    private static final String PS = "ps";
-    private static final String ST = "st";
-    private static final String ET = "et";
-    private static final String CI = "ci";
-    private static final String CN = "cn";
-    private static final String OI = "oi";
-    private static final String ON = "on";
-    private static final String PI = "pi";
-    private static final String PN = "pn";
-    private static final String IE = "ie";
-    private static final String TO = "to";
-    private static final String LO = "lo";
+    private static final String SPAN_ID = "si";
+    private static final String SPAN_TYPE_VALUE = "tv";
+    private static final String SPAN_LAYER_VALUE = "lv";
+    private static final String PARENT_SPAN_ID = "ps";
+    private static final String START_TIME = "st";
+    private static final String END_TIME = "et";
+    private static final String COMPONENT_ID = "ci";
+    private static final String COMPONENT_NAME = "cn";
+    private static final String OPERATION_NAME_ID = "oi";
+    private static final String OPERATION_NAME = "on";
+    private static final String PEER_ID = "pi";
+    private static final String PEER = "pn";
+    private static final String IS_ERROR = "ie";
+    private static final String TAGS = "to";
+    private static final String LOGS = "lo";
 
     @Override public SpanObject read(JsonReader reader) throws IOException {
         SpanObject.Builder builder = SpanObject.newBuilder();
@@ -34,53 +34,53 @@ public class SpanJsonReader implements StreamJsonReader<SpanObject> {
         reader.beginObject();
         while (reader.hasNext()) {
             switch (reader.nextName()) {
-                case SI:
+                case SPAN_ID:
                     builder.setSpanId(reader.nextInt());
                     break;
-                case TV:
+                case SPAN_TYPE_VALUE:
                     builder.setSpanTypeValue(reader.nextInt());
                     break;
-                case LV:
+                case SPAN_LAYER_VALUE:
                     builder.setSpanLayerValue(reader.nextInt());
                     break;
-                case PS:
+                case PARENT_SPAN_ID:
                     builder.setParentSpanId(reader.nextInt());
                     break;
-                case ST:
+                case START_TIME:
                     builder.setStartTime(reader.nextLong());
                     break;
-                case ET:
+                case END_TIME:
                     builder.setEndTime(reader.nextLong());
                     break;
-                case CI:
+                case COMPONENT_ID:
                     builder.setComponentId(reader.nextInt());
                     break;
-                case CN:
+                case COMPONENT_NAME:
                     builder.setComponent(reader.nextString());
                     break;
-                case OI:
+                case OPERATION_NAME_ID:
                     builder.setOperationNameId(reader.nextInt());
                     break;
-                case ON:
+                case OPERATION_NAME:
                     builder.setOperationName(reader.nextString());
                     break;
-                case PI:
+                case PEER_ID:
                     builder.setPeerId(reader.nextInt());
                     break;
-                case PN:
+                case PEER:
                     builder.setPeer(reader.nextString());
                     break;
-                case IE:
+                case IS_ERROR:
                     builder.setIsError(reader.nextBoolean());
                     break;
-                case TO:
+                case TAGS:
                     reader.beginArray();
                     while (reader.hasNext()) {
                         builder.addTags(keyWithStringValueJsonReader.read(reader));
                     }
                     reader.endArray();
                     break;
-                case LO:
+                case LOGS:
                     reader.beginArray();
                     while (reader.hasNext()) {
                         builder.addLogs(logJsonReader.read(reader));

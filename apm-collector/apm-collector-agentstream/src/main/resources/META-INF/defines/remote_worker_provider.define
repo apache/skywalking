@@ -6,3 +6,6 @@ org.skywalking.apm.collector.agentstream.worker.node.component.NodeComponentRemo
 org.skywalking.apm.collector.agentstream.worker.node.mapping.NodeMappingRemoteWorker$Factory
 org.skywalking.apm.collector.agentstream.worker.noderef.reference.NodeRefRemoteWorker$Factory
 org.skywalking.apm.collector.agentstream.worker.noderef.summary.NodeRefSumRemoteWorker$Factory
+
+org.skywalking.apm.collector.agentstream.worker.service.entry.ServiceEntryRemoteWorker$Factory
+org.skywalking.apm.collector.agentstream.worker.serviceref.reference.ServiceRefRemoteWorker$Factory

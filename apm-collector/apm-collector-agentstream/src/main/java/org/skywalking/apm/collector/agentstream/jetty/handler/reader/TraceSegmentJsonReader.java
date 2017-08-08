@@ -15,8 +15,8 @@ public class TraceSegmentJsonReader implements StreamJsonReader<TraceSegment> {
     private UniqueIdJsonReader uniqueIdJsonReader = new UniqueIdJsonReader();
     private SegmentJsonReader segmentJsonReader = new SegmentJsonReader();
 
-    private static final String GT = "gt";
-    private static final String SG = "sg";
+    private static final String GLOBAL_TRACE_IDS = "gt";
+    private static final String SEGMENT = "sg";
 
     @Override public TraceSegment read(JsonReader reader) throws IOException {
         TraceSegment traceSegment = new TraceSegment();
@@ -24,7 +24,7 @@ public class TraceSegmentJsonReader implements StreamJsonReader<TraceSegment> {
         reader.beginObject();
         while (reader.hasNext()) {
             switch (reader.nextName()) {
-                case GT:
+                case GLOBAL_TRACE_IDS:
                     reader.beginArray();
                     while (reader.hasNext()) {
                         traceSegment.addGlobalTraceId(uniqueIdJsonReader.read(reader));
@@ -39,7 +39,7 @@ public class TraceSegmentJsonReader implements StreamJsonReader<TraceSegment> {
                         });
                     }
                     break;
-                case SG:
+                case SEGMENT:
                     traceSegment.setTraceSegmentObject(segmentJsonReader.read(reader));
                     break;
                 default:

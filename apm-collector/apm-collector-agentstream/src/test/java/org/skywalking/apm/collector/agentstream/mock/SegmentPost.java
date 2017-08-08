@@ -13,8 +13,7 @@ import org.skywalking.apm.collector.core.CollectorException;
  */
 public class SegmentPost {
 
-    //    @Test
-    public void test() throws IOException, InterruptedException, CollectorException {
+    public static void main(String[] args) throws IOException, InterruptedException, CollectorException {
         ElasticSearchClient client = new ElasticSearchClient("CollectorDBCluster", true, "127.0.0.1:9300");
         client.initialize();
 
