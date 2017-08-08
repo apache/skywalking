@@ -31,4 +31,8 @@ public class TraceDagGetHandler extends JettyHandler {
         long endTime = Long.valueOf(endTimeStr);
         return service.load(startTime, endTime, timeBucketType);
     }
+
+    @Override protected JsonElement doPost(HttpServletRequest req) throws ArgumentsParseException {
+        throw new UnsupportedOperationException();
+    }
 }

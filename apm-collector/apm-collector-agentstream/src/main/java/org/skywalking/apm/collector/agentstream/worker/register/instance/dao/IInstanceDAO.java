@@ -15,4 +15,6 @@ public interface IInstanceDAO {
     void save(InstanceDataDefine.Instance instance);
 
     void updateHeartbeatTime(int instanceId, long heartbeatTime);
+
+    int getApplicationId(int applicationInstanceId);
 }

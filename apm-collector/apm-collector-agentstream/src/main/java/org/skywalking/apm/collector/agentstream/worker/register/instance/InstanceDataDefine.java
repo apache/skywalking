@@ -12,20 +12,14 @@ import org.skywalking.apm.collector.stream.worker.impl.data.operate.NonOperation
  */
 public class InstanceDataDefine extends DataDefine {
 
-    public static final int DEFINE_ID = 102;
-
-    @Override public int defineId() {
-        return DEFINE_ID;
-    }
-
     @Override protected int initialCapacity() {
         return 6;
     }
 
     @Override protected void attributeDefine() {
-        addAttribute(0, new Attribute("id", AttributeType.STRING, new NonOperation()));
+        addAttribute(0, new Attribute(InstanceTable.COLUMN_ID, AttributeType.STRING, new NonOperation()));
         addAttribute(1, new Attribute(InstanceTable.COLUMN_APPLICATION_ID, AttributeType.INTEGER, new CoverOperation()));
-        addAttribute(2, new Attribute(InstanceTable.COLUMN_AGENTUUID, AttributeType.STRING, new CoverOperation()));
+        addAttribute(2, new Attribute(InstanceTable.COLUMN_AGENT_UUID, AttributeType.STRING, new CoverOperation()));
         addAttribute(3, new Attribute(InstanceTable.COLUMN_REGISTER_TIME, AttributeType.LONG, new CoverOperation()));
         addAttribute(4, new Attribute(InstanceTable.COLUMN_INSTANCE_ID, AttributeType.INTEGER, new CoverOperation()));
         addAttribute(5, new Attribute(InstanceTable.COLUMN_HEARTBEAT_TIME, AttributeType.LONG, new CoverOperation()));

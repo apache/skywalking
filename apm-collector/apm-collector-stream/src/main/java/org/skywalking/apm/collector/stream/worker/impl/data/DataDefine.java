@@ -42,14 +42,12 @@ public abstract class DataDefine {
         attributes[position] = attribute;
     }
 
-    public abstract int defineId();
-
     protected abstract int initialCapacity();
 
     protected abstract void attributeDefine();
 
     public final Data build(String id) {
-        return new Data(id, defineId(), stringCapacity, longCapacity, floatCapacity, integerCapacity, booleanCapacity, byteCapacity);
+        return new Data(id, stringCapacity, longCapacity, floatCapacity, integerCapacity, booleanCapacity, byteCapacity);
     }
 
     public void mergeData(Data newData, Data oldData) {

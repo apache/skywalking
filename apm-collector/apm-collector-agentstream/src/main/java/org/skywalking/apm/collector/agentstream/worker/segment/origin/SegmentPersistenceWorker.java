@@ -1,7 +1,5 @@
 package org.skywalking.apm.collector.agentstream.worker.segment.origin;
 
-import java.util.List;
-import java.util.Map;
 import org.skywalking.apm.collector.agentstream.worker.segment.origin.dao.ISegmentDAO;
 import org.skywalking.apm.collector.agentstream.worker.segment.origin.define.SegmentDataDefine;
 import org.skywalking.apm.collector.storage.dao.DAOContainer;
@@ -10,7 +8,7 @@ import org.skywalking.apm.collector.stream.worker.ClusterWorkerContext;
 import org.skywalking.apm.collector.stream.worker.ProviderNotFoundException;
 import org.skywalking.apm.collector.stream.worker.Role;
 import org.skywalking.apm.collector.stream.worker.impl.PersistenceWorker;
-import org.skywalking.apm.collector.stream.worker.impl.data.Data;
+import org.skywalking.apm.collector.stream.worker.impl.dao.IPersistenceDAO;
 import org.skywalking.apm.collector.stream.worker.impl.data.DataDefine;
 import org.skywalking.apm.collector.stream.worker.selector.RollingSelector;
 import org.skywalking.apm.collector.stream.worker.selector.WorkerSelector;
@@ -28,9 +26,12 @@ public class SegmentPersistenceWorker extends PersistenceWorker {
         super.preStart();
     }
 
-    @Override protected List<?> prepareBatch(Map<String, Data> dataMap) {
-        ISegmentDAO dao = (ISegmentDAO)DAOContainer.INSTANCE.get(ISegmentDAO.class.getName());
-        return dao.prepareBatch(dataMap);
+    @Override protected boolean needMergeDBData() {
+        return false;
+    }
+
+    @Override protected IPersistenceDAO persistenceDAO() {
+        return (IPersistenceDAO)DAOContainer.INSTANCE.get(ISegmentDAO.class.getName());
     }
 
     public static class Factory extends AbstractLocalAsyncWorkerProvider<SegmentPersistenceWorker> {

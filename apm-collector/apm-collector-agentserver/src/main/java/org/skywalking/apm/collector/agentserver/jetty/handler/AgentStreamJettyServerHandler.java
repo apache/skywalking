@@ -30,4 +30,8 @@ public class AgentStreamJettyServerHandler extends JettyHandler {
         });
         return serverArray;
     }
+
+    @Override protected JsonElement doPost(HttpServletRequest req) throws ArgumentsParseException {
+        throw new UnsupportedOperationException();
+    }
 }

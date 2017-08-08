@@ -79,4 +79,8 @@ public class SegmentTopGetHandler extends JettyHandler {
 
         return service.loadTop(startTime, endTime, minCost, maxCost, operationName, globalTraceId, limit, from);
     }
+
+    @Override protected JsonElement doPost(HttpServletRequest req) throws ArgumentsParseException {
+        throw new UnsupportedOperationException();
+    }
 }

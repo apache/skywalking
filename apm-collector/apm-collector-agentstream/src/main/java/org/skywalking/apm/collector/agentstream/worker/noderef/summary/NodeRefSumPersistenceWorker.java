@@ -1,7 +1,5 @@
 package org.skywalking.apm.collector.agentstream.worker.noderef.summary;
 
-import java.util.List;
-import java.util.Map;
 import org.skywalking.apm.collector.agentstream.worker.noderef.summary.dao.INodeRefSumDAO;
 import org.skywalking.apm.collector.agentstream.worker.noderef.summary.define.NodeRefSumDataDefine;
 import org.skywalking.apm.collector.storage.dao.DAOContainer;
@@ -10,7 +8,7 @@ import org.skywalking.apm.collector.stream.worker.ClusterWorkerContext;
 import org.skywalking.apm.collector.stream.worker.ProviderNotFoundException;
 import org.skywalking.apm.collector.stream.worker.Role;
 import org.skywalking.apm.collector.stream.worker.impl.PersistenceWorker;
-import org.skywalking.apm.collector.stream.worker.impl.data.Data;
+import org.skywalking.apm.collector.stream.worker.impl.dao.IPersistenceDAO;
 import org.skywalking.apm.collector.stream.worker.impl.data.DataDefine;
 import org.skywalking.apm.collector.stream.worker.selector.HashCodeSelector;
 import org.skywalking.apm.collector.stream.worker.selector.WorkerSelector;
@@ -28,9 +26,12 @@ public class NodeRefSumPersistenceWorker extends PersistenceWorker {
         super.preStart();
     }
 
-    @Override protected List<?> prepareBatch(Map<String, Data> dataMap) {
-        INodeRefSumDAO dao = (INodeRefSumDAO)DAOContainer.INSTANCE.get(INodeRefSumDAO.class.getName());
-        return dao.prepareBatch(dataMap);
+    @Override protected boolean needMergeDBData() {
+        return true;
+    }
+
+    @Override protected IPersistenceDAO persistenceDAO() {
+        return (IPersistenceDAO)DAOContainer.INSTANCE.get(INodeRefSumDAO.class.getName());
     }
 
     public static class Factory extends AbstractLocalAsyncWorkerProvider<NodeRefSumPersistenceWorker> {

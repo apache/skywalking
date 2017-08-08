@@ -16,8 +16,6 @@ import org.skywalking.apm.collector.stream.worker.ClusterWorkerContext;
 import org.skywalking.apm.collector.stream.worker.LocalAsyncWorkerProviderDefineLoader;
 import org.skywalking.apm.collector.stream.worker.ProviderNotFoundException;
 import org.skywalking.apm.collector.stream.worker.RemoteWorkerProviderDefineLoader;
-import org.skywalking.apm.collector.stream.worker.impl.data.DataDefine;
-import org.skywalking.apm.collector.stream.worker.impl.data.DataDefineLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,10 +31,6 @@ public class StreamModuleInstaller implements ModuleInstaller {
         logger.info("beginning stream module install");
         StreamModuleContext context = new StreamModuleContext(StreamModuleGroupDefine.GROUP_NAME);
         CollectorContextHelper.INSTANCE.putContext(context);
-
-        DataDefineLoader dataDefineLoader = new DataDefineLoader();
-        Map<Integer, DataDefine> dataDefineMap = dataDefineLoader.load();
-        context.putAllDataDefine(dataDefineMap);
 
         initializeWorker(context);
 

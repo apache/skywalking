@@ -9,7 +9,9 @@ import org.skywalking.apm.collector.core.queue.QueueExecutor;
  * @author pengys5
  * @since v3.0-2017
  */
-public abstract class AbstractLocalAsyncWorker extends AbstractLocalWorker implements QueueExecutor {
+public abstract class AbstractLocalAsyncWorker extends AbstractWorker<LocalAsyncWorkerRef> implements QueueExecutor {
+
+    private LocalAsyncWorkerRef workerRef;
 
     /**
      * Construct an <code>AbstractLocalAsyncWorker</code> with the worker role and context.
@@ -30,6 +32,14 @@ public abstract class AbstractLocalAsyncWorker extends AbstractLocalWorker imple
      */
     @Override
     public void preStart() throws ProviderNotFoundException {
+    }
+
+    @Override protected final LocalAsyncWorkerRef getSelf() {
+        return workerRef;
+    }
+
+    @Override protected final void putSelfRef(LocalAsyncWorkerRef workerRef) {
+        this.workerRef = workerRef;
     }
 
     /**

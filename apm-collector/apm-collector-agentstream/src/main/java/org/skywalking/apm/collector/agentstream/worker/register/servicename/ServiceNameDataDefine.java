@@ -12,18 +12,12 @@ import org.skywalking.apm.collector.stream.worker.impl.data.operate.NonOperation
  */
 public class ServiceNameDataDefine extends DataDefine {
 
-    public static final int DEFINE_ID = 103;
-
-    @Override public int defineId() {
-        return DEFINE_ID;
-    }
-
     @Override protected int initialCapacity() {
         return 4;
     }
 
     @Override protected void attributeDefine() {
-        addAttribute(0, new Attribute("id", AttributeType.STRING, new NonOperation()));
+        addAttribute(0, new Attribute(ServiceNameTable.COLUMN_ID, AttributeType.STRING, new NonOperation()));
         addAttribute(1, new Attribute(ServiceNameTable.COLUMN_SERVICE_NAME, AttributeType.STRING, new CoverOperation()));
         addAttribute(2, new Attribute(ServiceNameTable.COLUMN_APPLICATION_ID, AttributeType.INTEGER, new CoverOperation()));
         addAttribute(3, new Attribute(ServiceNameTable.COLUMN_SERVICE_ID, AttributeType.INTEGER, new CoverOperation()));

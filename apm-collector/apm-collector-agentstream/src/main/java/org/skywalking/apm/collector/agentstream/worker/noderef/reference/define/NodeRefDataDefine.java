@@ -14,12 +14,6 @@ import org.skywalking.apm.collector.stream.worker.impl.data.operate.NonOperation
  */
 public class NodeRefDataDefine extends DataDefine {
 
-    public static final int DEFINE_ID = 201;
-
-    @Override public int defineId() {
-        return DEFINE_ID;
-    }
-
     @Override protected int initialCapacity() {
         return 3;
     }
@@ -51,7 +45,7 @@ public class NodeRefDataDefine extends DataDefine {
         private String agg;
         private long timeBucket;
 
-        public NodeReference(String id, String agg, long timeBucket) {
+        NodeReference(String id, String agg, long timeBucket) {
             this.id = id;
             this.agg = agg;
             this.timeBucket = timeBucket;
@@ -70,7 +64,10 @@ public class NodeRefDataDefine extends DataDefine {
         }
 
         @Override public Object toSelf(Data data) {
-            return null;
+            this.id = data.getDataString(0);
+            this.agg = data.getDataString(1);
+            this.timeBucket = data.getDataLong(0);
+            return this;
         }
 
         public String getId() {

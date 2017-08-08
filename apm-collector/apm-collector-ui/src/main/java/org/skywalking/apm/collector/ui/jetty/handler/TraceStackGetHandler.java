@@ -27,4 +27,8 @@ public class TraceStackGetHandler extends JettyHandler {
 
         return service.load(globalTraceId);
     }
+
+    @Override protected JsonElement doPost(HttpServletRequest req) throws ArgumentsParseException {
+        throw new UnsupportedOperationException();
+    }
 }
