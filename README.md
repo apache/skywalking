@@ -13,7 +13,7 @@ Sky Walking | [中文](https://github.com/wu-sheng/sky-walking/wiki/sky-walking-
 [![OpenTracing-1.0 Badge](https://img.shields.io/badge/OpenTracing--1.0-enabled-blue.svg)](http://opentracing.io)
 
 
-* Auto instrumentation java agent, **no need to CHANGE any application source code**. 
+* Auto instrumentation by javaagent, **no need to CHANGE any application source code**. 
   * [Supported middlewares, frameworks and libraries](https://github.com/wu-sheng/sky-walking/wiki/3.0-supported-list).
 * Manual instrumentation
   * As an [OpenTracing supported tracer](http://opentracing.io/documentation/pages/supported-tracers)
@@ -51,7 +51,8 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 <img src="https://sky-walking.github.io/page-resources/3.0/span.png" />
 
 # Test reports
-- [Automatic integration test reports](https://github.com/sky-walking/agent-integration-test-report)
+- Automatic integration test reports
+  - [Java Agent test report](https://github.com/sky-walking/agent-integration-test-report)
 - Performance test reports
   - [Java Agent test report]()
 
