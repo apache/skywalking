@@ -1,4 +1,4 @@
-package org.skywalking.apm.collector.agentstream.worker.jvmmetric.gc.dao;
+package org.skywalking.apm.collector.agentstream.worker.jvmmetric.memory.dao;
 
 import org.skywalking.apm.collector.storage.h2.dao.H2DAO;
 

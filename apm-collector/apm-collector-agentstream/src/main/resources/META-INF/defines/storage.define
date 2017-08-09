@@ -37,5 +37,5 @@ org.skywalking.apm.collector.agentstream.worker.serviceref.reference.define.Serv
 org.skywalking.apm.collector.agentstream.worker.jvmmetric.cpu.define.CpuMetricEsTableDefine
 org.skywalking.apm.collector.agentstream.worker.jvmmetric.cpu.define.CpuMetricH2TableDefine
 
-org.skywalking.apm.collector.agentstream.worker.jvmmetric.gc.define.MemoryMetricEsTableDefine
-org.skywalking.apm.collector.agentstream.worker.jvmmetric.gc.define.MemoryMetricH2TableDefine
+org.skywalking.apm.collector.agentstream.worker.jvmmetric.memory.define.MemoryMetricEsTableDefine
+org.skywalking.apm.collector.agentstream.worker.jvmmetric.memory.define.MemoryMetricH2TableDefine

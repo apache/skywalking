@@ -1,4 +1,4 @@
-package org.skywalking.apm.collector.agentstream.worker.jvmmetric.gc.define;
+package org.skywalking.apm.collector.agentstream.worker.jvmmetric.memory.define;
 
 import org.skywalking.apm.collector.storage.h2.define.H2ColumnDefine;
 import org.skywalking.apm.collector.storage.h2.define.H2TableDefine;

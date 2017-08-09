@@ -1,7 +1,7 @@
-package org.skywalking.apm.collector.agentstream.worker.jvmmetric.gc;
+package org.skywalking.apm.collector.agentstream.worker.jvmmetric.memory;
 
-import org.skywalking.apm.collector.agentstream.worker.jvmmetric.gc.dao.IMemoryMetricDAO;
-import org.skywalking.apm.collector.agentstream.worker.jvmmetric.gc.define.MemoryMetricDataDefine;
+import org.skywalking.apm.collector.agentstream.worker.jvmmetric.memory.dao.IMemoryMetricDAO;
+import org.skywalking.apm.collector.agentstream.worker.jvmmetric.memory.define.MemoryMetricDataDefine;
 import org.skywalking.apm.collector.storage.dao.DAOContainer;
 import org.skywalking.apm.collector.stream.worker.AbstractLocalAsyncWorkerProvider;
 import org.skywalking.apm.collector.stream.worker.ClusterWorkerContext;

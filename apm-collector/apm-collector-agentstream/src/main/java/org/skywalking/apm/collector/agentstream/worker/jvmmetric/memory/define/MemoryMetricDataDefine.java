@@ -1,4 +1,4 @@
-package org.skywalking.apm.collector.agentstream.worker.jvmmetric.gc.define;
+package org.skywalking.apm.collector.agentstream.worker.jvmmetric.memory.define;
 
 import org.skywalking.apm.collector.remote.grpc.proto.RemoteData;
 import org.skywalking.apm.collector.stream.worker.impl.data.Attribute;
