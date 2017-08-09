@@ -13,11 +13,19 @@ public enum TimeBucketUtils {
     private final SimpleDateFormat dayDateFormat = new SimpleDateFormat("yyyyMMdd");
     private final SimpleDateFormat hourDateFormat = new SimpleDateFormat("yyyyMMddHH");
     private final SimpleDateFormat minuteDateFormat = new SimpleDateFormat("yyyyMMddHHmm");
+    private final SimpleDateFormat secondDateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
 
     public long getMinuteTimeBucket(long time) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(time);
         String timeStr = minuteDateFormat.format(calendar.getTime());
+        return Long.valueOf(timeStr);
+    }
+
+    public long getSecondTimeBucket(long time) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(time);
+        String timeStr = secondDateFormat.format(calendar.getTime());
         return Long.valueOf(timeStr);
     }
 

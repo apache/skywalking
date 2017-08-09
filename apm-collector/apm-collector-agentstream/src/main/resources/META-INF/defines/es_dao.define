@@ -10,3 +10,4 @@ org.skywalking.apm.collector.agentstream.worker.segment.cost.dao.SegmentCostEsDA
 org.skywalking.apm.collector.agentstream.worker.global.dao.GlobalTraceEsDAO
 org.skywalking.apm.collector.agentstream.worker.service.entry.dao.ServiceEntryEsDAO
 org.skywalking.apm.collector.agentstream.worker.serviceref.reference.dao.ServiceRefEsDAO
+org.skywalking.apm.collector.agentstream.worker.jvmmetric.cpu.dao.CpuMetricEsDAO

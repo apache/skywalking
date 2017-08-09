@@ -10,29 +10,29 @@ import org.skywalking.apm.collector.stream.worker.selector.AbstractHashMessage;
 public class Data extends AbstractHashMessage {
     private final int stringCapacity;
     private final int longCapacity;
-    private final int floatCapacity;
+    private final int doubleCapacity;
     private final int integerCapacity;
     private final int booleanCapacity;
     private final int byteCapacity;
     private String[] dataStrings;
     private Long[] dataLongs;
-    private Float[] dataFloats;
+    private Double[] dataDoubles;
     private Integer[] dataIntegers;
     private Boolean[] dataBooleans;
     private byte[][] dataBytes;
 
-    public Data(String id, int stringCapacity, int longCapacity, int floatCapacity, int integerCapacity,
+    public Data(String id, int stringCapacity, int longCapacity, int doubleCapacity, int integerCapacity,
         int booleanCapacity, int byteCapacity) {
         super(id);
         this.dataStrings = new String[stringCapacity];
         this.dataLongs = new Long[longCapacity];
-        this.dataFloats = new Float[floatCapacity];
+        this.dataDoubles = new Double[doubleCapacity];
         this.dataIntegers = new Integer[integerCapacity];
         this.dataBooleans = new Boolean[booleanCapacity];
         this.dataBytes = new byte[byteCapacity][];
         this.stringCapacity = stringCapacity;
         this.longCapacity = longCapacity;
-        this.floatCapacity = floatCapacity;
+        this.doubleCapacity = doubleCapacity;
         this.integerCapacity = integerCapacity;
         this.booleanCapacity = booleanCapacity;
         this.byteCapacity = byteCapacity;
@@ -46,8 +46,8 @@ public class Data extends AbstractHashMessage {
         dataLongs[position] = value;
     }
 
-    public void setDataFloat(int position, Float value) {
-        dataFloats[position] = value;
+    public void setDataDouble(int position, Double value) {
+        dataDoubles[position] = value;
     }
 
     public void setDataInteger(int position, Integer value) {
@@ -70,8 +70,8 @@ public class Data extends AbstractHashMessage {
         return dataLongs[position];
     }
 
-    public Float getDataFloat(int position) {
-        return dataFloats[position];
+    public Double getDataDouble(int position) {
+        return dataDoubles[position];
     }
 
     public Integer getDataInteger(int position) {
@@ -93,7 +93,7 @@ public class Data extends AbstractHashMessage {
     public RemoteData serialize() {
         RemoteData.Builder builder = RemoteData.newBuilder();
         builder.setIntegerCapacity(integerCapacity);
-        builder.setFloatCapacity(floatCapacity);
+        builder.setDoubleCapacity(doubleCapacity);
         builder.setStringCapacity(stringCapacity);
         builder.setLongCapacity(longCapacity);
         builder.setByteCapacity(byteCapacity);
@@ -105,8 +105,8 @@ public class Data extends AbstractHashMessage {
         for (int i = 0; i < dataIntegers.length; i++) {
             builder.setDataIntegers(i, dataIntegers[i]);
         }
-        for (int i = 0; i < dataFloats.length; i++) {
-            builder.setDataFloats(i, dataFloats[i]);
+        for (int i = 0; i < dataDoubles.length; i++) {
+            builder.setDataDoubles(i, dataDoubles[i]);
         }
         for (int i = 0; i < dataLongs.length; i++) {
             builder.setDataLongs(i, dataLongs[i]);

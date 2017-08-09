@@ -14,7 +14,7 @@ public class CoverOperation implements Operation {
         return newValue;
     }
 
-    @Override public Float operate(Float newValue, Float oldValue) {
+    @Override public Double operate(Double newValue, Double oldValue) {
         return newValue;
     }
 

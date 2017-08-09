@@ -14,7 +14,7 @@ public class NonOperation implements Operation {
         return oldValue;
     }
 
-    @Override public Float operate(Float newValue, Float oldValue) {
+    @Override public Double operate(Double newValue, Double oldValue) {
         return oldValue;
     }
 

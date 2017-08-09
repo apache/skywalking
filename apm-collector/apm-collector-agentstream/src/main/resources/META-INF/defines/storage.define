@@ -33,3 +33,6 @@ org.skywalking.apm.collector.agentstream.worker.service.entry.define.ServiceEntr
 
 org.skywalking.apm.collector.agentstream.worker.serviceref.reference.define.ServiceRefEsTableDefine
 org.skywalking.apm.collector.agentstream.worker.serviceref.reference.define.ServiceRefH2TableDefine
+
+org.skywalking.apm.collector.agentstream.worker.jvmmetric.cpu.define.CpuMetricEsTableDefine
+org.skywalking.apm.collector.agentstream.worker.jvmmetric.cpu.define.CpuMetricH2TableDefine
