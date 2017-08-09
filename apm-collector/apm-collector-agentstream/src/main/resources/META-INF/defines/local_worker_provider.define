@@ -21,6 +21,7 @@ org.skywalking.apm.collector.agentstream.worker.segment.cost.SegmentCostPersiste
 org.skywalking.apm.collector.agentstream.worker.global.GlobalTracePersistenceWorker$Factory
 
 org.skywalking.apm.collector.agentstream.worker.jvmmetric.cpu.CpuMetricPersistenceWorker$Factory
+org.skywalking.apm.collector.agentstream.worker.jvmmetric.gc.MemoryMetricPersistenceWorker$Factory
 
 org.skywalking.apm.collector.agentstream.worker.register.application.ApplicationRegisterSerialWorker$Factory
 org.skywalking.apm.collector.agentstream.worker.register.instance.InstanceRegisterSerialWorker$Factory

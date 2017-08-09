@@ -1,7 +1,7 @@
-package org.skywalking.apm.collector.agentstream.worker.jvmmetric.cpu;
+package org.skywalking.apm.collector.agentstream.worker.jvmmetric.gc;
 
-import org.skywalking.apm.collector.agentstream.worker.jvmmetric.cpu.dao.ICpuMetricDAO;
-import org.skywalking.apm.collector.agentstream.worker.jvmmetric.cpu.define.CpuMetricDataDefine;
+import org.skywalking.apm.collector.agentstream.worker.jvmmetric.gc.dao.IMemoryMetricDAO;
+import org.skywalking.apm.collector.agentstream.worker.jvmmetric.gc.define.MemoryMetricDataDefine;
 import org.skywalking.apm.collector.storage.dao.DAOContainer;
 import org.skywalking.apm.collector.stream.worker.AbstractLocalAsyncWorkerProvider;
 import org.skywalking.apm.collector.stream.worker.ClusterWorkerContext;
@@ -16,9 +16,9 @@ import org.skywalking.apm.collector.stream.worker.selector.WorkerSelector;
 /**
  * @author pengys5
  */
-public class CpuMetricPersistenceWorker extends PersistenceWorker {
+public class MemoryMetricPersistenceWorker extends PersistenceWorker {
 
-    public CpuMetricPersistenceWorker(Role role, ClusterWorkerContext clusterContext) {
+    public MemoryMetricPersistenceWorker(Role role, ClusterWorkerContext clusterContext) {
         super(role, clusterContext);
     }
 
@@ -31,18 +31,18 @@ public class CpuMetricPersistenceWorker extends PersistenceWorker {
     }
 
     @Override protected IPersistenceDAO persistenceDAO() {
-        return (IPersistenceDAO)DAOContainer.INSTANCE.get(ICpuMetricDAO.class.getName());
+        return (IPersistenceDAO)DAOContainer.INSTANCE.get(IMemoryMetricDAO.class.getName());
     }
 
-    public static class Factory extends AbstractLocalAsyncWorkerProvider<CpuMetricPersistenceWorker> {
+    public static class Factory extends AbstractLocalAsyncWorkerProvider<MemoryMetricPersistenceWorker> {
         @Override
         public Role role() {
             return WorkerRole.INSTANCE;
         }
 
         @Override
-        public CpuMetricPersistenceWorker workerInstance(ClusterWorkerContext clusterContext) {
-            return new CpuMetricPersistenceWorker(role(), clusterContext);
+        public MemoryMetricPersistenceWorker workerInstance(ClusterWorkerContext clusterContext) {
+            return new MemoryMetricPersistenceWorker(role(), clusterContext);
         }
 
         @Override
@@ -56,7 +56,7 @@ public class CpuMetricPersistenceWorker extends PersistenceWorker {
 
         @Override
         public String roleName() {
-            return CpuMetricPersistenceWorker.class.getSimpleName();
+            return MemoryMetricPersistenceWorker.class.getSimpleName();
         }
 
         @Override
@@ -65,7 +65,7 @@ public class CpuMetricPersistenceWorker extends PersistenceWorker {
         }
 
         @Override public DataDefine dataDefine() {
-            return new CpuMetricDataDefine();
+            return new MemoryMetricDataDefine();
         }
     }
 }

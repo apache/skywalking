@@ -1,9 +1,12 @@
 package org.skywalking.apm.collector.agentstream.grpc.handler;
 
 import io.grpc.stub.StreamObserver;
+import java.util.List;
 import org.skywalking.apm.collector.agentstream.worker.Const;
 import org.skywalking.apm.collector.agentstream.worker.jvmmetric.cpu.CpuMetricPersistenceWorker;
 import org.skywalking.apm.collector.agentstream.worker.jvmmetric.cpu.define.CpuMetricDataDefine;
+import org.skywalking.apm.collector.agentstream.worker.jvmmetric.gc.MemoryMetricPersistenceWorker;
+import org.skywalking.apm.collector.agentstream.worker.jvmmetric.gc.define.MemoryMetricDataDefine;
 import org.skywalking.apm.collector.agentstream.worker.util.TimeBucketUtils;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
 import org.skywalking.apm.collector.server.grpc.GRPCHandler;
@@ -15,6 +18,7 @@ import org.skywalking.apm.network.proto.CPU;
 import org.skywalking.apm.network.proto.Downstream;
 import org.skywalking.apm.network.proto.JVMMetrics;
 import org.skywalking.apm.network.proto.JVMMetricsServiceGrpc;
+import org.skywalking.apm.network.proto.Memory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +37,7 @@ public class JVMMetricsServiceHandler extends JVMMetricsServiceGrpc.JVMMetricsSe
         request.getMetricsList().forEach(metric -> {
             long time = TimeBucketUtils.INSTANCE.getSecondTimeBucket(metric.getTime());
             sendToCpuMetricPersistenceWorker(context, applicationInstanceId, time, metric.getCpu());
+            sendToMemoryMetricPersistenceWorker(context, applicationInstanceId, time, metric.getMemoryList());
         });
 
         responseObserver.onNext(Downstream.newBuilder().build());
@@ -51,6 +56,30 @@ public class JVMMetricsServiceHandler extends JVMMetricsServiceGrpc.JVMMetricsSe
             context.getClusterWorkerContext().lookup(CpuMetricPersistenceWorker.WorkerRole.INSTANCE).tell(cpuMetric.toData());
         } catch (WorkerInvokeException | WorkerNotFoundException e) {
             logger.error(e.getMessage(), e);
+        }
+    }
+
+    private void sendToMemoryMetricPersistenceWorker(StreamModuleContext context, int applicationInstanceId,
+        long timeBucket, List<Memory> memories) {
+
+        for (int i = 0; i < memories.size(); i++) {
+            Memory memory = memories.get(i);
+
+            MemoryMetricDataDefine.MemoryMetric memoryMetric = new MemoryMetricDataDefine.MemoryMetric();
+            memoryMetric.setId(timeBucket + Const.ID_SPLIT + applicationInstanceId + Const.ID_SPLIT + String.valueOf(i));
+            memoryMetric.setApplicationInstanceId(applicationInstanceId);
+            memoryMetric.setHeap(memory.getIsHeap());
+            memoryMetric.setInit(memory.getInit());
+            memoryMetric.setMax(memory.getMax());
+            memoryMetric.setUsed(memory.getUsed());
+            memoryMetric.setCommitted(memory.getCommitted());
+            memoryMetric.setTimeBucket(timeBucket);
+            try {
+                logger.debug("send to memory metric persistence worker, id: {}", memoryMetric.getId());
+                context.getClusterWorkerContext().lookup(MemoryMetricPersistenceWorker.WorkerRole.INSTANCE).tell(memoryMetric.toData());
+            } catch (WorkerInvokeException | WorkerNotFoundException e) {
+                logger.error(e.getMessage(), e);
+            }
         }
     }
 }
