@@ -80,6 +80,16 @@
             <artifactId>apm-feign-default-http-9.x-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>apm-resttemplate-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>apm-spring-concurrent-util-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- activation -->
         <dependency>

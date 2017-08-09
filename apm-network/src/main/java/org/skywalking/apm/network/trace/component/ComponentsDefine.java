@@ -31,6 +31,8 @@ public class ComponentsDefine {
 
     public static final OfficialComponent OKHTTP = new OfficialComponent(12, "OKHttp");
 
+    public static final OfficialComponent REST_TEMPLATE = new OfficialComponent(13, "RestTemplate");
+
     private static ComponentsDefine instance = new ComponentsDefine();
 
     private String[] components;
@@ -40,7 +42,7 @@ public class ComponentsDefine {
     }
 
     public ComponentsDefine() {
-        components = new String[13];
+        components = new String[14];
         addComponent(TOMCAT);
         addComponent(HTTPCLIENT);
         addComponent(DUBBO);
@@ -53,6 +55,7 @@ public class ComponentsDefine {
         addComponent(RESIN);
         addComponent(FEIGN);
         addComponent(OKHTTP);
+        addComponent(REST_TEMPLATE);
     }
 
     private void addComponent(OfficialComponent component) {
