@@ -191,4 +191,8 @@ public class TraceSegment {
             ", relatedGlobalTraces=" + relatedGlobalTraces +
             '}';
     }
+
+    public int getApplicationInstanceId() {
+        return RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID;
+    }
 }

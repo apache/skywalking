@@ -82,7 +82,7 @@ public class TomcatInterceptorTest {
 
     @Test
     public void testWithSerializedContextData() throws Throwable {
-        when(request.getHeader(Config.Plugin.Propagation.HEADER_NAME)).thenReturn("#AQA*#AQA*4WcWe0tQNQA*|3|1|#192.168.1.8:18002|#/portal/|#/testEntrySpan|#AQA*#AQA*Et0We0tQNQA*");
+        when(request.getHeader(Config.Plugin.Propagation.HEADER_NAME)).thenReturn("#AQA*#AQA*4WcWe0tQNQA*|3|1|1|#192.168.1.8:18002|#/portal/|#/testEntrySpan|#AQA*#AQA*Et0We0tQNQA*");
 
         tomcatInterceptor.beforeMethod(enhancedInstance, "invoke", arguments, argumentType, methodInterceptResult);
         tomcatInterceptor.afterMethod(enhancedInstance, "invoke", arguments, argumentType, null);
@@ -112,6 +112,7 @@ public class TomcatInterceptorTest {
     }
 
     private void assertTraceSegmentRef(TraceSegmentRef ref) {
+        assertThat(SegmentRefHelper.getEntryApplicationInstanceId(ref), is(1));
         assertThat(SegmentRefHelper.getSpanId(ref), is(3));
         assertThat(SegmentRefHelper.getTraceSegmentId(ref).toString(), is("1.1.15006458883500001"));
     }

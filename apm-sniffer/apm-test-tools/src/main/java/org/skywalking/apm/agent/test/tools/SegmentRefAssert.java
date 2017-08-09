@@ -18,4 +18,9 @@ public class SegmentRefAssert {
     public static void assertPeerHost(TraceSegmentRef ref, String peerHost) {
         assertThat(SegmentRefHelper.getPeerHost(ref), is(peerHost));
     }
+
+    public static void assertEntryApplicationInstanceId(TraceSegmentRef ref, int entryApplicationInstanceID) {
+        assertThat(SegmentRefHelper.getEntryApplicationInstanceId(ref), is(entryApplicationInstanceID));
+    }
+
 }
