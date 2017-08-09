@@ -12,3 +12,4 @@ org.skywalking.apm.collector.agentstream.worker.service.entry.dao.ServiceEntryEs
 org.skywalking.apm.collector.agentstream.worker.serviceref.reference.dao.ServiceRefEsDAO
 org.skywalking.apm.collector.agentstream.worker.jvmmetric.cpu.dao.CpuMetricEsDAO
 org.skywalking.apm.collector.agentstream.worker.jvmmetric.memory.dao.MemoryMetricEsDAO
+org.skywalking.apm.collector.agentstream.worker.jvmmetric.memorypool.dao.MemoryPoolMetricEsDAO
