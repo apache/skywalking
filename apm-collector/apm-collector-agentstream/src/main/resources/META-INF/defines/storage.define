@@ -42,3 +42,6 @@ org.skywalking.apm.collector.agentstream.worker.jvmmetric.memory.define.MemoryMe
 
 org.skywalking.apm.collector.agentstream.worker.jvmmetric.memorypool.define.MemoryPoolMetricEsTableDefine
 org.skywalking.apm.collector.agentstream.worker.jvmmetric.memorypool.define.MemoryPoolMetricH2TableDefine
+
+org.skywalking.apm.collector.agentstream.worker.jvmmetric.gc.define.GCMetricEsTableDefine
+org.skywalking.apm.collector.agentstream.worker.jvmmetric.gc.define.GCMetricH2TableDefine

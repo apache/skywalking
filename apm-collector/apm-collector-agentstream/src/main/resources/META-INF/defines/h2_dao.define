@@ -13,3 +13,4 @@ org.skywalking.apm.collector.agentstream.worker.serviceref.reference.dao.Service
 org.skywalking.apm.collector.agentstream.worker.jvmmetric.cpu.dao.CpuMetricH2DAO
 org.skywalking.apm.collector.agentstream.worker.jvmmetric.memory.dao.MemoryMetricH2DAO
 org.skywalking.apm.collector.agentstream.worker.jvmmetric.memorypool.dao.MemoryPoolMetricH2DAO
+org.skywalking.apm.collector.agentstream.worker.jvmmetric.gc.dao.GCMetricH2DAO
