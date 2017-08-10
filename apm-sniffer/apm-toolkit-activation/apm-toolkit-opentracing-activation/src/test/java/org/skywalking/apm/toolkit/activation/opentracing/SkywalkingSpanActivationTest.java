@@ -4,6 +4,7 @@ import io.opentracing.Tracer;
 import io.opentracing.tag.Tags;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,7 +31,10 @@ import org.skywalking.apm.toolkit.activation.opentracing.span.SpanLogInterceptor
 import org.skywalking.apm.toolkit.activation.opentracing.span.SpanSetOperationNameInterceptor;
 import org.skywalking.apm.toolkit.activation.opentracing.tracer.SkywalkingTracerExtractInterceptor;
 import org.skywalking.apm.toolkit.activation.opentracing.tracer.SkywalkingTracerInjectInterceptor;
+import org.skywalking.apm.toolkit.opentracing.SkywalkingContinuation;
+import org.skywalking.apm.toolkit.opentracing.SkywalkingSpan;
 import org.skywalking.apm.toolkit.opentracing.SkywalkingSpanBuilder;
+import org.skywalking.apm.toolkit.opentracing.SkywalkingTracer;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -166,7 +170,7 @@ public class SkywalkingSpanActivationTest {
             .withTag(Tags.PEER_HOST_IPV4.getKey(), "127.0.0.1").withTag(Tags.PEER_PORT.getKey(), 8080);
         startSpan();
 
-        String extractValue = (String)injectInterceptor.afterMethod(enhancedInstance, "extract",
+        String extractValue = (String)injectInterceptor.afterMethod(enhancedInstance, null,
             null, null, null);
 
         ContextCarrier contextCarrier = new ContextCarrier().deserialize(extractValue);
@@ -182,7 +186,7 @@ public class SkywalkingSpanActivationTest {
         spanBuilder.withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT)
             .withTag(Tags.PEER_HOST_IPV4.getKey(), "127.0.0.1").withTag(Tags.PEER_PORT.getKey(), 8080);
         startSpan();
-        extractInterceptor.afterMethod(enhancedInstance, "extract",
+        extractInterceptor.afterMethod(enhancedInstance, null,
             new Object[] {"#AQA*#AQA*4WcWe0tQNQA*|3|1|1|#127.0.0.1:8080|#/portal/|#/testEntrySpan|#AQA*#AQA*Et0We0tQNQA*"}, new Class[] {String.class}, null);
         stopSpan();
 
@@ -197,12 +201,13 @@ public class SkywalkingSpanActivationTest {
         assertThat(spans.size(), is(1));
         assertSpanCommonsAttribute(spans.get(0));
     }
+
     @Test
     public void testExtractWithInValidateContext() throws Throwable {
         spanBuilder.withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT)
             .withTag(Tags.PEER_HOST_IPV4.getKey(), "127.0.0.1").withTag(Tags.PEER_PORT.getKey(), 8080);
         startSpan();
-        extractInterceptor.afterMethod(enhancedInstance, "extract",
+        extractInterceptor.afterMethod(enhancedInstance, null,
             new Object[] {"#AQA*#AQA*4WcWe0tQNQA*|3|#192.168.1.8:18002|#/portal/|#/testEntrySpan|#AQA*#AQA*Et0We0tQNQA*"}, new Class[] {String.class}, null);
         stopSpan();
 
@@ -223,7 +228,7 @@ public class SkywalkingSpanActivationTest {
                 MockEnhancedInstance enhancedInstance = new MockEnhancedInstance();
                 try {
                     startSpan(enhancedInstance);
-                    activateInterceptor.afterMethod(continuationHolder, "activate", null, null, null);
+                    activateInterceptor.afterMethod(continuationHolder, SkywalkingContinuation.class.getMethod("activate"), null, null, null);
                 } catch (Throwable throwable) {
                     throwable.printStackTrace();
                 } finally {
@@ -258,7 +263,7 @@ public class SkywalkingSpanActivationTest {
     }
 
     private void stopSpan(EnhancedInstance enhancedInstance) throws Throwable {
-        spanFinishInterceptor.afterMethod(enhancedInstance, "finish", null, null, null);
+        spanFinishInterceptor.afterMethod(enhancedInstance, null, null, null, null);
     }
 
     private void startSpan() throws Throwable {
@@ -267,9 +272,9 @@ public class SkywalkingSpanActivationTest {
 
     private void startSpan(MockEnhancedInstance enhancedInstance) throws Throwable {
         constructorWithSpanBuilderInterceptor.onConstruct(enhancedInstance, new Object[] {spanBuilder});
-        spanLogInterceptor.afterMethod(enhancedInstance, "log", logArgument, logArgumentType, null);
+        spanLogInterceptor.afterMethod(enhancedInstance, null, logArgument, logArgumentType, null);
 
-        setOperationNameInterceptor.afterMethod(enhancedInstance, "setOperationName",
+        setOperationNameInterceptor.afterMethod(enhancedInstance, SkywalkingSpan.class.getMethod("setOperationName", String.class),
             setOperationNameArgument, setOperationNameArgumentType, null);
     }
 

@@ -93,11 +93,11 @@ public class RealCallInterceptorTest {
     @Test
     public void testMethodsAround() throws Throwable {
         realCallInterceptor.onConstruct(enhancedInstance, allArguments);
-        realCallInterceptor.beforeMethod(enhancedInstance, "execute", allArguments, argumentTypes, null);
+        realCallInterceptor.beforeMethod(enhancedInstance, null, allArguments, argumentTypes, null);
 
         Response response = mock(Response.class);
         when(response.code()).thenReturn(200);
-        realCallInterceptor.afterMethod(enhancedInstance, "execute", allArguments, argumentTypes, response);
+        realCallInterceptor.afterMethod(enhancedInstance, null, allArguments, argumentTypes, response);
 
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
@@ -110,11 +110,11 @@ public class RealCallInterceptorTest {
     @Test
     public void testMethodsAroundError() throws Throwable {
         realCallInterceptor.onConstruct(enhancedInstance, allArguments);
-        realCallInterceptor.beforeMethod(enhancedInstance, "execute", allArguments, argumentTypes, null);
+        realCallInterceptor.beforeMethod(enhancedInstance, null, allArguments, argumentTypes, null);
 
         Response response = mock(Response.class);
         when(response.code()).thenReturn(404);
-        realCallInterceptor.afterMethod(enhancedInstance, "execute", allArguments, argumentTypes, response);
+        realCallInterceptor.afterMethod(enhancedInstance, null, allArguments, argumentTypes, response);
 
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
@@ -136,13 +136,13 @@ public class RealCallInterceptorTest {
     @Test
     public void testException() throws Throwable {
         realCallInterceptor.onConstruct(enhancedInstance, allArguments);
-        realCallInterceptor.beforeMethod(enhancedInstance, "execute", allArguments, argumentTypes, null);
+        realCallInterceptor.beforeMethod(enhancedInstance, null, allArguments, argumentTypes, null);
 
-        realCallInterceptor.handleMethodException(enhancedInstance, "execute", allArguments, argumentTypes, new NullPointerException("testException"));
+        realCallInterceptor.handleMethodException(enhancedInstance, null, allArguments, argumentTypes, new NullPointerException("testException"));
 
         Response response = mock(Response.class);
         when(response.code()).thenReturn(200);
-        realCallInterceptor.afterMethod(enhancedInstance, "execute", allArguments, argumentTypes, response);
+        realCallInterceptor.afterMethod(enhancedInstance, null, allArguments, argumentTypes, response);
 
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);

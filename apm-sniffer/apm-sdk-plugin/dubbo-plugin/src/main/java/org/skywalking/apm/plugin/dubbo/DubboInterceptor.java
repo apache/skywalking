@@ -5,6 +5,7 @@ import com.alibaba.dubbo.rpc.Invocation;
 import com.alibaba.dubbo.rpc.Invoker;
 import com.alibaba.dubbo.rpc.Result;
 import com.alibaba.dubbo.rpc.RpcContext;
+import java.lang.reflect.Method;
 import org.skywalking.apm.agent.core.conf.Config;
 import org.skywalking.apm.agent.core.context.ContextCarrier;
 import org.skywalking.apm.agent.core.context.ContextManager;
@@ -40,7 +41,7 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
      * {@link RpcContext#attachments}. current trace segment will ref if the serialize context data is not null.
      */
     @Override
-    public void beforeMethod(EnhancedInstance objInst, String methodName, Object[] allArguments,
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         Invoker invoker = (Invoker)allArguments[0];
         Invocation invocation = (Invocation)allArguments[1];
@@ -80,7 +81,7 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance objInst, String methodName, Object[] allArguments,
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Object ret) throws Throwable {
         Result result = (Result)ret;
         if (result != null && result.getException() != null) {
@@ -92,7 +93,7 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
     }
 
     @Override
-    public void handleMethodException(EnhancedInstance objInst, String methodName, Object[] allArguments,
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
         dealException(t);
     }
