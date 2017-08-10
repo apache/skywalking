@@ -37,7 +37,7 @@ public abstract class AbstractClassEnhancePluginDefine {
         logger.debug("prepare to enhance class {} by {}.", transformClassName, interceptorDefineClassName);
 
         /**
-         * findOrPrepare4Register witness classes for enhance class
+         * find witness classes for enhance class
          */
         String[] witnessClasses = witnessClasses();
         if (witnessClasses != null) {
@@ -51,7 +51,7 @@ public abstract class AbstractClassEnhancePluginDefine {
         }
 
         /**
-         * findOrPrepare4Register origin class source code for interceptor
+         * find origin class source code for interceptor
          */
         DynamicType.Builder<?> newClassBuilder = this.enhance(transformClassName, builder, classLoader);
 
