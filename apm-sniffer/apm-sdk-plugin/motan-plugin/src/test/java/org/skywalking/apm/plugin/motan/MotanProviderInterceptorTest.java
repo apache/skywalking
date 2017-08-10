@@ -77,8 +77,8 @@ public class MotanProviderInterceptorTest {
 
     @Test
     public void testInvokerWithoutRefSegment() throws Throwable {
-        invokeInterceptor.beforeMethod(enhancedInstance, "execute", arguments, argumentType, null);
-        invokeInterceptor.afterMethod(enhancedInstance, "execute", arguments, argumentType, response);
+        invokeInterceptor.beforeMethod(enhancedInstance, null, arguments, argumentType, null);
+        invokeInterceptor.afterMethod(enhancedInstance, null, arguments, argumentType, response);
 
         MatcherAssert.assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
@@ -94,8 +94,8 @@ public class MotanProviderInterceptorTest {
         attachments.put(Config.Plugin.Propagation.HEADER_NAME, "#AQA*#AQA*4WcWe0tQNQA*|3|1|1|#192.168.1.8:18002|#/portal/|#/testEntrySpan|#AQA*#AQA*Et0We0tQNQA*");
         when(request.getAttachments()).thenReturn(attachments);
 
-        invokeInterceptor.beforeMethod(enhancedInstance, "execute", arguments, argumentType, null);
-        invokeInterceptor.afterMethod(enhancedInstance, "execute", arguments, argumentType, response);
+        invokeInterceptor.beforeMethod(enhancedInstance, null, arguments, argumentType, null);
+        invokeInterceptor.afterMethod(enhancedInstance, null, arguments, argumentType, response);
 
         MatcherAssert.assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
@@ -108,8 +108,8 @@ public class MotanProviderInterceptorTest {
     public void testResponseWithException() throws Throwable {
         when(response.getException()).thenReturn(new RuntimeException());
 
-        invokeInterceptor.beforeMethod(enhancedInstance, "execute", arguments, argumentType, null);
-        invokeInterceptor.afterMethod(enhancedInstance, "execute", arguments, argumentType, response);
+        invokeInterceptor.beforeMethod(enhancedInstance, null, arguments, argumentType, null);
+        invokeInterceptor.afterMethod(enhancedInstance, null, arguments, argumentType, response);
 
         assertTraceSegmentWhenOccurException();
     }
@@ -117,9 +117,9 @@ public class MotanProviderInterceptorTest {
     @Test
     public void testOccurException() throws Throwable {
 
-        invokeInterceptor.beforeMethod(enhancedInstance, "execute", arguments, argumentType, null);
-        invokeInterceptor.handleMethodException(enhancedInstance, "execute", arguments, argumentType, new RuntimeException());
-        invokeInterceptor.afterMethod(enhancedInstance, "execute", arguments, argumentType, response);
+        invokeInterceptor.beforeMethod(enhancedInstance, null, arguments, argumentType, null);
+        invokeInterceptor.handleMethodException(enhancedInstance, null, arguments, argumentType, new RuntimeException());
+        invokeInterceptor.afterMethod(enhancedInstance, null, arguments, argumentType, response);
 
         assertTraceSegmentWhenOccurException();
     }
