@@ -2,7 +2,6 @@ package org.skywalking.apm.collector.agentjvm.grpc.handler;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import org.junit.Test;
 import org.skywalking.apm.network.proto.CPU;
 import org.skywalking.apm.network.proto.GC;
 import org.skywalking.apm.network.proto.GCPhrase;
@@ -24,7 +23,6 @@ public class JVMMetricsServiceHandlerTestCase {
 
     private JVMMetricsServiceGrpc.JVMMetricsServiceBlockingStub stub;
 
-    @Test
     public void test() {
         ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 11800).usePlaintext(true).build();
         stub = JVMMetricsServiceGrpc.newBlockingStub(channel);
