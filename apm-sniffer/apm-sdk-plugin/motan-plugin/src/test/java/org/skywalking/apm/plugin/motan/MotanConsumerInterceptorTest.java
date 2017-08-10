@@ -70,8 +70,8 @@ public class MotanConsumerInterceptorTest {
 
     @Test
     public void testInvokeInterceptor() throws Throwable {
-        invokeInterceptor.beforeMethod(enhancedInstance, "execute", new Object[] {request}, new Class[] {request.getClass()}, null);
-        invokeInterceptor.afterMethod(enhancedInstance, "execute", new Object[] {request}, new Class[] {request.getClass()}, response);
+        invokeInterceptor.beforeMethod(enhancedInstance, null, new Object[] {request}, new Class[] {request.getClass()}, null);
+        invokeInterceptor.afterMethod(enhancedInstance, null, new Object[] {request}, new Class[] {request.getClass()}, response);
 
         MatcherAssert.assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
@@ -84,8 +84,8 @@ public class MotanConsumerInterceptorTest {
     public void testResponseWithException() throws Throwable {
         when(response.getException()).thenReturn(new RuntimeException());
 
-        invokeInterceptor.beforeMethod(enhancedInstance, "execute", new Object[] {request}, new Class[] {request.getClass()}, null);
-        invokeInterceptor.afterMethod(enhancedInstance, "execute", new Object[] {request}, new Class[] {request.getClass()}, response);
+        invokeInterceptor.beforeMethod(enhancedInstance, null, new Object[] {request}, new Class[] {request.getClass()}, null);
+        invokeInterceptor.afterMethod(enhancedInstance, null, new Object[] {request}, new Class[] {request.getClass()}, response);
 
         MatcherAssert.assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
@@ -104,9 +104,9 @@ public class MotanConsumerInterceptorTest {
     @Test
     public void testInvokeInterceptorWithException() throws Throwable {
 
-        invokeInterceptor.beforeMethod(enhancedInstance, "execute", new Object[] {request}, new Class[] {request.getClass()}, null);
-        invokeInterceptor.handleMethodException(enhancedInstance, "execute", new Object[] {request}, new Class[] {request.getClass()}, new RuntimeException());
-        invokeInterceptor.afterMethod(enhancedInstance, "execute", new Object[] {request}, new Class[] {request.getClass()}, response);
+        invokeInterceptor.beforeMethod(enhancedInstance, null, new Object[] {request}, new Class[] {request.getClass()}, null);
+        invokeInterceptor.handleMethodException(enhancedInstance, null, new Object[] {request}, new Class[] {request.getClass()}, new RuntimeException());
+        invokeInterceptor.afterMethod(enhancedInstance, null, new Object[] {request}, new Class[] {request.getClass()}, response);
 
         MatcherAssert.assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);

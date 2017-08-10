@@ -80,8 +80,8 @@ public class DefaultHttpClientInterceptorTest {
     public void testMethodsAround() throws Throwable {
         Response response = mock(Response.class);
         when(response.status()).thenReturn(200);
-        defaultHttpClientInterceptor.beforeMethod(enhancedInstance, "execute", allArguments, argumentTypes, result);
-        defaultHttpClientInterceptor.afterMethod(enhancedInstance, "execute", allArguments, argumentTypes, response);
+        defaultHttpClientInterceptor.beforeMethod(enhancedInstance, null, allArguments, argumentTypes, result);
+        defaultHttpClientInterceptor.afterMethod(enhancedInstance, null, allArguments, argumentTypes, response);
 
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
@@ -101,11 +101,11 @@ public class DefaultHttpClientInterceptorTest {
 
     @Test
     public void testMethodsAroundError() throws Throwable {
-        defaultHttpClientInterceptor.beforeMethod(enhancedInstance, "execute", allArguments, argumentTypes, result);
+        defaultHttpClientInterceptor.beforeMethod(enhancedInstance, null, allArguments, argumentTypes, result);
 
         Response response = mock(Response.class);
         when(response.status()).thenReturn(404);
-        defaultHttpClientInterceptor.afterMethod(enhancedInstance, "execute", allArguments, argumentTypes, response);
+        defaultHttpClientInterceptor.afterMethod(enhancedInstance, null, allArguments, argumentTypes, response);
 
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
@@ -130,13 +130,13 @@ public class DefaultHttpClientInterceptorTest {
 
     @Test
     public void testException() throws Throwable {
-        defaultHttpClientInterceptor.beforeMethod(enhancedInstance, "execute", allArguments, argumentTypes, result);
+        defaultHttpClientInterceptor.beforeMethod(enhancedInstance, null, allArguments, argumentTypes, result);
 
-        defaultHttpClientInterceptor.handleMethodException(enhancedInstance, "execute", allArguments, argumentTypes, new NullPointerException("testException"));
+        defaultHttpClientInterceptor.handleMethodException(enhancedInstance, null, allArguments, argumentTypes, new NullPointerException("testException"));
 
         Response response = mock(Response.class);
         when(response.status()).thenReturn(200);
-        defaultHttpClientInterceptor.afterMethod(enhancedInstance, "execute", allArguments, argumentTypes, response);
+        defaultHttpClientInterceptor.afterMethod(enhancedInstance, null, allArguments, argumentTypes, response);
 
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);

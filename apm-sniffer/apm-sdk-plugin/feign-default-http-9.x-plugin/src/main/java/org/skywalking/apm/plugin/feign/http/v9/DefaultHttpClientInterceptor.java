@@ -3,6 +3,7 @@ package org.skywalking.apm.plugin.feign.http.v9;
 import feign.Request;
 import feign.Response;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.util.ArrayList;
@@ -36,10 +37,12 @@ public class DefaultHttpClientInterceptor implements InstanceMethodsAroundInterc
      * port, kind, component, url from {@link feign.Request}.
      * Through the reflection of the way, set the http header of context data into {@link feign.Request#headers}.
      *
+     *
+     * @param method
      * @param result change this result, if you want to truncate the method.
      * @throws Throwable
      */
-    @Override public void beforeMethod(EnhancedInstance objInst, String methodName, Object[] allArguments,
+    @Override public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         Request request = (Request)allArguments[0];
 
@@ -73,11 +76,13 @@ public class DefaultHttpClientInterceptor implements InstanceMethodsAroundInterc
      * the server.
      * Finish the {@link AbstractSpan}.
      *
+     *
+     * @param method
      * @param ret the method's original return value.
      * @return
      * @throws Throwable
      */
-    @Override public Object afterMethod(EnhancedInstance objInst, String methodName, Object[] allArguments,
+    @Override public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Object ret) throws Throwable {
         Response response = (Response)ret;
         int statusCode = response.status();
@@ -93,7 +98,7 @@ public class DefaultHttpClientInterceptor implements InstanceMethodsAroundInterc
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, String methodName, Object[] allArguments,
+    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
         AbstractSpan activeSpan = ContextManager.activeSpan();
         activeSpan.log(t);

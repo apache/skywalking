@@ -55,7 +55,7 @@ public class StaticMethodsInter {
 
         MethodInterceptResult result = new MethodInterceptResult();
         try {
-            interceptor.beforeMethod(clazz, method.getName(), allArguments, method.getParameterTypes(), result);
+            interceptor.beforeMethod(clazz, method, allArguments, method.getParameterTypes(), result);
         } catch (Throwable t) {
             logger.error(t, "class[{}] before static method[{}] intercept failure", clazz, method.getName());
         }
@@ -69,14 +69,14 @@ public class StaticMethodsInter {
             }
         } catch (Throwable t) {
             try {
-                interceptor.handleMethodException(clazz, method.getName(), allArguments, method.getParameterTypes(), t);
+                interceptor.handleMethodException(clazz, method, allArguments, method.getParameterTypes(), t);
             } catch (Throwable t2) {
                 logger.error(t2, "class[{}] handle static method[{}] exception failure", clazz, method.getName(), t2.getMessage());
             }
             throw t;
         } finally {
             try {
-                ret = interceptor.afterMethod(clazz, method.getName(), allArguments, method.getParameterTypes(), ret);
+                ret = interceptor.afterMethod(clazz, method, allArguments, method.getParameterTypes(), ret);
             } catch (Throwable t) {
                 logger.error(t, "class[{}] after static method[{}] intercept failure:{}", clazz, method.getName(), t.getMessage());
             }
