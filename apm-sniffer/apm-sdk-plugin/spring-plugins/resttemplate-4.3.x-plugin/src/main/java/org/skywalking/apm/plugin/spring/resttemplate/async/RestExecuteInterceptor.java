@@ -1,5 +1,6 @@
 package org.skywalking.apm.plugin.spring.resttemplate.async;
 
+import java.lang.reflect.Method;
 import java.net.URI;
 import org.skywalking.apm.agent.core.context.ContextCarrier;
 import org.skywalking.apm.agent.core.context.ContextManager;
@@ -15,8 +16,8 @@ import org.springframework.http.HttpMethod;
 public class RestExecuteInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
-    public void beforeMethod(EnhancedInstance objInst, String methodName, Object[] allArguments,
-        Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        MethodInterceptResult result) throws Throwable {
         final URI requestURL = (URI)allArguments[0];
         final HttpMethod httpMethod = (HttpMethod)allArguments[1];
         final ContextCarrier contextCarrier = new ContextCarrier();
@@ -34,8 +35,8 @@ public class RestExecuteInterceptor implements InstanceMethodsAroundInterceptor 
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance objInst, String methodName, Object[] allArguments,
-        Class<?>[] argumentsTypes, Object ret) throws Throwable {
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        Object ret) throws Throwable {
         Object[] cacheValues = (Object[])objInst.getSkyWalkingDynamicField();
         cacheValues[3] = ContextManager.capture();
         ((EnhancedInstance)ret).setSkyWalkingDynamicField(cacheValues);
@@ -43,8 +44,7 @@ public class RestExecuteInterceptor implements InstanceMethodsAroundInterceptor 
         return ret;
     }
 
-    @Override
-    public void handleMethodException(EnhancedInstance objInst, String methodName, Object[] allArguments,
+    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
     }

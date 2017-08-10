@@ -1,5 +1,6 @@
 package org.skywalking.apm.plugin.spring.concurrent;
 
+import java.lang.reflect.Method;
 import java.net.URI;
 import org.skywalking.apm.agent.core.context.ContextManager;
 import org.skywalking.apm.agent.core.context.ContextSnapshot;
@@ -14,8 +15,8 @@ import org.skywalking.apm.network.trace.component.ComponentsDefine;
 public class FailureCallbackInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
-    public void beforeMethod(EnhancedInstance objInst, String methodName, Object[] allArguments,
-        Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        MethodInterceptResult result) throws Throwable {
         Object[] cacheValues = (Object[])objInst.getSkyWalkingDynamicField();
         if (cacheValues == null) {
             return;
@@ -29,16 +30,14 @@ public class FailureCallbackInterceptor implements InstanceMethodsAroundIntercep
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance objInst, String methodName, Object[] allArguments,
-        Class<?>[] argumentsTypes, Object ret) throws Throwable {
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        Object ret) throws Throwable {
         ContextManager.stopSpan();
         return ret;
     }
 
-    @Override
-    public void handleMethodException(EnhancedInstance objInst, String methodName, Object[] allArguments,
+    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
     }
-
 }

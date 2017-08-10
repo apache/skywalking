@@ -7,7 +7,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>apm-spring-concurrent-util-plugin</artifactId>
+    <artifactId>apm-spring-concurrent-util-4.3.x-plugin</artifactId>
     <packaging>jar</packaging>
 
     <name>concurrent-util-4.3.x-plugin</name>

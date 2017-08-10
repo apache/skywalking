@@ -1,5 +1,6 @@
 package org.skywalking.apm.plugin.spring.resttemplate.sync;
 
+import java.lang.reflect.Method;
 import org.skywalking.apm.agent.core.context.ContextManager;
 import org.skywalking.apm.agent.core.context.tag.Tags;
 import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
@@ -9,13 +10,16 @@ import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptR
 import org.springframework.http.client.ClientHttpResponse;
 
 public class RestResponseInterceptor implements InstanceMethodsAroundInterceptor {
-    @Override public void beforeMethod(EnhancedInstance objInst, String methodName, Object[] allArguments,
-        Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
+
+    @Override
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        MethodInterceptResult result) throws Throwable {
 
     }
 
-    @Override public Object afterMethod(EnhancedInstance objInst, String methodName, Object[] allArguments,
-        Class<?>[] argumentsTypes, Object ret) throws Throwable {
+    @Override
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        Object ret) throws Throwable {
 
         ClientHttpResponse response = (ClientHttpResponse)allArguments[2];
         int statusCode = response.getStatusCode().value();
@@ -27,7 +31,7 @@ public class RestResponseInterceptor implements InstanceMethodsAroundInterceptor
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, String methodName, Object[] allArguments,
+    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
     }

@@ -6,41 +6,44 @@ import org.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoin
 import org.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.skywalking.apm.agent.core.plugin.match.ClassMatch;
-import org.skywalking.apm.plugin.spring.concurrent.FailureCallbackInterceptor;
-import org.skywalking.apm.plugin.spring.concurrent.SuccessCallbackInterceptor;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.skywalking.apm.plugin.spring.concurrent.match.ListenableFutureCallbackMatch.listenableFutureCallbackMatch;
 
 /**
  * {@link ListenableFutureCallbackInstrumentation} enhance <code>onSuccess</code> method and <code>oonFailure</code>
- * that class inherited <code>org.springframework.util.concurrent.ListenableFutureCallback</code> by   {@link
- * SuccessCallbackInterceptor} and {@link FailureCallbackInterceptor }.
+ * that class inherited <code>org.springframework.util.concurrent.ListenableFutureCallback</code> by
+ * <code>org.skywalking.apm.plugin.spring.concurrent.SuccessCallbackInterceptor</code> and
+ * <code>org.skywalking.apm.plugin.spring.concurrent.FailureCallbackInterceptor</code>.
  *
  * @author zhangxin
  */
 public class ListenableFutureCallbackInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
-    @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    @Override
+    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
 
-    @Override protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    @Override
+    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named(SuccessCallbackInstrumentation.SUCCESS_METHOD_NAME);
                 }
 
-                @Override public String getMethodsInterceptor() {
+                @Override
+                public String getMethodsInterceptor() {
                     return SuccessCallbackInstrumentation.SUCCESS_CALLBACK_INTERCEPTOR;
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             },
             new InstanceMethodsInterceptPoint() {
-
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named(FailureCallbackInstrumentation.FAILURE_METHOD_NAME);
@@ -59,7 +62,8 @@ public class ListenableFutureCallbackInstrumentation extends ClassInstanceMethod
         };
     }
 
-    @Override protected ClassMatch enhanceClass() {
+    @Override
+    protected ClassMatch enhanceClass() {
         return listenableFutureCallbackMatch();
     }
 }

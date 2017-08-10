@@ -8,8 +8,6 @@ import org.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoin
 import org.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.skywalking.apm.agent.core.plugin.match.ClassMatch;
-import org.skywalking.apm.plugin.spring.resttemplate.async.FutureGetInterceptor;
-import org.skywalking.apm.plugin.spring.resttemplate.async.ResponseCallBackInterceptor;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
