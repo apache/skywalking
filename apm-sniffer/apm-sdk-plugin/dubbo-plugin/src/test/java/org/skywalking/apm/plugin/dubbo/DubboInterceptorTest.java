@@ -97,8 +97,8 @@ public class DubboInterceptorTest {
     public void testConsumerBelow283() throws Throwable {
         BugFixActive.active();
 
-        dubboInterceptor.beforeMethod(enhancedInstance, "invoke", allArguments, argumentTypes, methodInterceptResult);
-        dubboInterceptor.afterMethod(enhancedInstance, "invoke", allArguments, argumentTypes, result);
+        dubboInterceptor.beforeMethod(enhancedInstance, null, allArguments, argumentTypes, methodInterceptResult);
+        dubboInterceptor.afterMethod(enhancedInstance, null, allArguments, argumentTypes, result);
 
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
@@ -113,8 +113,8 @@ public class DubboInterceptorTest {
 
     @Test
     public void testConsumerWithAttachment() throws Throwable {
-        dubboInterceptor.beforeMethod(enhancedInstance, "invoke", allArguments, argumentTypes, methodInterceptResult);
-        dubboInterceptor.afterMethod(enhancedInstance, "invoke", allArguments, argumentTypes, result);
+        dubboInterceptor.beforeMethod(enhancedInstance, null, allArguments, argumentTypes, methodInterceptResult);
+        dubboInterceptor.afterMethod(enhancedInstance, null, allArguments, argumentTypes, result);
 
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
@@ -125,9 +125,9 @@ public class DubboInterceptorTest {
 
     @Test
     public void testConsumerWithException() throws Throwable {
-        dubboInterceptor.beforeMethod(enhancedInstance, "invoke", allArguments, argumentTypes, methodInterceptResult);
-        dubboInterceptor.handleMethodException(enhancedInstance, "invoke", allArguments, argumentTypes, new RuntimeException());
-        dubboInterceptor.afterMethod(enhancedInstance, "invoke", allArguments, argumentTypes, result);
+        dubboInterceptor.beforeMethod(enhancedInstance, null, allArguments, argumentTypes, methodInterceptResult);
+        dubboInterceptor.handleMethodException(enhancedInstance, null, allArguments, argumentTypes, new RuntimeException());
+        dubboInterceptor.afterMethod(enhancedInstance, null, allArguments, argumentTypes, result);
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
         assertConsumerTraceSegmentInErrorCase(traceSegment);
@@ -137,8 +137,8 @@ public class DubboInterceptorTest {
     public void testConsumerWithResultHasException() throws Throwable {
         when(result.getException()).thenReturn(new RuntimeException());
 
-        dubboInterceptor.beforeMethod(enhancedInstance, "invoke", allArguments, argumentTypes, methodInterceptResult);
-        dubboInterceptor.afterMethod(enhancedInstance, "invoke", allArguments, argumentTypes, result);
+        dubboInterceptor.beforeMethod(enhancedInstance, null, allArguments, argumentTypes, methodInterceptResult);
+        dubboInterceptor.afterMethod(enhancedInstance, null, allArguments, argumentTypes, result);
 
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
@@ -150,8 +150,8 @@ public class DubboInterceptorTest {
         when(rpcContext.isConsumerSide()).thenReturn(false);
         when(rpcContext.getAttachment(Config.Plugin.Propagation.HEADER_NAME)).thenReturn("#AQA*#AQA*4WcWe0tQNQA*|3|1|1|#192.168.1.8 :18002|#/portal/|#/testEntrySpan|#AQA*#AQA*Et0We0tQNQA*");
 
-        dubboInterceptor.beforeMethod(enhancedInstance, "invoke", allArguments, argumentTypes, methodInterceptResult);
-        dubboInterceptor.afterMethod(enhancedInstance, "invoke", allArguments, argumentTypes, result);
+        dubboInterceptor.beforeMethod(enhancedInstance, null, allArguments, argumentTypes, methodInterceptResult);
+        dubboInterceptor.afterMethod(enhancedInstance, null, allArguments, argumentTypes, result);
         assertProvider();
     }
 
@@ -162,8 +162,8 @@ public class DubboInterceptorTest {
 
         testParam.setTraceContext("#AQA*#AQA*4WcWe0tQNQA*|3|1|1|#192.168.1.8 :18002|#/portal/|#/testEntrySpan|#AQA*#AQA*Et0We0tQNQA*");
 
-        dubboInterceptor.beforeMethod(enhancedInstance, "invoke", allArguments, argumentTypes, methodInterceptResult);
-        dubboInterceptor.afterMethod(enhancedInstance, "invoke", allArguments, argumentTypes, result);
+        dubboInterceptor.beforeMethod(enhancedInstance, null, allArguments, argumentTypes, methodInterceptResult);
+        dubboInterceptor.afterMethod(enhancedInstance, null, allArguments, argumentTypes, result);
 
         assertProvider();
     }

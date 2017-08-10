@@ -57,7 +57,7 @@ public class InstMethodsInter {
 
         MethodInterceptResult result = new MethodInterceptResult();
         try {
-            interceptor.beforeMethod(targetObject, method.getName(), allArguments, method.getParameterTypes(),
+            interceptor.beforeMethod(targetObject, method, allArguments, method.getParameterTypes(),
                 result);
         } catch (Throwable t) {
             logger.error(t, "class[{}] before method[{}] intercept failure", obj.getClass(), method.getName());
@@ -72,7 +72,7 @@ public class InstMethodsInter {
             }
         } catch (Throwable t) {
             try {
-                interceptor.handleMethodException(targetObject, method.getName(), allArguments, method.getParameterTypes(),
+                interceptor.handleMethodException(targetObject, method, allArguments, method.getParameterTypes(),
                     t);
             } catch (Throwable t2) {
                 logger.error(t2, "class[{}] handle method[{}] exception failure", obj.getClass(), method.getName());
@@ -80,7 +80,7 @@ public class InstMethodsInter {
             throw t;
         } finally {
             try {
-                ret = interceptor.afterMethod(targetObject, method.getName(), allArguments, method.getParameterTypes(),
+                ret = interceptor.afterMethod(targetObject, method, allArguments, method.getParameterTypes(),
                     ret);
             } catch (Throwable t) {
                 logger.error(t, "class[{}] after method[{}] intercept failure", obj.getClass(), method.getName());
