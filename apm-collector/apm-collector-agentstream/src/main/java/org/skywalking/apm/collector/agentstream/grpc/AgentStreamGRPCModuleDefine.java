@@ -4,7 +4,6 @@ import java.util.LinkedList;
 import java.util.List;
 import org.skywalking.apm.collector.agentstream.AgentStreamModuleDefine;
 import org.skywalking.apm.collector.agentstream.AgentStreamModuleGroupDefine;
-import org.skywalking.apm.collector.agentstream.grpc.handler.JVMMetricsServiceHandler;
 import org.skywalking.apm.collector.agentstream.grpc.handler.TraceSegmentServiceHandler;
 import org.skywalking.apm.collector.core.cluster.ClusterDataListener;
 import org.skywalking.apm.collector.core.framework.Handler;
@@ -47,7 +46,6 @@ public class AgentStreamGRPCModuleDefine extends AgentStreamModuleDefine {
     @Override public List<Handler> handlerList() {
         List<Handler> handlers = new LinkedList<>();
         handlers.add(new TraceSegmentServiceHandler());
-        handlers.add(new JVMMetricsServiceHandler());
         return handlers;
     }
 }

@@ -4,7 +4,7 @@ import java.util.Calendar;
 import java.util.TimeZone;
 import org.junit.Assert;
 import org.junit.Test;
-import org.skywalking.apm.collector.agentstream.worker.util.TimeBucketUtils;
+import org.skywalking.apm.collector.stream.worker.util.TimeBucketUtils;
 
 /**
  * @author pengys5

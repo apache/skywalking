@@ -15,6 +15,11 @@
     <dependencies>
         <dependency>
             <groupId>org.skywalking</groupId>
+            <artifactId>apm-collector-stream</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
             <artifactId>apm-collector-cluster</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -25,7 +30,7 @@
         </dependency>
         <dependency>
             <groupId>org.skywalking</groupId>
-            <artifactId>apm-network</artifactId>
+            <artifactId>apm-collector-storage</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
