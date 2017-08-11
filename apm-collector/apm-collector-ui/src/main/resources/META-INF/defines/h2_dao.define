@@ -5,3 +5,5 @@ org.skywalking.apm.collector.ui.dao.NodeRefSumH2DAO
 org.skywalking.apm.collector.ui.dao.SegmentCostH2DAO
 org.skywalking.apm.collector.ui.dao.GlobalTraceH2DAO
 org.skywalking.apm.collector.ui.dao.SegmentH2DAO
+org.skywalking.apm.collector.ui.dao.ApplicationH2DAO
+org.skywalking.apm.collector.ui.dao.ServiceNameH2DAO

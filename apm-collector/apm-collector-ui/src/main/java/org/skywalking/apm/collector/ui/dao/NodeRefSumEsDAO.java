@@ -10,9 +10,9 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.sum.Sum;
-import org.skywalking.apm.collector.stream.worker.util.Const;
-import org.skywalking.apm.collector.agentstream.worker.noderef.summary.define.NodeRefSumTable;
+import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
+import org.skywalking.apm.collector.storage.table.noderef.NodeRefSumTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

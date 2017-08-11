@@ -1,6 +1,7 @@
 package org.skywalking.apm.collector.agentstream.worker.segment.cost.define;
 
 import org.skywalking.apm.collector.remote.grpc.proto.RemoteData;
+import org.skywalking.apm.collector.storage.table.segment.SegmentCostTable;
 import org.skywalking.apm.collector.stream.worker.impl.data.Attribute;
 import org.skywalking.apm.collector.stream.worker.impl.data.AttributeType;
 import org.skywalking.apm.collector.stream.worker.impl.data.Data;

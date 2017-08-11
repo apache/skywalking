@@ -4,10 +4,12 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import java.util.ArrayList;
 import java.util.List;
-import org.skywalking.apm.collector.stream.worker.util.Const;
 import org.skywalking.apm.collector.core.util.CollectionUtils;
+import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.ObjectUtils;
 import org.skywalking.apm.collector.storage.dao.DAOContainer;
+import org.skywalking.apm.collector.ui.cache.ApplicationCache;
+import org.skywalking.apm.collector.ui.cache.ServiceNameCache;
 import org.skywalking.apm.collector.ui.dao.IGlobalTraceDAO;
 import org.skywalking.apm.collector.ui.dao.ISegmentDAO;
 import org.skywalking.apm.network.proto.SpanObject;
@@ -93,8 +95,12 @@ public class TraceStackService {
                 String segmentSpanId = segmentId + Const.SEGMENT_SPAN_SPLIT + String.valueOf(spanId);
                 String segmentParentSpanId = segmentId + Const.SEGMENT_SPAN_SPLIT + String.valueOf(parentSpanId);
                 long startTime = spanObject.getStartTime();
+
                 String operationName = spanObject.getOperationName();
-                String applicationCode = "Code" + String.valueOf(segment.getApplicationId());
+                if (spanObject.getOperationNameId() != 0) {
+                    operationName = ServiceNameCache.get(spanObject.getOperationNameId());
+                }
+                String applicationCode = ApplicationCache.get(segment.getApplicationId());
 
                 long cost = spanObject.getEndTime() - spanObject.getStartTime();
                 if (cost == 0) {

@@ -1,4 +1,4 @@
-package org.skywalking.apm.collector.stream.worker.storage;
+package org.skywalking.apm.collector.storage.table;
 
 /**
  * @author pengys5

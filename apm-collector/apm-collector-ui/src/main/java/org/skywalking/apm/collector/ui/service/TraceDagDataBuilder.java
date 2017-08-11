@@ -4,7 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import java.util.HashMap;
 import java.util.Map;
-import org.skywalking.apm.collector.stream.worker.util.Const;
+import org.skywalking.apm.collector.core.util.Const;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

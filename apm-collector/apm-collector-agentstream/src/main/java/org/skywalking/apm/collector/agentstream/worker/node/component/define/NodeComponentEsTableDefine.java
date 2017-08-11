@@ -2,6 +2,7 @@ package org.skywalking.apm.collector.agentstream.worker.node.component.define;
 
 import org.skywalking.apm.collector.storage.elasticsearch.define.ElasticSearchColumnDefine;
 import org.skywalking.apm.collector.storage.elasticsearch.define.ElasticSearchTableDefine;
+import org.skywalking.apm.collector.storage.table.node.NodeComponentTable;
 
 /**
  * @author pengys5
