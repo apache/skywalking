@@ -1,0 +1,3 @@
+spring-concurrent-util-4.x=org.skywalking.apm.plugin.spring.concurrent.define.FailureCallbackInstrumentation
+spring-concurrent-util-4.x=org.skywalking.apm.plugin.spring.concurrent.define.SuccessCallbackInstrumentation
+spring-concurrent-util-4.x=org.skywalking.apm.plugin.spring.concurrent.define.ListenableFutureCallbackInstrumentation

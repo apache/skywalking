@@ -22,6 +22,7 @@
         <module>okhttp-3.x-plugin</module>
         <module>resin-3.x-plugin</module>
         <module>resin-4.x-plugin</module>
+        <module>spring-plugins</module>
     </modules>
     <packaging>pom</packaging>
 
