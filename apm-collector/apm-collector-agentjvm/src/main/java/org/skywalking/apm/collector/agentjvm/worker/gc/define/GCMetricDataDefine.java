@@ -1,5 +1,6 @@
 package org.skywalking.apm.collector.agentjvm.worker.gc.define;
 
+import org.skywalking.apm.collector.core.framework.UnexpectedException;
 import org.skywalking.apm.collector.remote.grpc.proto.RemoteData;
 import org.skywalking.apm.collector.stream.worker.impl.data.Attribute;
 import org.skywalking.apm.collector.stream.worker.impl.data.AttributeType;
@@ -28,11 +29,11 @@ public class GCMetricDataDefine extends DataDefine {
     }
 
     @Override public Object deserialize(RemoteData remoteData) {
-        return null;
+        throw new UnexpectedException("gc metric data did not need send to remote worker.");
     }
 
     @Override public RemoteData serialize(Object object) {
-        return null;
+        throw new UnexpectedException("gc metric data did not need send to remote worker.");
     }
 
     public static class GCMetric implements Transform<GCMetric> {

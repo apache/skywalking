@@ -1,5 +1,6 @@
 package org.skywalking.apm.collector.agentjvm.worker.memorypool.define;
 
+import org.skywalking.apm.collector.core.framework.UnexpectedException;
 import org.skywalking.apm.collector.remote.grpc.proto.RemoteData;
 import org.skywalking.apm.collector.stream.worker.impl.data.Attribute;
 import org.skywalking.apm.collector.stream.worker.impl.data.AttributeType;
@@ -31,11 +32,11 @@ public class MemoryPoolMetricDataDefine extends DataDefine {
     }
 
     @Override public Object deserialize(RemoteData remoteData) {
-        return null;
+        throw new UnexpectedException("memory pool metric data did not need send to remote worker.");
     }
 
     @Override public RemoteData serialize(Object object) {
-        return null;
+        throw new UnexpectedException("memory pool metric data did not need send to remote worker.");
     }
 
     public static class MemoryPoolMetric implements Transform<MemoryPoolMetric> {
