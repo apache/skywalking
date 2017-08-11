@@ -34,6 +34,7 @@ var bap = [];
 var width = $("#traceStackDiv").width();
 var height = 36;
 var margin = 10;
+var positionMap = {};
 
 function buildNodes(data) {
     $.each(data, function (item) {
@@ -143,8 +144,6 @@ function displayData() {
             parentSpanSegId = nodes[key].parentSpanSegId,
             isRoot = nodes[key].isRoot;
 
-        // svgContainer.append("rect").attr("x", 0).attr("y", key * height).attr("width", "100%").attr("height", height).style("fill", color);
-
         var rectWith = ((duration * width) / (bap[1] * Math.pow(10, (bap[0] - 4)))) / 100;
         console.log("startTime: " + startTime + ", duration: " + duration);
         var beginX = ((startTime * width) / (bap[1] * Math.pow(10, (bap[0] - 4)))) / 100;
@@ -154,11 +153,16 @@ function displayData() {
             });
 
         var beginY = key * height;
+        positionMap[spanSegId] = {"x": beginX, "y": beginY};
+
         console.log("x: " + beginX + ",y: " + beginY + ",width: " + rectWith + ",id: " + spanSegId);
         bar.append("rect").attr("x", beginX).attr("y", beginY).attr("width", rectWith).attr("height", height - margin)
-            .attr("id", spanSegId).style("fill", colorMap[applicationCode])
+            .style("fill", colorMap[applicationCode]);
+
+        bar.append("rect").attr("spanSegId", spanSegId).attr("x", 0).attr("y", beginY).attr("width", width).attr("height", height - margin)
+            .style("opacity", "0")
             .on("click", function () {
-                showSpanModal(d3.select(this).attr("id"));
+                showSpanModal(d3.select(this).attr("spanSegId"));
             });
 
         bar.append("text")
@@ -168,9 +172,9 @@ function displayData() {
             .text(content);
 
         if (!isRoot) {
-            var parentSvg = d3.select("#" + parentSpanSegId);
-            var parentX = parentSvg.attr("x");
-            var parentY = parentSvg.attr("y");
+            console.log("parentSpanSegId: " + parentSpanSegId);
+            var parentX = positionMap[parentSpanSegId]["x"];
+            var parentY = positionMap[parentSpanSegId]["y"];
 
             var defs = svgContainer.append("defs");
             var arrowMarker = defs.append("marker")
