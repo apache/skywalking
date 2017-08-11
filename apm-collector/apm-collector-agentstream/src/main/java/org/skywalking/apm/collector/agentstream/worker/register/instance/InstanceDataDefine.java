@@ -1,6 +1,7 @@
 package org.skywalking.apm.collector.agentstream.worker.register.instance;
 
 import org.skywalking.apm.collector.remote.grpc.proto.RemoteData;
+import org.skywalking.apm.collector.storage.table.register.InstanceTable;
 import org.skywalking.apm.collector.stream.worker.impl.data.Attribute;
 import org.skywalking.apm.collector.stream.worker.impl.data.AttributeType;
 import org.skywalking.apm.collector.stream.worker.impl.data.DataDefine;

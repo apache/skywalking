@@ -1,6 +1,6 @@
-package org.skywalking.apm.collector.agentstream.worker.segment.cost.define;
+package org.skywalking.apm.collector.storage.table.segment;
 
-import org.skywalking.apm.collector.stream.worker.storage.CommonTable;
+import org.skywalking.apm.collector.storage.table.CommonTable;
 
 /**
  * @author pengys5

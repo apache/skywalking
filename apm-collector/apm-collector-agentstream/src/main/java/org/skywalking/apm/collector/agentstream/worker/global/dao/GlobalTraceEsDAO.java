@@ -4,8 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
-import org.skywalking.apm.collector.agentstream.worker.global.define.GlobalTraceTable;
+import org.skywalking.apm.collector.core.framework.UnexpectedException;
 import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
+import org.skywalking.apm.collector.storage.table.global.GlobalTraceTable;
 import org.skywalking.apm.collector.stream.worker.impl.dao.IPersistenceDAO;
 import org.skywalking.apm.collector.stream.worker.impl.data.Data;
 import org.skywalking.apm.collector.stream.worker.impl.data.DataDefine;
@@ -20,11 +21,11 @@ public class GlobalTraceEsDAO extends EsDAO implements IGlobalTraceDAO, IPersist
     private final Logger logger = LoggerFactory.getLogger(GlobalTraceEsDAO.class);
 
     @Override public Data get(String id, DataDefine dataDefine) {
-        return null;
+        throw new UnexpectedException("There is no need to merge stream data with database data.");
     }
 
     @Override public UpdateRequestBuilder prepareBatchUpdate(Data data) {
-        return null;
+        throw new UnexpectedException("There is no need to merge stream data with database data.");
     }
 
     @Override public IndexRequestBuilder prepareBatchInsert(Data data) {

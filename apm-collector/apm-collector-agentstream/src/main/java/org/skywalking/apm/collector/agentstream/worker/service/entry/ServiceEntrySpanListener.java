@@ -1,6 +1,6 @@
 package org.skywalking.apm.collector.agentstream.worker.service.entry;
 
-import org.skywalking.apm.collector.stream.worker.util.Const;
+import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.agentstream.worker.segment.EntrySpanListener;
 import org.skywalking.apm.collector.agentstream.worker.segment.FirstSpanListener;
 import org.skywalking.apm.collector.agentstream.worker.segment.RefsListener;

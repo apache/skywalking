@@ -7,8 +7,8 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
-import org.skywalking.apm.collector.agentstream.worker.global.define.GlobalTraceTable;
 import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
+import org.skywalking.apm.collector.storage.table.global.GlobalTraceTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

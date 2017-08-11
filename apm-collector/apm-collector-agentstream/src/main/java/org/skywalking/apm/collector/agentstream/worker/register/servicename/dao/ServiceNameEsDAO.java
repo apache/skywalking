@@ -11,7 +11,7 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.skywalking.apm.collector.agentstream.worker.register.servicename.ServiceNameDataDefine;
-import org.skywalking.apm.collector.agentstream.worker.register.servicename.ServiceNameTable;
+import org.skywalking.apm.collector.storage.table.register.ServiceNameTable;
 import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
 import org.slf4j.Logger;

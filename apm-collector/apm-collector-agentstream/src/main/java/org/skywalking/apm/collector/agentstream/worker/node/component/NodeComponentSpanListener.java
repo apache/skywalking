@@ -2,7 +2,7 @@ package org.skywalking.apm.collector.agentstream.worker.node.component;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.skywalking.apm.collector.stream.worker.util.Const;
+import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.agentstream.worker.node.component.define.NodeComponentDataDefine;
 import org.skywalking.apm.collector.agentstream.worker.segment.EntrySpanListener;
 import org.skywalking.apm.collector.agentstream.worker.segment.ExitSpanListener;

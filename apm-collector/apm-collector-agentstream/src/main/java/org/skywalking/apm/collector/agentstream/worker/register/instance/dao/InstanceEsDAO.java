@@ -13,7 +13,7 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.skywalking.apm.collector.agentstream.worker.register.instance.InstanceDataDefine;
-import org.skywalking.apm.collector.agentstream.worker.register.instance.InstanceTable;
+import org.skywalking.apm.collector.storage.table.register.InstanceTable;
 import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
 import org.slf4j.Logger;

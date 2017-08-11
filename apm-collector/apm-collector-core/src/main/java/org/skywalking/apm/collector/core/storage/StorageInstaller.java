@@ -23,11 +23,11 @@ public abstract class StorageInstaller {
                 if (!isExists(client, tableDefine)) {
                     logger.info("table: {} not exists", tableDefine.getName());
                     tableDefine.initialize();
+                    createTable(client, tableDefine);
                 } else {
                     logger.info("table: {} exists", tableDefine.getName());
-                    deleteTable(client, tableDefine);
+//                    deleteTable(client, tableDefine);
                 }
-                createTable(client, tableDefine);
             }
         } catch (DefineException e) {
             throw new StorageInstallException(e.getMessage(), e);
