@@ -1,8 +1,6 @@
 package org.skywalking.apm.agent.core.context.trace;
 
-import org.skywalking.apm.agent.core.dictionary.DictionaryManager;
 import org.skywalking.apm.agent.core.dictionary.DictionaryUtil;
-import org.skywalking.apm.agent.core.dictionary.PossibleFound;
 import org.skywalking.apm.network.trace.component.Component;
 
 /**
@@ -18,19 +16,16 @@ import org.skywalking.apm.network.trace.component.Component;
  *
  * @author wusheng
  */
-public class EntrySpan extends AbstractTracingSpan {
-    private int stackDepth;
+public class EntrySpan extends StackBasedTracingSpan {
     private int currentMaxDepth;
 
     public EntrySpan(int spanId, int parentSpanId, String operationName) {
         super(spanId, parentSpanId, operationName);
-        this.stackDepth = 0;
         this.currentMaxDepth = 0;
     }
 
     public EntrySpan(int spanId, int parentSpanId, int operationId) {
         super(spanId, parentSpanId, operationId);
-        this.stackDepth = 0;
         this.currentMaxDepth = 0;
     }
 
@@ -78,31 +73,6 @@ public class EntrySpan extends AbstractTracingSpan {
             return super.setComponent(componentName);
         } else {
             return this;
-        }
-    }
-
-    @Override
-    public boolean finish(TraceSegment owner) {
-        if (--stackDepth == 0) {
-            if (this.operationId == DictionaryUtil.nullValue()) {
-                this.operationId = (Integer)DictionaryManager.findOperationNameCodeSection()
-                    .findOrPrepare4Register(owner.getApplicationId(), operationName)
-                    .doInCondition(
-                        new PossibleFound.FoundAndObtain() {
-                            @Override public Object doProcess(int value) {
-                                return value;
-                            }
-                        },
-                        new PossibleFound.NotFoundAndObtain() {
-                            @Override public Object doProcess() {
-                                return DictionaryUtil.nullValue();
-                            }
-                        }
-                    );
-            }
-            return super.finish(owner);
-        } else {
-            return false;
         }
     }
 

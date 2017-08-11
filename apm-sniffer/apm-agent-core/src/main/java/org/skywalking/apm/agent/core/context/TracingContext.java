@@ -3,6 +3,7 @@ package org.skywalking.apm.agent.core.context;
 import java.util.LinkedList;
 import java.util.List;
 import org.skywalking.apm.agent.core.boot.ServiceManager;
+import org.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
 import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.skywalking.apm.agent.core.context.trace.EntrySpan;
@@ -290,19 +291,19 @@ public class TracingContext implements AbstractTracerContext {
                 .find(remotePeer).doInCondition(
                     new PossibleFound.FoundAndObtain() {
                         @Override
-                        public Object doProcess(final int applicationId) {
+                        public Object doProcess(final int peerId) {
                             return DictionaryManager.findOperationNameCodeSection()
-                                .findOrPrepare4Register(applicationId, operationName)
+                                .findOnly(RemoteDownstreamConfig.Agent.APPLICATION_ID, operationName)
                                 .doInCondition(
                                     new PossibleFound.FoundAndObtain() {
                                         @Override
                                         public Object doProcess(int operationId) {
-                                            return new ExitSpan(spanIdGenerator++, parentSpanId, operationId, applicationId);
+                                            return new ExitSpan(spanIdGenerator++, parentSpanId, operationId, peerId);
                                         }
                                     }, new PossibleFound.NotFoundAndObtain() {
                                         @Override
                                         public Object doProcess() {
-                                            return new ExitSpan(spanIdGenerator++, parentSpanId, operationName, remotePeer);
+                                            return new ExitSpan(spanIdGenerator++, parentSpanId, operationName, peerId);
                                         }
                                     });
                         }
@@ -310,7 +311,20 @@ public class TracingContext implements AbstractTracerContext {
                     new PossibleFound.NotFoundAndObtain() {
                         @Override
                         public Object doProcess() {
-                            return new ExitSpan(spanIdGenerator++, parentSpanId, operationName, remotePeer);
+                            return DictionaryManager.findOperationNameCodeSection()
+                                .findOnly(RemoteDownstreamConfig.Agent.APPLICATION_ID, operationName)
+                                .doInCondition(
+                                    new PossibleFound.FoundAndObtain() {
+                                        @Override
+                                        public Object doProcess(int operationId) {
+                                            return new ExitSpan(spanIdGenerator++, parentSpanId, operationId, remotePeer);
+                                        }
+                                    }, new PossibleFound.NotFoundAndObtain() {
+                                        @Override
+                                        public Object doProcess() {
+                                            return new ExitSpan(spanIdGenerator++, parentSpanId, operationName, remotePeer);
+                                        }
+                                    });
                         }
                     });
             push(exitSpan);
