@@ -16,7 +16,7 @@ import static net.bytebuddy.matcher.ElementMatchers.isInterface;
 import static net.bytebuddy.matcher.ElementMatchers.not;
 
 /**
- * The <code>PluginFinder</code> represents a finder , which assist to findOrPrepare4Register the one
+ * The <code>PluginFinder</code> represents a finder , which assist to find the one
  * from the given {@link AbstractClassEnhancePluginDefine} list.
  *
  * @author wusheng

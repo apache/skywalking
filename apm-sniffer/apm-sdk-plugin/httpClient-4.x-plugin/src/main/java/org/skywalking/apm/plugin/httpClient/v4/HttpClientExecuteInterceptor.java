@@ -1,5 +1,6 @@
 package org.skywalking.apm.plugin.httpClient.v4;
 
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import org.apache.http.HttpHost;
@@ -18,7 +19,7 @@ import org.skywalking.apm.network.trace.component.ComponentsDefine;
 
 public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterceptor {
 
-    @Override public void beforeMethod(EnhancedInstance objInst, String methodName, Object[] allArguments,
+    @Override public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         if (allArguments[0] == null || allArguments[1] == null) {
             // illegal args, can't trace. ignore.
@@ -44,7 +45,7 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
         httpRequest.setHeader(Config.Plugin.Propagation.HEADER_NAME, contextCarrier.serialize());
     }
 
-    @Override public Object afterMethod(EnhancedInstance objInst, String methodName, Object[] allArguments,
+    @Override public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Object ret) throws Throwable {
         if (allArguments[0] == null || allArguments[1] == null) {
             return ret;
@@ -62,7 +63,7 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, String methodName, Object[] allArguments,
+    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
         AbstractSpan activeSpan = ContextManager.activeSpan();
         activeSpan.errorOccurred();

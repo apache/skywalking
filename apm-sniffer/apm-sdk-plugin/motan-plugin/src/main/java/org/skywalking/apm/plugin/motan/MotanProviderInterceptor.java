@@ -2,6 +2,7 @@ package org.skywalking.apm.plugin.motan;
 
 import com.weibo.api.motan.rpc.Request;
 import com.weibo.api.motan.rpc.Response;
+import java.lang.reflect.Method;
 import org.skywalking.apm.agent.core.conf.Config;
 import org.skywalking.apm.agent.core.context.ContextCarrier;
 import org.skywalking.apm.agent.core.context.ContextManager;
@@ -23,7 +24,7 @@ import org.skywalking.apm.network.trace.component.ComponentsDefine;
  */
 public class MotanProviderInterceptor implements InstanceMethodsAroundInterceptor {
 
-    @Override public void beforeMethod(EnhancedInstance objInst, String methodName, Object[] allArguments,
+    @Override public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         Request request = (Request)allArguments[0];
         String serializedContextData = request.getAttachments().get(Config.Plugin.Propagation.HEADER_NAME);
@@ -33,7 +34,7 @@ public class MotanProviderInterceptor implements InstanceMethodsAroundIntercepto
         span.setComponent(ComponentsDefine.MOTAN);
     }
 
-    @Override public Object afterMethod(EnhancedInstance objInst, String methodName, Object[] allArguments,
+    @Override public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Object ret) throws Throwable {
         Response response = (Response)ret;
         if (response != null && response.getException() != null) {
@@ -46,7 +47,7 @@ public class MotanProviderInterceptor implements InstanceMethodsAroundIntercepto
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, String methodName, Object[] allArguments,
+    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
         AbstractSpan activeSpan = ContextManager.activeSpan();
         activeSpan.errorOccurred();

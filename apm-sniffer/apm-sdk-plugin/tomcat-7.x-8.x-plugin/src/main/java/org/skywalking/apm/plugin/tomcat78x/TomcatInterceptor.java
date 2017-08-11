@@ -1,5 +1,6 @@
 package org.skywalking.apm.plugin.tomcat78x;
 
+import java.lang.reflect.Method;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.skywalking.apm.agent.core.conf.Config;
@@ -26,13 +27,13 @@ public class TomcatInterceptor implements InstanceMethodsAroundInterceptor {
      * trace segment id of the previous level if the serialized context is not null.
      *
      * @param objInst
-     * @param methodName
+     * @param method
      * @param allArguments
      * @param argumentsTypes
      * @param result change this result, if you want to truncate the method.
      * @throws Throwable
      */
-    @Override public void beforeMethod(EnhancedInstance objInst, String methodName, Object[] allArguments,
+    @Override public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         HttpServletRequest request = (HttpServletRequest)allArguments[0];
         String tracingHeaderValue = request.getHeader(Config.Plugin.Propagation.HEADER_NAME);
@@ -45,7 +46,7 @@ public class TomcatInterceptor implements InstanceMethodsAroundInterceptor {
 
     }
 
-    @Override public Object afterMethod(EnhancedInstance objInst, String methodName, Object[] allArguments,
+    @Override public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Object ret) throws Throwable {
         HttpServletResponse response = (HttpServletResponse)allArguments[1];
 
@@ -58,7 +59,7 @@ public class TomcatInterceptor implements InstanceMethodsAroundInterceptor {
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, String methodName, Object[] allArguments,
+    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
         AbstractSpan span = ContextManager.activeSpan();
         span.log(t);

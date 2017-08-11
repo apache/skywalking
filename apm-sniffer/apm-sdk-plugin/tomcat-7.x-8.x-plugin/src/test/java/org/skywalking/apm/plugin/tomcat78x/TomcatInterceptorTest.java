@@ -71,8 +71,8 @@ public class TomcatInterceptorTest {
 
     @Test
     public void testWithoutSerializedContextData() throws Throwable {
-        tomcatInterceptor.beforeMethod(enhancedInstance, "invoke", arguments, argumentType, methodInterceptResult);
-        tomcatInterceptor.afterMethod(enhancedInstance, "invoke", arguments, argumentType, null);
+        tomcatInterceptor.beforeMethod(enhancedInstance, null, arguments, argumentType, methodInterceptResult);
+        tomcatInterceptor.afterMethod(enhancedInstance, null, arguments, argumentType, null);
 
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
@@ -84,8 +84,8 @@ public class TomcatInterceptorTest {
     public void testWithSerializedContextData() throws Throwable {
         when(request.getHeader(Config.Plugin.Propagation.HEADER_NAME)).thenReturn("#AQA*#AQA*4WcWe0tQNQA*|3|1|1|#192.168.1.8:18002|#/portal/|#/testEntrySpan|#AQA*#AQA*Et0We0tQNQA*");
 
-        tomcatInterceptor.beforeMethod(enhancedInstance, "invoke", arguments, argumentType, methodInterceptResult);
-        tomcatInterceptor.afterMethod(enhancedInstance, "invoke", arguments, argumentType, null);
+        tomcatInterceptor.beforeMethod(enhancedInstance, null, arguments, argumentType, methodInterceptResult);
+        tomcatInterceptor.afterMethod(enhancedInstance, null, arguments, argumentType, null);
 
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
@@ -97,9 +97,9 @@ public class TomcatInterceptorTest {
 
     @Test
     public void testWithOccurException() throws Throwable {
-        tomcatInterceptor.beforeMethod(enhancedInstance, "invoke", arguments, argumentType, methodInterceptResult);
-        tomcatInterceptor.handleMethodException(enhancedInstance, "invoke", arguments, argumentType, new RuntimeException());
-        tomcatInterceptor.afterMethod(enhancedInstance, "invoke", arguments, argumentType, null);
+        tomcatInterceptor.beforeMethod(enhancedInstance, null, arguments, argumentType, methodInterceptResult);
+        tomcatInterceptor.handleMethodException(enhancedInstance, null, arguments, argumentType, new RuntimeException());
+        tomcatInterceptor.afterMethod(enhancedInstance, null, arguments, argumentType, null);
 
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
