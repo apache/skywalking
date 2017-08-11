@@ -9,9 +9,11 @@ The web UI for [sky-walking APM](https://github.com/wu-sheng/sky-walking).
 
 This independent UI repository works since sky-walking 3.0.
 
-1. Topological graph of application cluster, inclusing tps of every application.
-1. Alarms.
-1. Trace query.
+1. Realtime Application Topological Graph
+1. Distributed Trace Query.
+1. Application Instances Overview.
+1. JVM Metric View of application instances.
+1. Realtime Service Topological Graph
 
 - Tested browsers
 
