@@ -37,7 +37,7 @@ function createTopTraceDataTable() {
         "columns": [
             {"data": "num"},
             {"data": "start_time"},
-            {"data": "operation_name"},
+            {"data": "service_name"},
             {"data": "is_error"},
             {"data": "cost"},
             {"data": "global_trace_id"}
