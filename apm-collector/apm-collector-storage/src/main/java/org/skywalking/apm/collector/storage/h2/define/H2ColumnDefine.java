@@ -12,6 +12,6 @@ public class H2ColumnDefine extends ColumnDefine {
     }
 
     public enum Type {
-        Boolean, Varchar, Int, Bigint, BINARY
+        Boolean, Varchar, Int, Bigint, BINARY, Double
     }
 }

@@ -1,6 +1,6 @@
 package org.skywalking.apm.collector.agentstream.worker.register.application;
 
-import org.skywalking.apm.collector.agentstream.worker.Const;
+import org.skywalking.apm.collector.stream.worker.util.Const;
 import org.skywalking.apm.collector.agentstream.worker.register.IdAutoIncrement;
 import org.skywalking.apm.collector.agentstream.worker.register.application.dao.IApplicationDAO;
 import org.skywalking.apm.collector.storage.dao.DAOContainer;

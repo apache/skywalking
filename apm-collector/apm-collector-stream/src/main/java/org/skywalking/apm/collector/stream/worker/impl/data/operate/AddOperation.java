@@ -15,7 +15,7 @@ public class AddOperation implements Operation {
         return newValue + oldValue;
     }
 
-    @Override public Float operate(Float newValue, Float oldValue) {
+    @Override public Double operate(Double newValue, Double oldValue) {
         return newValue + oldValue;
     }
 

@@ -11,6 +11,6 @@ public class ElasticSearchColumnDefine extends ColumnDefine {
     }
 
     public enum Type {
-        Binary, Boolean, Date, Keyword, Long, Integer
+        Binary, Boolean, Keyword, Long, Integer, Double
     }
 }
