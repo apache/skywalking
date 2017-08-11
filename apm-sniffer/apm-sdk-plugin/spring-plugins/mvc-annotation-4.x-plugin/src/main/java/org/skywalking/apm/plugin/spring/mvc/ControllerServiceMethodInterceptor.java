@@ -1,7 +1,6 @@
 package org.skywalking.apm.plugin.spring.mvc;
 
 import java.lang.reflect.Method;
-import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.skywalking.apm.agent.core.conf.Config;
@@ -18,16 +17,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+/**
+ * The <code>ControllerServiceMethodInterceptor</code> only use the first mapping value.
+ *
+ * @See {@link ControllerConstructorInterceptor} to explain why we are doing this.
+ */
 public class ControllerServiceMethodInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-        Map<Object, String> cacheRequestURL = (Map<Object, String>)objInst.getSkyWalkingDynamicField();
-        String requestURL = cacheRequestURL.get(method);
+        PathMappingCache pathMappingCache = (PathMappingCache)objInst.getSkyWalkingDynamicField();
+        String requestURL = pathMappingCache.findPathMapping(method);
         if (requestURL == null) {
-            requestURL = new String(cacheRequestURL.get("BASE_PATH"));
-            requestURL += method.getAnnotation(RequestMapping.class).value()[0];
-            cacheRequestURL.put(method, requestURL.toString());
+            requestURL = method.getAnnotation(RequestMapping.class).value()[0];
+            pathMappingCache.addPathMapping(method, requestURL.toString());
         }
 
         HttpServletRequest request = ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
