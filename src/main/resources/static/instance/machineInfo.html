@@ -1,0 +1,16 @@
+<div class="context-item">
+  <div class="col-lg-6 col-sm-4 info-key">OS Name:</div>
+  <div class="col-lg-6 col-sm-8 info-value">{{osName}}</div>
+</div>
+<div class="context-item">
+  <div class="col-lg-6 col-sm-4 info-key">Host Name:</div>
+  <div class="col-lg-6 col-sm-8 info-value">{{hostName}}</div>
+</div>
+<div class="context-item">
+  <div class="col-lg-6 col-sm-4 info-key">Process Id:</div>
+  <div class="col-lg-6 col-sm-8 info-value">{{processId}}</div>
+</div>
+<div class="context-item">
+  <div class="col-lg-6 col-sm-6 info-key">IPv4:</div>
+  <div v-for="(ipv4, index) in ipv4s" class="info-value" v-bind:class="[index == 0? 'col-lg-6':'col-lg-offset-6']" v-bind:id="index">{{ipv4}}</div>
+</div>
