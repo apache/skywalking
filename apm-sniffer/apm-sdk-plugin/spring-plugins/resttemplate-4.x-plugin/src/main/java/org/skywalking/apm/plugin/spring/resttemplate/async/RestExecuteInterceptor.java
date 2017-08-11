@@ -38,8 +38,10 @@ public class RestExecuteInterceptor implements InstanceMethodsAroundInterceptor 
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
         Object[] cacheValues = (Object[])objInst.getSkyWalkingDynamicField();
-        cacheValues[3] = ContextManager.capture();
-        ((EnhancedInstance)ret).setSkyWalkingDynamicField(cacheValues);
+        cacheValues[2] = ContextManager.capture();
+        if (ret != null) {
+            ((EnhancedInstance)ret).setSkyWalkingDynamicField(cacheValues);
+        }
         ContextManager.stopSpan();
         return ret;
     }

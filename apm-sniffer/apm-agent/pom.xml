@@ -82,12 +82,12 @@
         </dependency>
         <dependency>
             <groupId>org.skywalking</groupId>
-            <artifactId>apm-resttemplate-plugin</artifactId>
+            <artifactId>apm-resttemplate-4.3.x-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.skywalking</groupId>
-            <artifactId>apm-spring-concurrent-util-plugin</artifactId>
+            <artifactId>apm-spring-concurrent-util-4.x-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
 

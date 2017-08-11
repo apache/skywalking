@@ -7,17 +7,17 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>apm-spring-concurrent-util-4.3.x-plugin</artifactId>
+    <artifactId>apm-resttemplate-4.3.x-plugin</artifactId>
     <packaging>jar</packaging>
 
-    <name>concurrent-util-4.3.x-plugin</name>
+    <name>resttemplate-4.3.x-plugin</name>
     <url>http://maven.apache.org</url>
 
     <dependencies>
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring-core</artifactId>
-            <version>4.3.8.RELEASE</version>
+            <artifactId>spring-web</artifactId>
+            <version>4.3.10.RELEASE</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

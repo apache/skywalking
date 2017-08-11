@@ -1,3 +1,0 @@
-spring-resttemplate-4.3.8=org.skywalking.apm.plugin.spring.resttemplate.async.define.RestTemplateInstrumentation
-spring-resttemplate-4.3.8=org.skywalking.apm.plugin.spring.resttemplate.async.define.ResponseExtractorFutureInstrumentation
-spring-resttemplate-4.3.8=org.skywalking.apm.plugin.spring.resttemplate.sync.define.RestTemplateInstrumentation
