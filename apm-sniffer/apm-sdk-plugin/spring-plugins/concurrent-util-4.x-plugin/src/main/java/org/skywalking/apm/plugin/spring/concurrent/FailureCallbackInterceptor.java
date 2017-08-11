@@ -24,7 +24,7 @@ public class FailureCallbackInterceptor implements InstanceMethodsAroundIntercep
 
         URI uri = (URI)cacheValues[0];
         AbstractSpan span = ContextManager.createLocalSpan("future/failureCallback:" + uri.getPath());
-        span.errorOccurred().log((Throwable)allArguments[0]).setComponent(ComponentsDefine.REST_TEMPLATE).setLayer(SpanLayer.HTTP);
+        span.errorOccurred().log((Throwable)allArguments[0]).setComponent(ComponentsDefine.SPRING_REST_TEMPLATE).setLayer(SpanLayer.HTTP);
         Tags.URL.set(span, uri.getPath());
         ContextManager.continued((ContextSnapshot)cacheValues[2]);
     }
