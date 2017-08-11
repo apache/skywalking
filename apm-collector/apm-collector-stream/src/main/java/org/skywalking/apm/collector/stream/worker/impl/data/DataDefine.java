@@ -9,7 +9,7 @@ public abstract class DataDefine {
     private Attribute[] attributes;
     private int stringCapacity;
     private int longCapacity;
-    private int floatCapacity;
+    private int doubleCapacity;
     private int integerCapacity;
     private int booleanCapacity;
     private int byteCapacity;
@@ -26,8 +26,8 @@ public abstract class DataDefine {
                 stringCapacity++;
             } else if (AttributeType.LONG.equals(attribute.getType())) {
                 longCapacity++;
-            } else if (AttributeType.FLOAT.equals(attribute.getType())) {
-                floatCapacity++;
+            } else if (AttributeType.DOUBLE.equals(attribute.getType())) {
+                doubleCapacity++;
             } else if (AttributeType.INTEGER.equals(attribute.getType())) {
                 integerCapacity++;
             } else if (AttributeType.BOOLEAN.equals(attribute.getType())) {
@@ -47,13 +47,13 @@ public abstract class DataDefine {
     protected abstract void attributeDefine();
 
     public final Data build(String id) {
-        return new Data(id, stringCapacity, longCapacity, floatCapacity, integerCapacity, booleanCapacity, byteCapacity);
+        return new Data(id, stringCapacity, longCapacity, doubleCapacity, integerCapacity, booleanCapacity, byteCapacity);
     }
 
     public void mergeData(Data newData, Data oldData) {
         int stringPosition = 0;
         int longPosition = 0;
-        int floatPosition = 0;
+        int doublePosition = 0;
         int integerPosition = 0;
         int booleanPosition = 0;
         int bytePosition = 0;
@@ -65,9 +65,9 @@ public abstract class DataDefine {
             } else if (AttributeType.LONG.equals(attribute.getType())) {
                 attribute.getOperation().operate(newData.getDataLong(longPosition), oldData.getDataLong(longPosition));
                 longPosition++;
-            } else if (AttributeType.FLOAT.equals(attribute.getType())) {
-                attribute.getOperation().operate(newData.getDataFloat(floatPosition), oldData.getDataFloat(floatPosition));
-                floatPosition++;
+            } else if (AttributeType.DOUBLE.equals(attribute.getType())) {
+                attribute.getOperation().operate(newData.getDataDouble(doublePosition), oldData.getDataDouble(doublePosition));
+                doublePosition++;
             } else if (AttributeType.INTEGER.equals(attribute.getType())) {
                 attribute.getOperation().operate(newData.getDataInteger(integerPosition), oldData.getDataInteger(integerPosition));
                 integerPosition++;

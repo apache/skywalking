@@ -1,4 +1,4 @@
-package org.skywalking.apm.collector.agentstream.worker;
+package org.skywalking.apm.collector.stream.worker.storage;
 
 /**
  * @author pengys5

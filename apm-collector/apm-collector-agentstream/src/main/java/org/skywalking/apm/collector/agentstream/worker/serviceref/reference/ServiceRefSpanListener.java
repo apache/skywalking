@@ -2,7 +2,7 @@ package org.skywalking.apm.collector.agentstream.worker.serviceref.reference;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.skywalking.apm.collector.agentstream.worker.Const;
+import org.skywalking.apm.collector.stream.worker.util.Const;
 import org.skywalking.apm.collector.agentstream.worker.cache.InstanceCache;
 import org.skywalking.apm.collector.agentstream.worker.segment.EntrySpanListener;
 import org.skywalking.apm.collector.agentstream.worker.segment.ExitSpanListener;
@@ -10,7 +10,7 @@ import org.skywalking.apm.collector.agentstream.worker.segment.FirstSpanListener
 import org.skywalking.apm.collector.agentstream.worker.segment.RefsListener;
 import org.skywalking.apm.collector.agentstream.worker.serviceref.reference.define.ServiceRefDataDefine;
 import org.skywalking.apm.collector.agentstream.worker.util.ExchangeMarkUtils;
-import org.skywalking.apm.collector.agentstream.worker.util.TimeBucketUtils;
+import org.skywalking.apm.collector.stream.worker.util.TimeBucketUtils;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
 import org.skywalking.apm.collector.stream.StreamModuleContext;
 import org.skywalking.apm.collector.stream.StreamModuleGroupDefine;

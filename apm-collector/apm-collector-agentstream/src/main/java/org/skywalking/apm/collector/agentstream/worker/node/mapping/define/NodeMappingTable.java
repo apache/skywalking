@@ -1,6 +1,6 @@
 package org.skywalking.apm.collector.agentstream.worker.node.mapping.define;
 
-import org.skywalking.apm.collector.agentstream.worker.CommonTable;
+import org.skywalking.apm.collector.stream.worker.storage.CommonTable;
 
 /**
  * @author pengys5
