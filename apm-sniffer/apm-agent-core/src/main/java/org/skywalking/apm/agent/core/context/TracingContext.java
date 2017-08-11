@@ -290,19 +290,19 @@ public class TracingContext implements AbstractTracerContext {
                 .find(remotePeer).doInCondition(
                     new PossibleFound.FoundAndObtain() {
                         @Override
-                        public Object doProcess(final int applicationId) {
+                        public Object doProcess(final int peerId) {
                             return DictionaryManager.findOperationNameCodeSection()
-                                .findOrPrepare4Register(applicationId, operationName)
+                                .findOnly(segment.getApplicationId(), operationName)
                                 .doInCondition(
                                     new PossibleFound.FoundAndObtain() {
                                         @Override
                                         public Object doProcess(int operationId) {
-                                            return new ExitSpan(spanIdGenerator++, parentSpanId, operationId, applicationId);
+                                            return new ExitSpan(spanIdGenerator++, parentSpanId, operationId, peerId);
                                         }
                                     }, new PossibleFound.NotFoundAndObtain() {
                                         @Override
                                         public Object doProcess() {
-                                            return new ExitSpan(spanIdGenerator++, parentSpanId, operationName, remotePeer);
+                                            return new ExitSpan(spanIdGenerator++, parentSpanId, operationName, peerId);
                                         }
                                     });
                         }
@@ -310,7 +310,20 @@ public class TracingContext implements AbstractTracerContext {
                     new PossibleFound.NotFoundAndObtain() {
                         @Override
                         public Object doProcess() {
-                            return new ExitSpan(spanIdGenerator++, parentSpanId, operationName, remotePeer);
+                            return DictionaryManager.findOperationNameCodeSection()
+                                .findOnly(segment.getApplicationId(), operationName)
+                                .doInCondition(
+                                    new PossibleFound.FoundAndObtain() {
+                                        @Override
+                                        public Object doProcess(int operationId) {
+                                            return new ExitSpan(spanIdGenerator++, parentSpanId, operationId, remotePeer);
+                                        }
+                                    }, new PossibleFound.NotFoundAndObtain() {
+                                        @Override
+                                        public Object doProcess() {
+                                            return new ExitSpan(spanIdGenerator++, parentSpanId, operationName, remotePeer);
+                                        }
+                                    });
                         }
                     });
             push(exitSpan);

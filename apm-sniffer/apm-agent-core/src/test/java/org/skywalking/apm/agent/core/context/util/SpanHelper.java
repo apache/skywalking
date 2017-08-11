@@ -7,7 +7,7 @@ public class SpanHelper {
 
     public static SpanLayer getLayer(AbstractSpan tracingSpan) {
         try {
-            return FieldGetter.getParentFieldValue(tracingSpan, "layer");
+            return FieldGetter.get2LevelParentFieldValue(tracingSpan, "layer");
         } catch (Exception e) {
         }
 
@@ -16,7 +16,7 @@ public class SpanHelper {
 
     public static int getComponentId(AbstractSpan tracingSpan) {
         try {
-            return FieldGetter.getParentFieldValue(tracingSpan, "componentId");
+            return FieldGetter.get2LevelParentFieldValue(tracingSpan, "componentId");
         } catch (Exception e) {
         }
 
