@@ -1,4 +1,4 @@
-package org.skywalking.apm.collector.agentstream.util;
+package org.skywalking.apm.collector.stream.worker.util;
 
 import java.util.Calendar;
 import java.util.TimeZone;
@@ -29,6 +29,7 @@ public class TimeBucketUtilsTestCase {
 
     @Test
     public void testGetSecondTimeBucket() {
+        TimeZone.setDefault(TimeZone.getTimeZone("GMT+08:00"));
         long timeBucket = TimeBucketUtils.INSTANCE.getSecondTimeBucket(1490922929258L);
         Assert.assertEquals(20170331091529L, timeBucket);
     }
