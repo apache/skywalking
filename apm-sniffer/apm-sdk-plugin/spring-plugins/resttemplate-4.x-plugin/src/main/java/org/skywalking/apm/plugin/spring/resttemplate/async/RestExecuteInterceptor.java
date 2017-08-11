@@ -24,7 +24,7 @@ public class RestExecuteInterceptor implements InstanceMethodsAroundInterceptor 
         String remotePeer = requestURL.getHost() + ":" + requestURL.getPort();
         AbstractSpan span = ContextManager.createExitSpan(requestURL.getPath(), contextCarrier, remotePeer);
 
-        span.setComponent(ComponentsDefine.REST_TEMPLATE);
+        span.setComponent(ComponentsDefine.SPRING_REST_TEMPLATE);
         Tags.URL.set(span, requestURL.getScheme() + "://" + requestURL.getHost() + ":" + requestURL.getPort() + requestURL.getPath());
         Tags.HTTP.METHOD.set(span, httpMethod.toString());
         SpanLayer.asHttp(span);

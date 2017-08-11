@@ -90,6 +90,11 @@
             <artifactId>apm-spring-concurrent-util-4.x-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>apm-springmvc-annotation-4.x-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- activation -->
         <dependency>

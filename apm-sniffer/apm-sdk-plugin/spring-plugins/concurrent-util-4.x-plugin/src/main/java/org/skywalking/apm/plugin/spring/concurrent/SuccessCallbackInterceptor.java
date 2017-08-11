@@ -24,7 +24,7 @@ public class SuccessCallbackInterceptor implements InstanceMethodsAroundIntercep
 
         URI uri = (URI)cacheValues[0];
         AbstractSpan span = ContextManager.createLocalSpan("future/successCallback:" + uri.getPath());
-        span.setComponent(ComponentsDefine.REST_TEMPLATE).setLayer(SpanLayer.HTTP);
+        span.setComponent(ComponentsDefine.SPRING_REST_TEMPLATE).setLayer(SpanLayer.HTTP);
         Tags.URL.set(span, uri.getPath());
         ContextManager.continued((ContextSnapshot)cacheValues[2]);
     }
