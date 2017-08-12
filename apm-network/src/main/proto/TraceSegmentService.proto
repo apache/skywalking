@@ -72,10 +72,11 @@ enum SpanType {
 }
 
 enum SpanLayer {
-    Database = 0;
-    RPCFramework = 1;
-    Http = 2;
-    MQ = 3;
+    Unknown = 0;
+    Database = 1;
+    RPCFramework = 2;
+    Http = 3;
+    MQ = 4;
 }
 
 message LogMessage {
