@@ -3,7 +3,6 @@ package org.skywalking.apm.agent.core.context;
 import java.util.LinkedList;
 import java.util.List;
 import org.skywalking.apm.agent.core.boot.ServiceManager;
-import org.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
 import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.skywalking.apm.agent.core.context.trace.EntrySpan;
@@ -293,7 +292,7 @@ public class TracingContext implements AbstractTracerContext {
                         @Override
                         public Object doProcess(final int peerId) {
                             return DictionaryManager.findOperationNameCodeSection()
-                                .findOnly(RemoteDownstreamConfig.Agent.APPLICATION_ID, operationName)
+                                .findOnly(segment.getApplicationId(), operationName)
                                 .doInCondition(
                                     new PossibleFound.FoundAndObtain() {
                                         @Override
@@ -312,7 +311,7 @@ public class TracingContext implements AbstractTracerContext {
                         @Override
                         public Object doProcess() {
                             return DictionaryManager.findOperationNameCodeSection()
-                                .findOnly(RemoteDownstreamConfig.Agent.APPLICATION_ID, operationName)
+                                .findOnly(segment.getApplicationId(), operationName)
                                 .doInCondition(
                                     new PossibleFound.FoundAndObtain() {
                                         @Override

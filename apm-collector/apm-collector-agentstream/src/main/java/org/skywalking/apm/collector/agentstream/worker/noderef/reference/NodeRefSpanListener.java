@@ -2,7 +2,7 @@ package org.skywalking.apm.collector.agentstream.worker.noderef.reference;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.skywalking.apm.collector.stream.worker.util.Const;
+import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.agentstream.worker.cache.InstanceCache;
 import org.skywalking.apm.collector.agentstream.worker.noderef.reference.define.NodeRefDataDefine;
 import org.skywalking.apm.collector.agentstream.worker.segment.EntrySpanListener;

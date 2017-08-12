@@ -2,6 +2,7 @@ package org.skywalking.apm.collector.agentstream.worker.segment.cost.define;
 
 import org.skywalking.apm.collector.storage.h2.define.H2ColumnDefine;
 import org.skywalking.apm.collector.storage.h2.define.H2TableDefine;
+import org.skywalking.apm.collector.storage.table.segment.SegmentCostTable;
 
 /**
  * @author pengys5

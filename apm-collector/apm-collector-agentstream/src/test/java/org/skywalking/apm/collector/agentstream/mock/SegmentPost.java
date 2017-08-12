@@ -3,6 +3,8 @@ package org.skywalking.apm.collector.agentstream.mock;
 import com.google.gson.JsonElement;
 import java.io.IOException;
 import org.skywalking.apm.collector.agentstream.HttpClientTools;
+import org.skywalking.apm.collector.agentstream.worker.register.application.ApplicationDataDefine;
+import org.skywalking.apm.collector.agentstream.worker.register.application.dao.ApplicationEsDAO;
 import org.skywalking.apm.collector.agentstream.worker.register.instance.InstanceDataDefine;
 import org.skywalking.apm.collector.agentstream.worker.register.instance.dao.InstanceEsDAO;
 import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
@@ -24,6 +26,14 @@ public class SegmentPost {
         instanceEsDAO.save(consumerInstance);
         InstanceDataDefine.Instance providerInstance = new InstanceDataDefine.Instance("3", 3, "dubbox-provider", 1501858094526L, 3);
         instanceEsDAO.save(providerInstance);
+
+        ApplicationEsDAO applicationEsDAO = new ApplicationEsDAO();
+        applicationEsDAO.setClient(client);
+
+        ApplicationDataDefine.Application consumerApplication = new ApplicationDataDefine.Application("2", "dubbox-consumer", 2);
+        applicationEsDAO.save(consumerApplication);
+        ApplicationDataDefine.Application providerApplication = new ApplicationDataDefine.Application("3", "dubbox-provider", 3);
+        applicationEsDAO.save(providerApplication);
 
         JsonElement consumer = JsonFileReader.INSTANCE.read("json/segment/normal/dubbox-consumer.json");
         HttpClientTools.INSTANCE.post("http://localhost:12800/segments", consumer.toString());

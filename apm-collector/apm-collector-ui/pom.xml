@@ -33,10 +33,5 @@
             <artifactId>apm-collector-storage</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.skywalking</groupId>
-            <artifactId>apm-collector-agentstream</artifactId>
-            <version>${project.version}</version>
-        </dependency>
     </dependencies>
 </project>

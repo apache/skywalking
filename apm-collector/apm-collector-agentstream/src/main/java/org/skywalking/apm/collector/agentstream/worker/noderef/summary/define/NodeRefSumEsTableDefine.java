@@ -2,6 +2,7 @@ package org.skywalking.apm.collector.agentstream.worker.noderef.summary.define;
 
 import org.skywalking.apm.collector.storage.elasticsearch.define.ElasticSearchColumnDefine;
 import org.skywalking.apm.collector.storage.elasticsearch.define.ElasticSearchTableDefine;
+import org.skywalking.apm.collector.storage.table.noderef.NodeRefSumTable;
 
 /**
  * @author pengys5

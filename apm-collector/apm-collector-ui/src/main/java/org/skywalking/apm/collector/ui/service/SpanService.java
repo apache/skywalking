@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import java.util.List;
 import org.skywalking.apm.collector.storage.dao.DAOContainer;
+import org.skywalking.apm.collector.ui.cache.ServiceNameCache;
 import org.skywalking.apm.collector.ui.dao.ISegmentDAO;
 import org.skywalking.apm.network.proto.KeyWithStringValue;
 import org.skywalking.apm.network.proto.LogMessage;
@@ -23,7 +24,11 @@ public class SpanService {
         List<SpanObject> spans = segmentObject.getSpansList();
         for (SpanObject spanObject : spans) {
             if (spanId == spanObject.getSpanId()) {
-                spanJson.addProperty("operationName", spanObject.getOperationName());
+                String operationName = spanObject.getOperationName();
+                if (spanObject.getOperationNameId() != 0) {
+                    operationName = ServiceNameCache.get(spanObject.getOperationNameId());
+                }
+                spanJson.addProperty("operationName", operationName);
                 spanJson.addProperty("startTime", spanObject.getStartTime());
                 spanJson.addProperty("endTime", spanObject.getEndTime());
 
