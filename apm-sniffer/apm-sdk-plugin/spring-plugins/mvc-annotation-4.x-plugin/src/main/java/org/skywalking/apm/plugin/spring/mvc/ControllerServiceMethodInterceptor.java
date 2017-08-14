@@ -29,8 +29,13 @@ public class ControllerServiceMethodInterceptor implements InstanceMethodsAround
         PathMappingCache pathMappingCache = (PathMappingCache)objInst.getSkyWalkingDynamicField();
         String requestURL = pathMappingCache.findPathMapping(method);
         if (requestURL == null) {
-            requestURL = method.getAnnotation(RequestMapping.class).value()[0];
-            pathMappingCache.addPathMapping(method, requestURL.toString());
+            RequestMapping methodRequestMapping = method.getAnnotation(RequestMapping.class);
+            if (methodRequestMapping.value().length > 0) {
+                requestURL = methodRequestMapping.value()[0];
+            } else {
+                requestURL = "";
+            }
+            pathMappingCache.addPathMapping(method, requestURL);
         }
 
         HttpServletRequest request = ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
