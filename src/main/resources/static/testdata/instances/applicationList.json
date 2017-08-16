@@ -1,16 +1,30 @@
-[{
-  "ac": "Account application",
-  "ic": 5
-}, {
-  "ac": "Biling application",
-  "ic": 2
-}, {
-  "ac": "Commons application",
-  "ic": 1
-}, {
-  "ac": "Order application",
-  "ic": 12
-}, {
-  "ac": "Test application",
-  "ic": 1
-}]
+{
+  "timestamp": 1501644605,
+  "applicationList": [
+    {
+      "applicationName": "Account application",
+      "applicationId": 1,
+      "instanceCount": 5
+    },
+    {
+      "applicationName": "Biling application",
+      "applicationId": 2,
+      "instanceCount": 2
+    },
+    {
+      "applicationName": "Commons application",
+      "applicationId": 3,
+      "instanceCount": 1
+    },
+    {
+      "applicationName": "Order application",
+      "applicationId": 4,
+      "instanceCount": 12
+    },
+    {
+      "applicationName": "Test application",
+      "applicationId": 5,
+      "instanceCount": 1
+    }
+  ]
+}

@@ -14,7 +14,7 @@ define(['jquery', 'vue', 'text!applicationListHtml'], function($, Vue, segmentHt
 
   function loadApplications() {
     $.getJSON("/testData/instances/applicationList.json", function(data) {
-      apps.applist = data;
+      apps.applist = data.applicationList;
       draw();
     });
   }
