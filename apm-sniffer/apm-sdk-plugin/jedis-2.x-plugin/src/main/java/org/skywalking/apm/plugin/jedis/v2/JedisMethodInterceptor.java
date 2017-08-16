@@ -1,7 +1,6 @@
 package org.skywalking.apm.plugin.jedis.v2;
 
 import java.lang.reflect.Method;
-import org.skywalking.apm.agent.core.context.ContextCarrier;
 import org.skywalking.apm.agent.core.context.ContextManager;
 import org.skywalking.apm.agent.core.context.tag.Tags;
 import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
@@ -16,7 +15,7 @@ public class JedisMethodInterceptor implements InstanceMethodsAroundInterceptor 
     @Override public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         String peer = String.valueOf(objInst.getSkyWalkingDynamicField());
-        AbstractSpan span = ContextManager.createExitSpan("Jedis/" + method.getName(), new ContextCarrier(), peer);
+        AbstractSpan span = ContextManager.createExitSpan("Jedis/" + method.getName(), peer);
         span.setComponent(ComponentsDefine.REDIS);
         Tags.DB_TYPE.set(span, "Redis");
         SpanLayer.asDB(span);
