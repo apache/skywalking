@@ -1,6 +1,5 @@
 package org.skywalking.apm.toolkit.activation.opentracing.span;
 
-import org.skywalking.apm.agent.core.context.ContextCarrier;
 import org.skywalking.apm.agent.core.context.ContextManager;
 import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;

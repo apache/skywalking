@@ -1,7 +1,6 @@
 package org.skywalking.apm.plugin.jedis.v2;
 
 import java.lang.reflect.Method;
-import org.skywalking.apm.agent.core.context.ContextCarrier;
 import org.skywalking.apm.agent.core.context.ContextManager;
 import org.skywalking.apm.agent.core.context.tag.Tags;
 import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
