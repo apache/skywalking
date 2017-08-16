@@ -108,6 +108,12 @@ public class ContextManager implements TracingContextListener, BootService, Igno
         return span;
     }
 
+    public static AbstractSpan createExitSpan(String operationName, String remotePeer) {
+        AbstractTracerContext context = getOrCreate(operationName, false);
+        AbstractSpan span = context.createExitSpan(operationName, remotePeer);
+        return span;
+    }
+
     public static void inject(ContextCarrier carrier) {
         get().inject(carrier);
     }

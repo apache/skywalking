@@ -20,7 +20,7 @@ public class CallableStatementTracing {
             } else {
                 remotePeer = connectInfo.getHost() + ":" + connectInfo.getPort();
             }
-            AbstractSpan span = ContextManager.createExitSpan(connectInfo.getDBType() + "/JDBI/CallableStatement/" + method, new ContextCarrier(), remotePeer);
+            AbstractSpan span = ContextManager.createExitSpan(connectInfo.getDBType() + "/JDBI/CallableStatement/" + method, remotePeer);
             Tags.DB_TYPE.set(span, "sql");
             SpanLayer.asDB(span);
             Tags.DB_INSTANCE.set(span, connectInfo.getDatabaseName());

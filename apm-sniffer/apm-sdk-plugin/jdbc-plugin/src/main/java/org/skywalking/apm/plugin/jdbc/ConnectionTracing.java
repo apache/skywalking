@@ -20,7 +20,7 @@ public class ConnectionTracing {
             } else {
                 remotePeer = connectInfo.getHost() + ":" + connectInfo.getPort();
             }
-            AbstractSpan span = ContextManager.createExitSpan(connectInfo.getDBType() + "/JDBI/Connection/" + method, new ContextCarrier(), remotePeer);
+            AbstractSpan span = ContextManager.createExitSpan(connectInfo.getDBType() + "/JDBI/Connection/" + method, remotePeer);
             Tags.DB_TYPE.set(span, "sql");
             Tags.DB_INSTANCE.set(span, connectInfo.getDatabaseName());
             Tags.DB_STATEMENT.set(span, sql);
