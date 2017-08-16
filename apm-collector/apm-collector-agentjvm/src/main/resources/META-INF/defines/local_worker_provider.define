@@ -2,3 +2,4 @@ org.skywalking.apm.collector.agentjvm.worker.cpu.CpuMetricPersistenceWorker$Fact
 org.skywalking.apm.collector.agentjvm.worker.memory.MemoryMetricPersistenceWorker$Factory
 org.skywalking.apm.collector.agentjvm.worker.memorypool.MemoryPoolMetricPersistenceWorker$Factory
 org.skywalking.apm.collector.agentjvm.worker.gc.GCMetricPersistenceWorker$Factory
+org.skywalking.apm.collector.agentjvm.worker.heartbeat.InstHeartBeatPersistenceWorker$Factory
