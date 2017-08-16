@@ -14,6 +14,7 @@ Sky Walking | [中文](https://github.com/wu-sheng/sky-walking/wiki/sky-walking-
 
 
 * Auto instrumentation by javaagent, **no need to CHANGE any application source code**. 
+  * High performance agent. Only cost 12% (Total:400%) cpu in 4000 tps application.
   * [Supported middlewares, frameworks and libraries](https://github.com/wu-sheng/sky-walking/wiki/3.0-supported-list).
 * Manual instrumentation
   * As an [OpenTracing supported tracer](http://opentracing.io/documentation/pages/supported-tracers)
@@ -54,7 +55,7 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 - Automatic integration test reports
   - [Java Agent test report](https://github.com/sky-walking/agent-integration-test-report)
 - Performance test reports
-  - [Java Agent test report]()
+  - [Java Agent test report](https://github.com/sky-walking/Agent-Benchmarks#benchmarks)
 
 # Document
 * [WIKI](https://github.com/wu-sheng/sky-walking/wiki)
