@@ -55,7 +55,7 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 - Automatic integration test reports
   - [Java Agent test report](https://github.com/sky-walking/agent-integration-test-report)
 - Performance test reports
-  - [Java Agent test report](https://github.com/sky-walking/Agent-Benchmarks#benchmarks)
+  - [Java Agent test report](https://sky-walking.github.io/Agent-Benchmarks/)
 
 # Document
 * [WIKI](https://github.com/wu-sheng/sky-walking/wiki)
