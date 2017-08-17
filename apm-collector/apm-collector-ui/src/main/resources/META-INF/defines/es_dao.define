@@ -8,3 +8,5 @@ org.skywalking.apm.collector.ui.dao.SegmentEsDAO
 org.skywalking.apm.collector.ui.dao.ApplicationEsDAO
 org.skywalking.apm.collector.ui.dao.ServiceNameEsDAO
 org.skywalking.apm.collector.ui.dao.InstanceEsDAO
+org.skywalking.apm.collector.ui.dao.InstPerformanceEsDAO
+org.skywalking.apm.collector.ui.dao.GCMetricEsDAO

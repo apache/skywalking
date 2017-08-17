@@ -2,6 +2,7 @@ package org.skywalking.apm.collector.agentjvm.worker.memory.define;
 
 import org.skywalking.apm.collector.core.framework.UnexpectedException;
 import org.skywalking.apm.collector.remote.grpc.proto.RemoteData;
+import org.skywalking.apm.collector.storage.table.jvm.MemoryMetricTable;
 import org.skywalking.apm.collector.stream.worker.impl.data.Attribute;
 import org.skywalking.apm.collector.stream.worker.impl.data.AttributeType;
 import org.skywalking.apm.collector.stream.worker.impl.data.Data;

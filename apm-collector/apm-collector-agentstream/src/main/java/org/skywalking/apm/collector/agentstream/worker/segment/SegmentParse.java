@@ -3,6 +3,7 @@ package org.skywalking.apm.collector.agentstream.worker.segment;
 import java.util.ArrayList;
 import java.util.List;
 import org.skywalking.apm.collector.agentstream.worker.global.GlobalTraceSpanListener;
+import org.skywalking.apm.collector.agentstream.worker.instance.performance.InstPerformanceSpanListener;
 import org.skywalking.apm.collector.agentstream.worker.node.component.NodeComponentSpanListener;
 import org.skywalking.apm.collector.agentstream.worker.node.mapping.NodeMappingSpanListener;
 import org.skywalking.apm.collector.agentstream.worker.noderef.reference.NodeRefSpanListener;
@@ -45,6 +46,7 @@ public class SegmentParse {
         spanListeners.add(new GlobalTraceSpanListener());
         spanListeners.add(new ServiceEntrySpanListener());
         spanListeners.add(new ServiceRefSpanListener());
+        spanListeners.add(new InstPerformanceSpanListener());
     }
 
     public void parse(List<UniqueId> traceIds, TraceSegmentObject segmentObject) {

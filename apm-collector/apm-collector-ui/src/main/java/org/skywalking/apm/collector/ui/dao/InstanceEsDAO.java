@@ -1,5 +1,7 @@
 package org.skywalking.apm.collector.ui.dao;
 
+import java.util.LinkedList;
+import java.util.List;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
@@ -9,10 +11,11 @@ import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortMode;
 import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
-import org.skywalking.apm.collector.storage.table.node.NodeComponentTable;
 import org.skywalking.apm.collector.storage.table.register.InstanceTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +45,7 @@ public class InstanceEsDAO extends EsDAO implements IInstanceDAO {
 
     private Long heartBeatTime(AbstractQueryBuilder queryBuilder) {
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(InstanceTable.TABLE);
-        searchRequestBuilder.setTypes(NodeComponentTable.TABLE_TYPE);
+        searchRequestBuilder.setTypes(InstanceTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
         searchRequestBuilder.setQuery(queryBuilder);
         searchRequestBuilder.setSize(1);
@@ -59,5 +62,28 @@ public class InstanceEsDAO extends EsDAO implements IInstanceDAO {
             heartBeatTime = heartBeatTime - 5;
         }
         return heartBeatTime;
+    }
+
+    @Override public List<Application> getApplications(long time) {
+        SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(InstanceTable.TABLE);
+        searchRequestBuilder.setTypes(InstanceTable.TABLE_TYPE);
+        searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
+
+        RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery(InstanceTable.COLUMN_HEARTBEAT_TIME).gt(time);
+
+        searchRequestBuilder.setQuery(rangeQueryBuilder);
+        searchRequestBuilder.setSize(0);
+        searchRequestBuilder.addAggregation(AggregationBuilders.terms(InstanceTable.COLUMN_APPLICATION_ID).field(InstanceTable.COLUMN_APPLICATION_ID).size(100));
+
+        SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
+        Terms genders = searchResponse.getAggregations().get(InstanceTable.COLUMN_APPLICATION_ID);
+
+        List<Application> applications = new LinkedList<>();
+        for (Terms.Bucket entry : genders.getBuckets()) {
+            Integer applicationId = entry.getKeyAsNumber().intValue();
+            long instanceCount = entry.getDocCount();
+            applications.add(new Application(applicationId, instanceCount));
+        }
+        return applications;
     }
 }

@@ -1,4 +1,4 @@
-package org.skywalking.apm.collector.agentjvm.worker.cpu.define;
+package org.skywalking.apm.collector.storage.table.jvm;
 
 import org.skywalking.apm.collector.storage.table.CommonTable;
 
