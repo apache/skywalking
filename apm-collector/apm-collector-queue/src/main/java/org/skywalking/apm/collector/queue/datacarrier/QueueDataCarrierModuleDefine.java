@@ -2,18 +2,20 @@ package org.skywalking.apm.collector.queue.datacarrier;
 
 import java.util.Map;
 import org.skywalking.apm.collector.core.client.ClientException;
+import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
 import org.skywalking.apm.collector.core.framework.DefineException;
-import org.skywalking.apm.collector.core.module.ModuleGroup;
-import org.skywalking.apm.collector.core.queue.QueueModuleContext;
-import org.skywalking.apm.collector.core.queue.QueueModuleDefine;
+import org.skywalking.apm.collector.core.server.ServerHolder;
+import org.skywalking.apm.collector.queue.QueueModuleContext;
+import org.skywalking.apm.collector.queue.QueueModuleDefine;
+import org.skywalking.apm.collector.queue.QueueModuleGroupDefine;
 
 /**
  * @author pengys5
  */
 public class QueueDataCarrierModuleDefine extends QueueModuleDefine {
 
-    @Override protected ModuleGroup group() {
-        return ModuleGroup.Queue;
+    @Override protected String group() {
+        return QueueModuleGroupDefine.GROUP_NAME;
     }
 
     @Override public String name() {
@@ -21,10 +23,11 @@ public class QueueDataCarrierModuleDefine extends QueueModuleDefine {
     }
 
     @Override public boolean defaultModule() {
-        return true;
+        return false;
     }
 
-    @Override public final void initialize(Map config) throws DefineException, ClientException {
-        QueueModuleContext.CREATOR = new DataCarrierCreator();
+    @Override
+    public final void initialize(Map config, ServerHolder serverHolder) throws DefineException, ClientException {
+        ((QueueModuleContext)CollectorContextHelper.INSTANCE.getContext(group())).setQueueCreator(new DataCarrierQueueCreator());
     }
 }

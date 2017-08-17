@@ -16,4 +16,12 @@ public class FieldGetter {
         field.setAccessible(true);
         return (T)field.get(instance);
     }
+
+
+    public static <T> T get2LevelParentFieldValue(Object instance,
+        String fieldName) throws IllegalAccessException, NoSuchFieldException {
+        Field field = instance.getClass().getSuperclass().getSuperclass().getDeclaredField(fieldName);
+        field.setAccessible(true);
+        return (T)field.get(instance);
+    }
 }

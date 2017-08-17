@@ -1,13 +1,10 @@
 cluster:
-#  zookeeper:
-#    hostPort: localhost:2181
-#    sessionTimeout: 1000
+  zookeeper:
+    hostPort: localhost:2181
+    sessionTimeout: 100000
 #  redis:
 #    host: localhost
 #    port: 6379
-queue:
-  disruptor: on
-  data_carrier: off
 agentstream:
   grpc:
     host: localhost
@@ -23,4 +20,11 @@ ui:
   jetty:
     host: localhost
     port: 12800
+    context_path: /
+storage:
+  elasticsearch:
+    cluster_name: CollectorDBCluster
+    cluster_transport_sniffer: true
+    cluster_nodes: 127.0.0.1:9300
+
 

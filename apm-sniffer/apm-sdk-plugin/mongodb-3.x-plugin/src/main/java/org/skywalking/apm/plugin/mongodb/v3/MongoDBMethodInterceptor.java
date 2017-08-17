@@ -27,6 +27,7 @@ import com.mongodb.operation.MixedBulkWriteOperation;
 import com.mongodb.operation.ReadOperation;
 import com.mongodb.operation.UpdateOperation;
 import com.mongodb.operation.WriteOperation;
+import java.lang.reflect.Method;
 import java.util.List;
 import org.bson.BsonDocument;
 import org.skywalking.apm.agent.core.conf.Config;
@@ -52,7 +53,7 @@ public class MongoDBMethodInterceptor implements InstanceMethodsAroundIntercepto
 
     private static final String DB_TYPE = "MongoDB";
 
-    private static final String METHOD = "MongoDB/";
+    private static final String MONGO_DB_OP_PREFIX = "MongoDB/";
 
     private static final int FILTER_LENGTH_LIMIT = 256;
 
@@ -147,13 +148,13 @@ public class MongoDBMethodInterceptor implements InstanceMethodsAroundIntercepto
         }
     }
 
-    @Override public void beforeMethod(EnhancedInstance objInst, String methodName, Object[] allArguments,
+    @Override public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         Object[] arguments = allArguments;
 
         String executeMethod = arguments[0].getClass().getSimpleName();
         String remotePeer = (String)objInst.getSkyWalkingDynamicField();
-        AbstractSpan span = ContextManager.createExitSpan(METHOD + methodName, new ContextCarrier(), remotePeer);
+        AbstractSpan span = ContextManager.createExitSpan(MONGO_DB_OP_PREFIX + method.getName(), new ContextCarrier(), remotePeer);
         span.setComponent(ComponentsDefine.MONGODB);
         Tags.DB_TYPE.set(span, DB_TYPE);
         SpanLayer.asDB(span);
@@ -164,13 +165,13 @@ public class MongoDBMethodInterceptor implements InstanceMethodsAroundIntercepto
 
     }
 
-    @Override public Object afterMethod(EnhancedInstance objInst, String methodName, Object[] allArguments,
+    @Override public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Object ret) throws Throwable {
         ContextManager.stopSpan();
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, String methodName, Object[] allArguments,
+    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
         AbstractSpan activeSpan = ContextManager.activeSpan();
         activeSpan.errorOccurred();

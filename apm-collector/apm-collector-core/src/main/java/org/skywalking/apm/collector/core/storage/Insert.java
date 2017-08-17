@@ -1,8 +1,0 @@
-package org.skywalking.apm.collector.core.storage;
-
-/**
- * @author pengys5
- */
-public abstract class Insert {
-
-}

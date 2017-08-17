@@ -1,0 +1,16 @@
+org.skywalking.apm.collector.agentstream.worker.register.application.dao.ApplicationH2DAO
+org.skywalking.apm.collector.agentstream.worker.register.instance.dao.InstanceH2DAO
+org.skywalking.apm.collector.agentstream.worker.register.servicename.dao.ServiceNameH2DAO
+org.skywalking.apm.collector.agentstream.worker.node.component.dao.NodeComponentH2DAO
+org.skywalking.apm.collector.agentstream.worker.node.mapping.dao.NodeMappingH2DAO
+org.skywalking.apm.collector.agentstream.worker.noderef.reference.dao.NodeReferenceH2DAO
+org.skywalking.apm.collector.agentstream.worker.segment.origin.dao.SegmentH2DAO
+org.skywalking.apm.collector.agentstream.worker.noderef.summary.dao.NodeRefSumH2DAO
+org.skywalking.apm.collector.agentstream.worker.segment.cost.dao.SegmentCostH2DAO
+org.skywalking.apm.collector.agentstream.worker.global.dao.GlobalTraceH2DAO
+org.skywalking.apm.collector.agentstream.worker.service.entry.dao.ServiceEntryH2DAO
+org.skywalking.apm.collector.agentstream.worker.serviceref.reference.dao.ServiceRefH2DAO
+org.skywalking.apm.collector.agentjvm.worker.cpu.dao.CpuMetricH2DAO
+org.skywalking.apm.collector.agentjvm.worker.memory.dao.MemoryMetricH2DAO
+org.skywalking.apm.collector.agentjvm.worker.memorypool.dao.MemoryPoolMetricH2DAO
+org.skywalking.apm.collector.agentjvm.worker.gc.dao.GCMetricH2DAO

@@ -12,7 +12,7 @@ service JVMMetricsService {
 
 message JVMMetrics {
     repeated JVMMetric metrics = 1;
-    int64 applicationInstanceId = 2;
+    int32 applicationInstanceId = 2;
 }
 
 message JVMMetric {

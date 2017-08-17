@@ -1,6 +1,5 @@
 package org.skywalking.apm.toolkit.activation.opentracing.span;
 
-import org.skywalking.apm.agent.core.context.ContextCarrier;
 import org.skywalking.apm.agent.core.context.ContextManager;
 import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
@@ -19,8 +18,7 @@ public class ConstructorWithSpanBuilderInterceptor implements InstanceConstructo
         if (spanBuilder.isEntry()) {
             span = ContextManager.createEntrySpan(spanBuilder.getOperationName(), null);
         } else if (spanBuilder.isExit() && (!StringUtil.isEmpty(spanBuilder.getPeer()))) {
-            span = ContextManager.createExitSpan(spanBuilder.getOperationName(),
-                new ContextCarrier(), buildRemotePeer(spanBuilder));
+            span = ContextManager.createExitSpan(spanBuilder.getOperationName(), buildRemotePeer(spanBuilder));
         } else {
             span = ContextManager.createLocalSpan(spanBuilder.getOperationName());
         }

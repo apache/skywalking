@@ -3,6 +3,7 @@ package org.skywalking.apm.plugin.motan;
 import com.weibo.api.motan.rpc.Request;
 import com.weibo.api.motan.rpc.Response;
 import com.weibo.api.motan.rpc.URL;
+import java.lang.reflect.Method;
 import org.skywalking.apm.agent.core.conf.Config;
 import org.skywalking.apm.agent.core.context.ContextCarrier;
 import org.skywalking.apm.agent.core.context.ContextManager;
@@ -29,7 +30,7 @@ public class MotanConsumerInterceptor implements InstanceConstructorInterceptor,
     }
 
     @Override
-    public void beforeMethod(EnhancedInstance objInst, String methodName, Object[] allArguments,
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
 
         URL url = (URL)objInst.getSkyWalkingDynamicField();
@@ -45,7 +46,7 @@ public class MotanConsumerInterceptor implements InstanceConstructorInterceptor,
         }
     }
 
-    @Override public Object afterMethod(EnhancedInstance objInst, String methodName, Object[] allArguments,
+    @Override public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Object ret) throws Throwable {
         Response response = (Response)ret;
         if (response != null && response.getException() != null) {
@@ -57,7 +58,7 @@ public class MotanConsumerInterceptor implements InstanceConstructorInterceptor,
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, String methodName, Object[] allArguments,
+    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
         AbstractSpan span = ContextManager.activeSpan();
         span.errorOccurred();

@@ -16,7 +16,7 @@ public class Config {
     public static class Agent {
         /**
          * Application code is showed in sky-walking-ui.
-         * Suggestion: set a unique name for each application, one application's nodes share the same code.
+         * Suggestion: set an unique name for each application, one application's nodes share the same code.
          */
         public static String APPLICATION_CODE = "";
 

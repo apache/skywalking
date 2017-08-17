@@ -17,30 +17,32 @@ import org.skywalking.apm.network.trace.component.Component;
  *
  * @author wusheng
  */
-public class ExitSpan extends AbstractTracingSpan {
-    private int stackDepth;
+public class ExitSpan extends StackBasedTracingSpan {
     private String peer;
     private int peerId;
 
     public ExitSpan(int spanId, int parentSpanId, String operationName, String peer) {
         super(spanId, parentSpanId, operationName);
-        this.stackDepth = 0;
         this.peer = peer;
         this.peerId = DictionaryUtil.nullValue();
     }
 
     public ExitSpan(int spanId, int parentSpanId, int operationId, int peerId) {
         super(spanId, parentSpanId, operationId);
-        this.stackDepth = 0;
         this.peer = null;
         this.peerId = peerId;
     }
 
     public ExitSpan(int spanId, int parentSpanId, int operationId, String peer) {
         super(spanId, parentSpanId, operationId);
-        this.stackDepth = 0;
         this.peer = peer;
         this.peerId = DictionaryUtil.nullValue();
+    }
+
+    public ExitSpan(int spanId, int parentSpanId, String operationName, int peerId) {
+        super(spanId, parentSpanId, operationName);
+        this.peer = null;
+        this.peerId = peerId;
     }
 
     /**
@@ -60,15 +62,6 @@ public class ExitSpan extends AbstractTracingSpan {
             super.tag(key, value);
         }
         return this;
-    }
-
-    @Override
-    public boolean finish(TraceSegment owner) {
-        if (--stackDepth == 0) {
-            return super.finish(owner);
-        } else {
-            return false;
-        }
     }
 
     @Override

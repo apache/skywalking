@@ -6,6 +6,7 @@ package org.skywalking.apm.network.trace.component;
  * @author wusheng
  */
 public class ComponentsDefine {
+
     public static final OfficialComponent TOMCAT = new OfficialComponent(1, "Tomcat");
 
     public static final OfficialComponent HTTPCLIENT = new OfficialComponent(2, "HttpClient");
@@ -29,4 +30,46 @@ public class ComponentsDefine {
     public static final OfficialComponent FEIGN = new OfficialComponent(11, "Feign");
 
     public static final OfficialComponent OKHTTP = new OfficialComponent(12, "OKHttp");
+
+    public static final OfficialComponent SPRING_REST_TEMPLATE = new OfficialComponent(13, "SpringRestTemplate");
+
+    public static final OfficialComponent SPRING_MVC_ANNOTATION = new OfficialComponent(14, "SpringMVCAnnotation");
+
+    private static ComponentsDefine instance = new ComponentsDefine();
+
+    private String[] components;
+
+    public static ComponentsDefine getInstance() {
+        return instance;
+    }
+
+    public ComponentsDefine() {
+        components = new String[15];
+        addComponent(TOMCAT);
+        addComponent(HTTPCLIENT);
+        addComponent(DUBBO);
+        addComponent(H2);
+        addComponent(MYSQL);
+        addComponent(ORACLE);
+        addComponent(REDIS);
+        addComponent(MOTAN);
+        addComponent(MONGODB);
+        addComponent(RESIN);
+        addComponent(FEIGN);
+        addComponent(OKHTTP);
+        addComponent(SPRING_REST_TEMPLATE);
+        addComponent(SPRING_MVC_ANNOTATION);
+    }
+
+    private void addComponent(OfficialComponent component) {
+        components[component.getId()] = component.getName();
+    }
+
+    public String getComponentName(int componentId) {
+        if (componentId > components.length - 1 || componentId == 0) {
+            return null;
+        } else {
+            return components[componentId];
+        }
+    }
 }

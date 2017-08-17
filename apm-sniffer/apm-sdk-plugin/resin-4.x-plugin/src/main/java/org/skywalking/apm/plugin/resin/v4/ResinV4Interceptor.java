@@ -1,6 +1,7 @@
 package org.skywalking.apm.plugin.resin.v4;
 
 import com.caucho.server.http.CauchoRequest;
+import java.lang.reflect.Method;
 import javax.servlet.http.HttpServletResponse;
 import org.skywalking.apm.agent.core.conf.Config;
 import org.skywalking.apm.agent.core.context.ContextCarrier;
@@ -18,7 +19,7 @@ import org.skywalking.apm.network.trace.component.ComponentsDefine;
  */
 public class ResinV4Interceptor implements InstanceMethodsAroundInterceptor {
     @Override
-    public void beforeMethod(EnhancedInstance objInst, String methodName, Object[] allArguments,
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         CauchoRequest request = (CauchoRequest)allArguments[0];
         String tracingHeaderValue = request.getHeader(Config.Plugin.Propagation.HEADER_NAME);
@@ -31,7 +32,7 @@ public class ResinV4Interceptor implements InstanceMethodsAroundInterceptor {
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance objInst, String methodName, Object[] allArguments,
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Object ret) throws Throwable {
         HttpServletResponse response = (HttpServletResponse)allArguments[1];
         AbstractSpan span = ContextManager.activeSpan();
@@ -44,7 +45,7 @@ public class ResinV4Interceptor implements InstanceMethodsAroundInterceptor {
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, String methodName, Object[] allArguments,
+    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
         AbstractSpan activeSpan = ContextManager.activeSpan();
         activeSpan.log(t);

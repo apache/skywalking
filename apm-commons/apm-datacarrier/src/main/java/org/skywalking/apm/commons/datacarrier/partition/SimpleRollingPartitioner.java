@@ -14,8 +14,8 @@ public class SimpleRollingPartitioner<T> implements IDataPartitioner<T> {
         return Math.abs(i++ % total);
     }
 
-    public static void main(String[] args) {
-        SimpleRollingPartitioner s = new SimpleRollingPartitioner();
-        System.out.print(s.i++ % 10);
+    @Override
+    public int maxRetryCount() {
+        return 3;
     }
 }

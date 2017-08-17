@@ -78,8 +78,8 @@ public class ResinV3InterceptorTest {
 
     @Test
     public void testWithoutSerializedContextData() throws Throwable {
-        interceptor.beforeMethod(enhancedInstance, "service", arguments, argumentType, methodInterceptResult);
-        interceptor.afterMethod(enhancedInstance, "service", arguments, argumentType, null);
+        interceptor.beforeMethod(enhancedInstance, null, arguments, argumentType, methodInterceptResult);
+        interceptor.afterMethod(enhancedInstance, null, arguments, argumentType, null);
 
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
@@ -90,10 +90,10 @@ public class ResinV3InterceptorTest {
 
     @Test
     public void testWithSerializedContextData() throws Throwable {
-        when(request.getHeader(Config.Plugin.Propagation.HEADER_NAME)).thenReturn("#AQA*#AQA*4WcWe0tQNQA*|3|1|#192.168.1.8:18002|#/portal/|#/testEntrySpan|#AQA*#AQA*Et0We0tQNQA*");
+        when(request.getHeader(Config.Plugin.Propagation.HEADER_NAME)).thenReturn("#AQA*#AQA*4WcWe0tQNQA*|3|1|1|#192.168.1.8:18002|#/portal/|#/testEntrySpan|#AQA*#AQA*Et0We0tQNQA*");
 
-        interceptor.beforeMethod(enhancedInstance, "service", arguments, argumentType, methodInterceptResult);
-        interceptor.afterMethod(enhancedInstance, "service", arguments, argumentType, null);
+        interceptor.beforeMethod(enhancedInstance, null, arguments, argumentType, methodInterceptResult);
+        interceptor.afterMethod(enhancedInstance, null, arguments, argumentType, null);
 
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
@@ -105,9 +105,9 @@ public class ResinV3InterceptorTest {
 
     @Test
     public void testWithOccurException() throws Throwable {
-        interceptor.beforeMethod(enhancedInstance, "service", arguments, argumentType, methodInterceptResult);
-        interceptor.handleMethodException(enhancedInstance, "service", arguments, argumentType, new RuntimeException());
-        interceptor.afterMethod(enhancedInstance, "service", arguments, argumentType, null);
+        interceptor.beforeMethod(enhancedInstance, null, arguments, argumentType, methodInterceptResult);
+        interceptor.handleMethodException(enhancedInstance, null, arguments, argumentType, new RuntimeException());
+        interceptor.afterMethod(enhancedInstance, null, arguments, argumentType, null);
 
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
@@ -121,6 +121,7 @@ public class ResinV3InterceptorTest {
 
     private void assertTraceSegmentRef(TraceSegmentRef ref) {
         assertThat(SegmentRefHelper.getSpanId(ref), is(3));
+        assertThat(SegmentRefHelper.getEntryApplicationInstanceId(ref), is(1));
         assertThat(SegmentRefHelper.getTraceSegmentId(ref).toString(), is("1.1.15006458883500001"));
     }
 

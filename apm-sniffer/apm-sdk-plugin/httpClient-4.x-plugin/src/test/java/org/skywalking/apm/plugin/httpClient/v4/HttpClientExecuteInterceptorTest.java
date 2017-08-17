@@ -101,8 +101,8 @@ public class HttpClientExecuteInterceptorTest {
 
     @Test
     public void testHttpClient() throws Throwable {
-        httpClientExecuteInterceptor.beforeMethod(enhancedInstance, "execute", allArguments, argumentsType, null);
-        httpClientExecuteInterceptor.afterMethod(enhancedInstance, "execute", allArguments, argumentsType, httpResponse);
+        httpClientExecuteInterceptor.beforeMethod(enhancedInstance, null, allArguments, argumentsType, null);
+        httpClientExecuteInterceptor.afterMethod(enhancedInstance, null, allArguments, argumentsType, httpResponse);
 
         Assert.assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
@@ -115,8 +115,8 @@ public class HttpClientExecuteInterceptorTest {
     @Test
     public void testStatusCodeNotEquals200() throws Throwable {
         when(statusLine.getStatusCode()).thenReturn(500);
-        httpClientExecuteInterceptor.beforeMethod(enhancedInstance, "execute", allArguments, argumentsType, null);
-        httpClientExecuteInterceptor.afterMethod(enhancedInstance, "execute", allArguments, argumentsType, httpResponse);
+        httpClientExecuteInterceptor.beforeMethod(enhancedInstance, null, allArguments, argumentsType, null);
+        httpClientExecuteInterceptor.afterMethod(enhancedInstance, null, allArguments, argumentsType, httpResponse);
 
         Assert.assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
@@ -135,9 +135,9 @@ public class HttpClientExecuteInterceptorTest {
 
     @Test
     public void testHttpClientWithException() throws Throwable {
-        httpClientExecuteInterceptor.beforeMethod(enhancedInstance, "execute", allArguments, argumentsType, null);
-        httpClientExecuteInterceptor.handleMethodException(enhancedInstance, "execute", allArguments, argumentsType, new RuntimeException("testException"));
-        httpClientExecuteInterceptor.afterMethod(enhancedInstance, "execute", allArguments, argumentsType, httpResponse);
+        httpClientExecuteInterceptor.beforeMethod(enhancedInstance, null, allArguments, argumentsType, null);
+        httpClientExecuteInterceptor.handleMethodException(enhancedInstance, null, allArguments, argumentsType, new RuntimeException("testException"));
+        httpClientExecuteInterceptor.afterMethod(enhancedInstance, null, allArguments, argumentsType, httpResponse);
 
         Assert.assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);

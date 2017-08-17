@@ -3,6 +3,7 @@ package org.skywalking.apm.agent.core.context;
 import java.util.List;
 import org.skywalking.apm.agent.core.context.ids.DistributedTraceId;
 import org.skywalking.apm.agent.core.context.ids.ID;
+import org.skywalking.apm.agent.core.dictionary.DictionaryUtil;
 import org.skywalking.apm.util.StringUtil;
 
 /**
@@ -30,6 +31,8 @@ public class ContextSnapshot {
      * {@link DistributedTraceId}
      */
     private DistributedTraceId primaryDistributedTraceId;
+
+    private int entryApplicationInstanceId = DictionaryUtil.nullValue();
 
     ContextSnapshot(ID traceSegmentId, int spanId,
         List<DistributedTraceId> distributedTraceIds) {
@@ -75,6 +78,7 @@ public class ContextSnapshot {
     public boolean isValid() {
         return traceSegmentId != null
             && spanId > -1
+            && entryApplicationInstanceId != DictionaryUtil.nullValue()
             && primaryDistributedTraceId != null
             && !StringUtil.isEmpty(entryOperationName)
             && !StringUtil.isEmpty(parentOperationName);
@@ -82,5 +86,13 @@ public class ContextSnapshot {
 
     public String getEntryOperationName() {
         return entryOperationName;
+    }
+
+    public void setEntryApplicationInstanceId(int entryApplicationInstanceId) {
+        this.entryApplicationInstanceId = entryApplicationInstanceId;
+    }
+
+    public int getEntryApplicationInstanceId() {
+        return entryApplicationInstanceId;
     }
 }

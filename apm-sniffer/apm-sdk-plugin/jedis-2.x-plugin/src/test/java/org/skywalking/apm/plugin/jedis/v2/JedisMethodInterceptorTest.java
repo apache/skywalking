@@ -1,5 +1,6 @@
 package org.skywalking.apm.plugin.jedis.v2;
 
+import java.lang.reflect.Method;
 import java.util.List;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
@@ -8,6 +9,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.powermock.api.mockito.PowerMockito;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 import org.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
@@ -22,6 +24,7 @@ import org.skywalking.apm.agent.test.tools.AgentServiceRule;
 import org.skywalking.apm.agent.test.tools.SegmentStorage;
 import org.skywalking.apm.agent.test.tools.SegmentStoragePoint;
 import org.skywalking.apm.agent.test.tools.TracingSegmentRunner;
+import redis.clients.jedis.Jedis;
 
 import static junit.framework.TestCase.assertNotNull;
 import static org.hamcrest.CoreMatchers.is;
@@ -58,8 +61,8 @@ public class JedisMethodInterceptorTest {
 
     @Test
     public void testIntercept() throws Throwable {
-        interceptor.beforeMethod(enhancedInstance, "set", allArgument, argumentType, null);
-        interceptor.afterMethod(enhancedInstance, "set", allArgument, argumentType, null);
+        interceptor.beforeMethod(enhancedInstance, getMockSetMethod(), allArgument, argumentType, null);
+        interceptor.afterMethod(enhancedInstance, getMockGetMethod(), allArgument, argumentType, null);
 
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
@@ -71,8 +74,8 @@ public class JedisMethodInterceptorTest {
     public void testInterceptWithMultiHost() throws Throwable {
         when(enhancedInstance.getSkyWalkingDynamicField()).thenReturn("127.0.0.1:6379;127.0.0.1:16379;");
 
-        interceptor.beforeMethod(enhancedInstance, "set", allArgument, argumentType, null);
-        interceptor.afterMethod(enhancedInstance, "set", allArgument, argumentType, null);
+        interceptor.beforeMethod(enhancedInstance, getMockSetMethod(), allArgument, argumentType, null);
+        interceptor.afterMethod(enhancedInstance, getMockSetMethod(), allArgument, argumentType, null);
 
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
@@ -82,9 +85,9 @@ public class JedisMethodInterceptorTest {
 
     @Test
     public void testInterceptWithException() throws Throwable {
-        interceptor.beforeMethod(enhancedInstance, "set", allArgument, argumentType, null);
-        interceptor.handleMethodException(enhancedInstance, "set", allArgument, argumentType, new RuntimeException());
-        interceptor.afterMethod(enhancedInstance, "set", allArgument, argumentType, null);
+        interceptor.beforeMethod(enhancedInstance, getMockSetMethod(), allArgument, argumentType, null);
+        interceptor.handleMethodException(enhancedInstance, getMockSetMethod(), allArgument, argumentType, new RuntimeException());
+        interceptor.afterMethod(enhancedInstance, getMockSetMethod(), allArgument, argumentType, null);
 
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
@@ -112,6 +115,24 @@ public class JedisMethodInterceptorTest {
         assertThat(tags.get(0).getValue(), is("Redis"));
         assertThat(tags.get(1).getValue(), is("set OperationKey"));
         assertThat(SpanHelper.getLayer(span), is(SpanLayer.DB));
+    }
+
+    private Method getMockSetMethod() {
+        try {
+            return Jedis.class.getMethod("set", String.class, String.class);
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private Method getMockGetMethod() {
+        try {
+            return Jedis.class.getMethod("get", String.class);
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
 }

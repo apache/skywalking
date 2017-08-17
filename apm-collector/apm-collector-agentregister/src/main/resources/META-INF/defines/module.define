@@ -1,0 +1,2 @@
+org.skywalking.apm.collector.agentregister.grpc.AgentRegisterGRPCModuleDefine
+org.skywalking.apm.collector.agentregister.jetty.AgentRegisterJettyModuleDefine

@@ -1,10 +1,14 @@
 package org.skywalking.apm.collector.core.module;
 
+import org.skywalking.apm.collector.core.framework.Context;
+
 /**
  * @author pengys5
  */
 public interface ModuleGroupDefine {
     String name();
 
-    ModuleInstallMode mode();
+    Context groupContext();
+
+    ModuleInstaller moduleInstaller();
 }

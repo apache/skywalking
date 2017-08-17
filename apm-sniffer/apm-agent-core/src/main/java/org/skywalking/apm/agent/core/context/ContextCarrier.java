@@ -23,7 +23,9 @@ public class ContextCarrier implements Serializable {
 
     private int spanId = -1;
 
-    private int applicationInstanceId = DictionaryUtil.nullValue();
+    private int parentApplicationInstanceId = DictionaryUtil.nullValue();
+
+    private int entryApplicationInstanceId = DictionaryUtil.nullValue();
 
     private String peerHost;
 
@@ -47,11 +49,12 @@ public class ContextCarrier implements Serializable {
             return StringUtil.join('|',
                 this.getTraceSegmentId().toBase64(),
                 this.getSpanId() + "",
-                this.getApplicationInstanceId() + "",
+                this.getParentApplicationInstanceId() + "",
+                this.getEntryApplicationInstanceId() + "",
                 this.getPeerHost(),
                 this.getEntryOperationName(),
                 this.getParentOperationName(),
-                this.getPrimaryDistributedTraceId());
+                this.getPrimaryDistributedTraceId().toBase64());
         } else {
             return "";
         }
@@ -64,16 +67,17 @@ public class ContextCarrier implements Serializable {
      */
     public ContextCarrier deserialize(String text) {
         if (text != null) {
-            String[] parts = text.split("\\|", 7);
-            if (parts.length == 7) {
+            String[] parts = text.split("\\|", 8);
+            if (parts.length == 8) {
                 try {
                     this.traceSegmentId = new ID(parts[0]);
                     this.spanId = Integer.parseInt(parts[1]);
-                    this.applicationInstanceId = Integer.parseInt(parts[2]);
-                    this.peerHost = parts[3];
-                    this.entryOperationName = parts[4];
-                    this.parentOperationName = parts[5];
-                    this.primaryDistributedTraceId = new PropagatedTraceId(parts[6]);
+                    this.parentApplicationInstanceId = Integer.parseInt(parts[2]);
+                    this.entryApplicationInstanceId = Integer.parseInt(parts[3]);
+                    this.peerHost = parts[4];
+                    this.entryOperationName = parts[5];
+                    this.parentOperationName = parts[6];
+                    this.primaryDistributedTraceId = new PropagatedTraceId(parts[7]);
                 } catch (NumberFormatException e) {
 
                 }
@@ -90,7 +94,8 @@ public class ContextCarrier implements Serializable {
     public boolean isValid() {
         return traceSegmentId != null
             && getSpanId() > -1
-            && applicationInstanceId != DictionaryUtil.nullValue()
+            && parentApplicationInstanceId != DictionaryUtil.nullValue()
+            && entryApplicationInstanceId != DictionaryUtil.nullValue()
             && !StringUtil.isEmpty(peerHost)
             && !StringUtil.isEmpty(entryOperationName)
             && !StringUtil.isEmpty(parentOperationName)
@@ -133,12 +138,12 @@ public class ContextCarrier implements Serializable {
         this.spanId = spanId;
     }
 
-    public int getApplicationInstanceId() {
-        return applicationInstanceId;
+    public int getParentApplicationInstanceId() {
+        return parentApplicationInstanceId;
     }
 
-    void setApplicationInstanceId(int applicationInstanceId) {
-        this.applicationInstanceId = applicationInstanceId;
+    void setParentApplicationInstanceId(int parentApplicationInstanceId) {
+        this.parentApplicationInstanceId = parentApplicationInstanceId;
     }
 
     public String getPeerHost() {
@@ -161,11 +166,20 @@ public class ContextCarrier implements Serializable {
         this.primaryDistributedTraceId = distributedTraceIds.get(0);
     }
 
-    private String getPrimaryDistributedTraceId() {
-        return primaryDistributedTraceId.toBase64();
+    private DistributedTraceId getPrimaryDistributedTraceId() {
+        return primaryDistributedTraceId;
     }
 
     public String getParentOperationName() {
         return parentOperationName;
     }
+
+    public int getEntryApplicationInstanceId() {
+        return entryApplicationInstanceId;
+    }
+
+    public void setEntryApplicationInstanceId(int entryApplicationInstanceId) {
+        this.entryApplicationInstanceId = entryApplicationInstanceId;
+    }
+
 }

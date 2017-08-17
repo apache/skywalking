@@ -84,6 +84,9 @@ public final class GlobalIdGenerator {
         }
 
         private short nextThreadSeq() {
+            if (threadSeq == 10000) {
+                threadSeq = 0;
+            }
             return threadSeq++;
         }
     }
