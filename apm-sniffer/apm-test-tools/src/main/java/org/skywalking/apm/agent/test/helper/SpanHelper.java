@@ -24,10 +24,16 @@ public class SpanHelper {
 
     public static List<LogDataEntity> getLogs(AbstractSpan tracingSpan) {
         try {
-            return FieldGetter.get2LevelParentFieldValue(tracingSpan, "logs");
+            List<LogDataEntity> logs = FieldGetter.get2LevelParentFieldValue(tracingSpan, "logs");
+            if (logs != null) {
+                return logs;
+            }
         } catch (Exception e) {
             try {
-                return FieldGetter.getParentFieldValue(tracingSpan, "logs");
+                List<LogDataEntity> logs = FieldGetter.getParentFieldValue(tracingSpan, "logs");
+                if (logs != null) {
+                    return logs;
+                }
             } catch (Exception e1) {
 
             }
@@ -38,10 +44,16 @@ public class SpanHelper {
 
     public static List<KeyValuePair> getTags(AbstractSpan tracingSpan) {
         try {
-            return FieldGetter.get2LevelParentFieldValue(tracingSpan, "tags");
+            List<KeyValuePair> tags = FieldGetter.get2LevelParentFieldValue(tracingSpan, "tags");
+            if (tags != null) {
+                return tags;
+            }
         } catch (Exception e) {
             try {
-                return FieldGetter.getParentFieldValue(tracingSpan, "tags");
+                List<KeyValuePair> tags = FieldGetter.getParentFieldValue(tracingSpan, "tags");
+                if (tags != null) {
+                    return tags;
+                }
             } catch (Exception e1) {
 
             }
