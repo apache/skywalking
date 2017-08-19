@@ -5,7 +5,6 @@ import com.google.gson.JsonObject;
 import java.util.List;
 import org.skywalking.apm.collector.storage.dao.DAOContainer;
 import org.skywalking.apm.collector.ui.cache.ApplicationCache;
-import org.skywalking.apm.collector.ui.dao.GCMetricEsDAO;
 import org.skywalking.apm.collector.ui.dao.IGCMetricDAO;
 import org.skywalking.apm.collector.ui.dao.IInstPerformanceDAO;
 import org.skywalking.apm.collector.ui.dao.IInstanceDAO;
@@ -35,6 +34,7 @@ public class InstanceHealthService {
             applicationJson.addProperty("applicationId", application.getApplicationId());
             applicationJson.addProperty("applicationCode", applicationCode);
             applicationJson.addProperty("instanceCount", application.getCount());
+            applicationArray.add(applicationJson);
         });
 
         return response;
@@ -53,7 +53,7 @@ public class InstanceHealthService {
         response.addProperty("applicationId", applicationId);
         response.add("appInstances", instances);
 
-        GCMetricEsDAO gcMetricEsDAO = (GCMetricEsDAO)DAOContainer.INSTANCE.get(GCMetricEsDAO.class.getName());
+        IGCMetricDAO gcMetricDAO = (IGCMetricDAO)DAOContainer.INSTANCE.get(IGCMetricDAO.class.getName());
         performances.forEach(instance -> {
             JsonObject instanceJson = new JsonObject();
             instanceJson.addProperty("id", instance.getInstanceId());
@@ -74,7 +74,7 @@ public class InstanceHealthService {
 
             instanceJson.addProperty("status", 0);
 
-            IGCMetricDAO.GCCount gcCount = gcMetricEsDAO.getGCCount(timestamp, instance.getInstanceId());
+            IGCMetricDAO.GCCount gcCount = gcMetricDAO.getGCCount(timestamp, instance.getInstanceId());
             instanceJson.addProperty("ygc", gcCount.getYoung());
             instanceJson.addProperty("ogc", gcCount.getOld());
 

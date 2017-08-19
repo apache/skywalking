@@ -32,7 +32,8 @@ public class InstanceDataDefine extends DataDefine {
         String agentUUID = remoteData.getDataStrings(1);
         int instanceId = remoteData.getDataIntegers(1);
         long registerTime = remoteData.getDataLongs(0);
-        return new Instance(id, applicationId, agentUUID, registerTime, instanceId);
+        long heartBeatTime = remoteData.getDataLongs(1);
+        return new Instance(id, applicationId, agentUUID, registerTime, instanceId, heartBeatTime);
     }
 
     @Override public RemoteData serialize(Object object) {
@@ -42,6 +43,7 @@ public class InstanceDataDefine extends DataDefine {
         builder.addDataIntegers(instance.getApplicationId());
         builder.addDataStrings(instance.getAgentUUID());
         builder.addDataLongs(instance.getRegisterTime());
+        builder.addDataLongs(instance.getHeartBeatTime());
         return builder.build();
     }
 
@@ -51,13 +53,16 @@ public class InstanceDataDefine extends DataDefine {
         private String agentUUID;
         private long registerTime;
         private int instanceId;
+        private long heartBeatTime;
 
-        public Instance(String id, int applicationId, String agentUUID, long registerTime, int instanceId) {
+        public Instance(String id, int applicationId, String agentUUID, long registerTime, int instanceId,
+            long heartBeatTime) {
             this.id = id;
             this.applicationId = applicationId;
             this.agentUUID = agentUUID;
             this.registerTime = registerTime;
             this.instanceId = instanceId;
+            this.heartBeatTime = heartBeatTime;
         }
 
         public String getId() {
@@ -98,6 +103,14 @@ public class InstanceDataDefine extends DataDefine {
 
         public void setInstanceId(int instanceId) {
             this.instanceId = instanceId;
+        }
+
+        public long getHeartBeatTime() {
+            return heartBeatTime;
+        }
+
+        public void setHeartBeatTime(long heartBeatTime) {
+            this.heartBeatTime = heartBeatTime;
         }
     }
 }

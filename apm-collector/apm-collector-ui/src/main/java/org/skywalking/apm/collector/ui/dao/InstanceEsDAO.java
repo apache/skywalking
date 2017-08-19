@@ -65,13 +65,19 @@ public class InstanceEsDAO extends EsDAO implements IInstanceDAO {
     }
 
     @Override public List<Application> getApplications(long time) {
+        logger.debug("application list get, time: {}", time);
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(InstanceTable.TABLE);
         searchRequestBuilder.setTypes(InstanceTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
 
-        RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery(InstanceTable.COLUMN_HEARTBEAT_TIME).gt(time);
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+        RangeQueryBuilder heartBeatRangeQueryBuilder = QueryBuilders.rangeQuery(InstanceTable.COLUMN_HEARTBEAT_TIME).gte(time);
+        RangeQueryBuilder registerRangeQueryBuilder = QueryBuilders.rangeQuery(InstanceTable.COLUMN_REGISTER_TIME).lte(time);
 
-        searchRequestBuilder.setQuery(rangeQueryBuilder);
+        boolQueryBuilder.must().add(registerRangeQueryBuilder);
+        boolQueryBuilder.must().add(heartBeatRangeQueryBuilder);
+
+        searchRequestBuilder.setQuery(boolQueryBuilder);
         searchRequestBuilder.setSize(0);
         searchRequestBuilder.addAggregation(AggregationBuilders.terms(InstanceTable.COLUMN_APPLICATION_ID).field(InstanceTable.COLUMN_APPLICATION_ID).size(100));
 
@@ -81,6 +87,7 @@ public class InstanceEsDAO extends EsDAO implements IInstanceDAO {
         List<Application> applications = new LinkedList<>();
         for (Terms.Bucket entry : genders.getBuckets()) {
             Integer applicationId = entry.getKeyAsNumber().intValue();
+            logger.debug("applicationId: {}", applicationId);
             long instanceCount = entry.getDocCount();
             applications.add(new Application(applicationId, instanceCount));
         }

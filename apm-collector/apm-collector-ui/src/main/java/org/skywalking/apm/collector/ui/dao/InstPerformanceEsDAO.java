@@ -38,7 +38,7 @@ public class InstPerformanceEsDAO extends EsDAO implements IInstPerformanceDAO {
         for (SearchHit searchHit : searchHits) {
             int instanceId = (Integer)searchHit.getSource().get(InstPerformanceTable.COLUMN_INSTANCE_ID);
             int callTimes = (Integer)searchHit.getSource().get(InstPerformanceTable.COLUMN_CALL_TIMES);
-            long costTotal = (Long)searchHit.getSource().get(InstPerformanceTable.COLUMN_COST_TOTAL);
+            long costTotal = ((Number)searchHit.getSource().get(InstPerformanceTable.COLUMN_COST_TOTAL)).longValue();
 
             instPerformances.add(new InstPerformance(instanceId, callTimes, costTotal));
         }

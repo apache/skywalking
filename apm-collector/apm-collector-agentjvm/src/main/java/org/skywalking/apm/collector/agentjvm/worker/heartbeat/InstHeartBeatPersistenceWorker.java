@@ -1,6 +1,6 @@
 package org.skywalking.apm.collector.agentjvm.worker.heartbeat;
 
-import org.skywalking.apm.collector.agentjvm.worker.heartbeat.dao.InstanceHeartBeatEsDAO;
+import org.skywalking.apm.collector.agentjvm.worker.heartbeat.dao.IInstanceHeartBeatDAO;
 import org.skywalking.apm.collector.agentjvm.worker.heartbeat.define.InstanceHeartBeatDataDefine;
 import org.skywalking.apm.collector.storage.dao.DAOContainer;
 import org.skywalking.apm.collector.stream.worker.AbstractLocalAsyncWorkerProvider;
@@ -27,11 +27,11 @@ public class InstHeartBeatPersistenceWorker extends PersistenceWorker {
     }
 
     @Override protected boolean needMergeDBData() {
-        return false;
+        return true;
     }
 
     @Override protected IPersistenceDAO persistenceDAO() {
-        return (IPersistenceDAO)DAOContainer.INSTANCE.get(InstanceHeartBeatEsDAO.class.getName());
+        return (IPersistenceDAO)DAOContainer.INSTANCE.get(IInstanceHeartBeatDAO.class.getName());
     }
 
     public static class Factory extends AbstractLocalAsyncWorkerProvider<InstHeartBeatPersistenceWorker> {

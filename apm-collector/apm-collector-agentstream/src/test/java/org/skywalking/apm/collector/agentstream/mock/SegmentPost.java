@@ -22,9 +22,9 @@ public class SegmentPost {
         InstanceEsDAO instanceEsDAO = new InstanceEsDAO();
         instanceEsDAO.setClient(client);
 
-        InstanceDataDefine.Instance consumerInstance = new InstanceDataDefine.Instance("2", 2, "dubbox-consumer", 1501858094526L, 2);
+        InstanceDataDefine.Instance consumerInstance = new InstanceDataDefine.Instance("2", 2, "dubbox-consumer", 1501858094526L, 2, 1501858094526L);
         instanceEsDAO.save(consumerInstance);
-        InstanceDataDefine.Instance providerInstance = new InstanceDataDefine.Instance("3", 3, "dubbox-provider", 1501858094526L, 3);
+        InstanceDataDefine.Instance providerInstance = new InstanceDataDefine.Instance("3", 3, "dubbox-provider", 1501858094526L, 3, 1501858094526L);
         instanceEsDAO.save(providerInstance);
 
         ApplicationEsDAO applicationEsDAO = new ApplicationEsDAO();

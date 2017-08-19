@@ -44,7 +44,7 @@ public class JVMMetricsServiceHandler extends JVMMetricsServiceGrpc.JVMMetricsSe
         StreamModuleContext context = (StreamModuleContext)CollectorContextHelper.INSTANCE.getContext(StreamModuleGroupDefine.GROUP_NAME);
         request.getMetricsList().forEach(metric -> {
             long time = TimeBucketUtils.INSTANCE.getSecondTimeBucket(metric.getTime());
-            senToInstanceHeartBeatPersistenceWorker(context, applicationInstanceId, time);
+            senToInstanceHeartBeatPersistenceWorker(context, applicationInstanceId, metric.getTime());
             sendToCpuMetricPersistenceWorker(context, applicationInstanceId, time, metric.getCpu());
             sendToMemoryMetricPersistenceWorker(context, applicationInstanceId, time, metric.getMemoryList());
             sendToMemoryPoolMetricPersistenceWorker(context, applicationInstanceId, time, metric.getMemoryPoolList());
@@ -59,8 +59,8 @@ public class JVMMetricsServiceHandler extends JVMMetricsServiceGrpc.JVMMetricsSe
         long heartBeatTime) {
         InstanceHeartBeatDataDefine.InstanceHeartBeat heartBeat = new InstanceHeartBeatDataDefine.InstanceHeartBeat();
         heartBeat.setId(String.valueOf(applicationInstanceId));
-        heartBeat.setHeartbeatTime(heartBeatTime);
-        heartBeat.setApplicationInstanceId(applicationInstanceId);
+        heartBeat.setHeartBeatTime(heartBeatTime);
+        heartBeat.setInstanceId(applicationInstanceId);
         try {
             logger.debug("send to instance heart beat persistence worker, id: {}", heartBeat.getId());
             context.getClusterWorkerContext().lookup(InstHeartBeatPersistenceWorker.WorkerRole.INSTANCE).tell(heartBeat.toData());

@@ -13,9 +13,9 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.skywalking.apm.collector.agentstream.worker.register.instance.InstanceDataDefine;
-import org.skywalking.apm.collector.storage.table.register.InstanceTable;
 import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
+import org.skywalking.apm.collector.storage.table.register.InstanceTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,6 +62,7 @@ public class InstanceEsDAO extends EsDAO implements IInstanceDAO {
         source.put(InstanceTable.COLUMN_APPLICATION_ID, instance.getApplicationId());
         source.put(InstanceTable.COLUMN_AGENT_UUID, instance.getAgentUUID());
         source.put(InstanceTable.COLUMN_REGISTER_TIME, instance.getRegisterTime());
+        source.put(InstanceTable.COLUMN_HEARTBEAT_TIME, instance.getHeartBeatTime());
 
         IndexResponse response = client.prepareIndex(InstanceTable.TABLE, instance.getId()).setSource(source).setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE).get();
         logger.debug("save instance register info, application id: {}, agentUUID: {}, status: {}", instance.getApplicationId(), instance.getAgentUUID(), response.status().name());

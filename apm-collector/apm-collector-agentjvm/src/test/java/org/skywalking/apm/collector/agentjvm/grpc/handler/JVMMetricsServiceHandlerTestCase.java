@@ -21,14 +21,25 @@ public class JVMMetricsServiceHandlerTestCase {
 
     private final Logger logger = LoggerFactory.getLogger(JVMMetricsServiceHandlerTestCase.class);
 
-    private JVMMetricsServiceGrpc.JVMMetricsServiceBlockingStub stub;
+    private static JVMMetricsServiceGrpc.JVMMetricsServiceBlockingStub stub;
 
-    public void test() {
+    public static void main(String[] args) {
         ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 11800).usePlaintext(true).build();
         stub = JVMMetricsServiceGrpc.newBlockingStub(channel);
 
+        buildJvmMetric(2);
+        buildJvmMetric(3);
+
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void buildJvmMetric(int instanceId) {
         JVMMetrics.Builder jvmMetricsBuilder = JVMMetrics.newBuilder();
-        jvmMetricsBuilder.setApplicationInstanceId(1);
+        jvmMetricsBuilder.setApplicationInstanceId(instanceId);
 
         JVMMetric.Builder jvmMetric = JVMMetric.newBuilder();
         jvmMetric.setTime(System.currentTimeMillis());
@@ -41,13 +52,13 @@ public class JVMMetricsServiceHandlerTestCase {
         stub.collect(jvmMetricsBuilder.build());
     }
 
-    private void buildCpuMetric(JVMMetric.Builder jvmMetric) {
+    private static void buildCpuMetric(JVMMetric.Builder jvmMetric) {
         CPU.Builder cpuBuilder = CPU.newBuilder();
         cpuBuilder.setUsagePercent(70);
         jvmMetric.setCpu(cpuBuilder);
     }
 
-    private void buildMemoryMetric(JVMMetric.Builder jvmMetric) {
+    private static void buildMemoryMetric(JVMMetric.Builder jvmMetric) {
         Memory.Builder builder_1 = Memory.newBuilder();
         builder_1.setIsHeap(true);
         builder_1.setInit(20);
@@ -65,7 +76,7 @@ public class JVMMetricsServiceHandlerTestCase {
         jvmMetric.addMemory(builder_2.build());
     }
 
-    private void buildMemoryPoolMetric(JVMMetric.Builder jvmMetric) {
+    private static void buildMemoryPoolMetric(JVMMetric.Builder jvmMetric) {
         MemoryPool.Builder builder_1 = MemoryPool.newBuilder();
         builder_1.setType(PoolType.NEWGEN_USAGE);
         builder_1.setIsHeap(true);
@@ -76,7 +87,7 @@ public class JVMMetricsServiceHandlerTestCase {
         jvmMetric.addMemoryPool(builder_1.build());
     }
 
-    private void buildGcMetric(JVMMetric.Builder jvmMetric) {
+    private static void buildGcMetric(JVMMetric.Builder jvmMetric) {
         GC.Builder gcBuilder = GC.newBuilder();
         gcBuilder.setPhrase(GCPhrase.NEW);
         gcBuilder.setCount(2);
