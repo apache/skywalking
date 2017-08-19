@@ -36,6 +36,7 @@ public class ControllerServiceMethodInterceptor implements InstanceMethodsAround
                 requestURL = "";
             }
             pathMappingCache.addPathMapping(method, requestURL);
+            requestURL = pathMappingCache.findPathMapping(method);
         }
 
         HttpServletRequest request = ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
