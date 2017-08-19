@@ -20,7 +20,7 @@ import static org.skywalking.apm.agent.core.plugin.match.MethodAnnotationMatch.b
 public class TraceAnnotationActivation extends ClassInstanceMethodsEnhancePluginDefine {
 
     public static final String TRACE_ANNOTATION_METHOD_INTERCEPTOR = "org.skywalking.apm.toolkit.activation.trace.TraceAnnotationMethodInterceptor";
-    public static final String TRACE_ANNOTATION = "org.skywalking.apm.toolkit.trace.annotation.Trace";
+    public static final String TRACE_ANNOTATION = "org.skywalking.apm.toolkit.trace.Trace";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
