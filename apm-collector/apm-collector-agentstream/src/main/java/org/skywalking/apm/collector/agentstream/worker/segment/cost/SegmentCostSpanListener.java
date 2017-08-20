@@ -6,7 +6,7 @@ import org.skywalking.apm.collector.agentstream.worker.segment.EntrySpanListener
 import org.skywalking.apm.collector.agentstream.worker.segment.ExitSpanListener;
 import org.skywalking.apm.collector.agentstream.worker.segment.FirstSpanListener;
 import org.skywalking.apm.collector.agentstream.worker.segment.LocalSpanListener;
-import org.skywalking.apm.collector.agentstream.worker.segment.cost.define.SegmentCostDataDefine;
+import org.skywalking.apm.collector.storage.define.segment.SegmentCostDataDefine;
 import org.skywalking.apm.collector.agentstream.worker.util.ExchangeMarkUtils;
 import org.skywalking.apm.collector.stream.worker.util.TimeBucketUtils;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;

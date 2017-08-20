@@ -1,6 +1,6 @@
 package org.skywalking.apm.collector.agentstream.worker.register.application.dao;
 
-import org.skywalking.apm.collector.agentstream.worker.register.application.ApplicationDataDefine;
+import org.skywalking.apm.collector.storage.define.register.ApplicationDataDefine;
 
 /**
  * @author pengys5

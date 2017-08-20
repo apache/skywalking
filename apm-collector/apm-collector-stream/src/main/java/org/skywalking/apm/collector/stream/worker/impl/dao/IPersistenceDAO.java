@@ -1,7 +1,7 @@
 package org.skywalking.apm.collector.stream.worker.impl.dao;
 
-import org.skywalking.apm.collector.stream.worker.impl.data.Data;
-import org.skywalking.apm.collector.stream.worker.impl.data.DataDefine;
+import org.skywalking.apm.collector.core.stream.Data;
+import org.skywalking.apm.collector.storage.define.DataDefine;
 
 /**
  * @author pengys5

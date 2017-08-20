@@ -1,13 +1,13 @@
 package org.skywalking.apm.collector.agentstream.worker.service.entry;
 
-import org.skywalking.apm.collector.agentstream.worker.service.entry.define.ServiceEntryDataDefine;
+import org.skywalking.apm.collector.storage.define.service.ServiceEntryDataDefine;
 import org.skywalking.apm.collector.stream.worker.AbstractRemoteWorker;
 import org.skywalking.apm.collector.stream.worker.AbstractRemoteWorkerProvider;
 import org.skywalking.apm.collector.stream.worker.ClusterWorkerContext;
 import org.skywalking.apm.collector.stream.worker.ProviderNotFoundException;
 import org.skywalking.apm.collector.stream.worker.Role;
 import org.skywalking.apm.collector.stream.worker.WorkerException;
-import org.skywalking.apm.collector.stream.worker.impl.data.DataDefine;
+import org.skywalking.apm.collector.storage.define.DataDefine;
 import org.skywalking.apm.collector.stream.worker.selector.HashCodeSelector;
 import org.skywalking.apm.collector.stream.worker.selector.WorkerSelector;
 

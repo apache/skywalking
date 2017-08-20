@@ -2,7 +2,7 @@ package org.skywalking.apm.collector.agentstream.worker.node.component.define;
 
 import org.skywalking.apm.collector.storage.h2.define.H2ColumnDefine;
 import org.skywalking.apm.collector.storage.h2.define.H2TableDefine;
-import org.skywalking.apm.collector.storage.table.node.NodeComponentTable;
+import org.skywalking.apm.collector.storage.define.node.NodeComponentTable;
 
 /**
  * @author pengys5

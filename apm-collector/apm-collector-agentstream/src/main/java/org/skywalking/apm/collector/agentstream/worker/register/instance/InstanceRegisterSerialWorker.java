@@ -1,16 +1,17 @@
 package org.skywalking.apm.collector.agentstream.worker.register.instance;
 
 import org.skywalking.apm.collector.agentstream.worker.register.IdAutoIncrement;
-import org.skywalking.apm.collector.agentstream.worker.register.application.ApplicationDataDefine;
+import org.skywalking.apm.collector.storage.define.register.ApplicationDataDefine;
 import org.skywalking.apm.collector.agentstream.worker.register.instance.dao.IInstanceDAO;
 import org.skywalking.apm.collector.storage.dao.DAOContainer;
+import org.skywalking.apm.collector.storage.define.register.InstanceDataDefine;
 import org.skywalking.apm.collector.stream.worker.AbstractLocalAsyncWorker;
 import org.skywalking.apm.collector.stream.worker.AbstractLocalAsyncWorkerProvider;
 import org.skywalking.apm.collector.stream.worker.ClusterWorkerContext;
 import org.skywalking.apm.collector.stream.worker.ProviderNotFoundException;
 import org.skywalking.apm.collector.stream.worker.Role;
 import org.skywalking.apm.collector.stream.worker.WorkerException;
-import org.skywalking.apm.collector.stream.worker.impl.data.DataDefine;
+import org.skywalking.apm.collector.storage.define.DataDefine;
 import org.skywalking.apm.collector.stream.worker.selector.ForeverFirstSelector;
 import org.skywalking.apm.collector.stream.worker.selector.WorkerSelector;
 import org.slf4j.Logger;

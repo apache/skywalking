@@ -2,7 +2,7 @@ package org.skywalking.apm.collector.agentstream.worker.register.application;
 
 import org.skywalking.apm.collector.storage.elasticsearch.define.ElasticSearchColumnDefine;
 import org.skywalking.apm.collector.storage.elasticsearch.define.ElasticSearchTableDefine;
-import org.skywalking.apm.collector.storage.table.register.ApplicationTable;
+import org.skywalking.apm.collector.storage.define.register.ApplicationTable;
 
 /**
  * @author pengys5
@@ -14,7 +14,7 @@ public class ApplicationEsTableDefine extends ElasticSearchTableDefine {
     }
 
     @Override public int refreshInterval() {
-        return 0;
+        return 2;
     }
 
     @Override public int numberOfShards() {

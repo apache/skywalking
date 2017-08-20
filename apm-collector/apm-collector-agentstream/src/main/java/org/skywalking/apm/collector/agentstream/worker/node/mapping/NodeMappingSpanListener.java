@@ -3,7 +3,7 @@ package org.skywalking.apm.collector.agentstream.worker.node.mapping;
 import java.util.ArrayList;
 import java.util.List;
 import org.skywalking.apm.collector.core.util.Const;
-import org.skywalking.apm.collector.agentstream.worker.node.mapping.define.NodeMappingDataDefine;
+import org.skywalking.apm.collector.storage.define.node.NodeMappingDataDefine;
 import org.skywalking.apm.collector.agentstream.worker.segment.FirstSpanListener;
 import org.skywalking.apm.collector.agentstream.worker.segment.RefsListener;
 import org.skywalking.apm.collector.agentstream.worker.util.ExchangeMarkUtils;

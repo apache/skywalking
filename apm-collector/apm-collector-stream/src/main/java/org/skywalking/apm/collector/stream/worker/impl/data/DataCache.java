@@ -1,5 +1,7 @@
 package org.skywalking.apm.collector.stream.worker.impl.data;
 
+import org.skywalking.apm.collector.core.stream.Data;
+
 /**
  * @author pengys5
  */

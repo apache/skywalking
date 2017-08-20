@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.agentstream.worker.cache.InstanceCache;
-import org.skywalking.apm.collector.agentstream.worker.noderef.reference.define.NodeRefDataDefine;
+import org.skywalking.apm.collector.storage.define.noderef.NodeRefDataDefine;
 import org.skywalking.apm.collector.agentstream.worker.segment.EntrySpanListener;
 import org.skywalking.apm.collector.agentstream.worker.segment.ExitSpanListener;
 import org.skywalking.apm.collector.agentstream.worker.segment.FirstSpanListener;

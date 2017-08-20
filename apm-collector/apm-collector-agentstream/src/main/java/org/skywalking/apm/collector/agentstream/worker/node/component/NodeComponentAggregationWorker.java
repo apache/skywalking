@@ -1,6 +1,6 @@
 package org.skywalking.apm.collector.agentstream.worker.node.component;
 
-import org.skywalking.apm.collector.agentstream.worker.node.component.define.NodeComponentDataDefine;
+import org.skywalking.apm.collector.storage.define.node.NodeComponentDataDefine;
 import org.skywalking.apm.collector.stream.worker.AbstractLocalAsyncWorkerProvider;
 import org.skywalking.apm.collector.stream.worker.ClusterWorkerContext;
 import org.skywalking.apm.collector.stream.worker.ProviderNotFoundException;
@@ -8,7 +8,7 @@ import org.skywalking.apm.collector.stream.worker.Role;
 import org.skywalking.apm.collector.stream.worker.WorkerNotFoundException;
 import org.skywalking.apm.collector.stream.worker.WorkerRefs;
 import org.skywalking.apm.collector.stream.worker.impl.AggregationWorker;
-import org.skywalking.apm.collector.stream.worker.impl.data.DataDefine;
+import org.skywalking.apm.collector.storage.define.DataDefine;
 import org.skywalking.apm.collector.stream.worker.selector.HashCodeSelector;
 import org.skywalking.apm.collector.stream.worker.selector.WorkerSelector;
 
