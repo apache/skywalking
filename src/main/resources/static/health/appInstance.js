@@ -1,7 +1,5 @@
 define(['jquery', 'vue', 'text!appInstanceHtml', 'instanceChart', 'chartJs'],
     function ($, Vue, segmentHtml, instanceChart, Chart) {
-        var startTime;
-
         var showingInstances = {
             appInstances: [],
             indexApplication: function (application) {
@@ -85,11 +83,8 @@ define(['jquery', 'vue', 'text!appInstanceHtml', 'instanceChart', 'chartJs'],
             return instanceIndex;
         }
 
-        function loadInstancesData() {
-            $.getJSON("/testData/instances/instance.json", function (data) {
-                if (data.timestamp != undefined){
-                    startTime = data.timestamp;
-                }
+        function loadInstancesData(timestamp, applicationIds) {
+            $.getJSON("/health/instances", {timestamp: timestamp, applicationIds: applicationIds}, function (data) {
                 $.each(data.appInstances, function () {
                     var applicationIndex = showingInstances.indexApplication(this);
                     if (applicationIndex == -1) {
@@ -98,7 +93,7 @@ define(['jquery', 'vue', 'text!appInstanceHtml', 'instanceChart', 'chartJs'],
                     } else {
                         var showInstances = showingInstances.appInstances[applicationIndex].instances;
                         $.each(this.instances, function (index, object) {
-                            var instanceIndex = instances.indexInstance(applicationIndex, this.id);
+                            var instanceIndex = showingInstances.indexInstance(applicationIndex, this.id);
                             if (instanceIndex == -1) {
                                 showInstances.push(this);
                             } else {
@@ -123,10 +118,8 @@ define(['jquery', 'vue', 'text!appInstanceHtml', 'instanceChart', 'chartJs'],
         }
 
 
-
         return {
             loadInstancesData: loadInstancesData,
-            instances: instances,
             drawCanvas: drawCanvas
         }
     });

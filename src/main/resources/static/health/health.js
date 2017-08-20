@@ -1,16 +1,31 @@
 requirejs(['/main.js'], function (main) {
-    requirejs(['jquery', 'applicationList', 'appInstance', 'instanceTimeAxis'],
-        function ($, applicationList, appInstance, timeAxis) {
-            window.autoUpdateAppInstanceCharts = function () {
-                window.updateChartTimeTask = setTimeout("window.autoUpdateappInstanceCharts()", 1000);
-            }
+    requirejs(['jquery', 'applications', 'appInstance', 'healthTimeAxis', 'moment'],
+        function ($, applications, appInstance, timeAxis, moment) {
+            var config = {
+                serverTimestamp: undefined,
+                differentTime: undefined,
+            };
+            $.ajax({
+                url: "/syncTime",
+                async: false,
+                success: function (data) {
+                    config.serverTimestamp = data.timestamp;
+                    config.differentTime = moment() - data.timestamp;
+                }
+            })
 
-            window.stopAutoUpdateAppInstanceCharts = function () {
-            }
+            timeAxis.draw(config.differentTime).registryTimerHandle(function (timestamp, applicationIds) {
+                appInstance.loadInstancesData(timestamp, applicationIds)
+            });
 
-            timeAxis.draw();
-            applicationList.loadApplications();
-            appInstance.drawCanvas().loadInstancesData();
+            applications.draw().loadApplications(config.serverTimestamp).registryAppIdOperationHandler(function (applicationId, isRemove) {
+                if (isRemove) {
+                    timeAxis.removeAppId(applicationId);
+                } else {
+                    timeAxis.addAppId(applicationId);
+                }
+            }).startTimeTask();
 
+            appInstance.drawCanvas();
         });
 });
