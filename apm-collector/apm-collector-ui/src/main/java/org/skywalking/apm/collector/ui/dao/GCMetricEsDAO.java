@@ -8,7 +8,7 @@ import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
-import org.skywalking.apm.collector.storage.table.jvm.GCMetricTable;
+import org.skywalking.apm.collector.storage.define.jvm.GCMetricTable;
 import org.skywalking.apm.network.proto.GCPhrase;
 
 /**

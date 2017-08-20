@@ -2,7 +2,7 @@ package org.skywalking.apm.collector.agentstream.worker.register.instance;
 
 import org.skywalking.apm.collector.storage.elasticsearch.define.ElasticSearchColumnDefine;
 import org.skywalking.apm.collector.storage.elasticsearch.define.ElasticSearchTableDefine;
-import org.skywalking.apm.collector.storage.table.register.InstanceTable;
+import org.skywalking.apm.collector.storage.define.register.InstanceTable;
 
 /**
  * @author pengys5
@@ -31,5 +31,6 @@ public class InstanceEsTableDefine extends ElasticSearchTableDefine {
         addColumn(new ElasticSearchColumnDefine(InstanceTable.COLUMN_REGISTER_TIME, ElasticSearchColumnDefine.Type.Long.name()));
         addColumn(new ElasticSearchColumnDefine(InstanceTable.COLUMN_INSTANCE_ID, ElasticSearchColumnDefine.Type.Integer.name()));
         addColumn(new ElasticSearchColumnDefine(InstanceTable.COLUMN_HEARTBEAT_TIME, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(InstanceTable.COLUMN_OS_INFO, ElasticSearchColumnDefine.Type.Keyword.name()));
     }
 }

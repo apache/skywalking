@@ -16,7 +16,7 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortMode;
 import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
-import org.skywalking.apm.collector.storage.table.register.InstanceTable;
+import org.skywalking.apm.collector.storage.define.register.InstanceTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

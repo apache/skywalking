@@ -1,7 +1,7 @@
 package org.skywalking.apm.collector.agentregister.application;
 
 import org.skywalking.apm.collector.agentstream.worker.cache.ApplicationCache;
-import org.skywalking.apm.collector.agentstream.worker.register.application.ApplicationDataDefine;
+import org.skywalking.apm.collector.storage.define.register.ApplicationDataDefine;
 import org.skywalking.apm.collector.agentstream.worker.register.application.ApplicationRegisterRemoteWorker;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
 import org.skywalking.apm.collector.stream.StreamModuleContext;

@@ -4,11 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
-import org.skywalking.apm.collector.storage.table.jvm.MemoryMetricTable;
+import org.skywalking.apm.collector.storage.define.jvm.MemoryMetricTable;
 import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
 import org.skywalking.apm.collector.stream.worker.impl.dao.IPersistenceDAO;
-import org.skywalking.apm.collector.stream.worker.impl.data.Data;
-import org.skywalking.apm.collector.stream.worker.impl.data.DataDefine;
+import org.skywalking.apm.collector.core.stream.Data;
+import org.skywalking.apm.collector.storage.define.DataDefine;
 
 /**
  * @author pengys5

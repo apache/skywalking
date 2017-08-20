@@ -1,6 +1,7 @@
 package org.skywalking.apm.collector.stream.worker.selector;
 
 import java.util.List;
+import org.skywalking.apm.collector.core.stream.AbstractHashMessage;
 import org.skywalking.apm.collector.stream.worker.WorkerRef;
 import org.skywalking.apm.collector.stream.worker.AbstractWorker;
 

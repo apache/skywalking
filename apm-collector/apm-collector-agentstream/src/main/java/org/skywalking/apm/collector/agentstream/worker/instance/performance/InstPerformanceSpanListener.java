@@ -1,6 +1,6 @@
 package org.skywalking.apm.collector.agentstream.worker.instance.performance;
 
-import org.skywalking.apm.collector.agentstream.worker.instance.performance.define.InstPerformanceDataDefine;
+import org.skywalking.apm.collector.storage.define.instance.InstPerformanceDataDefine;
 import org.skywalking.apm.collector.agentstream.worker.segment.EntrySpanListener;
 import org.skywalking.apm.collector.agentstream.worker.segment.FirstSpanListener;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;

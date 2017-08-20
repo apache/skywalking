@@ -11,7 +11,7 @@ import org.skywalking.apm.collector.stream.worker.ProviderNotFoundException;
 import org.skywalking.apm.collector.stream.worker.Role;
 import org.skywalking.apm.collector.stream.worker.WorkerException;
 import org.skywalking.apm.collector.stream.worker.impl.dao.IPersistenceDAO;
-import org.skywalking.apm.collector.stream.worker.impl.data.Data;
+import org.skywalking.apm.collector.core.stream.Data;
 import org.skywalking.apm.collector.stream.worker.impl.data.DataCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

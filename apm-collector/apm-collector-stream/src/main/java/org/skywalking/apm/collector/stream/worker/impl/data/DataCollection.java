@@ -2,6 +2,7 @@ package org.skywalking.apm.collector.stream.worker.impl.data;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.skywalking.apm.collector.core.stream.Data;
 
 /**
  * @author pengys5

@@ -6,7 +6,7 @@ import java.util.Map;
 import org.elasticsearch.action.get.GetResponse;
 import org.skywalking.apm.collector.core.util.StringUtils;
 import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
-import org.skywalking.apm.collector.storage.table.segment.SegmentTable;
+import org.skywalking.apm.collector.storage.define.segment.SegmentTable;
 import org.skywalking.apm.network.proto.TraceSegmentObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

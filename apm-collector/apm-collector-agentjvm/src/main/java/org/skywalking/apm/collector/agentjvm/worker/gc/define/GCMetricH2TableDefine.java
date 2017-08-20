@@ -2,7 +2,7 @@ package org.skywalking.apm.collector.agentjvm.worker.gc.define;
 
 import org.skywalking.apm.collector.storage.h2.define.H2ColumnDefine;
 import org.skywalking.apm.collector.storage.h2.define.H2TableDefine;
-import org.skywalking.apm.collector.storage.table.jvm.GCMetricTable;
+import org.skywalking.apm.collector.storage.define.jvm.GCMetricTable;
 
 /**
  * @author pengys5

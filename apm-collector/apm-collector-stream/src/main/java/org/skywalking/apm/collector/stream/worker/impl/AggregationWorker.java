@@ -9,7 +9,7 @@ import org.skywalking.apm.collector.stream.worker.WorkerException;
 import org.skywalking.apm.collector.stream.worker.WorkerInvokeException;
 import org.skywalking.apm.collector.stream.worker.WorkerNotFoundException;
 import org.skywalking.apm.collector.stream.worker.WorkerRefs;
-import org.skywalking.apm.collector.stream.worker.impl.data.Data;
+import org.skywalking.apm.collector.core.stream.Data;
 import org.skywalking.apm.collector.stream.worker.impl.data.DataCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

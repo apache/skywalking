@@ -1,14 +1,14 @@
 package org.skywalking.apm.collector.agentjvm.worker.heartbeat.define;
 
 import org.skywalking.apm.collector.remote.grpc.proto.RemoteData;
-import org.skywalking.apm.collector.storage.table.register.InstanceTable;
-import org.skywalking.apm.collector.stream.worker.impl.data.Attribute;
-import org.skywalking.apm.collector.stream.worker.impl.data.AttributeType;
-import org.skywalking.apm.collector.stream.worker.impl.data.Data;
-import org.skywalking.apm.collector.stream.worker.impl.data.DataDefine;
-import org.skywalking.apm.collector.stream.worker.impl.data.Transform;
-import org.skywalking.apm.collector.stream.worker.impl.data.operate.CoverOperation;
-import org.skywalking.apm.collector.stream.worker.impl.data.operate.NonOperation;
+import org.skywalking.apm.collector.storage.define.register.InstanceTable;
+import org.skywalking.apm.collector.storage.define.Attribute;
+import org.skywalking.apm.collector.storage.define.AttributeType;
+import org.skywalking.apm.collector.core.stream.Data;
+import org.skywalking.apm.collector.storage.define.DataDefine;
+import org.skywalking.apm.collector.core.stream.Transform;
+import org.skywalking.apm.collector.core.stream.operate.CoverOperation;
+import org.skywalking.apm.collector.core.stream.operate.NonOperation;
 
 /**
  * @author pengys5
