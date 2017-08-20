@@ -1,6 +1,7 @@
 package org.skywalking.apm.collector.ui.dao;
 
 import java.util.List;
+import org.skywalking.apm.collector.storage.table.instance.Instance;
 
 /**
  * @author pengys5
@@ -11,6 +12,8 @@ public interface IInstanceDAO {
     Long instanceLastHeartBeatTime(long applicationInstanceId);
 
     List<Application> getApplications(long time);
+
+    Instance getInstance(int instanceId);
 
     class Application {
         private final int applicationId;

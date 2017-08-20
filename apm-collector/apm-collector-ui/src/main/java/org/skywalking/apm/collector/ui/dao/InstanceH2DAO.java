@@ -2,6 +2,7 @@ package org.skywalking.apm.collector.ui.dao;
 
 import java.util.List;
 import org.skywalking.apm.collector.storage.h2.dao.H2DAO;
+import org.skywalking.apm.collector.storage.table.instance.Instance;
 
 /**
  * @author pengys5
@@ -16,6 +17,10 @@ public class InstanceH2DAO extends H2DAO implements IInstanceDAO {
     }
 
     @Override public List<Application> getApplications(long time) {
+        return null;
+    }
+
+    @Override public Instance getInstance(int instanceId) {
         return null;
     }
 }
