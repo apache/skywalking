@@ -23,5 +23,10 @@
             <artifactId>apm-collector-cluster</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>apm-collector-remote</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

@@ -1,6 +1,6 @@
 package org.skywalking.apm.collector.stream.worker;
 
-import org.skywalking.apm.collector.stream.worker.impl.data.DataDefine;
+import org.skywalking.apm.collector.storage.define.DataDefine;
 import org.skywalking.apm.collector.stream.worker.selector.WorkerSelector;
 
 /**

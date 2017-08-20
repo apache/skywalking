@@ -1,6 +1,6 @@
 package org.skywalking.apm.collector.agentstream.worker.register.application.dao;
 
-import org.skywalking.apm.collector.agentstream.worker.register.application.ApplicationDataDefine;
+import org.skywalking.apm.collector.storage.define.register.ApplicationDataDefine;
 import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.storage.h2.dao.H2DAO;
 

@@ -25,6 +25,7 @@ public class InstanceDiscoveryServletHandler extends JettyHandler {
     private static final String AGENT_UUID = "au";
     private static final String REGISTER_TIME = "rt";
     private static final String INSTANCE_ID = "ii";
+    private static final String OS_INFO = "oi";
 
     @Override public String pathSpec() {
         return "/instance/register";
@@ -41,8 +42,9 @@ public class InstanceDiscoveryServletHandler extends JettyHandler {
             int applicationId = instance.get(APPLICATION_ID).getAsInt();
             String agentUUID = instance.get(AGENT_UUID).getAsString();
             long registerTime = instance.get(REGISTER_TIME).getAsLong();
+            JsonObject osInfo = instance.get(OS_INFO).getAsJsonObject();
 
-            int instanceId = instanceIDService.getOrCreate(applicationId, agentUUID, registerTime);
+            int instanceId = instanceIDService.getOrCreate(applicationId, agentUUID, registerTime, osInfo.toString());
             responseJson.addProperty(APPLICATION_ID, applicationId);
             responseJson.addProperty(INSTANCE_ID, instanceId);
         } catch (IOException e) {

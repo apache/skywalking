@@ -16,6 +16,7 @@
         <module>apm-collector-agentserver</module>
         <module>apm-collector-agentregister</module>
         <module>apm-collector-agentjvm</module>
+        <module>apm-collector-remote</module>
     </modules>
     <parent>
         <artifactId>apm</artifactId>

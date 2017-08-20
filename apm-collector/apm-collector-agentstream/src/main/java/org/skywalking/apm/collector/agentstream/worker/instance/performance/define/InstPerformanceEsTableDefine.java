@@ -2,7 +2,7 @@ package org.skywalking.apm.collector.agentstream.worker.instance.performance.def
 
 import org.skywalking.apm.collector.storage.elasticsearch.define.ElasticSearchColumnDefine;
 import org.skywalking.apm.collector.storage.elasticsearch.define.ElasticSearchTableDefine;
-import org.skywalking.apm.collector.storage.table.instance.InstPerformanceTable;
+import org.skywalking.apm.collector.storage.define.instance.InstPerformanceTable;
 
 /**
  * @author pengys5

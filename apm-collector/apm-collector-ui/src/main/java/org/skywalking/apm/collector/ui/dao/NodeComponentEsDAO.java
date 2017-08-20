@@ -10,7 +10,7 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
-import org.skywalking.apm.collector.storage.table.node.NodeComponentTable;
+import org.skywalking.apm.collector.storage.define.node.NodeComponentTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

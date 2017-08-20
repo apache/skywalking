@@ -1,7 +1,7 @@
 package org.skywalking.apm.collector.ui.dao;
 
 import java.util.List;
-import org.skywalking.apm.collector.storage.table.instance.Instance;
+import org.skywalking.apm.collector.storage.define.register.InstanceDataDefine;
 
 /**
  * @author pengys5
@@ -13,7 +13,7 @@ public interface IInstanceDAO {
 
     List<Application> getApplications(long time);
 
-    Instance getInstance(int instanceId);
+    InstanceDataDefine.Instance getInstance(int instanceId);
 
     class Application {
         private final int applicationId;

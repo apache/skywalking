@@ -2,7 +2,7 @@ package org.skywalking.apm.collector.agentjvm.worker.memory.define;
 
 import org.skywalking.apm.collector.storage.elasticsearch.define.ElasticSearchColumnDefine;
 import org.skywalking.apm.collector.storage.elasticsearch.define.ElasticSearchTableDefine;
-import org.skywalking.apm.collector.storage.table.jvm.MemoryMetricTable;
+import org.skywalking.apm.collector.storage.define.jvm.MemoryMetricTable;
 
 /**
  * @author pengys5

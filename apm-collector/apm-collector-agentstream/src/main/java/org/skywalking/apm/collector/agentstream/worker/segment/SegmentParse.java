@@ -10,7 +10,7 @@ import org.skywalking.apm.collector.agentstream.worker.noderef.reference.NodeRef
 import org.skywalking.apm.collector.agentstream.worker.noderef.summary.NodeRefSumSpanListener;
 import org.skywalking.apm.collector.agentstream.worker.segment.cost.SegmentCostSpanListener;
 import org.skywalking.apm.collector.agentstream.worker.segment.origin.SegmentPersistenceWorker;
-import org.skywalking.apm.collector.agentstream.worker.segment.origin.define.SegmentDataDefine;
+import org.skywalking.apm.collector.storage.define.segment.SegmentDataDefine;
 import org.skywalking.apm.collector.agentstream.worker.service.entry.ServiceEntrySpanListener;
 import org.skywalking.apm.collector.agentstream.worker.serviceref.reference.ServiceRefSpanListener;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;

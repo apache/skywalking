@@ -1,6 +1,6 @@
 package org.skywalking.apm.collector.agentregister.servicename;
 
-import org.skywalking.apm.collector.agentstream.worker.register.servicename.ServiceNameDataDefine;
+import org.skywalking.apm.collector.storage.define.register.ServiceNameDataDefine;
 import org.skywalking.apm.collector.agentstream.worker.register.servicename.ServiceNameRegisterRemoteWorker;
 import org.skywalking.apm.collector.agentstream.worker.register.servicename.dao.IServiceNameDAO;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
