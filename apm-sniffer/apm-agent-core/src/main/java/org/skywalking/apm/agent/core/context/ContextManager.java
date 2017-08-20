@@ -39,7 +39,7 @@ public class ContextManager implements TracingContextListener, BootService, Igno
                 context = new IgnoredTracerContext();
             } else {
                 if (RemoteDownstreamConfig.Agent.APPLICATION_ID != DictionaryUtil.nullValue()
-                    || RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID != DictionaryUtil.nullValue()
+                    && RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID != DictionaryUtil.nullValue()
                     ) {
                     int suffixIdx = operationName.lastIndexOf(".");
                     if (suffixIdx > -1 && Config.Agent.IGNORE_SUFFIX.contains(operationName.substring(suffixIdx))) {
@@ -105,6 +105,12 @@ public class ContextManager implements TracingContextListener, BootService, Igno
         AbstractTracerContext context = getOrCreate(operationName, false);
         AbstractSpan span = context.createExitSpan(operationName, remotePeer);
         context.inject(carrier);
+        return span;
+    }
+
+    public static AbstractSpan createExitSpan(String operationName, String remotePeer) {
+        AbstractTracerContext context = getOrCreate(operationName, false);
+        AbstractSpan span = context.createExitSpan(operationName, remotePeer);
         return span;
     }
 

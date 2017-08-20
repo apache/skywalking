@@ -1,5 +1,6 @@
 package org.skywalking.apm.agent.core.plugin.match;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import net.bytebuddy.description.annotation.AnnotationDescription;
@@ -47,7 +48,7 @@ public class MethodAnnotationMatch implements IndirectMatch {
     @Override
     public boolean isMatch(TypeDescription typeDescription) {
         for (MethodDescription.InDefinedShape methodDescription : typeDescription.getDeclaredMethods()) {
-            List<String> annotationList = Arrays.asList(annotations);
+            List<String> annotationList = new ArrayList<String>(Arrays.asList(annotations));
 
             AnnotationList declaredAnnotations = methodDescription.getDeclaredAnnotations();
             for (AnnotationDescription annotation : declaredAnnotations) {
