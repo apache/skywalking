@@ -32,12 +32,12 @@ requirejs.config({
         "metricCharts": "/instance/metricCharts",
         "metricChartsHtml": "/instance/metricCharts.html",
         "metricSelectorHtml": "/instance/metricSelector.html",
-        "applicationList": "/health/applicationList",
-        "applicationListHtml": "/health/applicationList.html",
+        "applications": "/health/applications",
+        "applicationsHtml": "/health/applications.html",
         "appInstance": "/health/appInstance",
         "appInstanceHtml": "/health/appInstance.html",
         "instanceChart": "/public/js/instance-chart",
-        "instanceTimeAxis": "/health/timeaxis",
+        "healthTimeAxis": "/health/timeaxis",
         "instanceTimeAxisHtml": "/health/timeaxis.html",
     }
 });
