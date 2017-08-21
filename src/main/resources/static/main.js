@@ -39,5 +39,7 @@ requirejs.config({
         "instanceChart": "/public/js/instance-chart",
         "healthTimeAxis": "/health/timeaxis",
         "instanceTimeAxisHtml": "/health/timeaxis.html",
+        "responseTimeConditionHtml": "/health/responseTimeCondition.html",
+        "responseTimeCondition": "/health/responseTimeCondition"
     }
 });

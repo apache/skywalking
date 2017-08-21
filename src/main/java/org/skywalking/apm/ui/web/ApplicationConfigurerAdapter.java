@@ -30,7 +30,7 @@ public class ApplicationConfigurerAdapter extends WebMvcConfigurerAdapter {
     public void configureViewResolvers(ViewResolverRegistry registry) {
         super.configureViewResolvers(registry);
         InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();
-        viewResolver.setPrefix("/static/");
+        viewResolver.setPrefix("/");
         viewResolver.setSuffix(".html");
         registry.viewResolver(viewResolver);
     }
