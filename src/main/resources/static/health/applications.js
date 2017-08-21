@@ -43,7 +43,7 @@ define(['jquery', 'vue', 'text!applicationsHtml'], function ($, Vue, segmentHtml
     function startTimeTask() {
         apps.timerTask = setInterval(function () {
             loadApplications($("#timeAxis").val());
-        }, 15 * 000);
+        }, 15000);
     }
 
     return {

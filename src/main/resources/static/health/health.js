@@ -1,6 +1,6 @@
 requirejs(['/main.js'], function (main) {
-    requirejs(['jquery', 'applications', 'appInstance', 'healthTimeAxis', 'moment'],
-        function ($, applications, appInstance, timeAxis, moment) {
+    requirejs(['jquery', 'applications', 'appInstance', 'healthTimeAxis', 'moment', 'responseTimeCondition'],
+        function ($, applications, appInstance, timeAxis, moment, responseTimeCondition) {
             var config = {
                 serverTimestamp: undefined,
                 differentTime: undefined,
@@ -8,14 +8,15 @@ requirejs(['/main.js'], function (main) {
             $.ajax({
                 url: "/syncTime",
                 async: false,
+                timeout: 1000,
                 success: function (data) {
                     config.serverTimestamp = data.timestamp;
                     config.differentTime = moment() - data.timestamp;
                 }
-            })
+            });
 
-            timeAxis.draw(config.differentTime).registryTimerHandle(function (timestamp, applicationIds) {
-                appInstance.loadInstancesData(timestamp, applicationIds)
+            timeAxis.draw(config.serverTimestamp, config.differentTime).registryTimerHandle(function (timestamp, queryParameters) {
+                appInstance.loadInstancesData(timestamp, queryParameters.applicationIds, queryParameters.responseTime)
             });
 
             applications.draw().loadApplications(config.serverTimestamp).registryAppIdOperationHandler(function (applicationId, isRemove) {
@@ -27,5 +28,8 @@ requirejs(['/main.js'], function (main) {
             }).startTimeTask();
 
             appInstance.drawCanvas();
+            responseTimeCondition.draw().registryResponseTimeHandler(function (responseTime) {
+                timeAxis.addResponseTimeQueryParam(responseTime);
+            });
         });
 });
