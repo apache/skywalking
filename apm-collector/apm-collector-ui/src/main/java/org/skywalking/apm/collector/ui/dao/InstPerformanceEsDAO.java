@@ -13,7 +13,9 @@ import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.metrics.sum.Sum;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.storage.define.instance.InstPerformanceTable;
 import org.skywalking.apm.collector.storage.define.jvm.CpuMetricTable;
@@ -24,30 +26,43 @@ import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
  */
 public class InstPerformanceEsDAO extends EsDAO implements IInstPerformanceDAO {
 
-    @Override public List<InstPerformance> getMultiple(long timestamp, int applicationId) {
+    @Override public List<InstPerformance> getMultiple(long timeBucket, int applicationId) {
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(InstPerformanceTable.TABLE);
         searchRequestBuilder.setTypes(InstPerformanceTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
 
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
         MatchQueryBuilder matchApplicationId = QueryBuilders.matchQuery(InstPerformanceTable.COLUMN_APPLICATION_ID, applicationId);
-        MatchQueryBuilder matchTimeBucket = QueryBuilders.matchQuery(InstPerformanceTable.COLUMN_TIME_BUCKET, timestamp);
+        MatchQueryBuilder matchTimeBucket = QueryBuilders.matchQuery(InstPerformanceTable.COLUMN_5S_TIME_BUCKET, timeBucket);
 
         boolQuery.must().add(matchApplicationId);
         boolQuery.must().add(matchTimeBucket);
 
         searchRequestBuilder.setQuery(boolQuery);
-        searchRequestBuilder.setSize(100);
+        searchRequestBuilder.setSize(0);
+
+        searchRequestBuilder.addAggregation(
+            AggregationBuilders.terms(InstPerformanceTable.COLUMN_INSTANCE_ID).field(InstPerformanceTable.COLUMN_INSTANCE_ID)
+                .subAggregation(
+                    AggregationBuilders.terms(InstPerformanceTable.COLUMN_5S_TIME_BUCKET).field(InstPerformanceTable.COLUMN_5S_TIME_BUCKET)
+                        .subAggregation(AggregationBuilders.sum(InstPerformanceTable.COLUMN_CALL_TIMES).field(InstPerformanceTable.COLUMN_CALL_TIMES))
+                        .subAggregation(AggregationBuilders.sum(InstPerformanceTable.COLUMN_COST_TOTAL).field(InstPerformanceTable.COLUMN_COST_TOTAL))));
 
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
-        List<InstPerformance> instPerformances = new LinkedList<>();
-        SearchHit[] searchHits = searchResponse.getHits().getHits();
-        for (SearchHit searchHit : searchHits) {
-            int instanceId = (Integer)searchHit.getSource().get(InstPerformanceTable.COLUMN_INSTANCE_ID);
-            int callTimes = (Integer)searchHit.getSource().get(InstPerformanceTable.COLUMN_CALL_TIMES);
-            long costTotal = ((Number)searchHit.getSource().get(InstPerformanceTable.COLUMN_COST_TOTAL)).longValue();
 
-            instPerformances.add(new InstPerformance(instanceId, callTimes, costTotal));
+        Terms instanceTerms = searchResponse.getAggregations().get(InstPerformanceTable.COLUMN_INSTANCE_ID);
+        List<InstPerformance> instPerformances = new LinkedList<>();
+        for (Terms.Bucket instanceBucket : instanceTerms.getBuckets()) {
+            int instanceId = instanceBucket.getKeyAsNumber().intValue();
+            Terms timeBucketTerms = instanceBucket.getAggregations().get(InstPerformanceTable.COLUMN_5S_TIME_BUCKET);
+            for (Terms.Bucket timeBucketBucket : timeBucketTerms.getBuckets()) {
+                long count = timeBucketBucket.getDocCount();
+                Sum sumCallTimes = timeBucketBucket.getAggregations().get(InstPerformanceTable.COLUMN_CALL_TIMES);
+                Sum sumCostTotal = timeBucketBucket.getAggregations().get(InstPerformanceTable.COLUMN_COST_TOTAL);
+                int avgCallTimes = (int)(sumCallTimes.getValue() / count);
+                int avgCost = (int)(sumCostTotal.getValue() / count);
+                instPerformances.add(new InstPerformance(instanceId, avgCallTimes, avgCost));
+            }
         }
 
         return instPerformances;

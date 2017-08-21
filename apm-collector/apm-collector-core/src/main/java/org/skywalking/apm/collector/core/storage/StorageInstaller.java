@@ -20,13 +20,14 @@ public abstract class StorageInstaller {
             defineFilter(tableDefines);
 
             for (TableDefine tableDefine : tableDefines) {
+                tableDefine.initialize();
                 if (!isExists(client, tableDefine)) {
                     logger.info("table: {} not exists", tableDefine.getName());
-                    tableDefine.initialize();
                     createTable(client, tableDefine);
                 } else {
                     logger.info("table: {} exists", tableDefine.getName());
-//                    deleteTable(client, tableDefine);
+                    deleteTable(client, tableDefine);
+                    createTable(client, tableDefine);
                 }
             }
         } catch (DefineException e) {

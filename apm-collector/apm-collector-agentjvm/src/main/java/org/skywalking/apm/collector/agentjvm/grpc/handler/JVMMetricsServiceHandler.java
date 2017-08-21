@@ -10,6 +10,7 @@ import org.skywalking.apm.collector.agentjvm.worker.memory.MemoryMetricPersisten
 import org.skywalking.apm.collector.agentjvm.worker.memorypool.MemoryPoolMetricPersistenceWorker;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
 import org.skywalking.apm.collector.core.util.Const;
+import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.server.grpc.GRPCHandler;
 import org.skywalking.apm.collector.storage.define.jvm.CpuMetricDataDefine;
 import org.skywalking.apm.collector.storage.define.jvm.GCMetricDataDefine;
@@ -19,7 +20,6 @@ import org.skywalking.apm.collector.stream.StreamModuleContext;
 import org.skywalking.apm.collector.stream.StreamModuleGroupDefine;
 import org.skywalking.apm.collector.stream.worker.WorkerInvokeException;
 import org.skywalking.apm.collector.stream.worker.WorkerNotFoundException;
-import org.skywalking.apm.collector.stream.worker.util.TimeBucketUtils;
 import org.skywalking.apm.network.proto.CPU;
 import org.skywalking.apm.network.proto.Downstream;
 import org.skywalking.apm.network.proto.GC;
@@ -139,6 +139,7 @@ public class JVMMetricsServiceHandler extends JVMMetricsServiceGrpc.JVMMetricsSe
             gcMetric.setCount(gc.getCount());
             gcMetric.setTime(gc.getTime());
             gcMetric.setTimeBucket(timeBucket);
+            gcMetric.setS5TimeBucket(TimeBucketUtils.INSTANCE.getFiveSecondTimeBucket(timeBucket));
             try {
                 logger.debug("send to gc metric persistence worker, id: {}", gcMetric.getId());
                 context.getClusterWorkerContext().lookup(GCMetricPersistenceWorker.WorkerRole.INSTANCE).tell(gcMetric.toData());

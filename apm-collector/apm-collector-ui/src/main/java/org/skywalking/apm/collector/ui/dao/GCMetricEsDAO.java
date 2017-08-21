@@ -12,40 +12,51 @@ import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.metrics.sum.Sum;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.storage.define.jvm.CpuMetricTable;
 import org.skywalking.apm.collector.storage.define.jvm.GCMetricTable;
 import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
 import org.skywalking.apm.network.proto.GCPhrase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author pengys5
  */
 public class GCMetricEsDAO extends EsDAO implements IGCMetricDAO {
 
-    @Override public GCCount getGCCount(long timestamp, int instanceId) {
+    private final Logger logger = LoggerFactory.getLogger(GCMetricEsDAO.class);
+
+    @Override public GCCount getGCCount(long s5TimeBucket, int instanceId) {
+        logger.debug("get gc count, s5TimeBucket: {}, instanceId: {}", s5TimeBucket, instanceId);
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(GCMetricTable.TABLE);
         searchRequestBuilder.setTypes(GCMetricTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
 
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
         MatchQueryBuilder matchApplicationId = QueryBuilders.matchQuery(GCMetricTable.COLUMN_APPLICATION_INSTANCE_ID, instanceId);
-        MatchQueryBuilder matchTimeBucket = QueryBuilders.matchQuery(GCMetricTable.COLUMN_TIME_BUCKET, timestamp);
+        MatchQueryBuilder matchTimeBucket = QueryBuilders.matchQuery(GCMetricTable.COLUMN_5S_TIME_BUCKET, s5TimeBucket);
 
         boolQuery.must().add(matchApplicationId);
         boolQuery.must().add(matchTimeBucket);
 
         searchRequestBuilder.setQuery(boolQuery);
-        searchRequestBuilder.setSize(100);
+        searchRequestBuilder.setSize(0);
+        searchRequestBuilder.addAggregation(
+            AggregationBuilders.terms(GCMetricTable.COLUMN_PHRASE).field(GCMetricTable.COLUMN_PHRASE)
+                .subAggregation(AggregationBuilders.sum(GCMetricTable.COLUMN_COUNT).field(GCMetricTable.COLUMN_COUNT)));
 
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
-        SearchHit[] searchHits = searchResponse.getHits().getHits();
 
         GCCount gcCount = new GCCount();
-        for (SearchHit searchHit : searchHits) {
-            int phrase = (Integer)searchHit.getSource().get(GCMetricTable.COLUMN_PHRASE);
-            int count = (Integer)searchHit.getSource().get(GCMetricTable.COLUMN_COUNT);
+        Terms phraseAggregation = searchResponse.getAggregations().get(GCMetricTable.COLUMN_PHRASE);
+        for (Terms.Bucket phraseBucket : phraseAggregation.getBuckets()) {
+            int phrase = phraseBucket.getKeyAsNumber().intValue();
+            Sum sumAggregation = phraseBucket.getAggregations().get(GCMetricTable.COLUMN_COUNT);
+            int count = (int)sumAggregation.getValue();
 
             if (phrase == GCPhrase.NEW_VALUE) {
                 gcCount.setYoung(count);

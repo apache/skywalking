@@ -7,7 +7,7 @@ import java.util.List;
  * @author pengys5
  */
 public interface IInstPerformanceDAO {
-    List<InstPerformance> getMultiple(long timestamp, int applicationId);
+    List<InstPerformance> getMultiple(long timeBucket, int applicationId);
 
     int getMetric(int instanceId, long timeBucket);
 

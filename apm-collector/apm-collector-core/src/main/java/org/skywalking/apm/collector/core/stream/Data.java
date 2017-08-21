@@ -21,6 +21,7 @@ public class Data extends AbstractHashMessage {
         int booleanCapacity, int byteCapacity) {
         super(id);
         this.dataStrings = new String[stringCapacity];
+        this.dataStrings[0] = id;
         this.dataLongs = new Long[longCapacity];
         this.dataDoubles = new Double[doubleCapacity];
         this.dataIntegers = new Integer[integerCapacity];

@@ -2,6 +2,8 @@ package org.skywalking.apm.collector.agentjvm.grpc.handler;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import org.skywalking.apm.network.proto.CPU;
 import org.skywalking.apm.network.proto.GC;
 import org.skywalking.apm.network.proto.GCPhrase;
@@ -27,17 +29,16 @@ public class JVMMetricsServiceHandlerTestCase {
         ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 11800).usePlaintext(true).build();
         stub = JVMMetricsServiceGrpc.newBlockingStub(channel);
 
-        buildJvmMetric(2);
-        buildJvmMetric(3);
-
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        final long timeInterval = 1;
+        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> multiInstanceJvmSend(), 1, timeInterval, TimeUnit.SECONDS);
     }
 
-    public static void buildJvmMetric(int instanceId) {
+    public static void multiInstanceJvmSend() {
+        buildJvmMetric(2);
+        buildJvmMetric(3);
+    }
+
+    private static void buildJvmMetric(int instanceId) {
         JVMMetrics.Builder jvmMetricsBuilder = JVMMetrics.newBuilder();
         jvmMetricsBuilder.setApplicationInstanceId(instanceId);
 
@@ -88,10 +89,16 @@ public class JVMMetricsServiceHandlerTestCase {
     }
 
     private static void buildGcMetric(JVMMetric.Builder jvmMetric) {
-        GC.Builder gcBuilder = GC.newBuilder();
-        gcBuilder.setPhrase(GCPhrase.NEW);
-        gcBuilder.setCount(2);
-        gcBuilder.setTime(100);
-        jvmMetric.addGc(gcBuilder.build());
+        GC.Builder newGcBuilder = GC.newBuilder();
+        newGcBuilder.setPhrase(GCPhrase.NEW);
+        newGcBuilder.setCount(2);
+        newGcBuilder.setTime(100);
+        jvmMetric.addGc(newGcBuilder.build());
+
+        GC.Builder oldGcBuilder = GC.newBuilder();
+        oldGcBuilder.setPhrase(GCPhrase.OLD);
+        oldGcBuilder.setCount(2);
+        oldGcBuilder.setTime(100);
+        jvmMetric.addGc(oldGcBuilder.build());
     }
 }

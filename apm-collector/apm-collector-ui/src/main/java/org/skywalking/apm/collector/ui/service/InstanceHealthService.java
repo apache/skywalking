@@ -3,6 +3,7 @@ package org.skywalking.apm.collector.ui.service;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import java.util.List;
+import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.storage.dao.DAOContainer;
 import org.skywalking.apm.collector.ui.cache.ApplicationCache;
 import org.skywalking.apm.collector.ui.dao.IGCMetricDAO;
@@ -18,14 +19,14 @@ public class InstanceHealthService {
 
     private final Logger logger = LoggerFactory.getLogger(InstanceHealthService.class);
 
-    public JsonObject getApplications(long timestamp) {
+    public JsonObject getApplications(long timeBucket) {
         IInstanceDAO instanceDAO = (IInstanceDAO)DAOContainer.INSTANCE.get(IInstanceDAO.class.getName());
-        List<IInstanceDAO.Application> applications = instanceDAO.getApplications(timestamp);
+        List<IInstanceDAO.Application> applications = instanceDAO.getApplications(timeBucket);
 
         JsonObject response = new JsonObject();
         JsonArray applicationArray = new JsonArray();
 
-        response.addProperty("timestamp", timestamp);
+        response.addProperty("timeBucket", timeBucket);
         response.add("applicationList", applicationArray);
 
         applications.forEach(application -> {
@@ -43,15 +44,16 @@ public class InstanceHealthService {
     public JsonObject getInstances(long timestamp, int applicationId) {
         JsonObject response = new JsonObject();
 
-        IInstPerformanceDAO instPerformanceDAO = (IInstPerformanceDAO)DAOContainer.INSTANCE.get(IInstPerformanceDAO.class.getName());
-        List<IInstPerformanceDAO.InstPerformance> performances = instPerformanceDAO.getMultiple(timestamp, applicationId);
+        long secondTimeBucket = TimeBucketUtils.INSTANCE.getSecondTimeBucket(timestamp);
+        long s5TimeBucket = TimeBucketUtils.INSTANCE.getFiveSecondTimeBucket(secondTimeBucket);
 
-        response.addProperty("timestamp", timestamp);
+        IInstPerformanceDAO instPerformanceDAO = (IInstPerformanceDAO)DAOContainer.INSTANCE.get(IInstPerformanceDAO.class.getName());
+        List<IInstPerformanceDAO.InstPerformance> performances = instPerformanceDAO.getMultiple(s5TimeBucket, applicationId);
 
         JsonArray instances = new JsonArray();
-        response.addProperty("applicationCode", ApplicationCache.get(applicationId));
+        response.addProperty("applicationCode", ApplicationCache.getForUI(applicationId));
         response.addProperty("applicationId", applicationId);
-        response.add("appInstances", instances);
+        response.add("instances", instances);
 
         IGCMetricDAO gcMetricDAO = (IGCMetricDAO)DAOContainer.INSTANCE.get(IGCMetricDAO.class.getName());
         performances.forEach(instance -> {
@@ -59,14 +61,14 @@ public class InstanceHealthService {
             instanceJson.addProperty("id", instance.getInstanceId());
             instanceJson.addProperty("tps", instance.getCallTimes());
 
-            int avg = (int)((instance.getCostTotal() / instance.getCallTimes()) / 1000);
+            int avg = (int)(instance.getCostTotal() / instance.getCallTimes());
             instanceJson.addProperty("avg", avg);
 
-            if (avg > 5) {
+            if (avg > 5000) {
                 instanceJson.addProperty("healthLevel", 0);
-            } else if (avg > 3 && avg <= 5) {
+            } else if (avg > 3000 && avg <= 5000) {
                 instanceJson.addProperty("healthLevel", 1);
-            } else if (avg > 1 && avg <= 3) {
+            } else if (avg > 1000 && avg <= 3000) {
                 instanceJson.addProperty("healthLevel", 2);
             } else {
                 instanceJson.addProperty("healthLevel", 3);
@@ -74,7 +76,7 @@ public class InstanceHealthService {
 
             instanceJson.addProperty("status", 0);
 
-            IGCMetricDAO.GCCount gcCount = gcMetricDAO.getGCCount(timestamp, instance.getInstanceId());
+            IGCMetricDAO.GCCount gcCount = gcMetricDAO.getGCCount(s5TimeBucket, instance.getInstanceId());
             instanceJson.addProperty("ygc", gcCount.getYoung());
             instanceJson.addProperty("ogc", gcCount.getOld());
 

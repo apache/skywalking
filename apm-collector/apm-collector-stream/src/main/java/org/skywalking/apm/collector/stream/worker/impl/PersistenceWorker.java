@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.skywalking.apm.collector.core.queue.EndOfBatchCommand;
+import org.skywalking.apm.collector.core.stream.Data;
 import org.skywalking.apm.collector.core.util.ObjectUtils;
 import org.skywalking.apm.collector.stream.worker.AbstractLocalAsyncWorker;
 import org.skywalking.apm.collector.stream.worker.ClusterWorkerContext;
@@ -11,7 +12,6 @@ import org.skywalking.apm.collector.stream.worker.ProviderNotFoundException;
 import org.skywalking.apm.collector.stream.worker.Role;
 import org.skywalking.apm.collector.stream.worker.WorkerException;
 import org.skywalking.apm.collector.stream.worker.impl.dao.IPersistenceDAO;
-import org.skywalking.apm.collector.core.stream.Data;
 import org.skywalking.apm.collector.stream.worker.impl.data.DataCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,12 +75,24 @@ public abstract class PersistenceWorker extends AbstractLocalAsyncWorker {
                 Data dbData = persistenceDAO().get(id, getRole().dataDefine());
                 if (ObjectUtils.isNotEmpty(dbData)) {
                     getRole().dataDefine().mergeData(data, dbData);
-                    updateBatchCollection.add(persistenceDAO().prepareBatchUpdate(data));
+                    try {
+                        updateBatchCollection.add(persistenceDAO().prepareBatchUpdate(data));
+                    } catch (Throwable t) {
+                        logger.error(t.getMessage(), t);
+                    }
                 } else {
-                    insertBatchCollection.add(persistenceDAO().prepareBatchInsert(data));
+                    try {
+                        insertBatchCollection.add(persistenceDAO().prepareBatchInsert(data));
+                    } catch (Throwable t) {
+                        logger.error(t.getMessage(), t);
+                    }
                 }
             } else {
-                insertBatchCollection.add(persistenceDAO().prepareBatchInsert(data));
+                try {
+                    insertBatchCollection.add(persistenceDAO().prepareBatchInsert(data));
+                } catch (Throwable t) {
+                    logger.error(t.getMessage(), t);
+                }
             }
         });
 

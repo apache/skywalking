@@ -1,6 +1,8 @@
 package org.skywalking.apm.collector.ui.jetty.handler.instancehealth;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import javax.servlet.http.HttpServletRequest;
 import org.skywalking.apm.collector.server.jetty.ArgumentsParseException;
 import org.skywalking.apm.collector.server.jetty.JettyHandler;
@@ -23,8 +25,8 @@ public class InstanceHealthGetHandler extends JettyHandler {
 
     @Override protected JsonElement doGet(HttpServletRequest req) throws ArgumentsParseException {
         String timestampStr = req.getParameter("timestamp");
-        String applicationIdStr = req.getParameter("applicationId");
-        logger.debug("instance health get timestamp: {}", timestampStr);
+        String[] applicationIdsStr = req.getParameterValues("applicationIds");
+        logger.debug("instance health get timestamp: {}, applicationIdsStr: {}", timestampStr, applicationIdsStr);
 
         long timestamp;
         try {
@@ -33,14 +35,24 @@ public class InstanceHealthGetHandler extends JettyHandler {
             throw new ArgumentsParseException("timestamp must be long");
         }
 
-        int applicationId;
-        try {
-            applicationId = Integer.parseInt(applicationIdStr);
-        } catch (NumberFormatException e) {
-            throw new ArgumentsParseException("application id must be integer");
+        int[] applicationIds = new int[applicationIdsStr.length];
+        for (int i = 0; i < applicationIdsStr.length; i++) {
+            try {
+                applicationIds[i] = Integer.parseInt(applicationIdsStr[i]);
+            } catch (NumberFormatException e) {
+                throw new ArgumentsParseException("application id must be integer");
+            }
         }
 
-        return service.getInstances(timestamp, applicationId);
+        JsonObject response = new JsonObject();
+        response.addProperty("timestamp", timestamp);
+        JsonArray appInstances = new JsonArray();
+        response.add("appInstances", appInstances);
+
+        for (int applicationId : applicationIds) {
+            appInstances.add(service.getInstances(timestamp, applicationId));
+        }
+        return response;
     }
 
     @Override protected JsonElement doPost(HttpServletRequest req) throws ArgumentsParseException {

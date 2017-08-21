@@ -61,22 +61,28 @@ public abstract class DataDefine {
         for (int i = 0; i < initialCapacity(); i++) {
             Attribute attribute = attributes[i];
             if (AttributeType.STRING.equals(attribute.getType())) {
-                attribute.getOperation().operate(newData.getDataString(stringPosition), oldData.getDataString(stringPosition));
+                String stringData = attribute.getOperation().operate(newData.getDataString(stringPosition), oldData.getDataString(stringPosition));
+                newData.setDataString(stringPosition, stringData);
                 stringPosition++;
             } else if (AttributeType.LONG.equals(attribute.getType())) {
-                attribute.getOperation().operate(newData.getDataLong(longPosition), oldData.getDataLong(longPosition));
+                Long longData = attribute.getOperation().operate(newData.getDataLong(longPosition), oldData.getDataLong(longPosition));
+                newData.setDataLong(longPosition, longData);
                 longPosition++;
             } else if (AttributeType.DOUBLE.equals(attribute.getType())) {
-                attribute.getOperation().operate(newData.getDataDouble(doublePosition), oldData.getDataDouble(doublePosition));
+                Double doubleData = attribute.getOperation().operate(newData.getDataDouble(doublePosition), oldData.getDataDouble(doublePosition));
+                newData.setDataDouble(doublePosition, doubleData);
                 doublePosition++;
             } else if (AttributeType.INTEGER.equals(attribute.getType())) {
-                attribute.getOperation().operate(newData.getDataInteger(integerPosition), oldData.getDataInteger(integerPosition));
+                Integer integerData = attribute.getOperation().operate(newData.getDataInteger(integerPosition), oldData.getDataInteger(integerPosition));
+                newData.setDataInteger(integerPosition, integerData);
                 integerPosition++;
             } else if (AttributeType.BOOLEAN.equals(attribute.getType())) {
-                attribute.getOperation().operate(newData.getDataBoolean(booleanPosition), oldData.getDataBoolean(booleanPosition));
-                integerPosition++;
+                Boolean booleanData = attribute.getOperation().operate(newData.getDataBoolean(booleanPosition), oldData.getDataBoolean(booleanPosition));
+                newData.setDataBoolean(booleanPosition, booleanData);
+                booleanPosition++;
             } else if (AttributeType.BYTE.equals(attribute.getType())) {
-                attribute.getOperation().operate(newData.getDataBytes(bytePosition), oldData.getDataBytes(integerPosition));
+                byte[] byteData = attribute.getOperation().operate(newData.getDataBytes(bytePosition), oldData.getDataBytes(integerPosition));
+                newData.setDataBytes(bytePosition, byteData);
                 bytePosition++;
             }
         }

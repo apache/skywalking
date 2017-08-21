@@ -1,8 +1,8 @@
 package org.skywalking.apm.collector.agentstream.worker.instance.performance.define;
 
+import org.skywalking.apm.collector.storage.define.instance.InstPerformanceTable;
 import org.skywalking.apm.collector.storage.elasticsearch.define.ElasticSearchColumnDefine;
 import org.skywalking.apm.collector.storage.elasticsearch.define.ElasticSearchTableDefine;
-import org.skywalking.apm.collector.storage.define.instance.InstPerformanceTable;
 
 /**
  * @author pengys5
@@ -31,5 +31,6 @@ public class InstPerformanceEsTableDefine extends ElasticSearchTableDefine {
         addColumn(new ElasticSearchColumnDefine(InstPerformanceTable.COLUMN_CALL_TIMES, ElasticSearchColumnDefine.Type.Integer.name()));
         addColumn(new ElasticSearchColumnDefine(InstPerformanceTable.COLUMN_COST_TOTAL, ElasticSearchColumnDefine.Type.Long.name()));
         addColumn(new ElasticSearchColumnDefine(InstPerformanceTable.COLUMN_TIME_BUCKET, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(InstPerformanceTable.COLUMN_5S_TIME_BUCKET, ElasticSearchColumnDefine.Type.Long.name()));
     }
 }
