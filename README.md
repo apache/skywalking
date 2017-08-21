@@ -14,11 +14,12 @@ Sky Walking | [中文](https://github.com/wu-sheng/sky-walking/wiki/sky-walking-
 
 
 * Auto instrumentation by javaagent, **no need to CHANGE any application source code**.
-  * High performance agent. Only incrase extra **10%** cpu cost in 5000+ tps application, even **do not need open sampling mechanism**, [check test reports](#test-reports).
+  * High performance agent. Only incrase extra **10%** cpu cost in 5000+ tps application, even **do not need use sampling mechanism**, [check test reports](#test-reports).
   * [Supported middlewares, frameworks and libraries](https://github.com/wu-sheng/sky-walking/wiki/3.0-supported-list).
 * Manual instrumentation
   * As an [OpenTracing supported tracer](http://opentracing.io/documentation/pages/supported-tracers)
   * Use **@Trace** annotation for any methods you want to trace.
+  * Integrate traceId into logs for log4j, log4j2 and logback.
 * Pure Java server implementation, provide RESTful and gRPC services. Compatibility with other language agents/SDKs. 
   * [How to uplink metrics and traces to collector?]()
 * The UI released on [wu-sheng/sky-walking-ui](https://github.com/wu-sheng/sky-walking-ui)
