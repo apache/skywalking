@@ -52,6 +52,10 @@ define([], function () {
                             }
                         }
                     }]
+                },
+                tooltips: {
+                    mode: 'index',
+                    intersect: false,
                 }
             }
         };

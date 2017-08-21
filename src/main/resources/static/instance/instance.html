@@ -8,6 +8,10 @@
     <meta http-equiv="pragma" content="no-cache">
     <meta http-equiv="expires" content="0">
     <title>Instance</title>
+    <script>
+        window.instanceId = 1;
+        window.startTime = 1503379032000;
+    </script>
     <script data-main="/instance/instance" src="/webjars/requirejs/2.3.3/require.min.js"></script>
     <link href="\webjars\bootstrap-daterangepicker\2.1.24\css\bootstrap-daterangepicker.css" rel="stylesheet">
     <link href="/webjars/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
@@ -38,13 +42,15 @@
             text-transform: uppercase;
         }
 
-        .operation-context {}
+        .operation-context {
+        }
 
         .info-key {
             text-align: right;
         }
 
-        .context-item {}
+        .context-item {
+        }
 
         .info-value {
             text-align: left;
@@ -58,7 +64,7 @@
     </style>
 </head>
 
-<body>
+<body style="background-color: #ffffff">
 <div class="container-fluid">
     <div class="row white-bg">
         <div class="col-lg-2" style="padding-left: 15px">
@@ -82,7 +88,7 @@
                             <h5>Time</h5>
                         </div>
                         <div class="col-lg-12  col-sm-12 operation-context" style="margin-bottom:20px">
-                            <input id="startTimeInput" type="text" name="daterange" />
+                            <input id="startTimeInput" type="text" name="daterange"/>
                             <input id="autoUpdate" type="checkbox" style="margin-right:5px">auto update</input>
                         </div>
                     </div>

@@ -1,9 +1,11 @@
 requirejs(['/main.js'], function (main) {
     requirejs(['rangeSlider', 'moment', 'daterangepicker', 'machineInfo', 'metricCharts'],
         function (rangeSlider, moment, dataRangePicker, machineInfo, metricCharts) {
+            var instanceId = window.instanceId;
+            var startTime = window.startTime;
 
-            machineInfo.loadMachineInfo();
-            metricCharts.drawMetricSelector().loadMetricCharts();
+            machineInfo.loadMachineInfo(instanceId);
+            metricCharts.drawMetricSelector().loadMetricCharts(1, startTime);
 
 
             $('#startTimeInput').daterangepicker({
@@ -17,7 +19,7 @@ requirejs(['/main.js'], function (main) {
                 }
             });
 
-            $("#startTimeInput").val(moment().format('YYYY-MM-DD H:mm'));
+            $("#startTimeInput").val(moment(startTime).format('YYYY-MM-DD H:mm'));
             $('#startTimeInput').on('apply.daterangepicker', function (ev, picker) {
                 $(this).val(picker.startDate.format('YYYY-MM-DD H:mm'));
                 $(this).attr("timestamp", picker.startDate);
@@ -29,21 +31,18 @@ requirejs(['/main.js'], function (main) {
                     $("#startTimeInput").prop("disabled", true);
                     $("#startTimeInput").val("");
                     $("#startTimeInput").attr("timestamp", "")
-                    window.autoUpdateMetricCharts();
+                    window.updateChartTimeTask = setInterval(function () {
+                        metricCharts.autoUpdateMetricCharts();
+                    }, 1000);
                 } else {
                     window.stopAutoUpdateMetricCharts();
                 }
             });
 
 
-            window.autoUpdateMetricCharts = function () {
-                metricCharts.autoUpdateMetricCharts();
-                window.updateChartTimeTask = setTimeout("window.autoUpdateMetricCharts()", 1000);
-            }
-
             window.stopAutoUpdateMetricCharts = function () {
                 $("#startTimeInput").prop('disabled', false);
-                clearTimeout(window.updateChartTimeTask);
+                clearInterval(window.updateChartTimeTask);
                 $("#autoUpdate").prop("checked", false);
             }
 

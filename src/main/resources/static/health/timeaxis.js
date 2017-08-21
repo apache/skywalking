@@ -2,25 +2,34 @@ define(['jquery', 'rangeSlider', 'moment', 'appInstance', 'text!instanceTimeAxis
     var config = {
         timeAxis: {
             timer: undefined,
-            differentTime: undefined,
             rangeSlider: undefined,
-            dTime: undefined
+            differentTime: undefined,
+            queryInstanceTime: 0
         },
         queryParam: {
-            applicationIds: []
+            applicationIds: [],
+            responseTime: undefined
         },
         timeHandler: undefined,
         start: function () {
             var that = config;
-            that.timeAxis.dTime = +moment() - $("#timeAxis").val();
+            var dTime = +moment() - $("#timeAxis").val();
+            var isFirstEntry = true;
+            var queryInstanceTime = $("#timeAxis").val();
             that.timeAxis.timerTask = window.setInterval(function () {
                 that.timeAxis.rangeSlider.update({
                     disable: true,
                     max: +moment().subtract(that.timeAxis.differentTime).subtract(10, "seconds").format("x"),
-                    from: +moment().subtract(that.timeAxis.dTime).format("x")
+                    from: +moment().subtract(dTime).format("x")
                 });
 
-                that.timeHandler($("#timeAxis").val(), config.queryParam.applicationIds);
+                var currentTime = $("#timeAxis").val();
+                if (isFirstEntry || currentTime - that.timeAxis.queryInstanceTime >= 5000) {
+                    that.timeHandler(that.timeAxis.queryInstanceTime, config.queryParam);
+                    that.timeAxis.queryInstanceTime += 5000;
+                    isFirstEntry = false;
+                }
+
             }, 1000);
         },
         stop: function () {
@@ -33,11 +42,14 @@ define(['jquery', 'rangeSlider', 'moment', 'appInstance', 'text!instanceTimeAxis
         }
     }
 
-    function draw(differentTime) {
+    function draw(serverTime, differentTime) {
         $("#timeAxisDiv").html(segmentHtml);
         config.timeAxis.rangeSlider = initRangeSlider();
         bindButtonEvent(differentTime);
         config.timeAxis.differentTime = differentTime;
+        config.timeAxis.queryInstanceTime = serverTime;
+        console.log(window.applicationId);
+        config.queryParam.applicationIds.push(window.applicationId);
         config.start();
         return this;
     }
@@ -91,11 +103,15 @@ define(['jquery', 'rangeSlider', 'moment', 'appInstance', 'text!instanceTimeAxis
         config.queryParam.applicationIds.splice(index, 1);
         console.log("remainder applicationIds:" + config.queryParam.applicationIds.toString());
     }
+    function addResponseTimeQueryParam(responseTime) {
+        config.queryParam.responseTime = responseTime;
+    }
 
     return {
         draw: draw,
         registryTimerHandle: registryTimerHandle,
         addAppId: addAppId,
-        removeAppId: removeAppId
+        removeAppId: removeAppId,
+        addResponseTimeQueryParam: addResponseTimeQueryParam
     }
 });
