@@ -19,7 +19,7 @@ Sky Walking | [中文](https://github.com/wu-sheng/sky-walking/wiki/sky-walking-
 * Manual instrumentation
   * As an [OpenTracing supported tracer](http://opentracing.io/documentation/pages/supported-tracers)
   * Use **@Trace** annotation for any methods you want to trace.
-  * Integrate traceId into logs for log4j, log4j2 and logback.
+  * Integrate traceId into logs for log4j, log4j2 and logback.
 * Pure Java server implementation, provide RESTful and gRPC services. Compatibility with other language agents/SDKs. 
   * [How to uplink metrics and traces to collector?]()
 * The UI released on [wu-sheng/sky-walking-ui](https://github.com/wu-sheng/sky-walking-ui)
