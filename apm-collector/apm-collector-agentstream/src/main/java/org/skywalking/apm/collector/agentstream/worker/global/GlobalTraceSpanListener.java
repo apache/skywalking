@@ -5,7 +5,7 @@ import java.util.List;
 import org.skywalking.apm.collector.storage.define.global.GlobalTraceDataDefine;
 import org.skywalking.apm.collector.agentstream.worker.segment.FirstSpanListener;
 import org.skywalking.apm.collector.agentstream.worker.segment.GlobalTraceIdsListener;
-import org.skywalking.apm.collector.stream.worker.util.TimeBucketUtils;
+import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
 import org.skywalking.apm.collector.stream.StreamModuleContext;
 import org.skywalking.apm.collector.stream.StreamModuleGroupDefine;

@@ -10,6 +10,7 @@ import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.get.GetRequestBuilder;
+import org.elasticsearch.action.get.MultiGetRequestBuilder;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequest;
@@ -121,6 +122,10 @@ public class ElasticSearchClient implements Client {
 
     public GetRequestBuilder prepareGet(String indexName, String id) {
         return client.prepareGet(indexName, "type", id);
+    }
+
+    public MultiGetRequestBuilder prepareMultiGet() {
+        return client.prepareMultiGet();
     }
 
     public BulkRequestBuilder prepareBulk() {

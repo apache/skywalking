@@ -1,4 +1,4 @@
-package org.skywalking.apm.collector.stream.worker.util;
+package org.skywalking.apm.collector.core.util;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -41,6 +41,17 @@ public enum TimeBucketUtils {
         calendar.setTimeInMillis(time);
         String timeStr = dayDateFormat.format(calendar.getTime()) + "0000";
         return Long.valueOf(timeStr);
+    }
+
+    public long getFiveSecondTimeBucket(long secondTimeBucket) {
+        long mantissa = secondTimeBucket % 10;
+        if (mantissa < 5) {
+            return (secondTimeBucket / 10) * 10;
+        } else if (mantissa == 5) {
+            return secondTimeBucket;
+        } else {
+            return ((secondTimeBucket / 10) + 1) * 10;
+        }
     }
 
     public long changeToUTCTimeBucket(long timeBucket) {

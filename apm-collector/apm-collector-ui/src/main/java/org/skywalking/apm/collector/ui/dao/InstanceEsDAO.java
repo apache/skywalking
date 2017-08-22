@@ -2,6 +2,8 @@ package org.skywalking.apm.collector.ui.dao;
 
 import java.util.LinkedList;
 import java.util.List;
+import org.elasticsearch.action.get.GetRequestBuilder;
+import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
@@ -15,8 +17,9 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortMode;
-import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
+import org.skywalking.apm.collector.storage.define.register.InstanceDataDefine;
 import org.skywalking.apm.collector.storage.define.register.InstanceTable;
+import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,5 +95,22 @@ public class InstanceEsDAO extends EsDAO implements IInstanceDAO {
             applications.add(new Application(applicationId, instanceCount));
         }
         return applications;
+    }
+
+    @Override public InstanceDataDefine.Instance getInstance(int instanceId) {
+        logger.debug("get instance info, instance id: {}", instanceId);
+        GetRequestBuilder requestBuilder = getClient().prepareGet(InstanceTable.TABLE, String.valueOf(instanceId));
+        GetResponse getResponse = requestBuilder.get();
+        if (getResponse.isExists()) {
+            InstanceDataDefine.Instance instance = new InstanceDataDefine.Instance();
+            instance.setId(String.valueOf(instanceId));
+            instance.setApplicationId(((Number)getResponse.getSource().get(InstanceTable.COLUMN_APPLICATION_ID)).intValue());
+            instance.setAgentUUID((String)getResponse.getSource().get(InstanceTable.COLUMN_AGENT_UUID));
+            instance.setRegisterTime(((Number)getResponse.getSource().get(InstanceTable.COLUMN_REGISTER_TIME)).longValue());
+            instance.setHeartBeatTime(((Number)getResponse.getSource().get(InstanceTable.COLUMN_HEARTBEAT_TIME)).longValue());
+            instance.setOsInfo((String)getResponse.getSource().get(InstanceTable.COLUMN_OS_INFO));
+            return instance;
+        }
+        return null;
     }
 }

@@ -1,11 +1,17 @@
 package org.skywalking.apm.collector.ui.dao;
 
+import com.google.gson.JsonObject;
+
 /**
  * @author pengys5
  */
 public interface IGCMetricDAO {
 
     GCCount getGCCount(long timestamp, int instanceId);
+
+    JsonObject getMetric(int instanceId, long timeBucket);
+
+    JsonObject getMetric(int instanceId, long startTimeBucket, long endTimeBucket);
 
     class GCCount {
         private int young;

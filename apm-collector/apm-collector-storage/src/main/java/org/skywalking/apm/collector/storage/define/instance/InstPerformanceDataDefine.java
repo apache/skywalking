@@ -16,7 +16,7 @@ import org.skywalking.apm.collector.storage.define.DataDefine;
 public class InstPerformanceDataDefine extends DataDefine {
 
     @Override protected int initialCapacity() {
-        return 6;
+        return 7;
     }
 
     @Override protected void attributeDefine() {
@@ -26,6 +26,7 @@ public class InstPerformanceDataDefine extends DataDefine {
         addAttribute(3, new Attribute(InstPerformanceTable.COLUMN_CALL_TIMES, AttributeType.INTEGER, new AddOperation()));
         addAttribute(4, new Attribute(InstPerformanceTable.COLUMN_COST_TOTAL, AttributeType.LONG, new AddOperation()));
         addAttribute(5, new Attribute(InstPerformanceTable.COLUMN_TIME_BUCKET, AttributeType.LONG, new CoverOperation()));
+        addAttribute(6, new Attribute(InstPerformanceTable.COLUMN_5S_TIME_BUCKET, AttributeType.LONG, new CoverOperation()));
     }
 
     @Override public Object deserialize(RemoteData remoteData) {
@@ -43,15 +44,18 @@ public class InstPerformanceDataDefine extends DataDefine {
         private int callTimes;
         private long costTotal;
         private long timeBucket;
+        private long s5TimeBucket;
 
         public InstPerformance(String id, int applicationId, int instanceId, int callTimes, long costTotal,
-            long timeBucket) {
+            long timeBucket,
+            long s5TimeBucket) {
             this.id = id;
             this.applicationId = applicationId;
             this.instanceId = instanceId;
             this.callTimes = callTimes;
             this.costTotal = costTotal;
             this.timeBucket = timeBucket;
+            this.s5TimeBucket = s5TimeBucket;
         }
 
         public InstPerformance() {
@@ -66,6 +70,7 @@ public class InstPerformanceDataDefine extends DataDefine {
             data.setDataInteger(2, this.callTimes);
             data.setDataLong(0, this.costTotal);
             data.setDataLong(1, this.timeBucket);
+            data.setDataLong(2, this.s5TimeBucket);
             return data;
         }
 
@@ -76,6 +81,7 @@ public class InstPerformanceDataDefine extends DataDefine {
             this.callTimes = data.getDataInteger(2);
             this.costTotal = data.getDataLong(0);
             this.timeBucket = data.getDataLong(1);
+            this.s5TimeBucket = data.getDataLong(2);
             return this;
         }
 
@@ -125,6 +131,14 @@ public class InstPerformanceDataDefine extends DataDefine {
 
         public void setApplicationId(int applicationId) {
             this.applicationId = applicationId;
+        }
+
+        public long getS5TimeBucket() {
+            return s5TimeBucket;
+        }
+
+        public void setS5TimeBucket(long s5TimeBucket) {
+            this.s5TimeBucket = s5TimeBucket;
         }
     }
 }

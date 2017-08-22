@@ -1,12 +1,17 @@
 package org.skywalking.apm.collector.ui.dao;
 
+import com.google.gson.JsonArray;
 import java.util.List;
 
 /**
  * @author pengys5
  */
 public interface IInstPerformanceDAO {
-    List<InstPerformance> getMultiple(long timestamp, int applicationId);
+    List<InstPerformance> getMultiple(long timeBucket, int applicationId);
+
+    int getMetric(int instanceId, long timeBucket);
+
+    JsonArray getMetric(int instanceId, long startTimeBucket, long endTimeBucket);
 
     class InstPerformance {
         private final int instanceId;

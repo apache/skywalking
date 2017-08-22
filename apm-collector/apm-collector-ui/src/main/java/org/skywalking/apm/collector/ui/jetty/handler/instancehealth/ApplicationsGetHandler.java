@@ -22,17 +22,17 @@ public class ApplicationsGetHandler extends JettyHandler {
     private InstanceHealthService service = new InstanceHealthService();
 
     @Override protected JsonElement doGet(HttpServletRequest req) throws ArgumentsParseException {
-        String timestamp = req.getParameter("timestamp");
-        logger.debug("instance health applications get time: {}", timestamp);
+        String timestampStr = req.getParameter("timestamp");
+        logger.debug("instance health applications get time: {}", timestampStr);
 
-        long time;
+        long timestamp;
         try {
-            time = Long.parseLong(timestamp);
+            timestamp = Long.parseLong(timestampStr);
         } catch (NumberFormatException e) {
             throw new ArgumentsParseException("time must be long");
         }
 
-        return service.getApplications(time);
+        return service.getApplications(timestamp);
     }
 
     @Override protected JsonElement doPost(HttpServletRequest req) throws ArgumentsParseException {
