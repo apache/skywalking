@@ -126,6 +126,12 @@
             <version>${project.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>apm-toolkit-trace-activation</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
     </dependencies>
     <build>
         <finalName>skywalking-agent</finalName>

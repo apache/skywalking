@@ -1,7 +1,6 @@
 package org.skywalking.apm.plugin.jdbc;
 
 import java.sql.SQLException;
-import org.skywalking.apm.agent.core.context.ContextCarrier;
 import org.skywalking.apm.agent.core.context.ContextManager;
 import org.skywalking.apm.agent.core.context.tag.Tags;
 import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
@@ -20,7 +19,7 @@ public class ConnectionTracing {
             } else {
                 remotePeer = connectInfo.getHost() + ":" + connectInfo.getPort();
             }
-            AbstractSpan span = ContextManager.createExitSpan(connectInfo.getDBType() + "/JDBI/Connection/" + method, new ContextCarrier(), remotePeer);
+            AbstractSpan span = ContextManager.createExitSpan(connectInfo.getDBType() + "/JDBI/Connection/" + method, remotePeer);
             Tags.DB_TYPE.set(span, "sql");
             Tags.DB_INSTANCE.set(span, connectInfo.getDatabaseName());
             Tags.DB_STATEMENT.set(span, sql);

@@ -17,6 +17,10 @@ public class SpanAssert {
         assertThat(SpanHelper.getLogs(span).size(), is(exceptedSize));
     }
 
+    public static void assertTagSize(AbstractSpan span, int exceptedSize) {
+        assertThat(SpanHelper.getTags(span).size(), is(exceptedSize));
+    }
+
     public static void assertException(LogDataEntity logDataEntity, Class<? extends Throwable> throwableClass,
         String message) {
         Assert.assertThat(logDataEntity.getLogs().size(), is(4));
