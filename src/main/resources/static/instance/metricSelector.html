@@ -1,59 +1,74 @@
 <div class="context-item">
-  <div class="col-lg-12  col-sm-12  graph-select">
-    <div class="commons-info">
+    <div class="col-lg-12  col-sm-12  graph-select">
+        <div class="commons-info">
       <span style="display:inline-block; margin-right:5px">
         <input style="margin-right:5px" type="checkbox" checked disabled>TPS/Response</input>
       </span>
-      <span style="display:inline-block; margin-right:5px">
-        <input id="gcInput" style="margin-right:5px" v-on:click="displayChart('gc', $event)" :disabled="needDisabled('gcInput') && chartNumber >= 4" type="checkbox" checked >GC</input>
+            <span style="display:inline-block; margin-right:5px">
+        <input id="gcInput" style="margin-right:5px" v-on:click="displayChart('gc', $event)" type="checkbox"
+               checked>GC</input>
       </span>
-      <span style="display:inline-block; margin-right:5px">
-        <input id="cpuInput" style="margin-right:5px" id="cpuInput" v-on:change="displayChart('cpu', $event)" type="checkbox" checked :disabled="needDisabled('cpuInput') && chartNumber >= 4 ">CPU</input>
+            <span style="display:inline-block; margin-right:5px">
+        <input id="cpuInput" style="margin-right:5px" id="cpuInput" v-on:change="displayChart('cpu', $event)"
+               type="checkbox" checked>CPU</input>
       </span>
+        </div>
+        <div>
+            <div>
+                <h5>Heap Memory </h5>
+                <span style="display:block; margin-right:5px">
+          <input id="heapMemoryInput" style="margin-right:5px" v-on:click="displayChart('heapMemory', $event)"
+                 type="checkbox" checked>Heap/Memory</input>
+        </span>
+                <span style="display:block; margin-right:5px">
+          <input id="heapPermGenInput" style="margin-right:5px" v-on:click="displayChart('heapPermGen', $event)"
+                 type="checkbox" name="">Heap/Perm Gen</input>
+        </span>
+                <span style="display:block; margin-right:5px">
+          <input id="heapMetaSpanInput" style="margin-right:5px" v-on:click="displayChart('heapMetaSpace', $event)"
+                 type="checkbox" name="">Heap/Meta Space</input>
+        </span>
+                <span style="display:block; margin-right:5px">
+          <input id="heapNewGenInput" style="margin-right:5px" v-on:click="displayChart('heapNewGen', $event)"
+                 type="checkbox" name="">Heap/New Gen</input>
+        </span>
+                <span style="display:block; margin-right:5px">
+          <input id="heapOldGenInput" style="margin-right:5px" v-on:click="displayChart('heapOldGen', $event)"
+                 type="checkbox" name="">Heap/Old Gen</input>
+        </span>
+                <span style="display:block; margin-right:5px">
+          <input id="heapSurvivorInput" style="margin-right:5px" v-on:click="displayChart('heapSurvivor', $event)"
+                 type="checkbox">Heap/Survivor</input>
+        </span>
+            </div>
+            <div>
+                <h5>NonHeap Memory </h5>
+                <span style="display:block; margin-right:5px">
+          <input id="nonHeapMemoryInput" style="margin-right:5px" v-on:click="displayChart('nonHeapMemory', $event)"
+                 type="checkbox">Noheap/Memory</input>
+        </span>
+                <span style="display:block; margin-right:5px">
+          <input id="nonHeapPermGenInput" style="margin-right:5px" v-on:click="displayChart('nonHeapPermGen', $event)"
+                 type="checkbox" name="">NonHeap/Perm Gen</input>
+        </span>
+                <span style="display:block; margin-right:5px">
+          <input id="nonHeapMetaSpaceInput" style="margin-right:5px"
+                 v-on:click="displayChart('nonHeapMetaSpace', $event)" type="checkbox"
+                 name="">NonHeap/Meta Space</input>
+        </span>
+                <span style="display:block; margin-right:5px">
+          <input id="nonHeapNewGenInput" style="margin-right:5px" v-on:click="displayChart('nonHeapNewGen', $event)"
+                 type="checkbox" name="">NonHeap/New Gen</input>
+        </span>
+                <span style="display:block; margin-right:5px">
+          <input id="nonHeapOldGenInput" style="margin-right:5px" v-on:click="displayChart('nonHeapOldGen', $event)"
+                 type="checkbox" name="">NonHeap/Old Gen</input>
+        </span>
+                <span style="display:block; margin-right:5px">
+          <input id="nonHeapSurvivorInput" style="margin-right:5px" v-on:click="displayChart('nonHeapSurvivor', $event)"
+                 type="checkbox">Noheap/Suvrior</input>
+        </span>
+            </div>
+        </div>
     </div>
-    <div>
-      <div>
-        <h5>Heap Memory </h5>
-        <span style="display:block; margin-right:5px">
-          <input id="heapMemoryInput" style="margin-right:5px" v-on:click="displayChart('heapMemory', $event)" type="checkbox" checked :disabled="needDisabled('heapMemoryInput') && chartNumber >= 4 ">Heap/Memory</input>
-        </span>
-        <span style="display:block; margin-right:5px">
-          <input id="heapPermGenInput" style="margin-right:5px" v-on:click="displayChart('heapPermGen', $event)" type="checkbox" name="" :disabled="needDisabled('heapPermGenInput') && needDisabled('hPermGenInput') && chartNumber >= 4  " >Heap/Perm Gen</input>
-        </span>
-        <span style="display:block; margin-right:5px">
-          <input id="heapMetaSpanInput" style="margin-right:5px" v-on:click="displayChart('heapMetaSpace', $event)" type="checkbox" name="" :disabled="needDisabled('heapMetaSpanInput') && chartNumber >= 4 " >Heap/Meta Space</input>
-        </span>
-        <span style="display:block; margin-right:5px">
-          <input  id="heapNewGenInput" style="margin-right:5px" v-on:click="displayChart('heapNewGen', $event)" type="checkbox" name=""  :disabled="needDisabled('heapNewGenInput') && chartNumber >= 4 ">Heap/New Gen</input>
-        </span>
-        <span style="display:block; margin-right:5px">
-          <input  id="heapOldGenInput" style="margin-right:5px" v-on:click="displayChart('heapOldGen', $event)" type="checkbox" name=""  :disabled="needDisabled('heapOldGenInput') && chartNumber >= 4 ">Heap/Old Gen</input>
-        </span>
-        <span style="display:block; margin-right:5px">
-          <input  id="heapSurvivorInput" style="margin-right:5px"  v-on:click="displayChart('heapSurvivor', $event)"  type="checkbox"  :disabled="needDisabled('heapSurvivorInput') && chartNumber >= 4 " >Heap/Survivor</input>
-        </span>
-      </div>
-      <div>
-        <h5>NonHeap Memory </h5>
-        <span style="display:block; margin-right:5px">
-          <input  id="nonHeapMemoryInput" style="margin-right:5px" v-on:click="displayChart('nonHeapMemory', $event)"  type="checkbox"   :disabled="needDisabled('nonHeapMemoryInput') && chartNumber >= 4 ">Noheap/Memory</input>
-        </span>
-        <span style="display:block; margin-right:5px">
-          <input  id="nonHeapPermGenInput" style="margin-right:5px" v-on:click="displayChart('nonHeapPermGen', $event)"  type="checkbox" name="" :disabled="needDisabled('nonHeapPermGenInput') && chartNumber >= 4 " >NonHeap/Perm Gen</input>
-        </span>
-        <span style="display:block; margin-right:5px">
-          <input  id="nonHeapMetaSpaceInput" style="margin-right:5px" v-on:click="displayChart('nonHeapMetaSpace', $event)"  type="checkbox" name=""  :disabled="needDisabled('nonHeapMetaSpaceInput') && chartNumber >= 4 ">NonHeap/Meta Space</input>
-        </span>
-        <span style="display:block; margin-right:5px">
-          <input  id="nonHeapNewGenInput" style="margin-right:5px" v-on:click="displayChart('nonHeapNewGen', $event)"  type="checkbox" name="" :disabled="needDisabled('nonHeapNewGenInput') && chartNumber >= 4 " >NonHeap/New Gen</input>
-        </span>
-        <span style="display:block; margin-right:5px">
-          <input id="nonHeapOldGenInput"  style="margin-right:5px" v-on:click="displayChart('nonHeapOldGen', $event)"  type="checkbox" name=""  :disabled="needDisabled('nonHeapOldGenInput') && chartNumber >= 4 ">NonHeap/Old Gen</input>
-        </span>
-        <span style="display:block; margin-right:5px">
-          <input id="nonHeapSurvivorInput" style="margin-right:5px"   v-on:click="displayChart('nonHeapSurvivor', $event)"  type="checkbox"  :disabled="needDisabled('nonHeapSurvivorInput') && chartNumber >= 4 " >Noheap/Suvrior</input>
-        </span>
-      </div>
-    </div>
-  </div>
 </div>
