@@ -2,7 +2,7 @@ package org.skywalking.apm.collector.agentstream.worker.register.servicename;
 
 import org.skywalking.apm.collector.storage.elasticsearch.define.ElasticSearchColumnDefine;
 import org.skywalking.apm.collector.storage.elasticsearch.define.ElasticSearchTableDefine;
-import org.skywalking.apm.collector.storage.table.register.ServiceNameTable;
+import org.skywalking.apm.collector.storage.define.register.ServiceNameTable;
 
 /**
  * @author pengys5
@@ -14,7 +14,7 @@ public class ServiceNameEsTableDefine extends ElasticSearchTableDefine {
     }
 
     @Override public int refreshInterval() {
-        return 0;
+        return 2;
     }
 
     @Override public int numberOfShards() {

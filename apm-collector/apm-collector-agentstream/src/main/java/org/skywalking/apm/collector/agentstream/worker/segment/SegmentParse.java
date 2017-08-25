@@ -3,13 +3,14 @@ package org.skywalking.apm.collector.agentstream.worker.segment;
 import java.util.ArrayList;
 import java.util.List;
 import org.skywalking.apm.collector.agentstream.worker.global.GlobalTraceSpanListener;
+import org.skywalking.apm.collector.agentstream.worker.instance.performance.InstPerformanceSpanListener;
 import org.skywalking.apm.collector.agentstream.worker.node.component.NodeComponentSpanListener;
 import org.skywalking.apm.collector.agentstream.worker.node.mapping.NodeMappingSpanListener;
 import org.skywalking.apm.collector.agentstream.worker.noderef.reference.NodeRefSpanListener;
 import org.skywalking.apm.collector.agentstream.worker.noderef.summary.NodeRefSumSpanListener;
 import org.skywalking.apm.collector.agentstream.worker.segment.cost.SegmentCostSpanListener;
 import org.skywalking.apm.collector.agentstream.worker.segment.origin.SegmentPersistenceWorker;
-import org.skywalking.apm.collector.agentstream.worker.segment.origin.define.SegmentDataDefine;
+import org.skywalking.apm.collector.storage.define.segment.SegmentDataDefine;
 import org.skywalking.apm.collector.agentstream.worker.service.entry.ServiceEntrySpanListener;
 import org.skywalking.apm.collector.agentstream.worker.serviceref.reference.ServiceRefSpanListener;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
@@ -45,6 +46,7 @@ public class SegmentParse {
         spanListeners.add(new GlobalTraceSpanListener());
         spanListeners.add(new ServiceEntrySpanListener());
         spanListeners.add(new ServiceRefSpanListener());
+        spanListeners.add(new InstPerformanceSpanListener());
     }
 
     public void parse(List<UniqueId> traceIds, TraceSegmentObject segmentObject) {

@@ -5,7 +5,7 @@ import org.elasticsearch.action.get.GetResponse;
 import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
-import org.skywalking.apm.collector.storage.table.register.ServiceNameTable;
+import org.skywalking.apm.collector.storage.define.register.ServiceNameTable;
 
 /**
  * @author pengys5

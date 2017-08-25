@@ -1,15 +1,14 @@
 package org.skywalking.apm.collector.agentjvm.worker.heartbeat.define;
 
-import org.skywalking.apm.collector.core.framework.UnexpectedException;
 import org.skywalking.apm.collector.remote.grpc.proto.RemoteData;
-import org.skywalking.apm.collector.storage.table.register.InstanceTable;
-import org.skywalking.apm.collector.stream.worker.impl.data.Attribute;
-import org.skywalking.apm.collector.stream.worker.impl.data.AttributeType;
-import org.skywalking.apm.collector.stream.worker.impl.data.Data;
-import org.skywalking.apm.collector.stream.worker.impl.data.DataDefine;
-import org.skywalking.apm.collector.stream.worker.impl.data.Transform;
-import org.skywalking.apm.collector.stream.worker.impl.data.operate.CoverOperation;
-import org.skywalking.apm.collector.stream.worker.impl.data.operate.NonOperation;
+import org.skywalking.apm.collector.storage.define.register.InstanceTable;
+import org.skywalking.apm.collector.storage.define.Attribute;
+import org.skywalking.apm.collector.storage.define.AttributeType;
+import org.skywalking.apm.collector.core.stream.Data;
+import org.skywalking.apm.collector.storage.define.DataDefine;
+import org.skywalking.apm.collector.core.stream.Transform;
+import org.skywalking.apm.collector.core.stream.operate.CoverOperation;
+import org.skywalking.apm.collector.core.stream.operate.NonOperation;
 
 /**
  * @author pengys5
@@ -22,27 +21,35 @@ public class InstanceHeartBeatDataDefine extends DataDefine {
 
     @Override protected void attributeDefine() {
         addAttribute(0, new Attribute(InstanceTable.COLUMN_ID, AttributeType.STRING, new NonOperation()));
-        addAttribute(1, new Attribute(InstanceTable.COLUMN_INSTANCE_ID, AttributeType.INTEGER, new NonOperation()));
+        addAttribute(1, new Attribute(InstanceTable.COLUMN_INSTANCE_ID, AttributeType.INTEGER, new CoverOperation()));
         addAttribute(2, new Attribute(InstanceTable.COLUMN_HEARTBEAT_TIME, AttributeType.LONG, new CoverOperation()));
     }
 
     @Override public Object deserialize(RemoteData remoteData) {
-        throw new UnexpectedException("instance heart beat data did not need send to remote worker.");
+        String id = remoteData.getDataStrings(0);
+        int instanceId = remoteData.getDataIntegers(0);
+        long heartBeatTime = remoteData.getDataLongs(0);
+        return new InstanceHeartBeat(id, heartBeatTime, instanceId);
     }
 
     @Override public RemoteData serialize(Object object) {
-        throw new UnexpectedException("instance heart beat data did not need send to remote worker.");
+        InstanceHeartBeat instanceHeartBeat = (InstanceHeartBeat)object;
+        RemoteData.Builder builder = RemoteData.newBuilder();
+        builder.addDataStrings(instanceHeartBeat.getId());
+        builder.addDataIntegers(instanceHeartBeat.getInstanceId());
+        builder.addDataLongs(instanceHeartBeat.getHeartBeatTime());
+        return builder.build();
     }
 
     public static class InstanceHeartBeat implements Transform<InstanceHeartBeat> {
         private String id;
-        private int applicationInstanceId;
-        private long heartbeatTime;
+        private long heartBeatTime;
+        private int instanceId;
 
-        public InstanceHeartBeat(String id, int applicationInstanceId, long heartbeatTime) {
+        public InstanceHeartBeat(String id, long heartBeatTime, int instanceId) {
             this.id = id;
-            this.applicationInstanceId = applicationInstanceId;
-            this.heartbeatTime = heartbeatTime;
+            this.heartBeatTime = heartBeatTime;
+            this.instanceId = instanceId;
         }
 
         public InstanceHeartBeat() {
@@ -52,40 +59,40 @@ public class InstanceHeartBeatDataDefine extends DataDefine {
             InstanceHeartBeatDataDefine define = new InstanceHeartBeatDataDefine();
             Data data = define.build(id);
             data.setDataString(0, this.id);
-            data.setDataInteger(0, this.applicationInstanceId);
-            data.setDataLong(0, this.heartbeatTime);
+            data.setDataInteger(0, this.instanceId);
+            data.setDataLong(0, this.heartBeatTime);
             return data;
         }
 
         @Override public InstanceHeartBeat toSelf(Data data) {
             this.id = data.getDataString(0);
-            this.applicationInstanceId = data.getDataInteger(0);
-            this.heartbeatTime = data.getDataLong(0);
+            this.instanceId = data.getDataInteger(0);
+            this.heartBeatTime = data.getDataLong(0);
             return this;
-        }
-
-        public void setId(String id) {
-            this.id = id;
-        }
-
-        public void setApplicationInstanceId(int applicationInstanceId) {
-            this.applicationInstanceId = applicationInstanceId;
         }
 
         public String getId() {
             return id;
         }
 
-        public int getApplicationInstanceId() {
-            return applicationInstanceId;
+        public void setId(String id) {
+            this.id = id;
         }
 
-        public long getHeartbeatTime() {
-            return heartbeatTime;
+        public long getHeartBeatTime() {
+            return heartBeatTime;
         }
 
-        public void setHeartbeatTime(long heartbeatTime) {
-            this.heartbeatTime = heartbeatTime;
+        public void setHeartBeatTime(long heartBeatTime) {
+            this.heartBeatTime = heartBeatTime;
+        }
+
+        public int getInstanceId() {
+            return instanceId;
+        }
+
+        public void setInstanceId(int instanceId) {
+            this.instanceId = instanceId;
         }
     }
 }

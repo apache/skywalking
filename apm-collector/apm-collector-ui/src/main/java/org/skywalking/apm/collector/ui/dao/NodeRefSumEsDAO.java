@@ -12,7 +12,7 @@ import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilde
 import org.elasticsearch.search.aggregations.metrics.sum.Sum;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
-import org.skywalking.apm.collector.storage.table.noderef.NodeRefSumTable;
+import org.skywalking.apm.collector.storage.define.noderef.NodeRefSumTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

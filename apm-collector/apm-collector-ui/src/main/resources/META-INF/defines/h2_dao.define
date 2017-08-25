@@ -7,3 +7,6 @@ org.skywalking.apm.collector.ui.dao.GlobalTraceH2DAO
 org.skywalking.apm.collector.ui.dao.SegmentH2DAO
 org.skywalking.apm.collector.ui.dao.ApplicationH2DAO
 org.skywalking.apm.collector.ui.dao.ServiceNameH2DAO
+org.skywalking.apm.collector.ui.dao.InstanceH2DAO
+org.skywalking.apm.collector.ui.dao.InstPerformanceH2DAO
+org.skywalking.apm.collector.ui.dao.GCMetricH2DAO

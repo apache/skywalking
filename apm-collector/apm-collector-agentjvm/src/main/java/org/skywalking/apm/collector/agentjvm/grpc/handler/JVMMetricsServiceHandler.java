@@ -3,23 +3,23 @@ package org.skywalking.apm.collector.agentjvm.grpc.handler;
 import io.grpc.stub.StreamObserver;
 import java.util.List;
 import org.skywalking.apm.collector.agentjvm.worker.cpu.CpuMetricPersistenceWorker;
-import org.skywalking.apm.collector.agentjvm.worker.cpu.define.CpuMetricDataDefine;
 import org.skywalking.apm.collector.agentjvm.worker.gc.GCMetricPersistenceWorker;
-import org.skywalking.apm.collector.agentjvm.worker.gc.define.GCMetricDataDefine;
 import org.skywalking.apm.collector.agentjvm.worker.heartbeat.InstHeartBeatPersistenceWorker;
 import org.skywalking.apm.collector.agentjvm.worker.heartbeat.define.InstanceHeartBeatDataDefine;
 import org.skywalking.apm.collector.agentjvm.worker.memory.MemoryMetricPersistenceWorker;
-import org.skywalking.apm.collector.agentjvm.worker.memory.define.MemoryMetricDataDefine;
 import org.skywalking.apm.collector.agentjvm.worker.memorypool.MemoryPoolMetricPersistenceWorker;
-import org.skywalking.apm.collector.agentjvm.worker.memorypool.define.MemoryPoolMetricDataDefine;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
 import org.skywalking.apm.collector.core.util.Const;
+import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.server.grpc.GRPCHandler;
+import org.skywalking.apm.collector.storage.define.jvm.CpuMetricDataDefine;
+import org.skywalking.apm.collector.storage.define.jvm.GCMetricDataDefine;
+import org.skywalking.apm.collector.storage.define.jvm.MemoryMetricDataDefine;
+import org.skywalking.apm.collector.storage.define.jvm.MemoryPoolMetricDataDefine;
 import org.skywalking.apm.collector.stream.StreamModuleContext;
 import org.skywalking.apm.collector.stream.StreamModuleGroupDefine;
 import org.skywalking.apm.collector.stream.worker.WorkerInvokeException;
 import org.skywalking.apm.collector.stream.worker.WorkerNotFoundException;
-import org.skywalking.apm.collector.stream.worker.util.TimeBucketUtils;
 import org.skywalking.apm.network.proto.CPU;
 import org.skywalking.apm.network.proto.Downstream;
 import org.skywalking.apm.network.proto.GC;
@@ -44,7 +44,7 @@ public class JVMMetricsServiceHandler extends JVMMetricsServiceGrpc.JVMMetricsSe
         StreamModuleContext context = (StreamModuleContext)CollectorContextHelper.INSTANCE.getContext(StreamModuleGroupDefine.GROUP_NAME);
         request.getMetricsList().forEach(metric -> {
             long time = TimeBucketUtils.INSTANCE.getSecondTimeBucket(metric.getTime());
-            senToInstanceHeartBeatPersistenceWorker(context, applicationInstanceId, time);
+            senToInstanceHeartBeatPersistenceWorker(context, applicationInstanceId, metric.getTime());
             sendToCpuMetricPersistenceWorker(context, applicationInstanceId, time, metric.getCpu());
             sendToMemoryMetricPersistenceWorker(context, applicationInstanceId, time, metric.getMemoryList());
             sendToMemoryPoolMetricPersistenceWorker(context, applicationInstanceId, time, metric.getMemoryPoolList());
@@ -59,8 +59,8 @@ public class JVMMetricsServiceHandler extends JVMMetricsServiceGrpc.JVMMetricsSe
         long heartBeatTime) {
         InstanceHeartBeatDataDefine.InstanceHeartBeat heartBeat = new InstanceHeartBeatDataDefine.InstanceHeartBeat();
         heartBeat.setId(String.valueOf(applicationInstanceId));
-        heartBeat.setHeartbeatTime(heartBeatTime);
-        heartBeat.setApplicationInstanceId(applicationInstanceId);
+        heartBeat.setHeartBeatTime(heartBeatTime);
+        heartBeat.setInstanceId(applicationInstanceId);
         try {
             logger.debug("send to instance heart beat persistence worker, id: {}", heartBeat.getId());
             context.getClusterWorkerContext().lookup(InstHeartBeatPersistenceWorker.WorkerRole.INSTANCE).tell(heartBeat.toData());
@@ -111,7 +111,7 @@ public class JVMMetricsServiceHandler extends JVMMetricsServiceGrpc.JVMMetricsSe
 
         memoryPools.forEach(memoryPool -> {
             MemoryPoolMetricDataDefine.MemoryPoolMetric memoryPoolMetric = new MemoryPoolMetricDataDefine.MemoryPoolMetric();
-            memoryPoolMetric.setId(timeBucket + Const.ID_SPLIT + applicationInstanceId + Const.ID_SPLIT + String.valueOf(memoryPool.getType().getNumber()));
+            memoryPoolMetric.setId(timeBucket + Const.ID_SPLIT + applicationInstanceId + Const.ID_SPLIT + memoryPool.getIsHeap() + Const.ID_SPLIT + String.valueOf(memoryPool.getType().getNumber()));
             memoryPoolMetric.setApplicationInstanceId(applicationInstanceId);
             memoryPoolMetric.setPoolType(memoryPool.getType().getNumber());
             memoryPoolMetric.setHeap(memoryPool.getIsHeap());
@@ -139,6 +139,7 @@ public class JVMMetricsServiceHandler extends JVMMetricsServiceGrpc.JVMMetricsSe
             gcMetric.setCount(gc.getCount());
             gcMetric.setTime(gc.getTime());
             gcMetric.setTimeBucket(timeBucket);
+            gcMetric.setS5TimeBucket(TimeBucketUtils.INSTANCE.getFiveSecondTimeBucket(timeBucket));
             try {
                 logger.debug("send to gc metric persistence worker, id: {}", gcMetric.getId());
                 context.getClusterWorkerContext().lookup(GCMetricPersistenceWorker.WorkerRole.INSTANCE).tell(gcMetric.toData());

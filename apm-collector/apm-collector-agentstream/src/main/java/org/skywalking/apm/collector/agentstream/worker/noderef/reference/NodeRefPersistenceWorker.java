@@ -1,7 +1,7 @@
 package org.skywalking.apm.collector.agentstream.worker.noderef.reference;
 
 import org.skywalking.apm.collector.agentstream.worker.noderef.reference.dao.INodeReferenceDAO;
-import org.skywalking.apm.collector.agentstream.worker.noderef.reference.define.NodeRefDataDefine;
+import org.skywalking.apm.collector.storage.define.noderef.NodeRefDataDefine;
 import org.skywalking.apm.collector.storage.dao.DAOContainer;
 import org.skywalking.apm.collector.stream.worker.AbstractLocalAsyncWorkerProvider;
 import org.skywalking.apm.collector.stream.worker.ClusterWorkerContext;
@@ -9,7 +9,7 @@ import org.skywalking.apm.collector.stream.worker.ProviderNotFoundException;
 import org.skywalking.apm.collector.stream.worker.Role;
 import org.skywalking.apm.collector.stream.worker.impl.PersistenceWorker;
 import org.skywalking.apm.collector.stream.worker.impl.dao.IPersistenceDAO;
-import org.skywalking.apm.collector.stream.worker.impl.data.DataDefine;
+import org.skywalking.apm.collector.storage.define.DataDefine;
 import org.skywalking.apm.collector.stream.worker.selector.HashCodeSelector;
 import org.skywalking.apm.collector.stream.worker.selector.WorkerSelector;
 

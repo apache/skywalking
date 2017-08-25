@@ -1,0 +1,2 @@
+trace-annotation=org.skywalking.apm.toolkit.activation.trace.ActiveSpanTagActivation
+trace-annotation=org.skywalking.apm.toolkit.activation.trace.TraceAnnotationActivation

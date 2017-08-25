@@ -24,4 +24,14 @@ public class ApplicationCache {
             return Const.EXCEPTION;
         }
     }
+
+    public static String getForUI(int applicationId) {
+        String applicationCode = get(applicationId);
+        if (applicationCode.equals("Unknown")) {
+            IApplicationDAO dao = (IApplicationDAO)DAOContainer.INSTANCE.get(IApplicationDAO.class.getName());
+            applicationCode = dao.getApplicationCode(applicationId);
+            CACHE.put(applicationId, applicationCode);
+        }
+        return applicationCode;
+    }
 }
