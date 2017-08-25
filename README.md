@@ -1,4 +1,4 @@
-Sky Walking | [中文](https://github.com/wu-sheng/sky-walking/wiki/sky-walking-documents-zh-contents)
+Sky Walking | [中文](README_ZH.md)
 ==========
 
 <img src="https://sky-walking.github.io/page-resources/3.0/skywalking.png" alt="Sky Walking logo" height="90px" align="right" />
@@ -15,7 +15,7 @@ Sky Walking | [中文](https://github.com/wu-sheng/sky-walking/wiki/sky-walking-
 
 * Auto instrumentation by javaagent, **no need to CHANGE any application source code**.
   * High performance agent. Only incrase extra **10%** cpu cost in 5000+ tps application, even **do not need use sampling mechanism**, [check test reports](#test-reports).
-  * [Supported middlewares, frameworks and libraries](https://github.com/wu-sheng/sky-walking/wiki/3.0-supported-list).
+  * [Supported middlewares, frameworks and libraries](https://github.com/wu-sheng/sky-walking/wiki/3.2-supported-list).
 * Manual instrumentation
   * As an [OpenTracing supported tracer](http://opentracing.io/documentation/pages/supported-tracers)
   * Use **@Trace** annotation for any methods you want to trace.
