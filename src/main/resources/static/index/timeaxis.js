@@ -1,13 +1,7 @@
 /**
  * @author pengys5
  */
-var sliceType = "day";
-
-define(["jquery", "moment", "text!timeAxisHtml", "rangeSlider", "daterangepicker", "alarm", "dagDraw", "text!dagHtml"], function ($, moment, timeAxisHtml, rangeSlider, daterangepicker, alarm, dagDraw, dagHtml) {
-    var minuteSliceType = "minute";
-    var hourSliceType = "hour";
-    var daySliceType = "day";
-
+define(["jquery", "moment", "text!timeAxisHtml", "rangeSlider", "daterangepicker", "alarm", "dagDraw", "text!dagHtml", "timers"], function ($, moment, timeAxisHtml, rangeSlider, daterangepicker, alarm, dagDraw, dagHtml) {
     var isAutoUpdate = false;
     var slider;
 
@@ -18,237 +12,71 @@ define(["jquery", "moment", "text!timeAxisHtml", "rangeSlider", "daterangepicker
             autoUpdate();
         });
 
-        $("#minuteBtn").click(function () {
-            sliceTypeSelect(minuteSliceType);
-        });
-        $("#hourBtn").click(function () {
-            sliceTypeSelect(hourSliceType);
-        });
-        $("#dayBtn").click(function () {
-            sliceTypeSelect(daySliceType);
-        });
-
         _resize();
         createTimeAxis();
-        bindDayRangePicker();
+        bindDatePicker();
+    }
+
+    function _startAutoUpdate() {
+        console.log("start auto update");
+        $('body').everyTime('5s', function () {
+        })
+    }
+
+    function _stopAutoUpdate() {
+        $('body').stopTime();
     }
 
     function autoUpdate() {
         if (isAutoUpdate) {
             $("#isUpdateBtn").removeClass("btn-info").addClass("btn-default");
             isAutoUpdate = false;
-            dagDraw.stopAutoUpdate();
-            enableOtherBtn();
+            _stopAutoUpdate();
         } else {
             $("#isUpdateBtn").removeClass("btn-default").addClass("btn-info");
             isAutoUpdate = true;
-            dagDraw.startAutoUpdate();
-            sliceTypeSelect(daySliceType);
-            disableOtherBtn();
-        }
-    }
-
-    function disableOtherBtn() {
-        $("#dataRangeBtn").attr({"disabled": "disabled"}).unbind("click");
-        $("#minuteBtn").attr({"disabled": "disabled"}).unbind("click");
-        $("#hourBtn").attr({"disabled": "disabled"}).unbind("click");
-        $("#dayBtn").attr({"disabled": "disabled"}).unbind("click");
-    }
-
-    function enableOtherBtn() {
-        $("#dataRangeBtn").removeAttr("disabled");
-        bindDayRangePicker();
-
-        $("#minuteBtn").removeAttr("disabled").click(function () {
-            sliceTypeSelect(minuteSliceType);
-        });
-
-        $("#hourBtn").removeAttr("disabled").click(function () {
-            sliceTypeSelect(hourSliceType);
-        });
-
-        $("#dayBtn").removeAttr("disabled").click(function () {
-            sliceTypeSelect(daySliceType);
-        });
-    }
-
-    function sliceTypeSelect(sliceTypeIn) {
-        if (sliceTypeIn == minuteSliceType) {
-            $("#minuteBtn").removeClass("btn-default").addClass("btn-success");
-            $("#hourBtn").removeClass("btn-success").addClass("btn-default");
-            $("#dayBtn").removeClass("btn-success").addClass("btn-default");
-            sliceType = minuteSliceType;
-            bindMinuteDatePicker();
-        } else if (sliceTypeIn == hourSliceType) {
-            $("#hourBtn").removeClass("btn-default").addClass("btn-success");
-            $("#minuteBtn").removeClass("btn-success").addClass("btn-default");
-            $("#dayBtn").removeClass("btn-success").addClass("btn-default");
-            sliceType = hourSliceType;
-            bindHourDatePicker();
-        } else {
-            $("#dayBtn").removeClass("btn-default").addClass("btn-success");
-            $("#hourBtn").removeClass("btn-success").addClass("btn-default");
-            $("#minuteBtn").removeClass("btn-success").addClass("btn-default");
-            sliceType = daySliceType;
-            bindDayRangePicker();
+            _startAutoUpdate();
         }
     }
 
     function createTimeAxis() {
-        var rangeDate = [];
-        for (var i = 30; i >= 0; i--) {
-            rangeDate.push(moment().subtract(i, 'days').format("YYYY/MM/DD"))
-        }
+        var endTimeStr = moment().format("YYYYMMDDHHmm");
+        var startTimeStr = moment().subtract(1, "hours").format("YYYYMMDDHHmm");
 
         $("#timeAxisComponentDiv").ionRangeSlider({
-            type: 'double',
-            grid: false,
-            values: rangeDate,
+            min: moment(startTimeStr, "YYYYMMDDHHmm").format("x"),
+            max: moment(endTimeStr, "YYYYMMDDHHmm").format("x"),
+            from: +moment().subtract(0, "minutes").format("x"),
+            grid: true,
+            force_edges: true,
+            prettify: function (num) {
+                var m = moment(num, "x").locale("ru");
+                return m.format("MM/DD HH:mm");
+            },
             onChange: function (data) {
-                console.log(data.from_value + " : " + data.to_value);
-                console.log("sliceType: " + sliceType)
+                console.log(data);
 
-                if (sliceType == minuteSliceType) {
-                    var startTime = moment(data.from_value, "YYYY/MM/DD HH:mm").format("YYYYMMDDHHmm");
-                    var endTime = moment(data.to_value, "YYYY/MM/DD HH:mm").format("YYYYMMDDHHmm");
-                    console.log("startTime: " + startTime + ", endTime: " + endTime);
-                    dagDraw.loadDateRangeDag(minuteSliceType, startTime, endTime);
-                } else if (sliceType == hourSliceType) {
-                    var startTime = moment(data.from_value, "YYYY/MM/DD HH").format("YYYYMMDDHHmm");
-                    var endTime = moment(data.to_value, "YYYY/MM/DD HH").format("YYYYMMDDHHmm");
-                    console.log("startTime: " + startTime + ", endTime: " + endTime);
-                    dagDraw.loadDateRangeDag(hourSliceType, startTime, endTime);
-                } else if (sliceType == daySliceType) {
-                    var startTime = moment(data.from_value, "YYYY/MM/DD").format("YYYYMMDDHHmm");
-                    var endTime = moment(data.to_value, "YYYY/MM/DD").format("YYYYMMDDHHmm");
-                    console.log("startTime: " + startTime + ", endTime: " + endTime);
-                    dagDraw.loadDateRangeDag(daySliceType, startTime, endTime);
-                }
+                var startTime = moment(data.from).format("YYYYMMDDHHmm");
+                var endTime = moment(data.to).format("YYYYMMDDHHmm");
+                console.log("startTime: " + startTime + ", endTime: " + endTime);
+                dagDraw.loadDateRangeDag(startTime, endTime);
             }
         });
         slider = $("#timeAxisComponentDiv").data("ionRangeSlider");
+
+        dagDraw.loadDateRangeDag(startTimeStr, endTimeStr);
     }
 
-    function updateTimeAxis(rangeDate, from, to) {
+    function updateTimeAxis(from, to) {
+        console.log("update time axis");
         slider.update({
-            type: 'double',
-            grid: false,
-            prefix: "",
-            postfix: "",
-            from: from,
-            to: to,
-            values: rangeDate
+            min: moment(from, "YYYYMMDDHHmm").format("x"),
+            max: moment(to, "YYYYMMDDHHmm").format("x"),
+            from: +moment().subtract(0, "minutes").format("x")
         });
     }
 
-    function bindDayRangePicker() {
-        var rangeDateTemp = [];
-        for (var i = 29; i >= 0; i--) {
-            rangeDateTemp.push(moment().subtract(i, 'days').format("YYYY/MM/DD"))
-        }
-        updateTimeAxis(rangeDateTemp, 0, rangeDateTemp.length - 1);
-
-        var startDate = moment(rangeDateTemp[0], "YYYY/MM/DD").format("YYYYMMDD");
-        var endDate = moment(rangeDateTemp[rangeDateTemp.length - 1], "YYYY/MM/DD").format("YYYYMMDD");
-        dagDraw.loadDateRangeDag(daySliceType, startDate + "0000", endDate + "0000");
-
-        alarm.loadCostData(daySliceType, startDate + "0000", endDate + "0000");
-
-        $('#dateRangeInput').daterangepicker({
-            startDate: moment().subtract(30, 'days'),
-            endDate: moment(),
-            minDate: moment().subtract(30, 'days'),
-            maxDate: moment(),
-            "opens": "left"
-        }, function (start, end, label) {
-            var fromDate = start.format("YYYY/MM/DD");
-            var toDate = end.format("YYYY/MM/DD");
-
-            var rangeDateTemp = [];
-            for (var i = 0; i < 100; i++) {
-                var dateTemp = moment(fromDate, "YYYY/MM/DD").add(i, "day").format("YYYY/MM/DD");
-                rangeDateTemp.push(dateTemp);
-                if (dateTemp == toDate) {
-                    break;
-                }
-            }
-
-            updateTimeAxis(rangeDateTemp, 0, rangeDateTemp.length - 1);
-
-            fromDate = start.format("YYYYMMDD");
-            toDate = end.format("YYYYMMDD");
-            dagDraw.loadDateRangeDag(daySliceType, fromDate + "0000", toDate + "0000");
-
-            alarm.loadCostData(daySliceType, fromDate + "0000", toDate + "0000");
-        });
-
-        $("#dataRangeBtn").click(function () {
-            var drp = $('#dateRangeInput').data('daterangepicker');
-            drp.show();
-        });
-    }
-
-    function bindHourDatePicker() {
-        var rangeDateTemp = [];
-        for (var i = 23; i >= 0; i--) {
-            rangeDateTemp.push(moment().subtract(i, 'hours').format("YYYY/MM/DD HH"))
-        }
-        updateTimeAxis(rangeDateTemp, 0, rangeDateTemp.length - 1);
-
-        var nowDay = moment().format("YYYYMMDD");
-        dagDraw.loadDateRangeDag(hourSliceType, nowDay + "0000", nowDay + "2300");
-
-        alarm.loadCostData(hourSliceType, nowDay + "0000", nowDay + "2300");
-
-        $('#dateRangeInput').daterangepicker({
-            singleDatePicker: true,
-            endDate: moment(),
-            maxDate: moment(),
-            "opens": "left"
-        }, function (start, end, label) {
-            var fromDate = start.format("YYYY/MM/DD");
-
-            var rangeDateTemp = [];
-            for (var i = 0; i <= 23; i++) {
-                if (i < 10) {
-                    rangeDateTemp.push(fromDate + " 0" + i);
-                } else {
-                    rangeDateTemp.push(fromDate + " " + i);
-                }
-            }
-            updateTimeAxis(rangeDateTemp, 0, 23);
-
-            fromDate = start.format("YYYYMMDD");
-            dagDraw.loadDateRangeDag(hourSliceType, fromDate + "0000", fromDate + "2300");
-
-            alarm.loadCostData(hourSliceType, fromDate + "0000", fromDate + "2300");
-        });
-
-        $("#dataRangeBtn").click(function () {
-            var drp = $('#dateRangeInput').data('daterangepicker');
-            drp.show();
-        });
-    }
-
-    function bindMinuteDatePicker() {
-        var rangeDateTemp = [];
-        for (var i = 0; i <= 59; i++) {
-            if (i < 10) {
-                rangeDateTemp.push(moment().format("YYYY/MM/DD HH:") + "0" + i);
-            } else {
-                rangeDateTemp.push(moment().format("YYYY/MM/DD HH:") + i);
-            }
-        }
-        var minute = moment().format("mm");
-
-        updateTimeAxis(rangeDateTemp, minute, rangeDateTemp.length - 1);
-
-        var nowDay = moment().format("YYYYMMDDHH");
-        dagDraw.loadDateRangeDag(minuteSliceType, nowDay + "00", nowDay + "59");
-
-        alarm.loadCostData(minuteSliceType, nowDay + "00", nowDay + "59");
-
-
+    function bindDatePicker() {
         $("#dateRangeInput").val(moment().format("MM/DD/YYYY HH:mm"));
 
         $('#dateRangeInput').daterangepicker({
@@ -261,24 +89,12 @@ define(["jquery", "moment", "text!timeAxisHtml", "rangeSlider", "daterangepicker
             locale: {
                 format: 'MM/DD/YYYY HH:mm'
             }
-        }, function (start, end, label) {
-            var fromDate = start.format("YYYY/MM/DD HH");
-            var minute = start.format("mm");
+        }, function (start) {
+            var endTimeStr = start.format("YYYYMMDDHHmm");
+            var startTimeStr = start.subtract(1, "hours").format("YYYYMMDDHHmm");
 
-            var rangeDateTemp = [];
-            for (var i = 0; i <= 59; i++) {
-                if (i < 10) {
-                    rangeDateTemp.push(fromDate + ":0" + i);
-                } else {
-                    rangeDateTemp.push(fromDate + ":" + i);
-                }
-            }
-            updateTimeAxis(rangeDateTemp, Number(minute), rangeDateTemp.length - 1);
-
-            fromDate = start.format("YYYYMMDDHH");
-            dagDraw.loadDateRangeDag(minuteSliceType, fromDate + minute, fromDate + "59");
-
-            alarm.loadCostData(minuteSliceType, fromDate + minute, fromDate + "59");
+            updateTimeAxis(startTimeStr, endTimeStr);
+            dagDraw.loadDateRangeDag(startTimeStr, endTimeStr);
         });
 
         $("#dataRangeBtn").click(function () {

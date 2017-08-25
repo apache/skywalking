@@ -32,13 +32,12 @@ public class TraceDagService {
     @Autowired
     private UrlCreator UrlCreator;
 
-    public JsonObject buildGraphData(String timeBucketType, long startTime, long endTime) throws IOException {
-        return loadDataFromServer(timeBucketType, startTime, endTime);
+    public JsonObject buildGraphData(long startTime, long endTime) throws IOException {
+        return loadDataFromServer(startTime, endTime);
     }
 
-    public JsonObject loadDataFromServer(String timeBucketType, long startTime, long endTime) throws IOException {
+    public JsonObject loadDataFromServer(long startTime, long endTime) throws IOException {
         List<NameValuePair> params = new ArrayList<NameValuePair>();
-        params.add(new BasicNameValuePair("timeBucketType", timeBucketType));
         params.add(new BasicNameValuePair("startTime", String.valueOf(startTime)));
         params.add(new BasicNameValuePair("endTime", String.valueOf(endTime)));
 

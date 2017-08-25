@@ -1,7 +1,7 @@
 /**
  * @author pengys5
  */
-define(["jquery", "vis", "text!dagHtml", "moment", "nodeCanvas", "alarm", "timers"], function ($, vis, dagHtml, moment, nodeCanvas, alarm) {
+define(["jquery", "vis", "text!dagHtml", "moment", "nodeCanvas", "alarm"], function ($, vis, dagHtml, moment, nodeCanvas, alarm) {
     var _containerDiv = "traceDagDiv";
     var _network = null;
     var _data = {
@@ -78,31 +78,12 @@ define(["jquery", "vis", "text!dagHtml", "moment", "nodeCanvas", "alarm", "timer
             image: nodeCanvas.createNode(node.imageObj, node.real, node.instNum),
             shape: 'image',
             borderWidth: 4
-
         })
     }
 
-    function startAutoUpdate() {
-        $('body').everyTime('5s', function () {
-            load30DayDag();
-        })
-    }
-
-    function stopAutoUpdate() {
-        $('body').stopTime();
-    }
-
-    function load30DayDag() {
-        var endTimeStr = moment().format("YYYYMMDD") + "0000";
-        var startTimeStr = moment().subtract(30, 'days').format("YYYYMMDD") + "0000";
-
-        loadDateRangeDag("day", startTimeStr, endTimeStr);
-        // alarm.loadCostData("day", startTimeStr, endTimeStr);
-    }
-
-    function loadDateRangeDag(slice, startTimeStr, endTimeStr) {
-        console.log("slice: " + slice + ", startTimeStr: " + startTimeStr + ", endTimeStr:" + endTimeStr);
-        $.getJSON("dagNodesLoad?timeSliceType=" + slice + "&startTime=" + startTimeStr + "&endTime=" + endTimeStr, function (data) {
+    function loadDateRangeDag(startTimeStr, endTimeStr) {
+        console.log("startTimeStr: " + startTimeStr + ", endTimeStr:" + endTimeStr);
+        $.getJSON("dagNodesLoad?startTime=" + startTimeStr + "&endTime=" + endTimeStr, function (data) {
             _clear();
             _preLoadImages(data);
             _resize();
@@ -155,9 +136,6 @@ define(["jquery", "vis", "text!dagHtml", "moment", "nodeCanvas", "alarm", "timer
 
     return {
         startNetwork: startNetwork,
-        load30DayDag: load30DayDag,
-        loadDateRangeDag: loadDateRangeDag,
-        startAutoUpdate: startAutoUpdate,
-        stopAutoUpdate: stopAutoUpdate
+        loadDateRangeDag: loadDateRangeDag
     }
 });

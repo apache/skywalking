@@ -1,15 +1,15 @@
 package org.skywalking.apm.ui.creator;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import java.util.Base64;
-import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Base64;
+import javax.annotation.PostConstruct;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * @author pengys5
@@ -20,7 +20,7 @@ public class ImageBase64Creator {
     private Logger logger = LogManager.getFormatterLogger(ImageBase64Creator.class);
 
     private final String ImageFolder_Relative_PATH = File.separator + "public" + File.separator + "img" + File.separator +
-            "node" + File.separator;
+        "node" + File.separator;
 
     private final String PNG_BASE64_PREFIX = "data:image/png;base64,";
     private final String JPG_BASE64_PREFIX = "data:image/png;base64,";
@@ -39,7 +39,7 @@ public class ImageBase64Creator {
         for (String nodeImageFile : imageFileList) {
             logger.debug("nodeImageFile: %s", nodeImageFile);
 
-            byte[] imageData = imageRead(new File(imageFolder , nodeImageFile));
+            byte[] imageData = imageRead(new File(imageFolder, nodeImageFile));
             if (nodeImageFile.toLowerCase().endsWith(PNG)) {
                 String encodeImage = imageEncode(imageData, PNG);
                 String imageName = getImageName(nodeImageFile);
@@ -74,7 +74,7 @@ public class ImageBase64Creator {
     }
 
     private byte[] imageRead(File imgFile) {
-        InputStream inputStream = null;
+        InputStream inputStream;
         byte[] imageData = null;
         try {
             inputStream = new FileInputStream(imgFile);
@@ -89,9 +89,9 @@ public class ImageBase64Creator {
 
     private String imageEncode(byte[] imageData, String imageType) {
         if (PNG.equals(imageType)) {
-            return PNG_BASE64_PREFIX + Base64.getEncoder().encode(imageData);
+            return PNG_BASE64_PREFIX + new String(Base64.getEncoder().encode(imageData));
         } else {
-            return JPG_BASE64_PREFIX + Base64.getEncoder().encode(imageData);
+            return JPG_BASE64_PREFIX + new String(Base64.getEncoder().encode(imageData));
         }
     }
 }
