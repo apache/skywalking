@@ -2,15 +2,13 @@ package org.skywalking.apm.collector.agentstream.worker.node.component;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.skywalking.apm.collector.core.util.Const;
-import org.skywalking.apm.collector.storage.define.node.NodeComponentDataDefine;
 import org.skywalking.apm.collector.agentstream.worker.segment.EntrySpanListener;
 import org.skywalking.apm.collector.agentstream.worker.segment.ExitSpanListener;
 import org.skywalking.apm.collector.agentstream.worker.segment.FirstSpanListener;
-import org.skywalking.apm.collector.agentstream.worker.segment.LocalSpanListener;
-import org.skywalking.apm.collector.agentstream.worker.util.ExchangeMarkUtils;
-import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
+import org.skywalking.apm.collector.core.util.Const;
+import org.skywalking.apm.collector.core.util.TimeBucketUtils;
+import org.skywalking.apm.collector.storage.define.node.NodeComponentDataDefine;
 import org.skywalking.apm.collector.stream.StreamModuleContext;
 import org.skywalking.apm.collector.stream.StreamModuleGroupDefine;
 import org.skywalking.apm.collector.stream.worker.WorkerInvokeException;
@@ -22,48 +20,59 @@ import org.slf4j.LoggerFactory;
 /**
  * @author pengys5
  */
-public class NodeComponentSpanListener implements EntrySpanListener, ExitSpanListener, FirstSpanListener, LocalSpanListener {
+public class NodeComponentSpanListener implements EntrySpanListener, ExitSpanListener, FirstSpanListener {
 
     private final Logger logger = LoggerFactory.getLogger(NodeComponentSpanListener.class);
 
-    private List<String> nodeComponents = new ArrayList<>();
+    private List<NodeComponentDataDefine.NodeComponent> nodeComponents = new ArrayList<>();
     private long timeBucket;
 
     @Override
     public void parseExit(SpanObject spanObject, int applicationId, int applicationInstanceId, String segmentId) {
-        String componentName = ExchangeMarkUtils.INSTANCE.buildMarkedID(spanObject.getComponentId());
+        NodeComponentDataDefine.NodeComponent nodeComponent = new NodeComponentDataDefine.NodeComponent();
+        nodeComponent.setComponentId(spanObject.getComponentId());
+
+        String id;
         if (spanObject.getComponentId() == 0) {
-            componentName = spanObject.getComponent();
-        }
-        String peer = ExchangeMarkUtils.INSTANCE.buildMarkedID(spanObject.getPeerId());
-        if (spanObject.getPeerId() == 0) {
-            peer = spanObject.getPeer();
+            nodeComponent.setComponentName(spanObject.getComponent());
+            id = nodeComponent.getComponentName();
+        } else {
+            nodeComponent.setComponentName(Const.EMPTY_STRING);
+            id = String.valueOf(nodeComponent.getComponentId());
         }
 
-        String agg = peer + Const.ID_SPLIT + componentName;
-        nodeComponents.add(agg);
+        nodeComponent.setPeerId(spanObject.getPeerId());
+        if (spanObject.getPeerId() == 0) {
+            nodeComponent.setPeer(spanObject.getPeer());
+            id = id + Const.ID_SPLIT + nodeComponent.getPeer();
+        } else {
+            nodeComponent.setPeer(Const.EMPTY_STRING);
+            id = id + Const.ID_SPLIT + nodeComponent.getPeerId();
+        }
+        nodeComponent.setId(id);
+        nodeComponents.add(nodeComponent);
     }
 
     @Override
     public void parseEntry(SpanObject spanObject, int applicationId, int applicationInstanceId, String segmentId) {
-        buildEntryOrLocal(spanObject, applicationId);
-    }
+        NodeComponentDataDefine.NodeComponent nodeComponent = new NodeComponentDataDefine.NodeComponent();
+        nodeComponent.setComponentId(spanObject.getComponentId());
 
-    @Override
-    public void parseLocal(SpanObject spanObject, int applicationId, int applicationInstanceId, String segmentId) {
-        buildEntryOrLocal(spanObject, applicationId);
-    }
-
-    private void buildEntryOrLocal(SpanObject spanObject, int applicationId) {
-        String componentName = ExchangeMarkUtils.INSTANCE.buildMarkedID(spanObject.getComponentId());
-
+        String id;
         if (spanObject.getComponentId() == 0) {
-            componentName = spanObject.getComponent();
+            nodeComponent.setComponentName(spanObject.getComponent());
+            id = nodeComponent.getComponentName();
+        } else {
+            id = String.valueOf(nodeComponent.getComponentId());
+            nodeComponent.setComponentName(Const.EMPTY_STRING);
         }
 
-        String peer = ExchangeMarkUtils.INSTANCE.buildMarkedID(applicationId);
-        String agg = peer + Const.ID_SPLIT + componentName;
-        nodeComponents.add(agg);
+        nodeComponent.setPeerId(applicationId);
+        nodeComponent.setPeer(Const.EMPTY_STRING);
+        id = id + Const.ID_SPLIT + String.valueOf(applicationId);
+        nodeComponent.setId(id);
+
+        nodeComponents.add(nodeComponent);
     }
 
     @Override
@@ -74,10 +83,8 @@ public class NodeComponentSpanListener implements EntrySpanListener, ExitSpanLis
     @Override public void build() {
         StreamModuleContext context = (StreamModuleContext)CollectorContextHelper.INSTANCE.getContext(StreamModuleGroupDefine.GROUP_NAME);
 
-        nodeComponents.forEach(agg -> {
-            NodeComponentDataDefine.NodeComponent nodeComponent = new NodeComponentDataDefine.NodeComponent();
-            nodeComponent.setId(timeBucket + Const.ID_SPLIT + agg);
-            nodeComponent.setAgg(agg);
+        nodeComponents.forEach(nodeComponent -> {
+            nodeComponent.setId(timeBucket + Const.ID_SPLIT + nodeComponent.getId());
             nodeComponent.setTimeBucket(timeBucket);
 
             try {

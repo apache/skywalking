@@ -10,9 +10,10 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.sum.Sum;
-import org.skywalking.apm.collector.core.util.Const;
-import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
+import org.skywalking.apm.collector.core.util.StringUtils;
 import org.skywalking.apm.collector.storage.define.noderef.NodeRefSumTable;
+import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
+import org.skywalking.apm.collector.ui.cache.ApplicationCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,46 +31,85 @@ public class NodeRefSumEsDAO extends EsDAO implements INodeRefSumDAO {
         searchRequestBuilder.setQuery(QueryBuilders.rangeQuery(NodeRefSumTable.COLUMN_TIME_BUCKET).gte(startTime).lte(endTime));
         searchRequestBuilder.setSize(0);
 
-        TermsAggregationBuilder aggregationBuilder = AggregationBuilders.terms(NodeRefSumTable.COLUMN_AGG).field(NodeRefSumTable.COLUMN_AGG);
-        aggregationBuilder.subAggregation(AggregationBuilders.sum(NodeRefSumTable.COLUMN_ONE_SECOND_LESS).field(NodeRefSumTable.COLUMN_ONE_SECOND_LESS));
-        aggregationBuilder.subAggregation(AggregationBuilders.sum(NodeRefSumTable.COLUMN_THREE_SECOND_LESS).field(NodeRefSumTable.COLUMN_THREE_SECOND_LESS));
-        aggregationBuilder.subAggregation(AggregationBuilders.sum(NodeRefSumTable.COLUMN_FIVE_SECOND_LESS).field(NodeRefSumTable.COLUMN_FIVE_SECOND_LESS));
-        aggregationBuilder.subAggregation(AggregationBuilders.sum(NodeRefSumTable.COLUMN_FIVE_SECOND_GREATER).field(NodeRefSumTable.COLUMN_FIVE_SECOND_GREATER));
-        aggregationBuilder.subAggregation(AggregationBuilders.sum(NodeRefSumTable.COLUMN_ERROR).field(NodeRefSumTable.COLUMN_ERROR));
-        aggregationBuilder.subAggregation(AggregationBuilders.sum(NodeRefSumTable.COLUMN_SUMMARY).field(NodeRefSumTable.COLUMN_SUMMARY));
+        TermsAggregationBuilder aggregationBuilder = AggregationBuilders.terms(NodeRefSumTable.COLUMN_FRONT_APPLICATION_ID).field(NodeRefSumTable.COLUMN_FRONT_APPLICATION_ID).size(100);
+        aggregationBuilder.subAggregation(AggregationBuilders.terms(NodeRefSumTable.COLUMN_BEHIND_APPLICATION_ID).field(NodeRefSumTable.COLUMN_BEHIND_APPLICATION_ID).size(100)
+            .subAggregation(AggregationBuilders.sum(NodeRefSumTable.COLUMN_S1_LTE).field(NodeRefSumTable.COLUMN_S1_LTE))
+            .subAggregation(AggregationBuilders.sum(NodeRefSumTable.COLUMN_S3_LTE).field(NodeRefSumTable.COLUMN_S3_LTE))
+            .subAggregation(AggregationBuilders.sum(NodeRefSumTable.COLUMN_S5_LTE).field(NodeRefSumTable.COLUMN_S5_LTE))
+            .subAggregation(AggregationBuilders.sum(NodeRefSumTable.COLUMN_S5_GT).field(NodeRefSumTable.COLUMN_S5_GT))
+            .subAggregation(AggregationBuilders.sum(NodeRefSumTable.COLUMN_SUMMARY).field(NodeRefSumTable.COLUMN_SUMMARY))
+            .subAggregation(AggregationBuilders.sum(NodeRefSumTable.COLUMN_ERROR).field(NodeRefSumTable.COLUMN_ERROR)));
+        aggregationBuilder.subAggregation(AggregationBuilders.terms(NodeRefSumTable.COLUMN_BEHIND_PEER).field(NodeRefSumTable.COLUMN_BEHIND_PEER).size(100)
+            .subAggregation(AggregationBuilders.sum(NodeRefSumTable.COLUMN_S1_LTE).field(NodeRefSumTable.COLUMN_S1_LTE))
+            .subAggregation(AggregationBuilders.sum(NodeRefSumTable.COLUMN_S3_LTE).field(NodeRefSumTable.COLUMN_S3_LTE))
+            .subAggregation(AggregationBuilders.sum(NodeRefSumTable.COLUMN_S5_LTE).field(NodeRefSumTable.COLUMN_S5_LTE))
+            .subAggregation(AggregationBuilders.sum(NodeRefSumTable.COLUMN_S5_GT).field(NodeRefSumTable.COLUMN_S5_GT))
+            .subAggregation(AggregationBuilders.sum(NodeRefSumTable.COLUMN_SUMMARY).field(NodeRefSumTable.COLUMN_SUMMARY))
+            .subAggregation(AggregationBuilders.sum(NodeRefSumTable.COLUMN_ERROR).field(NodeRefSumTable.COLUMN_ERROR)));
 
         searchRequestBuilder.addAggregation(aggregationBuilder);
-
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
 
         JsonArray nodeRefResSumArray = new JsonArray();
-        Terms aggTerms = searchResponse.getAggregations().get(NodeRefSumTable.COLUMN_AGG);
-        for (Terms.Bucket bucket : aggTerms.getBuckets()) {
-            String aggId = String.valueOf(bucket.getKey());
-            Sum oneSecondLess = bucket.getAggregations().get(NodeRefSumTable.COLUMN_ONE_SECOND_LESS);
-            Sum threeSecondLess = bucket.getAggregations().get(NodeRefSumTable.COLUMN_THREE_SECOND_LESS);
-            Sum fiveSecondLess = bucket.getAggregations().get(NodeRefSumTable.COLUMN_FIVE_SECOND_LESS);
-            Sum fiveSecondGreater = bucket.getAggregations().get(NodeRefSumTable.COLUMN_FIVE_SECOND_GREATER);
-            Sum error = bucket.getAggregations().get(NodeRefSumTable.COLUMN_ERROR);
-            Sum summary = bucket.getAggregations().get(NodeRefSumTable.COLUMN_SUMMARY);
-            logger.debug("aggId: {}, oneSecondLess: {}, threeSecondLess: {}, fiveSecondLess: {}, fiveSecondGreater: {}, error: {}, summary: {}", aggId,
-                oneSecondLess.getValue(), threeSecondLess.getValue(), fiveSecondLess.getValue(), fiveSecondGreater.getValue(), error.getValue(), summary.getValue());
+        Terms frontApplicationIdTerms = searchResponse.getAggregations().get(NodeRefSumTable.COLUMN_FRONT_APPLICATION_ID);
+        for (Terms.Bucket frontApplicationIdBucket : frontApplicationIdTerms.getBuckets()) {
+            int applicationId = frontApplicationIdBucket.getKeyAsNumber().intValue();
+            String applicationCode = ApplicationCache.getForUI(applicationId);
+            Terms behindApplicationIdTerms = frontApplicationIdBucket.getAggregations().get(NodeRefSumTable.COLUMN_BEHIND_APPLICATION_ID);
+            for (Terms.Bucket behindApplicationIdBucket : behindApplicationIdTerms.getBuckets()) {
+                int behindApplicationId = behindApplicationIdBucket.getKeyAsNumber().intValue();
 
-            JsonObject nodeRefResSumObj = new JsonObject();
-            String[] ids = aggId.split(Const.IDS_SPLIT);
-            String front = ids[0];
-            String behind = ids[1];
+                if (behindApplicationId != 0) {
+                    String behindApplicationCode = ApplicationCache.getForUI(behindApplicationId);
 
-            nodeRefResSumObj.addProperty("front", front);
-            nodeRefResSumObj.addProperty("behind", behind);
+                    Sum s1LTE = behindApplicationIdBucket.getAggregations().get(NodeRefSumTable.COLUMN_S1_LTE);
+                    Sum s3LTE = behindApplicationIdBucket.getAggregations().get(NodeRefSumTable.COLUMN_S3_LTE);
+                    Sum s5LTE = behindApplicationIdBucket.getAggregations().get(NodeRefSumTable.COLUMN_S5_LTE);
+                    Sum s5GT = behindApplicationIdBucket.getAggregations().get(NodeRefSumTable.COLUMN_S5_GT);
+                    Sum summary = behindApplicationIdBucket.getAggregations().get(NodeRefSumTable.COLUMN_SUMMARY);
+                    Sum error = behindApplicationIdBucket.getAggregations().get(NodeRefSumTable.COLUMN_ERROR);
+                    logger.debug("applicationId: {}, behindApplicationId: {}, s1LTE: {}, s3LTE: {}, s5LTE: {}, s5GT: {}, error: {}, summary: {}", applicationId,
+                        behindApplicationId, s1LTE.getValue(), s3LTE.getValue(), s5LTE.getValue(), s5GT.getValue(), error.getValue(), summary.getValue());
 
-            nodeRefResSumObj.addProperty(NodeRefSumTable.COLUMN_ONE_SECOND_LESS, oneSecondLess.getValue());
-            nodeRefResSumObj.addProperty(NodeRefSumTable.COLUMN_THREE_SECOND_LESS, threeSecondLess.getValue());
-            nodeRefResSumObj.addProperty(NodeRefSumTable.COLUMN_FIVE_SECOND_LESS, fiveSecondLess.getValue());
-            nodeRefResSumObj.addProperty(NodeRefSumTable.COLUMN_FIVE_SECOND_GREATER, fiveSecondGreater.getValue());
-            nodeRefResSumObj.addProperty(NodeRefSumTable.COLUMN_ERROR, error.getValue());
-            nodeRefResSumObj.addProperty(NodeRefSumTable.COLUMN_SUMMARY, summary.getValue());
-            nodeRefResSumArray.add(nodeRefResSumObj);
+                    JsonObject nodeRefResSumObj = new JsonObject();
+                    nodeRefResSumObj.addProperty("front", applicationCode);
+                    nodeRefResSumObj.addProperty("behind", behindApplicationCode);
+                    nodeRefResSumObj.addProperty(NodeRefSumTable.COLUMN_S1_LTE, s1LTE.getValue());
+                    nodeRefResSumObj.addProperty(NodeRefSumTable.COLUMN_S3_LTE, s3LTE.getValue());
+                    nodeRefResSumObj.addProperty(NodeRefSumTable.COLUMN_S5_LTE, s5LTE.getValue());
+                    nodeRefResSumObj.addProperty(NodeRefSumTable.COLUMN_S5_GT, s5GT.getValue());
+                    nodeRefResSumObj.addProperty(NodeRefSumTable.COLUMN_ERROR, error.getValue());
+                    nodeRefResSumObj.addProperty(NodeRefSumTable.COLUMN_SUMMARY, summary.getValue());
+                    nodeRefResSumArray.add(nodeRefResSumObj);
+                }
+            }
+
+            Terms behindPeerTerms = frontApplicationIdBucket.getAggregations().get(NodeRefSumTable.COLUMN_BEHIND_PEER);
+            for (Terms.Bucket behindPeerBucket : behindPeerTerms.getBuckets()) {
+                String behindPeer = behindPeerBucket.getKeyAsString();
+
+                if (StringUtils.isNotEmpty(behindPeer)) {
+                    Sum s1LTE = behindPeerBucket.getAggregations().get(NodeRefSumTable.COLUMN_S1_LTE);
+                    Sum s3LTE = behindPeerBucket.getAggregations().get(NodeRefSumTable.COLUMN_S3_LTE);
+                    Sum s5LTE = behindPeerBucket.getAggregations().get(NodeRefSumTable.COLUMN_S5_LTE);
+                    Sum s5GT = behindPeerBucket.getAggregations().get(NodeRefSumTable.COLUMN_S5_GT);
+                    Sum summary = behindPeerBucket.getAggregations().get(NodeRefSumTable.COLUMN_SUMMARY);
+                    Sum error = behindPeerBucket.getAggregations().get(NodeRefSumTable.COLUMN_ERROR);
+                    logger.debug("applicationId: {}, behindPeer: {}, s1LTE: {}, s3LTE: {}, s5LTE: {}, s5GT: {}, error: {}, summary: {}", applicationId,
+                        behindPeer, s1LTE.getValue(), s3LTE.getValue(), s5LTE.getValue(), s5GT.getValue(), error.getValue(), summary.getValue());
+
+                    JsonObject nodeRefResSumObj = new JsonObject();
+                    nodeRefResSumObj.addProperty("front", applicationCode);
+                    nodeRefResSumObj.addProperty("behind", behindPeer);
+                    nodeRefResSumObj.addProperty(NodeRefSumTable.COLUMN_S1_LTE, s1LTE.getValue());
+                    nodeRefResSumObj.addProperty(NodeRefSumTable.COLUMN_S3_LTE, s3LTE.getValue());
+                    nodeRefResSumObj.addProperty(NodeRefSumTable.COLUMN_S5_LTE, s5LTE.getValue());
+                    nodeRefResSumObj.addProperty(NodeRefSumTable.COLUMN_S5_GT, s5GT.getValue());
+                    nodeRefResSumObj.addProperty(NodeRefSumTable.COLUMN_ERROR, error.getValue());
+                    nodeRefResSumObj.addProperty(NodeRefSumTable.COLUMN_SUMMARY, summary.getValue());
+                    nodeRefResSumArray.add(nodeRefResSumObj);
+                }
+            }
         }
 
         return nodeRefResSumArray;

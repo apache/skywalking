@@ -86,4 +86,29 @@ public class Data extends AbstractHashMessage {
     public String id() {
         return dataStrings[0];
     }
+
+    @Override public String toString() {
+        StringBuilder dataStr = new StringBuilder();
+        dataStr.append("string: [");
+        for (int i = 0; i < dataStrings.length; i++) {
+            dataStr.append(dataStrings[i]).append(",");
+        }
+        dataStr.append("], longs: [");
+        for (int i = 0; i < dataLongs.length; i++) {
+            dataStr.append(dataLongs[i]).append(",");
+        }
+        dataStr.append("], double: [");
+        for (int i = 0; i < dataDoubles.length; i++) {
+            dataStr.append(dataDoubles[i]).append(",");
+        }
+        dataStr.append("], integer: [");
+        for (int i = 0; i < dataIntegers.length; i++) {
+            dataStr.append(dataIntegers[i]).append(",");
+        }
+        dataStr.append("], boolean: [");
+        for (int i = 0; i < dataBooleans.length; i++) {
+            dataStr.append(dataBooleans[i]).append(",");
+        }
+        return dataStr.toString();
+    }
 }
