@@ -1,16 +1,14 @@
 package org.skywalking.apm.collector.ui.dao;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.skywalking.apm.collector.core.util.Const;
-import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
 import org.skywalking.apm.collector.storage.define.noderef.NodeRefTable;
+import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,17 +33,6 @@ public class NodeReferenceEsDAO extends EsDAO implements INodeReferenceDAO {
         Terms genders = searchResponse.getAggregations().get(NodeRefTable.COLUMN_AGG);
 
         JsonArray nodeRefArray = new JsonArray();
-        for (Terms.Bucket entry : genders.getBuckets()) {
-            String aggId = entry.getKeyAsString();
-            String[] aggIds = aggId.split(Const.IDS_SPLIT);
-            String front = aggIds[0];
-            String behind = aggIds[1];
-
-            JsonObject nodeRefObj = new JsonObject();
-            nodeRefObj.addProperty("front", front);
-            nodeRefObj.addProperty("behind", behind);
-            nodeRefArray.add(nodeRefObj);
-        }
         logger.debug("node ref data: {}", nodeRefArray.toString());
         return nodeRefArray;
     }

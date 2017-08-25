@@ -32,6 +32,8 @@ public class SegmentPost {
         ApplicationEsDAO applicationEsDAO = new ApplicationEsDAO();
         applicationEsDAO.setClient(client);
 
+        ApplicationDataDefine.Application userApplication = new ApplicationDataDefine.Application("1", "User", 1);
+        applicationEsDAO.save(userApplication);
         ApplicationDataDefine.Application consumerApplication = new ApplicationDataDefine.Application("2", "dubbox-consumer", 2);
         applicationEsDAO.save(consumerApplication);
         ApplicationDataDefine.Application providerApplication = new ApplicationDataDefine.Application("3", "dubbox-provider", 3);
@@ -46,7 +48,7 @@ public class SegmentPost {
             modifyTime(provider);
             HttpClientTools.INSTANCE.post("http://localhost:12800/segments", provider.toString());
 
-            Thread.sleep(200);
+            Thread.sleep(1000);
         }
     }
 

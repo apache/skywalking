@@ -1,13 +1,13 @@
 package org.skywalking.apm.collector.storage.define.noderef;
 
-import org.skywalking.apm.collector.remote.grpc.proto.RemoteData;
-import org.skywalking.apm.collector.storage.define.Attribute;
-import org.skywalking.apm.collector.storage.define.AttributeType;
 import org.skywalking.apm.collector.core.stream.Data;
-import org.skywalking.apm.collector.storage.define.DataDefine;
 import org.skywalking.apm.collector.core.stream.Transform;
 import org.skywalking.apm.collector.core.stream.operate.AddOperation;
 import org.skywalking.apm.collector.core.stream.operate.NonOperation;
+import org.skywalking.apm.collector.remote.grpc.proto.RemoteData;
+import org.skywalking.apm.collector.storage.define.Attribute;
+import org.skywalking.apm.collector.storage.define.AttributeType;
+import org.skywalking.apm.collector.storage.define.DataDefine;
 
 /**
  * @author pengys5
@@ -15,70 +15,81 @@ import org.skywalking.apm.collector.core.stream.operate.NonOperation;
 public class NodeRefSumDataDefine extends DataDefine {
 
     @Override protected int initialCapacity() {
-        return 9;
+        return 11;
     }
 
     @Override protected void attributeDefine() {
         addAttribute(0, new Attribute(NodeRefSumTable.COLUMN_ID, AttributeType.STRING, new NonOperation()));
-        addAttribute(1, new Attribute(NodeRefSumTable.COLUMN_ONE_SECOND_LESS, AttributeType.LONG, new AddOperation()));
-        addAttribute(2, new Attribute(NodeRefSumTable.COLUMN_THREE_SECOND_LESS, AttributeType.LONG, new AddOperation()));
-        addAttribute(3, new Attribute(NodeRefSumTable.COLUMN_FIVE_SECOND_LESS, AttributeType.LONG, new AddOperation()));
-        addAttribute(4, new Attribute(NodeRefSumTable.COLUMN_FIVE_SECOND_GREATER, AttributeType.LONG, new AddOperation()));
-        addAttribute(5, new Attribute(NodeRefSumTable.COLUMN_ERROR, AttributeType.LONG, new AddOperation()));
-        addAttribute(6, new Attribute(NodeRefSumTable.COLUMN_SUMMARY, AttributeType.LONG, new AddOperation()));
-        addAttribute(7, new Attribute(NodeRefSumTable.COLUMN_AGG, AttributeType.STRING, new NonOperation()));
-        addAttribute(8, new Attribute(NodeRefSumTable.COLUMN_TIME_BUCKET, AttributeType.LONG, new NonOperation()));
+        addAttribute(1, new Attribute(NodeRefSumTable.COLUMN_FRONT_APPLICATION_ID, AttributeType.INTEGER, new NonOperation()));
+        addAttribute(2, new Attribute(NodeRefSumTable.COLUMN_BEHIND_APPLICATION_ID, AttributeType.INTEGER, new NonOperation()));
+        addAttribute(3, new Attribute(NodeRefSumTable.COLUMN_BEHIND_PEER, AttributeType.STRING, new NonOperation()));
+        addAttribute(4, new Attribute(NodeRefSumTable.COLUMN_S1_LTE, AttributeType.INTEGER, new AddOperation()));
+        addAttribute(5, new Attribute(NodeRefSumTable.COLUMN_S3_LTE, AttributeType.INTEGER, new AddOperation()));
+        addAttribute(6, new Attribute(NodeRefSumTable.COLUMN_S5_LTE, AttributeType.INTEGER, new AddOperation()));
+        addAttribute(7, new Attribute(NodeRefSumTable.COLUMN_S5_GT, AttributeType.INTEGER, new AddOperation()));
+        addAttribute(8, new Attribute(NodeRefSumTable.COLUMN_SUMMARY, AttributeType.INTEGER, new AddOperation()));
+        addAttribute(9, new Attribute(NodeRefSumTable.COLUMN_ERROR, AttributeType.INTEGER, new AddOperation()));
+        addAttribute(10, new Attribute(NodeRefSumTable.COLUMN_TIME_BUCKET, AttributeType.LONG, new NonOperation()));
     }
 
     @Override public Object deserialize(RemoteData remoteData) {
         String id = remoteData.getDataStrings(0);
-        String agg = remoteData.getDataStrings(1);
-        Long oneSecondLess = remoteData.getDataLongs(0);
-        Long threeSecondLess = remoteData.getDataLongs(1);
-        Long fiveSecondLess = remoteData.getDataLongs(2);
-        Long fiveSecondGreater = remoteData.getDataLongs(3);
-        Long error = remoteData.getDataLongs(4);
-        Long summary = remoteData.getDataLongs(5);
-        long timeBucket = remoteData.getDataLongs(6);
-        return new NodeReferenceSum(id, oneSecondLess, threeSecondLess, fiveSecondLess, fiveSecondGreater, error, summary, agg, timeBucket);
+        int applicationId = remoteData.getDataIntegers(0);
+        int behindApplicationId = remoteData.getDataIntegers(1);
+        String behindPeer = remoteData.getDataStrings(1);
+        int s1LTE = remoteData.getDataIntegers(2);
+        int s3LTE = remoteData.getDataIntegers(3);
+        int s5LTE = remoteData.getDataIntegers(4);
+        int s5GT = remoteData.getDataIntegers(5);
+        int summary = remoteData.getDataIntegers(6);
+        int error = remoteData.getDataIntegers(7);
+        long timeBucket = remoteData.getDataLongs(0);
+        return new NodeReferenceSum(id, applicationId, behindApplicationId, behindPeer, s1LTE, s3LTE, s5LTE, s5GT, summary, error, timeBucket);
     }
 
     @Override public RemoteData serialize(Object object) {
         NodeReferenceSum nodeReferenceSum = (NodeReferenceSum)object;
         RemoteData.Builder builder = RemoteData.newBuilder();
         builder.addDataStrings(nodeReferenceSum.getId());
-        builder.addDataStrings(nodeReferenceSum.getAgg());
-        builder.addDataLongs(nodeReferenceSum.getOneSecondLess());
-        builder.addDataLongs(nodeReferenceSum.getThreeSecondLess());
-        builder.addDataLongs(nodeReferenceSum.getFiveSecondLess());
-        builder.addDataLongs(nodeReferenceSum.getFiveSecondGreater());
-        builder.addDataLongs(nodeReferenceSum.getError());
-        builder.addDataLongs(nodeReferenceSum.getSummary());
+        builder.addDataIntegers(nodeReferenceSum.getApplicationId());
+        builder.addDataIntegers(nodeReferenceSum.getBehindApplicationId());
+        builder.addDataStrings(nodeReferenceSum.getBehindPeer());
+        builder.addDataIntegers(nodeReferenceSum.getS1LTE());
+        builder.addDataIntegers(nodeReferenceSum.getS3LTE());
+        builder.addDataIntegers(nodeReferenceSum.getS5LTE());
+        builder.addDataIntegers(nodeReferenceSum.getS5GT());
+        builder.addDataIntegers(nodeReferenceSum.getSummary());
+        builder.addDataIntegers(nodeReferenceSum.getError());
         builder.addDataLongs(nodeReferenceSum.getTimeBucket());
         return builder.build();
     }
 
     public static class NodeReferenceSum implements Transform {
         private String id;
-        private Long oneSecondLess = 0L;
-        private Long threeSecondLess = 0L;
-        private Long fiveSecondLess = 0L;
-        private Long fiveSecondGreater = 0L;
-        private Long error = 0L;
-        private Long summary = 0L;
-        private String agg;
+        private int applicationId;
+        private int behindApplicationId;
+        private String behindPeer;
+        private int s1LTE = 0;
+        private int s3LTE = 0;
+        private int s5LTE = 0;
+        private int s5GT = 0;
+        private int summary = 0;
+        private int error = 0;
         private long timeBucket;
 
-        public NodeReferenceSum(String id, Long oneSecondLess, Long threeSecondLess, Long fiveSecondLess,
-            Long fiveSecondGreater, Long error, Long summary, String agg, long timeBucket) {
+        public NodeReferenceSum(String id, int applicationId, int behindApplicationId, String behindPeer, int s1LTE,
+            int s3LTE,
+            int s5LTE, int s5GT, int summary, int error, long timeBucket) {
             this.id = id;
-            this.oneSecondLess = oneSecondLess;
-            this.threeSecondLess = threeSecondLess;
-            this.fiveSecondLess = fiveSecondLess;
-            this.fiveSecondGreater = fiveSecondGreater;
-            this.error = error;
+            this.applicationId = applicationId;
+            this.behindApplicationId = behindApplicationId;
+            this.behindPeer = behindPeer;
+            this.s1LTE = s1LTE;
+            this.s3LTE = s3LTE;
+            this.s5LTE = s5LTE;
+            this.s5GT = s5GT;
             this.summary = summary;
-            this.agg = agg;
+            this.error = error;
             this.timeBucket = timeBucket;
         }
 
@@ -89,14 +100,16 @@ public class NodeRefSumDataDefine extends DataDefine {
             NodeRefSumDataDefine define = new NodeRefSumDataDefine();
             Data data = define.build(id);
             data.setDataString(0, this.id);
-            data.setDataString(1, this.agg);
-            data.setDataLong(0, this.oneSecondLess);
-            data.setDataLong(1, this.threeSecondLess);
-            data.setDataLong(2, this.fiveSecondLess);
-            data.setDataLong(3, this.fiveSecondGreater);
-            data.setDataLong(4, this.error);
-            data.setDataLong(5, this.summary);
-            data.setDataLong(6, this.timeBucket);
+            data.setDataInteger(0, this.applicationId);
+            data.setDataInteger(1, this.behindApplicationId);
+            data.setDataString(1, this.behindPeer);
+            data.setDataInteger(2, this.s1LTE);
+            data.setDataInteger(3, this.s3LTE);
+            data.setDataInteger(4, this.s5LTE);
+            data.setDataInteger(5, this.s5GT);
+            data.setDataInteger(6, this.summary);
+            data.setDataInteger(7, this.error);
+            data.setDataLong(0, this.timeBucket);
             return data;
         }
 
@@ -112,60 +125,76 @@ public class NodeRefSumDataDefine extends DataDefine {
             this.id = id;
         }
 
-        public Long getOneSecondLess() {
-            return oneSecondLess;
+        public int getApplicationId() {
+            return applicationId;
         }
 
-        public void setOneSecondLess(Long oneSecondLess) {
-            this.oneSecondLess = oneSecondLess;
+        public void setApplicationId(int applicationId) {
+            this.applicationId = applicationId;
         }
 
-        public Long getThreeSecondLess() {
-            return threeSecondLess;
+        public int getBehindApplicationId() {
+            return behindApplicationId;
         }
 
-        public void setThreeSecondLess(Long threeSecondLess) {
-            this.threeSecondLess = threeSecondLess;
+        public void setBehindApplicationId(int behindApplicationId) {
+            this.behindApplicationId = behindApplicationId;
         }
 
-        public Long getFiveSecondLess() {
-            return fiveSecondLess;
+        public String getBehindPeer() {
+            return behindPeer;
         }
 
-        public void setFiveSecondLess(Long fiveSecondLess) {
-            this.fiveSecondLess = fiveSecondLess;
+        public void setBehindPeer(String behindPeer) {
+            this.behindPeer = behindPeer;
         }
 
-        public Long getFiveSecondGreater() {
-            return fiveSecondGreater;
+        public int getS1LTE() {
+            return s1LTE;
         }
 
-        public void setFiveSecondGreater(Long fiveSecondGreater) {
-            this.fiveSecondGreater = fiveSecondGreater;
+        public void setS1LTE(int s1LTE) {
+            this.s1LTE = s1LTE;
         }
 
-        public Long getError() {
+        public int getS3LTE() {
+            return s3LTE;
+        }
+
+        public void setS3LTE(int s3LTE) {
+            this.s3LTE = s3LTE;
+        }
+
+        public int getS5LTE() {
+            return s5LTE;
+        }
+
+        public void setS5LTE(int s5LTE) {
+            this.s5LTE = s5LTE;
+        }
+
+        public int getS5GT() {
+            return s5GT;
+        }
+
+        public void setS5GT(int s5GT) {
+            this.s5GT = s5GT;
+        }
+
+        public int getError() {
             return error;
         }
 
-        public void setError(Long error) {
+        public void setError(int error) {
             this.error = error;
         }
 
-        public Long getSummary() {
+        public int getSummary() {
             return summary;
         }
 
-        public void setSummary(Long summary) {
+        public void setSummary(int summary) {
             this.summary = summary;
-        }
-
-        public String getAgg() {
-            return agg;
-        }
-
-        public void setAgg(String agg) {
-            this.agg = agg;
         }
 
         public long getTimeBucket() {
