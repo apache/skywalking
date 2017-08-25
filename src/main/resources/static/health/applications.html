@@ -1,5 +1,5 @@
 <ul id="applicationUl" class=" application-list m-b-md" style="padding: 0">
   <li v-for="app in applist">
-    <a href="javascript:void(0);" v-on:click="operateQueryApplicationId(app.applicationId,$event)">{{ app.applicationName }}<span class="label label-info pull-right">{{app.instanceCount}}</span> </a>
+    <a href="javascript:void(0);" v-on:click="operateQueryApplicationId(app.applicationId,$event)">{{ app.applicationCode }}<span class="label label-info pull-right">{{app.instanceCount}}</span> </a>
   </li>
 </ul>
