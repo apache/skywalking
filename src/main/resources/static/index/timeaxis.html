@@ -1,23 +1,33 @@
 <!-- @author pengys5 -->
 <link href="\webjars\ion.rangeSlider\2.1.4\css\ion.rangeSlider.css" rel="stylesheet">
-<link href="\webjars\ion.rangeSlider\2.1.4\css\ion.rangeSlider.skinFlat.css" rel="stylesheet">
+<link href="\webjars\ion.rangeSlider\2.1.4\css\ion.rangeSlider.skinModern.css" rel="stylesheet">
+<link href="\webjars\ion.rangeSlider\2.1.4\css\normalize.css" rel="stylesheet">
 <link href="\webjars\bootstrap-daterangepicker\2.1.24\css\bootstrap-daterangepicker.css" rel="stylesheet">
+<link href="/webjars/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
 <link href="/public/css/style.css" rel="stylesheet">
+<style>
+    .color-3 .irs-bar {
+        background: #5bc0de;
+    }
+
+    .color-3 .irs-bar-edge {
+        background: #5bc0de;
+    }
+
+    .color-3 .irs-single {
+        background: #5bc0de;
+    }
+</style>
 
 <div class="row" style="line-height: 50px">
-    <div class="col-sm-9">
-        <div id="axisRowDiv" class="row">
-            <div style="float:left">
-                <button id="minuteBtn" type="button" class="btn btn-sm btn-default">M</button>
-                <button id="hourBtn" type="button" class="btn btn-sm btn-default">H</button>
-                <button id="dayBtn" type="button" class="btn btn-sm btn-success">D</button>
-            </div>
+    <div class="col-sm-8">
+        <div id="axisRowDiv" class="row color-3">
             <div id="axisDiv" style="float: left; padding-left: 10px">
                 <div id="timeAxisComponentDiv"></div>
             </div>
         </div>
     </div>
-    <div class="col-sm-3">
+    <div class="col-sm-4">
         <div style="float:left; overflow: hidden; width:0px; height:0px; display: inline-block">
             <input type="text" id="dateRangeInput"/>
         </div>
