@@ -5,7 +5,7 @@ import com.google.gson.JsonObject;
 import org.skywalking.apm.collector.storage.dao.DAOContainer;
 import org.skywalking.apm.collector.ui.dao.INodeComponentDAO;
 import org.skywalking.apm.collector.ui.dao.INodeMappingDAO;
-import org.skywalking.apm.collector.ui.dao.INodeRefSumDAO;
+import org.skywalking.apm.collector.ui.dao.INodeReferenceDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +24,7 @@ public class TraceDagService {
         INodeMappingDAO nodeMappingDAO = (INodeMappingDAO)DAOContainer.INSTANCE.get(INodeMappingDAO.class.getName());
         JsonArray nodeMappingArray = nodeMappingDAO.load(startTime, endTime);
 
-        INodeRefSumDAO nodeRefSumDAO = (INodeRefSumDAO)DAOContainer.INSTANCE.get(INodeRefSumDAO.class.getName());
+        INodeReferenceDAO nodeRefSumDAO = (INodeReferenceDAO)DAOContainer.INSTANCE.get(INodeReferenceDAO.class.getName());
         JsonArray nodeRefSumArray = nodeRefSumDAO.load(startTime, endTime);
 
         TraceDagDataBuilder builder = new TraceDagDataBuilder();

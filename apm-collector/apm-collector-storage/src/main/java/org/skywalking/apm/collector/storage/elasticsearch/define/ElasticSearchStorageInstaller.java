@@ -33,32 +33,27 @@ public class ElasticSearchStorageInstaller extends StorageInstaller {
     @Override protected boolean createTable(Client client, TableDefine tableDefine) {
         ElasticSearchClient esClient = (ElasticSearchClient)client;
         ElasticSearchTableDefine esTableDefine = (ElasticSearchTableDefine)tableDefine;
-        // settings
-        String settingSource = "";
         // mapping
         XContentBuilder mappingBuilder = null;
+
+        Settings settings = createSettingBuilder(esTableDefine);
         try {
-            XContentBuilder settingsBuilder = createSettingBuilder(esTableDefine);
-            settingSource = settingsBuilder.string();
             mappingBuilder = createMappingBuilder(esTableDefine);
             logger.info("mapping builder str: {}", mappingBuilder.string());
         } catch (Exception e) {
             logger.error("create {} index mapping builder error", esTableDefine.getName());
         }
-        Settings settings = Settings.builder().loadFromSource(settingSource).build();
 
         boolean isAcknowledged = esClient.createIndex(esTableDefine.getName(), esTableDefine.type(), settings, mappingBuilder);
         logger.info("create {} index with type of {} finished, isAcknowledged: {}", esTableDefine.getName(), esTableDefine.type(), isAcknowledged);
         return isAcknowledged;
     }
 
-    private XContentBuilder createSettingBuilder(ElasticSearchTableDefine tableDefine) throws IOException {
-        return XContentFactory.jsonBuilder()
-            .startObject()
-            .field("index.number_of_shards", tableDefine.numberOfShards())
-            .field("index.number_of_replicas", tableDefine.numberOfReplicas())
-            .field("index.refresh_interval", String.valueOf(tableDefine.refreshInterval()) + "s")
-            .endObject();
+    private Settings createSettingBuilder(ElasticSearchTableDefine tableDefine) {
+        return Settings.builder()
+            .put("index.number_of_shards", tableDefine.numberOfShards())
+            .put("index.number_of_replicas", tableDefine.numberOfReplicas())
+            .put("index.refresh_interval", String.valueOf(tableDefine.refreshInterval()) + "s").build();
     }
 
     private XContentBuilder createMappingBuilder(ElasticSearchTableDefine tableDefine) throws IOException {
