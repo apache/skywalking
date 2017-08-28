@@ -12,150 +12,29 @@ define(['jquery', 'vue', 'text!metricSelectorHtml', 'cpuChart', 'gcChart', 'memo
             tps: 'rgb(95, 142, 173)',
             tpsBorder: 'rgb(248,134,59)'
         };
-        var config = {
-            startTime: undefined
-        };
-
-        var dataChart = {
-            CONSTANTS: {
-                maxDisplayCount: 5, // min
-                interval: 1 //second
-            },
-            charts: [],
-            queryParam: {
-                instanceId: instanceId,
-                queryStartTime: undefined,
-                queryEndTime: undefined,
-                timeAxisEndTime: undefined
-            },
-            initQueryParam: function (instanceId, startTime) {
-                return this.newQueryParam(instanceId, startTime, ["tps", "cpu", "heapMemory", "gc"]);
-            },
-            resetQueryParam: function (startTime) {
-                return this.newQueryParam(this.queryParam.instanceId, startTime, this.getCurrentMetricName());
-            },
-            newQueryParam: function (instanceId, startTime, metricNames) {
-                this.queryParam.instanceId = instanceId;
-                this.queryParam.queryEndTime = startTime;
-                this.queryParam.queryStartTime = startTime;
-                this.queryParam.timeAxisEndTime = moment(startTime).add(this.CONSTANTS.maxDisplayCount, "minutes").format("x");
-                return {
-                    instanceId: instanceId,
-                    startTime: startTime,
-                    endTime: this.queryParam.timeAxisEndTime,
-                    metricNames: metricNames
-                }
-            },
-            queryParamUpdateCallback: function (dataSize) {
-                var newQueryEndTime = parseInt(moment(this.queryParam.queryStartTime).add(dataSize - 1, "seconds").format("x"));
-                if (newQueryEndTime > this.queryParam.queryEndTime) {
-                    this.queryParam.queryEndTime = parseInt(newQueryEndTime);
-                }
-
-                if (newQueryEndTime > this.queryParam.timeAxisEndTime) {
-                    this.queryParam.timeAxisEndTime = parseInt(newQueryEndTime);
-                }
-            },
-            generateRedrawChartQueryParam: function (chartName) {
-                return {
-                    instanceId: this.queryParam.instanceId,
-                    startTime: moment(this.queryParam.queryEndTime).subtract(this.CONSTANTS.maxDisplayCount, "minutes").format("x"),
-                    endTime: this.queryParam.queryEndTime,
-                    metricNames: [chartName]
-                }
-            },
-            getNextQueryStartTime: function () {
-                return parseInt(moment(this.queryParam.queryEndTime).add(this.CONSTANTS.interval, "second").format("x"));
-            },
-            getCurrentMetricName: function () {
-                var metricNames = [];
-                for (var i = 0; i < this.charts.length; i++) {
-                    metricNames.push(this.charts[i].name);
-                }
-                return metricNames;
-            },
-            generateQueryParam: function (timeSpan) {
-                this.queryParam.queryStartTime = this.getNextQueryStartTime();
-                return {
-                    instanceId: this.queryParam.instanceId,
-                    startTime: this.getNextQueryStartTime(),
-                    endTime: moment(this.queryParam.queryEndTime).add(timeSpan, "seconds").format("x"),
-                    metricNames: this.getCurrentMetricName()
-                }
-            },
-            getTimeAxisEndTime: function () {
-                return parseInt(this.queryParam.timeAxisEndTime);
-            }
-        };
-
-        function generateLabels(time, count) {
-            var labels = [];
-            for (var i = 0; i < count; i++) {
-                labels.push(moment(time).add(i, "seconds").format("HH:mm:ss"));
-            }
-            return labels;
-        }
-
-        function generateRevertLabels(time, count) {
-            var labels = [];
-            for (var i = 0; i < count; i++) {
-                labels.unshift(moment(time).subtract(i + 1, "seconds").format("HH:mm:ss"));
-            }
-            return labels;
-        }
-
-        function loadMetricCharts(instanceId, startTime) {
-            var queryParam = dataChart.initQueryParam(instanceId, startTime);
-            loadData("/metricInfoWithTimeRange", queryParam, function (data) {
-                var tpsChart = buildChart("tps", startTime, data);
-
-                dataChart.charts.push(tpsChart);
-                var cpuChart = buildChart("cpu", startTime, data);
-
-                dataChart.charts.push(cpuChart);
-                var heapMemoryChart = buildChart("heapMemory", startTime, data);
-
-                dataChart.charts.push(heapMemoryChart);
-                var gcChart = buildChart("gc", startTime, data);
-
-                dataChart.charts.push(gcChart);
-            });
-            return this;
-        }
-
-        function loadData(url, queryParams, handler, timestamp) {
-            $.getJSON(url, queryParams, function (data) {
-                handler(data, timestamp);
-            });
-        }
-
-        function autoUpdateMetricCharts(instanceId) {
-            loadData("/metricInfoWithTimeRange", dataChart.generateQueryParam(dataChart.CONSTANTS.interval), function (data, timestamp) {
-                for (var i = 0; i < dataChart.charts.length; i++) {
-                    dataChart.charts[i].updateChart(data, timestamp);
-                }
-            }, dataChart.getNextQueryStartTime());
-        }
 
         function drawMetricSelector() {
             $("#metricSelectorDiv").html(metricSelectorHtml);
             new Vue({
                 el: "#metricSelectorDiv",
-                data: dataChart,
+                data: {},
                 methods: {
                     displayChart: function (chartName, event) {
-                        // timer task need to stop
                         if ($(event.target).prop("checked")) {
-                            loadData("/metricInfoWithTimeRange", dataChart.generateRedrawChartQueryParam(chartName), function (data, timestamp) {
-                                var chart = buildChart(chartName, timestamp, data, generateRevertLabels);
-                                dataChart.charts.push(chart);
-                            }, dataChart.getTimeAxisEndTime());
+                            metricChartsController.queryParam.metricNames.push(chartName);
+                            metricChartsController.charts.push(initChart(chartName));
+                            if (!$("#autoUpdate").prop('checked')) {
+                                updateMetricCharts(metricChartsController.currentXAxesOriginPoint);
+                            } else {
+                                metricChartsController.queryParam.startTime = moment(metricChartsController.queryParam.currentXAxesOriginPoint).format("YYYYMMDDHHmmss");
+                            }
                         } else {
-                            var chartIndex = findChartObject(chartName);
-                            if (chartIndex != -1) {
-                                dataChart.charts[chartIndex].chart.destroy();
-                                $("#" + chartName + "-div").remove();
-                                dataChart.charts.splice(chartIndex, 1);
+                            $("#" + chartName + "-div").remove();
+                            var index = findChartObject(chartName);
+                            if (index != -1) {
+                                metricChartsController.charts[index].chartOperator.destroy();
+                                metricChartsController.charts.splice(index, 1);
+                                metricChartsController.removeQueryMetric(chartName);
                             }
                         }
                     }
@@ -164,40 +43,129 @@ define(['jquery', 'vue', 'text!metricSelectorHtml', 'cpuChart', 'gcChart', 'memo
             return this;
         }
 
-        function buildChart(chartName, timestamp, data, labelHandler) {
-            if (labelHandler == undefined) {
-                labelHandler = generateLabels;
+        function findChartObject(chartName) {
+            for (var i = 0; i < metricChartsController.charts.length; i++) {
+                if (metricChartsController.charts[i].chartName == chartName) {
+                    return i;
+                }
             }
 
-            $("#metricCanvasDiv").append("<div class='row' style='margin-top: 10px;margin-bottom: 20px; ' id='" + chartName + "-div'><div class='col-lg-12 col-sm-12 ' style=' height:135px;'><canvas id='" + chartName + "' style='display: block; '></canvas></div></div>\n");
-            var ctx = document.getElementById(chartName).getContext("2d");
-            var chartHandlerConfig = buildChartHandlerConfig(chartName);
-            var canvasBuilder = chartHandlerConfig.canvasBuilder;
-            var dataFetcher = chartHandlerConfig.dataFetcher;
-            var chartData = dataFetcher(data, chartName);
-            dataChart.queryParamUpdateCallback(chartData.length);
-            var config = canvasBuilder.createChartConfig(labelHandler(timestamp, dataChart.CONSTANTS.maxDisplayCount * 60), chartData.data);
-            return {
-                name: chartName,
-                type: config.type,
-                chart: new Chart(ctx, config),
-                updateChart: function (data, timestamplabel) {
-                    var chartData = dataFetcher(data, chartName);
-                    dataChart.queryParamUpdateCallback(chartData.length);
-                    canvasBuilder.updateChart(this.chart, moment(timestamplabel).format("HH:mm:ss"), chartData.data);
-                },
-                redrawChart: function (canvasObject, data, timestamp) {
-                    this.chart.destroy();
-                    this.chart = null;
-                    var chartData = dataFetcher(data, chartName);
-                    dataChart.queryParamUpdateCallback(chartData.length);
-                    var config = chartHandlerConfig.canvasBuilder.createChartConfig(generateLabels(timestamp, dataChart.CONSTANTS.maxDisplayCount * 60), chartData.data);
-                    this.chart = new Chart(canvasObject, config);
-                }
-            };
+            return -1;
         }
 
-        function buildChartHandlerConfig(chartName) {
+        var metricChartsController = {
+            charts: [],
+            queryParam: {
+                instanceId: undefined,
+                startTime: undefined,
+                endTime: undefined,
+                metricNames: ["tps", "cpu", "respTime", "heapMemory", "gc"]
+            },
+            autoUpdateParam: {
+                nextQueryEndTime: undefined
+            },
+            currentXAxesOriginPoint: undefined,
+            loadData: function (endTime) {
+                console.log("load Date: " + endTime);
+                var that = metricChartsController;
+                that.queryParam.endTime = moment(parseInt(endTime)).format("YYYYMMDDHHmmss");
+                console.log("query end time : " + that.queryParam.endTime);
+                $.getJSON("/metricInfoWithTimeRange", this.queryParam, function (data) {
+                    var nextQueryStartTime = Number.MAX_VALUE;
+                    var maxXAxesTimestamp = 0;
+                    for (var i = 0; i < that.charts.length; i++) {
+                        var dataFetcher = that.charts[i].dataFetcher;
+                        that.charts[i].chartOperator.fillData(dataFetcher(data, that.charts[i].chartName));
+                        var chartLastDate = that.charts[i].chartOperator.previousTime.timestamp;
+                        if (chartLastDate < nextQueryStartTime) {
+                            nextQueryStartTime = chartLastDate;
+                        }
+
+                        if (chartLastDate > maxXAxesTimestamp) {
+                            maxXAxesTimestamp = chartLastDate;
+                        }
+                    }
+
+                    // align x-axes,
+                    for (var i = 0; i < that.charts.length; i++) {
+                        that.charts[i].chartOperator.alignXAxes(maxXAxesTimestamp);
+                        that.currentXAxesOriginPoint = that.charts[i].chartOperator.getChartStartTime();
+                    }
+
+                    that.queryParam.startTime = moment(nextQueryStartTime).format("YYYYMMDDHHmmss");
+                    console.log("next query start time: " + that.queryParam.startTime + " next query end time: " + that.queryParam.endTime);
+                });
+            },
+            removeQueryMetric: function (metricName) {
+                for (var i = 0; i < this.queryParam.metricNames.length; i++) {
+                    if (this.queryParam.metricNames[i] == metricName) {
+                        this.queryParam.metricNames.splice(i, 1);
+                        break;
+                    }
+                }
+            },
+            initParams: function (instanceId, startTime) {
+                this.queryParam.instanceId = instanceId;
+                this.queryParam.startTime = startTime;
+            },
+            redrawChart: function (timestamp) {
+                for (var i = 0; i < this.charts.length; i++) {
+                    this.charts[i].chartOperator.redrawChart(timestamp);
+                }
+            }
+        }
+
+        function initPageCharts(instanceId, startTime) {
+            metricChartsController.initParams(instanceId, startTime);
+
+            var tpsChart = initChart("tps", startTime);
+            metricChartsController.charts.push(tpsChart);
+
+            var cpuChart = initChart("cpu", startTime);
+            metricChartsController.charts.push(cpuChart);
+
+            var heapMemoryChart = initChart("heapMemory", startTime);
+            metricChartsController.charts.push(heapMemoryChart);
+
+            var gcChart = initChart("gc", startTime);
+            metricChartsController.charts.push(gcChart);
+
+            metricChartsController.loadData(moment(startTime, "YYYYMMDDHHmmss").add(5, "minutes").format("x"));
+        }
+
+        function updateMetricCharts(startTime) {
+            metricChartsController.redrawChart(startTime);
+            metricChartsController.loadData(moment(startTime).add(5, "minutes").format("x"));
+        }
+
+        function redrawChart(startTime) {
+            metricChartsController.redrawChart(startTime);
+        }
+
+        function autoUpdateMetricCharts(endTime) {
+            if (metricChartsController.autoUpdateParam.nextQueryEndTime == undefined) {
+                metricChartsController.autoUpdateParam.nextQueryEndTime = parseInt(endTime);
+            }
+
+            var nextQueryTime = metricChartsController.autoUpdateParam.nextQueryEndTime;
+            if (parseInt(endTime) - nextQueryTime > 3000) {
+                metricChartsController.loadData(nextQueryTime);
+                metricChartsController.autoUpdateParam.nextQueryEndTime += 3000;
+            }
+        }
+
+        function initChart(chartName, xAxesStartTime) {
+            $("#metricCanvasDiv").append("<div class='row' style='margin-top: 10px;margin-bottom: 20px; ' id='" + chartName + "-div'><div class='col-lg-12 col-sm-12 ' style=' height:135px;'><canvas id='" + chartName + "' style='display: block; '></canvas></div></div>\n");
+            var chartContext = document.getElementById(chartName).getContext("2d");
+            var chartObject = getChartHandler(chartName);
+            chartObject.chartOperator = chartObject.canvasBuilder.createChart(chartContext, xAxesStartTime);
+            chartObject.dataFetcher = chartObject.dataFetcher;
+            chartObject.chartName = chartName;
+            return chartObject;
+        }
+
+
+        function getChartHandler(chartName) {
             var chartHandlerConfig;
             switch (chartName) {
                 case "tps":
@@ -205,11 +173,8 @@ define(['jquery', 'vue', 'text!metricSelectorHtml', 'cpuChart', 'gcChart', 'memo
                         canvasBuilder: tpsChart,
                         dataFetcher: function (data) {
                             return {
-                                length: data.tps.length,
-                                data: {
-                                    tps: data.tps,
-                                    respTime: data.respTime
-                                }
+                                tps: data.tps,
+                                respTime: data.respTime
                             };
                         }
                     }
@@ -218,10 +183,7 @@ define(['jquery', 'vue', 'text!metricSelectorHtml', 'cpuChart', 'gcChart', 'memo
                     chartHandlerConfig = {
                         canvasBuilder: gcChart,
                         dataFetcher: function (data) {
-                            return {
-                                length: data.gc.ogc.length > data.gc.ygc.length ? data.gc.ogc.length : data.gc.ygc.length,
-                                data: data.gc
-                            };
+                            return data.gc
                         }
                     }
                     break;
@@ -229,10 +191,7 @@ define(['jquery', 'vue', 'text!metricSelectorHtml', 'cpuChart', 'gcChart', 'memo
                     chartHandlerConfig = {
                         canvasBuilder: cpuChart,
                         dataFetcher: function (data) {
-                            return {
-                                length: data.cpu.length,
-                                data: data.cpu
-                            }
+                            return data.cpu
                         }
                     }
                     break;
@@ -240,40 +199,19 @@ define(['jquery', 'vue', 'text!metricSelectorHtml', 'cpuChart', 'gcChart', 'memo
                     chartHandlerConfig = {
                         canvasBuilder: memoryChart,
                         dataFetcher: function (data, chartName) {
-                            return {
-                                length: data[chartName].used.length,
-                                data: data[chartName]
-                            };
+                            return data[chartName]
                         }
                     }
             }
             return chartHandlerConfig;
         }
 
-        function findChartObject(chartName) {
-            for (var i = 0; i < dataChart.charts.length; i++) {
-                if (dataChart.charts[i].name === chartName) {
-                    return i;
-                }
-            }
-            return -1;
-        }
-
-        function updateMetricCharts(startTime) {
-            var parameters = dataChart.resetQueryParam(startTime);
-            loadData("/metricInfoWithTimeRange", parameters, function (data, timestamp) {
-                for (var i = 0; i < dataChart.charts.length; i++) {
-                    var canvasObject = document.getElementById(dataChart.charts[i].name).getContext("2d");
-                    dataChart.charts[i].redrawChart(canvasObject, data, timestamp);
-                }
-            }, startTime);
-        }
-
         return {
-            loadMetricCharts: loadMetricCharts,
-            autoUpdateMetricCharts: autoUpdateMetricCharts,
             drawMetricSelector: drawMetricSelector,
-            updateMetricCharts: updateMetricCharts
+            initPageCharts: initPageCharts,
+            updateMetricCharts: updateMetricCharts,
+            autoUpdateMetricCharts: autoUpdateMetricCharts,
+            redrawChart: redrawChart
         }
     }
 );

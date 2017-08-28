@@ -39,6 +39,7 @@ requirejs.config({
         "healthTimeAxis": "/health/timeaxis",
         "instanceTimeAxisHtml": "/health/timeaxis.html",
         "responseTimeConditionHtml": "/health/responseTimeCondition.html",
-        "responseTimeCondition": "/health/responseTimeCondition"
+        "responseTimeCondition": "/health/responseTimeCondition",
+        "metric-chart": "/public/js/metric-chart"
     }
 });
