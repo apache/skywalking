@@ -37,9 +37,10 @@ import static org.skywalking.apm.agent.test.tools.SpanAssert.assertTag;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
-public class TomcatInterceptorTest {
+public class TomcatInvokeInterceptorTest {
 
-    private TomcatInterceptor tomcatInterceptor;
+    private TomcatInvokeInterceptor tomcatInvokeInterceptor;
+    private TomcatExceptionInterceptor tomcatExceptionInterceptor;
     @SegmentStoragePoint
     private SegmentStorage segmentStorage;
 
@@ -59,20 +60,27 @@ public class TomcatInterceptorTest {
     private Object[] arguments;
     private Class[] argumentType;
 
+    private Object[] exceptionArguments;
+    private Class[] exceptionArgumentType;
+
     @Before
     public void setUp() throws Exception {
-        tomcatInterceptor = new TomcatInterceptor();
+        tomcatInvokeInterceptor = new TomcatInvokeInterceptor();
+        tomcatExceptionInterceptor = new TomcatExceptionInterceptor();
         when(request.getRequestURI()).thenReturn("/test/testRequestURL");
         when(request.getRequestURL()).thenReturn(new StringBuffer("http://localhost:8080/test/testRequestURL"));
         when(response.getStatus()).thenReturn(200);
         arguments = new Object[] {request, response};
         argumentType = new Class[] {request.getClass(), response.getClass()};
+
+        exceptionArguments = new Object[] {request, response, new RuntimeException()};
+        exceptionArgumentType = new Class[] {request.getClass(), response.getClass(), new RuntimeException().getClass()};
     }
 
     @Test
     public void testWithoutSerializedContextData() throws Throwable {
-        tomcatInterceptor.beforeMethod(enhancedInstance, null, arguments, argumentType, methodInterceptResult);
-        tomcatInterceptor.afterMethod(enhancedInstance, null, arguments, argumentType, null);
+        tomcatInvokeInterceptor.beforeMethod(enhancedInstance, null, arguments, argumentType, methodInterceptResult);
+        tomcatInvokeInterceptor.afterMethod(enhancedInstance, null, arguments, argumentType, null);
 
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
@@ -84,8 +92,8 @@ public class TomcatInterceptorTest {
     public void testWithSerializedContextData() throws Throwable {
         when(request.getHeader(Config.Plugin.Propagation.HEADER_NAME)).thenReturn("#AQA*#AQA*4WcWe0tQNQA*|3|1|1|#192.168.1.8:18002|#/portal/|#/testEntrySpan|#AQA*#AQA*Et0We0tQNQA*");
 
-        tomcatInterceptor.beforeMethod(enhancedInstance, null, arguments, argumentType, methodInterceptResult);
-        tomcatInterceptor.afterMethod(enhancedInstance, null, arguments, argumentType, null);
+        tomcatInvokeInterceptor.beforeMethod(enhancedInstance, null, arguments, argumentType, methodInterceptResult);
+        tomcatInvokeInterceptor.afterMethod(enhancedInstance, null, arguments, argumentType, null);
 
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
@@ -97,9 +105,25 @@ public class TomcatInterceptorTest {
 
     @Test
     public void testWithOccurException() throws Throwable {
-        tomcatInterceptor.beforeMethod(enhancedInstance, null, arguments, argumentType, methodInterceptResult);
-        tomcatInterceptor.handleMethodException(enhancedInstance, null, arguments, argumentType, new RuntimeException());
-        tomcatInterceptor.afterMethod(enhancedInstance, null, arguments, argumentType, null);
+        tomcatInvokeInterceptor.beforeMethod(enhancedInstance, null, arguments, argumentType, methodInterceptResult);
+        tomcatInvokeInterceptor.handleMethodException(enhancedInstance, null, arguments, argumentType, new RuntimeException());
+        tomcatInvokeInterceptor.afterMethod(enhancedInstance, null, arguments, argumentType, null);
+
+        assertThat(segmentStorage.getTraceSegments().size(), is(1));
+        TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
+        List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
+
+        assertHttpSpan(spans.get(0));
+        List<LogDataEntity> logDataEntities = SpanHelper.getLogs(spans.get(0));
+        assertThat(logDataEntities.size(), is(1));
+        assertException(logDataEntities.get(0), RuntimeException.class);
+    }
+
+    @Test
+    public void testWithTomcatException() throws Throwable {
+        tomcatInvokeInterceptor.beforeMethod(enhancedInstance, null, arguments, argumentType, methodInterceptResult);
+        tomcatExceptionInterceptor.beforeMethod(enhancedInstance, null, exceptionArguments, exceptionArgumentType, null);
+        tomcatInvokeInterceptor.afterMethod(enhancedInstance, null, arguments, argumentType, null);
 
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
