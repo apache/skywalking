@@ -16,11 +16,11 @@ import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptR
 import org.skywalking.apm.network.trace.component.ComponentsDefine;
 
 /**
- * {@link TomcatInterceptor} fetch the serialized context data by using {@link HttpServletRequest#getHeader(String)}.
+ * {@link TomcatInvokeInterceptor} fetch the serialized context data by using {@link HttpServletRequest#getHeader(String)}.
  * The {@link TraceSegment#refs} of current trace segment will reference to the trace
  * segment id of the previous level if the serialized context is not null.
  */
-public class TomcatInterceptor implements InstanceMethodsAroundInterceptor {
+public class TomcatInvokeInterceptor implements InstanceMethodsAroundInterceptor {
 
     /**
      * * The {@link TraceSegment#refs} of current trace segment will reference to the
