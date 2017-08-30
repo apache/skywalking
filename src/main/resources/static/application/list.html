@@ -1,0 +1,7 @@
+<ul id="applicationListVueDiv" class="application-list m-b-md" style="padding: 0">
+    <li v-for="application in list">
+        <a href="javascript:void(0);" v-on:click="itemClick(application.applicationId,$event)">{{
+            application.applicationCode }}<span class="label label-info pull-right">{{application.instanceCount}}</span>
+        </a>
+    </li>
+</ul>

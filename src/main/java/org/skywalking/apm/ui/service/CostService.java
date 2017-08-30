@@ -2,7 +2,7 @@ package org.skywalking.apm.ui.service;
 
 import org.skywalking.apm.ui.creator.UrlCreator;
 import org.skywalking.apm.ui.tools.HttpClientTools;
-import org.skywalking.apm.ui.tools.TimeTools;
+import org.skywalking.apm.ui.tools.TimeBucketTools;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -61,7 +61,7 @@ public class CostService {
         for (int i = 0; i < costArray.size(); i++) {
             JsonObject costJson = costArray.get(i).getAsJsonObject();
 
-            xAxis.add(TimeTools.buildXAxis(timeSliceType, costJson.get("timeSlice").getAsString()));
+            xAxis.add(TimeBucketTools.buildXAxis(timeSliceType, costJson.get("timeSlice").getAsString()));
             s1Axis.add(costJson.get("oneSecondLess").getAsDouble());
             s3Axis.add(costJson.get("threeSecondLess").getAsDouble());
             s5Axis.add(costJson.get("fiveSecondLess").getAsDouble());

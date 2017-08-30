@@ -29,7 +29,7 @@ define(['jquery', 'vue', 'text!applicationsHtml'], function ($, Vue, segmentHtml
 
     function loadApplications(timestamp) {
         $.getJSON("/applications?timestamp=" + timestamp, function (data) {
-            apps.applist = data.applicationList;
+            apps.applist = data.list;
         });
 
         return this;
