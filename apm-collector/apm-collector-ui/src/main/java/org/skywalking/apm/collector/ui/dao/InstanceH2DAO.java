@@ -1,7 +1,6 @@
 package org.skywalking.apm.collector.ui.dao;
 
 import com.google.gson.JsonArray;
-import java.util.List;
 import org.skywalking.apm.collector.storage.define.register.InstanceDataDefine;
 import org.skywalking.apm.collector.storage.h2.dao.H2DAO;
 
