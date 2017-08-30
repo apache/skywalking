@@ -15,15 +15,16 @@ import org.skywalking.apm.collector.storage.define.DataDefine;
 public class ServiceEntryDataDefine extends DataDefine {
 
     @Override protected int initialCapacity() {
-        return 5;
+        return 6;
     }
 
     @Override protected void attributeDefine() {
         addAttribute(0, new Attribute(ServiceEntryTable.COLUMN_ID, AttributeType.STRING, new NonOperation()));
         addAttribute(1, new Attribute(ServiceEntryTable.COLUMN_APPLICATION_ID, AttributeType.INTEGER, new NonOperation()));
-        addAttribute(2, new Attribute(ServiceEntryTable.COLUMN_ENTRY_SERVICE_ID, AttributeType.INTEGER, new CoverOperation()));
-        addAttribute(3, new Attribute(ServiceEntryTable.COLUMN_ENTRY_SERVICE_NAME, AttributeType.STRING, new CoverOperation()));
-        addAttribute(4, new Attribute(ServiceEntryTable.COLUMN_TIME_BUCKET, AttributeType.LONG, new CoverOperation()));
+        addAttribute(2, new Attribute(ServiceEntryTable.COLUMN_ENTRY_SERVICE_ID, AttributeType.INTEGER, new NonOperation()));
+        addAttribute(3, new Attribute(ServiceEntryTable.COLUMN_ENTRY_SERVICE_NAME, AttributeType.STRING, new NonOperation()));
+        addAttribute(4, new Attribute(ServiceEntryTable.COLUMN_REGISTER_TIME, AttributeType.LONG, new NonOperation()));
+        addAttribute(5, new Attribute(ServiceEntryTable.COLUMN_NEWEST_TIME, AttributeType.LONG, new CoverOperation()));
     }
 
     @Override public Object deserialize(RemoteData remoteData) {
@@ -39,15 +40,18 @@ public class ServiceEntryDataDefine extends DataDefine {
         private int applicationId;
         private int entryServiceId;
         private String entryServiceName;
-        private long timeBucket;
+        private long registerTime;
+        private long newestTime;
 
         public ServiceEntry(String id, int applicationId, int entryServiceId, String entryServiceName,
-            long timeBucket) {
+            long registerTime,
+            long newestTime) {
             this.id = id;
             this.applicationId = applicationId;
             this.entryServiceId = entryServiceId;
             this.entryServiceName = entryServiceName;
-            this.timeBucket = timeBucket;
+            this.registerTime = registerTime;
+            this.newestTime = newestTime;
         }
 
         public ServiceEntry() {
@@ -60,7 +64,8 @@ public class ServiceEntryDataDefine extends DataDefine {
             data.setDataInteger(0, this.applicationId);
             data.setDataInteger(1, this.entryServiceId);
             data.setDataString(1, this.entryServiceName);
-            data.setDataLong(0, this.timeBucket);
+            data.setDataLong(0, this.registerTime);
+            data.setDataLong(1, this.newestTime);
             return data;
         }
 
@@ -69,7 +74,8 @@ public class ServiceEntryDataDefine extends DataDefine {
             this.applicationId = data.getDataInteger(0);
             this.entryServiceId = data.getDataInteger(1);
             this.entryServiceName = data.getDataString(1);
-            this.timeBucket = data.getDataLong(0);
+            this.registerTime = data.getDataLong(0);
+            this.newestTime = data.getDataLong(1);
             return this;
         }
 
@@ -97,20 +103,28 @@ public class ServiceEntryDataDefine extends DataDefine {
             this.entryServiceName = entryServiceName;
         }
 
-        public long getTimeBucket() {
-            return timeBucket;
-        }
-
-        public void setTimeBucket(long timeBucket) {
-            this.timeBucket = timeBucket;
-        }
-
         public int getApplicationId() {
             return applicationId;
         }
 
         public void setApplicationId(int applicationId) {
             this.applicationId = applicationId;
+        }
+
+        public long getRegisterTime() {
+            return registerTime;
+        }
+
+        public void setRegisterTime(long registerTime) {
+            this.registerTime = registerTime;
+        }
+
+        public long getNewestTime() {
+            return newestTime;
+        }
+
+        public void setNewestTime(long newestTime) {
+            this.newestTime = newestTime;
         }
     }
 }

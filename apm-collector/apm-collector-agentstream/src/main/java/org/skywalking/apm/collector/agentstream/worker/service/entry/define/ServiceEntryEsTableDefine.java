@@ -26,7 +26,10 @@ public class ServiceEntryEsTableDefine extends ElasticSearchTableDefine {
     }
 
     @Override public void initialize() {
-        addColumn(new ElasticSearchColumnDefine(ServiceEntryTable.COLUMN_AGG, ElasticSearchColumnDefine.Type.Keyword.name()));
-        addColumn(new ElasticSearchColumnDefine(ServiceEntryTable.COLUMN_TIME_BUCKET, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(ServiceEntryTable.COLUMN_APPLICATION_ID, ElasticSearchColumnDefine.Type.Integer.name()));
+        addColumn(new ElasticSearchColumnDefine(ServiceEntryTable.COLUMN_ENTRY_SERVICE_ID, ElasticSearchColumnDefine.Type.Integer.name()));
+        addColumn(new ElasticSearchColumnDefine(ServiceEntryTable.COLUMN_ENTRY_SERVICE_NAME, ElasticSearchColumnDefine.Type.Text.name()));
+        addColumn(new ElasticSearchColumnDefine(ServiceEntryTable.COLUMN_REGISTER_TIME, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(ServiceEntryTable.COLUMN_NEWEST_TIME, ElasticSearchColumnDefine.Type.Long.name()));
     }
 }

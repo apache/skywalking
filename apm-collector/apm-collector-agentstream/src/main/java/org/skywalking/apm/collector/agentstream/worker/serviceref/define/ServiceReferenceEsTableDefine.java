@@ -39,6 +39,7 @@ public class ServiceReferenceEsTableDefine extends ElasticSearchTableDefine {
         addColumn(new ElasticSearchColumnDefine(ServiceReferenceTable.COLUMN_S5_GT, ElasticSearchColumnDefine.Type.Long.name()));
         addColumn(new ElasticSearchColumnDefine(ServiceReferenceTable.COLUMN_SUMMARY, ElasticSearchColumnDefine.Type.Long.name()));
         addColumn(new ElasticSearchColumnDefine(ServiceReferenceTable.COLUMN_ERROR, ElasticSearchColumnDefine.Type.Long.name()));
+        addColumn(new ElasticSearchColumnDefine(ServiceReferenceTable.COLUMN_COST_SUMMARY, ElasticSearchColumnDefine.Type.Long.name()));
         addColumn(new ElasticSearchColumnDefine(ServiceReferenceTable.COLUMN_TIME_BUCKET, ElasticSearchColumnDefine.Type.Long.name()));
     }
 }

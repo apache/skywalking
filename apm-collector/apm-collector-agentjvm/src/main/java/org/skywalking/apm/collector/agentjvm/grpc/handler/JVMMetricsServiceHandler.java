@@ -59,7 +59,7 @@ public class JVMMetricsServiceHandler extends JVMMetricsServiceGrpc.JVMMetricsSe
         long heartBeatTime) {
         InstanceHeartBeatDataDefine.InstanceHeartBeat heartBeat = new InstanceHeartBeatDataDefine.InstanceHeartBeat();
         heartBeat.setId(String.valueOf(applicationInstanceId));
-        heartBeat.setHeartBeatTime(heartBeatTime);
+        heartBeat.setHeartBeatTime(TimeBucketUtils.INSTANCE.getSecondTimeBucket(heartBeatTime));
         heartBeat.setInstanceId(applicationInstanceId);
         try {
             logger.debug("send to instance heart beat persistence worker, id: {}", heartBeat.getId());

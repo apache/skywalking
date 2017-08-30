@@ -1,10 +1,10 @@
 package org.skywalking.apm.collector.ui.dao;
 
-import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 /**
  * @author pengys5
  */
 public interface IServiceEntryDAO {
-    JsonArray load(int applicationId, long startTime, long endTime);
+    JsonObject load(int applicationId, String entryServiceName, long startTime, long endTime, int from, int size);
 }

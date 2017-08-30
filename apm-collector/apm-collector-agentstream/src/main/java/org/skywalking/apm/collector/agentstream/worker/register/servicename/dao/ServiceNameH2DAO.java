@@ -20,6 +20,10 @@ public class ServiceNameH2DAO extends H2DAO implements IServiceNameDAO {
         return 0;
     }
 
+    @Override public String getServiceName(int serviceId) {
+        return null;
+    }
+
     @Override public void save(ServiceNameDataDefine.ServiceName serviceName) {
 
     }

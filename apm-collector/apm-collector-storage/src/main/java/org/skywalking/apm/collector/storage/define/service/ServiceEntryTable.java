@@ -10,4 +10,6 @@ public class ServiceEntryTable extends CommonTable {
     public static final String COLUMN_APPLICATION_ID = "application_id";
     public static final String COLUMN_ENTRY_SERVICE_ID = "entry_service_id";
     public static final String COLUMN_ENTRY_SERVICE_NAME = "entry_service_name";
+    public static final String COLUMN_REGISTER_TIME = "register_time";
+    public static final String COLUMN_NEWEST_TIME = "newest_time";
 }

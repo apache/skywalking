@@ -10,4 +10,8 @@ public class ServiceNameH2DAO extends H2DAO implements IServiceNameDAO {
     @Override public String getServiceName(int serviceId) {
         return null;
     }
+
+    @Override public int getServiceId(int applicationId, String serviceName) {
+        return 0;
+    }
 }

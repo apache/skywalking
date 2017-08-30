@@ -12,12 +12,12 @@ import org.slf4j.LoggerFactory;
 /**
  * @author pengys5
  */
-public class InstanceLastTimeGetHandler extends JettyHandler {
+public class OneInstanceLastTimeGetHandler extends JettyHandler {
 
-    private final Logger logger = LoggerFactory.getLogger(InstanceLastTimeGetHandler.class);
+    private final Logger logger = LoggerFactory.getLogger(OneInstanceLastTimeGetHandler.class);
 
     @Override public String pathSpec() {
-        return "/time/instanceId";
+        return "/time/oneInstance";
     }
 
     private TimeSynchronousService service = new TimeSynchronousService();
@@ -36,7 +36,7 @@ public class InstanceLastTimeGetHandler extends JettyHandler {
         Long time = service.instanceLastTime(applicationInstanceId);
         logger.debug("application instance id: {}, instance last time: {}", applicationInstanceId, time);
         JsonObject timeJson = new JsonObject();
-        timeJson.addProperty("time", time);
+        timeJson.addProperty("timeBucket", time);
         return timeJson;
     }
 

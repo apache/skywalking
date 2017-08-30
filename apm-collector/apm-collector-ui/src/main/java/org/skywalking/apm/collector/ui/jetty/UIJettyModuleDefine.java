@@ -15,10 +15,12 @@ import org.skywalking.apm.collector.ui.jetty.handler.SpanGetHandler;
 import org.skywalking.apm.collector.ui.jetty.handler.TraceDagGetHandler;
 import org.skywalking.apm.collector.ui.jetty.handler.TraceStackGetHandler;
 import org.skywalking.apm.collector.ui.jetty.handler.UIJettyServerHandler;
-import org.skywalking.apm.collector.ui.jetty.handler.instancehealth.ApplicationsGetHandler;
+import org.skywalking.apm.collector.ui.jetty.handler.application.ApplicationsGetHandler;
 import org.skywalking.apm.collector.ui.jetty.handler.instancehealth.InstanceHealthGetHandler;
+import org.skywalking.apm.collector.ui.jetty.handler.servicetree.EntryServiceGetHandler;
+import org.skywalking.apm.collector.ui.jetty.handler.servicetree.ServiceTreeGetHandler;
 import org.skywalking.apm.collector.ui.jetty.handler.time.AllInstanceLastTimeGetHandler;
-import org.skywalking.apm.collector.ui.jetty.handler.time.InstanceLastTimeGetHandler;
+import org.skywalking.apm.collector.ui.jetty.handler.time.OneInstanceLastTimeGetHandler;
 
 /**
  * @author pengys5
@@ -58,10 +60,12 @@ public class UIJettyModuleDefine extends UIModuleDefine {
         handlers.add(new SegmentTopGetHandler());
         handlers.add(new TraceStackGetHandler());
         handlers.add(new SpanGetHandler());
-        handlers.add(new InstanceLastTimeGetHandler());
+        handlers.add(new OneInstanceLastTimeGetHandler());
         handlers.add(new AllInstanceLastTimeGetHandler());
-        handlers.add(new ApplicationsGetHandler());
         handlers.add(new InstanceHealthGetHandler());
+        handlers.add(new ApplicationsGetHandler());
+        handlers.add(new EntryServiceGetHandler());
+        handlers.add(new ServiceTreeGetHandler());
         return handlers;
     }
 }

@@ -2,6 +2,7 @@ package org.skywalking.apm.collector.agentstream.worker.serviceref;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.skywalking.apm.collector.agentstream.worker.cache.InstanceCache;
 import org.skywalking.apm.collector.agentstream.worker.segment.EntrySpanListener;
 import org.skywalking.apm.collector.agentstream.worker.segment.ExitSpanListener;
 import org.skywalking.apm.collector.agentstream.worker.segment.FirstSpanListener;
@@ -14,6 +15,7 @@ import org.skywalking.apm.collector.stream.StreamModuleContext;
 import org.skywalking.apm.collector.stream.StreamModuleGroupDefine;
 import org.skywalking.apm.collector.stream.worker.WorkerInvokeException;
 import org.skywalking.apm.collector.stream.worker.WorkerNotFoundException;
+import org.skywalking.apm.network.proto.SpanLayer;
 import org.skywalking.apm.network.proto.SpanObject;
 import org.skywalking.apm.network.proto.TraceSegmentReference;
 import org.slf4j.Logger;
@@ -49,7 +51,7 @@ public class ServiceReferenceSpanListener implements FirstSpanListener, EntrySpa
     public void parseEntry(SpanObject spanObject, int applicationId, int applicationInstanceId, String segmentId) {
         serviceId = spanObject.getOperationNameId();
         if (spanObject.getOperationNameId() == 0) {
-            serviceName = spanObject.getOperationName();
+            serviceName = String.valueOf(applicationId) + Const.ID_SPLIT + spanObject.getOperationName();
         } else {
             serviceName = Const.EMPTY_STRING;
         }
@@ -60,18 +62,21 @@ public class ServiceReferenceSpanListener implements FirstSpanListener, EntrySpa
 
     @Override
     public void parseExit(SpanObject spanObject, int applicationId, int applicationInstanceId, String segmentId) {
-        ServiceReferenceDataDefine.ServiceReference serviceReference = new ServiceReferenceDataDefine.ServiceReference();
-        serviceReference.setBehindServiceId(spanObject.getOperationNameId());
-        if (spanObject.getOperationNameId() == 0) {
-            serviceReference.setBehindServiceName(spanObject.getOperationName());
-        } else {
-            serviceReference.setBehindServiceName(Const.EMPTY_STRING);
+        if (spanObject.getSpanLayer().equals(SpanLayer.Database)) {
+            ServiceReferenceDataDefine.ServiceReference serviceReference = new ServiceReferenceDataDefine.ServiceReference();
+            serviceReference.setBehindServiceId(spanObject.getOperationNameId());
+            if (spanObject.getOperationNameId() == 0) {
+                serviceReference.setBehindServiceName(String.valueOf(applicationId) + Const.ID_SPLIT + spanObject.getOperationName());
+            } else {
+                serviceReference.setBehindServiceName(Const.EMPTY_STRING);
+            }
+            calculateCost(serviceReference, spanObject.getStartTime(), spanObject.getEndTime(), spanObject.getIsError());
+            exitServiceRefs.add(serviceReference);
         }
-        calculateCost(serviceReference, spanObject.getStartTime(), spanObject.getEndTime(), spanObject.getIsError());
-        exitServiceRefs.add(serviceReference);
     }
 
-    private void calculateCost(ServiceReferenceDataDefine.ServiceReference serviceReference, long startTime, long endTime,
+    private void calculateCost(ServiceReferenceDataDefine.ServiceReference serviceReference, long startTime,
+        long endTime,
         boolean isError) {
         long cost = endTime - startTime;
         if (cost <= 1000 && !isError) {
@@ -86,6 +91,7 @@ public class ServiceReferenceSpanListener implements FirstSpanListener, EntrySpa
             serviceReference.setError(1);
         }
         serviceReference.setSummary(1);
+        serviceReference.setCostSummary(cost);
     }
 
     @Override public void build() {
@@ -96,10 +102,10 @@ public class ServiceReferenceSpanListener implements FirstSpanListener, EntrySpa
             referenceServices.forEach(reference -> {
                 ServiceReferenceDataDefine.ServiceReference serviceReference = new ServiceReferenceDataDefine.ServiceReference();
                 int entryServiceId = reference.getEntryServiceId();
-                String entryServiceName = reference.getEntryServiceName();
+                String entryServiceName = buildServiceName(reference.getEntryApplicationInstanceId(), reference.getEntryServiceId(), reference.getEntryServiceName());
 
                 int frontServiceId = reference.getParentServiceId();
-                String frontServiceName = reference.getParentServiceName();
+                String frontServiceName = buildServiceName(reference.getParentApplicationInstanceId(), reference.getParentServiceId(), reference.getParentServiceName());
 
                 int behindServiceId = serviceId;
                 String behindServiceName = serviceName;
@@ -128,10 +134,10 @@ public class ServiceReferenceSpanListener implements FirstSpanListener, EntrySpa
             if (referenceServices.size() > 0) {
                 referenceServices.forEach(reference -> {
                     int entryServiceId = reference.getEntryServiceId();
-                    String entryServiceName = reference.getEntryServiceName();
+                    String entryServiceName = buildServiceName(reference.getEntryApplicationInstanceId(), reference.getEntryServiceId(), reference.getEntryServiceName());
 
                     int frontServiceId = reference.getParentServiceId();
-                    String frontServiceName = reference.getParentServiceName();
+                    String frontServiceName = buildServiceName(reference.getParentApplicationInstanceId(), reference.getParentServiceId(), reference.getParentServiceName());
 
                     int behindServiceId = serviceReference.getBehindServiceId();
                     String behindServiceName = serviceReference.getBehindServiceName();
@@ -194,6 +200,15 @@ public class ServiceReferenceSpanListener implements FirstSpanListener, EntrySpa
             context.getClusterWorkerContext().lookup(ServiceReferenceAggregationWorker.WorkerRole.INSTANCE).tell(serviceReference.toData());
         } catch (WorkerInvokeException | WorkerNotFoundException e) {
             logger.error(e.getMessage(), e);
+        }
+    }
+
+    private String buildServiceName(int instanceId, int serviceId, String serviceName) {
+        if (serviceId == 0) {
+            int applicationId = InstanceCache.get(instanceId);
+            return String.valueOf(applicationId) + Const.ID_SPLIT + serviceName;
+        } else {
+            return Const.EMPTY_STRING;
         }
     }
 }

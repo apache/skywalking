@@ -5,4 +5,6 @@ package org.skywalking.apm.collector.ui.dao;
  */
 public interface IServiceNameDAO {
     String getServiceName(int serviceId);
+
+    int getServiceId(int applicationId, String serviceName);
 }

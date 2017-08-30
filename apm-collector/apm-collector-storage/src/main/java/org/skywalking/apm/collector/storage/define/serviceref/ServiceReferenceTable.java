@@ -18,5 +18,6 @@ public class ServiceReferenceTable extends CommonTable {
     public static final String COLUMN_S5_LTE = "s5_lte";
     public static final String COLUMN_S5_GT = "s5_gt";
     public static final String COLUMN_SUMMARY = "summary";
+    public static final String COLUMN_COST_SUMMARY = "cost_summary";
     public static final String COLUMN_ERROR = "error";
 }

@@ -24,4 +24,14 @@ public class ServiceNameCache {
             return Const.EXCEPTION;
         }
     }
+
+    public static String getForUI(int serviceId) {
+        String serviceName = get(serviceId);
+        if (serviceName.equals("Unknown")) {
+            IServiceNameDAO dao = (IServiceNameDAO)DAOContainer.INSTANCE.get(IServiceNameDAO.class.getName());
+            serviceName = dao.getServiceName(serviceId);
+            CACHE.put(serviceId, serviceName);
+        }
+        return serviceName;
+    }
 }

@@ -24,7 +24,8 @@ public class ServiceEntryEsDAO extends EsDAO implements IServiceEntryDAO, IPersi
             data.setDataInteger(0, ((Number)source.get(ServiceEntryTable.COLUMN_APPLICATION_ID)).intValue());
             data.setDataInteger(1, ((Number)source.get(ServiceEntryTable.COLUMN_ENTRY_SERVICE_ID)).intValue());
             data.setDataString(1, (String)source.get(ServiceEntryTable.COLUMN_ENTRY_SERVICE_NAME));
-            data.setDataLong(0, (Long)source.get(ServiceEntryTable.COLUMN_TIME_BUCKET));
+            data.setDataLong(0, ((Number)source.get(ServiceEntryTable.COLUMN_REGISTER_TIME)).longValue());
+            data.setDataLong(1, ((Number)source.get(ServiceEntryTable.COLUMN_NEWEST_TIME)).longValue());
             return data;
         } else {
             return null;
@@ -36,8 +37,8 @@ public class ServiceEntryEsDAO extends EsDAO implements IServiceEntryDAO, IPersi
         source.put(ServiceEntryTable.COLUMN_APPLICATION_ID, data.getDataInteger(0));
         source.put(ServiceEntryTable.COLUMN_ENTRY_SERVICE_ID, data.getDataInteger(1));
         source.put(ServiceEntryTable.COLUMN_ENTRY_SERVICE_NAME, data.getDataString(1));
-        source.put(ServiceEntryTable.COLUMN_TIME_BUCKET, data.getDataLong(0));
-
+        source.put(ServiceEntryTable.COLUMN_REGISTER_TIME, data.getDataLong(0));
+        source.put(ServiceEntryTable.COLUMN_NEWEST_TIME, data.getDataLong(1));
         return getClient().prepareIndex(ServiceEntryTable.TABLE, data.getDataString(0)).setSource(source);
     }
 
@@ -46,7 +47,8 @@ public class ServiceEntryEsDAO extends EsDAO implements IServiceEntryDAO, IPersi
         source.put(ServiceEntryTable.COLUMN_APPLICATION_ID, data.getDataInteger(0));
         source.put(ServiceEntryTable.COLUMN_ENTRY_SERVICE_ID, data.getDataInteger(1));
         source.put(ServiceEntryTable.COLUMN_ENTRY_SERVICE_NAME, data.getDataString(1));
-        source.put(ServiceEntryTable.COLUMN_TIME_BUCKET, data.getDataLong(0));
+        source.put(ServiceEntryTable.COLUMN_REGISTER_TIME, data.getDataLong(0));
+        source.put(ServiceEntryTable.COLUMN_NEWEST_TIME, data.getDataLong(1));
 
         return getClient().prepareUpdate(ServiceEntryTable.TABLE, data.getDataString(0)).setDoc(source);
     }

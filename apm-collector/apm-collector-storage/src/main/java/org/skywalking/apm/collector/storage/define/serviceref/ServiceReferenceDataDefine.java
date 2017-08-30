@@ -15,7 +15,7 @@ import org.skywalking.apm.collector.storage.define.DataDefine;
 public class ServiceReferenceDataDefine extends DataDefine {
 
     @Override protected int initialCapacity() {
-        return 14;
+        return 15;
     }
 
     @Override protected void attributeDefine() {
@@ -32,7 +32,8 @@ public class ServiceReferenceDataDefine extends DataDefine {
         addAttribute(10, new Attribute(ServiceReferenceTable.COLUMN_S5_GT, AttributeType.LONG, new AddOperation()));
         addAttribute(11, new Attribute(ServiceReferenceTable.COLUMN_SUMMARY, AttributeType.LONG, new AddOperation()));
         addAttribute(12, new Attribute(ServiceReferenceTable.COLUMN_ERROR, AttributeType.LONG, new AddOperation()));
-        addAttribute(13, new Attribute(ServiceReferenceTable.COLUMN_TIME_BUCKET, AttributeType.LONG, new NonOperation()));
+        addAttribute(13, new Attribute(ServiceReferenceTable.COLUMN_COST_SUMMARY, AttributeType.LONG, new AddOperation()));
+        addAttribute(14, new Attribute(ServiceReferenceTable.COLUMN_TIME_BUCKET, AttributeType.LONG, new NonOperation()));
     }
 
     @Override public Object deserialize(RemoteData remoteData) {
@@ -49,9 +50,10 @@ public class ServiceReferenceDataDefine extends DataDefine {
         long s5Gt = remoteData.getDataLongs(3);
         long summary = remoteData.getDataLongs(4);
         long error = remoteData.getDataLongs(5);
-        long timeBucket = remoteData.getDataLongs(6);
+        long costSummary = remoteData.getDataLongs(6);
+        long timeBucket = remoteData.getDataLongs(7);
         return new ServiceReference(id, entryServiceId, entryServiceName, frontServiceId, frontServiceName,
-            behindServiceId, behindServiceName, s1Lte, s3Lte, s5Lte, s5Gt, summary, error, timeBucket);
+            behindServiceId, behindServiceName, s1Lte, s3Lte, s5Lte, s5Gt, summary, error, costSummary, timeBucket);
     }
 
     @Override public RemoteData serialize(Object object) {
@@ -70,6 +72,7 @@ public class ServiceReferenceDataDefine extends DataDefine {
         builder.addDataLongs(serviceReference.getS5Gt());
         builder.addDataLongs(serviceReference.getSummary());
         builder.addDataLongs(serviceReference.getError());
+        builder.addDataLongs(serviceReference.getCostSummary());
         builder.addDataLongs(serviceReference.getTimeBucket());
         return builder.build();
     }
@@ -88,11 +91,12 @@ public class ServiceReferenceDataDefine extends DataDefine {
         private long s5Gt;
         private long summary;
         private long error;
+        private long costSummary;
         private long timeBucket;
 
         public ServiceReference(String id, int entryServiceId, String entryServiceName, int frontServiceId,
             String frontServiceName, int behindServiceId, String behindServiceName, long s1Lte, long s3Lte, long s5Lte,
-            long s5Gt, long summary, long error, long timeBucket) {
+            long s5Gt, long summary, long error, long costSummary, long timeBucket) {
             this.id = id;
             this.entryServiceId = entryServiceId;
             this.entryServiceName = entryServiceName;
@@ -106,6 +110,7 @@ public class ServiceReferenceDataDefine extends DataDefine {
             this.s5Gt = s5Gt;
             this.summary = summary;
             this.error = error;
+            this.costSummary = costSummary;
             this.timeBucket = timeBucket;
         }
 
@@ -128,7 +133,8 @@ public class ServiceReferenceDataDefine extends DataDefine {
             data.setDataLong(3, this.s5Gt);
             data.setDataLong(4, this.summary);
             data.setDataLong(5, this.error);
-            data.setDataLong(6, this.timeBucket);
+            data.setDataLong(6, this.costSummary);
+            data.setDataLong(7, this.timeBucket);
             return data;
         }
 
@@ -146,7 +152,8 @@ public class ServiceReferenceDataDefine extends DataDefine {
             this.s5Gt = data.getDataLong(3);
             this.summary = data.getDataLong(4);
             this.error = data.getDataLong(5);
-            this.timeBucket = data.getDataLong(6);
+            this.costSummary = data.getDataLong(6);
+            this.timeBucket = data.getDataLong(7);
             return this;
         }
 
@@ -252,6 +259,14 @@ public class ServiceReferenceDataDefine extends DataDefine {
 
         public void setError(long error) {
             this.error = error;
+        }
+
+        public long getCostSummary() {
+            return costSummary;
+        }
+
+        public void setCostSummary(long costSummary) {
+            this.costSummary = costSummary;
         }
 
         public long getTimeBucket() {

@@ -22,7 +22,37 @@ public class ServiceTreeGetHandler extends JettyHandler {
     private ServiceTreeService service = new ServiceTreeService();
 
     @Override protected JsonElement doGet(HttpServletRequest req) throws ArgumentsParseException {
-        return null;
+        if (!req.getParameterMap().containsKey("entryServiceId") || !req.getParameterMap().containsKey("startTime") || !req.getParameterMap().containsKey("endTime")) {
+            throw new ArgumentsParseException("must contains parameters: entryServiceId, startTime, endTime");
+        }
+
+        String entryServiceIdStr = req.getParameter("entryServiceId");
+        String startTimeStr = req.getParameter("startTime");
+        String endTimeStr = req.getParameter("endTime");
+        logger.debug("service entry get entryServiceId: {}, startTime: {}, endTime: {}", entryServiceIdStr, startTimeStr, endTimeStr);
+
+        int entryServiceId;
+        try {
+            entryServiceId = Integer.parseInt(entryServiceIdStr);
+        } catch (NumberFormatException e) {
+            throw new ArgumentsParseException("entry service id must be integer");
+        }
+
+        long startTime;
+        try {
+            startTime = Long.parseLong(startTimeStr);
+        } catch (NumberFormatException e) {
+            throw new ArgumentsParseException("start time must be long");
+        }
+
+        long endTime;
+        try {
+            endTime = Long.parseLong(endTimeStr);
+        } catch (NumberFormatException e) {
+            throw new ArgumentsParseException("end time must be long");
+        }
+
+        return service.loadServiceTree(entryServiceId, startTime, endTime);
     }
 
     @Override protected JsonElement doPost(HttpServletRequest req) throws ArgumentsParseException {

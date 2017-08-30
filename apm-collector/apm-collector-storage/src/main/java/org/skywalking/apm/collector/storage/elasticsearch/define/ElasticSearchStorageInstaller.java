@@ -63,10 +63,19 @@ public class ElasticSearchStorageInstaller extends StorageInstaller {
 
         for (ColumnDefine columnDefine : tableDefine.getColumnDefines()) {
             ElasticSearchColumnDefine elasticSearchColumnDefine = (ElasticSearchColumnDefine)columnDefine;
-            mappingBuilder
-                .startObject(elasticSearchColumnDefine.getName())
-                .field("type", elasticSearchColumnDefine.getType().toLowerCase())
-                .endObject();
+
+            if (ElasticSearchColumnDefine.Type.Text.name().toLowerCase().equals(elasticSearchColumnDefine.getType().toLowerCase())) {
+                mappingBuilder
+                    .startObject(elasticSearchColumnDefine.getName())
+                    .field("type", elasticSearchColumnDefine.getType().toLowerCase())
+                    .field("fielddata", true)
+                    .endObject();
+            } else {
+                mappingBuilder
+                    .startObject(elasticSearchColumnDefine.getName())
+                    .field("type", elasticSearchColumnDefine.getType().toLowerCase())
+                    .endObject();
+            }
         }
 
         mappingBuilder

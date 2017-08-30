@@ -27,6 +27,7 @@ public class ServiceReferenceH2TableDefine extends H2TableDefine {
         addColumn(new H2ColumnDefine(ServiceReferenceTable.COLUMN_S5_GT, H2ColumnDefine.Type.Bigint.name()));
         addColumn(new H2ColumnDefine(ServiceReferenceTable.COLUMN_SUMMARY, H2ColumnDefine.Type.Bigint.name()));
         addColumn(new H2ColumnDefine(ServiceReferenceTable.COLUMN_ERROR, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ServiceReferenceTable.COLUMN_COST_SUMMARY, H2ColumnDefine.Type.Bigint.name()));
         addColumn(new H2ColumnDefine(ServiceReferenceTable.COLUMN_TIME_BUCKET, H2ColumnDefine.Type.Bigint.name()));
     }
 }

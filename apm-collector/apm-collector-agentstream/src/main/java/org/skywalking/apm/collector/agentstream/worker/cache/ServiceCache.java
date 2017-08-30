@@ -2,25 +2,25 @@ package org.skywalking.apm.collector.agentstream.worker.cache;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.agentstream.worker.register.servicename.dao.IServiceNameDAO;
+import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.storage.dao.DAOContainer;
 
 /**
  * @author pengys5
  */
-public class ServiceNameCache {
+public class ServiceCache {
 
-    private static Cache<String, Integer> CACHE = CacheBuilder.newBuilder().maximumSize(2000).build();
+    private static Cache<Integer, String> CACHE = CacheBuilder.newBuilder().maximumSize(10000).build();
 
-    public static int get(int applicationId, String serviceName) {
+    public static String getServiceName(int serviceId) {
         try {
-            return CACHE.get(applicationId + Const.ID_SPLIT + serviceName, () -> {
+            return CACHE.get(serviceId, () -> {
                 IServiceNameDAO dao = (IServiceNameDAO)DAOContainer.INSTANCE.get(IServiceNameDAO.class.getName());
-                return dao.getServiceId(applicationId, serviceName);
+                return dao.getServiceName(serviceId);
             });
         } catch (Throwable e) {
-            return 0;
+            return Const.EMPTY_STRING;
         }
     }
 }

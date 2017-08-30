@@ -1,5 +1,6 @@
 package org.skywalking.apm.collector.agentstream.worker.service.entry;
 
+import org.skywalking.apm.collector.agentstream.worker.cache.ServiceCache;
 import org.skywalking.apm.collector.agentstream.worker.segment.EntrySpanListener;
 import org.skywalking.apm.collector.agentstream.worker.segment.FirstSpanListener;
 import org.skywalking.apm.collector.agentstream.worker.segment.RefsListener;
@@ -36,7 +37,7 @@ public class ServiceEntrySpanListener implements RefsListener, FirstSpanListener
         if (spanObject.getOperationNameId() == 0) {
             this.entryServiceName = spanObject.getOperationName();
         } else {
-            this.entryServiceName = Const.EMPTY_STRING;
+            this.entryServiceName = ServiceCache.getServiceName(this.entryServiceId);
         }
     }
 
@@ -55,15 +56,12 @@ public class ServiceEntrySpanListener implements RefsListener, FirstSpanListener
         StreamModuleContext context = (StreamModuleContext)CollectorContextHelper.INSTANCE.getContext(StreamModuleGroupDefine.GROUP_NAME);
         if (!hasReference) {
             ServiceEntryDataDefine.ServiceEntry serviceEntry = new ServiceEntryDataDefine.ServiceEntry();
-            if (entryServiceId == 0) {
-                serviceEntry.setId(timeBucket + Const.ID_SPLIT + entryServiceName);
-            } else {
-                serviceEntry.setId(timeBucket + Const.ID_SPLIT + entryServiceId);
-            }
+            serviceEntry.setId(applicationId + Const.ID_SPLIT + entryServiceName);
             serviceEntry.setApplicationId(applicationId);
             serviceEntry.setEntryServiceId(entryServiceId);
             serviceEntry.setEntryServiceName(entryServiceName);
-            serviceEntry.setTimeBucket(timeBucket);
+            serviceEntry.setRegisterTime(timeBucket);
+            serviceEntry.setNewestTime(timeBucket);
 
             try {
                 logger.debug("send to service entry aggregation worker, id: {}", serviceEntry.getId());

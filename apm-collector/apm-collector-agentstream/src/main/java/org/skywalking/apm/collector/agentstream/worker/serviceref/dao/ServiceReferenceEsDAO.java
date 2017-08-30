@@ -37,7 +37,8 @@ public class ServiceReferenceEsDAO extends EsDAO implements IServiceReferenceDAO
             data.setDataLong(3, ((Number)source.get(ServiceReferenceTable.COLUMN_S5_GT)).longValue());
             data.setDataLong(4, ((Number)source.get(ServiceReferenceTable.COLUMN_SUMMARY)).longValue());
             data.setDataLong(5, ((Number)source.get(ServiceReferenceTable.COLUMN_ERROR)).longValue());
-            data.setDataLong(6, ((Number)source.get(ServiceReferenceTable.COLUMN_TIME_BUCKET)).longValue());
+            data.setDataLong(6, ((Number)source.get(ServiceReferenceTable.COLUMN_COST_SUMMARY)).longValue());
+            data.setDataLong(7, ((Number)source.get(ServiceReferenceTable.COLUMN_TIME_BUCKET)).longValue());
             return data;
         } else {
             return null;
@@ -58,7 +59,8 @@ public class ServiceReferenceEsDAO extends EsDAO implements IServiceReferenceDAO
         source.put(ServiceReferenceTable.COLUMN_S5_GT, data.getDataLong(3));
         source.put(ServiceReferenceTable.COLUMN_SUMMARY, data.getDataLong(4));
         source.put(ServiceReferenceTable.COLUMN_ERROR, data.getDataLong(5));
-        source.put(ServiceReferenceTable.COLUMN_TIME_BUCKET, data.getDataLong(6));
+        source.put(ServiceReferenceTable.COLUMN_COST_SUMMARY, data.getDataLong(6));
+        source.put(ServiceReferenceTable.COLUMN_TIME_BUCKET, data.getDataLong(7));
 
         return getClient().prepareIndex(ServiceReferenceTable.TABLE, data.getDataString(0)).setSource(source);
     }
@@ -77,7 +79,8 @@ public class ServiceReferenceEsDAO extends EsDAO implements IServiceReferenceDAO
         source.put(ServiceReferenceTable.COLUMN_S5_GT, data.getDataLong(3));
         source.put(ServiceReferenceTable.COLUMN_SUMMARY, data.getDataLong(4));
         source.put(ServiceReferenceTable.COLUMN_ERROR, data.getDataLong(5));
-        source.put(ServiceReferenceTable.COLUMN_TIME_BUCKET, data.getDataLong(6));
+        source.put(ServiceReferenceTable.COLUMN_COST_SUMMARY, data.getDataLong(6));
+        source.put(ServiceReferenceTable.COLUMN_TIME_BUCKET, data.getDataLong(7));
 
         return getClient().prepareUpdate(ServiceReferenceTable.TABLE, data.getDataString(0)).setDoc(source);
     }
