@@ -8,7 +8,6 @@ import org.skywalking.apm.collector.storage.dao.DAOContainer;
 import org.skywalking.apm.collector.ui.cache.ApplicationCache;
 import org.skywalking.apm.collector.ui.dao.IGCMetricDAO;
 import org.skywalking.apm.collector.ui.dao.IInstPerformanceDAO;
-import org.skywalking.apm.collector.ui.dao.IInstanceDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,28 +17,6 @@ import org.slf4j.LoggerFactory;
 public class InstanceHealthService {
 
     private final Logger logger = LoggerFactory.getLogger(InstanceHealthService.class);
-
-    public JsonObject getApplications(long timeBucket) {
-        IInstanceDAO instanceDAO = (IInstanceDAO)DAOContainer.INSTANCE.get(IInstanceDAO.class.getName());
-        List<IInstanceDAO.Application> applications = instanceDAO.getApplications(timeBucket);
-
-        JsonObject response = new JsonObject();
-        JsonArray applicationArray = new JsonArray();
-
-        response.addProperty("timeBucket", timeBucket);
-        response.add("applicationList", applicationArray);
-
-        applications.forEach(application -> {
-            JsonObject applicationJson = new JsonObject();
-            String applicationCode = ApplicationCache.get(application.getApplicationId());
-            applicationJson.addProperty("applicationId", application.getApplicationId());
-            applicationJson.addProperty("applicationCode", applicationCode);
-            applicationJson.addProperty("instanceCount", application.getCount());
-            applicationArray.add(applicationJson);
-        });
-
-        return response;
-    }
 
     public JsonObject getInstances(long timestamp, int applicationId) {
         JsonObject response = new JsonObject();

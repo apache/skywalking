@@ -1,6 +1,6 @@
 package org.skywalking.apm.collector.ui.dao;
 
-import java.util.List;
+import com.google.gson.JsonArray;
 import org.skywalking.apm.collector.storage.define.register.InstanceDataDefine;
 
 /**
@@ -11,7 +11,7 @@ public interface IInstanceDAO {
 
     Long instanceLastHeartBeatTime(long applicationInstanceId);
 
-    List<Application> getApplications(long time);
+    JsonArray getApplications(long startTime, long endTime);
 
     InstanceDataDefine.Instance getInstance(int instanceId);
 

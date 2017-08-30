@@ -4,9 +4,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import io.grpc.stub.StreamObserver;
 import org.skywalking.apm.collector.agentregister.instance.InstanceIDService;
+import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.server.grpc.GRPCHandler;
 import org.skywalking.apm.network.proto.ApplicationInstance;
-import org.skywalking.apm.network.proto.ApplicationInstanceHeartbeat;
 import org.skywalking.apm.network.proto.ApplicationInstanceMapping;
 import org.skywalking.apm.network.proto.ApplicationInstanceRecover;
 import org.skywalking.apm.network.proto.Downstream;
@@ -26,7 +26,8 @@ public class InstanceDiscoveryServiceHandler extends InstanceDiscoveryServiceGrp
 
     @Override
     public void register(ApplicationInstance request, StreamObserver<ApplicationInstanceMapping> responseObserver) {
-        int instanceId = instanceIDService.getOrCreate(request.getApplicationId(), request.getAgentUUID(), request.getRegisterTime(), buildOsInfo(request.getOsinfo()));
+        long timeBucket = TimeBucketUtils.INSTANCE.getSecondTimeBucket(request.getRegisterTime());
+        int instanceId = instanceIDService.getOrCreate(request.getApplicationId(), request.getAgentUUID(), timeBucket, buildOsInfo(request.getOsinfo()));
         ApplicationInstanceMapping.Builder builder = ApplicationInstanceMapping.newBuilder();
         builder.setApplicationId(request.getApplicationId());
         builder.setApplicationInstanceId(instanceId);
@@ -34,15 +35,10 @@ public class InstanceDiscoveryServiceHandler extends InstanceDiscoveryServiceGrp
         responseObserver.onCompleted();
     }
 
-    @Override public void heartbeat(ApplicationInstanceHeartbeat request, StreamObserver<Downstream> responseObserver) {
-        instanceIDService.heartBeat(request.getApplicationInstanceId(), request.getHeartbeatTime());
-        responseObserver.onNext(Downstream.newBuilder().build());
-        responseObserver.onCompleted();
-    }
-
     @Override
     public void registerRecover(ApplicationInstanceRecover request, StreamObserver<Downstream> responseObserver) {
-        instanceIDService.recover(request.getApplicationInstanceId(), request.getApplicationId(), request.getRegisterTime(), buildOsInfo(request.getOsinfo()));
+        long timeBucket = TimeBucketUtils.INSTANCE.getSecondTimeBucket(request.getRegisterTime());
+        instanceIDService.recover(request.getApplicationInstanceId(), request.getApplicationId(), timeBucket, buildOsInfo(request.getOsinfo()));
         responseObserver.onNext(Downstream.newBuilder().build());
         responseObserver.onCompleted();
     }

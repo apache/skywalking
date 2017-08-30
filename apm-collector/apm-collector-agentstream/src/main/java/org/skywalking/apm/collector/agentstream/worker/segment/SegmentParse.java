@@ -6,11 +6,11 @@ import org.skywalking.apm.collector.agentstream.worker.global.GlobalTraceSpanLis
 import org.skywalking.apm.collector.agentstream.worker.instance.performance.InstPerformanceSpanListener;
 import org.skywalking.apm.collector.agentstream.worker.node.component.NodeComponentSpanListener;
 import org.skywalking.apm.collector.agentstream.worker.node.mapping.NodeMappingSpanListener;
-import org.skywalking.apm.collector.agentstream.worker.noderef.summary.NodeRefSumSpanListener;
+import org.skywalking.apm.collector.agentstream.worker.noderef.NodeReferenceSpanListener;
 import org.skywalking.apm.collector.agentstream.worker.segment.cost.SegmentCostSpanListener;
 import org.skywalking.apm.collector.agentstream.worker.segment.origin.SegmentPersistenceWorker;
 import org.skywalking.apm.collector.agentstream.worker.service.entry.ServiceEntrySpanListener;
-import org.skywalking.apm.collector.agentstream.worker.serviceref.reference.ServiceRefSpanListener;
+import org.skywalking.apm.collector.agentstream.worker.serviceref.ServiceReferenceSpanListener;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
 import org.skywalking.apm.collector.core.util.CollectionUtils;
 import org.skywalking.apm.collector.storage.define.segment.SegmentDataDefine;
@@ -39,11 +39,11 @@ public class SegmentParse {
         spanListeners = new ArrayList<>();
         spanListeners.add(new NodeComponentSpanListener());
         spanListeners.add(new NodeMappingSpanListener());
-        spanListeners.add(new NodeRefSumSpanListener());
+        spanListeners.add(new NodeReferenceSpanListener());
         spanListeners.add(new SegmentCostSpanListener());
         spanListeners.add(new GlobalTraceSpanListener());
         spanListeners.add(new ServiceEntrySpanListener());
-        spanListeners.add(new ServiceRefSpanListener());
+        spanListeners.add(new ServiceReferenceSpanListener());
         spanListeners.add(new InstPerformanceSpanListener());
     }
 

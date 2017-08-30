@@ -7,10 +7,13 @@ import java.io.IOException;
 import org.skywalking.apm.collector.agentstream.HttpClientTools;
 import org.skywalking.apm.collector.agentstream.worker.register.application.dao.ApplicationEsDAO;
 import org.skywalking.apm.collector.agentstream.worker.register.instance.dao.InstanceEsDAO;
+import org.skywalking.apm.collector.agentstream.worker.register.servicename.dao.ServiceNameEsDAO;
 import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.skywalking.apm.collector.core.CollectorException;
+import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.storage.define.register.ApplicationDataDefine;
 import org.skywalking.apm.collector.storage.define.register.InstanceDataDefine;
+import org.skywalking.apm.collector.storage.define.register.ServiceNameDataDefine;
 
 /**
  * @author pengys5
@@ -20,13 +23,14 @@ public class SegmentPost {
     public static void main(String[] args) throws IOException, InterruptedException, CollectorException {
         ElasticSearchClient client = new ElasticSearchClient("CollectorDBCluster", true, "127.0.0.1:9300");
         client.initialize();
+        long now = TimeBucketUtils.INSTANCE.getSecondTimeBucket(System.currentTimeMillis());
 
         InstanceEsDAO instanceEsDAO = new InstanceEsDAO();
         instanceEsDAO.setClient(client);
 
-        InstanceDataDefine.Instance consumerInstance = new InstanceDataDefine.Instance("2", 2, "dubbox-consumer", 1501858094526L, 2, 1501858094526L, "");
+        InstanceDataDefine.Instance consumerInstance = new InstanceDataDefine.Instance("2", 2, "dubbox-consumer", now, 2, now, "");
         instanceEsDAO.save(consumerInstance);
-        InstanceDataDefine.Instance providerInstance = new InstanceDataDefine.Instance("3", 3, "dubbox-provider", 1501858094526L, 3, 1501858094526L, "");
+        InstanceDataDefine.Instance providerInstance = new InstanceDataDefine.Instance("3", 3, "dubbox-provider", now, 3, now, "");
         instanceEsDAO.save(providerInstance);
 
         ApplicationEsDAO applicationEsDAO = new ApplicationEsDAO();
@@ -38,6 +42,18 @@ public class SegmentPost {
         applicationEsDAO.save(consumerApplication);
         ApplicationDataDefine.Application providerApplication = new ApplicationDataDefine.Application("3", "dubbox-provider", 3);
         applicationEsDAO.save(providerApplication);
+
+        ServiceNameEsDAO serviceNameEsDAO = new ServiceNameEsDAO();
+        serviceNameEsDAO.setClient(client);
+
+        ServiceNameDataDefine.ServiceName serviceName_1 = new ServiceNameDataDefine.ServiceName("1", "", 0, 1);
+        serviceNameEsDAO.save(serviceName_1);
+        ServiceNameDataDefine.ServiceName serviceName_2 = new ServiceNameDataDefine.ServiceName("2", "org.skywaking.apm.testcase.dubbo.services.GreetService.doBusiness()", 2, 2);
+        serviceNameEsDAO.save(serviceName_2);
+        ServiceNameDataDefine.ServiceName serviceName_3 = new ServiceNameDataDefine.ServiceName("3", "/dubbox-case/case/dubbox-rest", 2, 3);
+        serviceNameEsDAO.save(serviceName_3);
+        ServiceNameDataDefine.ServiceName serviceName_4 = new ServiceNameDataDefine.ServiceName("4", "org.skywaking.apm.testcase.dubbo.services.GreetService.doBusiness()", 3, 4);
+        serviceNameEsDAO.save(serviceName_4);
 
         while (true) {
             JsonElement consumer = JsonFileReader.INSTANCE.read("json/segment/normal/dubbox-consumer.json");

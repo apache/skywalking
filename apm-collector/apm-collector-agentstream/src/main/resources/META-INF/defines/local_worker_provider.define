@@ -4,17 +4,14 @@ org.skywalking.apm.collector.agentstream.worker.node.component.NodeComponentPers
 org.skywalking.apm.collector.agentstream.worker.node.mapping.NodeMappingAggregationWorker$Factory
 org.skywalking.apm.collector.agentstream.worker.node.mapping.NodeMappingPersistenceWorker$Factory
 
-org.skywalking.apm.collector.agentstream.worker.noderef.reference.NodeRefAggregationWorker$Factory
-org.skywalking.apm.collector.agentstream.worker.noderef.reference.NodeRefPersistenceWorker$Factory
-
-org.skywalking.apm.collector.agentstream.worker.noderef.summary.NodeRefSumAggregationWorker$Factory
-org.skywalking.apm.collector.agentstream.worker.noderef.summary.NodeRefSumPersistenceWorker$Factory
+org.skywalking.apm.collector.agentstream.worker.noderef.NodeReferenceAggregationWorker$Factory
+org.skywalking.apm.collector.agentstream.worker.noderef.NodeReferencePersistenceWorker$Factory
 
 org.skywalking.apm.collector.agentstream.worker.service.entry.ServiceEntryAggregationWorker$Factory
 org.skywalking.apm.collector.agentstream.worker.service.entry.ServiceEntryPersistenceWorker$Factory
 
-org.skywalking.apm.collector.agentstream.worker.serviceref.reference.ServiceRefAggregationWorker$Factory
-org.skywalking.apm.collector.agentstream.worker.serviceref.reference.ServiceRefPersistenceWorker$Factory
+org.skywalking.apm.collector.agentstream.worker.serviceref.ServiceReferenceAggregationWorker$Factory
+org.skywalking.apm.collector.agentstream.worker.serviceref.ServiceReferencePersistenceWorker$Factory
 
 org.skywalking.apm.collector.agentstream.worker.segment.origin.SegmentPersistenceWorker$Factory
 org.skywalking.apm.collector.agentstream.worker.segment.cost.SegmentCostPersistenceWorker$Factory

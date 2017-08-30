@@ -5,7 +5,7 @@ import com.google.gson.JsonObject;
 import java.util.HashMap;
 import java.util.Map;
 import org.skywalking.apm.collector.core.util.Const;
-import org.skywalking.apm.collector.storage.define.noderef.NodeRefSumTable;
+import org.skywalking.apm.collector.storage.define.noderef.NodeReferenceTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +38,7 @@ public class TraceDagDataBuilder {
             JsonObject lineJsonObj = new JsonObject();
             lineJsonObj.addProperty("from", findOrCreateNode(front));
             lineJsonObj.addProperty("to", findOrCreateNode(behind));
-            lineJsonObj.addProperty("resSum", nodeRefJsonObj.get(NodeRefSumTable.COLUMN_SUMMARY).getAsInt());
+            lineJsonObj.addProperty("resSum", nodeRefJsonObj.get(NodeReferenceTable.COLUMN_SUMMARY).getAsInt());
 
             lineArray.add(lineJsonObj);
             logger.debug("line: {}", lineJsonObj);
