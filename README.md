@@ -13,7 +13,7 @@ Sky Walking | [中文](https://github.com/wu-sheng/sky-walking/wiki/sky-walking-
 [![OpenTracing-1.0 Badge](https://img.shields.io/badge/OpenTracing--1.0-enabled-blue.svg)](http://opentracing.io)
 
 
-* Auto-instrumentation mechanism, **no need to CHANGE any application source code**. [Supported middlewares, frameworks and libraries](https://github.com/wu-sheng/sky-walking/wiki/3.0-supported-list).
+* Auto-instrumentation mechanism, **no need to CHANGE any application source code**. [Supported middlewares, frameworks and libraries](https://github.com/wu-sheng/sky-walking/wiki/3.1-supported-list).
 * Explicit-instrumentation, as an [OpenTracing supported tracer](http://opentracing.io/documentation/pages/supported-tracers).
 * Pure Java server implementation, with RESTful Web service.
 * High performance streaming analysis.
@@ -26,7 +26,7 @@ _In chronological order_
 * 张鑫 [**PMC Member**] [@ascrutae](https://github.com/ascrutae)   
 * 谭真 [@mircoteam](https://github.com/mircoteam)  Advanced R&D Engineers, Creative & Interactive Group.
 * 徐妍 [@TastySummer](https://github.com/TastySummer)
-* 彭勇升 [**PMC Member**] [@pengys5](https://github.com/pengys5)   Technical Specialist, OneAPM.
+* 彭勇升 [**PMC Member**] [@pengys5](https://github.com/pengys5) 
 * 戴文
 * 柏杨 [@bai-yang](https://github.com/bai-yang)  Senior Engineer, Alibaba Group.
 * 陈凤 [@trey03](https://github.com/trey03)
