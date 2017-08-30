@@ -13,7 +13,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.skywalking.apm.ui.creator.UrlCreator;
 import org.skywalking.apm.ui.tools.HttpClientTools;
-import org.skywalking.apm.ui.tools.TimeTools;
+import org.skywalking.apm.ui.tools.TimeBucketTools;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -61,7 +61,7 @@ public class TopTraceListService {
         for (int i = 0; i < dataArray.size(); i++) {
             JsonObject data = dataArray.get(i).getAsJsonObject();
             long start = data.get("start_time").getAsLong();
-            String startStr = TimeTools.format(start);
+            String startStr = TimeBucketTools.format(start);
             String traceIds = data.get("global_trace_id").getAsString();
             data.addProperty("DT_RowId", traceIds);
             data.addProperty("start_time", startStr);

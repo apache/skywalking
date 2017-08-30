@@ -1,0 +1,31 @@
+<div id="entryServiceListVueDiv">
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Entry Service name</th>
+            <th>Application Code</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="entryService in list" v-on:click="itemClick(entryService.entryServiceId,$event)">
+            <td>{{entryService.entryServiceName}}</td>
+            <td>{{entryService.applicationCode}}</td>
+        </tr>
+        </tbody>
+    </table>
+    <div class="text-center">
+        <div class="btn-group">
+            <button class="btn btn-white" type="button" v-on:click="gotoPage(currentPage - 1)"
+                    v-if="hasForward"><i
+                    class="fa fa-chevron-left"></i></button>
+            <button class="btn btn-white" type="button" disabled="true" v-if="!hasForward"><i
+                    class="fa fa-chevron-left"></i></button>
+            <button class="btn btn-white">{{currentPage + 1}}</button>
+
+            <button class="btn btn-white" type="button" v-on:click="gotoPage(currentPage + 1)" v-if="backward"><i
+                    class="fa fa-chevron-right"></i></button>
+            <button class="btn btn-white" type="button" disabled="true" v-if="!backward"><i
+                    class="fa fa-chevron-right"></i></button>
+        </div>
+    </div>
+</div>
