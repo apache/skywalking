@@ -14,6 +14,7 @@
         <module>concurrent-util-4.x-plugin</module>
         <module>resttemplate-4.x-plugin</module>
         <module>mvc-annotation-4.x-plugin</module>
+        <module>spring-cloud</module>
     </modules>
     <packaging>pom</packaging>
 

@@ -15,7 +15,10 @@ public class ServiceEntryH2TableDefine extends H2TableDefine {
 
     @Override public void initialize() {
         addColumn(new H2ColumnDefine(ServiceEntryTable.COLUMN_ID, H2ColumnDefine.Type.Varchar.name()));
-        addColumn(new H2ColumnDefine(ServiceEntryTable.COLUMN_AGG, H2ColumnDefine.Type.Varchar.name()));
-        addColumn(new H2ColumnDefine(ServiceEntryTable.COLUMN_TIME_BUCKET, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ServiceEntryTable.COLUMN_APPLICATION_ID, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(ServiceEntryTable.COLUMN_ENTRY_SERVICE_ID, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(ServiceEntryTable.COLUMN_ENTRY_SERVICE_NAME, H2ColumnDefine.Type.Varchar.name()));
+        addColumn(new H2ColumnDefine(ServiceEntryTable.COLUMN_REGISTER_TIME, H2ColumnDefine.Type.Bigint.name()));
+        addColumn(new H2ColumnDefine(ServiceEntryTable.COLUMN_NEWEST_TIME, H2ColumnDefine.Type.Bigint.name()));
     }
 }

@@ -22,14 +22,29 @@ public class TraceDagGetHandler extends JettyHandler {
     private TraceDagService service = new TraceDagService();
 
     @Override protected JsonElement doGet(HttpServletRequest req) throws ArgumentsParseException {
+        if (!req.getParameterMap().containsKey("startTime") || !req.getParameterMap().containsKey("endTime")) {
+            throw new ArgumentsParseException("the request parameter must contains startTime, endTime");
+        }
+
         String startTimeStr = req.getParameter("startTime");
         String endTimeStr = req.getParameter("endTime");
-        String timeBucketType = req.getParameter("timeBucketType");
-        logger.debug("startTime: {}, endTimeStr: {}, timeBucketType: {}", startTimeStr, endTimeStr, timeBucketType);
+        logger.debug("startTime: {}, endTimeStr: {}", startTimeStr, endTimeStr);
 
-        long startTime = Long.valueOf(startTimeStr);
-        long endTime = Long.valueOf(endTimeStr);
-        return service.load(startTime, endTime, timeBucketType);
+        long startTime;
+        try {
+            startTime = Long.valueOf(req.getParameter("startTime"));
+        } catch (NumberFormatException e) {
+            throw new ArgumentsParseException("the request parameter startTime must be a long");
+        }
+
+        long endTime;
+        try {
+            endTime = Long.valueOf(req.getParameter("endTime"));
+        } catch (NumberFormatException e) {
+            throw new ArgumentsParseException("the request parameter endTime must be a long");
+        }
+
+        return service.load(startTime, endTime);
     }
 
     @Override protected JsonElement doPost(HttpServletRequest req) throws ArgumentsParseException {

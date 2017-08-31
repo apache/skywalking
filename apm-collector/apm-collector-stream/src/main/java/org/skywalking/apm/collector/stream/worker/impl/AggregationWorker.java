@@ -60,11 +60,13 @@ public abstract class AggregationWorker extends AbstractLocalAsyncWorker {
         }
         dataCache.getLast().asMap().forEach((id, data) -> {
             try {
+                logger.debug(data.toString());
                 nextWorkRef(id).tell(data);
             } catch (WorkerNotFoundException | WorkerInvokeException e) {
                 logger.error(e.getMessage(), e);
             }
         });
+        dataCache.releaseLast();
     }
 
     protected final void aggregate(Object message) {

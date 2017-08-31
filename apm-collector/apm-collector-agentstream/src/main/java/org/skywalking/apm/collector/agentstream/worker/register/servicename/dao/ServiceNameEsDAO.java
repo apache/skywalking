@@ -2,6 +2,7 @@ package org.skywalking.apm.collector.agentstream.worker.register.servicename.dao
 
 import java.util.HashMap;
 import java.util.Map;
+import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -10,9 +11,10 @@ import org.elasticsearch.action.support.WriteRequest;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
+import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
+import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.storage.define.register.ServiceNameDataDefine;
 import org.skywalking.apm.collector.storage.define.register.ServiceNameTable;
-import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +53,15 @@ public class ServiceNameEsDAO extends EsDAO implements IServiceNameDAO {
 
     @Override public int getMinServiceId() {
         return getMinId(ServiceNameTable.TABLE, ServiceNameTable.COLUMN_SERVICE_ID);
+    }
+
+    @Override public String getServiceName(int serviceId) {
+        GetResponse response = getClient().prepareGet(ServiceNameTable.TABLE, String.valueOf(serviceId)).get();
+        if (response.isExists()) {
+            return (String)response.getSource().get(ServiceNameTable.COLUMN_SERVICE_NAME);
+        } else {
+            return Const.EMPTY_STRING;
+        }
     }
 
     @Override public void save(ServiceNameDataDefine.ServiceName serviceName) {

@@ -27,7 +27,9 @@ public class KeyValuePair {
     public KeyWithStringValue transform() {
         KeyWithStringValue.Builder keyValueBuilder = KeyWithStringValue.newBuilder();
         keyValueBuilder.setKey(key);
-        keyValueBuilder.setValue(value);
+        if (value != null) {
+            keyValueBuilder.setValue(value);
+        }
         return keyValueBuilder.build();
     }
 }

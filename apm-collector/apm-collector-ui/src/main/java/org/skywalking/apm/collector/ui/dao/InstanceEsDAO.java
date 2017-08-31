@@ -1,7 +1,7 @@
 package org.skywalking.apm.collector.ui.dao;
 
-import java.util.LinkedList;
-import java.util.List;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import org.elasticsearch.action.get.GetRequestBuilder;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -15,11 +15,13 @@ import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.metrics.valuecount.ValueCount;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortMode;
 import org.skywalking.apm.collector.storage.define.register.InstanceDataDefine;
 import org.skywalking.apm.collector.storage.define.register.InstanceTable;
 import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
+import org.skywalking.apm.collector.ui.cache.ApplicationCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,32 +69,31 @@ public class InstanceEsDAO extends EsDAO implements IInstanceDAO {
         return heartBeatTime;
     }
 
-    @Override public List<Application> getApplications(long time) {
-        logger.debug("application list get, time: {}", time);
+    @Override public JsonArray getApplications(long startTime, long endTime) {
+        logger.debug("application list get, start time: {}, end time: {}", startTime, endTime);
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(InstanceTable.TABLE);
         searchRequestBuilder.setTypes(InstanceTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
-
-        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        RangeQueryBuilder heartBeatRangeQueryBuilder = QueryBuilders.rangeQuery(InstanceTable.COLUMN_HEARTBEAT_TIME).gte(time);
-        RangeQueryBuilder registerRangeQueryBuilder = QueryBuilders.rangeQuery(InstanceTable.COLUMN_REGISTER_TIME).lte(time);
-
-        boolQueryBuilder.must().add(registerRangeQueryBuilder);
-        boolQueryBuilder.must().add(heartBeatRangeQueryBuilder);
-
-        searchRequestBuilder.setQuery(boolQueryBuilder);
+        searchRequestBuilder.setQuery(QueryBuilders.rangeQuery(InstanceTable.COLUMN_HEARTBEAT_TIME).gte(startTime));
         searchRequestBuilder.setSize(0);
-        searchRequestBuilder.addAggregation(AggregationBuilders.terms(InstanceTable.COLUMN_APPLICATION_ID).field(InstanceTable.COLUMN_APPLICATION_ID).size(100));
+        searchRequestBuilder.addAggregation(AggregationBuilders.terms(InstanceTable.COLUMN_APPLICATION_ID).field(InstanceTable.COLUMN_APPLICATION_ID).size(100)
+            .subAggregation(AggregationBuilders.count(InstanceTable.COLUMN_INSTANCE_ID).field(InstanceTable.COLUMN_INSTANCE_ID)));
 
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
         Terms genders = searchResponse.getAggregations().get(InstanceTable.COLUMN_APPLICATION_ID);
 
-        List<Application> applications = new LinkedList<>();
-        for (Terms.Bucket entry : genders.getBuckets()) {
-            Integer applicationId = entry.getKeyAsNumber().intValue();
+        JsonArray applications = new JsonArray();
+        for (Terms.Bucket applicationsBucket : genders.getBuckets()) {
+            Integer applicationId = applicationsBucket.getKeyAsNumber().intValue();
             logger.debug("applicationId: {}", applicationId);
-            long instanceCount = entry.getDocCount();
-            applications.add(new Application(applicationId, instanceCount));
+
+            ValueCount instanceCount = applicationsBucket.getAggregations().get(InstanceTable.COLUMN_INSTANCE_ID);
+
+            JsonObject application = new JsonObject();
+            application.addProperty("applicationId", applicationId);
+            application.addProperty("applicationCode", ApplicationCache.getForUI(applicationId));
+            application.addProperty("instanceCount", instanceCount.getValue());
+            applications.add(application);
         }
         return applications;
     }

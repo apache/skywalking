@@ -20,4 +20,11 @@ public class TimeBucketUtilsTestCase {
         fiveSecondTimeBucket = TimeBucketUtils.INSTANCE.getFiveSecondTimeBucket(20170804224815L);
         Assert.assertEquals(20170804224815L, fiveSecondTimeBucket);
     }
+
+    @Test
+    public void testChangeTimeBucket2TimeStamp() {
+        long timeStamp = TimeBucketUtils.INSTANCE.changeTimeBucket2TimeStamp(TimeBucketUtils.TimeBucketType.MINUTE.name(), 201708120810L);
+        long minute = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(timeStamp);
+        Assert.assertEquals(201708120810L, minute);
+    }
 }

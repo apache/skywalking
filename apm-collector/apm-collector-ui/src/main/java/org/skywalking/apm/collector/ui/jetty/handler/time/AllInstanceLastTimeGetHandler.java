@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.util.Calendar;
 import javax.servlet.http.HttpServletRequest;
+import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.server.jetty.ArgumentsParseException;
 import org.skywalking.apm.collector.server.jetty.JettyHandler;
 import org.skywalking.apm.collector.ui.service.TimeSynchronousService;
@@ -24,17 +25,15 @@ public class AllInstanceLastTimeGetHandler extends JettyHandler {
     private TimeSynchronousService service = new TimeSynchronousService();
 
     @Override protected JsonElement doGet(HttpServletRequest req) throws ArgumentsParseException {
-        Long time = service.allInstanceLastTime();
-        logger.debug("all instance last time: {}", time);
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(time);
+        Long timeBucket = service.allInstanceLastTime();
+        logger.debug("all instance last time: {}", timeBucket);
 
-        int second = calendar.get(Calendar.SECOND);
-        second = (second % 5) * 5;
-        calendar.set(Calendar.SECOND, second);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(TimeBucketUtils.INSTANCE.changeTimeBucket2TimeStamp(TimeBucketUtils.TimeBucketType.SECOND.name(), timeBucket));
+        calendar.add(Calendar.SECOND, -5);
 
         JsonObject timeJson = new JsonObject();
-        timeJson.addProperty("time", calendar.getTimeInMillis());
+        timeJson.addProperty("timeBucket", TimeBucketUtils.INSTANCE.getSecondTimeBucket(calendar.getTimeInMillis()));
         return timeJson;
     }
 

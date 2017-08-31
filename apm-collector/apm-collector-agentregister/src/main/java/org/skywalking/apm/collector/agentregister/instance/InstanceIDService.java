@@ -1,10 +1,10 @@
 package org.skywalking.apm.collector.agentregister.instance;
 
 import org.skywalking.apm.collector.agentstream.worker.register.application.ApplicationRegisterRemoteWorker;
-import org.skywalking.apm.collector.storage.define.register.InstanceDataDefine;
 import org.skywalking.apm.collector.agentstream.worker.register.instance.dao.IInstanceDAO;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
 import org.skywalking.apm.collector.storage.dao.DAOContainer;
+import org.skywalking.apm.collector.storage.define.register.InstanceDataDefine;
 import org.skywalking.apm.collector.stream.StreamModuleContext;
 import org.skywalking.apm.collector.stream.StreamModuleGroupDefine;
 import org.skywalking.apm.collector.stream.worker.WorkerInvokeException;
@@ -34,12 +34,6 @@ public class InstanceIDService {
             }
         }
         return applicationId;
-    }
-
-    public void heartBeat(int instanceId, long heartbeatTime) {
-        logger.debug("instance heart beat, instance id: {}, heartbeat time: {}", instanceId, heartbeatTime);
-        IInstanceDAO dao = (IInstanceDAO)DAOContainer.INSTANCE.get(IInstanceDAO.class.getName());
-        dao.updateHeartbeatTime(instanceId, heartbeatTime);
     }
 
     public void recover(int instanceId, int applicationId, long registerTime, String osInfo) {

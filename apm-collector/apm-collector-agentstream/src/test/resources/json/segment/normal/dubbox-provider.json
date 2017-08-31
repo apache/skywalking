@@ -25,7 +25,7 @@
           "ai": 2,
           "si": 1,
           "vi": 0,
-          "vn": "org.skywaking.apm.testcase.dubbo.services.GreetService.doBusiness()",
+          "vn": "/dubbox-case/case/dubbox-rest",
           "ni": 0,
           "nn": "172.25.0.4:20880",
           "ea": 2,
@@ -38,7 +38,7 @@
         {
           "si": 0,
           "tv": 0,
-          "lv": 1,
+          "lv": 2,
           "ps": -1,
           "st": 1501858094883,
           "et": 1501858096950,

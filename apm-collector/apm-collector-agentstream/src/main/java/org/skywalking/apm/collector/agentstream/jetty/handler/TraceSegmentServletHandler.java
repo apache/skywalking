@@ -43,6 +43,7 @@ public class TraceSegmentServletHandler extends JettyHandler {
 
     private void read(BufferedReader bufferedReader) throws IOException {
         JsonReader reader = new JsonReader(bufferedReader);
+
         reader.beginArray();
         while (reader.hasNext()) {
             SegmentParse segmentParse = new SegmentParse();

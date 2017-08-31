@@ -2,13 +2,12 @@ package org.skywalking.apm.collector.agentstream.worker.node.mapping;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.skywalking.apm.collector.core.util.Const;
-import org.skywalking.apm.collector.storage.define.node.NodeMappingDataDefine;
 import org.skywalking.apm.collector.agentstream.worker.segment.FirstSpanListener;
 import org.skywalking.apm.collector.agentstream.worker.segment.RefsListener;
-import org.skywalking.apm.collector.agentstream.worker.util.ExchangeMarkUtils;
-import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
+import org.skywalking.apm.collector.core.util.Const;
+import org.skywalking.apm.collector.core.util.TimeBucketUtils;
+import org.skywalking.apm.collector.storage.define.node.NodeMappingDataDefine;
 import org.skywalking.apm.collector.stream.StreamModuleContext;
 import org.skywalking.apm.collector.stream.StreamModuleGroupDefine;
 import org.skywalking.apm.collector.stream.worker.WorkerInvokeException;
@@ -25,19 +24,27 @@ public class NodeMappingSpanListener implements RefsListener, FirstSpanListener 
 
     private final Logger logger = LoggerFactory.getLogger(NodeMappingSpanListener.class);
 
-    private List<String> nodeMappings = new ArrayList<>();
+    private List<NodeMappingDataDefine.NodeMapping> nodeMappings = new ArrayList<>();
     private long timeBucket;
 
     @Override public void parseRef(TraceSegmentReference reference, int applicationId, int applicationInstanceId,
         String segmentId) {
         logger.debug("node mapping listener parse reference");
-        String peers = reference.getNetworkAddress();
+        NodeMappingDataDefine.NodeMapping nodeMapping = new NodeMappingDataDefine.NodeMapping();
+        nodeMapping.setApplicationId(applicationId);
+        nodeMapping.setAddressId(reference.getNetworkAddressId());
+
+        String id = String.valueOf(applicationId);
         if (reference.getNetworkAddressId() != 0) {
-            peers = ExchangeMarkUtils.INSTANCE.buildMarkedID(reference.getNetworkAddressId());
+            nodeMapping.setAddress(Const.EMPTY_STRING);
+            id = id + Const.ID_SPLIT + String.valueOf(nodeMapping.getAddressId());
+        } else {
+            id = id + Const.ID_SPLIT + reference.getNetworkAddress();
+            nodeMapping.setAddress(reference.getNetworkAddress());
         }
 
-        String agg = ExchangeMarkUtils.INSTANCE.buildMarkedID(applicationId) + Const.ID_SPLIT + peers;
-        nodeMappings.add(agg);
+        nodeMapping.setId(id);
+        nodeMappings.add(nodeMapping);
     }
 
     @Override
@@ -48,13 +55,11 @@ public class NodeMappingSpanListener implements RefsListener, FirstSpanListener 
     @Override public void build() {
         logger.debug("node mapping listener build");
         StreamModuleContext context = (StreamModuleContext)CollectorContextHelper.INSTANCE.getContext(StreamModuleGroupDefine.GROUP_NAME);
-        for (String agg : nodeMappings) {
-            NodeMappingDataDefine.NodeMapping nodeMapping = new NodeMappingDataDefine.NodeMapping();
-            nodeMapping.setId(timeBucket + Const.ID_SPLIT + agg);
-            nodeMapping.setAgg(agg);
-            nodeMapping.setTimeBucket(timeBucket);
 
+        for (NodeMappingDataDefine.NodeMapping nodeMapping : nodeMappings) {
             try {
+                nodeMapping.setId(timeBucket + Const.ID_SPLIT + nodeMapping.getId());
+                nodeMapping.setTimeBucket(timeBucket);
                 logger.debug("send to node mapping aggregation worker, id: {}", nodeMapping.getId());
                 context.getClusterWorkerContext().lookup(NodeMappingAggregationWorker.WorkerRole.INSTANCE).tell(nodeMapping.toData());
             } catch (WorkerInvokeException | WorkerNotFoundException e) {

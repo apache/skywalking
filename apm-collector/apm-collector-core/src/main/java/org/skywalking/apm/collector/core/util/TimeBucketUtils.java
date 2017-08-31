@@ -3,6 +3,7 @@ package org.skywalking.apm.collector.core.util;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.TimeZone;
+import org.skywalking.apm.collector.core.framework.UnexpectedException;
 
 /**
  * @author pengys5
@@ -43,6 +44,29 @@ public enum TimeBucketUtils {
         return Long.valueOf(timeStr);
     }
 
+    public long changeTimeBucket2TimeStamp(String timeBucketType, long timeBucket) {
+        if (TimeBucketType.SECOND.name().toLowerCase().equals(timeBucketType.toLowerCase())) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(Calendar.YEAR, Integer.valueOf(String.valueOf(timeBucket).substring(0, 4)));
+            calendar.set(Calendar.MONTH, Integer.valueOf(String.valueOf(timeBucket).substring(4, 6)) - 1);
+            calendar.set(Calendar.DAY_OF_MONTH, Integer.valueOf(String.valueOf(timeBucket).substring(6, 8)));
+            calendar.set(Calendar.HOUR_OF_DAY, Integer.valueOf(String.valueOf(timeBucket).substring(8, 10)));
+            calendar.set(Calendar.MINUTE, Integer.valueOf(String.valueOf(timeBucket).substring(10, 12)));
+            calendar.set(Calendar.SECOND, Integer.valueOf(String.valueOf(timeBucket).substring(12, 14)));
+            return calendar.getTimeInMillis();
+        } else if (TimeBucketType.MINUTE.name().toLowerCase().equals(timeBucketType.toLowerCase())) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(Calendar.YEAR, Integer.valueOf(String.valueOf(timeBucket).substring(0, 4)));
+            calendar.set(Calendar.MONTH, Integer.valueOf(String.valueOf(timeBucket).substring(4, 6)) - 1);
+            calendar.set(Calendar.DAY_OF_MONTH, Integer.valueOf(String.valueOf(timeBucket).substring(6, 8)));
+            calendar.set(Calendar.HOUR_OF_DAY, Integer.valueOf(String.valueOf(timeBucket).substring(8, 10)));
+            calendar.set(Calendar.MINUTE, Integer.valueOf(String.valueOf(timeBucket).substring(10, 12)));
+            return calendar.getTimeInMillis();
+        } else {
+            throw new UnexpectedException("time bucket type must be second or minute");
+        }
+    }
+
     public long getFiveSecondTimeBucket(long secondTimeBucket) {
         long mantissa = secondTimeBucket % 10;
         if (mantissa < 5) {
@@ -62,5 +86,9 @@ public enum TimeBucketUtils {
         } else {
             return timeBucket - 800;
         }
+    }
+
+    public enum TimeBucketType {
+        SECOND, MINUTE, HOUR, DAY
     }
 }
