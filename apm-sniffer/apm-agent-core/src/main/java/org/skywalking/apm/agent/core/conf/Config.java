@@ -30,7 +30,7 @@ public class Config {
          * If the operation name of the first span is included in this set,
          * this segment should be ignored.
          */
-        public static String IGNORE_SUFFIX = ".jpg,.jpeg,.js,.css,.png,.bmp,.gif,.ico,.mp3,.mp4,.html";
+        public static String IGNORE_SUFFIX = ".jpg,.jpeg,.js,.css,.png,.bmp,.gif,.ico,.mp3,.mp4,.html,.svg";
     }
 
     public static class Collector {
