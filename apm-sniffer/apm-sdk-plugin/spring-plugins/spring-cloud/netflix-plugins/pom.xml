@@ -5,20 +5,17 @@
 
     <parent>
         <groupId>org.skywalking</groupId>
-        <artifactId>apm-sdk-plugin</artifactId>
+        <artifactId>spring-cloud</artifactId>
         <version>3.2-2017</version>
     </parent>
 
-    <artifactId>spring-plugins</artifactId>
+    <artifactId>netflix-plugins</artifactId>
     <modules>
-        <module>concurrent-util-4.x-plugin</module>
-        <module>resttemplate-4.x-plugin</module>
-        <module>mvc-annotation-4.x-plugin</module>
-        <module>spring-cloud</module>
+        <module>spring-cloud-feign-1.x-plugin</module>
     </modules>
     <packaging>pom</packaging>
 
-    <name>apm-sdk-plugin</name>
+    <name>netflix-plugins</name>
     <url>http://maven.apache.org</url>
 
     <properties>
