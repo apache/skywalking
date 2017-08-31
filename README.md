@@ -13,7 +13,7 @@ This independent UI repository works since sky-walking 3.0.
 1. Distributed Trace Query.
 1. Application Instances Overview.
 1. JVM Metric View of application instances.
-1. Realtime Service Topological Graph
+1. The relationship of services.
 
 - Tested browsers
 
