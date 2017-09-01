@@ -1,12 +1,20 @@
 /**
  * @author pengys5
  */
-define(["jquery", "moment", "text!timeAxisHtml", "rangeSlider", "daterangepicker"], function ($, moment, timeAxisHtml, ionRangeSlider, daterangepicker) {
+define(["jquery", "vue", "moment", "text!timeAxisHtml", "rangeSlider", "daterangepicker", "timers"], function ($, Vue, moment, timeAxisHtml, ionRangeSlider, daterangepicker) {
     var vueData = {
         timeBucket: 0,
-        handler: undefined
+        hasAutoUpdate: false,
+        handler: undefined,
+        starting: true,
     };
+    var vue;
     var slider;
+    var dateFormat = "YYYYMMDDHHmm";
+    var sliderFormat = "MM/DD HH:mm";
+    var subtract = "hours";
+    var subtractValue = 1;
+    var timeBucketType = "minute";
 
     function load() {
         $.ajaxSettings.async = false;
@@ -16,35 +24,84 @@ define(["jquery", "moment", "text!timeAxisHtml", "rangeSlider", "daterangepicker
         return this;
     }
 
+    function minute() {
+        dateFormat = "YYYYMMDDHHmm";
+        sliderFormat = "MM/DD HH:mm";
+        subtract = "hours";
+        subtractValue = 1;
+        timeBucketType = "minute";
+        return this;
+    }
+
+    function second() {
+        dateFormat = "YYYYMMDDHHmmss";
+        sliderFormat = "MM/DD HH:mm:ss";
+        subtract = "minutes";
+        subtractValue = 3;
+        timeBucketType = "second";
+        return this;
+    }
+
+    function autoUpdate() {
+        vueData.hasAutoUpdate = true;
+        $('body').everyTime('2s', function () {
+            vueData.timeBucket = moment(vueData.timeBucket, "YYYYMMDDHHmmss").add(2, "seconds").format(dateFormat);
+
+            var endTimeStr = moment(vueData.timeBucket, "YYYYMMDDHHmmss").format(dateFormat);
+            var startTimeStr = moment(vueData.timeBucket, "YYYYMMDDHHmmss").subtract(subtractValue, subtract).format(dateFormat);
+            updateTimeAxis(startTimeStr, endTimeStr);
+        });
+        return this;
+    }
+
+    function stopAutoUpdate() {
+        $('body').stopTime();
+    }
+
     function render(renderToDivId) {
         $("#" + renderToDivId).html(timeAxisHtml);
-        var endTimeStr = moment(vueData.timeBucket, "YYYYMMDDHHmmss").format("YYYYMMDDHHmm");
-        var startTimeStr = moment(vueData.timeBucket, "YYYYMMDDHHmmss").subtract(1, "hours").format("YYYYMMDDHHmm");
+        var endTimeStr = moment(vueData.timeBucket, "YYYYMMDDHHmmss").format(dateFormat);
+        var startTimeStr = moment(vueData.timeBucket, "YYYYMMDDHHmmss").subtract(subtractValue, subtract).format(dateFormat);
 
         $("#timeAxisInput").ionRangeSlider({
-            min: moment(startTimeStr, "YYYYMMDDHHmm").format("x"),
-            max: moment(endTimeStr, "YYYYMMDDHHmm").format("x"),
-            from: moment(endTimeStr, "YYYYMMDDHHmm").format("x"),
+            min: moment(startTimeStr, dateFormat).format("x"),
+            max: moment(endTimeStr, dateFormat).format("x"),
+            from: moment(endTimeStr, dateFormat).format("x"),
             grid: true,
             force_edges: true,
             prettify: function (num) {
                 var m = moment(num, "x").locale("ru");
-                return m.format("MM/DD HH:mm");
+                return m.format(sliderFormat);
             },
             onStart: function (data) {
-                var startTime = moment(data.min).format("YYYYMMDDHHmm");
-                var endTime = moment(data.from).format("YYYYMMDDHHmm");
-                console.log("startTime: " + startTime + ", endTime: " + endTime);
-                vueData.handler(startTime, endTime);
+                _callHandler(data);
             },
             onChange: function (data) {
-                var startTime = moment(data.min).format("YYYYMMDDHHmm");
-                var endTime = moment(data.from).format("YYYYMMDDHHmm");
-                console.log("startTime: " + startTime + ", endTime: " + endTime);
-                vueData.handler(startTime, endTime);
+                _callHandler(data);
+            },
+            onUpdate: function (data) {
+                _callHandler(data);
             }
         });
         slider = $("#timeAxisInput").data("ionRangeSlider");
+
+        vue = new Vue({
+            el: '#timeAxisButton',
+            data: vueData,
+            methods: {
+                startOrStop: function () {
+                    if (vueData.starting) {
+                        vueData.starting = false;
+                        $("#timeAxisButton").removeClass("fa-pause").addClass("fa-play");
+                        stopAutoUpdate();
+                    } else {
+                        vueData.starting = true;
+                        $("#timeAxisButton").removeClass("fa-play").addClass("fa-pause");
+                        autoUpdate();
+                    }
+                }
+            }
+        });
     }
 
     function registryTimeChangedHandler(handler) {
@@ -52,12 +109,19 @@ define(["jquery", "moment", "text!timeAxisHtml", "rangeSlider", "daterangepicker
         return this;
     }
 
+    function _callHandler(data) {
+        var startTime = moment(data.min).format(dateFormat);
+        var endTime = moment(data.from).format(dateFormat);
+        console.log("startTime: " + startTime + ", endTime: " + endTime);
+        vueData.handler(timeBucketType, startTime, endTime);
+    }
+
     function updateTimeAxis(from, to) {
-        console.log("update time axis");
+        console.log("update time axis, from:" + from + ", to:" + to);
         slider.update({
-            min: moment(from, "YYYYMMDDHHmm").format("x"),
-            max: moment(to, "YYYYMMDDHHmm").format("x"),
-            from: +moment().subtract(0, "minutes").format("x")
+            min: moment(from, dateFormat).format("x"),
+            max: moment(to, dateFormat).format("x"),
+            from: moment(to, dateFormat).format("x")
         });
     }
 
@@ -90,6 +154,9 @@ define(["jquery", "moment", "text!timeAxisHtml", "rangeSlider", "daterangepicker
     return {
         load: load,
         render: render,
+        autoUpdate: autoUpdate,
+        minute: minute,
+        second: second,
         registryTimeChangedHandler: registryTimeChangedHandler
     }
 });

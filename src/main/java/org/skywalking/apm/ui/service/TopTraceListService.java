@@ -31,8 +31,8 @@ public class TopTraceListService {
     private UrlCreator UrlCreator;
 
     public String load(long startTime, long endTime, int minCost, int maxCost, int limit,
-        int from, String globalTraceId, String operationName) throws IOException {
-        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        int from, String globalTraceId, String operationName, String sort) throws IOException {
+        List<NameValuePair> params = new ArrayList<>();
         params.add(new BasicNameValuePair("startTime", String.valueOf(startTime)));
         params.add(new BasicNameValuePair("endTime", String.valueOf(endTime)));
         params.add(new BasicNameValuePair("from", String.valueOf(from)));
@@ -41,6 +41,7 @@ public class TopTraceListService {
         params.add(new BasicNameValuePair("maxCost", String.valueOf(maxCost)));
         params.add(new BasicNameValuePair("globalTraceId", globalTraceId));
         params.add(new BasicNameValuePair("operationName", operationName));
+        params.add(new BasicNameValuePair("sort", sort));
 
         String topSegLoadUrl = UrlCreator.compound("segment/top");
         String topSegResponse = HttpClientTools.INSTANCE.get(topSegLoadUrl, params);
@@ -50,8 +51,8 @@ public class TopTraceListService {
     }
 
     public JsonObject topTraceListDataLoad(long startTime, long endTime, int minCost, int maxCost, int limit, int from,
-        String globalTraceId, String operationName) throws IOException {
-        String topSegResponse = load(startTime, endTime, minCost, maxCost, limit, from, globalTraceId, operationName);
+        String globalTraceId, String operationName, String sort) throws IOException {
+        String topSegResponse = load(startTime, endTime, minCost, maxCost, limit, from, globalTraceId, operationName, sort);
 
         JsonObject topSegDataJson = new JsonObject();
         JsonArray topSegDataArray = new JsonArray();

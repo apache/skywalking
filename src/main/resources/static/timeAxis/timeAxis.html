@@ -21,6 +21,7 @@
     <input type="text" id="timeAxisInput" name="timeAxis" value=""/>
 </div>
 <div class="col-lg-3 col-sm-3" style="margin-top: 0.7%">
-    <button id="timeAxisButton" class="btn btn-info btn-circle fa fa-pause" type="button"></i>
+    <button id="timeAxisButton" class="btn btn-info btn-circle fa fa-pause" type="button" v-on:click="startOrStop()"
+            v-if="hasAutoUpdate"></i>
     </button>
 </div>

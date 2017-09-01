@@ -1,8 +1,5 @@
 define(function () {
     function createNode(imageObj, real, instNum) {
-        console.log(imageObj);
-        console.log(real);
-        console.log(instNum);
         if (real) {
             return createRealNode(imageObj, instNum);
         } else {

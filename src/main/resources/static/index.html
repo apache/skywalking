@@ -21,14 +21,20 @@
                style="padding: 0; background: url(/public/img/logo.png) no-repeat center center; background-size: 128px 30px; width: 128px;"></a>
         </div>
     </div>
-    <div class="col-lg-10" id="timeAxisDiv" style="padding-bottom: 10px">
+    <div class="col-lg-8" id="timeAxisDiv" style="padding-bottom: 10px">
+    </div>
+    <div class="col-lg-2">
+        <a class="btn btn-primary" data-toggle="dropdown"><i class="fa fa-bars"></i></a>
+        <ul class="dropdown-menu">
+            <li><a href="../trace/trace.html">Trace Stack</a></li>
+            <li><a href="../health/health.html">Instance Overview</a></li>
+            <li><a href="../service/serviceTree.html">Service Tree</a></li>
+        </ul>
     </div>
 </div>
 <div id="mainDiv" class="ibox-content gray-bg" style="padding: 5px">
     <div class="row" style="margin: 0">
-        <div id="dagViewDiv" class="col-sm-9" style="padding: 5px">
-        </div>
-        <div id="alarmDiv" class="col-sm-3" style="padding: 5px">
+        <div id="dagViewDiv" class="col-sm-12" style="padding: 5px">
         </div>
     </div>
 </div>

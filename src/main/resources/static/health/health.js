@@ -1,35 +1,30 @@
-requirejs(['/main.js'], function (main) {
-    requirejs(['jquery', 'applications', 'appInstance', 'healthTimeAxis', 'moment', 'responseTimeCondition'],
-        function ($, applications, appInstance, timeAxis, moment, responseTimeCondition) {
-            var config = {
-                serverTimestamp: undefined,
-                differentTime: undefined,
+requirejs(['/main.js'], function () {
+    requirejs(['jquery', 'vue', 'applicationList', 'appInstance', 'timeAxis', 'jsCookie'],
+        function ($, Vue, applicationList, appInstance, timeAxis, jsCookie) {
+            var vueData = {
+                list: [],
+                applicationList: [],
+                handler: undefined
             };
-            $.ajax({
-                url: "/syncTime",
-                async: false,
-                timeout: 1000,
-                success: function (data) {
-                    config.serverTimestamp = data.timestamp;
-                    config.differentTime = moment() - data.timestamp;
+
+            applicationList.registryItemClickHandler(function (applicationList) {
+                vueData.applicationList = applicationList;
+            }).render("applicationListDiv");
+
+            var i = 2;
+            timeAxis.second().autoUpdate().load().registryTimeChangedHandler(function (timeBucketType, startTime, endTime) {
+                console.log("time changed, start time: " + startTime + ", end time: " + endTime);
+
+                if (i == 2) {
+                    applicationList.load(timeBucketType, startTime, endTime);
+                    i = 0;
                 }
-            });
+                i++;
 
-            timeAxis.draw(config.serverTimestamp, config.differentTime).registryTimerHandle(function (timestamp, queryParameters) {
-                appInstance.loadInstancesData(timestamp, queryParameters.applicationIds, queryParameters.responseTime)
-            });
-
-            applications.draw().loadApplications(config.serverTimestamp).registryAppIdOperationHandler(function (applicationId, isRemove) {
-                if (isRemove) {
-                    timeAxis.removeAppId(applicationId);
-                } else {
-                    timeAxis.addAppId(applicationId);
+                if (vueData.applicationList.length > 0) {
+                    appInstance.loadInstancesData(endTime, vueData.applicationList);
                 }
-            }).startTimeTask();
-
-            appInstance.drawCanvas();
-            responseTimeCondition.draw().registryResponseTimeHandler(function (responseTime) {
-                timeAxis.addResponseTimeQueryParam(responseTime);
-            });
+                appInstance.drawCanvas();
+            }).render("timeAxisDiv");
         });
 });
