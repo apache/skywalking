@@ -41,6 +41,7 @@ requirejs.config({
         "appInstance": "/health/appInstance",
         "appInstanceHtml": "/health/appInstance.html",
         "instanceChart": "/public/js/instance-chart",
-        "responseTimeConditionHtml": "/health/responseTimeCondition.html"
+        "responseTimeConditionHtml": "/health/responseTimeCondition.html",
+        "metric-chart": "/public/js/metric-chart"
     }
 });

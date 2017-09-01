@@ -33,18 +33,10 @@ public class InstanceMetricController extends ControllerBase {
         HttpServletResponse response) throws IOException {
         logger.info("load metric Info: %d, %d, %d, %s", instanceId, startTime, endTime, metricNames);
 
-        if (startTime == endTime) {
-            // 调用一个时间点的数据
-        } else {
-            // 调用不同点的数据
-        }
+
+
         JsonObject result;
-        if (count % 10 == 0) {
-            result = new Gson().fromJson("{\"cpu\":[0],\"gc\":{\"ygc\":[1],\"ogc\":[0]},\"heapMemory\":{\"max\":2048,\"min\":1024,\"used\":[0]},\"tps\":[653],\"respTime\":[4589]}", JsonObject.class);
-        } else {
-            result = new Gson().fromJson("{\"cpu\":[52],\"gc\":{\"ygc\":[1],\"ogc\":[0]},\"heapMemory\":{\"max\":2048,\"min\":1024,\"used\":[1238]},\"tps\":[653],\"respTime\":[4589]}", JsonObject.class);
-        }
-        count++;
+        result = new Gson().fromJson("{\"cpu\":[{\"timeBucket\":20170827092223,\"data\":25},{\"timeBucket\":20170827092224,\"data\":25},{\"timeBucket\":20170827092226,\"data\":25},{\"timeBucket\":20170827092227,\"data\":25}],\"heapMemory\":[{\"timeBucket\":20170827092223,\"data\":{\"init\":1024,\"max\":2048,\"used\":1906}},{\"timeBucket\":20170827092224,\"data\":{\"init\":1024,\"max\":2048,\"used\":1503}},{\"timeBucket\":20170827092226,\"data\":{\"init\":1024,\"max\":2048,\"used\":1708}},{\"timeBucket\":20170827092227,\"data\":{\"init\":1024,\"max\":2048,\"used\":1046}}],\"respTime\":[{\"timeBucket\":20170827092223,\"data\":350},{\"timeBucket\":20170827092224,\"data\":550},{\"timeBucket\":20170827092226,\"data\":600},{\"timeBucket\":20170827092227,\"data\":570}],\"tps\":[{\"timeBucket\":20170827092223,\"data\":200},{\"timeBucket\":20170827092224,\"data\":210},{\"timeBucket\":20170827092226,\"data\":220},{\"timeBucket\":20170827092227,\"data\":219}],\"gc\":[{\"timeBucket\":20170827092223,\"data\":{\"ygc\":1,\"ogc\":0}},{\"timeBucket\":20170827092224,\"data\":{\"ygc\":2,\"ogc\":1}},{\"timeBucket\":20170827092226,\"data\":{\"ygc\":0,\"ogc\":0}},{\"timeBucket\":20170827092227,\"data\":{\"ygc\":3,\"ogc\":2}}]}", JsonObject.class);
         reply(result.toString(), response);
     }
 }
