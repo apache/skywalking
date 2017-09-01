@@ -1,7 +1,7 @@
 /**
  * @author pengys5
  */
-define(["jquery", "vis", "text!dagHtml", "moment", "nodeCanvas", "alarm"], function ($, vis, dagHtml, moment, nodeCanvas, alarm) {
+define(["jquery", "vis", "text!dagHtml", "moment", "nodeCanvas"], function ($, vis, dagHtml, moment, nodeCanvas) {
     var _containerDiv = "traceDagDiv";
     var _network = null;
     var _data = {
@@ -48,16 +48,12 @@ define(["jquery", "vis", "text!dagHtml", "moment", "nodeCanvas", "alarm"], funct
         var container = document.getElementById(_containerDiv);
         _network = new vis.Network(container, _data, _options);
         _resize();
+        return this;
     }
 
     function _resize() {
         var width = $("#dagViewDiv").width();
-        var height = $("#alarmDiv").height();
-
-        if (height == 0) {
-            height = 100;
-        }
-
+        height = $(window).height() - 110;
         console.log("width: " + width);
         console.log("height: " + height);
         $("#" + _containerDiv).width(width - 10).height(height);
@@ -81,9 +77,9 @@ define(["jquery", "vis", "text!dagHtml", "moment", "nodeCanvas", "alarm"], funct
         })
     }
 
-    function loadDateRangeDag(startTimeStr, endTimeStr) {
-        console.log("startTimeStr: " + startTimeStr + ", endTimeStr:" + endTimeStr);
-        $.getJSON("dagNodesLoad?startTime=" + startTimeStr + "&endTime=" + endTimeStr, function (data) {
+    function load(timeBucketType, startTimeStr, endTimeStr) {
+        console.log("timeBucketType: " + timeBucketType + ", startTimeStr: " + startTimeStr + ", endTimeStr: " + endTimeStr);
+        $.getJSON("dagNodesLoad", {startTime: startTimeStr, endTime: endTimeStr}, function (data) {
             _clear();
             _preLoadImages(data);
             _resize();
@@ -136,6 +132,6 @@ define(["jquery", "vis", "text!dagHtml", "moment", "nodeCanvas", "alarm"], funct
 
     return {
         startNetwork: startNetwork,
-        loadDateRangeDag: loadDateRangeDag
+        load: load
     }
 });

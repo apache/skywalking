@@ -28,31 +28,9 @@ public class HealthService {
     @Autowired
     private UrlCreator UrlCreator;
 
-    public long syncTimestamp() throws IOException {
-        String syncTimeLoadUrl = UrlCreator.compound("time/allInstance");
-        String syncTimeResponse = HttpClientTools.INSTANCE.get(syncTimeLoadUrl, null);
-
-        logger.debug("load sync time data: %s", syncTimeResponse);
-
-        JsonObject syncTimeJson = gson.fromJson(syncTimeResponse, JsonObject.class);
-        return syncTimeJson.get("time").getAsLong();
-    }
-
-    public JsonObject loadApplications(long timestamp) throws IOException {
+    public JsonObject loadInstances(long timeBucket, String[] applicationIds) throws IOException {
         List<NameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("timestamp", String.valueOf(timestamp)));
-
-        String applicationsLoadUrl = UrlCreator.compound("instance/health/applications");
-        String applicationsResponse = HttpClientTools.INSTANCE.get(applicationsLoadUrl, params);
-
-        logger.debug("load applications data: %s", applicationsResponse);
-
-        return gson.fromJson(applicationsResponse, JsonObject.class);
-    }
-
-    public JsonObject loadInstances(long timestamp, String[] applicationIds) throws IOException {
-        List<NameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("timestamp", String.valueOf(timestamp)));
+        params.add(new BasicNameValuePair("timeBucket", String.valueOf(timeBucket)));
         for (String applicationId : applicationIds) {
             params.add(new BasicNameValuePair("applicationIds", applicationId));
         }

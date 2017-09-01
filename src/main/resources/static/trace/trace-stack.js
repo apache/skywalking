@@ -216,42 +216,6 @@ function displayData() {
             }
         }
     }
-
-    var vlineSum = percentScale;
-
-    function vLineSumPow(vlineSum) {
-        vlineSum = vlineSum * 2;
-        if (vlineSum < 100) {
-            return vLineSumPow(vlineSum);
-        } else {
-            return vlineSum;
-        }
-    }
-
-    if (vlineSum < 100) {
-        vlineSum = vLineSumPow(vlineSum);
-    }
-
-    var columnWidth = width / vlineSum;
-    d3.range(vlineSum).forEach(function (i) {
-        svgContainer.append("line")
-            .attr("x1", function () {
-                return i * columnWidth;
-            })
-            .attr("y1", 0)
-            .attr("x2", function () {
-                return i * columnWidth;
-            })
-            .attr("y2", height * nodes.length)
-            .attr("class", "vlines")
-            .on("mouseover", function (d) {
-                d3.select(this).style("stroke-opacity", "1");
-            })
-            .on("mouseout", function (d) {
-                d3.select(this).style("stroke-opacity", "0");
-            });
-        ;
-    });
 }
 
 function resize() {
