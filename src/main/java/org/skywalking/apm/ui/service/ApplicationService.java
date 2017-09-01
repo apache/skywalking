@@ -29,8 +29,13 @@ public class ApplicationService {
     private UrlCreator UrlCreator;
 
     public JsonArray load(String timeBucketType, long startTime, long endTime) throws IOException {
-        startTime = TimeBucketTools.buildToSecondTimeBucket(timeBucketType, startTime);
-        endTime = TimeBucketTools.buildToSecondTimeBucket(timeBucketType, endTime);
+        if (timeBucketType.toLowerCase().equals(TimeBucketTools.Type.MINUTE.name().toLowerCase())) {
+            startTime = TimeBucketTools.buildToSecondTimeBucket(timeBucketType, startTime);
+            endTime = TimeBucketTools.buildToSecondTimeBucket(timeBucketType, endTime);
+        } else if (timeBucketType.toLowerCase().equals(TimeBucketTools.Type.SECOND.name().toLowerCase())) {
+        } else {
+            throw new UnsupportedOperationException();
+        }
 
         List<NameValuePair> params = new ArrayList<>();
         params.add(new BasicNameValuePair("startTime", String.valueOf(startTime)));

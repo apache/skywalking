@@ -3,9 +3,10 @@
  * @author ascrutae
  */
 requirejs(['/main.js'], function (main) {
-    require(["jquery", "dagDraw", "timeAxis", "alarm"], function ($, dagDraw, timeAxis, alarm) {
-        dagDraw.startNetwork("dagViewDiv");
-        timeAxis.create("timeAxisDiv");
-        alarm.create("alarmDiv");
+    require(["jquery", "vue", "dagDraw", "timeAxis", "bootstrap"], function ($, Vue, dagDraw, timeAxis) {
+        timeAxis.autoUpdate().load().registryTimeChangedHandler(function (timeBucketType, startTime, endTime) {
+            console.log("time changed, start time: " + startTime + ", end time: " + endTime);
+            dagDraw.startNetwork("dagViewDiv").load(timeBucketType, startTime, endTime);
+        }).render("timeAxisDiv");
     });
 })

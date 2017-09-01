@@ -8,9 +8,9 @@ requirejs(['/main.js'], function () {
         };
         var vue;
 
-        timeAxis.load().registryTimeChangedHandler(function (startTime, endTime) {
+        timeAxis.load().registryTimeChangedHandler(function (timeBucketType, startTime, endTime) {
             console.log("time changed, start time: " + startTime + ", end time: " + endTime);
-            load(startTime, endTime);
+            load(timeBucketType, startTime, endTime);
             vue = new Vue({
                 el: '#applicationListVueDiv',
                 data: vueData,
@@ -25,7 +25,7 @@ requirejs(['/main.js'], function () {
             });
         }).render("timeAxisDiv");
 
-        function load(startTime, endTime) {
+        function load(timeBucketType, startTime, endTime) {
             $.ajaxSettings.async = false;
             $.getJSON("/applications?timeBucketType=minute&startTime=" + startTime + "&endTime=" + endTime, function (data) {
                 console.log(data);

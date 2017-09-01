@@ -7,6 +7,7 @@ var minCost = -1;
 var maxCost = -1;
 var globalTraceId = null;
 var operationName = null;
+var sort = null;
 
 $(document).ready(function () {
     $("#topTraceListDiv").load("./top-trace-list.html");
@@ -27,6 +28,8 @@ $(document).ready(function () {
         if (maxCost == null || maxCost == "") {
             maxCost = -1;
         }
+        sort = $("input[name='sortColumn']:checked").val();
+        console.log("sort: " + sort);
 
         $("#traceStackDiv").empty();
         $("#traceStackDiv").load("./trace-stack.html");

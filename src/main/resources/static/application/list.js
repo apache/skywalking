@@ -1,7 +1,8 @@
 define(['jquery', 'vue', 'text!applicationListHtml'], function ($, Vue, applicationListHtml) {
     var vueData = {
         list: [],
-        handler: undefined
+        handler: undefined,
+        applicationMap: {}
     };
     var vue;
 
@@ -11,25 +12,46 @@ define(['jquery', 'vue', 'text!applicationListHtml'], function ($, Vue, applicat
             el: '#applicationListVueDiv',
             data: vueData,
             methods: {
-                itemClick: function (applicationId, event) {
-                    if ($(event.target).is(".operation-selected")) {
-                        $(event.target).removeClass("operation-selected");
-                        vueData.handler(applicationId, true);
+                itemClick: function (applicationId, selected) {
+                    console.log("selected: " + selected);
+                    if (selected) {
+                        vueData.applicationMap[applicationId] = false;
                     } else {
-                        $(event.target).addClass("operation-selected");
-                        vueData.handler(applicationId, false);
+                        vueData.applicationMap[applicationId] = true;
                     }
+
+                    var applicationList = [];
+                    for (var application in vueData.applicationMap) {
+                        console.log(application);
+                        console.log(vueData.applicationMap[application]);
+
+                        if (vueData.applicationMap[application]) {
+                            applicationList.push(application);
+                        }
+                    }
+                    vueData.handler(applicationList);
                 }
             }
         });
         return this;
     }
 
-    function load(startTime, endTime) {
+    function load(timeBucketType, startTime, endTime) {
         $.ajaxSettings.async = false;
-        $.getJSON("/applications?timeBucketType=minute&startTime=" + startTime + "&endTime=" + endTime, function (data) {
+        $.getJSON("/applications", {
+            timeBucketType: timeBucketType,
+            startTime: startTime,
+            endTime: endTime
+        }, function (data) {
             console.log(data);
             vueData.list = data;
+            for (var i = 0; i < vueData.list.length; i++) {
+                if (vueData.applicationMap.hasOwnProperty(vueData.list[i].applicationId)) {
+                    vueData.list[i].selected = vueData.applicationMap[vueData.list[i].applicationId];
+                } else {
+                    vueData.list[i].selected = false;
+                }
+            }
         });
         return this;
     }

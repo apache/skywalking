@@ -3,6 +3,7 @@ requirejs.config({
     paths: {
         "jquery": "/webjars/jquery/2.2.4/jquery.min",
         "timers": "/public/js/timers",
+        "jsCookie": "/public/js/js.cookie-2.1.4.min",
         "text": "/webjars/requirejs-text/2.0.15/text",
         "bootstrap": "/webjars/bootstrap/3.3.6/js/bootstrap.min",
         "inspinia": "/public/js/inspinia",
@@ -15,10 +16,8 @@ requirejs.config({
         "dagHtml": "/dag/dag.html",
         "rangeSlider": "/webjars/ion.rangeSlider/2.1.4/js/ion.rangeSlider.min",
         "daterangepicker": "/webjars/bootstrap-daterangepicker/2.1.24/js/bootstrap-daterangepicker",
-        "alarm": "/index/alarm",
         "echarts": "/webjars/echarts/3.3.1/dist/echarts.min",
         "walden": "/public/js/walden",
-        "alarmHtml": "/index/alarm.html",
         "vue": "/webjars/vue/2.1.3/vue.min",
         "vueResource": "/webjars/vue-resource/1.3.1/dist/vue-resource.min",
         "treeTable": "/webjars/jquery-treetable/3.2.0/jquery.treetable",
@@ -39,13 +38,9 @@ requirejs.config({
         "machineInfoHtml": "/instance/machineInfo.html",
         "metricCharts": "/instance/metricCharts",
         "metricSelectorHtml": "/instance/metricSelector.html",
-        "applications": "/health/applications",
-        "applicationsHtml": "/health/list.html",
         "appInstance": "/health/appInstance",
         "appInstanceHtml": "/health/appInstance.html",
         "instanceChart": "/public/js/instance-chart",
-        "healthTimeAxis": "/health/timeaxis",
-        "instanceTimeAxisHtml": "/health/timeAxis.html",
         "responseTimeConditionHtml": "/health/responseTimeCondition.html"
     }
 });

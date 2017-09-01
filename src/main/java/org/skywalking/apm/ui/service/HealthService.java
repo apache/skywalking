@@ -28,9 +28,9 @@ public class HealthService {
     @Autowired
     private UrlCreator UrlCreator;
 
-    public JsonObject loadInstances(long timestamp, String[] applicationIds) throws IOException {
+    public JsonObject loadInstances(long timeBucket, String[] applicationIds) throws IOException {
         List<NameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("timestamp", String.valueOf(timestamp)));
+        params.add(new BasicNameValuePair("timeBucket", String.valueOf(timeBucket)));
         for (String applicationId : applicationIds) {
             params.add(new BasicNameValuePair("applicationIds", applicationId));
         }
