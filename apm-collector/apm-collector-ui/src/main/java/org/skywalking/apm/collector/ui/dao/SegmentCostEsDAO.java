@@ -15,9 +15,9 @@ import org.elasticsearch.search.sort.SortOrder;
 import org.skywalking.apm.collector.core.util.CollectionUtils;
 import org.skywalking.apm.collector.core.util.StringUtils;
 import org.skywalking.apm.collector.storage.dao.DAOContainer;
-import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
 import org.skywalking.apm.collector.storage.define.global.GlobalTraceTable;
 import org.skywalking.apm.collector.storage.define.segment.SegmentCostTable;
+import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
 
 /**
  * @author pengys5
@@ -25,7 +25,7 @@ import org.skywalking.apm.collector.storage.define.segment.SegmentCostTable;
 public class SegmentCostEsDAO extends EsDAO implements ISegmentCostDAO {
 
     @Override public JsonObject loadTop(long startTime, long endTime, long minCost, long maxCost, String operationName,
-        String globalTraceId, int limit, int from) {
+        String globalTraceId, int limit, int from, Sort sort) {
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(SegmentCostTable.TABLE);
         searchRequestBuilder.setTypes(SegmentCostTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
@@ -48,7 +48,11 @@ public class SegmentCostEsDAO extends EsDAO implements ISegmentCostDAO {
             mustQueryList.add(QueryBuilders.matchQuery(SegmentCostTable.COLUMN_SERVICE_NAME, operationName));
         }
 
-        searchRequestBuilder.addSort(SegmentCostTable.COLUMN_COST, SortOrder.DESC);
+        if (Sort.Cost.equals(sort)) {
+            searchRequestBuilder.addSort(SegmentCostTable.COLUMN_COST, SortOrder.DESC);
+        } else if (Sort.Time.equals(sort)) {
+            searchRequestBuilder.addSort(SegmentCostTable.COLUMN_START_TIME, SortOrder.DESC);
+        }
         searchRequestBuilder.setSize(limit);
         searchRequestBuilder.setFrom(from);
 

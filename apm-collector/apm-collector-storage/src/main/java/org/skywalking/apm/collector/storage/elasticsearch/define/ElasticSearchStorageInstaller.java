@@ -53,7 +53,12 @@ public class ElasticSearchStorageInstaller extends StorageInstaller {
         return Settings.builder()
             .put("index.number_of_shards", tableDefine.numberOfShards())
             .put("index.number_of_replicas", tableDefine.numberOfReplicas())
-            .put("index.refresh_interval", String.valueOf(tableDefine.refreshInterval()) + "s").build();
+            .put("index.refresh_interval", String.valueOf(tableDefine.refreshInterval()) + "s")
+
+            .put("analysis.analyzer.collector_analyzer.tokenizer", "collector_tokenizer")
+            .put("analysis.tokenizer.collector_tokenizer.type", "standard")
+            .put("analysis.tokenizer.collector_tokenizer.max_token_length", 5)
+            .build();
     }
 
     private XContentBuilder createMappingBuilder(ElasticSearchTableDefine tableDefine) throws IOException {

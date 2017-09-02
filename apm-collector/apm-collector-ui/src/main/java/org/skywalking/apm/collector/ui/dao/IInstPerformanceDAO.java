@@ -9,9 +9,13 @@ import java.util.List;
 public interface IInstPerformanceDAO {
     List<InstPerformance> getMultiple(long timeBucket, int applicationId);
 
-    int getMetric(int instanceId, long timeBucket);
+    int getTpsMetric(int instanceId, long timeBucket);
 
-    JsonArray getMetric(int instanceId, long startTimeBucket, long endTimeBucket);
+    JsonArray getTpsMetric(int instanceId, long startTimeBucket, long endTimeBucket);
+
+    int getRespTimeMetric(int instanceId, long timeBucket);
+
+    JsonArray getRespTimeMetric(int instanceId, long startTimeBucket, long endTimeBucket);
 
     class InstPerformance {
         private final int instanceId;

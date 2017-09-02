@@ -16,7 +16,6 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.sum.Sum;
 import org.skywalking.apm.collector.core.util.Const;
-import org.skywalking.apm.collector.storage.define.jvm.CpuMetricTable;
 import org.skywalking.apm.collector.storage.define.jvm.GCMetricTable;
 import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
 import org.skywalking.apm.network.proto.GCPhrase;
@@ -92,8 +91,8 @@ public class GCMetricEsDAO extends EsDAO implements IGCMetricDAO {
         MultiGetRequestBuilder youngPrepareMultiGet = getClient().prepareMultiGet();
         int i = 0;
         do {
-            String youngId = (startTimeBucket + i) + Const.ID_SPLIT + GCPhrase.NEW_VALUE + instanceId;
-            youngPrepareMultiGet.add(CpuMetricTable.TABLE, CpuMetricTable.TABLE_TYPE, youngId);
+            String youngId = (startTimeBucket + i) + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + GCPhrase.NEW_VALUE;
+            youngPrepareMultiGet.add(GCMetricTable.TABLE, GCMetricTable.TABLE_TYPE, youngId);
             i++;
         }
         while (startTimeBucket + i <= endTimeBucket);
@@ -102,7 +101,7 @@ public class GCMetricEsDAO extends EsDAO implements IGCMetricDAO {
         MultiGetResponse multiGetResponse = youngPrepareMultiGet.get();
         for (MultiGetItemResponse itemResponse : multiGetResponse.getResponses()) {
             if (itemResponse.getResponse().isExists()) {
-                youngArray.add(((Number)itemResponse.getResponse().getSource().get(CpuMetricTable.COLUMN_USAGE_PERCENT)).intValue());
+                youngArray.add(((Number)itemResponse.getResponse().getSource().get(GCMetricTable.COLUMN_COUNT)).intValue());
             } else {
                 youngArray.add(0);
             }
@@ -112,8 +111,8 @@ public class GCMetricEsDAO extends EsDAO implements IGCMetricDAO {
         MultiGetRequestBuilder oldPrepareMultiGet = getClient().prepareMultiGet();
         i = 0;
         do {
-            String oldId = (startTimeBucket + i) + Const.ID_SPLIT + GCPhrase.OLD_VALUE + instanceId;
-            oldPrepareMultiGet.add(CpuMetricTable.TABLE, CpuMetricTable.TABLE_TYPE, oldId);
+            String oldId = (startTimeBucket + i) + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + GCPhrase.OLD_VALUE;
+            oldPrepareMultiGet.add(GCMetricTable.TABLE, GCMetricTable.TABLE_TYPE, oldId);
             i++;
         }
         while (startTimeBucket + i <= endTimeBucket);
@@ -123,7 +122,7 @@ public class GCMetricEsDAO extends EsDAO implements IGCMetricDAO {
         multiGetResponse = oldPrepareMultiGet.get();
         for (MultiGetItemResponse itemResponse : multiGetResponse.getResponses()) {
             if (itemResponse.getResponse().isExists()) {
-                oldArray.add(((Number)itemResponse.getResponse().getSource().get(CpuMetricTable.COLUMN_USAGE_PERCENT)).intValue());
+                oldArray.add(((Number)itemResponse.getResponse().getSource().get(GCMetricTable.COLUMN_COUNT)).intValue());
             } else {
                 oldArray.add(0);
             }

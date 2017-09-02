@@ -78,14 +78,34 @@ public class JVMMetricsServiceHandlerTestCase {
     }
 
     private static void buildMemoryPoolMetric(JVMMetric.Builder jvmMetric) {
-        MemoryPool.Builder builder_1 = MemoryPool.newBuilder();
-        builder_1.setType(PoolType.NEWGEN_USAGE);
-        builder_1.setIsHeap(true);
-        builder_1.setInit(20);
-        builder_1.setMax(100);
-        builder_1.setUsed(50);
-        builder_1.setCommited(30);
-        jvmMetric.addMemoryPool(builder_1.build());
+        jvmMetric.addMemoryPool(buildMemoryPoolMetric(PoolType.NEWGEN_USAGE, true).build());
+        jvmMetric.addMemoryPool(buildMemoryPoolMetric(PoolType.NEWGEN_USAGE, false).build());
+
+        jvmMetric.addMemoryPool(buildMemoryPoolMetric(PoolType.OLDGEN_USAGE, true).build());
+        jvmMetric.addMemoryPool(buildMemoryPoolMetric(PoolType.OLDGEN_USAGE, false).build());
+
+        jvmMetric.addMemoryPool(buildMemoryPoolMetric(PoolType.METASPACE_USAGE, true).build());
+        jvmMetric.addMemoryPool(buildMemoryPoolMetric(PoolType.METASPACE_USAGE, false).build());
+
+        jvmMetric.addMemoryPool(buildMemoryPoolMetric(PoolType.PERMGEN_USAGE, true).build());
+        jvmMetric.addMemoryPool(buildMemoryPoolMetric(PoolType.PERMGEN_USAGE, false).build());
+
+        jvmMetric.addMemoryPool(buildMemoryPoolMetric(PoolType.SURVIVOR_USAGE, true).build());
+        jvmMetric.addMemoryPool(buildMemoryPoolMetric(PoolType.SURVIVOR_USAGE, false).build());
+
+        jvmMetric.addMemoryPool(buildMemoryPoolMetric(PoolType.CODE_CACHE_USAGE, true).build());
+        jvmMetric.addMemoryPool(buildMemoryPoolMetric(PoolType.CODE_CACHE_USAGE, false).build());
+    }
+
+    private static MemoryPool.Builder buildMemoryPoolMetric(PoolType poolType, boolean isHeap) {
+        MemoryPool.Builder builder = MemoryPool.newBuilder();
+        builder.setType(poolType);
+        builder.setIsHeap(isHeap);
+        builder.setInit(20);
+        builder.setMax(100);
+        builder.setUsed(50);
+        builder.setCommited(30);
+        return builder;
     }
 
     private static void buildGcMetric(JVMMetric.Builder jvmMetric) {

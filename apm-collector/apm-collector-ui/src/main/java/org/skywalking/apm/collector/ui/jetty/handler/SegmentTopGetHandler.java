@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import javax.servlet.http.HttpServletRequest;
 import org.skywalking.apm.collector.server.jetty.ArgumentsParseException;
 import org.skywalking.apm.collector.server.jetty.JettyHandler;
+import org.skywalking.apm.collector.ui.dao.ISegmentCostDAO;
 import org.skywalking.apm.collector.ui.service.SegmentTopService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,7 +78,15 @@ public class SegmentTopGetHandler extends JettyHandler {
             operationName = req.getParameter("operationName");
         }
 
-        return service.loadTop(startTime, endTime, minCost, maxCost, operationName, globalTraceId, limit, from);
+        ISegmentCostDAO.Sort sort = ISegmentCostDAO.Sort.Cost;
+        if (req.getParameterMap().containsKey("sort")) {
+            String sortStr = req.getParameter("sort");
+            if (sortStr.toLowerCase().equals(ISegmentCostDAO.Sort.Time.name().toLowerCase())) {
+                sort = ISegmentCostDAO.Sort.Time;
+            }
+        }
+
+        return service.loadTop(startTime, endTime, minCost, maxCost, operationName, globalTraceId, limit, from, sort);
     }
 
     @Override protected JsonElement doPost(HttpServletRequest req) throws ArgumentsParseException {

@@ -37,7 +37,7 @@ public class ServiceEntryEsDAO extends EsDAO implements IServiceEntryDAO {
             boolQueryBuilder.must().add(QueryBuilders.matchQuery(ServiceEntryTable.COLUMN_APPLICATION_ID, applicationId));
         }
         if (StringUtils.isNotEmpty(entryServiceName)) {
-            boolQueryBuilder.must().add(QueryBuilders.termQuery(ServiceEntryTable.COLUMN_ENTRY_SERVICE_NAME, entryServiceName));
+            boolQueryBuilder.must().add(QueryBuilders.matchQuery(ServiceEntryTable.COLUMN_ENTRY_SERVICE_NAME, entryServiceName));
         }
 
         searchRequestBuilder.setQuery(boolQueryBuilder);

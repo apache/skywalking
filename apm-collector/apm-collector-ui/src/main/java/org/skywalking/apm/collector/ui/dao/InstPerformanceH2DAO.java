@@ -13,11 +13,19 @@ public class InstPerformanceH2DAO extends H2DAO implements IInstPerformanceDAO {
         return null;
     }
 
-    @Override public int getMetric(int instanceId, long timeBucket) {
+    @Override public int getTpsMetric(int instanceId, long timeBucket) {
         return 0;
     }
 
-    @Override public JsonArray getMetric(int instanceId, long startTimeBucket, long endTimeBucket) {
+    @Override public JsonArray getTpsMetric(int instanceId, long startTimeBucket, long endTimeBucket) {
+        return null;
+    }
+
+    @Override public int getRespTimeMetric(int instanceId, long timeBucket) {
+        return 0;
+    }
+
+    @Override public JsonArray getRespTimeMetric(int instanceId, long startTimeBucket, long endTimeBucket) {
         return null;
     }
 }

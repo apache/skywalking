@@ -45,9 +45,7 @@ public class MemoryPoolMetricEsDAO extends EsDAO implements IMemoryPoolMetricDAO
         while (startTimeBucket + i <= endTimeBucket);
 
         JsonObject metric = new JsonObject();
-
         JsonArray usedMetric = new JsonArray();
-
         MultiGetResponse multiGetResponse = prepareMultiGet.get();
         for (MultiGetItemResponse response : multiGetResponse.getResponses()) {
             if (response.getResponse().isExists()) {
@@ -58,6 +56,7 @@ public class MemoryPoolMetricEsDAO extends EsDAO implements IMemoryPoolMetricDAO
                 usedMetric.add(0);
             }
         }
+        metric.add("used", usedMetric);
         return metric;
     }
 }
