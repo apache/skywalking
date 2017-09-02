@@ -69,21 +69,25 @@ define(['chartJs', 'moment', 'metric-chart'], function (Chart, moment, metricCha
                     }
                 };
             };
-            this.updateYAxesData = function (index, data) {
-                this.chartObject.data.datasets[0].data[index] = data.ygc;
-                this.chartObject.data.datasets[1].data[index] = data.ogc;
-            }
+            this.fillData = function (data, startTime, endTime) {
+                for (var i = 0; i < data.length; i++) {
+                    this.chartObject.data.datasets[0].data.push(data[i].ygc);
+                    this.chartObject.data.datasets[0].data.shift();
 
-            this.fillLostData = function (baseTime, dataCount) {
-                for (var j = 1; j < dataCount; j++) {
-                    var index = this.calculateDataIndex(baseTime.addSeconds(j));
-                    this.updateYAxesData(index, {ygc: 0, ogc: 0});
+                    this.chartObject.data.datasets[1].data.push(data[i].ogc);
+                    this.chartObject.data.datasets[1].data.shift();
                 }
-            }
+                this.chartObject.update();
+            };
         }
 
         function createChart(chartContext, startTime) {
-            return metricChart.createMetricChart(GCMetricChart, chartContext, startTime);
+            var chart = metricChart.createMetricChart(GCMetricChart, chartContext, startTime);
+            for (var i = 0; i < 300; i++) {
+                chart.chartObject.data.datasets[0].data.push(0);
+                chart.chartObject.data.datasets[1].data.push(0);
+            }
+            return chart;
         }
 
         return {
