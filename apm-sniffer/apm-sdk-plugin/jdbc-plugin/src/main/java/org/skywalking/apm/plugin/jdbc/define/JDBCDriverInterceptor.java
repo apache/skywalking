@@ -23,8 +23,12 @@ public class JDBCDriverInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Object ret) throws Throwable {
-        return new SWConnection((String)allArguments[0],
-            (Properties)allArguments[1], (Connection)ret);
+        if (ret != null) {
+            return new SWConnection((String)allArguments[0],
+                (Properties)allArguments[1], (Connection)ret);
+        }
+
+        return ret;
     }
 
     @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
