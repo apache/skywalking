@@ -7,5 +7,9 @@ import com.google.gson.JsonObject;
  */
 public interface ISegmentCostDAO {
     JsonObject loadTop(long startTime, long endTime, long minCost, long maxCost, String operationName,
-        String globalTraceId, int limit, int from);
+        String globalTraceId, int limit, int from, Sort sort);
+
+    public enum Sort {
+        Cost, Time
+    }
 }

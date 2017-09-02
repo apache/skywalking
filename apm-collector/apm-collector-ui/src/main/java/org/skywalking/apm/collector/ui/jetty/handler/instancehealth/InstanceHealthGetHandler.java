@@ -24,13 +24,13 @@ public class InstanceHealthGetHandler extends JettyHandler {
     private InstanceHealthService service = new InstanceHealthService();
 
     @Override protected JsonElement doGet(HttpServletRequest req) throws ArgumentsParseException {
-        String timestampStr = req.getParameter("timestamp");
+        String timeBucketStr = req.getParameter("timeBucket");
         String[] applicationIdsStr = req.getParameterValues("applicationIds");
-        logger.debug("instance health get timestamp: {}, applicationIdsStr: {}", timestampStr, applicationIdsStr);
+        logger.debug("instance health get timeBucket: {}, applicationIdsStr: {}", timeBucketStr, applicationIdsStr);
 
-        long timestamp;
+        long timeBucket;
         try {
-            timestamp = Long.parseLong(timestampStr);
+            timeBucket = Long.parseLong(timeBucketStr);
         } catch (NumberFormatException e) {
             throw new ArgumentsParseException("timestamp must be long");
         }
@@ -45,12 +45,12 @@ public class InstanceHealthGetHandler extends JettyHandler {
         }
 
         JsonObject response = new JsonObject();
-        response.addProperty("timestamp", timestamp);
+        response.addProperty("timeBucket", timeBucket);
         JsonArray appInstances = new JsonArray();
         response.add("appInstances", appInstances);
 
         for (int applicationId : applicationIds) {
-            appInstances.add(service.getInstances(timestamp, applicationId));
+            appInstances.add(service.getInstances(timeBucket, applicationId));
         }
         return response;
     }

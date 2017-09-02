@@ -18,7 +18,6 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.sum.Sum;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.storage.define.instance.InstPerformanceTable;
-import org.skywalking.apm.collector.storage.define.jvm.CpuMetricTable;
 import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
 
 /**
@@ -68,7 +67,7 @@ public class InstPerformanceEsDAO extends EsDAO implements IInstPerformanceDAO {
         return instPerformances;
     }
 
-    @Override public int getMetric(int instanceId, long timeBucket) {
+    @Override public int getTpsMetric(int instanceId, long timeBucket) {
         String id = timeBucket + Const.ID_SPLIT + instanceId;
         GetResponse getResponse = getClient().prepareGet(InstPerformanceTable.TABLE, id).get();
 
@@ -78,13 +77,13 @@ public class InstPerformanceEsDAO extends EsDAO implements IInstPerformanceDAO {
         return 0;
     }
 
-    @Override public JsonArray getMetric(int instanceId, long startTimeBucket, long endTimeBucket) {
+    @Override public JsonArray getTpsMetric(int instanceId, long startTimeBucket, long endTimeBucket) {
         MultiGetRequestBuilder prepareMultiGet = getClient().prepareMultiGet();
 
         int i = 0;
         do {
             String id = (startTimeBucket + i) + Const.ID_SPLIT + instanceId;
-            prepareMultiGet.add(CpuMetricTable.TABLE, InstPerformanceTable.TABLE_TYPE, id);
+            prepareMultiGet.add(InstPerformanceTable.TABLE, InstPerformanceTable.TABLE_TYPE, id);
             i++;
         }
         while (startTimeBucket + i <= endTimeBucket);
@@ -94,6 +93,43 @@ public class InstPerformanceEsDAO extends EsDAO implements IInstPerformanceDAO {
         for (MultiGetItemResponse response : multiGetResponse.getResponses()) {
             if (response.getResponse().isExists()) {
                 metrics.add(((Number)response.getResponse().getSource().get(InstPerformanceTable.COLUMN_CALL_TIMES)).intValue());
+            } else {
+                metrics.add(0);
+            }
+        }
+        return metrics;
+    }
+
+    @Override public int getRespTimeMetric(int instanceId, long timeBucket) {
+        String id = timeBucket + Const.ID_SPLIT + instanceId;
+        GetResponse getResponse = getClient().prepareGet(InstPerformanceTable.TABLE, id).get();
+
+        if (getResponse.isExists()) {
+            int callTimes = ((Number)getResponse.getSource().get(InstPerformanceTable.COLUMN_CALL_TIMES)).intValue();
+            int costTotal = ((Number)getResponse.getSource().get(InstPerformanceTable.COLUMN_COST_TOTAL)).intValue();
+            return costTotal / callTimes;
+        }
+        return 0;
+    }
+
+    @Override public JsonArray getRespTimeMetric(int instanceId, long startTimeBucket, long endTimeBucket) {
+        MultiGetRequestBuilder prepareMultiGet = getClient().prepareMultiGet();
+
+        int i = 0;
+        do {
+            String id = (startTimeBucket + i) + Const.ID_SPLIT + instanceId;
+            prepareMultiGet.add(InstPerformanceTable.TABLE, InstPerformanceTable.TABLE_TYPE, id);
+            i++;
+        }
+        while (startTimeBucket + i <= endTimeBucket);
+
+        JsonArray metrics = new JsonArray();
+        MultiGetResponse multiGetResponse = prepareMultiGet.get();
+        for (MultiGetItemResponse response : multiGetResponse.getResponses()) {
+            if (response.getResponse().isExists()) {
+                int callTimes = ((Number)response.getResponse().getSource().get(InstPerformanceTable.COLUMN_CALL_TIMES)).intValue();
+                int costTotal = ((Number)response.getResponse().getSource().get(InstPerformanceTable.COLUMN_COST_TOTAL)).intValue();
+                metrics.add(costTotal / callTimes);
             } else {
                 metrics.add(0);
             }

@@ -8,7 +8,7 @@ import org.skywalking.apm.collector.storage.h2.dao.H2DAO;
  */
 public class SegmentCostH2DAO extends H2DAO implements ISegmentCostDAO {
     @Override public JsonObject loadTop(long startTime, long endTime, long minCost, long maxCost, String operationName,
-        String globalTraceId, int limit, int from) {
+        String globalTraceId, int limit, int from, Sort sort) {
         return null;
     }
 }
