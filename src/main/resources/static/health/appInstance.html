@@ -8,7 +8,7 @@
             <div style="">
                 <canvas height="80px" width="80px" :key="instance.id" :id="'canvas_' + instance.id" style="display:
                 block;" class="donut"
-                        v-instance="instance"></canvas>
+                        v-instance="instance" v-on:click="goToInstance(instance.id)"></canvas>
             </div>
         </div>
         <div class="col-lg-1 col-sm-2" v-if="application.instances.length > application.showCount">

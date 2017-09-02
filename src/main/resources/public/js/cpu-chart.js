@@ -1,5 +1,4 @@
 define(['chartJs', 'moment', 'metric-chart'], function (Chart, moment, metricChart) {
-
     function CPUMetric(chartContext, startTime) {
         metricChart.MetricChart.apply(this, arguments);
         this.chartConfig = function (labels) {
@@ -63,21 +62,21 @@ define(['chartJs', 'moment', 'metric-chart'], function (Chart, moment, metricCha
                 }
             };
         };
-
-        this.updateYAxesData = function (index, data) {
-            this.chartObject.data.datasets[0].data[index] = data;
-        };
-
-        this.fillLostData = function (baseTime, dataCount) {
-            for (var j = 1; j < dataCount; j++) {
-                var index = this.calculateDataIndex(baseTime.addSeconds(j));
-                this.updateYAxesData(index, 0);
+        this.fillData = function (data, startTime, endTime) {
+            for (var i = 0; i < data.length; i++) {
+                this.chartObject.data.datasets[0].data.push(data[i]);
+                this.chartObject.data.datasets[0].data.shift();
             }
-        }
+            this.chartObject.update();
+        };
     }
 
     function createChart(chartContext, startTime) {
-        return metricChart.createMetricChart(CPUMetric, chartContext, startTime);
+        var chart = metricChart.createMetricChart(CPUMetric, chartContext, startTime);
+        for (var i = 0; i < 300; i++) {
+            chart.chartObject.data.datasets[0].data.push(0);
+        }
+        return chart;
     }
 
     return {

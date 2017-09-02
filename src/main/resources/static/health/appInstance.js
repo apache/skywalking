@@ -1,4 +1,4 @@
-define(['jquery', 'vue', 'text!appInstanceHtml', 'instanceChart', 'chartJs'], function ($, Vue, segmentHtml, instanceChart, Chart) {
+define(['jquery', 'vue', 'text!appInstanceHtml', 'instanceChart', 'chartJs', 'jsCookie'], function ($, Vue, appInstanceHtml, instanceChart, Chart, jsCookie) {
     var showingInstances = {
         appInstances: [],
         indexApplication: function (application) {
@@ -58,13 +58,17 @@ define(['jquery', 'vue', 'text!appInstanceHtml', 'instanceChart', 'chartJs'], fu
     })
 
     function drawCanvas() {
-        $("#instances").html(segmentHtml);
+        $("#instances").html(appInstanceHtml);
         vue = new Vue({
             el: '#instances',
             data: showingInstances,
             methods: {
                 showMore: function (application) {
                     application.showCount += 12;
+                },
+                goToInstance: function (instanceId) {
+                    jsCookie.set('instanceId', instanceId);
+                    window.open("../instance/instance.html");
                 }
             }
         });

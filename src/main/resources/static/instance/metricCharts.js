@@ -59,40 +59,22 @@ define(['jquery', 'vue', 'text!metricSelectorHtml', 'cpuChart', 'gcChart', 'memo
                 instanceId: undefined,
                 startTime: undefined,
                 endTime: undefined,
-                metricNames: ["tps", "cpu", "respTime", "heapMemory", "gc"]
-            },
-            autoUpdateParam: {
-                nextQueryEndTime: undefined
+                metricNames: ["tps", "cpu", "resptime", "heapMemory", "gc"]
             },
             currentXAxesOriginPoint: undefined,
             loadData: function (endTime) {
-                console.log("load Date: " + endTime);
+                console.log("load chart data: end time: " + endTime);
                 var that = metricChartsController;
-                that.queryParam.endTime = moment(parseInt(endTime)).format("YYYYMMDDHHmmss");
-                console.log("query end time : " + that.queryParam.endTime);
+                that.queryParam.endTime = endTime;
+                that.currentXAxesOriginPoint = endTime;
                 $.getJSON("/metricInfoWithTimeRange", this.queryParam, function (data) {
-                    var nextQueryStartTime = Number.MAX_VALUE;
-                    var maxXAxesTimestamp = 0;
                     for (var i = 0; i < that.charts.length; i++) {
                         var dataFetcher = that.charts[i].dataFetcher;
-                        that.charts[i].chartOperator.fillData(dataFetcher(data, that.charts[i].chartName));
-                        var chartLastDate = that.charts[i].chartOperator.previousTime.timestamp;
-                        if (chartLastDate < nextQueryStartTime) {
-                            nextQueryStartTime = chartLastDate;
-                        }
-
-                        if (chartLastDate > maxXAxesTimestamp) {
-                            maxXAxesTimestamp = chartLastDate;
-                        }
+                        console.log(that.charts[i].chartOperator);
+                        that.charts[i].chartOperator.fillData(dataFetcher(data, that.charts[i].chartName), that.queryParam.startTime, that.queryParam.endTime);
                     }
 
-                    // align x-axes,
-                    for (var i = 0; i < that.charts.length; i++) {
-                        that.charts[i].chartOperator.alignXAxes(maxXAxesTimestamp);
-                        that.currentXAxesOriginPoint = that.charts[i].chartOperator.getChartStartTime();
-                    }
-
-                    that.queryParam.startTime = moment(nextQueryStartTime).format("YYYYMMDDHHmmss");
+                    that.queryParam.startTime = that.queryParam.endTime;
                     console.log("next query start time: " + that.queryParam.startTime + " next query end time: " + that.queryParam.endTime);
                 });
             },
@@ -107,15 +89,13 @@ define(['jquery', 'vue', 'text!metricSelectorHtml', 'cpuChart', 'gcChart', 'memo
             initParams: function (instanceId, startTime) {
                 this.queryParam.instanceId = instanceId;
                 this.queryParam.startTime = startTime;
-            },
-            redrawChart: function (timestamp) {
-                for (var i = 0; i < this.charts.length; i++) {
-                    this.charts[i].chartOperator.redrawChart(timestamp);
-                }
             }
         }
 
-        function initPageCharts(instanceId, startTime) {
+        function initPageCharts(instanceId, currentTime) {
+            var startTime = moment(currentTime, "YYYYMMDDHHmmss").subtract(5, "minutes").format("YYYYMMDDHHmmss");
+            var endTime = currentTime;
+
             metricChartsController.initParams(instanceId, startTime);
 
             var tpsChart = initChart("tps", startTime);
@@ -130,28 +110,19 @@ define(['jquery', 'vue', 'text!metricSelectorHtml', 'cpuChart', 'gcChart', 'memo
             var gcChart = initChart("gc", startTime);
             metricChartsController.charts.push(gcChart);
 
-            metricChartsController.loadData(moment(startTime, "YYYYMMDDHHmmss").add(5, "minutes").format("x"));
+            metricChartsController.loadData(endTime);
         }
 
-        function updateMetricCharts(startTime) {
-            metricChartsController.redrawChart(startTime);
-            metricChartsController.loadData(moment(startTime).add(5, "minutes").format("x"));
+        function updateMetricCharts(currentTime) {
+            var endTime = currentTime;
+            var startTime = moment(currentTime, "YYYYMMDDHHmmss").subtract(5, "minutes").format("YYYYMMDDHHmmss");
+            metricChartsController.queryParam.startTime = startTime;
+            metricChartsController.loadData(endTime);
         }
 
-        function redrawChart(startTime) {
-            metricChartsController.redrawChart(startTime);
-        }
-
-        function autoUpdateMetricCharts(endTime) {
-            if (metricChartsController.autoUpdateParam.nextQueryEndTime == undefined) {
-                metricChartsController.autoUpdateParam.nextQueryEndTime = parseInt(endTime);
-            }
-
-            var nextQueryTime = metricChartsController.autoUpdateParam.nextQueryEndTime;
-            if (parseInt(endTime) - nextQueryTime > 3000) {
-                metricChartsController.loadData(nextQueryTime);
-                metricChartsController.autoUpdateParam.nextQueryEndTime += 3000;
-            }
+        function autoUpdateMetricCharts(currentTime) {
+            metricChartsController.queryParam.startTime = currentTime;
+            metricChartsController.loadData(currentTime);
         }
 
         function initChart(chartName, xAxesStartTime) {
@@ -164,8 +135,8 @@ define(['jquery', 'vue', 'text!metricSelectorHtml', 'cpuChart', 'gcChart', 'memo
             return chartObject;
         }
 
-
         function getChartHandler(chartName) {
+            console.log("chartName:" + chartName);
             var chartHandlerConfig;
             switch (chartName) {
                 case "tps":
@@ -174,7 +145,7 @@ define(['jquery', 'vue', 'text!metricSelectorHtml', 'cpuChart', 'gcChart', 'memo
                         dataFetcher: function (data) {
                             return {
                                 tps: data.tps,
-                                respTime: data.respTime
+                                respTime: data.resptime
                             };
                         }
                     }
@@ -183,7 +154,18 @@ define(['jquery', 'vue', 'text!metricSelectorHtml', 'cpuChart', 'gcChart', 'memo
                     chartHandlerConfig = {
                         canvasBuilder: gcChart,
                         dataFetcher: function (data) {
-                            return data.gc
+                            var ygcArray = data.gc.ygc;
+                            var ogcArray = data.gc.ogc;
+
+                            var gcArray = [];
+                            for (var i = 0; i < ygcArray.length; i++) {
+                                gcArray.push({
+                                    ygc: ygcArray[i],
+                                    ogc: ogcArray[i]
+                                });
+                            }
+
+                            return gcArray;
                         }
                     }
                     break;
@@ -191,7 +173,7 @@ define(['jquery', 'vue', 'text!metricSelectorHtml', 'cpuChart', 'gcChart', 'memo
                     chartHandlerConfig = {
                         canvasBuilder: cpuChart,
                         dataFetcher: function (data) {
-                            return data.cpu
+                            return data.cpu;
                         }
                     }
                     break;
@@ -199,7 +181,21 @@ define(['jquery', 'vue', 'text!metricSelectorHtml', 'cpuChart', 'gcChart', 'memo
                     chartHandlerConfig = {
                         canvasBuilder: memoryChart,
                         dataFetcher: function (data, chartName) {
-                            return data[chartName]
+                            console.log(data);
+                            console.log("default, chartName: " + chartName);
+                            var chartData = data[chartName.toLowerCase()];
+
+                            var usedArray = chartData.used;
+                            var memoryData = [];
+                            $.each(usedArray, function (index) {
+                                memoryData.push({
+                                    max: chartData.max,
+                                    init: chartData.init,
+                                    used: usedArray[index]
+                                });
+                            })
+
+                            return memoryData;
                         }
                     }
             }
@@ -210,8 +206,7 @@ define(['jquery', 'vue', 'text!metricSelectorHtml', 'cpuChart', 'gcChart', 'memo
             drawMetricSelector: drawMetricSelector,
             initPageCharts: initPageCharts,
             updateMetricCharts: updateMetricCharts,
-            autoUpdateMetricCharts: autoUpdateMetricCharts,
-            redrawChart: redrawChart
+            autoUpdateMetricCharts: autoUpdateMetricCharts
         }
     }
 );

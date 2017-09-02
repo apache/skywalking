@@ -77,34 +77,26 @@ define(['chartJs', 'moment', 'metric-chart'], function (Chart, moment, metricCha
                 }
             };
         };
+        this.fillData = function (data, startTime, endTime) {
+            console.log(data);
+            for (var i = 0; i < data.length; i++) {
+                this.chartObject.data.datasets[0].data.push(data[i].used);
+                this.chartObject.data.datasets[0].data.shift();
 
-        this.updateYAxesData = function (index, data) {
-            this.chartObject.data.datasets[0].data[index] = data.used;
-            this.chartObject.data.datasets[1].data[index] = data.max;
-            if (this.max == undefined && data.max != undefined) {
-                this.max = data.max;
+                this.chartObject.data.datasets[1].data.push(data[i].max);
+                this.chartObject.data.datasets[1].data.shift();
             }
-            if (this.init == undefined && data.init != undefined) {
-                this.init = data.init;
-            }
-            this.chartObject.options.scales.yAxes[0].ticks.min = this.init == undefined ? 0 : this.init;
-            this.chartObject.options.scales.yAxes[0].ticks.max = this.max == undefined ? 0 : this.max + 200;
-        };
-
-        this.fillLostData = function (baseTime, dataCount) {
-            for (var j = 1; j < dataCount; j++) {
-                var index = this.calculateDataIndex(baseTime.addSeconds(j));
-                this.updateYAxesData(index, {
-                    used: 0,
-                    max: this.max == undefined ? undefined : this.max,
-                    init: this.init == undefined ? undefined : this.init
-                });
-            }
+            this.chartObject.update();
         };
     }
 
     function createChart(chartContext, startTime) {
-        return metricChart.createMetricChart(MemoryMetricChart, chartContext, startTime);
+        var chart = metricChart.createMetricChart(MemoryMetricChart, chartContext, startTime);
+        for (var i = 0; i < 300; i++) {
+            chart.chartObject.data.datasets[0].data.push(0);
+            chart.chartObject.data.datasets[1].data.push(0);
+        }
+        return chart;
     }
 
     return {

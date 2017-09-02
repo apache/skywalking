@@ -100,65 +100,33 @@ define(['chartJs', 'moment', 'metric-chart'], function (Chart, moment, metricCha
                 }
             };
         };
-        this.fillData = function (data) {
-            this.fillResponseTimeData(data.respTime, this.updateResponseTimeData);
-            this.fillTpsData(data.tps, this.updateTpsData);
+        this.fillData = function (data, startTime, endTime) {
+            this.fillResponseTimeData(data.respTime, startTime, endTime);
+            this.fillTpsData(data.tps);
         };
-        this.fillResponseTimeData = function (data, updateHandler) {
-            if (data.length == 0) {
-                return;
+        this.fillResponseTimeData = function (data) {
+            for (var i = 0; i < data.length; i++) {
+                this.chartObject.data.datasets[1].data.push(data[i]);
+                this.chartObject.data.datasets[1].data.shift();
             }
-            var previousTime = metricChart.FormatDate(data[0].timeBucket);
-            updateHandler(this, this.calculateDataIndex(previousTime), data[0].data);
-            for (var i = 1; i < data.length; i++) {
-                var formatTimeBucket = metricChart.FormatDate(data[i].timeBucket);
-                var lostDataSize = formatTimeBucket.subtractSeconds(previousTime);
-                if (lostDataSize > 1) {
-                    this.fillLostData(previousTime, lostDataSize, updateHandler);
-                }
-                updateHandler(this, this.calculateDataIndex(formatTimeBucket), data[i].data);
-                previousTime = formatTimeBucket;
-            }
-            this.previousTime = previousTime;
             this.chartObject.update();
         };
-        this.fillTpsData = function (data, updateHandler) {
-            if (data.length == 0) {
-                return;
+        this.fillTpsData = function (data) {
+            for (var i = 0; i < data.length; i++) {
+                this.chartObject.data.datasets[0].data.push(data[i]);
+                this.chartObject.data.datasets[0].data.shift();
             }
-            var previousTime = metricChart.FormatDate(data[0].timeBucket);
-            updateHandler(this, this.calculateDataIndex(previousTime), data[0].data);
-            for (var i = 1; i < data.length; i++) {
-                var formatTimeBucket = metricChart.FormatDate(data[i].timeBucket);
-                var lostDataSize = formatTimeBucket.subtractSeconds(previousTime);
-                if (lostDataSize > 1) {
-                    this.fillLostData(previousTime, lostDataSize, updateHandler);
-                }
-                updateHandler(this, this.calculateDataIndex(formatTimeBucket), data[i].data);
-                previousTime = formatTimeBucket;
-            }
-            this.previousTime = previousTime;
             this.chartObject.update();
-        };
-
-        this.fillLostData = function (baseTime, dataCount, updateHandler) {
-            for (var j = 1; j < dataCount; j++) {
-                var index = this.calculateDataIndex(baseTime.addSeconds(j));
-                updateHandler(this, index, 0);
-            }
-        };
-
-        this.updateResponseTimeData = function (caller, index, data) {
-            caller.chartObject.data.datasets[0].data[index] = data;
-        };
-
-        this.updateTpsData = function (caller, index, data) {
-            caller.chartObject.data.datasets[1].data[index] = data;
         };
     }
 
     function createChart(chartContext, startTime) {
-        return metricChart.createMetricChart(TPSMetricChart, chartContext, startTime);
+        var chart = metricChart.createMetricChart(TPSMetricChart, chartContext, startTime);
+        for (var i = 0; i < 300; i++) {
+            chart.chartObject.data.datasets[0].data.push(0);
+            chart.chartObject.data.datasets[1].data.push(0);
+        }
+        return chart;
     }
 
     return {
