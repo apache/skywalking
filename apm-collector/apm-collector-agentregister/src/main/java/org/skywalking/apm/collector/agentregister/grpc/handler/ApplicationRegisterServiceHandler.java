@@ -23,14 +23,16 @@ public class ApplicationRegisterServiceHandler extends ApplicationRegisterServic
     @Override public void register(Application request, StreamObserver<ApplicationMapping> responseObserver) {
         logger.debug("register application");
         ProtocolStringList applicationCodes = request.getApplicationCodeList();
+
+        ApplicationMapping.Builder builder = ApplicationMapping.newBuilder();
         for (int i = 0; i < applicationCodes.size(); i++) {
             String applicationCode = applicationCodes.get(i);
             int applicationId = applicationIDService.getOrCreate(applicationCode);
 
             KeyWithIntegerValue value = KeyWithIntegerValue.newBuilder().setKey(applicationCode).setValue(applicationId).build();
-            ApplicationMapping mapping = ApplicationMapping.newBuilder().addApplication(i, value).build();
-            responseObserver.onNext(mapping);
+            builder.addApplication(i, value);
         }
+        responseObserver.onNext(builder.build());
         responseObserver.onCompleted();
     }
 }
