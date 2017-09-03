@@ -1,6 +1,6 @@
 package org.skywalking.apm.collector.agentregister.instance;
 
-import org.skywalking.apm.collector.agentstream.worker.register.application.ApplicationRegisterRemoteWorker;
+import org.skywalking.apm.collector.agentstream.worker.register.instance.InstanceRegisterRemoteWorker;
 import org.skywalking.apm.collector.agentstream.worker.register.instance.dao.IInstanceDAO;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
 import org.skywalking.apm.collector.storage.dao.DAOContainer;
@@ -28,7 +28,7 @@ public class InstanceIDService {
             StreamModuleContext context = (StreamModuleContext)CollectorContextHelper.INSTANCE.getContext(StreamModuleGroupDefine.GROUP_NAME);
             InstanceDataDefine.Instance instance = new InstanceDataDefine.Instance("0", applicationId, agentUUID, registerTime, 0, registerTime, osInfo);
             try {
-                context.getClusterWorkerContext().lookup(ApplicationRegisterRemoteWorker.WorkerRole.INSTANCE).tell(instance);
+                context.getClusterWorkerContext().lookup(InstanceRegisterRemoteWorker.WorkerRole.INSTANCE).tell(instance);
             } catch (WorkerNotFoundException | WorkerInvokeException e) {
                 logger.error(e.getMessage(), e);
             }

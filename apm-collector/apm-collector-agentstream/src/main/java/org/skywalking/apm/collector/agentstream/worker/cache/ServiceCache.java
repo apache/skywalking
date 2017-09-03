@@ -11,7 +11,7 @@ import org.skywalking.apm.collector.storage.dao.DAOContainer;
  */
 public class ServiceCache {
 
-    private static Cache<Integer, String> CACHE = CacheBuilder.newBuilder().maximumSize(10000).build();
+    private static Cache<Integer, String> CACHE = CacheBuilder.newBuilder().initialCapacity(1000).maximumSize(20000).build();
 
     public static String getServiceName(int serviceId) {
         try {

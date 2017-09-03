@@ -21,12 +21,15 @@ public abstract class Window {
     }
 
     public boolean trySwitchPointer() {
-        if (windowSwitch.incrementAndGet() == 1) {
+        if (windowSwitch.incrementAndGet() == 1 && !getLast().isReading()) {
             return true;
         } else {
-            windowSwitch.addAndGet(-1);
             return false;
         }
+    }
+
+    public void trySwitchPointerFinally() {
+        windowSwitch.addAndGet(-1);
     }
 
     public void switchPointer() {
@@ -35,16 +38,21 @@ public abstract class Window {
         } else {
             pointer = windowDataA;
         }
+        getLast().reading();
     }
 
-    protected DataCollection getCurrentAndHold() {
+    protected DataCollection getCurrentAndWriting() {
         if (pointer == windowDataA) {
-            windowDataA.hold();
+            windowDataA.writing();
             return windowDataA;
         } else {
-            windowDataB.hold();
+            windowDataB.writing();
             return windowDataB;
         }
+    }
+
+    protected DataCollection getCurrent() {
+        return pointer;
     }
 
     public DataCollection getLast() {
@@ -55,8 +63,8 @@ public abstract class Window {
         }
     }
 
-    public void releaseLast() {
+    public void finishReadingLast() {
         getLast().clear();
-        windowSwitch.addAndGet(-1);
+        getLast().finishReading();
     }
 }

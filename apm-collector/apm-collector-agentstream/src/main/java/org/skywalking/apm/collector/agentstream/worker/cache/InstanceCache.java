@@ -10,7 +10,7 @@ import org.skywalking.apm.collector.storage.dao.DAOContainer;
  */
 public class InstanceCache {
 
-    private static Cache<Integer, Integer> CACHE = CacheBuilder.newBuilder().maximumSize(1000).build();
+    private static Cache<Integer, Integer> CACHE = CacheBuilder.newBuilder().initialCapacity(100).maximumSize(5000).build();
 
     public static int get(int applicationInstanceId) {
         try {

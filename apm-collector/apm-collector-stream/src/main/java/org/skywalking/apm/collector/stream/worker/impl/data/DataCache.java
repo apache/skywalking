@@ -21,16 +21,16 @@ public class DataCache extends Window {
         lockedDataCollection.put(id, data);
     }
 
-    public void hold() {
-        lockedDataCollection = getCurrentAndHold();
+    public void writing() {
+        lockedDataCollection = getCurrentAndWriting();
     }
 
     public int currentCollectionSize() {
-        return getCurrentAndHold().size();
+        return getCurrent().size();
     }
 
-    public void release() {
-        lockedDataCollection.release();
+    public void finishWriting() {
+        lockedDataCollection.finishWriting();
         lockedDataCollection = null;
     }
 }

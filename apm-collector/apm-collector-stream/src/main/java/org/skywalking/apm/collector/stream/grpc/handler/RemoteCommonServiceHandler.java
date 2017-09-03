@@ -22,17 +22,29 @@ public class RemoteCommonServiceHandler extends RemoteCommonServiceGrpc.RemoteCo
 
     private final Logger logger = LoggerFactory.getLogger(RemoteCommonServiceHandler.class);
 
-    @Override public void call(RemoteMessage request, StreamObserver<Empty> responseObserver) {
-        String roleName = request.getWorkerRole();
-        RemoteData remoteData = request.getRemoteData();
+    @Override public StreamObserver<RemoteMessage> call(StreamObserver<Empty> responseObserver) {
+        return new StreamObserver<RemoteMessage>() {
+            @Override public void onNext(RemoteMessage message) {
+                String roleName = message.getWorkerRole();
+                RemoteData remoteData = message.getRemoteData();
 
-        StreamModuleContext context = (StreamModuleContext)CollectorContextHelper.INSTANCE.getContext(StreamModuleGroupDefine.GROUP_NAME);
-        Role role = context.getClusterWorkerContext().getRole(roleName);
-        Object object = role.dataDefine().deserialize(remoteData);
-        try {
-            context.getClusterWorkerContext().lookupInSide(roleName).tell(object);
-        } catch (WorkerNotFoundException | WorkerInvokeException e) {
-            logger.error(e.getMessage(), e);
-        }
+                StreamModuleContext context = (StreamModuleContext)CollectorContextHelper.INSTANCE.getContext(StreamModuleGroupDefine.GROUP_NAME);
+                Role role = context.getClusterWorkerContext().getRole(roleName);
+                Object object = role.dataDefine().deserialize(remoteData);
+                try {
+                    context.getClusterWorkerContext().lookupInSide(roleName).tell(object);
+                } catch (WorkerNotFoundException | WorkerInvokeException e) {
+                    logger.error(e.getMessage(), e);
+                }
+            }
+
+            @Override public void onError(Throwable throwable) {
+                logger.error(throwable.getMessage(), throwable);
+            }
+
+            @Override public void onCompleted() {
+                responseObserver.onCompleted();
+            }
+        };
     }
 }
