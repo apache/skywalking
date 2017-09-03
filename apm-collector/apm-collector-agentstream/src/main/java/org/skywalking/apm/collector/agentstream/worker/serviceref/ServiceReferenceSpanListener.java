@@ -36,6 +36,7 @@ public class ServiceReferenceSpanListener implements FirstSpanListener, EntrySpa
     private long endTime = 0;
     private boolean isError = false;
     private long timeBucket;
+    private boolean hasEntry = false;
 
     @Override
     public void parseFirst(SpanObject spanObject, int applicationId, int applicationInstanceId, String segmentId) {
@@ -58,6 +59,7 @@ public class ServiceReferenceSpanListener implements FirstSpanListener, EntrySpa
         startTime = spanObject.getStartTime();
         endTime = spanObject.getEndTime();
         isError = spanObject.getIsError();
+        this.hasEntry = true;
     }
 
     @Override
@@ -96,65 +98,67 @@ public class ServiceReferenceSpanListener implements FirstSpanListener, EntrySpa
 
     @Override public void build() {
         logger.debug("service reference listener build");
-        StreamModuleContext context = (StreamModuleContext)CollectorContextHelper.INSTANCE.getContext(StreamModuleGroupDefine.GROUP_NAME);
+        if (hasEntry) {
+            StreamModuleContext context = (StreamModuleContext)CollectorContextHelper.INSTANCE.getContext(StreamModuleGroupDefine.GROUP_NAME);
 
-        if (referenceServices.size() > 0) {
-            referenceServices.forEach(reference -> {
-                ServiceReferenceDataDefine.ServiceReference serviceReference = new ServiceReferenceDataDefine.ServiceReference();
-                int entryServiceId = reference.getEntryServiceId();
-                String entryServiceName = buildServiceName(reference.getEntryApplicationInstanceId(), reference.getEntryServiceId(), reference.getEntryServiceName());
-
-                int frontServiceId = reference.getParentServiceId();
-                String frontServiceName = buildServiceName(reference.getParentApplicationInstanceId(), reference.getParentServiceId(), reference.getParentServiceName());
-
-                int behindServiceId = serviceId;
-                String behindServiceName = serviceName;
-
-                calculateCost(serviceReference, startTime, endTime, isError);
-
-                logger.debug("has reference, entryServiceId: {}, entryServiceName: {}", entryServiceId, entryServiceName);
-                sendToAggregationWorker(context, serviceReference, entryServiceId, entryServiceName, frontServiceId, frontServiceName, behindServiceId, behindServiceName);
-            });
-        } else {
-            ServiceReferenceDataDefine.ServiceReference serviceReference = new ServiceReferenceDataDefine.ServiceReference();
-            int entryServiceId = serviceId;
-            String entryServiceName = serviceName;
-
-            int frontServiceId = Const.NONE_SERVICE_ID;
-            String frontServiceName = Const.EMPTY_STRING;
-
-            int behindServiceId = serviceId;
-            String behindServiceName = serviceName;
-
-            calculateCost(serviceReference, startTime, endTime, isError);
-            sendToAggregationWorker(context, serviceReference, entryServiceId, entryServiceName, frontServiceId, frontServiceName, behindServiceId, behindServiceName);
-        }
-
-        exitServiceRefs.forEach(serviceReference -> {
             if (referenceServices.size() > 0) {
                 referenceServices.forEach(reference -> {
+                    ServiceReferenceDataDefine.ServiceReference serviceReference = new ServiceReferenceDataDefine.ServiceReference();
                     int entryServiceId = reference.getEntryServiceId();
                     String entryServiceName = buildServiceName(reference.getEntryApplicationInstanceId(), reference.getEntryServiceId(), reference.getEntryServiceName());
 
                     int frontServiceId = reference.getParentServiceId();
                     String frontServiceName = buildServiceName(reference.getParentApplicationInstanceId(), reference.getParentServiceId(), reference.getParentServiceName());
 
-                    int behindServiceId = serviceReference.getBehindServiceId();
-                    String behindServiceName = serviceReference.getBehindServiceName();
+                    int behindServiceId = serviceId;
+                    String behindServiceName = serviceName;
+
+                    calculateCost(serviceReference, startTime, endTime, isError);
+
+                    logger.debug("has reference, entryServiceId: {}, entryServiceName: {}", entryServiceId, entryServiceName);
                     sendToAggregationWorker(context, serviceReference, entryServiceId, entryServiceName, frontServiceId, frontServiceName, behindServiceId, behindServiceName);
                 });
             } else {
+                ServiceReferenceDataDefine.ServiceReference serviceReference = new ServiceReferenceDataDefine.ServiceReference();
                 int entryServiceId = serviceId;
                 String entryServiceName = serviceName;
 
-                int frontServiceId = serviceId;
-                String frontServiceName = serviceName;
+                int frontServiceId = Const.NONE_SERVICE_ID;
+                String frontServiceName = Const.EMPTY_STRING;
 
-                int behindServiceId = serviceReference.getBehindServiceId();
-                String behindServiceName = serviceReference.getBehindServiceName();
+                int behindServiceId = serviceId;
+                String behindServiceName = serviceName;
+
+                calculateCost(serviceReference, startTime, endTime, isError);
                 sendToAggregationWorker(context, serviceReference, entryServiceId, entryServiceName, frontServiceId, frontServiceName, behindServiceId, behindServiceName);
             }
-        });
+
+            exitServiceRefs.forEach(serviceReference -> {
+                if (referenceServices.size() > 0) {
+                    referenceServices.forEach(reference -> {
+                        int entryServiceId = reference.getEntryServiceId();
+                        String entryServiceName = buildServiceName(reference.getEntryApplicationInstanceId(), reference.getEntryServiceId(), reference.getEntryServiceName());
+
+                        int frontServiceId = reference.getParentServiceId();
+                        String frontServiceName = buildServiceName(reference.getParentApplicationInstanceId(), reference.getParentServiceId(), reference.getParentServiceName());
+
+                        int behindServiceId = serviceReference.getBehindServiceId();
+                        String behindServiceName = serviceReference.getBehindServiceName();
+                        sendToAggregationWorker(context, serviceReference, entryServiceId, entryServiceName, frontServiceId, frontServiceName, behindServiceId, behindServiceName);
+                    });
+                } else {
+                    int entryServiceId = serviceId;
+                    String entryServiceName = serviceName;
+
+                    int frontServiceId = serviceId;
+                    String frontServiceName = serviceName;
+
+                    int behindServiceId = serviceReference.getBehindServiceId();
+                    String behindServiceName = serviceReference.getBehindServiceName();
+                    sendToAggregationWorker(context, serviceReference, entryServiceId, entryServiceName, frontServiceId, frontServiceName, behindServiceId, behindServiceName);
+                }
+            });
+        }
     }
 
     private void sendToAggregationWorker(StreamModuleContext context,
