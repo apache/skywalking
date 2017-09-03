@@ -51,7 +51,7 @@ public abstract class AggregationWorker extends AbstractLocalAsyncWorker {
 
     private void sendToNext() throws WorkerException {
         dataCache.switchPointer();
-        while (dataCache.getLast().isHolding()) {
+        while (dataCache.getLast().isWriting()) {
             try {
                 Thread.sleep(10);
             } catch (InterruptedException e) {
@@ -66,17 +66,17 @@ public abstract class AggregationWorker extends AbstractLocalAsyncWorker {
                 logger.error(e.getMessage(), e);
             }
         });
-        dataCache.releaseLast();
+        dataCache.finishReadingLast();
     }
 
     protected final void aggregate(Object message) {
         Data data = (Data)message;
-        dataCache.hold();
+        dataCache.writing();
         if (dataCache.containsKey(data.id())) {
             getRole().dataDefine().mergeData(data, dataCache.get(data.id()));
         } else {
             dataCache.put(data.id(), data);
         }
-        dataCache.release();
+        dataCache.finishWriting();
     }
 }

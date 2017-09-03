@@ -4,7 +4,7 @@ option java_multiple_files = true;
 option java_package = "org.skywalking.apm.collector.remote.grpc.proto";
 
 service RemoteCommonService {
-    rpc call (RemoteMessage) returns (Empty) {
+    rpc call (stream RemoteMessage) returns (Empty) {
     }
 }
 

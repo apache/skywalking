@@ -30,7 +30,7 @@ public class ServiceNameEsDAO extends EsDAO implements IServiceNameDAO {
         ElasticSearchClient client = getClient();
 
         SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ServiceNameTable.TABLE);
-        searchRequestBuilder.setTypes("type");
+        searchRequestBuilder.setTypes(ServiceNameTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.QUERY_THEN_FETCH);
         BoolQueryBuilder builder = QueryBuilders.boolQuery();
         builder.must().add(QueryBuilders.termQuery(ServiceNameTable.COLUMN_APPLICATION_ID, applicationId));

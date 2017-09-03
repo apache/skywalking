@@ -10,16 +10,26 @@ import org.skywalking.apm.collector.storage.dao.DAOContainer;
  */
 public class ApplicationCache {
 
-    private static Cache<String, Integer> CACHE = CacheBuilder.newBuilder().maximumSize(1000).build();
+    private static Cache<String, Integer> CACHE = CacheBuilder.newBuilder().initialCapacity(100).maximumSize(1000).build();
 
     public static int get(String applicationCode) {
+        int applicationId = 0;
         try {
-            return CACHE.get(applicationCode, () -> {
+            applicationId = CACHE.get(applicationCode, () -> {
                 IApplicationDAO dao = (IApplicationDAO)DAOContainer.INSTANCE.get(IApplicationDAO.class.getName());
                 return dao.getApplicationId(applicationCode);
             });
         } catch (Throwable e) {
-            return 0;
+            return applicationId;
         }
+
+        if (applicationId == 0) {
+            IApplicationDAO dao = (IApplicationDAO)DAOContainer.INSTANCE.get(IApplicationDAO.class.getName());
+            applicationId = dao.getApplicationId(applicationCode);
+            if (applicationId != 0) {
+                CACHE.put(applicationCode, applicationId);
+            }
+        }
+        return applicationId;
     }
 }
