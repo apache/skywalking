@@ -78,13 +78,19 @@ define(['chartJs', 'moment', 'metric-chart'], function (Chart, moment, metricCha
             };
         };
         this.fillData = function (data, startTime, endTime) {
-            console.log(data);
-            for (var i = 0; i < data.length; i++) {
-                this.chartObject.data.datasets[0].data.push(data[i].used);
-                this.chartObject.data.datasets[0].data.shift();
-
-                this.chartObject.data.datasets[1].data.push(data[i].max);
-                this.chartObject.data.datasets[1].data.shift();
+            var beginIndexOfFillData = (this.toUnixTimestamp(startTime) - this.toUnixTimestamp(this.chartStartTime)) / 1000;
+            var endIndexOfFillData = (this.toUnixTimestamp(endTime) - this.toUnixTimestamp(this.chartStartTime)) / 1000;
+            console.log("beginIndexOfFillData : " + beginIndexOfFillData + " endIndexOfFillData: " + endIndexOfFillData);
+            for (var index = beginIndexOfFillData, dataIndex = 0; index <= endIndexOfFillData; index++, dataIndex++) {
+                if (index > 299) {
+                    console.log("update chart x axes");
+                    this.updateXAxes();
+                    this.chartObject.data.datasets[0].data.shift();
+                    this.chartObject.data.datasets[1].data.shift();
+                }
+                this.chartObject.data.datasets[0].data.push(data[dataIndex].used);
+                this.chartObject.data.datasets[1].data.push(data[dataIndex].max);
+                this.updateChartStartTime(index);
             }
             this.chartObject.update();
         };
@@ -92,10 +98,6 @@ define(['chartJs', 'moment', 'metric-chart'], function (Chart, moment, metricCha
 
     function createChart(chartContext, startTime) {
         var chart = metricChart.createMetricChart(MemoryMetricChart, chartContext, startTime);
-        for (var i = 0; i < 300; i++) {
-            chart.chartObject.data.datasets[0].data.push(0);
-            chart.chartObject.data.datasets[1].data.push(0);
-        }
         return chart;
     }
 
