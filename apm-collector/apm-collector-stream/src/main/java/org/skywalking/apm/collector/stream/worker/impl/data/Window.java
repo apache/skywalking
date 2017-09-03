@@ -21,11 +21,7 @@ public abstract class Window {
     }
 
     public boolean trySwitchPointer() {
-        if (windowSwitch.incrementAndGet() == 1 && !getLast().isReading()) {
-            return true;
-        } else {
-            return false;
-        }
+        return windowSwitch.incrementAndGet() == 1 && !getLast().isReading();
     }
 
     public void trySwitchPointerFinally() {
