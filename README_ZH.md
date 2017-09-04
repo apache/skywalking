@@ -40,6 +40,11 @@ _按首次加入时间排序_
 
 This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to wu.sheng@foxmail.com.
 
+
+# Architecture
+* 3.2+版本架构图
+<img src="https://sky-walking.github.io/page-resources/3.2/architecture/3.2-architecture.jpg"/>
+
 # Screenshots
 - 追踪基于Spring Cloud的分布式系统，生成的拓扑截图
 <img src="https://sky-walking.github.io/page-resources/3.1/topological_graph.png?forceUpdate=0"/>
