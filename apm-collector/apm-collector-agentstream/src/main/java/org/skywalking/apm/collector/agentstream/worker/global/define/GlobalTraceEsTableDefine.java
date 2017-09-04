@@ -14,7 +14,7 @@ public class GlobalTraceEsTableDefine extends ElasticSearchTableDefine {
     }
 
     @Override public int refreshInterval() {
-        return 2;
+        return 5;
     }
 
     @Override public int numberOfShards() {

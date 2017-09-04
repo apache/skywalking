@@ -23,18 +23,18 @@ public class OneInstanceLastTimeGetHandler extends JettyHandler {
     private TimeSynchronousService service = new TimeSynchronousService();
 
     @Override protected JsonElement doGet(HttpServletRequest req) throws ArgumentsParseException {
-        String applicationInstanceIdStr = req.getParameter("applicationInstanceId");
-        logger.debug("applicationInstanceId: {}", applicationInstanceIdStr);
+        String instanceIdStr = req.getParameter("instanceId");
+        logger.debug("instanceId: {}", instanceIdStr);
 
-        int applicationInstanceId;
+        int instanceId;
         try {
-            applicationInstanceId = Integer.parseInt(applicationInstanceIdStr);
+            instanceId = Integer.parseInt(instanceIdStr);
         } catch (NumberFormatException e) {
             throw new ArgumentsParseException("application instance id must be integer");
         }
 
-        Long time = service.instanceLastTime(applicationInstanceId);
-        logger.debug("application instance id: {}, instance last time: {}", applicationInstanceId, time);
+        Long time = service.instanceLastTime(instanceId);
+        logger.debug("application instance id: {}, instance last time: {}", instanceId, time);
         JsonObject timeJson = new JsonObject();
         timeJson.addProperty("timeBucket", time);
         return timeJson;

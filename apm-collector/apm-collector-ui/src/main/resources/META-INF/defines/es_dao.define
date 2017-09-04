@@ -8,6 +8,9 @@ org.skywalking.apm.collector.ui.dao.ApplicationEsDAO
 org.skywalking.apm.collector.ui.dao.ServiceNameEsDAO
 org.skywalking.apm.collector.ui.dao.InstanceEsDAO
 org.skywalking.apm.collector.ui.dao.InstPerformanceEsDAO
+org.skywalking.apm.collector.ui.dao.CpuMetricEsDAO
 org.skywalking.apm.collector.ui.dao.GCMetricEsDAO
+org.skywalking.apm.collector.ui.dao.MemoryMetricEsDAO
+org.skywalking.apm.collector.ui.dao.MemoryPoolMetricEsDAO
 org.skywalking.apm.collector.ui.dao.ServiceEntryEsDAO
 org.skywalking.apm.collector.ui.dao.ServiceReferenceEsDAO

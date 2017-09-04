@@ -3,6 +3,7 @@ package org.skywalking.apm.collector.agentstream.worker.register.servicename;
 import org.skywalking.apm.collector.agentstream.worker.register.IdAutoIncrement;
 import org.skywalking.apm.collector.agentstream.worker.register.servicename.dao.IServiceNameDAO;
 import org.skywalking.apm.collector.storage.dao.DAOContainer;
+import org.skywalking.apm.collector.storage.define.DataDefine;
 import org.skywalking.apm.collector.storage.define.register.ServiceNameDataDefine;
 import org.skywalking.apm.collector.stream.worker.AbstractLocalAsyncWorker;
 import org.skywalking.apm.collector.stream.worker.AbstractLocalAsyncWorkerProvider;
@@ -10,7 +11,6 @@ import org.skywalking.apm.collector.stream.worker.ClusterWorkerContext;
 import org.skywalking.apm.collector.stream.worker.ProviderNotFoundException;
 import org.skywalking.apm.collector.stream.worker.Role;
 import org.skywalking.apm.collector.stream.worker.WorkerException;
-import org.skywalking.apm.collector.storage.define.DataDefine;
 import org.skywalking.apm.collector.stream.worker.selector.ForeverFirstSelector;
 import org.skywalking.apm.collector.stream.worker.selector.WorkerSelector;
 import org.slf4j.Logger;
@@ -47,8 +47,8 @@ public class ServiceNameRegisterSerialWorker extends AbstractLocalAsyncWorker {
                 } else {
                     int max = dao.getMaxServiceId();
                     serviceId = IdAutoIncrement.INSTANCE.increment(min, max);
-                    serviceName.setApplicationId(serviceId);
                     serviceName.setId(String.valueOf(serviceId));
+                    serviceName.setServiceId(serviceId);
                 }
                 dao.save(serviceName);
             }

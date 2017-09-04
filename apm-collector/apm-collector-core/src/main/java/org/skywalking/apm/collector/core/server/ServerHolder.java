@@ -4,11 +4,15 @@ import java.util.LinkedList;
 import java.util.List;
 import org.skywalking.apm.collector.core.framework.Handler;
 import org.skywalking.apm.collector.core.util.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author pengys5
  */
 public class ServerHolder {
+
+    private final Logger logger = LoggerFactory.getLogger(ServerHolder.class);
 
     private List<Server> servers;
 
@@ -33,7 +37,10 @@ public class ServerHolder {
 
     private void addHandler(List<Handler> handlers, Server server) {
         if (CollectionUtils.isNotEmpty(handlers)) {
-            handlers.forEach(handler -> server.addHandler(handler));
+            handlers.forEach(handler -> {
+                server.addHandler(handler);
+                logger.debug("add handler into server: {}, handler name: {}", server.hostPort(), handler.getClass().getName());
+            });
         }
     }
 

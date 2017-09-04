@@ -18,11 +18,10 @@ public class InstanceHealthService {
 
     private final Logger logger = LoggerFactory.getLogger(InstanceHealthService.class);
 
-    public JsonObject getInstances(long timestamp, int applicationId) {
+    public JsonObject getInstances(long timeBucket, int applicationId) {
         JsonObject response = new JsonObject();
 
-        long secondTimeBucket = TimeBucketUtils.INSTANCE.getSecondTimeBucket(timestamp);
-        long s5TimeBucket = TimeBucketUtils.INSTANCE.getFiveSecondTimeBucket(secondTimeBucket);
+        long s5TimeBucket = TimeBucketUtils.INSTANCE.getFiveSecondTimeBucket(timeBucket);
 
         IInstPerformanceDAO instPerformanceDAO = (IInstPerformanceDAO)DAOContainer.INSTANCE.get(IInstPerformanceDAO.class.getName());
         List<IInstPerformanceDAO.InstPerformance> performances = instPerformanceDAO.getMultiple(s5TimeBucket, applicationId);

@@ -28,9 +28,9 @@ public class SegmentPost {
         InstanceEsDAO instanceEsDAO = new InstanceEsDAO();
         instanceEsDAO.setClient(client);
 
-        InstanceDataDefine.Instance consumerInstance = new InstanceDataDefine.Instance("2", 2, "dubbox-consumer", now, 2, now, "");
+        InstanceDataDefine.Instance consumerInstance = new InstanceDataDefine.Instance("2", 2, "dubbox-consumer", now, 2, now, osInfo("consumer").toString());
         instanceEsDAO.save(consumerInstance);
-        InstanceDataDefine.Instance providerInstance = new InstanceDataDefine.Instance("3", 3, "dubbox-provider", now, 3, now, "");
+        InstanceDataDefine.Instance providerInstance = new InstanceDataDefine.Instance("3", 3, "dubbox-provider", now, 3, now, osInfo("provider").toString());
         instanceEsDAO.save(providerInstance);
 
         ApplicationEsDAO applicationEsDAO = new ApplicationEsDAO();
@@ -64,9 +64,12 @@ public class SegmentPost {
             modifyTime(provider);
             HttpClientTools.INSTANCE.post("http://localhost:12800/segments", provider.toString());
 
+            diff = 0;
             Thread.sleep(1000);
         }
     }
+
+    private static long diff = 0;
 
     private static void modifyTime(JsonElement jsonElement) {
         JsonArray segmentArray = jsonElement.getAsJsonArray();
@@ -76,10 +79,28 @@ public class SegmentPost {
             for (JsonElement span : spans) {
                 long startTime = span.getAsJsonObject().get("st").getAsLong();
                 long endTime = span.getAsJsonObject().get("et").getAsLong();
-                long currentTime = System.currentTimeMillis();
-                span.getAsJsonObject().addProperty("st", currentTime);
-                span.getAsJsonObject().addProperty("et", currentTime + (endTime - startTime));
+
+                if (diff == 0) {
+                    diff = System.currentTimeMillis() - startTime;
+                }
+
+                span.getAsJsonObject().addProperty("st", startTime + diff);
+                span.getAsJsonObject().addProperty("et", endTime + diff);
             }
         }
+    }
+
+    private static JsonObject osInfo(String hostName) {
+        JsonObject osInfoJson = new JsonObject();
+        osInfoJson.addProperty("osName", "Linux");
+        osInfoJson.addProperty("hostName", hostName);
+        osInfoJson.addProperty("processId", 1);
+
+        JsonArray ipv4Array = new JsonArray();
+        ipv4Array.add("123.123.123.123");
+        ipv4Array.add("124.124.124.124");
+        osInfoJson.add("ipv4s", ipv4Array);
+
+        return osInfoJson;
     }
 }
