@@ -24,4 +24,6 @@ public interface InstanceMethodsInterceptPoint {
      * @return represents a class name, the class instance must instanceof InstanceMethodsAroundInterceptor.
      */
     String getMethodsInterceptor();
+
+    boolean isOverrideArgs();
 }

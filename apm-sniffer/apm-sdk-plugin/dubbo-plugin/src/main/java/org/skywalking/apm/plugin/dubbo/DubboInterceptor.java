@@ -5,15 +5,17 @@ import com.alibaba.dubbo.rpc.Invocation;
 import com.alibaba.dubbo.rpc.Invoker;
 import com.alibaba.dubbo.rpc.Result;
 import com.alibaba.dubbo.rpc.RpcContext;
+import java.lang.reflect.Method;
 import org.skywalking.apm.agent.core.conf.Config;
 import org.skywalking.apm.agent.core.context.ContextCarrier;
 import org.skywalking.apm.agent.core.context.ContextManager;
 import org.skywalking.apm.agent.core.context.tag.Tags;
 import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
-import org.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceContext;
-import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodInvokeContext;
+import org.skywalking.apm.agent.core.context.trace.SpanLayer;
+import org.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.skywalking.apm.plugin.dubbox.BugFixActive;
 import org.skywalking.apm.plugin.dubbox.SWBaseBean;
 
@@ -29,8 +31,6 @@ import org.skywalking.apm.plugin.dubbox.SWBaseBean;
  */
 public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
 
-    public static final String DUBBO_COMPONENT = "Dubbo";
-
     /**
      * <h2>Consumer:</h2> The serialized trace context data will inject the first param that extend {@link SWBaseBean}
      * of dubbo service if the method {@link BugFixActive#active()} be called. or the serialized context data will
@@ -41,26 +41,21 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
      * {@link RpcContext#attachments}. current trace segment will ref if the serialize context data is not null.
      */
     @Override
-    public void beforeMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
-                             MethodInterceptResult result) {
-        Object[] arguments = interceptorContext.allArguments();
-        Invoker invoker = (Invoker) arguments[0];
-        Invocation invocation = (Invocation) arguments[1];
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
+        Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
+        Invoker invoker = (Invoker)allArguments[0];
+        Invocation invocation = (Invocation)allArguments[1];
         RpcContext rpcContext = RpcContext.getContext();
         boolean isConsumer = rpcContext.isConsumerSide();
         URL requestURL = invoker.getUrl();
 
-        AbstractSpan span = ContextManager.createSpan(generateOperationName(requestURL, invocation));
-        Tags.URL.set(span, generateRequestURL(requestURL, invocation));
-        Tags.COMPONENT.set(span, DUBBO_COMPONENT);
-        Tags.SPAN_LAYER.asRPCFramework(span);
-        span.setPeerHost(requestURL.getHost());
-        span.setPort(requestURL.getPort());
+        AbstractSpan span;
 
+        final String host = requestURL.getHost();
+        final int port = requestURL.getPort();
         if (isConsumer) {
-            Tags.SPAN_KIND.set(span, Tags.SPAN_KIND_CLIENT);
-            ContextCarrier contextCarrier = new ContextCarrier();
-            ContextManager.inject(contextCarrier);
+            final ContextCarrier contextCarrier = new ContextCarrier();
+            span = ContextManager.createExitSpan(generateOperationName(requestURL, invocation), contextCarrier, host + ":" + port);
             if (!BugFixActive.isActive()) {
                 //invocation.getAttachments().put("contextData", contextDataStr);
                 //@see https://github.com/alibaba/dubbo/blob/dubbo-2.5.3/dubbo-rpc/dubbo-rpc-api/src/main/java/com/alibaba/dubbo/rpc/RpcInvocation.java#L154-L161
@@ -69,7 +64,6 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
                 fix283SendNoAttachmentIssue(invocation, contextCarrier);
             }
         } else {
-            Tags.SPAN_KIND.set(span, Tags.SPAN_KIND_SERVER);
 
             ContextCarrier contextCarrier;
             if (!BugFixActive.isActive()) {
@@ -78,21 +72,18 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
                 contextCarrier = fix283RecvNoAttachmentIssue(invocation);
             }
 
-            if (contextCarrier != null) {
-                ContextManager.extract(contextCarrier);
-            }
+            span = ContextManager.createEntrySpan(generateOperationName(requestURL, invocation), contextCarrier);
         }
+
+        Tags.URL.set(span, generateRequestURL(requestURL, invocation));
+        span.setComponent(ComponentsDefine.DUBBO);
+        SpanLayer.asRPCFramework(span);
     }
 
-    /**
-     * Execute after {@link com.alibaba.dubbo.monitor.support.MonitorFilter#invoke(Invoker, Invocation)},
-     * when dubbo instrumentation is active. Check {@link Result#getException()} , if not NULL,
-     * log the exception and set tag error=true.
-     */
     @Override
-    public Object afterMethod(EnhancedClassInstanceContext context, InstanceMethodInvokeContext interceptorContext,
-                              Object ret) {
-        Result result = (Result) ret;
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
+        Class<?>[] argumentsTypes, Object ret) throws Throwable {
+        Result result = (Result)ret;
         if (result != null && result.getException() != null) {
             dealException(result.getException());
         }
@@ -102,8 +93,8 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
     }
 
     @Override
-    public void handleMethodException(Throwable t, EnhancedClassInstanceContext context,
-                                      InstanceMethodInvokeContext interceptorContext) {
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+        Class<?>[] argumentsTypes, Throwable t) {
         dealException(t);
     }
 
@@ -112,7 +103,7 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
      */
     private void dealException(Throwable throwable) {
         AbstractSpan span = ContextManager.activeSpan();
-        Tags.ERROR.set(span, true);
+        span.errorOccurred();
         span.log(throwable);
     }
 
@@ -161,7 +152,7 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
     private void fix283SendNoAttachmentIssue(Invocation invocation, ContextCarrier contextCarrier) {
         for (Object parameter : invocation.getArguments()) {
             if (parameter instanceof SWBaseBean) {
-                ((SWBaseBean) parameter).setTraceContext(contextCarrier.serialize());
+                ((SWBaseBean)parameter).setTraceContext(contextCarrier.serialize());
                 return;
             }
         }
@@ -175,7 +166,7 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
     private ContextCarrier fix283RecvNoAttachmentIssue(Invocation invocation) {
         for (Object parameter : invocation.getArguments()) {
             if (parameter instanceof SWBaseBean) {
-                return new ContextCarrier().deserialize(((SWBaseBean) parameter).getTraceContext());
+                return new ContextCarrier().deserialize(((SWBaseBean)parameter).getTraceContext());
             }
         }
 

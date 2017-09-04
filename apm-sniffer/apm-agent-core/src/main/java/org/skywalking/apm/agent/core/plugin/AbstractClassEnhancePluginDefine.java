@@ -2,6 +2,7 @@ package org.skywalking.apm.agent.core.plugin;
 
 import net.bytebuddy.dynamic.DynamicType;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassEnhancePluginDefine;
+import org.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.skywalking.apm.util.StringUtil;
 import org.skywalking.apm.logging.ILog;
 import org.skywalking.apm.logging.LogManager;
@@ -52,7 +53,7 @@ public abstract class AbstractClassEnhancePluginDefine {
         /**
          * find origin class source code for interceptor
          */
-        DynamicType.Builder<?> newClassBuilder = this.enhance(transformClassName, builder);
+        DynamicType.Builder<?> newClassBuilder = this.enhance(transformClassName, builder, classLoader);
 
         logger.debug("enhance class {} by {} completely.", transformClassName, interceptorDefineClassName);
 
@@ -60,14 +61,14 @@ public abstract class AbstractClassEnhancePluginDefine {
     }
 
     protected abstract DynamicType.Builder<?> enhance(String enhanceOriginClassName,
-        DynamicType.Builder<?> newClassBuilder) throws PluginException;
+        DynamicType.Builder<?> newClassBuilder, ClassLoader classLoader) throws PluginException;
 
     /**
-     * Define the classname of target class.
+     * Define the {@link ClassMatch} for filtering class.
      *
-     * @return class full name.
+     * @return {@link ClassMatch}
      */
-    protected abstract String enhanceClassName();
+    protected abstract ClassMatch enhanceClass();
 
     /**
      * Witness classname list. Why need witness classname? Let's see like this: A library existed two released versions

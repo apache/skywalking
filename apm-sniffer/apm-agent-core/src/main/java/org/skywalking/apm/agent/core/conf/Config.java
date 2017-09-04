@@ -16,24 +16,36 @@ public class Config {
     public static class Agent {
         /**
          * Application code is showed in sky-walking-ui.
-         * Suggestion: set a unique name for each application, one application's nodes share the same code.
+         * Suggestion: set an unique name for each application, one application's nodes share the same code.
          */
         public static String APPLICATION_CODE = "";
 
         /**
          * Negative or zero means off, by default.
-         * {@link #SAMPLE_N_PER_10_SECS} means sampling N {@link TraceSegment} in 10 seconds tops.
+         * {@link #SAMPLE_N_PER_3_SECS} means sampling N {@link TraceSegment} in 10 seconds tops.
          */
-        public static int SAMPLE_N_PER_10_SECS = -1;
+        public static int SAMPLE_N_PER_3_SECS = -1;
 
         /**
          * If the operation name of the first span is included in this set,
          * this segment should be ignored.
          */
-        public static String IGNORE_SUFFIX = ".jpg,.jpeg,.js,.css,.png,.bmp,.gif,.ico,.mp3,.mp4,.html";
+        public static String IGNORE_SUFFIX = ".jpg,.jpeg,.js,.css,.png,.bmp,.gif,.ico,.mp3,.mp4,.html,.svg";
     }
 
     public static class Collector {
+        /**
+         * grpc channel status check interval
+         */
+        public static long GRPC_CHANNEL_CHECK_INTERVAL = 30;
+        /**
+         * application and service registry check interval
+         */
+        public static long APP_AND_SERVICE_REGISTER_CHECK_INTERVAL = 10;
+        /**
+         * discovery rest check interval
+         */
+        public static long DISCOVERY_CHECK_INTERVAL = 60;
         /**
          * Collector REST-Service address.
          * e.g.
@@ -43,23 +55,31 @@ public class Config {
         public static String SERVERS = "";
 
         /**
-         * Collector receive segments REST-Service name.
+         * Collector service discovery REST service name
          */
-        public static String SERVICE_NAME = "/segments";
+        public static String DISCOVERY_SERVICE_NAME = "/grpc/addresses";
+    }
 
+    public static class Jvm {
         /**
-         * The max size to send traces per rest-service call.
+         * The buffer size of collected JVM info.
          */
-        public static int BATCH_SIZE = 50;
+        public static int BUFFER_SIZE = 60 * 10;
     }
 
     public static class Buffer {
+        public static int CHANNEL_SIZE = 5;
+
+        public static int BUFFER_SIZE = 300;
+    }
+
+    public static class Dictionary {
         /**
-         * The in-memory buffer size. Based on Disruptor, this value must be 2^n.
-         *
-         * @see {https://github.com/LMAX-Exchange/disruptor}
+         * The buffer size of application codes and peer
          */
-        public static int SIZE = 512;
+        public static int APPLICATION_CODE_BUFFER_SIZE = 10 * 10000;
+
+        public static int OPERATION_NAME_BUFFER_SIZE = 1000 * 10000;
     }
 
     public static class Logging {

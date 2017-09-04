@@ -1,5 +1,7 @@
 package org.skywalking.apm.agent.core.plugin.interceptor.enhance;
 
+import java.lang.reflect.Method;
+
 /**
  * The static method's interceptor interface.
  * Any plugin, which wants to intercept static methods, must implement this interface.
@@ -10,25 +12,28 @@ public interface StaticMethodsAroundInterceptor {
     /**
      * called before target method invocation.
      *
-     * @param interceptorContext method context, includes class name, method name, etc.
-     * @param result             change this result, if you want to truncate the method.
+     * @param method
+     * @param result change this result, if you want to truncate the method.
      */
-    void beforeMethod(StaticMethodInvokeContext interceptorContext, MethodInterceptResult result);
+    void beforeMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
+        MethodInterceptResult result);
 
     /**
      * called after target method invocation. Even method's invocation triggers an exception.
      *
-     * @param interceptorContext method context, includes class name, method name, etc.
-     * @param ret                the method's original return value.
+     *
+     * @param method
+     * @param ret the method's original return value.
      * @return the method's actual return value.
      */
-    Object afterMethod(StaticMethodInvokeContext interceptorContext, Object ret);
+    Object afterMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes, Object ret);
 
     /**
      * called when occur exception.
      *
-     * @param t                  the exception occur.
-     * @param interceptorContext method context, includes class name, method name, etc.
+     * @param method
+     * @param t the exception occur.
      */
-    void handleMethodException(Throwable t, MethodInvokeContext interceptorContext);
+    void handleMethodException(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
+        Throwable t);
 }

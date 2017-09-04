@@ -1,5 +1,6 @@
 package org.skywalking.apm.plugin.jdbc.connectionurl.parser;
 
+import org.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.skywalking.apm.plugin.jdbc.ConnectionInfo;
 
 /**
@@ -43,9 +44,9 @@ public class OracleURLParser extends AbstractURLParser {
         String[] hostSegment = splitDatabaseAddress(host);
         String databaseName = url.substring(hostRangeIndex[1] + 1);
         if (hostSegment.length == 1) {
-            return new ConnectionInfo(DB_TYPE, host, DEFAULT_PORT, databaseName);
+            return new ConnectionInfo(ComponentsDefine.ORACLE, DB_TYPE, host, DEFAULT_PORT, databaseName);
         } else {
-            return new ConnectionInfo(DB_TYPE, hostSegment[0], Integer.valueOf(hostSegment[1]), databaseName);
+            return new ConnectionInfo(ComponentsDefine.ORACLE, DB_TYPE, hostSegment[0], Integer.valueOf(hostSegment[1]), databaseName);
         }
     }
 

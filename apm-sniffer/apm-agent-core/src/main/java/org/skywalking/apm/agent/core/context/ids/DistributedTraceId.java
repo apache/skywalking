@@ -1,11 +1,13 @@
 package org.skywalking.apm.agent.core.context.ids;
 
+import org.skywalking.apm.network.proto.UniqueId;
+
 /**
  * The <code>DistributedTraceId</code> presents a distributed call chain.
  * <p>
  * This call chain has an unique (service) entrance,
  * <p>
- * such as: Service : http://www.skywalking.com/cust/query, all the services, called behind this service, rest services,
+ * such as: Service : http://www.skywalking.com/cust/query, all the remote, called behind this service, rest remote,
  * db executions, are using the same <code>DistributedTraceId</code> even in different JVM.
  * <p>
  * The <code>DistributedTraceId</code> contains only one string, and can NOT be reset, creating a new instance is the
@@ -14,14 +16,27 @@ package org.skywalking.apm.agent.core.context.ids;
  * @author wusheng
  */
 public abstract class DistributedTraceId {
-    private String id;
+    private ID id;
 
-    public DistributedTraceId(String id) {
+    public DistributedTraceId(ID id) {
         this.id = id;
     }
 
-    public String get() {
-        return id;
+    public DistributedTraceId(String id) {
+        this.id = new ID(id);
+    }
+
+    public String toBase64() {
+        return id.toBase64();
+    }
+
+    @Override
+    public String toString() {
+        return id.toString();
+    }
+
+    public UniqueId toUniqueId() {
+        return id.transform();
     }
 
     /**
@@ -38,7 +53,7 @@ public abstract class DistributedTraceId {
         if (o == null || getClass() != o.getClass())
             return false;
 
-        DistributedTraceId id1 = (DistributedTraceId) o;
+        DistributedTraceId id1 = (DistributedTraceId)o;
 
         return id != null ? id.equals(id1.id) : id1.id == null;
     }

@@ -80,6 +80,26 @@
             <artifactId>apm-feign-default-http-9.x-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>apm-resttemplate-4.3.x-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>apm-spring-concurrent-util-4.x-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>apm-springmvc-annotation-4.x-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>apm-spring-cloud-feign-1.x-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- activation -->
         <dependency>
@@ -108,6 +128,12 @@
         <dependency>
             <groupId>org.skywalking</groupId>
             <artifactId>apm-toolkit-opentracing-activation</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>apm-toolkit-trace-activation</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -149,6 +175,10 @@
                                     <exclude>commons-logging:*</exclude>
                                     <exclude>commons-codec:*</exclude>
                                     <exclude>*:gson</exclude>
+                                    <exclude>io.grpc:*</exclude>
+                                    <exclude>io.netty:*</exclude>
+                                    <exclude>com.google.*:*</exclude>
+                                    <exclude>com.google.guava:guava</exclude>
                                 </excludes>
                             </artifactSet>
                             <relocations>

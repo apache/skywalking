@@ -4,43 +4,75 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import net.bytebuddy.description.NamedElement;
+import net.bytebuddy.description.type.TypeDescription;
+import net.bytebuddy.matcher.ElementMatcher;
+import org.skywalking.apm.agent.core.plugin.bytebuddy.AbstractJunction;
+import org.skywalking.apm.agent.core.plugin.match.ClassMatch;
+import org.skywalking.apm.agent.core.plugin.match.IndirectMatch;
+import org.skywalking.apm.agent.core.plugin.match.NameMatch;
+
+import static net.bytebuddy.matcher.ElementMatchers.isInterface;
+import static net.bytebuddy.matcher.ElementMatchers.not;
 
 /**
  * The <code>PluginFinder</code> represents a finder , which assist to find the one
- * from the given {@link AbstractClassEnhancePluginDefine} list, by name match.
+ * from the given {@link AbstractClassEnhancePluginDefine} list.
  *
  * @author wusheng
  */
 public class PluginFinder {
-    private final Map<String, LinkedList<AbstractClassEnhancePluginDefine>> pluginDefineMap = new HashMap<String, LinkedList<AbstractClassEnhancePluginDefine>>();
+    private final Map<String, AbstractClassEnhancePluginDefine> nameMatchDefine = new HashMap<String, AbstractClassEnhancePluginDefine>();
+    private final List<AbstractClassEnhancePluginDefine> signatureMatchDefine = new LinkedList<AbstractClassEnhancePluginDefine>();
 
     public PluginFinder(List<AbstractClassEnhancePluginDefine> plugins) {
         for (AbstractClassEnhancePluginDefine plugin : plugins) {
-            String enhanceClassName = plugin.enhanceClassName();
+            ClassMatch match = plugin.enhanceClass();
 
-            if (enhanceClassName == null) {
+            if (match == null) {
                 continue;
             }
 
-            LinkedList<AbstractClassEnhancePluginDefine> pluginDefinesWithSameTarget = pluginDefineMap.get(enhanceClassName);
-            if (pluginDefinesWithSameTarget == null) {
-                pluginDefinesWithSameTarget = new LinkedList<AbstractClassEnhancePluginDefine>();
-                pluginDefineMap.put(enhanceClassName, pluginDefinesWithSameTarget);
+            if (match instanceof NameMatch) {
+                NameMatch nameMatch = (NameMatch)match;
+                nameMatchDefine.put(nameMatch.getClassName(), plugin);
+            } else {
+                signatureMatchDefine.add(plugin);
             }
-
-            pluginDefinesWithSameTarget.add(plugin);
         }
     }
 
-    public List<AbstractClassEnhancePluginDefine> find(String enhanceClassName) {
-        if (pluginDefineMap.containsKey(enhanceClassName)) {
-            return pluginDefineMap.get(enhanceClassName);
+    public AbstractClassEnhancePluginDefine find(TypeDescription typeDescription,
+        ClassLoader classLoader) {
+        String typeName = typeDescription.getTypeName();
+        if (nameMatchDefine.containsKey(typeName)) {
+            return nameMatchDefine.get(typeName);
         }
 
-        throw new PluginException("Can not find plugin:" + enhanceClassName);
+        for (AbstractClassEnhancePluginDefine pluginDefine : signatureMatchDefine) {
+            IndirectMatch match = (IndirectMatch)pluginDefine.enhanceClass();
+            if (match.isMatch(typeDescription)) {
+                return pluginDefine;
+            }
+        }
+
+        return null;
     }
 
-    public boolean exist(String enhanceClassName) {
-        return pluginDefineMap.containsKey(enhanceClassName);
+    public ElementMatcher<? super TypeDescription> buildMatch() {
+        ElementMatcher.Junction judge = new AbstractJunction<NamedElement>() {
+            @Override
+            public boolean matches(NamedElement target) {
+                return nameMatchDefine.containsKey(target.getActualName());
+            }
+        };
+        judge = judge.and(not(isInterface()));
+        for (AbstractClassEnhancePluginDefine define : signatureMatchDefine) {
+            ClassMatch match = define.enhanceClass();
+            if (match instanceof IndirectMatch) {
+                judge = judge.or(((IndirectMatch)match).buildJunction());
+            }
+        }
+        return judge;
     }
 }

@@ -6,9 +6,7 @@ package org.skywalking.apm.agent.core.context.ids;
  * @author wusheng
  */
 public class NewDistributedTraceId extends DistributedTraceId {
-    private static final String ID_TYPE = "Trace";
-
     public NewDistributedTraceId() {
-        super(GlobalIdGenerator.generate(ID_TYPE));
+        super(GlobalIdGenerator.generate());
     }
 }

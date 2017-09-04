@@ -5,13 +5,15 @@ import net.bytebuddy.matcher.ElementMatcher;
 import org.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
+import org.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.skywalking.apm.plugin.motan.MotanProviderInterceptor;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
+import static org.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * {@link MotanConsumerInstrumentation} presents that skywalking intercept
- * {@link com.weibo.api.motan.cluster.support.ClusterSpi#call(com.weibo.api.motan.rpc.Request)} by using {@link MotanProviderInterceptor}.
+ * {@link MotanConsumerInstrumentation} presents that skywalking intercept {@link com.weibo.api.motan.cluster.support.ClusterSpi#call(com.weibo.api.motan.rpc.Request)}
+ * by using {@link MotanProviderInterceptor}.
  *
  * @author zhangxin
  */
@@ -22,8 +24,8 @@ public class MotanConsumerInstrumentation extends ClassInstanceMethodsEnhancePlu
     private static final String INVOKE_INTERCEPT_CLASS = "org.skywalking.apm.plugin.motan.MotanProviderInterceptor";
 
     @Override
-    protected String enhanceClassName() {
-        return ENHANCE_CLASS;
+    protected ClassMatch enhanceClass() {
+        return byName(ENHANCE_CLASS);
     }
 
     @Override
@@ -43,6 +45,10 @@ public class MotanConsumerInstrumentation extends ClassInstanceMethodsEnhancePlu
                 @Override
                 public String getMethodsInterceptor() {
                     return INVOKE_INTERCEPT_CLASS;
+                }
+
+                @Override public boolean isOverrideArgs() {
+                    return false;
                 }
             }
         };

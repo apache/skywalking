@@ -13,32 +13,24 @@ Sky Walking | [中文](https://github.com/wu-sheng/sky-walking/wiki/sky-walking-
 [![OpenTracing-1.0 Badge](https://img.shields.io/badge/OpenTracing--1.0-enabled-blue.svg)](http://opentracing.io)
 
 
-* Auto-instrumentation mechanism, **no need to CHANGE any application source code**. [Supported middlewares, frameworks and libraries](https://github.com/wu-sheng/sky-walking/wiki/3.0-supported-list).
+* Auto-instrumentation mechanism, **no need to CHANGE any application source code**. [Supported middlewares, frameworks and libraries](https://github.com/wu-sheng/sky-walking/wiki/3.1-supported-list).
 * Explicit-instrumentation, as an [OpenTracing supported tracer](http://opentracing.io/documentation/pages/supported-tracers).
 * Pure Java server implementation, with RESTful Web service.
 * High performance streaming analysis.
 * The UI released on [wu-sheng/sky-walking-ui](https://github.com/wu-sheng/sky-walking-ui)
 
-___
-
-<a href="https://github.com/wu-sheng/sky-walking">
-<img src="https://sky-walking.github.io/page-resources/3.0/oneapm-award.png" alt="OneAPM Open Source Achievement Award" height="110px" align="left" />
-</a>
-
-In October 2016, Sky Walking won `OneAPM Open Source Achievement Award`. The award appreciates sky walking for its "*contribution to popularization of APM technology*". <br/><br/><br/> 
-Thanks all users of sky walking project.
-
-___
 
 # Contributors
 _In chronological order_
-* 吴晟 [**Project Maintainer**] [@wu-sheng](https://github.com/wu-sheng)  Principle Engineer, 2012 Lab, Huawei. 
-* 张鑫 [**Project Maintainer**] [@ascrutae](https://github.com/ascrutae)   
+* 吴晟 [**PMC Member**] [@wu-sheng](https://github.com/wu-sheng)  Principle Engineer, 2012 Lab, Huawei. 
+* 张鑫 [**PMC Member**] [@ascrutae](https://github.com/ascrutae)   
 * 谭真 [@mircoteam](https://github.com/mircoteam)  Advanced R&D Engineers, Creative & Interactive Group.
 * 徐妍 [@TastySummer](https://github.com/TastySummer)
-* 彭勇升 [**Project Maintainer**] [@pengys5](https://github.com/pengys5)   Technical Specialist, OneAPM.
+* 彭勇升 [**PMC Member**] [@pengys5](https://github.com/pengys5) 
 * 戴文
 * 柏杨 [@bai-yang](https://github.com/bai-yang)  Senior Engineer, Alibaba Group.
+* 陈凤 [@trey03](https://github.com/trey03)
+* [More contributors](https://github.com/wu-sheng/sky-walking/graphs/contributors)
 
 This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to wu.sheng@foxmail.com.
 

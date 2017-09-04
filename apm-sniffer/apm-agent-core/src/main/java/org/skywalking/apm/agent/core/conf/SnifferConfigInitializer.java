@@ -83,7 +83,7 @@ public class SnifferConfigInitializer {
     /**
      * Load the config file by the path, which is provided by system property, usually with a "-DconfigPath=" arg.
      *
-     * @return the config file {@link InputStream}, or null if not exist.
+     * @return the config file {@link InputStream}, or null if not needEnhance.
      */
     private static InputStream loadConfigBySystemProperty() {
         String configPath = System.getProperty("configPath");
@@ -107,7 +107,7 @@ public class SnifferConfigInitializer {
     /**
      * Load the config file, where the agent jar is.
      *
-     * @return the config file {@link InputStream}, or null if not exist.
+     * @return the config file {@link InputStream}, or null if not needEnhance.
      */
     private static InputStream loadConfigFromAgentFolder() {
         String agentBasePath = initAgentBasePath();
@@ -139,6 +139,7 @@ public class SnifferConfigInitializer {
         URL resource = SnifferConfigInitializer.class.getClassLoader().getSystemClassLoader().getResource(classResourcePath);
         if (resource != null) {
             String urlString = resource.toString();
+            logger.debug(urlString);
             urlString = urlString.substring(urlString.indexOf("file:"), urlString.indexOf('!'));
             File agentJarFile = null;
             try {

@@ -21,7 +21,9 @@ public interface StaticMethodsInterceptPoint {
     ElementMatcher<MethodDescription> getMethodsMatcher();
 
     /**
-     * @return represents a class name, the class instance must instanceof {@link org.skywalking.apm.plugin.interceptor.enhance.StaticMethodsAroundInterceptor}.
+     * @return represents a class name, the class instance must instanceof StaticMethodsAroundInterceptor.
      */
     String getMethodsInterceptor();
+
+    boolean isOverrideArgs();
 }

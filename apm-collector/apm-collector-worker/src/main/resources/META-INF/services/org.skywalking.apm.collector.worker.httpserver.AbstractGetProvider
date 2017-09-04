@@ -1,5 +1,0 @@
-org.skywalking.apm.collector.worker.noderef.NodeRefResSumGetGroupWithTimeSlice$Factory
-org.skywalking.apm.collector.worker.segment.SegmentTopGet$Factory
-org.skywalking.apm.collector.worker.globaltrace.GlobalTraceGetWithGlobalId$Factory
-org.skywalking.apm.collector.worker.span.SpanGetWithId$Factory
-org.skywalking.apm.collector.worker.tracedag.TraceDagGetWithTimeSlice$Factory

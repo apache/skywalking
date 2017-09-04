@@ -15,6 +15,7 @@
         <module>apm-toolkit-logback-1.x-activation</module>
         <module>apm-toolkit-trace-context-activation</module>
         <module>apm-toolkit-opentracing-activation</module>
+        <module>apm-toolkit-trace-activation</module>
     </modules>
 
     <artifactId>apm-toolkit-activation</artifactId>
@@ -23,6 +24,11 @@
         <dependency>
             <groupId>org.skywalking</groupId>
             <artifactId>apm-agent-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>apm-test-tools</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
