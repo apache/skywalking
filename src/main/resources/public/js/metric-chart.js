@@ -13,6 +13,21 @@ define(['chartJs', 'moment'], function (Chart, moment) {
         this.chartObject = new Chart(this.chartContext, this.chartConfig(generateChartLabels(startTime, 300)));
     };
 
+    MetricChart.prototype.toUnixTimestamp = function (startTime) {
+        return parseInt(moment(startTime, "YYYYMMDDHHmmss").format("x"));
+    };
+
+    MetricChart.prototype.updateXAxes = function () {
+        this.chartObject.data.labels.shift();
+        this.chartObject.data.labels.push(moment(this.chartStartTime, "YYYYMMDDHHmmss").add(301, "seconds").format("HH:mm:ss"));
+    }
+
+    MetricChart.prototype.updateChartStartTime = function(index){
+        if (index > 299){
+            this.chartStartTime = moment(this.chartStartTime, "YYYYMMDDHHmmss").add(1, "seconds").format("YYYYMMDDHHmmss");
+        }
+    }
+
     function generateChartLabels(startTime, maxSize) {
         var labels = [];
         for (var i = 0; i < maxSize; i++) {

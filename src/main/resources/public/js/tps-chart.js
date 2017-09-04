@@ -101,31 +101,32 @@ define(['chartJs', 'moment', 'metric-chart'], function (Chart, moment, metricCha
             };
         };
         this.fillData = function (data, startTime, endTime) {
-            this.fillResponseTimeData(data.respTime, startTime, endTime);
-            this.fillTpsData(data.tps);
+            var beginIndexOfFillData = (this.toUnixTimestamp(startTime) - this.toUnixTimestamp(this.chartStartTime)) / 1000;
+            var endIndexOfFillData = (this.toUnixTimestamp(endTime) - this.toUnixTimestamp(this.chartStartTime)) / 1000;
+            console.log("beginIndexOfFillData : " + beginIndexOfFillData + " endIndexOfFillData : " + endIndexOfFillData);
+            for (var index = beginIndexOfFillData, dataIndex = 0; index <= endIndexOfFillData ; index++, dataIndex++) {
+                if (index > 299) {
+                    console.log("update chart x axes");
+                    this.updateXAxes();
+                    this.chartObject.data.datasets[0].data.shift();
+                    this.chartObject.data.datasets[1].data.shift();
+                }
+                this.fillResponseTimeData(data.respTime[dataIndex]);
+                this.fillTpsData(data.tps[dataIndex]);
+                this.updateChartStartTime(index);
+            }
+            this.chartObject.update();
         };
         this.fillResponseTimeData = function (data) {
-            for (var i = 0; i < data.length; i++) {
-                this.chartObject.data.datasets[1].data.push(data[i]);
-                this.chartObject.data.datasets[1].data.shift();
-            }
-            this.chartObject.update();
+            this.chartObject.data.datasets[1].data.push(data);
         };
         this.fillTpsData = function (data) {
-            for (var i = 0; i < data.length; i++) {
-                this.chartObject.data.datasets[0].data.push(data[i]);
-                this.chartObject.data.datasets[0].data.shift();
-            }
-            this.chartObject.update();
+            this.chartObject.data.datasets[0].data.push(data);
         };
     }
 
     function createChart(chartContext, startTime) {
         var chart = metricChart.createMetricChart(TPSMetricChart, chartContext, startTime);
-        for (var i = 0; i < 300; i++) {
-            chart.chartObject.data.datasets[0].data.push(0);
-            chart.chartObject.data.datasets[1].data.push(0);
-        }
         return chart;
     }
 
