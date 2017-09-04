@@ -17,7 +17,7 @@
         <log4j.version>2.6.2</log4j.version>
         <powermock.version>1.6.4</powermock.version>
         <docker.plugin.version>0.4.13</docker.plugin.version>
-        <docker.image.name>skywalking/${artifactId}</docker.image.name>
+        <docker.image.name>skywalking/skywalking-ui</docker.image.name>
         <docker.image.version>${version}</docker.image.version>
     </properties>
 
