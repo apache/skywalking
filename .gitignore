@@ -7,3 +7,4 @@ target/
 .settings/
 .DS_Store
 *~
+packages/
