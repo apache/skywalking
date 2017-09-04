@@ -58,7 +58,7 @@ public class ID {
     }
 
     private String long2Base64(long partN) {
-        if (partN < 0) {
+        if (partN == 0) {
             throw new IllegalArgumentException("negative value.");
         }
         if (partN < 32768) {
