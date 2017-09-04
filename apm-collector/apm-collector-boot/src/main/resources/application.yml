@@ -26,5 +26,3 @@ storage:
     cluster_name: CollectorDBCluster
     cluster_transport_sniffer: true
     cluster_nodes: localhost:9300
-
-
