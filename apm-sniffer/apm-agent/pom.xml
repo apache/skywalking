@@ -121,12 +121,6 @@
 
         <dependency>
             <groupId>org.skywalking</groupId>
-            <artifactId>apm-toolkit-trace-context-activation</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.skywalking</groupId>
             <artifactId>apm-toolkit-opentracing-activation</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -152,6 +146,7 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
+                            <outputDirectory>${project.basedir}/../../packages</outputDirectory>
                             <shadedArtifactAttached>false</shadedArtifactAttached>
                             <createDependencyReducedPom>true</createDependencyReducedPom>
                             <createSourcesJar>true</createSourcesJar>

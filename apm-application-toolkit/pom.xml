@@ -17,7 +17,6 @@
         <module>apm-toolkit-log4j-1.x</module>
         <module>apm-toolkit-log4j-2.x</module>
         <module>apm-toolkit-logback-1.x</module>
-        <module>apm-toolkit-trace-context</module>
         <module>apm-toolkit-opentracing</module>
         <module>apm-toolkit-trace</module>
     </modules>
