@@ -39,6 +39,10 @@ _In chronological order_
 
 This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to wu.sheng@foxmail.com.
 
+# Architecture
+* Architecture graph for 3.2+
+<img src="https://sky-walking.github.io/page-resources/3.2/architecture/3.2-architecture.jpg"/>
+
 # Screenshots
 - Topological graph of application clusters based on Spring Cloud.
 <img src="https://sky-walking.github.io/page-resources/3.1/topological_graph.png?forceUpdate=0"/>
