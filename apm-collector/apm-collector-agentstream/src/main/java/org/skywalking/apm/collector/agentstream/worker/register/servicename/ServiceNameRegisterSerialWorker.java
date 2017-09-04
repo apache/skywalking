@@ -2,6 +2,7 @@ package org.skywalking.apm.collector.agentstream.worker.register.servicename;
 
 import org.skywalking.apm.collector.agentstream.worker.register.IdAutoIncrement;
 import org.skywalking.apm.collector.agentstream.worker.register.servicename.dao.IServiceNameDAO;
+import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.storage.dao.DAOContainer;
 import org.skywalking.apm.collector.storage.define.DataDefine;
 import org.skywalking.apm.collector.storage.define.register.ServiceNameDataDefine;
@@ -42,8 +43,11 @@ public class ServiceNameRegisterSerialWorker extends AbstractLocalAsyncWorker {
             if (serviceId == 0) {
                 int min = dao.getMinServiceId();
                 if (min == 0) {
-                    serviceName.setServiceId(1);
-                    serviceName.setId("1");
+                    ServiceNameDataDefine.ServiceName noneServiceName = new ServiceNameDataDefine.ServiceName("1", Const.NONE_SERVICE_Name, 0, Const.NONE_SERVICE_ID);
+                    dao.save(noneServiceName);
+
+                    serviceName.setServiceId(-1);
+                    serviceName.setId("-1");
                 } else {
                     int max = dao.getMaxServiceId();
                     serviceId = IdAutoIncrement.INSTANCE.increment(min, max);

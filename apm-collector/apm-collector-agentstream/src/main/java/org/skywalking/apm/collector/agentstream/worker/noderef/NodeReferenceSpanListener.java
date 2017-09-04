@@ -27,9 +27,9 @@ public class NodeReferenceSpanListener implements EntrySpanListener, ExitSpanLis
 
     private final Logger logger = LoggerFactory.getLogger(NodeReferenceSpanListener.class);
 
-    private List<NodeReferenceDataDefine.NodeReferenceSum> nodeExitReferences = new ArrayList<>();
-    private List<NodeReferenceDataDefine.NodeReferenceSum> nodeEntryReferences = new ArrayList<>();
-    private List<NodeReferenceDataDefine.NodeReferenceSum> nodeReferences = new ArrayList<>();
+    private List<NodeReferenceDataDefine.NodeReference> nodeExitReferences = new ArrayList<>();
+    private List<NodeReferenceDataDefine.NodeReference> nodeEntryReferences = new ArrayList<>();
+    private List<NodeReferenceDataDefine.NodeReference> nodeReferences = new ArrayList<>();
     private long timeBucket;
     private boolean hasReference = false;
     private long startTime;
@@ -38,8 +38,8 @@ public class NodeReferenceSpanListener implements EntrySpanListener, ExitSpanLis
 
     @Override
     public void parseExit(SpanObject spanObject, int applicationId, int applicationInstanceId, String segmentId) {
-        NodeReferenceDataDefine.NodeReferenceSum referenceSum = new NodeReferenceDataDefine.NodeReferenceSum();
-        referenceSum.setApplicationId(applicationId);
+        NodeReferenceDataDefine.NodeReference referenceSum = new NodeReferenceDataDefine.NodeReference();
+        referenceSum.setFrontApplicationId(applicationId);
         referenceSum.setBehindApplicationId(spanObject.getPeerId());
 
         String id = String.valueOf(applicationId);
@@ -56,8 +56,8 @@ public class NodeReferenceSpanListener implements EntrySpanListener, ExitSpanLis
 
     @Override
     public void parseEntry(SpanObject spanObject, int applicationId, int applicationInstanceId, String segmentId) {
-        NodeReferenceDataDefine.NodeReferenceSum referenceSum = new NodeReferenceDataDefine.NodeReferenceSum();
-        referenceSum.setApplicationId(Const.USER_ID);
+        NodeReferenceDataDefine.NodeReference referenceSum = new NodeReferenceDataDefine.NodeReference();
+        referenceSum.setFrontApplicationId(Const.USER_ID);
         referenceSum.setBehindApplicationId(applicationId);
         referenceSum.setBehindPeer(Const.EMPTY_STRING);
 
@@ -66,7 +66,7 @@ public class NodeReferenceSpanListener implements EntrySpanListener, ExitSpanLis
         nodeEntryReferences.add(buildNodeRefSum(referenceSum, spanObject.getStartTime(), spanObject.getEndTime(), spanObject.getIsError()));
     }
 
-    private NodeReferenceDataDefine.NodeReferenceSum buildNodeRefSum(NodeReferenceDataDefine.NodeReferenceSum referenceSum,
+    private NodeReferenceDataDefine.NodeReference buildNodeRefSum(NodeReferenceDataDefine.NodeReference referenceSum,
         long startTime, long endTime, boolean isError) {
         long cost = endTime - startTime;
         if (cost <= 1000 && !isError) {
@@ -96,8 +96,8 @@ public class NodeReferenceSpanListener implements EntrySpanListener, ExitSpanLis
         String segmentId) {
         int parentApplicationId = InstanceCache.get(reference.getParentApplicationInstanceId());
 
-        NodeReferenceDataDefine.NodeReferenceSum referenceSum = new NodeReferenceDataDefine.NodeReferenceSum();
-        referenceSum.setApplicationId(parentApplicationId);
+        NodeReferenceDataDefine.NodeReference referenceSum = new NodeReferenceDataDefine.NodeReference();
+        referenceSum.setFrontApplicationId(parentApplicationId);
         referenceSum.setBehindApplicationId(applicationId);
         referenceSum.setBehindPeer(Const.EMPTY_STRING);
 
@@ -119,7 +119,7 @@ public class NodeReferenceSpanListener implements EntrySpanListener, ExitSpanLis
             });
         }
 
-        for (NodeReferenceDataDefine.NodeReferenceSum referenceSum : nodeExitReferences) {
+        for (NodeReferenceDataDefine.NodeReference referenceSum : nodeExitReferences) {
             referenceSum.setId(timeBucket + Const.ID_SPLIT + referenceSum.getId());
             referenceSum.setTimeBucket(timeBucket);
 

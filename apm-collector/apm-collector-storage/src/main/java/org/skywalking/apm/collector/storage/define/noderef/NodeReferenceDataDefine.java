@@ -44,29 +44,29 @@ public class NodeReferenceDataDefine extends DataDefine {
         int summary = remoteData.getDataIntegers(6);
         int error = remoteData.getDataIntegers(7);
         long timeBucket = remoteData.getDataLongs(0);
-        return new NodeReferenceSum(id, applicationId, behindApplicationId, behindPeer, s1LTE, s3LTE, s5LTE, s5GT, summary, error, timeBucket);
+        return new NodeReference(id, applicationId, behindApplicationId, behindPeer, s1LTE, s3LTE, s5LTE, s5GT, summary, error, timeBucket);
     }
 
     @Override public RemoteData serialize(Object object) {
-        NodeReferenceSum nodeReferenceSum = (NodeReferenceSum)object;
+        NodeReference nodeReference = (NodeReference)object;
         RemoteData.Builder builder = RemoteData.newBuilder();
-        builder.addDataStrings(nodeReferenceSum.getId());
-        builder.addDataIntegers(nodeReferenceSum.getApplicationId());
-        builder.addDataIntegers(nodeReferenceSum.getBehindApplicationId());
-        builder.addDataStrings(nodeReferenceSum.getBehindPeer());
-        builder.addDataIntegers(nodeReferenceSum.getS1LTE());
-        builder.addDataIntegers(nodeReferenceSum.getS3LTE());
-        builder.addDataIntegers(nodeReferenceSum.getS5LTE());
-        builder.addDataIntegers(nodeReferenceSum.getS5GT());
-        builder.addDataIntegers(nodeReferenceSum.getSummary());
-        builder.addDataIntegers(nodeReferenceSum.getError());
-        builder.addDataLongs(nodeReferenceSum.getTimeBucket());
+        builder.addDataStrings(nodeReference.getId());
+        builder.addDataIntegers(nodeReference.getFrontApplicationId());
+        builder.addDataIntegers(nodeReference.getBehindApplicationId());
+        builder.addDataStrings(nodeReference.getBehindPeer());
+        builder.addDataIntegers(nodeReference.getS1LTE());
+        builder.addDataIntegers(nodeReference.getS3LTE());
+        builder.addDataIntegers(nodeReference.getS5LTE());
+        builder.addDataIntegers(nodeReference.getS5GT());
+        builder.addDataIntegers(nodeReference.getSummary());
+        builder.addDataIntegers(nodeReference.getError());
+        builder.addDataLongs(nodeReference.getTimeBucket());
         return builder.build();
     }
 
-    public static class NodeReferenceSum implements Transform {
+    public static class NodeReference implements Transform {
         private String id;
-        private int applicationId;
+        private int frontApplicationId;
         private int behindApplicationId;
         private String behindPeer;
         private int s1LTE = 0;
@@ -77,11 +77,11 @@ public class NodeReferenceDataDefine extends DataDefine {
         private int error = 0;
         private long timeBucket;
 
-        public NodeReferenceSum(String id, int applicationId, int behindApplicationId, String behindPeer, int s1LTE,
+        public NodeReference(String id, int frontApplicationId, int behindApplicationId, String behindPeer, int s1LTE,
             int s3LTE,
             int s5LTE, int s5GT, int summary, int error, long timeBucket) {
             this.id = id;
-            this.applicationId = applicationId;
+            this.frontApplicationId = frontApplicationId;
             this.behindApplicationId = behindApplicationId;
             this.behindPeer = behindPeer;
             this.s1LTE = s1LTE;
@@ -93,14 +93,14 @@ public class NodeReferenceDataDefine extends DataDefine {
             this.timeBucket = timeBucket;
         }
 
-        public NodeReferenceSum() {
+        public NodeReference() {
         }
 
         @Override public Data toData() {
             NodeReferenceDataDefine define = new NodeReferenceDataDefine();
             Data data = define.build(id);
             data.setDataString(0, this.id);
-            data.setDataInteger(0, this.applicationId);
+            data.setDataInteger(0, this.frontApplicationId);
             data.setDataInteger(1, this.behindApplicationId);
             data.setDataString(1, this.behindPeer);
             data.setDataInteger(2, this.s1LTE);
@@ -125,12 +125,12 @@ public class NodeReferenceDataDefine extends DataDefine {
             this.id = id;
         }
 
-        public int getApplicationId() {
-            return applicationId;
+        public int getFrontApplicationId() {
+            return frontApplicationId;
         }
 
-        public void setApplicationId(int applicationId) {
-            this.applicationId = applicationId;
+        public void setFrontApplicationId(int frontApplicationId) {
+            this.frontApplicationId = frontApplicationId;
         }
 
         public int getBehindApplicationId() {
