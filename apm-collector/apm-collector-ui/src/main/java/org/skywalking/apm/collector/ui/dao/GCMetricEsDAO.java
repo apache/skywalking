@@ -16,6 +16,7 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.sum.Sum;
 import org.skywalking.apm.collector.core.util.Const;
+import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.storage.define.jvm.GCMetricTable;
 import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
 import org.skywalking.apm.network.proto.GCPhrase;
@@ -89,13 +90,13 @@ public class GCMetricEsDAO extends EsDAO implements IGCMetricDAO {
         JsonObject response = new JsonObject();
 
         MultiGetRequestBuilder youngPrepareMultiGet = getClient().prepareMultiGet();
-        int i = 0;
+        long timeBucket = startTimeBucket;
         do {
-            String youngId = (startTimeBucket + i) + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + GCPhrase.NEW_VALUE;
+            timeBucket = TimeBucketUtils.INSTANCE.addSecondForSecondTimeBucket(TimeBucketUtils.TimeBucketType.SECOND.name(), timeBucket, 1);
+            String youngId = timeBucket + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + GCPhrase.NEW_VALUE;
             youngPrepareMultiGet.add(GCMetricTable.TABLE, GCMetricTable.TABLE_TYPE, youngId);
-            i++;
         }
-        while (startTimeBucket + i <= endTimeBucket);
+        while (timeBucket <= endTimeBucket);
 
         JsonArray youngArray = new JsonArray();
         MultiGetResponse multiGetResponse = youngPrepareMultiGet.get();
@@ -109,13 +110,13 @@ public class GCMetricEsDAO extends EsDAO implements IGCMetricDAO {
         response.add("ygc", youngArray);
 
         MultiGetRequestBuilder oldPrepareMultiGet = getClient().prepareMultiGet();
-        i = 0;
+        timeBucket = startTimeBucket;
         do {
-            String oldId = (startTimeBucket + i) + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + GCPhrase.OLD_VALUE;
+            timeBucket = TimeBucketUtils.INSTANCE.addSecondForSecondTimeBucket(TimeBucketUtils.TimeBucketType.SECOND.name(), timeBucket, 1);
+            String oldId = timeBucket + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + GCPhrase.OLD_VALUE;
             oldPrepareMultiGet.add(GCMetricTable.TABLE, GCMetricTable.TABLE_TYPE, oldId);
-            i++;
         }
-        while (startTimeBucket + i <= endTimeBucket);
+        while (timeBucket <= endTimeBucket);
 
         JsonArray oldArray = new JsonArray();
 

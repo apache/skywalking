@@ -43,7 +43,7 @@ public class ServiceNameRegisterSerialWorker extends AbstractLocalAsyncWorker {
             if (serviceId == 0) {
                 int min = dao.getMinServiceId();
                 if (min == 0) {
-                    ServiceNameDataDefine.ServiceName noneServiceName = new ServiceNameDataDefine.ServiceName("1", Const.NONE_SERVICE_Name, 0, Const.NONE_SERVICE_ID);
+                    ServiceNameDataDefine.ServiceName noneServiceName = new ServiceNameDataDefine.ServiceName("1", Const.NONE_SERVICE_NAME, 0, Const.NONE_SERVICE_ID);
                     dao.save(noneServiceName);
 
                     serviceName.setServiceId(-1);

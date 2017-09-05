@@ -6,6 +6,7 @@ import org.elasticsearch.action.get.MultiGetItemResponse;
 import org.elasticsearch.action.get.MultiGetRequestBuilder;
 import org.elasticsearch.action.get.MultiGetResponse;
 import org.skywalking.apm.collector.core.util.Const;
+import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.storage.define.jvm.CpuMetricTable;
 import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
 
@@ -27,13 +28,13 @@ public class CpuMetricEsDAO extends EsDAO implements ICpuMetricDAO {
     @Override public JsonArray getMetric(int instanceId, long startTimeBucket, long endTimeBucket) {
         MultiGetRequestBuilder prepareMultiGet = getClient().prepareMultiGet();
 
-        int i = 0;
+        long timeBucket = startTimeBucket;
         do {
-            String id = (startTimeBucket + i) + Const.ID_SPLIT + instanceId;
+            timeBucket = TimeBucketUtils.INSTANCE.addSecondForSecondTimeBucket(TimeBucketUtils.TimeBucketType.SECOND.name(), timeBucket, 1);
+            String id = timeBucket + Const.ID_SPLIT + instanceId;
             prepareMultiGet.add(CpuMetricTable.TABLE, CpuMetricTable.TABLE_TYPE, id);
-            i++;
         }
-        while (startTimeBucket + i <= endTimeBucket);
+        while (timeBucket <= endTimeBucket);
 
         JsonArray metrics = new JsonArray();
         MultiGetResponse multiGetResponse = prepareMultiGet.get();

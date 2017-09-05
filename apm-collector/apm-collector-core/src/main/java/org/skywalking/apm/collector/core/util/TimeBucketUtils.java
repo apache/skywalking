@@ -88,6 +88,17 @@ public enum TimeBucketUtils {
         }
     }
 
+    public long addSecondForSecondTimeBucket(String timeBucketType, long timeBucket, int second) {
+        if (!TimeBucketType.SECOND.name().equals(timeBucketType)) {
+            throw new UnexpectedException("time bucket type must be second ");
+        }
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(changeTimeBucket2TimeStamp(timeBucketType, timeBucket));
+        calendar.add(Calendar.SECOND, second);
+
+        return getSecondTimeBucket(calendar.getTimeInMillis());
+    }
+
     public enum TimeBucketType {
         SECOND, MINUTE, HOUR, DAY
     }
