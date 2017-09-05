@@ -19,19 +19,19 @@ service InstanceDiscoveryService {
 }
 
 message ApplicationInstance {
-    int32 frontApplicationId = 1;
+    int32 applicationId = 1;
     string agentUUID = 2;
     int64 registerTime = 3;
     OSInfo osinfo = 4;
 }
 
 message ApplicationInstanceMapping {
-    int32 frontApplicationId = 1;
+    int32 applicationId = 1;
     int32 applicationInstanceId = 2;
 }
 
 message ApplicationInstanceRecover {
-    int32 frontApplicationId = 1;
+    int32 applicationId = 1;
     int32 applicationInstanceId = 2;
     int64 registerTime = 3;
     OSInfo osinfo = 4;
@@ -70,5 +70,5 @@ message ServiceNameMappingElement {
 
 message ServiceNameElement {
     string serviceName = 1;
-    int32 frontApplicationId = 2;
+    int32 applicationId = 2;
 }
