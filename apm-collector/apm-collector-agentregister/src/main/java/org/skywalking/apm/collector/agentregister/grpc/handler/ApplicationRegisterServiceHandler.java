@@ -29,8 +29,10 @@ public class ApplicationRegisterServiceHandler extends ApplicationRegisterServic
             String applicationCode = applicationCodes.get(i);
             int applicationId = applicationIDService.getOrCreate(applicationCode);
 
-            KeyWithIntegerValue value = KeyWithIntegerValue.newBuilder().setKey(applicationCode).setValue(applicationId).build();
-            builder.addApplication(i, value);
+            if (applicationId != 0) {
+                KeyWithIntegerValue value = KeyWithIntegerValue.newBuilder().setKey(applicationCode).setValue(applicationId).build();
+                builder.addApplication(value);
+            }
         }
         responseObserver.onNext(builder.build());
         responseObserver.onCompleted();
