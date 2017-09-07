@@ -17,6 +17,7 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.sum.Sum;
 import org.skywalking.apm.collector.core.util.Const;
+import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.storage.define.instance.InstPerformanceTable;
 import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
 
@@ -80,13 +81,13 @@ public class InstPerformanceEsDAO extends EsDAO implements IInstPerformanceDAO {
     @Override public JsonArray getTpsMetric(int instanceId, long startTimeBucket, long endTimeBucket) {
         MultiGetRequestBuilder prepareMultiGet = getClient().prepareMultiGet();
 
-        int i = 0;
+        long timeBucket = startTimeBucket;
         do {
-            String id = (startTimeBucket + i) + Const.ID_SPLIT + instanceId;
+            String id = timeBucket + Const.ID_SPLIT + instanceId;
             prepareMultiGet.add(InstPerformanceTable.TABLE, InstPerformanceTable.TABLE_TYPE, id);
-            i++;
+            timeBucket = TimeBucketUtils.INSTANCE.addSecondForSecondTimeBucket(TimeBucketUtils.TimeBucketType.SECOND.name(), timeBucket, 1);
         }
-        while (startTimeBucket + i <= endTimeBucket);
+        while (timeBucket <= endTimeBucket);
 
         JsonArray metrics = new JsonArray();
         MultiGetResponse multiGetResponse = prepareMultiGet.get();
@@ -116,12 +117,14 @@ public class InstPerformanceEsDAO extends EsDAO implements IInstPerformanceDAO {
         MultiGetRequestBuilder prepareMultiGet = getClient().prepareMultiGet();
 
         int i = 0;
+        long timeBucket;
         do {
-            String id = (startTimeBucket + i) + Const.ID_SPLIT + instanceId;
+            timeBucket = TimeBucketUtils.INSTANCE.addSecondForSecondTimeBucket(TimeBucketUtils.TimeBucketType.SECOND.name(), startTimeBucket, i);
+            String id = timeBucket + Const.ID_SPLIT + instanceId;
             prepareMultiGet.add(InstPerformanceTable.TABLE, InstPerformanceTable.TABLE_TYPE, id);
             i++;
         }
-        while (startTimeBucket + i <= endTimeBucket);
+        while (timeBucket <= endTimeBucket);
 
         JsonArray metrics = new JsonArray();
         MultiGetResponse multiGetResponse = prepareMultiGet.get();
