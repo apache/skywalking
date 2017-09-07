@@ -1,6 +1,6 @@
 package org.skywalking.apm.collector.agentstream.worker.serviceref;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import org.skywalking.apm.collector.agentstream.worker.cache.InstanceCache;
 import org.skywalking.apm.collector.agentstream.worker.segment.EntrySpanListener;
@@ -26,7 +26,7 @@ public class ServiceReferenceSpanListener implements FirstSpanListener, EntrySpa
 
     private final Logger logger = LoggerFactory.getLogger(ServiceReferenceSpanListener.class);
 
-    private List<TraceSegmentReference> referenceServices = new ArrayList<>();
+    private List<TraceSegmentReference> referenceServices = new LinkedList<>();
     private int serviceId = 0;
     private String serviceName = "";
     private long startTime = 0;
