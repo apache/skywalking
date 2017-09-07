@@ -21,7 +21,7 @@ public class GRPCStreamServiceStatus {
     /**
      * @param maxTimeout max wait time, milliseconds.
      */
-    public void wait4Finish(long maxTimeout) {
+    public boolean wait4Finish(long maxTimeout) {
         long time = 0;
         while (!status) {
             if (time > maxTimeout) {
@@ -30,6 +30,7 @@ public class GRPCStreamServiceStatus {
             try2Sleep(5);
             time += 5;
         }
+        return status;
     }
 
     /**
