@@ -22,11 +22,11 @@ define(['jquery', 'vue', 'text!metricSelectorHtml', 'cpuChart', 'gcChart', 'memo
                     displayChart: function (chartName, event) {
                         if ($(event.target).prop("checked")) {
                             metricChartsController.queryParam.metricNames.push(chartName);
-                            metricChartsController.charts.push(initChart(chartName));
+                            metricChartsController.charts.push(initChart(chartName, moment(metricChartsController.currentXAxesOriginPoint, "YYYYMMDDHHmmss").subtract(5, "minutes").format("YYYYMMDDHHmmss")));
                             if (!$("#autoUpdate").prop('checked')) {
                                 updateMetricCharts(metricChartsController.currentXAxesOriginPoint);
                             } else {
-                                metricChartsController.queryParam.startTime = moment(metricChartsController.queryParam.currentXAxesOriginPoint).format("YYYYMMDDHHmmss");
+                                metricChartsController.queryParam.startTime = moment(metricChartsController.currentXAxesOriginPoint, "YYYYMMDDHHmmss").subtract(5, "minutes").format("YYYYMMDDHHmmss");
                             }
                         } else {
                             $("#" + chartName + "-div").remove();

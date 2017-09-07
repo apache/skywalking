@@ -8,7 +8,7 @@ define(['chartJs', 'moment', 'metric-chart'], function (Chart, moment, metricCha
                 data: {
                     labels: labels,
                     datasets: [{
-                        label: "Used (MB)",
+                        label: "Used (GB)",
                         borderWidth: 1,
                         borderColor: window.chartColors.jvmUsedColor,
                         backgroundColor: window.chartColors.jvmUsedBgColor,
@@ -18,7 +18,7 @@ define(['chartJs', 'moment', 'metric-chart'], function (Chart, moment, metricCha
                         radius: 0,
                     },
                         {
-                            label: "Max (MB)",
+                            label: "Max (GB)",
                             borderWidth: 1,
                             borderColor: window.chartColors.jvmMaxColor,
                             backgroundColor: window.chartColors.jvmMaxColor,
@@ -62,6 +62,7 @@ define(['chartJs', 'moment', 'metric-chart'], function (Chart, moment, metricCha
                                 display: true
                             },
                             ticks: {
+                                min: 0,
                                 callback: function (dataLabel, index) {
                                     var label = dataLabel.toString();
                                     var blank = "";
@@ -81,6 +82,8 @@ define(['chartJs', 'moment', 'metric-chart'], function (Chart, moment, metricCha
             var beginIndexOfFillData = (this.toUnixTimestamp(startTime) - this.toUnixTimestamp(this.chartStartTime)) / 1000;
             var endIndexOfFillData = (this.toUnixTimestamp(endTime) - this.toUnixTimestamp(this.chartStartTime)) / 1000;
             console.log("beginIndexOfFillData : " + beginIndexOfFillData + " endIndexOfFillData: " + endIndexOfFillData);
+            var max = undefined;
+            var init = undefined;
             for (var index = beginIndexOfFillData, dataIndex = 0; index <= endIndexOfFillData; index++, dataIndex++) {
                 if (index > 299) {
                     console.log("update chart x axes");
@@ -88,12 +91,29 @@ define(['chartJs', 'moment', 'metric-chart'], function (Chart, moment, metricCha
                     this.chartObject.data.datasets[0].data.shift();
                     this.chartObject.data.datasets[1].data.shift();
                 }
-                this.chartObject.data.datasets[0].data.push(data[dataIndex].used);
-                this.chartObject.data.datasets[1].data.push(data[dataIndex].max);
+                this.chartObject.data.datasets[0].data.push(this.convertToGB(data[dataIndex].used));
+                this.chartObject.data.datasets[1].data.push(data[dataIndex].max < 0 ? 0 : this.convertToGB(data[dataIndex].max));
                 this.updateChartStartTime(index);
+
+                if (max == undefined && data[dataIndex].max != undefined) {
+                    max = data[dataIndex].max;
+                }
+                if (init == undefined && data[dataIndex].init != undefined) {
+                    init = data[dataIndex].init;
+                }
+            }
+
+            this.chartObject.options.scales.yAxes[0].ticks.min = init == undefined ? 0 : this.convertToGB(init);
+            if (max != undefined && max >= 0) {
+                this.chartObject.options.scales.yAxes[0].ticks.max = this.convertToGB(max + 1 * 100000000);
+            } else {
+                this.chartObject.options.scales.yAxes[0].ticks.max = 1;
             }
             this.chartObject.update();
         };
+        this.convertToGB = function (data) {
+            return Math.floor((data / 1000000000) * 100) / 100;
+        }
     }
 
     function createChart(chartContext, startTime) {

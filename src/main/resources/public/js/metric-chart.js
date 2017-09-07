@@ -28,6 +28,12 @@ define(['chartJs', 'moment'], function (Chart, moment) {
         }
     }
 
+    MetricChart.prototype.destroy = function () {
+        this.chartObject.destroy();
+        this.chartObject = undefined;
+    };
+
+
     function generateChartLabels(startTime, maxSize) {
         var labels = [];
         for (var i = 0; i < maxSize; i++) {
