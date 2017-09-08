@@ -58,11 +58,7 @@ public class ServiceEntrySpanListener implements RefsListener, FirstSpanListener
         StreamModuleContext context = (StreamModuleContext)CollectorContextHelper.INSTANCE.getContext(StreamModuleGroupDefine.GROUP_NAME);
         if (!hasReference && hasEntry) {
             ServiceEntryDataDefine.ServiceEntry serviceEntry = new ServiceEntryDataDefine.ServiceEntry();
-            if (entryServiceId == 0) {
-                serviceEntry.setId(applicationId + Const.ID_SPLIT + entryServiceName);
-            } else {
-                serviceEntry.setId(applicationId + Const.ID_SPLIT + entryServiceId);
-            }
+            serviceEntry.setId(applicationId + Const.ID_SPLIT + entryServiceName);
             serviceEntry.setApplicationId(applicationId);
             serviceEntry.setEntryServiceId(entryServiceId);
             serviceEntry.setEntryServiceName(entryServiceName);

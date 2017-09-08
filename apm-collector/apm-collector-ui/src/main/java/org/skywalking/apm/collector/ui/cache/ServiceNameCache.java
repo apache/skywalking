@@ -12,7 +12,7 @@ import org.skywalking.apm.collector.ui.dao.IServiceNameDAO;
 public class ServiceNameCache {
 
     //TODO size configuration
-    private static Cache<Integer, String> CACHE = CacheBuilder.newBuilder().maximumSize(1000).build();
+    private static Cache<Integer, String> CACHE = CacheBuilder.newBuilder().maximumSize(10000).build();
 
     public static String get(int serviceId) {
         try {
