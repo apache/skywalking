@@ -34,7 +34,22 @@ public class ServiceTreeService {
         params.add(new BasicNameValuePair("startTime", String.valueOf(startTime)));
         params.add(new BasicNameValuePair("endTime", String.valueOf(endTime)));
 
-        String serviceTreeLoadUrl = UrlCreator.compound("service/tree");
+        String serviceTreeLoadUrl = UrlCreator.compound("service/tree/entryServiceId");
+        String serviceTreeResponse = HttpClientTools.INSTANCE.get(serviceTreeLoadUrl, params);
+
+        logger.debug("load service tree data: %s", serviceTreeResponse);
+        return gson.fromJson(serviceTreeResponse, JsonArray.class);
+    }
+
+    public JsonArray load(int entryApplicationId, String entryServiceName, long startTime,
+        long endTime) throws IOException {
+        List<NameValuePair> params = new ArrayList<>();
+        params.add(new BasicNameValuePair("entryApplicationId", String.valueOf(entryApplicationId)));
+        params.add(new BasicNameValuePair("entryServiceName", entryServiceName));
+        params.add(new BasicNameValuePair("startTime", String.valueOf(startTime)));
+        params.add(new BasicNameValuePair("endTime", String.valueOf(endTime)));
+
+        String serviceTreeLoadUrl = UrlCreator.compound("service/tree/entryServiceName");
         String serviceTreeResponse = HttpClientTools.INSTANCE.get(serviceTreeLoadUrl, params);
 
         logger.debug("load service tree data: %s", serviceTreeResponse);

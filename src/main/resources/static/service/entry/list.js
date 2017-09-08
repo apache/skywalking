@@ -10,7 +10,8 @@ define(['jquery', 'vue', 'text!entryServiceListHtml'], function ($, Vue, entrySe
         entryServiceName: "",
         startTime: 0,
         endTime: 0,
-        handler: undefined
+        idHandler: undefined,
+        nameHandler: undefined
     };
     var vue;
 
@@ -20,14 +21,21 @@ define(['jquery', 'vue', 'text!entryServiceListHtml'], function ($, Vue, entrySe
             el: '#entryServiceListVueDiv',
             data: vueData,
             methods: {
-                itemClick: function (entryServiceId, event) {
+                idItemClick: function (entryServiceId, event) {
                     if ($(event.target).is(".operation-selected")) {
                         $(event.target).removeClass("operation-selected");
-                        vueData.handler(entryServiceId);
                     } else {
                         $(event.target).addClass("operation-selected");
-                        vueData.handler(entryServiceId);
                     }
+                    vueData.idHandler(entryServiceId);
+                },
+                nameItemClick: function (entryApplicationId, entryServiceName, event) {
+                    if ($(event.target).is(".operation-selected")) {
+                        $(event.target).removeClass("operation-selected");
+                    } else {
+                        $(event.target).addClass("operation-selected");
+                    }
+                    vueData.nameHandler(entryApplicationId, entryServiceName);
                 },
                 gotoPage: function (pageNum) {
                     vueData.currentPage = pageNum;
@@ -74,14 +82,20 @@ define(['jquery', 'vue', 'text!entryServiceListHtml'], function ($, Vue, entrySe
         return this;
     }
 
-    function registryItemClickHandler(handler) {
-        vueData.handler = handler;
+    function registryIdItemClickHandler(handler) {
+        vueData.idHandler = handler;
+        return this;
+    }
+
+    function registryNameItemClickHandler(handler) {
+        vueData.nameHandler = handler;
         return this;
     }
 
     return {
         load: load,
         render: render,
-        registryItemClickHandler: registryItemClickHandler
+        registryIdItemClickHandler: registryIdItemClickHandler,
+        registryNameItemClickHandler: registryNameItemClickHandler
     }
 });

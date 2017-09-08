@@ -1,4 +1,5 @@
 requirejs.config({
+    waitSeconds: 0,
     urlArgs: "r=" + (new Date()).getTime(),
     paths: {
         "jquery": "/webjars/jquery/2.2.4/jquery.min",

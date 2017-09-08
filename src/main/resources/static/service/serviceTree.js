@@ -16,9 +16,12 @@ requirejs(['/main.js'], function () {
                 data: vueData,
                 methods: {
                     goClick: function () {
-                        entryServiceList.load(vueData.applicationId, vueData.entryServiceName, startTime, endTime).registryItemClickHandler(function (entryServiceId) {
+                        entryServiceList.load(vueData.applicationId, vueData.entryServiceName, startTime, endTime).registryIdItemClickHandler(function (entryServiceId) {
                             console.log("entryServiceId: " + entryServiceId);
-                            serviceTreeList.load(entryServiceId, startTime, endTime).render("serviceTreeListDiv");
+                            serviceTreeList.loadByEntryServiceId(entryServiceId, startTime, endTime).render("serviceTreeListDiv");
+                        }).registryNameItemClickHandler(function (entryApplicationId, entryServiceName) {
+                            console.log("entryApplicationId: " + entryApplicationId + ", entryServiceName: " + entryServiceName);
+                            serviceTreeList.loadByEntryServiceName(entryApplicationId, entryServiceName, startTime, endTime).render("serviceTreeListDiv");
                         }).render("entryServiceListDiv");
                     }
                 }

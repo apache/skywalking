@@ -22,7 +22,7 @@ public class ServiceTreeController extends ControllerBase {
     @Autowired
     private ServiceTreeService service;
 
-    @GetMapping("/service/tree")
+    @GetMapping("/service/tree/entryServiceId")
     public void load(@ModelAttribute("entryServiceId") int entryServiceId,
         @ModelAttribute("timeBucketType") String timeBucketType,
         @ModelAttribute("startTime") long startTime, @ModelAttribute("endTime") long endTime,
@@ -30,5 +30,16 @@ public class ServiceTreeController extends ControllerBase {
 
         logger.info("load service tree, entryServiceId: %s, timeBucketType: %s, startTime: %s, endTime: %s", entryServiceId, timeBucketType, startTime, endTime);
         reply(service.load(entryServiceId, startTime, endTime).toString(), response);
+    }
+
+    @GetMapping("/service/tree/entryServiceName")
+    public void load(@ModelAttribute("entryApplicationId") int entryApplicationId,
+        @ModelAttribute("entryServiceName") String entryServiceName,
+        @ModelAttribute("timeBucketType") String timeBucketType,
+        @ModelAttribute("startTime") long startTime, @ModelAttribute("endTime") long endTime,
+        HttpServletResponse response) throws IOException {
+
+        logger.info("load service tree, entryApplicationId: %s, entryServiceName: %s, timeBucketType: %s, startTime: %s, endTime: %s", entryApplicationId, entryServiceName, timeBucketType, startTime, endTime);
+        reply(service.load(entryApplicationId, entryServiceName, startTime, endTime).toString(), response);
     }
 }
