@@ -2,6 +2,8 @@ package org.skywalking.apm.collector.ui.dao;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
@@ -132,6 +134,8 @@ public class ServiceReferenceEsDAO extends EsDAO implements IServiceReferenceDAO
 
     private void parseSubAggregate(JsonArray serviceReferenceArray, Terms.Bucket frontServiceBucket,
         int frontServiceId) {
+        Map<String, JsonObject> serviceReferenceMap = new LinkedHashMap<>();
+
         Terms behindServiceIdTerms = frontServiceBucket.getAggregations().get(ServiceReferenceTable.COLUMN_BEHIND_SERVICE_ID);
         for (Terms.Bucket behindServiceIdBucket : behindServiceIdTerms.getBuckets()) {
             int behindServiceId = behindServiceIdBucket.getKeyAsNumber().intValue();
@@ -165,7 +169,7 @@ public class ServiceReferenceEsDAO extends EsDAO implements IServiceReferenceDAO
                 serviceReference.addProperty(ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_ERROR), (long)error.getValue());
                 serviceReference.addProperty(ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_SUMMARY), (long)summary.getValue());
                 serviceReference.addProperty(ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_COST_SUMMARY), (long)costSum.getValue());
-                serviceReferenceArray.add(serviceReference);
+                merge(serviceReferenceMap, serviceReference);
             }
         }
 
@@ -198,8 +202,33 @@ public class ServiceReferenceEsDAO extends EsDAO implements IServiceReferenceDAO
                 serviceReference.addProperty(ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_ERROR), (long)error.getValue());
                 serviceReference.addProperty(ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_SUMMARY), (long)summary.getValue());
                 serviceReference.addProperty(ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_COST_SUMMARY), (long)costSum.getValue());
-                serviceReferenceArray.add(serviceReference);
+                merge(serviceReferenceMap, serviceReference);
             }
         }
+
+        serviceReferenceMap.values().forEach(serviceReferenceArray::add);
+    }
+
+    private void merge(Map<String, JsonObject> serviceReferenceMap, JsonObject serviceReference) {
+        String id = serviceReference.get(ServiceReferenceTable.COLUMN_FRONT_SERVICE_ID) + Const.ID_SPLIT + serviceReference.get(ServiceReferenceTable.COLUMN_BEHIND_SERVICE_ID);
+
+        if (serviceReferenceMap.containsKey(id)) {
+            JsonObject reference = serviceReferenceMap.get(id);
+            add(reference, serviceReference, ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_S1_LTE));
+            add(reference, serviceReference, ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_S3_LTE));
+            add(reference, serviceReference, ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_S5_LTE));
+            add(reference, serviceReference, ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_S5_GT));
+            add(reference, serviceReference, ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_ERROR));
+            add(reference, serviceReference, ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_SUMMARY));
+            add(reference, serviceReference, ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_COST_SUMMARY));
+        } else {
+            serviceReferenceMap.put(id, serviceReference);
+        }
+    }
+
+    private void add(JsonObject oldReference, JsonObject newReference, String key) {
+        long oldValue = oldReference.get(key).getAsLong();
+        long newValue = newReference.get(key).getAsLong();
+        oldReference.addProperty(key, oldValue + newValue);
     }
 }
