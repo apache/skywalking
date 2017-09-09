@@ -50,6 +50,7 @@ define(['chartJs', 'moment', 'metric-chart'], function (Chart, moment, metricCha
                                     display: true
                                 },
                                 ticks: {
+                                    min:0,
                                     callback: function (dataLabel, index) {
                                         var label = dataLabel.toString();
                                         var blank = "";
@@ -58,7 +59,7 @@ define(['chartJs', 'moment', 'metric-chart'], function (Chart, moment, metricCha
                                         }
 
                                         return label + blank;
-                                    },
+                                    }
                                 }
                             }]
                         },
@@ -73,6 +74,7 @@ define(['chartJs', 'moment', 'metric-chart'], function (Chart, moment, metricCha
                 console.log(data);
                 var beginIndexOfFillData = (this.toUnixTimestamp(startTime) - this.toUnixTimestamp(this.chartStartTime)) / 1000;
                 var endIndexOfFillData = (this.toUnixTimestamp(endTime) - this.toUnixTimestamp(this.chartStartTime)) / 1000;
+                var maxGcCount = 0
                 for (var index = beginIndexOfFillData, dataIndex = 0; index <= endIndexOfFillData; index++, dataIndex++) {
                     if (index > 299) {
                         console.log("update chart x axes");
@@ -82,8 +84,12 @@ define(['chartJs', 'moment', 'metric-chart'], function (Chart, moment, metricCha
                     }
                     this.chartObject.data.datasets[0].data.push(data[dataIndex].ygc);
                     this.chartObject.data.datasets[1].data.push(data[dataIndex].ogc);
+                    if (maxGcCount < (data[dataIndex].ygc + data[dataIndex].ogc)){
+                        maxGcCount = data[dataIndex].ygc + data[dataIndex].ogc;
+                    }
                     this.updateChartStartTime(index);
                 }
+                this.chartObject.options.scales.yAxes[0].ticks.max = maxGcCount + 10;
                 this.chartObject.update();
             };
         }
