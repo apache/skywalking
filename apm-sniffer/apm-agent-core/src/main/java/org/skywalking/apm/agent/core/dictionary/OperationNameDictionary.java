@@ -35,7 +35,7 @@ public enum OperationNameDictionary {
         OperationNameKey key = new OperationNameKey(applicationId, operationName);
         Integer operationId = operationNameDictionary.get(key);
         if (operationId != null) {
-            return new Found(applicationId);
+            return new Found(operationId);
         } else {
             if (registerWhenNotFound &&
                 operationNameDictionary.size() + unRegisterOperationNames.size() < OPERATION_NAME_BUFFER_SIZE) {

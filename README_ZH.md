@@ -1,9 +1,9 @@
-Sky Walking | [中文](README_ZH.md)
+Sky Walking | [Engligh](README.md)
 ==========
 
 <img src="https://sky-walking.github.io/page-resources/3.0/skywalking.png" alt="Sky Walking logo" height="90px" align="right" />
 
-**SkyWalking 3**: APM for Distributed Systems, also known Distributed Tracing System.
+**SkyWalking 3**: 针对分布式系统的APM系统，也被称为分布式追踪系统
 
 [![Build Status](https://travis-ci.org/wu-sheng/sky-walking.svg?branch=master)](https://travis-ci.org/wu-sheng/sky-walking)
 [![Coverage Status](https://coveralls.io/repos/github/wu-sheng/sky-walking/badge.svg?branch=master&forceUpdate=2)](https://coveralls.io/github/wu-sheng/sky-walking?branch=master)
@@ -13,20 +13,21 @@ Sky Walking | [中文](README_ZH.md)
 [![OpenTracing-1.x Badge](https://img.shields.io/badge/OpenTracing--1.x-enabled-blue.svg)](http://opentracing.io)
 
 
-* Auto instrumentation by javaagent, **no need to CHANGE any application source code**.
-  * High performance agent. Only increase extra **10%** cpu cost in 5000+ tps application, even **do not need to use sampling mechanism**, [check test reports](#test-reports).
-  * [Supported middlewares, frameworks and libraries](https://github.com/wu-sheng/sky-walking/wiki/3.2-supported-list).
-* Manual instrumentation
-  * As an [OpenTracing supported tracer](http://opentracing.io/documentation/pages/supported-tracers)
-  * Use **@Trace** annotation for any methods you want to trace.
-  * Integrate traceId into logs for log4j, log4j2 and logback.
-* Pure Java server implementation, provide RESTful and gRPC services. Compatibility with other language agents/SDKs. 
-  * [How to uplink metrics and traces to collector?]()
-* The UI released on [wu-sheng/sky-walking-ui](https://github.com/wu-sheng/sky-walking-ui)
+* 自动java探针，**不需要修改应用程序源代码**
+  * 高性能探针，针对单实例5000tps的应用，在**不需要采样的情况下**，只增加**10%**的CPU开销。
+  * [中间件，框架与类库支持列表](https://github.com/wu-sheng/sky-walking/wiki/3.2-supported-list).
+* 手动探针
+  * [使用OpenTracing手动探针API](http://opentracing.io/documentation/pages/supported-tracers)
+  * 使用 **@Trace** 标注追踪业务方法
+  * 将 traceId 集成到 log4j, log4j2 或 logback这些日志组件中
+* 纯Java后端Collector实现，提供RESTful和gRPC接口。兼容接受其他语言探针发送数据 
+  * [如何将探针的Metric和Trace数据上传到Collector？]()
+* UI工程请查看 [wu-sheng/sky-walking-ui](https://github.com/wu-sheng/sky-walking-ui)
+* 中文QQ群：392443393
 
 
 # Contributors
-_In chronological order_
+_按首次加入时间排序_
 * 吴晟 [**PMC Member**] [@wu-sheng](https://github.com/wu-sheng)  Principle Engineer, 2012 Lab, Huawei. 
 * 张鑫 [**PMC Member**] [@ascrutae](https://github.com/ascrutae)   
 * 谭真 [@mircoteam](https://github.com/mircoteam)  Advanced R&D Engineers, Creative & Interactive Group.
@@ -35,34 +36,34 @@ _In chronological order_
 * 戴文
 * 柏杨 [@bai-yang](https://github.com/bai-yang)  Senior Engineer, Alibaba Group.
 * 陈凤 [@trey03](https://github.com/trey03)
-* [More contributors](https://github.com/wu-sheng/sky-walking/graphs/contributors)
+* [其他贡献者](https://github.com/wu-sheng/sky-walking/graphs/contributors)
 
 This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to wu.sheng@foxmail.com.
 
+
 # Architecture
-* Architecture graph for 3.2+
+* 3.2+版本架构图
 <img src="https://sky-walking.github.io/page-resources/3.2/architecture/3.2-architecture.jpg"/>
 
 # Screenshots
-- Topological graph of application clusters based on Spring Cloud.
+- 追踪基于Spring Cloud的分布式系统，生成的拓扑截图
 <img src="https://sky-walking.github.io/page-resources/3.1/topological_graph.png?forceUpdate=0"/>
 
-- Topological graph of application clusters based on dubbox and [motan](https://github.com/weibocom/motan).
+- 追踪基于 dubbox 和 [motan](https://github.com/weibocom/motan)的分布式系统，生成的拓扑截图
 <img src="https://sky-walking.github.io/page-resources/3.1/topological_graph_test_project.png?forceUpdate=0"/>
 
-- Trace query.
+- 调用链查询
 <img src="https://sky-walking.github.io/page-resources/3.1/trace_segment.png"/>
 
-- Span detail.
+- Span信息查询
 <img src="https://sky-walking.github.io/page-resources/3.0/span.png" />
 
 # Test reports
-- Automatic integration test reports
-  - [Java Agent test report](https://github.com/sky-walking/agent-integration-test-report)
-- Performance test reports
-  - [Java Agent test report](https://sky-walking.github.io/Agent-Benchmarks/)
+- 自动化集成测试报告
+  - [Java探针测试报告](https://github.com/sky-walking/agent-integration-test-report)
+- 性能测试报告
+  - [Java探针测试报告](https://sky-walking.github.io/Agent-Benchmarks/)
 
 # Document
 * [WIKI](https://github.com/wu-sheng/sky-walking/wiki)
 
-_Chat with us on gitter, in English. As a Chinese Developer, you can join QQ Group: 392443393, by **tagging** Sky-Walking._

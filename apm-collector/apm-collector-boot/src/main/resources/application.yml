@@ -25,6 +25,4 @@ storage:
   elasticsearch:
     cluster_name: CollectorDBCluster
     cluster_transport_sniffer: true
-    cluster_nodes: 10.0.0.19:9300,10.0.0.6:9300
-
-
+    cluster_nodes: localhost:9300

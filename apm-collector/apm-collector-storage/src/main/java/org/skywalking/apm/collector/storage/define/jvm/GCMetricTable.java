@@ -7,7 +7,7 @@ import org.skywalking.apm.collector.storage.define.CommonTable;
  */
 public class GCMetricTable extends CommonTable {
     public static final String TABLE = "gc_metric";
-    public static final String COLUMN_APPLICATION_INSTANCE_ID = "application_instance_id";
+    public static final String COLUMN_INSTANCE_ID = "instance_id";
     public static final String COLUMN_PHRASE = "phrase";
     public static final String COLUMN_COUNT = "count";
     public static final String COLUMN_TIME = "time";

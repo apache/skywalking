@@ -21,12 +21,11 @@ public class GCMetricEsDAO extends EsDAO implements IGCMetricDAO, IPersistenceDA
 
     @Override public IndexRequestBuilder prepareBatchInsert(Data data) {
         Map<String, Object> source = new HashMap<>();
-        source.put(GCMetricTable.COLUMN_APPLICATION_INSTANCE_ID, data.getDataInteger(0));
+        source.put(GCMetricTable.COLUMN_INSTANCE_ID, data.getDataInteger(0));
         source.put(GCMetricTable.COLUMN_PHRASE, data.getDataInteger(1));
         source.put(GCMetricTable.COLUMN_COUNT, data.getDataLong(0));
         source.put(GCMetricTable.COLUMN_TIME, data.getDataLong(1));
         source.put(GCMetricTable.COLUMN_TIME_BUCKET, data.getDataLong(2));
-        source.put(GCMetricTable.COLUMN_5S_TIME_BUCKET, data.getDataLong(3));
 
         return getClient().prepareIndex(GCMetricTable.TABLE, data.getDataString(0)).setSource(source);
     }

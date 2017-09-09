@@ -29,6 +29,7 @@ public class ServiceEntrySpanListener implements RefsListener, FirstSpanListener
     private int applicationId;
     private int entryServiceId;
     private String entryServiceName;
+    private boolean hasEntry = false;
 
     @Override
     public void parseEntry(SpanObject spanObject, int applicationId, int applicationInstanceId, String segmentId) {
@@ -39,6 +40,7 @@ public class ServiceEntrySpanListener implements RefsListener, FirstSpanListener
         } else {
             this.entryServiceName = ServiceCache.getServiceName(this.entryServiceId);
         }
+        this.hasEntry = true;
     }
 
     @Override public void parseRef(TraceSegmentReference reference, int applicationId, int applicationInstanceId,
@@ -54,7 +56,7 @@ public class ServiceEntrySpanListener implements RefsListener, FirstSpanListener
     @Override public void build() {
         logger.debug("entry service listener build");
         StreamModuleContext context = (StreamModuleContext)CollectorContextHelper.INSTANCE.getContext(StreamModuleGroupDefine.GROUP_NAME);
-        if (!hasReference) {
+        if (!hasReference && hasEntry) {
             ServiceEntryDataDefine.ServiceEntry serviceEntry = new ServiceEntryDataDefine.ServiceEntry();
             serviceEntry.setId(applicationId + Const.ID_SPLIT + entryServiceName);
             serviceEntry.setApplicationId(applicationId);

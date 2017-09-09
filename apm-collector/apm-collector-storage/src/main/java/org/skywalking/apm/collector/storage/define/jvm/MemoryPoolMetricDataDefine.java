@@ -21,7 +21,7 @@ public class MemoryPoolMetricDataDefine extends DataDefine {
 
     @Override protected void attributeDefine() {
         addAttribute(0, new Attribute(MemoryPoolMetricTable.COLUMN_ID, AttributeType.STRING, new NonOperation()));
-        addAttribute(1, new Attribute(MemoryPoolMetricTable.COLUMN_APPLICATION_INSTANCE_ID, AttributeType.INTEGER, new CoverOperation()));
+        addAttribute(1, new Attribute(MemoryPoolMetricTable.COLUMN_INSTANCE_ID, AttributeType.INTEGER, new CoverOperation()));
         addAttribute(2, new Attribute(MemoryPoolMetricTable.COLUMN_POOL_TYPE, AttributeType.INTEGER, new CoverOperation()));
         addAttribute(3, new Attribute(MemoryPoolMetricTable.COLUMN_IS_HEAP, AttributeType.BOOLEAN, new CoverOperation()));
         addAttribute(4, new Attribute(MemoryPoolMetricTable.COLUMN_INIT, AttributeType.LONG, new CoverOperation()));
@@ -41,7 +41,7 @@ public class MemoryPoolMetricDataDefine extends DataDefine {
 
     public static class MemoryPoolMetric implements Transform<MemoryPoolMetric> {
         private String id;
-        private int applicationInstanceId;
+        private int instanceId;
         private int poolType;
         private boolean isHeap;
         private long init;
@@ -50,10 +50,10 @@ public class MemoryPoolMetricDataDefine extends DataDefine {
         private long committed;
         private long timeBucket;
 
-        public MemoryPoolMetric(String id, int applicationInstanceId, int poolType, boolean isHeap, long init, long max,
+        public MemoryPoolMetric(String id, int instanceId, int poolType, boolean isHeap, long init, long max,
             long used, long committed, long timeBucket) {
             this.id = id;
-            this.applicationInstanceId = applicationInstanceId;
+            this.instanceId = instanceId;
             this.poolType = poolType;
             this.isHeap = isHeap;
             this.init = init;
@@ -70,7 +70,7 @@ public class MemoryPoolMetricDataDefine extends DataDefine {
             MemoryPoolMetricDataDefine define = new MemoryPoolMetricDataDefine();
             Data data = define.build(id);
             data.setDataString(0, this.id);
-            data.setDataInteger(0, this.applicationInstanceId);
+            data.setDataInteger(0, this.instanceId);
             data.setDataInteger(1, this.poolType);
             data.setDataBoolean(0, this.isHeap);
             data.setDataLong(0, this.init);
@@ -83,7 +83,7 @@ public class MemoryPoolMetricDataDefine extends DataDefine {
 
         @Override public MemoryPoolMetric toSelf(Data data) {
             this.id = data.getDataString(0);
-            this.applicationInstanceId = data.getDataInteger(0);
+            this.instanceId = data.getDataInteger(0);
             this.poolType = data.getDataInteger(1);
             this.isHeap = data.getDataBoolean(0);
             this.init = data.getDataLong(0);
@@ -98,8 +98,8 @@ public class MemoryPoolMetricDataDefine extends DataDefine {
             this.id = id;
         }
 
-        public void setApplicationInstanceId(int applicationInstanceId) {
-            this.applicationInstanceId = applicationInstanceId;
+        public void setInstanceId(int instanceId) {
+            this.instanceId = instanceId;
         }
 
         public void setPoolType(int poolType) {
@@ -134,8 +134,8 @@ public class MemoryPoolMetricDataDefine extends DataDefine {
             return id;
         }
 
-        public int getApplicationInstanceId() {
-            return applicationInstanceId;
+        public int getInstanceId() {
+            return instanceId;
         }
 
         public long getTimeBucket() {

@@ -16,17 +16,16 @@ import org.skywalking.apm.collector.storage.define.DataDefine;
 public class InstPerformanceDataDefine extends DataDefine {
 
     @Override protected int initialCapacity() {
-        return 7;
+        return 6;
     }
 
     @Override protected void attributeDefine() {
         addAttribute(0, new Attribute(InstPerformanceTable.COLUMN_ID, AttributeType.STRING, new NonOperation()));
         addAttribute(1, new Attribute(InstPerformanceTable.COLUMN_APPLICATION_ID, AttributeType.INTEGER, new CoverOperation()));
         addAttribute(2, new Attribute(InstPerformanceTable.COLUMN_INSTANCE_ID, AttributeType.INTEGER, new CoverOperation()));
-        addAttribute(3, new Attribute(InstPerformanceTable.COLUMN_CALL_TIMES, AttributeType.INTEGER, new AddOperation()));
+        addAttribute(3, new Attribute(InstPerformanceTable.COLUMN_CALLS, AttributeType.INTEGER, new AddOperation()));
         addAttribute(4, new Attribute(InstPerformanceTable.COLUMN_COST_TOTAL, AttributeType.LONG, new AddOperation()));
         addAttribute(5, new Attribute(InstPerformanceTable.COLUMN_TIME_BUCKET, AttributeType.LONG, new CoverOperation()));
-        addAttribute(6, new Attribute(InstPerformanceTable.COLUMN_5S_TIME_BUCKET, AttributeType.LONG, new CoverOperation()));
     }
 
     @Override public Object deserialize(RemoteData remoteData) {
@@ -41,21 +40,18 @@ public class InstPerformanceDataDefine extends DataDefine {
         private String id;
         private int applicationId;
         private int instanceId;
-        private int callTimes;
+        private int calls;
         private long costTotal;
         private long timeBucket;
-        private long s5TimeBucket;
 
-        public InstPerformance(String id, int applicationId, int instanceId, int callTimes, long costTotal,
-            long timeBucket,
-            long s5TimeBucket) {
+        public InstPerformance(String id, int applicationId, int instanceId, int calls, long costTotal,
+            long timeBucket) {
             this.id = id;
             this.applicationId = applicationId;
             this.instanceId = instanceId;
-            this.callTimes = callTimes;
+            this.calls = calls;
             this.costTotal = costTotal;
             this.timeBucket = timeBucket;
-            this.s5TimeBucket = s5TimeBucket;
         }
 
         public InstPerformance() {
@@ -67,10 +63,9 @@ public class InstPerformanceDataDefine extends DataDefine {
             data.setDataString(0, this.id);
             data.setDataInteger(0, this.applicationId);
             data.setDataInteger(1, this.instanceId);
-            data.setDataInteger(2, this.callTimes);
+            data.setDataInteger(2, this.calls);
             data.setDataLong(0, this.costTotal);
             data.setDataLong(1, this.timeBucket);
-            data.setDataLong(2, this.s5TimeBucket);
             return data;
         }
 
@@ -78,10 +73,9 @@ public class InstPerformanceDataDefine extends DataDefine {
             this.id = data.getDataString(0);
             this.applicationId = data.getDataInteger(0);
             this.instanceId = data.getDataInteger(1);
-            this.callTimes = data.getDataInteger(2);
+            this.calls = data.getDataInteger(2);
             this.costTotal = data.getDataLong(0);
             this.timeBucket = data.getDataLong(1);
-            this.s5TimeBucket = data.getDataLong(2);
             return this;
         }
 
@@ -101,12 +95,12 @@ public class InstPerformanceDataDefine extends DataDefine {
             this.instanceId = instanceId;
         }
 
-        public int getCallTimes() {
-            return callTimes;
+        public int getCalls() {
+            return calls;
         }
 
-        public void setCallTimes(int callTimes) {
-            this.callTimes = callTimes;
+        public void setCalls(int calls) {
+            this.calls = calls;
         }
 
         public long getCostTotal() {
@@ -131,14 +125,6 @@ public class InstPerformanceDataDefine extends DataDefine {
 
         public void setApplicationId(int applicationId) {
             this.applicationId = applicationId;
-        }
-
-        public long getS5TimeBucket() {
-            return s5TimeBucket;
-        }
-
-        public void setS5TimeBucket(long s5TimeBucket) {
-            this.s5TimeBucket = s5TimeBucket;
         }
     }
 }

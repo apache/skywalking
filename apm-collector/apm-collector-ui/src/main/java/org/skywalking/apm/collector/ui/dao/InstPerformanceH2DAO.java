@@ -1,7 +1,6 @@
 package org.skywalking.apm.collector.ui.dao;
 
 import com.google.gson.JsonArray;
-import java.util.List;
 import org.skywalking.apm.collector.storage.h2.dao.H2DAO;
 
 /**
@@ -9,7 +8,7 @@ import org.skywalking.apm.collector.storage.h2.dao.H2DAO;
  */
 public class InstPerformanceH2DAO extends H2DAO implements IInstPerformanceDAO {
 
-    @Override public List<InstPerformance> getMultiple(long timestamp, int applicationId) {
+    @Override public InstPerformance get(long[] timeBuckets, int instanceId) {
         return null;
     }
 

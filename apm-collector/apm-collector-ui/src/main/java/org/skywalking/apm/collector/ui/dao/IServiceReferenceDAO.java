@@ -7,4 +7,6 @@ import com.google.gson.JsonArray;
  */
 public interface IServiceReferenceDAO {
     JsonArray load(int entryServiceId, long startTime, long endTime);
+
+    JsonArray load(String entryServiceName, int entryApplicationId, long startTime, long endTime);
 }

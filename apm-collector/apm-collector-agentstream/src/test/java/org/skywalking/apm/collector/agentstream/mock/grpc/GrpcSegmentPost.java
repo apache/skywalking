@@ -8,21 +8,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import org.junit.Test;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
-import org.skywalking.apm.network.proto.Application;
-import org.skywalking.apm.network.proto.ApplicationInstance;
-import org.skywalking.apm.network.proto.ApplicationInstanceMapping;
-import org.skywalking.apm.network.proto.ApplicationMapping;
-import org.skywalking.apm.network.proto.ApplicationRegisterServiceGrpc;
 import org.skywalking.apm.network.proto.Downstream;
-import org.skywalking.apm.network.proto.InstanceDiscoveryServiceGrpc;
 import org.skywalking.apm.network.proto.KeyWithStringValue;
 import org.skywalking.apm.network.proto.LogMessage;
-import org.skywalking.apm.network.proto.OSInfo;
 import org.skywalking.apm.network.proto.RefType;
-import org.skywalking.apm.network.proto.ServiceNameCollection;
-import org.skywalking.apm.network.proto.ServiceNameDiscoveryServiceGrpc;
-import org.skywalking.apm.network.proto.ServiceNameElement;
-import org.skywalking.apm.network.proto.ServiceNameMappingCollection;
 import org.skywalking.apm.network.proto.SpanLayer;
 import org.skywalking.apm.network.proto.SpanObject;
 import org.skywalking.apm.network.proto.SpanType;
@@ -58,28 +47,28 @@ public class GrpcSegmentPost {
         int providerEntryServiceId = 0;
 
         while (consumerApplicationId == 0) {
-            consumerApplicationId = registerApplication(channel, "consumer");
+            consumerApplicationId = ApplicationRegister.register(channel, "consumer");
         }
         while (consumerExitApplicationId == 0) {
-            consumerExitApplicationId = registerApplication(channel, "172.25.0.4:20880");
+            consumerExitApplicationId = ApplicationRegister.register(channel, "172.25.0.4:20880");
         }
         while (providerApplicationId == 0) {
-            providerApplicationId = registerApplication(channel, "provider");
+            providerApplicationId = ApplicationRegister.register(channel, "provider");
         }
         while (consumerInstanceId == 0) {
-            consumerInstanceId = registerInstanceId(channel, "ConsumerUUID", consumerApplicationId, "consumer_host_name", 1);
+            consumerInstanceId = InstanceRegister.register(channel, "ConsumerUUID", consumerApplicationId, "consumer_host_name", 1);
         }
         while (providerInstanceId == 0) {
-            providerInstanceId = registerInstanceId(channel, "ProviderUUID", providerApplicationId, "provider_host_name", 2);
+            providerInstanceId = InstanceRegister.register(channel, "ProviderUUID", providerApplicationId, "provider_host_name", 2);
         }
         while (consumerEntryServiceId == 0) {
-            consumerEntryServiceId = registerServiceId(channel, consumerApplicationId, "/dubbox-case/case/dubbox-rest");
+            consumerEntryServiceId = ServiceRegister.register(channel, consumerApplicationId, "/dubbox-case/case/dubbox-rest");
         }
         while (consumerExitServiceId == 0) {
-            consumerExitServiceId = registerServiceId(channel, consumerApplicationId, "org.skywaking.apm.testcase.dubbo.services.GreetService.doBusiness()");
+            consumerExitServiceId = ServiceRegister.register(channel, consumerApplicationId, "org.skywaking.apm.testcase.dubbo.services.GreetService.doBusiness()");
         }
         while (providerEntryServiceId == 0) {
-            providerEntryServiceId = registerServiceId(channel, providerApplicationId, "org.skywaking.apm.testcase.dubbo.services.GreetService.doBusiness()");
+            providerEntryServiceId = ServiceRegister.register(channel, providerApplicationId, "org.skywaking.apm.testcase.dubbo.services.GreetService.doBusiness()");
         }
 
         Ids ids = new Ids();
@@ -119,64 +108,6 @@ public class GrpcSegmentPost {
                 logger.error(e.getMessage(), e);
             }
         }
-    }
-
-    private int registerApplication(ManagedChannel channel, String applicationCode) {
-        ApplicationRegisterServiceGrpc.ApplicationRegisterServiceBlockingStub stub = ApplicationRegisterServiceGrpc.newBlockingStub(channel);
-        Application application = Application.newBuilder().addApplicationCode(applicationCode).build();
-        ApplicationMapping mapping = stub.register(application);
-        int applicationId = mapping.getApplication(0).getValue();
-
-        try {
-            Thread.sleep(10);
-        } catch (InterruptedException e) {
-        }
-        return applicationId;
-    }
-
-    private int registerInstanceId(ManagedChannel channel, String agentUUId, Integer applicationId,
-        String hostName, int processNo) {
-        InstanceDiscoveryServiceGrpc.InstanceDiscoveryServiceBlockingStub stub = InstanceDiscoveryServiceGrpc.newBlockingStub(channel);
-        ApplicationInstance.Builder instance = ApplicationInstance.newBuilder();
-        instance.setApplicationId(applicationId);
-        instance.setRegisterTime(System.currentTimeMillis());
-        instance.setAgentUUID(agentUUId);
-
-        OSInfo.Builder osInfo = OSInfo.newBuilder();
-        osInfo.setHostname(hostName);
-        osInfo.setOsName("Linux");
-        osInfo.setProcessNo(processNo);
-        osInfo.addIpv4S("10.0.0.1");
-        osInfo.addIpv4S("10.0.0.2");
-        instance.setOsinfo(osInfo.build());
-
-        ApplicationInstanceMapping mapping = stub.register(instance.build());
-        int instanceId = mapping.getApplicationInstanceId();
-
-        try {
-            Thread.sleep(10);
-        } catch (InterruptedException e) {
-        }
-        return instanceId;
-    }
-
-    private int registerServiceId(ManagedChannel channel, int applicationId, String serviceName) {
-        ServiceNameDiscoveryServiceGrpc.ServiceNameDiscoveryServiceBlockingStub stub = ServiceNameDiscoveryServiceGrpc.newBlockingStub(channel);
-        ServiceNameCollection.Builder collection = ServiceNameCollection.newBuilder();
-
-        ServiceNameElement.Builder element = ServiceNameElement.newBuilder();
-        element.setApplicationId(applicationId);
-        element.setServiceName(serviceName);
-        collection.addElements(element);
-
-        ServiceNameMappingCollection mappingCollection = stub.discovery(collection.build());
-        int serviceId = mappingCollection.getElements(0).getServiceId();
-
-        try {
-            Thread.sleep(10);
-        } catch (InterruptedException e) {
-        }
-        return serviceId;
     }
 
     class BuildNewSegment implements Runnable {

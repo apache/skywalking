@@ -30,10 +30,13 @@ public class ServiceNameDiscoveryServiceHandler extends ServiceNameDiscoveryServ
             int applicationId = serviceNameElement.getApplicationId();
             String serviceName = serviceNameElement.getServiceName();
             int serviceId = serviceNameService.getOrCreate(applicationId, serviceName);
-            ServiceNameMappingElement.Builder mappingElement = ServiceNameMappingElement.newBuilder();
-            mappingElement.setServiceId(serviceId);
-            mappingElement.setElement(serviceNameElement);
-            builder.addElements(mappingElement);
+
+            if (serviceId != 0) {
+                ServiceNameMappingElement.Builder mappingElement = ServiceNameMappingElement.newBuilder();
+                mappingElement.setServiceId(serviceId);
+                mappingElement.setElement(serviceNameElement);
+                builder.addElements(mappingElement);
+            }
         }
 
         responseObserver.onNext(builder.build());
