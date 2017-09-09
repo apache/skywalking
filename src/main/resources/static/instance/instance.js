@@ -46,6 +46,7 @@ requirejs(['/main.js'], function (main) {
                     $("#startTimeInput").prop("disabled", true);
                     $("#startTimeInput").val("");
                     $("#startTimeInput").attr("timestamp", "");
+                    metricCharts.updateMetricCharts(moment().subtract(config.differentTime, "seconds").format("YYYYMMDDHHmmss"));
                     window.updateChartTimeTask = setInterval(function () {
                         metricCharts.autoUpdateMetricCharts(moment().subtract(config.differentTime, "seconds").format("YYYYMMDDHHmmss"));
                     }, 1000);
