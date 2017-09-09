@@ -14,7 +14,6 @@ import org.skywalking.apm.collector.ui.jetty.handler.SegmentTopGetHandler;
 import org.skywalking.apm.collector.ui.jetty.handler.SpanGetHandler;
 import org.skywalking.apm.collector.ui.jetty.handler.TraceDagGetHandler;
 import org.skywalking.apm.collector.ui.jetty.handler.TraceStackGetHandler;
-import org.skywalking.apm.collector.ui.jetty.handler.UIJettyServerHandler;
 import org.skywalking.apm.collector.ui.jetty.handler.application.ApplicationsGetHandler;
 import org.skywalking.apm.collector.ui.jetty.handler.instancehealth.InstanceHealthGetHandler;
 import org.skywalking.apm.collector.ui.jetty.handler.instancemetric.InstanceMetricGetOneTimeBucketHandler;
@@ -59,7 +58,6 @@ public class UIJettyModuleDefine extends UIModuleDefine {
 
     @Override public List<Handler> handlerList() {
         List<Handler> handlers = new LinkedList<>();
-        handlers.add(new UIJettyServerHandler());
         handlers.add(new TraceDagGetHandler());
         handlers.add(new SegmentTopGetHandler());
         handlers.add(new TraceStackGetHandler());
