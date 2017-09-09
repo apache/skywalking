@@ -1,10 +1,9 @@
 package org.skywalking.apm.collector.agentstream.worker.serviceref;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import org.skywalking.apm.collector.agentstream.worker.cache.InstanceCache;
 import org.skywalking.apm.collector.agentstream.worker.segment.EntrySpanListener;
-import org.skywalking.apm.collector.agentstream.worker.segment.ExitSpanListener;
 import org.skywalking.apm.collector.agentstream.worker.segment.FirstSpanListener;
 import org.skywalking.apm.collector.agentstream.worker.segment.RefsListener;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
@@ -15,7 +14,6 @@ import org.skywalking.apm.collector.stream.StreamModuleContext;
 import org.skywalking.apm.collector.stream.StreamModuleGroupDefine;
 import org.skywalking.apm.collector.stream.worker.WorkerInvokeException;
 import org.skywalking.apm.collector.stream.worker.WorkerNotFoundException;
-import org.skywalking.apm.network.proto.SpanLayer;
 import org.skywalking.apm.network.proto.SpanObject;
 import org.skywalking.apm.network.proto.TraceSegmentReference;
 import org.slf4j.Logger;
@@ -24,18 +22,18 @@ import org.slf4j.LoggerFactory;
 /**
  * @author pengys5
  */
-public class ServiceReferenceSpanListener implements FirstSpanListener, EntrySpanListener, ExitSpanListener, RefsListener {
+public class ServiceReferenceSpanListener implements FirstSpanListener, EntrySpanListener, RefsListener {
 
     private final Logger logger = LoggerFactory.getLogger(ServiceReferenceSpanListener.class);
 
-    private List<ServiceReferenceDataDefine.ServiceReference> exitServiceRefs = new ArrayList<>();
-    private List<TraceSegmentReference> referenceServices = new ArrayList<>();
+    private List<TraceSegmentReference> referenceServices = new LinkedList<>();
     private int serviceId = 0;
     private String serviceName = "";
     private long startTime = 0;
     private long endTime = 0;
     private boolean isError = false;
     private long timeBucket;
+    private boolean hasEntry = false;
 
     @Override
     public void parseFirst(SpanObject spanObject, int applicationId, int applicationInstanceId, String segmentId) {
@@ -58,21 +56,7 @@ public class ServiceReferenceSpanListener implements FirstSpanListener, EntrySpa
         startTime = spanObject.getStartTime();
         endTime = spanObject.getEndTime();
         isError = spanObject.getIsError();
-    }
-
-    @Override
-    public void parseExit(SpanObject spanObject, int applicationId, int applicationInstanceId, String segmentId) {
-        if (spanObject.getSpanLayer().equals(SpanLayer.Database)) {
-            ServiceReferenceDataDefine.ServiceReference serviceReference = new ServiceReferenceDataDefine.ServiceReference();
-            serviceReference.setBehindServiceId(spanObject.getOperationNameId());
-            if (spanObject.getOperationNameId() == 0) {
-                serviceReference.setBehindServiceName(String.valueOf(applicationId) + Const.ID_SPLIT + spanObject.getOperationName());
-            } else {
-                serviceReference.setBehindServiceName(Const.EMPTY_STRING);
-            }
-            calculateCost(serviceReference, spanObject.getStartTime(), spanObject.getEndTime(), spanObject.getIsError());
-            exitServiceRefs.add(serviceReference);
-        }
+        this.hasEntry = true;
     }
 
     private void calculateCost(ServiceReferenceDataDefine.ServiceReference serviceReference, long startTime,
@@ -96,65 +80,41 @@ public class ServiceReferenceSpanListener implements FirstSpanListener, EntrySpa
 
     @Override public void build() {
         logger.debug("service reference listener build");
-        StreamModuleContext context = (StreamModuleContext)CollectorContextHelper.INSTANCE.getContext(StreamModuleGroupDefine.GROUP_NAME);
+        if (hasEntry) {
+            StreamModuleContext context = (StreamModuleContext)CollectorContextHelper.INSTANCE.getContext(StreamModuleGroupDefine.GROUP_NAME);
 
-        if (referenceServices.size() > 0) {
-            referenceServices.forEach(reference -> {
-                ServiceReferenceDataDefine.ServiceReference serviceReference = new ServiceReferenceDataDefine.ServiceReference();
-                int entryServiceId = reference.getEntryServiceId();
-                String entryServiceName = buildServiceName(reference.getEntryApplicationInstanceId(), reference.getEntryServiceId(), reference.getEntryServiceName());
-
-                int frontServiceId = reference.getParentServiceId();
-                String frontServiceName = buildServiceName(reference.getParentApplicationInstanceId(), reference.getParentServiceId(), reference.getParentServiceName());
-
-                int behindServiceId = serviceId;
-                String behindServiceName = serviceName;
-
-                calculateCost(serviceReference, startTime, endTime, isError);
-
-                logger.debug("has reference, entryServiceId: {}, entryServiceName: {}", entryServiceId, entryServiceName);
-                sendToAggregationWorker(context, serviceReference, entryServiceId, entryServiceName, frontServiceId, frontServiceName, behindServiceId, behindServiceName);
-            });
-        } else {
-            ServiceReferenceDataDefine.ServiceReference serviceReference = new ServiceReferenceDataDefine.ServiceReference();
-            int entryServiceId = serviceId;
-            String entryServiceName = serviceName;
-
-            int frontServiceId = Const.NONE_SERVICE_ID;
-            String frontServiceName = Const.EMPTY_STRING;
-
-            int behindServiceId = serviceId;
-            String behindServiceName = serviceName;
-
-            calculateCost(serviceReference, startTime, endTime, isError);
-            sendToAggregationWorker(context, serviceReference, entryServiceId, entryServiceName, frontServiceId, frontServiceName, behindServiceId, behindServiceName);
-        }
-
-        exitServiceRefs.forEach(serviceReference -> {
             if (referenceServices.size() > 0) {
                 referenceServices.forEach(reference -> {
+                    ServiceReferenceDataDefine.ServiceReference serviceReference = new ServiceReferenceDataDefine.ServiceReference();
                     int entryServiceId = reference.getEntryServiceId();
                     String entryServiceName = buildServiceName(reference.getEntryApplicationInstanceId(), reference.getEntryServiceId(), reference.getEntryServiceName());
 
                     int frontServiceId = reference.getParentServiceId();
                     String frontServiceName = buildServiceName(reference.getParentApplicationInstanceId(), reference.getParentServiceId(), reference.getParentServiceName());
 
-                    int behindServiceId = serviceReference.getBehindServiceId();
-                    String behindServiceName = serviceReference.getBehindServiceName();
+                    int behindServiceId = serviceId;
+                    String behindServiceName = serviceName;
+
+                    calculateCost(serviceReference, startTime, endTime, isError);
+
+                    logger.debug("has reference, entryServiceId: {}, entryServiceName: {}", entryServiceId, entryServiceName);
                     sendToAggregationWorker(context, serviceReference, entryServiceId, entryServiceName, frontServiceId, frontServiceName, behindServiceId, behindServiceName);
                 });
             } else {
+                ServiceReferenceDataDefine.ServiceReference serviceReference = new ServiceReferenceDataDefine.ServiceReference();
                 int entryServiceId = serviceId;
                 String entryServiceName = serviceName;
 
-                int frontServiceId = serviceId;
-                String frontServiceName = serviceName;
+                int frontServiceId = Const.NONE_SERVICE_ID;
+                String frontServiceName = Const.EMPTY_STRING;
 
-                int behindServiceId = serviceReference.getBehindServiceId();
-                String behindServiceName = serviceReference.getBehindServiceName();
+                int behindServiceId = serviceId;
+                String behindServiceName = serviceName;
+
+                calculateCost(serviceReference, startTime, endTime, isError);
                 sendToAggregationWorker(context, serviceReference, entryServiceId, entryServiceName, frontServiceId, frontServiceName, behindServiceId, behindServiceName);
             }
-        });
+        }
     }
 
     private void sendToAggregationWorker(StreamModuleContext context,

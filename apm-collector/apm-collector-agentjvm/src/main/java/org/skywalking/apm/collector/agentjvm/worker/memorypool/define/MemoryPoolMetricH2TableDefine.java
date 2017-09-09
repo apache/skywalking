@@ -15,7 +15,7 @@ public class MemoryPoolMetricH2TableDefine extends H2TableDefine {
 
     @Override public void initialize() {
         addColumn(new H2ColumnDefine(MemoryPoolMetricTable.COLUMN_ID, H2ColumnDefine.Type.Varchar.name()));
-        addColumn(new H2ColumnDefine(MemoryPoolMetricTable.COLUMN_APPLICATION_INSTANCE_ID, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(MemoryPoolMetricTable.COLUMN_INSTANCE_ID, H2ColumnDefine.Type.Int.name()));
         addColumn(new H2ColumnDefine(MemoryPoolMetricTable.COLUMN_POOL_TYPE, H2ColumnDefine.Type.Int.name()));
         addColumn(new H2ColumnDefine(MemoryPoolMetricTable.COLUMN_IS_HEAP, H2ColumnDefine.Type.Boolean.name()));
         addColumn(new H2ColumnDefine(MemoryPoolMetricTable.COLUMN_INIT, H2ColumnDefine.Type.Bigint.name()));

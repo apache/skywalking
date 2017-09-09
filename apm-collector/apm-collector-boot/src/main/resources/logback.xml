@@ -10,7 +10,7 @@
     <logger name="org.eclipse.jetty" level="INFO"/>
     <logger name="org.apache.zookeeper" level="INFO"/>
 
-    <root level="debug">
+    <root level="info">
         <appender-ref ref="STDOUT"/>
     </root>
 </configuration>

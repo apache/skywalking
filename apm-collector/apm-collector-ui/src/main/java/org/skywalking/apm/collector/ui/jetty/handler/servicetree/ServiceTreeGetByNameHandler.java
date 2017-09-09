@@ -11,31 +11,32 @@ import org.slf4j.LoggerFactory;
 /**
  * @author pengys5
  */
-public class ServiceTreeGetHandler extends JettyHandler {
+public class ServiceTreeGetByNameHandler extends JettyHandler {
 
-    private final Logger logger = LoggerFactory.getLogger(ServiceTreeGetHandler.class);
+    private final Logger logger = LoggerFactory.getLogger(ServiceTreeGetByNameHandler.class);
 
     @Override public String pathSpec() {
-        return "/service/tree";
+        return "/service/tree/entryServiceName";
     }
 
     private ServiceTreeService service = new ServiceTreeService();
 
     @Override protected JsonElement doGet(HttpServletRequest req) throws ArgumentsParseException {
-        if (!req.getParameterMap().containsKey("entryServiceId") || !req.getParameterMap().containsKey("startTime") || !req.getParameterMap().containsKey("endTime")) {
-            throw new ArgumentsParseException("must contains parameters: entryServiceId, startTime, endTime");
+        if (!req.getParameterMap().containsKey("entryServiceName") || !req.getParameterMap().containsKey("entryApplicationId") || !req.getParameterMap().containsKey("startTime") || !req.getParameterMap().containsKey("endTime")) {
+            throw new ArgumentsParseException("must contains parameters: entryServiceName, entryApplicationId, startTime, endTime");
         }
 
-        String entryServiceIdStr = req.getParameter("entryServiceId");
+        String entryServiceName = req.getParameter("entryServiceName");
+        String entryApplicationIdStr = req.getParameter("entryApplicationId");
         String startTimeStr = req.getParameter("startTime");
         String endTimeStr = req.getParameter("endTime");
-        logger.debug("service entry get entryServiceId: {}, startTime: {}, endTime: {}", entryServiceIdStr, startTimeStr, endTimeStr);
+        logger.debug("service entry get entryServiceName: {}, startTime: {}, endTime: {}", entryServiceName, startTimeStr, endTimeStr);
 
-        int entryServiceId;
+        int entryApplicationId;
         try {
-            entryServiceId = Integer.parseInt(entryServiceIdStr);
+            entryApplicationId = Integer.parseInt(entryApplicationIdStr);
         } catch (NumberFormatException e) {
-            throw new ArgumentsParseException("entry service id must be integer");
+            throw new ArgumentsParseException("entry application id must be integer");
         }
 
         long startTime;
@@ -52,7 +53,7 @@ public class ServiceTreeGetHandler extends JettyHandler {
             throw new ArgumentsParseException("end time must be long");
         }
 
-        return service.loadServiceTree(entryServiceId, startTime, endTime);
+        return service.loadServiceTree(entryServiceName, entryApplicationId, startTime, endTime);
     }
 
     @Override protected JsonElement doPost(HttpServletRequest req) throws ArgumentsParseException {

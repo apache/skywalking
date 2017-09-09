@@ -22,7 +22,9 @@ public class ServiceNameEsDAO extends EsDAO implements IServiceNameDAO {
 
         GetResponse getResponse = getRequestBuilder.get();
         if (getResponse.isExists()) {
-            return (String)getResponse.getSource().get(ServiceNameTable.COLUMN_SERVICE_NAME);
+            String serviceName = (String)getResponse.getSource().get(ServiceNameTable.COLUMN_SERVICE_NAME);
+            int applicationId = ((Number)getResponse.getSource().get(ServiceNameTable.COLUMN_APPLICATION_ID)).intValue();
+            return applicationId + Const.ID_SPLIT + serviceName;
         }
         return Const.UNKNOWN;
     }

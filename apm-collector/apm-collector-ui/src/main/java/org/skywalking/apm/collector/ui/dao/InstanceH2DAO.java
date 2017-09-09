@@ -1,6 +1,7 @@
 package org.skywalking.apm.collector.ui.dao;
 
 import com.google.gson.JsonArray;
+import java.util.List;
 import org.skywalking.apm.collector.storage.define.register.InstanceDataDefine;
 import org.skywalking.apm.collector.storage.h2.dao.H2DAO;
 
@@ -21,6 +22,10 @@ public class InstanceH2DAO extends H2DAO implements IInstanceDAO {
     }
 
     @Override public InstanceDataDefine.Instance getInstance(int instanceId) {
+        return null;
+    }
+
+    @Override public List<InstanceDataDefine.Instance> getInstances(int applicationId, long timeBucket) {
         return null;
     }
 }

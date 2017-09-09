@@ -7,7 +7,7 @@ import com.google.gson.JsonObject;
  */
 public interface IGCMetricDAO {
 
-    GCCount getGCCount(long timestamp, int instanceId);
+    GCCount getGCCount(long[] timeBuckets, int instanceId);
 
     JsonObject getMetric(int instanceId, long timeBucket);
 

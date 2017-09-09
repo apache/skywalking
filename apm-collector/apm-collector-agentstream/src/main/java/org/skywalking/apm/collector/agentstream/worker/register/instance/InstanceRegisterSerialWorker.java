@@ -1,9 +1,9 @@
 package org.skywalking.apm.collector.agentstream.worker.register.instance;
 
-import org.skywalking.apm.collector.agentstream.worker.register.IdAutoIncrement;
-import org.skywalking.apm.collector.storage.define.register.ApplicationDataDefine;
 import org.skywalking.apm.collector.agentstream.worker.register.instance.dao.IInstanceDAO;
 import org.skywalking.apm.collector.storage.dao.DAOContainer;
+import org.skywalking.apm.collector.storage.define.DataDefine;
+import org.skywalking.apm.collector.storage.define.register.ApplicationDataDefine;
 import org.skywalking.apm.collector.storage.define.register.InstanceDataDefine;
 import org.skywalking.apm.collector.stream.worker.AbstractLocalAsyncWorker;
 import org.skywalking.apm.collector.stream.worker.AbstractLocalAsyncWorkerProvider;
@@ -11,7 +11,6 @@ import org.skywalking.apm.collector.stream.worker.ClusterWorkerContext;
 import org.skywalking.apm.collector.stream.worker.ProviderNotFoundException;
 import org.skywalking.apm.collector.stream.worker.Role;
 import org.skywalking.apm.collector.stream.worker.WorkerException;
-import org.skywalking.apm.collector.storage.define.DataDefine;
 import org.skywalking.apm.collector.stream.worker.selector.ForeverFirstSelector;
 import org.skywalking.apm.collector.stream.worker.selector.WorkerSelector;
 import org.slf4j.Logger;
@@ -40,16 +39,25 @@ public class InstanceRegisterSerialWorker extends AbstractLocalAsyncWorker {
             IInstanceDAO dao = (IInstanceDAO)DAOContainer.INSTANCE.get(IInstanceDAO.class.getName());
             int instanceId = dao.getInstanceId(instance.getApplicationId(), instance.getAgentUUID());
             if (instanceId == 0) {
-                int min = dao.getMinInstanceId();
-                if (min == 0) {
+//                int min = dao.getMinInstanceId();
+//                if (min == 0) {
+//                    instance.setId("1");
+//                    instance.setInstanceId(1);
+//                } else {
+//                    int max = dao.getMaxInstanceId();
+//                    instanceId = IdAutoIncrement.INSTANCE.increment(min, max);
+//                    instance.setId(String.valueOf(instanceId));
+//                    instance.setInstanceId(instanceId);
+//                }
+                int max = dao.getMaxInstanceId();
+                if (max == 0) {
                     instance.setId("1");
                     instance.setInstanceId(1);
                 } else {
-                    int max = dao.getMaxInstanceId();
-                    instanceId = IdAutoIncrement.INSTANCE.increment(min, max);
-                    instance.setId(String.valueOf(instanceId));
-                    instance.setInstanceId(instanceId);
+                    instance.setId(String.valueOf(max + 1));
+                    instance.setInstanceId(max + 1);
                 }
+
                 dao.save(instance);
             }
         }

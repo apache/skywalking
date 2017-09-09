@@ -21,7 +21,7 @@ public class MemoryPoolMetricEsDAO extends EsDAO implements IMemoryPoolMetricDAO
 
     @Override public IndexRequestBuilder prepareBatchInsert(Data data) {
         Map<String, Object> source = new HashMap<>();
-        source.put(MemoryPoolMetricTable.COLUMN_APPLICATION_INSTANCE_ID, data.getDataInteger(0));
+        source.put(MemoryPoolMetricTable.COLUMN_INSTANCE_ID, data.getDataInteger(0));
         source.put(MemoryPoolMetricTable.COLUMN_POOL_TYPE, data.getDataInteger(1));
         source.put(MemoryPoolMetricTable.COLUMN_IS_HEAP, data.getDataBoolean(0));
         source.put(MemoryPoolMetricTable.COLUMN_INIT, data.getDataLong(0));

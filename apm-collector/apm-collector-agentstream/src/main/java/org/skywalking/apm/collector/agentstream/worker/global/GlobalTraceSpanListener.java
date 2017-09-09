@@ -2,11 +2,12 @@ package org.skywalking.apm.collector.agentstream.worker.global;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.skywalking.apm.collector.storage.define.global.GlobalTraceDataDefine;
 import org.skywalking.apm.collector.agentstream.worker.segment.FirstSpanListener;
 import org.skywalking.apm.collector.agentstream.worker.segment.GlobalTraceIdsListener;
-import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
+import org.skywalking.apm.collector.core.util.Const;
+import org.skywalking.apm.collector.core.util.TimeBucketUtils;
+import org.skywalking.apm.collector.storage.define.global.GlobalTraceDataDefine;
 import org.skywalking.apm.collector.stream.StreamModuleContext;
 import org.skywalking.apm.collector.stream.StreamModuleGroupDefine;
 import org.skywalking.apm.collector.stream.worker.WorkerInvokeException;
@@ -35,7 +36,13 @@ public class GlobalTraceSpanListener implements FirstSpanListener, GlobalTraceId
 
     @Override public void parseGlobalTraceId(UniqueId uniqueId) {
         StringBuilder globalTraceIdBuilder = new StringBuilder();
-        uniqueId.getIdPartsList().forEach(globalTraceIdBuilder::append);
+        for (int i = 0; i < uniqueId.getIdPartsList().size(); i++) {
+            if (i == 0) {
+                globalTraceIdBuilder.append(uniqueId.getIdPartsList().get(i));
+            } else {
+                globalTraceIdBuilder.append(".").append(uniqueId.getIdPartsList().get(i));
+            }
+        }
         globalTraceIds.add(globalTraceIdBuilder.toString());
     }
 
@@ -46,7 +53,7 @@ public class GlobalTraceSpanListener implements FirstSpanListener, GlobalTraceId
         for (String globalTraceId : globalTraceIds) {
             GlobalTraceDataDefine.GlobalTrace globalTrace = new GlobalTraceDataDefine.GlobalTrace();
             globalTrace.setGlobalTraceId(globalTraceId);
-            globalTrace.setId(segmentId + globalTraceId);
+            globalTrace.setId(segmentId + Const.ID_SPLIT + globalTraceId);
             globalTrace.setSegmentId(segmentId);
             globalTrace.setTimeBucket(timeBucket);
             try {

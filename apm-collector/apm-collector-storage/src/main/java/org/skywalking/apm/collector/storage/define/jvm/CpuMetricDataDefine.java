@@ -3,12 +3,13 @@ package org.skywalking.apm.collector.storage.define.jvm;
 import org.skywalking.apm.collector.core.framework.UnexpectedException;
 import org.skywalking.apm.collector.core.stream.Data;
 import org.skywalking.apm.collector.core.stream.Transform;
+import org.skywalking.apm.collector.core.stream.operate.AddOperation;
+import org.skywalking.apm.collector.core.stream.operate.CoverOperation;
+import org.skywalking.apm.collector.core.stream.operate.NonOperation;
 import org.skywalking.apm.collector.remote.grpc.proto.RemoteData;
 import org.skywalking.apm.collector.storage.define.Attribute;
 import org.skywalking.apm.collector.storage.define.AttributeType;
 import org.skywalking.apm.collector.storage.define.DataDefine;
-import org.skywalking.apm.collector.core.stream.operate.CoverOperation;
-import org.skywalking.apm.collector.core.stream.operate.NonOperation;
 
 /**
  * @author pengys5
@@ -21,8 +22,8 @@ public class CpuMetricDataDefine extends DataDefine {
 
     @Override protected void attributeDefine() {
         addAttribute(0, new Attribute(CpuMetricTable.COLUMN_ID, AttributeType.STRING, new NonOperation()));
-        addAttribute(1, new Attribute(CpuMetricTable.COLUMN_APPLICATION_INSTANCE_ID, AttributeType.INTEGER, new CoverOperation()));
-        addAttribute(2, new Attribute(CpuMetricTable.COLUMN_USAGE_PERCENT, AttributeType.DOUBLE, new CoverOperation()));
+        addAttribute(1, new Attribute(CpuMetricTable.COLUMN_INSTANCE_ID, AttributeType.INTEGER, new CoverOperation()));
+        addAttribute(2, new Attribute(CpuMetricTable.COLUMN_USAGE_PERCENT, AttributeType.DOUBLE, new AddOperation()));
         addAttribute(3, new Attribute(CpuMetricTable.COLUMN_TIME_BUCKET, AttributeType.LONG, new CoverOperation()));
     }
 
@@ -36,13 +37,13 @@ public class CpuMetricDataDefine extends DataDefine {
 
     public static class CpuMetric implements Transform<CpuMetric> {
         private String id;
-        private int applicationInstanceId;
+        private int instanceId;
         private double usagePercent;
         private long timeBucket;
 
-        public CpuMetric(String id, int applicationInstanceId, double usagePercent, long timeBucket) {
+        public CpuMetric(String id, int instanceId, double usagePercent, long timeBucket) {
             this.id = id;
-            this.applicationInstanceId = applicationInstanceId;
+            this.instanceId = instanceId;
             this.usagePercent = usagePercent;
             this.timeBucket = timeBucket;
         }
@@ -54,7 +55,7 @@ public class CpuMetricDataDefine extends DataDefine {
             CpuMetricDataDefine define = new CpuMetricDataDefine();
             Data data = define.build(id);
             data.setDataString(0, this.id);
-            data.setDataInteger(0, this.applicationInstanceId);
+            data.setDataInteger(0, this.instanceId);
             data.setDataDouble(0, this.usagePercent);
             data.setDataLong(0, this.timeBucket);
             return data;
@@ -62,7 +63,7 @@ public class CpuMetricDataDefine extends DataDefine {
 
         @Override public CpuMetric toSelf(Data data) {
             this.id = data.getDataString(0);
-            this.applicationInstanceId = data.getDataInteger(0);
+            this.instanceId = data.getDataInteger(0);
             this.usagePercent = data.getDataDouble(0);
             this.timeBucket = data.getDataLong(0);
             return this;
@@ -72,8 +73,8 @@ public class CpuMetricDataDefine extends DataDefine {
             this.id = id;
         }
 
-        public void setApplicationInstanceId(int applicationInstanceId) {
-            this.applicationInstanceId = applicationInstanceId;
+        public void setInstanceId(int instanceId) {
+            this.instanceId = instanceId;
         }
 
         public void setUsagePercent(double usagePercent) {
@@ -88,8 +89,8 @@ public class CpuMetricDataDefine extends DataDefine {
             return id;
         }
 
-        public int getApplicationInstanceId() {
-            return applicationInstanceId;
+        public int getInstanceId() {
+            return instanceId;
         }
 
         public double getUsagePercent() {

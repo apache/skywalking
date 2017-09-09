@@ -16,17 +16,16 @@ import org.skywalking.apm.collector.storage.define.DataDefine;
 public class GCMetricDataDefine extends DataDefine {
 
     @Override protected int initialCapacity() {
-        return 7;
+        return 6;
     }
 
     @Override protected void attributeDefine() {
         addAttribute(0, new Attribute(GCMetricTable.COLUMN_ID, AttributeType.STRING, new NonOperation()));
-        addAttribute(1, new Attribute(GCMetricTable.COLUMN_APPLICATION_INSTANCE_ID, AttributeType.INTEGER, new CoverOperation()));
+        addAttribute(1, new Attribute(GCMetricTable.COLUMN_INSTANCE_ID, AttributeType.INTEGER, new CoverOperation()));
         addAttribute(2, new Attribute(GCMetricTable.COLUMN_PHRASE, AttributeType.INTEGER, new CoverOperation()));
         addAttribute(3, new Attribute(GCMetricTable.COLUMN_COUNT, AttributeType.LONG, new CoverOperation()));
         addAttribute(4, new Attribute(GCMetricTable.COLUMN_TIME, AttributeType.LONG, new CoverOperation()));
         addAttribute(5, new Attribute(GCMetricTable.COLUMN_TIME_BUCKET, AttributeType.LONG, new CoverOperation()));
-        addAttribute(6, new Attribute(GCMetricTable.COLUMN_5S_TIME_BUCKET, AttributeType.LONG, new CoverOperation()));
     }
 
     @Override public Object deserialize(RemoteData remoteData) {
@@ -39,22 +38,19 @@ public class GCMetricDataDefine extends DataDefine {
 
     public static class GCMetric implements Transform<GCMetric> {
         private String id;
-        private int applicationInstanceId;
+        private int instanceId;
         private int phrase;
         private long count;
         private long time;
         private long timeBucket;
-        private long s5TimeBucket;
 
-        public GCMetric(String id, int applicationInstanceId, int phrase, long count, long time, long timeBucket,
-            long s5TimeBucket) {
+        public GCMetric(String id, int instanceId, int phrase, long count, long time, long timeBucket) {
             this.id = id;
-            this.applicationInstanceId = applicationInstanceId;
+            this.instanceId = instanceId;
             this.phrase = phrase;
             this.count = count;
             this.time = time;
             this.timeBucket = timeBucket;
-            this.s5TimeBucket = s5TimeBucket;
         }
 
         public GCMetric() {
@@ -64,23 +60,21 @@ public class GCMetricDataDefine extends DataDefine {
             GCMetricDataDefine define = new GCMetricDataDefine();
             Data data = define.build(id);
             data.setDataString(0, this.id);
-            data.setDataInteger(0, this.applicationInstanceId);
+            data.setDataInteger(0, this.instanceId);
             data.setDataInteger(1, this.phrase);
             data.setDataLong(0, this.count);
             data.setDataLong(1, this.time);
             data.setDataLong(2, this.timeBucket);
-            data.setDataLong(3, this.s5TimeBucket);
             return data;
         }
 
         @Override public GCMetric toSelf(Data data) {
             this.id = data.getDataString(0);
-            this.applicationInstanceId = data.getDataInteger(0);
+            this.instanceId = data.getDataInteger(0);
             this.phrase = data.getDataInteger(1);
             this.count = data.getDataLong(0);
             this.time = data.getDataLong(1);
             this.timeBucket = data.getDataLong(2);
-            this.s5TimeBucket = data.getDataLong(3);
             return this;
         }
 
@@ -88,8 +82,8 @@ public class GCMetricDataDefine extends DataDefine {
             this.id = id;
         }
 
-        public void setApplicationInstanceId(int applicationInstanceId) {
-            this.applicationInstanceId = applicationInstanceId;
+        public void setInstanceId(int instanceId) {
+            this.instanceId = instanceId;
         }
 
         public void setTimeBucket(long timeBucket) {
@@ -100,8 +94,8 @@ public class GCMetricDataDefine extends DataDefine {
             return id;
         }
 
-        public int getApplicationInstanceId() {
-            return applicationInstanceId;
+        public int getInstanceId() {
+            return instanceId;
         }
 
         public long getTimeBucket() {
@@ -130,14 +124,6 @@ public class GCMetricDataDefine extends DataDefine {
 
         public void setTime(long time) {
             this.time = time;
-        }
-
-        public long getS5TimeBucket() {
-            return s5TimeBucket;
-        }
-
-        public void setS5TimeBucket(long s5TimeBucket) {
-            this.s5TimeBucket = s5TimeBucket;
         }
     }
 }
