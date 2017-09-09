@@ -23,11 +23,7 @@ define(['jquery', 'vue', 'text!metricSelectorHtml', 'cpuChart', 'gcChart', 'memo
                         if ($(event.target).prop("checked")) {
                             metricChartsController.queryParam.metricNames.push(chartName);
                             metricChartsController.charts.push(initChart(chartName, moment(metricChartsController.currentXAxesOriginPoint, "YYYYMMDDHHmmss").subtract(5, "minutes").format("YYYYMMDDHHmmss")));
-                            if (!$("#autoUpdate").prop('checked')) {
-                                updateMetricCharts(metricChartsController.currentXAxesOriginPoint);
-                            } else {
-                                metricChartsController.queryParam.startTime = moment(metricChartsController.currentXAxesOriginPoint, "YYYYMMDDHHmmss").subtract(5, "minutes").format("YYYYMMDDHHmmss");
-                            }
+                            updateMetricCharts(metricChartsController.currentXAxesOriginPoint);
                         } else {
                             $("#" + chartName + "-div").remove();
                             var index = findChartObject(chartName);
