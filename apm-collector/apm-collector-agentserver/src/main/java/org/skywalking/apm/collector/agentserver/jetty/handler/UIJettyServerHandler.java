@@ -1,4 +1,4 @@
-package org.skywalking.apm.collector.ui.jetty.handler;
+package org.skywalking.apm.collector.agentserver.jetty.handler;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
