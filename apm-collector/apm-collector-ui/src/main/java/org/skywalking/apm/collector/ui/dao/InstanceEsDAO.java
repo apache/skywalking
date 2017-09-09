@@ -18,6 +18,7 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.valuecount.ValueCount;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortMode;
+import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.storage.define.register.InstanceDataDefine;
 import org.skywalking.apm.collector.storage.define.register.InstanceTable;
 import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
@@ -34,12 +35,15 @@ public class InstanceEsDAO extends EsDAO implements IInstanceDAO {
 
     @Override public Long lastHeartBeatTime() {
         long fiveMinuteBefore = System.currentTimeMillis() - 5 * 60 * 1000;
+        fiveMinuteBefore = TimeBucketUtils.INSTANCE.getSecondTimeBucket(fiveMinuteBefore);
         RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery(InstanceTable.COLUMN_HEARTBEAT_TIME).gt(fiveMinuteBefore);
         return heartBeatTime(rangeQueryBuilder);
     }
 
     @Override public Long instanceLastHeartBeatTime(long applicationInstanceId) {
         long fiveMinuteBefore = System.currentTimeMillis() - 5 * 60 * 1000;
+        fiveMinuteBefore = TimeBucketUtils.INSTANCE.getSecondTimeBucket(fiveMinuteBefore);
+
         BoolQueryBuilder boolQueryBuilder = new BoolQueryBuilder();
         RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery(InstanceTable.COLUMN_HEARTBEAT_TIME).gt(fiveMinuteBefore);
         MatchQueryBuilder matchQueryBuilder = QueryBuilders.matchQuery(InstanceTable.COLUMN_INSTANCE_ID, applicationInstanceId);

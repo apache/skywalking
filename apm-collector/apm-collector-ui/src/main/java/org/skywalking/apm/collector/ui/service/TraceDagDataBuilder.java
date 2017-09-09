@@ -3,6 +3,7 @@ package org.skywalking.apm.collector.ui.service;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.storage.define.noderef.NodeReferenceTable;
@@ -26,13 +27,14 @@ public class TraceDagDataBuilder {
         changeNodeComp2Map(nodeCompArray);
         changeMapping2Map(nodesMappingArray);
 
-        for (int i = 0; i < resSumArray.size(); i++) {
-            JsonObject nodeRefJsonObj = resSumArray.get(i).getAsJsonObject();
+        Map<String, JsonObject> mergedResSumMap = merge(resSumArray);
+
+        mergedResSumMap.values().forEach(nodeRefJsonObj -> {
             String front = nodeRefJsonObj.get("front").getAsString();
             String behind = nodeRefJsonObj.get("behind").getAsString();
 
             if (hasMapping(behind)) {
-                continue;
+                return;
             }
 
             JsonObject lineJsonObj = new JsonObject();
@@ -42,7 +44,7 @@ public class TraceDagDataBuilder {
 
             lineArray.add(lineJsonObj);
             logger.debug("line: {}", lineJsonObj);
-        }
+        });
 
         JsonObject dagJsonObj = new JsonObject();
         dagJsonObj.add("nodes", pointArray);
@@ -92,5 +94,29 @@ public class TraceDagDataBuilder {
 
     private boolean hasMapping(String peers) {
         return mappingMap.containsKey(peers);
+    }
+
+    private Map<String, JsonObject> merge(JsonArray nodeReference) {
+        Map<String, JsonObject> mergedRef = new LinkedHashMap<>();
+        for (int i = 0; i < nodeReference.size(); i++) {
+            JsonObject nodeRefJsonObj = nodeReference.get(i).getAsJsonObject();
+            String front = nodeRefJsonObj.get("front").getAsString();
+            String behind = nodeRefJsonObj.get("behind").getAsString();
+
+            String id = front + Const.ID_SPLIT + behind;
+            if (mergedRef.containsKey(id)) {
+                JsonObject oldValue = mergedRef.get(id);
+                oldValue.addProperty(NodeReferenceTable.COLUMN_S1_LTE, oldValue.get(NodeReferenceTable.COLUMN_S1_LTE).getAsLong() + nodeRefJsonObj.get(NodeReferenceTable.COLUMN_S1_LTE).getAsLong());
+                oldValue.addProperty(NodeReferenceTable.COLUMN_S3_LTE, oldValue.get(NodeReferenceTable.COLUMN_S3_LTE).getAsLong() + nodeRefJsonObj.get(NodeReferenceTable.COLUMN_S3_LTE).getAsLong());
+                oldValue.addProperty(NodeReferenceTable.COLUMN_S5_LTE, oldValue.get(NodeReferenceTable.COLUMN_S5_LTE).getAsLong() + nodeRefJsonObj.get(NodeReferenceTable.COLUMN_S5_LTE).getAsLong());
+                oldValue.addProperty(NodeReferenceTable.COLUMN_S5_GT, oldValue.get(NodeReferenceTable.COLUMN_S5_GT).getAsLong() + nodeRefJsonObj.get(NodeReferenceTable.COLUMN_S5_GT).getAsLong());
+                oldValue.addProperty(NodeReferenceTable.COLUMN_ERROR, oldValue.get(NodeReferenceTable.COLUMN_ERROR).getAsLong() + nodeRefJsonObj.get(NodeReferenceTable.COLUMN_ERROR).getAsLong());
+                oldValue.addProperty(NodeReferenceTable.COLUMN_SUMMARY, oldValue.get(NodeReferenceTable.COLUMN_SUMMARY).getAsLong() + nodeRefJsonObj.get(NodeReferenceTable.COLUMN_SUMMARY).getAsLong());
+            } else {
+                mergedRef.put(id, nodeReference.get(i).getAsJsonObject());
+            }
+        }
+
+        return mergedRef;
     }
 }

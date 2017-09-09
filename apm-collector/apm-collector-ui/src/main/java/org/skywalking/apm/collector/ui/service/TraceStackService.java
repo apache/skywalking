@@ -119,7 +119,13 @@ public class TraceStackService {
                         UniqueId uniqueId = reference.getParentTraceSegmentId();
 
                         StringBuilder segmentIdBuilder = new StringBuilder();
-                        uniqueId.getIdPartsList().forEach(part -> segmentIdBuilder.append(String.valueOf(part)));
+                        for (int i = 0; i < uniqueId.getIdPartsList().size(); i++) {
+                            if (i == 0) {
+                                segmentIdBuilder.append(String.valueOf(uniqueId.getIdPartsList().get(i)));
+                            } else {
+                                segmentIdBuilder.append(".").append(String.valueOf(uniqueId.getIdPartsList().get(i)));
+                            }
+                        }
 
                         String parentSegmentId = segmentIdBuilder.toString();
                         segmentParentSpanId = parentSegmentId + Const.SEGMENT_SPAN_SPLIT + String.valueOf(parentSpanId);
