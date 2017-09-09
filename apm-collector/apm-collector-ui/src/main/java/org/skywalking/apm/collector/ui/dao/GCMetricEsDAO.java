@@ -10,7 +10,6 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
@@ -30,18 +29,15 @@ public class GCMetricEsDAO extends EsDAO implements IGCMetricDAO {
 
     private final Logger logger = LoggerFactory.getLogger(GCMetricEsDAO.class);
 
-    @Override public GCCount getGCCount(long s5TimeBucket, int instanceId) {
-        logger.debug("get gc count, s5TimeBucket: {}, instanceId: {}", s5TimeBucket, instanceId);
+    @Override public GCCount getGCCount(long[] timeBuckets, int instanceId) {
+        logger.debug("get gc count, timeBuckets: {}, instanceId: {}", timeBuckets, instanceId);
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(GCMetricTable.TABLE);
         searchRequestBuilder.setTypes(GCMetricTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
 
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-        MatchQueryBuilder matchApplicationId = QueryBuilders.matchQuery(GCMetricTable.COLUMN_APPLICATION_INSTANCE_ID, instanceId);
-        MatchQueryBuilder matchTimeBucket = QueryBuilders.matchQuery(GCMetricTable.COLUMN_5S_TIME_BUCKET, s5TimeBucket);
-
-        boolQuery.must().add(matchApplicationId);
-        boolQuery.must().add(matchTimeBucket);
+        boolQuery.must().add(QueryBuilders.termQuery(GCMetricTable.COLUMN_INSTANCE_ID, instanceId));
+        boolQuery.must().add(QueryBuilders.termsQuery(GCMetricTable.COLUMN_TIME_BUCKET, timeBuckets));
 
         searchRequestBuilder.setQuery(boolQuery);
         searchRequestBuilder.setSize(0);

@@ -22,7 +22,7 @@ public class InstPerformanceSpanListener implements EntrySpanListener, FirstSpan
     private final Logger logger = LoggerFactory.getLogger(InstPerformanceSpanListener.class);
 
     private int applicationId;
-    private int applicationInstanceId;
+    private int instanceId;
     private long cost;
     private long timeBucket;
 
@@ -33,7 +33,7 @@ public class InstPerformanceSpanListener implements EntrySpanListener, FirstSpan
     @Override
     public void parseFirst(SpanObject spanObject, int applicationId, int applicationInstanceId, String segmentId) {
         this.applicationId = applicationId;
-        this.applicationInstanceId = applicationInstanceId;
+        this.instanceId = applicationInstanceId;
         this.cost = spanObject.getEndTime() - spanObject.getStartTime();
         timeBucket = TimeBucketUtils.INSTANCE.getSecondTimeBucket(spanObject.getStartTime());
     }
@@ -42,13 +42,12 @@ public class InstPerformanceSpanListener implements EntrySpanListener, FirstSpan
         StreamModuleContext context = (StreamModuleContext)CollectorContextHelper.INSTANCE.getContext(StreamModuleGroupDefine.GROUP_NAME);
 
         InstPerformanceDataDefine.InstPerformance instPerformance = new InstPerformanceDataDefine.InstPerformance();
-        instPerformance.setId(timeBucket + Const.ID_SPLIT + applicationInstanceId);
+        instPerformance.setId(timeBucket + Const.ID_SPLIT + instanceId);
         instPerformance.setApplicationId(applicationId);
-        instPerformance.setInstanceId(applicationInstanceId);
-        instPerformance.setCallTimes(1);
+        instPerformance.setInstanceId(instanceId);
+        instPerformance.setCalls(1);
         instPerformance.setCostTotal(cost);
         instPerformance.setTimeBucket(timeBucket);
-        instPerformance.setS5TimeBucket(TimeBucketUtils.INSTANCE.getFiveSecondTimeBucket(timeBucket));
 
         try {
             logger.debug("send to instance performance persistence worker, id: {}", instPerformance.getId());

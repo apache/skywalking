@@ -38,29 +38,29 @@ public class JVMMetricsServiceHandler extends JVMMetricsServiceGrpc.JVMMetricsSe
     private final Logger logger = LoggerFactory.getLogger(JVMMetricsServiceHandler.class);
 
     @Override public void collect(JVMMetrics request, StreamObserver<Downstream> responseObserver) {
-        int applicationInstanceId = request.getApplicationInstanceId();
-        logger.debug("receive the jvm metric from application instance, id: {}", applicationInstanceId);
+        int instanceId = request.getApplicationInstanceId();
+        logger.debug("receive the jvm metric from application instance, id: {}", instanceId);
 
         StreamModuleContext context = (StreamModuleContext)CollectorContextHelper.INSTANCE.getContext(StreamModuleGroupDefine.GROUP_NAME);
         request.getMetricsList().forEach(metric -> {
             long time = TimeBucketUtils.INSTANCE.getSecondTimeBucket(metric.getTime());
-            senToInstanceHeartBeatPersistenceWorker(context, applicationInstanceId, metric.getTime());
-            sendToCpuMetricPersistenceWorker(context, applicationInstanceId, time, metric.getCpu());
-            sendToMemoryMetricPersistenceWorker(context, applicationInstanceId, time, metric.getMemoryList());
-            sendToMemoryPoolMetricPersistenceWorker(context, applicationInstanceId, time, metric.getMemoryPoolList());
-            sendToGCMetricPersistenceWorker(context, applicationInstanceId, time, metric.getGcList());
+            senToInstanceHeartBeatPersistenceWorker(context, instanceId, metric.getTime());
+            sendToCpuMetricPersistenceWorker(context, instanceId, time, metric.getCpu());
+            sendToMemoryMetricPersistenceWorker(context, instanceId, time, metric.getMemoryList());
+            sendToMemoryPoolMetricPersistenceWorker(context, instanceId, time, metric.getMemoryPoolList());
+            sendToGCMetricPersistenceWorker(context, instanceId, time, metric.getGcList());
         });
 
         responseObserver.onNext(Downstream.newBuilder().build());
         responseObserver.onCompleted();
     }
 
-    private void senToInstanceHeartBeatPersistenceWorker(StreamModuleContext context, int applicationInstanceId,
+    private void senToInstanceHeartBeatPersistenceWorker(StreamModuleContext context, int instanceId,
         long heartBeatTime) {
         InstanceHeartBeatDataDefine.InstanceHeartBeat heartBeat = new InstanceHeartBeatDataDefine.InstanceHeartBeat();
-        heartBeat.setId(String.valueOf(applicationInstanceId));
+        heartBeat.setId(String.valueOf(instanceId));
         heartBeat.setHeartBeatTime(TimeBucketUtils.INSTANCE.getSecondTimeBucket(heartBeatTime));
-        heartBeat.setInstanceId(applicationInstanceId);
+        heartBeat.setInstanceId(instanceId);
         try {
             logger.debug("send to instance heart beat persistence worker, id: {}", heartBeat.getId());
             context.getClusterWorkerContext().lookup(InstHeartBeatPersistenceWorker.WorkerRole.INSTANCE).tell(heartBeat.toData());
@@ -69,11 +69,11 @@ public class JVMMetricsServiceHandler extends JVMMetricsServiceGrpc.JVMMetricsSe
         }
     }
 
-    private void sendToCpuMetricPersistenceWorker(StreamModuleContext context, int applicationInstanceId,
+    private void sendToCpuMetricPersistenceWorker(StreamModuleContext context, int instanceId,
         long timeBucket, CPU cpu) {
         CpuMetricDataDefine.CpuMetric cpuMetric = new CpuMetricDataDefine.CpuMetric();
-        cpuMetric.setId(timeBucket + Const.ID_SPLIT + applicationInstanceId);
-        cpuMetric.setApplicationInstanceId(applicationInstanceId);
+        cpuMetric.setId(timeBucket + Const.ID_SPLIT + instanceId);
+        cpuMetric.setInstanceId(instanceId);
         cpuMetric.setUsagePercent(cpu.getUsagePercent());
         cpuMetric.setTimeBucket(timeBucket);
         try {
@@ -84,13 +84,13 @@ public class JVMMetricsServiceHandler extends JVMMetricsServiceGrpc.JVMMetricsSe
         }
     }
 
-    private void sendToMemoryMetricPersistenceWorker(StreamModuleContext context, int applicationInstanceId,
+    private void sendToMemoryMetricPersistenceWorker(StreamModuleContext context, int instanceId,
         long timeBucket, List<Memory> memories) {
 
         memories.forEach(memory -> {
             MemoryMetricDataDefine.MemoryMetric memoryMetric = new MemoryMetricDataDefine.MemoryMetric();
-            memoryMetric.setId(timeBucket + Const.ID_SPLIT + applicationInstanceId + Const.ID_SPLIT + String.valueOf(memory.getIsHeap()));
-            memoryMetric.setApplicationInstanceId(applicationInstanceId);
+            memoryMetric.setId(timeBucket + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + String.valueOf(memory.getIsHeap()));
+            memoryMetric.setApplicationInstanceId(instanceId);
             memoryMetric.setHeap(memory.getIsHeap());
             memoryMetric.setInit(memory.getInit());
             memoryMetric.setMax(memory.getMax());
@@ -106,13 +106,13 @@ public class JVMMetricsServiceHandler extends JVMMetricsServiceGrpc.JVMMetricsSe
         });
     }
 
-    private void sendToMemoryPoolMetricPersistenceWorker(StreamModuleContext context, int applicationInstanceId,
+    private void sendToMemoryPoolMetricPersistenceWorker(StreamModuleContext context, int instanceId,
         long timeBucket, List<MemoryPool> memoryPools) {
 
         memoryPools.forEach(memoryPool -> {
             MemoryPoolMetricDataDefine.MemoryPoolMetric memoryPoolMetric = new MemoryPoolMetricDataDefine.MemoryPoolMetric();
-            memoryPoolMetric.setId(timeBucket + Const.ID_SPLIT + applicationInstanceId + Const.ID_SPLIT + memoryPool.getIsHeap() + Const.ID_SPLIT + String.valueOf(memoryPool.getType().getNumber()));
-            memoryPoolMetric.setApplicationInstanceId(applicationInstanceId);
+            memoryPoolMetric.setId(timeBucket + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + memoryPool.getIsHeap() + Const.ID_SPLIT + String.valueOf(memoryPool.getType().getNumber()));
+            memoryPoolMetric.setInstanceId(instanceId);
             memoryPoolMetric.setPoolType(memoryPool.getType().getNumber());
             memoryPoolMetric.setHeap(memoryPool.getIsHeap());
             memoryPoolMetric.setInit(memoryPool.getInit());
@@ -129,17 +129,16 @@ public class JVMMetricsServiceHandler extends JVMMetricsServiceGrpc.JVMMetricsSe
         });
     }
 
-    private void sendToGCMetricPersistenceWorker(StreamModuleContext context, int applicationInstanceId,
+    private void sendToGCMetricPersistenceWorker(StreamModuleContext context, int instanceId,
         long timeBucket, List<GC> gcs) {
         gcs.forEach(gc -> {
             GCMetricDataDefine.GCMetric gcMetric = new GCMetricDataDefine.GCMetric();
-            gcMetric.setId(timeBucket + Const.ID_SPLIT + applicationInstanceId + Const.ID_SPLIT + String.valueOf(gc.getPhraseValue()));
-            gcMetric.setApplicationInstanceId(applicationInstanceId);
+            gcMetric.setId(timeBucket + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + String.valueOf(gc.getPhraseValue()));
+            gcMetric.setInstanceId(instanceId);
             gcMetric.setPhrase(gc.getPhraseValue());
             gcMetric.setCount(gc.getCount());
             gcMetric.setTime(gc.getTime());
             gcMetric.setTimeBucket(timeBucket);
-            gcMetric.setS5TimeBucket(TimeBucketUtils.INSTANCE.getFiveSecondTimeBucket(timeBucket));
             try {
                 logger.debug("send to gc metric persistence worker, id: {}", gcMetric.getId());
                 context.getClusterWorkerContext().lookup(GCMetricPersistenceWorker.WorkerRole.INSTANCE).tell(gcMetric.toData());

@@ -2,6 +2,8 @@ package org.skywalking.apm.collector.ui.dao;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import java.util.LinkedList;
+import java.util.List;
 import org.elasticsearch.action.get.GetRequestBuilder;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -9,7 +11,6 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.index.query.AbstractQueryBuilder;
 import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.search.SearchHit;
@@ -45,10 +46,8 @@ public class InstanceEsDAO extends EsDAO implements IInstanceDAO {
         fiveMinuteBefore = TimeBucketUtils.INSTANCE.getSecondTimeBucket(fiveMinuteBefore);
 
         BoolQueryBuilder boolQueryBuilder = new BoolQueryBuilder();
-        RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery(InstanceTable.COLUMN_HEARTBEAT_TIME).gt(fiveMinuteBefore);
-        MatchQueryBuilder matchQueryBuilder = QueryBuilders.matchQuery(InstanceTable.COLUMN_INSTANCE_ID, applicationInstanceId);
-        boolQueryBuilder.must(rangeQueryBuilder);
-        boolQueryBuilder.must(matchQueryBuilder);
+        boolQueryBuilder.must(QueryBuilders.rangeQuery(InstanceTable.COLUMN_HEARTBEAT_TIME).gt(fiveMinuteBefore));
+        boolQueryBuilder.must(QueryBuilders.termQuery(InstanceTable.COLUMN_INSTANCE_ID, applicationInstanceId));
         return heartBeatTime(boolQueryBuilder);
     }
 
@@ -117,5 +116,31 @@ public class InstanceEsDAO extends EsDAO implements IInstanceDAO {
             return instance;
         }
         return null;
+    }
+
+    @Override public List<InstanceDataDefine.Instance> getInstances(int applicationId, long timeBucket) {
+        logger.debug("get instances info, application id: {}, timeBucket: {}", applicationId, timeBucket);
+        SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(InstanceTable.TABLE);
+        searchRequestBuilder.setTypes(InstanceTable.TABLE_TYPE);
+        searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
+        searchRequestBuilder.setSize(1000);
+
+        BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+        boolQuery.must().add(QueryBuilders.rangeQuery(InstanceTable.COLUMN_HEARTBEAT_TIME).gte(timeBucket));
+        boolQuery.must().add(QueryBuilders.termQuery(InstanceTable.COLUMN_APPLICATION_ID, applicationId));
+        searchRequestBuilder.setQuery(boolQuery);
+
+        SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
+        SearchHit[] searchHits = searchResponse.getHits().getHits();
+
+        List<InstanceDataDefine.Instance> instanceList = new LinkedList<>();
+        for (SearchHit searchHit : searchHits) {
+            InstanceDataDefine.Instance instance = new InstanceDataDefine.Instance();
+            instance.setApplicationId(((Number)searchHit.getSource().get(InstanceTable.COLUMN_APPLICATION_ID)).intValue());
+            instance.setHeartBeatTime(((Number)searchHit.getSource().get(InstanceTable.COLUMN_HEARTBEAT_TIME)).longValue());
+            instance.setInstanceId(((Number)searchHit.getSource().get(InstanceTable.COLUMN_INSTANCE_ID)).intValue());
+            instanceList.add(instance);
+        }
+        return instanceList;
     }
 }

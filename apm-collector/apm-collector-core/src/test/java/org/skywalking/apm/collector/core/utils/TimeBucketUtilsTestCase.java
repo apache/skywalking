@@ -11,14 +11,12 @@ public class TimeBucketUtilsTestCase {
 
     @Test
     public void testGetFiveSecondTimeBucket() {
-        long fiveSecondTimeBucket = TimeBucketUtils.INSTANCE.getFiveSecondTimeBucket(20170804224812L);
-        Assert.assertEquals(20170804224810L, fiveSecondTimeBucket);
-
-        fiveSecondTimeBucket = TimeBucketUtils.INSTANCE.getFiveSecondTimeBucket(20170804224818L);
-        Assert.assertEquals(20170804224820L, fiveSecondTimeBucket);
-
-        fiveSecondTimeBucket = TimeBucketUtils.INSTANCE.getFiveSecondTimeBucket(20170804224815L);
-        Assert.assertEquals(20170804224815L, fiveSecondTimeBucket);
+        long[] timeBuckets = TimeBucketUtils.INSTANCE.getFiveSecondTimeBuckets(20170804224810L);
+        Assert.assertEquals(20170804224810L, timeBuckets[0]);
+        Assert.assertEquals(20170804224809L, timeBuckets[1]);
+        Assert.assertEquals(20170804224808L, timeBuckets[2]);
+        Assert.assertEquals(20170804224807L, timeBuckets[3]);
+        Assert.assertEquals(20170804224806L, timeBuckets[4]);
     }
 
     @Test

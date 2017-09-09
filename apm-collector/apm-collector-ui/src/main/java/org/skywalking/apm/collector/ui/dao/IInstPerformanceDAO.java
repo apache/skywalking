@@ -1,13 +1,12 @@
 package org.skywalking.apm.collector.ui.dao;
 
 import com.google.gson.JsonArray;
-import java.util.List;
 
 /**
  * @author pengys5
  */
 public interface IInstPerformanceDAO {
-    List<InstPerformance> getMultiple(long timeBucket, int applicationId);
+    InstPerformance get(long[] timeBuckets, int instanceId);
 
     int getTpsMetric(int instanceId, long timeBucket);
 
@@ -19,12 +18,12 @@ public interface IInstPerformanceDAO {
 
     class InstPerformance {
         private final int instanceId;
-        private final int callTimes;
+        private final int calls;
         private final long costTotal;
 
-        public InstPerformance(int instanceId, int callTimes, long costTotal) {
+        public InstPerformance(int instanceId, int calls, long costTotal) {
             this.instanceId = instanceId;
-            this.callTimes = callTimes;
+            this.calls = calls;
             this.costTotal = costTotal;
         }
 
@@ -32,8 +31,8 @@ public interface IInstPerformanceDAO {
             return instanceId;
         }
 
-        public int getCallTimes() {
-            return callTimes;
+        public int getCalls() {
+            return calls;
         }
 
         public long getCostTotal() {

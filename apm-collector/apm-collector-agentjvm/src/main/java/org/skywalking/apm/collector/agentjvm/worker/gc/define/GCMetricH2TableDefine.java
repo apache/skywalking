@@ -15,11 +15,10 @@ public class GCMetricH2TableDefine extends H2TableDefine {
 
     @Override public void initialize() {
         addColumn(new H2ColumnDefine(GCMetricTable.COLUMN_ID, H2ColumnDefine.Type.Varchar.name()));
-        addColumn(new H2ColumnDefine(GCMetricTable.COLUMN_APPLICATION_INSTANCE_ID, H2ColumnDefine.Type.Int.name()));
+        addColumn(new H2ColumnDefine(GCMetricTable.COLUMN_INSTANCE_ID, H2ColumnDefine.Type.Int.name()));
         addColumn(new H2ColumnDefine(GCMetricTable.COLUMN_PHRASE, H2ColumnDefine.Type.Int.name()));
         addColumn(new H2ColumnDefine(GCMetricTable.COLUMN_COUNT, H2ColumnDefine.Type.Bigint.name()));
         addColumn(new H2ColumnDefine(GCMetricTable.COLUMN_TIME, H2ColumnDefine.Type.Bigint.name()));
         addColumn(new H2ColumnDefine(GCMetricTable.COLUMN_TIME_BUCKET, H2ColumnDefine.Type.Bigint.name()));
-        addColumn(new H2ColumnDefine(GCMetricTable.COLUMN_5S_TIME_BUCKET, H2ColumnDefine.Type.Bigint.name()));
     }
 }

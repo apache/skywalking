@@ -67,15 +67,18 @@ public enum TimeBucketUtils {
         }
     }
 
-    public long getFiveSecondTimeBucket(long secondTimeBucket) {
-        long mantissa = secondTimeBucket % 10;
-        if (mantissa < 5) {
-            return (secondTimeBucket / 10) * 10;
-        } else if (mantissa == 5) {
-            return secondTimeBucket;
-        } else {
-            return ((secondTimeBucket / 10) + 1) * 10;
+    public long[] getFiveSecondTimeBuckets(long secondTimeBucket) {
+        long timeStamp = changeTimeBucket2TimeStamp(TimeBucketType.SECOND.name(), secondTimeBucket);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(timeStamp);
+
+        long[] timeBuckets = new long[5];
+        timeBuckets[0] = secondTimeBucket;
+        for (int i = 0; i < 4; i++) {
+            calendar.add(Calendar.SECOND, -1);
+            timeBuckets[i + 1] = getSecondTimeBucket(calendar.getTimeInMillis());
         }
+        return timeBuckets;
     }
 
     public long changeToUTCTimeBucket(long timeBucket) {
