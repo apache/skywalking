@@ -27,18 +27,18 @@ message ApplicationInstance {
 
 message ApplicationInstanceMapping {
     int32 applicationId = 1;
-    int32 instanceId = 2;
+    int32 applicationInstanceId = 2;
 }
 
 message ApplicationInstanceRecover {
     int32 applicationId = 1;
-    int32 instanceId = 2;
+    int32 applicationInstanceId = 2;
     int64 registerTime = 3;
     OSInfo osinfo = 4;
 }
 
 message ApplicationInstanceHeartbeat {
-    int32 instanceId = 1;
+    int32 applicationInstanceId = 1;
     int64 heartbeatTime = 2;
 }
 
