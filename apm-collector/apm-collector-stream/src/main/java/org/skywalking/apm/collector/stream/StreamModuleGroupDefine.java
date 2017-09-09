@@ -9,7 +9,7 @@ import org.skywalking.apm.collector.core.module.ModuleInstaller;
  */
 public class StreamModuleGroupDefine implements ModuleGroupDefine {
 
-    public static final String GROUP_NAME = "stream";
+    public static final String GROUP_NAME = "collector_inside";
 
     @Override public String name() {
         return GROUP_NAME;

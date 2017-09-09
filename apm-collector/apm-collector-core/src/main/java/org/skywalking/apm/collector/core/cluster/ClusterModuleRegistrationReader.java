@@ -1,6 +1,6 @@
 package org.skywalking.apm.collector.core.cluster;
 
-import java.util.List;
+import java.util.Set;
 import org.skywalking.apm.collector.core.client.DataMonitor;
 
 /**
@@ -14,7 +14,7 @@ public abstract class ClusterModuleRegistrationReader {
         this.dataMonitor = dataMonitor;
     }
 
-    public final List<String> read(String path) {
+    public final Set<String> read(String path) {
         return dataMonitor.getListener(path).getAddresses();
     }
 }

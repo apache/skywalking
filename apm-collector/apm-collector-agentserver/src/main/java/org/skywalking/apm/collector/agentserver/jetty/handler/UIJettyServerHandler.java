@@ -2,7 +2,7 @@ package org.skywalking.apm.collector.agentserver.jetty.handler;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import java.util.List;
+import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import org.skywalking.apm.collector.cluster.ClusterModuleGroupDefine;
 import org.skywalking.apm.collector.core.cluster.ClusterModuleContext;
@@ -23,7 +23,7 @@ public class UIJettyServerHandler extends JettyHandler {
 
     @Override protected JsonElement doGet(HttpServletRequest req) throws ArgumentsParseException {
         ClusterModuleRegistrationReader reader = ((ClusterModuleContext)CollectorContextHelper.INSTANCE.getContext(ClusterModuleGroupDefine.GROUP_NAME)).getReader();
-        List<String> servers = reader.read(UIJettyDataListener.PATH);
+        Set<String> servers = reader.read(UIJettyDataListener.PATH);
         JsonArray serverArray = new JsonArray();
         servers.forEach(server -> {
             serverArray.add(server);

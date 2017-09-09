@@ -15,6 +15,11 @@ public class AgentStreamGRPCDataListener extends ClusterDataListener {
         return PATH;
     }
 
-    @Override public void addressChangedNotify() {
+    @Override public void serverJoinNotify(String serverAddress) {
+        
+    }
+
+    @Override public void serverQuitNotify() {
+
     }
 }

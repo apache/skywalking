@@ -1,7 +1,7 @@
 package org.skywalking.apm.collector.core.cluster;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import org.skywalking.apm.collector.core.framework.Listener;
 
 /**
@@ -9,10 +9,10 @@ import org.skywalking.apm.collector.core.framework.Listener;
  */
 public abstract class ClusterDataListener implements Listener {
 
-    private List<String> addresses;
+    private Set<String> addresses;
 
     public ClusterDataListener() {
-        addresses = new LinkedList<>();
+        addresses = new HashSet<>();
     }
 
     public abstract String path();
@@ -21,13 +21,15 @@ public abstract class ClusterDataListener implements Listener {
         addresses.add(address);
     }
 
-    public final List<String> getAddresses() {
+    public final void removeAddress(String address) {
+        addresses.remove(address);
+    }
+
+    public final Set<String> getAddresses() {
         return addresses;
     }
 
-    public final void clearData() {
-        addresses.clear();
-    }
+    public abstract void serverJoinNotify(String serverAddress);
 
-    public abstract void addressChangedNotify();
+    public abstract void serverQuitNotify();
 }

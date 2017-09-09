@@ -20,7 +20,7 @@ import org.skywalking.apm.collector.stream.grpc.handler.RemoteCommonServiceHandl
  */
 public class StreamGRPCModuleDefine extends StreamModuleDefine {
 
-    public static final String MODULE_NAME = "stream";
+    public static final String MODULE_NAME = "grpc";
 
     @Override public String name() {
         return MODULE_NAME;

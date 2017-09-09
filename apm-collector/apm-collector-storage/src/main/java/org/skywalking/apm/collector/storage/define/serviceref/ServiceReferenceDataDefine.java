@@ -57,23 +57,23 @@ public class ServiceReferenceDataDefine extends DataDefine {
     }
 
     @Override public RemoteData serialize(Object object) {
-        ServiceReference serviceReference = (ServiceReference)object;
+        Data data = (Data)object;
         RemoteData.Builder builder = RemoteData.newBuilder();
-        builder.addDataStrings(serviceReference.getId());
-        builder.addDataIntegers(serviceReference.getEntryServiceId());
-        builder.addDataStrings(serviceReference.getEntryServiceName());
-        builder.addDataIntegers(serviceReference.getFrontServiceId());
-        builder.addDataStrings(serviceReference.getFrontServiceName());
-        builder.addDataIntegers(serviceReference.getBehindServiceId());
-        builder.addDataStrings(serviceReference.getBehindServiceName());
-        builder.addDataLongs(serviceReference.getS1Lte());
-        builder.addDataLongs(serviceReference.getS3Lte());
-        builder.addDataLongs(serviceReference.getS5Lte());
-        builder.addDataLongs(serviceReference.getS5Gt());
-        builder.addDataLongs(serviceReference.getSummary());
-        builder.addDataLongs(serviceReference.getError());
-        builder.addDataLongs(serviceReference.getCostSummary());
-        builder.addDataLongs(serviceReference.getTimeBucket());
+        builder.addDataStrings(data.getDataString(0));
+        builder.addDataIntegers(data.getDataInteger(0));
+        builder.addDataStrings(data.getDataString(1));
+        builder.addDataIntegers(data.getDataInteger(1));
+        builder.addDataStrings(data.getDataString(2));
+        builder.addDataIntegers(data.getDataInteger(2));
+        builder.addDataStrings(data.getDataString(3));
+        builder.addDataLongs(data.getDataLong(0));
+        builder.addDataLongs(data.getDataLong(1));
+        builder.addDataLongs(data.getDataLong(2));
+        builder.addDataLongs(data.getDataLong(3));
+        builder.addDataLongs(data.getDataLong(4));
+        builder.addDataLongs(data.getDataLong(5));
+        builder.addDataLongs(data.getDataLong(6));
+        builder.addDataLongs(data.getDataLong(7));
         return builder.build();
     }
 
