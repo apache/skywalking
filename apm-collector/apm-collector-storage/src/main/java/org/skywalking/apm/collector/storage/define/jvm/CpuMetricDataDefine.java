@@ -3,12 +3,13 @@ package org.skywalking.apm.collector.storage.define.jvm;
 import org.skywalking.apm.collector.core.framework.UnexpectedException;
 import org.skywalking.apm.collector.core.stream.Data;
 import org.skywalking.apm.collector.core.stream.Transform;
+import org.skywalking.apm.collector.core.stream.operate.AddOperation;
+import org.skywalking.apm.collector.core.stream.operate.CoverOperation;
+import org.skywalking.apm.collector.core.stream.operate.NonOperation;
 import org.skywalking.apm.collector.remote.grpc.proto.RemoteData;
 import org.skywalking.apm.collector.storage.define.Attribute;
 import org.skywalking.apm.collector.storage.define.AttributeType;
 import org.skywalking.apm.collector.storage.define.DataDefine;
-import org.skywalking.apm.collector.core.stream.operate.CoverOperation;
-import org.skywalking.apm.collector.core.stream.operate.NonOperation;
 
 /**
  * @author pengys5
@@ -22,7 +23,7 @@ public class CpuMetricDataDefine extends DataDefine {
     @Override protected void attributeDefine() {
         addAttribute(0, new Attribute(CpuMetricTable.COLUMN_ID, AttributeType.STRING, new NonOperation()));
         addAttribute(1, new Attribute(CpuMetricTable.COLUMN_INSTANCE_ID, AttributeType.INTEGER, new CoverOperation()));
-        addAttribute(2, new Attribute(CpuMetricTable.COLUMN_USAGE_PERCENT, AttributeType.DOUBLE, new CoverOperation()));
+        addAttribute(2, new Attribute(CpuMetricTable.COLUMN_USAGE_PERCENT, AttributeType.DOUBLE, new AddOperation()));
         addAttribute(3, new Attribute(CpuMetricTable.COLUMN_TIME_BUCKET, AttributeType.LONG, new CoverOperation()));
     }
 
