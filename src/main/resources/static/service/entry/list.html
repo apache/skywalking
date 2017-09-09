@@ -7,10 +7,17 @@
         </tr>
         </thead>
         <tbody>
-        <tr v-for="entryService in list" v-on:click="itemClick(entryService.entryServiceId,$event)">
-            <td>{{entryService.entryServiceName}}</td>
-            <td>{{entryService.applicationCode}}</td>
-        </tr>
+        <template v-for="entryService in list">
+            <tr v-if="entryService.entryServiceId != 0" v-on:click="idItemClick(entryService.entryServiceId,$event)">
+                <td>{{entryService.entryServiceName}}</td>
+                <td>{{entryService.applicationCode}}</td>
+            </tr>
+            <tr v-if="entryService.entryServiceId == 0"
+                v-on:click="nameItemClick(entryService.applicationId, entryService.entryServiceName, $event)">
+                <td>{{entryService.entryServiceName}}</td>
+                <td>{{entryService.applicationCode}}</td>
+            </tr>
+        </template>
         </tbody>
     </table>
     <div class="text-center">
