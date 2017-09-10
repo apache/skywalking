@@ -28,7 +28,7 @@ define(['jquery', 'chartJs'], function($, Chart) {
         })
         ctx.font = 10 + "px " + fontStyle;
         if (!chart.config.options.elements.left.hide) {
-          ctx.fillText(chart.config.options.elements.left.text, 6, 6);
+          ctx.fillText(chart.config.options.elements.left.text, 10, 6);
         }
         if (!chart.config.options.elements.right.hide) {
           ctx.fillText(chart.config.options.elements.right.text, 74, 6);

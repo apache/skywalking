@@ -11,6 +11,7 @@ define(["jquery", "vue", "moment", "text!timeAxisHtml", "rangeSlider", "daterang
     var vue;
     var slider;
     var dateFormat = "YYYYMMDDHHmm";
+    var timeBucket;
     var sliderFormat = "MM/DD HH:mm";
     var subtract = "hours";
     var subtractValue = 1;
@@ -20,6 +21,7 @@ define(["jquery", "vue", "moment", "text!timeAxisHtml", "rangeSlider", "daterang
         $.ajaxSettings.async = false;
         $.getJSON("/time/sync/allInstance", function (data) {
             vueData.timeBucket = data.timeBucket;
+            timeBucket = data.timeBucket;
         });
         return this;
     }
@@ -45,7 +47,9 @@ define(["jquery", "vue", "moment", "text!timeAxisHtml", "rangeSlider", "daterang
     function autoUpdate() {
         vueData.hasAutoUpdate = true;
         $('body').everyTime('2s', function () {
-            vueData.timeBucket = moment(vueData.timeBucket, "YYYYMMDDHHmmss").add(2, "seconds").format(dateFormat);
+            timeBucket = moment(timeBucket, "YYYYMMDDHHmmss").add(2, "seconds").format("YYYYMMDDHHmmss");
+            vueData.timeBucket = moment(timeBucket, "YYYYMMDDHHmmss").format(dateFormat);
+            console.log("timeBucket : " + timeBucket + " vue time bucket : " + vueData.timeBucket);
 
             var endTimeStr = moment(vueData.timeBucket, "YYYYMMDDHHmmss").format(dateFormat);
             var startTimeStr = moment(vueData.timeBucket, "YYYYMMDDHHmmss").subtract(subtractValue, subtract).format(dateFormat);
