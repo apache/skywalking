@@ -16,8 +16,8 @@ import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
  */
 public class MemoryPoolMetricEsDAO extends EsDAO implements IMemoryPoolMetricDAO {
 
-    @Override public JsonObject getMetric(int instanceId, long timeBucket, boolean isHeap, int poolType) {
-        String id = timeBucket + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + isHeap + Const.ID_SPLIT + poolType;
+    @Override public JsonObject getMetric(int instanceId, long timeBucket, int poolType) {
+        String id = timeBucket + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + poolType;
         GetResponse getResponse = getClient().prepareGet(MemoryPoolMetricTable.TABLE, id).get();
 
         JsonObject metric = new JsonObject();
@@ -33,14 +33,13 @@ public class MemoryPoolMetricEsDAO extends EsDAO implements IMemoryPoolMetricDAO
         return metric;
     }
 
-    @Override public JsonObject getMetric(int instanceId, long startTimeBucket, long endTimeBucket, boolean isHeap,
-        int poolType) {
+    @Override public JsonObject getMetric(int instanceId, long startTimeBucket, long endTimeBucket, int poolType) {
         MultiGetRequestBuilder prepareMultiGet = getClient().prepareMultiGet();
 
         long timeBucket = startTimeBucket;
         do {
             timeBucket = TimeBucketUtils.INSTANCE.addSecondForSecondTimeBucket(TimeBucketUtils.TimeBucketType.SECOND.name(), timeBucket, 1);
-            String id = timeBucket + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + isHeap + Const.ID_SPLIT + poolType;
+            String id = timeBucket + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + poolType;
             prepareMultiGet.add(MemoryPoolMetricTable.TABLE, MemoryPoolMetricTable.TABLE_TYPE, id);
         }
         while (timeBucket <= endTimeBucket);
