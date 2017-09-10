@@ -31,5 +31,5 @@ public abstract class ClusterDataListener implements Listener {
 
     public abstract void serverJoinNotify(String serverAddress);
 
-    public abstract void serverQuitNotify();
+    public abstract void serverQuitNotify(String serverAddress);
 }

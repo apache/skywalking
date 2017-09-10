@@ -53,9 +53,12 @@ public class ClusterZKDataMonitor implements DataMonitor, Watcher {
                         String dataStr = new String(data);
                         if (stat.getCzxid() == stat.getMzxid()) {
                             logger.info("path children has been created, path: {}, data: {}", event.getPath() + "/" + serverPath, dataStr);
+                            listeners.get(event.getPath()).addAddress(serverPath + dataStr);
                             listeners.get(event.getPath()).serverJoinNotify(serverPath + dataStr);
                         } else {
                             logger.info("path children has been changed, path: {}, data: {}", event.getPath() + "/" + serverPath, dataStr);
+                            listeners.get(event.getPath()).removeAddress(serverPath + dataStr);
+                            listeners.get(event.getPath()).serverQuitNotify(serverPath + dataStr);
                         }
                     }
                 }

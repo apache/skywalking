@@ -5,4 +5,6 @@ package org.skywalking.apm.collector.core.client;
  */
 public interface Client {
     void initialize() throws ClientException;
+
+    void shutdown();
 }

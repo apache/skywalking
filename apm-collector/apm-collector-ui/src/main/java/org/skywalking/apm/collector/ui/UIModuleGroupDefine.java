@@ -10,6 +10,11 @@ import org.skywalking.apm.collector.core.module.ModuleInstaller;
 public class UIModuleGroupDefine implements ModuleGroupDefine {
 
     public static final String GROUP_NAME = "ui";
+    private final UICommonModuleInstaller installer;
+
+    public UIModuleGroupDefine() {
+        installer = new UICommonModuleInstaller();
+    }
 
     @Override public String name() {
         return GROUP_NAME;
@@ -20,6 +25,6 @@ public class UIModuleGroupDefine implements ModuleGroupDefine {
     }
 
     @Override public ModuleInstaller moduleInstaller() {
-        return new UIModuleInstaller();
+        return installer;
     }
 }

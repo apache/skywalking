@@ -3,7 +3,6 @@ package org.skywalking.apm.collector.stream.grpc;
 import java.util.ArrayList;
 import java.util.List;
 import org.skywalking.apm.collector.core.client.Client;
-import org.skywalking.apm.collector.core.client.DataMonitor;
 import org.skywalking.apm.collector.core.cluster.ClusterDataListener;
 import org.skywalking.apm.collector.core.framework.Handler;
 import org.skywalking.apm.collector.core.module.ModuleConfigParser;
@@ -33,7 +32,7 @@ public class StreamGRPCModuleDefine extends StreamModuleDefine {
         return new StreamGRPCConfigParser();
     }
 
-    @Override protected Client createClient(DataMonitor dataMonitor) {
+    @Override protected Client createClient() {
         return null;
     }
 

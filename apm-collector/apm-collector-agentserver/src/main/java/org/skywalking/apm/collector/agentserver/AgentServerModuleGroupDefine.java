@@ -10,6 +10,11 @@ import org.skywalking.apm.collector.core.module.ModuleInstaller;
 public class AgentServerModuleGroupDefine implements ModuleGroupDefine {
 
     public static final String GROUP_NAME = "agent_server";
+    private final AgentServerCommonModuleInstaller installer;
+
+    public AgentServerModuleGroupDefine() {
+        installer = new AgentServerCommonModuleInstaller();
+    }
 
     @Override public String name() {
         return GROUP_NAME;
@@ -20,6 +25,6 @@ public class AgentServerModuleGroupDefine implements ModuleGroupDefine {
     }
 
     @Override public ModuleInstaller moduleInstaller() {
-        return new AgentServerModuleInstaller();
+        return installer;
     }
 }

@@ -10,6 +10,11 @@ import org.skywalking.apm.collector.core.module.ModuleInstaller;
 public class AgentStreamModuleGroupDefine implements ModuleGroupDefine {
 
     public static final String GROUP_NAME = "agent_stream";
+    private final AgentStreamCommonModuleInstaller installer;
+
+    public AgentStreamModuleGroupDefine() {
+        installer = new AgentStreamCommonModuleInstaller();
+    }
 
     @Override public String name() {
         return GROUP_NAME;
@@ -20,6 +25,6 @@ public class AgentStreamModuleGroupDefine implements ModuleGroupDefine {
     }
 
     @Override public ModuleInstaller moduleInstaller() {
-        return new AgentStreamModuleInstaller();
+        return installer;
     }
 }

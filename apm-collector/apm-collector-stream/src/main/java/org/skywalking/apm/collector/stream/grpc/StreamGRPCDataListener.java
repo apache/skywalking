@@ -1,6 +1,8 @@
 package org.skywalking.apm.collector.stream.grpc;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import org.skywalking.apm.collector.client.grpc.GRPCClient;
 import org.skywalking.apm.collector.cluster.ClusterModuleDefine;
@@ -9,6 +11,7 @@ import org.skywalking.apm.collector.core.cluster.ClusterDataListener;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
 import org.skywalking.apm.collector.stream.StreamModuleContext;
 import org.skywalking.apm.collector.stream.StreamModuleGroupDefine;
+import org.skywalking.apm.collector.stream.worker.RemoteWorkerRef;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +29,7 @@ public class StreamGRPCDataListener extends ClusterDataListener {
     }
 
     private Map<String, GRPCClient> clients = new HashMap<>();
+    private Map<String, List<RemoteWorkerRef>> remoteWorkerRefMap = new HashMap<>();
 
     @Override public void serverJoinNotify(String serverAddress) {
         String selfAddress = StreamGRPCConfig.HOST + ":" + StreamGRPCConfig.PORT;
@@ -50,7 +54,11 @@ public class StreamGRPCDataListener extends ClusterDataListener {
             } else {
                 context.getClusterWorkerContext().getProviders().forEach(provider -> {
                     logger.info("create remote worker reference, role: {}", provider.role().roleName());
-                    provider.create(client);
+                    RemoteWorkerRef remoteWorkerRef = provider.create(client);
+                    if (!remoteWorkerRefMap.containsKey(serverAddress)) {
+                        remoteWorkerRefMap.put(selfAddress, new LinkedList<>());
+                    }
+                    remoteWorkerRefMap.get(serverAddress).add(remoteWorkerRef);
                 });
             }
         } else {
@@ -58,7 +66,17 @@ public class StreamGRPCDataListener extends ClusterDataListener {
         }
     }
 
-    @Override public void serverQuitNotify() {
+    @Override public void serverQuitNotify(String serverAddress) {
+        StreamModuleContext context = (StreamModuleContext)CollectorContextHelper.INSTANCE.getContext(StreamModuleGroupDefine.GROUP_NAME);
 
+        if (clients.containsKey(serverAddress)) {
+            clients.get(serverAddress).shutdown();
+            clients.remove(serverAddress);
+        }
+        if (remoteWorkerRefMap.containsKey(serverAddress)) {
+            for (RemoteWorkerRef remoteWorkerRef : remoteWorkerRefMap.get(serverAddress)) {
+                context.getClusterWorkerContext().remove(remoteWorkerRef);
+            }
+        }
     }
 }

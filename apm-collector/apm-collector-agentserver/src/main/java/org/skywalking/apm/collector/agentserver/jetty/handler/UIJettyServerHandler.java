@@ -4,8 +4,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
-import org.skywalking.apm.collector.cluster.ClusterModuleGroupDefine;
-import org.skywalking.apm.collector.core.cluster.ClusterModuleContext;
 import org.skywalking.apm.collector.core.cluster.ClusterModuleRegistrationReader;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
 import org.skywalking.apm.collector.server.jetty.ArgumentsParseException;
@@ -22,12 +20,10 @@ public class UIJettyServerHandler extends JettyHandler {
     }
 
     @Override protected JsonElement doGet(HttpServletRequest req) throws ArgumentsParseException {
-        ClusterModuleRegistrationReader reader = ((ClusterModuleContext)CollectorContextHelper.INSTANCE.getContext(ClusterModuleGroupDefine.GROUP_NAME)).getReader();
+        ClusterModuleRegistrationReader reader = CollectorContextHelper.INSTANCE.getClusterModuleContext().getReader();
         Set<String> servers = reader.read(UIJettyDataListener.PATH);
         JsonArray serverArray = new JsonArray();
-        servers.forEach(server -> {
-            serverArray.add(server);
-        });
+        servers.forEach(serverArray::add);
         return serverArray;
     }
 

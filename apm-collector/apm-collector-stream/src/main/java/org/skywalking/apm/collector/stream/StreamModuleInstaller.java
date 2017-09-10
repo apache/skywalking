@@ -1,13 +1,12 @@
 package org.skywalking.apm.collector.stream;
 
+import java.util.LinkedList;
 import java.util.List;
-import org.skywalking.apm.collector.core.client.ClientException;
-import org.skywalking.apm.collector.core.config.ConfigException;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
 import org.skywalking.apm.collector.core.framework.Context;
 import org.skywalking.apm.collector.core.framework.DefineException;
 import org.skywalking.apm.collector.core.module.SingleModuleInstaller;
-import org.skywalking.apm.collector.core.server.ServerException;
+import org.skywalking.apm.collector.queue.QueueModuleGroupDefine;
 import org.skywalking.apm.collector.stream.worker.AbstractLocalAsyncWorkerProvider;
 import org.skywalking.apm.collector.stream.worker.AbstractRemoteWorkerProvider;
 import org.skywalking.apm.collector.stream.worker.ClusterWorkerContext;
@@ -32,8 +31,13 @@ public class StreamModuleInstaller extends SingleModuleInstaller {
         return new StreamModuleContext(groupName());
     }
 
-    @Override public void install() throws ClientException, DefineException, ConfigException, ServerException {
-        super.install();
+    @Override public List<String> dependenceModules() {
+        List<String> dependenceModules = new LinkedList<>();
+        dependenceModules.add(QueueModuleGroupDefine.GROUP_NAME);
+        return dependenceModules;
+    }
+
+    @Override public void onAfterInstall() throws DefineException {
         initializeWorker((StreamModuleContext)CollectorContextHelper.INSTANCE.getContext(groupName()));
     }
 

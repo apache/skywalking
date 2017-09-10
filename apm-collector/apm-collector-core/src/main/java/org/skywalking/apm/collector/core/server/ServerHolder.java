@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 import org.skywalking.apm.collector.core.framework.Handler;
 import org.skywalking.apm.collector.core.util.CollectionUtils;
+import org.skywalking.apm.collector.core.util.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +22,10 @@ public class ServerHolder {
     }
 
     public void holdServer(Server newServer, List<Handler> handlers) throws ServerException {
+        if (ObjectUtils.isEmpty(newServer) || CollectionUtils.isEmpty(handlers)) {
+            return;
+        }
+
         boolean isNewServer = true;
         for (Server server : servers) {
             if (server.hostPort().equals(newServer.hostPort()) && server.serverClassify().equals(newServer.serverClassify())) {

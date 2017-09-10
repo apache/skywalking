@@ -7,7 +7,7 @@ import org.skywalking.apm.collector.core.module.ModuleRegistration;
 /**
  * @author pengys5
  */
-public interface DataMonitor extends Starter{
+public interface DataMonitor extends Starter {
     void setClient(Client client);
 
     void addListener(ClusterDataListener listener, ModuleRegistration registration) throws ClientException;

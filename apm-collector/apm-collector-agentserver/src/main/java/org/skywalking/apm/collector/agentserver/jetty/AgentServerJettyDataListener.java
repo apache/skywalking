@@ -17,7 +17,7 @@ public class AgentServerJettyDataListener extends ClusterDataListener {
 
     }
 
-    @Override public void serverQuitNotify() {
+    @Override public void serverQuitNotify(String serverAddress) {
 
     }
 }

@@ -35,7 +35,6 @@ public class DefinitionLoader<D> implements Iterable<D> {
 
     @Override public final Iterator<D> iterator() {
         logger.info("load definition file: {}", definitionFile.get());
-        Properties properties = new Properties();
         List<String> definitionList = new LinkedList<>();
         try {
             Enumeration<URL> urlEnumeration = this.getClass().getClassLoader().getResources(definitionFile.get());
@@ -43,6 +42,7 @@ public class DefinitionLoader<D> implements Iterable<D> {
                 URL definitionFileURL = urlEnumeration.nextElement();
                 logger.info("definition file url: {}", definitionFileURL.getPath());
                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(definitionFileURL.openStream()));
+                Properties properties = new Properties();
                 properties.load(bufferedReader);
 
                 Enumeration defineItem = properties.propertyNames();
@@ -52,7 +52,7 @@ public class DefinitionLoader<D> implements Iterable<D> {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
         }
 
         Iterator<String> moduleDefineIterator = definitionList.iterator();

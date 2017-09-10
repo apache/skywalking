@@ -1,7 +1,6 @@
 package org.skywalking.apm.collector.agentstream;
 
 import org.skywalking.apm.collector.core.client.Client;
-import org.skywalking.apm.collector.core.client.DataMonitor;
 import org.skywalking.apm.collector.core.cluster.ClusterDataListenerDefine;
 import org.skywalking.apm.collector.core.module.ModuleDefine;
 
@@ -10,7 +9,7 @@ import org.skywalking.apm.collector.core.module.ModuleDefine;
  */
 public abstract class AgentStreamModuleDefine extends ModuleDefine implements ClusterDataListenerDefine {
 
-    @Override protected final Client createClient(DataMonitor dataMonitor) {
+    @Override protected final Client createClient() {
         throw new UnsupportedOperationException("");
     }
 

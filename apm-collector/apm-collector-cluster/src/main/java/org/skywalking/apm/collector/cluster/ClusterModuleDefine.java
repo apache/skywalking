@@ -1,6 +1,7 @@
 package org.skywalking.apm.collector.cluster;
 
 import java.util.List;
+import org.skywalking.apm.collector.core.CollectorException;
 import org.skywalking.apm.collector.core.client.Client;
 import org.skywalking.apm.collector.core.client.ClientException;
 import org.skywalking.apm.collector.core.client.DataMonitor;
@@ -20,17 +21,15 @@ public abstract class ClusterModuleDefine extends ModuleDefine {
     public static final String BASE_CATALOG = "skywalking";
 
     private Client client;
-    private DataMonitor dataMonitor;
 
     @Override protected void initializeOtherContext() {
         try {
-            dataMonitor = dataMonitor();
-            client = createClient(dataMonitor);
+            client = createClient();
             client.initialize();
-            dataMonitor.setClient(client);
-            ClusterModuleRegistrationReader reader = registrationReader(dataMonitor);
+            dataMonitor().setClient(client);
+            ClusterModuleRegistrationReader reader = registrationReader();
 
-            CollectorContextHelper.INSTANCE.getClusterModuleContext().setDataMonitor(dataMonitor);
+            CollectorContextHelper.INSTANCE.getClusterModuleContext().setDataMonitor(dataMonitor());
             CollectorContextHelper.INSTANCE.getClusterModuleContext().setReader(reader);
         } catch (ClientException e) {
             throw new UnexpectedException(e.getMessage());
@@ -42,11 +41,11 @@ public abstract class ClusterModuleDefine extends ModuleDefine {
     }
 
     @Override public final Server server() {
-        throw new UnsupportedOperationException("");
+        return null;
     }
 
     @Override public final List<Handler> handlerList() {
-        throw new UnsupportedOperationException("");
+        return null;
     }
 
     @Override protected final ModuleRegistration registration() {
@@ -55,6 +54,9 @@ public abstract class ClusterModuleDefine extends ModuleDefine {
 
     public abstract DataMonitor dataMonitor();
 
-    public abstract ClusterModuleRegistrationReader registrationReader(DataMonitor dataMonitor);
+    public abstract ClusterModuleRegistrationReader registrationReader();
 
+    public void startMonitor() throws CollectorException {
+        dataMonitor().start();
+    }
 }

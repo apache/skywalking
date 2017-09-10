@@ -1,5 +1,6 @@
 package org.skywalking.apm.collector.core.module;
 
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.skywalking.apm.collector.core.framework.DefineException;
@@ -21,11 +22,11 @@ public class ModuleGroupDefineLoader implements Loader<Map<String, ModuleGroupDe
         ModuleGroupDefineFile definitionFile = new ModuleGroupDefineFile();
         logger.info("module group definition file name: {}", definitionFile.fileName());
         DefinitionLoader<ModuleGroupDefine> definitionLoader = DefinitionLoader.load(ModuleGroupDefine.class, definitionFile);
-        for (ModuleGroupDefine moduleGroupDefine : definitionLoader) {
-            logger.info("loaded group module definition class: {}", moduleGroupDefine.getClass().getName());
-
-            String groupName = moduleGroupDefine.name().toLowerCase();
-            moduleGroupDefineMap.put(groupName, moduleGroupDefine);
+        Iterator<ModuleGroupDefine> defineIterator = definitionLoader.iterator();
+        while (defineIterator.hasNext()) {
+            ModuleGroupDefine groupDefine = defineIterator.next();
+            String groupName = groupDefine.name().toLowerCase();
+            moduleGroupDefineMap.put(groupName, groupDefine);
         }
         return moduleGroupDefineMap;
     }

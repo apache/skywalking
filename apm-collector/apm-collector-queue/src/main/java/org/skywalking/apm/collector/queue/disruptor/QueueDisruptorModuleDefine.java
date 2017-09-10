@@ -1,6 +1,7 @@
 package org.skywalking.apm.collector.queue.disruptor;
 
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
+import org.skywalking.apm.collector.core.module.ModuleConfigParser;
 import org.skywalking.apm.collector.queue.QueueModuleContext;
 import org.skywalking.apm.collector.queue.QueueModuleDefine;
 import org.skywalking.apm.collector.queue.QueueModuleGroupDefine;
@@ -20,6 +21,10 @@ public class QueueDisruptorModuleDefine extends QueueModuleDefine {
 
     @Override public boolean defaultModule() {
         return true;
+    }
+
+    @Override protected ModuleConfigParser configParser() {
+        return new DisruptorQueueConfigParser();
     }
 
     @Override protected void initializeOtherContext() {

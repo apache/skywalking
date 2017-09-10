@@ -1,12 +1,13 @@
 package org.skywalking.apm.collector.agentjvm;
 
+import java.util.List;
 import org.skywalking.apm.collector.core.framework.Context;
-import org.skywalking.apm.collector.core.module.MultipleModuleInstaller;
+import org.skywalking.apm.collector.core.module.MultipleCommonModuleInstaller;
 
 /**
  * @author pengys5
  */
-public class AgentJVMModuleInstaller extends MultipleModuleInstaller {
+public class AgentJVMCommonModuleInstaller extends MultipleCommonModuleInstaller {
 
     @Override public String groupName() {
         return AgentJVMModuleGroupDefine.GROUP_NAME;
@@ -14,5 +15,9 @@ public class AgentJVMModuleInstaller extends MultipleModuleInstaller {
 
     @Override public Context moduleContext() {
         return new AgentJVMModuleContext(groupName());
+    }
+
+    @Override public List<String> dependenceModules() {
+        return null;
     }
 }

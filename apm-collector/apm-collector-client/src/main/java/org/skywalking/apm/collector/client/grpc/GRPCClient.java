@@ -25,6 +25,10 @@ public class GRPCClient implements Client {
         channel = ManagedChannelBuilder.forAddress(host, port).usePlaintext(true).build();
     }
 
+    @Override public void shutdown() {
+        channel.shutdownNow();
+    }
+
     public ManagedChannel getChannel() {
         return channel;
     }

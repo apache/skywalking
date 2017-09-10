@@ -3,7 +3,6 @@ package org.skywalking.apm.collector.storage.elasticsearch;
 import java.util.List;
 import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.skywalking.apm.collector.core.client.Client;
-import org.skywalking.apm.collector.core.client.DataMonitor;
 import org.skywalking.apm.collector.core.framework.DefineException;
 import org.skywalking.apm.collector.core.module.ModuleConfigParser;
 import org.skywalking.apm.collector.core.storage.StorageInstaller;
@@ -33,7 +32,7 @@ public class StorageElasticSearchModuleDefine extends StorageModuleDefine {
         return new StorageElasticSearchConfigParser();
     }
 
-    @Override protected Client createClient(DataMonitor dataMonitor) {
+    @Override protected Client createClient() {
         return new ElasticSearchClient(StorageElasticSearchConfig.CLUSTER_NAME, StorageElasticSearchConfig.CLUSTER_TRANSPORT_SNIFFER, StorageElasticSearchConfig.CLUSTER_NODES);
     }
 
