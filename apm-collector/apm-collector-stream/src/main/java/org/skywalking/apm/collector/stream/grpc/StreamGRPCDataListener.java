@@ -56,7 +56,7 @@ public class StreamGRPCDataListener extends ClusterDataListener {
                     logger.info("create remote worker reference, role: {}", provider.role().roleName());
                     RemoteWorkerRef remoteWorkerRef = provider.create(client);
                     if (!remoteWorkerRefMap.containsKey(serverAddress)) {
-                        remoteWorkerRefMap.put(selfAddress, new LinkedList<>());
+                        remoteWorkerRefMap.put(serverAddress, new LinkedList<>());
                     }
                     remoteWorkerRefMap.get(serverAddress).add(remoteWorkerRef);
                 });
