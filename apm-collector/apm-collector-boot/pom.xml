@@ -96,6 +96,7 @@
                             <descriptors>
                                 <descriptor>src/main/assembly/assembly.xml</descriptor>
                             </descriptors>
+                            <outputDirectory>${project.basedir}/../../packages</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
