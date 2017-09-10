@@ -3,7 +3,6 @@ package org.skywalking.apm.collector.storage.h2;
 import java.util.List;
 import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.core.client.Client;
-import org.skywalking.apm.collector.core.client.DataMonitor;
 import org.skywalking.apm.collector.core.framework.DefineException;
 import org.skywalking.apm.collector.core.module.ModuleConfigParser;
 import org.skywalking.apm.collector.core.storage.StorageInstaller;
@@ -33,7 +32,7 @@ public class StorageH2ModuleDefine extends StorageModuleDefine {
         return new StorageH2ConfigParser();
     }
 
-    @Override protected Client createClient(DataMonitor dataMonitor) {
+    @Override protected Client createClient() {
         return new H2Client();
     }
 

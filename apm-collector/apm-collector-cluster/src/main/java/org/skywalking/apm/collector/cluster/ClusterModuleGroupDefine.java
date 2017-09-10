@@ -11,6 +11,11 @@ import org.skywalking.apm.collector.core.module.ModuleInstaller;
 public class ClusterModuleGroupDefine implements ModuleGroupDefine {
 
     public static final String GROUP_NAME = "cluster";
+    private final ClusterModuleInstaller installer;
+
+    public ClusterModuleGroupDefine() {
+        installer = new ClusterModuleInstaller();
+    }
 
     @Override public String name() {
         return GROUP_NAME;
@@ -21,6 +26,6 @@ public class ClusterModuleGroupDefine implements ModuleGroupDefine {
     }
 
     @Override public ModuleInstaller moduleInstaller() {
-        return new ClusterModuleInstaller();
+        return installer;
     }
 }

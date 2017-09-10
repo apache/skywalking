@@ -11,6 +11,12 @@ public class AgentJVMModuleGroupDefine implements ModuleGroupDefine {
 
     public static final String GROUP_NAME = "agent_jvm";
 
+    private final AgentJVMCommonModuleInstaller installer;
+
+    public AgentJVMModuleGroupDefine() {
+        installer = new AgentJVMCommonModuleInstaller();
+    }
+
     @Override public String name() {
         return GROUP_NAME;
     }
@@ -20,6 +26,6 @@ public class AgentJVMModuleGroupDefine implements ModuleGroupDefine {
     }
 
     @Override public ModuleInstaller moduleInstaller() {
-        return new AgentJVMModuleInstaller();
+        return installer;
     }
 }

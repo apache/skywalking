@@ -27,6 +27,10 @@ public class H2Client implements Client {
         }
     }
 
+    @Override public void shutdown() {
+
+    }
+
     public void execute(String sql) throws H2ClientException {
         Statement statement = null;
         try {

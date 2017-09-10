@@ -13,7 +13,11 @@ public class AgentServerJettyDataListener extends ClusterDataListener {
         return ClusterModuleDefine.BASE_CATALOG + "." + AgentServerModuleGroupDefine.GROUP_NAME + "." + AgentServerJettyModuleDefine.MODULE_NAME;
     }
 
-    @Override public void addressChangedNotify() {
+    @Override public void serverJoinNotify(String serverAddress) {
+
+    }
+
+    @Override public void serverQuitNotify(String serverAddress) {
 
     }
 }

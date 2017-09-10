@@ -4,15 +4,11 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import org.skywalking.apm.collector.core.client.Client;
 import org.skywalking.apm.collector.core.client.ClientException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author pengys5
  */
 public class GRPCClient implements Client {
-
-    private final Logger logger = LoggerFactory.getLogger(GRPCClient.class);
 
     private final String host;
 
@@ -29,7 +25,15 @@ public class GRPCClient implements Client {
         channel = ManagedChannelBuilder.forAddress(host, port).usePlaintext(true).build();
     }
 
+    @Override public void shutdown() {
+        channel.shutdownNow();
+    }
+
     public ManagedChannel getChannel() {
         return channel;
+    }
+
+    @Override public String toString() {
+        return host + ":" + port;
     }
 }

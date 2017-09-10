@@ -1,10 +1,7 @@
 package org.skywalking.apm.collector.queue.datacarrier;
 
-import java.util.Map;
-import org.skywalking.apm.collector.core.client.ClientException;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
-import org.skywalking.apm.collector.core.framework.DefineException;
-import org.skywalking.apm.collector.core.server.ServerHolder;
+import org.skywalking.apm.collector.core.module.ModuleConfigParser;
 import org.skywalking.apm.collector.queue.QueueModuleContext;
 import org.skywalking.apm.collector.queue.QueueModuleDefine;
 import org.skywalking.apm.collector.queue.QueueModuleGroupDefine;
@@ -26,8 +23,11 @@ public class QueueDataCarrierModuleDefine extends QueueModuleDefine {
         return false;
     }
 
-    @Override
-    public final void initialize(Map config, ServerHolder serverHolder) throws DefineException, ClientException {
+    @Override protected ModuleConfigParser configParser() {
+        return new DataCarrierQueueConfigParser();
+    }
+
+    @Override protected void initializeOtherContext() {
         ((QueueModuleContext)CollectorContextHelper.INSTANCE.getContext(group())).setQueueCreator(new DataCarrierQueueCreator());
     }
 }

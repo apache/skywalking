@@ -34,7 +34,7 @@ public class NodeReferenceDataDefine extends DataDefine {
 
     @Override public Object deserialize(RemoteData remoteData) {
         String id = remoteData.getDataStrings(0);
-        int applicationId = remoteData.getDataIntegers(0);
+        int frontApplicationId = remoteData.getDataIntegers(0);
         int behindApplicationId = remoteData.getDataIntegers(1);
         String behindPeer = remoteData.getDataStrings(1);
         int s1LTE = remoteData.getDataIntegers(2);
@@ -44,23 +44,23 @@ public class NodeReferenceDataDefine extends DataDefine {
         int summary = remoteData.getDataIntegers(6);
         int error = remoteData.getDataIntegers(7);
         long timeBucket = remoteData.getDataLongs(0);
-        return new NodeReference(id, applicationId, behindApplicationId, behindPeer, s1LTE, s3LTE, s5LTE, s5GT, summary, error, timeBucket);
+        return new NodeReference(id, frontApplicationId, behindApplicationId, behindPeer, s1LTE, s3LTE, s5LTE, s5GT, summary, error, timeBucket);
     }
 
     @Override public RemoteData serialize(Object object) {
-        NodeReference nodeReference = (NodeReference)object;
+        Data data = (Data)object;
         RemoteData.Builder builder = RemoteData.newBuilder();
-        builder.addDataStrings(nodeReference.getId());
-        builder.addDataIntegers(nodeReference.getFrontApplicationId());
-        builder.addDataIntegers(nodeReference.getBehindApplicationId());
-        builder.addDataStrings(nodeReference.getBehindPeer());
-        builder.addDataIntegers(nodeReference.getS1LTE());
-        builder.addDataIntegers(nodeReference.getS3LTE());
-        builder.addDataIntegers(nodeReference.getS5LTE());
-        builder.addDataIntegers(nodeReference.getS5GT());
-        builder.addDataIntegers(nodeReference.getSummary());
-        builder.addDataIntegers(nodeReference.getError());
-        builder.addDataLongs(nodeReference.getTimeBucket());
+        builder.addDataStrings(data.getDataString(0));
+        builder.addDataIntegers(data.getDataInteger(0));
+        builder.addDataIntegers(data.getDataInteger(1));
+        builder.addDataStrings(data.getDataString(1));
+        builder.addDataIntegers(data.getDataInteger(2));
+        builder.addDataIntegers(data.getDataInteger(3));
+        builder.addDataIntegers(data.getDataInteger(4));
+        builder.addDataIntegers(data.getDataInteger(5));
+        builder.addDataIntegers(data.getDataInteger(6));
+        builder.addDataIntegers(data.getDataInteger(7));
+        builder.addDataLongs(data.getDataLong(0));
         return builder.build();
     }
 

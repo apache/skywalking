@@ -1,30 +1,35 @@
 package org.skywalking.apm.collector.cluster;
 
-import java.util.Map;
-import org.skywalking.apm.collector.core.client.ClientException;
+import java.util.LinkedList;
+import java.util.List;
+import org.skywalking.apm.collector.core.CollectorException;
 import org.skywalking.apm.collector.core.cluster.ClusterModuleContext;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
-import org.skywalking.apm.collector.core.framework.DefineException;
-import org.skywalking.apm.collector.core.module.ModuleDefine;
+import org.skywalking.apm.collector.core.framework.Context;
 import org.skywalking.apm.collector.core.module.SingleModuleInstaller;
-import org.skywalking.apm.collector.core.server.ServerHolder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author pengys5
  */
 public class ClusterModuleInstaller extends SingleModuleInstaller {
 
-    private final Logger logger = LoggerFactory.getLogger(ClusterModuleInstaller.class);
+    @Override public String groupName() {
+        return ClusterModuleGroupDefine.GROUP_NAME;
+    }
 
-    @Override public void install(Map<String, Map> moduleConfig,
-        Map<String, ModuleDefine> moduleDefineMap, ServerHolder serverHolder) throws DefineException, ClientException {
-        logger.info("beginning cluster module install");
+    @Override public Context moduleContext() {
+        ClusterModuleContext clusterModuleContext = new ClusterModuleContext(ClusterModuleGroupDefine.GROUP_NAME);
+        CollectorContextHelper.INSTANCE.putClusterContext(clusterModuleContext);
+        return clusterModuleContext;
+    }
 
-        ClusterModuleContext context = new ClusterModuleContext(ClusterModuleGroupDefine.GROUP_NAME);
-        CollectorContextHelper.INSTANCE.putContext(context);
+    @Override public List<String> dependenceModules() {
+        List<String> dependenceModules = new LinkedList<>();
+        dependenceModules.add("collector_inside");
+        return dependenceModules;
+    }
 
-        installSingle(moduleConfig, moduleDefineMap, serverHolder);
+    @Override public void onAfterInstall() throws CollectorException {
+        ((ClusterModuleDefine)getModuleDefine()).startMonitor();
     }
 }

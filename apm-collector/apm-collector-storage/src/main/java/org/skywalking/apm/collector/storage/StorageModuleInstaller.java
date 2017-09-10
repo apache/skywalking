@@ -1,29 +1,28 @@
 package org.skywalking.apm.collector.storage;
 
-import java.util.Map;
-import org.skywalking.apm.collector.core.client.ClientException;
-import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
-import org.skywalking.apm.collector.core.framework.DefineException;
-import org.skywalking.apm.collector.core.module.ModuleDefine;
+import java.util.List;
+import org.skywalking.apm.collector.core.CollectorException;
+import org.skywalking.apm.collector.core.framework.Context;
 import org.skywalking.apm.collector.core.module.SingleModuleInstaller;
-import org.skywalking.apm.collector.core.server.ServerHolder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author pengys5
  */
 public class StorageModuleInstaller extends SingleModuleInstaller {
 
-    private final Logger logger = LoggerFactory.getLogger(StorageModuleInstaller.class);
+    @Override public String groupName() {
+        return StorageModuleGroupDefine.GROUP_NAME;
+    }
 
-    @Override public void install(Map<String, Map> moduleConfig,
-        Map<String, ModuleDefine> moduleDefineMap, ServerHolder serverHolder) throws DefineException, ClientException {
-        logger.info("beginning storage module install");
+    @Override public Context moduleContext() {
+        return new StorageModuleContext(groupName());
+    }
 
-        StorageModuleContext context = new StorageModuleContext(StorageModuleGroupDefine.GROUP_NAME);
-        CollectorContextHelper.INSTANCE.putContext(context);
+    @Override public List<String> dependenceModules() {
+        return null;
+    }
 
-        installSingle(moduleConfig, moduleDefineMap, serverHolder);
+    @Override public void onAfterInstall() throws CollectorException {
+
     }
 }

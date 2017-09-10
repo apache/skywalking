@@ -10,6 +10,11 @@ import org.skywalking.apm.collector.core.module.ModuleInstaller;
 public class StorageModuleGroupDefine implements ModuleGroupDefine {
 
     public static final String GROUP_NAME = "storage";
+    private final StorageModuleInstaller installer;
+
+    public StorageModuleGroupDefine() {
+        installer = new StorageModuleInstaller();
+    }
 
     @Override public String name() {
         return GROUP_NAME;
@@ -20,6 +25,6 @@ public class StorageModuleGroupDefine implements ModuleGroupDefine {
     }
 
     @Override public ModuleInstaller moduleInstaller() {
-        return new StorageModuleInstaller();
+        return installer;
     }
 }

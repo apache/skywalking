@@ -2,6 +2,7 @@ package org.skywalking.apm.collector.stream.worker;
 
 import io.grpc.stub.StreamObserver;
 import org.skywalking.apm.collector.client.grpc.GRPCClient;
+import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.remote.grpc.proto.Empty;
 import org.skywalking.apm.collector.remote.grpc.proto.RemoteCommonServiceGrpc;
 import org.skywalking.apm.collector.remote.grpc.proto.RemoteData;
@@ -20,12 +21,14 @@ public class RemoteWorkerRef extends WorkerRef {
     private final RemoteCommonServiceGrpc.RemoteCommonServiceStub stub;
     private StreamObserver<RemoteMessage> streamObserver;
     private final AbstractRemoteWorker remoteWorker;
+    private final String address;
 
     public RemoteWorkerRef(Role role, AbstractRemoteWorker remoteWorker) {
         super(role);
         this.remoteWorker = remoteWorker;
         this.acrossJVM = false;
         this.stub = null;
+        this.address = Const.EMPTY_STRING;
     }
 
     public RemoteWorkerRef(Role role, GRPCClient client) {
@@ -33,19 +36,23 @@ public class RemoteWorkerRef extends WorkerRef {
         this.remoteWorker = null;
         this.acrossJVM = true;
         this.stub = RemoteCommonServiceGrpc.newStub(client.getChannel());
+        this.address = client.toString();
         createStreamObserver();
     }
 
     @Override
     public void tell(Object message) throws WorkerInvokeException {
         if (acrossJVM) {
-            RemoteData remoteData = getRole().dataDefine().serialize(message);
+            try {
+                RemoteData remoteData = getRole().dataDefine().serialize(message);
+                RemoteMessage.Builder builder = RemoteMessage.newBuilder();
+                builder.setWorkerRole(getRole().roleName());
+                builder.setRemoteData(remoteData);
 
-            RemoteMessage.Builder builder = RemoteMessage.newBuilder();
-            builder.setWorkerRole(getRole().roleName());
-            builder.setRemoteData(remoteData);
-
-            streamObserver.onNext(builder.build());
+                streamObserver.onNext(builder.build());
+            } catch (Throwable e) {
+                logger.error(e.getMessage(), e);
+            }
         } else {
             remoteWorker.allocateJob(message);
         }
@@ -112,5 +119,12 @@ public class RemoteWorkerRef extends WorkerRef {
 
             }
         }
+    }
+
+    @Override public String toString() {
+        StringBuilder toString = new StringBuilder();
+        toString.append("acrossJVM: ").append(acrossJVM);
+        toString.append(", address: ").append(address);
+        return toString.toString();
     }
 }
