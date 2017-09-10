@@ -31,7 +31,7 @@ public class WorkerRefs<T extends WorkerRef> {
         logger.debug("WorkerSelector instance of {}", workerSelector.getClass());
         workerRefs.forEach(workerRef -> {
             if (workerRef instanceof RemoteWorkerRef) {
-                logger.info("message hashcode: {}, select workers: {}", message.hashCode(), workerRef.toString());
+                logger.debug("message hashcode: {}, select workers: {}", message.hashCode(), workerRef.toString());
             }
         });
         workerSelector.select(workerRefs, message).tell(message);
