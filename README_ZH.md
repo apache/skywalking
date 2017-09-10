@@ -46,17 +46,20 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 <img src="https://sky-walking.github.io/page-resources/3.2/architecture/3.2-architecture.jpg"/>
 
 # Screenshots
-- 追踪基于Spring Cloud的分布式系统，生成的拓扑截图
-<img src="https://sky-walking.github.io/page-resources/3.1/topological_graph.png?forceUpdate=0"/>
-
 - 追踪基于 dubbox 和 [motan](https://github.com/weibocom/motan)的分布式系统，生成的拓扑截图
-<img src="https://sky-walking.github.io/page-resources/3.1/topological_graph_test_project.png?forceUpdate=0"/>
+<img src="https://sky-walking.github.io/page-resources/3.2/topological_graph_test_project.png?forceUpdate=0"/>
 
 - 调用链查询
-<img src="https://sky-walking.github.io/page-resources/3.1/trace_segment.png"/>
+<img src="https://sky-walking.github.io/page-resources/3.2/trace_segment.png"/>
 
 - Span信息查询
 <img src="https://sky-walking.github.io/page-resources/3.0/span.png" />
+
+- 实例全局视图
+<img src="https://sky-walking.github.io/page-resources/3.2/instance_health.png"/>
+
+- JVM明细信息
+<img src="https://sky-walking.github.io/page-resources/3.2/instance_graph.png"/>
 
 # Test reports
 - 自动化集成测试报告
