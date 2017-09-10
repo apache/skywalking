@@ -37,11 +37,10 @@ message Memory {
 
 message MemoryPool {
     PoolType type = 1;
-    bool isHeap = 2;
-    int64 init = 3;
-    int64 max = 4;
-    int64 used = 5;
-    int64 commited = 6;
+    int64 init = 2;
+    int64 max = 3;
+    int64 used = 4;
+    int64 commited = 5;
 }
 
 enum PoolType {

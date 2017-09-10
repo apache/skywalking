@@ -1,8 +1,8 @@
 package org.skywalking.apm.collector.agentjvm.worker.memorypool.define;
 
+import org.skywalking.apm.collector.storage.define.jvm.MemoryPoolMetricTable;
 import org.skywalking.apm.collector.storage.h2.define.H2ColumnDefine;
 import org.skywalking.apm.collector.storage.h2.define.H2TableDefine;
-import org.skywalking.apm.collector.storage.define.jvm.MemoryPoolMetricTable;
 
 /**
  * @author pengys5
@@ -17,7 +17,6 @@ public class MemoryPoolMetricH2TableDefine extends H2TableDefine {
         addColumn(new H2ColumnDefine(MemoryPoolMetricTable.COLUMN_ID, H2ColumnDefine.Type.Varchar.name()));
         addColumn(new H2ColumnDefine(MemoryPoolMetricTable.COLUMN_INSTANCE_ID, H2ColumnDefine.Type.Int.name()));
         addColumn(new H2ColumnDefine(MemoryPoolMetricTable.COLUMN_POOL_TYPE, H2ColumnDefine.Type.Int.name()));
-        addColumn(new H2ColumnDefine(MemoryPoolMetricTable.COLUMN_IS_HEAP, H2ColumnDefine.Type.Boolean.name()));
         addColumn(new H2ColumnDefine(MemoryPoolMetricTable.COLUMN_INIT, H2ColumnDefine.Type.Bigint.name()));
         addColumn(new H2ColumnDefine(MemoryPoolMetricTable.COLUMN_MAX, H2ColumnDefine.Type.Bigint.name()));
         addColumn(new H2ColumnDefine(MemoryPoolMetricTable.COLUMN_USED, H2ColumnDefine.Type.Bigint.name()));
