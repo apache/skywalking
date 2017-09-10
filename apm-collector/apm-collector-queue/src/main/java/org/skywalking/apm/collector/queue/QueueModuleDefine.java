@@ -2,7 +2,6 @@ package org.skywalking.apm.collector.queue;
 
 import java.util.List;
 import org.skywalking.apm.collector.core.client.Client;
-import org.skywalking.apm.collector.core.client.DataMonitor;
 import org.skywalking.apm.collector.core.framework.Handler;
 import org.skywalking.apm.collector.core.module.ModuleDefine;
 import org.skywalking.apm.collector.core.module.ModuleRegistration;
