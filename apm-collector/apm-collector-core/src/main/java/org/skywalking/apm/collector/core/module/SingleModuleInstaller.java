@@ -2,7 +2,6 @@ package org.skywalking.apm.collector.core.module;
 
 import java.util.Iterator;
 import java.util.Map;
-import org.skywalking.apm.collector.core.CollectorException;
 import org.skywalking.apm.collector.core.client.ClientException;
 import org.skywalking.apm.collector.core.cluster.ClusterDataListenerDefine;
 import org.skywalking.apm.collector.core.cluster.ClusterModuleContext;
