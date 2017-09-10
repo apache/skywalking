@@ -210,7 +210,7 @@ public class ServiceReferenceEsDAO extends EsDAO implements IServiceReferenceDAO
     }
 
     private void merge(Map<String, JsonObject> serviceReferenceMap, JsonObject serviceReference) {
-        String id = serviceReference.get(ServiceReferenceTable.COLUMN_FRONT_SERVICE_ID) + Const.ID_SPLIT + serviceReference.get(ServiceReferenceTable.COLUMN_BEHIND_SERVICE_ID);
+        String id = serviceReference.get(ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_FRONT_SERVICE_ID)) + Const.ID_SPLIT + serviceReference.get(ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_BEHIND_SERVICE_ID));
 
         if (serviceReferenceMap.containsKey(id)) {
             JsonObject reference = serviceReferenceMap.get(id);
