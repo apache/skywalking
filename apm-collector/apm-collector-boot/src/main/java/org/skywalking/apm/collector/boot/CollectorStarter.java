@@ -1,6 +1,7 @@
 package org.skywalking.apm.collector.boot;
 
 import java.util.Map;
+import org.skywalking.apm.collector.cluster.ClusterModuleGroupDefine;
 import org.skywalking.apm.collector.core.CollectorException;
 import org.skywalking.apm.collector.core.framework.Starter;
 import org.skywalking.apm.collector.core.module.ModuleConfigLoader;
@@ -39,8 +40,12 @@ public class CollectorStarter implements Starter {
             moduleGroupDefine.moduleInstaller().preInstall();
         }
 
+        moduleGroupDefineMap.get(ClusterModuleGroupDefine.GROUP_NAME).moduleInstaller().install();
+
         for (ModuleGroupDefine moduleGroupDefine : moduleGroupDefineMap.values()) {
-            moduleGroupDefine.moduleInstaller().install();
+            if (!(moduleGroupDefine instanceof ClusterModuleGroupDefine)) {
+                moduleGroupDefine.moduleInstaller().install();
+            }
         }
 
         serverHolder.getServers().forEach(server -> {
