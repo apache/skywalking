@@ -111,10 +111,9 @@ public class JVMMetricsServiceHandler extends JVMMetricsServiceGrpc.JVMMetricsSe
 
         memoryPools.forEach(memoryPool -> {
             MemoryPoolMetricDataDefine.MemoryPoolMetric memoryPoolMetric = new MemoryPoolMetricDataDefine.MemoryPoolMetric();
-            memoryPoolMetric.setId(timeBucket + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + memoryPool.getIsHeap() + Const.ID_SPLIT + String.valueOf(memoryPool.getType().getNumber()));
+            memoryPoolMetric.setId(timeBucket + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + String.valueOf(memoryPool.getType().getNumber()));
             memoryPoolMetric.setInstanceId(instanceId);
             memoryPoolMetric.setPoolType(memoryPool.getType().getNumber());
-            memoryPoolMetric.setHeap(memoryPool.getIsHeap());
             memoryPoolMetric.setInit(memoryPool.getInit());
             memoryPoolMetric.setMax(memoryPool.getMax());
             memoryPoolMetric.setUsed(memoryPool.getUsed());
