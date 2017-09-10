@@ -15,60 +15,35 @@
         </div>
         <div>
             <div>
-                <h5>Heap Memory </h5>
+                <h5>Memory</h5>
                 <span style="display:block; margin-right:5px">
           <input id="heapMemoryInput" style="margin-right:5px" v-on:click="displayChart('heapMemory', $event)"
                  type="checkbox" checked>Heap/Memory</input>
         </span>
                 <span style="display:block; margin-right:5px">
-          <input id="heapPermGenInput" style="margin-right:5px" v-on:click="displayChart('heapPermGen', $event)"
-                 type="checkbox" name="">Heap/Perm Gen</input>
-        </span>
-                <span style="display:block; margin-right:5px">
-          <input id="heapMetaSpanInput" style="margin-right:5px" v-on:click="displayChart('heapMetaSpace', $event)"
-                 type="checkbox" name="">Heap/Meta Space</input>
-        </span>
-                <span style="display:block; margin-right:5px">
-          <input id="heapNewGenInput" style="margin-right:5px" v-on:click="displayChart('heapNewGen', $event)"
-                 type="checkbox" name="">Heap/New Gen</input>
-        </span>
-                <span style="display:block; margin-right:5px">
-          <input id="heapOldGenInput" style="margin-right:5px" v-on:click="displayChart('heapOldGen', $event)"
-                 type="checkbox" name="">Heap/Old Gen</input>
-        </span>
-                <span style="display:block; margin-right:5px">
-          <input id="heapSurvivorInput" style="margin-right:5px" v-on:click="displayChart('heapSurvivor', $event)"
-                 type="checkbox">Heap/Survivor</input>
-        </span>
-            </div>
-            <div>
-                <h5>NonHeap Memory </h5>
-                <span style="display:block; margin-right:5px">
           <input id="nonHeapMemoryInput" style="margin-right:5px" v-on:click="displayChart('nonHeapMemory', $event)"
                  type="checkbox">Noheap/Memory</input>
         </span>
                 <span style="display:block; margin-right:5px">
-          <input id="nonHeapPermGenInput" style="margin-right:5px" v-on:click="displayChart('nonHeapPermGen', $event)"
-                 type="checkbox" name="">NonHeap/Perm Gen</input>
+          <input id="heapPermGenInput" style="margin-right:5px" v-on:click="displayChart('permGen', $event)"
+                 type="checkbox" name="">Perm Gen</input>
         </span>
                 <span style="display:block; margin-right:5px">
-          <input id="nonHeapMetaSpaceInput" style="margin-right:5px"
-                 v-on:click="displayChart('nonHeapMetaSpace', $event)" type="checkbox"
-                 name="">NonHeap/Meta Space</input>
+          <input id="heapMetaSpanInput" style="margin-right:5px" v-on:click="displayChart('metaSpace', $event)"
+                 type="checkbox" name="">Meta Space</input>
         </span>
                 <span style="display:block; margin-right:5px">
-          <input id="nonHeapNewGenInput" style="margin-right:5px" v-on:click="displayChart('nonHeapNewGen', $event)"
-                 type="checkbox" name="">NonHeap/New Gen</input>
+          <input id="heapNewGenInput" style="margin-right:5px" v-on:click="displayChart('newGen', $event)"
+                 type="checkbox" name="">New Gen</input>
         </span>
                 <span style="display:block; margin-right:5px">
-          <input id="nonHeapOldGenInput" style="margin-right:5px" v-on:click="displayChart('nonHeapOldGen', $event)"
-                 type="checkbox" name="">NonHeap/Old Gen</input>
+          <input id="heapOldGenInput" style="margin-right:5px" v-on:click="displayChart('oldGen', $event)"
+                 type="checkbox" name="">Old Gen</input>
         </span>
                 <span style="display:block; margin-right:5px">
-          <input id="nonHeapSurvivorInput" style="margin-right:5px" v-on:click="displayChart('nonHeapSurvivor', $event)"
-                 type="checkbox">Noheap/Suvrior</input>
+          <input id="heapSurvivorInput" style="margin-right:5px" v-on:click="displayChart('survivor', $event)"
+                 type="checkbox">Survivor</input>
         </span>
-            </div>
-        </div>
+
     </div>
 </div>
