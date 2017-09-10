@@ -28,6 +28,13 @@ define(['chartJs', 'moment'], function (Chart, moment) {
         }
     }
 
+    MetricChart.prototype.redrawChart = function (startTime) {
+        this.chartObject.destroy();
+        this.chartObject = new Chart(this.chartContext, this.chartConfig(generateChartLabels(startTime, 300)));
+        this.chartStartTime = startTime;
+        this.previousTime = undefined;
+    };
+
     MetricChart.prototype.destroy = function () {
         this.chartObject.destroy();
         this.chartObject = undefined;

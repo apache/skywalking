@@ -85,6 +85,11 @@ define(['jquery', 'vue', 'text!metricSelectorHtml', 'cpuChart', 'gcChart', 'memo
             initParams: function (instanceId, startTime) {
                 this.queryParam.instanceId = instanceId;
                 this.queryParam.startTime = startTime;
+            },
+            redraw: function(timestamp){
+                for (var i = 0; i < this.charts.length; i++) {
+                    this.charts[i].chartOperator.redrawChart(timestamp);
+                }
             }
         }
 
@@ -113,6 +118,8 @@ define(['jquery', 'vue', 'text!metricSelectorHtml', 'cpuChart', 'gcChart', 'memo
             var endTime = currentTime;
             var startTime = moment(currentTime, "YYYYMMDDHHmmss").subtract(5, "minutes").format("YYYYMMDDHHmmss");
             metricChartsController.queryParam.startTime = startTime;
+            metricChartsController.currentXAxesOriginPoint = startTime;
+            metricChartsController.redraw(startTime);
             metricChartsController.loadData(endTime);
         }
 
