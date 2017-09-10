@@ -1,7 +1,6 @@
 package org.skywalking.apm.collector.boot;
 
 import java.util.Map;
-import org.skywalking.apm.collector.cluster.ClusterModuleGroupDefine;
 import org.skywalking.apm.collector.core.client.ClientException;
 import org.skywalking.apm.collector.core.config.ConfigException;
 import org.skywalking.apm.collector.core.framework.DefineException;
@@ -34,11 +33,13 @@ public class CollectorStarter implements Starter {
         Map<String, Map<String, ModuleDefine>> moduleDefineMap = defineLoader.load();
 
         ServerHolder serverHolder = new ServerHolder();
-        moduleGroupDefineMap.get(ClusterModuleGroupDefine.GROUP_NAME).moduleInstaller().install(configuration.get(ClusterModuleGroupDefine.GROUP_NAME), moduleDefineMap.get(ClusterModuleGroupDefine.GROUP_NAME), serverHolder);
-        moduleGroupDefineMap.remove(ClusterModuleGroupDefine.GROUP_NAME);
+//        moduleGroupDefineMap.get(ClusterModuleGroupDefine.GROUP_NAME).moduleInstaller().install(configuration.get(ClusterModuleGroupDefine.GROUP_NAME), moduleDefineMap.get(ClusterModuleGroupDefine.GROUP_NAME), serverHolder);
+//        moduleGroupDefineMap.remove(ClusterModuleGroupDefine.GROUP_NAME);
 
         for (ModuleGroupDefine moduleGroupDefine : moduleGroupDefineMap.values()) {
-            moduleGroupDefine.moduleInstaller().install(configuration.get(moduleGroupDefine.name()), moduleDefineMap.get(moduleGroupDefine.name()), serverHolder);
+            moduleGroupDefine.moduleInstaller().injectConfiguration(configuration.get(moduleGroupDefine.name()), moduleDefineMap.get(moduleGroupDefine.name()));
+            moduleGroupDefine.moduleInstaller().injectServerHolder(serverHolder);
+            moduleGroupDefine.moduleInstaller().install();
         }
 
         serverHolder.getServers().forEach(server -> {

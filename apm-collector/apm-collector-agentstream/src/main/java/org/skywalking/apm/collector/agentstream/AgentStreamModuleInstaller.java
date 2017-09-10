@@ -1,39 +1,27 @@
 package org.skywalking.apm.collector.agentstream;
 
-import java.util.Iterator;
-import java.util.Map;
 import org.skywalking.apm.collector.agentstream.worker.storage.PersistenceTimer;
-import org.skywalking.apm.collector.core.client.ClientException;
-import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
+import org.skywalking.apm.collector.core.config.ConfigException;
+import org.skywalking.apm.collector.core.framework.Context;
 import org.skywalking.apm.collector.core.framework.DefineException;
-import org.skywalking.apm.collector.core.module.ModuleDefine;
-import org.skywalking.apm.collector.core.module.ModuleInstaller;
-import org.skywalking.apm.collector.core.server.ServerHolder;
-import org.skywalking.apm.collector.core.util.ObjectUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.skywalking.apm.collector.core.module.MultipleModuleInstaller;
+import org.skywalking.apm.collector.core.server.ServerException;
 
 /**
  * @author pengys5
  */
-public class AgentStreamModuleInstaller implements ModuleInstaller {
+public class AgentStreamModuleInstaller extends MultipleModuleInstaller {
 
-    private final Logger logger = LoggerFactory.getLogger(AgentStreamModuleInstaller.class);
+    @Override public String groupName() {
+        return AgentStreamModuleGroupDefine.GROUP_NAME;
+    }
 
-    @Override public void install(Map<String, Map> moduleConfig,
-        Map<String, ModuleDefine> moduleDefineMap, ServerHolder serverHolder) throws DefineException, ClientException {
-        logger.info("beginning agent stream module install");
+    @Override public Context moduleContext() {
+        return new AgentStreamModuleContext(groupName());
+    }
 
-        AgentStreamModuleContext context = new AgentStreamModuleContext(AgentStreamModuleGroupDefine.GROUP_NAME);
-        CollectorContextHelper.INSTANCE.putContext(context);
-
-        Iterator<Map.Entry<String, ModuleDefine>> moduleDefineEntry = moduleDefineMap.entrySet().iterator();
-        while (moduleDefineEntry.hasNext()) {
-            ModuleDefine moduleDefine = moduleDefineEntry.next().getValue();
-            logger.info("module {} initialize", moduleDefine.getClass().getName());
-            moduleDefine.initialize((ObjectUtils.isNotEmpty(moduleConfig) && moduleConfig.containsKey(moduleDefine.name())) ? moduleConfig.get(moduleDefine.name()) : null, serverHolder);
-        }
-
+    @Override public void install() throws DefineException, ConfigException, ServerException {
+        super.install();
         new PersistenceTimer().start();
     }
 }

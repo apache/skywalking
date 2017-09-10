@@ -5,7 +5,6 @@ import java.util.List;
 import org.skywalking.apm.collector.core.client.Client;
 import org.skywalking.apm.collector.core.client.DataMonitor;
 import org.skywalking.apm.collector.core.cluster.ClusterDataListener;
-import org.skywalking.apm.collector.core.framework.DefineException;
 import org.skywalking.apm.collector.core.framework.Handler;
 import org.skywalking.apm.collector.core.module.ModuleConfigParser;
 import org.skywalking.apm.collector.core.module.ModuleRegistration;
@@ -50,7 +49,7 @@ public class StreamGRPCModuleDefine extends StreamModuleDefine {
         return new StreamGRPCDataListener();
     }
 
-    @Override public List<Handler> handlerList() throws DefineException {
+    @Override public List<Handler> handlerList() {
         List<Handler> handlers = new ArrayList<>();
         handlers.add(new RemoteCommonServiceHandler());
         return handlers;

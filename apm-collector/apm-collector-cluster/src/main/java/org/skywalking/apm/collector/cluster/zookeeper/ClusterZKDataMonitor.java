@@ -1,5 +1,6 @@
 package org.skywalking.apm.collector.cluster.zookeeper;
 
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +13,7 @@ import org.skywalking.apm.collector.client.zookeeper.ZookeeperClient;
 import org.skywalking.apm.collector.client.zookeeper.ZookeeperClientException;
 import org.skywalking.apm.collector.client.zookeeper.util.PathUtils;
 import org.skywalking.apm.collector.cluster.ClusterNodeExistException;
+import org.skywalking.apm.collector.core.CollectorException;
 import org.skywalking.apm.collector.core.client.Client;
 import org.skywalking.apm.collector.core.client.ClientException;
 import org.skywalking.apm.collector.core.client.DataMonitor;
@@ -31,9 +33,11 @@ public class ClusterZKDataMonitor implements DataMonitor, Watcher {
     private ZookeeperClient client;
 
     private Map<String, ClusterDataListener> listeners;
+    private Map<String, ModuleRegistration> registrations;
 
     public ClusterZKDataMonitor() {
         listeners = new LinkedHashMap<>();
+        registrations = new LinkedHashMap<>();
     }
 
     @Override public void process(WatchedEvent event) {
@@ -65,24 +69,32 @@ public class ClusterZKDataMonitor implements DataMonitor, Watcher {
         this.client = (ZookeeperClient)client;
     }
 
+    @Override public void start() throws CollectorException {
+        Iterator<Map.Entry<String, ModuleRegistration>> entryIterator = registrations.entrySet().iterator();
+        while (entryIterator.hasNext()) {
+            Map.Entry<String, ModuleRegistration> next = entryIterator.next();
+            createPath(next.getKey());
+
+            ModuleRegistration.Value value = next.getValue().buildValue();
+            String contextPath = value.getContextPath() == null ? "" : value.getContextPath();
+
+            client.getChildren(next.getKey(), true);
+            String serverPath = next.getKey() + "/" + value.getHostPort();
+
+            if (client.exists(serverPath, false) == null) {
+                setData(serverPath, contextPath);
+            } else {
+                throw new ClusterNodeExistException("current address: " + value.getHostPort() + " has been registered, check the host and port configuration or wait a moment.");
+            }
+        }
+    }
+
     @Override
     public void addListener(ClusterDataListener listener, ModuleRegistration registration) throws ClientException {
         String path = PathUtils.convertKey2Path(listener.path());
         logger.info("listener path: {}", path);
         listeners.put(path, listener);
-        createPath(path);
-
-        ModuleRegistration.Value value = registration.buildValue();
-        String contextPath = value.getContextPath() == null ? "" : value.getContextPath();
-
-        client.getChildren(path, true);
-        String serverPath = path + "/" + value.getHostPort();
-
-        if (client.exists(serverPath, false) == null) {
-            setData(serverPath, contextPath);
-        } else {
-            throw new ClusterNodeExistException("current address: " + value.getHostPort() + " has been registered, check the host and port configuration or wait a moment.");
-        }
+        registrations.put(path, registration);
     }
 
     @Override public ClusterDataListener getListener(String path) {

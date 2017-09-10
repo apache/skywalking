@@ -1,28 +1,29 @@
 package org.skywalking.apm.collector.queue;
 
-import java.util.Map;
 import org.skywalking.apm.collector.core.client.ClientException;
+import org.skywalking.apm.collector.core.config.ConfigException;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
+import org.skywalking.apm.collector.core.framework.Context;
 import org.skywalking.apm.collector.core.framework.DefineException;
-import org.skywalking.apm.collector.core.module.ModuleDefine;
 import org.skywalking.apm.collector.core.module.SingleModuleInstaller;
-import org.skywalking.apm.collector.core.server.ServerHolder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.skywalking.apm.collector.core.server.ServerException;
+import org.skywalking.apm.collector.queue.datacarrier.DataCarrierQueueCreator;
 
 /**
  * @author pengys5
  */
 public class QueueModuleInstaller extends SingleModuleInstaller {
 
-    private final Logger logger = LoggerFactory.getLogger(QueueModuleInstaller.class);
+    @Override public String groupName() {
+        return QueueModuleGroupDefine.GROUP_NAME;
+    }
 
-    @Override public void install(Map<String, Map> moduleConfig,
-        Map<String, ModuleDefine> moduleDefineMap, ServerHolder serverHolder) throws DefineException, ClientException {
-        logger.info("beginning queue module install");
-        QueueModuleContext context = new QueueModuleContext(QueueModuleGroupDefine.GROUP_NAME);
-        CollectorContextHelper.INSTANCE.putContext(context);
+    @Override public Context moduleContext() {
+        return new QueueModuleContext(groupName());
+    }
 
-        installSingle(moduleConfig, moduleDefineMap, serverHolder);
+    @Override public void install() throws ClientException, DefineException, ConfigException, ServerException {
+        super.install();
+        ((QueueModuleContext)CollectorContextHelper.INSTANCE.getContext(groupName())).setQueueCreator(new DataCarrierQueueCreator());
     }
 }

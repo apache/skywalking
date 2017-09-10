@@ -1,18 +1,16 @@
 package org.skywalking.apm.collector.cluster;
 
-import java.util.Map;
+import java.util.List;
 import org.skywalking.apm.collector.core.client.Client;
 import org.skywalking.apm.collector.core.client.ClientException;
 import org.skywalking.apm.collector.core.client.DataMonitor;
-import org.skywalking.apm.collector.core.cluster.ClusterModuleContext;
-import org.skywalking.apm.collector.core.cluster.ClusterModuleException;
 import org.skywalking.apm.collector.core.cluster.ClusterModuleRegistrationReader;
-import org.skywalking.apm.collector.core.config.ConfigParseException;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
+import org.skywalking.apm.collector.core.framework.Handler;
+import org.skywalking.apm.collector.core.framework.UnexpectedException;
 import org.skywalking.apm.collector.core.module.ModuleDefine;
 import org.skywalking.apm.collector.core.module.ModuleRegistration;
 import org.skywalking.apm.collector.core.server.Server;
-import org.skywalking.apm.collector.core.server.ServerHolder;
 
 /**
  * @author pengys5
@@ -22,22 +20,20 @@ public abstract class ClusterModuleDefine extends ModuleDefine {
     public static final String BASE_CATALOG = "skywalking";
 
     private Client client;
+    private DataMonitor dataMonitor;
 
-    @Override public final void initialize(Map config, ServerHolder serverHolder) throws ClusterModuleException {
+    @Override protected void initializeOtherContext() {
         try {
-            configParser().parse(config);
-
-            DataMonitor dataMonitor = dataMonitor();
+            dataMonitor = dataMonitor();
             client = createClient(dataMonitor);
             client.initialize();
             dataMonitor.setClient(client);
-
             ClusterModuleRegistrationReader reader = registrationReader(dataMonitor);
 
-            ((ClusterModuleContext)CollectorContextHelper.INSTANCE.getContext(group())).setDataMonitor(dataMonitor);
-            ((ClusterModuleContext)CollectorContextHelper.INSTANCE.getContext(group())).setReader(reader);
-        } catch (ConfigParseException | ClientException e) {
-            throw new ClusterModuleException(e.getMessage(), e);
+            CollectorContextHelper.INSTANCE.getClusterModuleContext().setDataMonitor(dataMonitor);
+            CollectorContextHelper.INSTANCE.getClusterModuleContext().setReader(reader);
+        } catch (ClientException e) {
+            throw new UnexpectedException(e.getMessage());
         }
     }
 
@@ -49,6 +45,10 @@ public abstract class ClusterModuleDefine extends ModuleDefine {
         throw new UnsupportedOperationException("");
     }
 
+    @Override public final List<Handler> handlerList() {
+        throw new UnsupportedOperationException("");
+    }
+
     @Override protected final ModuleRegistration registration() {
         throw new UnsupportedOperationException("Cluster module do not need module registration.");
     }
@@ -56,4 +56,5 @@ public abstract class ClusterModuleDefine extends ModuleDefine {
     public abstract DataMonitor dataMonitor();
 
     public abstract ClusterModuleRegistrationReader registrationReader(DataMonitor dataMonitor);
+
 }
