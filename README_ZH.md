@@ -61,6 +61,10 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 - JVM明细信息
 <img src="https://sky-walking.github.io/page-resources/3.2/instance_graph.png"/>
 
+- 服务依赖树.
+<img src="https://sky-walking.github.io/page-resources/3.2/service_dependency_tree.png"/>
+
+
 # Test reports
 - 自动化集成测试报告
   - [Java探针测试报告](https://github.com/sky-walking/agent-integration-test-report)

@@ -56,8 +56,11 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 - Instance Overview.
 <img src="https://sky-walking.github.io/page-resources/3.2/instance_health.png"/>
 
-- JVM detail.
+- JVM Detail.
 <img src="https://sky-walking.github.io/page-resources/3.2/instance_graph.png"/>
+
+- Services Dependency Tree.
+<img src="https://sky-walking.github.io/page-resources/3.2/service_dependency_tree.png"/>
 
 # Test reports
 - Automatic integration test reports
