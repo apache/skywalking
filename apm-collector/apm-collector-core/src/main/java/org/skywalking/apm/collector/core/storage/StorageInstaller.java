@@ -18,13 +18,14 @@ public abstract class StorageInstaller {
         try {
             List<TableDefine> tableDefines = defineLoader.load();
             defineFilter(tableDefines);
+            Boolean debug = System.getProperty("debug") != null;
 
             for (TableDefine tableDefine : tableDefines) {
                 tableDefine.initialize();
                 if (!isExists(client, tableDefine)) {
                     logger.info("table: {} not exists", tableDefine.getName());
                     createTable(client, tableDefine);
-                } else {
+                } else if (debug) {
                     logger.info("table: {} exists", tableDefine.getName());
                     deleteTable(client, tableDefine);
                     createTable(client, tableDefine);
