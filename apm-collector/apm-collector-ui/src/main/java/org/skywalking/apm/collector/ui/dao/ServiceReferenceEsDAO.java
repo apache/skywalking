@@ -110,13 +110,15 @@ public class ServiceReferenceEsDAO extends EsDAO implements IServiceReferenceDAO
                 .subAggregation(AggregationBuilders.sum(ServiceReferenceTable.COLUMN_SUMMARY).field(ServiceReferenceTable.COLUMN_SUMMARY))
                 .subAggregation(AggregationBuilders.sum(ServiceReferenceTable.COLUMN_COST_SUMMARY).field(ServiceReferenceTable.COLUMN_COST_SUMMARY))));
 
+        Map<String, JsonObject> serviceReferenceMap = new LinkedHashMap<>();
+
         JsonArray serviceReferenceArray = new JsonArray();
         SearchResponse searchResponse = searchRequestBuilder.get();
         Terms frontServiceIdTerms = searchResponse.getAggregations().get(ServiceReferenceTable.COLUMN_FRONT_SERVICE_ID);
         for (Terms.Bucket frontServiceBucket : frontServiceIdTerms.getBuckets()) {
             int frontServiceId = frontServiceBucket.getKeyAsNumber().intValue();
             if (frontServiceId != 0) {
-                parseSubAggregate(serviceReferenceArray, frontServiceBucket, frontServiceId);
+                parseSubAggregate(serviceReferenceMap, serviceReferenceArray, frontServiceBucket, frontServiceId);
             }
         }
 
@@ -126,16 +128,17 @@ public class ServiceReferenceEsDAO extends EsDAO implements IServiceReferenceDAO
             if (StringUtils.isNotEmpty(frontServiceName)) {
                 String[] serviceNames = frontServiceName.split(Const.ID_SPLIT);
                 int frontServiceId = ServiceIdCache.getForUI(Integer.parseInt(serviceNames[0]), serviceNames[1]);
-                parseSubAggregate(serviceReferenceArray, frontServiceBucket, frontServiceId);
+                parseSubAggregate(serviceReferenceMap, serviceReferenceArray, frontServiceBucket, frontServiceId);
             }
         }
+
+        serviceReferenceMap.values().forEach(serviceReferenceArray::add);
         return serviceReferenceArray;
     }
 
-    private void parseSubAggregate(JsonArray serviceReferenceArray, Terms.Bucket frontServiceBucket,
+    private void parseSubAggregate(Map<String, JsonObject> serviceReferenceMap, JsonArray serviceReferenceArray,
+        Terms.Bucket frontServiceBucket,
         int frontServiceId) {
-        Map<String, JsonObject> serviceReferenceMap = new LinkedHashMap<>();
-
         Terms behindServiceIdTerms = frontServiceBucket.getAggregations().get(ServiceReferenceTable.COLUMN_BEHIND_SERVICE_ID);
         for (Terms.Bucket behindServiceIdBucket : behindServiceIdTerms.getBuckets()) {
             int behindServiceId = behindServiceIdBucket.getKeyAsNumber().intValue();
@@ -205,8 +208,6 @@ public class ServiceReferenceEsDAO extends EsDAO implements IServiceReferenceDAO
                 merge(serviceReferenceMap, serviceReference);
             }
         }
-
-        serviceReferenceMap.values().forEach(serviceReferenceArray::add);
     }
 
     private void merge(Map<String, JsonObject> serviceReferenceMap, JsonObject serviceReference) {
