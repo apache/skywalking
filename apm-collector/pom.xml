@@ -10,7 +10,7 @@
     <parent>
         <artifactId>apm</artifactId>
         <groupId>org.skywalking</groupId>
-        <version>3.1-2017</version>
+        <version>3.1.1-2017</version>
     </parent>
     <artifactId>apm-collector</artifactId>
     <packaging>pom</packaging>
