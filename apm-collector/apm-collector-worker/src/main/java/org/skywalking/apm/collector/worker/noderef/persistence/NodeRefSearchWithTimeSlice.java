@@ -45,7 +45,7 @@ public class NodeRefSearchWithTimeSlice extends AbstractLocalSyncWorker {
             searchRequestBuilder.setQuery(QueryBuilders.rangeQuery(NodeRefIndex.TIME_SLICE).gte(search.getStartTime()).lte(search.getEndTime()));
             searchRequestBuilder.setSize(0);
 
-            searchRequestBuilder.addAggregation(AggregationBuilders.terms(NodeRefIndex.AGG_COLUMN).field(NodeRefIndex.AGG_COLUMN).size(100));
+            searchRequestBuilder.addAggregation(AggregationBuilders.terms(NodeRefIndex.AGG_COLUMN).field(NodeRefIndex.AGG_COLUMN).size(200));
 
             SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
 

@@ -35,7 +35,7 @@ public class NodeCompLoad extends AbstractLocalSyncWorker {
         SearchRequestBuilder searchRequestBuilder = EsClient.INSTANCE.getClient().prepareSearch(NodeCompIndex.INDEX);
         searchRequestBuilder.setTypes(NodeCompIndex.TYPE_RECORD);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
-        searchRequestBuilder.setSize(100);
+        searchRequestBuilder.setSize(500);
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
 
         SearchHit[] searchHits = searchResponse.getHits().getHits();

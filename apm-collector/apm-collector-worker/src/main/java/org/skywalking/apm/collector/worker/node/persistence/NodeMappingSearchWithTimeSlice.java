@@ -45,7 +45,7 @@ public class NodeMappingSearchWithTimeSlice extends AbstractLocalSyncWorker {
             searchRequestBuilder.setQuery(QueryBuilders.rangeQuery(NodeMappingIndex.TIME_SLICE).gte(search.getStartTime()).lte(search.getEndTime()));
             searchRequestBuilder.setSize(0);
 
-            searchRequestBuilder.addAggregation(AggregationBuilders.terms(NodeMappingIndex.AGG_COLUMN).field(NodeMappingIndex.AGG_COLUMN).size(100));
+            searchRequestBuilder.addAggregation(AggregationBuilders.terms(NodeMappingIndex.AGG_COLUMN).field(NodeMappingIndex.AGG_COLUMN).size(500));
             SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
 
             Terms genders = searchResponse.getAggregations().get(NodeMappingIndex.AGG_COLUMN);
