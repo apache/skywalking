@@ -1,7 +1,8 @@
 package org.skywalking.apm.collector.core.util;
 
-import java.io.FileReader;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -34,14 +35,15 @@ public class DefinitionLoader<D> implements Iterable<D> {
 
     @Override public final Iterator<D> iterator() {
         logger.info("load definition file: {}", definitionFile.get());
-        Properties properties = new Properties();
         List<String> definitionList = new LinkedList<>();
         try {
             Enumeration<URL> urlEnumeration = this.getClass().getClassLoader().getResources(definitionFile.get());
             while (urlEnumeration.hasMoreElements()) {
                 URL definitionFileURL = urlEnumeration.nextElement();
                 logger.info("definition file url: {}", definitionFileURL.getPath());
-                properties.load(new FileReader(definitionFileURL.getPath()));
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(definitionFileURL.openStream()));
+                Properties properties = new Properties();
+                properties.load(bufferedReader);
 
                 Enumeration defineItem = properties.propertyNames();
                 while (defineItem.hasMoreElements()) {
@@ -50,7 +52,7 @@ public class DefinitionLoader<D> implements Iterable<D> {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
         }
 
         Iterator<String> moduleDefineIterator = definitionList.iterator();

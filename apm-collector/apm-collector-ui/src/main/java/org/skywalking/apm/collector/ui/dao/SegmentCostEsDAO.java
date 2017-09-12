@@ -25,7 +25,7 @@ import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
 public class SegmentCostEsDAO extends EsDAO implements ISegmentCostDAO {
 
     @Override public JsonObject loadTop(long startTime, long endTime, long minCost, long maxCost, String operationName,
-        String globalTraceId, int limit, int from, Sort sort) {
+        List<String> segmentIds, int limit, int from, Sort sort) {
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(SegmentCostTable.TABLE);
         searchRequestBuilder.setTypes(SegmentCostTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
@@ -44,8 +44,11 @@ public class SegmentCostEsDAO extends EsDAO implements ISegmentCostDAO {
             }
             boolQueryBuilder.must().add(rangeQueryBuilder);
         }
-        if (!StringUtils.isEmpty(operationName)) {
+        if (StringUtils.isNotEmpty(operationName)) {
             mustQueryList.add(QueryBuilders.matchQuery(SegmentCostTable.COLUMN_SERVICE_NAME, operationName));
+        }
+        if (CollectionUtils.isNotEmpty(segmentIds)) {
+            boolQueryBuilder.must().add(QueryBuilders.termsQuery(SegmentCostTable.COLUMN_SEGMENT_ID, segmentIds.toArray(new String[0])));
         }
 
         if (Sort.Cost.equals(sort)) {

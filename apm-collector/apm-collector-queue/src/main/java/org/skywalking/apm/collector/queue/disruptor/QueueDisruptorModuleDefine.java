@@ -1,10 +1,7 @@
 package org.skywalking.apm.collector.queue.disruptor;
 
-import java.util.Map;
-import org.skywalking.apm.collector.core.client.ClientException;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
-import org.skywalking.apm.collector.core.framework.DefineException;
-import org.skywalking.apm.collector.core.server.ServerHolder;
+import org.skywalking.apm.collector.core.module.ModuleConfigParser;
 import org.skywalking.apm.collector.queue.QueueModuleContext;
 import org.skywalking.apm.collector.queue.QueueModuleDefine;
 import org.skywalking.apm.collector.queue.QueueModuleGroupDefine;
@@ -26,8 +23,11 @@ public class QueueDisruptorModuleDefine extends QueueModuleDefine {
         return true;
     }
 
-    @Override
-    public final void initialize(Map config, ServerHolder serverHolder) throws DefineException, ClientException {
+    @Override protected ModuleConfigParser configParser() {
+        return new DisruptorQueueConfigParser();
+    }
+
+    @Override protected void initializeOtherContext() {
         ((QueueModuleContext)CollectorContextHelper.INSTANCE.getContext(group())).setQueueCreator(new DisruptorQueueCreator());
     }
 }

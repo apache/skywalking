@@ -9,8 +9,12 @@ import org.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMethodsAro
 public class ActiveSpanTagInterceptor implements StaticMethodsAroundInterceptor {
     @Override public void beforeMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
         MethodInterceptResult result) {
-        AbstractSpan activeSpan = ContextManager.activeSpan();
-        activeSpan.tag(String.valueOf(allArguments[0]), String.valueOf(allArguments[1]));
+        AbstractSpan activeSpan = null;
+        try {
+            activeSpan = ContextManager.activeSpan();
+            activeSpan.tag(String.valueOf(allArguments[0]), String.valueOf(allArguments[1]));
+        } catch (NullPointerException e) {
+        }
     }
 
     @Override public Object afterMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,

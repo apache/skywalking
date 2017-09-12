@@ -43,6 +43,7 @@ public class InstanceDataDefine extends DataDefine {
         builder.addDataStrings(instance.getId());
         builder.addDataIntegers(instance.getApplicationId());
         builder.addDataStrings(instance.getAgentUUID());
+        builder.addDataIntegers(instance.getInstanceId());
         builder.addDataLongs(instance.getRegisterTime());
         builder.addDataLongs(instance.getHeartBeatTime());
         builder.addDataStrings(instance.getOsInfo());

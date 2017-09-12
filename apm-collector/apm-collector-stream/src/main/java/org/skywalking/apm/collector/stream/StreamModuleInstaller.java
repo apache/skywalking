@@ -1,15 +1,12 @@
 package org.skywalking.apm.collector.stream;
 
-import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import org.skywalking.apm.collector.core.client.ClientException;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
+import org.skywalking.apm.collector.core.framework.Context;
 import org.skywalking.apm.collector.core.framework.DefineException;
-import org.skywalking.apm.collector.core.module.ModuleDefine;
-import org.skywalking.apm.collector.core.module.ModuleInstaller;
-import org.skywalking.apm.collector.core.server.ServerHolder;
-import org.skywalking.apm.collector.core.util.ObjectUtils;
+import org.skywalking.apm.collector.core.module.SingleModuleInstaller;
+import org.skywalking.apm.collector.queue.QueueModuleGroupDefine;
 import org.skywalking.apm.collector.stream.worker.AbstractLocalAsyncWorkerProvider;
 import org.skywalking.apm.collector.stream.worker.AbstractRemoteWorkerProvider;
 import org.skywalking.apm.collector.stream.worker.ClusterWorkerContext;
@@ -22,25 +19,26 @@ import org.slf4j.LoggerFactory;
 /**
  * @author pengys5
  */
-public class StreamModuleInstaller implements ModuleInstaller {
+public class StreamModuleInstaller extends SingleModuleInstaller {
 
     private final Logger logger = LoggerFactory.getLogger(StreamModuleInstaller.class);
 
-    @Override public void install(Map<String, Map> moduleConfig, Map<String, ModuleDefine> moduleDefineMap,
-        ServerHolder serverHolder) throws DefineException, ClientException {
-        logger.info("beginning stream module install");
-        StreamModuleContext context = new StreamModuleContext(StreamModuleGroupDefine.GROUP_NAME);
-        CollectorContextHelper.INSTANCE.putContext(context);
+    @Override public String groupName() {
+        return StreamModuleGroupDefine.GROUP_NAME;
+    }
 
-        initializeWorker(context);
+    @Override public Context moduleContext() {
+        return new StreamModuleContext(groupName());
+    }
 
-        logger.info("could not configure cluster module, use the default");
-        Iterator<Map.Entry<String, ModuleDefine>> moduleDefineEntry = moduleDefineMap.entrySet().iterator();
-        while (moduleDefineEntry.hasNext()) {
-            ModuleDefine moduleDefine = moduleDefineEntry.next().getValue();
-            logger.info("module {} initialize", moduleDefine.getClass().getName());
-            moduleDefine.initialize((ObjectUtils.isNotEmpty(moduleConfig) && moduleConfig.containsKey(moduleDefine.name())) ? moduleConfig.get(moduleDefine.name()) : null, serverHolder);
-        }
+    @Override public List<String> dependenceModules() {
+        List<String> dependenceModules = new LinkedList<>();
+        dependenceModules.add(QueueModuleGroupDefine.GROUP_NAME);
+        return dependenceModules;
+    }
+
+    @Override public void onAfterInstall() throws DefineException {
+        initializeWorker((StreamModuleContext)CollectorContextHelper.INSTANCE.getContext(groupName()));
     }
 
     private void initializeWorker(StreamModuleContext context) throws DefineException {

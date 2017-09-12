@@ -7,6 +7,7 @@ import java.util.List;
 import org.skywalking.apm.collector.core.util.CollectionUtils;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.ObjectUtils;
+import org.skywalking.apm.collector.core.util.StringUtils;
 import org.skywalking.apm.collector.storage.dao.DAOContainer;
 import org.skywalking.apm.collector.ui.cache.ApplicationCache;
 import org.skywalking.apm.collector.ui.cache.ServiceNameCache;
@@ -98,7 +99,12 @@ public class TraceStackService {
 
                 String operationName = spanObject.getOperationName();
                 if (spanObject.getOperationNameId() != 0) {
-                    operationName = ServiceNameCache.get(spanObject.getOperationNameId());
+                    String serviceName = ServiceNameCache.get(spanObject.getOperationNameId());
+                    if (StringUtils.isNotEmpty(serviceName)) {
+                        operationName = serviceName.split(Const.ID_SPLIT)[1];
+                    } else {
+                        operationName = Const.EMPTY_STRING;
+                    }
                 }
                 String applicationCode = ApplicationCache.get(segment.getApplicationId());
 
@@ -113,7 +119,13 @@ public class TraceStackService {
                         UniqueId uniqueId = reference.getParentTraceSegmentId();
 
                         StringBuilder segmentIdBuilder = new StringBuilder();
-                        uniqueId.getIdPartsList().forEach(part -> segmentIdBuilder.append(String.valueOf(part)));
+                        for (int i = 0; i < uniqueId.getIdPartsList().size(); i++) {
+                            if (i == 0) {
+                                segmentIdBuilder.append(String.valueOf(uniqueId.getIdPartsList().get(i)));
+                            } else {
+                                segmentIdBuilder.append(".").append(String.valueOf(uniqueId.getIdPartsList().get(i)));
+                            }
+                        }
 
                         String parentSegmentId = segmentIdBuilder.toString();
                         segmentParentSpanId = parentSegmentId + Const.SEGMENT_SPAN_SPLIT + String.valueOf(parentSpanId);

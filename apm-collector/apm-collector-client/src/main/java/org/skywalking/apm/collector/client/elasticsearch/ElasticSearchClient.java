@@ -64,6 +64,10 @@ public class ElasticSearchClient implements Client {
         }
     }
 
+    @Override public void shutdown() {
+
+    }
+
     private List<AddressPairs> parseClusterNodes(String nodes) {
         List<AddressPairs> pairsList = new LinkedList<>();
         logger.info("elasticsearch cluster nodes: {}", nodes);

@@ -11,6 +11,12 @@ public class AgentRegisterModuleGroupDefine implements ModuleGroupDefine {
 
     public static final String GROUP_NAME = "agent_register";
 
+    private final AgentRegisterCommonModuleInstaller installer;
+
+    public AgentRegisterModuleGroupDefine() {
+        installer = new AgentRegisterCommonModuleInstaller();
+    }
+
     @Override public String name() {
         return GROUP_NAME;
     }
@@ -20,6 +26,6 @@ public class AgentRegisterModuleGroupDefine implements ModuleGroupDefine {
     }
 
     @Override public ModuleInstaller moduleInstaller() {
-        return new AgentRegisterModuleInstaller();
+        return installer;
     }
 }

@@ -1,14 +1,14 @@
 package org.skywalking.apm.collector.storage.define.jvm;
 
 import org.skywalking.apm.collector.core.framework.UnexpectedException;
-import org.skywalking.apm.collector.remote.grpc.proto.RemoteData;
-import org.skywalking.apm.collector.storage.define.Attribute;
-import org.skywalking.apm.collector.storage.define.AttributeType;
 import org.skywalking.apm.collector.core.stream.Data;
-import org.skywalking.apm.collector.storage.define.DataDefine;
 import org.skywalking.apm.collector.core.stream.Transform;
 import org.skywalking.apm.collector.core.stream.operate.CoverOperation;
 import org.skywalking.apm.collector.core.stream.operate.NonOperation;
+import org.skywalking.apm.collector.remote.grpc.proto.RemoteData;
+import org.skywalking.apm.collector.storage.define.Attribute;
+import org.skywalking.apm.collector.storage.define.AttributeType;
+import org.skywalking.apm.collector.storage.define.DataDefine;
 
 /**
  * @author pengys5
@@ -16,19 +16,18 @@ import org.skywalking.apm.collector.core.stream.operate.NonOperation;
 public class MemoryPoolMetricDataDefine extends DataDefine {
 
     @Override protected int initialCapacity() {
-        return 9;
+        return 8;
     }
 
     @Override protected void attributeDefine() {
         addAttribute(0, new Attribute(MemoryPoolMetricTable.COLUMN_ID, AttributeType.STRING, new NonOperation()));
-        addAttribute(1, new Attribute(MemoryPoolMetricTable.COLUMN_APPLICATION_INSTANCE_ID, AttributeType.INTEGER, new CoverOperation()));
+        addAttribute(1, new Attribute(MemoryPoolMetricTable.COLUMN_INSTANCE_ID, AttributeType.INTEGER, new CoverOperation()));
         addAttribute(2, new Attribute(MemoryPoolMetricTable.COLUMN_POOL_TYPE, AttributeType.INTEGER, new CoverOperation()));
-        addAttribute(3, new Attribute(MemoryPoolMetricTable.COLUMN_IS_HEAP, AttributeType.BOOLEAN, new CoverOperation()));
-        addAttribute(4, new Attribute(MemoryPoolMetricTable.COLUMN_INIT, AttributeType.LONG, new CoverOperation()));
-        addAttribute(5, new Attribute(MemoryPoolMetricTable.COLUMN_MAX, AttributeType.LONG, new CoverOperation()));
-        addAttribute(6, new Attribute(MemoryPoolMetricTable.COLUMN_USED, AttributeType.LONG, new CoverOperation()));
-        addAttribute(7, new Attribute(MemoryPoolMetricTable.COLUMN_COMMITTED, AttributeType.LONG, new CoverOperation()));
-        addAttribute(8, new Attribute(MemoryPoolMetricTable.COLUMN_TIME_BUCKET, AttributeType.LONG, new CoverOperation()));
+        addAttribute(3, new Attribute(MemoryPoolMetricTable.COLUMN_INIT, AttributeType.LONG, new CoverOperation()));
+        addAttribute(4, new Attribute(MemoryPoolMetricTable.COLUMN_MAX, AttributeType.LONG, new CoverOperation()));
+        addAttribute(5, new Attribute(MemoryPoolMetricTable.COLUMN_USED, AttributeType.LONG, new CoverOperation()));
+        addAttribute(6, new Attribute(MemoryPoolMetricTable.COLUMN_COMMITTED, AttributeType.LONG, new CoverOperation()));
+        addAttribute(7, new Attribute(MemoryPoolMetricTable.COLUMN_TIME_BUCKET, AttributeType.LONG, new CoverOperation()));
     }
 
     @Override public Object deserialize(RemoteData remoteData) {
@@ -41,21 +40,19 @@ public class MemoryPoolMetricDataDefine extends DataDefine {
 
     public static class MemoryPoolMetric implements Transform<MemoryPoolMetric> {
         private String id;
-        private int applicationInstanceId;
+        private int instanceId;
         private int poolType;
-        private boolean isHeap;
         private long init;
         private long max;
         private long used;
         private long committed;
         private long timeBucket;
 
-        public MemoryPoolMetric(String id, int applicationInstanceId, int poolType, boolean isHeap, long init, long max,
+        public MemoryPoolMetric(String id, int instanceId, int poolType, long init, long max,
             long used, long committed, long timeBucket) {
             this.id = id;
-            this.applicationInstanceId = applicationInstanceId;
+            this.instanceId = instanceId;
             this.poolType = poolType;
-            this.isHeap = isHeap;
             this.init = init;
             this.max = max;
             this.used = used;
@@ -70,9 +67,8 @@ public class MemoryPoolMetricDataDefine extends DataDefine {
             MemoryPoolMetricDataDefine define = new MemoryPoolMetricDataDefine();
             Data data = define.build(id);
             data.setDataString(0, this.id);
-            data.setDataInteger(0, this.applicationInstanceId);
+            data.setDataInteger(0, this.instanceId);
             data.setDataInteger(1, this.poolType);
-            data.setDataBoolean(0, this.isHeap);
             data.setDataLong(0, this.init);
             data.setDataLong(1, this.max);
             data.setDataLong(2, this.used);
@@ -83,9 +79,8 @@ public class MemoryPoolMetricDataDefine extends DataDefine {
 
         @Override public MemoryPoolMetric toSelf(Data data) {
             this.id = data.getDataString(0);
-            this.applicationInstanceId = data.getDataInteger(0);
+            this.instanceId = data.getDataInteger(0);
             this.poolType = data.getDataInteger(1);
-            this.isHeap = data.getDataBoolean(0);
             this.init = data.getDataLong(0);
             this.max = data.getDataLong(1);
             this.used = data.getDataLong(2);
@@ -98,16 +93,12 @@ public class MemoryPoolMetricDataDefine extends DataDefine {
             this.id = id;
         }
 
-        public void setApplicationInstanceId(int applicationInstanceId) {
-            this.applicationInstanceId = applicationInstanceId;
+        public void setInstanceId(int instanceId) {
+            this.instanceId = instanceId;
         }
 
         public void setPoolType(int poolType) {
             this.poolType = poolType;
-        }
-
-        public void setHeap(boolean heap) {
-            isHeap = heap;
         }
 
         public void setInit(long init) {
@@ -134,8 +125,8 @@ public class MemoryPoolMetricDataDefine extends DataDefine {
             return id;
         }
 
-        public int getApplicationInstanceId() {
-            return applicationInstanceId;
+        public int getInstanceId() {
+            return instanceId;
         }
 
         public long getTimeBucket() {

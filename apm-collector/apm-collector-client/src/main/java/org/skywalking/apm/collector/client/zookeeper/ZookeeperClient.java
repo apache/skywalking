@@ -39,6 +39,10 @@ public class ZookeeperClient implements Client {
         }
     }
 
+    @Override public void shutdown() {
+
+    }
+
     public void create(final String path, byte data[], List<ACL> acl,
         CreateMode createMode) throws ZookeeperClientException {
         try {

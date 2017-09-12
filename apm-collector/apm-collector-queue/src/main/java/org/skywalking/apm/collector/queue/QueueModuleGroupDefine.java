@@ -10,6 +10,11 @@ import org.skywalking.apm.collector.core.module.ModuleInstaller;
 public class QueueModuleGroupDefine implements ModuleGroupDefine {
 
     public static final String GROUP_NAME = "queue";
+    private final QueueModuleInstaller installer;
+
+    public QueueModuleGroupDefine() {
+        installer = new QueueModuleInstaller();
+    }
 
     @Override public String name() {
         return GROUP_NAME;
@@ -20,6 +25,6 @@ public class QueueModuleGroupDefine implements ModuleGroupDefine {
     }
 
     @Override public ModuleInstaller moduleInstaller() {
-        return new QueueModuleInstaller();
+        return installer;
     }
 }

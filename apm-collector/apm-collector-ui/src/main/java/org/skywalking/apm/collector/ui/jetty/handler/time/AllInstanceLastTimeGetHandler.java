@@ -28,12 +28,16 @@ public class AllInstanceLastTimeGetHandler extends JettyHandler {
         Long timeBucket = service.allInstanceLastTime();
         logger.debug("all instance last time: {}", timeBucket);
 
+        if (timeBucket == 0) {
+            timeBucket = TimeBucketUtils.INSTANCE.getSecondTimeBucket(System.currentTimeMillis());
+        }
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(TimeBucketUtils.INSTANCE.changeTimeBucket2TimeStamp(TimeBucketUtils.TimeBucketType.SECOND.name(), timeBucket));
         calendar.add(Calendar.SECOND, -5);
+        timeBucket = calendar.getTimeInMillis();
 
         JsonObject timeJson = new JsonObject();
-        timeJson.addProperty("timeBucket", TimeBucketUtils.INSTANCE.getSecondTimeBucket(calendar.getTimeInMillis()));
+        timeJson.addProperty("timeBucket", TimeBucketUtils.INSTANCE.getSecondTimeBucket(timeBucket));
         return timeJson;
     }
 

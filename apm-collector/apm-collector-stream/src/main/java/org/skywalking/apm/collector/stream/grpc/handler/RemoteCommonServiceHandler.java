@@ -10,8 +10,6 @@ import org.skywalking.apm.collector.server.grpc.GRPCHandler;
 import org.skywalking.apm.collector.stream.StreamModuleContext;
 import org.skywalking.apm.collector.stream.StreamModuleGroupDefine;
 import org.skywalking.apm.collector.stream.worker.Role;
-import org.skywalking.apm.collector.stream.worker.WorkerInvokeException;
-import org.skywalking.apm.collector.stream.worker.WorkerNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,10 +28,10 @@ public class RemoteCommonServiceHandler extends RemoteCommonServiceGrpc.RemoteCo
 
                 StreamModuleContext context = (StreamModuleContext)CollectorContextHelper.INSTANCE.getContext(StreamModuleGroupDefine.GROUP_NAME);
                 Role role = context.getClusterWorkerContext().getRole(roleName);
-                Object object = role.dataDefine().deserialize(remoteData);
                 try {
+                    Object object = role.dataDefine().deserialize(remoteData);
                     context.getClusterWorkerContext().lookupInSide(roleName).tell(object);
-                } catch (WorkerNotFoundException | WorkerInvokeException e) {
+                } catch (Throwable e) {
                     logger.error(e.getMessage(), e);
                 }
             }

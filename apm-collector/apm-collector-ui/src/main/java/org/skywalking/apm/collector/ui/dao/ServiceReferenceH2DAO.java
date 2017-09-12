@@ -11,4 +11,8 @@ public class ServiceReferenceH2DAO extends H2DAO implements IServiceReferenceDAO
     @Override public JsonArray load(int entryServiceId, long startTime, long endTime) {
         return null;
     }
+
+    @Override public JsonArray load(String entryServiceName, int entryApplicationId, long startTime, long endTime) {
+        return null;
+    }
 }

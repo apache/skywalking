@@ -100,7 +100,6 @@ public class JVMMetricsServiceHandlerTestCase {
     private static MemoryPool.Builder buildMemoryPoolMetric(PoolType poolType, boolean isHeap) {
         MemoryPool.Builder builder = MemoryPool.newBuilder();
         builder.setType(poolType);
-        builder.setIsHeap(isHeap);
         builder.setInit(20);
         builder.setMax(100);
         builder.setUsed(50);

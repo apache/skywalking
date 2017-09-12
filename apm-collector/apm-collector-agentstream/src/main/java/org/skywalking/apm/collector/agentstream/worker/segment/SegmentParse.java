@@ -49,9 +49,15 @@ public class SegmentParse {
 
     public void parse(List<UniqueId> traceIds, TraceSegmentObject segmentObject) {
         StringBuilder segmentIdBuilder = new StringBuilder();
-        segmentObject.getTraceSegmentId().getIdPartsList().forEach(part -> {
-            segmentIdBuilder.append(part);
-        });
+
+        for (int i = 0; i < segmentObject.getTraceSegmentId().getIdPartsList().size(); i++) {
+            if (i == 0) {
+                segmentIdBuilder.append(segmentObject.getTraceSegmentId().getIdPartsList().get(i));
+            } else {
+                segmentIdBuilder.append(".").append(segmentObject.getTraceSegmentId().getIdPartsList().get(i));
+            }
+        }
+
         String segmentId = segmentIdBuilder.toString();
 
         for (UniqueId uniqueId : traceIds) {
@@ -88,7 +94,7 @@ public class SegmentParse {
         buildSegment(segmentId, segmentObject.toByteArray());
     }
 
-    public void buildSegment(String id, byte[] dataBinary) {
+    private void buildSegment(String id, byte[] dataBinary) {
         StreamModuleContext context = (StreamModuleContext)CollectorContextHelper.INSTANCE.getContext(StreamModuleGroupDefine.GROUP_NAME);
         SegmentDataDefine.Segment segment = new SegmentDataDefine.Segment();
         segment.setId(id);
@@ -103,7 +109,7 @@ public class SegmentParse {
     }
 
     private void notifyListenerToBuild() {
-        spanListeners.forEach(listener -> listener.build());
+        spanListeners.forEach(SpanListener::build);
     }
 
     private void notifyExitListener(SpanObject spanObject, int applicationId, int applicationInstanceId,

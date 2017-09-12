@@ -35,11 +35,11 @@ public class ClusterRedisModuleDefine extends ClusterModuleDefine {
         return null;
     }
 
-    @Override protected Client createClient(DataMonitor dataMonitor) {
+    @Override protected Client createClient() {
         return new RedisClient(ClusterRedisConfig.HOST, ClusterRedisConfig.PORT);
     }
 
-    @Override public ClusterModuleRegistrationReader registrationReader(DataMonitor dataMonitor) {
-        return new ClusterRedisModuleRegistrationReader(dataMonitor);
+    @Override public ClusterModuleRegistrationReader registrationReader() {
+        return null;
     }
 }

@@ -14,14 +14,14 @@ import org.skywalking.apm.collector.ui.jetty.handler.SegmentTopGetHandler;
 import org.skywalking.apm.collector.ui.jetty.handler.SpanGetHandler;
 import org.skywalking.apm.collector.ui.jetty.handler.TraceDagGetHandler;
 import org.skywalking.apm.collector.ui.jetty.handler.TraceStackGetHandler;
-import org.skywalking.apm.collector.ui.jetty.handler.UIJettyServerHandler;
 import org.skywalking.apm.collector.ui.jetty.handler.application.ApplicationsGetHandler;
 import org.skywalking.apm.collector.ui.jetty.handler.instancehealth.InstanceHealthGetHandler;
 import org.skywalking.apm.collector.ui.jetty.handler.instancemetric.InstanceMetricGetOneTimeBucketHandler;
 import org.skywalking.apm.collector.ui.jetty.handler.instancemetric.InstanceMetricGetRangeTimeBucketHandler;
 import org.skywalking.apm.collector.ui.jetty.handler.instancemetric.InstanceOsInfoGetHandler;
 import org.skywalking.apm.collector.ui.jetty.handler.servicetree.EntryServiceGetHandler;
-import org.skywalking.apm.collector.ui.jetty.handler.servicetree.ServiceTreeGetHandler;
+import org.skywalking.apm.collector.ui.jetty.handler.servicetree.ServiceTreeGetByIdHandler;
+import org.skywalking.apm.collector.ui.jetty.handler.servicetree.ServiceTreeGetByNameHandler;
 import org.skywalking.apm.collector.ui.jetty.handler.time.AllInstanceLastTimeGetHandler;
 import org.skywalking.apm.collector.ui.jetty.handler.time.OneInstanceLastTimeGetHandler;
 
@@ -58,7 +58,6 @@ public class UIJettyModuleDefine extends UIModuleDefine {
 
     @Override public List<Handler> handlerList() {
         List<Handler> handlers = new LinkedList<>();
-        handlers.add(new UIJettyServerHandler());
         handlers.add(new TraceDagGetHandler());
         handlers.add(new SegmentTopGetHandler());
         handlers.add(new TraceStackGetHandler());
@@ -71,7 +70,8 @@ public class UIJettyModuleDefine extends UIModuleDefine {
         handlers.add(new InstanceMetricGetOneTimeBucketHandler());
         handlers.add(new InstanceMetricGetRangeTimeBucketHandler());
         handlers.add(new EntryServiceGetHandler());
-        handlers.add(new ServiceTreeGetHandler());
+        handlers.add(new ServiceTreeGetByIdHandler());
+        handlers.add(new ServiceTreeGetByNameHandler());
         return handlers;
     }
 }

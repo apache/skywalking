@@ -57,7 +57,7 @@ public class Config {
         /**
          * Collector service discovery REST service name
          */
-        public static String DISCOVERY_SERVICE_NAME = "/grpc/addresses";
+        public static String DISCOVERY_SERVICE_NAME = "/agentstream/grpc";
     }
 
     public static class Jvm {

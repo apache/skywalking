@@ -33,7 +33,7 @@ public class InstanceIDService {
                 logger.error(e.getMessage(), e);
             }
         }
-        return applicationId;
+        return instanceId;
     }
 
     public void recover(int instanceId, int applicationId, long registerTime, String osInfo) {

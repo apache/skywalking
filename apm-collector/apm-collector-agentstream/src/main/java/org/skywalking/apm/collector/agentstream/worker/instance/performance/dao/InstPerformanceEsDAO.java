@@ -28,10 +28,9 @@ public class InstPerformanceEsDAO extends EsDAO implements IInstPerformanceDAO, 
             Map<String, Object> source = getResponse.getSource();
             data.setDataInteger(0, (Integer)source.get(InstPerformanceTable.COLUMN_APPLICATION_ID));
             data.setDataInteger(1, (Integer)source.get(InstPerformanceTable.COLUMN_INSTANCE_ID));
-            data.setDataInteger(2, (Integer)source.get(InstPerformanceTable.COLUMN_CALL_TIMES));
+            data.setDataInteger(2, (Integer)source.get(InstPerformanceTable.COLUMN_CALLS));
             data.setDataLong(0, ((Number)source.get(InstPerformanceTable.COLUMN_COST_TOTAL)).longValue());
             data.setDataLong(1, ((Number)source.get(InstPerformanceTable.COLUMN_TIME_BUCKET)).longValue());
-            data.setDataLong(2, ((Number)source.get(InstPerformanceTable.COLUMN_5S_TIME_BUCKET)).longValue());
             return data;
         } else {
             return null;
@@ -42,10 +41,9 @@ public class InstPerformanceEsDAO extends EsDAO implements IInstPerformanceDAO, 
         Map<String, Object> source = new HashMap<>();
         source.put(InstPerformanceTable.COLUMN_APPLICATION_ID, data.getDataInteger(0));
         source.put(InstPerformanceTable.COLUMN_INSTANCE_ID, data.getDataInteger(1));
-        source.put(InstPerformanceTable.COLUMN_CALL_TIMES, data.getDataInteger(2));
+        source.put(InstPerformanceTable.COLUMN_CALLS, data.getDataInteger(2));
         source.put(InstPerformanceTable.COLUMN_COST_TOTAL, data.getDataLong(0));
         source.put(InstPerformanceTable.COLUMN_TIME_BUCKET, data.getDataLong(1));
-        source.put(InstPerformanceTable.COLUMN_5S_TIME_BUCKET, data.getDataLong(2));
 
         return getClient().prepareIndex(InstPerformanceTable.TABLE, data.getDataString(0)).setSource(source);
     }
@@ -54,10 +52,9 @@ public class InstPerformanceEsDAO extends EsDAO implements IInstPerformanceDAO, 
         Map<String, Object> source = new HashMap<>();
         source.put(InstPerformanceTable.COLUMN_APPLICATION_ID, data.getDataInteger(0));
         source.put(InstPerformanceTable.COLUMN_INSTANCE_ID, data.getDataInteger(1));
-        source.put(InstPerformanceTable.COLUMN_CALL_TIMES, data.getDataInteger(2));
+        source.put(InstPerformanceTable.COLUMN_CALLS, data.getDataInteger(2));
         source.put(InstPerformanceTable.COLUMN_COST_TOTAL, data.getDataLong(0));
         source.put(InstPerformanceTable.COLUMN_TIME_BUCKET, data.getDataLong(1));
-        source.put(InstPerformanceTable.COLUMN_5S_TIME_BUCKET, data.getDataLong(2));
 
         return getClient().prepareUpdate(InstPerformanceTable.TABLE, data.getDataString(0)).setDoc(source);
     }

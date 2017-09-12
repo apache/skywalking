@@ -5,9 +5,11 @@ import com.google.gson.JsonObject;
 import java.util.List;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.storage.dao.DAOContainer;
+import org.skywalking.apm.collector.storage.define.register.InstanceDataDefine;
 import org.skywalking.apm.collector.ui.cache.ApplicationCache;
 import org.skywalking.apm.collector.ui.dao.IGCMetricDAO;
 import org.skywalking.apm.collector.ui.dao.IInstPerformanceDAO;
+import org.skywalking.apm.collector.ui.dao.IInstanceDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,23 +23,29 @@ public class InstanceHealthService {
     public JsonObject getInstances(long timeBucket, int applicationId) {
         JsonObject response = new JsonObject();
 
-        long s5TimeBucket = TimeBucketUtils.INSTANCE.getFiveSecondTimeBucket(timeBucket);
+        long[] timeBuckets = TimeBucketUtils.INSTANCE.getFiveSecondTimeBuckets(timeBucket);
+        long halfHourBeforeTimeBucket = TimeBucketUtils.INSTANCE.addSecondForSecondTimeBucket(TimeBucketUtils.TimeBucketType.SECOND.name(), timeBucket, -60 * 30);
+        IInstanceDAO instanceDAO = (IInstanceDAO)DAOContainer.INSTANCE.get(IInstanceDAO.class.getName());
+        List<InstanceDataDefine.Instance> instanceList = instanceDAO.getInstances(applicationId, halfHourBeforeTimeBucket);
 
-        IInstPerformanceDAO instPerformanceDAO = (IInstPerformanceDAO)DAOContainer.INSTANCE.get(IInstPerformanceDAO.class.getName());
-        List<IInstPerformanceDAO.InstPerformance> performances = instPerformanceDAO.getMultiple(s5TimeBucket, applicationId);
+        instanceList.forEach(instance -> {
+            JsonArray instances = new JsonArray();
+            response.addProperty("applicationCode", ApplicationCache.getForUI(applicationId));
+            response.addProperty("applicationId", applicationId);
+            response.add("instances", instances);
 
-        JsonArray instances = new JsonArray();
-        response.addProperty("applicationCode", ApplicationCache.getForUI(applicationId));
-        response.addProperty("applicationId", applicationId);
-        response.add("instances", instances);
+            IInstPerformanceDAO instPerformanceDAO = (IInstPerformanceDAO)DAOContainer.INSTANCE.get(IInstPerformanceDAO.class.getName());
+            IInstPerformanceDAO.InstPerformance performance = instPerformanceDAO.get(timeBuckets, instance.getInstanceId());
 
-        IGCMetricDAO gcMetricDAO = (IGCMetricDAO)DAOContainer.INSTANCE.get(IGCMetricDAO.class.getName());
-        performances.forEach(instance -> {
+            IGCMetricDAO gcMetricDAO = (IGCMetricDAO)DAOContainer.INSTANCE.get(IGCMetricDAO.class.getName());
             JsonObject instanceJson = new JsonObject();
             instanceJson.addProperty("id", instance.getInstanceId());
-            instanceJson.addProperty("tps", instance.getCallTimes());
+            instanceJson.addProperty("tps", performance.getCalls());
 
-            int avg = (int)(instance.getCostTotal() / instance.getCallTimes());
+            int avg = 0;
+            if (performance.getCalls() != 0) {
+                avg = (int)(performance.getCostTotal() / performance.getCalls());
+            }
             instanceJson.addProperty("avg", avg);
 
             if (avg > 5000) {
@@ -50,14 +58,22 @@ public class InstanceHealthService {
                 instanceJson.addProperty("healthLevel", 3);
             }
 
-            instanceJson.addProperty("status", 0);
+            long heartBeatTime = TimeBucketUtils.INSTANCE.changeTimeBucket2TimeStamp(TimeBucketUtils.TimeBucketType.SECOND.name(), instance.getHeartBeatTime());
+            long currentTime = TimeBucketUtils.INSTANCE.changeTimeBucket2TimeStamp(TimeBucketUtils.TimeBucketType.SECOND.name(), timeBucket);
 
-            IGCMetricDAO.GCCount gcCount = gcMetricDAO.getGCCount(s5TimeBucket, instance.getInstanceId());
+            if (currentTime - heartBeatTime < 1000 * 60 * 2) {
+                instanceJson.addProperty("status", 0);
+            } else {
+                instanceJson.addProperty("status", 1);
+            }
+
+            IGCMetricDAO.GCCount gcCount = gcMetricDAO.getGCCount(timeBuckets, instance.getInstanceId());
             instanceJson.addProperty("ygc", gcCount.getYoung());
             instanceJson.addProperty("ogc", gcCount.getOld());
 
             instances.add(instanceJson);
         });
+
         return response;
     }
 }

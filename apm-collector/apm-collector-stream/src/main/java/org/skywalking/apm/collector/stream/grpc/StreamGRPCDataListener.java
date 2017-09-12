@@ -1,6 +1,7 @@
 package org.skywalking.apm.collector.stream.grpc;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import org.skywalking.apm.collector.client.grpc.GRPCClient;
@@ -28,46 +29,53 @@ public class StreamGRPCDataListener extends ClusterDataListener {
     }
 
     private Map<String, GRPCClient> clients = new HashMap<>();
-    private Map<String, RemoteWorkerRef> workerRefs = new HashMap<>();
+    private Map<String, List<RemoteWorkerRef>> remoteWorkerRefMap = new HashMap<>();
 
-    @Override public void addressChangedNotify() {
+    @Override public void serverJoinNotify(String serverAddress) {
         String selfAddress = StreamGRPCConfig.HOST + ":" + StreamGRPCConfig.PORT;
-
         StreamModuleContext context = (StreamModuleContext)CollectorContextHelper.INSTANCE.getContext(StreamModuleGroupDefine.GROUP_NAME);
 
-        List<String> addresses = getAddresses();
-        clients.keySet().forEach(address -> {
-            if (!addresses.contains(address)) {
-                context.getClusterWorkerContext().remove(workerRefs.get(address));
-                workerRefs.remove(address);
+        if (!clients.containsKey(serverAddress)) {
+            logger.info("new address: {}, create this address remote worker reference", serverAddress);
+            String[] hostPort = serverAddress.split(":");
+            GRPCClient client = new GRPCClient(hostPort[0], Integer.valueOf(hostPort[1]));
+            try {
+                client.initialize();
+            } catch (ClientException e) {
+                e.printStackTrace();
             }
-        });
+            clients.put(serverAddress, client);
 
-        for (String address : addresses) {
-            if (!clients.containsKey(address)) {
-                logger.debug("new address: {}, create this address remote worker reference", address);
-                String[] hostPort = address.split(":");
-                GRPCClient client = new GRPCClient(hostPort[0], Integer.valueOf(hostPort[1]));
-                try {
-                    client.initialize();
-                } catch (ClientException e) {
-                    e.printStackTrace();
-                }
-                clients.put(address, client);
-
-                if (selfAddress.equals(address)) {
-                    context.getClusterWorkerContext().getProviders().forEach(provider -> {
-                        logger.debug("create remote worker self reference, role: {}", provider.role().roleName());
-                        provider.create();
-                    });
-                } else {
-                    context.getClusterWorkerContext().getProviders().forEach(provider -> {
-                        logger.debug("create remote worker reference, role: {}", provider.role().roleName());
-                        RemoteWorkerRef workerRef = provider.create(client);
-                    });
-                }
+            if (selfAddress.equals(serverAddress)) {
+                context.getClusterWorkerContext().getProviders().forEach(provider -> {
+                    logger.info("create remote worker self reference, role: {}", provider.role().roleName());
+                    provider.create();
+                });
             } else {
-                logger.debug("address: {} had remote worker reference, ignore", address);
+                context.getClusterWorkerContext().getProviders().forEach(provider -> {
+                    logger.info("create remote worker reference, role: {}", provider.role().roleName());
+                    RemoteWorkerRef remoteWorkerRef = provider.create(client);
+                    if (!remoteWorkerRefMap.containsKey(serverAddress)) {
+                        remoteWorkerRefMap.put(serverAddress, new LinkedList<>());
+                    }
+                    remoteWorkerRefMap.get(serverAddress).add(remoteWorkerRef);
+                });
+            }
+        } else {
+            logger.info("address: {} had remote worker reference, ignore", serverAddress);
+        }
+    }
+
+    @Override public void serverQuitNotify(String serverAddress) {
+        StreamModuleContext context = (StreamModuleContext)CollectorContextHelper.INSTANCE.getContext(StreamModuleGroupDefine.GROUP_NAME);
+
+        if (clients.containsKey(serverAddress)) {
+            clients.get(serverAddress).shutdown();
+            clients.remove(serverAddress);
+        }
+        if (remoteWorkerRefMap.containsKey(serverAddress)) {
+            for (RemoteWorkerRef remoteWorkerRef : remoteWorkerRefMap.get(serverAddress)) {
+                context.getClusterWorkerContext().remove(remoteWorkerRef);
             }
         }
     }

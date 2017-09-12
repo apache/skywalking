@@ -6,6 +6,7 @@ import org.skywalking.apm.collector.agentserver.AgentServerModuleDefine;
 import org.skywalking.apm.collector.agentserver.AgentServerModuleGroupDefine;
 import org.skywalking.apm.collector.agentserver.jetty.handler.AgentStreamGRPCServerHandler;
 import org.skywalking.apm.collector.agentserver.jetty.handler.AgentStreamJettyServerHandler;
+import org.skywalking.apm.collector.agentserver.jetty.handler.UIJettyServerHandler;
 import org.skywalking.apm.collector.core.cluster.ClusterDataListener;
 import org.skywalking.apm.collector.core.framework.Handler;
 import org.skywalking.apm.collector.core.module.ModuleConfigParser;
@@ -52,6 +53,7 @@ public class AgentServerJettyModuleDefine extends AgentServerModuleDefine {
         List<Handler> handlers = new LinkedList<>();
         handlers.add(new AgentStreamGRPCServerHandler());
         handlers.add(new AgentStreamJettyServerHandler());
+        handlers.add(new UIJettyServerHandler());
         return handlers;
     }
 }

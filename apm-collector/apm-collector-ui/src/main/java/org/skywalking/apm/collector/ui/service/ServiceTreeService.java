@@ -21,4 +21,9 @@ public class ServiceTreeService {
         IServiceReferenceDAO serviceReferenceDAO = (IServiceReferenceDAO)DAOContainer.INSTANCE.get(IServiceReferenceDAO.class.getName());
         return serviceReferenceDAO.load(entryServiceId, startTime, endTime);
     }
+
+    public JsonArray loadServiceTree(String entryServiceName, int entryApplicationId, long startTime, long endTime) {
+        IServiceReferenceDAO serviceReferenceDAO = (IServiceReferenceDAO)DAOContainer.INSTANCE.get(IServiceReferenceDAO.class.getName());
+        return serviceReferenceDAO.load(entryServiceName, entryApplicationId, startTime, endTime);
+    }
 }

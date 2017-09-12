@@ -28,6 +28,9 @@ public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSe
     private static final ILog logger = LogManager.getLogger(TraceSegmentServiceClient.class);
     private static final int TIMEOUT = 30 * 1000;
 
+    private long lastLogTime;
+    private long segmentUplinkedCounter;
+    private long segmentAbandonedCounter;
     private volatile DataCarrier<TraceSegment> carrier;
     private volatile TraceSegmentServiceGrpc.TraceSegmentServiceStub serviceStub;
     private volatile GRPCChannelStatus status = GRPCChannelStatus.DISCONNECT;
@@ -39,6 +42,9 @@ public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSe
 
     @Override
     public void boot() throws Throwable {
+        lastLogTime = System.currentTimeMillis();
+        segmentUplinkedCounter = 0;
+        segmentAbandonedCounter = 0;
         carrier = new DataCarrier<TraceSegment>(CHANNEL_SIZE, BUFFER_SIZE);
         carrier.setBufferStrategy(BufferStrategy.IF_POSSIBLE);
         carrier.consume(this, 1);
@@ -94,14 +100,27 @@ public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSe
             }
             upstreamSegmentStreamObserver.onCompleted();
 
-            status.wait4Finish(TIMEOUT);
-
-            if (logger.isDebugEnable()) {
-                logger.debug("{} trace segments have been sent to collector.", data.size());
+            if (status.wait4Finish(TIMEOUT)) {
+                segmentUplinkedCounter += data.size();
             }
         } else {
-            if (logger.isDebugEnable()) {
-                logger.debug("{} trace segments have been abandoned, cause by no available channel.", data.size());
+            segmentAbandonedCounter += data.size();
+        }
+
+        printUplinkStatus();
+    }
+
+    private void printUplinkStatus() {
+        long currentTimeMillis = System.currentTimeMillis();
+        if (lastLogTime - currentTimeMillis > 30 * 1000) {
+            lastLogTime = currentTimeMillis;
+            if (segmentUplinkedCounter > 0) {
+                logger.debug("{} trace segments have been sent to collector.", segmentUplinkedCounter);
+                segmentUplinkedCounter = 0;
+            }
+            if (segmentAbandonedCounter > 0) {
+                logger.debug("{} trace segments have been abandoned, cause by no available channel.", segmentAbandonedCounter);
+                segmentAbandonedCounter = 0;
             }
         }
     }

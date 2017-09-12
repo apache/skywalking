@@ -23,6 +23,10 @@ public class RedisClient implements Client {
         jedis = new Jedis(host, port);
     }
 
+    @Override public void shutdown() {
+
+    }
+
     public void setex(String key, int seconds, String value) {
         jedis.setex(key, seconds, value);
     }

@@ -35,11 +35,11 @@ public class ClusterStandaloneModuleDefine extends ClusterModuleDefine {
         return null;
     }
 
-    @Override protected Client createClient(DataMonitor dataMonitor) {
+    @Override protected Client createClient() {
         return new H2Client();
     }
 
-    @Override public ClusterModuleRegistrationReader registrationReader(DataMonitor dataMonitor) {
-        return new ClusterStandaloneModuleRegistrationReader(dataMonitor);
+    @Override public ClusterModuleRegistrationReader registrationReader() {
+        return null;
     }
 }

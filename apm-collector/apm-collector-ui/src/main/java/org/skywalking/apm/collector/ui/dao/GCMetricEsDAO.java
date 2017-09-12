@@ -10,12 +10,12 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.sum.Sum;
 import org.skywalking.apm.collector.core.util.Const;
+import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.storage.define.jvm.GCMetricTable;
 import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
 import org.skywalking.apm.network.proto.GCPhrase;
@@ -29,18 +29,15 @@ public class GCMetricEsDAO extends EsDAO implements IGCMetricDAO {
 
     private final Logger logger = LoggerFactory.getLogger(GCMetricEsDAO.class);
 
-    @Override public GCCount getGCCount(long s5TimeBucket, int instanceId) {
-        logger.debug("get gc count, s5TimeBucket: {}, instanceId: {}", s5TimeBucket, instanceId);
+    @Override public GCCount getGCCount(long[] timeBuckets, int instanceId) {
+        logger.debug("get gc count, timeBuckets: {}, instanceId: {}", timeBuckets, instanceId);
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(GCMetricTable.TABLE);
         searchRequestBuilder.setTypes(GCMetricTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
 
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-        MatchQueryBuilder matchApplicationId = QueryBuilders.matchQuery(GCMetricTable.COLUMN_APPLICATION_INSTANCE_ID, instanceId);
-        MatchQueryBuilder matchTimeBucket = QueryBuilders.matchQuery(GCMetricTable.COLUMN_5S_TIME_BUCKET, s5TimeBucket);
-
-        boolQuery.must().add(matchApplicationId);
-        boolQuery.must().add(matchTimeBucket);
+        boolQuery.must().add(QueryBuilders.termQuery(GCMetricTable.COLUMN_INSTANCE_ID, instanceId));
+        boolQuery.must().add(QueryBuilders.termsQuery(GCMetricTable.COLUMN_TIME_BUCKET, timeBuckets));
 
         searchRequestBuilder.setQuery(boolQuery);
         searchRequestBuilder.setSize(0);
@@ -89,13 +86,13 @@ public class GCMetricEsDAO extends EsDAO implements IGCMetricDAO {
         JsonObject response = new JsonObject();
 
         MultiGetRequestBuilder youngPrepareMultiGet = getClient().prepareMultiGet();
-        int i = 0;
+        long timeBucket = startTimeBucket;
         do {
-            String youngId = (startTimeBucket + i) + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + GCPhrase.NEW_VALUE;
+            timeBucket = TimeBucketUtils.INSTANCE.addSecondForSecondTimeBucket(TimeBucketUtils.TimeBucketType.SECOND.name(), timeBucket, 1);
+            String youngId = timeBucket + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + GCPhrase.NEW_VALUE;
             youngPrepareMultiGet.add(GCMetricTable.TABLE, GCMetricTable.TABLE_TYPE, youngId);
-            i++;
         }
-        while (startTimeBucket + i <= endTimeBucket);
+        while (timeBucket <= endTimeBucket);
 
         JsonArray youngArray = new JsonArray();
         MultiGetResponse multiGetResponse = youngPrepareMultiGet.get();
@@ -109,13 +106,13 @@ public class GCMetricEsDAO extends EsDAO implements IGCMetricDAO {
         response.add("ygc", youngArray);
 
         MultiGetRequestBuilder oldPrepareMultiGet = getClient().prepareMultiGet();
-        i = 0;
+        timeBucket = startTimeBucket;
         do {
-            String oldId = (startTimeBucket + i) + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + GCPhrase.OLD_VALUE;
+            timeBucket = TimeBucketUtils.INSTANCE.addSecondForSecondTimeBucket(TimeBucketUtils.TimeBucketType.SECOND.name(), timeBucket, 1);
+            String oldId = timeBucket + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + GCPhrase.OLD_VALUE;
             oldPrepareMultiGet.add(GCMetricTable.TABLE, GCMetricTable.TABLE_TYPE, oldId);
-            i++;
         }
-        while (startTimeBucket + i <= endTimeBucket);
+        while (timeBucket <= endTimeBucket);
 
         JsonArray oldArray = new JsonArray();
 

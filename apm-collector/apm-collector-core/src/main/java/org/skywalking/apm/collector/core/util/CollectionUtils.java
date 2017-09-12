@@ -19,4 +19,12 @@ public class CollectionUtils {
     public static boolean isNotEmpty(List list) {
         return !isEmpty(list);
     }
+
+    public static boolean isNotEmpty(Map map) {
+        return !isEmpty(map);
+    }
+
+    public static <T> boolean isNotEmpty(T[] array) {
+        return array != null && array.length > 0;
+    }
 }

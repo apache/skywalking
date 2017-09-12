@@ -121,12 +121,6 @@
 
         <dependency>
             <groupId>org.skywalking</groupId>
-            <artifactId>apm-toolkit-trace-context-activation</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.skywalking</groupId>
             <artifactId>apm-toolkit-opentracing-activation</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -158,11 +152,11 @@
                             <shadeSourcesContent>true</shadeSourcesContent>
                             <transformers>
                                 <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                                     <resource>skywalking-plugin.def</resource>
                                 </transformer>
                                 <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <manifestEntries>
                                         <Premain-Class>${premain.class}</Premain-Class>
                                     </manifestEntries>
@@ -187,6 +181,25 @@
                                     <shadedPattern>${shade.net.bytebuddy.target}</shadedPattern>
                                 </relocation>
                             </relocations>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <mkdir dir="${project.basedir}/../../packages"/>
+                                <copy file="${project.build.directory}/skywalking-agent.jar"
+                                      tofile="${project.basedir}/../../packages/skywalking-agent.jar" overwrite="true"/>
+                            </tasks>
                         </configuration>
                     </execution>
                 </executions>

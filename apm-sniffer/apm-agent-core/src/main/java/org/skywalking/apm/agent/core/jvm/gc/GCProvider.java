@@ -24,7 +24,10 @@ public enum GCProvider {
                 break;
             }
         }
-        this.metricAccessor = new UnknowGC();
+
+        if (metricAccessor == null) {
+            this.metricAccessor = new UnknowGC();
+        }
     }
 
     public List<GC> getGCList() {
