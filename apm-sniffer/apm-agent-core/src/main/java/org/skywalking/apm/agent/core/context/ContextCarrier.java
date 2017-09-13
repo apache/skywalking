@@ -21,20 +21,41 @@ public class ContextCarrier implements Serializable {
      */
     private ID traceSegmentId;
 
+    /**
+     * id of parent span.
+     * It is unique in parent trace segment.
+     */
     private int spanId = -1;
 
+    /**
+     * id of parent application instance, it's the id assigned by collector.
+     */
     private int parentApplicationInstanceId = DictionaryUtil.nullValue();
 
+    /**
+     * id of first application instance in this distributed trace, it's the id assigned by collector.
+     */
     private int entryApplicationInstanceId = DictionaryUtil.nullValue();
 
+    /**
+     * peer(ipv4/ipv6/hostname + port) of the server, from client side.
+     */
     private String peerHost;
 
+    /**
+     * Operation/Service name of the first one in this distributed trace.
+     * This name may be compressed to an integer.
+     */
     private String entryOperationName;
 
+    /**
+     * Operation/Service name of the parent one in this distributed trace.
+     * This name may be compressed to an integer.
+     */
     private String parentOperationName;
 
     /**
-     * {@link DistributedTraceId}
+     * {@link DistributedTraceId}, also known as TraceId
      */
     private DistributedTraceId primaryDistributedTraceId;
 
