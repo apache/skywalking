@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="error">
 	<Properties>
-		<Property name="log-path">../logs</Property>
+		<Property name="log-path">${sys:webui.logDir}</Property>
 	</Properties>
 	<Appenders>
 		<RollingFile name="RollingFile" fileName="${log-path}/skywalking-web-server.log"

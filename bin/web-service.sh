@@ -11,8 +11,6 @@ if [ ! -d "${WEB_HOME}/logs" ]; then
     mkdir -p "${WEB_LOGS_DIR}"
 fi
 
-WEBUI_OPTIONS=" -Dcollector.home=${WEB_HOME}"
-
 _RUNJAVA=${JAVA_HOME}/bin/java
 [ -z "$JAVA_HOME" ] && _RUNJAVA=`java`
 
@@ -21,6 +19,8 @@ for i in "$WEB_HOME"/libs/*.jar
 do
     CLASSPATH="$i:$CLASSPATH"
 done
+
+WEBUI_OPTIONS=" -Dwebui.logDir=${WEB_LOGS_DIR}"
 
 echo "Starting web service...."
 eval exec "\"$_RUNJAVA\" ${JAVA_OPTS} ${WEBUI_OPTIONS} -classpath $CLASSPATH org.skywalking.apm.ui.ApplicationStartUp \
