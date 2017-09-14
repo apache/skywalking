@@ -15,16 +15,7 @@ This independent UI repository works since sky-walking 3.0.
 1. JVM Metric View of application instances.
 1. The relationship of services.
 
-- Tested browsers
-
-|Operation System|Browser|Version|
-|:-----|:-----|:-----|
-|Windows 7|Chrome|57.0.2987.133|
-||IE 11|11.0.9600.18617|
-||Firefox|50.1.0|
-|Mac OS 10.12|Safari|10.1 (12603.1.30.0.34)|
-||Chrome|57.0.2987.133|
-||FireFox|52.0.2|
+Recommand browsers: Safari & Chrome
 
 #### QuickStart
 1. Requirement: Java 8+
