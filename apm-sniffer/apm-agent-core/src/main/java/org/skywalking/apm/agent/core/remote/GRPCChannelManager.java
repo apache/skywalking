@@ -24,7 +24,7 @@ import static org.skywalking.apm.agent.core.conf.Config.Collector.GRPC_CHANNEL_C
  * @author wusheng
  */
 public class GRPCChannelManager implements BootService, Runnable {
-    private static final ILog logger = LogManager.getLogger(DiscoveryRestServiceClient.class);
+    private static final ILog logger = LogManager.getLogger(GRPCChannelManager.class);
 
     private volatile ManagedChannel managedChannel = null;
     private volatile ScheduledFuture<?> connectCheckFuture;
