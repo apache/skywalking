@@ -74,3 +74,8 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 # Document
 * [WIKI](https://github.com/wu-sheng/sky-walking/wiki)
 
+# Contact Us
+* 直接提交Issue
+* [Gitter](https://gitter.im/sky-walking/Lobby)
+* [Google Mailing List](https://groups.google.com/forum/#!forum/skywalking-distributed-tracing-and-apm)
+* QQ群: 392443393
