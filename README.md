@@ -71,4 +71,8 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 # Document
 * [WIKI](https://github.com/wu-sheng/sky-walking/wiki)
 
-_Chat with us on gitter, in English. As a Chinese Developer, you can join QQ Group: 392443393, by **tagging** Sky-Walking._
+# Contact Us
+* Submit an issue
+* [Gitter](https://gitter.im/sky-walking/Lobby)
+* [Google Mailing List](https://groups.google.com/forum/#!forum/skywalking-distributed-tracing-and-apm)
+* QQ Group: 392443393
