@@ -1,7 +1,7 @@
 package org.skywalking.apm.collector.agentregister.instance;
 
-import org.skywalking.apm.collector.agentstream.worker.register.instance.InstanceRegisterRemoteWorker;
-import org.skywalking.apm.collector.agentstream.worker.register.instance.dao.IInstanceDAO;
+import org.skywalking.apm.collector.agentregister.worker.instance.InstanceRegisterRemoteWorker;
+import org.skywalking.apm.collector.agentregister.worker.instance.dao.IInstanceDAO;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
 import org.skywalking.apm.collector.storage.dao.DAOContainer;
 import org.skywalking.apm.collector.storage.define.register.InstanceDataDefine;

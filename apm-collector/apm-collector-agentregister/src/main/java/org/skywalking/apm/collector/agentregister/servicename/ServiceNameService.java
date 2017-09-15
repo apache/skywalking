@@ -1,8 +1,8 @@
 package org.skywalking.apm.collector.agentregister.servicename;
 
 import org.skywalking.apm.collector.storage.define.register.ServiceNameDataDefine;
-import org.skywalking.apm.collector.agentstream.worker.register.servicename.ServiceNameRegisterRemoteWorker;
-import org.skywalking.apm.collector.agentstream.worker.register.servicename.dao.IServiceNameDAO;
+import org.skywalking.apm.collector.agentregister.worker.servicename.ServiceNameRegisterRemoteWorker;
+import org.skywalking.apm.collector.agentregister.worker.servicename.dao.IServiceNameDAO;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
 import org.skywalking.apm.collector.storage.dao.DAOContainer;
 import org.skywalking.apm.collector.stream.StreamModuleContext;
