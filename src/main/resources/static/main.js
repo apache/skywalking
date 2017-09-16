@@ -44,5 +44,11 @@ requirejs.config({
         "instanceChart": "/public/js/instance-chart",
         "responseTimeConditionHtml": "/health/responseTimeCondition.html",
         "metric-chart": "/public/js/metric-chart"
+    },
+    shim: {
+        "bootstrap": {
+            deps: ["jquery"],
+            exports: "bootstrap"
+        }
     }
 });
