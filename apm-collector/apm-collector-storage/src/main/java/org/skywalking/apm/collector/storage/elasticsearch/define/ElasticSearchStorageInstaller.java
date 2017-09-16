@@ -11,6 +11,7 @@ import org.skywalking.apm.collector.core.client.Client;
 import org.skywalking.apm.collector.core.storage.ColumnDefine;
 import org.skywalking.apm.collector.core.storage.StorageInstaller;
 import org.skywalking.apm.collector.core.storage.TableDefine;
+import org.skywalking.apm.collector.storage.elasticsearch.StorageElasticSearchConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,8 +52,8 @@ public class ElasticSearchStorageInstaller extends StorageInstaller {
 
     private Settings createSettingBuilder(ElasticSearchTableDefine tableDefine) {
         return Settings.builder()
-            .put("index.number_of_shards", tableDefine.numberOfShards())
-            .put("index.number_of_replicas", tableDefine.numberOfReplicas())
+            .put("index.number_of_shards", StorageElasticSearchConfig.INDEX_SHARDS_NUMBER)
+            .put("index.number_of_replicas", StorageElasticSearchConfig.INDEX_REPLICAS_NUMBER)
             .put("index.refresh_interval", String.valueOf(tableDefine.refreshInterval()) + "s")
 
             .put("analysis.analyzer.collector_analyzer.tokenizer", "collector_tokenizer")

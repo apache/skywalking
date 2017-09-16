@@ -16,8 +16,4 @@ public abstract class ElasticSearchTableDefine extends TableDefine {
     }
 
     public abstract int refreshInterval();
-
-    public abstract int numberOfShards();
-
-    public abstract int numberOfReplicas();
 }
