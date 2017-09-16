@@ -136,10 +136,11 @@ public class ServiceReferenceEsDAO extends EsDAO implements IServiceReferenceDAO
         JsonArray serviceReferenceArray = new JsonArray();
         JsonObject rootServiceReference = findRoot(serviceReferenceMap);
         if (ObjectUtils.isNotEmpty(rootServiceReference)) {
+            serviceReferenceArray.add(rootServiceReference);
             String id = rootServiceReference.get(ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_FRONT_SERVICE_ID)) + Const.ID_SPLIT + rootServiceReference.get(ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_BEHIND_SERVICE_ID));
             serviceReferenceMap.remove(id);
 
-            int rootServiceId = rootServiceReference.get(ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_FRONT_SERVICE_ID)).getAsInt();
+            int rootServiceId = rootServiceReference.get(ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_BEHIND_SERVICE_ID)).getAsInt();
             sortAsTree(rootServiceId, serviceReferenceArray, serviceReferenceMap);
         }
         return serviceReferenceArray;
@@ -244,8 +245,8 @@ public class ServiceReferenceEsDAO extends EsDAO implements IServiceReferenceDAO
 
     private JsonObject findRoot(Map<String, JsonObject> serviceReferenceMap) {
         for (JsonObject serviceReference : serviceReferenceMap.values()) {
-            int behindServiceId = serviceReference.get(ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_BEHIND_SERVICE_ID)).getAsInt();
-            if (behindServiceId == 1) {
+            int frontServiceId = serviceReference.get(ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_FRONT_SERVICE_ID)).getAsInt();
+            if (frontServiceId == 1) {
                 return serviceReference;
             }
         }

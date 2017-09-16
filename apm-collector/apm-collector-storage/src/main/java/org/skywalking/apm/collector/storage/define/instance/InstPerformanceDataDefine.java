@@ -29,11 +29,25 @@ public class InstPerformanceDataDefine extends DataDefine {
     }
 
     @Override public Object deserialize(RemoteData remoteData) {
-        return null;
+        Data data = build(remoteData.getDataStrings(0));
+        data.setDataInteger(0, remoteData.getDataIntegers(0));
+        data.setDataInteger(1, remoteData.getDataIntegers(1));
+        data.setDataInteger(2, remoteData.getDataIntegers(2));
+        data.setDataLong(0, remoteData.getDataLongs(0));
+        data.setDataLong(1, remoteData.getDataLongs(1));
+        return data;
     }
 
     @Override public RemoteData serialize(Object object) {
-        return null;
+        Data data = (Data)object;
+        RemoteData.Builder builder = RemoteData.newBuilder();
+        builder.addDataStrings(data.getDataString(0));
+        builder.addDataIntegers(data.getDataInteger(0));
+        builder.addDataIntegers(data.getDataInteger(1));
+        builder.addDataIntegers(data.getDataInteger(2));
+        builder.addDataLongs(data.getDataLong(0));
+        builder.addDataLongs(data.getDataLong(1));
+        return builder.build();
     }
 
     public static class InstPerformance implements Transform<InstPerformance> {
@@ -43,16 +57,6 @@ public class InstPerformanceDataDefine extends DataDefine {
         private int calls;
         private long costTotal;
         private long timeBucket;
-
-        public InstPerformance(String id, int applicationId, int instanceId, int calls, long costTotal,
-            long timeBucket) {
-            this.id = id;
-            this.applicationId = applicationId;
-            this.instanceId = instanceId;
-            this.calls = calls;
-            this.costTotal = costTotal;
-            this.timeBucket = timeBucket;
-        }
 
         public InstPerformance() {
         }

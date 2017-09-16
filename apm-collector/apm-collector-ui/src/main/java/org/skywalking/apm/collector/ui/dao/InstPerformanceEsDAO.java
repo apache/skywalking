@@ -12,6 +12,7 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.metrics.sum.Sum;
+import org.elasticsearch.search.sort.SortOrder;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.storage.define.instance.InstPerformanceTable;
@@ -33,6 +34,7 @@ public class InstPerformanceEsDAO extends EsDAO implements IInstPerformanceDAO {
 
         searchRequestBuilder.setQuery(boolQuery);
         searchRequestBuilder.setSize(0);
+        searchRequestBuilder.addSort(InstPerformanceTable.COLUMN_INSTANCE_ID, SortOrder.ASC);
 
         searchRequestBuilder.addAggregation(AggregationBuilders.sum(InstPerformanceTable.COLUMN_CALLS).field(InstPerformanceTable.COLUMN_CALLS));
         searchRequestBuilder.addAggregation(AggregationBuilders.sum(InstPerformanceTable.COLUMN_COST_TOTAL).field(InstPerformanceTable.COLUMN_COST_TOTAL));

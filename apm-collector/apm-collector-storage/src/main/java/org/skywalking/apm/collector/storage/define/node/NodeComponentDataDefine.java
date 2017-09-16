@@ -28,11 +28,25 @@ public class NodeComponentDataDefine extends DataDefine {
     }
 
     @Override public Object deserialize(RemoteData remoteData) {
-        return null;
+        Data data = build(remoteData.getDataStrings(0));
+        data.setDataInteger(0, remoteData.getDataIntegers(0));
+        data.setDataString(1, remoteData.getDataStrings(1));
+        data.setDataInteger(1, remoteData.getDataIntegers(1));
+        data.setDataString(2, remoteData.getDataStrings(2));
+        data.setDataLong(0, remoteData.getDataLongs(0));
+        return data;
     }
 
     @Override public RemoteData serialize(Object object) {
-        return null;
+        Data data = (Data)object;
+        RemoteData.Builder builder = RemoteData.newBuilder();
+        builder.addDataStrings(data.getDataString(0));
+        builder.addDataIntegers(data.getDataInteger(0));
+        builder.addDataStrings(data.getDataString(1));
+        builder.addDataIntegers(data.getDataInteger(1));
+        builder.addDataStrings(data.getDataString(2));
+        builder.addDataLongs(data.getDataLong(0));
+        return builder.build();
     }
 
     public static class NodeComponent implements Transform<NodeComponent> {
@@ -42,16 +56,6 @@ public class NodeComponentDataDefine extends DataDefine {
         private Integer peerId;
         private String peer;
         private long timeBucket;
-
-        public NodeComponent(String id, Integer componentId, String componentName, Integer peerId, String peer,
-            long timeBucket) {
-            this.id = id;
-            this.componentId = componentId;
-            this.componentName = componentName;
-            this.peerId = peerId;
-            this.peer = peer;
-            this.timeBucket = timeBucket;
-        }
 
         public NodeComponent() {
         }

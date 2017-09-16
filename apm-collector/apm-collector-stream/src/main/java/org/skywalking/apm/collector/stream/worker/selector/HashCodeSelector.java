@@ -2,8 +2,8 @@ package org.skywalking.apm.collector.stream.worker.selector;
 
 import java.util.List;
 import org.skywalking.apm.collector.core.stream.AbstractHashMessage;
-import org.skywalking.apm.collector.stream.worker.WorkerRef;
 import org.skywalking.apm.collector.stream.worker.AbstractWorker;
+import org.skywalking.apm.collector.stream.worker.WorkerRef;
 
 /**
  * The <code>HashCodeSelector</code> is a simple implementation of {@link WorkerSelector}. It choose {@link WorkerRef}
@@ -30,7 +30,7 @@ public class HashCodeSelector implements WorkerSelector<WorkerRef> {
             int selectIndex = Math.abs(hashMessage.getHashCode()) % size;
             return members.get(selectIndex);
         } else {
-            throw new IllegalArgumentException("the message send into HashCodeSelector must implementation of AbstractHashMessage");
+            throw new IllegalArgumentException("the message send into HashCodeSelector must implementation of AbstractHashMessage, the message object class is: " + message.getClass().getName());
         }
     }
 }

@@ -1,14 +1,13 @@
 package org.skywalking.apm.collector.storage.define.segment;
 
-import com.google.protobuf.ByteString;
-import org.skywalking.apm.collector.remote.grpc.proto.RemoteData;
-import org.skywalking.apm.collector.storage.define.Attribute;
-import org.skywalking.apm.collector.storage.define.AttributeType;
 import org.skywalking.apm.collector.core.stream.Data;
-import org.skywalking.apm.collector.storage.define.DataDefine;
 import org.skywalking.apm.collector.core.stream.Transform;
 import org.skywalking.apm.collector.core.stream.operate.CoverOperation;
 import org.skywalking.apm.collector.core.stream.operate.NonOperation;
+import org.skywalking.apm.collector.remote.grpc.proto.RemoteData;
+import org.skywalking.apm.collector.storage.define.Attribute;
+import org.skywalking.apm.collector.storage.define.AttributeType;
+import org.skywalking.apm.collector.storage.define.DataDefine;
 
 /**
  * @author pengys5
@@ -25,27 +24,16 @@ public class SegmentDataDefine extends DataDefine {
     }
 
     @Override public Object deserialize(RemoteData remoteData) {
-        String id = remoteData.getDataStrings(0);
-        byte[] dataBinary = remoteData.getDataBytes(0).toByteArray();
-        return new Segment(id, dataBinary);
+        return null;
     }
 
     @Override public RemoteData serialize(Object object) {
-        Segment segment = (Segment)object;
-        RemoteData.Builder builder = RemoteData.newBuilder();
-        builder.addDataStrings(segment.getId());
-        builder.addDataBytes(ByteString.copyFrom(segment.getDataBinary()));
-        return builder.build();
+        return null;
     }
 
     public static class Segment implements Transform {
         private String id;
         private byte[] dataBinary;
-
-        public Segment(String id, byte[] dataBinary) {
-            this.id = id;
-            this.dataBinary = dataBinary;
-        }
 
         public Segment() {
         }

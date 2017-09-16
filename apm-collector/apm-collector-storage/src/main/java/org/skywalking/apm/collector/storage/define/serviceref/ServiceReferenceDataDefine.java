@@ -37,23 +37,22 @@ public class ServiceReferenceDataDefine extends DataDefine {
     }
 
     @Override public Object deserialize(RemoteData remoteData) {
-        String id = remoteData.getDataStrings(0);
-        int entryServiceId = remoteData.getDataIntegers(0);
-        String entryServiceName = remoteData.getDataStrings(1);
-        int frontServiceId = remoteData.getDataIntegers(1);
-        String frontServiceName = remoteData.getDataStrings(2);
-        int behindServiceId = remoteData.getDataIntegers(2);
-        String behindServiceName = remoteData.getDataStrings(3);
-        long s1Lte = remoteData.getDataLongs(0);
-        long s3Lte = remoteData.getDataLongs(1);
-        long s5Lte = remoteData.getDataLongs(2);
-        long s5Gt = remoteData.getDataLongs(3);
-        long summary = remoteData.getDataLongs(4);
-        long error = remoteData.getDataLongs(5);
-        long costSummary = remoteData.getDataLongs(6);
-        long timeBucket = remoteData.getDataLongs(7);
-        return new ServiceReference(id, entryServiceId, entryServiceName, frontServiceId, frontServiceName,
-            behindServiceId, behindServiceName, s1Lte, s3Lte, s5Lte, s5Gt, summary, error, costSummary, timeBucket);
+        Data data = build(remoteData.getDataStrings(0));
+        data.setDataInteger(0, remoteData.getDataIntegers(0));
+        data.setDataString(1, remoteData.getDataStrings(1));
+        data.setDataInteger(1, remoteData.getDataIntegers(1));
+        data.setDataString(2, remoteData.getDataStrings(2));
+        data.setDataInteger(2, remoteData.getDataIntegers(2));
+        data.setDataString(3, remoteData.getDataStrings(3));
+        data.setDataLong(0, remoteData.getDataLongs(0));
+        data.setDataLong(1, remoteData.getDataLongs(1));
+        data.setDataLong(2, remoteData.getDataLongs(2));
+        data.setDataLong(3, remoteData.getDataLongs(3));
+        data.setDataLong(4, remoteData.getDataLongs(4));
+        data.setDataLong(5, remoteData.getDataLongs(5));
+        data.setDataLong(6, remoteData.getDataLongs(6));
+        data.setDataLong(7, remoteData.getDataLongs(7));
+        return data;
     }
 
     @Override public RemoteData serialize(Object object) {
@@ -93,26 +92,6 @@ public class ServiceReferenceDataDefine extends DataDefine {
         private long error;
         private long costSummary;
         private long timeBucket;
-
-        public ServiceReference(String id, int entryServiceId, String entryServiceName, int frontServiceId,
-            String frontServiceName, int behindServiceId, String behindServiceName, long s1Lte, long s3Lte, long s5Lte,
-            long s5Gt, long summary, long error, long costSummary, long timeBucket) {
-            this.id = id;
-            this.entryServiceId = entryServiceId;
-            this.entryServiceName = entryServiceName;
-            this.frontServiceId = frontServiceId;
-            this.frontServiceName = frontServiceName;
-            this.behindServiceId = behindServiceId;
-            this.behindServiceName = behindServiceName;
-            this.s1Lte = s1Lte;
-            this.s3Lte = s3Lte;
-            this.s5Lte = s5Lte;
-            this.s5Gt = s5Gt;
-            this.summary = summary;
-            this.error = error;
-            this.costSummary = costSummary;
-            this.timeBucket = timeBucket;
-        }
 
         public ServiceReference() {
         }
