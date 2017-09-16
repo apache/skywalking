@@ -2,6 +2,7 @@ package org.skywalking.apm.collector.ui.dao;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -14,6 +15,7 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.sum.Sum;
 import org.skywalking.apm.collector.core.util.ColumnNameUtils;
 import org.skywalking.apm.collector.core.util.Const;
+import org.skywalking.apm.collector.core.util.ObjectUtils;
 import org.skywalking.apm.collector.core.util.StringUtils;
 import org.skywalking.apm.collector.storage.define.serviceref.ServiceReferenceTable;
 import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
@@ -112,13 +114,12 @@ public class ServiceReferenceEsDAO extends EsDAO implements IServiceReferenceDAO
 
         Map<String, JsonObject> serviceReferenceMap = new LinkedHashMap<>();
 
-        JsonArray serviceReferenceArray = new JsonArray();
         SearchResponse searchResponse = searchRequestBuilder.get();
         Terms frontServiceIdTerms = searchResponse.getAggregations().get(ServiceReferenceTable.COLUMN_FRONT_SERVICE_ID);
         for (Terms.Bucket frontServiceBucket : frontServiceIdTerms.getBuckets()) {
             int frontServiceId = frontServiceBucket.getKeyAsNumber().intValue();
             if (frontServiceId != 0) {
-                parseSubAggregate(serviceReferenceMap, serviceReferenceArray, frontServiceBucket, frontServiceId);
+                parseSubAggregate(serviceReferenceMap, frontServiceBucket, frontServiceId);
             }
         }
 
@@ -128,15 +129,23 @@ public class ServiceReferenceEsDAO extends EsDAO implements IServiceReferenceDAO
             if (StringUtils.isNotEmpty(frontServiceName)) {
                 String[] serviceNames = frontServiceName.split(Const.ID_SPLIT);
                 int frontServiceId = ServiceIdCache.getForUI(Integer.parseInt(serviceNames[0]), serviceNames[1]);
-                parseSubAggregate(serviceReferenceMap, serviceReferenceArray, frontServiceBucket, frontServiceId);
+                parseSubAggregate(serviceReferenceMap, frontServiceBucket, frontServiceId);
             }
         }
 
-        serviceReferenceMap.values().forEach(serviceReferenceArray::add);
+        JsonArray serviceReferenceArray = new JsonArray();
+        JsonObject rootServiceReference = findRoot(serviceReferenceMap);
+        if (ObjectUtils.isNotEmpty(rootServiceReference)) {
+            String id = rootServiceReference.get(ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_FRONT_SERVICE_ID)) + Const.ID_SPLIT + rootServiceReference.get(ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_BEHIND_SERVICE_ID));
+            serviceReferenceMap.remove(id);
+
+            int rootServiceId = rootServiceReference.get(ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_FRONT_SERVICE_ID)).getAsInt();
+            sortAsTree(rootServiceId, serviceReferenceArray, serviceReferenceMap);
+        }
         return serviceReferenceArray;
     }
 
-    private void parseSubAggregate(Map<String, JsonObject> serviceReferenceMap, JsonArray serviceReferenceArray,
+    private void parseSubAggregate(Map<String, JsonObject> serviceReferenceMap,
         Terms.Bucket frontServiceBucket,
         int frontServiceId) {
         Terms behindServiceIdTerms = frontServiceBucket.getAggregations().get(ServiceReferenceTable.COLUMN_BEHIND_SERVICE_ID);
@@ -231,5 +240,30 @@ public class ServiceReferenceEsDAO extends EsDAO implements IServiceReferenceDAO
         long oldValue = oldReference.get(key).getAsLong();
         long newValue = newReference.get(key).getAsLong();
         oldReference.addProperty(key, oldValue + newValue);
+    }
+
+    private JsonObject findRoot(Map<String, JsonObject> serviceReferenceMap) {
+        for (JsonObject serviceReference : serviceReferenceMap.values()) {
+            int behindServiceId = serviceReference.get(ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_BEHIND_SERVICE_ID)).getAsInt();
+            if (behindServiceId == 1) {
+                return serviceReference;
+            }
+        }
+        return null;
+    }
+
+    private void sortAsTree(int serviceId, JsonArray serviceReferenceArray,
+        Map<String, JsonObject> serviceReferenceMap) {
+        Iterator<JsonObject> iterator = serviceReferenceMap.values().iterator();
+        while (iterator.hasNext()) {
+            JsonObject serviceReference = iterator.next();
+            int frontServiceId = serviceReference.get(ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_FRONT_SERVICE_ID)).getAsInt();
+            if (serviceId == frontServiceId) {
+                serviceReferenceArray.add(serviceReference);
+
+                int behindServiceId = serviceReference.get(ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_BEHIND_SERVICE_ID)).getAsInt();
+                sortAsTree(behindServiceId, serviceReferenceArray, serviceReferenceMap);
+            }
+        }
     }
 }
