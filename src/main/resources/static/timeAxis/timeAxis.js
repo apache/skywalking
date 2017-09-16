@@ -11,19 +11,23 @@ define(["jquery", "vue", "moment", "text!timeAxisHtml", "rangeSlider", "daterang
     var vue;
     var slider;
     var dateFormat = "YYYYMMDDHHmm";
-    var timeBucket;
     var sliderFormat = "MM/DD HH:mm";
     var subtract = "hours";
     var subtractValue = 1;
     var timeBucketType = "minute";
+    var timeDifferent = 0;
 
     function load() {
         $.ajaxSettings.async = false;
         $.getJSON("/time/sync/allInstance", function (data) {
-            vueData.timeBucket = data.timeBucket;
-            timeBucket = data.timeBucket;
+            timeDifferent = moment().format("x") - moment(data.timeBucket, "YYYYMMDDHHmmss").format("x");
+            console.log("timeDifferent: " + timeDifferent);
         });
         return this;
+    }
+
+    function _calCurrentTimeBucket() {
+        return moment(moment().format("x") - timeDifferent, "x");
     }
 
     function minute() {
@@ -47,12 +51,11 @@ define(["jquery", "vue", "moment", "text!timeAxisHtml", "rangeSlider", "daterang
     function autoUpdate() {
         vueData.hasAutoUpdate = true;
         $('body').everyTime('2s', function () {
-            timeBucket = moment(timeBucket, "YYYYMMDDHHmmss").add(2, "seconds").format("YYYYMMDDHHmmss");
-            vueData.timeBucket = moment(timeBucket, "YYYYMMDDHHmmss").format(dateFormat);
-            console.log("timeBucket : " + timeBucket + " vue time bucket : " + vueData.timeBucket);
-
-            var endTimeStr = moment(vueData.timeBucket, "YYYYMMDDHHmmss").format(dateFormat);
-            var startTimeStr = moment(vueData.timeBucket, "YYYYMMDDHHmmss").subtract(subtractValue, subtract).format(dateFormat);
+            var bucketMoment = _calCurrentTimeBucket();
+            vueData.timeBucket = bucketMoment.format("YYYYMMDDHHmmss");
+            console.log("auto update, end time: " + vueData.timeBucket);
+            var endTimeStr = bucketMoment.format(dateFormat);
+            var startTimeStr = bucketMoment.subtract(subtractValue, subtract).format(dateFormat);
             updateTimeAxis(startTimeStr, endTimeStr);
         });
         return this;
