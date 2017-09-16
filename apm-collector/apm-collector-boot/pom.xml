@@ -15,7 +15,7 @@
     <properties>
         <main.class>org.skywalking.apm.collector.boot.CollectorBootStartUp</main.class>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <docker.image.name>skywalking/${artifactId}</docker.image.name>
+        <docker.image.name>skywalking/skywalking-collector</docker.image.name>
         <docker.image.version>${version}</docker.image.version>
     </properties>
 
@@ -115,7 +115,7 @@
                     <resources>
                         <resource>
                             <targetPath>/</targetPath>
-                            <directory>${project.build.directory}</directory>
+                            <directory>${project.basedir}/../../packages</directory>
                             <include>${build.finalName}.tar.gz</include>
                         </resource>
                     </resources>
