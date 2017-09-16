@@ -2,7 +2,7 @@ package org.skywalking.apm.collector.agentstream.worker.cache;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import org.skywalking.apm.collector.agentstream.worker.register.instance.dao.IInstanceDAO;
+import org.skywalking.apm.collector.agentregister.worker.instance.dao.IInstanceDAO;
 import org.skywalking.apm.collector.storage.dao.DAOContainer;
 
 /**

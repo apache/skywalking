@@ -17,8 +17,4 @@ org.skywalking.apm.collector.agentstream.worker.segment.origin.SegmentPersistenc
 org.skywalking.apm.collector.agentstream.worker.segment.cost.SegmentCostPersistenceWorker$Factory
 org.skywalking.apm.collector.agentstream.worker.global.GlobalTracePersistenceWorker$Factory
 
-org.skywalking.apm.collector.agentstream.worker.register.application.ApplicationRegisterSerialWorker$Factory
-org.skywalking.apm.collector.agentstream.worker.register.instance.InstanceRegisterSerialWorker$Factory
-org.skywalking.apm.collector.agentstream.worker.register.servicename.ServiceNameRegisterSerialWorker$Factory
-
 org.skywalking.apm.collector.agentstream.worker.instance.performance.InstPerformancePersistenceWorker$Factory

@@ -17,14 +17,6 @@ public class GlobalTraceEsTableDefine extends ElasticSearchTableDefine {
         return 5;
     }
 
-    @Override public int numberOfShards() {
-        return 2;
-    }
-
-    @Override public int numberOfReplicas() {
-        return 0;
-    }
-
     @Override public void initialize() {
         addColumn(new ElasticSearchColumnDefine(GlobalTraceTable.COLUMN_SEGMENT_ID, ElasticSearchColumnDefine.Type.Keyword.name()));
         addColumn(new ElasticSearchColumnDefine(GlobalTraceTable.COLUMN_GLOBAL_TRACE_ID, ElasticSearchColumnDefine.Type.Keyword.name()));

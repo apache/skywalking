@@ -17,14 +17,6 @@ public class NodeReferenceEsTableDefine extends ElasticSearchTableDefine {
         return 2;
     }
 
-    @Override public int numberOfShards() {
-        return 2;
-    }
-
-    @Override public int numberOfReplicas() {
-        return 0;
-    }
-
     @Override public void initialize() {
         addColumn(new ElasticSearchColumnDefine(NodeReferenceTable.COLUMN_FRONT_APPLICATION_ID, ElasticSearchColumnDefine.Type.Integer.name()));
         addColumn(new ElasticSearchColumnDefine(NodeReferenceTable.COLUMN_BEHIND_APPLICATION_ID, ElasticSearchColumnDefine.Type.Integer.name()));

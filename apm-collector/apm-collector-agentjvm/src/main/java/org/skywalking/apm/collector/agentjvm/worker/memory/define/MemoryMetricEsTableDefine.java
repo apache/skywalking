@@ -17,14 +17,6 @@ public class MemoryMetricEsTableDefine extends ElasticSearchTableDefine {
         return 1;
     }
 
-    @Override public int numberOfShards() {
-        return 2;
-    }
-
-    @Override public int numberOfReplicas() {
-        return 0;
-    }
-
     @Override public void initialize() {
         addColumn(new ElasticSearchColumnDefine(MemoryMetricTable.COLUMN_APPLICATION_INSTANCE_ID, ElasticSearchColumnDefine.Type.Integer.name()));
         addColumn(new ElasticSearchColumnDefine(MemoryMetricTable.COLUMN_IS_HEAP, ElasticSearchColumnDefine.Type.Boolean.name()));

@@ -17,14 +17,6 @@ public class ServiceReferenceEsTableDefine extends ElasticSearchTableDefine {
         return 2;
     }
 
-    @Override public int numberOfShards() {
-        return 2;
-    }
-
-    @Override public int numberOfReplicas() {
-        return 0;
-    }
-
     @Override public void initialize() {
         addColumn(new ElasticSearchColumnDefine(ServiceReferenceTable.COLUMN_AGG, ElasticSearchColumnDefine.Type.Keyword.name()));
         addColumn(new ElasticSearchColumnDefine(ServiceReferenceTable.COLUMN_ENTRY_SERVICE_ID, ElasticSearchColumnDefine.Type.Integer.name()));

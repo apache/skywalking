@@ -2,6 +2,10 @@ package org.skywalking.apm.collector.agentstream.grpc;
 
 import java.util.LinkedList;
 import java.util.List;
+import org.skywalking.apm.collector.agentjvm.grpc.handler.JVMMetricsServiceHandler;
+import org.skywalking.apm.collector.agentregister.grpc.handler.ApplicationRegisterServiceHandler;
+import org.skywalking.apm.collector.agentregister.grpc.handler.InstanceDiscoveryServiceHandler;
+import org.skywalking.apm.collector.agentregister.grpc.handler.ServiceNameDiscoveryServiceHandler;
 import org.skywalking.apm.collector.agentstream.AgentStreamModuleDefine;
 import org.skywalking.apm.collector.agentstream.AgentStreamModuleGroupDefine;
 import org.skywalking.apm.collector.agentstream.grpc.handler.TraceSegmentServiceHandler;
@@ -46,6 +50,10 @@ public class AgentStreamGRPCModuleDefine extends AgentStreamModuleDefine {
     @Override public List<Handler> handlerList() {
         List<Handler> handlers = new LinkedList<>();
         handlers.add(new TraceSegmentServiceHandler());
+        handlers.add(new ApplicationRegisterServiceHandler());
+        handlers.add(new InstanceDiscoveryServiceHandler());
+        handlers.add(new ServiceNameDiscoveryServiceHandler());
+        handlers.add(new JVMMetricsServiceHandler());
         return handlers;
     }
 }

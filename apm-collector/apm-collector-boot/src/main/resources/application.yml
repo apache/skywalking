@@ -7,14 +7,6 @@ agent_server:
     host: localhost
     port: 10800
     context_path: /
-agent_register:
-  grpc:
-    host: localhost
-    port: 11800
-  jetty:
-    host: localhost
-    port: 12800
-    context_path: /
 agent_stream:
   grpc:
     host: localhost
@@ -23,10 +15,6 @@ agent_stream:
     host: localhost
     port: 12800
     context_path: /
-agent_jvm:
-  grpc:
-    host: localhost
-    port: 11800
 ui:
   jetty:
     host: localhost
@@ -41,3 +29,5 @@ storage:
     cluster_name: CollectorDBCluster
     cluster_transport_sniffer: true
     cluster_nodes: localhost:9300
+    index_shards_number: 2
+    index_replicas_number: 0

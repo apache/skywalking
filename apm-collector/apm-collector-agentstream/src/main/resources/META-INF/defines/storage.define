@@ -7,15 +7,6 @@ org.skywalking.apm.collector.agentstream.worker.node.mapping.define.NodeMappingH
 org.skywalking.apm.collector.agentstream.worker.noderef.define.NodeReferenceEsTableDefine
 org.skywalking.apm.collector.agentstream.worker.noderef.define.NodeReferenceH2TableDefine
 
-org.skywalking.apm.collector.agentstream.worker.register.application.ApplicationEsTableDefine
-org.skywalking.apm.collector.agentstream.worker.register.application.ApplicationH2TableDefine
-
-org.skywalking.apm.collector.agentstream.worker.register.instance.InstanceEsTableDefine
-org.skywalking.apm.collector.agentstream.worker.register.instance.InstanceH2TableDefine
-
-org.skywalking.apm.collector.agentstream.worker.register.servicename.ServiceNameEsTableDefine
-org.skywalking.apm.collector.agentstream.worker.register.servicename.ServiceNameH2TableDefine
-
 org.skywalking.apm.collector.agentstream.worker.segment.origin.define.SegmentEsTableDefine
 org.skywalking.apm.collector.agentstream.worker.segment.origin.define.SegmentH2TableDefine
 

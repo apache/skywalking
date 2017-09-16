@@ -17,14 +17,6 @@ public class NodeComponentEsTableDefine extends ElasticSearchTableDefine {
         return 2;
     }
 
-    @Override public int numberOfShards() {
-        return 2;
-    }
-
-    @Override public int numberOfReplicas() {
-        return 0;
-    }
-
     @Override public void initialize() {
         addColumn(new ElasticSearchColumnDefine(NodeComponentTable.COLUMN_COMPONENT_ID, ElasticSearchColumnDefine.Type.Integer.name()));
         addColumn(new ElasticSearchColumnDefine(NodeComponentTable.COLUMN_COMPONENT_NAME, ElasticSearchColumnDefine.Type.Keyword.name()));

@@ -28,11 +28,12 @@ public class InstanceHealthService {
         IInstanceDAO instanceDAO = (IInstanceDAO)DAOContainer.INSTANCE.get(IInstanceDAO.class.getName());
         List<InstanceDataDefine.Instance> instanceList = instanceDAO.getInstances(applicationId, halfHourBeforeTimeBucket);
 
+        JsonArray instances = new JsonArray();
+        response.add("instances", instances);
+
         instanceList.forEach(instance -> {
-            JsonArray instances = new JsonArray();
             response.addProperty("applicationCode", ApplicationCache.getForUI(applicationId));
             response.addProperty("applicationId", applicationId);
-            response.add("instances", instances);
 
             IInstPerformanceDAO instPerformanceDAO = (IInstPerformanceDAO)DAOContainer.INSTANCE.get(IInstPerformanceDAO.class.getName());
             IInstPerformanceDAO.InstPerformance performance = instPerformanceDAO.get(timeBuckets, instance.getInstanceId());
