@@ -33,18 +33,18 @@ public class NodeReferenceDataDefine extends DataDefine {
     }
 
     @Override public Object deserialize(RemoteData remoteData) {
-        String id = remoteData.getDataStrings(0);
-        int frontApplicationId = remoteData.getDataIntegers(0);
-        int behindApplicationId = remoteData.getDataIntegers(1);
-        String behindPeer = remoteData.getDataStrings(1);
-        int s1LTE = remoteData.getDataIntegers(2);
-        int s3LTE = remoteData.getDataIntegers(3);
-        int s5LTE = remoteData.getDataIntegers(4);
-        int s5GT = remoteData.getDataIntegers(5);
-        int summary = remoteData.getDataIntegers(6);
-        int error = remoteData.getDataIntegers(7);
-        long timeBucket = remoteData.getDataLongs(0);
-        return new NodeReference(id, frontApplicationId, behindApplicationId, behindPeer, s1LTE, s3LTE, s5LTE, s5GT, summary, error, timeBucket);
+        Data data = build(remoteData.getDataStrings(0));
+        data.setDataInteger(0, remoteData.getDataIntegers(0));
+        data.setDataInteger(1, remoteData.getDataIntegers(1));
+        data.setDataString(1, remoteData.getDataStrings(1));
+        data.setDataInteger(2, remoteData.getDataIntegers(2));
+        data.setDataInteger(3, remoteData.getDataIntegers(3));
+        data.setDataInteger(4, remoteData.getDataIntegers(4));
+        data.setDataInteger(5, remoteData.getDataIntegers(5));
+        data.setDataInteger(6, remoteData.getDataIntegers(6));
+        data.setDataInteger(7, remoteData.getDataIntegers(7));
+        data.setDataLong(0, remoteData.getDataLongs(0));
+        return data;
     }
 
     @Override public RemoteData serialize(Object object) {
@@ -76,22 +76,6 @@ public class NodeReferenceDataDefine extends DataDefine {
         private int summary = 0;
         private int error = 0;
         private long timeBucket;
-
-        public NodeReference(String id, int frontApplicationId, int behindApplicationId, String behindPeer, int s1LTE,
-            int s3LTE,
-            int s5LTE, int s5GT, int summary, int error, long timeBucket) {
-            this.id = id;
-            this.frontApplicationId = frontApplicationId;
-            this.behindApplicationId = behindApplicationId;
-            this.behindPeer = behindPeer;
-            this.s1LTE = s1LTE;
-            this.s3LTE = s3LTE;
-            this.s5LTE = s5LTE;
-            this.s5GT = s5GT;
-            this.summary = summary;
-            this.error = error;
-            this.timeBucket = timeBucket;
-        }
 
         public NodeReference() {
         }

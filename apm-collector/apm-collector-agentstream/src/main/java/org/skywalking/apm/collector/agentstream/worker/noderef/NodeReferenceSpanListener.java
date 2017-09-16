@@ -91,10 +91,10 @@ public class NodeReferenceSpanListener implements EntrySpanListener, ExitSpanLis
         logger.debug("node reference summary listener build");
         StreamModuleContext context = (StreamModuleContext)CollectorContextHelper.INSTANCE.getContext(StreamModuleGroupDefine.GROUP_NAME);
 
-        for (NodeReferenceDataDefine.NodeReference referenceSum : nodeReferences) {
+        for (NodeReferenceDataDefine.NodeReference nodeReference : nodeReferences) {
             try {
-                logger.debug("send to node reference summary aggregation worker, id: {}", referenceSum.getId());
-                context.getClusterWorkerContext().lookup(NodeReferenceAggregationWorker.WorkerRole.INSTANCE).tell(referenceSum.toData());
+                logger.debug("send to node reference summary aggregation worker, id: {}", nodeReference.getId());
+                context.getClusterWorkerContext().lookup(NodeReferenceAggregationWorker.WorkerRole.INSTANCE).tell(nodeReference.toData());
             } catch (WorkerInvokeException | WorkerNotFoundException e) {
                 logger.error(e.getMessage(), e);
             }

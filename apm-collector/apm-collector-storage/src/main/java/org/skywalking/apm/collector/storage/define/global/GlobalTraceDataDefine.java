@@ -1,10 +1,10 @@
 package org.skywalking.apm.collector.storage.define.global;
 
-import org.skywalking.apm.collector.remote.grpc.proto.RemoteData;
 import org.skywalking.apm.collector.core.stream.Data;
 import org.skywalking.apm.collector.core.stream.Transform;
 import org.skywalking.apm.collector.core.stream.operate.CoverOperation;
 import org.skywalking.apm.collector.core.stream.operate.NonOperation;
+import org.skywalking.apm.collector.remote.grpc.proto.RemoteData;
 import org.skywalking.apm.collector.storage.define.Attribute;
 import org.skywalking.apm.collector.storage.define.AttributeType;
 import org.skywalking.apm.collector.storage.define.DataDefine;
@@ -26,21 +26,11 @@ public class GlobalTraceDataDefine extends DataDefine {
     }
 
     @Override public Object deserialize(RemoteData remoteData) {
-        String id = remoteData.getDataStrings(0);
-        String segmentId = remoteData.getDataStrings(1);
-        String globalTraceId = remoteData.getDataStrings(2);
-        Long timeBucket = remoteData.getDataLongs(0);
-        return new GlobalTrace(id, segmentId, globalTraceId, timeBucket);
+        return null;
     }
 
     @Override public RemoteData serialize(Object object) {
-        GlobalTrace globalTrace = (GlobalTrace)object;
-        RemoteData.Builder builder = RemoteData.newBuilder();
-        builder.addDataStrings(globalTrace.getId());
-        builder.addDataStrings(globalTrace.getSegmentId());
-        builder.addDataStrings(globalTrace.getGlobalTraceId());
-        builder.addDataLongs(globalTrace.getTimeBucket());
-        return builder.build();
+        return null;
     }
 
     public static class GlobalTrace implements Transform {
@@ -48,13 +38,6 @@ public class GlobalTraceDataDefine extends DataDefine {
         private String segmentId;
         private String globalTraceId;
         private long timeBucket;
-
-        GlobalTrace(String id, String segmentId, String globalTraceId, long timeBucket) {
-            this.id = id;
-            this.segmentId = segmentId;
-            this.globalTraceId = globalTraceId;
-            this.timeBucket = timeBucket;
-        }
 
         public GlobalTrace() {
         }

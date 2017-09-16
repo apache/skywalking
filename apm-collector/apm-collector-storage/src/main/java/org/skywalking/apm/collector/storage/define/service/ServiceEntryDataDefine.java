@@ -28,11 +28,25 @@ public class ServiceEntryDataDefine extends DataDefine {
     }
 
     @Override public Object deserialize(RemoteData remoteData) {
-        return null;
+        Data data = build(remoteData.getDataStrings(0));
+        data.setDataInteger(0, remoteData.getDataIntegers(0));
+        data.setDataInteger(1, remoteData.getDataIntegers(1));
+        data.setDataString(1, remoteData.getDataStrings(1));
+        data.setDataLong(0, remoteData.getDataLongs(0));
+        data.setDataLong(1, remoteData.getDataLongs(1));
+        return data;
     }
 
     @Override public RemoteData serialize(Object object) {
-        return null;
+        Data data = (Data)object;
+        RemoteData.Builder builder = RemoteData.newBuilder();
+        builder.addDataStrings(data.getDataString(0));
+        builder.addDataIntegers(data.getDataInteger(0));
+        builder.addDataIntegers(data.getDataInteger(1));
+        builder.addDataStrings(data.getDataString(1));
+        builder.addDataLongs(data.getDataLong(0));
+        builder.addDataLongs(data.getDataLong(1));
+        return builder.build();
     }
 
     public static class ServiceEntry implements Transform<ServiceEntry> {

@@ -1,13 +1,13 @@
 package org.skywalking.apm.collector.storage.define.segment;
 
-import org.skywalking.apm.collector.remote.grpc.proto.RemoteData;
-import org.skywalking.apm.collector.storage.define.Attribute;
-import org.skywalking.apm.collector.storage.define.AttributeType;
 import org.skywalking.apm.collector.core.stream.Data;
-import org.skywalking.apm.collector.storage.define.DataDefine;
 import org.skywalking.apm.collector.core.stream.Transform;
 import org.skywalking.apm.collector.core.stream.operate.CoverOperation;
 import org.skywalking.apm.collector.core.stream.operate.NonOperation;
+import org.skywalking.apm.collector.remote.grpc.proto.RemoteData;
+import org.skywalking.apm.collector.storage.define.Attribute;
+import org.skywalking.apm.collector.storage.define.AttributeType;
+import org.skywalking.apm.collector.storage.define.DataDefine;
 
 /**
  * @author pengys5
@@ -30,29 +30,11 @@ public class SegmentCostDataDefine extends DataDefine {
     }
 
     @Override public Object deserialize(RemoteData remoteData) {
-        String id = remoteData.getDataStrings(0);
-        String segmentId = remoteData.getDataStrings(1);
-        String serviceName = remoteData.getDataStrings(2);
-        Long cost = remoteData.getDataLongs(0);
-        Long startTime = remoteData.getDataLongs(1);
-        Long endTime = remoteData.getDataLongs(2);
-        Boolean isError = remoteData.getDataBooleans(0);
-        Long timeBucket = remoteData.getDataLongs(2);
-        return new SegmentCost(id, segmentId, serviceName, cost, startTime, endTime, isError, timeBucket);
+        return null;
     }
 
     @Override public RemoteData serialize(Object object) {
-        SegmentCost segmentCost = (SegmentCost)object;
-        RemoteData.Builder builder = RemoteData.newBuilder();
-        builder.addDataStrings(segmentCost.getId());
-        builder.addDataStrings(segmentCost.getSegmentId());
-        builder.addDataStrings(segmentCost.getServiceName());
-        builder.addDataLongs(segmentCost.getCost());
-        builder.addDataLongs(segmentCost.getStartTime());
-        builder.addDataLongs(segmentCost.getEndTime());
-        builder.addDataBooleans(segmentCost.isError());
-        builder.addDataLongs(segmentCost.getTimeBucket());
-        return builder.build();
+        return null;
     }
 
     public static class SegmentCost implements Transform {
@@ -64,18 +46,6 @@ public class SegmentCostDataDefine extends DataDefine {
         private Long endTime;
         private boolean isError;
         private long timeBucket;
-
-        SegmentCost(String id, String segmentId, String serviceName, Long cost,
-            Long startTime, Long endTime, boolean isError, long timeBucket) {
-            this.id = id;
-            this.segmentId = segmentId;
-            this.serviceName = serviceName;
-            this.cost = cost;
-            this.startTime = startTime;
-            this.endTime = endTime;
-            this.isError = isError;
-            this.timeBucket = timeBucket;
-        }
 
         public SegmentCost() {
         }

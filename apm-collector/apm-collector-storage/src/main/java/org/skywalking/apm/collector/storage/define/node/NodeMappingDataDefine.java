@@ -27,11 +27,23 @@ public class NodeMappingDataDefine extends DataDefine {
     }
 
     @Override public Object deserialize(RemoteData remoteData) {
-        return null;
+        Data data = build(remoteData.getDataStrings(0));
+        data.setDataInteger(0, remoteData.getDataIntegers(0));
+        data.setDataInteger(1, remoteData.getDataIntegers(1));
+        data.setDataString(1, remoteData.getDataStrings(1));
+        data.setDataLong(0, remoteData.getDataLongs(0));
+        return data;
     }
 
     @Override public RemoteData serialize(Object object) {
-        return null;
+        Data data = (Data)object;
+        RemoteData.Builder builder = RemoteData.newBuilder();
+        builder.addDataStrings(data.getDataString(0));
+        builder.addDataIntegers(data.getDataInteger(0));
+        builder.addDataIntegers(data.getDataInteger(1));
+        builder.addDataStrings(data.getDataString(1));
+        builder.addDataLongs(data.getDataLong(0));
+        return builder.build();
     }
 
     public static class NodeMapping implements Transform<NodeMapping> {
@@ -40,14 +52,6 @@ public class NodeMappingDataDefine extends DataDefine {
         private int addressId;
         private String address;
         private long timeBucket;
-
-        public NodeMapping(String id, int applicationId, int addressId, String address, long timeBucket) {
-            this.id = id;
-            this.applicationId = applicationId;
-            this.addressId = addressId;
-            this.address = address;
-            this.timeBucket = timeBucket;
-        }
 
         public NodeMapping() {
         }
