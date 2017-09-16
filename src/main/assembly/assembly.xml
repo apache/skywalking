@@ -28,6 +28,12 @@
             <outputDirectory>/config</outputDirectory>
             <includes>
                 <include>*.properties</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>src/main/assembly</directory>
+            <outputDirectory>/config</outputDirectory>
+            <includes>
                 <include>log4j2.xml</include>
             </includes>
         </fileSet>
