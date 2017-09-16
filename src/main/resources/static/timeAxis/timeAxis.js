@@ -21,6 +21,7 @@ define(["jquery", "vue", "moment", "text!timeAxisHtml", "rangeSlider", "daterang
         $.ajaxSettings.async = false;
         $.getJSON("/time/sync/allInstance", function (data) {
             timeDifferent = moment().format("x") - moment(data.timeBucket, "YYYYMMDDHHmmss").format("x");
+            vueData.timeBucket = moment(data.timeBucket, "YYYYMMDDHHmmss").format(dateFormat);
             console.log("timeDifferent: " + timeDifferent);
         });
         return this;
