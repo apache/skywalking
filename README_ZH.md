@@ -32,7 +32,7 @@ _按首次加入时间排序_
 * 张鑫 [**PMC Member**] [@ascrutae](https://github.com/ascrutae)   
 * 谭真 [@mircoteam](https://github.com/mircoteam)  Advanced R&D Engineers, Creative & Interactive Group.
 * 徐妍 [@TastySummer](https://github.com/TastySummer)
-* 彭勇升 [**PMC Member**] [@pengys5](https://github.com/pengys5) 
+* 彭勇升 [**PMC Member**] [@pengys5](https://github.com/pengys5) R&D director，Tydic
 * 戴文
 * 柏杨 [@bai-yang](https://github.com/bai-yang)  Senior Engineer, Alibaba Group.
 * 陈凤 [@trey03](https://github.com/trey03)
