@@ -281,6 +281,7 @@
                         <exclude>config/**</exclude>
                         <exclude>*.properties</exclude>
                         <exclude>*.config</exclude>
+                        <exclude>*.xml</exclude>
                     </excludes>
                 </configuration>
             </plugin>
