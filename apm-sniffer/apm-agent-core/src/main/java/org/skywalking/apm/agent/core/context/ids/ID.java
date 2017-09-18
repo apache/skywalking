@@ -58,9 +58,8 @@ public class ID {
     public String encode() {
         if (encoding == null) {
             encoding = long2Base64(part1) + long2Base64(part2) + long2Base64(part3);
-        } else {
-            return encoding;
         }
+        return encoding;
     }
 
     private String long2Base64(long partN) {
