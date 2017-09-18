@@ -68,7 +68,7 @@ public class ContextCarrier implements Serializable {
     public String serialize() {
         if (this.isValid()) {
             return StringUtil.join('|',
-                this.getTraceSegmentId().toBase64(),
+                this.getTraceSegmentId().encode(),
                 this.getSpanId() + "",
                 this.getParentApplicationInstanceId() + "",
                 this.getEntryApplicationInstanceId() + "",

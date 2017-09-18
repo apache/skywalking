@@ -15,29 +15,31 @@ public class ID {
     private long part1;
     private long part2;
     private long part3;
+    private String encoding;
 
     public ID(long part1, long part2, long part3) {
         this.part1 = part1;
         this.part2 = part2;
         this.part3 = part3;
+        this.encoding = null;
     }
 
-    public ID(String base64String) {
+    public ID(String encodingString) {
         int index = 0;
         for (int part = 0; part < 3; part++) {
             String encodedString;
-            char potentialTypeChar = base64String.charAt(index);
+            char potentialTypeChar = encodingString.charAt(index);
             long value;
             if (potentialTypeChar == '#') {
-                encodedString = base64String.substring(index + 1, index + 5);
+                encodedString = encodingString.substring(index + 1, index + 5);
                 index += 5;
                 value = ByteBuffer.wrap(DECODER.decode(encodedString)).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().get(0);
             } else if (potentialTypeChar == '$') {
-                encodedString = base64String.substring(index + 1, index + 9);
+                encodedString = encodingString.substring(index + 1, index + 9);
                 index += 9;
                 value = ByteBuffer.wrap(DECODER.decode(encodedString)).order(ByteOrder.LITTLE_ENDIAN).asIntBuffer().get(0);
             } else {
-                encodedString = base64String.substring(index, index + 12);
+                encodedString = encodingString.substring(index, index + 12);
                 index += 12;
                 value = ByteBuffer.wrap(DECODER.decode(encodedString)).order(ByteOrder.LITTLE_ENDIAN).asLongBuffer().get(0);
             }
@@ -53,8 +55,12 @@ public class ID {
         }
     }
 
-    public String toBase64() {
-        return long2Base64(part1) + long2Base64(part2) + long2Base64(part3);
+    public String encode() {
+        if (encoding == null) {
+            encoding = long2Base64(part1) + long2Base64(part2) + long2Base64(part3);
+        } else {
+            return encoding;
+        }
     }
 
     private String long2Base64(long partN) {
