@@ -59,13 +59,18 @@ public class ContextCarrier implements Serializable {
      */
     private DistributedTraceId primaryDistributedTraceId;
 
+    public CarrierItem items() {
+        SW3CarrierItem carrierItem = new SW3CarrierItem(this, null);
+        return carrierItem;
+    }
+
     /**
      * Serialize this {@link ContextCarrier} to a {@link String},
      * with '|' split.
      *
      * @return the serialization string.
      */
-    public String serialize() {
+    String serialize() {
         if (this.isValid()) {
             return StringUtil.join('|',
                 this.getTraceSegmentId().encode(),
@@ -75,7 +80,7 @@ public class ContextCarrier implements Serializable {
                 this.getPeerHost(),
                 this.getEntryOperationName(),
                 this.getParentOperationName(),
-                this.getPrimaryDistributedTraceId().toBase64());
+                this.getPrimaryDistributedTraceId().encode());
         } else {
             return "";
         }
@@ -86,7 +91,7 @@ public class ContextCarrier implements Serializable {
      *
      * @param text carries {@link #traceSegmentId} and {@link #spanId}, with '|' split.
      */
-    public ContextCarrier deserialize(String text) {
+    ContextCarrier deserialize(String text) {
         if (text != null) {
             String[] parts = text.split("\\|", 8);
             if (parts.length == 8) {

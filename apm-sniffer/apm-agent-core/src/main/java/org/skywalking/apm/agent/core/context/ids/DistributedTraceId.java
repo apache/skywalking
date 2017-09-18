@@ -26,7 +26,7 @@ public abstract class DistributedTraceId {
         this.id = new ID(id);
     }
 
-    public String toBase64() {
+    public String encode() {
         return id.encode();
     }
 

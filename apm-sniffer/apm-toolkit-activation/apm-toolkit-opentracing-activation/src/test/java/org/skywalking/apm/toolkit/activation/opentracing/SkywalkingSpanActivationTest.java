@@ -4,7 +4,6 @@ import io.opentracing.Tracer;
 import io.opentracing.tag.Tags;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -18,7 +17,6 @@ import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.skywalking.apm.agent.core.context.trace.TraceSegmentRef;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.skywalking.apm.agent.test.helper.SegmentHelper;
-import org.skywalking.apm.agent.test.helper.SegmentRefHelper;
 import org.skywalking.apm.agent.test.tools.AgentServiceRule;
 import org.skywalking.apm.agent.test.tools.SegmentStorage;
 import org.skywalking.apm.agent.test.tools.SegmentStoragePoint;
@@ -34,7 +32,6 @@ import org.skywalking.apm.toolkit.activation.opentracing.tracer.SkywalkingTracer
 import org.skywalking.apm.toolkit.opentracing.SkywalkingContinuation;
 import org.skywalking.apm.toolkit.opentracing.SkywalkingSpan;
 import org.skywalking.apm.toolkit.opentracing.SkywalkingSpanBuilder;
-import org.skywalking.apm.toolkit.opentracing.SkywalkingTracer;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
