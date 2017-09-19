@@ -12,7 +12,7 @@ if [ ! -d "${WEB_HOME}/logs" ]; then
 fi
 
 _RUNJAVA=${JAVA_HOME}/bin/java
-[ -z "$JAVA_HOME" ] && _RUNJAVA=`java`
+[ -z "$JAVA_HOME" ] && _RUNJAVA=java
 
 CLASSPATH="$WEB_HOME/config:$CLASSPATH"
 for i in "$WEB_HOME"/libs/*.jar
