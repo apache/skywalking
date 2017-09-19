@@ -61,7 +61,8 @@ public class ContextCarrier implements Serializable {
 
     public CarrierItem items() {
         SW3CarrierItem carrierItem = new SW3CarrierItem(this, null);
-        return carrierItem;
+        CarrierItemHead head = new CarrierItemHead(carrierItem);
+        return head;
     }
 
     /**
@@ -119,6 +120,7 @@ public class ContextCarrier implements Serializable {
      */
     public boolean isValid() {
         return traceSegmentId != null
+            && traceSegmentId.isValid()
             && getSpanId() > -1
             && parentApplicationInstanceId != DictionaryUtil.nullValue()
             && entryApplicationInstanceId != DictionaryUtil.nullValue()

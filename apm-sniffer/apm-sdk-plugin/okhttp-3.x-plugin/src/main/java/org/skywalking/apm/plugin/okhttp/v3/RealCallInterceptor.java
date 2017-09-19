@@ -67,9 +67,9 @@ public class RealCallInterceptor implements InstanceMethodsAroundInterceptor, In
 
         headersField.setAccessible(true);
         Headers.Builder headerBuilder = request.headers().newBuilder();
-        CarrierItem items = contextCarrier.items();
-        while (items.hasNext()) {
-            CarrierItem next = items.next();
+        CarrierItem next = contextCarrier.items();
+        while (next.hasNext()) {
+            next = next.next();
             headerBuilder.add(next.getHeadKey(), next.getHeadValue());
         }
         headersField.set(request, headerBuilder.build());

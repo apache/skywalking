@@ -42,9 +42,9 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
         Tags.HTTP.METHOD.set(span, httpRequest.getRequestLine().getMethod());
         SpanLayer.asHttp(span);
 
-        CarrierItem items = contextCarrier.items();
-        while (items.hasNext()) {
-            CarrierItem next = items.next();
+        CarrierItem next = contextCarrier.items();
+        while (next.hasNext()) {
+            next = next.next();
             httpRequest.setHeader(next.getHeadKey(), next.getHeadValue());
         }
     }

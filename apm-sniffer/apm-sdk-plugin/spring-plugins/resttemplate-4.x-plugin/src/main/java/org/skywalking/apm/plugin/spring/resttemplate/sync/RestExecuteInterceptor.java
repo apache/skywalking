@@ -29,7 +29,7 @@ public class RestExecuteInterceptor implements InstanceMethodsAroundInterceptor 
         Tags.HTTP.METHOD.set(span, httpMethod.toString());
         SpanLayer.asHttp(span);
 
-        objInst.setSkyWalkingDynamicField(contextCarrier.serialize());
+        objInst.setSkyWalkingDynamicField(contextCarrier);
     }
 
     @Override

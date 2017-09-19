@@ -13,11 +13,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 import org.skywalking.apm.agent.core.conf.Config;
-import org.skywalking.apm.agent.core.context.ContextCarrier;
 import org.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.skywalking.apm.agent.core.context.trace.LogDataEntity;
 import org.skywalking.apm.agent.core.context.trace.SpanLayer;
@@ -26,7 +24,6 @@ import org.skywalking.apm.agent.core.context.trace.TraceSegmentRef;
 import org.skywalking.apm.agent.core.context.util.KeyValuePair;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.skywalking.apm.agent.test.helper.FieldSetter;
 import org.skywalking.apm.agent.test.helper.SegmentHelper;
 import org.skywalking.apm.agent.test.helper.SegmentRefHelper;
 import org.skywalking.apm.agent.test.helper.SpanHelper;
@@ -34,7 +31,6 @@ import org.skywalking.apm.agent.test.tools.AgentServiceRule;
 import org.skywalking.apm.agent.test.tools.SegmentStorage;
 import org.skywalking.apm.agent.test.tools.SegmentStoragePoint;
 import org.skywalking.apm.agent.test.tools.TracingSegmentRunner;
-import org.skywalking.apm.plugin.dubbox.BugFixActive;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
@@ -44,7 +40,6 @@ import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
-@PrepareForTest({RpcContext.class, BugFixActive.class})
 public class DubboInterceptorTest {
 
     @SegmentStoragePoint
@@ -58,7 +53,6 @@ public class DubboInterceptorTest {
 
     private DubboInterceptor dubboInterceptor;
 
-    private RequestParamForTestBelow283 testParam;
     @Mock
     private RpcContext rpcContext;
     @Mock
@@ -76,39 +70,20 @@ public class DubboInterceptorTest {
     @Before
     public void setUp() throws Exception {
         dubboInterceptor = new DubboInterceptor();
-        testParam = new RequestParamForTestBelow283();
 
         PowerMockito.mockStatic(RpcContext.class);
 
         when(invoker.getUrl()).thenReturn(URL.valueOf("dubbo://127.0.0.1:20880/org.skywalking.apm.test.TestDubboService"));
         when(invocation.getMethodName()).thenReturn("test");
         when(invocation.getParameterTypes()).thenReturn(new Class[] {String.class});
-        when(invocation.getArguments()).thenReturn(new Object[] {testParam});
+        when(invocation.getArguments()).thenReturn(new Object[] {"abc"});
         PowerMockito.when(RpcContext.getContext()).thenReturn(rpcContext);
         when(rpcContext.isConsumerSide()).thenReturn(true);
         allArguments = new Object[] {invoker, invocation};
         argumentTypes = new Class[] {invoker.getClass(), invocation.getClass()};
         Config.Agent.APPLICATION_CODE = "DubboTestCases-APP";
-        FieldSetter.setStaticValue(BugFixActive.class, "ACTIVE", false);
     }
 
-    @Test
-    public void testConsumerBelow283() throws Throwable {
-        BugFixActive.active();
-
-        dubboInterceptor.beforeMethod(enhancedInstance, null, allArguments, argumentTypes, methodInterceptResult);
-        dubboInterceptor.afterMethod(enhancedInstance, null, allArguments, argumentTypes, result);
-
-        assertThat(segmentStorage.getTraceSegments().size(), is(1));
-        TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
-
-        assertThat(SegmentHelper.getSpans(traceSegment).size(), is(1));
-        assertConsumerSpan(SegmentHelper.getSpans(traceSegment).get(0));
-
-        ContextCarrier contextCarrier = new ContextCarrier();
-        contextCarrier.deserialize(testParam.getTraceContext());
-        assertTrue(contextCarrier.isValid());
-    }
 
     @Test
     public void testConsumerWithAttachment() throws Throwable {
@@ -147,25 +122,13 @@ public class DubboInterceptorTest {
     @Test
     public void testProviderWithAttachment() throws Throwable {
         when(rpcContext.isConsumerSide()).thenReturn(false);
-        when(rpcContext.getAttachment(Config.Plugin.Propagation.HEADER_NAME)).thenReturn("#AQA*#AQA*4WcWe0tQNQA*|3|1|1|#192.168.1.8 :18002|#/portal/|#/testEntrySpan|#AQA*#AQA*Et0We0tQNQA*");
+        when(rpcContext.getAttachment("sw3")).thenReturn("1.323.4433|3|1|1|#192.168.1.8 :18002|#/portal/|#/testEntrySpan|#AQA*#AQA*Et0We0tQNQA*");
 
         dubboInterceptor.beforeMethod(enhancedInstance, null, allArguments, argumentTypes, methodInterceptResult);
         dubboInterceptor.afterMethod(enhancedInstance, null, allArguments, argumentTypes, result);
         assertProvider();
     }
 
-    @Test
-    public void testProviderBelow283() throws Throwable {
-        when(rpcContext.isConsumerSide()).thenReturn(false);
-        FieldSetter.setStaticValue(BugFixActive.class, "ACTIVE", true);
-
-        testParam.setTraceContext("#AQA*#AQA*4WcWe0tQNQA*|3|1|1|#192.168.1.8 :18002|#/portal/|#/testEntrySpan|#AQA*#AQA*Et0We0tQNQA*");
-
-        dubboInterceptor.beforeMethod(enhancedInstance, null, allArguments, argumentTypes, methodInterceptResult);
-        dubboInterceptor.afterMethod(enhancedInstance, null, allArguments, argumentTypes, result);
-
-        assertProvider();
-    }
 
     private void assertConsumerTraceSegmentInErrorCase(
         TraceSegment traceSegment) {

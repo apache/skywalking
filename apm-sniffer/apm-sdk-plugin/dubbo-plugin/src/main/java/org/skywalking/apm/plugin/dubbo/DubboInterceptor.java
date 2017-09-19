@@ -50,16 +50,16 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
             span = ContextManager.createExitSpan(generateOperationName(requestURL, invocation), contextCarrier, host + ":" + port);
             //invocation.getAttachments().put("contextData", contextDataStr);
             //@see https://github.com/alibaba/dubbo/blob/dubbo-2.5.3/dubbo-rpc/dubbo-rpc-api/src/main/java/com/alibaba/dubbo/rpc/RpcInvocation.java#L154-L161
-            CarrierItem items = contextCarrier.items();
-            while (items.hasNext()) {
-                CarrierItem next = items.next();
+            CarrierItem next = contextCarrier.items();
+            while (next.hasNext()) {
+                next = next.next();
                 rpcContext.getAttachments().put(next.getHeadKey(), next.getHeadValue());
             }
         } else {
             ContextCarrier contextCarrier = new ContextCarrier();
-            CarrierItem items = contextCarrier.items();
-            while (items.hasNext()) {
-                CarrierItem next = items.next();
+            CarrierItem next = contextCarrier.items();
+            while (next.hasNext()) {
+                next = next.next();
                 next.setHeadValue(rpcContext.getAttachment(next.getHeadKey()));
             }
 

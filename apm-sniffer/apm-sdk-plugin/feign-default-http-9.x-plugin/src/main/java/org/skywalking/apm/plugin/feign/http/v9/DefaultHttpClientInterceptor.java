@@ -61,9 +61,9 @@ public class DefaultHttpClientInterceptor implements InstanceMethodsAroundInterc
 
         headersField.setAccessible(true);
         Map<String, Collection<String>> headers = new LinkedHashMap<String, Collection<String>>();
-        CarrierItem items = contextCarrier.items();
-        while (items.hasNext()) {
-            CarrierItem next = items.next();
+        CarrierItem next = contextCarrier.items();
+        while (next.hasNext()) {
+            next = next.next();
             List<String> contextCollection = new LinkedList<String>();
             contextCollection.add(next.getHeadValue());
             headers.put(next.getHeadKey(), contextCollection);

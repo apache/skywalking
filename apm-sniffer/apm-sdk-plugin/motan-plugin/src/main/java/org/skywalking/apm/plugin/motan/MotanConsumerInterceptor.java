@@ -42,9 +42,9 @@ public class MotanConsumerInterceptor implements InstanceConstructorInterceptor,
             span.setComponent(ComponentsDefine.MOTAN);
             Tags.URL.set(span, url.getIdentity());
             SpanLayer.asRPCFramework(span);
-            CarrierItem items = contextCarrier.items();
-            while (items.hasNext()) {
-                CarrierItem next = items.next();
+            CarrierItem next = contextCarrier.items();
+            while (next.hasNext()) {
+                next = next.next();
                 request.setAttachment(next.getHeadKey(), next.getHeadValue());
             }
         }

@@ -23,9 +23,9 @@ public class ResinV4Interceptor implements InstanceMethodsAroundInterceptor {
         Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         CauchoRequest request = (CauchoRequest)allArguments[0];
         ContextCarrier contextCarrier = new ContextCarrier();
-        CarrierItem items = contextCarrier.items();
-        while (items.hasNext()) {
-            CarrierItem next = items.next();
+        CarrierItem next = contextCarrier.items();
+        while (next.hasNext()) {
+            next = next.next();
             next.setHeadValue(request.getHeader(next.getHeadKey()));
         }
         AbstractSpan span = ContextManager.createEntrySpan(request.getPageURI(), contextCarrier);

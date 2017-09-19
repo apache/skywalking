@@ -10,24 +10,31 @@ public class ID {
     private long part2;
     private long part3;
     private String encoding;
+    private boolean isValid;
 
     public ID(long part1, long part2, long part3) {
         this.part1 = part1;
         this.part2 = part2;
         this.part3 = part3;
         this.encoding = null;
+        this.isValid = true;
     }
 
     public ID(String encodingString) {
-        String[] idParts = encodingString.split(".", 3);
-        int index = 0;
+        String[] idParts = encodingString.split("\\.", 3);
+        this.isValid = true;
         for (int part = 0; part < 3; part++) {
-            if (part == 0) {
-                part1 = Long.parseLong(idParts[part]);
-            } else if (part == 1) {
-                part2 = Long.parseLong(idParts[part]);
-            } else {
-                part3 = Long.parseLong(idParts[part]);
+            try {
+                if (part == 0) {
+                    part1 = Long.parseLong(idParts[part]);
+                } else if (part == 1) {
+                    part2 = Long.parseLong(idParts[part]);
+                } else {
+                    part3 = Long.parseLong(idParts[part]);
+                }
+            } catch (NumberFormatException e) {
+                this.isValid = false;
+                break;
             }
 
         }
@@ -64,6 +71,10 @@ public class ID {
         result = 31 * result + (int)(part2 ^ (part2 >>> 32));
         result = 31 * result + (int)(part3 ^ (part3 >>> 32));
         return result;
+    }
+
+    public boolean isValid() {
+        return isValid;
     }
 
     public UniqueId transform() {

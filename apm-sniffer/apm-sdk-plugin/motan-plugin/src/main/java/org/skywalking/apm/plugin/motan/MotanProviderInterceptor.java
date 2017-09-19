@@ -28,9 +28,9 @@ public class MotanProviderInterceptor implements InstanceMethodsAroundIntercepto
         Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         Request request = (Request)allArguments[0];
         ContextCarrier contextCarrier = new ContextCarrier();
-        CarrierItem items = contextCarrier.items();
-        while (items.hasNext()) {
-            CarrierItem next = items.next();
+        CarrierItem next = contextCarrier.items();
+        while (next.hasNext()) {
+            next = next.next();
             next.setHeadValue(request.getAttachments().get(next.getHeadKey()));
         }
 

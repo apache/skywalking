@@ -38,9 +38,9 @@ public class TomcatInvokeInterceptor implements InstanceMethodsAroundInterceptor
         HttpServletRequest request = (HttpServletRequest)allArguments[0];
         ContextCarrier contextCarrier = new ContextCarrier();
 
-        CarrierItem items = contextCarrier.items();
-        while (items.hasNext()) {
-            CarrierItem next = items.next();
+        CarrierItem next = contextCarrier.items();
+        while (next.hasNext()) {
+            next = next.next();
             next.setHeadValue(request.getHeader(next.getHeadKey()));
         }
 
