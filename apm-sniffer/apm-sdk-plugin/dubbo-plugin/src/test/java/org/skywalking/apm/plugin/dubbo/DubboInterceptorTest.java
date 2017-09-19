@@ -13,9 +13,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 import org.skywalking.apm.agent.core.conf.Config;
+import org.skywalking.apm.agent.core.context.SW3CarrierItem;
 import org.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.skywalking.apm.agent.core.context.trace.LogDataEntity;
 import org.skywalking.apm.agent.core.context.trace.SpanLayer;
@@ -40,6 +42,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
+@PrepareForTest({RpcContext.class})
 public class DubboInterceptorTest {
 
     @SegmentStoragePoint
@@ -122,7 +125,7 @@ public class DubboInterceptorTest {
     @Test
     public void testProviderWithAttachment() throws Throwable {
         when(rpcContext.isConsumerSide()).thenReturn(false);
-        when(rpcContext.getAttachment("sw3")).thenReturn("1.323.4433|3|1|1|#192.168.1.8 :18002|#/portal/|#/testEntrySpan|#AQA*#AQA*Et0We0tQNQA*");
+        when(rpcContext.getAttachment(SW3CarrierItem.HEADER_NAME)).thenReturn("1.323.4433|3|1|1|#192.168.1.8 :18002|#/portal/|#/testEntrySpan|#AQA*#AQA*Et0We0tQNQA*");
 
         dubboInterceptor.beforeMethod(enhancedInstance, null, allArguments, argumentTypes, methodInterceptResult);
         dubboInterceptor.afterMethod(enhancedInstance, null, allArguments, argumentTypes, result);
@@ -157,7 +160,7 @@ public class DubboInterceptorTest {
     private void assertTraceSegmentRef(TraceSegmentRef actual) {
         assertThat(SegmentRefHelper.getSpanId(actual), is(3));
         assertThat(SegmentRefHelper.getEntryApplicationInstanceId(actual), is(1));
-        assertThat(SegmentRefHelper.getTraceSegmentId(actual).toString(), is("1.1.15006458883500001"));
+        assertThat(SegmentRefHelper.getTraceSegmentId(actual).toString(), is("1.323.4433"));
     }
 
     private void assertProviderSpan(AbstractTracingSpan span) {
