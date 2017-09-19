@@ -29,7 +29,7 @@ public class MotanProviderInterceptor implements InstanceMethodsAroundIntercepto
         Request request = (Request)allArguments[0];
         ContextCarrier contextCarrier = new ContextCarrier();
         CarrierItem items = contextCarrier.items();
-        while(items.hasNext()){
+        while (items.hasNext()) {
             CarrierItem next = items.next();
             next.setHeadValue(request.getAttachments().get(next.getHeadKey()));
         }
