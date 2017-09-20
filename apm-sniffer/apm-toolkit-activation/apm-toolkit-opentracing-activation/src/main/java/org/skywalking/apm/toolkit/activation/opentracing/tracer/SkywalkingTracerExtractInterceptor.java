@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.Map;
 import org.skywalking.apm.agent.core.context.CarrierItem;
 import org.skywalking.apm.agent.core.context.ContextCarrier;
+import org.skywalking.apm.agent.core.context.ContextManager;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
@@ -38,8 +39,8 @@ public class SkywalkingTracerExtractInterceptor implements InstanceMethodsAround
                         break;
                     }
                 }
-
             }
+            ContextManager.extract(contextCarrier);
         }
         return new TextMapContext();
     }
