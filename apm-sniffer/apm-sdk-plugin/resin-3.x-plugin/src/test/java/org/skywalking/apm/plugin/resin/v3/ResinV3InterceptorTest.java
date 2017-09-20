@@ -10,7 +10,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
-import org.skywalking.apm.agent.core.conf.Config;
+import org.skywalking.apm.agent.core.context.SW3CarrierItem;
 import org.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.skywalking.apm.agent.core.context.trace.LogDataEntity;
 import org.skywalking.apm.agent.core.context.trace.SpanLayer;
@@ -90,7 +90,7 @@ public class ResinV3InterceptorTest {
 
     @Test
     public void testWithSerializedContextData() throws Throwable {
-        when(request.getHeader(Config.Plugin.Propagation.HEADER_NAME)).thenReturn("#AQA*#AQA*4WcWe0tQNQA*|3|1|1|#192.168.1.8:18002|#/portal/|#/testEntrySpan|#AQA*#AQA*Et0We0tQNQA*");
+        when(request.getHeader(SW3CarrierItem.HEADER_NAME)).thenReturn("1.333.2345|3|1|1|#192.168.1.8:18002|#/portal/|#/testEntrySpan|#AQA*#AQA*Et0We0tQNQA*");
 
         interceptor.beforeMethod(enhancedInstance, null, arguments, argumentType, methodInterceptResult);
         interceptor.afterMethod(enhancedInstance, null, arguments, argumentType, null);
@@ -122,7 +122,7 @@ public class ResinV3InterceptorTest {
     private void assertTraceSegmentRef(TraceSegmentRef ref) {
         assertThat(SegmentRefHelper.getSpanId(ref), is(3));
         assertThat(SegmentRefHelper.getEntryApplicationInstanceId(ref), is(1));
-        assertThat(SegmentRefHelper.getTraceSegmentId(ref).toString(), is("1.1.15006458883500001"));
+        assertThat(SegmentRefHelper.getTraceSegmentId(ref).toString(), is("1.333.2345"));
     }
 
     private void assertHttpSpan(AbstractTracingSpan span) {
