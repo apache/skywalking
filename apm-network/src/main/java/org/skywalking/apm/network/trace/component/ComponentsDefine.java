@@ -33,7 +33,7 @@ public class ComponentsDefine {
 
     public static final OfficialComponent SPRING_REST_TEMPLATE = new OfficialComponent(13, "SpringRestTemplate");
 
-    public static final OfficialComponent SPRING_MVC_ANNOTATION = new OfficialComponent(14, "SpringMVCAnnotation");
+    public static final OfficialComponent SPRING_MVC_ANNOTATION = new OfficialComponent(14, "SpringMVC");
 
     public static final OfficialComponent STRUTS2 = new OfficialComponent(14, "Struts2");
 
