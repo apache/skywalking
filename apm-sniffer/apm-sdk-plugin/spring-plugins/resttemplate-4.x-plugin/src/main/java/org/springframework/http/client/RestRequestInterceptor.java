@@ -1,7 +1,8 @@
 package org.springframework.http.client;
 
 import java.lang.reflect.Method;
-import org.skywalking.apm.agent.core.conf.Config;
+import org.skywalking.apm.agent.core.context.CarrierItem;
+import org.skywalking.apm.agent.core.context.ContextCarrier;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
@@ -19,7 +20,13 @@ public class RestRequestInterceptor implements InstanceMethodsAroundInterceptor 
         Object ret) throws Throwable {
         AbstractAsyncClientHttpRequest clientHttpRequest = (AbstractAsyncClientHttpRequest)ret;
         if (ret != null) {
-            clientHttpRequest.getHeaders().set(Config.Plugin.Propagation.HEADER_NAME, String.valueOf(((Object[])objInst.getSkyWalkingDynamicField())[1]));
+            Object[] cacheValues = (Object[])objInst.getSkyWalkingDynamicField();
+            ContextCarrier contextCarrier = (ContextCarrier)cacheValues[1];
+            CarrierItem next = contextCarrier.items();
+            while (next.hasNext()) {
+                next = next.next();
+                clientHttpRequest.getHeaders().set(next.getHeadKey(), next.getHeadValue());
+            }
         }
         return ret;
     }

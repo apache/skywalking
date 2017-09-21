@@ -4,7 +4,7 @@ import com.weibo.api.motan.rpc.Request;
 import com.weibo.api.motan.rpc.Response;
 import com.weibo.api.motan.rpc.URL;
 import java.lang.reflect.Method;
-import org.skywalking.apm.agent.core.conf.Config;
+import org.skywalking.apm.agent.core.context.CarrierItem;
 import org.skywalking.apm.agent.core.context.ContextCarrier;
 import org.skywalking.apm.agent.core.context.ContextManager;
 import org.skywalking.apm.agent.core.context.tag.Tags;
@@ -42,7 +42,11 @@ public class MotanConsumerInterceptor implements InstanceConstructorInterceptor,
             span.setComponent(ComponentsDefine.MOTAN);
             Tags.URL.set(span, url.getIdentity());
             SpanLayer.asRPCFramework(span);
-            request.setAttachment(Config.Plugin.Propagation.HEADER_NAME, contextCarrier.serialize());
+            CarrierItem next = contextCarrier.items();
+            while (next.hasNext()) {
+                next = next.next();
+                request.setAttachment(next.getHeadKey(), next.getHeadValue());
+            }
         }
     }
 

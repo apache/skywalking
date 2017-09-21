@@ -59,23 +59,29 @@ public class ContextCarrier implements Serializable {
      */
     private DistributedTraceId primaryDistributedTraceId;
 
+    public CarrierItem items() {
+        SW3CarrierItem carrierItem = new SW3CarrierItem(this, null);
+        CarrierItemHead head = new CarrierItemHead(carrierItem);
+        return head;
+    }
+
     /**
      * Serialize this {@link ContextCarrier} to a {@link String},
      * with '|' split.
      *
      * @return the serialization string.
      */
-    public String serialize() {
+    String serialize() {
         if (this.isValid()) {
             return StringUtil.join('|',
-                this.getTraceSegmentId().toBase64(),
+                this.getTraceSegmentId().encode(),
                 this.getSpanId() + "",
                 this.getParentApplicationInstanceId() + "",
                 this.getEntryApplicationInstanceId() + "",
                 this.getPeerHost(),
                 this.getEntryOperationName(),
                 this.getParentOperationName(),
-                this.getPrimaryDistributedTraceId().toBase64());
+                this.getPrimaryDistributedTraceId().encode());
         } else {
             return "";
         }
@@ -86,7 +92,7 @@ public class ContextCarrier implements Serializable {
      *
      * @param text carries {@link #traceSegmentId} and {@link #spanId}, with '|' split.
      */
-    public ContextCarrier deserialize(String text) {
+    ContextCarrier deserialize(String text) {
         if (text != null) {
             String[] parts = text.split("\\|", 8);
             if (parts.length == 8) {
@@ -114,6 +120,7 @@ public class ContextCarrier implements Serializable {
      */
     public boolean isValid() {
         return traceSegmentId != null
+            && traceSegmentId.isValid()
             && getSpanId() > -1
             && parentApplicationInstanceId != DictionaryUtil.nullValue()
             && entryApplicationInstanceId != DictionaryUtil.nullValue()

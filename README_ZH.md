@@ -18,7 +18,7 @@ Sky Walking | [Engligh](README.md)
   * [中间件，框架与类库支持列表](https://github.com/wu-sheng/sky-walking/wiki/3.2-supported-list).
 * 手动探针
   * [使用OpenTracing手动探针API](http://opentracing.io/documentation/pages/supported-tracers)
-  * 使用 **@Trace** 标注追踪业务方法
+  * 使用 [**@Trace**](https://github.com/wu-sheng/sky-walking/wiki/sky-walking-application-toolkit-trace-chn) 标注追踪业务方法
   * 将 traceId 集成到 log4j, log4j2 或 logback这些日志组件中
 * 纯Java后端Collector实现，提供RESTful和gRPC接口。兼容接受其他语言探针发送数据 
   * [如何将探针的Metric和Trace数据上传到Collector？]()

@@ -30,7 +30,7 @@ public class RestExecuteInterceptor implements InstanceMethodsAroundInterceptor 
         SpanLayer.asHttp(span);
         Object[] cacheValues = new Object[3];
         cacheValues[0] = requestURL;
-        cacheValues[1] = contextCarrier.serialize();
+        cacheValues[1] = contextCarrier;
         objInst.setSkyWalkingDynamicField(cacheValues);
     }
 

@@ -4,7 +4,7 @@
     <parent>
         <artifactId>apm-sdk-plugin</artifactId>
         <groupId>org.skywalking</groupId>
-        <version>3.2-2017</version>
+        <version>3.2.1-2017</version>
     </parent>
 
     <artifactId>apm-mongodb-3.x-plugin</artifactId>

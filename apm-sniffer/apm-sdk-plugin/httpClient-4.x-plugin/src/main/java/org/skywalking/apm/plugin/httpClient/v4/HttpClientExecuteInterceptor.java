@@ -6,7 +6,7 @@ import java.net.URL;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.skywalking.apm.agent.core.conf.Config;
+import org.skywalking.apm.agent.core.context.CarrierItem;
 import org.skywalking.apm.agent.core.context.ContextCarrier;
 import org.skywalking.apm.agent.core.context.ContextManager;
 import org.skywalking.apm.agent.core.context.tag.Tags;
@@ -42,7 +42,11 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
         Tags.HTTP.METHOD.set(span, httpRequest.getRequestLine().getMethod());
         SpanLayer.asHttp(span);
 
-        httpRequest.setHeader(Config.Plugin.Propagation.HEADER_NAME, contextCarrier.serialize());
+        CarrierItem next = contextCarrier.items();
+        while (next.hasNext()) {
+            next = next.next();
+            httpRequest.setHeader(next.getHeadKey(), next.getHeadValue());
+        }
     }
 
     @Override public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
