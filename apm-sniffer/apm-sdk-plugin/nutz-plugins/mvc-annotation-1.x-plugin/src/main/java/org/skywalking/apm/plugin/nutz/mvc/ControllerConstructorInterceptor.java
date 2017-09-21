@@ -1,0 +1,32 @@
+package org.skywalking.apm.plugin.nutz.mvc;
+
+import org.nutz.mvc.annotation.At;
+import org.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
+import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
+
+/**
+ * The <code>ControllerConstructorInterceptor</code> intercepts the Controller's constructor, in order to acquire the
+ * mapping annotation, if exist.
+ *
+ * But, you can see we only use the first mapping value, <B>Why?</B>
+ *
+ * Right now, we intercept the controller by annotation as you known, so we CAN'T know which uri patten is actually
+ * matched. Even we know, that costs a lot.
+ *
+ * If we want to resolve that, we must intercept the Nutz MVC core codes, that is not a good choice for now.
+ *
+ * Comment by @wu-sheng
+ */
+public class ControllerConstructorInterceptor implements InstanceConstructorInterceptor {
+
+    @Override
+    public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
+        String basePath = "";
+        At basePathRequestMapping = objInst.getClass().getAnnotation(At.class);
+        if (basePathRequestMapping != null) {
+            basePath = basePathRequestMapping.value()[0];
+        }
+        PathMappingCache pathMappingCache = new PathMappingCache(basePath);
+        objInst.setSkyWalkingDynamicField(pathMappingCache);
+    }
+}
