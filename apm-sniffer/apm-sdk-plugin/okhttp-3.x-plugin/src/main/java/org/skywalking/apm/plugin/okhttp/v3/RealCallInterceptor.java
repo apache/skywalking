@@ -8,7 +8,7 @@ import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import org.skywalking.apm.agent.core.conf.Config;
+import org.skywalking.apm.agent.core.context.CarrierItem;
 import org.skywalking.apm.agent.core.context.ContextCarrier;
 import org.skywalking.apm.agent.core.context.ContextManager;
 import org.skywalking.apm.agent.core.context.tag.Tags;
@@ -44,7 +44,6 @@ public class RealCallInterceptor implements InstanceMethodsAroundInterceptor, In
      * port, kind, component, url from {@link okhttp3.Request}.
      * Through the reflection of the way, set the http header of context data into {@link okhttp3.Request#headers}.
      *
-     *
      * @param method
      * @param result change this result, if you want to truncate the method.
      * @throws Throwable
@@ -67,15 +66,19 @@ public class RealCallInterceptor implements InstanceMethodsAroundInterceptor, In
         modifiersField.setInt(headersField, headersField.getModifiers() & ~Modifier.FINAL);
 
         headersField.setAccessible(true);
-        Headers headers = request.headers().newBuilder().add(Config.Plugin.Propagation.HEADER_NAME, contextCarrier.serialize()).build();
-        headersField.set(request, headers);
+        Headers.Builder headerBuilder = request.headers().newBuilder();
+        CarrierItem next = contextCarrier.items();
+        while (next.hasNext()) {
+            next = next.next();
+            headerBuilder.add(next.getHeadKey(), next.getHeadValue());
+        }
+        headersField.set(request, headerBuilder.build());
     }
 
     /**
      * Get the status code from {@link Response}, when status code greater than 400, it means there was some errors in
      * the server.
      * Finish the {@link AbstractSpan}.
-     *
      *
      * @param method
      * @param ret the method's original return value.

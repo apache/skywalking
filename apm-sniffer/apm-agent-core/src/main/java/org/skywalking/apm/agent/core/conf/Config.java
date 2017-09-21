@@ -134,13 +134,5 @@ public class Config {
              */
             public static boolean TRACE_PARAM = false;
         }
-
-        public static class Propagation {
-
-            /**
-             * The header name of cross process propagation data.
-             */
-            public static String HEADER_NAME = "sw3";
-        }
     }
 }

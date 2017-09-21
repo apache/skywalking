@@ -1,24 +1,28 @@
 package org.skywalking.apm.toolkit.activation.opentracing;
 
 import io.opentracing.Tracer;
+import io.opentracing.propagation.Format;
+import io.opentracing.propagation.TextMap;
 import io.opentracing.tag.Tags;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
-import org.skywalking.apm.agent.core.context.ContextCarrier;
 import org.skywalking.apm.agent.core.context.ContextSnapshot;
+import org.skywalking.apm.agent.core.context.SW3CarrierItem;
+import org.skywalking.apm.agent.core.context.ids.ID;
 import org.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.skywalking.apm.agent.core.context.trace.TraceSegmentRef;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.skywalking.apm.agent.test.helper.SegmentHelper;
-import org.skywalking.apm.agent.test.helper.SegmentRefHelper;
 import org.skywalking.apm.agent.test.tools.AgentServiceRule;
 import org.skywalking.apm.agent.test.tools.SegmentStorage;
 import org.skywalking.apm.agent.test.tools.SegmentStoragePoint;
@@ -34,15 +38,15 @@ import org.skywalking.apm.toolkit.activation.opentracing.tracer.SkywalkingTracer
 import org.skywalking.apm.toolkit.opentracing.SkywalkingContinuation;
 import org.skywalking.apm.toolkit.opentracing.SkywalkingSpan;
 import org.skywalking.apm.toolkit.opentracing.SkywalkingSpanBuilder;
-import org.skywalking.apm.toolkit.opentracing.SkywalkingTracer;
+import org.skywalking.apm.toolkit.opentracing.TextMapContext;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.skywalking.apm.agent.test.tools.SegmentRefAssert.assertEntryApplicationInstanceId;
 import static org.skywalking.apm.agent.test.tools.SegmentRefAssert.assertPeerHost;
 import static org.skywalking.apm.agent.test.tools.SegmentRefAssert.assertSegmentId;
-import static org.skywalking.apm.agent.test.tools.SegmentRefAssert.assertEntryApplicationInstanceId;
 import static org.skywalking.apm.agent.test.tools.SegmentRefAssert.assertSpanId;
 import static org.skywalking.apm.agent.test.tools.SpanAssert.assertComponent;
 import static org.skywalking.apm.agent.test.tools.SpanAssert.assertLogSize;
@@ -170,14 +174,25 @@ public class SkywalkingSpanActivationTest {
             .withTag(Tags.PEER_HOST_IPV4.getKey(), "127.0.0.1").withTag(Tags.PEER_PORT.getKey(), 8080);
         startSpan();
 
-        String extractValue = (String)injectInterceptor.afterMethod(enhancedInstance, null,
-            null, null, null);
+        final Map<String, String> values = new HashMap<String, String>();
+        TextMap carrier = new TextMap() {
+            @Override public Iterator<Map.Entry<String, String>> iterator() {
+                return null;
+            }
 
-        ContextCarrier contextCarrier = new ContextCarrier().deserialize(extractValue);
-        assertTrue(contextCarrier.isValid());
-        assertThat(contextCarrier.getPeerHost(), is("#127.0.0.1:8080"));
-        assertThat(contextCarrier.getSpanId(), is(0));
-        assertThat(contextCarrier.getEntryOperationName(), is("#testOperationName"));
+            @Override public void put(String key, String value) {
+                values.put(key, value);
+            }
+
+        };
+
+        injectInterceptor.afterMethod(enhancedInstance, null,
+            new Object[] {new TextMapContext(), Format.Builtin.TEXT_MAP, carrier}, null, null);
+
+        String[] parts = values.get(SW3CarrierItem.HEADER_NAME).split("\\|", 8);
+        Assert.assertEquals("0", parts[1]);
+        Assert.assertEquals("#127.0.0.1:8080", parts[4]);
+        Assert.assertTrue(new ID(parts[7]).isValid());
         stopSpan();
     }
 
@@ -186,15 +201,29 @@ public class SkywalkingSpanActivationTest {
         spanBuilder.withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT)
             .withTag(Tags.PEER_HOST_IPV4.getKey(), "127.0.0.1").withTag(Tags.PEER_PORT.getKey(), 8080);
         startSpan();
+        final Map<String, String> values = new HashMap<String, String>();
+        TextMap carrier = new TextMap() {
+            @Override public Iterator<Map.Entry<String, String>> iterator() {
+                return values.entrySet().iterator();
+            }
+
+            @Override public void put(String key, String value) {
+                values.put(key, value);
+            }
+
+        };
+
+        values.put(SW3CarrierItem.HEADER_NAME, "1.343.222|3|1|1|#127.0.0.1:8080|#/portal/|#/testEntrySpan|434.12.12123");
+
         extractInterceptor.afterMethod(enhancedInstance, null,
-            new Object[] {"#AQA*#AQA*4WcWe0tQNQA*|3|1|1|#127.0.0.1:8080|#/portal/|#/testEntrySpan|#AQA*#AQA*Et0We0tQNQA*"}, new Class[] {String.class}, null);
+            new Object[] {Format.Builtin.TEXT_MAP, carrier}, new Class[] {}, null);
         stopSpan();
 
         TraceSegment tracingSegment = assertTraceSemgnets();
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(tracingSegment);
         assertThat(tracingSegment.getRefs().size(), is(1));
         TraceSegmentRef ref = tracingSegment.getRefs().get(0);
-        assertSegmentId(ref, "1.1.15006458883500001");
+        assertSegmentId(ref, "1.343.222");
         assertSpanId(ref, 3);
         assertEntryApplicationInstanceId(ref, 1);
         assertPeerHost(ref, "127.0.0.1:8080");
@@ -207,8 +236,23 @@ public class SkywalkingSpanActivationTest {
         spanBuilder.withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT)
             .withTag(Tags.PEER_HOST_IPV4.getKey(), "127.0.0.1").withTag(Tags.PEER_PORT.getKey(), 8080);
         startSpan();
+
+        final Map<String, String> values = new HashMap<String, String>();
+        TextMap carrier = new TextMap() {
+            @Override public Iterator<Map.Entry<String, String>> iterator() {
+                return values.entrySet().iterator();
+            }
+
+            @Override public void put(String key, String value) {
+                values.put(key, value);
+            }
+
+        };
+
+        values.put(SW3CarrierItem.HEADER_NAME, "aaaaaaaa|3|#192.168.1.8:18002|#/portal/|#/testEntrySpan|1.234.444");
+
         extractInterceptor.afterMethod(enhancedInstance, null,
-            new Object[] {"#AQA*#AQA*4WcWe0tQNQA*|3|#192.168.1.8:18002|#/portal/|#/testEntrySpan|#AQA*#AQA*Et0We0tQNQA*"}, new Class[] {String.class}, null);
+            new Object[] {Format.Builtin.TEXT_MAP, carrier}, new Class[] {}, null);
         stopSpan();
 
         TraceSegment tracingSegment = assertTraceSemgnets();

@@ -3,7 +3,7 @@ package org.skywalking.apm.plugin.motan;
 import com.weibo.api.motan.rpc.Request;
 import com.weibo.api.motan.rpc.Response;
 import java.lang.reflect.Method;
-import org.skywalking.apm.agent.core.conf.Config;
+import org.skywalking.apm.agent.core.context.CarrierItem;
 import org.skywalking.apm.agent.core.context.ContextCarrier;
 import org.skywalking.apm.agent.core.context.ContextManager;
 import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
@@ -27,8 +27,13 @@ public class MotanProviderInterceptor implements InstanceMethodsAroundIntercepto
     @Override public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         Request request = (Request)allArguments[0];
-        String serializedContextData = request.getAttachments().get(Config.Plugin.Propagation.HEADER_NAME);
-        ContextCarrier contextCarrier = new ContextCarrier().deserialize(serializedContextData);
+        ContextCarrier contextCarrier = new ContextCarrier();
+        CarrierItem next = contextCarrier.items();
+        while (next.hasNext()) {
+            next = next.next();
+            next.setHeadValue(request.getAttachments().get(next.getHeadKey()));
+        }
+
         AbstractSpan span = ContextManager.createEntrySpan(generateViewPoint(request), contextCarrier);
         SpanLayer.asRPCFramework(span);
         span.setComponent(ComponentsDefine.MOTAN);

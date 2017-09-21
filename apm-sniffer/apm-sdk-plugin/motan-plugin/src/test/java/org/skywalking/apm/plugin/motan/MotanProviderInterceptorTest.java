@@ -13,7 +13,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
-import org.skywalking.apm.agent.core.conf.Config;
+import org.skywalking.apm.agent.core.context.SW3CarrierItem;
 import org.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.skywalking.apm.agent.core.context.trace.LogDataEntity;
 import org.skywalking.apm.agent.core.context.trace.SpanLayer;
@@ -91,7 +91,7 @@ public class MotanProviderInterceptorTest {
     @Test
     public void testInvokerWithRefSegment() throws Throwable {
         HashMap attachments = new HashMap();
-        attachments.put(Config.Plugin.Propagation.HEADER_NAME, "#AQA*#AQA*4WcWe0tQNQA*|3|1|1|#192.168.1.8:18002|#/portal/|#/testEntrySpan|#AQA*#AQA*Et0We0tQNQA*");
+        attachments.put(SW3CarrierItem.HEADER_NAME, "1.123.456|3|1|1|#192.168.1.8:18002|#/portal/|#/testEntrySpan|#AQA*#AQA*Et0We0tQNQA*");
         when(request.getAttachments()).thenReturn(attachments);
 
         invokeInterceptor.beforeMethod(enhancedInstance, null, arguments, argumentType, null);
@@ -135,7 +135,7 @@ public class MotanProviderInterceptorTest {
     }
 
     private void assertRefSegment(TraceSegmentRef primaryRef) {
-        assertThat(SegmentRefHelper.getTraceSegmentId(primaryRef).toString(), is("1.1.15006458883500001"));
+        assertThat(SegmentRefHelper.getTraceSegmentId(primaryRef).toString(), is("1.123.456"));
         assertThat(SegmentRefHelper.getSpanId(primaryRef), is(3));
         assertThat(SegmentRefHelper.getEntryApplicationInstanceId(primaryRef), is(1));
         assertThat(SegmentRefHelper.getPeerHost(primaryRef), is("192.168.1.8:18002"));
