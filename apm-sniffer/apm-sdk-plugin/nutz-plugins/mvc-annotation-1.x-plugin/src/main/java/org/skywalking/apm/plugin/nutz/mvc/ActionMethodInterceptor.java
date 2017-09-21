@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.nutz.mvc.Mvcs;
 import org.nutz.mvc.annotation.At;
-import org.skywalking.apm.agent.core.conf.Config;
+import org.skywalking.apm.agent.core.context.CarrierItem;
 import org.skywalking.apm.agent.core.context.ContextCarrier;
 import org.skywalking.apm.agent.core.context.ContextManager;
 import org.skywalking.apm.agent.core.context.tag.Tags;
@@ -19,11 +19,12 @@ import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptR
 import org.skywalking.apm.network.trace.component.ComponentsDefine;
 
 /**
- * The <code>ControllerServiceMethodInterceptor</code> only use the first mapping value.
+ * The <code>ActionMethodInterceptor</code> only use the first mapping value.
  *
- * @See {@link ControllerConstructorInterceptor} to explain why we are doing this.
+ * @See {@link ActionConstructorInterceptor} to explain why we are doing this.
+ * @author wendal
  */
-public class ControllerServiceMethodInterceptor implements InstanceMethodsAroundInterceptor {
+public class ActionMethodInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
@@ -41,8 +42,12 @@ public class ControllerServiceMethodInterceptor implements InstanceMethodsAround
         }
 
         HttpServletRequest request = Mvcs.getReq();
-        String tracingHeaderValue = request.getHeader(Config.Plugin.Propagation.HEADER_NAME);
-        ContextCarrier contextCarrier = new ContextCarrier().deserialize(tracingHeaderValue);
+        ContextCarrier contextCarrier = new ContextCarrier();
+        CarrierItem next = contextCarrier.items();
+        while (next.hasNext()) {
+            next = next.next();
+            next.setHeadValue(request.getHeader(next.getHeadKey()));
+        }
         AbstractSpan span = ContextManager.createEntrySpan(requestURL, contextCarrier);
         Tags.URL.set(span, request.getRequestURL().toString());
         Tags.HTTP.METHOD.set(span, request.getMethod());

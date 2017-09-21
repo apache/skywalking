@@ -6,7 +6,7 @@ import java.net.URI;
 import org.nutz.http.Request;
 import org.nutz.http.Request.METHOD;
 import org.nutz.http.Response;
-import org.skywalking.apm.agent.core.conf.Config;
+import org.skywalking.apm.agent.core.context.CarrierItem;
 import org.skywalking.apm.agent.core.context.ContextCarrier;
 import org.skywalking.apm.agent.core.context.ContextManager;
 import org.skywalking.apm.agent.core.context.tag.Tags;
@@ -34,7 +34,11 @@ public class SenderSendInterceptor implements InstanceMethodsAroundInterceptor {
         Tags.HTTP.METHOD.set(span, httpMethod.toString());
         SpanLayer.asHttp(span);
         
-        req.getHeader().set(Config.Plugin.Propagation.HEADER_NAME, contextCarrier.serialize());
+        CarrierItem next = contextCarrier.items();
+        while (next.hasNext()) {
+            next = next.next();
+            req.getHeader().set(next.getHeadKey(), next.getHeadValue());
+        }
     }
 
     @Override
