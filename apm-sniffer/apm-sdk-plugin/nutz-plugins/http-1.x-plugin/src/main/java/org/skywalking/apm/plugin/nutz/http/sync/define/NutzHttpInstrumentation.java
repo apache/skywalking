@@ -12,41 +12,60 @@ import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 
 /**
- * {@link NutzHttpInstrumentation} enhance the <code>doExecute</code> method,<code>handleResponse</code> method and
- * <code>handleResponse</code> method of <code>org.springframework.web.client.RestTemplate</code> by
- * <code>org.skywalking.apm.plugin.spring.resttemplate.sync.RestExecuteInterceptor</code>,
- * <code>org.skywalking.apm.plugin.spring.resttemplate.sync.RestResponseInterceptor</code> and
- * <code>org.skywalking.apm.plugin.spring.resttemplate.sync.RestRequestInterceptor</code>.
- *
- * <code>org.skywalking.apm.plugin.spring.resttemplate.sync.RestResponseInterceptor</code> set context to  header for
- * propagate trace context after execute <code>createRequest</code>.
+ * {@link NutzHttpInstrumentation} enhance the <code>send</code>
+ * method,<code>Constructor</code> of <code>org.nutz.http.Sender</code> by
+ * <code>org.skywalking.apm.plugin.nutz.http.sync.SenderConstructorInterceptor</code>, and
+ * <code>org.skywalking.apm.plugin.nutz.http.sync.SenderSendInterceptor</code>
+ * set context to header for propagate trace context around execute
+ * <code>send</code>.
  *
  * @author wendal
  */
 public class NutzHttpInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String ENHANCE_CLASS = "org.nutz.http.Sender";
-    private static final String DO_EXECUTE_METHOD_NAME = "send";
-    private static final String DO_EXECUTE_INTERCEPTOR = "org.skywalking.apm.plugin.nutz.http.sync.SenderSendInterceptor";
+    private static final String DO_SEND_METHOD_NAME = "send";
+    private static final String DO_SEND_INTERCEPTOR = "org.skywalking.apm.plugin.nutz.http.sync.SenderSendInterceptor";
+    private static final String DO_CONSTRUCTOR_INTERCEPTOR = "org.skywalking.apm.plugin.nutz.http.sync.SenderConstructorInterceptor";
 
     @Override
     protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return new ConstructorInterceptPoint[0];
+        return new ConstructorInterceptPoint[]{
+            new ConstructorInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                    return new ElementMatcher<MethodDescription>() {
+                        @Override
+                        public boolean matches(MethodDescription target) {
+                            return target.isConstructor() && target.getParameters().size() > 0;
+                        }
+                    };
+                }
+                
+                @Override
+                public String getConstructorInterceptor() {
+                    return DO_CONSTRUCTOR_INTERCEPTOR;
+                }
+            }
+        };
     }
 
     @Override
     protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[] {
+        return new InstanceMethodsInterceptPoint[]{
             new InstanceMethodsInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(DO_EXECUTE_METHOD_NAME);
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named(DO_SEND_METHOD_NAME);
                 }
-
-                @Override public String getMethodsInterceptor() {
-                    return DO_EXECUTE_INTERCEPTOR;
+                
+                @Override
+                public String getMethodsInterceptor() {
+                    return DO_SEND_INTERCEPTOR;
                 }
-
-                @Override public boolean isOverrideArgs() {
+                
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             }
