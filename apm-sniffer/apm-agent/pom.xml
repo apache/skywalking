@@ -102,6 +102,11 @@
         </dependency>
         <dependency>
             <groupId>org.skywalking</groupId>
+            <artifactId>apm-struts2-2.x-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
             <artifactId>apm-nutz-mvc-annotation-1.x-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
