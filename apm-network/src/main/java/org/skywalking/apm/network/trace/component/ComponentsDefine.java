@@ -37,7 +37,7 @@ public class ComponentsDefine {
 
     public static final OfficialComponent STRUTS2 = new OfficialComponent(15, "Struts2");
 
-    public static final OfficialComponent NUTZ_MVC_ANNOTATION = new OfficialComponent(16, "NutzMVCAnnotation");
+    public static final OfficialComponent NUTZ_MVC_ANNOTATION = new OfficialComponent(16, "NutzMVC");
 
     public static final OfficialComponent NUTZ_HTTP = new OfficialComponent(17, "NutzHttp");
 
