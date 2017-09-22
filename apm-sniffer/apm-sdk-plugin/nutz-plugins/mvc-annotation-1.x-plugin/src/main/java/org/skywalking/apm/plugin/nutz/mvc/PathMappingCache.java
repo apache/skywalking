@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * The <code>PathMappingCache</code> represents a field
  *
  *
- * @author wusheng
+ * @author wendal
  */
 public class PathMappingCache {
     private String classPath = "";
