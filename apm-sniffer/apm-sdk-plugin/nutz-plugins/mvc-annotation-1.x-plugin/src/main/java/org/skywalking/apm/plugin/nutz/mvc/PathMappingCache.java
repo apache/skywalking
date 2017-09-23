@@ -4,8 +4,9 @@ import java.lang.reflect.Method;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * The <code>PathMappingCache</code> represents a field
- *
+ * The <code>PathMappingCache</code> represents a mapping cache.
+ * key: {@link Method}
+ * value: the url pattern
  *
  * @author wendal
  */
