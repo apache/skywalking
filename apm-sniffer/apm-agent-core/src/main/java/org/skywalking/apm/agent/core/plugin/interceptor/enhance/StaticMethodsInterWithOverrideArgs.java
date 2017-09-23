@@ -47,7 +47,7 @@ public class StaticMethodsInterWithOverrideArgs {
      */
     @RuntimeType
     public Object intercept(@Origin Class<?> clazz, @AllArguments Object[] allArguments, @Origin Method method,
-        @Morph(defaultMethod = true) OverrideCallable zuper) throws Throwable {
+        @Morph OverrideCallable zuper) throws Throwable {
         StaticMethodsAroundInterceptor interceptor = InterceptorInstanceLoader
             .load(staticMethodsAroundInterceptorClassName, clazz.getClassLoader());
 
