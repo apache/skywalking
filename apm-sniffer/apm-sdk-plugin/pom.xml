@@ -24,6 +24,7 @@
         <module>resin-4.x-plugin</module>
         <module>spring-plugins</module>
         <module>struts2-2.x-plugin</module>
+        <module>nutz-plugins</module>
     </modules>
     <packaging>pom</packaging>
 

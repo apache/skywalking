@@ -1,0 +1,30 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>nutz-plugins</artifactId>
+        <groupId>org.skywalking</groupId>
+        <version>3.2.1-2017</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>apm-nutz-mvc-annotation-1.x-plugin</artifactId>
+    <packaging>jar</packaging>
+
+    <name>mvc-annotation-1.x-plugin</name>
+    <url>http://maven.apache.org</url>
+
+    <dependencies>
+    <dependency>
+    	<groupId>org.nutz</groupId>
+    	<artifactId>nutz</artifactId>
+    	<version>1.r.62</version>
+    	<scope>provided</scope>
+    </dependency>
+    <dependency>
+    	<groupId>javax.servlet</groupId>
+    	<artifactId>javax.servlet-api</artifactId>
+    	<version>3.1.0</version>
+    	<scope>provided</scope>
+    </dependency>
+    </dependencies>
+</project>
