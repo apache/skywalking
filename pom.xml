@@ -6,7 +6,7 @@
 
     <groupId>org.skywalking</groupId>
     <artifactId>apm-ui</artifactId>
-    <version>3.2-2017</version>
+    <version>3.2.1-2017</version>
     <packaging>jar</packaging>
 
     <properties>
@@ -281,6 +281,7 @@
                         <exclude>config/**</exclude>
                         <exclude>*.properties</exclude>
                         <exclude>*.config</exclude>
+                        <exclude>*.xml</exclude>
                     </excludes>
                 </configuration>
             </plugin>
