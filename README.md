@@ -27,7 +27,7 @@ Sky Walking | [中文](README_ZH.md)
 
 # Contributors
 _In chronological order_
-* 吴晟 [**PMC Member**] [@wu-sheng](https://github.com/wu-sheng)  Principle Engineer, 2012 Lab, Huawei. 
+* 吴晟 [**PMC Member**] [@wu-sheng](https://github.com/wu-sheng) 
 * 张鑫 [**PMC Member**] [@ascrutae](https://github.com/ascrutae)   
 * 谭真 [@mircoteam](https://github.com/mircoteam)  Advanced R&D Engineers, Creative & Interactive Group.
 * 徐妍 [@TastySummer](https://github.com/TastySummer)
