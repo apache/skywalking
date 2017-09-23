@@ -53,7 +53,7 @@ public class InstMethodsInterWithOverrideArgs {
     public Object intercept(@This Object obj,
         @AllArguments Object[] allArguments,
         @Origin Method method,
-        @Morph(defaultMethod = true) OverrideCallable zuper
+        @Morph OverrideCallable zuper
     ) throws Throwable {
         EnhancedInstance targetObject = (EnhancedInstance)obj;
 
