@@ -25,17 +25,17 @@ Sky Walking | [中文](README_ZH.md)
 * The UI released on [wu-sheng/sky-walking-ui](https://github.com/wu-sheng/sky-walking-ui)
 
 
-# Contributors
-_In chronological order_
-* 吴晟 [**PMC Member**] [@wu-sheng](https://github.com/wu-sheng) 
-* 张鑫 [**PMC Member**] [@ascrutae](https://github.com/ascrutae)   
-* 谭真 [@mircoteam](https://github.com/mircoteam)  Advanced R&D Engineers, Creative & Interactive Group.
-* 徐妍 [@TastySummer](https://github.com/TastySummer)
-* 彭勇升 [**PMC Member**] [@pengys5](https://github.com/pengys5) R&D director，Tydic
-* 戴文
+# PMC, Project Management Committee
+* 吴晟 [@wu-sheng](https://github.com/wu-sheng) 
+* 张鑫 [@ascrutae](https://github.com/ascrutae)
+* 彭勇升 [@peng-yongsheng](https://github.com/peng-yongsheng) R&D director，Tydic
+
+# Committer
 * 柏杨 [@bai-yang](https://github.com/bai-yang)  Senior Engineer, Alibaba Group.
-* 陈凤 [@trey03](https://github.com/trey03)
-* [More contributors](https://github.com/wu-sheng/sky-walking/graphs/contributors)
+
+# Contributors
+* [Contributor List](https://github.com/wu-sheng/sky-walking/graphs/contributors)
+* A special thanks to the contributors: 徐妍[@TastySummer](https://github.com/TastySummer) and 戴文, you offer huge helps for this project.
 
 This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to wu.sheng@foxmail.com.
 
@@ -76,3 +76,6 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 * [Gitter](https://gitter.im/sky-walking/Lobby)
 * [Google Mailing List](https://groups.google.com/forum/#!forum/skywalking-distributed-tracing-and-apm)
 * QQ Group: 392443393
+
+# License
+By contributing your code, you agree to license your contribution under the terms of the [sky-walking license](/LICENSE).
