@@ -3,7 +3,10 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
     <meta http-equiv="cache-control" content="no-cache,no-store, must-revalidate">
     <meta http-equiv="pragma" content="no-cache">
     <meta http-equiv="expires" content="0">
@@ -11,21 +14,20 @@
     <link href="/webjars/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
     <link href="/webjars/font-awesome/4.6.3/css/font-awesome.css" rel="stylesheet">
     <link href="/webjars/animate.css/3.5.2/animate.css" rel="stylesheet">
-    <link href="/public/css/style.css" rel="stylesheet">
 </head>
-<body class="gray-bg">
-<div class="row white-bg" style="padding-top:10px;">
+<body>
+<div>
     <div class="col-lg-2">
         <div style="padding-left: 15px">
             <a href="#" class="navbar-brand"
                style="padding: 0; background: url(/public/img/logo.png) no-repeat center center; background-size: 128px 30px; width: 128px;"></a>
         </div>
     </div>
-    <div class="col-lg-8" id="timeAxisDiv" style="padding-bottom: 10px">
+    <div class="col-lg-9" id="timeAxisDiv" style="padding-bottom: 10px">
     </div>
-    <div class="col-lg-2">
-        <a class="btn btn-primary" data-toggle="dropdown"><i class="fa fa-bars"></i></a>
-        <ul class="dropdown-menu">
+    <div class="col-lg-1 nav navbar-nav navbar-right" style="padding-right: 50px">
+        <a class="btn btn-primary pull-right" data-toggle="dropdown"><i class="fa fa-bars"></i></a>
+        <ul class="dropdown-menu" aria-haspopup="true" aria-expanded="false">
             <li><a href="../trace/trace.html">Trace Stack</a></li>
             <li><a href="../health/health.html">Instance Overview</a></li>
             <li><a href="../service/serviceTree.html">Service Tree</a></li>
