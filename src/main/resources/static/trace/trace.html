@@ -24,79 +24,91 @@
         }
     </style>
 </head>
-<body class="white-bg">
-<div class="row white-bg" id="queryConditionDiv">
-    <div class="row">
-        <div class="col-lg-12" style="padding-bottom: 10px">
-            <div class="row" style="height: 50px">
-                <div class="col-md-1">
-                    <div style="padding-left: 30px">
-                        <a href="#" class="navbar-brand"
-                           style="padding: 0; background: url(/public/img/logo.png) no-repeat center center; background-size: 86px 20px; width: 86px;"></a>
-                    </div>
-                </div>
-                <div class="col-md-2" style="line-height: 50px">
-                </div>
-                <div class="col-md-3" style="line-height: 50px">
-                    <span style="font-weight: 700;" title="GlobalTraceId">GlobalTraceId:&nbsp;&nbsp;</span>
-                    <input class="form-control" type="text" id="globalTraceIdInput"
-                           style="display: inline-block; width: 200px"/>
-                </div>
-                <div class="col-md-3" style="line-height: 50px">
-                    <span style="font-weight: 700;" title="OperationName">OperationName:&nbsp;&nbsp;</span>
-                    <input class="form-control" type="text" id="operationNameInput"
-                           style="display: inline-block; width: 200px"/>
-                </div>
-                <div class="col-md-3" style="line-height: 50px">
-                    <button type="button" id="selectBtn" class="btn btn-success" style="display: inline-block;">Select
-                    </button>
-                </div>
+<body>
+<div>
+    <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="../index.html"></a>
             </div>
+            <ul class="nav navbar-nav navbar-right">
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                       aria-expanded="false">Menu <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="../trace/trace.html">Trace Stack</a></li>
+                        <li><a href="../health/health.html">Instance Overview</a></li>
+                        <li><a href="../service/serviceTree.html">Service Tree</a></li>
+                    </ul>
+                </li>
+            </ul>
         </div>
-    </div>
-    <div class="row">
-        <div class="col-lg-12" style="padding-bottom: 10px">
-            <div class="row" style="height: 50px">
-                <div class="col-md-1">
-                </div>
-                <div class="col-md-2" style="line-height: 50px">
-                </div>
-                <div class="col-md-3">
-                    <span style="font-weight: 700;" title="StartDateRange">DateRange:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-                    <input class="form-control" type="text" id="dateRangeInput" value=""
-                           style="display: inline-block; width: 200px"/>
-                </div>
-                <div class="col-md-3">
-                    <span style="font-weight: 700;" title="CostRange">CostRange:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-                    <input class="form-control" type="text" id="costMinInput"
-                           style="display: inline-block; width: 95px"/>
-                    <span style="font-weight: 700;"> - </span>
-                    <input class="form-control" type="text" id="costMaxInput"
-                           style="display: inline-block; width: 95px"/>
-                </div>
-                <div class="col-md-3">
-                    <span style="font-weight: 700;"
-                          title="Sort(Desc)">Sort:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-                    <div class="radio radio-info radio-inline" style="vertical-align: bottom">
-                        <input type="radio" id="costSort" value="cost" name="sortColumn" checked="">
-                        Cost
-                    </div>
-                    <div class="radio radio-inline" style="vertical-align: bottom">
-                        <input type="radio" id="timeSort" value="time" name="sortColumn">
-                        Time
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
+    </nav>
 </div>
-<div class="wrapper wrapper-content animated fadeInRight" style="padding-top: 0">
-    <div id="topTraceListDiv"></div>
-    <div id="traceStackDiv"></div>
-    <div class="modal inmodal" id="spanModalDiv" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="row" id="queryConditionDiv" style="padding-top: 55px;">
+    <div class="row" style="line-height: 35px">
+        <div class="col-md-1">
+        </div>
+        <div class="col-md-1">
+            <label for="globalTraceIdInput">GlobalTraceId:</label>
+        </div>
+        <div class="col-md-2">
+            <input class="form-control" type="text" id="globalTraceIdInput"
+                   style="display: inline-block; width: 200px"/>
+        </div>
+        <div class="col-md-1">
+            <label for="operationNameInput">OperationName:</label>
+        </div>
+        <div class="col-md-2">
+            <input class="form-control" type="text" id="operationNameInput"
+                   style="display: inline-block; width: 200px"/>
+        </div>
+        <div class="col-md-1">
+            <label for="dateRangeInput">DateRange:</label>
+        </div>
+        <div class="col-md-2">
+            <input class="form-control" type="text" id="dateRangeInput" value=""
+                   style="display: inline-block; width: 200px"/>
+        </div>
+        <div class="col-md-2">
+            <button type="button" id="selectBtn" class="btn btn-success" style="display: inline-block;">Select
+            </button>
+        </div>
     </div>
-    <div id="spanModalTempDiv"></div>
+    <div class="row" style="line-height: 35px">
+        <div class="col-md-1">
+        </div>
+        <div class="col-md-1">
+            <label for="costMinInput">CostRange:</label>
+        </div>
+        <div class="col-md-2">
+            <input class="form-control" type="text" id="costMinInput"
+                   style="display: inline-block; width: 95px"/>
+            <span style="font-weight: 700;"> - </span>
+            <input class="form-control" type="text" id="costMaxInput"
+                   style="display: inline-block; width: 95px"/>
+        </div>
+        <div class="col-md-1">
+            <label>Sort:</label>
+        </div>
+        <div class="col-md-2">
+            <label class="radio-inline">
+                <input type="radio" id="costSort" value="cost" name="sortColumn" checked="">Cost
+            </label>
+            <label class="radio-inline">
+                <input type="radio" id="timeSort" value="time" name="sortColumn" checked="">Time
+            </label>
+        </div>
+        <div class="col-md-5">
+        </div>
+    </div>
+    <div class="wrapper wrapper-content animated fadeInRight" style="padding-top: 0">
+        <div id="topTraceListDiv"></div>
+        <div id="traceStackDiv" style="margin-left: 10px; margin-right: 10px"></div>
+        <div class="modal inmodal" id="spanModalDiv" tabindex="-1" role="dialog" aria-hidden="true">
+        </div>
+        <div id="spanModalTempDiv"></div>
+    </div>
 </div>
 
 <script src="/webjars/jquery/2.2.4/jquery.min.js"></script>

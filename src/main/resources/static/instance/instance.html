@@ -65,45 +65,40 @@
 </head>
 
 <body style="background-color: #ffffff">
-<div class="container-fluid">
-    <div class="row white-bg">
-        <div class="col-lg-2" style="padding-left: 15px">
-            <a href="#" class="navbar-brand"
-               style="padding: 0; background: url(/public/img/logo.png) no-repeat center center; background-size: 128px 30px; width: 128px;"></a>
-        </div>
-    </div>
-    <div class="row gray-bg" style="padding: 10px 10px 20px; ">
-        <div class="row  white-bg" style="margin-right:10px; margin-left:10px">
-            <div class="col-lg-3 col-sm-4" style="padding: 10px;">
-                <div class="row operation-box">
-                    <div class="row operation-panel">
-                        <div class="col-lg-12 col-sm-12 operationTitle">
-                            <h5>Machine</h5>
-                        </div>
-                        <div class="col-lg-12 col-sm-12 operation-context" id="machineInfoDiv">
-                        </div>
+<div id="header">
+    <sw-header></sw-header>
+</div>
+<div class="row gray-bg" style="padding: 55px 10px 20px;">
+    <div class="row  white-bg" style="margin-right:10px; margin-left:10px">
+        <div class="col-lg-3 col-sm-4" style="padding: 10px;">
+            <div class="row operation-box">
+                <div class="row operation-panel">
+                    <div class="col-lg-12 col-sm-12 operationTitle">
+                        <h5>Machine</h5>
                     </div>
-                    <div class="row operation-panel">
-                        <div class="col-lg-12  col-sm-12 operationTitle">
-                            <h5>Time</h5>
-                        </div>
-                        <div class="col-lg-12  col-sm-12 operation-context" style="margin-bottom:20px">
-                            <input id="startTimeInput" type="text" name="daterange"/>
-                            <input id="autoUpdate" type="checkbox" style="margin-right:5px">auto update</input>
-                        </div>
+                    <div class="col-lg-12 col-sm-12 operation-context" id="machineInfoDiv">
                     </div>
-                    <div class="row operation-panel">
-                        <div class="col-lg-12  col-sm-12 operationTitle">
-                            <h5>Select Metrics</h5>
-                        </div>
-                        <div class="col-lg-12  col-sm-12 operation-context" id="metricSelectorDiv">
+                </div>
+                <div class="row operation-panel">
+                    <div class="col-lg-12  col-sm-12 operationTitle">
+                        <h5>Time</h5>
+                    </div>
+                    <div class="col-lg-12  col-sm-12 operation-context" style="margin-bottom:20px">
+                        <input id="startTimeInput" type="text" name="daterange"/>
+                        <input id="autoUpdate" type="checkbox" style="margin-right:5px">auto update</input>
+                    </div>
+                </div>
+                <div class="row operation-panel">
+                    <div class="col-lg-12  col-sm-12 operationTitle">
+                        <h5>Select Metrics</h5>
+                    </div>
+                    <div class="col-lg-12  col-sm-12 operation-context" id="metricSelectorDiv">
 
-                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-9 col-sm-8 white-bg" style="margin-bottom:5px" id="metricCanvasDiv">
-            </div>
+        </div>
+        <div class="col-lg-9 col-sm-8 white-bg" style="margin-bottom:5px" id="metricCanvasDiv">
         </div>
     </div>
 </body>
