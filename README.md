@@ -34,7 +34,7 @@ Sky Walking | [中文](README_ZH.md)
 * 柏杨 [@bai-yang](https://github.com/bai-yang)  Senior Engineer, Alibaba Group.
 
 # Contributors
-* [Contributor List](https://github.com/wu-sheng/sky-walking/graphs/contributors)
+* [Contributors List](https://github.com/wu-sheng/sky-walking/graphs/contributors)
 * A special thanks to the contributors: 徐妍[@TastySummer](https://github.com/TastySummer) and 戴文, you offer huge helps for this project.
 
 This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to wu.sheng@foxmail.com.
