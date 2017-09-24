@@ -1,27 +1,28 @@
 <!DOCTYPE html>
 <html>
-
 <head>
     <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description"
+          content="A distributed tracing system, and APM ( Application Performance Monitoring ) http://skywalking.org">
+    <meta name="author" content="https://github.com/peng-yongsheng">
+    <meta http-equiv="cache-control" content="no-cache,no-store, must-revalidate">
+    <meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="expires" content="0">
     <title>Skywalking UI</title>
-    <script data-main="/service/serviceTree" src="/webjars/requirejs/2.3.3/require.min.js"></script>
     <link href="/webjars/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
     <link href="/webjars/font-awesome/4.6.3/css/font-awesome.css" rel="stylesheet">
     <link href="/webjars/animate.css/3.5.2/animate.css" rel="stylesheet">
     <link href="/public/css/style.css" rel="stylesheet">
 </head>
 
-<body class="white-bg">
-<div class="container-fluid">
-    <div class="row white-bg">
-        <div class="col-lg-2" style="padding-left: 15px">
-            <a href="#" class="navbar-brand"
-               style="padding: 0; background: url(/public/img/logo.png) no-repeat center center; background-size: 128px 30px; width: 128px;"></a>
-        </div>
-        <div class="col-lg-10" id="timeAxisDiv">
-        </div>
-    </div>
-    <div class="col-lg-12 white-bg instance-list-panel">
+<body>
+<div id="header">
+    <sw-header></sw-header>
+</div>
+<div>
+    <div class="col-lg-12 white-bg instance-list-panel" style="padding-top: 55px">
         <div class="row">
             <div class="col-lg-12">
                 <div class="ibox float-e-margins">
@@ -75,5 +76,7 @@
         </div>
     </div>
 </div>
+
+<script data-main="/service/serviceTree" src="/webjars/requirejs/2.3.3/require.min.js"></script>
 </body>
 </html>

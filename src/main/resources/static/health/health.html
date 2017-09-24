@@ -8,13 +8,10 @@
     <meta http-equiv="pragma" content="no-cache">
     <meta http-equiv="expires" content="0">
     <title>Skywalking UI</title>
-    <script data-main="/health/health" src="/webjars/requirejs/2.3.3/require.min.js"></script>
     <link href="/webjars/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
     <link href="/webjars/font-awesome/4.6.3/css/font-awesome.css" rel="stylesheet">
     <link href="/webjars/animate.css/3.5.2/animate.css" rel="stylesheet">
-    <link href="\webjars\ion.rangeSlider\2.1.4\css\ion.rangeSlider.css" rel="stylesheet">
-    <link href="\webjars\ion.rangeSlider\2.1.4\css\ion.rangeSlider.skinModern.css" rel="stylesheet">
-    <link href="\webjars\ion.rangeSlider\2.1.4\css\normalize.css" rel="stylesheet">
+    <link href="/public/css/style.css" rel="stylesheet">
     <style>
         .white-bg {
             background-color: #ffffff;
@@ -111,36 +108,12 @@
             text-transform: uppercase;
         }
 
-        .btn-circle {
-            width: 40px;
-            height: 40px;
-            border-radius: 20px;
-            font-size: 18px;
-            line-height: 1.33;
-        }
-
         .fa-play:before {
             content: "\f04b";
         }
 
         .fa-pause:before {
             content: "\f04c";
-        }
-
-        .color-3 .irs-bar {
-            background: #5bc0de;
-        }
-
-        .color-3 .irs-bar-edge {
-            background: #5bc0de;
-        }
-
-        .color-3 .irs-single {
-            background: #5bc0de;
-        }
-
-        .irs-disabled {
-            opacity: 1;
         }
 
         .operation-selected {
@@ -150,16 +123,11 @@
 </head>
 
 <body>
-<div class="container-fluid" style="padding-top:20px">
-    <div class="row white-bg">
-        <div class="col-lg-2" style="padding-left: 15px">
-            <a href="#" class="navbar-brand"
-               style="padding: 0; background: url(/public/img/logo.png) no-repeat center center; background-size: 128px 30px; width: 128px;"></a>
-        </div>
-        <div class="col-lg-10" id="timeAxisDiv">
-        </div>
-    </div>
-    <div class="row gray-bg" style="padding: 20px 10px 40px">
+<div id="header">
+    <sw-header></sw-header>
+</div>
+<div style="padding-top: 55px; padding-left: 10px; padding-right: 10px">
+    <div class="row gray-bg">
         <div class="col-lg-2">
             <div class="filter-ibox-content filter-manager">
                 <h5>Applications</h5>
@@ -181,6 +149,7 @@
     </div>
     <div class="row white-bg"></div>
 </div>
-</body>
 
+<script data-main="/health/health" src="/webjars/requirejs/2.3.3/require.min.js"></script>
+</body>
 </html>

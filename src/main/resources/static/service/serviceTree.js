@@ -1,5 +1,5 @@
 requirejs(['/main.js'], function () {
-    requirejs(['jquery', 'vue', 'timeAxis', "applicationList", "entryServiceList", "serviceTreeList"], function ($, Vue, timeAxis, applicationList, entryServiceList, serviceTreeList) {
+    requirejs(['jquery', 'vue', 'head', 'timeAxis', "applicationList", "entryServiceList", "serviceTreeList"], function ($, Vue, head, timeAxis, applicationList, entryServiceList, serviceTreeList) {
         var vueData = {
             list: [],
             applicationId: 0,

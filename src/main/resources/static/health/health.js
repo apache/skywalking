@@ -1,6 +1,6 @@
 requirejs(['/main.js'], function () {
-    requirejs(['jquery', 'vue', 'applicationList', 'appInstance', 'timeAxis'],
-        function ($, Vue, applicationList, appInstance, timeAxis) {
+    requirejs(['jquery', 'vue', 'head', 'applicationList', 'appInstance', 'timeAxis', 'bootstrap'],
+        function ($, Vue, head, applicationList, appInstance, timeAxis) {
             var vueData = {
                 list: [],
                 applicationList: [],

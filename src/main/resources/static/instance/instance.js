@@ -1,6 +1,6 @@
 requirejs(['/main.js'], function (main) {
-    requirejs(['rangeSlider', 'moment', 'daterangepicker', 'machineInfo', 'metricCharts', 'jsCookie'],
-        function (rangeSlider, moment, dataRangePicker, machineInfo, metricCharts, jsCookie) {
+    requirejs(['rangeSlider', 'head', 'moment', 'daterangepicker', 'machineInfo', 'metricCharts', 'jsCookie'],
+        function (rangeSlider, head, moment, dataRangePicker, machineInfo, metricCharts, jsCookie) {
             var instanceId = jsCookie.get("instanceId");
 
             var config = {

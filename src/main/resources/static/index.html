@@ -1,12 +1,12 @@
-<!-- @author pengys5 -->
 <!doctype html>
 <html>
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="">
+    <meta name="description"
+          content="A distributed tracing system, and APM ( Application Performance Monitoring ) http://skywalking.org">
+    <meta name="author" content="https://github.com/peng-yongsheng">
     <meta http-equiv="cache-control" content="no-cache,no-store, must-revalidate">
     <meta http-equiv="pragma" content="no-cache">
     <meta http-equiv="expires" content="0">
@@ -14,27 +14,13 @@
     <link href="/webjars/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
     <link href="/webjars/font-awesome/4.6.3/css/font-awesome.css" rel="stylesheet">
     <link href="/webjars/animate.css/3.5.2/animate.css" rel="stylesheet">
+    <link href="/public/css/style.css" rel="stylesheet">
 </head>
 <body>
-<div>
-    <div class="col-lg-2">
-        <div style="padding-left: 15px">
-            <a href="#" class="navbar-brand"
-               style="padding: 0; background: url(/public/img/logo.png) no-repeat center center; background-size: 128px 30px; width: 128px;"></a>
-        </div>
-    </div>
-    <div class="col-lg-9" id="timeAxisDiv" style="padding-bottom: 10px">
-    </div>
-    <div class="col-lg-1 nav navbar-nav navbar-right" style="padding-right: 50px">
-        <a class="btn btn-primary pull-right" data-toggle="dropdown"><i class="fa fa-bars"></i></a>
-        <ul class="dropdown-menu" aria-haspopup="true" aria-expanded="false">
-            <li><a href="../trace/trace.html">Trace Stack</a></li>
-            <li><a href="../health/health.html">Instance Overview</a></li>
-            <li><a href="../service/serviceTree.html">Service Tree</a></li>
-        </ul>
-    </div>
+<div id="header">
+    <sw-header></sw-header>
 </div>
-<div id="mainDiv" class="ibox-content gray-bg" style="padding: 5px">
+<div id="mainDiv" style="padding-top: 55px;">
     <div class="row" style="margin: 0">
         <div id="dagViewDiv" class="col-sm-12" style="padding: 5px">
         </div>
