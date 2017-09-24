@@ -100,13 +100,23 @@ define(["jquery", "vue", "moment", "text!timeAxisHtml", "rangeSlider", "daterang
                 startOrStop: function () {
                     if (vueData.starting) {
                         vueData.starting = false;
-                        $("#timeAxisButton").removeClass("fa-pause").addClass("fa-play");
+                        $("#timeAxisButtonIcon").removeClass("fa-pause").addClass("fa-play");
                         stopAutoUpdate();
                     } else {
                         vueData.starting = true;
-                        $("#timeAxisButton").removeClass("fa-play").addClass("fa-pause");
+                        $("#timeAxisButtonIcon").removeClass("fa-play").addClass("fa-pause");
                         autoUpdate();
                     }
+                }
+            }
+        });
+
+        new Vue({
+            el: '#dataRangeBtn',
+            data: vueData,
+            methods: {
+                openCalendar: function () {
+                    bindDatePicker();
                 }
             }
         });
@@ -140,16 +150,19 @@ define(["jquery", "vue", "moment", "text!timeAxisHtml", "rangeSlider", "daterang
             singleDatePicker: true,
             timePicker: true,
             timePicker24Hour: true,
-            timePickerSeconds: false,
+            timePickerSeconds: true,
             maxDate: moment(),
             "opens": "left",
             locale: {
-                format: 'MM/DD/YYYY HH:mm'
+                format: 'MM/DD/YYYY HH:mm:ss'
             }
         }, function (start) {
-            var endTimeStr = start.format("YYYYMMDDHHmm");
-            var startTimeStr = start.subtract(1, "hours").format("YYYYMMDDHHmm");
+            vueData.starting = false;
+            $("#timeAxisButtonIcon").removeClass("fa-pause").addClass("fa-play");
+            stopAutoUpdate();
 
+            var endTimeStr = start.format(dateFormat);
+            var startTimeStr = start.subtract(subtractValue, subtract).format(dateFormat);
             updateTimeAxis(startTimeStr, endTimeStr);
         });
 

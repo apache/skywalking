@@ -40,7 +40,14 @@
     <input type="text" id="timeAxisInput" name="timeAxis" value=""/>
 </div>
 <div class="col-lg-3 col-sm-3" style="margin-top: 0.7%">
-    <button id="timeAxisButton" class="btn btn-info btn-circle fa fa-pause" type="button" v-on:click="startOrStop()"
-            v-if="hasAutoUpdate"></i>
-    </button>
+    <a id="timeAxisButton" class="btn btn-info" v-on:click="startOrStop()"
+       v-if="hasAutoUpdate">
+        <i id="timeAxisButtonIcon" class="fa fa-pause"> </i>
+    </a>
+    <div style="float:left; overflow: hidden; width:0px; height:0px; display: inline-block">
+        <input type="text" id="dateRangeInput"/>
+    </div>
+    <a id="dataRangeBtn" class="btn btn-info" v-on:click="openCalendar()">
+        <i class="fa fa-calendar"> </i>
+    </a>
 </div>

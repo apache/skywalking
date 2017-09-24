@@ -37,7 +37,7 @@
                             </div>
                             <div class="col-sm-3 m-b-xs">
                                 <select class="input-sm form-control input-s-sm inline" v-model="applicationId">
-                                    <option v-for="application in list" :value="application.applicationId">
+                                    <option v-for="application in list" v-bind:value="application.applicationId">
                                         {{application.applicationCode}}
                                     </option>
                                 </select>
