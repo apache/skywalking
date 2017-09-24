@@ -25,7 +25,7 @@ Sky Walking | [中文](README_ZH.md)
 * The UI released on [wu-sheng/sky-walking-ui](https://github.com/wu-sheng/sky-walking-ui)
 
 
-# PMC, Project Management Committee
+# PMC - Project Management Committee
 * 吴晟 [@wu-sheng](https://github.com/wu-sheng) 
 * 张鑫 [@ascrutae](https://github.com/ascrutae)
 * 彭勇升 [@peng-yongsheng](https://github.com/peng-yongsheng) R&D director，Tydic
