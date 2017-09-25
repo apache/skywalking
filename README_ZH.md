@@ -25,6 +25,13 @@ Sky Walking | [English](README.md)
 * UI工程请查看 [wu-sheng/sky-walking-ui](https://github.com/wu-sheng/sky-walking-ui)
 * 中文QQ群：392443393
 
+# Architecture
+* 3.2+版本架构图
+<img src="https://sky-walking.github.io/page-resources/3.2/architecture/3.2-architecture.jpg"/>
+
+# Document
+* [WIKI](https://github.com/wu-sheng/sky-walking/wiki)
+
 # PMC - Project Management Committee
 * 吴晟 [@wu-sheng](https://github.com/wu-sheng) 
 * 张鑫 [@ascrutae](https://github.com/ascrutae)
@@ -38,10 +45,6 @@ Sky Walking | [English](README.md)
 * 特别感谢徐妍[@TastySummer](https://github.com/TastySummer) 和 戴文, 给予项目的大量的帮助.
 
 This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to wu.sheng@foxmail.com.
-
-# Architecture
-* 3.2+版本架构图
-<img src="https://sky-walking.github.io/page-resources/3.2/architecture/3.2-architecture.jpg"/>
 
 # Screenshots
 - 追踪基于 dubbox 和 [motan](https://github.com/weibocom/motan)的分布式系统，生成的拓扑截图
@@ -68,9 +71,6 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
   - [Java探针测试报告](https://github.com/sky-walking/agent-integration-test-report)
 - 性能测试报告
   - [Java探针测试报告](https://sky-walking.github.io/Agent-Benchmarks/)
-
-# Document
-* [WIKI](https://github.com/wu-sheng/sky-walking/wiki)
 
 # Contact Us
 * 直接提交Issue
