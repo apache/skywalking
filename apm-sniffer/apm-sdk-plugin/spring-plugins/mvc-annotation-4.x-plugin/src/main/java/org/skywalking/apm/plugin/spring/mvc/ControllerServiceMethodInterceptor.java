@@ -30,6 +30,8 @@ public class ControllerServiceMethodInterceptor implements InstanceMethodsAround
             RequestMapping methodRequestMapping = method.getAnnotation(RequestMapping.class);
             if (methodRequestMapping.value().length > 0) {
                 requestURL = methodRequestMapping.value()[0];
+            } else if (methodRequestMapping.path().length > 0) {
+                requestURL = methodRequestMapping.path()[0];
             } else {
                 requestURL = "";
             }
