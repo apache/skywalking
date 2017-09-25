@@ -3,7 +3,7 @@ Sky Walking | [中文](README_ZH.md)
 
 <img src="https://sky-walking.github.io/page-resources/3.0/skywalking.png" alt="Sky Walking logo" height="90px" align="right" />
 
-**SkyWalking 3**: APM for Distributed Systems, also known Distributed Tracing System.
+**SkyWalking 3**: APM for Distributed Systems, also known Distributed Tracing System. 
 
 [![Build Status](https://travis-ci.org/wu-sheng/sky-walking.svg?branch=master)](https://travis-ci.org/wu-sheng/sky-walking)
 [![Coverage Status](https://coveralls.io/repos/github/wu-sheng/sky-walking/badge.svg?branch=master&forceUpdate=2)](https://coveralls.io/github/wu-sheng/sky-walking?branch=master)
@@ -24,6 +24,12 @@ Sky Walking | [中文](README_ZH.md)
   * [How to uplink metrics and traces to collector?]()
 * The UI released on [wu-sheng/sky-walking-ui](https://github.com/wu-sheng/sky-walking-ui)
 
+# Architecture
+* Architecture graph for 3.2+
+<img src="https://sky-walking.github.io/page-resources/3.2/architecture/3.2-architecture.jpg"/>
+
+# Document
+* [WIKI](https://github.com/wu-sheng/sky-walking/wiki)
 
 # PMC - Project Management Committee
 * 吴晟 [@wu-sheng](https://github.com/wu-sheng) 
@@ -38,10 +44,6 @@ Sky Walking | [中文](README_ZH.md)
 * A special thanks to the contributors: 徐妍[@TastySummer](https://github.com/TastySummer) and 戴文, you offer huge helps for this project.
 
 This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to wu.sheng@foxmail.com.
-
-# Architecture
-* Architecture graph for 3.2+
-<img src="https://sky-walking.github.io/page-resources/3.2/architecture/3.2-architecture.jpg"/>
 
 # Screenshots
 - Topological graph of application clusters based on dubbox and [motan](https://github.com/weibocom/motan).
@@ -67,9 +69,6 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
   - [Java Agent test report](https://github.com/sky-walking/agent-integration-test-report)
 - Performance test reports
   - [Java Agent test report](https://sky-walking.github.io/Agent-Benchmarks/)
-
-# Document
-* [WIKI](https://github.com/wu-sheng/sky-walking/wiki)
 
 # Contact Us
 * Submit an issue
