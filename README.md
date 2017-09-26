@@ -77,7 +77,7 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 * QQ Group: 392443393
 
 # Commercial Support Partners
-[![OpenTracing-1.x Badge](https://www.shurenyun.com/pics/home-logo-h.png)](https://www.shurenyun.com/)
+[![Shurenyun Logo](https://sky-walking.github.io/page-resources/partners/shurenyun-logo.png)](https://www.shurenyun.com/)
 
 # License
 By contributing your code, you agree to license your contribution under the terms of the [sky-walking license](/LICENSE).
