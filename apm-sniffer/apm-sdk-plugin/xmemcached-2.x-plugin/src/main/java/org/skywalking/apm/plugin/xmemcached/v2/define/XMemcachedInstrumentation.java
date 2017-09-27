@@ -21,7 +21,7 @@ import static net.bytebuddy.matcher.ElementMatchers.takesArgument;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 
 /**
- *
+ *@author IluckySi
  * 
  */
 public class XMemcachedInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {

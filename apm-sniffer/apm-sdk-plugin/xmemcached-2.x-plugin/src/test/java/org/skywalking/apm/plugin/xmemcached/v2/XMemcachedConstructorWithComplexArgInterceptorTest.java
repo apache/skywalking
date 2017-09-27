@@ -4,9 +4,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.junit.Before;
@@ -33,9 +31,8 @@ public class XMemcachedConstructorWithComplexArgInterceptorTest {
 	public void onConstructWithComplex() {
 		Map<InetSocketAddress, InetSocketAddress> inetSocketAddressMap = new HashMap<InetSocketAddress, InetSocketAddress>();
 		inetSocketAddressMap.put(new InetSocketAddress("127.0.0.1", 11211), new InetSocketAddress("127.0.0.2", 11211));
-		inetSocketAddressMap.put(new InetSocketAddress("127.0.0.1", 11212), new InetSocketAddress("127.0.0.3", 11211));
-		interceptor.onConstruct(enhancedInstance, new Object[] { inetSocketAddressMap  });
+		interceptor.onConstruct(enhancedInstance, new Object[] { null, null, null, null, null, null, inetSocketAddressMap  });
 
-		verify(enhancedInstance, times(1)).setSkyWalkingDynamicField("127.0.0.1:11211;127.0.0.2:11211;127.0.0.3:11211;");
+		verify(enhancedInstance, times(1)).setSkyWalkingDynamicField("127.0.0.1:11211;127.0.0.2:11211;");
 	}
 }
