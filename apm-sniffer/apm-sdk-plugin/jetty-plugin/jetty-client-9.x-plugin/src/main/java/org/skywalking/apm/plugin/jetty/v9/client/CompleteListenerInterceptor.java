@@ -2,9 +2,6 @@ package org.skywalking.apm.plugin.jetty.v9.client;
 
 import java.lang.reflect.Method;
 import org.eclipse.jetty.client.api.Result;
-import org.eclipse.jetty.http.HttpFields;
-import org.skywalking.apm.agent.core.context.CarrierItem;
-import org.skywalking.apm.agent.core.context.ContextCarrier;
 import org.skywalking.apm.agent.core.context.ContextManager;
 import org.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.skywalking.apm.agent.core.context.tag.Tags;
