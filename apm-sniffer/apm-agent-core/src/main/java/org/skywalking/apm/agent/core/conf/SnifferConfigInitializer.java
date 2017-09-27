@@ -44,7 +44,7 @@ public class SnifferConfigInitializer {
             configFileStream = SnifferConfigInitializer.class.getResourceAsStream(CONFIG_FILE_NAME);
 
             if (configFileStream == null) {
-                logger.info("No {} file found in class path.", CONFIG_FILE_NAME);
+                logger.info("No config file found, according system property '-Dconfig'.");
                 configFileStream = loadConfigFromAgentFolder();
             } else {
                 logger.info("{} file found in class path.", CONFIG_FILE_NAME);
@@ -81,26 +81,31 @@ public class SnifferConfigInitializer {
     }
 
     /**
-     * Load the config file by the path, which is provided by system property, usually with a "-DconfigPath=" arg.
+     * Load the config file by the path, which is provided by system property, usually with a "-Dconfig=" arg.
      *
      * @return the config file {@link InputStream}, or null if not needEnhance.
      */
     private static InputStream loadConfigBySystemProperty() {
-        String configPath = System.getProperty("configPath");
-        if (StringUtil.isEmpty(configPath)) {
+        String config = System.getProperty("config");
+        if (StringUtil.isEmpty(config)) {
             return null;
         }
-        File configFile = new File(configPath, CONFIG_FILE_NAME);
+        File configFile = new File(config);
+        if (configFile.exists() && configFile.isDirectory()) {
+            logger.info("check {} in path {}, according system property.", CONFIG_FILE_NAME, config);
+            configFile = new File(config, CONFIG_FILE_NAME);
+        }
+        
         if (configFile.exists() && configFile.isFile()) {
             try {
-                logger.info("{} found in path {}, according system property.", CONFIG_FILE_NAME, configPath);
+                logger.info("found   {}, according system property.", configFile.getAbsolutePath());
                 return new FileInputStream(configFile);
             } catch (FileNotFoundException e) {
-                logger.error(e, "Fail to load {} in path {}, according system property.", CONFIG_FILE_NAME, configPath);
+                logger.error(e, "Fail to load {} , according system property.", config);
             }
         }
 
-        logger.info("No {} found in path {}, according system property.", CONFIG_FILE_NAME, configPath);
+        logger.info("No {}  found, according system property.", config);
         return null;
     }
 
