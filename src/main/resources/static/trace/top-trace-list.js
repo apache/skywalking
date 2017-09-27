@@ -52,6 +52,8 @@ function createTopTraceDataTable() {
             param.maxCost = maxCost;
             param.globalTraceId = globalTraceId;
             param.operationName = operationName;
+            param.isError = isError;
+            param.applicationId = applicationId;
             param.sort = sort;
 
             $.ajax({

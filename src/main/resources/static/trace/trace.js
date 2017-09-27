@@ -8,6 +8,8 @@ var maxCost = -1;
 var globalTraceId = null;
 var operationName = null;
 var sort = null;
+var isError = null;
+var applicationId = 0;
 
 $(document).ready(function () {
     $("#topTraceListDiv").load("./top-trace-list.html");
@@ -15,12 +17,15 @@ $(document).ready(function () {
     $("#spanModalTempDiv").load("./span.html");
 
     bindRangePicker();
+    loadApplications();
 
     $("#selectBtn").click(function () {
         minCost = $("#costMinInput").val();
         maxCost = $("#costMaxInput").val();
         globalTraceId = $("#globalTraceIdInput").val();
         operationName = $("#operationNameInput").val();
+        applicationId = $("#applicationId").val();
+        isError = $("#isError").val();
 
         if (minCost == null || minCost == "") {
             minCost = -1;
@@ -29,7 +34,6 @@ $(document).ready(function () {
             maxCost = -1;
         }
         sort = $("input[name='sortColumn']:checked").val();
-        console.log("sort: " + sort);
 
         $("#traceStackDiv").empty();
         $("#traceStackDiv").load("./trace-stack.html");
@@ -49,5 +53,26 @@ function bindRangePicker() {
     }, function (start, end, label) {
         startDate = start.format("YYYYMMDDHHmm");
         endDate = end.format("YYYYMMDDHHmm");
+    });
+}
+
+function loadApplications() {
+    $.ajaxSettings.async = false;
+
+    console.log(startDate);
+    $.getJSON("/applications", {
+        timeBucketType: "minute",
+        startTime: startDate,
+        endTime: endDate
+    }, function (data) {
+        console.log(data);
+        var selOpt = $("#applicationId option");
+        selOpt.remove();
+
+        var selObj = $("#applicationId");
+        selObj.append("<option value='0'>All</option>");
+        for (var i = 0; i < data.length; i++) {
+            selObj.append("<option value='" + data[i].applicationId + "'>" + data[i].applicationCode + "</option>");
+        }
     });
 }
