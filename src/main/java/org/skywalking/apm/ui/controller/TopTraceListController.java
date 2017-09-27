@@ -31,10 +31,11 @@ public class TopTraceListController extends ControllerBase {
         @ModelAttribute("endTime") long endTime,
         @ModelAttribute("limit") int limit, @ModelAttribute("from") int from, @ModelAttribute("minCost") int minCost,
         @ModelAttribute("maxCost") int maxCost, @ModelAttribute("globalTraceId") String globalTraceId,
+        @ModelAttribute("applicationId") int applicationId, @ModelAttribute("error") String error,
         @ModelAttribute("operationName") String operationName, @ModelAttribute("sort") String sort,
         HttpServletResponse response) throws IOException {
-        logger.debug("topTraceListDataLoad startTime = %s, endTime = %s, from=%s, minCost=%s, maxCost=%s, globalTraceId=%s, operationName=%s, sort=%s", startTime, endTime, from, minCost, maxCost, globalTraceId, operationName, sort);
-        JsonObject topSegJson = service.topTraceListDataLoad(startTime, endTime, minCost, maxCost, limit, from, globalTraceId, operationName, sort);
+        logger.debug("topTraceListDataLoad startTime = %s, endTime = %s, from=%s, minCost=%s, maxCost=%s, globalTraceId=%s, operationName=%s, applicationId=%s, error=%s, sort=%s", startTime, endTime, from, minCost, maxCost, globalTraceId, operationName, applicationId, error, sort);
+        JsonObject topSegJson = service.topTraceListDataLoad(startTime, endTime, minCost, maxCost, limit, from, globalTraceId, operationName, applicationId, error, sort);
         reply(topSegJson.toString(), response);
     }
 }
