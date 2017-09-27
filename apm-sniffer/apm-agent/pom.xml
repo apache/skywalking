@@ -30,6 +30,11 @@
             <artifactId>apm-jedis-2.x-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+		<dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>apm-xmemcached-2.x-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.skywalking</groupId>
             <artifactId>apm-jdbc-plugin</artifactId>
