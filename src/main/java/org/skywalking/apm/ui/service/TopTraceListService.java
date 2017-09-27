@@ -43,7 +43,7 @@ public class TopTraceListService {
         params.add(new BasicNameValuePair("globalTraceId", globalTraceId));
         params.add(new BasicNameValuePair("operationName", operationName));
         params.add(new BasicNameValuePair("applicationId", String.valueOf(applicationId)));
-        params.add(new BasicNameValuePair("error", error));
+        params.add(new BasicNameValuePair("error", error.toLowerCase()));
         params.add(new BasicNameValuePair("sort", sort));
 
         String topSegLoadUrl = UrlCreator.compound("segment/top");
