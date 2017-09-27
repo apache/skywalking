@@ -38,6 +38,7 @@ public class SegmentCostSpanListener implements EntrySpanListener, ExitSpanListe
     public void parseEntry(SpanObject spanObject, int applicationId, int applicationInstanceId, String segmentId) {
         SegmentCostDataDefine.SegmentCost segmentCost = new SegmentCostDataDefine.SegmentCost();
         segmentCost.setSegmentId(segmentId);
+        segmentCost.setApplicationId(applicationId);
         segmentCost.setCost(spanObject.getEndTime() - spanObject.getStartTime());
         segmentCost.setStartTime(spanObject.getStartTime());
         segmentCost.setEndTime(spanObject.getEndTime());

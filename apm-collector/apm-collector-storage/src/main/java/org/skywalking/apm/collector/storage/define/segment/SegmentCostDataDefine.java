@@ -15,18 +15,19 @@ import org.skywalking.apm.collector.storage.define.DataDefine;
 public class SegmentCostDataDefine extends DataDefine {
 
     @Override protected int initialCapacity() {
-        return 8;
+        return 9;
     }
 
     @Override protected void attributeDefine() {
         addAttribute(0, new Attribute(SegmentCostTable.COLUMN_ID, AttributeType.STRING, new NonOperation()));
         addAttribute(1, new Attribute(SegmentCostTable.COLUMN_SEGMENT_ID, AttributeType.STRING, new CoverOperation()));
-        addAttribute(2, new Attribute(SegmentCostTable.COLUMN_SERVICE_NAME, AttributeType.STRING, new CoverOperation()));
-        addAttribute(3, new Attribute(SegmentCostTable.COLUMN_COST, AttributeType.LONG, new CoverOperation()));
-        addAttribute(4, new Attribute(SegmentCostTable.COLUMN_START_TIME, AttributeType.LONG, new CoverOperation()));
-        addAttribute(5, new Attribute(SegmentCostTable.COLUMN_END_TIME, AttributeType.LONG, new CoverOperation()));
-        addAttribute(6, new Attribute(SegmentCostTable.COLUMN_IS_ERROR, AttributeType.BOOLEAN, new CoverOperation()));
-        addAttribute(7, new Attribute(SegmentCostTable.COLUMN_TIME_BUCKET, AttributeType.LONG, new NonOperation()));
+        addAttribute(2, new Attribute(SegmentCostTable.COLUMN_APPLICATION_ID, AttributeType.INTEGER, new CoverOperation()));
+        addAttribute(3, new Attribute(SegmentCostTable.COLUMN_SERVICE_NAME, AttributeType.STRING, new CoverOperation()));
+        addAttribute(4, new Attribute(SegmentCostTable.COLUMN_COST, AttributeType.LONG, new CoverOperation()));
+        addAttribute(5, new Attribute(SegmentCostTable.COLUMN_START_TIME, AttributeType.LONG, new CoverOperation()));
+        addAttribute(6, new Attribute(SegmentCostTable.COLUMN_END_TIME, AttributeType.LONG, new CoverOperation()));
+        addAttribute(7, new Attribute(SegmentCostTable.COLUMN_IS_ERROR, AttributeType.BOOLEAN, new CoverOperation()));
+        addAttribute(8, new Attribute(SegmentCostTable.COLUMN_TIME_BUCKET, AttributeType.LONG, new NonOperation()));
     }
 
     @Override public Object deserialize(RemoteData remoteData) {
@@ -39,6 +40,7 @@ public class SegmentCostDataDefine extends DataDefine {
 
     public static class SegmentCost implements Transform {
         private String id;
+        private int applicationId;
         private String segmentId;
         private String serviceName;
         private Long cost;
@@ -56,6 +58,7 @@ public class SegmentCostDataDefine extends DataDefine {
             data.setDataString(0, this.id);
             data.setDataString(1, this.segmentId);
             data.setDataString(2, this.serviceName);
+            data.setDataInteger(0, this.applicationId);
             data.setDataLong(0, this.cost);
             data.setDataLong(1, this.startTime);
             data.setDataLong(2, this.endTime);
@@ -130,6 +133,14 @@ public class SegmentCostDataDefine extends DataDefine {
 
         public void setTimeBucket(long timeBucket) {
             this.timeBucket = timeBucket;
+        }
+
+        public int getApplicationId() {
+            return applicationId;
+        }
+
+        public void setApplicationId(int applicationId) {
+            this.applicationId = applicationId;
         }
     }
 }
