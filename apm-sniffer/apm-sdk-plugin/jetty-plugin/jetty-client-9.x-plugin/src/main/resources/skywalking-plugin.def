@@ -1,0 +1,2 @@
+jetty-client-9.x=org.skywalking.apm.plugin.jetty.v9.client.define.CompleteListenerInstrumentation
+jetty-client-9.x=org.skywalking.apm.plugin.jetty.v9.client.define.HttpRequestInstrumentation
