@@ -6,7 +6,7 @@ import com.alibaba.dubbo.rpc.Invoker;
 import com.alibaba.dubbo.rpc.Result;
 import com.alibaba.dubbo.rpc.RpcContext;
 import java.lang.reflect.Method;
-import org.skywalking.apm.agent.core.conf.Config;
+import org.skywalking.apm.agent.core.context.CarrierItem;
 import org.skywalking.apm.agent.core.context.ContextCarrier;
 import org.skywalking.apm.agent.core.context.ContextManager;
 import org.skywalking.apm.agent.core.context.tag.Tags;
@@ -16,28 +16,20 @@ import org.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.skywalking.apm.network.trace.component.ComponentsDefine;
-import org.skywalking.apm.plugin.dubbox.BugFixActive;
-import org.skywalking.apm.plugin.dubbox.SWBaseBean;
 
 /**
  * {@link DubboInterceptor} define how to enhance class {@link com.alibaba.dubbo.monitor.support.MonitorFilter#invoke(Invoker,
  * Invocation)}. the trace context transport to the provider side by {@link RpcContext#attachments}.but all the version
- * of dubbo framework below 2.8.3 don't support {@link RpcContext#attachments}, we support another way to support it. it
- * is that all request parameters of dubbo service need to extend {@link SWBaseBean}, and {@link DubboInterceptor} will
- * inject the trace context data to the {@link SWBaseBean} bean and extract the trace context data from {@link
- * SWBaseBean}, or the trace context data will not transport to the provider side.
+ * of dubbo framework below 2.8.3 don't support {@link RpcContext#attachments}, we support another way to support it.
  *
  * @author zhangxin
  */
 public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
-
     /**
-     * <h2>Consumer:</h2> The serialized trace context data will inject the first param that extend {@link SWBaseBean}
-     * of dubbo service if the method {@link BugFixActive#active()} be called. or the serialized context data will
+     * <h2>Consumer:</h2> The serialized trace context data will
      * inject to the {@link RpcContext#attachments} for transport to provider side.
      * <p>
-     * <h2>Provider:</h2> The serialized trace context data will extract from the first param that extend {@link
-     * SWBaseBean} of dubbo service if the method {@link BugFixActive#active()} be called. or it will extract from
+     * <h2>Provider:</h2> The serialized trace context data will extract from
      * {@link RpcContext#attachments}. current trace segment will ref if the serialize context data is not null.
      */
     @Override
@@ -56,20 +48,19 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
         if (isConsumer) {
             final ContextCarrier contextCarrier = new ContextCarrier();
             span = ContextManager.createExitSpan(generateOperationName(requestURL, invocation), contextCarrier, host + ":" + port);
-            if (!BugFixActive.isActive()) {
-                //invocation.getAttachments().put("contextData", contextDataStr);
-                //@see https://github.com/alibaba/dubbo/blob/dubbo-2.5.3/dubbo-rpc/dubbo-rpc-api/src/main/java/com/alibaba/dubbo/rpc/RpcInvocation.java#L154-L161
-                rpcContext.getAttachments().put(Config.Plugin.Propagation.HEADER_NAME, contextCarrier.serialize());
-            } else {
-                fix283SendNoAttachmentIssue(invocation, contextCarrier);
+            //invocation.getAttachments().put("contextData", contextDataStr);
+            //@see https://github.com/alibaba/dubbo/blob/dubbo-2.5.3/dubbo-rpc/dubbo-rpc-api/src/main/java/com/alibaba/dubbo/rpc/RpcInvocation.java#L154-L161
+            CarrierItem next = contextCarrier.items();
+            while (next.hasNext()) {
+                next = next.next();
+                rpcContext.getAttachments().put(next.getHeadKey(), next.getHeadValue());
             }
         } else {
-
-            ContextCarrier contextCarrier;
-            if (!BugFixActive.isActive()) {
-                contextCarrier = new ContextCarrier().deserialize(rpcContext.getAttachment(Config.Plugin.Propagation.HEADER_NAME));
-            } else {
-                contextCarrier = fix283RecvNoAttachmentIssue(invocation);
+            ContextCarrier contextCarrier = new ContextCarrier();
+            CarrierItem next = contextCarrier.items();
+            while (next.hasNext()) {
+                next = next.next();
+                next.setHeadValue(rpcContext.getAttachment(next.getHeadKey()));
             }
 
             span = ContextManager.createEntrySpan(generateOperationName(requestURL, invocation), contextCarrier);
@@ -142,34 +133,5 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
         requestURL.append(":" + url.getPort() + "/");
         requestURL.append(generateOperationName(url, invocation));
         return requestURL.toString();
-    }
-
-    /**
-     * Set the trace context.
-     *
-     * @param contextCarrier {@link ContextCarrier}.
-     */
-    private void fix283SendNoAttachmentIssue(Invocation invocation, ContextCarrier contextCarrier) {
-        for (Object parameter : invocation.getArguments()) {
-            if (parameter instanceof SWBaseBean) {
-                ((SWBaseBean)parameter).setTraceContext(contextCarrier.serialize());
-                return;
-            }
-        }
-    }
-
-    /**
-     * Fetch the trace context by using {@link Invocation#getArguments()}.
-     *
-     * @return trace context data.
-     */
-    private ContextCarrier fix283RecvNoAttachmentIssue(Invocation invocation) {
-        for (Object parameter : invocation.getArguments()) {
-            if (parameter instanceof SWBaseBean) {
-                return new ContextCarrier().deserialize(((SWBaseBean)parameter).getTraceContext());
-            }
-        }
-
-        return null;
     }
 }

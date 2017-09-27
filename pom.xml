@@ -5,7 +5,7 @@
 
     <groupId>org.skywalking</groupId>
     <artifactId>apm</artifactId>
-    <version>3.2-2017</version>
+    <version>3.2.1-2017</version>
 
     <licenses>
         <license>
@@ -100,6 +100,113 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.6.0</version>
+                <executions>
+                    <execution>
+                        <id>install-jmxtools</id>
+                        <inherited>false</inherited>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>mvn</executable>
+                            <arguments>
+                                <argument>install:install-file</argument>
+                                <argument>-Dfile=jmxtools-1.2.1.jar</argument>
+                                <argument>-DgroupId=com.sun.jdmk</argument>
+                                <argument>-DartifactId=jmxtools</argument>
+                                <argument>-Dversion=1.2.1</argument>
+                                <argument>-Dpackaging=jar</argument>
+                            </arguments>
+                            <workingDirectory>${project.basedir}/ci-dependencies</workingDirectory>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>install-ojdbc</id>
+                        <inherited>false</inherited>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>mvn</executable>
+                            <arguments>
+                                <argument>install:install-file</argument>
+                                <argument>-Dfile=ojdbc14-10.2.0.4.0.jar</argument>
+                                <argument>-DgroupId=com.oracle</argument>
+                                <argument>-DartifactId=ojdbc14</argument>
+                                <argument>-Dversion=10.2.0.4.0</argument>
+                                <argument>-Dpackaging=jar</argument>
+                            </arguments>
+                            <workingDirectory>${project.basedir}/ci-dependencies</workingDirectory>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>install-resin</id>
+                        <inherited>false</inherited>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>mvn</executable>
+                            <arguments>
+                                <argument>install:install-file</argument>
+                                <argument>-Dfile=resin-4.0.41.jar</argument>
+                                <argument>-DgroupId=com.caucho</argument>
+                                <argument>-DartifactId=resin</argument>
+                                <argument>-Dversion=4.0.41</argument>
+                                <argument>-Dpackaging=jar</argument>
+                            </arguments>
+                            <workingDirectory>${project.basedir}/ci-dependencies</workingDirectory>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>install-jmxri</id>
+                        <inherited>false</inherited>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>mvn</executable>
+                            <arguments>
+                                <argument>install:install-file</argument>
+                                <argument>-Dfile=jmxri-1.2.1.jar</argument>
+                                <argument>-DgroupId=com.sun.jmx</argument>
+                                <argument>-DartifactId=jmxri</argument>
+                                <argument>-Dversion=1.2.1</argument>
+                                <argument>-Dpackaging=jar</argument>
+                            </arguments>
+                            <workingDirectory>${project.basedir}/ci-dependencies</workingDirectory>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>install-dubbox</id>
+                        <inherited>false</inherited>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>mvn</executable>
+                            <arguments>
+                                <argument>install:install-file</argument>
+                                <argument>-Dfile=dubbox-2.8.4.jar</argument>
+                                <argument>-DgroupId=com.alibaba</argument>
+                                <argument>-DartifactId=dubbox</argument>
+                                <argument>-Dversion=2.8.4</argument>
+                                <argument>-Dpackaging=jar</argument>
+                            </arguments>
+                            <workingDirectory>${project.basedir}/ci-dependencies</workingDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>

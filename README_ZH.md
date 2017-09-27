@@ -1,4 +1,4 @@
-Sky Walking | [Engligh](README.md)
+Sky Walking | [English](README.md)
 ==========
 
 <img src="https://sky-walking.github.io/page-resources/3.0/skywalking.png" alt="Sky Walking logo" height="90px" align="right" />
@@ -18,32 +18,33 @@ Sky Walking | [Engligh](README.md)
   * [中间件，框架与类库支持列表](https://github.com/wu-sheng/sky-walking/wiki/3.2-supported-list).
 * 手动探针
   * [使用OpenTracing手动探针API](http://opentracing.io/documentation/pages/supported-tracers)
-  * 使用 **@Trace** 标注追踪业务方法
+  * 使用 [**@Trace**](https://github.com/wu-sheng/sky-walking/wiki/sky-walking-application-toolkit-trace-chn) 标注追踪业务方法
   * 将 traceId 集成到 log4j, log4j2 或 logback这些日志组件中
 * 纯Java后端Collector实现，提供RESTful和gRPC接口。兼容接受其他语言探针发送数据 
   * [如何将探针的Metric和Trace数据上传到Collector？]()
 * UI工程请查看 [wu-sheng/sky-walking-ui](https://github.com/wu-sheng/sky-walking-ui)
 * 中文QQ群：392443393
 
-
-# Contributors
-_按首次加入时间排序_
-* 吴晟 [**PMC Member**] [@wu-sheng](https://github.com/wu-sheng)  Principle Engineer, 2012 Lab, Huawei. 
-* 张鑫 [**PMC Member**] [@ascrutae](https://github.com/ascrutae)   
-* 谭真 [@mircoteam](https://github.com/mircoteam)  Advanced R&D Engineers, Creative & Interactive Group.
-* 徐妍 [@TastySummer](https://github.com/TastySummer)
-* 彭勇升 [**PMC Member**] [@pengys5](https://github.com/pengys5) R&D director，Tydic
-* 戴文
-* 柏杨 [@bai-yang](https://github.com/bai-yang)  Senior Engineer, Alibaba Group.
-* 陈凤 [@trey03](https://github.com/trey03)
-* [其他贡献者](https://github.com/wu-sheng/sky-walking/graphs/contributors)
-
-This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to wu.sheng@foxmail.com.
-
-
 # Architecture
 * 3.2+版本架构图
 <img src="https://sky-walking.github.io/page-resources/3.2/architecture/3.2-architecture.jpg"/>
+
+# Document
+* [WIKI](https://github.com/wu-sheng/sky-walking/wiki)
+
+# PMC - Project Management Committee
+* 吴晟 [@wu-sheng](https://github.com/wu-sheng) 
+* 张鑫 [@ascrutae](https://github.com/ascrutae)
+* 彭勇升 [@peng-yongsheng](https://github.com/peng-yongsheng) R&D director，Tydic
+
+# Committer
+* 柏杨 [@bai-yang](https://github.com/bai-yang)  Senior Engineer, Alibaba Group.
+
+# Contributors
+* [Contributors List](https://github.com/wu-sheng/sky-walking/graphs/contributors)
+* 特别感谢徐妍[@TastySummer](https://github.com/TastySummer) 和 戴文, 给予项目的大量的帮助.
+
+This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to wu.sheng@foxmail.com.
 
 # Screenshots
 - 追踪基于 dubbox 和 [motan](https://github.com/weibocom/motan)的分布式系统，生成的拓扑截图
@@ -71,11 +72,15 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 - 性能测试报告
   - [Java探针测试报告](https://sky-walking.github.io/Agent-Benchmarks/)
 
-# Document
-* [WIKI](https://github.com/wu-sheng/sky-walking/wiki)
-
 # Contact Us
 * 直接提交Issue
 * [Gitter](https://gitter.im/sky-walking/Lobby)
 * [Google Mailing List](https://groups.google.com/forum/#!forum/skywalking-distributed-tracing-and-apm)
 * QQ群: 392443393
+
+# Commercial Support Partners
+[![Shurenyun Logo](https://sky-walking.github.io/page-resources/partners/shurenyun-logo.png)](https://www.shurenyun.com/)
+
+
+# License
+所有贡献的代码，和 [sky-walking license](/LICENSE) 保持一致.

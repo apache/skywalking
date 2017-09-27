@@ -33,7 +33,13 @@ public class ComponentsDefine {
 
     public static final OfficialComponent SPRING_REST_TEMPLATE = new OfficialComponent(13, "SpringRestTemplate");
 
-    public static final OfficialComponent SPRING_MVC_ANNOTATION = new OfficialComponent(14, "SpringMVCAnnotation");
+    public static final OfficialComponent SPRING_MVC_ANNOTATION = new OfficialComponent(14, "SpringMVC");
+
+    public static final OfficialComponent STRUTS2 = new OfficialComponent(15, "Struts2");
+
+    public static final OfficialComponent NUTZ_MVC_ANNOTATION = new OfficialComponent(16, "NutzMVC");
+
+    public static final OfficialComponent NUTZ_HTTP = new OfficialComponent(17, "NutzHttp");
 
     private static ComponentsDefine instance = new ComponentsDefine();
 
@@ -44,7 +50,7 @@ public class ComponentsDefine {
     }
 
     public ComponentsDefine() {
-        components = new String[15];
+        components = new String[18];
         addComponent(TOMCAT);
         addComponent(HTTPCLIENT);
         addComponent(DUBBO);
@@ -59,6 +65,9 @@ public class ComponentsDefine {
         addComponent(OKHTTP);
         addComponent(SPRING_REST_TEMPLATE);
         addComponent(SPRING_MVC_ANNOTATION);
+        addComponent(STRUTS2);
+        addComponent(NUTZ_MVC_ANNOTATION);
+        addComponent(NUTZ_HTTP);
     }
 
     private void addComponent(OfficialComponent component) {

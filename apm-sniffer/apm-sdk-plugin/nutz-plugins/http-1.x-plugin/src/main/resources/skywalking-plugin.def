@@ -1,0 +1,3 @@
+nutz-http-1.x=org.skywalking.apm.plugin.nutz.http.sync.define.NutzHttpGetSenderInstrumentation
+nutz-http-1.x=org.skywalking.apm.plugin.nutz.http.sync.define.NutzHttpPostSenderInstrumentation
+nutz-http-1.x=org.skywalking.apm.plugin.nutz.http.sync.define.NutzHttpFilePostSenderInstrumentation

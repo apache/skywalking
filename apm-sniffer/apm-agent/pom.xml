@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.skywalking</groupId>
         <artifactId>apm-sniffer</artifactId>
-        <version>3.2-2017</version>
+        <version>3.2.1-2017</version>
     </parent>
 
     <artifactId>apm-agent</artifactId>
@@ -98,6 +98,21 @@
         <dependency>
             <groupId>org.skywalking</groupId>
             <artifactId>apm-spring-cloud-feign-1.x-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>apm-struts2-2.x-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>apm-nutz-mvc-annotation-1.x-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>apm-nutz-http-1.x-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
 

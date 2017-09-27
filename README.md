@@ -3,7 +3,7 @@ Sky Walking | [中文](README_ZH.md)
 
 <img src="https://sky-walking.github.io/page-resources/3.0/skywalking.png" alt="Sky Walking logo" height="90px" align="right" />
 
-**SkyWalking 3**: APM for Distributed Systems, also known Distributed Tracing System.
+**SkyWalking 3**: APM for Distributed Systems, also known Distributed Tracing System. 
 
 [![Build Status](https://travis-ci.org/wu-sheng/sky-walking.svg?branch=master)](https://travis-ci.org/wu-sheng/sky-walking)
 [![Coverage Status](https://coveralls.io/repos/github/wu-sheng/sky-walking/badge.svg?branch=master&forceUpdate=2)](https://coveralls.io/github/wu-sheng/sky-walking?branch=master)
@@ -24,24 +24,26 @@ Sky Walking | [中文](README_ZH.md)
   * [How to uplink metrics and traces to collector?]()
 * The UI released on [wu-sheng/sky-walking-ui](https://github.com/wu-sheng/sky-walking-ui)
 
-
-# Contributors
-_In chronological order_
-* 吴晟 [**PMC Member**] [@wu-sheng](https://github.com/wu-sheng)  Principle Engineer, 2012 Lab, Huawei. 
-* 张鑫 [**PMC Member**] [@ascrutae](https://github.com/ascrutae)   
-* 谭真 [@mircoteam](https://github.com/mircoteam)  Advanced R&D Engineers, Creative & Interactive Group.
-* 徐妍 [@TastySummer](https://github.com/TastySummer)
-* 彭勇升 [**PMC Member**] [@pengys5](https://github.com/pengys5) R&D director，Tydic
-* 戴文
-* 柏杨 [@bai-yang](https://github.com/bai-yang)  Senior Engineer, Alibaba Group.
-* 陈凤 [@trey03](https://github.com/trey03)
-* [More contributors](https://github.com/wu-sheng/sky-walking/graphs/contributors)
-
-This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to wu.sheng@foxmail.com.
-
 # Architecture
 * Architecture graph for 3.2+
 <img src="https://sky-walking.github.io/page-resources/3.2/architecture/3.2-architecture.jpg"/>
+
+# Document
+* [WIKI](https://github.com/wu-sheng/sky-walking/wiki)
+
+# PMC - Project Management Committee
+* 吴晟 [@wu-sheng](https://github.com/wu-sheng) 
+* 张鑫 [@ascrutae](https://github.com/ascrutae)
+* 彭勇升 [@peng-yongsheng](https://github.com/peng-yongsheng) R&D director，Tydic
+
+# Committer
+* 柏杨 [@bai-yang](https://github.com/bai-yang)  Senior Engineer, Alibaba Group.
+
+# Contributors
+* [Contributors List](https://github.com/wu-sheng/sky-walking/graphs/contributors)
+* A special thanks to the contributors: 徐妍[@TastySummer](https://github.com/TastySummer) and 戴文, you offer huge helps for this project.
+
+This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to wu.sheng@foxmail.com.
 
 # Screenshots
 - Topological graph of application clusters based on dubbox and [motan](https://github.com/weibocom/motan).
@@ -68,11 +70,14 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 - Performance test reports
   - [Java Agent test report](https://sky-walking.github.io/Agent-Benchmarks/)
 
-# Document
-* [WIKI](https://github.com/wu-sheng/sky-walking/wiki)
-
 # Contact Us
 * Submit an issue
 * [Gitter](https://gitter.im/sky-walking/Lobby)
 * [Google Mailing List](https://groups.google.com/forum/#!forum/skywalking-distributed-tracing-and-apm)
 * QQ Group: 392443393
+
+# Commercial Support Partners
+[![Shurenyun Logo](https://sky-walking.github.io/page-resources/partners/shurenyun-logo.png)](https://www.shurenyun.com/)
+
+# License
+By contributing your code, you agree to license your contribution under the terms of the [sky-walking license](/LICENSE).

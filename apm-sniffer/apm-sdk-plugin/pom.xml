@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.skywalking</groupId>
         <artifactId>apm-sniffer</artifactId>
-        <version>3.2-2017</version>
+        <version>3.2.1-2017</version>
     </parent>
 
     <artifactId>apm-sdk-plugin</artifactId>
@@ -23,6 +23,8 @@
         <module>resin-3.x-plugin</module>
         <module>resin-4.x-plugin</module>
         <module>spring-plugins</module>
+        <module>struts2-2.x-plugin</module>
+        <module>nutz-plugins</module>
     </modules>
     <packaging>pom</packaging>
 

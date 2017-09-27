@@ -1,85 +1,50 @@
 package org.skywalking.apm.agent.core.context.ids;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import org.skywalking.apm.agent.core.context.ids.base64.Base64;
 import org.skywalking.apm.network.proto.UniqueId;
 
 /**
  * @author wusheng
  */
 public class ID {
-    private static final Base64.Encoder ENCODER = Base64.getEncoder();
-    private static final Base64.Decoder DECODER = Base64.getDecoder();
-
     private long part1;
     private long part2;
     private long part3;
+    private String encoding;
+    private boolean isValid;
 
     public ID(long part1, long part2, long part3) {
         this.part1 = part1;
         this.part2 = part2;
         this.part3 = part3;
+        this.encoding = null;
+        this.isValid = true;
     }
 
-    public ID(String base64String) {
-        int index = 0;
+    public ID(String encodingString) {
+        String[] idParts = encodingString.split("\\.", 3);
+        this.isValid = true;
         for (int part = 0; part < 3; part++) {
-            String encodedString;
-            char potentialTypeChar = base64String.charAt(index);
-            long value;
-            if (potentialTypeChar == '#') {
-                encodedString = base64String.substring(index + 1, index + 5);
-                index += 5;
-                value = ByteBuffer.wrap(DECODER.decode(encodedString)).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().get(0);
-            } else if (potentialTypeChar == '$') {
-                encodedString = base64String.substring(index + 1, index + 9);
-                index += 9;
-                value = ByteBuffer.wrap(DECODER.decode(encodedString)).order(ByteOrder.LITTLE_ENDIAN).asIntBuffer().get(0);
-            } else {
-                encodedString = base64String.substring(index, index + 12);
-                index += 12;
-                value = ByteBuffer.wrap(DECODER.decode(encodedString)).order(ByteOrder.LITTLE_ENDIAN).asLongBuffer().get(0);
-            }
-
-            if (part == 0) {
-                part1 = value;
-            } else if (part == 1) {
-                part2 = value;
-            } else {
-                part3 = value;
+            try {
+                if (part == 0) {
+                    part1 = Long.parseLong(idParts[part]);
+                } else if (part == 1) {
+                    part2 = Long.parseLong(idParts[part]);
+                } else {
+                    part3 = Long.parseLong(idParts[part]);
+                }
+            } catch (NumberFormatException e) {
+                this.isValid = false;
+                break;
             }
 
         }
     }
 
-    public String toBase64() {
-        return long2Base64(part1) + long2Base64(part2) + long2Base64(part3);
-    }
-
-    private String long2Base64(long partN) {
-        if (partN < 0) {
-            throw new IllegalArgumentException("negative value.");
+    public String encode() {
+        if (encoding == null) {
+            encoding = toString();
         }
-        if (partN < 32768) {
-            // 0 - 32767
-            // "#" as a prefix of a short value with base64 encoding.
-            byte[] data = new byte[2];
-            ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().put((short)partN);
-            return '#' + ENCODER.encodeToString(data);
-        } else if (partN <= 2147483647) {
-            // 32768 - 2147483647
-            // "$" as a prefix of an integer value (greater than a short) with base64 encoding.
-            byte[] data = new byte[4];
-            ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN).asIntBuffer().put((int)partN);
-            return '$' + ENCODER.encodeToString(data);
-        } else {
-            // > 2147483647
-            // a long value (greater than an integer)
-            byte[] data = new byte[8];
-            ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN).asLongBuffer().put(partN);
-            return ENCODER.encodeToString(data);
-        }
+        return encoding;
     }
 
     @Override public String toString() {
@@ -106,6 +71,10 @@ public class ID {
         result = 31 * result + (int)(part2 ^ (part2 >>> 32));
         result = 31 * result + (int)(part3 ^ (part3 >>> 32));
         return result;
+    }
+
+    public boolean isValid() {
+        return isValid;
     }
 
     public UniqueId transform() {

@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.skywalking</groupId>
         <artifactId>apm-sdk-plugin</artifactId>
-        <version>3.2-2017</version>
+        <version>3.2.1-2017</version>
     </parent>
 
     <artifactId>apm-httpClient-4.x-plugin</artifactId>

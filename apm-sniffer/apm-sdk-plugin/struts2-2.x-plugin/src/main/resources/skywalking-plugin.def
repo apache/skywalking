@@ -1,0 +1,1 @@
+struts2-2.x=org.skywalking.apm.plugin.struts2.define.Struts2Instrumentation

@@ -26,8 +26,8 @@ public abstract class DistributedTraceId {
         this.id = new ID(id);
     }
 
-    public String toBase64() {
-        return id.toBase64();
+    public String encode() {
+        return id.encode();
     }
 
     @Override

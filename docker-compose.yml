@@ -1,7 +1,7 @@
 version: '2.1'
 services:
   skywalking-webui:
-    image: skywalking/skywalking-ui:3.2-2017
+    image: skywalking/skywalking-ui:3.2.1-2017
     expose:
       - "8080"
     ports:
@@ -15,7 +15,7 @@ services:
       - COLLECTOR_SERVERS=skywalking-collector:10800
 
   skywalking-collector:
-    image: skywalking/skywalking-collector:3.2-2017
+    image: skywalking/skywalking-collector:3.2.1-2017
     expose:
       - "10800"
       - "11800"
