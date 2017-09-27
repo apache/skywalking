@@ -115,6 +115,16 @@
             <artifactId>apm-nutz-http-1.x-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>apm-jetty-client-9.x-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>apm-jetty-server-9.x-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- activation -->
         <dependency>
