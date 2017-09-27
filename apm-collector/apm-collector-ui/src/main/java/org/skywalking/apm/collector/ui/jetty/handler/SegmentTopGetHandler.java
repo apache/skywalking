@@ -2,6 +2,7 @@ package org.skywalking.apm.collector.ui.jetty.handler;
 
 import com.google.gson.JsonElement;
 import javax.servlet.http.HttpServletRequest;
+import org.skywalking.apm.collector.core.util.StringUtils;
 import org.skywalking.apm.collector.server.jetty.ArgumentsParseException;
 import org.skywalking.apm.collector.server.jetty.JettyHandler;
 import org.skywalking.apm.collector.ui.dao.ISegmentCostDAO;
@@ -78,6 +79,27 @@ public class SegmentTopGetHandler extends JettyHandler {
             operationName = req.getParameter("operationName");
         }
 
+        int applicationId;
+        try {
+            applicationId = Integer.valueOf(req.getParameter("applicationId"));
+        } catch (NumberFormatException e) {
+            throw new ArgumentsParseException("the request parameter applicationId must be a int");
+        }
+
+        ISegmentCostDAO.Error error;
+        String errorStr = req.getParameter("error");
+        if (StringUtils.isNotEmpty(errorStr)) {
+            if ("true".equals(errorStr)) {
+                error = ISegmentCostDAO.Error.True;
+            } else if ("false".equals(errorStr)) {
+                error = ISegmentCostDAO.Error.False;
+            } else {
+                error = ISegmentCostDAO.Error.All;
+            }
+        } else {
+            error = ISegmentCostDAO.Error.All;
+        }
+
         ISegmentCostDAO.Sort sort = ISegmentCostDAO.Sort.Cost;
         if (req.getParameterMap().containsKey("sort")) {
             String sortStr = req.getParameter("sort");
@@ -86,7 +108,7 @@ public class SegmentTopGetHandler extends JettyHandler {
             }
         }
 
-        return service.loadTop(startTime, endTime, minCost, maxCost, operationName, globalTraceId, limit, from, sort);
+        return service.loadTop(startTime, endTime, minCost, maxCost, operationName, globalTraceId, error, applicationId, limit, from, sort);
     }
 
     @Override protected JsonElement doPost(HttpServletRequest req) throws ArgumentsParseException {
