@@ -23,6 +23,7 @@
 			<groupId>net.spy</groupId>
 			<artifactId>spymemcached</artifactId>
 			<version>${spymemcached.version}</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
