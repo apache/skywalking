@@ -66,7 +66,7 @@ public class MemcachedMethodInterceptorTest {
 	    private void assertMemcacheSpan(AbstractTracingSpan span) {
 	        assertThat(span.getOperationName(), is("SpyMemcached/set"));
 	        assertThat(span.isExit(), is(true));
-	        assertThat(SpanHelper.getComponentId(span), is(18));
+	        assertThat(SpanHelper.getComponentId(span), is(20));
 	        List<KeyValuePair> tags = SpanHelper.getTags(span);
 	        assertThat(tags.get(0).getValue(), is("Memcache"));
 	        assertThat(tags.get(1).getValue(), is("set OperationKey"));

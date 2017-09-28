@@ -117,6 +117,15 @@
         </dependency>
 		<dependency>
             <groupId>org.skywalking</groupId>
+            <artifactId>apm-jetty-client-9.x-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>apm-jetty-server-9.x-plugin</artifactId>
+            <version>${project.version}</version>
+		<dependency>
+            <groupId>org.skywalking</groupId>
             <artifactId>apm-spymemcached-2.x-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>

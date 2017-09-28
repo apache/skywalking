@@ -24,6 +24,7 @@
         <module>spring-plugins</module>
         <module>struts2-2.x-plugin</module>
         <module>nutz-plugins</module>
+		<module>jetty-plugin</module>
 		<module>spymemcached-2.x-plugin</module>
   </modules>
     <packaging>pom</packaging>
