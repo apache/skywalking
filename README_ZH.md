@@ -48,22 +48,22 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 
 # Screenshots
 - 追踪基于 dubbox 和 [motan](https://github.com/weibocom/motan)的分布式系统，生成的拓扑截图
-<img src="https://sky-walking.github.io/page-resources/3.2/topological_graph_test_project.png?forceUpdate=0"/>
+<img src="https://sky-walking.github.io/page-resources/3.2.1/topological_graph_test_project.png?forceUpdate=0"/>
 
 - 调用链查询
-<img src="https://sky-walking.github.io/page-resources/3.2/trace_segment.png"/>
+<img src="https://sky-walking.github.io/page-resources/3.2.1/trace_segment.png"/>
 
 - Span信息查询
 <img src="https://sky-walking.github.io/page-resources/3.0/span.png" />
 
 - 实例全局视图
-<img src="https://sky-walking.github.io/page-resources/3.2/instance_health.png"/>
+<img src="https://sky-walking.github.io/page-resources/3.2.1/instance_health.png"/>
 
 - JVM明细信息
-<img src="https://sky-walking.github.io/page-resources/3.2/instance_graph.png"/>
+<img src="https://sky-walking.github.io/page-resources/3.2.1/instance_graph.png"/>
 
 - 服务依赖树.
-<img src="https://sky-walking.github.io/page-resources/3.2/service_dependency_tree.png"/>
+<img src="https://sky-walking.github.io/page-resources/3.2.1/service_dependency_tree.png"/>
 
 
 # Test reports

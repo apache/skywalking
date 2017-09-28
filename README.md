@@ -47,22 +47,22 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 
 # Screenshots
 - Topological graph of application clusters based on dubbox and [motan](https://github.com/weibocom/motan).
-<img src="https://sky-walking.github.io/page-resources/3.2/topological_graph_test_project.png"/>
+<img src="https://sky-walking.github.io/page-resources/3.2.1/topological_graph_test_project.png"/>
 
 - Trace query.
-<img src="https://sky-walking.github.io/page-resources/3.2/trace_segment.png"/>
+<img src="https://sky-walking.github.io/page-resources/3.2.1/trace_segment.png"/>
 
 - Span detail.
 <img src="https://sky-walking.github.io/page-resources/3.0/span.png" />
 
 - Instance Overview.
-<img src="https://sky-walking.github.io/page-resources/3.2/instance_health.png"/>
+<img src="https://sky-walking.github.io/page-resources/3.2.1/instance_health.png"/>
 
 - JVM Detail.
-<img src="https://sky-walking.github.io/page-resources/3.2/instance_graph.png"/>
+<img src="https://sky-walking.github.io/page-resources/3.2.1/instance_graph.png"/>
 
 - Services Dependency Tree.
-<img src="https://sky-walking.github.io/page-resources/3.2/service_dependency_tree.png"/>
+<img src="https://sky-walking.github.io/page-resources/3.2.1/service_dependency_tree.png"/>
 
 # Test reports
 - Automatic integration test reports
