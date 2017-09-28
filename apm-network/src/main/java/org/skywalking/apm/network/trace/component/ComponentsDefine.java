@@ -40,6 +40,8 @@ public class ComponentsDefine {
     public static final OfficialComponent NUTZ_MVC_ANNOTATION = new OfficialComponent(16, "NutzMVC");
 
     public static final OfficialComponent NUTZ_HTTP = new OfficialComponent(17, "NutzHttp");
+    
+    public static final OfficialComponent MEMCACHE = new OfficialComponent(18, "Memcache");
 
     private static ComponentsDefine instance = new ComponentsDefine();
 
@@ -50,7 +52,7 @@ public class ComponentsDefine {
     }
 
     public ComponentsDefine() {
-        components = new String[18];
+        components = new String[19];
         addComponent(TOMCAT);
         addComponent(HTTPCLIENT);
         addComponent(DUBBO);
@@ -68,6 +70,7 @@ public class ComponentsDefine {
         addComponent(STRUTS2);
         addComponent(NUTZ_MVC_ANNOTATION);
         addComponent(NUTZ_HTTP);
+        addComponent(MEMCACHE);
     }
 
     private void addComponent(OfficialComponent component) {
