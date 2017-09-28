@@ -48,7 +48,6 @@ public class MemcachedInstrumentation extends ClassInstanceMethodsEnhancePluginD
 
     @Override
     protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        logger.info("MemcachedInstrumentation-------getConstructorsInterceptPoints----------.");
         return new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
                 @Override

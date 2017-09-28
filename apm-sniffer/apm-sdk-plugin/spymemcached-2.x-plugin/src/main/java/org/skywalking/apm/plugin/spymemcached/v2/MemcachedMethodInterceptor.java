@@ -20,7 +20,6 @@ public class MemcachedMethodInterceptor implements InstanceMethodsAroundIntercep
     @Override 
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
-        logger.info("MemcachedMethodInterceptor-------------method={}-----allArguments={}", method.getName(), allArguments);
         Object[] arguments = allArguments;
         String peer = String.valueOf(objInst.getSkyWalkingDynamicField());
         AbstractSpan span = ContextManager.createExitSpan("SpyMemcached/" + method.getName(), peer);

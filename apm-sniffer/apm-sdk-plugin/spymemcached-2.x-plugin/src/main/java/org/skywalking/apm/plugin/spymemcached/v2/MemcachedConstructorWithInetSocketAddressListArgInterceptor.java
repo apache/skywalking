@@ -14,7 +14,6 @@ public class MemcachedConstructorWithInetSocketAddressListArgInterceptor impleme
     
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        logger.info("MemcachedConstructorWithInetSocketAddressListArgInterceptor-----------------{}.", allArguments);
         StringBuilder memcachConnInfo = new StringBuilder();
         @SuppressWarnings("unchecked")
         List<InetSocketAddress> inetSocketAddressList = (List<InetSocketAddress>)allArguments[1];

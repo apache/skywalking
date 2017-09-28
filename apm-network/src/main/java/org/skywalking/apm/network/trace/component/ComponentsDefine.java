@@ -41,7 +41,11 @@ public class ComponentsDefine {
 
     public static final OfficialComponent NUTZ_HTTP = new OfficialComponent(17, "NutzHttp");
     
-    public static final OfficialComponent MEMCACHE = new OfficialComponent(18, "Memcache");
+    public static final OfficialComponent JETTY_CLIENT = new OfficialComponent(18, "JettyClient");
+
+    public static final OfficialComponent JETTY_SERVER = new OfficialComponent(19, "JettyServer");
+    
+    public static final OfficialComponent MEMCACHE = new OfficialComponent(20, "Memcache");
 
     private static ComponentsDefine instance = new ComponentsDefine();
 
@@ -52,7 +56,7 @@ public class ComponentsDefine {
     }
 
     public ComponentsDefine() {
-        components = new String[19];
+        components = new String[21];
         addComponent(TOMCAT);
         addComponent(HTTPCLIENT);
         addComponent(DUBBO);
@@ -70,6 +74,8 @@ public class ComponentsDefine {
         addComponent(STRUTS2);
         addComponent(NUTZ_MVC_ANNOTATION);
         addComponent(NUTZ_HTTP);
+        addComponent(JETTY_CLIENT);
+        addComponent(JETTY_SERVER);
         addComponent(MEMCACHE);
     }
 
