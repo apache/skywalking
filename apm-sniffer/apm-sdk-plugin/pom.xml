@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.skywalking</groupId>
         <artifactId>apm-sniffer</artifactId>
-        <version>3.2.1-2017</version>
+        <version>3.2.2-2017</version>
     </parent>
 
     <artifactId>apm-sdk-plugin</artifactId>
@@ -24,8 +24,9 @@
         <module>spring-plugins</module>
         <module>struts2-2.x-plugin</module>
         <module>nutz-plugins</module>
-		<module>spymemcached-2.x-plugin</module>
-  </modules>
+		    <module>spymemcached-2.x-plugin</module>
+        <module>jetty-plugin</module>
+    </modules>
     <packaging>pom</packaging>
 
     <name>apm-sdk-plugin</name>

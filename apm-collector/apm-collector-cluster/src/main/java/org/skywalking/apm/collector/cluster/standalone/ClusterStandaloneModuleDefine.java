@@ -15,6 +15,12 @@ public class ClusterStandaloneModuleDefine extends ClusterModuleDefine {
 
     public static final String MODULE_NAME = "standalone";
 
+    private final ClusterStandaloneDataMonitor dataMonitor;
+
+    public ClusterStandaloneModuleDefine() {
+        this.dataMonitor = new ClusterStandaloneDataMonitor();
+    }
+
     @Override public String group() {
         return ClusterModuleGroupDefine.GROUP_NAME;
     }
@@ -32,7 +38,7 @@ public class ClusterStandaloneModuleDefine extends ClusterModuleDefine {
     }
 
     @Override public DataMonitor dataMonitor() {
-        return null;
+        return dataMonitor;
     }
 
     @Override protected Client createClient() {
@@ -40,6 +46,6 @@ public class ClusterStandaloneModuleDefine extends ClusterModuleDefine {
     }
 
     @Override public ClusterModuleRegistrationReader registrationReader() {
-        return null;
+        return new ClusterStandaloneModuleRegistrationReader(dataMonitor);
     }
 }

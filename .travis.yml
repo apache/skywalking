@@ -4,8 +4,7 @@ services:
   - docker
 
 language: java
-
-script:
+install:
   - jdk_switcher use oraclejdk8
   - mvn clean install
 

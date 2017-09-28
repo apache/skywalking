@@ -8,9 +8,13 @@ import java.util.List;
  */
 public interface ISegmentCostDAO {
     JsonObject loadTop(long startTime, long endTime, long minCost, long maxCost, String operationName,
-        List<String> segmentIds, int limit, int from, Sort sort);
+        Error error, int applicationId, List<String> segmentIds, int limit, int from, Sort sort);
 
-    public enum Sort {
+    enum Sort {
         Cost, Time
+    }
+
+    enum Error {
+        All, True, False
     }
 }
