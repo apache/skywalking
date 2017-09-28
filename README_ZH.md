@@ -54,7 +54,7 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 <img src="https://sky-walking.github.io/page-resources/3.2.1/trace_segment.png"/>
 
 - Span信息查询
-<img src="https://sky-walking.github.io/page-resources/3.0/span.png" />
+<img src="https://sky-walking.github.io/page-resources/3.2.1/span.png" />
 
 - 实例全局视图
 <img src="https://sky-walking.github.io/page-resources/3.2.1/instance_health.png"/>
