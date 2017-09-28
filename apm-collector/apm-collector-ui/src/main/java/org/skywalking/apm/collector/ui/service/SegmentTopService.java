@@ -18,8 +18,9 @@ public class SegmentTopService {
     private final Logger logger = LoggerFactory.getLogger(SegmentTopService.class);
 
     public JsonObject loadTop(long startTime, long endTime, long minCost, long maxCost, String operationName,
-        String globalTraceId, int limit, int from, ISegmentCostDAO.Sort sort) {
-        logger.debug("startTime: {}, endTime: {}, minCost: {}, maxCost: {}, operationName: {}, globalTraceId: {}, limit: {}, from: {}", startTime, endTime, minCost, maxCost, operationName, globalTraceId, limit, from);
+        String globalTraceId, ISegmentCostDAO.Error error, int applicationId, int limit, int from,
+        ISegmentCostDAO.Sort sort) {
+        logger.debug("startTime: {}, endTime: {}, minCost: {}, maxCost: {}, operationName: {}, globalTraceId: {}, error: {}, applicationId: {}, limit: {}, from: {}", startTime, endTime, minCost, maxCost, operationName, globalTraceId, error, applicationId, limit, from);
 
         List<String> segmentIds = new LinkedList<>();
         if (StringUtils.isNotEmpty(globalTraceId)) {
@@ -27,6 +28,6 @@ public class SegmentTopService {
             segmentIds = globalTraceDAO.getSegmentIds(globalTraceId);
         }
         ISegmentCostDAO segmentCostDAO = (ISegmentCostDAO)DAOContainer.INSTANCE.get(ISegmentCostDAO.class.getName());
-        return segmentCostDAO.loadTop(startTime, endTime, minCost, maxCost, operationName, segmentIds, limit, from, sort);
+        return segmentCostDAO.loadTop(startTime, endTime, minCost, maxCost, operationName, error, applicationId, segmentIds, limit, from, sort);
     }
 }

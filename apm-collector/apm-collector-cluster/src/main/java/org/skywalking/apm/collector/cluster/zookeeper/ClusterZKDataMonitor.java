@@ -1,11 +1,11 @@
 package org.skywalking.apm.collector.cluster.zookeeper;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.HashSet;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
@@ -42,14 +42,14 @@ public class ClusterZKDataMonitor implements DataMonitor, Watcher {
         registrations = new LinkedHashMap<>();
     }
 
-    @Override public void process(WatchedEvent event) {
+    @Override public synchronized void process(WatchedEvent event) {
         logger.info("changed path {}, event type: {}", event.getPath(), event.getType().name());
         if (listeners.containsKey(event.getPath())) {
             List<String> paths;
             try {
                 paths = client.getChildren(event.getPath(), true);
                 ClusterDataListener listener = listeners.get(event.getPath());
-                Set<String> remoteNodes = new HashSet<String>();
+                Set<String> remoteNodes = new HashSet<>();
                 Set<String> notifiedNodes = listener.getAddresses();
                 if (CollectionUtils.isNotEmpty(paths)) {
                     for (String serverPath : paths) {
@@ -65,9 +65,12 @@ public class ClusterZKDataMonitor implements DataMonitor, Watcher {
                         }
                     }
                 }
-                for (String address : notifiedNodes) {
+
+                String[] notifiedNodeArray = notifiedNodes.toArray(new String[notifiedNodes.size()]);
+                for (int i = notifiedNodeArray.length - 1; i >= 0; i--) {
+                    String address = notifiedNodeArray[i];
                     if (remoteNodes.isEmpty() || !remoteNodes.contains(address)) {
-                        logger.info("path children has been changed, path and data: {}", event.getPath() + "/" + address);
+                        logger.info("path children has been remove, path and data: {}", event.getPath() + "/" + address);
                         listener.removeAddress(address);
                         listener.serverQuitNotify(address);
                     }
