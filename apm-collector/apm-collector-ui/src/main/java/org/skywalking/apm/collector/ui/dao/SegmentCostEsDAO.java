@@ -25,7 +25,7 @@ import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
 public class SegmentCostEsDAO extends EsDAO implements ISegmentCostDAO {
 
     @Override public JsonObject loadTop(long startTime, long endTime, long minCost, long maxCost, String operationName,
-        List<String> segmentIds, int limit, int from, Sort sort) {
+        Error error, int applicationId, List<String> segmentIds, int limit, int from, Sort sort) {
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(SegmentCostTable.TABLE);
         searchRequestBuilder.setTypes(SegmentCostTable.TABLE_TYPE);
         searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
@@ -49,6 +49,14 @@ public class SegmentCostEsDAO extends EsDAO implements ISegmentCostDAO {
         }
         if (CollectionUtils.isNotEmpty(segmentIds)) {
             boolQueryBuilder.must().add(QueryBuilders.termsQuery(SegmentCostTable.COLUMN_SEGMENT_ID, segmentIds.toArray(new String[0])));
+        }
+        if (Error.True.equals(error)) {
+            boolQueryBuilder.must().add(QueryBuilders.termQuery(SegmentCostTable.COLUMN_IS_ERROR, true));
+        } else if (Error.False.equals(error)) {
+            boolQueryBuilder.must().add(QueryBuilders.termQuery(SegmentCostTable.COLUMN_IS_ERROR, false));
+        }
+        if (applicationId != 0) {
+            boolQueryBuilder.must().add(QueryBuilders.termQuery(SegmentCostTable.COLUMN_APPLICATION_ID, applicationId));
         }
 
         if (Sort.Cost.equals(sort)) {
@@ -84,6 +92,7 @@ public class SegmentCostEsDAO extends EsDAO implements ISegmentCostDAO {
                 topSegmentJson.addProperty(GlobalTraceTable.COLUMN_GLOBAL_TRACE_ID, globalTraces.get(0));
             }
 
+            topSegmentJson.addProperty(SegmentCostTable.COLUMN_APPLICATION_ID, (Number)searchHit.getSource().get(SegmentCostTable.COLUMN_APPLICATION_ID));
             topSegmentJson.addProperty(SegmentCostTable.COLUMN_SERVICE_NAME, (String)searchHit.getSource().get(SegmentCostTable.COLUMN_SERVICE_NAME));
             topSegmentJson.addProperty(SegmentCostTable.COLUMN_COST, (Number)searchHit.getSource().get(SegmentCostTable.COLUMN_COST));
             topSegmentJson.addProperty(SegmentCostTable.COLUMN_IS_ERROR, (Boolean)searchHit.getSource().get(SegmentCostTable.COLUMN_IS_ERROR));

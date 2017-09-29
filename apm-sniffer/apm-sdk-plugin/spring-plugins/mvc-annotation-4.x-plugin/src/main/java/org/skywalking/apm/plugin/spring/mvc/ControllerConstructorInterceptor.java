@@ -24,7 +24,11 @@ public class ControllerConstructorInterceptor implements InstanceConstructorInte
         String basePath = "";
         RequestMapping basePathRequestMapping = objInst.getClass().getAnnotation(RequestMapping.class);
         if (basePathRequestMapping != null) {
-            basePath = basePathRequestMapping.value()[0];
+            if (basePathRequestMapping.value().length > 0) {
+                basePath = basePathRequestMapping.value()[0];
+            } else if (basePathRequestMapping.path().length > 0) {
+                basePath = basePathRequestMapping.path()[0];
+            }
         }
         PathMappingCache pathMappingCache = new PathMappingCache(basePath);
         objInst.setSkyWalkingDynamicField(pathMappingCache);
