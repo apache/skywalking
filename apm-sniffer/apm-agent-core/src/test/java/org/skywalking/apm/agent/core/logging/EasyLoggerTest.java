@@ -66,8 +66,8 @@ public class EasyLoggerTest {
         Assert.assertTrue(logger.isWarnEnable());
         Assert.assertTrue(logger.isErrorEnable());
 
-        logger.debug("$$$$");
-        logger.debug("hello {}", "$$$$");
+        logger.debug("$^!@#*()");
+        logger.debug("hello {}", "!@#$%^&*(),./[]:;");
         logger.info("{}{}");
         logger.info("hello {}", "{}{}");
 
