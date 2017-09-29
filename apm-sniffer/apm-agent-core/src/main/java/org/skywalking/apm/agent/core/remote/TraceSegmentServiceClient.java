@@ -112,7 +112,7 @@ public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSe
 
     private void printUplinkStatus() {
         long currentTimeMillis = System.currentTimeMillis();
-        if (lastLogTime - currentTimeMillis > 30 * 1000) {
+        if (currentTimeMillis - lastLogTime > 30 * 1000) {
             lastLogTime = currentTimeMillis;
             if (segmentUplinkedCounter > 0) {
                 logger.debug("{} trace segments have been sent to collector.", segmentUplinkedCounter);
