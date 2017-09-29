@@ -4,6 +4,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.regex.Matcher;
+
 import org.skywalking.apm.agent.core.conf.Config;
 import org.skywalking.apm.agent.core.conf.Constants;
 import org.skywalking.apm.logging.ILog;
@@ -35,8 +37,10 @@ public class EasyLogger implements ILog {
             if (parametersIndex >= parameters.length) {
                 break;
             }
-
-            tmpMessage = tmpMessage.replaceFirst("\\{\\}", String.valueOf(parameters[parametersIndex++]));
+            /**
+             * @Fix the Illegal group reference issue
+             */
+            tmpMessage = tmpMessage.replaceFirst("\\{\\}", Matcher.quoteReplacement(String.valueOf(parameters[parametersIndex++])));
             startSize = index + 2;
         }
         return tmpMessage;
