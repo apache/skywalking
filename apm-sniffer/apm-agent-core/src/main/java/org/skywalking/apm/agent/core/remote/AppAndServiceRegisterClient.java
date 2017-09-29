@@ -87,7 +87,9 @@ public class AppAndServiceRegisterClient implements BootService, GRPCChannelList
 
     @Override
     public void run() {
-        if (CONNECTED.equals(status)) {
+        boolean shouldTry = true;
+        while (CONNECTED.equals(status) & shouldTry) {
+            shouldTry = false;
             try {
                 if (RemoteDownstreamConfig.Agent.APPLICATION_ID == DictionaryUtil.nullValue()) {
                     if (applicationRegisterServiceBlockingStub != null) {
@@ -95,6 +97,7 @@ public class AppAndServiceRegisterClient implements BootService, GRPCChannelList
                             Application.newBuilder().addApplicationCode(Config.Agent.APPLICATION_CODE).build());
                         if (applicationMapping.getApplicationCount() > 0) {
                             RemoteDownstreamConfig.Agent.APPLICATION_ID = applicationMapping.getApplication(0).getValue();
+                            shouldTry = true;
                         }
                     }
                 } else {
@@ -119,6 +122,7 @@ public class AppAndServiceRegisterClient implements BootService, GRPCChannelList
                                     .setRegisterTime(System.currentTimeMillis())
                                     .setOsinfo(OSUtil.buildOSInfo())
                                     .build());
+                                needRegisterRecover = true;
                             } else {
                                 if (lastSegmentTime - System.currentTimeMillis() > 60 * 1000) {
                                     instanceDiscoveryServiceBlockingStub.heartbeat(ApplicationInstanceHeartbeat.newBuilder()

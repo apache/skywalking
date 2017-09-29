@@ -41,7 +41,7 @@ public class Config {
         /**
          * application and service registry check interval
          */
-        public static long APP_AND_SERVICE_REGISTER_CHECK_INTERVAL = 10;
+        public static long APP_AND_SERVICE_REGISTER_CHECK_INTERVAL = 3;
         /**
          * discovery rest check interval
          */
