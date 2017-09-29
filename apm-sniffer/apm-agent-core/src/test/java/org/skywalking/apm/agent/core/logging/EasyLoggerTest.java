@@ -88,7 +88,7 @@ public class EasyLoggerTest {
         String formatLines = logger.format(exception);
         String[] lines = formatLines.split(Constants.LINE_SEPARATOR);
         Assert.assertEquals("java.lang.NullPointerException", lines[1]);
-        Assert.assertEquals("\tat org.skywalking.apm.agent.core.logging.EasyLoggerTest.testFormat(EasyLoggerTest.java:58)", lines[2]);
+        Assert.assertEquals("\tat org.skywalking.apm.agent.core.logging.EasyLoggerTest.testFormat(EasyLoggerTest.java:86)", lines[2]);
     }
 
     @AfterClass
