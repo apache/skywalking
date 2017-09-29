@@ -122,7 +122,7 @@ public class AppAndServiceRegisterClient implements BootService, GRPCChannelList
                                     .setRegisterTime(System.currentTimeMillis())
                                     .setOsinfo(OSUtil.buildOSInfo())
                                     .build());
-                                needRegisterRecover = true;
+                                needRegisterRecover = false;
                             } else {
                                 if (lastSegmentTime - System.currentTimeMillis() > 60 * 1000) {
                                     instanceDiscoveryServiceBlockingStub.heartbeat(ApplicationInstanceHeartbeat.newBuilder()
