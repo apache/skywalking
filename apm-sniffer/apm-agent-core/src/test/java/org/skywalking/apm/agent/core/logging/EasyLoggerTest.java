@@ -54,13 +54,41 @@ public class EasyLoggerTest {
     }
 
     @Test
+    public void testLogWithSpecialChar() {
+        PrintStream output = Mockito.mock(PrintStream.class);
+        System.setOut(output);
+        PrintStream err = Mockito.mock(PrintStream.class);
+        System.setErr(err);
+        EasyLogger logger = new EasyLogger(EasyLoggerTest.class);
+
+        Assert.assertTrue(logger.isDebugEnable());
+        Assert.assertTrue(logger.isInfoEnable());
+        Assert.assertTrue(logger.isWarnEnable());
+        Assert.assertTrue(logger.isErrorEnable());
+
+        logger.debug("$^!@#*()");
+        logger.debug("hello {}", "!@#$%^&*(),./[]:;");
+        logger.info("{}{}");
+        logger.info("hello {}", "{}{}");
+
+        logger.warn("hello {}", "\\");
+        logger.warn("hello \\");
+        logger.error("hello <>..");
+        logger.error("hello ///\\\\", new NullPointerException());
+        logger.error(new NullPointerException(), "hello {}", "&&&**%%");
+
+        Mockito.verify(output, times(9))
+                .println(anyString());
+    }
+
+    @Test
     public void testFormat() {
         NullPointerException exception = new NullPointerException();
         EasyLogger logger = new EasyLogger(EasyLoggerTest.class);
         String formatLines = logger.format(exception);
         String[] lines = formatLines.split(Constants.LINE_SEPARATOR);
         Assert.assertEquals("java.lang.NullPointerException", lines[1]);
-        Assert.assertEquals("\tat org.skywalking.apm.agent.core.logging.EasyLoggerTest.testFormat(EasyLoggerTest.java:58)", lines[2]);
+        Assert.assertEquals("\tat org.skywalking.apm.agent.core.logging.EasyLoggerTest.testFormat(EasyLoggerTest.java:86)", lines[2]);
     }
 
     @AfterClass
