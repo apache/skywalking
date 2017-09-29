@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.skywalking</groupId>
+		<artifactId>apm-sdk-plugin</artifactId>
+		<version>3.2.2-2017</version>
+	</parent>
+	
+	<artifactId>apm-spymemcached-2.x-plugin</artifactId>
+	<name>spymemcached-2.x-plugin</name>
+	<url>http://maven.apache.org</url>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<spymemcached.version>2.11.1</spymemcached.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>net.spy</groupId>
+			<artifactId>spymemcached</artifactId>
+			<version>${spymemcached.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+			<version>2.4.1</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+</project>
