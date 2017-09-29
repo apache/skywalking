@@ -1,6 +1,7 @@
 package org.skywalking.apm.agent;
 
 import java.lang.instrument.Instrumentation;
+import java.util.List;
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.dynamic.DynamicType;
@@ -9,6 +10,7 @@ import org.skywalking.apm.agent.core.boot.ServiceManager;
 import org.skywalking.apm.agent.core.conf.SnifferConfigInitializer;
 import org.skywalking.apm.agent.core.logging.EasyLogResolver;
 import org.skywalking.apm.agent.core.plugin.AbstractClassEnhancePluginDefine;
+import org.skywalking.apm.agent.core.plugin.EnhanceContext;
 import org.skywalking.apm.agent.core.plugin.PluginBootstrap;
 import org.skywalking.apm.agent.core.plugin.PluginException;
 import org.skywalking.apm.agent.core.plugin.PluginFinder;
@@ -54,13 +56,21 @@ public class SkyWalkingAgent {
             @Override
             public DynamicType.Builder<?> transform(DynamicType.Builder<?> builder, TypeDescription typeDescription,
                 ClassLoader classLoader, JavaModule module) {
-                AbstractClassEnhancePluginDefine pluginDefine = pluginFinder.find(typeDescription, classLoader);
-                if (pluginDefine != null) {
-                    DynamicType.Builder<?> newBuilder = pluginDefine.define(typeDescription.getTypeName(), builder, classLoader);
-                    if (newBuilder != null) {
-                        logger.debug("Finish the prepare stage for {}.", typeDescription.getName());
-                        return newBuilder;
+                List<AbstractClassEnhancePluginDefine> pluginDefines = pluginFinder.find(typeDescription, classLoader);
+                if (pluginDefines.size() > 0) {
+                    DynamicType.Builder<?> newBuilder = builder;
+                    EnhanceContext context = new EnhanceContext();
+                    for (AbstractClassEnhancePluginDefine define : pluginDefines) {
+                        DynamicType.Builder<?> possibleNewBuilder = define.define(typeDescription.getTypeName(), builder, classLoader, context);
+                        if (possibleNewBuilder != null) {
+                            newBuilder = possibleNewBuilder;
+                        }
                     }
+                    if (context.isEnhanced()) {
+                        logger.debug("Finish the prepare stage for {}.", typeDescription.getName());
+                    }
+
+                    return newBuilder;
                 }
 
                 logger.debug("Matched class {}, but ignore by finding mechanism.", typeDescription.getTypeName());

@@ -22,7 +22,7 @@ import static net.bytebuddy.matcher.ElementMatchers.not;
  * @author wusheng
  */
 public class PluginFinder {
-    private final Map<String, AbstractClassEnhancePluginDefine> nameMatchDefine = new HashMap<String, AbstractClassEnhancePluginDefine>();
+    private final Map<String, LinkedList<AbstractClassEnhancePluginDefine>> nameMatchDefine = new HashMap<String, LinkedList<AbstractClassEnhancePluginDefine>>();
     private final List<AbstractClassEnhancePluginDefine> signatureMatchDefine = new LinkedList<AbstractClassEnhancePluginDefine>();
 
     public PluginFinder(List<AbstractClassEnhancePluginDefine> plugins) {
@@ -35,28 +35,34 @@ public class PluginFinder {
 
             if (match instanceof NameMatch) {
                 NameMatch nameMatch = (NameMatch)match;
-                nameMatchDefine.put(nameMatch.getClassName(), plugin);
+                LinkedList<AbstractClassEnhancePluginDefine> pluginDefines = nameMatchDefine.get(nameMatch.getClassName());
+                if (pluginDefines == null) {
+                    pluginDefines = new LinkedList<AbstractClassEnhancePluginDefine>();
+                    nameMatchDefine.put(nameMatch.getClassName(), pluginDefines);
+                }
+                pluginDefines.add(plugin);
             } else {
                 signatureMatchDefine.add(plugin);
             }
         }
     }
 
-    public AbstractClassEnhancePluginDefine find(TypeDescription typeDescription,
+    public List<AbstractClassEnhancePluginDefine> find(TypeDescription typeDescription,
         ClassLoader classLoader) {
+        List<AbstractClassEnhancePluginDefine> matchedPlugins = new LinkedList<AbstractClassEnhancePluginDefine>();
         String typeName = typeDescription.getTypeName();
         if (nameMatchDefine.containsKey(typeName)) {
-            return nameMatchDefine.get(typeName);
+            matchedPlugins.addAll(nameMatchDefine.get(typeName));
         }
 
         for (AbstractClassEnhancePluginDefine pluginDefine : signatureMatchDefine) {
             IndirectMatch match = (IndirectMatch)pluginDefine.enhanceClass();
             if (match.isMatch(typeDescription)) {
-                return pluginDefine;
+                matchedPlugins.add(pluginDefine);
             }
         }
 
-        return null;
+        return matchedPlugins;
     }
 
     public ElementMatcher<? super TypeDescription> buildMatch() {
