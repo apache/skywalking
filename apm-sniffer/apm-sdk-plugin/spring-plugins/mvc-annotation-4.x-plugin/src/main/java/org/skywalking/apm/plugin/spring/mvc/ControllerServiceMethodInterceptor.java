@@ -16,7 +16,6 @@ import org.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-import org.springframework.web.context.request.ServletWebRequest;
 
 /**
  * The <code>ControllerServiceMethodInterceptor</code> only use the first mapping value.
@@ -59,7 +58,7 @@ public class ControllerServiceMethodInterceptor implements InstanceMethodsAround
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
-        HttpServletResponse response = ((ServletWebRequest)RequestContextHolder.getRequestAttributes()).getResponse();
+        HttpServletResponse response = ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getResponse();
 
         AbstractSpan span = ContextManager.activeSpan();
         if (response.getStatus() >= 400) {
