@@ -18,15 +18,12 @@ public class MemcachedMethodInterceptor implements InstanceMethodsAroundIntercep
     @Override 
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
-        Object[] arguments = allArguments;
         String peer = String.valueOf(objInst.getSkyWalkingDynamicField());
         AbstractSpan span = ContextManager.createExitSpan(SPY_MEMCACHE + method.getName(), peer);
         span.setComponent(ComponentsDefine.MEMCACHE);
         Tags.DB_TYPE.set(span, ComponentsDefine.MEMCACHE.getName());
         SpanLayer.asDB(span);
-        if (allArguments.length > 0 && arguments[0] instanceof String) {
-            Tags.DB_STATEMENT.set(span, method.getName() + " " + arguments[0]);
-        }
+        Tags.DB_STATEMENT.set(span, method.getName() + " " + allArguments[0]);
     }
 
     @Override 

@@ -22,7 +22,7 @@ import static net.bytebuddy.matcher.ElementMatchers.takesArgument;
  * {@link XMemcachedConstructorWithInetSocketAddressListArgInterceptor} intercepts the constructor with
  * argument {@link java.net.InetSocketAddress}.
  * 
- *@author IluckySi
+ * @author IluckySi
  * 
  */
 public class MemcachedInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
