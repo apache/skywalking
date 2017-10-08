@@ -20,8 +20,8 @@ import static org.skywalking.apm.agent.core.plugin.match.ClassAnnotationMatch.by
  * <code>org.skywalking.apm.plugin.spring.mvc.ControllerConstructorInterceptor</code> set the controller base path to
  * dynamic field before execute constructor.
  *
- * <code>org.skywalking.apm.plugin.spring.mvc.ControllerServiceMethodInterceptor</code> get the request path from
- * dynamic field first, if not found, <code>ControllerServiceMethodInterceptor</code> generate request path  that
+ * <code>org.skywalking.apm.plugin.spring.mvc.RequestMappingMethodInterceptor</code> get the request path from
+ * dynamic field first, if not found, <code>RequestMappingMethodInterceptor</code> generate request path  that
  * combine the path value of current annotation on current method and the base path and set the new path to the dynamic
  * filed
  *
@@ -56,7 +56,26 @@ public abstract class AbstractControllerInstrumentation extends ClassInstanceMet
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return "org.skywalking.apm.plugin.spring.mvc.ControllerServiceMethodInterceptor";
+                    return "org.skywalking.apm.plugin.spring.mvc.RequestMappingMethodInterceptor";
+                }
+
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
+            },
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return isAnnotatedWith(named("org.springframework.web.bind.annotation.GetMapping"))
+                            .or(isAnnotatedWith(named("org.springframework.web.bind.annotation.PostMapping")))
+                            .or(isAnnotatedWith(named("org.springframework.web.bind.annotation.PutMapping")))
+                            .or(isAnnotatedWith(named("org.springframework.web.bind.annotation.DeleteMapping")))
+                            .or(isAnnotatedWith(named("org.springframework.web.bind.annotation.PatchMapping")));
+                }
+                @Override
+                public String getMethodsInterceptor() {
+                    return "org.skywalking.apm.plugin.spring.mvc.RestMappingMethodInterceptor";
                 }
 
                 @Override
