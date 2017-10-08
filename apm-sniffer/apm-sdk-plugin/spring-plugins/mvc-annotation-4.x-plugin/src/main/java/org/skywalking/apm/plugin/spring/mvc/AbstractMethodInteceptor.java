@@ -1,8 +1,5 @@
 package org.skywalking.apm.plugin.spring.mvc;
 
-import java.lang.reflect.Method;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.skywalking.apm.agent.core.context.CarrierItem;
 import org.skywalking.apm.agent.core.context.ContextCarrier;
 import org.skywalking.apm.agent.core.context.ContextManager;
@@ -13,33 +10,30 @@ import org.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.skywalking.apm.network.trace.component.ComponentsDefine;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.lang.reflect.Method;
+
 /**
- * The <code>ControllerServiceMethodInterceptor</code> only use the first mapping value.
+ * the abstract method inteceptor
  */
-public class ControllerServiceMethodInterceptor implements InstanceMethodsAroundInterceptor {
+public abstract class AbstractMethodInteceptor implements InstanceMethodsAroundInterceptor {
+    public abstract String getRequestURL(Method method);
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        MethodInterceptResult result) throws Throwable {
+                             MethodInterceptResult result) throws Throwable {
         PathMappingCache pathMappingCache = (PathMappingCache)objInst.getSkyWalkingDynamicField();
         String requestURL = pathMappingCache.findPathMapping(method);
         if (requestURL == null) {
-            RequestMapping methodRequestMapping = method.getAnnotation(RequestMapping.class);
-            if (methodRequestMapping.value().length > 0) {
-                requestURL = methodRequestMapping.value()[0];
-            } else if (methodRequestMapping.path().length > 0) {
-                requestURL = methodRequestMapping.path()[0];
-            } else {
-                requestURL = "";
-            }
+            requestURL = getRequestURL(method);
             pathMappingCache.addPathMapping(method, requestURL);
             requestURL = pathMappingCache.findPathMapping(method);
         }
 
-        HttpServletRequest request = ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
 
         ContextCarrier contextCarrier = new ContextCarrier();
         CarrierItem next = contextCarrier.items();
@@ -57,7 +51,7 @@ public class ControllerServiceMethodInterceptor implements InstanceMethodsAround
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        Object ret) throws Throwable {
+                              Object ret) throws Throwable {
         HttpServletResponse response = ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getResponse();
 
         AbstractSpan span = ContextManager.activeSpan();
@@ -69,8 +63,9 @@ public class ControllerServiceMethodInterceptor implements InstanceMethodsAround
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Throwable t) {
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+                                                Class<?>[] argumentsTypes, Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
     }
 }

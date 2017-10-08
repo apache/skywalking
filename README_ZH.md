@@ -60,7 +60,7 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 <img src="https://sky-walking.github.io/page-resources/3.2.1/instance_health.png"/>
 
 - JVM明细信息
-<img src="https://sky-walking.github.io/page-resources/3.2.1/instance_graph.png"/>
+<img src="https://sky-walking.github.io/page-resources/3.2/instance_graph.png"/>
 
 - 服务依赖树.
 <img src="https://sky-walking.github.io/page-resources/3.2.1/service_dependency_tree.png"/>
