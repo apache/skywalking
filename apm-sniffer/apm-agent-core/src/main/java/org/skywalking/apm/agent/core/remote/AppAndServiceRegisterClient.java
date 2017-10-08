@@ -88,7 +88,7 @@ public class AppAndServiceRegisterClient implements BootService, GRPCChannelList
     @Override
     public void run() {
         boolean shouldTry = true;
-        while (CONNECTED.equals(status) & shouldTry) {
+        while (CONNECTED.equals(status) && shouldTry) {
             shouldTry = false;
             try {
                 if (RemoteDownstreamConfig.Agent.APPLICATION_ID == DictionaryUtil.nullValue()) {
