@@ -1,3 +1,21 @@
+/*
+ * Copyright 2017, OpenSkywalking Organization All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Project repository: https://github.com/OpenSkywalking/skywalking
+ */
+
 package org.skywalking.apm.agent.core.context.ids.base64;
 
 import java.util.Arrays;
@@ -28,8 +46,7 @@ public final class Objects {
      *
      * @param a an object
      * @param b an object to be compared with {@code a} for equality
-     * @return {@code true} if the arguments are equal to each other
-     * and {@code false} otherwise
+     * @return {@code true} if the arguments are equal to each other and {@code false} otherwise
      * @see Object#equals(Object)
      */
     public static boolean equals(Object a, Object b) {
@@ -41,8 +58,7 @@ public final class Objects {
      * a {@code null} argument.
      *
      * @param o an object
-     * @return the hash code of a non-{@code null} argument and 0 for
-     * a {@code null} argument
+     * @return the hash code of a non-{@code null} argument and 0 for a {@code null} argument
      * @see Object#hashCode
      */
     public static int hashCode(Object o) {
@@ -84,8 +100,8 @@ public final class Objects {
      * null} argument and {@code "null"} for a {@code null} argument.
      *
      * @param o an object
-     * @return the result of calling {@code toString} for a non-{@code
-     * null} argument and {@code "null"} for a {@code null} argument
+     * @return the result of calling {@code toString} for a non-{@code null} argument and {@code "null"} for a {@code
+     * null} argument
      * @see Object#toString
      * @see String#valueOf(Object)
      */
@@ -99,11 +115,9 @@ public final class Objects {
      * the second argument otherwise.
      *
      * @param o an object
-     * @param nullDefault string to return if the first argument is
-     *        {@code null}
-     * @return the result of calling {@code toString} on the first
-     * argument if it is not {@code null} and the second argument
-     * otherwise.
+     * @param nullDefault string to return if the first argument is {@code null}
+     * @return the result of calling {@code toString} on the first argument if it is not {@code null} and the second
+     * argument otherwise.
      */
     public static String toString(Object o, String nullDefault) {
         return (o != null) ? o.toString() : nullDefault;
@@ -124,13 +138,12 @@ public final class Objects {
      * @param a an object
      * @param b an object to be compared with {@code a}
      * @param c the {@code Comparator} to compare the first two arguments
-     * @return 0 if the arguments are identical and {@code
-     * c.compare(a, b)} otherwise.
+     * @return 0 if the arguments are identical and {@code c.compare(a, b)} otherwise.
      * @see Comparable
      * @see Comparator
      */
     public static <T> int compare(T a, T b, Comparator<? super T> c) {
-        return (a == b) ? 0 :  c.compare(a, b);
+        return (a == b) ? 0 : c.compare(a, b);
     }
 
     /**

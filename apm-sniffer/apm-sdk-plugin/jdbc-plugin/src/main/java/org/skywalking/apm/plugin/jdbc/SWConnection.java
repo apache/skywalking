@@ -1,11 +1,42 @@
+/*
+ * Copyright 2017, OpenSkywalking Organization All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Project repository: https://github.com/OpenSkywalking/skywalking
+ */
+
 package org.skywalking.apm.plugin.jdbc;
 
-import org.skywalking.apm.plugin.jdbc.connectionurl.parser.URLParser;
-
-import java.sql.*;
+import java.sql.Array;
+import java.sql.Blob;
+import java.sql.CallableStatement;
+import java.sql.Clob;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.NClob;
+import java.sql.PreparedStatement;
+import java.sql.SQLClientInfoException;
+import java.sql.SQLException;
+import java.sql.SQLWarning;
+import java.sql.SQLXML;
+import java.sql.Savepoint;
+import java.sql.Statement;
+import java.sql.Struct;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executor;
+import org.skywalking.apm.plugin.jdbc.connectionurl.parser.URLParser;
 
 public class SWConnection implements Connection {
     private ConnectionInfo connectInfo;
@@ -56,7 +87,7 @@ public class SWConnection implements Connection {
         ConnectionTracing.execute(realConnection, connectInfo, "commit", "",
             new ConnectionTracing.Executable<String>() {
                 public String exe(java.sql.Connection realConnection,
-                                  String sql) throws SQLException {
+                    String sql) throws SQLException {
                     realConnection.commit();
                     return null;
                 }
@@ -67,7 +98,7 @@ public class SWConnection implements Connection {
         ConnectionTracing.execute(realConnection, connectInfo, "rollback", "",
             new ConnectionTracing.Executable<String>() {
                 public String exe(java.sql.Connection realConnection,
-                                  String sql) throws SQLException {
+                    String sql) throws SQLException {
                     realConnection.rollback();
                     return null;
                 }
@@ -78,7 +109,7 @@ public class SWConnection implements Connection {
         ConnectionTracing.execute(realConnection, connectInfo, "close", "",
             new ConnectionTracing.Executable<String>() {
                 public String exe(java.sql.Connection realConnection,
-                                  String sql) throws SQLException {
+                    String sql) throws SQLException {
                     realConnection.close();
                     return null;
                 }
@@ -132,14 +163,14 @@ public class SWConnection implements Connection {
     }
 
     public PreparedStatement prepareStatement(String sql, int resultSetType,
-                                              int resultSetConcurrency) throws SQLException {
+        int resultSetConcurrency) throws SQLException {
         return new SWPreparedStatement(this, realConnection.prepareStatement(
             sql, resultSetType, resultSetConcurrency), this.connectInfo,
             sql);
     }
 
     public CallableStatement prepareCall(String sql, int resultSetType,
-                                         int resultSetConcurrency) throws SQLException {
+        int resultSetConcurrency) throws SQLException {
         return new SWCallableStatement(this, realConnection.prepareCall(sql,
             resultSetType, resultSetConcurrency), this.connectInfo, sql);
     }
@@ -172,7 +203,7 @@ public class SWConnection implements Connection {
         ConnectionTracing.execute(realConnection, connectInfo,
             "rollback to savepoint", "", new ConnectionTracing.Executable<String>() {
                 public String exe(java.sql.Connection realConnection,
-                                  String sql) throws SQLException {
+                    String sql) throws SQLException {
                     realConnection.rollback(savepoint);
                     return null;
                 }
@@ -183,7 +214,7 @@ public class SWConnection implements Connection {
         ConnectionTracing.execute(realConnection, connectInfo,
             "releaseSavepoint savepoint", "", new ConnectionTracing.Executable<String>() {
                 public String exe(java.sql.Connection realConnection,
-                                  String sql) throws SQLException {
+                    String sql) throws SQLException {
                     realConnection.releaseSavepoint(savepoint);
                     return null;
                 }
@@ -191,7 +222,7 @@ public class SWConnection implements Connection {
     }
 
     public Statement createStatement(int resultSetType,
-                                     int resultSetConcurrency, int resultSetHoldability)
+        int resultSetConcurrency, int resultSetHoldability)
         throws SQLException {
         return new SWStatement(this, realConnection.createStatement(
             resultSetType, resultSetConcurrency, resultSetHoldability),
@@ -199,7 +230,7 @@ public class SWConnection implements Connection {
     }
 
     public PreparedStatement prepareStatement(String sql, int resultSetType,
-                                              int resultSetConcurrency, int resultSetHoldability)
+        int resultSetConcurrency, int resultSetHoldability)
         throws SQLException {
         return new SWPreparedStatement(this,
             realConnection.prepareStatement(sql, resultSetType,
@@ -208,7 +239,7 @@ public class SWConnection implements Connection {
     }
 
     public CallableStatement prepareCall(String sql, int resultSetType,
-                                         int resultSetConcurrency, int resultSetHoldability)
+        int resultSetConcurrency, int resultSetHoldability)
         throws SQLException {
         return new SWCallableStatement(this, realConnection.prepareCall(sql,
             resultSetType, resultSetConcurrency, resultSetHoldability), this.connectInfo, sql);
