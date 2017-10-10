@@ -22,26 +22,14 @@ Sky Walking | [中文](README_ZH.md)
   * Integrate traceId into logs for log4j, log4j2 and logback.
 * Pure Java server implementation, provide RESTful and gRPC services. Compatibility with other language agents/SDKs. 
   * [How to uplink metrics and traces to collector?]()
-* The UI released on [wu-sheng/sky-walking-ui](https://github.com/wu-sheng/sky-walking-ui)
+* The UI released on [sky-walking-ui](https://github.com/OpenSkywalking/sky-walking-ui)
 
 # Architecture
 * Architecture graph for 3.2+
 <img src="https://sky-walking.github.io/page-resources/3.2/architecture/3.2-architecture.jpg"/>
 
 # Document
-* [WIKI](https://github.com/wu-sheng/sky-walking/wiki)
-
-# PMC - Project Management Committee
-* 吴晟 [@wu-sheng](https://github.com/wu-sheng) 
-* 张鑫 [@ascrutae](https://github.com/ascrutae)
-* 彭勇升 [@peng-yongsheng](https://github.com/peng-yongsheng) R&D director，Tydic
-
-# Committer
-* 柏杨 [@bai-yang](https://github.com/bai-yang)  Senior Engineer, Alibaba Group.
-
-# Contributors
-* [Contributors List](https://github.com/wu-sheng/sky-walking/graphs/contributors)
-* Special thanks to the contributors: 徐妍[@TastySummer](https://github.com/TastySummer) and 戴文, you offer huge helps for this project.
+* [WIKI](https://github.com/OpenSkywalking/skywalking/wiki)
 
 This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to wu.sheng@foxmail.com.
 
@@ -75,6 +63,9 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 * [Gitter](https://gitter.im/sky-walking/Lobby)
 * [Google Mailing List](https://groups.google.com/forum/#!forum/skywalking-distributed-tracing-and-apm)
 * QQ Group: 392443393
+
+# Open Skywalking Organization
+[Open Skywalking Organization Teams and Contributors](https://github.com/OpenSkywalking/Organization/blob/master/README.md)
 
 # Commercial Support Partners
 [![Shurenyun Logo](https://sky-walking.github.io/page-resources/partners/shurenyun-logo.png)](https://www.shurenyun.com/)
