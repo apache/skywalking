@@ -129,7 +129,12 @@
             <groupId>org.skywalking</groupId>
             <artifactId>apm-spymemcached-2.x-plugin</artifactId>
             <version>${project.version}</version>
-         </dependency>
+        </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>apm-sharding-jdbc-1.5.x-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- activation -->
         <dependency>
