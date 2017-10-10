@@ -27,7 +27,7 @@ Sky Walking | [English](README.md)
 
 # Architecture
 * 3.2+版本架构图
-<img src="https://sky-walking.github.io/page-resources/3.2/architecture/3.2-architecture.jpg"/>
+<img src="https://skywalkingtest.github.io/page-resources/3.2/architecture/3.2-architecture.jpg"/>
 
 # Document
 * [WIKI](https://github.com/wu-sheng/sky-walking/wiki)
@@ -48,22 +48,22 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 
 # Screenshots
 - 追踪基于 dubbox 和 [motan](https://github.com/weibocom/motan)的分布式系统，生成的拓扑截图
-<img src="https://sky-walking.github.io/page-resources/3.2.1/topological_graph_test_project.png?forceUpdate=0"/>
+<img src="https://skywalkingtest.github.io/page-resources/3.2.1/topological_graph_test_project.png?forceUpdate=0"/>
 
 - 调用链查询
-<img src="https://sky-walking.github.io/page-resources/3.2.1/trace_segment.png"/>
+<img src="https://skywalkingtest.github.io/page-resources/3.2.1/trace_segment.png"/>
 
 - Span信息查询
-<img src="https://sky-walking.github.io/page-resources/3.2.1/span.png" />
+<img src="https://skywalkingtest.github.io/page-resources/3.2.1/span.png" />
 
 - 实例全局视图
-<img src="https://sky-walking.github.io/page-resources/3.2.1/instance_health.png"/>
+<img src="https://skywalkingtest.github.io/page-resources/3.2.1/instance_health.png"/>
 
 - JVM明细信息
-<img src="https://sky-walking.github.io/page-resources/3.2/instance_graph.png"/>
+<img src="https://skywalkingtest.github.io/page-resources/3.2/instance_graph.png"/>
 
 - 服务依赖树.
-<img src="https://sky-walking.github.io/page-resources/3.2.1/service_dependency_tree.png"/>
+<img src="https://skywalkingtest.github.io/page-resources/3.2.1/service_dependency_tree.png"/>
 
 
 # Test reports
@@ -79,7 +79,7 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 * QQ群: 392443393
 
 # Commercial Support Partners
-[![Shurenyun Logo](https://sky-walking.github.io/page-resources/partners/shurenyun-logo.png)](https://www.shurenyun.com/)
+[![Shurenyun Logo](https://skywalkingtest.github.io/page-resources/partners/shurenyun-logo.png)](https://www.shurenyun.com/)
 
 
 # License
