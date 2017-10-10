@@ -20,7 +20,7 @@ Sky Walking | [中文](README_ZH.md)
   * Integrate traceId into logs for log4j, log4j2 and logback.
 * Pure Java server implementation, provide RESTful and gRPC services. Compatibility with other language agents/SDKs. 
   * [How to uplink metrics and traces to collector?]()
-* The UI released on [sky-walking-ui](https://github.com/OpenSkywalking/sky-walking-ui)
+* The UI released on [skywalking-ui](https://github.com/OpenSkywalking/sky-walking-ui)
 
 # Architecture
 * Architecture graph for 3.2+
@@ -69,4 +69,4 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 [![Shurenyun Logo](https://skywalkingtest.github.io/page-resources/partners/shurenyun-logo.png)](https://www.shurenyun.com/)
 
 # License
-By contributing your code, you agree to license your contribution under the terms of the [sky-walking license](/LICENSE).
+[Apache 2.0 License.](/LICENSE)

@@ -28,19 +28,7 @@ Sky Walking | [English](README.md)
 <img src="https://skywalkingtest.github.io/page-resources/3.2/architecture/3.2-architecture.jpg"/>
 
 # Document
-* [WIKI](https://github.com/wu-sheng/sky-walking/wiki)
-
-# PMC - Project Management Committee
-* 吴晟 [@wu-sheng](https://github.com/wu-sheng) 
-* 张鑫 [@ascrutae](https://github.com/ascrutae)
-* 彭勇升 [@peng-yongsheng](https://github.com/peng-yongsheng) R&D director，Tydic
-
-# Committer
-* 柏杨 [@bai-yang](https://github.com/bai-yang)  Senior Engineer, Alibaba Group.
-
-# Contributors
-* [Contributors List](https://github.com/wu-sheng/sky-walking/graphs/contributors)
-* 特别感谢徐妍[@TastySummer](https://github.com/TastySummer) 和 戴文, 给予项目的大量的帮助.
+* [WIKI](https://github.com/OpenSkywalking/skywalking/wiki)
 
 This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to wu.sheng@foxmail.com.
 
@@ -76,9 +64,12 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 * [Google Mailing List](https://groups.google.com/forum/#!forum/skywalking-distributed-tracing-and-apm)
 * QQ群: 392443393
 
+# Open Skywalking Organization
+[Open Skywalking Organization Teams and Contributors](https://github.com/OpenSkywalking/Organization/blob/master/README.md)
+
 # Commercial Support Partners
 [![Shurenyun Logo](https://skywalkingtest.github.io/page-resources/partners/shurenyun-logo.png)](https://www.shurenyun.com/)
 
 
 # License
-所有贡献的代码，和 [sky-walking license](/LICENSE) 保持一致.
+[Apache 2.0 License.](/LICENSE)
