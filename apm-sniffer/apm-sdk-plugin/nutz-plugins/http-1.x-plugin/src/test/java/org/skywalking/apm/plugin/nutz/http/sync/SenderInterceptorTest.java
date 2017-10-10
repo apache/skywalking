@@ -1,15 +1,25 @@
-package org.skywalking.apm.plugin.nutz.http.sync;
+/*
+ * Copyright 2017, OpenSkywalking Organization All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Project repository: https://github.com/OpenSkywalking/skywalking
+ */
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+package org.skywalking.apm.plugin.nutz.http.sync;
 
 import java.lang.reflect.Method;
 import java.util.List;
-
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,6 +42,12 @@ import org.skywalking.apm.agent.test.tools.AgentServiceRule;
 import org.skywalking.apm.agent.test.tools.SegmentStorage;
 import org.skywalking.apm.agent.test.tools.SegmentStoragePoint;
 import org.skywalking.apm.agent.test.tools.TracingSegmentRunner;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(org.powermock.modules.junit4.PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
@@ -73,7 +89,7 @@ public class SenderInterceptorTest {
     @Test
     public void test_constructor() {
         Request request = Request.create("https://nutz.cn/yvr/list", METHOD.GET);
-        constructorInterceptPoint.onConstruct(enhancedInstance, new Object[]{request});
+        constructorInterceptPoint.onConstruct(enhancedInstance, new Object[] {request});
         verify(enhancedInstance, times(1)).setSkyWalkingDynamicField(request);
     }
 
@@ -97,7 +113,7 @@ public class SenderInterceptorTest {
 
     protected void _sender_sender_test() throws Throwable {
         Request request = Request.create("https://nutz.cn/yvr/list", METHOD.GET);
-        constructorInterceptPoint.onConstruct(enhancedInstance, new Object[]{request});
+        constructorInterceptPoint.onConstruct(enhancedInstance, new Object[] {request});
         verify(enhancedInstance, times(1)).setSkyWalkingDynamicField(request);
 
         when(enhancedInstance.getSkyWalkingDynamicField()).thenReturn(request);
