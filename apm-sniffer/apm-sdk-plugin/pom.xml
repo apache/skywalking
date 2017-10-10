@@ -26,6 +26,7 @@
         <module>struts2-2.x-plugin</module>
         <module>nutz-plugins</module>
         <module>jetty-plugin</module>
+        <module>sharding-jdbc-1.5.x-plugin</module>
     </modules>
     <packaging>pom</packaging>
 
