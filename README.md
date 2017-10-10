@@ -3,9 +3,9 @@ Sky Walking Web UI
 
 <img src="src/main/resources/public/img/logo.png" alt="Sky Walking logo" height="90px" align="right" />
 
-The web UI for [sky-walking APM](https://github.com/wu-sheng/sky-walking). 
+The web UI for [sky-walking APM](https://github.com/OpenSkywalking/skywalking). 
 
-[![Build Status](https://travis-ci.org/wu-sheng/sky-walking-ui.svg?branch=master)](https://travis-ci.org/wu-sheng/sky-walking-ui)
+[![Build Status](https://travis-ci.org/OpenSkywalking/skywalking-ui.svg?branch=master)](https://travis-ci.org/OpenSkywalking/skywalking-ui)
 
 This independent UI repository works since sky-walking 3.0.
 
