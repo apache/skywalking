@@ -5,17 +5,16 @@ Sky Walking | [中文](README_ZH.md)
 
 **SkyWalking 3**: APM for Distributed Systems, also known Distributed Tracing System. 
 
-[![Build Status](https://travis-ci.org/wu-sheng/sky-walking.svg?branch=master)](https://travis-ci.org/wu-sheng/sky-walking)
-[![Coverage Status](https://coveralls.io/repos/github/wu-sheng/sky-walking/badge.svg?branch=master&forceUpdate=2)](https://coveralls.io/github/wu-sheng/sky-walking?branch=master)
+[![Build Status](https://travis-ci.org/OpenSkywalking/sky-walking.svg?branch=master)](https://travis-ci.org/wu-sheng/sky-walking)
+[![Coverage Status](https://coveralls.io/repos/github/OpenSkywalking/sky-walking/badge.svg?branch=master&forceUpdate=2)](https://coveralls.io/github/OpenSkywalking/sky-walking?branch=master)
 ![license](https://img.shields.io/aur/license/yaourt.svg)
-[![codebeat badge](https://codebeat.co/badges/579e4dce-1dc7-4f32-a163-c164eafa1335)](https://codebeat.co/projects/github-com-wu-sheng-sky-walking)
 [![Join the chat at https://gitter.im/sky-walking/Lobby](https://badges.gitter.im/sky-walking/Lobby.svg)](https://gitter.im/sky-walking/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![OpenTracing-1.x Badge](https://img.shields.io/badge/OpenTracing--1.x-enabled-blue.svg)](http://opentracing.io)
 
 
 * Auto instrumentation by javaagent, **no need to CHANGE any application source code**.
   * High performance agent. Only increase extra **10%** cpu cost in 5000+ tps application, even **do not need to use sampling mechanism**, [check test reports](#test-reports).
-  * [Supported middlewares, frameworks and libraries](https://github.com/wu-sheng/sky-walking/wiki/3.2-supported-list).
+  * [Supported middlewares, frameworks and libraries](https://github.com/OpenSkywalking/sky-walking/wiki/3.2-supported-list).
 * Manual instrumentation
   * As an [OpenTracing supported tracer](http://opentracing.io/documentation/pages/supported-tracers)
   * Use **@Trace** annotation for any methods you want to trace.
