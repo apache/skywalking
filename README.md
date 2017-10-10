@@ -26,7 +26,7 @@ Sky Walking | [中文](README_ZH.md)
 
 # Architecture
 * Architecture graph for 3.2+
-<img src="https://sky-walking.github.io/page-resources/3.2/architecture/3.2-architecture.jpg"/>
+<img src="https://SkywalkingTest.github.io/page-resources/3.2/architecture/3.2-architecture.jpg"/>
 
 # Document
 * [WIKI](https://github.com/OpenSkywalking/skywalking/wiki)
@@ -35,28 +35,28 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 
 # Screenshots
 - Topological graph of application clusters based on dubbox and [motan](https://github.com/weibocom/motan).
-<img src="https://sky-walking.github.io/page-resources/3.2.1/topological_graph_test_project.png"/>
+<img src="https://SkywalkingTest.github.io/page-resources/3.2.1/topological_graph_test_project.png"/>
 
 - Trace query.
-<img src="https://sky-walking.github.io/page-resources/3.2.1/trace_segment.png"/>
+<img src="https://SkywalkingTest.github.io/page-resources/3.2.1/trace_segment.png"/>
 
 - Span detail.
 <img src="https://sky-walking.github.io/page-resources/3.2.1/span.png" />
 
 - Instance Overview.
-<img src="https://sky-walking.github.io/page-resources/3.2.1/instance_health.png"/>
+<img src="https://SkywalkingTest.github.io/page-resources/3.2.1/instance_health.png"/>
 
 - JVM Detail.
-<img src="https://sky-walking.github.io/page-resources/3.2/instance_graph.png"/>
+<img src="https://SkywalkingTest.github.io/page-resources/3.2/instance_graph.png"/>
 
 - Services Dependency Tree.
-<img src="https://sky-walking.github.io/page-resources/3.2.1/service_dependency_tree.png"/>
+<img src="https://SkywalkingTest.github.io/page-resources/3.2.1/service_dependency_tree.png"/>
 
 # Test reports
 - Automatic integration test reports
-  - [Java Agent test report](https://github.com/sky-walking/agent-integration-test-report)
+  - [Java Agent test report](https://github.com/SkywalkingTest/agent-integration-test-report)
 - Performance test reports
-  - [Java Agent test report](https://sky-walking.github.io/Agent-Benchmarks/)
+  - [Java Agent test report](https://SkywalkingTest.github.io/Agent-Benchmarks/)
 
 # Contact Us
 * Submit an issue
