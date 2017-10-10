@@ -1,9 +1,22 @@
-package org.skywalking.apm.agent.core.conf;
+/*
+ * Copyright 2017, OpenSkywalking Organization All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Project repository: https://github.com/OpenSkywalking/skywalking
+ */
 
-import org.skywalking.apm.util.StringUtil;
-import org.skywalking.apm.util.ConfigInitializer;
-import org.skywalking.apm.logging.ILog;
-import org.skywalking.apm.logging.LogManager;
+package org.skywalking.apm.agent.core.conf;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,6 +25,10 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Properties;
+import org.skywalking.apm.logging.ILog;
+import org.skywalking.apm.logging.LogManager;
+import org.skywalking.apm.util.ConfigInitializer;
+import org.skywalking.apm.util.StringUtil;
 
 /**
  * The <code>SnifferConfigInitializer</code> initializes all configs in several way.
@@ -95,7 +112,7 @@ public class SnifferConfigInitializer {
             logger.info("check {} in path {}, according system property.", CONFIG_FILE_NAME, config);
             configFile = new File(config, CONFIG_FILE_NAME);
         }
-        
+
         if (configFile.exists() && configFile.isFile()) {
             try {
                 logger.info("found   {}, according system property.", configFile.getAbsolutePath());
