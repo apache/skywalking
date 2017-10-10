@@ -5,8 +5,8 @@ Sky Walking | [中文](README_ZH.md)
 
 **SkyWalking 3**: APM for Distributed Systems, also known Distributed Tracing System. 
 
-[![Build Status](https://travis-ci.org/OpenSkywalking/sky-walking.svg?branch=master)](https://travis-ci.org/wu-sheng/sky-walking)
-[![Coverage Status](https://coveralls.io/repos/github/OpenSkywalking/sky-walking/badge.svg?branch=master&forceUpdate=2)](https://coveralls.io/github/OpenSkywalking/sky-walking?branch=master)
+[![Build Status](https://travis-ci.org/OpenSkywalking/skywalking.svg?branch=master)](https://travis-ci.org/OpenSkywalking/skywalking)
+[![Coverage Status](https://coveralls.io/repos/github/OpenSkywalking/skywalking/badge.svg?branch=master&forceUpdate=2)](https://coveralls.io/github/OpenSkywalking/skywalking?branch=master)
 ![license](https://img.shields.io/aur/license/yaourt.svg)
 [![Join the chat at https://gitter.im/sky-walking/Lobby](https://badges.gitter.im/sky-walking/Lobby.svg)](https://gitter.im/sky-walking/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![OpenTracing-1.x Badge](https://img.shields.io/badge/OpenTracing--1.x-enabled-blue.svg)](http://opentracing.io)
