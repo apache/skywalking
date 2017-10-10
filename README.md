@@ -35,28 +35,28 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 
 # Screenshots
 - Topological graph of application clusters based on dubbox and [motan](https://github.com/weibocom/motan).
-<img src="https://SkywalkingTest.github.io/page-resources/3.2.1/topological_graph_test_project.png"/>
+<img src="https://skywalkingtest.github.io/page-resources/3.2.1/topological_graph_test_project.png"/>
 
 - Trace query.
-<img src="https://SkywalkingTest.github.io/page-resources/3.2.1/trace_segment.png"/>
+<img src="https://skywalkingtest.github.io/page-resources/3.2.1/trace_segment.png"/>
 
 - Span detail.
-<img src="https://sky-walking.github.io/page-resources/3.2.1/span.png" />
+<img src="https://skywalkingtest.github.io/page-resources/3.2.1/span.png" />
 
 - Instance Overview.
-<img src="https://SkywalkingTest.github.io/page-resources/3.2.1/instance_health.png"/>
+<img src="https://skywalkingtest.github.io/page-resources/3.2.1/instance_health.png"/>
 
 - JVM Detail.
-<img src="https://SkywalkingTest.github.io/page-resources/3.2/instance_graph.png"/>
+<img src="https://skywalkingtest.github.io/page-resources/3.2/instance_graph.png"/>
 
 - Services Dependency Tree.
-<img src="https://SkywalkingTest.github.io/page-resources/3.2.1/service_dependency_tree.png"/>
+<img src="https://skywalkingtest.github.io/page-resources/3.2.1/service_dependency_tree.png"/>
 
 # Test reports
 - Automatic integration test reports
   - [Java Agent test report](https://github.com/SkywalkingTest/agent-integration-test-report)
 - Performance test reports
-  - [Java Agent test report](https://SkywalkingTest.github.io/Agent-Benchmarks/)
+  - [Java Agent test report](https://skywalkingtest.github.io/Agent-Benchmarks/)
 
 # Contact Us
 * Submit an issue
