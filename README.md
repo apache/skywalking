@@ -1,7 +1,7 @@
 Sky Walking | [中文](README_ZH.md)
 ==========
 
-<img src="https://sky-walking.github.io/page-resources/3.0/skywalking.png" alt="Sky Walking logo" height="90px" align="right" />
+<img src="https://skywalkingtest.github.io/page-resources/3.0/skywalking.png" alt="Sky Walking logo" height="90px" align="right" />
 
 **SkyWalking 3**: APM for Distributed Systems, also known Distributed Tracing System. 
 
@@ -25,7 +25,7 @@ Sky Walking | [中文](README_ZH.md)
 
 # Architecture
 * Architecture graph for 3.2+
-<img src="https://SkywalkingTest.github.io/page-resources/3.2/architecture/3.2-architecture.jpg"/>
+<img src="https://skywalkingtest.github.io/page-resources/3.2/architecture/3.2-architecture.jpg"/>
 
 # Document
 * [WIKI](https://github.com/OpenSkywalking/skywalking/wiki)
