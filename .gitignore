@@ -8,3 +8,4 @@ target/
 .DS_Store
 *~
 packages/
+**/dependency-reduced-pom.xml

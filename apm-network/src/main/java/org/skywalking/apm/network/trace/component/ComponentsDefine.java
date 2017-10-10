@@ -45,7 +45,11 @@ public class ComponentsDefine {
 
     public static final OfficialComponent JETTY_SERVER = new OfficialComponent(19, "JettyServer");
 
-    public static final OfficialComponent SHARDING_JDBC = new OfficialComponent(20, "ShardingJDBC");
+    public static final OfficialComponent JETTY_SERVER = new OfficialComponent(19, "JettyServer");                                                                                          
+    
+    public static final OfficialComponent MEMCACHE = new OfficialComponent(20, "Memcache");
+  
+    public static final OfficialComponent SHARDING_JDBC = new OfficialComponent(21, "ShardingJDBC");
 
     private static ComponentsDefine instance = new ComponentsDefine();
 
@@ -56,7 +60,7 @@ public class ComponentsDefine {
     }
 
     public ComponentsDefine() {
-        components = new String[21];
+        components = new String[22];
         addComponent(TOMCAT);
         addComponent(HTTPCLIENT);
         addComponent(DUBBO);
@@ -76,6 +80,7 @@ public class ComponentsDefine {
         addComponent(NUTZ_HTTP);
         addComponent(JETTY_CLIENT);
         addComponent(JETTY_SERVER);
+        addComponent(MEMCACHE);
         addComponent(SHARDING_JDBC);
     }
 

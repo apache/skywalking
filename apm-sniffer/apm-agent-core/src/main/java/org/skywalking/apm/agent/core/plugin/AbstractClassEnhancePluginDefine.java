@@ -26,7 +26,7 @@ public abstract class AbstractClassEnhancePluginDefine {
      * @throws PluginException, when set builder failure.
      */
     public DynamicType.Builder<?> define(String transformClassName,
-        DynamicType.Builder<?> builder, ClassLoader classLoader) throws PluginException {
+        DynamicType.Builder<?> builder, ClassLoader classLoader, EnhanceContext context) throws PluginException {
         String interceptorDefineClassName = this.getClass().getName();
 
         if (StringUtil.isEmpty(transformClassName)) {
@@ -53,15 +53,16 @@ public abstract class AbstractClassEnhancePluginDefine {
         /**
          * find origin class source code for interceptor
          */
-        DynamicType.Builder<?> newClassBuilder = this.enhance(transformClassName, builder, classLoader);
+        DynamicType.Builder<?> newClassBuilder = this.enhance(transformClassName, builder, classLoader, context);
 
+        context.initializationStageCompleted();
         logger.debug("enhance class {} by {} completely.", transformClassName, interceptorDefineClassName);
 
         return newClassBuilder;
     }
 
     protected abstract DynamicType.Builder<?> enhance(String enhanceOriginClassName,
-        DynamicType.Builder<?> newClassBuilder, ClassLoader classLoader) throws PluginException;
+        DynamicType.Builder<?> newClassBuilder, ClassLoader classLoader, EnhanceContext context) throws PluginException;
 
     /**
      * Define the {@link ClassMatch} for filtering class.
