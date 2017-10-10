@@ -4,6 +4,7 @@ Sky Walking | [English](README.md)
 <img src="https://sky-walking.github.io/page-resources/3.0/skywalking.png" alt="Sky Walking logo" height="90px" align="right" />
 
 **SkyWalking 3**: 针对分布式系统的APM系统，也被称为分布式追踪系统
+
 [![Build Status](https://travis-ci.org/OpenSkywalking/skywalking.svg?branch=master)](https://travis-ci.org/OpenSkywalking/skywalking)
 [![Coverage Status](https://coveralls.io/repos/github/OpenSkywalking/OpenSkywalking/badge.svg?branch=master&forceUpdate=2)](https://coveralls.io/github/OpenSkywalking/sky-walking?branch=master)
 ![license](https://img.shields.io/aur/license/yaourt.svg)
