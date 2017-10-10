@@ -6,7 +6,7 @@ Sky Walking | [English](README.md)
 **SkyWalking 3**: 针对分布式系统的APM系统，也被称为分布式追踪系统
 
 [![Build Status](https://travis-ci.org/wu-sheng/sky-walking.svg?branch=master)](https://travis-ci.org/wu-sheng/sky-walking)
-[![Coverage Status](https://coveralls.io/repos/github/wu-sheng/sky-walking/badge.svg?branch=master&forceUpdate=2)](https://coveralls.io/github/wu-sheng/sky-walking?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/wu-sheng/OpenSkywalking/badge.svg?branch=master&forceUpdate=2)](https://coveralls.io/github/OpenSkywalking/sky-walking?branch=master)
 ![license](https://img.shields.io/aur/license/yaourt.svg)
 [![codebeat badge](https://codebeat.co/badges/579e4dce-1dc7-4f32-a163-c164eafa1335)](https://codebeat.co/projects/github-com-wu-sheng-sky-walking)
 [![Join the chat at https://gitter.im/sky-walking/Lobby](https://badges.gitter.im/sky-walking/Lobby.svg)](https://gitter.im/sky-walking/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
@@ -18,11 +18,11 @@ Sky Walking | [English](README.md)
   * [中间件，框架与类库支持列表](https://github.com/wu-sheng/sky-walking/wiki/3.2-supported-list).
 * 手动探针
   * [使用OpenTracing手动探针API](http://opentracing.io/documentation/pages/supported-tracers)
-  * 使用 [**@Trace**](https://github.com/wu-sheng/sky-walking/wiki/sky-walking-application-toolkit-trace-chn) 标注追踪业务方法
+  * 使用 [**@Trace**](https://github.com/wu-sheng/OpenSkywalking/wiki/sky-walking-application-toolkit-trace-chn) 标注追踪业务方法
   * 将 traceId 集成到 log4j, log4j2 或 logback这些日志组件中
 * 纯Java后端Collector实现，提供RESTful和gRPC接口。兼容接受其他语言探针发送数据 
   * [如何将探针的Metric和Trace数据上传到Collector？]()
-* UI工程请查看 [wu-sheng/sky-walking-ui](https://github.com/wu-sheng/sky-walking-ui)
+* UI工程请查看 [wu-sheng/sky-walking-ui](https://github.com/OpenSkywalking/sky-walking-ui)
 * 中文QQ群：392443393
 
 # Architecture
