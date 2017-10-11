@@ -19,9 +19,9 @@
 package org.skywalking.apm.plugin.jetty.v9.server;
 
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import org.eclipse.jetty.server.HttpChannel;
 import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Response;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -58,7 +58,7 @@ import static org.skywalking.apm.agent.test.tools.SpanAssert.assertTag;
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
 public class HandleInterceptorTest {
 
-    private HandleInterceptor tomcatInvokeInterceptor;
+    private HandleInterceptor jettyInvokeInterceptor;
     @SegmentStoragePoint
     private SegmentStorage segmentStorage;
 
@@ -66,36 +66,39 @@ public class HandleInterceptorTest {
     public AgentServiceRule serviceRule = new AgentServiceRule();
 
     @Mock
-    private HttpServletRequest request;
+    private Request request;
 
     @Mock
-    private Request baseRequest;
-    @Mock
-    private HttpServletResponse response;
+    private Response response;
     @Mock
     private MethodInterceptResult methodInterceptResult;
 
     @Mock
     private EnhancedInstance enhancedInstance;
 
+    @Mock
+    private HttpChannel httpChannel;
+
     private Object[] arguments;
     private Class[] argumentType;
 
     @Before
     public void setUp() throws Exception {
-        tomcatInvokeInterceptor = new HandleInterceptor();
+        jettyInvokeInterceptor = new HandleInterceptor();
         when(request.getRequestURI()).thenReturn("/test/testRequestURL");
         when(request.getRequestURL()).thenReturn(new StringBuffer("http://localhost:8080/test/testRequestURL"));
         when(response.getStatus()).thenReturn(200);
-        arguments = new Object[] {"/test/testRequestURL", baseRequest, request, response};
-        argumentType = new Class[] {String.class, baseRequest.getClass(), request.getClass(), response.getClass()};
+        when(httpChannel.getResponse()).thenReturn(response);
+        when(httpChannel.getRequest()).thenReturn(request);
+        arguments = new Object[] {httpChannel};
+        argumentType = new Class[] {httpChannel.getClass()};
 
     }
 
     @Test
     public void testWithoutSerializedContextData() throws Throwable {
-        tomcatInvokeInterceptor.beforeMethod(enhancedInstance, null, arguments, argumentType, methodInterceptResult);
-        tomcatInvokeInterceptor.afterMethod(enhancedInstance, null, arguments, argumentType, null);
+        jettyInvokeInterceptor.beforeMethod(enhancedInstance, null, arguments, argumentType, methodInterceptResult);
+        jettyInvokeInterceptor.afterMethod(enhancedInstance, null, arguments, argumentType, null);
 
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
@@ -107,8 +110,8 @@ public class HandleInterceptorTest {
     public void testWithSerializedContextData() throws Throwable {
         when(request.getHeader(SW3CarrierItem.HEADER_NAME)).thenReturn("1.234.111|3|1|1|#192.168.1.8:18002|#/portal/|#/testEntrySpan|#AQA*#AQA*Et0We0tQNQA*");
 
-        tomcatInvokeInterceptor.beforeMethod(enhancedInstance, null, arguments, argumentType, methodInterceptResult);
-        tomcatInvokeInterceptor.afterMethod(enhancedInstance, null, arguments, argumentType, null);
+        jettyInvokeInterceptor.beforeMethod(enhancedInstance, null, arguments, argumentType, methodInterceptResult);
+        jettyInvokeInterceptor.afterMethod(enhancedInstance, null, arguments, argumentType, null);
 
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
@@ -120,9 +123,9 @@ public class HandleInterceptorTest {
 
     @Test
     public void testWithOccurException() throws Throwable {
-        tomcatInvokeInterceptor.beforeMethod(enhancedInstance, null, arguments, argumentType, methodInterceptResult);
-        tomcatInvokeInterceptor.handleMethodException(enhancedInstance, null, arguments, argumentType, new RuntimeException());
-        tomcatInvokeInterceptor.afterMethod(enhancedInstance, null, arguments, argumentType, null);
+        jettyInvokeInterceptor.beforeMethod(enhancedInstance, null, arguments, argumentType, methodInterceptResult);
+        jettyInvokeInterceptor.handleMethodException(enhancedInstance, null, arguments, argumentType, new RuntimeException());
+        jettyInvokeInterceptor.afterMethod(enhancedInstance, null, arguments, argumentType, null);
 
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
