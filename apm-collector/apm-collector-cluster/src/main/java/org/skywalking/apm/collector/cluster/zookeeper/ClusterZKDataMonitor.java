@@ -97,9 +97,15 @@ public class ClusterZKDataMonitor implements DataMonitor, Watcher {
             client.getChildren(next.getKey(), true);
             String serverPath = next.getKey() + "/" + value.getHostPort();
 
-            if (client.exists(serverPath, false) == null) {
+            Stat stat = client.exists(serverPath, false);
+            if (stat != null) {
+                client.delete(serverPath, stat.getVersion());
+            }
+            stat = client.exists(serverPath, false);
+            if (stat == null) {
                 setData(serverPath, contextPath);
             } else {
+                client.delete(serverPath, stat.getVersion());
                 throw new ClusterNodeExistException("current address: " + value.getHostPort() + " has been registered, check the host and port configuration or wait a moment.");
             }
         }
