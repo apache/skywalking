@@ -26,17 +26,18 @@ import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMet
 import org.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
+import static org.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 import static org.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * {@link HandlerListInstrumentation} enhance the <code>handle</code> method in <code>org.eclipse.jetty.server.handler.HandlerList</code>
+ * {@link JettyInstrumentation} enhance the <code>handle</code> method in <code>org.eclipse.jetty.server.handler.HandlerList</code>
  * by <code>org.skywalking.apm.plugin.jetty.v9.server.HandleInterceptor</code>
  *
  * @author zhangxin
  */
-public class HandlerListInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class JettyInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    private static final String ENHANCE_CLASS = "org.eclipse.jetty.server.handler.HandlerList";
+    private static final String ENHANCE_CLASS = "org.eclipse.jetty.server.Server";
     private static final String ENHANCE_METHOD = "handle";
     private static final String INTERCEPTOR_CLASS = "org.skywalking.apm.plugin.jetty.v9.server.HandleInterceptor";
 
@@ -48,7 +49,7 @@ public class HandlerListInstrumentation extends ClassInstanceMethodsEnhancePlugi
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(ENHANCE_METHOD);
+                    return named(ENHANCE_METHOD).and(takesArgumentWithType(0, "org.eclipse.jetty.server.HttpChannel"));
                 }
 
                 @Override public String getMethodsInterceptor() {
