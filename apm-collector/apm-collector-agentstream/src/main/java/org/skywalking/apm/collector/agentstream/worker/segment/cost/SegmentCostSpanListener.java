@@ -21,10 +21,7 @@ package org.skywalking.apm.collector.agentstream.worker.segment.cost;
 import java.util.ArrayList;
 import java.util.List;
 import org.skywalking.apm.collector.agentstream.worker.cache.ServiceCache;
-import org.skywalking.apm.collector.agentstream.worker.segment.EntrySpanListener;
-import org.skywalking.apm.collector.agentstream.worker.segment.ExitSpanListener;
 import org.skywalking.apm.collector.agentstream.worker.segment.FirstSpanListener;
-import org.skywalking.apm.collector.agentstream.worker.segment.LocalSpanListener;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.storage.define.segment.SegmentCostDataDefine;
@@ -39,7 +36,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author pengys5
  */
-public class SegmentCostSpanListener implements EntrySpanListener, ExitSpanListener, LocalSpanListener, FirstSpanListener {
+public class SegmentCostSpanListener implements FirstSpanListener {
 
     private final Logger logger = LoggerFactory.getLogger(SegmentCostSpanListener.class);
 
@@ -50,10 +47,7 @@ public class SegmentCostSpanListener implements EntrySpanListener, ExitSpanListe
     @Override
     public void parseFirst(SpanObject spanObject, int applicationId, int applicationInstanceId, String segmentId) {
         timeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(spanObject.getStartTime());
-    }
 
-    @Override
-    public void parseEntry(SpanObject spanObject, int applicationId, int applicationInstanceId, String segmentId) {
         SegmentCostDataDefine.SegmentCost segmentCost = new SegmentCostDataDefine.SegmentCost();
         segmentCost.setSegmentId(segmentId);
         segmentCost.setApplicationId(applicationId);
@@ -68,17 +62,6 @@ public class SegmentCostSpanListener implements EntrySpanListener, ExitSpanListe
         }
 
         segmentCosts.add(segmentCost);
-        isError = isError || spanObject.getIsError();
-    }
-
-    @Override
-    public void parseExit(SpanObject spanObject, int applicationId, int applicationInstanceId, String segmentId) {
-        isError = isError || spanObject.getIsError();
-    }
-
-    @Override
-    public void parseLocal(SpanObject spanObject, int applicationId, int applicationInstanceId, String segmentId) {
-        isError = isError || spanObject.getIsError();
     }
 
     @Override public void build() {
