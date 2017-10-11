@@ -36,6 +36,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jetty.version>9.4.2.v20170220</jetty.version>
         <grpc.version>1.4.0</grpc.version>
+        <bytebuddy.version>1.7.6</bytebuddy.version>
 
         <shade.package>org.skywalking.apm.dependencies</shade.package>
         <shade.com.lmax.disruptor.source>com.lmax.disruptor</shade.com.lmax.disruptor.source>
@@ -65,12 +66,12 @@
         <dependency>
             <groupId>net.bytebuddy</groupId>
             <artifactId>byte-buddy</artifactId>
-            <version>1.7.1</version>
+            <version>${bytebuddy.version}</version>
         </dependency>
         <dependency>
             <groupId>net.bytebuddy</groupId>
             <artifactId>byte-buddy-agent</artifactId>
-            <version>1.5.7</version>
+            <version>${bytebuddy.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
