@@ -33,11 +33,10 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import org.skywalking.apm.agent.core.boot.BootService;
 import org.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
+import org.skywalking.apm.agent.core.conf.Config;
 import org.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
 import org.skywalking.apm.logging.ILog;
 import org.skywalking.apm.logging.LogManager;
-
-import static org.skywalking.apm.agent.core.conf.Config.Collector.GRPC_CHANNEL_CHECK_INTERVAL;
 
 /**
  * @author wusheng
@@ -60,7 +59,7 @@ public class GRPCChannelManager implements BootService, Runnable {
     public void boot() throws Throwable {
         connectCheckFuture = Executors
             .newSingleThreadScheduledExecutor(new DefaultNamedThreadFactory("GRPCChannelManager"))
-            .scheduleAtFixedRate(this, 0, GRPC_CHANNEL_CHECK_INTERVAL, TimeUnit.SECONDS);
+            .scheduleAtFixedRate(this, 0, Config.Collector.GRPC_CHANNEL_CHECK_INTERVAL, TimeUnit.SECONDS);
     }
 
     @Override
@@ -72,15 +71,18 @@ public class GRPCChannelManager implements BootService, Runnable {
     public void shutdown() throws Throwable {
         connectCheckFuture.cancel(true);
         managedChannel.shutdownNow();
+        logger.debug("Selected collector grpc service shutdown.");
     }
 
     @Override
     public void run() {
+        logger.debug("Selected collector grpc service running, reconnect:{}.",reconnect);
         if (reconnect) {
             if (RemoteDownstreamConfig.Collector.GRPC_SERVERS.size() > 0) {
-                int index = random.nextInt() % RemoteDownstreamConfig.Collector.GRPC_SERVERS.size();
-                String server = RemoteDownstreamConfig.Collector.GRPC_SERVERS.get(index);
+                String server = "";
                 try {
+                    int index = Math.abs(random.nextInt()) % RemoteDownstreamConfig.Collector.GRPC_SERVERS.size();
+                    server = RemoteDownstreamConfig.Collector.GRPC_SERVERS.get(index);
                     String[] ipAndPort = server.split(":");
                     ManagedChannelBuilder<?> channelBuilder =
                         NettyChannelBuilder.forAddress(ipAndPort[0], Integer.parseInt(ipAndPort[1]))
@@ -101,7 +103,7 @@ public class GRPCChannelManager implements BootService, Runnable {
                 }
             }
 
-            logger.debug("Selected collector grpc service is not available. Wait {} seconds to retry", GRPC_CHANNEL_CHECK_INTERVAL);
+            logger.debug("Selected collector grpc service is not available. Wait {} seconds to retry", Config.Collector.GRPC_CHANNEL_CHECK_INTERVAL);
         }
     }
 

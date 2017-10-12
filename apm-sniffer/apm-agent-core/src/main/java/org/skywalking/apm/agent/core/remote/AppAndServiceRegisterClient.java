@@ -106,6 +106,7 @@ public class AppAndServiceRegisterClient implements BootService, GRPCChannelList
 
     @Override
     public void run() {
+        logger.debug("AppAndServiceRegisterClient running, status:{}.",status);
         boolean shouldTry = true;
         while (CONNECTED.equals(status) && shouldTry) {
             shouldTry = false;
