@@ -32,8 +32,7 @@ public class DefaultNamedThreadFactory implements ThreadFactory {
     }
     @Override
     public Thread newThread(Runnable r) {
-        Thread t = new Thread();
-        t.setName(namePrefix + threadSeq.getAndIncrement());
+        Thread t = new Thread(null, r,namePrefix + threadSeq.getAndIncrement(),0);
         t.setDaemon(true);
         return t;
     }
