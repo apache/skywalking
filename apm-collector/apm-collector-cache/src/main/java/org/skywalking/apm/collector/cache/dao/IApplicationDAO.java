@@ -16,16 +16,13 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.ui.dao;
-
-import org.skywalking.apm.collector.storage.h2.dao.H2DAO;
+package org.skywalking.apm.collector.cache.dao;
 
 /**
  * @author pengys5
  */
-public class ApplicationH2DAO extends H2DAO implements IApplicationDAO {
+public interface IApplicationDAO {
+    int getApplicationId(String applicationCode);
 
-    @Override public String getApplicationCode(int applicationId) {
-        return null;
-    }
+    String getApplicationCode(int applicationId);
 }

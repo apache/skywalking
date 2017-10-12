@@ -16,25 +16,13 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.agentregister.worker.application.dao;
-
-import org.skywalking.apm.collector.storage.define.register.ApplicationDataDefine;
-import org.skywalking.apm.collector.storage.h2.dao.H2DAO;
+package org.skywalking.apm.collector.cache.dao;
 
 /**
  * @author pengys5
  */
-public class ApplicationH2DAO extends H2DAO implements IApplicationDAO {
+public interface IServiceNameDAO {
+    String getServiceName(int serviceId);
 
-    @Override public int getMaxApplicationId() {
-        return 0;
-    }
-
-    @Override public int getMinApplicationId() {
-        return 0;
-    }
-
-    @Override public void save(ApplicationDataDefine.Application application) {
-
-    }
+    int getServiceId(int applicationId, String serviceName);
 }

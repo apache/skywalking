@@ -16,11 +16,12 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.agentregister.worker.cache;
+package org.skywalking.apm.collector.cache;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import org.skywalking.apm.collector.agentregister.worker.application.dao.IApplicationDAO;
+import org.skywalking.apm.collector.cache.dao.IApplicationDAO;
+import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.storage.dao.DAOContainer;
 
 /**
@@ -28,12 +29,12 @@ import org.skywalking.apm.collector.storage.dao.DAOContainer;
  */
 public class ApplicationCache {
 
-    private static Cache<String, Integer> CACHE = CacheBuilder.newBuilder().initialCapacity(100).maximumSize(1000).build();
+    private static Cache<String, Integer> CODE_CACHE = CacheBuilder.newBuilder().initialCapacity(100).maximumSize(1000).build();
 
     public static int get(String applicationCode) {
         int applicationId = 0;
         try {
-            applicationId = CACHE.get(applicationCode, () -> {
+            applicationId = CODE_CACHE.get(applicationCode, () -> {
                 IApplicationDAO dao = (IApplicationDAO)DAOContainer.INSTANCE.get(IApplicationDAO.class.getName());
                 return dao.getApplicationId(applicationCode);
             });
@@ -45,9 +46,32 @@ public class ApplicationCache {
             IApplicationDAO dao = (IApplicationDAO)DAOContainer.INSTANCE.get(IApplicationDAO.class.getName());
             applicationId = dao.getApplicationId(applicationCode);
             if (applicationId != 0) {
-                CACHE.put(applicationCode, applicationId);
+                CODE_CACHE.put(applicationCode, applicationId);
             }
         }
         return applicationId;
+    }
+
+    private static Cache<Integer, String> ID_CACHE = CacheBuilder.newBuilder().maximumSize(1000).build();
+
+    public static String get(int applicationId) {
+        try {
+            return ID_CACHE.get(applicationId, () -> {
+                IApplicationDAO dao = (IApplicationDAO)DAOContainer.INSTANCE.get(IApplicationDAO.class.getName());
+                return dao.getApplicationCode(applicationId);
+            });
+        } catch (Throwable e) {
+            return Const.EXCEPTION;
+        }
+    }
+
+    public static String getForUI(int applicationId) {
+        String applicationCode = get(applicationId);
+        if (applicationCode.equals("Unknown")) {
+            IApplicationDAO dao = (IApplicationDAO)DAOContainer.INSTANCE.get(IApplicationDAO.class.getName());
+            applicationCode = dao.getApplicationCode(applicationId);
+            ID_CACHE.put(applicationId, applicationCode);
+        }
+        return applicationCode;
     }
 }

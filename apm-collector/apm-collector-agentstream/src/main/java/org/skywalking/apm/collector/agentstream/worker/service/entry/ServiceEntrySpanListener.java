@@ -18,10 +18,10 @@
 
 package org.skywalking.apm.collector.agentstream.worker.service.entry;
 
-import org.skywalking.apm.collector.agentstream.worker.cache.ServiceCache;
 import org.skywalking.apm.collector.agentstream.worker.segment.EntrySpanListener;
 import org.skywalking.apm.collector.agentstream.worker.segment.FirstSpanListener;
 import org.skywalking.apm.collector.agentstream.worker.segment.RefsListener;
+import org.skywalking.apm.collector.cache.ServiceNameCache;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
@@ -56,7 +56,7 @@ public class ServiceEntrySpanListener implements RefsListener, FirstSpanListener
         if (spanObject.getOperationNameId() == 0) {
             this.entryServiceName = spanObject.getOperationName();
         } else {
-            this.entryServiceName = ServiceCache.getServiceName(this.entryServiceId);
+            this.entryServiceName = ServiceNameCache.get(this.entryServiceId);
         }
         this.hasEntry = true;
     }

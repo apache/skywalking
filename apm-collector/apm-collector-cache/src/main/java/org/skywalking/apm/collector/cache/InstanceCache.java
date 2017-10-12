@@ -16,11 +16,11 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.agentstream.worker.cache;
+package org.skywalking.apm.collector.cache;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import org.skywalking.apm.collector.agentregister.worker.instance.dao.IInstanceDAO;
+import org.skywalking.apm.collector.cache.dao.IInstanceDAO;
 import org.skywalking.apm.collector.storage.dao.DAOContainer;
 
 /**

@@ -55,8 +55,10 @@ public class ApplicationRegisterSerialWorker extends AbstractLocalAsyncWorker {
             ApplicationDataDefine.Application application = (ApplicationDataDefine.Application)message;
             logger.debug("register application, application code: {}", application.getApplicationCode());
 
+            org.skywalking.apm.collector.cache.dao.IApplicationDAO cacheDao = (org.skywalking.apm.collector.cache.dao.IApplicationDAO)DAOContainer.INSTANCE.get(org.skywalking.apm.collector.cache.dao.IApplicationDAO.class.getName());
+            int applicationId = cacheDao.getApplicationId(application.getApplicationCode());
+
             IApplicationDAO dao = (IApplicationDAO)DAOContainer.INSTANCE.get(IApplicationDAO.class.getName());
-            int applicationId = dao.getApplicationId(application.getApplicationCode());
             if (applicationId == 0) {
                 int min = dao.getMinApplicationId();
                 if (min == 0) {

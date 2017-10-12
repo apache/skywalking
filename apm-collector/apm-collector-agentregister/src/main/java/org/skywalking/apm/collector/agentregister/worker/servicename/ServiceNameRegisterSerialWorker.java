@@ -55,9 +55,10 @@ public class ServiceNameRegisterSerialWorker extends AbstractLocalAsyncWorker {
             ServiceNameDataDefine.ServiceName serviceName = (ServiceNameDataDefine.ServiceName)message;
             logger.debug("register service name: {}, application id: {}", serviceName.getServiceName(), serviceName.getApplicationId());
 
-            IServiceNameDAO dao = (IServiceNameDAO)DAOContainer.INSTANCE.get(IServiceNameDAO.class.getName());
-            int serviceId = dao.getServiceId(serviceName.getApplicationId(), serviceName.getServiceName());
+            org.skywalking.apm.collector.cache.dao.IServiceNameDAO cacheDao = (org.skywalking.apm.collector.cache.dao.IServiceNameDAO)DAOContainer.INSTANCE.get(IServiceNameDAO.class.getName());
+            int serviceId = cacheDao.getServiceId(serviceName.getApplicationId(), serviceName.getServiceName());
 
+            IServiceNameDAO dao = (IServiceNameDAO)DAOContainer.INSTANCE.get(IServiceNameDAO.class.getName());
             if (serviceId == 0) {
                 int min = dao.getMinServiceId();
                 if (min == 0) {

@@ -16,10 +16,15 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.ui.dao;
+package org.skywalking.apm.collector.cache.dao;
 
 import org.elasticsearch.action.get.GetRequestBuilder;
 import org.elasticsearch.action.get.GetResponse;
+import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.search.SearchType;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
 import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.storage.define.register.ApplicationTable;
@@ -33,6 +38,24 @@ import org.slf4j.LoggerFactory;
 public class ApplicationEsDAO extends EsDAO implements IApplicationDAO {
 
     private final Logger logger = LoggerFactory.getLogger(ApplicationEsDAO.class);
+
+    @Override public int getApplicationId(String applicationCode) {
+        ElasticSearchClient client = getClient();
+
+        SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ApplicationTable.TABLE);
+        searchRequestBuilder.setTypes("type");
+        searchRequestBuilder.setSearchType(SearchType.QUERY_THEN_FETCH);
+        searchRequestBuilder.setQuery(QueryBuilders.termQuery(ApplicationTable.COLUMN_APPLICATION_CODE, applicationCode));
+        searchRequestBuilder.setSize(1);
+
+        SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
+        if (searchResponse.getHits().totalHits > 0) {
+            SearchHit searchHit = searchResponse.getHits().iterator().next();
+            int applicationId = (int)searchHit.getSource().get(ApplicationTable.COLUMN_APPLICATION_ID);
+            return applicationId;
+        }
+        return 0;
+    }
 
     @Override public String getApplicationCode(int applicationId) {
         logger.debug("get application code, applicationId: {}", applicationId);

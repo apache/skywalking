@@ -16,11 +16,11 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.ui.dao;
+package org.skywalking.apm.collector.cache.dao;
 
 /**
  * @author pengys5
  */
-public interface IApplicationDAO {
-    String getApplicationCode(int applicationId);
+public interface IInstanceDAO {
+    int getApplicationId(int applicationInstanceId);
 }

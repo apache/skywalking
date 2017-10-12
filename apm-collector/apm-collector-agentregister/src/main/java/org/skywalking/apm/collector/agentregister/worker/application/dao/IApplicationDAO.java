@@ -24,8 +24,6 @@ import org.skywalking.apm.collector.storage.define.register.ApplicationDataDefin
  * @author pengys5
  */
 public interface IApplicationDAO {
-    int getApplicationId(String applicationCode);
-
     int getMaxApplicationId();
 
     int getMinApplicationId();

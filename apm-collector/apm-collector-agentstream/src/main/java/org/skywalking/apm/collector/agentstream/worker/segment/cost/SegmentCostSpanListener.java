@@ -20,11 +20,11 @@ package org.skywalking.apm.collector.agentstream.worker.segment.cost;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.skywalking.apm.collector.agentstream.worker.cache.ServiceCache;
 import org.skywalking.apm.collector.agentstream.worker.segment.EntrySpanListener;
 import org.skywalking.apm.collector.agentstream.worker.segment.ExitSpanListener;
 import org.skywalking.apm.collector.agentstream.worker.segment.FirstSpanListener;
 import org.skywalking.apm.collector.agentstream.worker.segment.LocalSpanListener;
+import org.skywalking.apm.collector.cache.ServiceNameCache;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.storage.define.segment.SegmentCostDataDefine;
@@ -64,7 +64,7 @@ public class SegmentCostSpanListener implements EntrySpanListener, ExitSpanListe
         if (spanObject.getOperationNameId() == 0) {
             segmentCost.setServiceName(spanObject.getOperationName());
         } else {
-            segmentCost.setServiceName(ServiceCache.getServiceName(spanObject.getOperationNameId()));
+            segmentCost.setServiceName(ServiceNameCache.get(spanObject.getOperationNameId()));
         }
 
         segmentCosts.add(segmentCost);
