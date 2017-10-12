@@ -21,6 +21,7 @@ package org.skywalking.apm.plugin.jetty.v9.server;
 import java.lang.reflect.Method;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.eclipse.jetty.server.HttpChannel;
 import org.skywalking.apm.agent.core.context.CarrierItem;
 import org.skywalking.apm.agent.core.context.ContextCarrier;
 import org.skywalking.apm.agent.core.context.ContextManager;
@@ -36,8 +37,8 @@ public class HandleInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-        String requestURI = (String)allArguments[0];
-        HttpServletRequest servletRequest = (HttpServletRequest)allArguments[2];
+        HttpChannel httpChannel = (HttpChannel)allArguments[0];
+        HttpServletRequest servletRequest = httpChannel.getRequest();
 
         ContextCarrier contextCarrier = new ContextCarrier();
 
@@ -47,7 +48,7 @@ public class HandleInterceptor implements InstanceMethodsAroundInterceptor {
             next.setHeadValue(servletRequest.getHeader(next.getHeadKey()));
         }
 
-        AbstractSpan span = ContextManager.createEntrySpan(requestURI, contextCarrier);
+        AbstractSpan span = ContextManager.createEntrySpan(servletRequest.getRequestURI(), contextCarrier);
         Tags.URL.set(span, servletRequest.getRequestURL().toString());
         Tags.HTTP.METHOD.set(span, servletRequest.getMethod());
         span.setComponent(ComponentsDefine.JETTY_SERVER);
@@ -57,7 +58,8 @@ public class HandleInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
-        HttpServletResponse servletResponse = (HttpServletResponse)allArguments[3];
+        HttpChannel httpChannel = (HttpChannel)allArguments[0];
+        HttpServletResponse servletResponse = httpChannel.getResponse();
         AbstractSpan span = ContextManager.activeSpan();
         if (servletResponse.getStatus() >= 400) {
             span.errorOccurred();

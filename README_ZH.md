@@ -12,7 +12,7 @@ Sky Walking | [English](README.md)
 
 
 * 自动java探针，**不需要修改应用程序源代码**
-  * 高性能探针，针对单实例5000tps的应用，在**不需要采样的情况下**，只增加**10%**的CPU开销。
+  * 高性能探针，针对单实例5000tps的应用，在**全量采集的情况下**，只增加**10%**的CPU开销。
   * [中间件，框架与类库支持列表](https://github.com/wu-sheng/sky-walking/wiki/3.2-supported-list).
 * 手动探针
   * [使用OpenTracing手动探针API](http://opentracing.io/documentation/pages/supported-tracers)
@@ -54,9 +54,9 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 
 # Test reports
 - 自动化集成测试报告
-  - [Java探针测试报告](https://github.com/sky-walking/agent-integration-test-report)
+  - [Java探针测试报告](https://github.com/SkywalkingTest/agent-integration-test-report)
 - 性能测试报告
-  - [Java探针测试报告](https://sky-walking.github.io/Agent-Benchmarks/)
+  - [Java探针测试报告](https://skywalkingtest.github.io/Agent-Benchmarks/)
 
 # Contact Us
 * 直接提交Issue
