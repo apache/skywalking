@@ -1,3 +1,21 @@
+/*
+ * Copyright 2017, OpenSkywalking Organization All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Project repository: https://github.com/OpenSkywalking/skywalking
+ */
+
 package org.skywalking.apm.plugin.sjdbc;
 
 import com.dangdang.ddframe.rdb.sharding.constant.SQLType;
@@ -14,7 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import org.hamcrest.core.Is;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -34,9 +51,11 @@ import org.skywalking.apm.agent.test.tools.TracingSegmentRunner;
 import org.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.skywalking.apm.plugin.sjdbc.define.AsyncExecuteInterceptor;
 import org.skywalking.apm.plugin.sjdbc.define.ExecuteInterceptor;
+import org.skywalking.apm.plugin.sjdbc.define.ExecutorEngineConstructorInterceptor;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.skywalking.apm.agent.test.tools.SpanAssert.assertComponent;
 import static org.skywalking.apm.agent.test.tools.SpanAssert.assertLayer;
@@ -64,6 +83,7 @@ public class InterceptorTest {
     @BeforeClass
     public static void init() {
         ExecuteEventListener.init();
+        new ExecutorEngineConstructorInterceptor().onConstruct(null, null);
         ES = Executors.newSingleThreadExecutor();
     }
     
@@ -109,6 +129,7 @@ public class InterceptorTest {
         TraceSegment segment0 = segmentStorage.getTraceSegments().get(0);
         TraceSegment segment1 = segmentStorage.getTraceSegments().get(1);
         assertThat(segment0.getRefs().size(), is(1));
+        assertNull(segment1.getRefs());
         List<AbstractTracingSpan> spans0 = SegmentHelper.getSpans(segment0);
         assertNotNull(spans0);
         assertThat(spans0.size(), is(1));
@@ -118,22 +139,6 @@ public class InterceptorTest {
         assertThat(spans1.size(), is(2));
         assertSpan(spans1.get(0), 0);
         assertThat(spans1.get(1).getOperationName(), is("/SJDBC/TRUNK/DQL"));
-    }
-    
-    @Test
-    public void assertAsyncContextHold() throws Throwable {
-        ExecutorDataMap.getDataMap().put("FOO_KEY", "FOO_VALUE");
-        executeInterceptor.beforeMethod(null, null, allArguments, null, null);
-        asyncExecuteInterceptor.beforeMethod(null, null, null, null, null);
-        final Map<String, Object> dataMap = ExecutorDataMap.getDataMap();
-        ES.submit(() -> {
-            ExecutorDataMap.setDataMap(dataMap);
-            sendEvent("ds_1", "select * from t_order_1");
-        }).get();
-        asyncExecuteInterceptor.afterMethod(null, null, null, null, null);
-        executeInterceptor.afterMethod(null, null, allArguments, null, null);
-        assertThat(ExecutorDataMap.getDataMap().size(), is(1));
-        assertThat(ExecutorDataMap.getDataMap().get("FOO_KEY"), Is.<Object>is("FOO_VALUE"));
     }
     
     @Test
