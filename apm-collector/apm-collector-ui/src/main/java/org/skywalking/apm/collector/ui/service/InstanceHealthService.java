@@ -41,10 +41,14 @@ public class InstanceHealthService {
             IGCMetricDAO gcMetricDAO = (IGCMetricDAO)DAOContainer.INSTANCE.get(IGCMetricDAO.class.getName());
             JsonObject instanceJson = new JsonObject();
             instanceJson.addProperty("id", instance.getInstanceId());
-            instanceJson.addProperty("tps", performance.getCalls());
+            if (performance != null) {
+                instanceJson.addProperty("tps", performance.getCalls());
+            } else {
+                instanceJson.addProperty("tps", 0);
+            }
 
             int avg = 0;
-            if (performance.getCalls() != 0) {
+            if (performance != null && performance.getCalls() != 0) {
                 avg = (int)(performance.getCostTotal() / performance.getCalls());
             }
             instanceJson.addProperty("avg", avg);

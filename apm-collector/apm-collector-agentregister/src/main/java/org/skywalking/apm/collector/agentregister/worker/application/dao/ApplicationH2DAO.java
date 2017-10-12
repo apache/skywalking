@@ -8,12 +8,15 @@ import org.skywalking.apm.collector.storage.h2.dao.H2DAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.MessageFormat;
+
 /**
  * @author pengys5
  */
 public class ApplicationH2DAO extends H2DAO implements IApplicationDAO {
     private final Logger logger = LoggerFactory.getLogger(ApplicationH2DAO.class);
-    @Override
+    private static final String INSERT_APPLICATION_SQL = "insert into {0}({1}, {2}) values(?, ?)";
+;    @Override
     public int getApplicationId(String applicationCode) {
         logger.info("get the application id with application code = {}", applicationCode);
         String sql = "select " + ApplicationTable.COLUMN_APPLICATION_ID + " from " +
@@ -34,12 +37,12 @@ public class ApplicationH2DAO extends H2DAO implements IApplicationDAO {
 
     @Override
     public void save(ApplicationDataDefine.Application application) {
-        String insertSQL = "insert into " + ApplicationTable.TABLE + "(" + ApplicationTable.COLUMN_APPLICATION_ID +
-                "," + ApplicationTable.COLUMN_APPLICATION_CODE + ") values (?, ?)";
         H2Client client = getClient();
+        String sql = MessageFormat.format(INSERT_APPLICATION_SQL, ApplicationTable.TABLE, ApplicationTable.COLUMN_APPLICATION_ID,
+                ApplicationTable.COLUMN_APPLICATION_CODE);
         Object[] params = new Object[] {application.getApplicationId(), application.getApplicationCode()};
         try {
-            client.execute(insertSQL, params);
+            client.execute(sql, params);
         } catch (H2ClientException e) {
             logger.error(e.getMessage(), e);
         }

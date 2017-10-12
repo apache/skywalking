@@ -4,20 +4,20 @@ cluster:
     sessionTimeout: 100000
 agent_server:
   jetty:
-    host: 0.0.0.0
+    host: 127.0.0.1
     port: 10800
     context_path: /
 agent_stream:
   grpc:
-    host: 192.168.10.13
+    host: 127.0.0.1
     port: 11800
   jetty:
-    host: 0.0.0.0
+    host: 127.0.0.1
     port: 12800
     context_path: /
 ui:
   jetty:
-    host: 0.0.0.0
+    host: 127.0.0.1
     port: 12800
     context_path: /
 collector_inside:

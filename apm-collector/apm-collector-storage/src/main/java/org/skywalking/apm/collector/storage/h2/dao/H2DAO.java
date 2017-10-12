@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Set;
 
 /**
  * @author pengys5
@@ -26,9 +27,7 @@ public abstract class H2DAO extends DAO<H2Client> {
 
     public final int getIntValueBySQL(String sql) {
         H2Client client = getClient();
-        ResultSet rs = null;
-        try {
-            rs = client.executeQuery(sql, null);
+        try (ResultSet rs = client.executeQuery(sql, null)) {
             if (rs.next()) {
                 int id = rs.getInt(1);
                 if (id == Integer.MAX_VALUE || id == Integer.MIN_VALUE) {
@@ -39,9 +38,34 @@ public abstract class H2DAO extends DAO<H2Client> {
             }
         } catch (SQLException | H2ClientException e) {
             logger.error(e.getMessage(), e);
-        } finally {
-            client.closeResultSet(rs);
         }
         return 0;
+    }
+
+    public final String getBatchInsertSql(String tableName, Set<String> columnNames) {
+        StringBuilder sb = new StringBuilder("insert into ");
+        sb.append(tableName).append("(");
+        columnNames.forEach((columnName) -> {
+            sb.append(columnName).append(",");
+        });
+        sb.delete(sb.length() - 1, sb.length());
+        sb.append(") values(");
+        for (int i = 0; i < columnNames.size(); i++) {
+            sb.append("?,");
+        }
+        sb.delete(sb.length() - 1, sb.length());
+        sb.append(")");
+        return sb.toString();
+    }
+
+    public final String getBatchUpdateSql(String tableName, Set<String> columnNames, String whereClauseName) {
+        StringBuilder sb = new StringBuilder("update ");
+        sb.append(tableName).append(" ");
+        columnNames.forEach((columnName) -> {
+            sb.append("set ").append(columnName).append("=?,");
+        });
+        sb.delete(sb.length() - 1, sb.length());
+        sb.append(" where ").append(whereClauseName).append("=?");
+        return sb.toString();
     }
 }

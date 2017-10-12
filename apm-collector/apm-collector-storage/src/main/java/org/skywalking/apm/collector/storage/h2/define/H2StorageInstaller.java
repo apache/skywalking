@@ -1,10 +1,5 @@
 package org.skywalking.apm.collector.storage.h2.define;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.List;
-
-import org.h2.util.IOUtils;
 import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.client.h2.H2ClientException;
 import org.skywalking.apm.collector.core.client.Client;
@@ -14,6 +9,10 @@ import org.skywalking.apm.collector.core.storage.StorageInstaller;
 import org.skywalking.apm.collector.core.storage.TableDefine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
 
 /**
  * @author pengys5

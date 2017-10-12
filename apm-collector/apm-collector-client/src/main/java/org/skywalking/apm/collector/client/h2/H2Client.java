@@ -55,9 +55,7 @@ public class H2Client implements Client {
     }
 
     public void execute(String sql) throws H2ClientException {
-        Statement statement = null;
-        try {
-            statement = getConnection().createStatement();
+        try (Statement statement = getConnection().createStatement()) {
             statement.execute(sql);
             statement.closeOnCompletion();
         } catch (SQLException e) {
@@ -67,13 +65,13 @@ public class H2Client implements Client {
 
     public ResultSet executeQuery(String sql, Object[] params) throws H2ClientException {
         logger.info("execute query with result: {}", sql);
-        PreparedStatement statement;
         ResultSet rs;
+        PreparedStatement statement;
         try {
             statement = getConnection().prepareStatement(sql);
             if (params != null) {
                 for (int i = 0; i < params.length; i++) {
-                    statement.setObject(i+1, params[i]);
+                    statement.setObject(i + 1, params[i]);
                 }
             }
             rs = statement.executeQuery();
@@ -86,30 +84,20 @@ public class H2Client implements Client {
 
     public boolean execute(String sql, Object[] params) throws H2ClientException {
         logger.info("execute insert/update/delete: {}", sql);
-        PreparedStatement statement;
         boolean flag;
-        try {
-            statement = getConnection().prepareStatement(sql);
+        Connection conn = getConnection();
+        try (PreparedStatement statement = conn.prepareStatement(sql)) {
+            conn.setAutoCommit(false);
             if (params != null) {
                 for (int i = 0; i < params.length; i++) {
-                    statement.setObject(i+1, params[i]);
+                    statement.setObject(i + 1, params[i]);
                 }
             }
             flag = statement.execute();
-            statement.closeOnCompletion();
+            conn.commit();
         } catch (SQLException e) {
             throw new H2ClientException(e.getMessage(), e);
         }
         return flag;
-    }
-
-    public void closeResultSet(ResultSet rs) {
-        if (rs != null) {
-            try {
-                rs.close();
-            } catch (SQLException e) {
-                logger.error(e.getMessage(), e);
-            }
-        }
     }
 }
