@@ -45,10 +45,10 @@ public class DataCarrier<T> {
 
     /**
      * set a new IDataPartitioner.
-     * It will cover the current one or default one.(Default is {@link SimpleRollingPartitioner)}
+     * It will cover the current one or default one.(Default is {@link SimpleRollingPartitioner}
      *
-     * @param dataPartitioner
-     * @return
+     * @param dataPartitioner implementation
+     * @return {@link DataCarrier} instance itself
      */
     public DataCarrier setPartitioner(IDataPartitioner<T> dataPartitioner) {
         this.channels.setPartitioner(dataPartitioner);
@@ -57,9 +57,10 @@ public class DataCarrier<T> {
 
     /**
      * override the strategy at runtime.
-     * Notice, {@link Channels<T>} will override several channels one by one.
+     * Notice, {@link Channels} will override several channels one by one.
      *
-     * @param strategy
+     * @param strategy {@link BufferStrategy}
+     * @return {@link DataCarrier} instance itself
      */
     public DataCarrier setBufferStrategy(BufferStrategy strategy) {
         this.channels.setStrategy(strategy);
@@ -67,9 +68,9 @@ public class DataCarrier<T> {
     }
 
     /**
-     * produce data to buffer, using the givven {@link BufferStrategy}.
+     * produce data to buffer, using the given {@link BufferStrategy}.
      *
-     * @param data
+     * @param data inserted into the channel.
      * @return false means produce data failure. The data will not be consumed.
      */
     public boolean produce(T data) {
@@ -84,10 +85,11 @@ public class DataCarrier<T> {
 
     /**
      * set consumers to this Carrier.
-     * consumer begin to run when {@link DataCarrier<T>#produce(T)} begin to work.
+     * consumer begin to run when {@link DataCarrier<T>{@link #produce(Object)}} begin to work.
      *
      * @param consumerClass class of consumer
      * @param num number of consumer threads
+     * @return {@link DataCarrier} instance itself
      */
     public DataCarrier consume(Class<? extends IConsumer<T>> consumerClass, int num) {
         if (consumerPool != null) {
@@ -100,11 +102,11 @@ public class DataCarrier<T> {
 
     /**
      * set consumers to this Carrier.
-     * consumer begin to run when {@link DataCarrier<T>#produce(T)} begin to work.
+     * consumer begin to run when produce begin to work.
      *
      * @param consumer single instance of consumer, all consumer threads will all use this instance.
      * @param num number of consumer threads
-     * @return
+     * @return {@link DataCarrier} instance itself
      */
     public DataCarrier consume(IConsumer<T> consumer, int num) {
         if (consumerPool != null) {
