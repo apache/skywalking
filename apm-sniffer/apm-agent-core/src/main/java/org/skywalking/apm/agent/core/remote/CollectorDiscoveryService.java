@@ -22,6 +22,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import org.skywalking.apm.agent.core.boot.BootService;
+import org.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
 import org.skywalking.apm.agent.core.conf.Config;
 
 /**
@@ -39,7 +40,7 @@ public class CollectorDiscoveryService implements BootService {
 
     @Override
     public void boot() throws Throwable {
-        future = Executors.newSingleThreadScheduledExecutor()
+        future = Executors.newSingleThreadScheduledExecutor(new DefaultNamedThreadFactory("CollectorDiscoveryService"))
             .scheduleAtFixedRate(new DiscoveryRestServiceClient(), 0,
                 Config.Collector.DISCOVERY_CHECK_INTERVAL, TimeUnit.SECONDS);
     }

@@ -25,6 +25,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import org.skywalking.apm.agent.core.boot.BootService;
+import org.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
 import org.skywalking.apm.agent.core.boot.ServiceManager;
 import org.skywalking.apm.agent.core.conf.Config;
 import org.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
@@ -57,7 +58,6 @@ public class JVMService implements BootService, Runnable {
     private volatile ScheduledFuture<?> collectMetricFuture;
     private volatile ScheduledFuture<?> sendMetricFuture;
     private Sender sender;
-
     @Override
     public void beforeBoot() throws Throwable {
         queue = new LinkedBlockingQueue(Config.Jvm.BUFFER_SIZE);
@@ -68,10 +68,10 @@ public class JVMService implements BootService, Runnable {
     @Override
     public void boot() throws Throwable {
         collectMetricFuture = Executors
-            .newSingleThreadScheduledExecutor()
+            .newSingleThreadScheduledExecutor(new DefaultNamedThreadFactory("JVMService-produce"))
             .scheduleAtFixedRate(this, 0, 1, TimeUnit.SECONDS);
         sendMetricFuture = Executors
-            .newSingleThreadScheduledExecutor()
+            .newSingleThreadScheduledExecutor(new DefaultNamedThreadFactory("JVMService-consume"))
             .scheduleAtFixedRate(sender, 0, 1, TimeUnit.SECONDS);
     }
 
