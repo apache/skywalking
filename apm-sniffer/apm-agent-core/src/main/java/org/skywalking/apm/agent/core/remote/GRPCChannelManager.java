@@ -79,9 +79,10 @@ public class GRPCChannelManager implements BootService, Runnable {
         logger.debug("Selected collector grpc service running, reconnect:{}.",reconnect);
         if (reconnect) {
             if (RemoteDownstreamConfig.Collector.GRPC_SERVERS.size() > 0) {
-                int index = random.nextInt() % RemoteDownstreamConfig.Collector.GRPC_SERVERS.size();
-                String server = RemoteDownstreamConfig.Collector.GRPC_SERVERS.get(index);
+                String server = "";
                 try {
+                    int index = Math.abs(random.nextInt()) % RemoteDownstreamConfig.Collector.GRPC_SERVERS.size();
+                    server = RemoteDownstreamConfig.Collector.GRPC_SERVERS.get(index);
                     String[] ipAndPort = server.split(":");
                     ManagedChannelBuilder<?> channelBuilder =
                         NettyChannelBuilder.forAddress(ipAndPort[0], Integer.parseInt(ipAndPort[1]))
