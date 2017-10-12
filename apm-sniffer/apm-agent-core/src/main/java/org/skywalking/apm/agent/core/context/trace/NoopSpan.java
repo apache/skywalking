@@ -39,7 +39,7 @@ public class NoopSpan implements AbstractSpan {
     }
 
     @Override public AbstractSpan errorOccurred() {
-        return null;
+        return this;
     }
 
     public void finish() {
