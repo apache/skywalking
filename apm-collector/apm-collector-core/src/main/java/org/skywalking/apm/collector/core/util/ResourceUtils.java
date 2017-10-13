@@ -1,8 +1,9 @@
 package org.skywalking.apm.collector.core.util;
 
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.URL;
 
 /**
@@ -10,12 +11,12 @@ import java.net.URL;
  */
 public class ResourceUtils {
 
-    public static FileReader read(String fileName) throws FileNotFoundException {
+    public static Reader read(String fileName) throws FileNotFoundException {
         URL url = ResourceUtils.class.getClassLoader().getResource(fileName);
         if (url == null) {
             throw new FileNotFoundException("file not found: " + fileName);
         }
-        File file = new File(ResourceUtils.class.getClassLoader().getResource(fileName).getFile());
-        return new FileReader(file);
+        InputStream inputStream = ResourceUtils.class.getClassLoader().getResourceAsStream(fileName);
+        return new InputStreamReader(inputStream);
     }
 }
