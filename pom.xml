@@ -315,6 +315,7 @@
                             <configLocation>checkStyle.xml</configLocation>
                             <encoding>UTF-8</encoding>
                             <consoleOutput>true</consoleOutput>
+                            <includeTestSourceDirectory>true</includeTestSourceDirectory>
                             <failsOnError>true</failsOnError>
                             <excludes>org/skywalking/apm/network/**/*.java,
                                 org/skywalking/apm/collector/remote/grpc/**/*.java,
