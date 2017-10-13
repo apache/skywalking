@@ -219,15 +219,15 @@ public class GrpcSegmentPost {
         LogMessage.Builder entryLogMessage = LogMessage.newBuilder();
         entryLogMessage.setTime(timestamp);
 
-        KeyWithStringValue.Builder data_1 = KeyWithStringValue.newBuilder();
-        data_1.setKey("url");
-        data_1.setValue("http://localhost:18080/dubbox-case/case/dubbox-rest");
-        entryLogMessage.addData(data_1);
+        KeyWithStringValue.Builder data1 = KeyWithStringValue.newBuilder();
+        data1.setKey("url");
+        data1.setValue("http://localhost:18080/dubbox-case/case/dubbox-rest");
+        entryLogMessage.addData(data1);
 
-        KeyWithStringValue.Builder data_2 = KeyWithStringValue.newBuilder();
-        data_2.setKey("http.method");
-        data_2.setValue("GET");
-        entryLogMessage.addData(data_2);
+        KeyWithStringValue.Builder data2 = KeyWithStringValue.newBuilder();
+        data2.setKey("http.method");
+        data2.setValue("GET");
+        entryLogMessage.addData(data2);
         entrySpan.addLogs(entryLogMessage);
         segmentBuilder.addSpans(entrySpan);
 
@@ -292,15 +292,15 @@ public class GrpcSegmentPost {
         LogMessage.Builder entryLogMessage = LogMessage.newBuilder();
         entryLogMessage.setTime(timestamp);
 
-        KeyWithStringValue.Builder data_1 = KeyWithStringValue.newBuilder();
-        data_1.setKey("url");
-        data_1.setValue("rest://172.25.0.4:20880/org.skywaking.apm.testcase.dubbo.services.GreetService.doBusiness()");
-        entryLogMessage.addData(data_1);
+        KeyWithStringValue.Builder data1 = KeyWithStringValue.newBuilder();
+        data1.setKey("url");
+        data1.setValue("rest://172.25.0.4:20880/org.skywaking.apm.testcase.dubbo.services.GreetService.doBusiness()");
+        entryLogMessage.addData(data1);
 
-        KeyWithStringValue.Builder data_2 = KeyWithStringValue.newBuilder();
-        data_2.setKey("http.method");
-        data_2.setValue("GET");
-        entryLogMessage.addData(data_2);
+        KeyWithStringValue.Builder data2 = KeyWithStringValue.newBuilder();
+        data2.setKey("http.method");
+        data2.setValue("GET");
+        entryLogMessage.addData(data2);
         entrySpan.addLogs(entryLogMessage);
         segmentBuilder.addSpans(entrySpan);
 

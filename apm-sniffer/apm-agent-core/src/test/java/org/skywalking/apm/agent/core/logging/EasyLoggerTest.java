@@ -33,13 +33,13 @@ import static org.mockito.Mockito.times;
  * Created by wusheng on 2017/2/28.
  */
 public class EasyLoggerTest {
-    private static PrintStream outRef;
-    private static PrintStream errRef;
+    private static PrintStream OUT_REF;
+    private static PrintStream ERR_REF;
 
     @BeforeClass
     public static void initAndHoldOut() {
-        outRef = System.out;
-        errRef = System.err;
+        OUT_REF = System.out;
+        ERR_REF = System.err;
     }
 
     @Test
@@ -110,7 +110,7 @@ public class EasyLoggerTest {
 
     @AfterClass
     public static void reset() {
-        System.setOut(outRef);
-        System.setErr(errRef);
+        System.setOut(OUT_REF);
+        System.setErr(ERR_REF);
     }
 }

@@ -32,9 +32,9 @@ import org.skywalking.apm.commons.datacarrier.SampleData;
  * Created by wusheng on 2016/10/26.
  */
 public class ConsumerTest {
-    public static LinkedBlockingQueue<SampleData> buffer = new LinkedBlockingQueue<SampleData>();
+    public static LinkedBlockingQueue<SampleData> BUFFER = new LinkedBlockingQueue<SampleData>();
 
-    public static boolean isOccurError = false;
+    public static boolean IS_OCCUR_ERROR = false;
 
     @Test
     public void testConsumerLessThanChannel() throws IllegalAccessException {
@@ -71,7 +71,7 @@ public class ConsumerTest {
         Thread.sleep(2000);
 
         List<SampleData> result = new ArrayList<SampleData>();
-        buffer.drainTo(result);
+        BUFFER.drainTo(result);
 
         Assert.assertEquals(200, result.size());
 
@@ -94,7 +94,7 @@ public class ConsumerTest {
         consumer.onError = true;
         carrier.consume(consumer, 5);
 
-        Assert.assertTrue(isOccurError);
+        Assert.assertTrue(IS_OCCUR_ERROR);
     }
 
     class SampleConsumer2 implements IConsumer<SampleData> {
@@ -116,7 +116,7 @@ public class ConsumerTest {
 
         @Override
         public void onError(List<SampleData> data, Throwable t) {
-            isOccurError = true;
+            IS_OCCUR_ERROR = true;
         }
 
         @Override
@@ -126,7 +126,7 @@ public class ConsumerTest {
     }
 
     private IConsumer getConsumer(DataCarrier<SampleData> carrier) throws IllegalAccessException {
-        ConsumerPool pool = ((ConsumerPool)MemberModifier.field(DataCarrier.class, "consumerPool").get(carrier));
+        ConsumerPool pool = (ConsumerPool)MemberModifier.field(DataCarrier.class, "consumerPool").get(carrier);
         ConsumerThread[] threads = (ConsumerThread[])MemberModifier.field(ConsumerPool.class, "consumerThreads").get(pool);
 
         return (IConsumer)MemberModifier.field(ConsumerThread.class, "consumer").get(threads[0]);

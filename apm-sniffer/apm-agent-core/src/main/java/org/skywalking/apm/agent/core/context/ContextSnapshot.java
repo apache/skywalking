@@ -113,4 +113,8 @@ public class ContextSnapshot {
     public int getEntryApplicationInstanceId() {
         return entryApplicationInstanceId;
     }
+    
+    public boolean isFromCurrent() {
+        return traceSegmentId.equals(ContextManager.capture().getTraceSegmentId());
+    }
 }

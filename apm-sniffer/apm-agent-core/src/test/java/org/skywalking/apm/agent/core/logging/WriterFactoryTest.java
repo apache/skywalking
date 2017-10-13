@@ -30,11 +30,11 @@ import org.skywalking.apm.agent.core.conf.Config;
  * Created by wusheng on 2017/2/28.
  */
 public class WriterFactoryTest {
-    private static PrintStream errRef;
+    private static PrintStream ERR_REF;
 
     @BeforeClass
     public static void initAndHoldOut() {
-        errRef = System.err;
+        ERR_REF = System.err;
     }
 
     /**
@@ -54,6 +54,6 @@ public class WriterFactoryTest {
     @AfterClass
     public static void reset() {
         Config.Logging.DIR = "";
-        System.setErr(errRef);
+        System.setErr(ERR_REF);
     }
 }

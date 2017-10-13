@@ -17,6 +17,7 @@
  */
 package org.skywalking.apm.agent.core.boot;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import static org.junit.Assert.assertNotNull;
@@ -36,6 +37,6 @@ public class DefaultNamedThreadFactoryTest {
         });
         newThread.start();
         assertNotNull(newThread.getName());
-        assert(newThread.getName().contains("DefaultNamedThreadFactoryTest"));
+        Assert.assertTrue(newThread.getName().contains("DefaultNamedThreadFactoryTest"));
     }
 }

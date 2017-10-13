@@ -17,39 +17,20 @@
   ~ Project repository: https://github.com/OpenSkywalking/skywalking
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-
     <parent>
+        <artifactId>apm-sdk-plugin</artifactId>
         <groupId>org.skywalking</groupId>
-        <artifactId>apm-sniffer</artifactId>
         <version>3.2.3-2017</version>
     </parent>
+    <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>apm-sdk-plugin</artifactId>
-    <modules>
-        <module>dubbo-plugin</module>
-        <module>jdbc-plugin</module>
-        <module>httpClient-4.x-plugin</module>
-        <module>jedis-2.x-plugin</module>
-        <module>tomcat-7.x-8.x-plugin</module>
-        <module>motan-plugin</module>
-        <module>mongodb-3.x-plugin</module>
-        <module>feign-default-http-9.x-plugin</module>
-        <module>okhttp-3.x-plugin</module>
-        <module>resin-3.x-plugin</module>
-        <module>resin-4.x-plugin</module>
-        <module>spring-plugins</module>
-        <module>struts2-2.x-plugin</module>
-        <module>nutz-plugins</module>
-        <module>jetty-plugin</module>
-        <module>spymemcached-2.x-plugin</module>
-        <module>sharding-jdbc-1.5.x-plugin</module>
-    </modules>
-    <packaging>pom</packaging>
+    <artifactId>apm-sharding-jdbc-1.5.x-plugin</artifactId>
+    <packaging>jar</packaging>
 
-    <name>apm-sdk-plugin</name>
+    <name>sharding-jdbc-1.5.x-plugin</name>
     <url>http://maven.apache.org</url>
 
     <properties>
@@ -58,15 +39,22 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.skywalking</groupId>
-            <artifactId>apm-agent-core</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.skywalking</groupId>
-            <artifactId>apm-test-tools</artifactId>
+            <groupId>${groupId}</groupId>
+            <artifactId>apm-jdbc-plugin</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>[2.0.14,6.0.6]</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.dangdang</groupId>
+            <artifactId>sharding-jdbc-core</artifactId>
+            <version>[1.5.0,2.0.0)</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
@@ -74,11 +62,7 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>2.4.3</version>
-                <configuration>
-                    <encoding>${project.build.sourceEncoding}</encoding>
-                </configuration>
+                <artifactId>maven-deploy-plugin</artifactId>
             </plugin>
             <plugin>
                 <!-- 源码插件 -->
@@ -94,6 +78,15 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
+    
 </project>
