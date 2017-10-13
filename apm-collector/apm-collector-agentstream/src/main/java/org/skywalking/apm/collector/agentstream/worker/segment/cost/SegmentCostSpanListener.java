@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author pengys5
  */
-public class SegmentCostSpanListener implements EntrySpanListener, ExitSpanListener, LocalSpanListener, FirstSpanListener {
+public class SegmentCostSpanListener implements EntrySpanListener, ExitSpanListener, LocalSpanListener,FirstSpanListener {
 
     private final Logger logger = LoggerFactory.getLogger(SegmentCostSpanListener.class);
 
@@ -50,10 +50,7 @@ public class SegmentCostSpanListener implements EntrySpanListener, ExitSpanListe
     @Override
     public void parseFirst(SpanObject spanObject, int applicationId, int applicationInstanceId, String segmentId) {
         timeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(spanObject.getStartTime());
-    }
 
-    @Override
-    public void parseEntry(SpanObject spanObject, int applicationId, int applicationInstanceId, String segmentId) {
         SegmentCostDataDefine.SegmentCost segmentCost = new SegmentCostDataDefine.SegmentCost();
         segmentCost.setSegmentId(segmentId);
         segmentCost.setApplicationId(applicationId);
@@ -68,6 +65,11 @@ public class SegmentCostSpanListener implements EntrySpanListener, ExitSpanListe
         }
 
         segmentCosts.add(segmentCost);
+        isError = isError || spanObject.getIsError();
+    }
+
+    @Override
+    public void parseEntry(SpanObject spanObject, int applicationId, int applicationInstanceId, String segmentId) {
         isError = isError || spanObject.getIsError();
     }
 

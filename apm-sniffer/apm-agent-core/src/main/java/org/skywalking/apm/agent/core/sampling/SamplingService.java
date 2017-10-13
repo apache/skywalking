@@ -24,6 +24,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.skywalking.apm.agent.core.boot.BootService;
+import org.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
 import org.skywalking.apm.agent.core.conf.Config;
 import org.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.skywalking.apm.logging.ILog;
@@ -63,7 +64,7 @@ public class SamplingService implements BootService {
             on = true;
             this.resetSamplingFactor();
             ScheduledExecutorService service = Executors
-                .newSingleThreadScheduledExecutor();
+                .newSingleThreadScheduledExecutor(new DefaultNamedThreadFactory("SamplingService"));
             scheduledFuture = service.scheduleAtFixedRate(new Runnable() {
                 @Override
                 public void run() {
