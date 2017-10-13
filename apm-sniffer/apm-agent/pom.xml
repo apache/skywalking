@@ -249,9 +249,9 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <mkdir dir="${project.basedir}/../../packages"/>
+                                <mkdir dir="${project.basedir}/../../packages/skywalking-agent"/>
                                 <copy file="${project.build.directory}/skywalking-agent.jar"
-                                      tofile="${project.basedir}/../../packages/skywalking-agent.jar" overwrite="true"/>
+                                      tofile="${project.basedir}/../../packages/skywalking-agent/skywalking-agent.jar" overwrite="true"/>
                             </tasks>
                         </configuration>
                     </execution>
