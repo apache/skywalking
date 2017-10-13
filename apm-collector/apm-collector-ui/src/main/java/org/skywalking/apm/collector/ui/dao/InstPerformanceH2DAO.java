@@ -6,9 +6,6 @@ import org.skywalking.apm.collector.client.h2.H2ClientException;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.storage.define.instance.InstPerformanceTable;
-import org.skywalking.apm.collector.storage.define.jvm.CpuMetricTable;
-import org.skywalking.apm.collector.storage.define.register.InstanceDataDefine;
-import org.skywalking.apm.collector.storage.define.register.InstanceTable;
 import org.skywalking.apm.collector.storage.h2.dao.H2DAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author pengys5
+ * @author pengys5, clevertension
  */
 public class InstPerformanceH2DAO extends H2DAO implements IInstPerformanceDAO {
     private final Logger logger = LoggerFactory.getLogger(InstPerformanceH2DAO.class);
@@ -32,14 +29,14 @@ public class InstPerformanceH2DAO extends H2DAO implements IInstPerformanceDAO {
         logger.info("the inst performance inst id = {}", instanceId);
         String sql = MessageFormat.format(GET_INST_PERF_SQL, InstPerformanceTable.TABLE, InstPerformanceTable.COLUMN_INSTANCE_ID, InstPerformanceTable.COLUMN_TIME_BUCKET);
         StringBuilder builder = new StringBuilder();
-        for( int i = 0 ; i < timeBuckets.length; i++ ) {
+        for (int i = 0; i < timeBuckets.length; i++) {
             builder.append("?,");
         }
         builder.delete(builder.length() - 1, builder.length());
         builder.append(")");
         sql = sql + builder;
         Object[] params = new Object[timeBuckets.length + 1];
-        for(int i = 0; i < timeBuckets.length; i++) {
+        for (int i = 0; i < timeBuckets.length; i++) {
             params[i + 1] = timeBuckets[i];
         }
         params[0] = instanceId;
@@ -56,6 +53,7 @@ public class InstPerformanceH2DAO extends H2DAO implements IInstPerformanceDAO {
     }
 
     @Override public int getTpsMetric(int instanceId, long timeBucket) {
+        logger.info("getTpMetric instanceId = {}, startTimeBucket = {}", instanceId, timeBucket);
         H2Client client = getClient();
         String sql = MessageFormat.format(GET_TPS_METRIC_SQL, InstPerformanceTable.TABLE, "id");
         Object[] params = new Object[]{instanceId};
@@ -70,6 +68,7 @@ public class InstPerformanceH2DAO extends H2DAO implements IInstPerformanceDAO {
     }
 
     @Override public JsonArray getTpsMetric(int instanceId, long startTimeBucket, long endTimeBucket) {
+        logger.info("getTpsMetric instanceId = {}, startTimeBucket = {}, endTimeBucket = {}", instanceId, startTimeBucket, endTimeBucket);
         H2Client client = getClient();
         String sql = MessageFormat.format(GET_TPS_METRICS_SQL, InstPerformanceTable.TABLE, "id");
 
@@ -83,7 +82,7 @@ public class InstPerformanceH2DAO extends H2DAO implements IInstPerformanceDAO {
         while (timeBucket <= endTimeBucket);
 
         StringBuilder builder = new StringBuilder();
-        for( int i = 0 ; i < idList.size(); i++ ) {
+        for (int i = 0; i < idList.size(); i++) {
             builder.append("?,");
         }
         builder.delete(builder.length() - 1, builder.length());
@@ -133,7 +132,7 @@ public class InstPerformanceH2DAO extends H2DAO implements IInstPerformanceDAO {
         while (timeBucket <= endTimeBucket);
 
         StringBuilder builder = new StringBuilder();
-        for( int i = 0 ; i < idList.size(); i++ ) {
+        for (int i = 0; i < idList.size(); i++) {
             builder.append("?,");
         }
         builder.delete(builder.length() - 1, builder.length());

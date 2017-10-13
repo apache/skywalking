@@ -16,7 +16,7 @@ import java.text.MessageFormat;
 public class ApplicationH2DAO extends H2DAO implements IApplicationDAO {
     private final Logger logger = LoggerFactory.getLogger(ApplicationH2DAO.class);
     private static final String INSERT_APPLICATION_SQL = "insert into {0}({1}, {2}) values(?, ?)";
-;    @Override
+    @Override
     public int getApplicationId(String applicationCode) {
         logger.info("get the application id with application code = {}", applicationCode);
         String sql = "select " + ApplicationTable.COLUMN_APPLICATION_ID + " from " +

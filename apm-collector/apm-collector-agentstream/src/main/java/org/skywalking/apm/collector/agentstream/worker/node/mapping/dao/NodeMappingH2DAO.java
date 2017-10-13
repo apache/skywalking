@@ -51,6 +51,7 @@ public class NodeMappingH2DAO extends H2DAO implements INodeMappingDAO, IPersist
         source.put(NodeMappingTable.COLUMN_TIME_BUCKET, data.getDataLong(0));
         String sql = getBatchInsertSql(NodeMappingTable.TABLE, source.keySet());
         entity.setSql(sql);
+
         entity.setParams(source.values().toArray(new Object[0]));
         return entity;
     }

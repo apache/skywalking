@@ -16,7 +16,7 @@ import java.sql.SQLException;
 import java.text.MessageFormat;
 
 /**
- * @author pengys5
+ * @author pengys5, clevertension
  */
 public class NodeMappingH2DAO extends H2DAO implements INodeMappingDAO {
     private final Logger logger = LoggerFactory.getLogger(NodeMappingH2DAO.class);

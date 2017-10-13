@@ -14,6 +14,7 @@ public class NodeReferenceH2TableDefine extends H2TableDefine {
     }
 
     @Override public void initialize() {
+        addColumn(new H2ColumnDefine(NodeReferenceTable.COLUMN_ID, H2ColumnDefine.Type.Varchar.name()));
         addColumn(new H2ColumnDefine(NodeReferenceTable.COLUMN_FRONT_APPLICATION_ID, H2ColumnDefine.Type.Int.name()));
         addColumn(new H2ColumnDefine(NodeReferenceTable.COLUMN_BEHIND_APPLICATION_ID, H2ColumnDefine.Type.Int.name()));
         addColumn(new H2ColumnDefine(NodeReferenceTable.COLUMN_BEHIND_PEER, H2ColumnDefine.Type.Varchar.name()));

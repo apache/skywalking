@@ -5,7 +5,6 @@ import com.google.gson.JsonObject;
 import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.client.h2.H2ClientException;
 import org.skywalking.apm.collector.core.util.StringUtils;
-import org.skywalking.apm.collector.storage.define.node.NodeMappingTable;
 import org.skywalking.apm.collector.storage.define.noderef.NodeReferenceTable;
 import org.skywalking.apm.collector.storage.h2.dao.H2DAO;
 import org.skywalking.apm.collector.ui.cache.ApplicationCache;
@@ -17,7 +16,7 @@ import java.sql.SQLException;
 import java.text.MessageFormat;
 
 /**
- * @author pengys5
+ * @author pengys5, clevertension
  */
 public class NodeReferenceH2DAO extends H2DAO implements INodeReferenceDAO {
     private final Logger logger = LoggerFactory.getLogger(NodeReferenceH2DAO.class);

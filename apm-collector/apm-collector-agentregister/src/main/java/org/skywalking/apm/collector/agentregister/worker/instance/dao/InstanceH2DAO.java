@@ -1,22 +1,18 @@
 package org.skywalking.apm.collector.agentregister.worker.instance.dao;
 
-import org.skywalking.apm.collector.client.h2.H2Client;
-import org.skywalking.apm.collector.client.h2.H2ClientException;
-import org.skywalking.apm.collector.core.stream.Data;
-import org.skywalking.apm.collector.storage.define.jvm.CpuMetricTable;
-import org.skywalking.apm.collector.storage.define.register.ApplicationTable;
-import org.skywalking.apm.collector.storage.define.register.InstanceDataDefine;
-import org.skywalking.apm.collector.storage.define.register.InstanceTable;
-import org.skywalking.apm.collector.storage.define.serviceref.ServiceReferenceTable;
-import org.skywalking.apm.collector.storage.h2.dao.H2DAO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.skywalking.apm.collector.client.h2.H2Client;
+import org.skywalking.apm.collector.client.h2.H2ClientException;
+import org.skywalking.apm.collector.storage.define.register.InstanceDataDefine;
+import org.skywalking.apm.collector.storage.define.register.InstanceTable;
+import org.skywalking.apm.collector.storage.h2.dao.H2DAO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author pengys5

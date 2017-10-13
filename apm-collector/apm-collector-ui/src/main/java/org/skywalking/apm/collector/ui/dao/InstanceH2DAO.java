@@ -1,19 +1,10 @@
 package org.skywalking.apm.collector.ui.dao;
 
 import com.google.gson.JsonArray;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.text.MessageFormat;
-import java.util.LinkedList;
-import java.util.List;
-
 import com.google.gson.JsonObject;
 import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.client.h2.H2ClientException;
-import org.skywalking.apm.collector.core.util.StringUtils;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
-import org.skywalking.apm.collector.storage.define.node.NodeComponentTable;
 import org.skywalking.apm.collector.storage.define.register.InstanceDataDefine;
 import org.skywalking.apm.collector.storage.define.register.InstanceTable;
 import org.skywalking.apm.collector.storage.h2.dao.H2DAO;
@@ -21,8 +12,14 @@ import org.skywalking.apm.collector.ui.cache.ApplicationCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.MessageFormat;
+import java.util.LinkedList;
+import java.util.List;
+
 /**
- * @author pengys5
+ * @author pengys5, clevertension
  */
 public class InstanceH2DAO extends H2DAO implements IInstanceDAO {
     private final Logger logger = LoggerFactory.getLogger(InstanceH2DAO.class);
@@ -55,7 +52,7 @@ public class InstanceH2DAO extends H2DAO implements IInstanceDAO {
         long fiveMinuteBefore = System.currentTimeMillis() - 5 * 60 * 1000;
         fiveMinuteBefore = TimeBucketUtils.INSTANCE.getSecondTimeBucket(fiveMinuteBefore);
         String sql = MessageFormat.format(GET_INST_LAST_HEARTBEAT_TIME_SQL, InstanceTable.COLUMN_HEARTBEAT_TIME, InstanceTable.TABLE,
-                InstanceTable.COLUMN_HEARTBEAT_TIME, InstanceTable.COLUMN_APPLICATION_ID);
+                InstanceTable.COLUMN_HEARTBEAT_TIME, InstanceTable.COLUMN_INSTANCE_ID);
         Object[] params = new Object[]{fiveMinuteBefore, applicationInstanceId};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {

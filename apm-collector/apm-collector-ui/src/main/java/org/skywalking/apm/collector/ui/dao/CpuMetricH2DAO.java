@@ -1,18 +1,11 @@
 package org.skywalking.apm.collector.ui.dao;
 
 import com.google.gson.JsonArray;
-import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.action.get.MultiGetItemResponse;
-import org.elasticsearch.action.get.MultiGetRequestBuilder;
-import org.elasticsearch.action.get.MultiGetResponse;
 import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.client.h2.H2ClientException;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.storage.define.jvm.CpuMetricTable;
-import org.skywalking.apm.collector.storage.define.register.InstanceDataDefine;
-import org.skywalking.apm.collector.storage.define.register.InstanceTable;
-import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
 import org.skywalking.apm.collector.storage.h2.dao.H2DAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,16 +17,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author pengys5
+ * @author pengys5, clevertension
  */
 public class CpuMetricH2DAO extends H2DAO implements ICpuMetricDAO {
     private final Logger logger = LoggerFactory.getLogger(InstanceH2DAO.class);
-    private static final String GET_METRIC_SQL = "select * from {0} where {1} = ?";
-    private static final String GET_METRICS_SQL = "select * from {0} where {1} in (";
+    private static final String GET_CPU_METRIC_SQL = "select * from {0} where {1} = ?";
+    private static final String GET_CPU_METRICS_SQL = "select * from {0} where {1} in (";
     @Override public int getMetric(int instanceId, long timeBucket) {
         String id = timeBucket + Const.ID_SPLIT + instanceId;
         H2Client client = getClient();
-        String sql = MessageFormat.format(GET_METRIC_SQL, CpuMetricTable.TABLE, "id");
+        String sql = MessageFormat.format(GET_CPU_METRIC_SQL, CpuMetricTable.TABLE, "id");
         Object[] params = new Object[]{id};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
@@ -47,7 +40,7 @@ public class CpuMetricH2DAO extends H2DAO implements ICpuMetricDAO {
 
     @Override public JsonArray getMetric(int instanceId, long startTimeBucket, long endTimeBucket) {
         H2Client client = getClient();
-        String sql = MessageFormat.format(GET_METRICS_SQL, CpuMetricTable.TABLE, "id");
+        String sql = MessageFormat.format(GET_CPU_METRICS_SQL, CpuMetricTable.TABLE, "id");
 
         long timeBucket = startTimeBucket;
         List<String> idList = new ArrayList<>();
@@ -59,7 +52,7 @@ public class CpuMetricH2DAO extends H2DAO implements ICpuMetricDAO {
         while (timeBucket <= endTimeBucket);
 
         StringBuilder builder = new StringBuilder();
-        for( int i = 0 ; i < idList.size(); i++ ) {
+        for (int i = 0; i < idList.size(); i++) {
             builder.append("?,");
         }
         builder.delete(builder.length() - 1, builder.length());
