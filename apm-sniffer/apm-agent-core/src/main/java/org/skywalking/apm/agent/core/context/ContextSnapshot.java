@@ -113,8 +113,4 @@ public class ContextSnapshot {
     public int getEntryApplicationInstanceId() {
         return entryApplicationInstanceId;
     }
-    
-    public boolean fromCurrent() {
-        return traceSegmentId.equals(ContextManager.capture().getTraceSegmentId());
-    }
 }

@@ -23,9 +23,9 @@ import com.dangdang.ddframe.rdb.sharding.executor.event.DMLExecutionEvent;
 import com.dangdang.ddframe.rdb.sharding.executor.event.DQLExecutionEvent;
 import com.dangdang.ddframe.rdb.sharding.executor.threadlocal.ExecutorDataMap;
 import com.dangdang.ddframe.rdb.sharding.util.EventBusInstance;
+import com.google.common.base.Joiner;
 import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
-import java.util.stream.Collectors;
 import org.skywalking.apm.agent.core.context.ContextManager;
 import org.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.skywalking.apm.agent.core.context.tag.Tags;
@@ -63,16 +63,13 @@ public class ExecuteEventListener {
             case BEFORE_EXECUTE:
                 AbstractSpan span = ContextManager.createExitSpan("/SJDBC/BRANCH/" + operation, event.getDataSource());
                 if (ExecutorDataMap.getDataMap().containsKey(AsyncExecuteInterceptor.SNAPSHOT_DATA_KEY)) {
-                    ContextSnapshot contextSnapshot = (ContextSnapshot)ExecutorDataMap.getDataMap().get(AsyncExecuteInterceptor.SNAPSHOT_DATA_KEY);
-                    if (!contextSnapshot.fromCurrent()) {
-                        ContextManager.continued(contextSnapshot);
-                    }
+                    ContextManager.continued((ContextSnapshot)ExecutorDataMap.getDataMap().get(AsyncExecuteInterceptor.SNAPSHOT_DATA_KEY));
                 }
                 Tags.DB_TYPE.set(span, "sql");
                 Tags.DB_INSTANCE.set(span, event.getDataSource());
                 Tags.DB_STATEMENT.set(span, event.getSql());
                 if (!event.getParameters().isEmpty()) {
-                    Tags.DB_BIND_VARIABLES.set(span, event.getParameters().stream().map(Object::toString).collect(Collectors.joining(",")));
+                    Tags.DB_BIND_VARIABLES.set(span, Joiner.on(",").join(event.getParameters()));
                 }
                 span.setComponent(ComponentsDefine.SHARDING_JDBC);
                 SpanLayer.asDB(span);
