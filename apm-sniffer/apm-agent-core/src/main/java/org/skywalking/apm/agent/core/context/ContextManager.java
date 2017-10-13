@@ -153,7 +153,7 @@ public class ContextManager implements TracingContextListener, BootService, Igno
         if (snapshot == null) {
             throw new IllegalArgumentException("ContextSnapshot can't be null.");
         }
-        if (snapshot.isValid() && !snapshot.getTraceSegmentId().equals(get().capture().getTraceSegmentId())) {
+        if (snapshot.isValid() && !snapshot.isFromCurrent()) {
             get().continued(snapshot);
         }
     }
