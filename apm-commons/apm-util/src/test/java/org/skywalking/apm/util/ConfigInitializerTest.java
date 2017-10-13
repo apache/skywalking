@@ -30,17 +30,17 @@ public class ConfigInitializerTest {
     @Test
     public void testInitialize() throws IllegalAccessException {
         Properties properties = new Properties();
-        properties.put("Level1Object.strAttr".toLowerCase(), "stringValue");
-        properties.put("Level1Object.Level2Object.intAttr".toLowerCase(), "1000");
-        properties.put("Level1Object.Level2Object.longAttr".toLowerCase(), "1000");
-        properties.put("Level1Object.Level2Object.booleanAttr".toLowerCase(), "true");
+        properties.put("Level1Object.STR_ATTR".toLowerCase(), "stringValue");
+        properties.put("Level1Object.Level2Object.INT_ATTR".toLowerCase(), "1000");
+        properties.put("Level1Object.Level2Object.LONG_ATTR".toLowerCase(), "1000");
+        properties.put("Level1Object.Level2Object.BOOLEAN_ATTR".toLowerCase(), "true");
 
         ConfigInitializer.initialize(properties, TestPropertiesObject.class);
 
-        Assert.assertEquals("stringValue", TestPropertiesObject.Level1Object.strAttr);
-        Assert.assertEquals(1000, TestPropertiesObject.Level1Object.Level2Object.intAttr);
-        Assert.assertEquals(1000L, TestPropertiesObject.Level1Object.Level2Object.longAttr);
-        Assert.assertEquals(true, TestPropertiesObject.Level1Object.Level2Object.booleanAttr);
+        Assert.assertEquals("stringValue", TestPropertiesObject.Level1Object.STR_ATTR);
+        Assert.assertEquals(1000, TestPropertiesObject.Level1Object.Level2Object.INT_ATTR);
+        Assert.assertEquals(1000L, TestPropertiesObject.Level1Object.Level2Object.LONG_ATTR);
+        Assert.assertEquals(true, TestPropertiesObject.Level1Object.Level2Object.BOOLEAN_ATTR);
     }
 
     @Test
@@ -50,27 +50,27 @@ public class ConfigInitializerTest {
 
         ConfigInitializer.initialize(properties, TestPropertiesObject.class);
 
-        Assert.assertNull(TestPropertiesObject.Level1Object.strAttr);
+        Assert.assertNull(TestPropertiesObject.Level1Object.STR_ATTR);
     }
 
     @Before
     public void clear() {
-        TestPropertiesObject.Level1Object.strAttr = null;
-        TestPropertiesObject.Level1Object.Level2Object.intAttr = 0;
-        TestPropertiesObject.Level1Object.Level2Object.longAttr = 0;
-        TestPropertiesObject.Level1Object.Level2Object.booleanAttr = false;
+        TestPropertiesObject.Level1Object.STR_ATTR = null;
+        TestPropertiesObject.Level1Object.Level2Object.INT_ATTR = 0;
+        TestPropertiesObject.Level1Object.Level2Object.LONG_ATTR = 0;
+        TestPropertiesObject.Level1Object.Level2Object.BOOLEAN_ATTR = false;
     }
 
     public static class TestPropertiesObject {
         public static class Level1Object {
-            public static String strAttr = null;
+            public static String STR_ATTR = null;
 
             public static class Level2Object {
-                public static int intAttr = 0;
+                public static int INT_ATTR = 0;
 
-                public static long longAttr;
+                public static long LONG_ATTR;
 
-                public static boolean booleanAttr;
+                public static boolean BOOLEAN_ATTR;
             }
         }
     }
