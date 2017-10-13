@@ -1,3 +1,21 @@
+/*
+ * Copyright 2017, OpenSkywalking Organization All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Project repository: https://github.com/OpenSkywalking/skywalking
+ */
+
 package org.skywalking.apm.collector.agentstream.worker.segment.cost;
 
 import java.util.ArrayList;
@@ -21,7 +39,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author pengys5
  */
-public class SegmentCostSpanListener implements EntrySpanListener, ExitSpanListener, LocalSpanListener, FirstSpanListener {
+public class SegmentCostSpanListener implements EntrySpanListener, ExitSpanListener, LocalSpanListener,FirstSpanListener {
 
     private final Logger logger = LoggerFactory.getLogger(SegmentCostSpanListener.class);
 
@@ -32,10 +50,7 @@ public class SegmentCostSpanListener implements EntrySpanListener, ExitSpanListe
     @Override
     public void parseFirst(SpanObject spanObject, int applicationId, int applicationInstanceId, String segmentId) {
         timeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(spanObject.getStartTime());
-    }
 
-    @Override
-    public void parseEntry(SpanObject spanObject, int applicationId, int applicationInstanceId, String segmentId) {
         SegmentCostDataDefine.SegmentCost segmentCost = new SegmentCostDataDefine.SegmentCost();
         segmentCost.setSegmentId(segmentId);
         segmentCost.setApplicationId(applicationId);
@@ -50,6 +65,11 @@ public class SegmentCostSpanListener implements EntrySpanListener, ExitSpanListe
         }
 
         segmentCosts.add(segmentCost);
+        isError = isError || spanObject.getIsError();
+    }
+
+    @Override
+    public void parseEntry(SpanObject spanObject, int applicationId, int applicationInstanceId, String segmentId) {
         isError = isError || spanObject.getIsError();
     }
 
