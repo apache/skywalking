@@ -53,6 +53,11 @@ public final class Tags {
      */
     public static final StringTag DB_STATEMENT = new StringTag("db.statement");
 
+    /**
+     * DB_BIND_VARIABLES records the bind variables of sql statement.
+     */
+    public static final StringTag DB_BIND_VARIABLES = new StringTag("db.bind_vars");
+
     public static final class HTTP {
         public static final StringTag METHOD = new StringTag("http.method");
     }
