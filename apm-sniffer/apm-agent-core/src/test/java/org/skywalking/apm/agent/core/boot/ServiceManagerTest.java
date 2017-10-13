@@ -63,18 +63,18 @@ public class ServiceManagerTest {
     }
 
     private void assertIgnoreTracingContextListener() throws Exception {
-        List<TracingContextListener> LISTENERS = getFieldValue(IgnoredTracerContext.ListenerManager.class, "LISTENERS");
-        assertThat(LISTENERS.size(), is(1));
+        List<TracingContextListener> listeners = getFieldValue(IgnoredTracerContext.ListenerManager.class, "LISTENERS");
+        assertThat(listeners.size(), is(1));
 
-        assertThat(LISTENERS.contains(ServiceManager.INSTANCE.findService(ContextManager.class)), is(true));
+        assertThat(listeners.contains(ServiceManager.INSTANCE.findService(ContextManager.class)), is(true));
     }
 
     private void assertTracingContextListener() throws Exception {
-        List<TracingContextListener> LISTENERS = getFieldValue(TracingContext.ListenerManager.class, "LISTENERS");
-        assertThat(LISTENERS.size(), is(3));
+        List<TracingContextListener> listeners = getFieldValue(TracingContext.ListenerManager.class, "LISTENERS");
+        assertThat(listeners.size(), is(3));
 
-        assertThat(LISTENERS.contains(ServiceManager.INSTANCE.findService(ContextManager.class)), is(true));
-        assertThat(LISTENERS.contains(ServiceManager.INSTANCE.findService(TraceSegmentServiceClient.class)), is(true));
+        assertThat(listeners.contains(ServiceManager.INSTANCE.findService(ContextManager.class)), is(true));
+        assertThat(listeners.contains(ServiceManager.INSTANCE.findService(TraceSegmentServiceClient.class)), is(true));
     }
 
     private void assertJVMService(JVMService service) {

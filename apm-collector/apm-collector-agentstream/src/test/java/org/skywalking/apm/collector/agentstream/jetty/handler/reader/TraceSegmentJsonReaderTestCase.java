@@ -34,7 +34,6 @@ public class TraceSegmentJsonReaderTestCase {
     public void testRead() throws IOException {
         TraceSegmentJsonReader reader = new TraceSegmentJsonReader();
         JsonElement jsonElement = JsonFileReader.INSTANCE.read("json/segment/normal/dubbox-consumer.json");
-        System.out.println(jsonElement.toString());
 
         JsonReader jsonReader = new JsonReader(new StringReader(jsonElement.toString()));
         jsonReader.beginArray();

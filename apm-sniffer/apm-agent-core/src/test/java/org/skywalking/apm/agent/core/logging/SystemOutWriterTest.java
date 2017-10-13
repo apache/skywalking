@@ -31,11 +31,11 @@ import static org.mockito.Mockito.times;
  * Created by wusheng on 2017/2/28.
  */
 public class SystemOutWriterTest {
-    private static PrintStream outRef;
+    private static PrintStream OUT_REF;
 
     @BeforeClass
     public static void initAndHoldOut() {
-        outRef = System.out;
+        OUT_REF = System.out;
     }
 
     @Test
@@ -50,6 +50,6 @@ public class SystemOutWriterTest {
 
     @AfterClass
     public static void reset() {
-        System.setOut(outRef);
+        System.setOut(OUT_REF);
     }
 }
