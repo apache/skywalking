@@ -4,7 +4,6 @@ import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.client.h2.H2ClientException;
 import org.skywalking.apm.collector.core.stream.Data;
 import org.skywalking.apm.collector.storage.define.DataDefine;
-import org.skywalking.apm.collector.storage.define.node.NodeMappingTable;
 import org.skywalking.apm.collector.storage.define.noderef.NodeReferenceTable;
 import org.skywalking.apm.collector.storage.h2.dao.H2DAO;
 import org.skywalking.apm.collector.storage.h2.define.H2SqlEntity;
@@ -21,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author pengys5
+ * @author pengys5, clevertension
  */
 public class NodeReferenceH2DAO extends H2DAO implements INodeReferenceDAO, IPersistenceDAO<H2SqlEntity, H2SqlEntity> {
     private final Logger logger = LoggerFactory.getLogger(NodeReferenceH2DAO.class);
@@ -64,7 +63,7 @@ public class NodeReferenceH2DAO extends H2DAO implements INodeReferenceDAO, IPer
         source.put(NodeReferenceTable.COLUMN_SUMMARY, data.getDataInteger(6));
         source.put(NodeReferenceTable.COLUMN_ERROR, data.getDataInteger(7));
         source.put(NodeReferenceTable.COLUMN_TIME_BUCKET, data.getDataLong(0));
-        String sql = getBatchInsertSql(NodeMappingTable.TABLE, source.keySet());
+        String sql = getBatchInsertSql(NodeReferenceTable.TABLE, source.keySet());
         entity.setSql(sql);
 
         entity.setParams(source.values().toArray(new Object[0]));
@@ -84,7 +83,7 @@ public class NodeReferenceH2DAO extends H2DAO implements INodeReferenceDAO, IPer
         source.put(NodeReferenceTable.COLUMN_ERROR, data.getDataInteger(7));
         source.put(NodeReferenceTable.COLUMN_TIME_BUCKET, data.getDataLong(0));
         String id = data.getDataString(0);
-        String sql = getBatchUpdateSql(NodeMappingTable.TABLE, source.keySet(), "id");
+        String sql = getBatchUpdateSql(NodeReferenceTable.TABLE, source.keySet(), "id");
         entity.setSql(sql);
         List<Object> values = new ArrayList<>(source.values());
         values.add(id);

@@ -106,27 +106,29 @@ public class SegmentCostH2DAO extends H2DAO implements ISegmentCostDAO {
         int cnt = 0;
         int num = from;
         try (ResultSet rs = client.executeQuery(sql, p)) {
-            JsonObject topSegmentJson = new JsonObject();
-            topSegmentJson.addProperty("num", num);
-            String segmentId = rs.getString(SegmentCostTable.COLUMN_SEGMENT_ID);
-            topSegmentJson.addProperty(SegmentCostTable.COLUMN_SEGMENT_ID, segmentId);
-            topSegmentJson.addProperty(SegmentCostTable.COLUMN_START_TIME, rs.getLong(SegmentCostTable.COLUMN_START_TIME));
-            topSegmentJson.addProperty(SegmentCostTable.COLUMN_END_TIME, rs.getLong(SegmentCostTable.COLUMN_END_TIME));
+            while (rs.next()) {
+                JsonObject topSegmentJson = new JsonObject();
+                topSegmentJson.addProperty("num", num);
+                String segmentId = rs.getString(SegmentCostTable.COLUMN_SEGMENT_ID);
+                topSegmentJson.addProperty(SegmentCostTable.COLUMN_SEGMENT_ID, segmentId);
+                topSegmentJson.addProperty(SegmentCostTable.COLUMN_START_TIME, rs.getLong(SegmentCostTable.COLUMN_START_TIME));
+                topSegmentJson.addProperty(SegmentCostTable.COLUMN_END_TIME, rs.getLong(SegmentCostTable.COLUMN_END_TIME));
 
-            IGlobalTraceDAO globalTraceDAO = (IGlobalTraceDAO) DAOContainer.INSTANCE.get(IGlobalTraceDAO.class.getName());
-            List<String> globalTraces = globalTraceDAO.getGlobalTraceId(segmentId);
-            if (CollectionUtils.isNotEmpty(globalTraces)) {
-                topSegmentJson.addProperty(GlobalTraceTable.COLUMN_GLOBAL_TRACE_ID, globalTraces.get(0));
+                IGlobalTraceDAO globalTraceDAO = (IGlobalTraceDAO) DAOContainer.INSTANCE.get(IGlobalTraceDAO.class.getName());
+                List<String> globalTraces = globalTraceDAO.getGlobalTraceId(segmentId);
+                if (CollectionUtils.isNotEmpty(globalTraces)) {
+                    topSegmentJson.addProperty(GlobalTraceTable.COLUMN_GLOBAL_TRACE_ID, globalTraces.get(0));
+                }
+
+                topSegmentJson.addProperty(SegmentCostTable.COLUMN_APPLICATION_ID, rs.getInt(SegmentCostTable.COLUMN_APPLICATION_ID));
+                topSegmentJson.addProperty(SegmentCostTable.COLUMN_SERVICE_NAME, rs.getString(SegmentCostTable.COLUMN_SERVICE_NAME));
+                topSegmentJson.addProperty(SegmentCostTable.COLUMN_COST, rs.getLong(SegmentCostTable.COLUMN_COST));
+                topSegmentJson.addProperty(SegmentCostTable.COLUMN_IS_ERROR, rs.getBoolean(SegmentCostTable.COLUMN_IS_ERROR));
+
+                num++;
+                topSegArray.add(topSegmentJson);
+                cnt++;
             }
-
-            topSegmentJson.addProperty(SegmentCostTable.COLUMN_APPLICATION_ID, rs.getInt(SegmentCostTable.COLUMN_APPLICATION_ID));
-            topSegmentJson.addProperty(SegmentCostTable.COLUMN_SERVICE_NAME, rs.getString(SegmentCostTable.COLUMN_SERVICE_NAME));
-            topSegmentJson.addProperty(SegmentCostTable.COLUMN_COST, rs.getLong(SegmentCostTable.COLUMN_COST));
-            topSegmentJson.addProperty(SegmentCostTable.COLUMN_IS_ERROR, rs.getBoolean(SegmentCostTable.COLUMN_IS_ERROR));
-
-            num++;
-            topSegArray.add(topSegmentJson);
-            cnt++;
         } catch (SQLException | H2ClientException e) {
             logger.error(e.getMessage(), e);
         }

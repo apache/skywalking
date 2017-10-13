@@ -60,9 +60,9 @@ public abstract class H2DAO extends DAO<H2Client> {
 
     public final String getBatchUpdateSql(String tableName, Set<String> columnNames, String whereClauseName) {
         StringBuilder sb = new StringBuilder("update ");
-        sb.append(tableName).append(" ");
+        sb.append(tableName).append(" set ");
         columnNames.forEach((columnName) -> {
-            sb.append("set ").append(columnName).append("=?,");
+            sb.append(columnName).append("=?,");
         });
         sb.delete(sb.length() - 1, sb.length());
         sb.append(" where ").append(whereClauseName).append("=?");

@@ -18,7 +18,7 @@ import java.text.MessageFormat;
 import java.util.*;
 
 /**
- * @author pengys5
+ * @author pengys5, clevertension
  */
 public class NodeComponentH2DAO extends H2DAO implements INodeComponentDAO, IPersistenceDAO<H2SqlEntity, H2SqlEntity> {
     private final Logger logger = LoggerFactory.getLogger(NodeComponentH2DAO.class);

@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author pengys5
+ * @author pengys5, clevertension
  */
 public class GCMetricH2DAO extends H2DAO implements IGCMetricDAO, IPersistenceDAO<H2SqlEntity, H2SqlEntity> {
     @Override public Data get(String id, DataDefine dataDefine) {

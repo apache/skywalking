@@ -17,7 +17,7 @@ import java.text.MessageFormat;
 import java.util.*;
 
 /**
- * @author pengys5
+ * @author pengys5, clevertension
  */
 public class ServiceReferenceH2DAO extends H2DAO implements IServiceReferenceDAO, IPersistenceDAO<H2SqlEntity, H2SqlEntity> {
     private final Logger logger = LoggerFactory.getLogger(ServiceReferenceH2DAO.class);

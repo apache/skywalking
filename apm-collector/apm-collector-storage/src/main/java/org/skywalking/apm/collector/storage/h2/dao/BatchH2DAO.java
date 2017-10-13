@@ -18,13 +18,13 @@ import java.util.Map;
  */
 public class BatchH2DAO extends H2DAO implements IBatchDAO {
     private final Logger logger = LoggerFactory.getLogger(BatchH2DAO.class);
-    private final Map<String, PreparedStatement> batchSqls = new HashMap<>();
 
     @Override
     public void batchPersistence(List<?> batchCollection) {
         if (batchCollection != null && batchCollection.size() > 0) {
-            logger.info("the batch collection size is {}", batchCollection.size());
+            logger.info("the batch collection size is {}, current thread id {}", batchCollection.size());
             Connection conn = null;
+            final Map<String, PreparedStatement> batchSqls = new HashMap<>();
             try {
                 conn = getClient().getConnection();
                 conn.setAutoCommit(false);
@@ -61,6 +61,7 @@ public class BatchH2DAO extends H2DAO implements IBatchDAO {
                     logger.error(e.getMessage(), e1);
                 }
             }
+            batchSqls.clear();
         }
     }
 

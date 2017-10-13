@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author pengys5
+ * @author pengys5, clevertension
  */
 public class SegmentH2DAO extends H2DAO implements ISegmentDAO, IPersistenceDAO<H2SqlEntity, H2SqlEntity> {
     private final Logger logger = LoggerFactory.getLogger(SegmentCostH2DAO.class);
@@ -26,7 +26,7 @@ public class SegmentH2DAO extends H2DAO implements ISegmentDAO, IPersistenceDAO<
         Map<String, Object> source = new HashMap<>();
         H2SqlEntity entity = new H2SqlEntity();
         source.put("id", data.getDataString(0));
-        source.put(SegmentTable.COLUMN_DATA_BINARY, new String(Base64.getEncoder().encode(data.getDataBytes(0))));
+        source.put(SegmentTable.COLUMN_DATA_BINARY, Base64.getEncoder().encode(data.getDataBytes(0)));
         logger.debug("segment source: {}", source.toString());
 
         String sql = getBatchInsertSql(SegmentTable.TABLE, source.keySet());

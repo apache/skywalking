@@ -20,7 +20,7 @@ import java.text.MessageFormat;
  */
 public class NodeMappingH2DAO extends H2DAO implements INodeMappingDAO {
     private final Logger logger = LoggerFactory.getLogger(NodeMappingH2DAO.class);
-    private static final String NODE_MAPPING_SQL = "select * from {3} where {4} >= ? and {4} <= ? group by {0}, {1}, {2} limit 100";
+    private static final String NODE_MAPPING_SQL = "select {0}, {1}, {2} from {3} where {4} >= ? and {4} <= ? group by {0}, {1}, {2} limit 100";
     @Override public JsonArray load(long startTime, long endTime) {
         H2Client client = getClient();
         JsonArray nodeMappingArray = new JsonArray();

@@ -18,7 +18,7 @@ import java.text.MessageFormat;
 import java.util.*;
 
 /**
- * @author pengys5
+ * @author pengys5, clevertension
  */
 public class InstanceHeartBeatH2DAO extends H2DAO implements IInstanceHeartBeatDAO, IPersistenceDAO<H2SqlEntity, H2SqlEntity> {
     private final Logger logger = LoggerFactory.getLogger(InstanceHeartBeatEsDAO.class);

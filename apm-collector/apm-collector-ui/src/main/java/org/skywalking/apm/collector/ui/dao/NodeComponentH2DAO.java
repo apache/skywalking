@@ -8,6 +8,7 @@ import org.skywalking.apm.collector.core.util.StringUtils;
 import org.skywalking.apm.collector.storage.define.node.NodeComponentTable;
 import org.skywalking.apm.collector.storage.h2.dao.H2DAO;
 import org.skywalking.apm.collector.ui.cache.ApplicationCache;
+import org.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +21,7 @@ import java.text.MessageFormat;
  */
 public class NodeComponentH2DAO extends H2DAO implements INodeComponentDAO {
     private final Logger logger = LoggerFactory.getLogger(NodeComponentH2DAO.class);
-    private static final String AGGREGATE_COMPONENT_SQL = "select * from {3} where {4} >= ? and {4} <= ? group by {0}, {1}, {2} limit 100";
+    private static final String AGGREGATE_COMPONENT_SQL = "select {0}, {1}, {2} from {3} where {4} >= ? and {4} <= ? group by {0}, {1}, {2} limit 100";
     @Override public JsonArray load(long startTime, long endTime) {
         JsonArray nodeComponentArray = new JsonArray();
         nodeComponentArray.addAll(aggregationComponent(startTime, endTime));
@@ -37,7 +38,8 @@ public class NodeComponentH2DAO extends H2DAO implements INodeComponentDAO {
         try (ResultSet rs = client.executeQuery(sql, params)) {
             while (rs.next()) {
                 int peerId = rs.getInt(NodeComponentTable.COLUMN_PEER_ID);
-                String componentName = rs.getString(NodeComponentTable.COLUMN_COMPONENT_NAME);
+                int componentId = rs.getInt(NodeComponentTable.COLUMN_COMPONENT_ID);
+                String componentName = ComponentsDefine.getInstance().getComponentName(componentId);
                 if (peerId != 0) {
                     String peer = ApplicationCache.getForUI(peerId);
                     nodeComponentArray.add(buildNodeComponent(peer, componentName));
