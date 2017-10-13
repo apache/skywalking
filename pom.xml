@@ -87,6 +87,7 @@
         <scala.compiler.version>2.11.7</scala.compiler.version>
         <powermock.version>1.6.4</powermock.version>
         <docker.plugin.version>0.4.13</docker.plugin.version>
+        <checkstyle.header.file>java.header</checkstyle.header.file>
     </properties>
 
     <dependencies>
@@ -315,6 +316,7 @@
                             <configLocation>checkStyle.xml</configLocation>
                             <encoding>UTF-8</encoding>
                             <consoleOutput>true</consoleOutput>
+                            <includeTestSourceDirectory>true</includeTestSourceDirectory>
                             <failsOnError>true</failsOnError>
                             <excludes>org/skywalking/apm/network/**/*.java,
                                 org/skywalking/apm/collector/remote/grpc/**/*.java,

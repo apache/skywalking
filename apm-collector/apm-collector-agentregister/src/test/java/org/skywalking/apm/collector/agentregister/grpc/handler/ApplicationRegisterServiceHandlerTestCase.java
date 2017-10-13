@@ -23,11 +23,15 @@ import io.grpc.ManagedChannelBuilder;
 import org.skywalking.apm.network.proto.Application;
 import org.skywalking.apm.network.proto.ApplicationMapping;
 import org.skywalking.apm.network.proto.ApplicationRegisterServiceGrpc;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author pengys5
  */
 public class ApplicationRegisterServiceHandlerTestCase {
+
+    private final Logger logger = LoggerFactory.getLogger(ApplicationRegisterServiceHandlerTestCase.class);
 
     private ApplicationRegisterServiceGrpc.ApplicationRegisterServiceBlockingStub stub;
 
@@ -37,6 +41,6 @@ public class ApplicationRegisterServiceHandlerTestCase {
 
         Application application = Application.newBuilder().addApplicationCode("test141").build();
         ApplicationMapping mapping = stub.register(application);
-        System.out.println(mapping.getApplication(0).getKey() + ", " + mapping.getApplication(0).getValue());
+        logger.debug(mapping.getApplication(0).getKey() + ", " + mapping.getApplication(0).getValue());
     }
 }
