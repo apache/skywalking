@@ -58,11 +58,17 @@ public class SkyWalkingAgent {
      * @throws PluginException
      */
     public static void premain(String agentArgs, Instrumentation instrumentation) throws PluginException {
-        SnifferConfigInitializer.initialize();
+        final PluginFinder pluginFinder;
+        try {
+            SnifferConfigInitializer.initialize();
 
-        final PluginFinder pluginFinder = new PluginFinder(new PluginBootstrap().loadPlugins());
+            pluginFinder = new PluginFinder(new PluginBootstrap().loadPlugins());
 
-        ServiceManager.INSTANCE.boot();
+            ServiceManager.INSTANCE.boot();
+        } catch (Exception e) {
+            logger.error(e, "skywalking agent shutdown.");
+            return;
+        }
 
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
             @Override public void run() {
