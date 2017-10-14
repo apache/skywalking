@@ -1,3 +1,21 @@
+/*
+ * Copyright 2017, OpenSkywalking Organization All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Project repository: https://github.com/OpenSkywalking/skywalking
+ */
+
 package org.skywalking.apm.collector.agentjvm.grpc.handler;
 
 import io.grpc.ManagedChannel;
@@ -23,11 +41,11 @@ public class JVMMetricsServiceHandlerTestCase {
 
     private final Logger logger = LoggerFactory.getLogger(JVMMetricsServiceHandlerTestCase.class);
 
-    private static JVMMetricsServiceGrpc.JVMMetricsServiceBlockingStub stub;
+    private static JVMMetricsServiceGrpc.JVMMetricsServiceBlockingStub STUB;
 
     public static void main(String[] args) {
         ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 11800).usePlaintext(true).build();
-        stub = JVMMetricsServiceGrpc.newBlockingStub(channel);
+        STUB = JVMMetricsServiceGrpc.newBlockingStub(channel);
 
         final long timeInterval = 1;
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> multiInstanceJvmSend(), 1, timeInterval, TimeUnit.SECONDS);
@@ -50,7 +68,7 @@ public class JVMMetricsServiceHandlerTestCase {
         buildGcMetric(jvmMetric);
 
         jvmMetricsBuilder.addMetrics(jvmMetric.build());
-        stub.collect(jvmMetricsBuilder.build());
+        STUB.collect(jvmMetricsBuilder.build());
     }
 
     private static void buildCpuMetric(JVMMetric.Builder jvmMetric) {
@@ -60,21 +78,21 @@ public class JVMMetricsServiceHandlerTestCase {
     }
 
     private static void buildMemoryMetric(JVMMetric.Builder jvmMetric) {
-        Memory.Builder builder_1 = Memory.newBuilder();
-        builder_1.setIsHeap(true);
-        builder_1.setInit(20);
-        builder_1.setMax(100);
-        builder_1.setUsed(50);
-        builder_1.setCommitted(30);
-        jvmMetric.addMemory(builder_1.build());
+        Memory.Builder builderHeap = Memory.newBuilder();
+        builderHeap.setIsHeap(true);
+        builderHeap.setInit(20);
+        builderHeap.setMax(100);
+        builderHeap.setUsed(50);
+        builderHeap.setCommitted(30);
+        jvmMetric.addMemory(builderHeap.build());
 
-        Memory.Builder builder_2 = Memory.newBuilder();
-        builder_2.setIsHeap(false);
-        builder_2.setInit(200);
-        builder_2.setMax(1000);
-        builder_2.setUsed(500);
-        builder_2.setCommitted(300);
-        jvmMetric.addMemory(builder_2.build());
+        Memory.Builder builderNonHeap = Memory.newBuilder();
+        builderNonHeap.setIsHeap(false);
+        builderNonHeap.setInit(200);
+        builderNonHeap.setMax(1000);
+        builderNonHeap.setUsed(500);
+        builderNonHeap.setCommitted(300);
+        jvmMetric.addMemory(builderNonHeap.build());
     }
 
     private static void buildMemoryPoolMetric(JVMMetric.Builder jvmMetric) {

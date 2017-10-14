@@ -1,3 +1,21 @@
+/*
+ * Copyright 2017, OpenSkywalking Organization All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Project repository: https://github.com/OpenSkywalking/skywalking
+ */
+
 package org.skywalking.apm.agent.core.remote;
 
 import io.grpc.ManagedChannel;
@@ -14,11 +32,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import org.skywalking.apm.agent.core.boot.BootService;
+import org.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
+import org.skywalking.apm.agent.core.conf.Config;
 import org.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
 import org.skywalking.apm.logging.ILog;
 import org.skywalking.apm.logging.LogManager;
-
-import static org.skywalking.apm.agent.core.conf.Config.Collector.GRPC_CHANNEL_CHECK_INTERVAL;
 
 /**
  * @author wusheng
@@ -40,8 +58,8 @@ public class GRPCChannelManager implements BootService, Runnable {
     @Override
     public void boot() throws Throwable {
         connectCheckFuture = Executors
-            .newSingleThreadScheduledExecutor()
-            .scheduleAtFixedRate(this, 0, GRPC_CHANNEL_CHECK_INTERVAL, TimeUnit.SECONDS);
+            .newSingleThreadScheduledExecutor(new DefaultNamedThreadFactory("GRPCChannelManager"))
+            .scheduleAtFixedRate(this, 0, Config.Collector.GRPC_CHANNEL_CHECK_INTERVAL, TimeUnit.SECONDS);
     }
 
     @Override
@@ -53,15 +71,18 @@ public class GRPCChannelManager implements BootService, Runnable {
     public void shutdown() throws Throwable {
         connectCheckFuture.cancel(true);
         managedChannel.shutdownNow();
+        logger.debug("Selected collector grpc service shutdown.");
     }
 
     @Override
     public void run() {
+        logger.debug("Selected collector grpc service running, reconnect:{}.",reconnect);
         if (reconnect) {
             if (RemoteDownstreamConfig.Collector.GRPC_SERVERS.size() > 0) {
-                int index = random.nextInt() % RemoteDownstreamConfig.Collector.GRPC_SERVERS.size();
-                String server = RemoteDownstreamConfig.Collector.GRPC_SERVERS.get(index);
+                String server = "";
                 try {
+                    int index = Math.abs(random.nextInt()) % RemoteDownstreamConfig.Collector.GRPC_SERVERS.size();
+                    server = RemoteDownstreamConfig.Collector.GRPC_SERVERS.get(index);
                     String[] ipAndPort = server.split(":");
                     ManagedChannelBuilder<?> channelBuilder =
                         NettyChannelBuilder.forAddress(ipAndPort[0], Integer.parseInt(ipAndPort[1]))
@@ -82,7 +103,7 @@ public class GRPCChannelManager implements BootService, Runnable {
                 }
             }
 
-            logger.debug("Selected collector grpc service is not available. Wait {} seconds to retry", GRPC_CHANNEL_CHECK_INTERVAL);
+            logger.debug("Selected collector grpc service is not available. Wait {} seconds to retry", Config.Collector.GRPC_CHANNEL_CHECK_INTERVAL);
         }
     }
 

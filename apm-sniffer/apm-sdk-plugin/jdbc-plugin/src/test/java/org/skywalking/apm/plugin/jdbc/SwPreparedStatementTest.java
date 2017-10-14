@@ -1,3 +1,21 @@
+/*
+ * Copyright 2017, OpenSkywalking Organization All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Project repository: https://github.com/OpenSkywalking/skywalking
+ */
+
 package org.skywalking.apm.plugin.jdbc;
 
 import com.mysql.cj.api.jdbc.JdbcConnection;
@@ -31,7 +49,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 import org.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
@@ -298,7 +315,6 @@ public class SwPreparedStatementTest extends AbstractStatementTest {
         assertDBSpan(spans.get(0), "Mysql/JDBI/PreparedStatement/executeQuery", "SELECT * FROM test");
     }
 
-
     @Test
     public void testExecute() throws SQLException {
         PreparedStatement preparedStatement = swConnection.prepareStatement("SELECT * FROM test", 1, 1, 1);
@@ -313,6 +329,7 @@ public class SwPreparedStatementTest extends AbstractStatementTest {
         assertThat(spans.size(), is(1));
         assertDBSpan(spans.get(0), "Mysql/JDBI/PreparedStatement/execute", "SELECT * FROM test");
     }
+
     @Test
     public void testQuerySqlWithSql() throws SQLException {
         PreparedStatement preparedStatement = swConnection.prepareStatement("SELECT * FROM test", 1);

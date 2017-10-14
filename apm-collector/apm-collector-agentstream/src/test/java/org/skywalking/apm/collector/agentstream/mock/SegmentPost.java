@@ -1,13 +1,31 @@
+/*
+ * Copyright 2017, OpenSkywalking Organization All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Project repository: https://github.com/OpenSkywalking/skywalking
+ */
+
 package org.skywalking.apm.collector.agentstream.mock;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.io.IOException;
-import org.skywalking.apm.collector.agentstream.HttpClientTools;
 import org.skywalking.apm.collector.agentregister.worker.application.dao.ApplicationEsDAO;
 import org.skywalking.apm.collector.agentregister.worker.instance.dao.InstanceEsDAO;
 import org.skywalking.apm.collector.agentregister.worker.servicename.dao.ServiceNameEsDAO;
+import org.skywalking.apm.collector.agentstream.HttpClientTools;
 import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.skywalking.apm.collector.core.CollectorException;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
@@ -46,14 +64,14 @@ public class SegmentPost {
         ServiceNameEsDAO serviceNameEsDAO = new ServiceNameEsDAO();
         serviceNameEsDAO.setClient(client);
 
-        ServiceNameDataDefine.ServiceName serviceName_1 = new ServiceNameDataDefine.ServiceName("1", "", 0, 1);
-        serviceNameEsDAO.save(serviceName_1);
-        ServiceNameDataDefine.ServiceName serviceName_2 = new ServiceNameDataDefine.ServiceName("2", "org.skywaking.apm.testcase.dubbo.services.GreetService.doBusiness()", 2, 2);
-        serviceNameEsDAO.save(serviceName_2);
-        ServiceNameDataDefine.ServiceName serviceName_3 = new ServiceNameDataDefine.ServiceName("3", "/dubbox-case/case/dubbox-rest", 2, 3);
-        serviceNameEsDAO.save(serviceName_3);
-        ServiceNameDataDefine.ServiceName serviceName_4 = new ServiceNameDataDefine.ServiceName("4", "org.skywaking.apm.testcase.dubbo.services.GreetService.doBusiness()", 3, 4);
-        serviceNameEsDAO.save(serviceName_4);
+        ServiceNameDataDefine.ServiceName serviceName1 = new ServiceNameDataDefine.ServiceName("1", "", 0, 1);
+        serviceNameEsDAO.save(serviceName1);
+        ServiceNameDataDefine.ServiceName serviceName2 = new ServiceNameDataDefine.ServiceName("2", "org.skywaking.apm.testcase.dubbo.services.GreetService.doBusiness()", 2, 2);
+        serviceNameEsDAO.save(serviceName2);
+        ServiceNameDataDefine.ServiceName serviceName3 = new ServiceNameDataDefine.ServiceName("3", "/dubbox-case/case/dubbox-rest", 2, 3);
+        serviceNameEsDAO.save(serviceName3);
+        ServiceNameDataDefine.ServiceName serviceName4 = new ServiceNameDataDefine.ServiceName("4", "org.skywaking.apm.testcase.dubbo.services.GreetService.doBusiness()", 3, 4);
+        serviceNameEsDAO.save(serviceName4);
 
         while (true) {
             JsonElement consumer = JsonFileReader.INSTANCE.read("json/segment/normal/dubbox-consumer.json");
@@ -64,12 +82,12 @@ public class SegmentPost {
             modifyTime(provider);
             HttpClientTools.INSTANCE.post("http://localhost:12800/segments", provider.toString());
 
-            diff = 0;
+            DIFF = 0;
             Thread.sleep(1000);
         }
     }
 
-    private static long diff = 0;
+    private static long DIFF = 0;
 
     private static void modifyTime(JsonElement jsonElement) {
         JsonArray segmentArray = jsonElement.getAsJsonArray();
@@ -80,12 +98,12 @@ public class SegmentPost {
                 long startTime = span.getAsJsonObject().get("st").getAsLong();
                 long endTime = span.getAsJsonObject().get("et").getAsLong();
 
-                if (diff == 0) {
-                    diff = System.currentTimeMillis() - startTime;
+                if (DIFF == 0) {
+                    DIFF = System.currentTimeMillis() - startTime;
                 }
 
-                span.getAsJsonObject().addProperty("st", startTime + diff);
-                span.getAsJsonObject().addProperty("et", endTime + diff);
+                span.getAsJsonObject().addProperty("st", startTime + DIFF);
+                span.getAsJsonObject().addProperty("et", endTime + DIFF);
             }
         }
     }

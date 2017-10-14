@@ -1,3 +1,21 @@
+/*
+ * Copyright 2017, OpenSkywalking Organization All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Project repository: https://github.com/OpenSkywalking/skywalking
+ */
+
 package org.skywalking.apm.commons.datacarrier.consumer;
 
 import java.util.ArrayList;
@@ -14,9 +32,9 @@ import org.skywalking.apm.commons.datacarrier.SampleData;
  * Created by wusheng on 2016/10/26.
  */
 public class ConsumerTest {
-    public static LinkedBlockingQueue<SampleData> buffer = new LinkedBlockingQueue<SampleData>();
+    public static LinkedBlockingQueue<SampleData> BUFFER = new LinkedBlockingQueue<SampleData>();
 
-    public static boolean isOccurError = false;
+    public static boolean IS_OCCUR_ERROR = false;
 
     @Test
     public void testConsumerLessThanChannel() throws IllegalAccessException {
@@ -53,7 +71,7 @@ public class ConsumerTest {
         Thread.sleep(2000);
 
         List<SampleData> result = new ArrayList<SampleData>();
-        buffer.drainTo(result);
+        BUFFER.drainTo(result);
 
         Assert.assertEquals(200, result.size());
 
@@ -76,7 +94,7 @@ public class ConsumerTest {
         consumer.onError = true;
         carrier.consume(consumer, 5);
 
-        Assert.assertTrue(isOccurError);
+        Assert.assertTrue(IS_OCCUR_ERROR);
     }
 
     class SampleConsumer2 implements IConsumer<SampleData> {
@@ -98,7 +116,7 @@ public class ConsumerTest {
 
         @Override
         public void onError(List<SampleData> data, Throwable t) {
-            isOccurError = true;
+            IS_OCCUR_ERROR = true;
         }
 
         @Override
@@ -108,7 +126,7 @@ public class ConsumerTest {
     }
 
     private IConsumer getConsumer(DataCarrier<SampleData> carrier) throws IllegalAccessException {
-        ConsumerPool pool = ((ConsumerPool)MemberModifier.field(DataCarrier.class, "consumerPool").get(carrier));
+        ConsumerPool pool = (ConsumerPool)MemberModifier.field(DataCarrier.class, "consumerPool").get(carrier);
         ConsumerThread[] threads = (ConsumerThread[])MemberModifier.field(ConsumerPool.class, "consumerThreads").get(pool);
 
         return (IConsumer)MemberModifier.field(ConsumerThread.class, "consumer").get(threads[0]);

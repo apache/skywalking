@@ -1,13 +1,26 @@
-package org.skywalking.apm.plugin.spymemcached.v2;
+/*
+ * Copyright 2017, OpenSkywalking Organization All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Project repository: https://github.com/OpenSkywalking/skywalking
+ */
 
-import static junit.framework.TestCase.assertNotNull;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.when;
+package org.skywalking.apm.plugin.spymemcached.v2;
 
 import java.lang.reflect.Method;
 import java.util.List;
-
+import net.spy.memcached.MemcachedClient;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Before;
@@ -30,7 +43,10 @@ import org.skywalking.apm.agent.test.tools.SegmentStorage;
 import org.skywalking.apm.agent.test.tools.SegmentStoragePoint;
 import org.skywalking.apm.agent.test.tools.TracingSegmentRunner;
 
-import net.spy.memcached.MemcachedClient;
+import static junit.framework.TestCase.assertNotNull;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
@@ -46,7 +62,7 @@ public class MemcachedMethodInterceptorTest {
 
     private Object[] allArgument;
     private Class[] argumentType;
-    
+
     @Before
     public void setUp() throws Exception {
         allArgument = new Object[] {"OperationKey", "OperationValue"};
@@ -80,7 +96,7 @@ public class MemcachedMethodInterceptorTest {
 
         assertLogData(SpanHelper.getLogs(spans.get(0)));
     }
-    
+
     private void assertLogData(List<LogDataEntity> logDataEntities) {
         assertThat(logDataEntities.size(), is(1));
         LogDataEntity logData = logDataEntities.get(0);
@@ -109,7 +125,7 @@ public class MemcachedMethodInterceptorTest {
             return null;
         }
     }
-  
+
     private Method getMockGetMethod() {
         try {
             return MemcachedClient.class.getMethod("get", String.class);

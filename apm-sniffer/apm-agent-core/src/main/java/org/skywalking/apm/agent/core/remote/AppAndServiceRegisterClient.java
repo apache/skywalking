@@ -1,3 +1,21 @@
+/*
+ * Copyright 2017, OpenSkywalking Organization All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Project repository: https://github.com/OpenSkywalking/skywalking
+ */
+
 package org.skywalking.apm.agent.core.remote;
 
 import io.grpc.ManagedChannel;
@@ -6,6 +24,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import org.skywalking.apm.agent.core.boot.BootService;
+import org.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
 import org.skywalking.apm.agent.core.boot.ServiceManager;
 import org.skywalking.apm.agent.core.conf.Config;
 import org.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
@@ -71,7 +90,7 @@ public class AppAndServiceRegisterClient implements BootService, GRPCChannelList
     @Override
     public void boot() throws Throwable {
         applicationRegisterFuture = Executors
-            .newSingleThreadScheduledExecutor()
+            .newSingleThreadScheduledExecutor(new DefaultNamedThreadFactory("AppAndServiceRegisterClient"))
             .scheduleAtFixedRate(this, 0, Config.Collector.APP_AND_SERVICE_REGISTER_CHECK_INTERVAL, TimeUnit.SECONDS);
     }
 
@@ -87,7 +106,10 @@ public class AppAndServiceRegisterClient implements BootService, GRPCChannelList
 
     @Override
     public void run() {
-        if (CONNECTED.equals(status)) {
+        logger.debug("AppAndServiceRegisterClient running, status:{}.",status);
+        boolean shouldTry = true;
+        while (CONNECTED.equals(status) && shouldTry) {
+            shouldTry = false;
             try {
                 if (RemoteDownstreamConfig.Agent.APPLICATION_ID == DictionaryUtil.nullValue()) {
                     if (applicationRegisterServiceBlockingStub != null) {
@@ -95,6 +117,7 @@ public class AppAndServiceRegisterClient implements BootService, GRPCChannelList
                             Application.newBuilder().addApplicationCode(Config.Agent.APPLICATION_CODE).build());
                         if (applicationMapping.getApplicationCount() > 0) {
                             RemoteDownstreamConfig.Agent.APPLICATION_ID = applicationMapping.getApplication(0).getValue();
+                            shouldTry = true;
                         }
                     }
                 } else {
@@ -119,6 +142,7 @@ public class AppAndServiceRegisterClient implements BootService, GRPCChannelList
                                     .setRegisterTime(System.currentTimeMillis())
                                     .setOsinfo(OSUtil.buildOSInfo())
                                     .build());
+                                needRegisterRecover = false;
                             } else {
                                 if (lastSegmentTime - System.currentTimeMillis() > 60 * 1000) {
                                     instanceDiscoveryServiceBlockingStub.heartbeat(ApplicationInstanceHeartbeat.newBuilder()
