@@ -28,13 +28,15 @@ public class ServiceEntryH2DAO extends H2DAO implements IServiceEntryDAO, IPersi
         String sql = "select * from " + ServiceEntryTable.TABLE + " where id = ?";
         Object[] params = new Object[] {id};
         try (ResultSet rs = client.executeQuery(sql, params)) {
-            Data data = dataDefine.build(id);
-            data.setDataInteger(0, rs.getInt(ServiceEntryTable.COLUMN_APPLICATION_ID));
-            data.setDataInteger(1, rs.getInt(ServiceEntryTable.COLUMN_ENTRY_SERVICE_ID));
-            data.setDataString(1, rs.getString(ServiceEntryTable.COLUMN_ENTRY_SERVICE_NAME));
-            data.setDataLong(0, rs.getLong(ServiceEntryTable.COLUMN_REGISTER_TIME));
-            data.setDataLong(1, rs.getLong(ServiceEntryTable.COLUMN_NEWEST_TIME));
-            return data;
+            if (rs.next()) {
+                Data data = dataDefine.build(id);
+                data.setDataInteger(0, rs.getInt(ServiceEntryTable.COLUMN_APPLICATION_ID));
+                data.setDataInteger(1, rs.getInt(ServiceEntryTable.COLUMN_ENTRY_SERVICE_ID));
+                data.setDataString(1, rs.getString(ServiceEntryTable.COLUMN_ENTRY_SERVICE_NAME));
+                data.setDataLong(0, rs.getLong(ServiceEntryTable.COLUMN_REGISTER_TIME));
+                data.setDataLong(1, rs.getLong(ServiceEntryTable.COLUMN_NEWEST_TIME));
+                return data;
+            }
         } catch (SQLException | H2ClientException e) {
             logger.error(e.getMessage(), e);
         }

@@ -64,7 +64,7 @@ public class H2Client implements Client {
     }
 
     public ResultSet executeQuery(String sql, Object[] params) throws H2ClientException {
-        logger.info("execute query with result: {}", sql);
+        logger.debug("execute query with result: {}", sql);
         ResultSet rs;
         PreparedStatement statement;
         try {
@@ -83,7 +83,7 @@ public class H2Client implements Client {
     }
 
     public boolean execute(String sql, Object[] params) throws H2ClientException {
-        logger.info("execute insert/update/delete: {}", sql);
+        logger.debug("execute insert/update/delete: {}", sql);
         boolean flag;
         Connection conn = getConnection();
         try (PreparedStatement statement = conn.prepareStatement(sql)) {

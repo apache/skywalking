@@ -22,7 +22,7 @@ public class BatchH2DAO extends H2DAO implements IBatchDAO {
     @Override
     public void batchPersistence(List<?> batchCollection) {
         if (batchCollection != null && batchCollection.size() > 0) {
-            logger.info("the batch collection size is {}, current thread id {}", batchCollection.size());
+            logger.debug("the batch collection size is {}", batchCollection.size());
             Connection conn = null;
             final Map<String, PreparedStatement> batchSqls = new HashMap<>();
             try {
@@ -41,7 +41,7 @@ public class BatchH2DAO extends H2DAO implements IBatchDAO {
 
                     Object[] params = e.getParams();
                     if (params != null) {
-                        logger.info("the sql is {}, params size is {}", e.getSql(), params.length);
+                        logger.debug("the sql is {}, params size is {}", e.getSql(), params.length);
                         for (int i = 0; i < params.length; i++) {
                             ps.setObject(i + 1, params[i]);
                         }

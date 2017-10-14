@@ -26,7 +26,7 @@ public class ServiceNameH2DAO extends H2DAO implements IServiceNameDAO {
     @Override
     public int getServiceId(int applicationId, String serviceName) {
         H2Client client = getClient();
-        String sql = MessageFormat.format(GET_SERVICE_ID_SQL, ServiceNameTable.COLUMN_SERVICE_ID, ServiceNameTable.COLUMN_SERVICE_NAME,
+        String sql = MessageFormat.format(GET_SERVICE_ID_SQL, ServiceNameTable.COLUMN_SERVICE_ID,
                 ServiceNameTable.TABLE, ServiceNameTable.COLUMN_APPLICATION_ID, ServiceNameTable.COLUMN_SERVICE_NAME);
         Object[] params = new Object[]{applicationId, serviceName};
         try (ResultSet rs = client.executeQuery(sql, params)) {

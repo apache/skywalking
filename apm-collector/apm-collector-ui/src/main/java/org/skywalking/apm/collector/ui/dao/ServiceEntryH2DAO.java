@@ -29,7 +29,10 @@ public class ServiceEntryH2DAO extends H2DAO implements IServiceEntryDAO {
         H2Client client = getClient();
         String sql = GET_SERVICE_ENTRY_SQL;
         List<Object> params = new ArrayList<>();
-        List<String> columns = new ArrayList<>();
+        List<Object> columns = new ArrayList<>();
+        columns.add(ServiceEntryTable.TABLE);
+        columns.add(ServiceEntryTable.COLUMN_NEWEST_TIME);
+        columns.add(ServiceEntryTable.COLUMN_REGISTER_TIME);
         params.add(startTime);
         params.add(endTime);
         int paramIndex = 2;
@@ -46,8 +49,8 @@ public class ServiceEntryH2DAO extends H2DAO implements IServiceEntryDAO {
             columns.add(ServiceEntryTable.COLUMN_ENTRY_SERVICE_NAME);
         }
         sql = sql + " limit " + from + "," + size;
-        sql = MessageFormat.format(sql, ServiceEntryTable.TABLE, ServiceEntryTable.COLUMN_NEWEST_TIME,
-                ServiceEntryTable.COLUMN_REGISTER_TIME, columns);
+        MessageFormat messageFormat = new MessageFormat(sql);
+        sql = messageFormat.format(columns.toArray(new Object[0]));
         Object[] p = params.toArray(new Object[0]);
         JsonArray serviceArray = new JsonArray();
         JsonObject response = new JsonObject();

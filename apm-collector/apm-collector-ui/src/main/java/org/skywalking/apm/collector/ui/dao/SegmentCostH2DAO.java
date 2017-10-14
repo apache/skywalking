@@ -1,7 +1,11 @@
 package org.skywalking.apm.collector.ui.dao;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.elasticsearch.search.sort.SortOrder;
 import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.client.h2.H2ClientException;
@@ -14,11 +18,8 @@ import org.skywalking.apm.collector.storage.h2.dao.H2DAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 /**
  * @author pengys5, clevertension
@@ -31,7 +32,9 @@ public class SegmentCostH2DAO extends H2DAO implements ISegmentCostDAO {
         H2Client client = getClient();
         String sql = GET_SEGMENT_COST_SQL;
         List<Object> params = new ArrayList<>();
-        List<String> columns = new ArrayList<>();
+        List<Object> columns = new ArrayList<>();
+        columns.add(SegmentCostTable.TABLE);
+        columns.add(SegmentCostTable.COLUMN_TIME_BUCKET);
         params.add(startTime);
         params.add(endTime);
         int paramIndex = 1;
@@ -95,7 +98,8 @@ public class SegmentCostH2DAO extends H2DAO implements ISegmentCostDAO {
         }
 
         sql = sql + " limit " + from + "," + limit;
-        sql = MessageFormat.format(sql, SegmentCostTable.TABLE, SegmentCostTable.COLUMN_TIME_BUCKET, columns);
+        MessageFormat messageFormat = new MessageFormat(sql);
+        sql = messageFormat.format(columns.toArray(new Object[0]));
         Object[] p = params.toArray(new Object[0]);
 
         JsonObject topSegPaging = new JsonObject();
