@@ -32,7 +32,7 @@ public class FutureGetInterceptor implements InstanceMethodsAroundInterceptor {
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
         Object[] cacheValues = (Object[])objInst.getSkyWalkingDynamicField();
-        ContextManager.createLocalSpan("future/get:" + ((URI)cacheValues[0]).getPath());
+        ContextManager.createLocalSpan("future/getDefault:" + ((URI)cacheValues[0]).getPath());
     }
 
     @Override

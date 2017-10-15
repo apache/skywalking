@@ -32,7 +32,7 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * {@link ResponseExtractorFutureInstrumentation} enhance the <code>addCallback</code> method and <code>get</code>
+ * {@link ResponseExtractorFutureInstrumentation} enhance the <code>addCallback</code> method and <code>getDefault</code>
  * method of <code>org.springframework.web.client.AsyncRestTemplate$ResponseExtractorFuture</code> by
  * <code>org.skywalking.apm.plugin.spring.resttemplate.async.ResponseCallBackInterceptor</code> and
  * <code>org.skywalking.apm.plugin.spring.resttemplate.async.FutureGetInterceptor</code>.
@@ -48,7 +48,7 @@ public class ResponseExtractorFutureInstrumentation extends ClassInstanceMethods
     private static final String ADD_CALLBACK_INTERCEPTOR = "org.skywalking.apm.plugin.spring.resttemplate.async.ResponseCallBackInterceptor";
     private static final String ENHANCE_CLASS = "org.springframework.web.client.AsyncRestTemplate$ResponseExtractorFuture";
     private static final String GET_METHOD_INTERCEPTOR = "org.skywalking.apm.plugin.spring.resttemplate.async.FutureGetInterceptor";
-    private static final String GET_METHOD_NAME = "get";
+    private static final String GET_METHOD_NAME = "getDefault";
 
     @Override
     protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {

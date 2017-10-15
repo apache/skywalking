@@ -43,6 +43,6 @@ public class TraceContextInterceptor implements StaticMethodsAroundInterceptor {
     @Override
     public void handleMethodException(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
         Throwable t) {
-        logger.error("Failed to get trace Id.", t);
+        logger.error("Failed to getDefault trace Id.", t);
     }
 }

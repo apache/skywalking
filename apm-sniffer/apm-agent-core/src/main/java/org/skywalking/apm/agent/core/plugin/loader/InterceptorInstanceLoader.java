@@ -16,7 +16,7 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.agent.core.plugin.interceptor.loader;
+package org.skywalking.apm.agent.core.plugin.loader;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -24,8 +24,11 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
+import org.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMethodsAroundInterceptor;
@@ -53,7 +56,52 @@ public class InterceptorInstanceLoader {
 
     private static ReentrantLock INSTANCE_LOAD_LOCK = new ReentrantLock();
 
+    private static Map<ClassLoader, ClassLoader> EXTEND_PLUGIN_CLASSLOADERS = new HashMap<ClassLoader, ClassLoader>();
+
     public static <T> T load(String className, ClassLoader targetClassLoader)
+        throws InvocationTargetException, IllegalAccessException, InstantiationException, ClassNotFoundException, AgentPackageNotFoundException {
+        if (targetClassLoader == null) {
+            targetClassLoader = InterceptorInstanceLoader.class.getClassLoader();
+        }
+        String instanceKey = className + "_OF_" + targetClassLoader.getClass().getName() + "@" + Integer.toHexString(targetClassLoader.hashCode());
+        Object inst = INSTANCE_CACHE.get(instanceKey);
+        if (inst == null) {
+            if (InterceptorInstanceLoader.class.getClassLoader().equals(targetClassLoader)) {
+                inst = targetClassLoader.loadClass(className).newInstance();
+            } else {
+                INSTANCE_LOAD_LOCK.lock();
+                try {
+                    ClassLoader pluginLoader = EXTEND_PLUGIN_CLASSLOADERS.get(targetClassLoader);
+                    if (pluginLoader == null) {
+                        pluginLoader = new AgentClassLoader(targetClassLoader);
+                        EXTEND_PLUGIN_CLASSLOADERS.put(targetClassLoader, pluginLoader);
+                    }
+                    inst = Class.forName(className, true, pluginLoader).newInstance();
+                } finally {
+                    INSTANCE_LOAD_LOCK.unlock();
+                }
+            }
+            if (inst != null) {
+                INSTANCE_CACHE.put(instanceKey, inst);
+            }
+        }
+
+        return (T)inst;
+    }
+
+    /**
+     * Old load method, just for backup
+     *
+     * @param className
+     * @param targetClassLoader
+     * @param <T>
+     * @return
+     * @throws InvocationTargetException
+     * @throws IllegalAccessException
+     * @throws InstantiationException
+     * @throws ClassNotFoundException
+     */
+    public static <T> T load0(String className, ClassLoader targetClassLoader)
         throws InvocationTargetException, IllegalAccessException, InstantiationException, ClassNotFoundException {
         if (targetClassLoader == null) {
             targetClassLoader = InterceptorInstanceLoader.class.getClassLoader();

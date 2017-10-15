@@ -23,6 +23,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import org.skywalking.apm.agent.core.plugin.loader.AgentClassLoader;
 import org.skywalking.apm.logging.ILog;
 import org.skywalking.apm.logging.LogManager;
 
@@ -39,7 +40,7 @@ public class PluginResourcesResolver {
         List<URL> cfgUrlPaths = new ArrayList<URL>();
         Enumeration<URL> urls;
         try {
-            urls = getDefaultClassLoader().getResources("skywalking-plugin.def");
+            urls = AgentClassLoader.getDefault().getResources("skywalking-plugin.def");
 
             while (urls.hasMoreElements()) {
                 URL pluginUrl = urls.nextElement();
@@ -56,8 +57,8 @@ public class PluginResourcesResolver {
 
     /**
      * Get the classloader.
-     * First get current thread's classloader,
-     * if fail, get {@link PluginResourcesResolver}'s classloader.
+     * First getDefault current thread's classloader,
+     * if fail, getDefault {@link PluginResourcesResolver}'s classloader.
      *
      * @return the classloader to find plugin definitions.
      */

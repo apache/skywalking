@@ -39,7 +39,7 @@ public enum RedisMethodMatch {
             .or(named("zrangeByScore")).or(named("smove")).or(named("lset"))
             .or(named("decrBy")).or(named("pttl")).or(named("scan"))
             .or(named("zrank")).or(named("blpop")).or(named("rpoplpush"))
-            .or(named("zremrangeByLex")).or(named("get")).or(named("lpop"))
+            .or(named("zremrangeByLex")).or(named("getDefault")).or(named("lpop"))
             .or(named("persist")).or(named("scriptExists")).or(named("georadius"))
             .or(named("set")).or(named("srandmember")).or(named("incr")).or(named("setbit"))
             .or(named("hexists")).or(named("expireAt")).or(named("pexpire")).or(named("zcard"))

@@ -70,13 +70,15 @@ public class GRPCChannelManager implements BootService, Runnable {
     @Override
     public void shutdown() throws Throwable {
         connectCheckFuture.cancel(true);
-        managedChannel.shutdownNow();
+        if (managedChannel != null) {
+            managedChannel.shutdownNow();
+        }
         logger.debug("Selected collector grpc service shutdown.");
     }
 
     @Override
     public void run() {
-        logger.debug("Selected collector grpc service running, reconnect:{}.",reconnect);
+        logger.debug("Selected collector grpc service running, reconnect:{}.", reconnect);
         if (reconnect) {
             if (RemoteDownstreamConfig.Collector.GRPC_SERVERS.size() > 0) {
                 String server = "";

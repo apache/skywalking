@@ -86,7 +86,7 @@ public class SamplingService implements BootService {
     }
 
     /**
-     * @return true, if sampling mechanism is on, and get the sampling factor successfully.
+     * @return true, if sampling mechanism is on, and getDefault the sampling factor successfully.
      */
     public boolean trySampling() {
         if (on) {

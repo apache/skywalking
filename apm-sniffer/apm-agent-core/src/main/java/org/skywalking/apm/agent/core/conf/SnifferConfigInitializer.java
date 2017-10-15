@@ -42,16 +42,13 @@ public class SnifferConfigInitializer {
     private static String ENV_KEY_PREFIX = "skywalking.";
 
     /**
-     * Try to locate config file, named {@link #CONFIG_FILE_NAME}, in following order:
-     * 1. Path from SystemProperty. {@link #overrideConfigBySystemEnv()}
-     * 2. class path.
-     * 3. Path, where agent is. {@link #loadConfigFromAgentFolder()}
-     * <p>
-     * If no found in any path, agent is still going to run in default config, {@link Config},
-     * but in initialization steps, these following configs must be set, by config file or system properties:
-     * <p>
-     * 1. applicationCode. "-DapplicationCode=" or  {@link Config.Agent#APPLICATION_CODE}
-     * 2. servers. "-Dservers=" or  {@link Config.Collector#SERVERS}
+     * Try to locate `agent.config`, which should be in the /config dictionary of agent package.
+     *
+     * Also try to override the config by system.env and system.properties. All the keys in these two places should
+     * start with {@link #ENV_KEY_PREFIX}. e.g. in env `skywalking.agent.application_code=yourAppName` to override
+     * `agent.application_code` in config file.
+     *
+     * At the end, `agent.application_code` and `collector.servers` must be not blank.
      */
     public static void initialize() throws ConfigNotFoundException, AgentPackageNotFoundException {
         InputStream configFileStream;
