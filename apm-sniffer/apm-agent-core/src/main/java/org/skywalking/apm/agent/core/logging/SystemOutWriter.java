@@ -34,4 +34,8 @@ public enum SystemOutWriter implements IWriter {
         PrintStream out = System.out;
         out.println(message);
     }
+
+    public PrintStream getStream(){
+        return System.out;
+    }
 }

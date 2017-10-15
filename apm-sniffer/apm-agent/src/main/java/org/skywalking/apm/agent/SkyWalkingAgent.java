@@ -27,6 +27,7 @@ import net.bytebuddy.utility.JavaModule;
 import org.skywalking.apm.agent.core.boot.ServiceManager;
 import org.skywalking.apm.agent.core.conf.SnifferConfigInitializer;
 import org.skywalking.apm.agent.core.logging.EasyLogResolver;
+import org.skywalking.apm.agent.core.logging.SystemOutWriter;
 import org.skywalking.apm.agent.core.plugin.AbstractClassEnhancePluginDefine;
 import org.skywalking.apm.agent.core.plugin.EnhanceContext;
 import org.skywalking.apm.agent.core.plugin.PluginBootstrap;
@@ -66,7 +67,8 @@ public class SkyWalkingAgent {
 
             ServiceManager.INSTANCE.boot();
         } catch (Exception e) {
-            logger.error(e, "skywalking agent shutdown.");
+            SystemOutWriter.INSTANCE.write("skywalking agent is shutting down.");
+            e.printStackTrace(SystemOutWriter.INSTANCE.getStream());
             return;
         }
 
