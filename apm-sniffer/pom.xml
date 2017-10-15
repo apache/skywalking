@@ -40,13 +40,14 @@
 
     <properties>
         <compiler.version>1.6</compiler.version>
+        <shade.package>org.skywalking.apm.dependencies</shade.package>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.skywalking</groupId>
             <artifactId>apm-util</artifactId>
-            <version>3.2.3-2017</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>

@@ -37,8 +37,73 @@
 
     <artifactId>apm-toolkit-activation</artifactId>
 
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <shade.net.bytebuddy.source>net.bytebuddy</shade.net.bytebuddy.source>
+        <shade.net.bytebuddy.target>${shade.package}.${shade.net.bytebuddy.source}</shade.net.bytebuddy.target>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>apm-agent-core</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>apm-util</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>apm-test-tools</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.4.1</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <shadedArtifactAttached>false</shadedArtifactAttached>
+                            <createDependencyReducedPom>true</createDependencyReducedPom>
+                            <createSourcesJar>true</createSourcesJar>
+                            <shadeSourcesContent>true</shadeSourcesContent>
+                            <artifactSet>
+                                <excludes>
+                                    <exclude>com.lmax:*</exclude>
+                                    <exclude>org.apache.httpcomponents:*</exclude>
+                                    <exclude>commons-logging:*</exclude>
+                                    <exclude>commons-codec:*</exclude>
+                                    <exclude>*:gson</exclude>
+                                    <exclude>io.grpc:*</exclude>
+                                    <exclude>io.netty:*</exclude>
+                                    <exclude>com.google.*:*</exclude>
+                                    <exclude>com.google.guava:guava</exclude>
+                                </excludes>
+                            </artifactSet>
+                            <relocations>
+                                <relocation>
+                                    <pattern>${shade.net.bytebuddy.source}</pattern>
+                                    <shadedPattern>${shade.net.bytebuddy.target}</shadedPattern>
+                                </relocation>
+                            </relocations>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
@@ -86,17 +151,4 @@
             </plugin>
         </plugins>
     </build>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.skywalking</groupId>
-            <artifactId>apm-agent-core</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.skywalking</groupId>
-            <artifactId>apm-test-tools</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-    </dependencies>
 </project>

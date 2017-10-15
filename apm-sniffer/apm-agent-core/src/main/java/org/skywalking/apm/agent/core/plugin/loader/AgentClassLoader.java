@@ -34,6 +34,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import org.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
 import org.skywalking.apm.agent.core.boot.AgentPackagePath;
+import org.skywalking.apm.agent.core.plugin.PluginBootstrap;
 import org.skywalking.apm.logging.ILog;
 import org.skywalking.apm.logging.LogManager;
 
@@ -50,14 +51,13 @@ public class AgentClassLoader extends ClassLoader {
     private List<File> classpath;
     private List<Jar> allJars;
     private ReentrantLock jarScanLock = new ReentrantLock();
-    private ReentrantLock loadClassLock = new ReentrantLock();
 
     public static AgentClassLoader getDefault() {
         return LOADER;
     }
 
     public static AgentClassLoader initDefaultLoader() throws AgentPackageNotFoundException {
-        LOADER = new AgentClassLoader(AgentClassLoader.class.getClassLoader());
+        LOADER = new AgentClassLoader(PluginBootstrap.class.getClassLoader());
         return getDefault();
     }
 
@@ -69,44 +69,15 @@ public class AgentClassLoader extends ClassLoader {
         classpath.add(new File(agentDictionary, "activations"));
     }
 
-    protected Class<?> loadClass(String name, boolean resolve)
-        throws ClassNotFoundException {
-        loadClassLock.lock();
-        try {
-            // First, check if the class has already been loaded
-            Class<?> c = findLoadedClass(name);
-            if (c == null) {
-                try {
-                    super.loadClass(name, resolve);
-                } catch (ClassNotFoundException e) {
-                    // ClassNotFoundException thrown if class not found
-                    // from the non-null parent class loader
-                }
-
-                if (c == null) {
-                    // If still not found, then invoke findClass in order
-                    // to find the class.
-                    c = findClass(name);
-                }
-            }
-            if (resolve) {
-                resolveClass(c);
-            }
-            return c;
-        } finally {
-            loadClassLock.unlock();
-        }
-    }
-
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
         List<Jar> allJars = getAllJars();
-        String path = "/" + name.replace('.', '/').concat(".class");
+        String path = name.replace('.', '/').concat(".class");
         for (Jar jar : allJars) {
             JarEntry entry = jar.jarFile.getJarEntry(path);
             if (entry != null) {
                 try {
-                    URL classFileUrl = new URL("jar:file:" + jar.sourceFile.getAbsolutePath() + "!/" + name);
+                    URL classFileUrl = new URL("jar:file:" + jar.sourceFile.getAbsolutePath() + "!/" + path);
                     byte[] data = null;
                     BufferedInputStream is = null;
                     ByteArrayOutputStream baos = null;

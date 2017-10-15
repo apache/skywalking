@@ -66,20 +66,16 @@ public class InterceptorInstanceLoader {
         String instanceKey = className + "_OF_" + targetClassLoader.getClass().getName() + "@" + Integer.toHexString(targetClassLoader.hashCode());
         Object inst = INSTANCE_CACHE.get(instanceKey);
         if (inst == null) {
-            if (InterceptorInstanceLoader.class.getClassLoader().equals(targetClassLoader)) {
-                inst = targetClassLoader.loadClass(className).newInstance();
-            } else {
-                INSTANCE_LOAD_LOCK.lock();
-                try {
-                    ClassLoader pluginLoader = EXTEND_PLUGIN_CLASSLOADERS.get(targetClassLoader);
-                    if (pluginLoader == null) {
-                        pluginLoader = new AgentClassLoader(targetClassLoader);
-                        EXTEND_PLUGIN_CLASSLOADERS.put(targetClassLoader, pluginLoader);
-                    }
-                    inst = Class.forName(className, true, pluginLoader).newInstance();
-                } finally {
-                    INSTANCE_LOAD_LOCK.unlock();
+            INSTANCE_LOAD_LOCK.lock();
+            try {
+                ClassLoader pluginLoader = EXTEND_PLUGIN_CLASSLOADERS.get(targetClassLoader);
+                if (pluginLoader == null) {
+                    pluginLoader = new AgentClassLoader(targetClassLoader);
+                    EXTEND_PLUGIN_CLASSLOADERS.put(targetClassLoader, pluginLoader);
                 }
+                inst = Class.forName(className, true, pluginLoader).newInstance();
+            } finally {
+                INSTANCE_LOAD_LOCK.unlock();
             }
             if (inst != null) {
                 INSTANCE_CACHE.put(instanceKey, inst);
