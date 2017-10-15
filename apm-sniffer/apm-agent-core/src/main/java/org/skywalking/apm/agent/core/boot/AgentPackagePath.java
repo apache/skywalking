@@ -22,15 +22,11 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import org.skywalking.apm.agent.core.logging.SystemOutWriter;
-import org.skywalking.apm.logging.ILog;
-import org.skywalking.apm.logging.LogManager;
 
 /**
  * @author wusheng
  */
 public class AgentPackagePath {
-    private static final ILog logger = LogManager.getLogger(AgentPackagePath.class);
-
     private static File AGENT_PACKAGE_PATH;
 
     public static File getPath() throws AgentPackageNotFoundException {
@@ -48,23 +44,28 @@ public class AgentPackagePath {
             String urlString = resource.toString();
 
             SystemOutWriter.INSTANCE.write(urlString);
-            logger.debug(urlString);
 
-            urlString = urlString.substring(urlString.indexOf("file:"), urlString.indexOf('!'));
-            File agentJarFile = null;
-            try {
-                agentJarFile = new File(new URL(urlString).getFile());
-            } catch (MalformedURLException e) {
-                SystemOutWriter.INSTANCE.write("Can not locate agent jar file by url:" + urlString);
-                logger.error(e, "Can not locate agent jar file by url: {}", urlString);
-            }
-            if (agentJarFile.exists()) {
-                return agentJarFile.getParentFile();
+            int insidePathIndex = urlString.indexOf('!');
+            boolean isInJar = insidePathIndex > -1;
+
+            if (isInJar) {
+                urlString = urlString.substring(urlString.indexOf("file:"), insidePathIndex);
+                File agentJarFile = null;
+                try {
+                    agentJarFile = new File(new URL(urlString).getFile());
+                } catch (MalformedURLException e) {
+                    SystemOutWriter.INSTANCE.write("Can not locate agent jar file by url:" + urlString);
+                }
+                if (agentJarFile.exists()) {
+                    return agentJarFile.getParentFile();
+                }
+            } else {
+                String classLocation = urlString.substring(urlString.indexOf("file:"), urlString.length() - classResourcePath.length());
+                return new File(classLocation);
             }
         }
 
         SystemOutWriter.INSTANCE.write("Can not locate agent jar file.");
-        logger.info("Can not locate agent jar file.");
         throw new AgentPackageNotFoundException("Can not locate agent jar file.");
     }
 
