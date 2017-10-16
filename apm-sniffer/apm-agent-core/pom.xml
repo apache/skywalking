@@ -64,6 +64,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>apm-util</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>net.bytebuddy</groupId>
             <artifactId>byte-buddy</artifactId>
             <version>${bytebuddy.version}</version>

@@ -46,18 +46,26 @@ import org.skywalking.apm.logging.LogManager;
  */
 public class AgentClassLoader extends ClassLoader {
     private static final ILog logger = LogManager.getLogger(AgentClassLoader.class);
-    private static AgentClassLoader LOADER;
+    /**
+     * The default class loader for the agent.
+     */
+    private static AgentClassLoader DEFAULT_LOADER;
 
     private List<File> classpath;
     private List<Jar> allJars;
     private ReentrantLock jarScanLock = new ReentrantLock();
 
     public static AgentClassLoader getDefault() {
-        return LOADER;
+        return DEFAULT_LOADER;
     }
 
+    /**
+     * Init the default
+     * @return
+     * @throws AgentPackageNotFoundException
+     */
     public static AgentClassLoader initDefaultLoader() throws AgentPackageNotFoundException {
-        LOADER = new AgentClassLoader(PluginBootstrap.class.getClassLoader());
+        DEFAULT_LOADER = new AgentClassLoader(PluginBootstrap.class.getClassLoader());
         return getDefault();
     }
 

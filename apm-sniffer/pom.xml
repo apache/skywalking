@@ -42,12 +42,4 @@
         <compiler.version>1.6</compiler.version>
         <shade.package>org.skywalking.apm.dependencies</shade.package>
     </properties>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.skywalking</groupId>
-            <artifactId>apm-util</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-    </dependencies>
 </project>
