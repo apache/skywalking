@@ -63,7 +63,7 @@ public class ComponentsDefine {
 
     public static final OfficialComponent JETTY_SERVER = new OfficialComponent(19, "JettyServer");
 
-    public static final OfficialComponent MEMCACHE = new OfficialComponent(20, "Memcache");
+    public static final OfficialComponent MEMCACHED = new OfficialComponent(20, "Memcached");
 
     public static final OfficialComponent SHARDING_JDBC = new OfficialComponent(21, "ShardingJDBC");
 
@@ -96,7 +96,7 @@ public class ComponentsDefine {
         addComponent(NUTZ_HTTP);
         addComponent(JETTY_CLIENT);
         addComponent(JETTY_SERVER);
-        addComponent(MEMCACHE);
+        addComponent(MEMCACHED);
         addComponent(SHARDING_JDBC);
     }
 

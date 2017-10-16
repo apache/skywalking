@@ -37,8 +37,8 @@ public class MemcachedMethodInterceptor implements InstanceMethodsAroundIntercep
         Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         String peer = String.valueOf(objInst.getSkyWalkingDynamicField());
         AbstractSpan span = ContextManager.createExitSpan(SPY_MEMCACHE + method.getName(), peer);
-        span.setComponent(ComponentsDefine.MEMCACHE);
-        Tags.DB_TYPE.set(span, ComponentsDefine.MEMCACHE.getName());
+        span.setComponent(ComponentsDefine.MEMCACHED);
+        Tags.DB_TYPE.set(span, ComponentsDefine.MEMCACHED.getName());
         SpanLayer.asDB(span);
         Tags.DB_STATEMENT.set(span, method.getName() + " " + allArguments[0]);
     }
