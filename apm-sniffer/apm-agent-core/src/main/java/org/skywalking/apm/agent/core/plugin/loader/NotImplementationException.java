@@ -19,6 +19,8 @@
 package org.skywalking.apm.agent.core.plugin.loader;
 
 /**
+ * The <code>NotImplementationException</code> represents that, a method didn't implement yet. Most likely, this method is not needed in current version, but be called by unexpected.
+ *
  * @author wusheng
  */
 public class NotImplementationException extends RuntimeException {
