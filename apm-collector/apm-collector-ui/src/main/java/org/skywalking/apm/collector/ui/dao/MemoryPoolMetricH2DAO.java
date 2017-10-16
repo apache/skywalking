@@ -18,22 +18,23 @@
 
 package org.skywalking.apm.collector.ui.dao;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.client.h2.H2ClientException;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.storage.define.jvm.MemoryPoolMetricTable;
+import org.skywalking.apm.collector.storage.h2.SqlBuilder;
 import org.skywalking.apm.collector.storage.h2.dao.H2DAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 /**
  * @author clevertension
@@ -45,7 +46,7 @@ public class MemoryPoolMetricH2DAO extends H2DAO implements IMemoryPoolMetricDAO
     @Override public JsonObject getMetric(int instanceId, long timeBucket, int poolType) {
         H2Client client = getClient();
         String id = timeBucket + Const.ID_SPLIT + instanceId + Const.ID_SPLIT + poolType;
-        String sql = MessageFormat.format(GET_MEMORY_POOL_METRIC_SQL, MemoryPoolMetricTable.TABLE, "id");
+        String sql = SqlBuilder.buildSql(GET_MEMORY_POOL_METRIC_SQL, MemoryPoolMetricTable.TABLE, "id");
         Object[] params = new Object[]{id};
         JsonObject metric = new JsonObject();
         try (ResultSet rs = client.executeQuery(sql, params)) {
@@ -66,7 +67,7 @@ public class MemoryPoolMetricH2DAO extends H2DAO implements IMemoryPoolMetricDAO
 
     @Override public JsonObject getMetric(int instanceId, long startTimeBucket, long endTimeBucket, int poolType) {
         H2Client client = getClient();
-        String sql = MessageFormat.format(GET_MEMORY_POOL_METRICS_SQL, MemoryPoolMetricTable.TABLE, "id");
+        String sql = SqlBuilder.buildSql(GET_MEMORY_POOL_METRICS_SQL, MemoryPoolMetricTable.TABLE, "id");
         List<String> idList = new ArrayList<>();
         long timeBucket = startTimeBucket;
         do {

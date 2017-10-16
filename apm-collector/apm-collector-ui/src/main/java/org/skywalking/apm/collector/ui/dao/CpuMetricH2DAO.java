@@ -18,21 +18,22 @@
 
 package org.skywalking.apm.collector.ui.dao;
 
-import com.google.gson.JsonArray;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.client.h2.H2ClientException;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.storage.define.jvm.CpuMetricTable;
+import org.skywalking.apm.collector.storage.h2.SqlBuilder;
 import org.skywalking.apm.collector.storage.h2.dao.H2DAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
+import com.google.gson.JsonArray;
 
 /**
  * @author pengys5, clevertension
@@ -44,7 +45,7 @@ public class CpuMetricH2DAO extends H2DAO implements ICpuMetricDAO {
     @Override public int getMetric(int instanceId, long timeBucket) {
         String id = timeBucket + Const.ID_SPLIT + instanceId;
         H2Client client = getClient();
-        String sql = MessageFormat.format(GET_CPU_METRIC_SQL, CpuMetricTable.TABLE, "id");
+        String sql = SqlBuilder.buildSql(GET_CPU_METRIC_SQL, CpuMetricTable.TABLE, "id");
         Object[] params = new Object[]{id};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
@@ -58,7 +59,7 @@ public class CpuMetricH2DAO extends H2DAO implements ICpuMetricDAO {
 
     @Override public JsonArray getMetric(int instanceId, long startTimeBucket, long endTimeBucket) {
         H2Client client = getClient();
-        String sql = MessageFormat.format(GET_CPU_METRICS_SQL, CpuMetricTable.TABLE, "id");
+        String sql = SqlBuilder.buildSql(GET_CPU_METRICS_SQL, CpuMetricTable.TABLE, "id");
 
         long timeBucket = startTimeBucket;
         List<String> idList = new ArrayList<>();

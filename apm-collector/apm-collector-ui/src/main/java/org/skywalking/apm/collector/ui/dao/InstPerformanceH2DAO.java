@@ -18,21 +18,22 @@
 
 package org.skywalking.apm.collector.ui.dao;
 
-import com.google.gson.JsonArray;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.client.h2.H2ClientException;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.storage.define.instance.InstPerformanceTable;
+import org.skywalking.apm.collector.storage.h2.SqlBuilder;
 import org.skywalking.apm.collector.storage.h2.dao.H2DAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
+import com.google.gson.JsonArray;
 
 /**
  * @author pengys5, clevertension
@@ -45,7 +46,7 @@ public class InstPerformanceH2DAO extends H2DAO implements IInstPerformanceDAO {
     @Override public InstPerformance get(long[] timeBuckets, int instanceId) {
         H2Client client = getClient();
         logger.info("the inst performance inst id = {}", instanceId);
-        String sql = MessageFormat.format(GET_INST_PERF_SQL, InstPerformanceTable.TABLE, InstPerformanceTable.COLUMN_INSTANCE_ID, InstPerformanceTable.COLUMN_TIME_BUCKET);
+        String sql = SqlBuilder.buildSql(GET_INST_PERF_SQL, InstPerformanceTable.TABLE, InstPerformanceTable.COLUMN_INSTANCE_ID, InstPerformanceTable.COLUMN_TIME_BUCKET);
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < timeBuckets.length; i++) {
             builder.append("?,");
@@ -73,7 +74,7 @@ public class InstPerformanceH2DAO extends H2DAO implements IInstPerformanceDAO {
     @Override public int getTpsMetric(int instanceId, long timeBucket) {
         logger.info("getTpMetric instanceId = {}, startTimeBucket = {}", instanceId, timeBucket);
         H2Client client = getClient();
-        String sql = MessageFormat.format(GET_TPS_METRIC_SQL, InstPerformanceTable.TABLE, "id");
+        String sql = SqlBuilder.buildSql(GET_TPS_METRIC_SQL, InstPerformanceTable.TABLE, "id");
         Object[] params = new Object[]{instanceId};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
@@ -88,7 +89,7 @@ public class InstPerformanceH2DAO extends H2DAO implements IInstPerformanceDAO {
     @Override public JsonArray getTpsMetric(int instanceId, long startTimeBucket, long endTimeBucket) {
         logger.info("getTpsMetric instanceId = {}, startTimeBucket = {}, endTimeBucket = {}", instanceId, startTimeBucket, endTimeBucket);
         H2Client client = getClient();
-        String sql = MessageFormat.format(GET_TPS_METRICS_SQL, InstPerformanceTable.TABLE, "id");
+        String sql = SqlBuilder.buildSql(GET_TPS_METRICS_SQL, InstPerformanceTable.TABLE, "id");
 
         long timeBucket = startTimeBucket;
         List<String> idList = new ArrayList<>();
@@ -122,7 +123,7 @@ public class InstPerformanceH2DAO extends H2DAO implements IInstPerformanceDAO {
 
     @Override public int getRespTimeMetric(int instanceId, long timeBucket) {
         H2Client client = getClient();
-        String sql = MessageFormat.format(GET_TPS_METRIC_SQL, InstPerformanceTable.TABLE, "id");
+        String sql = SqlBuilder.buildSql(GET_TPS_METRIC_SQL, InstPerformanceTable.TABLE, "id");
         Object[] params = new Object[]{instanceId};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
@@ -138,7 +139,7 @@ public class InstPerformanceH2DAO extends H2DAO implements IInstPerformanceDAO {
 
     @Override public JsonArray getRespTimeMetric(int instanceId, long startTimeBucket, long endTimeBucket) {
         H2Client client = getClient();
-        String sql = MessageFormat.format(GET_TPS_METRICS_SQL, InstPerformanceTable.TABLE, "id");
+        String sql = SqlBuilder.buildSql(GET_TPS_METRICS_SQL, InstPerformanceTable.TABLE, "id");
 
         long timeBucket = startTimeBucket;
         List<String> idList = new ArrayList<>();

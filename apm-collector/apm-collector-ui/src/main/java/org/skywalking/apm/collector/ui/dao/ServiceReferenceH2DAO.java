@@ -20,7 +20,6 @@ package org.skywalking.apm.collector.ui.dao;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.MessageFormat;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -32,6 +31,7 @@ import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.ObjectUtils;
 import org.skywalking.apm.collector.core.util.StringUtils;
 import org.skywalking.apm.collector.storage.define.serviceref.ServiceReferenceTable;
+import org.skywalking.apm.collector.storage.h2.SqlBuilder;
 import org.skywalking.apm.collector.storage.h2.dao.H2DAO;
 import org.skywalking.apm.collector.ui.cache.ServiceIdCache;
 import org.skywalking.apm.collector.ui.cache.ServiceNameCache;
@@ -54,7 +54,7 @@ public class ServiceReferenceH2DAO extends H2DAO implements IServiceReferenceDAO
 
     @Override public JsonArray load(int entryServiceId, long startTime, long endTime) {
         H2Client client = getClient();
-        String sql = MessageFormat.format(GET_SRV_REF_LOAD1, ServiceReferenceTable.TABLE,
+        String sql = SqlBuilder.buildSql(GET_SRV_REF_LOAD1, ServiceReferenceTable.TABLE,
                 ServiceReferenceTable.COLUMN_TIME_BUCKET, ServiceReferenceTable.COLUMN_ENTRY_SERVICE_ID, ServiceReferenceTable.COLUMN_ENTRY_SERVICE_NAME,
                 ServiceReferenceTable.COLUMN_FRONT_SERVICE_ID, ServiceReferenceTable.COLUMN_BEHIND_SERVICE_ID,
                 ServiceReferenceTable.COLUMN_FRONT_SERVICE_NAME, ServiceReferenceTable.COLUMN_BEHIND_SERVICE_NAME,
@@ -99,7 +99,7 @@ public class ServiceReferenceH2DAO extends H2DAO implements IServiceReferenceDAO
 
     @Override public JsonArray load(String entryServiceName, int entryApplicationId, long startTime, long endTime) {
         H2Client client = getClient();
-        String sql = MessageFormat.format(GET_SRV_REF_LOAD2, ServiceReferenceTable.TABLE,
+        String sql = SqlBuilder.buildSql(GET_SRV_REF_LOAD2, ServiceReferenceTable.TABLE,
                 ServiceReferenceTable.COLUMN_TIME_BUCKET, ServiceReferenceTable.COLUMN_ENTRY_SERVICE_NAME,
                 ServiceReferenceTable.COLUMN_FRONT_SERVICE_ID, ServiceReferenceTable.COLUMN_BEHIND_SERVICE_ID,
                 ServiceReferenceTable.COLUMN_FRONT_SERVICE_NAME, ServiceReferenceTable.COLUMN_BEHIND_SERVICE_NAME,
@@ -110,7 +110,7 @@ public class ServiceReferenceH2DAO extends H2DAO implements IServiceReferenceDAO
         Object[] params = new Object[]{startTime, endTime, entryServiceName};
         int entryServiceId = ServiceIdCache.get(entryApplicationId, entryServiceName);
         if (entryServiceId != 0) {
-            sql = MessageFormat.format(GET_SRV_REF_LOAD1, ServiceReferenceTable.TABLE,
+            sql = SqlBuilder.buildSql(GET_SRV_REF_LOAD1, ServiceReferenceTable.TABLE,
                     ServiceReferenceTable.COLUMN_TIME_BUCKET, ServiceReferenceTable.COLUMN_ENTRY_SERVICE_ID, ServiceReferenceTable.COLUMN_ENTRY_SERVICE_NAME,
                     ServiceReferenceTable.COLUMN_FRONT_SERVICE_ID, ServiceReferenceTable.COLUMN_BEHIND_SERVICE_ID,
                     ServiceReferenceTable.COLUMN_FRONT_SERVICE_NAME, ServiceReferenceTable.COLUMN_BEHIND_SERVICE_NAME,

@@ -18,17 +18,6 @@
 
 package org.skywalking.apm.collector.agentstream.worker.service.entry.dao;
 
-import org.skywalking.apm.collector.client.h2.H2Client;
-import org.skywalking.apm.collector.client.h2.H2ClientException;
-import org.skywalking.apm.collector.core.stream.Data;
-import org.skywalking.apm.collector.storage.define.DataDefine;
-import org.skywalking.apm.collector.storage.define.service.ServiceEntryTable;
-import org.skywalking.apm.collector.storage.h2.dao.H2DAO;
-import org.skywalking.apm.collector.storage.h2.define.H2SqlEntity;
-import org.skywalking.apm.collector.stream.worker.impl.dao.IPersistenceDAO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -36,14 +25,27 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.skywalking.apm.collector.client.h2.H2Client;
+import org.skywalking.apm.collector.client.h2.H2ClientException;
+import org.skywalking.apm.collector.core.stream.Data;
+import org.skywalking.apm.collector.storage.define.DataDefine;
+import org.skywalking.apm.collector.storage.define.service.ServiceEntryTable;
+import org.skywalking.apm.collector.storage.h2.SqlBuilder;
+import org.skywalking.apm.collector.storage.h2.dao.H2DAO;
+import org.skywalking.apm.collector.storage.h2.define.H2SqlEntity;
+import org.skywalking.apm.collector.stream.worker.impl.dao.IPersistenceDAO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * @author pengys5, clevertension
  */
 public class ServiceEntryH2DAO extends H2DAO implements IServiceEntryDAO, IPersistenceDAO<H2SqlEntity, H2SqlEntity> {
     private final Logger logger = LoggerFactory.getLogger(ServiceEntryH2DAO.class);
+    private static final String GET_SERIVCE_ENTRY_SQL = "select * from {0} where {1} = ?";
     @Override public Data get(String id, DataDefine dataDefine) {
         H2Client client = getClient();
-        String sql = "select * from " + ServiceEntryTable.TABLE + " where id = ?";
+        String sql = SqlBuilder.buildSql(ServiceEntryTable.TABLE, "id");
         Object[] params = new Object[] {id};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
@@ -69,7 +71,7 @@ public class ServiceEntryH2DAO extends H2DAO implements IServiceEntryDAO, IPersi
         source.put(ServiceEntryTable.COLUMN_ENTRY_SERVICE_NAME, data.getDataString(1));
         source.put(ServiceEntryTable.COLUMN_REGISTER_TIME, data.getDataLong(0));
         source.put(ServiceEntryTable.COLUMN_NEWEST_TIME, data.getDataLong(1));
-        String sql = getBatchInsertSql(ServiceEntryTable.TABLE, source.keySet());
+        String sql = SqlBuilder.buildBatchInsertSql(ServiceEntryTable.TABLE, source.keySet());
         entity.setSql(sql);
         entity.setParams(source.values().toArray(new Object[0]));
         return entity;
@@ -83,7 +85,7 @@ public class ServiceEntryH2DAO extends H2DAO implements IServiceEntryDAO, IPersi
         source.put(ServiceEntryTable.COLUMN_REGISTER_TIME, data.getDataLong(0));
         source.put(ServiceEntryTable.COLUMN_NEWEST_TIME, data.getDataLong(1));
         String id = data.getDataString(0);
-        String sql = getBatchUpdateSql(ServiceEntryTable.TABLE, source.keySet(), "id");
+        String sql = SqlBuilder.buildBatchUpdateSql(ServiceEntryTable.TABLE, source.keySet(), "id");
         entity.setSql(sql);
         List<Object> values = new ArrayList<>(source.values());
         values.add(id);

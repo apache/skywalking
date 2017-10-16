@@ -18,23 +18,24 @@
 
 package org.skywalking.apm.collector.ui.dao;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.client.h2.H2ClientException;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.storage.define.jvm.GCMetricTable;
+import org.skywalking.apm.collector.storage.h2.SqlBuilder;
 import org.skywalking.apm.collector.storage.h2.dao.H2DAO;
 import org.skywalking.apm.network.proto.GCPhrase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 /**
  * @author pengys5, clevertension
@@ -55,7 +56,7 @@ public class GCMetricH2DAO extends H2DAO implements IGCMetricDAO {
         builder.delete(builder.length() - 1, builder.length());
         builder.append(")");
         sql = sql + builder + " group by {1}";
-        sql = MessageFormat.format(sql, GCMetricTable.COLUMN_COUNT, GCMetricTable.COLUMN_PHRASE,
+        sql = SqlBuilder.buildSql(sql, GCMetricTable.COLUMN_COUNT, GCMetricTable.COLUMN_PHRASE,
                 GCMetricTable.TABLE, GCMetricTable.COLUMN_INSTANCE_ID, "id");
         Object[] params = new Object[timeBuckets.length + 1];
         for (int i = 0; i < timeBuckets.length; i++) {
@@ -82,7 +83,7 @@ public class GCMetricH2DAO extends H2DAO implements IGCMetricDAO {
     @Override public JsonObject getMetric(int instanceId, long timeBucket) {
         JsonObject response = new JsonObject();
         H2Client client = getClient();
-        String sql = MessageFormat.format(GET_GC_METRIC_SQL, GCMetricTable.TABLE, "id");
+        String sql = SqlBuilder.buildSql(GET_GC_METRIC_SQL, GCMetricTable.TABLE, "id");
         String youngId = timeBucket + Const.ID_SPLIT + GCPhrase.NEW_VALUE + instanceId;
         Object[] params = new Object[]{youngId};
         try (ResultSet rs = client.executeQuery(sql, params)) {
@@ -108,7 +109,7 @@ public class GCMetricH2DAO extends H2DAO implements IGCMetricDAO {
     @Override public JsonObject getMetric(int instanceId, long startTimeBucket, long endTimeBucket) {
         JsonObject response = new JsonObject();
         H2Client client = getClient();
-        String sql = MessageFormat.format(GET_GC_METRICS_SQL, GCMetricTable.TABLE, "id");
+        String sql = SqlBuilder.buildSql(GET_GC_METRICS_SQL, GCMetricTable.TABLE, "id");
         long timeBucket = startTimeBucket;
         List<String> idList = new ArrayList<>();
         do {
@@ -146,7 +147,7 @@ public class GCMetricH2DAO extends H2DAO implements IGCMetricDAO {
             idList1.add(oldId);
         }
         while (timeBucket <= endTimeBucket);
-        String sql1 = MessageFormat.format(GET_GC_METRICS_SQL, GCMetricTable.TABLE, "id");
+        String sql1 = SqlBuilder.buildSql(GET_GC_METRICS_SQL, GCMetricTable.TABLE, "id");
         StringBuilder builder1 = new StringBuilder();
         for (int i = 0; i < idList1.size(); i++) {
             builder1.append("?,");

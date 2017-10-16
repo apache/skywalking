@@ -18,15 +18,14 @@
 
 package org.skywalking.apm.collector.storage.h2.dao;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.client.h2.H2ClientException;
 import org.skywalking.apm.collector.storage.dao.DAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Set;
 
 /**
  * @author pengys5
@@ -60,30 +59,4 @@ public abstract class H2DAO extends DAO<H2Client> {
         return 0;
     }
 
-    public final String getBatchInsertSql(String tableName, Set<String> columnNames) {
-        StringBuilder sb = new StringBuilder("insert into ");
-        sb.append(tableName).append("(");
-        columnNames.forEach((columnName) -> {
-            sb.append(columnName).append(",");
-        });
-        sb.delete(sb.length() - 1, sb.length());
-        sb.append(") values(");
-        for (int i = 0; i < columnNames.size(); i++) {
-            sb.append("?,");
-        }
-        sb.delete(sb.length() - 1, sb.length());
-        sb.append(")");
-        return sb.toString();
-    }
-
-    public final String getBatchUpdateSql(String tableName, Set<String> columnNames, String whereClauseName) {
-        StringBuilder sb = new StringBuilder("update ");
-        sb.append(tableName).append(" set ");
-        columnNames.forEach((columnName) -> {
-            sb.append(columnName).append("=?,");
-        });
-        sb.delete(sb.length() - 1, sb.length());
-        sb.append(" where ").append(whereClauseName).append("=?");
-        return sb.toString();
-    }
 }

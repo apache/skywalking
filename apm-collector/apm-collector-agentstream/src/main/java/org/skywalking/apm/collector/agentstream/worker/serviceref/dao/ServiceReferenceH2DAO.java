@@ -20,7 +20,6 @@ package org.skywalking.apm.collector.agentstream.worker.serviceref.dao;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +30,7 @@ import org.skywalking.apm.collector.client.h2.H2ClientException;
 import org.skywalking.apm.collector.core.stream.Data;
 import org.skywalking.apm.collector.storage.define.DataDefine;
 import org.skywalking.apm.collector.storage.define.serviceref.ServiceReferenceTable;
+import org.skywalking.apm.collector.storage.h2.SqlBuilder;
 import org.skywalking.apm.collector.storage.h2.dao.H2DAO;
 import org.skywalking.apm.collector.storage.h2.define.H2SqlEntity;
 import org.skywalking.apm.collector.stream.worker.impl.dao.IPersistenceDAO;
@@ -46,7 +46,7 @@ public class ServiceReferenceH2DAO extends H2DAO implements IServiceReferenceDAO
     @Override
     public Data get(String id, DataDefine dataDefine) {
         H2Client client = getClient();
-        String sql = MessageFormat.format(GET_SQL, ServiceReferenceTable.TABLE, "id");
+        String sql = SqlBuilder.buildSql(GET_SQL, ServiceReferenceTable.TABLE, "id");
         Object[] params = new Object[]{id};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
@@ -93,7 +93,7 @@ public class ServiceReferenceH2DAO extends H2DAO implements IServiceReferenceDAO
         source.put(ServiceReferenceTable.COLUMN_COST_SUMMARY, data.getDataLong(6));
         source.put(ServiceReferenceTable.COLUMN_TIME_BUCKET, data.getDataLong(7));
 
-        String sql = getBatchInsertSql(ServiceReferenceTable.TABLE, source.keySet());
+        String sql = SqlBuilder.buildBatchInsertSql(ServiceReferenceTable.TABLE, source.keySet());
         entity.setSql(sql);
         entity.setParams(source.values().toArray(new Object[0]));
         return entity;
@@ -119,7 +119,7 @@ public class ServiceReferenceH2DAO extends H2DAO implements IServiceReferenceDAO
         source.put(ServiceReferenceTable.COLUMN_TIME_BUCKET, data.getDataLong(7));
 
         String id = data.getDataString(0);
-        String sql = getBatchUpdateSql(ServiceReferenceTable.TABLE, source.keySet(), "id");
+        String sql = SqlBuilder.buildBatchUpdateSql(ServiceReferenceTable.TABLE, source.keySet(), "id");
         entity.setSql(sql);
         List<Object> values = new ArrayList<>(source.values());
         values.add(id);

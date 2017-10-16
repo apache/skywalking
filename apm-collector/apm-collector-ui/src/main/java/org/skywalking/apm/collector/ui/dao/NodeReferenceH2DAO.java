@@ -18,20 +18,21 @@
 
 package org.skywalking.apm.collector.ui.dao;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.client.h2.H2ClientException;
 import org.skywalking.apm.collector.core.util.StringUtils;
 import org.skywalking.apm.collector.storage.define.noderef.NodeReferenceTable;
+import org.skywalking.apm.collector.storage.h2.SqlBuilder;
 import org.skywalking.apm.collector.storage.h2.dao.H2DAO;
 import org.skywalking.apm.collector.ui.cache.ApplicationCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.text.MessageFormat;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 /**
  * @author pengys5, clevertension
@@ -43,7 +44,7 @@ public class NodeReferenceH2DAO extends H2DAO implements INodeReferenceDAO {
     @Override public JsonArray load(long startTime, long endTime) {
         H2Client client = getClient();
         JsonArray nodeRefResSumArray = new JsonArray();
-        String sql = MessageFormat.format(NODE_REFERENCE_SQL, NodeReferenceTable.COLUMN_S1_LTE,
+        String sql = SqlBuilder.buildSql(NODE_REFERENCE_SQL, NodeReferenceTable.COLUMN_S1_LTE,
                 NodeReferenceTable.COLUMN_S3_LTE, NodeReferenceTable.COLUMN_S5_LTE,
                 NodeReferenceTable.COLUMN_S5_GT, NodeReferenceTable.COLUMN_SUMMARY,
                 NodeReferenceTable.COLUMN_ERROR, NodeReferenceTable.TABLE, NodeReferenceTable.COLUMN_TIME_BUCKET,

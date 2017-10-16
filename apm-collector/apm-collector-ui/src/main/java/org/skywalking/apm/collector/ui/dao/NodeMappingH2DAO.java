@@ -18,20 +18,21 @@
 
 package org.skywalking.apm.collector.ui.dao;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.client.h2.H2ClientException;
 import org.skywalking.apm.collector.core.util.StringUtils;
 import org.skywalking.apm.collector.storage.define.node.NodeMappingTable;
+import org.skywalking.apm.collector.storage.h2.SqlBuilder;
 import org.skywalking.apm.collector.storage.h2.dao.H2DAO;
 import org.skywalking.apm.collector.ui.cache.ApplicationCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.text.MessageFormat;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 /**
  * @author pengys5, clevertension
@@ -42,7 +43,7 @@ public class NodeMappingH2DAO extends H2DAO implements INodeMappingDAO {
     @Override public JsonArray load(long startTime, long endTime) {
         H2Client client = getClient();
         JsonArray nodeMappingArray = new JsonArray();
-        String sql = MessageFormat.format(NODE_MAPPING_SQL, NodeMappingTable.COLUMN_APPLICATION_ID,
+        String sql = SqlBuilder.buildSql(NODE_MAPPING_SQL, NodeMappingTable.COLUMN_APPLICATION_ID,
                 NodeMappingTable.COLUMN_ADDRESS_ID, NodeMappingTable.COLUMN_ADDRESS,
                 NodeMappingTable.TABLE, NodeMappingTable.COLUMN_TIME_BUCKET);
 

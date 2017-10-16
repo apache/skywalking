@@ -18,23 +18,24 @@
 
 package org.skywalking.apm.collector.ui.dao;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.client.h2.H2ClientException;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.storage.define.register.InstanceDataDefine;
 import org.skywalking.apm.collector.storage.define.register.InstanceTable;
+import org.skywalking.apm.collector.storage.h2.SqlBuilder;
 import org.skywalking.apm.collector.storage.h2.dao.H2DAO;
 import org.skywalking.apm.collector.ui.cache.ApplicationCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.text.MessageFormat;
-import java.util.LinkedList;
-import java.util.List;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 /**
  * @author pengys5, clevertension
@@ -52,7 +53,7 @@ public class InstanceH2DAO extends H2DAO implements IInstanceDAO {
         H2Client client = getClient();
         long fiveMinuteBefore = System.currentTimeMillis() - 5 * 60 * 1000;
         fiveMinuteBefore = TimeBucketUtils.INSTANCE.getSecondTimeBucket(fiveMinuteBefore);
-        String sql = MessageFormat.format(GET_LAST_HEARTBEAT_TIME_SQL, InstanceTable.COLUMN_HEARTBEAT_TIME, InstanceTable.TABLE, InstanceTable.COLUMN_HEARTBEAT_TIME);
+        String sql = SqlBuilder.buildSql(GET_LAST_HEARTBEAT_TIME_SQL, InstanceTable.COLUMN_HEARTBEAT_TIME, InstanceTable.TABLE, InstanceTable.COLUMN_HEARTBEAT_TIME);
         Object[] params = new Object[]{fiveMinuteBefore};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
@@ -69,7 +70,7 @@ public class InstanceH2DAO extends H2DAO implements IInstanceDAO {
         H2Client client = getClient();
         long fiveMinuteBefore = System.currentTimeMillis() - 5 * 60 * 1000;
         fiveMinuteBefore = TimeBucketUtils.INSTANCE.getSecondTimeBucket(fiveMinuteBefore);
-        String sql = MessageFormat.format(GET_INST_LAST_HEARTBEAT_TIME_SQL, InstanceTable.COLUMN_HEARTBEAT_TIME, InstanceTable.TABLE,
+        String sql = SqlBuilder.buildSql(GET_INST_LAST_HEARTBEAT_TIME_SQL, InstanceTable.COLUMN_HEARTBEAT_TIME, InstanceTable.TABLE,
                 InstanceTable.COLUMN_HEARTBEAT_TIME, InstanceTable.COLUMN_INSTANCE_ID);
         Object[] params = new Object[]{fiveMinuteBefore, applicationInstanceId};
         try (ResultSet rs = client.executeQuery(sql, params)) {
@@ -86,7 +87,7 @@ public class InstanceH2DAO extends H2DAO implements IInstanceDAO {
     public JsonArray getApplications(long startTime, long endTime) {
         H2Client client = getClient();
         JsonArray applications = new JsonArray();
-        String sql = MessageFormat.format(GET_APPLICATIONS_SQL, InstanceTable.COLUMN_INSTANCE_ID,
+        String sql = SqlBuilder.buildSql(GET_APPLICATIONS_SQL, InstanceTable.COLUMN_INSTANCE_ID,
                 InstanceTable.TABLE, InstanceTable.COLUMN_HEARTBEAT_TIME, InstanceTable.COLUMN_APPLICATION_ID);
         Object[] params = new Object[]{startTime, endTime};
         try (ResultSet rs = client.executeQuery(sql, params)) {
@@ -108,7 +109,7 @@ public class InstanceH2DAO extends H2DAO implements IInstanceDAO {
     @Override
     public InstanceDataDefine.Instance getInstance(int instanceId) {
         H2Client client = getClient();
-        String sql = MessageFormat.format(GET_INSTANCE_SQL, InstanceTable.TABLE, InstanceTable.COLUMN_INSTANCE_ID);
+        String sql = SqlBuilder.buildSql(GET_INSTANCE_SQL, InstanceTable.TABLE, InstanceTable.COLUMN_INSTANCE_ID);
         Object[] params = new Object[]{instanceId};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
@@ -132,7 +133,7 @@ public class InstanceH2DAO extends H2DAO implements IInstanceDAO {
         logger.debug("get instances info, application id: {}, timeBucket: {}", applicationId, timeBucket);
         List<InstanceDataDefine.Instance> instanceList = new LinkedList<>();
         H2Client client = getClient();
-        String sql = MessageFormat.format(GET_INSTANCES_SQL, InstanceTable.TABLE, InstanceTable.COLUMN_APPLICATION_ID, InstanceTable.COLUMN_HEARTBEAT_TIME);
+        String sql = SqlBuilder.buildSql(GET_INSTANCES_SQL, InstanceTable.TABLE, InstanceTable.COLUMN_APPLICATION_ID, InstanceTable.COLUMN_HEARTBEAT_TIME);
         Object[] params = new Object[]{applicationId, timeBucket};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             while (rs.next()) {

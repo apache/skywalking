@@ -18,24 +18,24 @@
 
 package org.skywalking.apm.collector.agentstream.worker.noderef.dao;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.client.h2.H2ClientException;
 import org.skywalking.apm.collector.core.stream.Data;
 import org.skywalking.apm.collector.storage.define.DataDefine;
 import org.skywalking.apm.collector.storage.define.noderef.NodeReferenceTable;
+import org.skywalking.apm.collector.storage.h2.SqlBuilder;
 import org.skywalking.apm.collector.storage.h2.dao.H2DAO;
 import org.skywalking.apm.collector.storage.h2.define.H2SqlEntity;
 import org.skywalking.apm.collector.stream.worker.impl.dao.IPersistenceDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author pengys5, clevertension
@@ -45,7 +45,7 @@ public class NodeReferenceH2DAO extends H2DAO implements INodeReferenceDAO, IPer
     private static final String GET_SQL = "select * from {0} where {1} = ?";
     @Override public Data get(String id, DataDefine dataDefine) {
         H2Client client = getClient();
-        String sql = MessageFormat.format(GET_SQL, NodeReferenceTable.TABLE, "id");
+        String sql = SqlBuilder.buildSql(GET_SQL, NodeReferenceTable.TABLE, "id");
         Object[] params = new Object[]{id};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
@@ -81,7 +81,7 @@ public class NodeReferenceH2DAO extends H2DAO implements INodeReferenceDAO, IPer
         source.put(NodeReferenceTable.COLUMN_SUMMARY, data.getDataInteger(6));
         source.put(NodeReferenceTable.COLUMN_ERROR, data.getDataInteger(7));
         source.put(NodeReferenceTable.COLUMN_TIME_BUCKET, data.getDataLong(0));
-        String sql = getBatchInsertSql(NodeReferenceTable.TABLE, source.keySet());
+        String sql = SqlBuilder.buildBatchInsertSql(NodeReferenceTable.TABLE, source.keySet());
         entity.setSql(sql);
 
         entity.setParams(source.values().toArray(new Object[0]));
@@ -101,7 +101,7 @@ public class NodeReferenceH2DAO extends H2DAO implements INodeReferenceDAO, IPer
         source.put(NodeReferenceTable.COLUMN_ERROR, data.getDataInteger(7));
         source.put(NodeReferenceTable.COLUMN_TIME_BUCKET, data.getDataLong(0));
         String id = data.getDataString(0);
-        String sql = getBatchUpdateSql(NodeReferenceTable.TABLE, source.keySet(), "id");
+        String sql = SqlBuilder.buildBatchUpdateSql(NodeReferenceTable.TABLE, source.keySet(), "id");
         entity.setSql(sql);
         List<Object> values = new ArrayList<>(source.values());
         values.add(id);

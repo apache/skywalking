@@ -22,6 +22,7 @@ import org.skywalking.apm.collector.core.framework.UnexpectedException;
 import org.skywalking.apm.collector.core.stream.Data;
 import org.skywalking.apm.collector.storage.define.DataDefine;
 import org.skywalking.apm.collector.storage.define.global.GlobalTraceTable;
+import org.skywalking.apm.collector.storage.h2.SqlBuilder;
 import org.skywalking.apm.collector.storage.h2.dao.H2DAO;
 import org.skywalking.apm.collector.storage.h2.define.H2SqlEntity;
 import org.skywalking.apm.collector.stream.worker.impl.dao.IPersistenceDAO;
@@ -53,7 +54,7 @@ public class GlobalTraceH2DAO extends H2DAO implements IGlobalTraceDAO, IPersist
         source.put(GlobalTraceTable.COLUMN_TIME_BUCKET, data.getDataLong(0));
         logger.debug("global trace source: {}", source.toString());
 
-        String sql = getBatchInsertSql(GlobalTraceTable.TABLE, source.keySet());
+        String sql = SqlBuilder.buildBatchInsertSql(GlobalTraceTable.TABLE, source.keySet());
         entity.setSql(sql);
         entity.setParams(source.values().toArray(new Object[0]));
         return entity;

@@ -18,23 +18,24 @@
 
 package org.skywalking.apm.collector.ui.dao;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.client.h2.H2ClientException;
 import org.skywalking.apm.collector.core.util.ColumnNameUtils;
 import org.skywalking.apm.collector.core.util.StringUtils;
 import org.skywalking.apm.collector.storage.define.service.ServiceEntryTable;
+import org.skywalking.apm.collector.storage.h2.SqlBuilder;
 import org.skywalking.apm.collector.storage.h2.dao.H2DAO;
 import org.skywalking.apm.collector.ui.cache.ApplicationCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 /**
  * @author pengys5
@@ -67,8 +68,7 @@ public class ServiceEntryH2DAO extends H2DAO implements IServiceEntryDAO {
             columns.add(ServiceEntryTable.COLUMN_ENTRY_SERVICE_NAME);
         }
         sql = sql + " limit " + from + "," + size;
-        MessageFormat messageFormat = new MessageFormat(sql);
-        sql = messageFormat.format(columns.toArray(new Object[0]));
+        sql = SqlBuilder.buildSql(sql, columns);
         Object[] p = params.toArray(new Object[0]);
         JsonArray serviceArray = new JsonArray();
         JsonObject response = new JsonObject();

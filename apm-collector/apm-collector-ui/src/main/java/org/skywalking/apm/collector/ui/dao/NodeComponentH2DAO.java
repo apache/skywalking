@@ -18,21 +18,22 @@
 
 package org.skywalking.apm.collector.ui.dao;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.client.h2.H2ClientException;
 import org.skywalking.apm.collector.core.util.StringUtils;
 import org.skywalking.apm.collector.storage.define.node.NodeComponentTable;
+import org.skywalking.apm.collector.storage.h2.SqlBuilder;
 import org.skywalking.apm.collector.storage.h2.dao.H2DAO;
 import org.skywalking.apm.collector.ui.cache.ApplicationCache;
 import org.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.text.MessageFormat;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 /**
  * @author pengys5, clevertension
@@ -49,7 +50,7 @@ public class NodeComponentH2DAO extends H2DAO implements INodeComponentDAO {
         H2Client client = getClient();
 
         JsonArray nodeComponentArray = new JsonArray();
-        String sql = MessageFormat.format(AGGREGATE_COMPONENT_SQL, NodeComponentTable.COLUMN_COMPONENT_ID,
+        String sql = SqlBuilder.buildSql(AGGREGATE_COMPONENT_SQL, NodeComponentTable.COLUMN_COMPONENT_ID,
                 NodeComponentTable.COLUMN_PEER, NodeComponentTable.COLUMN_PEER_ID,
                 NodeComponentTable.TABLE, NodeComponentTable.COLUMN_TIME_BUCKET);
         Object[] params = new Object[]{startTime, endTime};

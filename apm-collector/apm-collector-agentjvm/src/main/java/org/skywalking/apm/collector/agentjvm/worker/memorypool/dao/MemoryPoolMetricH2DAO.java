@@ -18,15 +18,16 @@
 
 package org.skywalking.apm.collector.agentjvm.worker.memorypool.dao;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.skywalking.apm.collector.core.stream.Data;
 import org.skywalking.apm.collector.storage.define.DataDefine;
 import org.skywalking.apm.collector.storage.define.jvm.MemoryPoolMetricTable;
+import org.skywalking.apm.collector.storage.h2.SqlBuilder;
 import org.skywalking.apm.collector.storage.h2.dao.H2DAO;
 import org.skywalking.apm.collector.storage.h2.define.H2SqlEntity;
 import org.skywalking.apm.collector.stream.worker.impl.dao.IPersistenceDAO;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author pengys5, clevertension
@@ -48,7 +49,7 @@ public class MemoryPoolMetricH2DAO extends H2DAO implements IMemoryPoolMetricDAO
         source.put(MemoryPoolMetricTable.COLUMN_COMMITTED, data.getDataLong(3));
         source.put(MemoryPoolMetricTable.COLUMN_TIME_BUCKET, data.getDataLong(4));
 
-        String sql = getBatchInsertSql(MemoryPoolMetricTable.TABLE, source.keySet());
+        String sql = SqlBuilder.buildBatchInsertSql(MemoryPoolMetricTable.TABLE, source.keySet());
         entity.setSql(sql);
         entity.setParams(source.values().toArray(new Object[0]));
         return entity;

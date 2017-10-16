@@ -20,7 +20,6 @@ package org.skywalking.apm.collector.ui.dao;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +31,7 @@ import org.skywalking.apm.collector.core.util.StringUtils;
 import org.skywalking.apm.collector.storage.dao.DAOContainer;
 import org.skywalking.apm.collector.storage.define.global.GlobalTraceTable;
 import org.skywalking.apm.collector.storage.define.segment.SegmentCostTable;
+import org.skywalking.apm.collector.storage.h2.SqlBuilder;
 import org.skywalking.apm.collector.storage.h2.dao.H2DAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -116,8 +116,7 @@ public class SegmentCostH2DAO extends H2DAO implements ISegmentCostDAO {
         }
 
         sql = sql + " limit " + from + "," + limit;
-        MessageFormat messageFormat = new MessageFormat(sql);
-        sql = messageFormat.format(columns.toArray(new Object[0]));
+        sql = SqlBuilder.buildSql(sql, columns);
         Object[] p = params.toArray(new Object[0]);
 
         JsonObject topSegPaging = new JsonObject();

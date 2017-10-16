@@ -21,6 +21,7 @@ package org.skywalking.apm.collector.agentstream.worker.segment.cost.dao;
 import org.skywalking.apm.collector.core.stream.Data;
 import org.skywalking.apm.collector.storage.define.DataDefine;
 import org.skywalking.apm.collector.storage.define.segment.SegmentCostTable;
+import org.skywalking.apm.collector.storage.h2.SqlBuilder;
 import org.skywalking.apm.collector.storage.h2.dao.H2DAO;
 import org.skywalking.apm.collector.storage.h2.define.H2SqlEntity;
 import org.skywalking.apm.collector.stream.worker.impl.dao.IPersistenceDAO;
@@ -53,7 +54,7 @@ public class SegmentCostH2DAO extends H2DAO implements ISegmentCostDAO, IPersist
         source.put(SegmentCostTable.COLUMN_TIME_BUCKET, data.getDataLong(3));
         logger.debug("segment cost source: {}", source.toString());
 
-        String sql = getBatchInsertSql(SegmentCostTable.TABLE, source.keySet());
+        String sql = SqlBuilder.buildBatchInsertSql(SegmentCostTable.TABLE, source.keySet());
         entity.setSql(sql);
         entity.setParams(source.values().toArray(new Object[0]));
         return entity;

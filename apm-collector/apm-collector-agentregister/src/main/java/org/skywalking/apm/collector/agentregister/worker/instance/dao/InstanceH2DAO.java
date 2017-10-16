@@ -20,7 +20,6 @@ package org.skywalking.apm.collector.agentregister.worker.instance.dao;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,6 +27,7 @@ import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.client.h2.H2ClientException;
 import org.skywalking.apm.collector.storage.define.register.InstanceDataDefine;
 import org.skywalking.apm.collector.storage.define.register.InstanceTable;
+import org.skywalking.apm.collector.storage.h2.SqlBuilder;
 import org.skywalking.apm.collector.storage.h2.dao.H2DAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +43,7 @@ public class InstanceH2DAO extends H2DAO implements IInstanceDAO {
     @Override public int getInstanceId(int applicationId, String agentUUID) {
         logger.info("get the application id with application id = {}, agentUUID = {}", applicationId, agentUUID);
         H2Client client = getClient();
-        String sql = MessageFormat.format(GET_INSTANCE_ID_SQL, InstanceTable.COLUMN_INSTANCE_ID, InstanceTable.TABLE, InstanceTable.COLUMN_APPLICATION_ID,
+        String sql = SqlBuilder.buildSql(GET_INSTANCE_ID_SQL, InstanceTable.COLUMN_INSTANCE_ID, InstanceTable.TABLE, InstanceTable.COLUMN_APPLICATION_ID,
                 InstanceTable.COLUMN_AGENT_UUID);
         Object[] params = new Object[]{applicationId, agentUUID};
         try (ResultSet rs = client.executeQuery(sql, params)) {
@@ -73,7 +73,7 @@ public class InstanceH2DAO extends H2DAO implements IInstanceDAO {
         source.put(InstanceTable.COLUMN_REGISTER_TIME, instance.getRegisterTime());
         source.put(InstanceTable.COLUMN_HEARTBEAT_TIME, instance.getHeartBeatTime());
         source.put(InstanceTable.COLUMN_OS_INFO, instance.getOsInfo());
-        String sql = getBatchInsertSql(InstanceTable.TABLE, source.keySet());
+        String sql = SqlBuilder.buildBatchInsertSql(InstanceTable.TABLE, source.keySet());
         Object[] params = source.values().toArray(new Object[0]);
         try {
             client.execute(sql, params);
@@ -84,7 +84,7 @@ public class InstanceH2DAO extends H2DAO implements IInstanceDAO {
 
     @Override public void updateHeartbeatTime(int instanceId, long heartbeatTime) {
         H2Client client = getClient();
-        String sql = MessageFormat.format(UPDATE_HEARTBEAT_TIME_SQL, InstanceTable.TABLE, InstanceTable.COLUMN_HEARTBEAT_TIME,
+        String sql = SqlBuilder.buildSql(UPDATE_HEARTBEAT_TIME_SQL, InstanceTable.TABLE, InstanceTable.COLUMN_HEARTBEAT_TIME,
                 InstanceTable.COLUMN_INSTANCE_ID);
         Object[] params = new Object[] {heartbeatTime, instanceId};
         try {
@@ -97,7 +97,7 @@ public class InstanceH2DAO extends H2DAO implements IInstanceDAO {
     @Override public int getApplicationId(int applicationInstanceId) {
         logger.info("get the application id with application id = {}", applicationInstanceId);
         H2Client client = getClient();
-        String sql = MessageFormat.format(GET_APPLICATION_ID_SQL, InstanceTable.COLUMN_APPLICATION_ID, InstanceTable.TABLE, InstanceTable.COLUMN_APPLICATION_ID);
+        String sql = SqlBuilder.buildSql(GET_APPLICATION_ID_SQL, InstanceTable.COLUMN_APPLICATION_ID, InstanceTable.TABLE, InstanceTable.COLUMN_APPLICATION_ID);
         Object[] params = new Object[]{applicationInstanceId};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {

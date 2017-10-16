@@ -18,18 +18,18 @@
 
 package org.skywalking.apm.collector.ui.dao;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.client.h2.H2ClientException;
 import org.skywalking.apm.collector.storage.define.global.GlobalTraceTable;
+import org.skywalking.apm.collector.storage.h2.SqlBuilder;
 import org.skywalking.apm.collector.storage.h2.dao.H2DAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author pengys5, clevertension
@@ -41,7 +41,7 @@ public class GlobalTraceH2DAO extends H2DAO implements IGlobalTraceDAO {
     @Override public List<String> getGlobalTraceId(String segmentId) {
         List<String> globalTraceIds = new ArrayList<>();
         H2Client client = getClient();
-        String sql = MessageFormat.format(GET_GLOBAL_TRACE_ID_SQL, GlobalTraceTable.COLUMN_GLOBAL_TRACE_ID,
+        String sql = SqlBuilder.buildSql(GET_GLOBAL_TRACE_ID_SQL, GlobalTraceTable.COLUMN_GLOBAL_TRACE_ID,
                 GlobalTraceTable.TABLE, GlobalTraceTable.COLUMN_SEGMENT_ID);
         Object[] params = new Object[]{segmentId};
         try (ResultSet rs = client.executeQuery(sql, params)) {
@@ -59,7 +59,7 @@ public class GlobalTraceH2DAO extends H2DAO implements IGlobalTraceDAO {
     @Override public List<String> getSegmentIds(String globalTraceId) {
         List<String> segmentIds = new ArrayList<>();
         H2Client client = getClient();
-        String sql = MessageFormat.format(GET_SEGMENT_IDS_SQL, GlobalTraceTable.COLUMN_SEGMENT_ID,
+        String sql = SqlBuilder.buildSql(GET_SEGMENT_IDS_SQL, GlobalTraceTable.COLUMN_SEGMENT_ID,
                 GlobalTraceTable.TABLE, GlobalTraceTable.COLUMN_GLOBAL_TRACE_ID);
         Object[] params = new Object[]{globalTraceId};
         try (ResultSet rs = client.executeQuery(sql, params)) {

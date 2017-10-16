@@ -21,6 +21,7 @@ package org.skywalking.apm.collector.agentjvm.worker.cpu.dao;
 import org.skywalking.apm.collector.core.stream.Data;
 import org.skywalking.apm.collector.storage.define.DataDefine;
 import org.skywalking.apm.collector.storage.define.jvm.CpuMetricTable;
+import org.skywalking.apm.collector.storage.h2.SqlBuilder;
 import org.skywalking.apm.collector.storage.h2.dao.H2DAO;
 import org.skywalking.apm.collector.storage.h2.define.H2SqlEntity;
 import org.skywalking.apm.collector.stream.worker.impl.dao.IPersistenceDAO;
@@ -48,7 +49,7 @@ public class CpuMetricH2DAO extends H2DAO implements ICpuMetricDAO, IPersistence
         source.put(CpuMetricTable.COLUMN_TIME_BUCKET, data.getDataLong(0));
 
         logger.debug("prepare cpu metric batch insert, id: {}", data.getDataString(0));
-        String sql = getBatchInsertSql(CpuMetricTable.TABLE, source.keySet());
+        String sql = SqlBuilder.buildBatchInsertSql(CpuMetricTable.TABLE, source.keySet());
         entity.setSql(sql);
         entity.setParams(source.values().toArray(new Object[0]));
         return entity;
