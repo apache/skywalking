@@ -18,11 +18,13 @@
 
 package org.skywalking.apm.agent.core.plugin.loader;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FilenameFilter;
-import java.io.IOException;
+import org.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
+import org.skywalking.apm.agent.core.boot.AgentPackagePath;
+import org.skywalking.apm.agent.core.plugin.PluginBootstrap;
+import org.skywalking.apm.logging.ILog;
+import org.skywalking.apm.logging.LogManager;
+
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Enumeration;
@@ -32,11 +34,6 @@ import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import org.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
-import org.skywalking.apm.agent.core.boot.AgentPackagePath;
-import org.skywalking.apm.agent.core.plugin.PluginBootstrap;
-import org.skywalking.apm.logging.ILog;
-import org.skywalking.apm.logging.LogManager;
 
 /**
  * The <code>AgentClassLoader</code> represents a classloader,
@@ -61,6 +58,7 @@ public class AgentClassLoader extends ClassLoader {
 
     /**
      * Init the default
+     *
      * @return
      * @throws AgentPackageNotFoundException
      */
@@ -149,11 +147,13 @@ public class AgentClassLoader extends ClassLoader {
 
         final Iterator<URL> iterator = allResources.iterator();
         return new Enumeration<URL>() {
-            @Override public boolean hasMoreElements() {
+            @Override
+            public boolean hasMoreElements() {
                 return iterator.hasNext();
             }
 
-            @Override public URL nextElement() {
+            @Override
+            public URL nextElement() {
                 return iterator.next();
             }
         };
@@ -168,7 +168,8 @@ public class AgentClassLoader extends ClassLoader {
                     for (File path : classpath) {
                         if (path.exists() && path.isDirectory()) {
                             String[] jarFileNames = path.list(new FilenameFilter() {
-                                @Override public boolean accept(File dir, String name) {
+                                @Override
+                                public boolean accept(File dir, String name) {
                                     return name.endsWith(".jar");
                                 }
                             });

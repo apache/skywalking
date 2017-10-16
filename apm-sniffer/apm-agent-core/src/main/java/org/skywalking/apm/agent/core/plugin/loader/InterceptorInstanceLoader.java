@@ -18,23 +18,15 @@
 
 package org.skywalking.apm.agent.core.plugin.loader;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import org.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
+import org.skywalking.apm.logging.ILog;
+import org.skywalking.apm.logging.LogManager;
+
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.security.ProtectionDomain;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
-
-import org.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
-import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
-import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
-import org.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMethodsAroundInterceptor;
-import org.skywalking.apm.logging.ILog;
-import org.skywalking.apm.logging.LogManager;
 
 /**
  * The <code>InterceptorInstanceLoader</code> is a classes finder and container.
@@ -56,9 +48,9 @@ public class InterceptorInstanceLoader {
      * Create {@link AgentClassLoader} for each targetClassLoader, as an extend classloader.
      * It can load interceptor classes from plugins, activations folders.
      *
-     * @param className the interceptor class, which is expected to be found
+     * @param className         the interceptor class, which is expected to be found
      * @param targetClassLoader the class loader for current application context
-     * @param <T> expected type
+     * @param <T>               expected type
      * @return the type reference.
      * @throws InvocationTargetException
      * @throws IllegalAccessException
