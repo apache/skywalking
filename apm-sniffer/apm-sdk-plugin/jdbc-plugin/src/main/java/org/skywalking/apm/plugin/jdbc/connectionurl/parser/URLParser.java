@@ -21,8 +21,8 @@ package org.skywalking.apm.plugin.jdbc.connectionurl.parser;
 import org.skywalking.apm.plugin.jdbc.ConnectionInfo;
 
 /**
- * {@link URLParser#parser(String)} support parse the connection url, such as Mysql, Oracle, H2 Database.
- * But there are some url cannot be parsed, such as Oracle connection url with multiple host.
+ * {@link URLParser#parser(String)} support parse the connection url, such as Mysql, Oracle, H2 Database. But there are
+ * some url cannot be parsed, such as Oracle connection url with multiple host.
  *
  * @author zhangxin
  */
@@ -31,6 +31,7 @@ public class URLParser {
     private static final String MYSQL_JDBC_URL_PREFIX = "jdbc:mysql";
     private static final String ORACLE_JDBC_URL_PREFIX = "jdbc:oracle";
     private static final String H2_JDBC_URL_PREFIX = "jdbc:h2";
+    private static final String POSTGRESQL_JDBC_URL_PREFIX = "jdbc:postgresql";
 
     public static ConnectionInfo parser(String url) {
         ConnectionURLParser parser = null;
@@ -40,6 +41,8 @@ public class URLParser {
             parser = new OracleURLParser(url);
         } else if (url.startsWith(H2_JDBC_URL_PREFIX)) {
             parser = new H2URLParser(url);
+        } else if (url.startsWith(POSTGRESQL_JDBC_URL_PREFIX)) {
+            parser = new PostgreSQLURLParser(url);
         }
         return parser.parse();
     }

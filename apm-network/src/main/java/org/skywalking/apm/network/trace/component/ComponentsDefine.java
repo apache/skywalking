@@ -67,6 +67,8 @@ public class ComponentsDefine {
 
     public static final OfficialComponent SHARDING_JDBC = new OfficialComponent(21, "ShardingJDBC");
 
+    public static final OfficialComponent POSTGRESQL = new OfficialComponent(21, "PostgreSQL");
+
     private static ComponentsDefine instance = new ComponentsDefine();
 
     private String[] components;
