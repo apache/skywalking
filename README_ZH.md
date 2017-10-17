@@ -68,7 +68,7 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 [Open Skywalking Organization Teams and Contributors](https://github.com/OpenSkywalking/Organization/blob/master/README.md)
 
 # Partners
-<img src="https://skywalkingtest.github.io/page-resources/3.2.3/partners.png"/>
+<img src="https://skywalkingtest.github.io/page-resources/3.2.3/partners.png" width="400"/>
 
 # License
 [Apache 2.0 License.](/LICENSE)
