@@ -16,25 +16,25 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.core.util;
+package org.skywalking.apm.collector.core.module;
 
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.net.URL;
+import java.util.Map;
+
+import org.junit.Assert;
+import org.junit.Test;
+import org.skywalking.apm.collector.core.framework.DefineException;
 
 /**
- * @author pengys5
+ * @author neeuq
  */
-public class ResourceUtils {
+public class ModuleConfigLoaderTestCase {
 
-    public static Reader read(String fileName) throws FileNotFoundException {
-        URL url = ResourceUtils.class.getClassLoader().getResource(fileName);
-        if (url == null) {
-            throw new FileNotFoundException("file not found: " + fileName);
-        }
-        InputStream inputStream = ResourceUtils.class.getClassLoader().getResourceAsStream(fileName);
-        return new InputStreamReader(inputStream);
+    @SuppressWarnings({ "rawtypes" })
+    @Test
+    public void testLoad() throws DefineException {
+        ModuleConfigLoader configLoader = new ModuleConfigLoader();
+        Map<String, Map> configuration = configLoader.load();
+        Assert.assertNotNull(configuration.get("cluster"));
+        Assert.assertNotNull(configuration.get("cluster").get("zookeeper"));
     }
 }
