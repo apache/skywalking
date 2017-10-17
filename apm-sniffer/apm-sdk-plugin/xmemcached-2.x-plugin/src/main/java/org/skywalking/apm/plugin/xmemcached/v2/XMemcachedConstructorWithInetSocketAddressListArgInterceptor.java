@@ -24,6 +24,12 @@ import java.util.List;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 
+/**
+ * {@link XMemcachedConstructorWithInetSocketAddressListArgInterceptor} intercept constructor of 
+ * {@link XMemcachedClient(List<InetSocketAddress> addressList).
+ * 
+ * @author IluckySi
+ */
 public class XMemcachedConstructorWithInetSocketAddressListArgInterceptor implements InstanceConstructorInterceptor {
 
     @Override
@@ -36,9 +42,9 @@ public class XMemcachedConstructorWithInetSocketAddressListArgInterceptor implem
             int port = inetSocketAddress.getPort();
             memcachConnInfo.append(host).append(":").append(port).append(";");
         }
-        int l = memcachConnInfo.length();
-        if (l > 1) {
-            memcachConnInfo = new StringBuilder(memcachConnInfo.substring(0, l - 1));
+        int length = memcachConnInfo.length();
+        if (length > 1) {
+            memcachConnInfo = new StringBuilder(memcachConnInfo.substring(0, length - 1));
         }
         objInst.setSkyWalkingDynamicField(memcachConnInfo.toString());
     }

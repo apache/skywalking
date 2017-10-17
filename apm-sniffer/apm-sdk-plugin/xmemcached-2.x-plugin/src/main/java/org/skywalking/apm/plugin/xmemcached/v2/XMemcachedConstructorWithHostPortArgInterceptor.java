@@ -21,6 +21,13 @@ package org.skywalking.apm.plugin.xmemcached.v2;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 
+/**
+ * {@link XMemcachedConstructorWithHostPortArgInterceptor} intercept constructor of 
+ * {@link XMemcachedClient(final String host, final int port)} or
+ * {@link XMemcachedClient(final String host, final int port, int weight)}.
+ * 
+ * @author IluckySi
+ */
 public class XMemcachedConstructorWithHostPortArgInterceptor implements InstanceConstructorInterceptor {
 
     @Override

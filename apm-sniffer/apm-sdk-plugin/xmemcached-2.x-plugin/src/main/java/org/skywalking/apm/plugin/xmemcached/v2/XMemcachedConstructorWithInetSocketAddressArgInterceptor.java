@@ -23,6 +23,13 @@ import java.net.InetSocketAddress;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 
+/**
+ * {@link XMemcachedConstructorWithInetSocketAddressArgInterceptor} intercept constructor of 
+ * {@link XMemcachedClient(final InetSocketAddress inetSocketAddress)} or 
+ * {@link XMemcachedClient(final InetSocketAddress inetSocketAddress, int weight)}.
+ * 
+ * @author IluckySi
+ */
 public class XMemcachedConstructorWithInetSocketAddressArgInterceptor implements InstanceConstructorInterceptor {
 
     @Override

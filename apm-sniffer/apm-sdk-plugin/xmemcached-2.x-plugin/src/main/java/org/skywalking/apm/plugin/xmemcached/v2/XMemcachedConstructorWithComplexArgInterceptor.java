@@ -25,6 +25,20 @@ import java.util.Map.Entry;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 
+/**
+ * {@link XMemcachedConstructorWithComplexArgInterceptor} intercept constructor of 
+ * {@link XMemcachedClient(MemcachedSessionLocator locator,BufferAllocator allocator, Configuration conf,
+ * Map<SocketOption, Object> socketOptions, CommandFactory commandFactory, Transcoder transcoder,
+ * Map<InetSocketAddress, InetSocketAddress> addressMap, List<MemcachedClientStateListener> stateListeners,
+ * Map<InetSocketAddress, AuthInfo> map, int poolSize, long connectTimeout, String name, boolean failureMode)} or
+ * {@link XMemcachedClient(MemcachedSessionLocator locator, BufferAllocator allocator, Configuration conf,
+ * Map<SocketOption, Object> socketOptions, CommandFactory commandFactory, Transcoder transcoder,
+ * Map<InetSocketAddress, InetSocketAddress> addressMap, int[] weights, List<MemcachedClientStateListener> stateListeners,
+ * Map<InetSocketAddress, AuthInfo> infoMap, int poolSize, long connectTimeout, final String name, boolean failureMode)}.
+ * For parameter addressMap, every k-v is a master standby mode.
+ * 
+ * @author IluckySi
+ */
 public class XMemcachedConstructorWithComplexArgInterceptor implements InstanceConstructorInterceptor {
 
     @Override
@@ -32,23 +46,19 @@ public class XMemcachedConstructorWithComplexArgInterceptor implements InstanceC
         StringBuilder memcachConnInfo = new StringBuilder();
         @SuppressWarnings("unchecked")
         Map<InetSocketAddress, InetSocketAddress> inetSocketAddressMap = (Map<InetSocketAddress, InetSocketAddress>)allArguments[6];
-        StringBuilder master = new StringBuilder();
         for (Entry<InetSocketAddress, InetSocketAddress> entry : inetSocketAddressMap.entrySet()) {
-            if (master.length() == 0) {
-                master = append(master,entry.getKey());
-            }
+            memcachConnInfo = append(memcachConnInfo, entry.getKey());
             memcachConnInfo = append(memcachConnInfo, entry.getValue());
         }
-        memcachConnInfo =  master.append(memcachConnInfo);
-        Integer l = memcachConnInfo.length();
-        if (l > 1) {
-            memcachConnInfo = new StringBuilder(memcachConnInfo.substring(0, l - 1));
+        Integer length = memcachConnInfo.length();
+        if (length > 1) {
+            memcachConnInfo = new StringBuilder(memcachConnInfo.substring(0, length - 1));
         }
         objInst.setSkyWalkingDynamicField(memcachConnInfo.toString());
     }
 
     /**
-     * Parse InetSocketAddress
+     * Parse InetSocketAddress in specified format
      * @param sb
      * @param inetSocketAddress
      * @return

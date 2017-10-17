@@ -29,6 +29,12 @@ import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsA
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.skywalking.apm.network.trace.component.ComponentsDefine;
 
+/**
+ * {@link XMemcachedMethodInterceptor} intercept the operation method,
+ * record the memcached host, operation name and the key of the operation.
+ *  
+ * @author IluckySi
+ */
 public class XMemcachedMethodInterceptor implements InstanceMethodsAroundInterceptor {
 
     private static final String XMEMCACHED = "XMemcached/";
