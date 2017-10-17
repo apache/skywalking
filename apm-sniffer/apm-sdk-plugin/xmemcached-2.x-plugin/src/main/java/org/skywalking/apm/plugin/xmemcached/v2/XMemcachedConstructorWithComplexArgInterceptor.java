@@ -34,13 +34,13 @@ public class XMemcachedConstructorWithComplexArgInterceptor implements InstanceC
         Map<InetSocketAddress, InetSocketAddress> inetSocketAddressMap = (Map<InetSocketAddress, InetSocketAddress>)allArguments[6];
         StringBuilder master = new StringBuilder();
         for (Entry<InetSocketAddress, InetSocketAddress> entry : inetSocketAddressMap.entrySet()) {
-            if (master.length() <= 0) {
+            if (master.length() == 0) {
                 master = append(master,entry.getKey());
             }
             memcachConnInfo = append(memcachConnInfo, entry.getValue());
         }
         memcachConnInfo =  master.append(memcachConnInfo);
-        int l = memcachConnInfo.length();
+        Integer l = memcachConnInfo.length();
         if (l > 1) {
             memcachConnInfo = new StringBuilder(memcachConnInfo.substring(0, l - 1));
         }

@@ -121,21 +121,11 @@ public class XMemcachedMethodInterceptorTest {
         assertThat(SpanHelper.getLayer(span), is(SpanLayer.DB));
     }
     
-    private Method getMockSetMethod() {
-        try {
-            return XMemcachedClient.class.getMethod("set", String.class, int.class, Object.class);
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-            return null;
-        }
+    private Method getMockSetMethod() throws Exception {
+        return XMemcachedClient.class.getMethod("set", String.class, int.class, Object.class);
     }
     
-    private Method getMockGetMethod() {
-        try {
-            return XMemcachedClient.class.getMethod("get", String.class);
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-            return null;
-        }
+    private Method getMockGetMethod() throws Exception {
+        return XMemcachedClient.class.getMethod("get", String.class);
     }
 }
