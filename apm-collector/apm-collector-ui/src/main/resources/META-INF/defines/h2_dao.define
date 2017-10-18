@@ -8,6 +8,9 @@ org.skywalking.apm.collector.ui.dao.ApplicationH2DAO
 org.skywalking.apm.collector.ui.dao.ServiceNameH2DAO
 org.skywalking.apm.collector.ui.dao.InstanceH2DAO
 org.skywalking.apm.collector.ui.dao.InstPerformanceH2DAO
+org.skywalking.apm.collector.ui.dao.CpuMetricH2DAO
 org.skywalking.apm.collector.ui.dao.GCMetricH2DAO
+org.skywalking.apm.collector.ui.dao.MemoryMetricH2DAO
+org.skywalking.apm.collector.ui.dao.MemoryPoolMetricH2DAO
 org.skywalking.apm.collector.ui.dao.ServiceEntryH2DAO
 org.skywalking.apm.collector.ui.dao.ServiceReferenceH2DAO
