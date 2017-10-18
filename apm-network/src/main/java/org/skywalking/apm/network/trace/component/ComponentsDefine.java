@@ -67,7 +67,9 @@ public class ComponentsDefine {
 
     public static final OfficialComponent SHARDING_JDBC = new OfficialComponent(21, "ShardingJDBC");
 
-    public static final OfficialComponent GRPC = new OfficialComponent(22, "GRPC");
+    public static final OfficialComponent POSTGRESQL = new OfficialComponent(22, "PostgreSQL");
+
+    public static final OfficialComponent GRPC = new OfficialComponent(23, "GRPC");
 
     private static ComponentsDefine instance = new ComponentsDefine();
 
@@ -78,7 +80,7 @@ public class ComponentsDefine {
     }
 
     public ComponentsDefine() {
-        components = new String[23];
+        components = new String[24];
         addComponent(TOMCAT);
         addComponent(HTTPCLIENT);
         addComponent(DUBBO);
@@ -100,6 +102,7 @@ public class ComponentsDefine {
         addComponent(JETTY_SERVER);
         addComponent(MEMCACHED);
         addComponent(SHARDING_JDBC);
+        addComponent(POSTGRESQL);
         addComponent(GRPC);
     }
 

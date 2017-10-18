@@ -78,6 +78,14 @@ public class ZookeeperClient implements Client {
         }
     }
 
+    public void delete(final String path, int version) throws ZookeeperClientException {
+        try {
+            zk.delete(path, version);
+        } catch (KeeperException | InterruptedException e) {
+            throw new ZookeeperClientException(e.getMessage(), e);
+        }
+    }
+
     public byte[] getData(String path, boolean watch, Stat stat) throws ZookeeperClientException {
         try {
             return zk.getData(path, watch, stat);
