@@ -45,7 +45,7 @@ public class BatchH2DAO extends H2DAO implements IBatchDAO {
             final Map<String, PreparedStatement> batchSqls = new HashMap<>();
             try {
                 conn = getClient().getConnection();
-                conn.setAutoCommit(false);
+                conn.setAutoCommit(true);
                 PreparedStatement ps;
                 for (Object entity : batchCollection) {
                     H2SqlEntity e = getH2SqlEntity(entity);
@@ -70,14 +70,8 @@ public class BatchH2DAO extends H2DAO implements IBatchDAO {
                 for (String k : batchSqls.keySet()) {
                     batchSqls.get(k).executeBatch();
                 }
-                conn.commit();
             } catch (SQLException | H2ClientException e) {
                 logger.error(e.getMessage(), e);
-                try {
-                    conn.rollback();
-                } catch (SQLException e1) {
-                    logger.error(e.getMessage(), e1);
-                }
             }
             batchSqls.clear();
         }

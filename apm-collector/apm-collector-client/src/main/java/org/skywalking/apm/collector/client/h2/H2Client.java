@@ -105,14 +105,13 @@ public class H2Client implements Client {
         boolean flag;
         Connection conn = getConnection();
         try (PreparedStatement statement = conn.prepareStatement(sql)) {
-            conn.setAutoCommit(false);
+            conn.setAutoCommit(true);
             if (params != null) {
                 for (int i = 0; i < params.length; i++) {
                     statement.setObject(i + 1, params[i]);
                 }
             }
             flag = statement.execute();
-            conn.commit();
         } catch (SQLException e) {
             throw new H2ClientException(e.getMessage(), e);
         }
