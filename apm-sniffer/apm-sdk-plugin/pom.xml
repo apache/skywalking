@@ -47,6 +47,7 @@
         <module>spymemcached-2.x-plugin</module>
         <module>sharding-jdbc-1.5.x-plugin</module>
         <module>xmemcached-2.x-plugin</module>
+        <module>grpc-1.x-plugin</module>
     </modules>
     <packaging>pom</packaging>
 

@@ -69,6 +69,8 @@ public class ComponentsDefine {
 
     public static final OfficialComponent POSTGRESQL = new OfficialComponent(22, "PostgreSQL");
 
+    public static final OfficialComponent GRPC = new OfficialComponent(23, "GRPC");
+
     private static ComponentsDefine instance = new ComponentsDefine();
 
     private String[] components;
@@ -78,7 +80,7 @@ public class ComponentsDefine {
     }
 
     public ComponentsDefine() {
-        components = new String[23];
+        components = new String[24];
         addComponent(TOMCAT);
         addComponent(HTTPCLIENT);
         addComponent(DUBBO);
@@ -101,6 +103,7 @@ public class ComponentsDefine {
         addComponent(MEMCACHED);
         addComponent(SHARDING_JDBC);
         addComponent(POSTGRESQL);
+        addComponent(GRPC);
     }
 
     private void addComponent(OfficialComponent component) {
