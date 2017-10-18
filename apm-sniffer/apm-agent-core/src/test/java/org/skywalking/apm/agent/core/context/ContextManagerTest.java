@@ -20,11 +20,10 @@ package org.skywalking.apm.agent.core.context;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.List;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+
+import org.junit.*;
 import org.junit.runner.RunWith;
+import org.skywalking.apm.agent.core.boot.ServiceManager;
 import org.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
 import org.skywalking.apm.agent.core.context.tag.Tags;
 import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
@@ -69,6 +68,12 @@ public class ContextManagerTest {
     public void setUp() throws Exception {
         RemoteDownstreamConfig.Agent.APPLICATION_ID = 1;
         RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID = 1;
+    }
+
+    @AfterClass
+    public static void afterClass() {
+        ServiceManager.INSTANCE.shutdown();
+
     }
 
     @Test
