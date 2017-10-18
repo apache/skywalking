@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mock;
+import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 
@@ -34,6 +35,7 @@ import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(PowerMockRunner.class)
+@PrepareForTest(MethodDescriptor.class)
 public class ServerCallHandlerInterceptorTest {
     @Mock
     private EnhancedInstance enhancedInstance;

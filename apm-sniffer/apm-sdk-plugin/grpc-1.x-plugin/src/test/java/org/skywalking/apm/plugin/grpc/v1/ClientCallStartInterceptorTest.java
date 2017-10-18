@@ -21,6 +21,7 @@ package org.skywalking.apm.plugin.grpc.v1;
 import io.grpc.Metadata;
 import io.grpc.MethodDescriptor;
 import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -99,7 +100,7 @@ public class ClientCallStartInterceptorTest {
 
         clientCallStartInterceptor.beforeMethod(clientCallImpl, null, arguments, argumentTypes, null);
         clientCallStartInterceptor.afterMethod(clientCallImpl, null, arguments, argumentTypes, null);
-        unaryClientOnCloseInterceptor.afterMethod(null, null, new Object[] {Status.OK}, null, null);
+        unaryClientOnCloseInterceptor.afterMethod(null, null, new Object[] {Status.OK, new Metadata()}, null, null);
 
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
@@ -116,7 +117,7 @@ public class ClientCallStartInterceptorTest {
 
         clientCallStartInterceptor.beforeMethod(clientCallImpl, null, arguments, argumentTypes, null);
         clientCallStartInterceptor.afterMethod(clientCallImpl, null, arguments, argumentTypes, null);
-        unaryClientOnCloseInterceptor.afterMethod(null, null, new Object[] {exceptionStatus}, null, null);
+        unaryClientOnCloseInterceptor.afterMethod(null, null, new Object[] {exceptionStatus, new Metadata()}, null, null);
 
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
@@ -125,7 +126,7 @@ public class ClientCallStartInterceptorTest {
         SpanAssert.assertComponent(abstractTracingSpan, ComponentsDefine.GRPC);
         SpanAssert.assertLayer(abstractTracingSpan, SpanLayer.RPC_FRAMEWORK);
         SpanAssert.assertOccurException(abstractTracingSpan, true);
-        SpanAssert.assertException(SpanHelper.getLogs(abstractTracingSpan).get(0), RuntimeException.class);
+        SpanAssert.assertException(SpanHelper.getLogs(abstractTracingSpan).get(0), StatusRuntimeException.class, "NOT_FOUND");
     }
 
     @Test
