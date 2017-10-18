@@ -18,6 +18,13 @@
 
 package org.skywalking.apm.agent.core.conf;
 
+import org.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
+import org.skywalking.apm.agent.core.boot.AgentPackagePath;
+import org.skywalking.apm.agent.core.logging.api.ILog;
+import org.skywalking.apm.agent.core.logging.api.LogManager;
+import org.skywalking.apm.util.ConfigInitializer;
+import org.skywalking.apm.util.StringUtil;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -25,11 +32,6 @@ import java.io.InputStream;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
-import org.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
-import org.skywalking.apm.agent.core.boot.AgentPackagePath;
-import org.skywalking.apm.agent.core.logging.SystemOutWriter;
-import org.skywalking.apm.util.ConfigInitializer;
-import org.skywalking.apm.util.StringUtil;
 
 /**
  * The <code>SnifferConfigInitializer</code> initializes all configs in several way.
@@ -38,16 +40,17 @@ import org.skywalking.apm.util.StringUtil;
  * @see {@link #initialize()}, to learn more about how to initialzie.
  */
 public class SnifferConfigInitializer {
+    private static final ILog logger = LogManager.getLogger(SnifferConfigInitializer.class);
     private static String CONFIG_FILE_NAME = "/config/agent.config";
     private static String ENV_KEY_PREFIX = "skywalking.";
 
     /**
      * Try to locate `agent.config`, which should be in the /config dictionary of agent package.
-     *
+     * <p>
      * Also try to override the config by system.env and system.properties. All the keys in these two places should
      * start with {@link #ENV_KEY_PREFIX}. e.g. in env `skywalking.agent.application_code=yourAppName` to override
      * `agent.application_code` in config file.
-     *
+     * <p>
      * At the end, `agent.application_code` and `collector.servers` must be not blank.
      */
     public static void initialize() throws ConfigNotFoundException, AgentPackageNotFoundException {
@@ -59,15 +62,13 @@ public class SnifferConfigInitializer {
             properties.load(configFileStream);
             ConfigInitializer.initialize(properties, Config.class);
         } catch (Exception e) {
-            SystemOutWriter.INSTANCE.write("Failed to read the config file, skywalking is going to run in default config.");
-            e.printStackTrace(SystemOutWriter.INSTANCE.getStream());
+            logger.error(e, "Failed to read the config file, skywalking is going to run in default config.");
         }
 
         try {
             overrideConfigBySystemEnv();
         } catch (Exception e) {
-            SystemOutWriter.INSTANCE.write("Failed to read the system env.");
-            e.printStackTrace(SystemOutWriter.INSTANCE.getStream());
+            logger.error(e, "Failed to read the system env.");
         }
 
         if (StringUtil.isEmpty(Config.Agent.APPLICATION_CODE)) {
@@ -81,7 +82,7 @@ public class SnifferConfigInitializer {
     /**
      * Override the config by system env. The env key must start with `skywalking`, the reuslt should be as same as in
      * `agent.config`
-     *
+     * <p>
      * such as:
      * Env key of `agent.application_code` shoule be `skywalking.agent.application_code`
      *
@@ -89,13 +90,6 @@ public class SnifferConfigInitializer {
      */
     private static void overrideConfigBySystemEnv() throws IllegalAccessException {
         Properties properties = new Properties();
-        Map<String, String> envs = System.getenv();
-        for (String envKey : envs.keySet()) {
-            if (envKey.startsWith(ENV_KEY_PREFIX)) {
-                String realKey = envKey.substring(ENV_KEY_PREFIX.length());
-                properties.setProperty(realKey, envs.get(envKey));
-            }
-        }
         Properties systemProperties = System.getProperties();
         Iterator<Map.Entry<Object, Object>> entryIterator = systemProperties.entrySet().iterator();
         while (entryIterator.hasNext()) {
@@ -105,6 +99,15 @@ public class SnifferConfigInitializer {
                 properties.put(realKey, prop.getValue());
             }
         }
+
+        Map<String, String> envs = System.getenv();
+        for (String envKey : envs.keySet()) {
+            if (envKey.startsWith(ENV_KEY_PREFIX)) {
+                String realKey = envKey.substring(ENV_KEY_PREFIX.length());
+                properties.setProperty(realKey, envs.get(envKey));
+            }
+        }
+
         if (!properties.isEmpty()) {
             ConfigInitializer.initialize(properties, Config.class);
         }
@@ -119,13 +122,13 @@ public class SnifferConfigInitializer {
         File configFile = new File(AgentPackagePath.getPath(), CONFIG_FILE_NAME);
         if (configFile.exists() && configFile.isFile()) {
             try {
-                SystemOutWriter.INSTANCE.write(CONFIG_FILE_NAME + " file found in agent folder.");
+                logger.info("Config file found in {}.", configFile);
 
                 return new FileInputStream(configFile);
             } catch (FileNotFoundException e) {
                 throw new ConfigNotFoundException("Fail to load agent.config", e);
             }
         }
-        throw new ConfigNotFoundException("Fail to load agent.config");
+        throw new ConfigNotFoundException("Fail to load agent config file.");
     }
 }

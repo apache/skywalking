@@ -55,11 +55,6 @@
     <dependencies>
         <dependency>
             <groupId>org.skywalking</groupId>
-            <artifactId>apm-logging-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.skywalking</groupId>
             <artifactId>apm-network</artifactId>
             <version>${project.version}</version>
         </dependency>

@@ -16,7 +16,7 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.agent.core.logging;
+package org.skywalking.apm.agent.core.logging.core;
 
 import com.lmax.disruptor.EventFactory;
 import com.lmax.disruptor.EventHandler;

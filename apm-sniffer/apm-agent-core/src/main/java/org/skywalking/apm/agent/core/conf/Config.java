@@ -21,8 +21,8 @@ package org.skywalking.apm.agent.core.conf;
 import java.util.LinkedList;
 import java.util.List;
 import org.skywalking.apm.agent.core.context.trace.TraceSegment;
-import org.skywalking.apm.agent.core.logging.LogLevel;
-import org.skywalking.apm.agent.core.logging.WriterFactory;
+import org.skywalking.apm.agent.core.logging.core.LogLevel;
+import org.skywalking.apm.agent.core.logging.core.WriterFactory;
 
 /**
  * This is the core config in sniffer agent.

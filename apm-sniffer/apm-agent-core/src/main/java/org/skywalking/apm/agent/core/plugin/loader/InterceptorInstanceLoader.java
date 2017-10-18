@@ -19,8 +19,8 @@
 package org.skywalking.apm.agent.core.plugin.loader;
 
 import org.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
-import org.skywalking.apm.logging.ILog;
-import org.skywalking.apm.logging.LogManager;
+import org.skywalking.apm.agent.core.logging.api.ILog;
+import org.skywalking.apm.agent.core.logging.api.LogManager;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;

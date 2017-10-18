@@ -16,15 +16,16 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.agent.core.logging;
+package org.skywalking.apm.agent.core.logging.core;
 
-import java.io.File;
-import java.io.IOException;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.skywalking.apm.agent.core.conf.Config;
 import org.skywalking.apm.agent.core.conf.Constants;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
  * @author wusheng

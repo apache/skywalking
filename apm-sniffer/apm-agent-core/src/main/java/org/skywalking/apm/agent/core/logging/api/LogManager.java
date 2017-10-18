@@ -16,7 +16,9 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.logging;
+package org.skywalking.apm.agent.core.logging.api;
+
+import org.skywalking.apm.agent.core.logging.core.EasyLogResolver;
 
 /**
  * LogManager is the {@link LogResolver} implementation manager. By using {@link LogResolver}, {@link
@@ -27,7 +29,7 @@ package org.skywalking.apm.logging;
  * override the first without any warning or exception. <p> Created by xin on 2016/11/10.
  */
 public class LogManager {
-    private static LogResolver RESOLVER;
+    private static LogResolver RESOLVER = new EasyLogResolver();
 
     public static void setLogResolver(LogResolver resolver) {
         LogManager.RESOLVER = resolver;

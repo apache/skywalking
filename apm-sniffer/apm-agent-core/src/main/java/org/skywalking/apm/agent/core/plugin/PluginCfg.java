@@ -25,8 +25,8 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import org.skywalking.apm.agent.core.plugin.exception.IllegalPluginDefineException;
-import org.skywalking.apm.logging.ILog;
-import org.skywalking.apm.logging.LogManager;
+import org.skywalking.apm.agent.core.logging.api.ILog;
+import org.skywalking.apm.agent.core.logging.api.LogManager;
 
 public enum PluginCfg {
     INSTANCE;

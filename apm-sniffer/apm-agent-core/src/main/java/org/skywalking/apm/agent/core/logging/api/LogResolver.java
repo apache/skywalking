@@ -16,11 +16,17 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.agent.core.logging;
+package org.skywalking.apm.agent.core.logging.api;
 
 /**
- * Created by xin on 2016/12/7.
+ * {@link LogResolver} just do only one thing: return the {@link ILog} implementation.
+ * <p>
+ * Created by xin on 2016/11/10.
  */
-public enum LogLevel {
-    DEBUG, INFO, WARN, ERROR;
+public interface LogResolver {
+    /**
+     * @param clazz, the class is showed in log message.
+     * @return {@link ILog} implementation.
+     */
+    ILog getLogger(Class<?> clazz);
 }

@@ -16,17 +16,8 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.agent.core.logging;
+package org.skywalking.apm.agent.core.logging.core;
 
-import org.skywalking.apm.agent.core.conf.Config;
-import org.skywalking.apm.util.StringUtil;
-
-public class WriterFactory {
-    public static IWriter getLogWriter() {
-        if (!StringUtil.isEmpty(Config.Logging.DIR)) {
-            return FileWriter.get();
-        } else {
-            return SystemOutWriter.INSTANCE;
-        }
-    }
+public interface IWriter {
+    void write(String message);
 }

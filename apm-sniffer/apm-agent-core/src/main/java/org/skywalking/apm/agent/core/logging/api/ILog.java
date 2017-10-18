@@ -16,7 +16,7 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.logging;
+package org.skywalking.apm.agent.core.logging.api;
 
 /**
  * The Log interface.

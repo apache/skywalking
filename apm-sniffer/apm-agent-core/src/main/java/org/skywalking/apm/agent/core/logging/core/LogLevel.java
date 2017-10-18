@@ -16,8 +16,11 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.agent.core.logging;
+package org.skywalking.apm.agent.core.logging.core;
 
-public interface IWriter {
-    void write(String message);
+/**
+ * Created by xin on 2016/12/7.
+ */
+public enum LogLevel {
+    DEBUG, INFO, WARN, ERROR;
 }

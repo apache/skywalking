@@ -16,22 +16,17 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.agent.core.logging;
+package org.skywalking.apm.agent.core.logging.core;
+
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
- * The <code>LogMessageHolder</code> is a {@link String} holder,
- * in order to in-process propagation String across the disruptor queue.
- *
- * @author wusheng
+ * Created by wusheng on 2017/2/28.
  */
-public class LogMessageHolder {
-    private String message;
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
+public class EasyLogResolverTest {
+    @Test
+    public void testGetLogger() {
+        Assert.assertTrue(new EasyLogResolver().getLogger(EasyLogResolverTest.class) instanceof EasyLogger);
     }
 }

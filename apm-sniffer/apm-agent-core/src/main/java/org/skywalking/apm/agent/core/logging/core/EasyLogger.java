@@ -16,7 +16,7 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.agent.core.logging;
+package org.skywalking.apm.agent.core.logging.core;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -25,7 +25,7 @@ import java.util.Date;
 import java.util.regex.Matcher;
 import org.skywalking.apm.agent.core.conf.Config;
 import org.skywalking.apm.agent.core.conf.Constants;
-import org.skywalking.apm.logging.ILog;
+import org.skywalking.apm.agent.core.logging.api.ILog;
 import org.skywalking.apm.util.StringUtil;
 
 /**
@@ -41,7 +41,7 @@ public class EasyLogger implements ILog {
         this.targetClass = targetClass;
     }
 
-    private void logger(LogLevel level, String message, Throwable e) {
+    protected void logger(LogLevel level, String message, Throwable e) {
         WriterFactory.getLogWriter().write(format(level, message, e));
     }
 

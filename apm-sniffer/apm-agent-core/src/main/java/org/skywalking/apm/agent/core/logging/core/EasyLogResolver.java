@@ -16,17 +16,17 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.agent.core.logging;
+package org.skywalking.apm.agent.core.logging.core;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.skywalking.apm.agent.core.logging.api.ILog;
+import org.skywalking.apm.agent.core.logging.api.LogResolver;
 
 /**
- * Created by wusheng on 2017/2/28.
+ * Created by wusheng on 2016/11/26.
  */
-public class EasyLogResolverTest {
-    @Test
-    public void testGetLogger() {
-        Assert.assertTrue(new EasyLogResolver().getLogger(EasyLogResolverTest.class) instanceof EasyLogger);
+public class EasyLogResolver implements LogResolver {
+    @Override
+    public ILog getLogger(Class<?> clazz) {
+        return new EasyLogger(clazz);
     }
 }

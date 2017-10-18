@@ -112,6 +112,7 @@
                                 <copy file="${project.build.directory}/skywalking-agent.jar"
                                       tofile="${project.basedir}/../../packages/skywalking-agent/skywalking-agent.jar" overwrite="true"/>
                                 <mkdir dir="${project.basedir}/../../packages/skywalking-agent/config"/>
+                                <mkdir dir="${project.basedir}/../../packages/skywalking-agent/logs"/>
                                 <copydir src="${project.basedir}/../config"
                                          dest="${project.basedir}/../../packages/skywalking-agent/config" forceoverwrite="true"/>
                             </tasks>

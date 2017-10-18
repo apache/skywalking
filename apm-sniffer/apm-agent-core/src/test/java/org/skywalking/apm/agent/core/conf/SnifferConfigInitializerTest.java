@@ -21,7 +21,7 @@ package org.skywalking.apm.agent.core.conf;
 import org.junit.AfterClass;
 import org.junit.Test;
 import org.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
-import org.skywalking.apm.agent.core.logging.LogLevel;
+import org.skywalking.apm.agent.core.logging.core.LogLevel;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;

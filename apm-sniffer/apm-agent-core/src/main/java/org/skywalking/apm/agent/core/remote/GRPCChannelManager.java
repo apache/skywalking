@@ -35,8 +35,8 @@ import org.skywalking.apm.agent.core.boot.BootService;
 import org.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
 import org.skywalking.apm.agent.core.conf.Config;
 import org.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
-import org.skywalking.apm.logging.ILog;
-import org.skywalking.apm.logging.LogManager;
+import org.skywalking.apm.agent.core.logging.api.ILog;
+import org.skywalking.apm.agent.core.logging.api.LogManager;
 
 /**
  * @author wusheng

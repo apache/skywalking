@@ -18,15 +18,19 @@
 
 package org.skywalking.apm.agent.core.boot;
 
+import org.skywalking.apm.agent.core.logging.api.ILog;
+import org.skywalking.apm.agent.core.logging.api.LogManager;
+
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import org.skywalking.apm.agent.core.logging.SystemOutWriter;
 
 /**
  * @author wusheng
  */
 public class AgentPackagePath {
+    private static final ILog logger = LogManager.getLogger(AgentPackagePath.class);
+
     private static File AGENT_PACKAGE_PATH;
 
     public static File getPath() throws AgentPackageNotFoundException {
@@ -36,6 +40,10 @@ public class AgentPackagePath {
         return AGENT_PACKAGE_PATH;
     }
 
+    public static boolean isPathFound() {
+        return AGENT_PACKAGE_PATH != null;
+    }
+
     private static File findPath() throws AgentPackageNotFoundException {
         String classResourcePath = AgentPackagePath.class.getName().replaceAll("\\.", "/") + ".class";
 
@@ -43,7 +51,7 @@ public class AgentPackagePath {
         if (resource != null) {
             String urlString = resource.toString();
 
-            SystemOutWriter.INSTANCE.write(urlString);
+            logger.debug("The beacon class location is {}.", urlString);
 
             int insidePathIndex = urlString.indexOf('!');
             boolean isInJar = insidePathIndex > -1;
@@ -54,7 +62,7 @@ public class AgentPackagePath {
                 try {
                     agentJarFile = new File(new URL(urlString).getFile());
                 } catch (MalformedURLException e) {
-                    SystemOutWriter.INSTANCE.write("Can not locate agent jar file by url:" + urlString);
+                    logger.error(e, "Can not locate agent jar file by url:" + urlString);
                 }
                 if (agentJarFile.exists()) {
                     return agentJarFile.getParentFile();
@@ -65,7 +73,7 @@ public class AgentPackagePath {
             }
         }
 
-        SystemOutWriter.INSTANCE.write("Can not locate agent jar file.");
+        logger.error("Can not locate agent jar file.");
         throw new AgentPackageNotFoundException("Can not locate agent jar file.");
     }
 

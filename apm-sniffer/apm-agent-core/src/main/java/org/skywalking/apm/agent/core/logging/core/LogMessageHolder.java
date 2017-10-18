@@ -16,26 +16,22 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.agent.core.logging;
+package org.skywalking.apm.agent.core.logging.core;
 
-import java.io.PrintStream;
+/**
+ * The <code>LogMessageHolder</code> is a {@link String} holder,
+ * in order to in-process propagation String across the disruptor queue.
+ *
+ * @author wusheng
+ */
+public class LogMessageHolder {
+    private String message;
 
-public enum SystemOutWriter implements IWriter {
-    INSTANCE;
-
-    /**
-     * Tricky codes for avoiding style-check.
-     * Because, in here, "system.out.println" is the only choice to output logs.
-     *
-     * @param message
-     */
-    @Override
-    public void write(String message) {
-        PrintStream out = System.out;
-        out.println(message);
+    public String getMessage() {
+        return message;
     }
 
-    public PrintStream getStream() {
-        return System.out;
+    public void setMessage(String message) {
+        this.message = message;
     }
 }

@@ -16,40 +16,40 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.agent.core.logging;
+package org.skywalking.apm.agent.core.logging.core;
 
-import java.io.PrintStream;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mockito.Mockito;
+import org.skywalking.apm.agent.core.conf.Config;
 
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.times;
+import java.io.PrintStream;
 
 /**
  * Created by wusheng on 2017/2/28.
  */
-public class SystemOutWriterTest {
-    private static PrintStream OUT_REF;
+public class WriterFactoryTest {
+    private static PrintStream ERR_REF;
 
     @BeforeClass
     public static void initAndHoldOut() {
-        OUT_REF = System.out;
+        ERR_REF = System.err;
     }
 
+    /**
+     * During this test case,
+     * reset {@link System#out} to a Mock object, for avoid a console system.error.
+     */
     @Test
-    public void testWrite() {
-        PrintStream mockStream = Mockito.mock(PrintStream.class);
-        System.setOut(mockStream);
-
-        SystemOutWriter.INSTANCE.write("hello");
-
-        Mockito.verify(mockStream, times(1)).println(anyString());
+    public void testGetLogWriter() {
+        Config.Logging.DIR = "/only/test/folder";
+        Assert.assertTrue(WriterFactory.getLogWriter() instanceof FileWriter);
     }
 
     @AfterClass
     public static void reset() {
-        System.setOut(OUT_REF);
+        Config.Logging.DIR = "";
+        System.setErr(ERR_REF);
     }
 }
