@@ -25,7 +25,7 @@ Sky Walking | [English](README.md)
 
 # Architecture
 * 3.2+版本架构图
-<img src="https://skywalkingtest.github.io/page-resources/3.2/architecture/3.2-architecture.jpg"/>
+<img src="https://skywalkingtest.github.io/page-resources/3.x-architecture.jpg"/>
 
 # Document
 * [WIKI](https://github.com/OpenSkywalking/skywalking/wiki)
