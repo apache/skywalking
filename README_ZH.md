@@ -67,9 +67,8 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 # Open Skywalking Organization
 [Open Skywalking Organization Teams and Contributors](https://github.com/OpenSkywalking/Organization/blob/master/README.md)
 
-# Commercial Support Partners
-[![Shurenyun Logo](https://skywalkingtest.github.io/page-resources/partners/shurenyun-logo.png)](https://www.shurenyun.com/)
-
+# Partners
+<img src="https://skywalkingtest.github.io/page-resources/3.2.3/partners.png" width="400"/>
 
 # License
 [Apache 2.0 License.](/LICENSE)
