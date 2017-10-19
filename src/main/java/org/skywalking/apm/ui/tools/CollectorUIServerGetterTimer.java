@@ -72,7 +72,7 @@ public enum CollectorUIServerGetterTimer {
                 logger.debug("uiServerResponse: %s", uiServerResponse);
                 JsonArray serverArray = gson.fromJson(uiServerResponse, JsonArray.class);
                 if (serverArray == null || serverArray.size() == 0) {
-                    logger.info("emtry grpc server array, skip : %s", server);
+                    logger.warn("emtry grpc server array, skip : %s", server);
                     continue;
                 }
                 List<String> servers = new ArrayList<>();
@@ -82,7 +82,7 @@ public enum CollectorUIServerGetterTimer {
                 logger.error(e.getMessage(), e);
             }
         }
-        logger.debug("none agentstream server return available grpc server.");
+        logger.warn("none agentstream server return available grpc server.");
         return null;
     }
 }

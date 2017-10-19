@@ -63,12 +63,12 @@ public enum HttpClientTools {
                 }
             }
         } catch (Exception e) {
-            logger.debug("bad url="+url, e);
+            logger.warn("bad url="+url, e);
         } finally {
             try {
                 httpClient.close();
             } catch (IOException e) {
-                logger.debug("bad url="+url, e);
+                logger.warn("bad url="+url, e);
             }
         }
         return null;
