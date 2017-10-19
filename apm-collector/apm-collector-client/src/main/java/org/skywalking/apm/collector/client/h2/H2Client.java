@@ -18,11 +18,15 @@
 
 package org.skywalking.apm.collector.client.h2;
 
-import java.sql.*;
-
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import org.h2.jdbcx.JdbcConnectionPool;
 import org.h2.util.IOUtils;
 import org.skywalking.apm.collector.core.client.Client;
+import org.skywalking.apm.collector.core.config.SystemConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,21 +44,15 @@ public class H2Client implements Client {
     private String password;
 
     public H2Client() {
-        this.url = "jdbc:h2:mem:collector";
+        this.url = "jdbc:h2:" + SystemConfig.DATA_PATH + "/h2";
         this.userName = "";
         this.password = "";
-    }
-
-    public H2Client(String url, String userName, String password) {
-        this.url = url;
-        this.userName = userName;
-        this.password = password;
     }
 
     @Override public void initialize() throws H2ClientException {
         try {
             cp = JdbcConnectionPool.
-                    create(this.url, this.userName, this.password);
+                create(this.url, this.userName, this.password);
             conn = cp.getConnection();
         } catch (Exception e) {
             throw new H2ClientException(e.getMessage(), e);

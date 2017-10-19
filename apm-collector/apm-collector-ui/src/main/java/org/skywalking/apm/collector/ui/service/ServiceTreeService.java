@@ -20,7 +20,13 @@ package org.skywalking.apm.collector.ui.service;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import java.util.Iterator;
+import java.util.Map;
+import org.skywalking.apm.collector.core.util.ColumnNameUtils;
+import org.skywalking.apm.collector.core.util.Const;
+import org.skywalking.apm.collector.core.util.ObjectUtils;
 import org.skywalking.apm.collector.storage.dao.DAOContainer;
+import org.skywalking.apm.collector.storage.define.serviceref.ServiceReferenceTable;
 import org.skywalking.apm.collector.ui.dao.IServiceEntryDAO;
 import org.skywalking.apm.collector.ui.dao.IServiceReferenceDAO;
 
@@ -37,11 +43,76 @@ public class ServiceTreeService {
 
     public JsonArray loadServiceTree(int entryServiceId, long startTime, long endTime) {
         IServiceReferenceDAO serviceReferenceDAO = (IServiceReferenceDAO)DAOContainer.INSTANCE.get(IServiceReferenceDAO.class.getName());
-        return serviceReferenceDAO.load(entryServiceId, startTime, endTime);
+        Map<String, JsonObject> serviceReferenceMap = serviceReferenceDAO.load(entryServiceId, startTime, endTime);
+        return buildTreeData(serviceReferenceMap);
     }
 
     public JsonArray loadServiceTree(String entryServiceName, int entryApplicationId, long startTime, long endTime) {
         IServiceReferenceDAO serviceReferenceDAO = (IServiceReferenceDAO)DAOContainer.INSTANCE.get(IServiceReferenceDAO.class.getName());
-        return serviceReferenceDAO.load(entryServiceName, entryApplicationId, startTime, endTime);
+        Map<String, JsonObject> serviceReferenceMap = serviceReferenceDAO.load(entryServiceName, entryApplicationId, startTime, endTime);
+        return buildTreeData(serviceReferenceMap);
+    }
+
+    private JsonArray buildTreeData(Map<String, JsonObject> serviceReferenceMap) {
+        JsonArray serviceReferenceArray = new JsonArray();
+        JsonObject rootServiceReference = findRoot(serviceReferenceMap);
+        if (ObjectUtils.isNotEmpty(rootServiceReference)) {
+            serviceReferenceArray.add(rootServiceReference);
+            String id = rootServiceReference.get(ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_FRONT_SERVICE_ID)) + Const.ID_SPLIT + rootServiceReference.get(ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_BEHIND_SERVICE_ID));
+            serviceReferenceMap.remove(id);
+
+            int rootServiceId = rootServiceReference.get(ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_BEHIND_SERVICE_ID)).getAsInt();
+            sortAsTree(rootServiceId, serviceReferenceArray, serviceReferenceMap);
+        }
+
+        return serviceReferenceArray;
+    }
+
+    private JsonObject findRoot(Map<String, JsonObject> serviceReferenceMap) {
+        for (JsonObject serviceReference : serviceReferenceMap.values()) {
+            int frontServiceId = serviceReference.get(ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_FRONT_SERVICE_ID)).getAsInt();
+            if (frontServiceId == 1) {
+                return serviceReference;
+            }
+        }
+        return null;
+    }
+
+    private void sortAsTree(int serviceId, JsonArray serviceReferenceArray,
+        Map<String, JsonObject> serviceReferenceMap) {
+        Iterator<JsonObject> iterator = serviceReferenceMap.values().iterator();
+        while (iterator.hasNext()) {
+            JsonObject serviceReference = iterator.next();
+            int frontServiceId = serviceReference.get(ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_FRONT_SERVICE_ID)).getAsInt();
+            if (serviceId == frontServiceId) {
+                serviceReferenceArray.add(serviceReference);
+
+                int behindServiceId = serviceReference.get(ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_BEHIND_SERVICE_ID)).getAsInt();
+                sortAsTree(behindServiceId, serviceReferenceArray, serviceReferenceMap);
+            }
+        }
+    }
+
+    private void merge(Map<String, JsonObject> serviceReferenceMap, JsonObject serviceReference) {
+        String id = serviceReference.get(ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_FRONT_SERVICE_ID)) + Const.ID_SPLIT + serviceReference.get(ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_BEHIND_SERVICE_ID));
+
+        if (serviceReferenceMap.containsKey(id)) {
+            JsonObject reference = serviceReferenceMap.get(id);
+            add(reference, serviceReference, ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_S1_LTE));
+            add(reference, serviceReference, ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_S3_LTE));
+            add(reference, serviceReference, ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_S5_LTE));
+            add(reference, serviceReference, ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_S5_GT));
+            add(reference, serviceReference, ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_ERROR));
+            add(reference, serviceReference, ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_SUMMARY));
+            add(reference, serviceReference, ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_COST_SUMMARY));
+        } else {
+            serviceReferenceMap.put(id, serviceReference);
+        }
+    }
+
+    private void add(JsonObject oldReference, JsonObject newReference, String key) {
+        long oldValue = oldReference.get(key).getAsLong();
+        long newValue = newReference.get(key).getAsLong();
+        oldReference.addProperty(key, oldValue + newValue);
     }
 }

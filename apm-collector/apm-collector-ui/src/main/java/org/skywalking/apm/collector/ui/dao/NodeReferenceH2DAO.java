@@ -21,13 +21,13 @@ package org.skywalking.apm.collector.ui.dao;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.skywalking.apm.collector.cache.ApplicationCache;
 import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.client.h2.H2ClientException;
 import org.skywalking.apm.collector.core.util.StringUtils;
 import org.skywalking.apm.collector.storage.define.noderef.NodeReferenceTable;
 import org.skywalking.apm.collector.storage.h2.SqlBuilder;
 import org.skywalking.apm.collector.storage.h2.dao.H2DAO;
-import org.skywalking.apm.collector.ui.cache.ApplicationCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,10 +54,10 @@ public class NodeReferenceH2DAO extends H2DAO implements INodeReferenceDAO {
         try (ResultSet rs = client.executeQuery(sql, params)) {
             while (rs.next()) {
                 int applicationId = rs.getInt(NodeReferenceTable.COLUMN_FRONT_APPLICATION_ID);
-                String applicationCode = ApplicationCache.getForUI(applicationId);
+                String applicationCode = ApplicationCache.get(applicationId);
                 int behindApplicationId = rs.getInt(NodeReferenceTable.COLUMN_BEHIND_APPLICATION_ID);
                 if (behindApplicationId != 0) {
-                    String behindApplicationCode = ApplicationCache.getForUI(behindApplicationId);
+                    String behindApplicationCode = ApplicationCache.get(behindApplicationId);
 
                     JsonObject nodeRefResSumObj = new JsonObject();
                     nodeRefResSumObj.addProperty("front", applicationCode);

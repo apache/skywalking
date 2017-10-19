@@ -18,13 +18,14 @@
 
 package org.skywalking.apm.collector.ui.dao;
 
-import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import java.util.Map;
 
 /**
  * @author pengys5
  */
 public interface IServiceReferenceDAO {
-    JsonArray load(int entryServiceId, long startTime, long endTime);
+    Map<String, JsonObject> load(int entryServiceId, long startTime, long endTime);
 
-    JsonArray load(String entryServiceName, int entryApplicationId, long startTime, long endTime);
+    Map<String, JsonObject> load(String entryServiceName, int entryApplicationId, long startTime, long endTime);
 }
