@@ -25,7 +25,7 @@ Sky Walking | [English](README.md)
 
 # Architecture
 * 3.2+版本架构图
-<img src="https://skywalkingtest.github.io/page-resources/3.2/architecture/3.2-architecture.jpg"/>
+<img src="https://skywalkingtest.github.io/page-resources/3.x-architecture.jpg"/>
 
 # Document
 * [WIKI](https://github.com/OpenSkywalking/skywalking/wiki)
@@ -67,9 +67,8 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 # Open Skywalking Organization
 [Open Skywalking Organization Teams and Contributors](https://github.com/OpenSkywalking/Organization/blob/master/README.md)
 
-# Commercial Support Partners
-[![Shurenyun Logo](https://skywalkingtest.github.io/page-resources/partners/shurenyun-logo.png)](https://www.shurenyun.com/)
-
+# Partners
+<img src="https://skywalkingtest.github.io/page-resources/3.2.3/partners.png" width="600"/>
 
 # License
 [Apache 2.0 License.](/LICENSE)

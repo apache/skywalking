@@ -63,9 +63,13 @@ public class ComponentsDefine {
 
     public static final OfficialComponent JETTY_SERVER = new OfficialComponent(19, "JettyServer");
 
-    public static final OfficialComponent MEMCACHE = new OfficialComponent(20, "Memcache");
+    public static final OfficialComponent MEMCACHED = new OfficialComponent(20, "Memcached");
 
     public static final OfficialComponent SHARDING_JDBC = new OfficialComponent(21, "ShardingJDBC");
+
+    public static final OfficialComponent POSTGRESQL = new OfficialComponent(22, "PostgreSQL");
+
+    public static final OfficialComponent GRPC = new OfficialComponent(23, "GRPC");
 
     private static ComponentsDefine instance = new ComponentsDefine();
 
@@ -76,7 +80,7 @@ public class ComponentsDefine {
     }
 
     public ComponentsDefine() {
-        components = new String[22];
+        components = new String[24];
         addComponent(TOMCAT);
         addComponent(HTTPCLIENT);
         addComponent(DUBBO);
@@ -96,8 +100,10 @@ public class ComponentsDefine {
         addComponent(NUTZ_HTTP);
         addComponent(JETTY_CLIENT);
         addComponent(JETTY_SERVER);
-        addComponent(MEMCACHE);
+        addComponent(MEMCACHED);
         addComponent(SHARDING_JDBC);
+        addComponent(POSTGRESQL);
+        addComponent(GRPC);
     }
 
     private void addComponent(OfficialComponent component) {

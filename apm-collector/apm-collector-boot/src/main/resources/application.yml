@@ -1,7 +1,7 @@
-cluster:
-  zookeeper:
-    hostPort: localhost:2181
-    sessionTimeout: 100000
+#cluster:
+#  zookeeper:
+#    hostPort: localhost:2181
+#    sessionTimeout: 100000
 agent_server:
   jetty:
     host: localhost
@@ -34,3 +34,9 @@ storage:
     cluster_nodes: localhost:9300
     index_shards_number: 2
     index_replicas_number: 0
+# uncomment to enable h2 storage
+#storage:
+#    h2:
+#      url: jdbc:h2:~/collector
+#      user_name: sa
+#      password: sa

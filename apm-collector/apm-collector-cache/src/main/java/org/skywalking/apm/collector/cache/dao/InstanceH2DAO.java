@@ -18,13 +18,37 @@
 
 package org.skywalking.apm.collector.cache.dao;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import org.skywalking.apm.collector.client.h2.H2Client;
+import org.skywalking.apm.collector.client.h2.H2ClientException;
+import org.skywalking.apm.collector.storage.define.register.InstanceTable;
+import org.skywalking.apm.collector.storage.h2.SqlBuilder;
 import org.skywalking.apm.collector.storage.h2.dao.H2DAO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author pengys5
  */
 public class InstanceH2DAO extends H2DAO implements IInstanceDAO {
+
+    private final Logger logger = LoggerFactory.getLogger(InstanceH2DAO.class);
+
+    private static final String GET_APPLICATION_ID_SQL = "select {0} from {1} where {2} = ?";
+
     @Override public int getApplicationId(int applicationInstanceId) {
+        logger.info("get the application id with application id = {}", applicationInstanceId);
+        H2Client client = getClient();
+        String sql = SqlBuilder.buildSql(GET_APPLICATION_ID_SQL, InstanceTable.COLUMN_APPLICATION_ID, InstanceTable.TABLE, InstanceTable.COLUMN_APPLICATION_ID);
+        Object[] params = new Object[] {applicationInstanceId};
+        try (ResultSet rs = client.executeQuery(sql, params)) {
+            if (rs.next()) {
+                return rs.getInt(InstanceTable.COLUMN_APPLICATION_ID);
+            }
+        } catch (SQLException | H2ClientException e) {
+            logger.error(e.getMessage(), e);
+        }
         return 0;
     }
 }
