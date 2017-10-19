@@ -71,6 +71,10 @@ public enum CollectorUIServerGetterTimer {
                 String uiServerResponse = HttpClientTools.INSTANCE.get("http://" + server + "/ui/jetty", null);
                 logger.debug("uiServerResponse: %s", uiServerResponse);
                 JsonArray serverArray = gson.fromJson(uiServerResponse, JsonArray.class);
+                if (serverArray == null || serverArray.size() == 0) {
+                    logger.warn("emtry grpc server array, skip : %s", server);
+                    continue;
+                }
                 List<String> servers = new ArrayList<>();
                 serverArray.forEach(serverElement -> servers.add(serverElement.getAsString()));
                 return servers;
@@ -78,6 +82,7 @@ public enum CollectorUIServerGetterTimer {
                 logger.error(e.getMessage(), e);
             }
         }
+        logger.warn("none agentstream server return available grpc server.");
         return null;
     }
 }
