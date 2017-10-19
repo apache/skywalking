@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import org.skywalking.apm.collector.agentstream.worker.segment.FirstSpanListener;
 import org.skywalking.apm.collector.agentstream.worker.segment.RefsListener;
+import org.skywalking.apm.collector.agentstream.worker.segment.standardization.ReferenceDecorator;
+import org.skywalking.apm.collector.agentstream.worker.segment.standardization.SpanDecorator;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
@@ -30,8 +32,6 @@ import org.skywalking.apm.collector.stream.StreamModuleContext;
 import org.skywalking.apm.collector.stream.StreamModuleGroupDefine;
 import org.skywalking.apm.collector.stream.worker.WorkerInvokeException;
 import org.skywalking.apm.collector.stream.worker.WorkerNotFoundException;
-import org.skywalking.apm.network.proto.SpanObject;
-import org.skywalking.apm.network.proto.TraceSegmentReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,29 +45,21 @@ public class NodeMappingSpanListener implements RefsListener, FirstSpanListener 
     private List<NodeMappingDataDefine.NodeMapping> nodeMappings = new ArrayList<>();
     private long timeBucket;
 
-    @Override public void parseRef(TraceSegmentReference reference, int applicationId, int applicationInstanceId,
+    @Override public void parseRef(ReferenceDecorator referenceDecorator, int applicationId, int applicationInstanceId,
         String segmentId) {
         logger.debug("node mapping listener parse reference");
         NodeMappingDataDefine.NodeMapping nodeMapping = new NodeMappingDataDefine.NodeMapping();
         nodeMapping.setApplicationId(applicationId);
-        nodeMapping.setAddressId(reference.getNetworkAddressId());
-
-        String id = String.valueOf(applicationId);
-        if (reference.getNetworkAddressId() != 0) {
-            nodeMapping.setAddress(Const.EMPTY_STRING);
-            id = id + Const.ID_SPLIT + String.valueOf(nodeMapping.getAddressId());
-        } else {
-            id = id + Const.ID_SPLIT + reference.getNetworkAddress();
-            nodeMapping.setAddress(reference.getNetworkAddress());
-        }
-
+        nodeMapping.setAddressId(referenceDecorator.getNetworkAddressId());
+        String id = String.valueOf(applicationId) + Const.ID_SPLIT + String.valueOf(nodeMapping.getAddressId());
         nodeMapping.setId(id);
         nodeMappings.add(nodeMapping);
     }
 
     @Override
-    public void parseFirst(SpanObject spanObject, int applicationId, int applicationInstanceId, String segmentId) {
-        timeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(spanObject.getStartTime());
+    public void parseFirst(SpanDecorator spanDecorator, int applicationId, int applicationInstanceId,
+        String segmentId) {
+        timeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(spanDecorator.getStartTime());
     }
 
     @Override public void build() {

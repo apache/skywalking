@@ -15,6 +15,9 @@ agent_stream:
     host: localhost
     port: 12800
     context_path: /
+  config:
+    buffer_offset_max_file_size: 1k
+    buffer_segment_max_file_size: 10k
 ui:
   jetty:
     host: localhost

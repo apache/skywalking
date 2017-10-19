@@ -106,7 +106,7 @@ public class NodeComponentEsDAO extends EsDAO implements INodeComponentDAO {
             int peerId = peerIdBucket.getKeyAsNumber().intValue();
 
             if (peerId != 0) {
-                String peer = ApplicationCache.getForUI(peerId);
+                String peer = ApplicationCache.get(peerId);
 
                 JsonObject nodeComponentObj = new JsonObject();
                 nodeComponentObj.addProperty("componentName", componentName);

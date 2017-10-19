@@ -22,34 +22,38 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.skywalking.apm.collector.cache.dao.IServiceNameDAO;
 import org.skywalking.apm.collector.core.util.Const;
+import org.skywalking.apm.collector.core.util.StringUtils;
 import org.skywalking.apm.collector.storage.dao.DAOContainer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author pengys5
  */
 public class ServiceNameCache {
 
+    private static final Logger logger = LoggerFactory.getLogger(ServiceNameCache.class);
+
     //TODO size configuration
     private static Cache<Integer, String> CACHE = CacheBuilder.newBuilder().maximumSize(10000).build();
 
     public static String get(int serviceId) {
-        try {
-            return CACHE.get(serviceId, () -> {
-                IServiceNameDAO dao = (IServiceNameDAO)DAOContainer.INSTANCE.get(IServiceNameDAO.class.getName());
-                return dao.getServiceName(serviceId);
-            });
-        } catch (Throwable e) {
-            return Const.EXCEPTION;
-        }
-    }
+        IServiceNameDAO dao = (IServiceNameDAO)DAOContainer.INSTANCE.get(IServiceNameDAO.class.getName());
 
-    public static String getForUI(int serviceId) {
-        String serviceName = get(serviceId);
-        if (serviceName.equals("Unknown")) {
-            IServiceNameDAO dao = (IServiceNameDAO)DAOContainer.INSTANCE.get(IServiceNameDAO.class.getName());
-            serviceName = dao.getServiceName(serviceId);
-            CACHE.put(serviceId, serviceName);
+        String serviceName = Const.EMPTY_STRING;
+        try {
+            serviceName = CACHE.get(serviceId, () -> dao.getServiceName(serviceId));
+        } catch (Throwable e) {
+            logger.error(e.getMessage(), e);
         }
+
+        if (StringUtils.isEmpty(serviceName)) {
+            serviceName = dao.getServiceName(serviceId);
+            if (StringUtils.isNotEmpty(serviceName)) {
+                CACHE.put(serviceId, serviceName);
+            }
+        }
+
         return serviceName;
     }
 }

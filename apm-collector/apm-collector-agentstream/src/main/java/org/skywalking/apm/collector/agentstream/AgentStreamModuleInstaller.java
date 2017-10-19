@@ -24,13 +24,13 @@ import org.skywalking.apm.collector.core.client.ClientException;
 import org.skywalking.apm.collector.core.config.ConfigException;
 import org.skywalking.apm.collector.core.framework.Context;
 import org.skywalking.apm.collector.core.framework.DefineException;
-import org.skywalking.apm.collector.core.module.MultipleCommonModuleInstaller;
+import org.skywalking.apm.collector.core.module.MultipleModuleInstaller;
 import org.skywalking.apm.collector.core.server.ServerException;
 
 /**
  * @author pengys5
  */
-public class AgentStreamModuleInstaller extends MultipleCommonModuleInstaller {
+public class AgentStreamModuleInstaller extends MultipleModuleInstaller {
 
     @Override public String groupName() {
         return AgentStreamModuleGroupDefine.GROUP_NAME;

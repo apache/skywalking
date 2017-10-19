@@ -21,6 +21,7 @@ package org.skywalking.apm.collector.agentstream.grpc.handler;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
+import org.junit.Test;
 import org.skywalking.apm.network.proto.Downstream;
 import org.skywalking.apm.network.proto.KeyWithStringValue;
 import org.skywalking.apm.network.proto.LogMessage;
@@ -45,6 +46,7 @@ public class TraceSegmentServiceHandlerTestCase {
 
     private TraceSegmentServiceGrpc.TraceSegmentServiceStub stub;
 
+    @Test
     public void testCollect() {
         ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 11800).usePlaintext(true).build();
         stub = TraceSegmentServiceGrpc.newStub(channel);
@@ -70,7 +72,7 @@ public class TraceSegmentServiceHandlerTestCase {
         streamObserver.onCompleted();
 
         try {
-            Thread.sleep(30000);
+            Thread.sleep(10000);
         } catch (InterruptedException e) {
         }
     }

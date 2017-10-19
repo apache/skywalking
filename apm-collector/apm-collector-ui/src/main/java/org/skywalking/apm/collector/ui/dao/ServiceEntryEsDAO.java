@@ -75,7 +75,7 @@ public class ServiceEntryEsDAO extends EsDAO implements IServiceEntryDAO {
         for (SearchHit searchHit : searchHits.getHits()) {
             int applicationId = ((Number)searchHit.getSource().get(ServiceEntryTable.COLUMN_APPLICATION_ID)).intValue();
             int entryServiceId = ((Number)searchHit.getSource().get(ServiceEntryTable.COLUMN_ENTRY_SERVICE_ID)).intValue();
-            String applicationCode = ApplicationCache.getForUI(applicationId);
+            String applicationCode = ApplicationCache.get(applicationId);
             String entryServiceName = (String)searchHit.getSource().get(ServiceEntryTable.COLUMN_ENTRY_SERVICE_NAME);
 
             JsonObject row = new JsonObject();

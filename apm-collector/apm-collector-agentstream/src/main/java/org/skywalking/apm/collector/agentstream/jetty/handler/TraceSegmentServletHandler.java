@@ -66,7 +66,7 @@ public class TraceSegmentServletHandler extends JettyHandler {
         while (reader.hasNext()) {
             SegmentParse segmentParse = new SegmentParse();
             TraceSegment traceSegment = jsonReader.read(reader);
-            segmentParse.parse(traceSegment.getGlobalTraceIds(), traceSegment.getTraceSegmentObject());
+            segmentParse.parse(traceSegment.getUpstreamSegment(), SegmentParse.Source.Agent);
         }
         reader.endArray();
     }

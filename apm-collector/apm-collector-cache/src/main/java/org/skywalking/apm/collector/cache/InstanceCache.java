@@ -22,22 +22,34 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.skywalking.apm.collector.cache.dao.IInstanceDAO;
 import org.skywalking.apm.collector.storage.dao.DAOContainer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author pengys5
  */
 public class InstanceCache {
 
-    private static Cache<Integer, Integer> CACHE = CacheBuilder.newBuilder().initialCapacity(100).maximumSize(5000).build();
+    private static final Logger logger = LoggerFactory.getLogger(InstanceCache.class);
+
+    private static Cache<Integer, Integer> INSTANCE_CACHE = CacheBuilder.newBuilder().initialCapacity(100).maximumSize(5000).build();
 
     public static int get(int applicationInstanceId) {
+        IInstanceDAO dao = (IInstanceDAO)DAOContainer.INSTANCE.get(IInstanceDAO.class.getName());
+
+        int applicationId = 0;
         try {
-            return CACHE.get(applicationInstanceId, () -> {
-                IInstanceDAO dao = (IInstanceDAO)DAOContainer.INSTANCE.get(IInstanceDAO.class.getName());
-                return dao.getApplicationId(applicationInstanceId);
-            });
+            applicationId = INSTANCE_CACHE.get(applicationInstanceId, () -> dao.getApplicationId(applicationInstanceId));
         } catch (Throwable e) {
-            return 0;
+            logger.error(e.getMessage(), e);
         }
+
+        if (applicationId == 0) {
+            applicationId = dao.getApplicationId(applicationInstanceId);
+            if (applicationId != 0) {
+                INSTANCE_CACHE.put(applicationInstanceId, applicationId);
+            }
+        }
+        return applicationId;
     }
 }

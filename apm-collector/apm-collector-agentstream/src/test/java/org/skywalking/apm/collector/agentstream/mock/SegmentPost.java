@@ -60,6 +60,8 @@ public class SegmentPost {
         applicationEsDAO.save(consumerApplication);
         ApplicationDataDefine.Application providerApplication = new ApplicationDataDefine.Application("3", "dubbox-provider", 3);
         applicationEsDAO.save(providerApplication);
+//        ApplicationDataDefine.Application peer = new ApplicationDataDefine.Application("4", "172.25.0.4:20880", 4);
+//        applicationEsDAO.save(peer);
 
         ServiceNameEsDAO serviceNameEsDAO = new ServiceNameEsDAO();
         serviceNameEsDAO.setClient(client);
@@ -84,6 +86,7 @@ public class SegmentPost {
 
             DIFF = 0;
             Thread.sleep(1000);
+            break;
         }
     }
 

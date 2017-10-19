@@ -16,17 +16,13 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.agentstream.worker.util;
+package org.skywalking.apm.collector.agentstream.worker.segment.buffer;
+
+import org.skywalking.apm.collector.core.config.SystemConfig;
 
 /**
  * @author pengys5
  */
-public enum ExchangeMarkUtils {
-    INSTANCE;
-
-    private static final String MARK_TAG = "M";
-
-    public String buildMarkedID(int id) {
-        return MARK_TAG + id;
-    }
+public class SegmentBufferConfig {
+    public static String BUFFER_PATH = SystemConfig.DATA_PATH + "/buffer/";
 }

@@ -37,11 +37,11 @@ import org.slf4j.LoggerFactory;
 /**
  * @author pengys5
  */
-public abstract class MultipleCommonModuleInstaller extends CommonModuleInstaller {
+public abstract class MultipleModuleInstaller extends CommonModuleInstaller {
 
-    private final Logger logger = LoggerFactory.getLogger(MultipleCommonModuleInstaller.class);
+    private final Logger logger = LoggerFactory.getLogger(MultipleModuleInstaller.class);
 
-    public MultipleCommonModuleInstaller() {
+    public MultipleModuleInstaller() {
         moduleDefines = new LinkedList<>();
     }
 

@@ -18,6 +18,7 @@
 
 package org.skywalking.apm.collector.stream;
 
+import org.skywalking.apm.collector.core.config.GroupConfigParser;
 import org.skywalking.apm.collector.core.framework.Context;
 import org.skywalking.apm.collector.core.module.ModuleGroupDefine;
 import org.skywalking.apm.collector.core.module.ModuleInstaller;
@@ -44,5 +45,9 @@ public class StreamModuleGroupDefine implements ModuleGroupDefine {
 
     @Override public ModuleInstaller moduleInstaller() {
         return installer;
+    }
+
+    @Override public GroupConfigParser groupConfigParser() {
+        return null;
     }
 }

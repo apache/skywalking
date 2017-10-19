@@ -18,11 +18,11 @@
 
 package org.skywalking.apm.collector.agentstream.worker.segment;
 
-import org.skywalking.apm.network.proto.SpanObject;
+import org.skywalking.apm.collector.agentstream.worker.segment.standardization.SpanDecorator;
 
 /**
  * @author pengys5
  */
 public interface ExitSpanListener extends SpanListener {
-    void parseExit(SpanObject spanObject, int applicationId, int applicationInstanceId, String segmentId);
+    void parseExit(SpanDecorator spanDecorator, int applicationId, int applicationInstanceId, String segmentId);
 }

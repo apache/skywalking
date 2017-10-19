@@ -36,11 +36,11 @@ public abstract class CommonModuleInstaller implements ModuleInstaller {
         this.moduleDefineMap = moduleDefineMap;
     }
 
-    protected final Map<String, Map> getModuleConfig() {
+    final Map<String, Map> getModuleConfig() {
         return moduleConfig;
     }
 
-    protected final Map<String, ModuleDefine> getModuleDefineMap() {
+    final Map<String, ModuleDefine> getModuleDefineMap() {
         return moduleDefineMap;
     }
 

@@ -112,7 +112,7 @@ public class InstanceEsDAO extends EsDAO implements IInstanceDAO {
 
             JsonObject application = new JsonObject();
             application.addProperty("applicationId", applicationId);
-            application.addProperty("applicationCode", ApplicationCache.getForUI(applicationId));
+            application.addProperty("applicationCode", ApplicationCache.get(applicationId));
             application.addProperty("instanceCount", instanceCount.getValue());
             applications.add(application);
         }

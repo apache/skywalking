@@ -146,7 +146,7 @@ public class ServiceReferenceEsDAO extends EsDAO implements IServiceReferenceDAO
             String frontServiceName = frontServiceBucket.getKeyAsString();
             if (StringUtils.isNotEmpty(frontServiceName)) {
                 String[] serviceNames = frontServiceName.split(Const.ID_SPLIT);
-                int frontServiceId = ServiceIdCache.getForUI(Integer.parseInt(serviceNames[0]), serviceNames[1]);
+                int frontServiceId = ServiceIdCache.get(Integer.parseInt(serviceNames[0]), serviceNames[1]);
                 parseSubAggregate(serviceReferenceMap, frontServiceBucket, frontServiceId);
             }
         }
@@ -179,11 +179,11 @@ public class ServiceReferenceEsDAO extends EsDAO implements IServiceReferenceDAO
                 Sum summary = behindServiceIdBucket.getAggregations().get(ServiceReferenceTable.COLUMN_SUMMARY);
                 Sum costSum = behindServiceIdBucket.getAggregations().get(ServiceReferenceTable.COLUMN_COST_SUMMARY);
 
-                String frontServiceName = ServiceNameCache.getForUI(frontServiceId);
+                String frontServiceName = ServiceNameCache.get(frontServiceId);
                 if (StringUtils.isNotEmpty(frontServiceName)) {
                     frontServiceName = frontServiceName.split(Const.ID_SPLIT)[1];
                 }
-                String behindServiceName = ServiceNameCache.getForUI(behindServiceId);
+                String behindServiceName = ServiceNameCache.get(behindServiceId);
                 if (StringUtils.isNotEmpty(frontServiceName)) {
                     behindServiceName = behindServiceName.split(Const.ID_SPLIT)[1];
                 }
@@ -216,9 +216,9 @@ public class ServiceReferenceEsDAO extends EsDAO implements IServiceReferenceDAO
                 Sum summary = behindServiceNameBucket.getAggregations().get(ServiceReferenceTable.COLUMN_SUMMARY);
                 Sum costSum = behindServiceNameBucket.getAggregations().get(ServiceReferenceTable.COLUMN_COST_SUMMARY);
 
-                String frontServiceName = ServiceNameCache.getForUI(frontServiceId);
+                String frontServiceName = ServiceNameCache.get(frontServiceId);
                 String[] serviceNames = behindServiceName.split(Const.ID_SPLIT);
-                int behindServiceId = ServiceIdCache.getForUI(Integer.parseInt(serviceNames[0]), serviceNames[1]);
+                int behindServiceId = ServiceIdCache.get(Integer.parseInt(serviceNames[0]), serviceNames[1]);
                 behindServiceName = serviceNames[1];
 
                 JsonObject serviceReference = new JsonObject();

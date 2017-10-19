@@ -49,16 +49,9 @@ public class TraceSegmentJsonReader implements StreamJsonReader<TraceSegment> {
                     }
                     reader.endArray();
 
-                    if (logger.isDebugEnabled()) {
-                        traceSegment.getGlobalTraceIds().forEach(uniqueId -> {
-                            StringBuilder globalTraceId = new StringBuilder();
-                            uniqueId.getIdPartsList().forEach(idPart -> globalTraceId.append(idPart));
-                            logger.debug("global trace id: {}", globalTraceId.toString());
-                        });
-                    }
                     break;
                 case SEGMENT:
-                    traceSegment.setTraceSegmentObject(segmentJsonReader.read(reader));
+                    traceSegment.setTraceSegmentBuilder(segmentJsonReader.read(reader));
                     break;
                 default:
                     reader.skipValue();

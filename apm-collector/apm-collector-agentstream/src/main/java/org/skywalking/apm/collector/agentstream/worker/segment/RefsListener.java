@@ -18,11 +18,11 @@
 
 package org.skywalking.apm.collector.agentstream.worker.segment;
 
-import org.skywalking.apm.network.proto.TraceSegmentReference;
+import org.skywalking.apm.collector.agentstream.worker.segment.standardization.ReferenceDecorator;
 
 /**
  * @author pengys5
  */
 public interface RefsListener extends SpanListener {
-    void parseRef(TraceSegmentReference reference, int applicationId, int applicationInstanceId, String segmentId);
+    void parseRef(ReferenceDecorator referenceDecorator, int applicationId, int applicationInstanceId, String segmentId);
 }

@@ -22,28 +22,31 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.skywalking.apm.collector.cache.dao.IApplicationDAO;
 import org.skywalking.apm.collector.core.util.Const;
+import org.skywalking.apm.collector.core.util.StringUtils;
 import org.skywalking.apm.collector.storage.dao.DAOContainer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author pengys5
  */
 public class ApplicationCache {
 
+    private static final Logger logger = LoggerFactory.getLogger(ApplicationCache.class);
+
     private static Cache<String, Integer> CODE_CACHE = CacheBuilder.newBuilder().initialCapacity(100).maximumSize(1000).build();
 
     public static int get(String applicationCode) {
+        IApplicationDAO dao = (IApplicationDAO)DAOContainer.INSTANCE.get(IApplicationDAO.class.getName());
+
         int applicationId = 0;
         try {
-            applicationId = CODE_CACHE.get(applicationCode, () -> {
-                IApplicationDAO dao = (IApplicationDAO)DAOContainer.INSTANCE.get(IApplicationDAO.class.getName());
-                return dao.getApplicationId(applicationCode);
-            });
+            applicationId = CODE_CACHE.get(applicationCode, () -> dao.getApplicationId(applicationCode));
         } catch (Throwable e) {
-            return applicationId;
+            logger.error(e.getMessage(), e);
         }
 
         if (applicationId == 0) {
-            IApplicationDAO dao = (IApplicationDAO)DAOContainer.INSTANCE.get(IApplicationDAO.class.getName());
             applicationId = dao.getApplicationId(applicationCode);
             if (applicationId != 0) {
                 CODE_CACHE.put(applicationCode, applicationId);
@@ -55,22 +58,20 @@ public class ApplicationCache {
     private static Cache<Integer, String> ID_CACHE = CacheBuilder.newBuilder().maximumSize(1000).build();
 
     public static String get(int applicationId) {
-        try {
-            return ID_CACHE.get(applicationId, () -> {
-                IApplicationDAO dao = (IApplicationDAO)DAOContainer.INSTANCE.get(IApplicationDAO.class.getName());
-                return dao.getApplicationCode(applicationId);
-            });
-        } catch (Throwable e) {
-            return Const.EXCEPTION;
-        }
-    }
+        IApplicationDAO dao = (IApplicationDAO)DAOContainer.INSTANCE.get(IApplicationDAO.class.getName());
 
-    public static String getForUI(int applicationId) {
-        String applicationCode = get(applicationId);
-        if (applicationCode.equals("Unknown")) {
-            IApplicationDAO dao = (IApplicationDAO)DAOContainer.INSTANCE.get(IApplicationDAO.class.getName());
+        String applicationCode = Const.EMPTY_STRING;
+        try {
+            applicationCode = ID_CACHE.get(applicationId, () -> dao.getApplicationCode(applicationId));
+        } catch (Throwable e) {
+            logger.error(e.getMessage(), e);
+        }
+
+        if (StringUtils.isEmpty(applicationCode)) {
             applicationCode = dao.getApplicationCode(applicationId);
-            ID_CACHE.put(applicationId, applicationCode);
+            if (StringUtils.isNotEmpty(applicationCode)) {
+                CODE_CACHE.put(applicationCode, applicationId);
+            }
         }
         return applicationCode;
     }

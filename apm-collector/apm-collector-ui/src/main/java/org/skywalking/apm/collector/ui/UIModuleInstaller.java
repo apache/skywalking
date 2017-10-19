@@ -20,12 +20,12 @@ package org.skywalking.apm.collector.ui;
 
 import java.util.List;
 import org.skywalking.apm.collector.core.framework.Context;
-import org.skywalking.apm.collector.core.module.MultipleCommonModuleInstaller;
+import org.skywalking.apm.collector.core.module.MultipleModuleInstaller;
 
 /**
  * @author pengys5
  */
-public class UICommonModuleInstaller extends MultipleCommonModuleInstaller {
+public class UIModuleInstaller extends MultipleModuleInstaller {
 
     @Override public String groupName() {
         return UIModuleGroupDefine.GROUP_NAME;

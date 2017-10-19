@@ -50,7 +50,7 @@ public class InstanceHealthService {
         response.add("instances", instances);
 
         instanceList.forEach(instance -> {
-            response.addProperty("applicationCode", ApplicationCache.getForUI(applicationId));
+            response.addProperty("applicationCode", ApplicationCache.get(applicationId));
             response.addProperty("applicationId", applicationId);
 
             IInstPerformanceDAO instPerformanceDAO = (IInstPerformanceDAO)DAOContainer.INSTANCE.get(IInstPerformanceDAO.class.getName());

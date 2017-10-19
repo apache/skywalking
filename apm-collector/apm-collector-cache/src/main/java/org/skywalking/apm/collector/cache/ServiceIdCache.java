@@ -23,32 +23,34 @@ import com.google.common.cache.CacheBuilder;
 import org.skywalking.apm.collector.cache.dao.IServiceNameDAO;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.storage.dao.DAOContainer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author pengys5
  */
 public class ServiceIdCache {
 
+    private static final Logger logger = LoggerFactory.getLogger(ServiceIdCache.class);
+
     //TODO size configuration
-    private static Cache<String, Integer> CACHE = CacheBuilder.newBuilder().maximumSize(1000).build();
+    private static Cache<String, Integer> SERVICE_CACHE = CacheBuilder.newBuilder().maximumSize(1000).build();
 
     public static int get(int applicationId, String serviceName) {
-        try {
-            return CACHE.get(applicationId + Const.ID_SPLIT + serviceName, () -> {
-                IServiceNameDAO dao = (IServiceNameDAO)DAOContainer.INSTANCE.get(IServiceNameDAO.class.getName());
-                return dao.getServiceId(applicationId, serviceName);
-            });
-        } catch (Throwable e) {
-            return 0;
-        }
-    }
+        IServiceNameDAO dao = (IServiceNameDAO)DAOContainer.INSTANCE.get(IServiceNameDAO.class.getName());
 
-    public static int getForUI(int applicationId, String serviceName) {
-        int serviceId = get(applicationId, serviceName);
+        int serviceId = 0;
+        try {
+            serviceId = SERVICE_CACHE.get(applicationId + Const.ID_SPLIT + serviceName, () -> dao.getServiceId(applicationId, serviceName));
+        } catch (Throwable e) {
+            logger.error(e.getMessage(), e);
+        }
+
         if (serviceId == 0) {
-            IServiceNameDAO dao = (IServiceNameDAO)DAOContainer.INSTANCE.get(IServiceNameDAO.class.getName());
             serviceId = dao.getServiceId(applicationId, serviceName);
-            CACHE.put(applicationId + Const.ID_SPLIT + serviceName, serviceId);
+            if (serviceId != 0) {
+                SERVICE_CACHE.put(applicationId + Const.ID_SPLIT + serviceName, serviceId);
+            }
         }
         return serviceId;
     }

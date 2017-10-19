@@ -18,6 +18,7 @@
 
 package org.skywalking.apm.collector.ui;
 
+import org.skywalking.apm.collector.core.config.GroupConfigParser;
 import org.skywalking.apm.collector.core.framework.Context;
 import org.skywalking.apm.collector.core.module.ModuleGroupDefine;
 import org.skywalking.apm.collector.core.module.ModuleInstaller;
@@ -28,10 +29,10 @@ import org.skywalking.apm.collector.core.module.ModuleInstaller;
 public class UIModuleGroupDefine implements ModuleGroupDefine {
 
     public static final String GROUP_NAME = "ui";
-    private final UICommonModuleInstaller installer;
+    private final UIModuleInstaller installer;
 
     public UIModuleGroupDefine() {
-        installer = new UICommonModuleInstaller();
+        installer = new UIModuleInstaller();
     }
 
     @Override public String name() {
@@ -44,5 +45,9 @@ public class UIModuleGroupDefine implements ModuleGroupDefine {
 
     @Override public ModuleInstaller moduleInstaller() {
         return installer;
+    }
+
+    @Override public GroupConfigParser groupConfigParser() {
+        return null;
     }
 }
