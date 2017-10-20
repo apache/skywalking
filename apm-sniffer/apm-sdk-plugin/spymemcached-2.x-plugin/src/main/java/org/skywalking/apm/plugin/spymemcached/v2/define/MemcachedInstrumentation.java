@@ -33,7 +33,7 @@ import static org.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 /**
  * {@link MemcachedInstrumentation} presents that skywalking intercept all constructors and methods of
  * {@link net.spy.memcached.MemcachedClient}.
- * {@link XMemcachedConstructorWithInetSocketAddressListArgInterceptor} intercepts the constructor with
+ * <code>org.skywalking.apm.plugin.spymemcached.v2.MemcachedConstructorWithInetSocketAddressListArgInterceptor</code> intercepts the constructor with
  * argument {@link java.net.InetSocketAddress}.
  *
  * @author IluckySi
@@ -75,7 +75,7 @@ public class MemcachedInstrumentation extends ClassInstanceMethodsEnhancePluginD
                     return named("touch").or(named("append")).or(named("prepend")).or(named("asyncCAS"))
                         .or(named("cas")).or(named("add")).or(named("set")).or(named("replace"))
                         .or(named("asyncGet")).or(named("asyncGets")).or(named("gets")).or(named("getAndTouch"))
-                        .or(named("getDefault")).or(named("asyncGetBulk")).or(named("asyncGetAndTouch"))
+                        .or(named("get")).or(named("asyncGetBulk")).or(named("asyncGetAndTouch"))
                         .or(named("getBulk")).or(named("getStats")).or(named("incr"))
                         .or(named("decr")).or(named("asyncIncr")).or(named("asyncDecr"))
                         .or(named("delete"));
