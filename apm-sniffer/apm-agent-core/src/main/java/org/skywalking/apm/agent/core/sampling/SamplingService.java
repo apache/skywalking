@@ -27,8 +27,8 @@ import org.skywalking.apm.agent.core.boot.BootService;
 import org.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
 import org.skywalking.apm.agent.core.conf.Config;
 import org.skywalking.apm.agent.core.context.trace.TraceSegment;
-import org.skywalking.apm.logging.ILog;
-import org.skywalking.apm.logging.LogManager;
+import org.skywalking.apm.agent.core.logging.api.ILog;
+import org.skywalking.apm.agent.core.logging.api.LogManager;
 
 /**
  * The <code>SamplingService</code> take charge of how to sample the {@link TraceSegment}. Every {@link TraceSegment}s
@@ -86,7 +86,7 @@ public class SamplingService implements BootService {
     }
 
     /**
-     * @return true, if sampling mechanism is on, and get the sampling factor successfully.
+     * @return true, if sampling mechanism is on, and getDefault the sampling factor successfully.
      */
     public boolean trySampling() {
         if (on) {

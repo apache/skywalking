@@ -32,7 +32,7 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * {@link ResponseExtractorFutureInstrumentation} enhance the <code>addCallback</code> method and <code>get</code>
+ * {@link ResponseExtractorFutureInstrumentation} enhance the <code>addCallback</code> method and <code>getDefault</code>
  * method of <code>org.springframework.web.client.AsyncRestTemplate$ResponseExtractorFuture</code> by
  * <code>org.skywalking.apm.plugin.spring.resttemplate.async.ResponseCallBackInterceptor</code> and
  * <code>org.skywalking.apm.plugin.spring.resttemplate.async.FutureGetInterceptor</code>.

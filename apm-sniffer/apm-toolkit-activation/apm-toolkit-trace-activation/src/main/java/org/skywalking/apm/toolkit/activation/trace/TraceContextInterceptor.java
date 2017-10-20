@@ -22,8 +22,8 @@ import java.lang.reflect.Method;
 import org.skywalking.apm.agent.core.context.ContextManager;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMethodsAroundInterceptor;
-import org.skywalking.apm.logging.ILog;
-import org.skywalking.apm.logging.LogManager;
+import org.skywalking.apm.agent.core.logging.api.ILog;
+import org.skywalking.apm.agent.core.logging.api.LogManager;
 
 public class TraceContextInterceptor implements StaticMethodsAroundInterceptor {
 
@@ -43,6 +43,6 @@ public class TraceContextInterceptor implements StaticMethodsAroundInterceptor {
     @Override
     public void handleMethodException(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
         Throwable t) {
-        logger.error("Failed to get trace Id.", t);
+        logger.error("Failed to getDefault trace Id.", t);
     }
 }

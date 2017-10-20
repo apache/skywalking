@@ -35,8 +35,8 @@ import org.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.skywalking.apm.plugin.sjdbc.define.AsyncExecuteInterceptor;
 
 /**
- * Sharding-jdbc provides {@link EventBusInstance} to help external systems get events of sql execution.
- * {@link ExecuteEventListener} can get sql statement start and end events, resulting in db span.
+ * Sharding-jdbc provides {@link EventBusInstance} to help external systems getDefault events of sql execution.
+ * {@link ExecuteEventListener} can getDefault sql statement start and end events, resulting in db span.
  * 
  * @author gaohongtao
  */

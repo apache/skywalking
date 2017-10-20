@@ -30,8 +30,8 @@ import org.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoin
 import org.skywalking.apm.agent.core.plugin.interceptor.EnhanceException;
 import org.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.skywalking.apm.agent.core.plugin.interceptor.StaticMethodsInterceptPoint;
-import org.skywalking.apm.logging.ILog;
-import org.skywalking.apm.logging.LogManager;
+import org.skywalking.apm.agent.core.logging.api.ILog;
+import org.skywalking.apm.agent.core.logging.api.LogManager;
 import org.skywalking.apm.util.StringUtil;
 
 import static net.bytebuddy.jar.asm.Opcodes.ACC_PRIVATE;

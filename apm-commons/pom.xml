@@ -30,7 +30,6 @@
 
     <modules>
         <module>apm-util</module>
-        <module>apm-logging-api</module>
         <module>apm-datacarrier</module>
     </modules>
 

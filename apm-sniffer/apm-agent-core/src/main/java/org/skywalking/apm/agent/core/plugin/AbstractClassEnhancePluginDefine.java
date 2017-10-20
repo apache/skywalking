@@ -21,8 +21,8 @@ package org.skywalking.apm.agent.core.plugin;
 import net.bytebuddy.dynamic.DynamicType;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassEnhancePluginDefine;
 import org.skywalking.apm.agent.core.plugin.match.ClassMatch;
-import org.skywalking.apm.logging.ILog;
-import org.skywalking.apm.logging.LogManager;
+import org.skywalking.apm.agent.core.logging.api.ILog;
+import org.skywalking.apm.agent.core.logging.api.LogManager;
 import org.skywalking.apm.util.StringUtil;
 
 /**

@@ -19,8 +19,8 @@
 package org.skywalking.apm.agent.core.jvm.cpu;
 
 import org.skywalking.apm.agent.core.os.ProcessorUtil;
-import org.skywalking.apm.logging.ILog;
-import org.skywalking.apm.logging.LogManager;
+import org.skywalking.apm.agent.core.logging.api.ILog;
+import org.skywalking.apm.agent.core.logging.api.LogManager;
 import org.skywalking.apm.network.proto.CPU;
 
 /**

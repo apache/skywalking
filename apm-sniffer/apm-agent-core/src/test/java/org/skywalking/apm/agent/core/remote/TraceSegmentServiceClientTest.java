@@ -21,12 +21,11 @@ package org.skywalking.apm.agent.core.remote;
 import com.google.protobuf.InvalidProtocolBufferException;
 import io.grpc.stub.StreamObserver;
 import io.grpc.testing.GrpcServerRule;
+
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
+
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.powermock.reflect.Whitebox;
 import org.skywalking.apm.agent.core.boot.ServiceManager;
@@ -94,13 +93,18 @@ public class TraceSegmentServiceClientTest {
         RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID = 1;
     }
 
+    @AfterClass
+    public static void afterClass() {
+        ServiceManager.INSTANCE.shutdown();
+    }
+
     @Before
     public void setUp() throws Throwable {
         Whitebox.setInternalState(ServiceManager.INSTANCE.findService(GRPCChannelManager.class), "reconnect", false);
         spy(serviceClient);
 
         Whitebox.setInternalState(serviceClient, "serviceStub",
-            TraceSegmentServiceGrpc.newStub(grpcServerRule.getChannel()));
+                TraceSegmentServiceGrpc.newStub(grpcServerRule.getChannel()));
         Whitebox.setInternalState(serviceClient, "status", GRPCChannelStatus.CONNECTED);
 
         upstreamSegments = new ArrayList<UpstreamSegment>();

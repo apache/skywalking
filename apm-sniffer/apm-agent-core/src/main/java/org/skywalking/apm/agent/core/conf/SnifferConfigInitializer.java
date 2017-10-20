@@ -18,17 +18,20 @@
 
 package org.skywalking.apm.agent.core.conf;
 
+import org.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
+import org.skywalking.apm.agent.core.boot.AgentPackagePath;
+import org.skywalking.apm.agent.core.logging.api.ILog;
+import org.skywalking.apm.agent.core.logging.api.LogManager;
+import org.skywalking.apm.util.ConfigInitializer;
+import org.skywalking.apm.util.StringUtil;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Properties;
-import org.skywalking.apm.logging.ILog;
-import org.skywalking.apm.logging.LogManager;
-import org.skywalking.apm.util.ConfigInitializer;
-import org.skywalking.apm.util.StringUtil;
 
 /**
  * The <code>SnifferConfigInitializer</code> initializes all configs in several way.
@@ -38,92 +41,76 @@ import org.skywalking.apm.util.StringUtil;
  */
 public class SnifferConfigInitializer {
     private static final ILog logger = LogManager.getLogger(SnifferConfigInitializer.class);
-    private static String CONFIG_FILE_NAME = "/sky-walking.config";
+    private static String CONFIG_FILE_NAME = "/config/agent.config";
+    private static String ENV_KEY_PREFIX = "skywalking.";
 
     /**
-     * Try to locate config file, named {@link #CONFIG_FILE_NAME}, in following order:
-     * 1. Path from SystemProperty. {@link #loadConfigBySystemProperty()}
-     * 2. class path.
-     * 3. Path, where agent is. {@link #loadConfigFromAgentFolder()}
+     * Try to locate `agent.config`, which should be in the /config dictionary of agent package.
      * <p>
-     * If no found in any path, agent is still going to run in default config, {@link Config},
-     * but in initialization steps, these following configs must be set, by config file or system properties:
+     * Also try to override the config by system.env and system.properties. All the keys in these two places should
+     * start with {@link #ENV_KEY_PREFIX}. e.g. in env `skywalking.agent.application_code=yourAppName` to override
+     * `agent.application_code` in config file.
      * <p>
-     * 1. applicationCode. "-DapplicationCode=" or  {@link Config.Agent#APPLICATION_CODE}
-     * 2. servers. "-Dservers=" or  {@link Config.Collector#SERVERS}
+     * At the end, `agent.application_code` and `collector.servers` must be not blank.
      */
-    public static void initialize() {
+    public static void initialize() throws ConfigNotFoundException, AgentPackageNotFoundException {
         InputStream configFileStream;
 
-        configFileStream = loadConfigBySystemProperty();
-
-        if (configFileStream == null) {
-            configFileStream = SnifferConfigInitializer.class.getResourceAsStream(CONFIG_FILE_NAME);
-
-            if (configFileStream == null) {
-                logger.info("No config file found, according system property '-Dconfig'.");
-                configFileStream = loadConfigFromAgentFolder();
-            } else {
-                logger.info("{} file found in class path.", CONFIG_FILE_NAME);
-            }
+        try {
+            configFileStream = loadConfigFromAgentFolder();
+            Properties properties = new Properties();
+            properties.load(configFileStream);
+            ConfigInitializer.initialize(properties, Config.class);
+        } catch (Exception e) {
+            logger.error(e, "Failed to read the config file, skywalking is going to run in default config.");
         }
 
-        if (configFileStream == null) {
-            logger.info("No {} found, sky-walking is going to run in default config.", CONFIG_FILE_NAME);
-        } else {
-            try {
-                Properties properties = new Properties();
-                properties.load(configFileStream);
-                ConfigInitializer.initialize(properties, Config.class);
-            } catch (Exception e) {
-                logger.error("Failed to read the config file, sky-walking is going to run in default config.", e);
-            }
-        }
-
-        String applicationCode = System.getProperty("applicationCode");
-        if (!StringUtil.isEmpty(applicationCode)) {
-            Config.Agent.APPLICATION_CODE = applicationCode;
-        }
-        String servers = System.getProperty("servers");
-        if (!StringUtil.isEmpty(servers)) {
-            Config.Collector.SERVERS = servers;
+        try {
+            overrideConfigBySystemEnv();
+        } catch (Exception e) {
+            logger.error(e, "Failed to read the system env.");
         }
 
         if (StringUtil.isEmpty(Config.Agent.APPLICATION_CODE)) {
-            throw new ExceptionInInitializerError("'-DapplicationCode=' is missing.");
+            throw new ExceptionInInitializerError("`agent.application_code` is missing.");
         }
         if (StringUtil.isEmpty(Config.Collector.SERVERS)) {
-            throw new ExceptionInInitializerError("'-Dservers=' is missing.");
+            throw new ExceptionInInitializerError("`collector.servers` is missing.");
         }
     }
 
     /**
-     * Load the config file by the path, which is provided by system property, usually with a "-Dconfig=" arg.
+     * Override the config by system env. The env key must start with `skywalking`, the reuslt should be as same as in
+     * `agent.config`
+     * <p>
+     * such as:
+     * Env key of `agent.application_code` shoule be `skywalking.agent.application_code`
      *
      * @return the config file {@link InputStream}, or null if not needEnhance.
      */
-    private static InputStream loadConfigBySystemProperty() {
-        String config = System.getProperty("config");
-        if (StringUtil.isEmpty(config)) {
-            return null;
-        }
-        File configFile = new File(config);
-        if (configFile.exists() && configFile.isDirectory()) {
-            logger.info("check {} in path {}, according system property.", CONFIG_FILE_NAME, config);
-            configFile = new File(config, CONFIG_FILE_NAME);
-        }
-
-        if (configFile.exists() && configFile.isFile()) {
-            try {
-                logger.info("found   {}, according system property.", configFile.getAbsolutePath());
-                return new FileInputStream(configFile);
-            } catch (FileNotFoundException e) {
-                logger.error(e, "Fail to load {} , according system property.", config);
+    private static void overrideConfigBySystemEnv() throws IllegalAccessException {
+        Properties properties = new Properties();
+        Properties systemProperties = System.getProperties();
+        Iterator<Map.Entry<Object, Object>> entryIterator = systemProperties.entrySet().iterator();
+        while (entryIterator.hasNext()) {
+            Map.Entry<Object, Object> prop = entryIterator.next();
+            if (prop.getKey().toString().startsWith(ENV_KEY_PREFIX)) {
+                String realKey = prop.getKey().toString().substring(ENV_KEY_PREFIX.length());
+                properties.put(realKey, prop.getValue());
             }
         }
 
-        logger.info("No {}  found, according system property.", config);
-        return null;
+        Map<String, String> envs = System.getenv();
+        for (String envKey : envs.keySet()) {
+            if (envKey.startsWith(ENV_KEY_PREFIX)) {
+                String realKey = envKey.substring(ENV_KEY_PREFIX.length());
+                properties.setProperty(realKey, envs.get(envKey));
+            }
+        }
+
+        if (!properties.isEmpty()) {
+            ConfigInitializer.initialize(properties, Config.class);
+        }
     }
 
     /**
@@ -131,50 +118,17 @@ public class SnifferConfigInitializer {
      *
      * @return the config file {@link InputStream}, or null if not needEnhance.
      */
-    private static InputStream loadConfigFromAgentFolder() {
-        String agentBasePath = initAgentBasePath();
-        if (!StringUtil.isEmpty(agentBasePath)) {
-            File configFile = new File(agentBasePath, CONFIG_FILE_NAME);
-            if (configFile.exists() && configFile.isFile()) {
-                try {
-                    logger.info("{} file found in agent folder.", CONFIG_FILE_NAME);
-                    return new FileInputStream(configFile);
-                } catch (FileNotFoundException e) {
-                    logger.error(e, "Fail to load {} in path {}, according auto-agent-folder mechanism.", CONFIG_FILE_NAME, agentBasePath);
-                }
-            }
-        }
-
-        logger.info("No {} file found in agent folder.", CONFIG_FILE_NAME);
-        return null;
-    }
-
-    /**
-     * Try to allocate the skywalking-agent.jar
-     * Some config files or output resources are from this path.
-     *
-     * @return he path, where the skywalking-agent.jar is
-     */
-    private static String initAgentBasePath() {
-        String classResourcePath = SnifferConfigInitializer.class.getName().replaceAll("\\.", "/") + ".class";
-
-        URL resource = SnifferConfigInitializer.class.getClassLoader().getSystemClassLoader().getResource(classResourcePath);
-        if (resource != null) {
-            String urlString = resource.toString();
-            logger.debug(urlString);
-            urlString = urlString.substring(urlString.indexOf("file:"), urlString.indexOf('!'));
-            File agentJarFile = null;
+    private static InputStream loadConfigFromAgentFolder() throws AgentPackageNotFoundException, ConfigNotFoundException {
+        File configFile = new File(AgentPackagePath.getPath(), CONFIG_FILE_NAME);
+        if (configFile.exists() && configFile.isFile()) {
             try {
-                agentJarFile = new File(new URL(urlString).getFile());
-            } catch (MalformedURLException e) {
-                logger.error(e, "Can not locate agent jar file by url:", urlString);
-            }
-            if (agentJarFile.exists()) {
-                return agentJarFile.getParentFile().getAbsolutePath();
+                logger.info("Config file found in {}.", configFile);
+
+                return new FileInputStream(configFile);
+            } catch (FileNotFoundException e) {
+                throw new ConfigNotFoundException("Fail to load agent.config", e);
             }
         }
-
-        logger.info("Can not locate agent jar file.");
-        return null;
+        throw new ConfigNotFoundException("Fail to load agent config file.");
     }
 }

@@ -21,6 +21,8 @@ package org.skywalking.apm.agent.core.boot;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.List;
+
+import org.junit.AfterClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.skywalking.apm.agent.core.context.ContextManager;
@@ -44,6 +46,11 @@ public class ServiceManagerTest {
 
     @Rule
     public AgentServiceRule agentServiceRule = new AgentServiceRule();
+
+    @AfterClass
+    public static void afterClass() {
+        ServiceManager.INSTANCE.shutdown();
+    }
 
     @Test
     public void testServiceDependencies() throws Exception {
