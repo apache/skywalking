@@ -48,7 +48,7 @@ public class ResponseExtractorFutureInstrumentation extends ClassInstanceMethods
     private static final String ADD_CALLBACK_INTERCEPTOR = "org.skywalking.apm.plugin.spring.resttemplate.async.ResponseCallBackInterceptor";
     private static final String ENHANCE_CLASS = "org.springframework.web.client.AsyncRestTemplate$ResponseExtractorFuture";
     private static final String GET_METHOD_INTERCEPTOR = "org.skywalking.apm.plugin.spring.resttemplate.async.FutureGetInterceptor";
-    private static final String GET_METHOD_NAME = "getDefault";
+    private static final String GET_METHOD_NAME = "get";
 
     @Override
     protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
