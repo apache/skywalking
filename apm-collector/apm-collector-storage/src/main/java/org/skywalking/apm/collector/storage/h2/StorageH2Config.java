@@ -16,14 +16,13 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.ui.dao;
-
-import com.google.gson.JsonObject;
-import java.util.Map;
+package org.skywalking.apm.collector.storage.h2;
 
 /**
- * @author pengys5
+ * @author clevertension
  */
-public interface IServiceReferenceDAO {
-    Map<String, JsonObject> load(int entryServiceId, long startTime, long endTime);
+public class StorageH2Config {
+    public static String URL;
+    public static String USER_NAME;
+    public static String PASSWORD;
 }

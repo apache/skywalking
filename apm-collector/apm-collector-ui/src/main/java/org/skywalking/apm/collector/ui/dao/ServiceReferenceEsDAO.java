@@ -29,11 +29,9 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.sum.Sum;
-import org.skywalking.apm.collector.cache.ServiceIdCache;
 import org.skywalking.apm.collector.cache.ServiceNameCache;
 import org.skywalking.apm.collector.core.util.ColumnNameUtils;
 import org.skywalking.apm.collector.core.util.Const;
-import org.skywalking.apm.collector.core.util.StringUtils;
 import org.skywalking.apm.collector.storage.define.serviceref.ServiceReferenceTable;
 import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
 import org.slf4j.Logger;
@@ -46,30 +44,6 @@ public class ServiceReferenceEsDAO extends EsDAO implements IServiceReferenceDAO
 
     private final Logger logger = LoggerFactory.getLogger(ServiceReferenceEsDAO.class);
 
-    @Override
-    public Map<String, JsonObject> load(String entryServiceName, int entryApplicationId, long startTime, long endTime) {
-        SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(ServiceReferenceTable.TABLE);
-        searchRequestBuilder.setTypes(ServiceReferenceTable.TABLE_TYPE);
-        searchRequestBuilder.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
-
-        BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-        boolQuery.must().add(QueryBuilders.rangeQuery(ServiceReferenceTable.COLUMN_TIME_BUCKET).gte(startTime).lte(endTime));
-        boolQuery.must().add(QueryBuilders.rangeQuery(ServiceReferenceTable.COLUMN_TIME_BUCKET).gte(startTime).lte(endTime));
-
-        int entryServiceId = ServiceIdCache.get(entryApplicationId, entryServiceName);
-        BoolQueryBuilder entryBoolQuery = QueryBuilders.boolQuery();
-        if (entryServiceId != 0) {
-            entryBoolQuery.should().add(QueryBuilders.matchQuery(ServiceReferenceTable.COLUMN_ENTRY_SERVICE_ID, entryServiceId));
-        }
-        entryBoolQuery.should().add(QueryBuilders.matchQuery(ServiceReferenceTable.COLUMN_ENTRY_SERVICE_NAME, entryApplicationId + Const.ID_SPLIT + entryServiceName));
-        boolQuery.must(entryBoolQuery);
-
-        searchRequestBuilder.setQuery(boolQuery);
-        searchRequestBuilder.setSize(0);
-
-        return load(searchRequestBuilder);
-    }
-
     @Override public Map<String, JsonObject> load(int entryServiceId, long startTime, long endTime) {
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(ServiceReferenceTable.TABLE);
         searchRequestBuilder.setTypes(ServiceReferenceTable.TABLE_TYPE);
@@ -79,7 +53,7 @@ public class ServiceReferenceEsDAO extends EsDAO implements IServiceReferenceDAO
         boolQuery.must().add(QueryBuilders.rangeQuery(ServiceReferenceTable.COLUMN_TIME_BUCKET).gte(startTime).lte(endTime));
         boolQuery.must().add(QueryBuilders.rangeQuery(ServiceReferenceTable.COLUMN_TIME_BUCKET).gte(startTime).lte(endTime));
 
-        String entryServiceName = ServiceNameCache.get(entryServiceId);
+        String entryServiceName = ServiceNameCache.getSplitServiceName(ServiceNameCache.get(entryServiceId));
         BoolQueryBuilder entryBoolQuery = QueryBuilders.boolQuery();
         entryBoolQuery.should().add(QueryBuilders.matchQuery(ServiceReferenceTable.COLUMN_ENTRY_SERVICE_ID, entryServiceId));
         entryBoolQuery.should().add(QueryBuilders.matchQuery(ServiceReferenceTable.COLUMN_ENTRY_SERVICE_NAME, entryServiceName));
@@ -131,14 +105,8 @@ public class ServiceReferenceEsDAO extends EsDAO implements IServiceReferenceDAO
                 Sum summary = behindServiceIdBucket.getAggregations().get(ServiceReferenceTable.COLUMN_SUMMARY);
                 Sum costSum = behindServiceIdBucket.getAggregations().get(ServiceReferenceTable.COLUMN_COST_SUMMARY);
 
-                String frontServiceName = ServiceNameCache.get(frontServiceId);
-                if (StringUtils.isNotEmpty(frontServiceName)) {
-                    frontServiceName = frontServiceName.split(Const.ID_SPLIT)[1];
-                }
-                String behindServiceName = ServiceNameCache.get(behindServiceId);
-                if (StringUtils.isNotEmpty(frontServiceName)) {
-                    behindServiceName = behindServiceName.split(Const.ID_SPLIT)[1];
-                }
+                String frontServiceName = ServiceNameCache.getSplitServiceName(ServiceNameCache.get(frontServiceId));
+                String behindServiceName = ServiceNameCache.getSplitServiceName(ServiceNameCache.get(behindServiceId));
 
                 JsonObject serviceReference = new JsonObject();
                 serviceReference.addProperty(ColumnNameUtils.INSTANCE.rename(ServiceReferenceTable.COLUMN_FRONT_SERVICE_ID), frontServiceId);

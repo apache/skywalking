@@ -47,12 +47,6 @@ public class ServiceTreeService {
         return buildTreeData(serviceReferenceMap);
     }
 
-    public JsonArray loadServiceTree(String entryServiceName, int entryApplicationId, long startTime, long endTime) {
-        IServiceReferenceDAO serviceReferenceDAO = (IServiceReferenceDAO)DAOContainer.INSTANCE.get(IServiceReferenceDAO.class.getName());
-        Map<String, JsonObject> serviceReferenceMap = serviceReferenceDAO.load(entryServiceName, entryApplicationId, startTime, endTime);
-        return buildTreeData(serviceReferenceMap);
-    }
-
     private JsonArray buildTreeData(Map<String, JsonObject> serviceReferenceMap) {
         JsonArray serviceReferenceArray = new JsonArray();
         JsonObject rootServiceReference = findRoot(serviceReferenceMap);

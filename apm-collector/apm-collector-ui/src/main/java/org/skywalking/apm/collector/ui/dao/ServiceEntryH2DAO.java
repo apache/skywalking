@@ -76,7 +76,7 @@ public class ServiceEntryH2DAO extends H2DAO implements IServiceEntryDAO {
             while (rs.next()) {
                 int appId = rs.getInt(ServiceEntryTable.COLUMN_APPLICATION_ID);
                 int entryServiceId = rs.getInt(ServiceEntryTable.COLUMN_ENTRY_SERVICE_ID);
-                String applicationCode = ApplicationCache.get(applicationId);
+                String applicationCode = ApplicationCache.get(appId);
                 String entryServiceName1 = rs.getString(ServiceEntryTable.COLUMN_ENTRY_SERVICE_NAME);
 
                 JsonObject row = new JsonObject();

@@ -62,7 +62,7 @@ public class SegmentCostSpanListener implements EntrySpanListener, ExitSpanListe
         if (spanDecorator.getOperationNameId() == 0) {
             segmentCost.setServiceName(spanDecorator.getOperationName());
         } else {
-            segmentCost.setServiceName(ServiceNameCache.get(spanDecorator.getOperationNameId()));
+            segmentCost.setServiceName(ServiceNameCache.getSplitServiceName(ServiceNameCache.get(spanDecorator.getOperationNameId())));
         }
 
         segmentCosts.add(segmentCost);

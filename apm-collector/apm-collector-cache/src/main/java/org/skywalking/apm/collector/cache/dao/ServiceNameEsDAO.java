@@ -44,7 +44,7 @@ public class ServiceNameEsDAO extends EsDAO implements IServiceNameDAO {
             int applicationId = ((Number)getResponse.getSource().get(ServiceNameTable.COLUMN_APPLICATION_ID)).intValue();
             return applicationId + Const.ID_SPLIT + serviceName;
         }
-        return Const.UNKNOWN;
+        return Const.EMPTY_STRING;
     }
 
     @Override public int getServiceId(int applicationId, String serviceName) {
@@ -61,8 +61,7 @@ public class ServiceNameEsDAO extends EsDAO implements IServiceNameDAO {
         SearchResponse searchResponse = searchRequestBuilder.get();
         if (searchResponse.getHits().totalHits > 0) {
             SearchHit searchHit = searchResponse.getHits().iterator().next();
-            int serviceId = (int)searchHit.getSource().get(ServiceNameTable.COLUMN_SERVICE_ID);
-            return serviceId;
+            return (int)searchHit.getSource().get(ServiceNameTable.COLUMN_SERVICE_ID);
         }
         return 0;
     }

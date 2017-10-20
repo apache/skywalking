@@ -56,4 +56,17 @@ public class ServiceNameCache {
 
         return serviceName;
     }
+
+    public static String getSplitServiceName(String serviceName) {
+        if (StringUtils.isNotEmpty(serviceName)) {
+            String[] serviceNames = serviceName.split(Const.ID_SPLIT);
+            if (serviceNames.length == 2) {
+                return serviceNames[1];
+            } else {
+                return Const.EMPTY_STRING;
+            }
+        } else {
+            return Const.EMPTY_STRING;
+        }
+    }
 }

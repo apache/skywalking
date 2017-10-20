@@ -23,6 +23,7 @@ import org.skywalking.apm.collector.agentstream.worker.segment.FirstSpanListener
 import org.skywalking.apm.collector.agentstream.worker.segment.RefsListener;
 import org.skywalking.apm.collector.agentstream.worker.segment.standardization.ReferenceDecorator;
 import org.skywalking.apm.collector.agentstream.worker.segment.standardization.SpanDecorator;
+import org.skywalking.apm.collector.cache.ServiceNameCache;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
@@ -45,6 +46,7 @@ public class ServiceEntrySpanListener implements RefsListener, FirstSpanListener
     private boolean hasReference = false;
     private int applicationId;
     private int entryServiceId;
+    private String entryServiceName;
     private boolean hasEntry = false;
 
     @Override
@@ -52,6 +54,7 @@ public class ServiceEntrySpanListener implements RefsListener, FirstSpanListener
         String segmentId) {
         this.applicationId = applicationId;
         this.entryServiceId = spanDecorator.getOperationNameId();
+        this.entryServiceName = ServiceNameCache.getSplitServiceName(ServiceNameCache.get(entryServiceId));
         this.hasEntry = true;
     }
 
@@ -74,6 +77,7 @@ public class ServiceEntrySpanListener implements RefsListener, FirstSpanListener
             serviceEntry.setId(applicationId + Const.ID_SPLIT + entryServiceId);
             serviceEntry.setApplicationId(applicationId);
             serviceEntry.setEntryServiceId(entryServiceId);
+            serviceEntry.setEntryServiceName(entryServiceName);
             serviceEntry.setRegisterTime(timeBucket);
             serviceEntry.setNewestTime(timeBucket);
 

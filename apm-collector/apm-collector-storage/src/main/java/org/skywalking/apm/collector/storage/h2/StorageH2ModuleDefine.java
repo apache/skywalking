@@ -51,11 +51,11 @@ public class StorageH2ModuleDefine extends StorageModuleDefine {
     }
 
     @Override protected ModuleConfigParser configParser() {
-        return null;
+        return new StorageH2ConfigParser();
     }
 
     @Override protected Client createClient() {
-        return new H2Client();
+        return new H2Client(StorageH2Config.URL, StorageH2Config.USER_NAME, StorageH2Config.PASSWORD);
     }
 
     @Override public StorageInstaller storageInstaller() {

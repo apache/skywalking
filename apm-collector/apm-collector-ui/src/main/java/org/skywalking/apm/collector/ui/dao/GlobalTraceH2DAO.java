@@ -66,7 +66,7 @@ public class GlobalTraceH2DAO extends H2DAO implements IGlobalTraceDAO {
             while (rs.next()) {
                 String segmentId = rs.getString(GlobalTraceTable.COLUMN_SEGMENT_ID);
                 logger.debug("segmentId: {}, global trace id: {}", segmentId, globalTraceId);
-                segmentIds.add(globalTraceId);
+                segmentIds.add(segmentId);
             }
         } catch (SQLException | H2ClientException e) {
             logger.error(e.getMessage(), e);

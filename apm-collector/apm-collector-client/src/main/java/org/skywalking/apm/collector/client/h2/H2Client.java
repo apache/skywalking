@@ -19,14 +19,13 @@
 package org.skywalking.apm.collector.client.h2;
 
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import org.h2.jdbcx.JdbcConnectionPool;
 import org.h2.util.IOUtils;
 import org.skywalking.apm.collector.core.client.Client;
-import org.skywalking.apm.collector.core.config.SystemConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,32 +36,34 @@ public class H2Client implements Client {
 
     private final Logger logger = LoggerFactory.getLogger(H2Client.class);
 
-    private JdbcConnectionPool cp;
     private Connection conn;
     private String url;
     private String userName;
     private String password;
 
     public H2Client() {
-        this.url = "jdbc:h2:" + SystemConfig.DATA_PATH + "/h2";
+        this.url = "jdbc:h2:mem:collector";
         this.userName = "";
         this.password = "";
     }
 
+    public H2Client(String url, String userName, String password) {
+        this.url = url;
+        this.userName = userName;
+        this.password = password;
+    }
+
     @Override public void initialize() throws H2ClientException {
         try {
-            cp = JdbcConnectionPool.
-                create(this.url, this.userName, this.password);
-            conn = cp.getConnection();
+            Class.forName("org.h2.Driver");
+            conn = DriverManager.
+                getConnection(this.url, this.userName, this.password);
         } catch (Exception e) {
             throw new H2ClientException(e.getMessage(), e);
         }
     }
 
     @Override public void shutdown() {
-        if (cp != null) {
-            cp.dispose();
-        }
         IOUtils.closeSilently(conn);
     }
 

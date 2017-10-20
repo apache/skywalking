@@ -51,8 +51,7 @@ public class ApplicationEsDAO extends EsDAO implements IApplicationDAO {
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
         if (searchResponse.getHits().totalHits > 0) {
             SearchHit searchHit = searchResponse.getHits().iterator().next();
-            int applicationId = (int)searchHit.getSource().get(ApplicationTable.COLUMN_APPLICATION_ID);
-            return applicationId;
+            return (int)searchHit.getSource().get(ApplicationTable.COLUMN_APPLICATION_ID);
         }
         return 0;
     }
@@ -66,6 +65,6 @@ public class ApplicationEsDAO extends EsDAO implements IApplicationDAO {
         if (getResponse.isExists()) {
             return (String)getResponse.getSource().get(ApplicationTable.COLUMN_APPLICATION_CODE);
         }
-        return Const.UNKNOWN;
+        return Const.EMPTY_STRING;
     }
 }

@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.client.h2.H2ClientException;
 import org.skywalking.apm.collector.core.stream.Data;
@@ -42,10 +41,11 @@ import org.slf4j.LoggerFactory;
  */
 public class ServiceEntryH2DAO extends H2DAO implements IServiceEntryDAO, IPersistenceDAO<H2SqlEntity, H2SqlEntity> {
     private final Logger logger = LoggerFactory.getLogger(ServiceEntryH2DAO.class);
-    private static final String GET_SERIVCE_ENTRY_SQL = "select * from {0} where {1} = ?";
+    private static final String GET_SERVICE_ENTRY_SQL = "select * from {0} where {1} = ?";
+
     @Override public Data get(String id, DataDefine dataDefine) {
         H2Client client = getClient();
-        String sql = SqlBuilder.buildSql(ServiceEntryTable.TABLE, "id");
+        String sql = SqlBuilder.buildSql(GET_SERVICE_ENTRY_SQL, ServiceEntryTable.TABLE, "id");
         Object[] params = new Object[] {id};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
@@ -62,6 +62,7 @@ public class ServiceEntryH2DAO extends H2DAO implements IServiceEntryDAO, IPersi
         }
         return null;
     }
+
     @Override public H2SqlEntity prepareBatchInsert(Data data) {
         H2SqlEntity entity = new H2SqlEntity();
         Map<String, Object> source = new HashMap<>();
@@ -76,6 +77,7 @@ public class ServiceEntryH2DAO extends H2DAO implements IServiceEntryDAO, IPersi
         entity.setParams(source.values().toArray(new Object[0]));
         return entity;
     }
+
     @Override public H2SqlEntity prepareBatchUpdate(Data data) {
         H2SqlEntity entity = new H2SqlEntity();
         Map<String, Object> source = new HashMap<>();

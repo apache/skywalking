@@ -33,23 +33,27 @@ import org.slf4j.LoggerFactory;
  * @author pengys5, clevertension
  */
 public class ServiceNameH2DAO extends H2DAO implements IServiceNameDAO {
+
     private final Logger logger = LoggerFactory.getLogger(ServiceNameH2DAO.class);
-    private static final String GET_SERVICE_NAME_SQL = "select {0} from {1} where {2} = ?";
+
+    private static final String GET_SERVICE_NAME_SQL = "select {0},{1} from {2} where {3} = ?";
     private static final String GET_SERVICE_ID_SQL = "select {0} from {1} where {2} = ? and {3} = ? limit 1";
 
     @Override public String getServiceName(int serviceId) {
         H2Client client = getClient();
-        String sql = SqlBuilder.buildSql(GET_SERVICE_NAME_SQL, ServiceNameTable.COLUMN_SERVICE_NAME,
+        String sql = SqlBuilder.buildSql(GET_SERVICE_NAME_SQL, ServiceNameTable.COLUMN_APPLICATION_ID, ServiceNameTable.COLUMN_SERVICE_NAME,
             ServiceNameTable.TABLE, ServiceNameTable.COLUMN_SERVICE_ID);
         Object[] params = new Object[] {serviceId};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
-                return rs.getString(ServiceNameTable.COLUMN_SERVICE_NAME);
+                String serviceName = rs.getString(ServiceNameTable.COLUMN_SERVICE_NAME);
+                int applicationId = rs.getInt(ServiceNameTable.COLUMN_APPLICATION_ID);
+                return applicationId + Const.ID_SPLIT + serviceName;
             }
         } catch (SQLException | H2ClientException e) {
             logger.error(e.getMessage(), e);
         }
-        return Const.UNKNOWN;
+        return Const.EMPTY_STRING;
     }
 
     @Override public int getServiceId(int applicationId, String serviceName) {
@@ -59,8 +63,7 @@ public class ServiceNameH2DAO extends H2DAO implements IServiceNameDAO {
         Object[] params = new Object[] {applicationId, serviceName};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
-                int serviceId = rs.getInt(ServiceNameTable.COLUMN_SERVICE_ID);
-                return serviceId;
+                return rs.getInt(ServiceNameTable.COLUMN_SERVICE_ID);
             }
         } catch (SQLException | H2ClientException e) {
             logger.error(e.getMessage(), e);

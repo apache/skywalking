@@ -57,6 +57,6 @@ public class ApplicationH2DAO extends H2DAO implements IApplicationDAO {
         } catch (SQLException | H2ClientException e) {
             logger.error(e.getMessage(), e);
         }
-        return Const.UNKNOWN;
+        return Const.EMPTY_STRING;
     }
 }
