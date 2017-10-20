@@ -10,8 +10,7 @@ Sky Walking | [中文](README_ZH.md)
 [![Join the chat at https://gitter.im/sky-walking/Lobby](https://badges.gitter.im/openskywalking/Lobby.svg)](https://gitter.im/openskywalking/Lobby)
 [![OpenTracing-1.x Badge](https://img.shields.io/badge/OpenTracing--1.x-enabled-blue.svg)](http://opentracing.io)
 
-
-* Auto instrumentation by javaagent, **no need to CHANGE any application source code**.
+* Provide Java agent, **no need to CHANGE any application source code**.
   * High performance agent. Only increase extra **10%** cpu cost in 5000+ tps application, even **When collect all traces**, [check test reports](#test-reports).
   * [Supported middlewares, frameworks and libraries](https://github.com/OpenSkywalking/sky-walking/wiki/3.2-supported-list).
 * Manual instrumentation
@@ -19,7 +18,6 @@ Sky Walking | [中文](README_ZH.md)
   * Use **@Trace** annotation for any methods you want to trace.
   * Integrate traceId into logs for log4j, log4j2 and logback.
 * Pure Java server implementation, provide RESTful and gRPC services. Compatibility with other language agents/SDKs. 
-  * [How to uplink metrics and traces to collector?]()
 * The UI released on [skywalking-ui](https://github.com/OpenSkywalking/sky-walking-ui)
 
 # Architecture

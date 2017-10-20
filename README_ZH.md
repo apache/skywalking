@@ -11,7 +11,7 @@ Sky Walking | [English](README.md)
 [![OpenTracing-1.x Badge](https://img.shields.io/badge/OpenTracing--1.x-enabled-blue.svg)](http://opentracing.io)
 
 
-* 自动java探针，**不需要修改应用程序源代码**
+* Java自动探针，**不需要修改应用程序源代码**
   * 高性能探针，针对单实例5000tps的应用，在**全量采集的情况下**，只增加**10%**的CPU开销。
   * [中间件，框架与类库支持列表](https://github.com/wu-sheng/sky-walking/wiki/3.2-supported-list).
 * 手动探针
