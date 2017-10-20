@@ -35,8 +35,6 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <premain.class>org.skywalking.apm.agent.SkyWalkingAgent</premain.class>
-
-        <shade.package>org.skywalking.apm.dependencies</shade.package>
         <shade.net.bytebuddy.source>net.bytebuddy</shade.net.bytebuddy.source>
         <shade.net.bytebuddy.target>${shade.package}.${shade.net.bytebuddy.source}</shade.net.bytebuddy.target>
     </properties>
@@ -45,152 +43,7 @@
         <!-- plugin -->
         <dependency>
             <groupId>org.skywalking</groupId>
-            <artifactId>apm-jedis-2.x-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.skywalking</groupId>
-            <artifactId>apm-jdbc-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.skywalking</groupId>
-            <artifactId>apm-httpClient-4.x-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.skywalking</groupId>
-            <artifactId>apm-dubbo-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.skywalking</groupId>
-            <artifactId>tomcat-7.x-8.x-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.skywalking</groupId>
-            <artifactId>motan-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.skywalking</groupId>
-            <artifactId>apm-mongodb-3.x-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.skywalking</groupId>
-            <artifactId>apm-resin-3.x-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.skywalking</groupId>
-            <artifactId>apm-resin-4.x-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.skywalking</groupId>
-            <artifactId>apm-okhttp-3.x-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.skywalking</groupId>
-            <artifactId>apm-feign-default-http-9.x-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.skywalking</groupId>
-            <artifactId>apm-resttemplate-4.3.x-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.skywalking</groupId>
-            <artifactId>apm-spring-concurrent-util-4.x-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.skywalking</groupId>
-            <artifactId>apm-springmvc-annotation-4.x-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.skywalking</groupId>
-            <artifactId>apm-spring-cloud-feign-1.x-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.skywalking</groupId>
-            <artifactId>apm-struts2-2.x-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.skywalking</groupId>
-            <artifactId>apm-nutz-mvc-annotation-1.x-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.skywalking</groupId>
-            <artifactId>apm-nutz-http-1.x-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.skywalking</groupId>
-            <artifactId>apm-jetty-client-9.x-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.skywalking</groupId>
-            <artifactId>apm-jetty-server-9.x-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.skywalking</groupId>
-            <artifactId>apm-spymemcached-2.x-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.skywalking</groupId>
-            <artifactId>apm-sharding-jdbc-1.5.x-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.skywalking</groupId>
-            <artifactId>apm-xmemcached-2.x-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.skywalking</groupId>
-            <artifactId>apm-grpc-1.x-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <!-- activation -->
-        <dependency>
-            <groupId>org.skywalking</groupId>
-            <artifactId>apm-toolkit-log4j-1.x-activation</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.skywalking</groupId>
-            <artifactId>apm-toolkit-log4j-2.x-activation</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.skywalking</groupId>
-            <artifactId>apm-toolkit-logback-1.x-activation</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.skywalking</groupId>
-            <artifactId>apm-toolkit-opentracing-activation</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.skywalking</groupId>
-            <artifactId>apm-toolkit-trace-activation</artifactId>
+            <artifactId>apm-agent-core</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -214,10 +67,6 @@
                             <createSourcesJar>true</createSourcesJar>
                             <shadeSourcesContent>true</shadeSourcesContent>
                             <transformers>
-                                <transformer
-                                    implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                                    <resource>skywalking-plugin.def</resource>
-                                </transformer>
                                 <transformer
                                     implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <manifestEntries>
@@ -259,9 +108,13 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <mkdir dir="${project.basedir}/../../packages"/>
+                                <mkdir dir="${project.basedir}/../../packages/skywalking-agent"/>
                                 <copy file="${project.build.directory}/skywalking-agent.jar"
-                                      tofile="${project.basedir}/../../packages/skywalking-agent.jar" overwrite="true"/>
+                                      tofile="${project.basedir}/../../packages/skywalking-agent/skywalking-agent.jar" overwrite="true"/>
+                                <mkdir dir="${project.basedir}/../../packages/skywalking-agent/config"/>
+                                <mkdir dir="${project.basedir}/../../packages/skywalking-agent/logs"/>
+                                <copydir src="${project.basedir}/../config"
+                                         dest="${project.basedir}/../../packages/skywalking-agent/config" forceoverwrite="true"/>
                             </tasks>
                         </configuration>
                     </execution>

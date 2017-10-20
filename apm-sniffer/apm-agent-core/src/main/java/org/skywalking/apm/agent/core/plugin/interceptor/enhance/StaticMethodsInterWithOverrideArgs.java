@@ -23,9 +23,9 @@ import net.bytebuddy.implementation.bind.annotation.AllArguments;
 import net.bytebuddy.implementation.bind.annotation.Morph;
 import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
-import org.skywalking.apm.agent.core.plugin.interceptor.loader.InterceptorInstanceLoader;
-import org.skywalking.apm.logging.ILog;
-import org.skywalking.apm.logging.LogManager;
+import org.skywalking.apm.agent.core.plugin.loader.InterceptorInstanceLoader;
+import org.skywalking.apm.agent.core.logging.api.ILog;
+import org.skywalking.apm.agent.core.logging.api.LogManager;
 
 /**
  * The actual byte-buddy's interceptor to intercept class instance methods.

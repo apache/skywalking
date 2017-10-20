@@ -35,8 +35,8 @@ import org.skywalking.apm.agent.core.boot.BootService;
 import org.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
 import org.skywalking.apm.agent.core.conf.Config;
 import org.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
-import org.skywalking.apm.logging.ILog;
-import org.skywalking.apm.logging.LogManager;
+import org.skywalking.apm.agent.core.logging.api.ILog;
+import org.skywalking.apm.agent.core.logging.api.LogManager;
 
 /**
  * @author wusheng
@@ -70,13 +70,15 @@ public class GRPCChannelManager implements BootService, Runnable {
     @Override
     public void shutdown() throws Throwable {
         connectCheckFuture.cancel(true);
-        managedChannel.shutdownNow();
+        if (managedChannel != null) {
+            managedChannel.shutdownNow();
+        }
         logger.debug("Selected collector grpc service shutdown.");
     }
 
     @Override
     public void run() {
-        logger.debug("Selected collector grpc service running, reconnect:{}.",reconnect);
+        logger.debug("Selected collector grpc service running, reconnect:{}.", reconnect);
         if (reconnect) {
             if (RemoteDownstreamConfig.Collector.GRPC_SERVERS.size() > 0) {
                 String server = "";

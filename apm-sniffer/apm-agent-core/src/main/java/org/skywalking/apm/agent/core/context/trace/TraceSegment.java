@@ -26,8 +26,8 @@ import org.skywalking.apm.agent.core.context.ids.DistributedTraceIds;
 import org.skywalking.apm.agent.core.context.ids.GlobalIdGenerator;
 import org.skywalking.apm.agent.core.context.ids.ID;
 import org.skywalking.apm.agent.core.context.ids.NewDistributedTraceId;
-import org.skywalking.apm.logging.ILog;
-import org.skywalking.apm.logging.LogManager;
+import org.skywalking.apm.agent.core.logging.api.ILog;
+import org.skywalking.apm.agent.core.logging.api.LogManager;
 import org.skywalking.apm.network.proto.TraceSegmentObject;
 import org.skywalking.apm.network.proto.UpstreamSegment;
 

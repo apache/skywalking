@@ -33,7 +33,7 @@ import static org.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 /**
  * {@link MemcachedInstrumentation} presents that skywalking intercept all constructors and methods of
  * {@link net.spy.memcached.MemcachedClient}.
- * {@link XMemcachedConstructorWithInetSocketAddressListArgInterceptor} intercepts the constructor with
+ * <code>org.skywalking.apm.plugin.spymemcached.v2.MemcachedConstructorWithInetSocketAddressListArgInterceptor</code> intercepts the constructor with
  * argument {@link java.net.InetSocketAddress}.
  *
  * @author IluckySi

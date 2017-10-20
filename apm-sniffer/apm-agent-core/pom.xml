@@ -55,12 +55,12 @@
     <dependencies>
         <dependency>
             <groupId>org.skywalking</groupId>
-            <artifactId>apm-logging-api</artifactId>
+            <artifactId>apm-network</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.skywalking</groupId>
-            <artifactId>apm-network</artifactId>
+            <artifactId>apm-util</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -190,6 +190,23 @@
                                 <transformer
                                     implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                             </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <delete dir="${project.basedir}/../../packages"/>
+                            </tasks>
                         </configuration>
                     </execution>
                 </executions>

@@ -21,8 +21,10 @@ package org.skywalking.apm.agent.core.plugin;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import org.skywalking.apm.logging.ILog;
-import org.skywalking.apm.logging.LogManager;
+import org.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
+import org.skywalking.apm.agent.core.plugin.loader.AgentClassLoader;
+import org.skywalking.apm.agent.core.logging.api.ILog;
+import org.skywalking.apm.agent.core.logging.api.LogManager;
 
 /**
  * Plugins finder.
@@ -39,7 +41,9 @@ public class PluginBootstrap {
      *
      * @return plugin definition list.
      */
-    public List<AbstractClassEnhancePluginDefine> loadPlugins() {
+    public List<AbstractClassEnhancePluginDefine> loadPlugins() throws AgentPackageNotFoundException {
+        AgentClassLoader.initDefaultLoader();
+
         PluginResourcesResolver resolver = new PluginResourcesResolver();
         List<URL> resources = resolver.getResources();
 
@@ -63,7 +67,10 @@ public class PluginBootstrap {
             try {
                 logger.debug("loading plugin class {}.", pluginDefine.getDefineClass());
                 AbstractClassEnhancePluginDefine plugin =
-                    (AbstractClassEnhancePluginDefine)Class.forName(pluginDefine.getDefineClass()).newInstance();
+                    (AbstractClassEnhancePluginDefine)Class.forName(pluginDefine.getDefineClass(),
+                        true,
+                        AgentClassLoader.getDefault())
+                        .newInstance();
                 plugins.add(plugin);
             } catch (Throwable t) {
                 logger.error(t, "load plugin [{}] failure.", pluginDefine.getDefineClass());
