@@ -24,10 +24,6 @@ import org.skywalking.apm.collector.storage.define.register.ServiceNameDataDefin
  * @author pengys5
  */
 public interface IServiceNameDAO {
-    int getServiceId(int applicationId, String serviceName);
-
-    String getServiceName(int serviceId);
-
     int getMaxServiceId();
 
     int getMinServiceId();

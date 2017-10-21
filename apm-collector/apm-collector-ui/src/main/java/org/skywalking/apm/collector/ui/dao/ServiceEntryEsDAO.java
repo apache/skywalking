@@ -29,11 +29,11 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
+import org.skywalking.apm.collector.cache.ApplicationCache;
 import org.skywalking.apm.collector.core.util.ColumnNameUtils;
 import org.skywalking.apm.collector.core.util.StringUtils;
 import org.skywalking.apm.collector.storage.define.service.ServiceEntryTable;
 import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
-import org.skywalking.apm.collector.ui.cache.ApplicationCache;
 
 /**
  * @author pengys5
@@ -75,7 +75,7 @@ public class ServiceEntryEsDAO extends EsDAO implements IServiceEntryDAO {
         for (SearchHit searchHit : searchHits.getHits()) {
             int applicationId = ((Number)searchHit.getSource().get(ServiceEntryTable.COLUMN_APPLICATION_ID)).intValue();
             int entryServiceId = ((Number)searchHit.getSource().get(ServiceEntryTable.COLUMN_ENTRY_SERVICE_ID)).intValue();
-            String applicationCode = ApplicationCache.getForUI(applicationId);
+            String applicationCode = ApplicationCache.get(applicationId);
             String entryServiceName = (String)searchHit.getSource().get(ServiceEntryTable.COLUMN_ENTRY_SERVICE_NAME);
 
             JsonObject row = new JsonObject();

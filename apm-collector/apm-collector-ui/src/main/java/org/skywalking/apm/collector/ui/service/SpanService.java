@@ -21,11 +21,11 @@ package org.skywalking.apm.collector.ui.service;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import java.util.List;
+import org.skywalking.apm.collector.cache.ApplicationCache;
+import org.skywalking.apm.collector.cache.ServiceNameCache;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.StringUtils;
 import org.skywalking.apm.collector.storage.dao.DAOContainer;
-import org.skywalking.apm.collector.ui.cache.ApplicationCache;
-import org.skywalking.apm.collector.ui.cache.ServiceNameCache;
 import org.skywalking.apm.collector.ui.dao.ISegmentDAO;
 import org.skywalking.apm.network.proto.KeyWithStringValue;
 import org.skywalking.apm.network.proto.LogMessage;
@@ -96,7 +96,7 @@ public class SpanService {
                 if (spanObject.getPeerId() == 0) {
                     peerJson.addProperty("value", spanObject.getPeer());
                 } else {
-                    peerJson.addProperty("value", ApplicationCache.getForUI(spanObject.getPeerId()));
+                    peerJson.addProperty("value", ApplicationCache.get(spanObject.getPeerId()));
                 }
                 tagsArray.add(peerJson);
 

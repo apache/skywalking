@@ -26,10 +26,10 @@ import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.skywalking.apm.collector.cache.ApplicationCache;
 import org.skywalking.apm.collector.core.util.StringUtils;
 import org.skywalking.apm.collector.storage.define.node.NodeComponentTable;
 import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
-import org.skywalking.apm.collector.ui.cache.ApplicationCache;
 import org.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -106,7 +106,7 @@ public class NodeComponentEsDAO extends EsDAO implements INodeComponentDAO {
             int peerId = peerIdBucket.getKeyAsNumber().intValue();
 
             if (peerId != 0) {
-                String peer = ApplicationCache.getForUI(peerId);
+                String peer = ApplicationCache.get(peerId);
 
                 JsonObject nodeComponentObj = new JsonObject();
                 nodeComponentObj.addProperty("componentName", componentName);

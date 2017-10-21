@@ -68,10 +68,6 @@ public abstract class StorageModuleDefine extends ModuleDefine implements Cluste
         return null;
     }
 
-    @Override public final boolean defaultModule() {
-        return true;
-    }
-
     public abstract StorageInstaller storageInstaller();
 
     public abstract void injectClientIntoDAO(Client client) throws DefineException;

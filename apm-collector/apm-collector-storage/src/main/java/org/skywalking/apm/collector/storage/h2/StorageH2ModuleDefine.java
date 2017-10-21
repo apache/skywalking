@@ -46,6 +46,10 @@ public class StorageH2ModuleDefine extends StorageModuleDefine {
         return MODULE_NAME;
     }
 
+    @Override public final boolean defaultModule() {
+        return true;
+    }
+
     @Override protected ModuleConfigParser configParser() {
         return new StorageH2ConfigParser();
     }

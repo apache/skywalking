@@ -28,10 +28,10 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.sum.Sum;
+import org.skywalking.apm.collector.cache.ApplicationCache;
 import org.skywalking.apm.collector.core.util.StringUtils;
 import org.skywalking.apm.collector.storage.define.noderef.NodeReferenceTable;
 import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
-import org.skywalking.apm.collector.ui.cache.ApplicationCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,13 +72,13 @@ public class NodeReferenceEsDAO extends EsDAO implements INodeReferenceDAO {
         Terms frontApplicationIdTerms = searchResponse.getAggregations().get(NodeReferenceTable.COLUMN_FRONT_APPLICATION_ID);
         for (Terms.Bucket frontApplicationIdBucket : frontApplicationIdTerms.getBuckets()) {
             int applicationId = frontApplicationIdBucket.getKeyAsNumber().intValue();
-            String applicationCode = ApplicationCache.getForUI(applicationId);
+            String applicationCode = ApplicationCache.get(applicationId);
             Terms behindApplicationIdTerms = frontApplicationIdBucket.getAggregations().get(NodeReferenceTable.COLUMN_BEHIND_APPLICATION_ID);
             for (Terms.Bucket behindApplicationIdBucket : behindApplicationIdTerms.getBuckets()) {
                 int behindApplicationId = behindApplicationIdBucket.getKeyAsNumber().intValue();
 
                 if (behindApplicationId != 0) {
-                    String behindApplicationCode = ApplicationCache.getForUI(behindApplicationId);
+                    String behindApplicationCode = ApplicationCache.get(behindApplicationId);
 
                     Sum s1LTE = behindApplicationIdBucket.getAggregations().get(NodeReferenceTable.COLUMN_S1_LTE);
                     Sum s3LTE = behindApplicationIdBucket.getAggregations().get(NodeReferenceTable.COLUMN_S3_LTE);

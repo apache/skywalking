@@ -46,6 +46,10 @@ public class StorageElasticSearchModuleDefine extends StorageModuleDefine {
         return MODULE_NAME;
     }
 
+    @Override public final boolean defaultModule() {
+        return false;
+    }
+
     @Override protected ModuleConfigParser configParser() {
         return new StorageElasticSearchConfigParser();
     }

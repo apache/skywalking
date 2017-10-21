@@ -25,9 +25,9 @@ import org.skywalking.apm.network.proto.UniqueId;
 /**
  * @author pengys5
  */
-public class UniqueIdJsonReader implements StreamJsonReader<UniqueId> {
+public class UniqueIdJsonReader implements StreamJsonReader<UniqueId.Builder> {
 
-    @Override public UniqueId read(JsonReader reader) throws IOException {
+    @Override public UniqueId.Builder read(JsonReader reader) throws IOException {
         UniqueId.Builder builder = UniqueId.newBuilder();
 
         reader.beginArray();
@@ -35,6 +35,6 @@ public class UniqueIdJsonReader implements StreamJsonReader<UniqueId> {
             builder.addIdParts(reader.nextLong());
         }
         reader.endArray();
-        return builder.build();
+        return builder;
     }
 }

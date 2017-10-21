@@ -76,7 +76,9 @@ public abstract class SingleModuleInstaller extends CommonModuleInstaller {
                         throw new ClusterModuleException("single module, but configure multiple default module");
                     }
                     this.moduleDefine = moduleDefineEntry.getValue();
-                    this.moduleDefine.configParser().parse(null);
+                    if (this.moduleDefine.configParser() != null) {
+                        this.moduleDefine.configParser().parse(null);
+                    }
                     hasDefaultModule = true;
                 }
             }

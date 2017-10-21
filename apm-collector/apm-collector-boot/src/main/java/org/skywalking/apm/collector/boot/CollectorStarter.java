@@ -53,6 +53,9 @@ public class CollectorStarter implements Starter {
 
         ServerHolder serverHolder = new ServerHolder();
         for (ModuleGroupDefine moduleGroupDefine : moduleGroupDefineMap.values()) {
+            if (moduleGroupDefine.groupConfigParser() != null) {
+                moduleGroupDefine.groupConfigParser().parse(configuration.get(moduleGroupDefine.name()));
+            }
             moduleGroupDefine.moduleInstaller().injectConfiguration(configuration.get(moduleGroupDefine.name()), moduleDefineMap.get(moduleGroupDefine.name()));
             moduleGroupDefine.moduleInstaller().injectServerHolder(serverHolder);
             moduleGroupDefine.moduleInstaller().preInstall();

@@ -20,6 +20,7 @@ package org.skywalking.apm.collector.agentregister.worker.servicename;
 
 import org.skywalking.apm.collector.agentregister.worker.IdAutoIncrement;
 import org.skywalking.apm.collector.agentregister.worker.servicename.dao.IServiceNameDAO;
+import org.skywalking.apm.collector.cache.dao.IServiceNameCacheDAO;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.storage.dao.DAOContainer;
 import org.skywalking.apm.collector.storage.define.DataDefine;
@@ -55,9 +56,10 @@ public class ServiceNameRegisterSerialWorker extends AbstractLocalAsyncWorker {
             ServiceNameDataDefine.ServiceName serviceName = (ServiceNameDataDefine.ServiceName)message;
             logger.debug("register service name: {}, application id: {}", serviceName.getServiceName(), serviceName.getApplicationId());
 
-            IServiceNameDAO dao = (IServiceNameDAO)DAOContainer.INSTANCE.get(IServiceNameDAO.class.getName());
-            int serviceId = dao.getServiceId(serviceName.getApplicationId(), serviceName.getServiceName());
+            IServiceNameCacheDAO cacheDao = (IServiceNameCacheDAO)DAOContainer.INSTANCE.get(IServiceNameDAO.class.getName());
+            int serviceId = cacheDao.getServiceId(serviceName.getApplicationId(), serviceName.getServiceName());
 
+            IServiceNameDAO dao = (IServiceNameDAO)DAOContainer.INSTANCE.get(IServiceNameDAO.class.getName());
             if (serviceId == 0) {
                 int min = dao.getMinServiceId();
                 if (min == 0) {

@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.skywalking.apm.collector.agentstream.worker.segment.FirstSpanListener;
 import org.skywalking.apm.collector.agentstream.worker.segment.GlobalTraceIdsListener;
+import org.skywalking.apm.collector.agentstream.worker.segment.standardization.SpanDecorator;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
@@ -30,7 +31,6 @@ import org.skywalking.apm.collector.stream.StreamModuleContext;
 import org.skywalking.apm.collector.stream.StreamModuleGroupDefine;
 import org.skywalking.apm.collector.stream.worker.WorkerInvokeException;
 import org.skywalking.apm.collector.stream.worker.WorkerNotFoundException;
-import org.skywalking.apm.network.proto.SpanObject;
 import org.skywalking.apm.network.proto.UniqueId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,8 +47,9 @@ public class GlobalTraceSpanListener implements FirstSpanListener, GlobalTraceId
     private long timeBucket;
 
     @Override
-    public void parseFirst(SpanObject spanObject, int applicationId, int applicationInstanceId, String segmentId) {
-        this.timeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(spanObject.getStartTime());
+    public void parseFirst(SpanDecorator spanDecorator, int applicationId, int applicationInstanceId,
+        String segmentId) {
+        this.timeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(spanDecorator.getStartTime());
         this.segmentId = segmentId;
     }
 

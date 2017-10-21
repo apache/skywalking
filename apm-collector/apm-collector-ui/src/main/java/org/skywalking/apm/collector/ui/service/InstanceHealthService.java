@@ -21,10 +21,10 @@ package org.skywalking.apm.collector.ui.service;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import java.util.List;
+import org.skywalking.apm.collector.cache.ApplicationCache;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 import org.skywalking.apm.collector.storage.dao.DAOContainer;
 import org.skywalking.apm.collector.storage.define.register.InstanceDataDefine;
-import org.skywalking.apm.collector.ui.cache.ApplicationCache;
 import org.skywalking.apm.collector.ui.dao.IGCMetricDAO;
 import org.skywalking.apm.collector.ui.dao.IInstPerformanceDAO;
 import org.skywalking.apm.collector.ui.dao.IInstanceDAO;
@@ -50,7 +50,7 @@ public class InstanceHealthService {
         response.add("instances", instances);
 
         instanceList.forEach(instance -> {
-            response.addProperty("applicationCode", ApplicationCache.getForUI(applicationId));
+            response.addProperty("applicationCode", ApplicationCache.get(applicationId));
             response.addProperty("applicationId", applicationId);
 
             IInstPerformanceDAO instPerformanceDAO = (IInstPerformanceDAO)DAOContainer.INSTANCE.get(IInstPerformanceDAO.class.getName());

@@ -19,6 +19,7 @@
 package org.skywalking.apm.collector.boot;
 
 import org.skywalking.apm.collector.core.CollectorException;
+import org.skywalking.apm.collector.core.config.SystemConfigParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +32,7 @@ public class CollectorBootStartUp {
 
     public static void main(String[] args) throws CollectorException {
         logger.info("collector starting...");
+        SystemConfigParser.INSTANCE.parse();
         CollectorStarter starter = new CollectorStarter();
         starter.start();
         logger.info("collector start successful.");

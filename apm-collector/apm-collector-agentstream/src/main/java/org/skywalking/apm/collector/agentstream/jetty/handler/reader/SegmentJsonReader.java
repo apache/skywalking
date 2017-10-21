@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author pengys5
  */
-public class SegmentJsonReader implements StreamJsonReader<TraceSegmentObject> {
+public class SegmentJsonReader implements StreamJsonReader<TraceSegmentObject.Builder> {
 
     private final Logger logger = LoggerFactory.getLogger(SegmentJsonReader.class);
 
@@ -41,7 +41,7 @@ public class SegmentJsonReader implements StreamJsonReader<TraceSegmentObject> {
     private static final String TRACE_SEGMENT_REFERENCE = "rs";
     private static final String SPANS = "ss";
 
-    @Override public TraceSegmentObject read(JsonReader reader) throws IOException {
+    @Override public TraceSegmentObject.Builder read(JsonReader reader) throws IOException {
         TraceSegmentObject.Builder builder = TraceSegmentObject.newBuilder();
 
         reader.beginObject();
@@ -82,6 +82,6 @@ public class SegmentJsonReader implements StreamJsonReader<TraceSegmentObject> {
         }
         reader.endObject();
 
-        return builder.build();
+        return builder;
     }
 }

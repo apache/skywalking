@@ -20,6 +20,7 @@ package org.skywalking.apm.collector.agentstream.worker.instance.performance;
 
 import org.skywalking.apm.collector.agentstream.worker.segment.EntrySpanListener;
 import org.skywalking.apm.collector.agentstream.worker.segment.FirstSpanListener;
+import org.skywalking.apm.collector.agentstream.worker.segment.standardization.SpanDecorator;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
@@ -28,7 +29,6 @@ import org.skywalking.apm.collector.stream.StreamModuleContext;
 import org.skywalking.apm.collector.stream.StreamModuleGroupDefine;
 import org.skywalking.apm.collector.stream.worker.WorkerInvokeException;
 import org.skywalking.apm.collector.stream.worker.WorkerNotFoundException;
-import org.skywalking.apm.network.proto.SpanObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,15 +45,17 @@ public class InstPerformanceSpanListener implements EntrySpanListener, FirstSpan
     private long timeBucket;
 
     @Override
-    public void parseEntry(SpanObject spanObject, int applicationId, int applicationInstanceId, String segmentId) {
+    public void parseEntry(SpanDecorator spanDecorator, int applicationId, int applicationInstanceId,
+        String segmentId) {
     }
 
     @Override
-    public void parseFirst(SpanObject spanObject, int applicationId, int applicationInstanceId, String segmentId) {
+    public void parseFirst(SpanDecorator spanDecorator, int applicationId, int applicationInstanceId,
+        String segmentId) {
         this.applicationId = applicationId;
         this.instanceId = applicationInstanceId;
-        this.cost = spanObject.getEndTime() - spanObject.getStartTime();
-        timeBucket = TimeBucketUtils.INSTANCE.getSecondTimeBucket(spanObject.getStartTime());
+        this.cost = spanDecorator.getEndTime() - spanDecorator.getStartTime();
+        timeBucket = TimeBucketUtils.INSTANCE.getSecondTimeBucket(spanDecorator.getStartTime());
     }
 
     @Override public void build() {

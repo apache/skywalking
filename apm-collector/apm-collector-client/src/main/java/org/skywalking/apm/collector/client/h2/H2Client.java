@@ -18,9 +18,12 @@
 
 package org.skywalking.apm.collector.client.h2;
 
-import java.sql.*;
-
-import org.h2.jdbcx.JdbcConnectionPool;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import org.h2.util.IOUtils;
 import org.skywalking.apm.collector.core.client.Client;
 import org.slf4j.Logger;
@@ -33,7 +36,6 @@ public class H2Client implements Client {
 
     private final Logger logger = LoggerFactory.getLogger(H2Client.class);
 
-    private JdbcConnectionPool cp;
     private Connection conn;
     private String url;
     private String userName;
@@ -53,18 +55,15 @@ public class H2Client implements Client {
 
     @Override public void initialize() throws H2ClientException {
         try {
-            cp = JdbcConnectionPool.
-                    create(this.url, this.userName, this.password);
-            conn = cp.getConnection();
+            Class.forName("org.h2.Driver");
+            conn = DriverManager.
+                getConnection(this.url, this.userName, this.password);
         } catch (Exception e) {
             throw new H2ClientException(e.getMessage(), e);
         }
     }
 
     @Override public void shutdown() {
-        if (cp != null) {
-            cp.dispose();
-        }
         IOUtils.closeSilently(conn);
     }
 
