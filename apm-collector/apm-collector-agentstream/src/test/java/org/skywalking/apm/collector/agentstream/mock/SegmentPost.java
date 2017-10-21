@@ -135,8 +135,4 @@ public class SegmentPost {
 
         return osInfoJson;
     }
-
-    private void newDao() {
-
-    }
 }

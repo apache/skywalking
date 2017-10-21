@@ -16,16 +16,13 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.agentstream.worker.segment.buffer;
-
-import org.junit.Test;
+package org.skywalking.apm.collector.cache.dao;
 
 /**
  * @author pengys5
  */
-public class OffsetManagerTestCase {
+public interface IServiceNameCacheDAO {
+    String getServiceName(int serviceId);
 
-    @Test
-    public void test() {
-    }
+    int getServiceId(int applicationId, String serviceName);
 }

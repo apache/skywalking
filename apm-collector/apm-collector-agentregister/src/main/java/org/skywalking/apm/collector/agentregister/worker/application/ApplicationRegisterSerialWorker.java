@@ -20,6 +20,7 @@ package org.skywalking.apm.collector.agentregister.worker.application;
 
 import org.skywalking.apm.collector.agentregister.worker.IdAutoIncrement;
 import org.skywalking.apm.collector.agentregister.worker.application.dao.IApplicationDAO;
+import org.skywalking.apm.collector.cache.dao.IApplicationCacheDAO;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.storage.dao.DAOContainer;
 import org.skywalking.apm.collector.storage.define.DataDefine;
@@ -55,7 +56,7 @@ public class ApplicationRegisterSerialWorker extends AbstractLocalAsyncWorker {
             ApplicationDataDefine.Application application = (ApplicationDataDefine.Application)message;
             logger.debug("register application, application code: {}", application.getApplicationCode());
 
-            org.skywalking.apm.collector.cache.dao.IApplicationDAO cacheDao = (org.skywalking.apm.collector.cache.dao.IApplicationDAO)DAOContainer.INSTANCE.get(org.skywalking.apm.collector.cache.dao.IApplicationDAO.class.getName());
+            IApplicationCacheDAO cacheDao = (IApplicationCacheDAO)DAOContainer.INSTANCE.get(IApplicationCacheDAO.class.getName());
             int applicationId = cacheDao.getApplicationId(application.getApplicationCode());
 
             IApplicationDAO dao = (IApplicationDAO)DAOContainer.INSTANCE.get(IApplicationDAO.class.getName());

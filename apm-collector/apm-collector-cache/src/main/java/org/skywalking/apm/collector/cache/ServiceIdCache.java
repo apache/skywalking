@@ -20,7 +20,7 @@ package org.skywalking.apm.collector.cache;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import org.skywalking.apm.collector.cache.dao.IServiceNameDAO;
+import org.skywalking.apm.collector.cache.dao.IServiceNameCacheDAO;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.storage.dao.DAOContainer;
 import org.slf4j.Logger;
@@ -37,7 +37,7 @@ public class ServiceIdCache {
     private static Cache<String, Integer> SERVICE_CACHE = CacheBuilder.newBuilder().maximumSize(1000).build();
 
     public static int get(int applicationId, String serviceName) {
-        IServiceNameDAO dao = (IServiceNameDAO)DAOContainer.INSTANCE.get(IServiceNameDAO.class.getName());
+        IServiceNameCacheDAO dao = (IServiceNameCacheDAO)DAOContainer.INSTANCE.get(IServiceNameCacheDAO.class.getName());
 
         int serviceId = 0;
         try {

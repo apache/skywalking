@@ -35,9 +35,9 @@ import org.slf4j.LoggerFactory;
 /**
  * @author pengys5
  */
-public class ApplicationEsDAO extends EsDAO implements IApplicationDAO {
+public class ApplicationEsCacheDAO extends EsDAO implements IApplicationCacheDAO {
 
-    private final Logger logger = LoggerFactory.getLogger(ApplicationEsDAO.class);
+    private final Logger logger = LoggerFactory.getLogger(ApplicationEsCacheDAO.class);
 
     @Override public int getApplicationId(String applicationCode) {
         ElasticSearchClient client = getClient();

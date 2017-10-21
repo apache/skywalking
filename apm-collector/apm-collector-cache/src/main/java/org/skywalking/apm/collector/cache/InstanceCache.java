@@ -20,7 +20,7 @@ package org.skywalking.apm.collector.cache;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import org.skywalking.apm.collector.cache.dao.IInstanceDAO;
+import org.skywalking.apm.collector.cache.dao.IInstanceCacheDAO;
 import org.skywalking.apm.collector.storage.dao.DAOContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +35,7 @@ public class InstanceCache {
     private static Cache<Integer, Integer> INSTANCE_CACHE = CacheBuilder.newBuilder().initialCapacity(100).maximumSize(5000).build();
 
     public static int get(int applicationInstanceId) {
-        IInstanceDAO dao = (IInstanceDAO)DAOContainer.INSTANCE.get(IInstanceDAO.class.getName());
+        IInstanceCacheDAO dao = (IInstanceCacheDAO)DAOContainer.INSTANCE.get(IInstanceCacheDAO.class.getName());
 
         int applicationId = 0;
         try {

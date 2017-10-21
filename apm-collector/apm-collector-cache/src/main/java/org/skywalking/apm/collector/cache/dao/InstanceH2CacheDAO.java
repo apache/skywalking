@@ -31,9 +31,9 @@ import org.slf4j.LoggerFactory;
 /**
  * @author pengys5
  */
-public class InstanceH2DAO extends H2DAO implements IInstanceDAO {
+public class InstanceH2CacheDAO extends H2DAO implements IInstanceCacheDAO {
 
-    private final Logger logger = LoggerFactory.getLogger(InstanceH2DAO.class);
+    private final Logger logger = LoggerFactory.getLogger(InstanceH2CacheDAO.class);
 
     private static final String GET_APPLICATION_ID_SQL = "select {0} from {1} where {2} = ?";
 

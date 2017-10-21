@@ -18,25 +18,9 @@
 
 package org.skywalking.apm.collector.cache.dao;
 
-import org.elasticsearch.action.get.GetResponse;
-import org.skywalking.apm.collector.storage.define.register.InstanceTable;
-import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * @author pengys5
  */
-public class InstanceEsDAO extends EsDAO implements IInstanceDAO {
-
-    private final Logger logger = LoggerFactory.getLogger(InstanceEsDAO.class);
-
-    @Override public int getApplicationId(int applicationInstanceId) {
-        GetResponse response = getClient().prepareGet(InstanceTable.TABLE, String.valueOf(applicationInstanceId)).get();
-        if (response.isExists()) {
-            return (int)response.getSource().get(InstanceTable.COLUMN_APPLICATION_ID);
-        } else {
-            return 0;
-        }
-    }
+public interface IInstanceCacheDAO {
+    int getApplicationId(int applicationInstanceId);
 }

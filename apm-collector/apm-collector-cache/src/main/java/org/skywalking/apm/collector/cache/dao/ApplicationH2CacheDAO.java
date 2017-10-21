@@ -23,7 +23,7 @@ import java.sql.SQLException;
 import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.client.h2.H2ClientException;
 import org.skywalking.apm.collector.core.util.Const;
-import org.skywalking.apm.collector.storage.define.register.ServiceNameTable;
+import org.skywalking.apm.collector.storage.define.register.ApplicationTable;
 import org.skywalking.apm.collector.storage.h2.SqlBuilder;
 import org.skywalking.apm.collector.storage.h2.dao.H2DAO;
 import org.slf4j.Logger;
@@ -32,42 +32,40 @@ import org.slf4j.LoggerFactory;
 /**
  * @author pengys5, clevertension
  */
-public class ServiceNameH2DAO extends H2DAO implements IServiceNameDAO {
+public class ApplicationH2CacheDAO extends H2DAO implements IApplicationCacheDAO {
 
-    private final Logger logger = LoggerFactory.getLogger(ServiceNameH2DAO.class);
+    private final Logger logger = LoggerFactory.getLogger(ApplicationH2CacheDAO.class);
+    private static final String GET_APPLICATION_ID_OR_CODE_SQL = "select {0} from {1} where {2} = ?";
 
-    private static final String GET_SERVICE_NAME_SQL = "select {0},{1} from {2} where {3} = ?";
-    private static final String GET_SERVICE_ID_SQL = "select {0} from {1} where {2} = ? and {3} = ? limit 1";
-
-    @Override public String getServiceName(int serviceId) {
+    @Override
+    public int getApplicationId(String applicationCode) {
+        logger.info("get the application id with application code = {}", applicationCode);
         H2Client client = getClient();
-        String sql = SqlBuilder.buildSql(GET_SERVICE_NAME_SQL, ServiceNameTable.COLUMN_APPLICATION_ID, ServiceNameTable.COLUMN_SERVICE_NAME,
-            ServiceNameTable.TABLE, ServiceNameTable.COLUMN_SERVICE_ID);
-        Object[] params = new Object[] {serviceId};
+        String sql = SqlBuilder.buildSql(GET_APPLICATION_ID_OR_CODE_SQL, ApplicationTable.COLUMN_APPLICATION_ID, ApplicationTable.TABLE, ApplicationTable.COLUMN_APPLICATION_CODE);
+
+        Object[] params = new Object[] {applicationCode};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
-                String serviceName = rs.getString(ServiceNameTable.COLUMN_SERVICE_NAME);
-                int applicationId = rs.getInt(ServiceNameTable.COLUMN_APPLICATION_ID);
-                return applicationId + Const.ID_SPLIT + serviceName;
-            }
-        } catch (SQLException | H2ClientException e) {
-            logger.error(e.getMessage(), e);
-        }
-        return Const.EMPTY_STRING;
-    }
-
-    @Override public int getServiceId(int applicationId, String serviceName) {
-        H2Client client = getClient();
-        String sql = SqlBuilder.buildSql(GET_SERVICE_ID_SQL, ServiceNameTable.COLUMN_SERVICE_ID,
-            ServiceNameTable.TABLE, ServiceNameTable.COLUMN_APPLICATION_ID, ServiceNameTable.COLUMN_SERVICE_NAME);
-        Object[] params = new Object[] {applicationId, serviceName};
-        try (ResultSet rs = client.executeQuery(sql, params)) {
-            if (rs.next()) {
-                return rs.getInt(ServiceNameTable.COLUMN_SERVICE_ID);
+                return rs.getInt(1);
             }
         } catch (SQLException | H2ClientException e) {
             logger.error(e.getMessage(), e);
         }
         return 0;
+    }
+
+    @Override public String getApplicationCode(int applicationId) {
+        logger.debug("get application code, applicationId: {}", applicationId);
+        H2Client client = getClient();
+        String sql = SqlBuilder.buildSql(GET_APPLICATION_ID_OR_CODE_SQL, ApplicationTable.COLUMN_APPLICATION_CODE, ApplicationTable.TABLE, ApplicationTable.COLUMN_APPLICATION_ID);
+        Object[] params = new Object[] {applicationId};
+        try (ResultSet rs = client.executeQuery(sql, params)) {
+            if (rs.next()) {
+                return rs.getString(1);
+            }
+        } catch (SQLException | H2ClientException e) {
+            logger.error(e.getMessage(), e);
+        }
+        return Const.EMPTY_STRING;
     }
 }

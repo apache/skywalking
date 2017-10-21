@@ -20,7 +20,7 @@ package org.skywalking.apm.collector.cache;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import org.skywalking.apm.collector.cache.dao.IApplicationDAO;
+import org.skywalking.apm.collector.cache.dao.IApplicationCacheDAO;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.StringUtils;
 import org.skywalking.apm.collector.storage.dao.DAOContainer;
@@ -37,7 +37,7 @@ public class ApplicationCache {
     private static Cache<String, Integer> CODE_CACHE = CacheBuilder.newBuilder().initialCapacity(100).maximumSize(1000).build();
 
     public static int get(String applicationCode) {
-        IApplicationDAO dao = (IApplicationDAO)DAOContainer.INSTANCE.get(IApplicationDAO.class.getName());
+        IApplicationCacheDAO dao = (IApplicationCacheDAO)DAOContainer.INSTANCE.get(IApplicationCacheDAO.class.getName());
 
         int applicationId = 0;
         try {
@@ -58,7 +58,7 @@ public class ApplicationCache {
     private static Cache<Integer, String> ID_CACHE = CacheBuilder.newBuilder().maximumSize(1000).build();
 
     public static String get(int applicationId) {
-        IApplicationDAO dao = (IApplicationDAO)DAOContainer.INSTANCE.get(IApplicationDAO.class.getName());
+        IApplicationCacheDAO dao = (IApplicationCacheDAO)DAOContainer.INSTANCE.get(IApplicationCacheDAO.class.getName());
 
         String applicationCode = Const.EMPTY_STRING;
         try {

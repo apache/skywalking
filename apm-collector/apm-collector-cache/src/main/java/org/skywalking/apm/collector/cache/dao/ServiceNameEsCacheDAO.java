@@ -33,7 +33,7 @@ import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
 /**
  * @author pengys5
  */
-public class ServiceNameEsDAO extends EsDAO implements IServiceNameDAO {
+public class ServiceNameEsCacheDAO extends EsDAO implements IServiceNameCacheDAO {
 
     @Override public String getServiceName(int serviceId) {
         GetRequestBuilder getRequestBuilder = getClient().prepareGet(ServiceNameTable.TABLE, String.valueOf(serviceId));

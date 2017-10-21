@@ -21,6 +21,8 @@ package org.skywalking.apm.collector.cache.dao;
 /**
  * @author pengys5
  */
-public interface IInstanceDAO {
-    int getApplicationId(int applicationInstanceId);
+public interface IApplicationCacheDAO {
+    int getApplicationId(String applicationCode);
+
+    String getApplicationCode(int applicationId);
 }
