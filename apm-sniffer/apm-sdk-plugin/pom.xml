@@ -30,7 +30,7 @@
     <artifactId>apm-sdk-plugin</artifactId>
     <modules>
         <module>dubbo-plugin</module>
-        <module>jdbc-plugin</module>
+        <module>jdbc-commons</module>
         <module>httpClient-4.x-plugin</module>
         <module>jedis-2.x-plugin</module>
         <module>tomcat-7.x-8.x-plugin</module>
@@ -48,6 +48,10 @@
         <module>sharding-jdbc-1.5.x-plugin</module>
         <module>xmemcached-2.x-plugin</module>
         <module>grpc-1.x-plugin</module>
+        <module>mysql-2.x-plugin</module>
+        <module>h2-1.x-plugin</module>
+        <module>postgresql-8.x-plugin</module>
+        <module>oracle-10.x-plugin</module>
     </modules>
     <packaging>pom</packaging>
 

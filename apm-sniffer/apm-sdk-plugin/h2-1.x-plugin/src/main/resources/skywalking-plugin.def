@@ -1,0 +1,2 @@
+h2-1.x=org.skywalking.apm.plugin.jdbc.h2.define.DriverInstrumentation
+h2-1.x=org.skywalking.apm.plugin.jdbc.h2.define.ConnectionInstrumentation
