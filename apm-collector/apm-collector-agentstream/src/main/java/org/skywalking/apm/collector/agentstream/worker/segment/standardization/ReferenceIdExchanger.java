@@ -33,13 +33,13 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
 
     private final Logger logger = LoggerFactory.getLogger(ReferenceIdExchanger.class);
 
-    private static ReferenceIdExchanger exchanger;
+    private static ReferenceIdExchanger EXCHANGER;
 
     public static ReferenceIdExchanger getInstance() {
-        if (exchanger == null) {
-            exchanger = new ReferenceIdExchanger();
+        if (EXCHANGER == null) {
+            EXCHANGER = new ReferenceIdExchanger();
         }
-        return exchanger;
+        return EXCHANGER;
     }
 
     @Override public boolean exchange(ReferenceDecorator standardBuilder, int applicationId) {

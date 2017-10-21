@@ -141,11 +141,7 @@ public enum SegmentBufferReader {
 
     class PrefixFileNameFilter implements FilenameFilter {
         @Override public boolean accept(File dir, String name) {
-            if (name.startsWith(SegmentBufferManager.DATA_FILE_PREFIX)) {
-                return true;
-            } else {
-                return false;
-            }
+            return name.startsWith(SegmentBufferManager.DATA_FILE_PREFIX);
         }
     }
 }

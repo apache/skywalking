@@ -142,11 +142,7 @@ public enum OffsetManager {
 
     class PrefixFileNameFilter implements FilenameFilter {
         @Override public boolean accept(File dir, String name) {
-            if (name.startsWith(OFFSET_FILE_PREFIX)) {
-                return true;
-            } else {
-                return false;
-            }
+            return name.startsWith(OFFSET_FILE_PREFIX);
         }
     }
 }

@@ -28,13 +28,13 @@ import org.skywalking.apm.collector.core.util.StringUtils;
  */
 public class SpanIdExchanger implements IdExchanger<SpanDecorator> {
 
-    private static SpanIdExchanger exchanger;
+    private static SpanIdExchanger EXCHANGER;
 
     public static SpanIdExchanger getInstance() {
-        if (exchanger == null) {
-            exchanger = new SpanIdExchanger();
+        if (EXCHANGER == null) {
+            EXCHANGER = new SpanIdExchanger();
         }
-        return exchanger;
+        return EXCHANGER;
     }
 
     @Override public boolean exchange(SpanDecorator standardBuilder, int applicationId) {
