@@ -90,14 +90,14 @@ public enum OffsetManager {
         String offsetRecord = offset.serialize();
         if (!lastOffsetRecord.equals(offsetRecord)) {
             if (offsetFile.length() >= BufferFileConfig.BUFFER_OFFSET_MAX_FILE_SIZE) {
-                exchangeFile();
+                nextFile();
             }
             FileUtils.INSTANCE.writeAppendToLast(offsetFile, randomAccessFile, offsetRecord);
             lastOffsetRecord = offsetRecord;
         }
     }
 
-    private void exchangeFile() {
+    private void nextFile() {
         String timeBucket = String.valueOf(TimeBucketUtils.INSTANCE.getSecondTimeBucket(System.currentTimeMillis()));
         String offsetFileName = OFFSET_FILE_PREFIX + "_" + timeBucket + "." + Const.FILE_SUFFIX;
         File newOffsetFile = new File(SegmentBufferConfig.BUFFER_PATH + offsetFileName);
