@@ -1,0 +1,2 @@
+oracle-10.x=org.skywalking.apm.plugin.jdbc.oracle.define.DriverInstrumentation
+oracle-10.x=org.skywalking.apm.plugin.jdbc.oracle.define.ConnectionInstrumentation

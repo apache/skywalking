@@ -1,0 +1,85 @@
+/*
+ * Copyright 2017, OpenSkywalking Organization All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Project repository: https://github.com/OpenSkywalking/skywalking
+ */
+
+package org.skywalking.apm.plugin.jdbc.connectionurl.parser;
+
+import org.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
+
+/**
+ * {@link PostgreSQLURLParser} parse connection url of mysql.
+ * <p>
+ * The {@link ConnectionInfo#host} be set the string between charset "//" and the first
+ * charset "/" after the charset "//", and {@link ConnectionInfo#databaseName} be set the
+ * string between the last index of "/" and the first charset "?". but one more thing, the
+ * {@link ConnectionInfo#hosts} be set if the host container multiple host.
+ *
+ * @author zhangxin
+ */
+public class PostgreSQLURLParser extends AbstractURLParser {
+
+    private static final int DEFAULT_PORT = 5432;
+    private static final String DB_TYPE = "PostgreSQL";
+
+    public PostgreSQLURLParser(String url) {
+        super(url);
+    }
+
+    @Override
+    protected int[] fetchDatabaseHostsIndexRange() {
+        int hostLabelStartIndex = url.indexOf("//");
+        int hostLabelEndIndex = url.indexOf("/", hostLabelStartIndex + 2);
+        return new int[] {hostLabelStartIndex + 2, hostLabelEndIndex};
+    }
+
+    @Override
+    protected int[] fetchDatabaseNameIndexRange() {
+        int databaseStartTag = url.lastIndexOf("/");
+        int databaseEndTag = url.indexOf("?", databaseStartTag);
+        if (databaseEndTag == -1) {
+            databaseEndTag = url.length();
+        }
+        return new int[] {databaseStartTag + 1, databaseEndTag};
+    }
+
+    @Override
+    public ConnectionInfo parse() {
+        int[] hostRangeIndex = fetchDatabaseHostsIndexRange();
+        String hosts = url.substring(hostRangeIndex[0], hostRangeIndex[1]);
+        String[] hostSegment = hosts.split(",");
+        if (hostSegment.length > 1) {
+            StringBuilder sb = new StringBuilder();
+            for (String host : hostSegment) {
+                if (host.split(":").length == 1) {
+                    sb.append(host + ":" + DEFAULT_PORT + ",");
+                } else {
+                    sb.append(host + ",");
+                }
+            }
+            return new ConnectionInfo(ComponentsDefine.POSTGRESQL, DB_TYPE, sb.toString(), fetchDatabaseNameFromURL());
+        } else {
+            String[] hostAndPort = hostSegment[0].split(":");
+            if (hostAndPort.length != 1) {
+                return new ConnectionInfo(ComponentsDefine.POSTGRESQL, DB_TYPE, hostAndPort[0], Integer.valueOf(hostAndPort[1]), fetchDatabaseNameFromURL());
+            } else {
+                return new ConnectionInfo(ComponentsDefine.POSTGRESQL, DB_TYPE, hostAndPort[0], DEFAULT_PORT, fetchDatabaseNameFromURL());
+            }
+        }
+    }
+
+}
