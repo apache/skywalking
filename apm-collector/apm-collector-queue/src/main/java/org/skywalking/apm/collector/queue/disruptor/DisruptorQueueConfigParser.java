@@ -23,7 +23,7 @@ import org.skywalking.apm.collector.core.config.ConfigParseException;
 import org.skywalking.apm.collector.core.module.ModuleConfigParser;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class DisruptorQueueConfigParser implements ModuleConfigParser {
 

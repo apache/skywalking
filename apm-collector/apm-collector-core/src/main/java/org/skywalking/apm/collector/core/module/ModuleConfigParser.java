@@ -22,7 +22,7 @@ import java.util.Map;
 import org.skywalking.apm.collector.core.config.ConfigParseException;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public interface ModuleConfigParser {
     void parse(Map config) throws ConfigParseException;

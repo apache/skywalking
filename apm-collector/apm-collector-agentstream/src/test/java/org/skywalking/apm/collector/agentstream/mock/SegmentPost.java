@@ -39,7 +39,7 @@ import org.skywalking.apm.collector.storage.elasticsearch.StorageElasticSearchMo
 import org.skywalking.apm.collector.storage.h2.StorageH2ModuleDefine;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class SegmentPost {
 

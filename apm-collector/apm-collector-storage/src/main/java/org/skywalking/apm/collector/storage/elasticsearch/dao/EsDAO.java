@@ -29,7 +29,7 @@ import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.skywalking.apm.collector.storage.dao.DAO;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public abstract class EsDAO extends DAO<ElasticSearchClient> {
 

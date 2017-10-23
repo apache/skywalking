@@ -19,7 +19,7 @@
 package org.skywalking.apm.collector.core.module;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public abstract class ModuleRegistration {
 

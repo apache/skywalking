@@ -31,7 +31,7 @@ import org.skywalking.apm.collector.ui.dao.IServiceEntryDAO;
 import org.skywalking.apm.collector.ui.dao.IServiceReferenceDAO;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class ServiceTreeService {
 

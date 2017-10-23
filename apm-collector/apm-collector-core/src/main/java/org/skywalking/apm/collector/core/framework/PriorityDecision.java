@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.core.framework;
 import java.util.List;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class PriorityDecision implements Decision {
 

@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.ui.dao;
 import com.google.gson.JsonObject;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public interface IGCMetricDAO {
 

@@ -19,7 +19,7 @@
 package org.skywalking.apm.collector.core.config;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class SystemConfig {
     public static String DATA_PATH = "../data";

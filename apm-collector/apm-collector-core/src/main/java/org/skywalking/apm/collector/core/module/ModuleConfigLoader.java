@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class ModuleConfigLoader implements ConfigLoader<Map<String, Map>> {
 

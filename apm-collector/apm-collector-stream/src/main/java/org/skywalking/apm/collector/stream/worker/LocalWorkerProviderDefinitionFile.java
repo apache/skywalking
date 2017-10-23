@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.stream.worker;
 import org.skywalking.apm.collector.core.framework.DefinitionFile;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class LocalWorkerProviderDefinitionFile extends DefinitionFile {
     @Override protected String fileName() {

@@ -23,7 +23,7 @@ package org.skywalking.apm.collector.core.stream;
  * which use to aggregate metric.
  * <p>
  *
- * @author pengys5
+ * @author peng-yongsheng
  * @since v3.0-2017
  */
 public abstract class AbstractHashMessage {

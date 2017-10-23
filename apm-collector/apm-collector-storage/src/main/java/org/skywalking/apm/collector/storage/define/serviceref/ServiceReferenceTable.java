@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.storage.define.serviceref;
 import org.skywalking.apm.collector.storage.define.CommonTable;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class ServiceReferenceTable extends CommonTable {
     public static final String TABLE = "service_reference";

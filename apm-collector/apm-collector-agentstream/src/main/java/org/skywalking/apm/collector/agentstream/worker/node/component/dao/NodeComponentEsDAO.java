@@ -30,7 +30,7 @@ import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
 import org.skywalking.apm.collector.stream.worker.impl.dao.IPersistenceDAO;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class NodeComponentEsDAO extends EsDAO implements INodeComponentDAO, IPersistenceDAO<IndexRequestBuilder, UpdateRequestBuilder> {
 

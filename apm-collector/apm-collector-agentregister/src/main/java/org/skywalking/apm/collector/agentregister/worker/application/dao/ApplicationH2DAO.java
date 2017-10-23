@@ -28,7 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author pengys5, clevertension
+ * @author peng-yongsheng, clevertension
  */
 public class ApplicationH2DAO extends H2DAO implements IApplicationDAO {
     private final Logger logger = LoggerFactory.getLogger(ApplicationH2DAO.class);

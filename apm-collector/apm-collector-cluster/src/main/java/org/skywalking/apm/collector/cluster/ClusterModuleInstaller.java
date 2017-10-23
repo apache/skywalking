@@ -27,7 +27,7 @@ import org.skywalking.apm.collector.core.framework.Context;
 import org.skywalking.apm.collector.core.module.SingleModuleInstaller;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class ClusterModuleInstaller extends SingleModuleInstaller {
 

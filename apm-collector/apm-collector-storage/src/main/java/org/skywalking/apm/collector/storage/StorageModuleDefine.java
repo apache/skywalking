@@ -34,7 +34,7 @@ import org.skywalking.apm.collector.core.storage.StorageException;
 import org.skywalking.apm.collector.core.storage.StorageInstaller;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public abstract class StorageModuleDefine extends ModuleDefine implements ClusterDataListenerDefine {
 

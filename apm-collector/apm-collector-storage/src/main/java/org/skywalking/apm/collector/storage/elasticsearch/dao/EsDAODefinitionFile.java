@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.storage.elasticsearch.dao;
 import org.skywalking.apm.collector.core.framework.DefinitionFile;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class EsDAODefinitionFile extends DefinitionFile {
 

@@ -22,7 +22,7 @@ import java.util.Map;
 import org.skywalking.apm.collector.core.CollectorException;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public abstract class CommonModuleInstaller implements ModuleInstaller {
 

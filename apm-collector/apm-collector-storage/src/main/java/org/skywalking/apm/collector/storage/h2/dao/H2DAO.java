@@ -27,7 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public abstract class H2DAO extends DAO<H2Client> {
     private final Logger logger = LoggerFactory.getLogger(H2DAO.class);

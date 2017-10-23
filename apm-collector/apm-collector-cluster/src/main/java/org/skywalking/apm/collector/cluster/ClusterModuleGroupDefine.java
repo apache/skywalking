@@ -25,7 +25,7 @@ import org.skywalking.apm.collector.core.module.ModuleGroupDefine;
 import org.skywalking.apm.collector.core.module.ModuleInstaller;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class ClusterModuleGroupDefine implements ModuleGroupDefine {
 

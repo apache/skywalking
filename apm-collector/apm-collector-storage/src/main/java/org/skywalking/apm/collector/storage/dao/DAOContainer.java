@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public enum DAOContainer {
     INSTANCE;

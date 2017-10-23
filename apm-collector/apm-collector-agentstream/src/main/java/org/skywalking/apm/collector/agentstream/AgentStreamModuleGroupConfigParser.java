@@ -23,7 +23,7 @@ import org.skywalking.apm.collector.agentstream.config.BufferFileConfig;
 import org.skywalking.apm.collector.core.config.GroupConfigParser;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class AgentStreamModuleGroupConfigParser implements GroupConfigParser {
 

@@ -25,7 +25,7 @@ import org.skywalking.apm.collector.client.grpc.GRPCClient;
  * which create instance of cluster workers whose implemented {@link AbstractRemoteWorker}.
  * <p>
  *
- * @author pengys5
+ * @author peng-yongsheng
  * @since v3.0-2017
  */
 public abstract class AbstractRemoteWorkerProvider<T extends AbstractRemoteWorker> extends AbstractWorkerProvider<T> {

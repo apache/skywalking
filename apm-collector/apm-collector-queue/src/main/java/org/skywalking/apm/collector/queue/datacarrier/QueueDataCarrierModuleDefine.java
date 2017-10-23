@@ -25,7 +25,7 @@ import org.skywalking.apm.collector.queue.QueueModuleDefine;
 import org.skywalking.apm.collector.queue.QueueModuleGroupDefine;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class QueueDataCarrierModuleDefine extends QueueModuleDefine {
 

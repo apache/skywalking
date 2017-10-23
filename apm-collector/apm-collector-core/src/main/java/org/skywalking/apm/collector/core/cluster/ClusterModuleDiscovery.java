@@ -19,7 +19,7 @@
 package org.skywalking.apm.collector.core.cluster;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public interface ClusterModuleDiscovery {
 

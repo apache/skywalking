@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.core.queue;
 import java.util.concurrent.ThreadFactory;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public enum DaemonThreadFactory implements ThreadFactory {
     INSTANCE;

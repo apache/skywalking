@@ -32,7 +32,7 @@ import org.skywalking.apm.collector.core.module.ModuleRegistration;
 import org.skywalking.apm.collector.core.server.Server;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public abstract class ClusterModuleDefine extends ModuleDefine {
 

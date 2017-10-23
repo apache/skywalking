@@ -43,7 +43,7 @@ import org.skywalking.apm.collector.ui.jetty.handler.time.AllInstanceLastTimeGet
 import org.skywalking.apm.collector.ui.jetty.handler.time.OneInstanceLastTimeGetHandler;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class UIJettyModuleDefine extends UIModuleDefine {
 

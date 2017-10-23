@@ -25,7 +25,7 @@ import java.io.Reader;
 import java.net.URL;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class ResourceUtils {
 

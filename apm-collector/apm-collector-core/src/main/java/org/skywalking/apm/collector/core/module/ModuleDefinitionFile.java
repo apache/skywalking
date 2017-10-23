@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.core.module;
 import org.skywalking.apm.collector.core.framework.DefinitionFile;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class ModuleDefinitionFile extends DefinitionFile {
     @Override protected String fileName() {

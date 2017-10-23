@@ -28,7 +28,7 @@ import org.skywalking.apm.collector.core.module.MultipleModuleInstaller;
 import org.skywalking.apm.collector.core.server.ServerException;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class AgentStreamModuleInstaller extends MultipleModuleInstaller {
 

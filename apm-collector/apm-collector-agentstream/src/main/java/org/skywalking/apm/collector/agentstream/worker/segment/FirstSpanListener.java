@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.agentstream.worker.segment;
 import org.skywalking.apm.collector.agentstream.worker.segment.standardization.SpanDecorator;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public interface FirstSpanListener extends SpanListener {
     void parseFirst(SpanDecorator spanDecorator, int applicationId, int applicationInstanceId, String segmentId);

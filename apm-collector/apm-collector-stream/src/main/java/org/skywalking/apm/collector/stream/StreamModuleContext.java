@@ -25,7 +25,7 @@ import org.skywalking.apm.collector.storage.define.DataDefine;
 import org.skywalking.apm.collector.stream.worker.ClusterWorkerContext;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class StreamModuleContext extends Context {
 

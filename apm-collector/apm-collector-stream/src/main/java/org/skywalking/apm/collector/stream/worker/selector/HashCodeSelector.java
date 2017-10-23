@@ -28,7 +28,7 @@ import org.skywalking.apm.collector.stream.worker.WorkerRef;
  * by message {@link AbstractHashMessage} key's hashcode, so it can use to send the same hashcode message to same {@link
  * WorkerRef}. Usually, use to database operate which avoid dirty data.
  *
- * @author pengys5
+ * @author peng-yongsheng
  * @since v3.0-2017
  */
 public class HashCodeSelector implements WorkerSelector<WorkerRef> {

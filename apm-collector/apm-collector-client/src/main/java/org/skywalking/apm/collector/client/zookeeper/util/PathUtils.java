@@ -19,7 +19,7 @@
 package org.skywalking.apm.collector.client.zookeeper.util;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class PathUtils {
 

@@ -36,7 +36,7 @@ import org.skywalking.apm.collector.storage.define.service.ServiceEntryTable;
 import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class ServiceEntryEsDAO extends EsDAO implements IServiceEntryDAO {
 

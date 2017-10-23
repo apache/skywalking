@@ -23,7 +23,7 @@ import org.skywalking.apm.collector.core.framework.Context;
 import org.skywalking.apm.collector.core.module.MultipleModuleInstaller;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class UIModuleInstaller extends MultipleModuleInstaller {
 

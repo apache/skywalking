@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.core.server;
 import org.skywalking.apm.collector.core.CollectorException;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public abstract class ServerException extends CollectorException {
 

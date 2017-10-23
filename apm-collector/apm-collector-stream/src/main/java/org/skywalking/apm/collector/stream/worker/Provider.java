@@ -19,7 +19,7 @@
 package org.skywalking.apm.collector.stream.worker;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public interface Provider {
 

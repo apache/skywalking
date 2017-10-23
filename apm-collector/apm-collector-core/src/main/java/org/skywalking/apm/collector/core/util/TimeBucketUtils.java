@@ -24,7 +24,7 @@ import java.util.TimeZone;
 import org.skywalking.apm.collector.core.framework.UnexpectedException;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public enum TimeBucketUtils {
     INSTANCE;

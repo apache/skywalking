@@ -19,7 +19,7 @@
 package org.skywalking.apm.collector.agentregister.worker;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public enum IdAutoIncrement {
     INSTANCE;

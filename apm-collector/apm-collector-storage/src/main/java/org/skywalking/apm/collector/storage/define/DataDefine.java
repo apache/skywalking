@@ -22,7 +22,7 @@ import org.skywalking.apm.collector.core.stream.Data;
 import org.skywalking.apm.collector.remote.grpc.proto.RemoteData;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public abstract class DataDefine {
     private Attribute[] attributes;

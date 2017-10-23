@@ -34,7 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author pengys5, clevertension
+ * @author peng-yongsheng, clevertension
  */
 public class NodeComponentH2DAO extends H2DAO implements INodeComponentDAO {
     private final Logger logger = LoggerFactory.getLogger(NodeComponentH2DAO.class);

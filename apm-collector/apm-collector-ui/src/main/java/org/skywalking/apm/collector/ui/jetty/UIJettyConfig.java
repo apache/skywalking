@@ -19,7 +19,7 @@
 package org.skywalking.apm.collector.ui.jetty;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class UIJettyConfig {
     public static String HOST;

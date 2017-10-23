@@ -34,7 +34,7 @@ import org.skywalking.apm.collector.core.framework.Handler;
 import org.skywalking.apm.collector.core.util.ObjectUtils;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public abstract class JettyHandler extends HttpServlet implements Handler {
 

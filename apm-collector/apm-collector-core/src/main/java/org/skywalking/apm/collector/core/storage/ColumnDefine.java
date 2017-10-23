@@ -19,7 +19,7 @@
 package org.skywalking.apm.collector.core.storage;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public abstract class ColumnDefine {
     private final String name;

@@ -22,7 +22,7 @@ import org.skywalking.apm.collector.core.client.DataMonitor;
 import org.skywalking.apm.collector.core.cluster.ClusterModuleRegistrationReader;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class ClusterRedisModuleRegistrationReader extends ClusterModuleRegistrationReader {
 

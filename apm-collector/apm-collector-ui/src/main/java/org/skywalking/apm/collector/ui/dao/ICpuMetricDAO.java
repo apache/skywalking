@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.ui.dao;
 import com.google.gson.JsonArray;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public interface ICpuMetricDAO {
     int getMetric(int instanceId, long timeBucket);

@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class BatchH2DAO extends H2DAO implements IBatchDAO {
     private final Logger logger = LoggerFactory.getLogger(BatchH2DAO.class);

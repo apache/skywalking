@@ -22,7 +22,7 @@ import com.google.gson.JsonObject;
 import java.util.Map;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public interface IServiceReferenceDAO {
     Map<String, JsonObject> load(int entryServiceId, long startTime, long endTime);

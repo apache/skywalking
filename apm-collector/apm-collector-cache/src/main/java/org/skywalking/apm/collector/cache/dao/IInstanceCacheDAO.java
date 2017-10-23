@@ -19,7 +19,7 @@
 package org.skywalking.apm.collector.cache.dao;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public interface IInstanceCacheDAO {
     int getApplicationId(int applicationInstanceId);

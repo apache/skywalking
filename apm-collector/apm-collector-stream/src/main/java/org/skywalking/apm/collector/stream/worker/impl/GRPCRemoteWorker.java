@@ -25,7 +25,7 @@ import org.skywalking.apm.collector.stream.worker.Role;
 import org.skywalking.apm.collector.stream.worker.WorkerException;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class GRPCRemoteWorker extends AbstractRemoteWorker {
 

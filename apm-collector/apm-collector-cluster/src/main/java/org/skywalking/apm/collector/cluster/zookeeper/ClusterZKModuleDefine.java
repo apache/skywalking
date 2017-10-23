@@ -27,7 +27,7 @@ import org.skywalking.apm.collector.core.cluster.ClusterModuleRegistrationReader
 import org.skywalking.apm.collector.core.module.ModuleConfigParser;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class ClusterZKModuleDefine extends ClusterModuleDefine {
 

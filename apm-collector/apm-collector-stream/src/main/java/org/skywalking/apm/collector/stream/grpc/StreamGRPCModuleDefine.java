@@ -32,7 +32,7 @@ import org.skywalking.apm.collector.stream.StreamModuleGroupDefine;
 import org.skywalking.apm.collector.stream.grpc.handler.RemoteCommonServiceHandler;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class StreamGRPCModuleDefine extends StreamModuleDefine {
 

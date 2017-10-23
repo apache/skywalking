@@ -22,7 +22,7 @@ import org.skywalking.apm.collector.core.stream.Data;
 import org.skywalking.apm.collector.storage.define.DataDefine;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public interface IPersistenceDAO<I, U> {
     Data get(String id, DataDefine dataDefine);

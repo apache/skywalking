@@ -19,7 +19,7 @@
 package org.skywalking.apm.collector.core.storage;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class StorageInstallException extends StorageException {
 

@@ -19,7 +19,7 @@
 package org.skywalking.apm.collector.stream.worker;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public abstract class WorkerRef {
     private Role role;

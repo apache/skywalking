@@ -30,7 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author pengys5, clevertension
+ * @author peng-yongsheng, clevertension
  */
 public class ServiceNameH2DAO extends H2DAO implements IServiceNameDAO {
     private final Logger logger = LoggerFactory.getLogger(ServiceNameH2DAO.class);

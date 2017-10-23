@@ -44,7 +44,7 @@ import org.skywalking.apm.network.trace.component.ComponentsDefine;
 /**
  * {@link DefaultHttpClientInterceptor} intercept the default implementation of http calls by the Feign.
  *
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class DefaultHttpClientInterceptor implements InstanceMethodsAroundInterceptor {
 

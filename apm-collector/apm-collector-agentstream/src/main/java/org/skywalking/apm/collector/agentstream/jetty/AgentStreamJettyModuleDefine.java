@@ -34,7 +34,7 @@ import org.skywalking.apm.collector.core.server.Server;
 import org.skywalking.apm.collector.server.jetty.JettyServer;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class AgentStreamJettyModuleDefine extends AgentStreamModuleDefine {
 

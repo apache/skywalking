@@ -23,7 +23,7 @@ import org.skywalking.apm.network.proto.SpanObject;
 import org.skywalking.apm.network.proto.SpanType;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class SpanDecorator implements StandardBuilder {
     private boolean isOrigin = true;

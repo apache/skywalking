@@ -22,7 +22,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public abstract class TableDefine {
     private final String name;

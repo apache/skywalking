@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.server.jetty;
 import org.skywalking.apm.collector.core.CollectorException;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class ArgumentsParseException extends CollectorException {
 

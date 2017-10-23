@@ -34,7 +34,7 @@ import org.skywalking.apm.collector.queue.disruptor.DisruptorQueueCreator;
 import org.skywalking.apm.collector.queue.disruptor.QueueDisruptorModuleDefine;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class QueueModuleInstaller extends SingleModuleInstaller {
 

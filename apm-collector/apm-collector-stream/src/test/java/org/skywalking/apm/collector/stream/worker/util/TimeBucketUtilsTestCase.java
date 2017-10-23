@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class TimeBucketUtilsTestCase {
 

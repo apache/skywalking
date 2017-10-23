@@ -24,7 +24,7 @@ import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.StringUtils;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class SpanIdExchanger implements IdExchanger<SpanDecorator> {
 

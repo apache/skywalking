@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.cluster;
 import org.skywalking.apm.collector.core.client.ClientException;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class ClusterNodeExistException extends ClientException {
 

@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.agentserver;
 import org.skywalking.apm.collector.core.module.ModuleException;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class AgentServerModuleException extends ModuleException {
 

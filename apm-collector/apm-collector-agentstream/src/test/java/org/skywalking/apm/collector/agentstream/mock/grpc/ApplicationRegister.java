@@ -24,7 +24,7 @@ import org.skywalking.apm.network.proto.ApplicationMapping;
 import org.skywalking.apm.network.proto.ApplicationRegisterServiceGrpc;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class ApplicationRegister {
 

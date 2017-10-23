@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.agentregister.worker.servicename.dao;
 import org.skywalking.apm.collector.storage.define.register.ServiceNameDataDefine;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public interface IServiceNameDAO {
     int getMaxServiceId();
