@@ -1,0 +1,3 @@
+org.skywalking.apm.collector.agentregister.worker.application.ApplicationRegisterRemoteWorker$Factory
+org.skywalking.apm.collector.agentregister.worker.instance.InstanceRegisterRemoteWorker$Factory
+org.skywalking.apm.collector.agentregister.worker.servicename.ServiceNameRegisterRemoteWorker$Factory
