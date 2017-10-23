@@ -21,13 +21,30 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>apm-collector</artifactId>
+        <artifactId>apm-collector-3.2.3</artifactId>
         <groupId>org.skywalking</groupId>
         <version>3.2.3-2017</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>apm-collector-boot</artifactId>
+    <artifactId>apm-collector-storage</artifactId>
+    <packaging>jar</packaging>
 
-
+    <dependencies>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>apm-collector-3.2.3-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>apm-collector-3.2.3-cluster</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>apm-collector-3.2.3-remote</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>

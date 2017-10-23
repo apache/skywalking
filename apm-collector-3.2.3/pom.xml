@@ -17,23 +17,33 @@
   ~ Project repository: https://github.com/OpenSkywalking/skywalking
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <modules>
+        <module>apm-collector-cluster</module>
+        <module>apm-collector-core</module>
+        <module>apm-collector-queue</module>
+        <module>apm-collector-storage</module>
+        <module>apm-collector-client</module>
+        <module>apm-collector-server</module>
+        <module>apm-collector-agentstream</module>
+        <module>apm-collector-ui</module>
+        <module>apm-collector-boot</module>
+        <module>apm-collector-stream</module>
+        <module>apm-collector-agentserver</module>
+        <module>apm-collector-agentregister</module>
+        <module>apm-collector-agentjvm</module>
+        <module>apm-collector-remote</module>
+        <module>apm-collector-cache</module>
+    </modules>
     <parent>
         <artifactId>apm</artifactId>
         <groupId>org.skywalking</groupId>
         <version>3.2.3-2017</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
-
-    <artifactId>apm-collector</artifactId>
-
+    <artifactId>apm-collector-3.2.3</artifactId>
     <packaging>pom</packaging>
-    <modules>
-        <module>apm-collector-boot</module>
-        <module>apm-collector-modulization-core</module>
-    </modules>
 
     <properties>
     </properties>
