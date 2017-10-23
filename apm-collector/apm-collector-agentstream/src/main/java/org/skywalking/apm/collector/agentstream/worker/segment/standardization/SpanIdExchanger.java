@@ -18,8 +18,8 @@
 
 package org.skywalking.apm.collector.agentstream.worker.segment.standardization;
 
+import org.skywalking.apm.collector.agentregister.servicename.ServiceNameService;
 import org.skywalking.apm.collector.cache.ApplicationCache;
-import org.skywalking.apm.collector.cache.ServiceIdCache;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.StringUtils;
 
@@ -29,12 +29,17 @@ import org.skywalking.apm.collector.core.util.StringUtils;
 public class SpanIdExchanger implements IdExchanger<SpanDecorator> {
 
     private static SpanIdExchanger EXCHANGER;
+    private ServiceNameService serviceNameService;
 
     public static SpanIdExchanger getInstance() {
         if (EXCHANGER == null) {
             EXCHANGER = new SpanIdExchanger();
         }
         return EXCHANGER;
+    }
+
+    public SpanIdExchanger() {
+        serviceNameService = new ServiceNameService();
     }
 
     @Override public boolean exchange(SpanDecorator standardBuilder, int applicationId) {
@@ -50,7 +55,7 @@ public class SpanIdExchanger implements IdExchanger<SpanDecorator> {
         }
 
         if (standardBuilder.getOperationNameId() == 0 && StringUtils.isNotEmpty(standardBuilder.getOperationName())) {
-            int operationNameId = ServiceIdCache.get(applicationId, standardBuilder.getOperationName());
+            int operationNameId = serviceNameService.getOrCreate(applicationId, standardBuilder.getOperationName());
             if (operationNameId == 0) {
                 return false;
             } else {
