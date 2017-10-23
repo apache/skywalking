@@ -18,9 +18,9 @@
 
 package org.skywalking.apm.collector.agentstream.worker.segment.standardization;
 
+import org.skywalking.apm.collector.agentregister.servicename.ServiceNameService;
 import org.skywalking.apm.collector.cache.ApplicationCache;
 import org.skywalking.apm.collector.cache.InstanceCache;
-import org.skywalking.apm.collector.cache.ServiceIdCache;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.StringUtils;
 import org.slf4j.Logger;
@@ -34,6 +34,7 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
     private final Logger logger = LoggerFactory.getLogger(ReferenceIdExchanger.class);
 
     private static ReferenceIdExchanger EXCHANGER;
+    private ServiceNameService serviceNameService;
 
     public static ReferenceIdExchanger getInstance() {
         if (EXCHANGER == null) {
@@ -42,9 +43,13 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
         return EXCHANGER;
     }
 
+    public ReferenceIdExchanger() {
+        serviceNameService = new ServiceNameService();
+    }
+
     @Override public boolean exchange(ReferenceDecorator standardBuilder, int applicationId) {
         if (standardBuilder.getEntryServiceId() == 0 && StringUtils.isNotEmpty(standardBuilder.getEntryServiceName())) {
-            int entryServiceId = ServiceIdCache.get(InstanceCache.get(standardBuilder.getEntryApplicationInstanceId()), standardBuilder.getEntryServiceName());
+            int entryServiceId = serviceNameService.getOrCreate(InstanceCache.get(standardBuilder.getEntryApplicationInstanceId()), standardBuilder.getEntryServiceName());
             if (entryServiceId == 0) {
                 return false;
             } else {
@@ -55,7 +60,7 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
         }
 
         if (standardBuilder.getParentServiceId() == 0 && StringUtils.isNotEmpty(standardBuilder.getParentServiceName())) {
-            int parentServiceId = ServiceIdCache.get(InstanceCache.get(standardBuilder.getParentApplicationInstanceId()), standardBuilder.getParentServiceName());
+            int parentServiceId = serviceNameService.getOrCreate(InstanceCache.get(standardBuilder.getParentApplicationInstanceId()), standardBuilder.getParentServiceName());
             if (parentServiceId == 0) {
                 return false;
             } else {

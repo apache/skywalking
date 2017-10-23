@@ -56,7 +56,7 @@ public class ServiceNameRegisterSerialWorker extends AbstractLocalAsyncWorker {
             ServiceNameDataDefine.ServiceName serviceName = (ServiceNameDataDefine.ServiceName)message;
             logger.debug("register service name: {}, application id: {}", serviceName.getServiceName(), serviceName.getApplicationId());
 
-            IServiceNameCacheDAO cacheDao = (IServiceNameCacheDAO)DAOContainer.INSTANCE.get(IServiceNameDAO.class.getName());
+            IServiceNameCacheDAO cacheDao = (IServiceNameCacheDAO)DAOContainer.INSTANCE.get(IServiceNameCacheDAO.class.getName());
             int serviceId = cacheDao.getServiceId(serviceName.getApplicationId(), serviceName.getServiceName());
 
             IServiceNameDAO dao = (IServiceNameDAO)DAOContainer.INSTANCE.get(IServiceNameDAO.class.getName());
