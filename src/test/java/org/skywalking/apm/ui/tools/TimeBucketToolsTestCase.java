@@ -22,7 +22,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class TimeBucketToolsTestCase {
 

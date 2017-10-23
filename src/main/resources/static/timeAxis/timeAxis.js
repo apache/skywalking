@@ -17,7 +17,7 @@
  */
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 define(["jquery", "vue", "moment", "text!timeAxisHtml", "rangeSlider", "daterangepicker", "timers"], function ($, Vue, moment, timeAxisHtml, ionRangeSlider, daterangepicker) {
     var vueData = {

@@ -17,7 +17,7 @@
  */
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 var startDate = moment().subtract(2, 'days').format("YYYYMMDD") + "0000";
 var endDate = moment().format("YYYYMMDD") + "9999";

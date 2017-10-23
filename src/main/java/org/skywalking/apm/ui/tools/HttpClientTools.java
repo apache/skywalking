@@ -37,7 +37,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public enum HttpClientTools {
     INSTANCE;

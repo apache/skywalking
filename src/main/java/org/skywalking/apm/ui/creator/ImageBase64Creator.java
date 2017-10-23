@@ -30,7 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 @Component
 public class ImageBase64Creator {
