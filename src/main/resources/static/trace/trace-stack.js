@@ -17,7 +17,7 @@
  */
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 var colors = [
     "#F2C2CE",

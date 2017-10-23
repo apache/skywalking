@@ -34,7 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.google.gson.JsonObject;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 @RestController
 public class SpanController extends ControllerBase {

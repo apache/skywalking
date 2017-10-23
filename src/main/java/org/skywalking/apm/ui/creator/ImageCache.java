@@ -24,7 +24,7 @@ import java.util.Map;
 import org.springframework.stereotype.Component;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 @Component
 public class ImageCache {

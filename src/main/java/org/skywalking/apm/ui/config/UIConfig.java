@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 @ConfigurationProperties(prefix = "collector")
 @PropertySource("classpath:collector_config.properties")

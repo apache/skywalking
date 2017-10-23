@@ -30,7 +30,7 @@ import org.skywalking.apm.ui.creator.UrlCreator;
 import org.springframework.context.ApplicationContext;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public enum CollectorUIServerGetterTimer {
     INSTANCE;

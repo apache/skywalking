@@ -23,7 +23,7 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 @Component
 public class ServerSelector {

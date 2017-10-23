@@ -17,7 +17,7 @@
  */
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  * @author ascrutae
  */
 requirejs(['/main.js'], function () {

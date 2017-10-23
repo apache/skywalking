@@ -17,7 +17,7 @@
  */
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 define(["jquery", "vis", "text!dagHtml", "moment", "nodeCanvas"], function ($, vis, dagHtml, moment, nodeCanvas) {
     var _containerDiv = "traceDagDiv";

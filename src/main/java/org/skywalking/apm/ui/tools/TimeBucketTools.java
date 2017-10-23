@@ -24,7 +24,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.TimeZone;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class TimeBucketTools {
     public static String format(long milliseconds) {
