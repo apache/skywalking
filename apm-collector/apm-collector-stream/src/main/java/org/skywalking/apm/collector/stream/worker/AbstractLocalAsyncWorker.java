@@ -24,7 +24,7 @@ import org.skywalking.apm.collector.core.queue.QueueExecutor;
  * The <code>AbstractLocalAsyncWorker</code> implementations represent workers,
  * which receive local asynchronous message.
  *
- * @author pengys5
+ * @author peng-yongsheng
  * @since v3.0-2017
  */
 public abstract class AbstractLocalAsyncWorker extends AbstractWorker<LocalAsyncWorkerRef> implements QueueExecutor {

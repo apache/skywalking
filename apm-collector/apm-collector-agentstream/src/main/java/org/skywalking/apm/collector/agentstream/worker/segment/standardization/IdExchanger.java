@@ -19,7 +19,7 @@
 package org.skywalking.apm.collector.agentstream.worker.segment.standardization;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public interface IdExchanger<T extends StandardBuilder> {
     boolean exchange(T standardBuilder, int applicationId);

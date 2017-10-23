@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.stream.worker.impl.data;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public abstract class Window {
 

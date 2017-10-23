@@ -25,7 +25,7 @@ import org.skywalking.apm.collector.core.framework.Handler;
 import org.skywalking.apm.collector.core.server.Server;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public abstract class ModuleDefine implements Define {
 

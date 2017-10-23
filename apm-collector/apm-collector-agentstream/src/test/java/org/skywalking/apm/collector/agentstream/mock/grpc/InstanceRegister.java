@@ -25,7 +25,7 @@ import org.skywalking.apm.network.proto.InstanceDiscoveryServiceGrpc;
 import org.skywalking.apm.network.proto.OSInfo;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class InstanceRegister {
 

@@ -28,7 +28,7 @@ import org.skywalking.apm.collector.stream.worker.WorkerRef;
  * <p>
  * Actually, the <code>WorkerRef</code> is designed to provide a routing ability in the collector cluster
  *
- * @author pengys5
+ * @author peng-yongsheng
  * @since v3.0-2017
  */
 public interface WorkerSelector<T extends WorkerRef> {

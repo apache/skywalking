@@ -31,7 +31,7 @@ import org.skywalking.apm.collector.storage.define.register.ServiceNameTable;
 import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class ServiceNameEsCacheDAO extends EsDAO implements IServiceNameCacheDAO {
 

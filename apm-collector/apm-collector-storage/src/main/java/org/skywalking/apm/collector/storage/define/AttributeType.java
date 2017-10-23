@@ -19,7 +19,7 @@
 package org.skywalking.apm.collector.storage.define;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public enum AttributeType {
     STRING, LONG, DOUBLE, INTEGER, BYTE, BOOLEAN

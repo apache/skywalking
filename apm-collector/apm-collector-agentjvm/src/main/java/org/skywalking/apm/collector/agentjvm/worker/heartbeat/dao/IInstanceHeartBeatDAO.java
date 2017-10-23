@@ -19,7 +19,7 @@
 package org.skywalking.apm.collector.agentjvm.worker.heartbeat.dao;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public interface IInstanceHeartBeatDAO {
 }

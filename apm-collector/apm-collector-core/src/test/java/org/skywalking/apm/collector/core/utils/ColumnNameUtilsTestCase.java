@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.skywalking.apm.collector.core.util.ColumnNameUtils;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class ColumnNameUtilsTestCase {
 

@@ -22,7 +22,7 @@ import org.skywalking.apm.collector.core.cluster.ClusterDataListenerDefine;
 import org.skywalking.apm.collector.core.module.ModuleDefine;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public abstract class StreamModuleDefine extends ModuleDefine implements ClusterDataListenerDefine {
 

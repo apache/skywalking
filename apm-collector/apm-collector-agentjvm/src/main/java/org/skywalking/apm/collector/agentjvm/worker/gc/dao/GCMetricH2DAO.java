@@ -30,7 +30,7 @@ import org.skywalking.apm.collector.storage.h2.define.H2SqlEntity;
 import org.skywalking.apm.collector.stream.worker.impl.dao.IPersistenceDAO;
 
 /**
- * @author pengys5, clevertension
+ * @author peng-yongsheng, clevertension
  */
 public class GCMetricH2DAO extends H2DAO implements IGCMetricDAO, IPersistenceDAO<H2SqlEntity, H2SqlEntity> {
     @Override public Data get(String id, DataDefine dataDefine) {

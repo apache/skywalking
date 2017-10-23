@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.core.server;
 import org.skywalking.apm.collector.core.module.ModuleDefine;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public abstract class ServerModuleDefine extends ModuleDefine {
 }

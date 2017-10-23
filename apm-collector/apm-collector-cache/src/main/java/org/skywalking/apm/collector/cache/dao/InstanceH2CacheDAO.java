@@ -29,7 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class InstanceH2CacheDAO extends H2DAO implements IInstanceCacheDAO {
 

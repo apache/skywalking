@@ -26,7 +26,7 @@ import org.junit.Test;
 import org.skywalking.apm.collector.agentstream.mock.JsonFileReader;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class TraceSegmentJsonReaderTestCase {
 

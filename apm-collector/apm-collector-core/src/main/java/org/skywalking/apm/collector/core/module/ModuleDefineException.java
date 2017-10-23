@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.core.module;
 import org.skywalking.apm.collector.core.framework.DefineException;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class ModuleDefineException extends DefineException {
     public ModuleDefineException(String message) {

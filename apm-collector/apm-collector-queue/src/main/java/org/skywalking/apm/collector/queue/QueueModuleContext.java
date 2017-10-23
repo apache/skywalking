@@ -22,7 +22,7 @@ import org.skywalking.apm.collector.core.framework.Context;
 import org.skywalking.apm.collector.core.queue.QueueCreator;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class QueueModuleContext extends Context {
     private QueueCreator queueCreator;

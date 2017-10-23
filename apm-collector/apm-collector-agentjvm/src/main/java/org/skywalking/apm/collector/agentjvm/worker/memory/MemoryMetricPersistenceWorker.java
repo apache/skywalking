@@ -32,7 +32,7 @@ import org.skywalking.apm.collector.stream.worker.selector.RollingSelector;
 import org.skywalking.apm.collector.stream.worker.selector.WorkerSelector;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class MemoryMetricPersistenceWorker extends PersistenceWorker {
 

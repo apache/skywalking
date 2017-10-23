@@ -35,7 +35,7 @@ import org.skywalking.apm.collector.core.server.Server;
 import org.skywalking.apm.collector.server.grpc.GRPCServer;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class AgentStreamGRPCModuleDefine extends AgentStreamModuleDefine {
 

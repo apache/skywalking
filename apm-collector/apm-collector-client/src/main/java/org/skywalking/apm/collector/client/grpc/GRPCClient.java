@@ -24,7 +24,7 @@ import org.skywalking.apm.collector.core.client.Client;
 import org.skywalking.apm.collector.core.client.ClientException;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class GRPCClient implements Client {
 

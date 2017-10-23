@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.skywalking.apm.collector.core.stream.Data;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class DataCollection {
     private Map<String, Data> data;

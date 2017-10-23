@@ -29,7 +29,7 @@ import org.skywalking.apm.collector.server.jetty.JettyHandler;
 import org.skywalking.apm.collector.ui.jetty.UIJettyDataListener;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class UIJettyServerHandler extends JettyHandler {
 

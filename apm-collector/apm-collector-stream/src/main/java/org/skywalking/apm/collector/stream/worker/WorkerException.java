@@ -22,7 +22,7 @@ package org.skywalking.apm.collector.stream.worker;
  * Defines a general exception a worker can throw when it
  * encounters difficulty.
  *
- * @author pengys5
+ * @author peng-yongsheng
  * @since v3.1-2017
  */
 public class WorkerException extends Exception {

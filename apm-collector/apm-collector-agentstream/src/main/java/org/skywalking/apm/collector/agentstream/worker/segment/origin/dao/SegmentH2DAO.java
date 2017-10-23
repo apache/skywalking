@@ -32,7 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author pengys5, clevertension
+ * @author peng-yongsheng, clevertension
  */
 public class SegmentH2DAO extends H2DAO implements ISegmentDAO, IPersistenceDAO<H2SqlEntity, H2SqlEntity> {
     private final Logger logger = LoggerFactory.getLogger(SegmentCostH2DAO.class);

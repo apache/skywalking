@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.core.storage;
 import org.skywalking.apm.collector.core.framework.DefinitionFile;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class StorageDefinitionFile extends DefinitionFile {
     @Override protected String fileName() {

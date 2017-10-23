@@ -23,7 +23,7 @@ import org.skywalking.apm.collector.storage.h2.define.H2ColumnDefine;
 import org.skywalking.apm.collector.storage.h2.define.H2TableDefine;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class SegmentH2TableDefine extends H2TableDefine {
 

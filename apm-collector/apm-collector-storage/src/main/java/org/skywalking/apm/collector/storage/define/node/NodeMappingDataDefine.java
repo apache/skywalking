@@ -28,7 +28,7 @@ import org.skywalking.apm.collector.storage.define.AttributeType;
 import org.skywalking.apm.collector.storage.define.DataDefine;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class NodeMappingDataDefine extends DataDefine {
 

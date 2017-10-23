@@ -19,7 +19,7 @@
 package org.skywalking.apm.collector.core.util;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class Const {
     public static final String ID_SPLIT = "_";

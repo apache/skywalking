@@ -38,7 +38,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 /**
- * @author pengys5, clevertension
+ * @author peng-yongsheng, clevertension
  */
 public class GCMetricH2DAO extends H2DAO implements IGCMetricDAO {
     private final Logger logger = LoggerFactory.getLogger(GCMetricH2DAO.class);

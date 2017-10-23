@@ -24,7 +24,7 @@ package org.skywalking.apm.collector.stream.worker;
  * <p>
  * Usually, the implementations are doing persistent, or aggregate works.
  *
- * @author pengys5
+ * @author peng-yongsheng
  * @since v3.0-2017
  */
 public abstract class AbstractRemoteWorker extends AbstractWorker<RemoteWorkerRef> {

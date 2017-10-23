@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.server.jetty;
 import org.skywalking.apm.collector.core.server.ServerException;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class JettyServerException extends ServerException {
 

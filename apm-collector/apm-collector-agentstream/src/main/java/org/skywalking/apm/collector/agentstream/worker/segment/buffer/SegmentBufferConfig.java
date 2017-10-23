@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.agentstream.worker.segment.buffer;
 import org.skywalking.apm.collector.core.config.SystemConfig;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class SegmentBufferConfig {
     public static String BUFFER_PATH = SystemConfig.DATA_PATH + "/buffer/";

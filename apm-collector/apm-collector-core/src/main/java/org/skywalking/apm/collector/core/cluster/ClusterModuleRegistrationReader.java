@@ -22,7 +22,7 @@ import java.util.Set;
 import org.skywalking.apm.collector.core.client.DataMonitor;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public abstract class ClusterModuleRegistrationReader {
 

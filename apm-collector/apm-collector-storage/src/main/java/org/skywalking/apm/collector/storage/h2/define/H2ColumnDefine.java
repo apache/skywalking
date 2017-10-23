@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.storage.h2.define;
 import org.skywalking.apm.collector.core.storage.ColumnDefine;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class H2ColumnDefine extends ColumnDefine {
 

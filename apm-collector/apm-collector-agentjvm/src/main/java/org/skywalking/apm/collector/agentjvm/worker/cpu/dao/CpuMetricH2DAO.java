@@ -32,7 +32,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author pengys5, clevertension
+ * @author peng-yongsheng, clevertension
  */
 public class CpuMetricH2DAO extends H2DAO implements ICpuMetricDAO, IPersistenceDAO<H2SqlEntity, H2SqlEntity> {
     private final Logger logger = LoggerFactory.getLogger(CpuMetricH2DAO.class);

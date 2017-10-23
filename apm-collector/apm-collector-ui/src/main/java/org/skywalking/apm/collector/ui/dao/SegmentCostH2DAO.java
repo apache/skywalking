@@ -40,7 +40,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 /**
- * @author pengys5, clevertension
+ * @author peng-yongsheng, clevertension
  */
 public class SegmentCostH2DAO extends H2DAO implements ISegmentCostDAO {
     private final Logger logger = LoggerFactory.getLogger(SegmentCostH2DAO.class);

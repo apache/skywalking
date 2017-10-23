@@ -26,7 +26,7 @@ import org.skywalking.apm.collector.stream.worker.WorkerRef;
  * The <code>RollingSelector</code> is a simple implementation of {@link WorkerSelector}.
  * It choose {@link WorkerRef} nearly random, by round-robin.
  *
- * @author pengys5
+ * @author peng-yongsheng
  * @since v3.0-2017
  */
 public class RollingSelector implements WorkerSelector<WorkerRef> {

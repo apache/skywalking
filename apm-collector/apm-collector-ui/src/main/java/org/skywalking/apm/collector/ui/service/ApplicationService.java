@@ -23,7 +23,7 @@ import org.skywalking.apm.collector.storage.dao.DAOContainer;
 import org.skywalking.apm.collector.ui.dao.IInstanceDAO;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class ApplicationService {
 

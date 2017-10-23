@@ -23,7 +23,7 @@ import java.io.IOException;
 import org.skywalking.apm.network.proto.KeyWithStringValue;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class KeyWithStringValueJsonReader implements StreamJsonReader<KeyWithStringValue> {
 

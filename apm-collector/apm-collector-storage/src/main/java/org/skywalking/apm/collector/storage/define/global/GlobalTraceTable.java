@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.storage.define.global;
 import org.skywalking.apm.collector.storage.define.CommonTable;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class GlobalTraceTable extends CommonTable {
     public static final String TABLE = "global_trace";

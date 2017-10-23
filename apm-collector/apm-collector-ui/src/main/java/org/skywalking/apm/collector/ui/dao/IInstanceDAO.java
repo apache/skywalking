@@ -23,7 +23,7 @@ import java.util.List;
 import org.skywalking.apm.collector.storage.define.register.InstanceDataDefine;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public interface IInstanceDAO {
     Long lastHeartBeatTime();

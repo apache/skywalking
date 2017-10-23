@@ -38,7 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author pengys5, clevertension
+ * @author peng-yongsheng, clevertension
  */
 public class ServiceReferenceH2DAO extends H2DAO implements IServiceReferenceDAO, IPersistenceDAO<H2SqlEntity, H2SqlEntity> {
     private final Logger logger = LoggerFactory.getLogger(ServiceReferenceH2DAO.class);

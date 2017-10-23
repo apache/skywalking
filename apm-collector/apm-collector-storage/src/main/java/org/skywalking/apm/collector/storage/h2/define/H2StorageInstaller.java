@@ -33,7 +33,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class H2StorageInstaller extends StorageInstaller {
 

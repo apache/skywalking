@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.server.grpc;
 import org.skywalking.apm.collector.core.server.ServerException;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class GRPCServerException extends ServerException {
 

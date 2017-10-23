@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.agentstream.grpc;
 import org.skywalking.apm.collector.core.module.ModuleRegistration;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class AgentStreamGRPCModuleRegistration extends ModuleRegistration {
 

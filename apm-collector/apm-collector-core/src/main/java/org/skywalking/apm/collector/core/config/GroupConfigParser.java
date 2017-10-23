@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.core.config;
 import java.util.Map;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public interface GroupConfigParser {
     String NODE_NAME = "config";

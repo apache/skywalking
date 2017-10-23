@@ -23,7 +23,7 @@ import org.skywalking.apm.network.proto.TraceSegmentReference;
 import org.skywalking.apm.network.proto.UniqueId;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class ReferenceDecorator implements StandardBuilder {
     private boolean isOrigin = true;

@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.storage.elasticsearch.define;
 import org.skywalking.apm.collector.core.storage.ColumnDefine;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class ElasticSearchColumnDefine extends ColumnDefine {
     public ElasticSearchColumnDefine(String name, String type) {

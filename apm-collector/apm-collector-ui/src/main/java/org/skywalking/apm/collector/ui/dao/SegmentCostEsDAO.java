@@ -38,7 +38,7 @@ import org.skywalking.apm.collector.storage.define.segment.SegmentCostTable;
 import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class SegmentCostEsDAO extends EsDAO implements ISegmentCostDAO {
 

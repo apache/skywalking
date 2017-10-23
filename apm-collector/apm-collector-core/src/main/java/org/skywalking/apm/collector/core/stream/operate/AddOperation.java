@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.core.stream.operate;
 import org.skywalking.apm.collector.core.stream.Operation;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class AddOperation implements Operation {
 

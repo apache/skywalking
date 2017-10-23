@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonArray;
 
 /**
- * @author pengys5, clevertension
+ * @author peng-yongsheng, clevertension
  */
 public class CpuMetricH2DAO extends H2DAO implements ICpuMetricDAO {
     private final Logger logger = LoggerFactory.getLogger(InstanceH2DAO.class);

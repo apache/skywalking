@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.core.queue;
 import org.skywalking.apm.collector.core.framework.Executor;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public interface QueueExecutor extends Executor {
 }

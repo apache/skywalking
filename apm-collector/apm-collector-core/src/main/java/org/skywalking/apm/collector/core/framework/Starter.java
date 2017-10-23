@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.core.framework;
 import org.skywalking.apm.collector.core.CollectorException;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public interface Starter {
     void start() throws CollectorException;
