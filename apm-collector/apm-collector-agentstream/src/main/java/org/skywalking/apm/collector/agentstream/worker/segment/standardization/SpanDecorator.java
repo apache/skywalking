@@ -133,9 +133,8 @@ public class SpanDecorator implements StandardBuilder {
     public void setPeerId(int peerId) {
         if (isOrigin) {
             toBuilder();
-        } else {
-            spanBuilder.setPeerId(peerId);
         }
+        spanBuilder.setPeerId(peerId);
     }
 
     public String getPeer() {
@@ -149,9 +148,8 @@ public class SpanDecorator implements StandardBuilder {
     public void setPeer(String peer) {
         if (isOrigin) {
             toBuilder();
-        } else {
-            spanBuilder.setPeer(peer);
         }
+        spanBuilder.setPeer(peer);
     }
 
     public int getOperationNameId() {
@@ -165,9 +163,8 @@ public class SpanDecorator implements StandardBuilder {
     public void setOperationNameId(int value) {
         if (isOrigin) {
             toBuilder();
-        } else {
-            spanBuilder.setOperationNameId(value);
         }
+        spanBuilder.setOperationNameId(value);
     }
 
     public String getOperationName() {
@@ -181,9 +178,8 @@ public class SpanDecorator implements StandardBuilder {
     public void setOperationName(String value) {
         if (isOrigin) {
             toBuilder();
-        } else {
-            spanBuilder.setOperationName(value);
         }
+        spanBuilder.setOperationName(value);
     }
 
     public boolean getIsError() {
