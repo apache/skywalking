@@ -44,7 +44,7 @@ public class SegmentH2DAO extends H2DAO implements ISegmentDAO, IPersistenceDAO<
     @Override public H2SqlEntity prepareBatchInsert(Data data) {
         Map<String, Object> source = new HashMap<>();
         H2SqlEntity entity = new H2SqlEntity();
-        source.put("id", data.getDataString(0));
+        source.put(SegmentTable.COLUMN_ID, data.getDataString(0));
         source.put(SegmentTable.COLUMN_DATA_BINARY, data.getDataBytes(0));
         logger.debug("segment source: {}", source.toString());
 

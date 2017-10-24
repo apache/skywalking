@@ -18,6 +18,8 @@
 
 package org.skywalking.apm.collector.agentstream.worker.segment.cost.dao;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.skywalking.apm.collector.core.stream.Data;
 import org.skywalking.apm.collector.storage.define.DataDefine;
 import org.skywalking.apm.collector.storage.define.segment.SegmentCostTable;
@@ -28,22 +30,21 @@ import org.skywalking.apm.collector.stream.worker.impl.dao.IPersistenceDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * @author peng-yongsheng, clevertension
  */
 public class SegmentCostH2DAO extends H2DAO implements ISegmentCostDAO, IPersistenceDAO<H2SqlEntity, H2SqlEntity> {
     private final Logger logger = LoggerFactory.getLogger(SegmentCostH2DAO.class);
+
     @Override public Data get(String id, DataDefine dataDefine) {
         return null;
     }
+
     @Override public H2SqlEntity prepareBatchInsert(Data data) {
         logger.debug("segment cost prepareBatchInsert, id: {}", data.getDataString(0));
         H2SqlEntity entity = new H2SqlEntity();
         Map<String, Object> source = new HashMap<>();
-        source.put("id", data.getDataString(0));
+        source.put(SegmentCostTable.COLUMN_ID, data.getDataString(0));
         source.put(SegmentCostTable.COLUMN_SEGMENT_ID, data.getDataString(1));
         source.put(SegmentCostTable.COLUMN_APPLICATION_ID, data.getDataInteger(0));
         source.put(SegmentCostTable.COLUMN_SERVICE_NAME, data.getDataString(2));
@@ -59,6 +60,7 @@ public class SegmentCostH2DAO extends H2DAO implements ISegmentCostDAO, IPersist
         entity.setParams(source.values().toArray(new Object[0]));
         return entity;
     }
+
     @Override public H2SqlEntity prepareBatchUpdate(Data data) {
         return null;
     }

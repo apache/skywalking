@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.client.h2.H2ClientException;
 import org.skywalking.apm.collector.core.stream.Data;
@@ -43,10 +42,11 @@ import org.slf4j.LoggerFactory;
 public class InstPerformanceH2DAO extends H2DAO implements IInstPerformanceDAO, IPersistenceDAO<H2SqlEntity, H2SqlEntity> {
     private final Logger logger = LoggerFactory.getLogger(InstPerformanceH2DAO.class);
     private static final String GET_SQL = "select * from {0} where {1} = ?";
+
     @Override public Data get(String id, DataDefine dataDefine) {
         H2Client client = getClient();
-        String sql = SqlBuilder.buildSql(GET_SQL, InstPerformanceTable.TABLE, "id");
-        Object[] params = new Object[]{id};
+        String sql = SqlBuilder.buildSql(GET_SQL, InstPerformanceTable.TABLE, InstPerformanceTable.COLUMN_ID);
+        Object[] params = new Object[] {id};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
                 Data data = dataDefine.build(id);
@@ -62,10 +62,11 @@ public class InstPerformanceH2DAO extends H2DAO implements IInstPerformanceDAO, 
         }
         return null;
     }
+
     @Override public H2SqlEntity prepareBatchInsert(Data data) {
         Map<String, Object> source = new HashMap<>();
         H2SqlEntity entity = new H2SqlEntity();
-        source.put("id", data.getDataString(0));
+        source.put(InstPerformanceTable.COLUMN_ID, data.getDataString(0));
         source.put(InstPerformanceTable.COLUMN_APPLICATION_ID, data.getDataInteger(0));
         source.put(InstPerformanceTable.COLUMN_INSTANCE_ID, data.getDataInteger(1));
         source.put(InstPerformanceTable.COLUMN_CALLS, data.getDataInteger(2));
@@ -76,6 +77,7 @@ public class InstPerformanceH2DAO extends H2DAO implements IInstPerformanceDAO, 
         entity.setParams(source.values().toArray(new Object[0]));
         return entity;
     }
+
     @Override public H2SqlEntity prepareBatchUpdate(Data data) {
         Map<String, Object> source = new HashMap<>();
         H2SqlEntity entity = new H2SqlEntity();
@@ -85,7 +87,7 @@ public class InstPerformanceH2DAO extends H2DAO implements IInstPerformanceDAO, 
         source.put(InstPerformanceTable.COLUMN_COST_TOTAL, data.getDataLong(0));
         source.put(InstPerformanceTable.COLUMN_TIME_BUCKET, data.getDataLong(1));
         String id = data.getDataString(0);
-        String sql = SqlBuilder.buildBatchUpdateSql(InstPerformanceTable.TABLE, source.keySet(), "id");
+        String sql = SqlBuilder.buildBatchUpdateSql(InstPerformanceTable.TABLE, source.keySet(), InstPerformanceTable.COLUMN_ID);
         entity.setSql(sql);
         List<Object> values = new ArrayList<>(source.values());
         values.add(id);

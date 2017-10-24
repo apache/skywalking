@@ -18,6 +18,7 @@
 
 package org.skywalking.apm.collector.agentregister.worker.application;
 
+import org.skywalking.apm.collector.storage.define.global.GlobalTraceTable;
 import org.skywalking.apm.collector.storage.define.register.ApplicationTable;
 import org.skywalking.apm.collector.storage.h2.define.H2ColumnDefine;
 import org.skywalking.apm.collector.storage.h2.define.H2TableDefine;
@@ -32,6 +33,7 @@ public class ApplicationH2TableDefine extends H2TableDefine {
     }
 
     @Override public void initialize() {
+        addColumn(new H2ColumnDefine(GlobalTraceTable.COLUMN_ID, H2ColumnDefine.Type.Varchar.name()));
         addColumn(new H2ColumnDefine(ApplicationTable.COLUMN_APPLICATION_CODE, H2ColumnDefine.Type.Varchar.name()));
         addColumn(new H2ColumnDefine(ApplicationTable.COLUMN_APPLICATION_ID, H2ColumnDefine.Type.Int.name()));
     }

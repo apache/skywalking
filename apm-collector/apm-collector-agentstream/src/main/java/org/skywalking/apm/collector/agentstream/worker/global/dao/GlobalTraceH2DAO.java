@@ -18,6 +18,8 @@
 
 package org.skywalking.apm.collector.agentstream.worker.global.dao;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.skywalking.apm.collector.core.framework.UnexpectedException;
 import org.skywalking.apm.collector.core.stream.Data;
 import org.skywalking.apm.collector.storage.define.DataDefine;
@@ -29,14 +31,12 @@ import org.skywalking.apm.collector.stream.worker.impl.dao.IPersistenceDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * @author peng-yongsheng, clevertension
  */
 public class GlobalTraceH2DAO extends H2DAO implements IGlobalTraceDAO, IPersistenceDAO<H2SqlEntity, H2SqlEntity> {
     private final Logger logger = LoggerFactory.getLogger(GlobalTraceH2DAO.class);
+
     @Override public Data get(String id, DataDefine dataDefine) {
         throw new UnexpectedException("There is no need to merge stream data with database data.");
     }
@@ -48,7 +48,7 @@ public class GlobalTraceH2DAO extends H2DAO implements IGlobalTraceDAO, IPersist
     @Override public H2SqlEntity prepareBatchInsert(Data data) {
         Map<String, Object> source = new HashMap<>();
         H2SqlEntity entity = new H2SqlEntity();
-        source.put("id", data.getDataString(0));
+        source.put(GlobalTraceTable.COLUMN_ID, data.getDataString(0));
         source.put(GlobalTraceTable.COLUMN_SEGMENT_ID, data.getDataString(1));
         source.put(GlobalTraceTable.COLUMN_GLOBAL_TRACE_ID, data.getDataString(2));
         source.put(GlobalTraceTable.COLUMN_TIME_BUCKET, data.getDataLong(0));

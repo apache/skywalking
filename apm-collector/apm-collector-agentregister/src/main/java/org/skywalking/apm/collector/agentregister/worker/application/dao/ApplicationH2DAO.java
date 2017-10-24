@@ -18,6 +18,8 @@
 
 package org.skywalking.apm.collector.agentregister.worker.application.dao;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.client.h2.H2ClientException;
 import org.skywalking.apm.collector.storage.define.register.ApplicationDataDefine;
@@ -32,7 +34,6 @@ import org.slf4j.LoggerFactory;
  */
 public class ApplicationH2DAO extends H2DAO implements IApplicationDAO {
     private final Logger logger = LoggerFactory.getLogger(ApplicationH2DAO.class);
-    private static final String INSERT_APPLICATION_SQL = "insert into {0}({1}, {2}) values(?, ?)";
 
     @Override
     public int getMaxApplicationId() {
@@ -47,9 +48,14 @@ public class ApplicationH2DAO extends H2DAO implements IApplicationDAO {
     @Override
     public void save(ApplicationDataDefine.Application application) {
         H2Client client = getClient();
-        String sql = SqlBuilder.buildSql(INSERT_APPLICATION_SQL, ApplicationTable.TABLE, ApplicationTable.COLUMN_APPLICATION_ID,
-            ApplicationTable.COLUMN_APPLICATION_CODE);
-        Object[] params = new Object[] {application.getApplicationId(), application.getApplicationCode()};
+
+        Map<String, Object> source = new HashMap<>();
+        source.put(ApplicationTable.COLUMN_ID, application.getApplicationId());
+        source.put(ApplicationTable.COLUMN_APPLICATION_CODE, application.getApplicationCode());
+        source.put(ApplicationTable.COLUMN_APPLICATION_ID, application.getApplicationId());
+
+        String sql = SqlBuilder.buildBatchInsertSql(ApplicationTable.TABLE, source.keySet());
+        Object[] params = source.values().toArray(new Object[0]);
         try {
             client.execute(sql, params);
         } catch (H2ClientException e) {

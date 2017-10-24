@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.skywalking.apm.collector.agentstream.worker.node.component.dao.NodeComponentH2DAO;
 import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.client.h2.H2ClientException;
@@ -44,10 +43,11 @@ import org.slf4j.LoggerFactory;
 public class NodeMappingH2DAO extends H2DAO implements INodeMappingDAO, IPersistenceDAO<H2SqlEntity, H2SqlEntity> {
     private final Logger logger = LoggerFactory.getLogger(NodeComponentH2DAO.class);
     private static final String GET_SQL = "select * from {0} where {1} = ?";
+
     @Override public Data get(String id, DataDefine dataDefine) {
         H2Client client = getClient();
-        String sql = SqlBuilder.buildSql(GET_SQL, NodeMappingTable.TABLE, "id");
-        Object[] params = new Object[]{id};
+        String sql = SqlBuilder.buildSql(GET_SQL, NodeMappingTable.TABLE, NodeMappingTable.COLUMN_ID);
+        Object[] params = new Object[] {id};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
                 Data data = dataDefine.build(id);
@@ -62,10 +62,11 @@ public class NodeMappingH2DAO extends H2DAO implements INodeMappingDAO, IPersist
         }
         return null;
     }
+
     @Override public H2SqlEntity prepareBatchInsert(Data data) {
         Map<String, Object> source = new HashMap<>();
         H2SqlEntity entity = new H2SqlEntity();
-        source.put("id", data.getDataString(0));
+        source.put(NodeMappingTable.COLUMN_ID, data.getDataString(0));
         source.put(NodeMappingTable.COLUMN_APPLICATION_ID, data.getDataInteger(0));
         source.put(NodeMappingTable.COLUMN_ADDRESS_ID, data.getDataInteger(1));
         source.put(NodeMappingTable.COLUMN_ADDRESS, data.getDataString(1));
@@ -76,6 +77,7 @@ public class NodeMappingH2DAO extends H2DAO implements INodeMappingDAO, IPersist
         entity.setParams(source.values().toArray(new Object[0]));
         return entity;
     }
+
     @Override public H2SqlEntity prepareBatchUpdate(Data data) {
         Map<String, Object> source = new HashMap<>();
         H2SqlEntity entity = new H2SqlEntity();
@@ -84,7 +86,7 @@ public class NodeMappingH2DAO extends H2DAO implements INodeMappingDAO, IPersist
         source.put(NodeMappingTable.COLUMN_ADDRESS, data.getDataString(1));
         source.put(NodeMappingTable.COLUMN_TIME_BUCKET, data.getDataLong(0));
         String id = data.getDataString(0);
-        String sql = SqlBuilder.buildBatchUpdateSql(NodeMappingTable.TABLE, source.keySet(), "id");
+        String sql = SqlBuilder.buildBatchUpdateSql(NodeMappingTable.TABLE, source.keySet(), NodeMappingTable.COLUMN_ID);
         entity.setSql(sql);
         List<Object> values = new ArrayList<>(source.values());
         values.add(id);

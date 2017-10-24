@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.client.h2.H2ClientException;
 import org.skywalking.apm.collector.core.stream.Data;
@@ -43,10 +42,11 @@ import org.slf4j.LoggerFactory;
 public class NodeReferenceH2DAO extends H2DAO implements INodeReferenceDAO, IPersistenceDAO<H2SqlEntity, H2SqlEntity> {
     private final Logger logger = LoggerFactory.getLogger(NodeReferenceH2DAO.class);
     private static final String GET_SQL = "select * from {0} where {1} = ?";
+
     @Override public Data get(String id, DataDefine dataDefine) {
         H2Client client = getClient();
-        String sql = SqlBuilder.buildSql(GET_SQL, NodeReferenceTable.TABLE, "id");
-        Object[] params = new Object[]{id};
+        String sql = SqlBuilder.buildSql(GET_SQL, NodeReferenceTable.TABLE, NodeReferenceTable.COLUMN_ID);
+        Object[] params = new Object[] {id};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
                 Data data = dataDefine.build(id);
@@ -67,10 +67,11 @@ public class NodeReferenceH2DAO extends H2DAO implements INodeReferenceDAO, IPer
         }
         return null;
     }
+
     @Override public H2SqlEntity prepareBatchInsert(Data data) {
         Map<String, Object> source = new HashMap<>();
         H2SqlEntity entity = new H2SqlEntity();
-        source.put("id", data.getDataString(0));
+        source.put(NodeReferenceTable.COLUMN_ID, data.getDataString(0));
         source.put(NodeReferenceTable.COLUMN_FRONT_APPLICATION_ID, data.getDataInteger(0));
         source.put(NodeReferenceTable.COLUMN_BEHIND_APPLICATION_ID, data.getDataInteger(1));
         source.put(NodeReferenceTable.COLUMN_BEHIND_PEER, data.getDataString(1));
@@ -87,6 +88,7 @@ public class NodeReferenceH2DAO extends H2DAO implements INodeReferenceDAO, IPer
         entity.setParams(source.values().toArray(new Object[0]));
         return entity;
     }
+
     @Override public H2SqlEntity prepareBatchUpdate(Data data) {
         Map<String, Object> source = new HashMap<>();
         H2SqlEntity entity = new H2SqlEntity();
@@ -101,7 +103,7 @@ public class NodeReferenceH2DAO extends H2DAO implements INodeReferenceDAO, IPer
         source.put(NodeReferenceTable.COLUMN_ERROR, data.getDataInteger(7));
         source.put(NodeReferenceTable.COLUMN_TIME_BUCKET, data.getDataLong(0));
         String id = data.getDataString(0);
-        String sql = SqlBuilder.buildBatchUpdateSql(NodeReferenceTable.TABLE, source.keySet(), "id");
+        String sql = SqlBuilder.buildBatchUpdateSql(NodeReferenceTable.TABLE, source.keySet(), NodeReferenceTable.COLUMN_ID);
         entity.setSql(sql);
         List<Object> values = new ArrayList<>(source.values());
         values.add(id);

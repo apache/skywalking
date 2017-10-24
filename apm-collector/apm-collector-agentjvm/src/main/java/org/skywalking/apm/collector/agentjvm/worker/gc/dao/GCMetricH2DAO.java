@@ -20,7 +20,6 @@ package org.skywalking.apm.collector.agentjvm.worker.gc.dao;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.skywalking.apm.collector.core.stream.Data;
 import org.skywalking.apm.collector.storage.define.DataDefine;
 import org.skywalking.apm.collector.storage.define.jvm.GCMetricTable;
@@ -40,7 +39,7 @@ public class GCMetricH2DAO extends H2DAO implements IGCMetricDAO, IPersistenceDA
     @Override public H2SqlEntity prepareBatchInsert(Data data) {
         H2SqlEntity entity = new H2SqlEntity();
         Map<String, Object> source = new HashMap<>();
-        source.put("id", data.getDataString(0));
+        source.put(GCMetricTable.COLUMN_ID, data.getDataString(0));
         source.put(GCMetricTable.COLUMN_INSTANCE_ID, data.getDataInteger(0));
         source.put(GCMetricTable.COLUMN_PHRASE, data.getDataInteger(1));
         source.put(GCMetricTable.COLUMN_COUNT, data.getDataLong(0));

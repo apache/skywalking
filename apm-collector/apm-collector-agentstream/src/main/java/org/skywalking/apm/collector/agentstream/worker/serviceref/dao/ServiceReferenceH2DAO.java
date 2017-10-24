@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.client.h2.H2ClientException;
 import org.skywalking.apm.collector.core.stream.Data;
@@ -43,11 +42,12 @@ import org.slf4j.LoggerFactory;
 public class ServiceReferenceH2DAO extends H2DAO implements IServiceReferenceDAO, IPersistenceDAO<H2SqlEntity, H2SqlEntity> {
     private final Logger logger = LoggerFactory.getLogger(ServiceReferenceH2DAO.class);
     private static final String GET_SQL = "select * from {0} where {1} = ?";
+
     @Override
     public Data get(String id, DataDefine dataDefine) {
         H2Client client = getClient();
-        String sql = SqlBuilder.buildSql(GET_SQL, ServiceReferenceTable.TABLE, "id");
-        Object[] params = new Object[]{id};
+        String sql = SqlBuilder.buildSql(GET_SQL, ServiceReferenceTable.TABLE, ServiceReferenceTable.COLUMN_ID);
+        Object[] params = new Object[] {id};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
                 Data data = dataDefine.build(id);
@@ -77,7 +77,7 @@ public class ServiceReferenceH2DAO extends H2DAO implements IServiceReferenceDAO
     public H2SqlEntity prepareBatchInsert(Data data) {
         H2SqlEntity entity = new H2SqlEntity();
         Map<String, Object> source = new HashMap<>();
-        source.put("id", data.getDataString(0));
+        source.put(ServiceReferenceTable.COLUMN_ID, data.getDataString(0));
         source.put(ServiceReferenceTable.COLUMN_ENTRY_SERVICE_ID, data.getDataInteger(0));
         source.put(ServiceReferenceTable.COLUMN_ENTRY_SERVICE_NAME, data.getDataString(1));
         source.put(ServiceReferenceTable.COLUMN_FRONT_SERVICE_ID, data.getDataInteger(1));
@@ -119,7 +119,7 @@ public class ServiceReferenceH2DAO extends H2DAO implements IServiceReferenceDAO
         source.put(ServiceReferenceTable.COLUMN_TIME_BUCKET, data.getDataLong(7));
 
         String id = data.getDataString(0);
-        String sql = SqlBuilder.buildBatchUpdateSql(ServiceReferenceTable.TABLE, source.keySet(), "id");
+        String sql = SqlBuilder.buildBatchUpdateSql(ServiceReferenceTable.TABLE, source.keySet(), ServiceReferenceTable.COLUMN_ID);
         entity.setSql(sql);
         List<Object> values = new ArrayList<>(source.values());
         values.add(id);
