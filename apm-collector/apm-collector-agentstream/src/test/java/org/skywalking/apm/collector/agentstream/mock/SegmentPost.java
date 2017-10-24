@@ -77,14 +77,14 @@ public class SegmentPost {
 
         IServiceNameDAO serviceNameDAO = (IServiceNameDAO)DAOContainer.INSTANCE.get(IServiceNameDAO.class.getName());
 
-//        ServiceNameDataDefine.ServiceName serviceName1 = new ServiceNameDataDefine.ServiceName("1", "", 0, 1);
-//        serviceNameDAO.save(serviceName1);
-//        ServiceNameDataDefine.ServiceName serviceName2 = new ServiceNameDataDefine.ServiceName("2", "org.skywaking.apm.testcase.dubbo.services.GreetService.doBusiness()", 2, 2);
-//        serviceNameDAO.save(serviceName2);
-//        ServiceNameDataDefine.ServiceName serviceName3 = new ServiceNameDataDefine.ServiceName("3", "/dubbox-case/case/dubbox-rest", 2, 3);
-//        serviceNameDAO.save(serviceName3);
-//        ServiceNameDataDefine.ServiceName serviceName4 = new ServiceNameDataDefine.ServiceName("4", "org.skywaking.apm.testcase.dubbo.services.GreetService.doBusiness()", 3, 4);
-//        serviceNameDAO.save(serviceName4);
+        ServiceNameDataDefine.ServiceName serviceName1 = new ServiceNameDataDefine.ServiceName("1", "", 0, 1);
+        serviceNameDAO.save(serviceName1);
+        ServiceNameDataDefine.ServiceName serviceName2 = new ServiceNameDataDefine.ServiceName("2", "org.skywaking.apm.testcase.dubbo.services.GreetService.doBusiness()", 2, 2);
+        serviceNameDAO.save(serviceName2);
+        ServiceNameDataDefine.ServiceName serviceName3 = new ServiceNameDataDefine.ServiceName("3", "/dubbox-case/case/dubbox-rest", 2, 3);
+        serviceNameDAO.save(serviceName3);
+        ServiceNameDataDefine.ServiceName serviceName4 = new ServiceNameDataDefine.ServiceName("4", "org.skywaking.apm.testcase.dubbo.services.GreetService.doBusiness()", 3, 4);
+        serviceNameDAO.save(serviceName4);
 
         while (true) {
             JsonElement consumer = JsonFileReader.INSTANCE.read("json/segment/normal/dubbox-consumer.json");
