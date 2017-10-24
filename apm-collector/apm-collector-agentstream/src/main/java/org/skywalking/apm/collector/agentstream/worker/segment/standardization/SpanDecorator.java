@@ -191,8 +191,10 @@ public class SpanDecorator implements StandardBuilder {
     }
 
     @Override public void toBuilder() {
-        this.isOrigin = false;
-        spanBuilder = spanObject.toBuilder();
-        standardBuilder.toBuilder();
+        if (this.isOrigin) {
+            this.isOrigin = false;
+            spanBuilder = spanObject.toBuilder();
+            standardBuilder.toBuilder();
+        }
     }
 }

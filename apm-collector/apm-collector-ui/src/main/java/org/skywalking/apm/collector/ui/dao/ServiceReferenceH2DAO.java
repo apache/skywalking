@@ -60,7 +60,7 @@ public class ServiceReferenceH2DAO extends H2DAO implements IServiceReferenceDAO
         Map<String, JsonObject> serviceReferenceMap = new LinkedHashMap<>();
 
         try (ResultSet rs = client.executeQuery(sql, params)) {
-            if (rs.next()) {
+            while (rs.next()) {
                 int frontServiceId = rs.getInt(ServiceReferenceTable.COLUMN_FRONT_SERVICE_ID);
                 parseSubAggregate(serviceReferenceMap, rs, frontServiceId);
             }

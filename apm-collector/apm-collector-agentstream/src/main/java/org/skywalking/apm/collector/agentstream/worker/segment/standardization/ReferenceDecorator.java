@@ -181,8 +181,10 @@ public class ReferenceDecorator implements StandardBuilder {
     }
 
     @Override public void toBuilder() {
-        this.isOrigin = false;
-        referenceBuilder = referenceObject.toBuilder();
-        standardBuilder.toBuilder();
+        if (this.isOrigin) {
+            this.isOrigin = false;
+            referenceBuilder = referenceObject.toBuilder();
+            standardBuilder.toBuilder();
+        }
     }
 }
