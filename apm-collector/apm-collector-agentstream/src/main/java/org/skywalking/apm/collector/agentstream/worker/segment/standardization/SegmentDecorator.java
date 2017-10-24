@@ -78,7 +78,7 @@ public class SegmentDecorator implements StandardBuilder {
     }
 
     @Override public void toBuilder() {
-        if (!isOrigin) {
+        if (isOrigin) {
             this.isOrigin = false;
             this.segmentBuilder = segmentObject.toBuilder();
         }

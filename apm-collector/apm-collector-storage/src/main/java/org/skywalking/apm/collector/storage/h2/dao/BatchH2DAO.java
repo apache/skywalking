@@ -18,18 +18,17 @@
 
 package org.skywalking.apm.collector.storage.h2.dao;
 
-import org.skywalking.apm.collector.client.h2.H2ClientException;
-import org.skywalking.apm.collector.storage.dao.IBatchDAO;
-import org.skywalking.apm.collector.storage.h2.define.H2SqlEntity;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.skywalking.apm.collector.client.h2.H2ClientException;
+import org.skywalking.apm.collector.storage.dao.IBatchDAO;
+import org.skywalking.apm.collector.storage.h2.define.H2SqlEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
@@ -41,7 +40,7 @@ public class BatchH2DAO extends H2DAO implements IBatchDAO {
     public void batchPersistence(List<?> batchCollection) {
         if (batchCollection != null && batchCollection.size() > 0) {
             logger.debug("the batch collection size is {}", batchCollection.size());
-            Connection conn = null;
+            Connection conn;
             final Map<String, PreparedStatement> batchSqls = new HashMap<>();
             try {
                 conn = getClient().getConnection();
@@ -59,7 +58,7 @@ public class BatchH2DAO extends H2DAO implements IBatchDAO {
 
                     Object[] params = e.getParams();
                     if (params != null) {
-                        logger.debug("the sql is {}, params size is {}", e.getSql(), params.length);
+                        logger.debug("the sql is {}, params size is {}, params: {}", e.getSql(), params.length, params);
                         for (int i = 0; i < params.length; i++) {
                             ps.setObject(i + 1, params[i]);
                         }
@@ -79,7 +78,7 @@ public class BatchH2DAO extends H2DAO implements IBatchDAO {
 
     private H2SqlEntity getH2SqlEntity(Object entity) {
         if (entity instanceof H2SqlEntity) {
-            return (H2SqlEntity) entity;
+            return (H2SqlEntity)entity;
         }
         return null;
     }
