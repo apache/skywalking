@@ -45,7 +45,7 @@ public class ServiceEntryH2DAO extends H2DAO implements IServiceEntryDAO, IPersi
 
     @Override public Data get(String id, DataDefine dataDefine) {
         H2Client client = getClient();
-        String sql = SqlBuilder.buildSql(GET_SERVICE_ENTRY_SQL, ServiceEntryTable.TABLE, "id");
+        String sql = SqlBuilder.buildSql(GET_SERVICE_ENTRY_SQL, ServiceEntryTable.TABLE, ServiceEntryTable.COLUMN_ID);
         Object[] params = new Object[] {id};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
@@ -66,7 +66,7 @@ public class ServiceEntryH2DAO extends H2DAO implements IServiceEntryDAO, IPersi
     @Override public H2SqlEntity prepareBatchInsert(Data data) {
         H2SqlEntity entity = new H2SqlEntity();
         Map<String, Object> source = new HashMap<>();
-        source.put("id", data.getDataString(0));
+        source.put(ServiceEntryTable.COLUMN_ID, data.getDataString(0));
         source.put(ServiceEntryTable.COLUMN_APPLICATION_ID, data.getDataInteger(0));
         source.put(ServiceEntryTable.COLUMN_ENTRY_SERVICE_ID, data.getDataInteger(1));
         source.put(ServiceEntryTable.COLUMN_ENTRY_SERVICE_NAME, data.getDataString(1));
@@ -87,7 +87,7 @@ public class ServiceEntryH2DAO extends H2DAO implements IServiceEntryDAO, IPersi
         source.put(ServiceEntryTable.COLUMN_REGISTER_TIME, data.getDataLong(0));
         source.put(ServiceEntryTable.COLUMN_NEWEST_TIME, data.getDataLong(1));
         String id = data.getDataString(0);
-        String sql = SqlBuilder.buildBatchUpdateSql(ServiceEntryTable.TABLE, source.keySet(), "id");
+        String sql = SqlBuilder.buildBatchUpdateSql(ServiceEntryTable.TABLE, source.keySet(), ServiceEntryTable.COLUMN_ID);
         entity.setSql(sql);
         List<Object> values = new ArrayList<>(source.values());
         values.add(id);

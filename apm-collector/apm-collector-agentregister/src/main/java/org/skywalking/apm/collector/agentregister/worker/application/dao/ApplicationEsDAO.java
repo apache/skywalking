@@ -47,7 +47,7 @@ public class ApplicationEsDAO extends EsDAO implements IApplicationDAO {
     @Override public void save(ApplicationDataDefine.Application application) {
         logger.debug("save application register info, application id: {}, application code: {}", application.getApplicationId(), application.getApplicationCode());
         ElasticSearchClient client = getClient();
-        Map<String, Object> source = new HashMap();
+        Map<String, Object> source = new HashMap<>();
         source.put(ApplicationTable.COLUMN_APPLICATION_CODE, application.getApplicationCode());
         source.put(ApplicationTable.COLUMN_APPLICATION_ID, application.getApplicationId());
 

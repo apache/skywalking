@@ -24,13 +24,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.client.h2.H2ClientException;
 import org.skywalking.apm.collector.core.stream.Data;
 import org.skywalking.apm.collector.storage.define.DataDefine;
 import org.skywalking.apm.collector.storage.define.node.NodeComponentTable;
-import org.skywalking.apm.collector.storage.define.serviceref.ServiceReferenceTable;
 import org.skywalking.apm.collector.storage.h2.SqlBuilder;
 import org.skywalking.apm.collector.storage.h2.dao.H2DAO;
 import org.skywalking.apm.collector.storage.h2.define.H2SqlEntity;
@@ -48,8 +46,8 @@ public class NodeComponentH2DAO extends H2DAO implements INodeComponentDAO, IPer
     @Override
     public Data get(String id, DataDefine dataDefine) {
         H2Client client = getClient();
-        String sql = SqlBuilder.buildSql(GET_SQL, ServiceReferenceTable.TABLE, "id");
-        Object[] params = new Object[]{id};
+        String sql = SqlBuilder.buildSql(GET_SQL, NodeComponentTable.TABLE, NodeComponentTable.COLUMN_ID);
+        Object[] params = new Object[] {id};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
                 Data data = dataDefine.build(id);
@@ -70,7 +68,7 @@ public class NodeComponentH2DAO extends H2DAO implements INodeComponentDAO, IPer
     public H2SqlEntity prepareBatchInsert(Data data) {
         Map<String, Object> source = new HashMap<>();
         H2SqlEntity entity = new H2SqlEntity();
-        source.put("id", data.getDataString(0));
+        source.put(NodeComponentTable.COLUMN_ID, data.getDataString(0));
         source.put(NodeComponentTable.COLUMN_COMPONENT_ID, data.getDataInteger(0));
         source.put(NodeComponentTable.COLUMN_COMPONENT_NAME, data.getDataString(1));
         source.put(NodeComponentTable.COLUMN_PEER_ID, data.getDataInteger(1));
@@ -93,7 +91,7 @@ public class NodeComponentH2DAO extends H2DAO implements INodeComponentDAO, IPer
         source.put(NodeComponentTable.COLUMN_PEER, data.getDataString(2));
         source.put(NodeComponentTable.COLUMN_TIME_BUCKET, data.getDataLong(0));
         String id = data.getDataString(0);
-        String sql = SqlBuilder.buildBatchUpdateSql(NodeComponentTable.TABLE, source.keySet(), "id");
+        String sql = SqlBuilder.buildBatchUpdateSql(NodeComponentTable.TABLE, source.keySet(), NodeComponentTable.COLUMN_ID);
         entity.setSql(sql);
         List<Object> values = new ArrayList<>(source.values());
         values.add(id);

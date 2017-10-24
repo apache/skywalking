@@ -40,7 +40,7 @@ public class SegmentH2DAO extends H2DAO implements ISegmentDAO {
     @Override public TraceSegmentObject load(String segmentId) {
         H2Client client = getClient();
         String sql = SqlBuilder.buildSql(GET_SEGMENT_SQL, SegmentTable.COLUMN_DATA_BINARY,
-            SegmentTable.TABLE, "id");
+            SegmentTable.TABLE, SegmentTable.COLUMN_ID);
         Object[] params = new Object[] {segmentId};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {

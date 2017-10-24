@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.client.h2.H2ClientException;
 import org.skywalking.apm.collector.core.framework.UnexpectedException;
@@ -44,10 +43,11 @@ import org.slf4j.LoggerFactory;
 public class InstanceHeartBeatH2DAO extends H2DAO implements IInstanceHeartBeatDAO, IPersistenceDAO<H2SqlEntity, H2SqlEntity> {
     private final Logger logger = LoggerFactory.getLogger(InstanceHeartBeatEsDAO.class);
     private static final String GET_INSTANCE_HEARTBEAT_SQL = "select * from {0} where {1} = ?";
+
     @Override public Data get(String id, DataDefine dataDefine) {
         H2Client client = getClient();
         String sql = SqlBuilder.buildSql(GET_INSTANCE_HEARTBEAT_SQL, InstanceTable.TABLE, InstanceTable.COLUMN_INSTANCE_ID);
-        Object[] params = new Object[]{id};
+        Object[] params = new Object[] {id};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
                 Data data = dataDefine.build(id);
@@ -69,7 +69,7 @@ public class InstanceHeartBeatH2DAO extends H2DAO implements IInstanceHeartBeatD
         H2SqlEntity entity = new H2SqlEntity();
         Map<String, Object> source = new HashMap<>();
         source.put(InstanceTable.COLUMN_HEARTBEAT_TIME, data.getDataLong(0));
-        String sql = SqlBuilder.buildBatchUpdateSql(InstanceTable.TABLE, source.keySet(), InstanceTable.COLUMN_APPLICATION_ID);
+        String sql = SqlBuilder.buildBatchUpdateSql(InstanceTable.TABLE, source.keySet(), InstanceTable.COLUMN_INSTANCE_ID);
         entity.setSql(sql);
         List<Object> params = new ArrayList<>(source.values());
         params.add(data.getDataString(0));

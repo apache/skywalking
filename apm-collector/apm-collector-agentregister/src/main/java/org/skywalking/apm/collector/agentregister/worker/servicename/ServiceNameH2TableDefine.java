@@ -32,6 +32,7 @@ public class ServiceNameH2TableDefine extends H2TableDefine {
     }
 
     @Override public void initialize() {
+        addColumn(new H2ColumnDefine(ServiceNameTable.COLUMN_ID, H2ColumnDefine.Type.Varchar.name()));
         addColumn(new H2ColumnDefine(ServiceNameTable.COLUMN_APPLICATION_ID, H2ColumnDefine.Type.Int.name()));
         addColumn(new H2ColumnDefine(ServiceNameTable.COLUMN_SERVICE_NAME, H2ColumnDefine.Type.Varchar.name()));
         addColumn(new H2ColumnDefine(ServiceNameTable.COLUMN_SERVICE_ID, H2ColumnDefine.Type.Int.name()));

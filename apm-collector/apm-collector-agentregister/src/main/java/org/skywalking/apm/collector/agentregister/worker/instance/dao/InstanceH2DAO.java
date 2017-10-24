@@ -38,7 +38,7 @@ public class InstanceH2DAO extends H2DAO implements IInstanceDAO {
     private final Logger logger = LoggerFactory.getLogger(InstanceH2DAO.class);
 
     private static final String GET_INSTANCE_ID_SQL = "select {0} from {1} where {2} = ? and {3} = ?";
-    private static final String UPDATE_HEARTBEAT_TIME_SQL = "updatte {0} set {1} = ? where {2} = ?";
+    private static final String UPDATE_HEARTBEAT_TIME_SQL = "update {0} set {1} = ? where {2} = ?";
 
     @Override public int getInstanceId(int applicationId, String agentUUID) {
         logger.info("get the application id with application id = {}, agentUUID = {}", applicationId, agentUUID);
@@ -67,6 +67,7 @@ public class InstanceH2DAO extends H2DAO implements IInstanceDAO {
     @Override public void save(InstanceDataDefine.Instance instance) {
         H2Client client = getClient();
         Map<String, Object> source = new HashMap<>();
+        source.put(InstanceTable.COLUMN_ID, instance.getId());
         source.put(InstanceTable.COLUMN_INSTANCE_ID, instance.getInstanceId());
         source.put(InstanceTable.COLUMN_APPLICATION_ID, instance.getApplicationId());
         source.put(InstanceTable.COLUMN_AGENT_UUID, instance.getAgentUUID());
@@ -85,7 +86,7 @@ public class InstanceH2DAO extends H2DAO implements IInstanceDAO {
     @Override public void updateHeartbeatTime(int instanceId, long heartbeatTime) {
         H2Client client = getClient();
         String sql = SqlBuilder.buildSql(UPDATE_HEARTBEAT_TIME_SQL, InstanceTable.TABLE, InstanceTable.COLUMN_HEARTBEAT_TIME,
-            InstanceTable.COLUMN_INSTANCE_ID);
+            InstanceTable.COLUMN_ID);
         Object[] params = new Object[] {heartbeatTime, instanceId};
         try {
             client.execute(sql, params);
