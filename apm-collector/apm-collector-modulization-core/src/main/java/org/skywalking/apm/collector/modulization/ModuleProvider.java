@@ -32,13 +32,16 @@ import java.util.Properties;
 public abstract class ModuleProvider {
     protected ModuleManager manager;
     protected Module module;
-    protected Map<Class<? extends Service>, Service> services = new HashMap<>();
+    private Map<Class<? extends Service>, Service> services = new HashMap<>();
 
     public ModuleProvider() {
     }
 
-    ModuleProvider(ModuleManager manager, Module module) {
+    void setManager(ModuleManager manager) {
         this.manager = manager;
+    }
+
+    void setModule(Module module) {
         this.module = module;
     }
 
@@ -71,9 +74,22 @@ public abstract class ModuleProvider {
      */
     public abstract String[] requiredModules();
 
+    /**
+     * Register a implementation for the service of this module provider.
+     * @param serviceType
+     * @param service
+     */
+    protected void registerServiceImplementation(Class<? extends Service> serviceType, Service service) {
+        this.services.put(serviceType, service);
+    }
+
     void requiredCheck(Class<? extends Service>[] requiredServices) throws ServiceNotProvidedException {
         if (requiredServices == null)
             return;
+
+        if (requiredServices.length != services.size()) {
+            throw new ServiceNotProvidedException("Haven't provided enough plugins.");
+        }
 
         for (Class<? extends Service> service : requiredServices) {
             if (!services.containsKey(service)) {

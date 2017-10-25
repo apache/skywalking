@@ -41,6 +41,13 @@ public abstract class Module {
      */
     public abstract Class<? extends Service>[] services();
 
+    /**
+     * Run the prepare stage for the module, including finding all potential providers, and asking them to prepare.
+     *
+     * @param moduleManager of this module
+     * @param configuration of this module
+     * @throws ProviderNotFoundException when even don't find a single one providers.
+     */
     void prepare(ModuleManager moduleManager,
         ApplicationConfiguration.ModuleConfiguration configuration) throws ProviderNotFoundException {
         ServiceLoader<ModuleProvider> moduleProviderLoader = ServiceLoader.load(ModuleProvider.class);
@@ -50,16 +57,14 @@ public abstract class Module {
             if (provider.module().equals(getClass())) {
                 ModuleProvider newProvider;
                 try {
-                    newProvider = provider.getClass().getConstructor(ModuleManager.class, Module.class).newInstance(moduleManager, this);
+                    newProvider = provider.getClass().newInstance();
                 } catch (InstantiationException e) {
                     throw new ProviderNotFoundException(e);
                 } catch (IllegalAccessException e) {
                     throw new ProviderNotFoundException(e);
-                } catch (InvocationTargetException e) {
-                    throw new ProviderNotFoundException(e);
-                } catch (NoSuchMethodException e) {
-                    throw new ProviderNotFoundException(e);
                 }
+                newProvider.setManager(moduleManager);
+                newProvider.setModule(this);
                 loadedProviders.add(newProvider);
             }
         }
