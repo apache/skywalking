@@ -28,10 +28,19 @@ public class ApplicationConfiguration {
         return modules.keySet().toArray(new String[0]);
     }
 
+    public ModuleConfiguration addModule(String moduleName) {
+        ModuleConfiguration newModule = new ModuleConfiguration();
+        modules.put(moduleName, newModule);
+        return newModule;
+    }
+
     public ModuleConfiguration getModuleConfiguration(String name) {
         return modules.get(name);
     }
 
+    /**
+     * The configurations about a certain module.
+     */
     public class ModuleConfiguration {
         private HashMap<String, ProviderConfiguration> providers = new HashMap<>();
 
@@ -40,6 +49,9 @@ public class ApplicationConfiguration {
         }
     }
 
+    /**
+     * The configuration about a certain provider of a module.
+     */
     public class ProviderConfiguration {
         private Properties properties;
     }

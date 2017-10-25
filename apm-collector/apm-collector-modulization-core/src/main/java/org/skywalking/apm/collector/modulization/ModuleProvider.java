@@ -76,6 +76,7 @@ public abstract class ModuleProvider {
 
     /**
      * Register a implementation for the service of this module provider.
+     *
      * @param serviceType
      * @param service
      */
@@ -83,6 +84,12 @@ public abstract class ModuleProvider {
         this.services.put(serviceType, service);
     }
 
+    /**
+     * Make sure all required services have been implemented.
+     *
+     * @param requiredServices must be implemented by the module.
+     * @throws ServiceNotProvidedException when exist unimplemented service.
+     */
     void requiredCheck(Class<? extends Service>[] requiredServices) throws ServiceNotProvidedException {
         if (requiredServices == null)
             return;
