@@ -23,7 +23,7 @@ import java.io.IOException;
 import org.skywalking.apm.network.proto.TraceSegmentReference;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class ReferenceJsonReader implements StreamJsonReader<TraceSegmentReference> {
 

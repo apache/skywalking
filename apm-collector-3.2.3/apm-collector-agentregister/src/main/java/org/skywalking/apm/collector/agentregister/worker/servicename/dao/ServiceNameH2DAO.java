@@ -30,7 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author pengys5, clevertension
+ * @author peng-yongsheng, clevertension
  */
 public class ServiceNameH2DAO extends H2DAO implements IServiceNameDAO {
     private final Logger logger = LoggerFactory.getLogger(ServiceNameH2DAO.class);
@@ -50,6 +50,7 @@ public class ServiceNameH2DAO extends H2DAO implements IServiceNameDAO {
         logger.debug("save service name register info, application id: {}, service name: {}", serviceName.getApplicationId(), serviceName.getServiceName());
         H2Client client = getClient();
         Map<String, Object> source = new HashMap<>();
+        source.put(ServiceNameTable.COLUMN_ID, serviceName.getId());
         source.put(ServiceNameTable.COLUMN_SERVICE_ID, serviceName.getServiceId());
         source.put(ServiceNameTable.COLUMN_APPLICATION_ID, serviceName.getApplicationId());
         source.put(ServiceNameTable.COLUMN_SERVICE_NAME, serviceName.getServiceName());

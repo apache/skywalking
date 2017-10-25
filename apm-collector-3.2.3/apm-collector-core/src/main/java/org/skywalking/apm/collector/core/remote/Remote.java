@@ -19,7 +19,7 @@
 package org.skywalking.apm.collector.core.remote;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public interface Remote {
     void call(Object message);

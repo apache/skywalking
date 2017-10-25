@@ -23,7 +23,7 @@ import org.skywalking.apm.network.proto.TraceSegmentReference;
 import org.skywalking.apm.network.proto.UniqueId;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class ReferenceDecorator implements StandardBuilder {
     private boolean isOrigin = true;
@@ -69,9 +69,8 @@ public class ReferenceDecorator implements StandardBuilder {
     public void setEntryServiceId(int value) {
         if (isOrigin) {
             toBuilder();
-        } else {
-            referenceBuilder.setEntryServiceId(value);
         }
+        referenceBuilder.setEntryServiceId(value);
     }
 
     public String getEntryServiceName() {
@@ -85,9 +84,8 @@ public class ReferenceDecorator implements StandardBuilder {
     public void setEntryServiceName(String value) {
         if (isOrigin) {
             toBuilder();
-        } else {
-            referenceBuilder.setEntryServiceName(value);
         }
+        referenceBuilder.setEntryServiceName(value);
     }
 
     public int getEntryApplicationInstanceId() {
@@ -117,9 +115,8 @@ public class ReferenceDecorator implements StandardBuilder {
     public void setParentServiceId(int value) {
         if (isOrigin) {
             toBuilder();
-        } else {
-            referenceBuilder.setParentServiceId(value);
         }
+        referenceBuilder.setParentServiceId(value);
     }
 
     public int getParentSpanId() {
@@ -141,9 +138,8 @@ public class ReferenceDecorator implements StandardBuilder {
     public void setParentServiceName(String value) {
         if (isOrigin) {
             toBuilder();
-        } else {
-            referenceBuilder.setParentServiceName(value);
         }
+        referenceBuilder.setParentServiceName(value);
     }
 
     public UniqueId getParentTraceSegmentId() {
@@ -165,9 +161,8 @@ public class ReferenceDecorator implements StandardBuilder {
     public void setNetworkAddressId(int value) {
         if (isOrigin) {
             toBuilder();
-        } else {
-            referenceBuilder.setNetworkAddressId(value);
         }
+        referenceBuilder.setNetworkAddressId(value);
     }
 
     public String getNetworkAddress() {
@@ -181,14 +176,15 @@ public class ReferenceDecorator implements StandardBuilder {
     public void setNetworkAddress(String value) {
         if (isOrigin) {
             toBuilder();
-        } else {
-            referenceBuilder.setNetworkAddress(value);
         }
+        referenceBuilder.setNetworkAddress(value);
     }
 
     @Override public void toBuilder() {
-        this.isOrigin = false;
-        referenceBuilder = referenceObject.toBuilder();
-        standardBuilder.toBuilder();
+        if (this.isOrigin) {
+            this.isOrigin = false;
+            referenceBuilder = referenceObject.toBuilder();
+            standardBuilder.toBuilder();
+        }
     }
 }

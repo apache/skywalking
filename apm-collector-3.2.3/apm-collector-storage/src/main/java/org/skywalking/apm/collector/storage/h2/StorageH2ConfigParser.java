@@ -26,7 +26,7 @@ import org.skywalking.apm.collector.core.util.ObjectUtils;
 import org.skywalking.apm.collector.core.util.StringUtils;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class StorageH2ConfigParser implements ModuleConfigParser {
     private static final String URL = "url";

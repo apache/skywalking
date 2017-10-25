@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.stream.worker;
 /**
  * This exception is raised when worker fails to process job during "call" or "ask"
  *
- * @author pengys5
+ * @author peng-yongsheng
  * @since v3.1-2017
  */
 public class WorkerInvokeException extends WorkerException {

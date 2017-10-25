@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.storage.h2.dao;
 import org.skywalking.apm.collector.core.framework.DefinitionFile;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class H2DAODefinitionFile extends DefinitionFile {
 

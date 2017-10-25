@@ -19,7 +19,7 @@
 package org.skywalking.apm.collector.agentstream.config;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class BufferFileConfig {
     public static int BUFFER_OFFSET_MAX_FILE_SIZE = 10 * 1024 * 1024;

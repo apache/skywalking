@@ -27,7 +27,7 @@ import org.skywalking.apm.collector.core.queue.QueueEventHandler;
 import org.skywalking.apm.collector.core.queue.QueueExecutor;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class DisruptorQueueCreator implements QueueCreator {
 

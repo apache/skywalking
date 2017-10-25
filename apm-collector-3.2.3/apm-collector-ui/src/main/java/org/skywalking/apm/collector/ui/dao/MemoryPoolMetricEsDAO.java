@@ -30,7 +30,7 @@ import org.skywalking.apm.collector.storage.define.jvm.MemoryPoolMetricTable;
 import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class MemoryPoolMetricEsDAO extends EsDAO implements IMemoryPoolMetricDAO {
 

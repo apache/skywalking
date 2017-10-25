@@ -19,7 +19,7 @@
 package org.skywalking.apm.collector.core.stream;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class Data extends AbstractHashMessage {
     private final int stringCapacity;

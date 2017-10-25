@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public enum ClusterWorkerRefCounter {
     INSTANCE;

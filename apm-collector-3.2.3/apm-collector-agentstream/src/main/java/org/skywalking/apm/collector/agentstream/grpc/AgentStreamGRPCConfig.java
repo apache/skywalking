@@ -19,7 +19,7 @@
 package org.skywalking.apm.collector.agentstream.grpc;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class AgentStreamGRPCConfig {
     public static String HOST;

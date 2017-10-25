@@ -25,7 +25,7 @@ import org.skywalking.apm.collector.core.util.ObjectUtils;
 import org.skywalking.apm.collector.core.util.StringUtils;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class AgentServerJettyConfigParser implements ModuleConfigParser {
 

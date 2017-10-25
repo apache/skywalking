@@ -23,7 +23,7 @@ import org.skywalking.apm.collector.cluster.ClusterModuleDefine;
 import org.skywalking.apm.collector.core.cluster.ClusterDataListener;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class AgentStreamJettyDataListener extends ClusterDataListener {
 

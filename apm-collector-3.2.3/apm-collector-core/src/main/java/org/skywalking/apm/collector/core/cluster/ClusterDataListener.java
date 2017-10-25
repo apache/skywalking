@@ -23,7 +23,7 @@ import java.util.Set;
 import org.skywalking.apm.collector.core.framework.Listener;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public abstract class ClusterDataListener implements Listener {
 

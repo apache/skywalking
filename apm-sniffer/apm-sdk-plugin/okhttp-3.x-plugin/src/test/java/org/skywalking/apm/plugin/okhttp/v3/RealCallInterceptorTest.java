@@ -54,7 +54,7 @@ import static org.skywalking.apm.agent.test.tools.SpanAssert.assertOccurExceptio
 import static org.skywalking.apm.agent.test.tools.SpanAssert.assertTag;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)

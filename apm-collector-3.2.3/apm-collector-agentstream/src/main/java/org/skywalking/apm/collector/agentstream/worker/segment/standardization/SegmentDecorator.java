@@ -22,7 +22,7 @@ import org.skywalking.apm.network.proto.TraceSegmentObject;
 import org.skywalking.apm.network.proto.UniqueId;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class SegmentDecorator implements StandardBuilder {
     private boolean isOrigin = true;
@@ -78,7 +78,7 @@ public class SegmentDecorator implements StandardBuilder {
     }
 
     @Override public void toBuilder() {
-        if (!isOrigin) {
+        if (isOrigin) {
             this.isOrigin = false;
             this.segmentBuilder = segmentObject.toBuilder();
         }

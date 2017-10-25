@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.agentstream.worker;
 import org.skywalking.apm.collector.core.framework.DefineException;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class AgentStreamModuleDefineException extends DefineException {
 

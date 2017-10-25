@@ -23,7 +23,7 @@ import java.util.Map;
 import org.skywalking.apm.collector.core.cluster.ClusterModuleContext;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public enum CollectorContextHelper {
     INSTANCE;

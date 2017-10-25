@@ -23,7 +23,7 @@ import org.skywalking.apm.network.proto.UniqueId;
 import org.skywalking.apm.network.proto.UpstreamSegment;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class TraceSegment {
 

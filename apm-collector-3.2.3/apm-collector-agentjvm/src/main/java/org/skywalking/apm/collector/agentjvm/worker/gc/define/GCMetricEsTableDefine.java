@@ -23,7 +23,7 @@ import org.skywalking.apm.collector.storage.elasticsearch.define.ElasticSearchCo
 import org.skywalking.apm.collector.storage.elasticsearch.define.ElasticSearchTableDefine;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class GCMetricEsTableDefine extends ElasticSearchTableDefine {
 

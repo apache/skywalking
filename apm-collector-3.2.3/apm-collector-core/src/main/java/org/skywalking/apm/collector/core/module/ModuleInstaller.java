@@ -29,7 +29,7 @@ import org.skywalking.apm.collector.core.server.ServerException;
 import org.skywalking.apm.collector.core.server.ServerHolder;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public interface ModuleInstaller {
 

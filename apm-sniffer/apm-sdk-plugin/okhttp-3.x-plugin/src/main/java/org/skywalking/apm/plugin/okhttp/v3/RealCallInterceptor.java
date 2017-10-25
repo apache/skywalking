@@ -41,7 +41,7 @@ import org.skywalking.apm.network.trace.component.ComponentsDefine;
 /**
  * {@link RealCallInterceptor} intercept the synchronous http calls by the discovery of okhttp.
  *
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class RealCallInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
 

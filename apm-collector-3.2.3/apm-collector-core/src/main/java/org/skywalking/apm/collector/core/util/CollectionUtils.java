@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class CollectionUtils {
 

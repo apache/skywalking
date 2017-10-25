@@ -35,7 +35,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 /**
- * @author pengys5, clevertension
+ * @author peng-yongsheng, clevertension
  */
 public class NodeReferenceH2DAO extends H2DAO implements INodeReferenceDAO {
     private final Logger logger = LoggerFactory.getLogger(NodeReferenceH2DAO.class);

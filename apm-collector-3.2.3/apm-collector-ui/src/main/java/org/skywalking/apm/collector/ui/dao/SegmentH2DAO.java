@@ -31,7 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author pengys5, clevertension
+ * @author peng-yongsheng, clevertension
  */
 public class SegmentH2DAO extends H2DAO implements ISegmentDAO {
     private final Logger logger = LoggerFactory.getLogger(SegmentH2DAO.class);
@@ -40,7 +40,7 @@ public class SegmentH2DAO extends H2DAO implements ISegmentDAO {
     @Override public TraceSegmentObject load(String segmentId) {
         H2Client client = getClient();
         String sql = SqlBuilder.buildSql(GET_SEGMENT_SQL, SegmentTable.COLUMN_DATA_BINARY,
-            SegmentTable.TABLE, "id");
+            SegmentTable.TABLE, SegmentTable.COLUMN_ID);
         Object[] params = new Object[] {segmentId};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {

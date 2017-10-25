@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.client.h2;
 import org.skywalking.apm.collector.core.client.ClientException;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class H2ClientException extends ClientException {
 

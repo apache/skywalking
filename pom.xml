@@ -52,7 +52,8 @@
         </developer>
         <developer>
             <name>Peng Yongsheng</name>
-            <url>https://github.com/pengys5</url>
+            <email>8082209@qq.com</email>
+            <url>https://github.com/peng-yongsheng</url>
         </developer>
         <developer>
             <name>Dai Wen</name>
@@ -69,11 +70,11 @@
     <packaging>pom</packaging>
 
     <name>apm</name>
-    <url>https://github.com/wu-sheng/sky-walking</url>
+    <url>https://github.com/OpenSkywalking/skywalking</url>
 
     <issueManagement>
         <system>GitHub</system>
-        <url>https://github.com/wu-sheng/sky-walking/issues</url>
+        <url>https://github.com/OpenSkywalking/skywalking/issues</url>
     </issueManagement>
 
     <ciManagement>

@@ -23,7 +23,7 @@ import org.skywalking.apm.collector.core.cluster.ClusterDataListener;
 import org.skywalking.apm.collector.ui.UIModuleGroupDefine;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class UIJettyDataListener extends ClusterDataListener {
 

@@ -29,7 +29,7 @@ import org.skywalking.apm.collector.server.jetty.ArgumentsParseException;
 import org.skywalking.apm.collector.server.jetty.JettyHandler;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class AgentStreamGRPCServerHandler extends JettyHandler {
 

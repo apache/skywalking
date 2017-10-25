@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.ui.dao;
 import java.util.List;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public interface IGlobalTraceDAO {
     List<String> getGlobalTraceId(String segmentId);

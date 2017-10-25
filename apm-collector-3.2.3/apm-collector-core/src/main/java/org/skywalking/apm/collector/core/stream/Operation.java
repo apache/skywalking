@@ -19,7 +19,7 @@
 package org.skywalking.apm.collector.core.stream;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public interface Operation {
     String operate(String newValue, String oldValue);

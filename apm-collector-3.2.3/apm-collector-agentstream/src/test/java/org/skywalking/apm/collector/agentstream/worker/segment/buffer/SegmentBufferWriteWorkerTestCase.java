@@ -30,13 +30,13 @@ import org.skywalking.apm.network.proto.UpstreamSegment;
 import org.skywalking.apm.network.trace.component.ComponentsDefine;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class SegmentBufferWriteWorkerTestCase {
 
     public static void main(String[] args) throws WorkerException, ProviderNotFoundException {
-        SegmentBufferConfig.BUFFER_PATH = "/Users/pengys5/code/sky-walking/sky-walking/apm-collector-3.2.3/buffer/";
 
+        SegmentBufferConfig.BUFFER_PATH = "/Users/peng-yongsheng/code/sky-walking/sky-walking/apm-collector/buffer/";
         SegmentStandardizationWorker worker = new SegmentStandardizationWorker(null, null);
         worker.preStart();
         worker.allocateJob(buildSegment());

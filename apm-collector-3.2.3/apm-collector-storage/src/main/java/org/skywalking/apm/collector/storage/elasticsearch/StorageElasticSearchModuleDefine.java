@@ -32,7 +32,7 @@ import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAODefineLoader;
 import org.skywalking.apm.collector.storage.elasticsearch.define.ElasticSearchStorageInstaller;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class StorageElasticSearchModuleDefine extends StorageModuleDefine {
 

@@ -31,7 +31,7 @@ import org.skywalking.apm.collector.stream.worker.selector.HashCodeSelector;
 import org.skywalking.apm.collector.stream.worker.selector.WorkerSelector;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class ServiceEntryAggregationWorker extends AggregationWorker {
 

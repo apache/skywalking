@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.core.config;
 import org.skywalking.apm.collector.core.util.StringUtils;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public enum SystemConfigParser {
     INSTANCE;

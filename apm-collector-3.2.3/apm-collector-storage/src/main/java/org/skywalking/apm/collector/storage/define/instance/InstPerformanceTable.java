@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.storage.define.instance;
 import org.skywalking.apm.collector.storage.define.CommonTable;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class InstPerformanceTable extends CommonTable {
     public static final String TABLE = "instance_performance";

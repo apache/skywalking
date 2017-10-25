@@ -30,7 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class ServiceNameEsDAO extends EsDAO implements IServiceNameDAO {
 
@@ -47,7 +47,7 @@ public class ServiceNameEsDAO extends EsDAO implements IServiceNameDAO {
     @Override public void save(ServiceNameDataDefine.ServiceName serviceName) {
         logger.debug("save service name register info, application id: {}, service name: {}", serviceName.getApplicationId(), serviceName.getServiceName());
         ElasticSearchClient client = getClient();
-        Map<String, Object> source = new HashMap();
+        Map<String, Object> source = new HashMap<>();
         source.put(ServiceNameTable.COLUMN_SERVICE_ID, serviceName.getServiceId());
         source.put(ServiceNameTable.COLUMN_APPLICATION_ID, serviceName.getApplicationId());
         source.put(ServiceNameTable.COLUMN_SERVICE_NAME, serviceName.getServiceName());

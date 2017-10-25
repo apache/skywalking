@@ -19,7 +19,7 @@
 package org.skywalking.apm.collector.agentstream.jetty;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class AgentStreamJettyConfig {
     public static String HOST;

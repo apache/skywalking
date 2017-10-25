@@ -24,7 +24,7 @@ import org.skywalking.apm.collector.core.module.ModuleConfigParser;
 import org.skywalking.apm.collector.core.util.StringUtils;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class ClusterZKConfigParser implements ModuleConfigParser {
 

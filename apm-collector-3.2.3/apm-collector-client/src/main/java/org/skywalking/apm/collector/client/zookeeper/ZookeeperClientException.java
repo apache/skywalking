@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.client.zookeeper;
 import org.skywalking.apm.collector.core.client.ClientException;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class ZookeeperClientException extends ClientException {
     public ZookeeperClientException(String message) {

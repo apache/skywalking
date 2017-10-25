@@ -23,7 +23,7 @@ import org.skywalking.apm.network.proto.SpanObject;
 import org.skywalking.apm.network.proto.SpanType;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class SpanDecorator implements StandardBuilder {
     private boolean isOrigin = true;
@@ -133,9 +133,8 @@ public class SpanDecorator implements StandardBuilder {
     public void setPeerId(int peerId) {
         if (isOrigin) {
             toBuilder();
-        } else {
-            spanBuilder.setPeerId(peerId);
         }
+        spanBuilder.setPeerId(peerId);
     }
 
     public String getPeer() {
@@ -149,9 +148,8 @@ public class SpanDecorator implements StandardBuilder {
     public void setPeer(String peer) {
         if (isOrigin) {
             toBuilder();
-        } else {
-            spanBuilder.setPeer(peer);
         }
+        spanBuilder.setPeer(peer);
     }
 
     public int getOperationNameId() {
@@ -165,9 +163,8 @@ public class SpanDecorator implements StandardBuilder {
     public void setOperationNameId(int value) {
         if (isOrigin) {
             toBuilder();
-        } else {
-            spanBuilder.setOperationNameId(value);
         }
+        spanBuilder.setOperationNameId(value);
     }
 
     public String getOperationName() {
@@ -181,9 +178,8 @@ public class SpanDecorator implements StandardBuilder {
     public void setOperationName(String value) {
         if (isOrigin) {
             toBuilder();
-        } else {
-            spanBuilder.setOperationName(value);
         }
+        spanBuilder.setOperationName(value);
     }
 
     public boolean getIsError() {
@@ -195,8 +191,10 @@ public class SpanDecorator implements StandardBuilder {
     }
 
     @Override public void toBuilder() {
-        this.isOrigin = false;
-        spanBuilder = spanObject.toBuilder();
-        standardBuilder.toBuilder();
+        if (this.isOrigin) {
+            this.isOrigin = false;
+            spanBuilder = spanObject.toBuilder();
+            standardBuilder.toBuilder();
+        }
     }
 }

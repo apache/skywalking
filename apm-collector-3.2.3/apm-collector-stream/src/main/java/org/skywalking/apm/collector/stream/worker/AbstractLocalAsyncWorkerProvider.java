@@ -28,7 +28,7 @@ import org.skywalking.apm.collector.stream.worker.impl.PersistenceWorker;
 import org.skywalking.apm.collector.stream.worker.impl.PersistenceWorkerContainer;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public abstract class AbstractLocalAsyncWorkerProvider<T extends AbstractLocalAsyncWorker & QueueExecutor> extends AbstractWorkerProvider<T> {
 

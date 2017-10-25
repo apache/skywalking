@@ -22,7 +22,7 @@ import org.skywalking.apm.collector.storage.define.DataDefine;
 import org.skywalking.apm.collector.stream.worker.selector.WorkerSelector;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public interface Role {
 

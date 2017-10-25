@@ -19,7 +19,7 @@
 package org.skywalking.apm.collector.cache.dao;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public interface IServiceNameCacheDAO {
     String getServiceName(int serviceId);

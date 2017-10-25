@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.stream.worker;
 import org.skywalking.apm.collector.core.queue.QueueEventHandler;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class LocalAsyncWorkerRef extends WorkerRef {
 

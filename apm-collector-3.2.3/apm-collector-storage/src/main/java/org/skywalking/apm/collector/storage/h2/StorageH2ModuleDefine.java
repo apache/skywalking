@@ -32,7 +32,7 @@ import org.skywalking.apm.collector.storage.h2.dao.H2DAODefineLoader;
 import org.skywalking.apm.collector.storage.h2.define.H2StorageInstaller;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class StorageH2ModuleDefine extends StorageModuleDefine {
 

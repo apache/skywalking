@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.storage.h2.define;
 import org.skywalking.apm.collector.core.storage.TableDefine;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public abstract class H2TableDefine extends TableDefine {
 

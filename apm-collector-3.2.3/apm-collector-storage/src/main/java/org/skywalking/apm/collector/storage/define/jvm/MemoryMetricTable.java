@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.storage.define.jvm;
 import org.skywalking.apm.collector.storage.define.CommonTable;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class MemoryMetricTable extends CommonTable {
     public static final String TABLE = "memory_metric";

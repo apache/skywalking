@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.core.module;
 import org.skywalking.apm.collector.core.cluster.ClusterModuleContext;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class ModuleContext {
     private ClusterModuleContext clusterContext;

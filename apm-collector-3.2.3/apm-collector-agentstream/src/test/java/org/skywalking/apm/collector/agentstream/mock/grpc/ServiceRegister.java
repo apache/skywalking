@@ -25,7 +25,7 @@ import org.skywalking.apm.network.proto.ServiceNameElement;
 import org.skywalking.apm.network.proto.ServiceNameMappingCollection;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class ServiceRegister {
 

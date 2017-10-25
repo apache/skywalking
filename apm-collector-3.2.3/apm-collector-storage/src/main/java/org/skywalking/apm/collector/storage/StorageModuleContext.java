@@ -22,7 +22,7 @@ import org.skywalking.apm.collector.core.client.Client;
 import org.skywalking.apm.collector.core.framework.Context;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class StorageModuleContext extends Context {
 

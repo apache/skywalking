@@ -19,7 +19,7 @@
 package org.skywalking.apm.collector.cluster.zookeeper;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class ClusterZKConfig {
     public static String HOST_PORT;

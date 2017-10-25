@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.ui;
 import org.skywalking.apm.collector.core.framework.Context;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class UIModuleContext extends Context {
 

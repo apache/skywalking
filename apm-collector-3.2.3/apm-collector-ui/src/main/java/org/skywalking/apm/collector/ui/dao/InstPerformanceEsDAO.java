@@ -37,7 +37,7 @@ import org.skywalking.apm.collector.storage.define.instance.InstPerformanceTable
 import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class InstPerformanceEsDAO extends EsDAO implements IInstPerformanceDAO {
 

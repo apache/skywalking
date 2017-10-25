@@ -35,7 +35,7 @@ import static org.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
  * If feign did't run in default mode, the instrumentation depend on the http discovery implementation.
  * e.g. okhttp discovery implementation depend on okhttp-plugin.
  *
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class DefaultHttpClientInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 

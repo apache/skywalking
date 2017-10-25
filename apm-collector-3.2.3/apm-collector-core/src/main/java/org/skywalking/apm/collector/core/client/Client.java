@@ -19,7 +19,7 @@
 package org.skywalking.apm.collector.core.client;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public interface Client {
     void initialize() throws ClientException;

@@ -36,7 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author pengys5, clevertension
+ * @author peng-yongsheng, clevertension
  */
 public class InstanceH2DAO extends H2DAO implements IInstanceDAO {
     private final Logger logger = LoggerFactory.getLogger(InstanceH2DAO.class);
@@ -44,7 +44,7 @@ public class InstanceH2DAO extends H2DAO implements IInstanceDAO {
     private static final String GET_INST_LAST_HEARTBEAT_TIME_SQL = "select {0} from {1} where {2} > ? and {3} = ? limit 1";
     private static final String GET_INSTANCE_SQL = "select * from {0} where {1} = ?";
     private static final String GET_INSTANCES_SQL = "select * from {0} where {1} = ? and {2} >= ?";
-    private static final String GET_APPLICATIONS_SQL = "select {3}, count({0}) as cnt from {1} where {2} >= ? and {2} <= ? group by {3} limit 100";
+    private static final String GET_APPLICATIONS_SQL = "select {3}, count({0}) as cnt from {1} where {2} >= ? group by {3} limit 100";
 
     @Override
     public Long lastHeartBeatTime() {
@@ -87,7 +87,7 @@ public class InstanceH2DAO extends H2DAO implements IInstanceDAO {
         JsonArray applications = new JsonArray();
         String sql = SqlBuilder.buildSql(GET_APPLICATIONS_SQL, InstanceTable.COLUMN_INSTANCE_ID,
             InstanceTable.TABLE, InstanceTable.COLUMN_HEARTBEAT_TIME, InstanceTable.COLUMN_APPLICATION_ID);
-        Object[] params = new Object[] {startTime, endTime};
+        Object[] params = new Object[] {startTime};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             while (rs.next()) {
                 Integer applicationId = rs.getInt(InstanceTable.COLUMN_APPLICATION_ID);

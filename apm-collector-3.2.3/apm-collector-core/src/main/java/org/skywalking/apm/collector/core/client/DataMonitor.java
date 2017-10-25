@@ -23,7 +23,7 @@ import org.skywalking.apm.collector.core.framework.Starter;
 import org.skywalking.apm.collector.core.module.ModuleRegistration;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public interface DataMonitor extends Starter {
     void setClient(Client client);

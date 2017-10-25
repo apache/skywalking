@@ -19,7 +19,7 @@
 package org.skywalking.apm.collector.core;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class CollectorException extends Exception {
 

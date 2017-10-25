@@ -23,7 +23,7 @@ import java.io.IOException;
 import org.skywalking.apm.network.proto.LogMessage;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class LogJsonReader implements StreamJsonReader<LogMessage> {
 

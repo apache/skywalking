@@ -34,7 +34,7 @@ import org.skywalking.apm.network.proto.TraceSegmentObject;
 import org.skywalking.apm.network.trace.component.ComponentsDefine;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class SpanService {
 

@@ -28,7 +28,7 @@ import org.skywalking.apm.collector.storage.define.AttributeType;
 import org.skywalking.apm.collector.storage.define.DataDefine;
 
 /**
- * @author pengys5H
+ * @author peng-yongsheng
  */
 public class SegmentCostDataDefine extends DataDefine {
 

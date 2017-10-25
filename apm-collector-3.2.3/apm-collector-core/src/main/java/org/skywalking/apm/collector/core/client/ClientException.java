@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.core.client;
 import org.skywalking.apm.collector.core.CollectorException;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public abstract class ClientException extends CollectorException {
     public ClientException(String message) {

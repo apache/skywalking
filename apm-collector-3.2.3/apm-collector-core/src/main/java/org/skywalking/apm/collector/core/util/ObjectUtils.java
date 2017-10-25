@@ -19,7 +19,7 @@
 package org.skywalking.apm.collector.core.util;
 
 /**
- * @author pengys5
+ * @author peng-yongsheng
  */
 public class ObjectUtils {
     public static boolean isEmpty(Object obj) {
