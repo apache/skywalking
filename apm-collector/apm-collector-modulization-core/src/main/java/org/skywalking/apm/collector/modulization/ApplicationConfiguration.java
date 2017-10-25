@@ -21,6 +21,11 @@ package org.skywalking.apm.collector.modulization;
 import java.util.HashMap;
 import java.util.Properties;
 
+/**
+ * Modulization configurations. The {@link ModuleManager} is going to start, lookup, init modules based on this.
+ *
+ * @author wu-sheng
+ */
 public class ApplicationConfiguration {
     private HashMap<String, ModuleConfiguration> modules = new HashMap<>();
 
@@ -44,8 +49,17 @@ public class ApplicationConfiguration {
     public class ModuleConfiguration {
         private HashMap<String, ProviderConfiguration> providers = new HashMap<>();
 
+        private ModuleConfiguration() {
+        }
+
         public Properties getProviderConfiguration(String name) {
-            return providers.get(name).properties;
+            return providers.get(name).getProperties();
+        }
+
+        public ModuleConfiguration addProviderConfiguration(String name, Properties properties) {
+            ProviderConfiguration newProvider = new ProviderConfiguration(properties);
+            providers.put(name, newProvider);
+            return this;
         }
     }
 
@@ -54,5 +68,13 @@ public class ApplicationConfiguration {
      */
     public class ProviderConfiguration {
         private Properties properties;
+
+        ProviderConfiguration(Properties properties) {
+            this.properties = properties;
+        }
+
+        public Properties getProperties() {
+            return properties;
+        }
     }
 }

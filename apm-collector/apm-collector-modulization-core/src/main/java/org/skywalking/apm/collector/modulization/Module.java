@@ -48,7 +48,7 @@ public abstract class Module {
      * @throws ProviderNotFoundException when even don't find a single one providers.
      */
     void prepare(ModuleManager moduleManager,
-        ApplicationConfiguration.ModuleConfiguration configuration) throws ProviderNotFoundException {
+        ApplicationConfiguration.ModuleConfiguration configuration) throws ProviderNotFoundException, ServiceNotProvidedException {
         ServiceLoader<ModuleProvider> moduleProviderLoader = ServiceLoader.load(ModuleProvider.class);
         boolean providerExist = false;
         for (ModuleProvider provider : moduleProviderLoader) {

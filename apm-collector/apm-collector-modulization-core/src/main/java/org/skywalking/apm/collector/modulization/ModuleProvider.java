@@ -60,14 +60,14 @@ public abstract class ModuleProvider {
      *
      * @param config from `application.yml`
      */
-    public abstract void prepare(Properties config);
+    public abstract void prepare(Properties config) throws ServiceNotProvidedException;
 
     /**
      * In prepare stage, the module can interop with other modules.
      *
      * @param config from `application.yml`
      */
-    public abstract void init(Properties config);
+    public abstract void init(Properties config) throws ServiceNotProvidedException;
 
     /**
      * @return module names which does this module require?
@@ -80,8 +80,13 @@ public abstract class ModuleProvider {
      * @param serviceType
      * @param service
      */
-    protected void registerServiceImplementation(Class<? extends Service> serviceType, Service service) {
-        this.services.put(serviceType, service);
+    protected void registerServiceImplementation(Class<? extends Service> serviceType,
+        Service service) throws ServiceNotProvidedException {
+        if (serviceType.isInstance(service)) {
+            this.services.put(serviceType, service);
+        } else {
+            throw new ServiceNotProvidedException(serviceType + " is not implemented by " + service);
+        }
     }
 
     /**
@@ -94,14 +99,14 @@ public abstract class ModuleProvider {
         if (requiredServices == null)
             return;
 
-        if (requiredServices.length != services.size()) {
-            throw new ServiceNotProvidedException("Haven't provided enough plugins.");
-        }
-
         for (Class<? extends Service> service : requiredServices) {
             if (!services.containsKey(service)) {
                 throw new ServiceNotProvidedException("Service:" + service.getName() + " not provided");
             }
+        }
+
+        if (requiredServices.length != services.size()) {
+            throw new ServiceNotProvidedException("Provide more service implementations than Module requirements.");
         }
     }
 }

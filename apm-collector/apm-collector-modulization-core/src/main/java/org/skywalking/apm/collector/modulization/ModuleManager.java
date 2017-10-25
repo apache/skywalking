@@ -54,7 +54,7 @@ public class ModuleManager {
                         throw new ModuleNotFoundException(e);
                     }
                     newInstance.prepare(this, applicationConfiguration.getModuleConfiguration(moduleName));
-                    loadedModules.put(moduleName, module);
+                    loadedModules.put(moduleName, newInstance);
                     moduleList.remove(moduleName);
                 }
             }
