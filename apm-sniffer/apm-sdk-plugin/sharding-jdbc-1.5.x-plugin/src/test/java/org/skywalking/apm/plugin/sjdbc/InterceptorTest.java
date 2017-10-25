@@ -118,9 +118,11 @@ public class InterceptorTest {
         executeInterceptor.beforeMethod(null, null, allArguments, null, null);
         asyncExecuteInterceptor.beforeMethod(null, null, null, null, null);
         final Map<String, Object> dataMap = ExecutorDataMap.getDataMap();
-        ES.submit(() -> {
-            ExecutorDataMap.setDataMap(dataMap);
-            sendEvent("ds_1", "select * from t_order_1");
+        ES.submit(new Runnable() {
+            @Override public void run() {
+                ExecutorDataMap.setDataMap(dataMap);
+                sendEvent("ds_1", "select * from t_order_1");
+            }
         }).get();
         asyncExecuteInterceptor.afterMethod(null, null, null, null, null);
         sendEvent("ds_0", "select * from t_order_0");
@@ -146,9 +148,11 @@ public class InterceptorTest {
         executeInterceptor.beforeMethod(null, null, allArguments, null, null);
         asyncExecuteInterceptor.beforeMethod(null, null, null, null, null);
         final Map<String, Object> dataMap = ExecutorDataMap.getDataMap();
-        ES.submit(() -> {
-            ExecutorDataMap.setDataMap(dataMap);
-            sendError();
+        ES.submit(new Runnable() {
+            @Override public void run() {
+                ExecutorDataMap.setDataMap(dataMap);
+                sendError();
+            }
         }).get();
         asyncExecuteInterceptor.handleMethodException(null, null, null, null, new SQLException("test"));
         asyncExecuteInterceptor.afterMethod(null, null, null, null, null);
@@ -184,7 +188,7 @@ public class InterceptorTest {
     }
     
     private void sendEvent(String datasource, String sql) {
-        DQLExecutionEvent event = new DQLExecutionEvent(datasource, sql, Arrays.asList("1", 100));
+        DQLExecutionEvent event = new DQLExecutionEvent(datasource, sql, Arrays.<Object>asList("1", 100));
         EventBusInstance.getInstance().post(event);
         event.setEventExecutionType(EventExecutionType.EXECUTE_SUCCESS);
         EventBusInstance.getInstance().post(event);
