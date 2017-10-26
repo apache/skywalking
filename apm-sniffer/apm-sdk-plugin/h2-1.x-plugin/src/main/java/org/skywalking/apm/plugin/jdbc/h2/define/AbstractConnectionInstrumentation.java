@@ -41,8 +41,8 @@ import static org.skywalking.apm.plugin.jdbc.define.Constants.ROLLBACK_METHOD_NA
 import static org.skywalking.apm.plugin.jdbc.define.Constants.SERVICE_METHOD_INTERCEPT_CLASS;
 
 /**
- * {@link ConnectionInstrumentation} intercept the following methods that the class which extend {@link
- * org.h2.jdbc.JdbcConnection}. <br/>
+ * {@link AbstractConnectionInstrumentation} define how to enhance the following methods that the class which extend
+ * {@link java.sql.Connection}. <br/>
  *
  * 1. Enhance <code>prepareStatement</code> by <code>org.skywalking.apm.plugin.jdbc.define.JDBCPrepareStatementInterceptor</code>
  * 3. Enhance <code>prepareCall</code> by <code>org.skywalking.apm.plugin.jdbc.define.JDBCPrepareCallInterceptor</code>
@@ -51,9 +51,7 @@ import static org.skywalking.apm.plugin.jdbc.define.Constants.SERVICE_METHOD_INT
  *
  * @author zhangxin
  */
-public class ConnectionInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
-
-    public static final String ENHANCE_CLASS = "org.h2.jdbc.JdbcConnection";
+public abstract class AbstractConnectionInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
@@ -143,6 +141,8 @@ public class ConnectionInstrumentation extends ClassInstanceMethodsEnhancePlugin
     }
 
     @Override protected ClassMatch enhanceClass() {
-        return byName(ENHANCE_CLASS);
+        return byName(getEnhanceClass());
     }
+
+    public abstract String getEnhanceClass();
 }
