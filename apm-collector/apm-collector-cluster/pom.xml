@@ -10,6 +10,19 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>apm-collector-cluster</artifactId>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
+    <modules>
+        <module>collector-cluster-define</module>
+        <module>collector-cluster-zookeeper-provider</module>
+        <module>collector-cluster-redis-provider</module>
+        <module>collector-cluster-standalone-provider</module>
+    </modules>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>apm-collector-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>

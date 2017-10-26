@@ -27,7 +27,7 @@ import java.util.Properties;
  *
  * And each module can have one or more implementation, which depends on `application.yml`
  *
- * @author wu-sheng
+ * @author wu-sheng, peng-yongsheng
  */
 public abstract class ModuleProvider {
     protected ModuleManager manager;
@@ -80,7 +80,7 @@ public abstract class ModuleProvider {
      * @param serviceType
      * @param service
      */
-    protected void registerServiceImplementation(Class<? extends Service> serviceType,
+    protected final void registerServiceImplementation(Class<? extends Service> serviceType,
         Service service) throws ServiceNotProvidedException {
         if (serviceType.isInstance(service)) {
             this.services.put(serviceType, service);

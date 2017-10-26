@@ -25,7 +25,7 @@ import java.util.ServiceLoader;
 /**
  * A module definition.
  *
- * @author wu-sheng
+ * @author wu-sheng, peng-yongsheng
  */
 public abstract class Module {
     private LinkedList<ModuleProvider> loadedProviders = new LinkedList<>();
@@ -97,7 +97,7 @@ public abstract class Module {
     /**
      * @return providers of this module
      */
-    public List<ModuleProvider> providers() throws ProviderNotFoundException {
+    public final List<ModuleProvider> providers() throws ProviderNotFoundException {
         if (loadedProviders.size() == 0) {
             throw new ProviderNotFoundException("no provider exists.");
         }
@@ -105,7 +105,7 @@ public abstract class Module {
         return loadedProviders;
     }
 
-    public ModuleProvider provider() throws ProviderNotFoundException, DuplicateProviderException {
+    public final ModuleProvider provider() throws ProviderNotFoundException, DuplicateProviderException {
         if (loadedProviders.size() == 0) {
             throw new ProviderNotFoundException("no provider exists.");
         } else if (loadedProviders.size() > 1) {
