@@ -23,11 +23,9 @@ import net.bytebuddy.matcher.ElementMatcher;
 import org.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
-import org.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
-import static org.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 import static org.skywalking.apm.plugin.jdbc.define.Constants.CLOSE_METHOD_NAME;
 import static org.skywalking.apm.plugin.jdbc.define.Constants.COMMIT_METHOD_NAME;
 import static org.skywalking.apm.plugin.jdbc.define.Constants.CREATE_STATEMENT_INTERCEPT_CLASS;
@@ -41,8 +39,8 @@ import static org.skywalking.apm.plugin.jdbc.define.Constants.ROLLBACK_METHOD_NA
 import static org.skywalking.apm.plugin.jdbc.define.Constants.SERVICE_METHOD_INTERCEPT_CLASS;
 
 /**
- * {@link ConnectionInstrumentation} intercept the following methods that the class which extend {@link
- * org.h2.jdbc.JdbcConnection}. <br/>
+ * {@link AbstractConnectionInstrumentation} define how to enhance the following methods that the class which extend
+ * {@link java.sql.Connection}. <br/>
  *
  * 1. Enhance <code>prepareStatement</code> by <code>org.skywalking.apm.plugin.jdbc.define.JDBCPrepareStatementInterceptor</code>
  * 3. Enhance <code>prepareCall</code> by <code>org.skywalking.apm.plugin.jdbc.define.JDBCPrepareCallInterceptor</code>
@@ -51,9 +49,7 @@ import static org.skywalking.apm.plugin.jdbc.define.Constants.SERVICE_METHOD_INT
  *
  * @author zhangxin
  */
-public class ConnectionInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
-
-    public static final String ENHANCE_CLASS = "org.h2.jdbc.JdbcConnection";
+public abstract class AbstractConnectionInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
@@ -140,9 +136,5 @@ public class ConnectionInstrumentation extends ClassInstanceMethodsEnhancePlugin
                 }
             }
         };
-    }
-
-    @Override protected ClassMatch enhanceClass() {
-        return byName(ENHANCE_CLASS);
     }
 }
