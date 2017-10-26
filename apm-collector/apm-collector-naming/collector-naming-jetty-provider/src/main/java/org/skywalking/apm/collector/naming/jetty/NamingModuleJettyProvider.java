@@ -16,24 +16,36 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.cluster;
+package org.skywalking.apm.collector.naming.jetty;
 
-import org.skywalking.apm.collector.cluster.service.ModuleRegisterService;
+import java.util.Properties;
+import org.skywalking.apm.collector.cluster.ClusterModule;
 import org.skywalking.apm.collector.core.module.Module;
-import org.skywalking.apm.collector.core.module.Service;
+import org.skywalking.apm.collector.core.module.ModuleProvider;
+import org.skywalking.apm.collector.core.module.ServiceNotProvidedException;
+import org.skywalking.apm.collector.naming.NamingModule;
 
 /**
  * @author peng-yongsheng
  */
-public class ClusterModule extends Module {
-
-    public static final String NAME = "Cluster";
+public class NamingModuleJettyProvider extends ModuleProvider {
 
     @Override public String name() {
-        return NAME;
+        return "jetty";
     }
 
-    @Override public Class<? extends Service>[] services() {
-        return new Class[] {ModuleRegisterService.class};
+    @Override public Class<? extends Module> module() {
+        return NamingModule.class;
+    }
+
+    @Override public void prepare(Properties config) throws ServiceNotProvidedException {
+    }
+
+    @Override public void init(Properties config) throws ServiceNotProvidedException {
+
+    }
+
+    @Override public String[] requiredModules() {
+        return new String[] {ClusterModule.NAME};
     }
 }

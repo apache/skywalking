@@ -16,24 +16,23 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.cluster;
+package org.skywalking.apm.collector.naming;
 
-import org.skywalking.apm.collector.cluster.service.ModuleRegisterService;
 import org.skywalking.apm.collector.core.module.Module;
 import org.skywalking.apm.collector.core.module.Service;
 
 /**
  * @author peng-yongsheng
  */
-public class ClusterModule extends Module {
+public class NamingModule extends Module {
 
-    public static final String NAME = "Cluster";
+    public static final String NAME = "Naming";
 
     @Override public String name() {
         return NAME;
     }
 
     @Override public Class<? extends Service>[] services() {
-        return new Class[] {ModuleRegisterService.class};
+        return new Class[0];
     }
 }
