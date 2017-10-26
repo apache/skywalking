@@ -18,5 +18,38 @@
 
 package org.skywalking.apm.collector.boot;
 
+import com.google.protobuf.InvalidProtocolBufferException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import org.skywalking.apm.network.proto.TraceSegmentObject;
+import org.skywalking.apm.network.proto.TraceSegmentReference;
+
 public class CollectorBoot {
+
+    public static void main(String[] args) throws InvalidProtocolBufferException, H2ClientException {
+        H2Client client = new H2Client("jdbc:h2:~/h2", "sa", "");
+        client.initialize();
+        try (ResultSet rs = client.executeQuery("select * from segment", null)) {
+            while (rs.next()) {
+                byte[] dataBinary = rs.getBytes("data_binary");
+                try {
+                    parse(dataBinary);
+                } catch (InvalidProtocolBufferException e) {
+                }
+            }
+        } catch (SQLException | H2ClientException e) {
+        }
+    }
+
+    public static void parse(byte[] dataBinary) throws InvalidProtocolBufferException {
+        TraceSegmentObject segmentObject = TraceSegmentObject.parseFrom(dataBinary);
+        for (TraceSegmentReference reference : segmentObject.getRefsList()) {
+            StringBuilder builder = new StringBuilder();
+            builder.append("entry: ").append(reference.getEntryApplicationInstanceId())
+                .append(" ,parent: ").append(reference.getParentApplicationInstanceId())
+                .append(" ,network: ").append(reference.getNetworkAddressId());
+            System.out.println(segmentObject.getApplicationId());
+            System.out.println(builder.toString());
+        }
+    }
 }

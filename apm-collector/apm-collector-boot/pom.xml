@@ -28,6 +28,5 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>apm-collector-boot</artifactId>
-
-
+    <packaging>jar</packaging>
 </project>

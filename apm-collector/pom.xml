@@ -32,7 +32,14 @@
     <packaging>pom</packaging>
     <modules>
         <module>apm-collector-boot</module>
-        <module>apm-collector-modulization-core</module>
+        <module>apm-collector-ui</module>
+        <module>apm-collector-agent</module>
+        <module>apm-collector-core</module>
+        <module>apm-collector-component</module>
+        <module>apm-collector-cluster</module>
+        <module>apm-collector-cache</module>
+        <module>apm-collector-storage</module>
+        <module>apm-collector-naming</module>
     </modules>
 
     <properties>
