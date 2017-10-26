@@ -19,4 +19,12 @@
         <module>stream-component</module>
         <module>remote-component</module>
     </modules>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>apm-collector-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>
