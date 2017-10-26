@@ -16,6 +16,6 @@
 # Project repository: https://github.com/OpenSkywalking/skywalking
 #
 
-org.skywalking.apm.collector.modulization.TestModuleProvider
-org.skywalking.apm.collector.modulization.ModuleAProvider
-org.skywalking.apm.collector.modulization.ModuleBProvider
+org.skywalking.apm.collector.core.module.TestModuleProvider
+org.skywalking.apm.collector.core.module.ModuleAProvider
+org.skywalking.apm.collector.core.module.ModuleBProvider
