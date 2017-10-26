@@ -21,8 +21,10 @@ package org.skywalking.apm.plugin.jdbc.h2.define;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
+import org.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.any;
+import static org.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
  * {@link JdbcXAConnectionInstrumentation} presents that skywalking intercepts {@link org.h2.jdbcx.JdbcXAConnection}.
@@ -48,7 +50,7 @@ public class JdbcXAConnectionInstrumentation extends AbstractConnectionInstrumen
         };
     }
 
-    @Override public String getEnhanceClass() {
-        return ENHANCE_CLASS;
+    @Override protected ClassMatch enhanceClass() {
+        return byName(ENHANCE_CLASS);
     }
 }

@@ -18,6 +18,10 @@
 
 package org.skywalking.apm.plugin.jdbc.h2.define;
 
+import org.skywalking.apm.agent.core.plugin.match.ClassMatch;
+
+import static org.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
+
 /**
  * {@link JdbcConnectionInstrumentation} presents that skywalking intercepts {@link org.h2.jdbc.JdbcConnection}.
  *
@@ -26,7 +30,7 @@ package org.skywalking.apm.plugin.jdbc.h2.define;
 public class JdbcConnectionInstrumentation extends AbstractConnectionInstrumentation {
     public static final String ENHANCE_CLASS = "org.h2.jdbc.JdbcConnection";
 
-    @Override public String getEnhanceClass() {
-        return ENHANCE_CLASS;
+    @Override protected ClassMatch enhanceClass() {
+        return byName(ENHANCE_CLASS);
     }
 }

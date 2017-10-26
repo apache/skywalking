@@ -23,11 +23,9 @@ import net.bytebuddy.matcher.ElementMatcher;
 import org.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
-import org.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
-import static org.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 import static org.skywalking.apm.plugin.jdbc.define.Constants.CLOSE_METHOD_NAME;
 import static org.skywalking.apm.plugin.jdbc.define.Constants.COMMIT_METHOD_NAME;
 import static org.skywalking.apm.plugin.jdbc.define.Constants.CREATE_STATEMENT_INTERCEPT_CLASS;
@@ -139,10 +137,4 @@ public abstract class AbstractConnectionInstrumentation extends ClassInstanceMet
             }
         };
     }
-
-    @Override protected ClassMatch enhanceClass() {
-        return byName(getEnhanceClass());
-    }
-
-    public abstract String getEnhanceClass();
 }
