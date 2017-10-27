@@ -19,6 +19,8 @@
 package org.skywalking.apm.collector.server.manager;
 
 import org.skywalking.apm.collector.core.module.Module;
+import org.skywalking.apm.collector.server.manager.service.GRPCServerManagerService;
+import org.skywalking.apm.collector.server.manager.service.JettyServerManagerService;
 
 /**
  * @author peng-yongsheng
@@ -32,6 +34,6 @@ public class ServerManagerModule extends Module {
     }
 
     @Override public Class[] services() {
-        return new Class[0];
+        return new Class[] {GRPCServerManagerService.class, JettyServerManagerService.class};
     }
 }

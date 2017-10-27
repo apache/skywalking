@@ -18,7 +18,7 @@
 
 package org.skywalking.apm.collector.server.jetty;
 
-import org.skywalking.apm.collector.core.server.ServerException;
+import org.skywalking.apm.collector.server.ServerException;
 
 /**
  * @author peng-yongsheng

@@ -22,6 +22,9 @@ import java.util.Properties;
 import org.skywalking.apm.collector.core.module.Module;
 import org.skywalking.apm.collector.core.module.ModuleProvider;
 import org.skywalking.apm.collector.core.module.ServiceNotProvidedException;
+import org.skywalking.apm.collector.server.manager.ServerManagerModule;
+import org.skywalking.apm.collector.server.manager.jetty.service.JettyServerService;
+import org.skywalking.apm.collector.server.manager.service.JettyServerManagerService;
 
 /**
  * @author peng-yongsheng
@@ -29,15 +32,15 @@ import org.skywalking.apm.collector.core.module.ServiceNotProvidedException;
 public class ServerManagerModuleJettyProvider extends ModuleProvider {
 
     @Override public String name() {
-        return null;
+        return "Jetty";
     }
 
     @Override public Class<? extends Module> module() {
-        return null;
+        return ServerManagerModule.class;
     }
 
     @Override public void prepare(Properties config) throws ServiceNotProvidedException {
-
+        this.registerServiceImplementation(JettyServerManagerService.class, new JettyServerService());
     }
 
     @Override public void init(Properties config) throws ServiceNotProvidedException {

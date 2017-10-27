@@ -16,12 +16,10 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.server.grpc;
-
-import org.skywalking.apm.collector.server.ServerHandler;
+package org.skywalking.apm.collector.server.manager.service;
 
 /**
  * @author peng-yongsheng
  */
-public interface GRPCHandler extends ServerHandler {
+public interface GRPCServerManagerService extends ManagerService<GRPCServerConfig> {
 }

@@ -22,6 +22,9 @@ import java.util.Properties;
 import org.skywalking.apm.collector.core.module.Module;
 import org.skywalking.apm.collector.core.module.ModuleProvider;
 import org.skywalking.apm.collector.core.module.ServiceNotProvidedException;
+import org.skywalking.apm.collector.server.manager.ServerManagerModule;
+import org.skywalking.apm.collector.server.manager.grpc.service.GRPCServerService;
+import org.skywalking.apm.collector.server.manager.service.GRPCServerManagerService;
 
 /**
  * @author peng-yongsheng
@@ -29,15 +32,15 @@ import org.skywalking.apm.collector.core.module.ServiceNotProvidedException;
 public class ServerManagerModuleGRPCProvider extends ModuleProvider {
 
     @Override public String name() {
-        return null;
+        return "Google_RPC";
     }
 
     @Override public Class<? extends Module> module() {
-        return null;
+        return ServerManagerModule.class;
     }
 
     @Override public void prepare(Properties config) throws ServiceNotProvidedException {
-
+        this.registerServiceImplementation(GRPCServerManagerService.class, new GRPCServerService());
     }
 
     @Override public void init(Properties config) throws ServiceNotProvidedException {

@@ -30,13 +30,13 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.skywalking.apm.collector.core.framework.Handler;
 import org.skywalking.apm.collector.core.util.ObjectUtils;
+import org.skywalking.apm.collector.server.ServerHandler;
 
 /**
  * @author peng-yongsheng
  */
-public abstract class JettyHandler extends HttpServlet implements Handler {
+public abstract class JettyHandler extends HttpServlet implements ServerHandler {
 
     public abstract String pathSpec();
 

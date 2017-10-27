@@ -16,12 +16,10 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.server;
-
-import org.skywalking.apm.collector.core.module.ModuleDefine;
+package org.skywalking.apm.collector.server.manager.service;
 
 /**
  * @author peng-yongsheng
  */
-public abstract class ServerModuleDefine extends ModuleDefine {
+public interface JettyServerManagerService extends ManagerService<JettyServerConfig> {
 }

@@ -22,9 +22,9 @@ import java.net.InetSocketAddress;
 import javax.servlet.http.HttpServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import org.skywalking.apm.collector.core.framework.Handler;
-import org.skywalking.apm.collector.core.server.Server;
-import org.skywalking.apm.collector.core.server.ServerException;
+import org.skywalking.apm.collector.server.Server;
+import org.skywalking.apm.collector.server.ServerException;
+import org.skywalking.apm.collector.server.ServerHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,7 +65,7 @@ public class JettyServer implements Server {
         server.setHandler(servletContextHandler);
     }
 
-    @Override public void addHandler(Handler handler) {
+    @Override public void addHandler(ServerHandler handler) {
         ServletHolder servletHolder = new ServletHolder();
         servletHolder.setServlet((HttpServlet)handler);
         servletContextHandler.addServlet(servletHolder, ((JettyHandler)handler).pathSpec());

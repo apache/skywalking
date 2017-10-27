@@ -30,4 +30,11 @@
     <artifactId>collector-grpc-manager-provider</artifactId>
     <packaging>jar</packaging>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>collector-server-manager-define</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>

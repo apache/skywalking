@@ -16,12 +16,25 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.server.grpc;
-
-import org.skywalking.apm.collector.server.ServerHandler;
+package org.skywalking.apm.collector.server.manager.service;
 
 /**
  * @author peng-yongsheng
  */
-public interface GRPCHandler extends ServerHandler {
+public abstract class ServerConfig {
+    private final String host;
+    private final int port;
+
+    public ServerConfig(String host, int port) {
+        this.host = host;
+        this.port = port;
+    }
+
+    public final String getHost() {
+        return host;
+    }
+
+    public final int getPort() {
+        return port;
+    }
 }
