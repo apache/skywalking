@@ -111,4 +111,13 @@ public abstract class AbstractControllerInstrumentation extends ClassInstanceMet
     }
 
     protected abstract String[] getEnhanceAnnotations();
+
+    @Override protected String[] witnessClasses() {
+        /**
+         * @see {@link org.springframework.web.servlet.tags.ArgumentTag}
+         */
+        return new String[]{
+            "org.springframework.web.servlet.tags.ArgumentTag"
+        };
+    }
 }
