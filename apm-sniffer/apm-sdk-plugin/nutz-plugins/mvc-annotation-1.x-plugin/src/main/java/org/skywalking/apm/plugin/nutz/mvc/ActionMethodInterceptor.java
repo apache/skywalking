@@ -32,6 +32,7 @@ import org.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.skywalking.apm.agent.core.tool.ServletApiTool;
 import org.skywalking.apm.network.trace.component.ComponentsDefine;
 
 /**
@@ -40,6 +41,7 @@ import org.skywalking.apm.network.trace.component.ComponentsDefine;
  * @author wendal
  */
 public class ActionMethodInterceptor implements InstanceMethodsAroundInterceptor {
+    
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
@@ -76,7 +78,7 @@ public class ActionMethodInterceptor implements InstanceMethodsAroundInterceptor
         HttpServletResponse response = Mvcs.getResp();
 
         AbstractSpan span = ContextManager.activeSpan();
-        if (response.getStatus() >= 400) {
+        if (ServletApiTool.isResponseGetStatusAvailable() && response.getStatus() >= 400) {
             span.errorOccurred();
             Tags.STATUS_CODE.set(span, Integer.toString(response.getStatus()));
         }
