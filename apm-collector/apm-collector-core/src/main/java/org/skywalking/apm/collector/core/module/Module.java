@@ -103,7 +103,7 @@ public abstract class Module {
     /**
      * @return providers of this module
      */
-    public final List<ModuleProvider> providers() throws ProviderNotFoundException {
+    final List<ModuleProvider> providers() throws ProviderNotFoundException {
         if (loadedProviders.size() == 0) {
             throw new ProviderNotFoundException("no provider exists.");
         }
@@ -111,7 +111,7 @@ public abstract class Module {
         return loadedProviders;
     }
 
-    public final ModuleProvider provider() throws ProviderNotFoundException, DuplicateProviderException {
+    final ModuleProvider provider() throws ProviderNotFoundException, DuplicateProviderException {
         if (loadedProviders.size() == 0) {
             throw new ProviderNotFoundException("no provider exists.");
         } else if (loadedProviders.size() > 1) {
@@ -119,5 +119,13 @@ public abstract class Module {
         }
 
         return loadedProviders.getFirst();
+    }
+
+    public <T extends Service> T getService(Class<T> serviceType) throws ServiceNotProvidedException {
+        try {
+            return provider().getService(serviceType);
+        } catch (ProviderNotFoundException | DuplicateProviderException e) {
+            throw new ServiceNotProvidedException(e.getMessage());
+        }
     }
 }

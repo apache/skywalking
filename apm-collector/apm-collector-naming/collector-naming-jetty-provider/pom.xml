@@ -43,6 +43,11 @@
         </dependency>
         <dependency>
             <groupId>org.skywalking</groupId>
+            <artifactId>collector-server-manager-define</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
             <artifactId>server-component</artifactId>
             <version>${project.version}</version>
         </dependency>

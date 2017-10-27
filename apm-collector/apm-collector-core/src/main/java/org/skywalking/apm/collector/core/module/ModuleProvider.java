@@ -31,8 +31,8 @@ import org.skywalking.apm.collector.core.module.instrument.ServiceInstrumentatio
  * @author wu-sheng, peng-yongsheng
  */
 public abstract class ModuleProvider {
-    protected ModuleManager manager;
-    protected Module module;
+    private ModuleManager manager;
+    private Module module;
     private Map<Class<? extends Service>, Service> services = new HashMap<>();
 
     public ModuleProvider() {
@@ -44,6 +44,10 @@ public abstract class ModuleProvider {
 
     void setModule(Module module) {
         this.module = module;
+    }
+
+    protected ModuleManager getManager() {
+        return manager;
     }
 
     /**
@@ -121,7 +125,7 @@ public abstract class ModuleProvider {
         }
     }
 
-    public <T extends Service> T getService(Class<T> serviceType) throws ServiceNotProvidedException {
+    <T extends Service> T getService(Class<T> serviceType) throws ServiceNotProvidedException {
         Service serviceImpl = services.get(serviceType);
         if (serviceImpl != null) {
             return (T)serviceImpl;
