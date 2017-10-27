@@ -21,6 +21,7 @@ package org.skywalking.apm.collector.core.module;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import org.skywalking.apm.collector.core.module.instrument.ServiceInstrumentation;
 
 /**
  * The <code>ModuleProvider</code> is an implementation of a {@link Module}.
@@ -90,6 +91,9 @@ public abstract class ModuleProvider {
     protected final void registerServiceImplementation(Class<? extends Service> serviceType,
         Service service) throws ServiceNotProvidedException {
         if (serviceType.isInstance(service)) {
+            if (manager.isServiceInstrument()) {
+                service = ServiceInstrumentation.INSTANCE.buildServiceUnderMonitor(service);
+            }
             this.services.put(serviceType, service);
         } else {
             throw new ServiceNotProvidedException(serviceType + " is not implemented by " + service);

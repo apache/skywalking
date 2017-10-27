@@ -19,6 +19,17 @@
 package org.skywalking.apm.collector.core.module;
 
 import java.util.Properties;
+import net.bytebuddy.ByteBuddy;
+import net.bytebuddy.description.method.MethodDescription;
+import net.bytebuddy.implementation.MethodDelegation;
+import net.bytebuddy.matcher.ElementMatcher;
+import org.junit.Test;
+import org.skywalking.apm.collector.core.module.instrument.ServiceMetricCollector;
+import org.skywalking.apm.collector.core.module.instrument.TracedService;
+
+import static net.bytebuddy.matcher.ElementMatchers.isStatic;
+import static net.bytebuddy.matcher.ElementMatchers.named;
+import static net.bytebuddy.matcher.ElementMatchers.not;
 
 /**
  * @author wu-sheng
