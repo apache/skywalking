@@ -16,13 +16,22 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.core.component.client;
+package org.skywalking.apm.collector.server.manager;
+
+import org.skywalking.apm.collector.core.module.Module;
 
 /**
  * @author peng-yongsheng
  */
-public interface Client {
-    void initialize() throws ClientException;
+public class ServerManagerModule extends Module {
 
-    void shutdown();
+    public static final String NAME = "Server_Manager";
+
+    @Override public String name() {
+        return NAME;
+    }
+
+    @Override public Class[] services() {
+        return new Class[0];
+    }
 }

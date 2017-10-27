@@ -16,10 +16,13 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.core.component.server;
+package org.skywalking.apm.collector.client;
 
 /**
  * @author peng-yongsheng
  */
-public interface ServerHandler {
+public interface Client {
+    void initialize() throws ClientException;
+
+    void shutdown();
 }

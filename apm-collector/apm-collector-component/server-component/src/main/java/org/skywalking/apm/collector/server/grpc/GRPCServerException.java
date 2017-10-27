@@ -18,7 +18,7 @@
 
 package org.skywalking.apm.collector.server.grpc;
 
-import org.skywalking.apm.collector.core.component.server.ServerException;
+import org.skywalking.apm.collector.server.ServerException;
 
 /**
  * @author peng-yongsheng

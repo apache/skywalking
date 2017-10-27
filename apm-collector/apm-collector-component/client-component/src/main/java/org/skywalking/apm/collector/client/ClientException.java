@@ -16,19 +16,19 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.client.zookeeper;
+package org.skywalking.apm.collector.client;
 
-import org.skywalking.apm.collector.client.ClientException;
+import org.skywalking.apm.collector.core.CollectorException;
 
 /**
  * @author peng-yongsheng
  */
-public class ZookeeperClientException extends ClientException {
-    public ZookeeperClientException(String message) {
+public abstract class ClientException extends CollectorException {
+    public ClientException(String message) {
         super(message);
     }
 
-    public ZookeeperClientException(String message, Throwable cause) {
+    public ClientException(String message, Throwable cause) {
         super(message, cause);
     }
 }

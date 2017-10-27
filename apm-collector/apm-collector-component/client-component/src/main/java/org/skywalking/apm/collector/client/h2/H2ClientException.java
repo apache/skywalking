@@ -18,7 +18,7 @@
 
 package org.skywalking.apm.collector.client.h2;
 
-import org.skywalking.apm.collector.core.component.client.ClientException;
+import org.skywalking.apm.collector.client.ClientException;
 
 /**
  * @author peng-yongsheng

@@ -16,7 +16,7 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.core.component.server;
+package org.skywalking.apm.collector.server;
 
 import org.skywalking.apm.collector.core.module.ModuleDefine;
 

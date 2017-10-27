@@ -21,9 +21,9 @@ package org.skywalking.apm.collector.server.grpc;
 import io.grpc.netty.NettyServerBuilder;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import org.skywalking.apm.collector.core.component.server.Server;
-import org.skywalking.apm.collector.core.component.server.ServerException;
-import org.skywalking.apm.collector.core.component.server.ServerHandler;
+import org.skywalking.apm.collector.server.Server;
+import org.skywalking.apm.collector.server.ServerException;
+import org.skywalking.apm.collector.server.ServerHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

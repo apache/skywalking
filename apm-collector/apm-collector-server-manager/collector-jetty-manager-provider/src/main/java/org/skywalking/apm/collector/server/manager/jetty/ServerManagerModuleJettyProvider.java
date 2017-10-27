@@ -16,36 +16,35 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.client.redis;
+package org.skywalking.apm.collector.server.manager.jetty;
 
-import org.skywalking.apm.collector.client.Client;
-import org.skywalking.apm.collector.client.ClientException;
-import redis.clients.jedis.Jedis;
+import java.util.Properties;
+import org.skywalking.apm.collector.core.module.Module;
+import org.skywalking.apm.collector.core.module.ModuleProvider;
+import org.skywalking.apm.collector.core.module.ServiceNotProvidedException;
 
 /**
  * @author peng-yongsheng
  */
-public class RedisClient implements Client {
+public class ServerManagerModuleJettyProvider extends ModuleProvider {
 
-    private Jedis jedis;
-
-    private final String host;
-    private final int port;
-
-    public RedisClient(String host, int port) {
-        this.host = host;
-        this.port = port;
+    @Override public String name() {
+        return null;
     }
 
-    @Override public void initialize() throws ClientException {
-        jedis = new Jedis(host, port);
+    @Override public Class<? extends Module> module() {
+        return null;
     }
 
-    @Override public void shutdown() {
+    @Override public void prepare(Properties config) throws ServiceNotProvidedException {
 
     }
 
-    public void setex(String key, int seconds, String value) {
-        jedis.setex(key, seconds, value);
+    @Override public void init(Properties config) throws ServiceNotProvidedException {
+
+    }
+
+    @Override public String[] requiredModules() {
+        return new String[0];
     }
 }

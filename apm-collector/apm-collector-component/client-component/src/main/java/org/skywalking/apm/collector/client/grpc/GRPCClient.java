@@ -20,8 +20,8 @@ package org.skywalking.apm.collector.client.grpc;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import org.skywalking.apm.collector.core.component.client.Client;
-import org.skywalking.apm.collector.core.component.client.ClientException;
+import org.skywalking.apm.collector.client.Client;
+import org.skywalking.apm.collector.client.ClientException;
 
 /**
  * @author peng-yongsheng

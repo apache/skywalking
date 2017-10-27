@@ -18,7 +18,7 @@
 
 package org.skywalking.apm.collector.client.elasticsearch;
 
-import org.skywalking.apm.collector.core.component.client.ClientException;
+import org.skywalking.apm.collector.client.ClientException;
 
 /**
  * @author peng-yongsheng

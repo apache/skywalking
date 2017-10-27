@@ -16,19 +16,10 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.core.component.client;
-
-import org.skywalking.apm.collector.core.CollectorException;
+package org.skywalking.apm.collector.server;
 
 /**
  * @author peng-yongsheng
  */
-public abstract class ClientException extends CollectorException {
-    public ClientException(String message) {
-        super(message);
-    }
-
-    public ClientException(String message, Throwable cause) {
-        super(message, cause);
-    }
+public interface ServerHandler {
 }

@@ -40,6 +40,7 @@
         <module>apm-collector-cache</module>
         <module>apm-collector-storage</module>
         <module>apm-collector-naming</module>
+        <module>apm-collector-server-manager</module>
     </modules>
 
     <properties>
