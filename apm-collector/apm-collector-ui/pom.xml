@@ -10,6 +10,17 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>apm-collector-ui</artifactId>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
+    <modules>
+        <module>collector-ui-define</module>
+        <module>collector-ui-jetty-provider</module>
+    </modules>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>apm-collector-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>

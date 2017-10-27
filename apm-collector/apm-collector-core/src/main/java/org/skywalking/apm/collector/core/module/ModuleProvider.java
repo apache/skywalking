@@ -46,7 +46,7 @@ public abstract class ModuleProvider {
         this.module = module;
     }
 
-    protected ModuleManager getManager() {
+    protected final ModuleManager getManager() {
         return manager;
     }
 

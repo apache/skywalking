@@ -121,7 +121,7 @@ public abstract class Module {
         return loadedProviders.getFirst();
     }
 
-    public <T extends Service> T getService(Class<T> serviceType) throws ServiceNotProvidedException {
+    public final <T extends Service> T getService(Class<T> serviceType) throws ServiceNotProvidedException {
         try {
             return provider().getService(serviceType);
         } catch (ProviderNotFoundException | DuplicateProviderException e) {
