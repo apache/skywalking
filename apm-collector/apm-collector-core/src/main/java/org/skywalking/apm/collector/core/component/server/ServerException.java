@@ -16,19 +16,20 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.client.elasticsearch;
+package org.skywalking.apm.collector.core.component.server;
 
-import org.skywalking.apm.collector.core.component.client.ClientException;
+import org.skywalking.apm.collector.core.CollectorException;
 
 /**
  * @author peng-yongsheng
  */
-public class ElasticSearchClientException extends ClientException {
-    public ElasticSearchClientException(String message) {
+public abstract class ServerException extends CollectorException {
+
+    public ServerException(String message) {
         super(message);
     }
 
-    public ElasticSearchClientException(String message, Throwable cause) {
+    public ServerException(String message, Throwable cause) {
         super(message, cause);
     }
 }

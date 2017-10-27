@@ -38,8 +38,8 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
-import org.skywalking.apm.collector.core.client.Client;
-import org.skywalking.apm.collector.core.client.ClientException;
+import org.skywalking.apm.collector.core.component.client.Client;
+import org.skywalking.apm.collector.core.component.client.ClientException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

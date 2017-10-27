@@ -41,5 +41,10 @@
             <artifactId>collector-cluster-define</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>server-component</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

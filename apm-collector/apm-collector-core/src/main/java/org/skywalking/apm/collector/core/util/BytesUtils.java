@@ -16,19 +16,28 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.client.elasticsearch;
-
-import org.skywalking.apm.collector.core.component.client.ClientException;
+package org.skywalking.apm.collector.core.util;
 
 /**
  * @author peng-yongsheng
  */
-public class ElasticSearchClientException extends ClientException {
-    public ElasticSearchClientException(String message) {
-        super(message);
+public class BytesUtils {
+
+    public static byte[] long2Bytes(long num) {
+        byte[] byteNum = new byte[8];
+        for (int ix = 0; ix < 8; ++ix) {
+            int offset = 64 - (ix + 1) * 8;
+            byteNum[ix] = (byte)((num >> offset) & 0xff);
+        }
+        return byteNum;
     }
 
-    public ElasticSearchClientException(String message, Throwable cause) {
-        super(message, cause);
+    public static long bytes2Long(byte[] byteNum) {
+        long num = 0;
+        for (int ix = 0; ix < 8; ++ix) {
+            num <<= 8;
+            num |= byteNum[ix] & 0xff;
+        }
+        return num;
     }
 }

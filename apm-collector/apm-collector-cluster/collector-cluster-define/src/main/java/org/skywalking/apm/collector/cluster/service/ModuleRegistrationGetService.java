@@ -16,19 +16,14 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.client.elasticsearch;
+package org.skywalking.apm.collector.cluster.service;
 
-import org.skywalking.apm.collector.core.component.client.ClientException;
+import java.util.Set;
+import org.skywalking.apm.collector.core.module.Service;
 
 /**
  * @author peng-yongsheng
  */
-public class ElasticSearchClientException extends ClientException {
-    public ElasticSearchClientException(String message) {
-        super(message);
-    }
-
-    public ElasticSearchClientException(String message, Throwable cause) {
-        super(message, cause);
-    }
+public interface ModuleRegistrationGetService extends Service {
+    Set<String> get(String path);
 }

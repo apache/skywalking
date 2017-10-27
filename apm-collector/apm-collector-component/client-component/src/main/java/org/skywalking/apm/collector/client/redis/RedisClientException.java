@@ -18,7 +18,7 @@
 
 package org.skywalking.apm.collector.client.redis;
 
-import org.skywalking.apm.collector.core.client.ClientException;
+import org.skywalking.apm.collector.core.component.client.ClientException;
 
 /**
  * @author peng-yongsheng

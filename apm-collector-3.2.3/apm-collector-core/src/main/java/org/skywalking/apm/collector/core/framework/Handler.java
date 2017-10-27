@@ -21,5 +21,5 @@ package org.skywalking.apm.collector.core.framework;
 /**
  * @author peng-yongsheng
  */
-public interface Handler {
+public interface ServerHandler {
 }

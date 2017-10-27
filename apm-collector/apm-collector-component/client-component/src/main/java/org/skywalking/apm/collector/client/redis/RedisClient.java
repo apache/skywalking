@@ -18,8 +18,8 @@
 
 package org.skywalking.apm.collector.client.redis;
 
-import org.skywalking.apm.collector.core.client.Client;
-import org.skywalking.apm.collector.core.client.ClientException;
+import org.skywalking.apm.collector.core.component.client.Client;
+import org.skywalking.apm.collector.core.component.client.ClientException;
 import redis.clients.jedis.Jedis;
 
 /**

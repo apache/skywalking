@@ -19,6 +19,7 @@
 package org.skywalking.apm.collector.cluster;
 
 import org.skywalking.apm.collector.cluster.service.ModuleRegisterService;
+import org.skywalking.apm.collector.cluster.service.ModuleRegistrationGetService;
 import org.skywalking.apm.collector.core.module.Module;
 import org.skywalking.apm.collector.core.module.Service;
 
@@ -34,6 +35,6 @@ public class ClusterModule extends Module {
     }
 
     @Override public Class<? extends Service>[] services() {
-        return new Class[] {ModuleRegisterService.class};
+        return new Class[] {ModuleRegisterService.class, ModuleRegistrationGetService.class};
     }
 }

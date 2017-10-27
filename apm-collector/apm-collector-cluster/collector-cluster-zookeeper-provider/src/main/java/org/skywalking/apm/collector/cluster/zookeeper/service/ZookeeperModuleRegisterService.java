@@ -16,13 +16,12 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.core.client;
+package org.skywalking.apm.collector.cluster.zookeeper.service;
+
+import org.skywalking.apm.collector.cluster.service.ModuleRegisterService;
 
 /**
  * @author peng-yongsheng
  */
-public interface Client {
-    void initialize() throws ClientException;
-
-    void shutdown();
+public class ZookeeperModuleRegisterService implements ModuleRegisterService {
 }

@@ -16,19 +16,16 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.client.elasticsearch;
+package org.skywalking.apm.collector.cluster.zookeeper.service;
 
-import org.skywalking.apm.collector.core.component.client.ClientException;
+import java.util.Set;
+import org.skywalking.apm.collector.cluster.service.ModuleRegistrationGetService;
 
 /**
  * @author peng-yongsheng
  */
-public class ElasticSearchClientException extends ClientException {
-    public ElasticSearchClientException(String message) {
-        super(message);
-    }
-
-    public ElasticSearchClientException(String message, Throwable cause) {
-        super(message, cause);
+public class ZookeeperModuleRegistrationGetService implements ModuleRegistrationGetService {
+    @Override public Set<String> get(String path) {
+        return null;
     }
 }

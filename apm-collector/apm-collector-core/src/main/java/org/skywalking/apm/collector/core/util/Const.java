@@ -16,19 +16,20 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.client.elasticsearch;
-
-import org.skywalking.apm.collector.core.component.client.ClientException;
+package org.skywalking.apm.collector.core.util;
 
 /**
  * @author peng-yongsheng
  */
-public class ElasticSearchClientException extends ClientException {
-    public ElasticSearchClientException(String message) {
-        super(message);
-    }
-
-    public ElasticSearchClientException(String message, Throwable cause) {
-        super(message, cause);
-    }
+public class Const {
+    public static final String ID_SPLIT = "_";
+    public static final int USER_ID = 1;
+    public static final int NONE_SERVICE_ID = 1;
+    public static final String NONE_SERVICE_NAME = "None";
+    public static final String USER_CODE = "User";
+    public static final String SEGMENT_SPAN_SPLIT = "S";
+    public static final String UNKNOWN = "Unknown";
+    public static final String EXCEPTION = "Exception";
+    public static final String EMPTY_STRING = "";
+    public static final String FILE_SUFFIX = "sw";
 }

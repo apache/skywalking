@@ -16,19 +16,33 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.client.elasticsearch;
+package org.skywalking.apm.collector.core.util;
 
-import org.skywalking.apm.collector.core.component.client.ClientException;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author peng-yongsheng
  */
-public class ElasticSearchClientException extends ClientException {
-    public ElasticSearchClientException(String message) {
-        super(message);
+public class CollectionUtils {
+
+    public static boolean isEmpty(Map map) {
+        return map == null || map.size() == 0;
     }
 
-    public ElasticSearchClientException(String message, Throwable cause) {
-        super(message, cause);
+    public static boolean isEmpty(List list) {
+        return list == null || list.size() == 0;
+    }
+
+    public static boolean isNotEmpty(List list) {
+        return !isEmpty(list);
+    }
+
+    public static boolean isNotEmpty(Map map) {
+        return !isEmpty(map);
+    }
+
+    public static <T> boolean isNotEmpty(T[] array) {
+        return array != null && array.length > 0;
     }
 }

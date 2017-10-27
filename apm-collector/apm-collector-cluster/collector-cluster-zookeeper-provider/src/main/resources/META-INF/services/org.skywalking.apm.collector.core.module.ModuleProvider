@@ -16,4 +16,4 @@
 # Project repository: https://github.com/OpenSkywalking/skywalking
 #
 
-org.skywalking.apm.collector.cluster.zookeeper.ClusterModuleZKProvider
+org.skywalking.apm.collector.cluster.zookeeper.ClusterModuleZookeeperProvider

@@ -38,7 +38,7 @@ public abstract class Module {
     /**
      * @return the {@link Service} provided by this module.
      */
-    public abstract Class<? extends Service>[] services();
+    public abstract Class[] services();
 
     /**
      * Run the prepare stage for the module, including finding all potential providers, and asking them to prepare.

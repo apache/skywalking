@@ -22,6 +22,7 @@ import java.util.Properties;
 import org.skywalking.apm.collector.cluster.ClusterModule;
 import org.skywalking.apm.collector.cluster.service.ModuleRegisterService;
 import org.skywalking.apm.collector.cluster.standalone.service.StandaloneModuleRegisterService;
+import org.skywalking.apm.collector.cluster.standalone.service.StandaloneModuleRegistrationGetService;
 import org.skywalking.apm.collector.core.module.Module;
 import org.skywalking.apm.collector.core.module.ModuleProvider;
 import org.skywalking.apm.collector.core.module.ServiceNotProvidedException;
@@ -41,6 +42,7 @@ public class ClusterModuleStandaloneProvider extends ModuleProvider {
 
     @Override public void prepare(Properties config) throws ServiceNotProvidedException {
         this.registerServiceImplementation(ModuleRegisterService.class, new StandaloneModuleRegisterService());
+        this.registerServiceImplementation(ModuleRegisterService.class, new StandaloneModuleRegistrationGetService());
     }
 
     @Override public void init(Properties config) throws ServiceNotProvidedException {

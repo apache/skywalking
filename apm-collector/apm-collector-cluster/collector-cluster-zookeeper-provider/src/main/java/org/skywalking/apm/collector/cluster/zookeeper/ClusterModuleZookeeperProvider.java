@@ -21,7 +21,8 @@ package org.skywalking.apm.collector.cluster.zookeeper;
 import java.util.Properties;
 import org.skywalking.apm.collector.cluster.ClusterModule;
 import org.skywalking.apm.collector.cluster.service.ModuleRegisterService;
-import org.skywalking.apm.collector.cluster.zookeeper.service.ZKModuleRegisterService;
+import org.skywalking.apm.collector.cluster.zookeeper.service.ZookeeperModuleRegisterService;
+import org.skywalking.apm.collector.cluster.zookeeper.service.ZookeeperModuleRegistrationGetService;
 import org.skywalking.apm.collector.core.module.Module;
 import org.skywalking.apm.collector.core.module.ModuleProvider;
 import org.skywalking.apm.collector.core.module.ServiceNotProvidedException;
@@ -29,7 +30,7 @@ import org.skywalking.apm.collector.core.module.ServiceNotProvidedException;
 /**
  * @author peng-yongsheng
  */
-public class ClusterModuleZKProvider extends ModuleProvider {
+public class ClusterModuleZookeeperProvider extends ModuleProvider {
 
     @Override public String name() {
         return "zookeeper";
@@ -40,7 +41,8 @@ public class ClusterModuleZKProvider extends ModuleProvider {
     }
 
     @Override public void prepare(Properties config) throws ServiceNotProvidedException {
-        this.registerServiceImplementation(ModuleRegisterService.class, new ZKModuleRegisterService());
+        this.registerServiceImplementation(ModuleRegisterService.class, new ZookeeperModuleRegisterService());
+        this.registerServiceImplementation(ModuleRegisterService.class, new ZookeeperModuleRegistrationGetService());
     }
 
     @Override public void init(Properties config) throws ServiceNotProvidedException {

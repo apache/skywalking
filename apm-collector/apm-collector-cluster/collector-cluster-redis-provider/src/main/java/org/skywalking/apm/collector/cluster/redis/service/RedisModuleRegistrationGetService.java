@@ -16,19 +16,17 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.core.client;
+package org.skywalking.apm.collector.cluster.redis.service;
 
-import org.skywalking.apm.collector.core.CollectorException;
+import java.util.Set;
+import org.skywalking.apm.collector.cluster.service.ModuleRegistrationGetService;
 
 /**
  * @author peng-yongsheng
  */
-public abstract class ClientException extends CollectorException {
-    public ClientException(String message) {
-        super(message);
-    }
+public class RedisModuleRegistrationGetService implements ModuleRegistrationGetService {
 
-    public ClientException(String message, Throwable cause) {
-        super(message, cause);
+    @Override public Set<String> get(String path) {
+        return null;
     }
 }

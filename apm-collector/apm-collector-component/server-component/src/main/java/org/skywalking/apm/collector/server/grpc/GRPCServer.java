@@ -21,9 +21,9 @@ package org.skywalking.apm.collector.server.grpc;
 import io.grpc.netty.NettyServerBuilder;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import org.skywalking.apm.collector.core.framework.Handler;
-import org.skywalking.apm.collector.core.server.Server;
-import org.skywalking.apm.collector.core.server.ServerException;
+import org.skywalking.apm.collector.core.component.server.Server;
+import org.skywalking.apm.collector.core.component.server.ServerException;
+import org.skywalking.apm.collector.core.component.server.ServerHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,7 +67,7 @@ public class GRPCServer implements Server {
         }
     }
 
-    @Override public void addHandler(Handler handler) {
+    @Override public void addHandler(ServerHandler handler) {
         nettyServerBuilder.addService((io.grpc.BindableService)handler);
     }
 }
