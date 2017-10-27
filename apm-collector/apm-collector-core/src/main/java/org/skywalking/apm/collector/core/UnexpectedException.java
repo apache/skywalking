@@ -16,35 +16,13 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.core.module;
-
-import java.util.Properties;
+package org.skywalking.apm.collector.core;
 
 /**
  * @author wu-sheng
  */
-public class TestModuleProvider extends ModuleProvider {
-    @Override public String name() {
-        return "TestModule-Provider";
-    }
-
-    @Override public Class<? extends Module> module() {
-        return TestModule.class;
-    }
-
-    @Override public void prepare(Properties config) {
-
-    }
-
-    @Override public void start(Properties config) {
-
-    }
-
-    @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {
-
-    }
-
-    @Override public String[] requiredModules() {
-        return new String[] {"BaseA", "BaseB"};
+public class UnexpectedException extends RuntimeException {
+    public UnexpectedException(String message) {
+        super(message);
     }
 }

@@ -77,7 +77,7 @@ public abstract class Module {
         }
     }
 
-    void init(ModuleManager moduleManager,
+    void start(ModuleManager moduleManager,
         ApplicationConfiguration.ModuleConfiguration configuration) throws ProviderNotFoundException, ModuleNotFoundException, ServiceNotProvidedException {
         for (ModuleProvider provider : loadedProviders) {
             String[] requiredModules = provider.requiredModules();
@@ -88,9 +88,15 @@ public abstract class Module {
                     }
                 }
             }
-            provider.init(configuration.getProviderConfiguration(provider.name()));
+            provider.start(configuration.getProviderConfiguration(provider.name()));
 
             provider.requiredCheck(services());
+        }
+    }
+
+    void notifyAfterCompleted() throws ProviderNotFoundException, ModuleNotFoundException, ServiceNotProvidedException {
+        for (ModuleProvider provider : loadedProviders) {
+            provider.notifyAfterCompleted();
         }
     }
 

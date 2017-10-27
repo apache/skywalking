@@ -63,11 +63,18 @@ public abstract class ModuleProvider {
     public abstract void prepare(Properties config) throws ServiceNotProvidedException;
 
     /**
-     * In prepare stage, the module can interop with other modules.
+     * In start stage, the module has been ready for interop.
      *
      * @param config from `application.yml`
      */
-    public abstract void init(Properties config) throws ServiceNotProvidedException;
+    public abstract void start(Properties config) throws ServiceNotProvidedException;
+
+    /**
+     * This callback executes after all modules start up successfully.
+     *
+     * @throws ServiceNotProvidedException
+     */
+    public abstract void notifyAfterCompleted() throws ServiceNotProvidedException;
 
     /**
      * @return module names which does this module require?

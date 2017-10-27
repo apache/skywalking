@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.skywalking.apm.collector.core.framework.DefineException;
 import org.skywalking.apm.collector.core.framework.Loader;
-import org.skywalking.apm.collector.core.util.DefinitionLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

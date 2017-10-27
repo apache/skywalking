@@ -41,7 +41,11 @@ public class NamingModuleJettyProvider extends ModuleProvider {
     @Override public void prepare(Properties config) throws ServiceNotProvidedException {
     }
 
-    @Override public void init(Properties config) throws ServiceNotProvidedException {
+    @Override public void start(Properties config) throws ServiceNotProvidedException {
+
+    }
+
+    @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {
 
     }
 

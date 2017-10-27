@@ -45,7 +45,11 @@ public class ClusterModuleZookeeperProvider extends ModuleProvider {
         this.registerServiceImplementation(ModuleRegisterService.class, new ZookeeperModuleRegistrationGetService());
     }
 
-    @Override public void init(Properties config) throws ServiceNotProvidedException {
+    @Override public void start(Properties config) throws ServiceNotProvidedException {
+
+    }
+
+    @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {
 
     }
 

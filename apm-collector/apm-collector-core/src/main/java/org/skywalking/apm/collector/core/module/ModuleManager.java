@@ -60,12 +60,16 @@ public class ModuleManager {
             }
         }
 
-        for (Module module : loadedModules.values()) {
-            module.init(this, applicationConfiguration.getModuleConfiguration(module.name()));
-        }
-
         if (moduleList.size() > 0) {
             throw new ModuleNotFoundException(moduleList.toString() + " missing.");
+        }
+
+        for (Module module : loadedModules.values()) {
+            module.start(this, applicationConfiguration.getModuleConfiguration(module.name()));
+        }
+
+        for (Module module : loadedModules.values()) {
+            module.notifyAfterCompleted();
         }
     }
 

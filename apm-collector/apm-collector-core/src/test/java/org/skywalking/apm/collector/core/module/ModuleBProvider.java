@@ -36,8 +36,12 @@ public class ModuleBProvider extends ModuleProvider {
         this.registerServiceImplementation(BaseModuleB.ServiceBBusiness1.class, new Business1());
     }
 
-    @Override public void init(Properties config) throws ServiceNotProvidedException {
+    @Override public void start(Properties config) throws ServiceNotProvidedException {
         this.registerServiceImplementation(BaseModuleB.ServiceBBusiness2.class, new Business2());
+    }
+
+    @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {
+
     }
 
     @Override public String[] requiredModules() {

@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.Properties;
 
 /**
- * Modulization configurations. The {@link ModuleManager} is going to start, lookup, init modules based on this.
+ * Modulization configurations. The {@link ModuleManager} is going to start, lookup, start modules based on this.
  *
  * @author wu-sheng
  */
