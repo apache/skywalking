@@ -31,7 +31,7 @@ public class BaseModuleA extends Module {
     }
 
     public interface ServiceABusiness1 extends Service {
-
+        void print();
     }
 
     public interface ServiceABusiness2 extends Service {

@@ -116,4 +116,13 @@ public abstract class ModuleProvider {
             throw new ServiceNotProvidedException("Provide more service implementations than Module requirements.");
         }
     }
+
+    public <T extends Service> T getService(Class<T> serviceType) throws ServiceNotProvidedException {
+        Service serviceImpl = services.get(serviceType);
+        if (serviceImpl != null) {
+            return (T)serviceImpl;
+        }
+
+        throw new ServiceNotProvidedException("Service " + serviceType.getName() + " should not be provided, based on module define.");
+    }
 }

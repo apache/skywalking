@@ -25,7 +25,7 @@ import org.junit.Test;
  */
 public class ModuleManagerTest {
     @Test
-    public void testInit() throws ServiceNotProvidedException, ModuleNotFoundException, ProviderNotFoundException {
+    public void testInit() throws ServiceNotProvidedException, ModuleNotFoundException, ProviderNotFoundException, DuplicateProviderException {
         ApplicationConfiguration configuration = new ApplicationConfiguration();
         configuration.addModule("Test").addProviderConfiguration("TestModule-Provider", null);
         configuration.addModule("BaseA").addProviderConfiguration("P-A",null);
@@ -33,5 +33,8 @@ public class ModuleManagerTest {
 
         ModuleManager manager = new ModuleManager();
         manager.init(configuration);
+
+        BaseModuleA.ServiceABusiness1 serviceABusiness1 = manager.find("BaseA").provider().getService(BaseModuleA.ServiceABusiness1.class);
+        serviceABusiness1.print();
     }
 }
