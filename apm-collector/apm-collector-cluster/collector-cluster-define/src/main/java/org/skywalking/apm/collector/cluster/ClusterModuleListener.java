@@ -16,16 +16,37 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.cluster.standalone.service;
+package org.skywalking.apm.collector.cluster;
 
-import org.skywalking.apm.collector.cluster.service.ModuleRegisterService;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author peng-yongsheng
  */
-public class StandaloneModuleRegisterService implements ModuleRegisterService {
+public abstract class ClusterModuleListener {
 
-    @Override public void register(String moduleName, String providerName, String address, String others) {
-        
+    private Set<String> addresses;
+
+    public ClusterModuleListener() {
+        addresses = new HashSet<>();
     }
+
+    public abstract String path();
+
+    public final void addAddress(String address) {
+        addresses.add(address);
+    }
+
+    public final void removeAddress(String address) {
+        addresses.remove(address);
+    }
+
+    public final Set<String> getAddresses() {
+        return addresses;
+    }
+
+    public abstract void serverJoinNotify(String serverAddress);
+
+    public abstract void serverQuitNotify(String serverAddress);
 }

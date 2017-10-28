@@ -24,5 +24,10 @@
             <artifactId>apm-collector-core</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>client-component</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

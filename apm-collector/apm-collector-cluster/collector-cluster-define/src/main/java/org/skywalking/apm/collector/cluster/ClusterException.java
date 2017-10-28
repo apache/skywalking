@@ -16,16 +16,20 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.cluster.standalone.service;
+package org.skywalking.apm.collector.cluster;
 
-import org.skywalking.apm.collector.cluster.service.ModuleRegisterService;
+import org.skywalking.apm.collector.core.CollectorException;
 
 /**
  * @author peng-yongsheng
  */
-public class StandaloneModuleRegisterService implements ModuleRegisterService {
+public abstract class ClusterException extends CollectorException {
 
-    @Override public void register(String moduleName, String providerName, String address, String others) {
-        
+    public ClusterException(String message) {
+        super(message);
+    }
+
+    public ClusterException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

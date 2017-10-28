@@ -18,10 +18,23 @@
 
 package org.skywalking.apm.collector.cluster.zookeeper.service;
 
+import org.skywalking.apm.collector.cluster.ModuleRegistration;
 import org.skywalking.apm.collector.cluster.service.ModuleRegisterService;
+import org.skywalking.apm.collector.cluster.zookeeper.ClusterZKDataMonitor;
 
 /**
  * @author peng-yongsheng
  */
 public class ZookeeperModuleRegisterService implements ModuleRegisterService {
+
+    private final ClusterZKDataMonitor dataMonitor;
+
+    public ZookeeperModuleRegisterService(ClusterZKDataMonitor dataMonitor) {
+        this.dataMonitor = dataMonitor;
+    }
+
+    @Override public void register(String moduleName, String providerName, ModuleRegistration registration) {
+        String path = "/" + moduleName + "/" + providerName;
+        dataMonitor.register(path, registration);
+    }
 }

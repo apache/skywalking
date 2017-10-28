@@ -16,16 +16,24 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.cluster.standalone.service;
+package org.skywalking.apm.collector.cluster;
 
-import org.skywalking.apm.collector.cluster.service.ModuleRegisterService;
+import org.skywalking.apm.collector.client.Client;
+import org.skywalking.apm.collector.client.ClientException;
 
 /**
  * @author peng-yongsheng
  */
-public class StandaloneModuleRegisterService implements ModuleRegisterService {
+public interface DataMonitor {
+    void setClient(Client client);
 
-    @Override public void register(String moduleName, String providerName, String address, String others) {
-        
-    }
+    void addListener(ClusterModuleListener listener) throws ClientException;
+
+    void register(String path, ModuleRegistration registration) throws ClientException;
+
+    ClusterModuleListener getListener(String path);
+
+    void createPath(String path) throws ClientException;
+
+    void setData(String path, String value) throws ClientException;
 }

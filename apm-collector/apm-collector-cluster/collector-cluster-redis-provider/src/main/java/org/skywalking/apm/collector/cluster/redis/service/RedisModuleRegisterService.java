@@ -24,4 +24,8 @@ import org.skywalking.apm.collector.cluster.service.ModuleRegisterService;
  * @author peng-yongsheng
  */
 public class RedisModuleRegisterService implements ModuleRegisterService {
+
+    @Override public void register(String moduleName, String providerName, String address, String others) {
+
+    }
 }

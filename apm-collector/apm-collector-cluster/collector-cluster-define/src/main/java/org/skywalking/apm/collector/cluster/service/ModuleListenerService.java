@@ -16,16 +16,14 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.cluster.standalone.service;
+package org.skywalking.apm.collector.cluster.service;
 
-import org.skywalking.apm.collector.cluster.service.ModuleRegisterService;
+import org.skywalking.apm.collector.cluster.ClusterModuleListener;
+import org.skywalking.apm.collector.core.module.Service;
 
 /**
  * @author peng-yongsheng
  */
-public class StandaloneModuleRegisterService implements ModuleRegisterService {
-
-    @Override public void register(String moduleName, String providerName, String address, String others) {
-        
-    }
+public interface ModuleListenerService extends Service {
+    void addListener(ClusterModuleListener listener);
 }

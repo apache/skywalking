@@ -16,16 +16,24 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.cluster.standalone.service;
+package org.skywalking.apm.collector.cluster.zookeeper.service;
 
-import org.skywalking.apm.collector.cluster.service.ModuleRegisterService;
+import org.skywalking.apm.collector.cluster.ClusterModuleListener;
+import org.skywalking.apm.collector.cluster.service.ModuleListenerService;
+import org.skywalking.apm.collector.cluster.zookeeper.ClusterZKDataMonitor;
 
 /**
  * @author peng-yongsheng
  */
-public class StandaloneModuleRegisterService implements ModuleRegisterService {
+public class ZookeeperModuleListenerService implements ModuleListenerService {
 
-    @Override public void register(String moduleName, String providerName, String address, String others) {
-        
+    private final ClusterZKDataMonitor dataMonitor;
+
+    public ZookeeperModuleListenerService(ClusterZKDataMonitor dataMonitor) {
+        this.dataMonitor = dataMonitor;
+    }
+
+    @Override public void addListener(ClusterModuleListener listener) {
+        dataMonitor.addListener(listener);
     }
 }
