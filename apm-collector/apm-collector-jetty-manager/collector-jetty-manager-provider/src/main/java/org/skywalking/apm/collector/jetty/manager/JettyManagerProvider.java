@@ -16,52 +16,34 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.ui.jetty;
+package org.skywalking.apm.collector.jetty.manager;
 
 import java.util.Properties;
-import org.skywalking.apm.collector.cluster.ClusterModule;
-import org.skywalking.apm.collector.cluster.service.ModuleRegisterService;
 import org.skywalking.apm.collector.core.module.Module;
-import org.skywalking.apm.collector.core.module.ModuleNotFoundException;
 import org.skywalking.apm.collector.core.module.ModuleProvider;
 import org.skywalking.apm.collector.core.module.ServiceNotProvidedException;
-import org.skywalking.apm.collector.jetty.manager.JettyManagerModule;
 import org.skywalking.apm.collector.jetty.manager.service.JettyManagerService;
-import org.skywalking.apm.collector.server.Server;
-import org.skywalking.apm.collector.ui.UIModule;
+import org.skywalking.apm.collector.jetty.manager.service.JettyManagerServiceImpl;
 
 /**
  * @author peng-yongsheng
  */
-public class UIModuleJettyProvider extends ModuleProvider {
-
-    private static final String HOST = "host";
-    private static final String PORT = "port";
-    private static final String CONTEXT_PATH = "context_path";
+public class JettyManagerProvider extends ModuleProvider {
 
     @Override public String name() {
         return "jetty";
     }
 
     @Override public Class<? extends Module> module() {
-        return UIModule.class;
+        return JettyManagerModule.class;
     }
 
     @Override public void prepare(Properties config) throws ServiceNotProvidedException {
+        this.registerServiceImplementation(JettyManagerService.class, new JettyManagerServiceImpl());
     }
 
     @Override public void start(Properties config) throws ServiceNotProvidedException {
-        String host = config.getProperty(HOST);
-        Integer port = (Integer)config.get(PORT);
-        String contextPath = config.getProperty(CONTEXT_PATH);
-        try {
-            JettyManagerService managerService = getManager().find(JettyManagerModule.NAME).getService(JettyManagerService.class);
-            Server jettyServer = managerService.getElseCreateServer(host, port, contextPath);
 
-            ModuleRegisterService moduleRegisterService = getManager().find(ClusterModule.NAME).getService(ModuleRegisterService.class);
-        } catch (ModuleNotFoundException e) {
-            throw new ServiceNotProvidedException(e.getMessage());
-        }
     }
 
     @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {
@@ -69,6 +51,6 @@ public class UIModuleJettyProvider extends ModuleProvider {
     }
 
     @Override public String[] requiredModules() {
-        return new String[] {ClusterModule.NAME, JettyManagerModule.NAME};
+        return new String[0];
     }
 }

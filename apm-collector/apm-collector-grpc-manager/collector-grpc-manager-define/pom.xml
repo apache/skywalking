@@ -21,30 +21,13 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>apm-collector-ui</artifactId>
+        <artifactId>apm-collector-grpc-manager</artifactId>
         <groupId>org.skywalking</groupId>
         <version>3.2.3-2017</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>collector-ui-jetty-provider</artifactId>
+    <artifactId>collector-grpc-manager-define</artifactId>
     <packaging>jar</packaging>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.skywalking</groupId>
-            <artifactId>collector-ui-define</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.skywalking</groupId>
-            <artifactId>collector-cluster-define</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.skywalking</groupId>
-            <artifactId>collector-jetty-manager-define</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-    </dependencies>
 </project>

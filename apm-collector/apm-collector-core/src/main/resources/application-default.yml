@@ -23,8 +23,9 @@ ui:
     host: localhost
     port: 12800
     context_path: /
-server_manager:
+jetty_manager:
   jetty:
+gRPC_manager:
   gRPC:
 #collector_inside:
 #  grpc:

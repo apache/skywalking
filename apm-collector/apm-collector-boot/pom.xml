@@ -58,18 +58,20 @@
             <version>${project.version}</version>
         </dependency>
         <!-- cluster provider -->
-        <!-- server manager provider -->
+        <!-- grpc manager provider -->
         <dependency>
             <groupId>org.skywalking</groupId>
             <artifactId>collector-grpc-manager-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- grpc manager provider -->
+        <!-- jetty manager provider -->
         <dependency>
             <groupId>org.skywalking</groupId>
             <artifactId>collector-jetty-manager-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- server manager provider -->
+        <!-- jetty manager provider -->
         <dependency>
             <groupId>org.skywalking</groupId>
             <artifactId>collector-ui-jetty-provider</artifactId>
