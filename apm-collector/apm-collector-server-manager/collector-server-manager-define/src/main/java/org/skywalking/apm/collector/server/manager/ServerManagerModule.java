@@ -27,7 +27,7 @@ import org.skywalking.apm.collector.server.manager.service.JettyServerManagerSer
  */
 public class ServerManagerModule extends Module {
 
-    public static final String NAME = "Server_Manager";
+    public static final String NAME = "server_manager";
 
     @Override public String name() {
         return NAME;

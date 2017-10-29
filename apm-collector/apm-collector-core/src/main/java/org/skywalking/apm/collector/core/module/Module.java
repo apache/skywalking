@@ -21,6 +21,8 @@ package org.skywalking.apm.collector.core.module;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ServiceLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A module definition.
@@ -28,6 +30,9 @@ import java.util.ServiceLoader;
  * @author wu-sheng, peng-yongsheng
  */
 public abstract class Module {
+
+    private final Logger logger = LoggerFactory.getLogger(Module.class);
+
     private LinkedList<ModuleProvider> loadedProviders = new LinkedList<>();
 
     /**
@@ -52,6 +57,10 @@ public abstract class Module {
         ServiceLoader<ModuleProvider> moduleProviderLoader = ServiceLoader.load(ModuleProvider.class);
         boolean providerExist = false;
         for (ModuleProvider provider : moduleProviderLoader) {
+            if (!configuration.has(provider.name())) {
+                continue;
+            }
+
             providerExist = true;
             if (provider.module().equals(getClass())) {
                 ModuleProvider newProvider;
@@ -69,10 +78,11 @@ public abstract class Module {
         }
 
         if (!providerExist) {
-            throw new ProviderNotFoundException("no provider exists.");
+            throw new ProviderNotFoundException(this.name() + " module no provider exists.");
         }
 
         for (ModuleProvider moduleProvider : loadedProviders) {
+            logger.info("Prepare the {} provider in {} module.", moduleProvider.name(), this.name());
             moduleProvider.prepare(configuration.getProviderConfiguration(moduleProvider.name()));
         }
     }
@@ -105,7 +115,7 @@ public abstract class Module {
      */
     final List<ModuleProvider> providers() throws ProviderNotFoundException {
         if (loadedProviders.size() == 0) {
-            throw new ProviderNotFoundException("no provider exists.");
+            throw new ProviderNotFoundException(this.name() + " module no provider exists.");
         }
 
         return loadedProviders;
@@ -113,9 +123,9 @@ public abstract class Module {
 
     final ModuleProvider provider() throws ProviderNotFoundException, DuplicateProviderException {
         if (loadedProviders.size() == 0) {
-            throw new ProviderNotFoundException("no provider exists.");
+            throw new ProviderNotFoundException(this.name() + " module no provider exists.");
         } else if (loadedProviders.size() > 1) {
-            throw new DuplicateProviderException("exist " + loadedProviders.size() + " providers");
+            throw new DuplicateProviderException(this.name() + " module exist " + loadedProviders.size() + " providers");
         }
 
         return loadedProviders.getFirst();

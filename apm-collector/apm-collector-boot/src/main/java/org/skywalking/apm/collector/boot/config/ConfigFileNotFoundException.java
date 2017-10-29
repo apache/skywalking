@@ -16,17 +16,20 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.cluster.redis.service;
+package org.skywalking.apm.collector.boot.config;
 
-import org.skywalking.apm.collector.cluster.ModuleRegistration;
-import org.skywalking.apm.collector.cluster.service.ModuleRegisterService;
+import org.skywalking.apm.collector.core.CollectorException;
 
 /**
  * @author peng-yongsheng
  */
-public class RedisModuleRegisterService implements ModuleRegisterService {
+public class ConfigFileNotFoundException extends CollectorException {
 
-    @Override public void register(String moduleName, String providerName, ModuleRegistration registration) {
+    public ConfigFileNotFoundException(String message) {
+        super(message);
+    }
 
+    public ConfigFileNotFoundException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

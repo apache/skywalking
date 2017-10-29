@@ -55,8 +55,8 @@ public class ClusterModuleZookeeperProvider extends ModuleProvider {
         dataMonitor = new ClusterZKDataMonitor();
 
         final String hostPort = config.getProperty(HOST_PORT);
-        final String sessionTimeout = config.getProperty(SESSION_TIMEOUT);
-        ZookeeperClient zookeeperClient = new ZookeeperClient(hostPort, Integer.valueOf(sessionTimeout), dataMonitor);
+        final int sessionTimeout = (Integer)config.get(SESSION_TIMEOUT);
+        ZookeeperClient zookeeperClient = new ZookeeperClient(hostPort, sessionTimeout, dataMonitor);
         dataMonitor.setClient(zookeeperClient);
 
         this.registerServiceImplementation(ModuleListenerService.class, new ZookeeperModuleListenerService(dataMonitor));

@@ -29,4 +29,51 @@
 
     <artifactId>apm-collector-boot</artifactId>
     <packaging>jar</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>1.18</version>
+        </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>apm-collector-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- cluster provider -->
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>collector-cluster-redis-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>collector-cluster-standalone-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>collector-cluster-zookeeper-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- cluster provider -->
+        <!-- server manager provider -->
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>collector-grpc-manager-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>collector-jetty-manager-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- server manager provider -->
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>collector-ui-jetty-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>

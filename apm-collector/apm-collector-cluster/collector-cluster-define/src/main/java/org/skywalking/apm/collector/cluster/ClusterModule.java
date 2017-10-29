@@ -18,6 +18,7 @@
 
 package org.skywalking.apm.collector.cluster;
 
+import org.skywalking.apm.collector.cluster.service.ModuleListenerService;
 import org.skywalking.apm.collector.cluster.service.ModuleRegisterService;
 import org.skywalking.apm.collector.cluster.service.ModuleRegistrationGetService;
 import org.skywalking.apm.collector.core.module.Module;
@@ -28,13 +29,13 @@ import org.skywalking.apm.collector.core.module.Service;
  */
 public class ClusterModule extends Module {
 
-    public static final String NAME = "Cluster";
+    public static final String NAME = "cluster";
 
     @Override public String name() {
         return NAME;
     }
 
     @Override public Class<? extends Service>[] services() {
-        return new Class[] {ModuleRegisterService.class, ModuleRegistrationGetService.class};
+        return new Class[] {ModuleListenerService.class, ModuleRegisterService.class, ModuleRegistrationGetService.class};
     }
 }

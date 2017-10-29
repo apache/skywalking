@@ -18,6 +18,7 @@
 
 package org.skywalking.apm.collector.cluster.standalone.service;
 
+import org.skywalking.apm.collector.cluster.ModuleRegistration;
 import org.skywalking.apm.collector.cluster.service.ModuleRegisterService;
 
 /**
@@ -25,7 +26,7 @@ import org.skywalking.apm.collector.cluster.service.ModuleRegisterService;
  */
 public class StandaloneModuleRegisterService implements ModuleRegisterService {
 
-    @Override public void register(String moduleName, String providerName, String address, String others) {
-        
+    @Override public void register(String moduleName, String providerName, ModuleRegistration registration) {
+
     }
 }

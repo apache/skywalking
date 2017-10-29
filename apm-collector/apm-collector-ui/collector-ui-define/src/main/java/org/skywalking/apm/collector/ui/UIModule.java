@@ -25,7 +25,7 @@ import org.skywalking.apm.collector.core.module.Module;
  */
 public class UIModule extends Module {
 
-    public static final String NAME = "Naming";
+    public static final String NAME = "ui";
 
     @Override public String name() {
         return NAME;

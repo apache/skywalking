@@ -121,7 +121,7 @@ public abstract class ModuleProvider {
         }
 
         if (requiredServices.length != services.size()) {
-            throw new ServiceNotProvidedException("Provide more service implementations than Module requirements.");
+            throw new ServiceNotProvidedException("The " + this.name() + " provider in " + module.name() + " module provide more service implementations than Module requirements.");
         }
     }
 

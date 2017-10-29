@@ -32,7 +32,7 @@ import org.skywalking.apm.collector.server.manager.service.JettyServerManagerSer
 public class ServerManagerModuleJettyProvider extends ModuleProvider {
 
     @Override public String name() {
-        return "Jetty";
+        return "jetty";
     }
 
     @Override public Class<? extends Module> module() {
@@ -43,7 +43,11 @@ public class ServerManagerModuleJettyProvider extends ModuleProvider {
         this.registerServiceImplementation(JettyServerManagerService.class, new JettyServerService());
     }
 
-    @Override public void init(Properties config) throws ServiceNotProvidedException {
+    @Override public void start(Properties config) throws ServiceNotProvidedException {
+
+    }
+
+    @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {
 
     }
 

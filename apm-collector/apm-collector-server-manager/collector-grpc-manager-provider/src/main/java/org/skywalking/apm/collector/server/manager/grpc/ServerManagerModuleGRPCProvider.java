@@ -32,7 +32,7 @@ import org.skywalking.apm.collector.server.manager.service.GRPCServerManagerServ
 public class ServerManagerModuleGRPCProvider extends ModuleProvider {
 
     @Override public String name() {
-        return "Google_RPC";
+        return "gRPC";
     }
 
     @Override public Class<? extends Module> module() {
@@ -43,7 +43,11 @@ public class ServerManagerModuleGRPCProvider extends ModuleProvider {
         this.registerServiceImplementation(GRPCServerManagerService.class, new GRPCServerService());
     }
 
-    @Override public void init(Properties config) throws ServiceNotProvidedException {
+    @Override public void start(Properties config) throws ServiceNotProvidedException {
+
+    }
+
+    @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {
 
     }
 

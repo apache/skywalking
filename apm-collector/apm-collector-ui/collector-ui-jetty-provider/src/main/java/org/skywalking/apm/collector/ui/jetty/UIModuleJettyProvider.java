@@ -40,8 +40,10 @@ public class UIModuleJettyProvider extends ModuleProvider {
     private static final String PORT = "port";
     private static final String CONTEXT_PATH = "context_path";
 
+    private JettyServerConfig serverConfig;
+
     @Override public String name() {
-        return "Jetty";
+        return "jetty";
     }
 
     @Override public Class<? extends Module> module() {
@@ -50,10 +52,12 @@ public class UIModuleJettyProvider extends ModuleProvider {
 
     @Override public void prepare(Properties config) throws ServiceNotProvidedException {
         String host = config.getProperty(HOST);
-        String port = config.getProperty(PORT);
+        Integer port = (Integer)config.get(PORT);
         String contextPath = config.getProperty(CONTEXT_PATH);
-        JettyServerConfig serverConfig = new JettyServerConfig(host, Integer.valueOf(port), contextPath);
+        serverConfig = new JettyServerConfig(host, port, contextPath);
+    }
 
+    @Override public void start(Properties config) throws ServiceNotProvidedException {
         try {
             JettyServerManagerService managerService = getManager().find(ServerManagerModule.NAME).getService(JettyServerManagerService.class);
             Server jettyServer = managerService.getElseCreateServer(serverConfig);
@@ -62,10 +66,6 @@ public class UIModuleJettyProvider extends ModuleProvider {
         } catch (ModuleNotFoundException e) {
             throw new ServiceNotProvidedException(e.getMessage());
         }
-    }
-
-    @Override public void start(Properties config) throws ServiceNotProvidedException {
-
     }
 
     @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {
