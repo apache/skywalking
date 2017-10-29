@@ -20,6 +20,7 @@ package org.skywalking.apm.collector.cluster.zookeeper;
 
 import java.util.Properties;
 import org.skywalking.apm.collector.client.zookeeper.ZookeeperClient;
+import org.skywalking.apm.collector.client.zookeeper.ZookeeperClientException;
 import org.skywalking.apm.collector.cluster.ClusterModule;
 import org.skywalking.apm.collector.cluster.service.ModuleListenerService;
 import org.skywalking.apm.collector.cluster.service.ModuleRegisterService;
@@ -32,15 +33,20 @@ import org.skywalking.apm.collector.core.UnexpectedException;
 import org.skywalking.apm.collector.core.module.Module;
 import org.skywalking.apm.collector.core.module.ModuleProvider;
 import org.skywalking.apm.collector.core.module.ServiceNotProvidedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
 public class ClusterModuleZookeeperProvider extends ModuleProvider {
 
+    private final Logger logger = LoggerFactory.getLogger(ClusterModuleZookeeperProvider.class);
+
     private static final String HOST_PORT = "hostPort";
     private static final String SESSION_TIMEOUT = "sessionTimeout";
 
+    private ZookeeperClient zookeeperClient;
     private ClusterZKDataMonitor dataMonitor;
 
     @Override public String name() {
@@ -56,7 +62,7 @@ public class ClusterModuleZookeeperProvider extends ModuleProvider {
 
         final String hostPort = config.getProperty(HOST_PORT);
         final int sessionTimeout = (Integer)config.get(SESSION_TIMEOUT);
-        ZookeeperClient zookeeperClient = new ZookeeperClient(hostPort, sessionTimeout, dataMonitor);
+        zookeeperClient = new ZookeeperClient(hostPort, sessionTimeout, dataMonitor);
         dataMonitor.setClient(zookeeperClient);
 
         this.registerServiceImplementation(ModuleListenerService.class, new ZookeeperModuleListenerService(dataMonitor));
@@ -66,14 +72,18 @@ public class ClusterModuleZookeeperProvider extends ModuleProvider {
 
     @Override public void start(Properties config) throws ServiceNotProvidedException {
         try {
-            dataMonitor.start();
-        } catch (CollectorException e) {
-            throw new UnexpectedException(e.getMessage());
+            zookeeperClient.initialize();
+        } catch (ZookeeperClientException e) {
+            logger.error(e.getMessage(), e);
         }
     }
 
     @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {
-
+        try {
+            dataMonitor.start();
+        } catch (CollectorException e) {
+            throw new UnexpectedException(e.getMessage());
+        }
     }
 
     @Override public String[] requiredModules() {

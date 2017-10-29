@@ -19,6 +19,7 @@
 package org.skywalking.apm.collector.jetty.manager;
 
 import org.skywalking.apm.collector.core.module.Module;
+import org.skywalking.apm.collector.jetty.manager.service.JettyManagerService;
 
 /**
  * @author peng-yongsheng
@@ -32,6 +33,6 @@ public class JettyManagerModule extends Module {
     }
 
     @Override public Class[] services() {
-        return new Class[0];
+        return new Class[] {JettyManagerService.class};
     }
 }

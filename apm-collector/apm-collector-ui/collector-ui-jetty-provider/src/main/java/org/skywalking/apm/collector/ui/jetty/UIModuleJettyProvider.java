@@ -59,6 +59,7 @@ public class UIModuleJettyProvider extends ModuleProvider {
             Server jettyServer = managerService.getElseCreateServer(host, port, contextPath);
 
             ModuleRegisterService moduleRegisterService = getManager().find(ClusterModule.NAME).getService(ModuleRegisterService.class);
+            moduleRegisterService.register(UIModule.NAME, this.name(), new UIModuleRegistration(host, port, contextPath));
         } catch (ModuleNotFoundException e) {
             throw new ServiceNotProvidedException(e.getMessage());
         }

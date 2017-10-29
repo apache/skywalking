@@ -136,7 +136,7 @@ public class ClusterZKDataMonitor implements DataMonitor, Watcher {
     }
 
     @Override public void register(String path, ModuleRegistration registration) {
-        registrations.put(path, registration);
+        registrations.put(BASE_CATALOG + path, registration);
     }
 
     @Override public ClusterModuleListener getListener(String path) {

@@ -98,6 +98,7 @@ public abstract class Module {
                     }
                 }
             }
+            logger.info("start the provider {} in {} module.", provider.name(), provider.module().getName());
             provider.start(configuration.getProviderConfiguration(provider.name()));
 
             provider.requiredCheck(services());

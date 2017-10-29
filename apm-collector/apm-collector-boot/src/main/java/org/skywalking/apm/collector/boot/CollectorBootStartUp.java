@@ -50,5 +50,10 @@ public class CollectorBootStartUp {
         } catch (ServiceNotProvidedException e) {
             logger.error(e.getMessage(), e);
         }
+
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+        }
     }
 }

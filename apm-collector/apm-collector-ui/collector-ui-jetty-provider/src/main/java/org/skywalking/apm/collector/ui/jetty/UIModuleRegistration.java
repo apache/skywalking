@@ -16,26 +16,26 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.cluster;
+package org.skywalking.apm.collector.ui.jetty;
 
-import org.skywalking.apm.collector.client.Client;
-import org.skywalking.apm.collector.client.ClientException;
+import org.skywalking.apm.collector.cluster.ModuleRegistration;
 
 /**
  * @author peng-yongsheng
  */
-public interface DataMonitor {
-    String BASE_CATALOG = "/skywalking";
+public class UIModuleRegistration extends ModuleRegistration {
 
-    void setClient(Client client);
+    private final String host;
+    private final int port;
+    private final String contextPath;
 
-    void addListener(ClusterModuleListener listener) throws ClientException;
+    public UIModuleRegistration(String host, int port, String contextPath) {
+        this.host = host;
+        this.port = port;
+        this.contextPath = contextPath;
+    }
 
-    void register(String path, ModuleRegistration registration) throws ClientException;
-
-    ClusterModuleListener getListener(String path);
-
-    void createPath(String path) throws ClientException;
-
-    void setData(String path, String value) throws ClientException;
+    @Override public Value buildValue() {
+        return new Value(host, port, contextPath);
+    }
 }
