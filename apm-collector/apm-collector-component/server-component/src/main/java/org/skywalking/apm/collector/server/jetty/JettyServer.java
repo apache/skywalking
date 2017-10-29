@@ -22,6 +22,7 @@ import java.net.InetSocketAddress;
 import javax.servlet.http.HttpServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.servlet.ServletMapping;
 import org.skywalking.apm.collector.server.Server;
 import org.skywalking.apm.collector.server.ServerException;
 import org.skywalking.apm.collector.server.ServerHandler;
@@ -73,6 +74,9 @@ public class JettyServer implements Server {
 
     @Override public void start() throws ServerException {
         try {
+            for (ServletMapping servletMapping : servletContextHandler.getServletHandler().getServletMappings()) {
+                logger.info("jetty servlet mappings: {} register by {}", servletMapping.getPathSpecs(), servletMapping.getServletName());
+            }
             server.start();
         } catch (Exception e) {
             throw new JettyServerException(e.getMessage(), e);

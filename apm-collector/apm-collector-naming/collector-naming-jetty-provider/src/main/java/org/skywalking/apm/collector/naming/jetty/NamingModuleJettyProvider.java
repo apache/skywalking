@@ -18,20 +18,21 @@
 
 package org.skywalking.apm.collector.naming.jetty;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import org.skywalking.apm.collector.cluster.ClusterModule;
 import org.skywalking.apm.collector.core.module.Module;
 import org.skywalking.apm.collector.core.module.ModuleNotFoundException;
 import org.skywalking.apm.collector.core.module.ModuleProvider;
 import org.skywalking.apm.collector.core.module.ServiceNotProvidedException;
+import org.skywalking.apm.collector.jetty.manager.JettyManagerModule;
+import org.skywalking.apm.collector.jetty.manager.service.JettyManagerService;
 import org.skywalking.apm.collector.naming.NamingModule;
-import org.skywalking.apm.collector.naming.jetty.handler.AgentGRPCNamingHandler;
-import org.skywalking.apm.collector.naming.jetty.handler.AgentJettyNamingHandler;
-import org.skywalking.apm.collector.naming.jetty.handler.UIJettyNamingHandler;
+import org.skywalking.apm.collector.naming.jetty.service.NamingJettyHandlerRegisterService;
+import org.skywalking.apm.collector.naming.service.NamingHandlerRegisterService;
 import org.skywalking.apm.collector.server.Server;
-import org.skywalking.apm.collector.server.manager.ServerManagerModule;
-import org.skywalking.apm.collector.server.manager.service.JettyServerConfig;
-import org.skywalking.apm.collector.server.manager.service.JettyServerManagerService;
+import org.skywalking.apm.collector.server.ServerHandler;
 
 /**
  * @author peng-yongsheng
@@ -41,9 +42,10 @@ public class NamingModuleJettyProvider extends ModuleProvider {
     private static final String HOST = "host";
     private static final String PORT = "port";
     private static final String CONTEXT_PATH = "context_path";
+    private final List<ServerHandler> handlers = new ArrayList<>();
 
     @Override public String name() {
-        return "Jetty";
+        return "jetty";
     }
 
     @Override public Class<? extends Module> module() {
@@ -51,26 +53,21 @@ public class NamingModuleJettyProvider extends ModuleProvider {
     }
 
     @Override public void prepare(Properties config) throws ServiceNotProvidedException {
-        String host = config.getProperty(HOST);
-        String port = config.getProperty(PORT);
-        String contextPath = config.getProperty(CONTEXT_PATH);
-        JettyServerConfig serverConfig = new JettyServerConfig(host, Integer.valueOf(port), contextPath);
-
-        try {
-            JettyServerManagerService managerService = getManager().find(ServerManagerModule.NAME).getService(JettyServerManagerService.class);
-            Server jettyServer = managerService.getElseCreateServer(serverConfig);
-            jettyServer.addHandler(new AgentGRPCNamingHandler());
-            jettyServer.addHandler(new AgentJettyNamingHandler());
-            jettyServer.addHandler(new UIJettyNamingHandler());
-
-//            ModuleRegistrationGetService registrationGetService = getManager().find(ClusterModule.NAME).getService(ModuleRegistrationGetService.class);
-        } catch (ModuleNotFoundException e) {
-            throw new ServiceNotProvidedException(e.getMessage());
-        }
+        this.registerServiceImplementation(NamingHandlerRegisterService.class, new NamingJettyHandlerRegisterService(handlers));
     }
 
     @Override public void start(Properties config) throws ServiceNotProvidedException {
+        String host = config.getProperty(HOST);
+        Integer port = (Integer)config.get(PORT);
+        String contextPath = config.getProperty(CONTEXT_PATH);
 
+        try {
+            JettyManagerService managerService = getManager().find(JettyManagerModule.NAME).getService(JettyManagerService.class);
+            Server jettyServer = managerService.getElseCreateServer(host, port, contextPath);
+            handlers.forEach(jettyServer::addHandler);
+        } catch (ModuleNotFoundException e) {
+            throw new ServiceNotProvidedException(e.getMessage());
+        }
     }
 
     @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {
@@ -78,6 +75,6 @@ public class NamingModuleJettyProvider extends ModuleProvider {
     }
 
     @Override public String[] requiredModules() {
-        return new String[] {ServerManagerModule.NAME, ClusterModule.NAME};
+        return new String[] {JettyManagerModule.NAME, ClusterModule.NAME};
     }
 }

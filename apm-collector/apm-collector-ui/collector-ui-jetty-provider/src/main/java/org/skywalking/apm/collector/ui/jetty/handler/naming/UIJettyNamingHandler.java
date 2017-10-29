@@ -16,10 +16,11 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.naming.jetty.handler;
+package org.skywalking.apm.collector.ui.jetty.handler.naming;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import org.skywalking.apm.collector.server.jetty.ArgumentsParseException;
 import org.skywalking.apm.collector.server.jetty.JettyHandler;
@@ -29,15 +30,20 @@ import org.skywalking.apm.collector.server.jetty.JettyHandler;
  */
 public class UIJettyNamingHandler extends JettyHandler {
 
+    private final UIJettyNamingListener namingListener;
+
+    public UIJettyNamingHandler(UIJettyNamingListener namingListener) {
+        this.namingListener = namingListener;
+    }
+
     @Override public String pathSpec() {
         return "/ui/jetty";
     }
 
     @Override protected JsonElement doGet(HttpServletRequest req) throws ArgumentsParseException {
-//        ClusterModuleRegistrationReader reader = CollectorContextHelper.INSTANCE.getClusterModuleContext().getReader();
-//        Set<String> servers = reader.read(UIJettyDataListener.PATH);
+        Set<String> servers = namingListener.getAddresses();
         JsonArray serverArray = new JsonArray();
-//        servers.forEach(serverArray::add);
+        servers.forEach(serverArray::add);
         return serverArray;
     }
 

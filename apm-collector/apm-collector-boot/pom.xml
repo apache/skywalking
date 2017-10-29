@@ -72,10 +72,19 @@
             <version>${project.version}</version>
         </dependency>
         <!-- jetty manager provider -->
+        <!-- naming jetty provider -->
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>collector-naming-jetty-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- naming jetty provider -->
+        <!-- ui jetty provider -->
         <dependency>
             <groupId>org.skywalking</groupId>
             <artifactId>collector-ui-jetty-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- ui jetty provider -->
     </dependencies>
 </project>

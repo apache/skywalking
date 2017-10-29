@@ -21,7 +21,6 @@ package org.skywalking.apm.collector.cluster.redis;
 import java.util.Properties;
 import org.skywalking.apm.collector.cluster.ClusterModule;
 import org.skywalking.apm.collector.cluster.redis.service.RedisModuleRegisterService;
-import org.skywalking.apm.collector.cluster.redis.service.RedisModuleRegistrationGetService;
 import org.skywalking.apm.collector.cluster.service.ModuleRegisterService;
 import org.skywalking.apm.collector.core.module.Module;
 import org.skywalking.apm.collector.core.module.ModuleProvider;
@@ -42,7 +41,6 @@ public class ClusterModuleRedisProvider extends ModuleProvider {
 
     @Override public void prepare(Properties config) throws ServiceNotProvidedException {
         this.registerServiceImplementation(ModuleRegisterService.class, new RedisModuleRegisterService());
-        this.registerServiceImplementation(ModuleRegisterService.class, new RedisModuleRegistrationGetService());
     }
 
     @Override public void start(Properties config) throws ServiceNotProvidedException {

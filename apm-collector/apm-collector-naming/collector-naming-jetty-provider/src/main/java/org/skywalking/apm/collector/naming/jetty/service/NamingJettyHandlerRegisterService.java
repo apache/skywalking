@@ -16,14 +16,24 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.cluster.service;
+package org.skywalking.apm.collector.naming.jetty.service;
 
-import java.util.Set;
-import org.skywalking.apm.collector.core.module.Service;
+import java.util.List;
+import org.skywalking.apm.collector.naming.service.NamingHandlerRegisterService;
+import org.skywalking.apm.collector.server.ServerHandler;
 
 /**
  * @author peng-yongsheng
  */
-public interface ModuleRegistrationGetService extends Service {
-    Set<String> get(String path);
+public class NamingJettyHandlerRegisterService implements NamingHandlerRegisterService {
+
+    private final List<ServerHandler> handlers;
+
+    public NamingJettyHandlerRegisterService(List<ServerHandler> handlers) {
+        this.handlers = handlers;
+    }
+
+    @Override public void register(ServerHandler namingHandler) {
+        handlers.add(namingHandler);
+    }
 }

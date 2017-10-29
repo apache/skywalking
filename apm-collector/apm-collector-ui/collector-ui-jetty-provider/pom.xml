@@ -46,5 +46,10 @@
             <artifactId>collector-jetty-manager-define</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>collector-naming-define</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

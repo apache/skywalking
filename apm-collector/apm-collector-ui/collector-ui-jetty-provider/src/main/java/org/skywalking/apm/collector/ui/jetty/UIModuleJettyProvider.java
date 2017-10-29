@@ -20,6 +20,7 @@ package org.skywalking.apm.collector.ui.jetty;
 
 import java.util.Properties;
 import org.skywalking.apm.collector.cluster.ClusterModule;
+import org.skywalking.apm.collector.cluster.service.ModuleListenerService;
 import org.skywalking.apm.collector.cluster.service.ModuleRegisterService;
 import org.skywalking.apm.collector.core.module.Module;
 import org.skywalking.apm.collector.core.module.ModuleNotFoundException;
@@ -27,21 +28,26 @@ import org.skywalking.apm.collector.core.module.ModuleProvider;
 import org.skywalking.apm.collector.core.module.ServiceNotProvidedException;
 import org.skywalking.apm.collector.jetty.manager.JettyManagerModule;
 import org.skywalking.apm.collector.jetty.manager.service.JettyManagerService;
+import org.skywalking.apm.collector.naming.NamingModule;
+import org.skywalking.apm.collector.naming.service.NamingHandlerRegisterService;
 import org.skywalking.apm.collector.server.Server;
 import org.skywalking.apm.collector.ui.UIModule;
 import org.skywalking.apm.collector.ui.jetty.handler.application.ApplicationsGetHandler;
+import org.skywalking.apm.collector.ui.jetty.handler.naming.UIJettyNamingHandler;
+import org.skywalking.apm.collector.ui.jetty.handler.naming.UIJettyNamingListener;
 
 /**
  * @author peng-yongsheng
  */
 public class UIModuleJettyProvider extends ModuleProvider {
 
+    public static final String NAME = "jetty";
     private static final String HOST = "host";
     private static final String PORT = "port";
     private static final String CONTEXT_PATH = "context_path";
 
     @Override public String name() {
-        return "jetty";
+        return NAME;
     }
 
     @Override public Class<? extends Module> module() {
@@ -62,6 +68,13 @@ public class UIModuleJettyProvider extends ModuleProvider {
 
             ModuleRegisterService moduleRegisterService = getManager().find(ClusterModule.NAME).getService(ModuleRegisterService.class);
             moduleRegisterService.register(UIModule.NAME, this.name(), new UIModuleRegistration(host, port, contextPath));
+
+            UIJettyNamingListener namingListener = new UIJettyNamingListener();
+            ModuleListenerService moduleListenerService = getManager().find(ClusterModule.NAME).getService(ModuleListenerService.class);
+            moduleListenerService.addListener(namingListener);
+
+            NamingHandlerRegisterService namingHandlerRegisterService = getManager().find(NamingModule.NAME).getService(NamingHandlerRegisterService.class);
+            namingHandlerRegisterService.register(new UIJettyNamingHandler(namingListener));
         } catch (ModuleNotFoundException e) {
             throw new ServiceNotProvidedException(e.getMessage());
         }
@@ -72,6 +85,6 @@ public class UIModuleJettyProvider extends ModuleProvider {
     }
 
     @Override public String[] requiredModules() {
-        return new String[] {ClusterModule.NAME, JettyManagerModule.NAME};
+        return new String[] {ClusterModule.NAME, JettyManagerModule.NAME, NamingModule.NAME};
     }
 }

@@ -16,17 +16,14 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.cluster.redis.service;
+package org.skywalking.apm.collector.naming.service;
 
-import java.util.Set;
-import org.skywalking.apm.collector.cluster.service.ModuleRegistrationGetService;
+import org.skywalking.apm.collector.core.module.Service;
+import org.skywalking.apm.collector.server.ServerHandler;
 
 /**
  * @author peng-yongsheng
  */
-public class RedisModuleRegistrationGetService implements ModuleRegistrationGetService {
-
-    @Override public Set<String> get(String path) {
-        return null;
-    }
+public interface NamingHandlerRegisterService extends Service {
+    void register(ServerHandler namingHandler);
 }

@@ -24,10 +24,8 @@ import org.skywalking.apm.collector.client.zookeeper.ZookeeperClientException;
 import org.skywalking.apm.collector.cluster.ClusterModule;
 import org.skywalking.apm.collector.cluster.service.ModuleListenerService;
 import org.skywalking.apm.collector.cluster.service.ModuleRegisterService;
-import org.skywalking.apm.collector.cluster.service.ModuleRegistrationGetService;
 import org.skywalking.apm.collector.cluster.zookeeper.service.ZookeeperModuleListenerService;
 import org.skywalking.apm.collector.cluster.zookeeper.service.ZookeeperModuleRegisterService;
-import org.skywalking.apm.collector.cluster.zookeeper.service.ZookeeperModuleRegistrationGetService;
 import org.skywalking.apm.collector.core.CollectorException;
 import org.skywalking.apm.collector.core.UnexpectedException;
 import org.skywalking.apm.collector.core.module.Module;
@@ -67,7 +65,6 @@ public class ClusterModuleZookeeperProvider extends ModuleProvider {
 
         this.registerServiceImplementation(ModuleListenerService.class, new ZookeeperModuleListenerService(dataMonitor));
         this.registerServiceImplementation(ModuleRegisterService.class, new ZookeeperModuleRegisterService(dataMonitor));
-        this.registerServiceImplementation(ModuleRegistrationGetService.class, new ZookeeperModuleRegistrationGetService());
     }
 
     @Override public void start(Properties config) throws ServiceNotProvidedException {

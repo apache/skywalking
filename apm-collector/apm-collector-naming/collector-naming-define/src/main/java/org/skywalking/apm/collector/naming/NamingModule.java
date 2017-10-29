@@ -20,19 +20,20 @@ package org.skywalking.apm.collector.naming;
 
 import org.skywalking.apm.collector.core.module.Module;
 import org.skywalking.apm.collector.core.module.Service;
+import org.skywalking.apm.collector.naming.service.NamingHandlerRegisterService;
 
 /**
  * @author peng-yongsheng
  */
 public class NamingModule extends Module {
 
-    public static final String NAME = "Naming";
+    public static final String NAME = "naming";
 
     @Override public String name() {
         return NAME;
     }
 
     @Override public Class<? extends Service>[] services() {
-        return new Class[0];
+        return new Class[] {NamingHandlerRegisterService.class};
     }
 }

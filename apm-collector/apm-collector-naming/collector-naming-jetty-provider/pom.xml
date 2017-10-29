@@ -38,17 +38,7 @@
         </dependency>
         <dependency>
             <groupId>org.skywalking</groupId>
-            <artifactId>collector-cluster-define</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.skywalking</groupId>
-            <artifactId>collector-server-manager-define</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.skywalking</groupId>
-            <artifactId>server-component</artifactId>
+            <artifactId>collector-jetty-manager-define</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

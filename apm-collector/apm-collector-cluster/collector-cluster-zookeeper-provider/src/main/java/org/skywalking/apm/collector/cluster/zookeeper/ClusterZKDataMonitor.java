@@ -33,7 +33,6 @@ import org.skywalking.apm.collector.client.Client;
 import org.skywalking.apm.collector.client.ClientException;
 import org.skywalking.apm.collector.client.zookeeper.ZookeeperClient;
 import org.skywalking.apm.collector.client.zookeeper.ZookeeperClientException;
-import org.skywalking.apm.collector.client.zookeeper.util.PathUtils;
 import org.skywalking.apm.collector.cluster.ClusterModuleListener;
 import org.skywalking.apm.collector.cluster.ClusterNodeExistException;
 import org.skywalking.apm.collector.cluster.DataMonitor;
@@ -130,7 +129,7 @@ public class ClusterZKDataMonitor implements DataMonitor, Watcher {
     }
 
     @Override public void addListener(ClusterModuleListener listener) {
-        String path = PathUtils.convertKey2Path(listener.path());
+        String path = BASE_CATALOG + listener.path();
         logger.info("listener path: {}", path);
         listeners.put(path, listener);
     }
@@ -140,7 +139,7 @@ public class ClusterZKDataMonitor implements DataMonitor, Watcher {
     }
 
     @Override public ClusterModuleListener getListener(String path) {
-        path = PathUtils.convertKey2Path(path);
+        path = BASE_CATALOG + path;
         return listeners.get(path);
     }
 

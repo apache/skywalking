@@ -16,17 +16,28 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.cluster.standalone.service;
+package org.skywalking.apm.collector.ui.jetty.handler.naming;
 
-import java.util.Set;
-import org.skywalking.apm.collector.cluster.service.ModuleRegistrationGetService;
+import org.skywalking.apm.collector.cluster.ClusterModuleListener;
+import org.skywalking.apm.collector.ui.UIModule;
+import org.skywalking.apm.collector.ui.jetty.UIModuleJettyProvider;
 
 /**
  * @author peng-yongsheng
  */
-public class StandaloneModuleRegistrationGetService implements ModuleRegistrationGetService {
+public class UIJettyNamingListener extends ClusterModuleListener {
 
-    @Override public Set<String> get(String path) {
-        return null;
+    public static final String PATH = "/" + UIModule.NAME + "/" + UIModuleJettyProvider.NAME;
+
+    @Override public String path() {
+        return PATH;
+    }
+
+    @Override public void serverJoinNotify(String serverAddress) {
+
+    }
+
+    @Override public void serverQuitNotify(String serverAddress) {
+
     }
 }
