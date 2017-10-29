@@ -18,17 +18,25 @@
 
 package org.skywalking.apm.collector.grpc.manager.service;
 
-import java.util.HashMap;
 import java.util.Map;
 import org.skywalking.apm.collector.server.Server;
+import org.skywalking.apm.collector.server.ServerException;
 import org.skywalking.apm.collector.server.grpc.GRPCServer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
 public class GRPCManagerServiceImpl implements GRPCManagerService {
 
-    private Map<String, GRPCServer> servers = new HashMap<>();
+    private final Logger logger = LoggerFactory.getLogger(GRPCManagerServiceImpl.class);
+
+    private final Map<String, GRPCServer> servers;
+
+    public GRPCManagerServiceImpl(Map<String, GRPCServer> servers) {
+        this.servers = servers;
+    }
 
     @Override public Server getElseCreateServer(String host, int port) {
         String id = host + String.valueOf(port);
@@ -36,6 +44,11 @@ public class GRPCManagerServiceImpl implements GRPCManagerService {
             return servers.get(id);
         } else {
             GRPCServer server = new GRPCServer(host, port);
+            try {
+                server.initialize();
+            } catch (ServerException e) {
+                logger.error(e.getMessage(), e);
+            }
             servers.put(id, server);
             return server;
         }

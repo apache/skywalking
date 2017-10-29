@@ -18,17 +18,25 @@
 
 package org.skywalking.apm.collector.jetty.manager.service;
 
-import java.util.HashMap;
 import java.util.Map;
 import org.skywalking.apm.collector.server.Server;
+import org.skywalking.apm.collector.server.ServerException;
 import org.skywalking.apm.collector.server.jetty.JettyServer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
 public class JettyManagerServiceImpl implements JettyManagerService {
 
-    private Map<String, JettyServer> servers = new HashMap<>();
+    private final Logger logger = LoggerFactory.getLogger(JettyManagerServiceImpl.class);
+
+    private final Map<String, JettyServer> servers;
+
+    public JettyManagerServiceImpl(Map<String, JettyServer> servers) {
+        this.servers = servers;
+    }
 
     @Override public Server getElseCreateServer(String host, int port, String contextPath) {
         String id = host + String.valueOf(port);
@@ -36,6 +44,11 @@ public class JettyManagerServiceImpl implements JettyManagerService {
             return servers.get(id);
         } else {
             JettyServer server = new JettyServer(host, port, contextPath);
+            try {
+                server.initialize();
+            } catch (ServerException e) {
+                logger.error(e.getMessage(), e);
+            }
             servers.put(id, server);
             return server;
         }

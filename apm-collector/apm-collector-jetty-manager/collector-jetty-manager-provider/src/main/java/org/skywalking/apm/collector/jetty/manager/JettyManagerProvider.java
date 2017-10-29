@@ -18,17 +18,27 @@
 
 package org.skywalking.apm.collector.jetty.manager;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import org.skywalking.apm.collector.core.module.Module;
 import org.skywalking.apm.collector.core.module.ModuleProvider;
 import org.skywalking.apm.collector.core.module.ServiceNotProvidedException;
 import org.skywalking.apm.collector.jetty.manager.service.JettyManagerService;
 import org.skywalking.apm.collector.jetty.manager.service.JettyManagerServiceImpl;
+import org.skywalking.apm.collector.server.ServerException;
+import org.skywalking.apm.collector.server.jetty.JettyServer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
 public class JettyManagerProvider extends ModuleProvider {
+
+    private final Logger logger = LoggerFactory.getLogger(JettyManagerProvider.class);
+
+    private Map<String, JettyServer> servers = new HashMap<>();
 
     @Override public String name() {
         return "jetty";
@@ -39,7 +49,7 @@ public class JettyManagerProvider extends ModuleProvider {
     }
 
     @Override public void prepare(Properties config) throws ServiceNotProvidedException {
-        this.registerServiceImplementation(JettyManagerService.class, new JettyManagerServiceImpl());
+        this.registerServiceImplementation(JettyManagerService.class, new JettyManagerServiceImpl(servers));
     }
 
     @Override public void start(Properties config) throws ServiceNotProvidedException {
@@ -47,7 +57,13 @@ public class JettyManagerProvider extends ModuleProvider {
     }
 
     @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {
-
+        servers.values().forEach(server -> {
+            try {
+                server.start();
+            } catch (ServerException e) {
+                logger.error(e.getMessage(), e);
+            }
+        });
     }
 
     @Override public String[] requiredModules() {

@@ -29,6 +29,7 @@ import org.skywalking.apm.collector.jetty.manager.JettyManagerModule;
 import org.skywalking.apm.collector.jetty.manager.service.JettyManagerService;
 import org.skywalking.apm.collector.server.Server;
 import org.skywalking.apm.collector.ui.UIModule;
+import org.skywalking.apm.collector.ui.jetty.handler.application.ApplicationsGetHandler;
 
 /**
  * @author peng-yongsheng
@@ -57,6 +58,7 @@ public class UIModuleJettyProvider extends ModuleProvider {
         try {
             JettyManagerService managerService = getManager().find(JettyManagerModule.NAME).getService(JettyManagerService.class);
             Server jettyServer = managerService.getElseCreateServer(host, port, contextPath);
+            jettyServer.addHandler(new ApplicationsGetHandler());
 
             ModuleRegisterService moduleRegisterService = getManager().find(ClusterModule.NAME).getService(ModuleRegisterService.class);
             moduleRegisterService.register(UIModule.NAME, this.name(), new UIModuleRegistration(host, port, contextPath));
