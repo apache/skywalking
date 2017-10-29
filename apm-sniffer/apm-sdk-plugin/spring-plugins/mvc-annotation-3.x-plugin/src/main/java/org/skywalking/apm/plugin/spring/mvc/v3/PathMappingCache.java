@@ -16,15 +16,15 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.plugin.spring.mvc;
+package org.skywalking.apm.plugin.spring.mvc.v3;
 
 import java.lang.reflect.Method;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * The <code>PathMappingCache</code> represents a field
+ * {@link PathMappingCache} cache all request urls of {@link org.springframework.stereotype.Controller} .
  *
- * @author wusheng
+ * @author zhangxin
  */
 public class PathMappingCache {
     private String classPath = "";
