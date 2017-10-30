@@ -16,11 +16,11 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.plugin.spring.mvc.define;
+package org.skywalking.apm.plugin.spring.mvc.v4.define;
 
-public class ControllerInstrumentation extends AbstractControllerInstrumentation {
+public class RestControllerInstrumentation extends AbstractControllerInstrumentation {
 
-    public static final String ENHANCE_ANNOTATION = "org.springframework.stereotype.Controller";
+    public static final String ENHANCE_ANNOTATION = "org.springframework.web.bind.annotation.RestController";
 
     @Override protected String[] getEnhanceAnnotations() {
         return new String[] {ENHANCE_ANNOTATION};

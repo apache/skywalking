@@ -16,13 +16,21 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.plugin.spring.mvc.define;
+package org.skywalking.apm.plugin.spring.mvc.v3.define;
 
-public class RestControllerInstrumentation extends AbstractControllerInstrumentation {
+import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 
-    public static final String ENHANCE_ANNOTATION = "org.springframework.web.bind.annotation.RestController";
+/**
+ * {@link AbstractSpring3Instrumentation} define witness classes of the spring mvc 3 plugin. all Instrumentations
+ * extends this class.
+ *
+ * @author zhangxin
+ */
+public abstract class AbstractSpring3Instrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    @Override protected String[] getEnhanceAnnotations() {
-        return new String[] {ENHANCE_ANNOTATION};
+    public static final String WITHNESS_CLASSES = "org.springframework.web.servlet.view.xslt.AbstractXsltView";
+
+    @Override protected final String[] witnessClasses() {
+        return new String[] {WITHNESS_CLASSES};
     }
 }
