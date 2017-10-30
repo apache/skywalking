@@ -79,12 +79,24 @@
             <version>${project.version}</version>
         </dependency>
         <!-- naming jetty provider -->
-        <!-- ui jetty provider -->
+        <!-- agent provider -->
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>collector-agent-grpc-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>collector-agent-jetty-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- agent provider -->
+        <!-- ui provider -->
         <dependency>
             <groupId>org.skywalking</groupId>
             <artifactId>collector-ui-jetty-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- ui jetty provider -->
+        <!-- ui provider -->
     </dependencies>
 </project>

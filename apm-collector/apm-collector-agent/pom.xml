@@ -12,8 +12,17 @@
     <artifactId>apm-collector-agent</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>agent-jvm</module>
-        <module>agent-register</module>
-        <module>agent-tracing</module>
+        <module>collector-agent-define</module>
+        <module>collector-agent-jetty-provider</module>
+        <module>collector-agent-grpc-provider</module>
+        <module>collector-agent-stream</module>
     </modules>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>apm-collector-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>
