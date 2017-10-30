@@ -16,14 +16,13 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.grpc.manager.service;
+package org.skywalking.apm.plugin.spring.mvc.v4.define;
 
-import org.skywalking.apm.collector.core.module.Service;
-import org.skywalking.apm.collector.server.Server;
+public class ControllerInstrumentation extends AbstractControllerInstrumentation {
 
-/**
- * @author peng-yongsheng
- */
-public interface GRPCManagerService extends Service {
-    Server getOrCreateIfAbsent(String host, int port);
+    public static final String ENHANCE_ANNOTATION = "org.springframework.stereotype.Controller";
+
+    @Override protected String[] getEnhanceAnnotations() {
+        return new String[] {ENHANCE_ANNOTATION};
+    }
 }
