@@ -98,5 +98,17 @@
             <version>${project.version}</version>
         </dependency>
         <!-- ui provider -->
+        <!-- storage provider -->
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>collector-storage-es-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>collector-storage-h2-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- storage provider -->
     </dependencies>
 </project>

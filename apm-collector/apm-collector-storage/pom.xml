@@ -10,5 +10,23 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>apm-collector-storage</artifactId>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
+    <modules>
+        <module>collector-storage-define</module>
+        <module>collector-storage-es-provider</module>
+        <module>collector-storage-h2-provider</module>
+    </modules>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>apm-collector-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>persistence-component</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>
