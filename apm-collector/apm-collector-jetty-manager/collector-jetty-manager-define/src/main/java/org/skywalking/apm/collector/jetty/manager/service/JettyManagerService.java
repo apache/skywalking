@@ -25,5 +25,5 @@ import org.skywalking.apm.collector.server.Server;
  * @author peng-yongsheng
  */
 public interface JettyManagerService extends Service {
-    Server getElseCreateServer(String host, int port, String contextPath);
+    Server getOrCreateIfAbsent(String host, int port, String contextPath);
 }

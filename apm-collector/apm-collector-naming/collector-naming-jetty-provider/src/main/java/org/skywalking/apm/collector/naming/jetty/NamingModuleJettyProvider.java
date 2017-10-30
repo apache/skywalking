@@ -63,7 +63,7 @@ public class NamingModuleJettyProvider extends ModuleProvider {
 
         try {
             JettyManagerService managerService = getManager().find(JettyManagerModule.NAME).getService(JettyManagerService.class);
-            Server jettyServer = managerService.getElseCreateServer(host, port, contextPath);
+            Server jettyServer = managerService.getOrCreateIfAbsent(host, port, contextPath);
             handlers.forEach(jettyServer::addHandler);
         } catch (ModuleNotFoundException e) {
             throw new ServiceNotProvidedException(e.getMessage());

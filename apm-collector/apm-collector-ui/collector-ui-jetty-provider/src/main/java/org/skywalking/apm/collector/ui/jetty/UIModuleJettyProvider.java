@@ -63,7 +63,7 @@ public class UIModuleJettyProvider extends ModuleProvider {
         String contextPath = config.getProperty(CONTEXT_PATH);
         try {
             JettyManagerService managerService = getManager().find(JettyManagerModule.NAME).getService(JettyManagerService.class);
-            Server jettyServer = managerService.getElseCreateServer(host, port, contextPath);
+            Server jettyServer = managerService.getOrCreateIfAbsent(host, port, contextPath);
             jettyServer.addHandler(new ApplicationsGetHandler());
 
             ModuleRegisterService moduleRegisterService = getManager().find(ClusterModule.NAME).getService(ModuleRegisterService.class);
