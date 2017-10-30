@@ -29,27 +29,27 @@ public class SerialCollectorModule extends MemoryPoolModule {
         super(beans);
     }
 
-    @Override protected String getPermName() {
-        return "Perm Gen";
+    @Override protected String[] getPermNames() {
+        return new String[] {"Perm Gen"};
     }
 
-    @Override protected String getCodeCacheName() {
-        return "Code Cache";
+    @Override protected String[] getCodeCacheNames() {
+        return new String[] {"Code Cache"};
     }
 
-    @Override protected String getEdenName() {
-        return "Eden Space";
+    @Override protected String[] getEdenNames() {
+        return new String[] {"Eden Space"};
     }
 
-    @Override protected String getOldName() {
-        return "Tenured Gen";
+    @Override protected String[] getOldNames() {
+        return new String[] {"Tenured Gen"};
     }
 
-    @Override protected String getSurvivorName() {
-        return "Survivor Space";
+    @Override protected String[] getSurvivorNames() {
+        return new String[] {"Survivor Space"};
     }
 
-    @Override protected String getMetaspaceName() {
-        return "Metaspace";
+    @Override protected String[] getMetaspaceNames() {
+        return new String[] {"Metaspace"};
     }
 }
