@@ -9,19 +9,27 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>apm-collector-component</artifactId>
+    <artifactId>apm-collector-remote</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>client-component</module>
-        <module>server-component</module>
-        <module>queue-component</module>
-        <module>stream-component</module>
+        <module>collector-remote-define</module>
+        <module>collector-remote-grpc-define</module>
     </modules>
 
     <dependencies>
         <dependency>
             <groupId>org.skywalking</groupId>
             <artifactId>apm-collector-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>client-component</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>server-component</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
