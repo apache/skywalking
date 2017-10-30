@@ -16,7 +16,7 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.plugin.spring.mvc;
+package org.skywalking.apm.plugin.spring.mvc.v4;
 
 import java.lang.reflect.Method;
 import org.springframework.web.bind.annotation.DeleteMapping;

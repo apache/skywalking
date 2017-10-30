@@ -16,14 +16,16 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.plugin.spring.mvc.define;
+package org.skywalking.apm.plugin.spring.mvc.v4.define;
 
+import net.bytebuddy.matcher.ElementMatchers;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
+import org.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.skywalking.apm.agent.test.tools.TracingSegmentRunner;
 
@@ -32,23 +34,23 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
-public class RestControllerInstrumentationTest {
-    private RestControllerInstrumentation restControllerInstrumentation;
+public class ControllerInstrumentationTest {
+    private ControllerInstrumentation controllerInstrumentation;
 
     @Before
     public void setUp() throws Exception {
-        restControllerInstrumentation = new RestControllerInstrumentation();
+        controllerInstrumentation = new ControllerInstrumentation();
     }
 
     @Test
     public void testGetEnhanceAnnotations() throws Throwable {
-        Assert.assertArrayEquals(new String[] {restControllerInstrumentation.ENHANCE_ANNOTATION},
-            restControllerInstrumentation.getEnhanceAnnotations());
+        Assert.assertArrayEquals(new String[] {ControllerInstrumentation.ENHANCE_ANNOTATION},
+            controllerInstrumentation.getEnhanceAnnotations());
     }
 
     @Test
     public void testGetInstanceMethodsInterceptPoints() throws Throwable {
-        InstanceMethodsInterceptPoint[] methodPoints = restControllerInstrumentation.getInstanceMethodsInterceptPoints();
+        InstanceMethodsInterceptPoint[] methodPoints = controllerInstrumentation.getInstanceMethodsInterceptPoints();
         assertThat(methodPoints.length, is(2));
         assertThat(methodPoints[0].getMethodsInterceptor(), is("org.skywalking.apm.plugin.spring.mvc.RequestMappingMethodInterceptor"));
         assertThat(methodPoints[1].getMethodsInterceptor(), is("org.skywalking.apm.plugin.spring.mvc.RestMappingMethodInterceptor"));
@@ -59,5 +61,16 @@ public class RestControllerInstrumentationTest {
         Assert.assertNotNull(methodPoints[0].getMethodsMatcher());
         Assert.assertNotNull(methodPoints[1].getMethodsMatcher());
 
+    }
+
+    @Test
+    public void testGetConstructorsInterceptPoints() throws Throwable {
+        ConstructorInterceptPoint[] cips = controllerInstrumentation.getConstructorsInterceptPoints();
+        Assert.assertEquals(cips.length, 1);
+        ConstructorInterceptPoint cip = cips[0];
+        Assert.assertNotNull(cip);
+
+        Assert.assertEquals(cip.getConstructorInterceptor(), "org.skywalking.apm.plugin.spring.mvc.ControllerConstructorInterceptor");
+        Assert.assertTrue(cip.getConstructorMatcher().equals(ElementMatchers.any()));
     }
 }
