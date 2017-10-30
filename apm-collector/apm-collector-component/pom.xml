@@ -15,7 +15,6 @@
         <module>client-component</module>
         <module>server-component</module>
         <module>queue-component</module>
-        <module>persistence-component</module>
         <module>stream-component</module>
         <module>remote-component</module>
     </modules>
