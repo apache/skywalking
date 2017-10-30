@@ -51,7 +51,6 @@ public class ModuleAProvider extends ModuleProvider {
     public class Business1 implements BaseModuleA.ServiceABusiness1 {
 
         @Override public void print() {
-            System.out.println("ModuleA.Business1.print()");
         }
     }
 
