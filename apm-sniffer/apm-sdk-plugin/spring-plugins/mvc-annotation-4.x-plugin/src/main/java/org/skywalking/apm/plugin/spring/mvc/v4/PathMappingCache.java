@@ -16,14 +16,30 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.grpc.manager.service;
+package org.skywalking.apm.plugin.spring.mvc.v4;
 
-import org.skywalking.apm.collector.core.module.Service;
-import org.skywalking.apm.collector.server.Server;
+import java.lang.reflect.Method;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * @author peng-yongsheng
+ * The <code>PathMappingCache</code> represents a field
+ *
+ * @author wusheng
  */
-public interface GRPCManagerService extends Service {
-    Server getOrCreateIfAbsent(String host, int port);
+public class PathMappingCache {
+    private String classPath = "";
+
+    private ConcurrentHashMap<Method, String> methodPathMapping = new ConcurrentHashMap<Method, String>();
+
+    public PathMappingCache(String classPath) {
+        this.classPath = classPath;
+    }
+
+    public String findPathMapping(Method method) {
+        return methodPathMapping.get(method);
+    }
+
+    public void addPathMapping(Method method, String methodPath) {
+        methodPathMapping.put(method, classPath + methodPath);
+    }
 }

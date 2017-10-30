@@ -16,14 +16,21 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.grpc.manager.service;
+package org.skywalking.apm.plugin.jdbc.h2.define;
 
-import org.skywalking.apm.collector.core.module.Service;
-import org.skywalking.apm.collector.server.Server;
+import org.skywalking.apm.agent.core.plugin.match.ClassMatch;
+
+import static org.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * @author peng-yongsheng
+ * {@link JdbcConnectionInstrumentation} presents that skywalking intercepts {@link org.h2.jdbc.JdbcConnection}.
+ *
+ * @author zhangxin
  */
-public interface GRPCManagerService extends Service {
-    Server getOrCreateIfAbsent(String host, int port);
+public class JdbcConnectionInstrumentation extends AbstractConnectionInstrumentation {
+    public static final String ENHANCE_CLASS = "org.h2.jdbc.JdbcConnection";
+
+    @Override protected ClassMatch enhanceClass() {
+        return byName(ENHANCE_CLASS);
+    }
 }

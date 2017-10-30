@@ -16,14 +16,21 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.grpc.manager.service;
+package org.skywalking.apm.plugin.spring.mvc.v3.define;
 
-import org.skywalking.apm.collector.core.module.Service;
-import org.skywalking.apm.collector.server.Server;
+import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 
 /**
- * @author peng-yongsheng
+ * {@link AbstractSpring3Instrumentation} define witness classes of the spring mvc 3 plugin. all Instrumentations
+ * extends this class.
+ *
+ * @author zhangxin
  */
-public interface GRPCManagerService extends Service {
-    Server getOrCreateIfAbsent(String host, int port);
+public abstract class AbstractSpring3Instrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+
+    public static final String WITHNESS_CLASSES = "org.springframework.web.servlet.view.xslt.AbstractXsltView";
+
+    @Override protected final String[] witnessClasses() {
+        return new String[] {WITHNESS_CLASSES};
+    }
 }

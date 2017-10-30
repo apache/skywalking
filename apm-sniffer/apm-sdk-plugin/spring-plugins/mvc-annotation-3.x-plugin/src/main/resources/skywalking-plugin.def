@@ -1,0 +1,3 @@
+spring-mvc-annotation-3.x=org.skywalking.apm.plugin.spring.mvc.v3.define.ControllerInstrumentation
+spring-mvc-annotation-3.x=org.skywalking.apm.plugin.spring.mvc.v3.define.HandlerMethodInstrumentation
+spring-mvc-annotation-3.x=org.skywalking.apm.plugin.spring.mvc.v3.define.InvocableHandlerInstrumentation
