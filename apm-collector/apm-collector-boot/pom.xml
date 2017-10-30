@@ -110,5 +110,12 @@
             <version>${project.version}</version>
         </dependency>
         <!-- storage provider -->
+        <!-- remote provider -->
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>collector-remote-grpc-define</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- remote provider -->
     </dependencies>
 </project>
