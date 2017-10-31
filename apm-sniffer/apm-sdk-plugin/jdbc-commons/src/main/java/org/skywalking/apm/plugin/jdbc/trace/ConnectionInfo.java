@@ -32,21 +32,11 @@ public class ConnectionInfo {
      */
     private final String dbType;
     /**
-     * Database host name.
-     */
-    private String host;
-    /**
-     * Database port.
-     */
-    private int port;
-    /**
      * Operation database name.
      */
     private final String databaseName;
-    /**
-     * Database hosts.
-     */
-    private String hosts;
+
+    private String databasePeer;
 
     /**
      * Component
@@ -55,15 +45,14 @@ public class ConnectionInfo {
 
     public ConnectionInfo(OfficialComponent component, String dbType, String host, int port, String databaseName) {
         this.dbType = dbType;
-        this.host = host;
-        this.port = port;
+        this.databasePeer = host + ":" + port;
         this.databaseName = databaseName;
         this.component = component;
     }
 
     public ConnectionInfo(OfficialComponent component, String dbType, String hosts, String databaseName) {
         this.dbType = dbType;
-        this.hosts = hosts;
+        this.databasePeer = hosts;
         this.databaseName = databaseName;
         this.component = component;
     }
@@ -72,20 +61,12 @@ public class ConnectionInfo {
         return dbType;
     }
 
-    public String getHost() {
-        return host;
-    }
-
-    public int getPort() {
-        return port;
-    }
-
     public String getDatabaseName() {
         return databaseName;
     }
 
-    public String getHosts() {
-        return hosts;
+    public String getDatabasePeer() {
+        return databasePeer;
     }
 
     public OfficialComponent getComponent() {
