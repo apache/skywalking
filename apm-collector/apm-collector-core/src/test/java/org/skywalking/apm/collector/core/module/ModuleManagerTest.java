@@ -54,5 +54,23 @@ public class ModuleManagerTest {
         BaseModuleA.ServiceABusiness1 serviceABusiness1 = manager.find("BaseA").getService(BaseModuleA.ServiceABusiness1.class);
 
         Assert.assertTrue(serviceABusiness1 instanceof TracedService);
+
+//        for (int i = 0; i < 10000; i++)
+//            serviceABusiness1.print();
+//
+//        try {
+//            Thread.sleep(60 * 1000L);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+//
+//        for (int i = 0; i < 10000; i++)
+//            serviceABusiness1.print();
+//
+//        try {
+//            Thread.sleep(120 * 1000L);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
     }
 }
