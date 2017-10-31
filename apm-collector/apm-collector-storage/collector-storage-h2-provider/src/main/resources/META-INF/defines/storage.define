@@ -1,0 +1,16 @@
+org.skywalking.apm.collector.storage.h2.tabledefine.ApplicationH2TableDefine
+org.skywalking.apm.collector.storage.h2.tabledefine.InstanceH2TableDefine
+org.skywalking.apm.collector.storage.h2.tabledefine.ServiceNameH2TableDefine
+org.skywalking.apm.collector.storage.h2.tabledefine.CpuMetricH2TableDefine
+org.skywalking.apm.collector.storage.h2.tabledefine.GCMetricH2TableDefine
+org.skywalking.apm.collector.storage.h2.tabledefine.MemoryMetricH2TableDefine
+org.skywalking.apm.collector.storage.h2.tabledefine.MemoryPoolMetricH2TableDefine
+org.skywalking.apm.collector.storage.h2.tabledefine.GlobalTraceH2TableDefine
+org.skywalking.apm.collector.storage.h2.tabledefine.InstPerformanceH2TableDefine
+org.skywalking.apm.collector.storage.h2.tabledefine.NodeComponentH2TableDefine
+org.skywalking.apm.collector.storage.h2.tabledefine.NodeMappingH2TableDefine
+org.skywalking.apm.collector.storage.h2.tabledefine.NodeReferenceH2TableDefine
+org.skywalking.apm.collector.storage.h2.tabledefine.SegmentCostH2TableDefine
+org.skywalking.apm.collector.storage.h2.tabledefine.SegmentH2TableDefine
+org.skywalking.apm.collector.storage.h2.tabledefine.ServiceEntryH2TableDefine
+org.skywalking.apm.collector.storage.h2.tabledefine.ServiceReferenceH2TableDefine
