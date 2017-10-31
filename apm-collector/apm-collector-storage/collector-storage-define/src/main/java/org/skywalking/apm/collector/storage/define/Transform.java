@@ -18,7 +18,7 @@
 
 package org.skywalking.apm.collector.storage.define;
 
-import org.skywalking.apm.collector.remote.service.Data;
+import org.skywalking.apm.collector.core.data.Data;
 
 /**
  * @author peng-yongsheng

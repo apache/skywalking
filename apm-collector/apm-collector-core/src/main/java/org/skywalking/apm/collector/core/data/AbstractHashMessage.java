@@ -16,7 +16,7 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.remote.service;
+package org.skywalking.apm.collector.core.data;
 
 /**
  * The <code>AbstractHashMessage</code> implementations represent aggregate message,

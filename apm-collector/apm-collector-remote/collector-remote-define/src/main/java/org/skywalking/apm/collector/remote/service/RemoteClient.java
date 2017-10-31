@@ -18,6 +18,7 @@
 
 package org.skywalking.apm.collector.remote.service;
 
+import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.remote.RemoteDataMapping;
 
 /**

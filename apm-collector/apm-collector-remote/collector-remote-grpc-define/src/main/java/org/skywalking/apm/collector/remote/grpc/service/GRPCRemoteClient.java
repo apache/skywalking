@@ -23,7 +23,7 @@ import org.skywalking.apm.collector.remote.RemoteDataMapping;
 import org.skywalking.apm.collector.remote.RemoteDataMappingContainer;
 import org.skywalking.apm.collector.remote.grpc.proto.RemoteData;
 import org.skywalking.apm.collector.remote.grpc.proto.RemoteMessage;
-import org.skywalking.apm.collector.remote.service.Data;
+import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.remote.service.RemoteClient;
 
 /**

@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.remote.grpc.data.instance;
 import org.skywalking.apm.collector.remote.RemoteDataMapping;
 import org.skywalking.apm.collector.remote.grpc.data.GRPCData;
 import org.skywalking.apm.collector.remote.grpc.proto.RemoteData;
-import org.skywalking.apm.collector.remote.service.Data;
+import org.skywalking.apm.collector.core.data.Data;
 
 /**
  * @author peng-yongsheng
