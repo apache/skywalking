@@ -16,23 +16,25 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.remote;
+package org.skywalking.apm.collector.remote.grpc;
 
-import org.skywalking.apm.collector.core.module.Module;
-import org.skywalking.apm.collector.remote.service.RemoteServerService;
+import org.skywalking.apm.collector.cluster.ModuleRegistration;
+import org.skywalking.apm.collector.core.util.Const;
 
 /**
  * @author peng-yongsheng
  */
-public class RemoteModule extends Module {
+public class RemoteModuleGRPCRegistration extends ModuleRegistration {
 
-    public static final String NAME = "remote";
+    private final String host;
+    private final int port;
 
-    @Override public String name() {
-        return NAME;
+    public RemoteModuleGRPCRegistration(String host, int port) {
+        this.host = host;
+        this.port = port;
     }
 
-    @Override public Class[] services() {
-        return new Class[] {RemoteServerService.class};
+    @Override public Value buildValue() {
+        return new Value(host, port, Const.EMPTY_STRING);
     }
 }

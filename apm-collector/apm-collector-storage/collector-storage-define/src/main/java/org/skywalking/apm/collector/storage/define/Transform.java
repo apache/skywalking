@@ -16,23 +16,15 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.remote;
+package org.skywalking.apm.collector.storage.define;
 
-import org.skywalking.apm.collector.core.module.Module;
-import org.skywalking.apm.collector.remote.service.RemoteServerService;
+import org.skywalking.apm.collector.remote.service.Data;
 
 /**
  * @author peng-yongsheng
  */
-public class RemoteModule extends Module {
+public interface Transform<T> {
+    Data toData();
 
-    public static final String NAME = "remote";
-
-    @Override public String name() {
-        return NAME;
-    }
-
-    @Override public Class[] services() {
-        return new Class[] {RemoteServerService.class};
-    }
+    T toSelf(Data data);
 }

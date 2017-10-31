@@ -16,23 +16,20 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.remote;
-
-import org.skywalking.apm.collector.core.module.Module;
-import org.skywalking.apm.collector.remote.service.RemoteServerService;
+package org.skywalking.apm.collector.remote.service;
 
 /**
  * @author peng-yongsheng
  */
-public class RemoteModule extends Module {
+public class DataReceiverRegisterListener {
 
-    public static final String NAME = "remote";
+    private DataReceiver dataReceiver;
 
-    @Override public String name() {
-        return NAME;
+    public DataReceiver getDataReceiver() {
+        return dataReceiver;
     }
 
-    @Override public Class[] services() {
-        return new Class[] {RemoteServerService.class};
+    public void setDataReceiver(DataReceiver dataReceiver) {
+        this.dataReceiver = dataReceiver;
     }
 }

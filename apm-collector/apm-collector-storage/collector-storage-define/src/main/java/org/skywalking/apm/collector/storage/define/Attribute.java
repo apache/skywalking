@@ -16,23 +16,31 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.remote;
-
-import org.skywalking.apm.collector.core.module.Module;
-import org.skywalking.apm.collector.remote.service.RemoteServerService;
+package org.skywalking.apm.collector.storage.define;
 
 /**
  * @author peng-yongsheng
  */
-public class RemoteModule extends Module {
+public class Attribute {
+    private final String name;
+    private final AttributeType type;
+    private final Operation operation;
 
-    public static final String NAME = "remote";
-
-    @Override public String name() {
-        return NAME;
+    public Attribute(String name, AttributeType type, Operation operation) {
+        this.name = name;
+        this.type = type;
+        this.operation = operation;
     }
 
-    @Override public Class[] services() {
-        return new Class[] {RemoteServerService.class};
+    public String getName() {
+        return name;
+    }
+
+    public AttributeType getType() {
+        return type;
+    }
+
+    public Operation getOperation() {
+        return operation;
     }
 }

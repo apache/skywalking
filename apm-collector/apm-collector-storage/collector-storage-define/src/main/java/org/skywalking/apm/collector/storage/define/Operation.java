@@ -16,23 +16,21 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.remote;
-
-import org.skywalking.apm.collector.core.module.Module;
-import org.skywalking.apm.collector.remote.service.RemoteServerService;
+package org.skywalking.apm.collector.storage.define;
 
 /**
  * @author peng-yongsheng
  */
-public class RemoteModule extends Module {
+public interface Operation {
+    String operate(String newValue, String oldValue);
 
-    public static final String NAME = "remote";
+    Long operate(Long newValue, Long oldValue);
 
-    @Override public String name() {
-        return NAME;
-    }
+    Double operate(Double newValue, Double oldValue);
 
-    @Override public Class[] services() {
-        return new Class[] {RemoteServerService.class};
-    }
+    Integer operate(Integer newValue, Integer oldValue);
+
+    Boolean operate(Boolean newValue, Boolean oldValue);
+
+    byte[] operate(byte[] newValue, byte[] oldValue);
 }

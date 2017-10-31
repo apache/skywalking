@@ -16,23 +16,20 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.remote;
+package org.skywalking.apm.collector.storage.table.segment;
 
-import org.skywalking.apm.collector.core.module.Module;
-import org.skywalking.apm.collector.remote.service.RemoteServerService;
+import org.skywalking.apm.collector.storage.define.CommonTable;
 
 /**
  * @author peng-yongsheng
  */
-public class RemoteModule extends Module {
-
-    public static final String NAME = "remote";
-
-    @Override public String name() {
-        return NAME;
-    }
-
-    @Override public Class[] services() {
-        return new Class[] {RemoteServerService.class};
-    }
+public class SegmentCostTable extends CommonTable {
+    public static final String TABLE = "segment_cost";
+    public static final String COLUMN_SEGMENT_ID = "segment_id";
+    public static final String COLUMN_APPLICATION_ID = "application_id";
+    public static final String COLUMN_START_TIME = "start_time";
+    public static final String COLUMN_END_TIME = "end_time";
+    public static final String COLUMN_SERVICE_NAME = "service_name";
+    public static final String COLUMN_COST = "cost";
+    public static final String COLUMN_IS_ERROR = "is_error";
 }

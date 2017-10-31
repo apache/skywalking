@@ -16,26 +16,17 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.ui.jetty;
+package org.skywalking.apm.collector.storage.table.jvm;
 
-import org.skywalking.apm.collector.cluster.ModuleRegistration;
+import org.skywalking.apm.collector.storage.define.CommonTable;
 
 /**
  * @author peng-yongsheng
  */
-public class UIModuleRegistration extends ModuleRegistration {
-
-    private final String host;
-    private final int port;
-    private final String contextPath;
-
-    public UIModuleRegistration(String host, int port, String contextPath) {
-        this.host = host;
-        this.port = port;
-        this.contextPath = contextPath;
-    }
-
-    @Override public Value buildValue() {
-        return new Value(host, port, contextPath);
-    }
+public class GCMetricTable extends CommonTable {
+    public static final String TABLE = "gc_metric";
+    public static final String COLUMN_INSTANCE_ID = "instance_id";
+    public static final String COLUMN_PHRASE = "phrase";
+    public static final String COLUMN_COUNT = "count";
+    public static final String COLUMN_TIME = "time";
 }
