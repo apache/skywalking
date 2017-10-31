@@ -31,7 +31,7 @@ import java.util.ServiceLoader;
  */
 public class ModuleManager {
     private Map<String, Module> loadedModules = new HashMap<>();
-    private boolean isServiceInstrument = false;
+    private boolean isServiceInstrument = true;
 
     /**
      * Init the given modules
