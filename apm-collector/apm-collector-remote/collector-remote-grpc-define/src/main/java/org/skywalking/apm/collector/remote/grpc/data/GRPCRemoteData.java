@@ -18,16 +18,16 @@
 
 package org.skywalking.apm.collector.remote.grpc.data;
 
-import org.skywalking.apm.collector.remote.grpc.proto.RemoteData;
 import org.skywalking.apm.collector.core.data.Data;
+import org.skywalking.apm.collector.remote.grpc.proto.RemoteData;
 import org.skywalking.apm.collector.remote.service.SerializableAndDeserialize;
 
 /**
  * @author peng-yongsheng
  */
-public abstract class GRPCData implements SerializableAndDeserialize<RemoteData, RemoteData.Builder> {
+public abstract class GRPCRemoteData implements SerializableAndDeserialize<RemoteData, RemoteData.Builder> {
 
-    protected Data build(RemoteData remoteData) {
+    protected final Data build(RemoteData remoteData) {
         return new Data(remoteData.getDataStrings(0), remoteData.getStringCapacity(), remoteData.getLongCapacity(), remoteData.getDoubleCapacity(), remoteData.getIntegerCapacity(), remoteData.getBooleanCapacity(), remoteData.getByteCapacity());
     }
 }

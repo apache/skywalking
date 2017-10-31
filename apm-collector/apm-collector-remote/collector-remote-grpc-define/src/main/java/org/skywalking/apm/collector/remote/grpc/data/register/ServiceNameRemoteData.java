@@ -16,40 +16,37 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.remote.grpc.data.instance;
+package org.skywalking.apm.collector.remote.grpc.data.register;
 
-import org.skywalking.apm.collector.remote.RemoteDataMapping;
-import org.skywalking.apm.collector.remote.grpc.data.GRPCData;
-import org.skywalking.apm.collector.remote.grpc.proto.RemoteData;
 import org.skywalking.apm.collector.core.data.Data;
+import org.skywalking.apm.collector.remote.RemoteDataMapping;
+import org.skywalking.apm.collector.remote.grpc.data.GRPCRemoteData;
+import org.skywalking.apm.collector.remote.grpc.proto.RemoteData;
 
 /**
  * @author peng-yongsheng
  */
-public class InstPerformanceData extends GRPCData {
+public class ServiceNameRemoteData extends GRPCRemoteData {
 
     @Override public RemoteDataMapping mapping() {
-        return RemoteDataMapping.InstPerformance;
-    }
-
-    @Override public Data deserialize(RemoteData remoteData) {
-        Data data = build(remoteData);
-        data.setDataInteger(0, remoteData.getDataIntegers(0));
-        data.setDataInteger(1, remoteData.getDataIntegers(1));
-        data.setDataInteger(2, remoteData.getDataIntegers(2));
-        data.setDataLong(0, remoteData.getDataLongs(0));
-        data.setDataLong(1, remoteData.getDataLongs(1));
-        return data;
+        return RemoteDataMapping.ServiceName;
     }
 
     @Override public RemoteData.Builder serialize(Data data) {
         RemoteData.Builder builder = RemoteData.newBuilder();
         builder.addDataStrings(data.getDataString(0));
+        builder.addDataStrings(data.getDataString(1));
         builder.addDataIntegers(data.getDataInteger(0));
         builder.addDataIntegers(data.getDataInteger(1));
-        builder.addDataIntegers(data.getDataInteger(2));
-        builder.addDataLongs(data.getDataLong(0));
-        builder.addDataLongs(data.getDataLong(1));
         return builder;
+    }
+
+    @Override public Data deserialize(RemoteData remoteData) {
+        Data data = build(remoteData);
+        data.setDataString(0, remoteData.getDataStrings(0));
+        data.setDataString(1, remoteData.getDataStrings(1));
+        data.setDataInteger(0, remoteData.getDataIntegers(0));
+        data.setDataInteger(1, remoteData.getDataIntegers(1));
+        return data;
     }
 }
