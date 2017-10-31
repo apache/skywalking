@@ -65,7 +65,7 @@ public class RemoteModuleGRPCProvider extends ModuleProvider {
     }
 
     @Override public String[] requiredModules() {
-        return new String[0];
+        return new String[] {ClusterModule.NAME, GRPCManagerModule.NAME};
     }
 
     private RemoteDataMappingContainer loadMapping() {
