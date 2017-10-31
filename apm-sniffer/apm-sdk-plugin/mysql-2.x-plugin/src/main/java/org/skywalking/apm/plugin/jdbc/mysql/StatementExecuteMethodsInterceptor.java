@@ -16,7 +16,7 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.plugin.jdbc;
+package org.skywalking.apm.plugin.jdbc.mysql;
 
 import java.lang.reflect.Method;
 import org.skywalking.apm.agent.core.context.ContextManager;
@@ -26,40 +26,53 @@ import org.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.skywalking.apm.plugin.jdbc.mysql.define.StatementEnhanceInfos;
 import org.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
 /**
- * {@link ConnectionServiceMethodInterceptor} create an exit span when the client call the following methods in the
- * class that extend {@link java.sql.Connection}. 1. close 2. rollback 3. releaseSavepoint 4. commit
+ * {@link StatementExecuteMethodsInterceptor} create the exit span when the client call the interceptor methods.
  *
  * @author zhangxin
  */
-public class ConnectionServiceMethodInterceptor implements InstanceMethodsAroundInterceptor {
-
+public class StatementExecuteMethodsInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public final void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-        ConnectionInfo connectInfo = (ConnectionInfo)objInst.getSkyWalkingDynamicField();
-        AbstractSpan span = ContextManager.createExitSpan(connectInfo.getDBType() + "/JDBI/Connection/" + method.getName(), connectInfo.getDatabasePeer());
-        Tags.DB_TYPE.set(span, "sql");
-        Tags.DB_INSTANCE.set(span, connectInfo.getDatabaseName());
-        Tags.DB_STATEMENT.set(span, "");
-        span.setComponent(connectInfo.getComponent());
-        SpanLayer.asDB(span);
+        StatementEnhanceInfos cacheObject = (StatementEnhanceInfos)objInst.getSkyWalkingDynamicField();
+        ConnectionInfo connectInfo = cacheObject.getConnectionInfo();
+        if (connectInfo != null) {
+
+            AbstractSpan span = ContextManager.createExitSpan(buildOperationName(connectInfo, method.getName(), cacheObject.getStatementName()), connectInfo.getDatabasePeer());
+            Tags.DB_TYPE.set(span, "sql");
+            Tags.DB_INSTANCE.set(span, connectInfo.getDatabaseName());
+            Tags.DB_STATEMENT.set(span, cacheObject.getSql());
+            span.setComponent(connectInfo.getComponent());
+
+            SpanLayer.asDB(span);
+        }
     }
 
     @Override
     public final Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
-        ContextManager.stopSpan();
+        StatementEnhanceInfos cacheObject = (StatementEnhanceInfos)objInst.getSkyWalkingDynamicField();
+        if (cacheObject.getConnectionInfo() != null) {
+            ContextManager.stopSpan();
+        }
         return ret;
     }
 
     @Override public final void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+        StatementEnhanceInfos cacheObject = (StatementEnhanceInfos)objInst.getSkyWalkingDynamicField();
+        if (cacheObject.getConnectionInfo() != null) {
+            ContextManager.activeSpan().errorOccurred().log(t);
+        }
     }
 
+    private String buildOperationName(ConnectionInfo connectionInfo, String methodName, String statementName) {
+        return connectionInfo.getDBType() + "/JDBI/" + statementName + "/" + methodName;
+    }
 }

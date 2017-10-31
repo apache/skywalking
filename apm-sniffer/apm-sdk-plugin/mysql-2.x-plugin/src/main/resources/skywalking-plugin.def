@@ -1,2 +1,6 @@
 mysql=org.skywalking.apm.plugin.jdbc.mysql.define.DriverInstrumentation
 mysql=org.skywalking.apm.plugin.jdbc.mysql.define.ConnectionInstrumentation
+mysql=org.skywalking.apm.plugin.jdbc.mysql.define.CallableInstrumentation
+mysql=org.skywalking.apm.plugin.jdbc.mysql.define.PreparedStatementInstrumentation
+mysql=org.skywalking.apm.plugin.jdbc.mysql.define.JDBC42PreparedStatementInstrumentation
+mysql=org.skywalking.apm.plugin.jdbc.mysql.define.StatementInstrumentation

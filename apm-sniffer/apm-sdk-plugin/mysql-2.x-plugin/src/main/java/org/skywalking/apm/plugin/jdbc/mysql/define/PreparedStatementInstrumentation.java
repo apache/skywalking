@@ -19,18 +19,20 @@
 package org.skywalking.apm.plugin.jdbc.mysql.define;
 
 import org.skywalking.apm.agent.core.plugin.match.ClassMatch;
-import org.skywalking.apm.plugin.jdbc.define.AbstractDriverInstrumentation;
 
 import static org.skywalking.apm.plugin.jdbc.mysql.define.MultiClassNameMatch.byMultiClassMath;
 
 /**
- * {@link DriverInstrumentation} presents that skywalking intercepts {@link com.mysql.jdbc.Driver}.
+ * {@link JDBC42PreparedStatementInstrumentation} intercepts {@link com.mysql.jdbc.PreparedStatement} class.
  *
  * @author zhangxin
  */
-public class DriverInstrumentation extends AbstractDriverInstrumentation {
-    @Override
-    protected ClassMatch enhanceClass() {
-        return byMultiClassMath("com.mysql.jdbc.Driver", "com.mysql.cj.jdbc.Driver");
+public class PreparedStatementInstrumentation extends AbstractPreparedStatementInstrumentation {
+
+    private static final String ENHANCE_CLASS = "com.mysql.jdbc.PreparedStatement";
+
+    @Override protected ClassMatch enhanceClass() {
+        return byMultiClassMath(ENHANCE_CLASS, "com.mysql.cj.jdbc.PreparedStatement");
     }
+
 }

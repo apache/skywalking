@@ -27,21 +27,18 @@ import org.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
-import static org.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 import static org.skywalking.apm.plugin.jdbc.define.Constants.CLOSE_METHOD_NAME;
 import static org.skywalking.apm.plugin.jdbc.define.Constants.COMMIT_METHOD_NAME;
-import static org.skywalking.apm.plugin.jdbc.define.Constants.CREATE_STATEMENT_INTERCEPT_CLASS;
 import static org.skywalking.apm.plugin.jdbc.define.Constants.CREATE_STATEMENT_METHOD_NAME;
-import static org.skywalking.apm.plugin.jdbc.define.Constants.PREPARE_CALL_INTERCEPT_CLASS;
 import static org.skywalking.apm.plugin.jdbc.define.Constants.PREPARE_CALL_METHOD_NAME;
-import static org.skywalking.apm.plugin.jdbc.define.Constants.PREPARE_STATEMENT_INTERCEPT_CLASS;
 import static org.skywalking.apm.plugin.jdbc.define.Constants.PREPARE_STATEMENT_METHOD_NAME;
 import static org.skywalking.apm.plugin.jdbc.define.Constants.RELEASE_SAVE_POINT_METHOD_NAME;
 import static org.skywalking.apm.plugin.jdbc.define.Constants.ROLLBACK_METHOD_NAME;
 import static org.skywalking.apm.plugin.jdbc.define.Constants.SERVICE_METHOD_INTERCEPT_CLASS;
+import static org.skywalking.apm.plugin.jdbc.mysql.define.MultiClassNameMatch.byMultiClassMath;
 
 /**
- * {@link ConnectionInstrumentation} intercept the following methods that the class which extend {@link
+ * {@link ConnectionInstrumentation} intercepts the following methods that the class which extend {@link
  * com.mysql.jdbc.ConnectionImpl}. <br/>
  *
  * 1. Enhance <code>prepareStatement</code> by <code>org.skywalking.apm.plugin.jdbc.define.JDBCPrepareStatementInterceptor</code>
@@ -67,7 +64,7 @@ public class ConnectionInstrumentation extends ClassInstanceMethodsEnhancePlugin
                 }
 
                 @Override public String getMethodsInterceptor() {
-                    return PREPARE_STATEMENT_INTERCEPT_CLASS;
+                    return "org.skywalking.apm.plugin.jdbc.mysql.CreatePreparedStatementInterceptor";
                 }
 
                 @Override public boolean isOverrideArgs() {
@@ -80,7 +77,7 @@ public class ConnectionInstrumentation extends ClassInstanceMethodsEnhancePlugin
                 }
 
                 @Override public String getMethodsInterceptor() {
-                    return PREPARE_CALL_INTERCEPT_CLASS;
+                    return "org.skywalking.apm.plugin.jdbc.mysql.CreateCallableStatementInterceptor";
                 }
 
                 @Override public boolean isOverrideArgs() {
@@ -93,7 +90,7 @@ public class ConnectionInstrumentation extends ClassInstanceMethodsEnhancePlugin
                 }
 
                 @Override public String getMethodsInterceptor() {
-                    return CREATE_STATEMENT_INTERCEPT_CLASS;
+                    return "org.skywalking.apm.plugin.jdbc.mysql.CreateStatementInterceptor";
                 }
 
                 @Override public boolean isOverrideArgs() {
@@ -118,6 +115,6 @@ public class ConnectionInstrumentation extends ClassInstanceMethodsEnhancePlugin
     }
 
     @Override protected ClassMatch enhanceClass() {
-        return byName(ENHANCE_CLASS);
+        return byMultiClassMath(ENHANCE_CLASS, "com.mysql.cj.jdbc.ConnectionImpl");
     }
 }
