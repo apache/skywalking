@@ -67,7 +67,7 @@ public class UIModuleJettyProvider extends ModuleProvider {
             jettyServer.addHandler(new ApplicationsGetHandler());
 
             ModuleRegisterService moduleRegisterService = getManager().find(ClusterModule.NAME).getService(ModuleRegisterService.class);
-            moduleRegisterService.register(UIModule.NAME, this.name(), new UIModuleRegistration(host, port, contextPath));
+            moduleRegisterService.register(UIModule.NAME, this.name(), new UIModuleJettyRegistration(host, port, contextPath));
 
             UIJettyNamingListener namingListener = new UIJettyNamingListener();
             ModuleListenerService moduleListenerService = getManager().find(ClusterModule.NAME).getService(ModuleListenerService.class);

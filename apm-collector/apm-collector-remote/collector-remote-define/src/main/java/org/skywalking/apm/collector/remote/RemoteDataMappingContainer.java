@@ -18,21 +18,22 @@
 
 package org.skywalking.apm.collector.remote;
 
-import org.skywalking.apm.collector.core.module.Module;
-import org.skywalking.apm.collector.remote.service.RemoteServerService;
+import java.util.HashMap;
+import java.util.Map;
+import org.skywalking.apm.collector.remote.service.SerializableAndDeserialize;
 
 /**
  * @author peng-yongsheng
  */
-public class RemoteModule extends Module {
+public class RemoteDataMappingContainer {
 
-    public static final String NAME = "remote";
+    private Map<Integer, SerializableAndDeserialize> mapping = new HashMap<>();
 
-    @Override public String name() {
-        return NAME;
+    public void addMapping(SerializableAndDeserialize instance) {
+        mapping.put(instance.mapping().ordinal(), instance);
     }
 
-    @Override public Class[] services() {
-        return new Class[] {RemoteServerService.class};
+    public SerializableAndDeserialize get(Integer mappingId) {
+        return mapping.get(mappingId);
     }
 }

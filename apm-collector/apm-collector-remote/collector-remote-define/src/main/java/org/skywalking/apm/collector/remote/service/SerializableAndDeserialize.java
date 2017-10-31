@@ -16,23 +16,18 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.remote;
+package org.skywalking.apm.collector.remote.service;
 
-import org.skywalking.apm.collector.core.module.Module;
-import org.skywalking.apm.collector.remote.service.RemoteServerService;
+import org.skywalking.apm.collector.remote.RemoteDataMapping;
 
 /**
  * @author peng-yongsheng
  */
-public class RemoteModule extends Module {
+public interface SerializableAndDeserialize<T, B> {
 
-    public static final String NAME = "remote";
+    RemoteDataMapping mapping();
 
-    @Override public String name() {
-        return NAME;
-    }
+    Data deserialize(T remoteData);
 
-    @Override public Class[] services() {
-        return new Class[] {RemoteServerService.class};
-    }
+    B serialize(Data data);
 }

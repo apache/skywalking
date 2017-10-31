@@ -16,23 +16,18 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.remote;
+package org.skywalking.apm.collector.remote.grpc.data;
 
-import org.skywalking.apm.collector.core.module.Module;
-import org.skywalking.apm.collector.remote.service.RemoteServerService;
+import org.skywalking.apm.collector.remote.grpc.proto.RemoteData;
+import org.skywalking.apm.collector.remote.service.Data;
+import org.skywalking.apm.collector.remote.service.SerializableAndDeserialize;
 
 /**
  * @author peng-yongsheng
  */
-public class RemoteModule extends Module {
+public abstract class GRPCData implements SerializableAndDeserialize<RemoteData, RemoteData.Builder> {
 
-    public static final String NAME = "remote";
-
-    @Override public String name() {
-        return NAME;
-    }
-
-    @Override public Class[] services() {
-        return new Class[] {RemoteServerService.class};
+    protected Data build(RemoteData remoteData) {
+        return new Data(remoteData.getDataStrings(0), remoteData.getStringCapacity(), remoteData.getLongCapacity(), remoteData.getDoubleCapacity(), remoteData.getIntegerCapacity(), remoteData.getBooleanCapacity(), remoteData.getByteCapacity());
     }
 }

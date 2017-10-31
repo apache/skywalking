@@ -16,23 +16,15 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.remote;
+package org.skywalking.apm.collector.storage.table.jvm;
 
-import org.skywalking.apm.collector.core.module.Module;
-import org.skywalking.apm.collector.remote.service.RemoteServerService;
+import org.skywalking.apm.collector.storage.define.CommonTable;
 
 /**
  * @author peng-yongsheng
  */
-public class RemoteModule extends Module {
-
-    public static final String NAME = "remote";
-
-    @Override public String name() {
-        return NAME;
-    }
-
-    @Override public Class[] services() {
-        return new Class[] {RemoteServerService.class};
-    }
+public class CpuMetricTable extends CommonTable {
+    public static final String TABLE = "cpu_metric";
+    public static final String COLUMN_INSTANCE_ID = "instance_id";
+    public static final String COLUMN_USAGE_PERCENT = "usage_percent";
 }

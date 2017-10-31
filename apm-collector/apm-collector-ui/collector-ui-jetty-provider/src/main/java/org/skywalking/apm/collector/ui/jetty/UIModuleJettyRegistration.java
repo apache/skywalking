@@ -16,23 +16,26 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.remote;
+package org.skywalking.apm.collector.ui.jetty;
 
-import org.skywalking.apm.collector.core.module.Module;
-import org.skywalking.apm.collector.remote.service.RemoteServerService;
+import org.skywalking.apm.collector.cluster.ModuleRegistration;
 
 /**
  * @author peng-yongsheng
  */
-public class RemoteModule extends Module {
+public class UIModuleJettyRegistration extends ModuleRegistration {
 
-    public static final String NAME = "remote";
+    private final String host;
+    private final int port;
+    private final String contextPath;
 
-    @Override public String name() {
-        return NAME;
+    public UIModuleJettyRegistration(String host, int port, String contextPath) {
+        this.host = host;
+        this.port = port;
+        this.contextPath = contextPath;
     }
 
-    @Override public Class[] services() {
-        return new Class[] {RemoteServerService.class};
+    @Override public Value buildValue() {
+        return new Value(host, port, contextPath);
     }
 }
