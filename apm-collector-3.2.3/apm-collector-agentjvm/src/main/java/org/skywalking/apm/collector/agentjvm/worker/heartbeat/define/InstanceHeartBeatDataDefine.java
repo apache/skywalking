@@ -23,10 +23,10 @@ import org.skywalking.apm.collector.core.stream.Transform;
 import org.skywalking.apm.collector.core.stream.operate.CoverOperation;
 import org.skywalking.apm.collector.core.stream.operate.NonOperation;
 import org.skywalking.apm.collector.remote.grpc.proto.RemoteData;
-import org.skywalking.apm.collector.storage.define.Attribute;
-import org.skywalking.apm.collector.storage.define.AttributeType;
-import org.skywalking.apm.collector.storage.define.DataDefine;
-import org.skywalking.apm.collector.storage.define.register.InstanceTable;
+import org.skywalking.apm.collector.storage.base.define.Attribute;
+import org.skywalking.apm.collector.storage.base.define.AttributeType;
+import org.skywalking.apm.collector.storage.base.define.DataDefine;
+import org.skywalking.apm.collector.storage.base.define.register.InstanceTable;
 
 /**
  * @author peng-yongsheng

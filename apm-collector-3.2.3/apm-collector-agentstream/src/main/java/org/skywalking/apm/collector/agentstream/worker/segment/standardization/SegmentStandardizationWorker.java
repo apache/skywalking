@@ -20,7 +20,7 @@ package org.skywalking.apm.collector.agentstream.worker.segment.standardization;
 
 import org.skywalking.apm.collector.agentstream.worker.segment.buffer.SegmentBufferManager;
 import org.skywalking.apm.collector.core.queue.EndOfBatchCommand;
-import org.skywalking.apm.collector.storage.define.DataDefine;
+import org.skywalking.apm.collector.storage.base.define.DataDefine;
 import org.skywalking.apm.collector.stream.worker.AbstractLocalAsyncWorker;
 import org.skywalking.apm.collector.stream.worker.AbstractLocalAsyncWorkerProvider;
 import org.skywalking.apm.collector.stream.worker.ClusterWorkerContext;

@@ -18,7 +18,7 @@
 
 package org.skywalking.apm.collector.agentstream.worker.node.mapping.define;
 
-import org.skywalking.apm.collector.storage.define.node.NodeMappingTable;
+import org.skywalking.apm.collector.storage.base.define.node.NodeMappingTable;
 import org.skywalking.apm.collector.storage.elasticsearch.define.ElasticSearchColumnDefine;
 import org.skywalking.apm.collector.storage.elasticsearch.define.ElasticSearchTableDefine;
 

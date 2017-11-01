@@ -32,7 +32,7 @@ import org.elasticsearch.search.aggregations.metrics.sum.Sum;
 import org.skywalking.apm.collector.cache.ServiceNameCache;
 import org.skywalking.apm.collector.core.util.ColumnNameUtils;
 import org.skywalking.apm.collector.core.util.Const;
-import org.skywalking.apm.collector.storage.define.serviceref.ServiceReferenceTable;
+import org.skywalking.apm.collector.storage.base.define.serviceref.ServiceReferenceTable;
 import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

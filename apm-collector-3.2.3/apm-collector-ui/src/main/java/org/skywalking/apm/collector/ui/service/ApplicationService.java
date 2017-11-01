@@ -19,7 +19,7 @@
 package org.skywalking.apm.collector.ui.service;
 
 import com.google.gson.JsonArray;
-import org.skywalking.apm.collector.storage.dao.DAOContainer;
+import org.skywalking.apm.collector.storage.base.dao.DAOContainer;
 import org.skywalking.apm.collector.ui.dao.IInstanceDAO;
 
 /**

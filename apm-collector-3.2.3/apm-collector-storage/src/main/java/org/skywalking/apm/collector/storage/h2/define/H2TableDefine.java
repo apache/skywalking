@@ -16,7 +16,7 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.storage.h2.define;
+package org.skywalking.apm.collector.storage.h2.base.define;
 
 import org.skywalking.apm.collector.core.storage.TableDefine;
 

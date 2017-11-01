@@ -16,9 +16,9 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.storage.define.global;
+package org.skywalking.apm.collector.storage.base.define.global;
 
-import org.skywalking.apm.collector.storage.define.CommonTable;
+import org.skywalking.apm.collector.storage.base.define.CommonTable;
 
 /**
  * @author peng-yongsheng

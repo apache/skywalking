@@ -22,7 +22,7 @@ import com.google.gson.JsonObject;
 import java.util.LinkedList;
 import java.util.List;
 import org.skywalking.apm.collector.core.util.StringUtils;
-import org.skywalking.apm.collector.storage.dao.DAOContainer;
+import org.skywalking.apm.collector.storage.base.dao.DAOContainer;
 import org.skywalking.apm.collector.ui.dao.IGlobalTraceDAO;
 import org.skywalking.apm.collector.ui.dao.ISegmentCostDAO;
 import org.slf4j.Logger;

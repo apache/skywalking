@@ -18,7 +18,7 @@
 
 package org.skywalking.apm.collector.agentstream.worker.service.entry.define;
 
-import org.skywalking.apm.collector.storage.define.service.ServiceEntryTable;
+import org.skywalking.apm.collector.storage.base.define.service.ServiceEntryTable;
 import org.skywalking.apm.collector.storage.elasticsearch.define.ElasticSearchColumnDefine;
 import org.skywalking.apm.collector.storage.elasticsearch.define.ElasticSearchTableDefine;
 

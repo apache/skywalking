@@ -16,7 +16,7 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.storage.dao;
+package org.skywalking.apm.collector.storage.base.dao;
 
 import org.skywalking.apm.collector.core.client.Client;
 

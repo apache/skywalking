@@ -18,7 +18,7 @@
 
 package org.skywalking.apm.collector.agentstream.worker.serviceref.define;
 
-import org.skywalking.apm.collector.storage.define.serviceref.ServiceReferenceTable;
+import org.skywalking.apm.collector.storage.base.define.serviceref.ServiceReferenceTable;
 import org.skywalking.apm.collector.storage.elasticsearch.define.ElasticSearchColumnDefine;
 import org.skywalking.apm.collector.storage.elasticsearch.define.ElasticSearchTableDefine;
 

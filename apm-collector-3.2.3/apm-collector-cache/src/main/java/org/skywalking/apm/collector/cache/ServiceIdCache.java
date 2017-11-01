@@ -22,7 +22,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.skywalking.apm.collector.cache.dao.IServiceNameCacheDAO;
 import org.skywalking.apm.collector.core.util.Const;
-import org.skywalking.apm.collector.storage.dao.DAOContainer;
+import org.skywalking.apm.collector.storage.base.dao.DAOContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

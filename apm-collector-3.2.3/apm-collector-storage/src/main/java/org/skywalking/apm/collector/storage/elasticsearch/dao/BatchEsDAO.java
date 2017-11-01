@@ -24,7 +24,7 @@ import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
 import org.skywalking.apm.collector.core.util.CollectionUtils;
-import org.skywalking.apm.collector.storage.dao.IBatchDAO;
+import org.skywalking.apm.collector.storage.base.dao.IBatchDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

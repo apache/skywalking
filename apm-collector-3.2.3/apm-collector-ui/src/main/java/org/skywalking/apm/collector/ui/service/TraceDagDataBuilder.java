@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.skywalking.apm.collector.core.util.Const;
-import org.skywalking.apm.collector.storage.define.noderef.NodeReferenceTable;
+import org.skywalking.apm.collector.storage.base.define.noderef.NodeReferenceTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

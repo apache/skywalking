@@ -18,7 +18,7 @@
 
 package org.skywalking.apm.collector.agentstream.worker.noderef.define;
 
-import org.skywalking.apm.collector.storage.define.noderef.NodeReferenceTable;
+import org.skywalking.apm.collector.storage.base.define.noderef.NodeReferenceTable;
 import org.skywalking.apm.collector.storage.elasticsearch.define.ElasticSearchColumnDefine;
 import org.skywalking.apm.collector.storage.elasticsearch.define.ElasticSearchTableDefine;
 

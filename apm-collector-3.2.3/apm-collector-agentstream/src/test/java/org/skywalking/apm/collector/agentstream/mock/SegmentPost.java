@@ -31,10 +31,10 @@ import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.core.CollectorException;
 import org.skywalking.apm.collector.core.config.SystemConfig;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
-import org.skywalking.apm.collector.storage.dao.DAOContainer;
-import org.skywalking.apm.collector.storage.define.register.ApplicationDataDefine;
-import org.skywalking.apm.collector.storage.define.register.InstanceDataDefine;
-import org.skywalking.apm.collector.storage.define.register.ServiceNameDataDefine;
+import org.skywalking.apm.collector.storage.base.dao.DAOContainer;
+import org.skywalking.apm.collector.storage.base.define.register.ApplicationDataDefine;
+import org.skywalking.apm.collector.storage.base.define.register.InstanceDataDefine;
+import org.skywalking.apm.collector.storage.base.define.register.ServiceNameDataDefine;
 import org.skywalking.apm.collector.storage.elasticsearch.StorageElasticSearchModuleDefine;
 import org.skywalking.apm.collector.storage.h2.StorageH2ModuleDefine;
 

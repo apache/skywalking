@@ -18,9 +18,9 @@
 
 package org.skywalking.apm.collector.agentstream.worker.segment.origin.define;
 
-import org.skywalking.apm.collector.storage.define.segment.SegmentTable;
-import org.skywalking.apm.collector.storage.h2.define.H2ColumnDefine;
-import org.skywalking.apm.collector.storage.h2.define.H2TableDefine;
+import org.skywalking.apm.collector.storage.base.define.segment.SegmentTable;
+import org.skywalking.apm.collector.storage.h2.base.define.H2ColumnDefine;
+import org.skywalking.apm.collector.storage.h2.base.define.H2TableDefine;
 
 /**
  * @author peng-yongsheng

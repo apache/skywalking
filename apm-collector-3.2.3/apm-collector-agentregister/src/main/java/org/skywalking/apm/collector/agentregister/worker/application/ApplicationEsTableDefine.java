@@ -18,7 +18,7 @@
 
 package org.skywalking.apm.collector.agentregister.worker.application;
 
-import org.skywalking.apm.collector.storage.define.register.ApplicationTable;
+import org.skywalking.apm.collector.storage.base.define.register.ApplicationTable;
 import org.skywalking.apm.collector.storage.elasticsearch.define.ElasticSearchColumnDefine;
 import org.skywalking.apm.collector.storage.elasticsearch.define.ElasticSearchTableDefine;
 

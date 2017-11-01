@@ -19,7 +19,7 @@
 package org.skywalking.apm.collector.cache.dao;
 
 import org.elasticsearch.action.get.GetResponse;
-import org.skywalking.apm.collector.storage.define.register.InstanceTable;
+import org.skywalking.apm.collector.storage.base.define.register.InstanceTable;
 import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

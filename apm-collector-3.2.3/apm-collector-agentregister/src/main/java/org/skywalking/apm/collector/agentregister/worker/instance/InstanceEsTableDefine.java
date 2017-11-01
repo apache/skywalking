@@ -18,7 +18,7 @@
 
 package org.skywalking.apm.collector.agentregister.worker.instance;
 
-import org.skywalking.apm.collector.storage.define.register.InstanceTable;
+import org.skywalking.apm.collector.storage.base.define.register.InstanceTable;
 import org.skywalking.apm.collector.storage.elasticsearch.define.ElasticSearchColumnDefine;
 import org.skywalking.apm.collector.storage.elasticsearch.define.ElasticSearchTableDefine;
 

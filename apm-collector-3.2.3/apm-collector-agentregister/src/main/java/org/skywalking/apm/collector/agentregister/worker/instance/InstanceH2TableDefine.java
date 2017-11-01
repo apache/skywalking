@@ -18,9 +18,9 @@
 
 package org.skywalking.apm.collector.agentregister.worker.instance;
 
-import org.skywalking.apm.collector.storage.define.register.InstanceTable;
-import org.skywalking.apm.collector.storage.h2.define.H2ColumnDefine;
-import org.skywalking.apm.collector.storage.h2.define.H2TableDefine;
+import org.skywalking.apm.collector.storage.base.define.register.InstanceTable;
+import org.skywalking.apm.collector.storage.h2.base.define.H2ColumnDefine;
+import org.skywalking.apm.collector.storage.h2.base.define.H2TableDefine;
 
 /**
  * @author peng-yongsheng
