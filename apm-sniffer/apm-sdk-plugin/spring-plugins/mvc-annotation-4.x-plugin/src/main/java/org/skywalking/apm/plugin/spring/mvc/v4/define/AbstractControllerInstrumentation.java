@@ -35,10 +35,10 @@ import static org.skywalking.apm.agent.core.plugin.match.ClassAnnotationMatch.by
  * <code>org.springframework.web.bind.annotation.RequestMapping</code> that class has
  * <code>org.springframework.stereotype.Controller</code> annotation.
  *
- * <code>org.skywalking.apm.plugin.spring.mvc.ControllerConstructorInterceptor</code> set the controller base path to
+ * <code>org.skywalking.apm.plugin.spring.mvc.v4.ControllerConstructorInterceptor</code> set the controller base path to
  * dynamic field before execute constructor.
  *
- * <code>org.skywalking.apm.plugin.spring.mvc.RequestMappingMethodInterceptor</code> get the request path from
+ * <code>org.skywalking.apm.plugin.spring.mvc.v4.RequestMappingMethodInterceptor</code> get the request path from
  * dynamic field first, if not found, <code>RequestMappingMethodInterceptor</code> generate request path  that
  * combine the path value of current annotation on current method and the base path and set the new path to the dynamic
  * filed
@@ -57,7 +57,7 @@ public abstract class AbstractControllerInstrumentation extends ClassInstanceMet
 
                 @Override
                 public String getConstructorInterceptor() {
-                    return "org.skywalking.apm.plugin.spring.mvc.ControllerConstructorInterceptor";
+                    return "org.skywalking.apm.plugin.spring.mvc.v4.ControllerConstructorInterceptor";
                 }
             }
         };
@@ -74,7 +74,7 @@ public abstract class AbstractControllerInstrumentation extends ClassInstanceMet
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return "org.skywalking.apm.plugin.spring.mvc.RequestMappingMethodInterceptor";
+                    return "org.skywalking.apm.plugin.spring.mvc.v4.RequestMappingMethodInterceptor";
                 }
 
                 @Override
@@ -94,7 +94,7 @@ public abstract class AbstractControllerInstrumentation extends ClassInstanceMet
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return "org.skywalking.apm.plugin.spring.mvc.RestMappingMethodInterceptor";
+                    return "org.skywalking.apm.plugin.spring.mvc.v4.RestMappingMethodInterceptor";
                 }
 
                 @Override
