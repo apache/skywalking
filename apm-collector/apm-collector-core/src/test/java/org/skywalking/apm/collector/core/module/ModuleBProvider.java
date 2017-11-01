@@ -33,11 +33,11 @@ public class ModuleBProvider extends ModuleProvider {
     }
 
     @Override public void prepare(Properties config) throws ServiceNotProvidedException {
-        this.registerServiceImplementation(BaseModuleB.ServiceBBusiness1.class, new Business1());
+        this.registerServiceImplementation(BaseModuleB.ServiceBBusiness1.class, new ModuleBBusiness1Impl());
     }
 
     @Override public void start(Properties config) throws ServiceNotProvidedException {
-        this.registerServiceImplementation(BaseModuleB.ServiceBBusiness2.class, new Business2());
+        this.registerServiceImplementation(BaseModuleB.ServiceBBusiness2.class, new ModuleBBusiness2Impl());
     }
 
     @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {
@@ -46,13 +46,5 @@ public class ModuleBProvider extends ModuleProvider {
 
     @Override public String[] requiredModules() {
         return new String[0];
-    }
-
-    public class Business1 implements BaseModuleB.ServiceBBusiness1 {
-
-    }
-
-    public class Business2 implements BaseModuleB.ServiceBBusiness2 {
-
     }
 }
