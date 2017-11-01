@@ -18,7 +18,7 @@
 
 package org.skywalking.apm.collector.agentstream.worker.segment.origin.define;
 
-import org.skywalking.apm.collector.storage.define.segment.SegmentTable;
+import org.skywalking.apm.collector.storage.base.define.segment.SegmentTable;
 import org.skywalking.apm.collector.storage.elasticsearch.define.ElasticSearchColumnDefine;
 import org.skywalking.apm.collector.storage.elasticsearch.define.ElasticSearchTableDefine;
 

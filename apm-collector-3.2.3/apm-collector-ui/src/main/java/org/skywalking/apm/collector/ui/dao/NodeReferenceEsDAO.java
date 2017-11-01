@@ -30,7 +30,7 @@ import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilde
 import org.elasticsearch.search.aggregations.metrics.sum.Sum;
 import org.skywalking.apm.collector.cache.ApplicationCache;
 import org.skywalking.apm.collector.core.util.StringUtils;
-import org.skywalking.apm.collector.storage.define.noderef.NodeReferenceTable;
+import org.skywalking.apm.collector.storage.base.define.noderef.NodeReferenceTable;
 import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

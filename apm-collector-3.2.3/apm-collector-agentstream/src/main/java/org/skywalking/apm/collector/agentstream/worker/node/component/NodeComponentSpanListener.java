@@ -27,7 +27,7 @@ import org.skywalking.apm.collector.agentstream.worker.segment.standardization.S
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
-import org.skywalking.apm.collector.storage.define.node.NodeComponentDataDefine;
+import org.skywalking.apm.collector.storage.base.define.node.NodeComponentDataDefine;
 import org.skywalking.apm.collector.stream.StreamModuleContext;
 import org.skywalking.apm.collector.stream.StreamModuleGroupDefine;
 import org.skywalking.apm.collector.stream.worker.WorkerInvokeException;

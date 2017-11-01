@@ -19,10 +19,10 @@
 package org.skywalking.apm.collector.agentregister.worker.instance;
 
 import org.skywalking.apm.collector.agentregister.worker.instance.dao.IInstanceDAO;
-import org.skywalking.apm.collector.storage.dao.DAOContainer;
-import org.skywalking.apm.collector.storage.define.DataDefine;
-import org.skywalking.apm.collector.storage.define.register.ApplicationDataDefine;
-import org.skywalking.apm.collector.storage.define.register.InstanceDataDefine;
+import org.skywalking.apm.collector.storage.base.dao.DAOContainer;
+import org.skywalking.apm.collector.storage.base.define.DataDefine;
+import org.skywalking.apm.collector.storage.base.define.register.ApplicationDataDefine;
+import org.skywalking.apm.collector.storage.base.define.register.InstanceDataDefine;
 import org.skywalking.apm.collector.stream.worker.AbstractLocalAsyncWorker;
 import org.skywalking.apm.collector.stream.worker.AbstractLocalAsyncWorkerProvider;
 import org.skywalking.apm.collector.stream.worker.ClusterWorkerContext;

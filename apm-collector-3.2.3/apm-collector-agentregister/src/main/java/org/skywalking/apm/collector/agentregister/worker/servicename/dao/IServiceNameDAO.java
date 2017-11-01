@@ -18,7 +18,7 @@
 
 package org.skywalking.apm.collector.agentregister.worker.servicename.dao;
 
-import org.skywalking.apm.collector.storage.define.register.ServiceNameDataDefine;
+import org.skywalking.apm.collector.storage.base.define.register.ServiceNameDataDefine;
 
 /**
  * @author peng-yongsheng

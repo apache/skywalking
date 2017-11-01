@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.stream;
 import java.util.HashMap;
 import java.util.Map;
 import org.skywalking.apm.collector.core.framework.Context;
-import org.skywalking.apm.collector.storage.define.DataDefine;
+import org.skywalking.apm.collector.storage.base.define.DataDefine;
 import org.skywalking.apm.collector.stream.worker.ClusterWorkerContext;
 
 /**

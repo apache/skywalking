@@ -19,9 +19,9 @@
 package org.skywalking.apm.collector.agentjvm.worker.cpu;
 
 import org.skywalking.apm.collector.agentjvm.worker.cpu.dao.ICpuMetricDAO;
-import org.skywalking.apm.collector.storage.dao.DAOContainer;
-import org.skywalking.apm.collector.storage.define.DataDefine;
-import org.skywalking.apm.collector.storage.define.jvm.CpuMetricDataDefine;
+import org.skywalking.apm.collector.storage.base.dao.DAOContainer;
+import org.skywalking.apm.collector.storage.base.define.DataDefine;
+import org.skywalking.apm.collector.storage.base.define.jvm.CpuMetricDataDefine;
 import org.skywalking.apm.collector.stream.worker.AbstractLocalAsyncWorkerProvider;
 import org.skywalking.apm.collector.stream.worker.ClusterWorkerContext;
 import org.skywalking.apm.collector.stream.worker.ProviderNotFoundException;

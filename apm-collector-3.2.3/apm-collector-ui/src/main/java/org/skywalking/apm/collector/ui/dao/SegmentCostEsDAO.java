@@ -32,9 +32,9 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.SortOrder;
 import org.skywalking.apm.collector.core.util.CollectionUtils;
 import org.skywalking.apm.collector.core.util.StringUtils;
-import org.skywalking.apm.collector.storage.dao.DAOContainer;
-import org.skywalking.apm.collector.storage.define.global.GlobalTraceTable;
-import org.skywalking.apm.collector.storage.define.segment.SegmentCostTable;
+import org.skywalking.apm.collector.storage.base.dao.DAOContainer;
+import org.skywalking.apm.collector.storage.base.define.global.GlobalTraceTable;
+import org.skywalking.apm.collector.storage.base.define.segment.SegmentCostTable;
 import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
 
 /**

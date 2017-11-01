@@ -19,9 +19,9 @@
 package org.skywalking.apm.collector.agentstream.worker.node.component;
 
 import org.skywalking.apm.collector.agentstream.worker.node.component.dao.INodeComponentDAO;
-import org.skywalking.apm.collector.storage.dao.DAOContainer;
-import org.skywalking.apm.collector.storage.define.DataDefine;
-import org.skywalking.apm.collector.storage.define.node.NodeComponentDataDefine;
+import org.skywalking.apm.collector.storage.base.dao.DAOContainer;
+import org.skywalking.apm.collector.storage.base.define.DataDefine;
+import org.skywalking.apm.collector.storage.base.define.node.NodeComponentDataDefine;
 import org.skywalking.apm.collector.stream.worker.AbstractLocalAsyncWorkerProvider;
 import org.skywalking.apm.collector.stream.worker.ClusterWorkerContext;
 import org.skywalking.apm.collector.stream.worker.ProviderNotFoundException;

@@ -18,7 +18,7 @@
 
 package org.skywalking.apm.collector.agentregister.worker.servicename;
 
-import org.skywalking.apm.collector.storage.define.register.ServiceNameTable;
+import org.skywalking.apm.collector.storage.base.define.register.ServiceNameTable;
 import org.skywalking.apm.collector.storage.elasticsearch.define.ElasticSearchColumnDefine;
 import org.skywalking.apm.collector.storage.elasticsearch.define.ElasticSearchTableDefine;
 

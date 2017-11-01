@@ -18,7 +18,7 @@
 
 package org.skywalking.apm.collector.agentregister.worker.instance.dao;
 
-import org.skywalking.apm.collector.storage.define.register.InstanceDataDefine;
+import org.skywalking.apm.collector.storage.base.define.register.InstanceDataDefine;
 
 /**
  * @author peng-yongsheng

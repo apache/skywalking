@@ -18,8 +18,8 @@
 
 package org.skywalking.apm.collector.agentstream.worker.node.component;
 
-import org.skywalking.apm.collector.storage.define.DataDefine;
-import org.skywalking.apm.collector.storage.define.node.NodeComponentDataDefine;
+import org.skywalking.apm.collector.storage.base.define.DataDefine;
+import org.skywalking.apm.collector.storage.base.define.node.NodeComponentDataDefine;
 import org.skywalking.apm.collector.stream.worker.AbstractRemoteWorker;
 import org.skywalking.apm.collector.stream.worker.AbstractRemoteWorkerProvider;
 import org.skywalking.apm.collector.stream.worker.ClusterWorkerContext;

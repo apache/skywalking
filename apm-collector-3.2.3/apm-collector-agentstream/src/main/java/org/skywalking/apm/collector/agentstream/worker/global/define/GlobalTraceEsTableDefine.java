@@ -18,7 +18,7 @@
 
 package org.skywalking.apm.collector.agentstream.worker.global.define;
 
-import org.skywalking.apm.collector.storage.define.global.GlobalTraceTable;
+import org.skywalking.apm.collector.storage.base.define.global.GlobalTraceTable;
 import org.skywalking.apm.collector.storage.elasticsearch.define.ElasticSearchColumnDefine;
 import org.skywalking.apm.collector.storage.elasticsearch.define.ElasticSearchTableDefine;
 

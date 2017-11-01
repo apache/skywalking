@@ -19,7 +19,7 @@
 package org.skywalking.apm.collector.stream.worker.impl.dao;
 
 import org.skywalking.apm.collector.core.stream.Data;
-import org.skywalking.apm.collector.storage.define.DataDefine;
+import org.skywalking.apm.collector.storage.base.define.DataDefine;
 
 /**
  * @author peng-yongsheng

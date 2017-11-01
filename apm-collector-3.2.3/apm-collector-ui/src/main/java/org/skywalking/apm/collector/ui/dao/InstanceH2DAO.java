@@ -28,10 +28,10 @@ import org.skywalking.apm.collector.cache.ApplicationCache;
 import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.client.h2.H2ClientException;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
-import org.skywalking.apm.collector.storage.define.register.InstanceDataDefine;
-import org.skywalking.apm.collector.storage.define.register.InstanceTable;
+import org.skywalking.apm.collector.storage.base.define.register.InstanceDataDefine;
+import org.skywalking.apm.collector.storage.base.define.register.InstanceTable;
 import org.skywalking.apm.collector.storage.h2.SqlBuilder;
-import org.skywalking.apm.collector.storage.h2.dao.H2DAO;
+import org.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

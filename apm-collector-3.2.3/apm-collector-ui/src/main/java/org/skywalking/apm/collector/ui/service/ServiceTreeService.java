@@ -25,8 +25,8 @@ import java.util.Map;
 import org.skywalking.apm.collector.core.util.ColumnNameUtils;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.ObjectUtils;
-import org.skywalking.apm.collector.storage.dao.DAOContainer;
-import org.skywalking.apm.collector.storage.define.serviceref.ServiceReferenceTable;
+import org.skywalking.apm.collector.storage.base.dao.DAOContainer;
+import org.skywalking.apm.collector.storage.base.define.serviceref.ServiceReferenceTable;
 import org.skywalking.apm.collector.ui.dao.IServiceEntryDAO;
 import org.skywalking.apm.collector.ui.dao.IServiceReferenceDAO;
 

@@ -32,7 +32,7 @@ import org.elasticsearch.search.sort.SortOrder;
 import org.skywalking.apm.collector.cache.ApplicationCache;
 import org.skywalking.apm.collector.core.util.ColumnNameUtils;
 import org.skywalking.apm.collector.core.util.StringUtils;
-import org.skywalking.apm.collector.storage.define.service.ServiceEntryTable;
+import org.skywalking.apm.collector.storage.base.define.service.ServiceEntryTable;
 import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
 
 /**

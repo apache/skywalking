@@ -20,7 +20,7 @@ package org.skywalking.apm.collector.ui.dao;
 
 import com.google.gson.JsonArray;
 import java.util.List;
-import org.skywalking.apm.collector.storage.define.register.InstanceDataDefine;
+import org.skywalking.apm.collector.storage.base.define.register.InstanceDataDefine;
 
 /**
  * @author peng-yongsheng

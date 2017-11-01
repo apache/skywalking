@@ -18,7 +18,7 @@
 
 package org.skywalking.apm.collector.ui.service;
 
-import org.skywalking.apm.collector.storage.dao.DAOContainer;
+import org.skywalking.apm.collector.storage.base.dao.DAOContainer;
 import org.skywalking.apm.collector.ui.dao.IInstanceDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

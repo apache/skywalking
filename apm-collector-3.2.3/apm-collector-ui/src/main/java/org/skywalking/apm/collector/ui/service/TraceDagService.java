@@ -20,7 +20,7 @@ package org.skywalking.apm.collector.ui.service;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import org.skywalking.apm.collector.storage.dao.DAOContainer;
+import org.skywalking.apm.collector.storage.base.dao.DAOContainer;
 import org.skywalking.apm.collector.ui.dao.INodeComponentDAO;
 import org.skywalking.apm.collector.ui.dao.INodeMappingDAO;
 import org.skywalking.apm.collector.ui.dao.INodeReferenceDAO;

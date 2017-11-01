@@ -18,9 +18,9 @@
 
 package org.skywalking.apm.collector.agentstream.worker.global.define;
 
-import org.skywalking.apm.collector.storage.define.global.GlobalTraceTable;
-import org.skywalking.apm.collector.storage.h2.define.H2ColumnDefine;
-import org.skywalking.apm.collector.storage.h2.define.H2TableDefine;
+import org.skywalking.apm.collector.storage.base.define.global.GlobalTraceTable;
+import org.skywalking.apm.collector.storage.h2.base.define.H2ColumnDefine;
+import org.skywalking.apm.collector.storage.h2.base.define.H2TableDefine;
 
 /**
  * @author peng-yongsheng

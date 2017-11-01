@@ -21,8 +21,8 @@ package org.skywalking.apm.collector.storage;
 import java.util.List;
 import org.skywalking.apm.collector.client.Client;
 import org.skywalking.apm.collector.core.define.DefineException;
-import org.skywalking.apm.collector.storage.define.StorageDefineLoader;
-import org.skywalking.apm.collector.storage.define.TableDefine;
+import org.skywalking.apm.collector.storage.base.define.StorageDefineLoader;
+import org.skywalking.apm.collector.storage.base.define.TableDefine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

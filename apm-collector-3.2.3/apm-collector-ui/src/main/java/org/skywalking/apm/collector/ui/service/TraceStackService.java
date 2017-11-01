@@ -28,7 +28,7 @@ import org.skywalking.apm.collector.core.util.CollectionUtils;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.ObjectUtils;
 import org.skywalking.apm.collector.core.util.StringUtils;
-import org.skywalking.apm.collector.storage.dao.DAOContainer;
+import org.skywalking.apm.collector.storage.base.dao.DAOContainer;
 import org.skywalking.apm.collector.ui.dao.IGlobalTraceDAO;
 import org.skywalking.apm.collector.ui.dao.ISegmentDAO;
 import org.skywalking.apm.network.proto.SpanObject;

@@ -18,7 +18,7 @@
 
 package org.skywalking.apm.collector.storage.table.segment;
 
-import org.skywalking.apm.collector.storage.define.CommonTable;
+import org.skywalking.apm.collector.storage.base.define.CommonTable;
 
 /**
  * @author peng-yongsheng

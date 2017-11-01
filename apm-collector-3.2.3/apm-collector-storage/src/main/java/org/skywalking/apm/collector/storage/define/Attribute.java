@@ -16,7 +16,7 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.storage.define;
+package org.skywalking.apm.collector.storage.base.define;
 
 import org.skywalking.apm.collector.core.stream.Operation;
 

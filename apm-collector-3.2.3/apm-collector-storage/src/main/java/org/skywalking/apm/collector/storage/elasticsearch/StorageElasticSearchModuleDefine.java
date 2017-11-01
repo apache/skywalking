@@ -26,7 +26,7 @@ import org.skywalking.apm.collector.core.module.ModuleConfigParser;
 import org.skywalking.apm.collector.core.storage.StorageInstaller;
 import org.skywalking.apm.collector.storage.StorageModuleDefine;
 import org.skywalking.apm.collector.storage.StorageModuleGroupDefine;
-import org.skywalking.apm.collector.storage.dao.DAOContainer;
+import org.skywalking.apm.collector.storage.base.dao.DAOContainer;
 import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAO;
 import org.skywalking.apm.collector.storage.elasticsearch.dao.EsDAODefineLoader;
 import org.skywalking.apm.collector.storage.elasticsearch.define.ElasticSearchStorageInstaller;

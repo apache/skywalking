@@ -28,10 +28,10 @@ import org.skywalking.apm.collector.core.module.ModuleProvider;
 import org.skywalking.apm.collector.core.module.ServiceNotProvidedException;
 import org.skywalking.apm.collector.storage.StorageException;
 import org.skywalking.apm.collector.storage.StorageModule;
-import org.skywalking.apm.collector.storage.dao.DAOContainer;
-import org.skywalking.apm.collector.storage.es.dao.EsDAO;
-import org.skywalking.apm.collector.storage.es.dao.EsDAODefineLoader;
-import org.skywalking.apm.collector.storage.es.define.ElasticSearchStorageInstaller;
+import org.skywalking.apm.collector.storage.base.dao.DAOContainer;
+import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
+import org.skywalking.apm.collector.storage.es.base.dao.EsDAODefineLoader;
+import org.skywalking.apm.collector.storage.es.base.define.ElasticSearchStorageInstaller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

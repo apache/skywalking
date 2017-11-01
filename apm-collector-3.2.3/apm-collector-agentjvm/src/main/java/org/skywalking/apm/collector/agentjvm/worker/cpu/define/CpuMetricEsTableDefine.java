@@ -18,7 +18,7 @@
 
 package org.skywalking.apm.collector.agentjvm.worker.cpu.define;
 
-import org.skywalking.apm.collector.storage.define.jvm.CpuMetricTable;
+import org.skywalking.apm.collector.storage.base.define.jvm.CpuMetricTable;
 import org.skywalking.apm.collector.storage.elasticsearch.define.ElasticSearchColumnDefine;
 import org.skywalking.apm.collector.storage.elasticsearch.define.ElasticSearchTableDefine;
 

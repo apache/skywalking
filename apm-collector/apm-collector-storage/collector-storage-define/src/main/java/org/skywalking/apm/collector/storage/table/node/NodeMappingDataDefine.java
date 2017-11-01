@@ -18,11 +18,11 @@
 
 package org.skywalking.apm.collector.storage.table.node;
 
-import org.skywalking.apm.collector.storage.define.Attribute;
-import org.skywalking.apm.collector.storage.define.AttributeType;
-import org.skywalking.apm.collector.storage.define.DataDefine;
-import org.skywalking.apm.collector.storage.define.operator.CoverOperation;
-import org.skywalking.apm.collector.storage.define.operator.NonOperation;
+import org.skywalking.apm.collector.storage.base.define.Attribute;
+import org.skywalking.apm.collector.storage.base.define.AttributeType;
+import org.skywalking.apm.collector.storage.base.define.DataDefine;
+import org.skywalking.apm.collector.storage.base.define.operator.CoverOperation;
+import org.skywalking.apm.collector.storage.base.define.operator.NonOperation;
 
 /**
  * @author peng-yongsheng

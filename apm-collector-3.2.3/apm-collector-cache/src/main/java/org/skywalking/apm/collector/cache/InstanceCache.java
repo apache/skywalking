@@ -21,7 +21,7 @@ package org.skywalking.apm.collector.cache;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.skywalking.apm.collector.cache.dao.IInstanceCacheDAO;
-import org.skywalking.apm.collector.storage.dao.DAOContainer;
+import org.skywalking.apm.collector.storage.base.dao.DAOContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

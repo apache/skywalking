@@ -37,7 +37,7 @@ import org.skywalking.apm.collector.agentstream.worker.segment.standardization.S
 import org.skywalking.apm.collector.agentstream.worker.service.entry.ServiceEntrySpanListener;
 import org.skywalking.apm.collector.agentstream.worker.serviceref.ServiceReferenceSpanListener;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
-import org.skywalking.apm.collector.storage.define.segment.SegmentDataDefine;
+import org.skywalking.apm.collector.storage.base.define.segment.SegmentDataDefine;
 import org.skywalking.apm.collector.stream.StreamModuleContext;
 import org.skywalking.apm.collector.stream.StreamModuleGroupDefine;
 import org.skywalking.apm.collector.stream.worker.WorkerInvokeException;

@@ -27,7 +27,7 @@ import org.skywalking.apm.collector.cache.ServiceNameCache;
 import org.skywalking.apm.collector.core.framework.CollectorContextHelper;
 import org.skywalking.apm.collector.core.util.Const;
 import org.skywalking.apm.collector.core.util.TimeBucketUtils;
-import org.skywalking.apm.collector.storage.define.service.ServiceEntryDataDefine;
+import org.skywalking.apm.collector.storage.base.define.service.ServiceEntryDataDefine;
 import org.skywalking.apm.collector.stream.StreamModuleContext;
 import org.skywalking.apm.collector.stream.StreamModuleGroupDefine;
 import org.skywalking.apm.collector.stream.worker.WorkerInvokeException;
