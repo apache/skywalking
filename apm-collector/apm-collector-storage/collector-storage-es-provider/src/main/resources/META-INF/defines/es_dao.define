@@ -1,0 +1,5 @@
+org.skywalking.apm.collector.storage.es.dao.CpuMetricEsDAO
+org.skywalking.apm.collector.storage.es.dao.GCMetricEsDAO
+org.skywalking.apm.collector.storage.es.dao.InstanceHeartBeatEsDAO
+org.skywalking.apm.collector.storage.es.dao.MemoryMetricEsDAO
+org.skywalking.apm.collector.storage.es.dao.MemoryPoolMetricEsDAO
