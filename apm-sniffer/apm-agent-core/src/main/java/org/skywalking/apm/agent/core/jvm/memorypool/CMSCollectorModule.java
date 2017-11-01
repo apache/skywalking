@@ -30,7 +30,7 @@ public class CMSCollectorModule extends MemoryPoolModule {
     }
 
     @Override protected String[] getPermNames() {
-        return new String[] {"CMS Perm Gen"};
+        return new String[] {"CMS Perm Gen", "Compressed Class Space"};
     }
 
     @Override protected String[] getCodeCacheNames() {
