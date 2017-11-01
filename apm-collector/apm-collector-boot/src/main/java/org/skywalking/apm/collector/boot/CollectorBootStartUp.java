@@ -31,6 +31,8 @@ public class CollectorBootStartUp {
     private static final Logger logger = LoggerFactory.getLogger(CollectorBootStartUp.class);
 
     public static void main(String[] args) throws CollectorException {
+        System.out.println("dddd");
+
         logger.info("collector starting...");
         SystemConfigParser.INSTANCE.parse();
         CollectorStarter starter = new CollectorStarter();
