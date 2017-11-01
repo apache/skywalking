@@ -28,7 +28,7 @@ import org.skywalking.apm.agent.core.plugin.match.IndirectMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
- * Match multiple classes name with an explicit class name.
+ * Match class with a given set of classes.
  *
  * @author zhangxin
  */
@@ -61,7 +61,7 @@ public class MultiClassNameMatch implements IndirectMatch {
         return matchClassNames.contains(typeDescription.getTypeName());
     }
 
-    public static ClassMatch byMultiClassMath(String... classNames) {
+    public static ClassMatch byMultiClassMatch(String... classNames) {
         return new MultiClassNameMatch(classNames);
     }
 }

@@ -35,7 +35,7 @@ import static org.skywalking.apm.plugin.jdbc.define.Constants.PREPARE_STATEMENT_
 import static org.skywalking.apm.plugin.jdbc.define.Constants.RELEASE_SAVE_POINT_METHOD_NAME;
 import static org.skywalking.apm.plugin.jdbc.define.Constants.ROLLBACK_METHOD_NAME;
 import static org.skywalking.apm.plugin.jdbc.define.Constants.SERVICE_METHOD_INTERCEPT_CLASS;
-import static org.skywalking.apm.plugin.jdbc.mysql.define.MultiClassNameMatch.byMultiClassMath;
+import static org.skywalking.apm.plugin.jdbc.mysql.define.MultiClassNameMatch.byMultiClassMatch;
 
 /**
  * {@link ConnectionInstrumentation} intercepts the following methods that the class which extend {@link
@@ -115,6 +115,6 @@ public class ConnectionInstrumentation extends ClassInstanceMethodsEnhancePlugin
     }
 
     @Override protected ClassMatch enhanceClass() {
-        return byMultiClassMath(ENHANCE_CLASS, "com.mysql.cj.jdbc.ConnectionImpl");
+        return byMultiClassMatch(ENHANCE_CLASS, "com.mysql.cj.jdbc.ConnectionImpl");
     }
 }

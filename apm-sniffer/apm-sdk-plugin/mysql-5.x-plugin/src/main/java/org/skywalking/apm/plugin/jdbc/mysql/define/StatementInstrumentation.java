@@ -26,18 +26,27 @@ import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMet
 import org.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
-import static org.skywalking.apm.plugin.jdbc.mysql.define.MultiClassNameMatch.byMultiClassMath;
+import static org.skywalking.apm.plugin.jdbc.mysql.define.MultiClassNameMatch.byMultiClassMatch;
 
 /**
- * {@link CallableInstrumentation} define that the mysql-2.x plugin intercepts the following methods in the {@link
- * com.mysql.jdbc.CallableStatement} by {@link org.skywalking.apm.plugin.jdbc.mysql.CallableStatementInterceptor}. 1.
- * execute <br/> 2. executeQuery <br/> 3. executeUpdate <br/>
+ * {@link StatementInstrumentation} intercepts the following methods in the {@link
+ * com.mysql.jdbc.StatementImpl} and {@link com.mysql.cj.jdbc.StatementImpl}class.
+ * 1. execute <br/>
+ * 2. executeQuery <br/>
+ * 3. executeUpdate <br/>
+ * 4. executeLargeUpdate <br/>
+ * 5. addBatch <br/>
+ * 6. executeBatchInternal <br/>
+ * 7. executeUpdateInternal <br/>
+ * 8. executeQuery <br/>
+ * 9. executeBatch <br/>
  *
  * @author zhangxin
  */
-public class CallableInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
-    private static final String ENHANCE_CLASS = "com.mysql.jdbc.CallableStatement";
+public class StatementInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+    private static final String STATEMENT_CLASS_NAME = "com.mysql.jdbc.StatementImpl";
     private static final String SERVICE_METHOD_INTERCEPTOR = "org.skywalking.apm.plugin.jdbc.mysql.StatementExecuteMethodsInterceptor";
+    public static final String MYSQL6_STATEMENT_CLASS_NAME = "com.mysql.cj.jdbc.StatementImpl";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
@@ -49,7 +58,13 @@ public class CallableInstrumentation extends ClassInstanceMethodsEnhancePluginDe
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named("execute")
                         .or(named("executeQuery"))
-                        .or(named("executeUpdate"));
+                        .or(named("executeUpdate"))
+                        .or(named("executeLargeUpdate"))
+                        .or(named("addBatch"))
+                        .or(named("executeBatchInternal"))
+                        .or(named("executeUpdateInternal"))
+                        .or(named("executeQuery"))
+                        .or(named("executeBatch"));
                 }
 
                 @Override public String getMethodsInterceptor() {
@@ -64,6 +79,6 @@ public class CallableInstrumentation extends ClassInstanceMethodsEnhancePluginDe
     }
 
     @Override protected ClassMatch enhanceClass() {
-        return byMultiClassMath(ENHANCE_CLASS, "com.mysql.jdbc.cj.CallableStatement");
+        return byMultiClassMatch(STATEMENT_CLASS_NAME, MYSQL6_STATEMENT_CLASS_NAME);
     }
 }

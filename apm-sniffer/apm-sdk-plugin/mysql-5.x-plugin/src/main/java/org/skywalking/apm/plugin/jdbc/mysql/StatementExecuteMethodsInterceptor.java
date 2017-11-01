@@ -41,6 +41,13 @@ public class StatementExecuteMethodsInterceptor implements InstanceMethodsAround
         MethodInterceptResult result) throws Throwable {
         StatementEnhanceInfos cacheObject = (StatementEnhanceInfos)objInst.getSkyWalkingDynamicField();
         ConnectionInfo connectInfo = cacheObject.getConnectionInfo();
+        /**
+         * To protected the code occur NullPointException. because mysql execute system sql when constructor method in
+         * {@link com.mysql.jdbc.ConnectionImpl} class executed. but the interceptor set the connection Info after
+         * the constructor method executed.
+         *
+         * @see org.skywalking.apm.plugin.jdbc.JDBCDriverInterceptor#afterMethod(EnhancedInstance, Method, Object[], Class[], Object)
+         */
         if (connectInfo != null) {
 
             AbstractSpan span = ContextManager.createExitSpan(buildOperationName(connectInfo, method.getName(), cacheObject.getStatementName()), connectInfo.getDatabasePeer());
