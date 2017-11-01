@@ -3,3 +3,17 @@ org.skywalking.apm.collector.storage.es.dao.GCMetricEsDAO
 org.skywalking.apm.collector.storage.es.dao.InstanceHeartBeatEsDAO
 org.skywalking.apm.collector.storage.es.dao.MemoryMetricEsDAO
 org.skywalking.apm.collector.storage.es.dao.MemoryPoolMetricEsDAO
+org.skywalking.apm.collector.storage.es.dao.ApplicationEsDAO
+org.skywalking.apm.collector.storage.es.dao.InstanceEsDAO
+org.skywalking.apm.collector.storage.es.dao.ServiceNameEsDAO
+org.skywalking.apm.collector.storage.es.dao.GlobalTraceEsDAO
+org.skywalking.apm.collector.storage.es.dao.InstPerformanceEsDAO
+org.skywalking.apm.collector.storage.es.dao.NodeComponentEsDAO
+org.skywalking.apm.collector.storage.es.dao.NodeReferenceEsDAO
+org.skywalking.apm.collector.storage.es.dao.SegmentCostEsDAO
+org.skywalking.apm.collector.storage.es.dao.SegmentEsDAO
+org.skywalking.apm.collector.storage.es.dao.ServiceEntryEsDAO
+org.skywalking.apm.collector.storage.es.dao.ServiceReferenceEsDAO
+org.skywalking.apm.collector.storage.es.dao.ApplicationEsCacheDAO
+org.skywalking.apm.collector.storage.es.dao.InstanceEsCacheDAO
+org.skywalking.apm.collector.storage.es.dao.ServiceNameEsCacheDAO

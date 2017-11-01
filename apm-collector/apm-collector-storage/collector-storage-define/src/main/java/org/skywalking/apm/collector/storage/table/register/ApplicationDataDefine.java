@@ -18,6 +18,7 @@
 
 package org.skywalking.apm.collector.storage.table.register;
 
+import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.storage.base.define.Attribute;
 import org.skywalking.apm.collector.storage.base.define.AttributeType;
 import org.skywalking.apm.collector.storage.base.define.DataDefine;
@@ -37,5 +38,21 @@ public class ApplicationDataDefine extends DataDefine {
         addAttribute(0, new Attribute(ApplicationTable.COLUMN_ID, AttributeType.STRING, new NonOperation()));
         addAttribute(1, new Attribute(ApplicationTable.COLUMN_APPLICATION_CODE, AttributeType.STRING, new CoverOperation()));
         addAttribute(2, new Attribute(ApplicationTable.COLUMN_APPLICATION_ID, AttributeType.INTEGER, new CoverOperation()));
+    }
+
+    public enum Application {
+        INSTANCE;
+
+        public String getId(Data data) {
+            return data.getDataString(0);
+        }
+
+        public String getApplicationCode(Data data) {
+            return data.getDataString(1);
+        }
+
+        public int getApplicationId(Data data) {
+            return data.getDataInteger(1);
+        }
     }
 }

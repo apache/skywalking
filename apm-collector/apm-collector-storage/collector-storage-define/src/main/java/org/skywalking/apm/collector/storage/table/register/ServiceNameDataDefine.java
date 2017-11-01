@@ -18,6 +18,7 @@
 
 package org.skywalking.apm.collector.storage.table.register;
 
+import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.storage.base.define.Attribute;
 import org.skywalking.apm.collector.storage.base.define.AttributeType;
 import org.skywalking.apm.collector.storage.base.define.DataDefine;
@@ -38,5 +39,25 @@ public class ServiceNameDataDefine extends DataDefine {
         addAttribute(1, new Attribute(ServiceNameTable.COLUMN_SERVICE_NAME, AttributeType.STRING, new CoverOperation()));
         addAttribute(2, new Attribute(ServiceNameTable.COLUMN_APPLICATION_ID, AttributeType.INTEGER, new CoverOperation()));
         addAttribute(3, new Attribute(ServiceNameTable.COLUMN_SERVICE_ID, AttributeType.INTEGER, new CoverOperation()));
+    }
+
+    public enum ServiceName {
+        INSTANCE;
+
+        public String getId(Data data) {
+            return data.getDataString(0);
+        }
+
+        public String getServiceName(Data data) {
+            return data.getDataString(1);
+        }
+
+        public int getApplicationId(Data data) {
+            return data.getDataInteger(0);
+        }
+
+        public int getServiceId(Data data) {
+            return data.getDataInteger(1);
+        }
     }
 }

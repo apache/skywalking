@@ -18,6 +18,7 @@
 
 package org.skywalking.apm.collector.storage.table.register;
 
+import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.storage.base.define.Attribute;
 import org.skywalking.apm.collector.storage.base.define.AttributeType;
 import org.skywalking.apm.collector.storage.base.define.DataDefine;
@@ -41,5 +42,37 @@ public class InstanceDataDefine extends DataDefine {
         addAttribute(4, new Attribute(InstanceTable.COLUMN_INSTANCE_ID, AttributeType.INTEGER, new CoverOperation()));
         addAttribute(5, new Attribute(InstanceTable.COLUMN_HEARTBEAT_TIME, AttributeType.LONG, new CoverOperation()));
         addAttribute(6, new Attribute(InstanceTable.COLUMN_OS_INFO, AttributeType.STRING, new CoverOperation()));
+    }
+
+    public enum Instance {
+        INSTANCE;
+
+        public String getId(Data data) {
+            return data.getDataString(0);
+        }
+
+        public int getApplicationId(Data data) {
+            return data.getDataInteger(0);
+        }
+
+        public String getAgentUUID(Data data) {
+            return data.getDataString(1);
+        }
+
+        public long getRegisterTime(Data data) {
+            return data.getDataLong(0);
+        }
+
+        public int getInstanceId(Data data) {
+            return data.getDataInteger(1);
+        }
+
+        public long getHeartBeatTime(Data data) {
+            return data.getDataLong(1);
+        }
+
+        public String getOsInfo(Data data) {
+            return data.getDataString(2);
+        }
     }
 }
