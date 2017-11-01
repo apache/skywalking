@@ -29,8 +29,11 @@ import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptR
 import org.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
 /**
- * {@link ConnectionServiceMethodInterceptor} create an exit span when the client call the following methods in the
- * class that extend {@link java.sql.Connection}. 1. close 2. rollback 3. releaseSavepoint 4. commit
+ * {@link ConnectionServiceMethodInterceptor} create an exit span when the following methods execute:
+ * 1. close
+ * 2. rollback
+ * 3. releaseSavepoint
+ * 4. commit
  *
  * @author zhangxin
  */

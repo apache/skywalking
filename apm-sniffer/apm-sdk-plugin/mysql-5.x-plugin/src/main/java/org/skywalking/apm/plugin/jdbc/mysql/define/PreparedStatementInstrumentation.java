@@ -23,12 +23,15 @@ import net.bytebuddy.matcher.ElementMatcher;
 import org.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
+import org.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
+import static org.skywalking.apm.plugin.jdbc.mysql.define.MultiClassNameMatch.byMultiClassMatch;
 
 /**
- * {@link AbstractPreparedStatementInstrumentation} define that the mysql-2.x plugin intercepts the following methods in
- * the {@link com.mysql.jdbc.JDBC42PreparedStatement} and {@link com.mysql.jdbc.PreparedStatement} class.
+ * {@link PreparedStatementInstrumentation} define that the mysql-2.x plugin intercepts the following methods in the
+ * {@link com.mysql.jdbc.JDBC42PreparedStatement}, {@link com.mysql.jdbc.PreparedStatement} and {@link
+ * com.mysql.cj.jdbc.PreparedStatement} class:
  * 1. execute <br/>
  * 2. executeQuery <br/>
  * 3. executeUpdate <br/>
@@ -37,9 +40,12 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
  *
  * @author zhangxin
  */
-public abstract class AbstractPreparedStatementInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class PreparedStatementInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
+    private static final String PREPARED_STATEMENT_CLASS_NAME = "com.mysql.jdbc.PreparedStatement";
     private static final String SERVICE_METHOD_INTERCEPTOR = "org.skywalking.apm.plugin.jdbc.mysql.StatementExecuteMethodsInterceptor";
+    public static final String MYSQL6_PREPARED_STATEMENT_CLASS_NAME = "com.mysql.cj.jdbc.PreparedStatement";
+    public static final String JDBC42_PREPARED_STATEMENT_CLASS_NAME = "com.mysql.jdbc.JDBC42PreparedStatement";
 
     @Override protected final ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
@@ -65,5 +71,9 @@ public abstract class AbstractPreparedStatementInstrumentation extends ClassInst
                 }
             }
         };
+    }
+
+    @Override protected ClassMatch enhanceClass() {
+        return byMultiClassMatch(PREPARED_STATEMENT_CLASS_NAME, MYSQL6_PREPARED_STATEMENT_CLASS_NAME, JDBC42_PREPARED_STATEMENT_CLASS_NAME);
     }
 }
