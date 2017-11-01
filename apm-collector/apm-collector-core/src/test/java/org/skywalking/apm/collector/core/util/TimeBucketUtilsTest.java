@@ -18,13 +18,26 @@
 
 package org.skywalking.apm.collector.core.util;
 
+import java.util.TimeZone;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
  * @author wu-sheng
  */
 public class TimeBucketUtilsTest {
+    @Before
+    public void setup() {
+        TimeZone.setDefault(TimeZone.getTimeZone("Asia/Shanghai"));
+    }
+
+    @After
+    public void teardown() {
+
+    }
+
     @Test
     public void testGetInfoFromATimestamp() {
         long timeMillis = 1509521745220L;
