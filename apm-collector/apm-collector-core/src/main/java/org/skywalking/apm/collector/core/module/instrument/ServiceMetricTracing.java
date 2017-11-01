@@ -29,7 +29,12 @@ import net.bytebuddy.implementation.bind.annotation.This;
 /**
  * @author wu-sheng
  */
-public class ServiceMetricCollector {
+public class ServiceMetricTracing {
+    private MetricCollector.ServiceMetric serviceMetric;
+
+    public ServiceMetricTracing(String module, String provider, String service) {
+        serviceMetric = MetricCollector.INSTANCE.registerService(module, provider, service);
+    }
 
     @RuntimeType
     public Object intercept(@This Object obj,
@@ -37,6 +42,17 @@ public class ServiceMetricCollector {
         @SuperCall Callable<?> zuper,
         @Origin Method method
     ) throws Throwable {
-        return zuper.call();
+        boolean occurError = false;
+        long startNano = System.nanoTime();
+        long endNano;
+        try {
+            return zuper.call();
+        } catch (Throwable t) {
+            occurError = true;
+            throw t;
+        } finally {
+            endNano = System.nanoTime();
+            serviceMetric.trace(method, endNano - startNano, occurError);
+        }
     }
 }

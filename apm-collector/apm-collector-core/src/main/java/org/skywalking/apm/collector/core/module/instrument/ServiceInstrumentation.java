@@ -31,6 +31,9 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.not;
 
 /**
+ * The <code>ServiceInstrumentation</code> create the dynamic service implementations based on the provider
+ * implementation. So the new implementation will report performance metric to {@link MetricCollector}.
+ *
  * @author wu-sheng
  */
 public enum ServiceInstrumentation {
@@ -39,8 +42,8 @@ public enum ServiceInstrumentation {
     private final Logger logger = LoggerFactory.getLogger(ServiceInstrumentation.class);
     private ElementMatcher<? super MethodDescription> excludeObjectMethodsMatcher;
 
-    public Service buildServiceUnderMonitor(Service implementation) {
-        if (TracedService.class.isInstance(implementation)) {
+    public Service buildServiceUnderMonitor(String moduleName, String providerName, Service implementation) {
+        if (implementation instanceof TracedService) {
             // Duplicate service instrument, ignore.
             return implementation;
         }
@@ -48,7 +51,7 @@ public enum ServiceInstrumentation {
             return new ByteBuddy().subclass(implementation.getClass())
                 .implement(TracedService.class)
                 .method(getDefaultMatcher()).intercept(
-                    MethodDelegation.withDefaultConfiguration().to(new ServiceMetricCollector())
+                    MethodDelegation.withDefaultConfiguration().to(new ServiceMetricTracing(moduleName, providerName, implementation.getClass().getName()))
                 ).make().load(getClass().getClassLoader()
                 ).getLoaded().newInstance();
         } catch (InstantiationException e) {
