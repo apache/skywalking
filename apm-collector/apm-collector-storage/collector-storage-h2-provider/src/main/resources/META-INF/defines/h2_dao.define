@@ -3,3 +3,17 @@ org.skywalking.apm.collector.storage.h2.dao.GCMetricH2DAO
 org.skywalking.apm.collector.storage.h2.dao.InstanceHeartBeatH2DAO
 org.skywalking.apm.collector.storage.h2.dao.MemoryMetricH2DAO
 org.skywalking.apm.collector.storage.h2.dao.MemoryPoolMetricH2DAO
+org.skywalking.apm.collector.storage.h2.dao.ApplicationH2DAO
+org.skywalking.apm.collector.storage.h2.dao.InstanceH2DAO
+org.skywalking.apm.collector.storage.h2.dao.ServiceNameH2DAO
+org.skywalking.apm.collector.storage.h2.dao.GlobalTraceH2DAO
+org.skywalking.apm.collector.storage.h2.dao.InstPerformanceH2DAO
+org.skywalking.apm.collector.storage.h2.dao.NodeComponentH2DAO
+org.skywalking.apm.collector.storage.h2.dao.NodeReferenceH2DAO
+org.skywalking.apm.collector.storage.h2.dao.SegmentCostH2DAO
+org.skywalking.apm.collector.storage.h2.dao.SegmentH2DAO
+org.skywalking.apm.collector.storage.h2.dao.ServiceEntryH2DAO
+org.skywalking.apm.collector.storage.h2.dao.ServiceReferenceH2DAO
+org.skywalking.apm.collector.storage.h2.dao.ApplicationH2CacheDAO
+org.skywalking.apm.collector.storage.h2.dao.InstanceH2CacheDAO
+org.skywalking.apm.collector.storage.h2.dao.ServiceNameH2CacheDAO
