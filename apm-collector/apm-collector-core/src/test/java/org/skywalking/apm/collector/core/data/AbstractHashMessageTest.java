@@ -20,7 +20,6 @@ package org.skywalking.apm.collector.core.data;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.skywalking.apm.collector.core.data.AbstractHashMessage;
 
 /**
  * @author wu-sheng
