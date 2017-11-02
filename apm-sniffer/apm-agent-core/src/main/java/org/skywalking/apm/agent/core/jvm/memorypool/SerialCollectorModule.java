@@ -30,7 +30,7 @@ public class SerialCollectorModule extends MemoryPoolModule {
     }
 
     @Override protected String[] getPermNames() {
-        return new String[] {"Perm Gen"};
+        return new String[] {"Perm Gen", "Compressed Class Space"};
     }
 
     @Override protected String[] getCodeCacheNames() {
