@@ -30,7 +30,7 @@ public class G1CollectorModule extends MemoryPoolModule {
     }
 
     @Override protected String[] getPermNames() {
-        return new String[] {"G1 Perm Gen"};
+        return new String[] {"G1 Perm Gen", "Compressed Class Space"};
     }
 
     @Override protected String[] getCodeCacheNames() {
