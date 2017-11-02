@@ -24,7 +24,6 @@ import org.skywalking.apm.agent.core.context.tag.Tags;
 import org.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
-import org.skywalking.apm.util.StringUtil;
 
 public class ConnectionTracing {
 
@@ -32,13 +31,7 @@ public class ConnectionTracing {
         ConnectionInfo connectInfo, String method, String sql, Executable<R> exec)
         throws SQLException {
         try {
-            String remotePeer;
-            if (!StringUtil.isEmpty(connectInfo.getHosts())) {
-                remotePeer = connectInfo.getHosts();
-            } else {
-                remotePeer = connectInfo.getHost() + ":" + connectInfo.getPort();
-            }
-            AbstractSpan span = ContextManager.createExitSpan(connectInfo.getDBType() + "/JDBI/Connection/" + method, remotePeer);
+            AbstractSpan span = ContextManager.createExitSpan(connectInfo.getDBType() + "/JDBI/Connection/" + method, connectInfo.getDatabasePeer());
             Tags.DB_TYPE.set(span, "sql");
             Tags.DB_INSTANCE.set(span, connectInfo.getDatabaseName());
             Tags.DB_STATEMENT.set(span, sql);
