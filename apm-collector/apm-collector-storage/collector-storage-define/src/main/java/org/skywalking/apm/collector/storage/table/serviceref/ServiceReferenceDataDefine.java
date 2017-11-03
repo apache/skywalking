@@ -23,11 +23,16 @@ import org.skywalking.apm.collector.core.data.AttributeType;
 import org.skywalking.apm.collector.core.data.DataDefine;
 import org.skywalking.apm.collector.core.data.operator.AddOperation;
 import org.skywalking.apm.collector.core.data.operator.NonOperation;
+import org.skywalking.apm.collector.remote.RemoteDataMapping;
 
 /**
  * @author peng-yongsheng
  */
 public class ServiceReferenceDataDefine extends DataDefine {
+
+    @Override public int remoteDataMappingId() {
+        return RemoteDataMapping.ServiceReference.ordinal();
+    }
 
     @Override protected int initialCapacity() {
         return 15;

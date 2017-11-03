@@ -29,8 +29,8 @@ public class Data extends AbstractHashMessage {
     private Boolean[] dataBooleans;
     private byte[][] dataBytes;
 
-    public Data(String id, int stringCapacity, int longCapacity, int doubleCapacity, int integerCapacity,
-        int booleanCapacity, int byteCapacity) {
+    public Data(String id, int stringCapacity, int longCapacity, int doubleCapacity,
+        int integerCapacity, int booleanCapacity, int byteCapacity) {
         super(id);
         this.dataStrings = new String[stringCapacity];
         this.dataStrings[0] = id;

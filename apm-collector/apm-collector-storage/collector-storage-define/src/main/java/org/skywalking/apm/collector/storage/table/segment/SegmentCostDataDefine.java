@@ -23,11 +23,16 @@ import org.skywalking.apm.collector.core.data.AttributeType;
 import org.skywalking.apm.collector.core.data.DataDefine;
 import org.skywalking.apm.collector.core.data.operator.CoverOperation;
 import org.skywalking.apm.collector.core.data.operator.NonOperation;
+import org.skywalking.apm.collector.remote.RemoteDataMapping;
 
 /**
  * @author peng-yongsheng
  */
 public class SegmentCostDataDefine extends DataDefine {
+
+    @Override public int remoteDataMappingId() {
+        return RemoteDataMapping.SegmentCost.ordinal();
+    }
 
     @Override protected int initialCapacity() {
         return 9;
