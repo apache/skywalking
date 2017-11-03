@@ -24,11 +24,16 @@ import org.skywalking.apm.collector.core.data.DataDefine;
 import org.skywalking.apm.collector.core.data.operator.AddOperation;
 import org.skywalking.apm.collector.core.data.operator.CoverOperation;
 import org.skywalking.apm.collector.core.data.operator.NonOperation;
+import org.skywalking.apm.collector.remote.RemoteDataMapping;
 
 /**
  * @author peng-yongsheng
  */
 public class InstPerformanceDataDefine extends DataDefine {
+
+    @Override public int remoteDataMappingId() {
+        return RemoteDataMapping.InstPerformance.ordinal();
+    }
 
     @Override protected int initialCapacity() {
         return 6;

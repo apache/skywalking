@@ -18,17 +18,22 @@
 
 package org.skywalking.apm.collector.storage.table.register;
 
-import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.core.data.Attribute;
 import org.skywalking.apm.collector.core.data.AttributeType;
+import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.core.data.DataDefine;
 import org.skywalking.apm.collector.core.data.operator.CoverOperation;
 import org.skywalking.apm.collector.core.data.operator.NonOperation;
+import org.skywalking.apm.collector.remote.RemoteDataMapping;
 
 /**
  * @author peng-yongsheng
  */
 public class ServiceNameDataDefine extends DataDefine {
+
+    @Override public int remoteDataMappingId() {
+        return RemoteDataMapping.ServiceName.ordinal();
+    }
 
     @Override protected int initialCapacity() {
         return 4;

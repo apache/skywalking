@@ -113,7 +113,7 @@
         <!-- remote provider -->
         <dependency>
             <groupId>org.skywalking</groupId>
-            <artifactId>collector-remote-grpc-define</artifactId>
+            <artifactId>collector-remote-grpc-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- remote provider -->

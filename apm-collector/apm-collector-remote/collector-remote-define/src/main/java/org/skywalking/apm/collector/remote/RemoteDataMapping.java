@@ -22,5 +22,5 @@ package org.skywalking.apm.collector.remote;
  * @author peng-yongsheng
  */
 public enum RemoteDataMapping {
-    InstPerformance, NodeComponent, NodeMapping, NodeReference, Application, Instance, ServiceName, ServiceEntry, ServiceReference
+    GlobalTrace, Segment, SegmentCost, InstPerformance, NodeComponent, NodeMapping, NodeReference, Application, Instance, ServiceName, ServiceEntry, ServiceReference, CpuMetric, MemoryMetric, MemoryPoolMetric, GCMetric
 }

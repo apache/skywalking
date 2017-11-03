@@ -19,11 +19,11 @@
 package org.skywalking.apm.collector.remote.grpc.service;
 
 import io.grpc.stub.StreamObserver;
+import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.remote.RemoteDataMapping;
 import org.skywalking.apm.collector.remote.RemoteDataMappingContainer;
 import org.skywalking.apm.collector.remote.grpc.proto.RemoteData;
 import org.skywalking.apm.collector.remote.grpc.proto.RemoteMessage;
-import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.remote.service.RemoteClient;
 
 /**
@@ -39,8 +39,8 @@ public class GRPCRemoteClient implements RemoteClient {
         this.streamObserver = streamObserver;
     }
 
-    @Override public void send(String roleName, Data data, RemoteDataMapping mapping) {
-        RemoteData remoteData = (RemoteData)container.get(mapping.ordinal()).serialize(data);
+    @Override public void send(String roleName, Data data, int remoteDataMappingId) {
+        RemoteData remoteData = (RemoteData)container.get(remoteDataMappingId).serialize(data);
         RemoteMessage.Builder builder = RemoteMessage.newBuilder();
         builder.setWorkerRole(roleName);
         builder.setRemoteData(remoteData);

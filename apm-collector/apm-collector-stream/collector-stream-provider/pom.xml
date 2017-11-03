@@ -30,4 +30,11 @@
     <artifactId>collector-stream-provider</artifactId>
     <packaging>jar</packaging>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>collector-stream-define</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>

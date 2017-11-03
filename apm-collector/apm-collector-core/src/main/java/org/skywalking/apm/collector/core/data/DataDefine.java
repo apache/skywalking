@@ -58,6 +58,8 @@ public abstract class DataDefine {
         attributes[position] = attribute;
     }
 
+    public abstract int remoteDataMappingId();
+
     protected abstract int initialCapacity();
 
     protected abstract void attributeDefine();
@@ -66,7 +68,7 @@ public abstract class DataDefine {
         return new Data(id, stringCapacity, longCapacity, doubleCapacity, integerCapacity, booleanCapacity, byteCapacity);
     }
 
-    public void mergeData(Data newData, Data oldData) {
+    public final void mergeData(Data newData, Data oldData) {
         int stringPosition = 0;
         int longPosition = 0;
         int doublePosition = 0;
