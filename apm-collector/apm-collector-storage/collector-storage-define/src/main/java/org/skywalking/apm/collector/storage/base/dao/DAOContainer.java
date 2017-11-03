@@ -24,9 +24,7 @@ import java.util.Map;
 /**
  * @author peng-yongsheng
  */
-public enum DAOContainer {
-    INSTANCE;
-
+public class DAOContainer {
     private Map<String, DAO> daos = new HashMap<>();
 
     public void put(String interfaceName, DAO dao) {

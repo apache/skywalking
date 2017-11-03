@@ -32,7 +32,7 @@ import org.skywalking.apm.collector.core.data.DataDefine;
 import org.skywalking.apm.collector.storage.dao.INodeReferenceDAO;
 import org.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.skywalking.apm.collector.storage.h2.base.define.H2SqlEntity;
-import org.skywalking.apm.collector.storage.sql.SqlBuilder;
+import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.skywalking.apm.collector.storage.table.noderef.NodeReferenceTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
