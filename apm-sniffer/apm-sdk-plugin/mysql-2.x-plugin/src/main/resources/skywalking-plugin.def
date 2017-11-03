@@ -1,2 +1,0 @@
-mysql=org.skywalking.apm.plugin.jdbc.mysql.define.DriverInstrumentation
-mysql=org.skywalking.apm.plugin.jdbc.mysql.define.ConnectionInstrumentation

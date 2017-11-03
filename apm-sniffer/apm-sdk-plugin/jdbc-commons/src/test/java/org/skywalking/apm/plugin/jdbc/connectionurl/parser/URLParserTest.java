@@ -30,8 +30,7 @@ public class URLParserTest {
         ConnectionInfo connectionInfo = new URLParser().parser("jdbc:mysql//primaryhost/test");
         assertThat(connectionInfo.getDBType(), is("Mysql"));
         assertThat(connectionInfo.getDatabaseName(), is("test"));
-        assertThat(connectionInfo.getHost(), is("primaryhost"));
-        assertThat(connectionInfo.getPort(), is(3306));
+        assertThat(connectionInfo.getDatabasePeer(), is("primaryhost:3306"));
     }
 
     @Test
@@ -39,8 +38,7 @@ public class URLParserTest {
         ConnectionInfo connectionInfo = new URLParser().parser("jdbc:mysql//primaryhost:3307/test?profileSQL=true");
         assertThat(connectionInfo.getDBType(), is("Mysql"));
         assertThat(connectionInfo.getDatabaseName(), is("test"));
-        assertThat(connectionInfo.getHost(), is("primaryhost"));
-        assertThat(connectionInfo.getPort(), is(3307));
+        assertThat(connectionInfo.getDatabasePeer(), is("primaryhost:3307"));
     }
 
     @Test
@@ -48,7 +46,7 @@ public class URLParserTest {
         ConnectionInfo connectionInfo = new URLParser().parser("jdbc:mysql//primaryhost:3307,secondaryhost1,secondaryhost2/test?profileSQL=true");
         assertThat(connectionInfo.getDBType(), is("Mysql"));
         assertThat(connectionInfo.getDatabaseName(), is("test"));
-        assertThat(connectionInfo.getHosts(), is("primaryhost:3307,secondaryhost1:3306,secondaryhost2:3306,"));
+        assertThat(connectionInfo.getDatabasePeer(), is("primaryhost:3307,secondaryhost1:3306,secondaryhost2:3306,"));
     }
 
     @Test
@@ -56,7 +54,7 @@ public class URLParserTest {
         ConnectionInfo connectionInfo = new URLParser().parser("jdbc:mysql:replication://master,slave1,slave2,slave3/test");
         assertThat(connectionInfo.getDBType(), is("Mysql"));
         assertThat(connectionInfo.getDatabaseName(), is("test"));
-        assertThat(connectionInfo.getHosts(), is("master:3306,slave1:3306,slave2:3306,slave3:3306,"));
+        assertThat(connectionInfo.getDatabasePeer(), is("master:3306,slave1:3306,slave2:3306,slave3:3306,"));
     }
 
     @Test
@@ -64,8 +62,7 @@ public class URLParserTest {
         ConnectionInfo connectionInfo = new URLParser().parser("jdbc:oracle:thin:@localhost:orcl");
         assertThat(connectionInfo.getDBType(), is("Oracle"));
         assertThat(connectionInfo.getDatabaseName(), is("orcl"));
-        assertThat(connectionInfo.getHost(), is("localhost"));
-        assertThat(connectionInfo.getPort(), is(1521));
+        assertThat(connectionInfo.getDatabasePeer(), is("localhost:1521"));
     }
 
     @Test
@@ -73,8 +70,7 @@ public class URLParserTest {
         ConnectionInfo connectionInfo = new URLParser().parser("jdbc:oracle:thin:@localhost:1522:orcl");
         assertThat(connectionInfo.getDBType(), is("Oracle"));
         assertThat(connectionInfo.getDatabaseName(), is("orcl"));
-        assertThat(connectionInfo.getHost(), is("localhost"));
-        assertThat(connectionInfo.getPort(), is(1522));
+        assertThat(connectionInfo.getDatabasePeer(), is("localhost:1522"));
     }
 
     @Test
@@ -82,8 +78,7 @@ public class URLParserTest {
         ConnectionInfo connectionInfo = new URLParser().parser("jdbc:oracle:thin:scott/tiger@myhost:1521:orcl");
         assertThat(connectionInfo.getDBType(), is("Oracle"));
         assertThat(connectionInfo.getDatabaseName(), is("orcl"));
-        assertThat(connectionInfo.getHost(), is("myhost"));
-        assertThat(connectionInfo.getPort(), is(1521));
+        assertThat(connectionInfo.getDatabasePeer(), is("myhost:1521"));
     }
 
     @Test
@@ -91,8 +86,7 @@ public class URLParserTest {
         ConnectionInfo connectionInfo = new URLParser().parser("jdbc:h2:file:/data/sample");
         assertThat(connectionInfo.getDBType(), is("H2"));
         assertThat(connectionInfo.getDatabaseName(), is("/data/sample"));
-        assertThat(connectionInfo.getHost(), is("localhost"));
-        assertThat(connectionInfo.getPort(), is(-1));
+        assertThat(connectionInfo.getDatabasePeer(), is("localhost:-1"));
     }
 
     @Test
@@ -100,8 +94,7 @@ public class URLParserTest {
         ConnectionInfo connectionInfo = new URLParser().parser("jdbc:h2:file:C:/data/sample");
         assertThat(connectionInfo.getDBType(), is("H2"));
         assertThat(connectionInfo.getDatabaseName(), is("C:/data/sample"));
-        assertThat(connectionInfo.getHost(), is("localhost"));
-        assertThat(connectionInfo.getPort(), is(-1));
+        assertThat(connectionInfo.getDatabasePeer(), is("localhost:-1"));
     }
 
     @Test
@@ -109,8 +102,7 @@ public class URLParserTest {
         ConnectionInfo connectionInfo = new URLParser().parser("jdbc:h2:mem:test_mem");
         assertThat(connectionInfo.getDBType(), is("H2"));
         assertThat(connectionInfo.getDatabaseName(), is("test_mem"));
-        assertThat(connectionInfo.getHost(), is("localhost"));
-        assertThat(connectionInfo.getPort(), is(-1));
+        assertThat(connectionInfo.getDatabasePeer(), is("localhost:-1"));
     }
 
     @Test
@@ -118,7 +110,6 @@ public class URLParserTest {
         ConnectionInfo connectionInfo = new URLParser().parser("jdbc:h2:tcp://localhost:8084/~/sample");
         assertThat(connectionInfo.getDBType(), is("H2"));
         assertThat(connectionInfo.getDatabaseName(), is("sample"));
-        assertThat(connectionInfo.getHost(), is("localhost"));
-        assertThat(connectionInfo.getPort(), is(8084));
+        assertThat(connectionInfo.getDatabasePeer(), is("localhost:8084"));
     }
 }
