@@ -37,6 +37,7 @@
         <docker.plugin.version>0.4.13</docker.plugin.version>
         <docker.image.name>skywalking/skywalking-ui</docker.image.name>
         <docker.image.version>${version}</docker.image.version>
+        <momentjs.version>2.18.1</momentjs.version>
     </properties>
 
     <dependencies>
@@ -186,6 +187,12 @@
             <groupId>org.webjars.bower</groupId>
             <artifactId>ion.rangeSlider</artifactId>
             <version>2.1.4</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>jquery</artifactId>
+                    <groupId>org.webjars.bower</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.webjars</groupId>
@@ -194,6 +201,10 @@
             <exclusions>
                 <exclusion>
                     <artifactId>bootstrap</artifactId>
+                    <groupId>org.webjars</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>momentjs</artifactId>
                     <groupId>org.webjars</groupId>
                 </exclusion>
             </exclusions>
@@ -212,6 +223,12 @@
             <groupId>org.webjars.bower</groupId>
             <artifactId>datatables</artifactId>
             <version>1.10.13</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>jquery</artifactId>
+                    <groupId>org.webjars.bower</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.webjars</groupId>
@@ -222,6 +239,12 @@
             <groupId>org.webjars</groupId>
             <artifactId>requirejs-text</artifactId>
             <version>2.0.15</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>requirejs</artifactId>
+                    <groupId>org.webjars</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.webjars.bower</groupId>
@@ -232,6 +255,12 @@
             <groupId>org.webjars.bower</groupId>
             <artifactId>jquery-treetable</artifactId>
             <version>3.2.0</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>jquery</artifactId>
+                    <groupId>org.webjars.bower</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.webjars</groupId>
@@ -261,12 +290,29 @@
             <artifactId>powermock-module-junit4</artifactId>
             <version>${powermock.version}</version>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>junit</artifactId>
+                    <groupId>junit</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.powermock</groupId>
             <artifactId>powermock-api-mockito</artifactId>
             <version>${powermock.version}</version>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>hamcrest-core</artifactId>
+                    <groupId>org.hamcrest</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>momentjs</artifactId>
+            <version>${momentjs.version}</version>
         </dependency>
     </dependencies>
 
