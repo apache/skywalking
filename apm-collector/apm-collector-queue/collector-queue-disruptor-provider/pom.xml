@@ -30,4 +30,16 @@
     <artifactId>collector-queue-disruptor-provider</artifactId>
     <packaging>jar</packaging>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>collector-queue-define</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.lmax</groupId>
+            <artifactId>disruptor</artifactId>
+            <version>3.3.6</version>
+        </dependency>
+    </dependencies>
 </project>

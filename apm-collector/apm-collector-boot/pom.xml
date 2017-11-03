@@ -117,5 +117,17 @@
             <version>${project.version}</version>
         </dependency>
         <!-- remote provider -->
+        <!-- queue provider -->
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>collector-queue-datacarrier-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.skywalking</groupId>
+            <artifactId>collector-queue-disruptor-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- queue provider -->
     </dependencies>
 </project>
