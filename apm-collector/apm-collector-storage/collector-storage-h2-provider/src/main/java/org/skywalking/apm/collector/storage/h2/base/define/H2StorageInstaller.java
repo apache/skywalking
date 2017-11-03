@@ -24,7 +24,7 @@ import org.skywalking.apm.collector.client.h2.H2ClientException;
 import org.skywalking.apm.collector.storage.StorageException;
 import org.skywalking.apm.collector.storage.StorageInstallException;
 import org.skywalking.apm.collector.storage.StorageInstaller;
-import org.skywalking.apm.collector.storage.base.define.TableDefine;
+import org.skywalking.apm.collector.core.data.TableDefine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

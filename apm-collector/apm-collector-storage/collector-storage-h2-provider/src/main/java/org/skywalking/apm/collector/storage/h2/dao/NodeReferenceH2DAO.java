@@ -28,7 +28,7 @@ import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.client.h2.H2ClientException;
 import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
-import org.skywalking.apm.collector.storage.base.define.DataDefine;
+import org.skywalking.apm.collector.core.data.DataDefine;
 import org.skywalking.apm.collector.storage.dao.INodeReferenceDAO;
 import org.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.skywalking.apm.collector.storage.h2.base.define.H2SqlEntity;

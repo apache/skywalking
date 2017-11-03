@@ -14,6 +14,8 @@
     <modules>
         <module>collector-remote-define</module>
         <module>collector-remote-grpc-define</module>
+        <module>collector-remote-kafka-provider</module>
+        <module>collector-remote-grpc-provider</module>
     </modules>
 
     <dependencies>
