@@ -31,10 +31,8 @@ gRPC_manager:
 #  grpc:
 #    host: localhost
 #    port: 11800
-#storage:
-#  elasticsearch:
-#    cluster_name: CollectorDBCluster
-#    cluster_transport_sniffer: true
-#    cluster_nodes: localhost:9300
-#    index_shards_number: 2
-#    index_replicas_number: 0
+storage:
+  h2:
+    url: jdbc:h2:~/memorydb
+    user_name: sa
+    password:

@@ -32,6 +32,8 @@ import org.skywalking.apm.collector.storage.base.dao.DAOContainer;
 import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.EsDAODefineLoader;
 import org.skywalking.apm.collector.storage.es.base.define.ElasticSearchStorageInstaller;
+import org.skywalking.apm.collector.storage.es.service.ElasticSearchDAOService;
+import org.skywalking.apm.collector.storage.service.DAOService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +50,12 @@ public class StorageModuleEsProvider extends ModuleProvider {
     private static final String INDEX_SHARDS_NUMBER = "index_shards_number";
     private static final String INDEX_REPLICAS_NUMBER = "index_replicas_number";
 
+    private final DAOContainer daoContainer;
     private ElasticSearchClient elasticSearchClient;
+
+    public StorageModuleEsProvider() {
+        this.daoContainer = new DAOContainer();
+    }
 
     @Override public String name() {
         return "elasticsearch";
@@ -63,6 +70,8 @@ public class StorageModuleEsProvider extends ModuleProvider {
         Boolean clusterTransportSniffer = (Boolean)config.get(CLUSTER_TRANSPORT_SNIFFER);
         String clusterNodes = config.getProperty(CLUSTER_NODES);
         elasticSearchClient = new ElasticSearchClient(clusterName, clusterTransportSniffer, clusterNodes);
+
+        this.registerServiceImplementation(DAOService.class, new ElasticSearchDAOService(daoContainer));
     }
 
     @Override public void start(Properties config) throws ServiceNotProvidedException {
@@ -76,7 +85,7 @@ public class StorageModuleEsProvider extends ModuleProvider {
             esDAOs.forEach(esDAO -> {
                 esDAO.setClient(elasticSearchClient);
                 String interFaceName = esDAO.getClass().getInterfaces()[0].getName();
-                DAOContainer.INSTANCE.put(interFaceName, esDAO);
+                daoContainer.put(interFaceName, esDAO);
             });
 
             ElasticSearchStorageInstaller installer = new ElasticSearchStorageInstaller(indexShardsNumber, indexReplicasNumber);

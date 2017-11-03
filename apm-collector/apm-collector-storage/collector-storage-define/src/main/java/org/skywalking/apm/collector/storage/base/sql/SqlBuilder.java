@@ -16,7 +16,7 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.storage.sql;
+package org.skywalking.apm.collector.storage.base.sql;
 
 import java.text.MessageFormat;
 import java.util.List;

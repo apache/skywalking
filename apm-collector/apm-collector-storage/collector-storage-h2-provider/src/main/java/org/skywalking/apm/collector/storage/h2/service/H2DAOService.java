@@ -16,23 +16,24 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.storage;
+package org.skywalking.apm.collector.storage.h2.service;
 
-import org.skywalking.apm.collector.core.module.Module;
+import org.skywalking.apm.collector.storage.base.dao.DAO;
+import org.skywalking.apm.collector.storage.base.dao.DAOContainer;
 import org.skywalking.apm.collector.storage.service.DAOService;
 
 /**
  * @author peng-yongsheng
  */
-public class StorageModule extends Module {
+public class H2DAOService implements DAOService {
 
-    public static final String NAME = "storage";
+    private final DAOContainer daoContainer;
 
-    @Override public String name() {
-        return NAME;
+    public H2DAOService(DAOContainer daoContainer) {
+        this.daoContainer = daoContainer;
     }
 
-    @Override public Class[] services() {
-        return new Class[] {DAOService.class};
+    @Override public DAO get(Class<DAO> daoInterfaceClass) {
+        return daoContainer.get(daoInterfaceClass.getName());
     }
 }

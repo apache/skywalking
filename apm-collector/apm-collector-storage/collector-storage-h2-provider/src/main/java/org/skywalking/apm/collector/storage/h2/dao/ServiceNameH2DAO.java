@@ -25,7 +25,7 @@ import org.skywalking.apm.collector.client.h2.H2ClientException;
 import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.storage.dao.IServiceNameDAO;
 import org.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
-import org.skywalking.apm.collector.storage.sql.SqlBuilder;
+import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.skywalking.apm.collector.storage.table.register.ServiceNameDataDefine;
 import org.skywalking.apm.collector.storage.table.register.ServiceNameTable;
 import org.slf4j.Logger;

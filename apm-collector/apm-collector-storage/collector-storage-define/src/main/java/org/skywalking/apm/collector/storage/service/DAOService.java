@@ -16,23 +16,14 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.storage;
+package org.skywalking.apm.collector.storage.service;
 
-import org.skywalking.apm.collector.core.module.Module;
-import org.skywalking.apm.collector.storage.service.DAOService;
+import org.skywalking.apm.collector.core.module.Service;
+import org.skywalking.apm.collector.storage.base.dao.DAO;
 
 /**
  * @author peng-yongsheng
  */
-public class StorageModule extends Module {
-
-    public static final String NAME = "storage";
-
-    @Override public String name() {
-        return NAME;
-    }
-
-    @Override public Class[] services() {
-        return new Class[] {DAOService.class};
-    }
+public interface DAOService extends Service {
+    DAO get(Class<DAO> daoInterfaceClass);
 }

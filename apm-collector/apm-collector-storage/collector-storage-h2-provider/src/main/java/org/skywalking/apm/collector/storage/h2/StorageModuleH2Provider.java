@@ -32,6 +32,8 @@ import org.skywalking.apm.collector.storage.base.dao.DAOContainer;
 import org.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.skywalking.apm.collector.storage.h2.base.dao.H2DAODefineLoader;
 import org.skywalking.apm.collector.storage.h2.base.define.H2StorageInstaller;
+import org.skywalking.apm.collector.storage.h2.service.H2DAOService;
+import org.skywalking.apm.collector.storage.service.DAOService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,6 +49,11 @@ public class StorageModuleH2Provider extends ModuleProvider {
     private static final String PASSWORD = "password";
 
     private H2Client client;
+    private final DAOContainer daoContainer;
+
+    public StorageModuleH2Provider() {
+        this.daoContainer = new DAOContainer();
+    }
 
     @Override public String name() {
         return "h2";
@@ -61,6 +68,8 @@ public class StorageModuleH2Provider extends ModuleProvider {
         String userName = config.getProperty(USER_NAME);
         String password = config.getProperty(PASSWORD);
         client = new H2Client(url, userName, password);
+
+        this.registerServiceImplementation(DAOService.class, new H2DAOService(daoContainer));
     }
 
     @Override public void start(Properties config) throws ServiceNotProvidedException {
@@ -72,7 +81,7 @@ public class StorageModuleH2Provider extends ModuleProvider {
             h2DAOs.forEach(h2DAO -> {
                 h2DAO.setClient(client);
                 String interFaceName = h2DAO.getClass().getInterfaces()[0].getName();
-                DAOContainer.INSTANCE.put(interFaceName, h2DAO);
+                daoContainer.put(interFaceName, h2DAO);
             });
 
             H2StorageInstaller installer = new H2StorageInstaller();
