@@ -18,7 +18,7 @@
 
 package org.skywalking.apm.collector.storage.h2.base.define;
 
-import org.skywalking.apm.collector.storage.base.define.TableDefine;
+import org.skywalking.apm.collector.core.data.TableDefine;
 
 /**
  * @author peng-yongsheng

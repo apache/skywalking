@@ -27,8 +27,8 @@ import org.elasticsearch.index.IndexNotFoundException;
 import org.skywalking.apm.collector.client.Client;
 import org.skywalking.apm.collector.client.elasticsearch.ElasticSearchClient;
 import org.skywalking.apm.collector.storage.StorageInstaller;
-import org.skywalking.apm.collector.storage.base.define.ColumnDefine;
-import org.skywalking.apm.collector.storage.base.define.TableDefine;
+import org.skywalking.apm.collector.core.data.ColumnDefine;
+import org.skywalking.apm.collector.core.data.TableDefine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

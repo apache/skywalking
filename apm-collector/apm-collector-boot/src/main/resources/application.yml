@@ -1,7 +1,3 @@
-cluster:
-  zookeeper:
-    hostPort: localhost:2181
-    sessionTimeout: 100000
 naming:
   jetty:
     host: localhost

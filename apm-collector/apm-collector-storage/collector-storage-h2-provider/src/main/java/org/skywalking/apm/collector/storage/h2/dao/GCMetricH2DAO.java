@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
-import org.skywalking.apm.collector.storage.base.define.DataDefine;
+import org.skywalking.apm.collector.core.data.DataDefine;
 import org.skywalking.apm.collector.storage.dao.IGCMetricDAO;
 import org.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.skywalking.apm.collector.storage.h2.base.define.H2SqlEntity;

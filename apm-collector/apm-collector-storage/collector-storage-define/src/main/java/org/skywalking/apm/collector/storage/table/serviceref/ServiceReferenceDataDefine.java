@@ -18,11 +18,11 @@
 
 package org.skywalking.apm.collector.storage.table.serviceref;
 
-import org.skywalking.apm.collector.storage.base.define.Attribute;
-import org.skywalking.apm.collector.storage.base.define.AttributeType;
-import org.skywalking.apm.collector.storage.base.define.DataDefine;
-import org.skywalking.apm.collector.storage.base.define.operator.AddOperation;
-import org.skywalking.apm.collector.storage.base.define.operator.NonOperation;
+import org.skywalking.apm.collector.core.data.Attribute;
+import org.skywalking.apm.collector.core.data.AttributeType;
+import org.skywalking.apm.collector.core.data.DataDefine;
+import org.skywalking.apm.collector.core.data.operator.AddOperation;
+import org.skywalking.apm.collector.core.data.operator.NonOperation;
 
 /**
  * @author peng-yongsheng

@@ -25,7 +25,7 @@ import org.elasticsearch.action.update.UpdateRequestBuilder;
 import org.skywalking.apm.collector.core.UnexpectedException;
 import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
-import org.skywalking.apm.collector.storage.base.define.DataDefine;
+import org.skywalking.apm.collector.core.data.DataDefine;
 import org.skywalking.apm.collector.storage.dao.IGlobalTraceDAO;
 import org.skywalking.apm.collector.storage.es.base.dao.EsDAO;
 import org.skywalking.apm.collector.storage.table.global.GlobalTraceTable;
