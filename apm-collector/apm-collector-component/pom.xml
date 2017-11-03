@@ -14,7 +14,6 @@
     <modules>
         <module>client-component</module>
         <module>server-component</module>
-        <module>queue-component</module>
     </modules>
 
     <dependencies>
