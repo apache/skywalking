@@ -27,7 +27,7 @@ requirejs.config({
         "bootstrap": "/webjars/bootstrap/3.3.6/js/bootstrap.min",
         "metisMenu": "/webjars/metisMenu/2.5.2/dist/metisMenu.min",
         "slimscroll": "/webjars/jquery-slimscroll/1.3.6/jquery.slimscroll.min",
-        "moment": "/webjars/momentjs/2.19.1/min/moment.min",
+        "moment": "/webjars/momentjs/2.18.1/min/moment.min",
         "vis": "/webjars/vis/4.19.1/dist/vis.min",
         "datatables": "/webjars/datatables/1.10.13/media/js/jquery.dataTables.min",
         "head": "/head/head",
