@@ -18,19 +18,34 @@
 
 package org.skywalking.apm.plugin.jdbc.mysql.define;
 
-import org.skywalking.apm.agent.core.plugin.match.ClassMatch;
-import org.skywalking.apm.plugin.jdbc.define.AbstractDriverInstrumentation;
-
-import static org.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
+import org.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
 /**
- * {@link DriverInstrumentation} presents that skywalking intercepts {@link com.mysql.jdbc.Driver}.
+ * {@link StatementEnhanceInfos} contain the {@link org.skywalking.apm.plugin.jdbc.trace.ConnectionInfo} and
+ * <code>sql</code> for trace mysql.
  *
  * @author zhangxin
  */
-public class DriverInstrumentation extends AbstractDriverInstrumentation {
-    @Override
-    protected ClassMatch enhanceClass() {
-        return byName("com.mysql.jdbc.Driver");
+public class StatementEnhanceInfos {
+    private ConnectionInfo connectionInfo;
+    private String statementName;
+    private String sql;
+
+    public StatementEnhanceInfos(ConnectionInfo connectionInfo, String sql, String statementName) {
+        this.connectionInfo = connectionInfo;
+        this.sql = sql;
+        this.statementName = statementName;
+    }
+
+    public ConnectionInfo getConnectionInfo() {
+        return connectionInfo;
+    }
+
+    public String getSql() {
+        return sql;
+    }
+
+    public String getStatementName() {
+        return statementName;
     }
 }

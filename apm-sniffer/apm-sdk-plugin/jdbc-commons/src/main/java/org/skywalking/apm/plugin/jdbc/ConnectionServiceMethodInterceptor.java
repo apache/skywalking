@@ -27,15 +27,14 @@ import org.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
-import org.skywalking.apm.util.StringUtil;
 
 /**
- * {@link ConnectionServiceMethodInterceptor} create an exit span when the client call the following methods in the class
- * that extend {@link java.sql.Connection}.
+ * {@link ConnectionServiceMethodInterceptor} create an exit span when the following methods execute:
  * 1. close
  * 2. rollback
  * 3. releaseSavepoint
  * 4. commit
+ *
  * @author zhangxin
  */
 public class ConnectionServiceMethodInterceptor implements InstanceMethodsAroundInterceptor {
@@ -45,13 +44,7 @@ public class ConnectionServiceMethodInterceptor implements InstanceMethodsAround
         Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
         ConnectionInfo connectInfo = (ConnectionInfo)objInst.getSkyWalkingDynamicField();
-        String remotePeer;
-        if (!StringUtil.isEmpty(connectInfo.getHosts())) {
-            remotePeer = connectInfo.getHosts();
-        } else {
-            remotePeer = connectInfo.getHost() + ":" + connectInfo.getPort();
-        }
-        AbstractSpan span = ContextManager.createExitSpan(connectInfo.getDBType() + "/JDBI/Connection/" + method.getName(), remotePeer);
+        AbstractSpan span = ContextManager.createExitSpan(connectInfo.getDBType() + "/JDBI/Connection/" + method.getName(), connectInfo.getDatabasePeer());
         Tags.DB_TYPE.set(span, "sql");
         Tags.DB_INSTANCE.set(span, connectInfo.getDatabaseName());
         Tags.DB_STATEMENT.set(span, "");
