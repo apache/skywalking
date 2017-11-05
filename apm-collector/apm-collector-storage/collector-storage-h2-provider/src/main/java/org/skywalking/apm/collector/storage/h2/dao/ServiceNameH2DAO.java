@@ -22,10 +22,9 @@ import java.util.HashMap;
 import java.util.Map;
 import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.client.h2.H2ClientException;
-import org.skywalking.apm.collector.core.data.Data;
+import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.skywalking.apm.collector.storage.dao.IServiceNameDAO;
 import org.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
-import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.skywalking.apm.collector.storage.table.register.ServiceName;
 import org.skywalking.apm.collector.storage.table.register.ServiceNameTable;
 import org.slf4j.Logger;
@@ -48,19 +47,14 @@ public class ServiceNameH2DAO extends H2DAO implements IServiceNameDAO {
     }
 
     @Override
-    public void save(Data data) {
-        String id = ServiceName.ServiceName.INSTANCE.getId(data);
-        int applicationId = ServiceName.ServiceName.INSTANCE.getApplicationId(data);
-        int serviceId = ServiceName.ServiceName.INSTANCE.getServiceId(data);
-        String serviceName = ServiceName.ServiceName.INSTANCE.getServiceName(data);
-
-        logger.debug("save service name register info, application getId: {}, service name: {}", applicationId, serviceName);
+    public void save(ServiceName serviceName) {
+        logger.debug("save service name register info, application getId: {}, service name: {}", serviceName.getId(), serviceName.getServiceName());
         H2Client client = getClient();
         Map<String, Object> source = new HashMap<>();
-        source.put(ServiceNameTable.COLUMN_ID, id);
-        source.put(ServiceNameTable.COLUMN_SERVICE_ID, serviceId);
-        source.put(ServiceNameTable.COLUMN_APPLICATION_ID, applicationId);
-        source.put(ServiceNameTable.COLUMN_SERVICE_NAME, serviceName);
+        source.put(ServiceNameTable.COLUMN_ID, serviceName.getId());
+        source.put(ServiceNameTable.COLUMN_SERVICE_ID, serviceName.getServiceId());
+        source.put(ServiceNameTable.COLUMN_APPLICATION_ID, serviceName.getApplicationId());
+        source.put(ServiceNameTable.COLUMN_SERVICE_NAME, serviceName.getServiceName());
 
         String sql = SqlBuilder.buildBatchInsertSql(ServiceNameTable.TABLE, source.keySet());
         Object[] params = source.values().toArray(new Object[0]);

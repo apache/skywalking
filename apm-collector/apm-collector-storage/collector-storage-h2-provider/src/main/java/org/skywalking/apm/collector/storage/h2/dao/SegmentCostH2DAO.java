@@ -20,13 +20,12 @@ package org.skywalking.apm.collector.storage.h2.dao;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
-import org.skywalking.apm.collector.core.data.DataDefine;
+import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.skywalking.apm.collector.storage.dao.ISegmentCostDAO;
 import org.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.skywalking.apm.collector.storage.h2.base.define.H2SqlEntity;
-import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
+import org.skywalking.apm.collector.storage.table.segment.SegmentCost;
 import org.skywalking.apm.collector.storage.table.segment.SegmentCostTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,26 +33,27 @@ import org.slf4j.LoggerFactory;
 /**
  * @author peng-yongsheng, clevertension
  */
-public class SegmentCostH2DAO extends H2DAO implements ISegmentCostDAO, IPersistenceDAO<H2SqlEntity, H2SqlEntity> {
+public class SegmentCostH2DAO extends H2DAO implements ISegmentCostDAO, IPersistenceDAO<H2SqlEntity, H2SqlEntity, SegmentCost> {
+
     private final Logger logger = LoggerFactory.getLogger(SegmentCostH2DAO.class);
 
-    @Override public Data get(String id, DataDefine dataDefine) {
+    @Override public SegmentCost get(String id) {
         return null;
     }
 
-    @Override public H2SqlEntity prepareBatchInsert(Data data) {
-        logger.debug("segment cost prepareBatchInsert, getId: {}", data.getDataString(0));
+    @Override public H2SqlEntity prepareBatchInsert(SegmentCost data) {
+        logger.debug("segment cost prepareBatchInsert, getId: {}", data.getId());
         H2SqlEntity entity = new H2SqlEntity();
         Map<String, Object> source = new HashMap<>();
-        source.put(SegmentCostTable.COLUMN_ID, data.getDataString(0));
-        source.put(SegmentCostTable.COLUMN_SEGMENT_ID, data.getDataString(1));
-        source.put(SegmentCostTable.COLUMN_APPLICATION_ID, data.getDataInteger(0));
-        source.put(SegmentCostTable.COLUMN_SERVICE_NAME, data.getDataString(2));
-        source.put(SegmentCostTable.COLUMN_COST, data.getDataLong(0));
-        source.put(SegmentCostTable.COLUMN_START_TIME, data.getDataLong(1));
-        source.put(SegmentCostTable.COLUMN_END_TIME, data.getDataLong(2));
-        source.put(SegmentCostTable.COLUMN_IS_ERROR, data.getDataBoolean(0));
-        source.put(SegmentCostTable.COLUMN_TIME_BUCKET, data.getDataLong(3));
+        source.put(SegmentCostTable.COLUMN_ID, data.getId());
+        source.put(SegmentCostTable.COLUMN_SEGMENT_ID, data.getSegmentId());
+        source.put(SegmentCostTable.COLUMN_APPLICATION_ID, data.getApplicationId());
+        source.put(SegmentCostTable.COLUMN_SERVICE_NAME, data.getServiceName());
+        source.put(SegmentCostTable.COLUMN_COST, data.getCost());
+        source.put(SegmentCostTable.COLUMN_START_TIME, data.getStartTime());
+        source.put(SegmentCostTable.COLUMN_END_TIME, data.getEndTime());
+        source.put(SegmentCostTable.COLUMN_IS_ERROR, data.getIsError());
+        source.put(SegmentCostTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
         logger.debug("segment cost source: {}", source.toString());
 
         String sql = SqlBuilder.buildBatchInsertSql(SegmentCostTable.TABLE, source.keySet());
@@ -62,7 +62,7 @@ public class SegmentCostH2DAO extends H2DAO implements ISegmentCostDAO, IPersist
         return entity;
     }
 
-    @Override public H2SqlEntity prepareBatchUpdate(Data data) {
+    @Override public H2SqlEntity prepareBatchUpdate(SegmentCost data) {
         return null;
     }
 }

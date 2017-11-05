@@ -22,10 +22,9 @@ import java.util.HashMap;
 import java.util.Map;
 import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.client.h2.H2ClientException;
-import org.skywalking.apm.collector.core.data.Data;
+import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.skywalking.apm.collector.storage.dao.IApplicationDAO;
 import org.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
-import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.skywalking.apm.collector.storage.table.register.Application;
 import org.skywalking.apm.collector.storage.table.register.ApplicationTable;
 import org.slf4j.Logger;
@@ -48,16 +47,13 @@ public class ApplicationH2DAO extends H2DAO implements IApplicationDAO {
     }
 
     @Override
-    public void save(Data data) {
-        String id = Application.Application.INSTANCE.getId(data);
-        int applicationId = Application.Application.INSTANCE.getApplicationId(data);
-        String applicationCode = Application.Application.INSTANCE.getApplicationCode(data);
+    public void save(Application application) {
         H2Client client = getClient();
 
         Map<String, Object> source = new HashMap<>();
-        source.put(ApplicationTable.COLUMN_ID, id);
-        source.put(ApplicationTable.COLUMN_APPLICATION_CODE, applicationCode);
-        source.put(ApplicationTable.COLUMN_APPLICATION_ID, applicationId);
+        source.put(ApplicationTable.COLUMN_ID, application.getId());
+        source.put(ApplicationTable.COLUMN_APPLICATION_CODE, application.getApplicationCode());
+        source.put(ApplicationTable.COLUMN_APPLICATION_ID, application.getApplicationId());
 
         String sql = SqlBuilder.buildBatchInsertSql(ApplicationTable.TABLE, source.keySet());
         Object[] params = source.values().toArray(new Object[0]);

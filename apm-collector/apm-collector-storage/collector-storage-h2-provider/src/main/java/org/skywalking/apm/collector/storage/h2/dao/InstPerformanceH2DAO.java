@@ -26,13 +26,12 @@ import java.util.List;
 import java.util.Map;
 import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.client.h2.H2ClientException;
-import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
-import org.skywalking.apm.collector.core.data.DataDefine;
+import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.skywalking.apm.collector.storage.dao.IInstPerformanceDAO;
 import org.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.skywalking.apm.collector.storage.h2.base.define.H2SqlEntity;
-import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
+import org.skywalking.apm.collector.storage.table.instance.InstPerformance;
 import org.skywalking.apm.collector.storage.table.instance.InstPerformanceTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,24 +39,24 @@ import org.slf4j.LoggerFactory;
 /**
  * @author peng-yongsheng, clevertension
  */
-public class InstPerformanceH2DAO extends H2DAO implements IInstPerformanceDAO, IPersistenceDAO<H2SqlEntity, H2SqlEntity> {
+public class InstPerformanceH2DAO extends H2DAO implements IInstPerformanceDAO, IPersistenceDAO<H2SqlEntity, H2SqlEntity, InstPerformance> {
 
     private final Logger logger = LoggerFactory.getLogger(InstPerformanceH2DAO.class);
     private static final String GET_SQL = "select * from {0} where {1} = ?";
 
-    @Override public Data get(String id, DataDefine dataDefine) {
+    @Override public InstPerformance get(String id) {
         H2Client client = getClient();
         String sql = SqlBuilder.buildSql(GET_SQL, InstPerformanceTable.TABLE, InstPerformanceTable.COLUMN_ID);
         Object[] params = new Object[] {id};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
-                Data data = dataDefine.build(id);
-                data.setDataInteger(0, rs.getInt(InstPerformanceTable.COLUMN_APPLICATION_ID));
-                data.setDataInteger(1, rs.getInt(InstPerformanceTable.COLUMN_INSTANCE_ID));
-                data.setDataInteger(2, rs.getInt(InstPerformanceTable.COLUMN_CALLS));
-                data.setDataLong(0, rs.getLong(InstPerformanceTable.COLUMN_COST_TOTAL));
-                data.setDataLong(1, rs.getLong(InstPerformanceTable.COLUMN_TIME_BUCKET));
-                return data;
+                InstPerformance instPerformance = new InstPerformance(id);
+                instPerformance.setApplicationId(rs.getInt(InstPerformanceTable.COLUMN_APPLICATION_ID));
+                instPerformance.setInstanceId(rs.getInt(InstPerformanceTable.COLUMN_INSTANCE_ID));
+                instPerformance.setCalls(rs.getInt(InstPerformanceTable.COLUMN_CALLS));
+                instPerformance.setCostTotal(rs.getLong(InstPerformanceTable.COLUMN_COST_TOTAL));
+                instPerformance.setTimeBucket(rs.getLong(InstPerformanceTable.COLUMN_TIME_BUCKET));
+                return instPerformance;
             }
         } catch (SQLException | H2ClientException e) {
             logger.error(e.getMessage(), e);
@@ -65,34 +64,33 @@ public class InstPerformanceH2DAO extends H2DAO implements IInstPerformanceDAO, 
         return null;
     }
 
-    @Override public H2SqlEntity prepareBatchInsert(Data data) {
+    @Override public H2SqlEntity prepareBatchInsert(InstPerformance data) {
         Map<String, Object> source = new HashMap<>();
         H2SqlEntity entity = new H2SqlEntity();
-        source.put(InstPerformanceTable.COLUMN_ID, data.getDataString(0));
-        source.put(InstPerformanceTable.COLUMN_APPLICATION_ID, data.getDataInteger(0));
-        source.put(InstPerformanceTable.COLUMN_INSTANCE_ID, data.getDataInteger(1));
-        source.put(InstPerformanceTable.COLUMN_CALLS, data.getDataInteger(2));
-        source.put(InstPerformanceTable.COLUMN_COST_TOTAL, data.getDataLong(0));
-        source.put(InstPerformanceTable.COLUMN_TIME_BUCKET, data.getDataLong(1));
+        source.put(InstPerformanceTable.COLUMN_ID, data.getId());
+        source.put(InstPerformanceTable.COLUMN_APPLICATION_ID, data.getApplicationId());
+        source.put(InstPerformanceTable.COLUMN_INSTANCE_ID, data.getInstanceId());
+        source.put(InstPerformanceTable.COLUMN_CALLS, data.getCalls());
+        source.put(InstPerformanceTable.COLUMN_COST_TOTAL, data.getCostTotal());
+        source.put(InstPerformanceTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
         String sql = SqlBuilder.buildBatchInsertSql(InstPerformanceTable.TABLE, source.keySet());
         entity.setSql(sql);
         entity.setParams(source.values().toArray(new Object[0]));
         return entity;
     }
 
-    @Override public H2SqlEntity prepareBatchUpdate(Data data) {
+    @Override public H2SqlEntity prepareBatchUpdate(InstPerformance data) {
         Map<String, Object> source = new HashMap<>();
         H2SqlEntity entity = new H2SqlEntity();
-        source.put(InstPerformanceTable.COLUMN_APPLICATION_ID, data.getDataInteger(0));
-        source.put(InstPerformanceTable.COLUMN_INSTANCE_ID, data.getDataInteger(1));
-        source.put(InstPerformanceTable.COLUMN_CALLS, data.getDataInteger(2));
-        source.put(InstPerformanceTable.COLUMN_COST_TOTAL, data.getDataLong(0));
-        source.put(InstPerformanceTable.COLUMN_TIME_BUCKET, data.getDataLong(1));
-        String id = data.getDataString(0);
+        source.put(InstPerformanceTable.COLUMN_APPLICATION_ID, data.getApplicationId());
+        source.put(InstPerformanceTable.COLUMN_INSTANCE_ID, data.getInstanceId());
+        source.put(InstPerformanceTable.COLUMN_CALLS, data.getCalls());
+        source.put(InstPerformanceTable.COLUMN_COST_TOTAL, data.getCostTotal());
+        source.put(InstPerformanceTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
         String sql = SqlBuilder.buildBatchUpdateSql(InstPerformanceTable.TABLE, source.keySet(), InstPerformanceTable.COLUMN_ID);
         entity.setSql(sql);
         List<Object> values = new ArrayList<>(source.values());
-        values.add(id);
+        values.add(data.getId());
         entity.setParams(values.toArray(new Object[0]));
         return entity;
     }

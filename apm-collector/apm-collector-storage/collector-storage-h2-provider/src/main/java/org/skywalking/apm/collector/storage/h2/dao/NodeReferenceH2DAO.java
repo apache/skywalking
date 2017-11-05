@@ -26,13 +26,12 @@ import java.util.List;
 import java.util.Map;
 import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.client.h2.H2ClientException;
-import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
-import org.skywalking.apm.collector.core.data.DataDefine;
+import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.skywalking.apm.collector.storage.dao.INodeReferenceDAO;
 import org.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.skywalking.apm.collector.storage.h2.base.define.H2SqlEntity;
-import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
+import org.skywalking.apm.collector.storage.table.noderef.NodeReference;
 import org.skywalking.apm.collector.storage.table.noderef.NodeReferenceTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,28 +39,29 @@ import org.slf4j.LoggerFactory;
 /**
  * @author peng-yongsheng, clevertension
  */
-public class NodeReferenceH2DAO extends H2DAO implements INodeReferenceDAO, IPersistenceDAO<H2SqlEntity, H2SqlEntity> {
+public class NodeReferenceH2DAO extends H2DAO implements INodeReferenceDAO, IPersistenceDAO<H2SqlEntity, H2SqlEntity, NodeReference> {
+
     private final Logger logger = LoggerFactory.getLogger(NodeReferenceH2DAO.class);
     private static final String GET_SQL = "select * from {0} where {1} = ?";
 
-    @Override public Data get(String id, DataDefine dataDefine) {
+    @Override public NodeReference get(String id) {
         H2Client client = getClient();
         String sql = SqlBuilder.buildSql(GET_SQL, NodeReferenceTable.TABLE, NodeReferenceTable.COLUMN_ID);
         Object[] params = new Object[] {id};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
-                Data data = dataDefine.build(id);
-                data.setDataInteger(0, rs.getInt(NodeReferenceTable.COLUMN_FRONT_APPLICATION_ID));
-                data.setDataInteger(1, rs.getInt(NodeReferenceTable.COLUMN_BEHIND_APPLICATION_ID));
-                data.setDataString(1, rs.getString(NodeReferenceTable.COLUMN_BEHIND_PEER));
-                data.setDataInteger(2, rs.getInt(NodeReferenceTable.COLUMN_S1_LTE));
-                data.setDataInteger(3, rs.getInt(NodeReferenceTable.COLUMN_S3_LTE));
-                data.setDataInteger(4, rs.getInt(NodeReferenceTable.COLUMN_S5_LTE));
-                data.setDataInteger(5, rs.getInt(NodeReferenceTable.COLUMN_S5_GT));
-                data.setDataInteger(6, rs.getInt(NodeReferenceTable.COLUMN_SUMMARY));
-                data.setDataInteger(7, rs.getInt(NodeReferenceTable.COLUMN_ERROR));
-                data.setDataLong(0, rs.getLong(NodeReferenceTable.COLUMN_TIME_BUCKET));
-                return data;
+                NodeReference nodeReference = new NodeReference(id);
+                nodeReference.setFrontApplicationId(rs.getInt(NodeReferenceTable.COLUMN_FRONT_APPLICATION_ID));
+                nodeReference.setBehindApplicationId(rs.getInt(NodeReferenceTable.COLUMN_BEHIND_APPLICATION_ID));
+                nodeReference.setBehindPeer(rs.getString(NodeReferenceTable.COLUMN_BEHIND_PEER));
+                nodeReference.setS1Lte(rs.getInt(NodeReferenceTable.COLUMN_S1_LTE));
+                nodeReference.setS3Lte(rs.getInt(NodeReferenceTable.COLUMN_S3_LTE));
+                nodeReference.setS5Lte(rs.getInt(NodeReferenceTable.COLUMN_S5_LTE));
+                nodeReference.setS5Gt(rs.getInt(NodeReferenceTable.COLUMN_S5_GT));
+                nodeReference.setSummary(rs.getInt(NodeReferenceTable.COLUMN_SUMMARY));
+                nodeReference.setError(rs.getInt(NodeReferenceTable.COLUMN_ERROR));
+                nodeReference.setTimeBucket(rs.getLong(NodeReferenceTable.COLUMN_TIME_BUCKET));
+                return nodeReference;
             }
         } catch (SQLException | H2ClientException e) {
             logger.error(e.getMessage(), e);
@@ -69,20 +69,20 @@ public class NodeReferenceH2DAO extends H2DAO implements INodeReferenceDAO, IPer
         return null;
     }
 
-    @Override public H2SqlEntity prepareBatchInsert(Data data) {
+    @Override public H2SqlEntity prepareBatchInsert(NodeReference data) {
         Map<String, Object> source = new HashMap<>();
         H2SqlEntity entity = new H2SqlEntity();
-        source.put(NodeReferenceTable.COLUMN_ID, data.getDataString(0));
-        source.put(NodeReferenceTable.COLUMN_FRONT_APPLICATION_ID, data.getDataInteger(0));
-        source.put(NodeReferenceTable.COLUMN_BEHIND_APPLICATION_ID, data.getDataInteger(1));
-        source.put(NodeReferenceTable.COLUMN_BEHIND_PEER, data.getDataString(1));
-        source.put(NodeReferenceTable.COLUMN_S1_LTE, data.getDataInteger(2));
-        source.put(NodeReferenceTable.COLUMN_S3_LTE, data.getDataInteger(3));
-        source.put(NodeReferenceTable.COLUMN_S5_LTE, data.getDataInteger(4));
-        source.put(NodeReferenceTable.COLUMN_S5_GT, data.getDataInteger(5));
-        source.put(NodeReferenceTable.COLUMN_SUMMARY, data.getDataInteger(6));
-        source.put(NodeReferenceTable.COLUMN_ERROR, data.getDataInteger(7));
-        source.put(NodeReferenceTable.COLUMN_TIME_BUCKET, data.getDataLong(0));
+        source.put(NodeReferenceTable.COLUMN_ID, data.getId());
+        source.put(NodeReferenceTable.COLUMN_FRONT_APPLICATION_ID, data.getFrontApplicationId());
+        source.put(NodeReferenceTable.COLUMN_BEHIND_APPLICATION_ID, data.getBehindApplicationId());
+        source.put(NodeReferenceTable.COLUMN_BEHIND_PEER, data.getBehindPeer());
+        source.put(NodeReferenceTable.COLUMN_S1_LTE, data.getS1Lte());
+        source.put(NodeReferenceTable.COLUMN_S3_LTE, data.getS3Lte());
+        source.put(NodeReferenceTable.COLUMN_S5_LTE, data.getS5Lte());
+        source.put(NodeReferenceTable.COLUMN_S5_GT, data.getS5Gt());
+        source.put(NodeReferenceTable.COLUMN_SUMMARY, data.getSummary());
+        source.put(NodeReferenceTable.COLUMN_ERROR, data.getError());
+        source.put(NodeReferenceTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
         String sql = SqlBuilder.buildBatchInsertSql(NodeReferenceTable.TABLE, source.keySet());
         entity.setSql(sql);
 
@@ -90,24 +90,23 @@ public class NodeReferenceH2DAO extends H2DAO implements INodeReferenceDAO, IPer
         return entity;
     }
 
-    @Override public H2SqlEntity prepareBatchUpdate(Data data) {
+    @Override public H2SqlEntity prepareBatchUpdate(NodeReference data) {
         Map<String, Object> source = new HashMap<>();
         H2SqlEntity entity = new H2SqlEntity();
-        source.put(NodeReferenceTable.COLUMN_FRONT_APPLICATION_ID, data.getDataInteger(0));
-        source.put(NodeReferenceTable.COLUMN_BEHIND_APPLICATION_ID, data.getDataInteger(1));
-        source.put(NodeReferenceTable.COLUMN_BEHIND_PEER, data.getDataString(1));
-        source.put(NodeReferenceTable.COLUMN_S1_LTE, data.getDataInteger(2));
-        source.put(NodeReferenceTable.COLUMN_S3_LTE, data.getDataInteger(3));
-        source.put(NodeReferenceTable.COLUMN_S5_LTE, data.getDataInteger(4));
-        source.put(NodeReferenceTable.COLUMN_S5_GT, data.getDataInteger(5));
-        source.put(NodeReferenceTable.COLUMN_SUMMARY, data.getDataInteger(6));
-        source.put(NodeReferenceTable.COLUMN_ERROR, data.getDataInteger(7));
-        source.put(NodeReferenceTable.COLUMN_TIME_BUCKET, data.getDataLong(0));
-        String id = data.getDataString(0);
+        source.put(NodeReferenceTable.COLUMN_FRONT_APPLICATION_ID, data.getFrontApplicationId());
+        source.put(NodeReferenceTable.COLUMN_BEHIND_APPLICATION_ID, data.getBehindApplicationId());
+        source.put(NodeReferenceTable.COLUMN_BEHIND_PEER, data.getBehindPeer());
+        source.put(NodeReferenceTable.COLUMN_S1_LTE, data.getS1Lte());
+        source.put(NodeReferenceTable.COLUMN_S3_LTE, data.getS3Lte());
+        source.put(NodeReferenceTable.COLUMN_S5_LTE, data.getS5Lte());
+        source.put(NodeReferenceTable.COLUMN_S5_GT, data.getS5Gt());
+        source.put(NodeReferenceTable.COLUMN_SUMMARY, data.getSummary());
+        source.put(NodeReferenceTable.COLUMN_ERROR, data.getError());
+        source.put(NodeReferenceTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
         String sql = SqlBuilder.buildBatchUpdateSql(NodeReferenceTable.TABLE, source.keySet(), NodeReferenceTable.COLUMN_ID);
         entity.setSql(sql);
         List<Object> values = new ArrayList<>(source.values());
-        values.add(id);
+        values.add(data.getId());
         entity.setParams(values.toArray(new Object[0]));
         return entity;
     }

@@ -21,13 +21,12 @@ package org.skywalking.apm.collector.storage.h2.dao;
 import java.util.HashMap;
 import java.util.Map;
 import org.skywalking.apm.collector.core.UnexpectedException;
-import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
-import org.skywalking.apm.collector.core.data.DataDefine;
+import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.skywalking.apm.collector.storage.dao.IGlobalTraceDAO;
 import org.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.skywalking.apm.collector.storage.h2.base.define.H2SqlEntity;
-import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
+import org.skywalking.apm.collector.storage.table.global.GlobalTrace;
 import org.skywalking.apm.collector.storage.table.global.GlobalTraceTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,24 +34,24 @@ import org.slf4j.LoggerFactory;
 /**
  * @author peng-yongsheng, clevertension
  */
-public class GlobalTraceH2DAO extends H2DAO implements IGlobalTraceDAO, IPersistenceDAO<H2SqlEntity, H2SqlEntity> {
+public class GlobalTraceH2DAO extends H2DAO implements IGlobalTraceDAO, IPersistenceDAO<H2SqlEntity, H2SqlEntity, GlobalTrace> {
     private final Logger logger = LoggerFactory.getLogger(GlobalTraceH2DAO.class);
 
-    @Override public Data get(String id, DataDefine dataDefine) {
+    @Override public GlobalTrace get(String id) {
         throw new UnexpectedException("There is no need to merge stream data with database data.");
     }
 
-    @Override public H2SqlEntity prepareBatchUpdate(Data data) {
+    @Override public H2SqlEntity prepareBatchUpdate(GlobalTrace data) {
         throw new UnexpectedException("There is no need to merge stream data with database data.");
     }
 
-    @Override public H2SqlEntity prepareBatchInsert(Data data) {
+    @Override public H2SqlEntity prepareBatchInsert(GlobalTrace data) {
         Map<String, Object> source = new HashMap<>();
         H2SqlEntity entity = new H2SqlEntity();
-        source.put(GlobalTraceTable.COLUMN_ID, data.getDataString(0));
-        source.put(GlobalTraceTable.COLUMN_SEGMENT_ID, data.getDataString(1));
-        source.put(GlobalTraceTable.COLUMN_GLOBAL_TRACE_ID, data.getDataString(2));
-        source.put(GlobalTraceTable.COLUMN_TIME_BUCKET, data.getDataLong(0));
+        source.put(GlobalTraceTable.COLUMN_ID, data.getId());
+        source.put(GlobalTraceTable.COLUMN_SEGMENT_ID, data.getSegmentId());
+        source.put(GlobalTraceTable.COLUMN_GLOBAL_TRACE_ID, data.getGlobalTraceId());
+        source.put(GlobalTraceTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
         logger.debug("global trace source: {}", source.toString());
 
         String sql = SqlBuilder.buildBatchInsertSql(GlobalTraceTable.TABLE, source.keySet());
