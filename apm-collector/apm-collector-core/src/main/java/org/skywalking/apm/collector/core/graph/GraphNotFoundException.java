@@ -16,29 +16,13 @@
  * Project repository: https://github.com/OpenSkywalking/skywalking
  */
 
-package org.skywalking.apm.collector.stream.graph;
-
-import java.util.ArrayList;
-import java.util.List;
-import org.skywalking.apm.collector.core.data.Data;
-import org.skywalking.apm.collector.core.framework.Executor;
+package org.skywalking.apm.collector.core.graph;
 
 /**
- * @author peng-yongsheng
+ * @author wusheng
  */
-public class Next<Input extends Data> implements Executor<Input> {
-
-    private final List<Node> nextNodes;
-
-    public Next() {
-        this.nextNodes = new ArrayList<>();
-    }
-
-    public final void addNext(Node node) {
-        nextNodes.add(node);
-    }
-
-    @Override public void execute(Input input) {
-        nextNodes.forEach(node -> node.execute(input));
+public class GraphNotFoundException extends RuntimeException {
+    public GraphNotFoundException(String message) {
+        super(message);
     }
 }
