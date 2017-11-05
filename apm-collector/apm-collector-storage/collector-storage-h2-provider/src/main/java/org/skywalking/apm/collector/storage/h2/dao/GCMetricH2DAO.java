@@ -20,32 +20,32 @@ package org.skywalking.apm.collector.storage.h2.dao;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
-import org.skywalking.apm.collector.core.data.DataDefine;
+import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.skywalking.apm.collector.storage.dao.IGCMetricDAO;
 import org.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.skywalking.apm.collector.storage.h2.base.define.H2SqlEntity;
-import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
+import org.skywalking.apm.collector.storage.table.jvm.GCMetric;
 import org.skywalking.apm.collector.storage.table.jvm.GCMetricTable;
 
 /**
  * @author peng-yongsheng, clevertension
  */
-public class GCMetricH2DAO extends H2DAO implements IGCMetricDAO, IPersistenceDAO<H2SqlEntity, H2SqlEntity> {
-    @Override public Data get(String id, DataDefine dataDefine) {
+public class GCMetricH2DAO extends H2DAO implements IGCMetricDAO, IPersistenceDAO<H2SqlEntity, H2SqlEntity, GCMetric> {
+
+    @Override public GCMetric get(String id) {
         return null;
     }
 
-    @Override public H2SqlEntity prepareBatchInsert(Data data) {
+    @Override public H2SqlEntity prepareBatchInsert(GCMetric data) {
         H2SqlEntity entity = new H2SqlEntity();
         Map<String, Object> source = new HashMap<>();
-        source.put(GCMetricTable.COLUMN_ID, data.getDataString(0));
-        source.put(GCMetricTable.COLUMN_INSTANCE_ID, data.getDataInteger(0));
-        source.put(GCMetricTable.COLUMN_PHRASE, data.getDataInteger(1));
-        source.put(GCMetricTable.COLUMN_COUNT, data.getDataLong(0));
-        source.put(GCMetricTable.COLUMN_TIME, data.getDataLong(1));
-        source.put(GCMetricTable.COLUMN_TIME_BUCKET, data.getDataLong(2));
+        source.put(GCMetricTable.COLUMN_ID, data.getId());
+        source.put(GCMetricTable.COLUMN_INSTANCE_ID, data.getInstanceId());
+        source.put(GCMetricTable.COLUMN_PHRASE, data.getPhrase());
+        source.put(GCMetricTable.COLUMN_COUNT, data.getCount());
+        source.put(GCMetricTable.COLUMN_TIME, data.getTime());
+        source.put(GCMetricTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
 
         String sql = SqlBuilder.buildBatchInsertSql(GCMetricTable.TABLE, source.keySet());
         entity.setSql(sql);
@@ -53,7 +53,7 @@ public class GCMetricH2DAO extends H2DAO implements IGCMetricDAO, IPersistenceDA
         return entity;
     }
 
-    @Override public H2SqlEntity prepareBatchUpdate(Data data) {
+    @Override public H2SqlEntity prepareBatchUpdate(GCMetric data) {
         return null;
     }
 }

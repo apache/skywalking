@@ -20,34 +20,34 @@ package org.skywalking.apm.collector.storage.h2.dao;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
-import org.skywalking.apm.collector.core.data.DataDefine;
+import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.skywalking.apm.collector.storage.dao.IMemoryPoolMetricDAO;
 import org.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.skywalking.apm.collector.storage.h2.base.define.H2SqlEntity;
-import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
+import org.skywalking.apm.collector.storage.table.jvm.MemoryPoolMetric;
 import org.skywalking.apm.collector.storage.table.jvm.MemoryPoolMetricTable;
 
 /**
  * @author peng-yongsheng, clevertension
  */
-public class MemoryPoolMetricH2DAO extends H2DAO implements IMemoryPoolMetricDAO, IPersistenceDAO<H2SqlEntity, H2SqlEntity> {
-    @Override public Data get(String id, DataDefine dataDefine) {
+public class MemoryPoolMetricH2DAO extends H2DAO implements IMemoryPoolMetricDAO, IPersistenceDAO<H2SqlEntity, H2SqlEntity, MemoryPoolMetric> {
+
+    @Override public MemoryPoolMetric get(String id) {
         return null;
     }
 
-    @Override public H2SqlEntity prepareBatchInsert(Data data) {
+    @Override public H2SqlEntity prepareBatchInsert(MemoryPoolMetric data) {
         H2SqlEntity entity = new H2SqlEntity();
         Map<String, Object> source = new HashMap<>();
-        source.put(MemoryPoolMetricTable.COLUMN_ID, data.getDataString(0));
-        source.put(MemoryPoolMetricTable.COLUMN_INSTANCE_ID, data.getDataInteger(0));
-        source.put(MemoryPoolMetricTable.COLUMN_POOL_TYPE, data.getDataInteger(1));
-        source.put(MemoryPoolMetricTable.COLUMN_INIT, data.getDataLong(0));
-        source.put(MemoryPoolMetricTable.COLUMN_MAX, data.getDataLong(1));
-        source.put(MemoryPoolMetricTable.COLUMN_USED, data.getDataLong(2));
-        source.put(MemoryPoolMetricTable.COLUMN_COMMITTED, data.getDataLong(3));
-        source.put(MemoryPoolMetricTable.COLUMN_TIME_BUCKET, data.getDataLong(4));
+        source.put(MemoryPoolMetricTable.COLUMN_ID, data.getId());
+        source.put(MemoryPoolMetricTable.COLUMN_INSTANCE_ID, data.getInstanceId());
+        source.put(MemoryPoolMetricTable.COLUMN_POOL_TYPE, data.getPoolType());
+        source.put(MemoryPoolMetricTable.COLUMN_INIT, data.getInit());
+        source.put(MemoryPoolMetricTable.COLUMN_MAX, data.getMax());
+        source.put(MemoryPoolMetricTable.COLUMN_USED, data.getUsed());
+        source.put(MemoryPoolMetricTable.COLUMN_COMMITTED, data.getCommitted());
+        source.put(MemoryPoolMetricTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
 
         String sql = SqlBuilder.buildBatchInsertSql(MemoryPoolMetricTable.TABLE, source.keySet());
         entity.setSql(sql);
@@ -55,7 +55,7 @@ public class MemoryPoolMetricH2DAO extends H2DAO implements IMemoryPoolMetricDAO
         return entity;
     }
 
-    @Override public H2SqlEntity prepareBatchUpdate(Data data) {
+    @Override public H2SqlEntity prepareBatchUpdate(MemoryPoolMetric data) {
         return null;
     }
 }

@@ -20,34 +20,34 @@ package org.skywalking.apm.collector.storage.h2.dao;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
-import org.skywalking.apm.collector.core.data.DataDefine;
+import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.skywalking.apm.collector.storage.dao.IMemoryMetricDAO;
 import org.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.skywalking.apm.collector.storage.h2.base.define.H2SqlEntity;
-import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
+import org.skywalking.apm.collector.storage.table.jvm.MemoryMetric;
 import org.skywalking.apm.collector.storage.table.jvm.MemoryMetricTable;
 
 /**
  * @author peng-yongsheng, clevertension
  */
-public class MemoryMetricH2DAO extends H2DAO implements IMemoryMetricDAO, IPersistenceDAO<H2SqlEntity, H2SqlEntity> {
-    @Override public Data get(String id, DataDefine dataDefine) {
+public class MemoryMetricH2DAO extends H2DAO implements IMemoryMetricDAO, IPersistenceDAO<H2SqlEntity, H2SqlEntity, MemoryMetric> {
+
+    @Override public MemoryMetric get(String id) {
         return null;
     }
 
-    @Override public H2SqlEntity prepareBatchInsert(Data data) {
+    @Override public H2SqlEntity prepareBatchInsert(MemoryMetric data) {
         H2SqlEntity entity = new H2SqlEntity();
         Map<String, Object> source = new HashMap<>();
-        source.put(MemoryMetricTable.COLUMN_ID, data.getDataString(0));
-        source.put(MemoryMetricTable.COLUMN_INSTANCE_ID, data.getDataInteger(0));
-        source.put(MemoryMetricTable.COLUMN_IS_HEAP, data.getDataBoolean(0));
-        source.put(MemoryMetricTable.COLUMN_INIT, data.getDataLong(0));
-        source.put(MemoryMetricTable.COLUMN_MAX, data.getDataLong(1));
-        source.put(MemoryMetricTable.COLUMN_USED, data.getDataLong(2));
-        source.put(MemoryMetricTable.COLUMN_COMMITTED, data.getDataLong(3));
-        source.put(MemoryMetricTable.COLUMN_TIME_BUCKET, data.getDataLong(4));
+        source.put(MemoryMetricTable.COLUMN_ID, data.getId());
+        source.put(MemoryMetricTable.COLUMN_INSTANCE_ID, data.getInstanceId());
+        source.put(MemoryMetricTable.COLUMN_IS_HEAP, data.getIsHeap());
+        source.put(MemoryMetricTable.COLUMN_INIT, data.getInit());
+        source.put(MemoryMetricTable.COLUMN_MAX, data.getMax());
+        source.put(MemoryMetricTable.COLUMN_USED, data.getUsed());
+        source.put(MemoryMetricTable.COLUMN_COMMITTED, data.getCommitted());
+        source.put(MemoryMetricTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
 
         String sql = SqlBuilder.buildBatchInsertSql(MemoryMetricTable.TABLE, source.keySet());
         entity.setSql(sql);
@@ -55,7 +55,7 @@ public class MemoryMetricH2DAO extends H2DAO implements IMemoryMetricDAO, IPersi
         return entity;
     }
 
-    @Override public H2SqlEntity prepareBatchUpdate(Data data) {
+    @Override public H2SqlEntity prepareBatchUpdate(MemoryMetric data) {
         return null;
     }
 }

@@ -20,13 +20,12 @@ package org.skywalking.apm.collector.storage.h2.dao;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
-import org.skywalking.apm.collector.core.data.DataDefine;
+import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.skywalking.apm.collector.storage.dao.ICpuMetricDAO;
 import org.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.skywalking.apm.collector.storage.h2.base.define.H2SqlEntity;
-import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
+import org.skywalking.apm.collector.storage.table.jvm.CpuMetric;
 import org.skywalking.apm.collector.storage.table.jvm.CpuMetricTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,29 +33,29 @@ import org.slf4j.LoggerFactory;
 /**
  * @author peng-yongsheng, clevertension
  */
-public class CpuMetricH2DAO extends H2DAO implements ICpuMetricDAO, IPersistenceDAO<H2SqlEntity, H2SqlEntity> {
+public class CpuMetricH2DAO extends H2DAO implements ICpuMetricDAO, IPersistenceDAO<H2SqlEntity, H2SqlEntity, CpuMetric> {
     private final Logger logger = LoggerFactory.getLogger(CpuMetricH2DAO.class);
 
-    @Override public Data get(String id, DataDefine dataDefine) {
+    @Override public CpuMetric get(String id) {
         return null;
     }
 
-    @Override public H2SqlEntity prepareBatchInsert(Data data) {
+    @Override public H2SqlEntity prepareBatchInsert(CpuMetric data) {
         H2SqlEntity entity = new H2SqlEntity();
         Map<String, Object> source = new HashMap<>();
-        source.put(CpuMetricTable.COLUMN_ID, data.getDataString(0));
-        source.put(CpuMetricTable.COLUMN_INSTANCE_ID, data.getDataInteger(0));
-        source.put(CpuMetricTable.COLUMN_USAGE_PERCENT, data.getDataDouble(0));
-        source.put(CpuMetricTable.COLUMN_TIME_BUCKET, data.getDataLong(0));
+        source.put(CpuMetricTable.COLUMN_ID, data.getId());
+        source.put(CpuMetricTable.COLUMN_INSTANCE_ID, data.getInstanceId());
+        source.put(CpuMetricTable.COLUMN_USAGE_PERCENT, data.getUsagePercent());
+        source.put(CpuMetricTable.COLUMN_TIME_BUCKET, data.getTimeBucket());
 
-        logger.debug("prepare cpu metric batch insert, getId: {}", data.getDataString(0));
+        logger.debug("prepare cpu metric batch insert, getId: {}", data.getId());
         String sql = SqlBuilder.buildBatchInsertSql(CpuMetricTable.TABLE, source.keySet());
         entity.setSql(sql);
         entity.setParams(source.values().toArray(new Object[0]));
         return entity;
     }
 
-    @Override public H2SqlEntity prepareBatchUpdate(Data data) {
+    @Override public H2SqlEntity prepareBatchUpdate(CpuMetric data) {
         return null;
     }
 }

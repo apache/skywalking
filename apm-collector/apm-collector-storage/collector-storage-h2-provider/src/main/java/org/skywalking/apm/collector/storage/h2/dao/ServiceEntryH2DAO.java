@@ -26,13 +26,12 @@ import java.util.List;
 import java.util.Map;
 import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.client.h2.H2ClientException;
-import org.skywalking.apm.collector.core.data.Data;
 import org.skywalking.apm.collector.storage.base.dao.IPersistenceDAO;
-import org.skywalking.apm.collector.core.data.DataDefine;
+import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.skywalking.apm.collector.storage.dao.IServiceEntryDAO;
 import org.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
 import org.skywalking.apm.collector.storage.h2.base.define.H2SqlEntity;
-import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
+import org.skywalking.apm.collector.storage.table.service.ServiceEntry;
 import org.skywalking.apm.collector.storage.table.service.ServiceEntryTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,23 +39,24 @@ import org.slf4j.LoggerFactory;
 /**
  * @author peng-yongsheng, clevertension
  */
-public class ServiceEntryH2DAO extends H2DAO implements IServiceEntryDAO, IPersistenceDAO<H2SqlEntity, H2SqlEntity> {
+public class ServiceEntryH2DAO extends H2DAO implements IServiceEntryDAO, IPersistenceDAO<H2SqlEntity, H2SqlEntity, ServiceEntry> {
+
     private final Logger logger = LoggerFactory.getLogger(ServiceEntryH2DAO.class);
     private static final String GET_SERVICE_ENTRY_SQL = "select * from {0} where {1} = ?";
 
-    @Override public Data get(String id, DataDefine dataDefine) {
+    @Override public ServiceEntry get(String id) {
         H2Client client = getClient();
         String sql = SqlBuilder.buildSql(GET_SERVICE_ENTRY_SQL, ServiceEntryTable.TABLE, ServiceEntryTable.COLUMN_ID);
         Object[] params = new Object[] {id};
         try (ResultSet rs = client.executeQuery(sql, params)) {
             if (rs.next()) {
-                Data data = dataDefine.build(id);
-                data.setDataInteger(0, rs.getInt(ServiceEntryTable.COLUMN_APPLICATION_ID));
-                data.setDataInteger(1, rs.getInt(ServiceEntryTable.COLUMN_ENTRY_SERVICE_ID));
-                data.setDataString(1, rs.getString(ServiceEntryTable.COLUMN_ENTRY_SERVICE_NAME));
-                data.setDataLong(0, rs.getLong(ServiceEntryTable.COLUMN_REGISTER_TIME));
-                data.setDataLong(1, rs.getLong(ServiceEntryTable.COLUMN_NEWEST_TIME));
-                return data;
+                ServiceEntry serviceEntry = new ServiceEntry(id);
+                serviceEntry.setApplicationId(rs.getInt(ServiceEntryTable.COLUMN_APPLICATION_ID));
+                serviceEntry.setEntryServiceId(rs.getInt(ServiceEntryTable.COLUMN_ENTRY_SERVICE_ID));
+                serviceEntry.setEntryServiceName(rs.getString(ServiceEntryTable.COLUMN_ENTRY_SERVICE_NAME));
+                serviceEntry.setRegisterTime(rs.getLong(ServiceEntryTable.COLUMN_REGISTER_TIME));
+                serviceEntry.setNewestTime(rs.getLong(ServiceEntryTable.COLUMN_NEWEST_TIME));
+                return serviceEntry;
             }
         } catch (SQLException | H2ClientException e) {
             logger.error(e.getMessage(), e);
@@ -64,34 +64,33 @@ public class ServiceEntryH2DAO extends H2DAO implements IServiceEntryDAO, IPersi
         return null;
     }
 
-    @Override public H2SqlEntity prepareBatchInsert(Data data) {
+    @Override public H2SqlEntity prepareBatchInsert(ServiceEntry data) {
         H2SqlEntity entity = new H2SqlEntity();
         Map<String, Object> source = new HashMap<>();
-        source.put(ServiceEntryTable.COLUMN_ID, data.getDataString(0));
-        source.put(ServiceEntryTable.COLUMN_APPLICATION_ID, data.getDataInteger(0));
-        source.put(ServiceEntryTable.COLUMN_ENTRY_SERVICE_ID, data.getDataInteger(1));
-        source.put(ServiceEntryTable.COLUMN_ENTRY_SERVICE_NAME, data.getDataString(1));
-        source.put(ServiceEntryTable.COLUMN_REGISTER_TIME, data.getDataLong(0));
-        source.put(ServiceEntryTable.COLUMN_NEWEST_TIME, data.getDataLong(1));
+        source.put(ServiceEntryTable.COLUMN_ID, data.getId());
+        source.put(ServiceEntryTable.COLUMN_APPLICATION_ID, data.getApplicationId());
+        source.put(ServiceEntryTable.COLUMN_ENTRY_SERVICE_ID, data.getEntryServiceId());
+        source.put(ServiceEntryTable.COLUMN_ENTRY_SERVICE_NAME, data.getEntryServiceName());
+        source.put(ServiceEntryTable.COLUMN_REGISTER_TIME, data.getRegisterTime());
+        source.put(ServiceEntryTable.COLUMN_NEWEST_TIME, data.getNewestTime());
         String sql = SqlBuilder.buildBatchInsertSql(ServiceEntryTable.TABLE, source.keySet());
         entity.setSql(sql);
         entity.setParams(source.values().toArray(new Object[0]));
         return entity;
     }
 
-    @Override public H2SqlEntity prepareBatchUpdate(Data data) {
+    @Override public H2SqlEntity prepareBatchUpdate(ServiceEntry data) {
         H2SqlEntity entity = new H2SqlEntity();
         Map<String, Object> source = new HashMap<>();
-        source.put(ServiceEntryTable.COLUMN_APPLICATION_ID, data.getDataInteger(0));
-        source.put(ServiceEntryTable.COLUMN_ENTRY_SERVICE_ID, data.getDataInteger(1));
-        source.put(ServiceEntryTable.COLUMN_ENTRY_SERVICE_NAME, data.getDataString(1));
-        source.put(ServiceEntryTable.COLUMN_REGISTER_TIME, data.getDataLong(0));
-        source.put(ServiceEntryTable.COLUMN_NEWEST_TIME, data.getDataLong(1));
-        String id = data.getDataString(0);
+        source.put(ServiceEntryTable.COLUMN_APPLICATION_ID, data.getApplicationId());
+        source.put(ServiceEntryTable.COLUMN_ENTRY_SERVICE_ID, data.getEntryServiceId());
+        source.put(ServiceEntryTable.COLUMN_ENTRY_SERVICE_NAME, data.getEntryServiceName());
+        source.put(ServiceEntryTable.COLUMN_REGISTER_TIME, data.getRegisterTime());
+        source.put(ServiceEntryTable.COLUMN_NEWEST_TIME, data.getNewestTime());
         String sql = SqlBuilder.buildBatchUpdateSql(ServiceEntryTable.TABLE, source.keySet(), ServiceEntryTable.COLUMN_ID);
         entity.setSql(sql);
         List<Object> values = new ArrayList<>(source.values());
-        values.add(id);
+        values.add(data.getId());
         entity.setParams(values.toArray(new Object[0]));
         return entity;
     }

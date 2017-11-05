@@ -24,10 +24,9 @@ import java.util.HashMap;
 import java.util.Map;
 import org.skywalking.apm.collector.client.h2.H2Client;
 import org.skywalking.apm.collector.client.h2.H2ClientException;
-import org.skywalking.apm.collector.core.data.Data;
+import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.skywalking.apm.collector.storage.dao.IInstanceDAO;
 import org.skywalking.apm.collector.storage.h2.base.dao.H2DAO;
-import org.skywalking.apm.collector.storage.base.sql.SqlBuilder;
 import org.skywalking.apm.collector.storage.table.register.Instance;
 import org.skywalking.apm.collector.storage.table.register.InstanceTable;
 import org.slf4j.Logger;
@@ -66,24 +65,16 @@ public class InstanceH2DAO extends H2DAO implements IInstanceDAO {
         return getMinId(InstanceTable.TABLE, InstanceTable.COLUMN_INSTANCE_ID);
     }
 
-    @Override public void save(Data data) {
-        String id = Instance.Instance.INSTANCE.getId(data);
-        int instanceId = Instance.Instance.INSTANCE.getInstanceId(data);
-        int applicationId = Instance.Instance.INSTANCE.getApplicationId(data);
-        String agentUUID = Instance.Instance.INSTANCE.getAgentUUID(data);
-        long registerTime = Instance.Instance.INSTANCE.getRegisterTime(data);
-        long heartBeatTime = Instance.Instance.INSTANCE.getHeartBeatTime(data);
-        String osInfo = Instance.Instance.INSTANCE.getOsInfo(data);
-
+    @Override public void save(Instance instance) {
         H2Client client = getClient();
         Map<String, Object> source = new HashMap<>();
-        source.put(InstanceTable.COLUMN_ID, id);
-        source.put(InstanceTable.COLUMN_INSTANCE_ID, instanceId);
-        source.put(InstanceTable.COLUMN_APPLICATION_ID, applicationId);
-        source.put(InstanceTable.COLUMN_AGENT_UUID, agentUUID);
-        source.put(InstanceTable.COLUMN_REGISTER_TIME, registerTime);
-        source.put(InstanceTable.COLUMN_HEARTBEAT_TIME, heartBeatTime);
-        source.put(InstanceTable.COLUMN_OS_INFO, osInfo);
+        source.put(InstanceTable.COLUMN_ID, instance.getId());
+        source.put(InstanceTable.COLUMN_INSTANCE_ID, instance.getInstanceId());
+        source.put(InstanceTable.COLUMN_APPLICATION_ID, instance.getApplicationId());
+        source.put(InstanceTable.COLUMN_AGENT_UUID, instance.getAgentUUID());
+        source.put(InstanceTable.COLUMN_REGISTER_TIME, instance.getRegisterTime());
+        source.put(InstanceTable.COLUMN_HEARTBEAT_TIME, instance.getHeartBeatTime());
+        source.put(InstanceTable.COLUMN_OS_INFO, instance.getOsInfo());
         String sql = SqlBuilder.buildBatchInsertSql(InstanceTable.TABLE, source.keySet());
         Object[] params = source.values().toArray(new Object[0]);
         try {
